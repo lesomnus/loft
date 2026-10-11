@@ -127,6 +127,7 @@ export function tone(v: string): 'ok' | 'warn' | 'bad' | 'mute' | 'info' {
 		case 'ok':
 		case 'seen':
 		case 'bound':
+		case 'accepted':
 			return 'ok'
 		case 'in_repair':
 		case 'damaged':
@@ -144,6 +145,7 @@ export function tone(v: string): 'ok' | 'warn' | 'bad' | 'mute' | 'info' {
 		case 'no_show':
 		case 'missing':
 		case 'unknown':
+		case 'denied':
 			return 'bad'
 		case 'in_use':
 		case 'ordered':

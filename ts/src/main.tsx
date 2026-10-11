@@ -31,6 +31,7 @@ import { App } from './app.js'
 import { Mark } from './marks.js'
 import { Rpc } from './rpc.js'
 import { Spinner, Toasts } from './ui.js'
+import { Inbox } from './invitations.js'
 import { Elsewhere } from './workspaces.js'
 import './style.css'
 
@@ -157,6 +158,7 @@ type State =
 	| { at: 'out'; ways: Ways }
 	| { at: 'unknown'; why: string }
 	| { at: 'elsewhere'; account: Account }
+	| { at: 'inbox'; account: Account }
 	| { at: 'in'; account: Account }
 
 function Boot(): ReactNode {
@@ -171,6 +173,12 @@ function Boot(): ReactNode {
 			setWays(w)
 			if (a === 'out') {
 				setState({ at: 'out', ways: w })
+				return
+			}
+			// The invitations waiting for the account: about no workspace, and
+			// opened by the link an invitation's mail carries.
+			if (location.pathname === '/invitations') {
+				setState({ at: 'inbox', account: a })
 				return
 			}
 			if (workspace === '') {
@@ -233,6 +241,8 @@ function Boot(): ReactNode {
 			)
 		case 'elsewhere':
 			return <Elsewhere account={state.account} onSignOut={signOut} />
+		case 'inbox':
+			return <Inbox account={state.account} onSignOut={signOut} />
 		case 'in':
 			return (
 				<Rpc onSignedOut={out}>

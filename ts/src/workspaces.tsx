@@ -11,6 +11,7 @@
 import { useState, type ReactNode } from 'react'
 
 import { makeWorkspace, openWorkspace, workspace, type Account } from './api.js'
+import { useWaiting } from './invitations.js'
 
 /** The form that makes a workspace and opens it. */
 function Make(props: { onCancel?: () => void }): ReactNode {
@@ -50,10 +51,14 @@ function Make(props: { onCancel?: () => void }): ReactNode {
 /** The workspaces an account is in, for going to another, and making one. */
 export function Switcher(props: { account: Account; current: string }): ReactNode {
 	const [making, setMaking] = useState(false)
+	const waiting = useWaiting(props.account)
 	const full = props.account.may !== undefined && props.account.owns >= props.account.may
 	return (
 		<details className="switcher">
-			<summary>{props.current}</summary>
+			<summary>
+				{props.current}
+				{waiting > 0 && <span className="dot" title={`받은 초대 ${waiting}개`} />}
+			</summary>
 			<ul>
 				{props.account.workspaces.map((w) => (
 					<li key={w.id}>
@@ -64,6 +69,9 @@ export function Switcher(props: { account: Account; current: string }): ReactNod
 					</li>
 				))}
 			</ul>
+			<a className="link invites" href="/invitations">
+				받은 초대{waiting > 0 && <span className="badge info">{waiting}</span>}
+			</a>
 			{making ? (
 				<Make onCancel={() => setMaking(false)} />
 			) : (
@@ -106,6 +114,9 @@ export function Elsewhere(props: { account: Account; onSignOut: () => void }): R
 					</>
 				)}
 				<Make />
+				<a className="link" href="/invitations">
+					받은 초대 보기
+				</a>
 				<button className="link" onClick={props.onSignOut}>
 					로그아웃
 				</button>
