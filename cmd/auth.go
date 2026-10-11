@@ -81,6 +81,17 @@ func Resolver(s app.Server, db *ent.Client) auth.Resolver {
 			return nil, err
 		}
 
+		// A closed workspace is nobody's to use, and its owner's to restore or
+		// to read (D29). Here, at the call that came in, and not in the
+		// policy: what the domain layer calls on the way to a restore goes
+		// through the gate too, as the same owner.
+		if v.GetTenant().HasDateClosed() {
+			m, _ := grpc.Method(ctx)
+			if v.GetRole() != "owner" || !WhileClosed[m] {
+				return nil, status.Error(codes.FailedPrecondition, "닫힌 워크스페이스입니다")
+			}
+		}
+
 		actor, err := pdid.From(v.GetId())
 		if err != nil {
 			return nil, err
@@ -95,6 +106,14 @@ func Resolver(s app.Server, db *ent.Client) auth.Resolver {
 		// so a resolver cannot widen a token by forgetting.
 		return frame.New(actor, tenant, frame.Grant{}).WithRow(v), nil
 	})
+}
+
+// WhileClosed is what a closed workspace's owner may still call: the
+// workspace itself, to see it, and its restore. Taking its data out is HTTP
+// (`server/account`).
+var WhileClosed = map[string]bool{
+	app.TenantService_Get_FullMethodName:     true,
+	app.TenantService_Restore_FullMethodName: true,
 }
 
 // AccountMethods are the calls a session makes as its account and not as a

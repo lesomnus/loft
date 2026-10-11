@@ -26,6 +26,7 @@ import {
 	workspace,
 	type Account,
 	type Ways,
+	type Workspace,
 } from './api.js'
 import { App } from './app.js'
 import { Mark } from './marks.js'
@@ -33,7 +34,7 @@ import { Rpc } from './rpc.js'
 import { Spinner, Toasts } from './ui.js'
 import { Inbox } from './invitations.js'
 import { Terminal } from './terminal.js'
-import { Elsewhere } from './workspaces.js'
+import { Closed, Elsewhere } from './workspaces.js'
 import './style.css'
 
 /** What a sign-in through the issuer came back as (`/?signin=`), in words. */
@@ -161,6 +162,7 @@ type State =
 	| { at: 'elsewhere'; account: Account }
 	| { at: 'inbox'; account: Account }
 	| { at: 'terminal'; account: Account }
+	| { at: 'closed'; account: Account; ws: Workspace }
 	| { at: 'in'; account: Account }
 
 function Boot(): ReactNode {
@@ -200,8 +202,13 @@ function Boot(): ReactNode {
 				setState({ at: 'elsewhere', account: a })
 				return
 			}
-			if (!a.workspaces.some((w) => w.alias === workspace)) {
+			const here = a.workspaces.find((w) => w.alias === workspace)
+			if (here === undefined) {
 				setState({ at: 'elsewhere', account: a })
+				return
+			}
+			if (here.closed !== undefined) {
+				setState({ at: 'closed', account: a, ws: here })
 				return
 			}
 			rememberWorkspace(workspace)
@@ -252,6 +259,8 @@ function Boot(): ReactNode {
 			return <Inbox account={state.account} onSignOut={signOut} />
 		case 'terminal':
 			return <Terminal account={state.account} onSignOut={signOut} />
+		case 'closed':
+			return <Closed account={state.account} ws={state.ws} onSignOut={signOut} />
 		case 'in':
 			return (
 				<Rpc onSignedOut={out}>

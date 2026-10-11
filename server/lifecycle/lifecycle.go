@@ -47,6 +47,8 @@ import (
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/z"
 	"github.com/protobuf-orm/ent/dialect"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	app "github.com/lesomnus/rove"
@@ -177,6 +179,11 @@ type Departed struct {
 	Workspace pdid.Id
 	Member    pdid.Id
 	domain.Departure
+
+	// Closed is a workspace the account was the last of, closed with it:
+	// its data stays through the restore window, and is destroyed after
+	// (D29).
+	Closed bool
 }
 
 // Depart is an account leaving every workspace it is in, now: what the grace
@@ -206,7 +213,11 @@ func (l Lifecycle) Depart(ctx context.Context, account pdid.Id) ([]Departed, err
 			log.From(ctx).WarnContext(ctx, "lifecycle: a workspace's last owner left, and nobody was there to hand it to",
 				"workspace", workspace.String())
 		}
-		out = append(out, Departed{Workspace: workspace, Member: pdid.Id(h.Id), Departure: v})
+		d := Departed{Workspace: workspace, Member: pdid.Id(h.Id), Departure: v}
+		if d.Closed, err = l.closeIfNobody(ctx, workspace); err != nil {
+			return out, fmt.Errorf("workspace %s: %w", workspace, err)
+		}
+		out = append(out, d)
 	}
 
 	// And the invitations it claimed or answered where it never became a
@@ -229,6 +240,33 @@ func (l Lifecycle) Depart(ctx context.Context, account pdid.Id) ([]Departed, err
 		l.People.Recheck(account)
 	}
 	return out, nil
+}
+
+// closeIfNobody closes a workspace nobody is left in (design 8.4: one only
+// that account was in goes the way a closed workspace goes), and says why when
+// only auditors are -- who may change nothing, so nobody can look after it,
+// and an operator has to.
+func (l Lifecycle) closeIfNobody(ctx context.Context, workspace pdid.Id) (bool, error) {
+	left, err := l.Db.Holder.Query().Where(holder.TenantId(workspace.Uuid()), holder.DateErasedIsNil()).All(ctx)
+	if err != nil {
+		return false, err
+	}
+	if len(left) == 0 {
+		_, err := l.Deps.CloseWorkspace(ctx, l.Base, l.Drv, workspace, domain.ClosedByDeployment, "계정 탈퇴로 남은 구성원이 없습니다")
+		if status.Code(err) == codes.FailedPrecondition {
+			// Closed already.
+			return false, nil
+		}
+		return err == nil, err
+	}
+	for _, h := range left {
+		if h.Role != "auditor" {
+			return false, nil
+		}
+	}
+	log.From(ctx).WarnContext(ctx, "lifecycle: only auditors are left in a workspace, and nobody can look after it",
+		"workspace", workspace.String())
+	return false, nil
 }
 
 func (l Lifecycle) now() time.Time {

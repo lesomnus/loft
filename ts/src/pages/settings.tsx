@@ -11,11 +11,13 @@ import {
 	EventService,
 	ItemModelService,
 	TenantDomainService,
+	TenantService,
 	UsageSnapshotService,
 	fmt,
 	idBytes,
 	idStr,
 	ref,
+	workspace,
 } from '../api.js'
 import { modelName, useCatalog } from '../catalog.js'
 import { TypeSelect, useAssets } from '../pickers.js'
@@ -34,6 +36,7 @@ export function Settings(): ReactNode {
 		{ key: 'labels', label: '라벨 도메인' },
 		{ key: 'events', label: '작업 기록' },
 		...(c.can('admin') || c.role === 'auditor' ? [{ key: 'audit', label: '감사 기록' }, { key: 'usage', label: '사용량' }] : []),
+		...(c.can('owner') ? [{ key: 'workspace', label: '워크스페이스' }] : []),
 	]
 	return (
 		<>
@@ -46,6 +49,7 @@ export function Settings(): ReactNode {
 			{tab === 'events' && <Events />}
 			{tab === 'audit' && <Audit />}
 			{tab === 'usage' && <Usage />}
+			{tab === 'workspace' && <WorkspaceTab />}
 		</>
 	)
 }
@@ -594,5 +598,55 @@ function Usage(): ReactNode {
 				}}
 			</Load>
 		</Card>
+	)
+}
+
+/** The workspace itself, for its owner: its address, and closing it (D29). */
+function WorkspaceTab(): ReactNode {
+	const act = useAct()
+	const t = useRpc(TenantService.method.get, { ref: { key: { case: 'alias', value: workspace } } })
+	const [confirm, setConfirm] = useState('')
+	const [reason, setReason] = useState('')
+	return (
+		<Load q={t}>
+			{(v) => (
+				<>
+					<Card title="워크스페이스">
+						<dl className="kv">
+							<dt>이름</dt>
+							<dd>{v.name}</dd>
+							<dt>주소</dt>
+							<dd>
+								@{v.alias} <span className="mute small">— 바꿔야 한다면 운영자에게 요청하세요</span>
+							</dd>
+						</dl>
+					</Card>
+					<Card title="워크스페이스 닫기">
+						<p>
+							닫으면 소유자 말고는 아무도 들어오지 못합니다. 소유자는 30일 안에 복구하거나 모든 데이터를 내려받을 수 있고, 그 뒤에는 이 워크스페이스의 모든 데이터가 지워집니다. 법적 보존이 걸려 있으면 풀릴 때까지 지우지 않습니다. 주소 @{v.alias}는 1년 동안 아무도 쓰지 못하게 보류됩니다.
+						</p>
+						<Field label={`확인을 위해 워크스페이스 이름(${v.name})을 그대로 입력하세요`}>
+							<input value={confirm} onChange={(e) => setConfirm(e.target.value)} />
+						</Field>
+						<Field label="닫는 이유 (선택)">
+							<input value={reason} onChange={(e) => setReason(e.target.value)} />
+						</Field>
+						<div className="actions">
+							<button
+								className="danger"
+								disabled={confirm.trim() !== v.name.trim()}
+								onClick={() =>
+									void act(TenantService.method.close, { ref: ref(v.id), confirm, reason }, { ok: '닫았습니다.' }).then((r) => {
+										if (r !== undefined) location.reload()
+									})
+								}
+							>
+								워크스페이스 닫기
+							</button>
+						</div>
+					</Card>
+				</>
+			)}
+		</Load>
 	)
 }

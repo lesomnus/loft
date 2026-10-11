@@ -15,7 +15,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file rove/payday/tenant.proto.
  */
 export const file_rove_payday_tenant: GenFile = /*@__PURE__*/
-  fileDesc("Chhyb3ZlL3BheWRheS90ZW5hbnQucHJvdG8SBHJvdmUi5AIKBlRlbmFudBIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASFQoFYWxpYXMYBCABKAlCBuqCFgIwARIMCgRuYW1lGAUgASgJEgwKBGRlc2MYBiABKAkSKAoGbGFiZWxzGAcgAygLMhgucm92ZS5UZW5hbnQuTGFiZWxzRW50cnkSOQoMZGF0ZV91cGRhdGVkGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4oBABI7CgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgnqghYFQAGCAQAaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ATo9yvwVBBICEAGKuxYxCAEyJQoQCg4KDGRhdGVfY3JlYXRlZAoGCgQKAmlkGgUKA3JlZiAUKGRCAgoASAEaAEIfWhhnaXRodWIuY29tL2xlc29tbnVzL3JvdmWSAwIIAmIIZWRpdGlvbnNw6Ac", [file_google_protobuf_timestamp, file_orm, file_payday]);
+  fileDesc("Chhyb3ZlL3BheWRheS90ZW5hbnQucHJvdG8SBHJvdmUigAQKBlRlbmFudBIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASFQoFYWxpYXMYBCABKAlCBuqCFgIwARIMCgRuYW1lGAUgASgJEgwKBGRlc2MYBiABKAkSKAoGbGFiZWxzGAcgAygLMhgucm92ZS5UZW5hbnQuTGFiZWxzRW50cnkSOQoMZGF0ZV91cGRhdGVkGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4oBABI7CgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgnqghYFQAGCAQASNwoLZGF0ZV9jbG9zZWQYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESEQoJY2xvc2VkX2J5GAkgASgJEhQKDGNsb3NlX3JlYXNvbhgKIAEoCRI4CgxkYXRlX2Rlc3Ryb3kYCyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAEaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ATo9yvwVBBICEAGKuxYxCAEyJQoQCg4KDGRhdGVfY3JlYXRlZAoGCgQKAmlkGgUKA3JlZiAUKGRCAgoASAEaAEIfWhhnaXRodWIuY29tL2xlc29tbnVzL3JvdmWSAwIIAmIIZWRpdGlvbnNw6Ac", [file_google_protobuf_timestamp, file_orm, file_payday]);
 
 /**
  * Tenant is the wall an app is divided by.
@@ -79,6 +79,35 @@ export type Tenant = Message<"rove.Tenant"> & {
    * @generated from field: google.protobuf.Timestamp date_created = 15;
    */
   dateCreated?: Timestamp | undefined;
+
+  /**
+   * When it was closed. Null is open.
+   *
+   * @generated from field: google.protobuf.Timestamp date_closed = 8;
+   */
+  dateClosed?: Timestamp | undefined;
+
+  /**
+   * Who closed it -- `owner`, `operator`, or `deployment` when nobody was
+   * left in it -- and why, in their words.
+   *
+   * @generated from field: string closed_by = 9;
+   */
+  closedBy: string;
+
+  /**
+   * @generated from field: string close_reason = 10;
+   */
+  closeReason: string;
+
+  /**
+   * When a workspace still closed and held by nothing is destroyed: when it
+   * was closed and the restore window (`app.workspaces.restore_within`), or
+   * whatever an operator made it since.
+   *
+   * @generated from field: google.protobuf.Timestamp date_destroy = 11;
+   */
+  dateDestroy?: Timestamp | undefined;
 };
 
 /**

@@ -9,6 +9,7 @@ import (
 	patchpb "github.com/lesomnus/protobuf-patch/patchpb"
 	rove "github.com/lesomnus/rove"
 	ent "github.com/lesomnus/rove/internal/ent"
+	aliashold "github.com/lesomnus/rove/internal/ent/aliashold"
 	clilogin "github.com/lesomnus/rove/internal/ent/clilogin"
 	holder "github.com/lesomnus/rove/internal/ent/holder"
 	invitation "github.com/lesomnus/rove/internal/ent/invitation"
@@ -2063,6 +2064,468 @@ func pickCliLogin(req *rove.CliLoginRef) (predicate.CliLogin, error) {
 		}
 	case rove.CliLoginRef_Key_not_set_case:
 		return nil, status.Errorf(codes.InvalidArgument, "key not set: CliLogin")
+	default:
+		return nil, status.Errorf(codes.Unimplemented, "unknown type of key: %s", req.WhichKey())
+	}
+}
+
+type AliasHoldServiceServer struct {
+	Store
+
+	rove.UnimplementedAliasHoldServiceServer
+}
+
+// NewAliasHoldServiceServer answers with a server that runs its queries with `db`.
+//
+// It takes the options of [Server] so that what is built here can be told
+// where to report its writes and what it may see. Built without them, it
+// reports nowhere and sees everything.
+func NewAliasHoldServiceServer(db *ent.Client, opts ...Option) rove.AliasHoldServiceServer {
+	s := Server{Store: Store{Db: db}}
+	for _, opt := range opts {
+		opt(&s)
+	}
+	return AliasHoldServiceServer{Store: s.Store}
+}
+
+// AliasHoldNarrow answers with `p` and everything else that narrows a
+// read of a AliasHold: the rows that have not been erased, and whatever
+// `scope` says of those.
+//
+// Every read this package makes goes through it, and a read written by
+// hand should too -- a List is the one read nothing generates, and so the
+// one that would otherwise answer with rows nobody should be given.
+func AliasHoldNarrow(ctx context.Context, scope Scope, p predicate.AliasHold) (predicate.AliasHold, error) {
+	ps := make([]predicate.AliasHold, 0, 3)
+
+	// A row that was erased is not a row a read answers with.
+	ps = append(ps, aliashold.DateErasedIsNil())
+	if p != nil {
+		ps = append(ps, p)
+	}
+	if scope != nil {
+		q, err := scope.AliasHoldScope(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if q != nil {
+			ps = append(ps, q)
+		}
+	}
+
+	switch len(ps) {
+	case 0:
+		return nil, nil
+	case 1:
+		return ps[0], nil
+	default:
+		return aliashold.And(ps...), nil
+	}
+}
+
+// narrow is [AliasHoldNarrow] with this server's own scope.
+func (s AliasHoldServiceServer) narrow(ctx context.Context, p predicate.AliasHold) (predicate.AliasHold, error) {
+	return AliasHoldNarrow(ctx, s.Scope, p)
+}
+
+func (s AliasHoldServiceServer) Add(ctx context.Context, req *rove.AliasHoldAddRequest) (*rove.AliasHold, error) {
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	q := st.Db.AliasHold.Create()
+	var k uuid.UUID
+	if req.HasId() {
+		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+		} else {
+			k = v
+		}
+	}
+	if v, err := mint(ctx, s.Mint, "rove.AliasHold", k, req.HasId()); err != nil {
+		return nil, err
+	} else {
+		q.SetId(v)
+	}
+	q.SetHeld(req.GetHeld())
+	q.SetReason(req.GetReason())
+	q.SetMovedTo(req.GetMovedTo())
+	if v, err := entuuid.FromBytes(req.GetTenant()); err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "tenant: %s", err)
+	} else {
+		q.SetTenant(v)
+	}
+	if req.HasDateUntil() {
+		q.SetDateUntil(req.GetDateUntil().AsTime())
+	} else {
+		q.SetDateUntil(st.now())
+	}
+	q.SetDateUpdated(st.now())
+	if req.HasDateCreated() {
+		q.SetDateCreated(req.GetDateCreated().AsTime())
+	} else {
+		q.SetDateCreated(st.now())
+	}
+
+	u, err := q.Save(ctx)
+	if err != nil {
+		if err, ok := err.(*ent.ConstraintError); ok {
+			if sqlgraph.IsUniqueConstraintError(err) {
+				return nil, status.Error(codes.AlreadyExists, "AliasHold already exists")
+			}
+			if sqlgraph.IsForeignKeyConstraintError(err) {
+				return nil, status.Error(codes.NotFound, "AliasHold: referenced entity not found")
+			}
+		}
+		return nil, err
+	}
+
+	if err := record(ctx, s.Rec, st.Db, Change{
+		By:  rove.AliasHoldService_Add_FullMethodName,
+		Key: u.Id,
+	}); err != nil {
+		return nil, err
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+
+	return u.Proto(), nil
+}
+
+func (s AliasHoldServiceServer) Get(ctx context.Context, req *rove.AliasHoldGetRequest) (*rove.AliasHold, error) {
+	p, err := AliasHoldPick(req.GetRef())
+	if err != nil {
+		return nil, err
+	}
+	p, err = s.narrow(ctx, p)
+	if err != nil {
+		return nil, err
+	}
+
+	q := s.Db.AliasHold.Query().Where(p)
+	AliasHoldSelectInit(q, req.GetSelect())
+
+	v, err := q.Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, status.Error(codes.NotFound, "AliasHold not found")
+		}
+		return nil, err
+	}
+	return v.Proto(), nil
+}
+
+func selectAliasHoldKey(q *ent.AliasHoldQuery) {
+	q.Select(aliashold.FieldId)
+}
+
+func AliasHoldSelectedFields(m *rove.AliasHoldSelect) []string {
+	if m.GetAll() {
+		return aliashold.Columns
+	}
+
+	vs := make([]string, 0, len(aliashold.Columns))
+	{
+		vs = append(vs, aliashold.FieldId)
+	}
+	if m.GetHeld() {
+		vs = append(vs, aliashold.FieldHeld)
+	}
+	if m.GetReason() {
+		vs = append(vs, aliashold.FieldReason)
+	}
+	if m.GetMovedTo() {
+		vs = append(vs, aliashold.FieldMovedTo)
+	}
+	if m.GetTenant() {
+		vs = append(vs, aliashold.FieldTenant)
+	}
+	if m.GetDateUntil() {
+		vs = append(vs, aliashold.FieldDateUntil)
+	}
+	if m.GetDateUpdated() {
+		vs = append(vs, aliashold.FieldDateUpdated)
+	}
+	if m.GetDateErased() {
+		vs = append(vs, aliashold.FieldDateErased)
+	}
+	if m.GetDateCreated() {
+		vs = append(vs, aliashold.FieldDateCreated)
+	}
+
+	return vs
+}
+
+func AliasHoldSelect(q *ent.AliasHoldQuery, m *rove.AliasHoldSelect) {
+	if !m.GetAll() {
+		fields := AliasHoldSelectedFields(m)
+		q.Select(fields...)
+	}
+}
+
+func AliasHoldSelectInit(q *ent.AliasHoldQuery, m *rove.AliasHoldSelect) {
+	if m != nil {
+		AliasHoldSelect(q, m)
+	} else {
+	}
+}
+
+func (s AliasHoldServiceServer) Patch(ctx context.Context, req *rove.AliasHoldPatchRequest) (*rove.AliasHold, error) {
+	doc, err := ormpatch.FromPatchRequest(aliasHoldOrmEntity, req.ProtoReflect(), nil)
+	if err != nil {
+		if _, ok := status.FromError(err); ok {
+			return nil, err
+		}
+		if errors.Is(err, ormpatch.ErrRequestLayout) {
+			return nil, status.Errorf(codes.Internal, "%s", err)
+		}
+		if errors.Is(err, ormpatch.ErrUnsupported) {
+			return nil, status.Errorf(codes.Unimplemented, "%s", err)
+		}
+		return nil, status.Errorf(codes.InvalidArgument, "%s", err)
+	}
+
+	return s.apply(ctx, req.GetRef(), doc, rove.AliasHoldService_Patch_FullMethodName)
+}
+
+func AliasHoldGetKey(ctx context.Context, db *ent.Client, ref *rove.AliasHoldRef) (uuid.UUID, error) {
+	var z uuid.UUID
+	if ref.HasId() {
+		if v, err := entuuid.FromBytes(ref.GetId()); err != nil {
+			return z, status.Errorf(codes.InvalidArgument, "id: %s", err)
+		} else {
+			return v, nil
+		}
+	}
+
+	p, err := AliasHoldPick(ref)
+	if err != nil {
+		return z, err
+	}
+
+	v, err := db.AliasHold.Query().Where(p).OnlyId(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return z, status.Error(codes.NotFound, "AliasHold not found")
+		}
+		return z, err
+	}
+
+	return v, nil
+}
+
+var aliasHoldOrmEntity = ormpatch.MustEntityOf(rove.File_rove_org_proto, "AliasHold")
+
+var aliasHoldPatchColumns = entpatch.Columns{
+	1: aliashold.FieldId, 8: aliashold.FieldHeld, 9: aliashold.FieldReason, 10: aliashold.FieldMovedTo, 11: aliashold.FieldTenant, 16: aliashold.FieldDateUntil, 13: aliashold.FieldDateUpdated, 14: aliashold.FieldDateErased, 15: aliashold.FieldDateCreated}
+
+func (s AliasHoldServiceServer) Apply(ctx context.Context, req *rove.AliasHoldApplyRequest) (*rove.AliasHold, error) {
+	if !req.HasPatch() {
+		return nil, status.Errorf(codes.InvalidArgument, "%s", ormpatch.ErrNoPatch)
+	}
+	return s.apply(ctx, req.GetRef(), req.GetPatch(), rove.AliasHoldService_Apply_FullMethodName)
+}
+
+func (s AliasHoldServiceServer) apply(ctx context.Context, ref *rove.AliasHoldRef, doc *patchpb.Patch, by string) (*rove.AliasHold, error) {
+	plan := &ormpatch.Plan{Entity: aliasHoldOrmEntity}
+	if doc != nil {
+		v, err := ormpatch.Compile(aliasHoldOrmEntity, doc)
+		if err != nil {
+			if errors.Is(err, ormpatch.ErrUnsupported) {
+				return nil, status.Errorf(codes.Unimplemented, "%s", err)
+			}
+			return nil, status.Errorf(codes.InvalidArgument, "%s", err)
+		}
+		plan = v
+	}
+
+	pred, mod, err := entpatch.Build(plan, aliasHoldPatchColumns, s.Db.Dialect())
+	if err != nil {
+		if errors.Is(err, entpatch.ErrValue) {
+			return nil, status.Errorf(codes.InvalidArgument, "%s", err)
+		}
+		return nil, status.Errorf(codes.Internal, "%s", err)
+	}
+
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, true)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	k, err := AliasHoldGetKey(ctx, st.Db, ref)
+	if err != nil {
+		return nil, err
+	}
+	at := &rove.AliasHoldRef{}
+	at.SetId(k[:])
+	p, err := s.narrow(ctx, aliashold.IdEQ(k))
+	if err != nil {
+		return nil, err
+	}
+
+	if mod == nil {
+		q := st.Db.AliasHold.Query().Where(p)
+		if pred != nil {
+			q.Where(predicate.AliasHold(pred))
+		}
+		if ok, err := q.Exist(ctx); err != nil {
+			return nil, err
+		} else if !ok {
+			return nil, func() error {
+				if ok, err := st.Db.AliasHold.Query().Where(p).Exist(ctx); err != nil {
+					return err
+				} else if !ok {
+					return status.Error(codes.NotFound, "AliasHold not found")
+				}
+				return status.Error(codes.FailedPrecondition, "a test in the patch did not hold")
+			}()
+		}
+	} else {
+		q := st.Db.AliasHold.Update().Where(p)
+		if pred != nil {
+			q.Where(predicate.AliasHold(pred))
+		}
+		q.Modify(mod)
+		if !plan.WritesTo(13) {
+			q.SetDateUpdated(st.now())
+		}
+		if n, err := q.Save(ctx); err != nil {
+			if err, ok := err.(*ent.ConstraintError); ok {
+				if sqlgraph.IsUniqueConstraintError(err) {
+					return nil, status.Error(codes.AlreadyExists, "AliasHold already exists")
+				}
+				if sqlgraph.IsForeignKeyConstraintError(err) {
+					return nil, status.Error(codes.NotFound, "AliasHold: referenced entity not found")
+				}
+			}
+			return nil, err
+		} else if n == 0 {
+			return nil, func() error {
+				if ok, err := st.Db.AliasHold.Query().Where(p).Exist(ctx); err != nil {
+					return err
+				} else if !ok {
+					return status.Error(codes.NotFound, "AliasHold not found")
+				}
+				return status.Error(codes.FailedPrecondition, "a test in the patch did not hold")
+			}()
+		}
+	}
+
+	if mod != nil {
+		if err := record(ctx, s.Rec, st.Db, Change{
+			By:    by,
+			Key:   k,
+			Patch: doc,
+		}); err != nil {
+			return nil, err
+		}
+	}
+
+	out, err := st.Get(ctx, at.Pick())
+	if err != nil {
+		return nil, err
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (s AliasHoldServiceServer) Erase(ctx context.Context, req *rove.AliasHoldRef) (*rove.AliasHoldEraseResponse, error) {
+	p, err := AliasHoldPick(req)
+	if err != nil {
+		return nil, err
+	}
+	p, err = s.narrow(ctx, p)
+	if err != nil {
+		return nil, err
+	}
+
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	var k any
+	if s.Rec != nil {
+		v, err := st.Db.AliasHold.Query().Where(p).OnlyId(ctx)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return &rove.AliasHoldEraseResponse{}, nil
+			}
+			return nil, err
+		}
+
+		k = v
+		p = aliashold.And(p, aliashold.IdEQ(v))
+	}
+
+	u := st.Db.AliasHold.Update().Where(p)
+	u.SetDateErased(st.now())
+	u.SetDateUpdated(st.now())
+	n, err := u.Save(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if n > 0 {
+		if err := record(ctx, s.Rec, st.Db, Change{
+			By:  rove.AliasHoldService_Erase_FullMethodName,
+			Key: k,
+		}); err != nil {
+			return nil, err
+		}
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+	res := &rove.AliasHoldEraseResponse{}
+	res.SetErased(n > 0)
+
+	return res, nil
+}
+
+// AliasHoldPick answers with the predicate this reference selects on,
+// among the rows that are still here.
+//
+// Erasure is part of the reference and not only part of a read's scope,
+// because a reference to a AliasHold is composed into the reference of
+// whatever names one: an index over an edge asks this for a predicate and
+// puts it inside `HasAliasHoldWith`, where no narrowing of a AliasHold
+// is ever applied. A child of an erased row would otherwise be readable by
+// naming its parent.
+func AliasHoldPick(req *rove.AliasHoldRef) (predicate.AliasHold, error) {
+	p, err := pickAliasHold(req)
+	if err != nil {
+		return nil, err
+	}
+
+	return aliashold.And(aliashold.DateErasedIsNil(), p), nil
+}
+
+func pickAliasHold(req *rove.AliasHoldRef) (predicate.AliasHold, error) {
+	switch req.WhichKey() {
+	case rove.AliasHoldRef_Id_case:
+		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+		} else {
+			return aliashold.IdEQ(v), nil
+		}
+	case rove.AliasHoldRef_Key_not_set_case:
+		return nil, status.Errorf(codes.InvalidArgument, "key not set: AliasHold")
 	default:
 		return nil, status.Errorf(codes.Unimplemented, "unknown type of key: %s", req.WhichKey())
 	}

@@ -185,7 +185,31 @@ type WorkspacesConfig struct {
 	// Owned is how many workspaces one account may own before another needs
 	// paying for. Zero is [DefaultOwned]; a negative number is no limit.
 	Owned int `yaml:"owned"`
+
+	// AliasLength is how many characters a new workspace's address is made
+	// of: 7 unless said. It grows by itself when that many are crowded.
+	AliasLength int `yaml:"alias_length"`
+	// Reserved is addresses no workspace may have, beside the ones this app
+	// keeps for itself (`tenancy.Reserved`).
+	Reserved []string `yaml:"reserved"`
+
+	// RestoreWithin is how long a closed workspace may be restored before it
+	// is destroyed, and AliasHold how long its address is kept from anybody
+	// else after that, or after it moved (D29). Unset are 30 days and a year.
+	RestoreWithin time.Duration `yaml:"restore_within"`
+	AliasHold     time.Duration `yaml:"alias_hold"`
+	// Every is how often closed workspaces are looked at. Unset is an hour.
+	Every time.Duration `yaml:"every"`
 }
+
+// Restore is how long a closed workspace may be restored.
+func (c WorkspacesConfig) Restore() time.Duration { return or(c.RestoreWithin, 30*24*time.Hour) }
+
+// Hold is how long an address is kept from anybody else.
+func (c WorkspacesConfig) Hold() time.Duration { return or(c.AliasHold, 365*24*time.Hour) }
+
+// Length is how many characters a new address is made of.
+func (c WorkspacesConfig) Length() int { return or(c.AliasLength, 7) }
 
 // DefaultOwned is how many workspaces an account owns before another needs
 // paying for, when the configuration says nothing.

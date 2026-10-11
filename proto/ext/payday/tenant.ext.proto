@@ -1,0 +1,24 @@
+edition = "2023";
+
+package payday;
+
+// What rove adds to payday's Tenant: a workspace closing (D29, design 8.4).
+//
+// Closing destroys nothing. Nobody but the owner gets in -- and the owner only
+// to restore it or take its data out -- until the restore window has run out
+// and nothing holds it, when it is destroyed and its alias is held for a while
+// so that nobody else can be that address to the people who knew it.
+message Tenant {
+  // When it was closed. Null is open.
+  google.protobuf.Timestamp date_closed = 8 [(orm.field) = {nullable: true}];
+
+  // Who closed it -- `owner`, `operator`, or `deployment` when nobody was
+  // left in it -- and why, in their words.
+  string closed_by = 9;
+  string close_reason = 10;
+
+  // When a workspace still closed and held by nothing is destroyed: when it
+  // was closed and the restore window (`app.workspaces.restore_within`), or
+  // whatever an operator made it since.
+  google.protobuf.Timestamp date_destroy = 11 [(orm.field) = {nullable: true}];
+}

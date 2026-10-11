@@ -20,6 +20,12 @@ service TenantService {
   rpc Erase(TenantRef) returns (TenantEraseResponse);
   // List reads Tenants a page at a time.
   rpc List(TenantListRequest) returns (TenantListResponse);
+  // Close shuts a workspace (D29): nobody gets in but its owner, who may
+  // restore it or take its data out, until it is destroyed. `confirm` is its
+  // name, typed by whoever closes it.
+  rpc Close(TenantCloseRequest) returns (Tenant);
+  // Restore opens a closed workspace again, while its restore window lasts.
+  rpc Restore(TenantRestoreRequest) returns (Tenant);
 }
 
 message TenantAddRequest {
@@ -29,6 +35,10 @@ message TenantAddRequest {
   string desc = 6 [features.field_presence = IMPLICIT];
   map<string, string> labels = 7;
   google.protobuf.Timestamp date_created = 15;
+  google.protobuf.Timestamp date_closed = 8;
+  string closed_by = 9 [features.field_presence = IMPLICIT];
+  string close_reason = 10 [features.field_presence = IMPLICIT];
+  google.protobuf.Timestamp date_destroy = 11;
 }
 
 message TenantGetRequest {
@@ -51,6 +61,10 @@ message TenantSelect {
   bool labels = 7;
   bool date_updated = 13;
   bool date_created = 15;
+  bool date_closed = 8;
+  bool closed_by = 9;
+  bool close_reason = 10;
+  bool date_destroy = 11;
 }
 
 message TenantPatchRequest {
@@ -73,6 +87,20 @@ message TenantPatchRequest {
   // refused rather than assumed, because an unset field cannot be told
   // apart from a caller who never considered locking at all.
   bool date_updated_force = 27;
+  google.protobuf.Timestamp date_closed = 16;
+  // Clear date_closed instead of writing it.
+  // It takes a field of its own because an unset value already means
+  // "leave it alone", so no value could have meant NULL. It wins
+  // outright: setting both this and date_closed clears.
+  bool date_closed_null = 17;
+  string closed_by = 18;
+  string close_reason = 20;
+  google.protobuf.Timestamp date_destroy = 22;
+  // Clear date_destroy instead of writing it.
+  // It takes a field of its own because an unset value already means
+  // "leave it alone", so no value could have meant NULL. It wins
+  // outright: setting both this and date_destroy clears.
+  bool date_destroy_null = 23;
 }
 
 message TenantApplyRequest {
@@ -120,5 +148,15 @@ message TenantListResponse {
 }
 
 message TenantFilter {
+  TenantRef ref = 1;
+}
+
+message TenantCloseRequest {
+  TenantRef ref = 1;
+  string confirm = 2 [features.field_presence = IMPLICIT];
+  string reason = 3 [features.field_presence = IMPLICIT];
+}
+
+message TenantRestoreRequest {
   TenantRef ref = 1;
 }

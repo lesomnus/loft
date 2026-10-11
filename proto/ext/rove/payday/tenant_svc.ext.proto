@@ -1,0 +1,26 @@
+edition = "2023";
+
+package rove;
+
+import "rove/payday/tenant.proto";
+
+option go_package = "github.com/lesomnus/rove";
+
+service TenantService {
+  // Close shuts a workspace (D29): nobody gets in but its owner, who may
+  // restore it or take its data out, until it is destroyed. `confirm` is its
+  // name, typed by whoever closes it.
+  rpc Close(TenantCloseRequest) returns (Tenant);
+  // Restore opens a closed workspace again, while its restore window lasts.
+  rpc Restore(TenantRestoreRequest) returns (Tenant);
+}
+
+message TenantCloseRequest {
+  TenantRef ref = 1;
+  string confirm = 2 [features.field_presence = IMPLICIT];
+  string reason = 3 [features.field_presence = IMPLICIT];
+}
+
+message TenantRestoreRequest {
+  TenantRef ref = 1;
+}

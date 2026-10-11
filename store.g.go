@@ -34,6 +34,7 @@ type Server interface {
 	Session() SessionServiceServer
 	Invitation() InvitationServiceServer
 	CliLogin() CliLoginServiceServer
+	AliasHold() AliasHoldServiceServer
 	Asset() AssetServiceServer
 	TreeLock() TreeLockServiceServer
 	TenantDomain() TenantDomainServiceServer
@@ -79,6 +80,7 @@ func RegisterServer(g grpc.ServiceRegistrar, s Server) {
 	RegisterSessionServiceServer(g, s.Session())
 	RegisterInvitationServiceServer(g, s.Invitation())
 	RegisterCliLoginServiceServer(g, s.CliLogin())
+	RegisterAliasHoldServiceServer(g, s.AliasHold())
 	RegisterAssetServiceServer(g, s.Asset())
 	RegisterTreeLockServiceServer(g, s.TreeLock())
 	RegisterTenantDomainServiceServer(g, s.TenantDomain())
@@ -120,6 +122,7 @@ type UnimplementedServer struct {
 	SessionServer         SessionServiceServer
 	InvitationServer      InvitationServiceServer
 	CliLoginServer        CliLoginServiceServer
+	AliasHoldServer       AliasHoldServiceServer
 	AssetServer           AssetServiceServer
 	TreeLockServer        TreeLockServiceServer
 	TenantDomainServer    TenantDomainServiceServer
@@ -167,6 +170,9 @@ func (UnimplementedServer) Invitation() InvitationServiceServer {
 }
 func (UnimplementedServer) CliLogin() CliLoginServiceServer {
 	return UnimplementedCliLoginServiceServer{}
+}
+func (UnimplementedServer) AliasHold() AliasHoldServiceServer {
+	return UnimplementedAliasHoldServiceServer{}
 }
 func (UnimplementedServer) Asset() AssetServiceServer { return UnimplementedAssetServiceServer{} }
 func (UnimplementedServer) TreeLock() TreeLockServiceServer {
@@ -250,6 +256,7 @@ type StaticServer struct {
 	SessionServer         SessionServiceServer
 	InvitationServer      InvitationServiceServer
 	CliLoginServer        CliLoginServiceServer
+	AliasHoldServer       AliasHoldServiceServer
 	AssetServer           AssetServiceServer
 	TreeLockServer        TreeLockServiceServer
 	TenantDomainServer    TenantDomainServiceServer
@@ -290,6 +297,7 @@ func (s StaticServer) Party() PartyServiceServer                     { return s.
 func (s StaticServer) Session() SessionServiceServer                 { return s.SessionServer }
 func (s StaticServer) Invitation() InvitationServiceServer           { return s.InvitationServer }
 func (s StaticServer) CliLogin() CliLoginServiceServer               { return s.CliLoginServer }
+func (s StaticServer) AliasHold() AliasHoldServiceServer             { return s.AliasHoldServer }
 func (s StaticServer) Asset() AssetServiceServer                     { return s.AssetServer }
 func (s StaticServer) TreeLock() TreeLockServiceServer               { return s.TreeLockServer }
 func (s StaticServer) TenantDomain() TenantDomainServiceServer       { return s.TenantDomainServer }
@@ -330,6 +338,7 @@ type Client interface {
 	Session() SessionServiceClient
 	Invitation() InvitationServiceClient
 	CliLogin() CliLoginServiceClient
+	AliasHold() AliasHoldServiceClient
 	Asset() AssetServiceClient
 	TreeLock() TreeLockServiceClient
 	TenantDomain() TenantDomainServiceClient
@@ -372,6 +381,7 @@ func NewClient(c *grpc.ClientConn) Client {
 		_Session:         NewSessionServiceClient(c),
 		_Invitation:      NewInvitationServiceClient(c),
 		_CliLogin:        NewCliLoginServiceClient(c),
+		_AliasHold:       NewAliasHoldServiceClient(c),
 		_Asset:           NewAssetServiceClient(c),
 		_TreeLock:        NewTreeLockServiceClient(c),
 		_TenantDomain:    NewTenantDomainServiceClient(c),
@@ -414,6 +424,7 @@ type client struct {
 	_Session         SessionServiceClient
 	_Invitation      InvitationServiceClient
 	_CliLogin        CliLoginServiceClient
+	_AliasHold       AliasHoldServiceClient
 	_Asset           AssetServiceClient
 	_TreeLock        TreeLockServiceClient
 	_TenantDomain    TenantDomainServiceClient
@@ -454,6 +465,7 @@ func (c *client) Party() PartyServiceClient                     { return c._Part
 func (c *client) Session() SessionServiceClient                 { return c._Session }
 func (c *client) Invitation() InvitationServiceClient           { return c._Invitation }
 func (c *client) CliLogin() CliLoginServiceClient               { return c._CliLogin }
+func (c *client) AliasHold() AliasHoldServiceClient             { return c._AliasHold }
 func (c *client) Asset() AssetServiceClient                     { return c._Asset }
 func (c *client) TreeLock() TreeLockServiceClient               { return c._TreeLock }
 func (c *client) TenantDomain() TenantDomainServiceClient       { return c._TenantDomain }

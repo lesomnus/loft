@@ -64,6 +64,10 @@ type Deps struct {
 	// which is what a checkout on :8080 needs.
 	LabelPort string
 
+	// RestoreWithin is how long a closed workspace may be restored before it
+	// is destroyed (D29); zero is 30 days.
+	RestoreWithin time.Duration
+
 	// LookupTXT reads TXT records, for verifying a custom domain.
 	LookupTXT func(ctx context.Context, name string) ([]string, error)
 

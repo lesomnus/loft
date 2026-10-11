@@ -86,6 +86,9 @@ export interface Workspace {
 	alias: string
 	name: string
 	role: string
+	/** When it was closed, and when it goes unless restored (D29). */
+	closed?: string
+	destroy?: string
 }
 
 /** The account signed in, and the workspaces it is in. */

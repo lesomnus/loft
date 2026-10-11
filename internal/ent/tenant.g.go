@@ -17,5 +17,13 @@ func (e *Tenant) Proto() *rove.Tenant {
 	x.SetLabels(e.Labels)
 	x.SetDateUpdated(timestamppb.New(e.DateUpdated))
 	x.SetDateCreated(timestamppb.New(e.DateCreated))
+	if e.DateClosed != nil {
+		x.SetDateClosed(timestamppb.New(*e.DateClosed))
+	}
+	x.SetClosedBy(e.ClosedBy)
+	x.SetCloseReason(e.CloseReason)
+	if e.DateDestroy != nil {
+		x.SetDateDestroy(timestamppb.New(*e.DateDestroy))
+	}
 	return x
 }

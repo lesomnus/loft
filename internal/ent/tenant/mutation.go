@@ -22,6 +22,10 @@ type Mutation struct {
 	labels        *map[string]string
 	date_updated  *time.Time
 	date_created  *time.Time
+	date_closed   *time.Time
+	closed_by     *string
+	close_reason  *string
+	date_destroy  *time.Time
 	clearedFields map[string]struct{}
 	predicates    []predicate.Tenant
 }
@@ -180,6 +184,108 @@ func (m *Mutation) ResetDateCreated() {
 	delete(m.clearedFields, FieldDateCreated)
 }
 
+// SetDateClosed sets the "date_closed" field.
+func (m *Mutation) SetDateClosed(t time.Time) {
+	m.date_closed = &t
+}
+
+// DateClosed returns the value of the "date_closed" field in the mutation.
+func (m *Mutation) DateClosed() (r time.Time, exists bool) {
+	v := m.date_closed
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearDateClosed clears the value of the "date_closed" field.
+func (m *Mutation) ClearDateClosed() {
+	m.date_closed = nil
+	m.clearedFields[FieldDateClosed] = struct{}{}
+}
+
+// DateClosedCleared returns if the "date_closed" field was cleared in this mutation.
+func (m *Mutation) DateClosedCleared() bool {
+	_, ok := m.clearedFields[FieldDateClosed]
+	return ok
+}
+
+// ResetDateClosed resets all changes to the "date_closed" field.
+func (m *Mutation) ResetDateClosed() {
+	m.date_closed = nil
+	delete(m.clearedFields, FieldDateClosed)
+}
+
+// SetClosedBy sets the "closed_by" field.
+func (m *Mutation) SetClosedBy(s string) {
+	m.closed_by = &s
+}
+
+// ClosedBy returns the value of the "closed_by" field in the mutation.
+func (m *Mutation) ClosedBy() (r string, exists bool) {
+	v := m.closed_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetClosedBy resets all changes to the "closed_by" field.
+func (m *Mutation) ResetClosedBy() {
+	m.closed_by = nil
+}
+
+// SetCloseReason sets the "close_reason" field.
+func (m *Mutation) SetCloseReason(s string) {
+	m.close_reason = &s
+}
+
+// CloseReason returns the value of the "close_reason" field in the mutation.
+func (m *Mutation) CloseReason() (r string, exists bool) {
+	v := m.close_reason
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetCloseReason resets all changes to the "close_reason" field.
+func (m *Mutation) ResetCloseReason() {
+	m.close_reason = nil
+}
+
+// SetDateDestroy sets the "date_destroy" field.
+func (m *Mutation) SetDateDestroy(t time.Time) {
+	m.date_destroy = &t
+}
+
+// DateDestroy returns the value of the "date_destroy" field in the mutation.
+func (m *Mutation) DateDestroy() (r time.Time, exists bool) {
+	v := m.date_destroy
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearDateDestroy clears the value of the "date_destroy" field.
+func (m *Mutation) ClearDateDestroy() {
+	m.date_destroy = nil
+	m.clearedFields[FieldDateDestroy] = struct{}{}
+}
+
+// DateDestroyCleared returns if the "date_destroy" field was cleared in this mutation.
+func (m *Mutation) DateDestroyCleared() bool {
+	_, ok := m.clearedFields[FieldDateDestroy]
+	return ok
+}
+
+// ResetDateDestroy resets all changes to the "date_destroy" field.
+func (m *Mutation) ResetDateDestroy() {
+	m.date_destroy = nil
+	delete(m.clearedFields, FieldDateDestroy)
+}
+
 // Where appends a list predicates to the Mutation builder.
 func (m *Mutation) Where(ps ...predicate.Tenant) {
 	m.predicates = append(m.predicates, ps...)
@@ -214,7 +320,7 @@ func (m *Mutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *Mutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 10)
 	if m.alias != nil {
 		fields = append(fields, FieldAlias)
 	}
@@ -232,6 +338,18 @@ func (m *Mutation) Fields() []string {
 	}
 	if m.date_created != nil {
 		fields = append(fields, FieldDateCreated)
+	}
+	if m.date_closed != nil {
+		fields = append(fields, FieldDateClosed)
+	}
+	if m.closed_by != nil {
+		fields = append(fields, FieldClosedBy)
+	}
+	if m.close_reason != nil {
+		fields = append(fields, FieldCloseReason)
+	}
+	if m.date_destroy != nil {
+		fields = append(fields, FieldDateDestroy)
 	}
 	return fields
 }
@@ -253,6 +371,14 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.DateUpdated()
 	case FieldDateCreated:
 		return m.DateCreated()
+	case FieldDateClosed:
+		return m.DateClosed()
+	case FieldClosedBy:
+		return m.ClosedBy()
+	case FieldCloseReason:
+		return m.CloseReason()
+	case FieldDateDestroy:
+		return m.DateDestroy()
 	}
 	return nil, false
 }
@@ -311,6 +437,34 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDateCreated(v)
 		return nil
+	case FieldDateClosed:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDateClosed(v)
+		return nil
+	case FieldClosedBy:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetClosedBy(v)
+		return nil
+	case FieldCloseReason:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCloseReason(v)
+		return nil
+	case FieldDateDestroy:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDateDestroy(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Tenant field %s", name)
 }
@@ -347,6 +501,12 @@ func (m *Mutation) ClearedFields() []string {
 	if m.FieldCleared(FieldDateCreated) {
 		fields = append(fields, FieldDateCreated)
 	}
+	if m.FieldCleared(FieldDateClosed) {
+		fields = append(fields, FieldDateClosed)
+	}
+	if m.FieldCleared(FieldDateDestroy) {
+		fields = append(fields, FieldDateDestroy)
+	}
 	return fields
 }
 
@@ -366,6 +526,12 @@ func (m *Mutation) ClearField(name string) error {
 		return nil
 	case FieldDateCreated:
 		m.ClearDateCreated()
+		return nil
+	case FieldDateClosed:
+		m.ClearDateClosed()
+		return nil
+	case FieldDateDestroy:
+		m.ClearDateDestroy()
 		return nil
 	}
 	return fmt.Errorf("unknown Tenant nullable field %s", name)
@@ -392,6 +558,18 @@ func (m *Mutation) ResetField(name string) error {
 		return nil
 	case FieldDateCreated:
 		m.ResetDateCreated()
+		return nil
+	case FieldDateClosed:
+		m.ResetDateClosed()
+		return nil
+	case FieldClosedBy:
+		m.ResetClosedBy()
+		return nil
+	case FieldCloseReason:
+		m.ResetCloseReason()
+		return nil
+	case FieldDateDestroy:
+		m.ResetDateDestroy()
 		return nil
 	}
 	return fmt.Errorf("unknown Tenant field %s", name)

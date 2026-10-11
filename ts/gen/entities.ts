@@ -13,12 +13,12 @@
 
 import type { EntityDesc } from '@lesomnus/payday/store'
 
+import { AliasHoldSchema, CliLoginSchema, InvitationSchema, PartySchema, SessionSchema } from './rove/org_pb.js'
 import { AllocationSchema, BookableSchema, ReservationSchema, ReservationItemSchema } from './rove/booking_pb.js'
 import { ArchivedSchema } from './rove/payday/archived_pb.js'
 import { AssetSchema, AttachmentSchema, LabelSchema, TenantDomainSchema, TreeLockSchema } from './rove/asset_pb.js'
 import { AssetTypeSchema, ItemModelSchema } from './rove/catalog_pb.js'
 import { AuditSchema } from './rove/payday/audit_pb.js'
-import { CliLoginSchema, InvitationSchema, PartySchema, SessionSchema } from './rove/org_pb.js'
 import { CountFindingSchema, InventoryCountSchema } from './rove/count_pb.js'
 import { CustodySchema, CustodyLineSchema } from './rove/custody_pb.js'
 import { EventSchema, FactSchema, LinkSchema, PlacementSchema, StewardshipSchema } from './rove/history_pb.js'
@@ -28,12 +28,12 @@ import { OutboxSchema } from './rove/payday/outbox_pb.js'
 import { PurchaseSchema, PurchaseLineSchema, WorkOrderSchema } from './rove/work_pb.js'
 import { StockSchema, StockMovementSchema } from './rove/stock_pb.js'
 import { TenantSchema } from './rove/payday/tenant_pb.js'
+import { AliasHoldService, CliLoginService, InvitationService, PartyService, SessionService } from './rove/org_svc_pb.js'
 import { AllocationService, BookableService, ReservationService, ReservationItemService } from './rove/booking_svc_pb.js'
 import { ArchivedService } from './rove/payday/archived_svc_pb.js'
 import { AssetService, AttachmentService, LabelService, TenantDomainService, TreeLockService } from './rove/asset_svc_pb.js'
 import { AssetTypeService, ItemModelService } from './rove/catalog_svc_pb.js'
 import { AuditService } from './rove/payday/audit_svc_pb.js'
-import { CliLoginService, InvitationService, PartyService, SessionService } from './rove/org_svc_pb.js'
 import { CountFindingService, InventoryCountService } from './rove/count_svc_pb.js'
 import { CustodyService, CustodyLineService } from './rove/custody_svc_pb.js'
 import { EventService, FactService, LinkService, PlacementService, StewardshipService } from './rove/history_svc_pb.js'
@@ -43,6 +43,17 @@ import { OutboxService } from './rove/payday/outbox_svc_pb.js'
 import { PurchaseService, PurchaseLineService, WorkOrderService } from './rove/work_svc_pb.js'
 import { StockService, StockMovementService } from './rove/stock_svc_pb.js'
 import { TenantService } from './rove/payday/tenant_svc_pb.js'
+
+/** rove.AliasHold, as the store holds it. */
+export const AliasHold = {
+	typeName: "rove.AliasHold",
+	schema: AliasHoldSchema,
+	domain: 43,
+	version: "dateUpdated",
+	key: "id",
+	ids: ["id", "tenant"],
+	service: AliasHoldService,
+} as const satisfies EntityDesc
 
 /** rove.Allocation, as the store holds it. */
 export const Allocation = {
@@ -496,5 +507,5 @@ export const WorkOrder = {
 } as const satisfies EntityDesc
 
 /** Every entity of this app, which is what a store is opened over. */
-export const entities = [Allocation, Archived, Asset, AssetType, Attachment, Audit, Bookable, CliLogin, CountFinding, Custody, CustodyLine, Event, Fact, Holder, InventoryCount, Invitation, ItemModel, Label, LegalHold, Link, Notification, Outbox, Party, Placement, Purchase, PurchaseLine, Reservation, ReservationItem, Session, Stewardship, Stock, StockMovement, Tenant, TenantContract, TenantDomain, TreeLock, UsageSnapshot, WorkOrder] as const
+export const entities = [AliasHold, Allocation, Archived, Asset, AssetType, Attachment, Audit, Bookable, CliLogin, CountFinding, Custody, CustodyLine, Event, Fact, Holder, InventoryCount, Invitation, ItemModel, Label, LegalHold, Link, Notification, Outbox, Party, Placement, Purchase, PurchaseLine, Reservation, ReservationItem, Session, Stewardship, Stock, StockMovement, Tenant, TenantContract, TenantDomain, TreeLock, UsageSnapshot, WorkOrder] as const
 

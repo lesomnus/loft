@@ -135,3 +135,18 @@ func (e *CliLogin) Proto() *rove.CliLogin {
 	x.SetDateCreated(timestamppb.New(e.DateCreated))
 	return x
 }
+func (e *AliasHold) Proto() *rove.AliasHold {
+	x := &rove.AliasHold{}
+	x.SetId(e.Id[:])
+	x.SetHeld(e.Held)
+	x.SetReason(e.Reason)
+	x.SetMovedTo(e.MovedTo)
+	x.SetTenant(e.Tenant[:])
+	x.SetDateUntil(timestamppb.New(e.DateUntil))
+	x.SetDateUpdated(timestamppb.New(e.DateUpdated))
+	if e.DateErased != nil {
+		x.SetDateErased(timestamppb.New(*e.DateErased))
+	}
+	x.SetDateCreated(timestamppb.New(e.DateCreated))
+	return x
+}

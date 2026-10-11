@@ -8583,6 +8583,1194 @@ func (b0 CliLoginEraseResponse_builder) Build() *CliLoginEraseResponse {
 	return m0
 }
 
+type AliasHoldAddRequest struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Held        string                 `protobuf:"bytes,8,opt,name=held"`
+	xxx_hidden_Reason      string                 `protobuf:"bytes,9,opt,name=reason"`
+	xxx_hidden_MovedTo     string                 `protobuf:"bytes,10,opt,name=moved_to,json=movedTo"`
+	xxx_hidden_Tenant      []byte                 `protobuf:"bytes,11,opt,name=tenant"`
+	xxx_hidden_DateUntil   *timestamppb.Timestamp `protobuf:"bytes,16,opt,name=date_until,json=dateUntil"`
+	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *AliasHoldAddRequest) Reset() {
+	*x = AliasHoldAddRequest{}
+	mi := &file_rove_org_svc_g_proto_msgTypes[52]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AliasHoldAddRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AliasHoldAddRequest) ProtoMessage() {}
+
+func (x *AliasHoldAddRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_org_svc_g_proto_msgTypes[52]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *AliasHoldAddRequest) GetId() []byte {
+	if x != nil {
+		return x.xxx_hidden_Id
+	}
+	return nil
+}
+
+func (x *AliasHoldAddRequest) GetHeld() string {
+	if x != nil {
+		return x.xxx_hidden_Held
+	}
+	return ""
+}
+
+func (x *AliasHoldAddRequest) GetReason() string {
+	if x != nil {
+		return x.xxx_hidden_Reason
+	}
+	return ""
+}
+
+func (x *AliasHoldAddRequest) GetMovedTo() string {
+	if x != nil {
+		return x.xxx_hidden_MovedTo
+	}
+	return ""
+}
+
+func (x *AliasHoldAddRequest) GetTenant() []byte {
+	if x != nil {
+		return x.xxx_hidden_Tenant
+	}
+	return nil
+}
+
+func (x *AliasHoldAddRequest) GetDateUntil() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateUntil
+	}
+	return nil
+}
+
+func (x *AliasHoldAddRequest) GetDateCreated() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateCreated
+	}
+	return nil
+}
+
+func (x *AliasHoldAddRequest) SetId(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Id = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 7)
+}
+
+func (x *AliasHoldAddRequest) SetHeld(v string) {
+	x.xxx_hidden_Held = v
+}
+
+func (x *AliasHoldAddRequest) SetReason(v string) {
+	x.xxx_hidden_Reason = v
+}
+
+func (x *AliasHoldAddRequest) SetMovedTo(v string) {
+	x.xxx_hidden_MovedTo = v
+}
+
+func (x *AliasHoldAddRequest) SetTenant(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Tenant = v
+}
+
+func (x *AliasHoldAddRequest) SetDateUntil(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateUntil = v
+}
+
+func (x *AliasHoldAddRequest) SetDateCreated(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateCreated = v
+}
+
+func (x *AliasHoldAddRequest) HasId() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
+}
+
+func (x *AliasHoldAddRequest) HasDateUntil() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateUntil != nil
+}
+
+func (x *AliasHoldAddRequest) HasDateCreated() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateCreated != nil
+}
+
+func (x *AliasHoldAddRequest) ClearId() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_Id = nil
+}
+
+func (x *AliasHoldAddRequest) ClearDateUntil() {
+	x.xxx_hidden_DateUntil = nil
+}
+
+func (x *AliasHoldAddRequest) ClearDateCreated() {
+	x.xxx_hidden_DateCreated = nil
+}
+
+type AliasHoldAddRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Id          []byte
+	Held        string
+	Reason      string
+	MovedTo     string
+	Tenant      []byte
+	DateUntil   *timestamppb.Timestamp
+	DateCreated *timestamppb.Timestamp
+}
+
+func (b0 AliasHoldAddRequest_builder) Build() *AliasHoldAddRequest {
+	m0 := &AliasHoldAddRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	if b.Id != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 7)
+		x.xxx_hidden_Id = b.Id
+	}
+	x.xxx_hidden_Held = b.Held
+	x.xxx_hidden_Reason = b.Reason
+	x.xxx_hidden_MovedTo = b.MovedTo
+	x.xxx_hidden_Tenant = b.Tenant
+	x.xxx_hidden_DateUntil = b.DateUntil
+	x.xxx_hidden_DateCreated = b.DateCreated
+	return m0
+}
+
+type AliasHoldGetRequest struct {
+	state             protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Ref    *AliasHoldRef          `protobuf:"bytes,1,opt,name=ref"`
+	xxx_hidden_Select *AliasHoldSelect       `protobuf:"bytes,2,opt,name=select"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *AliasHoldGetRequest) Reset() {
+	*x = AliasHoldGetRequest{}
+	mi := &file_rove_org_svc_g_proto_msgTypes[53]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AliasHoldGetRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AliasHoldGetRequest) ProtoMessage() {}
+
+func (x *AliasHoldGetRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_org_svc_g_proto_msgTypes[53]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *AliasHoldGetRequest) GetRef() *AliasHoldRef {
+	if x != nil {
+		return x.xxx_hidden_Ref
+	}
+	return nil
+}
+
+func (x *AliasHoldGetRequest) GetSelect() *AliasHoldSelect {
+	if x != nil {
+		return x.xxx_hidden_Select
+	}
+	return nil
+}
+
+func (x *AliasHoldGetRequest) SetRef(v *AliasHoldRef) {
+	x.xxx_hidden_Ref = v
+}
+
+func (x *AliasHoldGetRequest) SetSelect(v *AliasHoldSelect) {
+	x.xxx_hidden_Select = v
+}
+
+func (x *AliasHoldGetRequest) HasRef() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Ref != nil
+}
+
+func (x *AliasHoldGetRequest) HasSelect() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Select != nil
+}
+
+func (x *AliasHoldGetRequest) ClearRef() {
+	x.xxx_hidden_Ref = nil
+}
+
+func (x *AliasHoldGetRequest) ClearSelect() {
+	x.xxx_hidden_Select = nil
+}
+
+type AliasHoldGetRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Ref    *AliasHoldRef
+	Select *AliasHoldSelect
+}
+
+func (b0 AliasHoldGetRequest_builder) Build() *AliasHoldGetRequest {
+	m0 := &AliasHoldGetRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Ref = b.Ref
+	x.xxx_hidden_Select = b.Select
+	return m0
+}
+
+type AliasHoldRef struct {
+	state          protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Key isAliasHoldRef_Key     `protobuf_oneof:"key"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *AliasHoldRef) Reset() {
+	*x = AliasHoldRef{}
+	mi := &file_rove_org_svc_g_proto_msgTypes[54]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AliasHoldRef) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AliasHoldRef) ProtoMessage() {}
+
+func (x *AliasHoldRef) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_org_svc_g_proto_msgTypes[54]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *AliasHoldRef) GetId() []byte {
+	if x != nil {
+		if x, ok := x.xxx_hidden_Key.(*aliasHoldRef_Id); ok {
+			return x.Id
+		}
+	}
+	return nil
+}
+
+func (x *AliasHoldRef) SetId(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Key = &aliasHoldRef_Id{v}
+}
+
+func (x *AliasHoldRef) HasKey() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Key != nil
+}
+
+func (x *AliasHoldRef) HasId() bool {
+	if x == nil {
+		return false
+	}
+	_, ok := x.xxx_hidden_Key.(*aliasHoldRef_Id)
+	return ok
+}
+
+func (x *AliasHoldRef) ClearKey() {
+	x.xxx_hidden_Key = nil
+}
+
+func (x *AliasHoldRef) ClearId() {
+	if _, ok := x.xxx_hidden_Key.(*aliasHoldRef_Id); ok {
+		x.xxx_hidden_Key = nil
+	}
+}
+
+const AliasHoldRef_Key_not_set_case case_AliasHoldRef_Key = 0
+const AliasHoldRef_Id_case case_AliasHoldRef_Key = 1
+
+func (x *AliasHoldRef) WhichKey() case_AliasHoldRef_Key {
+	if x == nil {
+		return AliasHoldRef_Key_not_set_case
+	}
+	switch x.xxx_hidden_Key.(type) {
+	case *aliasHoldRef_Id:
+		return AliasHoldRef_Id_case
+	default:
+		return AliasHoldRef_Key_not_set_case
+	}
+}
+
+type AliasHoldRef_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// Fields of oneof xxx_hidden_Key:
+	Id []byte
+	// -- end of xxx_hidden_Key
+}
+
+func (b0 AliasHoldRef_builder) Build() *AliasHoldRef {
+	m0 := &AliasHoldRef{}
+	b, x := &b0, m0
+	_, _ = b, x
+	if b.Id != nil {
+		x.xxx_hidden_Key = &aliasHoldRef_Id{b.Id}
+	}
+	return m0
+}
+
+type case_AliasHoldRef_Key protoreflect.FieldNumber
+
+func (x case_AliasHoldRef_Key) String() string {
+	md := file_rove_org_svc_g_proto_msgTypes[54].Descriptor()
+	if x == 0 {
+		return "not set"
+	}
+	return protoimpl.X.MessageFieldStringOf(md, protoreflect.FieldNumber(x))
+}
+
+type isAliasHoldRef_Key interface {
+	isAliasHoldRef_Key()
+}
+
+type aliasHoldRef_Id struct {
+	Id []byte `protobuf:"bytes,1,opt,name=id,oneof"`
+}
+
+func (*aliasHoldRef_Id) isAliasHoldRef_Key() {}
+
+type AliasHoldSelect struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_All         bool                   `protobuf:"varint,1,opt,name=all"`
+	xxx_hidden_Held        bool                   `protobuf:"varint,8,opt,name=held"`
+	xxx_hidden_Reason      bool                   `protobuf:"varint,9,opt,name=reason"`
+	xxx_hidden_MovedTo     bool                   `protobuf:"varint,10,opt,name=moved_to,json=movedTo"`
+	xxx_hidden_Tenant      bool                   `protobuf:"varint,11,opt,name=tenant"`
+	xxx_hidden_DateUntil   bool                   `protobuf:"varint,16,opt,name=date_until,json=dateUntil"`
+	xxx_hidden_DateUpdated bool                   `protobuf:"varint,13,opt,name=date_updated,json=dateUpdated"`
+	xxx_hidden_DateErased  bool                   `protobuf:"varint,14,opt,name=date_erased,json=dateErased"`
+	xxx_hidden_DateCreated bool                   `protobuf:"varint,15,opt,name=date_created,json=dateCreated"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *AliasHoldSelect) Reset() {
+	*x = AliasHoldSelect{}
+	mi := &file_rove_org_svc_g_proto_msgTypes[55]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AliasHoldSelect) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AliasHoldSelect) ProtoMessage() {}
+
+func (x *AliasHoldSelect) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_org_svc_g_proto_msgTypes[55]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *AliasHoldSelect) GetAll() bool {
+	if x != nil {
+		return x.xxx_hidden_All
+	}
+	return false
+}
+
+func (x *AliasHoldSelect) GetHeld() bool {
+	if x != nil {
+		return x.xxx_hidden_Held
+	}
+	return false
+}
+
+func (x *AliasHoldSelect) GetReason() bool {
+	if x != nil {
+		return x.xxx_hidden_Reason
+	}
+	return false
+}
+
+func (x *AliasHoldSelect) GetMovedTo() bool {
+	if x != nil {
+		return x.xxx_hidden_MovedTo
+	}
+	return false
+}
+
+func (x *AliasHoldSelect) GetTenant() bool {
+	if x != nil {
+		return x.xxx_hidden_Tenant
+	}
+	return false
+}
+
+func (x *AliasHoldSelect) GetDateUntil() bool {
+	if x != nil {
+		return x.xxx_hidden_DateUntil
+	}
+	return false
+}
+
+func (x *AliasHoldSelect) GetDateUpdated() bool {
+	if x != nil {
+		return x.xxx_hidden_DateUpdated
+	}
+	return false
+}
+
+func (x *AliasHoldSelect) GetDateErased() bool {
+	if x != nil {
+		return x.xxx_hidden_DateErased
+	}
+	return false
+}
+
+func (x *AliasHoldSelect) GetDateCreated() bool {
+	if x != nil {
+		return x.xxx_hidden_DateCreated
+	}
+	return false
+}
+
+func (x *AliasHoldSelect) SetAll(v bool) {
+	x.xxx_hidden_All = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 9)
+}
+
+func (x *AliasHoldSelect) SetHeld(v bool) {
+	x.xxx_hidden_Held = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 9)
+}
+
+func (x *AliasHoldSelect) SetReason(v bool) {
+	x.xxx_hidden_Reason = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 9)
+}
+
+func (x *AliasHoldSelect) SetMovedTo(v bool) {
+	x.xxx_hidden_MovedTo = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 9)
+}
+
+func (x *AliasHoldSelect) SetTenant(v bool) {
+	x.xxx_hidden_Tenant = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 9)
+}
+
+func (x *AliasHoldSelect) SetDateUntil(v bool) {
+	x.xxx_hidden_DateUntil = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 9)
+}
+
+func (x *AliasHoldSelect) SetDateUpdated(v bool) {
+	x.xxx_hidden_DateUpdated = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 9)
+}
+
+func (x *AliasHoldSelect) SetDateErased(v bool) {
+	x.xxx_hidden_DateErased = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 9)
+}
+
+func (x *AliasHoldSelect) SetDateCreated(v bool) {
+	x.xxx_hidden_DateCreated = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 9)
+}
+
+func (x *AliasHoldSelect) HasAll() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
+}
+
+func (x *AliasHoldSelect) HasHeld() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
+}
+
+func (x *AliasHoldSelect) HasReason() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
+}
+
+func (x *AliasHoldSelect) HasMovedTo() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
+}
+
+func (x *AliasHoldSelect) HasTenant() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
+}
+
+func (x *AliasHoldSelect) HasDateUntil() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
+}
+
+func (x *AliasHoldSelect) HasDateUpdated() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 6)
+}
+
+func (x *AliasHoldSelect) HasDateErased() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 7)
+}
+
+func (x *AliasHoldSelect) HasDateCreated() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 8)
+}
+
+func (x *AliasHoldSelect) ClearAll() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_All = false
+}
+
+func (x *AliasHoldSelect) ClearHeld() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	x.xxx_hidden_Held = false
+}
+
+func (x *AliasHoldSelect) ClearReason() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
+	x.xxx_hidden_Reason = false
+}
+
+func (x *AliasHoldSelect) ClearMovedTo() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
+	x.xxx_hidden_MovedTo = false
+}
+
+func (x *AliasHoldSelect) ClearTenant() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
+	x.xxx_hidden_Tenant = false
+}
+
+func (x *AliasHoldSelect) ClearDateUntil() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 5)
+	x.xxx_hidden_DateUntil = false
+}
+
+func (x *AliasHoldSelect) ClearDateUpdated() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 6)
+	x.xxx_hidden_DateUpdated = false
+}
+
+func (x *AliasHoldSelect) ClearDateErased() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
+	x.xxx_hidden_DateErased = false
+}
+
+func (x *AliasHoldSelect) ClearDateCreated() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 8)
+	x.xxx_hidden_DateCreated = false
+}
+
+type AliasHoldSelect_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	All         *bool
+	Held        *bool
+	Reason      *bool
+	MovedTo     *bool
+	Tenant      *bool
+	DateUntil   *bool
+	DateUpdated *bool
+	DateErased  *bool
+	DateCreated *bool
+}
+
+func (b0 AliasHoldSelect_builder) Build() *AliasHoldSelect {
+	m0 := &AliasHoldSelect{}
+	b, x := &b0, m0
+	_, _ = b, x
+	if b.All != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 9)
+		x.xxx_hidden_All = *b.All
+	}
+	if b.Held != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 9)
+		x.xxx_hidden_Held = *b.Held
+	}
+	if b.Reason != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 9)
+		x.xxx_hidden_Reason = *b.Reason
+	}
+	if b.MovedTo != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 9)
+		x.xxx_hidden_MovedTo = *b.MovedTo
+	}
+	if b.Tenant != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 9)
+		x.xxx_hidden_Tenant = *b.Tenant
+	}
+	if b.DateUntil != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 9)
+		x.xxx_hidden_DateUntil = *b.DateUntil
+	}
+	if b.DateUpdated != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 9)
+		x.xxx_hidden_DateUpdated = *b.DateUpdated
+	}
+	if b.DateErased != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 9)
+		x.xxx_hidden_DateErased = *b.DateErased
+	}
+	if b.DateCreated != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 9)
+		x.xxx_hidden_DateCreated = *b.DateCreated
+	}
+	return m0
+}
+
+type AliasHoldPatchRequest struct {
+	state                       protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Ref              *AliasHoldRef          `protobuf:"bytes,1,opt,name=ref"`
+	xxx_hidden_Held             *string                `protobuf:"bytes,16,opt,name=held"`
+	xxx_hidden_Reason           *string                `protobuf:"bytes,18,opt,name=reason"`
+	xxx_hidden_MovedTo          *string                `protobuf:"bytes,20,opt,name=moved_to,json=movedTo"`
+	xxx_hidden_Tenant           []byte                 `protobuf:"bytes,22,opt,name=tenant"`
+	xxx_hidden_DateUntil        *timestamppb.Timestamp `protobuf:"bytes,32,opt,name=date_until,json=dateUntil"`
+	xxx_hidden_DateUpdated      *timestamppb.Timestamp `protobuf:"bytes,26,opt,name=date_updated,json=dateUpdated"`
+	xxx_hidden_DateUpdatedForce bool                   `protobuf:"varint,27,opt,name=date_updated_force,json=dateUpdatedForce"`
+	XXX_raceDetectHookData      protoimpl.RaceDetectHookData
+	XXX_presence                [1]uint32
+	unknownFields               protoimpl.UnknownFields
+	sizeCache                   protoimpl.SizeCache
+}
+
+func (x *AliasHoldPatchRequest) Reset() {
+	*x = AliasHoldPatchRequest{}
+	mi := &file_rove_org_svc_g_proto_msgTypes[56]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AliasHoldPatchRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AliasHoldPatchRequest) ProtoMessage() {}
+
+func (x *AliasHoldPatchRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_org_svc_g_proto_msgTypes[56]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *AliasHoldPatchRequest) GetRef() *AliasHoldRef {
+	if x != nil {
+		return x.xxx_hidden_Ref
+	}
+	return nil
+}
+
+func (x *AliasHoldPatchRequest) GetHeld() string {
+	if x != nil {
+		if x.xxx_hidden_Held != nil {
+			return *x.xxx_hidden_Held
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *AliasHoldPatchRequest) GetReason() string {
+	if x != nil {
+		if x.xxx_hidden_Reason != nil {
+			return *x.xxx_hidden_Reason
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *AliasHoldPatchRequest) GetMovedTo() string {
+	if x != nil {
+		if x.xxx_hidden_MovedTo != nil {
+			return *x.xxx_hidden_MovedTo
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *AliasHoldPatchRequest) GetTenant() []byte {
+	if x != nil {
+		return x.xxx_hidden_Tenant
+	}
+	return nil
+}
+
+func (x *AliasHoldPatchRequest) GetDateUntil() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateUntil
+	}
+	return nil
+}
+
+func (x *AliasHoldPatchRequest) GetDateUpdated() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateUpdated
+	}
+	return nil
+}
+
+func (x *AliasHoldPatchRequest) GetDateUpdatedForce() bool {
+	if x != nil {
+		return x.xxx_hidden_DateUpdatedForce
+	}
+	return false
+}
+
+func (x *AliasHoldPatchRequest) SetRef(v *AliasHoldRef) {
+	x.xxx_hidden_Ref = v
+}
+
+func (x *AliasHoldPatchRequest) SetHeld(v string) {
+	x.xxx_hidden_Held = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 8)
+}
+
+func (x *AliasHoldPatchRequest) SetReason(v string) {
+	x.xxx_hidden_Reason = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 8)
+}
+
+func (x *AliasHoldPatchRequest) SetMovedTo(v string) {
+	x.xxx_hidden_MovedTo = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 8)
+}
+
+func (x *AliasHoldPatchRequest) SetTenant(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Tenant = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 8)
+}
+
+func (x *AliasHoldPatchRequest) SetDateUntil(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateUntil = v
+}
+
+func (x *AliasHoldPatchRequest) SetDateUpdated(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateUpdated = v
+}
+
+func (x *AliasHoldPatchRequest) SetDateUpdatedForce(v bool) {
+	x.xxx_hidden_DateUpdatedForce = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 8)
+}
+
+func (x *AliasHoldPatchRequest) HasRef() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Ref != nil
+}
+
+func (x *AliasHoldPatchRequest) HasHeld() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
+}
+
+func (x *AliasHoldPatchRequest) HasReason() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
+}
+
+func (x *AliasHoldPatchRequest) HasMovedTo() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
+}
+
+func (x *AliasHoldPatchRequest) HasTenant() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
+}
+
+func (x *AliasHoldPatchRequest) HasDateUntil() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateUntil != nil
+}
+
+func (x *AliasHoldPatchRequest) HasDateUpdated() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateUpdated != nil
+}
+
+func (x *AliasHoldPatchRequest) HasDateUpdatedForce() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 7)
+}
+
+func (x *AliasHoldPatchRequest) ClearRef() {
+	x.xxx_hidden_Ref = nil
+}
+
+func (x *AliasHoldPatchRequest) ClearHeld() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	x.xxx_hidden_Held = nil
+}
+
+func (x *AliasHoldPatchRequest) ClearReason() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
+	x.xxx_hidden_Reason = nil
+}
+
+func (x *AliasHoldPatchRequest) ClearMovedTo() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
+	x.xxx_hidden_MovedTo = nil
+}
+
+func (x *AliasHoldPatchRequest) ClearTenant() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
+	x.xxx_hidden_Tenant = nil
+}
+
+func (x *AliasHoldPatchRequest) ClearDateUntil() {
+	x.xxx_hidden_DateUntil = nil
+}
+
+func (x *AliasHoldPatchRequest) ClearDateUpdated() {
+	x.xxx_hidden_DateUpdated = nil
+}
+
+func (x *AliasHoldPatchRequest) ClearDateUpdatedForce() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
+	x.xxx_hidden_DateUpdatedForce = false
+}
+
+type AliasHoldPatchRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Ref       *AliasHoldRef
+	Held      *string
+	Reason    *string
+	MovedTo   *string
+	Tenant    []byte
+	DateUntil *timestamppb.Timestamp
+	// The version this update requires the stored date_updated to be.
+	// It is a precondition, not a write: the update applies only if the row
+	// still holds this value, and the server stamps the new version itself.
+	// Setting it together with date_updated_force is an error --
+	// the version is the token every client's compare-and-swap is measured
+	// against, so it is not the caller's to choose.
+	DateUpdated *timestamppb.Timestamp
+	// Update whatever the stored date_updated is, with no precondition.
+	// The server still stamps a new version, so other clients' tokens are
+	// invalidated as usual; this declines the check for THIS update only.
+	// One of date_updated or this must be set. An omitted version is
+	// refused rather than assumed, because an unset field cannot be told
+	// apart from a caller who never considered locking at all.
+	DateUpdatedForce *bool
+}
+
+func (b0 AliasHoldPatchRequest_builder) Build() *AliasHoldPatchRequest {
+	m0 := &AliasHoldPatchRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Ref = b.Ref
+	if b.Held != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 8)
+		x.xxx_hidden_Held = b.Held
+	}
+	if b.Reason != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 8)
+		x.xxx_hidden_Reason = b.Reason
+	}
+	if b.MovedTo != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 8)
+		x.xxx_hidden_MovedTo = b.MovedTo
+	}
+	if b.Tenant != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 8)
+		x.xxx_hidden_Tenant = b.Tenant
+	}
+	x.xxx_hidden_DateUntil = b.DateUntil
+	x.xxx_hidden_DateUpdated = b.DateUpdated
+	if b.DateUpdatedForce != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 8)
+		x.xxx_hidden_DateUpdatedForce = *b.DateUpdatedForce
+	}
+	return m0
+}
+
+type AliasHoldApplyRequest struct {
+	state            protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Ref   *AliasHoldRef          `protobuf:"bytes,1,opt,name=ref"`
+	xxx_hidden_Patch *patchpb.Patch         `protobuf:"bytes,2,opt,name=patch"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *AliasHoldApplyRequest) Reset() {
+	*x = AliasHoldApplyRequest{}
+	mi := &file_rove_org_svc_g_proto_msgTypes[57]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AliasHoldApplyRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AliasHoldApplyRequest) ProtoMessage() {}
+
+func (x *AliasHoldApplyRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_org_svc_g_proto_msgTypes[57]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *AliasHoldApplyRequest) GetRef() *AliasHoldRef {
+	if x != nil {
+		return x.xxx_hidden_Ref
+	}
+	return nil
+}
+
+func (x *AliasHoldApplyRequest) GetPatch() *patchpb.Patch {
+	if x != nil {
+		return x.xxx_hidden_Patch
+	}
+	return nil
+}
+
+func (x *AliasHoldApplyRequest) SetRef(v *AliasHoldRef) {
+	x.xxx_hidden_Ref = v
+}
+
+func (x *AliasHoldApplyRequest) SetPatch(v *patchpb.Patch) {
+	x.xxx_hidden_Patch = v
+}
+
+func (x *AliasHoldApplyRequest) HasRef() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Ref != nil
+}
+
+func (x *AliasHoldApplyRequest) HasPatch() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Patch != nil
+}
+
+func (x *AliasHoldApplyRequest) ClearRef() {
+	x.xxx_hidden_Ref = nil
+}
+
+func (x *AliasHoldApplyRequest) ClearPatch() {
+	x.xxx_hidden_Patch = nil
+}
+
+type AliasHoldApplyRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Ref   *AliasHoldRef
+	Patch *patchpb.Patch
+}
+
+func (b0 AliasHoldApplyRequest_builder) Build() *AliasHoldApplyRequest {
+	m0 := &AliasHoldApplyRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Ref = b.Ref
+	x.xxx_hidden_Patch = b.Patch
+	return m0
+}
+
+type AliasHoldEraseResponse struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Erased      bool                   `protobuf:"varint,1,opt,name=erased"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *AliasHoldEraseResponse) Reset() {
+	*x = AliasHoldEraseResponse{}
+	mi := &file_rove_org_svc_g_proto_msgTypes[58]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AliasHoldEraseResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AliasHoldEraseResponse) ProtoMessage() {}
+
+func (x *AliasHoldEraseResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_org_svc_g_proto_msgTypes[58]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *AliasHoldEraseResponse) GetErased() bool {
+	if x != nil {
+		return x.xxx_hidden_Erased
+	}
+	return false
+}
+
+func (x *AliasHoldEraseResponse) SetErased(v bool) {
+	x.xxx_hidden_Erased = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 1)
+}
+
+func (x *AliasHoldEraseResponse) HasErased() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
+}
+
+func (x *AliasHoldEraseResponse) ClearErased() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_Erased = false
+}
+
+type AliasHoldEraseResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// Erased is whether this call is the one that erased the row.
+	//
+	// False for a row that was already gone, was never there, or is out
+	// of this caller's reach -- which are one answer on purpose, and the
+	// reason the RPC does not fail instead.
+	Erased *bool
+}
+
+func (b0 AliasHoldEraseResponse_builder) Build() *AliasHoldEraseResponse {
+	m0 := &AliasHoldEraseResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	if b.Erased != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 1)
+		x.xxx_hidden_Erased = *b.Erased
+	}
+	return m0
+}
+
 // Account is who a call served as an account is from: an account of the
 // deployment's directory at roster (D27). Nothing keeps it; `cmd.Resolver`
 // puts it in the frame of a call an account makes before it is anybody's
@@ -8596,7 +9784,7 @@ type Account struct {
 
 func (x *Account) Reset() {
 	*x = Account{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[52]
+	mi := &file_rove_org_svc_g_proto_msgTypes[59]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8608,7 +9796,7 @@ func (x *Account) String() string {
 func (*Account) ProtoMessage() {}
 
 func (x *Account) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[52]
+	mi := &file_rove_org_svc_g_proto_msgTypes[59]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8972,6 +10160,50 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\x03ref\x18\x01 \x01(\v2\x11.rove.CliLoginRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"/\n" +
 	"\x15CliLoginEraseResponse\x12\x16\n" +
+	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x9a\x02\n" +
+	"\x13AliasHoldAddRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\fR\x02id\x12\x19\n" +
+	"\x04held\x18\b \x01(\tB\x05\xaa\x01\x02\b\x02R\x04held\x12\x1d\n" +
+	"\x06reason\x18\t \x01(\tB\x05\xaa\x01\x02\b\x02R\x06reason\x12 \n" +
+	"\bmoved_to\x18\n" +
+	" \x01(\tB\x05\xaa\x01\x02\b\x02R\amovedTo\x12\x1d\n" +
+	"\x06tenant\x18\v \x01(\fB\x05\xaa\x01\x02\b\x02R\x06tenant\x129\n" +
+	"\n" +
+	"date_until\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampR\tdateUntil\x12=\n" +
+	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\"j\n" +
+	"\x13AliasHoldGetRequest\x12$\n" +
+	"\x03ref\x18\x01 \x01(\v2\x12.rove.AliasHoldRefR\x03ref\x12-\n" +
+	"\x06select\x18\x02 \x01(\v2\x15.rove.AliasHoldSelectR\x06select\"'\n" +
+	"\fAliasHoldRef\x12\x10\n" +
+	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
+	"\x03key\"\x88\x02\n" +
+	"\x0fAliasHoldSelect\x12\x10\n" +
+	"\x03all\x18\x01 \x01(\bR\x03all\x12\x12\n" +
+	"\x04held\x18\b \x01(\bR\x04held\x12\x16\n" +
+	"\x06reason\x18\t \x01(\bR\x06reason\x12\x19\n" +
+	"\bmoved_to\x18\n" +
+	" \x01(\bR\amovedTo\x12\x16\n" +
+	"\x06tenant\x18\v \x01(\bR\x06tenant\x12\x1d\n" +
+	"\n" +
+	"date_until\x18\x10 \x01(\bR\tdateUntil\x12!\n" +
+	"\fdate_updated\x18\r \x01(\bR\vdateUpdated\x12\x1f\n" +
+	"\vdate_erased\x18\x0e \x01(\bR\n" +
+	"dateErased\x12!\n" +
+	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\"\xc4\x02\n" +
+	"\x15AliasHoldPatchRequest\x12$\n" +
+	"\x03ref\x18\x01 \x01(\v2\x12.rove.AliasHoldRefR\x03ref\x12\x12\n" +
+	"\x04held\x18\x10 \x01(\tR\x04held\x12\x16\n" +
+	"\x06reason\x18\x12 \x01(\tR\x06reason\x12\x19\n" +
+	"\bmoved_to\x18\x14 \x01(\tR\amovedTo\x12\x16\n" +
+	"\x06tenant\x18\x16 \x01(\fR\x06tenant\x129\n" +
+	"\n" +
+	"date_until\x18  \x01(\v2\x1a.google.protobuf.TimestampR\tdateUntil\x12=\n" +
+	"\fdate_updated\x18\x1a \x01(\v2\x1a.google.protobuf.TimestampR\vdateUpdated\x12,\n" +
+	"\x12date_updated_force\x18\x1b \x01(\bR\x10dateUpdatedForce\"a\n" +
+	"\x15AliasHoldApplyRequest\x12$\n" +
+	"\x03ref\x18\x01 \x01(\v2\x12.rove.AliasHoldRefR\x03ref\x12\"\n" +
+	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"0\n" +
+	"\x16AliasHoldEraseResponse\x12\x16\n" +
 	"\x06erased\x18\x01 \x01(\bR\x06erased\" \n" +
 	"\aAccount\x12\x15\n" +
 	"\x02id\x18\x01 \x01(\fB\x05\xaa\x01\x02\b\x02R\x02id2\x86\x06\n" +
@@ -9013,9 +10245,15 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\x03Get\x12\x18.rove.CliLoginGetRequest\x1a\x0e.rove.CliLogin\x123\n" +
 	"\x05Patch\x12\x1a.rove.CliLoginPatchRequest\x1a\x0e.rove.CliLogin\x123\n" +
 	"\x05Apply\x12\x1a.rove.CliLoginApplyRequest\x1a\x0e.rove.CliLogin\x127\n" +
-	"\x05Erase\x12\x11.rove.CliLoginRef\x1a\x1b.rove.CliLoginEraseResponseB\x1aZ\x18github.com/lesomnus/roveb\beditionsp\xe8\a"
+	"\x05Erase\x12\x11.rove.CliLoginRef\x1a\x1b.rove.CliLoginEraseResponse2\xa1\x02\n" +
+	"\x10AliasHoldService\x121\n" +
+	"\x03Add\x12\x19.rove.AliasHoldAddRequest\x1a\x0f.rove.AliasHold\x121\n" +
+	"\x03Get\x12\x19.rove.AliasHoldGetRequest\x1a\x0f.rove.AliasHold\x125\n" +
+	"\x05Patch\x12\x1b.rove.AliasHoldPatchRequest\x1a\x0f.rove.AliasHold\x125\n" +
+	"\x05Apply\x12\x1b.rove.AliasHoldApplyRequest\x1a\x0f.rove.AliasHold\x129\n" +
+	"\x05Erase\x12\x12.rove.AliasHoldRef\x1a\x1c.rove.AliasHoldEraseResponseB\x1aZ\x18github.com/lesomnus/roveb\beditionsp\xe8\a"
 
-var file_rove_org_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 57)
+var file_rove_org_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 64)
 var file_rove_org_svc_g_proto_goTypes = []any{
 	(*PartyAddRequest)(nil),          // 0: rove.PartyAddRequest
 	(*PartyGetRequest)(nil),          // 1: rove.PartyGetRequest
@@ -9069,183 +10307,210 @@ var file_rove_org_svc_g_proto_goTypes = []any{
 	(*CliLoginPatchRequest)(nil),     // 49: rove.CliLoginPatchRequest
 	(*CliLoginApplyRequest)(nil),     // 50: rove.CliLoginApplyRequest
 	(*CliLoginEraseResponse)(nil),    // 51: rove.CliLoginEraseResponse
-	(*Account)(nil),                  // 52: rove.Account
-	nil,                              // 53: rove.PartyAddRequest.LabelsEntry
-	nil,                              // 54: rove.PartyPatchRequest.LabelsEntry
-	nil,                              // 55: rove.PartyFilter.LabelsEntry
-	nil,                              // 56: rove.PartyUpdateRequest.LabelsEntry
-	(*TenantRef)(nil),                // 57: rove.TenantRef
-	(*HolderRef)(nil),                // 58: rove.HolderRef
-	(*timestamppb.Timestamp)(nil),    // 59: google.protobuf.Timestamp
-	(*TenantSelect)(nil),             // 60: rove.TenantSelect
-	(*HolderSelect)(nil),             // 61: rove.HolderSelect
-	(*patchpb.Patch)(nil),            // 62: patch.Patch
-	(*Party)(nil),                    // 63: rove.Party
-	(*Holder)(nil),                   // 64: rove.Holder
-	(*Tenant)(nil),                   // 65: rove.Tenant
-	(*Invitation)(nil),               // 66: rove.Invitation
-	(*Session)(nil),                  // 67: rove.Session
-	(*CliLogin)(nil),                 // 68: rove.CliLogin
+	(*AliasHoldAddRequest)(nil),      // 52: rove.AliasHoldAddRequest
+	(*AliasHoldGetRequest)(nil),      // 53: rove.AliasHoldGetRequest
+	(*AliasHoldRef)(nil),             // 54: rove.AliasHoldRef
+	(*AliasHoldSelect)(nil),          // 55: rove.AliasHoldSelect
+	(*AliasHoldPatchRequest)(nil),    // 56: rove.AliasHoldPatchRequest
+	(*AliasHoldApplyRequest)(nil),    // 57: rove.AliasHoldApplyRequest
+	(*AliasHoldEraseResponse)(nil),   // 58: rove.AliasHoldEraseResponse
+	(*Account)(nil),                  // 59: rove.Account
+	nil,                              // 60: rove.PartyAddRequest.LabelsEntry
+	nil,                              // 61: rove.PartyPatchRequest.LabelsEntry
+	nil,                              // 62: rove.PartyFilter.LabelsEntry
+	nil,                              // 63: rove.PartyUpdateRequest.LabelsEntry
+	(*TenantRef)(nil),                // 64: rove.TenantRef
+	(*HolderRef)(nil),                // 65: rove.HolderRef
+	(*timestamppb.Timestamp)(nil),    // 66: google.protobuf.Timestamp
+	(*TenantSelect)(nil),             // 67: rove.TenantSelect
+	(*HolderSelect)(nil),             // 68: rove.HolderSelect
+	(*patchpb.Patch)(nil),            // 69: patch.Patch
+	(*Party)(nil),                    // 70: rove.Party
+	(*Holder)(nil),                   // 71: rove.Holder
+	(*Tenant)(nil),                   // 72: rove.Tenant
+	(*Invitation)(nil),               // 73: rove.Invitation
+	(*Session)(nil),                  // 74: rove.Session
+	(*CliLogin)(nil),                 // 75: rove.CliLogin
+	(*AliasHold)(nil),                // 76: rove.AliasHold
 }
 var file_rove_org_svc_g_proto_depIdxs = []int32{
-	57,  // 0: rove.PartyAddRequest.tenant:type_name -> rove.TenantRef
-	53,  // 1: rove.PartyAddRequest.labels:type_name -> rove.PartyAddRequest.LabelsEntry
-	58,  // 2: rove.PartyAddRequest.holder:type_name -> rove.HolderRef
-	59,  // 3: rove.PartyAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	64,  // 0: rove.PartyAddRequest.tenant:type_name -> rove.TenantRef
+	60,  // 1: rove.PartyAddRequest.labels:type_name -> rove.PartyAddRequest.LabelsEntry
+	65,  // 2: rove.PartyAddRequest.holder:type_name -> rove.HolderRef
+	66,  // 3: rove.PartyAddRequest.date_created:type_name -> google.protobuf.Timestamp
 	2,   // 4: rove.PartyGetRequest.ref:type_name -> rove.PartyRef
 	4,   // 5: rove.PartyGetRequest.select:type_name -> rove.PartySelect
 	3,   // 6: rove.PartyRef.holder:type_name -> rove.PartyRefByHolder
-	58,  // 7: rove.PartyRefByHolder.holder:type_name -> rove.HolderRef
-	60,  // 8: rove.PartySelect.tenant:type_name -> rove.TenantSelect
-	61,  // 9: rove.PartySelect.holder:type_name -> rove.HolderSelect
+	65,  // 7: rove.PartyRefByHolder.holder:type_name -> rove.HolderRef
+	67,  // 8: rove.PartySelect.tenant:type_name -> rove.TenantSelect
+	68,  // 9: rove.PartySelect.holder:type_name -> rove.HolderSelect
 	2,   // 10: rove.PartyPatchRequest.ref:type_name -> rove.PartyRef
-	54,  // 11: rove.PartyPatchRequest.labels:type_name -> rove.PartyPatchRequest.LabelsEntry
-	58,  // 12: rove.PartyPatchRequest.holder:type_name -> rove.HolderRef
-	59,  // 13: rove.PartyPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	61,  // 11: rove.PartyPatchRequest.labels:type_name -> rove.PartyPatchRequest.LabelsEntry
+	65,  // 12: rove.PartyPatchRequest.holder:type_name -> rove.HolderRef
+	66,  // 13: rove.PartyPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
 	2,   // 14: rove.PartyApplyRequest.ref:type_name -> rove.PartyRef
-	62,  // 15: rove.PartyApplyRequest.patch:type_name -> patch.Patch
+	69,  // 15: rove.PartyApplyRequest.patch:type_name -> patch.Patch
 	10,  // 16: rove.PartyListRequest.filters:type_name -> rove.PartyFilter
-	63,  // 17: rove.PartyListResponse.items:type_name -> rove.Party
+	70,  // 17: rove.PartyListResponse.items:type_name -> rove.Party
 	2,   // 18: rove.PartyFilter.ref:type_name -> rove.PartyRef
-	58,  // 19: rove.PartyFilter.holder:type_name -> rove.HolderRef
-	55,  // 20: rove.PartyFilter.labels:type_name -> rove.PartyFilter.LabelsEntry
+	65,  // 19: rove.PartyFilter.holder:type_name -> rove.HolderRef
+	62,  // 20: rove.PartyFilter.labels:type_name -> rove.PartyFilter.LabelsEntry
 	10,  // 21: rove.PartyWatchRequest.filters:type_name -> rove.PartyFilter
 	13,  // 22: rove.PartyWatchResponse.items:type_name -> rove.PartyWatchItem
-	63,  // 23: rove.PartyWatchItem.value:type_name -> rove.Party
-	64,  // 24: rove.PartyMeResponse.holder:type_name -> rove.Holder
-	63,  // 25: rove.PartyMeResponse.party:type_name -> rove.Party
-	65,  // 26: rove.PartyMeResponse.tenant:type_name -> rove.Tenant
-	59,  // 27: rove.PartyMeResponse.history_since:type_name -> google.protobuf.Timestamp
+	70,  // 23: rove.PartyWatchItem.value:type_name -> rove.Party
+	71,  // 24: rove.PartyMeResponse.holder:type_name -> rove.Holder
+	70,  // 25: rove.PartyMeResponse.party:type_name -> rove.Party
+	72,  // 26: rove.PartyMeResponse.tenant:type_name -> rove.Tenant
+	66,  // 27: rove.PartyMeResponse.history_since:type_name -> google.protobuf.Timestamp
 	2,   // 28: rove.PartyUpdateRequest.ref:type_name -> rove.PartyRef
-	56,  // 29: rove.PartyUpdateRequest.labels:type_name -> rove.PartyUpdateRequest.LabelsEntry
+	63,  // 29: rove.PartyUpdateRequest.labels:type_name -> rove.PartyUpdateRequest.LabelsEntry
 	2,   // 30: rove.PartyInviteRequest.ref:type_name -> rove.PartyRef
-	63,  // 31: rove.PartyInviteResponse.party:type_name -> rove.Party
-	64,  // 32: rove.PartyInviteResponse.holder:type_name -> rove.Holder
+	70,  // 31: rove.PartyInviteResponse.party:type_name -> rove.Party
+	71,  // 32: rove.PartyInviteResponse.holder:type_name -> rove.Holder
 	2,   // 33: rove.PartySetRoleRequest.ref:type_name -> rove.PartyRef
 	2,   // 34: rove.PartySetPasswordRequest.ref:type_name -> rove.PartyRef
 	2,   // 35: rove.PartyDeactivateRequest.ref:type_name -> rove.PartyRef
 	2,   // 36: rove.PartyPseudonymizeRequest.ref:type_name -> rove.PartyRef
-	59,  // 37: rove.SessionAddRequest.date_expires:type_name -> google.protobuf.Timestamp
-	59,  // 38: rove.SessionAddRequest.date_idle:type_name -> google.protobuf.Timestamp
-	59,  // 39: rove.SessionAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	66,  // 37: rove.SessionAddRequest.date_expires:type_name -> google.protobuf.Timestamp
+	66,  // 38: rove.SessionAddRequest.date_idle:type_name -> google.protobuf.Timestamp
+	66,  // 39: rove.SessionAddRequest.date_created:type_name -> google.protobuf.Timestamp
 	26,  // 40: rove.SessionGetRequest.ref:type_name -> rove.SessionRef
 	27,  // 41: rove.SessionGetRequest.select:type_name -> rove.SessionSelect
 	26,  // 42: rove.SessionPatchRequest.ref:type_name -> rove.SessionRef
-	59,  // 43: rove.SessionPatchRequest.date_expires:type_name -> google.protobuf.Timestamp
-	59,  // 44: rove.SessionPatchRequest.date_idle:type_name -> google.protobuf.Timestamp
-	59,  // 45: rove.SessionPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	66,  // 43: rove.SessionPatchRequest.date_expires:type_name -> google.protobuf.Timestamp
+	66,  // 44: rove.SessionPatchRequest.date_idle:type_name -> google.protobuf.Timestamp
+	66,  // 45: rove.SessionPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
 	26,  // 46: rove.SessionApplyRequest.ref:type_name -> rove.SessionRef
-	62,  // 47: rove.SessionApplyRequest.patch:type_name -> patch.Patch
-	57,  // 48: rove.InvitationAddRequest.tenant:type_name -> rove.TenantRef
-	58,  // 49: rove.InvitationAddRequest.inviter:type_name -> rove.HolderRef
+	69,  // 47: rove.SessionApplyRequest.patch:type_name -> patch.Patch
+	64,  // 48: rove.InvitationAddRequest.tenant:type_name -> rove.TenantRef
+	65,  // 49: rove.InvitationAddRequest.inviter:type_name -> rove.HolderRef
 	2,   // 50: rove.InvitationAddRequest.party:type_name -> rove.PartyRef
-	59,  // 51: rove.InvitationAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	59,  // 52: rove.InvitationAddRequest.date_expires:type_name -> google.protobuf.Timestamp
-	59,  // 53: rove.InvitationAddRequest.date_settled:type_name -> google.protobuf.Timestamp
-	58,  // 54: rove.InvitationAddRequest.holder:type_name -> rove.HolderRef
+	66,  // 51: rove.InvitationAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	66,  // 52: rove.InvitationAddRequest.date_expires:type_name -> google.protobuf.Timestamp
+	66,  // 53: rove.InvitationAddRequest.date_settled:type_name -> google.protobuf.Timestamp
+	65,  // 54: rove.InvitationAddRequest.holder:type_name -> rove.HolderRef
 	33,  // 55: rove.InvitationGetRequest.ref:type_name -> rove.InvitationRef
 	34,  // 56: rove.InvitationGetRequest.select:type_name -> rove.InvitationSelect
-	60,  // 57: rove.InvitationSelect.tenant:type_name -> rove.TenantSelect
-	61,  // 58: rove.InvitationSelect.inviter:type_name -> rove.HolderSelect
+	67,  // 57: rove.InvitationSelect.tenant:type_name -> rove.TenantSelect
+	68,  // 58: rove.InvitationSelect.inviter:type_name -> rove.HolderSelect
 	4,   // 59: rove.InvitationSelect.party:type_name -> rove.PartySelect
-	61,  // 60: rove.InvitationSelect.holder:type_name -> rove.HolderSelect
+	68,  // 60: rove.InvitationSelect.holder:type_name -> rove.HolderSelect
 	33,  // 61: rove.InvitationPatchRequest.ref:type_name -> rove.InvitationRef
 	2,   // 62: rove.InvitationPatchRequest.party:type_name -> rove.PartyRef
-	59,  // 63: rove.InvitationPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	59,  // 64: rove.InvitationPatchRequest.date_expires:type_name -> google.protobuf.Timestamp
-	59,  // 65: rove.InvitationPatchRequest.date_settled:type_name -> google.protobuf.Timestamp
-	58,  // 66: rove.InvitationPatchRequest.holder:type_name -> rove.HolderRef
+	66,  // 63: rove.InvitationPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	66,  // 64: rove.InvitationPatchRequest.date_expires:type_name -> google.protobuf.Timestamp
+	66,  // 65: rove.InvitationPatchRequest.date_settled:type_name -> google.protobuf.Timestamp
+	65,  // 66: rove.InvitationPatchRequest.holder:type_name -> rove.HolderRef
 	33,  // 67: rove.InvitationApplyRequest.ref:type_name -> rove.InvitationRef
-	62,  // 68: rove.InvitationApplyRequest.patch:type_name -> patch.Patch
+	69,  // 68: rove.InvitationApplyRequest.patch:type_name -> patch.Patch
 	40,  // 69: rove.InvitationListRequest.filters:type_name -> rove.InvitationFilter
-	66,  // 70: rove.InvitationListResponse.items:type_name -> rove.Invitation
+	73,  // 70: rove.InvitationListResponse.items:type_name -> rove.Invitation
 	33,  // 71: rove.InvitationFilter.ref:type_name -> rove.InvitationRef
-	57,  // 72: rove.InvitationFilter.tenant:type_name -> rove.TenantRef
+	64,  // 72: rove.InvitationFilter.tenant:type_name -> rove.TenantRef
 	33,  // 73: rove.InvitationRevokeRequest.ref:type_name -> rove.InvitationRef
 	33,  // 74: rove.InvitationAcceptRequest.ref:type_name -> rove.InvitationRef
 	33,  // 75: rove.InvitationDenyRequest.ref:type_name -> rove.InvitationRef
-	59,  // 76: rove.CliLoginAddRequest.date_expires:type_name -> google.protobuf.Timestamp
-	59,  // 77: rove.CliLoginAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	66,  // 76: rove.CliLoginAddRequest.date_expires:type_name -> google.protobuf.Timestamp
+	66,  // 77: rove.CliLoginAddRequest.date_created:type_name -> google.protobuf.Timestamp
 	47,  // 78: rove.CliLoginGetRequest.ref:type_name -> rove.CliLoginRef
 	48,  // 79: rove.CliLoginGetRequest.select:type_name -> rove.CliLoginSelect
 	47,  // 80: rove.CliLoginPatchRequest.ref:type_name -> rove.CliLoginRef
-	59,  // 81: rove.CliLoginPatchRequest.date_expires:type_name -> google.protobuf.Timestamp
-	59,  // 82: rove.CliLoginPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	66,  // 81: rove.CliLoginPatchRequest.date_expires:type_name -> google.protobuf.Timestamp
+	66,  // 82: rove.CliLoginPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
 	47,  // 83: rove.CliLoginApplyRequest.ref:type_name -> rove.CliLoginRef
-	62,  // 84: rove.CliLoginApplyRequest.patch:type_name -> patch.Patch
-	0,   // 85: rove.PartyService.Add:input_type -> rove.PartyAddRequest
-	1,   // 86: rove.PartyService.Get:input_type -> rove.PartyGetRequest
-	5,   // 87: rove.PartyService.Patch:input_type -> rove.PartyPatchRequest
-	6,   // 88: rove.PartyService.Apply:input_type -> rove.PartyApplyRequest
-	2,   // 89: rove.PartyService.Erase:input_type -> rove.PartyRef
-	8,   // 90: rove.PartyService.List:input_type -> rove.PartyListRequest
-	11,  // 91: rove.PartyService.Watch:input_type -> rove.PartyWatchRequest
-	14,  // 92: rove.PartyService.Me:input_type -> rove.PartyMeRequest
-	16,  // 93: rove.PartyService.Update:input_type -> rove.PartyUpdateRequest
-	17,  // 94: rove.PartyService.Invite:input_type -> rove.PartyInviteRequest
-	19,  // 95: rove.PartyService.SetRole:input_type -> rove.PartySetRoleRequest
-	20,  // 96: rove.PartyService.SetPassword:input_type -> rove.PartySetPasswordRequest
-	22,  // 97: rove.PartyService.Deactivate:input_type -> rove.PartyDeactivateRequest
-	23,  // 98: rove.PartyService.Pseudonymize:input_type -> rove.PartyPseudonymizeRequest
-	24,  // 99: rove.SessionService.Add:input_type -> rove.SessionAddRequest
-	25,  // 100: rove.SessionService.Get:input_type -> rove.SessionGetRequest
-	28,  // 101: rove.SessionService.Patch:input_type -> rove.SessionPatchRequest
-	29,  // 102: rove.SessionService.Apply:input_type -> rove.SessionApplyRequest
-	26,  // 103: rove.SessionService.Erase:input_type -> rove.SessionRef
-	31,  // 104: rove.InvitationService.Add:input_type -> rove.InvitationAddRequest
-	32,  // 105: rove.InvitationService.Get:input_type -> rove.InvitationGetRequest
-	35,  // 106: rove.InvitationService.Patch:input_type -> rove.InvitationPatchRequest
-	36,  // 107: rove.InvitationService.Apply:input_type -> rove.InvitationApplyRequest
-	33,  // 108: rove.InvitationService.Erase:input_type -> rove.InvitationRef
-	38,  // 109: rove.InvitationService.List:input_type -> rove.InvitationListRequest
-	41,  // 110: rove.InvitationService.Revoke:input_type -> rove.InvitationRevokeRequest
-	42,  // 111: rove.InvitationService.Claim:input_type -> rove.InvitationClaimRequest
-	43,  // 112: rove.InvitationService.Accept:input_type -> rove.InvitationAcceptRequest
-	44,  // 113: rove.InvitationService.Deny:input_type -> rove.InvitationDenyRequest
-	45,  // 114: rove.CliLoginService.Add:input_type -> rove.CliLoginAddRequest
-	46,  // 115: rove.CliLoginService.Get:input_type -> rove.CliLoginGetRequest
-	49,  // 116: rove.CliLoginService.Patch:input_type -> rove.CliLoginPatchRequest
-	50,  // 117: rove.CliLoginService.Apply:input_type -> rove.CliLoginApplyRequest
-	47,  // 118: rove.CliLoginService.Erase:input_type -> rove.CliLoginRef
-	63,  // 119: rove.PartyService.Add:output_type -> rove.Party
-	63,  // 120: rove.PartyService.Get:output_type -> rove.Party
-	63,  // 121: rove.PartyService.Patch:output_type -> rove.Party
-	63,  // 122: rove.PartyService.Apply:output_type -> rove.Party
-	7,   // 123: rove.PartyService.Erase:output_type -> rove.PartyEraseResponse
-	9,   // 124: rove.PartyService.List:output_type -> rove.PartyListResponse
-	12,  // 125: rove.PartyService.Watch:output_type -> rove.PartyWatchResponse
-	15,  // 126: rove.PartyService.Me:output_type -> rove.PartyMeResponse
-	63,  // 127: rove.PartyService.Update:output_type -> rove.Party
-	18,  // 128: rove.PartyService.Invite:output_type -> rove.PartyInviteResponse
-	63,  // 129: rove.PartyService.SetRole:output_type -> rove.Party
-	21,  // 130: rove.PartyService.SetPassword:output_type -> rove.PartySetPasswordResponse
-	63,  // 131: rove.PartyService.Deactivate:output_type -> rove.Party
-	63,  // 132: rove.PartyService.Pseudonymize:output_type -> rove.Party
-	67,  // 133: rove.SessionService.Add:output_type -> rove.Session
-	67,  // 134: rove.SessionService.Get:output_type -> rove.Session
-	67,  // 135: rove.SessionService.Patch:output_type -> rove.Session
-	67,  // 136: rove.SessionService.Apply:output_type -> rove.Session
-	30,  // 137: rove.SessionService.Erase:output_type -> rove.SessionEraseResponse
-	66,  // 138: rove.InvitationService.Add:output_type -> rove.Invitation
-	66,  // 139: rove.InvitationService.Get:output_type -> rove.Invitation
-	66,  // 140: rove.InvitationService.Patch:output_type -> rove.Invitation
-	66,  // 141: rove.InvitationService.Apply:output_type -> rove.Invitation
-	37,  // 142: rove.InvitationService.Erase:output_type -> rove.InvitationEraseResponse
-	39,  // 143: rove.InvitationService.List:output_type -> rove.InvitationListResponse
-	66,  // 144: rove.InvitationService.Revoke:output_type -> rove.Invitation
-	66,  // 145: rove.InvitationService.Claim:output_type -> rove.Invitation
-	66,  // 146: rove.InvitationService.Accept:output_type -> rove.Invitation
-	66,  // 147: rove.InvitationService.Deny:output_type -> rove.Invitation
-	68,  // 148: rove.CliLoginService.Add:output_type -> rove.CliLogin
-	68,  // 149: rove.CliLoginService.Get:output_type -> rove.CliLogin
-	68,  // 150: rove.CliLoginService.Patch:output_type -> rove.CliLogin
-	68,  // 151: rove.CliLoginService.Apply:output_type -> rove.CliLogin
-	51,  // 152: rove.CliLoginService.Erase:output_type -> rove.CliLoginEraseResponse
-	119, // [119:153] is the sub-list for method output_type
-	85,  // [85:119] is the sub-list for method input_type
-	85,  // [85:85] is the sub-list for extension type_name
-	85,  // [85:85] is the sub-list for extension extendee
-	0,   // [0:85] is the sub-list for field type_name
+	69,  // 84: rove.CliLoginApplyRequest.patch:type_name -> patch.Patch
+	66,  // 85: rove.AliasHoldAddRequest.date_until:type_name -> google.protobuf.Timestamp
+	66,  // 86: rove.AliasHoldAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	54,  // 87: rove.AliasHoldGetRequest.ref:type_name -> rove.AliasHoldRef
+	55,  // 88: rove.AliasHoldGetRequest.select:type_name -> rove.AliasHoldSelect
+	54,  // 89: rove.AliasHoldPatchRequest.ref:type_name -> rove.AliasHoldRef
+	66,  // 90: rove.AliasHoldPatchRequest.date_until:type_name -> google.protobuf.Timestamp
+	66,  // 91: rove.AliasHoldPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	54,  // 92: rove.AliasHoldApplyRequest.ref:type_name -> rove.AliasHoldRef
+	69,  // 93: rove.AliasHoldApplyRequest.patch:type_name -> patch.Patch
+	0,   // 94: rove.PartyService.Add:input_type -> rove.PartyAddRequest
+	1,   // 95: rove.PartyService.Get:input_type -> rove.PartyGetRequest
+	5,   // 96: rove.PartyService.Patch:input_type -> rove.PartyPatchRequest
+	6,   // 97: rove.PartyService.Apply:input_type -> rove.PartyApplyRequest
+	2,   // 98: rove.PartyService.Erase:input_type -> rove.PartyRef
+	8,   // 99: rove.PartyService.List:input_type -> rove.PartyListRequest
+	11,  // 100: rove.PartyService.Watch:input_type -> rove.PartyWatchRequest
+	14,  // 101: rove.PartyService.Me:input_type -> rove.PartyMeRequest
+	16,  // 102: rove.PartyService.Update:input_type -> rove.PartyUpdateRequest
+	17,  // 103: rove.PartyService.Invite:input_type -> rove.PartyInviteRequest
+	19,  // 104: rove.PartyService.SetRole:input_type -> rove.PartySetRoleRequest
+	20,  // 105: rove.PartyService.SetPassword:input_type -> rove.PartySetPasswordRequest
+	22,  // 106: rove.PartyService.Deactivate:input_type -> rove.PartyDeactivateRequest
+	23,  // 107: rove.PartyService.Pseudonymize:input_type -> rove.PartyPseudonymizeRequest
+	24,  // 108: rove.SessionService.Add:input_type -> rove.SessionAddRequest
+	25,  // 109: rove.SessionService.Get:input_type -> rove.SessionGetRequest
+	28,  // 110: rove.SessionService.Patch:input_type -> rove.SessionPatchRequest
+	29,  // 111: rove.SessionService.Apply:input_type -> rove.SessionApplyRequest
+	26,  // 112: rove.SessionService.Erase:input_type -> rove.SessionRef
+	31,  // 113: rove.InvitationService.Add:input_type -> rove.InvitationAddRequest
+	32,  // 114: rove.InvitationService.Get:input_type -> rove.InvitationGetRequest
+	35,  // 115: rove.InvitationService.Patch:input_type -> rove.InvitationPatchRequest
+	36,  // 116: rove.InvitationService.Apply:input_type -> rove.InvitationApplyRequest
+	33,  // 117: rove.InvitationService.Erase:input_type -> rove.InvitationRef
+	38,  // 118: rove.InvitationService.List:input_type -> rove.InvitationListRequest
+	41,  // 119: rove.InvitationService.Revoke:input_type -> rove.InvitationRevokeRequest
+	42,  // 120: rove.InvitationService.Claim:input_type -> rove.InvitationClaimRequest
+	43,  // 121: rove.InvitationService.Accept:input_type -> rove.InvitationAcceptRequest
+	44,  // 122: rove.InvitationService.Deny:input_type -> rove.InvitationDenyRequest
+	45,  // 123: rove.CliLoginService.Add:input_type -> rove.CliLoginAddRequest
+	46,  // 124: rove.CliLoginService.Get:input_type -> rove.CliLoginGetRequest
+	49,  // 125: rove.CliLoginService.Patch:input_type -> rove.CliLoginPatchRequest
+	50,  // 126: rove.CliLoginService.Apply:input_type -> rove.CliLoginApplyRequest
+	47,  // 127: rove.CliLoginService.Erase:input_type -> rove.CliLoginRef
+	52,  // 128: rove.AliasHoldService.Add:input_type -> rove.AliasHoldAddRequest
+	53,  // 129: rove.AliasHoldService.Get:input_type -> rove.AliasHoldGetRequest
+	56,  // 130: rove.AliasHoldService.Patch:input_type -> rove.AliasHoldPatchRequest
+	57,  // 131: rove.AliasHoldService.Apply:input_type -> rove.AliasHoldApplyRequest
+	54,  // 132: rove.AliasHoldService.Erase:input_type -> rove.AliasHoldRef
+	70,  // 133: rove.PartyService.Add:output_type -> rove.Party
+	70,  // 134: rove.PartyService.Get:output_type -> rove.Party
+	70,  // 135: rove.PartyService.Patch:output_type -> rove.Party
+	70,  // 136: rove.PartyService.Apply:output_type -> rove.Party
+	7,   // 137: rove.PartyService.Erase:output_type -> rove.PartyEraseResponse
+	9,   // 138: rove.PartyService.List:output_type -> rove.PartyListResponse
+	12,  // 139: rove.PartyService.Watch:output_type -> rove.PartyWatchResponse
+	15,  // 140: rove.PartyService.Me:output_type -> rove.PartyMeResponse
+	70,  // 141: rove.PartyService.Update:output_type -> rove.Party
+	18,  // 142: rove.PartyService.Invite:output_type -> rove.PartyInviteResponse
+	70,  // 143: rove.PartyService.SetRole:output_type -> rove.Party
+	21,  // 144: rove.PartyService.SetPassword:output_type -> rove.PartySetPasswordResponse
+	70,  // 145: rove.PartyService.Deactivate:output_type -> rove.Party
+	70,  // 146: rove.PartyService.Pseudonymize:output_type -> rove.Party
+	74,  // 147: rove.SessionService.Add:output_type -> rove.Session
+	74,  // 148: rove.SessionService.Get:output_type -> rove.Session
+	74,  // 149: rove.SessionService.Patch:output_type -> rove.Session
+	74,  // 150: rove.SessionService.Apply:output_type -> rove.Session
+	30,  // 151: rove.SessionService.Erase:output_type -> rove.SessionEraseResponse
+	73,  // 152: rove.InvitationService.Add:output_type -> rove.Invitation
+	73,  // 153: rove.InvitationService.Get:output_type -> rove.Invitation
+	73,  // 154: rove.InvitationService.Patch:output_type -> rove.Invitation
+	73,  // 155: rove.InvitationService.Apply:output_type -> rove.Invitation
+	37,  // 156: rove.InvitationService.Erase:output_type -> rove.InvitationEraseResponse
+	39,  // 157: rove.InvitationService.List:output_type -> rove.InvitationListResponse
+	73,  // 158: rove.InvitationService.Revoke:output_type -> rove.Invitation
+	73,  // 159: rove.InvitationService.Claim:output_type -> rove.Invitation
+	73,  // 160: rove.InvitationService.Accept:output_type -> rove.Invitation
+	73,  // 161: rove.InvitationService.Deny:output_type -> rove.Invitation
+	75,  // 162: rove.CliLoginService.Add:output_type -> rove.CliLogin
+	75,  // 163: rove.CliLoginService.Get:output_type -> rove.CliLogin
+	75,  // 164: rove.CliLoginService.Patch:output_type -> rove.CliLogin
+	75,  // 165: rove.CliLoginService.Apply:output_type -> rove.CliLogin
+	51,  // 166: rove.CliLoginService.Erase:output_type -> rove.CliLoginEraseResponse
+	76,  // 167: rove.AliasHoldService.Add:output_type -> rove.AliasHold
+	76,  // 168: rove.AliasHoldService.Get:output_type -> rove.AliasHold
+	76,  // 169: rove.AliasHoldService.Patch:output_type -> rove.AliasHold
+	76,  // 170: rove.AliasHoldService.Apply:output_type -> rove.AliasHold
+	58,  // 171: rove.AliasHoldService.Erase:output_type -> rove.AliasHoldEraseResponse
+	133, // [133:172] is the sub-list for method output_type
+	94,  // [94:133] is the sub-list for method input_type
+	94,  // [94:94] is the sub-list for extension type_name
+	94,  // [94:94] is the sub-list for extension extendee
+	0,   // [0:94] is the sub-list for field type_name
 }
 
 func init() { file_rove_org_svc_g_proto_init() }
@@ -9271,15 +10536,18 @@ func file_rove_org_svc_g_proto_init() {
 	file_rove_org_svc_g_proto_msgTypes[47].OneofWrappers = []any{
 		(*cliLoginRef_Id)(nil),
 	}
+	file_rove_org_svc_g_proto_msgTypes[54].OneofWrappers = []any{
+		(*aliasHoldRef_Id)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_org_svc_g_proto_rawDesc), len(file_rove_org_svc_g_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   57,
+			NumMessages:   64,
 			NumExtensions: 0,
-			NumServices:   4,
+			NumServices:   5,
 		},
 		GoTypes:           file_rove_org_svc_g_proto_goTypes,
 		DependencyIndexes: file_rove_org_svc_g_proto_depIdxs,

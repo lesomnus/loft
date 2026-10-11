@@ -110,6 +110,7 @@ func Check() error { return version.Same(Payday) }
 // trail says what kind of thing it was long after the row is gone. So a
 // number is chosen once and never given to something else.
 const (
+	AliasHoldDomain       pdid.Domain = 43 // "alias-hold"
 	AllocationDomain      pdid.Domain = 28 // "allocation"
 	ArchivedDomain        pdid.Domain = 5  // "archived"
 	AssetDomain           pdid.Domain = 7  // "asset"
@@ -151,6 +152,7 @@ const (
 )
 
 func init() {
+	pdid.Register("rove.AliasHold", AliasHoldDomain, "alias-hold")
 	pdid.Register("rove.Allocation", AllocationDomain, "allocation")
 	pdid.Register("rove.Archived", ArchivedDomain, "archived")
 	pdid.Register("rove.Asset", AssetDomain, "asset")
@@ -196,6 +198,7 @@ func init() {
 // Domains is the domain of each entity by the full name of its message,
 // which is the name a [Minter] is asked about.
 var Domains = map[string]pdid.Domain{
+	"rove.AliasHold":       AliasHoldDomain,
 	"rove.Allocation":      AllocationDomain,
 	"rove.Archived":        ArchivedDomain,
 	"rove.Asset":           AssetDomain,
@@ -277,6 +280,11 @@ func Wall() bare.Scope { return wall{} }
 type wall struct{}
 
 var _ bare.Scope = wall{}
+
+// AliasHoldScope: declared `global`, so it is not behind the wall at all.
+func (wall) AliasHoldScope(ctx context.Context) (predicate.AliasHold, error) {
+	return nil, nil
+}
 
 // AllocationScope: a row belongs to the tenant its "tenant" reaches.
 func (wall) AllocationScope(ctx context.Context) (predicate.Allocation, error) {
@@ -15405,6 +15413,16 @@ func (s interceptTenant) List(ctx context.Context, req *rove.TenantListRequest) 
 		rove.TenantService_List_FullMethodName, req, s.TenantServiceServer.List)
 }
 
+func (s interceptTenant) Close(ctx context.Context, req *rove.TenantCloseRequest) (*rove.Tenant, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.TenantServiceServer,
+		rove.TenantService_Close_FullMethodName, req, s.TenantServiceServer.Close)
+}
+
+func (s interceptTenant) Restore(ctx context.Context, req *rove.TenantRestoreRequest) (*rove.Tenant, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.TenantServiceServer,
+		rove.TenantService_Restore_FullMethodName, req, s.TenantServiceServer.Restore)
+}
+
 func (s Intercept) AssetType() rove.AssetTypeServiceServer {
 	return interceptAssetType{s, s.Next().AssetType()}
 }
@@ -15751,6 +15769,40 @@ func (s interceptCliLogin) Apply(ctx context.Context, req *rove.CliLoginApplyReq
 func (s interceptCliLogin) Erase(ctx context.Context, req *rove.CliLoginRef) (*rove.CliLoginEraseResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.CliLoginServiceServer,
 		rove.CliLoginService_Erase_FullMethodName, req, s.CliLoginServiceServer.Erase)
+}
+
+func (s Intercept) AliasHold() rove.AliasHoldServiceServer {
+	return interceptAliasHold{s, s.Next().AliasHold()}
+}
+
+type interceptAliasHold struct {
+	Intercept
+	rove.AliasHoldServiceServer
+}
+
+func (s interceptAliasHold) Add(ctx context.Context, req *rove.AliasHoldAddRequest) (*rove.AliasHold, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.AliasHoldServiceServer,
+		rove.AliasHoldService_Add_FullMethodName, req, s.AliasHoldServiceServer.Add)
+}
+
+func (s interceptAliasHold) Get(ctx context.Context, req *rove.AliasHoldGetRequest) (*rove.AliasHold, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.AliasHoldServiceServer,
+		rove.AliasHoldService_Get_FullMethodName, req, s.AliasHoldServiceServer.Get)
+}
+
+func (s interceptAliasHold) Patch(ctx context.Context, req *rove.AliasHoldPatchRequest) (*rove.AliasHold, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.AliasHoldServiceServer,
+		rove.AliasHoldService_Patch_FullMethodName, req, s.AliasHoldServiceServer.Patch)
+}
+
+func (s interceptAliasHold) Apply(ctx context.Context, req *rove.AliasHoldApplyRequest) (*rove.AliasHold, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.AliasHoldServiceServer,
+		rove.AliasHoldService_Apply_FullMethodName, req, s.AliasHoldServiceServer.Apply)
+}
+
+func (s interceptAliasHold) Erase(ctx context.Context, req *rove.AliasHoldRef) (*rove.AliasHoldEraseResponse, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.AliasHoldServiceServer,
+		rove.AliasHoldService_Erase_FullMethodName, req, s.AliasHoldServiceServer.Erase)
 }
 
 func (s Intercept) Asset() rove.AssetServiceServer {
@@ -18067,6 +18119,32 @@ func dispatch(ctx context.Context, s rove.Server, op *pdpb.Op) (*anypb.Any, erro
 
 		return anypb.New(res)
 
+	case rove.TenantService_Close_FullMethodName:
+		v := &rove.TenantCloseRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.Tenant().Close(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.TenantService_Restore_FullMethodName:
+		v := &rove.TenantRestoreRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.Tenant().Restore(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
 	case rove.AssetTypeService_Add_FullMethodName:
 		v := &rove.AssetTypeAddRequest{}
 		if err := op.GetRequest().UnmarshalTo(v); err != nil {
@@ -18750,6 +18828,71 @@ func dispatch(ctx context.Context, s rove.Server, op *pdpb.Op) (*anypb.Any, erro
 		}
 
 		res, err := s.CliLogin().Erase(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.AliasHoldService_Add_FullMethodName:
+		v := &rove.AliasHoldAddRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.AliasHold().Add(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.AliasHoldService_Get_FullMethodName:
+		v := &rove.AliasHoldGetRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.AliasHold().Get(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.AliasHoldService_Patch_FullMethodName:
+		v := &rove.AliasHoldPatchRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.AliasHold().Patch(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.AliasHoldService_Apply_FullMethodName:
+		v := &rove.AliasHoldApplyRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.AliasHold().Apply(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.AliasHoldService_Erase_FullMethodName:
+		v := &rove.AliasHoldRef{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.AliasHold().Erase(ctx, v)
 		if err != nil {
 			return nil, err
 		}

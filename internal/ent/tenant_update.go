@@ -97,6 +97,74 @@ func (_u *TenantUpdate) SetNillableDateUpdated(v *time.Time) *TenantUpdate {
 	return _u
 }
 
+// SetDateClosed sets the "date_closed" field.
+func (_u *TenantUpdate) SetDateClosed(v time.Time) *TenantUpdate {
+	_u.mutation.SetDateClosed(v)
+	return _u
+}
+
+// SetNillableDateClosed sets the "date_closed" field if the given value is not nil.
+func (_u *TenantUpdate) SetNillableDateClosed(v *time.Time) *TenantUpdate {
+	if v != nil {
+		_u.SetDateClosed(*v)
+	}
+	return _u
+}
+
+// ClearDateClosed clears the value of the "date_closed" field.
+func (_u *TenantUpdate) ClearDateClosed() *TenantUpdate {
+	_u.mutation.ClearDateClosed()
+	return _u
+}
+
+// SetClosedBy sets the "closed_by" field.
+func (_u *TenantUpdate) SetClosedBy(v string) *TenantUpdate {
+	_u.mutation.SetClosedBy(v)
+	return _u
+}
+
+// SetNillableClosedBy sets the "closed_by" field if the given value is not nil.
+func (_u *TenantUpdate) SetNillableClosedBy(v *string) *TenantUpdate {
+	if v != nil {
+		_u.SetClosedBy(*v)
+	}
+	return _u
+}
+
+// SetCloseReason sets the "close_reason" field.
+func (_u *TenantUpdate) SetCloseReason(v string) *TenantUpdate {
+	_u.mutation.SetCloseReason(v)
+	return _u
+}
+
+// SetNillableCloseReason sets the "close_reason" field if the given value is not nil.
+func (_u *TenantUpdate) SetNillableCloseReason(v *string) *TenantUpdate {
+	if v != nil {
+		_u.SetCloseReason(*v)
+	}
+	return _u
+}
+
+// SetDateDestroy sets the "date_destroy" field.
+func (_u *TenantUpdate) SetDateDestroy(v time.Time) *TenantUpdate {
+	_u.mutation.SetDateDestroy(v)
+	return _u
+}
+
+// SetNillableDateDestroy sets the "date_destroy" field if the given value is not nil.
+func (_u *TenantUpdate) SetNillableDateDestroy(v *time.Time) *TenantUpdate {
+	if v != nil {
+		_u.SetDateDestroy(*v)
+	}
+	return _u
+}
+
+// ClearDateDestroy clears the value of the "date_destroy" field.
+func (_u *TenantUpdate) ClearDateDestroy() *TenantUpdate {
+	_u.mutation.ClearDateDestroy()
+	return _u
+}
+
 // Mutation returns the TenantMutation object of the builder.
 func (_u *TenantUpdate) Mutation() *TenantMutation {
 	return _u.mutation
@@ -164,6 +232,24 @@ func (_u *TenantUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(tenant.FieldDateCreated, field.TypeTime)
+	}
+	if value, ok := _u.mutation.DateClosed(); ok {
+		_spec.SetField(tenant.FieldDateClosed, field.TypeTime, value)
+	}
+	if _u.mutation.DateClosedCleared() {
+		_spec.ClearField(tenant.FieldDateClosed, field.TypeTime)
+	}
+	if value, ok := _u.mutation.ClosedBy(); ok {
+		_spec.SetField(tenant.FieldClosedBy, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.CloseReason(); ok {
+		_spec.SetField(tenant.FieldCloseReason, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.DateDestroy(); ok {
+		_spec.SetField(tenant.FieldDateDestroy, field.TypeTime, value)
+	}
+	if _u.mutation.DateDestroyCleared() {
+		_spec.ClearField(tenant.FieldDateDestroy, field.TypeTime)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
@@ -252,6 +338,74 @@ func (_u *TenantUpdateOne) SetNillableDateUpdated(v *time.Time) *TenantUpdateOne
 	if v != nil {
 		_u.SetDateUpdated(*v)
 	}
+	return _u
+}
+
+// SetDateClosed sets the "date_closed" field.
+func (_u *TenantUpdateOne) SetDateClosed(v time.Time) *TenantUpdateOne {
+	_u.mutation.SetDateClosed(v)
+	return _u
+}
+
+// SetNillableDateClosed sets the "date_closed" field if the given value is not nil.
+func (_u *TenantUpdateOne) SetNillableDateClosed(v *time.Time) *TenantUpdateOne {
+	if v != nil {
+		_u.SetDateClosed(*v)
+	}
+	return _u
+}
+
+// ClearDateClosed clears the value of the "date_closed" field.
+func (_u *TenantUpdateOne) ClearDateClosed() *TenantUpdateOne {
+	_u.mutation.ClearDateClosed()
+	return _u
+}
+
+// SetClosedBy sets the "closed_by" field.
+func (_u *TenantUpdateOne) SetClosedBy(v string) *TenantUpdateOne {
+	_u.mutation.SetClosedBy(v)
+	return _u
+}
+
+// SetNillableClosedBy sets the "closed_by" field if the given value is not nil.
+func (_u *TenantUpdateOne) SetNillableClosedBy(v *string) *TenantUpdateOne {
+	if v != nil {
+		_u.SetClosedBy(*v)
+	}
+	return _u
+}
+
+// SetCloseReason sets the "close_reason" field.
+func (_u *TenantUpdateOne) SetCloseReason(v string) *TenantUpdateOne {
+	_u.mutation.SetCloseReason(v)
+	return _u
+}
+
+// SetNillableCloseReason sets the "close_reason" field if the given value is not nil.
+func (_u *TenantUpdateOne) SetNillableCloseReason(v *string) *TenantUpdateOne {
+	if v != nil {
+		_u.SetCloseReason(*v)
+	}
+	return _u
+}
+
+// SetDateDestroy sets the "date_destroy" field.
+func (_u *TenantUpdateOne) SetDateDestroy(v time.Time) *TenantUpdateOne {
+	_u.mutation.SetDateDestroy(v)
+	return _u
+}
+
+// SetNillableDateDestroy sets the "date_destroy" field if the given value is not nil.
+func (_u *TenantUpdateOne) SetNillableDateDestroy(v *time.Time) *TenantUpdateOne {
+	if v != nil {
+		_u.SetDateDestroy(*v)
+	}
+	return _u
+}
+
+// ClearDateDestroy clears the value of the "date_destroy" field.
+func (_u *TenantUpdateOne) ClearDateDestroy() *TenantUpdateOne {
+	_u.mutation.ClearDateDestroy()
 	return _u
 }
 
@@ -352,6 +506,24 @@ func (_u *TenantUpdateOne) sqlSave(ctx context.Context) (_node *Tenant, err erro
 	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(tenant.FieldDateCreated, field.TypeTime)
+	}
+	if value, ok := _u.mutation.DateClosed(); ok {
+		_spec.SetField(tenant.FieldDateClosed, field.TypeTime, value)
+	}
+	if _u.mutation.DateClosedCleared() {
+		_spec.ClearField(tenant.FieldDateClosed, field.TypeTime)
+	}
+	if value, ok := _u.mutation.ClosedBy(); ok {
+		_spec.SetField(tenant.FieldClosedBy, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.CloseReason(); ok {
+		_spec.SetField(tenant.FieldCloseReason, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.DateDestroy(); ok {
+		_spec.SetField(tenant.FieldDateDestroy, field.TypeTime, value)
+	}
+	if _u.mutation.DateDestroyCleared() {
+		_spec.ClearField(tenant.FieldDateDestroy, field.TypeTime)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	_node = &Tenant{config: _u.config}

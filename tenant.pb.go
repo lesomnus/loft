@@ -44,6 +44,10 @@ type Tenant struct {
 	xxx_hidden_Labels      map[string]string      `protobuf:"bytes,7,rep,name=labels" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	xxx_hidden_DateUpdated *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
 	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
+	xxx_hidden_DateClosed  *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=date_closed,json=dateClosed"`
+	xxx_hidden_ClosedBy    string                 `protobuf:"bytes,9,opt,name=closed_by,json=closedBy"`
+	xxx_hidden_CloseReason string                 `protobuf:"bytes,10,opt,name=close_reason,json=closeReason"`
+	xxx_hidden_DateDestroy *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=date_destroy,json=dateDestroy"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
 }
@@ -122,6 +126,34 @@ func (x *Tenant) GetDateCreated() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *Tenant) GetDateClosed() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateClosed
+	}
+	return nil
+}
+
+func (x *Tenant) GetClosedBy() string {
+	if x != nil {
+		return x.xxx_hidden_ClosedBy
+	}
+	return ""
+}
+
+func (x *Tenant) GetCloseReason() string {
+	if x != nil {
+		return x.xxx_hidden_CloseReason
+	}
+	return ""
+}
+
+func (x *Tenant) GetDateDestroy() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateDestroy
+	}
+	return nil
+}
+
 func (x *Tenant) SetId(v []byte) {
 	if v == nil {
 		v = []byte{}
@@ -153,6 +185,22 @@ func (x *Tenant) SetDateCreated(v *timestamppb.Timestamp) {
 	x.xxx_hidden_DateCreated = v
 }
 
+func (x *Tenant) SetDateClosed(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateClosed = v
+}
+
+func (x *Tenant) SetClosedBy(v string) {
+	x.xxx_hidden_ClosedBy = v
+}
+
+func (x *Tenant) SetCloseReason(v string) {
+	x.xxx_hidden_CloseReason = v
+}
+
+func (x *Tenant) SetDateDestroy(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateDestroy = v
+}
+
 func (x *Tenant) HasDateUpdated() bool {
 	if x == nil {
 		return false
@@ -167,12 +215,34 @@ func (x *Tenant) HasDateCreated() bool {
 	return x.xxx_hidden_DateCreated != nil
 }
 
+func (x *Tenant) HasDateClosed() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateClosed != nil
+}
+
+func (x *Tenant) HasDateDestroy() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateDestroy != nil
+}
+
 func (x *Tenant) ClearDateUpdated() {
 	x.xxx_hidden_DateUpdated = nil
 }
 
 func (x *Tenant) ClearDateCreated() {
 	x.xxx_hidden_DateCreated = nil
+}
+
+func (x *Tenant) ClearDateClosed() {
+	x.xxx_hidden_DateClosed = nil
+}
+
+func (x *Tenant) ClearDateDestroy() {
+	x.xxx_hidden_DateDestroy = nil
 }
 
 type Tenant_builder struct {
@@ -194,6 +264,16 @@ type Tenant_builder struct {
 	// that is built because adding it later is every app's migration.
 	DateUpdated *timestamppb.Timestamp
 	DateCreated *timestamppb.Timestamp
+	// When it was closed. Null is open.
+	DateClosed *timestamppb.Timestamp
+	// Who closed it -- `owner`, `operator`, or `deployment` when nobody was
+	// left in it -- and why, in their words.
+	ClosedBy    string
+	CloseReason string
+	// When a workspace still closed and held by nothing is destroyed: when it
+	// was closed and the restore window (`app.workspaces.restore_within`), or
+	// whatever an operator made it since.
+	DateDestroy *timestamppb.Timestamp
 }
 
 func (b0 Tenant_builder) Build() *Tenant {
@@ -207,6 +287,10 @@ func (b0 Tenant_builder) Build() *Tenant {
 	x.xxx_hidden_Labels = b.Labels
 	x.xxx_hidden_DateUpdated = b.DateUpdated
 	x.xxx_hidden_DateCreated = b.DateCreated
+	x.xxx_hidden_DateClosed = b.DateClosed
+	x.xxx_hidden_ClosedBy = b.ClosedBy
+	x.xxx_hidden_CloseReason = b.CloseReason
+	x.xxx_hidden_DateDestroy = b.DateDestroy
 	return m0
 }
 
@@ -214,7 +298,7 @@ var File_rove_payday_tenant_proto protoreflect.FileDescriptor
 
 const file_rove_payday_tenant_proto_rawDesc = "" +
 	"\n" +
-	"\x18rove/payday/tenant.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\"\xa9\x03\n" +
+	"\x18rove/payday/tenant.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\"\xf5\x04\n" +
 	"\x06Tenant\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12\x1c\n" +
 	"\x05alias\x18\x04 \x01(\tB\x06\xea\x82\x16\x020\x01R\x05alias\x12\x12\n" +
@@ -222,7 +306,13 @@ const file_rove_payday_tenant_proto_rawDesc = "" +
 	"\x04desc\x18\x06 \x01(\tR\x04desc\x120\n" +
 	"\x06labels\x18\a \x03(\v2\x18.rove.Tenant.LabelsEntryR\x06labels\x12F\n" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12H\n" +
-	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x1a9\n" +
+	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12C\n" +
+	"\vdate_closed\x18\b \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\n" +
+	"dateClosed\x12\x1b\n" +
+	"\tclosed_by\x18\t \x01(\tR\bclosedBy\x12!\n" +
+	"\fclose_reason\x18\n" +
+	" \x01(\tR\vcloseReason\x12E\n" +
+	"\fdate_destroy\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\vdateDestroy\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:=\xca\xfc\x15\x04\x12\x02\x10\x01\x8a\xbb\x161\b\x012%\n" +
@@ -245,11 +335,13 @@ var file_rove_payday_tenant_proto_depIdxs = []int32{
 	1, // 0: rove.Tenant.labels:type_name -> rove.Tenant.LabelsEntry
 	2, // 1: rove.Tenant.date_updated:type_name -> google.protobuf.Timestamp
 	2, // 2: rove.Tenant.date_created:type_name -> google.protobuf.Timestamp
-	3, // [3:3] is the sub-list for method output_type
-	3, // [3:3] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	2, // 3: rove.Tenant.date_closed:type_name -> google.protobuf.Timestamp
+	2, // 4: rove.Tenant.date_destroy:type_name -> google.protobuf.Timestamp
+	5, // [5:5] is the sub-list for method output_type
+	5, // [5:5] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_rove_payday_tenant_proto_init() }

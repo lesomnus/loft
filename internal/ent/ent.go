@@ -9,6 +9,7 @@ import (
 	"reflect"
 	"sync"
 
+	"github.com/lesomnus/rove/internal/ent/aliashold"
 	"github.com/lesomnus/rove/internal/ent/allocation"
 	"github.com/lesomnus/rove/internal/ent/archived"
 	"github.com/lesomnus/rove/internal/ent/asset"
@@ -110,6 +111,7 @@ var (
 func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
+			aliashold.Table:       aliashold.ValidColumn,
 			allocation.Table:      allocation.ValidColumn,
 			archived.Table:        archived.ValidColumn,
 			asset.Table:           asset.ValidColumn,

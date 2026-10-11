@@ -10,8 +10,9 @@
 
 import { useState, type ReactNode } from 'react'
 
-import { makeWorkspace, openWorkspace, workspace, type Account } from './api.js'
+import { TenantService, errorText, fmt, idBytes, makeWorkspace, openWorkspace, workspace, type Account, type Workspace } from './api.js'
 import { useWaiting } from './invitations.js'
+import { call } from './rpc.js'
 
 /** The form that makes a workspace and opens it. */
 function Make(props: { onCancel?: () => void }): ReactNode {
@@ -64,7 +65,10 @@ export function Switcher(props: { account: Account; current: string }): ReactNod
 					<li key={w.id}>
 						<button className="link" aria-current={w.alias === workspace ? 'page' : undefined} onClick={() => openWorkspace(w.alias)}>
 							<span>{w.name || w.alias}</span>
-							<span className="mute small">@{w.alias}</span>
+							<span className="mute small">
+								@{w.alias}
+								{w.closed !== undefined && ' · 닫힘'}
+							</span>
 						</button>
 					</li>
 				))}
@@ -120,6 +124,52 @@ export function Elsewhere(props: { account: Account; onSignOut: () => void }): R
 				<button className="link" onClick={props.onSignOut}>
 					로그아웃
 				</button>
+			</div>
+		</div>
+	)
+}
+
+/** A closed workspace (D29): its owner restores it or takes its data out, and everybody else is told. */
+export function Closed(props: { account: Account; ws: Workspace; onSignOut: () => void }): ReactNode {
+	const [busy, setBusy] = useState(false)
+	const [bad, setBad] = useState('')
+	const owner = props.ws.role === 'owner'
+	const restore = async (): Promise<void> => {
+		setBusy(true)
+		setBad('')
+		try {
+			await call(TenantService.method.restore, { ref: { key: { case: 'id', value: idBytes(props.ws.id) } } })
+			location.reload()
+		} catch (err) {
+			setBad(errorText(err))
+		} finally {
+			setBusy(false)
+		}
+	}
+	const on = (v?: string): string => (v === undefined ? '' : fmt(new Date(v), 'date'))
+	return (
+		<div className="login">
+			<div className="elsewhere">
+				<h2>{props.ws.name || props.ws.alias} — 닫힌 워크스페이스</h2>
+				<p>
+					{on(props.ws.closed)}에 닫혔습니다. 복구하지 않으면 {on(props.ws.destroy)} 이후 이 워크스페이스의 모든 데이터가 지워지고, 주소(@{props.ws.alias})는 1년 동안 아무도 쓰지 못하게 보류됩니다.
+				</p>
+				{owner ? (
+					<div className="actions">
+						<a className="button" href={`/account/workspaces/${props.ws.alias}/export`}>
+							데이터 내려받기 (zip)
+						</a>
+						<button className="primary" disabled={busy} onClick={() => void restore()}>
+							복구
+						</button>
+					</div>
+				) : (
+					<p className="mute">소유자만 복구할 수 있습니다.</p>
+				)}
+				{bad !== '' && <p className="bad">{bad}</p>}
+				<p className="mute small">
+					<a href="/">다른 워크스페이스로</a> · <a onClick={props.onSignOut}>로그아웃</a>
+				</p>
 			</div>
 		</div>
 	)
