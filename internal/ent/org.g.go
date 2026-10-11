@@ -116,3 +116,22 @@ func (e *Invitation) Proto() *rove.Invitation {
 	}
 	return x
 }
+func (e *CliLogin) Proto() *rove.CliLogin {
+	x := &rove.CliLogin{}
+	x.SetId(e.Id[:])
+	x.SetSecret(e.Secret)
+	x.SetCode(e.Code)
+	x.SetClient(e.Client)
+	x.SetOrigin(e.Origin)
+	if e.Account != nil {
+		x.SetAccount(e.Account[:])
+	}
+	x.SetState(e.State)
+	x.SetDateExpires(timestamppb.New(e.DateExpires))
+	x.SetDateUpdated(timestamppb.New(e.DateUpdated))
+	if e.DateErased != nil {
+		x.SetDateErased(timestamppb.New(*e.DateErased))
+	}
+	x.SetDateCreated(timestamppb.New(e.DateCreated))
+	return x
+}

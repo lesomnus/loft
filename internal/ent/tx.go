@@ -26,6 +26,8 @@ type Tx struct {
 	Audit *AuditClient
 	// Bookable is the client for interacting with the Bookable builders.
 	Bookable *BookableClient
+	// CliLogin is the client for interacting with the CliLogin builders.
+	CliLogin *CliLoginClient
 	// CountFinding is the client for interacting with the CountFinding builders.
 	CountFinding *CountFindingClient
 	// Custody is the client for interacting with the Custody builders.
@@ -224,6 +226,7 @@ func (tx *Tx) init() {
 	tx.Attachment = NewAttachmentClient(tx.config)
 	tx.Audit = NewAuditClient(tx.config)
 	tx.Bookable = NewBookableClient(tx.config)
+	tx.CliLogin = NewCliLoginClient(tx.config)
 	tx.CountFinding = NewCountFindingClient(tx.config)
 	tx.Custody = NewCustodyClient(tx.config)
 	tx.CustodyLine = NewCustodyLineClient(tx.config)

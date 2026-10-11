@@ -117,6 +117,7 @@ const (
 	AttachmentDomain      pdid.Domain = 19 // "attachment"
 	AuditDomain           pdid.Domain = 3  // "audit"
 	BookableDomain        pdid.Domain = 25 // "bookable"
+	CliLoginDomain        pdid.Domain = 42 // "cli-login"
 	CountFindingDomain    pdid.Domain = 32 // "count-finding"
 	CustodyDomain         pdid.Domain = 21 // "custody"
 	CustodyLineDomain     pdid.Domain = 22 // "custody-line"
@@ -157,6 +158,7 @@ func init() {
 	pdid.Register("rove.Attachment", AttachmentDomain, "attachment")
 	pdid.Register("rove.Audit", AuditDomain, "audit")
 	pdid.Register("rove.Bookable", BookableDomain, "bookable")
+	pdid.Register("rove.CliLogin", CliLoginDomain, "cli-login")
 	pdid.Register("rove.CountFinding", CountFindingDomain, "count-finding")
 	pdid.Register("rove.Custody", CustodyDomain, "custody")
 	pdid.Register("rove.CustodyLine", CustodyLineDomain, "custody-line")
@@ -201,6 +203,7 @@ var Domains = map[string]pdid.Domain{
 	"rove.Attachment":      AttachmentDomain,
 	"rove.Audit":           AuditDomain,
 	"rove.Bookable":        BookableDomain,
+	"rove.CliLogin":        CliLoginDomain,
 	"rove.CountFinding":    CountFindingDomain,
 	"rove.Custody":         CustodyDomain,
 	"rove.CustodyLine":     CustodyLineDomain,
@@ -338,6 +341,11 @@ func (wall) BookableScope(ctx context.Context) (predicate.Bookable, error) {
 	}
 
 	return bookable.TenantIdIn(vs...), nil
+}
+
+// CliLoginScope: declared `global`, so it is not behind the wall at all.
+func (wall) CliLoginScope(ctx context.Context) (predicate.CliLogin, error) {
+	return nil, nil
 }
 
 // CountFindingScope: a row belongs to the tenant its "tenant" reaches.
@@ -13484,6 +13492,8 @@ func hidden(key pdid.Id, p *patchpb.Patch) *patchpb.Patch {
 
 	var secret []uint32
 	switch key.Domain() {
+	case CliLoginDomain:
+		secret = []uint32{8}
 	case InvitationDomain:
 		secret = []uint32{20}
 	case SessionDomain:
@@ -15216,6 +15226,70 @@ func hideInvitation(v *rove.Invitation) *rove.Invitation {
 	return v
 }
 
+func (s Secret) CliLogin() rove.CliLoginServiceServer {
+	return secretCliLogin{s, s.Next().CliLogin()}
+}
+
+type secretCliLogin struct {
+	Secret
+	rove.CliLoginServiceServer
+}
+
+func (s secretCliLogin) Add(ctx context.Context, req *rove.CliLoginAddRequest) (*rove.CliLogin, error) {
+	v, err := s.CliLoginServiceServer.Add(ctx, req)
+
+	return hideCliLogin(v), err
+}
+
+func (s secretCliLogin) Get(ctx context.Context, req *rove.CliLoginGetRequest) (*rove.CliLogin, error) {
+	v, err := s.CliLoginServiceServer.Get(ctx, req)
+
+	return hideCliLogin(v), err
+}
+
+func (s secretCliLogin) Patch(ctx context.Context, req *rove.CliLoginPatchRequest) (*rove.CliLogin, error) {
+	v, err := s.CliLoginServiceServer.Patch(ctx, req)
+
+	return hideCliLogin(v), err
+}
+
+func (s secretCliLogin) Apply(ctx context.Context, req *rove.CliLoginApplyRequest) (*rove.CliLogin, error) {
+	v, err := s.CliLoginServiceServer.Apply(ctx, req)
+
+	return hideCliLogin(v), err
+}
+
+// hideCliLogin clears what this entity declared it never answers with.
+//
+// A nil row passes through, because an error is answered with one and the
+// caller of this is handing both on.
+//
+// By field number and through the descriptor, rather than a setter per
+// field, because a setter's argument has a type and this has to hold for
+// every field a row can carry. A `Set<F>(nil)` per secret is what this
+// was, and it compiled only while every secret anybody had declared was
+// `bytes`: a `string` one ended the build in a generated file, and an
+// enum would have needed its own type spelled out here to say zero.
+//
+// Clear is also the truer word. A field with presence is **absent**
+// afterwards rather than present and empty, which is what "never answered
+// with" says; one without presence reads as its zero value either way.
+// And the numbers are the ones `hidden` filters the trail's patch by, so
+// the two cannot come to disagree about which fields they are.
+func hideCliLogin(v *rove.CliLogin) *rove.CliLogin {
+	if v == nil {
+		return nil
+	}
+
+	m := v.ProtoReflect()
+	fs := m.Descriptor().Fields()
+	for _, n := range []protoreflect.FieldNumber{8} {
+		m.Clear(fs.ByNumber(n))
+	}
+
+	return v
+}
+
 // Intercept is the layer that runs gRPC interceptors between two layers.
 //
 // They are `grpc.UnaryServerInterceptor` and `grpc.StreamServerInterceptor`,
@@ -15643,6 +15717,40 @@ func (s interceptInvitation) Accept(ctx context.Context, req *rove.InvitationAcc
 func (s interceptInvitation) Deny(ctx context.Context, req *rove.InvitationDenyRequest) (*rove.Invitation, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.InvitationServiceServer,
 		rove.InvitationService_Deny_FullMethodName, req, s.InvitationServiceServer.Deny)
+}
+
+func (s Intercept) CliLogin() rove.CliLoginServiceServer {
+	return interceptCliLogin{s, s.Next().CliLogin()}
+}
+
+type interceptCliLogin struct {
+	Intercept
+	rove.CliLoginServiceServer
+}
+
+func (s interceptCliLogin) Add(ctx context.Context, req *rove.CliLoginAddRequest) (*rove.CliLogin, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.CliLoginServiceServer,
+		rove.CliLoginService_Add_FullMethodName, req, s.CliLoginServiceServer.Add)
+}
+
+func (s interceptCliLogin) Get(ctx context.Context, req *rove.CliLoginGetRequest) (*rove.CliLogin, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.CliLoginServiceServer,
+		rove.CliLoginService_Get_FullMethodName, req, s.CliLoginServiceServer.Get)
+}
+
+func (s interceptCliLogin) Patch(ctx context.Context, req *rove.CliLoginPatchRequest) (*rove.CliLogin, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.CliLoginServiceServer,
+		rove.CliLoginService_Patch_FullMethodName, req, s.CliLoginServiceServer.Patch)
+}
+
+func (s interceptCliLogin) Apply(ctx context.Context, req *rove.CliLoginApplyRequest) (*rove.CliLogin, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.CliLoginServiceServer,
+		rove.CliLoginService_Apply_FullMethodName, req, s.CliLoginServiceServer.Apply)
+}
+
+func (s interceptCliLogin) Erase(ctx context.Context, req *rove.CliLoginRef) (*rove.CliLoginEraseResponse, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.CliLoginServiceServer,
+		rove.CliLoginService_Erase_FullMethodName, req, s.CliLoginServiceServer.Erase)
 }
 
 func (s Intercept) Asset() rove.AssetServiceServer {
@@ -18572,6 +18680,71 @@ func dispatch(ctx context.Context, s rove.Server, op *pdpb.Op) (*anypb.Any, erro
 		}
 
 		res, err := s.Invitation().Deny(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.CliLoginService_Add_FullMethodName:
+		v := &rove.CliLoginAddRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.CliLogin().Add(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.CliLoginService_Get_FullMethodName:
+		v := &rove.CliLoginGetRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.CliLogin().Get(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.CliLoginService_Patch_FullMethodName:
+		v := &rove.CliLoginPatchRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.CliLogin().Patch(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.CliLoginService_Apply_FullMethodName:
+		v := &rove.CliLoginApplyRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.CliLogin().Apply(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.CliLoginService_Erase_FullMethodName:
+		v := &rove.CliLoginRef{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.CliLogin().Erase(ctx, v)
 		if err != nil {
 			return nil, err
 		}

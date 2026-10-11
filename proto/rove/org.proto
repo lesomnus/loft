@@ -246,3 +246,74 @@ message Invitation {
     }
   };
 }
+
+
+// CliLogin is a terminal asking to be signed in as whoever approves it in a
+// browser (`rove login`).
+//
+// The terminal makes up the session key it will use, keeps it, and sends only
+// its SHA-256: `secret` is what the session will be looked up by, exactly as a
+// browser's is (`Session.secret`). A person signed in at the app approves the
+// `code` the terminal shows them, and the approval makes that session for
+// their account. So no key is written here or sent back, and the row holds
+// nothing a reader of the database could sign in with. It is the
+// deployment's (`global`), written only through ent by `server/clilogin`,
+// and the policy opens no RPC of it.
+message CliLogin {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+
+  // What the session's key hashes to, as `Session.secret`.
+  bytes secret = 8 [
+    (orm.field) = {default: ""},
+    (payday.field) = {secret: true}
+  ];
+
+  // What the terminal shows and the person approves: eight letters and
+  // digits that read aloud, good for one approval.
+  string code = 9;
+
+  // What the terminal says it is, and where it asked from: what the page
+  // shows, so that a person approves their own terminal and nobody else's.
+  string client = 10;
+  string origin = 11;
+
+  // The account that approved it, once one has.
+  bytes account = 12 [(orm.field) = {
+    type: TYPE_UUID
+    nullable: true
+  }];
+
+  // `pending`, `approved` or `denied`. One still pending after
+  // `date_expires` is expired, which is said where it is read.
+  string state = 16;
+  google.protobuf.Timestamp date_expires = 17 [(orm.field) = {default: ""}];
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+  google.protobuf.Timestamp date_erased = 14 [(orm.field) = {erased: {}}];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "code"
+        refs: [{name: "code", number: 9}]
+      },
+      {
+        name: "secret"
+        refs: [{name: "secret", number: 8}]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 42
+    global: {}
+  };
+}

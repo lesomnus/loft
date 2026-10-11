@@ -197,3 +197,46 @@ func (Invitation) Annotations() []schema.Annotation {
 		entsql.Annotation{Table: "invitation"},
 	}
 }
+
+type CliLogin struct {
+	ent.Schema
+}
+
+func (CliLogin) Fields() []ent.Field {
+	return []ent.Field{
+		field.Uuid("id").
+			Unique().
+			Immutable(),
+		field.Bytes("secret").
+			Optional(),
+		field.String("code"),
+		field.String("client"),
+		field.String("origin"),
+		field.Uuid("account").
+			Nillable().
+			Optional(),
+		field.String("state"),
+		field.Time("date_expires").
+			Optional(),
+		field.Time("date_updated"),
+		field.Time("date_erased").
+			Nillable().
+			Optional(),
+		field.Time("date_created").
+			Immutable().
+			Optional(),
+	}
+}
+
+func (CliLogin) Indexes() []ent.Index {
+	return []ent.Index{
+		index.Fields("code"),
+		index.Fields("secret"),
+	}
+}
+
+func (CliLogin) Annotations() []schema.Annotation {
+	return []schema.Annotation{
+		entsql.Annotation{Table: "clilogin"},
+	}
+}
