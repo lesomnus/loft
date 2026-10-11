@@ -3,6 +3,7 @@ import { useMemo, useState, type ReactNode } from 'react'
 import type { Party } from '../../gen/rove/org_pb.js'
 import { AssetService, HolderService, PartyService, idBytes, idStr, ref } from '../api.js'
 import { useCatalog } from '../catalog.js'
+import { InviteForm, SentInvitations } from '../invitations.js'
 import { AssetLink, PartySelect } from '../pickers.js'
 import { useAct, useRpc } from '../rpc.js'
 import { Badge, Card, Confirm, Empty, Field, FormModal, Kv, Load, Modal, PageHead, Search, Select, Tabs } from '../ui.js'
@@ -13,6 +14,7 @@ export function People(): ReactNode {
 	const [tab, setTab] = useState('org')
 	const [q, setQ] = useState('')
 	const [adding, setAdding] = useState<string>()
+	const [inviting, setInviting] = useState(false)
 	const [open, setOpen] = useState<Party>()
 	const holders = useRpc(HolderService.method.list, c.can('admin') ? { size: 500 } : null)
 	const roles = useMemo(() => new Map((holders.data?.items ?? []).map((h) => [idStr(h.id), h.role])), [holders.data])
@@ -51,6 +53,7 @@ export function People(): ReactNode {
 						<>
 							<button onClick={() => setAdding('team')}>+ 팀</button>
 							<button onClick={() => setAdding('vendor')}>+ 거래처</button>
+							<button onClick={() => setInviting(true)}>+ 초대</button>
 							<button className="primary" onClick={() => setAdding('person')}>
 								+ 사람
 							</button>
@@ -63,6 +66,7 @@ export function People(): ReactNode {
 					tabs={[
 						{ key: 'org', label: '조직도' },
 						{ key: 'vendor', label: '거래처' },
+						...(c.can('admin') ? [{ key: 'invites', label: '초대' }] : []),
 					]}
 					at={tab}
 					onChange={setTab}
@@ -113,7 +117,9 @@ export function People(): ReactNode {
 					)}
 				</Card>
 			)}
+			{tab === 'invites' && <SentInvitations />}
 			{adding !== undefined && <PartyForm kind={adding} onClose={() => setAdding(undefined)} />}
+			{inviting && <InviteForm onClose={() => setInviting(false)} />}
 			{open !== undefined && <PartyDialog p={open} role={roles.get(idStr(open.holder?.id))} onClose={() => setOpen(undefined)} />}
 		</>
 	)
@@ -182,7 +188,7 @@ function PartyDialog(props: { p: Party; role: string | undefined; onClose: () =>
 	const c = useCatalog()
 	const act = useAct()
 	const p = props.p
-	const [mode, setMode] = useState<'view' | 'edit' | 'invite' | 'role' | 'password'>('view')
+	const [mode, setMode] = useState<'view' | 'edit' | 'invite' | 'mail' | 'role' | 'password'>('view')
 	const [made, setMade] = useState<{ alias: string; password: string }>()
 	const holds = useRpc(AssetService.method.search, p.kind === 'vendor' ? null : { custodian: ref(p.id), size: 100 })
 	const admin = c.can('admin')
@@ -190,6 +196,7 @@ function PartyDialog(props: { p: Party; role: string | undefined; onClose: () =>
 
 	if (mode === 'edit') return <PartyForm kind={p.kind} p={p} onClose={props.onClose} />
 	if (mode === 'invite') return <Invite p={p} onMade={(v) => { setMade(v); setMode('view') }} onClose={props.onClose} />
+	if (mode === 'mail') return <InviteForm party={p} onClose={props.onClose} />
 	if (mode === 'role') return <SetRole p={p} role={props.role ?? 'member'} onClose={props.onClose} />
 	if (mode === 'password') return <ResetPassword p={p} onMade={(v) => { setMade(v); setMode('view') }} onClose={props.onClose} />
 
@@ -233,8 +240,8 @@ function PartyDialog(props: { p: Party; role: string | undefined; onClose: () =>
 			{admin && (
 				<footer className="modal-actions">
 					<button onClick={() => setMode('edit')}>수정</button>
-					{p.kind === 'person' && p.holder === undefined && c.me.accountsHere && <button className="primary" onClick={() => setMode('invite')}>로그인 발급</button>}
-					{p.kind === 'person' && p.holder === undefined && !c.me.accountsHere && <span className="mute small">계정은 roster에서 만듭니다.</span>}
+					{p.kind === 'person' && p.holder === undefined && <button className="primary" onClick={() => setMode('mail')}>초대</button>}
+					{p.kind === 'person' && p.holder === undefined && c.me.accountsHere && <button onClick={() => setMode('invite')}>로그인 발급</button>}
 					{p.kind === 'person' && p.holder !== undefined && !self && (
 						<>
 							<button onClick={() => setMode('role')}>역할 변경</button>

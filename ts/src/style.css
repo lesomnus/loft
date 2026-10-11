@@ -1421,3 +1421,69 @@ ul.state-tree .space {
 	flex-direction: column;
 	gap: 4px;
 }
+
+/* the invitations waiting for an account */
+.login > .inbox {
+	background: white;
+	padding: 28px;
+	border-radius: 16px;
+	width: min(520px, 100%);
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+}
+.inbox ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+.inbox li {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 12px;
+	padding: 12px;
+	border: 1px solid var(--line);
+	border-radius: 10px;
+}
+.inbox li p {
+	margin: 4px 0 0;
+	color: var(--mute);
+}
+.inbox .answer,
+.rows .answer {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	flex: none;
+}
+.inbox .leave {
+	display: flex;
+	justify-content: space-between;
+}
+.switcher summary .dot {
+	display: inline-block;
+	width: 7px;
+	height: 7px;
+	margin-left: 6px;
+	border-radius: 50%;
+	background: #f59e0b;
+	vertical-align: middle;
+}
+.switcher .invites {
+	display: flex;
+	gap: 6px;
+	align-items: center;
+	text-decoration: none;
+}
+@media (max-width: 520px) {
+	.inbox li {
+		flex-direction: column;
+		align-items: stretch;
+	}
+}
+

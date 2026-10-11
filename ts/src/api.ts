@@ -22,7 +22,7 @@ import { AssetService, AttachmentService, LabelService, TenantDomainService } fr
 import { AssetTypeService, ItemModelService } from '../gen/rove/catalog_svc_pb.js'
 import { AuditService } from '../gen/rove/payday/audit_svc_pb.js'
 import { CountFindingService, InventoryCountService } from '../gen/rove/count_svc_pb.js'
-import { PartyService } from '../gen/rove/org_svc_pb.js'
+import { InvitationService, PartyService } from '../gen/rove/org_svc_pb.js'
 import { CustodyLineService, CustodyService } from '../gen/rove/custody_svc_pb.js'
 import { EventService } from '../gen/rove/history_svc_pb.js'
 import { HolderService } from '../gen/rove/payday/holder_svc_pb.js'
@@ -44,6 +44,7 @@ export {
 	EventService,
 	HolderService,
 	InventoryCountService,
+	InvitationService,
 	ItemModelService,
 	LabelService,
 	NotificationService,
