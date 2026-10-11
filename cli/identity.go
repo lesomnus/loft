@@ -39,6 +39,8 @@ func NewCmdIdentity(c *cmd.Config) *xli.Command {
 					return migrateIdentity(ctx, self, c)
 				}),
 			},
+			newCmdIdentityDepart(c),
+			newCmdIdentityReconcile(c),
 		},
 	}
 }

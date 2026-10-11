@@ -32,6 +32,20 @@ func (_u *InvitationUpdate) Where(ps ...predicate.Invitation) *InvitationUpdate 
 	return _u
 }
 
+// SetEmail sets the "email" field.
+func (_u *InvitationUpdate) SetEmail(v string) *InvitationUpdate {
+	_u.mutation.SetEmail(v)
+	return _u
+}
+
+// SetNillableEmail sets the "email" field if the given value is not nil.
+func (_u *InvitationUpdate) SetNillableEmail(v *string) *InvitationUpdate {
+	if v != nil {
+		_u.SetEmail(*v)
+	}
+	return _u
+}
+
 // SetAccount sets the "account" field.
 func (_u *InvitationUpdate) SetAccount(v uuid.UUID) *InvitationUpdate {
 	_u.mutation.SetAccount(v)
@@ -275,6 +289,9 @@ func (_u *InvitationUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 			}
 		}
 	}
+	if value, ok := _u.mutation.Email(); ok {
+		_spec.SetField(invitation.FieldEmail, field.TypeString, value)
+	}
 	if value, ok := _u.mutation.Account(); ok {
 		_spec.SetField(invitation.FieldAccount, field.TypeUuid, value)
 	}
@@ -392,6 +409,20 @@ type InvitationUpdateOne struct {
 	hooks     []Hook
 	mutation  *InvitationMutation
 	modifiers []func(*sql.UpdateBuilder)
+}
+
+// SetEmail sets the "email" field.
+func (_u *InvitationUpdateOne) SetEmail(v string) *InvitationUpdateOne {
+	_u.mutation.SetEmail(v)
+	return _u
+}
+
+// SetNillableEmail sets the "email" field if the given value is not nil.
+func (_u *InvitationUpdateOne) SetNillableEmail(v *string) *InvitationUpdateOne {
+	if v != nil {
+		_u.SetEmail(*v)
+	}
+	return _u
 }
 
 // SetAccount sets the "account" field.
@@ -666,6 +697,9 @@ func (_u *InvitationUpdateOne) sqlSave(ctx context.Context) (_node *Invitation, 
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.Email(); ok {
+		_spec.SetField(invitation.FieldEmail, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.Account(); ok {
 		_spec.SetField(invitation.FieldAccount, field.TypeUuid, value)

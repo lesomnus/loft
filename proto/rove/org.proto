@@ -171,8 +171,11 @@ message Invitation {
   // Who invited: their membership of this workspace.
   Holder inviter = 8 [(orm.edge) = {immutable: true}];
 
-  // The address it was sent to, folded as an address is compared.
-  string email = 9 [(orm.field) = {immutable: true}];
+  // The address it was sent to, folded as an address is compared. Written
+  // once, and emptied when the person it was for is forgotten -- by the
+  // workspace, or by their account leaving (`server/domain/depart.go`) -- which
+  // is the one write it takes and why it is not immutable.
+  string email = 9;
 
   // What an account that accepts is here.
   string role = 10 [(orm.field) = {immutable: true}];

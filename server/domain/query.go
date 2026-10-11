@@ -381,6 +381,11 @@ func (n *namer) actor(id *uuid.UUID) string {
 		v = p.Name
 	} else if h, err := n.t.db.Holder.Query().Where(holder.Id(*id)).Only(n.t.ctx); err == nil {
 		v = "@" + h.Alias
+		if h.Alias == "" {
+			// The membership of somebody forgotten names nobody, and goes
+			// by the pseudonym it was left with (`endMembership`).
+			v = h.Name
+		}
 	}
 	n.actors[*id] = v
 	return v

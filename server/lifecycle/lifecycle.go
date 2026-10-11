@@ -11,7 +11,10 @@
 //   - signed out everywhere: the sessions that began before it end;
 //   - suspended or erased: every session of the account ends;
 //   - erased: each of its memberships begins to leave (`Holder.date_leaving`),
-//     from when roster erased it.
+//     from when roster erased it, and once roster's grace is over the account
+//     leaves every workspace it is in ([Lifecycle.Sweep], [Lifecycle.Depart]):
+//     its person records pseudonymized, its memberships ended, a workspace it
+//     was the last owner of handed on.
 //
 // # Leaving, and not gone
 //
@@ -21,26 +24,37 @@
 // dispute. A membership pseudonymized the moment roster erased its account
 // would come back as nobody.
 //
+// So this waits as long as roster does (`app.accounts.forget_after`, kept
+// equal to roster's `holder.forget_after`), and somebody who asked to be
+// forgotten now is forgotten now by the operator (`rove identity depart`).
+//
 // What roster's restore and forget do is not on the stream: both write past
 // roster's servers, and the stream carries what they publish. So a later
-// event about the account that is not an erasure clears the mark, and
-// whatever acts on a mark asks roster first.
+// event about the account that is not an erasure clears the mark, and the
+// sweep asks roster again before an account leaves -- which is also how a
+// restore is heard.
 package lifecycle
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
+	"uuid"
 
+	"github.com/lesomnus/otx/log"
 	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/z"
+	"github.com/protobuf-orm/ent/dialect"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/internal/ent/holder"
+	"github.com/lesomnus/rove/internal/ent/invitation"
 	"github.com/lesomnus/rove/internal/identity"
+	"github.com/lesomnus/rove/server/domain"
 	"github.com/lesomnus/rove/server/session"
 )
 
@@ -54,6 +68,16 @@ type Lifecycle struct {
 	// membership's leaving is written through, as the deployment's own work
 	// in its workspace, so that the trail says it and a watch hears it.
 	Base app.Server
+
+	// People is roster, asked again before an account leaves; Deps and Drv
+	// are what a departure is run with ([domain.Deps.Depart]).
+	People *identity.Store
+	Deps   *domain.Deps
+	Drv    dialect.Driver
+
+	// Grace is how long after roster erased an account it leaves here, if
+	// roster has not restored it (`app.accounts.forget_after`).
+	Grace time.Duration
 }
 
 // Apply is one event: what roster says of an account now. It carries state and
@@ -101,4 +125,115 @@ func (l Lifecycle) Apply(ctx context.Context, v identity.Standing) error {
 		}
 	}
 	return nil
+}
+
+// Sweep is one look at the accounts whose memberships are still leaving once
+// the grace is over. roster is asked about each again, since what it did in
+// the meantime is not on the stream: one it still has nobody by leaves every
+// workspace it is in ([Lifecycle.Depart]); one it has again was restored, and
+// stops leaving; and about one roster could not answer, nothing is decided --
+// it is asked next time.
+func (l Lifecycle) Sweep(ctx context.Context) error {
+	cut := l.now().Add(-l.Grace)
+	hs, err := l.Db.Holder.Query().Where(
+		holder.DateLeavingLT(cut),
+		holder.DateErasedIsNil(),
+		holder.AccountNotNil(),
+	).All(ctx)
+	if err != nil {
+		return err
+	}
+
+	seen := map[pdid.Id]bool{}
+	var errs []error
+	for _, h := range hs {
+		account := pdid.Id(*h.Account)
+		if seen[account] {
+			continue
+		}
+		seen[account] = true
+
+		st, err := l.People.StandingOf(ctx, account)
+		switch {
+		case errors.Is(err, identity.ErrNoPerson):
+			if _, err := l.Depart(ctx, account); err != nil {
+				errs = append(errs, fmt.Errorf("account %s: %w", account, err))
+			}
+		case err != nil:
+			log.From(ctx).WarnContext(ctx, "lifecycle: roster could not say whether an account is still gone; it is asked again next time",
+				"account", account.String(), "err", err.Error())
+		case st.Erased.IsZero():
+			// Restored at roster, which is what the grace was for.
+			if err := l.Apply(ctx, st); err != nil {
+				errs = append(errs, fmt.Errorf("account %s: %w", account, err))
+			}
+		}
+	}
+	return errors.Join(errs...)
+}
+
+// Departed is one workspace an account left.
+type Departed struct {
+	Workspace pdid.Id
+	Member    pdid.Id
+	domain.Departure
+}
+
+// Depart is an account leaving every workspace it is in, now: what the grace
+// ends in, and what an operator does for somebody who asked to be forgotten
+// at once (`rove identity depart`). Its sessions end with it. A workspace
+// already done is not done again, so a departure that stopped part way is
+// finished by asking again.
+func (l Lifecycle) Depart(ctx context.Context, account pdid.Id) ([]Departed, error) {
+	if _, err := l.Sessions.End(ctx, account, time.Time{}); err != nil {
+		return nil, err
+	}
+	hs, err := l.Db.Holder.Query().Where(holder.Account(account.Uuid()), holder.DateErasedIsNil()).All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	out := make([]Departed, 0, len(hs))
+	done := map[uuid.UUID]bool{}
+	for _, h := range hs {
+		done[h.TenantId] = true
+		workspace := pdid.Id(h.TenantId)
+		v, err := l.Deps.Depart(ctx, l.Base, l.Drv, workspace, pdid.Id(h.Id))
+		if err != nil {
+			return out, fmt.Errorf("workspace %s: %w", workspace, err)
+		}
+		if v.Ownerless {
+			log.From(ctx).WarnContext(ctx, "lifecycle: a workspace's last owner left, and nobody was there to hand it to",
+				"workspace", workspace.String())
+		}
+		out = append(out, Departed{Workspace: workspace, Member: pdid.Id(h.Id), Departure: v})
+	}
+
+	// And the invitations it claimed or answered where it never became a
+	// member, which carry its address as much as the rest.
+	sent, err := l.Db.Invitation.Query().Where(invitation.Account(account.Uuid()), invitation.EmailNEQ("")).All(ctx)
+	if err != nil {
+		return out, err
+	}
+	for _, v := range sent {
+		if done[v.TenantId] {
+			continue
+		}
+		done[v.TenantId] = true
+		if err := l.Deps.Unaddress(ctx, l.Base, l.Drv, pdid.Id(v.TenantId), account); err != nil {
+			return out, fmt.Errorf("workspace %s: %w", pdid.Id(v.TenantId), err)
+		}
+	}
+
+	if l.People != nil {
+		l.People.Recheck(account)
+	}
+	return out, nil
+}
+
+func (l Lifecycle) now() time.Time {
+	if l.Deps != nil && l.Deps.Now != nil {
+		return l.Deps.Now()
+	}
+	return time.Now()
 }
