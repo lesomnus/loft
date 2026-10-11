@@ -555,6 +555,63 @@ func TestRostersWordArrivesAsItHappens(t *testing.T) {
 	x.Equal(e.acme, v.Tenant)
 }
 
+// TestAnErasureIsHeardOfSomebodyNothingElseHappenedTo: most people's erasure is
+// the first thing roster's stream hears of them since this deployment
+// connected -- nothing was written about them before -- and it is heard all the
+// same, with when roster erased them (roster#104). Somebody erased in a tenant
+// this deployment does not serve is not.
+func TestAnErasureIsHeardOfSomebodyNothingElseHappenedTo(t *testing.T) {
+	x := require.New(t)
+	e := newExternal(t)
+
+	// Made before the stream opens, through roster's server in this process,
+	// which publishes nothing: the stream has never read them.
+	add := func(tenant pdid.Id, alias string) pdid.Id {
+		v, err := e.s.Ungated.Holder().Add(t.Context(), rstr.HolderAddRequest_builder{
+			Tenant: rstr.TenantRef_builder{Id: tenant.Bytes()}.Build(), Alias: alias, Name: alias,
+		}.Build())
+		x.NoError(err)
+		id, err := pdid.From(v.GetId())
+		x.NoError(err)
+		return id
+	}
+	quiet := add(e.acme, "quiet")
+	elsewhere := add(e.beta, "elsewhere")
+
+	got := follow(t, e.open(t, e.key, "acme"))
+	op, as := e.overTheWire(t)
+
+	// kim first, for the stream to be known to be open: a write before it is
+	// is heard by nobody, and an erasure is not made twice.
+	heard(t, got, e.kim, func() error {
+		_, err := op.Invalidate(as, rstr.HolderInvalidateRequest_builder{Ref: rstr.HolderRef_builder{Id: e.kim.Bytes()}.Build()}.Build())
+		return err
+	}, func(v Standing) bool { return !v.Invalidated.IsZero() })
+
+	// The one this deployment may not hear of first, so that the other
+	// arriving makes its absence a fact rather than a race.
+	_, err := op.Erase(as, rstr.HolderRef_builder{Id: elsewhere.Bytes()}.Build())
+	x.NoError(err)
+	_, err = op.Erase(as, rstr.HolderRef_builder{Id: quiet.Bytes()}.Build())
+	x.NoError(err)
+
+	deadline := time.After(10 * time.Second)
+	for {
+		select {
+		case v := <-got:
+			x.NotEqual(elsewhere, v.Holder, "an erasure in a tenant this deployment does not serve")
+			if v.Holder != quiet {
+				continue
+			}
+			x.False(v.Erased.IsZero(), "heard, and as an erasure")
+			x.Equal(e.acme, v.Tenant)
+			return
+		case <-deadline:
+			t.Fatal("the erasure of somebody nothing else happened to was not heard")
+		}
+	}
+}
+
 // logs is a log a test reads while it is written.
 type logs struct {
 	mu sync.Mutex
