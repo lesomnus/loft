@@ -154,7 +154,7 @@ func TestADeploymentFromBeforeRosterIsBroughtIntoIt(t *testing.T) {
 	x.NoError(err)
 	x.Nil(h.Account, "a login that ended was brought in")
 
-	login := rovesession.SignIn(s.Sessions, s.Identity, s.Ent)
+	login := rovesession.SignIn(s.Sessions, s.Identity, s.Ent, nil)
 	r := httptest.NewRequest(http.MethodPost, "/session", bytes.NewBufferString(`{"login":"admin","password":"`+got["acme/admin"].password+`"}`))
 	rec := httptest.NewRecorder()
 	login.ServeHTTP(rec, r)

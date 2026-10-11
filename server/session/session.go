@@ -183,14 +183,18 @@ type People interface {
 	Embedded() bool
 }
 
+// Arrive is what an account signing in is given, once roster vouched for it:
+// a workspace of its own when it is in none ([tenancy.Workspaces.Arrive]).
+type Arrive func(ctx context.Context, p identity.Person) error
+
 // SignIn is `POST /session` and `DELETE /session`: a password roster checked,
-// then Rove's session cookie for the account.
+// what the account is given on arriving, then Rove's session cookie for it.
 //
 // A refusal is one answer whatever was wrong -- nobody by that name, the wrong
 // password, an address that keeps getting it wrong -- and a roster that cannot
 // be asked is another, since telling somebody their password is wrong when
 // nobody could check it is the answer that sends them to reset it.
-func SignIn(sessions *authsession.Sessions, people People, db *ent.Client) http.Handler {
+func SignIn(sessions *authsession.Sessions, people People, db *ent.Client, arrive Arrive) http.Handler {
 	l := &limiter{seen: map[string][]time.Time{}}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
@@ -218,7 +222,7 @@ func SignIn(sessions *authsession.Sessions, people People, db *ent.Client) http.
 			return
 		}
 
-		v, err := verify(ctx, people, db, in)
+		p, err := verify(ctx, people, db, in)
 		switch {
 		case errors.Is(err, errNo):
 			l.fail(who)
@@ -231,7 +235,15 @@ func SignIn(sessions *authsession.Sessions, people People, db *ent.Client) http.
 		}
 		l.forget(who)
 
-		_, c, err := sessions.Mint(ctx, v)
+		// A workspace that could not be made is not a sign-in refused: the
+		// account is who it is, and is told it is in no workspace.
+		if arrive != nil {
+			if err := arrive(ctx, p); err != nil {
+				log.From(ctx).ErrorContext(ctx, "session: an account arrived and was not given what it is given", "err", err.Error())
+			}
+		}
+
+		_, c, err := sessions.Mint(ctx, authsession.Session{Id: p.Id.String(), Grant: frame.Whole()})
 		if err != nil {
 			http.Error(w, "cannot sign in just now", http.StatusServiceUnavailable)
 			return
@@ -244,7 +256,7 @@ func SignIn(sessions *authsession.Sessions, people People, db *ent.Client) http.
 // errNo is a refusal: everything a sign-in can be told no for.
 var errNo = errors.New("session: no")
 
-func verify(ctx context.Context, people People, db *ent.Client, in Login) (authsession.Session, error) {
+func verify(ctx context.Context, people People, db *ent.Client, in Login) (identity.Person, error) {
 	login := in.Login
 	if strings.Contains(login, "@") && people.Embedded() {
 		// The roster in this process keeps no addresses: the one a person is
@@ -253,7 +265,7 @@ func verify(ctx context.Context, people People, db *ent.Client, in Login) (auths
 		// which refuses it the way it refuses anybody.
 		account, err := accountAt(ctx, db, login)
 		if err != nil {
-			return authsession.Session{}, err
+			return identity.Person{}, err
 		}
 		if account != pdid.Nil {
 			p, err := people.ById(ctx, account.String())
@@ -261,7 +273,7 @@ func verify(ctx context.Context, people People, db *ent.Client, in Login) (auths
 			case err == nil:
 				login = p.Alias
 			case !errors.Is(err, identity.ErrNoPerson):
-				return authsession.Session{}, err
+				return identity.Person{}, err
 			}
 		}
 	}
@@ -270,15 +282,12 @@ func verify(ctx context.Context, people People, db *ent.Client, in Login) (auths
 	switch {
 	case errors.Is(err, identity.ErrRefused), errors.Is(err, identity.ErrSecondFactor),
 		errors.Is(err, identity.ErrNoTenant), errors.Is(err, identity.ErrNoPerson):
-		return authsession.Session{}, errNo
+		return identity.Person{}, errNo
 	case err != nil:
-		return authsession.Session{}, err
+		return identity.Person{}, err
 	}
 
-	return authsession.Session{
-		Id:    p.Id.String(),
-		Grant: frame.Whole(),
-	}, nil
+	return p, nil
 }
 
 // accountAt is the one account whose person records here have this address, in

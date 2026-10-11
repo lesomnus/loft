@@ -112,6 +112,34 @@ type AppConfig struct {
 	// Retention is the deployment's half of design 8: what a tenant with no
 	// contract keeps, and whether a window destroys anything at all.
 	Retention RetentionConfig `yaml:"retention"`
+
+	// Workspaces is what an account may make (design 9.11).
+	Workspaces WorkspacesConfig `yaml:"workspaces"`
+}
+
+// WorkspacesConfig is what an account may make.
+type WorkspacesConfig struct {
+	// Personal says whether an account in no workspace is given one of its
+	// own when it signs in, which is what signing up to SaaS is. Unset is yes.
+	Personal *bool `yaml:"personal"`
+	// Owned is how many workspaces one account may own before another needs
+	// paying for. Zero is [DefaultOwned]; a negative number is no limit.
+	Owned int `yaml:"owned"`
+}
+
+// DefaultOwned is how many workspaces an account owns before another needs
+// paying for, when the configuration says nothing.
+const DefaultOwned = 3
+
+// PersonalOn says whether an account in no workspace is given one.
+func (c WorkspacesConfig) PersonalOn() bool { return c.Personal == nil || *c.Personal }
+
+// OwnedMax is how many workspaces one account may own; negative is no limit.
+func (c WorkspacesConfig) OwnedMax() int {
+	if c.Owned == 0 {
+		return DefaultOwned
+	}
+	return c.Owned
 }
 
 // RetentionConfig is the plan a tenant with no contract is on, and the switch
