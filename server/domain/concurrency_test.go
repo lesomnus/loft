@@ -3,6 +3,7 @@ package domain_test
 import (
 	"context"
 	"fmt"
+	"slices"
 	"sync"
 	"testing"
 
@@ -13,6 +14,7 @@ import (
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/internal/ent/event"
 	"github.com/lesomnus/rove/internal/ent/placement"
+	"github.com/lesomnus/rove/internal/ent/stockmovement"
 	"github.com/lesomnus/rove/server/pd"
 )
 
@@ -261,6 +263,36 @@ func TestManyMovesOfOneThingAtOnceLandOneAfterAnother(t *testing.T) {
 	now := e.where(hq, laptop, e.now, nil)
 	x.Equal(e.parentOf(laptop), now, "the row and the history agree")
 	x.NotEqual(from.GetId(), now)
+}
+
+// TestManyUsesOfOneStockAtOnceAllCount: eight different uses of one stock at
+// the same moment each take what they took -- one after another, each from
+// what the last left -- rather than two of them from the same quantity and the
+// second writing over the first. Every movement says the balance it left.
+func TestManyUsesOfOneStockAtOnceAllCount(t *testing.T) {
+	e := newEnv(t)
+	e.postgresOnly()
+	x := e.x
+	store := e.space("창고", nil)
+	s := e.stock(e.model("AA 건전지"), store, 20, 0)
+
+	errs := together(8, func(int) error {
+		_, err := e.app().Stock().Consume(e.owner, app.StockChangeRequest_builder{Ref: ref[app.StockRef](s.GetId()), Quantity: 1, Op: newOp()}.Build())
+		return err
+	})
+	for i, err := range errs {
+		x.NoError(err, "use %d", i)
+	}
+	x.EqualValues(12, e.quantity(s), "every use counted")
+
+	ms, err := e.s.Ent.StockMovement.Query().Where(stockmovement.StockId(idUUID(s.GetId())), stockmovement.Reason("consume")).All(context.Background())
+	x.NoError(err)
+	left := []int64{}
+	for _, m := range ms {
+		left = append(left, m.Balance)
+	}
+	slices.Sort(left)
+	x.Equal([]int64{12, 13, 14, 15, 16, 17, 18, 19}, left, "each from what the last left")
 }
 
 // TestTwoMovesThatWouldMakeALoopTogetherDoNotBothLand: V10. With b inside c

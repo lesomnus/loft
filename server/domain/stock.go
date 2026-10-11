@@ -96,6 +96,17 @@ func (s domainStock) Add(ctx context.Context, req *app.StockAddRequest) (*app.St
 // moveStock changes a stock by `delta` and writes the movement, refusing to go
 // below zero and telling the managers when it falls to its threshold.
 func (t *Tx) moveStock(st *app.Stock, delta int64, reason string, ref pdid.Id, at time.Time) error {
+	// The row's lock before its quantity is read, so that two changes at once
+	// land one after the other, each from what the last left, rather than both
+	// from the same quantity and the second writing over the first. A plain
+	// UPDATE that changes nothing, as the tree lock is ([Tx.lockTree]): what
+	// matters is that the statement takes the row's lock.
+	if err := t.db.Stock.Update().
+		Where(stock.Id(uuidOf(st.GetId())), stock.TenantId(t.tenant.Uuid())).
+		AddQuantity(0).
+		Exec(t.ctx); err != nil {
+		return err
+	}
 	cur, err := t.db.Stock.Query().Where(stock.Id(uuidOf(st.GetId())), stock.TenantId(t.tenant.Uuid())).Only(t.ctx)
 	if err != nil {
 		return err
