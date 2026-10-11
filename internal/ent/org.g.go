@@ -65,3 +65,54 @@ func (e *Session) Proto() *rove.Session {
 	x.SetDateCreated(timestamppb.New(e.DateCreated))
 	return x
 }
+func (e *Invitation) Proto() *rove.Invitation {
+	x := &rove.Invitation{}
+	x.SetId(e.Id[:])
+	if v := e.Edges.Tenant; v != nil {
+		x.SetTenant(v.Proto())
+	} else if v := e.TenantId; v != *new(uuid.UUID) {
+		r := &rove.Tenant{}
+		r.SetId(v[:])
+		x.SetTenant(r)
+	}
+	if v := e.Edges.Inviter; v != nil {
+		x.SetInviter(v.Proto())
+	} else if v := e.InviterId; v != *new(uuid.UUID) {
+		r := &rove.Holder{}
+		r.SetId(v[:])
+		x.SetInviter(r)
+	}
+	x.SetEmail(e.Email)
+	x.SetRole(e.Role)
+	if v := e.Edges.Party; v != nil {
+		x.SetParty(v.Proto())
+	} else if v := e.PartyId; v != *new(uuid.UUID) {
+		r := &rove.Party{}
+		r.SetId(v[:])
+		x.SetParty(r)
+	}
+	if e.Account != nil {
+		x.SetAccount(e.Account[:])
+	}
+	x.SetDateUpdated(timestamppb.New(e.DateUpdated))
+	if e.DateErased != nil {
+		x.SetDateErased(timestamppb.New(*e.DateErased))
+	}
+	x.SetDateCreated(timestamppb.New(e.DateCreated))
+	x.SetState(e.State)
+	x.SetDateExpires(timestamppb.New(e.DateExpires))
+	if e.DateSettled != nil {
+		x.SetDateSettled(timestamppb.New(*e.DateSettled))
+	}
+	if v := e.Edges.Holder; v != nil {
+		x.SetHolder(v.Proto())
+	} else if v := e.HolderId; v != *new(uuid.UUID) {
+		r := &rove.Holder{}
+		r.SetId(v[:])
+		x.SetHolder(r)
+	}
+	if e.Claim != nil {
+		x.SetClaim(*e.Claim)
+	}
+	return x
+}

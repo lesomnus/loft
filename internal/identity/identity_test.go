@@ -15,6 +15,7 @@ import (
 	"github.com/lesomnus/xli"
 	"github.com/lesomnus/z"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/lesomnus/payday/config"
 	"github.com/lesomnus/payday/pdid"
@@ -404,4 +405,54 @@ func TestAPasswordAloneIsNoSignInForSomebodyWithASecondFactor(t *testing.T) {
 
 	_, err = e.open(t, e.key, "acme").Verify(ctx, "kim", pw)
 	x.ErrorIs(err, ErrSecondFactor)
+}
+
+// TestOnlyAnAddressSomebodyCheckedIsAnAccounts: what an invitation is found
+// by. An address on an account that nobody checked -- one a provider passed on
+// from a directory whose administrator typed it -- is not the account's.
+func TestOnlyAnAddressSomebodyCheckedIsAnAccounts(t *testing.T) {
+	t.Run("on the roster in this process", func(t *testing.T) {
+		x := require.New(t)
+		ctx := t.Context()
+		s := embeddedStore(t)
+		_, _, err := s.MakeDirectory(ctx, "owner")
+		x.NoError(err)
+
+		kim, err := s.AddPerson(ctx, "kim", "Kim", pdid.Nil)
+		x.NoError(err)
+		x.NoError(s.AddAddress(ctx, kim.Id, " Kim@Acme.Example ", true))
+		x.NoError(s.AddAddress(ctx, kim.Id, "boss@acme.example", false))
+
+		got, err := s.Addresses(ctx, kim.Id)
+		x.NoError(err)
+		x.Equal([]string{"kim@acme.example"}, got)
+	})
+
+	t.Run("on a roster of its own", func(t *testing.T) {
+		x := require.New(t)
+		ctx := t.Context()
+		e := newExternal(t)
+
+		// Checked by somebody, the way roster stamps one; and one that came in
+		// a provider's claims with nothing checked.
+		row, err := e.s.Ungated.Email().Add(ctx, rstr.EmailAddRequest_builder{
+			Holder: rstr.HolderRef_builder{Id: e.kim.Bytes()}.Build(), Address: "kim@acme.example",
+		}.Build())
+		x.NoError(err)
+		_, err = e.s.Ungated.Email().Patch(ctx, rstr.EmailPatchRequest_builder{
+			Ref:          rstr.EmailRef_builder{Id: row.GetId()}.Build(),
+			DateVerified: timestamppb.Now(),
+			DateUpdated:  row.GetDateUpdated(),
+		}.Build())
+		x.NoError(err)
+		_, err = e.s.Ungated.Email().Add(ctx, rstr.EmailAddRequest_builder{
+			Holder: rstr.HolderRef_builder{Id: e.kim.Bytes()}.Build(), Address: "ceo@acme.example",
+		}.Build())
+		x.NoError(err)
+
+		s := e.open(t, e.key, "acme")
+		got, err := s.Addresses(ctx, e.kim)
+		x.NoError(err)
+		x.Equal([]string{"kim@acme.example"}, got)
+	})
 }

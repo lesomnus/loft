@@ -138,3 +138,108 @@ message Session {
     global: {}
   };
 }
+
+
+// Invitation is an account asked into a workspace, by address, with a role
+// (design 9.11, M2 step 4).
+//
+// It is the workspace's row: who invited whom, as what, and what became of it
+// are this workspace's history, and leave with it. Two sides read it -- the
+// people who run the workspace, and the account it is addressed to, who is
+// not a member yet and can read nothing here. So `InvitationService.List`,
+// `Claim`, `Accept` and `Deny` are served as the account rather than as a
+// membership (`cmd.AccountMethods`), and which rows each side reads is said by
+// the domain layer, not by the wall (`server/domain/invitation.go`).
+//
+// # Whose it is
+//
+// The account whose address it is, and only an address somebody checked: one
+// roster holds as verified, because any directory's administrator may put any
+// address on a user of their own (nOAuth), or one whose link it was mailed with
+// was opened by the account (`Claim`), since reading that mailbox is the proof.
+// Nothing here says whether an address is anybody's: the people who invite
+// learn what became of the invitation, and nothing about who was asked.
+message Invitation {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+
+  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  // Who invited: their membership of this workspace.
+  Holder inviter = 8 [(orm.edge) = {immutable: true}];
+
+  // The address it was sent to, folded as an address is compared.
+  string email = 9 [(orm.field) = {immutable: true}];
+
+  // What an account that accepts is here.
+  string role = 10 [(orm.field) = {immutable: true}];
+
+  // The person record an account that accepts becomes: one this workspace
+  // already keeps, or empty for one made then.
+  Party party = 11 [(orm.edge) = {nullable: true}];
+
+  // The account it is for, once that is known -- its link was opened by it,
+  // or it answered -- and empty while it is only an address.
+  bytes account = 12 [(orm.field) = {
+    type: TYPE_UUID
+    nullable: true
+  }];
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+  google.protobuf.Timestamp date_erased = 14 [(orm.field) = {erased: {}}];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  // `pending`, `accepted`, `denied` or `revoked`. One still pending after
+  // `date_expires` is expired, which is said where it is read rather than
+  // written by a sweep.
+  string state = 16;
+  google.protobuf.Timestamp date_expires = 17 [(orm.field) = {default: ""}];
+  // When it was answered or taken back.
+  google.protobuf.Timestamp date_settled = 18 [(orm.field) = {nullable: true}];
+
+  // The membership accepting it made.
+  Holder holder = 19 [(orm.edge) = {nullable: true}];
+
+  // The SHA-256 of the code its mail carried, until an account opens it.
+  bytes claim = 20 [
+    (orm.field) = {nullable: true},
+    (payday.field) = {secret: true}
+  ];
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "page"
+        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+      },
+      {
+        name: "claim"
+        refs: [{name: "claim", number: 20}]
+      },
+      {
+        name: "account"
+        refs: [{name: "account", number: 12}]
+      },
+      {
+        name: "email"
+        refs: [{name: "email", number: 9}]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 41
+    list: {
+      order: [{field: {name: "date_created"}}, {field: {name: "id"}}]
+      by: [{name: "ref"}, {name: "tenant"}, {name: "account"}, {name: "state"}]
+      size: 50
+      max: 200
+    }
+  };
+}

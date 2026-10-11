@@ -49,12 +49,14 @@ go run ./cmd/rove serve
 # roster 운영자: 배포 키를 만들고(rk_… 출력), 디렉터리에 Rove를 설치
 roster control key add --allow /roster.NominationService/List rove
 roster tenant add @accounts '{"name": "Rove accounts"}'
-roster app install --tenant accounts --role /roster.VouchService/Verify,/roster.HolderService/Get,/roster.TenantService/Get,/roster.MeService/Get rove
+roster app install --tenant accounts --role /roster.VouchService/Verify,/roster.HolderService/Get,/roster.TenantService/Get,/roster.MeService/Get,/roster.EmailService/List,/roster.EmailService/Get rove
 
 # Rove
 ROVE_AUTH_ROSTER_ADDR=roster.example.com:443 ROVE_AUTH_ROSTER_DIRECTORY=accounts \
 ROVE_AUTH_ROSTER_KEY=env:ROSTER_KEY ROSTER_KEY=rk_… go run ./cmd/rove serve
 ```
+
+`EmailService`의 두 권한은 초대(D30)를 위한 것입니다. 초대장은 roster가 확인한 주소를 가진 계정의 초대함에 보이고, Rove는 그 주소를 이 권한으로 읽습니다. 이 권한이 없던 때 설치한 배포는 위의 `app install`을 다시 실행하세요. 다시 설치하기 전까지는 초대 메일의 링크로 받은 초대장만 초대함에 보입니다.
 
 **SSO로 로그인할 때**(SaaS, D28)는 roster의 issuer(Hydra와 Login App)를 거칩니다. 로그인 화면에 Google·Microsoft·GitHub 버튼이 생기고, 누르면 roster를 잠깐 지나 그 IdP에서 로그인한 뒤 돌아옵니다. 돌아온 계정은 비밀번호로 들어온 계정과 같고, 처음이면 개인 워크스페이스가 생깁니다. 로그아웃은 issuer의 세션까지 끝냅니다.
 

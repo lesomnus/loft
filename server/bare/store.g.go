@@ -23,6 +23,7 @@ import (
 	fact "github.com/lesomnus/rove/internal/ent/fact"
 	holder "github.com/lesomnus/rove/internal/ent/holder"
 	inventorycount "github.com/lesomnus/rove/internal/ent/inventorycount"
+	invitation "github.com/lesomnus/rove/internal/ent/invitation"
 	itemmodel "github.com/lesomnus/rove/internal/ent/itemmodel"
 	label "github.com/lesomnus/rove/internal/ent/label"
 	legalhold "github.com/lesomnus/rove/internal/ent/legalhold"
@@ -349,6 +350,7 @@ type Scope interface {
 	HolderScope(ctx context.Context) (predicate.Holder, error)
 	PartyScope(ctx context.Context) (predicate.Party, error)
 	SessionScope(ctx context.Context) (predicate.Session, error)
+	InvitationScope(ctx context.Context) (predicate.Invitation, error)
 	AssetScope(ctx context.Context) (predicate.Asset, error)
 	TreeLockScope(ctx context.Context) (predicate.TreeLock, error)
 	TenantDomainScope(ctx context.Context) (predicate.TenantDomain, error)
@@ -409,6 +411,9 @@ func (Unscoped) PartyScope(_ context.Context) (predicate.Party, error) {
 	return nil, nil
 }
 func (Unscoped) SessionScope(_ context.Context) (predicate.Session, error) {
+	return nil, nil
+}
+func (Unscoped) InvitationScope(_ context.Context) (predicate.Invitation, error) {
 	return nil, nil
 }
 func (Unscoped) AssetScope(_ context.Context) (predicate.Asset, error) {
@@ -639,6 +644,26 @@ func (ss Scopes) SessionScope(ctx context.Context) (predicate.Session, error) {
 	}
 
 	return session.And(ps...), nil
+}
+
+func (ss Scopes) InvitationScope(ctx context.Context) (predicate.Invitation, error) {
+	ps := make([]predicate.Invitation, 0, len(ss))
+	for _, s := range ss {
+		p, err := s.InvitationScope(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if p == nil {
+			continue
+		}
+
+		ps = append(ps, p)
+	}
+	if len(ps) == 0 {
+		return nil, nil
+	}
+
+	return invitation.And(ps...), nil
 }
 
 func (ss Scopes) AssetScope(ctx context.Context) (predicate.Asset, error) {
@@ -1321,7 +1346,7 @@ func (s Store) now() time.Time {
 // is rendered for that dialect, not just what this server writes.
 //
 // That set is also what a soft erasure needs, so this is the whole
-// check. Asset, AssetType, Attachment, Bookable, Custody, Holder, InventoryCount, ItemModel, Label, Party, Purchase, Reservation, Session, Stock, TenantContract, TenantDomain and WorkOrder free the names they held when a row
+// check. Asset, AssetType, Attachment, Bookable, Custody, Holder, InventoryCount, Invitation, ItemModel, Label, Party, Purchase, Reservation, Session, Stock, TenantContract, TenantDomain and WorkOrder free the names they held when a row
 // is erased, which is a unique index covering only the rows that are
 // still there -- a partial index, and the dialects above are the ones
 // that have one. MySQL does not, and ent writes the annotation out for
@@ -1366,9 +1391,12 @@ func (s Server) AssetType() rove.AssetTypeServiceServer {
 func (s Server) ItemModel() rove.ItemModelServiceServer {
 	return ItemModelServiceServer{Store: s.Store}
 }
-func (s Server) Holder() rove.HolderServiceServer     { return HolderServiceServer{Store: s.Store} }
-func (s Server) Party() rove.PartyServiceServer       { return PartyServiceServer{Store: s.Store} }
-func (s Server) Session() rove.SessionServiceServer   { return SessionServiceServer{Store: s.Store} }
+func (s Server) Holder() rove.HolderServiceServer   { return HolderServiceServer{Store: s.Store} }
+func (s Server) Party() rove.PartyServiceServer     { return PartyServiceServer{Store: s.Store} }
+func (s Server) Session() rove.SessionServiceServer { return SessionServiceServer{Store: s.Store} }
+func (s Server) Invitation() rove.InvitationServiceServer {
+	return InvitationServiceServer{Store: s.Store}
+}
 func (s Server) Asset() rove.AssetServiceServer       { return AssetServiceServer{Store: s.Store} }
 func (s Server) TreeLock() rove.TreeLockServiceServer { return TreeLockServiceServer{Store: s.Store} }
 func (s Server) TenantDomain() rove.TenantDomainServiceServer {

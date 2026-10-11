@@ -597,6 +597,399 @@ func (b0 Session_builder) Build() *Session {
 	return m0
 }
 
+// Invitation is an account asked into a workspace, by address, with a role
+// (design 9.11, M2 step 4).
+//
+// It is the workspace's row: who invited whom, as what, and what became of it
+// are this workspace's history, and leave with it. Two sides read it -- the
+// people who run the workspace, and the account it is addressed to, who is
+// not a member yet and can read nothing here. So `InvitationService.List`,
+// `Claim`, `Accept` and `Deny` are served as the account rather than as a
+// membership (`cmd.AccountMethods`), and which rows each side reads is said by
+// the domain layer, not by the wall (`server/domain/invitation.go`).
+//
+// # Whose it is
+//
+// The account whose address it is, and only an address somebody checked: one
+// roster holds as verified, because any directory's administrator may put any
+// address on a user of their own (nOAuth), or one whose link it was mailed with
+// was opened by the account (`Claim`), since reading that mailbox is the proof.
+// Nothing here says whether an address is anybody's: the people who invite
+// learn what became of the invitation, and nothing about who was asked.
+type Invitation struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Tenant      *Tenant                `protobuf:"bytes,2,opt,name=tenant"`
+	xxx_hidden_Inviter     *Holder                `protobuf:"bytes,8,opt,name=inviter"`
+	xxx_hidden_Email       string                 `protobuf:"bytes,9,opt,name=email"`
+	xxx_hidden_Role        string                 `protobuf:"bytes,10,opt,name=role"`
+	xxx_hidden_Party       *Party                 `protobuf:"bytes,11,opt,name=party"`
+	xxx_hidden_Account     []byte                 `protobuf:"bytes,12,opt,name=account"`
+	xxx_hidden_DateUpdated *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
+	xxx_hidden_DateErased  *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=date_erased,json=dateErased"`
+	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
+	xxx_hidden_State       string                 `protobuf:"bytes,16,opt,name=state"`
+	xxx_hidden_DateExpires *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=date_expires,json=dateExpires"`
+	xxx_hidden_DateSettled *timestamppb.Timestamp `protobuf:"bytes,18,opt,name=date_settled,json=dateSettled"`
+	xxx_hidden_Holder      *Holder                `protobuf:"bytes,19,opt,name=holder"`
+	xxx_hidden_Claim       []byte                 `protobuf:"bytes,20,opt,name=claim"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *Invitation) Reset() {
+	*x = Invitation{}
+	mi := &file_rove_org_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Invitation) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Invitation) ProtoMessage() {}
+
+func (x *Invitation) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_org_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *Invitation) GetId() []byte {
+	if x != nil {
+		return x.xxx_hidden_Id
+	}
+	return nil
+}
+
+func (x *Invitation) GetTenant() *Tenant {
+	if x != nil {
+		return x.xxx_hidden_Tenant
+	}
+	return nil
+}
+
+func (x *Invitation) GetInviter() *Holder {
+	if x != nil {
+		return x.xxx_hidden_Inviter
+	}
+	return nil
+}
+
+func (x *Invitation) GetEmail() string {
+	if x != nil {
+		return x.xxx_hidden_Email
+	}
+	return ""
+}
+
+func (x *Invitation) GetRole() string {
+	if x != nil {
+		return x.xxx_hidden_Role
+	}
+	return ""
+}
+
+func (x *Invitation) GetParty() *Party {
+	if x != nil {
+		return x.xxx_hidden_Party
+	}
+	return nil
+}
+
+func (x *Invitation) GetAccount() []byte {
+	if x != nil {
+		return x.xxx_hidden_Account
+	}
+	return nil
+}
+
+func (x *Invitation) GetDateUpdated() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateUpdated
+	}
+	return nil
+}
+
+func (x *Invitation) GetDateErased() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateErased
+	}
+	return nil
+}
+
+func (x *Invitation) GetDateCreated() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateCreated
+	}
+	return nil
+}
+
+func (x *Invitation) GetState() string {
+	if x != nil {
+		return x.xxx_hidden_State
+	}
+	return ""
+}
+
+func (x *Invitation) GetDateExpires() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateExpires
+	}
+	return nil
+}
+
+func (x *Invitation) GetDateSettled() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateSettled
+	}
+	return nil
+}
+
+func (x *Invitation) GetHolder() *Holder {
+	if x != nil {
+		return x.xxx_hidden_Holder
+	}
+	return nil
+}
+
+func (x *Invitation) GetClaim() []byte {
+	if x != nil {
+		return x.xxx_hidden_Claim
+	}
+	return nil
+}
+
+func (x *Invitation) SetId(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Id = v
+}
+
+func (x *Invitation) SetTenant(v *Tenant) {
+	x.xxx_hidden_Tenant = v
+}
+
+func (x *Invitation) SetInviter(v *Holder) {
+	x.xxx_hidden_Inviter = v
+}
+
+func (x *Invitation) SetEmail(v string) {
+	x.xxx_hidden_Email = v
+}
+
+func (x *Invitation) SetRole(v string) {
+	x.xxx_hidden_Role = v
+}
+
+func (x *Invitation) SetParty(v *Party) {
+	x.xxx_hidden_Party = v
+}
+
+func (x *Invitation) SetAccount(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Account = v
+}
+
+func (x *Invitation) SetDateUpdated(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateUpdated = v
+}
+
+func (x *Invitation) SetDateErased(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateErased = v
+}
+
+func (x *Invitation) SetDateCreated(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateCreated = v
+}
+
+func (x *Invitation) SetState(v string) {
+	x.xxx_hidden_State = v
+}
+
+func (x *Invitation) SetDateExpires(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateExpires = v
+}
+
+func (x *Invitation) SetDateSettled(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateSettled = v
+}
+
+func (x *Invitation) SetHolder(v *Holder) {
+	x.xxx_hidden_Holder = v
+}
+
+func (x *Invitation) SetClaim(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Claim = v
+}
+
+func (x *Invitation) HasTenant() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Tenant != nil
+}
+
+func (x *Invitation) HasInviter() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Inviter != nil
+}
+
+func (x *Invitation) HasParty() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Party != nil
+}
+
+func (x *Invitation) HasDateUpdated() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateUpdated != nil
+}
+
+func (x *Invitation) HasDateErased() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateErased != nil
+}
+
+func (x *Invitation) HasDateCreated() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateCreated != nil
+}
+
+func (x *Invitation) HasDateExpires() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateExpires != nil
+}
+
+func (x *Invitation) HasDateSettled() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateSettled != nil
+}
+
+func (x *Invitation) HasHolder() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Holder != nil
+}
+
+func (x *Invitation) ClearTenant() {
+	x.xxx_hidden_Tenant = nil
+}
+
+func (x *Invitation) ClearInviter() {
+	x.xxx_hidden_Inviter = nil
+}
+
+func (x *Invitation) ClearParty() {
+	x.xxx_hidden_Party = nil
+}
+
+func (x *Invitation) ClearDateUpdated() {
+	x.xxx_hidden_DateUpdated = nil
+}
+
+func (x *Invitation) ClearDateErased() {
+	x.xxx_hidden_DateErased = nil
+}
+
+func (x *Invitation) ClearDateCreated() {
+	x.xxx_hidden_DateCreated = nil
+}
+
+func (x *Invitation) ClearDateExpires() {
+	x.xxx_hidden_DateExpires = nil
+}
+
+func (x *Invitation) ClearDateSettled() {
+	x.xxx_hidden_DateSettled = nil
+}
+
+func (x *Invitation) ClearHolder() {
+	x.xxx_hidden_Holder = nil
+}
+
+type Invitation_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Id     []byte
+	Tenant *Tenant
+	// Who invited: their membership of this workspace.
+	Inviter *Holder
+	// The address it was sent to, folded as an address is compared.
+	Email string
+	// What an account that accepts is here.
+	Role string
+	// The person record an account that accepts becomes: one this workspace
+	// already keeps, or empty for one made then.
+	Party *Party
+	// The account it is for, once that is known -- its link was opened by it,
+	// or it answered -- and empty while it is only an address.
+	Account     []byte
+	DateUpdated *timestamppb.Timestamp
+	DateErased  *timestamppb.Timestamp
+	DateCreated *timestamppb.Timestamp
+	// `pending`, `accepted`, `denied` or `revoked`. One still pending after
+	// `date_expires` is expired, which is said where it is read rather than
+	// written by a sweep.
+	State       string
+	DateExpires *timestamppb.Timestamp
+	// When it was answered or taken back.
+	DateSettled *timestamppb.Timestamp
+	// The membership accepting it made.
+	Holder *Holder
+	// The SHA-256 of the code its mail carried, until an account opens it.
+	Claim []byte
+}
+
+func (b0 Invitation_builder) Build() *Invitation {
+	m0 := &Invitation{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Id = b.Id
+	x.xxx_hidden_Tenant = b.Tenant
+	x.xxx_hidden_Inviter = b.Inviter
+	x.xxx_hidden_Email = b.Email
+	x.xxx_hidden_Role = b.Role
+	x.xxx_hidden_Party = b.Party
+	x.xxx_hidden_Account = b.Account
+	x.xxx_hidden_DateUpdated = b.DateUpdated
+	x.xxx_hidden_DateErased = b.DateErased
+	x.xxx_hidden_DateCreated = b.DateCreated
+	x.xxx_hidden_State = b.State
+	x.xxx_hidden_DateExpires = b.DateExpires
+	x.xxx_hidden_DateSettled = b.DateSettled
+	x.xxx_hidden_Holder = b.Holder
+	x.xxx_hidden_Claim = b.Claim
+	return m0
+}
+
 var File_rove_org_proto protoreflect.FileDescriptor
 
 const file_rove_org_proto_rawDesc = "" +
@@ -654,34 +1047,78 @@ const file_rove_org_proto_rawDesc = "" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:>\xca\xfc\x152\x12\x02\x10\x01\x1a\x14\x12\x06secret\x1a\n" +
 	"\n" +
 	"\x06secret\x10\t\x1a\x16\x12\aaccount\x1a\v\n" +
-	"\aaccount\x10\b\x8a\xbb\x16\x04\b&*\x00B\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"\aaccount\x10\b\x8a\xbb\x16\x04\b&*\x00\"\x98\a\n" +
+	"\n" +
+	"Invitation\x12\x1b\n" +
+	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12.\n" +
+	"\ainviter\x18\b \x01(\v2\f.rove.HolderB\x06\xf2\x82\x16\x02@\x01R\ainviter\x12\x1c\n" +
+	"\x05email\x18\t \x01(\tB\x06\xea\x82\x16\x02@\x01R\x05email\x12\x1a\n" +
+	"\x04role\x18\n" +
+	" \x01(\tB\x06\xea\x82\x16\x02@\x01R\x04role\x12)\n" +
+	"\x05party\x18\v \x01(\v2\v.rove.PartyB\x06\xf2\x82\x16\x028\x01R\x05party\x12\"\n" +
+	"\aaccount\x18\f \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\aaccount\x12F\n" +
+	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12D\n" +
+	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
+	"dateErased\x12H\n" +
+	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12\x14\n" +
+	"\x05state\x18\x10 \x01(\tR\x05state\x12F\n" +
+	"\fdate_expires\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\vdateExpires\x12E\n" +
+	"\fdate_settled\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\vdateSettled\x12,\n" +
+	"\x06holder\x18\x13 \x01(\v2\f.rove.HolderB\x06\xf2\x82\x16\x028\x01R\x06holder\x12\"\n" +
+	"\x05claim\x18\x14 \x01(\fB\f\xea\x82\x16\x028\x01\xaa\xc1\x16\x02\b\x01R\x05claim:\xb6\x01\xca\xfc\x15f\x12\x02\x10\x01\x1a \x12\x04page\x1a\x10\n" +
+	"\fdate_created\x10\x0f\x1a\x06\n" +
+	"\x02id\x10\x01\x1a\x12\x12\x05claim\x1a\t\n" +
+	"\x05claim\x10\x14\x1a\x16\x12\aaccount\x1a\v\n" +
+	"\aaccount\x10\f\x1a\x12\x12\x05email\x1a\t\n" +
+	"\x05email\x10\t\x8a\xbb\x16H\b)2D\n" +
+	"\x10\n" +
+	"\x0e\n" +
+	"\fdate_created\n" +
+	"\x06\n" +
+	"\x04\n" +
+	"\x02id\x1a\x05\n" +
+	"\x03ref\x1a\b\n" +
+	"\x06tenant\x1a\t\n" +
+	"\aaccount\x1a\a\n" +
+	"\x05state 2(\xc8\x01B\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
-var file_rove_org_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_rove_org_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_rove_org_proto_goTypes = []any{
 	(*Party)(nil),                 // 0: rove.Party
 	(*Session)(nil),               // 1: rove.Session
-	nil,                           // 2: rove.Party.LabelsEntry
-	(*Tenant)(nil),                // 3: rove.Tenant
-	(*Holder)(nil),                // 4: rove.Holder
-	(*timestamppb.Timestamp)(nil), // 5: google.protobuf.Timestamp
+	(*Invitation)(nil),            // 2: rove.Invitation
+	nil,                           // 3: rove.Party.LabelsEntry
+	(*Tenant)(nil),                // 4: rove.Tenant
+	(*Holder)(nil),                // 5: rove.Holder
+	(*timestamppb.Timestamp)(nil), // 6: google.protobuf.Timestamp
 }
 var file_rove_org_proto_depIdxs = []int32{
-	3,  // 0: rove.Party.tenant:type_name -> rove.Tenant
-	2,  // 1: rove.Party.labels:type_name -> rove.Party.LabelsEntry
-	4,  // 2: rove.Party.holder:type_name -> rove.Holder
-	5,  // 3: rove.Party.date_updated:type_name -> google.protobuf.Timestamp
-	5,  // 4: rove.Party.date_erased:type_name -> google.protobuf.Timestamp
-	5,  // 5: rove.Party.date_created:type_name -> google.protobuf.Timestamp
-	5,  // 6: rove.Session.date_expires:type_name -> google.protobuf.Timestamp
-	5,  // 7: rove.Session.date_idle:type_name -> google.protobuf.Timestamp
-	5,  // 8: rove.Session.date_updated:type_name -> google.protobuf.Timestamp
-	5,  // 9: rove.Session.date_erased:type_name -> google.protobuf.Timestamp
-	5,  // 10: rove.Session.date_created:type_name -> google.protobuf.Timestamp
-	11, // [11:11] is the sub-list for method output_type
-	11, // [11:11] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	4,  // 0: rove.Party.tenant:type_name -> rove.Tenant
+	3,  // 1: rove.Party.labels:type_name -> rove.Party.LabelsEntry
+	5,  // 2: rove.Party.holder:type_name -> rove.Holder
+	6,  // 3: rove.Party.date_updated:type_name -> google.protobuf.Timestamp
+	6,  // 4: rove.Party.date_erased:type_name -> google.protobuf.Timestamp
+	6,  // 5: rove.Party.date_created:type_name -> google.protobuf.Timestamp
+	6,  // 6: rove.Session.date_expires:type_name -> google.protobuf.Timestamp
+	6,  // 7: rove.Session.date_idle:type_name -> google.protobuf.Timestamp
+	6,  // 8: rove.Session.date_updated:type_name -> google.protobuf.Timestamp
+	6,  // 9: rove.Session.date_erased:type_name -> google.protobuf.Timestamp
+	6,  // 10: rove.Session.date_created:type_name -> google.protobuf.Timestamp
+	4,  // 11: rove.Invitation.tenant:type_name -> rove.Tenant
+	5,  // 12: rove.Invitation.inviter:type_name -> rove.Holder
+	0,  // 13: rove.Invitation.party:type_name -> rove.Party
+	6,  // 14: rove.Invitation.date_updated:type_name -> google.protobuf.Timestamp
+	6,  // 15: rove.Invitation.date_erased:type_name -> google.protobuf.Timestamp
+	6,  // 16: rove.Invitation.date_created:type_name -> google.protobuf.Timestamp
+	6,  // 17: rove.Invitation.date_expires:type_name -> google.protobuf.Timestamp
+	6,  // 18: rove.Invitation.date_settled:type_name -> google.protobuf.Timestamp
+	5,  // 19: rove.Invitation.holder:type_name -> rove.Holder
+	20, // [20:20] is the sub-list for method output_type
+	20, // [20:20] is the sub-list for method input_type
+	20, // [20:20] is the sub-list for extension type_name
+	20, // [20:20] is the sub-list for extension extendee
+	0,  // [0:20] is the sub-list for field type_name
 }
 
 func init() { file_rove_org_proto_init() }
@@ -697,7 +1134,7 @@ func file_rove_org_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_org_proto_rawDesc), len(file_rove_org_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

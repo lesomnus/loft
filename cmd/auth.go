@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/lesomnus/z"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
@@ -13,6 +14,7 @@ import (
 	"github.com/lesomnus/payday/auth"
 	"github.com/lesomnus/payday/auth/authsession"
 	"github.com/lesomnus/payday/frame"
+	"github.com/lesomnus/payday/gate"
 	"github.com/lesomnus/payday/pdid"
 
 	app "github.com/lesomnus/rove"
@@ -43,6 +45,9 @@ func Resolver(s app.Server, db *ent.Client) auth.Resolver {
 		var ref *app.HolderRef
 		var err error
 		if id.Method == authsession.Method {
+			if m, ok := grpc.Method(ctx); ok && AccountMethods[m] {
+				return asAccount(id.Id)
+			}
 			ref, err = membership(ctx, db, id.Id)
 		} else {
 			ref, err = refOf(id)
@@ -90,6 +95,46 @@ func Resolver(s app.Server, db *ent.Client) auth.Resolver {
 		// so a resolver cannot widen a token by forgetting.
 		return frame.New(actor, tenant, frame.Grant{}).WithRow(v), nil
 	})
+}
+
+// AccountMethods are the calls a session makes as its account and not as a
+// membership: what an account asks before it is anybody's member, about
+// invitations addressed to it in workspaces it is not in (design 9.11).
+//
+// They are the one exception to every call being served as a membership of
+// one workspace, and the wall cannot serve them: the rows are other
+// workspaces'. So the frame sees no tenant at all, the policy gives such a
+// caller these methods and nothing else (`policy.Account`), and the domain
+// layer holds each to the account's own invitations
+// (`server/domain/invitation.go`).
+var AccountMethods = map[string]bool{
+	app.InvitationService_List_FullMethodName:   true,
+	app.InvitationService_Claim_FullMethodName:  true,
+	app.InvitationService_Accept_FullMethodName: true,
+	app.InvitationService_Deny_FullMethodName:   true,
+}
+
+// asAccount is the frame of a call served as the account: the account as the
+// actor, no tenant, and the account where a membership's row would be.
+func asAccount(account string) (*frame.Frame, error) {
+	a, err := pdid.Parse(account)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %s", auth.ErrNoCredential, err)
+	}
+	return frame.New(a, pdid.Nil, frame.Grant{}).WithRow(app.Account_builder{Id: a.Bytes()}.Build()), nil
+}
+
+// LimitKey is what a call is counted against: its workspace, or -- for a call
+// served as an account, which is in none -- that account, so that one account
+// asking often is not every account's limit.
+func LimitKey() func(ctx context.Context, method string) string {
+	byTenant := gate.ByTenant()
+	return func(ctx context.Context, method string) string {
+		if f, ok := frame.From(ctx); ok && f.Tenant.IsZero() && !f.Actor.IsZero() {
+			return "account:" + f.Actor.String()
+		}
+		return byTenant(ctx, method)
+	}
 }
 
 // WorkspaceHeader is the metadata a call names its workspace in: an alias,

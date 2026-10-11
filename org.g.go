@@ -110,3 +110,46 @@ func SessionById(v []byte) *SessionRef {
 func SessionGetById(v []byte) *SessionGetRequest {
 	return SessionGetRequest_builder{Ref: SessionById(v)}.Build()
 }
+
+func (x *InvitationRef) Pick() *InvitationGetRequest {
+	return InvitationGetRequest_builder{Ref: x}.Build()
+}
+
+func (x *Invitation) Ref() *InvitationRef {
+	if v := x.GetId(); len(v) > 0 {
+		return InvitationById(v)
+	}
+
+	return nil
+}
+
+func (x *Invitation) Pick() *InvitationGetRequest {
+	return x.Ref().Pick()
+}
+
+func (x *InvitationRef) Picks(v *Invitation) bool {
+	switch x.WhichKey() {
+	case InvitationRef_Id_case:
+		return bytes.Equal(x.GetId(), v.GetId())
+	default:
+		return false
+	}
+}
+
+func (x *InvitationGetRequest) WithSelect(f func(s *InvitationSelect)) *InvitationGetRequest {
+	if !x.HasSelect() {
+		x.SetSelect(&InvitationSelect{})
+	}
+	f(x.GetSelect())
+	return x
+}
+
+func InvitationById(v []byte) *InvitationRef {
+	x := &InvitationRef{}
+	x.SetId(v)
+	return x
+}
+
+func InvitationGetById(v []byte) *InvitationGetRequest {
+	return InvitationGetRequest_builder{Ref: InvitationById(v)}.Build()
+}

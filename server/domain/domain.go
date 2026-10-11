@@ -35,6 +35,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/event"
 	"github.com/lesomnus/rove/internal/ent/treelock"
 	"github.com/lesomnus/rove/internal/identity"
+	"github.com/lesomnus/rove/server/mail"
 	"github.com/lesomnus/rove/server/pd"
 	"github.com/lesomnus/rove/server/retention"
 	"github.com/lesomnus/rove/server/storage"
@@ -84,6 +85,21 @@ type Deps struct {
 	// People is where the people of a tenant are: roster (design 9.10). Nil
 	// is a deployment whose people cannot be changed from here.
 	People People
+
+	// Mail sends what goes to somebody's mailbox -- an invitation -- and
+	// AppUrl is where the link in it sends a browser. Nil sends nothing.
+	Mail   mail.Sender
+	AppUrl string
+
+	// Invitations is how long an invitation waits and how many a workspace
+	// may have out.
+	Invitations InvitationRules
+
+	// Base is the stack with neither the wall nor this layer: what an
+	// account's answer to an invitation is written through, in a workspace it
+	// is not a member of yet. Never handed to anything a caller reaches; this
+	// layer writes through it, after its own checks, and nothing else does.
+	Base app.Server
 }
 
 // People is roster, as the people operations reach it: the accounts of this
@@ -99,6 +115,9 @@ type People interface {
 	Verify(ctx context.Context, login, password string) (identity.Person, error)
 	Invalidate(ctx context.Context, account pdid.Id) error
 	ForgetPerson(ctx context.Context, account pdid.Id) error
+	// Addresses is an account's addresses somebody checked: what an
+	// invitation is found by.
+	Addresses(ctx context.Context, account pdid.Id) ([]string, error)
 }
 
 // here answers the people an account is made and changed at, or the refusal a
