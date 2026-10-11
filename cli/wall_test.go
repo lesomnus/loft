@@ -393,7 +393,9 @@ func furnish(t *testing.T, s *cmd.Server, conn *grpc.ClientConn, alias, login st
 // line -- called as the owner of one workspace with the identifiers of
 // another's rows wherever the request can carry one. None answers with
 // anything of the other workspace, none fails in a way that says it got past
-// every check (Internal, Unknown), and the other workspace is as it was.
+// every check (Internal, Unknown), and the other workspace is as it was --
+// though the session's account is a member of the other workspace as well, and
+// reaches it by naming it.
 func TestNoCallReachesAnotherWorkspace(t *testing.T) {
 	x := require.New(t)
 	ctx := context.Background()
@@ -422,6 +424,23 @@ func TestNoCallReachesAnotherWorkspace(t *testing.T) {
 	_, cookie, err := s.Sessions.Mint(ctx, authsession.Session{Id: pdid.Id(*owner.Account).String(), Grant: frame.Whole()})
 	x.NoError(err)
 	as := metadata.AppendToOutgoingContext(ctx, "cookie", cookie.Name+"="+cookie.Value, cmd.WorkspaceHeader, "acme")
+
+	// A credential that sees both: the account is a member of the other
+	// workspace too, and the same session reaches it when it names it. What
+	// it is not is a way into one from the other (plan M2).
+	bid, err := s.Ent.Tenant.Query().Where(tenant.Alias("beta")).OnlyId(ctx)
+	x.NoError(err)
+	_, err = s.Base.Holder().Add(ctx, app.HolderAddRequest_builder{
+		Tenant:  app.TenantRef_builder{Id: bid[:]}.Build(),
+		Alias:   "from-acme",
+		Role:    z.Ptr("member"),
+		Account: owner.Account[:],
+	}.Build())
+	x.NoError(err)
+	inBeta := metadata.AppendToOutgoingContext(ctx, "cookie", cookie.Name+"="+cookie.Value, cmd.WorkspaceHeader, "beta")
+	theirs, err := app.NewAssetServiceClient(conn).Search(inBeta, app.AssetSearchRequest_builder{}.Build())
+	x.NoError(err)
+	x.NotEmpty(theirs.GetItems(), "the session sees the other workspace when it names it")
 
 	furnish(t, s, conn, "beta", "boss")
 	beta := victimOf(t, s, "beta")
