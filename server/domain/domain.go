@@ -305,6 +305,38 @@ func (t *Tx) at(v *timestamppb.Timestamp, field string) (time.Time, error) {
 	return at, nil
 }
 
+// done answers errDone when `op` names an operation that already happened
+// here: what [Tx.begin] answers it for, asked before an operation checks
+// anything its first copy could have changed. A correction sent again finds its
+// row superseded -- by itself -- and would answer that, where the first copy
+// answered success. An operation behind the tree lock asks once it holds it, so
+// that copies sent at once see each other.
+func (t *Tx) done(op []byte) error {
+	if len(op) == 0 {
+		return nil
+	}
+	v, err := pdid.From(op)
+	if err != nil || v.Domain() != pd.EventDomain {
+		// Not one; [Tx.begin] says what is wrong with it.
+		return nil
+	}
+	return t.seen(v)
+}
+
+// seen answers errDone when an event with this identifier is here already.
+func (t *Tx) seen(op pdid.Id) error {
+	n, err := t.db.Event.Query().
+		Where(event.Id(op.Uuid()), event.TenantId(t.tenant.Uuid())).
+		Count(t.ctx)
+	if err != nil {
+		return err
+	}
+	if n > 0 {
+		return errDone
+	}
+	return nil
+}
+
 // begin records the event this operation is, and answers errDone when `op`
 // names one that already happened.
 func (t *Tx) begin(op []byte, kind string, subject pdid.Id, at time.Time, desc, reason string, payload map[string]string) error {
@@ -317,15 +349,8 @@ func (t *Tx) begin(op []byte, kind string, subject pdid.Id, at time.Time, desc, 
 		if v.Domain() != pd.EventDomain {
 			return invalid("op", "작업 식별자가 올바르지 않습니다")
 		}
-
-		n, err := t.db.Event.Query().
-			Where(event.Id(v.Uuid()), event.TenantId(t.tenant.Uuid())).
-			Count(t.ctx)
-		if err != nil {
+		if err := t.seen(v); err != nil {
 			return err
-		}
-		if n > 0 {
-			return errDone
 		}
 
 		id = v

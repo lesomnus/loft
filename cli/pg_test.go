@@ -43,6 +43,27 @@ func TestEverySchemaHasTheBackstop(t *testing.T) {
 			x.NoError(s.Db.QueryRowContext(ctx, "SELECT count(*) FROM pg_constraint WHERE conname = $1 AND conrelid = $2::regclass", name, table).Scan(&n))
 			x.Equal(1, n, "%s on %s", name, table)
 		}
+
+		// And a tenant trigger on every foreign key between two tenanted
+		// tables of this schema.
+		keys, triggers := 0, 0
+		x.NoError(s.Db.QueryRowContext(ctx, `
+			SELECT count(*) FROM pg_constraint c
+			JOIN pg_attribute a ON a.attrelid = c.conrelid AND a.attnum = c.conkey[1]
+			WHERE c.contype = 'f' AND a.attname <> 'tenant_id'
+				AND c.connamespace = current_schema()::regnamespace
+				AND EXISTS (SELECT 1 FROM pg_attribute x WHERE x.attrelid = c.conrelid AND x.attname = 'tenant_id')
+				AND EXISTS (SELECT 1 FROM pg_attribute x WHERE x.attrelid = c.confrelid AND x.attname = 'tenant_id')`).Scan(&keys))
+		x.NoError(s.Db.QueryRowContext(ctx, `
+			SELECT count(*) FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid
+			WHERE t.tgname LIKE '%\_same\_tenant' AND c.relnamespace = current_schema()::regnamespace`).Scan(&triggers))
+		x.Positive(keys)
+		x.Equal(keys, triggers, "a tenant trigger per foreign key between tenanted tables")
+		for _, name := range []string{"placement_parent_id_same_tenant", "custodyline_asset_id_same_tenant", "party_holder_id_same_tenant"} {
+			n := 0
+			x.NoError(s.Db.QueryRowContext(ctx, "SELECT count(*) FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid WHERE t.tgname = $1 AND c.relnamespace = current_schema()::regnamespace", name).Scan(&n))
+			x.Equal(1, n, name)
+		}
 		x.NoError(s.Close())
 	}
 }

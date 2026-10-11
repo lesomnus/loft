@@ -599,6 +599,10 @@ func (t *Tx) writePlacements(child uuid.UUID, old, tl timeline[place]) error {
 			UTo:       s.state.uTo,
 			ValidFrom: ts(s.from),
 			EventId:   t.ev.Bytes(),
+			// Known from the moment the rows it replaces stopped being known,
+			// and not from whenever the write reads the clock; see
+			// [Tx.supersedePlacement].
+			DateCreated: ts(t.now),
 		}.Build()
 		if s.to != nil {
 			req.SetValidTo(ts(*s.to))
@@ -733,6 +737,9 @@ func (t *Tx) addFact(id uuid.UUID, key, value string, cleared bool, at time.Time
 		Cleared:   cleared,
 		ValidFrom: ts(at),
 		EventId:   t.ev.Bytes(),
+		// Known from the moment of the operation, as what it supersedes stops
+		// being; see [Tx.writePlacements].
+		DateCreated: ts(t.now),
 	}.Build())
 	return err
 }
@@ -1073,6 +1080,8 @@ func (t *Tx) writeStewards(id uuid.UUID, role string, old, tl timeline[steward])
 			Role:      role,
 			ValidFrom: ts(s.from),
 			EventId:   t.ev.Bytes(),
+			// See [Tx.writePlacements].
+			DateCreated: ts(t.now),
 		}.Build()
 		if s.to != nil {
 			req.SetValidTo(ts(*s.to))
@@ -1197,6 +1206,8 @@ func (t *Tx) writeLinks(source, target uuid.UUID, kind string, old, tl timeline[
 			Required:  s.state.required,
 			ValidFrom: ts(s.from),
 			EventId:   t.ev.Bytes(),
+			// See [Tx.writePlacements].
+			DateCreated: ts(t.now),
 		}.Build()
 		if s.to != nil {
 			req.SetValidTo(ts(*s.to))
@@ -1228,6 +1239,9 @@ func (s domainAsset) Correct(ctx context.Context, req *app.AssetCorrectRequest) 
 			}
 		}
 		if err := t.lockTree(); err != nil {
+			return err
+		}
+		if err := t.done(req.GetOp()); err != nil {
 			return err
 		}
 		a, id, err := t.get(req.GetRef(), "ref")
