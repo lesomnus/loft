@@ -271,7 +271,10 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	s.Sessions = authsession.New(store, opts2...)
 	s.Auth = s.Sessions.Handler()
 	s.Policy = policy.Policy{}
-	s.Lifecycle = lifecycle.Lifecycle{Db: client, Sessions: store, Base: base}
+	s.Lifecycle = lifecycle.Lifecycle{
+		Db: client, Sessions: store, Base: base,
+		People: people, Deps: deps, Drv: drv, Grace: c.App.Accounts.Grace(),
+	}
 
 	// Signing in through roster's issuer. With no password beside it, an
 	// issuer is the only way in, so a deployment that turns passwords off and
@@ -308,6 +311,9 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 			return people.Follow(ctx, s.Lifecycle.Apply)
 		}))
 	}
+	// And the accounts still erased once roster's grace is over, leaving
+	// every workspace they were in.
+	s.Spin = append(s.Spin, spinEvery(c.App.Accounts.Interval(), s.Lifecycle.Sweep))
 
 	// What the keep windows no longer reach, taken out of the history (design
 	// 8.2) -- only when the deployment has said a window may destroy.

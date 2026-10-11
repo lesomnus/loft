@@ -129,8 +129,7 @@ func (Invitation) Fields() []ent.Field {
 		field.Uuid("id").
 			Unique().
 			Immutable(),
-		field.String("email").
-			Immutable(),
+		field.String("email"),
 		field.String("role").
 			Immutable(),
 		field.Uuid("account").

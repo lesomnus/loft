@@ -134,7 +134,37 @@ type AppConfig struct {
 	// Invitations is how long one waits and how many a workspace may have
 	// out (design 9.11).
 	Invitations InvitationsConfig `yaml:"invitations"`
+
+	// Accounts is what becomes of the memberships of an account roster erased
+	// (design 9.10).
+	Accounts AccountsConfig `yaml:"accounts"`
 }
+
+// AccountsConfig is how long the memberships of an account roster erased
+// wait before the account leaves every workspace it was in.
+type AccountsConfig struct {
+	// ForgetAfter is how long after roster erased an account it leaves here
+	// -- its person records pseudonymized, its memberships ended -- if roster
+	// has not restored it by then. It is roster's own grace
+	// (`holder.forget_after`) and is kept equal to it: shorter, and an account
+	// roster restores comes back to nothing; longer, and this keeps who
+	// somebody was after roster has forgotten them. Unset is 30 days, which is
+	// roster's default.
+	ForgetAfter time.Duration `yaml:"forget_after"`
+	// Every is how often the memberships still leaving are looked at. Unset
+	// is an hour.
+	Every time.Duration `yaml:"every"`
+}
+
+// DefaultForgetAfter is how long an erased account's memberships wait when
+// the configuration says nothing: roster's own default grace.
+const DefaultForgetAfter = 30 * 24 * time.Hour
+
+// Grace is how long an erased account's memberships wait.
+func (c AccountsConfig) Grace() time.Duration { return or(c.ForgetAfter, DefaultForgetAfter) }
+
+// Interval is how often the memberships still leaving are looked at.
+func (c AccountsConfig) Interval() time.Duration { return or(c.Every, time.Hour) }
 
 // InvitationsConfig is how long an invitation waits, and how many a
 // workspace may have out: what keeps one from mailing the world.

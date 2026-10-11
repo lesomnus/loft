@@ -152,7 +152,12 @@ when it is said: signed out everywhere ends the sessions that began before it,
 suspended or erased ends them all, and erased marks each of the account's
 memberships `Holder.date_leaving`. roster's `restore` and `forget` write past
 its servers and are **not on the stream** -- whatever acts on a mark asks
-roster first. The role Rove is installed with carries every method in
+roster first. That is `Lifecycle.Sweep`: past `app.accounts.forget_after`, an
+account roster still has nobody by leaves every workspace it is in
+(`domain.Deps.Depart`: pseudonymized as 개인정보 삭제 is, and a last owner's
+workspace handed on), and one roster has again stops leaving. `rove identity
+depart` does it now for one account, and `rove identity reconcile` finds what
+the stream missed -- it replays nothing. The role Rove is installed with carries every method in
 `identity.AgentMethods`; installing again leaves an existing role as it is, so
 an older install is widened with `roster role patch` (README).
 

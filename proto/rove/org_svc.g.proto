@@ -482,6 +482,7 @@ message InvitationSelect {
 
 message InvitationPatchRequest {
   InvitationRef ref = 1;
+  string email = 18;
   PartyRef party = 22;
   // Clear party instead of writing it.
   // It takes a field of its own because an unset value already means

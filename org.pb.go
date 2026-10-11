@@ -942,7 +942,10 @@ type Invitation_builder struct {
 	Tenant *Tenant
 	// Who invited: their membership of this workspace.
 	Inviter *Holder
-	// The address it was sent to, folded as an address is compared.
+	// The address it was sent to, folded as an address is compared. Written
+	// once, and emptied when the person it was for is forgotten -- by the
+	// workspace, or by their account leaving (`server/domain/depart.go`) -- which
+	// is the one write it takes and why it is not immutable.
 	Email string
 	// What an account that accepts is here.
 	Role string
@@ -1047,13 +1050,13 @@ const file_rove_org_proto_rawDesc = "" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:>\xca\xfc\x152\x12\x02\x10\x01\x1a\x14\x12\x06secret\x1a\n" +
 	"\n" +
 	"\x06secret\x10\t\x1a\x16\x12\aaccount\x1a\v\n" +
-	"\aaccount\x10\b\x8a\xbb\x16\x04\b&*\x00\"\x98\a\n" +
+	"\aaccount\x10\b\x8a\xbb\x16\x04\b&*\x00\"\x90\a\n" +
 	"\n" +
 	"Invitation\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12.\n" +
-	"\ainviter\x18\b \x01(\v2\f.rove.HolderB\x06\xf2\x82\x16\x02@\x01R\ainviter\x12\x1c\n" +
-	"\x05email\x18\t \x01(\tB\x06\xea\x82\x16\x02@\x01R\x05email\x12\x1a\n" +
+	"\ainviter\x18\b \x01(\v2\f.rove.HolderB\x06\xf2\x82\x16\x02@\x01R\ainviter\x12\x14\n" +
+	"\x05email\x18\t \x01(\tR\x05email\x12\x1a\n" +
 	"\x04role\x18\n" +
 	" \x01(\tB\x06\xea\x82\x16\x02@\x01R\x04role\x12)\n" +
 	"\x05party\x18\v \x01(\v2\v.rove.PartyB\x06\xf2\x82\x16\x028\x01R\x05party\x12\"\n" +

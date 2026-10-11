@@ -457,35 +457,12 @@ func (s domainParty) Pseudonymize(ctx context.Context, req *app.PartyPseudonymiz
 		if p.GetKind() != "person" {
 			return invalid("ref", "개인정보 삭제는 사람에게만 합니다")
 		}
-		id := idOf(p.GetId())
-		objects := []pdid.Id{id}
-		if h := idOf(p.GetHolder().GetId()); !h.IsZero() {
-			if _, err := t.next.Holder().Erase(t.ctx, app.HolderRef_builder{Id: h.Bytes()}.Build()); err != nil {
-				return err
-			}
-			objects = append(objects, h)
-		}
-		out, err = t.next.Party().Patch(t.ctx, app.PartyPatchRequest_builder{
-			Ref:              req.GetRef(),
-			Name:             z.Ptr("익명 " + id.String()[:8]),
-			Desc:             z.Ptr(""),
-			Email:            z.Ptr(""),
-			Phone:            z.Ptr(""),
-			Code:             z.Ptr(""),
-			Labels:           map[string]string{},
-			HolderNull:       z.Ptr(true),
-			DateUpdatedForce: z.Ptr(true),
-		}.Build())
+		v, held, err := t.pseudonymize(p)
 		if err != nil {
 			return err
 		}
+		out = v
 
-		// The trail kept the rows as they were after every write; those
-		// copies are the person too.
-		held, err := t.forget(objects)
-		if err != nil {
-			return err
-		}
 		payload := map[string]string{}
 		if held > 0 {
 			payload["held"] = fmt.Sprint(held)
