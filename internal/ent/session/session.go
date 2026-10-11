@@ -21,6 +21,8 @@ const (
 	FieldDateExpires = "date_expires"
 	// FieldDateIdle holds the string denoting the date_idle field in the database.
 	FieldDateIdle = "date_idle"
+	// FieldHeld holds the string denoting the held field in the database.
+	FieldHeld = "held"
 	// FieldDateUpdated holds the string denoting the date_updated field in the database.
 	FieldDateUpdated = "date_updated"
 	// FieldDateErased holds the string denoting the date_erased field in the database.
@@ -39,6 +41,7 @@ var Columns = []string{
 	FieldGrant,
 	FieldDateExpires,
 	FieldDateIdle,
+	FieldHeld,
 	FieldDateUpdated,
 	FieldDateErased,
 	FieldDateCreated,

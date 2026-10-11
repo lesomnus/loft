@@ -88,7 +88,11 @@ func (w *world) member(t *app.Tenant, p identity.Person, role string) *app.Holde
 	return h
 }
 
-func newWorld(t *testing.T) *world {
+func newWorld(t *testing.T) *world { return newWorldWith(t, nil) }
+
+// newWorldWith is the world with one more say over its configuration, for the
+// settings only one test is about.
+func newWorldWith(t *testing.T, with func(*cmd.Config)) *world {
 	x := require.New(t)
 	ctx := context.Background()
 	driver, dsn := pdtest.DB(t)
@@ -98,6 +102,9 @@ func newWorld(t *testing.T) *world {
 	c.Watch.Broker = "memory"
 	c.App.Files = t.TempDir()
 	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
+	if with != nil {
+		with(&c)
+	}
 
 	s, err := cmd.Build(ctx, c)
 	x.NoError(err)

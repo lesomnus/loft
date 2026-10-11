@@ -80,6 +80,11 @@ func DateIdle(v time.Time) predicate.Session {
 	return predicate.Session(sql.FieldEQ(FieldDateIdle, v))
 }
 
+// Held applies equality check predicate on the "held" field. It's identical to HeldEQ.
+func Held(v []byte) predicate.Session {
+	return predicate.Session(sql.FieldEQ(FieldHeld, v))
+}
+
 // DateUpdated applies equality check predicate on the "date_updated" field. It's identical to DateUpdatedEQ.
 func DateUpdated(v time.Time) predicate.Session {
 	return predicate.Session(sql.FieldEQ(FieldDateUpdated, v))
@@ -333,6 +338,56 @@ func DateIdleIsNil() predicate.Session {
 // DateIdleNotNil applies the NotNil predicate on the "date_idle" field.
 func DateIdleNotNil() predicate.Session {
 	return predicate.Session(sql.FieldNotNull(FieldDateIdle))
+}
+
+// HeldEQ applies the EQ predicate on the "held" field.
+func HeldEQ(v []byte) predicate.Session {
+	return predicate.Session(sql.FieldEQ(FieldHeld, v))
+}
+
+// HeldNEQ applies the NEQ predicate on the "held" field.
+func HeldNEQ(v []byte) predicate.Session {
+	return predicate.Session(sql.FieldNEQ(FieldHeld, v))
+}
+
+// HeldIn applies the In predicate on the "held" field.
+func HeldIn(vs ...[]byte) predicate.Session {
+	return predicate.Session(sql.FieldIn(FieldHeld, vs...))
+}
+
+// HeldNotIn applies the NotIn predicate on the "held" field.
+func HeldNotIn(vs ...[]byte) predicate.Session {
+	return predicate.Session(sql.FieldNotIn(FieldHeld, vs...))
+}
+
+// HeldGT applies the GT predicate on the "held" field.
+func HeldGT(v []byte) predicate.Session {
+	return predicate.Session(sql.FieldGT(FieldHeld, v))
+}
+
+// HeldGTE applies the GTE predicate on the "held" field.
+func HeldGTE(v []byte) predicate.Session {
+	return predicate.Session(sql.FieldGTE(FieldHeld, v))
+}
+
+// HeldLT applies the LT predicate on the "held" field.
+func HeldLT(v []byte) predicate.Session {
+	return predicate.Session(sql.FieldLT(FieldHeld, v))
+}
+
+// HeldLTE applies the LTE predicate on the "held" field.
+func HeldLTE(v []byte) predicate.Session {
+	return predicate.Session(sql.FieldLTE(FieldHeld, v))
+}
+
+// HeldIsNil applies the IsNil predicate on the "held" field.
+func HeldIsNil() predicate.Session {
+	return predicate.Session(sql.FieldIsNull(FieldHeld))
+}
+
+// HeldNotNil applies the NotNil predicate on the "held" field.
+func HeldNotNil() predicate.Session {
+	return predicate.Session(sql.FieldNotNull(FieldHeld))
 }
 
 // DateUpdatedEQ applies the EQ predicate on the "date_updated" field.

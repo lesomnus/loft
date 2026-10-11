@@ -146,6 +146,16 @@ that membership. Every call is also held to what roster says of the account
 now (`identity.Store.Held`, cached `HeldTtl`); a roster that cannot be asked
 serves no session.
 
+Through roster's issuer instead (`auth.sso`, `server/sso`), Rove is a relying
+party in the `itself` shape of roster's `docs/relying-party.md`: `GET
+/sso/login?with=<connection>` sends the browser to Hydra naming the button's
+connection, `GET /sso/callback` exchanges the code (state in a cookie, nonce,
+PKCE, the secret in the header) and mints the same account session, keeping
+the ID token beside it (`Session.held`) for `POST /sso/logout` to hand back as
+`id_token_hint`. `GET /sso` is what the sign-in page draws. `auth.sso_only`
+answers `POST /session` with 403. Tests sign in through `internal/oidctest`, an
+issuer that holds a relying party to what it has to send.
+
 An account in no workspace is given one of its own when it signs in
 (`tenancy.Workspaces.Arrive`), and makes more at `POST /account/workspaces`;
 `GET /account` is what it is in. Those are HTTP beside `/session` and not RPCs

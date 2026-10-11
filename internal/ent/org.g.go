@@ -55,6 +55,9 @@ func (e *Session) Proto() *rove.Session {
 	if e.DateIdle != nil {
 		x.SetDateIdle(timestamppb.New(*e.DateIdle))
 	}
+	if e.Held != nil {
+		x.SetHeld(*e.Held)
+	}
 	x.SetDateUpdated(timestamppb.New(e.DateUpdated))
 	if e.DateErased != nil {
 		x.SetDateErased(timestamppb.New(*e.DateErased))

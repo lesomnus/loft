@@ -108,6 +108,18 @@ func (_u *SessionUpdate) ClearDateIdle() *SessionUpdate {
 	return _u
 }
 
+// SetHeld sets the "held" field.
+func (_u *SessionUpdate) SetHeld(v []byte) *SessionUpdate {
+	_u.mutation.SetHeld(v)
+	return _u
+}
+
+// ClearHeld clears the value of the "held" field.
+func (_u *SessionUpdate) ClearHeld() *SessionUpdate {
+	_u.mutation.ClearHeld()
+	return _u
+}
+
 // SetDateUpdated sets the "date_updated" field.
 func (_u *SessionUpdate) SetDateUpdated(v time.Time) *SessionUpdate {
 	_u.mutation.SetDateUpdated(v)
@@ -215,6 +227,12 @@ func (_u *SessionUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.DateIdleCleared() {
 		_spec.ClearField(session.FieldDateIdle, field.TypeTime)
+	}
+	if value, ok := _u.mutation.Held(); ok {
+		_spec.SetField(session.FieldHeld, field.TypeBytes, value)
+	}
+	if _u.mutation.HeldCleared() {
+		_spec.ClearField(session.FieldHeld, field.TypeBytes)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(session.FieldDateUpdated, field.TypeTime, value)
@@ -325,6 +343,18 @@ func (_u *SessionUpdateOne) SetNillableDateIdle(v *time.Time) *SessionUpdateOne 
 // ClearDateIdle clears the value of the "date_idle" field.
 func (_u *SessionUpdateOne) ClearDateIdle() *SessionUpdateOne {
 	_u.mutation.ClearDateIdle()
+	return _u
+}
+
+// SetHeld sets the "held" field.
+func (_u *SessionUpdateOne) SetHeld(v []byte) *SessionUpdateOne {
+	_u.mutation.SetHeld(v)
+	return _u
+}
+
+// ClearHeld clears the value of the "held" field.
+func (_u *SessionUpdateOne) ClearHeld() *SessionUpdateOne {
+	_u.mutation.ClearHeld()
 	return _u
 }
 
@@ -465,6 +495,12 @@ func (_u *SessionUpdateOne) sqlSave(ctx context.Context) (_node *Session, err er
 	}
 	if _u.mutation.DateIdleCleared() {
 		_spec.ClearField(session.FieldDateIdle, field.TypeTime)
+	}
+	if value, ok := _u.mutation.Held(); ok {
+		_spec.SetField(session.FieldHeld, field.TypeBytes, value)
+	}
+	if _u.mutation.HeldCleared() {
+		_spec.ClearField(session.FieldHeld, field.TypeBytes)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(session.FieldDateUpdated, field.TypeTime, value)

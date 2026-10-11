@@ -359,7 +359,7 @@ export const Session = {
 	version: "dateUpdated",
 	key: "id",
 	ids: ["id", "account"],
-	secrets: ["secret"],
+	secrets: ["secret", "held"],
 	service: SessionService,
 } as const satisfies EntityDesc
 

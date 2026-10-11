@@ -9208,6 +9208,23 @@ func (m *SessionMutation) OldDateIdle(ctx context.Context) (v *time.Time, err er
 	return oldValue.DateIdle, nil
 }
 
+// OldHeld returns the old "held" field's value of the Session entity.
+// If the Session object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SessionMutation) OldHeld(ctx context.Context) (v *[]byte, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldHeld is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldHeld requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldHeld: %w", err)
+	}
+	return oldValue.Held, nil
+}
+
 // OldDateUpdated returns the old "date_updated" field's value of the Session entity.
 // If the Session object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
@@ -9274,6 +9291,8 @@ func (m *SessionMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldDateExpires(ctx)
 	case session.FieldDateIdle:
 		return m.OldDateIdle(ctx)
+	case session.FieldHeld:
+		return m.OldHeld(ctx)
 	case session.FieldDateUpdated:
 		return m.OldDateUpdated(ctx)
 	case session.FieldDateErased:

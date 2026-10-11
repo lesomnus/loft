@@ -1260,6 +1260,7 @@ var (
 		{Name: "grant", Type: field.TypeBytes, Nullable: true},
 		{Name: "date_expires", Type: field.TypeTime, Nullable: true},
 		{Name: "date_idle", Type: field.TypeTime, Nullable: true},
+		{Name: "held", Type: field.TypeBytes, Nullable: true},
 		{Name: "date_updated", Type: field.TypeTime},
 		{Name: "date_erased", Type: field.TypeTime, Nullable: true},
 		{Name: "date_created", Type: field.TypeTime, Nullable: true},

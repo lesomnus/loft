@@ -70,12 +70,17 @@ func digest(key string) []byte {
 var whole = []byte("whole")
 
 func (s Store) Put(ctx context.Context, v authsession.Session) error {
-	if len(v.Held) > 0 {
-		return authsession.ErrCannotHold
-	}
 	account, err := pdid.Parse(v.Id)
 	if err != nil {
 		return err
+	}
+	// What the sign-in kept beside the session: the issuer's ID token, for
+	// signing out (`server/sso`). Written once, when the row is.
+	var held []byte
+	if len(v.Held) > 0 {
+		if held, err = json.Marshal(v.Held); err != nil {
+			return err
+		}
 	}
 
 	// Put is also how the idle clock moves: the same key, again.
@@ -90,7 +95,7 @@ func (s Store) Put(ctx context.Context, v authsession.Session) error {
 		return err
 	}
 
-	return s.Db.Session.Create().
+	create := s.Db.Session.Create().
 		SetId(pdid.New(pd.SessionDomain).Uuid()).
 		SetAccount(account.Uuid()).
 		SetSecret(digest(v.Key)).
@@ -98,8 +103,11 @@ func (s Store) Put(ctx context.Context, v authsession.Session) error {
 		SetNillableDateIdle(nonzero(v.Idle)).
 		SetNillableDateExpires(nonzero(v.Expires)).
 		SetDateCreated(now).
-		SetDateUpdated(now).
-		Exec(ctx)
+		SetDateUpdated(now)
+	if held != nil {
+		create.SetHeld(held)
+	}
+	return create.Exec(ctx)
 }
 
 func (s Store) Get(ctx context.Context, key string) (authsession.Session, error) {
@@ -136,6 +144,11 @@ func (s Store) Get(ctx context.Context, key string) (authsession.Session, error)
 	}
 	if v.DateIdle != nil {
 		out.Idle = *v.DateIdle
+	}
+	if v.Held != nil && len(*v.Held) > 0 {
+		if err := json.Unmarshal(*v.Held, &out.Held); err != nil {
+			return authsession.Session{}, fmt.Errorf("session: what it held: %w", err)
+		}
 	}
 	return out, nil
 }

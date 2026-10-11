@@ -105,6 +105,14 @@ message Session {
   google.protobuf.Timestamp date_expires = 11 [(orm.field) = {nullable: true}];
   google.protobuf.Timestamp date_idle = 12 [(orm.field) = {nullable: true}];
 
+  // What the sign-in kept beside the session, as JSON: for one that came
+  // through the issuer, its ID token, which is what signing out hands back to
+  // it as `id_token_hint` (`server/sso`). Nothing reads it but that.
+  bytes held = 16 [
+    (orm.field) = {nullable: true},
+    (payday.field) = {secret: true}
+  ];
+
   google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
   google.protobuf.Timestamp date_erased = 14 [(orm.field) = {erased: {}}];
   google.protobuf.Timestamp date_created = 15 [(orm.field) = {

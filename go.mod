@@ -25,6 +25,8 @@ tool (
 )
 
 require (
+	github.com/coreos/go-oidc/v3 v3.20.0
+	github.com/go-jose/go-jose/v4 v4.1.4
 	github.com/lesomnus/flob v0.0.0-20261010120939-21f89e60609e
 	github.com/lesomnus/otx v0.0.0-20260807173743-977a5687d6ba
 	github.com/lesomnus/payday v0.0.0-20261010204705-f381bc790c43
@@ -38,7 +40,7 @@ require (
 	github.com/protobuf-orm/protoc-gen-orm-ent/runtime v0.0.0-20260906232518-fa1777a2628d
 	github.com/stretchr/testify v1.11.1
 	github.com/xuri/excelize/v2 v2.10.1
-	golang.org/x/crypto v0.58.0
+	golang.org/x/oauth2 v0.36.0
 	golang.org/x/sync v0.24.0
 	golang.org/x/text v0.43.0
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260724162435-b2f20204f0df
@@ -57,13 +59,11 @@ require (
 	github.com/bmatcuk/doublestar v1.3.4 // indirect
 	github.com/bufbuild/protocompile v0.14.2-0.20260716165721-bb5762d29672 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/coreos/go-oidc/v3 v3.20.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/ettle/strcase v0.2.0 // indirect
 	github.com/fatih/color v1.19.0 // indirect
 	github.com/fxamacker/cbor/v2 v2.9.2 // indirect
 	github.com/go-asn1-ber/asn1-ber v1.5.8 // indirect
-	github.com/go-jose/go-jose/v4 v4.1.4 // indirect
 	github.com/go-logr/logr v1.4.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-openapi/inflect v1.0.0 // indirect
@@ -120,11 +120,11 @@ require (
 	go.opentelemetry.io/otel/sdk/log v0.20.0 // indirect
 	go.opentelemetry.io/otel/sdk/metric v1.44.0 // indirect
 	go.opentelemetry.io/otel/trace v1.45.0 // indirect
+	golang.org/x/crypto v0.58.0 // indirect
 	golang.org/x/exp v0.0.0-20260709172345-9ea1abe57597 // indirect
 	golang.org/x/image v0.45.0 // indirect
 	golang.org/x/mod v0.41.0 // indirect
 	golang.org/x/net v0.60.0 // indirect
-	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/sys v0.49.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
 	golang.org/x/tools v0.51.0 // indirect

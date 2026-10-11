@@ -329,6 +329,7 @@ message SessionAddRequest {
   bytes grant = 10;
   google.protobuf.Timestamp date_expires = 11;
   google.protobuf.Timestamp date_idle = 12;
+  bytes held = 16;
   google.protobuf.Timestamp date_created = 15;
 }
 
@@ -350,6 +351,7 @@ message SessionSelect {
   bool grant = 10;
   bool date_expires = 11;
   bool date_idle = 12;
+  bool held = 16;
   bool date_updated = 13;
   bool date_erased = 14;
   bool date_created = 15;
@@ -372,6 +374,12 @@ message SessionPatchRequest {
   // "leave it alone", so no value could have meant NULL. It wins
   // outright: setting both this and date_idle clears.
   bool date_idle_null = 25;
+  bytes held = 32;
+  // Clear held instead of writing it.
+  // It takes a field of its own because an unset value already means
+  // "leave it alone", so no value could have meant NULL. It wins
+  // outright: setting both this and held clears.
+  bool held_null = 33;
   // The version this update requires the stored date_updated to be.
   // It is a precondition, not a write: the update applies only if the row
   // still holds this value, and the server stamps the new version itself.

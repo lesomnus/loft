@@ -94,6 +94,9 @@ func (Session) Fields() []ent.Field {
 		field.Time("date_idle").
 			Nillable().
 			Optional(),
+		field.Bytes("held").
+			Nillable().
+			Optional(),
 		field.Time("date_updated"),
 		field.Time("date_erased").
 			Nillable().

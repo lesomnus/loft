@@ -658,6 +658,9 @@ func (s SessionServiceServer) Add(ctx context.Context, req *rove.SessionAddReque
 	if req.HasDateIdle() {
 		q.SetDateIdle(req.GetDateIdle().AsTime())
 	}
+	if req.HasHeld() {
+		q.SetHeld(req.GetHeld())
+	}
 	q.SetDateUpdated(st.now())
 	if req.HasDateCreated() {
 		q.SetDateCreated(req.GetDateCreated().AsTime())
@@ -742,6 +745,9 @@ func SessionSelectedFields(m *rove.SessionSelect) []string {
 	if m.GetDateIdle() {
 		vs = append(vs, session.FieldDateIdle)
 	}
+	if m.GetHeld() {
+		vs = append(vs, session.FieldHeld)
+	}
 	if m.GetDateUpdated() {
 		vs = append(vs, session.FieldDateUpdated)
 	}
@@ -816,7 +822,7 @@ func SessionGetKey(ctx context.Context, db *ent.Client, ref *rove.SessionRef) (u
 var sessionOrmEntity = ormpatch.MustEntityOf(rove.File_rove_org_proto, "Session")
 
 var sessionPatchColumns = entpatch.Columns{
-	1: session.FieldId, 8: session.FieldAccount, 9: session.FieldSecret, 10: session.FieldGrant, 11: session.FieldDateExpires, 12: session.FieldDateIdle, 13: session.FieldDateUpdated, 14: session.FieldDateErased, 15: session.FieldDateCreated}
+	1: session.FieldId, 8: session.FieldAccount, 9: session.FieldSecret, 10: session.FieldGrant, 11: session.FieldDateExpires, 12: session.FieldDateIdle, 16: session.FieldHeld, 13: session.FieldDateUpdated, 14: session.FieldDateErased, 15: session.FieldDateCreated}
 
 func (s SessionServiceServer) Apply(ctx context.Context, req *rove.SessionApplyRequest) (*rove.Session, error) {
 	if !req.HasPatch() {

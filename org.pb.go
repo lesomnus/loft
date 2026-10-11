@@ -347,6 +347,7 @@ type Session struct {
 	xxx_hidden_Grant       []byte                 `protobuf:"bytes,10,opt,name=grant"`
 	xxx_hidden_DateExpires *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=date_expires,json=dateExpires"`
 	xxx_hidden_DateIdle    *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=date_idle,json=dateIdle"`
+	xxx_hidden_Held        []byte                 `protobuf:"bytes,16,opt,name=held"`
 	xxx_hidden_DateUpdated *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
 	xxx_hidden_DateErased  *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=date_erased,json=dateErased"`
 	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
@@ -421,6 +422,13 @@ func (x *Session) GetDateIdle() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *Session) GetHeld() []byte {
+	if x != nil {
+		return x.xxx_hidden_Held
+	}
+	return nil
+}
+
 func (x *Session) GetDateUpdated() *timestamppb.Timestamp {
 	if x != nil {
 		return x.xxx_hidden_DateUpdated
@@ -476,6 +484,13 @@ func (x *Session) SetDateExpires(v *timestamppb.Timestamp) {
 
 func (x *Session) SetDateIdle(v *timestamppb.Timestamp) {
 	x.xxx_hidden_DateIdle = v
+}
+
+func (x *Session) SetHeld(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Held = v
 }
 
 func (x *Session) SetDateUpdated(v *timestamppb.Timestamp) {
@@ -556,6 +571,10 @@ type Session_builder struct {
 	Grant       []byte
 	DateExpires *timestamppb.Timestamp
 	DateIdle    *timestamppb.Timestamp
+	// What the sign-in kept beside the session, as JSON: for one that came
+	// through the issuer, its ID token, which is what signing out hands back to
+	// it as `id_token_hint` (`server/sso`). Nothing reads it but that.
+	Held        []byte
 	DateUpdated *timestamppb.Timestamp
 	DateErased  *timestamppb.Timestamp
 	DateCreated *timestamppb.Timestamp
@@ -571,6 +590,7 @@ func (b0 Session_builder) Build() *Session {
 	x.xxx_hidden_Grant = b.Grant
 	x.xxx_hidden_DateExpires = b.DateExpires
 	x.xxx_hidden_DateIdle = b.DateIdle
+	x.xxx_hidden_Held = b.Held
 	x.xxx_hidden_DateUpdated = b.DateUpdated
 	x.xxx_hidden_DateErased = b.DateErased
 	x.xxx_hidden_DateCreated = b.DateCreated
@@ -618,7 +638,7 @@ const file_rove_org_proto_rawDesc = "" +
 	"\x04kind\x1a\v\n" +
 	"\tparent_id\x1a\b\n" +
 	"\x06holder\x1a\b\n" +
-	"\x06labels 2(\xf4\x03:\x00\"\xae\x04\n" +
+	"\x06labels 2(\xf4\x03:\x00\"\xd0\x04\n" +
 	"\aSession\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12 \n" +
 	"\aaccount\x18\b \x01(\fB\x06\xea\x82\x16\x02\x10@R\aaccount\x12%\n" +
@@ -626,7 +646,8 @@ const file_rove_org_proto_rawDesc = "" +
 	"\x05grant\x18\n" +
 	" \x01(\fB\a\xea\x82\x16\x03\x82\x01\x00R\x05grant\x12E\n" +
 	"\fdate_expires\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\vdateExpires\x12?\n" +
-	"\tdate_idle\x18\f \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\bdateIdle\x12F\n" +
+	"\tdate_idle\x18\f \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\bdateIdle\x12 \n" +
+	"\x04held\x18\x10 \x01(\fB\f\xea\x82\x16\x028\x01\xaa\xc1\x16\x02\b\x01R\x04held\x12F\n" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12D\n" +
 	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
 	"dateErased\x12H\n" +
