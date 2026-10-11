@@ -3387,6 +3387,7 @@ type SessionAddRequest struct {
 	xxx_hidden_Grant       []byte                 `protobuf:"bytes,10,opt,name=grant"`
 	xxx_hidden_DateExpires *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=date_expires,json=dateExpires"`
 	xxx_hidden_DateIdle    *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=date_idle,json=dateIdle"`
+	xxx_hidden_Held        []byte                 `protobuf:"bytes,16,opt,name=held"`
 	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
@@ -3461,6 +3462,13 @@ func (x *SessionAddRequest) GetDateIdle() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *SessionAddRequest) GetHeld() []byte {
+	if x != nil {
+		return x.xxx_hidden_Held
+	}
+	return nil
+}
+
 func (x *SessionAddRequest) GetDateCreated() *timestamppb.Timestamp {
 	if x != nil {
 		return x.xxx_hidden_DateCreated
@@ -3473,7 +3481,7 @@ func (x *SessionAddRequest) SetId(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_Id = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 7)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 8)
 }
 
 func (x *SessionAddRequest) SetAccount(v []byte) {
@@ -3488,7 +3496,7 @@ func (x *SessionAddRequest) SetSecret(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_Secret = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 7)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 8)
 }
 
 func (x *SessionAddRequest) SetGrant(v []byte) {
@@ -3496,7 +3504,7 @@ func (x *SessionAddRequest) SetGrant(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_Grant = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 7)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 8)
 }
 
 func (x *SessionAddRequest) SetDateExpires(v *timestamppb.Timestamp) {
@@ -3505,6 +3513,14 @@ func (x *SessionAddRequest) SetDateExpires(v *timestamppb.Timestamp) {
 
 func (x *SessionAddRequest) SetDateIdle(v *timestamppb.Timestamp) {
 	x.xxx_hidden_DateIdle = v
+}
+
+func (x *SessionAddRequest) SetHeld(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Held = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 8)
 }
 
 func (x *SessionAddRequest) SetDateCreated(v *timestamppb.Timestamp) {
@@ -3546,6 +3562,13 @@ func (x *SessionAddRequest) HasDateIdle() bool {
 	return x.xxx_hidden_DateIdle != nil
 }
 
+func (x *SessionAddRequest) HasHeld() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 6)
+}
+
 func (x *SessionAddRequest) HasDateCreated() bool {
 	if x == nil {
 		return false
@@ -3576,6 +3599,11 @@ func (x *SessionAddRequest) ClearDateIdle() {
 	x.xxx_hidden_DateIdle = nil
 }
 
+func (x *SessionAddRequest) ClearHeld() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 6)
+	x.xxx_hidden_Held = nil
+}
+
 func (x *SessionAddRequest) ClearDateCreated() {
 	x.xxx_hidden_DateCreated = nil
 }
@@ -3589,6 +3617,7 @@ type SessionAddRequest_builder struct {
 	Grant       []byte
 	DateExpires *timestamppb.Timestamp
 	DateIdle    *timestamppb.Timestamp
+	Held        []byte
 	DateCreated *timestamppb.Timestamp
 }
 
@@ -3597,20 +3626,24 @@ func (b0 SessionAddRequest_builder) Build() *SessionAddRequest {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.Id != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 7)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 8)
 		x.xxx_hidden_Id = b.Id
 	}
 	x.xxx_hidden_Account = b.Account
 	if b.Secret != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 7)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 8)
 		x.xxx_hidden_Secret = b.Secret
 	}
 	if b.Grant != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 7)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 8)
 		x.xxx_hidden_Grant = b.Grant
 	}
 	x.xxx_hidden_DateExpires = b.DateExpires
 	x.xxx_hidden_DateIdle = b.DateIdle
+	if b.Held != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 8)
+		x.xxx_hidden_Held = b.Held
+	}
 	x.xxx_hidden_DateCreated = b.DateCreated
 	return m0
 }
@@ -3842,6 +3875,7 @@ type SessionSelect struct {
 	xxx_hidden_Grant       bool                   `protobuf:"varint,10,opt,name=grant"`
 	xxx_hidden_DateExpires bool                   `protobuf:"varint,11,opt,name=date_expires,json=dateExpires"`
 	xxx_hidden_DateIdle    bool                   `protobuf:"varint,12,opt,name=date_idle,json=dateIdle"`
+	xxx_hidden_Held        bool                   `protobuf:"varint,16,opt,name=held"`
 	xxx_hidden_DateUpdated bool                   `protobuf:"varint,13,opt,name=date_updated,json=dateUpdated"`
 	xxx_hidden_DateErased  bool                   `protobuf:"varint,14,opt,name=date_erased,json=dateErased"`
 	xxx_hidden_DateCreated bool                   `protobuf:"varint,15,opt,name=date_created,json=dateCreated"`
@@ -3918,6 +3952,13 @@ func (x *SessionSelect) GetDateIdle() bool {
 	return false
 }
 
+func (x *SessionSelect) GetHeld() bool {
+	if x != nil {
+		return x.xxx_hidden_Held
+	}
+	return false
+}
+
 func (x *SessionSelect) GetDateUpdated() bool {
 	if x != nil {
 		return x.xxx_hidden_DateUpdated
@@ -3941,47 +3982,52 @@ func (x *SessionSelect) GetDateCreated() bool {
 
 func (x *SessionSelect) SetAll(v bool) {
 	x.xxx_hidden_All = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 9)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 10)
 }
 
 func (x *SessionSelect) SetAccount(v bool) {
 	x.xxx_hidden_Account = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 9)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 10)
 }
 
 func (x *SessionSelect) SetSecret(v bool) {
 	x.xxx_hidden_Secret = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 9)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 10)
 }
 
 func (x *SessionSelect) SetGrant(v bool) {
 	x.xxx_hidden_Grant = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 9)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 10)
 }
 
 func (x *SessionSelect) SetDateExpires(v bool) {
 	x.xxx_hidden_DateExpires = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 9)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 10)
 }
 
 func (x *SessionSelect) SetDateIdle(v bool) {
 	x.xxx_hidden_DateIdle = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 9)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 10)
+}
+
+func (x *SessionSelect) SetHeld(v bool) {
+	x.xxx_hidden_Held = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 10)
 }
 
 func (x *SessionSelect) SetDateUpdated(v bool) {
 	x.xxx_hidden_DateUpdated = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 9)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 10)
 }
 
 func (x *SessionSelect) SetDateErased(v bool) {
 	x.xxx_hidden_DateErased = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 9)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 10)
 }
 
 func (x *SessionSelect) SetDateCreated(v bool) {
 	x.xxx_hidden_DateCreated = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 9)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 10)
 }
 
 func (x *SessionSelect) HasAll() bool {
@@ -4026,25 +4072,32 @@ func (x *SessionSelect) HasDateIdle() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
 }
 
-func (x *SessionSelect) HasDateUpdated() bool {
+func (x *SessionSelect) HasHeld() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 6)
 }
 
-func (x *SessionSelect) HasDateErased() bool {
+func (x *SessionSelect) HasDateUpdated() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 7)
 }
 
-func (x *SessionSelect) HasDateCreated() bool {
+func (x *SessionSelect) HasDateErased() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 8)
+}
+
+func (x *SessionSelect) HasDateCreated() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 9)
 }
 
 func (x *SessionSelect) ClearAll() {
@@ -4077,18 +4130,23 @@ func (x *SessionSelect) ClearDateIdle() {
 	x.xxx_hidden_DateIdle = false
 }
 
-func (x *SessionSelect) ClearDateUpdated() {
+func (x *SessionSelect) ClearHeld() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 6)
+	x.xxx_hidden_Held = false
+}
+
+func (x *SessionSelect) ClearDateUpdated() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
 	x.xxx_hidden_DateUpdated = false
 }
 
 func (x *SessionSelect) ClearDateErased() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 8)
 	x.xxx_hidden_DateErased = false
 }
 
 func (x *SessionSelect) ClearDateCreated() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 8)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 9)
 	x.xxx_hidden_DateCreated = false
 }
 
@@ -4101,6 +4159,7 @@ type SessionSelect_builder struct {
 	Grant       *bool
 	DateExpires *bool
 	DateIdle    *bool
+	Held        *bool
 	DateUpdated *bool
 	DateErased  *bool
 	DateCreated *bool
@@ -4111,39 +4170,43 @@ func (b0 SessionSelect_builder) Build() *SessionSelect {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.All != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 9)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 10)
 		x.xxx_hidden_All = *b.All
 	}
 	if b.Account != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 9)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 10)
 		x.xxx_hidden_Account = *b.Account
 	}
 	if b.Secret != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 9)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 10)
 		x.xxx_hidden_Secret = *b.Secret
 	}
 	if b.Grant != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 9)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 10)
 		x.xxx_hidden_Grant = *b.Grant
 	}
 	if b.DateExpires != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 9)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 10)
 		x.xxx_hidden_DateExpires = *b.DateExpires
 	}
 	if b.DateIdle != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 9)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 10)
 		x.xxx_hidden_DateIdle = *b.DateIdle
 	}
+	if b.Held != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 10)
+		x.xxx_hidden_Held = *b.Held
+	}
 	if b.DateUpdated != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 9)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 10)
 		x.xxx_hidden_DateUpdated = *b.DateUpdated
 	}
 	if b.DateErased != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 9)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 10)
 		x.xxx_hidden_DateErased = *b.DateErased
 	}
 	if b.DateCreated != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 9)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 10)
 		x.xxx_hidden_DateCreated = *b.DateCreated
 	}
 	return m0
@@ -4159,6 +4222,8 @@ type SessionPatchRequest struct {
 	xxx_hidden_DateExpiresNull  bool                   `protobuf:"varint,23,opt,name=date_expires_null,json=dateExpiresNull"`
 	xxx_hidden_DateIdle         *timestamppb.Timestamp `protobuf:"bytes,24,opt,name=date_idle,json=dateIdle"`
 	xxx_hidden_DateIdleNull     bool                   `protobuf:"varint,25,opt,name=date_idle_null,json=dateIdleNull"`
+	xxx_hidden_Held             []byte                 `protobuf:"bytes,32,opt,name=held"`
+	xxx_hidden_HeldNull         bool                   `protobuf:"varint,33,opt,name=held_null,json=heldNull"`
 	xxx_hidden_DateUpdated      *timestamppb.Timestamp `protobuf:"bytes,26,opt,name=date_updated,json=dateUpdated"`
 	xxx_hidden_DateUpdatedForce bool                   `protobuf:"varint,27,opt,name=date_updated_force,json=dateUpdatedForce"`
 	XXX_raceDetectHookData      protoimpl.RaceDetectHookData
@@ -4248,6 +4313,20 @@ func (x *SessionPatchRequest) GetDateIdleNull() bool {
 	return false
 }
 
+func (x *SessionPatchRequest) GetHeld() []byte {
+	if x != nil {
+		return x.xxx_hidden_Held
+	}
+	return nil
+}
+
+func (x *SessionPatchRequest) GetHeldNull() bool {
+	if x != nil {
+		return x.xxx_hidden_HeldNull
+	}
+	return false
+}
+
 func (x *SessionPatchRequest) GetDateUpdated() *timestamppb.Timestamp {
 	if x != nil {
 		return x.xxx_hidden_DateUpdated
@@ -4271,7 +4350,7 @@ func (x *SessionPatchRequest) SetAccount(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_Account = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 12)
 }
 
 func (x *SessionPatchRequest) SetSecret(v []byte) {
@@ -4279,7 +4358,7 @@ func (x *SessionPatchRequest) SetSecret(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_Secret = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 12)
 }
 
 func (x *SessionPatchRequest) SetGrant(v []byte) {
@@ -4287,7 +4366,7 @@ func (x *SessionPatchRequest) SetGrant(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_Grant = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 12)
 }
 
 func (x *SessionPatchRequest) SetDateExpires(v *timestamppb.Timestamp) {
@@ -4296,7 +4375,7 @@ func (x *SessionPatchRequest) SetDateExpires(v *timestamppb.Timestamp) {
 
 func (x *SessionPatchRequest) SetDateExpiresNull(v bool) {
 	x.xxx_hidden_DateExpiresNull = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 12)
 }
 
 func (x *SessionPatchRequest) SetDateIdle(v *timestamppb.Timestamp) {
@@ -4305,7 +4384,20 @@ func (x *SessionPatchRequest) SetDateIdle(v *timestamppb.Timestamp) {
 
 func (x *SessionPatchRequest) SetDateIdleNull(v bool) {
 	x.xxx_hidden_DateIdleNull = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 12)
+}
+
+func (x *SessionPatchRequest) SetHeld(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Held = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 12)
+}
+
+func (x *SessionPatchRequest) SetHeldNull(v bool) {
+	x.xxx_hidden_HeldNull = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 12)
 }
 
 func (x *SessionPatchRequest) SetDateUpdated(v *timestamppb.Timestamp) {
@@ -4314,7 +4406,7 @@ func (x *SessionPatchRequest) SetDateUpdated(v *timestamppb.Timestamp) {
 
 func (x *SessionPatchRequest) SetDateUpdatedForce(v bool) {
 	x.xxx_hidden_DateUpdatedForce = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 12)
 }
 
 func (x *SessionPatchRequest) HasRef() bool {
@@ -4373,6 +4465,20 @@ func (x *SessionPatchRequest) HasDateIdleNull() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 7)
 }
 
+func (x *SessionPatchRequest) HasHeld() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 8)
+}
+
+func (x *SessionPatchRequest) HasHeldNull() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 9)
+}
+
 func (x *SessionPatchRequest) HasDateUpdated() bool {
 	if x == nil {
 		return false
@@ -4384,7 +4490,7 @@ func (x *SessionPatchRequest) HasDateUpdatedForce() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 9)
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 11)
 }
 
 func (x *SessionPatchRequest) ClearRef() {
@@ -4424,12 +4530,22 @@ func (x *SessionPatchRequest) ClearDateIdleNull() {
 	x.xxx_hidden_DateIdleNull = false
 }
 
+func (x *SessionPatchRequest) ClearHeld() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 8)
+	x.xxx_hidden_Held = nil
+}
+
+func (x *SessionPatchRequest) ClearHeldNull() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 9)
+	x.xxx_hidden_HeldNull = false
+}
+
 func (x *SessionPatchRequest) ClearDateUpdated() {
 	x.xxx_hidden_DateUpdated = nil
 }
 
 func (x *SessionPatchRequest) ClearDateUpdatedForce() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 9)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 11)
 	x.xxx_hidden_DateUpdatedForce = false
 }
 
@@ -4452,6 +4568,12 @@ type SessionPatchRequest_builder struct {
 	// "leave it alone", so no value could have meant NULL. It wins
 	// outright: setting both this and date_idle clears.
 	DateIdleNull *bool
+	Held         []byte
+	// Clear held instead of writing it.
+	// It takes a field of its own because an unset value already means
+	// "leave it alone", so no value could have meant NULL. It wins
+	// outright: setting both this and held clears.
+	HeldNull *bool
 	// The version this update requires the stored date_updated to be.
 	// It is a precondition, not a write: the update applies only if the row
 	// still holds this value, and the server stamps the new version itself.
@@ -4474,30 +4596,38 @@ func (b0 SessionPatchRequest_builder) Build() *SessionPatchRequest {
 	_, _ = b, x
 	x.xxx_hidden_Ref = b.Ref
 	if b.Account != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 12)
 		x.xxx_hidden_Account = b.Account
 	}
 	if b.Secret != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 12)
 		x.xxx_hidden_Secret = b.Secret
 	}
 	if b.Grant != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 12)
 		x.xxx_hidden_Grant = b.Grant
 	}
 	x.xxx_hidden_DateExpires = b.DateExpires
 	if b.DateExpiresNull != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 12)
 		x.xxx_hidden_DateExpiresNull = *b.DateExpiresNull
 	}
 	x.xxx_hidden_DateIdle = b.DateIdle
 	if b.DateIdleNull != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 12)
 		x.xxx_hidden_DateIdleNull = *b.DateIdleNull
+	}
+	if b.Held != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 12)
+		x.xxx_hidden_Held = b.Held
+	}
+	if b.HeldNull != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 12)
+		x.xxx_hidden_HeldNull = *b.HeldNull
 	}
 	x.xxx_hidden_DateUpdated = b.DateUpdated
 	if b.DateUpdatedForce != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 12)
 		x.xxx_hidden_DateUpdatedForce = *b.DateUpdatedForce
 	}
 	return m0
@@ -4821,7 +4951,7 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\x16PartyDeactivateRequest\x12 \n" +
 	"\x03ref\x18\x01 \x01(\v2\x0e.rove.PartyRefR\x03ref\"<\n" +
 	"\x18PartyPseudonymizeRequest\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.rove.PartyRefR\x03ref\"\xa9\x02\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.rove.PartyRefR\x03ref\"\xbd\x02\n" +
 	"\x11SessionAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12\x1f\n" +
 	"\aaccount\x18\b \x01(\fB\x05\xaa\x01\x02\b\x02R\aaccount\x12\x16\n" +
@@ -4829,7 +4959,8 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\x05grant\x18\n" +
 	" \x01(\fR\x05grant\x12=\n" +
 	"\fdate_expires\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\vdateExpires\x127\n" +
-	"\tdate_idle\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\bdateIdle\x12=\n" +
+	"\tdate_idle\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\bdateIdle\x12\x12\n" +
+	"\x04held\x18\x10 \x01(\fR\x04held\x12=\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\"d\n" +
 	"\x11SessionGetRequest\x12\"\n" +
 	"\x03ref\x18\x01 \x01(\v2\x10.rove.SessionRefR\x03ref\x12+\n" +
@@ -4837,7 +4968,7 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\n" +
 	"SessionRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
-	"\x03key\"\x90\x02\n" +
+	"\x03key\"\xa4\x02\n" +
 	"\rSessionSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12\x18\n" +
 	"\aaccount\x18\b \x01(\bR\aaccount\x12\x16\n" +
@@ -4845,11 +4976,12 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\x05grant\x18\n" +
 	" \x01(\bR\x05grant\x12!\n" +
 	"\fdate_expires\x18\v \x01(\bR\vdateExpires\x12\x1b\n" +
-	"\tdate_idle\x18\f \x01(\bR\bdateIdle\x12!\n" +
+	"\tdate_idle\x18\f \x01(\bR\bdateIdle\x12\x12\n" +
+	"\x04held\x18\x10 \x01(\bR\x04held\x12!\n" +
 	"\fdate_updated\x18\r \x01(\bR\vdateUpdated\x12\x1f\n" +
 	"\vdate_erased\x18\x0e \x01(\bR\n" +
 	"dateErased\x12!\n" +
-	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\"\xb8\x03\n" +
+	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\"\xe9\x03\n" +
 	"\x13SessionPatchRequest\x12\"\n" +
 	"\x03ref\x18\x01 \x01(\v2\x10.rove.SessionRefR\x03ref\x12\x18\n" +
 	"\aaccount\x18\x10 \x01(\fR\aaccount\x12\x16\n" +
@@ -4858,7 +4990,9 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\fdate_expires\x18\x16 \x01(\v2\x1a.google.protobuf.TimestampR\vdateExpires\x12*\n" +
 	"\x11date_expires_null\x18\x17 \x01(\bR\x0fdateExpiresNull\x127\n" +
 	"\tdate_idle\x18\x18 \x01(\v2\x1a.google.protobuf.TimestampR\bdateIdle\x12$\n" +
-	"\x0edate_idle_null\x18\x19 \x01(\bR\fdateIdleNull\x12=\n" +
+	"\x0edate_idle_null\x18\x19 \x01(\bR\fdateIdleNull\x12\x12\n" +
+	"\x04held\x18  \x01(\fR\x04held\x12\x1b\n" +
+	"\theld_null\x18! \x01(\bR\bheldNull\x12=\n" +
 	"\fdate_updated\x18\x1a \x01(\v2\x1a.google.protobuf.TimestampR\vdateUpdated\x12,\n" +
 	"\x12date_updated_force\x18\x1b \x01(\bR\x10dateUpdatedForce\"]\n" +
 	"\x13SessionApplyRequest\x12\"\n" +

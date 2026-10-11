@@ -252,7 +252,7 @@ func Open(ctx context.Context, cfg Config, stateDir string, log *slog.Logger) (*
 	if cfg.Key == "" {
 		return nil, errors.New("auth.roster.key: an external roster is reached with a key -- " + prefixDeploymentKey + " or " + prefixTenantKey)
 	}
-	v, err := resolveRef(cfg.Key)
+	v, err := ResolveRef(cfg.Key)
 	if err != nil {
 		return nil, fmt.Errorf("auth.roster.key: %w", err)
 	}
@@ -292,9 +292,9 @@ func Open(ctx context.Context, cfg Config, stateDir string, log *slog.Logger) (*
 	return s, nil
 }
 
-// resolveRef reads a key reference: `env:NAME`, `file:PATH`, or the value
+// ResolveRef reads a secret's reference: `env:NAME`, `file:PATH`, or the value
 // itself.
-func resolveRef(ref string) (string, error) {
+func ResolveRef(ref string) (string, error) {
 	switch {
 	case strings.HasPrefix(ref, "env:"):
 		v := os.Getenv(ref[4:])

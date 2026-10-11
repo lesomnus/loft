@@ -42,6 +42,7 @@ import (
 	"github.com/lesomnus/rove/server/policy"
 	"github.com/lesomnus/rove/server/retention"
 	"github.com/lesomnus/rove/server/session"
+	"github.com/lesomnus/rove/server/sso"
 	"github.com/lesomnus/rove/server/storage"
 	"github.com/lesomnus/rove/server/tenancy"
 )
@@ -97,6 +98,10 @@ type Server struct {
 
 	// Sessions mints and reads the cookie a browser signs in with.
 	Sessions *authsession.Sessions
+
+	// Sso is this deployment as a relying party of roster's issuer, and what
+	// the sign-in page is told about the ways in.
+	Sso *sso.Rp
 
 	// Auth is how a credential is read, and nothing that faces anybody is
 	// [auth.Plain] -- which believes what the caller writes about themselves.
@@ -257,6 +262,23 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	s.Sessions = authsession.New(store, opts2...)
 	s.Auth = s.Sessions.Handler()
 	s.Policy = policy.Policy{}
+
+	// Signing in through roster's issuer. With no password beside it, an
+	// issuer is the only way in, so a deployment that turns passwords off and
+	// names none is one nobody could sign in to.
+	if c.Auth.SsoOnly && !c.Auth.Sso.On() {
+		people.Close()
+		db.Close()
+		return nil, errors.New("auth.sso_only: with no auth.sso.issuer, nobody could sign in")
+	}
+	if c.Auth.Sso.On() && people.Embedded() {
+		log.From(ctx).WarnContext(ctx, "auth.sso: the roster in this process has no issuer of its own; the issuer named has to vouch for accounts in it")
+	}
+	if s.Sso, err = sso.New(c.Auth.Sso, c.App.App(), !c.Auth.SsoOnly, s.Sessions, people, s.Workspaces(c).Arrive); err != nil {
+		people.Close()
+		db.Close()
+		return nil, err
+	}
 
 	// What happens because time passed: holds that ran out, rooms nobody came
 	// to, loans that are late, the day's usage.
@@ -456,7 +478,7 @@ func (s *Server) serveHttp(ctx context.Context, c Config, g *grpc.Server) (func(
 	// Whatever this app serves over HTTP goes here, on the same mux and behind
 	// the same cross-origin answer. A gRPC path is `/<service>/<method>`, so
 	// an ordinary route cannot collide with one.
-	s.routes(h.ServeMux, c)
+	s.Routes(h.ServeMux, c)
 
 	l, err := net.Listen("tcp", c.Server.Http.Addr)
 	if err != nil {
@@ -533,14 +555,26 @@ func spinEvery(d time.Duration, f func(ctx context.Context) error) spin.Func {
 	})
 }
 
-// routes is what this app serves over HTTP besides its Rpcs.
-func (s *Server) routes(mux *http.ServeMux, c Config) {
+// Routes is what this app serves over HTTP besides its Rpcs.
+func (s *Server) Routes(mux *http.ServeMux, c Config) {
 	// Signing in and out. What is checked is a password, by roster, and an
 	// account in no workspace is given one; see `server/session`.
 	ws := s.Workspaces(c)
 	login := session.SignIn(s.Sessions, s.Identity, s.Ent, ws.Arrive)
-	mux.Handle("POST /session", login)
+	if c.Auth.SsoOnly {
+		// No form to post to, rather than one that answers no: a password is
+		// not a way in here (D28).
+		mux.HandleFunc("POST /session", func(w http.ResponseWriter, r *http.Request) {
+			http.Error(w, "this deployment signs people in through single sign-on only", http.StatusForbidden)
+		})
+	} else {
+		mux.Handle("POST /session", login)
+	}
 	mux.Handle("DELETE /session", login)
+
+	// Through roster's issuer, and what the sign-in page is told about the
+	// ways in; see `server/sso`.
+	s.Sso.Mount(mux)
 
 	// What an account has outside any one workspace: which it is in, and a
 	// new one.

@@ -22,6 +22,7 @@ type Mutation struct {
 	grant         *[]byte
 	date_expires  *time.Time
 	date_idle     *time.Time
+	held          *[]byte
 	date_updated  *time.Time
 	date_erased   *time.Time
 	date_created  *time.Time
@@ -190,6 +191,38 @@ func (m *Mutation) ResetDateIdle() {
 	delete(m.clearedFields, FieldDateIdle)
 }
 
+// SetHeld sets the "held" field.
+func (m *Mutation) SetHeld(b []byte) {
+	m.held = &b
+}
+
+// Held returns the value of the "held" field in the mutation.
+func (m *Mutation) Held() (r []byte, exists bool) {
+	v := m.held
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearHeld clears the value of the "held" field.
+func (m *Mutation) ClearHeld() {
+	m.held = nil
+	m.clearedFields[FieldHeld] = struct{}{}
+}
+
+// HeldCleared returns if the "held" field was cleared in this mutation.
+func (m *Mutation) HeldCleared() bool {
+	_, ok := m.clearedFields[FieldHeld]
+	return ok
+}
+
+// ResetHeld resets all changes to the "held" field.
+func (m *Mutation) ResetHeld() {
+	m.held = nil
+	delete(m.clearedFields, FieldHeld)
+}
+
 // SetDateUpdated sets the "date_updated" field.
 func (m *Mutation) SetDateUpdated(t time.Time) {
 	m.date_updated = &t
@@ -307,7 +340,7 @@ func (m *Mutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *Mutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 9)
 	if m.account != nil {
 		fields = append(fields, FieldAccount)
 	}
@@ -322,6 +355,9 @@ func (m *Mutation) Fields() []string {
 	}
 	if m.date_idle != nil {
 		fields = append(fields, FieldDateIdle)
+	}
+	if m.held != nil {
+		fields = append(fields, FieldHeld)
 	}
 	if m.date_updated != nil {
 		fields = append(fields, FieldDateUpdated)
@@ -350,6 +386,8 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.DateExpires()
 	case FieldDateIdle:
 		return m.DateIdle()
+	case FieldHeld:
+		return m.Held()
 	case FieldDateUpdated:
 		return m.DateUpdated()
 	case FieldDateErased:
@@ -406,6 +444,13 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDateIdle(v)
+		return nil
+	case FieldHeld:
+		v, ok := value.([]byte)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetHeld(v)
 		return nil
 	case FieldDateUpdated:
 		v, ok := value.(time.Time)
@@ -470,6 +515,9 @@ func (m *Mutation) ClearedFields() []string {
 	if m.FieldCleared(FieldDateIdle) {
 		fields = append(fields, FieldDateIdle)
 	}
+	if m.FieldCleared(FieldHeld) {
+		fields = append(fields, FieldHeld)
+	}
 	if m.FieldCleared(FieldDateErased) {
 		fields = append(fields, FieldDateErased)
 	}
@@ -502,6 +550,9 @@ func (m *Mutation) ClearField(name string) error {
 	case FieldDateIdle:
 		m.ClearDateIdle()
 		return nil
+	case FieldHeld:
+		m.ClearHeld()
+		return nil
 	case FieldDateErased:
 		m.ClearDateErased()
 		return nil
@@ -530,6 +581,9 @@ func (m *Mutation) ResetField(name string) error {
 		return nil
 	case FieldDateIdle:
 		m.ResetDateIdle()
+		return nil
+	case FieldHeld:
+		m.ResetHeld()
 		return nil
 	case FieldDateUpdated:
 		m.ResetDateUpdated()

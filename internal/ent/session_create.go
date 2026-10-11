@@ -68,6 +68,12 @@ func (_c *SessionCreate) SetNillableDateIdle(v *time.Time) *SessionCreate {
 	return _c
 }
 
+// SetHeld sets the "held" field.
+func (_c *SessionCreate) SetHeld(v []byte) *SessionCreate {
+	_c.mutation.SetHeld(v)
+	return _c
+}
+
 // SetDateUpdated sets the "date_updated" field.
 func (_c *SessionCreate) SetDateUpdated(v time.Time) *SessionCreate {
 	_c.mutation.SetDateUpdated(v)
@@ -206,6 +212,10 @@ func (_c *SessionCreate) createSpec() (*Session, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.DateIdle(); ok {
 		_spec.SetField(session.FieldDateIdle, field.TypeTime, value)
 		_node.DateIdle = &value
+	}
+	if value, ok := _c.mutation.Held(); ok {
+		_spec.SetField(session.FieldHeld, field.TypeBytes, value)
+		_node.Held = &value
 	}
 	if value, ok := _c.mutation.DateUpdated(); ok {
 		_spec.SetField(session.FieldDateUpdated, field.TypeTime, value)

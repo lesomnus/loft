@@ -28,6 +28,8 @@ type Session struct {
 	DateExpires *time.Time `json:"date_expires,omitempty"`
 	// DateIdle holds the value of the "date_idle" field.
 	DateIdle *time.Time `json:"date_idle,omitempty"`
+	// Held holds the value of the "held" field.
+	Held *[]byte `json:"held,omitempty"`
 	// DateUpdated holds the value of the "date_updated" field.
 	DateUpdated time.Time `json:"date_updated,omitempty"`
 	// DateErased holds the value of the "date_erased" field.
@@ -42,7 +44,7 @@ func (*Session) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case session.FieldSecret, session.FieldGrant:
+		case session.FieldSecret, session.FieldGrant, session.FieldHeld:
 			values[i] = new([]byte)
 		case session.FieldDateExpires, session.FieldDateIdle, session.FieldDateUpdated, session.FieldDateErased, session.FieldDateCreated:
 			values[i] = new(sql.NullTime)
@@ -100,6 +102,12 @@ func (_m *Session) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.DateIdle = new(time.Time)
 				*_m.DateIdle = value.Time
+			}
+		case session.FieldHeld:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field held", values[i])
+			} else if value != nil {
+				_m.Held = value
 			}
 		case session.FieldDateUpdated:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -173,6 +181,11 @@ func (_m *Session) String() string {
 	if v := _m.DateIdle; v != nil {
 		builder.WriteString("date_idle=")
 		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	if v := _m.Held; v != nil {
+		builder.WriteString("held=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
 	builder.WriteString("date_updated=")

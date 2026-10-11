@@ -68,6 +68,24 @@ watch:
 #     db:
 #       driver: pgx
 #       dsn: postgres://rove:rove@localhost:5432/roster
+#
+# `sso` signs people in through roster's issuer -- its Hydra, in front of the
+# directory -- and draws a button per connection of the directory there (D28).
+# The client is registered at Hydra with `client_secret_basic`,
+# `<app_url>/sso/callback` as its redirect and `<app_url>/` as where a
+# sign-out may come back to. `sso_only` turns the password form off, which is
+# what a deployment whose people all arrive that way says.
+#
+# auth:
+#   sso:
+#     issuer: https://id.rove.example
+#     client_id: rove
+#     client_secret: env:ROVE_SSO_SECRET
+#     providers:
+#       - { connection: google, label: Google, mark: google }
+#       - { connection: microsoft, label: Microsoft, mark: microsoft }
+#       - { connection: github, label: GitHub, mark: github }
+#   sso_only: true
 
 # rove's own.
 app:

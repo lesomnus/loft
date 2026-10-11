@@ -18,6 +18,7 @@ import (
 
 	"github.com/lesomnus/rove/internal/identity"
 	"github.com/lesomnus/rove/server/retention"
+	"github.com/lesomnus/rove/server/sso"
 )
 
 // Name is what this app is called, and it is the only place it is written.
@@ -62,6 +63,15 @@ type AuthConfig struct {
 	// database of its own: `roster.db` beside this one's SQLite file, or
 	// `auth.roster.db`.
 	Roster identity.Config `yaml:"roster"`
+
+	// Sso is the issuer people sign in through -- roster's, in front of the
+	// directory -- and the buttons the sign-in page draws for it (design
+	// 9.10). Empty is no single sign-on.
+	Sso sso.Config `yaml:"sso"`
+
+	// SsoOnly turns signing in with a password off, which is what a
+	// deployment whose people all arrive through Sso says (D28).
+	SsoOnly bool `yaml:"sso_only"`
 }
 
 // StateDir is the directory this deployment's SQLite file is in, which is

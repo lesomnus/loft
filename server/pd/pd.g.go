@@ -13186,7 +13186,7 @@ func hidden(key pdid.Id, p *patchpb.Patch) *patchpb.Patch {
 	var secret []uint32
 	switch key.Domain() {
 	case SessionDomain:
-		secret = []uint32{9}
+		secret = []uint32{9, 16}
 	}
 	if len(secret) == 0 {
 		// An entity that declared none, which is nearly all of them.
@@ -14770,7 +14770,7 @@ func hideSession(v *rove.Session) *rove.Session {
 
 	m := v.ProtoReflect()
 	fs := m.Descriptor().Fields()
-	for _, n := range []protoreflect.FieldNumber{9} {
+	for _, n := range []protoreflect.FieldNumber{9, 16} {
 		m.Clear(fs.ByNumber(n))
 	}
 
