@@ -898,7 +898,7 @@ ul.bars .num {
 	background: linear-gradient(160deg, #1f2a44, #23365e 60%, #1f2a44);
 	padding: 16px;
 }
-.login form {
+.login > form {
 	background: white;
 	padding: 28px;
 	border-radius: 16px;
@@ -1298,4 +1298,95 @@ ul.state-tree .space {
 }
 .rack .u.free:hover button {
 	opacity: 1;
+}
+
+/* Which workspace, and going to another (workspaces.tsx). */
+.switcher {
+	margin: 0 12px 8px;
+	border-radius: 8px;
+	background: rgba(255, 255, 255, 0.06);
+	color: #c9d0e2;
+}
+.switcher summary {
+	cursor: pointer;
+	padding: 8px 10px;
+	color: white;
+	font-weight: 600;
+	list-style: none;
+}
+.switcher summary::after {
+	content: ' ▾';
+	color: #9aa6c3;
+	font-weight: 400;
+}
+.switcher[open] summary::after {
+	content: ' ▴';
+}
+.switcher ul {
+	list-style: none;
+	margin: 0;
+	padding: 0 4px 4px;
+}
+.switcher li button,
+.switcher > button {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	width: 100%;
+	padding: 6px 8px;
+	border-radius: 6px;
+	color: #c9d0e2;
+	text-align: left;
+}
+.switcher li button:hover,
+.switcher > button:hover {
+	background: rgba(255, 255, 255, 0.08);
+}
+.switcher li button[aria-current='page'] {
+	color: white;
+	background: rgba(255, 255, 255, 0.12);
+}
+.switcher .mute {
+	color: #9aa6c3;
+}
+.switcher .make-workspace {
+	padding: 4px 8px 8px;
+}
+.make-workspace {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	align-items: center;
+}
+.make-workspace input {
+	flex: 1 1 160px;
+	min-width: 0;
+}
+.make-workspace .bad {
+	flex-basis: 100%;
+	margin: 0;
+}
+.elsewhere {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	width: min(420px, 100%);
+	padding: 28px;
+	background: var(--panel);
+	border-radius: var(--radius);
+	box-shadow: var(--shadow);
+}
+.elsewhere .make-workspace button {
+	padding: 6px 12px;
+}
+.elsewhere > .link {
+	align-self: center;
+}
+.elsewhere ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
 }

@@ -11,7 +11,7 @@
 
 import { create, type DescMessage, type MessageInitShape } from '@bufbuild/protobuf'
 import { timestampDate, timestampFromDate, type Timestamp, TimestampSchema } from '@bufbuild/protobuf/wkt'
-import { Code, ConnectError, createClient } from '@connectrpc/connect'
+import { Code, ConnectError, createClient, type Interceptor } from '@connectrpc/connect'
 import { createConnectTransport } from '@connectrpc/connect-web'
 import { from, newId, parse } from '@lesomnus/payday/pdid'
 
@@ -59,8 +59,95 @@ export {
 	WorkOrderService,
 }
 
+/**
+ * The workspace this page is about: the `@alias` its address begins with, and
+ * empty when it begins with none (design 9.11). A page is about one workspace
+ * for as long as it is open; going to another is loading the page again, so
+ * nothing read in one is drawn in another.
+ */
+export const workspace: string = (() => {
+	const m = /^\/@([^/]+)/.exec(location.pathname)
+	return m === null ? '' : decodeURIComponent(m[1] ?? '')
+})()
+
+/** Every call names the workspace it is about, which is what it is served as a member of. */
+const inWorkspace: Interceptor = (next) => async (req) => {
+	if (workspace !== '') req.header.set('Rove-Workspace', workspace)
+	return next(req)
+}
+
 /** The app answers on the page's own origin: served by it, or through Vite's proxy. */
-export const transport = createConnectTransport({ baseUrl: location.origin })
+export const transport = createConnectTransport({ baseUrl: location.origin, interceptors: [inWorkspace] })
+
+/** A workspace an account is in, as `GET /account` answers it. */
+export interface Workspace {
+	id: string
+	alias: string
+	name: string
+	role: string
+}
+
+/** The account signed in, and the workspaces it is in. */
+export interface Account {
+	id: string
+	login: string
+	name: string
+	workspaces: Workspace[]
+	owns: number
+	may?: number
+}
+
+/** The account this browser is signed in as, or `out` for none. */
+export async function signedIn(): Promise<Account | 'out'> {
+	const res = await fetch('/account')
+	if (res.status === 401) return 'out'
+	if (!res.ok) throw new Error(`계정을 읽을 수 없습니다 (${res.status})`)
+	return (await res.json()) as Account
+}
+
+/** A new workspace the account owns, with an alias nobody chose. */
+export async function makeWorkspace(name: string): Promise<Workspace> {
+	const res = await fetch('/account/workspaces', {
+		method: 'POST',
+		headers: { 'content-type': 'application/json' },
+		body: JSON.stringify({ name }),
+	})
+	if (res.status === 402) throw new Error('워크스페이스를 더 만들려면 결제가 필요합니다.')
+	if (!res.ok) throw new Error((await res.text()).trim() || `만들 수 없습니다 (${res.status})`)
+	return (await res.json()) as Workspace
+}
+
+const lastKey = 'rove.workspace'
+
+/** The workspace this browser was last in, which a page with none in its address opens. */
+export function lastWorkspace(): string {
+	try {
+		return localStorage.getItem(lastKey) ?? ''
+	} catch {
+		return ''
+	}
+}
+
+/** Remembers the workspace this browser is in, for a page with none in its address. */
+export function rememberWorkspace(alias: string): void {
+	try {
+		localStorage.setItem(lastKey, alias)
+	} catch {
+		// A browser that keeps nothing opens the first workspace next time.
+	}
+}
+
+/**
+ * Opens a workspace: the page again, at its address. `instead` replaces this
+ * page in the history rather than following it, for a page that was only on
+ * its way somewhere.
+ */
+export function openWorkspace(alias: string, rest = '/', instead = false): void {
+	rememberWorkspace(alias)
+	const to = `/@${encodeURIComponent(alias)}${rest}`
+	if (instead) location.replace(to)
+	else location.assign(to)
+}
 
 export const raw = {
 	party: createClient(PartyService, transport),
