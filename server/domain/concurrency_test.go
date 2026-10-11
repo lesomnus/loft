@@ -111,6 +111,120 @@ func TestOneMoveSentManyTimesAtOnceIsMadeOnce(t *testing.T) {
 	x.Equal(b.GetId(), e.where(e.get(b), laptop, e.now.Add(-day/4), nil), "corrected once")
 }
 
+// TestEveryOperationSentManyTimesAtOnceIsMadeOnce: what holds for a move holds
+// for every operation a client sends again -- a stock started, used, moved and
+// turned into assets, a hand-over and its return, a scan, a booking. Copies of
+// it arriving together make it once, and each answers what the first did.
+// Most of these take no lock that copies of them would wait on; what they
+// wait on is the operation's identifier (`Tx.claim`).
+func TestEveryOperationSentManyTimesAtOnceIsMadeOnce(t *testing.T) {
+	e := newEnv(t)
+	e.postgresOnly()
+	x := e.x
+	store := e.space("창고", nil)
+	other := e.space("3층", nil)
+	room := e.space("회의실", nil)
+	e.bookable(room, nil)
+	laptop := e.item("노트북", "NB-1", store, day)
+	_, kim := e.person("member")
+	m := e.model("AA 건전지")
+
+	// once sends eight copies of an operation together, and answers what they
+	// answered, which is the same for every one.
+	once := func(name string, f func(op []byte) (string, error)) string {
+		t.Helper()
+		op := newOp()
+		got := make([]string, 8)
+		errs := together(len(got), func(i int) error {
+			var err error
+			got[i], err = f(op)
+			return err
+		})
+		for i, err := range errs {
+			x.NoError(err, "%s: copy %d", name, i)
+			x.Equal(got[0], got[i], "%s: copy %d answers as the first", name, i)
+		}
+		x.Equal(1, e.ops(op), "%s: one operation", name)
+		return got[0]
+	}
+	idsOf := func(as []*app.Asset) string {
+		v := ""
+		for _, a := range as {
+			v += string(a.GetId())
+		}
+		return v
+	}
+
+	s := app.Stock_builder{Id: []byte(once("stock.add", func(op []byte) (string, error) {
+		v, err := e.app().Stock().Add(e.owner, app.StockAddRequest_builder{Model: ref[app.ItemModelRef](m.GetId()), Space: assetRef(store), Quantity: 20, Op: op}.Build())
+		return string(v.GetId()), err
+	}))}.Build()
+	sref := ref[app.StockRef](s.GetId())
+	once("stock.consume", func(op []byte) (string, error) {
+		v, err := e.app().Stock().Consume(e.owner, app.StockChangeRequest_builder{Ref: sref, Quantity: 3, Op: op}.Build())
+		return fmt.Sprint(v.GetQuantity()), err
+	})
+	x.EqualValues(17, e.quantity(s))
+	once("stock.transfer", func(op []byte) (string, error) {
+		v, err := e.app().Stock().Transfer(e.owner, app.StockTransferRequest_builder{Ref: sref, To: assetRef(other), Quantity: 2, Op: op}.Build())
+		return fmt.Sprint(v.GetQuantity()), err
+	})
+	x.EqualValues(15, e.quantity(s))
+	converted := once("stock.convert", func(op []byte) (string, error) {
+		v, err := e.app().Stock().Convert(e.owner, app.StockConvertRequest_builder{Ref: sref, Quantity: 2, Op: op}.Build())
+		return idsOf(v.GetAssets()), err
+	})
+	x.Len(converted, 2*16, "two assets")
+	x.EqualValues(13, e.quantity(s))
+
+	c := once("custody.add", func(op []byte) (string, error) {
+		v, err := e.app().Custody().Add(e.owner, app.CustodyAddRequest_builder{
+			Party: ref[app.PartyRef](kim.GetId()),
+			Lines: []*app.CustodyLineSpec{
+				app.CustodyLineSpec_builder{Asset: assetRef(laptop)}.Build(),
+				app.CustodyLineSpec_builder{Stock: sref, Quantity: 1}.Build(),
+			},
+			Op: op,
+		}.Build())
+		return string(v.GetId()), err
+	})
+	x.EqualValues(12, e.quantity(s))
+	x.True(sameId(kim.GetId(), e.get(laptop).GetCustodian().GetId()))
+	once("custody.return", func(op []byte) (string, error) {
+		v, err := e.app().Custody().Return(e.owner, app.CustodyReturnRequest_builder{Ref: ref[app.CustodyRef]([]byte(c)), Op: op}.Build())
+		return v.GetStatus(), err
+	})
+	x.EqualValues(13, e.quantity(s))
+	x.False(e.get(laptop).HasCustodian())
+
+	count, err := e.app().InventoryCount().Add(e.owner, app.InventoryCountAddRequest_builder{Scope: assetRef(store)}.Build())
+	x.NoError(err)
+	for _, code := range []string{"NB-1", "no-such-thing"} {
+		once("count.scan "+code, func(op []byte) (string, error) {
+			v, err := e.app().InventoryCount().Scan(e.owner, app.InventoryCountScanRequest_builder{Ref: ref[app.InventoryCountRef](count.GetId()), Code: code, Op: op}.Build())
+			return string(v.GetId()), err
+		})
+	}
+	fs, err := e.app().CountFinding().List(e.owner, app.CountFindingListRequest_builder{
+		Filters: []*app.CountFindingFilter{app.CountFindingFilter_builder{Count: ref[app.InventoryCountRef](count.GetId())}.Build()},
+	}.Build())
+	x.NoError(err)
+	x.Len(fs.GetItems(), 2)
+
+	r := once("reservation.add", func(op []byte) (string, error) {
+		v, err := e.reserve(e.owner, room, e.tomorrow(10, 0), e.tomorrow(11, 0), func(r *app.ReservationAddRequest) { r.SetOp(op) })
+		return string(v.GetId()), err
+	})
+	cal, err := e.app().Reservation().Calendar(e.owner, app.ReservationCalendarRequest_builder{
+		Resources: []*app.AssetRef{assetRef(room)},
+		From:      timestamppb.New(e.now),
+		To:        timestamppb.New(e.now.AddDate(0, 0, 3)),
+	}.Build())
+	x.NoError(err)
+	x.Len(cal.GetEntries(), 1, "booked once")
+	x.Equal(r, string(cal.GetEntries()[0].GetReservation().GetId()))
+}
+
 // TestManyMovesOfOneThingAtOnceLandOneAfterAnother: moves of one thing to
 // different places at the same moment each land -- one after another, each
 // replacing the last from that moment -- and the thing is never in two places

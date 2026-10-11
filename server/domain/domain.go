@@ -14,6 +14,7 @@ package domain
 
 import (
 	"context"
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"strings"
@@ -333,8 +334,9 @@ func (t *Tx) at(v *timestamppb.Timestamp, field string) (time.Time, error) {
 // here: what [Tx.begin] answers it for, asked before an operation checks
 // anything its first copy could have changed. A correction sent again finds its
 // row superseded -- by itself -- and would answer that, where the first copy
-// answered success. An operation behind the tree lock asks once it holds it, so
-// that copies sent at once see each other.
+// answered success; a return sent again finds the loan closed, a booking its
+// own allocation in the way. A copy sent while the first is still running
+// waits for it here ([Tx.claim]), and then sees it.
 func (t *Tx) done(op []byte) error {
 	if len(op) == 0 {
 		return nil
@@ -344,7 +346,40 @@ func (t *Tx) done(op []byte) error {
 		// Not one; [Tx.begin] says what is wrong with it.
 		return nil
 	}
-	return t.seen(v)
+	return t.claim(v)
+}
+
+// claim waits for every other transaction holding `op` to end, holds it until
+// this one does, and then answers errDone when the operation happened. On
+// PostgreSQL copies sent at once run at once, and without the wait two of them
+// would both find nothing, both check, and the second fail on the event's key
+// rather than answer what the first did. SQLite runs one writer at a time, so
+// the copy after has nothing to wait for.
+func (t *Tx) claim(op pdid.Id) error {
+	if t.postgres() {
+		u := op.Uuid()
+		key := int64(binary.BigEndian.Uint64(u[8:]))
+		if err := t.drv.Exec(t.ctx, "SELECT pg_advisory_xact_lock($1)", []any{key}, nil); err != nil {
+			return err
+		}
+	}
+	return t.seen(op)
+}
+
+// made names the `n`th thing an operation makes after the operation, when the
+// caller named one: the operation's identifier in the thing's domain, the
+// `n`th differing from the first in its last bytes, which are random. A copy
+// sent again finds what the first copy made by the same name, as a client
+// that names the asset it adds does (`AssetAddRequest.id`). Without an
+// operation, the name is a new one.
+func made(op []byte, d pdid.Domain, n int) pdid.Id {
+	v, err := pdid.From(op)
+	if err != nil || v.Domain() != pd.EventDomain {
+		return pdid.New(d)
+	}
+	v[14] ^= byte(n >> 8)
+	v[15] ^= byte(n)
+	return pdid.WithDomain(v, d)
 }
 
 // seen answers errDone when an event with this identifier is here already.
@@ -373,7 +408,7 @@ func (t *Tx) begin(op []byte, kind string, subject pdid.Id, at time.Time, desc, 
 		if v.Domain() != pd.EventDomain {
 			return invalid("op", "작업 식별자가 올바르지 않습니다")
 		}
-		if err := t.seen(v); err != nil {
+		if err := t.claim(v); err != nil {
 			return err
 		}
 

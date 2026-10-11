@@ -87,6 +87,10 @@ func assetRef(id uuid.UUID) *app.AssetRef {
 // (design 6, D24). The facts are valid from `since`, which is how a register
 // imported from a spreadsheet keeps its past.
 func (s domainAsset) Add(ctx context.Context, req *app.AssetAddRequest) (*app.Asset, error) {
+	named := req.GetId()
+	if len(named) == 0 {
+		named = made(req.GetOp(), pd.AssetDomain, 0).Bytes()
+	}
 	var out *app.Asset
 	err := s.tx(ctx, func(t *Tx) error {
 		since, err := t.at(req.GetSince(), "since")
@@ -100,11 +104,9 @@ func (s domainAsset) Add(ctx context.Context, req *app.AssetAddRequest) (*app.As
 		row := proto.Clone(req).(*app.AssetAddRequest)
 		row.SetTenant(t.tenantRef())
 
-		id := pdid.New(pd.AssetDomain)
-		if len(req.GetId()) > 0 {
-			if id, err = pdid.From(req.GetId()); err != nil {
-				return invalid("id", "%v", err)
-			}
+		id, err := pdid.From(named)
+		if err != nil {
+			return invalid("id", "%v", err)
 		}
 		row.SetId(id.Bytes())
 
@@ -238,10 +240,7 @@ func (s domainAsset) Add(ctx context.Context, req *app.AssetAddRequest) (*app.As
 		return err
 	})
 	if errors.Is(err, errDone) {
-		if len(req.GetId()) > 0 {
-			return s.AssetServiceServer.Get(ctx, app.AssetGetRequest_builder{Ref: app.AssetRef_builder{Id: req.GetId()}.Build(), Select: allAsset}.Build())
-		}
-		return nil, status.Error(codes.AlreadyExists, "이미 처리된 등록입니다")
+		return s.AssetServiceServer.Get(ctx, app.AssetGetRequest_builder{Ref: app.AssetRef_builder{Id: named}.Build(), Select: allAsset}.Build())
 	}
 	return out, err
 }

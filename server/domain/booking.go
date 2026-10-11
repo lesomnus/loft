@@ -388,8 +388,14 @@ func manages(role string) bool { return role == "owner" || role == "admin" || ro
 // confirmed reservation, depending on what the resources ask. A series is all
 // of its occurrences or none of them.
 func (s domainReservation) Add(ctx context.Context, req *app.ReservationAddRequest) (*app.Reservation, error) {
+	id := made(req.GetOp(), pd.ReservationDomain, 0)
 	var out *app.Reservation
 	err := s.tx(ctx, func(t *Tx) error {
+		// Before the time is held against now and against what is booked: a
+		// booking sent again finds its own allocations in the way.
+		if err := t.done(req.GetOp()); err != nil {
+			return err
+		}
 		if !req.HasBeginsAt() || !req.HasEndsAt() {
 			return invalid("begins_at", "시작과 끝을 정하세요")
 		}
@@ -551,6 +557,7 @@ func (s domainReservation) Add(ctx context.Context, req *app.ReservationAddReque
 				row.SetExpiresAt(ts(*expires))
 			}
 			if i == 0 {
+				row.SetId(id.Bytes())
 				row.SetRrule(req.GetRepeat())
 			}
 			if series != nil {
@@ -615,6 +622,9 @@ func (s domainReservation) Add(ctx context.Context, req *app.ReservationAddReque
 		}
 		return nil
 	})
+	if err == errDone {
+		return s.ReservationServiceServer.Get(ctx, app.ReservationGetRequest_builder{Ref: app.ReservationRef_builder{Id: id.Bytes()}.Build()}.Build())
+	}
 	return out, err
 }
 

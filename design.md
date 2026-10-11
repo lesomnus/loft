@@ -240,6 +240,9 @@ StockMovement(id, tenant, stock, delta, reason, ref_id?, occurred_at)
   2. **새 RPC**: 생성 동사가 이름 붙이지 않는 일만 새로 만든다(`Move`, `Return`, `Correct` 등).
 - **`seal` 레이어**(9.3절)는 시간 행·Event·할당처럼 도메인 작업만 쓰는 엔터티의 생성 Add/Erase와, 시간 행의 생성 Get/List를 외부 호출에 닫는다. 이력 조회는 조회 창을 적용하는 `Timeline`·`QueryAt`·`AsOf`·`Diff`로만 한다. 설정성 엔터티(`AssetType`, `ItemModel`, `Party`, `Bookable` 정책 등)는 생성 Add/Get/List/Erase를 쓰고, 수정은 짧은 도메인 RPC(예: `AssetTypeService/Update`)로 한다.
 - **동시성과 멱등성**: 현재 상태 행은 payday 버전 필드(`date_updated`)로 낙관적 동시성을 지킨다. 도메인 RPC는 클라이언트가 미리 발급한 pdid를 작업 ID로 받아 Event ID로 쓴다. 재시도하면 이미 있는 Event를 찾아 같은 결과를 돌려준다.
+  - 작업은 상태를 확인하기 **전에** 그 Event부터 찾는다(`Tx.done`). 첫 사본이 바꾼 상태 때문에 재시도가 거부되면 안 되기 때문이다. 다시 온 반납은 닫힌 대여를, 다시 온 예약은 자기 할당을, 다시 온 재고 시작은 자기가 만든 재고를 만난다. 기한이 지났거나 실사가 끝난 뒤에 와도 같다.
+  - 작업이 만드는 것(자산, 지급, 재고, 예약, 실사 결과, 전환된 자산)은 작업 ID에서 이름을 얻는다(`made`: 같은 pdid에 도메인 바이트만 바꾸고, 여럿이면 끝 바이트로 구분한다). 그래서 재시도는 첫 사본이 만든 것을 그 이름으로 찾아 돌려준다.
+  - 동시에 온 사본은 PostgreSQL에서 작업 ID의 advisory lock(`pg_advisory_xact_lock`)을 기다렸다가 첫 사본의 Event를 본다(`Tx.claim`). 트리 잠금 밖의 작업(재고, 실사 스캔, 예약)도 그래서 한 번만 일어난다. SQLite는 쓰기를 하나씩 하므로 기다릴 것이 없다.
 - **트랜잭션**: 도메인 RPC 하나가 트랜잭션 하나다. payday trail·outbox가 같은 트랜잭션에 기록되므로 데이터와 감사 기록은 함께 성립하거나 함께 취소된다.
 - **연동(Phase 3)**: Webhook은 payday Outbox에서 `Event` 추가만 골라 전달한다. 조직 디렉터리·SSO·SCIM은 roster가 맡고(9.10절), 회계·ERP·HR, 캘린더, 자동 수집 에이전트를 확장 경계로 둔다.
 

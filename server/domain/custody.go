@@ -29,8 +29,14 @@ func (s Domain) Custody() app.CustodyServiceServer { return domainCustody{s, s.N
 // asset line opens the custodian stewardship, and each stock line takes the
 // quantity out of the stock (design D6).
 func (s domainCustody) Add(ctx context.Context, req *app.CustodyAddRequest) (*app.Custody, error) {
+	id := made(req.GetOp(), pd.CustodyDomain, 0)
 	var out *app.Custody
 	err := s.tx(ctx, func(t *Tx) error {
+		// Before the due date is checked against now, and the things against
+		// who has them: a hand-over sent again finds them handed over.
+		if err := t.done(req.GetOp()); err != nil {
+			return err
+		}
 		p, err := t.next.Party().Get(t.ctx, app.PartyGetRequest_builder{Ref: req.GetParty()}.Build())
 		if err != nil {
 			return err
@@ -55,7 +61,6 @@ func (s domainCustody) Add(ctx context.Context, req *app.CustodyAddRequest) (*ap
 			return invalid("due_at", "반납 기한은 지금 이후여야 합니다")
 		}
 
-		id := pdid.New(pd.CustodyDomain)
 		if err := t.lockTree(); err != nil {
 			return err
 		}
@@ -166,7 +171,7 @@ func (s domainCustody) Add(ctx context.Context, req *app.CustodyAddRequest) (*ap
 		return nil
 	})
 	if err == errDone {
-		return nil, status.Error(codes.AlreadyExists, "이미 처리된 지급입니다")
+		return s.CustodyServiceServer.Get(ctx, app.CustodyGetRequest_builder{Ref: app.CustodyRef_builder{Id: id.Bytes()}.Build()}.Build())
 	}
 	return out, err
 }
@@ -209,6 +214,15 @@ func (s domainCustody) Acknowledge(ctx context.Context, req *app.CustodyAcknowle
 func (s domainCustody) Return(ctx context.Context, req *app.CustodyReturnRequest) (*app.Custody, error) {
 	var out *app.Custody
 	err := s.tx(ctx, func(t *Tx) error {
+		// The lock first, so that what is still out is read as nobody else
+		// is changing it; and then whether this is a return sent again, which
+		// finds the loan closed -- by itself.
+		if err := t.lockTree(); err != nil {
+			return err
+		}
+		if err := t.done(req.GetOp()); err != nil {
+			return err
+		}
 		at, err := t.at(req.GetAt(), "at")
 		if err != nil {
 			return err
@@ -235,9 +249,6 @@ func (s domainCustody) Return(ctx context.Context, req *app.CustodyReturnRequest
 			if to, _, err = t.get(req.GetTo(), "to"); err != nil {
 				return err
 			}
-		}
-		if err := t.lockTree(); err != nil {
-			return err
 		}
 		if err := t.begin(req.GetOp(), "custody.return", cid, at, "반납", "", nil); err != nil {
 			return err
@@ -353,6 +364,9 @@ func (s domainCustody) Return(ctx context.Context, req *app.CustodyReturnRequest
 		}
 		return t.settleAllocations(pdid.Id(r.Id), resCompleted)
 	})
+	if err == errDone {
+		return s.CustodyServiceServer.Get(ctx, app.CustodyGetRequest_builder{Ref: req.GetRef()}.Build())
+	}
 	return out, err
 }
 

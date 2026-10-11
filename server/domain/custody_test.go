@@ -12,6 +12,8 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	app "github.com/lesomnus/rove"
+	"github.com/lesomnus/rove/internal/ent/asset"
+	"github.com/lesomnus/rove/internal/ent/event"
 	"github.com/lesomnus/rove/server/domain"
 )
 
@@ -200,12 +202,14 @@ func TestCount(t *testing.T) {
 	x.Equal("misplaced", f.GetKind())
 	x.Equal("unknown", scan("no-such-thing").GetKind())
 
-	// The same scan sent again -- an offline queue replaying -- is one scan.
+	// The same scan sent again -- an offline queue replaying -- is one scan,
+	// and answers as the first did (TestAScanSentAgainIsTheSameScan).
 	op := newOp()
-	_, err = e.app().InventoryCount().Scan(e.owner, app.InventoryCountScanRequest_builder{Ref: cref, Code: "C-1", Op: op}.Build())
+	v, err := e.app().InventoryCount().Scan(e.owner, app.InventoryCountScanRequest_builder{Ref: cref, Code: "C-1", Op: op}.Build())
 	x.NoError(err)
-	_, err = e.app().InventoryCount().Scan(e.owner, app.InventoryCountScanRequest_builder{Ref: cref, Code: "C-1", Op: op}.Build())
-	x.Equal(codes.AlreadyExists, codeOf(err))
+	again, err := e.app().InventoryCount().Scan(e.owner, app.InventoryCountScanRequest_builder{Ref: cref, Code: "C-1", Op: op}.Build())
+	x.NoError(err)
+	x.Equal(v.GetId(), again.GetId())
 
 	r, err := e.app().InventoryCount().Reconcile(e.owner, app.InventoryCountReconcileRequest_builder{Ref: cref}.Build())
 	x.NoError(err)
@@ -452,6 +456,173 @@ func TestLabelsOnTenantDomains(t *testing.T) {
 	_, other := e.newTenant("other")
 	_, err = e.app().Label().Resolve(other, app.LabelResolveRequest_builder{Code: blank.GetUrls()[0]}.Build())
 	x.Equal(codes.NotFound, codeOf(err), "another tenant's label reads as nothing")
+}
+
+// ops counts the events an operation's copies made.
+func (e *env) ops(op []byte) int {
+	n, err := e.s.Ent.Event.Query().Where(event.Id(idUUID(op))).Count(context.Background())
+	e.x.NoError(err)
+	return n
+}
+
+// TestAHandOverSentAgainIsTheSameHandOver: a client that did not hear back
+// sends a hand-over again, by its operation's identifier, and then the
+// return. Sent again, the hand-over finds the laptop with somebody -- the
+// first copy gave it -- and its due date gone by; the return finds the loan
+// closed. Each answers what its first copy did, and nothing happens twice.
+func TestAHandOverSentAgainIsTheSameHandOver(t *testing.T) {
+	e := newEnv(t)
+	x := e.x
+	store := e.space("창고", nil)
+	laptop := e.item("노트북", "NB-1", store, 10*day)
+	paper := e.stock(e.model("A4 용지"), store, 10, 0)
+	_, kim := e.person("member")
+
+	give := app.CustodyAddRequest_builder{
+		Party: ref[app.PartyRef](kim.GetId()),
+		DueAt: e.in(day),
+		Lines: []*app.CustodyLineSpec{
+			app.CustodyLineSpec_builder{Asset: assetRef(laptop)}.Build(),
+			app.CustodyLineSpec_builder{Stock: ref[app.StockRef](paper.GetId()), Quantity: 3}.Build(),
+		},
+		Op: newOp(),
+	}.Build()
+	c, err := e.app().Custody().Add(e.owner, give)
+	x.NoError(err)
+	e.now = e.now.Add(2 * day)
+	again, err := e.app().Custody().Add(e.owner, give)
+	x.NoError(err, "the same hand-over, sent again once it is due")
+	x.Equal(c.GetId(), again.GetId())
+	x.Equal("loan", again.GetKind())
+	x.EqualValues(7, e.quantity(paper), "handed over once")
+	x.Equal(1, e.ops(give.GetOp()))
+
+	back := app.CustodyReturnRequest_builder{Ref: ref[app.CustodyRef](c.GetId()), Op: newOp()}.Build()
+	r, err := e.app().Custody().Return(e.owner, back)
+	x.NoError(err)
+	x.Equal("returned", r.GetStatus())
+	r, err = e.app().Custody().Return(e.owner, back)
+	x.NoError(err, "the same return, sent again, to the loan it closed")
+	x.Equal("returned", r.GetStatus())
+	x.EqualValues(10, e.quantity(paper), "returned once")
+	x.False(e.get(laptop).HasCustodian())
+	x.Equal(1, e.ops(back.GetOp()))
+
+	_, err = e.app().Custody().Return(e.owner, app.CustodyReturnRequest_builder{Ref: ref[app.CustodyRef](c.GetId()), Op: newOp()}.Build())
+	x.Equal(codes.FailedPrecondition, codeOf(err), "and a return of its own is refused")
+}
+
+// TestAStockChangeSentAgainIsTheSameChange: a stock started, moved and turned
+// into assets, each sent again. The stock is there when the start arrives
+// again, because the first copy started it; the conversion answers with the
+// assets the first copy made.
+func TestAStockChangeSentAgainIsTheSameChange(t *testing.T) {
+	e := newEnv(t)
+	x := e.x
+	store := e.space("창고", nil)
+	other := e.space("3층 탕비실", nil)
+	m := e.model("AA 건전지")
+
+	start := app.StockAddRequest_builder{Model: ref[app.ItemModelRef](m.GetId()), Space: assetRef(store), Quantity: 10, Op: newOp()}.Build()
+	s, err := e.app().Stock().Add(e.owner, start)
+	x.NoError(err)
+	again, err := e.app().Stock().Add(e.owner, start)
+	x.NoError(err, "the same start, sent again")
+	x.Equal(s.GetId(), again.GetId())
+	x.EqualValues(10, e.quantity(s))
+	_, err = e.app().Stock().Add(e.owner, app.StockAddRequest_builder{Model: ref[app.ItemModelRef](m.GetId()), Space: assetRef(store), Op: newOp()}.Build())
+	x.Equal(codes.FailedPrecondition, codeOf(err), "and a start of its own finds one there")
+
+	use := app.StockChangeRequest_builder{Ref: ref[app.StockRef](s.GetId()), Quantity: 1, Op: newOp()}.Build()
+	for range 2 {
+		v, err := e.app().Stock().Consume(e.owner, use)
+		x.NoError(err)
+		x.EqualValues(9, v.GetQuantity())
+	}
+
+	move := app.StockTransferRequest_builder{Ref: ref[app.StockRef](s.GetId()), To: assetRef(other), Quantity: 2, Op: newOp()}.Build()
+	for range 2 {
+		v, err := e.app().Stock().Transfer(e.owner, move)
+		x.NoError(err, "a transfer, and the same one sent again")
+		x.EqualValues(7, v.GetQuantity())
+	}
+	there, err := e.app().Stock().List(e.owner, app.StockListRequest_builder{
+		Filters: []*app.StockFilter{app.StockFilter_builder{Space: assetRef(other)}.Build()},
+	}.Build())
+	x.NoError(err)
+	x.Len(there.GetItems(), 1)
+	x.EqualValues(2, there.GetItems()[0].GetQuantity(), "moved once")
+
+	conv := app.StockConvertRequest_builder{Ref: ref[app.StockRef](s.GetId()), Quantity: 2, TagPrefix: "BT", Op: newOp()}.Build()
+	first, err := e.app().Stock().Convert(e.owner, conv)
+	x.NoError(err)
+	x.EqualValues(5, first.GetStock().GetQuantity(), "the stock as the conversion left it")
+	second, err := e.app().Stock().Convert(e.owner, conv)
+	x.NoError(err, "the same conversion, sent again")
+	x.EqualValues(5, second.GetStock().GetQuantity())
+	x.Len(second.GetAssets(), 2)
+	for i, a := range first.GetAssets() {
+		x.Equal(a.GetId(), second.GetAssets()[i].GetId(), "the assets the first copy made")
+		x.Equal(a.GetTag(), second.GetAssets()[i].GetTag())
+	}
+	n, err := e.s.Ent.Asset.Query().Where(asset.TenantId(e.tenant.Uuid()), asset.ModelId(idUUID(m.GetId()))).Count(context.Background())
+	x.NoError(err)
+	x.Equal(2, n, "made once")
+	x.EqualValues(5, e.quantity(s))
+	for _, op := range [][]byte{start.GetOp(), use.GetOp(), move.GetOp(), conv.GetOp()} {
+		x.Equal(1, e.ops(op))
+	}
+}
+
+// TestAScanSentAgainIsTheSameScan: an offline queue sends a scan again when it
+// did not hear back -- maybe after the count is closed -- and the copy answers
+// with the finding the first one left, rather than a refusal the queue would
+// keep the scan for and send forever.
+func TestAScanSentAgainIsTheSameScan(t *testing.T) {
+	e := newEnv(t)
+	x := e.x
+	room := e.space("개발팀", nil)
+	e.item("노트북", "C-1", room, 30*day)
+	c, err := e.app().InventoryCount().Add(e.owner, app.InventoryCountAddRequest_builder{Scope: assetRef(room)}.Build())
+	x.NoError(err)
+	cref := ref[app.InventoryCountRef](c.GetId())
+	scan := func(code string, op []byte) (*app.CountFinding, error) {
+		return e.app().InventoryCount().Scan(e.owner, app.InventoryCountScanRequest_builder{Ref: cref, Code: code, Op: op}.Build())
+	}
+
+	// Seen twice, which the second scan updates the finding of; and a code
+	// that is nothing here.
+	first, second, unknown := newOp(), newOp(), newOp()
+	f, err := scan("C-1", first)
+	x.NoError(err)
+	v, err := scan("C-1", second)
+	x.NoError(err)
+	x.Equal(f.GetId(), v.GetId(), "one finding for one thing")
+	u, err := scan("no-such-thing", unknown)
+	x.NoError(err)
+	x.Equal("unknown", u.GetKind())
+
+	_, err = e.app().InventoryCount().Close(e.owner, app.InventoryCountCloseRequest_builder{Ref: cref}.Build())
+	x.NoError(err)
+	_, err = scan("C-1", newOp())
+	x.Equal(codes.FailedPrecondition, codeOf(err), "a scan of its own, once the count is closed, is refused")
+
+	for _, op := range [][]byte{first, second} {
+		v, err := scan("C-1", op)
+		x.NoError(err, "sent again once the count is closed")
+		x.Equal(f.GetId(), v.GetId())
+		x.Equal("seen", v.GetKind())
+		x.Equal(1, e.ops(op))
+	}
+	v, err = scan("no-such-thing", unknown)
+	x.NoError(err)
+	x.Equal(u.GetId(), v.GetId(), "and the finding an unknown code made")
+
+	fs, err := e.app().CountFinding().List(e.owner, app.CountFindingListRequest_builder{
+		Filters: []*app.CountFindingFilter{app.CountFindingFilter_builder{Count: cref}.Build()},
+	}.Build())
+	x.NoError(err)
+	x.Len(fs.GetItems(), 2)
 }
 
 func ptr[T any](v T) *T { return &v }

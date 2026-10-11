@@ -8,11 +8,14 @@ import (
 
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/z"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
 
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/internal/ent/stock"
+	"github.com/lesomnus/rove/server/pd"
 )
 
 type domainStock struct {
@@ -24,8 +27,16 @@ func (s Domain) Stock() app.StockServiceServer { return domainStock{s, s.Next().
 
 // Add starts keeping a model in a space, with what is there already.
 func (s domainStock) Add(ctx context.Context, req *app.StockAddRequest) (*app.Stock, error) {
+	id := req.GetId()
+	if len(id) == 0 {
+		id = made(req.GetOp(), pd.StockDomain, 0).Bytes()
+	}
 	var out *app.Stock
 	err := s.tx(ctx, func(t *Tx) error {
+		// Before the stock already there is refused: sent again, it is this.
+		if err := t.done(req.GetOp()); err != nil {
+			return err
+		}
 		m, err := t.next.ItemModel().Get(t.ctx, app.ItemModelGetRequest_builder{Ref: req.GetModel()}.Build())
 		if err != nil {
 			return err
@@ -54,6 +65,7 @@ func (s domainStock) Add(ctx context.Context, req *app.StockAddRequest) (*app.St
 		}
 
 		row := proto.Clone(req).(*app.StockAddRequest)
+		row.SetId(id)
 		row.SetTenant(t.tenantRef())
 		row.SetName(or(strings.TrimSpace(row.GetName()), m.GetName()))
 		row.SetQuantity(0)
@@ -75,6 +87,9 @@ func (s domainStock) Add(ctx context.Context, req *app.StockAddRequest) (*app.St
 		out, err = t.next.Stock().Get(t.ctx, app.StockGetRequest_builder{Ref: app.StockRef_builder{Id: v.GetId()}.Build()}.Build())
 		return err
 	})
+	if err == errDone {
+		return s.StockServiceServer.Get(ctx, app.StockGetRequest_builder{Ref: app.StockRef_builder{Id: id}.Build()}.Build())
+	}
 	return out, err
 }
 
@@ -125,6 +140,9 @@ func (t *Tx) moveStock(st *app.Stock, delta int64, reason string, ref pdid.Id, a
 func (s domainStock) change(ctx context.Context, req *app.StockChangeRequest, reason string, sign int64) (*app.Stock, error) {
 	var out *app.Stock
 	err := s.tx(ctx, func(t *Tx) error {
+		if err := t.done(req.GetOp()); err != nil {
+			return err
+		}
 		at, err := t.at(req.GetAt(), "at")
 		if err != nil {
 			return err
@@ -176,6 +194,9 @@ func (s domainStock) Adjust(ctx context.Context, req *app.StockChangeRequest) (*
 func (s domainStock) Transfer(ctx context.Context, req *app.StockTransferRequest) (*app.Stock, error) {
 	var out *app.Stock
 	err := s.tx(ctx, func(t *Tx) error {
+		if err := t.done(req.GetOp()); err != nil {
+			return err
+		}
 		at, err := t.at(req.GetAt(), "at")
 		if err != nil {
 			return err
@@ -236,6 +257,9 @@ func (s domainStock) Transfer(ctx context.Context, req *app.StockTransferRequest
 		out, err = t.next.Stock().Get(t.ctx, app.StockGetRequest_builder{Ref: req.GetRef()}.Build())
 		return err
 	})
+	if err == errDone {
+		return s.StockServiceServer.Get(ctx, app.StockGetRequest_builder{Ref: req.GetRef()}.Build())
+	}
 	return out, err
 }
 
@@ -244,6 +268,9 @@ func (s domainStock) Transfer(ctx context.Context, req *app.StockTransferRequest
 func (s domainStock) Convert(ctx context.Context, req *app.StockConvertRequest) (*app.StockConvertResponse, error) {
 	var out *app.StockConvertResponse
 	err := s.tx(ctx, func(t *Tx) error {
+		if err := t.done(req.GetOp()); err != nil {
+			return err
+		}
 		q := req.GetQuantity()
 		if q <= 0 || q > 200 {
 			return invalid("quantity", "한 번에 1~200개까지 전환합니다")
@@ -267,6 +294,9 @@ func (s domainStock) Convert(ctx context.Context, req *app.StockConvertRequest) 
 		layer := t.layer()
 		for i := range q {
 			add := app.AssetAddRequest_builder{
+				// Named after the conversion, for a copy of it sent again to
+				// answer with.
+				Id:    made(req.GetOp(), pd.AssetDomain, int(i)).Bytes(),
 				Name:  m.GetName(),
 				Kind:  "item",
 				Model: app.ItemModelRef_builder{Id: m.GetId()}.Build(),
@@ -284,8 +314,37 @@ func (s domainStock) Convert(ctx context.Context, req *app.StockConvertRequest) 
 			}
 			out.SetAssets(append(out.GetAssets(), a))
 		}
+		st, err = t.next.Stock().Get(t.ctx, app.StockGetRequest_builder{Ref: req.GetRef()}.Build())
 		out.SetStock(st)
-		return nil
+		return err
 	})
+	if err == errDone {
+		return s.converted(ctx, req)
+	}
 	return out, err
+}
+
+// converted answers a conversion that already happened: the stock as it is
+// now, and the assets it made, by the names it gave them.
+func (s domainStock) converted(ctx context.Context, req *app.StockConvertRequest) (*app.StockConvertResponse, error) {
+	st, err := s.StockServiceServer.Get(ctx, app.StockGetRequest_builder{Ref: req.GetRef()}.Build())
+	if err != nil {
+		return nil, err
+	}
+	out := app.StockConvertResponse_builder{Stock: st}.Build()
+	for i := range req.GetQuantity() {
+		a, err := s.Next().Asset().Get(ctx, app.AssetGetRequest_builder{
+			Ref:    app.AssetRef_builder{Id: made(req.GetOp(), pd.AssetDomain, int(i)).Bytes()}.Build(),
+			Select: allAsset,
+		}.Build())
+		if err != nil {
+			if status.Code(err) == codes.NotFound {
+				// Made and erased since.
+				continue
+			}
+			return nil, err
+		}
+		out.SetAssets(append(out.GetAssets(), a))
+	}
+	return out, nil
 }

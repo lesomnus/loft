@@ -182,6 +182,46 @@ func TestSeries(t *testing.T) {
 	x.Equal(1, n)
 }
 
+// TestABookingSentAgainIsTheSameBooking: a booking sent again by its
+// operation's identifier finds its time taken -- by itself -- and later finds
+// it gone by. It answers with the reservation the first copy made, and the
+// series is booked once.
+func TestABookingSentAgainIsTheSameBooking(t *testing.T) {
+	e := newEnv(t)
+	x := e.x
+	room := e.space("회의실", nil)
+	e.bookable(room, func(r *app.BookableAddRequest) { r.SetHorizonDays(120) })
+
+	op := newOp()
+	book := func() (*app.Reservation, error) {
+		return e.reserve(e.owner, room, e.tomorrow(10, 0), e.tomorrow(11, 0), func(r *app.ReservationAddRequest) {
+			r.SetRepeat("FREQ=DAILY;COUNT=3")
+			r.SetOp(op)
+		})
+	}
+	r, err := book()
+	x.NoError(err)
+	again, err := book()
+	x.NoError(err, "the same booking, sent again")
+	x.Equal(r.GetId(), again.GetId())
+	x.Equal(r.GetSeriesId(), again.GetSeriesId())
+
+	_, err = e.reserve(e.owner, room, e.tomorrow(10, 0), e.tomorrow(11, 0), nil)
+	x.Equal(codes.Aborted, codeOf(err), "a booking of its own finds the time taken")
+
+	e.now = e.now.AddDate(0, 0, 5)
+	again, err = book()
+	x.NoError(err, "sent again once it is over")
+	x.Equal(r.GetId(), again.GetId())
+
+	all, err := e.app().Reservation().List(e.owner, app.ReservationListRequest_builder{
+		Filters: []*app.ReservationFilter{app.ReservationFilter_builder{SeriesId: r.GetSeriesId()}.Build()},
+	}.Build())
+	x.NoError(err)
+	x.Len(all.GetItems(), 3, "booked once")
+	x.Equal(1, e.ops(op))
+}
+
 func TestKitTakesItsParts(t *testing.T) {
 	e := newEnv(t)
 	x := e.x

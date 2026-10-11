@@ -231,6 +231,23 @@ func TestACorrectionSentAgainIsTheSameCorrection(t *testing.T) {
 	x.Equal(b.GetId(), e.where(b, laptop, e.now.Add(-4*day), nil), "corrected, once")
 }
 
+// TestARegistrationSentAgainIsTheSameAsset: a registration sent again by its
+// operation's identifier, by a client that named no asset, answers with the
+// asset the first copy registered. It was named after the operation.
+func TestARegistrationSentAgainIsTheSameAsset(t *testing.T) {
+	e := newEnv(t)
+	x := e.x
+	room := e.space("회의실", nil)
+	req := app.AssetAddRequest_builder{Name: "노트북", Kind: "item", To: assetRef(room), Op: newOp()}.Build()
+	a, err := e.app().Asset().Add(e.owner, req)
+	x.NoError(err)
+	again, err := e.app().Asset().Add(e.owner, req)
+	x.NoError(err, "the same registration, sent again")
+	x.Equal(a.GetId(), again.GetId())
+	x.Equal(a.GetTag(), again.GetTag())
+	x.Equal(1, e.ops(req.GetOp()))
+}
+
 // TestTheWallHoldsUnderTheDomainLayer: on PostgreSQL, SQL that goes around the
 // domain layer and the gate -- a script, a hand-run fix -- still cannot make a
 // row of one tenant name a row of another (`rove_same_tenant`, design 6, D11).
