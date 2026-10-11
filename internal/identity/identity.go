@@ -84,6 +84,12 @@ type Config struct {
 	// every tenant that nominated it, so which one holds the accounts is said
 	// here.
 	Directory string `yaml:"directory"`
+
+	// AccountUrl is roster's account page, at the front door the directory
+	// signs in through: where somebody changes how they sign in and, where
+	// the directory offers it (roster's `TenantConfig.leave`), deletes their
+	// account (`#leave`). It is an external roster's; empty draws no link.
+	AccountUrl string `yaml:"account_url"`
 }
 
 // DefaultDirectory is the directory of the roster in this process when the
@@ -248,8 +254,8 @@ func Open(ctx context.Context, cfg Config, stateDir string, log *slog.Logger) (*
 	}
 	s := &Store{cfg: cfg, log: log, agents: map[string]bool{}, held: map[pdid.Id]held{}, aliases: map[pdid.Id]string{}, now: time.Now, refused: 10 * time.Minute}
 	if cfg.Embedded() {
-		if cfg.Key != "" || cfg.CaFile != "" || cfg.Insecure {
-			return nil, errors.New("auth.roster: key, ca_file and insecure are an external roster's, and addr names none")
+		if cfg.Key != "" || cfg.CaFile != "" || cfg.Insecure || cfg.AccountUrl != "" {
+			return nil, errors.New("auth.roster: key, ca_file, insecure and account_url are an external roster's, and addr names none")
 		}
 		em, err := openEmbedded(ctx, cfg, stateDir, log)
 		if err != nil {
@@ -770,19 +776,24 @@ func (s *Store) inDirectory(ctx context.Context) (context.Context, Directory, er
 	return as, d, nil
 }
 
+// AccountPage is roster's page where somebody manages their own account, and
+// deletes it where their directory offers that; empty for none.
+func (s *Store) AccountPage() string { return s.cfg.AccountUrl }
+
 // Standing is what roster says of somebody now: when everything issued to them
-// before stopped being good, when they were suspended, when they were erased;
-// zero for not.
+// before stopped being good, when they were suspended, when they were erased,
+// and when the directory they are in was closed (roster#105); zero for not.
 type Standing struct {
-	Holder, Tenant                pdid.Id
-	Invalidated, Disabled, Erased time.Time
+	Holder, Tenant                        pdid.Id
+	Invalidated, Disabled, Erased, Closed time.Time
 }
 
-// Since is the latest of the three: what was issued before it, or at all when
-// they are suspended or erased, is not good. Zero is good standing.
+// Since is the latest of the four: what was issued before it, or at all when
+// they are suspended, erased or their directory is closed, is not good. Zero
+// is good standing.
 func (v Standing) Since() time.Time {
 	t := v.Invalidated
-	for _, u := range []time.Time{v.Disabled, v.Erased} {
+	for _, u := range []time.Time{v.Disabled, v.Erased, v.Closed} {
 		if u.After(t) {
 			t = u
 		}
@@ -794,7 +805,7 @@ func (v Standing) Since() time.Time {
 // Good says whether something issued at `at` is still good: a session that
 // began then, say.
 func (v Standing) Good(at time.Time) bool {
-	return v.Disabled.IsZero() && v.Erased.IsZero() && !at.Before(v.Invalidated)
+	return v.Disabled.IsZero() && v.Erased.IsZero() && v.Closed.IsZero() && !at.Before(v.Invalidated)
 }
 
 // StandingOf is what roster says of an account now. ErrNoPerson is somebody
@@ -814,6 +825,9 @@ func (s *Store) StandingOf(ctx context.Context, account pdid.Id) (Standing, erro
 			return Standing{}, ErrNoPerson
 		}
 
+		// A directory that is closed is closed to this deployment's key too
+		// (roster#105), so its people are asked about as a roster that will
+		// not answer -- which is no session either.
 		return Standing{}, fmt.Errorf("roster: %w", err)
 	}
 	st := Standing{Holder: account, Tenant: d.Id}
@@ -973,7 +987,7 @@ func (s *Store) follow(ctx context.Context, on func(ctx context.Context, v Stand
 	}
 }
 
-// standingOf is a sync event as the three facts it carries.
+// standingOf is a sync event as the four facts it carries.
 func standingOf(ev *rstr.SyncEvent) (Standing, error) {
 	h, err := pdid.From(ev.GetHolder())
 	if err != nil {
@@ -989,6 +1003,9 @@ func standingOf(ev *rstr.SyncEvent) (Standing, error) {
 	}
 	if v := ev.GetDateErased(); v != nil {
 		st.Erased = v.AsTime()
+	}
+	if v := ev.GetDateClosed(); v != nil {
+		st.Closed = v.AsTime()
 	}
 	return st, nil
 }

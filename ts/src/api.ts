@@ -99,6 +99,13 @@ export interface Account {
 	workspaces: Workspace[]
 	owns: number
 	may?: number
+	/** roster's page where the account itself is managed, and deleted where its directory offers that. */
+	manage?: string
+}
+
+/** Where somebody deletes their account on roster's account page: its `#leave` section. */
+export function leavePage(manage: string): string {
+	return manage.split('#')[0] + '#leave'
 }
 
 /** The account this browser is signed in as, or `out` for none. */

@@ -87,7 +87,10 @@ type Lifecycle struct {
 // than what was done before cannot undo it -- a session ended stays ended.
 func (l Lifecycle) Apply(ctx context.Context, v identity.Standing) error {
 	switch {
-	case !v.Erased.IsZero() || !v.Disabled.IsZero():
+	case !v.Erased.IsZero() || !v.Disabled.IsZero() || !v.Closed.IsZero():
+		// A directory closed is every one of its accounts shut out, and no
+		// more: closing destroys nothing, and a directory restored lets them
+		// sign in again. Leaving is what an erasure starts, below.
 		if _, err := l.Sessions.End(ctx, v.Holder, time.Time{}); err != nil {
 			return err
 		}

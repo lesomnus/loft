@@ -104,6 +104,9 @@ func (s domainParty) Me(ctx context.Context, _ *app.PartyMeRequest) (*app.PartyM
 		Role:         h.GetRole(),
 		AccountsHere: s.deps.People != nil && s.deps.People.Embedded(),
 	}.Build()
+	if s.deps.People != nil {
+		out.SetAccountUrl(s.deps.People.AccountPage())
+	}
 	if w, err := t.window(); err != nil {
 		return nil, err
 	} else if since := w.Since(t.now); !since.IsZero() {

@@ -273,7 +273,8 @@ func newExternal(t *testing.T) *external {
 	x.NoError(rostercli.NewCmdApp(&c).Run(ctx, []string{"install", "--tenant", "acme", "--role", strings.Join(AgentMethods, ","), Agent}))
 	e.tenantKey = stdoutOf(t, rostercli.NewCmdKey(&c), "add", "--tenant", "acme", "--holder", Agent, "--name", "rove", "--allow", strings.Join(AgentMethods, ","))
 	e.operator = stdoutOf(t, rostercli.NewCmdControl(&c), "key", "add", "--allow",
-		"/roster.HolderService/Invalidate,/roster.HolderService/Disable,/roster.HolderService/Erase", "operator")
+		"/roster.HolderService/Invalidate,/roster.HolderService/Disable,/roster.HolderService/Erase,"+
+			"/roster.TenantService/Get,/roster.TenantService/Update,/roster.TenantService/Close,/roster.TenantService/Restore", "operator")
 
 	e.s, err = rostercmd.Build(ctx, c)
 	x.NoError(err)
@@ -473,10 +474,15 @@ func TestOnlyAnAddressSomebodyCheckedIsAnAccounts(t *testing.T) {
 // roster's server in this process writes the row and tells nobody.
 func (e *external) overTheWire(t *testing.T) (rstr.HolderServiceClient, context.Context) {
 	t.Helper()
+	return rstr.NewHolderServiceClient(e.wire(t)), auth.BearerProvider(e.operator).Provide(t.Context())
+}
+
+func (e *external) wire(t *testing.T) *grpc.ClientConn {
+	t.Helper()
 	conn, err := grpc.NewClient(e.addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	require.NoError(t, err)
 	t.Cleanup(func() { conn.Close() })
-	return rstr.NewHolderServiceClient(conn), auth.BearerProvider(e.operator).Provide(t.Context())
+	return conn
 }
 
 // heard writes until the stream says what was written: there is nothing to
@@ -610,6 +616,72 @@ func TestAnErasureIsHeardOfSomebodyNothingElseHappenedTo(t *testing.T) {
 			t.Fatal("the erasure of somebody nothing else happened to was not heard")
 		}
 	}
+}
+
+// TestADirectoryClosedShutsOutEveryoneInIt: roster closing the directory this
+// deployment's accounts are in is heard as an event about each of them, with
+// when -- and is no session for any of them -- until roster restores it, which
+// is heard too (roster#105).
+func TestADirectoryClosedShutsOutEveryoneInIt(t *testing.T) {
+	x := require.New(t)
+	e := newExternal(t)
+	s := e.open(t, e.key, "acme")
+	got := follow(t, s)
+	op, as := e.overTheWire(t)
+	tenants := rstr.NewTenantServiceClient(e.wire(t))
+	ref := rstr.TenantRef_builder{Id: e.acme.Bytes()}.Build()
+	kim := rstr.HolderRef_builder{Id: e.kim.Bytes()}.Build()
+	invalidate := func() error {
+		_, err := op.Invalidate(as, rstr.HolderInvalidateRequest_builder{Ref: kim}.Build())
+		return err
+	}
+
+	// kim first, for the stream to be known to be open.
+	heard(t, got, e.kim, invalidate, func(v Standing) bool { return !v.Invalidated.IsZero() })
+	began := time.Now()
+	x.NoError(s.Held(t.Context(), e.kim, began))
+
+	// The stream reads a tenant when it moves, and a tenant it had seen
+	// before closing is a closing it names for everybody in it.
+	was, err := tenants.Get(as, rstr.TenantGetRequest_builder{Ref: ref, Select: rstr.TenantSelect_builder{DateUpdated: z.Ptr(true)}.Build()}.Build())
+	x.NoError(err)
+	_, err = tenants.Update(as, rstr.TenantUpdateRequest_builder{Ref: ref, DateUpdated: was.GetDateUpdated(), Desc: z.Ptr("seen")}.Build())
+	x.NoError(err)
+	closed := false
+	v := heard(t, got, e.kim, func() error {
+		if closed {
+			return nil
+		}
+		_, err := tenants.Close(as, rstr.TenantCloseRequest_builder{Ref: ref}.Build())
+		closed = err == nil
+		return err
+	}, func(v Standing) bool { return !v.Closed.IsZero() })
+	x.Equal(e.acme, v.Tenant)
+	x.True(v.Disabled.IsZero(), "a directory closing is not its people suspended")
+	x.False(v.Good(time.Now()))
+	x.Error(s.Held(t.Context(), e.kim, began), "a session in a closed directory")
+
+	_, err = tenants.Restore(as, rstr.TenantRestoreRequest_builder{Ref: ref}.Build())
+	x.NoError(err)
+	v = heard(t, got, e.kim, invalidate, func(v Standing) bool { return v.Closed.IsZero() })
+	x.True(v.Disabled.IsZero())
+	x.NoError(s.Held(t.Context(), e.kim, time.Now()), "a session again, once it is restored")
+}
+
+// TestAnAccountPageIsAnExternalRostersOwn: the page where somebody manages
+// their own account is roster's, at its front door; the roster in this process
+// has none to name.
+func TestAnAccountPageIsAnExternalRostersOwn(t *testing.T) {
+	x := require.New(t)
+	e := newExternal(t)
+	s, err := Open(t.Context(), Config{Addr: e.addr, Insecure: true, Key: e.key, Directory: "acme", AccountUrl: "https://id.example/"}, "", slog.Default())
+	x.NoError(err)
+	t.Cleanup(func() { s.Close() })
+	x.Equal("https://id.example/", s.AccountPage())
+
+	drv, dsn := pdtest.DB(t)
+	_, err = Open(t.Context(), Config{Db: config.DbConfig{Driver: drv, Dsn: dsn}, AccountUrl: "https://id.example/"}, t.TempDir(), slog.Default())
+	x.ErrorContains(err, "account_url")
 }
 
 // logs is a log a test reads while it is written.
