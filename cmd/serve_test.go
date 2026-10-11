@@ -114,7 +114,7 @@ func newWorldWith(t *testing.T, with func(*cmd.Config)) *world {
 
 	// The directory and its first account at roster, then the workspace
 	// here, as `rove init` does.
-	owner, _, err := s.Identity.MakeDirectory(ctx, "owner")
+	owner, _, err := s.Identity.MakeDirectory(ctx, "owner", "")
 	x.NoError(err)
 	tn, err := s.Base.Tenant().Add(ctx, app.TenantAddRequest_builder{Alias: "acme"}.Build())
 	x.NoError(err)

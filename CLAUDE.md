@@ -156,8 +156,9 @@ roster first. That is `Lifecycle.Sweep`: past `app.accounts.forget_after`, an
 account roster still has nobody by leaves every workspace it is in
 (`domain.Deps.Depart`: pseudonymized as 개인정보 삭제 is, and a last owner's
 workspace handed on), and one roster has again stops leaving. `rove identity
-depart` does it now for one account, and `rove identity reconcile` finds what
-the stream missed -- it replays nothing. The role Rove is installed with carries every method in
+depart` does it now for one account, and `Lifecycle.Reconcile` finds what the
+stream missed -- it replays nothing -- every `app.accounts.reconcile` by
+itself, and now with `rove identity reconcile`. The role Rove is installed with carries every method in
 `identity.AgentMethods`; installing again leaves an existing role as it is, so
 an older install is widened with `roster role patch` (README).
 
@@ -235,7 +236,10 @@ writes. A new RPC is closed until it is added there.
 `server/domain` sits **above** the gate, completes the generated verbs
 (`Asset.Add`, `Reservation.Add`, ...) and adds the rest. An operation is one
 transaction (`Domain.tx`), records an `Event`, and writes the time rows with the
-state they describe. Read `server/domain/domain.go` first. Its tests
+state they describe. An Event never copies a person's name: its sentence marks
+them (`{party}`, `{holder}`, `{alias}`) and its payload carries the identifier
+(`party=`, `holder=`), and the history names them as they are when it is read
+(`namer.say`, design 8.2). Read `server/domain/domain.go` first. Its tests
 (`go test ./server/domain`) go through the whole stack; set `PDTEST_POSTGRES` to
 run them on PostgreSQL.
 

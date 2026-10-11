@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"strings"
-	"time"
 	"uuid"
 
 	"github.com/lesomnus/payday/pdid"
@@ -16,7 +15,6 @@ import (
 	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/internal/ent/holder"
 	enttenant "github.com/lesomnus/rove/internal/ent/tenant"
-	"github.com/lesomnus/rove/internal/identity"
 )
 
 // newCmdIdentityDepart is `rove identity depart`: an account leaving every
@@ -106,7 +104,9 @@ func depart(ctx context.Context, self *xli.Command, c *cmd.Config, member, accou
 // account erased while this was not listening was never marked as leaving and
 // would never leave. This asks about every one, and marks those roster has
 // nobody by -- from now, so that they wait the whole grace like anybody else
-// -- and unmarks those it has again.
+// -- and unmarks those it has again. A served deployment does the same by
+// itself every `app.accounts.reconcile` (`lifecycle.Lifecycle.Reconcile`);
+// this is it asked for now, and told first.
 func newCmdIdentityReconcile(c *cmd.Config) *xli.Command {
 	return &xli.Command{
 		Name:  "reconcile",
@@ -131,52 +131,18 @@ func reconcile(ctx context.Context, self *xli.Command, c *cmd.Config, yes bool) 
 		return err
 	}
 
-	hs, err := s.Ent.Holder.Query().
-		Where(holder.DateErasedIsNil(), holder.AccountNotNil()).
-		Order(ent.Asc(holder.FieldDateCreated), ent.Asc(holder.FieldId)).
-		All(ctx)
-	if err != nil {
+	v, err := s.Lifecycle.Reconcile(ctx, yes)
+	if v == nil {
 		return err
 	}
-	byAccount := map[pdid.Id][]*ent.Holder{}
-	order := []pdid.Id{}
-	for _, h := range hs {
-		a := pdid.Id(*h.Account)
-		if _, ok := byAccount[a]; !ok {
-			order = append(order, a)
-		}
-		byAccount[a] = append(byAccount[a], h)
+	self.Printf("%d account(s) with a membership here; roster has %d of them\n", len(v.Accounts), v.Found)
+	for _, a := range v.Gone {
+		self.Printf("gone at roster, not yet leaving here: %s (%s)\n", a, membersLine(ctx, s, v.Members[a]))
 	}
-
-	// Everything asked before anything is done, so that a roster which
-	// stops answering half way decides nothing.
-	gone, back := []pdid.Id{}, []identity.Standing{}
-	found := 0
-	for _, a := range order {
-		st, err := s.Identity.StandingOf(ctx, a)
-		switch {
-		case errors.Is(err, identity.ErrNoPerson):
-			if !leaving(byAccount[a]) {
-				gone = append(gone, a)
-			}
-		case err != nil:
-			return fmt.Errorf("roster could not be asked about %s, so nothing was decided: %w", a, err)
-		default:
-			found++
-			if st.Erased.IsZero() && leaving(byAccount[a]) {
-				back = append(back, st)
-			}
-		}
+	for _, st := range v.Back {
+		self.Printf("leaving here, and roster has it again: %s (%s)\n", st.Holder, membersLine(ctx, s, v.Members[st.Holder]))
 	}
-
-	self.Printf("%d account(s) with a membership here; roster has %d of them\n", len(order), found)
-	for _, a := range gone {
-		self.Printf("gone at roster, not yet leaving here: %s (%s)\n", a, membersLine(ctx, s, byAccount[a]))
-	}
-	for _, st := range back {
-		self.Printf("leaving here, and roster has it again: %s (%s)\n", st.Holder, membersLine(ctx, s, byAccount[st.Holder]))
-	}
-	if len(gone) == 0 && len(back) == 0 {
+	if len(v.Gone) == 0 && len(v.Back) == 0 {
 		self.Printf("nothing to do\n")
 		return nil
 	}
@@ -184,35 +150,11 @@ func reconcile(ctx context.Context, self *xli.Command, c *cmd.Config, yes bool) 
 		self.Printf("(nothing was done: `--yes` does it. The ones gone start leaving now, and leave after `app.accounts.forget_after`)\n")
 		return nil
 	}
-	if found == 0 && len(gone) > 0 {
-		// Nobody at all is far more often the wrong directory or a key that
-		// sees none of it than everybody having left.
-		return fmt.Errorf("roster has none of the %d account(s) here, which is more likely `auth.roster.directory` or the key than all of them leaving; nothing was marked", len(order))
+	if err != nil {
+		return err
 	}
-
-	now := time.Now()
-	for _, a := range gone {
-		if err := s.Lifecycle.Apply(ctx, identity.Standing{Holder: a, Erased: now}); err != nil {
-			return fmt.Errorf("%s: %w", a, err)
-		}
-	}
-	for _, st := range back {
-		if err := s.Lifecycle.Apply(ctx, st); err != nil {
-			return fmt.Errorf("%s: %w", st.Holder, err)
-		}
-	}
-	self.Printf("marked %d as leaving, and %d as not\n", len(gone), len(back))
+	self.Printf("marked %d as leaving, and %d as not\n", len(v.Gone), len(v.Back))
 	return nil
-}
-
-// leaving says whether any of these memberships is marked as leaving.
-func leaving(hs []*ent.Holder) bool {
-	for _, h := range hs {
-		if h.DateLeaving != nil {
-			return true
-		}
-	}
-	return false
 }
 
 // accountNamed is the account a command names: by its identifier, or by one

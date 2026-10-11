@@ -1,18 +1,23 @@
 package cmd_test
 
 import (
+	"bytes"
 	"context"
+	"log/slog"
 	"testing"
 	"time"
 	"uuid"
 
+	"github.com/lesomnus/otx/log"
 	"github.com/lesomnus/payday/pdid"
+	"github.com/lesomnus/z"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	app "github.com/lesomnus/rove"
+	"github.com/lesomnus/rove/cmd"
 	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/internal/ent/holder"
 	entsession "github.com/lesomnus/rove/internal/ent/session"
@@ -243,4 +248,71 @@ func TestAnAccountStillGoneAfterTheGraceLeaves(t *testing.T) {
 func idUuid(b []byte) uuid.UUID {
 	v, _ := pdid.From(b)
 	return v.Uuid()
+}
+
+// TestTheDeploymentReconcilesByItself: every `app.accounts.reconcile` -- a
+// day, unless told otherwise -- the deployment asks roster about every
+// account with a membership here, as `rove identity reconcile --yes` does: one
+// roster erased while the stream was not heard begins to leave, from now; one
+// leaving here that roster has again stops; and what it marked is in the log.
+// A roster that has nobody at all marks nobody.
+func TestTheDeploymentReconcilesByItself(t *testing.T) {
+	w := newWorld(t)
+	x := w.x
+	ctx := context.Background()
+	kim, err := w.s.Identity.AddPerson(ctx, "kim", "Kim", pdid.Nil)
+	x.NoError(err)
+	lee, err := w.s.Identity.AddPerson(ctx, "lee", "Lee", pdid.Nil)
+	x.NoError(err)
+	gone := w.here(kim, "member")
+	back := w.here(lee, "member")
+	leaving := func(h *app.Holder) *time.Time {
+		v, err := w.s.Ent.Holder.Get(ctx, idUuid(h.GetId()))
+		x.NoError(err)
+		return v.DateLeaving
+	}
+	var said bytes.Buffer
+	lctx := log.Into(ctx, slog.New(slog.NewTextHandler(&said, nil)))
+
+	// kim erased at roster, and nobody here heard; lee marked as leaving,
+	// and roster has lee all along.
+	x.NoError(w.s.Identity.ForgetPerson(ctx, kim.Id))
+	x.NoError(w.s.Lifecycle.Apply(ctx, identity.Standing{Holder: lee.Id, Erased: time.Now().Add(-time.Hour)}))
+
+	before := time.Now().Add(-time.Second)
+	x.NoError(w.s.Lifecycle.Reconciling(lctx))
+	x.NotNil(leaving(gone))
+	x.True(leaving(gone).After(before), "from now, to wait the whole grace")
+	x.Nil(leaving(back))
+	x.Contains(said.String(), "account="+kim.Id.String())
+	x.Contains(said.String(), "account="+lee.Id.String())
+
+	// Nothing more to do, and nothing said.
+	said.Reset()
+	x.NoError(w.s.Lifecycle.Reconciling(lctx))
+	x.Empty(said.String())
+
+	// roster with nobody in it is not everybody leaving.
+	x.NoError(w.s.Identity.ForgetPerson(ctx, lee.Id))
+	owner, err := w.s.Ent.Holder.Query().Where(holder.Alias("owner")).Only(ctx)
+	x.NoError(err)
+	x.NoError(w.s.Identity.ForgetPerson(ctx, pdid.Id(*owner.Account)))
+	x.NoError(w.s.Lifecycle.Reconciling(lctx))
+	x.Nil(leaving(back))
+	x.Contains(said.String(), "auth.roster.directory")
+
+	// It is one of the deployment's loops, unless it is turned off.
+	off := newWorldWith(t, func(c *cmd.Config) { c.App.Accounts.Reconcile = z.Ptr(time.Duration(0)) })
+	x.Len(off.s.Spin, len(w.s.Spin)-1)
+	for _, v := range []*time.Duration{nil, z.Ptr(time.Duration(0)), z.Ptr(-time.Hour), z.Ptr(6 * time.Hour)} {
+		c := cmd.AccountsConfig{Reconcile: v}
+		switch {
+		case v == nil:
+			x.Equal(24*time.Hour, c.ReconcileEvery())
+		case *v <= 0:
+			x.Zero(c.ReconcileEvery())
+		default:
+			x.Equal(*v, c.ReconcileEvery())
+		}
+	}
 }

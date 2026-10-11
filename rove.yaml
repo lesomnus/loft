@@ -101,7 +101,8 @@ watch:
 # waits and how many a workspace may have out. `accounts` is how long the
 # memberships of an account roster erased wait before it leaves every
 # workspace it was in: roster's own grace, `holder.forget_after`, and kept
-# equal to it (design 9.10).
+# equal to it (design 9.10); and how often every account is asked about at
+# roster again, for an erasure the stream did not carry.
 #
 # app:
 #   mail:
@@ -123,6 +124,7 @@ watch:
 #   accounts:
 #     forget_after: 720h                 # 30 days, roster's default
 #     every: 1h                          # how often the leaving are looked at
+#     reconcile: 24h                     # every account asked about again; 0 is off
 app:
   # Where a browser reaches the HTTP listener. Its scheme says whether the
   # session cookie needs HTTPS.

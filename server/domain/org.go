@@ -61,12 +61,12 @@ func (s domainParty) Add(ctx context.Context, req *app.PartyAddRequest) (*app.Pa
 				return err
 			}
 		}
-		if err := t.begin(nil, "party.add", pdid.Nil, t.now, "추가: "+row.GetName(), "", nil); err != nil {
+		v, err := t.next.Party().Add(t.ctx, row)
+		if err != nil {
 			return err
 		}
-		v, err := t.next.Party().Add(t.ctx, row)
 		out = v
-		return err
+		return t.begin(nil, "party.add", pdid.Nil, t.now, "추가: {party}", "", map[string]string{"party": idOf(v.GetId()).String()})
 	})
 	return out, err
 }
@@ -165,7 +165,7 @@ func (s domainParty) Update(ctx context.Context, req *app.PartyUpdateRequest) (*
 		if len(req.GetLabels()) > 0 {
 			patch.SetLabels(req.GetLabels())
 		}
-		if err := t.begin(nil, "party.update", pdid.Nil, t.now, "수정: "+p.GetName(), "", nil); err != nil {
+		if err := t.begin(nil, "party.update", pdid.Nil, t.now, "수정: {party}", "", map[string]string{"party": idOf(p.GetId()).String()}); err != nil {
 			return err
 		}
 		out, err = t.next.Party().Patch(t.ctx, patch)
@@ -227,9 +227,6 @@ func (s domainParty) Invite(ctx context.Context, req *app.PartyInviteRequest) (*
 			return err
 		}
 
-		if err := t.begin(nil, "party.invite", pdid.Nil, t.now, fmt.Sprintf("로그인 발급: %s (@%s)", p.GetName(), alias), "", map[string]string{"role": role}); err != nil {
-			return err
-		}
 		h, err := t.next.Holder().Add(t.ctx, app.HolderAddRequest_builder{
 			Tenant:  t.tenantRef(),
 			Alias:   alias,
@@ -238,6 +235,11 @@ func (s domainParty) Invite(ctx context.Context, req *app.PartyInviteRequest) (*
 			Account: person.Id.Bytes(),
 		}.Build())
 		if err != nil {
+			return err
+		}
+		if err := t.begin(nil, "party.invite", pdid.Nil, t.now, "로그인 발급: {party} ({alias})", "", map[string]string{
+			"role": role, "party": idOf(p.GetId()).String(), "holder": idOf(h.GetId()).String(),
+		}); err != nil {
 			return err
 		}
 		v, err := t.next.Party().Patch(t.ctx, app.PartyPatchRequest_builder{
@@ -299,7 +301,9 @@ func (s domainParty) SetRole(ctx context.Context, req *app.PartySetRoleRequest) 
 				return failed("마지막 소유자입니다. 먼저 다른 사람을 소유자로 정하세요")
 			}
 		}
-		if err := t.begin(nil, "party.role", pdid.Nil, t.now, fmt.Sprintf("역할 변경: %s → %s", p.GetName(), req.GetRole()), "", nil); err != nil {
+		if err := t.begin(nil, "party.role", pdid.Nil, t.now, "역할 변경: {party} → "+req.GetRole(), "", map[string]string{
+			"role": req.GetRole(), "party": idOf(p.GetId()).String(), "holder": h.String(),
+		}); err != nil {
 			return err
 		}
 		if _, err := t.next.Holder().Patch(t.ctx, app.HolderPatchRequest_builder{
@@ -422,7 +426,9 @@ func (s domainParty) Deactivate(ctx context.Context, req *app.PartyDeactivateReq
 		if h == t.actor {
 			return failed("자기 로그인은 중지할 수 없습니다")
 		}
-		if err := t.begin(nil, "party.deactivate", pdid.Nil, t.now, "로그인 비활성화: "+p.GetName(), "", nil); err != nil {
+		if err := t.begin(nil, "party.deactivate", pdid.Nil, t.now, "로그인 비활성화: {party}", "", map[string]string{
+			"party": idOf(p.GetId()).String(), "holder": h.String(),
+		}); err != nil {
 			return err
 		}
 		if _, err := t.next.Holder().Erase(t.ctx, app.HolderRef_builder{Id: h.Bytes()}.Build()); err != nil {

@@ -531,7 +531,7 @@ func (s domainReservation) Add(ctx context.Context, req *app.ReservationAddReque
 
 		if err := t.begin(req.GetOp(), "reservation.add", pdid.Id(wants[0].r.asset.Id), t.now,
 			fmt.Sprintf("예약: %s %s", wants[0].r.asset.Name, begins.Format("01-02 15:04")), req.GetReason(),
-			map[string]string{"state": state, "for": who.Name, "occurrences": strconv.Itoa(len(occs))}); err != nil {
+			map[string]string{"state": state, "for": pdid.Id(who.Id).String(), "occurrences": strconv.Itoa(len(occs))}); err != nil {
 			return err
 		}
 

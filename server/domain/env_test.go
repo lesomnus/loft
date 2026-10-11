@@ -78,7 +78,7 @@ func (e *env) newTenant(alias string) (pdid.Id, context.Context) {
 	_, err := e.s.Identity.Directory(ctx)
 	var p identity.Person
 	if errors.Is(err, identity.ErrNoDirectory) {
-		p, _, err = e.s.Identity.MakeDirectory(ctx, login)
+		p, _, err = e.s.Identity.MakeDirectory(ctx, login, "Owner of "+alias)
 	} else {
 		e.x.NoError(err)
 		p, err = e.s.Identity.AddPerson(ctx, login, "Owner of "+alias, pdid.Nil)

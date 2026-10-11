@@ -278,7 +278,9 @@ func (t *Tx) succeed(h *ent.Holder) (pdid.Id, bool, error) {
 		}
 
 		id := pdid.Id(next.Id)
-		if err := t.begin(nil, "party.role", pdid.Nil, t.now, fmt.Sprintf("소유자 승계: %s → owner (마지막 소유자의 계정 탈퇴)", nameOf(t.ctx, t.db, next)), "", nil); err != nil {
+		if err := t.begin(nil, "party.role", pdid.Nil, t.now, "소유자 승계: {holder} → owner (마지막 소유자의 계정 탈퇴)", "", map[string]string{
+			"role": "owner", "holder": id.String(),
+		}); err != nil {
 			return pdid.Nil, false, err
 		}
 		if _, err := t.next.Holder().Patch(t.ctx, app.HolderPatchRequest_builder{

@@ -1006,18 +1006,18 @@ func (s domainAsset) Assign(ctx context.Context, req *app.AssetAssignRequest) (*
 		}
 
 		var v *steward
-		name := "-"
+		who, whom := "-", "-"
 		if req.HasParty() {
 			p, err := t.next.Party().Get(t.ctx, app.PartyGetRequest_builder{Ref: req.GetParty()}.Build())
 			if err != nil {
 				return err
 			}
 			v = &steward{party: uuidOf(p.GetId())}
-			name = p.GetName()
+			who, whom = "{party}", idOf(p.GetId()).String()
 		}
 
 		changed, err := t.steward(id.Uuid(), role, at, v, func() error {
-			return t.begin(req.GetOp(), "asset.assign", id, at, fmt.Sprintf("%s %s: %s", a.GetTag(), role, name), req.GetReason(), map[string]string{"role": role, "party": name})
+			return t.begin(req.GetOp(), "asset.assign", id, at, fmt.Sprintf("%s %s: %s", a.GetTag(), role, who), req.GetReason(), map[string]string{"role": role, "party": whom})
 		})
 		if err != nil {
 			return err

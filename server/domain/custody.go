@@ -59,7 +59,7 @@ func (s domainCustody) Add(ctx context.Context, req *app.CustodyAddRequest) (*ap
 		if err := t.lockTree(); err != nil {
 			return err
 		}
-		if err := t.begin(req.GetOp(), "custody.issue", id, t.now, fmt.Sprintf("%s: %s", map[string]string{"issue": "지급", "loan": "대여"}[kind], p.GetName()), req.GetDesc(), map[string]string{"lines": fmt.Sprint(len(req.GetLines()))}); err != nil {
+		if err := t.begin(req.GetOp(), "custody.issue", id, t.now, map[string]string{"issue": "지급", "loan": "대여"}[kind]+": {party}", req.GetDesc(), map[string]string{"lines": fmt.Sprint(len(req.GetLines())), "party": idOf(p.GetId()).String()}); err != nil {
 			return err
 		}
 
