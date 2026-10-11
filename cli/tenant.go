@@ -8,14 +8,13 @@ import (
 	"slices"
 	"strings"
 	"time"
-	"uuid"
 
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/xli"
 	"github.com/lesomnus/xli/flg"
 
 	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent/holder"
+	"github.com/lesomnus/rove/server/closing"
 )
 
 // NewCmdTenant is `rove tenant`: what leaves with a tenant (design 8.2).
@@ -26,9 +25,12 @@ import (
 func NewCmdTenant(c *cmd.Config) *xli.Command {
 	return &xli.Command{
 		Name:  "tenant",
-		Brief: "what leaves with a tenant: its export, and its purge",
+		Brief: "a tenant's end: closing, restoring, its address, its export, and its purge",
 
 		Commands: xli.Commands{
+			newCmdTenantClose(c),
+			newCmdTenantRestore(c),
+			newCmdTenantAlias(c),
 			{
 				Name:  "export",
 				Brief: "everything a tenant has, as one zip archive",
@@ -107,7 +109,7 @@ func NewCmdTenant(c *cmd.Config) *xli.Command {
 					// never Rove's to take.
 					forgotten := 0
 					if s.Identity.Embedded() {
-						accounts, err := onlyHere(ctx, s, t.Id)
+						accounts, err := closing.OnlyHere(ctx, s.Ent, t.Id)
 						if err != nil {
 							return fmt.Errorf("%s: %w", t.Alias, err)
 						}
@@ -158,35 +160,4 @@ func NewCmdTenant(c *cmd.Config) *xli.Command {
 			},
 		},
 	}
-}
-
-// onlyHere is the accounts of a workspace's holders that are members of no
-// other workspace.
-func onlyHere(ctx context.Context, s *cmd.Server, workspace uuid.UUID) ([]pdid.Id, error) {
-	hs, err := s.Ent.Holder.Query().Where(holder.TenantId(workspace), holder.AccountNotNil()).All(ctx)
-	if err != nil {
-		return nil, err
-	}
-	seen := map[uuid.UUID]bool{}
-	out := []pdid.Id{}
-	for _, h := range hs {
-		a := *h.Account
-		if seen[a] {
-			continue
-		}
-		seen[a] = true
-		elsewhere, err := s.Ent.Holder.Query().Where(
-			holder.Account(a),
-			holder.TenantIdNEQ(workspace),
-			holder.DateErasedIsNil(),
-		).Exist(ctx)
-		if err != nil {
-			return nil, err
-		}
-		if !elsewhere {
-			out = append(out, pdid.Id(a))
-		}
-	}
-
-	return out, nil
 }

@@ -16,7 +16,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file rove/payday/tenant_svc.g.proto.
  */
 export const file_rove_payday_tenant_svc_g: GenFile = /*@__PURE__*/
-  fileDesc("Ch5yb3ZlL3BheWRheS90ZW5hbnRfc3ZjLmcucHJvdG8SBHJvdmUi8wEKEFRlbmFudEFkZFJlcXVlc3QSCgoCaWQYASABKAwSFAoFYWxpYXMYBCABKAlCBaoBAggCEhMKBG5hbWUYBSABKAlCBaoBAggCEhMKBGRlc2MYBiABKAlCBaoBAggCEjIKBmxhYmVscxgHIAMoCzIiLnJvdmUuVGVuYW50QWRkUmVxdWVzdC5MYWJlbHNFbnRyeRIwCgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wGi0KC0xhYmVsc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiVAoQVGVuYW50R2V0UmVxdWVzdBIcCgNyZWYYASABKAsyDy5yb3ZlLlRlbmFudFJlZhIiCgZzZWxlY3QYAiABKAsyEi5yb3ZlLlRlbmFudFNlbGVjdCIxCglUZW5hbnRSZWYSDAoCaWQYASABKAxIABIPCgVhbGlhcxgEIAEoCUgAQgUKA2tleSKCAQoMVGVuYW50U2VsZWN0EgsKA2FsbBgBIAEoCBINCgVhbGlhcxgEIAEoCBIMCgRuYW1lGAUgASgIEgwKBGRlc2MYBiABKAgSDgoGbGFiZWxzGAcgASgIEhQKDGRhdGVfdXBkYXRlZBgNIAEoCBIUCgxkYXRlX2NyZWF0ZWQYDyABKAgikAIKElRlbmFudFBhdGNoUmVxdWVzdBIcCgNyZWYYASABKAsyDy5yb3ZlLlRlbmFudFJlZhINCgVhbGlhcxgIIAEoCRIMCgRuYW1lGAogASgJEgwKBGRlc2MYDCABKAkSNAoGbGFiZWxzGA4gAygLMiQucm92ZS5UZW5hbnRQYXRjaFJlcXVlc3QuTGFiZWxzRW50cnkSMAoMZGF0ZV91cGRhdGVkGBogASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIaChJkYXRlX3VwZGF0ZWRfZm9yY2UYGyABKAgaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASJPChJUZW5hbnRBcHBseVJlcXVlc3QSHAoDcmVmGAEgASgLMg8ucm92ZS5UZW5hbnRSZWYSGwoFcGF0Y2gYAiABKAsyDC5wYXRjaC5QYXRjaCIlChNUZW5hbnRFcmFzZVJlc3BvbnNlEg4KBmVyYXNlZBgBIAEoCCJjChFUZW5hbnRMaXN0UmVxdWVzdBIjCgdmaWx0ZXJzGAEgAygLMhIucm92ZS5UZW5hbnRGaWx0ZXISEwoEc2l6ZRgCIAEoBUIFqgECCAISFAoFYWZ0ZXIYAyABKAlCBaoBAggCIkYKElRlbmFudExpc3RSZXNwb25zZRIbCgVpdGVtcxgBIAMoCzIMLnJvdmUuVGVuYW50EhMKBG5leHQYAiABKAlCBaoBAggCIiwKDFRlbmFudEZpbHRlchIcCgNyZWYYASABKAsyDy5yb3ZlLlRlbmFudFJlZjK7AgoNVGVuYW50U2VydmljZRIrCgNBZGQSFi5yb3ZlLlRlbmFudEFkZFJlcXVlc3QaDC5yb3ZlLlRlbmFudBIrCgNHZXQSFi5yb3ZlLlRlbmFudEdldFJlcXVlc3QaDC5yb3ZlLlRlbmFudBIvCgVQYXRjaBIYLnJvdmUuVGVuYW50UGF0Y2hSZXF1ZXN0Ggwucm92ZS5UZW5hbnQSLwoFQXBwbHkSGC5yb3ZlLlRlbmFudEFwcGx5UmVxdWVzdBoMLnJvdmUuVGVuYW50EjMKBUVyYXNlEg8ucm92ZS5UZW5hbnRSZWYaGS5yb3ZlLlRlbmFudEVyYXNlUmVzcG9uc2USOQoETGlzdBIXLnJvdmUuVGVuYW50TGlzdFJlcXVlc3QaGC5yb3ZlLlRlbmFudExpc3RSZXNwb25zZUIaWhhnaXRodWIuY29tL2xlc29tbnVzL3JvdmViCGVkaXRpb25zcOgH", [file_google_protobuf_timestamp, file_patch_patch, file_rove_payday_tenant]);
+  fileDesc("Ch5yb3ZlL3BheWRheS90ZW5hbnRfc3ZjLmcucHJvdG8SBHJvdmUijQMKEFRlbmFudEFkZFJlcXVlc3QSCgoCaWQYASABKAwSFAoFYWxpYXMYBCABKAlCBaoBAggCEhMKBG5hbWUYBSABKAlCBaoBAggCEhMKBGRlc2MYBiABKAlCBaoBAggCEjIKBmxhYmVscxgHIAMoCzIiLnJvdmUuVGVuYW50QWRkUmVxdWVzdC5MYWJlbHNFbnRyeRIwCgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi8KC2RhdGVfY2xvc2VkGAggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIYCgljbG9zZWRfYnkYCSABKAlCBaoBAggCEhsKDGNsb3NlX3JlYXNvbhgKIAEoCUIFqgECCAISMAoMZGF0ZV9kZXN0cm95GAsgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBotCgtMYWJlbHNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIlQKEFRlbmFudEdldFJlcXVlc3QSHAoDcmVmGAEgASgLMg8ucm92ZS5UZW5hbnRSZWYSIgoGc2VsZWN0GAIgASgLMhIucm92ZS5UZW5hbnRTZWxlY3QiMQoJVGVuYW50UmVmEgwKAmlkGAEgASgMSAASDwoFYWxpYXMYBCABKAlIAEIFCgNrZXki1gEKDFRlbmFudFNlbGVjdBILCgNhbGwYASABKAgSDQoFYWxpYXMYBCABKAgSDAoEbmFtZRgFIAEoCBIMCgRkZXNjGAYgASgIEg4KBmxhYmVscxgHIAEoCBIUCgxkYXRlX3VwZGF0ZWQYDSABKAgSFAoMZGF0ZV9jcmVhdGVkGA8gASgIEhMKC2RhdGVfY2xvc2VkGAggASgIEhEKCWNsb3NlZF9ieRgJIAEoCBIUCgxjbG9zZV9yZWFzb24YCiABKAgSFAoMZGF0ZV9kZXN0cm95GAsgASgIItEDChJUZW5hbnRQYXRjaFJlcXVlc3QSHAoDcmVmGAEgASgLMg8ucm92ZS5UZW5hbnRSZWYSDQoFYWxpYXMYCCABKAkSDAoEbmFtZRgKIAEoCRIMCgRkZXNjGAwgASgJEjQKBmxhYmVscxgOIAMoCzIkLnJvdmUuVGVuYW50UGF0Y2hSZXF1ZXN0LkxhYmVsc0VudHJ5EjAKDGRhdGVfdXBkYXRlZBgaIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGgoSZGF0ZV91cGRhdGVkX2ZvcmNlGBsgASgIEi8KC2RhdGVfY2xvc2VkGBAgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIYChBkYXRlX2Nsb3NlZF9udWxsGBEgASgIEhEKCWNsb3NlZF9ieRgSIAEoCRIUCgxjbG9zZV9yZWFzb24YFCABKAkSMAoMZGF0ZV9kZXN0cm95GBYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIZChFkYXRlX2Rlc3Ryb3lfbnVsbBgXIAEoCBotCgtMYWJlbHNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIk8KElRlbmFudEFwcGx5UmVxdWVzdBIcCgNyZWYYASABKAsyDy5yb3ZlLlRlbmFudFJlZhIbCgVwYXRjaBgCIAEoCzIMLnBhdGNoLlBhdGNoIiUKE1RlbmFudEVyYXNlUmVzcG9uc2USDgoGZXJhc2VkGAEgASgIImMKEVRlbmFudExpc3RSZXF1ZXN0EiMKB2ZpbHRlcnMYASADKAsyEi5yb3ZlLlRlbmFudEZpbHRlchITCgRzaXplGAIgASgFQgWqAQIIAhIUCgVhZnRlchgDIAEoCUIFqgECCAIiRgoSVGVuYW50TGlzdFJlc3BvbnNlEhsKBWl0ZW1zGAEgAygLMgwucm92ZS5UZW5hbnQSEwoEbmV4dBgCIAEoCUIFqgECCAIiLAoMVGVuYW50RmlsdGVyEhwKA3JlZhgBIAEoCzIPLnJvdmUuVGVuYW50UmVmImEKElRlbmFudENsb3NlUmVxdWVzdBIcCgNyZWYYASABKAsyDy5yb3ZlLlRlbmFudFJlZhIWCgdjb25maXJtGAIgASgJQgWqAQIIAhIVCgZyZWFzb24YAyABKAlCBaoBAggCIjQKFFRlbmFudFJlc3RvcmVSZXF1ZXN0EhwKA3JlZhgBIAEoCzIPLnJvdmUuVGVuYW50UmVmMqEDCg1UZW5hbnRTZXJ2aWNlEisKA0FkZBIWLnJvdmUuVGVuYW50QWRkUmVxdWVzdBoMLnJvdmUuVGVuYW50EisKA0dldBIWLnJvdmUuVGVuYW50R2V0UmVxdWVzdBoMLnJvdmUuVGVuYW50Ei8KBVBhdGNoEhgucm92ZS5UZW5hbnRQYXRjaFJlcXVlc3QaDC5yb3ZlLlRlbmFudBIvCgVBcHBseRIYLnJvdmUuVGVuYW50QXBwbHlSZXF1ZXN0Ggwucm92ZS5UZW5hbnQSMwoFRXJhc2USDy5yb3ZlLlRlbmFudFJlZhoZLnJvdmUuVGVuYW50RXJhc2VSZXNwb25zZRI5CgRMaXN0Ehcucm92ZS5UZW5hbnRMaXN0UmVxdWVzdBoYLnJvdmUuVGVuYW50TGlzdFJlc3BvbnNlEi8KBUNsb3NlEhgucm92ZS5UZW5hbnRDbG9zZVJlcXVlc3QaDC5yb3ZlLlRlbmFudBIzCgdSZXN0b3JlEhoucm92ZS5UZW5hbnRSZXN0b3JlUmVxdWVzdBoMLnJvdmUuVGVuYW50QhpaGGdpdGh1Yi5jb20vbGVzb21udXMvcm92ZWIIZWRpdGlvbnNw6Ac", [file_google_protobuf_timestamp, file_patch_patch, file_rove_payday_tenant]);
 
 /**
  * @generated from message rove.TenantAddRequest
@@ -51,6 +51,26 @@ export type TenantAddRequest = Message<"rove.TenantAddRequest"> & {
    * @generated from field: google.protobuf.Timestamp date_created = 15;
    */
   dateCreated?: Timestamp | undefined;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp date_closed = 8;
+   */
+  dateClosed?: Timestamp | undefined;
+
+  /**
+   * @generated from field: string closed_by = 9 [features.field_presence = IMPLICIT];
+   */
+  closedBy: string;
+
+  /**
+   * @generated from field: string close_reason = 10 [features.field_presence = IMPLICIT];
+   */
+  closeReason: string;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp date_destroy = 11;
+   */
+  dateDestroy?: Timestamp | undefined;
 };
 
 /**
@@ -149,6 +169,26 @@ export type TenantSelect = Message<"rove.TenantSelect"> & {
    * @generated from field: bool date_created = 15;
    */
   dateCreated: boolean;
+
+  /**
+   * @generated from field: bool date_closed = 8;
+   */
+  dateClosed: boolean;
+
+  /**
+   * @generated from field: bool closed_by = 9;
+   */
+  closedBy: boolean;
+
+  /**
+   * @generated from field: bool close_reason = 10;
+   */
+  closeReason: boolean;
+
+  /**
+   * @generated from field: bool date_destroy = 11;
+   */
+  dateDestroy: boolean;
 };
 
 /**
@@ -210,6 +250,46 @@ export type TenantPatchRequest = Message<"rove.TenantPatchRequest"> & {
    * @generated from field: bool date_updated_force = 27;
    */
   dateUpdatedForce: boolean;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp date_closed = 16;
+   */
+  dateClosed?: Timestamp | undefined;
+
+  /**
+   * Clear date_closed instead of writing it.
+   * It takes a field of its own because an unset value already means
+   * "leave it alone", so no value could have meant NULL. It wins
+   * outright: setting both this and date_closed clears.
+   *
+   * @generated from field: bool date_closed_null = 17;
+   */
+  dateClosedNull: boolean;
+
+  /**
+   * @generated from field: string closed_by = 18;
+   */
+  closedBy: string;
+
+  /**
+   * @generated from field: string close_reason = 20;
+   */
+  closeReason: string;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp date_destroy = 22;
+   */
+  dateDestroy?: Timestamp | undefined;
+
+  /**
+   * Clear date_destroy instead of writing it.
+   * It takes a field of its own because an unset value already means
+   * "leave it alone", so no value could have meant NULL. It wins
+   * outright: setting both this and date_destroy clears.
+   *
+   * @generated from field: bool date_destroy_null = 23;
+   */
+  dateDestroyNull: boolean;
 };
 
 /**
@@ -351,6 +431,50 @@ export const TenantFilterSchema: GenMessage<TenantFilter> = /*@__PURE__*/
   messageDesc(file_rove_payday_tenant_svc_g, 9);
 
 /**
+ * @generated from message rove.TenantCloseRequest
+ */
+export type TenantCloseRequest = Message<"rove.TenantCloseRequest"> & {
+  /**
+   * @generated from field: rove.TenantRef ref = 1;
+   */
+  ref?: TenantRef | undefined;
+
+  /**
+   * @generated from field: string confirm = 2 [features.field_presence = IMPLICIT];
+   */
+  confirm: string;
+
+  /**
+   * @generated from field: string reason = 3 [features.field_presence = IMPLICIT];
+   */
+  reason: string;
+};
+
+/**
+ * Describes the message rove.TenantCloseRequest.
+ * Use `create(TenantCloseRequestSchema)` to create a new message.
+ */
+export const TenantCloseRequestSchema: GenMessage<TenantCloseRequest> = /*@__PURE__*/
+  messageDesc(file_rove_payday_tenant_svc_g, 10);
+
+/**
+ * @generated from message rove.TenantRestoreRequest
+ */
+export type TenantRestoreRequest = Message<"rove.TenantRestoreRequest"> & {
+  /**
+   * @generated from field: rove.TenantRef ref = 1;
+   */
+  ref?: TenantRef | undefined;
+};
+
+/**
+ * Describes the message rove.TenantRestoreRequest.
+ * Use `create(TenantRestoreRequestSchema)` to create a new message.
+ */
+export const TenantRestoreRequestSchema: GenMessage<TenantRestoreRequest> = /*@__PURE__*/
+  messageDesc(file_rove_payday_tenant_svc_g, 11);
+
+/**
  * @generated from service rove.TenantService
  */
 export const TenantService: GenService<{
@@ -413,6 +537,28 @@ export const TenantService: GenService<{
     methodKind: "unary";
     input: typeof TenantListRequestSchema;
     output: typeof TenantListResponseSchema;
+  },
+  /**
+   * Close shuts a workspace (D29): nobody gets in but its owner, who may
+   * restore it or take its data out, until it is destroyed. `confirm` is its
+   * name, typed by whoever closes it.
+   *
+   * @generated from rpc rove.TenantService.Close
+   */
+  close: {
+    methodKind: "unary";
+    input: typeof TenantCloseRequestSchema;
+    output: typeof TenantSchema;
+  },
+  /**
+   * Restore opens a closed workspace again, while its restore window lasts.
+   *
+   * @generated from rpc rove.TenantService.Restore
+   */
+  restore: {
+    methodKind: "unary";
+    input: typeof TenantRestoreRequestSchema;
+    output: typeof TenantSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_rove_payday_tenant_svc_g, 0);

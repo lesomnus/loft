@@ -6,6 +6,9 @@ import (
 	"github.com/protobuf-orm/ent/dialect/sql"
 )
 
+// AliasHold is the predicate function for aliashold builders.
+type AliasHold func(*sql.Selector)
+
 // Allocation is the predicate function for allocation builders.
 type Allocation func(*sql.Selector)
 

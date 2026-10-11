@@ -317,3 +317,54 @@ message CliLogin {
     global: {}
   };
 }
+
+
+// AliasHold is a workspace address nobody may take for a while: one a
+// destroyed workspace went by, or one a workspace was moved off (D29, design
+// 8.4). A name that found somebody is still how people find them -- bookmarks,
+// links in old mail -- and a workspace that took it the next day would be that
+// name to all of them. A renamed one is also sent on to where it moved.
+//
+// The deployment's (`global`), written only by `server/tenancy`, and the
+// policy opens no RPC of it.
+message AliasHold {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+
+  // The address held.
+  string held = 8;
+
+  // `destroyed` or `renamed`, and for a rename the address it moved to.
+  string reason = 9;
+  string moved_to = 10;
+
+  // Whose it was.
+  bytes tenant = 11 [(orm.field) = {type: TYPE_UUID}];
+
+  // Until when nobody may take it.
+  google.protobuf.Timestamp date_until = 16 [(orm.field) = {default: ""}];
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+  google.protobuf.Timestamp date_erased = 14 [(orm.field) = {erased: {}}];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "held"
+        refs: [{name: "held", number: 8}]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 43
+    global: {}
+  };
+}

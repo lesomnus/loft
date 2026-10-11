@@ -11,9 +11,12 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"io"
 	"mime"
 	"net/http"
 	"strings"
+	"time"
 	"unicode/utf8"
 
 	"github.com/lesomnus/otx/log"
@@ -48,11 +51,49 @@ type Workspace struct {
 	Alias string `json:"alias"`
 	Name  string `json:"name"`
 	Role  string `json:"role"`
+	// Closed is when it was closed and Destroy when it goes, for one that is
+	// closed (D29).
+	Closed  *time.Time `json:"closed,omitempty"`
+	Destroy *time.Time `json:"destroy,omitempty"`
 }
 
-// Handler serves `GET /account` and `POST /account/workspaces`.
-func Handler(sessions *authsession.Sessions, people People, ws tenancy.Workspaces) http.Handler {
+// Exporter writes everything a workspace has, as `rove tenant export` does.
+type Exporter func(ctx context.Context, workspace pdid.Id, w io.Writer) error
+
+// Handler serves `GET /account`, `POST /account/workspaces`, and a
+// workspace's data for its owner at `GET /account/workspaces/{alias}/export`.
+func Handler(sessions *authsession.Sessions, people People, ws tenancy.Workspaces, export Exporter) http.Handler {
 	mux := http.NewServeMux()
+	mux.HandleFunc("GET /account/workspaces/{alias}/export", func(w http.ResponseWriter, r *http.Request) {
+		p, ok := SignedIn(w, r, sessions, people)
+		if !ok {
+			return
+		}
+		ms, err := ws.Of(r.Context(), p.Id)
+		if err != nil {
+			fail(w, r, err)
+			return
+		}
+		alias := r.PathValue("alias")
+		for _, m := range ms {
+			if m.Alias != alias {
+				continue
+			}
+			if m.Role != "owner" {
+				break
+			}
+			// Everything it has, open or closed: what an owner takes out
+			// before a workspace goes (D29).
+			w.Header().Set("Content-Type", "application/zip")
+			w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s-%s.zip"`, alias, time.Now().Format("20060102")))
+			w.Header().Set("Cache-Control", "no-store")
+			if err := export(r.Context(), m.Workspace, w); err != nil {
+				log.From(r.Context()).ErrorContext(r.Context(), "account: an export failed part way", "workspace", alias, "err", err.Error())
+			}
+			return
+		}
+		http.Error(w, "only the workspace's owner takes its data out", http.StatusForbidden)
+	})
 	mux.HandleFunc("GET /account", func(w http.ResponseWriter, r *http.Request) {
 		p, ok := SignedIn(w, r, sessions, people)
 		if !ok {
@@ -153,7 +194,7 @@ func accountOf(ctx context.Context, ws tenancy.Workspaces, p identity.Person) (A
 }
 
 func workspaceOf(m tenancy.Membership) Workspace {
-	return Workspace{Id: pdid.Id(m.Workspace).String(), Alias: m.Alias, Name: m.Name, Role: m.Role}
+	return Workspace{Id: pdid.Id(m.Workspace).String(), Alias: m.Alias, Name: m.Name, Role: m.Role, Closed: m.Closed, Destroy: m.Destroy}
 }
 
 func answer(w http.ResponseWriter, code int, v any) {

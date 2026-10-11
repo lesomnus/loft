@@ -23,6 +23,14 @@ const (
 	FieldDateUpdated = "date_updated"
 	// FieldDateCreated holds the string denoting the date_created field in the database.
 	FieldDateCreated = "date_created"
+	// FieldDateClosed holds the string denoting the date_closed field in the database.
+	FieldDateClosed = "date_closed"
+	// FieldClosedBy holds the string denoting the closed_by field in the database.
+	FieldClosedBy = "closed_by"
+	// FieldCloseReason holds the string denoting the close_reason field in the database.
+	FieldCloseReason = "close_reason"
+	// FieldDateDestroy holds the string denoting the date_destroy field in the database.
+	FieldDateDestroy = "date_destroy"
 	// Table holds the table name of the tenant in the database.
 	Table = "tenant"
 )
@@ -36,6 +44,10 @@ var Columns = []string{
 	FieldLabels,
 	FieldDateUpdated,
 	FieldDateCreated,
+	FieldDateClosed,
+	FieldClosedBy,
+	FieldCloseReason,
+	FieldDateDestroy,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -79,4 +91,24 @@ func ByDateUpdated(opts ...sql.OrderTermOption) OrderOption {
 // ByDateCreated orders the results by the date_created field.
 func ByDateCreated(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDateCreated, opts...).ToFunc()
+}
+
+// ByDateClosed orders the results by the date_closed field.
+func ByDateClosed(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateClosed, opts...).ToFunc()
+}
+
+// ByClosedBy orders the results by the closed_by field.
+func ByClosedBy(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldClosedBy, opts...).ToFunc()
+}
+
+// ByCloseReason orders the results by the close_reason field.
+func ByCloseReason(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCloseReason, opts...).ToFunc()
+}
+
+// ByDateDestroy orders the results by the date_destroy field.
+func ByDateDestroy(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateDestroy, opts...).ToFunc()
 }

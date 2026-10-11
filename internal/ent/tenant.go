@@ -30,7 +30,15 @@ type Tenant struct {
 	// DateUpdated holds the value of the "date_updated" field.
 	DateUpdated time.Time `json:"date_updated,omitempty"`
 	// DateCreated holds the value of the "date_created" field.
-	DateCreated  time.Time `json:"date_created,omitempty"`
+	DateCreated time.Time `json:"date_created,omitempty"`
+	// DateClosed holds the value of the "date_closed" field.
+	DateClosed *time.Time `json:"date_closed,omitempty"`
+	// ClosedBy holds the value of the "closed_by" field.
+	ClosedBy string `json:"closed_by,omitempty"`
+	// CloseReason holds the value of the "close_reason" field.
+	CloseReason string `json:"close_reason,omitempty"`
+	// DateDestroy holds the value of the "date_destroy" field.
+	DateDestroy  *time.Time `json:"date_destroy,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -41,9 +49,9 @@ func (*Tenant) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case tenant.FieldLabels:
 			values[i] = new([]byte)
-		case tenant.FieldAlias, tenant.FieldName, tenant.FieldDesc:
+		case tenant.FieldAlias, tenant.FieldName, tenant.FieldDesc, tenant.FieldClosedBy, tenant.FieldCloseReason:
 			values[i] = new(sql.NullString)
-		case tenant.FieldDateUpdated, tenant.FieldDateCreated:
+		case tenant.FieldDateUpdated, tenant.FieldDateCreated, tenant.FieldDateClosed, tenant.FieldDateDestroy:
 			values[i] = new(sql.NullTime)
 		case tenant.FieldId:
 			values[i] = new(uuid.UUID)
@@ -106,6 +114,32 @@ func (_m *Tenant) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.DateCreated = value.Time
 			}
+		case tenant.FieldDateClosed:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field date_closed", values[i])
+			} else if value.Valid {
+				_m.DateClosed = new(time.Time)
+				*_m.DateClosed = value.Time
+			}
+		case tenant.FieldClosedBy:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field closed_by", values[i])
+			} else if value.Valid {
+				_m.ClosedBy = value.String
+			}
+		case tenant.FieldCloseReason:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field close_reason", values[i])
+			} else if value.Valid {
+				_m.CloseReason = value.String
+			}
+		case tenant.FieldDateDestroy:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field date_destroy", values[i])
+			} else if value.Valid {
+				_m.DateDestroy = new(time.Time)
+				*_m.DateDestroy = value.Time
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -159,6 +193,22 @@ func (_m *Tenant) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("date_created=")
 	builder.WriteString(_m.DateCreated.Format(time.ANSIC))
+	builder.WriteString(", ")
+	if v := _m.DateClosed; v != nil {
+		builder.WriteString("date_closed=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("closed_by=")
+	builder.WriteString(_m.ClosedBy)
+	builder.WriteString(", ")
+	builder.WriteString("close_reason=")
+	builder.WriteString(_m.CloseReason)
+	builder.WriteString(", ")
+	if v := _m.DateDestroy; v != nil {
+		builder.WriteString("date_destroy=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }

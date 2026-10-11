@@ -66,6 +66,46 @@ func (_c *TenantCreate) SetNillableDateCreated(v *time.Time) *TenantCreate {
 	return _c
 }
 
+// SetDateClosed sets the "date_closed" field.
+func (_c *TenantCreate) SetDateClosed(v time.Time) *TenantCreate {
+	_c.mutation.SetDateClosed(v)
+	return _c
+}
+
+// SetNillableDateClosed sets the "date_closed" field if the given value is not nil.
+func (_c *TenantCreate) SetNillableDateClosed(v *time.Time) *TenantCreate {
+	if v != nil {
+		_c.SetDateClosed(*v)
+	}
+	return _c
+}
+
+// SetClosedBy sets the "closed_by" field.
+func (_c *TenantCreate) SetClosedBy(v string) *TenantCreate {
+	_c.mutation.SetClosedBy(v)
+	return _c
+}
+
+// SetCloseReason sets the "close_reason" field.
+func (_c *TenantCreate) SetCloseReason(v string) *TenantCreate {
+	_c.mutation.SetCloseReason(v)
+	return _c
+}
+
+// SetDateDestroy sets the "date_destroy" field.
+func (_c *TenantCreate) SetDateDestroy(v time.Time) *TenantCreate {
+	_c.mutation.SetDateDestroy(v)
+	return _c
+}
+
+// SetNillableDateDestroy sets the "date_destroy" field if the given value is not nil.
+func (_c *TenantCreate) SetNillableDateDestroy(v *time.Time) *TenantCreate {
+	if v != nil {
+		_c.SetDateDestroy(*v)
+	}
+	return _c
+}
+
 // SetId sets the "id" field.
 func (_c *TenantCreate) SetId(v uuid.UUID) *TenantCreate {
 	_c.mutation.SetId(v)
@@ -117,6 +157,12 @@ func (_c *TenantCreate) check() error {
 	}
 	if _, ok := _c.mutation.DateUpdated(); !ok {
 		return &ValidationError{Name: "date_updated", err: errors.New(`ent: missing required field "Tenant.date_updated"`)}
+	}
+	if _, ok := _c.mutation.ClosedBy(); !ok {
+		return &ValidationError{Name: "closed_by", err: errors.New(`ent: missing required field "Tenant.closed_by"`)}
+	}
+	if _, ok := _c.mutation.CloseReason(); !ok {
+		return &ValidationError{Name: "close_reason", err: errors.New(`ent: missing required field "Tenant.close_reason"`)}
 	}
 	return nil
 }
@@ -180,6 +226,22 @@ func (_c *TenantCreate) createSpec() (*Tenant, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.DateCreated(); ok {
 		_spec.SetField(tenant.FieldDateCreated, field.TypeTime, value)
 		_node.DateCreated = value
+	}
+	if value, ok := _c.mutation.DateClosed(); ok {
+		_spec.SetField(tenant.FieldDateClosed, field.TypeTime, value)
+		_node.DateClosed = &value
+	}
+	if value, ok := _c.mutation.ClosedBy(); ok {
+		_spec.SetField(tenant.FieldClosedBy, field.TypeString, value)
+		_node.ClosedBy = value
+	}
+	if value, ok := _c.mutation.CloseReason(); ok {
+		_spec.SetField(tenant.FieldCloseReason, field.TypeString, value)
+		_node.CloseReason = value
+	}
+	if value, ok := _c.mutation.DateDestroy(); ok {
+		_spec.SetField(tenant.FieldDateDestroy, field.TypeTime, value)
+		_node.DateDestroy = &value
 	}
 	return _node, _spec
 }

@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
 	"net"
 	"net/http"
@@ -38,6 +39,7 @@ import (
 	"github.com/lesomnus/rove/server/account"
 	"github.com/lesomnus/rove/server/bare"
 	"github.com/lesomnus/rove/server/clilogin"
+	"github.com/lesomnus/rove/server/closing"
 	"github.com/lesomnus/rove/server/domain"
 	"github.com/lesomnus/rove/server/lifecycle"
 	"github.com/lesomnus/rove/server/mail"
@@ -110,6 +112,10 @@ type Server struct {
 	// Logins is a terminal signed in by somebody approving it in a browser
 	// (`rove login`, `server/clilogin`).
 	Logins *clilogin.Logins
+
+	// Closing is what becomes of a closed workspace and of a workspace's
+	// address (D29, `server/closing`).
+	Closing closing.Closing
 
 	// Sso is this deployment as a relying party of roster's issuer, and what
 	// the sign-in page is told about the ways in.
@@ -325,6 +331,9 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		domain.Mailer{Drv: drv, Deps: deps},
 		spinEvery(time.Hour, store.Sweep),
 		spinEvery(time.Hour, s.Logins.Sweep),
+		// Closed workspaces whose window is over, destroyed unless held.
+		// Read when it runs: s.Closing is put together after the trail.
+		spinEvery(or(c.App.Workspaces.Every, time.Hour), func(ctx context.Context) error { return s.Closing.Sweep(ctx) }),
 		// The roster in this process's own housekeeping; nothing, for one of
 		// its own.
 		people,
@@ -388,6 +397,12 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	// erasure either way.
 	s.Trail = p
 	s.Trail.Tenants = retention.Trail(client, p, c.App.Retention.Defaults())
+	// After the trail's policy, which a destroy purges by.
+	s.Closing = closing.Closing{
+		Db: client, Offboard: s.Offboard(c), People: people,
+		Base: base, Drv: drv, Deps: deps,
+		Aliases: s.Aliases(c), Hold: c.App.Workspaces.Hold(),
+	}
 	deps.Forget = func(ctx context.Context, db *ent.Client, objects []pdid.Id) (int, error) {
 		v, err := s.Trail.Forget(ctx, pd.TrailStore(db), objects)
 		return v.Held.Rows + v.Held.Chunks, err
@@ -413,7 +428,13 @@ func (s *Server) Workspaces(c Config) tenancy.Workspaces {
 		LabelSuffix: c.App.Labels.Suffix,
 		Personal:    c.App.Workspaces.PersonalOn(),
 		Owned:       c.App.Workspaces.OwnedMax(),
+		Aliases:     s.Aliases(c),
 	}
+}
+
+// Aliases is what decides a workspace's address.
+func (s *Server) Aliases(c Config) tenancy.Aliases {
+	return tenancy.Aliases{Db: s.Ent, Length: c.App.Workspaces.Length(), Reserved: c.App.Workspaces.Reserved, Now: s.Deps.Clock}
 }
 
 // Offboard is what a tenant's export and purge work on.
@@ -574,17 +595,18 @@ func depsOf(c Config) (*domain.Deps, error) {
 	pub := c.App.Public()
 	port := pub.Port()
 	return &domain.Deps{
-		Files:       storage.Dir(files),
-		Sign:        storage.Signer{Key: key, Base: strings.TrimSuffix(pub.String(), "/"), TTL: 10 * time.Minute},
-		LabelSuffix: c.App.Labels.Suffix,
-		LabelTarget: c.App.Labels.Target,
-		LabelScheme: pub.Scheme,
-		LabelPort:   port,
-		LookupTXT:   net.DefaultResolver.LookupTXT,
-		NoShowAfter: c.App.NoShowAfter,
-		Retention:   c.App.Retention.Defaults(),
-		Mail:        sender,
-		AppUrl:      c.App.App(),
+		Files:         storage.Dir(files),
+		Sign:          storage.Signer{Key: key, Base: strings.TrimSuffix(pub.String(), "/"), TTL: 10 * time.Minute},
+		LabelSuffix:   c.App.Labels.Suffix,
+		LabelTarget:   c.App.Labels.Target,
+		LabelScheme:   pub.Scheme,
+		LabelPort:     port,
+		LookupTXT:     net.DefaultResolver.LookupTXT,
+		NoShowAfter:   c.App.NoShowAfter,
+		RestoreWithin: c.App.Workspaces.Restore(),
+		Retention:     c.App.Retention.Defaults(),
+		Mail:          sender,
+		AppUrl:        c.App.App(),
 		Invitations: domain.InvitationRules{
 			Ttl:     c.App.Invitations.Ttl,
 			Pending: c.App.Invitations.Pending,
@@ -646,9 +668,13 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 
 	// What an account has outside any one workspace: which it is in, and a
 	// new one.
-	acc := account.Handler(s.Sessions, s.Identity, ws)
+	acc := account.Handler(s.Sessions, s.Identity, ws, func(ctx context.Context, t pdid.Id, w io.Writer) error {
+		_, err := s.Offboard(c).Export(ctx, t, w)
+		return err
+	})
 	mux.Handle("GET /account", acc)
 	mux.Handle("POST /account/workspaces", acc)
+	mux.Handle("GET /account/workspaces/{alias}/export", acc)
 
 	// Attachments, by the signed links the API answers with.
 	mux.Handle("GET /files/", s.Deps.Sign.Handler(s.Deps.Files, time.Now))
@@ -685,7 +711,24 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 	// which is how a page that routes on the client is served.
 	if dir := c.App.Web; dir != "" {
 		files := http.FileServer(http.Dir(dir))
+		aliases := s.Aliases(c)
 		mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
+			// An address a workspace moved off sends whoever arrives at it on,
+			// for as long as it is held (D29).
+			if rest, ok := strings.CutPrefix(r.URL.Path, "/@"); ok {
+				alias, tail, _ := strings.Cut(rest, "/")
+				if to, err := aliases.Moved(r.Context(), alias); err == nil && to != "" {
+					u := "/@" + to
+					if tail != "" {
+						u += "/" + tail
+					}
+					if r.URL.RawQuery != "" {
+						u += "?" + r.URL.RawQuery
+					}
+					http.Redirect(w, r, u, http.StatusFound)
+					return
+				}
+			}
 			p := filepath.Join(dir, filepath.FromSlash(filepath.Clean("/"+r.URL.Path)))
 			if st, err := os.Stat(p); err != nil || st.IsDir() {
 				if strings.HasPrefix(r.URL.Path, "/static/") {

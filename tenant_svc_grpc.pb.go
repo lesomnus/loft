@@ -19,12 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	TenantService_Add_FullMethodName   = "/rove.TenantService/Add"
-	TenantService_Get_FullMethodName   = "/rove.TenantService/Get"
-	TenantService_Patch_FullMethodName = "/rove.TenantService/Patch"
-	TenantService_Apply_FullMethodName = "/rove.TenantService/Apply"
-	TenantService_Erase_FullMethodName = "/rove.TenantService/Erase"
-	TenantService_List_FullMethodName  = "/rove.TenantService/List"
+	TenantService_Add_FullMethodName     = "/rove.TenantService/Add"
+	TenantService_Get_FullMethodName     = "/rove.TenantService/Get"
+	TenantService_Patch_FullMethodName   = "/rove.TenantService/Patch"
+	TenantService_Apply_FullMethodName   = "/rove.TenantService/Apply"
+	TenantService_Erase_FullMethodName   = "/rove.TenantService/Erase"
+	TenantService_List_FullMethodName    = "/rove.TenantService/List"
+	TenantService_Close_FullMethodName   = "/rove.TenantService/Close"
+	TenantService_Restore_FullMethodName = "/rove.TenantService/Restore"
 )
 
 // TenantServiceClient is the client API for TenantService service.
@@ -43,6 +45,12 @@ type TenantServiceClient interface {
 	Erase(ctx context.Context, in *TenantRef, opts ...grpc.CallOption) (*TenantEraseResponse, error)
 	// List reads Tenants a page at a time.
 	List(ctx context.Context, in *TenantListRequest, opts ...grpc.CallOption) (*TenantListResponse, error)
+	// Close shuts a workspace (D29): nobody gets in but its owner, who may
+	// restore it or take its data out, until it is destroyed. `confirm` is its
+	// name, typed by whoever closes it.
+	Close(ctx context.Context, in *TenantCloseRequest, opts ...grpc.CallOption) (*Tenant, error)
+	// Restore opens a closed workspace again, while its restore window lasts.
+	Restore(ctx context.Context, in *TenantRestoreRequest, opts ...grpc.CallOption) (*Tenant, error)
 }
 
 type tenantServiceClient struct {
@@ -113,6 +121,26 @@ func (c *tenantServiceClient) List(ctx context.Context, in *TenantListRequest, o
 	return out, nil
 }
 
+func (c *tenantServiceClient) Close(ctx context.Context, in *TenantCloseRequest, opts ...grpc.CallOption) (*Tenant, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Tenant)
+	err := c.cc.Invoke(ctx, TenantService_Close_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tenantServiceClient) Restore(ctx context.Context, in *TenantRestoreRequest, opts ...grpc.CallOption) (*Tenant, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Tenant)
+	err := c.cc.Invoke(ctx, TenantService_Restore_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TenantServiceServer is the server API for TenantService service.
 // All implementations must embed UnimplementedTenantServiceServer
 // for forward compatibility.
@@ -129,6 +157,12 @@ type TenantServiceServer interface {
 	Erase(context.Context, *TenantRef) (*TenantEraseResponse, error)
 	// List reads Tenants a page at a time.
 	List(context.Context, *TenantListRequest) (*TenantListResponse, error)
+	// Close shuts a workspace (D29): nobody gets in but its owner, who may
+	// restore it or take its data out, until it is destroyed. `confirm` is its
+	// name, typed by whoever closes it.
+	Close(context.Context, *TenantCloseRequest) (*Tenant, error)
+	// Restore opens a closed workspace again, while its restore window lasts.
+	Restore(context.Context, *TenantRestoreRequest) (*Tenant, error)
 	mustEmbedUnimplementedTenantServiceServer()
 }
 
@@ -156,6 +190,12 @@ func (UnimplementedTenantServiceServer) Erase(context.Context, *TenantRef) (*Ten
 }
 func (UnimplementedTenantServiceServer) List(context.Context, *TenantListRequest) (*TenantListResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method List not implemented")
+}
+func (UnimplementedTenantServiceServer) Close(context.Context, *TenantCloseRequest) (*Tenant, error) {
+	return nil, status.Error(codes.Unimplemented, "method Close not implemented")
+}
+func (UnimplementedTenantServiceServer) Restore(context.Context, *TenantRestoreRequest) (*Tenant, error) {
+	return nil, status.Error(codes.Unimplemented, "method Restore not implemented")
 }
 func (UnimplementedTenantServiceServer) mustEmbedUnimplementedTenantServiceServer() {}
 func (UnimplementedTenantServiceServer) testEmbeddedByValue()                       {}
@@ -286,6 +326,42 @@ func _TenantService_List_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TenantService_Close_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TenantCloseRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TenantServiceServer).Close(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TenantService_Close_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TenantServiceServer).Close(ctx, req.(*TenantCloseRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TenantService_Restore_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TenantRestoreRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TenantServiceServer).Restore(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TenantService_Restore_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TenantServiceServer).Restore(ctx, req.(*TenantRestoreRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TenantService_ServiceDesc is the grpc.ServiceDesc for TenantService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -316,6 +392,14 @@ var TenantService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "List",
 			Handler:    _TenantService_List_Handler,
+		},
+		{
+			MethodName: "Close",
+			Handler:    _TenantService_Close_Handler,
+		},
+		{
+			MethodName: "Restore",
+			Handler:    _TenantService_Restore_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

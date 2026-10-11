@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -456,7 +457,7 @@ func TestAnAccountInNoWorkspaceIsGivenOne(t *testing.T) {
 	x.NoError(err)
 	x.Equal(1, n, "a second sign-in gave it a second workspace")
 
-	acc := account.Handler(w.s.Sessions, w.s.Identity, ws)
+	acc := account.Handler(w.s.Sessions, w.s.Identity, ws, func(context.Context, pdid.Id, io.Writer) error { return nil })
 	ask := func(method, path, body string) *httptest.ResponseRecorder {
 		r := httptest.NewRequest(method, path, bytes.NewBufferString(body))
 		r.Header.Set("Cookie", cookie.Name+"="+cookie.Value)

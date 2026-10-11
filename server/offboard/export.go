@@ -201,6 +201,7 @@ var Withheld = map[string]string{
 	"archived":  "the deployment's account of the trail's archive, every tenant's chunks at once",
 	"session":   "who is signed in",
 	"clilogin":  "a terminal waiting to be signed in, which is nobody's yet",
+	"aliashold": "the deployment's: addresses nobody may take for a while",
 	"outbox":    "the deployment's queue of what changed",
 	"treelock":  "the deployment's bookkeeping",
 	"legalhold": "the operator's",

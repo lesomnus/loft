@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/pdid"
-	"github.com/lesomnus/payday/slug"
 	"github.com/lesomnus/z"
 	"github.com/protobuf-orm/ent/dialect"
 	"github.com/protobuf-orm/protoc-gen-orm-ent/runtime/enttx"
@@ -17,6 +17,7 @@ import (
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/internal/ent/holder"
+	enttenant "github.com/lesomnus/rove/internal/ent/tenant"
 	"github.com/lesomnus/rove/internal/identity"
 )
 
@@ -46,6 +47,9 @@ type Workspaces struct {
 	Personal bool
 	// Owned is how many workspaces one account may own; negative is no limit.
 	Owned int
+
+	// Aliases is how a new workspace's address is made up.
+	Aliases Aliases
 }
 
 // Membership is a workspace an account is in, and what it does there.
@@ -55,6 +59,10 @@ type Membership struct {
 	Name      string
 	Holder    pdid.Id
 	Role      string
+
+	// Closed is when the workspace was closed, and Destroy when it goes if
+	// it is not restored (D29); nil for one that is open.
+	Closed, Destroy *time.Time
 }
 
 func (w Workspaces) db() *ent.Client { return ent.NewClient(ent.Driver(w.Drv)) }
@@ -78,6 +86,8 @@ func (w Workspaces) Of(ctx context.Context, account pdid.Id) ([]Membership, erro
 			Name:      t.Name,
 			Holder:    pdid.Id(h.Id),
 			Role:      h.Role,
+			Closed:    t.DateClosed,
+			Destroy:   t.DateDestroy,
 		})
 	}
 
@@ -109,8 +119,10 @@ func (w Workspaces) Arrive(ctx context.Context, p identity.Person) error {
 // not left to trip over.
 func (w Workspaces) Create(ctx context.Context, owner identity.Person, name string) (Membership, error) {
 	if w.Owned >= 0 {
+		// A closed workspace is on its way out, and is not one more it has.
 		n, err := w.db().Holder.Query().
-			Where(holder.Account(owner.Id.Uuid()), holder.Role("owner"), holder.DateErasedIsNil()).
+			Where(holder.Account(owner.Id.Uuid()), holder.Role("owner"), holder.DateErasedIsNil(),
+				holder.HasTenantWith(enttenant.DateClosedIsNil())).
 			Count(ctx)
 		if err != nil {
 			return Membership{}, err
@@ -120,10 +132,18 @@ func (w Workspaces) Create(ctx context.Context, owner identity.Person, name stri
 		}
 	}
 
-	// An alias somebody else's workspace has is tried again: seven random
-	// characters seldom meet, and when they do the next try does not.
+	// An address made up and found free, tried again when another workspace
+	// took it in the meantime.
+	aliases := w.Aliases
+	if aliases.Db == nil {
+		aliases.Db = w.db()
+	}
 	for range 5 {
-		m, err := w.create(ctx, owner, name, slug.RandomAlias())
+		alias, err := aliases.Make(ctx)
+		if err != nil {
+			return Membership{}, err
+		}
+		m, err := w.create(ctx, owner, name, alias)
 		if status.Code(err) == codes.AlreadyExists {
 			continue
 		}

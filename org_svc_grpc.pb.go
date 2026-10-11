@@ -1663,3 +1663,267 @@ var CliLoginService_ServiceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "rove/org_svc.g.proto",
 }
+
+const (
+	AliasHoldService_Add_FullMethodName   = "/rove.AliasHoldService/Add"
+	AliasHoldService_Get_FullMethodName   = "/rove.AliasHoldService/Get"
+	AliasHoldService_Patch_FullMethodName = "/rove.AliasHoldService/Patch"
+	AliasHoldService_Apply_FullMethodName = "/rove.AliasHoldService/Apply"
+	AliasHoldService_Erase_FullMethodName = "/rove.AliasHoldService/Erase"
+)
+
+// AliasHoldServiceClient is the client API for AliasHoldService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type AliasHoldServiceClient interface {
+	// Add creates a new AliasHold
+	Add(ctx context.Context, in *AliasHoldAddRequest, opts ...grpc.CallOption) (*AliasHold, error)
+	// Get retrieves a AliasHold
+	Get(ctx context.Context, in *AliasHoldGetRequest, opts ...grpc.CallOption) (*AliasHold, error)
+	// Patch updates an existing AliasHold
+	Patch(ctx context.Context, in *AliasHoldPatchRequest, opts ...grpc.CallOption) (*AliasHold, error)
+	// Apply applies a patch document to an existing AliasHold
+	Apply(ctx context.Context, in *AliasHoldApplyRequest, opts ...grpc.CallOption) (*AliasHold, error)
+	// Erase deletes a AliasHold
+	Erase(ctx context.Context, in *AliasHoldRef, opts ...grpc.CallOption) (*AliasHoldEraseResponse, error)
+}
+
+type aliasHoldServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewAliasHoldServiceClient(cc grpc.ClientConnInterface) AliasHoldServiceClient {
+	return &aliasHoldServiceClient{cc}
+}
+
+func (c *aliasHoldServiceClient) Add(ctx context.Context, in *AliasHoldAddRequest, opts ...grpc.CallOption) (*AliasHold, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AliasHold)
+	err := c.cc.Invoke(ctx, AliasHoldService_Add_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aliasHoldServiceClient) Get(ctx context.Context, in *AliasHoldGetRequest, opts ...grpc.CallOption) (*AliasHold, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AliasHold)
+	err := c.cc.Invoke(ctx, AliasHoldService_Get_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aliasHoldServiceClient) Patch(ctx context.Context, in *AliasHoldPatchRequest, opts ...grpc.CallOption) (*AliasHold, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AliasHold)
+	err := c.cc.Invoke(ctx, AliasHoldService_Patch_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aliasHoldServiceClient) Apply(ctx context.Context, in *AliasHoldApplyRequest, opts ...grpc.CallOption) (*AliasHold, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AliasHold)
+	err := c.cc.Invoke(ctx, AliasHoldService_Apply_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aliasHoldServiceClient) Erase(ctx context.Context, in *AliasHoldRef, opts ...grpc.CallOption) (*AliasHoldEraseResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AliasHoldEraseResponse)
+	err := c.cc.Invoke(ctx, AliasHoldService_Erase_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// AliasHoldServiceServer is the server API for AliasHoldService service.
+// All implementations must embed UnimplementedAliasHoldServiceServer
+// for forward compatibility.
+type AliasHoldServiceServer interface {
+	// Add creates a new AliasHold
+	Add(context.Context, *AliasHoldAddRequest) (*AliasHold, error)
+	// Get retrieves a AliasHold
+	Get(context.Context, *AliasHoldGetRequest) (*AliasHold, error)
+	// Patch updates an existing AliasHold
+	Patch(context.Context, *AliasHoldPatchRequest) (*AliasHold, error)
+	// Apply applies a patch document to an existing AliasHold
+	Apply(context.Context, *AliasHoldApplyRequest) (*AliasHold, error)
+	// Erase deletes a AliasHold
+	Erase(context.Context, *AliasHoldRef) (*AliasHoldEraseResponse, error)
+	mustEmbedUnimplementedAliasHoldServiceServer()
+}
+
+// UnimplementedAliasHoldServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedAliasHoldServiceServer struct{}
+
+func (UnimplementedAliasHoldServiceServer) Add(context.Context, *AliasHoldAddRequest) (*AliasHold, error) {
+	return nil, status.Error(codes.Unimplemented, "method Add not implemented")
+}
+func (UnimplementedAliasHoldServiceServer) Get(context.Context, *AliasHoldGetRequest) (*AliasHold, error) {
+	return nil, status.Error(codes.Unimplemented, "method Get not implemented")
+}
+func (UnimplementedAliasHoldServiceServer) Patch(context.Context, *AliasHoldPatchRequest) (*AliasHold, error) {
+	return nil, status.Error(codes.Unimplemented, "method Patch not implemented")
+}
+func (UnimplementedAliasHoldServiceServer) Apply(context.Context, *AliasHoldApplyRequest) (*AliasHold, error) {
+	return nil, status.Error(codes.Unimplemented, "method Apply not implemented")
+}
+func (UnimplementedAliasHoldServiceServer) Erase(context.Context, *AliasHoldRef) (*AliasHoldEraseResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Erase not implemented")
+}
+func (UnimplementedAliasHoldServiceServer) mustEmbedUnimplementedAliasHoldServiceServer() {}
+func (UnimplementedAliasHoldServiceServer) testEmbeddedByValue()                          {}
+
+// UnsafeAliasHoldServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to AliasHoldServiceServer will
+// result in compilation errors.
+type UnsafeAliasHoldServiceServer interface {
+	mustEmbedUnimplementedAliasHoldServiceServer()
+}
+
+func RegisterAliasHoldServiceServer(s grpc.ServiceRegistrar, srv AliasHoldServiceServer) {
+	// If the following call panics, it indicates UnimplementedAliasHoldServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&AliasHoldService_ServiceDesc, srv)
+}
+
+func _AliasHoldService_Add_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AliasHoldAddRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AliasHoldServiceServer).Add(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AliasHoldService_Add_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AliasHoldServiceServer).Add(ctx, req.(*AliasHoldAddRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AliasHoldService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AliasHoldGetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AliasHoldServiceServer).Get(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AliasHoldService_Get_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AliasHoldServiceServer).Get(ctx, req.(*AliasHoldGetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AliasHoldService_Patch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AliasHoldPatchRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AliasHoldServiceServer).Patch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AliasHoldService_Patch_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AliasHoldServiceServer).Patch(ctx, req.(*AliasHoldPatchRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AliasHoldService_Apply_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AliasHoldApplyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AliasHoldServiceServer).Apply(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AliasHoldService_Apply_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AliasHoldServiceServer).Apply(ctx, req.(*AliasHoldApplyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AliasHoldService_Erase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AliasHoldRef)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AliasHoldServiceServer).Erase(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AliasHoldService_Erase_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AliasHoldServiceServer).Erase(ctx, req.(*AliasHoldRef))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// AliasHoldService_ServiceDesc is the grpc.ServiceDesc for AliasHoldService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var AliasHoldService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "rove.AliasHoldService",
+	HandlerType: (*AliasHoldServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Add",
+			Handler:    _AliasHoldService_Add_Handler,
+		},
+		{
+			MethodName: "Get",
+			Handler:    _AliasHoldService_Get_Handler,
+		},
+		{
+			MethodName: "Patch",
+			Handler:    _AliasHoldService_Patch_Handler,
+		},
+		{
+			MethodName: "Apply",
+			Handler:    _AliasHoldService_Apply_Handler,
+		},
+		{
+			MethodName: "Erase",
+			Handler:    _AliasHoldService_Erase_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "rove/org_svc.g.proto",
+}

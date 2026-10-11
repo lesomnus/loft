@@ -1262,6 +1262,237 @@ func (b0 CliLogin_builder) Build() *CliLogin {
 	return m0
 }
 
+// AliasHold is a workspace address nobody may take for a while: one a
+// destroyed workspace went by, or one a workspace was moved off (D29, design
+// 8.4). A name that found somebody is still how people find them -- bookmarks,
+// links in old mail -- and a workspace that took it the next day would be that
+// name to all of them. A renamed one is also sent on to where it moved.
+//
+// The deployment's (`global`), written only by `server/tenancy`, and the
+// policy opens no RPC of it.
+type AliasHold struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Held        string                 `protobuf:"bytes,8,opt,name=held"`
+	xxx_hidden_Reason      string                 `protobuf:"bytes,9,opt,name=reason"`
+	xxx_hidden_MovedTo     string                 `protobuf:"bytes,10,opt,name=moved_to,json=movedTo"`
+	xxx_hidden_Tenant      []byte                 `protobuf:"bytes,11,opt,name=tenant"`
+	xxx_hidden_DateUntil   *timestamppb.Timestamp `protobuf:"bytes,16,opt,name=date_until,json=dateUntil"`
+	xxx_hidden_DateUpdated *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
+	xxx_hidden_DateErased  *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=date_erased,json=dateErased"`
+	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *AliasHold) Reset() {
+	*x = AliasHold{}
+	mi := &file_rove_org_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AliasHold) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AliasHold) ProtoMessage() {}
+
+func (x *AliasHold) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_org_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *AliasHold) GetId() []byte {
+	if x != nil {
+		return x.xxx_hidden_Id
+	}
+	return nil
+}
+
+func (x *AliasHold) GetHeld() string {
+	if x != nil {
+		return x.xxx_hidden_Held
+	}
+	return ""
+}
+
+func (x *AliasHold) GetReason() string {
+	if x != nil {
+		return x.xxx_hidden_Reason
+	}
+	return ""
+}
+
+func (x *AliasHold) GetMovedTo() string {
+	if x != nil {
+		return x.xxx_hidden_MovedTo
+	}
+	return ""
+}
+
+func (x *AliasHold) GetTenant() []byte {
+	if x != nil {
+		return x.xxx_hidden_Tenant
+	}
+	return nil
+}
+
+func (x *AliasHold) GetDateUntil() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateUntil
+	}
+	return nil
+}
+
+func (x *AliasHold) GetDateUpdated() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateUpdated
+	}
+	return nil
+}
+
+func (x *AliasHold) GetDateErased() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateErased
+	}
+	return nil
+}
+
+func (x *AliasHold) GetDateCreated() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateCreated
+	}
+	return nil
+}
+
+func (x *AliasHold) SetId(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Id = v
+}
+
+func (x *AliasHold) SetHeld(v string) {
+	x.xxx_hidden_Held = v
+}
+
+func (x *AliasHold) SetReason(v string) {
+	x.xxx_hidden_Reason = v
+}
+
+func (x *AliasHold) SetMovedTo(v string) {
+	x.xxx_hidden_MovedTo = v
+}
+
+func (x *AliasHold) SetTenant(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Tenant = v
+}
+
+func (x *AliasHold) SetDateUntil(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateUntil = v
+}
+
+func (x *AliasHold) SetDateUpdated(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateUpdated = v
+}
+
+func (x *AliasHold) SetDateErased(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateErased = v
+}
+
+func (x *AliasHold) SetDateCreated(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateCreated = v
+}
+
+func (x *AliasHold) HasDateUntil() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateUntil != nil
+}
+
+func (x *AliasHold) HasDateUpdated() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateUpdated != nil
+}
+
+func (x *AliasHold) HasDateErased() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateErased != nil
+}
+
+func (x *AliasHold) HasDateCreated() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateCreated != nil
+}
+
+func (x *AliasHold) ClearDateUntil() {
+	x.xxx_hidden_DateUntil = nil
+}
+
+func (x *AliasHold) ClearDateUpdated() {
+	x.xxx_hidden_DateUpdated = nil
+}
+
+func (x *AliasHold) ClearDateErased() {
+	x.xxx_hidden_DateErased = nil
+}
+
+func (x *AliasHold) ClearDateCreated() {
+	x.xxx_hidden_DateCreated = nil
+}
+
+type AliasHold_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Id []byte
+	// The address held.
+	Held string
+	// `destroyed` or `renamed`, and for a rename the address it moved to.
+	Reason  string
+	MovedTo string
+	// Whose it was.
+	Tenant []byte
+	// Until when nobody may take it.
+	DateUntil   *timestamppb.Timestamp
+	DateUpdated *timestamppb.Timestamp
+	DateErased  *timestamppb.Timestamp
+	DateCreated *timestamppb.Timestamp
+}
+
+func (b0 AliasHold_builder) Build() *AliasHold {
+	m0 := &AliasHold{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Id = b.Id
+	x.xxx_hidden_Held = b.Held
+	x.xxx_hidden_Reason = b.Reason
+	x.xxx_hidden_MovedTo = b.MovedTo
+	x.xxx_hidden_Tenant = b.Tenant
+	x.xxx_hidden_DateUntil = b.DateUntil
+	x.xxx_hidden_DateUpdated = b.DateUpdated
+	x.xxx_hidden_DateErased = b.DateErased
+	x.xxx_hidden_DateCreated = b.DateCreated
+	return m0
+}
+
 var File_rove_org_proto protoreflect.FileDescriptor
 
 const file_rove_org_proto_rawDesc = "" +
@@ -1370,49 +1601,68 @@ const file_rove_org_proto_rawDesc = "" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:8\xca\xfc\x15,\x12\x02\x10\x01\x1a\x10\x12\x04code\x1a\b\n" +
 	"\x04code\x10\t\x1a\x14\x12\x06secret\x1a\n" +
 	"\n" +
-	"\x06secret\x10\b\x8a\xbb\x16\x04\b**\x00B\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"\x06secret\x10\b\x8a\xbb\x16\x04\b**\x00\"\xcf\x03\n" +
+	"\tAliasHold\x12\x1b\n" +
+	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12\x12\n" +
+	"\x04held\x18\b \x01(\tR\x04held\x12\x16\n" +
+	"\x06reason\x18\t \x01(\tR\x06reason\x12\x19\n" +
+	"\bmoved_to\x18\n" +
+	" \x01(\tR\amovedTo\x12\x1e\n" +
+	"\x06tenant\x18\v \x01(\fB\x06\xea\x82\x16\x02\x10@R\x06tenant\x12B\n" +
+	"\n" +
+	"date_until\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\tdateUntil\x12F\n" +
+	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12D\n" +
+	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
+	"dateErased\x12H\n" +
+	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:\"\xca\xfc\x15\x16\x12\x02\x10\x01\x1a\x10\x12\x04held\x1a\b\n" +
+	"\x04held\x10\b\x8a\xbb\x16\x04\b+*\x00B\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
-var file_rove_org_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_rove_org_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_rove_org_proto_goTypes = []any{
 	(*Party)(nil),                 // 0: rove.Party
 	(*Session)(nil),               // 1: rove.Session
 	(*Invitation)(nil),            // 2: rove.Invitation
 	(*CliLogin)(nil),              // 3: rove.CliLogin
-	nil,                           // 4: rove.Party.LabelsEntry
-	(*Tenant)(nil),                // 5: rove.Tenant
-	(*Holder)(nil),                // 6: rove.Holder
-	(*timestamppb.Timestamp)(nil), // 7: google.protobuf.Timestamp
+	(*AliasHold)(nil),             // 4: rove.AliasHold
+	nil,                           // 5: rove.Party.LabelsEntry
+	(*Tenant)(nil),                // 6: rove.Tenant
+	(*Holder)(nil),                // 7: rove.Holder
+	(*timestamppb.Timestamp)(nil), // 8: google.protobuf.Timestamp
 }
 var file_rove_org_proto_depIdxs = []int32{
-	5,  // 0: rove.Party.tenant:type_name -> rove.Tenant
-	4,  // 1: rove.Party.labels:type_name -> rove.Party.LabelsEntry
-	6,  // 2: rove.Party.holder:type_name -> rove.Holder
-	7,  // 3: rove.Party.date_updated:type_name -> google.protobuf.Timestamp
-	7,  // 4: rove.Party.date_erased:type_name -> google.protobuf.Timestamp
-	7,  // 5: rove.Party.date_created:type_name -> google.protobuf.Timestamp
-	7,  // 6: rove.Session.date_expires:type_name -> google.protobuf.Timestamp
-	7,  // 7: rove.Session.date_idle:type_name -> google.protobuf.Timestamp
-	7,  // 8: rove.Session.date_updated:type_name -> google.protobuf.Timestamp
-	7,  // 9: rove.Session.date_erased:type_name -> google.protobuf.Timestamp
-	7,  // 10: rove.Session.date_created:type_name -> google.protobuf.Timestamp
-	5,  // 11: rove.Invitation.tenant:type_name -> rove.Tenant
-	6,  // 12: rove.Invitation.inviter:type_name -> rove.Holder
+	6,  // 0: rove.Party.tenant:type_name -> rove.Tenant
+	5,  // 1: rove.Party.labels:type_name -> rove.Party.LabelsEntry
+	7,  // 2: rove.Party.holder:type_name -> rove.Holder
+	8,  // 3: rove.Party.date_updated:type_name -> google.protobuf.Timestamp
+	8,  // 4: rove.Party.date_erased:type_name -> google.protobuf.Timestamp
+	8,  // 5: rove.Party.date_created:type_name -> google.protobuf.Timestamp
+	8,  // 6: rove.Session.date_expires:type_name -> google.protobuf.Timestamp
+	8,  // 7: rove.Session.date_idle:type_name -> google.protobuf.Timestamp
+	8,  // 8: rove.Session.date_updated:type_name -> google.protobuf.Timestamp
+	8,  // 9: rove.Session.date_erased:type_name -> google.protobuf.Timestamp
+	8,  // 10: rove.Session.date_created:type_name -> google.protobuf.Timestamp
+	6,  // 11: rove.Invitation.tenant:type_name -> rove.Tenant
+	7,  // 12: rove.Invitation.inviter:type_name -> rove.Holder
 	0,  // 13: rove.Invitation.party:type_name -> rove.Party
-	7,  // 14: rove.Invitation.date_updated:type_name -> google.protobuf.Timestamp
-	7,  // 15: rove.Invitation.date_erased:type_name -> google.protobuf.Timestamp
-	7,  // 16: rove.Invitation.date_created:type_name -> google.protobuf.Timestamp
-	7,  // 17: rove.Invitation.date_expires:type_name -> google.protobuf.Timestamp
-	7,  // 18: rove.Invitation.date_settled:type_name -> google.protobuf.Timestamp
-	6,  // 19: rove.Invitation.holder:type_name -> rove.Holder
-	7,  // 20: rove.CliLogin.date_expires:type_name -> google.protobuf.Timestamp
-	7,  // 21: rove.CliLogin.date_updated:type_name -> google.protobuf.Timestamp
-	7,  // 22: rove.CliLogin.date_erased:type_name -> google.protobuf.Timestamp
-	7,  // 23: rove.CliLogin.date_created:type_name -> google.protobuf.Timestamp
-	24, // [24:24] is the sub-list for method output_type
-	24, // [24:24] is the sub-list for method input_type
-	24, // [24:24] is the sub-list for extension type_name
-	24, // [24:24] is the sub-list for extension extendee
-	0,  // [0:24] is the sub-list for field type_name
+	8,  // 14: rove.Invitation.date_updated:type_name -> google.protobuf.Timestamp
+	8,  // 15: rove.Invitation.date_erased:type_name -> google.protobuf.Timestamp
+	8,  // 16: rove.Invitation.date_created:type_name -> google.protobuf.Timestamp
+	8,  // 17: rove.Invitation.date_expires:type_name -> google.protobuf.Timestamp
+	8,  // 18: rove.Invitation.date_settled:type_name -> google.protobuf.Timestamp
+	7,  // 19: rove.Invitation.holder:type_name -> rove.Holder
+	8,  // 20: rove.CliLogin.date_expires:type_name -> google.protobuf.Timestamp
+	8,  // 21: rove.CliLogin.date_updated:type_name -> google.protobuf.Timestamp
+	8,  // 22: rove.CliLogin.date_erased:type_name -> google.protobuf.Timestamp
+	8,  // 23: rove.CliLogin.date_created:type_name -> google.protobuf.Timestamp
+	8,  // 24: rove.AliasHold.date_until:type_name -> google.protobuf.Timestamp
+	8,  // 25: rove.AliasHold.date_updated:type_name -> google.protobuf.Timestamp
+	8,  // 26: rove.AliasHold.date_erased:type_name -> google.protobuf.Timestamp
+	8,  // 27: rove.AliasHold.date_created:type_name -> google.protobuf.Timestamp
+	28, // [28:28] is the sub-list for method output_type
+	28, // [28:28] is the sub-list for method input_type
+	28, // [28:28] is the sub-list for extension type_name
+	28, // [28:28] is the sub-list for extension extendee
+	0,  // [0:28] is the sub-list for field type_name
 }
 
 func init() { file_rove_org_proto_init() }
@@ -1428,7 +1678,7 @@ func file_rove_org_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_org_proto_rawDesc), len(file_rove_org_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

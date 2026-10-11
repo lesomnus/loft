@@ -112,6 +112,14 @@ func (s TenantServiceServer) Add(ctx context.Context, req *rove.TenantAddRequest
 	} else {
 		q.SetDateCreated(st.now())
 	}
+	if req.HasDateClosed() {
+		q.SetDateClosed(req.GetDateClosed().AsTime())
+	}
+	q.SetClosedBy(req.GetClosedBy())
+	q.SetCloseReason(req.GetCloseReason())
+	if req.HasDateDestroy() {
+		q.SetDateDestroy(req.GetDateDestroy().AsTime())
+	}
 
 	u, err := q.Save(ctx)
 	if err != nil {
@@ -193,6 +201,18 @@ func TenantSelectedFields(m *rove.TenantSelect) []string {
 	if m.GetDateCreated() {
 		vs = append(vs, tenant.FieldDateCreated)
 	}
+	if m.GetDateClosed() {
+		vs = append(vs, tenant.FieldDateClosed)
+	}
+	if m.GetClosedBy() {
+		vs = append(vs, tenant.FieldClosedBy)
+	}
+	if m.GetCloseReason() {
+		vs = append(vs, tenant.FieldCloseReason)
+	}
+	if m.GetDateDestroy() {
+		vs = append(vs, tenant.FieldDateDestroy)
+	}
 
 	return vs
 }
@@ -258,7 +278,7 @@ func TenantGetKey(ctx context.Context, db *ent.Client, ref *rove.TenantRef) (uui
 var tenantOrmEntity = ormpatch.MustEntityOf(rove.File_rove_payday_tenant_proto, "Tenant")
 
 var tenantPatchColumns = entpatch.Columns{
-	1: tenant.FieldId, 4: tenant.FieldAlias, 5: tenant.FieldName, 6: tenant.FieldDesc, 7: tenant.FieldLabels, 13: tenant.FieldDateUpdated, 15: tenant.FieldDateCreated}
+	1: tenant.FieldId, 4: tenant.FieldAlias, 5: tenant.FieldName, 6: tenant.FieldDesc, 7: tenant.FieldLabels, 13: tenant.FieldDateUpdated, 15: tenant.FieldDateCreated, 8: tenant.FieldDateClosed, 9: tenant.FieldClosedBy, 10: tenant.FieldCloseReason, 11: tenant.FieldDateDestroy}
 
 func (s TenantServiceServer) Apply(ctx context.Context, req *rove.TenantApplyRequest) (*rove.Tenant, error) {
 	if !req.HasPatch() {

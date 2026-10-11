@@ -196,3 +196,46 @@ func CliLoginById(v []byte) *CliLoginRef {
 func CliLoginGetById(v []byte) *CliLoginGetRequest {
 	return CliLoginGetRequest_builder{Ref: CliLoginById(v)}.Build()
 }
+
+func (x *AliasHoldRef) Pick() *AliasHoldGetRequest {
+	return AliasHoldGetRequest_builder{Ref: x}.Build()
+}
+
+func (x *AliasHold) Ref() *AliasHoldRef {
+	if v := x.GetId(); len(v) > 0 {
+		return AliasHoldById(v)
+	}
+
+	return nil
+}
+
+func (x *AliasHold) Pick() *AliasHoldGetRequest {
+	return x.Ref().Pick()
+}
+
+func (x *AliasHoldRef) Picks(v *AliasHold) bool {
+	switch x.WhichKey() {
+	case AliasHoldRef_Id_case:
+		return bytes.Equal(x.GetId(), v.GetId())
+	default:
+		return false
+	}
+}
+
+func (x *AliasHoldGetRequest) WithSelect(f func(s *AliasHoldSelect)) *AliasHoldGetRequest {
+	if !x.HasSelect() {
+		x.SetSelect(&AliasHoldSelect{})
+	}
+	f(x.GetSelect())
+	return x
+}
+
+func AliasHoldById(v []byte) *AliasHoldRef {
+	x := &AliasHoldRef{}
+	x.SetId(v)
+	return x
+}
+
+func AliasHoldGetById(v []byte) *AliasHoldGetRequest {
+	return AliasHoldGetRequest_builder{Ref: AliasHoldById(v)}.Build()
+}

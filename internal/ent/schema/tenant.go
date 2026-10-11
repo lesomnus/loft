@@ -29,6 +29,14 @@ func (Tenant) Fields() []ent.Field {
 		field.Time("date_created").
 			Immutable().
 			Optional(),
+		field.Time("date_closed").
+			Nillable().
+			Optional(),
+		field.String("closed_by"),
+		field.String("close_reason"),
+		field.Time("date_destroy").
+			Nillable().
+			Optional(),
 	}
 }
 

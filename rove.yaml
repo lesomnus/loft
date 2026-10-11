@@ -109,6 +109,11 @@ watch:
 #     ttl: 720h                          # 30 days
 #     pending: 50                        # waiting at once, per workspace
 #     daily: 100                         # sent in a day, per workspace
+#   workspaces:
+#     alias_length: 7                    # a new address; grows by itself when crowded
+#     reserved: [acme-corp]              # beside the app's own (`tenancy.Reserved`)
+#     restore_within: 720h               # a closed workspace may be restored for 30 days
+#     alias_hold: 8760h                  # then its address is nobody's for a year
 #   accounts:
 #     forget_after: 720h                 # 30 days, roster's default
 #     every: 1h                          # how often the leaving are looked at

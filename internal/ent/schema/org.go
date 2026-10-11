@@ -240,3 +240,40 @@ func (CliLogin) Annotations() []schema.Annotation {
 		entsql.Annotation{Table: "clilogin"},
 	}
 }
+
+type AliasHold struct {
+	ent.Schema
+}
+
+func (AliasHold) Fields() []ent.Field {
+	return []ent.Field{
+		field.Uuid("id").
+			Unique().
+			Immutable(),
+		field.String("held"),
+		field.String("reason"),
+		field.String("moved_to"),
+		field.Uuid("tenant"),
+		field.Time("date_until").
+			Optional(),
+		field.Time("date_updated"),
+		field.Time("date_erased").
+			Nillable().
+			Optional(),
+		field.Time("date_created").
+			Immutable().
+			Optional(),
+	}
+}
+
+func (AliasHold) Indexes() []ent.Index {
+	return []ent.Index{
+		index.Fields("held"),
+	}
+}
+
+func (AliasHold) Annotations() []schema.Annotation {
+	return []schema.Annotation{
+		entsql.Annotation{Table: "aliashold"},
+	}
+}

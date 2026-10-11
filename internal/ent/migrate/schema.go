@@ -9,6 +9,31 @@ import (
 )
 
 var (
+	// AliasholdColumns holds the columns for the "aliashold" table.
+	AliasholdColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUuid, Unique: true},
+		{Name: "held", Type: field.TypeString},
+		{Name: "reason", Type: field.TypeString},
+		{Name: "moved_to", Type: field.TypeString},
+		{Name: "tenant", Type: field.TypeUuid},
+		{Name: "date_until", Type: field.TypeTime, Nullable: true},
+		{Name: "date_updated", Type: field.TypeTime},
+		{Name: "date_erased", Type: field.TypeTime, Nullable: true},
+		{Name: "date_created", Type: field.TypeTime, Nullable: true},
+	}
+	// AliasholdTable holds the schema information for the "aliashold" table.
+	AliasholdTable = &schema.Table{
+		Name:       "aliashold",
+		Columns:    AliasholdColumns,
+		PrimaryKey: []*schema.Column{AliasholdColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "aliashold_held",
+				Unique:  false,
+				Columns: []*schema.Column{AliasholdColumns[1]},
+			},
+		},
+	}
 	// AllocationColumns holds the columns for the "allocation" table.
 	AllocationColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUuid, Unique: true},
@@ -1558,6 +1583,10 @@ var (
 		{Name: "labels", Type: field.TypeJson, Nullable: true},
 		{Name: "date_updated", Type: field.TypeTime},
 		{Name: "date_created", Type: field.TypeTime, Nullable: true},
+		{Name: "date_closed", Type: field.TypeTime, Nullable: true},
+		{Name: "closed_by", Type: field.TypeString},
+		{Name: "close_reason", Type: field.TypeString},
+		{Name: "date_destroy", Type: field.TypeTime, Nullable: true},
 	}
 	// TenantTable holds the schema information for the "tenant" table.
 	TenantTable = &schema.Table{
@@ -1767,6 +1796,7 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		AliasholdTable,
 		AllocationTable,
 		ArchivedTable,
 		AssetTable,
@@ -1809,6 +1839,9 @@ var (
 )
 
 func init() {
+	AliasholdTable.Annotation = &entsql.Annotation{
+		Table: "aliashold",
+	}
 	AllocationTable.ForeignKeys[0].RefTable = TenantTable
 	AllocationTable.ForeignKeys[1].RefTable = AssetTable
 	AllocationTable.Annotation = &entsql.Annotation{

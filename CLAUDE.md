@@ -198,6 +198,18 @@ mint a session with `Server.Sessions.Mint` and send its cookie (plus
 `rove-workspace` when the account has more than one membership), and set
 `c.Auth.Roster.Db` to a `pdtest.DB` of its own -- the default is a file.
 
+## A workspace's end
+
+A workspace is closed by its owner (`TenantService.Close`, typing its name) or
+an operator (`rove tenant close`), or by the deployment when an account
+leaving left nobody in it, and closing destroys nothing: `cmd.Resolver` refuses
+every call into a closed workspace but its owner's `Get` and `Restore`, and the
+owner can take its data out (`GET /account/workspaces/{alias}/export`). Once
+`app.workspaces.restore_within` is over and nothing holds it, `server/closing`
+destroys it and holds its address (`AliasHold`). Addresses are made up
+(`tenancy.Aliases`) and nobody but an operator moves one (`rove tenant
+alias`); the domain layer refuses an alias in `TenantService.Patch`.
+
 ## The terminal
 
 Everything is an RPC, and `rove api` is every one of them as a command,
