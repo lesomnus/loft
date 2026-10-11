@@ -10,7 +10,7 @@ import { Link } from 'react-router-dom'
 import type { Asset } from '../gen/rove/asset_pb.js'
 import { AssetService, idBytes, idStr } from './api.js'
 import { modelName, useCatalog } from './catalog.js'
-import { call, useEpoch, useRpc } from './rpc.js'
+import { read, useEpoch, useLive, useRpc } from './rpc.js'
 import { useDebounced } from './ui.js'
 import { kindWord, partyKindWord } from './words.js'
 
@@ -190,6 +190,7 @@ function ParentLink(props: { id: Uint8Array }): ReactNode {
  */
 export function useAssets(ids: (Uint8Array | undefined)[]): Map<string, Asset> {
 	const { epoch } = useEpoch()
+	const live = useLive()
 	const key = [...new Set(ids.map(idStr).filter((v) => v !== ''))].sort().join(',')
 	const [m, setM] = useState(new Map<string, Asset>())
 	useEffect(() => {
@@ -198,7 +199,7 @@ export function useAssets(ids: (Uint8Array | undefined)[]): Map<string, Asset> {
 		const chunks: string[][] = []
 		for (let i = 0; i < vs.length; i += 8) chunks.push(vs.slice(i, i + 8))
 		Promise.all(
-			chunks.map((c) => call(AssetService.method.list, { filters: c.map((s) => ({ ref: { key: { case: 'id' as const, value: idBytes(s) } } })), size: 8 })),
+			chunks.map((c) => read(AssetService.method.list, { filters: c.map((s) => ({ ref: { key: { case: 'id' as const, value: idBytes(s) } } })), size: 8 })),
 		).then(
 			(rs) => {
 				if (!live) return
@@ -211,6 +212,6 @@ export function useAssets(ids: (Uint8Array | undefined)[]): Map<string, Asset> {
 		return () => {
 			live = false
 		}
-	}, [key, epoch])
+	}, [key, epoch, live])
 	return m
 }

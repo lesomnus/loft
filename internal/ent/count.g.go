@@ -42,6 +42,7 @@ func (e *InventoryCount) Proto() *rove.InventoryCount {
 	}
 	x.SetDateCreated(timestamppb.New(e.DateCreated))
 	x.SetSelfService(e.SelfService)
+	x.SetFindingsVersion(e.FindingsVersion)
 	return x
 }
 func (e *CountFinding) Proto() *rove.CountFinding {

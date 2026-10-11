@@ -5680,6 +5680,23 @@ func (m *InventoryCountMutation) OldSelfService(ctx context.Context) (v bool, er
 	return oldValue.SelfService, nil
 }
 
+// OldFindingsVersion returns the old "findings_version" field's value of the InventoryCount entity.
+// If the InventoryCount object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InventoryCountMutation) OldFindingsVersion(ctx context.Context) (v uint64, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldFindingsVersion is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldFindingsVersion requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldFindingsVersion: %w", err)
+	}
+	return oldValue.FindingsVersion, nil
+}
+
 // OldTenantId returns the old "tenant_id" field's value of the InventoryCount entity.
 // If the InventoryCount object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
@@ -5739,6 +5756,8 @@ func (m *InventoryCountMutation) OldField(ctx context.Context, name string) (ent
 		return m.OldDateCreated(ctx)
 	case inventorycount.FieldSelfService:
 		return m.OldSelfService(ctx)
+	case inventorycount.FieldFindingsVersion:
+		return m.OldFindingsVersion(ctx)
 	case inventorycount.FieldTenantId:
 		return m.OldTenantId(ctx)
 	case inventorycount.FieldScopeId:

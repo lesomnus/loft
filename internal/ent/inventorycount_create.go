@@ -124,6 +124,12 @@ func (_c *InventoryCountCreate) SetSelfService(v bool) *InventoryCountCreate {
 	return _c
 }
 
+// SetFindingsVersion sets the "findings_version" field.
+func (_c *InventoryCountCreate) SetFindingsVersion(v uint64) *InventoryCountCreate {
+	_c.mutation.SetFindingsVersion(v)
+	return _c
+}
+
 // SetTenantId sets the "tenant_id" field.
 func (_c *InventoryCountCreate) SetTenantId(v uuid.UUID) *InventoryCountCreate {
 	_c.mutation.SetTenantId(v)
@@ -200,6 +206,9 @@ func (_c *InventoryCountCreate) check() error {
 	}
 	if _, ok := _c.mutation.SelfService(); !ok {
 		return &ValidationError{Name: "self_service", err: errors.New(`ent: missing required field "InventoryCount.self_service"`)}
+	}
+	if _, ok := _c.mutation.FindingsVersion(); !ok {
+		return &ValidationError{Name: "findings_version", err: errors.New(`ent: missing required field "InventoryCount.findings_version"`)}
 	}
 	if _, ok := _c.mutation.TenantId(); !ok {
 		return &ValidationError{Name: "tenant_id", err: errors.New(`ent: missing required field "InventoryCount.tenant_id"`)}
@@ -291,6 +300,10 @@ func (_c *InventoryCountCreate) createSpec() (*InventoryCount, *sqlgraph.CreateS
 	if value, ok := _c.mutation.SelfService(); ok {
 		_spec.SetField(inventorycount.FieldSelfService, field.TypeBool, value)
 		_node.SelfService = value
+	}
+	if value, ok := _c.mutation.FindingsVersion(); ok {
+		_spec.SetField(inventorycount.FieldFindingsVersion, field.TypeUint64, value)
+		_node.FindingsVersion = value
 	}
 	if nodes := _c.mutation.TenantIds(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

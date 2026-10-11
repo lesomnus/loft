@@ -3,10 +3,10 @@ import { useSearchParams } from 'react-router-dom'
 
 import type { CalendarEntry } from '../../gen/rove/booking_svc_pb.js'
 import type { Reservation } from '../../gen/rove/booking_pb.js'
-import { AssetService, BookableService, ReservationService, dateOf, fmt, idBytes, idStr, localInput, op, ref, sameId, ts } from '../api.js'
+import { AssetService, BookableService, ReservationService, dateOf, fmt, idBytes, idStr, localInput, minute, op, ref, sameId, ts } from '../api.js'
 import { useCatalog } from '../catalog.js'
 import { PartySelect, useAssets } from '../pickers.js'
-import { useAct, useRpc } from '../rpc.js'
+import { Live, useAct, useRpc } from '../rpc.js'
 import { Badge, Card, Empty, Field, FormModal, Load, Modal, PageHead, Select, Tabs } from '../ui.js'
 import { kindWord, reservationWord } from '../words.js'
 import { NewCustody } from './custody.js'
@@ -25,8 +25,13 @@ export function Reservations(): ReactNode {
 	const c = useCatalog()
 	const [sp, setSp] = useSearchParams()
 	const tab = sp.get('tab') ?? 'calendar'
+	// Every reservation made, decided or ended writes the bookables it takes
+	// first (`schedule_version`), so the page follows those: the one it is
+	// showing, or every one there is to book.
+	const one = sp.get('resource') ?? ''
+	const shown = one !== '' ? [c.bookables.find((b) => idStr(b.asset?.id) === one)?.id] : c.bookables.filter((b) => b.enabled).map((b) => b.id)
 	return (
-		<>
+		<Live watch={BookableService.method.watch} ids={shown} max={32}>
 			<PageHead title="예약" sub="회의실, 장비, 키트를 시간 단위로 예약합니다. 겹치는 예약은 받지 않습니다." />
 			<Tabs
 				tabs={[
@@ -41,7 +46,7 @@ export function Reservations(): ReactNode {
 			{tab === 'mine' && <List mine />}
 			{tab === 'approve' && <Approvals />}
 			{tab === 'all' && <List />}
-		</>
+		</Live>
 	)
 }
 
@@ -383,8 +388,8 @@ function NewCustodyForPickup(props: { r: Reservation; assets: import('../../gen/
 function List(props: { mine?: boolean }): ReactNode {
 	const c = useCatalog()
 	const [open, setOpen] = useState<CalendarEntry>()
-	const from = new Date(Date.now() - 30 * day)
-	const to = new Date(Date.now() + 90 * day)
+	const from = new Date(minute().getTime() - 30 * day)
+	const to = new Date(minute().getTime() + 90 * day)
 	const cal = useRpc(ReservationService.method.calendar, { from: ts(from), to: ts(to), mine: props.mine === true })
 	const names = useResourceNames()
 	return (

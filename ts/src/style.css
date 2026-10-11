@@ -332,6 +332,20 @@ input[type='checkbox'] {
 	max-width: 1320px;
 	width: 100%;
 }
+.offline-banner {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 12px;
+	align-items: baseline;
+	padding: 8px 24px;
+	background: var(--warn-soft);
+	color: var(--warn);
+	border-bottom: 1px solid var(--line);
+}
+.offline-banner span {
+	color: var(--ink-2);
+	font-size: 13px;
+}
 
 .page-head {
 	display: flex;

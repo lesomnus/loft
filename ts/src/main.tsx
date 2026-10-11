@@ -8,6 +8,10 @@
  * the server's to say (`GET /sso`). The page is about the workspace its
  * address names (`/@<alias>/...`), and one that names none opens the last one.
  *
+ * With no network the page opens as who it was last signed in as, from what
+ * it last saw (`offline.ts`); signing out, or being found signed out, drops
+ * everything it kept.
+ *
  * @module
  */
 
@@ -30,8 +34,9 @@ import {
 } from './api.js'
 import { App } from './app.js'
 import { Mark } from './marks.js'
+import { forget, keepAs, keepOnly, keepTheApp, lastSeen, seen, setOffline, unreachable } from './offline.js'
 import { Rpc } from './rpc.js'
-import { Spinner, Toasts } from './ui.js'
+import { Spinner, Toasts, useToast } from './ui.js'
 import { Inbox } from './invitations.js'
 import { Terminal } from './terminal.js'
 import { Closed, Elsewhere } from './workspaces.js'
@@ -166,6 +171,7 @@ type State =
 	| { at: 'in'; account: Account }
 
 function Boot(): ReactNode {
+	const toast = useToast()
 	const [state, setState] = useState<State>({ at: 'checking' })
 	const [ways, setWays] = useState<Ways>({ sso: false, providers: [], password: true })
 	const [n, setN] = useState(0)
@@ -173,11 +179,34 @@ function Boot(): ReactNode {
 	const check = useCallback(async () => {
 		setState({ at: 'checking' })
 		try {
-			const [a, w] = await Promise.all([signedIn(), waysIn()])
+			let a: Account | 'out'
+			let w: Ways
+			let fresh = true
+			try {
+				;[a, w] = await Promise.all([signedIn(), waysIn()])
+			} catch (err) {
+				// No network: who this browser was signed in as when the server
+				// last said, and the pages as they were last seen.
+				if (!unreachable(err)) throw err
+				const last = await lastSeen<Account, Ways>()
+				if (last === undefined) throw new Error('서버에 연결할 수 없습니다. 이 브라우저에서 아직 열어 본 적이 없어 오프라인으로 보여 줄 것이 없습니다.')
+				setOffline(true)
+				a = last.account
+				w = last.ways
+				fresh = false
+			}
 			setWays(w)
 			if (a === 'out') {
+				// Signed out, here or anywhere else: nothing of theirs stays.
+				void forget()
 				setState({ at: 'out', ways: w })
 				return
+			}
+			if (fresh) {
+				// Kept for this account and the workspaces it is in now, and
+				// for nobody and nowhere else.
+				void seen(a, w)
+				void keepOnly(a.id, a.workspaces.map((v) => v.id))
 			}
 			// The invitations waiting for the account: about no workspace, and
 			// opened by the link an invitation's mail carries.
@@ -212,6 +241,7 @@ function Boot(): ReactNode {
 				return
 			}
 			rememberWorkspace(workspace)
+			keepAs(a.id, here.id)
 			setState({ at: 'in', account: a })
 		} catch (err) {
 			setState({ at: 'unknown', why: err instanceof Error ? err.message : String(err) })
@@ -222,16 +252,30 @@ function Boot(): ReactNode {
 		void check()
 	}, [check, n])
 
-	const out = useCallback(() => setState({ at: 'out', ways }), [ways])
+	const out = useCallback(() => {
+		void forget()
+		setState({ at: 'out', ways })
+	}, [ways])
 	const signOut = useCallback(async () => {
+		if (!navigator.onLine) {
+			toast('오프라인에서는 로그아웃할 수 없습니다. 연결되면 다시 해 보세요.', 'bad')
+			return
+		}
+		// What this browser kept of theirs goes first, whatever comes next.
+		await forget()
 		if (ways.sso) {
 			// To the issuer and back, which ends the page with it.
 			signOutThroughIssuer()
 			return
 		}
-		await fetch('/session', { method: 'DELETE' })
+		try {
+			await fetch('/session', { method: 'DELETE' })
+		} catch {
+			toast('서버에 연결할 수 없어 로그아웃하지 못했습니다. 연결되면 다시 해 보세요.', 'bad')
+			return
+		}
 		setState({ at: 'out', ways })
-	}, [ways])
+	}, [ways, toast])
 
 	switch (state.at) {
 		case 'checking':
@@ -269,6 +313,8 @@ function Boot(): ReactNode {
 			)
 	}
 }
+
+keepTheApp()
 
 createRoot(document.getElementById('root') as HTMLElement).render(
 	<StrictMode>

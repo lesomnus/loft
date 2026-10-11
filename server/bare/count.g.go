@@ -148,6 +148,7 @@ func (s InventoryCountServiceServer) Add(ctx context.Context, req *rove.Inventor
 		q.SetDateCreated(st.now())
 	}
 	q.SetSelfService(req.GetSelfService())
+	q.SetFindingsVersion(req.GetFindingsVersion())
 
 	u, err := q.Save(ctx)
 	if err != nil {
@@ -245,6 +246,9 @@ func InventoryCountSelectedFields(m *rove.InventoryCountSelect) []string {
 	if m.GetSelfService() {
 		vs = append(vs, inventorycount.FieldSelfService)
 	}
+	if m.GetFindingsVersion() {
+		vs = append(vs, inventorycount.FieldFindingsVersion)
+	}
 
 	return vs
 }
@@ -323,7 +327,7 @@ func InventoryCountGetKey(ctx context.Context, db *ent.Client, ref *rove.Invento
 var inventoryCountOrmEntity = ormpatch.MustEntityOf(rove.File_rove_count_proto, "InventoryCount")
 
 var inventoryCountPatchColumns = entpatch.Columns{
-	1: inventorycount.FieldId, 2: inventorycount.TenantColumn, 5: inventorycount.FieldName, 6: inventorycount.FieldDesc, 8: inventorycount.ScopeColumn, 9: inventorycount.FieldStatus, 10: inventorycount.FieldStartedAt, 11: inventorycount.FieldClosedAt, 12: inventorycount.FieldStartedBy, 13: inventorycount.FieldDateUpdated, 14: inventorycount.FieldDateErased, 15: inventorycount.FieldDateCreated, 16: inventorycount.FieldSelfService}
+	1: inventorycount.FieldId, 2: inventorycount.TenantColumn, 5: inventorycount.FieldName, 6: inventorycount.FieldDesc, 8: inventorycount.ScopeColumn, 9: inventorycount.FieldStatus, 10: inventorycount.FieldStartedAt, 11: inventorycount.FieldClosedAt, 12: inventorycount.FieldStartedBy, 13: inventorycount.FieldDateUpdated, 14: inventorycount.FieldDateErased, 15: inventorycount.FieldDateCreated, 16: inventorycount.FieldSelfService, 17: inventorycount.FieldFindingsVersion}
 
 func (s InventoryCountServiceServer) Apply(ctx context.Context, req *rove.InventoryCountApplyRequest) (*rove.InventoryCount, error) {
 	if !req.HasPatch() {

@@ -506,7 +506,7 @@ CREATE TRIGGER asset_parent_same_tenant BEFORE INSERT OR UPDATE OF parent_id, te
 
 - 1~수 단계 탐색은 재귀 CTE와 `(child, superseded_at, valid_from)` 인덱스로 처리한다. 현재 상태는 Asset의 비정규화 열(`parent`, `custodian`)로 생성 List를 쓴다.
 - 하위 트리 전체 조회가 잦아지면 현재 상태용 경로(ltree 또는 closure 테이블)를 추가한다. 자유로운 대규모 경로 분석이 필요해지면 그래프 엔진을 다시 평가한다.
-- **화면 갱신 신호**: payday watch는 행을 지정해야 하므로 "이 방에 있는 자산"처럼 조건으로 정한 집합을 직접 watch할 수 없다. 내용이 바뀌는 컨테이너(공간·키트)와 예약 자원(`Bookable`)의 행 버전을 같은 트랜잭션에서 올리고, 화면은 그 행을 watch하다가 바뀌면 목록을 다시 읽는다. 이 갱신은 잠금도 겸한다. 이동이 아주 잦은 창고 공간에서는 이 행이 경합 지점이 될 수 있으므로 계측한다.
+- **화면 갱신 신호**: payday watch는 행을 지정해야 하므로 "이 방에 있는 자산"처럼 조건으로 정한 집합을 직접 watch할 수 없다. 내용이 바뀌는 컨테이너(공간·키트의 `content_version`), 예약 자원(`Bookable`의 `schedule_version`), 실사(`InventoryCount`의 `findings_version`)의 행 버전을 같은 트랜잭션에서 올리고, 화면은 그 행을 watch하다가 바뀌면 목록을 다시 읽는다(`ts/src/rpc.tsx`의 `<Live>`). 이 갱신은 잠금도 겸한다. 이동이 아주 잦은 창고 공간에서는 이 행이 경합 지점이 될 수 있으므로 계측한다.
 - 테넌트 잠금 행은 배치 트리 변경을 테넌트 단위로 직렬화한다. 사람이 하는 이동량에서는 충분하고, RFID처럼 자동 이동이 많아지면 사업장 단위 잠금으로 나눈다.
 
 ### 9.7 보안

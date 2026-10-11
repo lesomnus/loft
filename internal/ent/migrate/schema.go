@@ -730,6 +730,7 @@ var (
 		{Name: "date_erased", Type: field.TypeTime, Nullable: true},
 		{Name: "date_created", Type: field.TypeTime, Nullable: true},
 		{Name: "self_service", Type: field.TypeBool},
+		{Name: "findings_version", Type: field.TypeUint64},
 		{Name: "tenant_id", Type: field.TypeUuid},
 		{Name: "scope_id", Type: field.TypeUuid},
 	}
@@ -741,13 +742,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "inventorycount_tenant_tenant",
-				Columns:    []*schema.Column{InventorycountColumns[11]},
+				Columns:    []*schema.Column{InventorycountColumns[12]},
 				RefColumns: []*schema.Column{TenantColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "inventorycount_asset_scope",
-				Columns:    []*schema.Column{InventorycountColumns[12]},
+				Columns:    []*schema.Column{InventorycountColumns[13]},
 				RefColumns: []*schema.Column{AssetColumns[0]},
 				OnDelete:   schema.NoAction,
 			},

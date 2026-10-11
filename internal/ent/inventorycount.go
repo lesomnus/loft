@@ -40,6 +40,8 @@ type InventoryCount struct {
 	DateCreated time.Time `json:"date_created,omitempty"`
 	// SelfService holds the value of the "self_service" field.
 	SelfService bool `json:"self_service,omitempty"`
+	// FindingsVersion holds the value of the "findings_version" field.
+	FindingsVersion uint64 `json:"findings_version,omitempty"`
 	// TenantId holds the value of the "tenant_id" field.
 	TenantId uuid.UUID `json:"tenant_id,omitempty"`
 	// ScopeId holds the value of the "scope_id" field.
@@ -90,6 +92,8 @@ func (*InventoryCount) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case inventorycount.FieldSelfService:
 			values[i] = new(sql.NullBool)
+		case inventorycount.FieldFindingsVersion:
+			values[i] = new(sql.NullInt64)
 		case inventorycount.FieldName, inventorycount.FieldDesc, inventorycount.FieldStatus:
 			values[i] = new(sql.NullString)
 		case inventorycount.FieldStartedAt, inventorycount.FieldClosedAt, inventorycount.FieldDateUpdated, inventorycount.FieldDateErased, inventorycount.FieldDateCreated:
@@ -181,6 +185,12 @@ func (_m *InventoryCount) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field self_service", values[i])
 			} else if value.Valid {
 				_m.SelfService = value.Bool
+			}
+		case inventorycount.FieldFindingsVersion:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field findings_version", values[i])
+			} else if value.Valid {
+				_m.FindingsVersion = uint64(value.Int64)
 			}
 		case inventorycount.FieldTenantId:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -275,6 +285,9 @@ func (_m *InventoryCount) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("self_service=")
 	builder.WriteString(fmt.Sprintf("%v", _m.SelfService))
+	builder.WriteString(", ")
+	builder.WriteString("findings_version=")
+	builder.WriteString(fmt.Sprintf("%v", _m.FindingsVersion))
 	builder.WriteString(", ")
 	builder.WriteString("tenant_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.TenantId))

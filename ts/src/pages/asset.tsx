@@ -15,6 +15,7 @@ import {
 	idBytes,
 	idStr,
 	localInput,
+	minute,
 	raw,
 	readFile,
 	ref,
@@ -22,7 +23,7 @@ import {
 } from '../api.js'
 import { HistoryDays, modelName, useCatalog } from '../catalog.js'
 import { AssetLink, AssetPicker, PartySelect, SpaceSelect, Where } from '../pickers.js'
-import { useAct, useRpc } from '../rpc.js'
+import { Live, useAct, useRpc } from '../rpc.js'
 import { Badge, Card, Confirm, Empty, Field, FormModal, Kv, Load, PageHead, Select, Spinner, Tabs, useToast } from '../ui.js'
 import {
 	conditionWord,
@@ -47,8 +48,18 @@ export function AssetPage(): ReactNode {
 	} catch {
 		bytes = undefined
 	}
-	const a = useRpc(AssetService.method.get, bytes === undefined ? null : { ref: ref(bytes) })
 	if (bytes === undefined) return <Empty>잘못된 주소입니다.</Empty>
+	// Whatever somebody else does to it -- a move, a hand-over, a status, what
+	// is put in it -- is written to its row, so the page follows the row.
+	return (
+		<Live watch={AssetService.method.watch} ids={[bytes]}>
+			<AssetRead id={bytes} />
+		</Live>
+	)
+}
+
+function AssetRead(props: { id: Uint8Array }): ReactNode {
+	const a = useRpc(AssetService.method.get, { ref: ref(props.id) })
 	return <Load q={a}>{(v) => <AssetView a={v} />}</Load>
 }
 
@@ -175,7 +186,11 @@ function AssetView(props: { a: Asset }): ReactNode {
 					<Tabs tabs={tabs} at={tab} onChange={setTab} />
 					{tab === 'timeline' && <Timeline a={a} />}
 					{tab === 'inside' && <Inside a={a} />}
-					{tab === 'bookings' && <Bookings a={a} />}
+					{tab === 'bookings' && bookable !== undefined && (
+						<Live watch={BookableService.method.watch} ids={[bookable.id]}>
+							<Bookings a={a} />
+						</Live>
+					)}
 					{tab === 'work' && <WorkTab a={a} />}
 					{tab === 'files' && <Files a={a} onUpload={() => setDialog('upload')} />}
 					{tab === 'labels' && <Labels a={a} />}
@@ -373,7 +388,7 @@ function Inside(props: { a: Asset }): ReactNode {
 }
 
 function Bookings(props: { a: Asset }): ReactNode {
-	const now = new Date()
+	const now = minute()
 	const cal = useRpc(ReservationService.method.calendar, {
 		resources: [ref(props.a.id)],
 		from: ts(now),

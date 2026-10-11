@@ -23,22 +23,23 @@ const (
 )
 
 type InventoryCountAddRequest struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Tenant      *TenantRef             `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Name        string                 `protobuf:"bytes,5,opt,name=name"`
-	xxx_hidden_Desc        string                 `protobuf:"bytes,6,opt,name=desc"`
-	xxx_hidden_Scope       *AssetRef              `protobuf:"bytes,8,opt,name=scope"`
-	xxx_hidden_Status      string                 `protobuf:"bytes,9,opt,name=status"`
-	xxx_hidden_StartedAt   *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=started_at,json=startedAt"`
-	xxx_hidden_ClosedAt    *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=closed_at,json=closedAt"`
-	xxx_hidden_StartedBy   []byte                 `protobuf:"bytes,12,opt,name=started_by,json=startedBy"`
-	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_SelfService bool                   `protobuf:"varint,16,opt,name=self_service,json=selfService"`
-	XXX_raceDetectHookData protoimpl.RaceDetectHookData
-	XXX_presence           [1]uint32
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	state                      protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id              []byte                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Tenant          *TenantRef             `protobuf:"bytes,2,opt,name=tenant"`
+	xxx_hidden_Name            string                 `protobuf:"bytes,5,opt,name=name"`
+	xxx_hidden_Desc            string                 `protobuf:"bytes,6,opt,name=desc"`
+	xxx_hidden_Scope           *AssetRef              `protobuf:"bytes,8,opt,name=scope"`
+	xxx_hidden_Status          string                 `protobuf:"bytes,9,opt,name=status"`
+	xxx_hidden_StartedAt       *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=started_at,json=startedAt"`
+	xxx_hidden_ClosedAt        *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=closed_at,json=closedAt"`
+	xxx_hidden_StartedBy       []byte                 `protobuf:"bytes,12,opt,name=started_by,json=startedBy"`
+	xxx_hidden_DateCreated     *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
+	xxx_hidden_SelfService     bool                   `protobuf:"varint,16,opt,name=self_service,json=selfService"`
+	xxx_hidden_FindingsVersion uint64                 `protobuf:"varint,17,opt,name=findings_version,json=findingsVersion"`
+	XXX_raceDetectHookData     protoimpl.RaceDetectHookData
+	XXX_presence               [1]uint32
+	unknownFields              protoimpl.UnknownFields
+	sizeCache                  protoimpl.SizeCache
 }
 
 func (x *InventoryCountAddRequest) Reset() {
@@ -143,12 +144,19 @@ func (x *InventoryCountAddRequest) GetSelfService() bool {
 	return false
 }
 
+func (x *InventoryCountAddRequest) GetFindingsVersion() uint64 {
+	if x != nil {
+		return x.xxx_hidden_FindingsVersion
+	}
+	return 0
+}
+
 func (x *InventoryCountAddRequest) SetId(v []byte) {
 	if v == nil {
 		v = []byte{}
 	}
 	x.xxx_hidden_Id = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 12)
 }
 
 func (x *InventoryCountAddRequest) SetTenant(v *TenantRef) {
@@ -184,7 +192,7 @@ func (x *InventoryCountAddRequest) SetStartedBy(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_StartedBy = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 12)
 }
 
 func (x *InventoryCountAddRequest) SetDateCreated(v *timestamppb.Timestamp) {
@@ -193,6 +201,10 @@ func (x *InventoryCountAddRequest) SetDateCreated(v *timestamppb.Timestamp) {
 
 func (x *InventoryCountAddRequest) SetSelfService(v bool) {
 	x.xxx_hidden_SelfService = v
+}
+
+func (x *InventoryCountAddRequest) SetFindingsVersion(v uint64) {
+	x.xxx_hidden_FindingsVersion = v
 }
 
 func (x *InventoryCountAddRequest) HasId() bool {
@@ -277,17 +289,18 @@ func (x *InventoryCountAddRequest) ClearDateCreated() {
 type InventoryCountAddRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Id          []byte
-	Tenant      *TenantRef
-	Name        string
-	Desc        string
-	Scope       *AssetRef
-	Status      string
-	StartedAt   *timestamppb.Timestamp
-	ClosedAt    *timestamppb.Timestamp
-	StartedBy   []byte
-	DateCreated *timestamppb.Timestamp
-	SelfService bool
+	Id              []byte
+	Tenant          *TenantRef
+	Name            string
+	Desc            string
+	Scope           *AssetRef
+	Status          string
+	StartedAt       *timestamppb.Timestamp
+	ClosedAt        *timestamppb.Timestamp
+	StartedBy       []byte
+	DateCreated     *timestamppb.Timestamp
+	SelfService     bool
+	FindingsVersion uint64
 }
 
 func (b0 InventoryCountAddRequest_builder) Build() *InventoryCountAddRequest {
@@ -295,7 +308,7 @@ func (b0 InventoryCountAddRequest_builder) Build() *InventoryCountAddRequest {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.Id != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 12)
 		x.xxx_hidden_Id = b.Id
 	}
 	x.xxx_hidden_Tenant = b.Tenant
@@ -306,11 +319,12 @@ func (b0 InventoryCountAddRequest_builder) Build() *InventoryCountAddRequest {
 	x.xxx_hidden_StartedAt = b.StartedAt
 	x.xxx_hidden_ClosedAt = b.ClosedAt
 	if b.StartedBy != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 12)
 		x.xxx_hidden_StartedBy = b.StartedBy
 	}
 	x.xxx_hidden_DateCreated = b.DateCreated
 	x.xxx_hidden_SelfService = b.SelfService
+	x.xxx_hidden_FindingsVersion = b.FindingsVersion
 	return m0
 }
 
@@ -534,24 +548,25 @@ type inventoryCountRef_Id struct {
 func (*inventoryCountRef_Id) isInventoryCountRef_Key() {}
 
 type InventoryCountSelect struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_All         bool                   `protobuf:"varint,1,opt,name=all"`
-	xxx_hidden_Tenant      *TenantSelect          `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Name        bool                   `protobuf:"varint,5,opt,name=name"`
-	xxx_hidden_Desc        bool                   `protobuf:"varint,6,opt,name=desc"`
-	xxx_hidden_Scope       *AssetSelect           `protobuf:"bytes,8,opt,name=scope"`
-	xxx_hidden_Status      bool                   `protobuf:"varint,9,opt,name=status"`
-	xxx_hidden_StartedAt   bool                   `protobuf:"varint,10,opt,name=started_at,json=startedAt"`
-	xxx_hidden_ClosedAt    bool                   `protobuf:"varint,11,opt,name=closed_at,json=closedAt"`
-	xxx_hidden_StartedBy   bool                   `protobuf:"varint,12,opt,name=started_by,json=startedBy"`
-	xxx_hidden_DateUpdated bool                   `protobuf:"varint,13,opt,name=date_updated,json=dateUpdated"`
-	xxx_hidden_DateErased  bool                   `protobuf:"varint,14,opt,name=date_erased,json=dateErased"`
-	xxx_hidden_DateCreated bool                   `protobuf:"varint,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_SelfService bool                   `protobuf:"varint,16,opt,name=self_service,json=selfService"`
-	XXX_raceDetectHookData protoimpl.RaceDetectHookData
-	XXX_presence           [1]uint32
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	state                      protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_All             bool                   `protobuf:"varint,1,opt,name=all"`
+	xxx_hidden_Tenant          *TenantSelect          `protobuf:"bytes,2,opt,name=tenant"`
+	xxx_hidden_Name            bool                   `protobuf:"varint,5,opt,name=name"`
+	xxx_hidden_Desc            bool                   `protobuf:"varint,6,opt,name=desc"`
+	xxx_hidden_Scope           *AssetSelect           `protobuf:"bytes,8,opt,name=scope"`
+	xxx_hidden_Status          bool                   `protobuf:"varint,9,opt,name=status"`
+	xxx_hidden_StartedAt       bool                   `protobuf:"varint,10,opt,name=started_at,json=startedAt"`
+	xxx_hidden_ClosedAt        bool                   `protobuf:"varint,11,opt,name=closed_at,json=closedAt"`
+	xxx_hidden_StartedBy       bool                   `protobuf:"varint,12,opt,name=started_by,json=startedBy"`
+	xxx_hidden_DateUpdated     bool                   `protobuf:"varint,13,opt,name=date_updated,json=dateUpdated"`
+	xxx_hidden_DateErased      bool                   `protobuf:"varint,14,opt,name=date_erased,json=dateErased"`
+	xxx_hidden_DateCreated     bool                   `protobuf:"varint,15,opt,name=date_created,json=dateCreated"`
+	xxx_hidden_SelfService     bool                   `protobuf:"varint,16,opt,name=self_service,json=selfService"`
+	xxx_hidden_FindingsVersion bool                   `protobuf:"varint,17,opt,name=findings_version,json=findingsVersion"`
+	XXX_raceDetectHookData     protoimpl.RaceDetectHookData
+	XXX_presence               [1]uint32
+	unknownFields              protoimpl.UnknownFields
+	sizeCache                  protoimpl.SizeCache
 }
 
 func (x *InventoryCountSelect) Reset() {
@@ -670,9 +685,16 @@ func (x *InventoryCountSelect) GetSelfService() bool {
 	return false
 }
 
+func (x *InventoryCountSelect) GetFindingsVersion() bool {
+	if x != nil {
+		return x.xxx_hidden_FindingsVersion
+	}
+	return false
+}
+
 func (x *InventoryCountSelect) SetAll(v bool) {
 	x.xxx_hidden_All = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 13)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 14)
 }
 
 func (x *InventoryCountSelect) SetTenant(v *TenantSelect) {
@@ -681,12 +703,12 @@ func (x *InventoryCountSelect) SetTenant(v *TenantSelect) {
 
 func (x *InventoryCountSelect) SetName(v bool) {
 	x.xxx_hidden_Name = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 13)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 14)
 }
 
 func (x *InventoryCountSelect) SetDesc(v bool) {
 	x.xxx_hidden_Desc = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 13)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 14)
 }
 
 func (x *InventoryCountSelect) SetScope(v *AssetSelect) {
@@ -695,42 +717,47 @@ func (x *InventoryCountSelect) SetScope(v *AssetSelect) {
 
 func (x *InventoryCountSelect) SetStatus(v bool) {
 	x.xxx_hidden_Status = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 13)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 14)
 }
 
 func (x *InventoryCountSelect) SetStartedAt(v bool) {
 	x.xxx_hidden_StartedAt = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 13)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 14)
 }
 
 func (x *InventoryCountSelect) SetClosedAt(v bool) {
 	x.xxx_hidden_ClosedAt = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 13)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 14)
 }
 
 func (x *InventoryCountSelect) SetStartedBy(v bool) {
 	x.xxx_hidden_StartedBy = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 13)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 14)
 }
 
 func (x *InventoryCountSelect) SetDateUpdated(v bool) {
 	x.xxx_hidden_DateUpdated = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 13)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 14)
 }
 
 func (x *InventoryCountSelect) SetDateErased(v bool) {
 	x.xxx_hidden_DateErased = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 13)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 14)
 }
 
 func (x *InventoryCountSelect) SetDateCreated(v bool) {
 	x.xxx_hidden_DateCreated = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 13)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 14)
 }
 
 func (x *InventoryCountSelect) SetSelfService(v bool) {
 	x.xxx_hidden_SelfService = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 12, 13)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 12, 14)
+}
+
+func (x *InventoryCountSelect) SetFindingsVersion(v bool) {
+	x.xxx_hidden_FindingsVersion = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 13, 14)
 }
 
 func (x *InventoryCountSelect) HasAll() bool {
@@ -824,6 +851,13 @@ func (x *InventoryCountSelect) HasSelfService() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 12)
 }
 
+func (x *InventoryCountSelect) HasFindingsVersion() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 13)
+}
+
 func (x *InventoryCountSelect) ClearAll() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
 	x.xxx_hidden_All = false
@@ -887,22 +921,28 @@ func (x *InventoryCountSelect) ClearSelfService() {
 	x.xxx_hidden_SelfService = false
 }
 
+func (x *InventoryCountSelect) ClearFindingsVersion() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 13)
+	x.xxx_hidden_FindingsVersion = false
+}
+
 type InventoryCountSelect_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	All         *bool
-	Tenant      *TenantSelect
-	Name        *bool
-	Desc        *bool
-	Scope       *AssetSelect
-	Status      *bool
-	StartedAt   *bool
-	ClosedAt    *bool
-	StartedBy   *bool
-	DateUpdated *bool
-	DateErased  *bool
-	DateCreated *bool
-	SelfService *bool
+	All             *bool
+	Tenant          *TenantSelect
+	Name            *bool
+	Desc            *bool
+	Scope           *AssetSelect
+	Status          *bool
+	StartedAt       *bool
+	ClosedAt        *bool
+	StartedBy       *bool
+	DateUpdated     *bool
+	DateErased      *bool
+	DateCreated     *bool
+	SelfService     *bool
+	FindingsVersion *bool
 }
 
 func (b0 InventoryCountSelect_builder) Build() *InventoryCountSelect {
@@ -910,50 +950,54 @@ func (b0 InventoryCountSelect_builder) Build() *InventoryCountSelect {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.All != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 13)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 14)
 		x.xxx_hidden_All = *b.All
 	}
 	x.xxx_hidden_Tenant = b.Tenant
 	if b.Name != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 13)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 14)
 		x.xxx_hidden_Name = *b.Name
 	}
 	if b.Desc != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 13)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 14)
 		x.xxx_hidden_Desc = *b.Desc
 	}
 	x.xxx_hidden_Scope = b.Scope
 	if b.Status != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 13)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 14)
 		x.xxx_hidden_Status = *b.Status
 	}
 	if b.StartedAt != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 13)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 14)
 		x.xxx_hidden_StartedAt = *b.StartedAt
 	}
 	if b.ClosedAt != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 13)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 14)
 		x.xxx_hidden_ClosedAt = *b.ClosedAt
 	}
 	if b.StartedBy != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 13)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 14)
 		x.xxx_hidden_StartedBy = *b.StartedBy
 	}
 	if b.DateUpdated != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 13)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 14)
 		x.xxx_hidden_DateUpdated = *b.DateUpdated
 	}
 	if b.DateErased != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 13)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 14)
 		x.xxx_hidden_DateErased = *b.DateErased
 	}
 	if b.DateCreated != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 13)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 14)
 		x.xxx_hidden_DateCreated = *b.DateCreated
 	}
 	if b.SelfService != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 12, 13)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 12, 14)
 		x.xxx_hidden_SelfService = *b.SelfService
+	}
+	if b.FindingsVersion != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 13, 14)
+		x.xxx_hidden_FindingsVersion = *b.FindingsVersion
 	}
 	return m0
 }
@@ -972,6 +1016,7 @@ type InventoryCountPatchRequest struct {
 	xxx_hidden_DateUpdated      *timestamppb.Timestamp `protobuf:"bytes,26,opt,name=date_updated,json=dateUpdated"`
 	xxx_hidden_DateUpdatedForce bool                   `protobuf:"varint,27,opt,name=date_updated_force,json=dateUpdatedForce"`
 	xxx_hidden_SelfService      bool                   `protobuf:"varint,32,opt,name=self_service,json=selfService"`
+	xxx_hidden_FindingsVersion  uint64                 `protobuf:"varint,34,opt,name=findings_version,json=findingsVersion"`
 	XXX_raceDetectHookData      protoimpl.RaceDetectHookData
 	XXX_presence                [1]uint32
 	unknownFields               protoimpl.UnknownFields
@@ -1096,23 +1141,30 @@ func (x *InventoryCountPatchRequest) GetSelfService() bool {
 	return false
 }
 
+func (x *InventoryCountPatchRequest) GetFindingsVersion() uint64 {
+	if x != nil {
+		return x.xxx_hidden_FindingsVersion
+	}
+	return 0
+}
+
 func (x *InventoryCountPatchRequest) SetRef(v *InventoryCountRef) {
 	x.xxx_hidden_Ref = v
 }
 
 func (x *InventoryCountPatchRequest) SetName(v string) {
 	x.xxx_hidden_Name = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 12)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 13)
 }
 
 func (x *InventoryCountPatchRequest) SetDesc(v string) {
 	x.xxx_hidden_Desc = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 12)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 13)
 }
 
 func (x *InventoryCountPatchRequest) SetStatus(v string) {
 	x.xxx_hidden_Status = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 12)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 13)
 }
 
 func (x *InventoryCountPatchRequest) SetStartedAt(v *timestamppb.Timestamp) {
@@ -1125,7 +1177,7 @@ func (x *InventoryCountPatchRequest) SetClosedAt(v *timestamppb.Timestamp) {
 
 func (x *InventoryCountPatchRequest) SetClosedAtNull(v bool) {
 	x.xxx_hidden_ClosedAtNull = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 12)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 13)
 }
 
 func (x *InventoryCountPatchRequest) SetStartedBy(v []byte) {
@@ -1133,12 +1185,12 @@ func (x *InventoryCountPatchRequest) SetStartedBy(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_StartedBy = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 12)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 13)
 }
 
 func (x *InventoryCountPatchRequest) SetStartedByNull(v bool) {
 	x.xxx_hidden_StartedByNull = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 12)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 13)
 }
 
 func (x *InventoryCountPatchRequest) SetDateUpdated(v *timestamppb.Timestamp) {
@@ -1147,12 +1199,17 @@ func (x *InventoryCountPatchRequest) SetDateUpdated(v *timestamppb.Timestamp) {
 
 func (x *InventoryCountPatchRequest) SetDateUpdatedForce(v bool) {
 	x.xxx_hidden_DateUpdatedForce = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 12)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 13)
 }
 
 func (x *InventoryCountPatchRequest) SetSelfService(v bool) {
 	x.xxx_hidden_SelfService = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 12)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 13)
+}
+
+func (x *InventoryCountPatchRequest) SetFindingsVersion(v uint64) {
+	x.xxx_hidden_FindingsVersion = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 12, 13)
 }
 
 func (x *InventoryCountPatchRequest) HasRef() bool {
@@ -1239,6 +1296,13 @@ func (x *InventoryCountPatchRequest) HasSelfService() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 11)
 }
 
+func (x *InventoryCountPatchRequest) HasFindingsVersion() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 12)
+}
+
 func (x *InventoryCountPatchRequest) ClearRef() {
 	x.xxx_hidden_Ref = nil
 }
@@ -1295,6 +1359,11 @@ func (x *InventoryCountPatchRequest) ClearSelfService() {
 	x.xxx_hidden_SelfService = false
 }
 
+func (x *InventoryCountPatchRequest) ClearFindingsVersion() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 12)
+	x.xxx_hidden_FindingsVersion = 0
+}
+
 type InventoryCountPatchRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
@@ -1330,6 +1399,7 @@ type InventoryCountPatchRequest_builder struct {
 	// apart from a caller who never considered locking at all.
 	DateUpdatedForce *bool
 	SelfService      *bool
+	FindingsVersion  *uint64
 }
 
 func (b0 InventoryCountPatchRequest_builder) Build() *InventoryCountPatchRequest {
@@ -1338,39 +1408,43 @@ func (b0 InventoryCountPatchRequest_builder) Build() *InventoryCountPatchRequest
 	_, _ = b, x
 	x.xxx_hidden_Ref = b.Ref
 	if b.Name != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 12)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 13)
 		x.xxx_hidden_Name = b.Name
 	}
 	if b.Desc != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 12)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 13)
 		x.xxx_hidden_Desc = b.Desc
 	}
 	if b.Status != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 12)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 13)
 		x.xxx_hidden_Status = b.Status
 	}
 	x.xxx_hidden_StartedAt = b.StartedAt
 	x.xxx_hidden_ClosedAt = b.ClosedAt
 	if b.ClosedAtNull != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 12)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 13)
 		x.xxx_hidden_ClosedAtNull = *b.ClosedAtNull
 	}
 	if b.StartedBy != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 12)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 13)
 		x.xxx_hidden_StartedBy = b.StartedBy
 	}
 	if b.StartedByNull != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 12)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 13)
 		x.xxx_hidden_StartedByNull = *b.StartedByNull
 	}
 	x.xxx_hidden_DateUpdated = b.DateUpdated
 	if b.DateUpdatedForce != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 12)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 13)
 		x.xxx_hidden_DateUpdatedForce = *b.DateUpdatedForce
 	}
 	if b.SelfService != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 12)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 13)
 		x.xxx_hidden_SelfService = *b.SelfService
+	}
+	if b.FindingsVersion != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 12, 13)
+		x.xxx_hidden_FindingsVersion = *b.FindingsVersion
 	}
 	return m0
 }
@@ -5160,7 +5234,7 @@ var File_rove_count_svc_g_proto protoreflect.FileDescriptor
 
 const file_rove_count_svc_g_proto_rawDesc = "" +
 	"\n" +
-	"\x16rove/count_svc.g.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x11patch/patch.proto\x1a\x16rove/asset_svc.g.proto\x1a\x10rove/count.proto\x1a\x1erove/payday/tenant_svc.g.proto\"\xca\x03\n" +
+	"\x16rove/count_svc.g.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x11patch/patch.proto\x1a\x16rove/asset_svc.g.proto\x1a\x10rove/count.proto\x1a\x1erove/payday/tenant_svc.g.proto\"\xfc\x03\n" +
 	"\x18InventoryCountAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\x12\x19\n" +
@@ -5175,13 +5249,14 @@ const file_rove_count_svc_g_proto_rawDesc = "" +
 	"\n" +
 	"started_by\x18\f \x01(\fR\tstartedBy\x12=\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\x12(\n" +
-	"\fself_service\x18\x10 \x01(\bB\x05\xaa\x01\x02\b\x02R\vselfService\"y\n" +
+	"\fself_service\x18\x10 \x01(\bB\x05\xaa\x01\x02\b\x02R\vselfService\x120\n" +
+	"\x10findings_version\x18\x11 \x01(\x04B\x05\xaa\x01\x02\b\x02R\x0ffindingsVersion\"y\n" +
 	"\x18InventoryCountGetRequest\x12)\n" +
 	"\x03ref\x18\x01 \x01(\v2\x17.rove.InventoryCountRefR\x03ref\x122\n" +
 	"\x06select\x18\x02 \x01(\v2\x1a.rove.InventoryCountSelectR\x06select\",\n" +
 	"\x11InventoryCountRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
-	"\x03key\"\xa2\x03\n" +
+	"\x03key\"\xcd\x03\n" +
 	"\x14InventoryCountSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x12.rove.TenantSelectR\x06tenant\x12\x12\n" +
@@ -5199,7 +5274,8 @@ const file_rove_count_svc_g_proto_rawDesc = "" +
 	"\vdate_erased\x18\x0e \x01(\bR\n" +
 	"dateErased\x12!\n" +
 	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\x12!\n" +
-	"\fself_service\x18\x10 \x01(\bR\vselfService\"\xf8\x03\n" +
+	"\fself_service\x18\x10 \x01(\bR\vselfService\x12)\n" +
+	"\x10findings_version\x18\x11 \x01(\bR\x0ffindingsVersion\"\xa3\x04\n" +
 	"\x1aInventoryCountPatchRequest\x12)\n" +
 	"\x03ref\x18\x01 \x01(\v2\x17.rove.InventoryCountRefR\x03ref\x12\x12\n" +
 	"\x04name\x18\n" +
@@ -5215,7 +5291,8 @@ const file_rove_count_svc_g_proto_rawDesc = "" +
 	"\x0fstarted_by_null\x18\x19 \x01(\bR\rstartedByNull\x12=\n" +
 	"\fdate_updated\x18\x1a \x01(\v2\x1a.google.protobuf.TimestampR\vdateUpdated\x12,\n" +
 	"\x12date_updated_force\x18\x1b \x01(\bR\x10dateUpdatedForce\x12!\n" +
-	"\fself_service\x18  \x01(\bR\vselfService\"k\n" +
+	"\fself_service\x18  \x01(\bR\vselfService\x12)\n" +
+	"\x10findings_version\x18\" \x01(\x04R\x0ffindingsVersion\"k\n" +
 	"\x1aInventoryCountApplyRequest\x12)\n" +
 	"\x03ref\x18\x01 \x01(\v2\x17.rove.InventoryCountRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"5\n" +

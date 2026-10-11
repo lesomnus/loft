@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
-import { AssetService, CustodyService, NotificationService, ReservationService, ago, fmt, idStr, ref, ts } from '../api.js'
+import { AssetService, CustodyService, NotificationService, ReservationService, ago, fmt, idStr, minute, ref, ts } from '../api.js'
 import { useCatalog } from '../catalog.js'
 import { AssetLink } from '../pickers.js'
 import { useRpc } from '../rpc.js'
@@ -17,7 +17,7 @@ export function Dashboard(): ReactNode {
 		AssetService.method.search,
 		c.me.party === undefined ? null : { custodian: ref(c.me.party.id), size: 50 },
 	)
-	const now = new Date()
+	const now = minute()
 	const week = new Date(now.getTime() + 7 * 86400_000)
 	const cal = useRpc(ReservationService.method.calendar, { from: ts(now), to: ts(week), mine: true })
 	const pending = useRpc(

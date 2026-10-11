@@ -25,7 +25,7 @@ import { Settings } from './pages/settings.js'
 import { Spaces } from './pages/spaces.js'
 import { Stocks } from './pages/stock.js'
 import { Work } from './pages/work.js'
-import { useRpc } from './rpc.js'
+import { Offline, useRpc } from './rpc.js'
 import { roleWord } from './words.js'
 import { Switcher } from './workspaces.js'
 
@@ -111,6 +111,7 @@ function Frame(props: { account: Account; onSignOut: () => void; children: React
 					</NavLink>
 					<Bell />
 				</header>
+				<Offline />
 				<main className="content">{props.children}</main>
 			</div>
 		</div>

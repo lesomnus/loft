@@ -180,6 +180,27 @@ func (_u *InventoryCountUpdate) SetNillableSelfService(v *bool) *InventoryCountU
 	return _u
 }
 
+// SetFindingsVersion sets the "findings_version" field.
+func (_u *InventoryCountUpdate) SetFindingsVersion(v uint64) *InventoryCountUpdate {
+	_u.mutation.ResetFindingsVersion()
+	_u.mutation.SetFindingsVersion(v)
+	return _u
+}
+
+// SetNillableFindingsVersion sets the "findings_version" field if the given value is not nil.
+func (_u *InventoryCountUpdate) SetNillableFindingsVersion(v *uint64) *InventoryCountUpdate {
+	if v != nil {
+		_u.SetFindingsVersion(*v)
+	}
+	return _u
+}
+
+// AddFindingsVersion adds value to the "findings_version" field.
+func (_u *InventoryCountUpdate) AddFindingsVersion(v int64) *InventoryCountUpdate {
+	_u.mutation.AddFindingsVersion(v)
+	return _u
+}
+
 // Mutation returns the InventoryCountMutation object of the builder.
 func (_u *InventoryCountUpdate) Mutation() *InventoryCountMutation {
 	return _u.mutation
@@ -282,6 +303,12 @@ func (_u *InventoryCountUpdate) sqlSave(ctx context.Context) (_node int, err err
 	}
 	if value, ok := _u.mutation.SelfService(); ok {
 		_spec.SetField(inventorycount.FieldSelfService, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.FindingsVersion(); ok {
+		_spec.SetField(inventorycount.FieldFindingsVersion, field.TypeUint64, value)
+	}
+	if value, ok := _u.mutation.AddedFindingsVersion(); ok {
+		_spec.AddField(inventorycount.FieldFindingsVersion, field.TypeUint64, value)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
@@ -455,6 +482,27 @@ func (_u *InventoryCountUpdateOne) SetNillableSelfService(v *bool) *InventoryCou
 	return _u
 }
 
+// SetFindingsVersion sets the "findings_version" field.
+func (_u *InventoryCountUpdateOne) SetFindingsVersion(v uint64) *InventoryCountUpdateOne {
+	_u.mutation.ResetFindingsVersion()
+	_u.mutation.SetFindingsVersion(v)
+	return _u
+}
+
+// SetNillableFindingsVersion sets the "findings_version" field if the given value is not nil.
+func (_u *InventoryCountUpdateOne) SetNillableFindingsVersion(v *uint64) *InventoryCountUpdateOne {
+	if v != nil {
+		_u.SetFindingsVersion(*v)
+	}
+	return _u
+}
+
+// AddFindingsVersion adds value to the "findings_version" field.
+func (_u *InventoryCountUpdateOne) AddFindingsVersion(v int64) *InventoryCountUpdateOne {
+	_u.mutation.AddFindingsVersion(v)
+	return _u
+}
+
 // Mutation returns the InventoryCountMutation object of the builder.
 func (_u *InventoryCountUpdateOne) Mutation() *InventoryCountMutation {
 	return _u.mutation
@@ -587,6 +635,12 @@ func (_u *InventoryCountUpdateOne) sqlSave(ctx context.Context) (_node *Inventor
 	}
 	if value, ok := _u.mutation.SelfService(); ok {
 		_spec.SetField(inventorycount.FieldSelfService, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.FindingsVersion(); ok {
+		_spec.SetField(inventorycount.FieldFindingsVersion, field.TypeUint64, value)
+	}
+	if value, ok := _u.mutation.AddedFindingsVersion(); ok {
+		_spec.AddField(inventorycount.FieldFindingsVersion, field.TypeUint64, value)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	_node = &InventoryCount{config: _u.config}

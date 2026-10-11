@@ -1,5 +1,8 @@
+import { createHash } from 'node:crypto'
+import { readdirSync, readFileSync } from 'node:fs'
+
 import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vite'
+import { defineConfig, type Plugin } from 'vite'
 
 /**
  * `npm run dev` serves the page on 5173 and the app answers on 8080. Rather
@@ -9,8 +12,37 @@ import { defineConfig } from 'vite'
  */
 const app = process.env['ROVE_ADDR'] ?? 'http://localhost:8080'
 
+/**
+ * The service worker (`sw.js`), written into the build with what it keeps:
+ * every file the build has, so the app opens with no network the first time
+ * it is needed. Its version is what is in those files, so a build that
+ * changed any of them is a new worker.
+ */
+function serviceWorker(): Plugin {
+	const at = (p: string) => new URL(p, import.meta.url)
+	return {
+		name: 'rove-service-worker',
+		apply: 'build',
+		generateBundle(_, bundle) {
+			const own = readdirSync(at('./public/')).map((f) => `/${f}`)
+			const built = Object.keys(bundle)
+				.filter((f) => f.startsWith('static/'))
+				.map((f) => `/${f}`)
+			const files = [...own, ...built].sort()
+			const h = createHash('sha256').update(files.join('\n'))
+			for (const f of own) h.update(readFileSync(at(`./public${f}`)))
+			const version = h.digest('hex').slice(0, 16)
+			this.emitFile({
+				type: 'asset',
+				fileName: 'sw.js',
+				source: `const VERSION = ${JSON.stringify(version)}\nconst FILES = ${JSON.stringify(files)}\n\n${readFileSync(at('./sw.js'), 'utf8')}`,
+			})
+		},
+	}
+}
+
 export default defineConfig({
-	plugins: [react()],
+	plugins: [react(), serviceWorker()],
 	server: {
 		proxy: {
 			'^/(rove|payday)\\.[A-Za-z]+Service/': { target: app, changeOrigin: false },

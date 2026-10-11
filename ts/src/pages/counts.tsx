@@ -5,7 +5,7 @@ import type { CountFinding, InventoryCount } from '../../gen/rove/count_pb.js'
 import { CountFindingService, InventoryCountService, fmt, idBytes, idStr, op, ref, ts } from '../api.js'
 import { useCatalog } from '../catalog.js'
 import { SpaceSelect, useAssets } from '../pickers.js'
-import { useAct, useRpc } from '../rpc.js'
+import { Live, useAct, useRpc } from '../rpc.js'
 import { Badge, Card, Confirm, Empty, Field, FormModal, Load, PageHead, Select, Stat, useToast } from '../ui.js'
 import { countWord, findingWord, resolutionWord } from '../words.js'
 import { Camera } from './scan.js'
@@ -82,7 +82,17 @@ function NewCount(props: { onClose: () => void }): ReactNode {
 
 export function CountPage(): ReactNode {
 	const { id = '' } = useParams()
-	const v = useRpc(InventoryCountService.method.get, { ref: ref(idBytes(id)) })
+	// Every scan, reconcile and resolution -- anybody's -- is written to the
+	// count's row too, so the page follows the row and reads its findings again.
+	return (
+		<Live watch={InventoryCountService.method.watch} ids={[idBytes(id)]}>
+			<CountRead id={id} />
+		</Live>
+	)
+}
+
+function CountRead(props: { id: string }): ReactNode {
+	const v = useRpc(InventoryCountService.method.get, { ref: ref(idBytes(props.id)) })
 	return <Load q={v}>{(x) => <CountView c={x} />}</Load>
 }
 
@@ -157,6 +167,8 @@ function CountView(props: { c: InventoryCount }): ReactNode {
 			localStorage.setItem(QUEUE, JSON.stringify([...readQueue(), q]))
 			setQueued((n) => n + 1)
 			toast('오프라인: 저장해 두었다가 연결되면 보냅니다.', 'info')
+			setCode('')
+			input.current?.focus()
 			return
 		}
 		const ok = await send(q)
