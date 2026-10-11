@@ -99,6 +99,11 @@ wall was never installed on, for work that cannot be done from inside a tenant
 **Never hand `Ungated` to anything a caller can reach.** There is no superuser
 flag to check; the wiring is the whole of the control.
 
+The one door that writes as the deployment on request is the operator's entry
+point, `rove-admin serve` (`server/admin`, `cli/admin`): its own binary, on
+`admin.addr`, behind operator keys. `rove` must never import either package --
+`go list -deps ./cmd/rove` is how to check.
+
 ## The wall is a predicate, so it only applies to reads
 
 `Add` has no row to narrow, so it is gated in the generated `Gate` layer

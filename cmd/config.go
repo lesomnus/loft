@@ -56,6 +56,30 @@ type Config struct {
 
 	// App is what rove is configured with beyond payday's pieces.
 	App AppConfig `yaml:"app"`
+
+	// Admin is the operator's entry point, which `rove-admin serve` serves and
+	// `rove serve` does not (design 6장, decision 17).
+	Admin AdminConfig `yaml:"admin"`
+}
+
+// AdminConfig is the operator's entry point: a listener of its own that only
+// the operator's network reaches.
+type AdminConfig struct {
+	// Addr is where it listens: the loopback by default, and an address on
+	// the operators' network at most -- never one the public reaches.
+	Addr string `yaml:"addr"`
+	// Keys are the operators, by name, each with a key as `env:NAME`,
+	// `file:PATH` or the key itself: a request carries one as a bearer token,
+	// and what it did is logged with the name. None is a door nobody opens.
+	Keys map[string]string `yaml:"keys"`
+}
+
+// ListenAddr is where the operator's entry point listens.
+func (c AdminConfig) ListenAddr() string {
+	if c.Addr == "" {
+		return "127.0.0.1:8081"
+	}
+	return c.Addr
 }
 
 // AuthConfig is how people are known: roster, beside this process or inside
