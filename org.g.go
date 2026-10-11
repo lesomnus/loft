@@ -239,3 +239,71 @@ func AliasHoldById(v []byte) *AliasHoldRef {
 func AliasHoldGetById(v []byte) *AliasHoldGetRequest {
 	return AliasHoldGetRequest_builder{Ref: AliasHoldById(v)}.Build()
 }
+
+func (x *ConsentRef) Pick() *ConsentGetRequest {
+	return ConsentGetRequest_builder{Ref: x}.Build()
+}
+
+func (x *Consent) Ref() *ConsentRef {
+	if v := x.GetId(); len(v) > 0 {
+		return ConsentById(v)
+	}
+	{
+		v1 := x.GetAccount()
+		v2 := x.GetDocument()
+		v3 := x.GetVersion()
+		if len(v1) > 0 && len(v2) > 0 && len(v3) > 0 {
+			return ConsentByAgreed(v1, v2, v3)
+		}
+	}
+
+	return nil
+}
+
+func (x *Consent) Pick() *ConsentGetRequest {
+	return x.Ref().Pick()
+}
+
+func (x *ConsentRef) Picks(v *Consent) bool {
+	switch x.WhichKey() {
+	case ConsentRef_Id_case:
+		return bytes.Equal(x.GetId(), v.GetId())
+	case ConsentRef_Agreed_case:
+		x := x.GetAgreed()
+		return (bytes.Equal(x.GetAccount(), v.GetAccount())) &&
+			(x.GetDocument() == v.GetDocument()) &&
+			(x.GetVersion() == v.GetVersion())
+	default:
+		return false
+	}
+}
+
+func (x *ConsentGetRequest) WithSelect(f func(s *ConsentSelect)) *ConsentGetRequest {
+	if !x.HasSelect() {
+		x.SetSelect(&ConsentSelect{})
+	}
+	f(x.GetSelect())
+	return x
+}
+
+func ConsentById(v []byte) *ConsentRef {
+	x := &ConsentRef{}
+	x.SetId(v)
+	return x
+}
+
+func ConsentGetById(v []byte) *ConsentGetRequest {
+	return ConsentGetRequest_builder{Ref: ConsentById(v)}.Build()
+}
+
+func ConsentByAgreed(account []byte, document string, version string) *ConsentRef {
+	x := &ConsentRefByAgreed{}
+	x.SetAccount(account)
+	x.SetDocument(document)
+	x.SetVersion(version)
+	return ConsentRef_builder{Agreed: x}.Build()
+}
+
+func ConsentGetByAgreed(account []byte, document string, version string) *ConsentGetRequest {
+	return ConsentGetRequest_builder{Ref: ConsentByAgreed(account, document, version)}.Build()
+}

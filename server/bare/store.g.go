@@ -18,6 +18,7 @@ import (
 	audit "github.com/lesomnus/rove/internal/ent/audit"
 	bookable "github.com/lesomnus/rove/internal/ent/bookable"
 	clilogin "github.com/lesomnus/rove/internal/ent/clilogin"
+	consent "github.com/lesomnus/rove/internal/ent/consent"
 	countfinding "github.com/lesomnus/rove/internal/ent/countfinding"
 	custody "github.com/lesomnus/rove/internal/ent/custody"
 	custodyline "github.com/lesomnus/rove/internal/ent/custodyline"
@@ -355,6 +356,7 @@ type Scope interface {
 	InvitationScope(ctx context.Context) (predicate.Invitation, error)
 	CliLoginScope(ctx context.Context) (predicate.CliLogin, error)
 	AliasHoldScope(ctx context.Context) (predicate.AliasHold, error)
+	ConsentScope(ctx context.Context) (predicate.Consent, error)
 	AssetScope(ctx context.Context) (predicate.Asset, error)
 	TreeLockScope(ctx context.Context) (predicate.TreeLock, error)
 	TenantDomainScope(ctx context.Context) (predicate.TenantDomain, error)
@@ -424,6 +426,9 @@ func (Unscoped) CliLoginScope(_ context.Context) (predicate.CliLogin, error) {
 	return nil, nil
 }
 func (Unscoped) AliasHoldScope(_ context.Context) (predicate.AliasHold, error) {
+	return nil, nil
+}
+func (Unscoped) ConsentScope(_ context.Context) (predicate.Consent, error) {
 	return nil, nil
 }
 func (Unscoped) AssetScope(_ context.Context) (predicate.Asset, error) {
@@ -714,6 +719,26 @@ func (ss Scopes) AliasHoldScope(ctx context.Context) (predicate.AliasHold, error
 	}
 
 	return aliashold.And(ps...), nil
+}
+
+func (ss Scopes) ConsentScope(ctx context.Context) (predicate.Consent, error) {
+	ps := make([]predicate.Consent, 0, len(ss))
+	for _, s := range ss {
+		p, err := s.ConsentScope(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if p == nil {
+			continue
+		}
+
+		ps = append(ps, p)
+	}
+	if len(ps) == 0 {
+		return nil, nil
+	}
+
+	return consent.And(ps...), nil
 }
 
 func (ss Scopes) AssetScope(ctx context.Context) (predicate.Asset, error) {
@@ -1396,7 +1421,7 @@ func (s Store) now() time.Time {
 // is rendered for that dialect, not just what this server writes.
 //
 // That set is also what a soft erasure needs, so this is the whole
-// check. AliasHold, Asset, AssetType, Attachment, Bookable, CliLogin, Custody, Holder, InventoryCount, Invitation, ItemModel, Label, Party, Purchase, Reservation, Session, Stock, TenantContract, TenantDomain and WorkOrder free the names they held when a row
+// check. AliasHold, Asset, AssetType, Attachment, Bookable, CliLogin, Consent, Custody, Holder, InventoryCount, Invitation, ItemModel, Label, Party, Purchase, Reservation, Session, Stock, TenantContract, TenantDomain and WorkOrder free the names they held when a row
 // is erased, which is a unique index covering only the rows that are
 // still there -- a partial index, and the dialects above are the ones
 // that have one. MySQL does not, and ent writes the annotation out for
@@ -1451,6 +1476,7 @@ func (s Server) CliLogin() rove.CliLoginServiceServer { return CliLoginServiceSe
 func (s Server) AliasHold() rove.AliasHoldServiceServer {
 	return AliasHoldServiceServer{Store: s.Store}
 }
+func (s Server) Consent() rove.ConsentServiceServer   { return ConsentServiceServer{Store: s.Store} }
 func (s Server) Asset() rove.AssetServiceServer       { return AssetServiceServer{Store: s.Store} }
 func (s Server) TreeLock() rove.TreeLockServiceServer { return TreeLockServiceServer{Store: s.Store} }
 func (s Server) TenantDomain() rove.TenantDomainServiceServer {

@@ -33,7 +33,7 @@ import {
 import { Code, ConnectError, createClient } from '@connectrpc/connect'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
 
-import { errorText, isUnauthenticated, transport } from './api.js'
+import { errorText, isConsentOwed, isUnauthenticated, transport } from './api.js'
 import { recall, remember, setOffline, unreachable, useOffline } from './offline.js'
 import { useToast } from './ui.js'
 
@@ -173,6 +173,7 @@ export function useRpc<I extends DescMessage, O extends DescMessage>(
 			(error) => {
 				if (ctl.signal.aborted) return
 				if (isUnauthenticated(error)) onSignedOut()
+				if (isConsentOwed(error)) location.reload()
 				setAt((v) => ({ key, state: 'error', data: v.key === key ? v.data : undefined, error }))
 			},
 		)
@@ -239,6 +240,7 @@ export function useAct(): Act {
 					return undefined
 				}
 				if (isUnauthenticated(err)) onSignedOut()
+				if (isConsentOwed(err)) location.reload()
 				if (!opts.quiet) toast(errorText(err), 'bad')
 				return undefined
 			}

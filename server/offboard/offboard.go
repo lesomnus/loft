@@ -70,8 +70,8 @@ func (d Deployment) held(ctx context.Context, tenant pdid.Id) error {
 var Trail = []string{"audit", "archived"}
 
 // Shared is the deployment's own tables, which no tenant has rows in: sessions
-// are an account's, and an account is in no workspace (D27).
-var Shared = []string{"session", "clilogin", "aliashold"}
+// and agreements are an account's, and an account is in no workspace (D27).
+var Shared = []string{"session", "clilogin", "aliashold", "consent"}
 
 // Tables is every table a tenant has rows in, each before every table it
 // points at, so that deleting in this order leaves no reference dangling. The

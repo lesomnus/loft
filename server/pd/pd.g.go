@@ -119,6 +119,7 @@ const (
 	AuditDomain           pdid.Domain = 3  // "audit"
 	BookableDomain        pdid.Domain = 25 // "bookable"
 	CliLoginDomain        pdid.Domain = 42 // "cli-login"
+	ConsentDomain         pdid.Domain = 44 // "consent"
 	CountFindingDomain    pdid.Domain = 32 // "count-finding"
 	CustodyDomain         pdid.Domain = 21 // "custody"
 	CustodyLineDomain     pdid.Domain = 22 // "custody-line"
@@ -161,6 +162,7 @@ func init() {
 	pdid.Register("rove.Audit", AuditDomain, "audit")
 	pdid.Register("rove.Bookable", BookableDomain, "bookable")
 	pdid.Register("rove.CliLogin", CliLoginDomain, "cli-login")
+	pdid.Register("rove.Consent", ConsentDomain, "consent")
 	pdid.Register("rove.CountFinding", CountFindingDomain, "count-finding")
 	pdid.Register("rove.Custody", CustodyDomain, "custody")
 	pdid.Register("rove.CustodyLine", CustodyLineDomain, "custody-line")
@@ -207,6 +209,7 @@ var Domains = map[string]pdid.Domain{
 	"rove.Audit":           AuditDomain,
 	"rove.Bookable":        BookableDomain,
 	"rove.CliLogin":        CliLoginDomain,
+	"rove.Consent":         ConsentDomain,
 	"rove.CountFinding":    CountFindingDomain,
 	"rove.Custody":         CustodyDomain,
 	"rove.CustodyLine":     CustodyLineDomain,
@@ -353,6 +356,11 @@ func (wall) BookableScope(ctx context.Context) (predicate.Bookable, error) {
 
 // CliLoginScope: declared `global`, so it is not behind the wall at all.
 func (wall) CliLoginScope(ctx context.Context) (predicate.CliLogin, error) {
+	return nil, nil
+}
+
+// ConsentScope: declared `global`, so it is not behind the wall at all.
+func (wall) ConsentScope(ctx context.Context) (predicate.Consent, error) {
 	return nil, nil
 }
 
@@ -15805,6 +15813,40 @@ func (s interceptAliasHold) Erase(ctx context.Context, req *rove.AliasHoldRef) (
 		rove.AliasHoldService_Erase_FullMethodName, req, s.AliasHoldServiceServer.Erase)
 }
 
+func (s Intercept) Consent() rove.ConsentServiceServer {
+	return interceptConsent{s, s.Next().Consent()}
+}
+
+type interceptConsent struct {
+	Intercept
+	rove.ConsentServiceServer
+}
+
+func (s interceptConsent) Add(ctx context.Context, req *rove.ConsentAddRequest) (*rove.Consent, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.ConsentServiceServer,
+		rove.ConsentService_Add_FullMethodName, req, s.ConsentServiceServer.Add)
+}
+
+func (s interceptConsent) Get(ctx context.Context, req *rove.ConsentGetRequest) (*rove.Consent, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.ConsentServiceServer,
+		rove.ConsentService_Get_FullMethodName, req, s.ConsentServiceServer.Get)
+}
+
+func (s interceptConsent) Patch(ctx context.Context, req *rove.ConsentPatchRequest) (*rove.Consent, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.ConsentServiceServer,
+		rove.ConsentService_Patch_FullMethodName, req, s.ConsentServiceServer.Patch)
+}
+
+func (s interceptConsent) Apply(ctx context.Context, req *rove.ConsentApplyRequest) (*rove.Consent, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.ConsentServiceServer,
+		rove.ConsentService_Apply_FullMethodName, req, s.ConsentServiceServer.Apply)
+}
+
+func (s interceptConsent) Erase(ctx context.Context, req *rove.ConsentRef) (*rove.ConsentEraseResponse, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.ConsentServiceServer,
+		rove.ConsentService_Erase_FullMethodName, req, s.ConsentServiceServer.Erase)
+}
+
 func (s Intercept) Asset() rove.AssetServiceServer {
 	return interceptAsset{s, s.Next().Asset()}
 }
@@ -18893,6 +18935,71 @@ func dispatch(ctx context.Context, s rove.Server, op *pdpb.Op) (*anypb.Any, erro
 		}
 
 		res, err := s.AliasHold().Erase(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.ConsentService_Add_FullMethodName:
+		v := &rove.ConsentAddRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.Consent().Add(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.ConsentService_Get_FullMethodName:
+		v := &rove.ConsentGetRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.Consent().Get(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.ConsentService_Patch_FullMethodName:
+		v := &rove.ConsentPatchRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.Consent().Patch(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.ConsentService_Apply_FullMethodName:
+		v := &rove.ConsentApplyRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.Consent().Apply(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.ConsentService_Erase_FullMethodName:
+		v := &rove.ConsentRef{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.Consent().Erase(ctx, v)
 		if err != nil {
 			return nil, err
 		}

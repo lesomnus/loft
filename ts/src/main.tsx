@@ -40,6 +40,7 @@ import { Spinner, Toasts, useToast } from './ui.js'
 import { Inbox } from './invitations.js'
 import { Terminal } from './terminal.js'
 import { Closed, Elsewhere } from './workspaces.js'
+import { Consent } from './consent.js'
 import './style.css'
 
 /** What a sign-in through the issuer came back as (`/?signin=`), in words. */
@@ -164,6 +165,7 @@ type State =
 	| { at: 'checking' }
 	| { at: 'out'; ways: Ways }
 	| { at: 'unknown'; why: string }
+	| { at: 'consent'; account: Account }
 	| { at: 'elsewhere'; account: Account }
 	| { at: 'inbox'; account: Account }
 	| { at: 'terminal'; account: Account }
@@ -207,6 +209,12 @@ function Boot(): ReactNode {
 				// for nobody and nowhere else.
 				void seen(a, w)
 				void keepOnly(a.id, a.workspaces.map((v) => v.id))
+			}
+			// What the deployment asks of an account comes before anything
+			// it has: every call is refused until it agrees (design 9.11).
+			if ((a.owes ?? []).length > 0) {
+				setState({ at: 'consent', account: a })
+				return
 			}
 			// The invitations waiting for the account: about no workspace, and
 			// opened by the link an invitation's mail carries.
@@ -297,6 +305,8 @@ function Boot(): ReactNode {
 					</div>
 				</div>
 			)
+		case 'consent':
+			return <Consent account={state.account} onDone={() => setN((v) => v + 1)} onSignOut={signOut} />
 		case 'elsewhere':
 			return <Elsewhere account={state.account} onSignOut={signOut} />
 		case 'inbox':

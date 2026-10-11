@@ -1,6 +1,6 @@
 // Package account is what a signed-in account has outside any one workspace:
-// the workspaces it is in, making another, and which of them a label it
-// scanned is in (design 9.11, D28).
+// the workspaces it is in, making another, which of them a label it scanned
+// is in, and what it agreed to (design 9.11, D28).
 //
 // It is HTTP beside `/session` rather than an RPC, and that is the reason it
 // is a package of its own. Every RPC is served as a membership of one
@@ -26,6 +26,7 @@ import (
 	"github.com/lesomnus/payday/pdid"
 
 	"github.com/lesomnus/rove/internal/identity"
+	"github.com/lesomnus/rove/server/consent"
 	"github.com/lesomnus/rove/server/tenancy"
 )
 
@@ -47,6 +48,9 @@ type Account struct {
 	// Manage is where the account itself is managed at roster, and deleted
 	// where its directory offers that; absent for no such page.
 	Manage string `json:"manage,omitempty"`
+	// Owes is what it has to agree to before it uses anything here, at the
+	// versions in force; absent for nothing (design 9.11).
+	Owes []consent.Document `json:"owes,omitempty"`
 }
 
 // Workspace is one an account is in.
@@ -79,11 +83,21 @@ type Routes struct {
 	Label LabelFinder
 	// Manage is roster's account page (`auth.roster.account_url`).
 	Manage string
+	// Consent is what an account agrees to first; nil asks nothing.
+	Consent *consent.Consents
+	// Arrive is what an account that has just agreed is given: a workspace
+	// of its own, as a sign-in gives one.
+	Arrive func(ctx context.Context, p identity.Person) error
 }
 
 // Mount serves `GET /account`, `POST /account/workspaces`, a workspace's
-// data for its owner at `GET /account/workspaces/{alias}/export`, and which of
-// the account's workspaces a label is in at `GET /account/labels/{code}`.
+// data for its owner at `GET /account/workspaces/{alias}/export`, which of the
+// account's workspaces a label is in at `GET /account/labels/{code}`, and what
+// it agreed to and agreeing at `GET` and `POST /account/consents`.
+//
+// An account that owes an agreement is refused a new workspace as every RPC
+// refuses it (`cmd.Resolver`). Its data it takes out all the same: what it
+// has is its own whether or not it agrees to what comes next.
 func (a Routes) Mount(mux *http.ServeMux) {
 	sessions, people, ws := a.Sessions, a.People, a.Workspaces
 	mux.HandleFunc("GET /account/workspaces/{alias}/export", func(w http.ResponseWriter, r *http.Request) {
@@ -127,6 +141,10 @@ func (a Routes) Mount(mux *http.ServeMux) {
 			return
 		}
 		v.Manage = a.Manage
+		if v.Owes, err = a.Consent.Owed(r.Context(), p.Id); err != nil {
+			fail(w, r, err)
+			return
+		}
 		answer(w, http.StatusOK, v)
 	})
 	mux.HandleFunc("POST /account/workspaces", func(w http.ResponseWriter, r *http.Request) {
@@ -149,6 +167,13 @@ func (a Routes) Mount(mux *http.ServeMux) {
 		name := strings.TrimSpace(in.Name)
 		if name == "" || utf8.RuneCountInString(name) > 80 {
 			http.Error(w, "이름은 1~80자로 씁니다", http.StatusBadRequest)
+			return
+		}
+		if ok, err := a.Consent.Settled(r.Context(), p.Id); err != nil {
+			fail(w, r, err)
+			return
+		} else if !ok {
+			http.Error(w, "이용약관과 개인정보 처리방침에 먼저 동의하세요", http.StatusForbidden)
 			return
 		}
 		m, err := ws.Create(r.Context(), p, name)
@@ -193,6 +218,70 @@ func (a Routes) Mount(mux *http.ServeMux) {
 			}
 		}
 		http.Error(w, "no workspace of yours has this label", http.StatusNotFound)
+	})
+	mux.HandleFunc("GET /account/consents", func(w http.ResponseWriter, r *http.Request) {
+		p, ok := SignedIn(w, r, sessions, people)
+		if !ok {
+			return
+		}
+		owed, err := a.Consent.Owed(r.Context(), p.Id)
+		if err != nil {
+			fail(w, r, err)
+			return
+		}
+		agreed := []consent.Agreement{}
+		if a.Consent != nil {
+			if agreed, err = a.Consent.Of(r.Context(), p.Id); err != nil {
+				fail(w, r, err)
+				return
+			}
+		}
+		answer(w, http.StatusOK, map[string]any{"owed": owed, "agreed": agreed})
+	})
+	mux.HandleFunc("POST /account/consents", func(w http.ResponseWriter, r *http.Request) {
+		// A body that is JSON, which a form on another site cannot send: an
+		// agreement is the account's own doing.
+		if ct, _, _ := mime.ParseMediaType(r.Header.Get("Content-Type")); ct != "application/json" {
+			http.Error(w, "an agreement is sent as JSON", http.StatusUnsupportedMediaType)
+			return
+		}
+		p, ok := SignedIn(w, r, sessions, people)
+		if !ok {
+			return
+		}
+		var in struct {
+			// Agree is each document agreed to, by name, with the version
+			// read.
+			Agree map[string]string `json:"agree"`
+		}
+		if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 4<<10)).Decode(&in); err != nil {
+			http.Error(w, "an agreement is sent as {\"agree\": {\"terms\": <version>, ...}}", http.StatusBadRequest)
+			return
+		}
+		client := "web"
+		if r.Header.Get("User-Agent") == "rove-cli" {
+			client = "cli"
+		}
+		err := a.Consent.Agree(r.Context(), p.Id, in.Agree, client)
+		switch {
+		case errors.Is(err, consent.ErrOwed):
+			http.Error(w, "모든 문서에 동의해야 합니다", http.StatusConflict)
+			return
+		case errors.Is(err, consent.ErrStale):
+			http.Error(w, "문서가 바뀌었습니다. 새로 읽고 다시 동의하세요", http.StatusConflict)
+			return
+		case err != nil:
+			fail(w, r, err)
+			return
+		}
+		// What a sign-in would have given it, had it agreed then.
+		if a.Arrive != nil {
+			if err := a.Arrive(r.Context(), p); err != nil {
+				fail(w, r, err)
+				return
+			}
+		}
+		w.WriteHeader(http.StatusNoContent)
 	})
 }
 

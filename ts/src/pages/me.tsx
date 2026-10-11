@@ -1,7 +1,7 @@
-import { useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
-import { AssetService, CustodyService, NotificationService, PartyService, fmt, idStr, leavePage, ref } from '../api.js'
+import { AssetService, CustodyService, NotificationService, PartyService, agreements, fmt, idStr, leavePage, ref, type Agreement } from '../api.js'
 import { useCatalog } from '../catalog.js'
 import { AssetLink } from '../pickers.js'
 import { useAct, useRpc } from '../rpc.js'
@@ -21,6 +21,14 @@ export function Me(): ReactNode {
 		if (v !== undefined) setMailOff(v.off)
 		setMailBusy(false)
 	}
+	// What this account agreed to, for it to see (design 9.11).
+	const [agreed, setAgreed] = useState<Agreement[]>([])
+	useEffect(() => {
+		agreements().then(
+			(v) => setAgreed(v.agreed),
+			() => setAgreed([]),
+		)
+	}, [])
 	const p = c.me.party
 	const mine = useRpc(AssetService.method.search, p === undefined ? null : { custodian: ref(p.id), size: 200 })
 	const custodies = useRpc(CustodyService.method.list, p === undefined ? null : { filters: [{ party: ref(p.id) }], size: 200 })
@@ -63,6 +71,20 @@ export function Me(): ReactNode {
 						<a className="button" href={leavePage(c.me.accountUrl)}>
 							roster에서 계정 지우기
 						</a>
+					</Card>
+				)}
+				{agreed.length > 0 && (
+					<Card title="동의한 문서">
+						<ul className="rows">
+							{agreed.map((a) => (
+								<li key={`${a.document}-${a.version}`}>
+									<span>{a.document === 'terms' ? '이용약관' : a.document === 'privacy' ? '개인정보 처리방침' : a.document}</span>
+									<span className="mute small">
+										{a.version} · {fmt(new Date(a.at))} 동의
+									</span>
+								</li>
+							))}
+						</ul>
 					</Card>
 				)}
 				<Card title="알림">

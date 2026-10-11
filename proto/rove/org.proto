@@ -368,3 +368,55 @@ message AliasHold {
     global: {}
   };
 }
+
+// Consent is an account agreeing to one of what this deployment asks of it --
+// its terms of use, its privacy policy -- at one version, then (design 9.11).
+// A new version is agreed to again, as a row of its own, and none is changed:
+// what an account agreed to and when is what these rows are kept for.
+//
+// The deployment's (`global`), and an account's rather than a workspace's: it
+// agrees once for every workspace it is in. Written only by `server/consent`,
+// and the policy opens no RPC of it.
+message Consent {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+
+  // The account that agreed: roster's, as a session names it (D27).
+  bytes account = 8 [(orm.field) = {type: TYPE_UUID}];
+
+  // What it agreed to -- `terms` or `privacy` -- and the version of it in
+  // force then (`app.consent`).
+  string document = 9;
+  string version = 10;
+
+  // Where it agreed: `web` or `cli`.
+  string client = 11;
+
+  google.protobuf.Timestamp date_erased = 14 [(orm.field) = {erased: {}}];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "agreed"
+        refs: [
+          {name: "account", number: 8},
+          {name: "document", number: 9},
+          {name: "version", number: 10}
+        ]
+        unique: true
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 44
+    global: {}
+  };
+}

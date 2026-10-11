@@ -150,3 +150,16 @@ func (e *AliasHold) Proto() *rove.AliasHold {
 	x.SetDateCreated(timestamppb.New(e.DateCreated))
 	return x
 }
+func (e *Consent) Proto() *rove.Consent {
+	x := &rove.Consent{}
+	x.SetId(e.Id[:])
+	x.SetAccount(e.Account[:])
+	x.SetDocument(e.Document)
+	x.SetVersion(e.Version)
+	x.SetClient(e.Client)
+	if e.DateErased != nil {
+		x.SetDateErased(timestamppb.New(*e.DateErased))
+	}
+	x.SetDateCreated(timestamppb.New(e.DateCreated))
+	return x
+}

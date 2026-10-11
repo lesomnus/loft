@@ -40,6 +40,7 @@ import (
 	"github.com/lesomnus/rove/server/bare"
 	"github.com/lesomnus/rove/server/clilogin"
 	"github.com/lesomnus/rove/server/closing"
+	"github.com/lesomnus/rove/server/consent"
 	"github.com/lesomnus/rove/server/domain"
 	"github.com/lesomnus/rove/server/lifecycle"
 	"github.com/lesomnus/rove/server/mail"
@@ -120,6 +121,10 @@ type Server struct {
 	// Sso is this deployment as a relying party of roster's issuer, and what
 	// the sign-in page is told about the ways in.
 	Sso *sso.Rp
+
+	// Consents is what an account agrees to before it uses this deployment,
+	// and the record that it did (design 9.11, `server/consent`).
+	Consents *consent.Consents
 
 	// Auth is how a credential is read, and nothing that faces anybody is
 	// [auth.Plain] -- which believes what the caller writes about themselves.
@@ -316,7 +321,14 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	if c.Auth.Sso.On() && people.Embedded() {
 		log.From(ctx).WarnContext(ctx, "auth.sso: the roster in this process has no issuer of its own; the issuer named has to vouch for accounts in it")
 	}
-	if s.Sso, err = sso.New(c.Auth.Sso, c.App.App(), !c.Auth.SsoOnly, s.Sessions, people, s.Workspaces(c).Arrive); err != nil {
+	docs, err := c.App.Consent.Documents()
+	if err != nil {
+		people.Close()
+		db.Close()
+		return nil, err
+	}
+	s.Consents = &consent.Consents{Db: client, Documents: docs, Now: deps.Clock}
+	if s.Sso, err = sso.New(c.Auth.Sso, c.App.App(), !c.Auth.SsoOnly, s.Sessions, people, s.Arrive(c)); err != nil {
 		people.Close()
 		db.Close()
 		return nil, err
@@ -432,6 +444,20 @@ func (s *Server) Workspaces(c Config) tenancy.Workspaces {
 	}
 }
 
+// Arrive is what an account signing in is given: a workspace of its own when it
+// is in none -- once it has agreed to what this deployment asks (design 9.11).
+// Until then it is given nothing, and the workspace is made when it agrees
+// (`POST /account/consents`).
+func (s *Server) Arrive(c Config) func(ctx context.Context, p identity.Person) error {
+	ws := s.Workspaces(c)
+	return func(ctx context.Context, p identity.Person) error {
+		if ok, err := s.Consents.Settled(ctx, p.Id); err != nil || !ok {
+			return err
+		}
+		return ws.Arrive(ctx, p)
+	}
+}
+
 // Aliases is what decides a workspace's address.
 func (s *Server) Aliases(c Config) tenancy.Aliases {
 	return tenancy.Aliases{Db: s.Ent, Length: c.App.Workspaces.Length(), Reserved: c.App.Workspaces.Reserved, Now: s.Deps.Clock}
@@ -474,8 +500,8 @@ func (s *Server) Grpc(ctx context.Context, c Config, opts ...grpc.ServerOption) 
 	}
 
 	chain := grpcx.Serving(ctx, grpcx.WithDeadline(c.Server.CallTimeout())).
-		WithUnary(auth.InterceptorUnary(h, Resolver(s.Ungated, s.Ent), auth.PublicDefault)).
-		WithStream(auth.InterceptorStream(h, Resolver(s.Ungated, s.Ent), auth.PublicDefault)).
+		WithUnary(auth.InterceptorUnary(h, Resolver(s.Ungated, s.Ent, s.Consents), auth.PublicDefault)).
+		WithStream(auth.InterceptorStream(h, Resolver(s.Ungated, s.Ent, s.Consents), auth.PublicDefault)).
 		WithUnary(grpcx.LimitUnary(c.Server.Limiter(), LimitKey())).
 		With(gate.Interceptor(s.Policy)).
 		With(s.Watch.Interceptor()).
@@ -648,7 +674,7 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 	// Signing in and out. What is checked is a password, by roster, and an
 	// account in no workspace is given one; see `server/session`.
 	ws := s.Workspaces(c)
-	login := session.SignIn(s.Sessions, s.Identity, s.Ent, ws.Arrive)
+	login := session.SignIn(s.Sessions, s.Identity, s.Ent, s.Arrive(c))
 	if c.Auth.SsoOnly {
 		// No form to post to, rather than one that answers no: a password is
 		// not a way in here (D28).
@@ -684,6 +710,10 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 			return domain.LabelWorkspace(ctx, s.Ent, code)
 		},
 		Manage: s.Identity.AccountPage(),
+		// What it agrees to before anything else, and the workspace an
+		// account that just agreed is given (design 9.11).
+		Consent: s.Consents,
+		Arrive:  s.Arrive(c),
 	}.Mount(mux)
 
 	// Attachments, by the signed links the API answers with.

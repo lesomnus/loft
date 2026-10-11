@@ -202,6 +202,7 @@ var Withheld = map[string]string{
 	"session":   "who is signed in",
 	"clilogin":  "a terminal waiting to be signed in, which is nobody's yet",
 	"aliashold": "the deployment's: addresses nobody may take for a while",
+	"consent":   "an account's, which agreed once for every workspace it is in",
 	"outbox":    "the deployment's queue of what changed",
 	"treelock":  "the deployment's bookkeeping",
 	"legalhold": "the operator's",

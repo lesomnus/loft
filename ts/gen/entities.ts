@@ -13,7 +13,7 @@
 
 import type { EntityDesc } from '@lesomnus/payday/store'
 
-import { AliasHoldSchema, CliLoginSchema, InvitationSchema, PartySchema, SessionSchema } from './rove/org_pb.js'
+import { AliasHoldSchema, CliLoginSchema, ConsentSchema, InvitationSchema, PartySchema, SessionSchema } from './rove/org_pb.js'
 import { AllocationSchema, BookableSchema, ReservationSchema, ReservationItemSchema } from './rove/booking_pb.js'
 import { ArchivedSchema } from './rove/payday/archived_pb.js'
 import { AssetSchema, AttachmentSchema, LabelSchema, TenantDomainSchema, TreeLockSchema } from './rove/asset_pb.js'
@@ -28,7 +28,7 @@ import { OutboxSchema } from './rove/payday/outbox_pb.js'
 import { PurchaseSchema, PurchaseLineSchema, WorkOrderSchema } from './rove/work_pb.js'
 import { StockSchema, StockMovementSchema } from './rove/stock_pb.js'
 import { TenantSchema } from './rove/payday/tenant_pb.js'
-import { AliasHoldService, CliLoginService, InvitationService, PartyService, SessionService } from './rove/org_svc_pb.js'
+import { AliasHoldService, CliLoginService, ConsentService, InvitationService, PartyService, SessionService } from './rove/org_svc_pb.js'
 import { AllocationService, BookableService, ReservationService, ReservationItemService } from './rove/booking_svc_pb.js'
 import { ArchivedService } from './rove/payday/archived_svc_pb.js'
 import { AssetService, AttachmentService, LabelService, TenantDomainService, TreeLockService } from './rove/asset_svc_pb.js'
@@ -146,6 +146,16 @@ export const CliLogin = {
 	ids: ["id", "account"],
 	secrets: ["secret"],
 	service: CliLoginService,
+} as const satisfies EntityDesc
+
+/** rove.Consent, as the store holds it. */
+export const Consent = {
+	typeName: "rove.Consent",
+	schema: ConsentSchema,
+	domain: 44,
+	key: "id",
+	ids: ["id", "account"],
+	service: ConsentService,
 } as const satisfies EntityDesc
 
 /** rove.CountFinding, as the store holds it. */
@@ -507,5 +517,5 @@ export const WorkOrder = {
 } as const satisfies EntityDesc
 
 /** Every entity of this app, which is what a store is opened over. */
-export const entities = [AliasHold, Allocation, Archived, Asset, AssetType, Attachment, Audit, Bookable, CliLogin, CountFinding, Custody, CustodyLine, Event, Fact, Holder, InventoryCount, Invitation, ItemModel, Label, LegalHold, Link, Notification, Outbox, Party, Placement, Purchase, PurchaseLine, Reservation, ReservationItem, Session, Stewardship, Stock, StockMovement, Tenant, TenantContract, TenantDomain, TreeLock, UsageSnapshot, WorkOrder] as const
+export const entities = [AliasHold, Allocation, Archived, Asset, AssetType, Attachment, Audit, Bookable, CliLogin, Consent, CountFinding, Custody, CustodyLine, Event, Fact, Holder, InventoryCount, Invitation, ItemModel, Label, LegalHold, Link, Notification, Outbox, Party, Placement, Purchase, PurchaseLine, Reservation, ReservationItem, Session, Stewardship, Stock, StockMovement, Tenant, TenantContract, TenantDomain, TreeLock, UsageSnapshot, WorkOrder] as const
 
