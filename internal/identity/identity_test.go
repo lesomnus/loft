@@ -1,6 +1,7 @@
 package identity
 
 import (
+	"context"
 	"crypto/rand"
 	"encoding/base32"
 	"encoding/base64"
@@ -9,14 +10,20 @@ import (
 	"net"
 	"os"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
 	"github.com/lesomnus/xli"
 	"github.com/lesomnus/z"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	"github.com/lesomnus/payday/auth"
 	"github.com/lesomnus/payday/config"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/pdtest"
@@ -210,10 +217,12 @@ type external struct {
 	addr string
 
 	// key is a deployment key acme nominated; tenantKey is acme's own key for
-	// Rove's holder there.
-	key, tenantKey string
-	acme, beta     pdid.Id
-	kim            pdid.Id
+	// Rove's holder there. operator is this roster's own operator, who
+	// suspends and erases people over the wire -- which is the only way the
+	// sync stream hears of it.
+	key, tenantKey, operator string
+	acme, beta               pdid.Id
+	kim                      pdid.Id
 }
 
 func newExternal(t *testing.T) *external {
@@ -263,6 +272,8 @@ func newExternal(t *testing.T) *external {
 	e.key = stdoutOf(t, rostercli.NewCmdControl(&c), "key", "add", "--allow", "/roster.NominationService/List", Agent)
 	x.NoError(rostercli.NewCmdApp(&c).Run(ctx, []string{"install", "--tenant", "acme", "--role", strings.Join(AgentMethods, ","), Agent}))
 	e.tenantKey = stdoutOf(t, rostercli.NewCmdKey(&c), "add", "--tenant", "acme", "--holder", Agent, "--name", "rove", "--allow", strings.Join(AgentMethods, ","))
+	e.operator = stdoutOf(t, rostercli.NewCmdControl(&c), "key", "add", "--allow",
+		"/roster.HolderService/Invalidate,/roster.HolderService/Disable,/roster.HolderService/Erase", "operator")
 
 	e.s, err = rostercmd.Build(ctx, c)
 	x.NoError(err)
@@ -455,4 +466,159 @@ func TestOnlyAnAddressSomebodyCheckedIsAnAccounts(t *testing.T) {
 		x.NoError(err)
 		x.Equal([]string{"kim@acme.example"}, got)
 	})
+}
+
+// operator is roster's operator over the wire: what publishes to roster's
+// stream is the interceptor on its served stack, and a call made through
+// roster's server in this process writes the row and tells nobody.
+func (e *external) overTheWire(t *testing.T) (rstr.HolderServiceClient, context.Context) {
+	t.Helper()
+	conn, err := grpc.NewClient(e.addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	require.NoError(t, err)
+	t.Cleanup(func() { conn.Close() })
+	return rstr.NewHolderServiceClient(conn), auth.BearerProvider(e.operator).Provide(t.Context())
+}
+
+// heard writes until the stream says what was written: there is nothing to
+// say it has subscribed, and a write made before it has is heard by nobody.
+func heard(t *testing.T, got <-chan Standing, who pdid.Id, write func() error, ok func(Standing) bool) Standing {
+	t.Helper()
+	deadline := time.After(10 * time.Second)
+	for {
+		require.NoError(t, write())
+		select {
+		case v := <-got:
+			if v.Holder == who && ok(v) {
+				return v
+			}
+		case <-time.After(100 * time.Millisecond):
+		case <-deadline:
+			t.Fatal("nothing about them came down the stream")
+		}
+	}
+}
+
+// follow runs [Store.Follow] until the test ends, and is what it handed on.
+func follow(t *testing.T, s *Store) <-chan Standing {
+	ctx, cancel := context.WithCancel(t.Context())
+	done := make(chan struct{})
+	t.Cleanup(func() { cancel(); <-done })
+	got := make(chan Standing, 64)
+	go func() {
+		defer close(done)
+		s.Follow(ctx, func(_ context.Context, v Standing) error {
+			select {
+			case got <- v:
+			default:
+			}
+			return nil
+		})
+	}()
+	return got
+}
+
+// TestRostersWordArrivesAsItHappens: what roster says of an account comes down
+// its stream as it is said -- signed out everywhere, suspended, erased -- to a
+// deployment with a roster of its own.
+func TestRostersWordArrivesAsItHappens(t *testing.T) {
+	x := require.New(t)
+	e := newExternal(t)
+	got := follow(t, e.open(t, e.key, "acme"))
+	op, as := e.overTheWire(t)
+	ref := rstr.HolderRef_builder{Id: e.kim.Bytes()}.Build()
+
+	v := heard(t, got, e.kim, func() error {
+		_, err := op.Invalidate(as, rstr.HolderInvalidateRequest_builder{Ref: ref}.Build())
+		return err
+	}, func(v Standing) bool { return !v.Invalidated.IsZero() })
+	x.Equal(e.acme, v.Tenant)
+	x.True(v.Disabled.IsZero())
+	x.True(v.Erased.IsZero())
+
+	// Once it has been heard, once is enough.
+	v = heard(t, got, e.kim, func() error {
+		_, err := op.Disable(as, rstr.HolderDisableRequest_builder{Ref: ref}.Build())
+		if status.Code(err) == codes.FailedPrecondition {
+			return nil
+		}
+		return err
+	}, func(v Standing) bool { return !v.Disabled.IsZero() })
+	x.False(v.Good(time.Now()))
+
+	v = heard(t, got, e.kim, func() error {
+		_, err := op.Erase(as, ref)
+		if status.Code(err) == codes.NotFound {
+			return nil
+		}
+		return err
+	}, func(v Standing) bool { return !v.Erased.IsZero() })
+	x.Equal(e.acme, v.Tenant)
+}
+
+// logs is a log a test reads while it is written.
+type logs struct {
+	mu sync.Mutex
+	b  strings.Builder
+}
+
+func (l *logs) Write(p []byte) (int, error) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	return l.b.Write(p)
+}
+
+func (l *logs) String() string {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	return l.b.String()
+}
+
+// TestAStreamRosterRefusesIsSaidAndThenHeld: a role installed before Rove held
+// roster's stream -- as every one before this step was -- is refused it. That
+// is said once, with what to do, and doing it is noticed without a restart.
+// What it says to do is what the README says, and this runs it.
+func TestAStreamRosterRefusesIsSaidAndThenHeld(t *testing.T) {
+	x := require.New(t)
+	e := newExternal(t)
+	role := func(methods []string) {
+		t.Helper()
+		var entity *xli.Command
+		for _, k := range rostercli.NewCmdEntities(&e.c) {
+			if k.Name == "role" {
+				entity = k
+			}
+		}
+		x.NotNil(entity)
+		quoted := make([]string, len(methods))
+		for i, m := range methods {
+			quoted[i] = `"` + m + `"`
+		}
+		x.NoError(entity.Run(t.Context(), []string{"patch", "@acme/" + Agent + "-app",
+			`{"methods": [` + strings.Join(quoted, ",") + `], "date_updated_force": true}`}))
+	}
+	without := []string{}
+	for _, m := range AgentMethods {
+		if m != "/roster.SyncService/Watch" {
+			without = append(without, m)
+		}
+	}
+	role(without)
+
+	l := &logs{}
+	s, err := Open(t.Context(), Config{Addr: e.addr, Insecure: true, Key: e.key, Directory: "acme"}, "", slog.New(slog.NewTextHandler(l, nil)))
+	x.NoError(err)
+	t.Cleanup(func() { s.Close() })
+	s.refused = 300 * time.Millisecond
+	got := follow(t, s)
+
+	x.Eventually(func() bool { return strings.Contains(l.String(), "roster role patch") }, 10*time.Second, 20*time.Millisecond)
+	x.Contains(l.String(), "level=ERROR")
+	x.NotContains(l.String(), "level=WARN", "a refusal is not a stream that dropped")
+
+	role(AgentMethods)
+	op, as := e.overTheWire(t)
+	heard(t, got, e.kim, func() error {
+		_, err := op.Invalidate(as, rstr.HolderInvalidateRequest_builder{Ref: rstr.HolderRef_builder{Id: e.kim.Bytes()}.Build()}.Build())
+		return err
+	}, func(v Standing) bool { return !v.Invalidated.IsZero() })
 }

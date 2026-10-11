@@ -599,7 +599,8 @@ Rove     테넌트 = 워크스페이스                  acme: kim(owner), lee(m
 
 - **비밀번호**(CE의 옵션): `POST /session {tenant, alias, password}`를 받으면 Rove가 roster에 묻고(`VouchService.Verify`), 맞으면 Rove의 세션 쿠키를 준다. Rove는 비밀번호도 그 검증값도 갖지 않는다. SaaS에서는 꺼져 있다.
 - **SSO**(외부 roster, SaaS는 이것만): Rove의 HTTP 리스너가 roster issuer의 relying party가 된다(roster `docs/relying-party.md`의 `itself` 모양). `GET /sso/login` → issuer → `GET /sso/callback`(state·nonce·PKCE, id_token 검증) → 계정 단위의 세션 쿠키. 워크스페이스는 요청의 경로가 고르고, 그 계정의 Holder가 그 워크스페이스에 있어야 한다(9.11절). `auth.sso_only`는 비밀번호 로그인을 끈다.
-- **세션**은 Rove의 DB에 둔다. 지금 당장 끊을 수 있어야 하기 때문이다(report 결정 3). 다만 roster에서 사람이 중지·삭제되거나 "모든 곳에서 로그아웃"되면 Rove의 세션도 끝나야 한다. 그래서 세션을 쓰는 호출마다 roster에 그 사람을 묻고(`HolderService.Get`, 짧게 캐시), 물을 수 없으면 거부한다(fail closed). 나중에 `SyncService/Watch`를 따라가 세션을 끝내는 방식을 더한다.
+- **세션**은 Rove의 DB에 둔다. 지금 당장 끊을 수 있어야 하기 때문이다(report 결정 3). 다만 roster에서 사람이 중지·삭제되거나 "모든 곳에서 로그아웃"되면 Rove의 세션도 끝나야 한다. 그래서 세션을 쓰는 호출마다 roster에 그 사람을 묻고(`HolderService.Get`, 짧게 캐시), 물을 수 없으면 거부한다(fail closed). 외부 roster면 그 위에 `SyncService/Watch`를 열어 두고 roster가 말하는 대로 세션 행을 바로 지운다(`server/lifecycle`, M2 5단계). 모든 곳에서 로그아웃이면 그 전에 시작된 세션을, 중지·삭제면 그 계정의 세션 전부를 지운다. 스트림은 끊긴 사이의 일을 다시 보내지 않으므로 다시 열 때는 캐시해 둔 답을 모두 버린다. 스트림이 거부되면(역할에 Watch가 없거나 roster에 broker가 없으면) 오류를 한 번 남기고 드물게 다시 청한다. 그동안에도 세션은 다음 호출에서 끝난다.
+- **계정의 탈퇴**: roster에서 계정이 삭제되면 그 계정의 구성원 자격은 모든 워크스페이스에서 '떠나는 중'이 된다(`Holder.date_leaving`, roster가 삭제한 시각). 바로 가명화하지 않는 것은 roster의 삭제에 유예가 있기 때문이다(`holder.forget_after`, 그동안 `roster restore`로 되살린다). 바로 가명화하면 되살린 계정이 아무도 아닌 사람으로 돌아온다. 유예가 지나도 roster가 그 계정을 되살리지 않았으면 모든 워크스페이스에서 그 계정의 Party를 가명화하고 Holder를 끝낸다. roster의 `restore`와 `forget`은 roster의 서버를 거치지 않고 써서 스트림에 나오지 않는다. 그래서 떠나는 중 표시를 보고 무언가를 하기 전에는 roster에 다시 묻는다.
 
 **Rove의 holder가 roster에서 하는 일**: 비밀번호 확인, 사람·테넌트 읽기, 사람이 가진 권한 묻기(`HolderService/Reaches`), 내장에서는 사람 만들기. shale의 `AgentMethods`와 같은 목록에서 시작한다. 외부 roster에서는 사람을 roster에서 만들므로 더 적게 든다.
 

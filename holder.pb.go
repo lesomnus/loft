@@ -46,6 +46,7 @@ type Holder struct {
 	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
 	xxx_hidden_Role        string                 `protobuf:"bytes,8,opt,name=role"`
 	xxx_hidden_Account     []byte                 `protobuf:"bytes,9,opt,name=account"`
+	xxx_hidden_DateLeaving *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=date_leaving,json=dateLeaving"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
 }
@@ -152,6 +153,13 @@ func (x *Holder) GetAccount() []byte {
 	return nil
 }
 
+func (x *Holder) GetDateLeaving() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateLeaving
+	}
+	return nil
+}
+
 func (x *Holder) SetId(v []byte) {
 	if v == nil {
 		v = []byte{}
@@ -202,6 +210,10 @@ func (x *Holder) SetAccount(v []byte) {
 	x.xxx_hidden_Account = v
 }
 
+func (x *Holder) SetDateLeaving(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateLeaving = v
+}
+
 func (x *Holder) HasTenant() bool {
 	if x == nil {
 		return false
@@ -230,6 +242,13 @@ func (x *Holder) HasDateCreated() bool {
 	return x.xxx_hidden_DateCreated != nil
 }
 
+func (x *Holder) HasDateLeaving() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateLeaving != nil
+}
+
 func (x *Holder) ClearTenant() {
 	x.xxx_hidden_Tenant = nil
 }
@@ -244,6 +263,10 @@ func (x *Holder) ClearDateErased() {
 
 func (x *Holder) ClearDateCreated() {
 	x.xxx_hidden_DateCreated = nil
+}
+
+func (x *Holder) ClearDateLeaving() {
+	x.xxx_hidden_DateLeaving = nil
 }
 
 type Holder_builder struct {
@@ -286,6 +309,12 @@ type Holder_builder struct {
 	// before accounts were, which nobody signs in as until `rove identity
 	// migrate` fills it.
 	Account []byte
+	// When roster erased the account this is a membership of, and so when it
+	// began to leave: it signs in nowhere from then, and roster may still
+	// restore it within its grace (design 9.10). Null is an account in good
+	// standing, or one roster restored. Written by the deployment from what
+	// roster says (`server/lifecycle`), and by nobody else.
+	DateLeaving *timestamppb.Timestamp
 }
 
 func (b0 Holder_builder) Build() *Holder {
@@ -303,6 +332,7 @@ func (b0 Holder_builder) Build() *Holder {
 	x.xxx_hidden_DateCreated = b.DateCreated
 	x.xxx_hidden_Role = b.Role
 	x.xxx_hidden_Account = b.Account
+	x.xxx_hidden_DateLeaving = b.DateLeaving
 	return m0
 }
 
@@ -310,7 +340,7 @@ var File_rove_payday_holder_proto protoreflect.FileDescriptor
 
 const file_rove_payday_holder_proto_rawDesc = "" +
 	"\n" +
-	"\x18rove/payday/holder.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x18rove/payday/tenant.proto\"\x8d\x05\n" +
+	"\x18rove/payday/holder.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x18rove/payday/tenant.proto\"\xd4\x05\n" +
 	"\x06Holder\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x14\n" +
@@ -323,7 +353,9 @@ const file_rove_payday_holder_proto_rawDesc = "" +
 	"dateErased\x12H\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12!\n" +
 	"\x04role\x18\b \x01(\tB\r\xea\x82\x16\t\x82\x01\x06memberR\x04role\x12\"\n" +
-	"\aaccount\x18\t \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\aaccount\x1a9\n" +
+	"\aaccount\x18\t \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\aaccount\x12E\n" +
+	"\fdate_leaving\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\vdateLeaving\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:n\xca\xfc\x15%\x12\x02\x10\x01\x1a\x1f\x12\x04slug\x1a\t\n" +
@@ -353,11 +385,12 @@ var file_rove_payday_holder_proto_depIdxs = []int32{
 	3, // 2: rove.Holder.date_updated:type_name -> google.protobuf.Timestamp
 	3, // 3: rove.Holder.date_erased:type_name -> google.protobuf.Timestamp
 	3, // 4: rove.Holder.date_created:type_name -> google.protobuf.Timestamp
-	5, // [5:5] is the sub-list for method output_type
-	5, // [5:5] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	3, // 5: rove.Holder.date_leaving:type_name -> google.protobuf.Timestamp
+	6, // [6:6] is the sub-list for method output_type
+	6, // [6:6] is the sub-list for method input_type
+	6, // [6:6] is the sub-list for extension type_name
+	6, // [6:6] is the sub-list for extension extendee
+	0, // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_rove_payday_holder_proto_init() }

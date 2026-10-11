@@ -158,6 +158,26 @@ func (_u *HolderUpdate) ClearAccount() *HolderUpdate {
 	return _u
 }
 
+// SetDateLeaving sets the "date_leaving" field.
+func (_u *HolderUpdate) SetDateLeaving(v time.Time) *HolderUpdate {
+	_u.mutation.SetDateLeaving(v)
+	return _u
+}
+
+// SetNillableDateLeaving sets the "date_leaving" field if the given value is not nil.
+func (_u *HolderUpdate) SetNillableDateLeaving(v *time.Time) *HolderUpdate {
+	if v != nil {
+		_u.SetDateLeaving(*v)
+	}
+	return _u
+}
+
+// ClearDateLeaving clears the value of the "date_leaving" field.
+func (_u *HolderUpdate) ClearDateLeaving() *HolderUpdate {
+	_u.mutation.ClearDateLeaving()
+	return _u
+}
+
 // Mutation returns the HolderMutation object of the builder.
 func (_u *HolderUpdate) Mutation() *HolderMutation {
 	return _u.mutation
@@ -254,6 +274,12 @@ func (_u *HolderUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.AccountCleared() {
 		_spec.ClearField(holder.FieldAccount, field.TypeUuid)
+	}
+	if value, ok := _u.mutation.DateLeaving(); ok {
+		_spec.SetField(holder.FieldDateLeaving, field.TypeTime, value)
+	}
+	if _u.mutation.DateLeavingCleared() {
+		_spec.ClearField(holder.FieldDateLeaving, field.TypeTime)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
@@ -405,6 +431,26 @@ func (_u *HolderUpdateOne) ClearAccount() *HolderUpdateOne {
 	return _u
 }
 
+// SetDateLeaving sets the "date_leaving" field.
+func (_u *HolderUpdateOne) SetDateLeaving(v time.Time) *HolderUpdateOne {
+	_u.mutation.SetDateLeaving(v)
+	return _u
+}
+
+// SetNillableDateLeaving sets the "date_leaving" field if the given value is not nil.
+func (_u *HolderUpdateOne) SetNillableDateLeaving(v *time.Time) *HolderUpdateOne {
+	if v != nil {
+		_u.SetDateLeaving(*v)
+	}
+	return _u
+}
+
+// ClearDateLeaving clears the value of the "date_leaving" field.
+func (_u *HolderUpdateOne) ClearDateLeaving() *HolderUpdateOne {
+	_u.mutation.ClearDateLeaving()
+	return _u
+}
+
 // Mutation returns the HolderMutation object of the builder.
 func (_u *HolderUpdateOne) Mutation() *HolderMutation {
 	return _u.mutation
@@ -531,6 +577,12 @@ func (_u *HolderUpdateOne) sqlSave(ctx context.Context) (_node *Holder, err erro
 	}
 	if _u.mutation.AccountCleared() {
 		_spec.ClearField(holder.FieldAccount, field.TypeUuid)
+	}
+	if value, ok := _u.mutation.DateLeaving(); ok {
+		_spec.SetField(holder.FieldDateLeaving, field.TypeTime, value)
+	}
+	if _u.mutation.DateLeavingCleared() {
+		_spec.ClearField(holder.FieldDateLeaving, field.TypeTime)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	_node = &Holder{config: _u.config}

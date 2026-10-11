@@ -37,6 +37,7 @@ import (
 	"github.com/lesomnus/rove/server/account"
 	"github.com/lesomnus/rove/server/bare"
 	"github.com/lesomnus/rove/server/domain"
+	"github.com/lesomnus/rove/server/lifecycle"
 	"github.com/lesomnus/rove/server/mail"
 	"github.com/lesomnus/rove/server/offboard"
 	"github.com/lesomnus/rove/server/pd"
@@ -99,6 +100,10 @@ type Server struct {
 
 	// Sessions mints and reads the cookie a browser signs in with.
 	Sessions *authsession.Sessions
+
+	// Lifecycle is what roster's word about an account does here: its
+	// sessions ended, its memberships leaving (`server/lifecycle`).
+	Lifecycle lifecycle.Lifecycle
 
 	// Sso is this deployment as a relying party of roster's issuer, and what
 	// the sign-in page is told about the ways in.
@@ -266,6 +271,7 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	s.Sessions = authsession.New(store, opts2...)
 	s.Auth = s.Sessions.Handler()
 	s.Policy = policy.Policy{}
+	s.Lifecycle = lifecycle.Lifecycle{Db: client, Sessions: store, Base: base}
 
 	// Signing in through roster's issuer. With no password beside it, an
 	// issuer is the only way in, so a deployment that turns passwords off and
@@ -293,6 +299,15 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		// its own.
 		people,
 	)
+	if !people.Embedded() {
+		// What roster says of an account as it says it: sessions that end
+		// when roster ends them rather than at their next call, and an
+		// erased account beginning to leave. The roster in this process has
+		// no stream, and every change to its people is made from here.
+		s.Spin = append(s.Spin, spin.Func(func(ctx context.Context) error {
+			return people.Follow(ctx, s.Lifecycle.Apply)
+		}))
+	}
 
 	// What the keep windows no longer reach, taken out of the history (design
 	// 8.2) -- only when the deployment has said a window may destroy.

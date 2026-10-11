@@ -26,6 +26,7 @@ type Mutation struct {
 	date_created  *time.Time
 	role          *string
 	account       *uuid.UUID
+	date_leaving  *time.Time
 	clearedFields map[string]struct{}
 	tenant        *uuid.UUID
 	clearedtenant bool
@@ -282,6 +283,38 @@ func (m *Mutation) ResetAccount() {
 	delete(m.clearedFields, FieldAccount)
 }
 
+// SetDateLeaving sets the "date_leaving" field.
+func (m *Mutation) SetDateLeaving(t time.Time) {
+	m.date_leaving = &t
+}
+
+// DateLeaving returns the value of the "date_leaving" field in the mutation.
+func (m *Mutation) DateLeaving() (r time.Time, exists bool) {
+	v := m.date_leaving
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearDateLeaving clears the value of the "date_leaving" field.
+func (m *Mutation) ClearDateLeaving() {
+	m.date_leaving = nil
+	m.clearedFields[FieldDateLeaving] = struct{}{}
+}
+
+// DateLeavingCleared returns if the "date_leaving" field was cleared in this mutation.
+func (m *Mutation) DateLeavingCleared() bool {
+	_, ok := m.clearedFields[FieldDateLeaving]
+	return ok
+}
+
+// ResetDateLeaving resets all changes to the "date_leaving" field.
+func (m *Mutation) ResetDateLeaving() {
+	m.date_leaving = nil
+	delete(m.clearedFields, FieldDateLeaving)
+}
+
 // SetTenantId sets the "tenant_id" field.
 func (m *Mutation) SetTenantId(u uuid.UUID) {
 	m.tenant = &u
@@ -362,7 +395,7 @@ func (m *Mutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *Mutation) Fields() []string {
-	fields := make([]string, 0, 10)
+	fields := make([]string, 0, 11)
 	if m.alias != nil {
 		fields = append(fields, FieldAlias)
 	}
@@ -389,6 +422,9 @@ func (m *Mutation) Fields() []string {
 	}
 	if m.account != nil {
 		fields = append(fields, FieldAccount)
+	}
+	if m.date_leaving != nil {
+		fields = append(fields, FieldDateLeaving)
 	}
 	if m.tenant != nil {
 		fields = append(fields, FieldTenantId)
@@ -419,6 +455,8 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.Role()
 	case FieldAccount:
 		return m.Account()
+	case FieldDateLeaving:
+		return m.DateLeaving()
 	case FieldTenantId:
 		return m.TenantId()
 	}
@@ -500,6 +538,13 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetAccount(v)
 		return nil
+	case FieldDateLeaving:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDateLeaving(v)
+		return nil
 	case FieldTenantId:
 		v, ok := value.(uuid.UUID)
 		if !ok {
@@ -552,6 +597,9 @@ func (m *Mutation) ClearedFields() []string {
 	if m.FieldCleared(FieldAccount) {
 		fields = append(fields, FieldAccount)
 	}
+	if m.FieldCleared(FieldDateLeaving) {
+		fields = append(fields, FieldDateLeaving)
+	}
 	return fields
 }
 
@@ -580,6 +628,9 @@ func (m *Mutation) ClearField(name string) error {
 		return nil
 	case FieldAccount:
 		m.ClearAccount()
+		return nil
+	case FieldDateLeaving:
+		m.ClearDateLeaving()
 		return nil
 	}
 	return fmt.Errorf("unknown Holder nullable field %s", name)
@@ -615,6 +666,9 @@ func (m *Mutation) ResetField(name string) error {
 		return nil
 	case FieldAccount:
 		m.ResetAccount()
+		return nil
+	case FieldDateLeaving:
+		m.ResetDateLeaving()
 		return nil
 	case FieldTenantId:
 		m.ResetTenantId()

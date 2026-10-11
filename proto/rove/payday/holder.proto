@@ -155,4 +155,10 @@ message Holder {
     type: TYPE_UUID
     nullable: true
   }];
+  // When roster erased the account this is a membership of, and so when it
+  // began to leave: it signs in nowhere from then, and roster may still
+  // restore it within its grace (design 9.10). Null is an account in good
+  // standing, or one roster restored. Written by the deployment from what
+  // roster says (`server/lifecycle`), and by nobody else.
+  google.protobuf.Timestamp date_leaving = 10 [(orm.field) = {nullable: true}];
 }

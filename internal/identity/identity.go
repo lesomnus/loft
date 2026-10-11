@@ -109,15 +109,22 @@ const RosterAdministrator = rostercore.Administers
 
 // AgentMethods is what that holder may call: checking a password, reading a
 // person and their tenant, the addresses somebody checked for them -- which is
-// whose an invitation is (`Store.Addresses`) -- and, for a tenant key, whose
-// key it is. It is the `--role` an external roster installs Rove with:
+// whose an invitation is (`Store.Addresses`) -- the stream of what stopped
+// being good about somebody (`Store.Follow`), and, for a tenant key, whose key
+// it is. It is the `--role` an external roster installs Rove with:
 //
 //	roster app install --tenant acme --role /roster.VouchService/Verify,\
 //	  /roster.HolderService/Get,/roster.TenantService/Get,/roster.MeService/Get,\
-//	  /roster.EmailService/List,/roster.EmailService/Get rove
+//	  /roster.EmailService/List,/roster.EmailService/Get,/roster.SyncService/Watch rove
 //
-// An installation older than the addresses is installed again with this list;
-// until it is, an account sees only the invitations it holds a link for.
+// An installation older than the list has its role widened to it. Installing
+// again does not: it leaves a role the tenant has as the tenant has it
+// (roster's `docs/apps.md`), so the role is patched, with the whole list --
+//
+//	roster role patch @acme/rove-app '{"methods": [...], "date_updated_force": true}'
+//
+// Until it is, an account sees only the invitations it holds a link for, and a
+// session learns what roster says of its account only when it next asks.
 //
 // People are made, given passwords and suspended at roster, by whoever
 // administers the tenant there; on the embedded roster Rove does those through
@@ -129,6 +136,7 @@ var AgentMethods = []string{
 	"/roster.MeService/Get",
 	"/roster.EmailService/List",
 	"/roster.EmailService/Get",
+	"/roster.SyncService/Watch",
 }
 
 // The prefixes a key is read by, the way roster reads them.
@@ -214,6 +222,10 @@ type Store struct {
 
 	// now is the clock, for the tests.
 	now func() time.Time
+	// refused is how long a sync stream roster refused is left before it is
+	// asked for again ([Store.Follow]): long enough not to fill a log, short
+	// enough that the install which fixes it is noticed without a restart.
+	refused time.Duration
 
 	// What roster said about tenants, kept: for an `rk_` the tenants that
 	// nominated it and when that was asked, for an `rt_` the key's own, and
@@ -234,7 +246,7 @@ func Open(ctx context.Context, cfg Config, stateDir string, log *slog.Logger) (*
 	if log == nil {
 		log = slog.Default()
 	}
-	s := &Store{cfg: cfg, log: log, agents: map[string]bool{}, held: map[pdid.Id]held{}, aliases: map[pdid.Id]string{}, now: time.Now}
+	s := &Store{cfg: cfg, log: log, agents: map[string]bool{}, held: map[pdid.Id]held{}, aliases: map[pdid.Id]string{}, now: time.Now, refused: 10 * time.Minute}
 	if cfg.Embedded() {
 		if cfg.Key != "" || cfg.CaFile != "" || cfg.Insecure {
 			return nil, errors.New("auth.roster: key, ca_file and insecure are an external roster's, and addr names none")
@@ -863,6 +875,122 @@ func (s *Store) Held(ctx context.Context, holder pdid.Id, began time.Time) error
 	}
 
 	return nil
+}
+
+// Follow holds roster's sync stream open and hands `on` each account it
+// speaks of, with what roster says of it now: signed out everywhere,
+// suspended, erased, or none of them any more (roster's `SyncService`). It is
+// how a session already open ends when roster says so, rather than at its
+// next call, and how an erased account begins to leave (`server/lifecycle`).
+//
+// It is for a roster of its own. The one in this process has no broker, and
+// every change to its people is made from here and seen here at once.
+//
+// # What a stream promises, and what it does not
+//
+// What changed while it was open, and nothing else: it replays nothing. So a
+// stream that ended is one that missed things, and opening it again forgets
+// what was known of everybody -- [Store.Held] asks again -- rather than trusting
+// answers that may have changed unheard. It is opened again until ctx ends,
+// waiting longer each time it will not open.
+//
+// A stream roster refuses is said once in so many words and asked for again
+// rarely: no retry changes a role without `SyncService/Watch` in it, or a
+// roster with no broker. Nothing stops working -- a session still ends at its
+// next call, within [HeldTtl] -- but an erased account is not heard leaving.
+func (s *Store) Follow(ctx context.Context, on func(ctx context.Context, v Standing) error) error {
+	if s.em != nil {
+		<-ctx.Done()
+		return nil
+	}
+	wait := time.Second
+	for {
+		began := s.now()
+		err := s.follow(ctx, on)
+		if ctx.Err() != nil {
+			return nil
+		}
+		if s.now().Sub(began) > time.Minute {
+			wait = time.Second
+		}
+
+		pause := wait
+		switch status.Code(err) {
+		case codes.PermissionDenied:
+			s.log.ErrorContext(ctx, "roster: the sync stream is refused to this deployment; "+
+				"Rove's role at roster wants /roster.SyncService/Watch, which `roster role patch` adds "+
+				"and installing again does not (README). "+
+				"Until then a session ends at its next call rather than when roster ends it, "+
+				"and an erased account is not heard leaving", "err", err.Error())
+			pause = s.refused
+		case codes.Unimplemented:
+			s.log.ErrorContext(ctx, "roster: this roster publishes no changes (its watch.broker), so there is no stream to hold. "+
+				"A session ends at its next call rather than when roster ends it, "+
+				"and an erased account is not heard leaving", "err", err.Error())
+			pause = s.refused
+		default:
+			s.log.WarnContext(ctx, "roster: the sync stream ended; opening it again", "in", wait.String(), "err", fmt.Sprint(err))
+			wait = min(wait*2, 30*time.Second)
+		}
+		select {
+		case <-ctx.Done():
+			return nil
+		case <-time.After(pause):
+		}
+	}
+}
+
+func (s *Store) follow(ctx context.Context, on func(ctx context.Context, v Standing) error) error {
+	as, _, err := s.inDirectory(ctx)
+	if err != nil {
+		return err
+	}
+	stream, err := rstr.NewSyncServiceClient(s.conn).Watch(as, rstr.SyncWatchRequest_builder{}.Build())
+	if err != nil {
+		return fmt.Errorf("roster: %w", err)
+	}
+	// Whatever was known before this opened may have changed unheard.
+	s.hmu.Lock()
+	clear(s.held)
+	s.hmu.Unlock()
+
+	for {
+		ev, err := stream.Recv()
+		if err != nil {
+			return fmt.Errorf("roster: %w", err)
+		}
+		st, err := standingOf(ev)
+		if err != nil {
+			s.log.WarnContext(ctx, "roster: a sync event about nobody this reads", "err", err.Error())
+			continue
+		}
+		s.Recheck(st.Holder)
+		if err := on(ctx, st); err != nil {
+			// Said and not fatal: the next call the account makes asks
+			// roster anyway, and the next event about it is the whole truth.
+			s.log.WarnContext(ctx, "roster: a sync event was not carried out here", "holder", st.Holder.String(), "err", err.Error())
+		}
+	}
+}
+
+// standingOf is a sync event as the three facts it carries.
+func standingOf(ev *rstr.SyncEvent) (Standing, error) {
+	h, err := pdid.From(ev.GetHolder())
+	if err != nil {
+		return Standing{}, err
+	}
+	t, _ := pdid.From(ev.GetTenant())
+	st := Standing{Holder: h, Tenant: t}
+	if v := ev.GetDateInvalidated(); v != nil {
+		st.Invalidated = v.AsTime()
+	}
+	if v := ev.GetDateDisabled(); v != nil {
+		st.Disabled = v.AsTime()
+	}
+	if v := ev.GetDateErased(); v != nil {
+		st.Erased = v.AsTime()
+	}
+	return st, nil
 }
 
 // Recheck drops what is known of a person, for a change made here to be seen

@@ -45,6 +45,7 @@ message HolderAddRequest {
   google.protobuf.Timestamp date_created = 15;
   string role = 8;
   bytes account = 9;
+  google.protobuf.Timestamp date_leaving = 10;
 }
 
 message HolderGetRequest {
@@ -76,6 +77,7 @@ message HolderSelect {
   bool date_created = 15;
   bool role = 8;
   bool account = 9;
+  bool date_leaving = 10;
 }
 
 message HolderPatchRequest {
@@ -105,6 +107,12 @@ message HolderPatchRequest {
   // "leave it alone", so no value could have meant NULL. It wins
   // outright: setting both this and account clears.
   bool account_null = 19;
+  google.protobuf.Timestamp date_leaving = 20;
+  // Clear date_leaving instead of writing it.
+  // It takes a field of its own because an unset value already means
+  // "leave it alone", so no value could have meant NULL. It wins
+  // outright: setting both this and date_leaving clears.
+  bool date_leaving_null = 21;
 }
 
 message HolderApplyRequest {

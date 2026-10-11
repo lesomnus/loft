@@ -146,6 +146,16 @@ that membership. Every call is also held to what roster says of the account
 now (`identity.Store.Held`, cached `HeldTtl`); a roster that cannot be asked
 serves no session.
 
+An external roster's sync stream (`identity.Store.Follow`, run from
+`cmd/serve.go`) is handed to `server/lifecycle`, so that roster's word lands
+when it is said: signed out everywhere ends the sessions that began before it,
+suspended or erased ends them all, and erased marks each of the account's
+memberships `Holder.date_leaving`. roster's `restore` and `forget` write past
+its servers and are **not on the stream** -- whatever acts on a mark asks
+roster first. The role Rove is installed with carries every method in
+`identity.AgentMethods`; installing again leaves an existing role as it is, so
+an older install is widened with `roster role patch` (README).
+
 Through roster's issuer instead (`auth.sso`, `server/sso`), Rove is a relying
 party in the `itself` shape of roster's `docs/relying-party.md`: `GET
 /sso/login?with=<connection>` sends the browser to Hydra naming the button's

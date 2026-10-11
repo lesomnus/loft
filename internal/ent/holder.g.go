@@ -32,5 +32,8 @@ func (e *Holder) Proto() *rove.Holder {
 	if e.Account != nil {
 		x.SetAccount(e.Account[:])
 	}
+	if e.DateLeaving != nil {
+		x.SetDateLeaving(timestamppb.New(*e.DateLeaving))
+	}
 	return x
 }
