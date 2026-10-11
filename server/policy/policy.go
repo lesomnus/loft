@@ -165,7 +165,7 @@ func init() {
 
 	allow(Manager, "PurchaseService", "Add", "Receive")
 
-	allow(Read, "NotificationService", "Inbox", "MarkRead")
+	allow(Read, "NotificationService", "Inbox", "MarkRead", "SetMail")
 
 	// Inviting into the workspace is its administrators', up to their own
 	// role, which the domain layer checks. The answer is the account's it is

@@ -135,6 +135,18 @@ func (d *Deps) here() (People, error) {
 	return d.People, nil
 }
 
+// mailing says whether this deployment sends mail at all. One with no SMTP
+// server writes what it would have sent to the log, which is right for an
+// invitation, whose link somebody is waiting for, and wrong for every
+// notification: those are not queued.
+func (d *Deps) mailing() bool {
+	if d == nil || d.Mail == nil {
+		return false
+	}
+	_, logged := d.Mail.(mail.Log)
+	return !logged
+}
+
 func (d *Deps) now() time.Time {
 	if d == nil || d.Now == nil {
 		return time.Now()

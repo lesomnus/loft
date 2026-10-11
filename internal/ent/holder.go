@@ -40,6 +40,8 @@ type Holder struct {
 	Account *uuid.UUID `json:"account,omitempty"`
 	// DateLeaving holds the value of the "date_leaving" field.
 	DateLeaving *time.Time `json:"date_leaving,omitempty"`
+	// MailOff holds the value of the "mail_off" field.
+	MailOff bool `json:"mail_off,omitempty"`
 	// TenantId holds the value of the "tenant_id" field.
 	TenantId uuid.UUID `json:"tenant_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -75,6 +77,8 @@ func (*Holder) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case holder.FieldLabels:
 			values[i] = new([]byte)
+		case holder.FieldMailOff:
+			values[i] = new(sql.NullBool)
 		case holder.FieldAlias, holder.FieldName, holder.FieldDesc, holder.FieldRole:
 			values[i] = new(sql.NullString)
 		case holder.FieldDateUpdated, holder.FieldDateErased, holder.FieldDateCreated, holder.FieldDateLeaving:
@@ -169,6 +173,12 @@ func (_m *Holder) assignValues(columns []string, values []any) error {
 				_m.DateLeaving = new(time.Time)
 				*_m.DateLeaving = value.Time
 			}
+		case holder.FieldMailOff:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field mail_off", values[i])
+			} else if value.Valid {
+				_m.MailOff = value.Bool
+			}
 		case holder.FieldTenantId:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
@@ -251,6 +261,9 @@ func (_m *Holder) String() string {
 		builder.WriteString("date_leaving=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
+	builder.WriteString(", ")
+	builder.WriteString("mail_off=")
+	builder.WriteString(fmt.Sprintf("%v", _m.MailOff))
 	builder.WriteString(", ")
 	builder.WriteString("tenant_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.TenantId))

@@ -178,6 +178,20 @@ func (_u *HolderUpdate) ClearDateLeaving() *HolderUpdate {
 	return _u
 }
 
+// SetMailOff sets the "mail_off" field.
+func (_u *HolderUpdate) SetMailOff(v bool) *HolderUpdate {
+	_u.mutation.SetMailOff(v)
+	return _u
+}
+
+// SetNillableMailOff sets the "mail_off" field if the given value is not nil.
+func (_u *HolderUpdate) SetNillableMailOff(v *bool) *HolderUpdate {
+	if v != nil {
+		_u.SetMailOff(*v)
+	}
+	return _u
+}
+
 // Mutation returns the HolderMutation object of the builder.
 func (_u *HolderUpdate) Mutation() *HolderMutation {
 	return _u.mutation
@@ -280,6 +294,9 @@ func (_u *HolderUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.DateLeavingCleared() {
 		_spec.ClearField(holder.FieldDateLeaving, field.TypeTime)
+	}
+	if value, ok := _u.mutation.MailOff(); ok {
+		_spec.SetField(holder.FieldMailOff, field.TypeBool, value)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
@@ -451,6 +468,20 @@ func (_u *HolderUpdateOne) ClearDateLeaving() *HolderUpdateOne {
 	return _u
 }
 
+// SetMailOff sets the "mail_off" field.
+func (_u *HolderUpdateOne) SetMailOff(v bool) *HolderUpdateOne {
+	_u.mutation.SetMailOff(v)
+	return _u
+}
+
+// SetNillableMailOff sets the "mail_off" field if the given value is not nil.
+func (_u *HolderUpdateOne) SetNillableMailOff(v *bool) *HolderUpdateOne {
+	if v != nil {
+		_u.SetMailOff(*v)
+	}
+	return _u
+}
+
 // Mutation returns the HolderMutation object of the builder.
 func (_u *HolderUpdateOne) Mutation() *HolderMutation {
 	return _u.mutation
@@ -583,6 +614,9 @@ func (_u *HolderUpdateOne) sqlSave(ctx context.Context) (_node *Holder, err erro
 	}
 	if _u.mutation.DateLeavingCleared() {
 		_spec.ClearField(holder.FieldDateLeaving, field.TypeTime)
+	}
+	if value, ok := _u.mutation.MailOff(); ok {
+		_spec.SetField(holder.FieldMailOff, field.TypeBool, value)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	_node = &Holder{config: _u.config}

@@ -46,6 +46,7 @@ message HolderAddRequest {
   string role = 8;
   bytes account = 9;
   google.protobuf.Timestamp date_leaving = 10;
+  bool mail_off = 11 [features.field_presence = IMPLICIT];
 }
 
 message HolderGetRequest {
@@ -78,6 +79,7 @@ message HolderSelect {
   bool role = 8;
   bool account = 9;
   bool date_leaving = 10;
+  bool mail_off = 11;
 }
 
 message HolderPatchRequest {
@@ -113,6 +115,7 @@ message HolderPatchRequest {
   // "leave it alone", so no value could have meant NULL. It wins
   // outright: setting both this and date_leaving clears.
   bool date_leaving_null = 21;
+  bool mail_off = 22;
 }
 
 message HolderApplyRequest {

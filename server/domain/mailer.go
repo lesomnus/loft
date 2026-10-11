@@ -1,0 +1,188 @@
+package domain
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"strings"
+	"time"
+
+	"github.com/lesomnus/otx/log"
+	"github.com/lesomnus/payday/pdid"
+	"github.com/lesomnus/payday/spin"
+	"github.com/protobuf-orm/ent/dialect"
+
+	"github.com/lesomnus/rove/internal/ent"
+	"github.com/lesomnus/rove/internal/ent/holder"
+	"github.com/lesomnus/rove/internal/ent/notification"
+	"github.com/lesomnus/rove/internal/ent/party"
+	"github.com/lesomnus/rove/internal/identity"
+	"github.com/lesomnus/rove/server/mail"
+)
+
+// Mailer sends by mail what the notifications of the mailed kinds say
+// ([Mailed]), after the operation that made them and never inside it.
+//
+// A notification is queued as it is written (`Notification.mail`), in the
+// operation's own transaction, so one that was undone was never queued. A pass
+// takes what is queued and not yet sent, oldest first; claims each by counting
+// the try, so that two servers do not send one twice; and sends it to the
+// address of the person it is for. What fails stays queued and is tried again
+// next pass, up to [mailTries] times. What has nobody to go to -- a membership
+// that ended, a person who turned mail off, no address -- leaves the queue
+// without a mail.
+//
+// The address is the one roster holds as checked for the account, and on the
+// roster in this process the person record's beside it, which is where that
+// deployment's addresses are written. A person record's address on a roster
+// of its own is a workspace's note and nobody's proof, and is not mailed.
+type Mailer struct {
+	Drv  dialect.Driver
+	Deps *Deps
+
+	// Every is the wait between passes; a minute when unset.
+	Every time.Duration
+}
+
+var _ spin.Spinner = Mailer{}
+
+// mailTries is how often a notification's mail is tried before it is given
+// up on, and said so in the log.
+const mailTries = 8
+
+func (m Mailer) SpinName() string { return "rove.mail" }
+
+func (m Mailer) Spin(ctx context.Context) error {
+	every := m.Every
+	if every <= 0 {
+		every = time.Minute
+	}
+	return spin.Every(every, m.Pass).Spin(ctx)
+}
+
+// Pass sends what is queued, as far as one pass goes.
+func (m Mailer) Pass(ctx context.Context) error {
+	if !m.Deps.mailing() {
+		return nil
+	}
+	db := ent.NewClient(ent.Driver(m.Drv))
+	rows, err := db.Notification.Query().
+		Where(notification.Mail(true), notification.DateMailedIsNil()).
+		Order(ent.Asc(notification.FieldDateCreated), ent.Asc(notification.FieldId)).
+		Limit(200).
+		All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range rows {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+		if err := m.one(ctx, db, n); err != nil {
+			log.From(ctx).WarnContext(ctx, "mail: a notification was not sent; it is tried again",
+				"notification", pdid.Id(n.Id).String(), "err", err.Error())
+		}
+	}
+	return nil
+}
+
+func (m Mailer) one(ctx context.Context, db *ent.Client, n *ent.Notification) error {
+	h, err := db.Holder.Query().Where(holder.Id(n.HolderId)).WithTenant().Only(ctx)
+	if ent.IsNotFound(err) {
+		return m.drop(ctx, db, n)
+	}
+	if err != nil {
+		return err
+	}
+	if h.DateErased != nil || h.MailOff {
+		return m.drop(ctx, db, n)
+	}
+	to, err := m.addressOf(ctx, db, h)
+	if err != nil {
+		return err
+	}
+	if to == "" {
+		return m.drop(ctx, db, n)
+	}
+
+	// Claimed by counting the try: of two servers asking at once, one
+	// counts it and sends, and the other finds it counted and moves on.
+	claimed, err := db.Notification.Update().
+		Where(
+			notification.Id(n.Id),
+			notification.Mail(true),
+			notification.DateMailedIsNil(),
+			notification.MailTries(n.MailTries),
+		).
+		AddMailTries(1).
+		Save(ctx)
+	if err != nil || claimed == 0 {
+		return err
+	}
+
+	if err := m.Deps.Mail.Send(ctx, m.message(h, n, to)); err != nil {
+		if n.MailTries+1 >= mailTries {
+			log.From(ctx).ErrorContext(ctx, "mail: a notification was given up on after every try",
+				"notification", pdid.Id(n.Id).String(), "tries", n.MailTries+1, "err", err.Error())
+			return m.drop(ctx, db, n)
+		}
+		return err
+	}
+	return db.Notification.UpdateOneId(n.Id).SetDateMailed(m.Deps.now()).Exec(ctx)
+}
+
+// drop takes a notification off the queue without a mail.
+func (m Mailer) drop(ctx context.Context, db *ent.Client, n *ent.Notification) error {
+	return db.Notification.UpdateOneId(n.Id).SetMail(false).Exec(ctx)
+}
+
+// addressOf is where a membership's mail goes, or nowhere.
+func (m Mailer) addressOf(ctx context.Context, db *ent.Client, h *ent.Holder) (string, error) {
+	people := m.Deps.People
+	if h.Account != nil && people != nil {
+		as, err := people.Addresses(ctx, pdid.Id(*h.Account))
+		switch {
+		case errors.Is(err, identity.ErrNoPerson):
+		case err != nil:
+			return "", err
+		case len(as) > 0:
+			return as[0], nil
+		}
+	}
+	if people != nil && !people.Embedded() {
+		return "", nil
+	}
+	p, err := db.Party.Query().Where(party.HolderId(h.Id), party.DateErasedIsNil()).First(ctx)
+	if ent.IsNotFound(err) {
+		return "", nil
+	}
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(p.Email), nil
+}
+
+// message is what a notification says, as a mail: its title, its words, and
+// the link that opens what it is about.
+func (m Mailer) message(h *ent.Holder, n *ent.Notification, to string) mail.Message {
+	workspace, alias := "", ""
+	if t := h.Edges.Tenant; t != nil {
+		workspace, alias = t.Name, t.Alias
+	}
+	link := strings.TrimSuffix(m.Deps.AppUrl, "/")
+	if alias != "" {
+		link += "/@" + alias
+	}
+	link += n.Link
+
+	body := n.Desc
+	if body != "" {
+		body += "\n\n"
+	}
+	body += fmt.Sprintf(`%s
+
+Rove의 %s 워크스페이스에서 온 알림입니다. 메일로 받지 않으려면 Rove의 내 정보에서 끌 수 있습니다. 알림은 앱에서 계속 받습니다.
+`, link, workspace)
+
+	return mail.Message{To: to, Subject: "[Rove] " + n.Name, Body: body}
+}

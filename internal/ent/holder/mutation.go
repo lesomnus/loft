@@ -27,6 +27,7 @@ type Mutation struct {
 	role          *string
 	account       *uuid.UUID
 	date_leaving  *time.Time
+	mail_off      *bool
 	clearedFields map[string]struct{}
 	tenant        *uuid.UUID
 	clearedtenant bool
@@ -315,6 +316,25 @@ func (m *Mutation) ResetDateLeaving() {
 	delete(m.clearedFields, FieldDateLeaving)
 }
 
+// SetMailOff sets the "mail_off" field.
+func (m *Mutation) SetMailOff(b bool) {
+	m.mail_off = &b
+}
+
+// MailOff returns the value of the "mail_off" field in the mutation.
+func (m *Mutation) MailOff() (r bool, exists bool) {
+	v := m.mail_off
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetMailOff resets all changes to the "mail_off" field.
+func (m *Mutation) ResetMailOff() {
+	m.mail_off = nil
+}
+
 // SetTenantId sets the "tenant_id" field.
 func (m *Mutation) SetTenantId(u uuid.UUID) {
 	m.tenant = &u
@@ -395,7 +415,7 @@ func (m *Mutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *Mutation) Fields() []string {
-	fields := make([]string, 0, 11)
+	fields := make([]string, 0, 12)
 	if m.alias != nil {
 		fields = append(fields, FieldAlias)
 	}
@@ -425,6 +445,9 @@ func (m *Mutation) Fields() []string {
 	}
 	if m.date_leaving != nil {
 		fields = append(fields, FieldDateLeaving)
+	}
+	if m.mail_off != nil {
+		fields = append(fields, FieldMailOff)
 	}
 	if m.tenant != nil {
 		fields = append(fields, FieldTenantId)
@@ -457,6 +480,8 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.Account()
 	case FieldDateLeaving:
 		return m.DateLeaving()
+	case FieldMailOff:
+		return m.MailOff()
 	case FieldTenantId:
 		return m.TenantId()
 	}
@@ -544,6 +569,13 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDateLeaving(v)
+		return nil
+	case FieldMailOff:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMailOff(v)
 		return nil
 	case FieldTenantId:
 		v, ok := value.(uuid.UUID)
@@ -669,6 +701,9 @@ func (m *Mutation) ResetField(name string) error {
 		return nil
 	case FieldDateLeaving:
 		m.ResetDateLeaving()
+		return nil
+	case FieldMailOff:
+		m.ResetMailOff()
 		return nil
 	case FieldTenantId:
 		m.ResetTenantId()

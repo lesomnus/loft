@@ -32,6 +32,12 @@ type Notification struct {
 	ReadAt *time.Time `json:"read_at,omitempty"`
 	// Link holds the value of the "link" field.
 	Link string `json:"link,omitempty"`
+	// Mail holds the value of the "mail" field.
+	Mail bool `json:"mail,omitempty"`
+	// DateMailed holds the value of the "date_mailed" field.
+	DateMailed *time.Time `json:"date_mailed,omitempty"`
+	// MailTries holds the value of the "mail_tries" field.
+	MailTries uint32 `json:"mail_tries,omitempty"`
 	// DateUpdated holds the value of the "date_updated" field.
 	DateUpdated time.Time `json:"date_updated,omitempty"`
 	// DateCreated holds the value of the "date_created" field.
@@ -84,9 +90,13 @@ func (*Notification) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case notification.FieldMail:
+			values[i] = new(sql.NullBool)
+		case notification.FieldMailTries:
+			values[i] = new(sql.NullInt64)
 		case notification.FieldName, notification.FieldDesc, notification.FieldKind, notification.FieldLink:
 			values[i] = new(sql.NullString)
-		case notification.FieldReadAt, notification.FieldDateUpdated, notification.FieldDateCreated:
+		case notification.FieldReadAt, notification.FieldDateMailed, notification.FieldDateUpdated, notification.FieldDateCreated:
 			values[i] = new(sql.NullTime)
 		case notification.FieldSubjectId:
 			values[i] = new(sql.Null[uuid.UUID])
@@ -150,6 +160,25 @@ func (_m *Notification) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field link", values[i])
 			} else if value.Valid {
 				_m.Link = value.String
+			}
+		case notification.FieldMail:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field mail", values[i])
+			} else if value.Valid {
+				_m.Mail = value.Bool
+			}
+		case notification.FieldDateMailed:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field date_mailed", values[i])
+			} else if value.Valid {
+				_m.DateMailed = new(time.Time)
+				*_m.DateMailed = value.Time
+			}
+		case notification.FieldMailTries:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field mail_tries", values[i])
+			} else if value.Valid {
+				_m.MailTries = uint32(value.Int64)
 			}
 		case notification.FieldDateUpdated:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -242,6 +271,17 @@ func (_m *Notification) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("link=")
 	builder.WriteString(_m.Link)
+	builder.WriteString(", ")
+	builder.WriteString("mail=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Mail))
+	builder.WriteString(", ")
+	if v := _m.DateMailed; v != nil {
+		builder.WriteString("date_mailed=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("mail_tries=")
+	builder.WriteString(fmt.Sprintf("%v", _m.MailTries))
 	builder.WriteString(", ")
 	builder.WriteString("date_updated=")
 	builder.WriteString(_m.DateUpdated.Format(time.ANSIC))

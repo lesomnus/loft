@@ -16847,6 +16847,11 @@ func (s interceptNotification) MarkRead(ctx context.Context, req *rove.Notificat
 		rove.NotificationService_MarkRead_FullMethodName, req, s.NotificationServiceServer.MarkRead)
 }
 
+func (s interceptNotification) SetMail(ctx context.Context, req *rove.NotificationSetMailRequest) (*rove.NotificationSetMailResponse, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.NotificationServiceServer,
+		rove.NotificationService_SetMail_FullMethodName, req, s.NotificationServiceServer.SetMail)
+}
+
 func (s Intercept) UsageSnapshot() rove.UsageSnapshotServiceServer {
 	return interceptUsageSnapshot{s, s.Next().UsageSnapshot()}
 }
@@ -20968,6 +20973,19 @@ func dispatch(ctx context.Context, s rove.Server, op *pdpb.Op) (*anypb.Any, erro
 		}
 
 		res, err := s.Notification().MarkRead(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.NotificationService_SetMail_FullMethodName:
+		v := &rove.NotificationSetMailRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.Notification().SetMail(ctx, v)
 		if err != nil {
 			return nil, err
 		}

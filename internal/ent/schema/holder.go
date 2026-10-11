@@ -41,6 +41,7 @@ func (Holder) Fields() []ent.Field {
 		field.Time("date_leaving").
 			Nillable().
 			Optional(),
+		field.Bool("mail_off"),
 		field.Uuid("tenant_id").
 			Immutable(),
 	}

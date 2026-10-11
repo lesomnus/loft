@@ -126,6 +126,61 @@ func (_u *NotificationUpdate) SetNillableLink(v *string) *NotificationUpdate {
 	return _u
 }
 
+// SetMail sets the "mail" field.
+func (_u *NotificationUpdate) SetMail(v bool) *NotificationUpdate {
+	_u.mutation.SetMail(v)
+	return _u
+}
+
+// SetNillableMail sets the "mail" field if the given value is not nil.
+func (_u *NotificationUpdate) SetNillableMail(v *bool) *NotificationUpdate {
+	if v != nil {
+		_u.SetMail(*v)
+	}
+	return _u
+}
+
+// SetDateMailed sets the "date_mailed" field.
+func (_u *NotificationUpdate) SetDateMailed(v time.Time) *NotificationUpdate {
+	_u.mutation.SetDateMailed(v)
+	return _u
+}
+
+// SetNillableDateMailed sets the "date_mailed" field if the given value is not nil.
+func (_u *NotificationUpdate) SetNillableDateMailed(v *time.Time) *NotificationUpdate {
+	if v != nil {
+		_u.SetDateMailed(*v)
+	}
+	return _u
+}
+
+// ClearDateMailed clears the value of the "date_mailed" field.
+func (_u *NotificationUpdate) ClearDateMailed() *NotificationUpdate {
+	_u.mutation.ClearDateMailed()
+	return _u
+}
+
+// SetMailTries sets the "mail_tries" field.
+func (_u *NotificationUpdate) SetMailTries(v uint32) *NotificationUpdate {
+	_u.mutation.ResetMailTries()
+	_u.mutation.SetMailTries(v)
+	return _u
+}
+
+// SetNillableMailTries sets the "mail_tries" field if the given value is not nil.
+func (_u *NotificationUpdate) SetNillableMailTries(v *uint32) *NotificationUpdate {
+	if v != nil {
+		_u.SetMailTries(*v)
+	}
+	return _u
+}
+
+// AddMailTries adds value to the "mail_tries" field.
+func (_u *NotificationUpdate) AddMailTries(v int32) *NotificationUpdate {
+	_u.mutation.AddMailTries(v)
+	return _u
+}
+
 // SetDateUpdated sets the "date_updated" field.
 func (_u *NotificationUpdate) SetDateUpdated(v time.Time) *NotificationUpdate {
 	_u.mutation.SetDateUpdated(v)
@@ -224,6 +279,21 @@ func (_u *NotificationUpdate) sqlSave(ctx context.Context) (_node int, err error
 	}
 	if value, ok := _u.mutation.Link(); ok {
 		_spec.SetField(notification.FieldLink, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Mail(); ok {
+		_spec.SetField(notification.FieldMail, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.DateMailed(); ok {
+		_spec.SetField(notification.FieldDateMailed, field.TypeTime, value)
+	}
+	if _u.mutation.DateMailedCleared() {
+		_spec.ClearField(notification.FieldDateMailed, field.TypeTime)
+	}
+	if value, ok := _u.mutation.MailTries(); ok {
+		_spec.SetField(notification.FieldMailTries, field.TypeUint32, value)
+	}
+	if value, ok := _u.mutation.AddedMailTries(); ok {
+		_spec.AddField(notification.FieldMailTries, field.TypeUint32, value)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(notification.FieldDateUpdated, field.TypeTime, value)
@@ -346,6 +416,61 @@ func (_u *NotificationUpdateOne) SetNillableLink(v *string) *NotificationUpdateO
 	if v != nil {
 		_u.SetLink(*v)
 	}
+	return _u
+}
+
+// SetMail sets the "mail" field.
+func (_u *NotificationUpdateOne) SetMail(v bool) *NotificationUpdateOne {
+	_u.mutation.SetMail(v)
+	return _u
+}
+
+// SetNillableMail sets the "mail" field if the given value is not nil.
+func (_u *NotificationUpdateOne) SetNillableMail(v *bool) *NotificationUpdateOne {
+	if v != nil {
+		_u.SetMail(*v)
+	}
+	return _u
+}
+
+// SetDateMailed sets the "date_mailed" field.
+func (_u *NotificationUpdateOne) SetDateMailed(v time.Time) *NotificationUpdateOne {
+	_u.mutation.SetDateMailed(v)
+	return _u
+}
+
+// SetNillableDateMailed sets the "date_mailed" field if the given value is not nil.
+func (_u *NotificationUpdateOne) SetNillableDateMailed(v *time.Time) *NotificationUpdateOne {
+	if v != nil {
+		_u.SetDateMailed(*v)
+	}
+	return _u
+}
+
+// ClearDateMailed clears the value of the "date_mailed" field.
+func (_u *NotificationUpdateOne) ClearDateMailed() *NotificationUpdateOne {
+	_u.mutation.ClearDateMailed()
+	return _u
+}
+
+// SetMailTries sets the "mail_tries" field.
+func (_u *NotificationUpdateOne) SetMailTries(v uint32) *NotificationUpdateOne {
+	_u.mutation.ResetMailTries()
+	_u.mutation.SetMailTries(v)
+	return _u
+}
+
+// SetNillableMailTries sets the "mail_tries" field if the given value is not nil.
+func (_u *NotificationUpdateOne) SetNillableMailTries(v *uint32) *NotificationUpdateOne {
+	if v != nil {
+		_u.SetMailTries(*v)
+	}
+	return _u
+}
+
+// AddMailTries adds value to the "mail_tries" field.
+func (_u *NotificationUpdateOne) AddMailTries(v int32) *NotificationUpdateOne {
+	_u.mutation.AddMailTries(v)
 	return _u
 }
 
@@ -477,6 +602,21 @@ func (_u *NotificationUpdateOne) sqlSave(ctx context.Context) (_node *Notificati
 	}
 	if value, ok := _u.mutation.Link(); ok {
 		_spec.SetField(notification.FieldLink, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Mail(); ok {
+		_spec.SetField(notification.FieldMail, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.DateMailed(); ok {
+		_spec.SetField(notification.FieldDateMailed, field.TypeTime, value)
+	}
+	if _u.mutation.DateMailedCleared() {
+		_spec.ClearField(notification.FieldDateMailed, field.TypeTime)
+	}
+	if value, ok := _u.mutation.MailTries(); ok {
+		_spec.SetField(notification.FieldMailTries, field.TypeUint32, value)
+	}
+	if value, ok := _u.mutation.AddedMailTries(); ok {
+		_spec.AddField(notification.FieldMailTries, field.TypeUint32, value)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(notification.FieldDateUpdated, field.TypeTime, value)

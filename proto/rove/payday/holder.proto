@@ -161,4 +161,8 @@ message Holder {
   // standing, or one roster restored. Written by the deployment from what
   // roster says (`server/lifecycle`), and by nobody else.
   google.protobuf.Timestamp date_leaving = 10 [(orm.field) = {nullable: true}];
+  // The person's own choice not to be mailed what they are told of here: the
+  // notifications still come, in the app. Theirs to set and nobody else's
+  // (`NotificationService.SetMail`).
+  bool mail_off = 11;
 }

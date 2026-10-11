@@ -14,7 +14,20 @@ import (
 	"github.com/lesomnus/rove/internal/ent/party"
 )
 
-// notify leaves a message for one holder.
+// Mailed is the kinds of notification that go by mail as well as in the app:
+// the ones somebody has to act on soon, or would want to hear about away from
+// the screen (2026-10-12). Everything else is told in the app only.
+var Mailed = map[string]bool{
+	"reservation.requested": true, // to whoever approves
+	"reservation.decided":   true, // to whoever asked
+	"custody.overdue":       true, // to who has it, and who manages it
+	"work.due":              true, // maintenance coming due, to who manages it
+}
+
+// notify leaves a message for one holder, queued for mail as well when it is
+// of a kind that goes by mail and this deployment sends any. Queued and not
+// sent: the row is written in the operation's transaction, so an operation
+// that is undone mails nothing, and `Mailer` sends after.
 func (t *Tx) notify(h uuid.UUID, kind, title, body string, subject pdid.Id, link string) error {
 	req := app.NotificationAddRequest_builder{
 		Tenant: t.tenantRef(),
@@ -23,6 +36,7 @@ func (t *Tx) notify(h uuid.UUID, kind, title, body string, subject pdid.Id, link
 		Name:   title,
 		Desc:   body,
 		Link:   link,
+		Mail:   Mailed[kind] && t.deps.mailing(),
 	}.Build()
 	if !subject.IsZero() {
 		req.SetSubjectId(subject.Bytes())
@@ -103,6 +117,24 @@ func (s domainNotification) Inbox(ctx context.Context, req *app.NotificationInbo
 		}
 	}
 	return app.NotificationInboxResponse_builder{Items: items, Unread: uint32(unread)}.Build(), nil
+}
+
+// SetMail is whether the caller is mailed what they are told of here. It is a
+// setting of their membership, and the person's own: there is no request that
+// names somebody else.
+func (s domainNotification) SetMail(ctx context.Context, req *app.NotificationSetMailRequest) (*app.NotificationSetMailResponse, error) {
+	err := s.tx(ctx, func(t *Tx) error {
+		_, err := t.next.Holder().Patch(t.ctx, app.HolderPatchRequest_builder{
+			Ref:              app.HolderRef_builder{Id: t.actor.Bytes()}.Build(),
+			MailOff:          z.Ptr(req.GetOff()),
+			DateUpdatedForce: z.Ptr(true),
+		}.Build())
+		return err
+	})
+	if err != nil {
+		return nil, err
+	}
+	return app.NotificationSetMailResponse_builder{Off: req.GetOff()}.Build(), nil
 }
 
 // MarkRead marks the caller's messages read: the ones named, or all of them.

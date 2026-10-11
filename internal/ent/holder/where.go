@@ -101,6 +101,11 @@ func DateLeaving(v time.Time) predicate.Holder {
 	return predicate.Holder(sql.FieldEQ(FieldDateLeaving, v))
 }
 
+// MailOff applies equality check predicate on the "mail_off" field. It's identical to MailOffEQ.
+func MailOff(v bool) predicate.Holder {
+	return predicate.Holder(sql.FieldEQ(FieldMailOff, v))
+}
+
 // TenantId applies equality check predicate on the "tenant_id" field. It's identical to TenantIdEQ.
 func TenantId(v uuid.UUID) predicate.Holder {
 	return predicate.Holder(sql.FieldEQ(FieldTenantId, v))
@@ -624,6 +629,16 @@ func DateLeavingIsNil() predicate.Holder {
 // DateLeavingNotNil applies the NotNil predicate on the "date_leaving" field.
 func DateLeavingNotNil() predicate.Holder {
 	return predicate.Holder(sql.FieldNotNull(FieldDateLeaving))
+}
+
+// MailOffEQ applies the EQ predicate on the "mail_off" field.
+func MailOffEQ(v bool) predicate.Holder {
+	return predicate.Holder(sql.FieldEQ(FieldMailOff, v))
+}
+
+// MailOffNEQ applies the NEQ predicate on the "mail_off" field.
+func MailOffNEQ(v bool) predicate.Holder {
+	return predicate.Holder(sql.FieldNEQ(FieldMailOff, v))
 }
 
 // TenantIdEQ applies the EQ predicate on the "tenant_id" field.

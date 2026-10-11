@@ -382,7 +382,7 @@ Tenant/Plan ──> Entitlement/Policy engine ──────────┼�
 | Outbox · Watch | 현재 상태 화면 갱신, Webhook(Phase 3) |
 | pdid (UUIDv8 + 도메인 바이트, 클라이언트에서도 발급) | 멱등 키, batch에서 미리 정한 ID, 오프라인 큐, 여러 종류를 가리키는 참조 열 |
 | `auth`(세션·Bearer), `gate.Policy`, batch guard | 세션과 역할 권한. 사람이 누구인지는 roster가 답한다(9.10절) |
-| `spin` | 홀드 만료, no-show, 연체 알림, 테넌트 도메인 확인, 사용량 스냅샷, 보존 잡 |
+| `spin` | 홀드 만료, no-show, 연체 알림, 알림 메일 발송, 테넌트 도메인 확인, 사용량 스냅샷, 보존 잡 |
 | 두 진입점(경계 있는 스택 / 운영자 스택) | 공개 바이너리와 운영자 바이너리 |
 
 **payday에 없어서 Rove가 직접 만드는 것**

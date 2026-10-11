@@ -86,6 +86,21 @@ func Link(v string) predicate.Notification {
 	return predicate.Notification(sql.FieldEQ(FieldLink, v))
 }
 
+// Mail applies equality check predicate on the "mail" field. It's identical to MailEQ.
+func Mail(v bool) predicate.Notification {
+	return predicate.Notification(sql.FieldEQ(FieldMail, v))
+}
+
+// DateMailed applies equality check predicate on the "date_mailed" field. It's identical to DateMailedEQ.
+func DateMailed(v time.Time) predicate.Notification {
+	return predicate.Notification(sql.FieldEQ(FieldDateMailed, v))
+}
+
+// MailTries applies equality check predicate on the "mail_tries" field. It's identical to MailTriesEQ.
+func MailTries(v uint32) predicate.Notification {
+	return predicate.Notification(sql.FieldEQ(FieldMailTries, v))
+}
+
 // DateUpdated applies equality check predicate on the "date_updated" field. It's identical to DateUpdatedEQ.
 func DateUpdated(v time.Time) predicate.Notification {
 	return predicate.Notification(sql.FieldEQ(FieldDateUpdated, v))
@@ -464,6 +479,106 @@ func LinkEqualFold(v string) predicate.Notification {
 // LinkContainsFold applies the ContainsFold predicate on the "link" field.
 func LinkContainsFold(v string) predicate.Notification {
 	return predicate.Notification(sql.FieldContainsFold(FieldLink, v))
+}
+
+// MailEQ applies the EQ predicate on the "mail" field.
+func MailEQ(v bool) predicate.Notification {
+	return predicate.Notification(sql.FieldEQ(FieldMail, v))
+}
+
+// MailNEQ applies the NEQ predicate on the "mail" field.
+func MailNEQ(v bool) predicate.Notification {
+	return predicate.Notification(sql.FieldNEQ(FieldMail, v))
+}
+
+// DateMailedEQ applies the EQ predicate on the "date_mailed" field.
+func DateMailedEQ(v time.Time) predicate.Notification {
+	return predicate.Notification(sql.FieldEQ(FieldDateMailed, v))
+}
+
+// DateMailedNEQ applies the NEQ predicate on the "date_mailed" field.
+func DateMailedNEQ(v time.Time) predicate.Notification {
+	return predicate.Notification(sql.FieldNEQ(FieldDateMailed, v))
+}
+
+// DateMailedIn applies the In predicate on the "date_mailed" field.
+func DateMailedIn(vs ...time.Time) predicate.Notification {
+	return predicate.Notification(sql.FieldIn(FieldDateMailed, vs...))
+}
+
+// DateMailedNotIn applies the NotIn predicate on the "date_mailed" field.
+func DateMailedNotIn(vs ...time.Time) predicate.Notification {
+	return predicate.Notification(sql.FieldNotIn(FieldDateMailed, vs...))
+}
+
+// DateMailedGT applies the GT predicate on the "date_mailed" field.
+func DateMailedGT(v time.Time) predicate.Notification {
+	return predicate.Notification(sql.FieldGT(FieldDateMailed, v))
+}
+
+// DateMailedGTE applies the GTE predicate on the "date_mailed" field.
+func DateMailedGTE(v time.Time) predicate.Notification {
+	return predicate.Notification(sql.FieldGTE(FieldDateMailed, v))
+}
+
+// DateMailedLT applies the LT predicate on the "date_mailed" field.
+func DateMailedLT(v time.Time) predicate.Notification {
+	return predicate.Notification(sql.FieldLT(FieldDateMailed, v))
+}
+
+// DateMailedLTE applies the LTE predicate on the "date_mailed" field.
+func DateMailedLTE(v time.Time) predicate.Notification {
+	return predicate.Notification(sql.FieldLTE(FieldDateMailed, v))
+}
+
+// DateMailedIsNil applies the IsNil predicate on the "date_mailed" field.
+func DateMailedIsNil() predicate.Notification {
+	return predicate.Notification(sql.FieldIsNull(FieldDateMailed))
+}
+
+// DateMailedNotNil applies the NotNil predicate on the "date_mailed" field.
+func DateMailedNotNil() predicate.Notification {
+	return predicate.Notification(sql.FieldNotNull(FieldDateMailed))
+}
+
+// MailTriesEQ applies the EQ predicate on the "mail_tries" field.
+func MailTriesEQ(v uint32) predicate.Notification {
+	return predicate.Notification(sql.FieldEQ(FieldMailTries, v))
+}
+
+// MailTriesNEQ applies the NEQ predicate on the "mail_tries" field.
+func MailTriesNEQ(v uint32) predicate.Notification {
+	return predicate.Notification(sql.FieldNEQ(FieldMailTries, v))
+}
+
+// MailTriesIn applies the In predicate on the "mail_tries" field.
+func MailTriesIn(vs ...uint32) predicate.Notification {
+	return predicate.Notification(sql.FieldIn(FieldMailTries, vs...))
+}
+
+// MailTriesNotIn applies the NotIn predicate on the "mail_tries" field.
+func MailTriesNotIn(vs ...uint32) predicate.Notification {
+	return predicate.Notification(sql.FieldNotIn(FieldMailTries, vs...))
+}
+
+// MailTriesGT applies the GT predicate on the "mail_tries" field.
+func MailTriesGT(v uint32) predicate.Notification {
+	return predicate.Notification(sql.FieldGT(FieldMailTries, v))
+}
+
+// MailTriesGTE applies the GTE predicate on the "mail_tries" field.
+func MailTriesGTE(v uint32) predicate.Notification {
+	return predicate.Notification(sql.FieldGTE(FieldMailTries, v))
+}
+
+// MailTriesLT applies the LT predicate on the "mail_tries" field.
+func MailTriesLT(v uint32) predicate.Notification {
+	return predicate.Notification(sql.FieldLT(FieldMailTries, v))
+}
+
+// MailTriesLTE applies the LTE predicate on the "mail_tries" field.
+func MailTriesLTE(v uint32) predicate.Notification {
+	return predicate.Notification(sql.FieldLTE(FieldMailTries, v))
 }
 
 // DateUpdatedEQ applies the EQ predicate on the "date_updated" field.

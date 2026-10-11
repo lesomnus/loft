@@ -320,6 +320,9 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	// to, loans that are late, the day's usage.
 	s.Spin = append(s.Spin,
 		domain.Sweeper{Server: base, Drv: drv, Deps: deps, Every: c.App.Sweep},
+		// What the notifications worth a mailbox say, sent after the
+		// operation that made them (`app.mail`; nothing without a server).
+		domain.Mailer{Drv: drv, Deps: deps},
 		spinEvery(time.Hour, store.Sweep),
 		spinEvery(time.Hour, s.Logins.Sweep),
 		// The roster in this process's own housekeeping; nothing, for one of

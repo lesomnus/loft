@@ -135,6 +135,11 @@ func (s NotificationServiceServer) Add(ctx context.Context, req *rove.Notificati
 		q.SetReadAt(req.GetReadAt().AsTime())
 	}
 	q.SetLink(req.GetLink())
+	q.SetMail(req.GetMail())
+	if req.HasDateMailed() {
+		q.SetDateMailed(req.GetDateMailed().AsTime())
+	}
+	q.SetMailTries(req.GetMailTries())
 	q.SetDateUpdated(st.now())
 	if req.HasDateCreated() {
 		q.SetDateCreated(req.GetDateCreated().AsTime())
@@ -226,6 +231,15 @@ func NotificationSelectedFields(m *rove.NotificationSelect) []string {
 	if m.GetLink() {
 		vs = append(vs, notification.FieldLink)
 	}
+	if m.GetMail() {
+		vs = append(vs, notification.FieldMail)
+	}
+	if m.GetDateMailed() {
+		vs = append(vs, notification.FieldDateMailed)
+	}
+	if m.GetMailTries() {
+		vs = append(vs, notification.FieldMailTries)
+	}
 	if m.GetDateUpdated() {
 		vs = append(vs, notification.FieldDateUpdated)
 	}
@@ -310,7 +324,7 @@ func NotificationGetKey(ctx context.Context, db *ent.Client, ref *rove.Notificat
 var notificationOrmEntity = ormpatch.MustEntityOf(rove.File_rove_ops_proto, "Notification")
 
 var notificationPatchColumns = entpatch.Columns{
-	1: notification.FieldId, 2: notification.TenantColumn, 5: notification.FieldName, 6: notification.FieldDesc, 8: notification.HolderColumn, 9: notification.FieldKind, 10: notification.FieldSubjectId, 11: notification.FieldReadAt, 12: notification.FieldLink, 13: notification.FieldDateUpdated, 15: notification.FieldDateCreated}
+	1: notification.FieldId, 2: notification.TenantColumn, 5: notification.FieldName, 6: notification.FieldDesc, 8: notification.HolderColumn, 9: notification.FieldKind, 10: notification.FieldSubjectId, 11: notification.FieldReadAt, 12: notification.FieldLink, 16: notification.FieldMail, 17: notification.FieldDateMailed, 18: notification.FieldMailTries, 13: notification.FieldDateUpdated, 15: notification.FieldDateCreated}
 
 func (s NotificationServiceServer) Apply(ctx context.Context, req *rove.NotificationApplyRequest) (*rove.Notification, error) {
 	if !req.HasPatch() {

@@ -32,6 +32,8 @@ const (
 	FieldAccount = "account"
 	// FieldDateLeaving holds the string denoting the date_leaving field in the database.
 	FieldDateLeaving = "date_leaving"
+	// FieldMailOff holds the string denoting the mail_off field in the database.
+	FieldMailOff = "mail_off"
 	// FieldTenantId holds the string denoting the tenant_id field in the database.
 	FieldTenantId = "tenant_id"
 	// EdgeTenant holds the string denoting the tenant edge name in mutations.
@@ -60,6 +62,7 @@ var Columns = []string{
 	FieldRole,
 	FieldAccount,
 	FieldDateLeaving,
+	FieldMailOff,
 	FieldTenantId,
 }
 
@@ -124,6 +127,11 @@ func ByAccount(opts ...sql.OrderTermOption) OrderOption {
 // ByDateLeaving orders the results by the date_leaving field.
 func ByDateLeaving(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDateLeaving, opts...).ToFunc()
+}
+
+// ByMailOff orders the results by the mail_off field.
+func ByMailOff(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldMailOff, opts...).ToFunc()
 }
 
 // ByTenantId orders the results by the tenant_id field.
