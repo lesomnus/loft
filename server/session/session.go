@@ -1,5 +1,5 @@
-// Package session keeps browser sessions in the database, and signs a person in
-// once roster has checked their password (design 9.10).
+// Package session keeps browser sessions in the database, and signs an account
+// in once roster has checked its password (design 9.10).
 //
 // A session row is bookkeeping, not a fact anybody audits: it is written
 // through ent directly, outside the trail, the way payday's own stores are.
@@ -7,9 +7,13 @@
 // recorded with its holder.
 //
 // The session is Rove's, so that it can be ended at once (report 3); the
-// person is roster's, so every call a session makes is held to what roster
-// says of them now: suspended, erased or signed out everywhere since it began
-// is a session that is over.
+// account is roster's, so every call a session makes is held to what roster
+// says of it now: suspended, erased or signed out everywhere since it began is
+// a session that is over.
+//
+// A session names an **account** and not a membership (D27). Which workspace a
+// call is about is the call's to say, and `cmd.Resolver` turns the account and
+// that workspace into the holder the call is served as.
 package session
 
 import (
@@ -34,10 +38,8 @@ import (
 	"github.com/lesomnus/rove/internal/ent/holder"
 	"github.com/lesomnus/rove/internal/ent/party"
 	"github.com/lesomnus/rove/internal/ent/session"
-	enttenant "github.com/lesomnus/rove/internal/ent/tenant"
 	"github.com/lesomnus/rove/internal/identity"
 	"github.com/lesomnus/rove/server/pd"
-	"github.com/lesomnus/rove/server/tenancy"
 )
 
 // Store is an [authsession.Store] over the Session table. The key is never
@@ -54,7 +56,7 @@ type Store struct {
 // Held is roster's word on whether a session that began at `began` is still
 // good: [identity.Store.Held].
 type Held interface {
-	Held(ctx context.Context, tenant, holder pdid.Id, began time.Time) error
+	Held(ctx context.Context, account pdid.Id, began time.Time) error
 }
 
 var _ authsession.Store = Store{}
@@ -71,11 +73,7 @@ func (s Store) Put(ctx context.Context, v authsession.Session) error {
 	if len(v.Held) > 0 {
 		return authsession.ErrCannotHold
 	}
-	actor, err := pdid.Parse(v.Id)
-	if err != nil {
-		return err
-	}
-	tn, err := pdid.Parse(v.TenantId)
+	account, err := pdid.Parse(v.Id)
 	if err != nil {
 		return err
 	}
@@ -94,8 +92,7 @@ func (s Store) Put(ctx context.Context, v authsession.Session) error {
 
 	return s.Db.Session.Create().
 		SetId(pdid.New(pd.SessionDomain).Uuid()).
-		SetTenantId(tn.Uuid()).
-		SetHolderId(actor.Uuid()).
+		SetAccount(account.Uuid()).
 		SetSecret(digest(v.Key)).
 		SetGrant(whole).
 		SetNillableDateIdle(nonzero(v.Idle)).
@@ -114,7 +111,7 @@ func (s Store) Get(ctx context.Context, key string) (authsession.Session, error)
 		return authsession.Session{}, err
 	}
 	if s.People != nil {
-		switch err := s.People.Held(ctx, pdid.Id(v.TenantId), pdid.Id(v.HolderId), v.DateCreated); {
+		switch err := s.People.Held(ctx, pdid.Id(v.Account), v.DateCreated); {
 		case errors.Is(err, identity.ErrRefused):
 			// Over: what roster says of them since it began ends it here too.
 			if _, err := s.Db.Session.Delete().Where(session.Id(v.Id)).Exec(ctx); err != nil {
@@ -127,11 +124,12 @@ func (s Store) Get(ctx context.Context, key string) (authsession.Session, error)
 			return authsession.Session{}, fmt.Errorf("%w: %w", auth.ErrUnavailable, err)
 		}
 	}
+	// No tenant: an account is in none, and which workspace a call is about
+	// is the call's to say.
 	out := authsession.Session{
-		Key:      key,
-		Id:       pdid.Id(v.HolderId).String(),
-		TenantId: pdid.Id(v.TenantId).String(),
-		Grant:    frame.Whole(),
+		Key:   key,
+		Id:    pdid.Id(v.Account).String(),
+		Grant: frame.Whole(),
 	}
 	if v.DateExpires != nil {
 		out.Expires = *v.DateExpires
@@ -167,35 +165,32 @@ func nonzero(t time.Time) *time.Time {
 
 // Login is what a sign-in form posts:
 //
-//	{"tenant": "acme", "login": "kim", "password": "..."}
+//	{"login": "kim", "password": "..."}
 //
-// `login` is a person's alias, or the address they are reached at: the one on
-// their person record here when roster is in this process, and one roster
-// verified when it is of its own. `tenant` may be left out where this
-// deployment serves one tenant only.
+// `login` is an account's alias in the directory, or the address it is
+// reached at: on the roster in this process the one on a person record here,
+// and on a roster of its own one it verified. Which workspace is not said:
+// a session is the account's, and every workspace it belongs to is open to it.
 type Login struct {
-	Tenant   string `json:"tenant"`
 	Login    string `json:"login"`
 	Password string `json:"password"`
 }
 
 // People is what a sign-in is checked with: roster.
 type People interface {
-	Verify(ctx context.Context, tenant, login, password string) (identity.Person, error)
-	Only(ctx context.Context) (string, bool, error)
+	Verify(ctx context.Context, login, password string) (identity.Person, error)
+	ById(ctx context.Context, sub string) (identity.Person, error)
 	Embedded() bool
 }
 
 // SignIn is `POST /session` and `DELETE /session`: a password roster checked,
-// then this deployment's own rows for the person if they are new here, then
-// Rove's session cookie.
+// then Rove's session cookie for the account.
 //
 // A refusal is one answer whatever was wrong -- nobody by that name, the wrong
-// password, a login ended here, an address that keeps getting it wrong -- and
-// a roster that cannot be asked is another, since telling somebody their
-// password is wrong when nobody could check it is the answer that sends them
-// to reset it.
-func SignIn(sessions *authsession.Sessions, people People, anchor tenancy.Anchor) http.Handler {
+// password, an address that keeps getting it wrong -- and a roster that cannot
+// be asked is another, since telling somebody their password is wrong when
+// nobody could check it is the answer that sends them to reset it.
+func SignIn(sessions *authsession.Sessions, people People, db *ent.Client) http.Handler {
 	l := &limiter{seen: map[string][]time.Time{}}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
@@ -217,25 +212,17 @@ func SignIn(sessions *authsession.Sessions, people People, anchor tenancy.Anchor
 			return
 		}
 		in.Login = strings.TrimSpace(in.Login)
-		in.Tenant = strings.TrimSpace(in.Tenant)
 		who := addr(r) + "\x00" + strings.ToLower(in.Login)
 		if in.Login == "" || in.Password == "" || !l.ok(who) {
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
 		}
 
-		v, err := verify(ctx, people, anchor, in)
+		v, err := verify(ctx, people, db, in)
 		switch {
 		case errors.Is(err, errNo):
 			l.fail(who)
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
-			return
-		case errors.Is(err, tenancy.ErrClash):
-			// Roster vouched for them, and this deployment has somebody of
-			// that name from before roster did: the operator's to bring in,
-			// and nothing waiting would fix.
-			log.From(ctx).ErrorContext(ctx, "session: a sign-in roster vouched for is somebody here already", "err", err.Error())
-			http.Error(w, "not brought in yet", http.StatusConflict)
 			return
 		case err != nil:
 			log.From(ctx).WarnContext(ctx, "session: a sign-in nobody could check", "err", err.Error())
@@ -257,36 +244,29 @@ func SignIn(sessions *authsession.Sessions, people People, anchor tenancy.Anchor
 // errNo is a refusal: everything a sign-in can be told no for.
 var errNo = errors.New("session: no")
 
-func verify(ctx context.Context, people People, anchor tenancy.Anchor, in Login) (authsession.Session, error) {
-	tenant := in.Tenant
-	if tenant == "" {
-		only, ok, err := people.Only(ctx)
-		if err != nil {
-			return authsession.Session{}, err
-		}
-		if !ok {
-			// More than one tenant here, and the form said none.
-			return authsession.Session{}, errNo
-		}
-		tenant = only
-	}
-
+func verify(ctx context.Context, people People, db *ent.Client, in Login) (authsession.Session, error) {
 	login := in.Login
 	if strings.Contains(login, "@") && people.Embedded() {
 		// The roster in this process keeps no addresses: the one a person is
 		// reached at is on their person record here, as it was before roster
 		// held them. An address nobody here has goes to roster as it is,
 		// which refuses it the way it refuses anybody.
-		alias, err := aliasAt(ctx, ent.NewClient(ent.Driver(anchor.Drv)), tenant, login)
+		account, err := accountAt(ctx, db, login)
 		if err != nil {
 			return authsession.Session{}, err
 		}
-		if alias != "" {
-			login = alias
+		if account != pdid.Nil {
+			p, err := people.ById(ctx, account.String())
+			switch {
+			case err == nil:
+				login = p.Alias
+			case !errors.Is(err, identity.ErrNoPerson):
+				return authsession.Session{}, err
+			}
 		}
 	}
 
-	p, err := people.Verify(ctx, tenant, login, in.Password)
+	p, err := people.Verify(ctx, login, in.Password)
 	switch {
 	case errors.Is(err, identity.ErrRefused), errors.Is(err, identity.ErrSecondFactor),
 		errors.Is(err, identity.ErrNoTenant), errors.Is(err, identity.ErrNoPerson):
@@ -295,37 +275,36 @@ func verify(ctx context.Context, people People, anchor tenancy.Anchor, in Login)
 		return authsession.Session{}, err
 	}
 
-	h, err := anchor.Of(ctx, p)
-	switch {
-	case errors.Is(err, tenancy.ErrEnded):
-		return authsession.Session{}, errNo
-	case err != nil:
-		return authsession.Session{}, err
-	}
-
 	return authsession.Session{
-		Id:       pdid.Id(h.Id).String(),
-		TenantId: pdid.Id(h.TenantId).String(),
-		Grant:    frame.Whole(),
+		Id:    p.Id.String(),
+		Grant: frame.Whole(),
 	}, nil
 }
 
-// aliasAt is the login of the one person of a tenant whose person record has
-// this address, and empty for nobody or for more than one.
-func aliasAt(ctx context.Context, db *ent.Client, tenant, address string) (string, error) {
+// accountAt is the one account whose person records here have this address, in
+// any workspace, and nil for nobody or for more than one.
+func accountAt(ctx context.Context, db *ent.Client, address string) (pdid.Id, error) {
 	vs, err := db.Party.Query().
 		Where(
 			party.EmailEqualFold(address),
 			party.DateErasedIsNil(),
-			party.HasHolderWith(holder.DateErasedIsNil(), holder.HasTenantWith(enttenant.Alias(tenant))),
+			party.HasHolderWith(holder.DateErasedIsNil(), holder.AccountNotNil()),
 		).
 		WithHolder().
 		All(ctx)
-	if err != nil || len(vs) != 1 {
-		return "", err
+	if err != nil {
+		return pdid.Nil, err
+	}
+	var account pdid.Id
+	for _, v := range vs {
+		a := pdid.Id(*v.Edges.Holder.Account)
+		if account != pdid.Nil && account != a {
+			return pdid.Nil, nil
+		}
+		account = a
 	}
 
-	return vs[0].Edges.Holder.Alias, nil
+	return account, nil
 }
 
 func addr(r *http.Request) string {

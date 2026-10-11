@@ -19,7 +19,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file rove/org.proto.
  */
 export const file_rove_org: GenFile = /*@__PURE__*/
-  fileDesc("Cg5yb3ZlL29yZy5wcm90bxIEcm92ZSKHBQoFUGFydHkSFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEiQKBnRlbmFudBgCIAEoCzIMLnJvdmUuVGVuYW50QgbyghYCQAESDAoEbmFtZRgFIAEoCRIMCgRkZXNjGAYgASgJEicKBmxhYmVscxgHIAMoCzIXLnJvdmUuUGFydHkuTGFiZWxzRW50cnkSDAoEa2luZBgIIAEoCRIbCglwYXJlbnRfaWQYCSABKAxCCOqCFgQQQDgBEiQKBmhvbGRlchgKIAEoCzIMLnJvdmUuSG9sZGVyQgbyghYCOAESDQoFZW1haWwYCyABKAkSDQoFcGhvbmUYDCABKAkSOQoMZGF0ZV91cGRhdGVkGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4oBABI4CgtkYXRlX2VyYXNlZBgOIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOSAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAEgwKBGNvZGUYECABKAkaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ATqbAcr8FT4SAhABGiASBHBhZ2UaEAoMZGF0ZV9jcmVhdGVkEA8aBgoCaWQQARoWEgZob2xkZXIaCgoGaG9sZGVyEAowAYq7FlUICjJPChAKDgoMZGF0ZV9jcmVhdGVkCgYKBAoCaWQaBQoDcmVmGgYKBGtpbmQaCwoJcGFyZW50X2lkGggKBmhvbGRlchoICgZsYWJlbHMgMij0AzoAIocECgdTZXNzaW9uEhcKAmlkGAEgASgMQgvqghYHEEAoAYIBABIkCgZ0ZW5hbnQYAiABKAsyDC5yb3ZlLlRlbmFudEIG8oIWAkABEiQKBmhvbGRlchgIIAEoCzIMLnJvdmUuSG9sZGVyQgbyghYCQAESHQoGc2VjcmV0GAkgASgMQg3qghYDggEAqsEWAggBEhYKBWdyYW50GAogASgMQgfqghYDggEAEjgKDGRhdGVfZXhwaXJlcxgLIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCBuqCFgI4ARI1CglkYXRlX2lkbGUYDCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESOQoMZGF0ZV91cGRhdGVkGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4oBABI4CgtkYXRlX2VyYXNlZBgOIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOSAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAOj3K/BUaEgIQARoUEgZzZWNyZXQaCgoGc2VjcmV0EAmKuxYbCCYiFwoGdGVuYW50Ig1ob2xkZXIudGVuYW50Qh9aGGdpdGh1Yi5jb20vbGVzb21udXMvcm92ZZIDAggCYghlZGl0aW9uc3DoBw", [file_google_protobuf_timestamp, file_orm, file_payday, file_rove_payday_holder, file_rove_payday_tenant]);
+  fileDesc("Cg5yb3ZlL29yZy5wcm90bxIEcm92ZSKHBQoFUGFydHkSFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEiQKBnRlbmFudBgCIAEoCzIMLnJvdmUuVGVuYW50QgbyghYCQAESDAoEbmFtZRgFIAEoCRIMCgRkZXNjGAYgASgJEicKBmxhYmVscxgHIAMoCzIXLnJvdmUuUGFydHkuTGFiZWxzRW50cnkSDAoEa2luZBgIIAEoCRIbCglwYXJlbnRfaWQYCSABKAxCCOqCFgQQQDgBEiQKBmhvbGRlchgKIAEoCzIMLnJvdmUuSG9sZGVyQgbyghYCOAESDQoFZW1haWwYCyABKAkSDQoFcGhvbmUYDCABKAkSOQoMZGF0ZV91cGRhdGVkGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4oBABI4CgtkYXRlX2VyYXNlZBgOIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOSAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAEgwKBGNvZGUYECABKAkaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ATqbAcr8FT4SAhABGiASBHBhZ2UaEAoMZGF0ZV9jcmVhdGVkEA8aBgoCaWQQARoWEgZob2xkZXIaCgoGaG9sZGVyEAowAYq7FlUICjJPChAKDgoMZGF0ZV9jcmVhdGVkCgYKBAoCaWQaBQoDcmVmGgYKBGtpbmQaCwoJcGFyZW50X2lkGggKBmhvbGRlchoICgZsYWJlbHMgMij0AzoAItUDCgdTZXNzaW9uEhcKAmlkGAEgASgMQgvqghYHEEAoAYIBABIXCgdhY2NvdW50GAggASgMQgbqghYCEEASHQoGc2VjcmV0GAkgASgMQg3qghYDggEAqsEWAggBEhYKBWdyYW50GAogASgMQgfqghYDggEAEjgKDGRhdGVfZXhwaXJlcxgLIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCBuqCFgI4ARI1CglkYXRlX2lkbGUYDCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESOQoMZGF0ZV91cGRhdGVkGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4oBABI4CgtkYXRlX2VyYXNlZBgOIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOSAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAOj7K/BUyEgIQARoUEgZzZWNyZXQaCgoGc2VjcmV0EAkaFhIHYWNjb3VudBoLCgdhY2NvdW50EAiKuxYECCYqAEIfWhhnaXRodWIuY29tL2xlc29tbnVzL3JvdmWSAwIIAmIIZWRpdGlvbnNw6Ac", [file_google_protobuf_timestamp, file_orm, file_payday, file_rove_payday_holder, file_rove_payday_tenant]);
 
 /**
  * Party is a person, a team, an organization or a vendor: whoever an asset is
@@ -118,8 +118,13 @@ export const PartySchema: GenMessage<Party> = /*@__PURE__*/
   messageDesc(file_rove_org, 0);
 
 /**
- * Session is a signed-in browser. The key itself is never stored: `secret` is
- * its SHA-256, which is what a cookie is looked up by.
+ * Session is a signed-in browser, and what it names is an account rather than a
+ * membership: one sign-in reaches every workspace the account belongs to, and
+ * which one a request is about is the request's to say (design 9.11). So it is
+ * the deployment's and not any workspace's -- `global` -- and it is written
+ * only by the server, through ent (`server/session`); the policy opens no RPC
+ * of it. The key itself is never stored: `secret` is its SHA-256, which is
+ * what a cookie is looked up by.
  *
  * @generated from message rove.Session
  */
@@ -130,14 +135,12 @@ export type Session = Message<"rove.Session"> & {
   id: Uint8Array;
 
   /**
-   * @generated from field: rove.Tenant tenant = 2;
+   * The account signed in: a holder at roster, in this deployment's
+   * directory.
+   *
+   * @generated from field: bytes account = 8;
    */
-  tenant?: Tenant | undefined;
-
-  /**
-   * @generated from field: rove.Holder holder = 8;
-   */
-  holder?: Holder | undefined;
+  account: Uint8Array;
 
   /**
    * @generated from field: bytes secret = 9;

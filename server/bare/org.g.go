@@ -623,7 +623,6 @@ func (s SessionServiceServer) Add(ctx context.Context, req *rove.SessionAddReque
 	st := s
 	st.Db = tx.Db
 
-	ds := make([]func(v *rove.Session), 0, 2)
 	q := st.Db.Session.Create()
 	var k uuid.UUID
 	if req.HasId() {
@@ -638,21 +637,10 @@ func (s SessionServiceServer) Add(ctx context.Context, req *rove.SessionAddReque
 	} else {
 		q.SetId(v)
 	}
-	if k, err := TenantGetKey(ctx, st.Db, req.GetTenant()); err != nil {
-		return nil, err
+	if v, err := entuuid.FromBytes(req.GetAccount()); err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "account: %s", err)
 	} else {
-		q.SetTenantId(k)
-		ds = append(ds, func(v *rove.Session) {
-			v.SetTenant(rove.Tenant_builder{Id: k[:]}.Build())
-		})
-	}
-	if k, err := HolderGetKey(ctx, st.Db, req.GetHolder()); err != nil {
-		return nil, err
-	} else {
-		q.SetHolderId(k)
-		ds = append(ds, func(v *rove.Session) {
-			v.SetHolder(rove.Holder_builder{Id: k[:]}.Build())
-		})
+		q.SetAccount(v)
 	}
 	if req.HasSecret() {
 		q.SetSecret(req.GetSecret())
@@ -700,11 +688,7 @@ func (s SessionServiceServer) Add(ctx context.Context, req *rove.SessionAddReque
 		return nil, err
 	}
 
-	v := u.Proto()
-	for _, d := range ds {
-		d(v)
-	}
-	return v, nil
+	return u.Proto(), nil
 }
 
 func (s SessionServiceServer) Get(ctx context.Context, req *rove.SessionGetRequest) (*rove.Session, error) {
@@ -743,6 +727,9 @@ func SessionSelectedFields(m *rove.SessionSelect) []string {
 	{
 		vs = append(vs, session.FieldId)
 	}
+	if m.GetAccount() {
+		vs = append(vs, session.FieldAccount)
+	}
 	if m.GetSecret() {
 		vs = append(vs, session.FieldSecret)
 	}
@@ -773,25 +760,12 @@ func SessionSelect(q *ent.SessionQuery, m *rove.SessionSelect) {
 		fields := SessionSelectedFields(m)
 		q.Select(fields...)
 	}
-	if m.HasTenant() {
-		q.WithTenant(func(q *ent.TenantQuery) {
-			TenantSelect(q, m.GetTenant())
-		})
-	}
-	if m.HasHolder() {
-		q.WithHolder(func(q *ent.HolderQuery) {
-			q.Where(holder.DateErasedIsNil())
-			HolderSelect(q, m.GetHolder())
-		})
-	}
 }
 
 func SessionSelectInit(q *ent.SessionQuery, m *rove.SessionSelect) {
 	if m != nil {
 		SessionSelect(q, m)
 	} else {
-		q.WithTenant(selectTenantKey)
-		q.WithHolder(selectHolderKey)
 	}
 }
 
@@ -842,7 +816,7 @@ func SessionGetKey(ctx context.Context, db *ent.Client, ref *rove.SessionRef) (u
 var sessionOrmEntity = ormpatch.MustEntityOf(rove.File_rove_org_proto, "Session")
 
 var sessionPatchColumns = entpatch.Columns{
-	1: session.FieldId, 2: session.TenantColumn, 8: session.HolderColumn, 9: session.FieldSecret, 10: session.FieldGrant, 11: session.FieldDateExpires, 12: session.FieldDateIdle, 13: session.FieldDateUpdated, 14: session.FieldDateErased, 15: session.FieldDateCreated}
+	1: session.FieldId, 8: session.FieldAccount, 9: session.FieldSecret, 10: session.FieldGrant, 11: session.FieldDateExpires, 12: session.FieldDateIdle, 13: session.FieldDateUpdated, 14: session.FieldDateErased, 15: session.FieldDateCreated}
 
 func (s SessionServiceServer) Apply(ctx context.Context, req *rove.SessionApplyRequest) (*rove.Session, error) {
 	if !req.HasPatch() {

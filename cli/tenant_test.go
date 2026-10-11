@@ -37,12 +37,12 @@ func run(t *testing.T, k *xli.Command, args ...string) string {
 	return string(b)
 }
 
-// TestAPurgeTakesTheTenantsPeopleOutOfTheRosterInThisProcess.
+// TestAPurgeTakesTheWorkspacesOwnAccountsOutOfTheRosterInThisProcess.
 //
-// The roster in this process holds nothing but Rove's logins, and nothing but
-// Rove can reach it: what a tenant leaving takes, it takes from there too --
-// and from that tenant alone.
-func TestAPurgeTakesTheTenantsPeopleOutOfTheRosterInThisProcess(t *testing.T) {
+// The roster in this process holds nothing but Rove's accounts, and nothing
+// but Rove can reach it: an account that was in the purged workspace and in no
+// other goes with it. One in another workspace is still somebody's.
+func TestAPurgeTakesTheWorkspacesOwnAccountsOutOfTheRosterInThisProcess(t *testing.T) {
 	x := require.New(t)
 	ctx := context.Background()
 
@@ -54,31 +54,33 @@ func TestAPurgeTakesTheTenantsPeopleOutOfTheRosterInThisProcess(t *testing.T) {
 
 	run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234")
 	run(t, cli.NewCmdHolder(&c), "add", "--tenant", "acme", "--login", "kim", "--password", "kim-password")
-	run(t, cli.NewCmdInit(&c), "--tenant", "beta", "--login", "owner", "--password", "owner5678")
+	out := run(t, cli.NewCmdInit(&c), "--tenant", "beta", "--login", "owner")
+	x.NotContains(out, "password", "an account there already is given a password")
+	x.Error(cli.NewCmdInit(&c).Run(ctx, []string{"--tenant", "gamma", "--login", "owner", "--password", "something-else"}),
+		"an account's password changed by making a workspace")
 
-	signsIn := func(tenant, login, password string) error {
+	signsIn := func(login, password string) error {
 		s, err := cmd.Build(ctx, c)
 		x.NoError(err)
 		defer s.Close()
-		_, err = s.Identity.Verify(ctx, tenant, login, password)
+		_, err = s.Identity.Verify(ctx, login, password)
 		return err
 	}
-	x.NoError(signsIn("acme", "kim", "kim-password"))
+	x.NoError(signsIn("kim", "kim-password"))
 
-	out := run(t, cli.NewCmdTenant(&c), "purge", "--tenant", "acme")
-	x.Contains(out, "roster in this process: would forget")
-	x.NoError(signsIn("acme", "kim", "kim-password"), "a purge that was only asked about")
+	out = run(t, cli.NewCmdTenant(&c), "purge", "--tenant", "acme")
+	x.Contains(out, "roster in this process: would forget 1 account(s)")
+	x.NoError(signsIn("kim", "kim-password"), "a purge that was only asked about")
 
 	out = run(t, cli.NewCmdTenant(&c), "purge", "--tenant", "acme", "--yes")
-	x.Contains(out, "roster in this process: forgot")
-	x.ErrorIs(signsIn("acme", "kim", "kim-password"), identity.ErrRefused)
-	x.ErrorIs(signsIn("acme", "owner", "owner1234"), identity.ErrRefused)
-	x.NoError(signsIn("beta", "owner", "owner5678"), "another tenant's people went with it")
+	x.Contains(out, "roster in this process: forgot 1 account(s)")
+	x.ErrorIs(signsIn("kim", "kim-password"), identity.ErrRefused)
+	x.NoError(signsIn("owner", "owner1234"), "an account another workspace has went with it")
 
 	s, err := cmd.Build(ctx, c)
 	x.NoError(err)
 	defer s.Close()
 	gone, err := s.Ent.Tenant.Query().Where(tenant.Alias("acme")).Exist(ctx)
 	x.NoError(err)
-	x.False(gone, "the tenant is still here")
+	x.False(gone, "the workspace is still here")
 }

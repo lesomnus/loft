@@ -16,17 +16,19 @@ import (
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/cmd"
 	enttenant "github.com/lesomnus/rove/internal/ent/tenant"
+	"github.com/lesomnus/rove/internal/identity"
 	"github.com/lesomnus/rove/server/tenancy"
 )
 
-// NewCmdInit is `rove init`: the first tenant, the person who owns it, and
-// the types an asset register starts with.
+// NewCmdInit is `rove init`: a workspace, the account that owns it, and the
+// types an asset register starts with.
 //
-// The tenant and the person are made at the roster in this process first --
-// that is where they sign in -- and here with the same identifiers (design
-// 9.10). A deployment whose roster is one of its own has no first tenant to
-// make: tenants and people are made there, and the first person of a tenant
-// to sign in here owns it.
+// The account is in the directory at the roster in this process, which is
+// where it signs in, and `init` makes the directory too when there is none
+// (design 9.10, D27). An account there already keeps its password and is
+// made the owner of another workspace. The workspace is Rove's own, and so is
+// its identifier. A deployment whose roster is one of its own makes no
+// accounts: they are roster's.
 //
 // It exists because there is nowhere else it could happen. A tenant is not put
 // up from inside one, so the first row of a deployment cannot arrive over the
@@ -43,9 +45,9 @@ func NewCmdInit(c *cmd.Config) *xli.Command {
 		Brief: "put up the first tenant and its owner",
 
 		Flags: flg.Flags{
-			&flg.String{Name: "tenant", Brief: "the tenant's alias, which a sign-in may name"},
-			&flg.String{Name: "name", Brief: "the organization's name"},
-			&flg.String{Name: "login", Brief: "the owner's login"},
+			&flg.String{Name: "tenant", Brief: "the workspace's alias, in its address: /@<alias>"},
+			&flg.String{Name: "name", Brief: "the workspace's name"},
+			&flg.String{Name: "login", Brief: "the owner's login: an account in the directory, made when it is not there"},
 			&flg.String{Name: "person", Brief: "the owner's name"},
 			&flg.String{Name: "email", Brief: "the owner's e-mail, kept on their person record"},
 			&flg.String{Name: "password", Brief: "the owner's password; empty makes one up"},
@@ -74,8 +76,7 @@ func NewCmdInit(c *cmd.Config) *xli.Command {
 			}
 			defer s.Close()
 			if !s.Identity.Embedded() {
-				return errors.New("auth.roster names a roster of its own, and tenants and people are made there: " +
-					"`roster tenant add`, then `roster app install --tenant <alias> rove`; the first person of a tenant to sign in here owns it")
+				return errors.New("auth.roster names a roster of its own, and accounts are made there; a workspace is made by somebody signed in")
 			}
 
 			// The schema, so that a fresh database is one this can run against.
@@ -83,38 +84,43 @@ func NewCmdInit(c *cmd.Config) *xli.Command {
 				return err
 			}
 
-			// Here first, since a tenant already here is the error, and roster
-			// would otherwise keep the one made for it.
+			// Here first, since a workspace already here is the error, and
+			// roster would otherwise keep an account made for it.
 			if here, err := s.Ent.Tenant.Query().Where(enttenant.Alias(alias)).Exist(ctx); err != nil {
 				return err
 			} else if here {
-				return fmt.Errorf("tenant %q is here already", alias)
+				return fmt.Errorf("workspace %q is here already", alias)
 			}
 
-			// At roster, which is where they sign in.
-			p, made, err := s.Identity.Seed(ctx, alias, login, pdid.Nil)
+			// The account, in the directory at roster, which is where it
+			// signs in.
+			p, made, err := ownerAccount(ctx, s, login, person)
 			if err != nil {
 				return fmt.Errorf("roster: %w", err)
 			}
 			if pw != "" {
+				if made == "" {
+					return fmt.Errorf("--password: %s is an account already, with a password of its own; `rove holder password` changes it", login)
+				}
 				if err := s.Identity.SetPassword(ctx, p.Id, pw); err != nil {
 					return fmt.Errorf("roster: %w", err)
 				}
 				made = ""
 			}
 
-			// And here, with roster's identifiers.
-			t, err := s.Base.Tenant().Add(ctx, app.TenantAddRequest_builder{Id: p.Tenant.Bytes(), Alias: alias, Name: name}.Build())
+			// And the workspace, which is Rove's, with the account's
+			// membership of it.
+			t, err := s.Base.Tenant().Add(ctx, app.TenantAddRequest_builder{Alias: alias, Name: name}.Build())
 			if err != nil {
-				return fmt.Errorf("tenant %q: %w", alias, err)
+				return fmt.Errorf("workspace %q: %w", alias, err)
 			}
 			tenant := app.TenantRef_builder{Id: t.GetId()}.Build()
 			h, err := s.Base.Holder().Add(ctx, app.HolderAddRequest_builder{
-				Id:     p.Id.Bytes(),
-				Tenant: tenant,
-				Alias:  login,
-				Name:   person,
-				Role:   z.Ptr("owner"),
+				Tenant:  tenant,
+				Alias:   p.Alias,
+				Name:    person,
+				Role:    z.Ptr("owner"),
+				Account: p.Id.Bytes(),
 			}.Build())
 			if err != nil {
 				return fmt.Errorf("holder %q: %w", login, err)
@@ -144,13 +150,44 @@ func NewCmdInit(c *cmd.Config) *xli.Command {
 				}
 			}
 
-			self.Printf("tenant   %s (%s)\n", alias, tid)
-			self.Printf("owner    %s (%s)\n", login, hid)
+			self.Printf("workspace @%s (%s)\n", alias, tid)
+			self.Printf("owner     %s (account %s)\n", p.Alias, p.Id)
 			if made != "" {
-				self.Printf("password %s\n", made)
+				self.Printf("password  %s\n", made)
 			}
-			self.Printf("\nsign in at %s with %s\n", c.App.App(), login)
+			self.Printf("\nsign in at %s with %s\n", c.App.App(), p.Alias)
 			return nil
 		}),
 	}
+}
+
+// ownerAccount is the account `init` makes the owner: the one in the directory
+// by that login, or a new one, with the password made for it when it is new.
+// The directory is made with it when there is none.
+func ownerAccount(ctx context.Context, s *cmd.Server, login, name string) (identity.Person, string, error) {
+	_, err := s.Identity.Directory(ctx)
+	if errors.Is(err, identity.ErrNoDirectory) {
+		return s.Identity.MakeDirectory(ctx, login)
+	}
+	if err != nil {
+		return identity.Person{}, "", err
+	}
+	p, err := s.Identity.Lookup(ctx, login)
+	if err == nil {
+		return p, "", nil
+	}
+	if !errors.Is(err, identity.ErrNoPerson) {
+		return identity.Person{}, "", err
+	}
+	p, err = s.Identity.AddPerson(ctx, login, name, pdid.Nil)
+	if err != nil {
+		return identity.Person{}, "", err
+	}
+	made, err := s.Identity.IssuePassword(ctx, p.Id)
+	if err != nil {
+		s.Identity.ForgetPerson(ctx, p.Id)
+		return identity.Person{}, "", err
+	}
+
+	return p, made, nil
 }

@@ -324,8 +324,7 @@ message PartyPseudonymizeRequest {
 
 message SessionAddRequest {
   bytes id = 1;
-  TenantRef tenant = 2;
-  HolderRef holder = 8;
+  bytes account = 8 [features.field_presence = IMPLICIT];
   bytes secret = 9;
   bytes grant = 10;
   google.protobuf.Timestamp date_expires = 11;
@@ -346,8 +345,7 @@ message SessionRef {
 
 message SessionSelect {
   bool all = 1;
-  TenantSelect tenant = 2;
-  HolderSelect holder = 8;
+  bool account = 8;
   bool secret = 9;
   bool grant = 10;
   bool date_expires = 11;
@@ -359,6 +357,7 @@ message SessionSelect {
 
 message SessionPatchRequest {
   SessionRef ref = 1;
+  bytes account = 16;
   bytes secret = 18;
   bytes grant = 20;
   google.protobuf.Timestamp date_expires = 22;

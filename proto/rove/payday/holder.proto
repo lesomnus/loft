@@ -145,4 +145,14 @@ message Holder {
     }
   };
   string role = 8 [(orm.field) = {default: "member"}];
+  // The account this is a membership of: a holder at roster, in this
+  // deployment's directory (design 9.10, D27). An account belongs to many
+  // workspaces with one holder in each, every one its own row with its own
+  // identifier, and what a session names is the account. Null on a holder made
+  // before accounts were, which nobody signs in as until `rove identity
+  // migrate` fills it.
+  bytes account = 9 [(orm.field) = {
+    type: TYPE_UUID
+    nullable: true
+  }];
 }

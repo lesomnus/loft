@@ -83,6 +83,7 @@ func (Session) Fields() []ent.Field {
 		field.Uuid("id").
 			Unique().
 			Immutable(),
+		field.Uuid("account"),
 		field.Bytes("secret").
 			Optional(),
 		field.Bytes("grant").
@@ -100,31 +101,13 @@ func (Session) Fields() []ent.Field {
 		field.Time("date_created").
 			Immutable().
 			Optional(),
-		field.Uuid("tenant_id").
-			Immutable(),
-		field.Uuid("holder_id").
-			Immutable(),
-	}
-}
-
-func (Session) Edges() []ent.Edge {
-	return []ent.Edge{
-		edge.To("tenant", Tenant.Type).
-			Unique().
-			Field("tenant_id").
-			Required().
-			Immutable(),
-		edge.To("holder", Holder.Type).
-			Unique().
-			Field("holder_id").
-			Required().
-			Immutable(),
 	}
 }
 
 func (Session) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("secret"),
+		index.Fields("account"),
 	}
 }
 

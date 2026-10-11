@@ -111,9 +111,9 @@ func (e *env) count(t pdid.Id) map[string]int {
 	out := map[string]int{}
 	drv := e.s.Ent.Driver()
 	for _, tb := range migrate.Tables {
-		if tb.Name == "archived" {
-			// The manifest of the trail's archive: a row per blob, and no
-			// tenant's.
+		if tb.Name == "archived" || slices.Contains(offboard.Shared, tb.Name) {
+			// The manifest of the trail's archive, a row per blob, and the
+			// deployment's own tables: no tenant's.
 			continue
 		}
 
@@ -156,7 +156,7 @@ func TestEveryTableIsDecidedAbout(t *testing.T) {
 		_, held := offboard.Withheld[tb.Name]
 		x.True(out != held, "%s is exported, withheld, or both", tb.Name)
 
-		if tb.Name == "tenant" || slices.Contains(offboard.Trail, tb.Name) {
+		if tb.Name == "tenant" || slices.Contains(offboard.Trail, tb.Name) || slices.Contains(offboard.Shared, tb.Name) {
 			x.NotContains(order, tb.Name)
 			continue
 		}

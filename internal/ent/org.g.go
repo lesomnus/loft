@@ -46,20 +46,7 @@ func (e *Party) Proto() *rove.Party {
 func (e *Session) Proto() *rove.Session {
 	x := &rove.Session{}
 	x.SetId(e.Id[:])
-	if v := e.Edges.Tenant; v != nil {
-		x.SetTenant(v.Proto())
-	} else if v := e.TenantId; v != *new(uuid.UUID) {
-		r := &rove.Tenant{}
-		r.SetId(v[:])
-		x.SetTenant(r)
-	}
-	if v := e.Edges.Holder; v != nil {
-		x.SetHolder(v.Proto())
-	} else if v := e.HolderId; v != *new(uuid.UUID) {
-		r := &rove.Holder{}
-		r.SetId(v[:])
-		x.SetHolder(r)
-	}
+	x.SetAccount(e.Account[:])
 	x.SetSecret(e.Secret)
 	x.SetGrant(e.Grant)
 	if e.DateExpires != nil {

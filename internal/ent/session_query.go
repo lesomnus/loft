@@ -8,10 +8,8 @@ import (
 	"math"
 	"uuid"
 
-	"github.com/lesomnus/rove/internal/ent/holder"
 	"github.com/lesomnus/rove/internal/ent/predicate"
 	"github.com/lesomnus/rove/internal/ent/session"
-	"github.com/lesomnus/rove/internal/ent/tenant"
 	"github.com/protobuf-orm/ent"
 	"github.com/protobuf-orm/ent/dialect/sql"
 	"github.com/protobuf-orm/ent/dialect/sql/sqlgraph"
@@ -25,8 +23,6 @@ type SessionQuery struct {
 	order      []session.OrderOption
 	inters     []Interceptor
 	predicates []predicate.Session
-	withTenant *TenantQuery
-	withHolder *HolderQuery
 	modifiers  []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -62,50 +58,6 @@ func (_q *SessionQuery) Unique(unique bool) *SessionQuery {
 func (_q *SessionQuery) Order(o ...session.OrderOption) *SessionQuery {
 	_q.order = append(_q.order, o...)
 	return _q
-}
-
-// QueryTenant chains the current query on the "tenant" edge.
-func (_q *SessionQuery) QueryTenant() *TenantQuery {
-	query := (&TenantClient{config: _q.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := _q.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := _q.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(session.Table, session.FieldId, selector),
-			sqlgraph.To(tenant.Table, tenant.FieldId),
-			sqlgraph.Edge(sqlgraph.M2O, false, session.TenantTable, session.TenantColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryHolder chains the current query on the "holder" edge.
-func (_q *SessionQuery) QueryHolder() *HolderQuery {
-	query := (&HolderClient{config: _q.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := _q.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := _q.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(session.Table, session.FieldId, selector),
-			sqlgraph.To(holder.Table, holder.FieldId),
-			sqlgraph.Edge(sqlgraph.M2O, false, session.HolderTable, session.HolderColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
 }
 
 // First returns the first Session entity from the query.
@@ -300,35 +252,11 @@ func (_q *SessionQuery) Clone() *SessionQuery {
 		order:      append([]session.OrderOption{}, _q.order...),
 		inters:     append([]Interceptor{}, _q.inters...),
 		predicates: append([]predicate.Session{}, _q.predicates...),
-		withTenant: _q.withTenant.Clone(),
-		withHolder: _q.withHolder.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
 		modifiers: append([]func(*sql.Selector){}, _q.modifiers...),
 	}
-}
-
-// WithTenant tells the query-builder to eager-load the nodes that are connected to
-// the "tenant" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *SessionQuery) WithTenant(opts ...func(*TenantQuery)) *SessionQuery {
-	query := (&TenantClient{config: _q.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	_q.withTenant = query
-	return _q
-}
-
-// WithHolder tells the query-builder to eager-load the nodes that are connected to
-// the "holder" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *SessionQuery) WithHolder(opts ...func(*HolderQuery)) *SessionQuery {
-	query := (&HolderClient{config: _q.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	_q.withHolder = query
-	return _q
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -337,12 +265,12 @@ func (_q *SessionQuery) WithHolder(opts ...func(*HolderQuery)) *SessionQuery {
 // Example:
 //
 //	var v []struct {
-//		Secret []byte `json:"secret,omitempty"`
+//		Account uuid.UUID `json:"account,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Session.Query().
-//		GroupBy(session.FieldSecret).
+//		GroupBy(session.FieldAccount).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *SessionQuery) GroupBy(field string, fields ...string) *SessionGroupBy {
@@ -360,11 +288,11 @@ func (_q *SessionQuery) GroupBy(field string, fields ...string) *SessionGroupBy 
 // Example:
 //
 //	var v []struct {
-//		Secret []byte `json:"secret,omitempty"`
+//		Account uuid.UUID `json:"account,omitempty"`
 //	}
 //
 //	client.Session.Query().
-//		Select(session.FieldSecret).
+//		Select(session.FieldAccount).
 //		Scan(ctx, &v)
 func (_q *SessionQuery) Select(fields ...string) *SessionSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
@@ -407,12 +335,8 @@ func (_q *SessionQuery) prepareQuery(ctx context.Context) error {
 
 func (_q *SessionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Session, error) {
 	var (
-		nodes       = []*Session{}
-		_spec       = _q.querySpec()
-		loadedTypes = [2]bool{
-			_q.withTenant != nil,
-			_q.withHolder != nil,
-		}
+		nodes = []*Session{}
+		_spec = _q.querySpec()
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Session).scanValues(nil, columns)
@@ -420,7 +344,6 @@ func (_q *SessionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Sess
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &Session{config: _q.config}
 		nodes = append(nodes, node)
-		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	if len(_q.modifiers) > 0 {
@@ -435,78 +358,7 @@ func (_q *SessionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Sess
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := _q.withTenant; query != nil {
-		if err := _q.loadTenant(ctx, query, nodes, nil,
-			func(n *Session, e *Tenant) { n.Edges.Tenant = e }); err != nil {
-			return nil, err
-		}
-	}
-	if query := _q.withHolder; query != nil {
-		if err := _q.loadHolder(ctx, query, nodes, nil,
-			func(n *Session, e *Holder) { n.Edges.Holder = e }); err != nil {
-			return nil, err
-		}
-	}
 	return nodes, nil
-}
-
-func (_q *SessionQuery) loadTenant(ctx context.Context, query *TenantQuery, nodes []*Session, init func(*Session), assign func(*Session, *Tenant)) error {
-	ids := make([]uuid.UUID, 0, len(nodes))
-	nodeids := make(map[uuid.UUID][]*Session)
-	for i := range nodes {
-		fk := nodes[i].TenantId
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(tenant.IdIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.Id]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "tenant_id" returned %v`, n.Id)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
-func (_q *SessionQuery) loadHolder(ctx context.Context, query *HolderQuery, nodes []*Session, init func(*Session), assign func(*Session, *Holder)) error {
-	ids := make([]uuid.UUID, 0, len(nodes))
-	nodeids := make(map[uuid.UUID][]*Session)
-	for i := range nodes {
-		fk := nodes[i].HolderId
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(holder.IdIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.Id]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "holder_id" returned %v`, n.Id)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
 }
 
 func (_q *SessionQuery) sqlCount(ctx context.Context) (int, error) {
@@ -536,12 +388,6 @@ func (_q *SessionQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != session.FieldId {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
-		}
-		if _q.withTenant != nil {
-			_spec.Node.AddColumnOnce(session.FieldTenantId)
-		}
-		if _q.withHolder != nil {
-			_spec.Node.AddColumnOnce(session.FieldHolderId)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

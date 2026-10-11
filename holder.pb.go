@@ -45,6 +45,7 @@ type Holder struct {
 	xxx_hidden_DateErased  *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=date_erased,json=dateErased"`
 	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
 	xxx_hidden_Role        string                 `protobuf:"bytes,8,opt,name=role"`
+	xxx_hidden_Account     []byte                 `protobuf:"bytes,9,opt,name=account"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
 }
@@ -144,6 +145,13 @@ func (x *Holder) GetRole() string {
 	return ""
 }
 
+func (x *Holder) GetAccount() []byte {
+	if x != nil {
+		return x.xxx_hidden_Account
+	}
+	return nil
+}
+
 func (x *Holder) SetId(v []byte) {
 	if v == nil {
 		v = []byte{}
@@ -185,6 +193,13 @@ func (x *Holder) SetDateCreated(v *timestamppb.Timestamp) {
 
 func (x *Holder) SetRole(v string) {
 	x.xxx_hidden_Role = v
+}
+
+func (x *Holder) SetAccount(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Account = v
 }
 
 func (x *Holder) HasTenant() bool {
@@ -264,6 +279,13 @@ type Holder_builder struct {
 	DateErased  *timestamppb.Timestamp
 	DateCreated *timestamppb.Timestamp
 	Role        string
+	// The account this is a membership of: a holder at roster, in this
+	// deployment's directory (design 9.10, D27). An account belongs to many
+	// workspaces with one holder in each, every one its own row with its own
+	// identifier, and what a session names is the account. Null on a holder made
+	// before accounts were, which nobody signs in as until `rove identity
+	// migrate` fills it.
+	Account []byte
 }
 
 func (b0 Holder_builder) Build() *Holder {
@@ -280,6 +302,7 @@ func (b0 Holder_builder) Build() *Holder {
 	x.xxx_hidden_DateErased = b.DateErased
 	x.xxx_hidden_DateCreated = b.DateCreated
 	x.xxx_hidden_Role = b.Role
+	x.xxx_hidden_Account = b.Account
 	return m0
 }
 
@@ -287,7 +310,7 @@ var File_rove_payday_holder_proto protoreflect.FileDescriptor
 
 const file_rove_payday_holder_proto_rawDesc = "" +
 	"\n" +
-	"\x18rove/payday/holder.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x18rove/payday/tenant.proto\"\xe9\x04\n" +
+	"\x18rove/payday/holder.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x18rove/payday/tenant.proto\"\x8d\x05\n" +
 	"\x06Holder\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x14\n" +
@@ -299,7 +322,8 @@ const file_rove_payday_holder_proto_rawDesc = "" +
 	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
 	"dateErased\x12H\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12!\n" +
-	"\x04role\x18\b \x01(\tB\r\xea\x82\x16\t\x82\x01\x06memberR\x04role\x1a9\n" +
+	"\x04role\x18\b \x01(\tB\r\xea\x82\x16\t\x82\x01\x06memberR\x04role\x12\"\n" +
+	"\aaccount\x18\t \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\aaccount\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:n\xca\xfc\x15%\x12\x02\x10\x01\x1a\x1f\x12\x04slug\x1a\t\n" +

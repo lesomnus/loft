@@ -86,25 +86,26 @@ type Deps struct {
 	People People
 }
 
-// People is roster, as the people operations reach it. On the roster in this
-// process Rove makes people, gives them passwords and ends their logins there;
-// on an external one those are the tenant administrator's, at roster, and the
-// operations that would do them are refused.
+// People is roster, as the people operations reach it: the accounts of this
+// deployment's directory (design 9.10, D27). On the roster in this process
+// Rove makes accounts and gives them passwords there; on an external one those
+// are roster's, and the operations that would do them are refused.
 type People interface {
 	Embedded() bool
-	AddPerson(ctx context.Context, tenant pdid.Id, alias, name string, id pdid.Id) (identity.Person, error)
-	SetPassword(ctx context.Context, holder pdid.Id, password string) error
-	IssuePassword(ctx context.Context, holder pdid.Id) (string, error)
-	Verify(ctx context.Context, tenant, login, password string) (identity.Person, error)
-	Invalidate(ctx context.Context, holder pdid.Id) error
-	ForgetPerson(ctx context.Context, holder pdid.Id) error
+	AddPerson(ctx context.Context, alias, name string, id pdid.Id) (identity.Person, error)
+	ById(ctx context.Context, sub string) (identity.Person, error)
+	SetPassword(ctx context.Context, account pdid.Id, password string) error
+	IssuePassword(ctx context.Context, account pdid.Id) (string, error)
+	Verify(ctx context.Context, login, password string) (identity.Person, error)
+	Invalidate(ctx context.Context, account pdid.Id) error
+	ForgetPerson(ctx context.Context, account pdid.Id) error
 }
 
-// here answers the people a login is made and changed at, or the refusal a
-// deployment whose people are an external roster's gives.
+// here answers the people an account is made and changed at, or the refusal a
+// deployment whose accounts are an external roster's gives.
 func (d *Deps) here() (People, error) {
 	if d.People == nil || !d.People.Embedded() {
-		return nil, failed("계정과 비밀번호는 roster에서 관리합니다. roster에 있는 사람은 처음 로그인할 때 Rove에 들어옵니다")
+		return nil, failed("계정과 비밀번호는 roster에서 관리합니다")
 	}
 	return d.People, nil
 }

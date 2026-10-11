@@ -8,9 +8,7 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/lesomnus/rove/internal/ent/holder"
 	"github.com/lesomnus/rove/internal/ent/session"
-	"github.com/lesomnus/rove/internal/ent/tenant"
 	"github.com/protobuf-orm/ent"
 	"github.com/protobuf-orm/ent/dialect/sql"
 )
@@ -20,6 +18,8 @@ type Session struct {
 	config `json:"-"`
 	// Id of the ent.
 	Id uuid.UUID `json:"id,omitempty"`
+	// Account holds the value of the "account" field.
+	Account uuid.UUID `json:"account,omitempty"`
 	// Secret holds the value of the "secret" field.
 	Secret []byte `json:"secret,omitempty"`
 	// Grant holds the value of the "grant" field.
@@ -33,48 +33,8 @@ type Session struct {
 	// DateErased holds the value of the "date_erased" field.
 	DateErased *time.Time `json:"date_erased,omitempty"`
 	// DateCreated holds the value of the "date_created" field.
-	DateCreated time.Time `json:"date_created,omitempty"`
-	// TenantId holds the value of the "tenant_id" field.
-	TenantId uuid.UUID `json:"tenant_id,omitempty"`
-	// HolderId holds the value of the "holder_id" field.
-	HolderId uuid.UUID `json:"holder_id,omitempty"`
-	// Edges holds the relations/edges for other nodes in the graph.
-	// The values are being populated by the SessionQuery when eager-loading is set.
-	Edges        SessionEdges `json:"edges"`
+	DateCreated  time.Time `json:"date_created,omitempty"`
 	selectValues sql.SelectValues
-}
-
-// SessionEdges holds the relations/edges for other nodes in the graph.
-type SessionEdges struct {
-	// Tenant holds the value of the tenant edge.
-	Tenant *Tenant `json:"tenant,omitempty"`
-	// Holder holds the value of the holder edge.
-	Holder *Holder `json:"holder,omitempty"`
-	// loadedTypes holds the information for reporting if a
-	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
-}
-
-// TenantOrErr returns the Tenant value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e SessionEdges) TenantOrErr() (*Tenant, error) {
-	if e.Tenant != nil {
-		return e.Tenant, nil
-	} else if e.loadedTypes[0] {
-		return nil, &NotFoundError{label: tenant.Label}
-	}
-	return nil, &NotLoadedError{edge: "tenant"}
-}
-
-// HolderOrErr returns the Holder value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e SessionEdges) HolderOrErr() (*Holder, error) {
-	if e.Holder != nil {
-		return e.Holder, nil
-	} else if e.loadedTypes[1] {
-		return nil, &NotFoundError{label: holder.Label}
-	}
-	return nil, &NotLoadedError{edge: "holder"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -86,7 +46,7 @@ func (*Session) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case session.FieldDateExpires, session.FieldDateIdle, session.FieldDateUpdated, session.FieldDateErased, session.FieldDateCreated:
 			values[i] = new(sql.NullTime)
-		case session.FieldId, session.FieldTenantId, session.FieldHolderId:
+		case session.FieldId, session.FieldAccount:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -108,6 +68,12 @@ func (_m *Session) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				_m.Id = *value
+			}
+		case session.FieldAccount:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field account", values[i])
+			} else if value != nil {
+				_m.Account = *value
 			}
 		case session.FieldSecret:
 			if value, ok := values[i].(*[]byte); !ok {
@@ -154,18 +120,6 @@ func (_m *Session) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.DateCreated = value.Time
 			}
-		case session.FieldTenantId:
-			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
-			} else if value != nil {
-				_m.TenantId = *value
-			}
-		case session.FieldHolderId:
-			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field holder_id", values[i])
-			} else if value != nil {
-				_m.HolderId = *value
-			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -177,16 +131,6 @@ func (_m *Session) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (_m *Session) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
-}
-
-// QueryTenant queries the "tenant" edge of the Session entity.
-func (_m *Session) QueryTenant() *TenantQuery {
-	return NewSessionClient(_m.config).QueryTenant(_m)
-}
-
-// QueryHolder queries the "holder" edge of the Session entity.
-func (_m *Session) QueryHolder() *HolderQuery {
-	return NewSessionClient(_m.config).QueryHolder(_m)
 }
 
 // Update returns a builder for updating this Session.
@@ -212,6 +156,9 @@ func (_m *Session) String() string {
 	var builder strings.Builder
 	builder.WriteString("Session(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.Id))
+	builder.WriteString("account=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Account))
+	builder.WriteString(", ")
 	builder.WriteString("secret=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Secret))
 	builder.WriteString(", ")
@@ -238,12 +185,6 @@ func (_m *Session) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("date_created=")
 	builder.WriteString(_m.DateCreated.Format(time.ANSIC))
-	builder.WriteString(", ")
-	builder.WriteString("tenant_id=")
-	builder.WriteString(fmt.Sprintf("%v", _m.TenantId))
-	builder.WriteString(", ")
-	builder.WriteString("holder_id=")
-	builder.WriteString(fmt.Sprintf("%v", _m.HolderId))
 	builder.WriteByte(')')
 	return builder.String()
 }

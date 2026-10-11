@@ -205,9 +205,9 @@ func (s domainParty) Invite(ctx context.Context, req *app.PartyInviteRequest) (*
 			return invalid("alias", "이미 있는 아이디입니다")
 		}
 
-		// The person first, at roster, which is where they sign in; Rove's
-		// holder is made with their identifier.
-		person, err := people.AddPerson(t.ctx, t.tenant, alias, p.GetName(), pdid.Nil)
+		// The account first, in the directory at roster, which is where they
+		// sign in; the holder here is its membership of this workspace.
+		person, err := people.AddPerson(t.ctx, alias, p.GetName(), pdid.Nil)
 		if err != nil {
 			if status.Code(err) == codes.AlreadyExists {
 				return invalid("alias", "이미 있는 아이디입니다")
@@ -228,11 +228,11 @@ func (s domainParty) Invite(ctx context.Context, req *app.PartyInviteRequest) (*
 			return err
 		}
 		h, err := t.next.Holder().Add(t.ctx, app.HolderAddRequest_builder{
-			Id:     person.Id.Bytes(),
-			Tenant: t.tenantRef(),
-			Alias:  alias,
-			Name:   p.GetName(),
-			Role:   z.Ptr(role),
+			Tenant:  t.tenantRef(),
+			Alias:   alias,
+			Name:    p.GetName(),
+			Role:    z.Ptr(role),
+			Account: person.Id.Bytes(),
 		}.Build())
 		if err != nil {
 			return err
@@ -249,7 +249,8 @@ func (s domainParty) Invite(ctx context.Context, req *app.PartyInviteRequest) (*
 		return nil
 	})
 	if err != nil && made != pdid.Nil {
-		// Rove kept nothing of them, so roster keeps nothing either.
+		// Rove kept nothing of them, so roster keeps nothing of the account
+		// made for it either.
 		if e := people.ForgetPerson(ctx, made); e != nil {
 			err = fmt.Errorf("%w (and the person made at roster for it is still there: %v)", err, e)
 		}
@@ -311,8 +312,13 @@ func (s domainParty) SetRole(ctx context.Context, req *app.PartySetRoleRequest) 
 	return out, err
 }
 
-// SetPassword changes a password: the caller's own after checking the current
-// one, or anybody's for an admin, which the policy decides.
+// SetPassword changes an account's password: the caller's own after checking
+// the current one, or somebody else's for an admin, which the policy decides.
+//
+// A password is the account's, and the account may be in workspaces this
+// admin has nothing to do with (D27). So somebody else's is changed only when
+// this workspace is the only one their account is in; otherwise it is theirs to
+// change, or the operator's (`rove holder password`).
 func (s domainParty) SetPassword(ctx context.Context, req *app.PartySetPasswordRequest) (*app.PartySetPasswordResponse, error) {
 	people, err := s.deps.here()
 	if err != nil {
@@ -342,34 +348,47 @@ func (s domainParty) SetPassword(ctx context.Context, req *app.PartySetPasswordR
 		}
 
 		h, err := t.db.Holder.Get(t.ctx, target.Uuid())
-		if err != nil || h.DateErased != nil {
+		if err != nil || h.DateErased != nil || h.Account == nil {
 			return failed("바꿀 비밀번호가 없는 사람입니다")
 		}
+		account := pdid.Id(*h.Account)
 		if own {
-			tn, err := t.db.Tenant.Get(t.ctx, t.tenant.Uuid())
+			p, err := people.ById(t.ctx, account.String())
 			if err != nil {
 				return err
 			}
-			if _, err := people.Verify(t.ctx, tn.Alias, h.Alias, req.GetCurrent()); err != nil {
+			if _, err := people.Verify(t.ctx, p.Alias, req.GetCurrent()); err != nil {
 				if errors.Is(err, identity.ErrRefused) {
 					return invalid("current", "지금 비밀번호가 맞지 않습니다")
 				}
 				return err
 			}
+		} else {
+			elsewhere, err := t.db.Holder.Query().Where(
+				holder.Account(account.Uuid()),
+				holder.TenantIdNEQ(t.tenant.Uuid()),
+				holder.DateErasedIsNil(),
+			).Exist(t.ctx)
+			if err != nil {
+				return err
+			}
+			if elsewhere {
+				return failed("다른 워크스페이스에도 있는 계정이라 여기서 비밀번호를 바꿀 수 없습니다")
+			}
 		}
 		if err := t.begin(nil, "party.password", pdid.Nil, t.now, "비밀번호 변경", "", nil); err != nil {
 			return err
 		}
-		if err := people.SetPassword(t.ctx, target, req.GetPassword()); err != nil {
+		if err := people.SetPassword(t.ctx, account, req.GetPassword()); err != nil {
 			return passwordRefused(err)
 		}
 		if !own {
 			// A password reset by somebody else is somebody being locked out
 			// of wherever they are signed in: here, and at roster.
-			if err := people.Invalidate(t.ctx, target); err != nil {
+			if err := people.Invalidate(t.ctx, account); err != nil {
 				return err
 			}
-			return t.signOut(target)
+			return t.signOut(account)
 		}
 		return nil
 	})
@@ -380,9 +399,13 @@ func (s domainParty) SetPassword(ctx context.Context, req *app.PartySetPasswordR
 }
 
 // Deactivate ends a login and keeps the person and their history.
+//
+// What ends is the membership of this workspace. The account is the person's
+// and may be in other workspaces (D27), so it is not touched, and neither are
+// its sessions: a call about this workspace stops finding a holder to be
+// served as the moment the membership is gone.
 func (s domainParty) Deactivate(ctx context.Context, req *app.PartyDeactivateRequest) (*app.Party, error) {
 	var out *app.Party
-	var ended pdid.Id
 	err := s.tx(ctx, func(t *Tx) error {
 		p, err := t.next.Party().Get(t.ctx, app.PartyGetRequest_builder{Ref: req.GetRef()}.Build())
 		if err != nil {
@@ -402,10 +425,6 @@ func (s domainParty) Deactivate(ctx context.Context, req *app.PartyDeactivateReq
 		if _, err := t.next.Holder().Erase(t.ctx, app.HolderRef_builder{Id: h.Bytes()}.Build()); err != nil {
 			return err
 		}
-		if err := t.signOut(h); err != nil {
-			return err
-		}
-		ended = h
 		out, err = t.next.Party().Patch(t.ctx, app.PartyPatchRequest_builder{
 			Ref:              req.GetRef(),
 			HolderNull:       z.Ptr(true),
@@ -413,27 +432,7 @@ func (s domainParty) Deactivate(ctx context.Context, req *app.PartyDeactivateReq
 		}.Build())
 		return err
 	})
-	if err == nil {
-		err = s.deps.endAtRoster(ctx, ended)
-	}
 	return out, err
-}
-
-// endAtRoster destroys what the roster in this process holds about a person
-// whose login ended here -- their password, their addresses, the trail's
-// copies -- which frees their alias there for somebody else. What stays of
-// them is Rove's: the party a deactivation keeps, or the pseudonym a
-// forgetting leaves. At an external roster the person is the tenant's and
-// stays: their login here stays ended, because Rove does not make a holder it
-// erased again.
-func (d *Deps) endAtRoster(ctx context.Context, h pdid.Id) error {
-	if h.IsZero() || d.People == nil || !d.People.Embedded() {
-		return nil
-	}
-	if err := d.People.ForgetPerson(ctx, h); err != nil {
-		return fmt.Errorf("the login ended here, and the person at roster is still there: %w", err)
-	}
-	return nil
 }
 
 // Pseudonymize forgets a person: the party keeps its identifier, so the
@@ -444,9 +443,12 @@ func (d *Deps) endAtRoster(ctx context.Context, h pdid.Id) error {
 // What a legal hold is on stays as it was, since a legal claim outweighs an
 // erasure request; the event says how much, and asking again once the hold is
 // lifted finishes it.
+//
+// It forgets them **in this workspace**. Their account is theirs and may be in
+// others (D27); leaving the deployment altogether is the account's own act
+// (design 8.4).
 func (s domainParty) Pseudonymize(ctx context.Context, req *app.PartyPseudonymizeRequest) (*app.Party, error) {
 	var out *app.Party
-	var ended pdid.Id
 	err := s.tx(ctx, func(t *Tx) error {
 		p, err := t.next.Party().Get(t.ctx, app.PartyGetRequest_builder{Ref: req.GetRef()}.Build())
 		if err != nil {
@@ -461,10 +463,6 @@ func (s domainParty) Pseudonymize(ctx context.Context, req *app.PartyPseudonymiz
 			if _, err := t.next.Holder().Erase(t.ctx, app.HolderRef_builder{Id: h.Bytes()}.Build()); err != nil {
 				return err
 			}
-			if err := t.signOut(h); err != nil {
-				return err
-			}
-			ended = h
 			objects = append(objects, h)
 		}
 		out, err = t.next.Party().Patch(t.ctx, app.PartyPatchRequest_builder{
@@ -494,9 +492,6 @@ func (s domainParty) Pseudonymize(ctx context.Context, req *app.PartyPseudonymiz
 		}
 		return t.begin(nil, "party.pseudonymize", pdid.Nil, t.now, "개인정보 삭제", "", payload)
 	})
-	if err == nil {
-		err = s.deps.endAtRoster(ctx, ended)
-	}
 	return out, err
 }
 
@@ -724,8 +719,9 @@ func (s domainItemModel) Update(ctx context.Context, req *app.ItemModelUpdateReq
 	return out, err
 }
 
-// signOut ends every session a holder has.
-func (t *Tx) signOut(h pdid.Id) error {
-	_, err := t.db.Session.Delete().Where(session.TenantId(t.tenant.Uuid()), session.HolderId(h.Uuid())).Exec(t.ctx)
+// signOut ends every session an account has, in every workspace: a session is
+// the account's.
+func (t *Tx) signOut(account pdid.Id) error {
+	_, err := t.db.Session.Delete().Where(session.Account(account.Uuid())).Exec(t.ctx)
 	return err
 }

@@ -332,13 +332,17 @@ func (b0 Party_builder) Build() *Party {
 	return m0
 }
 
-// Session is a signed-in browser. The key itself is never stored: `secret` is
-// its SHA-256, which is what a cookie is looked up by.
+// Session is a signed-in browser, and what it names is an account rather than a
+// membership: one sign-in reaches every workspace the account belongs to, and
+// which one a request is about is the request's to say (design 9.11). So it is
+// the deployment's and not any workspace's -- `global` -- and it is written
+// only by the server, through ent (`server/session`); the policy opens no RPC
+// of it. The key itself is never stored: `secret` is its SHA-256, which is
+// what a cookie is looked up by.
 type Session struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Tenant      *Tenant                `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Holder      *Holder                `protobuf:"bytes,8,opt,name=holder"`
+	xxx_hidden_Account     []byte                 `protobuf:"bytes,8,opt,name=account"`
 	xxx_hidden_Secret      []byte                 `protobuf:"bytes,9,opt,name=secret"`
 	xxx_hidden_Grant       []byte                 `protobuf:"bytes,10,opt,name=grant"`
 	xxx_hidden_DateExpires *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=date_expires,json=dateExpires"`
@@ -382,16 +386,9 @@ func (x *Session) GetId() []byte {
 	return nil
 }
 
-func (x *Session) GetTenant() *Tenant {
+func (x *Session) GetAccount() []byte {
 	if x != nil {
-		return x.xxx_hidden_Tenant
-	}
-	return nil
-}
-
-func (x *Session) GetHolder() *Holder {
-	if x != nil {
-		return x.xxx_hidden_Holder
+		return x.xxx_hidden_Account
 	}
 	return nil
 }
@@ -452,12 +449,11 @@ func (x *Session) SetId(v []byte) {
 	x.xxx_hidden_Id = v
 }
 
-func (x *Session) SetTenant(v *Tenant) {
-	x.xxx_hidden_Tenant = v
-}
-
-func (x *Session) SetHolder(v *Holder) {
-	x.xxx_hidden_Holder = v
+func (x *Session) SetAccount(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Account = v
 }
 
 func (x *Session) SetSecret(v []byte) {
@@ -492,20 +488,6 @@ func (x *Session) SetDateErased(v *timestamppb.Timestamp) {
 
 func (x *Session) SetDateCreated(v *timestamppb.Timestamp) {
 	x.xxx_hidden_DateCreated = v
-}
-
-func (x *Session) HasTenant() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Tenant != nil
-}
-
-func (x *Session) HasHolder() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Holder != nil
 }
 
 func (x *Session) HasDateExpires() bool {
@@ -543,14 +525,6 @@ func (x *Session) HasDateCreated() bool {
 	return x.xxx_hidden_DateCreated != nil
 }
 
-func (x *Session) ClearTenant() {
-	x.xxx_hidden_Tenant = nil
-}
-
-func (x *Session) ClearHolder() {
-	x.xxx_hidden_Holder = nil
-}
-
 func (x *Session) ClearDateExpires() {
 	x.xxx_hidden_DateExpires = nil
 }
@@ -574,9 +548,10 @@ func (x *Session) ClearDateCreated() {
 type Session_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Id          []byte
-	Tenant      *Tenant
-	Holder      *Holder
+	Id []byte
+	// The account signed in: a holder at roster, in this deployment's
+	// directory.
+	Account     []byte
 	Secret      []byte
 	Grant       []byte
 	DateExpires *timestamppb.Timestamp
@@ -591,8 +566,7 @@ func (b0 Session_builder) Build() *Session {
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Id = b.Id
-	x.xxx_hidden_Tenant = b.Tenant
-	x.xxx_hidden_Holder = b.Holder
+	x.xxx_hidden_Account = b.Account
 	x.xxx_hidden_Secret = b.Secret
 	x.xxx_hidden_Grant = b.Grant
 	x.xxx_hidden_DateExpires = b.DateExpires
@@ -644,11 +618,10 @@ const file_rove_org_proto_rawDesc = "" +
 	"\x04kind\x1a\v\n" +
 	"\tparent_id\x1a\b\n" +
 	"\x06holder\x1a\b\n" +
-	"\x06labels 2(\xf4\x03:\x00\"\xe7\x04\n" +
+	"\x06labels 2(\xf4\x03:\x00\"\xae\x04\n" +
 	"\aSession\x12\x1b\n" +
-	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12,\n" +
-	"\x06holder\x18\b \x01(\v2\f.rove.HolderB\x06\xf2\x82\x16\x02@\x01R\x06holder\x12%\n" +
+	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12 \n" +
+	"\aaccount\x18\b \x01(\fB\x06\xea\x82\x16\x02\x10@R\aaccount\x12%\n" +
 	"\x06secret\x18\t \x01(\fB\r\xea\x82\x16\x03\x82\x01\x00\xaa\xc1\x16\x02\b\x01R\x06secret\x12\x1d\n" +
 	"\x05grant\x18\n" +
 	" \x01(\fB\a\xea\x82\x16\x03\x82\x01\x00R\x05grant\x12E\n" +
@@ -657,10 +630,10 @@ const file_rove_org_proto_rawDesc = "" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12D\n" +
 	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
 	"dateErased\x12H\n" +
-	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:=\xca\xfc\x15\x1a\x12\x02\x10\x01\x1a\x14\x12\x06secret\x1a\n" +
+	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:>\xca\xfc\x152\x12\x02\x10\x01\x1a\x14\x12\x06secret\x1a\n" +
 	"\n" +
-	"\x06secret\x10\t\x8a\xbb\x16\x1b\b&\"\x17\n" +
-	"\x06tenant\"\rholder.tenantB\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"\x06secret\x10\t\x1a\x16\x12\aaccount\x1a\v\n" +
+	"\aaccount\x10\b\x8a\xbb\x16\x04\b&*\x00B\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
 var file_rove_org_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_rove_org_proto_goTypes = []any{
@@ -678,18 +651,16 @@ var file_rove_org_proto_depIdxs = []int32{
 	5,  // 3: rove.Party.date_updated:type_name -> google.protobuf.Timestamp
 	5,  // 4: rove.Party.date_erased:type_name -> google.protobuf.Timestamp
 	5,  // 5: rove.Party.date_created:type_name -> google.protobuf.Timestamp
-	3,  // 6: rove.Session.tenant:type_name -> rove.Tenant
-	4,  // 7: rove.Session.holder:type_name -> rove.Holder
-	5,  // 8: rove.Session.date_expires:type_name -> google.protobuf.Timestamp
-	5,  // 9: rove.Session.date_idle:type_name -> google.protobuf.Timestamp
-	5,  // 10: rove.Session.date_updated:type_name -> google.protobuf.Timestamp
-	5,  // 11: rove.Session.date_erased:type_name -> google.protobuf.Timestamp
-	5,  // 12: rove.Session.date_created:type_name -> google.protobuf.Timestamp
-	13, // [13:13] is the sub-list for method output_type
-	13, // [13:13] is the sub-list for method input_type
-	13, // [13:13] is the sub-list for extension type_name
-	13, // [13:13] is the sub-list for extension extendee
-	0,  // [0:13] is the sub-list for field type_name
+	5,  // 6: rove.Session.date_expires:type_name -> google.protobuf.Timestamp
+	5,  // 7: rove.Session.date_idle:type_name -> google.protobuf.Timestamp
+	5,  // 8: rove.Session.date_updated:type_name -> google.protobuf.Timestamp
+	5,  // 9: rove.Session.date_erased:type_name -> google.protobuf.Timestamp
+	5,  // 10: rove.Session.date_created:type_name -> google.protobuf.Timestamp
+	11, // [11:11] is the sub-list for method output_type
+	11, // [11:11] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_rove_org_proto_init() }

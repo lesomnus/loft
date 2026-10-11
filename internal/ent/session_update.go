@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"time"
+	"uuid"
 
 	"github.com/lesomnus/rove/internal/ent/predicate"
 	"github.com/lesomnus/rove/internal/ent/session"
@@ -26,6 +27,20 @@ type SessionUpdate struct {
 // Where appends a list predicates to the SessionUpdate builder.
 func (_u *SessionUpdate) Where(ps ...predicate.Session) *SessionUpdate {
 	_u.mutation.Where(ps...)
+	return _u
+}
+
+// SetAccount sets the "account" field.
+func (_u *SessionUpdate) SetAccount(v uuid.UUID) *SessionUpdate {
+	_u.mutation.SetAccount(v)
+	return _u
+}
+
+// SetNillableAccount sets the "account" field if the given value is not nil.
+func (_u *SessionUpdate) SetNillableAccount(v *uuid.UUID) *SessionUpdate {
+	if v != nil {
+		_u.SetAccount(*v)
+	}
 	return _u
 }
 
@@ -159,17 +174,6 @@ func (_u *SessionUpdate) ExecX(ctx context.Context) {
 	}
 }
 
-// check runs all checks and user-defined validators on the builder.
-func (_u *SessionUpdate) check() error {
-	if _u.mutation.TenantCleared() && len(_u.mutation.TenantIds()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Session.tenant"`)
-	}
-	if _u.mutation.HolderCleared() && len(_u.mutation.HolderIds()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Session.holder"`)
-	}
-	return nil
-}
-
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
 func (_u *SessionUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *SessionUpdate {
 	_u.modifiers = append(_u.modifiers, modifiers...)
@@ -177,9 +181,6 @@ func (_u *SessionUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *Sessio
 }
 
 func (_u *SessionUpdate) sqlSave(ctx context.Context) (_node int, err error) {
-	if err := _u.check(); err != nil {
-		return _node, err
-	}
 	_spec := sqlgraph.NewUpdateSpec(session.Table, session.Columns, sqlgraph.NewFieldSpec(session.FieldId, field.TypeUuid))
 	if ps := _u.mutation.Predicates(); len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -187,6 +188,9 @@ func (_u *SessionUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.Account(); ok {
+		_spec.SetField(session.FieldAccount, field.TypeUuid, value)
 	}
 	if value, ok := _u.mutation.Secret(); ok {
 		_spec.SetField(session.FieldSecret, field.TypeBytes, value)
@@ -244,6 +248,20 @@ type SessionUpdateOne struct {
 	hooks     []Hook
 	mutation  *SessionMutation
 	modifiers []func(*sql.UpdateBuilder)
+}
+
+// SetAccount sets the "account" field.
+func (_u *SessionUpdateOne) SetAccount(v uuid.UUID) *SessionUpdateOne {
+	_u.mutation.SetAccount(v)
+	return _u
+}
+
+// SetNillableAccount sets the "account" field if the given value is not nil.
+func (_u *SessionUpdateOne) SetNillableAccount(v *uuid.UUID) *SessionUpdateOne {
+	if v != nil {
+		_u.SetAccount(*v)
+	}
+	return _u
 }
 
 // SetSecret sets the "secret" field.
@@ -389,17 +407,6 @@ func (_u *SessionUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
-// check runs all checks and user-defined validators on the builder.
-func (_u *SessionUpdateOne) check() error {
-	if _u.mutation.TenantCleared() && len(_u.mutation.TenantIds()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Session.tenant"`)
-	}
-	if _u.mutation.HolderCleared() && len(_u.mutation.HolderIds()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Session.holder"`)
-	}
-	return nil
-}
-
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
 func (_u *SessionUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *SessionUpdateOne {
 	_u.modifiers = append(_u.modifiers, modifiers...)
@@ -407,9 +414,6 @@ func (_u *SessionUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *Ses
 }
 
 func (_u *SessionUpdateOne) sqlSave(ctx context.Context) (_node *Session, err error) {
-	if err := _u.check(); err != nil {
-		return _node, err
-	}
 	_spec := sqlgraph.NewUpdateSpec(session.Table, session.Columns, sqlgraph.NewFieldSpec(session.FieldId, field.TypeUuid))
 	id, ok := _u.mutation.Id()
 	if !ok {
@@ -434,6 +438,9 @@ func (_u *SessionUpdateOne) sqlSave(ctx context.Context) (_node *Session, err er
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.Account(); ok {
+		_spec.SetField(session.FieldAccount, field.TypeUuid, value)
 	}
 	if value, ok := _u.mutation.Secret(); ok {
 		_spec.SetField(session.FieldSecret, field.TypeBytes, value)

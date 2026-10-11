@@ -56,7 +56,6 @@ import (
 	purchaseline "github.com/lesomnus/rove/internal/ent/purchaseline"
 	reservation "github.com/lesomnus/rove/internal/ent/reservation"
 	reservationitem "github.com/lesomnus/rove/internal/ent/reservationitem"
-	session "github.com/lesomnus/rove/internal/ent/session"
 	stewardship "github.com/lesomnus/rove/internal/ent/stewardship"
 	stock "github.com/lesomnus/rove/internal/ent/stock"
 	stockmovement "github.com/lesomnus/rove/internal/ent/stockmovement"
@@ -522,14 +521,9 @@ func (wall) ReservationItemScope(ctx context.Context) (predicate.ReservationItem
 	return reservationitem.TenantIdIn(vs...), nil
 }
 
-// SessionScope: a row belongs to the tenant its "tenant" reaches.
+// SessionScope: declared `global`, so it is not behind the wall at all.
 func (wall) SessionScope(ctx context.Context) (predicate.Session, error) {
-	vs, all, err := frame.Narrow(ctx)
-	if all || err != nil {
-		return nil, err
-	}
-
-	return session.TenantIdIn(vs...), nil
+	return nil, nil
 }
 
 // StewardshipScope: a row belongs to the tenant its "tenant" reaches.
@@ -8840,104 +8834,6 @@ func filterReservationItem(f *rove.ReservationItemFilter) (predicate.Reservation
 	return reservationitem.And(ps...), nil
 }
 
-type sinkSession struct {
-	rove.SessionServiceServer
-	store  bare.Store
-	w      *watch.Watch
-	namer  slug.Namer
-	joined bool
-}
-
-func (s Sink) Session() rove.SessionServiceServer {
-	return sinkSession{s.Server.Session(), s.Server.Store, s.w, s.namer, s.joined}
-}
-
-// tenantAtTenant is the tenant "tenant" arrives at.
-func (s sinkSession) tenantAtTenant(ctx context.Context, ref *rove.TenantRef) ([]byte, error) {
-	if ref == nil {
-		return nil, pderr.Invalidf("tenant", "required: it is what says which tenant this belongs to")
-	}
-
-	// The row the edge names, picked the way every other reference is.
-	pick, err := bare.TenantPick(ref)
-	if err != nil {
-		return nil, pderr.At("tenant", err)
-	}
-
-	k, err := s.store.Db.Tenant.Query().Where(pick).OnlyId(ctx)
-	if err != nil {
-		// Not there, or more than one -- both are the reference being wrong,
-		// and both are the caller's to fix.
-		return nil, pderr.Invalidf("tenant", "it does not name one row")
-	}
-
-	return k[:], nil
-}
-
-// tenantAtHolderTenant is the tenant "holder.tenant" arrives at.
-func (s sinkSession) tenantAtHolderTenant(ctx context.Context, ref *rove.HolderRef) ([]byte, error) {
-	if ref == nil {
-		return nil, pderr.Invalidf("holder", "required: it is what says which tenant this belongs to")
-	}
-
-	// The row the edge names, picked the way every other reference is.
-	pick, err := bare.HolderPick(ref)
-	if err != nil {
-		return nil, pderr.At("holder", err)
-	}
-
-	k, err := s.store.Db.Holder.Query().Where(pick).QueryTenant().OnlyId(ctx)
-	if err != nil {
-		// Not there, or more than one -- both are the reference being wrong,
-		// and both are the caller's to fix.
-		return nil, pderr.Invalidf("holder", "it does not name one row")
-	}
-
-	return k[:], nil
-}
-
-// tenancy fills what the schema says this row's tenant is, and refuses a
-// row whose other paths do not agree with it.
-//
-// The request is already this server's copy by the time it arrives, so it
-// is written to rather than cloned again.
-func (s sinkSession) tenancy(ctx context.Context, req *rove.SessionAddRequest) error {
-	want, err := s.tenantAtTenant(ctx, req.GetTenant())
-	if err != nil {
-		return err
-	}
-
-	if req.HasHolder() {
-		got, err := s.tenantAtHolderTenant(ctx, req.GetHolder())
-		if err != nil {
-			return err
-		}
-		if string(got) != string(want) {
-			// Both exist and both are visible to whoever is writing --
-			// the gate already saw to that. What it cannot see is that
-			// they are in different tenants, because it asks "may I read
-			// this" and a caller who holds several tenants may read both.
-			return pderr.Invalidf("holder",
-				"it is in another tenant than tenant")
-		}
-	}
-
-	return nil
-}
-
-// Add stamps this row's tenant before writing it.
-func (s sinkSession) Add(ctx context.Context, req *rove.SessionAddRequest) (*rove.Session, error) {
-	// Copied rather than written to: the request belongs to whoever called,
-	// and for a call made in this process that is a message they may still
-	// be holding.
-	r := proto.CloneOf(req)
-	if err := s.tenancy(ctx, r); err != nil {
-		return nil, err
-	}
-
-	return s.SessionServiceServer.Add(ctx, r)
-}
-
 type sinkStewardship struct {
 	rove.StewardshipServiceServer
 	store  bare.Store
@@ -12714,54 +12610,6 @@ func (s gateReservationItem) Add(ctx context.Context, req *rove.ReservationItemA
 	return s.ReservationItemServiceServer.Add(ctx, req)
 }
 
-type gateSession struct {
-	Gate
-	rove.SessionServiceServer
-}
-
-func (s Gate) Session() rove.SessionServiceServer {
-	return gateSession{s, s.Next().Session()}
-}
-
-// Add refuses a Session put into a Tenant this caller cannot see.
-//
-// The wall is a predicate and an Add has no query, so without this the
-// identifier in `tenant` becomes a foreign key with nothing consulted.
-// The row is then invisible to whoever planted it and visible to whoever
-// holds that Tenant, which is the shape of the bug rather than a
-// mitigation of it.
-//
-// NotFound rather than a refusal, for the reason on `gateHolder.Add`:
-// that a row exists is itself something a caller who may not see it
-// should not be told.
-func (s gateSession) Add(ctx context.Context, req *rove.SessionAddRequest) (*rove.Session, error) {
-	if ref := req.GetTenant(); ref != nil {
-		if _, err := s.Gate.Next().Tenant().Get(ctx, rove.TenantGetRequest_builder{
-			Ref: ref,
-		}.Build()); err != nil {
-			if status.Code(err) == codes.NotFound {
-				return nil, gate.ErrNotFound("Tenant")
-			}
-
-			return nil, err
-		}
-	}
-
-	if ref := req.GetHolder(); ref != nil {
-		if _, err := s.Gate.Next().Holder().Get(ctx, rove.HolderGetRequest_builder{
-			Ref: ref,
-		}.Build()); err != nil {
-			if status.Code(err) == codes.NotFound {
-				return nil, gate.ErrNotFound("Holder")
-			}
-
-			return nil, err
-		}
-	}
-
-	return s.SessionServiceServer.Add(ctx, req)
-}
-
 type gateStewardship struct {
 	Gate
 	rove.StewardshipServiceServer
@@ -14115,40 +13963,6 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id) (uuid.UUID, []byte
 
 		return k, b, nil
 
-	case SessionDomain:
-		row, err := s.Session().Get(ctx, rove.SessionGetRequest_builder{
-			Ref: rove.SessionRef_builder{Id: key.Bytes()}.Build(),
-		}.Build())
-		// Erased softly is still a row; see [erasedSession].
-		if status.Code(err) == codes.NotFound {
-			row, err = erasedSession(ctx, s, key)
-		}
-		if err != nil {
-			if status.Code(err) == codes.NotFound {
-				return uuid.Nil(), []byte{}, nil
-			}
-
-			return uuid.Nil(), nil, err
-		}
-
-		hideSession(row)
-
-		b, err := proto.Marshal(row)
-		if err != nil {
-			return uuid.Nil(), nil, err
-		}
-
-		if !row.HasTenant() {
-			return uuid.Nil(), b, nil
-		}
-
-		k, err := entuuid.FromBytes(row.GetTenant().GetId())
-		if err != nil {
-			return uuid.Nil(), nil, err
-		}
-
-		return k, b, nil
-
 	case StewardshipDomain:
 		row, err := s.Stewardship().Get(ctx, rove.StewardshipGetRequest_builder{
 			Ref: rove.StewardshipRef_builder{Id: key.Bytes()}.Build(),
@@ -14737,33 +14551,6 @@ func erasedReservation(ctx context.Context, s bare.Server, key pdid.Id) (*rove.R
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, status.Error(codes.NotFound, "Reservation not found")
-		}
-
-		return nil, err
-	}
-
-	return v.Proto(), nil
-}
-
-// erasedSession is the row `key` names among the rows already erased, which no
-// bare read answers: erasure is part of every reference that server builds.
-// The recorder is the one caller that has to see past it -- the row it asks
-// about was erased by the very write it is recording, and a trail row built
-// blind was filed under the actor's tenant with an empty value, which the
-// tenant whose row was erased could not read.
-func erasedSession(ctx context.Context, s bare.Server, key pdid.Id) (*rove.Session, error) {
-	k, err := entuuid.FromBytes(key.Bytes())
-	if err != nil {
-		return nil, err
-	}
-
-	q := s.Db.Session.Query().Where(session.IdEQ(k), session.DateErasedNotNil())
-	bare.SessionSelectInit(q, nil)
-
-	v, err := q.Only(ctx)
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return nil, status.Error(codes.NotFound, "Session not found")
 		}
 
 		return nil, err

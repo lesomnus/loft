@@ -9,9 +9,7 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/lesomnus/rove/internal/ent/holder"
 	"github.com/lesomnus/rove/internal/ent/session"
-	"github.com/lesomnus/rove/internal/ent/tenant"
 	"github.com/protobuf-orm/ent/dialect/sql"
 	"github.com/protobuf-orm/ent/dialect/sql/sqlgraph"
 	"github.com/protobuf-orm/ent/schema/field"
@@ -22,6 +20,12 @@ type SessionCreate struct {
 	config
 	mutation *SessionMutation
 	hooks    []Hook
+}
+
+// SetAccount sets the "account" field.
+func (_c *SessionCreate) SetAccount(v uuid.UUID) *SessionCreate {
+	_c.mutation.SetAccount(v)
+	return _c
 }
 
 // SetSecret sets the "secret" field.
@@ -98,32 +102,10 @@ func (_c *SessionCreate) SetNillableDateCreated(v *time.Time) *SessionCreate {
 	return _c
 }
 
-// SetTenantId sets the "tenant_id" field.
-func (_c *SessionCreate) SetTenantId(v uuid.UUID) *SessionCreate {
-	_c.mutation.SetTenantId(v)
-	return _c
-}
-
-// SetHolderId sets the "holder_id" field.
-func (_c *SessionCreate) SetHolderId(v uuid.UUID) *SessionCreate {
-	_c.mutation.SetHolderId(v)
-	return _c
-}
-
 // SetId sets the "id" field.
 func (_c *SessionCreate) SetId(v uuid.UUID) *SessionCreate {
 	_c.mutation.SetId(v)
 	return _c
-}
-
-// SetTenant sets the "tenant" edge to the Tenant entity.
-func (_c *SessionCreate) SetTenant(v *Tenant) *SessionCreate {
-	return _c.SetTenantId(v.Id)
-}
-
-// SetHolder sets the "holder" edge to the Holder entity.
-func (_c *SessionCreate) SetHolder(v *Holder) *SessionCreate {
-	return _c.SetHolderId(v.Id)
 }
 
 // Mutation returns the SessionMutation object of the builder.
@@ -160,20 +142,11 @@ func (_c *SessionCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *SessionCreate) check() error {
+	if _, ok := _c.mutation.Account(); !ok {
+		return &ValidationError{Name: "account", err: errors.New(`ent: missing required field "Session.account"`)}
+	}
 	if _, ok := _c.mutation.DateUpdated(); !ok {
 		return &ValidationError{Name: "date_updated", err: errors.New(`ent: missing required field "Session.date_updated"`)}
-	}
-	if _, ok := _c.mutation.TenantId(); !ok {
-		return &ValidationError{Name: "tenant_id", err: errors.New(`ent: missing required field "Session.tenant_id"`)}
-	}
-	if _, ok := _c.mutation.HolderId(); !ok {
-		return &ValidationError{Name: "holder_id", err: errors.New(`ent: missing required field "Session.holder_id"`)}
-	}
-	if len(_c.mutation.TenantIds()) == 0 {
-		return &ValidationError{Name: "tenant", err: errors.New(`ent: missing required edge "Session.tenant"`)}
-	}
-	if len(_c.mutation.HolderIds()) == 0 {
-		return &ValidationError{Name: "holder", err: errors.New(`ent: missing required edge "Session.holder"`)}
 	}
 	return nil
 }
@@ -214,6 +187,10 @@ func (_c *SessionCreate) createSpec() (*Session, *sqlgraph.CreateSpec) {
 		_node.Id = id
 		_spec.Id.Value = &id
 	}
+	if value, ok := _c.mutation.Account(); ok {
+		_spec.SetField(session.FieldAccount, field.TypeUuid, value)
+		_node.Account = value
+	}
 	if value, ok := _c.mutation.Secret(); ok {
 		_spec.SetField(session.FieldSecret, field.TypeBytes, value)
 		_node.Secret = value
@@ -241,40 +218,6 @@ func (_c *SessionCreate) createSpec() (*Session, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.DateCreated(); ok {
 		_spec.SetField(session.FieldDateCreated, field.TypeTime, value)
 		_node.DateCreated = value
-	}
-	if nodes := _c.mutation.TenantIds(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   session.TenantTable,
-			Columns: []string{session.TenantColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IdSpec: sqlgraph.NewFieldSpec(tenant.FieldId, field.TypeUuid),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.TenantId = nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := _c.mutation.HolderIds(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   session.HolderTable,
-			Columns: []string{session.HolderColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IdSpec: sqlgraph.NewFieldSpec(holder.FieldId, field.TypeUuid),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.HolderId = nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

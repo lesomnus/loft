@@ -28,6 +28,8 @@ const (
 	FieldDateCreated = "date_created"
 	// FieldRole holds the string denoting the role field in the database.
 	FieldRole = "role"
+	// FieldAccount holds the string denoting the account field in the database.
+	FieldAccount = "account"
 	// FieldTenantId holds the string denoting the tenant_id field in the database.
 	FieldTenantId = "tenant_id"
 	// EdgeTenant holds the string denoting the tenant edge name in mutations.
@@ -54,6 +56,7 @@ var Columns = []string{
 	FieldDateErased,
 	FieldDateCreated,
 	FieldRole,
+	FieldAccount,
 	FieldTenantId,
 }
 
@@ -108,6 +111,11 @@ func ByDateCreated(opts ...sql.OrderTermOption) OrderOption {
 // ByRole orders the results by the role field.
 func ByRole(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldRole, opts...).ToFunc()
+}
+
+// ByAccount orders the results by the account field.
+func ByAccount(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAccount, opts...).ToFunc()
 }
 
 // ByTenantId orders the results by the tenant_id field.

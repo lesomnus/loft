@@ -69,6 +69,10 @@ func (d Deployment) held(ctx context.Context, tenant pdid.Id) error {
 // Trail is the trail's tables: its rows, and the manifest of its archive.
 var Trail = []string{"audit", "archived"}
 
+// Shared is the deployment's own tables, which no tenant has rows in: sessions
+// are an account's, and an account is in no workspace (D27).
+var Shared = []string{"session"}
+
 // Tables is every table a tenant has rows in, each before every table it
 // points at, so that deleting in this order leaves no reference dangling. The
 // tenant's own row is not one of them, and is last; nor are the trail's, which
@@ -80,7 +84,7 @@ var Trail = []string{"audit", "archived"}
 func Tables() ([]string, error) {
 	refs := map[string][]string{}
 	for _, t := range migrate.Tables {
-		if t.Name == "tenant" || slices.Contains(Trail, t.Name) {
+		if t.Name == "tenant" || slices.Contains(Trail, t.Name) || slices.Contains(Shared, t.Name) {
 			continue
 		}
 		if !slices.ContainsFunc(t.Columns, func(c *schema.Column) bool { return c.Name == "tenant_id" }) {
