@@ -35,6 +35,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/event"
 	"github.com/lesomnus/rove/internal/ent/treelock"
 	"github.com/lesomnus/rove/internal/identity"
+	"github.com/lesomnus/rove/internal/search"
 	"github.com/lesomnus/rove/server/mail"
 	"github.com/lesomnus/rove/server/pd"
 	"github.com/lesomnus/rove/server/retention"
@@ -69,6 +70,11 @@ type Deps struct {
 	// NoShowAfter is how long after a room reservation begins it is released
 	// when nobody checked in. Zero holds nobody to checking in.
 	NoShowAfter time.Duration
+
+	// Search is which index this database answers a search with: what the
+	// migration found (`cli.Migrate`), and no index on SQLite. See
+	// `internal/search`.
+	Search search.Mode
 
 	// Retention is the windows of a tenant with no contract (design 8). The
 	// zero value shows all of the history.
