@@ -47,6 +47,7 @@ type Holder struct {
 	xxx_hidden_Role        string                 `protobuf:"bytes,8,opt,name=role"`
 	xxx_hidden_Account     []byte                 `protobuf:"bytes,9,opt,name=account"`
 	xxx_hidden_DateLeaving *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=date_leaving,json=dateLeaving"`
+	xxx_hidden_MailOff     bool                   `protobuf:"varint,11,opt,name=mail_off,json=mailOff"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
 }
@@ -160,6 +161,13 @@ func (x *Holder) GetDateLeaving() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *Holder) GetMailOff() bool {
+	if x != nil {
+		return x.xxx_hidden_MailOff
+	}
+	return false
+}
+
 func (x *Holder) SetId(v []byte) {
 	if v == nil {
 		v = []byte{}
@@ -212,6 +220,10 @@ func (x *Holder) SetAccount(v []byte) {
 
 func (x *Holder) SetDateLeaving(v *timestamppb.Timestamp) {
 	x.xxx_hidden_DateLeaving = v
+}
+
+func (x *Holder) SetMailOff(v bool) {
+	x.xxx_hidden_MailOff = v
 }
 
 func (x *Holder) HasTenant() bool {
@@ -315,6 +327,10 @@ type Holder_builder struct {
 	// standing, or one roster restored. Written by the deployment from what
 	// roster says (`server/lifecycle`), and by nobody else.
 	DateLeaving *timestamppb.Timestamp
+	// The person's own choice not to be mailed what they are told of here: the
+	// notifications still come, in the app. Theirs to set and nobody else's
+	// (`NotificationService.SetMail`).
+	MailOff bool
 }
 
 func (b0 Holder_builder) Build() *Holder {
@@ -333,6 +349,7 @@ func (b0 Holder_builder) Build() *Holder {
 	x.xxx_hidden_Role = b.Role
 	x.xxx_hidden_Account = b.Account
 	x.xxx_hidden_DateLeaving = b.DateLeaving
+	x.xxx_hidden_MailOff = b.MailOff
 	return m0
 }
 
@@ -340,7 +357,7 @@ var File_rove_payday_holder_proto protoreflect.FileDescriptor
 
 const file_rove_payday_holder_proto_rawDesc = "" +
 	"\n" +
-	"\x18rove/payday/holder.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x18rove/payday/tenant.proto\"\xd4\x05\n" +
+	"\x18rove/payday/holder.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x18rove/payday/tenant.proto\"\xef\x05\n" +
 	"\x06Holder\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x14\n" +
@@ -355,7 +372,8 @@ const file_rove_payday_holder_proto_rawDesc = "" +
 	"\x04role\x18\b \x01(\tB\r\xea\x82\x16\t\x82\x01\x06memberR\x04role\x12\"\n" +
 	"\aaccount\x18\t \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\aaccount\x12E\n" +
 	"\fdate_leaving\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\vdateLeaving\x1a9\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\vdateLeaving\x12\x19\n" +
+	"\bmail_off\x18\v \x01(\bR\amailOff\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:n\xca\xfc\x15%\x12\x02\x10\x01\x1a\x1f\x12\x04slug\x1a\t\n" +

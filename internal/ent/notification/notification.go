@@ -24,6 +24,12 @@ const (
 	FieldReadAt = "read_at"
 	// FieldLink holds the string denoting the link field in the database.
 	FieldLink = "link"
+	// FieldMail holds the string denoting the mail field in the database.
+	FieldMail = "mail"
+	// FieldDateMailed holds the string denoting the date_mailed field in the database.
+	FieldDateMailed = "date_mailed"
+	// FieldMailTries holds the string denoting the mail_tries field in the database.
+	FieldMailTries = "mail_tries"
 	// FieldDateUpdated holds the string denoting the date_updated field in the database.
 	FieldDateUpdated = "date_updated"
 	// FieldDateCreated holds the string denoting the date_created field in the database.
@@ -63,6 +69,9 @@ var Columns = []string{
 	FieldSubjectId,
 	FieldReadAt,
 	FieldLink,
+	FieldMail,
+	FieldDateMailed,
+	FieldMailTries,
 	FieldDateUpdated,
 	FieldDateCreated,
 	FieldTenantId,
@@ -115,6 +124,21 @@ func ByReadAt(opts ...sql.OrderTermOption) OrderOption {
 // ByLink orders the results by the link field.
 func ByLink(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldLink, opts...).ToFunc()
+}
+
+// ByMail orders the results by the mail field.
+func ByMail(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldMail, opts...).ToFunc()
+}
+
+// ByDateMailed orders the results by the date_mailed field.
+func ByDateMailed(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateMailed, opts...).ToFunc()
+}
+
+// ByMailTries orders the results by the mail_tries field.
+func ByMailTries(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldMailTries, opts...).ToFunc()
 }
 
 // ByDateUpdated orders the results by the date_updated field.

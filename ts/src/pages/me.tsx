@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
-import { AssetService, CustodyService, PartyService, fmt, idStr, ref } from '../api.js'
+import { AssetService, CustodyService, NotificationService, PartyService, fmt, idStr, ref } from '../api.js'
 import { useCatalog } from '../catalog.js'
 import { AssetLink } from '../pickers.js'
 import { useAct, useRpc } from '../rpc.js'
@@ -12,6 +12,15 @@ export function Me(): ReactNode {
 	const c = useCatalog()
 	const act = useAct()
 	const [pw, setPw] = useState(false)
+	// Whether what this person is told here goes by mail as well: theirs.
+	const [mailOff, setMailOff] = useState(c.me.holder?.mailOff ?? false)
+	const [mailBusy, setMailBusy] = useState(false)
+	const setMail = async (off: boolean): Promise<void> => {
+		setMailBusy(true)
+		const v = await act(NotificationService.method.setMail, { off }, { ok: off ? '메일 알림을 껐습니다. 앱에서는 계속 받습니다.' : '메일 알림을 켰습니다.' })
+		if (v !== undefined) setMailOff(v.off)
+		setMailBusy(false)
+	}
 	const p = c.me.party
 	const mine = useRpc(AssetService.method.search, p === undefined ? null : { custodian: ref(p.id), size: 200 })
 	const custodies = useRpc(CustodyService.method.list, p === undefined ? null : { filters: [{ party: ref(p.id) }], size: 200 })
@@ -31,6 +40,12 @@ export function Me(): ReactNode {
 							['조직', c.me.tenant?.name || c.me.tenant?.alias || '-'],
 						]}
 					/>
+				</Card>
+				<Card title="알림">
+					<label className="check">
+						<input type="checkbox" checked={!mailOff} disabled={mailBusy} onChange={(ev) => void setMail(!ev.target.checked)} /> 알림을 메일로도 받기
+					</label>
+					<p className="mute small">승인 요청과 그 결과, 반납 연체, 다가오는 정기 점검을 메일로도 보냅니다. 끄면 앱에서만 받습니다.</p>
 				</Card>
 				<Card title="인수 확인이 필요한 것">
 					<Load q={custodies}>

@@ -31,6 +31,11 @@ func (Notification) Fields() []ent.Field {
 			Nillable().
 			Optional(),
 		field.String("link"),
+		field.Bool("mail"),
+		field.Time("date_mailed").
+			Nillable().
+			Optional(),
+		field.Uint32("mail_tries"),
 		field.Time("date_updated"),
 		field.Time("date_created").
 			Immutable().

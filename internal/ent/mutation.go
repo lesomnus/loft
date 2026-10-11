@@ -5058,6 +5058,23 @@ func (m *HolderMutation) OldDateLeaving(ctx context.Context) (v *time.Time, err 
 	return oldValue.DateLeaving, nil
 }
 
+// OldMailOff returns the old "mail_off" field's value of the Holder entity.
+// If the Holder object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *HolderMutation) OldMailOff(ctx context.Context) (v bool, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldMailOff is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldMailOff requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMailOff: %w", err)
+	}
+	return oldValue.MailOff, nil
+}
+
 // OldTenantId returns the old "tenant_id" field's value of the Holder entity.
 // If the Holder object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
@@ -5100,6 +5117,8 @@ func (m *HolderMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldAccount(ctx)
 	case holder.FieldDateLeaving:
 		return m.OldDateLeaving(ctx)
+	case holder.FieldMailOff:
+		return m.OldMailOff(ctx)
 	case holder.FieldTenantId:
 		return m.OldTenantId(ctx)
 	}
@@ -7274,6 +7293,57 @@ func (m *NotificationMutation) OldLink(ctx context.Context) (v string, err error
 	return oldValue.Link, nil
 }
 
+// OldMail returns the old "mail" field's value of the Notification entity.
+// If the Notification object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *NotificationMutation) OldMail(ctx context.Context) (v bool, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldMail is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldMail requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMail: %w", err)
+	}
+	return oldValue.Mail, nil
+}
+
+// OldDateMailed returns the old "date_mailed" field's value of the Notification entity.
+// If the Notification object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *NotificationMutation) OldDateMailed(ctx context.Context) (v *time.Time, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldDateMailed is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldDateMailed requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDateMailed: %w", err)
+	}
+	return oldValue.DateMailed, nil
+}
+
+// OldMailTries returns the old "mail_tries" field's value of the Notification entity.
+// If the Notification object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *NotificationMutation) OldMailTries(ctx context.Context) (v uint32, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldMailTries is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldMailTries requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMailTries: %w", err)
+	}
+	return oldValue.MailTries, nil
+}
+
 // OldDateUpdated returns the old "date_updated" field's value of the Notification entity.
 // If the Notification object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
@@ -7359,6 +7429,12 @@ func (m *NotificationMutation) OldField(ctx context.Context, name string) (ent.V
 		return m.OldReadAt(ctx)
 	case notification.FieldLink:
 		return m.OldLink(ctx)
+	case notification.FieldMail:
+		return m.OldMail(ctx)
+	case notification.FieldDateMailed:
+		return m.OldDateMailed(ctx)
+	case notification.FieldMailTries:
+		return m.OldMailTries(ctx)
 	case notification.FieldDateUpdated:
 		return m.OldDateUpdated(ctx)
 	case notification.FieldDateCreated:

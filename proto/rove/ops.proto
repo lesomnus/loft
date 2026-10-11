@@ -35,6 +35,16 @@ message Notification {
   // Where a page goes to act on it.
   string link = 12;
 
+  // Whether it goes by mail as well: set as it is written, so that an
+  // operation that is undone queues nothing, and only for the kinds that are
+  // worth a mailbox (an approval asked and answered, custody overdue,
+  // maintenance due). `date_mailed` is when it went, and `mail_tries` how
+  // often it failed to; what is queued and not yet sent is sent by
+  // `domain.Mailer`, outside every operation.
+  bool mail = 16;
+  google.protobuf.Timestamp date_mailed = 17 [(orm.field) = {nullable: true}];
+  uint32 mail_tries = 18;
+
   google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
   google.protobuf.Timestamp date_created = 15 [(orm.field) = {
     immutable: true

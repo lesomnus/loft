@@ -665,6 +665,7 @@ var (
 		{Name: "role", Type: field.TypeString, Nullable: true},
 		{Name: "account", Type: field.TypeUuid, Nullable: true},
 		{Name: "date_leaving", Type: field.TypeTime, Nullable: true},
+		{Name: "mail_off", Type: field.TypeBool},
 		{Name: "tenant_id", Type: field.TypeUuid},
 	}
 	// HolderTable holds the schema information for the "holder" table.
@@ -675,7 +676,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "holder_tenant_tenant",
-				Columns:    []*schema.Column{HolderColumns[11]},
+				Columns:    []*schema.Column{HolderColumns[12]},
 				RefColumns: []*schema.Column{TenantColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -684,7 +685,7 @@ var (
 			{
 				Name:    "holder_alias_tenant_id",
 				Unique:  true,
-				Columns: []*schema.Column{HolderColumns[1], HolderColumns[11]},
+				Columns: []*schema.Column{HolderColumns[1], HolderColumns[12]},
 				Annotation: &entsql.IndexAnnotation{
 					Where: "date_erased IS NULL",
 				},
@@ -986,6 +987,9 @@ var (
 		{Name: "subject_id", Type: field.TypeUuid, Nullable: true},
 		{Name: "read_at", Type: field.TypeTime, Nullable: true},
 		{Name: "link", Type: field.TypeString},
+		{Name: "mail", Type: field.TypeBool},
+		{Name: "date_mailed", Type: field.TypeTime, Nullable: true},
+		{Name: "mail_tries", Type: field.TypeUint32},
 		{Name: "date_updated", Type: field.TypeTime},
 		{Name: "date_created", Type: field.TypeTime, Nullable: true},
 		{Name: "tenant_id", Type: field.TypeUuid},
@@ -999,13 +1003,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "notification_tenant_tenant",
-				Columns:    []*schema.Column{NotificationColumns[9]},
+				Columns:    []*schema.Column{NotificationColumns[12]},
 				RefColumns: []*schema.Column{TenantColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "notification_holder_holder",
-				Columns:    []*schema.Column{NotificationColumns[10]},
+				Columns:    []*schema.Column{NotificationColumns[13]},
 				RefColumns: []*schema.Column{HolderColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -1014,12 +1018,12 @@ var (
 			{
 				Name:    "notification_date_created_id",
 				Unique:  false,
-				Columns: []*schema.Column{NotificationColumns[8], NotificationColumns[0]},
+				Columns: []*schema.Column{NotificationColumns[11], NotificationColumns[0]},
 			},
 			{
 				Name:    "notification_date_created_holder_id",
 				Unique:  false,
-				Columns: []*schema.Column{NotificationColumns[8], NotificationColumns[10]},
+				Columns: []*schema.Column{NotificationColumns[11], NotificationColumns[13]},
 			},
 		},
 	}

@@ -23,6 +23,10 @@ type Mutation struct {
 	subject_id    *uuid.UUID
 	read_at       *time.Time
 	link          *string
+	mail          *bool
+	date_mailed   *time.Time
+	mail_tries    *uint32
+	addmail_tries *int32
 	date_updated  *time.Time
 	date_created  *time.Time
 	clearedFields map[string]struct{}
@@ -185,6 +189,96 @@ func (m *Mutation) Link() (r string, exists bool) {
 // ResetLink resets all changes to the "link" field.
 func (m *Mutation) ResetLink() {
 	m.link = nil
+}
+
+// SetMail sets the "mail" field.
+func (m *Mutation) SetMail(b bool) {
+	m.mail = &b
+}
+
+// Mail returns the value of the "mail" field in the mutation.
+func (m *Mutation) Mail() (r bool, exists bool) {
+	v := m.mail
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetMail resets all changes to the "mail" field.
+func (m *Mutation) ResetMail() {
+	m.mail = nil
+}
+
+// SetDateMailed sets the "date_mailed" field.
+func (m *Mutation) SetDateMailed(t time.Time) {
+	m.date_mailed = &t
+}
+
+// DateMailed returns the value of the "date_mailed" field in the mutation.
+func (m *Mutation) DateMailed() (r time.Time, exists bool) {
+	v := m.date_mailed
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearDateMailed clears the value of the "date_mailed" field.
+func (m *Mutation) ClearDateMailed() {
+	m.date_mailed = nil
+	m.clearedFields[FieldDateMailed] = struct{}{}
+}
+
+// DateMailedCleared returns if the "date_mailed" field was cleared in this mutation.
+func (m *Mutation) DateMailedCleared() bool {
+	_, ok := m.clearedFields[FieldDateMailed]
+	return ok
+}
+
+// ResetDateMailed resets all changes to the "date_mailed" field.
+func (m *Mutation) ResetDateMailed() {
+	m.date_mailed = nil
+	delete(m.clearedFields, FieldDateMailed)
+}
+
+// SetMailTries sets the "mail_tries" field.
+func (m *Mutation) SetMailTries(u uint32) {
+	m.mail_tries = &u
+	m.addmail_tries = nil
+}
+
+// MailTries returns the value of the "mail_tries" field in the mutation.
+func (m *Mutation) MailTries() (r uint32, exists bool) {
+	v := m.mail_tries
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// AddMailTries adds u to the "mail_tries" field.
+func (m *Mutation) AddMailTries(u int32) {
+	if m.addmail_tries != nil {
+		*m.addmail_tries += u
+	} else {
+		m.addmail_tries = &u
+	}
+}
+
+// AddedMailTries returns the value that was added to the "mail_tries" field in this mutation.
+func (m *Mutation) AddedMailTries() (r int32, exists bool) {
+	v := m.addmail_tries
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetMailTries resets all changes to the "mail_tries" field.
+func (m *Mutation) ResetMailTries() {
+	m.mail_tries = nil
+	m.addmail_tries = nil
 }
 
 // SetDateUpdated sets the "date_updated" field.
@@ -364,7 +458,7 @@ func (m *Mutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *Mutation) Fields() []string {
-	fields := make([]string, 0, 10)
+	fields := make([]string, 0, 13)
 	if m.name != nil {
 		fields = append(fields, FieldName)
 	}
@@ -382,6 +476,15 @@ func (m *Mutation) Fields() []string {
 	}
 	if m.link != nil {
 		fields = append(fields, FieldLink)
+	}
+	if m.mail != nil {
+		fields = append(fields, FieldMail)
+	}
+	if m.date_mailed != nil {
+		fields = append(fields, FieldDateMailed)
+	}
+	if m.mail_tries != nil {
+		fields = append(fields, FieldMailTries)
 	}
 	if m.date_updated != nil {
 		fields = append(fields, FieldDateUpdated)
@@ -415,6 +518,12 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.ReadAt()
 	case FieldLink:
 		return m.Link()
+	case FieldMail:
+		return m.Mail()
+	case FieldDateMailed:
+		return m.DateMailed()
+	case FieldMailTries:
+		return m.MailTries()
 	case FieldDateUpdated:
 		return m.DateUpdated()
 	case FieldDateCreated:
@@ -481,6 +590,27 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetLink(v)
 		return nil
+	case FieldMail:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMail(v)
+		return nil
+	case FieldDateMailed:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDateMailed(v)
+		return nil
+	case FieldMailTries:
+		v, ok := value.(uint32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMailTries(v)
+		return nil
 	case FieldDateUpdated:
 		v, ok := value.(time.Time)
 		if !ok {
@@ -516,13 +646,21 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *Mutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addmail_tries != nil {
+		fields = append(fields, FieldMailTries)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *Mutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case FieldMailTries:
+		return m.AddedMailTries()
+	}
 	return nil, false
 }
 
@@ -531,6 +669,13 @@ func (m *Mutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *Mutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case FieldMailTries:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddMailTries(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Notification numeric field %s", name)
 }
@@ -544,6 +689,9 @@ func (m *Mutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(FieldReadAt) {
 		fields = append(fields, FieldReadAt)
+	}
+	if m.FieldCleared(FieldDateMailed) {
+		fields = append(fields, FieldDateMailed)
 	}
 	if m.FieldCleared(FieldDateCreated) {
 		fields = append(fields, FieldDateCreated)
@@ -567,6 +715,9 @@ func (m *Mutation) ClearField(name string) error {
 		return nil
 	case FieldReadAt:
 		m.ClearReadAt()
+		return nil
+	case FieldDateMailed:
+		m.ClearDateMailed()
 		return nil
 	case FieldDateCreated:
 		m.ClearDateCreated()
@@ -596,6 +747,15 @@ func (m *Mutation) ResetField(name string) error {
 		return nil
 	case FieldLink:
 		m.ResetLink()
+		return nil
+	case FieldMail:
+		m.ResetMail()
+		return nil
+	case FieldDateMailed:
+		m.ResetDateMailed()
+		return nil
+	case FieldMailTries:
+		m.ResetMailTries()
 		return nil
 	case FieldDateUpdated:
 		m.ResetDateUpdated()

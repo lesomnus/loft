@@ -36,6 +36,9 @@ type Notification struct {
 	xxx_hidden_SubjectId   []byte                 `protobuf:"bytes,10,opt,name=subject_id,json=subjectId"`
 	xxx_hidden_ReadAt      *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=read_at,json=readAt"`
 	xxx_hidden_Link        string                 `protobuf:"bytes,12,opt,name=link"`
+	xxx_hidden_Mail        bool                   `protobuf:"varint,16,opt,name=mail"`
+	xxx_hidden_DateMailed  *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=date_mailed,json=dateMailed"`
+	xxx_hidden_MailTries   uint32                 `protobuf:"varint,18,opt,name=mail_tries,json=mailTries"`
 	xxx_hidden_DateUpdated *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
 	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
 	unknownFields          protoimpl.UnknownFields
@@ -130,6 +133,27 @@ func (x *Notification) GetLink() string {
 	return ""
 }
 
+func (x *Notification) GetMail() bool {
+	if x != nil {
+		return x.xxx_hidden_Mail
+	}
+	return false
+}
+
+func (x *Notification) GetDateMailed() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateMailed
+	}
+	return nil
+}
+
+func (x *Notification) GetMailTries() uint32 {
+	if x != nil {
+		return x.xxx_hidden_MailTries
+	}
+	return 0
+}
+
 func (x *Notification) GetDateUpdated() *timestamppb.Timestamp {
 	if x != nil {
 		return x.xxx_hidden_DateUpdated
@@ -186,6 +210,18 @@ func (x *Notification) SetLink(v string) {
 	x.xxx_hidden_Link = v
 }
 
+func (x *Notification) SetMail(v bool) {
+	x.xxx_hidden_Mail = v
+}
+
+func (x *Notification) SetDateMailed(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateMailed = v
+}
+
+func (x *Notification) SetMailTries(v uint32) {
+	x.xxx_hidden_MailTries = v
+}
+
 func (x *Notification) SetDateUpdated(v *timestamppb.Timestamp) {
 	x.xxx_hidden_DateUpdated = v
 }
@@ -215,6 +251,13 @@ func (x *Notification) HasReadAt() bool {
 	return x.xxx_hidden_ReadAt != nil
 }
 
+func (x *Notification) HasDateMailed() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateMailed != nil
+}
+
 func (x *Notification) HasDateUpdated() bool {
 	if x == nil {
 		return false
@@ -241,6 +284,10 @@ func (x *Notification) ClearReadAt() {
 	x.xxx_hidden_ReadAt = nil
 }
 
+func (x *Notification) ClearDateMailed() {
+	x.xxx_hidden_DateMailed = nil
+}
+
 func (x *Notification) ClearDateUpdated() {
 	x.xxx_hidden_DateUpdated = nil
 }
@@ -262,7 +309,16 @@ type Notification_builder struct {
 	SubjectId []byte
 	ReadAt    *timestamppb.Timestamp
 	// Where a page goes to act on it.
-	Link        string
+	Link string
+	// Whether it goes by mail as well: set as it is written, so that an
+	// operation that is undone queues nothing, and only for the kinds that are
+	// worth a mailbox (an approval asked and answered, custody overdue,
+	// maintenance due). `date_mailed` is when it went, and `mail_tries` how
+	// often it failed to; what is queued and not yet sent is sent by
+	// `domain.Mailer`, outside every operation.
+	Mail        bool
+	DateMailed  *timestamppb.Timestamp
+	MailTries   uint32
 	DateUpdated *timestamppb.Timestamp
 	DateCreated *timestamppb.Timestamp
 }
@@ -280,6 +336,9 @@ func (b0 Notification_builder) Build() *Notification {
 	x.xxx_hidden_SubjectId = b.SubjectId
 	x.xxx_hidden_ReadAt = b.ReadAt
 	x.xxx_hidden_Link = b.Link
+	x.xxx_hidden_Mail = b.Mail
+	x.xxx_hidden_DateMailed = b.DateMailed
+	x.xxx_hidden_MailTries = b.MailTries
 	x.xxx_hidden_DateUpdated = b.DateUpdated
 	x.xxx_hidden_DateCreated = b.DateCreated
 	return m0
@@ -879,7 +938,7 @@ var File_rove_ops_proto protoreflect.FileDescriptor
 
 const file_rove_ops_proto_rawDesc = "" +
 	"\n" +
-	"\x0erove/ops.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x18rove/payday/holder.proto\x1a\x18rove/payday/tenant.proto\"\x85\x05\n" +
+	"\x0erove/ops.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x18rove/payday/holder.proto\x1a\x18rove/payday/tenant.proto\"\xfd\x05\n" +
 	"\fNotification\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x12\n" +
@@ -891,7 +950,12 @@ const file_rove_ops_proto_rawDesc = "" +
 	"subject_id\x18\n" +
 	" \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\tsubjectId\x12;\n" +
 	"\aread_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\x06readAt\x12\x12\n" +
-	"\x04link\x18\f \x01(\tR\x04link\x12F\n" +
+	"\x04link\x18\f \x01(\tR\x04link\x12\x12\n" +
+	"\x04mail\x18\x10 \x01(\bR\x04mail\x12C\n" +
+	"\vdate_mailed\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\n" +
+	"dateMailed\x12\x1d\n" +
+	"\n" +
+	"mail_tries\x18\x12 \x01(\rR\tmailTries\x12F\n" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12H\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:\xb3\x01\xca\xfc\x15N\x12\x02\x10\x01\x1a \x12\x04page\x1a\x10\n" +
 	"\fdate_created\x10\x0f\x1a\x06\n" +
@@ -990,24 +1054,25 @@ var file_rove_ops_proto_depIdxs = []int32{
 	5,  // 0: rove.Notification.tenant:type_name -> rove.Tenant
 	6,  // 1: rove.Notification.holder:type_name -> rove.Holder
 	7,  // 2: rove.Notification.read_at:type_name -> google.protobuf.Timestamp
-	7,  // 3: rove.Notification.date_updated:type_name -> google.protobuf.Timestamp
-	7,  // 4: rove.Notification.date_created:type_name -> google.protobuf.Timestamp
-	5,  // 5: rove.UsageSnapshot.tenant:type_name -> rove.Tenant
-	4,  // 6: rove.UsageSnapshot.metrics:type_name -> rove.UsageSnapshot.MetricsEntry
-	7,  // 7: rove.UsageSnapshot.date_updated:type_name -> google.protobuf.Timestamp
-	7,  // 8: rove.UsageSnapshot.date_created:type_name -> google.protobuf.Timestamp
-	5,  // 9: rove.TenantContract.tenant:type_name -> rove.Tenant
-	7,  // 10: rove.TenantContract.date_effective:type_name -> google.protobuf.Timestamp
-	7,  // 11: rove.TenantContract.date_erased:type_name -> google.protobuf.Timestamp
-	7,  // 12: rove.TenantContract.date_created:type_name -> google.protobuf.Timestamp
-	5,  // 13: rove.LegalHold.tenant:type_name -> rove.Tenant
-	7,  // 14: rove.LegalHold.date_lifted:type_name -> google.protobuf.Timestamp
-	7,  // 15: rove.LegalHold.date_created:type_name -> google.protobuf.Timestamp
-	16, // [16:16] is the sub-list for method output_type
-	16, // [16:16] is the sub-list for method input_type
-	16, // [16:16] is the sub-list for extension type_name
-	16, // [16:16] is the sub-list for extension extendee
-	0,  // [0:16] is the sub-list for field type_name
+	7,  // 3: rove.Notification.date_mailed:type_name -> google.protobuf.Timestamp
+	7,  // 4: rove.Notification.date_updated:type_name -> google.protobuf.Timestamp
+	7,  // 5: rove.Notification.date_created:type_name -> google.protobuf.Timestamp
+	5,  // 6: rove.UsageSnapshot.tenant:type_name -> rove.Tenant
+	4,  // 7: rove.UsageSnapshot.metrics:type_name -> rove.UsageSnapshot.MetricsEntry
+	7,  // 8: rove.UsageSnapshot.date_updated:type_name -> google.protobuf.Timestamp
+	7,  // 9: rove.UsageSnapshot.date_created:type_name -> google.protobuf.Timestamp
+	5,  // 10: rove.TenantContract.tenant:type_name -> rove.Tenant
+	7,  // 11: rove.TenantContract.date_effective:type_name -> google.protobuf.Timestamp
+	7,  // 12: rove.TenantContract.date_erased:type_name -> google.protobuf.Timestamp
+	7,  // 13: rove.TenantContract.date_created:type_name -> google.protobuf.Timestamp
+	5,  // 14: rove.LegalHold.tenant:type_name -> rove.Tenant
+	7,  // 15: rove.LegalHold.date_lifted:type_name -> google.protobuf.Timestamp
+	7,  // 16: rove.LegalHold.date_created:type_name -> google.protobuf.Timestamp
+	17, // [17:17] is the sub-list for method output_type
+	17, // [17:17] is the sub-list for method input_type
+	17, // [17:17] is the sub-list for extension type_name
+	17, // [17:17] is the sub-list for extension extendee
+	0,  // [0:17] is the sub-list for field type_name
 }
 
 func init() { file_rove_ops_proto_init() }

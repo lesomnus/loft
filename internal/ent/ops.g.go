@@ -36,6 +36,11 @@ func (e *Notification) Proto() *rove.Notification {
 		x.SetReadAt(timestamppb.New(*e.ReadAt))
 	}
 	x.SetLink(e.Link)
+	x.SetMail(e.Mail)
+	if e.DateMailed != nil {
+		x.SetDateMailed(timestamppb.New(*e.DateMailed))
+	}
+	x.SetMailTries(e.MailTries)
 	x.SetDateUpdated(timestamppb.New(e.DateUpdated))
 	x.SetDateCreated(timestamppb.New(e.DateCreated))
 	return x

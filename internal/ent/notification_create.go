@@ -76,6 +76,32 @@ func (_c *NotificationCreate) SetLink(v string) *NotificationCreate {
 	return _c
 }
 
+// SetMail sets the "mail" field.
+func (_c *NotificationCreate) SetMail(v bool) *NotificationCreate {
+	_c.mutation.SetMail(v)
+	return _c
+}
+
+// SetDateMailed sets the "date_mailed" field.
+func (_c *NotificationCreate) SetDateMailed(v time.Time) *NotificationCreate {
+	_c.mutation.SetDateMailed(v)
+	return _c
+}
+
+// SetNillableDateMailed sets the "date_mailed" field if the given value is not nil.
+func (_c *NotificationCreate) SetNillableDateMailed(v *time.Time) *NotificationCreate {
+	if v != nil {
+		_c.SetDateMailed(*v)
+	}
+	return _c
+}
+
+// SetMailTries sets the "mail_tries" field.
+func (_c *NotificationCreate) SetMailTries(v uint32) *NotificationCreate {
+	_c.mutation.SetMailTries(v)
+	return _c
+}
+
 // SetDateUpdated sets the "date_updated" field.
 func (_c *NotificationCreate) SetDateUpdated(v time.Time) *NotificationCreate {
 	_c.mutation.SetDateUpdated(v)
@@ -170,6 +196,12 @@ func (_c *NotificationCreate) check() error {
 	if _, ok := _c.mutation.Link(); !ok {
 		return &ValidationError{Name: "link", err: errors.New(`ent: missing required field "Notification.link"`)}
 	}
+	if _, ok := _c.mutation.Mail(); !ok {
+		return &ValidationError{Name: "mail", err: errors.New(`ent: missing required field "Notification.mail"`)}
+	}
+	if _, ok := _c.mutation.MailTries(); !ok {
+		return &ValidationError{Name: "mail_tries", err: errors.New(`ent: missing required field "Notification.mail_tries"`)}
+	}
 	if _, ok := _c.mutation.DateUpdated(); !ok {
 		return &ValidationError{Name: "date_updated", err: errors.New(`ent: missing required field "Notification.date_updated"`)}
 	}
@@ -247,6 +279,18 @@ func (_c *NotificationCreate) createSpec() (*Notification, *sqlgraph.CreateSpec)
 	if value, ok := _c.mutation.Link(); ok {
 		_spec.SetField(notification.FieldLink, field.TypeString, value)
 		_node.Link = value
+	}
+	if value, ok := _c.mutation.Mail(); ok {
+		_spec.SetField(notification.FieldMail, field.TypeBool, value)
+		_node.Mail = value
+	}
+	if value, ok := _c.mutation.DateMailed(); ok {
+		_spec.SetField(notification.FieldDateMailed, field.TypeTime, value)
+		_node.DateMailed = &value
+	}
+	if value, ok := _c.mutation.MailTries(); ok {
+		_spec.SetField(notification.FieldMailTries, field.TypeUint32, value)
+		_node.MailTries = value
 	}
 	if value, ok := _c.mutation.DateUpdated(); ok {
 		_spec.SetField(notification.FieldDateUpdated, field.TypeTime, value)

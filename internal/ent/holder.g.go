@@ -35,5 +35,6 @@ func (e *Holder) Proto() *rove.Holder {
 	if e.DateLeaving != nil {
 		x.SetDateLeaving(timestamppb.New(*e.DateLeaving))
 	}
+	x.SetMailOff(e.MailOff)
 	return x
 }

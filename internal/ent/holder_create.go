@@ -123,6 +123,12 @@ func (_c *HolderCreate) SetNillableDateLeaving(v *time.Time) *HolderCreate {
 	return _c
 }
 
+// SetMailOff sets the "mail_off" field.
+func (_c *HolderCreate) SetMailOff(v bool) *HolderCreate {
+	_c.mutation.SetMailOff(v)
+	return _c
+}
+
 // SetTenantId sets the "tenant_id" field.
 func (_c *HolderCreate) SetTenantId(v uuid.UUID) *HolderCreate {
 	_c.mutation.SetTenantId(v)
@@ -185,6 +191,9 @@ func (_c *HolderCreate) check() error {
 	}
 	if _, ok := _c.mutation.DateUpdated(); !ok {
 		return &ValidationError{Name: "date_updated", err: errors.New(`ent: missing required field "Holder.date_updated"`)}
+	}
+	if _, ok := _c.mutation.MailOff(); !ok {
+		return &ValidationError{Name: "mail_off", err: errors.New(`ent: missing required field "Holder.mail_off"`)}
 	}
 	if _, ok := _c.mutation.TenantId(); !ok {
 		return &ValidationError{Name: "tenant_id", err: errors.New(`ent: missing required field "Holder.tenant_id"`)}
@@ -270,6 +279,10 @@ func (_c *HolderCreate) createSpec() (*Holder, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.DateLeaving(); ok {
 		_spec.SetField(holder.FieldDateLeaving, field.TypeTime, value)
 		_node.DateLeaving = &value
+	}
+	if value, ok := _c.mutation.MailOff(); ok {
+		_spec.SetField(holder.FieldMailOff, field.TypeBool, value)
+		_node.MailOff = value
 	}
 	if nodes := _c.mutation.TenantIds(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

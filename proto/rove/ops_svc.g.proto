@@ -24,6 +24,9 @@ service NotificationService {
   rpc List(NotificationListRequest) returns (NotificationListResponse);
   rpc Inbox(NotificationInboxRequest) returns (NotificationInboxResponse);
   rpc MarkRead(NotificationMarkReadRequest) returns (NotificationMarkReadResponse);
+  // SetMail is whether the caller is mailed what they are told of in this
+  // workspace, as well as told in the app. Their own, and nobody else's.
+  rpc SetMail(NotificationSetMailRequest) returns (NotificationSetMailResponse);
 }
 
 service UsageSnapshotService {
@@ -81,6 +84,9 @@ message NotificationAddRequest {
   bytes subject_id = 10;
   google.protobuf.Timestamp read_at = 11;
   string link = 12 [features.field_presence = IMPLICIT];
+  bool mail = 16 [features.field_presence = IMPLICIT];
+  google.protobuf.Timestamp date_mailed = 17;
+  uint32 mail_tries = 18 [features.field_presence = IMPLICIT];
   google.protobuf.Timestamp date_created = 15;
 }
 
@@ -105,6 +111,9 @@ message NotificationSelect {
   bool subject_id = 10;
   bool read_at = 11;
   bool link = 12;
+  bool mail = 16;
+  bool date_mailed = 17;
+  bool mail_tries = 18;
   bool date_updated = 13;
   bool date_created = 15;
 }
@@ -127,6 +136,14 @@ message NotificationPatchRequest {
   // outright: setting both this and read_at clears.
   bool read_at_null = 23;
   string link = 24;
+  bool mail = 32;
+  google.protobuf.Timestamp date_mailed = 34;
+  // Clear date_mailed instead of writing it.
+  // It takes a field of its own because an unset value already means
+  // "leave it alone", so no value could have meant NULL. It wins
+  // outright: setting both this and date_mailed clears.
+  bool date_mailed_null = 35;
+  uint32 mail_tries = 36;
   // The version this update requires the stored date_updated to be.
   // It is a precondition, not a write: the update applies only if the row
   // still holds this value, and the server stamps the new version itself.
@@ -210,6 +227,15 @@ message NotificationMarkReadRequest {
 
 message NotificationMarkReadResponse {
   uint32 marked = 1 [features.field_presence = IMPLICIT];
+}
+
+message NotificationSetMailRequest {
+  // Off: told in the app only.
+  bool off = 1 [features.field_presence = IMPLICIT];
+}
+
+message NotificationSetMailResponse {
+  bool off = 1 [features.field_presence = IMPLICIT];
 }
 
 message UsageSnapshotAddRequest {

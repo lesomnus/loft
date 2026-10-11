@@ -33,6 +33,9 @@ type NotificationAddRequest struct {
 	xxx_hidden_SubjectId   []byte                 `protobuf:"bytes,10,opt,name=subject_id,json=subjectId"`
 	xxx_hidden_ReadAt      *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=read_at,json=readAt"`
 	xxx_hidden_Link        string                 `protobuf:"bytes,12,opt,name=link"`
+	xxx_hidden_Mail        bool                   `protobuf:"varint,16,opt,name=mail"`
+	xxx_hidden_DateMailed  *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=date_mailed,json=dateMailed"`
+	xxx_hidden_MailTries   uint32                 `protobuf:"varint,18,opt,name=mail_tries,json=mailTries"`
 	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
@@ -128,6 +131,27 @@ func (x *NotificationAddRequest) GetLink() string {
 	return ""
 }
 
+func (x *NotificationAddRequest) GetMail() bool {
+	if x != nil {
+		return x.xxx_hidden_Mail
+	}
+	return false
+}
+
+func (x *NotificationAddRequest) GetDateMailed() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateMailed
+	}
+	return nil
+}
+
+func (x *NotificationAddRequest) GetMailTries() uint32 {
+	if x != nil {
+		return x.xxx_hidden_MailTries
+	}
+	return 0
+}
+
 func (x *NotificationAddRequest) GetDateCreated() *timestamppb.Timestamp {
 	if x != nil {
 		return x.xxx_hidden_DateCreated
@@ -140,7 +164,7 @@ func (x *NotificationAddRequest) SetId(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_Id = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 13)
 }
 
 func (x *NotificationAddRequest) SetTenant(v *TenantRef) {
@@ -168,7 +192,7 @@ func (x *NotificationAddRequest) SetSubjectId(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_SubjectId = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 13)
 }
 
 func (x *NotificationAddRequest) SetReadAt(v *timestamppb.Timestamp) {
@@ -177,6 +201,18 @@ func (x *NotificationAddRequest) SetReadAt(v *timestamppb.Timestamp) {
 
 func (x *NotificationAddRequest) SetLink(v string) {
 	x.xxx_hidden_Link = v
+}
+
+func (x *NotificationAddRequest) SetMail(v bool) {
+	x.xxx_hidden_Mail = v
+}
+
+func (x *NotificationAddRequest) SetDateMailed(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateMailed = v
+}
+
+func (x *NotificationAddRequest) SetMailTries(v uint32) {
+	x.xxx_hidden_MailTries = v
 }
 
 func (x *NotificationAddRequest) SetDateCreated(v *timestamppb.Timestamp) {
@@ -218,6 +254,13 @@ func (x *NotificationAddRequest) HasReadAt() bool {
 	return x.xxx_hidden_ReadAt != nil
 }
 
+func (x *NotificationAddRequest) HasDateMailed() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateMailed != nil
+}
+
 func (x *NotificationAddRequest) HasDateCreated() bool {
 	if x == nil {
 		return false
@@ -247,6 +290,10 @@ func (x *NotificationAddRequest) ClearReadAt() {
 	x.xxx_hidden_ReadAt = nil
 }
 
+func (x *NotificationAddRequest) ClearDateMailed() {
+	x.xxx_hidden_DateMailed = nil
+}
+
 func (x *NotificationAddRequest) ClearDateCreated() {
 	x.xxx_hidden_DateCreated = nil
 }
@@ -263,6 +310,9 @@ type NotificationAddRequest_builder struct {
 	SubjectId   []byte
 	ReadAt      *timestamppb.Timestamp
 	Link        string
+	Mail        bool
+	DateMailed  *timestamppb.Timestamp
+	MailTries   uint32
 	DateCreated *timestamppb.Timestamp
 }
 
@@ -271,7 +321,7 @@ func (b0 NotificationAddRequest_builder) Build() *NotificationAddRequest {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.Id != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 13)
 		x.xxx_hidden_Id = b.Id
 	}
 	x.xxx_hidden_Tenant = b.Tenant
@@ -280,11 +330,14 @@ func (b0 NotificationAddRequest_builder) Build() *NotificationAddRequest {
 	x.xxx_hidden_Holder = b.Holder
 	x.xxx_hidden_Kind = b.Kind
 	if b.SubjectId != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 13)
 		x.xxx_hidden_SubjectId = b.SubjectId
 	}
 	x.xxx_hidden_ReadAt = b.ReadAt
 	x.xxx_hidden_Link = b.Link
+	x.xxx_hidden_Mail = b.Mail
+	x.xxx_hidden_DateMailed = b.DateMailed
+	x.xxx_hidden_MailTries = b.MailTries
 	x.xxx_hidden_DateCreated = b.DateCreated
 	return m0
 }
@@ -519,6 +572,9 @@ type NotificationSelect struct {
 	xxx_hidden_SubjectId   bool                   `protobuf:"varint,10,opt,name=subject_id,json=subjectId"`
 	xxx_hidden_ReadAt      bool                   `protobuf:"varint,11,opt,name=read_at,json=readAt"`
 	xxx_hidden_Link        bool                   `protobuf:"varint,12,opt,name=link"`
+	xxx_hidden_Mail        bool                   `protobuf:"varint,16,opt,name=mail"`
+	xxx_hidden_DateMailed  bool                   `protobuf:"varint,17,opt,name=date_mailed,json=dateMailed"`
+	xxx_hidden_MailTries   bool                   `protobuf:"varint,18,opt,name=mail_tries,json=mailTries"`
 	xxx_hidden_DateUpdated bool                   `protobuf:"varint,13,opt,name=date_updated,json=dateUpdated"`
 	xxx_hidden_DateCreated bool                   `protobuf:"varint,15,opt,name=date_created,json=dateCreated"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
@@ -615,6 +671,27 @@ func (x *NotificationSelect) GetLink() bool {
 	return false
 }
 
+func (x *NotificationSelect) GetMail() bool {
+	if x != nil {
+		return x.xxx_hidden_Mail
+	}
+	return false
+}
+
+func (x *NotificationSelect) GetDateMailed() bool {
+	if x != nil {
+		return x.xxx_hidden_DateMailed
+	}
+	return false
+}
+
+func (x *NotificationSelect) GetMailTries() bool {
+	if x != nil {
+		return x.xxx_hidden_MailTries
+	}
+	return false
+}
+
 func (x *NotificationSelect) GetDateUpdated() bool {
 	if x != nil {
 		return x.xxx_hidden_DateUpdated
@@ -631,7 +708,7 @@ func (x *NotificationSelect) GetDateCreated() bool {
 
 func (x *NotificationSelect) SetAll(v bool) {
 	x.xxx_hidden_All = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 14)
 }
 
 func (x *NotificationSelect) SetTenant(v *TenantSelect) {
@@ -640,12 +717,12 @@ func (x *NotificationSelect) SetTenant(v *TenantSelect) {
 
 func (x *NotificationSelect) SetName(v bool) {
 	x.xxx_hidden_Name = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 14)
 }
 
 func (x *NotificationSelect) SetDesc(v bool) {
 	x.xxx_hidden_Desc = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 14)
 }
 
 func (x *NotificationSelect) SetHolder(v *HolderSelect) {
@@ -654,32 +731,47 @@ func (x *NotificationSelect) SetHolder(v *HolderSelect) {
 
 func (x *NotificationSelect) SetKind(v bool) {
 	x.xxx_hidden_Kind = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 14)
 }
 
 func (x *NotificationSelect) SetSubjectId(v bool) {
 	x.xxx_hidden_SubjectId = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 14)
 }
 
 func (x *NotificationSelect) SetReadAt(v bool) {
 	x.xxx_hidden_ReadAt = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 14)
 }
 
 func (x *NotificationSelect) SetLink(v bool) {
 	x.xxx_hidden_Link = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 14)
+}
+
+func (x *NotificationSelect) SetMail(v bool) {
+	x.xxx_hidden_Mail = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 14)
+}
+
+func (x *NotificationSelect) SetDateMailed(v bool) {
+	x.xxx_hidden_DateMailed = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 14)
+}
+
+func (x *NotificationSelect) SetMailTries(v bool) {
+	x.xxx_hidden_MailTries = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 14)
 }
 
 func (x *NotificationSelect) SetDateUpdated(v bool) {
 	x.xxx_hidden_DateUpdated = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 12, 14)
 }
 
 func (x *NotificationSelect) SetDateCreated(v bool) {
 	x.xxx_hidden_DateCreated = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 13, 14)
 }
 
 func (x *NotificationSelect) HasAll() bool {
@@ -745,18 +837,39 @@ func (x *NotificationSelect) HasLink() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 8)
 }
 
-func (x *NotificationSelect) HasDateUpdated() bool {
+func (x *NotificationSelect) HasMail() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 9)
 }
 
-func (x *NotificationSelect) HasDateCreated() bool {
+func (x *NotificationSelect) HasDateMailed() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 10)
+}
+
+func (x *NotificationSelect) HasMailTries() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 11)
+}
+
+func (x *NotificationSelect) HasDateUpdated() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 12)
+}
+
+func (x *NotificationSelect) HasDateCreated() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 13)
 }
 
 func (x *NotificationSelect) ClearAll() {
@@ -802,13 +915,28 @@ func (x *NotificationSelect) ClearLink() {
 	x.xxx_hidden_Link = false
 }
 
-func (x *NotificationSelect) ClearDateUpdated() {
+func (x *NotificationSelect) ClearMail() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 9)
+	x.xxx_hidden_Mail = false
+}
+
+func (x *NotificationSelect) ClearDateMailed() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 10)
+	x.xxx_hidden_DateMailed = false
+}
+
+func (x *NotificationSelect) ClearMailTries() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 11)
+	x.xxx_hidden_MailTries = false
+}
+
+func (x *NotificationSelect) ClearDateUpdated() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 12)
 	x.xxx_hidden_DateUpdated = false
 }
 
 func (x *NotificationSelect) ClearDateCreated() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 10)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 13)
 	x.xxx_hidden_DateCreated = false
 }
 
@@ -824,6 +952,9 @@ type NotificationSelect_builder struct {
 	SubjectId   *bool
 	ReadAt      *bool
 	Link        *bool
+	Mail        *bool
+	DateMailed  *bool
+	MailTries   *bool
 	DateUpdated *bool
 	DateCreated *bool
 }
@@ -833,41 +964,53 @@ func (b0 NotificationSelect_builder) Build() *NotificationSelect {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.All != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 14)
 		x.xxx_hidden_All = *b.All
 	}
 	x.xxx_hidden_Tenant = b.Tenant
 	if b.Name != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 14)
 		x.xxx_hidden_Name = *b.Name
 	}
 	if b.Desc != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 14)
 		x.xxx_hidden_Desc = *b.Desc
 	}
 	x.xxx_hidden_Holder = b.Holder
 	if b.Kind != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 14)
 		x.xxx_hidden_Kind = *b.Kind
 	}
 	if b.SubjectId != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 14)
 		x.xxx_hidden_SubjectId = *b.SubjectId
 	}
 	if b.ReadAt != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 14)
 		x.xxx_hidden_ReadAt = *b.ReadAt
 	}
 	if b.Link != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 14)
 		x.xxx_hidden_Link = *b.Link
 	}
+	if b.Mail != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 14)
+		x.xxx_hidden_Mail = *b.Mail
+	}
+	if b.DateMailed != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 14)
+		x.xxx_hidden_DateMailed = *b.DateMailed
+	}
+	if b.MailTries != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 14)
+		x.xxx_hidden_MailTries = *b.MailTries
+	}
 	if b.DateUpdated != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 12, 14)
 		x.xxx_hidden_DateUpdated = *b.DateUpdated
 	}
 	if b.DateCreated != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 13, 14)
 		x.xxx_hidden_DateCreated = *b.DateCreated
 	}
 	return m0
@@ -884,6 +1027,10 @@ type NotificationPatchRequest struct {
 	xxx_hidden_ReadAt           *timestamppb.Timestamp `protobuf:"bytes,22,opt,name=read_at,json=readAt"`
 	xxx_hidden_ReadAtNull       bool                   `protobuf:"varint,23,opt,name=read_at_null,json=readAtNull"`
 	xxx_hidden_Link             *string                `protobuf:"bytes,24,opt,name=link"`
+	xxx_hidden_Mail             bool                   `protobuf:"varint,32,opt,name=mail"`
+	xxx_hidden_DateMailed       *timestamppb.Timestamp `protobuf:"bytes,34,opt,name=date_mailed,json=dateMailed"`
+	xxx_hidden_DateMailedNull   bool                   `protobuf:"varint,35,opt,name=date_mailed_null,json=dateMailedNull"`
+	xxx_hidden_MailTries        uint32                 `protobuf:"varint,36,opt,name=mail_tries,json=mailTries"`
 	xxx_hidden_DateUpdated      *timestamppb.Timestamp `protobuf:"bytes,26,opt,name=date_updated,json=dateUpdated"`
 	xxx_hidden_DateUpdatedForce bool                   `protobuf:"varint,27,opt,name=date_updated_force,json=dateUpdatedForce"`
 	XXX_raceDetectHookData      protoimpl.RaceDetectHookData
@@ -992,6 +1139,34 @@ func (x *NotificationPatchRequest) GetLink() string {
 	return ""
 }
 
+func (x *NotificationPatchRequest) GetMail() bool {
+	if x != nil {
+		return x.xxx_hidden_Mail
+	}
+	return false
+}
+
+func (x *NotificationPatchRequest) GetDateMailed() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateMailed
+	}
+	return nil
+}
+
+func (x *NotificationPatchRequest) GetDateMailedNull() bool {
+	if x != nil {
+		return x.xxx_hidden_DateMailedNull
+	}
+	return false
+}
+
+func (x *NotificationPatchRequest) GetMailTries() uint32 {
+	if x != nil {
+		return x.xxx_hidden_MailTries
+	}
+	return 0
+}
+
 func (x *NotificationPatchRequest) GetDateUpdated() *timestamppb.Timestamp {
 	if x != nil {
 		return x.xxx_hidden_DateUpdated
@@ -1012,17 +1187,17 @@ func (x *NotificationPatchRequest) SetRef(v *NotificationRef) {
 
 func (x *NotificationPatchRequest) SetName(v string) {
 	x.xxx_hidden_Name = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 15)
 }
 
 func (x *NotificationPatchRequest) SetDesc(v string) {
 	x.xxx_hidden_Desc = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 15)
 }
 
 func (x *NotificationPatchRequest) SetKind(v string) {
 	x.xxx_hidden_Kind = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 15)
 }
 
 func (x *NotificationPatchRequest) SetSubjectId(v []byte) {
@@ -1030,12 +1205,12 @@ func (x *NotificationPatchRequest) SetSubjectId(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_SubjectId = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 15)
 }
 
 func (x *NotificationPatchRequest) SetSubjectIdNull(v bool) {
 	x.xxx_hidden_SubjectIdNull = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 15)
 }
 
 func (x *NotificationPatchRequest) SetReadAt(v *timestamppb.Timestamp) {
@@ -1044,12 +1219,31 @@ func (x *NotificationPatchRequest) SetReadAt(v *timestamppb.Timestamp) {
 
 func (x *NotificationPatchRequest) SetReadAtNull(v bool) {
 	x.xxx_hidden_ReadAtNull = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 15)
 }
 
 func (x *NotificationPatchRequest) SetLink(v string) {
 	x.xxx_hidden_Link = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 15)
+}
+
+func (x *NotificationPatchRequest) SetMail(v bool) {
+	x.xxx_hidden_Mail = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 15)
+}
+
+func (x *NotificationPatchRequest) SetDateMailed(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateMailed = v
+}
+
+func (x *NotificationPatchRequest) SetDateMailedNull(v bool) {
+	x.xxx_hidden_DateMailedNull = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 15)
+}
+
+func (x *NotificationPatchRequest) SetMailTries(v uint32) {
+	x.xxx_hidden_MailTries = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 12, 15)
 }
 
 func (x *NotificationPatchRequest) SetDateUpdated(v *timestamppb.Timestamp) {
@@ -1058,7 +1252,7 @@ func (x *NotificationPatchRequest) SetDateUpdated(v *timestamppb.Timestamp) {
 
 func (x *NotificationPatchRequest) SetDateUpdatedForce(v bool) {
 	x.xxx_hidden_DateUpdatedForce = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 14, 15)
 }
 
 func (x *NotificationPatchRequest) HasRef() bool {
@@ -1124,6 +1318,34 @@ func (x *NotificationPatchRequest) HasLink() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 8)
 }
 
+func (x *NotificationPatchRequest) HasMail() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 9)
+}
+
+func (x *NotificationPatchRequest) HasDateMailed() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateMailed != nil
+}
+
+func (x *NotificationPatchRequest) HasDateMailedNull() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 11)
+}
+
+func (x *NotificationPatchRequest) HasMailTries() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 12)
+}
+
 func (x *NotificationPatchRequest) HasDateUpdated() bool {
 	if x == nil {
 		return false
@@ -1135,7 +1357,7 @@ func (x *NotificationPatchRequest) HasDateUpdatedForce() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 10)
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 14)
 }
 
 func (x *NotificationPatchRequest) ClearRef() {
@@ -1181,12 +1403,31 @@ func (x *NotificationPatchRequest) ClearLink() {
 	x.xxx_hidden_Link = nil
 }
 
+func (x *NotificationPatchRequest) ClearMail() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 9)
+	x.xxx_hidden_Mail = false
+}
+
+func (x *NotificationPatchRequest) ClearDateMailed() {
+	x.xxx_hidden_DateMailed = nil
+}
+
+func (x *NotificationPatchRequest) ClearDateMailedNull() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 11)
+	x.xxx_hidden_DateMailedNull = false
+}
+
+func (x *NotificationPatchRequest) ClearMailTries() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 12)
+	x.xxx_hidden_MailTries = 0
+}
+
 func (x *NotificationPatchRequest) ClearDateUpdated() {
 	x.xxx_hidden_DateUpdated = nil
 }
 
 func (x *NotificationPatchRequest) ClearDateUpdatedForce() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 10)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 14)
 	x.xxx_hidden_DateUpdatedForce = false
 }
 
@@ -1210,6 +1451,14 @@ type NotificationPatchRequest_builder struct {
 	// outright: setting both this and read_at clears.
 	ReadAtNull *bool
 	Link       *string
+	Mail       *bool
+	DateMailed *timestamppb.Timestamp
+	// Clear date_mailed instead of writing it.
+	// It takes a field of its own because an unset value already means
+	// "leave it alone", so no value could have meant NULL. It wins
+	// outright: setting both this and date_mailed clears.
+	DateMailedNull *bool
+	MailTries      *uint32
 	// The version this update requires the stored date_updated to be.
 	// It is a precondition, not a write: the update applies only if the row
 	// still holds this value, and the server stamps the new version itself.
@@ -1232,37 +1481,50 @@ func (b0 NotificationPatchRequest_builder) Build() *NotificationPatchRequest {
 	_, _ = b, x
 	x.xxx_hidden_Ref = b.Ref
 	if b.Name != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 15)
 		x.xxx_hidden_Name = b.Name
 	}
 	if b.Desc != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 15)
 		x.xxx_hidden_Desc = b.Desc
 	}
 	if b.Kind != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 15)
 		x.xxx_hidden_Kind = b.Kind
 	}
 	if b.SubjectId != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 15)
 		x.xxx_hidden_SubjectId = b.SubjectId
 	}
 	if b.SubjectIdNull != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 15)
 		x.xxx_hidden_SubjectIdNull = *b.SubjectIdNull
 	}
 	x.xxx_hidden_ReadAt = b.ReadAt
 	if b.ReadAtNull != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 15)
 		x.xxx_hidden_ReadAtNull = *b.ReadAtNull
 	}
 	if b.Link != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 15)
 		x.xxx_hidden_Link = b.Link
+	}
+	if b.Mail != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 15)
+		x.xxx_hidden_Mail = *b.Mail
+	}
+	x.xxx_hidden_DateMailed = b.DateMailed
+	if b.DateMailedNull != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 15)
+		x.xxx_hidden_DateMailedNull = *b.DateMailedNull
+	}
+	if b.MailTries != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 12, 15)
+		x.xxx_hidden_MailTries = *b.MailTries
 	}
 	x.xxx_hidden_DateUpdated = b.DateUpdated
 	if b.DateUpdatedForce != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 14, 15)
 		x.xxx_hidden_DateUpdatedForce = *b.DateUpdatedForce
 	}
 	return m0
@@ -2004,6 +2266,121 @@ func (b0 NotificationMarkReadResponse_builder) Build() *NotificationMarkReadResp
 	return m0
 }
 
+type NotificationSetMailRequest struct {
+	state          protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Off bool                   `protobuf:"varint,1,opt,name=off"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *NotificationSetMailRequest) Reset() {
+	*x = NotificationSetMailRequest{}
+	mi := &file_rove_ops_svc_g_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NotificationSetMailRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NotificationSetMailRequest) ProtoMessage() {}
+
+func (x *NotificationSetMailRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_ops_svc_g_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *NotificationSetMailRequest) GetOff() bool {
+	if x != nil {
+		return x.xxx_hidden_Off
+	}
+	return false
+}
+
+func (x *NotificationSetMailRequest) SetOff(v bool) {
+	x.xxx_hidden_Off = v
+}
+
+type NotificationSetMailRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// Off: told in the app only.
+	Off bool
+}
+
+func (b0 NotificationSetMailRequest_builder) Build() *NotificationSetMailRequest {
+	m0 := &NotificationSetMailRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Off = b.Off
+	return m0
+}
+
+type NotificationSetMailResponse struct {
+	state          protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Off bool                   `protobuf:"varint,1,opt,name=off"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *NotificationSetMailResponse) Reset() {
+	*x = NotificationSetMailResponse{}
+	mi := &file_rove_ops_svc_g_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NotificationSetMailResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NotificationSetMailResponse) ProtoMessage() {}
+
+func (x *NotificationSetMailResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_ops_svc_g_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *NotificationSetMailResponse) GetOff() bool {
+	if x != nil {
+		return x.xxx_hidden_Off
+	}
+	return false
+}
+
+func (x *NotificationSetMailResponse) SetOff(v bool) {
+	x.xxx_hidden_Off = v
+}
+
+type NotificationSetMailResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Off bool
+}
+
+func (b0 NotificationSetMailResponse_builder) Build() *NotificationSetMailResponse {
+	m0 := &NotificationSetMailResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Off = b.Off
+	return m0
+}
+
 type UsageSnapshotAddRequest struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
@@ -2019,7 +2396,7 @@ type UsageSnapshotAddRequest struct {
 
 func (x *UsageSnapshotAddRequest) Reset() {
 	*x = UsageSnapshotAddRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[14]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2031,7 +2408,7 @@ func (x *UsageSnapshotAddRequest) String() string {
 func (*UsageSnapshotAddRequest) ProtoMessage() {}
 
 func (x *UsageSnapshotAddRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[14]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2170,7 +2547,7 @@ type UsageSnapshotGetRequest struct {
 
 func (x *UsageSnapshotGetRequest) Reset() {
 	*x = UsageSnapshotGetRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[15]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2182,7 +2559,7 @@ func (x *UsageSnapshotGetRequest) String() string {
 func (*UsageSnapshotGetRequest) ProtoMessage() {}
 
 func (x *UsageSnapshotGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[15]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2262,7 +2639,7 @@ type UsageSnapshotRef struct {
 
 func (x *UsageSnapshotRef) Reset() {
 	*x = UsageSnapshotRef{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[16]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2274,7 +2651,7 @@ func (x *UsageSnapshotRef) String() string {
 func (*UsageSnapshotRef) ProtoMessage() {}
 
 func (x *UsageSnapshotRef) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[16]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2400,7 +2777,7 @@ func (b0 UsageSnapshotRef_builder) Build() *UsageSnapshotRef {
 type case_UsageSnapshotRef_Key protoreflect.FieldNumber
 
 func (x case_UsageSnapshotRef_Key) String() string {
-	md := file_rove_ops_svc_g_proto_msgTypes[16].Descriptor()
+	md := file_rove_ops_svc_g_proto_msgTypes[18].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -2435,7 +2812,7 @@ type UsageSnapshotRefByDay struct {
 
 func (x *UsageSnapshotRefByDay) Reset() {
 	*x = UsageSnapshotRefByDay{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[17]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2447,7 +2824,7 @@ func (x *UsageSnapshotRefByDay) String() string {
 func (*UsageSnapshotRefByDay) ProtoMessage() {}
 
 func (x *UsageSnapshotRefByDay) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[17]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2542,7 +2919,7 @@ type UsageSnapshotSelect struct {
 
 func (x *UsageSnapshotSelect) Reset() {
 	*x = UsageSnapshotSelect{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[18]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2554,7 +2931,7 @@ func (x *UsageSnapshotSelect) String() string {
 func (*UsageSnapshotSelect) ProtoMessage() {}
 
 func (x *UsageSnapshotSelect) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[18]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2761,7 +3138,7 @@ type UsageSnapshotPatchRequest struct {
 
 func (x *UsageSnapshotPatchRequest) Reset() {
 	*x = UsageSnapshotPatchRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[19]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2773,7 +3150,7 @@ func (x *UsageSnapshotPatchRequest) String() string {
 func (*UsageSnapshotPatchRequest) ProtoMessage() {}
 
 func (x *UsageSnapshotPatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[19]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2940,7 +3317,7 @@ type UsageSnapshotApplyRequest struct {
 
 func (x *UsageSnapshotApplyRequest) Reset() {
 	*x = UsageSnapshotApplyRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[20]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2952,7 +3329,7 @@ func (x *UsageSnapshotApplyRequest) String() string {
 func (*UsageSnapshotApplyRequest) ProtoMessage() {}
 
 func (x *UsageSnapshotApplyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[20]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3034,7 +3411,7 @@ type UsageSnapshotEraseResponse struct {
 
 func (x *UsageSnapshotEraseResponse) Reset() {
 	*x = UsageSnapshotEraseResponse{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[21]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3046,7 +3423,7 @@ func (x *UsageSnapshotEraseResponse) String() string {
 func (*UsageSnapshotEraseResponse) ProtoMessage() {}
 
 func (x *UsageSnapshotEraseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[21]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3114,7 +3491,7 @@ type UsageSnapshotListRequest struct {
 
 func (x *UsageSnapshotListRequest) Reset() {
 	*x = UsageSnapshotListRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[22]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3126,7 +3503,7 @@ func (x *UsageSnapshotListRequest) String() string {
 func (*UsageSnapshotListRequest) ProtoMessage() {}
 
 func (x *UsageSnapshotListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[22]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3209,7 +3586,7 @@ type UsageSnapshotListResponse struct {
 
 func (x *UsageSnapshotListResponse) Reset() {
 	*x = UsageSnapshotListResponse{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[23]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3221,7 +3598,7 @@ func (x *UsageSnapshotListResponse) String() string {
 func (*UsageSnapshotListResponse) ProtoMessage() {}
 
 func (x *UsageSnapshotListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[23]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3291,7 +3668,7 @@ type UsageSnapshotFilter struct {
 
 func (x *UsageSnapshotFilter) Reset() {
 	*x = UsageSnapshotFilter{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[24]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3303,7 +3680,7 @@ func (x *UsageSnapshotFilter) String() string {
 func (*UsageSnapshotFilter) ProtoMessage() {}
 
 func (x *UsageSnapshotFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[24]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3401,7 +3778,7 @@ type TenantContractAddRequest struct {
 
 func (x *TenantContractAddRequest) Reset() {
 	*x = TenantContractAddRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[25]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3413,7 +3790,7 @@ func (x *TenantContractAddRequest) String() string {
 func (*TenantContractAddRequest) ProtoMessage() {}
 
 func (x *TenantContractAddRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[25]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3615,7 +3992,7 @@ type TenantContractGetRequest struct {
 
 func (x *TenantContractGetRequest) Reset() {
 	*x = TenantContractGetRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[26]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3627,7 +4004,7 @@ func (x *TenantContractGetRequest) String() string {
 func (*TenantContractGetRequest) ProtoMessage() {}
 
 func (x *TenantContractGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[26]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3707,7 +4084,7 @@ type TenantContractRef struct {
 
 func (x *TenantContractRef) Reset() {
 	*x = TenantContractRef{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[27]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3719,7 +4096,7 @@ func (x *TenantContractRef) String() string {
 func (*TenantContractRef) ProtoMessage() {}
 
 func (x *TenantContractRef) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[27]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3807,7 +4184,7 @@ func (b0 TenantContractRef_builder) Build() *TenantContractRef {
 type case_TenantContractRef_Key protoreflect.FieldNumber
 
 func (x case_TenantContractRef_Key) String() string {
-	md := file_rove_ops_svc_g_proto_msgTypes[27].Descriptor()
+	md := file_rove_ops_svc_g_proto_msgTypes[29].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -3844,7 +4221,7 @@ type TenantContractSelect struct {
 
 func (x *TenantContractSelect) Reset() {
 	*x = TenantContractSelect{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[28]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3856,7 +4233,7 @@ func (x *TenantContractSelect) String() string {
 func (*TenantContractSelect) ProtoMessage() {}
 
 func (x *TenantContractSelect) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[28]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4181,7 +4558,7 @@ type TenantContractPatchRequest struct {
 
 func (x *TenantContractPatchRequest) Reset() {
 	*x = TenantContractPatchRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[29]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4193,7 +4570,7 @@ func (x *TenantContractPatchRequest) String() string {
 func (*TenantContractPatchRequest) ProtoMessage() {}
 
 func (x *TenantContractPatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[29]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4425,7 +4802,7 @@ type TenantContractApplyRequest struct {
 
 func (x *TenantContractApplyRequest) Reset() {
 	*x = TenantContractApplyRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[30]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4437,7 +4814,7 @@ func (x *TenantContractApplyRequest) String() string {
 func (*TenantContractApplyRequest) ProtoMessage() {}
 
 func (x *TenantContractApplyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[30]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4519,7 +4896,7 @@ type TenantContractEraseResponse struct {
 
 func (x *TenantContractEraseResponse) Reset() {
 	*x = TenantContractEraseResponse{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[31]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4531,7 +4908,7 @@ func (x *TenantContractEraseResponse) String() string {
 func (*TenantContractEraseResponse) ProtoMessage() {}
 
 func (x *TenantContractEraseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[31]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4599,7 +4976,7 @@ type TenantContractListRequest struct {
 
 func (x *TenantContractListRequest) Reset() {
 	*x = TenantContractListRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[32]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4611,7 +4988,7 @@ func (x *TenantContractListRequest) String() string {
 func (*TenantContractListRequest) ProtoMessage() {}
 
 func (x *TenantContractListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[32]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4694,7 +5071,7 @@ type TenantContractListResponse struct {
 
 func (x *TenantContractListResponse) Reset() {
 	*x = TenantContractListResponse{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[33]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4706,7 +5083,7 @@ func (x *TenantContractListResponse) String() string {
 func (*TenantContractListResponse) ProtoMessage() {}
 
 func (x *TenantContractListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[33]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4773,7 +5150,7 @@ type TenantContractFilter struct {
 
 func (x *TenantContractFilter) Reset() {
 	*x = TenantContractFilter{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[34]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4785,7 +5162,7 @@ func (x *TenantContractFilter) String() string {
 func (*TenantContractFilter) ProtoMessage() {}
 
 func (x *TenantContractFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[34]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4848,7 +5225,7 @@ type LegalHoldAddRequest struct {
 
 func (x *LegalHoldAddRequest) Reset() {
 	*x = LegalHoldAddRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[35]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4860,7 +5237,7 @@ func (x *LegalHoldAddRequest) String() string {
 func (*LegalHoldAddRequest) ProtoMessage() {}
 
 func (x *LegalHoldAddRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[35]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5023,7 +5400,7 @@ type LegalHoldGetRequest struct {
 
 func (x *LegalHoldGetRequest) Reset() {
 	*x = LegalHoldGetRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[36]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5035,7 +5412,7 @@ func (x *LegalHoldGetRequest) String() string {
 func (*LegalHoldGetRequest) ProtoMessage() {}
 
 func (x *LegalHoldGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[36]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5115,7 +5492,7 @@ type LegalHoldRef struct {
 
 func (x *LegalHoldRef) Reset() {
 	*x = LegalHoldRef{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[37]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5127,7 +5504,7 @@ func (x *LegalHoldRef) String() string {
 func (*LegalHoldRef) ProtoMessage() {}
 
 func (x *LegalHoldRef) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[37]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5215,7 +5592,7 @@ func (b0 LegalHoldRef_builder) Build() *LegalHoldRef {
 type case_LegalHoldRef_Key protoreflect.FieldNumber
 
 func (x case_LegalHoldRef_Key) String() string {
-	md := file_rove_ops_svc_g_proto_msgTypes[37].Descriptor()
+	md := file_rove_ops_svc_g_proto_msgTypes[39].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -5248,7 +5625,7 @@ type LegalHoldSelect struct {
 
 func (x *LegalHoldSelect) Reset() {
 	*x = LegalHoldSelect{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[38]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5260,7 +5637,7 @@ func (x *LegalHoldSelect) String() string {
 func (*LegalHoldSelect) ProtoMessage() {}
 
 func (x *LegalHoldSelect) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[38]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5467,7 +5844,7 @@ type LegalHoldPatchRequest struct {
 
 func (x *LegalHoldPatchRequest) Reset() {
 	*x = LegalHoldPatchRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[39]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5479,7 +5856,7 @@ func (x *LegalHoldPatchRequest) String() string {
 func (*LegalHoldPatchRequest) ProtoMessage() {}
 
 func (x *LegalHoldPatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[39]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5657,7 +6034,7 @@ type LegalHoldApplyRequest struct {
 
 func (x *LegalHoldApplyRequest) Reset() {
 	*x = LegalHoldApplyRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[40]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5669,7 +6046,7 @@ func (x *LegalHoldApplyRequest) String() string {
 func (*LegalHoldApplyRequest) ProtoMessage() {}
 
 func (x *LegalHoldApplyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[40]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5751,7 +6128,7 @@ type LegalHoldEraseResponse struct {
 
 func (x *LegalHoldEraseResponse) Reset() {
 	*x = LegalHoldEraseResponse{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[41]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5763,7 +6140,7 @@ func (x *LegalHoldEraseResponse) String() string {
 func (*LegalHoldEraseResponse) ProtoMessage() {}
 
 func (x *LegalHoldEraseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[41]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5831,7 +6208,7 @@ type LegalHoldListRequest struct {
 
 func (x *LegalHoldListRequest) Reset() {
 	*x = LegalHoldListRequest{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[42]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5843,7 +6220,7 @@ func (x *LegalHoldListRequest) String() string {
 func (*LegalHoldListRequest) ProtoMessage() {}
 
 func (x *LegalHoldListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[42]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5926,7 +6303,7 @@ type LegalHoldListResponse struct {
 
 func (x *LegalHoldListResponse) Reset() {
 	*x = LegalHoldListResponse{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[43]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5938,7 +6315,7 @@ func (x *LegalHoldListResponse) String() string {
 func (*LegalHoldListResponse) ProtoMessage() {}
 
 func (x *LegalHoldListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[43]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6005,7 +6382,7 @@ type LegalHoldFilter struct {
 
 func (x *LegalHoldFilter) Reset() {
 	*x = LegalHoldFilter{}
-	mi := &file_rove_ops_svc_g_proto_msgTypes[44]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6017,7 +6394,7 @@ func (x *LegalHoldFilter) String() string {
 func (*LegalHoldFilter) ProtoMessage() {}
 
 func (x *LegalHoldFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_svc_g_proto_msgTypes[44]
+	mi := &file_rove_ops_svc_g_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6068,7 +6445,7 @@ var File_rove_ops_svc_g_proto protoreflect.FileDescriptor
 
 const file_rove_ops_svc_g_proto_rawDesc = "" +
 	"\n" +
-	"\x14rove/ops_svc.g.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x11patch/patch.proto\x1a\x0erove/ops.proto\x1a\x1erove/payday/holder_svc.g.proto\x1a\x1erove/payday/tenant_svc.g.proto\"\xf9\x02\n" +
+	"\x14rove/ops_svc.g.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x11patch/patch.proto\x1a\x0erove/ops.proto\x1a\x1erove/payday/holder_svc.g.proto\x1a\x1erove/payday/tenant_svc.g.proto\"\xf7\x03\n" +
 	"\x16NotificationAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\x12\x19\n" +
@@ -6080,14 +6457,19 @@ const file_rove_ops_svc_g_proto_rawDesc = "" +
 	"subject_id\x18\n" +
 	" \x01(\fR\tsubjectId\x123\n" +
 	"\aread_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\x06readAt\x12\x19\n" +
-	"\x04link\x18\f \x01(\tB\x05\xaa\x01\x02\b\x02R\x04link\x12=\n" +
+	"\x04link\x18\f \x01(\tB\x05\xaa\x01\x02\b\x02R\x04link\x12\x19\n" +
+	"\x04mail\x18\x10 \x01(\bB\x05\xaa\x01\x02\b\x02R\x04mail\x12;\n" +
+	"\vdate_mailed\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"dateMailed\x12$\n" +
+	"\n" +
+	"mail_tries\x18\x12 \x01(\rB\x05\xaa\x01\x02\b\x02R\tmailTries\x12=\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\"s\n" +
 	"\x16NotificationGetRequest\x12'\n" +
 	"\x03ref\x18\x01 \x01(\v2\x15.rove.NotificationRefR\x03ref\x120\n" +
 	"\x06select\x18\x02 \x01(\v2\x18.rove.NotificationSelectR\x06select\"*\n" +
 	"\x0fNotificationRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
-	"\x03key\"\xcc\x02\n" +
+	"\x03key\"\xa0\x03\n" +
 	"\x12NotificationSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x12.rove.TenantSelectR\x06tenant\x12\x12\n" +
@@ -6099,9 +6481,14 @@ const file_rove_ops_svc_g_proto_rawDesc = "" +
 	"subject_id\x18\n" +
 	" \x01(\bR\tsubjectId\x12\x17\n" +
 	"\aread_at\x18\v \x01(\bR\x06readAt\x12\x12\n" +
-	"\x04link\x18\f \x01(\bR\x04link\x12!\n" +
+	"\x04link\x18\f \x01(\bR\x04link\x12\x12\n" +
+	"\x04mail\x18\x10 \x01(\bR\x04mail\x12\x1f\n" +
+	"\vdate_mailed\x18\x11 \x01(\bR\n" +
+	"dateMailed\x12\x1d\n" +
+	"\n" +
+	"mail_tries\x18\x12 \x01(\bR\tmailTries\x12!\n" +
 	"\fdate_updated\x18\r \x01(\bR\vdateUpdated\x12!\n" +
-	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\"\x9e\x03\n" +
+	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\"\xb8\x04\n" +
 	"\x18NotificationPatchRequest\x12'\n" +
 	"\x03ref\x18\x01 \x01(\v2\x15.rove.NotificationRefR\x03ref\x12\x12\n" +
 	"\x04name\x18\n" +
@@ -6114,7 +6501,13 @@ const file_rove_ops_svc_g_proto_rawDesc = "" +
 	"\aread_at\x18\x16 \x01(\v2\x1a.google.protobuf.TimestampR\x06readAt\x12 \n" +
 	"\fread_at_null\x18\x17 \x01(\bR\n" +
 	"readAtNull\x12\x12\n" +
-	"\x04link\x18\x18 \x01(\tR\x04link\x12=\n" +
+	"\x04link\x18\x18 \x01(\tR\x04link\x12\x12\n" +
+	"\x04mail\x18  \x01(\bR\x04mail\x12;\n" +
+	"\vdate_mailed\x18\" \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"dateMailed\x12(\n" +
+	"\x10date_mailed_null\x18# \x01(\bR\x0edateMailedNull\x12\x1d\n" +
+	"\n" +
+	"mail_tries\x18$ \x01(\rR\tmailTries\x12=\n" +
 	"\fdate_updated\x18\x1a \x01(\v2\x1a.google.protobuf.TimestampR\vdateUpdated\x12,\n" +
 	"\x12date_updated_force\x18\x1b \x01(\bR\x10dateUpdatedForce\"g\n" +
 	"\x18NotificationApplyRequest\x12'\n" +
@@ -6142,7 +6535,11 @@ const file_rove_ops_svc_g_proto_rawDesc = "" +
 	"\x1bNotificationMarkReadRequest\x12\x10\n" +
 	"\x03ids\x18\x01 \x03(\fR\x03ids\"=\n" +
 	"\x1cNotificationMarkReadResponse\x12\x1d\n" +
-	"\x06marked\x18\x01 \x01(\rB\x05\xaa\x01\x02\b\x02R\x06marked\"\xac\x02\n" +
+	"\x06marked\x18\x01 \x01(\rB\x05\xaa\x01\x02\b\x02R\x06marked\"5\n" +
+	"\x1aNotificationSetMailRequest\x12\x17\n" +
+	"\x03off\x18\x01 \x01(\bB\x05\xaa\x01\x02\b\x02R\x03off\"6\n" +
+	"\x1bNotificationSetMailResponse\x12\x17\n" +
+	"\x03off\x18\x01 \x01(\bB\x05\xaa\x01\x02\b\x02R\x03off\"\xac\x02\n" +
 	"\x17UsageSnapshotAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\x12\x17\n" +
@@ -6292,7 +6689,7 @@ const file_rove_ops_svc_g_proto_rawDesc = "" +
 	"\x05items\x18\x01 \x03(\v2\x0f.rove.LegalHoldR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"7\n" +
 	"\x0fLegalHoldFilter\x12$\n" +
-	"\x03ref\x18\x01 \x01(\v2\x12.rove.LegalHoldRefR\x03ref2\xa6\x04\n" +
+	"\x03ref\x18\x01 \x01(\v2\x12.rove.LegalHoldRefR\x03ref2\xf6\x04\n" +
 	"\x13NotificationService\x127\n" +
 	"\x03Add\x12\x1c.rove.NotificationAddRequest\x1a\x12.rove.Notification\x127\n" +
 	"\x03Get\x12\x1c.rove.NotificationGetRequest\x1a\x12.rove.Notification\x12;\n" +
@@ -6301,7 +6698,8 @@ const file_rove_ops_svc_g_proto_rawDesc = "" +
 	"\x05Erase\x12\x15.rove.NotificationRef\x1a\x1f.rove.NotificationEraseResponse\x12E\n" +
 	"\x04List\x12\x1d.rove.NotificationListRequest\x1a\x1e.rove.NotificationListResponse\x12H\n" +
 	"\x05Inbox\x12\x1e.rove.NotificationInboxRequest\x1a\x1f.rove.NotificationInboxResponse\x12Q\n" +
-	"\bMarkRead\x12!.rove.NotificationMarkReadRequest\x1a\".rove.NotificationMarkReadResponse2\x96\x03\n" +
+	"\bMarkRead\x12!.rove.NotificationMarkReadRequest\x1a\".rove.NotificationMarkReadResponse\x12N\n" +
+	"\aSetMail\x12 .rove.NotificationSetMailRequest\x1a!.rove.NotificationSetMailResponse2\x96\x03\n" +
 	"\x14UsageSnapshotService\x129\n" +
 	"\x03Add\x12\x1d.rove.UsageSnapshotAddRequest\x1a\x13.rove.UsageSnapshot\x129\n" +
 	"\x03Get\x12\x1d.rove.UsageSnapshotGetRequest\x1a\x13.rove.UsageSnapshot\x12=\n" +
@@ -6324,7 +6722,7 @@ const file_rove_ops_svc_g_proto_rawDesc = "" +
 	"\x05Erase\x12\x12.rove.LegalHoldRef\x1a\x1c.rove.LegalHoldEraseResponse\x12?\n" +
 	"\x04List\x12\x1a.rove.LegalHoldListRequest\x1a\x1b.rove.LegalHoldListResponseB\x1aZ\x18github.com/lesomnus/roveb\beditionsp\xe8\a"
 
-var file_rove_ops_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 47)
+var file_rove_ops_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 49)
 var file_rove_ops_svc_g_proto_goTypes = []any{
 	(*NotificationAddRequest)(nil),       // 0: rove.NotificationAddRequest
 	(*NotificationGetRequest)(nil),       // 1: rove.NotificationGetRequest
@@ -6340,168 +6738,174 @@ var file_rove_ops_svc_g_proto_goTypes = []any{
 	(*NotificationInboxResponse)(nil),    // 11: rove.NotificationInboxResponse
 	(*NotificationMarkReadRequest)(nil),  // 12: rove.NotificationMarkReadRequest
 	(*NotificationMarkReadResponse)(nil), // 13: rove.NotificationMarkReadResponse
-	(*UsageSnapshotAddRequest)(nil),      // 14: rove.UsageSnapshotAddRequest
-	(*UsageSnapshotGetRequest)(nil),      // 15: rove.UsageSnapshotGetRequest
-	(*UsageSnapshotRef)(nil),             // 16: rove.UsageSnapshotRef
-	(*UsageSnapshotRefByDay)(nil),        // 17: rove.UsageSnapshotRefByDay
-	(*UsageSnapshotSelect)(nil),          // 18: rove.UsageSnapshotSelect
-	(*UsageSnapshotPatchRequest)(nil),    // 19: rove.UsageSnapshotPatchRequest
-	(*UsageSnapshotApplyRequest)(nil),    // 20: rove.UsageSnapshotApplyRequest
-	(*UsageSnapshotEraseResponse)(nil),   // 21: rove.UsageSnapshotEraseResponse
-	(*UsageSnapshotListRequest)(nil),     // 22: rove.UsageSnapshotListRequest
-	(*UsageSnapshotListResponse)(nil),    // 23: rove.UsageSnapshotListResponse
-	(*UsageSnapshotFilter)(nil),          // 24: rove.UsageSnapshotFilter
-	(*TenantContractAddRequest)(nil),     // 25: rove.TenantContractAddRequest
-	(*TenantContractGetRequest)(nil),     // 26: rove.TenantContractGetRequest
-	(*TenantContractRef)(nil),            // 27: rove.TenantContractRef
-	(*TenantContractSelect)(nil),         // 28: rove.TenantContractSelect
-	(*TenantContractPatchRequest)(nil),   // 29: rove.TenantContractPatchRequest
-	(*TenantContractApplyRequest)(nil),   // 30: rove.TenantContractApplyRequest
-	(*TenantContractEraseResponse)(nil),  // 31: rove.TenantContractEraseResponse
-	(*TenantContractListRequest)(nil),    // 32: rove.TenantContractListRequest
-	(*TenantContractListResponse)(nil),   // 33: rove.TenantContractListResponse
-	(*TenantContractFilter)(nil),         // 34: rove.TenantContractFilter
-	(*LegalHoldAddRequest)(nil),          // 35: rove.LegalHoldAddRequest
-	(*LegalHoldGetRequest)(nil),          // 36: rove.LegalHoldGetRequest
-	(*LegalHoldRef)(nil),                 // 37: rove.LegalHoldRef
-	(*LegalHoldSelect)(nil),              // 38: rove.LegalHoldSelect
-	(*LegalHoldPatchRequest)(nil),        // 39: rove.LegalHoldPatchRequest
-	(*LegalHoldApplyRequest)(nil),        // 40: rove.LegalHoldApplyRequest
-	(*LegalHoldEraseResponse)(nil),       // 41: rove.LegalHoldEraseResponse
-	(*LegalHoldListRequest)(nil),         // 42: rove.LegalHoldListRequest
-	(*LegalHoldListResponse)(nil),        // 43: rove.LegalHoldListResponse
-	(*LegalHoldFilter)(nil),              // 44: rove.LegalHoldFilter
-	nil,                                  // 45: rove.UsageSnapshotAddRequest.MetricsEntry
-	nil,                                  // 46: rove.UsageSnapshotPatchRequest.MetricsEntry
-	(*TenantRef)(nil),                    // 47: rove.TenantRef
-	(*HolderRef)(nil),                    // 48: rove.HolderRef
-	(*timestamppb.Timestamp)(nil),        // 49: google.protobuf.Timestamp
-	(*TenantSelect)(nil),                 // 50: rove.TenantSelect
-	(*HolderSelect)(nil),                 // 51: rove.HolderSelect
-	(*patchpb.Patch)(nil),                // 52: patch.Patch
-	(*Notification)(nil),                 // 53: rove.Notification
-	(*UsageSnapshot)(nil),                // 54: rove.UsageSnapshot
-	(*TenantContract)(nil),               // 55: rove.TenantContract
-	(*LegalHold)(nil),                    // 56: rove.LegalHold
+	(*NotificationSetMailRequest)(nil),   // 14: rove.NotificationSetMailRequest
+	(*NotificationSetMailResponse)(nil),  // 15: rove.NotificationSetMailResponse
+	(*UsageSnapshotAddRequest)(nil),      // 16: rove.UsageSnapshotAddRequest
+	(*UsageSnapshotGetRequest)(nil),      // 17: rove.UsageSnapshotGetRequest
+	(*UsageSnapshotRef)(nil),             // 18: rove.UsageSnapshotRef
+	(*UsageSnapshotRefByDay)(nil),        // 19: rove.UsageSnapshotRefByDay
+	(*UsageSnapshotSelect)(nil),          // 20: rove.UsageSnapshotSelect
+	(*UsageSnapshotPatchRequest)(nil),    // 21: rove.UsageSnapshotPatchRequest
+	(*UsageSnapshotApplyRequest)(nil),    // 22: rove.UsageSnapshotApplyRequest
+	(*UsageSnapshotEraseResponse)(nil),   // 23: rove.UsageSnapshotEraseResponse
+	(*UsageSnapshotListRequest)(nil),     // 24: rove.UsageSnapshotListRequest
+	(*UsageSnapshotListResponse)(nil),    // 25: rove.UsageSnapshotListResponse
+	(*UsageSnapshotFilter)(nil),          // 26: rove.UsageSnapshotFilter
+	(*TenantContractAddRequest)(nil),     // 27: rove.TenantContractAddRequest
+	(*TenantContractGetRequest)(nil),     // 28: rove.TenantContractGetRequest
+	(*TenantContractRef)(nil),            // 29: rove.TenantContractRef
+	(*TenantContractSelect)(nil),         // 30: rove.TenantContractSelect
+	(*TenantContractPatchRequest)(nil),   // 31: rove.TenantContractPatchRequest
+	(*TenantContractApplyRequest)(nil),   // 32: rove.TenantContractApplyRequest
+	(*TenantContractEraseResponse)(nil),  // 33: rove.TenantContractEraseResponse
+	(*TenantContractListRequest)(nil),    // 34: rove.TenantContractListRequest
+	(*TenantContractListResponse)(nil),   // 35: rove.TenantContractListResponse
+	(*TenantContractFilter)(nil),         // 36: rove.TenantContractFilter
+	(*LegalHoldAddRequest)(nil),          // 37: rove.LegalHoldAddRequest
+	(*LegalHoldGetRequest)(nil),          // 38: rove.LegalHoldGetRequest
+	(*LegalHoldRef)(nil),                 // 39: rove.LegalHoldRef
+	(*LegalHoldSelect)(nil),              // 40: rove.LegalHoldSelect
+	(*LegalHoldPatchRequest)(nil),        // 41: rove.LegalHoldPatchRequest
+	(*LegalHoldApplyRequest)(nil),        // 42: rove.LegalHoldApplyRequest
+	(*LegalHoldEraseResponse)(nil),       // 43: rove.LegalHoldEraseResponse
+	(*LegalHoldListRequest)(nil),         // 44: rove.LegalHoldListRequest
+	(*LegalHoldListResponse)(nil),        // 45: rove.LegalHoldListResponse
+	(*LegalHoldFilter)(nil),              // 46: rove.LegalHoldFilter
+	nil,                                  // 47: rove.UsageSnapshotAddRequest.MetricsEntry
+	nil,                                  // 48: rove.UsageSnapshotPatchRequest.MetricsEntry
+	(*TenantRef)(nil),                    // 49: rove.TenantRef
+	(*HolderRef)(nil),                    // 50: rove.HolderRef
+	(*timestamppb.Timestamp)(nil),        // 51: google.protobuf.Timestamp
+	(*TenantSelect)(nil),                 // 52: rove.TenantSelect
+	(*HolderSelect)(nil),                 // 53: rove.HolderSelect
+	(*patchpb.Patch)(nil),                // 54: patch.Patch
+	(*Notification)(nil),                 // 55: rove.Notification
+	(*UsageSnapshot)(nil),                // 56: rove.UsageSnapshot
+	(*TenantContract)(nil),               // 57: rove.TenantContract
+	(*LegalHold)(nil),                    // 58: rove.LegalHold
 }
 var file_rove_ops_svc_g_proto_depIdxs = []int32{
-	47, // 0: rove.NotificationAddRequest.tenant:type_name -> rove.TenantRef
-	48, // 1: rove.NotificationAddRequest.holder:type_name -> rove.HolderRef
-	49, // 2: rove.NotificationAddRequest.read_at:type_name -> google.protobuf.Timestamp
-	49, // 3: rove.NotificationAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	2,  // 4: rove.NotificationGetRequest.ref:type_name -> rove.NotificationRef
-	3,  // 5: rove.NotificationGetRequest.select:type_name -> rove.NotificationSelect
-	50, // 6: rove.NotificationSelect.tenant:type_name -> rove.TenantSelect
-	51, // 7: rove.NotificationSelect.holder:type_name -> rove.HolderSelect
-	2,  // 8: rove.NotificationPatchRequest.ref:type_name -> rove.NotificationRef
-	49, // 9: rove.NotificationPatchRequest.read_at:type_name -> google.protobuf.Timestamp
-	49, // 10: rove.NotificationPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	2,  // 11: rove.NotificationApplyRequest.ref:type_name -> rove.NotificationRef
-	52, // 12: rove.NotificationApplyRequest.patch:type_name -> patch.Patch
-	9,  // 13: rove.NotificationListRequest.filters:type_name -> rove.NotificationFilter
-	53, // 14: rove.NotificationListResponse.items:type_name -> rove.Notification
-	2,  // 15: rove.NotificationFilter.ref:type_name -> rove.NotificationRef
-	48, // 16: rove.NotificationFilter.holder:type_name -> rove.HolderRef
-	53, // 17: rove.NotificationInboxResponse.items:type_name -> rove.Notification
-	47, // 18: rove.UsageSnapshotAddRequest.tenant:type_name -> rove.TenantRef
-	45, // 19: rove.UsageSnapshotAddRequest.metrics:type_name -> rove.UsageSnapshotAddRequest.MetricsEntry
-	49, // 20: rove.UsageSnapshotAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	16, // 21: rove.UsageSnapshotGetRequest.ref:type_name -> rove.UsageSnapshotRef
-	18, // 22: rove.UsageSnapshotGetRequest.select:type_name -> rove.UsageSnapshotSelect
-	17, // 23: rove.UsageSnapshotRef.day:type_name -> rove.UsageSnapshotRefByDay
-	47, // 24: rove.UsageSnapshotRefByDay.tenant:type_name -> rove.TenantRef
-	50, // 25: rove.UsageSnapshotSelect.tenant:type_name -> rove.TenantSelect
-	16, // 26: rove.UsageSnapshotPatchRequest.ref:type_name -> rove.UsageSnapshotRef
-	46, // 27: rove.UsageSnapshotPatchRequest.metrics:type_name -> rove.UsageSnapshotPatchRequest.MetricsEntry
-	49, // 28: rove.UsageSnapshotPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	16, // 29: rove.UsageSnapshotApplyRequest.ref:type_name -> rove.UsageSnapshotRef
-	52, // 30: rove.UsageSnapshotApplyRequest.patch:type_name -> patch.Patch
-	24, // 31: rove.UsageSnapshotListRequest.filters:type_name -> rove.UsageSnapshotFilter
-	54, // 32: rove.UsageSnapshotListResponse.items:type_name -> rove.UsageSnapshot
-	16, // 33: rove.UsageSnapshotFilter.ref:type_name -> rove.UsageSnapshotRef
-	47, // 34: rove.TenantContractAddRequest.tenant:type_name -> rove.TenantRef
-	49, // 35: rove.TenantContractAddRequest.date_effective:type_name -> google.protobuf.Timestamp
-	49, // 36: rove.TenantContractAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	27, // 37: rove.TenantContractGetRequest.ref:type_name -> rove.TenantContractRef
-	28, // 38: rove.TenantContractGetRequest.select:type_name -> rove.TenantContractSelect
-	50, // 39: rove.TenantContractSelect.tenant:type_name -> rove.TenantSelect
-	27, // 40: rove.TenantContractPatchRequest.ref:type_name -> rove.TenantContractRef
-	49, // 41: rove.TenantContractPatchRequest.date_effective:type_name -> google.protobuf.Timestamp
-	27, // 42: rove.TenantContractApplyRequest.ref:type_name -> rove.TenantContractRef
-	52, // 43: rove.TenantContractApplyRequest.patch:type_name -> patch.Patch
-	34, // 44: rove.TenantContractListRequest.filters:type_name -> rove.TenantContractFilter
-	55, // 45: rove.TenantContractListResponse.items:type_name -> rove.TenantContract
-	27, // 46: rove.TenantContractFilter.ref:type_name -> rove.TenantContractRef
-	47, // 47: rove.LegalHoldAddRequest.tenant:type_name -> rove.TenantRef
-	49, // 48: rove.LegalHoldAddRequest.date_lifted:type_name -> google.protobuf.Timestamp
-	49, // 49: rove.LegalHoldAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	37, // 50: rove.LegalHoldGetRequest.ref:type_name -> rove.LegalHoldRef
-	38, // 51: rove.LegalHoldGetRequest.select:type_name -> rove.LegalHoldSelect
-	50, // 52: rove.LegalHoldSelect.tenant:type_name -> rove.TenantSelect
-	37, // 53: rove.LegalHoldPatchRequest.ref:type_name -> rove.LegalHoldRef
-	49, // 54: rove.LegalHoldPatchRequest.date_lifted:type_name -> google.protobuf.Timestamp
-	37, // 55: rove.LegalHoldApplyRequest.ref:type_name -> rove.LegalHoldRef
-	52, // 56: rove.LegalHoldApplyRequest.patch:type_name -> patch.Patch
-	44, // 57: rove.LegalHoldListRequest.filters:type_name -> rove.LegalHoldFilter
-	56, // 58: rove.LegalHoldListResponse.items:type_name -> rove.LegalHold
-	37, // 59: rove.LegalHoldFilter.ref:type_name -> rove.LegalHoldRef
-	0,  // 60: rove.NotificationService.Add:input_type -> rove.NotificationAddRequest
-	1,  // 61: rove.NotificationService.Get:input_type -> rove.NotificationGetRequest
-	4,  // 62: rove.NotificationService.Patch:input_type -> rove.NotificationPatchRequest
-	5,  // 63: rove.NotificationService.Apply:input_type -> rove.NotificationApplyRequest
-	2,  // 64: rove.NotificationService.Erase:input_type -> rove.NotificationRef
-	7,  // 65: rove.NotificationService.List:input_type -> rove.NotificationListRequest
-	10, // 66: rove.NotificationService.Inbox:input_type -> rove.NotificationInboxRequest
-	12, // 67: rove.NotificationService.MarkRead:input_type -> rove.NotificationMarkReadRequest
-	14, // 68: rove.UsageSnapshotService.Add:input_type -> rove.UsageSnapshotAddRequest
-	15, // 69: rove.UsageSnapshotService.Get:input_type -> rove.UsageSnapshotGetRequest
-	19, // 70: rove.UsageSnapshotService.Patch:input_type -> rove.UsageSnapshotPatchRequest
-	20, // 71: rove.UsageSnapshotService.Apply:input_type -> rove.UsageSnapshotApplyRequest
-	16, // 72: rove.UsageSnapshotService.Erase:input_type -> rove.UsageSnapshotRef
-	22, // 73: rove.UsageSnapshotService.List:input_type -> rove.UsageSnapshotListRequest
-	25, // 74: rove.TenantContractService.Add:input_type -> rove.TenantContractAddRequest
-	26, // 75: rove.TenantContractService.Get:input_type -> rove.TenantContractGetRequest
-	29, // 76: rove.TenantContractService.Patch:input_type -> rove.TenantContractPatchRequest
-	30, // 77: rove.TenantContractService.Apply:input_type -> rove.TenantContractApplyRequest
-	27, // 78: rove.TenantContractService.Erase:input_type -> rove.TenantContractRef
-	32, // 79: rove.TenantContractService.List:input_type -> rove.TenantContractListRequest
-	35, // 80: rove.LegalHoldService.Add:input_type -> rove.LegalHoldAddRequest
-	36, // 81: rove.LegalHoldService.Get:input_type -> rove.LegalHoldGetRequest
-	39, // 82: rove.LegalHoldService.Patch:input_type -> rove.LegalHoldPatchRequest
-	40, // 83: rove.LegalHoldService.Apply:input_type -> rove.LegalHoldApplyRequest
-	37, // 84: rove.LegalHoldService.Erase:input_type -> rove.LegalHoldRef
-	42, // 85: rove.LegalHoldService.List:input_type -> rove.LegalHoldListRequest
-	53, // 86: rove.NotificationService.Add:output_type -> rove.Notification
-	53, // 87: rove.NotificationService.Get:output_type -> rove.Notification
-	53, // 88: rove.NotificationService.Patch:output_type -> rove.Notification
-	53, // 89: rove.NotificationService.Apply:output_type -> rove.Notification
-	6,  // 90: rove.NotificationService.Erase:output_type -> rove.NotificationEraseResponse
-	8,  // 91: rove.NotificationService.List:output_type -> rove.NotificationListResponse
-	11, // 92: rove.NotificationService.Inbox:output_type -> rove.NotificationInboxResponse
-	13, // 93: rove.NotificationService.MarkRead:output_type -> rove.NotificationMarkReadResponse
-	54, // 94: rove.UsageSnapshotService.Add:output_type -> rove.UsageSnapshot
-	54, // 95: rove.UsageSnapshotService.Get:output_type -> rove.UsageSnapshot
-	54, // 96: rove.UsageSnapshotService.Patch:output_type -> rove.UsageSnapshot
-	54, // 97: rove.UsageSnapshotService.Apply:output_type -> rove.UsageSnapshot
-	21, // 98: rove.UsageSnapshotService.Erase:output_type -> rove.UsageSnapshotEraseResponse
-	23, // 99: rove.UsageSnapshotService.List:output_type -> rove.UsageSnapshotListResponse
-	55, // 100: rove.TenantContractService.Add:output_type -> rove.TenantContract
-	55, // 101: rove.TenantContractService.Get:output_type -> rove.TenantContract
-	55, // 102: rove.TenantContractService.Patch:output_type -> rove.TenantContract
-	55, // 103: rove.TenantContractService.Apply:output_type -> rove.TenantContract
-	31, // 104: rove.TenantContractService.Erase:output_type -> rove.TenantContractEraseResponse
-	33, // 105: rove.TenantContractService.List:output_type -> rove.TenantContractListResponse
-	56, // 106: rove.LegalHoldService.Add:output_type -> rove.LegalHold
-	56, // 107: rove.LegalHoldService.Get:output_type -> rove.LegalHold
-	56, // 108: rove.LegalHoldService.Patch:output_type -> rove.LegalHold
-	56, // 109: rove.LegalHoldService.Apply:output_type -> rove.LegalHold
-	41, // 110: rove.LegalHoldService.Erase:output_type -> rove.LegalHoldEraseResponse
-	43, // 111: rove.LegalHoldService.List:output_type -> rove.LegalHoldListResponse
-	86, // [86:112] is the sub-list for method output_type
-	60, // [60:86] is the sub-list for method input_type
-	60, // [60:60] is the sub-list for extension type_name
-	60, // [60:60] is the sub-list for extension extendee
-	0,  // [0:60] is the sub-list for field type_name
+	49, // 0: rove.NotificationAddRequest.tenant:type_name -> rove.TenantRef
+	50, // 1: rove.NotificationAddRequest.holder:type_name -> rove.HolderRef
+	51, // 2: rove.NotificationAddRequest.read_at:type_name -> google.protobuf.Timestamp
+	51, // 3: rove.NotificationAddRequest.date_mailed:type_name -> google.protobuf.Timestamp
+	51, // 4: rove.NotificationAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	2,  // 5: rove.NotificationGetRequest.ref:type_name -> rove.NotificationRef
+	3,  // 6: rove.NotificationGetRequest.select:type_name -> rove.NotificationSelect
+	52, // 7: rove.NotificationSelect.tenant:type_name -> rove.TenantSelect
+	53, // 8: rove.NotificationSelect.holder:type_name -> rove.HolderSelect
+	2,  // 9: rove.NotificationPatchRequest.ref:type_name -> rove.NotificationRef
+	51, // 10: rove.NotificationPatchRequest.read_at:type_name -> google.protobuf.Timestamp
+	51, // 11: rove.NotificationPatchRequest.date_mailed:type_name -> google.protobuf.Timestamp
+	51, // 12: rove.NotificationPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	2,  // 13: rove.NotificationApplyRequest.ref:type_name -> rove.NotificationRef
+	54, // 14: rove.NotificationApplyRequest.patch:type_name -> patch.Patch
+	9,  // 15: rove.NotificationListRequest.filters:type_name -> rove.NotificationFilter
+	55, // 16: rove.NotificationListResponse.items:type_name -> rove.Notification
+	2,  // 17: rove.NotificationFilter.ref:type_name -> rove.NotificationRef
+	50, // 18: rove.NotificationFilter.holder:type_name -> rove.HolderRef
+	55, // 19: rove.NotificationInboxResponse.items:type_name -> rove.Notification
+	49, // 20: rove.UsageSnapshotAddRequest.tenant:type_name -> rove.TenantRef
+	47, // 21: rove.UsageSnapshotAddRequest.metrics:type_name -> rove.UsageSnapshotAddRequest.MetricsEntry
+	51, // 22: rove.UsageSnapshotAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	18, // 23: rove.UsageSnapshotGetRequest.ref:type_name -> rove.UsageSnapshotRef
+	20, // 24: rove.UsageSnapshotGetRequest.select:type_name -> rove.UsageSnapshotSelect
+	19, // 25: rove.UsageSnapshotRef.day:type_name -> rove.UsageSnapshotRefByDay
+	49, // 26: rove.UsageSnapshotRefByDay.tenant:type_name -> rove.TenantRef
+	52, // 27: rove.UsageSnapshotSelect.tenant:type_name -> rove.TenantSelect
+	18, // 28: rove.UsageSnapshotPatchRequest.ref:type_name -> rove.UsageSnapshotRef
+	48, // 29: rove.UsageSnapshotPatchRequest.metrics:type_name -> rove.UsageSnapshotPatchRequest.MetricsEntry
+	51, // 30: rove.UsageSnapshotPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	18, // 31: rove.UsageSnapshotApplyRequest.ref:type_name -> rove.UsageSnapshotRef
+	54, // 32: rove.UsageSnapshotApplyRequest.patch:type_name -> patch.Patch
+	26, // 33: rove.UsageSnapshotListRequest.filters:type_name -> rove.UsageSnapshotFilter
+	56, // 34: rove.UsageSnapshotListResponse.items:type_name -> rove.UsageSnapshot
+	18, // 35: rove.UsageSnapshotFilter.ref:type_name -> rove.UsageSnapshotRef
+	49, // 36: rove.TenantContractAddRequest.tenant:type_name -> rove.TenantRef
+	51, // 37: rove.TenantContractAddRequest.date_effective:type_name -> google.protobuf.Timestamp
+	51, // 38: rove.TenantContractAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	29, // 39: rove.TenantContractGetRequest.ref:type_name -> rove.TenantContractRef
+	30, // 40: rove.TenantContractGetRequest.select:type_name -> rove.TenantContractSelect
+	52, // 41: rove.TenantContractSelect.tenant:type_name -> rove.TenantSelect
+	29, // 42: rove.TenantContractPatchRequest.ref:type_name -> rove.TenantContractRef
+	51, // 43: rove.TenantContractPatchRequest.date_effective:type_name -> google.protobuf.Timestamp
+	29, // 44: rove.TenantContractApplyRequest.ref:type_name -> rove.TenantContractRef
+	54, // 45: rove.TenantContractApplyRequest.patch:type_name -> patch.Patch
+	36, // 46: rove.TenantContractListRequest.filters:type_name -> rove.TenantContractFilter
+	57, // 47: rove.TenantContractListResponse.items:type_name -> rove.TenantContract
+	29, // 48: rove.TenantContractFilter.ref:type_name -> rove.TenantContractRef
+	49, // 49: rove.LegalHoldAddRequest.tenant:type_name -> rove.TenantRef
+	51, // 50: rove.LegalHoldAddRequest.date_lifted:type_name -> google.protobuf.Timestamp
+	51, // 51: rove.LegalHoldAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	39, // 52: rove.LegalHoldGetRequest.ref:type_name -> rove.LegalHoldRef
+	40, // 53: rove.LegalHoldGetRequest.select:type_name -> rove.LegalHoldSelect
+	52, // 54: rove.LegalHoldSelect.tenant:type_name -> rove.TenantSelect
+	39, // 55: rove.LegalHoldPatchRequest.ref:type_name -> rove.LegalHoldRef
+	51, // 56: rove.LegalHoldPatchRequest.date_lifted:type_name -> google.protobuf.Timestamp
+	39, // 57: rove.LegalHoldApplyRequest.ref:type_name -> rove.LegalHoldRef
+	54, // 58: rove.LegalHoldApplyRequest.patch:type_name -> patch.Patch
+	46, // 59: rove.LegalHoldListRequest.filters:type_name -> rove.LegalHoldFilter
+	58, // 60: rove.LegalHoldListResponse.items:type_name -> rove.LegalHold
+	39, // 61: rove.LegalHoldFilter.ref:type_name -> rove.LegalHoldRef
+	0,  // 62: rove.NotificationService.Add:input_type -> rove.NotificationAddRequest
+	1,  // 63: rove.NotificationService.Get:input_type -> rove.NotificationGetRequest
+	4,  // 64: rove.NotificationService.Patch:input_type -> rove.NotificationPatchRequest
+	5,  // 65: rove.NotificationService.Apply:input_type -> rove.NotificationApplyRequest
+	2,  // 66: rove.NotificationService.Erase:input_type -> rove.NotificationRef
+	7,  // 67: rove.NotificationService.List:input_type -> rove.NotificationListRequest
+	10, // 68: rove.NotificationService.Inbox:input_type -> rove.NotificationInboxRequest
+	12, // 69: rove.NotificationService.MarkRead:input_type -> rove.NotificationMarkReadRequest
+	14, // 70: rove.NotificationService.SetMail:input_type -> rove.NotificationSetMailRequest
+	16, // 71: rove.UsageSnapshotService.Add:input_type -> rove.UsageSnapshotAddRequest
+	17, // 72: rove.UsageSnapshotService.Get:input_type -> rove.UsageSnapshotGetRequest
+	21, // 73: rove.UsageSnapshotService.Patch:input_type -> rove.UsageSnapshotPatchRequest
+	22, // 74: rove.UsageSnapshotService.Apply:input_type -> rove.UsageSnapshotApplyRequest
+	18, // 75: rove.UsageSnapshotService.Erase:input_type -> rove.UsageSnapshotRef
+	24, // 76: rove.UsageSnapshotService.List:input_type -> rove.UsageSnapshotListRequest
+	27, // 77: rove.TenantContractService.Add:input_type -> rove.TenantContractAddRequest
+	28, // 78: rove.TenantContractService.Get:input_type -> rove.TenantContractGetRequest
+	31, // 79: rove.TenantContractService.Patch:input_type -> rove.TenantContractPatchRequest
+	32, // 80: rove.TenantContractService.Apply:input_type -> rove.TenantContractApplyRequest
+	29, // 81: rove.TenantContractService.Erase:input_type -> rove.TenantContractRef
+	34, // 82: rove.TenantContractService.List:input_type -> rove.TenantContractListRequest
+	37, // 83: rove.LegalHoldService.Add:input_type -> rove.LegalHoldAddRequest
+	38, // 84: rove.LegalHoldService.Get:input_type -> rove.LegalHoldGetRequest
+	41, // 85: rove.LegalHoldService.Patch:input_type -> rove.LegalHoldPatchRequest
+	42, // 86: rove.LegalHoldService.Apply:input_type -> rove.LegalHoldApplyRequest
+	39, // 87: rove.LegalHoldService.Erase:input_type -> rove.LegalHoldRef
+	44, // 88: rove.LegalHoldService.List:input_type -> rove.LegalHoldListRequest
+	55, // 89: rove.NotificationService.Add:output_type -> rove.Notification
+	55, // 90: rove.NotificationService.Get:output_type -> rove.Notification
+	55, // 91: rove.NotificationService.Patch:output_type -> rove.Notification
+	55, // 92: rove.NotificationService.Apply:output_type -> rove.Notification
+	6,  // 93: rove.NotificationService.Erase:output_type -> rove.NotificationEraseResponse
+	8,  // 94: rove.NotificationService.List:output_type -> rove.NotificationListResponse
+	11, // 95: rove.NotificationService.Inbox:output_type -> rove.NotificationInboxResponse
+	13, // 96: rove.NotificationService.MarkRead:output_type -> rove.NotificationMarkReadResponse
+	15, // 97: rove.NotificationService.SetMail:output_type -> rove.NotificationSetMailResponse
+	56, // 98: rove.UsageSnapshotService.Add:output_type -> rove.UsageSnapshot
+	56, // 99: rove.UsageSnapshotService.Get:output_type -> rove.UsageSnapshot
+	56, // 100: rove.UsageSnapshotService.Patch:output_type -> rove.UsageSnapshot
+	56, // 101: rove.UsageSnapshotService.Apply:output_type -> rove.UsageSnapshot
+	23, // 102: rove.UsageSnapshotService.Erase:output_type -> rove.UsageSnapshotEraseResponse
+	25, // 103: rove.UsageSnapshotService.List:output_type -> rove.UsageSnapshotListResponse
+	57, // 104: rove.TenantContractService.Add:output_type -> rove.TenantContract
+	57, // 105: rove.TenantContractService.Get:output_type -> rove.TenantContract
+	57, // 106: rove.TenantContractService.Patch:output_type -> rove.TenantContract
+	57, // 107: rove.TenantContractService.Apply:output_type -> rove.TenantContract
+	33, // 108: rove.TenantContractService.Erase:output_type -> rove.TenantContractEraseResponse
+	35, // 109: rove.TenantContractService.List:output_type -> rove.TenantContractListResponse
+	58, // 110: rove.LegalHoldService.Add:output_type -> rove.LegalHold
+	58, // 111: rove.LegalHoldService.Get:output_type -> rove.LegalHold
+	58, // 112: rove.LegalHoldService.Patch:output_type -> rove.LegalHold
+	58, // 113: rove.LegalHoldService.Apply:output_type -> rove.LegalHold
+	43, // 114: rove.LegalHoldService.Erase:output_type -> rove.LegalHoldEraseResponse
+	45, // 115: rove.LegalHoldService.List:output_type -> rove.LegalHoldListResponse
+	89, // [89:116] is the sub-list for method output_type
+	62, // [62:89] is the sub-list for method input_type
+	62, // [62:62] is the sub-list for extension type_name
+	62, // [62:62] is the sub-list for extension extendee
+	0,  // [0:62] is the sub-list for field type_name
 }
 
 func init() { file_rove_ops_svc_g_proto_init() }
@@ -6515,14 +6919,14 @@ func file_rove_ops_svc_g_proto_init() {
 	file_rove_ops_svc_g_proto_msgTypes[2].OneofWrappers = []any{
 		(*notificationRef_Id)(nil),
 	}
-	file_rove_ops_svc_g_proto_msgTypes[16].OneofWrappers = []any{
+	file_rove_ops_svc_g_proto_msgTypes[18].OneofWrappers = []any{
 		(*usageSnapshotRef_Id)(nil),
 		(*usageSnapshotRef_Day)(nil),
 	}
-	file_rove_ops_svc_g_proto_msgTypes[27].OneofWrappers = []any{
+	file_rove_ops_svc_g_proto_msgTypes[29].OneofWrappers = []any{
 		(*tenantContractRef_Id)(nil),
 	}
-	file_rove_ops_svc_g_proto_msgTypes[37].OneofWrappers = []any{
+	file_rove_ops_svc_g_proto_msgTypes[39].OneofWrappers = []any{
 		(*legalHoldRef_Id)(nil),
 	}
 	type x struct{}
@@ -6531,7 +6935,7 @@ func file_rove_ops_svc_g_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_ops_svc_g_proto_rawDesc), len(file_rove_ops_svc_g_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   47,
+			NumMessages:   49,
 			NumExtensions: 0,
 			NumServices:   4,
 		},
