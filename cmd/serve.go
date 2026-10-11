@@ -584,7 +584,9 @@ func (s *Server) serveHttp(ctx context.Context, c Config, g *grpc.Server) (func(
 		return nil, err
 	}
 
-	srv := &http.Server{Handler: h}
+	// A client that takes its time over its headers holds a connection for
+	// nothing; a stream, once asked for, may take as long as it likes.
+	srv := &http.Server{Handler: guarded(h, c.App.Public().Scheme == "https"), ReadHeaderTimeout: 10 * time.Second}
 	go func() {
 		if err := srv.Serve(l); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.From(ctx).ErrorContext(ctx, "http", slog.String("err", err.Error()))
