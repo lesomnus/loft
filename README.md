@@ -39,7 +39,7 @@ go run ./cmd/rove serve
   go run ./cmd/rove holder password --login admin   # 계정에 새 비밀번호를 한 번 출력, 로그인된 곳은 모두 끝남
   ```
 
-- 로그인은 아이디나 이메일로 하고, 어느 워크스페이스인지는 묻지 않습니다. 이메일은 내장 roster면 사람 기록의 이메일이고, 외부 roster면 roster에서 확인된 주소입니다. 2단계 인증을 켠 사람은 비밀번호만으로 들어올 수 없고, SSO(다음 단계)로 들어옵니다.
+- 로그인은 아이디나 이메일로 하고, 어느 워크스페이스인지는 묻지 않습니다. 이메일은 내장 roster면 사람 기록의 이메일이고, 외부 roster면 roster에서 확인된 주소입니다. 2단계 인증을 켠 사람은 비밀번호만으로 들어올 수 없고, SSO로 들어옵니다.
 - 세션은 계정의 것이고, 호출마다 어느 워크스페이스인지를 `rove-workspace` 헤더로 밝힙니다(화면은 `/@<워크스페이스>` 주소에서 자동으로). 워크스페이스가 하나뿐인 계정은 밝히지 않아도 됩니다.
 - 로그인한 사람이 roster에서 중지·삭제되거나 "모든 곳에서 로그아웃"되면 Rove의 세션도 30초 안에 끝납니다. roster에 물을 수 없으면 로그인과 세션이 거부됩니다(503).
 
@@ -55,6 +55,28 @@ roster app install --tenant accounts --role /roster.VouchService/Verify,/roster.
 ROVE_AUTH_ROSTER_ADDR=roster.example.com:443 ROVE_AUTH_ROSTER_DIRECTORY=accounts \
 ROVE_AUTH_ROSTER_KEY=env:ROSTER_KEY ROSTER_KEY=rk_… go run ./cmd/rove serve
 ```
+
+**SSO로 로그인할 때**(SaaS, D28)는 roster의 issuer(Hydra와 Login App)를 거칩니다. 로그인 화면에 Google·Microsoft·GitHub 버튼이 생기고, 누르면 roster를 잠깐 지나 그 IdP에서 로그인한 뒤 돌아옵니다. 돌아온 계정은 비밀번호로 들어온 계정과 같고, 처음이면 개인 워크스페이스가 생깁니다. 로그아웃은 issuer의 세션까지 끝냅니다.
+
+```yaml
+auth:
+  sso:
+    issuer: https://id.rove.example      # roster 앞의 Hydra
+    client_id: rove
+    client_secret: env:ROVE_SSO_SECRET
+    providers:                           # 버튼: roster 디렉터리의 연결(Connection) 이름
+      - { connection: google, label: Google, mark: google }
+      - { connection: microsoft, label: Microsoft, mark: microsoft }
+      - { connection: github, label: GitHub, mark: github }
+  sso_only: true                         # 비밀번호 로그인을 끈다
+```
+
+roster 쪽에 필요한 것:
+
+- **Hydra 클라이언트**: `token_endpoint_auth_method: client_secret_basic`, `redirect_uris: ["<app_url>/sso/callback"]`, `post_logout_redirect_uris: ["<app_url>/"]`, `scope: openid`.
+- **디렉터리에 앱 호스트의 `Host` 행**: Login App은 돌아갈 주소의 호스트로 디렉터리를 찾습니다(`roster host add`에 `{"tenant": {"alias": "accounts"}, "name": "rove.example"}`).
+- **디렉터리의 연결** `google`·`microsoft`·`github`: roster `docs/operating.md`의 *GitHub*, *Any Microsoft account*. 버튼이 이름 붙인 연결로 Login App이 바로 보내는 것은 roster#103부터이고, 디렉터리에 없는 이름이면 roster의 로그인 화면이 나옵니다.
+- **누구나 가입**하게 하려면 Login App의 `login.enrol: enrolling`.
 
 **예전 배포**(roster 이전에 만든 `data/`)는 로그인이 Rove의 DB에만 있어서, 업그레이드한 뒤에는 그대로 로그인할 수 없습니다. 한 번 옮깁니다.
 

@@ -105,6 +105,53 @@ export async function signedIn(): Promise<Account | 'out'> {
 	return (await res.json()) as Account
 }
 
+/** One way in the sign-in page offers: a connection of the directory at roster. */
+export interface Provider {
+	connection: string
+	label: string
+	mark?: string
+}
+
+/** How somebody signs in here, as `GET /sso` answers it. */
+export interface Ways {
+	/** Whether there is an issuer at all, and which of its connections to draw. */
+	sso: boolean
+	providers: Provider[]
+	/** Whether the password form is offered beside them. */
+	password: boolean
+}
+
+/** The ways in this deployment offers. A server with no `/sso` offers a password. */
+export async function waysIn(): Promise<Ways> {
+	const res = await fetch('/sso')
+	if (res.status === 404) return { sso: false, providers: [], password: true }
+	if (!res.ok) throw new Error(`로그인 방법을 읽을 수 없습니다 (${res.status})`)
+	return (await res.json()) as Ways
+}
+
+/**
+ * Sends the browser to sign in through the issuer: with the button's
+ * connection, or none for roster's page to ask, and back to where it is now.
+ */
+export function signInThrough(connection?: string): void {
+	const q = new URLSearchParams({ next: location.pathname + location.search })
+	if (connection !== undefined) q.set('with', connection)
+	location.assign('/sso/login?' + q.toString())
+}
+
+/**
+ * Signs out here and at the issuer. A form, because the browser has to go
+ * there -- a session ended here alone is one the issuer signs straight back in
+ * -- and a POST, which another site cannot send with this one's cookie.
+ */
+export function signOutThroughIssuer(): void {
+	const f = document.createElement('form')
+	f.method = 'post'
+	f.action = '/sso/logout'
+	document.body.append(f)
+	f.submit()
+}
+
 /** A new workspace the account owns, with an alias nobody chose. */
 export async function makeWorkspace(name: string): Promise<Workspace> {
 	const res = await fetch('/account/workspaces', {

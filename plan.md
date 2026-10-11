@@ -121,8 +121,8 @@ MVP(Phase 0 + 1)는 M0~M5이고, 합쳐서 대략 13~16주로 본다.
 
 - 신원은 roster다(design 9.10절, D26·D27). 프로토타입의 비밀번호·DB 세션(report 결정 3)을 옮기고, SaaS의 계정과 워크스페이스를 세운다.
   1. **roster에 붙기** — 완료(rove#5~#7, 2026-10-11): `internal/identity` 하나가 외부 roster(TLS, `rk_`/`rt_`)와 내장 roster(`bufconn`)를 같은 인터페이스로 감싼다. `auth.roster` 설정. Tenant·Holder를 roster의 ID에 고정해 처음 들어올 때 만든다. 비밀번호 로그인은 `VouchService.Verify`로, 세션을 쓰는 호출마다 roster에 사람을 확인한다(짧은 캐시, fail closed). `rove init`과 새 `rove holder add`는 내장 roster에 쓴다. 사람 화면의 로그인 발급·비밀번호 재설정·로그인 중지는 roster 호출이 된다. 내장 roster에서 로그인 중지·개인정보 삭제·조직 전체 삭제는 roster의 `forget`으로 그 사람을 바로 파기한다(Rove가 roster의 복구를 열지 않으므로 유예는 지연일 뿐이다). `Credential`과 `server/password`를 지운다. 기존 배포는 `rove identity migrate`.
-  2. **계정과 워크스페이스**(D27): `Holder`가 자기 ID와 roster 계정(`account`)을 갖는 구성원 자격이 된다. 세션은 계정 단위이고, 워크스페이스는 경로(`/@<alias>`)로 고른다. 가입하면 개인 워크스페이스가 생기고, 워크스페이스 만들기(소유 N개 한도)와 전환을 둔다. 구성원 자격이 끝나는 것과 계정의 탈퇴를 나눈다(내장 roster의 파기는 탈퇴 때만). 1단계의 "처음 로그인하면 roster의 ID로 테넌트를 만든다"를 이것으로 바꾼다.
-  3. **SSO**(D28): 앱 호스트의 로그인 화면(Google·Microsoft·GitHub), roster issuer의 relying party(`/sso/login`, `/sso/callback`, `/sso/logout`), SaaS에서 비밀번호 로그인 끄기(`auth.sso_only`). roster에 GitHub 연결과 Microsoft의 모든 계정(`common`) 로그인이 필요하다(roster 이슈).
+  2. **계정과 워크스페이스** — 완료(rove#9~#11, 2026-10-11)(D27): `Holder`가 자기 ID와 roster 계정(`account`)을 갖는 구성원 자격이 된다. 세션은 계정 단위이고, 워크스페이스는 경로(`/@<alias>`)로 고른다. 가입하면 개인 워크스페이스가 생기고, 워크스페이스 만들기(소유 N개 한도)와 전환을 둔다. 구성원 자격이 끝나는 것과 계정의 탈퇴를 나눈다(내장 roster의 파기는 탈퇴 때만). 1단계의 "처음 로그인하면 roster의 ID로 테넌트를 만든다"를 이것으로 바꾼다.
+  3. **SSO**(D28): 앱 호스트의 로그인 화면(Google·Microsoft·GitHub), roster issuer의 relying party(`/sso/login`, `/sso/callback`, `/sso/logout`), SaaS에서 비밀번호 로그인 끄기(`auth.sso_only`). roster에 GitHub 연결과 Microsoft의 모든 계정(`common`) 로그인이 필요하다 — roster#101·#102(머지), 버튼이 고른 연결로 바로 가기는 roster#103, Rove는 rove#12(서버)·#13(화면).
   4. **초대**: 초대 권한이 있는 역할(기본: 소유자·관리자)이 이메일로 초대하고, 받은 사람이 로그인해 수락한다. 초대를 roster의 일반 기능으로 둘지는 이 단계에서 정한다.
   5. **생명주기**: `SyncService/Watch`를 따라가 roster의 중지·모든 곳에서 로그아웃은 세션 종료로, 계정의 탈퇴는 그 계정이 속한 모든 워크스페이스에서의 가명화(Party·trail)로 이어 간다.
 - 워크스페이스 닫기(닫기·복구·파기 sweep, D29), alias 바꾸기와 예약어와 보류, 라벨의 전역 코드(D28)는 2~4단계 뒤에 한다.
