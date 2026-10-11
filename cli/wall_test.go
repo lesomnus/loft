@@ -449,8 +449,7 @@ func TestNoCallReachesAnotherWorkspace(t *testing.T) {
 		x.NoError(err, full)
 		md := d.(protoreflect.ServiceDescriptor).Methods().ByName(protoreflect.Name(name))
 		if md == nil {
-			// The table opens every read of a service, and some serve no
-			// Watch: a name nobody can call.
+			// A name nobody can call, which the table should not open.
 			absent = append(absent, full)
 			continue
 		}
@@ -497,7 +496,7 @@ func TestNoCallReachesAnotherWorkspace(t *testing.T) {
 			t.Errorf("%v is no answer to a call naming another workspace's rows: %v", k, ms)
 		}
 	}
-	t.Logf("opened by the table, served by nobody: %v", absent)
+	x.Empty(absent, "opened by the table, served by nobody")
 	x.Greater(len(codesOf[codes.NotFound]), 100, "the wall is what answered most of them")
 	x.Equal(before, snapshot(t, s, beta.tenant), "the other workspace is as it was")
 }

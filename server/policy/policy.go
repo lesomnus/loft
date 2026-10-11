@@ -97,15 +97,26 @@ func init() {
 	// `domain.View`.
 	for _, s := range []string{
 		"Asset", "AssetType", "ItemModel", "Attachment", "Label", "TenantDomain",
-		"Event",
-		"Party", "Tenant",
-		"Bookable", "Reservation", "ReservationItem", "Allocation",
-		"Custody", "CustodyLine",
-		"Stock", "StockMovement",
+		"Party",
+		"Bookable", "Reservation",
+		"Custody",
+		"Stock",
 		"InventoryCount", "CountFinding",
-		"WorkOrder", "Purchase", "PurchaseLine",
+		"WorkOrder", "Purchase",
 	} {
 		allow(Read, s+"Service", reads...)
+	}
+	// And what nobody watches -- the events, the tenant's own row, and the
+	// rows that are a part of another -- by Get and List.
+	for _, s := range []string{
+		"Event",
+		"Tenant",
+		"ReservationItem", "Allocation",
+		"CustodyLine",
+		"StockMovement",
+		"PurchaseLine",
+	} {
+		allow(Read, s+"Service", "Get", "List")
 	}
 
 	// What only the people who run the tenant, or audit it, read.
