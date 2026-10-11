@@ -216,3 +216,13 @@ app:
 #   by:
 #     holder:
 #       profile: gdpr
+
+# The operator's entry point (design 6장): `rove-admin serve` beside this
+# deployment, on an address only the operators' network reaches, and never by
+# `rove serve`. Each operator holds a key of 32 characters or more; what they
+# do is logged with their name.
+#
+# admin:
+#   addr: 127.0.0.1:8081
+#   keys:
+#     alice: env:ROVE_ADMIN_KEY_ALICE

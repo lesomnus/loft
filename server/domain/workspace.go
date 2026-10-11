@@ -8,8 +8,12 @@ import (
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/z"
 	"github.com/protobuf-orm/ent/dialect"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	app "github.com/lesomnus/rove"
+	"github.com/lesomnus/rove/internal/ent"
+	"github.com/lesomnus/rove/internal/ent/holder"
 )
 
 // A workspace closing (D29, design 8.4).
@@ -107,6 +111,41 @@ func (d *Deps) RestoreWorkspace(ctx context.Context, server app.Server, drv dial
 		return err
 	})
 	return out, err
+}
+
+// NameOwner makes a member of a workspace one of its owners, as the deployment's
+// own work: an operator's, for a workspace whose owners are gone or who asked
+// (decision 17). Whoever owned it still does. The member is named by its
+// membership; one that is an owner already is left as it is.
+func (d *Deps) NameOwner(ctx context.Context, server app.Server, drv dialect.Driver, tenant, member pdid.Id) error {
+	return d.System(ctx, server, drv, tenant, func(t *Tx) error {
+		h, err := t.db.Holder.Query().Where(holder.Id(member.Uuid()), holder.TenantId(tenant.Uuid()), holder.DateErasedIsNil()).Only(t.ctx)
+		if ent.IsNotFound(err) {
+			return status.Error(codes.NotFound, "그런 구성원이 없습니다")
+		}
+		if err != nil {
+			return err
+		}
+		switch {
+		case h.Role == "owner":
+			return nil
+		case h.DateLeaving != nil:
+			return failed("떠나는 중인 구성원은 소유자가 될 수 없습니다")
+		case h.Account == nil:
+			return failed("계정이 없는 구성원은 소유자가 될 수 없습니다")
+		}
+		if err := t.begin(nil, "party.role", pdid.Nil, t.now, "소유자 지정: {holder} → owner (운영자)", "", map[string]string{
+			"role": "owner", "holder": member.String(),
+		}); err != nil {
+			return err
+		}
+		_, err = t.next.Holder().Patch(t.ctx, app.HolderPatchRequest_builder{
+			Ref:              app.HolderRef_builder{Id: member.Bytes()}.Build(),
+			Role:             z.Ptr("owner"),
+			DateUpdatedForce: z.Ptr(true),
+		}.Build())
+		return err
+	})
 }
 
 // restoreWithin is how long a closed workspace may be restored.

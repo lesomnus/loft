@@ -33,7 +33,6 @@ import (
 
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/tenantdomain"
 	"github.com/lesomnus/rove/internal/identity"
 	"github.com/lesomnus/rove/internal/search"
 	"github.com/lesomnus/rove/server/account"
@@ -730,21 +729,9 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 		http.Redirect(w, r, app+"/scan/"+r.PathValue("code"), http.StatusFound)
 	})
 
-	// What a reverse proxy issuing certificates on demand asks before it
-	// asks for one: only a host that is some tenant's label domain.
-	mux.HandleFunc("GET /internal/tls-ask", func(w http.ResponseWriter, r *http.Request) {
-		host := strings.ToLower(r.URL.Query().Get("domain"))
-		ok, err := s.Ent.TenantDomain.Query().Where(
-			tenantdomain.Host(host),
-			tenantdomain.StateIn("ready", "active", "legacy"),
-			tenantdomain.DateErasedIsNil(),
-		).Exist(r.Context())
-		if err != nil || !ok {
-			http.Error(w, "not a label domain here", http.StatusNotFound)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-	})
+	// What a reverse proxy issuing certificates on demand asks is the
+	// operator's entry point's to answer (`rove-admin serve`), which this
+	// binary does not link (design 6장).
 
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("ok"))

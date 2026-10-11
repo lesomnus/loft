@@ -198,6 +198,31 @@ go run ./cmd/rove retention run                  # 실제로 지움 — app.rete
 
 `plan` 은 삭제를 트랜잭션 안에서 실제로 해 보고 되돌리므로, 말하는 숫자가 `run` 이 지우는 숫자와 같습니다. `app.retention.apply: true` 이면 `serve` 가 `app.retention.every`(기본 1시간)마다 같은 일을 하고, 감사 기록의 이력 종류도 같은 기간으로 지웁니다. 지운 뒤에는 무엇을 몇 건, 어느 날짜 이전 것을 지웠는지만 적은 기록(`retention.expired` 작업 기록)이 남습니다. 지워지는 것은 보관 기간이 시작되기 전에 **끝난** 이력입니다: 끝났거나 정정된 위치·담당·관계 기록, 그 뒤에 바뀐 속성 값, 아무 기록도 가리키지 않는 작업 기록, 끝난 예약·다 돌려받은 지급·닫힌 실사·끝난 작업, 재고 이동. 기간이 시작될 때의 상태, 아직 끝나지 않은 것, 등록(취득) 기록과 폐기·불용·분실 상태는 남습니다. hold가 걸린 조직은 아무것도 지우지 않습니다.
 
+### 운영자 진입점 (rove-admin)
+
+운영자는 서버 상자의 셸 없이도 일할 수 있게 **운영자 진입점**(design 6장)을 따로 띄웁니다. 공개 바이너리(`rove`)에는 들어 있지 않은 별도 바이너리(`rove-admin`)이고, 운영자 네트워크(기본은 루프백, VPN 주소까지)에서만 닿는 포트로 듣습니다. 요청마다 운영자의 키가 필요하고, 서버 로그에 누가 무엇을 했는지 이름으로 남습니다.
+
+```sh
+# 서버 옆에서: 같은 설정(rove.yaml, ROVE_*)에 운영자와 키만 더함 (admin.addr 기본 127.0.0.1:8081)
+export ALICE_KEY=$(openssl rand -hex 24)
+ROVE_ADMIN_KEYS='{"alice": "env:ALICE_KEY"}' go run ./cmd/rove-admin serve
+
+# 운영자의 컴퓨터에서: 진입점 주소와 자기 키 (--url, --key로 줘도 됨)
+export ROVE_ADMIN_URL=http://127.0.0.1:8081 ROVE_ADMIN_KEY=env:ALICE_KEY
+go run ./cmd/rove-admin workspace ls --q acme                     # 주소·이름의 일부로 찾기 (--closed: 닫힌 것만)
+go run ./cmd/rove-admin workspace show acme                       # 구성원, 계약, hold
+go run ./cmd/rove-admin workspace close --reason "요청" --yes acme # 닫기 (소유자는 복구 기간 안에 복구할 수 있음)
+go run ./cmd/rove-admin workspace restore --yes acme
+go run ./cmd/rove-admin workspace owner --member kim --yes acme    # 구성원을 소유자로 지정
+go run ./cmd/rove-admin workspace alias --to acme-kr --yes acme    # 주소 바꾸기 (이전 주소는 보류되고 새 주소로 넘김)
+go run ./cmd/rove-admin contract set --view 365 --keep 730 --yes acme
+go run ./cmd/rove-admin hold place --why "사건 번호" --yes acme; go run ./cmd/rove-admin hold lift --yes <ID>
+```
+
+- 키는 32자 이상이어야 하고(`admin.keys.<이름>: env:…|file:…|키`), 키가 하나도 없으면 `serve`가 시작하지 않습니다. 플래그는 인자보다 앞에 씁니다.
+- 리버스 프록시의 on-demand TLS 확인(`/internal/tls-ask`)도 이 진입점으로 옮겼습니다(키 없이 답함). 공개 서버에는 더 이상 없습니다.
+- 셸의 운영자 명령(`rove tenant`, `rove contract`, `rove hold` 등)은 그대로 있습니다. 운영자 웹 화면은 나중입니다.
+
 ### 조직 탈퇴 (운영자)
 
 설계 8.2의 순서대로 **내보내기 → 유예 → 전체 삭제**입니다. 순서는 운영자가 지킵니다.
