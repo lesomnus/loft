@@ -34,6 +34,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/internal/ent/tenantdomain"
 	"github.com/lesomnus/rove/internal/identity"
+	"github.com/lesomnus/rove/server/account"
 	"github.com/lesomnus/rove/server/bare"
 	"github.com/lesomnus/rove/server/domain"
 	"github.com/lesomnus/rove/server/offboard"
@@ -42,6 +43,7 @@ import (
 	"github.com/lesomnus/rove/server/retention"
 	"github.com/lesomnus/rove/server/session"
 	"github.com/lesomnus/rove/server/storage"
+	"github.com/lesomnus/rove/server/tenancy"
 )
 
 // Server is a built app: the database it runs on and the two stacks it answers
@@ -328,6 +330,18 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 
 func (s *Server) Close() error { return errors.Join(s.Identity.Close(), s.Db.Close()) }
 
+// Workspaces is how an account comes to be in a workspace of its own.
+func (s *Server) Workspaces(c Config) tenancy.Workspaces {
+	return tenancy.Workspaces{
+		Base:        s.Base,
+		Drv:         s.Drv,
+		Ungated:     s.Ungated,
+		LabelSuffix: c.App.Labels.Suffix,
+		Personal:    c.App.Workspaces.PersonalOn(),
+		Owned:       c.App.Workspaces.OwnedMax(),
+	}
+}
+
 // Offboard is what a tenant's export and purge work on.
 func (s *Server) Offboard(c Config) offboard.Deployment {
 	return offboard.Deployment{
@@ -521,11 +535,18 @@ func spinEvery(d time.Duration, f func(ctx context.Context) error) spin.Func {
 
 // routes is what this app serves over HTTP besides its Rpcs.
 func (s *Server) routes(mux *http.ServeMux, c Config) {
-	// Signing in and out. What is checked is a password, by roster, and a
-	// person who is new here is made here; see `server/session`.
-	login := session.SignIn(s.Sessions, s.Identity, s.Ent)
+	// Signing in and out. What is checked is a password, by roster, and an
+	// account in no workspace is given one; see `server/session`.
+	ws := s.Workspaces(c)
+	login := session.SignIn(s.Sessions, s.Identity, s.Ent, ws.Arrive)
 	mux.Handle("POST /session", login)
 	mux.Handle("DELETE /session", login)
+
+	// What an account has outside any one workspace: which it is in, and a
+	// new one.
+	acc := account.Handler(s.Sessions, s.Identity, ws)
+	mux.Handle("GET /account", acc)
+	mux.Handle("POST /account/workspaces", acc)
 
 	// Attachments, by the signed links the API answers with.
 	mux.Handle("GET /files/", s.Deps.Sign.Handler(s.Deps.Files, time.Now))

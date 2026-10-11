@@ -146,6 +146,12 @@ that membership. Every call is also held to what roster says of the account
 now (`identity.Store.Held`, cached `HeldTtl`); a roster that cannot be asked
 serves no session.
 
+An account in no workspace is given one of its own when it signs in
+(`tenancy.Workspaces.Arrive`), and makes more at `POST /account/workspaces`;
+`GET /account` is what it is in. Those are HTTP beside `/session` and not RPCs
+(`server/account`), because every RPC is served as a membership of a
+workspace and these are asked before there is one.
+
 Roles stay Rove's. On the embedded roster the people screen and `rove holder
 add|password` make accounts and set passwords there; on an external one they
 are refused, and are done at roster. Ending a membership (deactivate,

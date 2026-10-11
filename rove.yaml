@@ -106,6 +106,14 @@ app:
   #   keep: 17520h
   #   every: 1h
 
+  # What an account may make (design 9.11). `personal` gives an account in no
+  # workspace one of its own when it signs in, which is what signing up is;
+  # `owned` is how many it owns before another is paid for (-1 is no limit).
+  #
+  # workspaces:
+  #   personal: true
+  #   owned: 3
+
 # How long the trail keeps a row. Every write this app makes is recorded, and
 # **nothing else applies a window**: with no block here the table is kept whole,
 # forever, and it is the one that grows without anybody writing to it.

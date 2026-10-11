@@ -3,6 +3,7 @@ package cmd_test
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -25,6 +26,7 @@ import (
 	"github.com/lesomnus/rove/cmd"
 	"github.com/lesomnus/rove/internal/ent/holder"
 	"github.com/lesomnus/rove/internal/identity"
+	"github.com/lesomnus/rove/server/account"
 	"github.com/lesomnus/rove/server/session"
 )
 
@@ -194,7 +196,7 @@ func TestSignIn(t *testing.T) {
 	x.NoError(err)
 	x.NoError(w.s.Identity.SetPassword(ctx, park.Id, "correct horse"))
 
-	login := session.SignIn(w.s.Sessions, w.s.Identity, w.s.Ent)
+	login := session.SignIn(w.s.Sessions, w.s.Identity, w.s.Ent, nil)
 	post := func(body string) *httptest.ResponseRecorder {
 		r := httptest.NewRequest(http.MethodPost, "/session", bytes.NewBufferString(body))
 		r.RemoteAddr = "10.0.0.1:1234"
@@ -360,7 +362,7 @@ func TestARosterThatCannotBeAskedServesNoSession(t *testing.T) {
 	_, err = me.Me(w.owner, &app.PartyMeRequest{})
 	x.Equal(codes.Unavailable, status.Code(err))
 
-	login := session.SignIn(w.s.Sessions, w.s.Identity, w.s.Ent)
+	login := session.SignIn(w.s.Sessions, w.s.Identity, w.s.Ent, nil)
 	r := httptest.NewRequest(http.MethodPost, "/session", bytes.NewBufferString(`{"login":"owner","password":"anything at all"}`))
 	rec := httptest.NewRecorder()
 	login.ServeHTTP(rec, r)
@@ -408,4 +410,103 @@ func TestAContractIsTheOperators(t *testing.T) {
 	x.NoError(err)
 	_, err = holds.Add(w.owner, app.LegalHoldAddRequest_builder{Name: "mine"}.Build())
 	x.Equal(codes.PermissionDenied, code(err), "an owner placed a hold")
+}
+
+// TestAnAccountInNoWorkspaceIsGivenOne is signing up (design 9.11): an
+// account that signs in and is in no workspace is given one of its own, and
+// makes more until another one is paid for.
+func TestAnAccountInNoWorkspaceIsGivenOne(t *testing.T) {
+	w := newWorld(t)
+	x := w.x
+	ctx := context.Background()
+
+	park, err := w.s.Identity.AddPerson(ctx, "park", "박", pdid.Nil)
+	x.NoError(err)
+	x.NoError(w.s.Identity.SetPassword(ctx, park.Id, "correct horse"))
+
+	ws := w.s.Workspaces(w.c)
+	login := session.SignIn(w.s.Sessions, w.s.Identity, w.s.Ent, ws.Arrive)
+	signIn := func() *http.Cookie {
+		r := httptest.NewRequest(http.MethodPost, "/session", bytes.NewBufferString(`{"login":"park","password":"correct horse"}`))
+		rec := httptest.NewRecorder()
+		login.ServeHTTP(rec, r)
+		x.Equal(http.StatusNoContent, rec.Code)
+		return rec.Result().Cookies()[0]
+	}
+	cookie := signIn()
+	md := metadata.AppendToOutgoingContext(ctx, "cookie", cookie.Name+"="+cookie.Value)
+
+	me, err := app.NewPartyServiceClient(w.conn).Me(md, &app.PartyMeRequest{})
+	x.NoError(err, "the workspace it was given")
+	x.Equal("owner", me.GetRole())
+	x.Equal("박의 워크스페이스", me.GetTenant().GetName())
+	types, err := app.NewAssetTypeServiceClient(w.conn).List(md, app.AssetTypeListRequest_builder{}.Build())
+	x.NoError(err)
+	x.NotEmpty(types.GetItems(), "a workspace that does not start with what a register starts with")
+
+	signIn()
+	n, err := w.s.Ent.Holder.Query().Where(holder.Account(park.Id.Uuid())).Count(ctx)
+	x.NoError(err)
+	x.Equal(1, n, "a second sign-in gave it a second workspace")
+
+	acc := account.Handler(w.s.Sessions, w.s.Identity, ws)
+	ask := func(method, path, body string) *httptest.ResponseRecorder {
+		r := httptest.NewRequest(method, path, bytes.NewBufferString(body))
+		r.Header.Set("Cookie", cookie.Name+"="+cookie.Value)
+		if body != "" {
+			r.Header.Set("Content-Type", "application/json")
+		}
+		rec := httptest.NewRecorder()
+		acc.ServeHTTP(rec, r)
+		return rec
+	}
+	var got account.Account
+	res := ask(http.MethodGet, "/account", "")
+	x.Equal(http.StatusOK, res.Code)
+	x.NoError(json.Unmarshal(res.Body.Bytes(), &got))
+	x.Equal("park", got.Login)
+	x.Len(got.Workspaces, 1)
+	x.Equal(me.GetTenant().GetAlias(), got.Workspaces[0].Alias)
+	x.Equal(1, got.Owns)
+	x.Equal(cmd.DefaultOwned, *got.May)
+
+	for i := 1; i < cmd.DefaultOwned; i++ {
+		res := ask(http.MethodPost, "/account/workspaces", `{"name":"팀 `+string(rune('A'+i))+`"}`)
+		x.Equal(http.StatusCreated, res.Code, res.Body.String())
+	}
+	res = ask(http.MethodPost, "/account/workspaces", `{"name":"하나 더"}`)
+	x.Equal(http.StatusPaymentRequired, res.Code, "one more than an account owns for nothing")
+	x.Equal(http.StatusBadRequest, ask(http.MethodPost, "/account/workspaces", `{"name":""}`).Code)
+
+	res = ask(http.MethodGet, "/account", "")
+	x.NoError(json.Unmarshal(res.Body.Bytes(), &got))
+	x.Len(got.Workspaces, cmd.DefaultOwned)
+	_, err = app.NewPartyServiceClient(w.conn).Me(md, &app.PartyMeRequest{})
+	x.Equal(codes.InvalidArgument, status.Code(err), "more than one workspace, and a call that names none")
+	_, err = app.NewPartyServiceClient(w.conn).Me(metadata.AppendToOutgoingContext(md, cmd.WorkspaceHeader, got.Workspaces[1].Alias), &app.PartyMeRequest{})
+	x.NoError(err)
+
+	t.Run("nobody is asked about without a session", func(t *testing.T) {
+		r := httptest.NewRequest(http.MethodGet, "/account", nil)
+		rec := httptest.NewRecorder()
+		acc.ServeHTTP(rec, r)
+		require.Equal(t, http.StatusUnauthorized, rec.Code)
+	})
+
+	t.Run("and a deployment that gives none gives none", func(t *testing.T) {
+		x := require.New(t)
+
+		lee, err := w.s.Identity.AddPerson(ctx, "lee", "이", pdid.Nil)
+		x.NoError(err)
+		x.NoError(w.s.Identity.SetPassword(ctx, lee.Id, "correct horse"))
+		ws := w.s.Workspaces(w.c)
+		ws.Personal = false
+		r := httptest.NewRequest(http.MethodPost, "/session", bytes.NewBufferString(`{"login":"lee","password":"correct horse"}`))
+		rec := httptest.NewRecorder()
+		session.SignIn(w.s.Sessions, w.s.Identity, w.s.Ent, ws.Arrive).ServeHTTP(rec, r)
+		x.Equal(http.StatusNoContent, rec.Code)
+		n, err := w.s.Ent.Holder.Query().Where(holder.Account(lee.Id.Uuid())).Count(ctx)
+		x.NoError(err)
+		x.Zero(n)
+	})
 }
