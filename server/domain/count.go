@@ -13,8 +13,10 @@ import (
 	"google.golang.org/grpc/status"
 
 	app "github.com/lesomnus/rove"
+	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/internal/ent/asset"
 	"github.com/lesomnus/rove/internal/ent/countfinding"
+	"github.com/lesomnus/rove/internal/ent/event"
 	"github.com/lesomnus/rove/server/pd"
 )
 
@@ -65,6 +67,11 @@ func (s domainCount) Add(ctx context.Context, req *app.InventoryCountAddRequest)
 func (s domainCount) Scan(ctx context.Context, req *app.InventoryCountScanRequest) (*app.CountFinding, error) {
 	var out *app.CountFinding
 	err := s.tx(ctx, func(t *Tx) error {
+		// A scan from a queue that did not hear back arrives again, maybe
+		// once the count is closed.
+		if err := t.done(req.GetOp()); err != nil {
+			return err
+		}
 		c, err := t.next.InventoryCount().Get(t.ctx, app.InventoryCountGetRequest_builder{Ref: req.GetRef()}.Build())
 		if err != nil {
 			return err
@@ -127,6 +134,7 @@ func (s domainCount) Scan(ctx context.Context, req *app.InventoryCountScanReques
 		}
 
 		row := app.CountFindingAddRequest_builder{
+			Id:               made(req.GetOp(), pd.CountFindingDomain, 0).Bytes(),
 			Tenant:           t.tenantRef(),
 			Desc:             req.GetNote(),
 			Count:            app.InventoryCountRef_builder{Id: c.GetId()}.Build(),
@@ -180,9 +188,51 @@ func (s domainCount) Scan(ctx context.Context, req *app.InventoryCountScanReques
 		return err
 	})
 	if err == errDone {
-		return nil, status.Error(codes.AlreadyExists, "이미 기록된 스캔입니다")
+		return s.scanned(ctx, req)
 	}
 	return out, err
+}
+
+// scanned answers a scan that already happened with the finding it left: the
+// one it made, by the name it gave it, or -- when it was another scan of a
+// thing this count had seen -- the one it updated, which is that thing's.
+func (s domainCount) scanned(ctx context.Context, req *app.InventoryCountScanRequest) (*app.CountFinding, error) {
+	v, err := s.Next().CountFinding().Get(ctx, app.CountFindingGetRequest_builder{
+		Ref: app.CountFindingRef_builder{Id: made(req.GetOp(), pd.CountFindingDomain, 0).Bytes()}.Build(),
+	}.Build())
+	if status.Code(err) != codes.NotFound {
+		return v, err
+	}
+
+	t, err := s.read(ctx)
+	if err != nil {
+		return nil, err
+	}
+	ev, err := t.db.Event.Query().Where(event.Id(uuidOf(req.GetOp())), event.TenantId(t.tenant.Uuid())).Only(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if ev.SubjectId == nil {
+		return nil, status.Error(codes.NotFound, "스캔이 남긴 결과를 찾을 수 없습니다")
+	}
+	c, err := s.InventoryCountServiceServer.Get(ctx, app.InventoryCountGetRequest_builder{Ref: req.GetRef()}.Build())
+	if err != nil {
+		return nil, err
+	}
+	f, err := t.db.CountFinding.Query().Where(
+		countfinding.TenantId(t.tenant.Uuid()),
+		countfinding.CountId(uuidOf(c.GetId())),
+		countfinding.AssetId(*ev.SubjectId),
+	).First(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, status.Error(codes.NotFound, "스캔이 남긴 결과를 찾을 수 없습니다")
+		}
+		return nil, err
+	}
+	return s.Next().CountFinding().Get(ctx, app.CountFindingGetRequest_builder{
+		Ref: app.CountFindingRef_builder{Id: pdid.Id(f.Id).Bytes()}.Build(),
+	}.Build())
 }
 
 // Reconcile marks what was expected under the scope and not seen.

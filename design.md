@@ -240,6 +240,10 @@ StockMovement(id, tenant, stock, delta, reason, ref_id?, occurred_at)
   2. **새 RPC**: 생성 동사가 이름 붙이지 않는 일만 새로 만든다(`Move`, `Return`, `Correct` 등).
 - **`seal` 레이어**(9.3절)는 시간 행·Event·할당처럼 도메인 작업만 쓰는 엔터티의 생성 Add/Erase와, 시간 행의 생성 Get/List를 외부 호출에 닫는다. 이력 조회는 조회 창을 적용하는 `Timeline`·`QueryAt`·`AsOf`·`Diff`로만 한다. 설정성 엔터티(`AssetType`, `ItemModel`, `Party`, `Bookable` 정책 등)는 생성 Add/Get/List/Erase를 쓰고, 수정은 짧은 도메인 RPC(예: `AssetTypeService/Update`)로 한다.
 - **동시성과 멱등성**: 현재 상태 행은 payday 버전 필드(`date_updated`)로 낙관적 동시성을 지킨다. 도메인 RPC는 클라이언트가 미리 발급한 pdid를 작업 ID로 받아 Event ID로 쓴다. 재시도하면 이미 있는 Event를 찾아 같은 결과를 돌려준다.
+  - 작업은 상태를 확인하기 **전에** 그 Event부터 찾는다(`Tx.done`). 첫 사본이 바꾼 상태 때문에 재시도가 거부되면 안 되기 때문이다. 다시 온 반납은 닫힌 대여를, 다시 온 예약은 자기 할당을, 다시 온 재고 시작은 자기가 만든 재고를 만난다. 기한이 지났거나 실사가 끝난 뒤에 와도 같다.
+  - 작업이 만드는 것(자산, 지급, 재고, 예약, 실사 결과, 전환된 자산)은 작업 ID에서 이름을 얻는다(`made`: 같은 pdid에 도메인 바이트만 바꾸고, 여럿이면 끝 바이트로 구분한다). 그래서 재시도는 첫 사본이 만든 것을 그 이름으로 찾아 돌려준다.
+  - 동시에 온 사본은 PostgreSQL에서 작업 ID의 advisory lock(`pg_advisory_xact_lock`)을 기다렸다가 첫 사본의 Event를 본다(`Tx.claim`). 트리 잠금 밖의 작업(재고, 실사 스캔, 예약)도 그래서 한 번만 일어난다. SQLite는 쓰기를 하나씩 하므로 기다릴 것이 없다.
+  - 재고 수량은 그 행을 잠근 뒤에 읽는다(`Tx.moveStock`). 같은 재고를 동시에 바꾸는 서로 다른 작업은 차례로 반영되고, 각자 앞의 작업이 남긴 수량에서 계산한다.
 - **트랜잭션**: 도메인 RPC 하나가 트랜잭션 하나다. payday trail·outbox가 같은 트랜잭션에 기록되므로 데이터와 감사 기록은 함께 성립하거나 함께 취소된다.
 - **연동(Phase 3)**: Webhook은 payday Outbox에서 `Event` 추가만 골라 전달한다. 조직 디렉터리·SSO·SCIM은 roster가 맡고(9.10절), 회계·ERP·HR, 캘린더, 자동 수집 에이전트를 확장 경계로 둔다.
 
@@ -481,6 +485,8 @@ CREATE TRIGGER asset_parent_same_tenant BEFORE INSERT OR UPDATE OF parent_id, te
 ```
 
 같은 방식으로 슬롯 점유(`parent, slot`), 랙 U 범위(`int4range(u_from, u_to, '[]')`), 담당 역할(`asset, role`)의 겹침을 막고, Fact에는 `(asset, key, valid_from) WHERE superseded_at IS NULL` 부분 유일 인덱스를 둔다. 트리거는 `custodian`, `type`, `model` 같은 다른 바뀌는 참조에도 둔다.
+
+지금은 모두 `cli/pg.sql`에 있다(마이그레이션마다 다시 실행해도 되는 문장들). `EXCLUDE`는 물리 부모 하나(`placement_one_parent`), 슬롯(`placement_slot_once`, 빈 슬롯 제외), 랙 U 범위(`placement_rack_once`, `u_from > 0`), 담당 역할(`stewardship_one_per_role`), 관계(`link_once`), 독점 할당(`allocation_exclusive_no_overlap`)이고 트랜잭션 끝까지 미룬다. Fact의 부분 유일 인덱스(`fact_once`)는 미룰 수 없으므로 즉시 검사한다. 도메인 레이어가 같은 시점의 값을 먼저 대체한 뒤 새 값을 쓰기 때문에 그 사이에 걸리는 일이 없다. 도메인 레이어를 거치지 않은 SQL이 이것들에 거부되는지는 `TestTheTreeHoldsUnderTheDomainLayer`(할당은 `TestPostgresBackstop`)가 확인한다.
 
 ### 9.5 검색
 
