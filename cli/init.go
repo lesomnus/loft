@@ -167,7 +167,7 @@ func NewCmdInit(c *cmd.Config) *xli.Command {
 func ownerAccount(ctx context.Context, s *cmd.Server, login, name string) (identity.Person, string, error) {
 	_, err := s.Identity.Directory(ctx)
 	if errors.Is(err, identity.ErrNoDirectory) {
-		return s.Identity.MakeDirectory(ctx, login)
+		return s.Identity.MakeDirectory(ctx, login, name)
 	}
 	if err != nil {
 		return identity.Person{}, "", err

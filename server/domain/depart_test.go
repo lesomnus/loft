@@ -215,6 +215,8 @@ func TestTheLastOwnerLeavingHandsTheWorkspaceOn(t *testing.T) {
 		ev, err := e.s.Ent.Event.Query().Where(event.Kind("party.role")).Only(ctx)
 		x.NoError(err)
 		x.Contains(ev.Desc, "소유자 승계")
+		x.NotContains(ev.Desc, early.GetName(), "the event keeps who by identifier")
+		x.Equal("소유자 승계: "+early.GetName()+" → owner (마지막 소유자의 계정 탈퇴)", e.events()["party.role"])
 	})
 
 	t.Run("an admin over a manager who joined before", func(t *testing.T) {

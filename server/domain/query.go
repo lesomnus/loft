@@ -274,7 +274,7 @@ func (s domainAsset) Timeline(ctx context.Context, req *app.AssetTimelineRequest
 			continue
 		}
 		e := entry("event", v.Id, v.OccurredAt, nil, v.DateCreated, nil, v.Id)
-		e.SetSummary(v.Desc)
+		e.SetSummary(names.say(v.Desc, v.Payload))
 		e.SetEventKind(v.Kind)
 		e.SetReason(v.Reason)
 		e.SetActor(names.actor(v.ActorId))
@@ -328,12 +328,13 @@ func decode(v string) map[string]string {
 
 // namer reads the names a timeline shows, once each.
 type namer struct {
-	t      *Tx
-	assets map[uuid.UUID]string
-	partys map[uuid.UUID]string
-	actors map[uuid.UUID]string
-	kinds  map[uuid.UUID]string
-	models map[uuid.UUID]string
+	t       *Tx
+	assets  map[uuid.UUID]string
+	partys  map[uuid.UUID]string
+	actors  map[uuid.UUID]string
+	members map[uuid.UUID]string
+	kinds   map[uuid.UUID]string
+	models  map[uuid.UUID]string
 }
 
 func (n *namer) asset(id uuid.UUID) string {
@@ -379,7 +380,23 @@ func (n *namer) actor(id *uuid.UUID) string {
 	v := "?"
 	if p, err := n.t.db.Party.Query().Where(party.TenantId(n.t.tenant.Uuid()), party.HolderId(*id)).First(n.t.ctx); err == nil {
 		v = p.Name
-	} else if h, err := n.t.db.Holder.Query().Where(holder.Id(*id)).Only(n.t.ctx); err == nil {
+	} else {
+		v = n.member(*id)
+	}
+	n.actors[*id] = v
+	return v
+}
+
+// member is a membership by its own name: the one it signs in with.
+func (n *namer) member(id uuid.UUID) string {
+	if n.members == nil {
+		n.members = map[uuid.UUID]string{}
+	}
+	if v, ok := n.members[id]; ok {
+		return v
+	}
+	v := "?"
+	if h, err := n.t.db.Holder.Query().Where(holder.Id(id), holder.TenantId(n.t.tenant.Uuid())).Only(n.t.ctx); err == nil {
 		v = "@" + h.Alias
 		if h.Alias == "" {
 			// The membership of somebody forgotten names nobody, and goes
@@ -387,8 +404,47 @@ func (n *namer) actor(id *uuid.UUID) string {
 			v = h.Name
 		}
 	}
-	n.actors[*id] = v
+	n.members[id] = v
 	return v
+}
+
+// An event names the people it is about by identifier, in its payload, and
+// its sentence by a mark for each; the words are read with the event, so that
+// one about somebody forgotten reads with the pseudonym they were left with,
+// and one about somebody renamed with the name they have now (design 8.2). An
+// event written before it did names them in its words, and reads as written.
+//
+// What it says of a thing -- a tag, a type, a reservation -- is what the thing
+// was called then, and stays.
+var marks = []struct {
+	mark, key string
+	say       func(*namer, uuid.UUID) string
+}{
+	// The person record.
+	{"{party}", "party", (*namer).party},
+	// The membership, as the history names whoever did something.
+	{"{holder}", "holder", func(n *namer, id uuid.UUID) string { return n.actor(&id) }},
+	// The membership by the name it signs in with.
+	{"{alias}", "holder", (*namer).member},
+}
+
+// say is an event's sentence with the people it marks named as they are now.
+func (n *namer) say(desc, payload string) string {
+	if !strings.Contains(desc, "{") {
+		return desc
+	}
+	p := decode(payload)
+	for _, m := range marks {
+		if !strings.Contains(desc, m.mark) {
+			continue
+		}
+		id, err := pdid.Parse(p[m.key])
+		if err != nil {
+			continue
+		}
+		desc = strings.ReplaceAll(desc, m.mark, m.say(n, id.Uuid()))
+	}
+	return desc
 }
 
 func (n *namer) kind(id uuid.UUID) string {

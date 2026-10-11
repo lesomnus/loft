@@ -58,11 +58,12 @@ func TestTheRosterInThisProcessIsRovesOwn(t *testing.T) {
 	_, err := s.Verify(ctx, "kim", "anything")
 	x.ErrorIs(err, ErrNoDirectory, "a sign-in before there is anywhere to sign in to")
 
-	kim, secret, err := s.MakeDirectory(ctx, "kim")
+	kim, secret, err := s.MakeDirectory(ctx, "kim", "Kim")
 	x.NoError(err)
 	x.NotEmpty(secret, "the first account's password is shown once")
 	x.Equal(DefaultDirectory, kim.TenantAlias)
-	_, _, err = s.MakeDirectory(ctx, "lee")
+	x.Equal("Kim", kim.Name, "the first account is called what it was made as")
+	_, _, err = s.MakeDirectory(ctx, "lee", "")
 	x.Error(err, "a second directory")
 
 	t.Run("a password is checked there", func(t *testing.T) {
@@ -350,7 +351,7 @@ func TestARosterOfItsOwnIsReachedWithTheKeyItGave(t *testing.T) {
 	x.NoError(err)
 	x.True(st.Good(time.Now()))
 
-	_, _, err = s.MakeDirectory(ctx, "lee")
+	_, _, err = s.MakeDirectory(ctx, "lee", "Lee")
 	x.ErrorIs(err, ErrExternal)
 	_, err = s.EnsureDirectory(ctx)
 	x.ErrorIs(err, ErrExternal)
@@ -427,7 +428,7 @@ func TestOnlyAnAddressSomebodyCheckedIsAnAccounts(t *testing.T) {
 		x := require.New(t)
 		ctx := t.Context()
 		s := embeddedStore(t)
-		_, _, err := s.MakeDirectory(ctx, "owner")
+		_, _, err := s.MakeDirectory(ctx, "owner", "")
 		x.NoError(err)
 
 		kim, err := s.AddPerson(ctx, "kim", "Kim", pdid.Nil)

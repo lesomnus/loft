@@ -206,6 +206,12 @@ type AccountsConfig struct {
 	// Every is how often the memberships still leaving are looked at. Unset
 	// is an hour.
 	Every time.Duration `yaml:"every"`
+	// Reconcile is how often every account with a membership here is asked
+	// about at roster, and the ones it has nobody by begin to leave: what
+	// `rove identity reconcile --yes` does, done by the deployment, for an
+	// erasure the stream did not carry (design 9.10). Unset is a day; zero or
+	// negative turns it off.
+	Reconcile *time.Duration `yaml:"reconcile"`
 }
 
 // DefaultForgetAfter is how long an erased account's memberships wait when
@@ -217,6 +223,15 @@ func (c AccountsConfig) Grace() time.Duration { return or(c.ForgetAfter, Default
 
 // Interval is how often the memberships still leaving are looked at.
 func (c AccountsConfig) Interval() time.Duration { return or(c.Every, time.Hour) }
+
+// ReconcileEvery is how often every account is asked about at roster, and
+// zero when it is not.
+func (c AccountsConfig) ReconcileEvery() time.Duration {
+	if c.Reconcile == nil {
+		return 24 * time.Hour
+	}
+	return max(*c.Reconcile, 0)
+}
 
 // InvitationsConfig is how long an invitation waits, and how many a
 // workspace may have out: what keeps one from mailing the world.

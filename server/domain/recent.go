@@ -51,8 +51,11 @@ func (s domainEvent) Recent(ctx context.Context, req *app.EventRecentRequest) (*
 		return nil, err
 	}
 	out := &app.EventRecentResponse{}
+	names := namer{t: t}
 	for _, v := range vs {
-		out.SetItems(append(out.GetItems(), v.Proto()))
+		e := v.Proto()
+		e.SetDesc(names.say(v.Desc, v.Payload))
+		out.SetItems(append(out.GetItems(), e))
 	}
 	return out, nil
 }

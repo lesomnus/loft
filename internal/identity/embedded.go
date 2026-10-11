@@ -1,6 +1,7 @@
 package identity
 
 import (
+	"cmp"
 	"context"
 	"errors"
 	"fmt"
@@ -185,10 +186,11 @@ func (e *embedded) agent(ctx context.Context, tenant string) error {
 }
 
 // MakeDirectory makes the directory at the embedded roster, with its first
-// account bound to the role that administers it there and a password shown
-// once: what `rove init` does on a deployment that has none. An external
-// roster refuses: its operator makes the directory.
-func (s *Store) MakeDirectory(ctx context.Context, login string) (Person, string, error) {
+// account -- called `name`, or its login when that is empty -- bound to the
+// role that administers it there and a password shown once: what `rove init`
+// does on a deployment that has none. An external roster refuses: its
+// operator makes the directory.
+func (s *Store) MakeDirectory(ctx context.Context, login, name string) (Person, string, error) {
 	if s.em == nil {
 		return Person{}, "", ErrExternal
 	}
@@ -200,6 +202,15 @@ func (s *Store) MakeDirectory(ctx context.Context, login string) (Person, string
 	defer cancel()
 	seeded, err := rostercmd.Seed(ctx, s.em.rs, rostercmd.Seeding{Tenant: alias, Holder: login})
 	if err != nil {
+		return Person{}, "", err
+	}
+	// A seeding names nobody. The account's name is what a workspace it
+	// makes calls its owner, and one with none goes by its login there.
+	if _, err := s.em.rs.Ungated.Holder().Patch(ctx, rstr.HolderPatchRequest_builder{
+		Ref:              rstr.HolderRef_builder{Id: seeded.Holder.Bytes()}.Build(),
+		Name:             z.Ptr(cmp.Or(name, login)),
+		DateUpdatedForce: z.Ptr(true),
+	}.Build()); err != nil {
 		return Person{}, "", err
 	}
 	secret, err := s.issue(ctx, seeded.Holder)
