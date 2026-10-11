@@ -7,10 +7,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/lesomnus/payday/pdid"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/internal/ent"
+	"github.com/lesomnus/rove/internal/ent/holder"
+	"github.com/lesomnus/rove/internal/ent/party"
 )
 
 func (e *env) events() map[string]string {
@@ -137,39 +140,41 @@ func TestTheHistoryNamesPeopleAsTheyAreNow(t *testing.T) {
 //
 // An event from before events kept identifiers named people in its words; it
 // is read as it was written, and so is a sentence that only looks like a mark.
+// A mark names nobody of another workspace's, whatever its payload says.
 func TestAnEventWrittenWithNamesReadsAsWritten(t *testing.T) {
 	e := newEnv(t)
 	x := e.x
+	ctx := context.Background()
 
 	laptop := e.item("노트북", "NB-1", nil, 24*time.Hour)
-	for _, v := range []struct{ kind, desc, payload string }{
-		{"party.role", "역할 변경: Kim → admin", ""},
-		{"party.update", "수정: {party}", "party=Kim"},
-	} {
-		_, err := e.s.Base.Event().Add(context.Background(), app.EventAddRequest_builder{
+	add := func(kind, desc, payload string, subject []byte) {
+		_, err := e.s.Base.Event().Add(ctx, app.EventAddRequest_builder{
 			Tenant:     app.TenantRef_builder{Id: e.tenant.Bytes()}.Build(),
-			Kind:       v.kind,
-			Desc:       v.desc,
-			Payload:    v.payload,
+			Kind:       kind,
+			Desc:       desc,
+			Payload:    payload,
 			OccurredAt: timestamppb.New(e.now),
+			SubjectId:  subject,
 		}.Build())
 		x.NoError(err)
 	}
-	_, err := e.s.Base.Event().Add(context.Background(), app.EventAddRequest_builder{
-		Tenant:     app.TenantRef_builder{Id: e.tenant.Bytes()}.Build(),
-		Kind:       "asset.assign",
-		Desc:       "NB-1 owner: Kim",
-		Payload:    "party=Kim\nrole=owner",
-		OccurredAt: timestamppb.New(e.now),
-		SubjectId:  laptop.GetId(),
-	}.Build())
+	add("party.role", "역할 변경: Kim → admin", "", nil)
+	add("party.update", "수정: {party}", "party=Kim", nil)
+	add("asset.assign", "NB-1 owner: Kim", "party=Kim\nrole=owner", laptop.GetId())
+
+	beta, _ := e.newTenant("beta")
+	h, err := e.s.Ent.Holder.Query().Where(holder.TenantId(beta.Uuid())).Only(ctx)
 	x.NoError(err)
+	p, err := e.s.Ent.Party.Query().Where(party.TenantId(beta.Uuid())).Only(ctx)
+	x.NoError(err)
+	add("party.invite", "로그인 발급: {party} ({alias}), {holder}", "holder="+pdid.Id(h.Id).String()+"\nparty="+pdid.Id(p.Id).String(), nil)
 
 	x.Equal(map[string]string{
 		"party.role":   "역할 변경: Kim → admin",
 		"party.update": "수정: {party}",
 		"asset.assign": "NB-1 owner: Kim",
-	}, pick(e.events(), "party.role", "party.update", "asset.assign"))
+		"party.invite": "로그인 발급: ? (?), ?",
+	}, pick(e.events(), "party.role", "party.update", "asset.assign", "party.invite"))
 	x.Equal("NB-1 owner: Kim", summaryOf(e.timeline(laptop, false), "asset.assign"))
 }
 

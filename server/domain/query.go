@@ -396,7 +396,7 @@ func (n *namer) member(id uuid.UUID) string {
 		return v
 	}
 	v := "?"
-	if h, err := n.t.db.Holder.Query().Where(holder.Id(id)).Only(n.t.ctx); err == nil {
+	if h, err := n.t.db.Holder.Query().Where(holder.Id(id), holder.TenantId(n.t.tenant.Uuid())).Only(n.t.ctx); err == nil {
 		v = "@" + h.Alias
 		if h.Alias == "" {
 			// The membership of somebody forgotten names nobody, and goes
