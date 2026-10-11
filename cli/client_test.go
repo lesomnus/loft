@@ -32,7 +32,10 @@ type served struct {
 	url string
 }
 
-func serve(t *testing.T) *served {
+func serve(t *testing.T) *served { return serveWith(t, nil) }
+
+// serveWith is a deployment with one more say over its configuration.
+func serveWith(t *testing.T, with func(*cmd.Config)) *served {
 	t.Helper()
 	x := require.New(t)
 	ctx := context.Background()
@@ -42,6 +45,9 @@ func serve(t *testing.T) *served {
 	c.Watch.Broker = "memory"
 	c.App.Files = t.TempDir()
 	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
+	if with != nil {
+		with(&c)
+	}
 	run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234")
 	run(t, cli.NewCmdHolder(&c), "add", "--tenant", "acme", "--login", "kim", "--role", "member", "--password", "kim-password")
 

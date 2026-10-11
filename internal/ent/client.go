@@ -19,6 +19,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/audit"
 	"github.com/lesomnus/rove/internal/ent/bookable"
 	"github.com/lesomnus/rove/internal/ent/clilogin"
+	"github.com/lesomnus/rove/internal/ent/consent"
 	"github.com/lesomnus/rove/internal/ent/countfinding"
 	"github.com/lesomnus/rove/internal/ent/custody"
 	"github.com/lesomnus/rove/internal/ent/custodyline"
@@ -76,6 +77,8 @@ type Client struct {
 	Bookable *BookableClient
 	// CliLogin is the client for interacting with the CliLogin builders.
 	CliLogin *CliLoginClient
+	// Consent is the client for interacting with the Consent builders.
+	Consent *ConsentClient
 	// CountFinding is the client for interacting with the CountFinding builders.
 	CountFinding *CountFindingClient
 	// Custody is the client for interacting with the Custody builders.
@@ -155,6 +158,7 @@ func (c *Client) init() {
 	c.Audit = NewAuditClient(c.config)
 	c.Bookable = NewBookableClient(c.config)
 	c.CliLogin = NewCliLoginClient(c.config)
+	c.Consent = NewConsentClient(c.config)
 	c.CountFinding = NewCountFindingClient(c.config)
 	c.Custody = NewCustodyClient(c.config)
 	c.CustodyLine = NewCustodyLineClient(c.config)
@@ -286,6 +290,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Audit:           NewAuditClient(cfg),
 		Bookable:        NewBookableClient(cfg),
 		CliLogin:        NewCliLoginClient(cfg),
+		Consent:         NewConsentClient(cfg),
 		CountFinding:    NewCountFindingClient(cfg),
 		Custody:         NewCustodyClient(cfg),
 		CustodyLine:     NewCustodyLineClient(cfg),
@@ -344,6 +349,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Audit:           NewAuditClient(cfg),
 		Bookable:        NewBookableClient(cfg),
 		CliLogin:        NewCliLoginClient(cfg),
+		Consent:         NewConsentClient(cfg),
 		CountFinding:    NewCountFindingClient(cfg),
 		Custody:         NewCustodyClient(cfg),
 		CustodyLine:     NewCustodyLineClient(cfg),
@@ -450,11 +456,11 @@ func (c *Client) InTx() bool {
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.AliasHold, c.Allocation, c.Archived, c.Asset, c.AssetType, c.Attachment,
-		c.Audit, c.Bookable, c.CliLogin, c.CountFinding, c.Custody, c.CustodyLine,
-		c.Event, c.Fact, c.Holder, c.InventoryCount, c.Invitation, c.ItemModel,
-		c.Label, c.LegalHold, c.Link, c.Notification, c.Outbox, c.Party, c.Placement,
-		c.Purchase, c.PurchaseLine, c.Reservation, c.ReservationItem, c.Session,
-		c.Stewardship, c.Stock, c.StockMovement, c.Tenant, c.TenantContract,
+		c.Audit, c.Bookable, c.CliLogin, c.Consent, c.CountFinding, c.Custody,
+		c.CustodyLine, c.Event, c.Fact, c.Holder, c.InventoryCount, c.Invitation,
+		c.ItemModel, c.Label, c.LegalHold, c.Link, c.Notification, c.Outbox, c.Party,
+		c.Placement, c.Purchase, c.PurchaseLine, c.Reservation, c.ReservationItem,
+		c.Session, c.Stewardship, c.Stock, c.StockMovement, c.Tenant, c.TenantContract,
 		c.TenantDomain, c.TreeLock, c.UsageSnapshot, c.WorkOrder,
 	} {
 		n.Use(hooks...)
@@ -466,11 +472,11 @@ func (c *Client) Use(hooks ...Hook) {
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.AliasHold, c.Allocation, c.Archived, c.Asset, c.AssetType, c.Attachment,
-		c.Audit, c.Bookable, c.CliLogin, c.CountFinding, c.Custody, c.CustodyLine,
-		c.Event, c.Fact, c.Holder, c.InventoryCount, c.Invitation, c.ItemModel,
-		c.Label, c.LegalHold, c.Link, c.Notification, c.Outbox, c.Party, c.Placement,
-		c.Purchase, c.PurchaseLine, c.Reservation, c.ReservationItem, c.Session,
-		c.Stewardship, c.Stock, c.StockMovement, c.Tenant, c.TenantContract,
+		c.Audit, c.Bookable, c.CliLogin, c.Consent, c.CountFinding, c.Custody,
+		c.CustodyLine, c.Event, c.Fact, c.Holder, c.InventoryCount, c.Invitation,
+		c.ItemModel, c.Label, c.LegalHold, c.Link, c.Notification, c.Outbox, c.Party,
+		c.Placement, c.Purchase, c.PurchaseLine, c.Reservation, c.ReservationItem,
+		c.Session, c.Stewardship, c.Stock, c.StockMovement, c.Tenant, c.TenantContract,
 		c.TenantDomain, c.TreeLock, c.UsageSnapshot, c.WorkOrder,
 	} {
 		n.Intercept(interceptors...)
@@ -498,6 +504,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Bookable.mutate(ctx, m)
 	case *CliLoginMutation:
 		return c.CliLogin.mutate(ctx, m)
+	case *ConsentMutation:
+		return c.Consent.mutate(ctx, m)
 	case *CountFindingMutation:
 		return c.CountFinding.mutate(ctx, m)
 	case *CustodyMutation:
@@ -1917,6 +1925,139 @@ func (c *CliLoginClient) mutate(ctx context.Context, m *CliLoginMutation) (Value
 		return (&CliLoginDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown CliLogin mutation op: %q", m.Op())
+	}
+}
+
+// ConsentClient is a client for the Consent schema.
+type ConsentClient struct {
+	config
+}
+
+// NewConsentClient returns a client for the Consent from the given config.
+func NewConsentClient(c config) *ConsentClient {
+	return &ConsentClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `consent.Hooks(f(g(h())))`.
+func (c *ConsentClient) Use(hooks ...Hook) {
+	c.hooks.Consent = append(c.hooks.Consent, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `consent.Intercept(f(g(h())))`.
+func (c *ConsentClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Consent = append(c.inters.Consent, interceptors...)
+}
+
+// Create returns a builder for creating a Consent entity.
+func (c *ConsentClient) Create() *ConsentCreate {
+	mutation := newConsentMutation(c.config, OpCreate)
+	return &ConsentCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Consent entities.
+func (c *ConsentClient) CreateBulk(builders ...*ConsentCreate) *ConsentCreateBulk {
+	return &ConsentCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *ConsentClient) MapCreateBulk(slice any, setFunc func(*ConsentCreate, int)) *ConsentCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &ConsentCreateBulk{err: fmt.Errorf("calling to ConsentClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*ConsentCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &ConsentCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Consent.
+func (c *ConsentClient) Update() *ConsentUpdate {
+	mutation := newConsentMutation(c.config, OpUpdate)
+	return &ConsentUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ConsentClient) UpdateOne(_m *Consent) *ConsentUpdateOne {
+	mutation := newConsentMutation(c.config, OpUpdateOne, withConsent(_m))
+	return &ConsentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneId returns an update builder for the given id.
+func (c *ConsentClient) UpdateOneId(id uuid.UUID) *ConsentUpdateOne {
+	mutation := newConsentMutation(c.config, OpUpdateOne, withConsentId(id))
+	return &ConsentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Consent.
+func (c *ConsentClient) Delete() *ConsentDelete {
+	mutation := newConsentMutation(c.config, OpDelete)
+	return &ConsentDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ConsentClient) DeleteOne(_m *Consent) *ConsentDeleteOne {
+	return c.DeleteOneId(_m.Id)
+}
+
+// DeleteOneId returns a builder for deleting the given entity by its id.
+func (c *ConsentClient) DeleteOneId(id uuid.UUID) *ConsentDeleteOne {
+	builder := c.Delete().Where(consent.Id(id))
+	builder.mutation.id = &id
+	builder.mutation.SetOp(OpDeleteOne)
+	return &ConsentDeleteOne{builder}
+}
+
+// Query returns a query builder for Consent.
+func (c *ConsentClient) Query() *ConsentQuery {
+	return &ConsentQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeConsent},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Consent entity by its id.
+func (c *ConsentClient) Get(ctx context.Context, id uuid.UUID) (*Consent, error) {
+	return c.Query().Where(consent.Id(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ConsentClient) GetX(ctx context.Context, id uuid.UUID) *Consent {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *ConsentClient) Hooks() []Hook {
+	return c.hooks.Consent
+}
+
+// Interceptors returns the client interceptors.
+func (c *ConsentClient) Interceptors() []Interceptor {
+	return c.inters.Consent
+}
+
+func (c *ConsentClient) mutate(ctx context.Context, m *ConsentMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ConsentCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ConsentUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ConsentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ConsentDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Consent mutation op: %q", m.Op())
 	}
 }
 
@@ -6858,7 +6999,7 @@ func (c *WorkOrderClient) mutate(ctx context.Context, m *WorkOrderMutation) (Val
 type (
 	hooks struct {
 		AliasHold, Allocation, Archived, Asset, AssetType, Attachment, Audit, Bookable,
-		CliLogin, CountFinding, Custody, CustodyLine, Event, Fact, Holder,
+		CliLogin, Consent, CountFinding, Custody, CustodyLine, Event, Fact, Holder,
 		InventoryCount, Invitation, ItemModel, Label, LegalHold, Link, Notification,
 		Outbox, Party, Placement, Purchase, PurchaseLine, Reservation, ReservationItem,
 		Session, Stewardship, Stock, StockMovement, Tenant, TenantContract,
@@ -6866,7 +7007,7 @@ type (
 	}
 	inters struct {
 		AliasHold, Allocation, Archived, Asset, AssetType, Attachment, Audit, Bookable,
-		CliLogin, CountFinding, Custody, CustodyLine, Event, Fact, Holder,
+		CliLogin, Consent, CountFinding, Custody, CustodyLine, Event, Fact, Holder,
 		InventoryCount, Invitation, ItemModel, Label, LegalHold, Link, Notification,
 		Outbox, Party, Placement, Purchase, PurchaseLine, Reservation, ReservationItem,
 		Session, Stewardship, Stock, StockMovement, Tenant, TenantContract,

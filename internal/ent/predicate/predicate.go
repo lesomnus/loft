@@ -55,6 +55,9 @@ func BookableOrErr(p Bookable, err error) Bookable {
 // CliLogin is the predicate function for clilogin builders.
 type CliLogin func(*sql.Selector)
 
+// Consent is the predicate function for consent builders.
+type Consent func(*sql.Selector)
+
 // CountFinding is the predicate function for countfinding builders.
 type CountFinding func(*sql.Selector)
 

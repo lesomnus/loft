@@ -1493,6 +1493,187 @@ func (b0 AliasHold_builder) Build() *AliasHold {
 	return m0
 }
 
+// Consent is an account agreeing to one of what this deployment asks of it --
+// its terms of use, its privacy policy -- at one version, then (design 9.11).
+// A new version is agreed to again, as a row of its own, and none is changed:
+// what an account agreed to and when is what these rows are kept for.
+//
+// The deployment's (`global`), and an account's rather than a workspace's: it
+// agrees once for every workspace it is in. Written only by `server/consent`,
+// and the policy opens no RPC of it.
+type Consent struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Account     []byte                 `protobuf:"bytes,8,opt,name=account"`
+	xxx_hidden_Document    string                 `protobuf:"bytes,9,opt,name=document"`
+	xxx_hidden_Version     string                 `protobuf:"bytes,10,opt,name=version"`
+	xxx_hidden_Client      string                 `protobuf:"bytes,11,opt,name=client"`
+	xxx_hidden_DateErased  *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=date_erased,json=dateErased"`
+	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *Consent) Reset() {
+	*x = Consent{}
+	mi := &file_rove_org_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Consent) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Consent) ProtoMessage() {}
+
+func (x *Consent) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_org_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *Consent) GetId() []byte {
+	if x != nil {
+		return x.xxx_hidden_Id
+	}
+	return nil
+}
+
+func (x *Consent) GetAccount() []byte {
+	if x != nil {
+		return x.xxx_hidden_Account
+	}
+	return nil
+}
+
+func (x *Consent) GetDocument() string {
+	if x != nil {
+		return x.xxx_hidden_Document
+	}
+	return ""
+}
+
+func (x *Consent) GetVersion() string {
+	if x != nil {
+		return x.xxx_hidden_Version
+	}
+	return ""
+}
+
+func (x *Consent) GetClient() string {
+	if x != nil {
+		return x.xxx_hidden_Client
+	}
+	return ""
+}
+
+func (x *Consent) GetDateErased() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateErased
+	}
+	return nil
+}
+
+func (x *Consent) GetDateCreated() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateCreated
+	}
+	return nil
+}
+
+func (x *Consent) SetId(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Id = v
+}
+
+func (x *Consent) SetAccount(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Account = v
+}
+
+func (x *Consent) SetDocument(v string) {
+	x.xxx_hidden_Document = v
+}
+
+func (x *Consent) SetVersion(v string) {
+	x.xxx_hidden_Version = v
+}
+
+func (x *Consent) SetClient(v string) {
+	x.xxx_hidden_Client = v
+}
+
+func (x *Consent) SetDateErased(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateErased = v
+}
+
+func (x *Consent) SetDateCreated(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateCreated = v
+}
+
+func (x *Consent) HasDateErased() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateErased != nil
+}
+
+func (x *Consent) HasDateCreated() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateCreated != nil
+}
+
+func (x *Consent) ClearDateErased() {
+	x.xxx_hidden_DateErased = nil
+}
+
+func (x *Consent) ClearDateCreated() {
+	x.xxx_hidden_DateCreated = nil
+}
+
+type Consent_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Id []byte
+	// The account that agreed: roster's, as a session names it (D27).
+	Account []byte
+	// What it agreed to -- `terms` or `privacy` -- and the version of it in
+	// force then (`app.consent`).
+	Document string
+	Version  string
+	// Where it agreed: `web` or `cli`.
+	Client      string
+	DateErased  *timestamppb.Timestamp
+	DateCreated *timestamppb.Timestamp
+}
+
+func (b0 Consent_builder) Build() *Consent {
+	m0 := &Consent{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Id = b.Id
+	x.xxx_hidden_Account = b.Account
+	x.xxx_hidden_Document = b.Document
+	x.xxx_hidden_Version = b.Version
+	x.xxx_hidden_Client = b.Client
+	x.xxx_hidden_DateErased = b.DateErased
+	x.xxx_hidden_DateCreated = b.DateCreated
+	return m0
+}
+
 var File_rove_org_proto protoreflect.FileDescriptor
 
 const file_rove_org_proto_rawDesc = "" +
@@ -1615,54 +1796,71 @@ const file_rove_org_proto_rawDesc = "" +
 	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
 	"dateErased\x12H\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:\"\xca\xfc\x15\x16\x12\x02\x10\x01\x1a\x10\x12\x04held\x1a\b\n" +
-	"\x04held\x10\b\x8a\xbb\x16\x04\b+*\x00B\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"\x04held\x10\b\x8a\xbb\x16\x04\b+*\x00\"\xec\x02\n" +
+	"\aConsent\x12\x1b\n" +
+	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12 \n" +
+	"\aaccount\x18\b \x01(\fB\x06\xea\x82\x16\x02\x10@R\aaccount\x12\x1a\n" +
+	"\bdocument\x18\t \x01(\tR\bdocument\x12\x18\n" +
+	"\aversion\x18\n" +
+	" \x01(\tR\aversion\x12\x16\n" +
+	"\x06client\x18\v \x01(\tR\x06client\x12D\n" +
+	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
+	"dateErased\x12H\n" +
+	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:D\xca\xfc\x158\x12\x02\x10\x01\x1a2\x12\x06agreed\x1a\v\n" +
+	"\aaccount\x10\b\x1a\f\n" +
+	"\bdocument\x10\t\x1a\v\n" +
+	"\aversion\x10\n" +
+	"0\x01\x8a\xbb\x16\x04\b,*\x00B\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
-var file_rove_org_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_rove_org_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_rove_org_proto_goTypes = []any{
 	(*Party)(nil),                 // 0: rove.Party
 	(*Session)(nil),               // 1: rove.Session
 	(*Invitation)(nil),            // 2: rove.Invitation
 	(*CliLogin)(nil),              // 3: rove.CliLogin
 	(*AliasHold)(nil),             // 4: rove.AliasHold
-	nil,                           // 5: rove.Party.LabelsEntry
-	(*Tenant)(nil),                // 6: rove.Tenant
-	(*Holder)(nil),                // 7: rove.Holder
-	(*timestamppb.Timestamp)(nil), // 8: google.protobuf.Timestamp
+	(*Consent)(nil),               // 5: rove.Consent
+	nil,                           // 6: rove.Party.LabelsEntry
+	(*Tenant)(nil),                // 7: rove.Tenant
+	(*Holder)(nil),                // 8: rove.Holder
+	(*timestamppb.Timestamp)(nil), // 9: google.protobuf.Timestamp
 }
 var file_rove_org_proto_depIdxs = []int32{
-	6,  // 0: rove.Party.tenant:type_name -> rove.Tenant
-	5,  // 1: rove.Party.labels:type_name -> rove.Party.LabelsEntry
-	7,  // 2: rove.Party.holder:type_name -> rove.Holder
-	8,  // 3: rove.Party.date_updated:type_name -> google.protobuf.Timestamp
-	8,  // 4: rove.Party.date_erased:type_name -> google.protobuf.Timestamp
-	8,  // 5: rove.Party.date_created:type_name -> google.protobuf.Timestamp
-	8,  // 6: rove.Session.date_expires:type_name -> google.protobuf.Timestamp
-	8,  // 7: rove.Session.date_idle:type_name -> google.protobuf.Timestamp
-	8,  // 8: rove.Session.date_updated:type_name -> google.protobuf.Timestamp
-	8,  // 9: rove.Session.date_erased:type_name -> google.protobuf.Timestamp
-	8,  // 10: rove.Session.date_created:type_name -> google.protobuf.Timestamp
-	6,  // 11: rove.Invitation.tenant:type_name -> rove.Tenant
-	7,  // 12: rove.Invitation.inviter:type_name -> rove.Holder
+	7,  // 0: rove.Party.tenant:type_name -> rove.Tenant
+	6,  // 1: rove.Party.labels:type_name -> rove.Party.LabelsEntry
+	8,  // 2: rove.Party.holder:type_name -> rove.Holder
+	9,  // 3: rove.Party.date_updated:type_name -> google.protobuf.Timestamp
+	9,  // 4: rove.Party.date_erased:type_name -> google.protobuf.Timestamp
+	9,  // 5: rove.Party.date_created:type_name -> google.protobuf.Timestamp
+	9,  // 6: rove.Session.date_expires:type_name -> google.protobuf.Timestamp
+	9,  // 7: rove.Session.date_idle:type_name -> google.protobuf.Timestamp
+	9,  // 8: rove.Session.date_updated:type_name -> google.protobuf.Timestamp
+	9,  // 9: rove.Session.date_erased:type_name -> google.protobuf.Timestamp
+	9,  // 10: rove.Session.date_created:type_name -> google.protobuf.Timestamp
+	7,  // 11: rove.Invitation.tenant:type_name -> rove.Tenant
+	8,  // 12: rove.Invitation.inviter:type_name -> rove.Holder
 	0,  // 13: rove.Invitation.party:type_name -> rove.Party
-	8,  // 14: rove.Invitation.date_updated:type_name -> google.protobuf.Timestamp
-	8,  // 15: rove.Invitation.date_erased:type_name -> google.protobuf.Timestamp
-	8,  // 16: rove.Invitation.date_created:type_name -> google.protobuf.Timestamp
-	8,  // 17: rove.Invitation.date_expires:type_name -> google.protobuf.Timestamp
-	8,  // 18: rove.Invitation.date_settled:type_name -> google.protobuf.Timestamp
-	7,  // 19: rove.Invitation.holder:type_name -> rove.Holder
-	8,  // 20: rove.CliLogin.date_expires:type_name -> google.protobuf.Timestamp
-	8,  // 21: rove.CliLogin.date_updated:type_name -> google.protobuf.Timestamp
-	8,  // 22: rove.CliLogin.date_erased:type_name -> google.protobuf.Timestamp
-	8,  // 23: rove.CliLogin.date_created:type_name -> google.protobuf.Timestamp
-	8,  // 24: rove.AliasHold.date_until:type_name -> google.protobuf.Timestamp
-	8,  // 25: rove.AliasHold.date_updated:type_name -> google.protobuf.Timestamp
-	8,  // 26: rove.AliasHold.date_erased:type_name -> google.protobuf.Timestamp
-	8,  // 27: rove.AliasHold.date_created:type_name -> google.protobuf.Timestamp
-	28, // [28:28] is the sub-list for method output_type
-	28, // [28:28] is the sub-list for method input_type
-	28, // [28:28] is the sub-list for extension type_name
-	28, // [28:28] is the sub-list for extension extendee
-	0,  // [0:28] is the sub-list for field type_name
+	9,  // 14: rove.Invitation.date_updated:type_name -> google.protobuf.Timestamp
+	9,  // 15: rove.Invitation.date_erased:type_name -> google.protobuf.Timestamp
+	9,  // 16: rove.Invitation.date_created:type_name -> google.protobuf.Timestamp
+	9,  // 17: rove.Invitation.date_expires:type_name -> google.protobuf.Timestamp
+	9,  // 18: rove.Invitation.date_settled:type_name -> google.protobuf.Timestamp
+	8,  // 19: rove.Invitation.holder:type_name -> rove.Holder
+	9,  // 20: rove.CliLogin.date_expires:type_name -> google.protobuf.Timestamp
+	9,  // 21: rove.CliLogin.date_updated:type_name -> google.protobuf.Timestamp
+	9,  // 22: rove.CliLogin.date_erased:type_name -> google.protobuf.Timestamp
+	9,  // 23: rove.CliLogin.date_created:type_name -> google.protobuf.Timestamp
+	9,  // 24: rove.AliasHold.date_until:type_name -> google.protobuf.Timestamp
+	9,  // 25: rove.AliasHold.date_updated:type_name -> google.protobuf.Timestamp
+	9,  // 26: rove.AliasHold.date_erased:type_name -> google.protobuf.Timestamp
+	9,  // 27: rove.AliasHold.date_created:type_name -> google.protobuf.Timestamp
+	9,  // 28: rove.Consent.date_erased:type_name -> google.protobuf.Timestamp
+	9,  // 29: rove.Consent.date_created:type_name -> google.protobuf.Timestamp
+	30, // [30:30] is the sub-list for method output_type
+	30, // [30:30] is the sub-list for method input_type
+	30, // [30:30] is the sub-list for extension type_name
+	30, // [30:30] is the sub-list for extension extendee
+	0,  // [0:30] is the sub-list for field type_name
 }
 
 func init() { file_rove_org_proto_init() }
@@ -1678,7 +1876,7 @@ func file_rove_org_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_org_proto_rawDesc), len(file_rove_org_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

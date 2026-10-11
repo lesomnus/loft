@@ -11,6 +11,7 @@ import (
 	ent "github.com/lesomnus/rove/internal/ent"
 	aliashold "github.com/lesomnus/rove/internal/ent/aliashold"
 	clilogin "github.com/lesomnus/rove/internal/ent/clilogin"
+	consent "github.com/lesomnus/rove/internal/ent/consent"
 	holder "github.com/lesomnus/rove/internal/ent/holder"
 	invitation "github.com/lesomnus/rove/internal/ent/invitation"
 	party "github.com/lesomnus/rove/internal/ent/party"
@@ -2526,6 +2527,463 @@ func pickAliasHold(req *rove.AliasHoldRef) (predicate.AliasHold, error) {
 		}
 	case rove.AliasHoldRef_Key_not_set_case:
 		return nil, status.Errorf(codes.InvalidArgument, "key not set: AliasHold")
+	default:
+		return nil, status.Errorf(codes.Unimplemented, "unknown type of key: %s", req.WhichKey())
+	}
+}
+
+type ConsentServiceServer struct {
+	Store
+
+	rove.UnimplementedConsentServiceServer
+}
+
+// NewConsentServiceServer answers with a server that runs its queries with `db`.
+//
+// It takes the options of [Server] so that what is built here can be told
+// where to report its writes and what it may see. Built without them, it
+// reports nowhere and sees everything.
+func NewConsentServiceServer(db *ent.Client, opts ...Option) rove.ConsentServiceServer {
+	s := Server{Store: Store{Db: db}}
+	for _, opt := range opts {
+		opt(&s)
+	}
+	return ConsentServiceServer{Store: s.Store}
+}
+
+// ConsentNarrow answers with `p` and everything else that narrows a
+// read of a Consent: the rows that have not been erased, and whatever
+// `scope` says of those.
+//
+// Every read this package makes goes through it, and a read written by
+// hand should too -- a List is the one read nothing generates, and so the
+// one that would otherwise answer with rows nobody should be given.
+func ConsentNarrow(ctx context.Context, scope Scope, p predicate.Consent) (predicate.Consent, error) {
+	ps := make([]predicate.Consent, 0, 3)
+
+	// A row that was erased is not a row a read answers with.
+	ps = append(ps, consent.DateErasedIsNil())
+	if p != nil {
+		ps = append(ps, p)
+	}
+	if scope != nil {
+		q, err := scope.ConsentScope(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if q != nil {
+			ps = append(ps, q)
+		}
+	}
+
+	switch len(ps) {
+	case 0:
+		return nil, nil
+	case 1:
+		return ps[0], nil
+	default:
+		return consent.And(ps...), nil
+	}
+}
+
+// narrow is [ConsentNarrow] with this server's own scope.
+func (s ConsentServiceServer) narrow(ctx context.Context, p predicate.Consent) (predicate.Consent, error) {
+	return ConsentNarrow(ctx, s.Scope, p)
+}
+
+func (s ConsentServiceServer) Add(ctx context.Context, req *rove.ConsentAddRequest) (*rove.Consent, error) {
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	q := st.Db.Consent.Create()
+	var k uuid.UUID
+	if req.HasId() {
+		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+		} else {
+			k = v
+		}
+	}
+	if v, err := mint(ctx, s.Mint, "rove.Consent", k, req.HasId()); err != nil {
+		return nil, err
+	} else {
+		q.SetId(v)
+	}
+	if v, err := entuuid.FromBytes(req.GetAccount()); err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "account: %s", err)
+	} else {
+		q.SetAccount(v)
+	}
+	q.SetDocument(req.GetDocument())
+	q.SetVersion(req.GetVersion())
+	q.SetClient(req.GetClient())
+	if req.HasDateCreated() {
+		q.SetDateCreated(req.GetDateCreated().AsTime())
+	} else {
+		q.SetDateCreated(st.now())
+	}
+
+	u, err := q.Save(ctx)
+	if err != nil {
+		if err, ok := err.(*ent.ConstraintError); ok {
+			if sqlgraph.IsUniqueConstraintError(err) {
+				return nil, status.Error(codes.AlreadyExists, "Consent already exists")
+			}
+			if sqlgraph.IsForeignKeyConstraintError(err) {
+				return nil, status.Error(codes.NotFound, "Consent: referenced entity not found")
+			}
+		}
+		return nil, err
+	}
+
+	if err := record(ctx, s.Rec, st.Db, Change{
+		By:  rove.ConsentService_Add_FullMethodName,
+		Key: u.Id,
+	}); err != nil {
+		return nil, err
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+
+	return u.Proto(), nil
+}
+
+func (s ConsentServiceServer) Get(ctx context.Context, req *rove.ConsentGetRequest) (*rove.Consent, error) {
+	p, err := ConsentPick(req.GetRef())
+	if err != nil {
+		return nil, err
+	}
+	p, err = s.narrow(ctx, p)
+	if err != nil {
+		return nil, err
+	}
+
+	q := s.Db.Consent.Query().Where(p)
+	ConsentSelectInit(q, req.GetSelect())
+
+	v, err := q.Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, status.Error(codes.NotFound, "Consent not found")
+		}
+		return nil, err
+	}
+	return v.Proto(), nil
+}
+
+func selectConsentKey(q *ent.ConsentQuery) {
+	q.Select(consent.FieldId)
+}
+
+func ConsentSelectedFields(m *rove.ConsentSelect) []string {
+	if m.GetAll() {
+		return consent.Columns
+	}
+
+	vs := make([]string, 0, len(consent.Columns))
+	{
+		vs = append(vs, consent.FieldId)
+	}
+	if m.GetAccount() {
+		vs = append(vs, consent.FieldAccount)
+	}
+	if m.GetDocument() {
+		vs = append(vs, consent.FieldDocument)
+	}
+	if m.GetVersion() {
+		vs = append(vs, consent.FieldVersion)
+	}
+	if m.GetClient() {
+		vs = append(vs, consent.FieldClient)
+	}
+	if m.GetDateErased() {
+		vs = append(vs, consent.FieldDateErased)
+	}
+	if m.GetDateCreated() {
+		vs = append(vs, consent.FieldDateCreated)
+	}
+
+	return vs
+}
+
+func ConsentSelect(q *ent.ConsentQuery, m *rove.ConsentSelect) {
+	if !m.GetAll() {
+		fields := ConsentSelectedFields(m)
+		q.Select(fields...)
+	}
+}
+
+func ConsentSelectInit(q *ent.ConsentQuery, m *rove.ConsentSelect) {
+	if m != nil {
+		ConsentSelect(q, m)
+	} else {
+	}
+}
+
+func (s ConsentServiceServer) Patch(ctx context.Context, req *rove.ConsentPatchRequest) (*rove.Consent, error) {
+	doc, err := ormpatch.FromPatchRequest(consentOrmEntity, req.ProtoReflect(), nil)
+	if err != nil {
+		if _, ok := status.FromError(err); ok {
+			return nil, err
+		}
+		if errors.Is(err, ormpatch.ErrRequestLayout) {
+			return nil, status.Errorf(codes.Internal, "%s", err)
+		}
+		if errors.Is(err, ormpatch.ErrUnsupported) {
+			return nil, status.Errorf(codes.Unimplemented, "%s", err)
+		}
+		return nil, status.Errorf(codes.InvalidArgument, "%s", err)
+	}
+
+	return s.apply(ctx, req.GetRef(), doc, rove.ConsentService_Patch_FullMethodName)
+}
+
+func ConsentGetKey(ctx context.Context, db *ent.Client, ref *rove.ConsentRef) (uuid.UUID, error) {
+	var z uuid.UUID
+	if ref.HasId() {
+		if v, err := entuuid.FromBytes(ref.GetId()); err != nil {
+			return z, status.Errorf(codes.InvalidArgument, "id: %s", err)
+		} else {
+			return v, nil
+		}
+	}
+
+	p, err := ConsentPick(ref)
+	if err != nil {
+		return z, err
+	}
+
+	v, err := db.Consent.Query().Where(p).OnlyId(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return z, status.Error(codes.NotFound, "Consent not found")
+		}
+		return z, err
+	}
+
+	return v, nil
+}
+
+var consentOrmEntity = ormpatch.MustEntityOf(rove.File_rove_org_proto, "Consent")
+
+var consentPatchColumns = entpatch.Columns{
+	1: consent.FieldId, 8: consent.FieldAccount, 9: consent.FieldDocument, 10: consent.FieldVersion, 11: consent.FieldClient, 14: consent.FieldDateErased, 15: consent.FieldDateCreated}
+
+func (s ConsentServiceServer) Apply(ctx context.Context, req *rove.ConsentApplyRequest) (*rove.Consent, error) {
+	if !req.HasPatch() {
+		return nil, status.Errorf(codes.InvalidArgument, "%s", ormpatch.ErrNoPatch)
+	}
+	return s.apply(ctx, req.GetRef(), req.GetPatch(), rove.ConsentService_Apply_FullMethodName)
+}
+
+func (s ConsentServiceServer) apply(ctx context.Context, ref *rove.ConsentRef, doc *patchpb.Patch, by string) (*rove.Consent, error) {
+	plan := &ormpatch.Plan{Entity: consentOrmEntity}
+	if doc != nil {
+		v, err := ormpatch.Compile(consentOrmEntity, doc)
+		if err != nil {
+			if errors.Is(err, ormpatch.ErrUnsupported) {
+				return nil, status.Errorf(codes.Unimplemented, "%s", err)
+			}
+			return nil, status.Errorf(codes.InvalidArgument, "%s", err)
+		}
+		plan = v
+	}
+
+	pred, mod, err := entpatch.Build(plan, consentPatchColumns, s.Db.Dialect())
+	if err != nil {
+		if errors.Is(err, entpatch.ErrValue) {
+			return nil, status.Errorf(codes.InvalidArgument, "%s", err)
+		}
+		return nil, status.Errorf(codes.Internal, "%s", err)
+	}
+
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, true)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	k, err := ConsentGetKey(ctx, st.Db, ref)
+	if err != nil {
+		return nil, err
+	}
+	at := &rove.ConsentRef{}
+	at.SetId(k[:])
+	p, err := s.narrow(ctx, consent.IdEQ(k))
+	if err != nil {
+		return nil, err
+	}
+
+	if mod == nil {
+		q := st.Db.Consent.Query().Where(p)
+		if pred != nil {
+			q.Where(predicate.Consent(pred))
+		}
+		if ok, err := q.Exist(ctx); err != nil {
+			return nil, err
+		} else if !ok {
+			return nil, func() error {
+				if ok, err := st.Db.Consent.Query().Where(p).Exist(ctx); err != nil {
+					return err
+				} else if !ok {
+					return status.Error(codes.NotFound, "Consent not found")
+				}
+				return status.Error(codes.FailedPrecondition, "a test in the patch did not hold")
+			}()
+		}
+	} else {
+		q := st.Db.Consent.Update().Where(p)
+		if pred != nil {
+			q.Where(predicate.Consent(pred))
+		}
+		q.Modify(mod)
+		if n, err := q.Save(ctx); err != nil {
+			if err, ok := err.(*ent.ConstraintError); ok {
+				if sqlgraph.IsUniqueConstraintError(err) {
+					return nil, status.Error(codes.AlreadyExists, "Consent already exists")
+				}
+				if sqlgraph.IsForeignKeyConstraintError(err) {
+					return nil, status.Error(codes.NotFound, "Consent: referenced entity not found")
+				}
+			}
+			return nil, err
+		} else if n == 0 {
+			return nil, func() error {
+				if ok, err := st.Db.Consent.Query().Where(p).Exist(ctx); err != nil {
+					return err
+				} else if !ok {
+					return status.Error(codes.NotFound, "Consent not found")
+				}
+				return status.Error(codes.FailedPrecondition, "a test in the patch did not hold")
+			}()
+		}
+	}
+
+	if mod != nil {
+		if err := record(ctx, s.Rec, st.Db, Change{
+			By:    by,
+			Key:   k,
+			Patch: doc,
+		}); err != nil {
+			return nil, err
+		}
+	}
+
+	out, err := st.Get(ctx, at.Pick())
+	if err != nil {
+		return nil, err
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (s ConsentServiceServer) Erase(ctx context.Context, req *rove.ConsentRef) (*rove.ConsentEraseResponse, error) {
+	p, err := ConsentPick(req)
+	if err != nil {
+		return nil, err
+	}
+	p, err = s.narrow(ctx, p)
+	if err != nil {
+		return nil, err
+	}
+
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	var k any
+	if s.Rec != nil {
+		v, err := st.Db.Consent.Query().Where(p).OnlyId(ctx)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return &rove.ConsentEraseResponse{}, nil
+			}
+			return nil, err
+		}
+
+		k = v
+		p = consent.And(p, consent.IdEQ(v))
+	}
+
+	u := st.Db.Consent.Update().Where(p)
+	u.SetDateErased(st.now())
+	n, err := u.Save(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if n > 0 {
+		if err := record(ctx, s.Rec, st.Db, Change{
+			By:  rove.ConsentService_Erase_FullMethodName,
+			Key: k,
+		}); err != nil {
+			return nil, err
+		}
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+	res := &rove.ConsentEraseResponse{}
+	res.SetErased(n > 0)
+
+	return res, nil
+}
+
+// ConsentPick answers with the predicate this reference selects on,
+// among the rows that are still here.
+//
+// Erasure is part of the reference and not only part of a read's scope,
+// because a reference to a Consent is composed into the reference of
+// whatever names one: an index over an edge asks this for a predicate and
+// puts it inside `HasConsentWith`, where no narrowing of a Consent
+// is ever applied. A child of an erased row would otherwise be readable by
+// naming its parent.
+func ConsentPick(req *rove.ConsentRef) (predicate.Consent, error) {
+	p, err := pickConsent(req)
+	if err != nil {
+		return nil, err
+	}
+
+	return consent.And(consent.DateErasedIsNil(), p), nil
+}
+
+func pickConsent(req *rove.ConsentRef) (predicate.Consent, error) {
+	switch req.WhichKey() {
+	case rove.ConsentRef_Id_case:
+		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+		} else {
+			return consent.IdEQ(v), nil
+		}
+	case rove.ConsentRef_Agreed_case:
+		k := req.GetAgreed()
+		ps := make([]predicate.Consent, 0, 3)
+		if v, err := entuuid.FromBytes(k.GetAccount()); err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "agreed.account: %s", err)
+		} else {
+			ps = append(ps, consent.AccountEQ(v))
+		}
+		ps = append(ps, consent.DocumentEQ(k.GetDocument()))
+		ps = append(ps, consent.VersionEQ(k.GetVersion()))
+		return consent.And(ps...), nil
+	case rove.ConsentRef_Key_not_set_case:
+		return nil, status.Errorf(codes.InvalidArgument, "key not set: Consent")
 	default:
 		return nil, status.Errorf(codes.Unimplemented, "unknown type of key: %s", req.WhichKey())
 	}

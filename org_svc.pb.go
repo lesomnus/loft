@@ -9788,6 +9788,1205 @@ func (b0 AliasHoldEraseResponse_builder) Build() *AliasHoldEraseResponse {
 	return m0
 }
 
+type ConsentAddRequest struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Account     []byte                 `protobuf:"bytes,8,opt,name=account"`
+	xxx_hidden_Document    string                 `protobuf:"bytes,9,opt,name=document"`
+	xxx_hidden_Version     string                 `protobuf:"bytes,10,opt,name=version"`
+	xxx_hidden_Client      string                 `protobuf:"bytes,11,opt,name=client"`
+	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *ConsentAddRequest) Reset() {
+	*x = ConsentAddRequest{}
+	mi := &file_rove_org_svc_g_proto_msgTypes[59]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConsentAddRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConsentAddRequest) ProtoMessage() {}
+
+func (x *ConsentAddRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_org_svc_g_proto_msgTypes[59]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *ConsentAddRequest) GetId() []byte {
+	if x != nil {
+		return x.xxx_hidden_Id
+	}
+	return nil
+}
+
+func (x *ConsentAddRequest) GetAccount() []byte {
+	if x != nil {
+		return x.xxx_hidden_Account
+	}
+	return nil
+}
+
+func (x *ConsentAddRequest) GetDocument() string {
+	if x != nil {
+		return x.xxx_hidden_Document
+	}
+	return ""
+}
+
+func (x *ConsentAddRequest) GetVersion() string {
+	if x != nil {
+		return x.xxx_hidden_Version
+	}
+	return ""
+}
+
+func (x *ConsentAddRequest) GetClient() string {
+	if x != nil {
+		return x.xxx_hidden_Client
+	}
+	return ""
+}
+
+func (x *ConsentAddRequest) GetDateCreated() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateCreated
+	}
+	return nil
+}
+
+func (x *ConsentAddRequest) SetId(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Id = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 6)
+}
+
+func (x *ConsentAddRequest) SetAccount(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Account = v
+}
+
+func (x *ConsentAddRequest) SetDocument(v string) {
+	x.xxx_hidden_Document = v
+}
+
+func (x *ConsentAddRequest) SetVersion(v string) {
+	x.xxx_hidden_Version = v
+}
+
+func (x *ConsentAddRequest) SetClient(v string) {
+	x.xxx_hidden_Client = v
+}
+
+func (x *ConsentAddRequest) SetDateCreated(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateCreated = v
+}
+
+func (x *ConsentAddRequest) HasId() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
+}
+
+func (x *ConsentAddRequest) HasDateCreated() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateCreated != nil
+}
+
+func (x *ConsentAddRequest) ClearId() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_Id = nil
+}
+
+func (x *ConsentAddRequest) ClearDateCreated() {
+	x.xxx_hidden_DateCreated = nil
+}
+
+type ConsentAddRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Id          []byte
+	Account     []byte
+	Document    string
+	Version     string
+	Client      string
+	DateCreated *timestamppb.Timestamp
+}
+
+func (b0 ConsentAddRequest_builder) Build() *ConsentAddRequest {
+	m0 := &ConsentAddRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	if b.Id != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 6)
+		x.xxx_hidden_Id = b.Id
+	}
+	x.xxx_hidden_Account = b.Account
+	x.xxx_hidden_Document = b.Document
+	x.xxx_hidden_Version = b.Version
+	x.xxx_hidden_Client = b.Client
+	x.xxx_hidden_DateCreated = b.DateCreated
+	return m0
+}
+
+type ConsentGetRequest struct {
+	state             protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Ref    *ConsentRef            `protobuf:"bytes,1,opt,name=ref"`
+	xxx_hidden_Select *ConsentSelect         `protobuf:"bytes,2,opt,name=select"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *ConsentGetRequest) Reset() {
+	*x = ConsentGetRequest{}
+	mi := &file_rove_org_svc_g_proto_msgTypes[60]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConsentGetRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConsentGetRequest) ProtoMessage() {}
+
+func (x *ConsentGetRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_org_svc_g_proto_msgTypes[60]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *ConsentGetRequest) GetRef() *ConsentRef {
+	if x != nil {
+		return x.xxx_hidden_Ref
+	}
+	return nil
+}
+
+func (x *ConsentGetRequest) GetSelect() *ConsentSelect {
+	if x != nil {
+		return x.xxx_hidden_Select
+	}
+	return nil
+}
+
+func (x *ConsentGetRequest) SetRef(v *ConsentRef) {
+	x.xxx_hidden_Ref = v
+}
+
+func (x *ConsentGetRequest) SetSelect(v *ConsentSelect) {
+	x.xxx_hidden_Select = v
+}
+
+func (x *ConsentGetRequest) HasRef() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Ref != nil
+}
+
+func (x *ConsentGetRequest) HasSelect() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Select != nil
+}
+
+func (x *ConsentGetRequest) ClearRef() {
+	x.xxx_hidden_Ref = nil
+}
+
+func (x *ConsentGetRequest) ClearSelect() {
+	x.xxx_hidden_Select = nil
+}
+
+type ConsentGetRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Ref    *ConsentRef
+	Select *ConsentSelect
+}
+
+func (b0 ConsentGetRequest_builder) Build() *ConsentGetRequest {
+	m0 := &ConsentGetRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Ref = b.Ref
+	x.xxx_hidden_Select = b.Select
+	return m0
+}
+
+type ConsentRef struct {
+	state          protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Key isConsentRef_Key       `protobuf_oneof:"key"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *ConsentRef) Reset() {
+	*x = ConsentRef{}
+	mi := &file_rove_org_svc_g_proto_msgTypes[61]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConsentRef) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConsentRef) ProtoMessage() {}
+
+func (x *ConsentRef) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_org_svc_g_proto_msgTypes[61]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *ConsentRef) GetId() []byte {
+	if x != nil {
+		if x, ok := x.xxx_hidden_Key.(*consentRef_Id); ok {
+			return x.Id
+		}
+	}
+	return nil
+}
+
+func (x *ConsentRef) GetAgreed() *ConsentRefByAgreed {
+	if x != nil {
+		if x, ok := x.xxx_hidden_Key.(*consentRef_Agreed); ok {
+			return x.Agreed
+		}
+	}
+	return nil
+}
+
+func (x *ConsentRef) SetId(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Key = &consentRef_Id{v}
+}
+
+func (x *ConsentRef) SetAgreed(v *ConsentRefByAgreed) {
+	if v == nil {
+		x.xxx_hidden_Key = nil
+		return
+	}
+	x.xxx_hidden_Key = &consentRef_Agreed{v}
+}
+
+func (x *ConsentRef) HasKey() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Key != nil
+}
+
+func (x *ConsentRef) HasId() bool {
+	if x == nil {
+		return false
+	}
+	_, ok := x.xxx_hidden_Key.(*consentRef_Id)
+	return ok
+}
+
+func (x *ConsentRef) HasAgreed() bool {
+	if x == nil {
+		return false
+	}
+	_, ok := x.xxx_hidden_Key.(*consentRef_Agreed)
+	return ok
+}
+
+func (x *ConsentRef) ClearKey() {
+	x.xxx_hidden_Key = nil
+}
+
+func (x *ConsentRef) ClearId() {
+	if _, ok := x.xxx_hidden_Key.(*consentRef_Id); ok {
+		x.xxx_hidden_Key = nil
+	}
+}
+
+func (x *ConsentRef) ClearAgreed() {
+	if _, ok := x.xxx_hidden_Key.(*consentRef_Agreed); ok {
+		x.xxx_hidden_Key = nil
+	}
+}
+
+const ConsentRef_Key_not_set_case case_ConsentRef_Key = 0
+const ConsentRef_Id_case case_ConsentRef_Key = 1
+const ConsentRef_Agreed_case case_ConsentRef_Key = 8
+
+func (x *ConsentRef) WhichKey() case_ConsentRef_Key {
+	if x == nil {
+		return ConsentRef_Key_not_set_case
+	}
+	switch x.xxx_hidden_Key.(type) {
+	case *consentRef_Id:
+		return ConsentRef_Id_case
+	case *consentRef_Agreed:
+		return ConsentRef_Agreed_case
+	default:
+		return ConsentRef_Key_not_set_case
+	}
+}
+
+type ConsentRef_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// Fields of oneof xxx_hidden_Key:
+	Id     []byte
+	Agreed *ConsentRefByAgreed
+	// -- end of xxx_hidden_Key
+}
+
+func (b0 ConsentRef_builder) Build() *ConsentRef {
+	m0 := &ConsentRef{}
+	b, x := &b0, m0
+	_, _ = b, x
+	if b.Id != nil {
+		x.xxx_hidden_Key = &consentRef_Id{b.Id}
+	}
+	if b.Agreed != nil {
+		x.xxx_hidden_Key = &consentRef_Agreed{b.Agreed}
+	}
+	return m0
+}
+
+type case_ConsentRef_Key protoreflect.FieldNumber
+
+func (x case_ConsentRef_Key) String() string {
+	md := file_rove_org_svc_g_proto_msgTypes[61].Descriptor()
+	if x == 0 {
+		return "not set"
+	}
+	return protoimpl.X.MessageFieldStringOf(md, protoreflect.FieldNumber(x))
+}
+
+type isConsentRef_Key interface {
+	isConsentRef_Key()
+}
+
+type consentRef_Id struct {
+	Id []byte `protobuf:"bytes,1,opt,name=id,oneof"`
+}
+
+type consentRef_Agreed struct {
+	Agreed *ConsentRefByAgreed `protobuf:"bytes,8,opt,name=agreed,oneof"`
+}
+
+func (*consentRef_Id) isConsentRef_Key() {}
+
+func (*consentRef_Agreed) isConsentRef_Key() {}
+
+type ConsentRefByAgreed struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Account     []byte                 `protobuf:"bytes,8,opt,name=account"`
+	xxx_hidden_Document    *string                `protobuf:"bytes,9,opt,name=document"`
+	xxx_hidden_Version     *string                `protobuf:"bytes,10,opt,name=version"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *ConsentRefByAgreed) Reset() {
+	*x = ConsentRefByAgreed{}
+	mi := &file_rove_org_svc_g_proto_msgTypes[62]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConsentRefByAgreed) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConsentRefByAgreed) ProtoMessage() {}
+
+func (x *ConsentRefByAgreed) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_org_svc_g_proto_msgTypes[62]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *ConsentRefByAgreed) GetAccount() []byte {
+	if x != nil {
+		return x.xxx_hidden_Account
+	}
+	return nil
+}
+
+func (x *ConsentRefByAgreed) GetDocument() string {
+	if x != nil {
+		if x.xxx_hidden_Document != nil {
+			return *x.xxx_hidden_Document
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *ConsentRefByAgreed) GetVersion() string {
+	if x != nil {
+		if x.xxx_hidden_Version != nil {
+			return *x.xxx_hidden_Version
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *ConsentRefByAgreed) SetAccount(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Account = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 3)
+}
+
+func (x *ConsentRefByAgreed) SetDocument(v string) {
+	x.xxx_hidden_Document = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 3)
+}
+
+func (x *ConsentRefByAgreed) SetVersion(v string) {
+	x.xxx_hidden_Version = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 3)
+}
+
+func (x *ConsentRefByAgreed) HasAccount() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
+}
+
+func (x *ConsentRefByAgreed) HasDocument() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
+}
+
+func (x *ConsentRefByAgreed) HasVersion() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
+}
+
+func (x *ConsentRefByAgreed) ClearAccount() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_Account = nil
+}
+
+func (x *ConsentRefByAgreed) ClearDocument() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	x.xxx_hidden_Document = nil
+}
+
+func (x *ConsentRefByAgreed) ClearVersion() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
+	x.xxx_hidden_Version = nil
+}
+
+type ConsentRefByAgreed_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Account  []byte
+	Document *string
+	Version  *string
+}
+
+func (b0 ConsentRefByAgreed_builder) Build() *ConsentRefByAgreed {
+	m0 := &ConsentRefByAgreed{}
+	b, x := &b0, m0
+	_, _ = b, x
+	if b.Account != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 3)
+		x.xxx_hidden_Account = b.Account
+	}
+	if b.Document != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 3)
+		x.xxx_hidden_Document = b.Document
+	}
+	if b.Version != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 3)
+		x.xxx_hidden_Version = b.Version
+	}
+	return m0
+}
+
+type ConsentSelect struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_All         bool                   `protobuf:"varint,1,opt,name=all"`
+	xxx_hidden_Account     bool                   `protobuf:"varint,8,opt,name=account"`
+	xxx_hidden_Document    bool                   `protobuf:"varint,9,opt,name=document"`
+	xxx_hidden_Version     bool                   `protobuf:"varint,10,opt,name=version"`
+	xxx_hidden_Client      bool                   `protobuf:"varint,11,opt,name=client"`
+	xxx_hidden_DateErased  bool                   `protobuf:"varint,14,opt,name=date_erased,json=dateErased"`
+	xxx_hidden_DateCreated bool                   `protobuf:"varint,15,opt,name=date_created,json=dateCreated"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *ConsentSelect) Reset() {
+	*x = ConsentSelect{}
+	mi := &file_rove_org_svc_g_proto_msgTypes[63]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConsentSelect) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConsentSelect) ProtoMessage() {}
+
+func (x *ConsentSelect) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_org_svc_g_proto_msgTypes[63]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *ConsentSelect) GetAll() bool {
+	if x != nil {
+		return x.xxx_hidden_All
+	}
+	return false
+}
+
+func (x *ConsentSelect) GetAccount() bool {
+	if x != nil {
+		return x.xxx_hidden_Account
+	}
+	return false
+}
+
+func (x *ConsentSelect) GetDocument() bool {
+	if x != nil {
+		return x.xxx_hidden_Document
+	}
+	return false
+}
+
+func (x *ConsentSelect) GetVersion() bool {
+	if x != nil {
+		return x.xxx_hidden_Version
+	}
+	return false
+}
+
+func (x *ConsentSelect) GetClient() bool {
+	if x != nil {
+		return x.xxx_hidden_Client
+	}
+	return false
+}
+
+func (x *ConsentSelect) GetDateErased() bool {
+	if x != nil {
+		return x.xxx_hidden_DateErased
+	}
+	return false
+}
+
+func (x *ConsentSelect) GetDateCreated() bool {
+	if x != nil {
+		return x.xxx_hidden_DateCreated
+	}
+	return false
+}
+
+func (x *ConsentSelect) SetAll(v bool) {
+	x.xxx_hidden_All = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 7)
+}
+
+func (x *ConsentSelect) SetAccount(v bool) {
+	x.xxx_hidden_Account = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 7)
+}
+
+func (x *ConsentSelect) SetDocument(v bool) {
+	x.xxx_hidden_Document = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 7)
+}
+
+func (x *ConsentSelect) SetVersion(v bool) {
+	x.xxx_hidden_Version = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 7)
+}
+
+func (x *ConsentSelect) SetClient(v bool) {
+	x.xxx_hidden_Client = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 7)
+}
+
+func (x *ConsentSelect) SetDateErased(v bool) {
+	x.xxx_hidden_DateErased = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 7)
+}
+
+func (x *ConsentSelect) SetDateCreated(v bool) {
+	x.xxx_hidden_DateCreated = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 7)
+}
+
+func (x *ConsentSelect) HasAll() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
+}
+
+func (x *ConsentSelect) HasAccount() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
+}
+
+func (x *ConsentSelect) HasDocument() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
+}
+
+func (x *ConsentSelect) HasVersion() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
+}
+
+func (x *ConsentSelect) HasClient() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
+}
+
+func (x *ConsentSelect) HasDateErased() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
+}
+
+func (x *ConsentSelect) HasDateCreated() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 6)
+}
+
+func (x *ConsentSelect) ClearAll() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_All = false
+}
+
+func (x *ConsentSelect) ClearAccount() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	x.xxx_hidden_Account = false
+}
+
+func (x *ConsentSelect) ClearDocument() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
+	x.xxx_hidden_Document = false
+}
+
+func (x *ConsentSelect) ClearVersion() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
+	x.xxx_hidden_Version = false
+}
+
+func (x *ConsentSelect) ClearClient() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
+	x.xxx_hidden_Client = false
+}
+
+func (x *ConsentSelect) ClearDateErased() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 5)
+	x.xxx_hidden_DateErased = false
+}
+
+func (x *ConsentSelect) ClearDateCreated() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 6)
+	x.xxx_hidden_DateCreated = false
+}
+
+type ConsentSelect_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	All         *bool
+	Account     *bool
+	Document    *bool
+	Version     *bool
+	Client      *bool
+	DateErased  *bool
+	DateCreated *bool
+}
+
+func (b0 ConsentSelect_builder) Build() *ConsentSelect {
+	m0 := &ConsentSelect{}
+	b, x := &b0, m0
+	_, _ = b, x
+	if b.All != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 7)
+		x.xxx_hidden_All = *b.All
+	}
+	if b.Account != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 7)
+		x.xxx_hidden_Account = *b.Account
+	}
+	if b.Document != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 7)
+		x.xxx_hidden_Document = *b.Document
+	}
+	if b.Version != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 7)
+		x.xxx_hidden_Version = *b.Version
+	}
+	if b.Client != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 7)
+		x.xxx_hidden_Client = *b.Client
+	}
+	if b.DateErased != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 7)
+		x.xxx_hidden_DateErased = *b.DateErased
+	}
+	if b.DateCreated != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 7)
+		x.xxx_hidden_DateCreated = *b.DateCreated
+	}
+	return m0
+}
+
+type ConsentPatchRequest struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Ref         *ConsentRef            `protobuf:"bytes,1,opt,name=ref"`
+	xxx_hidden_Account     []byte                 `protobuf:"bytes,16,opt,name=account"`
+	xxx_hidden_Document    *string                `protobuf:"bytes,18,opt,name=document"`
+	xxx_hidden_Version     *string                `protobuf:"bytes,20,opt,name=version"`
+	xxx_hidden_Client      *string                `protobuf:"bytes,22,opt,name=client"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *ConsentPatchRequest) Reset() {
+	*x = ConsentPatchRequest{}
+	mi := &file_rove_org_svc_g_proto_msgTypes[64]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConsentPatchRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConsentPatchRequest) ProtoMessage() {}
+
+func (x *ConsentPatchRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_org_svc_g_proto_msgTypes[64]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *ConsentPatchRequest) GetRef() *ConsentRef {
+	if x != nil {
+		return x.xxx_hidden_Ref
+	}
+	return nil
+}
+
+func (x *ConsentPatchRequest) GetAccount() []byte {
+	if x != nil {
+		return x.xxx_hidden_Account
+	}
+	return nil
+}
+
+func (x *ConsentPatchRequest) GetDocument() string {
+	if x != nil {
+		if x.xxx_hidden_Document != nil {
+			return *x.xxx_hidden_Document
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *ConsentPatchRequest) GetVersion() string {
+	if x != nil {
+		if x.xxx_hidden_Version != nil {
+			return *x.xxx_hidden_Version
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *ConsentPatchRequest) GetClient() string {
+	if x != nil {
+		if x.xxx_hidden_Client != nil {
+			return *x.xxx_hidden_Client
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *ConsentPatchRequest) SetRef(v *ConsentRef) {
+	x.xxx_hidden_Ref = v
+}
+
+func (x *ConsentPatchRequest) SetAccount(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Account = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 5)
+}
+
+func (x *ConsentPatchRequest) SetDocument(v string) {
+	x.xxx_hidden_Document = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 5)
+}
+
+func (x *ConsentPatchRequest) SetVersion(v string) {
+	x.xxx_hidden_Version = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 5)
+}
+
+func (x *ConsentPatchRequest) SetClient(v string) {
+	x.xxx_hidden_Client = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 5)
+}
+
+func (x *ConsentPatchRequest) HasRef() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Ref != nil
+}
+
+func (x *ConsentPatchRequest) HasAccount() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
+}
+
+func (x *ConsentPatchRequest) HasDocument() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
+}
+
+func (x *ConsentPatchRequest) HasVersion() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
+}
+
+func (x *ConsentPatchRequest) HasClient() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
+}
+
+func (x *ConsentPatchRequest) ClearRef() {
+	x.xxx_hidden_Ref = nil
+}
+
+func (x *ConsentPatchRequest) ClearAccount() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	x.xxx_hidden_Account = nil
+}
+
+func (x *ConsentPatchRequest) ClearDocument() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
+	x.xxx_hidden_Document = nil
+}
+
+func (x *ConsentPatchRequest) ClearVersion() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
+	x.xxx_hidden_Version = nil
+}
+
+func (x *ConsentPatchRequest) ClearClient() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
+	x.xxx_hidden_Client = nil
+}
+
+type ConsentPatchRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Ref      *ConsentRef
+	Account  []byte
+	Document *string
+	Version  *string
+	Client   *string
+}
+
+func (b0 ConsentPatchRequest_builder) Build() *ConsentPatchRequest {
+	m0 := &ConsentPatchRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Ref = b.Ref
+	if b.Account != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 5)
+		x.xxx_hidden_Account = b.Account
+	}
+	if b.Document != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 5)
+		x.xxx_hidden_Document = b.Document
+	}
+	if b.Version != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 5)
+		x.xxx_hidden_Version = b.Version
+	}
+	if b.Client != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 5)
+		x.xxx_hidden_Client = b.Client
+	}
+	return m0
+}
+
+type ConsentApplyRequest struct {
+	state            protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Ref   *ConsentRef            `protobuf:"bytes,1,opt,name=ref"`
+	xxx_hidden_Patch *patchpb.Patch         `protobuf:"bytes,2,opt,name=patch"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *ConsentApplyRequest) Reset() {
+	*x = ConsentApplyRequest{}
+	mi := &file_rove_org_svc_g_proto_msgTypes[65]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConsentApplyRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConsentApplyRequest) ProtoMessage() {}
+
+func (x *ConsentApplyRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_org_svc_g_proto_msgTypes[65]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *ConsentApplyRequest) GetRef() *ConsentRef {
+	if x != nil {
+		return x.xxx_hidden_Ref
+	}
+	return nil
+}
+
+func (x *ConsentApplyRequest) GetPatch() *patchpb.Patch {
+	if x != nil {
+		return x.xxx_hidden_Patch
+	}
+	return nil
+}
+
+func (x *ConsentApplyRequest) SetRef(v *ConsentRef) {
+	x.xxx_hidden_Ref = v
+}
+
+func (x *ConsentApplyRequest) SetPatch(v *patchpb.Patch) {
+	x.xxx_hidden_Patch = v
+}
+
+func (x *ConsentApplyRequest) HasRef() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Ref != nil
+}
+
+func (x *ConsentApplyRequest) HasPatch() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Patch != nil
+}
+
+func (x *ConsentApplyRequest) ClearRef() {
+	x.xxx_hidden_Ref = nil
+}
+
+func (x *ConsentApplyRequest) ClearPatch() {
+	x.xxx_hidden_Patch = nil
+}
+
+type ConsentApplyRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Ref   *ConsentRef
+	Patch *patchpb.Patch
+}
+
+func (b0 ConsentApplyRequest_builder) Build() *ConsentApplyRequest {
+	m0 := &ConsentApplyRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Ref = b.Ref
+	x.xxx_hidden_Patch = b.Patch
+	return m0
+}
+
+type ConsentEraseResponse struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Erased      bool                   `protobuf:"varint,1,opt,name=erased"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *ConsentEraseResponse) Reset() {
+	*x = ConsentEraseResponse{}
+	mi := &file_rove_org_svc_g_proto_msgTypes[66]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConsentEraseResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConsentEraseResponse) ProtoMessage() {}
+
+func (x *ConsentEraseResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_org_svc_g_proto_msgTypes[66]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *ConsentEraseResponse) GetErased() bool {
+	if x != nil {
+		return x.xxx_hidden_Erased
+	}
+	return false
+}
+
+func (x *ConsentEraseResponse) SetErased(v bool) {
+	x.xxx_hidden_Erased = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 1)
+}
+
+func (x *ConsentEraseResponse) HasErased() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
+}
+
+func (x *ConsentEraseResponse) ClearErased() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_Erased = false
+}
+
+type ConsentEraseResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// Erased is whether this call is the one that erased the row.
+	//
+	// False for a row that was already gone, was never there, or is out
+	// of this caller's reach -- which are one answer on purpose, and the
+	// reason the RPC does not fail instead.
+	Erased *bool
+}
+
+func (b0 ConsentEraseResponse_builder) Build() *ConsentEraseResponse {
+	m0 := &ConsentEraseResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	if b.Erased != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 1)
+		x.xxx_hidden_Erased = *b.Erased
+	}
+	return m0
+}
+
 // Account is who a call served as an account is from: an account of the
 // deployment's directory at roster (D27). Nothing keeps it; `cmd.Resolver`
 // puts it in the frame of a call an account makes before it is anybody's
@@ -9801,7 +11000,7 @@ type Account struct {
 
 func (x *Account) Reset() {
 	*x = Account{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[59]
+	mi := &file_rove_org_svc_g_proto_msgTypes[67]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9813,7 +11012,7 @@ func (x *Account) String() string {
 func (*Account) ProtoMessage() {}
 
 func (x *Account) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[59]
+	mi := &file_rove_org_svc_g_proto_msgTypes[67]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10223,6 +11422,48 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\x03ref\x18\x01 \x01(\v2\x12.rove.AliasHoldRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"0\n" +
 	"\x16AliasHoldEraseResponse\x12\x16\n" +
+	"\x06erased\x18\x01 \x01(\bR\x06erased\"\xe6\x01\n" +
+	"\x11ConsentAddRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\fR\x02id\x12\x1f\n" +
+	"\aaccount\x18\b \x01(\fB\x05\xaa\x01\x02\b\x02R\aaccount\x12!\n" +
+	"\bdocument\x18\t \x01(\tB\x05\xaa\x01\x02\b\x02R\bdocument\x12\x1f\n" +
+	"\aversion\x18\n" +
+	" \x01(\tB\x05\xaa\x01\x02\b\x02R\aversion\x12\x1d\n" +
+	"\x06client\x18\v \x01(\tB\x05\xaa\x01\x02\b\x02R\x06client\x12=\n" +
+	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\"d\n" +
+	"\x11ConsentGetRequest\x12\"\n" +
+	"\x03ref\x18\x01 \x01(\v2\x10.rove.ConsentRefR\x03ref\x12+\n" +
+	"\x06select\x18\x02 \x01(\v2\x13.rove.ConsentSelectR\x06select\"Y\n" +
+	"\n" +
+	"ConsentRef\x12\x10\n" +
+	"\x02id\x18\x01 \x01(\fH\x00R\x02id\x122\n" +
+	"\x06agreed\x18\b \x01(\v2\x18.rove.ConsentRefByAgreedH\x00R\x06agreedB\x05\n" +
+	"\x03key\"d\n" +
+	"\x12ConsentRefByAgreed\x12\x18\n" +
+	"\aaccount\x18\b \x01(\fR\aaccount\x12\x1a\n" +
+	"\bdocument\x18\t \x01(\tR\bdocument\x12\x18\n" +
+	"\aversion\x18\n" +
+	" \x01(\tR\aversion\"\xcd\x01\n" +
+	"\rConsentSelect\x12\x10\n" +
+	"\x03all\x18\x01 \x01(\bR\x03all\x12\x18\n" +
+	"\aaccount\x18\b \x01(\bR\aaccount\x12\x1a\n" +
+	"\bdocument\x18\t \x01(\bR\bdocument\x12\x18\n" +
+	"\aversion\x18\n" +
+	" \x01(\bR\aversion\x12\x16\n" +
+	"\x06client\x18\v \x01(\bR\x06client\x12\x1f\n" +
+	"\vdate_erased\x18\x0e \x01(\bR\n" +
+	"dateErased\x12!\n" +
+	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\"\xa1\x01\n" +
+	"\x13ConsentPatchRequest\x12\"\n" +
+	"\x03ref\x18\x01 \x01(\v2\x10.rove.ConsentRefR\x03ref\x12\x18\n" +
+	"\aaccount\x18\x10 \x01(\fR\aaccount\x12\x1a\n" +
+	"\bdocument\x18\x12 \x01(\tR\bdocument\x12\x18\n" +
+	"\aversion\x18\x14 \x01(\tR\aversion\x12\x16\n" +
+	"\x06client\x18\x16 \x01(\tR\x06client\"]\n" +
+	"\x13ConsentApplyRequest\x12\"\n" +
+	"\x03ref\x18\x01 \x01(\v2\x10.rove.ConsentRefR\x03ref\x12\"\n" +
+	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\".\n" +
+	"\x14ConsentEraseResponse\x12\x16\n" +
 	"\x06erased\x18\x01 \x01(\bR\x06erased\" \n" +
 	"\aAccount\x12\x15\n" +
 	"\x02id\x18\x01 \x01(\fB\x05\xaa\x01\x02\b\x02R\x02id2\x86\x06\n" +
@@ -10270,9 +11511,15 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\x03Get\x12\x19.rove.AliasHoldGetRequest\x1a\x0f.rove.AliasHold\x125\n" +
 	"\x05Patch\x12\x1b.rove.AliasHoldPatchRequest\x1a\x0f.rove.AliasHold\x125\n" +
 	"\x05Apply\x12\x1b.rove.AliasHoldApplyRequest\x1a\x0f.rove.AliasHold\x129\n" +
-	"\x05Erase\x12\x12.rove.AliasHoldRef\x1a\x1c.rove.AliasHoldEraseResponseB\x1aZ\x18github.com/lesomnus/roveb\beditionsp\xe8\a"
+	"\x05Erase\x12\x12.rove.AliasHoldRef\x1a\x1c.rove.AliasHoldEraseResponse2\x8b\x02\n" +
+	"\x0eConsentService\x12-\n" +
+	"\x03Add\x12\x17.rove.ConsentAddRequest\x1a\r.rove.Consent\x12-\n" +
+	"\x03Get\x12\x17.rove.ConsentGetRequest\x1a\r.rove.Consent\x121\n" +
+	"\x05Patch\x12\x19.rove.ConsentPatchRequest\x1a\r.rove.Consent\x121\n" +
+	"\x05Apply\x12\x19.rove.ConsentApplyRequest\x1a\r.rove.Consent\x125\n" +
+	"\x05Erase\x12\x10.rove.ConsentRef\x1a\x1a.rove.ConsentEraseResponseB\x1aZ\x18github.com/lesomnus/roveb\beditionsp\xe8\a"
 
-var file_rove_org_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 64)
+var file_rove_org_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 72)
 var file_rove_org_svc_g_proto_goTypes = []any{
 	(*PartyAddRequest)(nil),          // 0: rove.PartyAddRequest
 	(*PartyGetRequest)(nil),          // 1: rove.PartyGetRequest
@@ -10333,203 +11580,229 @@ var file_rove_org_svc_g_proto_goTypes = []any{
 	(*AliasHoldPatchRequest)(nil),    // 56: rove.AliasHoldPatchRequest
 	(*AliasHoldApplyRequest)(nil),    // 57: rove.AliasHoldApplyRequest
 	(*AliasHoldEraseResponse)(nil),   // 58: rove.AliasHoldEraseResponse
-	(*Account)(nil),                  // 59: rove.Account
-	nil,                              // 60: rove.PartyAddRequest.LabelsEntry
-	nil,                              // 61: rove.PartyPatchRequest.LabelsEntry
-	nil,                              // 62: rove.PartyFilter.LabelsEntry
-	nil,                              // 63: rove.PartyUpdateRequest.LabelsEntry
-	(*TenantRef)(nil),                // 64: rove.TenantRef
-	(*HolderRef)(nil),                // 65: rove.HolderRef
-	(*timestamppb.Timestamp)(nil),    // 66: google.protobuf.Timestamp
-	(*TenantSelect)(nil),             // 67: rove.TenantSelect
-	(*HolderSelect)(nil),             // 68: rove.HolderSelect
-	(*patchpb.Patch)(nil),            // 69: patch.Patch
-	(*Party)(nil),                    // 70: rove.Party
-	(*Holder)(nil),                   // 71: rove.Holder
-	(*Tenant)(nil),                   // 72: rove.Tenant
-	(*Invitation)(nil),               // 73: rove.Invitation
-	(*Session)(nil),                  // 74: rove.Session
-	(*CliLogin)(nil),                 // 75: rove.CliLogin
-	(*AliasHold)(nil),                // 76: rove.AliasHold
+	(*ConsentAddRequest)(nil),        // 59: rove.ConsentAddRequest
+	(*ConsentGetRequest)(nil),        // 60: rove.ConsentGetRequest
+	(*ConsentRef)(nil),               // 61: rove.ConsentRef
+	(*ConsentRefByAgreed)(nil),       // 62: rove.ConsentRefByAgreed
+	(*ConsentSelect)(nil),            // 63: rove.ConsentSelect
+	(*ConsentPatchRequest)(nil),      // 64: rove.ConsentPatchRequest
+	(*ConsentApplyRequest)(nil),      // 65: rove.ConsentApplyRequest
+	(*ConsentEraseResponse)(nil),     // 66: rove.ConsentEraseResponse
+	(*Account)(nil),                  // 67: rove.Account
+	nil,                              // 68: rove.PartyAddRequest.LabelsEntry
+	nil,                              // 69: rove.PartyPatchRequest.LabelsEntry
+	nil,                              // 70: rove.PartyFilter.LabelsEntry
+	nil,                              // 71: rove.PartyUpdateRequest.LabelsEntry
+	(*TenantRef)(nil),                // 72: rove.TenantRef
+	(*HolderRef)(nil),                // 73: rove.HolderRef
+	(*timestamppb.Timestamp)(nil),    // 74: google.protobuf.Timestamp
+	(*TenantSelect)(nil),             // 75: rove.TenantSelect
+	(*HolderSelect)(nil),             // 76: rove.HolderSelect
+	(*patchpb.Patch)(nil),            // 77: patch.Patch
+	(*Party)(nil),                    // 78: rove.Party
+	(*Holder)(nil),                   // 79: rove.Holder
+	(*Tenant)(nil),                   // 80: rove.Tenant
+	(*Invitation)(nil),               // 81: rove.Invitation
+	(*Session)(nil),                  // 82: rove.Session
+	(*CliLogin)(nil),                 // 83: rove.CliLogin
+	(*AliasHold)(nil),                // 84: rove.AliasHold
+	(*Consent)(nil),                  // 85: rove.Consent
 }
 var file_rove_org_svc_g_proto_depIdxs = []int32{
-	64,  // 0: rove.PartyAddRequest.tenant:type_name -> rove.TenantRef
-	60,  // 1: rove.PartyAddRequest.labels:type_name -> rove.PartyAddRequest.LabelsEntry
-	65,  // 2: rove.PartyAddRequest.holder:type_name -> rove.HolderRef
-	66,  // 3: rove.PartyAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	72,  // 0: rove.PartyAddRequest.tenant:type_name -> rove.TenantRef
+	68,  // 1: rove.PartyAddRequest.labels:type_name -> rove.PartyAddRequest.LabelsEntry
+	73,  // 2: rove.PartyAddRequest.holder:type_name -> rove.HolderRef
+	74,  // 3: rove.PartyAddRequest.date_created:type_name -> google.protobuf.Timestamp
 	2,   // 4: rove.PartyGetRequest.ref:type_name -> rove.PartyRef
 	4,   // 5: rove.PartyGetRequest.select:type_name -> rove.PartySelect
 	3,   // 6: rove.PartyRef.holder:type_name -> rove.PartyRefByHolder
-	65,  // 7: rove.PartyRefByHolder.holder:type_name -> rove.HolderRef
-	67,  // 8: rove.PartySelect.tenant:type_name -> rove.TenantSelect
-	68,  // 9: rove.PartySelect.holder:type_name -> rove.HolderSelect
+	73,  // 7: rove.PartyRefByHolder.holder:type_name -> rove.HolderRef
+	75,  // 8: rove.PartySelect.tenant:type_name -> rove.TenantSelect
+	76,  // 9: rove.PartySelect.holder:type_name -> rove.HolderSelect
 	2,   // 10: rove.PartyPatchRequest.ref:type_name -> rove.PartyRef
-	61,  // 11: rove.PartyPatchRequest.labels:type_name -> rove.PartyPatchRequest.LabelsEntry
-	65,  // 12: rove.PartyPatchRequest.holder:type_name -> rove.HolderRef
-	66,  // 13: rove.PartyPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	69,  // 11: rove.PartyPatchRequest.labels:type_name -> rove.PartyPatchRequest.LabelsEntry
+	73,  // 12: rove.PartyPatchRequest.holder:type_name -> rove.HolderRef
+	74,  // 13: rove.PartyPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
 	2,   // 14: rove.PartyApplyRequest.ref:type_name -> rove.PartyRef
-	69,  // 15: rove.PartyApplyRequest.patch:type_name -> patch.Patch
+	77,  // 15: rove.PartyApplyRequest.patch:type_name -> patch.Patch
 	10,  // 16: rove.PartyListRequest.filters:type_name -> rove.PartyFilter
-	70,  // 17: rove.PartyListResponse.items:type_name -> rove.Party
+	78,  // 17: rove.PartyListResponse.items:type_name -> rove.Party
 	2,   // 18: rove.PartyFilter.ref:type_name -> rove.PartyRef
-	65,  // 19: rove.PartyFilter.holder:type_name -> rove.HolderRef
-	62,  // 20: rove.PartyFilter.labels:type_name -> rove.PartyFilter.LabelsEntry
+	73,  // 19: rove.PartyFilter.holder:type_name -> rove.HolderRef
+	70,  // 20: rove.PartyFilter.labels:type_name -> rove.PartyFilter.LabelsEntry
 	10,  // 21: rove.PartyWatchRequest.filters:type_name -> rove.PartyFilter
 	13,  // 22: rove.PartyWatchResponse.items:type_name -> rove.PartyWatchItem
-	70,  // 23: rove.PartyWatchItem.value:type_name -> rove.Party
-	71,  // 24: rove.PartyMeResponse.holder:type_name -> rove.Holder
-	70,  // 25: rove.PartyMeResponse.party:type_name -> rove.Party
-	72,  // 26: rove.PartyMeResponse.tenant:type_name -> rove.Tenant
-	66,  // 27: rove.PartyMeResponse.history_since:type_name -> google.protobuf.Timestamp
+	78,  // 23: rove.PartyWatchItem.value:type_name -> rove.Party
+	79,  // 24: rove.PartyMeResponse.holder:type_name -> rove.Holder
+	78,  // 25: rove.PartyMeResponse.party:type_name -> rove.Party
+	80,  // 26: rove.PartyMeResponse.tenant:type_name -> rove.Tenant
+	74,  // 27: rove.PartyMeResponse.history_since:type_name -> google.protobuf.Timestamp
 	2,   // 28: rove.PartyUpdateRequest.ref:type_name -> rove.PartyRef
-	63,  // 29: rove.PartyUpdateRequest.labels:type_name -> rove.PartyUpdateRequest.LabelsEntry
+	71,  // 29: rove.PartyUpdateRequest.labels:type_name -> rove.PartyUpdateRequest.LabelsEntry
 	2,   // 30: rove.PartyInviteRequest.ref:type_name -> rove.PartyRef
-	70,  // 31: rove.PartyInviteResponse.party:type_name -> rove.Party
-	71,  // 32: rove.PartyInviteResponse.holder:type_name -> rove.Holder
+	78,  // 31: rove.PartyInviteResponse.party:type_name -> rove.Party
+	79,  // 32: rove.PartyInviteResponse.holder:type_name -> rove.Holder
 	2,   // 33: rove.PartySetRoleRequest.ref:type_name -> rove.PartyRef
 	2,   // 34: rove.PartySetPasswordRequest.ref:type_name -> rove.PartyRef
 	2,   // 35: rove.PartyDeactivateRequest.ref:type_name -> rove.PartyRef
 	2,   // 36: rove.PartyPseudonymizeRequest.ref:type_name -> rove.PartyRef
-	66,  // 37: rove.SessionAddRequest.date_expires:type_name -> google.protobuf.Timestamp
-	66,  // 38: rove.SessionAddRequest.date_idle:type_name -> google.protobuf.Timestamp
-	66,  // 39: rove.SessionAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	74,  // 37: rove.SessionAddRequest.date_expires:type_name -> google.protobuf.Timestamp
+	74,  // 38: rove.SessionAddRequest.date_idle:type_name -> google.protobuf.Timestamp
+	74,  // 39: rove.SessionAddRequest.date_created:type_name -> google.protobuf.Timestamp
 	26,  // 40: rove.SessionGetRequest.ref:type_name -> rove.SessionRef
 	27,  // 41: rove.SessionGetRequest.select:type_name -> rove.SessionSelect
 	26,  // 42: rove.SessionPatchRequest.ref:type_name -> rove.SessionRef
-	66,  // 43: rove.SessionPatchRequest.date_expires:type_name -> google.protobuf.Timestamp
-	66,  // 44: rove.SessionPatchRequest.date_idle:type_name -> google.protobuf.Timestamp
-	66,  // 45: rove.SessionPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	74,  // 43: rove.SessionPatchRequest.date_expires:type_name -> google.protobuf.Timestamp
+	74,  // 44: rove.SessionPatchRequest.date_idle:type_name -> google.protobuf.Timestamp
+	74,  // 45: rove.SessionPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
 	26,  // 46: rove.SessionApplyRequest.ref:type_name -> rove.SessionRef
-	69,  // 47: rove.SessionApplyRequest.patch:type_name -> patch.Patch
-	64,  // 48: rove.InvitationAddRequest.tenant:type_name -> rove.TenantRef
-	65,  // 49: rove.InvitationAddRequest.inviter:type_name -> rove.HolderRef
+	77,  // 47: rove.SessionApplyRequest.patch:type_name -> patch.Patch
+	72,  // 48: rove.InvitationAddRequest.tenant:type_name -> rove.TenantRef
+	73,  // 49: rove.InvitationAddRequest.inviter:type_name -> rove.HolderRef
 	2,   // 50: rove.InvitationAddRequest.party:type_name -> rove.PartyRef
-	66,  // 51: rove.InvitationAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	66,  // 52: rove.InvitationAddRequest.date_expires:type_name -> google.protobuf.Timestamp
-	66,  // 53: rove.InvitationAddRequest.date_settled:type_name -> google.protobuf.Timestamp
-	65,  // 54: rove.InvitationAddRequest.holder:type_name -> rove.HolderRef
+	74,  // 51: rove.InvitationAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	74,  // 52: rove.InvitationAddRequest.date_expires:type_name -> google.protobuf.Timestamp
+	74,  // 53: rove.InvitationAddRequest.date_settled:type_name -> google.protobuf.Timestamp
+	73,  // 54: rove.InvitationAddRequest.holder:type_name -> rove.HolderRef
 	33,  // 55: rove.InvitationGetRequest.ref:type_name -> rove.InvitationRef
 	34,  // 56: rove.InvitationGetRequest.select:type_name -> rove.InvitationSelect
-	67,  // 57: rove.InvitationSelect.tenant:type_name -> rove.TenantSelect
-	68,  // 58: rove.InvitationSelect.inviter:type_name -> rove.HolderSelect
+	75,  // 57: rove.InvitationSelect.tenant:type_name -> rove.TenantSelect
+	76,  // 58: rove.InvitationSelect.inviter:type_name -> rove.HolderSelect
 	4,   // 59: rove.InvitationSelect.party:type_name -> rove.PartySelect
-	68,  // 60: rove.InvitationSelect.holder:type_name -> rove.HolderSelect
+	76,  // 60: rove.InvitationSelect.holder:type_name -> rove.HolderSelect
 	33,  // 61: rove.InvitationPatchRequest.ref:type_name -> rove.InvitationRef
 	2,   // 62: rove.InvitationPatchRequest.party:type_name -> rove.PartyRef
-	66,  // 63: rove.InvitationPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	66,  // 64: rove.InvitationPatchRequest.date_expires:type_name -> google.protobuf.Timestamp
-	66,  // 65: rove.InvitationPatchRequest.date_settled:type_name -> google.protobuf.Timestamp
-	65,  // 66: rove.InvitationPatchRequest.holder:type_name -> rove.HolderRef
+	74,  // 63: rove.InvitationPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	74,  // 64: rove.InvitationPatchRequest.date_expires:type_name -> google.protobuf.Timestamp
+	74,  // 65: rove.InvitationPatchRequest.date_settled:type_name -> google.protobuf.Timestamp
+	73,  // 66: rove.InvitationPatchRequest.holder:type_name -> rove.HolderRef
 	33,  // 67: rove.InvitationApplyRequest.ref:type_name -> rove.InvitationRef
-	69,  // 68: rove.InvitationApplyRequest.patch:type_name -> patch.Patch
+	77,  // 68: rove.InvitationApplyRequest.patch:type_name -> patch.Patch
 	40,  // 69: rove.InvitationListRequest.filters:type_name -> rove.InvitationFilter
-	73,  // 70: rove.InvitationListResponse.items:type_name -> rove.Invitation
+	81,  // 70: rove.InvitationListResponse.items:type_name -> rove.Invitation
 	33,  // 71: rove.InvitationFilter.ref:type_name -> rove.InvitationRef
-	64,  // 72: rove.InvitationFilter.tenant:type_name -> rove.TenantRef
+	72,  // 72: rove.InvitationFilter.tenant:type_name -> rove.TenantRef
 	33,  // 73: rove.InvitationRevokeRequest.ref:type_name -> rove.InvitationRef
 	33,  // 74: rove.InvitationAcceptRequest.ref:type_name -> rove.InvitationRef
 	33,  // 75: rove.InvitationDenyRequest.ref:type_name -> rove.InvitationRef
-	66,  // 76: rove.CliLoginAddRequest.date_expires:type_name -> google.protobuf.Timestamp
-	66,  // 77: rove.CliLoginAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	74,  // 76: rove.CliLoginAddRequest.date_expires:type_name -> google.protobuf.Timestamp
+	74,  // 77: rove.CliLoginAddRequest.date_created:type_name -> google.protobuf.Timestamp
 	47,  // 78: rove.CliLoginGetRequest.ref:type_name -> rove.CliLoginRef
 	48,  // 79: rove.CliLoginGetRequest.select:type_name -> rove.CliLoginSelect
 	47,  // 80: rove.CliLoginPatchRequest.ref:type_name -> rove.CliLoginRef
-	66,  // 81: rove.CliLoginPatchRequest.date_expires:type_name -> google.protobuf.Timestamp
-	66,  // 82: rove.CliLoginPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	74,  // 81: rove.CliLoginPatchRequest.date_expires:type_name -> google.protobuf.Timestamp
+	74,  // 82: rove.CliLoginPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
 	47,  // 83: rove.CliLoginApplyRequest.ref:type_name -> rove.CliLoginRef
-	69,  // 84: rove.CliLoginApplyRequest.patch:type_name -> patch.Patch
-	66,  // 85: rove.AliasHoldAddRequest.date_until:type_name -> google.protobuf.Timestamp
-	66,  // 86: rove.AliasHoldAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	77,  // 84: rove.CliLoginApplyRequest.patch:type_name -> patch.Patch
+	74,  // 85: rove.AliasHoldAddRequest.date_until:type_name -> google.protobuf.Timestamp
+	74,  // 86: rove.AliasHoldAddRequest.date_created:type_name -> google.protobuf.Timestamp
 	54,  // 87: rove.AliasHoldGetRequest.ref:type_name -> rove.AliasHoldRef
 	55,  // 88: rove.AliasHoldGetRequest.select:type_name -> rove.AliasHoldSelect
 	54,  // 89: rove.AliasHoldPatchRequest.ref:type_name -> rove.AliasHoldRef
-	66,  // 90: rove.AliasHoldPatchRequest.date_until:type_name -> google.protobuf.Timestamp
-	66,  // 91: rove.AliasHoldPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	74,  // 90: rove.AliasHoldPatchRequest.date_until:type_name -> google.protobuf.Timestamp
+	74,  // 91: rove.AliasHoldPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
 	54,  // 92: rove.AliasHoldApplyRequest.ref:type_name -> rove.AliasHoldRef
-	69,  // 93: rove.AliasHoldApplyRequest.patch:type_name -> patch.Patch
-	0,   // 94: rove.PartyService.Add:input_type -> rove.PartyAddRequest
-	1,   // 95: rove.PartyService.Get:input_type -> rove.PartyGetRequest
-	5,   // 96: rove.PartyService.Patch:input_type -> rove.PartyPatchRequest
-	6,   // 97: rove.PartyService.Apply:input_type -> rove.PartyApplyRequest
-	2,   // 98: rove.PartyService.Erase:input_type -> rove.PartyRef
-	8,   // 99: rove.PartyService.List:input_type -> rove.PartyListRequest
-	11,  // 100: rove.PartyService.Watch:input_type -> rove.PartyWatchRequest
-	14,  // 101: rove.PartyService.Me:input_type -> rove.PartyMeRequest
-	16,  // 102: rove.PartyService.Update:input_type -> rove.PartyUpdateRequest
-	17,  // 103: rove.PartyService.Invite:input_type -> rove.PartyInviteRequest
-	19,  // 104: rove.PartyService.SetRole:input_type -> rove.PartySetRoleRequest
-	20,  // 105: rove.PartyService.SetPassword:input_type -> rove.PartySetPasswordRequest
-	22,  // 106: rove.PartyService.Deactivate:input_type -> rove.PartyDeactivateRequest
-	23,  // 107: rove.PartyService.Pseudonymize:input_type -> rove.PartyPseudonymizeRequest
-	24,  // 108: rove.SessionService.Add:input_type -> rove.SessionAddRequest
-	25,  // 109: rove.SessionService.Get:input_type -> rove.SessionGetRequest
-	28,  // 110: rove.SessionService.Patch:input_type -> rove.SessionPatchRequest
-	29,  // 111: rove.SessionService.Apply:input_type -> rove.SessionApplyRequest
-	26,  // 112: rove.SessionService.Erase:input_type -> rove.SessionRef
-	31,  // 113: rove.InvitationService.Add:input_type -> rove.InvitationAddRequest
-	32,  // 114: rove.InvitationService.Get:input_type -> rove.InvitationGetRequest
-	35,  // 115: rove.InvitationService.Patch:input_type -> rove.InvitationPatchRequest
-	36,  // 116: rove.InvitationService.Apply:input_type -> rove.InvitationApplyRequest
-	33,  // 117: rove.InvitationService.Erase:input_type -> rove.InvitationRef
-	38,  // 118: rove.InvitationService.List:input_type -> rove.InvitationListRequest
-	41,  // 119: rove.InvitationService.Revoke:input_type -> rove.InvitationRevokeRequest
-	42,  // 120: rove.InvitationService.Claim:input_type -> rove.InvitationClaimRequest
-	43,  // 121: rove.InvitationService.Accept:input_type -> rove.InvitationAcceptRequest
-	44,  // 122: rove.InvitationService.Deny:input_type -> rove.InvitationDenyRequest
-	45,  // 123: rove.CliLoginService.Add:input_type -> rove.CliLoginAddRequest
-	46,  // 124: rove.CliLoginService.Get:input_type -> rove.CliLoginGetRequest
-	49,  // 125: rove.CliLoginService.Patch:input_type -> rove.CliLoginPatchRequest
-	50,  // 126: rove.CliLoginService.Apply:input_type -> rove.CliLoginApplyRequest
-	47,  // 127: rove.CliLoginService.Erase:input_type -> rove.CliLoginRef
-	52,  // 128: rove.AliasHoldService.Add:input_type -> rove.AliasHoldAddRequest
-	53,  // 129: rove.AliasHoldService.Get:input_type -> rove.AliasHoldGetRequest
-	56,  // 130: rove.AliasHoldService.Patch:input_type -> rove.AliasHoldPatchRequest
-	57,  // 131: rove.AliasHoldService.Apply:input_type -> rove.AliasHoldApplyRequest
-	54,  // 132: rove.AliasHoldService.Erase:input_type -> rove.AliasHoldRef
-	70,  // 133: rove.PartyService.Add:output_type -> rove.Party
-	70,  // 134: rove.PartyService.Get:output_type -> rove.Party
-	70,  // 135: rove.PartyService.Patch:output_type -> rove.Party
-	70,  // 136: rove.PartyService.Apply:output_type -> rove.Party
-	7,   // 137: rove.PartyService.Erase:output_type -> rove.PartyEraseResponse
-	9,   // 138: rove.PartyService.List:output_type -> rove.PartyListResponse
-	12,  // 139: rove.PartyService.Watch:output_type -> rove.PartyWatchResponse
-	15,  // 140: rove.PartyService.Me:output_type -> rove.PartyMeResponse
-	70,  // 141: rove.PartyService.Update:output_type -> rove.Party
-	18,  // 142: rove.PartyService.Invite:output_type -> rove.PartyInviteResponse
-	70,  // 143: rove.PartyService.SetRole:output_type -> rove.Party
-	21,  // 144: rove.PartyService.SetPassword:output_type -> rove.PartySetPasswordResponse
-	70,  // 145: rove.PartyService.Deactivate:output_type -> rove.Party
-	70,  // 146: rove.PartyService.Pseudonymize:output_type -> rove.Party
-	74,  // 147: rove.SessionService.Add:output_type -> rove.Session
-	74,  // 148: rove.SessionService.Get:output_type -> rove.Session
-	74,  // 149: rove.SessionService.Patch:output_type -> rove.Session
-	74,  // 150: rove.SessionService.Apply:output_type -> rove.Session
-	30,  // 151: rove.SessionService.Erase:output_type -> rove.SessionEraseResponse
-	73,  // 152: rove.InvitationService.Add:output_type -> rove.Invitation
-	73,  // 153: rove.InvitationService.Get:output_type -> rove.Invitation
-	73,  // 154: rove.InvitationService.Patch:output_type -> rove.Invitation
-	73,  // 155: rove.InvitationService.Apply:output_type -> rove.Invitation
-	37,  // 156: rove.InvitationService.Erase:output_type -> rove.InvitationEraseResponse
-	39,  // 157: rove.InvitationService.List:output_type -> rove.InvitationListResponse
-	73,  // 158: rove.InvitationService.Revoke:output_type -> rove.Invitation
-	73,  // 159: rove.InvitationService.Claim:output_type -> rove.Invitation
-	73,  // 160: rove.InvitationService.Accept:output_type -> rove.Invitation
-	73,  // 161: rove.InvitationService.Deny:output_type -> rove.Invitation
-	75,  // 162: rove.CliLoginService.Add:output_type -> rove.CliLogin
-	75,  // 163: rove.CliLoginService.Get:output_type -> rove.CliLogin
-	75,  // 164: rove.CliLoginService.Patch:output_type -> rove.CliLogin
-	75,  // 165: rove.CliLoginService.Apply:output_type -> rove.CliLogin
-	51,  // 166: rove.CliLoginService.Erase:output_type -> rove.CliLoginEraseResponse
-	76,  // 167: rove.AliasHoldService.Add:output_type -> rove.AliasHold
-	76,  // 168: rove.AliasHoldService.Get:output_type -> rove.AliasHold
-	76,  // 169: rove.AliasHoldService.Patch:output_type -> rove.AliasHold
-	76,  // 170: rove.AliasHoldService.Apply:output_type -> rove.AliasHold
-	58,  // 171: rove.AliasHoldService.Erase:output_type -> rove.AliasHoldEraseResponse
-	133, // [133:172] is the sub-list for method output_type
-	94,  // [94:133] is the sub-list for method input_type
-	94,  // [94:94] is the sub-list for extension type_name
-	94,  // [94:94] is the sub-list for extension extendee
-	0,   // [0:94] is the sub-list for field type_name
+	77,  // 93: rove.AliasHoldApplyRequest.patch:type_name -> patch.Patch
+	74,  // 94: rove.ConsentAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	61,  // 95: rove.ConsentGetRequest.ref:type_name -> rove.ConsentRef
+	63,  // 96: rove.ConsentGetRequest.select:type_name -> rove.ConsentSelect
+	62,  // 97: rove.ConsentRef.agreed:type_name -> rove.ConsentRefByAgreed
+	61,  // 98: rove.ConsentPatchRequest.ref:type_name -> rove.ConsentRef
+	61,  // 99: rove.ConsentApplyRequest.ref:type_name -> rove.ConsentRef
+	77,  // 100: rove.ConsentApplyRequest.patch:type_name -> patch.Patch
+	0,   // 101: rove.PartyService.Add:input_type -> rove.PartyAddRequest
+	1,   // 102: rove.PartyService.Get:input_type -> rove.PartyGetRequest
+	5,   // 103: rove.PartyService.Patch:input_type -> rove.PartyPatchRequest
+	6,   // 104: rove.PartyService.Apply:input_type -> rove.PartyApplyRequest
+	2,   // 105: rove.PartyService.Erase:input_type -> rove.PartyRef
+	8,   // 106: rove.PartyService.List:input_type -> rove.PartyListRequest
+	11,  // 107: rove.PartyService.Watch:input_type -> rove.PartyWatchRequest
+	14,  // 108: rove.PartyService.Me:input_type -> rove.PartyMeRequest
+	16,  // 109: rove.PartyService.Update:input_type -> rove.PartyUpdateRequest
+	17,  // 110: rove.PartyService.Invite:input_type -> rove.PartyInviteRequest
+	19,  // 111: rove.PartyService.SetRole:input_type -> rove.PartySetRoleRequest
+	20,  // 112: rove.PartyService.SetPassword:input_type -> rove.PartySetPasswordRequest
+	22,  // 113: rove.PartyService.Deactivate:input_type -> rove.PartyDeactivateRequest
+	23,  // 114: rove.PartyService.Pseudonymize:input_type -> rove.PartyPseudonymizeRequest
+	24,  // 115: rove.SessionService.Add:input_type -> rove.SessionAddRequest
+	25,  // 116: rove.SessionService.Get:input_type -> rove.SessionGetRequest
+	28,  // 117: rove.SessionService.Patch:input_type -> rove.SessionPatchRequest
+	29,  // 118: rove.SessionService.Apply:input_type -> rove.SessionApplyRequest
+	26,  // 119: rove.SessionService.Erase:input_type -> rove.SessionRef
+	31,  // 120: rove.InvitationService.Add:input_type -> rove.InvitationAddRequest
+	32,  // 121: rove.InvitationService.Get:input_type -> rove.InvitationGetRequest
+	35,  // 122: rove.InvitationService.Patch:input_type -> rove.InvitationPatchRequest
+	36,  // 123: rove.InvitationService.Apply:input_type -> rove.InvitationApplyRequest
+	33,  // 124: rove.InvitationService.Erase:input_type -> rove.InvitationRef
+	38,  // 125: rove.InvitationService.List:input_type -> rove.InvitationListRequest
+	41,  // 126: rove.InvitationService.Revoke:input_type -> rove.InvitationRevokeRequest
+	42,  // 127: rove.InvitationService.Claim:input_type -> rove.InvitationClaimRequest
+	43,  // 128: rove.InvitationService.Accept:input_type -> rove.InvitationAcceptRequest
+	44,  // 129: rove.InvitationService.Deny:input_type -> rove.InvitationDenyRequest
+	45,  // 130: rove.CliLoginService.Add:input_type -> rove.CliLoginAddRequest
+	46,  // 131: rove.CliLoginService.Get:input_type -> rove.CliLoginGetRequest
+	49,  // 132: rove.CliLoginService.Patch:input_type -> rove.CliLoginPatchRequest
+	50,  // 133: rove.CliLoginService.Apply:input_type -> rove.CliLoginApplyRequest
+	47,  // 134: rove.CliLoginService.Erase:input_type -> rove.CliLoginRef
+	52,  // 135: rove.AliasHoldService.Add:input_type -> rove.AliasHoldAddRequest
+	53,  // 136: rove.AliasHoldService.Get:input_type -> rove.AliasHoldGetRequest
+	56,  // 137: rove.AliasHoldService.Patch:input_type -> rove.AliasHoldPatchRequest
+	57,  // 138: rove.AliasHoldService.Apply:input_type -> rove.AliasHoldApplyRequest
+	54,  // 139: rove.AliasHoldService.Erase:input_type -> rove.AliasHoldRef
+	59,  // 140: rove.ConsentService.Add:input_type -> rove.ConsentAddRequest
+	60,  // 141: rove.ConsentService.Get:input_type -> rove.ConsentGetRequest
+	64,  // 142: rove.ConsentService.Patch:input_type -> rove.ConsentPatchRequest
+	65,  // 143: rove.ConsentService.Apply:input_type -> rove.ConsentApplyRequest
+	61,  // 144: rove.ConsentService.Erase:input_type -> rove.ConsentRef
+	78,  // 145: rove.PartyService.Add:output_type -> rove.Party
+	78,  // 146: rove.PartyService.Get:output_type -> rove.Party
+	78,  // 147: rove.PartyService.Patch:output_type -> rove.Party
+	78,  // 148: rove.PartyService.Apply:output_type -> rove.Party
+	7,   // 149: rove.PartyService.Erase:output_type -> rove.PartyEraseResponse
+	9,   // 150: rove.PartyService.List:output_type -> rove.PartyListResponse
+	12,  // 151: rove.PartyService.Watch:output_type -> rove.PartyWatchResponse
+	15,  // 152: rove.PartyService.Me:output_type -> rove.PartyMeResponse
+	78,  // 153: rove.PartyService.Update:output_type -> rove.Party
+	18,  // 154: rove.PartyService.Invite:output_type -> rove.PartyInviteResponse
+	78,  // 155: rove.PartyService.SetRole:output_type -> rove.Party
+	21,  // 156: rove.PartyService.SetPassword:output_type -> rove.PartySetPasswordResponse
+	78,  // 157: rove.PartyService.Deactivate:output_type -> rove.Party
+	78,  // 158: rove.PartyService.Pseudonymize:output_type -> rove.Party
+	82,  // 159: rove.SessionService.Add:output_type -> rove.Session
+	82,  // 160: rove.SessionService.Get:output_type -> rove.Session
+	82,  // 161: rove.SessionService.Patch:output_type -> rove.Session
+	82,  // 162: rove.SessionService.Apply:output_type -> rove.Session
+	30,  // 163: rove.SessionService.Erase:output_type -> rove.SessionEraseResponse
+	81,  // 164: rove.InvitationService.Add:output_type -> rove.Invitation
+	81,  // 165: rove.InvitationService.Get:output_type -> rove.Invitation
+	81,  // 166: rove.InvitationService.Patch:output_type -> rove.Invitation
+	81,  // 167: rove.InvitationService.Apply:output_type -> rove.Invitation
+	37,  // 168: rove.InvitationService.Erase:output_type -> rove.InvitationEraseResponse
+	39,  // 169: rove.InvitationService.List:output_type -> rove.InvitationListResponse
+	81,  // 170: rove.InvitationService.Revoke:output_type -> rove.Invitation
+	81,  // 171: rove.InvitationService.Claim:output_type -> rove.Invitation
+	81,  // 172: rove.InvitationService.Accept:output_type -> rove.Invitation
+	81,  // 173: rove.InvitationService.Deny:output_type -> rove.Invitation
+	83,  // 174: rove.CliLoginService.Add:output_type -> rove.CliLogin
+	83,  // 175: rove.CliLoginService.Get:output_type -> rove.CliLogin
+	83,  // 176: rove.CliLoginService.Patch:output_type -> rove.CliLogin
+	83,  // 177: rove.CliLoginService.Apply:output_type -> rove.CliLogin
+	51,  // 178: rove.CliLoginService.Erase:output_type -> rove.CliLoginEraseResponse
+	84,  // 179: rove.AliasHoldService.Add:output_type -> rove.AliasHold
+	84,  // 180: rove.AliasHoldService.Get:output_type -> rove.AliasHold
+	84,  // 181: rove.AliasHoldService.Patch:output_type -> rove.AliasHold
+	84,  // 182: rove.AliasHoldService.Apply:output_type -> rove.AliasHold
+	58,  // 183: rove.AliasHoldService.Erase:output_type -> rove.AliasHoldEraseResponse
+	85,  // 184: rove.ConsentService.Add:output_type -> rove.Consent
+	85,  // 185: rove.ConsentService.Get:output_type -> rove.Consent
+	85,  // 186: rove.ConsentService.Patch:output_type -> rove.Consent
+	85,  // 187: rove.ConsentService.Apply:output_type -> rove.Consent
+	66,  // 188: rove.ConsentService.Erase:output_type -> rove.ConsentEraseResponse
+	145, // [145:189] is the sub-list for method output_type
+	101, // [101:145] is the sub-list for method input_type
+	101, // [101:101] is the sub-list for extension type_name
+	101, // [101:101] is the sub-list for extension extendee
+	0,   // [0:101] is the sub-list for field type_name
 }
 
 func init() { file_rove_org_svc_g_proto_init() }
@@ -10558,15 +11831,19 @@ func file_rove_org_svc_g_proto_init() {
 	file_rove_org_svc_g_proto_msgTypes[54].OneofWrappers = []any{
 		(*aliasHoldRef_Id)(nil),
 	}
+	file_rove_org_svc_g_proto_msgTypes[61].OneofWrappers = []any{
+		(*consentRef_Id)(nil),
+		(*consentRef_Agreed)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_org_svc_g_proto_rawDesc), len(file_rove_org_svc_g_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   64,
+			NumMessages:   72,
 			NumExtensions: 0,
-			NumServices:   5,
+			NumServices:   6,
 		},
 		GoTypes:           file_rove_org_svc_g_proto_goTypes,
 		DependencyIndexes: file_rove_org_svc_g_proto_depIdxs,

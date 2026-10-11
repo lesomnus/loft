@@ -21,6 +21,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/internal/ent/holder"
 	"github.com/lesomnus/rove/internal/ent/tenant"
+	"github.com/lesomnus/rove/server/consent"
 )
 
 // Resolver turns a claim into the frame a request is served in.
@@ -40,11 +41,18 @@ import (
 // served as is the account's membership of the workspace the call names in
 // [WorkspaceHeader] -- by alias or by identifier -- or its only membership when
 // the call names none. Every other credential names a holder, as before.
-func Resolver(s app.Server, db *ent.Client) auth.Resolver {
+//
+// A session's account that has not agreed to what this deployment asks
+// (`consents`, design 9.11) is refused every call, with [ConsentOwed]: what it
+// agrees to is HTTP beside the RPCs (`server/account`), and its first page.
+func Resolver(s app.Server, db *ent.Client, consents *consent.Consents) auth.Resolver {
 	return auth.ResolverFunc(func(ctx context.Context, id auth.Identity) (*frame.Frame, error) {
 		var ref *app.HolderRef
 		var err error
 		if id.Method == authsession.Method {
+			if err := settled(ctx, consents, id.Id); err != nil {
+				return nil, err
+			}
 			if m, ok := grpc.Method(ctx); ok && AccountMethods[m] {
 				return asAccount(id.Id)
 			}
@@ -131,6 +139,31 @@ var AccountMethods = map[string]bool{
 	app.InvitationService_Claim_FullMethodName:  true,
 	app.InvitationService_Accept_FullMethodName: true,
 	app.InvitationService_Deny_FullMethodName:   true,
+}
+
+// ConsentOwed is what a call is refused with while its account has not agreed
+// to what this deployment asks. A page that is told it reads `rove consent`
+// in it and loads again, which is the agreement; a terminal is told to run it.
+const ConsentOwed = "이용약관과 개인정보 처리방침에 동의해야 이용할 수 있습니다 (rove consent)"
+
+// settled refuses a session whose account has not agreed to what this
+// deployment asks.
+func settled(ctx context.Context, consents *consent.Consents, account string) error {
+	if !consents.Asks() {
+		return nil
+	}
+	a, err := pdid.Parse(account)
+	if err != nil {
+		return fmt.Errorf("%w: %s", auth.ErrNoCredential, err)
+	}
+	ok, err := consents.Settled(ctx, a)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return status.Error(codes.FailedPrecondition, ConsentOwed)
+	}
+	return nil
 }
 
 // asAccount is the frame of a call served as the account: the account as the

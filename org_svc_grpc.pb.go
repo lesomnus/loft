@@ -1927,3 +1927,267 @@ var AliasHoldService_ServiceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "rove/org_svc.g.proto",
 }
+
+const (
+	ConsentService_Add_FullMethodName   = "/rove.ConsentService/Add"
+	ConsentService_Get_FullMethodName   = "/rove.ConsentService/Get"
+	ConsentService_Patch_FullMethodName = "/rove.ConsentService/Patch"
+	ConsentService_Apply_FullMethodName = "/rove.ConsentService/Apply"
+	ConsentService_Erase_FullMethodName = "/rove.ConsentService/Erase"
+)
+
+// ConsentServiceClient is the client API for ConsentService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type ConsentServiceClient interface {
+	// Add creates a new Consent
+	Add(ctx context.Context, in *ConsentAddRequest, opts ...grpc.CallOption) (*Consent, error)
+	// Get retrieves a Consent
+	Get(ctx context.Context, in *ConsentGetRequest, opts ...grpc.CallOption) (*Consent, error)
+	// Patch updates an existing Consent
+	Patch(ctx context.Context, in *ConsentPatchRequest, opts ...grpc.CallOption) (*Consent, error)
+	// Apply applies a patch document to an existing Consent
+	Apply(ctx context.Context, in *ConsentApplyRequest, opts ...grpc.CallOption) (*Consent, error)
+	// Erase deletes a Consent
+	Erase(ctx context.Context, in *ConsentRef, opts ...grpc.CallOption) (*ConsentEraseResponse, error)
+}
+
+type consentServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewConsentServiceClient(cc grpc.ClientConnInterface) ConsentServiceClient {
+	return &consentServiceClient{cc}
+}
+
+func (c *consentServiceClient) Add(ctx context.Context, in *ConsentAddRequest, opts ...grpc.CallOption) (*Consent, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Consent)
+	err := c.cc.Invoke(ctx, ConsentService_Add_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *consentServiceClient) Get(ctx context.Context, in *ConsentGetRequest, opts ...grpc.CallOption) (*Consent, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Consent)
+	err := c.cc.Invoke(ctx, ConsentService_Get_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *consentServiceClient) Patch(ctx context.Context, in *ConsentPatchRequest, opts ...grpc.CallOption) (*Consent, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Consent)
+	err := c.cc.Invoke(ctx, ConsentService_Patch_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *consentServiceClient) Apply(ctx context.Context, in *ConsentApplyRequest, opts ...grpc.CallOption) (*Consent, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Consent)
+	err := c.cc.Invoke(ctx, ConsentService_Apply_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *consentServiceClient) Erase(ctx context.Context, in *ConsentRef, opts ...grpc.CallOption) (*ConsentEraseResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ConsentEraseResponse)
+	err := c.cc.Invoke(ctx, ConsentService_Erase_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// ConsentServiceServer is the server API for ConsentService service.
+// All implementations must embed UnimplementedConsentServiceServer
+// for forward compatibility.
+type ConsentServiceServer interface {
+	// Add creates a new Consent
+	Add(context.Context, *ConsentAddRequest) (*Consent, error)
+	// Get retrieves a Consent
+	Get(context.Context, *ConsentGetRequest) (*Consent, error)
+	// Patch updates an existing Consent
+	Patch(context.Context, *ConsentPatchRequest) (*Consent, error)
+	// Apply applies a patch document to an existing Consent
+	Apply(context.Context, *ConsentApplyRequest) (*Consent, error)
+	// Erase deletes a Consent
+	Erase(context.Context, *ConsentRef) (*ConsentEraseResponse, error)
+	mustEmbedUnimplementedConsentServiceServer()
+}
+
+// UnimplementedConsentServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedConsentServiceServer struct{}
+
+func (UnimplementedConsentServiceServer) Add(context.Context, *ConsentAddRequest) (*Consent, error) {
+	return nil, status.Error(codes.Unimplemented, "method Add not implemented")
+}
+func (UnimplementedConsentServiceServer) Get(context.Context, *ConsentGetRequest) (*Consent, error) {
+	return nil, status.Error(codes.Unimplemented, "method Get not implemented")
+}
+func (UnimplementedConsentServiceServer) Patch(context.Context, *ConsentPatchRequest) (*Consent, error) {
+	return nil, status.Error(codes.Unimplemented, "method Patch not implemented")
+}
+func (UnimplementedConsentServiceServer) Apply(context.Context, *ConsentApplyRequest) (*Consent, error) {
+	return nil, status.Error(codes.Unimplemented, "method Apply not implemented")
+}
+func (UnimplementedConsentServiceServer) Erase(context.Context, *ConsentRef) (*ConsentEraseResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Erase not implemented")
+}
+func (UnimplementedConsentServiceServer) mustEmbedUnimplementedConsentServiceServer() {}
+func (UnimplementedConsentServiceServer) testEmbeddedByValue()                        {}
+
+// UnsafeConsentServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ConsentServiceServer will
+// result in compilation errors.
+type UnsafeConsentServiceServer interface {
+	mustEmbedUnimplementedConsentServiceServer()
+}
+
+func RegisterConsentServiceServer(s grpc.ServiceRegistrar, srv ConsentServiceServer) {
+	// If the following call panics, it indicates UnimplementedConsentServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&ConsentService_ServiceDesc, srv)
+}
+
+func _ConsentService_Add_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConsentAddRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConsentServiceServer).Add(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ConsentService_Add_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConsentServiceServer).Add(ctx, req.(*ConsentAddRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ConsentService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConsentGetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConsentServiceServer).Get(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ConsentService_Get_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConsentServiceServer).Get(ctx, req.(*ConsentGetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ConsentService_Patch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConsentPatchRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConsentServiceServer).Patch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ConsentService_Patch_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConsentServiceServer).Patch(ctx, req.(*ConsentPatchRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ConsentService_Apply_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConsentApplyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConsentServiceServer).Apply(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ConsentService_Apply_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConsentServiceServer).Apply(ctx, req.(*ConsentApplyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ConsentService_Erase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConsentRef)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConsentServiceServer).Erase(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ConsentService_Erase_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConsentServiceServer).Erase(ctx, req.(*ConsentRef))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// ConsentService_ServiceDesc is the grpc.ServiceDesc for ConsentService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var ConsentService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "rove.ConsentService",
+	HandlerType: (*ConsentServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Add",
+			Handler:    _ConsentService_Add_Handler,
+		},
+		{
+			MethodName: "Get",
+			Handler:    _ConsentService_Get_Handler,
+		},
+		{
+			MethodName: "Patch",
+			Handler:    _ConsentService_Patch_Handler,
+		},
+		{
+			MethodName: "Apply",
+			Handler:    _ConsentService_Apply_Handler,
+		},
+		{
+			MethodName: "Erase",
+			Handler:    _ConsentService_Erase_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "rove/org_svc.g.proto",
+}

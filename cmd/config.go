@@ -9,6 +9,7 @@
 package cmd
 
 import (
+	"fmt"
 	"net/url"
 	"path/filepath"
 	"strings"
@@ -17,6 +18,7 @@ import (
 	"github.com/lesomnus/payday/config"
 
 	"github.com/lesomnus/rove/internal/identity"
+	"github.com/lesomnus/rove/server/consent"
 	"github.com/lesomnus/rove/server/mail"
 	"github.com/lesomnus/rove/server/retention"
 	"github.com/lesomnus/rove/server/sso"
@@ -138,6 +140,56 @@ type AppConfig struct {
 	// Accounts is what becomes of the memberships of an account roster erased
 	// (design 9.10).
 	Accounts AccountsConfig `yaml:"accounts"`
+
+	// Consent is what an account agrees to before it uses this deployment
+	// (design 9.11).
+	Consent ConsentConfig `yaml:"consent"`
+}
+
+// ConsentConfig is what an account agrees to before it uses this deployment:
+// its terms of use and its privacy policy, each at the version in force and
+// read where it is published. A document with no version is not asked for,
+// and asking for none is the default -- a team running its own Rove has no
+// terms to put in front of itself.
+//
+// A new version is agreed to again: every account is asked at its next page,
+// and refused every call until it has.
+type ConsentConfig struct {
+	Terms   DocumentConfig `yaml:"terms"`
+	Privacy DocumentConfig `yaml:"privacy"`
+}
+
+// DocumentConfig is one document an account agrees to.
+type DocumentConfig struct {
+	// Version is the one in force: a date it took effect, say. An agreement
+	// records it.
+	Version string `yaml:"version"`
+	// Url is where it is read.
+	Url string `yaml:"url"`
+}
+
+// Documents is what an account is asked to agree to, or an error for one
+// that has a version and nowhere to be read.
+func (c ConsentConfig) Documents() ([]consent.Document, error) {
+	out := []consent.Document{}
+	for _, d := range []struct {
+		key, name, title string
+		v                DocumentConfig
+	}{
+		{"terms", "terms", "이용약관", c.Terms},
+		{"privacy", "privacy", "개인정보 처리방침", c.Privacy},
+	} {
+		v := strings.TrimSpace(d.v.Version)
+		if v == "" {
+			continue
+		}
+		u, err := url.Parse(strings.TrimSpace(d.v.Url))
+		if err != nil || u.Host == "" || (u.Scheme != "https" && u.Scheme != "http") {
+			return nil, fmt.Errorf("app.consent.%s: a version with no url to read it at is nothing anybody can agree to", d.key)
+		}
+		out = append(out, consent.Document{Name: d.name, Title: d.title, Version: v, Url: u.String()})
+	}
+	return out, nil
 }
 
 // AccountsConfig is how long the memberships of an account roster erased

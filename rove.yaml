@@ -149,6 +149,12 @@ app:
   # A room nobody checked into is released this long after it began.
   no_show_after: 15m
   sweep: 1m
+  # What an account agrees to before it uses anything here (design 9.11):
+  # each document at the version in force, read at its url. A new version is
+  # agreed to again. None, the default, asks nothing.
+  # consent:
+  #   terms: { version: "2026-10-01", url: https://rove.example/terms }
+  #   privacy: { version: "2026-10-01", url: https://rove.example/privacy }
 
   # What a tenant's history is kept for (design 8). A tenant's own windows are
   # its contract's -- `rove contract set --tenant acme --view 365 --keep 730`
