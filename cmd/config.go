@@ -263,6 +263,20 @@ type LabelConfig struct {
 	Suffix string `yaml:"suffix"`
 	// Target is what a custom label domain's CNAME points at.
 	Target string `yaml:"target"`
+	// TenantDomains prints a tenant's labels with a domain of its own (D23),
+	// which is Dedicated's. Off, which is SaaS and the default, every label
+	// prints with this deployment's own address and a code unique in it
+	// (D28), and no tenant needs a domain to have labels.
+	TenantDomains bool `yaml:"tenant_domains"`
+}
+
+// Default is the suffix a workspace is given a default label host under when
+// it is made: none where workspaces have no domains of their own.
+func (c LabelConfig) Default() string {
+	if !c.TenantDomains {
+		return ""
+	}
+	return c.Suffix
 }
 
 // SessionConfig is how long a browser stays signed in.

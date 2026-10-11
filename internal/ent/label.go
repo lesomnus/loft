@@ -36,6 +36,8 @@ type Label struct {
 	DateCreated time.Time `json:"date_created,omitempty"`
 	// Batch holds the value of the "batch" field.
 	Batch string `json:"batch,omitempty"`
+	// Code holds the value of the "code" field.
+	Code *string `json:"code,omitempty"`
 	// TenantId holds the value of the "tenant_id" field.
 	TenantId uuid.UUID `json:"tenant_id,omitempty"`
 	// DomainId holds the value of the "domain_id" field.
@@ -84,7 +86,7 @@ func (*Label) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case label.FieldState, label.FieldBatch:
+		case label.FieldState, label.FieldBatch, label.FieldCode:
 			values[i] = new(sql.NullString)
 		case label.FieldBoundAt, label.FieldPrintedAt, label.FieldDateUpdated, label.FieldDateErased, label.FieldDateCreated:
 			values[i] = new(sql.NullTime)
@@ -164,6 +166,13 @@ func (_m *Label) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field batch", values[i])
 			} else if value.Valid {
 				_m.Batch = value.String
+			}
+		case label.FieldCode:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field code", values[i])
+			} else if value.Valid {
+				_m.Code = new(string)
+				*_m.Code = value.String
 			}
 		case label.FieldTenantId:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -254,6 +263,11 @@ func (_m *Label) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("batch=")
 	builder.WriteString(_m.Batch)
+	builder.WriteString(", ")
+	if v := _m.Code; v != nil {
+		builder.WriteString("code=")
+		builder.WriteString(*v)
+	}
 	builder.WriteString(", ")
 	builder.WriteString("tenant_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.TenantId))

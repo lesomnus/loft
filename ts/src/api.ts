@@ -168,6 +168,24 @@ export async function makeWorkspace(name: string): Promise<Workspace> {
 	return (await res.json()) as Workspace
 }
 
+/**
+ * Which of the account's workspaces a scanned code is a label in, for a scan
+ * made in another; undefined for none of them. A label in a workspace the
+ * account is not in reads as none.
+ */
+export async function labelWorkspace(code: string): Promise<Workspace | undefined> {
+	const res = await fetch('/account/labels/' + encodeURIComponent(code))
+	if (res.status === 404) return undefined
+	if (!res.ok) throw new Error(`라벨을 찾을 수 없습니다 (${res.status})`)
+	return (await res.json()) as Workspace
+}
+
+/** A label's code as it is printed under its QR: in two fours, to be read out. */
+export function labelCodeText(code: string | undefined): string {
+	if (code === undefined || code.length !== 8) return ''
+	return `${code.slice(0, 4)}-${code.slice(4)}`
+}
+
 const lastKey = 'rove.workspace'
 
 /** The workspace this browser was last in, which a page with none in its address opens. */

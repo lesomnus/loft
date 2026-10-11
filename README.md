@@ -119,6 +119,7 @@ go run ./cmd/rove use acme                            # 기본 워크스페이�
 go run ./cmd/rove api asset ls -o json                # 엔터티마다 get·ls·watch·add·patch·erase
 go run ./cmd/rove api asset move <자산> '{"to": {"id": "<공간>"}}'      # 그 밖의 작업도 엔터티 아래에
 go run ./cmd/rove api call rove.AssetService.Search '{"q": "노트북"}'  # 아무 RPC나 이름으로
+go run ./cmd/rove scan 7K3M-Q9TX                      # 라벨 코드·주소·태그가 가리키는 것 (내 다른 워크스페이스의 라벨도)
 go run ./cmd/rove workspace new 연구실                 # 워크스페이스 만들기
 go run ./cmd/rove logout
 ```
@@ -161,7 +162,9 @@ go run ./cmd/rove serve
 브라우저는 **HTTPS 이거나 localhost 일 때만** 카메라를 열어 줍니다. 그래서 PC의 `http://localhost:8080` 은 그 PC에서만 카메라 스캔이 됩니다.
 
 - 같은 PC에서 USB/블루투스 바코드 스캐너를 쓰면 스캔 화면의 입력칸에 그대로 입력됩니다 (QR 주소와 태그 모두 읽습니다).
-- 휴대폰에서 쓰려면 서버를 HTTPS로 열어야 합니다. 예를 들어 [Caddy](https://caddyserver.com)를 앞에 두고(`reverse_proxy localhost:8080`, 사내망이면 `tls internal`) `app.public_url` 과 `app.labels.suffix` 를 그 주소에 맞춥니다. 라벨 QR은 `https://<조직>.<suffix>/l/<코드>` 로 인쇄되므로, 휴대폰 기본 카메라로 찍어도 바로 그 자산이 열립니다.
+- 휴대폰에서 쓰려면 서버를 HTTPS로 열어야 합니다. 예를 들어 [Caddy](https://caddyserver.com)를 앞에 두고(`reverse_proxy localhost:8080`, 사내망이면 `tls internal`) `app.public_url` 을 그 주소에 맞춥니다. 라벨 QR은 `<public_url>/l/<코드>` 로 인쇄되므로(D28), 휴대폰 기본 카메라로 찍어도 바로 그 자산이 열립니다.
+- 라벨 코드는 8자(`7K3M-Q9TX`처럼 넷씩 끊어 라벨 아래에도 인쇄)이고 서비스 전체에서 하나뿐입니다. 카메라가 못 읽으면 스캔 화면에 그대로 입력하면 되고, 소문자나 `-` 없이 써도, `I`·`L`을 `1`로, `O`를 `0`으로 읽습니다. 다른 워크스페이스의 라벨을 스캔하면, 내가 그 워크스페이스의 구성원일 때 그곳으로 넘어가 열립니다. 구성원이 아니면 없는 라벨과 똑같이 "찾지 못함"입니다.
+- 워크스페이스마다 자기 라벨 도메인을 쓰려면(Dedicated, D23) `app.labels.tenant_domains: true` 를 켭니다. 그러면 설정 › 라벨에서 도메인을 추가해야 라벨이 켜지고, `app.labels.suffix` 아래 기본 하위 도메인(`https://<워크스페이스>.<suffix>/l/<코드>`)이 새 워크스페이스에 생깁니다.
 
 ### 조직별 이력 보존 (운영자)
 
@@ -231,7 +234,7 @@ go run ./cmd/rove trail accept --why "백업에서 복원한 청크를 확인함
 | 작업 | 수리·점검·정비, 예약 막기, 정기 점검 반복, 구성원의 고장 신고 |
 | 구매 | 주문, 입고 시 자산이나 재고로 등록 |
 | 사람 | 조직도, 역할, 로그인 중지, 개인정보 삭제, 로그인 발급·비밀번호 재설정(내장 roster일 때) |
-| 설정 | 유형과 속성, 모델, 예약 자원, 라벨 도메인, 작업 기록, 감사 기록, 사용량 |
+| 설정 | 유형과 속성, 모델, 예약 자원, 라벨(도메인은 `tenant_domains`일 때), 작업 기록, 감사 기록, 사용량 |
 
 역할: **소유자 · 관리자 · 매니저 · 구성원 · 감사자**. 무엇을 누가 할 수 있는지는 [`server/policy/policy.go`](server/policy/policy.go) 의 표 하나가 정하고, 표에 없는 것은 거부됩니다.
 

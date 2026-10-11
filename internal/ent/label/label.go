@@ -28,6 +28,8 @@ const (
 	FieldDateCreated = "date_created"
 	// FieldBatch holds the string denoting the batch field in the database.
 	FieldBatch = "batch"
+	// FieldCode holds the string denoting the code field in the database.
+	FieldCode = "code"
 	// FieldTenantId holds the string denoting the tenant_id field in the database.
 	FieldTenantId = "tenant_id"
 	// FieldDomainId holds the string denoting the domain_id field in the database.
@@ -65,6 +67,7 @@ var Columns = []string{
 	FieldDateErased,
 	FieldDateCreated,
 	FieldBatch,
+	FieldCode,
 	FieldTenantId,
 	FieldDomainId,
 }
@@ -125,6 +128,11 @@ func ByDateCreated(opts ...sql.OrderTermOption) OrderOption {
 // ByBatch orders the results by the batch field.
 func ByBatch(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldBatch, opts...).ToFunc()
+}
+
+// ByCode orders the results by the code field.
+func ByCode(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCode, opts...).ToFunc()
 }
 
 // ByTenantId orders the results by the tenant_id field.

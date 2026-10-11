@@ -934,6 +934,7 @@ type Label struct {
 	xxx_hidden_DateErased  *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=date_erased,json=dateErased"`
 	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
 	xxx_hidden_Batch       string                 `protobuf:"bytes,16,opt,name=batch"`
+	xxx_hidden_Code        string                 `protobuf:"bytes,17,opt,name=code"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
 }
@@ -1040,6 +1041,13 @@ func (x *Label) GetBatch() string {
 	return ""
 }
 
+func (x *Label) GetCode() string {
+	if x != nil {
+		return x.xxx_hidden_Code
+	}
+	return ""
+}
+
 func (x *Label) SetId(v []byte) {
 	if v == nil {
 		v = []byte{}
@@ -1088,6 +1096,10 @@ func (x *Label) SetDateCreated(v *timestamppb.Timestamp) {
 
 func (x *Label) SetBatch(v string) {
 	x.xxx_hidden_Batch = v
+}
+
+func (x *Label) SetCode(v string) {
+	x.xxx_hidden_Code = v
 }
 
 func (x *Label) HasTenant() bool {
@@ -1184,6 +1196,11 @@ type Label_builder struct {
 	DateCreated *timestamppb.Timestamp
 	// The print run it came from, to find a sheet again.
 	Batch string
+	// What its QR says after `/l/`: eight of Crockford's base32, unique in the
+	// whole deployment (D28), so that a label is found from the app's own
+	// address whichever workspace it is in. Null on a label printed before
+	// there were codes, which goes by its identifier in base32 still.
+	Code string
 }
 
 func (b0 Label_builder) Build() *Label {
@@ -1201,6 +1218,7 @@ func (b0 Label_builder) Build() *Label {
 	x.xxx_hidden_DateErased = b.DateErased
 	x.xxx_hidden_DateCreated = b.DateCreated
 	x.xxx_hidden_Batch = b.Batch
+	x.xxx_hidden_Code = b.Code
 	return m0
 }
 
@@ -1555,7 +1573,7 @@ const file_rove_asset_proto_rawDesc = "" +
 	"\x02id\x1a\x05\n" +
 	"\x03ref\x1a\a\n" +
 	"\x05state\x1a\t\n" +
-	"\apurpose 2(d:\x00\"\xcd\x05\n" +
+	"\apurpose 2(d:\x00\"\xeb\x05\n" +
 	"\x05Label\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x122\n" +
@@ -1571,7 +1589,8 @@ const file_rove_asset_proto_rawDesc = "" +
 	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
 	"dateErased\x12H\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12\x14\n" +
-	"\x05batch\x18\x10 \x01(\tR\x05batch:\x95\x01\xca\xfc\x15A\x12\x02\x10\x01\x1a \x12\x04page\x1a\x10\n" +
+	"\x05batch\x18\x10 \x01(\tR\x05batch\x12\x1c\n" +
+	"\x04code\x18\x11 \x01(\tB\b\xea\x82\x16\x040\x018\x01R\x04code:\x95\x01\xca\xfc\x15A\x12\x02\x10\x01\x1a \x12\x04page\x1a\x10\n" +
 	"\fdate_created\x10\x0f\x1a\x06\n" +
 	"\x02id\x10\x01\x1a\x19\x12\asubject\x1a\x0e\n" +
 	"\n" +

@@ -350,6 +350,11 @@ message TenantDomainStatusResponse {
   string target = 3 [features.field_presence = IMPLICIT];
   // The suffix a default subdomain gets.
   string default_suffix = 4 [features.field_presence = IMPLICIT];
+  // Whether a tenant prints with a domain of its own (D23). Off, labels
+  // print with the deployment's own address and are always on (D28).
+  bool tenant_domains = 5 [features.field_presence = IMPLICIT];
+  // What a label prints with when it has no domain to: `<base>/l/<code>`.
+  string base = 6 [features.field_presence = IMPLICIT];
 }
 
 service AttachmentService {

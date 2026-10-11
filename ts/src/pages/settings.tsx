@@ -4,6 +4,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import type { Bookable } from '../../gen/rove/booking_pb.js'
 import type { AssetType, AttributeDef, ItemModel } from '../../gen/rove/catalog_pb.js'
 import type { TenantDomain } from '../../gen/rove/asset_pb.js'
+import type { TenantDomainStatusResponse } from '../../gen/rove/asset_svc_pb.js'
 import {
 	AssetTypeService,
 	AuditService,
@@ -33,7 +34,7 @@ export function Settings(): ReactNode {
 		{ key: 'types', label: '유형' },
 		{ key: 'models', label: '모델' },
 		{ key: 'bookables', label: '예약 자원' },
-		{ key: 'labels', label: '라벨 도메인' },
+		{ key: 'labels', label: '라벨' },
 		{ key: 'events', label: '작업 기록' },
 		...(c.can('admin') || c.role === 'auditor' ? [{ key: 'audit', label: '감사 기록' }, { key: 'usage', label: '사용량' }] : []),
 		...(c.can('owner') ? [{ key: 'workspace', label: '워크스페이스' }] : []),
@@ -45,7 +46,7 @@ export function Settings(): ReactNode {
 			{tab === 'types' && <Types />}
 			{tab === 'models' && <Models />}
 			{tab === 'bookables' && <Bookables />}
-			{tab === 'labels' && <Domains />}
+			{tab === 'labels' && <Labels />}
 			{tab === 'events' && <Events />}
 			{tab === 'audit' && <Audit />}
 			{tab === 'usage' && <Usage />}
@@ -369,28 +370,52 @@ function BookableForm(props: { b: Bookable; onClose: () => void }): ReactNode {
 	)
 }
 
-function Domains(): ReactNode {
+/**
+ * Where labels print: the deployment's own address, with a code that is one
+ * in the whole deployment (D28) -- or, where tenants have domains of their
+ * own (D23), the tenant's.
+ */
+function Labels(): ReactNode {
+	const status = useRpc(TenantDomainService.method.status, {})
+	return (
+		<Load q={status}>
+			{(s) =>
+				s.tenantDomains ? (
+					<Domains s={s} />
+				) : (
+					<Card title="라벨">
+						<p>
+							QR 라벨은 이 서비스의 주소 <code>{s.base}/l/코드</code>로 인쇄됩니다. 코드는 서비스 전체에서 하나뿐이라 어느 워크스페이스의 라벨인지는 코드가 정합니다.{' '}
+							<Link to="/labels/print?count=24">빈 라벨 24장 인쇄</Link>
+						</p>
+						<p className="mute small">
+							다른 워크스페이스의 라벨을 스캔하면, 그 워크스페이스의 구성원이라면 그곳에서 열립니다. 카메라가 읽지 못할 때는 라벨 아래의 코드(예: 7K3M-Q9TX)를 스캔 화면에 입력하세요.
+						</p>
+					</Card>
+				)
+			}
+		</Load>
+	)
+}
+
+function Domains(props: { s: TenantDomainStatusResponse }): ReactNode {
 	const c = useCatalog()
 	const act = useAct()
-	const status = useRpc(TenantDomainService.method.status, {})
+	const s = props.s
 	const list = useRpc(TenantDomainService.method.list, { size: 50 })
 	const [adding, setAdding] = useState(false)
 	return (
 		<Card title="라벨 도메인" actions={c.can('admin') && <button className="primary small" onClick={() => setAdding(true)}>+ 도메인</button>}>
-			<Load q={status}>
-				{(s) =>
-					s.labels ? (
-						<p>
-							새 라벨은 <code>{s.active?.host}</code> 주소로 인쇄됩니다.{' '}
-							<Link to="/labels/print?count=24">빈 라벨 24장 인쇄</Link>
-						</p>
-					) : (
-						<p className="warn">
-							라벨 도메인이 없어 QR 라벨 기능이 꺼져 있습니다. 태그로 찾기는 그대로 됩니다. 도메인을 추가하면 켜집니다.
-						</p>
-					)
-				}
-			</Load>
+			{s.labels ? (
+				<p>
+					새 라벨은 <code>{s.active?.host}</code> 주소로 인쇄됩니다.{' '}
+					<Link to="/labels/print?count=24">빈 라벨 24장 인쇄</Link>
+				</p>
+			) : (
+				<p className="warn">
+					라벨 도메인이 없어 QR 라벨 기능이 꺼져 있습니다. 태그로 찾기는 그대로 됩니다. 도메인을 추가하면 켜집니다.
+				</p>
+			)}
 			<Load q={list}>
 				{(d) =>
 					d.items.length === 0 ? (
@@ -398,7 +423,7 @@ function Domains(): ReactNode {
 					) : (
 						<ul className="rows">
 							{d.items.map((x) => (
-								<DomainRow key={idStr(x.id)} d={x} target={status.data?.target ?? ''} admin={c.can('admin')} act={act} />
+								<DomainRow key={idStr(x.id)} d={x} target={s.target} admin={c.can('admin')} act={act} />
 							))}
 						</ul>
 					)
@@ -407,7 +432,7 @@ function Domains(): ReactNode {
 			<p className="mute small">
 				인쇄한 라벨은 그 주소를 계속 씁니다. 도메인을 바꾸면 이전 도메인은 '이전 주소'로 남아 기존 라벨도 계속 열립니다. 중지하면 그 주소로 인쇄된 라벨이 더 이상 열리지 않습니다.
 			</p>
-			{adding && <NewDomain suffix={status.data?.defaultSuffix ?? ''} onClose={() => setAdding(false)} />}
+			{adding && <NewDomain suffix={s.defaultSuffix} onClose={() => setAdding(false)} />}
 		</Card>
 	)
 }

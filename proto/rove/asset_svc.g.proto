@@ -886,6 +886,11 @@ message TenantDomainStatusResponse {
   string target = 3 [features.field_presence = IMPLICIT];
   // The suffix a default subdomain gets.
   string default_suffix = 4 [features.field_presence = IMPLICIT];
+  // Whether a tenant prints with a domain of its own (D23). Off, labels
+  // print with the deployment's own address and are always on (D28).
+  bool tenant_domains = 5 [features.field_presence = IMPLICIT];
+  // What a label prints with when it has no domain to: `<base>/l/<code>`.
+  string base = 6 [features.field_presence = IMPLICIT];
 }
 
 message LabelAddRequest {
@@ -898,6 +903,7 @@ message LabelAddRequest {
   google.protobuf.Timestamp printed_at = 12;
   google.protobuf.Timestamp date_created = 15;
   string batch = 16 [features.field_presence = IMPLICIT];
+  string code = 17;
 }
 
 message LabelGetRequest {
@@ -908,6 +914,7 @@ message LabelGetRequest {
 message LabelRef {
   oneof key {
     bytes id = 1;
+    string code = 17;
   }
 }
 
@@ -923,6 +930,7 @@ message LabelSelect {
   bool date_erased = 14;
   bool date_created = 15;
   bool batch = 16;
+  bool code = 17;
 }
 
 message LabelPatchRequest {
@@ -967,6 +975,12 @@ message LabelPatchRequest {
   // apart from a caller who never considered locking at all.
   bool date_updated_force = 27;
   string batch = 32;
+  string code = 34;
+  // Clear code instead of writing it.
+  // It takes a field of its own because an unset value already means
+  // "leave it alone", so no value could have meant NULL. It wins
+  // outright: setting both this and code clears.
+  bool code_null = 35;
 }
 
 message LabelApplyRequest {

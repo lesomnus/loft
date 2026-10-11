@@ -141,6 +141,9 @@ func (e *Label) Proto() *rove.Label {
 	}
 	x.SetDateCreated(timestamppb.New(e.DateCreated))
 	x.SetBatch(e.Batch)
+	if e.Code != nil {
+		x.SetCode(*e.Code)
+	}
 	return x
 }
 func (e *Attachment) Proto() *rove.Attachment {

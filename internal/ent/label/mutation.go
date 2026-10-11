@@ -25,6 +25,7 @@ type Mutation struct {
 	date_erased   *time.Time
 	date_created  *time.Time
 	batch         *string
+	code          *string
 	clearedFields map[string]struct{}
 	tenant        *uuid.UUID
 	clearedtenant bool
@@ -264,6 +265,38 @@ func (m *Mutation) ResetBatch() {
 	m.batch = nil
 }
 
+// SetCode sets the "code" field.
+func (m *Mutation) SetCode(s string) {
+	m.code = &s
+}
+
+// Code returns the value of the "code" field in the mutation.
+func (m *Mutation) Code() (r string, exists bool) {
+	v := m.code
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearCode clears the value of the "code" field.
+func (m *Mutation) ClearCode() {
+	m.code = nil
+	m.clearedFields[FieldCode] = struct{}{}
+}
+
+// CodeCleared returns if the "code" field was cleared in this mutation.
+func (m *Mutation) CodeCleared() bool {
+	_, ok := m.clearedFields[FieldCode]
+	return ok
+}
+
+// ResetCode resets all changes to the "code" field.
+func (m *Mutation) ResetCode() {
+	m.code = nil
+	delete(m.clearedFields, FieldCode)
+}
+
 // SetTenantId sets the "tenant_id" field.
 func (m *Mutation) SetTenantId(u uuid.UUID) {
 	m.tenant = &u
@@ -403,7 +436,7 @@ func (m *Mutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *Mutation) Fields() []string {
-	fields := make([]string, 0, 10)
+	fields := make([]string, 0, 11)
 	if m.subject_id != nil {
 		fields = append(fields, FieldSubjectId)
 	}
@@ -427,6 +460,9 @@ func (m *Mutation) Fields() []string {
 	}
 	if m.batch != nil {
 		fields = append(fields, FieldBatch)
+	}
+	if m.code != nil {
+		fields = append(fields, FieldCode)
 	}
 	if m.tenant != nil {
 		fields = append(fields, FieldTenantId)
@@ -458,6 +494,8 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.DateCreated()
 	case FieldBatch:
 		return m.Batch()
+	case FieldCode:
+		return m.Code()
 	case FieldTenantId:
 		return m.TenantId()
 	case FieldDomainId:
@@ -534,6 +572,13 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetBatch(v)
 		return nil
+	case FieldCode:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCode(v)
+		return nil
 	case FieldTenantId:
 		v, ok := value.(uuid.UUID)
 		if !ok {
@@ -593,6 +638,9 @@ func (m *Mutation) ClearedFields() []string {
 	if m.FieldCleared(FieldDateCreated) {
 		fields = append(fields, FieldDateCreated)
 	}
+	if m.FieldCleared(FieldCode) {
+		fields = append(fields, FieldCode)
+	}
 	if m.FieldCleared(FieldDomainId) {
 		fields = append(fields, FieldDomainId)
 	}
@@ -624,6 +672,9 @@ func (m *Mutation) ClearField(name string) error {
 		return nil
 	case FieldDateCreated:
 		m.ClearDateCreated()
+		return nil
+	case FieldCode:
+		m.ClearCode()
 		return nil
 	case FieldDomainId:
 		m.ClearDomainId()
@@ -659,6 +710,9 @@ func (m *Mutation) ResetField(name string) error {
 		return nil
 	case FieldBatch:
 		m.ResetBatch()
+		return nil
+	case FieldCode:
+		m.ResetCode()
 		return nil
 	case FieldTenantId:
 		m.ResetTenantId()

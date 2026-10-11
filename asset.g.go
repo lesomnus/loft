@@ -199,6 +199,9 @@ func (x *Label) Ref() *LabelRef {
 	if v := x.GetId(); len(v) > 0 {
 		return LabelById(v)
 	}
+	if v := x.GetCode(); len(v) > 0 {
+		return LabelByCode(v)
+	}
 
 	return nil
 }
@@ -211,6 +214,8 @@ func (x *LabelRef) Picks(v *Label) bool {
 	switch x.WhichKey() {
 	case LabelRef_Id_case:
 		return bytes.Equal(x.GetId(), v.GetId())
+	case LabelRef_Code_case:
+		return x.GetCode() == v.GetCode()
 	default:
 		return false
 	}
@@ -230,8 +235,18 @@ func LabelById(v []byte) *LabelRef {
 	return x
 }
 
+func LabelByCode(v string) *LabelRef {
+	x := &LabelRef{}
+	x.SetCode(v)
+	return x
+}
+
 func LabelGetById(v []byte) *LabelGetRequest {
 	return LabelGetRequest_builder{Ref: LabelById(v)}.Build()
+}
+
+func LabelGetByCode(v string) *LabelGetRequest {
+	return LabelGetRequest_builder{Ref: LabelByCode(v)}.Build()
 }
 
 func (x *AttachmentRef) Pick() *AttachmentGetRequest {

@@ -6,12 +6,14 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base32"
+	"errors"
 	"fmt"
 	"net/url"
 	"path"
 	"regexp"
 	"slices"
 	"strings"
+	"uuid"
 
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/z"
@@ -55,8 +57,64 @@ func ParseLabel(v string) (pdid.Id, bool) {
 	return id, err == nil
 }
 
-// labelURL answers the address a label prints, on `host`.
-func (d *Deps) labelURL(host string, id pdid.Id) string {
+// A label's code (D28): eight of Crockford's base32 -- no I, L, O or U to be
+// read for something else, upper case for a QR's alphanumeric mode, which
+// packs it densest -- unique in the whole deployment, so that a label is
+// found from the deployment's own address whichever workspace it is in. A
+// label printed before codes had none and goes by its identifier still
+// ([LabelCode]).
+const labelAlphabet = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"
+
+// newLabelCode is a code at random. 256 is a multiple of 32, so a byte's low
+// five bits are as fair as the byte.
+func newLabelCode() string {
+	b := make([]byte, 8)
+	if _, err := rand.Read(b); err != nil {
+		panic(err)
+	}
+	for i, v := range b {
+		b[i] = labelAlphabet[int(v)%len(labelAlphabet)]
+	}
+	return string(b)
+}
+
+// NormalLabelCode is a code as somebody typed or a camera read it, as it is
+// kept: upper case, the letters Crockford reads as digits read so, no dashes
+// or spaces -- or false for something that is not one.
+func NormalLabelCode(v string) (string, bool) {
+	v = strings.TrimSpace(v)
+	if u, err := url.Parse(v); err == nil && u.Host != "" {
+		v = path.Base(u.Path)
+	}
+	v = strings.ToUpper(strings.NewReplacer("-", "", " ", "").Replace(v))
+	v = strings.NewReplacer("I", "1", "L", "1", "O", "0").Replace(v)
+	if len(v) != 8 || strings.Trim(v, labelAlphabet) != "" {
+		return "", false
+	}
+	return v, true
+}
+
+// freeLabelCode is a code no label in the deployment has.
+func (t *Tx) freeLabelCode() (string, error) {
+	for range 8 {
+		c := newLabelCode()
+		taken, err := t.db.Label.Query().Where(label.Code(c)).Exist(t.ctx)
+		if err != nil {
+			return "", err
+		}
+		if !taken {
+			return c, nil
+		}
+	}
+	return "", errors.New("labels: no code came free")
+}
+
+// labelURL answers the address a label prints: on a tenant's own `host`
+// (D23), or on this deployment's own address when there is none (D28).
+func (d *Deps) labelURL(host string, code string) string {
+	if host == "" {
+		return strings.TrimSuffix(d.LabelBase, "/") + "/l/" + code
+	}
 	scheme := d.LabelScheme
 	if scheme == "" {
 		scheme = "https"
@@ -65,7 +123,7 @@ func (d *Deps) labelURL(host string, id pdid.Id) string {
 	if p := d.LabelPort; p != "" && !(scheme == "https" && p == "443") && !(scheme == "http" && p == "80") {
 		h = host + ":" + p
 	}
-	return fmt.Sprintf("%s://%s/l/%s", scheme, h, LabelCode(id))
+	return fmt.Sprintf("%s://%s/l/%s", scheme, h, code)
 }
 
 // The states a tenant domain is in (design 9.9).
@@ -89,10 +147,14 @@ func (s Domain) TenantDomain() app.TenantDomainServiceServer {
 }
 
 // Add registers a label domain: the tenant's own, to verify with a TXT
-// record, or a default subdomain of this deployment, verified already.
+// record, or a default subdomain of this deployment, verified already. Where
+// tenants have no domains of their own (D28) there is nothing to add one for.
 func (s domainTenantDomain) Add(ctx context.Context, req *app.TenantDomainAddRequest) (*app.TenantDomain, error) {
 	var out *app.TenantDomain
 	err := s.tx(ctx, func(t *Tx) error {
+		if !t.deps.LabelTenantDomains {
+			return failed("이 서비스에서는 라벨이 서비스 주소로 인쇄되어 워크스페이스별 라벨 도메인이 없습니다")
+		}
 		row := app.TenantDomainAddRequest_builder{
 			Tenant:  t.tenantRef(),
 			Purpose: "label",
@@ -302,6 +364,10 @@ func (s domainTenantDomain) Status(ctx context.Context, _ *app.TenantDomainStatu
 	out := app.TenantDomainStatusResponse_builder{
 		Target:        t.deps.LabelTarget,
 		DefaultSuffix: t.deps.LabelSuffix,
+		TenantDomains: t.deps.LabelTenantDomains,
+		Base:          strings.TrimSuffix(t.deps.LabelBase, "/"),
+		// Without domains of their own, every tenant's labels are on.
+		Labels: !t.deps.LabelTenantDomains,
 	}.Build()
 	cur, err := t.activeDomain()
 	if err != nil {
@@ -331,16 +397,20 @@ func errLabelsOff() error {
 	return failed("라벨 도메인이 없어 QR 라벨이 꺼져 있습니다. 설정에서 도메인을 추가하세요")
 }
 
-// Print makes labels with the active domain.
+// Print makes labels: with the tenant's active domain where tenants have
+// their own (D23), and with this deployment's own address otherwise (D28).
 func (s domainLabel) Print(ctx context.Context, req *app.LabelPrintRequest) (*app.LabelPrintResponse, error) {
 	var out *app.LabelPrintResponse
 	err := s.tx(ctx, func(t *Tx) error {
-		dom, err := t.activeDomain()
-		if err != nil {
-			return err
-		}
-		if dom == nil {
-			return errLabelsOff()
+		var dom *ent.TenantDomain
+		if t.deps.LabelTenantDomains {
+			var err error
+			if dom, err = t.activeDomain(); err != nil {
+				return err
+			}
+			if dom == nil {
+				return errLabelsOff()
+			}
 		}
 		n := int(req.GetCount())
 		ids := req.GetAssetIds()
@@ -358,13 +428,22 @@ func (s domainLabel) Print(ctx context.Context, req *app.LabelPrintRequest) (*ap
 
 		out = &app.LabelPrintResponse{}
 		makeOne := func(subject []byte) error {
+			code, err := t.freeLabelCode()
+			if err != nil {
+				return err
+			}
 			req := app.LabelAddRequest_builder{
 				Tenant:    t.tenantRef(),
-				Domain:    app.TenantDomainRef_builder{Id: pdid.Id(dom.Id).Bytes()}.Build(),
 				State:     "new",
 				PrintedAt: ts(t.now),
 				Batch:     batch,
+				Code:      z.Ptr(code),
 			}.Build()
+			host := ""
+			if dom != nil {
+				req.SetDomain(app.TenantDomainRef_builder{Id: pdid.Id(dom.Id).Bytes()}.Build())
+				host = dom.Host
+			}
 			if subject != nil {
 				req.SetSubjectId(subject)
 				req.SetState("bound")
@@ -375,7 +454,7 @@ func (s domainLabel) Print(ctx context.Context, req *app.LabelPrintRequest) (*ap
 				return err
 			}
 			out.SetLabels(append(out.GetLabels(), v))
-			out.SetUrls(append(out.GetUrls(), t.deps.labelURL(dom.Host, idOf(v.GetId()))))
+			out.SetUrls(append(out.GetUrls(), t.deps.labelURL(host, code)))
 			return nil
 		}
 		if len(ids) > 0 {
@@ -403,12 +482,14 @@ func (s domainLabel) Print(ctx context.Context, req *app.LabelPrintRequest) (*ap
 func (s domainLabel) Bind(ctx context.Context, req *app.LabelBindRequest) (*app.Label, error) {
 	var out *app.Label
 	err := s.tx(ctx, func(t *Tx) error {
-		dom, err := t.activeDomain()
-		if err != nil {
-			return err
-		}
-		if dom == nil {
-			return errLabelsOff()
+		if t.deps.LabelTenantDomains {
+			dom, err := t.activeDomain()
+			if err != nil {
+				return err
+			}
+			if dom == nil {
+				return errLabelsOff()
+			}
 		}
 		l, err := t.next.Label().Get(t.ctx, app.LabelGetRequest_builder{Ref: req.GetRef()}.Build())
 		if err != nil {
@@ -480,6 +561,17 @@ func (s domainLabel) Resolve(ctx context.Context, req *app.LabelResolveRequest) 
 	if err != nil {
 		return nil, err
 	}
+	// A code, which is a label of this tenant's or nothing here -- though
+	// eight characters may be an asset's tag too, which is tried after.
+	if c, ok := NormalLabelCode(req.GetCode()); ok {
+		l, err := t.db.Label.Query().Where(label.Code(c), label.TenantId(t.tenant.Uuid()), label.DateErasedIsNil()).Only(ctx)
+		if err == nil {
+			return t.resolved(pdid.Id(l.Id))
+		}
+		if !ent.IsNotFound(err) {
+			return nil, err
+		}
+	}
 	id, ok := ParseLabel(req.GetCode())
 	if !ok {
 		// Not a label: perhaps an asset tag typed or printed as a barcode.
@@ -501,7 +593,50 @@ func (s domainLabel) Resolve(ctx context.Context, req *app.LabelResolveRequest) 
 		return app.LabelResolveResponse_builder{Asset: v}.Build(), nil
 	}
 
-	l, err := t.next.Label().Get(ctx, app.LabelGetRequest_builder{Ref: app.LabelRef_builder{Id: id.Bytes()}.Build()}.Build())
+	return t.resolved(id)
+}
+
+// LabelWorkspace is the workspace a scanned code is in, whichever workspace it
+// was scanned from: a label's by its code, or by its identifier for one
+// printed before codes, or an asset's by its own -- or false for none. It reads
+// past the wall, and is only for telling an account which of its own
+// workspaces to look in (`GET /account/labels/{code}`).
+func LabelWorkspace(ctx context.Context, db *ent.Client, v string) (pdid.Id, bool, error) {
+	var (
+		tenant uuid.UUID
+		err    error
+	)
+	if c, ok := NormalLabelCode(v); ok {
+		var l *ent.Label
+		if l, err = db.Label.Query().Where(label.Code(c), label.DateErasedIsNil()).Only(ctx); err == nil {
+			tenant = l.TenantId
+		}
+	} else if id, ok := ParseLabel(v); !ok {
+		return pdid.Nil, false, nil
+	} else if id.Domain() == pd.AssetDomain {
+		var a *ent.Asset
+		if a, err = db.Asset.Query().Where(asset.Id(id.Uuid()), asset.DateErasedIsNil()).Only(ctx); err == nil {
+			tenant = a.TenantId
+		}
+	} else {
+		var l *ent.Label
+		if l, err = db.Label.Query().Where(label.Id(id.Uuid()), label.DateErasedIsNil()).Only(ctx); err == nil {
+			tenant = l.TenantId
+		}
+	}
+	switch {
+	case ent.IsNotFound(err):
+		return pdid.Nil, false, nil
+	case err != nil:
+		return pdid.Nil, false, err
+	}
+	return pdid.Id(tenant), true, nil
+}
+
+// resolved is what a label of this tenant's answers to a scan: itself, and
+// what it is stuck on.
+func (t *Tx) resolved(id pdid.Id) (*app.LabelResolveResponse, error) {
+	l, err := t.next.Label().Get(t.ctx, app.LabelGetRequest_builder{Ref: app.LabelRef_builder{Id: id.Bytes()}.Build()}.Build())
 	if err != nil {
 		return nil, err
 	}

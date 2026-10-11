@@ -9773,6 +9773,8 @@ type TenantDomainStatusResponse struct {
 	xxx_hidden_Active        *TenantDomain          `protobuf:"bytes,2,opt,name=active"`
 	xxx_hidden_Target        string                 `protobuf:"bytes,3,opt,name=target"`
 	xxx_hidden_DefaultSuffix string                 `protobuf:"bytes,4,opt,name=default_suffix,json=defaultSuffix"`
+	xxx_hidden_TenantDomains bool                   `protobuf:"varint,5,opt,name=tenant_domains,json=tenantDomains"`
+	xxx_hidden_Base          string                 `protobuf:"bytes,6,opt,name=base"`
 	unknownFields            protoimpl.UnknownFields
 	sizeCache                protoimpl.SizeCache
 }
@@ -9830,6 +9832,20 @@ func (x *TenantDomainStatusResponse) GetDefaultSuffix() string {
 	return ""
 }
 
+func (x *TenantDomainStatusResponse) GetTenantDomains() bool {
+	if x != nil {
+		return x.xxx_hidden_TenantDomains
+	}
+	return false
+}
+
+func (x *TenantDomainStatusResponse) GetBase() string {
+	if x != nil {
+		return x.xxx_hidden_Base
+	}
+	return ""
+}
+
 func (x *TenantDomainStatusResponse) SetLabels(v bool) {
 	x.xxx_hidden_Labels = v
 }
@@ -9844,6 +9860,14 @@ func (x *TenantDomainStatusResponse) SetTarget(v string) {
 
 func (x *TenantDomainStatusResponse) SetDefaultSuffix(v string) {
 	x.xxx_hidden_DefaultSuffix = v
+}
+
+func (x *TenantDomainStatusResponse) SetTenantDomains(v bool) {
+	x.xxx_hidden_TenantDomains = v
+}
+
+func (x *TenantDomainStatusResponse) SetBase(v string) {
+	x.xxx_hidden_Base = v
 }
 
 func (x *TenantDomainStatusResponse) HasActive() bool {
@@ -9866,6 +9890,11 @@ type TenantDomainStatusResponse_builder struct {
 	Target string
 	// The suffix a default subdomain gets.
 	DefaultSuffix string
+	// Whether a tenant prints with a domain of its own (D23). Off, labels
+	// print with the deployment's own address and are always on (D28).
+	TenantDomains bool
+	// What a label prints with when it has no domain to: `<base>/l/<code>`.
+	Base string
 }
 
 func (b0 TenantDomainStatusResponse_builder) Build() *TenantDomainStatusResponse {
@@ -9876,6 +9905,8 @@ func (b0 TenantDomainStatusResponse_builder) Build() *TenantDomainStatusResponse
 	x.xxx_hidden_Active = b.Active
 	x.xxx_hidden_Target = b.Target
 	x.xxx_hidden_DefaultSuffix = b.DefaultSuffix
+	x.xxx_hidden_TenantDomains = b.TenantDomains
+	x.xxx_hidden_Base = b.Base
 	return m0
 }
 
@@ -9890,6 +9921,7 @@ type LabelAddRequest struct {
 	xxx_hidden_PrintedAt   *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=printed_at,json=printedAt"`
 	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
 	xxx_hidden_Batch       string                 `protobuf:"bytes,16,opt,name=batch"`
+	xxx_hidden_Code        *string                `protobuf:"bytes,17,opt,name=code"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -9984,12 +10016,22 @@ func (x *LabelAddRequest) GetBatch() string {
 	return ""
 }
 
+func (x *LabelAddRequest) GetCode() string {
+	if x != nil {
+		if x.xxx_hidden_Code != nil {
+			return *x.xxx_hidden_Code
+		}
+		return ""
+	}
+	return ""
+}
+
 func (x *LabelAddRequest) SetId(v []byte) {
 	if v == nil {
 		v = []byte{}
 	}
 	x.xxx_hidden_Id = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 9)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 10)
 }
 
 func (x *LabelAddRequest) SetTenant(v *TenantRef) {
@@ -10005,7 +10047,7 @@ func (x *LabelAddRequest) SetSubjectId(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_SubjectId = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 9)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 10)
 }
 
 func (x *LabelAddRequest) SetState(v string) {
@@ -10026,6 +10068,11 @@ func (x *LabelAddRequest) SetDateCreated(v *timestamppb.Timestamp) {
 
 func (x *LabelAddRequest) SetBatch(v string) {
 	x.xxx_hidden_Batch = v
+}
+
+func (x *LabelAddRequest) SetCode(v string) {
+	x.xxx_hidden_Code = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 10)
 }
 
 func (x *LabelAddRequest) HasId() bool {
@@ -10077,6 +10124,13 @@ func (x *LabelAddRequest) HasDateCreated() bool {
 	return x.xxx_hidden_DateCreated != nil
 }
 
+func (x *LabelAddRequest) HasCode() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 9)
+}
+
 func (x *LabelAddRequest) ClearId() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
 	x.xxx_hidden_Id = nil
@@ -10107,6 +10161,11 @@ func (x *LabelAddRequest) ClearDateCreated() {
 	x.xxx_hidden_DateCreated = nil
 }
 
+func (x *LabelAddRequest) ClearCode() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 9)
+	x.xxx_hidden_Code = nil
+}
+
 type LabelAddRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
@@ -10119,6 +10178,7 @@ type LabelAddRequest_builder struct {
 	PrintedAt   *timestamppb.Timestamp
 	DateCreated *timestamppb.Timestamp
 	Batch       string
+	Code        *string
 }
 
 func (b0 LabelAddRequest_builder) Build() *LabelAddRequest {
@@ -10126,13 +10186,13 @@ func (b0 LabelAddRequest_builder) Build() *LabelAddRequest {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.Id != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 9)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 10)
 		x.xxx_hidden_Id = b.Id
 	}
 	x.xxx_hidden_Tenant = b.Tenant
 	x.xxx_hidden_Domain = b.Domain
 	if b.SubjectId != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 9)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 10)
 		x.xxx_hidden_SubjectId = b.SubjectId
 	}
 	x.xxx_hidden_State = b.State
@@ -10140,6 +10200,10 @@ func (b0 LabelAddRequest_builder) Build() *LabelAddRequest {
 	x.xxx_hidden_PrintedAt = b.PrintedAt
 	x.xxx_hidden_DateCreated = b.DateCreated
 	x.xxx_hidden_Batch = b.Batch
+	if b.Code != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 10)
+		x.xxx_hidden_Code = b.Code
+	}
 	return m0
 }
 
@@ -10277,11 +10341,24 @@ func (x *LabelRef) GetId() []byte {
 	return nil
 }
 
+func (x *LabelRef) GetCode() string {
+	if x != nil {
+		if x, ok := x.xxx_hidden_Key.(*labelRef_Code); ok {
+			return x.Code
+		}
+	}
+	return ""
+}
+
 func (x *LabelRef) SetId(v []byte) {
 	if v == nil {
 		v = []byte{}
 	}
 	x.xxx_hidden_Key = &labelRef_Id{v}
+}
+
+func (x *LabelRef) SetCode(v string) {
+	x.xxx_hidden_Key = &labelRef_Code{v}
 }
 
 func (x *LabelRef) HasKey() bool {
@@ -10299,6 +10376,14 @@ func (x *LabelRef) HasId() bool {
 	return ok
 }
 
+func (x *LabelRef) HasCode() bool {
+	if x == nil {
+		return false
+	}
+	_, ok := x.xxx_hidden_Key.(*labelRef_Code)
+	return ok
+}
+
 func (x *LabelRef) ClearKey() {
 	x.xxx_hidden_Key = nil
 }
@@ -10309,8 +10394,15 @@ func (x *LabelRef) ClearId() {
 	}
 }
 
+func (x *LabelRef) ClearCode() {
+	if _, ok := x.xxx_hidden_Key.(*labelRef_Code); ok {
+		x.xxx_hidden_Key = nil
+	}
+}
+
 const LabelRef_Key_not_set_case case_LabelRef_Key = 0
 const LabelRef_Id_case case_LabelRef_Key = 1
+const LabelRef_Code_case case_LabelRef_Key = 17
 
 func (x *LabelRef) WhichKey() case_LabelRef_Key {
 	if x == nil {
@@ -10319,6 +10411,8 @@ func (x *LabelRef) WhichKey() case_LabelRef_Key {
 	switch x.xxx_hidden_Key.(type) {
 	case *labelRef_Id:
 		return LabelRef_Id_case
+	case *labelRef_Code:
+		return LabelRef_Code_case
 	default:
 		return LabelRef_Key_not_set_case
 	}
@@ -10328,7 +10422,8 @@ type LabelRef_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	// Fields of oneof xxx_hidden_Key:
-	Id []byte
+	Id   []byte
+	Code *string
 	// -- end of xxx_hidden_Key
 }
 
@@ -10338,6 +10433,9 @@ func (b0 LabelRef_builder) Build() *LabelRef {
 	_, _ = b, x
 	if b.Id != nil {
 		x.xxx_hidden_Key = &labelRef_Id{b.Id}
+	}
+	if b.Code != nil {
+		x.xxx_hidden_Key = &labelRef_Code{*b.Code}
 	}
 	return m0
 }
@@ -10360,7 +10458,13 @@ type labelRef_Id struct {
 	Id []byte `protobuf:"bytes,1,opt,name=id,oneof"`
 }
 
+type labelRef_Code struct {
+	Code string `protobuf:"bytes,17,opt,name=code,oneof"`
+}
+
 func (*labelRef_Id) isLabelRef_Key() {}
+
+func (*labelRef_Code) isLabelRef_Key() {}
 
 type LabelSelect struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
@@ -10375,6 +10479,7 @@ type LabelSelect struct {
 	xxx_hidden_DateErased  bool                   `protobuf:"varint,14,opt,name=date_erased,json=dateErased"`
 	xxx_hidden_DateCreated bool                   `protobuf:"varint,15,opt,name=date_created,json=dateCreated"`
 	xxx_hidden_Batch       bool                   `protobuf:"varint,16,opt,name=batch"`
+	xxx_hidden_Code        bool                   `protobuf:"varint,17,opt,name=code"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -10483,9 +10588,16 @@ func (x *LabelSelect) GetBatch() bool {
 	return false
 }
 
+func (x *LabelSelect) GetCode() bool {
+	if x != nil {
+		return x.xxx_hidden_Code
+	}
+	return false
+}
+
 func (x *LabelSelect) SetAll(v bool) {
 	x.xxx_hidden_All = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 12)
 }
 
 func (x *LabelSelect) SetTenant(v *TenantSelect) {
@@ -10498,42 +10610,47 @@ func (x *LabelSelect) SetDomain(v *TenantDomainSelect) {
 
 func (x *LabelSelect) SetSubjectId(v bool) {
 	x.xxx_hidden_SubjectId = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 12)
 }
 
 func (x *LabelSelect) SetState(v bool) {
 	x.xxx_hidden_State = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 12)
 }
 
 func (x *LabelSelect) SetBoundAt(v bool) {
 	x.xxx_hidden_BoundAt = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 12)
 }
 
 func (x *LabelSelect) SetPrintedAt(v bool) {
 	x.xxx_hidden_PrintedAt = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 12)
 }
 
 func (x *LabelSelect) SetDateUpdated(v bool) {
 	x.xxx_hidden_DateUpdated = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 12)
 }
 
 func (x *LabelSelect) SetDateErased(v bool) {
 	x.xxx_hidden_DateErased = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 12)
 }
 
 func (x *LabelSelect) SetDateCreated(v bool) {
 	x.xxx_hidden_DateCreated = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 12)
 }
 
 func (x *LabelSelect) SetBatch(v bool) {
 	x.xxx_hidden_Batch = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 12)
+}
+
+func (x *LabelSelect) SetCode(v bool) {
+	x.xxx_hidden_Code = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 12)
 }
 
 func (x *LabelSelect) HasAll() bool {
@@ -10613,6 +10730,13 @@ func (x *LabelSelect) HasBatch() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 10)
 }
 
+func (x *LabelSelect) HasCode() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 11)
+}
+
 func (x *LabelSelect) ClearAll() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
 	x.xxx_hidden_All = false
@@ -10666,6 +10790,11 @@ func (x *LabelSelect) ClearBatch() {
 	x.xxx_hidden_Batch = false
 }
 
+func (x *LabelSelect) ClearCode() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 11)
+	x.xxx_hidden_Code = false
+}
+
 type LabelSelect_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
@@ -10680,6 +10809,7 @@ type LabelSelect_builder struct {
 	DateErased  *bool
 	DateCreated *bool
 	Batch       *bool
+	Code        *bool
 }
 
 func (b0 LabelSelect_builder) Build() *LabelSelect {
@@ -10687,42 +10817,46 @@ func (b0 LabelSelect_builder) Build() *LabelSelect {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.All != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 12)
 		x.xxx_hidden_All = *b.All
 	}
 	x.xxx_hidden_Tenant = b.Tenant
 	x.xxx_hidden_Domain = b.Domain
 	if b.SubjectId != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 12)
 		x.xxx_hidden_SubjectId = *b.SubjectId
 	}
 	if b.State != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 12)
 		x.xxx_hidden_State = *b.State
 	}
 	if b.BoundAt != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 12)
 		x.xxx_hidden_BoundAt = *b.BoundAt
 	}
 	if b.PrintedAt != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 12)
 		x.xxx_hidden_PrintedAt = *b.PrintedAt
 	}
 	if b.DateUpdated != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 12)
 		x.xxx_hidden_DateUpdated = *b.DateUpdated
 	}
 	if b.DateErased != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 12)
 		x.xxx_hidden_DateErased = *b.DateErased
 	}
 	if b.DateCreated != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 12)
 		x.xxx_hidden_DateCreated = *b.DateCreated
 	}
 	if b.Batch != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 12)
 		x.xxx_hidden_Batch = *b.Batch
+	}
+	if b.Code != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 12)
+		x.xxx_hidden_Code = *b.Code
 	}
 	return m0
 }
@@ -10742,6 +10876,8 @@ type LabelPatchRequest struct {
 	xxx_hidden_DateUpdated      *timestamppb.Timestamp `protobuf:"bytes,26,opt,name=date_updated,json=dateUpdated"`
 	xxx_hidden_DateUpdatedForce bool                   `protobuf:"varint,27,opt,name=date_updated_force,json=dateUpdatedForce"`
 	xxx_hidden_Batch            *string                `protobuf:"bytes,32,opt,name=batch"`
+	xxx_hidden_Code             *string                `protobuf:"bytes,34,opt,name=code"`
+	xxx_hidden_CodeNull         bool                   `protobuf:"varint,35,opt,name=code_null,json=codeNull"`
 	XXX_raceDetectHookData      protoimpl.RaceDetectHookData
 	XXX_presence                [1]uint32
 	unknownFields               protoimpl.UnknownFields
@@ -10870,6 +11006,23 @@ func (x *LabelPatchRequest) GetBatch() string {
 	return ""
 }
 
+func (x *LabelPatchRequest) GetCode() string {
+	if x != nil {
+		if x.xxx_hidden_Code != nil {
+			return *x.xxx_hidden_Code
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *LabelPatchRequest) GetCodeNull() bool {
+	if x != nil {
+		return x.xxx_hidden_CodeNull
+	}
+	return false
+}
+
 func (x *LabelPatchRequest) SetRef(v *LabelRef) {
 	x.xxx_hidden_Ref = v
 }
@@ -10880,7 +11033,7 @@ func (x *LabelPatchRequest) SetDomain(v *TenantDomainRef) {
 
 func (x *LabelPatchRequest) SetDomainNull(v bool) {
 	x.xxx_hidden_DomainNull = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 13)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 15)
 }
 
 func (x *LabelPatchRequest) SetSubjectId(v []byte) {
@@ -10888,17 +11041,17 @@ func (x *LabelPatchRequest) SetSubjectId(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_SubjectId = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 13)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 15)
 }
 
 func (x *LabelPatchRequest) SetSubjectIdNull(v bool) {
 	x.xxx_hidden_SubjectIdNull = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 13)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 15)
 }
 
 func (x *LabelPatchRequest) SetState(v string) {
 	x.xxx_hidden_State = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 13)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 15)
 }
 
 func (x *LabelPatchRequest) SetBoundAt(v *timestamppb.Timestamp) {
@@ -10907,7 +11060,7 @@ func (x *LabelPatchRequest) SetBoundAt(v *timestamppb.Timestamp) {
 
 func (x *LabelPatchRequest) SetBoundAtNull(v bool) {
 	x.xxx_hidden_BoundAtNull = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 13)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 15)
 }
 
 func (x *LabelPatchRequest) SetPrintedAt(v *timestamppb.Timestamp) {
@@ -10916,7 +11069,7 @@ func (x *LabelPatchRequest) SetPrintedAt(v *timestamppb.Timestamp) {
 
 func (x *LabelPatchRequest) SetPrintedAtNull(v bool) {
 	x.xxx_hidden_PrintedAtNull = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 13)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 15)
 }
 
 func (x *LabelPatchRequest) SetDateUpdated(v *timestamppb.Timestamp) {
@@ -10925,12 +11078,22 @@ func (x *LabelPatchRequest) SetDateUpdated(v *timestamppb.Timestamp) {
 
 func (x *LabelPatchRequest) SetDateUpdatedForce(v bool) {
 	x.xxx_hidden_DateUpdatedForce = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 13)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 15)
 }
 
 func (x *LabelPatchRequest) SetBatch(v string) {
 	x.xxx_hidden_Batch = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 12, 13)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 12, 15)
+}
+
+func (x *LabelPatchRequest) SetCode(v string) {
+	x.xxx_hidden_Code = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 13, 15)
+}
+
+func (x *LabelPatchRequest) SetCodeNull(v bool) {
+	x.xxx_hidden_CodeNull = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 14, 15)
 }
 
 func (x *LabelPatchRequest) HasRef() bool {
@@ -11024,6 +11187,20 @@ func (x *LabelPatchRequest) HasBatch() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 12)
 }
 
+func (x *LabelPatchRequest) HasCode() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 13)
+}
+
+func (x *LabelPatchRequest) HasCodeNull() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 14)
+}
+
 func (x *LabelPatchRequest) ClearRef() {
 	x.xxx_hidden_Ref = nil
 }
@@ -11084,6 +11261,16 @@ func (x *LabelPatchRequest) ClearBatch() {
 	x.xxx_hidden_Batch = nil
 }
 
+func (x *LabelPatchRequest) ClearCode() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 13)
+	x.xxx_hidden_Code = nil
+}
+
+func (x *LabelPatchRequest) ClearCodeNull() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 14)
+	x.xxx_hidden_CodeNull = false
+}
+
 type LabelPatchRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
@@ -11128,6 +11315,12 @@ type LabelPatchRequest_builder struct {
 	// apart from a caller who never considered locking at all.
 	DateUpdatedForce *bool
 	Batch            *string
+	Code             *string
+	// Clear code instead of writing it.
+	// It takes a field of its own because an unset value already means
+	// "leave it alone", so no value could have meant NULL. It wins
+	// outright: setting both this and code clears.
+	CodeNull *bool
 }
 
 func (b0 LabelPatchRequest_builder) Build() *LabelPatchRequest {
@@ -11137,39 +11330,47 @@ func (b0 LabelPatchRequest_builder) Build() *LabelPatchRequest {
 	x.xxx_hidden_Ref = b.Ref
 	x.xxx_hidden_Domain = b.Domain
 	if b.DomainNull != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 13)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 15)
 		x.xxx_hidden_DomainNull = *b.DomainNull
 	}
 	if b.SubjectId != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 13)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 15)
 		x.xxx_hidden_SubjectId = b.SubjectId
 	}
 	if b.SubjectIdNull != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 13)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 15)
 		x.xxx_hidden_SubjectIdNull = *b.SubjectIdNull
 	}
 	if b.State != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 13)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 15)
 		x.xxx_hidden_State = b.State
 	}
 	x.xxx_hidden_BoundAt = b.BoundAt
 	if b.BoundAtNull != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 13)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 15)
 		x.xxx_hidden_BoundAtNull = *b.BoundAtNull
 	}
 	x.xxx_hidden_PrintedAt = b.PrintedAt
 	if b.PrintedAtNull != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 13)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 15)
 		x.xxx_hidden_PrintedAtNull = *b.PrintedAtNull
 	}
 	x.xxx_hidden_DateUpdated = b.DateUpdated
 	if b.DateUpdatedForce != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 13)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 15)
 		x.xxx_hidden_DateUpdatedForce = *b.DateUpdatedForce
 	}
 	if b.Batch != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 12, 13)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 12, 15)
 		x.xxx_hidden_Batch = b.Batch
+	}
+	if b.Code != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 13, 15)
+		x.xxx_hidden_Code = b.Code
+	}
+	if b.CodeNull != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 14, 15)
+		x.xxx_hidden_CodeNull = *b.CodeNull
 	}
 	return m0
 }
@@ -15054,12 +15255,14 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x19TenantDomainRetireRequest\x12'\n" +
 	"\x03ref\x18\x01 \x01(\v2\x15.rove.TenantDomainRefR\x03ref\x12\x1b\n" +
 	"\x05force\x18\x02 \x01(\bB\x05\xaa\x01\x02\b\x02R\x05force\"\x1b\n" +
-	"\x19TenantDomainStatusRequest\"\xb4\x01\n" +
+	"\x19TenantDomainStatusRequest\"\xfd\x01\n" +
 	"\x1aTenantDomainStatusResponse\x12\x1d\n" +
 	"\x06labels\x18\x01 \x01(\bB\x05\xaa\x01\x02\b\x02R\x06labels\x12*\n" +
 	"\x06active\x18\x02 \x01(\v2\x12.rove.TenantDomainR\x06active\x12\x1d\n" +
 	"\x06target\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06target\x12,\n" +
-	"\x0edefault_suffix\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\rdefaultSuffix\"\x83\x03\n" +
+	"\x0edefault_suffix\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\rdefaultSuffix\x12,\n" +
+	"\x0etenant_domains\x18\x05 \x01(\bB\x05\xaa\x01\x02\b\x02R\rtenantDomains\x12\x19\n" +
+	"\x04base\x18\x06 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04base\"\x97\x03\n" +
 	"\x0fLabelAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\x12-\n" +
@@ -15072,13 +15275,15 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\n" +
 	"printed_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tprintedAt\x12=\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\x12\x1b\n" +
-	"\x05batch\x18\x10 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05batch\"^\n" +
+	"\x05batch\x18\x10 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05batch\x12\x12\n" +
+	"\x04code\x18\x11 \x01(\tR\x04code\"^\n" +
 	"\x0fLabelGetRequest\x12 \n" +
 	"\x03ref\x18\x01 \x01(\v2\x0e.rove.LabelRefR\x03ref\x12)\n" +
-	"\x06select\x18\x02 \x01(\v2\x11.rove.LabelSelectR\x06select\"#\n" +
+	"\x06select\x18\x02 \x01(\v2\x11.rove.LabelSelectR\x06select\"9\n" +
 	"\bLabelRef\x12\x10\n" +
-	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
-	"\x03key\"\xe9\x02\n" +
+	"\x02id\x18\x01 \x01(\fH\x00R\x02id\x12\x14\n" +
+	"\x04code\x18\x11 \x01(\tH\x00R\x04codeB\x05\n" +
+	"\x03key\"\xfd\x02\n" +
 	"\vLabelSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x12.rove.TenantSelectR\x06tenant\x120\n" +
@@ -15094,7 +15299,8 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\vdate_erased\x18\x0e \x01(\bR\n" +
 	"dateErased\x12!\n" +
 	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\x12\x14\n" +
-	"\x05batch\x18\x10 \x01(\bR\x05batch\"\xa3\x04\n" +
+	"\x05batch\x18\x10 \x01(\bR\x05batch\x12\x12\n" +
+	"\x04code\x18\x11 \x01(\bR\x04code\"\xd4\x04\n" +
 	"\x11LabelPatchRequest\x12 \n" +
 	"\x03ref\x18\x01 \x01(\v2\x0e.rove.LabelRefR\x03ref\x12-\n" +
 	"\x06domain\x18\x10 \x01(\v2\x15.rove.TenantDomainRefR\x06domain\x12\x1f\n" +
@@ -15111,7 +15317,9 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x0fprinted_at_null\x18\x19 \x01(\bR\rprintedAtNull\x12=\n" +
 	"\fdate_updated\x18\x1a \x01(\v2\x1a.google.protobuf.TimestampR\vdateUpdated\x12,\n" +
 	"\x12date_updated_force\x18\x1b \x01(\bR\x10dateUpdatedForce\x12\x14\n" +
-	"\x05batch\x18  \x01(\tR\x05batch\"Y\n" +
+	"\x05batch\x18  \x01(\tR\x05batch\x12\x12\n" +
+	"\x04code\x18\" \x01(\tR\x04code\x12\x1b\n" +
+	"\tcode_null\x18# \x01(\bR\bcodeNull\"Y\n" +
 	"\x11LabelApplyRequest\x12 \n" +
 	"\x03ref\x18\x01 \x01(\v2\x0e.rove.LabelRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\",\n" +
@@ -15735,6 +15943,7 @@ func file_rove_asset_svc_g_proto_init() {
 	}
 	file_rove_asset_svc_g_proto_msgTypes[65].OneofWrappers = []any{
 		(*labelRef_Id)(nil),
+		(*labelRef_Code)(nil),
 	}
 	file_rove_asset_svc_g_proto_msgTypes[84].OneofWrappers = []any{
 		(*attachmentRef_Id)(nil),
