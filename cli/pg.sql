@@ -44,6 +44,22 @@ BEGIN
 			DEFERRABLE INITIALLY DEFERRED;
 	END IF;
 
+	-- And a place holds one thing at a time: a slot of a machine, one part;
+	-- a span of a rack's units, one server. A span is inclusive, as `u_from`
+	-- and `u_to` are, and zero is no position.
+	IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'placement_slot_once' AND conrelid = 'placement'::regclass) THEN
+		ALTER TABLE placement ADD CONSTRAINT placement_slot_once
+			EXCLUDE USING gist (parent_id WITH =, slot WITH =, tstzrange(valid_from, valid_to, '[)') WITH &&)
+			WHERE (superseded_at IS NULL AND slot <> '')
+			DEFERRABLE INITIALLY DEFERRED;
+	END IF;
+	IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'placement_rack_once' AND conrelid = 'placement'::regclass) THEN
+		ALTER TABLE placement ADD CONSTRAINT placement_rack_once
+			EXCLUDE USING gist (parent_id WITH =, int4range(u_from, u_to, '[]') WITH &&, tstzrange(valid_from, valid_to, '[)') WITH &&)
+			WHERE (superseded_at IS NULL AND u_from > 0)
+			DEFERRABLE INITIALLY DEFERRED;
+	END IF;
+
 	-- One owner, one manager and one custodian at a time.
 	IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'stewardship_one_per_role' AND conrelid = 'stewardship'::regclass) THEN
 		ALTER TABLE stewardship ADD CONSTRAINT stewardship_one_per_role
@@ -61,6 +77,13 @@ BEGIN
 	END IF;
 END
 $$;
+
+-- A key of a thing has one value at a moment, among the values known now.
+-- Not deferred, since an index cannot be: the domain layer supersedes what was
+-- recorded for the same moment before it writes the new value
+-- (`Tx.addFact`), and so is never in between.
+CREATE UNIQUE INDEX IF NOT EXISTS fact_once ON fact (asset_id, key, valid_from)
+	WHERE superseded_at IS NULL;
 
 -- An account is in a workspace once: one holder of it per tenant, among the
 -- holders still here (design 9.10, D27). The domain layer checks before it

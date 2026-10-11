@@ -297,3 +297,128 @@ func TestTheWallHoldsUnderTheDomainLayer(t *testing.T) {
 	_, err = e.s.Db.ExecContext(ctx, "UPDATE asset SET custodian_id = (SELECT id FROM party WHERE tenant_id = $1 LIMIT 1) WHERE id = $2", idUUID(theirs.GetTenant().GetId()), idUUID(laptop.GetId()))
 	refused(err)
 }
+
+// TestTheTreeHoldsUnderTheDomainLayer: on PostgreSQL, SQL that goes around the
+// domain layer still cannot put a thing in two places at once, two things in
+// one slot or one rack position, two owners on a thing, one relation twice, or
+// two values on one key at one moment (`cli/pg.sql`, design 9.4). Each row below would be the
+// second of a pair the domain layer refuses; written straight to the table, it
+// is refused by the database, and the same row a moment or a place over is
+// not.
+func TestTheTreeHoldsUnderTheDomainLayer(t *testing.T) {
+	e := newEnv(t)
+	if e.s.Dialect != "postgres" {
+		t.Skip("PostgreSQL only; set PDTEST_POSTGRES")
+	}
+	x := e.x
+	ctx := context.Background()
+	room := e.space("서버실", nil)
+	server := e.item("서버", "SV-1", room, 30*day)
+	rack := e.item("랙", "RK-1", room, 30*day)
+	dimm := e.item("메모리", "MM-1", room, 30*day)
+	host := e.item("서버 2", "SV-2", room, 30*day)
+	spare := e.item("예비 메모리", "MM-2", room, day)
+	spareHost := e.item("예비 서버", "SV-3", room, day)
+	_, kim := e.person("member")
+	_, lee := e.person("member")
+
+	// What the domain layer wrote: a part in a slot and a server in a rack
+	// from twenty days ago, and an owner from as long.
+	_, err := e.app().Asset().Move(e.owner, app.AssetMoveRequest_builder{Ref: assetRef(dimm), To: assetRef(server), Mode: "installed", Slot: "DIMM1", At: e.ago(20 * day)}.Build())
+	x.NoError(err)
+	_, err = e.app().Asset().Move(e.owner, app.AssetMoveRequest_builder{Ref: assetRef(host), To: assetRef(rack), Mode: "installed", UFrom: 10, UTo: 11, At: e.ago(20 * day)}.Build())
+	x.NoError(err)
+	_, err = e.app().Asset().Assign(e.owner, app.AssetAssignRequest_builder{Ref: assetRef(dimm), Role: "owner", Party: ref[app.PartyRef](kim.GetId()), At: e.ago(20 * day)}.Build())
+	x.NoError(err)
+	_, err = e.app().Asset().Relate(e.owner, app.AssetRelateRequest_builder{Ref: assetRef(server), Target: assetRef(host), Kind: "connected_to", At: e.ago(20 * day)}.Build())
+	x.NoError(err)
+
+	refused := func(err error, constraint string) {
+		t.Helper()
+		var pg *pgconn.PgError
+		x.ErrorAs(err, &pg)
+		x.Contains([]string{"23P01", "23505"}, pg.Code, pg.Message)
+		x.Equal(constraint, pg.ConstraintName, pg.Message)
+	}
+	// A spare had no place ten days ago, so a row of it then is in nobody's
+	// way but the place's.
+	from, to := e.now.Add(-10*day), e.now.Add(-9*day)
+	place := func(child, parent *app.Asset, slot string, u int32) error {
+		q := e.s.Ent.Placement.Create().
+			SetId(pdid.New(pd.PlacementDomain).Uuid()).
+			SetTenantId(e.tenant.Uuid()).
+			SetChildId(idUUID(child.GetId())).
+			SetParentId(idUUID(parent.GetId())).
+			SetMode("installed").
+			SetSlot(slot).
+			SetUFrom(u).
+			SetUTo(0).
+			SetValidFrom(from).
+			SetValidTo(to).
+			SetEventId(newOpUUID()).
+			SetDateUpdated(e.now)
+		if u > 0 {
+			q.SetUTo(u + 1)
+		}
+		return q.Exec(ctx)
+	}
+
+	refused(place(spare, server, "DIMM1", 0), "placement_slot_once")
+	x.NoError(place(spare, server, "DIMM2", 0), "another slot")
+	refused(place(spareHost, rack, "", 11), "placement_rack_once")
+	x.NoError(place(spareHost, rack, "", 12), "the units above, touching and not overlapping")
+	refused(place(dimm, room, "", 0), "placement_one_parent")
+
+	steward := func(party *app.Party, since time.Time) error {
+		return e.s.Ent.Stewardship.Create().
+			SetId(pdid.New(pd.StewardshipDomain).Uuid()).
+			SetTenantId(e.tenant.Uuid()).
+			SetAssetId(idUUID(dimm.GetId())).
+			SetRole("owner").
+			SetPartyId(idUUID(party.GetId())).
+			SetValidFrom(since).
+			SetValidTo(since.Add(day)).
+			SetEventId(newOpUUID()).
+			SetDateUpdated(e.now).
+			Exec(ctx)
+	}
+	refused(steward(lee, from), "stewardship_one_per_role")
+	x.NoError(steward(lee, e.now.Add(-40*day)), "before kim's began")
+
+	relate := func(target *app.Asset) error {
+		return e.s.Ent.Link.Create().
+			SetId(pdid.New(pd.LinkDomain).Uuid()).
+			SetTenantId(e.tenant.Uuid()).
+			SetSourceId(idUUID(server.GetId())).
+			SetTargetId(idUUID(target.GetId())).
+			SetKind("connected_to").
+			SetRequired(false).
+			SetValidFrom(from).
+			SetValidTo(to).
+			SetEventId(newOpUUID()).
+			SetDateUpdated(e.now).
+			Exec(ctx)
+	}
+	refused(relate(host), "link_once")
+	x.NoError(relate(rack), "to another thing")
+
+	// The name the asset was registered with is a fact from its first day.
+	name := func(superseded bool) error {
+		q := e.s.Ent.Fact.Create().
+			SetId(pdid.New(pd.FactDomain).Uuid()).
+			SetTenantId(e.tenant.Uuid()).
+			SetAssetId(idUUID(dimm.GetId())).
+			SetKey("name").
+			SetValue("다른 이름").
+			SetCleared(false).
+			SetValidFrom(e.now.Add(-30 * day)).
+			SetEventId(newOpUUID()).
+			SetDateUpdated(e.now)
+		if superseded {
+			q.SetSupersededAt(e.now)
+		}
+		return q.Exec(ctx)
+	}
+	refused(name(false), "fact_once")
+	x.NoError(name(true), "a value known no more is one of many")
+}

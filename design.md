@@ -485,6 +485,8 @@ CREATE TRIGGER asset_parent_same_tenant BEFORE INSERT OR UPDATE OF parent_id, te
 
 같은 방식으로 슬롯 점유(`parent, slot`), 랙 U 범위(`int4range(u_from, u_to, '[]')`), 담당 역할(`asset, role`)의 겹침을 막고, Fact에는 `(asset, key, valid_from) WHERE superseded_at IS NULL` 부분 유일 인덱스를 둔다. 트리거는 `custodian`, `type`, `model` 같은 다른 바뀌는 참조에도 둔다.
 
+지금은 모두 `cli/pg.sql`에 있다(마이그레이션마다 다시 실행해도 되는 문장들). `EXCLUDE`는 물리 부모 하나(`placement_one_parent`), 슬롯(`placement_slot_once`, 빈 슬롯 제외), 랙 U 범위(`placement_rack_once`, `u_from > 0`), 담당 역할(`stewardship_one_per_role`), 관계(`link_once`), 독점 할당(`allocation_exclusive_no_overlap`)이고 트랜잭션 끝까지 미룬다. Fact의 부분 유일 인덱스(`fact_once`)는 미룰 수 없으므로 즉시 검사한다. 도메인 레이어가 같은 시점의 값을 먼저 대체한 뒤 새 값을 쓰기 때문에 그 사이에 걸리는 일이 없다. 도메인 레이어를 거치지 않은 SQL이 이것들에 거부되는지는 `TestTheTreeHoldsUnderTheDomainLayer`(할당은 `TestPostgresBackstop`)가 확인한다.
+
 ### 9.5 검색
 
 - PostgreSQL 기본 전문 검색은 한국어 형태소를 다루지 못하고, `pg_trgm` GIN 인덱스는 3글자 미만 질의에 쓰이지 않는다. 의자·책상·조명처럼 2음절 이름이 흔하므로 **`pg_bigm`을 쓴다.** PostgreSQL 18에서 pg_bigm 1.2의 GIN 인덱스는 `%의자%`를 인덱스로 찾는다. 1음절 질의는 결과가 많아 순차 탐색이 되므로, 1글자 입력은 태그·이름 접두 일치로 처리한다(확인함).

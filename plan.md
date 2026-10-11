@@ -122,7 +122,7 @@ MVP(Phase 0 + 1)는 M0~M5이고, 합쳐서 대략 13~16주로 본다.
     - 재시도(M1 후속): 지급·반납, 재고 시작·사용·이동·자산 전환, 실사 스캔, 예약, 자산 등록도 같은 작업을 다시 보내면 첫 사본의 결과를 받는다. 기한이 지났거나 실사가 끝난 뒤에 와도 같다. 동시에 N번 보내도 한 번만 일어난다(`TestEveryOperationSentManyTimesAtOnceIsMadeOnce`, design 6장 "동시성과 멱등성").
     - 교차 테넌트: `TestNoCallReachesAnotherWorkspace`가 정책 표의 모든 메서드를 다른 워크스페이스의 ID로 부른다. 도메인 레이어를 거치지 않은 SQL은 테넌트 트리거(`cli/pg.sql`, 테넌트가 있는 테이블 사이의 모든 FK)가 23503으로 거부한다.
     - 성능: `ROVE_PERF=1`로 켜는 측정에서 p50 192ms, p95 393ms였다(자산 10만 개, 배치 약 30만·Fact 약 40만 행, PostgreSQL 17).
-    - 남은 pg-extra: 슬롯·랙 위치 `EXCLUDE`와 Fact 부분 유일 인덱스. 지금은 도메인 레이어와 트리 잠금이 막는다.
+    - pg-extra(M1 후속): 슬롯·랙 위치 `EXCLUDE`(`placement_slot_once`, `placement_rack_once`)와 Fact 부분 유일 인덱스(`fact_once`)를 더했다. 이제 M1의 pg-extra가 모두 있다. 도메인 레이어를 거치지 않은 SQL은 물리 부모·슬롯·랙·담당 역할·관계·Fact 어느 쪽이든 거부된다(`TestTheTreeHoldsUnderTheDomainLayer`).
 
 ### M2 — 계정·권한·운영자 (약 2주)
 

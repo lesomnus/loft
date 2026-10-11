@@ -33,14 +33,24 @@ func TestEverySchemaHasTheBackstop(t *testing.T) {
 		s, err := cmd.Build(ctx, c)
 		x.NoError(err)
 		x.NoError(cli.Migrate(ctx, s))
-		for table, name := range map[string]string{
-			"allocation":  "allocation_exclusive_no_overlap",
-			"placement":   "placement_one_parent",
-			"stewardship": "stewardship_one_per_role",
-			"link":        "link_once",
+		for name, table := range map[string]string{
+			"allocation_exclusive_no_overlap": "allocation",
+			"placement_one_parent":            "placement",
+			"placement_slot_once":             "placement",
+			"placement_rack_once":             "placement",
+			"stewardship_one_per_role":        "stewardship",
+			"link_once":                       "link",
 		} {
 			n := 0
 			x.NoError(s.Db.QueryRowContext(ctx, "SELECT count(*) FROM pg_constraint WHERE conname = $1 AND conrelid = $2::regclass", name, table).Scan(&n))
+			x.Equal(1, n, "%s on %s", name, table)
+		}
+		for name, table := range map[string]string{
+			"fact_once":           "fact",
+			"holder_account_once": "holder",
+		} {
+			n := 0
+			x.NoError(s.Db.QueryRowContext(ctx, "SELECT count(*) FROM pg_indexes WHERE indexname = $1 AND tablename = $2 AND schemaname = current_schema()", name, table).Scan(&n))
 			x.Equal(1, n, "%s on %s", name, table)
 		}
 
