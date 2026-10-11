@@ -70,6 +70,9 @@ type Holder func(*sql.Selector)
 // InventoryCount is the predicate function for inventorycount builders.
 type InventoryCount func(*sql.Selector)
 
+// Invitation is the predicate function for invitation builders.
+type Invitation func(*sql.Selector)
+
 // ItemModel is the predicate function for itemmodel builders.
 type ItemModel func(*sql.Selector)
 

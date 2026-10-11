@@ -119,3 +119,82 @@ func (Session) Annotations() []schema.Annotation {
 		entsql.Annotation{Table: "session"},
 	}
 }
+
+type Invitation struct {
+	ent.Schema
+}
+
+func (Invitation) Fields() []ent.Field {
+	return []ent.Field{
+		field.Uuid("id").
+			Unique().
+			Immutable(),
+		field.String("email").
+			Immutable(),
+		field.String("role").
+			Immutable(),
+		field.Uuid("account").
+			Nillable().
+			Optional(),
+		field.Time("date_updated"),
+		field.Time("date_erased").
+			Nillable().
+			Optional(),
+		field.Time("date_created").
+			Immutable().
+			Optional(),
+		field.String("state"),
+		field.Time("date_expires").
+			Optional(),
+		field.Time("date_settled").
+			Nillable().
+			Optional(),
+		field.Bytes("claim").
+			Nillable().
+			Optional(),
+		field.Uuid("tenant_id").
+			Immutable(),
+		field.Uuid("inviter_id").
+			Immutable(),
+		field.Uuid("party_id").
+			Optional(),
+		field.Uuid("holder_id").
+			Optional(),
+	}
+}
+
+func (Invitation) Edges() []ent.Edge {
+	return []ent.Edge{
+		edge.To("tenant", Tenant.Type).
+			Unique().
+			Field("tenant_id").
+			Required().
+			Immutable(),
+		edge.To("inviter", Holder.Type).
+			Unique().
+			Field("inviter_id").
+			Required().
+			Immutable(),
+		edge.To("party", Party.Type).
+			Unique().
+			Field("party_id"),
+		edge.To("holder", Holder.Type).
+			Unique().
+			Field("holder_id"),
+	}
+}
+
+func (Invitation) Indexes() []ent.Index {
+	return []ent.Index{
+		index.Fields("date_created", "id"),
+		index.Fields("claim"),
+		index.Fields("account"),
+		index.Fields("email"),
+	}
+}
+
+func (Invitation) Annotations() []schema.Annotation {
+	return []schema.Annotation{
+		entsql.Annotation{Table: "invitation"},
+	}
+}

@@ -88,6 +88,24 @@ watch:
 #   sso_only: true
 
 # rove's own.
+#
+# `mail` is the SMTP server what goes to a mailbox is sent through -- an
+# invitation (design 9.11). With no host nothing is sent, and each message,
+# its link included, is written to the log. `invitations` is how long one
+# waits and how many a workspace may have out.
+#
+# app:
+#   mail:
+#     host: smtp.example.com
+#     port: 587                          # 465 with `tls: implicit`
+#     username: rove
+#     password: env:ROVE_MAIL_PASSWORD
+#     from: "Rove <no-reply@rove.example>"
+#     tls: starttls                      # starttls | implicit | none
+#   invitations:
+#     ttl: 720h                          # 30 days
+#     pending: 50                        # waiting at once, per workspace
+#     daily: 100                         # sent in a day, per workspace
 app:
   # Where a browser reaches the HTTP listener. Its scheme says whether the
   # session cookie needs HTTPS.

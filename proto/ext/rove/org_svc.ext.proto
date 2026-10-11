@@ -97,3 +97,49 @@ message PartyDeactivateRequest {
 message PartyPseudonymizeRequest {
   PartyRef ref = 1;
 }
+
+// What an invitation is answered with, beside the generated Add and List,
+// which the domain layer completes (`server/domain/invitation.go`).
+//
+// `Claim`, `Accept`, `Deny` and `List` are served as the caller's **account**
+// and not as a membership: the account an invitation is addressed to is no
+// member of the workspace yet (`cmd.AccountMethods`). `Add` and `Revoke` are
+// the workspace's, by somebody who runs it.
+service InvitationService {
+  // Revoke takes back an invitation nobody has answered.
+  rpc Revoke(InvitationRevokeRequest) returns (Invitation);
+  // Claim makes the invitation a mail carried a code for the caller's: the
+  // proof is reading that mailbox, for an account roster holds no checked
+  // address of.
+  rpc Claim(InvitationClaimRequest) returns (Invitation);
+  // Accept makes the caller a member of the workspace, as what it says.
+  rpc Accept(InvitationAcceptRequest) returns (Invitation);
+  // Deny says no.
+  rpc Deny(InvitationDenyRequest) returns (Invitation);
+}
+
+message InvitationRevokeRequest {
+  InvitationRef ref = 1;
+}
+
+message InvitationClaimRequest {
+  // The code the mail's link carried.
+  string code = 1 [features.field_presence = IMPLICIT];
+}
+
+message InvitationAcceptRequest {
+  InvitationRef ref = 1;
+}
+
+message InvitationDenyRequest {
+  InvitationRef ref = 1;
+}
+
+// Account is who a call served as an account is from: an account of the
+// deployment's directory at roster (D27). Nothing keeps it; `cmd.Resolver`
+// puts it in the frame of a call an account makes before it is anybody's
+// member (`cmd.AccountMethods`), where a membership's holder would be.
+message Account {
+  bytes id = 1 [features.field_presence = IMPLICIT];
+}
+

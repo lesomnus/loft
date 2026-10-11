@@ -23,6 +23,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/fact"
 	"github.com/lesomnus/rove/internal/ent/holder"
 	"github.com/lesomnus/rove/internal/ent/inventorycount"
+	"github.com/lesomnus/rove/internal/ent/invitation"
 	"github.com/lesomnus/rove/internal/ent/itemmodel"
 	"github.com/lesomnus/rove/internal/ent/label"
 	"github.com/lesomnus/rove/internal/ent/legalhold"
@@ -122,6 +123,7 @@ func checkColumn(t, c string) error {
 			fact.Table:            fact.ValidColumn,
 			holder.Table:          holder.ValidColumn,
 			inventorycount.Table:  inventorycount.ValidColumn,
+			invitation.Table:      invitation.ValidColumn,
 			itemmodel.Table:       itemmodel.ValidColumn,
 			label.Table:           label.ValidColumn,
 			legalhold.Table:       legalhold.ValidColumn,

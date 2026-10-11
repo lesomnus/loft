@@ -37,6 +37,7 @@ import (
 	"github.com/lesomnus/rove/server/account"
 	"github.com/lesomnus/rove/server/bare"
 	"github.com/lesomnus/rove/server/domain"
+	"github.com/lesomnus/rove/server/mail"
 	"github.com/lesomnus/rove/server/offboard"
 	"github.com/lesomnus/rove/server/pd"
 	"github.com/lesomnus/rove/server/policy"
@@ -246,6 +247,9 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		return nil, err
 	}
 	ungated := domain.New(base, drv, deps)
+	// What an account's answer to an invitation is written through, in a
+	// workspace it is not a member of yet: the domain layer's alone.
+	deps.Base = base
 
 	s := &Server{Db: db, Ent: client, Drv: drv, Dialect: dialect, Watch: w, Walled: stacked, Ungated: ungated, Base: base, Deps: deps, Identity: people}
 
@@ -403,7 +407,7 @@ func (s *Server) Grpc(ctx context.Context, c Config, opts ...grpc.ServerOption) 
 	chain := grpcx.Serving(ctx, grpcx.WithDeadline(c.Server.CallTimeout())).
 		WithUnary(auth.InterceptorUnary(h, Resolver(s.Ungated, s.Ent), auth.PublicDefault)).
 		WithStream(auth.InterceptorStream(h, Resolver(s.Ungated, s.Ent), auth.PublicDefault)).
-		WithUnary(grpcx.LimitUnary(c.Server.Limiter(), gate.ByTenant())).
+		WithUnary(grpcx.LimitUnary(c.Server.Limiter(), LimitKey())).
 		With(gate.Interceptor(s.Policy)).
 		With(s.Watch.Interceptor()).
 		WithUnary(grpcx.ClosedUnary(c.Server.Closed()))
@@ -514,6 +518,11 @@ func depsOf(c Config) (*domain.Deps, error) {
 		return nil, err
 	}
 
+	sender, err := mail.New(c.App.Mail, identity.ResolveRef, slog.Default())
+	if err != nil {
+		return nil, err
+	}
+
 	pub := c.App.Public()
 	port := pub.Port()
 	return &domain.Deps{
@@ -526,6 +535,13 @@ func depsOf(c Config) (*domain.Deps, error) {
 		LookupTXT:   net.DefaultResolver.LookupTXT,
 		NoShowAfter: c.App.NoShowAfter,
 		Retention:   c.App.Retention.Defaults(),
+		Mail:        sender,
+		AppUrl:      c.App.App(),
+		Invitations: domain.InvitationRules{
+			Ttl:     c.App.Invitations.Ttl,
+			Pending: c.App.Invitations.Pending,
+			Daily:   c.App.Invitations.Daily,
+		},
 	}, nil
 }
 

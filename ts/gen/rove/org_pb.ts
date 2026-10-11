@@ -19,7 +19,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file rove/org.proto.
  */
 export const file_rove_org: GenFile = /*@__PURE__*/
-  fileDesc("Cg5yb3ZlL29yZy5wcm90bxIEcm92ZSKHBQoFUGFydHkSFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEiQKBnRlbmFudBgCIAEoCzIMLnJvdmUuVGVuYW50QgbyghYCQAESDAoEbmFtZRgFIAEoCRIMCgRkZXNjGAYgASgJEicKBmxhYmVscxgHIAMoCzIXLnJvdmUuUGFydHkuTGFiZWxzRW50cnkSDAoEa2luZBgIIAEoCRIbCglwYXJlbnRfaWQYCSABKAxCCOqCFgQQQDgBEiQKBmhvbGRlchgKIAEoCzIMLnJvdmUuSG9sZGVyQgbyghYCOAESDQoFZW1haWwYCyABKAkSDQoFcGhvbmUYDCABKAkSOQoMZGF0ZV91cGRhdGVkGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4oBABI4CgtkYXRlX2VyYXNlZBgOIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOSAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAEgwKBGNvZGUYECABKAkaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ATqbAcr8FT4SAhABGiASBHBhZ2UaEAoMZGF0ZV9jcmVhdGVkEA8aBgoCaWQQARoWEgZob2xkZXIaCgoGaG9sZGVyEAowAYq7FlUICjJPChAKDgoMZGF0ZV9jcmVhdGVkCgYKBAoCaWQaBQoDcmVmGgYKBGtpbmQaCwoJcGFyZW50X2lkGggKBmhvbGRlchoICgZsYWJlbHMgMij0AzoAIvEDCgdTZXNzaW9uEhcKAmlkGAEgASgMQgvqghYHEEAoAYIBABIXCgdhY2NvdW50GAggASgMQgbqghYCEEASHQoGc2VjcmV0GAkgASgMQg3qghYDggEAqsEWAggBEhYKBWdyYW50GAogASgMQgfqghYDggEAEjgKDGRhdGVfZXhwaXJlcxgLIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCBuqCFgI4ARI1CglkYXRlX2lkbGUYDCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESGgoEaGVsZBgQIAEoDEIM6oIWAjgBqsEWAggBEjkKDGRhdGVfdXBkYXRlZBgNIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOKAQASOAoLZGF0ZV9lcmFzZWQYDiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDkgEAEjsKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCeqCFgVAAYIBADo+yvwVMhICEAEaFBIGc2VjcmV0GgoKBnNlY3JldBAJGhYSB2FjY291bnQaCwoHYWNjb3VudBAIirsWBAgmKgBCH1oYZ2l0aHViLmNvbS9sZXNvbW51cy9yb3ZlkgMCCAJiCGVkaXRpb25zcOgH", [file_google_protobuf_timestamp, file_orm, file_payday, file_rove_payday_holder, file_rove_payday_tenant]);
+  fileDesc("Cg5yb3ZlL29yZy5wcm90bxIEcm92ZSKHBQoFUGFydHkSFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEiQKBnRlbmFudBgCIAEoCzIMLnJvdmUuVGVuYW50QgbyghYCQAESDAoEbmFtZRgFIAEoCRIMCgRkZXNjGAYgASgJEicKBmxhYmVscxgHIAMoCzIXLnJvdmUuUGFydHkuTGFiZWxzRW50cnkSDAoEa2luZBgIIAEoCRIbCglwYXJlbnRfaWQYCSABKAxCCOqCFgQQQDgBEiQKBmhvbGRlchgKIAEoCzIMLnJvdmUuSG9sZGVyQgbyghYCOAESDQoFZW1haWwYCyABKAkSDQoFcGhvbmUYDCABKAkSOQoMZGF0ZV91cGRhdGVkGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4oBABI4CgtkYXRlX2VyYXNlZBgOIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOSAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAEgwKBGNvZGUYECABKAkaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ATqbAcr8FT4SAhABGiASBHBhZ2UaEAoMZGF0ZV9jcmVhdGVkEA8aBgoCaWQQARoWEgZob2xkZXIaCgoGaG9sZGVyEAowAYq7FlUICjJPChAKDgoMZGF0ZV9jcmVhdGVkCgYKBAoCaWQaBQoDcmVmGgYKBGtpbmQaCwoJcGFyZW50X2lkGggKBmhvbGRlchoICgZsYWJlbHMgMij0AzoAIvEDCgdTZXNzaW9uEhcKAmlkGAEgASgMQgvqghYHEEAoAYIBABIXCgdhY2NvdW50GAggASgMQgbqghYCEEASHQoGc2VjcmV0GAkgASgMQg3qghYDggEAqsEWAggBEhYKBWdyYW50GAogASgMQgfqghYDggEAEjgKDGRhdGVfZXhwaXJlcxgLIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCBuqCFgI4ARI1CglkYXRlX2lkbGUYDCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESGgoEaGVsZBgQIAEoDEIM6oIWAjgBqsEWAggBEjkKDGRhdGVfdXBkYXRlZBgNIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOKAQASOAoLZGF0ZV9lcmFzZWQYDiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDkgEAEjsKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCeqCFgVAAYIBADo+yvwVMhICEAEaFBIGc2VjcmV0GgoKBnNlY3JldBAJGhYSB2FjY291bnQaCwoHYWNjb3VudBAIirsWBAgmKgAikAYKCkludml0YXRpb24SFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEiQKBnRlbmFudBgCIAEoCzIMLnJvdmUuVGVuYW50QgbyghYCQAESJQoHaW52aXRlchgIIAEoCzIMLnJvdmUuSG9sZGVyQgbyghYCQAESFQoFZW1haWwYCSABKAlCBuqCFgJAARIUCgRyb2xlGAogASgJQgbqghYCQAESIgoFcGFydHkYCyABKAsyCy5yb3ZlLlBhcnR5QgbyghYCOAESGQoHYWNjb3VudBgMIAEoDEII6oIWBBBAOAESOQoMZGF0ZV91cGRhdGVkGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4oBABI4CgtkYXRlX2VyYXNlZBgOIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOSAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAEg0KBXN0YXRlGBAgASgJEjkKDGRhdGVfZXhwaXJlcxgRIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOCAQASOAoMZGF0ZV9zZXR0bGVkGBIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIG6oIWAjgBEiQKBmhvbGRlchgTIAEoCzIMLnJvdmUuSG9sZGVyQgbyghYCOAESGwoFY2xhaW0YFCABKAxCDOqCFgI4AarBFgIIATq2Acr8FWYSAhABGiASBHBhZ2UaEAoMZGF0ZV9jcmVhdGVkEA8aBgoCaWQQARoSEgVjbGFpbRoJCgVjbGFpbRAUGhYSB2FjY291bnQaCwoHYWNjb3VudBAMGhISBWVtYWlsGgkKBWVtYWlsEAmKuxZICCkyRAoQCg4KDGRhdGVfY3JlYXRlZAoGCgQKAmlkGgUKA3JlZhoICgZ0ZW5hbnQaCQoHYWNjb3VudBoHCgVzdGF0ZSAyKMgBQh9aGGdpdGh1Yi5jb20vbGVzb21udXMvcm92ZZIDAggCYghlZGl0aW9uc3DoBw", [file_google_protobuf_timestamp, file_orm, file_payday, file_rove_payday_holder, file_rove_payday_tenant]);
 
 /**
  * Party is a person, a team, an organization or a vendor: whoever an asset is
@@ -193,4 +193,133 @@ export type Session = Message<"rove.Session"> & {
  */
 export const SessionSchema: GenMessage<Session> = /*@__PURE__*/
   messageDesc(file_rove_org, 1);
+
+/**
+ * Invitation is an account asked into a workspace, by address, with a role
+ * (design 9.11, M2 step 4).
+ *
+ * It is the workspace's row: who invited whom, as what, and what became of it
+ * are this workspace's history, and leave with it. Two sides read it -- the
+ * people who run the workspace, and the account it is addressed to, who is
+ * not a member yet and can read nothing here. So `InvitationService.List`,
+ * `Claim`, `Accept` and `Deny` are served as the account rather than as a
+ * membership (`cmd.AccountMethods`), and which rows each side reads is said by
+ * the domain layer, not by the wall (`server/domain/invitation.go`).
+ *
+ * # Whose it is
+ *
+ * The account whose address it is, and only an address somebody checked: one
+ * roster holds as verified, because any directory's administrator may put any
+ * address on a user of their own (nOAuth), or one whose link it was mailed with
+ * was opened by the account (`Claim`), since reading that mailbox is the proof.
+ * Nothing here says whether an address is anybody's: the people who invite
+ * learn what became of the invitation, and nothing about who was asked.
+ *
+ * @generated from message rove.Invitation
+ */
+export type Invitation = Message<"rove.Invitation"> & {
+  /**
+   * @generated from field: bytes id = 1;
+   */
+  id: Uint8Array;
+
+  /**
+   * @generated from field: rove.Tenant tenant = 2;
+   */
+  tenant?: Tenant | undefined;
+
+  /**
+   * Who invited: their membership of this workspace.
+   *
+   * @generated from field: rove.Holder inviter = 8;
+   */
+  inviter?: Holder | undefined;
+
+  /**
+   * The address it was sent to, folded as an address is compared.
+   *
+   * @generated from field: string email = 9;
+   */
+  email: string;
+
+  /**
+   * What an account that accepts is here.
+   *
+   * @generated from field: string role = 10;
+   */
+  role: string;
+
+  /**
+   * The person record an account that accepts becomes: one this workspace
+   * already keeps, or empty for one made then.
+   *
+   * @generated from field: rove.Party party = 11;
+   */
+  party?: Party | undefined;
+
+  /**
+   * The account it is for, once that is known -- its link was opened by it,
+   * or it answered -- and empty while it is only an address.
+   *
+   * @generated from field: bytes account = 12;
+   */
+  account: Uint8Array;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp date_updated = 13;
+   */
+  dateUpdated?: Timestamp | undefined;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp date_erased = 14;
+   */
+  dateErased?: Timestamp | undefined;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp date_created = 15;
+   */
+  dateCreated?: Timestamp | undefined;
+
+  /**
+   * `pending`, `accepted`, `denied` or `revoked`. One still pending after
+   * `date_expires` is expired, which is said where it is read rather than
+   * written by a sweep.
+   *
+   * @generated from field: string state = 16;
+   */
+  state: string;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp date_expires = 17;
+   */
+  dateExpires?: Timestamp | undefined;
+
+  /**
+   * When it was answered or taken back.
+   *
+   * @generated from field: google.protobuf.Timestamp date_settled = 18;
+   */
+  dateSettled?: Timestamp | undefined;
+
+  /**
+   * The membership accepting it made.
+   *
+   * @generated from field: rove.Holder holder = 19;
+   */
+  holder?: Holder | undefined;
+
+  /**
+   * The SHA-256 of the code its mail carried, until an account opens it.
+   *
+   * @generated from field: bytes claim = 20;
+   */
+  claim: Uint8Array;
+};
+
+/**
+ * Describes the message rove.Invitation.
+ * Use `create(InvitationSchema)` to create a new message.
+ */
+export const InvitationSchema: GenMessage<Invitation> = /*@__PURE__*/
+  messageDesc(file_rove_org, 2);
 

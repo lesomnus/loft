@@ -54,6 +54,9 @@ export const HolderDomain = 2
 /** The domain identifiers of rove.InventoryCount carry. */
 export const InventoryCountDomain = 31
 
+/** The domain identifiers of rove.Invitation carry. */
+export const InvitationDomain = 41
+
 /** The domain identifiers of rove.ItemModel carry. */
 export const ItemModelDomain = 9
 
@@ -136,6 +139,7 @@ pdid.register("rove.Event", EventDomain, "event")
 pdid.register("rove.Fact", FactDomain, "fact")
 pdid.register("rove.Holder", HolderDomain, "holder")
 pdid.register("rove.InventoryCount", InventoryCountDomain, "inventory-count")
+pdid.register("rove.Invitation", InvitationDomain, "invitation")
 pdid.register("rove.ItemModel", ItemModelDomain, "item-model")
 pdid.register("rove.Label", LabelDomain, "label")
 pdid.register("rove.LegalHold", LegalHoldDomain, "legal-hold")

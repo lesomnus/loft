@@ -108,12 +108,16 @@ const Agent = "rove"
 const RosterAdministrator = rostercore.Administers
 
 // AgentMethods is what that holder may call: checking a password, reading a
-// person and their tenant, and -- for a tenant key -- whose key it is. It is
-// the `--role` an external roster installs Rove with:
+// person and their tenant, the addresses somebody checked for them -- which is
+// whose an invitation is (`Store.Addresses`) -- and, for a tenant key, whose
+// key it is. It is the `--role` an external roster installs Rove with:
 //
-//	roster app install --tenant acme --role /roster.VouchService/Verify \
-//	  --role /roster.HolderService/Get --role /roster.TenantService/Get \
-//	  --role /roster.MeService/Get rove
+//	roster app install --tenant acme --role /roster.VouchService/Verify,\
+//	  /roster.HolderService/Get,/roster.TenantService/Get,/roster.MeService/Get,\
+//	  /roster.EmailService/List,/roster.EmailService/Get rove
+//
+// An installation older than the addresses is installed again with this list;
+// until it is, an account sees only the invitations it holds a link for.
 //
 // People are made, given passwords and suspended at roster, by whoever
 // administers the tenant there; on the embedded roster Rove does those through
@@ -123,6 +127,8 @@ var AgentMethods = []string{
 	"/roster.HolderService/Get",
 	"/roster.TenantService/Get",
 	"/roster.MeService/Get",
+	"/roster.EmailService/List",
+	"/roster.EmailService/Get",
 }
 
 // The prefixes a key is read by, the way roster reads them.
@@ -580,6 +586,45 @@ func (s *Store) ById(ctx context.Context, sub string) (Person, error) {
 	}
 
 	return s.person(as, rstr.HolderRef_builder{Id: id[:]}.Build())
+}
+
+// Addresses is an account's addresses that somebody checked -- roster holds
+// them as verified, by a link it sent or by the provider the account signed in
+// through -- as roster stores them, folded.
+//
+// An address nobody checked is not one of them, and that is the whole of the
+// method. Any directory's administrator may put any address on a user of
+// their own, and a provider passes it on (nOAuth); roster keeps it, with
+// nothing claimed, and an invitation found by it would go to whoever typed it.
+func (s *Store) Addresses(ctx context.Context, account pdid.Id) ([]string, error) {
+	as, _, err := s.inDirectory(ctx)
+	if err != nil {
+		return nil, err
+	}
+	c := rstr.NewEmailServiceClient(s.conn)
+	vs, err := c.List(as, rstr.EmailListRequest_builder{
+		Filters: []*rstr.EmailFilter{rstr.EmailFilter_builder{
+			Holder: rstr.HolderRef_builder{Id: account.Bytes()}.Build(),
+		}.Build()},
+	}.Build())
+	if err != nil {
+		return nil, fmt.Errorf("roster: %w", err)
+	}
+	var out []string
+	for _, v := range vs.GetItems() {
+		// Listed narrow and read whole: what a list answers is not the stamp.
+		e, err := c.Get(as, rstr.EmailGetRequest_builder{
+			Ref:    rstr.EmailRef_builder{Id: v.GetId()}.Build(),
+			Select: rstr.EmailSelect_builder{Address: z.Ptr(true), DateVerified: z.Ptr(true)}.Build(),
+		}.Build())
+		if err != nil {
+			return nil, fmt.Errorf("roster: %w", err)
+		}
+		if e.HasDateVerified() {
+			out = append(out, strings.ToLower(strings.TrimSpace(e.GetAddress())))
+		}
+	}
+	return out, nil
 }
 
 func (s *Store) person(as context.Context, ref *rstr.HolderRef) (Person, error) {

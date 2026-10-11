@@ -8,7 +8,7 @@ import type { Timestamp } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
 import type { Patch } from "../patch/patch_pb.js";
 import { file_patch_patch } from "../patch/patch_pb.js";
-import type { Party, PartySchema, SessionSchema } from "./org_pb.js";
+import type { Invitation, InvitationSchema, Party, PartySchema, SessionSchema } from "./org_pb.js";
 import { file_rove_org } from "./org_pb.js";
 import type { Holder } from "./payday/holder_pb.js";
 import { file_rove_payday_holder } from "./payday/holder_pb.js";
@@ -24,7 +24,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file rove/org_svc.g.proto.
  */
 export const file_rove_org_svc_g: GenFile = /*@__PURE__*/
-  fileDesc("ChRyb3ZlL29yZ19zdmMuZy5wcm90bxIEcm92ZSKGAwoPUGFydHlBZGRSZXF1ZXN0EgoKAmlkGAEgASgMEh8KBnRlbmFudBgCIAEoCzIPLnJvdmUuVGVuYW50UmVmEhMKBG5hbWUYBSABKAlCBaoBAggCEhMKBGRlc2MYBiABKAlCBaoBAggCEjEKBmxhYmVscxgHIAMoCzIhLnJvdmUuUGFydHlBZGRSZXF1ZXN0LkxhYmVsc0VudHJ5EhMKBGtpbmQYCCABKAlCBaoBAggCEhEKCXBhcmVudF9pZBgJIAEoDBIfCgZob2xkZXIYCiABKAsyDy5yb3ZlLkhvbGRlclJlZhIUCgVlbWFpbBgLIAEoCUIFqgECCAISFAoFcGhvbmUYDCABKAlCBaoBAggCEjAKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEwoEY29kZRgQIAEoCUIFqgECCAIaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASJRCg9QYXJ0eUdldFJlcXVlc3QSGwoDcmVmGAEgASgLMg4ucm92ZS5QYXJ0eVJlZhIhCgZzZWxlY3QYAiABKAsyES5yb3ZlLlBhcnR5U2VsZWN0IkkKCFBhcnR5UmVmEgwKAmlkGAEgASgMSAASKAoGaG9sZGVyGAogASgLMhYucm92ZS5QYXJ0eVJlZkJ5SG9sZGVySABCBQoDa2V5IjMKEFBhcnR5UmVmQnlIb2xkZXISHwoGaG9sZGVyGAogASgLMg8ucm92ZS5Ib2xkZXJSZWYinAIKC1BhcnR5U2VsZWN0EgsKA2FsbBgBIAEoCBIiCgZ0ZW5hbnQYAiABKAsyEi5yb3ZlLlRlbmFudFNlbGVjdBIMCgRuYW1lGAUgASgIEgwKBGRlc2MYBiABKAgSDgoGbGFiZWxzGAcgASgIEgwKBGtpbmQYCCABKAgSEQoJcGFyZW50X2lkGAkgASgIEiIKBmhvbGRlchgKIAEoCzISLnJvdmUuSG9sZGVyU2VsZWN0Eg0KBWVtYWlsGAsgASgIEg0KBXBob25lGAwgASgIEhQKDGRhdGVfdXBkYXRlZBgNIAEoCBITCgtkYXRlX2VyYXNlZBgOIAEoCBIUCgxkYXRlX2NyZWF0ZWQYDyABKAgSDAoEY29kZRgQIAEoCCKZAwoRUGFydHlQYXRjaFJlcXVlc3QSGwoDcmVmGAEgASgLMg4ucm92ZS5QYXJ0eVJlZhIMCgRuYW1lGAogASgJEgwKBGRlc2MYDCABKAkSMwoGbGFiZWxzGA4gAygLMiMucm92ZS5QYXJ0eVBhdGNoUmVxdWVzdC5MYWJlbHNFbnRyeRIMCgRraW5kGBAgASgJEhEKCXBhcmVudF9pZBgSIAEoDBIWCg5wYXJlbnRfaWRfbnVsbBgTIAEoCBIfCgZob2xkZXIYFCABKAsyDy5yb3ZlLkhvbGRlclJlZhITCgtob2xkZXJfbnVsbBgVIAEoCBINCgVlbWFpbBgWIAEoCRINCgVwaG9uZRgYIAEoCRIwCgxkYXRlX3VwZGF0ZWQYGiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhoKEmRhdGVfdXBkYXRlZF9mb3JjZRgbIAEoCBIMCgRjb2RlGCAgASgJGi0KC0xhYmVsc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiTQoRUGFydHlBcHBseVJlcXVlc3QSGwoDcmVmGAEgASgLMg4ucm92ZS5QYXJ0eVJlZhIbCgVwYXRjaBgCIAEoCzIMLnBhdGNoLlBhdGNoIiQKElBhcnR5RXJhc2VSZXNwb25zZRIOCgZlcmFzZWQYASABKAgiYQoQUGFydHlMaXN0UmVxdWVzdBIiCgdmaWx0ZXJzGAEgAygLMhEucm92ZS5QYXJ0eUZpbHRlchITCgRzaXplGAIgASgFQgWqAQIIAhIUCgVhZnRlchgDIAEoCUIFqgECCAIiRAoRUGFydHlMaXN0UmVzcG9uc2USGgoFaXRlbXMYASADKAsyCy5yb3ZlLlBhcnR5EhMKBG5leHQYAiABKAlCBaoBAggCIsoBCgtQYXJ0eUZpbHRlchIbCgNyZWYYASABKAsyDi5yb3ZlLlBhcnR5UmVmEgwKBGtpbmQYAiABKAkSEQoJcGFyZW50X2lkGAMgASgMEh8KBmhvbGRlchgEIAEoCzIPLnJvdmUuSG9sZGVyUmVmEi0KBmxhYmVscxgFIAMoCzIdLnJvdmUuUGFydHlGaWx0ZXIuTGFiZWxzRW50cnkaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASJVChFQYXJ0eVdhdGNoUmVxdWVzdBIiCgdmaWx0ZXJzGAEgAygLMhEucm92ZS5QYXJ0eUZpbHRlchIcCg1za2lwX3NuYXBzaG90GAIgASgIQgWqAQIIAiI5ChJQYXJ0eVdhdGNoUmVzcG9uc2USIwoFaXRlbXMYASADKAsyFC5yb3ZlLlBhcnR5V2F0Y2hJdGVtIk8KDlBhcnR5V2F0Y2hJdGVtEgoKAmlkGAEgASgMEhoKBXZhbHVlGAIgASgLMgsucm92ZS5QYXJ0eRIVCgZhY3Rpb24YAyABKAlCBaoBAggCIhAKDlBhcnR5TWVSZXF1ZXN0IuwBCg9QYXJ0eU1lUmVzcG9uc2USHAoGaG9sZGVyGAEgASgLMgwucm92ZS5Ib2xkZXISGgoFcGFydHkYAiABKAsyCy5yb3ZlLlBhcnR5EhwKBnRlbmFudBgDIAEoCzIMLnJvdmUuVGVuYW50EhMKBHJvbGUYBCABKAlCBaoBAggCEjEKDWhpc3Rvcnlfc2luY2UYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhsKDGhpc3RvcnlfZGF5cxgGIAEoDUIFqgECCAISHAoNYWNjb3VudHNfaGVyZRgHIAEoCEIFqgECCAIizAIKElBhcnR5VXBkYXRlUmVxdWVzdBIbCgNyZWYYASABKAsyDi5yb3ZlLlBhcnR5UmVmEhMKBG5hbWUYAiABKAlCBaoBAggCEhMKBGRlc2MYAyABKAlCBaoBAggCEhMKBGtpbmQYBCABKAlCBaoBAggCEhgKCXBhcmVudF9pZBgFIAEoDEIFqgECCAISGgoLcGFyZW50X251bGwYBiABKAhCBaoBAggCEhQKBWVtYWlsGAcgASgJQgWqAQIIAhIUCgVwaG9uZRgIIAEoCUIFqgECCAISEwoEY29kZRgJIAEoCUIFqgECCAISNAoGbGFiZWxzGAogAygLMiQucm92ZS5QYXJ0eVVwZGF0ZVJlcXVlc3QuTGFiZWxzRW50cnkaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASJ1ChJQYXJ0eUludml0ZVJlcXVlc3QSGwoDcmVmGAEgASgLMg4ucm92ZS5QYXJ0eVJlZhIUCgVhbGlhcxgCIAEoCUIFqgECCAISEwoEcm9sZRgDIAEoCUIFqgECCAISFwoIcGFzc3dvcmQYBCABKAlCBaoBAggCImgKE1BhcnR5SW52aXRlUmVzcG9uc2USGgoFcGFydHkYASABKAsyCy5yb3ZlLlBhcnR5EhwKBmhvbGRlchgCIAEoCzIMLnJvdmUuSG9sZGVyEhcKCHBhc3N3b3JkGAMgASgJQgWqAQIIAiJHChNQYXJ0eVNldFJvbGVSZXF1ZXN0EhsKA3JlZhgBIAEoCzIOLnJvdmUuUGFydHlSZWYSEwoEcm9sZRgCIAEoCUIFqgECCAIiZwoXUGFydHlTZXRQYXNzd29yZFJlcXVlc3QSGwoDcmVmGAEgASgLMg4ucm92ZS5QYXJ0eVJlZhIWCgdjdXJyZW50GAIgASgJQgWqAQIIAhIXCghwYXNzd29yZBgDIAEoCUIFqgECCAIiGgoYUGFydHlTZXRQYXNzd29yZFJlc3BvbnNlIjUKFlBhcnR5RGVhY3RpdmF0ZVJlcXVlc3QSGwoDcmVmGAEgASgLMg4ucm92ZS5QYXJ0eVJlZiI3ChhQYXJ0eVBzZXVkb255bWl6ZVJlcXVlc3QSGwoDcmVmGAEgASgLMg4ucm92ZS5QYXJ0eVJlZiL3AQoRU2Vzc2lvbkFkZFJlcXVlc3QSCgoCaWQYASABKAwSFgoHYWNjb3VudBgIIAEoDEIFqgECCAISDgoGc2VjcmV0GAkgASgMEg0KBWdyYW50GAogASgMEjAKDGRhdGVfZXhwaXJlcxgLIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLQoJZGF0ZV9pZGxlGAwgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIMCgRoZWxkGBAgASgMEjAKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiVwoRU2Vzc2lvbkdldFJlcXVlc3QSHQoDcmVmGAEgASgLMhAucm92ZS5TZXNzaW9uUmVmEiMKBnNlbGVjdBgCIAEoCzITLnJvdmUuU2Vzc2lvblNlbGVjdCIhCgpTZXNzaW9uUmVmEgwKAmlkGAEgASgMSABCBQoDa2V5IsQBCg1TZXNzaW9uU2VsZWN0EgsKA2FsbBgBIAEoCBIPCgdhY2NvdW50GAggASgIEg4KBnNlY3JldBgJIAEoCBINCgVncmFudBgKIAEoCBIUCgxkYXRlX2V4cGlyZXMYCyABKAgSEQoJZGF0ZV9pZGxlGAwgASgIEgwKBGhlbGQYECABKAgSFAoMZGF0ZV91cGRhdGVkGA0gASgIEhMKC2RhdGVfZXJhc2VkGA4gASgIEhQKDGRhdGVfY3JlYXRlZBgPIAEoCCLnAgoTU2Vzc2lvblBhdGNoUmVxdWVzdBIdCgNyZWYYASABKAsyEC5yb3ZlLlNlc3Npb25SZWYSDwoHYWNjb3VudBgQIAEoDBIOCgZzZWNyZXQYEiABKAwSDQoFZ3JhbnQYFCABKAwSMAoMZGF0ZV9leHBpcmVzGBYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIZChFkYXRlX2V4cGlyZXNfbnVsbBgXIAEoCBItCglkYXRlX2lkbGUYGCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhYKDmRhdGVfaWRsZV9udWxsGBkgASgIEgwKBGhlbGQYICABKAwSEQoJaGVsZF9udWxsGCEgASgIEjAKDGRhdGVfdXBkYXRlZBgaIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGgoSZGF0ZV91cGRhdGVkX2ZvcmNlGBsgASgIIlEKE1Nlc3Npb25BcHBseVJlcXVlc3QSHQoDcmVmGAEgASgLMhAucm92ZS5TZXNzaW9uUmVmEhsKBXBhdGNoGAIgASgLMgwucGF0Y2guUGF0Y2giJgoUU2Vzc2lvbkVyYXNlUmVzcG9uc2USDgoGZXJhc2VkGAEgASgIMoYGCgxQYXJ0eVNlcnZpY2USKQoDQWRkEhUucm92ZS5QYXJ0eUFkZFJlcXVlc3QaCy5yb3ZlLlBhcnR5EikKA0dldBIVLnJvdmUuUGFydHlHZXRSZXF1ZXN0Ggsucm92ZS5QYXJ0eRItCgVQYXRjaBIXLnJvdmUuUGFydHlQYXRjaFJlcXVlc3QaCy5yb3ZlLlBhcnR5Ei0KBUFwcGx5Ehcucm92ZS5QYXJ0eUFwcGx5UmVxdWVzdBoLLnJvdmUuUGFydHkSMQoFRXJhc2USDi5yb3ZlLlBhcnR5UmVmGhgucm92ZS5QYXJ0eUVyYXNlUmVzcG9uc2USNwoETGlzdBIWLnJvdmUuUGFydHlMaXN0UmVxdWVzdBoXLnJvdmUuUGFydHlMaXN0UmVzcG9uc2USPAoFV2F0Y2gSFy5yb3ZlLlBhcnR5V2F0Y2hSZXF1ZXN0Ghgucm92ZS5QYXJ0eVdhdGNoUmVzcG9uc2UwARIxCgJNZRIULnJvdmUuUGFydHlNZVJlcXVlc3QaFS5yb3ZlLlBhcnR5TWVSZXNwb25zZRIvCgZVcGRhdGUSGC5yb3ZlLlBhcnR5VXBkYXRlUmVxdWVzdBoLLnJvdmUuUGFydHkSPQoGSW52aXRlEhgucm92ZS5QYXJ0eUludml0ZVJlcXVlc3QaGS5yb3ZlLlBhcnR5SW52aXRlUmVzcG9uc2USMQoHU2V0Um9sZRIZLnJvdmUuUGFydHlTZXRSb2xlUmVxdWVzdBoLLnJvdmUuUGFydHkSTAoLU2V0UGFzc3dvcmQSHS5yb3ZlLlBhcnR5U2V0UGFzc3dvcmRSZXF1ZXN0Gh4ucm92ZS5QYXJ0eVNldFBhc3N3b3JkUmVzcG9uc2USNwoKRGVhY3RpdmF0ZRIcLnJvdmUuUGFydHlEZWFjdGl2YXRlUmVxdWVzdBoLLnJvdmUuUGFydHkSOwoMUHNldWRvbnltaXplEh4ucm92ZS5QYXJ0eVBzZXVkb255bWl6ZVJlcXVlc3QaCy5yb3ZlLlBhcnR5MosCCg5TZXNzaW9uU2VydmljZRItCgNBZGQSFy5yb3ZlLlNlc3Npb25BZGRSZXF1ZXN0Gg0ucm92ZS5TZXNzaW9uEi0KA0dldBIXLnJvdmUuU2Vzc2lvbkdldFJlcXVlc3QaDS5yb3ZlLlNlc3Npb24SMQoFUGF0Y2gSGS5yb3ZlLlNlc3Npb25QYXRjaFJlcXVlc3QaDS5yb3ZlLlNlc3Npb24SMQoFQXBwbHkSGS5yb3ZlLlNlc3Npb25BcHBseVJlcXVlc3QaDS5yb3ZlLlNlc3Npb24SNQoFRXJhc2USEC5yb3ZlLlNlc3Npb25SZWYaGi5yb3ZlLlNlc3Npb25FcmFzZVJlc3BvbnNlQhpaGGdpdGh1Yi5jb20vbGVzb21udXMvcm92ZWIIZWRpdGlvbnNw6Ac", [file_google_protobuf_timestamp, file_patch_patch, file_rove_org, file_rove_payday_holder, file_rove_payday_holder_svc_g, file_rove_payday_tenant, file_rove_payday_tenant_svc_g]);
+  fileDesc("ChRyb3ZlL29yZ19zdmMuZy5wcm90bxIEcm92ZSKGAwoPUGFydHlBZGRSZXF1ZXN0EgoKAmlkGAEgASgMEh8KBnRlbmFudBgCIAEoCzIPLnJvdmUuVGVuYW50UmVmEhMKBG5hbWUYBSABKAlCBaoBAggCEhMKBGRlc2MYBiABKAlCBaoBAggCEjEKBmxhYmVscxgHIAMoCzIhLnJvdmUuUGFydHlBZGRSZXF1ZXN0LkxhYmVsc0VudHJ5EhMKBGtpbmQYCCABKAlCBaoBAggCEhEKCXBhcmVudF9pZBgJIAEoDBIfCgZob2xkZXIYCiABKAsyDy5yb3ZlLkhvbGRlclJlZhIUCgVlbWFpbBgLIAEoCUIFqgECCAISFAoFcGhvbmUYDCABKAlCBaoBAggCEjAKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEwoEY29kZRgQIAEoCUIFqgECCAIaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASJRCg9QYXJ0eUdldFJlcXVlc3QSGwoDcmVmGAEgASgLMg4ucm92ZS5QYXJ0eVJlZhIhCgZzZWxlY3QYAiABKAsyES5yb3ZlLlBhcnR5U2VsZWN0IkkKCFBhcnR5UmVmEgwKAmlkGAEgASgMSAASKAoGaG9sZGVyGAogASgLMhYucm92ZS5QYXJ0eVJlZkJ5SG9sZGVySABCBQoDa2V5IjMKEFBhcnR5UmVmQnlIb2xkZXISHwoGaG9sZGVyGAogASgLMg8ucm92ZS5Ib2xkZXJSZWYinAIKC1BhcnR5U2VsZWN0EgsKA2FsbBgBIAEoCBIiCgZ0ZW5hbnQYAiABKAsyEi5yb3ZlLlRlbmFudFNlbGVjdBIMCgRuYW1lGAUgASgIEgwKBGRlc2MYBiABKAgSDgoGbGFiZWxzGAcgASgIEgwKBGtpbmQYCCABKAgSEQoJcGFyZW50X2lkGAkgASgIEiIKBmhvbGRlchgKIAEoCzISLnJvdmUuSG9sZGVyU2VsZWN0Eg0KBWVtYWlsGAsgASgIEg0KBXBob25lGAwgASgIEhQKDGRhdGVfdXBkYXRlZBgNIAEoCBITCgtkYXRlX2VyYXNlZBgOIAEoCBIUCgxkYXRlX2NyZWF0ZWQYDyABKAgSDAoEY29kZRgQIAEoCCKZAwoRUGFydHlQYXRjaFJlcXVlc3QSGwoDcmVmGAEgASgLMg4ucm92ZS5QYXJ0eVJlZhIMCgRuYW1lGAogASgJEgwKBGRlc2MYDCABKAkSMwoGbGFiZWxzGA4gAygLMiMucm92ZS5QYXJ0eVBhdGNoUmVxdWVzdC5MYWJlbHNFbnRyeRIMCgRraW5kGBAgASgJEhEKCXBhcmVudF9pZBgSIAEoDBIWCg5wYXJlbnRfaWRfbnVsbBgTIAEoCBIfCgZob2xkZXIYFCABKAsyDy5yb3ZlLkhvbGRlclJlZhITCgtob2xkZXJfbnVsbBgVIAEoCBINCgVlbWFpbBgWIAEoCRINCgVwaG9uZRgYIAEoCRIwCgxkYXRlX3VwZGF0ZWQYGiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhoKEmRhdGVfdXBkYXRlZF9mb3JjZRgbIAEoCBIMCgRjb2RlGCAgASgJGi0KC0xhYmVsc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiTQoRUGFydHlBcHBseVJlcXVlc3QSGwoDcmVmGAEgASgLMg4ucm92ZS5QYXJ0eVJlZhIbCgVwYXRjaBgCIAEoCzIMLnBhdGNoLlBhdGNoIiQKElBhcnR5RXJhc2VSZXNwb25zZRIOCgZlcmFzZWQYASABKAgiYQoQUGFydHlMaXN0UmVxdWVzdBIiCgdmaWx0ZXJzGAEgAygLMhEucm92ZS5QYXJ0eUZpbHRlchITCgRzaXplGAIgASgFQgWqAQIIAhIUCgVhZnRlchgDIAEoCUIFqgECCAIiRAoRUGFydHlMaXN0UmVzcG9uc2USGgoFaXRlbXMYASADKAsyCy5yb3ZlLlBhcnR5EhMKBG5leHQYAiABKAlCBaoBAggCIsoBCgtQYXJ0eUZpbHRlchIbCgNyZWYYASABKAsyDi5yb3ZlLlBhcnR5UmVmEgwKBGtpbmQYAiABKAkSEQoJcGFyZW50X2lkGAMgASgMEh8KBmhvbGRlchgEIAEoCzIPLnJvdmUuSG9sZGVyUmVmEi0KBmxhYmVscxgFIAMoCzIdLnJvdmUuUGFydHlGaWx0ZXIuTGFiZWxzRW50cnkaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASJVChFQYXJ0eVdhdGNoUmVxdWVzdBIiCgdmaWx0ZXJzGAEgAygLMhEucm92ZS5QYXJ0eUZpbHRlchIcCg1za2lwX3NuYXBzaG90GAIgASgIQgWqAQIIAiI5ChJQYXJ0eVdhdGNoUmVzcG9uc2USIwoFaXRlbXMYASADKAsyFC5yb3ZlLlBhcnR5V2F0Y2hJdGVtIk8KDlBhcnR5V2F0Y2hJdGVtEgoKAmlkGAEgASgMEhoKBXZhbHVlGAIgASgLMgsucm92ZS5QYXJ0eRIVCgZhY3Rpb24YAyABKAlCBaoBAggCIhAKDlBhcnR5TWVSZXF1ZXN0IuwBCg9QYXJ0eU1lUmVzcG9uc2USHAoGaG9sZGVyGAEgASgLMgwucm92ZS5Ib2xkZXISGgoFcGFydHkYAiABKAsyCy5yb3ZlLlBhcnR5EhwKBnRlbmFudBgDIAEoCzIMLnJvdmUuVGVuYW50EhMKBHJvbGUYBCABKAlCBaoBAggCEjEKDWhpc3Rvcnlfc2luY2UYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhsKDGhpc3RvcnlfZGF5cxgGIAEoDUIFqgECCAISHAoNYWNjb3VudHNfaGVyZRgHIAEoCEIFqgECCAIizAIKElBhcnR5VXBkYXRlUmVxdWVzdBIbCgNyZWYYASABKAsyDi5yb3ZlLlBhcnR5UmVmEhMKBG5hbWUYAiABKAlCBaoBAggCEhMKBGRlc2MYAyABKAlCBaoBAggCEhMKBGtpbmQYBCABKAlCBaoBAggCEhgKCXBhcmVudF9pZBgFIAEoDEIFqgECCAISGgoLcGFyZW50X251bGwYBiABKAhCBaoBAggCEhQKBWVtYWlsGAcgASgJQgWqAQIIAhIUCgVwaG9uZRgIIAEoCUIFqgECCAISEwoEY29kZRgJIAEoCUIFqgECCAISNAoGbGFiZWxzGAogAygLMiQucm92ZS5QYXJ0eVVwZGF0ZVJlcXVlc3QuTGFiZWxzRW50cnkaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASJ1ChJQYXJ0eUludml0ZVJlcXVlc3QSGwoDcmVmGAEgASgLMg4ucm92ZS5QYXJ0eVJlZhIUCgVhbGlhcxgCIAEoCUIFqgECCAISEwoEcm9sZRgDIAEoCUIFqgECCAISFwoIcGFzc3dvcmQYBCABKAlCBaoBAggCImgKE1BhcnR5SW52aXRlUmVzcG9uc2USGgoFcGFydHkYASABKAsyCy5yb3ZlLlBhcnR5EhwKBmhvbGRlchgCIAEoCzIMLnJvdmUuSG9sZGVyEhcKCHBhc3N3b3JkGAMgASgJQgWqAQIIAiJHChNQYXJ0eVNldFJvbGVSZXF1ZXN0EhsKA3JlZhgBIAEoCzIOLnJvdmUuUGFydHlSZWYSEwoEcm9sZRgCIAEoCUIFqgECCAIiZwoXUGFydHlTZXRQYXNzd29yZFJlcXVlc3QSGwoDcmVmGAEgASgLMg4ucm92ZS5QYXJ0eVJlZhIWCgdjdXJyZW50GAIgASgJQgWqAQIIAhIXCghwYXNzd29yZBgDIAEoCUIFqgECCAIiGgoYUGFydHlTZXRQYXNzd29yZFJlc3BvbnNlIjUKFlBhcnR5RGVhY3RpdmF0ZVJlcXVlc3QSGwoDcmVmGAEgASgLMg4ucm92ZS5QYXJ0eVJlZiI3ChhQYXJ0eVBzZXVkb255bWl6ZVJlcXVlc3QSGwoDcmVmGAEgASgLMg4ucm92ZS5QYXJ0eVJlZiL3AQoRU2Vzc2lvbkFkZFJlcXVlc3QSCgoCaWQYASABKAwSFgoHYWNjb3VudBgIIAEoDEIFqgECCAISDgoGc2VjcmV0GAkgASgMEg0KBWdyYW50GAogASgMEjAKDGRhdGVfZXhwaXJlcxgLIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLQoJZGF0ZV9pZGxlGAwgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIMCgRoZWxkGBAgASgMEjAKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiVwoRU2Vzc2lvbkdldFJlcXVlc3QSHQoDcmVmGAEgASgLMhAucm92ZS5TZXNzaW9uUmVmEiMKBnNlbGVjdBgCIAEoCzITLnJvdmUuU2Vzc2lvblNlbGVjdCIhCgpTZXNzaW9uUmVmEgwKAmlkGAEgASgMSABCBQoDa2V5IsQBCg1TZXNzaW9uU2VsZWN0EgsKA2FsbBgBIAEoCBIPCgdhY2NvdW50GAggASgIEg4KBnNlY3JldBgJIAEoCBINCgVncmFudBgKIAEoCBIUCgxkYXRlX2V4cGlyZXMYCyABKAgSEQoJZGF0ZV9pZGxlGAwgASgIEgwKBGhlbGQYECABKAgSFAoMZGF0ZV91cGRhdGVkGA0gASgIEhMKC2RhdGVfZXJhc2VkGA4gASgIEhQKDGRhdGVfY3JlYXRlZBgPIAEoCCLnAgoTU2Vzc2lvblBhdGNoUmVxdWVzdBIdCgNyZWYYASABKAsyEC5yb3ZlLlNlc3Npb25SZWYSDwoHYWNjb3VudBgQIAEoDBIOCgZzZWNyZXQYEiABKAwSDQoFZ3JhbnQYFCABKAwSMAoMZGF0ZV9leHBpcmVzGBYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIZChFkYXRlX2V4cGlyZXNfbnVsbBgXIAEoCBItCglkYXRlX2lkbGUYGCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhYKDmRhdGVfaWRsZV9udWxsGBkgASgIEgwKBGhlbGQYICABKAwSEQoJaGVsZF9udWxsGCEgASgIEjAKDGRhdGVfdXBkYXRlZBgaIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGgoSZGF0ZV91cGRhdGVkX2ZvcmNlGBsgASgIIlEKE1Nlc3Npb25BcHBseVJlcXVlc3QSHQoDcmVmGAEgASgLMhAucm92ZS5TZXNzaW9uUmVmEhsKBXBhdGNoGAIgASgLMgwucGF0Y2guUGF0Y2giJgoUU2Vzc2lvbkVyYXNlUmVzcG9uc2USDgoGZXJhc2VkGAEgASgIIpwDChRJbnZpdGF0aW9uQWRkUmVxdWVzdBIKCgJpZBgBIAEoDBIfCgZ0ZW5hbnQYAiABKAsyDy5yb3ZlLlRlbmFudFJlZhIgCgdpbnZpdGVyGAggASgLMg8ucm92ZS5Ib2xkZXJSZWYSFAoFZW1haWwYCSABKAlCBaoBAggCEhMKBHJvbGUYCiABKAlCBaoBAggCEh0KBXBhcnR5GAsgASgLMg4ucm92ZS5QYXJ0eVJlZhIPCgdhY2NvdW50GAwgASgMEjAKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASFAoFc3RhdGUYECABKAlCBaoBAggCEjAKDGRhdGVfZXhwaXJlcxgRIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMAoMZGF0ZV9zZXR0bGVkGBIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIfCgZob2xkZXIYEyABKAsyDy5yb3ZlLkhvbGRlclJlZhINCgVjbGFpbRgUIAEoDCJgChRJbnZpdGF0aW9uR2V0UmVxdWVzdBIgCgNyZWYYASABKAsyEy5yb3ZlLkludml0YXRpb25SZWYSJgoGc2VsZWN0GAIgASgLMhYucm92ZS5JbnZpdGF0aW9uU2VsZWN0IiQKDUludml0YXRpb25SZWYSDAoCaWQYASABKAxIAEIFCgNrZXki5wIKEEludml0YXRpb25TZWxlY3QSCwoDYWxsGAEgASgIEiIKBnRlbmFudBgCIAEoCzISLnJvdmUuVGVuYW50U2VsZWN0EiMKB2ludml0ZXIYCCABKAsyEi5yb3ZlLkhvbGRlclNlbGVjdBINCgVlbWFpbBgJIAEoCBIMCgRyb2xlGAogASgIEiAKBXBhcnR5GAsgASgLMhEucm92ZS5QYXJ0eVNlbGVjdBIPCgdhY2NvdW50GAwgASgIEhQKDGRhdGVfdXBkYXRlZBgNIAEoCBITCgtkYXRlX2VyYXNlZBgOIAEoCBIUCgxkYXRlX2NyZWF0ZWQYDyABKAgSDQoFc3RhdGUYECABKAgSFAoMZGF0ZV9leHBpcmVzGBEgASgIEhQKDGRhdGVfc2V0dGxlZBgSIAEoCBIiCgZob2xkZXIYEyABKAsyEi5yb3ZlLkhvbGRlclNlbGVjdBINCgVjbGFpbRgUIAEoCCLJAwoWSW52aXRhdGlvblBhdGNoUmVxdWVzdBIgCgNyZWYYASABKAsyEy5yb3ZlLkludml0YXRpb25SZWYSHQoFcGFydHkYFiABKAsyDi5yb3ZlLlBhcnR5UmVmEhIKCnBhcnR5X251bGwYFyABKAgSDwoHYWNjb3VudBgYIAEoDBIUCgxhY2NvdW50X251bGwYGSABKAgSMAoMZGF0ZV91cGRhdGVkGBogASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIaChJkYXRlX3VwZGF0ZWRfZm9yY2UYGyABKAgSDQoFc3RhdGUYICABKAkSMAoMZGF0ZV9leHBpcmVzGCIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIwCgxkYXRlX3NldHRsZWQYJCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhkKEWRhdGVfc2V0dGxlZF9udWxsGCUgASgIEh8KBmhvbGRlchgmIAEoCzIPLnJvdmUuSG9sZGVyUmVmEhMKC2hvbGRlcl9udWxsGCcgASgIEg0KBWNsYWltGCggASgMEhIKCmNsYWltX251bGwYKSABKAgiVwoWSW52aXRhdGlvbkFwcGx5UmVxdWVzdBIgCgNyZWYYASABKAsyEy5yb3ZlLkludml0YXRpb25SZWYSGwoFcGF0Y2gYAiABKAsyDC5wYXRjaC5QYXRjaCIpChdJbnZpdGF0aW9uRXJhc2VSZXNwb25zZRIOCgZlcmFzZWQYASABKAgiawoVSW52aXRhdGlvbkxpc3RSZXF1ZXN0EicKB2ZpbHRlcnMYASADKAsyFi5yb3ZlLkludml0YXRpb25GaWx0ZXISEwoEc2l6ZRgCIAEoBUIFqgECCAISFAoFYWZ0ZXIYAyABKAlCBaoBAggCIk4KFkludml0YXRpb25MaXN0UmVzcG9uc2USHwoFaXRlbXMYASADKAsyEC5yb3ZlLkludml0YXRpb24SEwoEbmV4dBgCIAEoCUIFqgECCAIidQoQSW52aXRhdGlvbkZpbHRlchIgCgNyZWYYASABKAsyEy5yb3ZlLkludml0YXRpb25SZWYSHwoGdGVuYW50GAIgASgLMg8ucm92ZS5UZW5hbnRSZWYSDwoHYWNjb3VudBgDIAEoDBINCgVzdGF0ZRgEIAEoCSI7ChdJbnZpdGF0aW9uUmV2b2tlUmVxdWVzdBIgCgNyZWYYASABKAsyEy5yb3ZlLkludml0YXRpb25SZWYiLQoWSW52aXRhdGlvbkNsYWltUmVxdWVzdBITCgRjb2RlGAEgASgJQgWqAQIIAiI7ChdJbnZpdGF0aW9uQWNjZXB0UmVxdWVzdBIgCgNyZWYYASABKAsyEy5yb3ZlLkludml0YXRpb25SZWYiOQoVSW52aXRhdGlvbkRlbnlSZXF1ZXN0EiAKA3JlZhgBIAEoCzITLnJvdmUuSW52aXRhdGlvblJlZiIcCgdBY2NvdW50EhEKAmlkGAEgASgMQgWqAQIIAjKGBgoMUGFydHlTZXJ2aWNlEikKA0FkZBIVLnJvdmUuUGFydHlBZGRSZXF1ZXN0Ggsucm92ZS5QYXJ0eRIpCgNHZXQSFS5yb3ZlLlBhcnR5R2V0UmVxdWVzdBoLLnJvdmUuUGFydHkSLQoFUGF0Y2gSFy5yb3ZlLlBhcnR5UGF0Y2hSZXF1ZXN0Ggsucm92ZS5QYXJ0eRItCgVBcHBseRIXLnJvdmUuUGFydHlBcHBseVJlcXVlc3QaCy5yb3ZlLlBhcnR5EjEKBUVyYXNlEg4ucm92ZS5QYXJ0eVJlZhoYLnJvdmUuUGFydHlFcmFzZVJlc3BvbnNlEjcKBExpc3QSFi5yb3ZlLlBhcnR5TGlzdFJlcXVlc3QaFy5yb3ZlLlBhcnR5TGlzdFJlc3BvbnNlEjwKBVdhdGNoEhcucm92ZS5QYXJ0eVdhdGNoUmVxdWVzdBoYLnJvdmUuUGFydHlXYXRjaFJlc3BvbnNlMAESMQoCTWUSFC5yb3ZlLlBhcnR5TWVSZXF1ZXN0GhUucm92ZS5QYXJ0eU1lUmVzcG9uc2USLwoGVXBkYXRlEhgucm92ZS5QYXJ0eVVwZGF0ZVJlcXVlc3QaCy5yb3ZlLlBhcnR5Ej0KBkludml0ZRIYLnJvdmUuUGFydHlJbnZpdGVSZXF1ZXN0Ghkucm92ZS5QYXJ0eUludml0ZVJlc3BvbnNlEjEKB1NldFJvbGUSGS5yb3ZlLlBhcnR5U2V0Um9sZVJlcXVlc3QaCy5yb3ZlLlBhcnR5EkwKC1NldFBhc3N3b3JkEh0ucm92ZS5QYXJ0eVNldFBhc3N3b3JkUmVxdWVzdBoeLnJvdmUuUGFydHlTZXRQYXNzd29yZFJlc3BvbnNlEjcKCkRlYWN0aXZhdGUSHC5yb3ZlLlBhcnR5RGVhY3RpdmF0ZVJlcXVlc3QaCy5yb3ZlLlBhcnR5EjsKDFBzZXVkb255bWl6ZRIeLnJvdmUuUGFydHlQc2V1ZG9ueW1pemVSZXF1ZXN0Ggsucm92ZS5QYXJ0eTKLAgoOU2Vzc2lvblNlcnZpY2USLQoDQWRkEhcucm92ZS5TZXNzaW9uQWRkUmVxdWVzdBoNLnJvdmUuU2Vzc2lvbhItCgNHZXQSFy5yb3ZlLlNlc3Npb25HZXRSZXF1ZXN0Gg0ucm92ZS5TZXNzaW9uEjEKBVBhdGNoEhkucm92ZS5TZXNzaW9uUGF0Y2hSZXF1ZXN0Gg0ucm92ZS5TZXNzaW9uEjEKBUFwcGx5Ehkucm92ZS5TZXNzaW9uQXBwbHlSZXF1ZXN0Gg0ucm92ZS5TZXNzaW9uEjUKBUVyYXNlEhAucm92ZS5TZXNzaW9uUmVmGhoucm92ZS5TZXNzaW9uRXJhc2VSZXNwb25zZTLVBAoRSW52aXRhdGlvblNlcnZpY2USMwoDQWRkEhoucm92ZS5JbnZpdGF0aW9uQWRkUmVxdWVzdBoQLnJvdmUuSW52aXRhdGlvbhIzCgNHZXQSGi5yb3ZlLkludml0YXRpb25HZXRSZXF1ZXN0GhAucm92ZS5JbnZpdGF0aW9uEjcKBVBhdGNoEhwucm92ZS5JbnZpdGF0aW9uUGF0Y2hSZXF1ZXN0GhAucm92ZS5JbnZpdGF0aW9uEjcKBUFwcGx5Ehwucm92ZS5JbnZpdGF0aW9uQXBwbHlSZXF1ZXN0GhAucm92ZS5JbnZpdGF0aW9uEjsKBUVyYXNlEhMucm92ZS5JbnZpdGF0aW9uUmVmGh0ucm92ZS5JbnZpdGF0aW9uRXJhc2VSZXNwb25zZRJBCgRMaXN0Ehsucm92ZS5JbnZpdGF0aW9uTGlzdFJlcXVlc3QaHC5yb3ZlLkludml0YXRpb25MaXN0UmVzcG9uc2USOQoGUmV2b2tlEh0ucm92ZS5JbnZpdGF0aW9uUmV2b2tlUmVxdWVzdBoQLnJvdmUuSW52aXRhdGlvbhI3CgVDbGFpbRIcLnJvdmUuSW52aXRhdGlvbkNsYWltUmVxdWVzdBoQLnJvdmUuSW52aXRhdGlvbhI5CgZBY2NlcHQSHS5yb3ZlLkludml0YXRpb25BY2NlcHRSZXF1ZXN0GhAucm92ZS5JbnZpdGF0aW9uEjUKBERlbnkSGy5yb3ZlLkludml0YXRpb25EZW55UmVxdWVzdBoQLnJvdmUuSW52aXRhdGlvbkIaWhhnaXRodWIuY29tL2xlc29tbnVzL3JvdmViCGVkaXRpb25zcOgH", [file_google_protobuf_timestamp, file_patch_patch, file_rove_org, file_rove_payday_holder, file_rove_payday_holder_svc_g, file_rove_payday_tenant, file_rove_payday_tenant_svc_g]);
 
 /**
  * @generated from message rove.PartyAddRequest
@@ -1207,6 +1207,579 @@ export const SessionEraseResponseSchema: GenMessage<SessionEraseResponse> = /*@_
   messageDesc(file_rove_org_svc_g, 30);
 
 /**
+ * @generated from message rove.InvitationAddRequest
+ */
+export type InvitationAddRequest = Message<"rove.InvitationAddRequest"> & {
+  /**
+   * @generated from field: bytes id = 1;
+   */
+  id: Uint8Array;
+
+  /**
+   * @generated from field: rove.TenantRef tenant = 2;
+   */
+  tenant?: TenantRef | undefined;
+
+  /**
+   * @generated from field: rove.HolderRef inviter = 8;
+   */
+  inviter?: HolderRef | undefined;
+
+  /**
+   * @generated from field: string email = 9 [features.field_presence = IMPLICIT];
+   */
+  email: string;
+
+  /**
+   * @generated from field: string role = 10 [features.field_presence = IMPLICIT];
+   */
+  role: string;
+
+  /**
+   * @generated from field: rove.PartyRef party = 11;
+   */
+  party?: PartyRef | undefined;
+
+  /**
+   * @generated from field: bytes account = 12;
+   */
+  account: Uint8Array;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp date_created = 15;
+   */
+  dateCreated?: Timestamp | undefined;
+
+  /**
+   * @generated from field: string state = 16 [features.field_presence = IMPLICIT];
+   */
+  state: string;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp date_expires = 17;
+   */
+  dateExpires?: Timestamp | undefined;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp date_settled = 18;
+   */
+  dateSettled?: Timestamp | undefined;
+
+  /**
+   * @generated from field: rove.HolderRef holder = 19;
+   */
+  holder?: HolderRef | undefined;
+
+  /**
+   * @generated from field: bytes claim = 20;
+   */
+  claim: Uint8Array;
+};
+
+/**
+ * Describes the message rove.InvitationAddRequest.
+ * Use `create(InvitationAddRequestSchema)` to create a new message.
+ */
+export const InvitationAddRequestSchema: GenMessage<InvitationAddRequest> = /*@__PURE__*/
+  messageDesc(file_rove_org_svc_g, 31);
+
+/**
+ * @generated from message rove.InvitationGetRequest
+ */
+export type InvitationGetRequest = Message<"rove.InvitationGetRequest"> & {
+  /**
+   * @generated from field: rove.InvitationRef ref = 1;
+   */
+  ref?: InvitationRef | undefined;
+
+  /**
+   * @generated from field: rove.InvitationSelect select = 2;
+   */
+  select?: InvitationSelect | undefined;
+};
+
+/**
+ * Describes the message rove.InvitationGetRequest.
+ * Use `create(InvitationGetRequestSchema)` to create a new message.
+ */
+export const InvitationGetRequestSchema: GenMessage<InvitationGetRequest> = /*@__PURE__*/
+  messageDesc(file_rove_org_svc_g, 32);
+
+/**
+ * @generated from message rove.InvitationRef
+ */
+export type InvitationRef = Message<"rove.InvitationRef"> & {
+  /**
+   * @generated from oneof rove.InvitationRef.key
+   */
+  key: {
+    /**
+     * @generated from field: bytes id = 1;
+     */
+    value: Uint8Array;
+    case: "id";
+  } | { case: undefined; value?: undefined };
+};
+
+/**
+ * Describes the message rove.InvitationRef.
+ * Use `create(InvitationRefSchema)` to create a new message.
+ */
+export const InvitationRefSchema: GenMessage<InvitationRef> = /*@__PURE__*/
+  messageDesc(file_rove_org_svc_g, 33);
+
+/**
+ * @generated from message rove.InvitationSelect
+ */
+export type InvitationSelect = Message<"rove.InvitationSelect"> & {
+  /**
+   * @generated from field: bool all = 1;
+   */
+  all: boolean;
+
+  /**
+   * @generated from field: rove.TenantSelect tenant = 2;
+   */
+  tenant?: TenantSelect | undefined;
+
+  /**
+   * @generated from field: rove.HolderSelect inviter = 8;
+   */
+  inviter?: HolderSelect | undefined;
+
+  /**
+   * @generated from field: bool email = 9;
+   */
+  email: boolean;
+
+  /**
+   * @generated from field: bool role = 10;
+   */
+  role: boolean;
+
+  /**
+   * @generated from field: rove.PartySelect party = 11;
+   */
+  party?: PartySelect | undefined;
+
+  /**
+   * @generated from field: bool account = 12;
+   */
+  account: boolean;
+
+  /**
+   * @generated from field: bool date_updated = 13;
+   */
+  dateUpdated: boolean;
+
+  /**
+   * @generated from field: bool date_erased = 14;
+   */
+  dateErased: boolean;
+
+  /**
+   * @generated from field: bool date_created = 15;
+   */
+  dateCreated: boolean;
+
+  /**
+   * @generated from field: bool state = 16;
+   */
+  state: boolean;
+
+  /**
+   * @generated from field: bool date_expires = 17;
+   */
+  dateExpires: boolean;
+
+  /**
+   * @generated from field: bool date_settled = 18;
+   */
+  dateSettled: boolean;
+
+  /**
+   * @generated from field: rove.HolderSelect holder = 19;
+   */
+  holder?: HolderSelect | undefined;
+
+  /**
+   * @generated from field: bool claim = 20;
+   */
+  claim: boolean;
+};
+
+/**
+ * Describes the message rove.InvitationSelect.
+ * Use `create(InvitationSelectSchema)` to create a new message.
+ */
+export const InvitationSelectSchema: GenMessage<InvitationSelect> = /*@__PURE__*/
+  messageDesc(file_rove_org_svc_g, 34);
+
+/**
+ * @generated from message rove.InvitationPatchRequest
+ */
+export type InvitationPatchRequest = Message<"rove.InvitationPatchRequest"> & {
+  /**
+   * @generated from field: rove.InvitationRef ref = 1;
+   */
+  ref?: InvitationRef | undefined;
+
+  /**
+   * @generated from field: rove.PartyRef party = 22;
+   */
+  party?: PartyRef | undefined;
+
+  /**
+   * Clear party instead of writing it.
+   * It takes a field of its own because an unset value already means
+   * "leave it alone", so no value could have meant NULL. It wins
+   * outright: setting both this and party clears.
+   *
+   * @generated from field: bool party_null = 23;
+   */
+  partyNull: boolean;
+
+  /**
+   * @generated from field: bytes account = 24;
+   */
+  account: Uint8Array;
+
+  /**
+   * Clear account instead of writing it.
+   * It takes a field of its own because an unset value already means
+   * "leave it alone", so no value could have meant NULL. It wins
+   * outright: setting both this and account clears.
+   *
+   * @generated from field: bool account_null = 25;
+   */
+  accountNull: boolean;
+
+  /**
+   * The version this update requires the stored date_updated to be.
+   * It is a precondition, not a write: the update applies only if the row
+   * still holds this value, and the server stamps the new version itself.
+   * Setting it together with date_updated_force is an error --
+   * the version is the token every client's compare-and-swap is measured
+   * against, so it is not the caller's to choose.
+   *
+   * @generated from field: google.protobuf.Timestamp date_updated = 26;
+   */
+  dateUpdated?: Timestamp | undefined;
+
+  /**
+   * Update whatever the stored date_updated is, with no precondition.
+   * The server still stamps a new version, so other clients' tokens are
+   * invalidated as usual; this declines the check for THIS update only.
+   * One of date_updated or this must be set. An omitted version is
+   * refused rather than assumed, because an unset field cannot be told
+   * apart from a caller who never considered locking at all.
+   *
+   * @generated from field: bool date_updated_force = 27;
+   */
+  dateUpdatedForce: boolean;
+
+  /**
+   * @generated from field: string state = 32;
+   */
+  state: string;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp date_expires = 34;
+   */
+  dateExpires?: Timestamp | undefined;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp date_settled = 36;
+   */
+  dateSettled?: Timestamp | undefined;
+
+  /**
+   * Clear date_settled instead of writing it.
+   * It takes a field of its own because an unset value already means
+   * "leave it alone", so no value could have meant NULL. It wins
+   * outright: setting both this and date_settled clears.
+   *
+   * @generated from field: bool date_settled_null = 37;
+   */
+  dateSettledNull: boolean;
+
+  /**
+   * @generated from field: rove.HolderRef holder = 38;
+   */
+  holder?: HolderRef | undefined;
+
+  /**
+   * Clear holder instead of writing it.
+   * It takes a field of its own because an unset value already means
+   * "leave it alone", so no value could have meant NULL. It wins
+   * outright: setting both this and holder clears.
+   *
+   * @generated from field: bool holder_null = 39;
+   */
+  holderNull: boolean;
+
+  /**
+   * @generated from field: bytes claim = 40;
+   */
+  claim: Uint8Array;
+
+  /**
+   * Clear claim instead of writing it.
+   * It takes a field of its own because an unset value already means
+   * "leave it alone", so no value could have meant NULL. It wins
+   * outright: setting both this and claim clears.
+   *
+   * @generated from field: bool claim_null = 41;
+   */
+  claimNull: boolean;
+};
+
+/**
+ * Describes the message rove.InvitationPatchRequest.
+ * Use `create(InvitationPatchRequestSchema)` to create a new message.
+ */
+export const InvitationPatchRequestSchema: GenMessage<InvitationPatchRequest> = /*@__PURE__*/
+  messageDesc(file_rove_org_svc_g, 35);
+
+/**
+ * @generated from message rove.InvitationApplyRequest
+ */
+export type InvitationApplyRequest = Message<"rove.InvitationApplyRequest"> & {
+  /**
+   * @generated from field: rove.InvitationRef ref = 1;
+   */
+  ref?: InvitationRef | undefined;
+
+  /**
+   * @generated from field: patch.Patch patch = 2;
+   */
+  patch?: Patch | undefined;
+};
+
+/**
+ * Describes the message rove.InvitationApplyRequest.
+ * Use `create(InvitationApplyRequestSchema)` to create a new message.
+ */
+export const InvitationApplyRequestSchema: GenMessage<InvitationApplyRequest> = /*@__PURE__*/
+  messageDesc(file_rove_org_svc_g, 36);
+
+/**
+ * @generated from message rove.InvitationEraseResponse
+ */
+export type InvitationEraseResponse = Message<"rove.InvitationEraseResponse"> & {
+  /**
+   * Erased is whether this call is the one that erased the row.
+   *
+   * False for a row that was already gone, was never there, or is out
+   * of this caller's reach -- which are one answer on purpose, and the
+   * reason the RPC does not fail instead.
+   *
+   * @generated from field: bool erased = 1;
+   */
+  erased: boolean;
+};
+
+/**
+ * Describes the message rove.InvitationEraseResponse.
+ * Use `create(InvitationEraseResponseSchema)` to create a new message.
+ */
+export const InvitationEraseResponseSchema: GenMessage<InvitationEraseResponse> = /*@__PURE__*/
+  messageDesc(file_rove_org_svc_g, 37);
+
+/**
+ * @generated from message rove.InvitationListRequest
+ */
+export type InvitationListRequest = Message<"rove.InvitationListRequest"> & {
+  /**
+   * Bounded because the work is: each filter is a predicate in the same query,
+   * so this is what says how much of the database one request may read.
+   *
+   * @generated from field: repeated rove.InvitationFilter filters = 1;
+   */
+  filters: InvitationFilter[];
+
+  /**
+   * How many to answer with. Nothing said is what the schema declared, and more
+   * than the cap is the cap -- a caller asking for more than there is meant no
+   * harm, so it is not an error and it is not the whole table either.
+   *
+   * @generated from field: int32 size = 2 [features.field_presence = IMPLICIT];
+   */
+  size: number;
+
+  /**
+   * Where to carry on from: the "next" of the answer before. It names the last
+   * row of that page rather than counting rows from the start, so a row added
+   * ahead of the page does not shift it and a caller reading through never sees
+   * one twice or misses one.
+   *
+   * @generated from field: string after = 3 [features.field_presence = IMPLICIT];
+   */
+  after: string;
+};
+
+/**
+ * Describes the message rove.InvitationListRequest.
+ * Use `create(InvitationListRequestSchema)` to create a new message.
+ */
+export const InvitationListRequestSchema: GenMessage<InvitationListRequest> = /*@__PURE__*/
+  messageDesc(file_rove_org_svc_g, 38);
+
+/**
+ * @generated from message rove.InvitationListResponse
+ */
+export type InvitationListResponse = Message<"rove.InvitationListResponse"> & {
+  /**
+   * @generated from field: repeated rove.Invitation items = 1;
+   */
+  items: Invitation[];
+
+  /**
+   * What to ask for next, and empty when this was the last of them.
+   *
+   * Empty means there is no more *for now*: a list is read as it is, and one
+   * that has grown since answers a fresh call. It is not empty merely because
+   * the page came back short -- a page is short when the last row of it was the
+   * last row there was, which is a thing the server can only know by having
+   * looked.
+   *
+   * @generated from field: string next = 2 [features.field_presence = IMPLICIT];
+   */
+  next: string;
+};
+
+/**
+ * Describes the message rove.InvitationListResponse.
+ * Use `create(InvitationListResponseSchema)` to create a new message.
+ */
+export const InvitationListResponseSchema: GenMessage<InvitationListResponse> = /*@__PURE__*/
+  messageDesc(file_rove_org_svc_g, 39);
+
+/**
+ * @generated from message rove.InvitationFilter
+ */
+export type InvitationFilter = Message<"rove.InvitationFilter"> & {
+  /**
+   * @generated from field: rove.InvitationRef ref = 1;
+   */
+  ref?: InvitationRef | undefined;
+
+  /**
+   * @generated from field: rove.TenantRef tenant = 2;
+   */
+  tenant?: TenantRef | undefined;
+
+  /**
+   * @generated from field: bytes account = 3;
+   */
+  account: Uint8Array;
+
+  /**
+   * @generated from field: string state = 4;
+   */
+  state: string;
+};
+
+/**
+ * Describes the message rove.InvitationFilter.
+ * Use `create(InvitationFilterSchema)` to create a new message.
+ */
+export const InvitationFilterSchema: GenMessage<InvitationFilter> = /*@__PURE__*/
+  messageDesc(file_rove_org_svc_g, 40);
+
+/**
+ * @generated from message rove.InvitationRevokeRequest
+ */
+export type InvitationRevokeRequest = Message<"rove.InvitationRevokeRequest"> & {
+  /**
+   * @generated from field: rove.InvitationRef ref = 1;
+   */
+  ref?: InvitationRef | undefined;
+};
+
+/**
+ * Describes the message rove.InvitationRevokeRequest.
+ * Use `create(InvitationRevokeRequestSchema)` to create a new message.
+ */
+export const InvitationRevokeRequestSchema: GenMessage<InvitationRevokeRequest> = /*@__PURE__*/
+  messageDesc(file_rove_org_svc_g, 41);
+
+/**
+ * @generated from message rove.InvitationClaimRequest
+ */
+export type InvitationClaimRequest = Message<"rove.InvitationClaimRequest"> & {
+  /**
+   * The code the mail's link carried.
+   *
+   * @generated from field: string code = 1 [features.field_presence = IMPLICIT];
+   */
+  code: string;
+};
+
+/**
+ * Describes the message rove.InvitationClaimRequest.
+ * Use `create(InvitationClaimRequestSchema)` to create a new message.
+ */
+export const InvitationClaimRequestSchema: GenMessage<InvitationClaimRequest> = /*@__PURE__*/
+  messageDesc(file_rove_org_svc_g, 42);
+
+/**
+ * @generated from message rove.InvitationAcceptRequest
+ */
+export type InvitationAcceptRequest = Message<"rove.InvitationAcceptRequest"> & {
+  /**
+   * @generated from field: rove.InvitationRef ref = 1;
+   */
+  ref?: InvitationRef | undefined;
+};
+
+/**
+ * Describes the message rove.InvitationAcceptRequest.
+ * Use `create(InvitationAcceptRequestSchema)` to create a new message.
+ */
+export const InvitationAcceptRequestSchema: GenMessage<InvitationAcceptRequest> = /*@__PURE__*/
+  messageDesc(file_rove_org_svc_g, 43);
+
+/**
+ * @generated from message rove.InvitationDenyRequest
+ */
+export type InvitationDenyRequest = Message<"rove.InvitationDenyRequest"> & {
+  /**
+   * @generated from field: rove.InvitationRef ref = 1;
+   */
+  ref?: InvitationRef | undefined;
+};
+
+/**
+ * Describes the message rove.InvitationDenyRequest.
+ * Use `create(InvitationDenyRequestSchema)` to create a new message.
+ */
+export const InvitationDenyRequestSchema: GenMessage<InvitationDenyRequest> = /*@__PURE__*/
+  messageDesc(file_rove_org_svc_g, 44);
+
+/**
+ * Account is who a call served as an account is from: an account of the
+ * deployment's directory at roster (D27). Nothing keeps it; `cmd.Resolver`
+ * puts it in the frame of a call an account makes before it is anybody's
+ * member (`cmd.AccountMethods`), where a membership's holder would be.
+ *
+ * @generated from message rove.Account
+ */
+export type Account = Message<"rove.Account"> & {
+  /**
+   * @generated from field: bytes id = 1 [features.field_presence = IMPLICIT];
+   */
+  id: Uint8Array;
+};
+
+/**
+ * Describes the message rove.Account.
+ * Use `create(AccountSchema)` to create a new message.
+ */
+export const AccountSchema: GenMessage<Account> = /*@__PURE__*/
+  messageDesc(file_rove_org_svc_g, 45);
+
+/**
  * @generated from service rove.PartyService
  */
 export const PartyService: GenService<{
@@ -1419,4 +1992,113 @@ export const SessionService: GenService<{
   },
 }> = /*@__PURE__*/
   serviceDesc(file_rove_org_svc_g, 1);
+
+/**
+ * @generated from service rove.InvitationService
+ */
+export const InvitationService: GenService<{
+  /**
+   * Add creates a new Invitation
+   *
+   * @generated from rpc rove.InvitationService.Add
+   */
+  add: {
+    methodKind: "unary";
+    input: typeof InvitationAddRequestSchema;
+    output: typeof InvitationSchema;
+  },
+  /**
+   * Get retrieves a Invitation
+   *
+   * @generated from rpc rove.InvitationService.Get
+   */
+  get: {
+    methodKind: "unary";
+    input: typeof InvitationGetRequestSchema;
+    output: typeof InvitationSchema;
+  },
+  /**
+   * Patch updates an existing Invitation
+   *
+   * @generated from rpc rove.InvitationService.Patch
+   */
+  patch: {
+    methodKind: "unary";
+    input: typeof InvitationPatchRequestSchema;
+    output: typeof InvitationSchema;
+  },
+  /**
+   * Apply applies a patch document to an existing Invitation
+   *
+   * @generated from rpc rove.InvitationService.Apply
+   */
+  apply: {
+    methodKind: "unary";
+    input: typeof InvitationApplyRequestSchema;
+    output: typeof InvitationSchema;
+  },
+  /**
+   * Erase deletes a Invitation
+   *
+   * @generated from rpc rove.InvitationService.Erase
+   */
+  erase: {
+    methodKind: "unary";
+    input: typeof InvitationRefSchema;
+    output: typeof InvitationEraseResponseSchema;
+  },
+  /**
+   * List reads Invitations a page at a time.
+   *
+   * @generated from rpc rove.InvitationService.List
+   */
+  list: {
+    methodKind: "unary";
+    input: typeof InvitationListRequestSchema;
+    output: typeof InvitationListResponseSchema;
+  },
+  /**
+   * Revoke takes back an invitation nobody has answered.
+   *
+   * @generated from rpc rove.InvitationService.Revoke
+   */
+  revoke: {
+    methodKind: "unary";
+    input: typeof InvitationRevokeRequestSchema;
+    output: typeof InvitationSchema;
+  },
+  /**
+   * Claim makes the invitation a mail carried a code for the caller's: the
+   * proof is reading that mailbox, for an account roster holds no checked
+   * address of.
+   *
+   * @generated from rpc rove.InvitationService.Claim
+   */
+  claim: {
+    methodKind: "unary";
+    input: typeof InvitationClaimRequestSchema;
+    output: typeof InvitationSchema;
+  },
+  /**
+   * Accept makes the caller a member of the workspace, as what it says.
+   *
+   * @generated from rpc rove.InvitationService.Accept
+   */
+  accept: {
+    methodKind: "unary";
+    input: typeof InvitationAcceptRequestSchema;
+    output: typeof InvitationSchema;
+  },
+  /**
+   * Deny says no.
+   *
+   * @generated from rpc rove.InvitationService.Deny
+   */
+  deny: {
+    methodKind: "unary";
+    input: typeof InvitationDenyRequestSchema;
+    output: typeof InvitationSchema;
+  },
+}> = /*@__PURE__*/
+  serviceDesc(file_rove_org_svc_g, 2);
 

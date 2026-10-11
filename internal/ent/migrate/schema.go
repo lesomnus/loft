@@ -701,6 +701,78 @@ var (
 			},
 		},
 	}
+	// InvitationColumns holds the columns for the "invitation" table.
+	InvitationColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUuid, Unique: true},
+		{Name: "email", Type: field.TypeString},
+		{Name: "role", Type: field.TypeString},
+		{Name: "account", Type: field.TypeUuid, Nullable: true},
+		{Name: "date_updated", Type: field.TypeTime},
+		{Name: "date_erased", Type: field.TypeTime, Nullable: true},
+		{Name: "date_created", Type: field.TypeTime, Nullable: true},
+		{Name: "state", Type: field.TypeString},
+		{Name: "date_expires", Type: field.TypeTime, Nullable: true},
+		{Name: "date_settled", Type: field.TypeTime, Nullable: true},
+		{Name: "claim", Type: field.TypeBytes, Nullable: true},
+		{Name: "tenant_id", Type: field.TypeUuid},
+		{Name: "inviter_id", Type: field.TypeUuid},
+		{Name: "party_id", Type: field.TypeUuid, Nullable: true},
+		{Name: "holder_id", Type: field.TypeUuid, Nullable: true},
+	}
+	// InvitationTable holds the schema information for the "invitation" table.
+	InvitationTable = &schema.Table{
+		Name:       "invitation",
+		Columns:    InvitationColumns,
+		PrimaryKey: []*schema.Column{InvitationColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "invitation_tenant_tenant",
+				Columns:    []*schema.Column{InvitationColumns[11]},
+				RefColumns: []*schema.Column{TenantColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "invitation_holder_inviter",
+				Columns:    []*schema.Column{InvitationColumns[12]},
+				RefColumns: []*schema.Column{HolderColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "invitation_party_party",
+				Columns:    []*schema.Column{InvitationColumns[13]},
+				RefColumns: []*schema.Column{PartyColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "invitation_holder_holder",
+				Columns:    []*schema.Column{InvitationColumns[14]},
+				RefColumns: []*schema.Column{HolderColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "invitation_date_created_id",
+				Unique:  false,
+				Columns: []*schema.Column{InvitationColumns[6], InvitationColumns[0]},
+			},
+			{
+				Name:    "invitation_claim",
+				Unique:  false,
+				Columns: []*schema.Column{InvitationColumns[10]},
+			},
+			{
+				Name:    "invitation_account",
+				Unique:  false,
+				Columns: []*schema.Column{InvitationColumns[3]},
+			},
+			{
+				Name:    "invitation_email",
+				Unique:  false,
+				Columns: []*schema.Column{InvitationColumns[1]},
+			},
+		},
+	}
 	// ItemmodelColumns holds the columns for the "itemmodel" table.
 	ItemmodelColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUuid, Unique: true},
@@ -1672,6 +1744,7 @@ var (
 		FactTable,
 		HolderTable,
 		InventorycountTable,
+		InvitationTable,
 		ItemmodelTable,
 		LabelTable,
 		LegalholdTable,
@@ -1764,6 +1837,13 @@ func init() {
 	InventorycountTable.ForeignKeys[1].RefTable = AssetTable
 	InventorycountTable.Annotation = &entsql.Annotation{
 		Table: "inventorycount",
+	}
+	InvitationTable.ForeignKeys[0].RefTable = TenantTable
+	InvitationTable.ForeignKeys[1].RefTable = HolderTable
+	InvitationTable.ForeignKeys[2].RefTable = PartyTable
+	InvitationTable.ForeignKeys[3].RefTable = HolderTable
+	InvitationTable.Annotation = &entsql.Annotation{
+		Table: "invitation",
 	}
 	ItemmodelTable.ForeignKeys[0].RefTable = TenantTable
 	ItemmodelTable.ForeignKeys[1].RefTable = AssettypeTable

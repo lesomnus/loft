@@ -10,6 +10,7 @@ import (
 	rove "github.com/lesomnus/rove"
 	ent "github.com/lesomnus/rove/internal/ent"
 	holder "github.com/lesomnus/rove/internal/ent/holder"
+	invitation "github.com/lesomnus/rove/internal/ent/invitation"
 	party "github.com/lesomnus/rove/internal/ent/party"
 	predicate "github.com/lesomnus/rove/internal/ent/predicate"
 	session "github.com/lesomnus/rove/internal/ent/session"
@@ -1025,6 +1026,566 @@ func pickSession(req *rove.SessionRef) (predicate.Session, error) {
 		}
 	case rove.SessionRef_Key_not_set_case:
 		return nil, status.Errorf(codes.InvalidArgument, "key not set: Session")
+	default:
+		return nil, status.Errorf(codes.Unimplemented, "unknown type of key: %s", req.WhichKey())
+	}
+}
+
+type InvitationServiceServer struct {
+	Store
+
+	rove.UnimplementedInvitationServiceServer
+}
+
+// NewInvitationServiceServer answers with a server that runs its queries with `db`.
+//
+// It takes the options of [Server] so that what is built here can be told
+// where to report its writes and what it may see. Built without them, it
+// reports nowhere and sees everything.
+func NewInvitationServiceServer(db *ent.Client, opts ...Option) rove.InvitationServiceServer {
+	s := Server{Store: Store{Db: db}}
+	for _, opt := range opts {
+		opt(&s)
+	}
+	return InvitationServiceServer{Store: s.Store}
+}
+
+// InvitationNarrow answers with `p` and everything else that narrows a
+// read of a Invitation: the rows that have not been erased, and whatever
+// `scope` says of those.
+//
+// Every read this package makes goes through it, and a read written by
+// hand should too -- a List is the one read nothing generates, and so the
+// one that would otherwise answer with rows nobody should be given.
+func InvitationNarrow(ctx context.Context, scope Scope, p predicate.Invitation) (predicate.Invitation, error) {
+	ps := make([]predicate.Invitation, 0, 3)
+
+	// A row that was erased is not a row a read answers with.
+	ps = append(ps, invitation.DateErasedIsNil())
+	if p != nil {
+		ps = append(ps, p)
+	}
+	if scope != nil {
+		q, err := scope.InvitationScope(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if q != nil {
+			ps = append(ps, q)
+		}
+	}
+
+	switch len(ps) {
+	case 0:
+		return nil, nil
+	case 1:
+		return ps[0], nil
+	default:
+		return invitation.And(ps...), nil
+	}
+}
+
+// narrow is [InvitationNarrow] with this server's own scope.
+func (s InvitationServiceServer) narrow(ctx context.Context, p predicate.Invitation) (predicate.Invitation, error) {
+	return InvitationNarrow(ctx, s.Scope, p)
+}
+
+func (s InvitationServiceServer) Add(ctx context.Context, req *rove.InvitationAddRequest) (*rove.Invitation, error) {
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	ds := make([]func(v *rove.Invitation), 0, 4)
+	q := st.Db.Invitation.Create()
+	var k uuid.UUID
+	if req.HasId() {
+		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+		} else {
+			k = v
+		}
+	}
+	if v, err := mint(ctx, s.Mint, "rove.Invitation", k, req.HasId()); err != nil {
+		return nil, err
+	} else {
+		q.SetId(v)
+	}
+	if k, err := TenantGetKey(ctx, st.Db, req.GetTenant()); err != nil {
+		return nil, err
+	} else {
+		q.SetTenantId(k)
+		ds = append(ds, func(v *rove.Invitation) {
+			v.SetTenant(rove.Tenant_builder{Id: k[:]}.Build())
+		})
+	}
+	if k, err := HolderGetKey(ctx, st.Db, req.GetInviter()); err != nil {
+		return nil, err
+	} else {
+		q.SetInviterId(k)
+		ds = append(ds, func(v *rove.Invitation) {
+			v.SetInviter(rove.Holder_builder{Id: k[:]}.Build())
+		})
+	}
+	q.SetEmail(req.GetEmail())
+	q.SetRole(req.GetRole())
+	if req.HasParty() {
+		if k, err := PartyGetKey(ctx, st.Db, req.GetParty()); err != nil {
+			return nil, err
+		} else {
+			q.SetPartyId(k)
+			ds = append(ds, func(v *rove.Invitation) {
+				v.SetParty(rove.Party_builder{Id: k[:]}.Build())
+			})
+		}
+	}
+	if req.HasAccount() {
+		if v, err := entuuid.FromBytes(req.GetAccount()); err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "account: %s", err)
+		} else {
+			q.SetAccount(v)
+		}
+	}
+	q.SetDateUpdated(st.now())
+	if req.HasDateCreated() {
+		q.SetDateCreated(req.GetDateCreated().AsTime())
+	} else {
+		q.SetDateCreated(st.now())
+	}
+	q.SetState(req.GetState())
+	if req.HasDateExpires() {
+		q.SetDateExpires(req.GetDateExpires().AsTime())
+	} else {
+		q.SetDateExpires(st.now())
+	}
+	if req.HasDateSettled() {
+		q.SetDateSettled(req.GetDateSettled().AsTime())
+	}
+	if req.HasHolder() {
+		if k, err := HolderGetKey(ctx, st.Db, req.GetHolder()); err != nil {
+			return nil, err
+		} else {
+			q.SetHolderId(k)
+			ds = append(ds, func(v *rove.Invitation) {
+				v.SetHolder(rove.Holder_builder{Id: k[:]}.Build())
+			})
+		}
+	}
+	if req.HasClaim() {
+		q.SetClaim(req.GetClaim())
+	}
+
+	u, err := q.Save(ctx)
+	if err != nil {
+		if err, ok := err.(*ent.ConstraintError); ok {
+			if sqlgraph.IsUniqueConstraintError(err) {
+				return nil, status.Error(codes.AlreadyExists, "Invitation already exists")
+			}
+			if sqlgraph.IsForeignKeyConstraintError(err) {
+				return nil, status.Error(codes.NotFound, "Invitation: referenced entity not found")
+			}
+		}
+		return nil, err
+	}
+
+	if err := record(ctx, s.Rec, st.Db, Change{
+		By:  rove.InvitationService_Add_FullMethodName,
+		Key: u.Id,
+	}); err != nil {
+		return nil, err
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+
+	v := u.Proto()
+	for _, d := range ds {
+		d(v)
+	}
+	return v, nil
+}
+
+func (s InvitationServiceServer) Get(ctx context.Context, req *rove.InvitationGetRequest) (*rove.Invitation, error) {
+	p, err := InvitationPick(req.GetRef())
+	if err != nil {
+		return nil, err
+	}
+	p, err = s.narrow(ctx, p)
+	if err != nil {
+		return nil, err
+	}
+
+	q := s.Db.Invitation.Query().Where(p)
+	InvitationSelectInit(q, req.GetSelect())
+
+	v, err := q.Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, status.Error(codes.NotFound, "Invitation not found")
+		}
+		return nil, err
+	}
+	return v.Proto(), nil
+}
+
+func selectInvitationKey(q *ent.InvitationQuery) {
+	q.Select(invitation.FieldId)
+}
+
+func InvitationSelectedFields(m *rove.InvitationSelect) []string {
+	if m.GetAll() {
+		return invitation.Columns
+	}
+
+	vs := make([]string, 0, len(invitation.Columns))
+	{
+		vs = append(vs, invitation.FieldId)
+	}
+	if m.GetEmail() {
+		vs = append(vs, invitation.FieldEmail)
+	}
+	if m.GetRole() {
+		vs = append(vs, invitation.FieldRole)
+	}
+	if m.GetAccount() {
+		vs = append(vs, invitation.FieldAccount)
+	}
+	if m.GetDateUpdated() {
+		vs = append(vs, invitation.FieldDateUpdated)
+	}
+	if m.GetDateErased() {
+		vs = append(vs, invitation.FieldDateErased)
+	}
+	if m.GetDateCreated() {
+		vs = append(vs, invitation.FieldDateCreated)
+	}
+	if m.GetState() {
+		vs = append(vs, invitation.FieldState)
+	}
+	if m.GetDateExpires() {
+		vs = append(vs, invitation.FieldDateExpires)
+	}
+	if m.GetDateSettled() {
+		vs = append(vs, invitation.FieldDateSettled)
+	}
+	if m.GetClaim() {
+		vs = append(vs, invitation.FieldClaim)
+	}
+
+	return vs
+}
+
+func InvitationSelect(q *ent.InvitationQuery, m *rove.InvitationSelect) {
+	if !m.GetAll() {
+		fields := InvitationSelectedFields(m)
+		q.Select(fields...)
+	}
+	if m.HasTenant() {
+		q.WithTenant(func(q *ent.TenantQuery) {
+			TenantSelect(q, m.GetTenant())
+		})
+	}
+	if m.HasInviter() {
+		q.WithInviter(func(q *ent.HolderQuery) {
+			q.Where(holder.DateErasedIsNil())
+			HolderSelect(q, m.GetInviter())
+		})
+	}
+	if m.HasParty() {
+		q.WithParty(func(q *ent.PartyQuery) {
+			q.Where(party.DateErasedIsNil())
+			PartySelect(q, m.GetParty())
+		})
+	}
+	if m.HasHolder() {
+		q.WithHolder(func(q *ent.HolderQuery) {
+			q.Where(holder.DateErasedIsNil())
+			HolderSelect(q, m.GetHolder())
+		})
+	}
+}
+
+func InvitationSelectInit(q *ent.InvitationQuery, m *rove.InvitationSelect) {
+	if m != nil {
+		InvitationSelect(q, m)
+	} else {
+		q.WithTenant(selectTenantKey)
+		q.WithInviter(selectHolderKey)
+		q.WithParty(selectPartyKey)
+		q.WithHolder(selectHolderKey)
+	}
+}
+
+func (s InvitationServiceServer) Patch(ctx context.Context, req *rove.InvitationPatchRequest) (*rove.Invitation, error) {
+	doc, err := ormpatch.FromPatchRequest(invitationOrmEntity, req.ProtoReflect(), func(ed graph.Edge, ref protoreflect.Message) (protoreflect.Value, error) {
+		switch ed.Number() {
+		case 11:
+			k, err := PartyGetKey(ctx, s.Db, ref.Interface().(*rove.PartyRef))
+			if err != nil {
+				return protoreflect.Value{}, err
+			}
+			return protoreflect.ValueOfBytes(k[:]), nil
+		case 19:
+			k, err := HolderGetKey(ctx, s.Db, ref.Interface().(*rove.HolderRef))
+			if err != nil {
+				return protoreflect.Value{}, err
+			}
+			return protoreflect.ValueOfBytes(k[:]), nil
+		}
+		return protoreflect.Value{}, status.Errorf(codes.Internal, "no key resolver for edge: %s", ed.Name())
+	})
+	if err != nil {
+		if _, ok := status.FromError(err); ok {
+			return nil, err
+		}
+		if errors.Is(err, ormpatch.ErrRequestLayout) {
+			return nil, status.Errorf(codes.Internal, "%s", err)
+		}
+		if errors.Is(err, ormpatch.ErrUnsupported) {
+			return nil, status.Errorf(codes.Unimplemented, "%s", err)
+		}
+		return nil, status.Errorf(codes.InvalidArgument, "%s", err)
+	}
+
+	return s.apply(ctx, req.GetRef(), doc, rove.InvitationService_Patch_FullMethodName)
+}
+
+func InvitationGetKey(ctx context.Context, db *ent.Client, ref *rove.InvitationRef) (uuid.UUID, error) {
+	var z uuid.UUID
+	if ref.HasId() {
+		if v, err := entuuid.FromBytes(ref.GetId()); err != nil {
+			return z, status.Errorf(codes.InvalidArgument, "id: %s", err)
+		} else {
+			return v, nil
+		}
+	}
+
+	p, err := InvitationPick(ref)
+	if err != nil {
+		return z, err
+	}
+
+	v, err := db.Invitation.Query().Where(p).OnlyId(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return z, status.Error(codes.NotFound, "Invitation not found")
+		}
+		return z, err
+	}
+
+	return v, nil
+}
+
+var invitationOrmEntity = ormpatch.MustEntityOf(rove.File_rove_org_proto, "Invitation")
+
+var invitationPatchColumns = entpatch.Columns{
+	1: invitation.FieldId, 2: invitation.TenantColumn, 8: invitation.InviterColumn, 9: invitation.FieldEmail, 10: invitation.FieldRole, 11: invitation.PartyColumn, 12: invitation.FieldAccount, 13: invitation.FieldDateUpdated, 14: invitation.FieldDateErased, 15: invitation.FieldDateCreated, 16: invitation.FieldState, 17: invitation.FieldDateExpires, 18: invitation.FieldDateSettled, 19: invitation.HolderColumn, 20: invitation.FieldClaim}
+
+func (s InvitationServiceServer) Apply(ctx context.Context, req *rove.InvitationApplyRequest) (*rove.Invitation, error) {
+	if !req.HasPatch() {
+		return nil, status.Errorf(codes.InvalidArgument, "%s", ormpatch.ErrNoPatch)
+	}
+	return s.apply(ctx, req.GetRef(), req.GetPatch(), rove.InvitationService_Apply_FullMethodName)
+}
+
+func (s InvitationServiceServer) apply(ctx context.Context, ref *rove.InvitationRef, doc *patchpb.Patch, by string) (*rove.Invitation, error) {
+	plan := &ormpatch.Plan{Entity: invitationOrmEntity}
+	if doc != nil {
+		v, err := ormpatch.Compile(invitationOrmEntity, doc)
+		if err != nil {
+			if errors.Is(err, ormpatch.ErrUnsupported) {
+				return nil, status.Errorf(codes.Unimplemented, "%s", err)
+			}
+			return nil, status.Errorf(codes.InvalidArgument, "%s", err)
+		}
+		plan = v
+	}
+
+	pred, mod, err := entpatch.Build(plan, invitationPatchColumns, s.Db.Dialect())
+	if err != nil {
+		if errors.Is(err, entpatch.ErrValue) {
+			return nil, status.Errorf(codes.InvalidArgument, "%s", err)
+		}
+		return nil, status.Errorf(codes.Internal, "%s", err)
+	}
+
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, true)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	k, err := InvitationGetKey(ctx, st.Db, ref)
+	if err != nil {
+		return nil, err
+	}
+	at := &rove.InvitationRef{}
+	at.SetId(k[:])
+	p, err := s.narrow(ctx, invitation.IdEQ(k))
+	if err != nil {
+		return nil, err
+	}
+
+	if mod == nil {
+		q := st.Db.Invitation.Query().Where(p)
+		if pred != nil {
+			q.Where(predicate.Invitation(pred))
+		}
+		if ok, err := q.Exist(ctx); err != nil {
+			return nil, err
+		} else if !ok {
+			return nil, func() error {
+				if ok, err := st.Db.Invitation.Query().Where(p).Exist(ctx); err != nil {
+					return err
+				} else if !ok {
+					return status.Error(codes.NotFound, "Invitation not found")
+				}
+				return status.Error(codes.FailedPrecondition, "a test in the patch did not hold")
+			}()
+		}
+	} else {
+		q := st.Db.Invitation.Update().Where(p)
+		if pred != nil {
+			q.Where(predicate.Invitation(pred))
+		}
+		q.Modify(mod)
+		if !plan.WritesTo(13) {
+			q.SetDateUpdated(st.now())
+		}
+		if n, err := q.Save(ctx); err != nil {
+			if err, ok := err.(*ent.ConstraintError); ok {
+				if sqlgraph.IsUniqueConstraintError(err) {
+					return nil, status.Error(codes.AlreadyExists, "Invitation already exists")
+				}
+				if sqlgraph.IsForeignKeyConstraintError(err) {
+					return nil, status.Error(codes.NotFound, "Invitation: referenced entity not found")
+				}
+			}
+			return nil, err
+		} else if n == 0 {
+			return nil, func() error {
+				if ok, err := st.Db.Invitation.Query().Where(p).Exist(ctx); err != nil {
+					return err
+				} else if !ok {
+					return status.Error(codes.NotFound, "Invitation not found")
+				}
+				return status.Error(codes.FailedPrecondition, "a test in the patch did not hold")
+			}()
+		}
+	}
+
+	if mod != nil {
+		if err := record(ctx, s.Rec, st.Db, Change{
+			By:    by,
+			Key:   k,
+			Patch: doc,
+		}); err != nil {
+			return nil, err
+		}
+	}
+
+	out, err := st.Get(ctx, at.Pick())
+	if err != nil {
+		return nil, err
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (s InvitationServiceServer) Erase(ctx context.Context, req *rove.InvitationRef) (*rove.InvitationEraseResponse, error) {
+	p, err := InvitationPick(req)
+	if err != nil {
+		return nil, err
+	}
+	p, err = s.narrow(ctx, p)
+	if err != nil {
+		return nil, err
+	}
+
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	var k any
+	if s.Rec != nil {
+		v, err := st.Db.Invitation.Query().Where(p).OnlyId(ctx)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return &rove.InvitationEraseResponse{}, nil
+			}
+			return nil, err
+		}
+
+		k = v
+		p = invitation.And(p, invitation.IdEQ(v))
+	}
+
+	u := st.Db.Invitation.Update().Where(p)
+	u.SetDateErased(st.now())
+	u.SetDateUpdated(st.now())
+	n, err := u.Save(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if n > 0 {
+		if err := record(ctx, s.Rec, st.Db, Change{
+			By:  rove.InvitationService_Erase_FullMethodName,
+			Key: k,
+		}); err != nil {
+			return nil, err
+		}
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+	res := &rove.InvitationEraseResponse{}
+	res.SetErased(n > 0)
+
+	return res, nil
+}
+
+// InvitationPick answers with the predicate this reference selects on,
+// among the rows that are still here.
+//
+// Erasure is part of the reference and not only part of a read's scope,
+// because a reference to a Invitation is composed into the reference of
+// whatever names one: an index over an edge asks this for a predicate and
+// puts it inside `HasInvitationWith`, where no narrowing of a Invitation
+// is ever applied. A child of an erased row would otherwise be readable by
+// naming its parent.
+func InvitationPick(req *rove.InvitationRef) (predicate.Invitation, error) {
+	p, err := pickInvitation(req)
+	if err != nil {
+		return nil, err
+	}
+
+	return invitation.And(invitation.DateErasedIsNil(), p), nil
+}
+
+func pickInvitation(req *rove.InvitationRef) (predicate.Invitation, error) {
+	switch req.WhichKey() {
+	case rove.InvitationRef_Id_case:
+		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+		} else {
+			return invitation.IdEQ(v), nil
+		}
+	case rove.InvitationRef_Key_not_set_case:
+		return nil, status.Errorf(codes.InvalidArgument, "key not set: Invitation")
 	default:
 		return nil, status.Errorf(codes.Unimplemented, "unknown type of key: %s", req.WhichKey())
 	}

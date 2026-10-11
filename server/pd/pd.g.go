@@ -43,6 +43,7 @@ import (
 	fact "github.com/lesomnus/rove/internal/ent/fact"
 	holder "github.com/lesomnus/rove/internal/ent/holder"
 	inventorycount "github.com/lesomnus/rove/internal/ent/inventorycount"
+	invitation "github.com/lesomnus/rove/internal/ent/invitation"
 	itemmodel "github.com/lesomnus/rove/internal/ent/itemmodel"
 	label "github.com/lesomnus/rove/internal/ent/label"
 	legalhold "github.com/lesomnus/rove/internal/ent/legalhold"
@@ -123,6 +124,7 @@ const (
 	FactDomain            pdid.Domain = 16 // "fact"
 	HolderDomain          pdid.Domain = 2  // "holder"
 	InventoryCountDomain  pdid.Domain = 31 // "inventory-count"
+	InvitationDomain      pdid.Domain = 41 // "invitation"
 	ItemModelDomain       pdid.Domain = 9  // "item-model"
 	LabelDomain           pdid.Domain = 18 // "label"
 	LegalHoldDomain       pdid.Domain = 40 // "legal-hold"
@@ -162,6 +164,7 @@ func init() {
 	pdid.Register("rove.Fact", FactDomain, "fact")
 	pdid.Register("rove.Holder", HolderDomain, "holder")
 	pdid.Register("rove.InventoryCount", InventoryCountDomain, "inventory-count")
+	pdid.Register("rove.Invitation", InvitationDomain, "invitation")
 	pdid.Register("rove.ItemModel", ItemModelDomain, "item-model")
 	pdid.Register("rove.Label", LabelDomain, "label")
 	pdid.Register("rove.LegalHold", LegalHoldDomain, "legal-hold")
@@ -205,6 +208,7 @@ var Domains = map[string]pdid.Domain{
 	"rove.Fact":            FactDomain,
 	"rove.Holder":          HolderDomain,
 	"rove.InventoryCount":  InventoryCountDomain,
+	"rove.Invitation":      InvitationDomain,
 	"rove.ItemModel":       ItemModelDomain,
 	"rove.Label":           LabelDomain,
 	"rove.LegalHold":       LegalHoldDomain,
@@ -404,6 +408,16 @@ func (wall) InventoryCountScope(ctx context.Context) (predicate.InventoryCount, 
 	}
 
 	return inventorycount.TenantIdIn(vs...), nil
+}
+
+// InvitationScope: a row belongs to the tenant its "tenant" reaches.
+func (wall) InvitationScope(ctx context.Context) (predicate.Invitation, error) {
+	vs, all, err := frame.Narrow(ctx)
+	if all || err != nil {
+		return nil, err
+	}
+
+	return invitation.TenantIdIn(vs...), nil
 }
 
 // ItemModelScope: a row belongs to the tenant its "tenant" reaches.
@@ -5336,6 +5350,185 @@ func (s sinkInventoryCount) watchInventoryCountKeys(
 	}
 
 	return ks, nil
+}
+
+type sinkInvitation struct {
+	rove.InvitationServiceServer
+	store  bare.Store
+	w      *watch.Watch
+	namer  slug.Namer
+	joined bool
+}
+
+func (s Sink) Invitation() rove.InvitationServiceServer {
+	return sinkInvitation{s.Server.Invitation(), s.Server.Store, s.w, s.namer, s.joined}
+}
+
+// orderInvitation is how Invitations come back.
+//
+// The last column is the key, and it is not decoration: a cursor cannot
+// tell apart two rows equal in every column of the order, so the page after
+// the first of them either repeats the second or skips it. Rows written by
+// one request are stamped a moment apart at best.
+var orderInvitation = []sqlpage.Order{
+	{Column: invitation.FieldDateCreated, Desc: false},
+	{Column: invitation.FieldId, Desc: false},
+}
+
+const (
+	// InvitationPageSize is what a request that did not say gets, and
+	// InvitationPageLimit is the most it gets however loudly it asks.
+	InvitationPageSize  = 50
+	InvitationPageLimit = 200
+
+	// InvitationFilterLimit is how many filters one request may carry. Each is a
+	// predicate in the same query, so it is what says how much of the
+	// database a request may ask to read -- and it is refused rather than
+	// clamped, because dropping half the filters would answer a question
+	// nobody asked.
+	InvitationFilterLimit = 32
+)
+
+// List answers with the Invitations that match any of the given filters, or with
+// every one there is if the request named none, a page at a time.
+func (s sinkInvitation) List(ctx context.Context, req *rove.InvitationListRequest) (*rove.InvitationListResponse, error) {
+	q := s.store.Db.Invitation.Query()
+
+	// Through the same narrowing every generated read goes through, and not
+	// by asking the scope alone: what narrows a read is the wall today and
+	// the wall and something else tomorrow, and a list that reached past it
+	// would be the one read that missed the something else.
+	if p, err := bare.InvitationNarrow(ctx, s.store.Scope, nil); err != nil {
+		return nil, err
+	} else if p != nil {
+		q.Where(p)
+	}
+
+	if fs := req.GetFilters(); len(fs) > 0 {
+		if len(fs) > InvitationFilterLimit {
+			return nil, status.Errorf(codes.InvalidArgument,
+				"filters: %d of them, and %d is the most one list carries", len(fs), InvitationFilterLimit)
+		}
+
+		ps := make([]predicate.Invitation, 0, len(fs))
+		for i, f := range fs {
+			p, err := filterInvitation(f)
+			if err != nil {
+				return nil, status.Errorf(codes.InvalidArgument, "filters[%d]: %s", i, err)
+			}
+
+			ps = append(ps, p)
+		}
+
+		q.Where(invitation.Or(ps...))
+	}
+
+	if v := req.GetAfter(); v != "" {
+		var (
+			at0 time.Time
+			at1 uuid.UUID
+		)
+		if err := sqlpage.Decode(v, &at0, &at1); err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "after: %s", err)
+		}
+
+		p, err := sqlpage.After(orderInvitation, []any{at0, at1})
+		if err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "after: %s", err)
+		}
+
+		q.Where(p)
+	}
+
+	// One row more than the page, which is how "is there another" is answered
+	// without a second query and without a count. The extra is dropped before
+	// the answer is built; it was only ever asked for to see whether it was
+	// there -- so a full last page answers with no cursor rather than sending
+	// the caller back for an empty one.
+	size := sqlpage.Size(int(req.GetSize()), InvitationPageSize, InvitationPageLimit)
+	us, err := q.Order(invitation.ByDateCreated(), invitation.ById()).Limit(size + 1).All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	more := len(us) > size
+	if more {
+		us = us[:size]
+	}
+
+	items := make([]*rove.Invitation, len(us))
+	for i, u := range us {
+		items[i] = u.Proto()
+	}
+
+	res := rove.InvitationListResponse_builder{Items: items}.Build()
+	if more {
+		last := us[len(us)-1]
+		next, err := sqlpage.Encode(last.DateCreated, last.Id)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "next: %s", err)
+		}
+
+		res.SetNext(next)
+	}
+
+	return res, nil
+}
+
+// filterInvitation turns one filter into the predicate that selects what it
+// names. Naming nothing is refused, since the request asked for "these" and
+// did not say which.
+func filterInvitation(f *rove.InvitationFilter) (predicate.Invitation, error) {
+	ps := make([]predicate.Invitation, 0, 1)
+	if f.HasRef() {
+		p, err := bare.InvitationPick(f.GetRef())
+		if err != nil {
+			return nil, err
+		}
+
+		ps = append(ps, p)
+	}
+	if f.HasTenant() {
+		w := f.GetTenant()
+		if b := w.GetId(); len(b) > 0 {
+			// The **foreign key column** on this row, which is what an
+			// edge is. A subquery for a comparison against an indexed
+			// column is work nobody asked for.
+			k, err := entuuid.FromBytes(b)
+			if err != nil {
+				return nil, status.Errorf(codes.InvalidArgument, "tenant: %s", err)
+			}
+
+			ps = append(ps, invitation.TenantIdEQ(k))
+		} else {
+			// Named some other way -- an alias, a slug. Resolving it
+			// would be a read, and a predicate is built without one, so
+			// it becomes a condition on the target instead. One hop,
+			// against whatever index that column has.
+			q, err := bare.TenantPick(w)
+			if err != nil {
+				return nil, err
+			}
+
+			ps = append(ps, invitation.HasTenantWith(q))
+		}
+	}
+	if f.HasAccount() {
+		k, err := entuuid.FromBytes(f.GetAccount())
+		if err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "account: %s", err)
+		}
+
+		ps = append(ps, invitation.AccountEQ(k))
+	}
+	if f.HasState() {
+		ps = append(ps, invitation.StateEQ(f.GetState()))
+	}
+	if len(ps) == 0 {
+		return nil, status.Error(codes.InvalidArgument, "a filter that names nothing")
+	}
+
+	return invitation.And(ps...), nil
 }
 
 type sinkItemModel struct {
@@ -11928,6 +12121,112 @@ func (s gateInventoryCount) Add(ctx context.Context, req *rove.InventoryCountAdd
 	return s.InventoryCountServiceServer.Add(ctx, req)
 }
 
+type gateInvitation struct {
+	Gate
+	rove.InvitationServiceServer
+}
+
+func (s Gate) Invitation() rove.InvitationServiceServer {
+	return gateInvitation{s, s.Next().Invitation()}
+}
+
+// Add refuses a Invitation put into a Tenant this caller cannot see.
+//
+// The wall is a predicate and an Add has no query, so without this the
+// identifier in `tenant` becomes a foreign key with nothing consulted.
+// The row is then invisible to whoever planted it and visible to whoever
+// holds that Tenant, which is the shape of the bug rather than a
+// mitigation of it.
+//
+// NotFound rather than a refusal, for the reason on `gateHolder.Add`:
+// that a row exists is itself something a caller who may not see it
+// should not be told.
+func (s gateInvitation) Add(ctx context.Context, req *rove.InvitationAddRequest) (*rove.Invitation, error) {
+	if ref := req.GetTenant(); ref != nil {
+		if _, err := s.Gate.Next().Tenant().Get(ctx, rove.TenantGetRequest_builder{
+			Ref: ref,
+		}.Build()); err != nil {
+			if status.Code(err) == codes.NotFound {
+				return nil, gate.ErrNotFound("Tenant")
+			}
+
+			return nil, err
+		}
+	}
+
+	if ref := req.GetInviter(); ref != nil {
+		if _, err := s.Gate.Next().Holder().Get(ctx, rove.HolderGetRequest_builder{
+			Ref: ref,
+		}.Build()); err != nil {
+			if status.Code(err) == codes.NotFound {
+				return nil, gate.ErrNotFound("Holder")
+			}
+
+			return nil, err
+		}
+	}
+
+	if ref := req.GetParty(); ref != nil {
+		if _, err := s.Gate.Next().Party().Get(ctx, rove.PartyGetRequest_builder{
+			Ref: ref,
+		}.Build()); err != nil {
+			if status.Code(err) == codes.NotFound {
+				return nil, gate.ErrNotFound("Party")
+			}
+
+			return nil, err
+		}
+	}
+
+	if ref := req.GetHolder(); ref != nil {
+		if _, err := s.Gate.Next().Holder().Get(ctx, rove.HolderGetRequest_builder{
+			Ref: ref,
+		}.Build()); err != nil {
+			if status.Code(err) == codes.NotFound {
+				return nil, gate.ErrNotFound("Holder")
+			}
+
+			return nil, err
+		}
+	}
+
+	return s.InvitationServiceServer.Add(ctx, req)
+}
+
+// Patch refuses an edge moved onto a row this caller cannot see.
+//
+// The wall narrows the row being written and says nothing about what the
+// write points **at**. An edge is a read -- a `Select` walks it -- so one
+// moved out of the caller's scope is a way through the wall one hop later,
+// exactly as it would have been at `Add`.
+func (s gateInvitation) Patch(ctx context.Context, req *rove.InvitationPatchRequest) (*rove.Invitation, error) {
+	if ref := req.GetParty(); ref != nil {
+		if _, err := s.Gate.Next().Party().Get(ctx, rove.PartyGetRequest_builder{
+			Ref: ref,
+		}.Build()); err != nil {
+			if status.Code(err) == codes.NotFound {
+				return nil, gate.ErrNotFound("Party")
+			}
+
+			return nil, err
+		}
+	}
+
+	if ref := req.GetHolder(); ref != nil {
+		if _, err := s.Gate.Next().Holder().Get(ctx, rove.HolderGetRequest_builder{
+			Ref: ref,
+		}.Build()); err != nil {
+			if status.Code(err) == codes.NotFound {
+				return nil, gate.ErrNotFound("Holder")
+			}
+
+			return nil, err
+		}
+	}
+
+	return s.InvitationServiceServer.Patch(ctx, req)
+}
+
 type gateItemModel struct {
 	Gate
 	rove.ItemModelServiceServer
@@ -13185,6 +13484,8 @@ func hidden(key pdid.Id, p *patchpb.Patch) *patchpb.Patch {
 
 	var secret []uint32
 	switch key.Domain() {
+	case InvitationDomain:
+		secret = []uint32{20}
 	case SessionDomain:
 		secret = []uint32{9, 16}
 	}
@@ -13618,6 +13919,40 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id) (uuid.UUID, []byte
 
 			return uuid.Nil(), nil, err
 		}
+
+		b, err := proto.Marshal(row)
+		if err != nil {
+			return uuid.Nil(), nil, err
+		}
+
+		if !row.HasTenant() {
+			return uuid.Nil(), b, nil
+		}
+
+		k, err := entuuid.FromBytes(row.GetTenant().GetId())
+		if err != nil {
+			return uuid.Nil(), nil, err
+		}
+
+		return k, b, nil
+
+	case InvitationDomain:
+		row, err := s.Invitation().Get(ctx, rove.InvitationGetRequest_builder{
+			Ref: rove.InvitationRef_builder{Id: key.Bytes()}.Build(),
+		}.Build())
+		// Erased softly is still a row; see [erasedInvitation].
+		if status.Code(err) == codes.NotFound {
+			row, err = erasedInvitation(ctx, s, key)
+		}
+		if err != nil {
+			if status.Code(err) == codes.NotFound {
+				return uuid.Nil(), []byte{}, nil
+			}
+
+			return uuid.Nil(), nil, err
+		}
+
+		hideInvitation(row)
 
 		b, err := proto.Marshal(row)
 		if err != nil {
@@ -14424,6 +14759,33 @@ func erasedInventoryCount(ctx context.Context, s bare.Server, key pdid.Id) (*rov
 	return v.Proto(), nil
 }
 
+// erasedInvitation is the row `key` names among the rows already erased, which no
+// bare read answers: erasure is part of every reference that server builds.
+// The recorder is the one caller that has to see past it -- the row it asks
+// about was erased by the very write it is recording, and a trail row built
+// blind was filed under the actor's tenant with an empty value, which the
+// tenant whose row was erased could not read.
+func erasedInvitation(ctx context.Context, s bare.Server, key pdid.Id) (*rove.Invitation, error) {
+	k, err := entuuid.FromBytes(key.Bytes())
+	if err != nil {
+		return nil, err
+	}
+
+	q := s.Db.Invitation.Query().Where(invitation.IdEQ(k), invitation.DateErasedNotNil())
+	bare.InvitationSelectInit(q, nil)
+
+	v, err := q.Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, status.Error(codes.NotFound, "Invitation not found")
+		}
+
+		return nil, err
+	}
+
+	return v.Proto(), nil
+}
+
 // erasedItemModel is the row `key` names among the rows already erased, which no
 // bare read answers: erasure is part of every reference that server builds.
 // The recorder is the one caller that has to see past it -- the row it asks
@@ -14771,6 +15133,83 @@ func hideSession(v *rove.Session) *rove.Session {
 	m := v.ProtoReflect()
 	fs := m.Descriptor().Fields()
 	for _, n := range []protoreflect.FieldNumber{9, 16} {
+		m.Clear(fs.ByNumber(n))
+	}
+
+	return v
+}
+
+func (s Secret) Invitation() rove.InvitationServiceServer {
+	return secretInvitation{s, s.Next().Invitation()}
+}
+
+type secretInvitation struct {
+	Secret
+	rove.InvitationServiceServer
+}
+
+func (s secretInvitation) Add(ctx context.Context, req *rove.InvitationAddRequest) (*rove.Invitation, error) {
+	v, err := s.InvitationServiceServer.Add(ctx, req)
+
+	return hideInvitation(v), err
+}
+
+func (s secretInvitation) Get(ctx context.Context, req *rove.InvitationGetRequest) (*rove.Invitation, error) {
+	v, err := s.InvitationServiceServer.Get(ctx, req)
+
+	return hideInvitation(v), err
+}
+
+func (s secretInvitation) Patch(ctx context.Context, req *rove.InvitationPatchRequest) (*rove.Invitation, error) {
+	v, err := s.InvitationServiceServer.Patch(ctx, req)
+
+	return hideInvitation(v), err
+}
+
+func (s secretInvitation) Apply(ctx context.Context, req *rove.InvitationApplyRequest) (*rove.Invitation, error) {
+	v, err := s.InvitationServiceServer.Apply(ctx, req)
+
+	return hideInvitation(v), err
+}
+
+func (s secretInvitation) List(ctx context.Context, req *rove.InvitationListRequest) (*rove.InvitationListResponse, error) {
+	v, err := s.InvitationServiceServer.List(ctx, req)
+	if v == nil {
+		return v, err
+	}
+
+	for _, w := range v.GetItems() {
+		hideInvitation(w)
+	}
+
+	return v, err
+}
+
+// hideInvitation clears what this entity declared it never answers with.
+//
+// A nil row passes through, because an error is answered with one and the
+// caller of this is handing both on.
+//
+// By field number and through the descriptor, rather than a setter per
+// field, because a setter's argument has a type and this has to hold for
+// every field a row can carry. A `Set<F>(nil)` per secret is what this
+// was, and it compiled only while every secret anybody had declared was
+// `bytes`: a `string` one ended the build in a generated file, and an
+// enum would have needed its own type spelled out here to say zero.
+//
+// Clear is also the truer word. A field with presence is **absent**
+// afterwards rather than present and empty, which is what "never answered
+// with" says; one without presence reads as its zero value either way.
+// And the numbers are the ones `hidden` filters the trail's patch by, so
+// the two cannot come to disagree about which fields they are.
+func hideInvitation(v *rove.Invitation) *rove.Invitation {
+	if v == nil {
+		return nil
+	}
+
+	m := v.ProtoReflect()
+	fs := m.Descriptor().Fields()
+	for _, n := range []protoreflect.FieldNumber{20} {
 		m.Clear(fs.ByNumber(n))
 	}
 
@@ -15145,6 +15584,65 @@ func (s interceptSession) Apply(ctx context.Context, req *rove.SessionApplyReque
 func (s interceptSession) Erase(ctx context.Context, req *rove.SessionRef) (*rove.SessionEraseResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.SessionServiceServer,
 		rove.SessionService_Erase_FullMethodName, req, s.SessionServiceServer.Erase)
+}
+
+func (s Intercept) Invitation() rove.InvitationServiceServer {
+	return interceptInvitation{s, s.Next().Invitation()}
+}
+
+type interceptInvitation struct {
+	Intercept
+	rove.InvitationServiceServer
+}
+
+func (s interceptInvitation) Add(ctx context.Context, req *rove.InvitationAddRequest) (*rove.Invitation, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.InvitationServiceServer,
+		rove.InvitationService_Add_FullMethodName, req, s.InvitationServiceServer.Add)
+}
+
+func (s interceptInvitation) Get(ctx context.Context, req *rove.InvitationGetRequest) (*rove.Invitation, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.InvitationServiceServer,
+		rove.InvitationService_Get_FullMethodName, req, s.InvitationServiceServer.Get)
+}
+
+func (s interceptInvitation) Patch(ctx context.Context, req *rove.InvitationPatchRequest) (*rove.Invitation, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.InvitationServiceServer,
+		rove.InvitationService_Patch_FullMethodName, req, s.InvitationServiceServer.Patch)
+}
+
+func (s interceptInvitation) Apply(ctx context.Context, req *rove.InvitationApplyRequest) (*rove.Invitation, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.InvitationServiceServer,
+		rove.InvitationService_Apply_FullMethodName, req, s.InvitationServiceServer.Apply)
+}
+
+func (s interceptInvitation) Erase(ctx context.Context, req *rove.InvitationRef) (*rove.InvitationEraseResponse, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.InvitationServiceServer,
+		rove.InvitationService_Erase_FullMethodName, req, s.InvitationServiceServer.Erase)
+}
+
+func (s interceptInvitation) List(ctx context.Context, req *rove.InvitationListRequest) (*rove.InvitationListResponse, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.InvitationServiceServer,
+		rove.InvitationService_List_FullMethodName, req, s.InvitationServiceServer.List)
+}
+
+func (s interceptInvitation) Revoke(ctx context.Context, req *rove.InvitationRevokeRequest) (*rove.Invitation, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.InvitationServiceServer,
+		rove.InvitationService_Revoke_FullMethodName, req, s.InvitationServiceServer.Revoke)
+}
+
+func (s interceptInvitation) Claim(ctx context.Context, req *rove.InvitationClaimRequest) (*rove.Invitation, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.InvitationServiceServer,
+		rove.InvitationService_Claim_FullMethodName, req, s.InvitationServiceServer.Claim)
+}
+
+func (s interceptInvitation) Accept(ctx context.Context, req *rove.InvitationAcceptRequest) (*rove.Invitation, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.InvitationServiceServer,
+		rove.InvitationService_Accept_FullMethodName, req, s.InvitationServiceServer.Accept)
+}
+
+func (s interceptInvitation) Deny(ctx context.Context, req *rove.InvitationDenyRequest) (*rove.Invitation, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.InvitationServiceServer,
+		rove.InvitationService_Deny_FullMethodName, req, s.InvitationServiceServer.Deny)
 }
 
 func (s Intercept) Asset() rove.AssetServiceServer {
@@ -17944,6 +18442,136 @@ func dispatch(ctx context.Context, s rove.Server, op *pdpb.Op) (*anypb.Any, erro
 		}
 
 		res, err := s.Session().Erase(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.InvitationService_Add_FullMethodName:
+		v := &rove.InvitationAddRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.Invitation().Add(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.InvitationService_Get_FullMethodName:
+		v := &rove.InvitationGetRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.Invitation().Get(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.InvitationService_Patch_FullMethodName:
+		v := &rove.InvitationPatchRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.Invitation().Patch(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.InvitationService_Apply_FullMethodName:
+		v := &rove.InvitationApplyRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.Invitation().Apply(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.InvitationService_Erase_FullMethodName:
+		v := &rove.InvitationRef{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.Invitation().Erase(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.InvitationService_List_FullMethodName:
+		v := &rove.InvitationListRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.Invitation().List(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.InvitationService_Revoke_FullMethodName:
+		v := &rove.InvitationRevokeRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.Invitation().Revoke(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.InvitationService_Claim_FullMethodName:
+		v := &rove.InvitationClaimRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.Invitation().Claim(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.InvitationService_Accept_FullMethodName:
+		v := &rove.InvitationAcceptRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.Invitation().Accept(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.InvitationService_Deny_FullMethodName:
+		v := &rove.InvitationDenyRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.Invitation().Deny(ctx, v)
 		if err != nil {
 			return nil, err
 		}

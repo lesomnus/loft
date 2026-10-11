@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strings"
 	"time"
 
 	"github.com/lesomnus/z"
@@ -15,6 +16,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/grpc/test/bufconn"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/lesomnus/payday/config"
 	"github.com/lesomnus/payday/pdid"
@@ -267,6 +269,30 @@ func (s *Store) AddPerson(ctx context.Context, alias, name string, id pdid.Id) (
 	}
 
 	return s.lookupOwn(ctx, made)
+}
+
+// AddAddress puts an address on an account of the embedded roster, checked or
+// not, as the deployment says: what a deployment that runs roster here knows
+// of its people, which no link was sent to prove.
+func (s *Store) AddAddress(ctx context.Context, account pdid.Id, address string, verified bool) error {
+	if s.em == nil {
+		return ErrExternal
+	}
+	ctx, cancel := unframed(ctx)
+	defer cancel()
+	v, err := s.em.rs.Ungated.Email().Add(ctx, rstr.EmailAddRequest_builder{
+		Holder:  rstr.HolderRef_builder{Id: account.Bytes()}.Build(),
+		Address: strings.ToLower(strings.TrimSpace(address)),
+	}.Build())
+	if err != nil || !verified {
+		return err
+	}
+	_, err = s.em.rs.Ungated.Email().Patch(ctx, rstr.EmailPatchRequest_builder{
+		Ref:          rstr.EmailRef_builder{Id: v.GetId()}.Build(),
+		DateVerified: timestamppb.Now(),
+		DateUpdated:  v.GetDateUpdated(),
+	}.Build())
+	return err
 }
 
 // IssuePassword gives a person of the embedded roster a fresh password, shown

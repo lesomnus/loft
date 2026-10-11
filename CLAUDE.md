@@ -162,6 +162,18 @@ An account in no workspace is given one of its own when it signs in
 (`server/account`), because every RPC is served as a membership of a
 workspace and these are asked before there is one.
 
+**Invitations are the one call served as an account** (D30). The account an
+invitation is addressed to is nobody's member in that workspace yet, so
+`InvitationService.List` (by `account`), `Claim`, `Accept` and `Deny` are
+`cmd.AccountMethods`: the frame has no tenant and an `app.Account` where a
+holder would be, the policy gives such a caller those methods and nothing else
+(`policy.Account`), and `server/domain/invitation.go` says which rows each side
+reads -- the account's own, by an address roster holds as checked
+(`identity.Store.Addresses`) or a code its mail carried, and a workspace's own
+for its administrators. An answer is written through `Deps.Base` as the
+deployment's work in that workspace. Mail is `app.mail`, SMTP, and logged when
+it names no server.
+
 Roles stay Rove's. On the embedded roster the people screen and `rove holder
 add|password` make accounts and set passwords there; on an external one they
 are refused, and are done at roster. Ending a membership (deactivate,

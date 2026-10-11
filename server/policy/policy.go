@@ -37,6 +37,10 @@ type Level int
 const (
 	// Nobody is a method no role is given.
 	Nobody Level = iota
+	// Account is anybody signed in, as their account and not as a membership:
+	// the calls an account makes before it is anybody's member, which
+	// `cmd.AccountMethods` lists and the domain layer holds to its own rows.
+	Account
 	// Read is everybody signed in, auditors included.
 	Read
 	// Member is everybody who works here: reserve, report, take supplies.
@@ -163,6 +167,14 @@ func init() {
 
 	allow(Read, "NotificationService", "Inbox", "MarkRead")
 
+	// Inviting into the workspace is its administrators', up to their own
+	// role, which the domain layer checks. The answer is the account's it is
+	// addressed to, and so is reading it: served as the account, held by the
+	// domain layer to the invitations addressed to it -- and a workspace's own
+	// to somebody who runs that workspace.
+	allow(Admin, "InvitationService", "Add", "Revoke")
+	allow(Account, "InvitationService", "List", "Claim", "Accept", "Deny")
+
 	// A tenant's contract and the legal holds on it are the operator's: `rove
 	// contract` and `rove hold` write them, from a shell, and no role here
 	// may. The contract is everybody's to read, since it is what decides how
@@ -189,6 +201,15 @@ func Role(c gate.Call) string {
 	return ""
 }
 
+// levelOf is how much the caller may do: their membership's role, or no more
+// than an account's for a call served as the account.
+func levelOf(c gate.Call) Level {
+	if _, ok := c.Row.(*app.Account); ok {
+		return Account
+	}
+	return Levels[Role(c)]
+}
+
 func (Policy) May(ctx context.Context, c gate.Call) error {
 	r, ok := Table[c.Action]
 	if !ok {
@@ -199,7 +220,7 @@ func (Policy) May(ctx context.Context, c gate.Call) error {
 		return status.Errorf(codes.PermissionDenied, "직접 호출할 수 없는 작업입니다 (%s)", c.Action)
 	}
 	role := Role(c)
-	lv := Levels[role]
+	lv := levelOf(c)
 	if lv >= r.min && lv > Nobody {
 		return nil
 	}

@@ -40,6 +40,8 @@ type Tx struct {
 	Holder *HolderClient
 	// InventoryCount is the client for interacting with the InventoryCount builders.
 	InventoryCount *InventoryCountClient
+	// Invitation is the client for interacting with the Invitation builders.
+	Invitation *InvitationClient
 	// ItemModel is the client for interacting with the ItemModel builders.
 	ItemModel *ItemModelClient
 	// Label is the client for interacting with the Label builders.
@@ -229,6 +231,7 @@ func (tx *Tx) init() {
 	tx.Fact = NewFactClient(tx.config)
 	tx.Holder = NewHolderClient(tx.config)
 	tx.InventoryCount = NewInventoryCountClient(tx.config)
+	tx.Invitation = NewInvitationClient(tx.config)
 	tx.ItemModel = NewItemModelClient(tx.config)
 	tx.Label = NewLabelClient(tx.config)
 	tx.LegalHold = NewLegalHoldClient(tx.config)

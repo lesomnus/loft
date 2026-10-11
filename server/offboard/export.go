@@ -28,6 +28,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/event"
 	"github.com/lesomnus/rove/internal/ent/fact"
 	"github.com/lesomnus/rove/internal/ent/holder"
+	"github.com/lesomnus/rove/internal/ent/invitation"
 	"github.com/lesomnus/rove/internal/ent/inventorycount"
 	"github.com/lesomnus/rove/internal/ent/itemmodel"
 	"github.com/lesomnus/rove/internal/ent/label"
@@ -127,6 +128,15 @@ var Exported = map[string]reader{
 	},
 	"holder": func(ctx context.Context, db *ent.Client, t uuid.UUID) ([]proto.Message, error) {
 		return each((*ent.Holder).Proto)(db.Holder.Query().Where(holder.TenantId(t)).All(ctx))
+	},
+	// Who was invited, as what, and what became of it -- without the code a
+	// mail carried, which is a way in and nothing the tenant needs back.
+	"invitation": func(ctx context.Context, db *ent.Client, t uuid.UUID) ([]proto.Message, error) {
+		return each(func(v *ent.Invitation) proto.Message {
+			m := v.Proto()
+			m.SetClaim(nil)
+			return m
+		})(db.Invitation.Query().Where(invitation.TenantId(t)).All(ctx))
 	},
 	"inventorycount": func(ctx context.Context, db *ent.Client, t uuid.UUID) ([]proto.Message, error) {
 		return each((*ent.InventoryCount).Proto)(db.InventoryCount.Query().Where(inventorycount.TenantId(t)).All(ctx))
