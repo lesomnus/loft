@@ -162,10 +162,13 @@ func TestTheRosterInThisProcessIsRovesOwn(t *testing.T) {
 		x.False(st.Good(time.Now().Add(time.Second)), "suspended, and good")
 		_, err = s.Verify(ctx, "kim", secret)
 		x.ErrorIs(err, ErrRefused, "a suspended account signed in")
+		after := time.Now().Add(time.Second)
+		x.ErrorIs(s.Held(ctx, kim.Id, after), ErrRefused, "a session of a suspended account")
 
 		x.NoError(s.Enable(ctx, kim.Id))
 		_, err = s.Verify(ctx, "kim", secret)
 		x.NoError(err)
+		x.NoError(s.Held(ctx, kim.Id, after), "enabled here, and good at once rather than once what was known of it ran out")
 
 		_, err = s.StandingOf(ctx, pdid.New(pdid.Domain(1)))
 		x.ErrorIs(err, ErrNoPerson)
