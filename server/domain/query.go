@@ -669,7 +669,8 @@ func unionKeys(a, b map[string]string) []string {
 }
 
 // Search finds assets by what a person types: a name, a tag, a serial, in
-// part. On PostgreSQL the bigram index answers it (design 9.5).
+// part. On PostgreSQL the bigram index answers it, or pg_trgm's where pg_bigm
+// is not installed (design 9.5, [found]).
 func (s domainAsset) Search(ctx context.Context, req *app.AssetSearchRequest) (*app.AssetSearchResponse, error) {
 	t, err := s.read(ctx)
 	if err != nil {
@@ -679,15 +680,8 @@ func (s domainAsset) Search(ctx context.Context, req *app.AssetSearchRequest) (*
 	ps := []predicate.Asset{asset.TenantId(tid), asset.DateErasedIsNil()}
 	if q := strings.TrimSpace(req.GetQ()); q != "" {
 		// What a person would type: a name, a tag, a serial, or what it is,
-		// who made it and who has it.
-		ps = append(ps, asset.Or(
-			asset.NameContainsFold(q),
-			asset.TagContainsFold(q),
-			asset.SerialContainsFold(q),
-			asset.HasTypeWith(assettype.NameContainsFold(q)),
-			asset.HasModelWith(itemmodel.Or(itemmodel.NameContainsFold(q), itemmodel.MakerContainsFold(q))),
-			asset.HasCustodianWith(party.NameContainsFold(q)),
-		))
+		// who made it and who has it -- each answered by its own index.
+		ps = append(ps, predicate.Asset(found(t.postgres(), t.deps.searchMode(), tid, q)))
 	}
 	if v := req.GetKind(); v != "" {
 		ps = append(ps, asset.Kind(v))

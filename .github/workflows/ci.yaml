@@ -8,6 +8,38 @@ on:
 jobs:
   go:
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      # The PostgreSQL a deployment runs: the official image with pg_bigm
+      # (deploy/postgres, design 9.5). Built and started first, so that it is
+      # up by the time the SQLite run is done.
+      - name: PostgreSQL with pg_bigm
+        run: |
+          docker build -t rove-postgres deploy/postgres
+          docker run -d --name postgres -p 5432:5432 \
+            -e POSTGRES_USER=rove -e POSTGRES_PASSWORD=rove -e POSTGRES_DB=rove rove-postgres
+      - name: generated code matches the schema
+        run: go tool pd gen --check .
+      - name: vet
+        run: go vet ./...
+      - name: test on SQLite
+        run: go test ./...
+      - name: PostgreSQL is up
+        run: |
+          for i in $(seq 1 60); do docker exec postgres pg_isready -h 127.0.0.1 -U rove && exit 0; sleep 1; done
+          docker logs postgres; exit 1
+      - name: test on PostgreSQL
+        env:
+          PDTEST_POSTGRES: postgres://rove:rove@localhost:5432/rove?sslmode=disable
+        run: go test ./...
+
+  # A PostgreSQL without pg_bigm -- what Azure, Naver Cloud and NHN Cloud
+  # offer -- where pg_trgm answers instead. Only what that changes.
+  postgres-trgm:
+    runs-on: ubuntu-latest
     services:
       postgres:
         image: postgres:18
@@ -17,7 +49,7 @@ jobs:
           POSTGRES_DB: rove
         ports: ["5432:5432"]
         options: >-
-          --health-cmd "pg_isready -U rove"
+          --health-cmd "pg_isready -h 127.0.0.1 -U rove"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
@@ -26,16 +58,10 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
-      - name: generated code matches the schema
-        run: go tool pd gen --check .
-      - name: vet
-        run: go vet ./...
-      - name: test on SQLite
-        run: go test ./...
-      - name: test on PostgreSQL
+      - name: test search and migration on PostgreSQL without pg_bigm
         env:
           PDTEST_POSTGRES: postgres://rove:rove@localhost:5432/rove?sslmode=disable
-        run: go test ./...
+        run: go test ./server/domain ./cli
 
   ui:
     runs-on: ubuntu-latest

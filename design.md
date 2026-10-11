@@ -483,7 +483,10 @@ CREATE TRIGGER asset_parent_same_tenant BEFORE INSERT OR UPDATE OF parent_id, te
 ### 9.5 검색
 
 - PostgreSQL 기본 전문 검색은 한국어 형태소를 다루지 못하고, `pg_trgm` GIN 인덱스는 3글자 미만 질의에 쓰이지 않는다. 의자·책상·조명처럼 2음절 이름이 흔하므로 **`pg_bigm`을 쓴다.** PostgreSQL 18에서 pg_bigm 1.2의 GIN 인덱스는 `%의자%`를 인덱스로 찾는다. 1음절 질의는 결과가 많아 순차 탐색이 되므로, 1글자 입력은 태그·이름 접두 일치로 처리한다(확인함).
-- 자체 서버에서는 pg_bigm을 이미지에 직접 넣으므로 항상 쓸 수 있다. 아래 표는 나중에 관리형 DB로 옮길 때 참고할 확장 지원 현황이다(각 서비스 공식 문서 기준, 2026-10 확인).
+- **찾는 대상**(`AssetService.Search`): 자산의 이름·태그·시리얼, 그리고 자산을 거쳐 유형 이름, 모델 이름·제조사, 보유자 이름. 열마다 GIN 인덱스(`<표>_<열>_bigm`)를 두고, 질의는 열마다 id 집합을 구해 `UNION`으로 합친다. 다른 표에 걸친 `OR` 하나는 인덱스가 있어도 자산 표를 처음부터 읽기 때문이다. 접두 일치는 `(tenant_id, 접은 값) text_pattern_ops` B-tree(`asset_tag_prefix`, `asset_name_prefix`)가 답하고, 유형·모델·보유자에서 자산으로 돌아오는 길에는 `asset (type_id)`·`(model_id)`·`(custodian_id)` 인덱스를 둔다(`cli/pg.sql`).
+- **접어서 비교한다**: 저장된 값과 입력을 모두 `lower(normalize(x, NFKC))`로 접는다(서버는 `internal/search.Fold`). 그래서 전각 `ＡＢＣ`는 `abc`로, 반각 `ｶﾒﾗ`는 `カメラ`로 찾는다. 히라가나↔가타카나, 간체↔번체는 정규형이 아니라 사전의 일이라 하지 않는다. LIKE의 `%`·`_`는 입력 그대로의 글자로 찾는다.
+- **어느 인덱스인지는 마이그레이션이 정한다**: `cli/pg.sql`이 pg_bigm을 설치할 수 있으면 설치하고, 아니면 pg_trgm을 설치해 그 종류의 인덱스를 만든다(다른 종류의 것은 지운다). 서버는 시작할 때와 마이그레이션 뒤에 `pg_extension`을 읽어 방식을 정하고 로그에 남긴다(`search:`). pg_bigm은 신뢰(trusted) 확장이 아니어서 superuser만 만들 수 있다. Rove의 DB 계정이 superuser가 아니면 DB 관리자가 한 번 `CREATE EXTENSION pg_bigm`을 실행하고, 그 전에는 pg_trgm으로 돈다(pg_trgm은 신뢰 확장).
+- 자체 서버에서는 pg_bigm을 이미지에 직접 넣으므로 항상 쓸 수 있다(`deploy/postgres`: 공식 이미지에 pg_bigm 1.2-20250903을 소스로 빌드, 해시 고정). CI도 이 이미지로 돌고, pg_bigm이 없는 공식 이미지에서 폴백도 따로 돈다. 아래 표는 나중에 관리형 DB로 옮길 때 참고할 확장 지원 현황이다(각 서비스 공식 문서 기준, 2026-10 확인).
 
 | 서비스 | btree_gist | pg_trgm | pg_bigm | 옮길 때 |
 | --- | --- | --- | --- | --- |
@@ -493,7 +496,7 @@ CREATE TRIGGER asset_parent_same_tenant BEFORE INSERT OR UPDATE OF parent_id, te
 | 네이버 클라우드 Cloud DB for PostgreSQL | 사용자 설치 | 사용자 설치 | 없음 | 검색 폴백 필요 |
 | NHN Cloud RDS for PostgreSQL (14, 17) | 목록에 없음 | 1.6 | 없음 | DB 방어선을 쓸 수 없다 |
 
-- **pg_bigm이 없을 때의 폴백**: `pg_trgm`(3글자 이상)과 접두 일치(1~2글자)를 합쳐 검색한다. 같은 `Search` RPC 뒤에 두므로 클라이언트는 차이를 모른다.
+- **pg_bigm이 없을 때의 폴백**: `pg_trgm`(3글자 이상)과 접두 일치(1~2글자)로 검색한다. 같은 `Search` RPC 뒤에 두므로 클라이언트는 차이를 모르고, 두 글자 질의가 이름 가운데를 찾지 못하는 것만 다르다. 둘 다 없는 PostgreSQL과 SQLite는 인덱스 없이 같은 규칙(1글자는 접두, 2글자부터 포함)으로 모든 행을 읽는다. SQLite에는 정규형이 없어 입력만 접는다.
 - DB 로케일은 UTF-8이어야 한다. libc `C` 로케일에서는 `pg_trgm`이 한글을 통째로 무시한다.
 - 사용자 정의 속성은 JSON(jsonb)으로 저장하고, 생성 List가 아닌 `Search` RPC에서 GIN 인덱스로 거른다. 단순 태그는 payday `labels`(키·값 등식 필터)를 쓴다. SQLite에서는 `LIKE`로 대신한다.
 
