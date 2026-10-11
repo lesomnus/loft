@@ -367,6 +367,7 @@ func (s *Store) Enable(ctx context.Context, holder pdid.Id) error {
 	ctx, cancel := unframed(ctx)
 	defer cancel()
 	_, err := s.em.rs.Ungated.Holder().Enable(ctx, rstr.HolderEnableRequest_builder{Ref: rstr.HolderRef_builder{Id: holder.Bytes()}.Build()}.Build())
+	s.Recheck(holder)
 
 	return err
 }

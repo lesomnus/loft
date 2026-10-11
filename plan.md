@@ -140,15 +140,15 @@ MVP(Phase 0 + 1)는 M0~M5이고, 합쳐서 대략 13~16주로 본다.
 - 작업 기록(Event)이 사람을 이름이 아니라 ID로 기억하고, 읽을 때 지금의 이름(잊힌 사람은 가명)을 붙인다(design 8.2, 2026-10-12 결정). 그 전의 기록은 쓴 그대로다. `rove init`은 roster 계정에도 소유자의 이름을 준다 — rove#25.
 - Holder overlay `role`, 메서드별 최소 역할 표로 Policy 구현. 같은 Policy를 batch guard에 넘긴다.
 - 공개·운영자 바이너리 분리 — 운영자 진입점과 CLI는 완료(2026-10-12, `rove-admin`). 셸의 운영자 명령을 `rove`에서 뺄지는 남았다. 테넌트의 첫 행이 생길 때 유형 템플릿 복사.
-- **완료 기준**
-  - 역할 × 메서드 표 전체를 테스트한다.
-  - `member`가 batch 안에 관리자 작업을 끼워 넣지 못한다.
-  - 공개 스택은 여러 테넌트를 보는 자격 증명으로도 다른 테넌트 행을 돌려주지 않는다.
-  - 같은 신원 테스트가 내장 roster와 외부 roster(TCP 리스너와 키) 양쪽에서 통과한다.
-  - roster에서 중지된 사람의 세션은 캐시 시간 안에 거부되고, roster에 물을 수 없으면 세션을 쓰는 호출은 `UNAVAILABLE`이다.
-  - Rove DB에 비밀번호도 그 검증값도 없다.
-  - 한 계정이 두 워크스페이스에 속해도, 한 워크스페이스로 온 요청은 다른 워크스페이스의 행을 돌려주지 않는다.
-  - SaaS 배포에는 비밀번호로 로그인하는 길이 없다.
+- **완료 기준** — 모두 테스트가 있다(2026-10-12).
+  - 역할 × 메서드 표 전체를 테스트한다 — 서빙되는 모든 메서드를 모든 역할로 호출해 표가 말하는 대로인지(`cmd` TestEveryMethodIsAsTheTableSaysForEveryRole), 표 자체는 한 줄씩 리뷰하는 파일로(`server/policy/testdata/table.txt`, TestTheTableIsWhatItWasReviewedAs).
+  - `member`가 batch 안에 관리자 작업을 끼워 넣지 못한다 — 하나라도 거부되면 batch 전체가 거부되고 앞의 연산도 쓰이지 않는다(`cmd` TestAMemberSlipsNothingPastTheTableInABatch, TestTheRoleTable).
+  - 공개 스택은 여러 테넌트를 보는 자격 증명으로도 다른 테넌트 행을 돌려주지 않는다 — 두 워크스페이스의 구성원인 계정의 세션으로, 모든 메서드에 다른 워크스페이스의 ID를 넣는다(`cli` TestNoCallReachesAnotherWorkspace).
+  - 같은 신원 테스트가 내장 roster와 외부 roster(TCP 리스너와 키) 양쪽에서 통과한다 — `internal/identity` TestTheSameIdentityOnEitherRoster.
+  - roster에서 중지된 사람의 세션은 캐시 시간 안에 거부되고, roster에 물을 수 없으면 세션을 쓰는 호출은 `UNAVAILABLE`이다 — 알리지 않은 중지도 `HeldTtl`이 지나면 거부(TestTheSameIdentityOnEitherRoster), `cmd` TestARosterThatCannotBeAskedServesNoSession.
+  - Rove DB에 비밀번호도 그 검증값도 없다 — `cmd` TestNoPasswordIsKeptHere(비밀번호처럼 보이는 열은 무엇인지 하나씩 적는다).
+  - 한 계정이 두 워크스페이스에 속해도, 한 워크스페이스로 온 요청은 다른 워크스페이스의 행을 돌려주지 않는다 — `cmd` TestOneAccountInTwoWorkspaces, `cli` TestNoCallReachesAnotherWorkspace.
+  - SaaS 배포에는 비밀번호로 로그인하는 길이 없다 — `cmd` TestAPasswordIsNoWayInWhereTheIssuerIsTheOnlyOne, TestNoOtherDoorTakesAPassword(호출 헤더, 터미널 로그인, 비밀번호를 싣는 RPC).
 
 ### M3 — 웹 UI·QR·가져오기 (약 3~4주)
 

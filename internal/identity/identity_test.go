@@ -162,10 +162,13 @@ func TestTheRosterInThisProcessIsRovesOwn(t *testing.T) {
 		x.False(st.Good(time.Now().Add(time.Second)), "suspended, and good")
 		_, err = s.Verify(ctx, "kim", secret)
 		x.ErrorIs(err, ErrRefused, "a suspended account signed in")
+		after := time.Now().Add(time.Second)
+		x.ErrorIs(s.Held(ctx, kim.Id, after), ErrRefused, "a session of a suspended account")
 
 		x.NoError(s.Enable(ctx, kim.Id))
 		_, err = s.Verify(ctx, "kim", secret)
 		x.NoError(err)
+		x.NoError(s.Held(ctx, kim.Id, after), "enabled here, and good at once rather than once what was known of it ran out")
 
 		_, err = s.StandingOf(ctx, pdid.New(pdid.Domain(1)))
 		x.ErrorIs(err, ErrNoPerson)
@@ -319,6 +322,123 @@ func stdoutOf(t *testing.T, k *xli.Command, args ...string) string {
 	x.NoError(err, "%s: %s", strings.Join(args, " "), b)
 
 	return strings.TrimSpace(string(b))
+}
+
+// rosterUnder is one of the two places this deployment's accounts can be --
+// the roster in this process, or one of its own over TCP with the key it gave
+// -- with an account in it, and roster's own door to it: what its operator
+// does there, which this deployment is not told of until it asks again.
+type rosterUnder struct {
+	name    string
+	s       *Store
+	account pdid.Id
+	login   string
+	pass    string
+	// makes says whether accounts are made from here.
+	makes bool
+	// invalidate signs the account out everywhere, and suspend suspends it.
+	invalidate, suspend func() error
+}
+
+func bothRosters(t *testing.T) []rosterUnder {
+	t.Helper()
+	ctx := t.Context()
+
+	em := embeddedStore(t)
+	kim, secret, err := em.MakeDirectory(ctx, "kim", "Kim")
+	require.NoError(t, err)
+	inProcess := func() rstr.HolderRef_builder { return rstr.HolderRef_builder{Id: kim.Id.Bytes()} }
+
+	e := newExternal(t)
+	op, as := e.overTheWire(t)
+	theirs := rstr.HolderRef_builder{Id: e.kim.Bytes()}.Build()
+
+	return []rosterUnder{
+		{
+			name: "in this process", s: em, account: kim.Id, login: "kim", pass: secret, makes: true,
+			invalidate: func() error {
+				_, err := em.em.rs.Ungated.Holder().Invalidate(ctx, rstr.HolderInvalidateRequest_builder{Ref: inProcess().Build()}.Build())
+				return err
+			},
+			suspend: func() error {
+				_, err := em.em.rs.Ungated.Holder().Disable(ctx, rstr.HolderDisableRequest_builder{Ref: inProcess().Build()}.Build())
+				return err
+			},
+		},
+		{
+			name: "of its own", s: e.open(t, e.key, "acme"), account: e.kim, login: "kim", pass: pw, makes: false,
+			invalidate: func() error {
+				_, err := op.Invalidate(as, rstr.HolderInvalidateRequest_builder{Ref: theirs}.Build())
+				return err
+			},
+			suspend: func() error {
+				_, err := op.Disable(as, rstr.HolderDisableRequest_builder{Ref: theirs}.Build())
+				return err
+			},
+		},
+	}
+}
+
+// TestTheSameIdentityOnEitherRoster: what this deployment asks of roster, and
+// holds a session to, is the same whichever roster its accounts are in (plan
+// M2) -- a password checked, an account found by its identifier, signed out
+// everywhere and suspended reaching a session -- and a suspension nobody told
+// it of reaches a session already open no later than [HeldTtl] after roster
+// was last asked.
+func TestTheSameIdentityOnEitherRoster(t *testing.T) {
+	for _, r := range bothRosters(t) {
+		t.Run(r.name, func(t *testing.T) {
+			x := require.New(t)
+			ctx := t.Context()
+			s := r.s
+			now := time.Now()
+			s.now = func() time.Time { return now }
+
+			p, err := s.Verify(ctx, r.login, r.pass)
+			x.NoError(err)
+			x.Equal(r.account, p.Id)
+			// A session, from the sign-in on.
+			began := time.Now()
+			_, err = s.Verify(ctx, r.login, "not it")
+			x.ErrorIs(err, ErrRefused)
+			_, err = s.Verify(ctx, "nobody", r.pass)
+			x.ErrorIs(err, ErrRefused, "nobody by that name is the same answer as a wrong password")
+
+			p, err = s.ById(ctx, r.account.String())
+			x.NoError(err)
+			x.Equal(r.login, p.Alias)
+			_, err = s.ById(ctx, pdid.New(pdid.Domain(1)).String())
+			x.ErrorIs(err, ErrNoPerson)
+
+			x.NoError(s.Held(ctx, r.account, began))
+
+			// Signed out everywhere, and asked again: the sessions from
+			// before end, and one after is good.
+			x.NoError(r.invalidate())
+			s.Recheck(r.account)
+			x.ErrorIs(s.Held(ctx, r.account, began), ErrRefused, "a session from before")
+			after := time.Now().Add(time.Second)
+			x.NoError(s.Held(ctx, r.account, after), "and one that began after it")
+
+			// Suspended, and nobody told: believed as roster last said for
+			// HeldTtl, and refused once that is over.
+			x.NoError(r.suspend())
+			now = now.Add(HeldTtl - time.Second)
+			x.NoError(s.Held(ctx, r.account, after), "what roster said last, within HeldTtl")
+			now = now.Add(2 * time.Second)
+			x.ErrorIs(s.Held(ctx, r.account, after), ErrRefused, "suspended, and no later than HeldTtl")
+			_, err = s.Verify(ctx, r.login, r.pass)
+			x.ErrorIs(err, ErrRefused, "and no sign-in")
+
+			// Accounts are made from here, or are roster's to make.
+			_, err = s.AddPerson(ctx, "lee", "Lee", pdid.Nil)
+			if r.makes {
+				x.NoError(err)
+			} else {
+				x.ErrorIs(err, ErrExternal)
+			}
+		})
+	}
 }
 
 // TestARosterOfItsOwnIsReachedWithTheKeyItGave is the external roster, the
