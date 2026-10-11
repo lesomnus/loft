@@ -123,6 +123,7 @@ go run ./cmd/rove api asset ls -o json                # 엔터티마다 get·ls�
 go run ./cmd/rove api asset move <자산> '{"to": {"id": "<공간>"}}'      # 그 밖의 작업도 엔터티 아래에
 go run ./cmd/rove api call rove.AssetService.Search '{"q": "노트북"}'  # 아무 RPC나 이름으로
 go run ./cmd/rove scan 7K3M-Q9TX                      # 라벨 코드·주소·태그가 가리키는 것 (내 다른 워크스페이스의 라벨도)
+go run ./cmd/rove workspace export --out acme.zip acme   # 소유한 워크스페이스의 모든 데이터 (화면의 내려받기와 같음)
 go run ./cmd/rove workspace new 연구실                 # 워크스페이스 만들기
 go run ./cmd/rove logout
 ```
