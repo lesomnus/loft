@@ -7,7 +7,7 @@
 import { useState, type ReactNode } from 'react'
 import { BrowserRouter, NavLink, Navigate, Route, Routes, useNavigate } from 'react-router-dom'
 
-import { NotificationService } from './api.js'
+import { NotificationService, workspace, type Account } from './api.js'
 import { CatalogProvider, useCatalog } from './catalog.js'
 import { AssetPage } from './pages/asset.js'
 import { Assets } from './pages/assets.js'
@@ -27,6 +27,7 @@ import { Stocks } from './pages/stock.js'
 import { Work } from './pages/work.js'
 import { useRpc } from './rpc.js'
 import { roleWord } from './words.js'
+import { Switcher } from './workspaces.js'
 
 const nav: { to: string; label: string; icon: string; min?: 'manager' | 'admin' }[] = [
 	{ to: '/', label: '대시보드', icon: '◎' },
@@ -52,7 +53,7 @@ function Bell(): ReactNode {
 	)
 }
 
-function Frame(props: { onSignOut: () => void; children: ReactNode }): ReactNode {
+function Frame(props: { account: Account; onSignOut: () => void; children: ReactNode }): ReactNode {
 	const c = useCatalog()
 	const go = useNavigate()
 	const [q, setQ] = useState('')
@@ -66,8 +67,10 @@ function Frame(props: { onSignOut: () => void; children: ReactNode }): ReactNode
 					<img src="/icon.svg" alt="" />
 					<div>
 						<strong>Rove</strong>
-						<span>{c.me.tenant?.name || c.me.tenant?.alias}</span>
 					</div>
+				</div>
+				<div onClick={(e) => e.stopPropagation()}>
+					<Switcher account={props.account} current={c.me.tenant?.name || c.me.tenant?.alias || workspace} />
 				</div>
 				<nav>
 					{nav
@@ -114,16 +117,18 @@ function Frame(props: { onSignOut: () => void; children: ReactNode }): ReactNode
 	)
 }
 
-export function App(props: { onSignOut: () => void }): ReactNode {
+export function App(props: { account: Account; onSignOut: () => void }): ReactNode {
+	// Every route is inside the workspace's address, so a link written `/assets`
+	// is `/@<alias>/assets`.
 	return (
-		<BrowserRouter>
+		<BrowserRouter basename={`/@${encodeURIComponent(workspace)}`}>
 			<CatalogProvider>
 				<Routes>
 					<Route path="/labels/print" element={<LabelSheet />} />
 					<Route
 						path="*"
 						element={
-							<Frame onSignOut={props.onSignOut}>
+							<Frame account={props.account} onSignOut={props.onSignOut}>
 								<Routes>
 									<Route path="/" element={<Dashboard />} />
 									<Route path="/assets" element={<Assets />} />

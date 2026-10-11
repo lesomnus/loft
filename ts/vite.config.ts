@@ -15,6 +15,7 @@ export default defineConfig({
 		proxy: {
 			'^/(rove|payday)\\.[A-Za-z]+Service/': { target: app, changeOrigin: false },
 			'/session': { target: app, changeOrigin: false },
+			'/account': { target: app, changeOrigin: false },
 			'/files/': { target: app, changeOrigin: false },
 			'/l/': { target: app, changeOrigin: false },
 			'/healthz': { target: app, changeOrigin: false },
