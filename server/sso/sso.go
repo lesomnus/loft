@@ -183,17 +183,20 @@ func New(c Config, base string, password bool, sessions *authsession.Sessions, p
 	return rp, nil
 }
 
-// Handler serves `GET /sso`, and with an issuer `GET /sso/login`,
-// `GET /sso/callback` and `POST /sso/logout`.
-func (rp *Rp) Handler() http.Handler {
-	m := http.NewServeMux()
+// Mount serves `GET /sso`, and with an issuer `GET /sso/login`,
+// `GET /sso/callback` and `POST /sso/logout`, on a mux of the caller's.
+//
+// Each by its method and its path, rather than a subtree handed to a mux of
+// its own: the built UI is `GET /` on the same mux, and a pattern with no
+// method beside it is one `net/http` refuses as neither more nor less
+// specific than that one.
+func (rp *Rp) Mount(m *http.ServeMux) {
 	m.HandleFunc("GET /sso", rp.ways)
 	if rp.c.On() {
 		m.HandleFunc("GET /sso/login", rp.login)
 		m.HandleFunc("GET /sso/callback", rp.callback)
 		m.HandleFunc("POST /sso/logout", rp.logout)
 	}
-	return m
 }
 
 func (rp *Rp) ways(w http.ResponseWriter, r *http.Request) {

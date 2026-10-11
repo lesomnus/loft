@@ -10,6 +10,8 @@ import (
 	"net/http/cookiejar"
 	"net/http/httptest"
 	"net/url"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -44,9 +46,15 @@ func newSsoWorld(t *testing.T, with func(*cmd.Config)) *ssoWorld {
 	is.PostLogout = app.URL + "/"
 	t.Setenv("ROVE_TEST_SSO_SECRET", "the-client-secret")
 
+	// The built UI as well, which is `GET /` on the same mux: the routes
+	// have to sit beside it, and once did not.
+	web := t.TempDir()
+	require.NoError(t, os.WriteFile(filepath.Join(web, "index.html"), []byte("<!doctype html><title>Rove</title>"), 0o644))
+
 	w := newWorldWith(t, func(c *cmd.Config) {
 		c.App.PublicUrl = app.URL
 		c.App.AppUrl = app.URL
+		c.App.Web = web
 		c.Auth.Sso = sso.Config{
 			Issuer:       is.URL,
 			ClientId:     "rove",

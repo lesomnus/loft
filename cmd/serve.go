@@ -574,9 +574,7 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 
 	// Through roster's issuer, and what the sign-in page is told about the
 	// ways in; see `server/sso`.
-	rp := s.Sso.Handler()
-	mux.Handle("/sso", rp)
-	mux.Handle("/sso/", rp)
+	s.Sso.Mount(mux)
 
 	// What an account has outside any one workspace: which it is in, and a
 	// new one.
