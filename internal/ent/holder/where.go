@@ -96,6 +96,11 @@ func Account(v uuid.UUID) predicate.Holder {
 	return predicate.Holder(sql.FieldEQ(FieldAccount, v))
 }
 
+// DateLeaving applies equality check predicate on the "date_leaving" field. It's identical to DateLeavingEQ.
+func DateLeaving(v time.Time) predicate.Holder {
+	return predicate.Holder(sql.FieldEQ(FieldDateLeaving, v))
+}
+
 // TenantId applies equality check predicate on the "tenant_id" field. It's identical to TenantIdEQ.
 func TenantId(v uuid.UUID) predicate.Holder {
 	return predicate.Holder(sql.FieldEQ(FieldTenantId, v))
@@ -569,6 +574,56 @@ func AccountIsNil() predicate.Holder {
 // AccountNotNil applies the NotNil predicate on the "account" field.
 func AccountNotNil() predicate.Holder {
 	return predicate.Holder(sql.FieldNotNull(FieldAccount))
+}
+
+// DateLeavingEQ applies the EQ predicate on the "date_leaving" field.
+func DateLeavingEQ(v time.Time) predicate.Holder {
+	return predicate.Holder(sql.FieldEQ(FieldDateLeaving, v))
+}
+
+// DateLeavingNEQ applies the NEQ predicate on the "date_leaving" field.
+func DateLeavingNEQ(v time.Time) predicate.Holder {
+	return predicate.Holder(sql.FieldNEQ(FieldDateLeaving, v))
+}
+
+// DateLeavingIn applies the In predicate on the "date_leaving" field.
+func DateLeavingIn(vs ...time.Time) predicate.Holder {
+	return predicate.Holder(sql.FieldIn(FieldDateLeaving, vs...))
+}
+
+// DateLeavingNotIn applies the NotIn predicate on the "date_leaving" field.
+func DateLeavingNotIn(vs ...time.Time) predicate.Holder {
+	return predicate.Holder(sql.FieldNotIn(FieldDateLeaving, vs...))
+}
+
+// DateLeavingGT applies the GT predicate on the "date_leaving" field.
+func DateLeavingGT(v time.Time) predicate.Holder {
+	return predicate.Holder(sql.FieldGT(FieldDateLeaving, v))
+}
+
+// DateLeavingGTE applies the GTE predicate on the "date_leaving" field.
+func DateLeavingGTE(v time.Time) predicate.Holder {
+	return predicate.Holder(sql.FieldGTE(FieldDateLeaving, v))
+}
+
+// DateLeavingLT applies the LT predicate on the "date_leaving" field.
+func DateLeavingLT(v time.Time) predicate.Holder {
+	return predicate.Holder(sql.FieldLT(FieldDateLeaving, v))
+}
+
+// DateLeavingLTE applies the LTE predicate on the "date_leaving" field.
+func DateLeavingLTE(v time.Time) predicate.Holder {
+	return predicate.Holder(sql.FieldLTE(FieldDateLeaving, v))
+}
+
+// DateLeavingIsNil applies the IsNil predicate on the "date_leaving" field.
+func DateLeavingIsNil() predicate.Holder {
+	return predicate.Holder(sql.FieldIsNull(FieldDateLeaving))
+}
+
+// DateLeavingNotNil applies the NotNil predicate on the "date_leaving" field.
+func DateLeavingNotNil() predicate.Holder {
+	return predicate.Holder(sql.FieldNotNull(FieldDateLeaving))
 }
 
 // TenantIdEQ applies the EQ predicate on the "tenant_id" field.

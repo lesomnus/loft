@@ -18,6 +18,8 @@ export function People(): ReactNode {
 	const [open, setOpen] = useState<Party>()
 	const holders = useRpc(HolderService.method.list, c.can('admin') ? { size: 500 } : null)
 	const roles = useMemo(() => new Map((holders.data?.items ?? []).map((h) => [idStr(h.id), h.role])), [holders.data])
+	// Memberships whose account roster erased, which are leaving from then.
+	const leaving = useMemo(() => new Set((holders.data?.items ?? []).filter((h) => h.dateLeaving !== undefined).map((h) => idStr(h.id))), [holders.data])
 
 	const teams = c.parties.filter((p) => p.kind === 'team' || p.kind === 'org')
 	const people = c.parties.filter((p) => p.kind === 'person')
@@ -34,7 +36,9 @@ export function People(): ReactNode {
 				</span>
 			</span>
 			<span>
-				{p.p.holder !== undefined ? (
+				{p.p.holder !== undefined && leaving.has(idStr(p.p.holder.id)) ? (
+					<Badge v="leaving">떠나는 중</Badge>
+				) : p.p.holder !== undefined ? (
 					<Badge v={roles.get(idStr(p.p.holder.id)) === 'member' ? 'mute' : 'info'}>{roleWord[roles.get(idStr(p.p.holder.id)) ?? ''] ?? '로그인 있음'}</Badge>
 				) : (
 					<span className="mute small">로그인 없음</span>

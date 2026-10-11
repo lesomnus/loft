@@ -17,7 +17,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file rove/payday/holder.proto.
  */
 export const file_rove_payday_holder: GenFile = /*@__PURE__*/
-  fileDesc("Chhyb3ZlL3BheWRheS9ob2xkZXIucHJvdG8SBHJvdmUipQQKBkhvbGRlchIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASJAoGdGVuYW50GAIgASgLMgwucm92ZS5UZW5hbnRCBvKCFgJAARINCgVhbGlhcxgEIAEoCRIMCgRuYW1lGAUgASgJEgwKBGRlc2MYBiABKAkSKAoGbGFiZWxzGAcgAygLMhgucm92ZS5Ib2xkZXIuTGFiZWxzRW50cnkSOQoMZGF0ZV91cGRhdGVkGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4oBABI4CgtkYXRlX2VyYXNlZBgOIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOSAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAEhsKBHJvbGUYCCABKAlCDeqCFgmCAQZtZW1iZXISGQoHYWNjb3VudBgJIAEoDEII6oIWBBBAOAEaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ATpuyvwVJRICEAEaHxIEc2x1ZxoJCgVhbGlhcxAEGgoKBnRlbmFudBACMAGKuxZBCAIyOQoQCg4KDGRhdGVfY3JlYXRlZAoGCgQKAmlkGgUKA3JlZhoICgZ0ZW5hbnQaCAoGbGFiZWxzIBQoZDoASAJCH1oYZ2l0aHViLmNvbS9sZXNvbW51cy9yb3ZlkgMCCAJiCGVkaXRpb25zcOgH", [file_google_protobuf_timestamp, file_orm, file_payday, file_rove_payday_tenant]);
+  fileDesc("Chhyb3ZlL3BheWRheS9ob2xkZXIucHJvdG8SBHJvdmUi3wQKBkhvbGRlchIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASJAoGdGVuYW50GAIgASgLMgwucm92ZS5UZW5hbnRCBvKCFgJAARINCgVhbGlhcxgEIAEoCRIMCgRuYW1lGAUgASgJEgwKBGRlc2MYBiABKAkSKAoGbGFiZWxzGAcgAygLMhgucm92ZS5Ib2xkZXIuTGFiZWxzRW50cnkSOQoMZGF0ZV91cGRhdGVkGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4oBABI4CgtkYXRlX2VyYXNlZBgOIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOSAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAEhsKBHJvbGUYCCABKAlCDeqCFgmCAQZtZW1iZXISGQoHYWNjb3VudBgJIAEoDEII6oIWBBBAOAESOAoMZGF0ZV9sZWF2aW5nGAogASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIG6oIWAjgBGi0KC0xhYmVsc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAE6bsr8FSUSAhABGh8SBHNsdWcaCQoFYWxpYXMQBBoKCgZ0ZW5hbnQQAjABirsWQQgCMjkKEAoOCgxkYXRlX2NyZWF0ZWQKBgoECgJpZBoFCgNyZWYaCAoGdGVuYW50GggKBmxhYmVscyAUKGQ6AEgCQh9aGGdpdGh1Yi5jb20vbGVzb21udXMvcm92ZZIDAggCYghlZGl0aW9uc3DoBw", [file_google_protobuf_timestamp, file_orm, file_payday, file_rove_payday_tenant]);
 
 /**
  * Holder is who a request is from.
@@ -119,6 +119,17 @@ export type Holder = Message<"rove.Holder"> & {
    * @generated from field: bytes account = 9;
    */
   account: Uint8Array;
+
+  /**
+   * When roster erased the account this is a membership of, and so when it
+   * began to leave: it signs in nowhere from then, and roster may still
+   * restore it within its grace (design 9.10). Null is an account in good
+   * standing, or one roster restored. Written by the deployment from what
+   * roster says (`server/lifecycle`), and by nobody else.
+   *
+   * @generated from field: google.protobuf.Timestamp date_leaving = 10;
+   */
+  dateLeaving?: Timestamp | undefined;
 };
 
 /**

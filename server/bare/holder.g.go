@@ -137,6 +137,9 @@ func (s HolderServiceServer) Add(ctx context.Context, req *rove.HolderAddRequest
 			q.SetAccount(v)
 		}
 	}
+	if req.HasDateLeaving() {
+		q.SetDateLeaving(req.GetDateLeaving().AsTime())
+	}
 
 	u, err := q.Save(ctx)
 	if err != nil {
@@ -231,6 +234,9 @@ func HolderSelectedFields(m *rove.HolderSelect) []string {
 	if m.GetAccount() {
 		vs = append(vs, holder.FieldAccount)
 	}
+	if m.GetDateLeaving() {
+		vs = append(vs, holder.FieldDateLeaving)
+	}
 
 	return vs
 }
@@ -302,7 +308,7 @@ func HolderGetKey(ctx context.Context, db *ent.Client, ref *rove.HolderRef) (uui
 var holderOrmEntity = ormpatch.MustEntityOf(rove.File_rove_payday_holder_proto, "Holder")
 
 var holderPatchColumns = entpatch.Columns{
-	1: holder.FieldId, 2: holder.TenantColumn, 4: holder.FieldAlias, 5: holder.FieldName, 6: holder.FieldDesc, 7: holder.FieldLabels, 13: holder.FieldDateUpdated, 14: holder.FieldDateErased, 15: holder.FieldDateCreated, 8: holder.FieldRole, 9: holder.FieldAccount}
+	1: holder.FieldId, 2: holder.TenantColumn, 4: holder.FieldAlias, 5: holder.FieldName, 6: holder.FieldDesc, 7: holder.FieldLabels, 13: holder.FieldDateUpdated, 14: holder.FieldDateErased, 15: holder.FieldDateCreated, 8: holder.FieldRole, 9: holder.FieldAccount, 10: holder.FieldDateLeaving}
 
 func (s HolderServiceServer) Apply(ctx context.Context, req *rove.HolderApplyRequest) (*rove.Holder, error) {
 	if !req.HasPatch() {

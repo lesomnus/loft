@@ -158,6 +158,17 @@ func (s Store) Del(ctx context.Context, key string) error {
 	return err
 }
 
+// End deletes an account's sessions that began before `before`, or all of
+// them when it is zero: what roster said of the account voids them, and a row
+// left would be a cookie answered with no until it ran out.
+func (s Store) End(ctx context.Context, account pdid.Id, before time.Time) (int, error) {
+	q := s.Db.Session.Delete().Where(session.Account(account.Uuid()))
+	if !before.IsZero() {
+		q = q.Where(session.DateCreatedLT(before))
+	}
+	return q.Exec(ctx)
+}
+
 // Sweep deletes sessions that are over, for the table not to keep every
 // sign-in there ever was.
 func (s Store) Sweep(ctx context.Context) error {

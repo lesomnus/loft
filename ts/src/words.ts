@@ -138,6 +138,7 @@ export function tone(v: string): 'ok' | 'warn' | 'bad' | 'mute' | 'info' {
 		case 'misplaced':
 		case 'pending':
 		case 'open':
+		case 'leaving':
 			return 'warn'
 		case 'lost':
 		case 'broken':
