@@ -3,7 +3,8 @@
 > 상태: 설계 초안 v2 (2026-10-10) — 1차 검토 반영, 구현 기반을 [payday](https://github.com/lesomnus/payday)로 확정, Phase 0 스파이크 결과 반영. 개발 계획은 [plan.md](plan.md)  
 > 목표: 물리적 자산과 공간의 식별·구성·소유·위치·사용·예약·변경 이력을 통합 관리하는 멀티테넌트 SaaS.  
 > 원칙: ITAM에 종속되지 않고, 기본 기능은 관대하게 제공하며 기업이 필요로 하는 **이력 보존·감사·관리·연동·규모**를 유료화할 수 있도록 한다. **가격과 요금제는 추후 결정한다.**  
-> 이번 개정에서 정한 것은 이유와 함께 [12장 결정 기록](#12-결정-기록)에 모았다.
+> 이번 개정에서 정한 것은 이유와 함께 [12장 결정 기록](#12-결정-기록)에 모았다.  
+> 2026-10-11: 제품군과 두 층의 테넌트(D27), SaaS의 로그인과 주소(D28), 워크스페이스 닫기와 alias(D29).
 
 ## 1. 제품 정의와 원칙
 
@@ -39,6 +40,17 @@ Rove는 컴퓨터, 부품, 책상, 의자, 공구, 연구·촬영 장비, 차량
 | 지역화 | 한국어 우선, 영어 병행. 테넌트별 시간대와 통화, 저장은 UTC |
 | 클라이언트 | 최신 데스크톱·모바일 브라우저(PWA), 카메라 QR 스캔 |
 
+### 1.3 제품군
+
+| | SaaS | Dedicated | CE |
+| --- | --- | --- | --- |
+| 무엇 | 우리가 roster와 Rove를 운영하고, 누구나 가입해 자기 워크스페이스를 만든다 | 한 고객을 위해 독립된 Rove 인스턴스를 운영한다 | 고객이 직접 설치한다 |
+| roster의 테넌트 | 하나. SaaS의 계정 전체가 들어 있는 계정 디렉터리 | 고객마다 하나. 그 회사의 IdP와 SCIM이 붙는다 | 내장 roster, 또는 고객의 roster |
+| roster가 보는 앱의 모양 | A: 인스턴스 하나가 여러 테넌트 | B: 테넌트마다 인스턴스 | 내장, 또는 C: 테넌트가 직접 운영 |
+| 로그인 | Google·Microsoft·GitHub(SSO만) | 회사 IdP | 비밀번호(옵션), 또는 고객의 roster |
+
+**지금은 SaaS만 만든다.** Dedicated와 CE는 같은 코드에서 설정과 roster의 모양만 바꿔 열 수 있게 둔다. 워크스페이스는 어느 제품군에서나 Rove의 테넌트다(9.10절, D27).
+
 ## 2. 범위 및 기능 목록
 
 Phase 번호는 10장의 구현 단계와 같다.
@@ -56,7 +68,7 @@ Phase 번호는 10장의 구현 단계와 같다.
 | 구매/재무 | 업체, 구매, 영수증, 취득원가, 보증, 처분 / 감가상각 | 2 / 3 |
 | 유지보수 | 고장·수리·RMA, 정기 점검, 작업 지시와 정비 블록 / TCO | 2 / 3 |
 | 현장/자동화 | 모바일 PWA·QR 인쇄 / 오프라인 실사 / RFID·GPS 연동, OS 인벤토리 대조 | 1 / 2 / 3 |
-| 통합/기업 기능 | roster 로그인(비밀번호·SSO)과 역할 / API 토큰·Webhook, 기업 IdP·SCIM(roster), 사업장 단위 권한, ERP·HR·캘린더 연동, 고급 보고서 | 0 / 3 |
+| 통합/기업 기능 | roster 로그인(SaaS는 Google·Microsoft·GitHub SSO)과 역할 / API 토큰·Webhook, 기업 IdP·SCIM(roster), 사업장 단위 권한, ERP·HR·캘린더 연동, 고급 보고서 | 0 / 3 |
 | 플러그인 | 빌드 시 등록하는 뷰 플러그인 / 백엔드 도메인 모듈 / 서드파티 | 1 / 2–3 / 3 이후 |
 | SaaS 계측 | 테넌트별 일 단위 사용량 스냅샷 / 사용량 원장·Entitlement·과금 | 0 / 3 |
 
@@ -68,8 +80,8 @@ Phase 번호는 10장의 구현 단계와 같다.
 
 | 엔터티 | 역할 |
 | --- | --- |
-| `Tenant` (payday) | 고객 조직. 데이터·접근·과금의 경계 |
-| `Holder` (payday) | 테넌트 안의 로그인 계정. 계정 자체는 roster의 것이고, Rove의 Holder는 같은 ID로 처음 들어올 때 생긴다(9.10절). 여러 테넌트에 속한 사람은 테넌트마다 Holder가 하나씩 있다 |
+| `Tenant` (payday) | 워크스페이스. 데이터·접근·과금의 경계. roster의 테넌트(계정 디렉터리)와는 다른 층이다(9.10절, D27) |
+| `Holder` (payday) | 워크스페이스의 구성원 자격과 역할. 계정은 roster의 것이고 Holder는 그 계정을 가리킨다(9.10절). 한 계정이 여러 워크스페이스에 속하면 워크스페이스마다 Holder가 하나씩 있다 |
 | `Audit` / `Outbox` (payday) | 모든 쓰기의 시스템 감사 기록(쓰기와 같은 트랜잭션), 발행 큐 |
 | `Asset` | 추적 대상의 공통 정체성. `kind` = `ITEM`(실물) / `SPACE`(장소) / `KIT` / `GROUP`(풀·논리 그룹). 관계·QR·첨부·플러그인이 모두 여기에 붙는다 |
 | `AssetType` | 테넌트별 유형, 속성 스키마(버전), 기본 Capability, 단일 상속 |
@@ -81,8 +93,8 @@ Phase 번호는 10장의 구현 단계와 같다.
 | `Fact` | Asset 속성 이력. "이 시각부터 이 키의 값은 V"라는 단언 |
 | `Event` | 업무 작업 하나의 기록. 종류, 수행자, 발생 시각, 사유, 만들고 대체한 시간 행 |
 | `TreeLock` | 테넌트마다 하나인 잠금 행. 배치 트리를 바꾸는 작업을 직렬화한다(3.2절) |
-| `Label` | QR/바코드 라벨. 테넌트의 라벨 도메인으로 인쇄하고, 미리 인쇄한 뒤 연결하거나 교체할 수 있다 |
-| `TenantDomain` | 테넌트가 쓰는 도메인. 지금은 QR 라벨용이며, 확인을 마친 도메인이 있어야 라벨 기능이 켜진다(9.9절) |
+| `Label` | QR/바코드 라벨. 워크스페이스와 무관한 전역 코드로 인쇄하고(9.9절), 미리 인쇄한 뒤 연결하거나 교체할 수 있다 |
+| `TenantDomain` | 테넌트가 쓰는 자기 도메인(선택). 지금은 QR 라벨용이다(9.9절) |
 | `Attachment` | 사진·계약서·증빙의 메타데이터와 객체 저장소 키 |
 | `Custody` / `CustodyLine` | 지급·대여 문서와 품목 줄. 인수 확인, 반납 기한, 부분 반납 |
 | `Bookable` | Asset의 예약 정책 프로파일 |
@@ -95,7 +107,7 @@ Phase 번호는 10장의 구현 단계와 같다.
 
 **공간**: 사업장·건물·층·방·구역·선반 같은 모든 장소는 `Asset(kind=SPACE)`이고, 장소 계층은 `Placement` 트리 하나다. 이전 초안의 `Location` 엔터티는 없앴다. 주소와 좌표는 `SpaceProfile`의 값이고, 예약 가능 여부는 `Bookable` 프로파일이 정한다. 과금과 목록에서 공간을 따로 셀지는 `kind`로 구분한다(11장).
 
-**사람과 계정**: `Party`(사람 기록)와 `Holder`(로그인 계정)는 다르다. 자산을 지급받는 직원은 계정이 없어도 된다. 둘을 잇는 것은 `Party.account → Holder`(선택, 하나의 Holder에 하나의 Party)다. 비밀번호와 IdP 계정의 대응은 roster가 갖는다(9.10절). 그래서 Rove에는 `Identity` 엔터티가 없다. 행위자는 사용자만이 아니다. API 토큰, 가져오기 작업, 보존 잡 같은 시스템 작업도 행위자이며, 시스템 작업은 Holder 없이 기록된다. 이력과 Event에는 Party·Holder의 ID만 남기고 이름·이메일을 복사하지 않는다(8.2절).
+**사람과 계정**: `Party`(사람 기록), `Holder`(워크스페이스의 구성원 자격), 계정(roster)은 다르다. 자산을 지급받는 직원은 계정이 없어도 된다. 둘을 잇는 것은 `Party.account → Holder`(선택, 하나의 Holder에 하나의 Party)다. 계정과 그 로그인 수단(Google·Microsoft·GitHub의 계정)은 roster가 갖는다(9.10절). 그래서 Rove에는 `Identity` 엔터티가 없다. 행위자는 사용자만이 아니다. API 토큰, 가져오기 작업, 보존 잡 같은 시스템 작업도 행위자이며, 시스템 작업은 Holder 없이 기록된다. 이력과 Event에는 Party·Holder의 ID만 남기고 이름·이메일을 복사하지 않는다(8.2절).
 
 ### 3.2 관계 규칙
 
@@ -219,7 +231,7 @@ StockMovement(id, tenant, stock, delta, reason, ref_id?, occurred_at)
   3. PostgreSQL에서는 바뀌는 참조(`Asset.parent` 같은 현재 상태 값)에 같은 테넌트인지 확인하는 트리거를 마지막 방어선으로 둔다(9.4절). 복합 FK는 payday의 서버 시작 전 검사가 "스키마 불일치"로 거부하므로 쓸 수 없다(확인함).
 - **RLS는 쓰지 않는다.** payday의 테넌트 경계는 애플리케이션 쿼리 조건이고, 경계 없는 운영자 스택과 여러 테넌트를 보는 운영자 정책이 RLS의 세션 변수 방식과 맞지 않는다. 대신 위의 세 겹과 교차 테넌트 테스트(10장)로 보완한다.
 - **배포를 둘로 나눈다**: 공개 진입점(테넌트 경계 있음, 자기 테넌트만)과 운영자 진입점(내부망, 여러 테넌트를 보는 정책)을 다른 바이너리로 둔다. 공개 바이너리 안에는 "전체 보기" 코드 경로가 없다.
-- **인증은 roster가 한다(9.10절, D26).** 사람과 테넌트, 비밀번호, IdP 연결은 roster의 행이고, Rove는 roster가 확인해 준 사람에게 자기 세션을 준다. 비밀번호는 roster에 묻고(`VouchService.Verify`), SSO는 roster의 OIDC issuer에 relying party로 붙는다. 테넌트는 로그인 단계에서 고른다(테넌트 alias 경로 또는 서브도메인). SCIM 프로비저닝과 기업 IdP 연결은 roster의 기능을 쓴다.
+- **인증은 roster가 한다(9.10절, D26·D27).** 계정과 그 로그인 수단은 roster의 행이고, Rove는 roster가 확인해 준 계정에 자기 세션을 준다. SaaS는 roster의 OIDC issuer를 통한 SSO만 쓴다(D28). 로그인은 앱 호스트 한 곳에서 계정으로 하고, 워크스페이스는 경로(`/@<alias>`)로 고른다(9.11절). CE의 비밀번호 로그인은 roster에 묻는다(`VouchService.Verify`). SCIM 프로비저닝과 기업 IdP 연결은 roster의 기능을 쓴다.
 - **권한**: payday에는 역할이 없으므로 Rove가 `gate.Policy`에서 구현한다. Holder에 `role`(`owner`, `admin`, `asset_manager`, `member`, `auditor`)을 덧붙이고, 메서드별 최소 역할 표로 판단한다. 같은 Policy를 batch guard에도 넘긴다(넘기지 않으면 batch 안의 작업이 권한 검사를 건너뛴다). 일반 직원 역할(`member`)은 자산 보기, 셀프 실사, 요청, 인수 확인을 할 수 있다. 사업장 단위 권한은 Phase 3에서 payday 필드 3(Site)으로 도입한다. 역할은 roster로 옮기지 않고 Rove의 것으로 둔다. roster가 주는 권한을 읽는 방식으로 바꿀지는 정할 것이다(9.10절).
 - **역할과 가격 정책을 결합하지 않는다.** 요금제는 한도를 정하고, 권한은 무엇을 할 수 있는지를 정한다.
 - **쓰기는 도메인 작업으로만 한다.** payday는 일반 쓰기(Patch/Apply)를 기본으로 닫는다. Rove의 도메인 작업은 두 가지다.
@@ -335,6 +347,23 @@ Tenant/Plan ──> Entitlement/Policy engine ──────────┼�
 삭제 작업은 멱등이고 재시도할 수 있어야 한다. 먼저 `dry-run`으로 영향받는 행 수·용량·복원 가능 범위를 보여 주는 기능을 구현한다.
 
 **구현**(`server/domain/expire.go`, `rove retention plan|run`): 조직마다 한 트랜잭션으로, 보존 창이 시작되기 전에 끝난 것을 지운다. 끝났거나 대체된 시간 행, 같은 키의 다음 값이 창 시작 전에(그리고 그때까지 기록되어) 시작된 Fact, 끝난 문서(마친·취소된 예약과 그 항목·할당, 다 돌려받은 Custody와 그 줄, 닫힌 실사와 그 발견, 끝난 작업과 그 할당), 재고 이동, 그리고 남은 행이 아무것도 가리키지 않는 Event 순서다. 폐기·불용·분실 상태 Fact와 등록(`asset.add`) Event는 취득·처분 기록이라 남는다. hold가 있거나 보존이 무기한이면 아무것도 지우지 않는다. dry run은 같은 삭제를 트랜잭션 안에서 하고 되돌리므로 실제 실행과 행 수까지 같다. 영수증은 `retention.expired` Event이고 종류별 건수와 기준 시각만 담는다. 파괴는 `app.retention.apply`가 켜졌을 때만 일어나며, `serve`가 `app.retention.every`마다 돌린다. trail의 이력 종류는 payday의 pass가 같은 보존 창으로 지운다.
+
+### 8.4 워크스페이스 닫기 (D29)
+
+```text
+닫기 → 복구 기간(기본 30일) → 파기 → alias 보류(기본 1년) → alias 풀림
+          ↑ 되돌리기           ↑ legal hold가 있으면 풀릴 때까지 기다린다
+```
+
+1. **닫기**: 소유자가 직접 해지하거나, 운영자가 닫는다(미납, 약관 위반). 그 워크스페이스로의 접근(세션, API 토큰)을 바로 막고 데이터는 그대로 둔다. 닫힌 동안 소유자는 내보내기만 할 수 있다.
+2. **복구**: 복구 기간 안에는 그대로 되돌린다.
+3. **파기**: 복구 기간이 지나면 워크스페이스의 모든 행, 파일, trail을 지운다(8.2절의 테넌트 탈퇴, `rove tenant purge`). legal hold가 걸려 있으면 풀릴 때까지 파기하지 않고 닫힌 상태로 둔다.
+4. **법정 보존**: 워크스페이스의 데이터를 통째로 남기는 것이 아니다. 법이 정한 항목만 분리해 그 기간 동안 보관한다. 대개 우리 쪽의 계약·청구 기록이고, 워크스페이스 안의 데이터가 아니다. 항목과 기간은 법률 검토로 정한다.
+5. **alias**: 파기할 때 풀고, 보류 기간 동안 다른 워크스페이스가 쓰지 못하게 한다. 예전 주소로 찾아오는 사람(북마크, 메일 속 링크)을 노린 사칭을 막기 위해서다. 복구 기간 안의 되돌리기는 alias를 그대로 되찾는다. 운영자는 의도적으로 일찍 풀 수 있고, 그 사실은 기록에 남는다. 라벨은 alias를 쓰지 않으므로(9.9절) 보류와 상관없다.
+
+기간은 기본값이다. 배포 설정으로 기본값을 바꾸고, 워크스페이스마다 계약(`TenantContract`)으로 덮어쓴다. 보존 기간과 같은 방식이다(8.1절).
+
+**계정이 탈퇴할 때**: 그 계정이 속한 모든 워크스페이스에서 Holder를 끝내고 Party를 가명화한다(8.2절). 마지막 소유자는 소유권을 넘긴 뒤에만 탈퇴할 수 있다. 개인 워크스페이스처럼 그 계정만 있는 워크스페이스는 위의 닫기 절차를 밟는다.
 
 ## 9. 구현 아키텍처
 
@@ -506,13 +535,17 @@ Retention:    GetPolicy / PreviewExpiry / Export / Hold / ApplyPolicy
 
 ### 9.9 테넌트 도메인과 QR 라벨
 
-- **라벨 기능은 테넌트 도메인이 있어야 켜진다.** 테넌트가 라벨용 도메인을 등록하고 확인을 마치기 전에는 라벨 인쇄·연결·해석이 꺼져 있다. 화면은 메뉴를 숨기고, 라벨 RPC는 `FailedPrecondition`으로 답한다. 자산 번호, 검색, 앱 안의 화면은 도메인과 상관없이 쓸 수 있다.
+**SaaS의 라벨은 전역 코드다(D28).** QR에는 `https://<앱 호스트>/l/<코드>`를 넣는다. 코드는 배포 전체에서 유일한 짧은 무작위 문자열이다(UUID는 36자라 작은 라벨에서 QR이 빽빽해진다). 해석은 로그인한 뒤 앱이 그 코드의 워크스페이스로 보내는 것이고, 그 워크스페이스의 구성원이 아니면 NotFound다. 그래서 alias를 바꾸거나 워크스페이스가 닫혀도 라벨은 깨지지 않고, 다른 워크스페이스로 가지도 않는다. 라벨 기능은 처음부터 켜져 있다. 아래의 테넌트 도메인(자체 도메인, 기본 도메인 아래 하위 도메인)은 자기 도메인을 쓰고 싶은 고객과 Dedicated를 위한 선택 기능이 된다.
+
+아래는 테넌트 도메인을 쓰는 경우다(프로토타입이 구현한 것은 이쪽이다).
+
+- **라벨 기능은 테넌트 도메인이 있어야 켜진다.** 테넌트가 라벨용 도메인을 등록하고 확인을 마치기 전에는 라벨 인쇄·연결·해석이 꺼져 있다. 화면은 메뉴를 숨기고, 라벨 RPC는 `FailedPrecondition`으로 답한다. 자산 번호, 검색, 앱 안의 화면은 도메인과 상관없이 쓸 수 있다. SaaS에서는 이 조건이 없다.
 - **도메인 고르기**: 테넌트는 둘 중 하나를 고른다.
   1. **자체 도메인**(예: `assets.acme.co.kr`): 테넌트가 Rove의 라벨 호스트를 가리키는 CNAME과 확인용 TXT 레코드를 만든다.
   2. **Rove 기본 도메인 아래 하위 도메인**(예: `acme.l.<기본 도메인>`): DNS 작업이 필요 없다. 대신 Rove가 기본 도메인을 영구히 유지해야 한다.
 - **확인**: spin 루프가 TXT 레코드를 주기적으로 조회하고, 일치하면 `verified_at`을 찍는다(payday `stamped`). 확인하기 전에는 TLS 인증서도 발급하지 않는다.
 - **TLS**: 리버스 프록시가 첫 요청이 올 때 인증서를 받는다(ACME on-demand TLS). 받기 전에 운영자 진입점의 내부 엔드포인트에 "확인된 테넌트 도메인인가"를 묻고, 아니면 받지 않는다. 그래서 아무 도메인이나 이 서버를 가리켜 인증서를 받아 갈 수 없다.
-- **라벨 URL**: `https://<테넌트 도메인>/l/<라벨 ID>`. 이 주소는 Host로 테넌트를 찾아 앱 주소(`https://<앱 호스트>/t/<테넌트>/l/<라벨 ID>`)로 넘기기만 한다.
+- **라벨 URL**: `https://<테넌트 도메인>/l/<라벨 ID>`. 이 주소는 Host로 테넌트를 찾아 앱 주소(`https://<앱 호스트>/l/<코드>`)로 넘기기만 한다.
   - 라벨 해석은 로그인한 뒤 앱이 테넌트 경계를 통해 한다. 그래서 라벨 URL 자체는 자산에 대해 아무것도 드러내지 않고, 다른 테넌트의 라벨은 NotFound가 된다.
   - 휴대폰 기본 카메라로 찍어도 앱이 열리고, 로그인할 때 테넌트가 미리 선택된다. 자산 번호가 바뀌어도 라벨은 그대로 유효하다.
 - **도메인 바꾸기**: 인쇄한 라벨의 호스트는 바꿀 수 없다. 그래서 새 도메인을 활성화하면 이전 도메인은 `LEGACY`가 되어 계속 해석되고, 새로 인쇄하는 라벨만 새 도메인을 쓴다. 라벨은 인쇄할 때 쓴 도메인을 기록한다. 이전 도메인을 지우려 하면 그 도메인으로 인쇄한 라벨 수를 보여 주고 확인을 받는다.
@@ -522,6 +555,20 @@ Retention:    GetPolicy / PreviewExpiry / Export / Hold / ApplyPolicy
 
 사람이 누구인지, 어느 테넌트에 속하는지, 어떻게 로그인하는지는 [roster](https://github.com/lesomnus/roster)가 정한다(D26). roster는 사람을 갖는 payday 앱이다. 비밀번호를 잠금·2단계 인증과 함께 확인하고, 외부 IdP(Entra, Google)의 계정을 사람에 잇고, 디렉터리의 SCIM 프로비저닝을 받고, Ory Hydra를 앞에 두고 OIDC issuer가 된다. Rove는 이것을 다시 만들지 않는다. 같은 구조를 shale이 먼저 쓰고 있다(shale `internal/identity`, `docs/10-security.md` 33.1절).
 
+**두 층의 테넌트(D27)**: roster의 테넌트와 Rove의 테넌트는 다른 것이다.
+
+- **roster의 테넌트는 계정 디렉터리다.** 누가 있고 어떻게 로그인하는지를 담는다. SaaS는 테넌트 하나에 계정 전체가 있고, 누구나 Google·Microsoft·GitHub로 가입한다(roster의 `login.enrol: enrolling`). Dedicated 고객은 자기 테넌트를 갖고, 거기에 회사 IdP와 SCIM이 붙는다. CE는 내장 roster다.
+- **Rove의 테넌트는 워크스페이스다.** 데이터의 경계이고 payday의 테넌트 경계가 지킨다(6장). 한 계정이 워크스페이스를 여러 개 만들거나 여러 곳에 초대받는다.
+- **Holder는 둘을 잇는 구성원 자격이다.** 워크스페이스마다 자기 ID를 갖고, roster의 계정을 `account`(roster의 테넌트와 holder의 ID)로 가리킨다. 역할(`role`)은 Holder에 있다.
+
+```text
+roster   테넌트 @rove (SaaS의 계정 디렉터리)   kim(Google), lee(GitHub), ...
+Rove     테넌트 = 워크스페이스                  acme: kim(owner), lee(member)
+                                                kim의 개인 워크스페이스: kim(owner)
+```
+
+워크스페이스를 Rove의 site(필드 3)나 roster의 팀으로 두지 않는다. 그러면 고객 사이의 격리가 payday의 테넌트 경계에서 손으로 짠 정책으로 내려간다. 그런데 그 경계 하나에 다른 회사에 보이면 안 되는 정보가 걸려 있다. 직원의 이름과 연락처, 누가 무엇을 갖고 있는지, 예약, 구매가가 그렇다. 계약·legal hold·내보내기·삭제·감사 기록·과금도 모두 테넌트 단위다. site는 한 워크스페이스 안의 사업장을 위해 남겨 둔다.
+
 **두 가지 모드**: 같은 코드가 붙는 리스너만 다르다. Rove의 나머지는 어느 모드인지 모른다.
 
 | | 외부(기본) | 내장 |
@@ -530,8 +577,8 @@ Retention:    GetPolicy / PreviewExpiry / Export / Hold / ApplyPolicy
 | 연결 | gRPC + TLS(`auth.roster.ca_file`) | `bufconn`. 프로세스 밖에서는 붙을 수 없다 |
 | Rove가 내미는 자격 | 배포 키 `rk_`와 `roster-at`, 또는 테넌트 키 `rt_` | 없다. payday Plain으로 호출자가 밝힌 신원을 믿는다. 밖에서 닿지 않으니 성립한다 |
 | roster의 DB | roster의 것 | 따로 둔다. SQLite면 Rove DB 옆의 `roster.db`, PostgreSQL이면 같은 서버의 다른 DB |
-| SSO | roster의 issuer로 | 없다. 비밀번호만 |
-| 테넌트·사람 만들기 | roster에서(`roster tenant add`, `roster app install rove`) | `rove init`, `rove holder add`가 내장 roster에 |
+| SSO | roster의 issuer로. SaaS는 이것만 쓴다 | 없다. 비밀번호만 |
+| 계정과 워크스페이스 만들기 | SaaS: 계정은 roster에 가입하고, 워크스페이스는 Rove에서 만든다. Dedicated: roster 운영자가 고객의 테넌트를 만든다(`roster tenant add`, `roster app install rove`) | `rove init`, `rove holder add`가 내장 roster에 |
 
 - 외부 roster에서 Rove의 모양은 roster `docs/apps.md`의 A(여러 테넌트를 섬기는 인스턴스 하나, `rk_`)가 기본이다. 테넌트는 그 키를 지명(nominate)한 곳이고, 요청마다 `roster-at`으로 테넌트를 밝힌다. 한 조직이 직접 띄우는 Rove는 C(`rt_`)다. 키의 접두사로 구별하므로 설정은 키 하나다.
 - 내장은 배포를 간편하게 하려는 것이다. 서버 한 대(9.2절)에 roster를 따로 띄우지 않는다. `unix` 소켓은 roster를 다른 프로세스(사이드카)로 뺄 때에만 필요하다. CLI(`rove init` 등)는 내장 roster의 DB를 직접 연다.
@@ -543,14 +590,14 @@ Retention:    GetPolicy / PreviewExpiry / Export / Hold / ApplyPolicy
 **Rove에 남는 것과 roster로 가는 것**
 
 - roster로: 사람(계정) 만들기, 비밀번호와 그 재설정, 로그인 중지, 2단계 인증, IdP 연결, SCIM. Rove의 `Credential` 엔터티와 비밀번호 코드(`server/password`)는 없어진다.
-- Rove에: `Tenant`·`Holder` 행(같은 ID), Holder의 `role`, `Party`와 `Party.account → Holder`, 세션(`Session`, DB에 둔다 — report 결정 3), 계약·법적 보존·보존 기간, 가명화.
+- Rove에: 워크스페이스(`Tenant`)와 구성원 자격(`Holder`)과 그 `role`, 초대, `Party`와 `Party.account → Holder`, 세션(`Session`, DB에 둔다 — report 결정 3), 계약·법적 보존·보존 기간, 가명화.
 
-**행을 roster의 ID에 고정한다**: Rove의 `Tenant`와 `Holder`는 roster의 것과 같은 payday 엔터티이고 같은 ID를 쓴다. 그래서 `Holder.id`가 roster의 `sub`이고, trail의 행위자 ID가 두 앱에서 같다. 행은 roster가 확인해 준 사람이 처음 들어올 때 만든다. 그 테넌트의 첫 행이 생길 때 테넌트 설정(유형 템플릿 복사, 6장)을 한다. 테넌트의 alias와 이름은 roster의 것을 따른다(기본 라벨 하위 도메인이 alias를 쓴다, 9.9절).
+**행을 roster에 잇는 방법(D27이 D26을 고친다)**: D26은 Rove의 `Tenant`·`Holder`를 roster의 것과 같은 ID로 두었다. 이제 `Holder`는 자기 ID를 갖고 roster의 계정을 `account`로 가리키며, 워크스페이스(`Tenant`)의 ID와 alias도 Rove의 것이다. 제품군과 상관없이 같은 모양이다. roster의 테넌트가 워크스페이스 하나와 같은 Dedicated·CE도 같은 코드로 돈다. trail의 행위자는 Holder의 ID이고, 계정은 `account`로 찾는다. M2 1단계의 "처음 로그인하면 roster의 ID로 테넌트와 Holder를 만든다"는 "가입하면 개인 워크스페이스와 그 소유자 Holder를 만든다"(9.11절)로 바뀐다. 워크스페이스가 처음 생길 때 테넌트 설정(유형 템플릿 복사, 6장)을 한다.
 
 **로그인**
 
-- **비밀번호**: `POST /session {tenant, alias, password}`를 받으면 Rove가 roster에 묻고(`VouchService.Verify`), 맞으면 Rove의 세션 쿠키를 준다. Rove는 비밀번호도 그 검증값도 갖지 않는다.
-- **SSO**(외부 roster): Rove의 HTTP 리스너가 roster issuer의 relying party가 된다(roster `docs/relying-party.md`의 `itself` 모양). `GET /sso/login` → issuer → `GET /sso/callback`(state·nonce·PKCE, id_token 검증, `sub` = Holder.id를 테넌트에서 확인) → 같은 세션 쿠키. `auth.sso_only`는 비밀번호 로그인을 끈다.
+- **비밀번호**(CE의 옵션): `POST /session {tenant, alias, password}`를 받으면 Rove가 roster에 묻고(`VouchService.Verify`), 맞으면 Rove의 세션 쿠키를 준다. Rove는 비밀번호도 그 검증값도 갖지 않는다. SaaS에서는 꺼져 있다.
+- **SSO**(외부 roster, SaaS는 이것만): Rove의 HTTP 리스너가 roster issuer의 relying party가 된다(roster `docs/relying-party.md`의 `itself` 모양). `GET /sso/login` → issuer → `GET /sso/callback`(state·nonce·PKCE, id_token 검증) → 계정 단위의 세션 쿠키. 워크스페이스는 요청의 경로가 고르고, 그 계정의 Holder가 그 워크스페이스에 있어야 한다(9.11절). `auth.sso_only`는 비밀번호 로그인을 끈다.
 - **세션**은 Rove의 DB에 둔다. 지금 당장 끊을 수 있어야 하기 때문이다(report 결정 3). 다만 roster에서 사람이 중지·삭제되거나 "모든 곳에서 로그아웃"되면 Rove의 세션도 끝나야 한다. 그래서 세션을 쓰는 호출마다 roster에 그 사람을 묻고(`HolderService.Get`, 짧게 캐시), 물을 수 없으면 거부한다(fail closed). 나중에 `SyncService/Watch`를 따라가 세션을 끝내는 방식을 더한다.
 
 **Rove의 holder가 roster에서 하는 일**: 비밀번호 확인, 사람·테넌트 읽기, 사람이 가진 권한 묻기(`HolderService/Reaches`), 내장에서는 사람 만들기. shale의 `AgentMethods`와 같은 목록에서 시작한다. 외부 roster에서는 사람을 roster에서 만들므로 더 적게 든다.
@@ -562,6 +609,16 @@ Retention:    GetPolicy / PreviewExpiry / Export / Hold / ApplyPolicy
 **테스트**: 내장 roster는 진짜 roster이므로 테스트는 가짜 대신 내장 roster를 띄운다. 외부 모드는 같은 roster를 TCP 리스너와 키로 띄워 같은 테스트를 돈다.
 
 **정한 것**(2026-10-11, plan 10장): 역할은 Rove의 `Holder.role`로 둔다. 외부 roster의 테넌트는 roster 운영자가 만들고(셀프 가입 없음), 테넌트의 첫 사람이 처음 로그인할 때 Rove에 테넌트가 생기며 그 사람이 소유자가 된다. 탈퇴는 Rove 내보내기 → Rove 전체 삭제 → roster의 테넌트 정리 순서다. 사람을 지우는 것은 roster의 일이고, Rove의 '개인정보 삭제'는 Rove 쪽만 지운다. 다만 내장 roster는 Rove만 쓰므로, Rove에서 로그인이 끝나면(로그인 중지, 개인정보 삭제, 테넌트 전체 삭제) roster의 `forget`으로 그 사람을 바로 파기한다. roster의 삭제 유예는 복구(`roster restore`)를 위한 것인데 Rove는 복구를 열지 않으므로, 유예는 지연일 뿐이다. 기존 데이터는 `rove identity migrate`로 옮긴다.
+
+**SaaS에서 바뀐 것**(D27~D29, 2026-10-11): 셀프 가입을 둔다. 계정은 SaaS의 roster 테넌트에 가입하고, 워크스페이스는 Rove에서 만든다. 첫 사람이 소유자가 되는 대신 만든 사람이 소유자다. 탈퇴는 워크스페이스 닫기(8.4절)이고, 계정의 탈퇴는 그 계정이 속한 모든 워크스페이스에서의 가명화다. 내장 roster에서 사람을 파기하는 것도 계정이 탈퇴할 때로 옮긴다. 한 워크스페이스에서 구성원 자격이 끝나는 것은 계정을 지우는 것이 아니다.
+
+### 9.11 워크스페이스와 주소 (SaaS, D28)
+
+- **로그인은 한 곳에서 한다.** 모든 사람이 앱 호스트(예: `rove.io`)의 로그인 화면에서 Google·Microsoft·GitHub 중 하나로 로그인한다. 흐름은 roster의 issuer(예: `id.rove.io`)와 그 IdP의 화면을 잠깐 거쳐 앱 호스트로 돌아온다. SaaS에는 Rove의 비밀번호 로그인이 없고, 2단계 인증은 각 IdP의 것이다. 기업 IdP는 Phase 3에서 roster의 `Connection`·`MailDomain`·SCIM으로 붙인다.
+- **워크스페이스는 경로로 고른다.** 주소는 `rove.io/@<alias>/...`이다. 하위 도메인을 쓰지 않으므로 인증서·DNS·쿠키가 호스트 하나로 끝난다. 세션은 계정 단위이고, 요청마다 경로의 워크스페이스와 그 계정의 Holder로 frame을 만든다.
+- **가입하면 개인 워크스페이스가 하나 생긴다.** 계정이 소유한 워크스페이스는 N개까지 무료이고, 그 이상은 결제가 필요하다(N과 요금은 11장). 초대받아 들어간 워크스페이스는 세지 않는다.
+- **alias**: 만들 때 무작위로 준다(예: `ws-7k2m9q`). 바꿀 수 있고, 바꾸는 것을 유료 기능으로 둘 수 있다. 예약어(`www`, `api`, `admin`, `l`, `sso`, `login` 등)는 쓸 수 없다. 바꾸기 전 alias는 한동안 새 주소로 넘겨 주면서 다른 워크스페이스가 쓰지 못하게 보류한다(8.4절). 라벨은 alias를 쓰지 않는다(9.9절).
+- **초대**: 역할 표의 초대 권한을 가진 사람(기본: 소유자·관리자)이 이메일로 초대한다. 받은 사람이 로그인해 수락하면 Holder가 생긴다. 초대를 roster의 일반 기능으로 둘지는 초대를 만들 때 정한다.
 
 ## 10. 구현 단계 및 검증 기준
 
@@ -592,6 +649,7 @@ Retention:    GetPolicy / PreviewExpiry / Export / Hold / ApplyPolicy
 7. 플러그인 런타임·배포 정책, 서드파티의 권한 심사와 저장 공간 계약.
 8. 오프라인 실사의 충돌 처리: 같은 자산을 두 기기가 다르게 스캔했을 때의 우선순위.
 9. 국가별 법정 보존·삭제 요구, 고객 데이터 내보내기와 탈퇴 절차.
+10. 무료로 소유할 수 있는 워크스페이스 수(N)와 그 이상의 요금, alias를 바꾸는 것의 요금(9.11절).
 
 ## 12. 결정 기록
 
@@ -623,7 +681,10 @@ Retention:    GetPolicy / PreviewExpiry / Export / Hold / ApplyPolicy
 | D20 | 도메인 레이어는 payday Gate 위에, `seal`은 그보다 위에 둔다 | 도메인 작업의 내부 쓰기까지 Gate의 엣지 확인을 받고, 생성 쓰기는 batch 안에서도 닫힌다 |
 | D21 | 클라우드 없이 self-host로 시작한다. 서버 한 대에 Docker Compose, PostgreSQL은 pg_bigm을 넣은 자체 이미지 | 운영을 직접 통제하고, 확장 지원을 관리형 서비스에 기대지 않는다. 관리형으로 옮길 때의 선택지는 9.5절 표에 남긴다 |
 | D22 | 한국어 검색은 pg_bigm, 1글자 질의는 접두 일치 | 2음절 이름이 흔하고, pg_trgm은 3글자 미만에 인덱스를 쓰지 못한다 |
-| D23 | QR 라벨 도메인은 테넌트마다 설정한다. 확인된 도메인이 없으면 라벨 기능을 끄고, 바꾼 뒤에도 이전 도메인은 계속 해석한다 | 인쇄한 라벨의 호스트는 바꿀 수 없으므로, 그 결정을 테넌트에게 맡기고 이전 라벨이 깨지지 않게 한다 |
+| D23 | QR 라벨 도메인은 테넌트마다 설정한다. 확인된 도메인이 없으면 라벨 기능을 끄고, 바꾼 뒤에도 이전 도메인은 계속 해석한다. **SaaS에서는 D28이 대체한다** | 인쇄한 라벨의 호스트는 바꿀 수 없으므로, 그 결정을 테넌트에게 맡기고 이전 라벨이 깨지지 않게 한다 |
 | D24 | 생성 동사가 뜻하는 일은 도메인 레이어가 그 동사를 완성하고, 새 RPC는 생성 동사가 이름 붙이지 않는 일에만 만든다 | payday가 권하는 방식이고, "제대로 하기"가 "하기" 옆의 두 번째 이름이 되지 않는다 |
 | D25 | 첨부는 저장소 인터페이스 뒤에 두고 로컬 파일시스템으로 시작한다. 서버를 나눌 때 S3 호환 저장소로 옮긴다. MinIO는 쓰지 않는다 | 서버 한 대에서는 별도 저장소가 필요 없다. MinIO 커뮤니티판은 배포를 멈추고 보관 처리되었다 |
-| D26 | 사람·테넌트·로그인은 roster의 것이다. 외부 roster를 기본으로 지원하고, 서버 한 대 배포에서는 같은 프로세스에 내장해 `bufconn`으로 붙인다. Rove는 roster가 확인한 사람에게 자기 세션을 주고, Tenant·Holder 행을 roster의 ID에 고정해 처음 들어올 때 만든다. 역할은 Rove가 정한다 | 비밀번호·잠금·2단계 인증·IdP 연결·SCIM·SSO를 제품마다 다시 만들지 않고, 같은 roster를 쓰는 다른 제품(shale)과 사람이 하나다. 내장은 배포를 간편하게 하고, 같은 코드가 리스너만 바꿔 붙으므로 Rove의 나머지는 어느 모드인지 모른다 |
+| D26 | 사람·테넌트·로그인은 roster의 것이다. 외부 roster를 기본으로 지원하고, 서버 한 대 배포에서는 같은 프로세스에 내장해 `bufconn`으로 붙인다. Rove는 roster가 확인한 사람에게 자기 세션을 주고, Tenant·Holder 행을 roster의 ID에 고정해 처음 들어올 때 만든다. 역할은 Rove가 정한다. **ID를 같게 두는 부분은 D27이 대체한다** | 비밀번호·잠금·2단계 인증·IdP 연결·SCIM·SSO를 제품마다 다시 만들지 않고, 같은 roster를 쓰는 다른 제품(shale)과 사람이 하나다. 내장은 배포를 간편하게 하고, 같은 코드가 리스너만 바꿔 붙으므로 Rove의 나머지는 어느 모드인지 모른다 |
+| D27 | 제품군은 SaaS·Dedicated·CE이고 지금은 SaaS만 만든다. 테넌트는 두 층이다. roster의 테넌트는 계정 디렉터리(SaaS는 하나, Dedicated는 고객마다)이고, Rove의 테넌트는 워크스페이스다. Holder는 워크스페이스의 구성원 자격이며 자기 ID와 roster 계정(`account`)을 갖는다 | 워크스페이스마다 roster 테넌트를 두면 가입자가 테넌트를 만드는 길과 테넌트를 넘는 계정이 roster에 필요하다. 워크스페이스를 site나 roster 팀으로 두면 고객 사이의 격리가 payday의 테넌트 경계에서 손으로 짠 정책으로 내려가고, 테넌트 단위인 계약·hold·내보내기·삭제·감사 기록·과금을 다시 만들어야 한다 |
+| D28 | SaaS는 SSO만 쓴다. Google·Microsoft·GitHub로 roster의 issuer를 거쳐 앱 호스트 한 곳에서 로그인하고, 2단계 인증은 IdP의 것이다. 워크스페이스는 경로(`/@<alias>`)로 고른다. 가입하면 개인 워크스페이스가 생기고, 소유한 워크스페이스는 N개까지 무료다. 라벨에는 워크스페이스와 무관한 전역 코드를 넣는다 | 비밀번호·2단계 인증·계정 복구를 만들고 지키지 않는다. 경로 기반이면 인증서·DNS·쿠키가 호스트 하나로 끝난다. 라벨이 alias와 워크스페이스의 수명에 묶이지 않는다 |
+| D29 | 워크스페이스는 닫기 → 복구 기간(기본 30일) → 파기로 닫는다. legal hold는 파기를 멈춘다. 법정 보존은 법이 정한 항목만 분리해 보관한다. alias는 무작위로 시작해 바꿀 수 있고, 예약어가 있으며, 풀린 alias는 보류한다(기본 1년). 기간은 배포 설정과 계약으로 바꾼다 | 실수와 분쟁을 되돌릴 시간을 주고, 남길 의무가 없는 데이터는 남기지 않는다. 예전 주소로 찾아오는 사람을 노린 사칭을 막는다 |
