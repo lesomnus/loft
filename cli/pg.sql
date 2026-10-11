@@ -69,6 +69,58 @@ $$;
 CREATE UNIQUE INDEX IF NOT EXISTS holder_account_once ON holder (tenant_id, account)
 	WHERE date_erased IS NULL AND account IS NOT NULL;
 
+-- A row names rows of its own tenant only (design 6, D11). The gate refuses a
+-- reference into another tenant; this is the answer to SQL that did not go
+-- through it -- a script, a hand-run fix, a bug in a layer. A foreign key says
+-- that the row named exists and not whose it is, and a composite one, tenant
+-- and identifier, would be a constraint the schema check refuses (V1). So every
+-- foreign key between two tenanted tables gets a trigger that asks, and answers
+-- 23503 as a foreign key would. The keys are read from the catalog, so a table
+-- or an edge the schema gains is covered the next time this runs.
+CREATE OR REPLACE FUNCTION rove_same_tenant() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE
+	ref uuid;
+	theirs uuid;
+BEGIN
+	EXECUTE format('SELECT ($1).%I', TG_ARGV[0]) INTO ref USING NEW;
+	IF ref IS NULL THEN
+		RETURN NEW;
+	END IF;
+	EXECUTE format('SELECT tenant_id FROM %I.%I WHERE id = $1', TG_TABLE_SCHEMA, TG_ARGV[1]) INTO theirs USING ref;
+	-- A row that is not there at all is the foreign key's to refuse.
+	IF theirs IS NOT NULL AND theirs <> NEW.tenant_id THEN
+		RAISE EXCEPTION '%.% names a % of another tenant', TG_TABLE_NAME, TG_ARGV[0], TG_ARGV[1]
+			USING ERRCODE = 'foreign_key_violation';
+	END IF;
+	RETURN NEW;
+END
+$$;
+
+DO $$
+DECLARE
+	fk record;
+BEGIN
+	FOR fk IN
+		SELECT t.relname AS tab, a.attname AS col, r.relname AS ref
+		FROM pg_constraint c
+		JOIN pg_class t ON t.oid = c.conrelid
+		JOIN pg_class r ON r.oid = c.confrelid
+		JOIN pg_attribute a ON a.attrelid = c.conrelid AND a.attnum = c.conkey[1]
+		WHERE c.contype = 'f'
+			AND cardinality(c.conkey) = 1
+			AND t.relnamespace = current_schema()::regnamespace
+			AND a.attname <> 'tenant_id'
+			AND EXISTS (SELECT 1 FROM pg_attribute x WHERE x.attrelid = c.conrelid AND x.attname = 'tenant_id' AND NOT x.attisdropped)
+			AND EXISTS (SELECT 1 FROM pg_attribute x WHERE x.attrelid = c.confrelid AND x.attname = 'tenant_id' AND NOT x.attisdropped)
+	LOOP
+		IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgrelid = fk.tab::regclass AND tgname = fk.tab || '_' || fk.col || '_same_tenant') THEN
+			EXECUTE format('CREATE TRIGGER %I BEFORE INSERT OR UPDATE OF %I, tenant_id ON %I FOR EACH ROW EXECUTE FUNCTION rove_same_tenant(%L, %L)',
+				fk.tab || '_' || fk.col || '_same_tenant', fk.col, fk.tab, fk.col, fk.ref);
+		END IF;
+	END LOOP;
+END
+$$;
+
 -- No CHECK constraints here, though "stock is never negative" wants one: the
 -- schema check `serve` runs without `db.migrate` sees a CHECK it was not told
 -- about and refuses the database (lesomnus/payday#33). The EXCLUDE

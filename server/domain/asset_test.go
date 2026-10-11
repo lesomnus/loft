@@ -1,13 +1,17 @@
 package domain_test
 
 import (
+	"context"
 	"testing"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/lesomnus/payday/pdid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	app "github.com/lesomnus/rove"
+	"github.com/lesomnus/rove/server/pd"
 )
 
 const day = 24 * time.Hour
@@ -190,4 +194,89 @@ func TestTheWall(t *testing.T) {
 
 	_, err = e.app().Label().Resolve(other, app.LabelResolveRequest_builder{Code: "NB-1"}.Build())
 	x.Equal(codes.NotFound, codeOf(err), "a tag is read in the caller's tenant only")
+}
+
+// TestACorrectionSentAgainIsTheSameCorrection: a client that did not hear back
+// sends the same correction again, by its operation's identifier. The row it
+// named is superseded by then -- by the first copy -- and the second answers
+// what the first did instead of that.
+func TestACorrectionSentAgainIsTheSameCorrection(t *testing.T) {
+	e := newEnv(t)
+	x := e.x
+	a := e.space("A", nil)
+	b := e.space("B", nil)
+	laptop := e.item("노트북", "NB-1", a, 10*day)
+	_, err := e.app().Asset().Move(e.owner, app.AssetMoveRequest_builder{Ref: assetRef(laptop), To: assetRef(b), At: e.ago(2 * day)}.Build())
+	x.NoError(err)
+
+	tl, err := e.app().Asset().Timeline(e.owner, app.AssetTimelineRequest_builder{Ref: assetRef(laptop)}.Build())
+	x.NoError(err)
+	var toB *app.TimelineEntry
+	for _, en := range tl.GetEntries() {
+		if en.GetKind() == "placement" && sameId(en.GetOtherId(), b.GetId()) {
+			toB = en
+		}
+	}
+	x.NotNil(toB)
+
+	req := app.AssetCorrectRequest_builder{
+		Ref: assetRef(laptop), RowId: toB.GetRowId(), ValidFrom: e.ago(5 * day), Reason: "영수증",
+		Op: pdid.New(pd.EventDomain).Bytes(),
+	}.Build()
+	_, err = e.app().Asset().Correct(e.owner, req)
+	x.NoError(err)
+	again, err := e.app().Asset().Correct(e.owner, req)
+	x.NoError(err, "the same correction, sent again")
+	x.Equal(b.GetId(), again.GetParentId())
+	x.Equal(b.GetId(), e.where(b, laptop, e.now.Add(-4*day), nil), "corrected, once")
+}
+
+// TestTheWallHoldsUnderTheDomainLayer: on PostgreSQL, SQL that goes around the
+// domain layer and the gate -- a script, a hand-run fix -- still cannot make a
+// row of one tenant name a row of another (`rove_same_tenant`, design 6, D11).
+// It is refused as a foreign key is, with 23503, written or changed.
+func TestTheWallHoldsUnderTheDomainLayer(t *testing.T) {
+	e := newEnv(t)
+	if e.s.Dialect != "postgres" {
+		t.Skip("PostgreSQL only; set PDTEST_POSTGRES")
+	}
+	x := e.x
+	ctx := context.Background()
+	room := e.space("회의실", nil)
+	laptop := e.item("노트북", "NB-1", room, day)
+
+	_, other := e.newTenant("other")
+	theirs, err := e.app().Asset().Add(other, app.AssetAddRequest_builder{Name: "남의 방", Kind: "space"}.Build())
+	x.NoError(err)
+
+	refused := func(err error) {
+		t.Helper()
+		var pg *pgconn.PgError
+		x.ErrorAs(err, &pg)
+		x.Equal("23503", pg.Code, pg.Message)
+	}
+	place := func(parent []byte) error {
+		return e.s.Ent.Placement.Create().
+			SetId(pdid.New(pd.PlacementDomain).Uuid()).
+			SetTenantId(e.tenant.Uuid()).
+			SetChildId(idUUID(laptop.GetId())).
+			SetParentId(idUUID(parent)).
+			SetMode("located").
+			SetSlot("").
+			SetUFrom(0).
+			SetUTo(0).
+			SetValidFrom(e.now.Add(-10 * day)).
+			SetValidTo(e.now.Add(-9 * day)).
+			SetEventId(newOpUUID()).
+			SetDateUpdated(e.now).
+			Exec(ctx)
+	}
+
+	refused(place(theirs.GetId()))
+	x.NoError(place(room.GetId()), "and a row of its own tenant is still one it may name")
+
+	_, err = e.s.Db.ExecContext(ctx, "UPDATE placement SET parent_id = $1 WHERE child_id = $2", idUUID(theirs.GetId()), idUUID(laptop.GetId()))
+	refused(err)
+	_, err = e.s.Db.ExecContext(ctx, "UPDATE asset SET custodian_id = (SELECT id FROM party WHERE tenant_id = $1 LIMIT 1) WHERE id = $2", idUUID(theirs.GetTenant().GetId()), idUUID(laptop.GetId()))
+	refused(err)
 }
