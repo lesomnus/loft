@@ -1,7 +1,6 @@
 /payday.BatchService/Do	read
 /rove.AllocationService/Get	read
 /rove.AllocationService/List	read
-/rove.AllocationService/Watch	read
 /rove.AssetService/Add	manager
 /rove.AssetService/Assign	manager
 /rove.AssetService/Correct	manager
@@ -45,7 +44,6 @@
 /rove.CountFindingService/Watch	read
 /rove.CustodyLineService/Get	read
 /rove.CustodyLineService/List	read
-/rove.CustodyLineService/Watch	read
 /rove.CustodyService/Acknowledge	member
 /rove.CustodyService/Add	manager
 /rove.CustodyService/Extend	manager
@@ -56,7 +54,6 @@
 /rove.EventService/Get	read
 /rove.EventService/List	read
 /rove.EventService/Recent	read
-/rove.EventService/Watch	read
 /rove.HolderService/Get	admin +auditor
 /rove.HolderService/List	admin +auditor
 /rove.HolderService/Watch	admin +auditor
@@ -105,7 +102,6 @@
 /rove.PartyService/Watch	read
 /rove.PurchaseLineService/Get	read
 /rove.PurchaseLineService/List	read
-/rove.PurchaseLineService/Watch	read
 /rove.PurchaseService/Add	manager
 /rove.PurchaseService/Get	read
 /rove.PurchaseService/List	read
@@ -113,7 +109,6 @@
 /rove.PurchaseService/Watch	read
 /rove.ReservationItemService/Get	read
 /rove.ReservationItemService/List	read
-/rove.ReservationItemService/Watch	read
 /rove.ReservationService/Add	member
 /rove.ReservationService/Approve	manager
 /rove.ReservationService/Calendar	read
@@ -127,7 +122,6 @@
 /rove.ReservationService/Watch	read
 /rove.StockMovementService/Get	read
 /rove.StockMovementService/List	read
-/rove.StockMovementService/Watch	read
 /rove.StockService/Add	manager
 /rove.StockService/Adjust	manager
 /rove.StockService/Consume	member
@@ -152,7 +146,6 @@
 /rove.TenantService/List	read
 /rove.TenantService/Patch	owner
 /rove.TenantService/Restore	owner
-/rove.TenantService/Watch	read
 /rove.UsageSnapshotService/Get	admin +auditor
 /rove.UsageSnapshotService/List	admin +auditor
 /rove.WorkOrderService/Add	member
