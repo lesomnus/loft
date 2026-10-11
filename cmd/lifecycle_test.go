@@ -64,6 +64,20 @@ func TestRostersWordEndsTheSessionsHere(t *testing.T) {
 	x.NoError(w.s.Lifecycle.Apply(ctx, identity.Standing{Holder: account, Invalidated: cut, Disabled: time.Now()}))
 	x.Zero(sessions())
 
+	// The directory closed (roster#105): every session, and no leaving --
+	// closing destroys nothing, and a directory restored lets them back.
+	again := w.signIn(kim)
+	x.Equal(1, sessions())
+	x.NoError(w.s.Lifecycle.Apply(ctx, identity.Standing{Holder: account, Closed: time.Now()}))
+	x.Zero(sessions())
+	_, err = me.Me(again, &app.PartyMeRequest{})
+	x.Equal(codes.Unauthenticated, status.Code(err))
+	kid, err := pdid.From(kim.GetId())
+	x.NoError(err)
+	h, err := w.s.Ent.Holder.Get(ctx, kid.Uuid())
+	x.NoError(err)
+	x.Nil(h.DateLeaving, "a directory closed is nobody leaving")
+
 	_, err = me.Me(w.owner, &app.PartyMeRequest{})
 	x.NoError(err, "nobody else's")
 }

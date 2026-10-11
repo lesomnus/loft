@@ -10,7 +10,7 @@
 
 import { useState, type ReactNode } from 'react'
 
-import { TenantService, errorText, fmt, idBytes, makeWorkspace, openWorkspace, workspace, type Account, type Workspace } from './api.js'
+import { TenantService, errorText, fmt, idBytes, leavePage, makeWorkspace, openWorkspace, workspace, type Account, type Workspace } from './api.js'
 import { useWaiting } from './invitations.js'
 import { call } from './rpc.js'
 
@@ -121,6 +121,16 @@ export function Elsewhere(props: { account: Account; onSignOut: () => void }): R
 				<a className="link" href="/invitations">
 					받은 초대 보기
 				</a>
+				{props.account.manage !== undefined && (
+					<>
+						<a className="link" href={props.account.manage}>
+							계정 관리
+						</a>
+						<a className="link" href={leavePage(props.account.manage)}>
+							계정 탈퇴
+						</a>
+					</>
+				)}
 				<button className="link" onClick={props.onSignOut}>
 					로그아웃
 				</button>

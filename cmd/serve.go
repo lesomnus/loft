@@ -683,6 +683,7 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 		Label: func(ctx context.Context, code string) (pdid.Id, bool, error) {
 			return domain.LabelWorkspace(ctx, s.Ent, code)
 		},
+		Manage: s.Identity.AccountPage(),
 	}.Mount(mux)
 
 	// Attachments, by the signed links the API answers with.

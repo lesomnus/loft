@@ -2422,6 +2422,7 @@ type PartyMeResponse struct {
 	xxx_hidden_HistorySince *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=history_since,json=historySince"`
 	xxx_hidden_HistoryDays  uint32                 `protobuf:"varint,6,opt,name=history_days,json=historyDays"`
 	xxx_hidden_AccountsHere bool                   `protobuf:"varint,7,opt,name=accounts_here,json=accountsHere"`
+	xxx_hidden_AccountUrl   string                 `protobuf:"bytes,8,opt,name=account_url,json=accountUrl"`
 	unknownFields           protoimpl.UnknownFields
 	sizeCache               protoimpl.SizeCache
 }
@@ -2500,6 +2501,13 @@ func (x *PartyMeResponse) GetAccountsHere() bool {
 	return false
 }
 
+func (x *PartyMeResponse) GetAccountUrl() string {
+	if x != nil {
+		return x.xxx_hidden_AccountUrl
+	}
+	return ""
+}
+
 func (x *PartyMeResponse) SetHolder(v *Holder) {
 	x.xxx_hidden_Holder = v
 }
@@ -2526,6 +2534,10 @@ func (x *PartyMeResponse) SetHistoryDays(v uint32) {
 
 func (x *PartyMeResponse) SetAccountsHere(v bool) {
 	x.xxx_hidden_AccountsHere = v
+}
+
+func (x *PartyMeResponse) SetAccountUrl(v string) {
+	x.xxx_hidden_AccountUrl = v
 }
 
 func (x *PartyMeResponse) HasHolder() bool {
@@ -2588,6 +2600,10 @@ type PartyMeResponse_builder struct {
 	// this process -- or at a roster of its own, by whoever administers the
 	// tenant there (design 9.10).
 	AccountsHere bool
+	// Where the account itself is managed at roster -- how it signs in, and
+	// deleting it where its directory offers that -- for a roster of its own
+	// (`auth.roster.account_url`). Empty is no such page.
+	AccountUrl string
 }
 
 func (b0 PartyMeResponse_builder) Build() *PartyMeResponse {
@@ -2601,6 +2617,7 @@ func (b0 PartyMeResponse_builder) Build() *PartyMeResponse {
 	x.xxx_hidden_HistorySince = b.HistorySince
 	x.xxx_hidden_HistoryDays = b.HistoryDays
 	x.xxx_hidden_AccountsHere = b.AccountsHere
+	x.xxx_hidden_AccountUrl = b.AccountUrl
 	return m0
 }
 
@@ -9935,7 +9952,7 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12!\n" +
 	"\x05value\x18\x02 \x01(\v2\v.rove.PartyR\x05value\x12\x1d\n" +
 	"\x06action\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06action\"\x10\n" +
-	"\x0ePartyMeRequest\"\xb2\x02\n" +
+	"\x0ePartyMeRequest\"\xda\x02\n" +
 	"\x0fPartyMeResponse\x12$\n" +
 	"\x06holder\x18\x01 \x01(\v2\f.rove.HolderR\x06holder\x12!\n" +
 	"\x05party\x18\x02 \x01(\v2\v.rove.PartyR\x05party\x12$\n" +
@@ -9943,7 +9960,9 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\x04role\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04role\x12?\n" +
 	"\rhistory_since\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\fhistorySince\x12(\n" +
 	"\fhistory_days\x18\x06 \x01(\rB\x05\xaa\x01\x02\b\x02R\vhistoryDays\x12*\n" +
-	"\raccounts_here\x18\a \x01(\bB\x05\xaa\x01\x02\b\x02R\faccountsHere\"\xa1\x03\n" +
+	"\raccounts_here\x18\a \x01(\bB\x05\xaa\x01\x02\b\x02R\faccountsHere\x12&\n" +
+	"\vaccount_url\x18\b \x01(\tB\x05\xaa\x01\x02\b\x02R\n" +
+	"accountUrl\"\xa1\x03\n" +
 	"\x12PartyUpdateRequest\x12 \n" +
 	"\x03ref\x18\x01 \x01(\v2\x0e.rove.PartyRefR\x03ref\x12\x19\n" +
 	"\x04name\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04name\x12\x19\n" +

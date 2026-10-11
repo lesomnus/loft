@@ -45,6 +45,10 @@ message PartyMeResponse {
   // this process -- or at a roster of its own, by whoever administers the
   // tenant there (design 9.10).
   bool accounts_here = 7 [features.field_presence = IMPLICIT];
+  // Where the account itself is managed at roster -- how it signs in, and
+  // deleting it where its directory offers that -- for a roster of its own
+  // (`auth.roster.account_url`). Empty is no such page.
+  string account_url = 8 [features.field_presence = IMPLICIT];
 }
 
 message PartyUpdateRequest {

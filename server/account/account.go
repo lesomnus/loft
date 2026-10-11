@@ -44,6 +44,9 @@ type Account struct {
 	// past that is paid for. May is absent for no limit.
 	Owns int  `json:"owns"`
 	May  *int `json:"may,omitempty"`
+	// Manage is where the account itself is managed at roster, and deleted
+	// where its directory offers that; absent for no such page.
+	Manage string `json:"manage,omitempty"`
 }
 
 // Workspace is one an account is in.
@@ -74,6 +77,8 @@ type Routes struct {
 	// Label answers a scan made in a workspace a label is not in; nil
 	// answers none.
 	Label LabelFinder
+	// Manage is roster's account page (`auth.roster.account_url`).
+	Manage string
 }
 
 // Mount serves `GET /account`, `POST /account/workspaces`, a workspace's
@@ -121,6 +126,7 @@ func (a Routes) Mount(mux *http.ServeMux) {
 			fail(w, r, err)
 			return
 		}
+		v.Manage = a.Manage
 		answer(w, http.StatusOK, v)
 	})
 	mux.HandleFunc("POST /account/workspaces", func(w http.ResponseWriter, r *http.Request) {

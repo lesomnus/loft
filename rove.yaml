@@ -57,11 +57,17 @@ watch:
 # is put in. An `rk_` is told which; an `rt_`'s is its own tenant; the roster
 # in this process has `rove`.
 #
+# `account_url` is roster's account page, at the directory's front door: the
+# page "내 정보" sends somebody to for how they sign in, and to its `#leave`
+# to delete their account where the directory offers that (roster's
+# `TenantConfig.leave`). Only a roster of its own has one.
+#
 # auth:
 #   roster:
 #     addr: roster.example.com:443
 #     key: env:ROSTER_KEY
 #     directory: accounts
+#     # account_url: https://id.example.com/
 #     # ca_file: /etc/rove/roster-ca.pem
 #   # or, in this process on PostgreSQL:
 #   roster:

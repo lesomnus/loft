@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
-import { AssetService, CustodyService, NotificationService, PartyService, fmt, idStr, ref } from '../api.js'
+import { AssetService, CustodyService, NotificationService, PartyService, fmt, idStr, leavePage, ref } from '../api.js'
 import { useCatalog } from '../catalog.js'
 import { AssetLink } from '../pickers.js'
 import { useAct, useRpc } from '../rpc.js'
@@ -27,7 +27,20 @@ export function Me(): ReactNode {
 
 	return (
 		<>
-			<PageHead title="내 정보" actions={c.me.accountsHere ? <button onClick={() => setPw(true)}>비밀번호 변경</button> : <span className="mute small">비밀번호는 roster에서 바꿉니다</span>} />
+			<PageHead
+				title="내 정보"
+				actions={
+					c.me.accountsHere ? (
+						<button onClick={() => setPw(true)}>비밀번호 변경</button>
+					) : c.me.accountUrl !== '' ? (
+						<a className="button" href={c.me.accountUrl}>
+							로그인 방법 관리
+						</a>
+					) : (
+						<span className="mute small">비밀번호는 roster에서 바꿉니다</span>
+					)
+				}
+			/>
 			<div className="grid2">
 				<Card title="계정">
 					<Kv
@@ -41,6 +54,17 @@ export function Me(): ReactNode {
 						]}
 					/>
 				</Card>
+				{c.me.accountUrl !== '' && (
+					<Card title="계정 탈퇴">
+						<p>
+							계정을 지우면 모든 워크스페이스에서 나가게 됩니다. 지운 뒤 유예 기간 동안은 roster에서 되살릴 수 있고, 그 뒤에는 기록에 남은 이름이 지워집니다. 내가 마지막 소유자인 워크스페이스는 다른
+							구성원에게 넘어가고, 아무도 없으면 닫힙니다.
+						</p>
+						<a className="button" href={leavePage(c.me.accountUrl)}>
+							roster에서 계정 지우기
+						</a>
+					</Card>
+				)}
 				<Card title="알림">
 					<label className="check">
 						<input type="checkbox" checked={!mailOff} disabled={mailBusy} onChange={(ev) => void setMail(!ev.target.checked)} /> 알림을 메일로도 받기

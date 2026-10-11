@@ -133,6 +133,9 @@ type People interface {
 	// Addresses is an account's addresses somebody checked: what an
 	// invitation is found by.
 	Addresses(ctx context.Context, account pdid.Id) ([]string, error)
+	// AccountPage is roster's page where somebody manages their own
+	// account, for a roster of its own; empty for none.
+	AccountPage() string
 }
 
 // here answers the people an account is made and changed at, or the refusal a
