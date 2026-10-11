@@ -152,6 +152,29 @@ func (c clientConfig) do(ctx context.Context, method, path string, body any, out
 	return res.StatusCode, nil
 }
 
+// fetch is one plain download beside the RPCs, written to `w` as it comes.
+func (c clientConfig) fetch(ctx context.Context, path string, w io.Writer) error {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, strings.TrimSuffix(c.Url, "/")+path, nil)
+	if err != nil {
+		return err
+	}
+	if c.Key != "" {
+		req.Header.Set("Cookie", c.Cookie+"="+c.Key)
+	}
+	req.Header.Set("User-Agent", "rove-cli")
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+	if res.StatusCode >= 300 {
+		b, _ := io.ReadAll(io.LimitReader(res.Body, 4<<10))
+		return fmt.Errorf("GET %s: %s", path, strings.TrimSpace(string(b)))
+	}
+	_, err = io.Copy(w, res.Body)
+	return err
+}
+
 // NewCmdLogin is `rove login`: this terminal signed in by approving it in a
 // browser where the person is signed in already.
 func NewCmdLogin() *xli.Command {
@@ -395,12 +418,13 @@ func NewCmdUse() *xli.Command {
 }
 
 // NewCmdWorkspace is `rove workspace`: what an account has outside any one
-// workspace -- the ones it is in, and a new one -- which is HTTP beside the
-// RPCs (`server/account`), asked before there is a workspace to be a member of.
+// workspace -- the ones it is in, a new one, and everything one it owns has --
+// which is HTTP beside the RPCs (`server/account`), asked before there is a
+// workspace to be a member of.
 func NewCmdWorkspace() *xli.Command {
 	return &xli.Command{
 		Name:  "workspace",
-		Brief: "the workspaces this account is in, and a new one",
+		Brief: "the workspaces this account is in, a new one, and one's data",
 		Commands: xli.Commands{
 			{
 				Name:  "ls",
@@ -430,6 +454,51 @@ func NewCmdWorkspace() *xli.Command {
 						return err
 					}
 					self.Printf("@%s\t%s\n", made.Alias, made.Name)
+					return next(ctx)
+				}),
+			},
+			{
+				Name:  "export",
+				Brief: "everything a workspace this account owns has, as one zip: what it takes out before it leaves",
+				Flags: flg.Flags{&flg.String{Name: "out", Brief: "where to write it; <workspace>-<date>.zip by default"}},
+				Args:  arg.Args{&arg.String{Name: "WORKSPACE", Brief: "by alias; the one `rove use` names by default", Optional: true}},
+				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
+					c, err := loadClient()
+					if err != nil {
+						return err
+					}
+					if !c.signedIn() {
+						return errNoLogin
+					}
+					ws, _ := arg.Get[string](self, "WORKSPACE")
+					if ws = strings.TrimPrefix(strings.TrimSpace(ws), "@"); ws == "" {
+						ws = c.Workspace
+					}
+					if ws == "" {
+						return errors.New("WORKSPACE: which one (`rove whoami` lists them)")
+					}
+					out := flag(self, "out")
+					if out == "" {
+						out = fmt.Sprintf("%s-%s.zip", ws, time.Now().Format("20060102"))
+					}
+					// Written beside where it goes and moved there once whole,
+					// so that a download cut off is no file at all.
+					tmp, err := os.CreateTemp(filepath.Dir(out), ".rove-export-*")
+					if err != nil {
+						return err
+					}
+					defer os.Remove(tmp.Name())
+					if err := c.fetch(ctx, "/account/workspaces/"+url.PathEscape(ws)+"/export", tmp); err != nil {
+						tmp.Close()
+						return err
+					}
+					if err := tmp.Close(); err != nil {
+						return err
+					}
+					if err := os.Rename(tmp.Name(), out); err != nil {
+						return err
+					}
+					self.Printf("%s\n", out)
 					return next(ctx)
 				}),
 			},
