@@ -119,11 +119,13 @@ MVP(Phase 0 + 1)는 M0~M5이고, 합쳐서 대략 13~16주로 본다.
 
 ### M2 — 계정·권한·운영자 (약 2주)
 
-- 신원은 roster다(design 9.10절, D26). 프로토타입의 비밀번호·DB 세션(report 결정 3)을 세 단계로 옮긴다.
-  1. **roster에 붙기**: `internal/identity` 하나가 외부 roster(TLS, `rk_`/`rt_`)와 내장 roster(`bufconn`)를 같은 인터페이스로 감싼다. `auth.roster` 설정. Tenant·Holder를 roster의 ID에 고정해 처음 들어올 때 만든다. 비밀번호 로그인은 `VouchService.Verify`로, 세션을 쓰는 호출마다 roster에 사람을 확인한다(짧은 캐시, fail closed). `rove init`과 새 `rove holder add`는 내장 roster에 쓴다. 사람 화면의 로그인 발급·비밀번호 재설정·로그인 중지는 roster 호출이 된다. 내장 roster에서 로그인 중지·개인정보 삭제·조직 전체 삭제는 roster의 `forget`으로 그 사람을 바로 파기한다(Rove가 roster의 복구를 열지 않으므로 유예는 지연일 뿐이다). `Credential`과 `server/password`를 지운다. 기존 배포는 `rove identity migrate`.
-  2. **SSO**: roster issuer의 relying party(`/sso/login`, `/sso/callback`, `/sso/logout`), `auth.sso_only`, 로그인 화면의 SSO 버튼.
-  3. **생명주기**: `SyncService/Watch`를 따라가 roster의 중지·모든 곳에서 로그아웃은 세션 종료로, 사람 삭제는 가명화(Party·trail)로 이어 간다.
-- 로그인 단계의 테넌트 선택(테넌트 alias 경로 또는 서브도메인).
+- 신원은 roster다(design 9.10절, D26·D27). 프로토타입의 비밀번호·DB 세션(report 결정 3)을 옮기고, SaaS의 계정과 워크스페이스를 세운다.
+  1. **roster에 붙기** — 완료(rove#5~#7, 2026-10-11): `internal/identity` 하나가 외부 roster(TLS, `rk_`/`rt_`)와 내장 roster(`bufconn`)를 같은 인터페이스로 감싼다. `auth.roster` 설정. Tenant·Holder를 roster의 ID에 고정해 처음 들어올 때 만든다. 비밀번호 로그인은 `VouchService.Verify`로, 세션을 쓰는 호출마다 roster에 사람을 확인한다(짧은 캐시, fail closed). `rove init`과 새 `rove holder add`는 내장 roster에 쓴다. 사람 화면의 로그인 발급·비밀번호 재설정·로그인 중지는 roster 호출이 된다. 내장 roster에서 로그인 중지·개인정보 삭제·조직 전체 삭제는 roster의 `forget`으로 그 사람을 바로 파기한다(Rove가 roster의 복구를 열지 않으므로 유예는 지연일 뿐이다). `Credential`과 `server/password`를 지운다. 기존 배포는 `rove identity migrate`.
+  2. **계정과 워크스페이스**(D27): `Holder`가 자기 ID와 roster 계정(`account`)을 갖는 구성원 자격이 된다. 세션은 계정 단위이고, 워크스페이스는 경로(`/@<alias>`)로 고른다. 가입하면 개인 워크스페이스가 생기고, 워크스페이스 만들기(소유 N개 한도)와 전환을 둔다. 구성원 자격이 끝나는 것과 계정의 탈퇴를 나눈다(내장 roster의 파기는 탈퇴 때만). 1단계의 "처음 로그인하면 roster의 ID로 테넌트를 만든다"를 이것으로 바꾼다.
+  3. **SSO**(D28): 앱 호스트의 로그인 화면(Google·Microsoft·GitHub), roster issuer의 relying party(`/sso/login`, `/sso/callback`, `/sso/logout`), SaaS에서 비밀번호 로그인 끄기(`auth.sso_only`). roster에 GitHub 연결과 Microsoft의 모든 계정(`common`) 로그인이 필요하다(roster 이슈).
+  4. **초대**: 초대 권한이 있는 역할(기본: 소유자·관리자)이 이메일로 초대하고, 받은 사람이 로그인해 수락한다. 초대를 roster의 일반 기능으로 둘지는 이 단계에서 정한다.
+  5. **생명주기**: `SyncService/Watch`를 따라가 roster의 중지·모든 곳에서 로그아웃은 세션 종료로, 계정의 탈퇴는 그 계정이 속한 모든 워크스페이스에서의 가명화(Party·trail)로 이어 간다.
+- 워크스페이스 닫기(닫기·복구·파기 sweep, D29), alias 바꾸기와 예약어와 보류, 라벨의 전역 코드(D28)는 2~4단계 뒤에 한다.
 - Holder overlay `role`, 메서드별 최소 역할 표로 Policy 구현. 같은 Policy를 batch guard에 넘긴다.
 - 공개·운영자 바이너리 분리, 테넌트의 첫 행이 생길 때 유형 템플릿 복사.
 - **완료 기준**
@@ -133,6 +135,8 @@ MVP(Phase 0 + 1)는 M0~M5이고, 합쳐서 대략 13~16주로 본다.
   - 같은 신원 테스트가 내장 roster와 외부 roster(TCP 리스너와 키) 양쪽에서 통과한다.
   - roster에서 중지된 사람의 세션은 캐시 시간 안에 거부되고, roster에 물을 수 없으면 세션을 쓰는 호출은 `UNAVAILABLE`이다.
   - Rove DB에 비밀번호도 그 검증값도 없다.
+  - 한 계정이 두 워크스페이스에 속해도, 한 워크스페이스로 온 요청은 다른 워크스페이스의 행을 돌려주지 않는다.
+  - SaaS 배포에는 비밀번호로 로그인하는 길이 없다.
 
 ### M3 — 웹 UI·QR·가져오기 (약 3~4주)
 
@@ -252,10 +256,21 @@ MVP 이후에 파일럿 피드백으로 순서를 다시 정한다.
 - **사람 삭제의 방향**: 사람을 지우는 것은 roster의 일이다. Rove의 '개인정보 삭제'는 Rove 쪽(Party, Holder, trail)만 지운다. 내장 roster는 Rove만 쓰므로 거기서는 roster의 사람도 파기한다.
 - **옮길 기존 데이터**: 있으면 `rove identity migrate`로 같은 ID로 옮기고, 비밀번호는 새로 발급해 한 번 보여 준다.
 
+같은 날 제품군을 나누면서(design 1.3절) SaaS에 대해 더 정했다. 위의 둘째 항목(roster 운영자가 테넌트를 만들고 셀프 가입은 없다)은 SaaS에서 이것으로 바뀐다.
+
+- **제품군**: SaaS·Dedicated·CE 중 지금은 SaaS만 만든다(D27).
+- **두 층의 테넌트**: roster의 테넌트는 계정 디렉터리(SaaS는 하나)이고, Rove의 테넌트는 워크스페이스다. Holder는 구성원 자격이다(D27).
+- **로그인**: SaaS는 Google·Microsoft·GitHub SSO만 쓰고, 2단계 인증은 IdP의 것이다. 앱 호스트 한 곳에서 로그인하고 워크스페이스는 경로(`/@<alias>`)로 고른다. 회사 IdP는 Phase 3(D28).
+- **워크스페이스**: 가입하면 개인 워크스페이스가 하나 생기고, 소유한 워크스페이스 N개까지 무료, 그 이상은 결제. alias는 무작위로 시작하고 바꿀 수 있으며(유료여도 된다) 예약어가 있다. 라벨은 전역 코드를 쓴다(D28).
+- **초대**: 초대 권한이 있는 역할이 초대한다.
+- **워크스페이스 닫기**: 닫기 → 복구 30일 → 파기, hold는 파기를 멈추고, 풀린 alias는 1년 보류한다. 기간은 배포 설정과 계약으로 바꾼다(D29, design 8.4절).
+
 | 결정 | 언제까지 | 내용 |
 | --- | --- | --- |
 | 저장소 공개 여부와 라이선스 | 코드를 올리기 전(M0) | 지금 공개 저장소이고 LICENSE가 없다. 상용 SaaS의 소스를 공개할지, 공개한다면 어떤 라이선스인지 |
-| Rove 기본 도메인 | M2 전 | 앱 호스트, OIDC 리다이렉트 주소, 라벨 CNAME 대상, 기본 하위 도메인. 한 번 정하면 바꾸지 않는다 |
+| Rove 기본 도메인 | M2 3단계(SSO) 전 | 앱 호스트(예: `rove.io`)와 roster issuer의 호스트(예: `id.rove.io`), OIDC 리다이렉트 주소, 라벨의 호스트. 워크스페이스는 경로라 하위 도메인이 필요 없다. 한 번 정하면 바꾸지 않는다 |
+| 무료 워크스페이스 수 N과 그 이상의 요금, alias를 바꾸는 요금 | 결제를 붙이기 전 | design 11장 10번 |
+| 초대를 roster에 둘지 | M2 4단계 전 | 워크스페이스와 역할은 Rove의 것이지만, 초대 토큰·메일 발송·주소 확인은 앱마다 같다 |
 | 운영 서버와 백업 위치 | M5 전 | 서버를 어디에 둘지(자체 장비, 코로케이션, VPS), 백업을 보낼 다른 장소 |
 | 파일럿 | M3 중 | 아래 |
 
