@@ -25,7 +25,9 @@ import (
 	"context"
 	_ "embed"
 	"fmt"
+	"log/slog"
 
+	"github.com/lesomnus/otx/log"
 	"github.com/lesomnus/xli"
 	"github.com/lesomnus/xli/cfg"
 	"github.com/lesomnus/xli/flg"
@@ -34,6 +36,7 @@ import (
 
 	"github.com/lesomnus/rove/cmd"
 	entmigrate "github.com/lesomnus/rove/internal/ent/migrate"
+	"github.com/lesomnus/rove/internal/search"
 )
 
 // Cmd is this app's own command line: what payday and xli supply, plus
@@ -63,6 +66,10 @@ func Cmd(c *cmd.Config) *xli.Command {
 	// deployment whose configuration is wrong what build it is.
 	version := pdcmd.NewCmdVersion()
 
+	// The terminal's half, which runs anywhere as a person and reads none of
+	// a deployment's configuration: it keeps its own (`ROVE_CLIENT_CONFIG`).
+	login, logout, whoami, use, ws, api := NewCmdLogin(), NewCmdLogout(), NewCmdWhoami(), NewCmdUse(), NewCmdWorkspace(), NewCmdApi()
+
 	return &xli.Command{
 		Name:  cmd.Name,
 		Brief: "rove",
@@ -81,9 +88,15 @@ func Cmd(c *cmd.Config) *xli.Command {
 			NewCmdHolder(c),
 			NewCmdIdentity(c),
 			NewCmdTrail(c),
+			login,
+			logout,
+			whoami,
+			use,
+			ws,
+			api,
 		},
 
-		Handler: xli.Chain(cfg.Load(l, version), xli.RequireSubcommand()),
+		Handler: xli.Chain(cfg.Load(l, version, login, logout, whoami, use, ws, api), xli.RequireSubcommand()),
 	}
 }
 
@@ -105,6 +118,19 @@ func Migrate(ctx context.Context, s *cmd.Server) error {
 	if _, err := s.Db.ExecContext(ctx, pgExtras); err != nil {
 		return fmt.Errorf("postgres extras: %w", err)
 	}
+
+	// Which index answers a search is what the extras just made, read back
+	// and said, so that a deployment without pg_bigm knows it is slower.
+	m, err := search.Detect(ctx, s.Db)
+	if err != nil {
+		return fmt.Errorf("search: %w", err)
+	}
+	s.Deps.Search = m
+	lv := slog.LevelInfo
+	if m != search.Bigram {
+		lv = slog.LevelWarn
+	}
+	log.From(ctx).Log(ctx, lv, "search: "+m.Says(true))
 	return nil
 }
 

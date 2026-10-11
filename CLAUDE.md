@@ -198,6 +198,20 @@ mint a session with `Server.Sessions.Mint` and send its cookie (plus
 `rove-workspace` when the account has more than one membership), and set
 `c.Auth.Roster.Db` to a `pdtest.DB` of its own -- the default is a file.
 
+## The terminal
+
+Everything is an RPC, and `rove api` is every one of them as a command,
+asked of a running deployment over the address a browser reaches it at
+(`cli/connect.go` speaks Connect to the same transcoder the page does): payday's
+entity tree (`pdcmd`), every other method of an entity's service beside it
+(`rove api asset move`), and `rove api call` by name. A terminal signs in with
+`rove login`, which a person signed in at the app approves (`server/clilogin`):
+the terminal makes up its session key and sends only its hash, so the session
+is a browser's session in every respect. These commands read no server
+configuration; their own is `ROVE_CLIENT_CONFIG`. A new feature is an RPC, so it
+is a command too -- and anything HTTP-only beside the RPCs (`/account`) gets a
+command of its own (`rove workspace`).
+
 ## What may be called
 
 `server/policy` is one table of role → RPC, and what is not in it is refused --

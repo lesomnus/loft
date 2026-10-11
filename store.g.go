@@ -33,6 +33,7 @@ type Server interface {
 	Party() PartyServiceServer
 	Session() SessionServiceServer
 	Invitation() InvitationServiceServer
+	CliLogin() CliLoginServiceServer
 	Asset() AssetServiceServer
 	TreeLock() TreeLockServiceServer
 	TenantDomain() TenantDomainServiceServer
@@ -77,6 +78,7 @@ func RegisterServer(g grpc.ServiceRegistrar, s Server) {
 	RegisterPartyServiceServer(g, s.Party())
 	RegisterSessionServiceServer(g, s.Session())
 	RegisterInvitationServiceServer(g, s.Invitation())
+	RegisterCliLoginServiceServer(g, s.CliLogin())
 	RegisterAssetServiceServer(g, s.Asset())
 	RegisterTreeLockServiceServer(g, s.TreeLock())
 	RegisterTenantDomainServiceServer(g, s.TenantDomain())
@@ -117,6 +119,7 @@ type UnimplementedServer struct {
 	PartyServer           PartyServiceServer
 	SessionServer         SessionServiceServer
 	InvitationServer      InvitationServiceServer
+	CliLoginServer        CliLoginServiceServer
 	AssetServer           AssetServiceServer
 	TreeLockServer        TreeLockServiceServer
 	TenantDomainServer    TenantDomainServiceServer
@@ -161,6 +164,9 @@ func (UnimplementedServer) Party() PartyServiceServer     { return Unimplemented
 func (UnimplementedServer) Session() SessionServiceServer { return UnimplementedSessionServiceServer{} }
 func (UnimplementedServer) Invitation() InvitationServiceServer {
 	return UnimplementedInvitationServiceServer{}
+}
+func (UnimplementedServer) CliLogin() CliLoginServiceServer {
+	return UnimplementedCliLoginServiceServer{}
 }
 func (UnimplementedServer) Asset() AssetServiceServer { return UnimplementedAssetServiceServer{} }
 func (UnimplementedServer) TreeLock() TreeLockServiceServer {
@@ -243,6 +249,7 @@ type StaticServer struct {
 	PartyServer           PartyServiceServer
 	SessionServer         SessionServiceServer
 	InvitationServer      InvitationServiceServer
+	CliLoginServer        CliLoginServiceServer
 	AssetServer           AssetServiceServer
 	TreeLockServer        TreeLockServiceServer
 	TenantDomainServer    TenantDomainServiceServer
@@ -282,6 +289,7 @@ func (s StaticServer) Holder() HolderServiceServer                   { return s.
 func (s StaticServer) Party() PartyServiceServer                     { return s.PartyServer }
 func (s StaticServer) Session() SessionServiceServer                 { return s.SessionServer }
 func (s StaticServer) Invitation() InvitationServiceServer           { return s.InvitationServer }
+func (s StaticServer) CliLogin() CliLoginServiceServer               { return s.CliLoginServer }
 func (s StaticServer) Asset() AssetServiceServer                     { return s.AssetServer }
 func (s StaticServer) TreeLock() TreeLockServiceServer               { return s.TreeLockServer }
 func (s StaticServer) TenantDomain() TenantDomainServiceServer       { return s.TenantDomainServer }
@@ -321,6 +329,7 @@ type Client interface {
 	Party() PartyServiceClient
 	Session() SessionServiceClient
 	Invitation() InvitationServiceClient
+	CliLogin() CliLoginServiceClient
 	Asset() AssetServiceClient
 	TreeLock() TreeLockServiceClient
 	TenantDomain() TenantDomainServiceClient
@@ -362,6 +371,7 @@ func NewClient(c *grpc.ClientConn) Client {
 		_Party:           NewPartyServiceClient(c),
 		_Session:         NewSessionServiceClient(c),
 		_Invitation:      NewInvitationServiceClient(c),
+		_CliLogin:        NewCliLoginServiceClient(c),
 		_Asset:           NewAssetServiceClient(c),
 		_TreeLock:        NewTreeLockServiceClient(c),
 		_TenantDomain:    NewTenantDomainServiceClient(c),
@@ -403,6 +413,7 @@ type client struct {
 	_Party           PartyServiceClient
 	_Session         SessionServiceClient
 	_Invitation      InvitationServiceClient
+	_CliLogin        CliLoginServiceClient
 	_Asset           AssetServiceClient
 	_TreeLock        TreeLockServiceClient
 	_TenantDomain    TenantDomainServiceClient
@@ -442,6 +453,7 @@ func (c *client) Holder() HolderServiceClient                   { return c._Hold
 func (c *client) Party() PartyServiceClient                     { return c._Party }
 func (c *client) Session() SessionServiceClient                 { return c._Session }
 func (c *client) Invitation() InvitationServiceClient           { return c._Invitation }
+func (c *client) CliLogin() CliLoginServiceClient               { return c._CliLogin }
 func (c *client) Asset() AssetServiceClient                     { return c._Asset }
 func (c *client) TreeLock() TreeLockServiceClient               { return c._TreeLock }
 func (c *client) TenantDomain() TenantDomainServiceClient       { return c._TenantDomain }

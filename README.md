@@ -102,6 +102,25 @@ go run ./cmd/rove identity migrate --password demo1234   # 체험용 배포라�
 
 로그인마다 같은 ID로 내장 roster에 계정이 생기므로 이력에 남은 행위자는 그대로입니다. 두 워크스페이스에 같은 아이디가 있었다면 하나는 `kim-beta`처럼 워크스페이스 이름이 붙습니다(출력에 나옵니다). 예전 비밀번호는 옮기지 않고 새로 발급하며, 예전 세션은 끝나고, 비밀번호를 담던 `credential` 테이블은 지웁니다. 다시 돌려도 이미 옮긴 사람은 건드리지 않습니다. roster를 따로 운영하면 대신 roster 운영자가 실행할 명령(같은 ID로 계정 만들기)을 출력하고, 운영자가 만든 뒤 다시 돌리면 연결합니다.
 
+### 터미널에서 쓰기 (CLI)
+
+모든 기능은 API(RPC)이고, 같은 기능을 터미널에서도 씁니다. 터미널은 브라우저와 같은 주소로 접속하고, 로그인은 이미 로그인한 브라우저에서 승인해서 합니다(SSO만 쓰는 배포에서도 그대로 됩니다).
+
+```sh
+go run ./cmd/rove login --url http://localhost:8080   # 주소와 코드가 나오면, 로그인한 브라우저에서 열고 승인
+go run ./cmd/rove whoami                              # 계정과 속한 워크스페이스
+go run ./cmd/rove use acme                            # 기본 워크스페이스 (하나뿐이면 필요 없음, --workspace로 그때그때)
+go run ./cmd/rove api asset ls -o json                # 엔터티마다 get·ls·watch·add·patch·erase
+go run ./cmd/rove api asset move <자산> '{"to": {"id": "<공간>"}}'      # 그 밖의 작업도 엔터티 아래에
+go run ./cmd/rove api call rove.AssetService.Search '{"q": "노트북"}'  # 아무 RPC나 이름으로
+go run ./cmd/rove workspace new 연구실                 # 워크스페이스 만들기
+go run ./cmd/rove logout
+```
+
+- 승인하면 그 계정의 세션이 터미널에 생깁니다. 브라우저와 같은 권한 표를 따르고, 유지 시간도 같으며, roster에서 계정이 중지·삭제되면 함께 끝납니다. 승인 화면은 요청한 터미널과 위치를 보여 줍니다. 내 터미널에서 방금 `rove login`을 실행했고 같은 코드가 보일 때만 승인하세요.
+- 로그인 정보는 `~/.config/rove/client.json`(`ROVE_CLIENT_CONFIG`)에 주인만 읽을 수 있게 저장됩니다. 세션 키가 들어 있습니다.
+- `rove api`는 서버의 설정을 읽지 않습니다. 서버 상자에서 쓰는 운영자 명령(`init`, `tenant`, `identity` 등)과는 다릅니다.
+
 ### UI 개발
 
 ```sh
@@ -113,12 +132,15 @@ cd ts && npm run dev             # :5173, API 호출은 Vite가 :8080으로 넘�
 
 ### PostgreSQL로 실행
 
-배포 데이터베이스는 PostgreSQL입니다. SQLite에는 없는 안전장치(예약·위치가 겹치면 DB가 거부하는 EXCLUDE 제약 등)가 `serve` 의 마이그레이션 때 함께 설치됩니다.
+배포 데이터베이스는 PostgreSQL입니다. SQLite에는 없는 안전장치(예약·위치가 겹치면 DB가 거부하는 EXCLUDE 제약 등)와 검색 인덱스가 `serve` 의 마이그레이션 때 함께 설치됩니다.
+
+검색은 **pg_bigm** 확장이 있으면 두 글자부터("의자") 인덱스로 찾습니다. 공식 PostgreSQL 이미지에는 없으므로 [`deploy/postgres`](deploy/postgres/Dockerfile)의 이미지(공식 이미지 + pg_bigm)를 씁니다. pg_bigm이 없는 데이터베이스(Azure, 네이버 클라우드, NHN 클라우드 등)에서는 pg_trgm으로 세 글자부터 찾고, 그보다 짧으면 태그·이름의 앞부분으로 찾습니다. 서버 로그의 `search:` 줄이 어느 쪽인지 말해 줍니다. pg_bigm은 superuser만 설치할 수 있는 확장이라, Rove의 DB 계정이 superuser가 아니면 DB 관리자가 한 번 `CREATE EXTENSION pg_bigm` 을 실행합니다.
 
 내장 roster도 같은 서버의 다른 데이터베이스를 씁니다.
 
 ```sh
-docker run -d --name rove-pg -e POSTGRES_USER=rove -e POSTGRES_PASSWORD=rove -p 5432:5432 postgres:18
+docker build -t rove-postgres deploy/postgres
+docker run -d --name rove-pg -e POSTGRES_USER=rove -e POSTGRES_PASSWORD=rove -p 5432:5432 rove-postgres
 docker exec rove-pg createdb -U rove roster
 export ROVE_DB_DRIVER=pgx ROVE_DB_DSN='postgres://rove:rove@localhost:5432/rove?sslmode=disable'
 export ROVE_AUTH_ROSTER_DB_DRIVER=pgx ROVE_AUTH_ROSTER_DB_DSN='postgres://rove:rove@localhost:5432/roster?sslmode=disable'
@@ -236,7 +258,7 @@ go tool pd gen --check .  # 생성물이 스키마와 같은지 (CI가 하는 �
 
 ```sh
 go test ./...                                                    # SQLite
-PDTEST_POSTGRES='postgres://rove:rove@localhost:5432/rove?sslmode=disable' go test ./...   # PostgreSQL
+PDTEST_POSTGRES='postgres://rove:rove@localhost:5432/rove?sslmode=disable' go test ./...   # PostgreSQL (deploy/postgres 이미지면 pg_bigm까지)
 cd ts && npm run check                                           # 타입 검사
 ```
 

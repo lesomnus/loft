@@ -360,6 +360,38 @@ var (
 			},
 		},
 	}
+	// CliloginColumns holds the columns for the "clilogin" table.
+	CliloginColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUuid, Unique: true},
+		{Name: "secret", Type: field.TypeBytes, Nullable: true},
+		{Name: "code", Type: field.TypeString},
+		{Name: "client", Type: field.TypeString},
+		{Name: "origin", Type: field.TypeString},
+		{Name: "account", Type: field.TypeUuid, Nullable: true},
+		{Name: "state", Type: field.TypeString},
+		{Name: "date_expires", Type: field.TypeTime, Nullable: true},
+		{Name: "date_updated", Type: field.TypeTime},
+		{Name: "date_erased", Type: field.TypeTime, Nullable: true},
+		{Name: "date_created", Type: field.TypeTime, Nullable: true},
+	}
+	// CliloginTable holds the schema information for the "clilogin" table.
+	CliloginTable = &schema.Table{
+		Name:       "clilogin",
+		Columns:    CliloginColumns,
+		PrimaryKey: []*schema.Column{CliloginColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "clilogin_code",
+				Unique:  false,
+				Columns: []*schema.Column{CliloginColumns[2]},
+			},
+			{
+				Name:    "clilogin_secret",
+				Unique:  false,
+				Columns: []*schema.Column{CliloginColumns[1]},
+			},
+		},
+	}
 	// CountfindingColumns holds the columns for the "countfinding" table.
 	CountfindingColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUuid, Unique: true},
@@ -1738,6 +1770,7 @@ var (
 		AttachmentTable,
 		AuditTable,
 		BookableTable,
+		CliloginTable,
 		CountfindingTable,
 		CustodyTable,
 		CustodylineTable,
@@ -1802,6 +1835,9 @@ func init() {
 	BookableTable.ForeignKeys[1].RefTable = AssetTable
 	BookableTable.Annotation = &entsql.Annotation{
 		Table: "bookable",
+	}
+	CliloginTable.Annotation = &entsql.Annotation{
+		Table: "clilogin",
 	}
 	CountfindingTable.ForeignKeys[0].RefTable = TenantTable
 	CountfindingTable.ForeignKeys[1].RefTable = InventorycountTable

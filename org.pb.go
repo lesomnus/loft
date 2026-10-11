@@ -993,6 +993,275 @@ func (b0 Invitation_builder) Build() *Invitation {
 	return m0
 }
 
+// CliLogin is a terminal asking to be signed in as whoever approves it in a
+// browser (`rove login`).
+//
+// The terminal makes up the session key it will use, keeps it, and sends only
+// its SHA-256: `secret` is what the session will be looked up by, exactly as a
+// browser's is (`Session.secret`). A person signed in at the app approves the
+// `code` the terminal shows them, and the approval makes that session for
+// their account. So no key is written here or sent back, and the row holds
+// nothing a reader of the database could sign in with. It is the
+// deployment's (`global`), written only through ent by `server/clilogin`,
+// and the policy opens no RPC of it.
+type CliLogin struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Secret      []byte                 `protobuf:"bytes,8,opt,name=secret"`
+	xxx_hidden_Code        string                 `protobuf:"bytes,9,opt,name=code"`
+	xxx_hidden_Client      string                 `protobuf:"bytes,10,opt,name=client"`
+	xxx_hidden_Origin      string                 `protobuf:"bytes,11,opt,name=origin"`
+	xxx_hidden_Account     []byte                 `protobuf:"bytes,12,opt,name=account"`
+	xxx_hidden_State       string                 `protobuf:"bytes,16,opt,name=state"`
+	xxx_hidden_DateExpires *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=date_expires,json=dateExpires"`
+	xxx_hidden_DateUpdated *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
+	xxx_hidden_DateErased  *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=date_erased,json=dateErased"`
+	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *CliLogin) Reset() {
+	*x = CliLogin{}
+	mi := &file_rove_org_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CliLogin) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CliLogin) ProtoMessage() {}
+
+func (x *CliLogin) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_org_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *CliLogin) GetId() []byte {
+	if x != nil {
+		return x.xxx_hidden_Id
+	}
+	return nil
+}
+
+func (x *CliLogin) GetSecret() []byte {
+	if x != nil {
+		return x.xxx_hidden_Secret
+	}
+	return nil
+}
+
+func (x *CliLogin) GetCode() string {
+	if x != nil {
+		return x.xxx_hidden_Code
+	}
+	return ""
+}
+
+func (x *CliLogin) GetClient() string {
+	if x != nil {
+		return x.xxx_hidden_Client
+	}
+	return ""
+}
+
+func (x *CliLogin) GetOrigin() string {
+	if x != nil {
+		return x.xxx_hidden_Origin
+	}
+	return ""
+}
+
+func (x *CliLogin) GetAccount() []byte {
+	if x != nil {
+		return x.xxx_hidden_Account
+	}
+	return nil
+}
+
+func (x *CliLogin) GetState() string {
+	if x != nil {
+		return x.xxx_hidden_State
+	}
+	return ""
+}
+
+func (x *CliLogin) GetDateExpires() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateExpires
+	}
+	return nil
+}
+
+func (x *CliLogin) GetDateUpdated() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateUpdated
+	}
+	return nil
+}
+
+func (x *CliLogin) GetDateErased() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateErased
+	}
+	return nil
+}
+
+func (x *CliLogin) GetDateCreated() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateCreated
+	}
+	return nil
+}
+
+func (x *CliLogin) SetId(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Id = v
+}
+
+func (x *CliLogin) SetSecret(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Secret = v
+}
+
+func (x *CliLogin) SetCode(v string) {
+	x.xxx_hidden_Code = v
+}
+
+func (x *CliLogin) SetClient(v string) {
+	x.xxx_hidden_Client = v
+}
+
+func (x *CliLogin) SetOrigin(v string) {
+	x.xxx_hidden_Origin = v
+}
+
+func (x *CliLogin) SetAccount(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Account = v
+}
+
+func (x *CliLogin) SetState(v string) {
+	x.xxx_hidden_State = v
+}
+
+func (x *CliLogin) SetDateExpires(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateExpires = v
+}
+
+func (x *CliLogin) SetDateUpdated(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateUpdated = v
+}
+
+func (x *CliLogin) SetDateErased(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateErased = v
+}
+
+func (x *CliLogin) SetDateCreated(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateCreated = v
+}
+
+func (x *CliLogin) HasDateExpires() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateExpires != nil
+}
+
+func (x *CliLogin) HasDateUpdated() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateUpdated != nil
+}
+
+func (x *CliLogin) HasDateErased() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateErased != nil
+}
+
+func (x *CliLogin) HasDateCreated() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateCreated != nil
+}
+
+func (x *CliLogin) ClearDateExpires() {
+	x.xxx_hidden_DateExpires = nil
+}
+
+func (x *CliLogin) ClearDateUpdated() {
+	x.xxx_hidden_DateUpdated = nil
+}
+
+func (x *CliLogin) ClearDateErased() {
+	x.xxx_hidden_DateErased = nil
+}
+
+func (x *CliLogin) ClearDateCreated() {
+	x.xxx_hidden_DateCreated = nil
+}
+
+type CliLogin_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Id []byte
+	// What the session's key hashes to, as `Session.secret`.
+	Secret []byte
+	// What the terminal shows and the person approves: eight letters and
+	// digits that read aloud, good for one approval.
+	Code string
+	// What the terminal says it is, and where it asked from: what the page
+	// shows, so that a person approves their own terminal and nobody else's.
+	Client string
+	Origin string
+	// The account that approved it, once one has.
+	Account []byte
+	// `pending`, `approved` or `denied`. One still pending after
+	// `date_expires` is expired, which is said where it is read.
+	State       string
+	DateExpires *timestamppb.Timestamp
+	DateUpdated *timestamppb.Timestamp
+	DateErased  *timestamppb.Timestamp
+	DateCreated *timestamppb.Timestamp
+}
+
+func (b0 CliLogin_builder) Build() *CliLogin {
+	m0 := &CliLogin{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Id = b.Id
+	x.xxx_hidden_Secret = b.Secret
+	x.xxx_hidden_Code = b.Code
+	x.xxx_hidden_Client = b.Client
+	x.xxx_hidden_Origin = b.Origin
+	x.xxx_hidden_Account = b.Account
+	x.xxx_hidden_State = b.State
+	x.xxx_hidden_DateExpires = b.DateExpires
+	x.xxx_hidden_DateUpdated = b.DateUpdated
+	x.xxx_hidden_DateErased = b.DateErased
+	x.xxx_hidden_DateCreated = b.DateCreated
+	return m0
+}
+
 var File_rove_org_proto protoreflect.FileDescriptor
 
 const file_rove_org_proto_rawDesc = "" +
@@ -1084,44 +1353,66 @@ const file_rove_org_proto_rawDesc = "" +
 	"\x03ref\x1a\b\n" +
 	"\x06tenant\x1a\t\n" +
 	"\aaccount\x1a\a\n" +
-	"\x05state 2(\xc8\x01B\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"\x05state 2(\xc8\x01\"\xa6\x04\n" +
+	"\bCliLogin\x12\x1b\n" +
+	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12%\n" +
+	"\x06secret\x18\b \x01(\fB\r\xea\x82\x16\x03\x82\x01\x00\xaa\xc1\x16\x02\b\x01R\x06secret\x12\x12\n" +
+	"\x04code\x18\t \x01(\tR\x04code\x12\x16\n" +
+	"\x06client\x18\n" +
+	" \x01(\tR\x06client\x12\x16\n" +
+	"\x06origin\x18\v \x01(\tR\x06origin\x12\"\n" +
+	"\aaccount\x18\f \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\aaccount\x12\x14\n" +
+	"\x05state\x18\x10 \x01(\tR\x05state\x12F\n" +
+	"\fdate_expires\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\vdateExpires\x12F\n" +
+	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12D\n" +
+	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
+	"dateErased\x12H\n" +
+	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:8\xca\xfc\x15,\x12\x02\x10\x01\x1a\x10\x12\x04code\x1a\b\n" +
+	"\x04code\x10\t\x1a\x14\x12\x06secret\x1a\n" +
+	"\n" +
+	"\x06secret\x10\b\x8a\xbb\x16\x04\b**\x00B\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
-var file_rove_org_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_rove_org_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_rove_org_proto_goTypes = []any{
 	(*Party)(nil),                 // 0: rove.Party
 	(*Session)(nil),               // 1: rove.Session
 	(*Invitation)(nil),            // 2: rove.Invitation
-	nil,                           // 3: rove.Party.LabelsEntry
-	(*Tenant)(nil),                // 4: rove.Tenant
-	(*Holder)(nil),                // 5: rove.Holder
-	(*timestamppb.Timestamp)(nil), // 6: google.protobuf.Timestamp
+	(*CliLogin)(nil),              // 3: rove.CliLogin
+	nil,                           // 4: rove.Party.LabelsEntry
+	(*Tenant)(nil),                // 5: rove.Tenant
+	(*Holder)(nil),                // 6: rove.Holder
+	(*timestamppb.Timestamp)(nil), // 7: google.protobuf.Timestamp
 }
 var file_rove_org_proto_depIdxs = []int32{
-	4,  // 0: rove.Party.tenant:type_name -> rove.Tenant
-	3,  // 1: rove.Party.labels:type_name -> rove.Party.LabelsEntry
-	5,  // 2: rove.Party.holder:type_name -> rove.Holder
-	6,  // 3: rove.Party.date_updated:type_name -> google.protobuf.Timestamp
-	6,  // 4: rove.Party.date_erased:type_name -> google.protobuf.Timestamp
-	6,  // 5: rove.Party.date_created:type_name -> google.protobuf.Timestamp
-	6,  // 6: rove.Session.date_expires:type_name -> google.protobuf.Timestamp
-	6,  // 7: rove.Session.date_idle:type_name -> google.protobuf.Timestamp
-	6,  // 8: rove.Session.date_updated:type_name -> google.protobuf.Timestamp
-	6,  // 9: rove.Session.date_erased:type_name -> google.protobuf.Timestamp
-	6,  // 10: rove.Session.date_created:type_name -> google.protobuf.Timestamp
-	4,  // 11: rove.Invitation.tenant:type_name -> rove.Tenant
-	5,  // 12: rove.Invitation.inviter:type_name -> rove.Holder
+	5,  // 0: rove.Party.tenant:type_name -> rove.Tenant
+	4,  // 1: rove.Party.labels:type_name -> rove.Party.LabelsEntry
+	6,  // 2: rove.Party.holder:type_name -> rove.Holder
+	7,  // 3: rove.Party.date_updated:type_name -> google.protobuf.Timestamp
+	7,  // 4: rove.Party.date_erased:type_name -> google.protobuf.Timestamp
+	7,  // 5: rove.Party.date_created:type_name -> google.protobuf.Timestamp
+	7,  // 6: rove.Session.date_expires:type_name -> google.protobuf.Timestamp
+	7,  // 7: rove.Session.date_idle:type_name -> google.protobuf.Timestamp
+	7,  // 8: rove.Session.date_updated:type_name -> google.protobuf.Timestamp
+	7,  // 9: rove.Session.date_erased:type_name -> google.protobuf.Timestamp
+	7,  // 10: rove.Session.date_created:type_name -> google.protobuf.Timestamp
+	5,  // 11: rove.Invitation.tenant:type_name -> rove.Tenant
+	6,  // 12: rove.Invitation.inviter:type_name -> rove.Holder
 	0,  // 13: rove.Invitation.party:type_name -> rove.Party
-	6,  // 14: rove.Invitation.date_updated:type_name -> google.protobuf.Timestamp
-	6,  // 15: rove.Invitation.date_erased:type_name -> google.protobuf.Timestamp
-	6,  // 16: rove.Invitation.date_created:type_name -> google.protobuf.Timestamp
-	6,  // 17: rove.Invitation.date_expires:type_name -> google.protobuf.Timestamp
-	6,  // 18: rove.Invitation.date_settled:type_name -> google.protobuf.Timestamp
-	5,  // 19: rove.Invitation.holder:type_name -> rove.Holder
-	20, // [20:20] is the sub-list for method output_type
-	20, // [20:20] is the sub-list for method input_type
-	20, // [20:20] is the sub-list for extension type_name
-	20, // [20:20] is the sub-list for extension extendee
-	0,  // [0:20] is the sub-list for field type_name
+	7,  // 14: rove.Invitation.date_updated:type_name -> google.protobuf.Timestamp
+	7,  // 15: rove.Invitation.date_erased:type_name -> google.protobuf.Timestamp
+	7,  // 16: rove.Invitation.date_created:type_name -> google.protobuf.Timestamp
+	7,  // 17: rove.Invitation.date_expires:type_name -> google.protobuf.Timestamp
+	7,  // 18: rove.Invitation.date_settled:type_name -> google.protobuf.Timestamp
+	6,  // 19: rove.Invitation.holder:type_name -> rove.Holder
+	7,  // 20: rove.CliLogin.date_expires:type_name -> google.protobuf.Timestamp
+	7,  // 21: rove.CliLogin.date_updated:type_name -> google.protobuf.Timestamp
+	7,  // 22: rove.CliLogin.date_erased:type_name -> google.protobuf.Timestamp
+	7,  // 23: rove.CliLogin.date_created:type_name -> google.protobuf.Timestamp
+	24, // [24:24] is the sub-list for method output_type
+	24, // [24:24] is the sub-list for method input_type
+	24, // [24:24] is the sub-list for extension type_name
+	24, // [24:24] is the sub-list for extension extendee
+	0,  // [0:24] is the sub-list for field type_name
 }
 
 func init() { file_rove_org_proto_init() }
@@ -1137,7 +1428,7 @@ func file_rove_org_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_org_proto_rawDesc), len(file_rove_org_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

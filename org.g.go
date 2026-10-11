@@ -153,3 +153,46 @@ func InvitationById(v []byte) *InvitationRef {
 func InvitationGetById(v []byte) *InvitationGetRequest {
 	return InvitationGetRequest_builder{Ref: InvitationById(v)}.Build()
 }
+
+func (x *CliLoginRef) Pick() *CliLoginGetRequest {
+	return CliLoginGetRequest_builder{Ref: x}.Build()
+}
+
+func (x *CliLogin) Ref() *CliLoginRef {
+	if v := x.GetId(); len(v) > 0 {
+		return CliLoginById(v)
+	}
+
+	return nil
+}
+
+func (x *CliLogin) Pick() *CliLoginGetRequest {
+	return x.Ref().Pick()
+}
+
+func (x *CliLoginRef) Picks(v *CliLogin) bool {
+	switch x.WhichKey() {
+	case CliLoginRef_Id_case:
+		return bytes.Equal(x.GetId(), v.GetId())
+	default:
+		return false
+	}
+}
+
+func (x *CliLoginGetRequest) WithSelect(f func(s *CliLoginSelect)) *CliLoginGetRequest {
+	if !x.HasSelect() {
+		x.SetSelect(&CliLoginSelect{})
+	}
+	f(x.GetSelect())
+	return x
+}
+
+func CliLoginById(v []byte) *CliLoginRef {
+	x := &CliLoginRef{}
+	x.SetId(v)
+	return x
+}
+
+func CliLoginGetById(v []byte) *CliLoginGetRequest {
+	return CliLoginGetRequest_builder{Ref: CliLoginById(v)}.Build()
+}

@@ -121,6 +121,79 @@ BEGIN
 END
 $$;
 
+-- Search (design 9.5, `internal/search`). What a person types and what is kept
+-- are compared as `lower(normalize(x, NFKC))`, full-width and half-width
+-- forms alike. pg_bigm answers that from two letters -- `의자` is two -- and
+-- where it is not installed pg_trgm, which every PostgreSQL has, from three;
+-- a shorter question goes by prefix on the tag and the name, which the B-trees
+-- at the end answer. Which of the two this database has is decided here, and
+-- the server reads it back.
+--
+-- pg_bigm is not a trusted extension: a role that is not a superuser cannot
+-- create it, and the database's owner does, once (`CREATE EXTENSION pg_bigm`).
+-- Until then this goes on with pg_trgm, which is trusted.
+DO $$
+BEGIN
+	IF EXISTS (SELECT 1 FROM pg_available_extensions WHERE name = 'pg_bigm') THEN
+		BEGIN
+			CREATE EXTENSION IF NOT EXISTS pg_bigm SCHEMA public;
+		EXCEPTION
+			WHEN unique_violation THEN
+				NULL;
+			WHEN insufficient_privilege THEN
+				RAISE NOTICE 'pg_bigm is installed, and only a superuser may create it: CREATE EXTENSION pg_bigm';
+		END;
+	END IF;
+	IF NOT EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_bigm')
+		AND EXISTS (SELECT 1 FROM pg_available_extensions WHERE name = 'pg_trgm') THEN
+		BEGIN
+			CREATE EXTENSION IF NOT EXISTS pg_trgm SCHEMA public;
+		EXCEPTION
+			WHEN unique_violation OR insufficient_privilege THEN
+				NULL;
+		END;
+	END IF;
+END
+$$;
+
+-- A GIN index a column, of whichever kind the database has, named for it so
+-- that a database which gains pg_bigm drops what pg_trgm answered with.
+DO $$
+DECLARE
+	kind text;
+	other text;
+	ops text;
+	c record;
+BEGIN
+	IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_bigm') THEN
+		kind := 'bigm'; other := 'trgm'; ops := 'public.gin_bigm_ops';
+	ELSIF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_trgm') THEN
+		kind := 'trgm'; other := 'bigm'; ops := 'public.gin_trgm_ops';
+	END IF;
+	FOR c IN SELECT * FROM (VALUES
+		('asset', 'tag'), ('asset', 'name'), ('asset', 'serial'),
+		('assettype', 'name'), ('itemmodel', 'name'), ('itemmodel', 'maker'), ('party', 'name')
+	) AS v(tbl, col) LOOP
+		IF kind IS NULL THEN
+			EXIT;
+		END IF;
+		EXECUTE format('DROP INDEX IF EXISTS %I', c.tbl || '_' || c.col || '_' || other);
+		EXECUTE format('CREATE INDEX IF NOT EXISTS %I ON %I USING gin (lower(normalize(%I, NFKC)) %s)',
+			c.tbl || '_' || c.col || '_' || kind, c.tbl, c.col, ops);
+	END LOOP;
+END
+$$;
+
+CREATE INDEX IF NOT EXISTS asset_tag_prefix ON asset (tenant_id, lower(normalize(tag, NFKC)) text_pattern_ops);
+CREATE INDEX IF NOT EXISTS asset_name_prefix ON asset (tenant_id, lower(normalize(name, NFKC)) text_pattern_ops);
+
+-- And the way back from a type, a model or a person to the things that are
+-- theirs, which a search by what something is or who has it goes through --
+-- as does listing them. A foreign key PostgreSQL does not index.
+CREATE INDEX IF NOT EXISTS asset_type_id ON asset (type_id);
+CREATE INDEX IF NOT EXISTS asset_model_id ON asset (model_id);
+CREATE INDEX IF NOT EXISTS asset_custodian_id ON asset (custodian_id);
+
 -- No CHECK constraints here, though "stock is never negative" wants one: the
 -- schema check `serve` runs without `db.migrate` sees a CHECK it was not told
 -- about and refuses the database (lesomnus/payday#33). The EXCLUDE

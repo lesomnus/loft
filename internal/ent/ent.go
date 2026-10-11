@@ -16,6 +16,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/attachment"
 	"github.com/lesomnus/rove/internal/ent/audit"
 	"github.com/lesomnus/rove/internal/ent/bookable"
+	"github.com/lesomnus/rove/internal/ent/clilogin"
 	"github.com/lesomnus/rove/internal/ent/countfinding"
 	"github.com/lesomnus/rove/internal/ent/custody"
 	"github.com/lesomnus/rove/internal/ent/custodyline"
@@ -116,6 +117,7 @@ func checkColumn(t, c string) error {
 			attachment.Table:      attachment.ValidColumn,
 			audit.Table:           audit.ValidColumn,
 			bookable.Table:        bookable.ValidColumn,
+			clilogin.Table:        clilogin.ValidColumn,
 			countfinding.Table:    countfinding.ValidColumn,
 			custody.Table:         custody.ValidColumn,
 			custodyline.Table:     custodyline.ValidColumn,

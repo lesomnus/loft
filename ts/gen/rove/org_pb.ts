@@ -19,7 +19,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file rove/org.proto.
  */
 export const file_rove_org: GenFile = /*@__PURE__*/
-  fileDesc("Cg5yb3ZlL29yZy5wcm90bxIEcm92ZSKHBQoFUGFydHkSFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEiQKBnRlbmFudBgCIAEoCzIMLnJvdmUuVGVuYW50QgbyghYCQAESDAoEbmFtZRgFIAEoCRIMCgRkZXNjGAYgASgJEicKBmxhYmVscxgHIAMoCzIXLnJvdmUuUGFydHkuTGFiZWxzRW50cnkSDAoEa2luZBgIIAEoCRIbCglwYXJlbnRfaWQYCSABKAxCCOqCFgQQQDgBEiQKBmhvbGRlchgKIAEoCzIMLnJvdmUuSG9sZGVyQgbyghYCOAESDQoFZW1haWwYCyABKAkSDQoFcGhvbmUYDCABKAkSOQoMZGF0ZV91cGRhdGVkGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4oBABI4CgtkYXRlX2VyYXNlZBgOIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOSAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAEgwKBGNvZGUYECABKAkaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ATqbAcr8FT4SAhABGiASBHBhZ2UaEAoMZGF0ZV9jcmVhdGVkEA8aBgoCaWQQARoWEgZob2xkZXIaCgoGaG9sZGVyEAowAYq7FlUICjJPChAKDgoMZGF0ZV9jcmVhdGVkCgYKBAoCaWQaBQoDcmVmGgYKBGtpbmQaCwoJcGFyZW50X2lkGggKBmhvbGRlchoICgZsYWJlbHMgMij0AzoAIvEDCgdTZXNzaW9uEhcKAmlkGAEgASgMQgvqghYHEEAoAYIBABIXCgdhY2NvdW50GAggASgMQgbqghYCEEASHQoGc2VjcmV0GAkgASgMQg3qghYDggEAqsEWAggBEhYKBWdyYW50GAogASgMQgfqghYDggEAEjgKDGRhdGVfZXhwaXJlcxgLIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCBuqCFgI4ARI1CglkYXRlX2lkbGUYDCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESGgoEaGVsZBgQIAEoDEIM6oIWAjgBqsEWAggBEjkKDGRhdGVfdXBkYXRlZBgNIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOKAQASOAoLZGF0ZV9lcmFzZWQYDiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDkgEAEjsKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCeqCFgVAAYIBADo+yvwVMhICEAEaFBIGc2VjcmV0GgoKBnNlY3JldBAJGhYSB2FjY291bnQaCwoHYWNjb3VudBAIirsWBAgmKgAiiAYKCkludml0YXRpb24SFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEiQKBnRlbmFudBgCIAEoCzIMLnJvdmUuVGVuYW50QgbyghYCQAESJQoHaW52aXRlchgIIAEoCzIMLnJvdmUuSG9sZGVyQgbyghYCQAESDQoFZW1haWwYCSABKAkSFAoEcm9sZRgKIAEoCUIG6oIWAkABEiIKBXBhcnR5GAsgASgLMgsucm92ZS5QYXJ0eUIG8oIWAjgBEhkKB2FjY291bnQYDCABKAxCCOqCFgQQQDgBEjkKDGRhdGVfdXBkYXRlZBgNIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOKAQASOAoLZGF0ZV9lcmFzZWQYDiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDkgEAEjsKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCeqCFgVAAYIBABINCgVzdGF0ZRgQIAEoCRI5CgxkYXRlX2V4cGlyZXMYESABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDggEAEjgKDGRhdGVfc2V0dGxlZBgSIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCBuqCFgI4ARIkCgZob2xkZXIYEyABKAsyDC5yb3ZlLkhvbGRlckIG8oIWAjgBEhsKBWNsYWltGBQgASgMQgzqghYCOAGqwRYCCAE6tgHK/BVmEgIQARogEgRwYWdlGhAKDGRhdGVfY3JlYXRlZBAPGgYKAmlkEAEaEhIFY2xhaW0aCQoFY2xhaW0QFBoWEgdhY2NvdW50GgsKB2FjY291bnQQDBoSEgVlbWFpbBoJCgVlbWFpbBAJirsWSAgpMkQKEAoOCgxkYXRlX2NyZWF0ZWQKBgoECgJpZBoFCgNyZWYaCAoGdGVuYW50GgkKB2FjY291bnQaBwoFc3RhdGUgMijIAUIfWhhnaXRodWIuY29tL2xlc29tbnVzL3JvdmWSAwIIAmIIZWRpdGlvbnNw6Ac", [file_google_protobuf_timestamp, file_orm, file_payday, file_rove_payday_holder, file_rove_payday_tenant]);
+  fileDesc("Cg5yb3ZlL29yZy5wcm90bxIEcm92ZSKHBQoFUGFydHkSFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEiQKBnRlbmFudBgCIAEoCzIMLnJvdmUuVGVuYW50QgbyghYCQAESDAoEbmFtZRgFIAEoCRIMCgRkZXNjGAYgASgJEicKBmxhYmVscxgHIAMoCzIXLnJvdmUuUGFydHkuTGFiZWxzRW50cnkSDAoEa2luZBgIIAEoCRIbCglwYXJlbnRfaWQYCSABKAxCCOqCFgQQQDgBEiQKBmhvbGRlchgKIAEoCzIMLnJvdmUuSG9sZGVyQgbyghYCOAESDQoFZW1haWwYCyABKAkSDQoFcGhvbmUYDCABKAkSOQoMZGF0ZV91cGRhdGVkGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4oBABI4CgtkYXRlX2VyYXNlZBgOIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOSAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAEgwKBGNvZGUYECABKAkaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ATqbAcr8FT4SAhABGiASBHBhZ2UaEAoMZGF0ZV9jcmVhdGVkEA8aBgoCaWQQARoWEgZob2xkZXIaCgoGaG9sZGVyEAowAYq7FlUICjJPChAKDgoMZGF0ZV9jcmVhdGVkCgYKBAoCaWQaBQoDcmVmGgYKBGtpbmQaCwoJcGFyZW50X2lkGggKBmhvbGRlchoICgZsYWJlbHMgMij0AzoAIvEDCgdTZXNzaW9uEhcKAmlkGAEgASgMQgvqghYHEEAoAYIBABIXCgdhY2NvdW50GAggASgMQgbqghYCEEASHQoGc2VjcmV0GAkgASgMQg3qghYDggEAqsEWAggBEhYKBWdyYW50GAogASgMQgfqghYDggEAEjgKDGRhdGVfZXhwaXJlcxgLIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCBuqCFgI4ARI1CglkYXRlX2lkbGUYDCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESGgoEaGVsZBgQIAEoDEIM6oIWAjgBqsEWAggBEjkKDGRhdGVfdXBkYXRlZBgNIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOKAQASOAoLZGF0ZV9lcmFzZWQYDiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDkgEAEjsKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCeqCFgVAAYIBADo+yvwVMhICEAEaFBIGc2VjcmV0GgoKBnNlY3JldBAJGhYSB2FjY291bnQaCwoHYWNjb3VudBAIirsWBAgmKgAiiAYKCkludml0YXRpb24SFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEiQKBnRlbmFudBgCIAEoCzIMLnJvdmUuVGVuYW50QgbyghYCQAESJQoHaW52aXRlchgIIAEoCzIMLnJvdmUuSG9sZGVyQgbyghYCQAESDQoFZW1haWwYCSABKAkSFAoEcm9sZRgKIAEoCUIG6oIWAkABEiIKBXBhcnR5GAsgASgLMgsucm92ZS5QYXJ0eUIG8oIWAjgBEhkKB2FjY291bnQYDCABKAxCCOqCFgQQQDgBEjkKDGRhdGVfdXBkYXRlZBgNIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOKAQASOAoLZGF0ZV9lcmFzZWQYDiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDkgEAEjsKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCeqCFgVAAYIBABINCgVzdGF0ZRgQIAEoCRI5CgxkYXRlX2V4cGlyZXMYESABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDggEAEjgKDGRhdGVfc2V0dGxlZBgSIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCBuqCFgI4ARIkCgZob2xkZXIYEyABKAsyDC5yb3ZlLkhvbGRlckIG8oIWAjgBEhsKBWNsYWltGBQgASgMQgzqghYCOAGqwRYCCAE6tgHK/BVmEgIQARogEgRwYWdlGhAKDGRhdGVfY3JlYXRlZBAPGgYKAmlkEAEaEhIFY2xhaW0aCQoFY2xhaW0QFBoWEgdhY2NvdW50GgsKB2FjY291bnQQDBoSEgVlbWFpbBoJCgVlbWFpbBAJirsWSAgpMkQKEAoOCgxkYXRlX2NyZWF0ZWQKBgoECgJpZBoFCgNyZWYaCAoGdGVuYW50GgkKB2FjY291bnQaBwoFc3RhdGUgMijIASLBAwoIQ2xpTG9naW4SFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEh0KBnNlY3JldBgIIAEoDEIN6oIWA4IBAKrBFgIIARIMCgRjb2RlGAkgASgJEg4KBmNsaWVudBgKIAEoCRIOCgZvcmlnaW4YCyABKAkSGQoHYWNjb3VudBgMIAEoDEII6oIWBBBAOAESDQoFc3RhdGUYECABKAkSOQoMZGF0ZV9leHBpcmVzGBEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4IBABI5CgxkYXRlX3VwZGF0ZWQYDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDigEAEjgKC2RhdGVfZXJhc2VkGA4gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA5IBABI7CgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgnqghYFQAGCAQA6OMr8FSwSAhABGhASBGNvZGUaCAoEY29kZRAJGhQSBnNlY3JldBoKCgZzZWNyZXQQCIq7FgQIKioAQh9aGGdpdGh1Yi5jb20vbGVzb21udXMvcm92ZZIDAggCYghlZGl0aW9uc3DoBw", [file_google_protobuf_timestamp, file_orm, file_payday, file_rove_payday_holder, file_rove_payday_tenant]);
 
 /**
  * Party is a person, a team, an organization or a vendor: whoever an asset is
@@ -325,4 +325,96 @@ export type Invitation = Message<"rove.Invitation"> & {
  */
 export const InvitationSchema: GenMessage<Invitation> = /*@__PURE__*/
   messageDesc(file_rove_org, 2);
+
+/**
+ * CliLogin is a terminal asking to be signed in as whoever approves it in a
+ * browser (`rove login`).
+ *
+ * The terminal makes up the session key it will use, keeps it, and sends only
+ * its SHA-256: `secret` is what the session will be looked up by, exactly as a
+ * browser's is (`Session.secret`). A person signed in at the app approves the
+ * `code` the terminal shows them, and the approval makes that session for
+ * their account. So no key is written here or sent back, and the row holds
+ * nothing a reader of the database could sign in with. It is the
+ * deployment's (`global`), written only through ent by `server/clilogin`,
+ * and the policy opens no RPC of it.
+ *
+ * @generated from message rove.CliLogin
+ */
+export type CliLogin = Message<"rove.CliLogin"> & {
+  /**
+   * @generated from field: bytes id = 1;
+   */
+  id: Uint8Array;
+
+  /**
+   * What the session's key hashes to, as `Session.secret`.
+   *
+   * @generated from field: bytes secret = 8;
+   */
+  secret: Uint8Array;
+
+  /**
+   * What the terminal shows and the person approves: eight letters and
+   * digits that read aloud, good for one approval.
+   *
+   * @generated from field: string code = 9;
+   */
+  code: string;
+
+  /**
+   * What the terminal says it is, and where it asked from: what the page
+   * shows, so that a person approves their own terminal and nobody else's.
+   *
+   * @generated from field: string client = 10;
+   */
+  client: string;
+
+  /**
+   * @generated from field: string origin = 11;
+   */
+  origin: string;
+
+  /**
+   * The account that approved it, once one has.
+   *
+   * @generated from field: bytes account = 12;
+   */
+  account: Uint8Array;
+
+  /**
+   * `pending`, `approved` or `denied`. One still pending after
+   * `date_expires` is expired, which is said where it is read.
+   *
+   * @generated from field: string state = 16;
+   */
+  state: string;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp date_expires = 17;
+   */
+  dateExpires?: Timestamp | undefined;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp date_updated = 13;
+   */
+  dateUpdated?: Timestamp | undefined;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp date_erased = 14;
+   */
+  dateErased?: Timestamp | undefined;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp date_created = 15;
+   */
+  dateCreated?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message rove.CliLogin.
+ * Use `create(CliLoginSchema)` to create a new message.
+ */
+export const CliLoginSchema: GenMessage<CliLogin> = /*@__PURE__*/
+  messageDesc(file_rove_org, 3);
 

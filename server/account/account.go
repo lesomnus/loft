@@ -54,7 +54,7 @@ type Workspace struct {
 func Handler(sessions *authsession.Sessions, people People, ws tenancy.Workspaces) http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /account", func(w http.ResponseWriter, r *http.Request) {
-		p, ok := signedIn(w, r, sessions, people)
+		p, ok := SignedIn(w, r, sessions, people)
 		if !ok {
 			return
 		}
@@ -71,7 +71,7 @@ func Handler(sessions *authsession.Sessions, people People, ws tenancy.Workspace
 			http.Error(w, "a workspace is asked for as JSON", http.StatusUnsupportedMediaType)
 			return
 		}
-		p, ok := signedIn(w, r, sessions, people)
+		p, ok := SignedIn(w, r, sessions, people)
 		if !ok {
 			return
 		}
@@ -102,9 +102,9 @@ func Handler(sessions *authsession.Sessions, people People, ws tenancy.Workspace
 	return mux
 }
 
-// signedIn is the account the request's session names, or false with the
-// answer written.
-func signedIn(w http.ResponseWriter, r *http.Request, sessions *authsession.Sessions, people People) (identity.Person, bool) {
+// SignedIn is the account the request's session names, or false with the
+// answer written: what every HTTP route beside the RPCs asks first.
+func SignedIn(w http.ResponseWriter, r *http.Request, sessions *authsession.Sessions, people People) (identity.Person, bool) {
 	ctx := r.Context()
 	key := sessions.KeyOf(r.Header.Values("Cookie"))
 	if key == "" {

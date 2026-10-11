@@ -131,6 +131,7 @@ MVP(Phase 0 + 1)는 M0~M5이고, 합쳐서 대략 13~16주로 본다.
   3. **SSO**(D28): 앱 호스트의 로그인 화면(Google·Microsoft·GitHub), roster issuer의 relying party(`/sso/login`, `/sso/callback`, `/sso/logout`), SaaS에서 비밀번호 로그인 끄기(`auth.sso_only`). roster에 GitHub 연결과 Microsoft의 모든 계정(`common`) 로그인이 필요하다 — roster#101·#102(머지), 버튼이 고른 연결로 바로 가기는 roster#103, Rove는 rove#12(서버)·#13(화면).
   4. **초대**(D30): 초대 권한이 있는 역할(소유자·관리자)이 이메일과 자기 역할까지의 역할로 초대하고, 받은 사람이 로그인해 초대함에서 수락·거절한다. 초대장은 roster가 확인한 주소의 계정 것이고, 확인되지 않은 계정은 메일의 1회용 링크로 받는다. 받는 쪽 호출은 계정으로 처리한다. 초대는 roster가 아니라 Rove에 둔다. 메일은 SMTP 설정 — rove#14(서버)·#15(화면).
   5. **생명주기**: `SyncService/Watch`를 따라가 roster의 중지·모든 곳에서 로그아웃은 세션 종료로, 계정의 탈퇴는 그 계정이 속한 모든 워크스페이스에서의 가명화(Party·trail)로 이어 간다. 탈퇴는 roster의 유예만큼 '떠나는 중'으로 기다렸다가 roster에 다시 묻고 한다. 마지막 소유자가 떠나면 남은 사람에게 넘긴다 — rove#16(스트림·세션·떠나는 중), rove#17(유예 뒤 탈퇴, `rove identity depart`·`reconcile`), roster#104(스트림이 처음 듣는 사람의 삭제도 보낸다, 머지).
+- **API와 터미널**(2026-10-12 결정): 모든 기능을 API로 열고 터미널에서도 쓴다. `rove login`(브라우저에서 승인하는 터미널 로그인)과 `rove api`(모든 RPC를 명령으로, 브라우저와 같은 주소로).
 - 워크스페이스 닫기(닫기·복구·파기 sweep, D29), alias 바꾸기와 예약어와 보류, 라벨의 전역 코드(D28)는 2~4단계 뒤에 한다.
 - Holder overlay `role`, 메서드별 최소 역할 표로 Policy 구현. 같은 Policy를 batch guard에 넘긴다.
 - 공개·운영자 바이너리 분리, 테넌트의 첫 행이 생길 때 유형 템플릿 복사.

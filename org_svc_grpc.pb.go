@@ -1399,3 +1399,267 @@ var InvitationService_ServiceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "rove/org_svc.g.proto",
 }
+
+const (
+	CliLoginService_Add_FullMethodName   = "/rove.CliLoginService/Add"
+	CliLoginService_Get_FullMethodName   = "/rove.CliLoginService/Get"
+	CliLoginService_Patch_FullMethodName = "/rove.CliLoginService/Patch"
+	CliLoginService_Apply_FullMethodName = "/rove.CliLoginService/Apply"
+	CliLoginService_Erase_FullMethodName = "/rove.CliLoginService/Erase"
+)
+
+// CliLoginServiceClient is the client API for CliLoginService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type CliLoginServiceClient interface {
+	// Add creates a new CliLogin
+	Add(ctx context.Context, in *CliLoginAddRequest, opts ...grpc.CallOption) (*CliLogin, error)
+	// Get retrieves a CliLogin
+	Get(ctx context.Context, in *CliLoginGetRequest, opts ...grpc.CallOption) (*CliLogin, error)
+	// Patch updates an existing CliLogin
+	Patch(ctx context.Context, in *CliLoginPatchRequest, opts ...grpc.CallOption) (*CliLogin, error)
+	// Apply applies a patch document to an existing CliLogin
+	Apply(ctx context.Context, in *CliLoginApplyRequest, opts ...grpc.CallOption) (*CliLogin, error)
+	// Erase deletes a CliLogin
+	Erase(ctx context.Context, in *CliLoginRef, opts ...grpc.CallOption) (*CliLoginEraseResponse, error)
+}
+
+type cliLoginServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewCliLoginServiceClient(cc grpc.ClientConnInterface) CliLoginServiceClient {
+	return &cliLoginServiceClient{cc}
+}
+
+func (c *cliLoginServiceClient) Add(ctx context.Context, in *CliLoginAddRequest, opts ...grpc.CallOption) (*CliLogin, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CliLogin)
+	err := c.cc.Invoke(ctx, CliLoginService_Add_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cliLoginServiceClient) Get(ctx context.Context, in *CliLoginGetRequest, opts ...grpc.CallOption) (*CliLogin, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CliLogin)
+	err := c.cc.Invoke(ctx, CliLoginService_Get_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cliLoginServiceClient) Patch(ctx context.Context, in *CliLoginPatchRequest, opts ...grpc.CallOption) (*CliLogin, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CliLogin)
+	err := c.cc.Invoke(ctx, CliLoginService_Patch_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cliLoginServiceClient) Apply(ctx context.Context, in *CliLoginApplyRequest, opts ...grpc.CallOption) (*CliLogin, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CliLogin)
+	err := c.cc.Invoke(ctx, CliLoginService_Apply_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cliLoginServiceClient) Erase(ctx context.Context, in *CliLoginRef, opts ...grpc.CallOption) (*CliLoginEraseResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CliLoginEraseResponse)
+	err := c.cc.Invoke(ctx, CliLoginService_Erase_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// CliLoginServiceServer is the server API for CliLoginService service.
+// All implementations must embed UnimplementedCliLoginServiceServer
+// for forward compatibility.
+type CliLoginServiceServer interface {
+	// Add creates a new CliLogin
+	Add(context.Context, *CliLoginAddRequest) (*CliLogin, error)
+	// Get retrieves a CliLogin
+	Get(context.Context, *CliLoginGetRequest) (*CliLogin, error)
+	// Patch updates an existing CliLogin
+	Patch(context.Context, *CliLoginPatchRequest) (*CliLogin, error)
+	// Apply applies a patch document to an existing CliLogin
+	Apply(context.Context, *CliLoginApplyRequest) (*CliLogin, error)
+	// Erase deletes a CliLogin
+	Erase(context.Context, *CliLoginRef) (*CliLoginEraseResponse, error)
+	mustEmbedUnimplementedCliLoginServiceServer()
+}
+
+// UnimplementedCliLoginServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedCliLoginServiceServer struct{}
+
+func (UnimplementedCliLoginServiceServer) Add(context.Context, *CliLoginAddRequest) (*CliLogin, error) {
+	return nil, status.Error(codes.Unimplemented, "method Add not implemented")
+}
+func (UnimplementedCliLoginServiceServer) Get(context.Context, *CliLoginGetRequest) (*CliLogin, error) {
+	return nil, status.Error(codes.Unimplemented, "method Get not implemented")
+}
+func (UnimplementedCliLoginServiceServer) Patch(context.Context, *CliLoginPatchRequest) (*CliLogin, error) {
+	return nil, status.Error(codes.Unimplemented, "method Patch not implemented")
+}
+func (UnimplementedCliLoginServiceServer) Apply(context.Context, *CliLoginApplyRequest) (*CliLogin, error) {
+	return nil, status.Error(codes.Unimplemented, "method Apply not implemented")
+}
+func (UnimplementedCliLoginServiceServer) Erase(context.Context, *CliLoginRef) (*CliLoginEraseResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Erase not implemented")
+}
+func (UnimplementedCliLoginServiceServer) mustEmbedUnimplementedCliLoginServiceServer() {}
+func (UnimplementedCliLoginServiceServer) testEmbeddedByValue()                         {}
+
+// UnsafeCliLoginServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to CliLoginServiceServer will
+// result in compilation errors.
+type UnsafeCliLoginServiceServer interface {
+	mustEmbedUnimplementedCliLoginServiceServer()
+}
+
+func RegisterCliLoginServiceServer(s grpc.ServiceRegistrar, srv CliLoginServiceServer) {
+	// If the following call panics, it indicates UnimplementedCliLoginServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&CliLoginService_ServiceDesc, srv)
+}
+
+func _CliLoginService_Add_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CliLoginAddRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CliLoginServiceServer).Add(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CliLoginService_Add_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CliLoginServiceServer).Add(ctx, req.(*CliLoginAddRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CliLoginService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CliLoginGetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CliLoginServiceServer).Get(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CliLoginService_Get_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CliLoginServiceServer).Get(ctx, req.(*CliLoginGetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CliLoginService_Patch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CliLoginPatchRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CliLoginServiceServer).Patch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CliLoginService_Patch_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CliLoginServiceServer).Patch(ctx, req.(*CliLoginPatchRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CliLoginService_Apply_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CliLoginApplyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CliLoginServiceServer).Apply(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CliLoginService_Apply_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CliLoginServiceServer).Apply(ctx, req.(*CliLoginApplyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CliLoginService_Erase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CliLoginRef)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CliLoginServiceServer).Erase(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CliLoginService_Erase_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CliLoginServiceServer).Erase(ctx, req.(*CliLoginRef))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// CliLoginService_ServiceDesc is the grpc.ServiceDesc for CliLoginService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var CliLoginService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "rove.CliLoginService",
+	HandlerType: (*CliLoginServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Add",
+			Handler:    _CliLoginService_Add_Handler,
+		},
+		{
+			MethodName: "Get",
+			Handler:    _CliLoginService_Get_Handler,
+		},
+		{
+			MethodName: "Patch",
+			Handler:    _CliLoginService_Patch_Handler,
+		},
+		{
+			MethodName: "Apply",
+			Handler:    _CliLoginService_Apply_Handler,
+		},
+		{
+			MethodName: "Erase",
+			Handler:    _CliLoginService_Erase_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "rove/org_svc.g.proto",
+}

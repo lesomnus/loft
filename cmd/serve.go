@@ -34,8 +34,10 @@ import (
 	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/internal/ent/tenantdomain"
 	"github.com/lesomnus/rove/internal/identity"
+	"github.com/lesomnus/rove/internal/search"
 	"github.com/lesomnus/rove/server/account"
 	"github.com/lesomnus/rove/server/bare"
+	"github.com/lesomnus/rove/server/clilogin"
 	"github.com/lesomnus/rove/server/domain"
 	"github.com/lesomnus/rove/server/lifecycle"
 	"github.com/lesomnus/rove/server/mail"
@@ -104,6 +106,10 @@ type Server struct {
 	// Lifecycle is what roster's word about an account does here: its
 	// sessions ended, its memberships leaving (`server/lifecycle`).
 	Lifecycle lifecycle.Lifecycle
+
+	// Logins is a terminal signed in by somebody approving it in a browser
+	// (`rove login`, `server/clilogin`).
+	Logins *clilogin.Logins
 
 	// Sso is this deployment as a relying party of roster's issuer, and what
 	// the sign-in page is told about the ways in.
@@ -199,6 +205,14 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		db.Close()
 		return nil, err
 	}
+	// Which index answers a search, as the last migration left the database;
+	// `cli.Migrate` asks again after it has made them.
+	if dialect == "postgres" {
+		if deps.Search, err = search.Detect(ctx, db); err != nil {
+			db.Close()
+			return nil, fmt.Errorf("search: %w", err)
+		}
+	}
 
 	// Who people are is roster's: one of its own, or one in this process on a
 	// database of its own.
@@ -271,6 +285,15 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	s.Sessions = authsession.New(store, opts2...)
 	s.Auth = s.Sessions.Handler()
 	s.Policy = policy.Policy{}
+	cookie := authsession.DefaultCookie
+	if c.App.Public().Scheme != "https" {
+		cookie = authsession.InsecureCookie
+	}
+	s.Logins = &clilogin.Logins{
+		Db: client, Sessions: s.Sessions, Store: store, People: people, Cookie: cookie,
+		Idle: or(c.App.Session.Idle, 24*time.Hour), Lifetime: or(c.App.Session.Lifetime, 7*24*time.Hour),
+		App: c.App.App(),
+	}
 	s.Lifecycle = lifecycle.Lifecycle{
 		Db: client, Sessions: store, Base: base,
 		People: people, Deps: deps, Drv: drv, Grace: c.App.Accounts.Grace(),
@@ -298,6 +321,7 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	s.Spin = append(s.Spin,
 		domain.Sweeper{Server: base, Drv: drv, Deps: deps, Every: c.App.Sweep},
 		spinEvery(time.Hour, store.Sweep),
+		spinEvery(time.Hour, s.Logins.Sweep),
 		// The roster in this process's own housekeeping; nothing, for one of
 		// its own.
 		people,
@@ -608,6 +632,10 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 		mux.Handle("POST /session", login)
 	}
 	mux.Handle("DELETE /session", login)
+
+	// A terminal signed in by somebody approving it here; see
+	// `server/clilogin`.
+	s.Logins.Mount(mux)
 
 	// Through roster's issuer, and what the sign-in page is told about the
 	// ways in; see `server/sso`.
