@@ -898,7 +898,7 @@ ul.bars .num {
 	background: linear-gradient(160deg, #1f2a44, #23365e 60%, #1f2a44);
 	padding: 16px;
 }
-.login > form {
+.login > .card {
 	background: white;
 	padding: 28px;
 	border-radius: 16px;
@@ -907,6 +907,37 @@ ul.bars .num {
 	flex-direction: column;
 	gap: 14px;
 	box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+}
+.login > .card > form {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+}
+.login .providers {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+.login .provider {
+	gap: 10px;
+	background: white;
+	border: 1px solid var(--line);
+	color: var(--ink);
+	font-weight: 600;
+}
+.login .provider:hover {
+	background: var(--line-2);
+}
+.login .provider svg {
+	width: 18px;
+	height: 18px;
+	flex: none;
+}
+.login .or {
+	margin: 2px 0;
+	text-align: center;
+	color: var(--mute);
+	font-size: 12.5px;
 }
 .login .brand {
 	display: flex;
