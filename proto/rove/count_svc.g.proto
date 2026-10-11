@@ -84,6 +84,7 @@ message InventoryCountAddRequest {
   bytes started_by = 12;
   google.protobuf.Timestamp date_created = 15;
   bool self_service = 16 [features.field_presence = IMPLICIT];
+  uint64 findings_version = 17 [features.field_presence = IMPLICIT];
 }
 
 message InventoryCountGetRequest {
@@ -111,6 +112,7 @@ message InventoryCountSelect {
   bool date_erased = 14;
   bool date_created = 15;
   bool self_service = 16;
+  bool findings_version = 17;
 }
 
 message InventoryCountPatchRequest {
@@ -146,6 +148,7 @@ message InventoryCountPatchRequest {
   // apart from a caller who never considered locking at all.
   bool date_updated_force = 27;
   bool self_service = 32;
+  uint64 findings_version = 34;
 }
 
 message InventoryCountApplyRequest {

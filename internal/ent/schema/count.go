@@ -40,6 +40,7 @@ func (InventoryCount) Fields() []ent.Field {
 			Immutable().
 			Optional(),
 		field.Bool("self_service"),
+		field.Uint64("findings_version"),
 		field.Uuid("tenant_id").
 			Immutable(),
 		field.Uuid("scope_id").

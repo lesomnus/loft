@@ -32,6 +32,8 @@ const (
 	FieldDateCreated = "date_created"
 	// FieldSelfService holds the string denoting the self_service field in the database.
 	FieldSelfService = "self_service"
+	// FieldFindingsVersion holds the string denoting the findings_version field in the database.
+	FieldFindingsVersion = "findings_version"
 	// FieldTenantId holds the string denoting the tenant_id field in the database.
 	FieldTenantId = "tenant_id"
 	// FieldScopeId holds the string denoting the scope_id field in the database.
@@ -71,6 +73,7 @@ var Columns = []string{
 	FieldDateErased,
 	FieldDateCreated,
 	FieldSelfService,
+	FieldFindingsVersion,
 	FieldTenantId,
 	FieldScopeId,
 }
@@ -141,6 +144,11 @@ func ByDateCreated(opts ...sql.OrderTermOption) OrderOption {
 // BySelfService orders the results by the self_service field.
 func BySelfService(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldSelfService, opts...).ToFunc()
+}
+
+// ByFindingsVersion orders the results by the findings_version field.
+func ByFindingsVersion(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldFindingsVersion, opts...).ToFunc()
 }
 
 // ByTenantId orders the results by the tenant_id field.

@@ -16,6 +16,7 @@ import { createConnectTransport } from '@connectrpc/connect-web'
 import { from, newId, parse } from '@lesomnus/payday/pdid'
 
 import { EventDomain } from '../gen/domains.js'
+import { unreachable } from './offline.js'
 
 import { AllocationService, BookableService, ReservationService } from '../gen/rove/booking_svc_pb.js'
 import { AssetService, AttachmentService, LabelService, TenantDomainService } from '../gen/rove/asset_svc_pb.js'
@@ -262,6 +263,19 @@ export function ts(d: Date): Timestamp {
 	return timestampFromDate(d)
 }
 
+/**
+ * Now, to the minute: what a read asks "from now" as. A moment to the
+ * millisecond is a new question every time the page is drawn, and a read
+ * asks again whenever its question changes -- so a page drawn because a read
+ * answered would ask again because it was drawn, as fast as the server
+ * answers, for as long as it is open.
+ */
+export function minute(): Date {
+	const d = new Date()
+	d.setSeconds(0, 0)
+	return d
+}
+
 export function tsOf(v: MessageInitShape<typeof TimestampSchema> | Timestamp | undefined): Date | undefined {
 	if (v === undefined) return undefined
 	const t = create(TimestampSchema, v as MessageInitShape<typeof TimestampSchema>)
@@ -316,6 +330,7 @@ export function dateInput(d: Date | undefined): string {
 
 /** What went wrong, for a person. */
 export function errorText(err: unknown): string {
+	if (unreachable(err)) return '서버에 연결할 수 없습니다. 오프라인에서는 전에 본 화면만 볼 수 있습니다.'
 	if (err instanceof ConnectError) {
 		const m = err.rawMessage
 		// The server says most things in Korean already; what it says in

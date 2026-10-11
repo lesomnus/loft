@@ -25,22 +25,23 @@ const (
 
 // InventoryCount is a physical count of what is under a space (design 2).
 type InventoryCount struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Tenant      *Tenant                `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Name        string                 `protobuf:"bytes,5,opt,name=name"`
-	xxx_hidden_Desc        string                 `protobuf:"bytes,6,opt,name=desc"`
-	xxx_hidden_Scope       *Asset                 `protobuf:"bytes,8,opt,name=scope"`
-	xxx_hidden_Status      string                 `protobuf:"bytes,9,opt,name=status"`
-	xxx_hidden_StartedAt   *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=started_at,json=startedAt"`
-	xxx_hidden_ClosedAt    *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=closed_at,json=closedAt"`
-	xxx_hidden_StartedBy   []byte                 `protobuf:"bytes,12,opt,name=started_by,json=startedBy"`
-	xxx_hidden_DateUpdated *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
-	xxx_hidden_DateErased  *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=date_erased,json=dateErased"`
-	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_SelfService bool                   `protobuf:"varint,16,opt,name=self_service,json=selfService"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	state                      protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id              []byte                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Tenant          *Tenant                `protobuf:"bytes,2,opt,name=tenant"`
+	xxx_hidden_Name            string                 `protobuf:"bytes,5,opt,name=name"`
+	xxx_hidden_Desc            string                 `protobuf:"bytes,6,opt,name=desc"`
+	xxx_hidden_Scope           *Asset                 `protobuf:"bytes,8,opt,name=scope"`
+	xxx_hidden_Status          string                 `protobuf:"bytes,9,opt,name=status"`
+	xxx_hidden_StartedAt       *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=started_at,json=startedAt"`
+	xxx_hidden_ClosedAt        *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=closed_at,json=closedAt"`
+	xxx_hidden_StartedBy       []byte                 `protobuf:"bytes,12,opt,name=started_by,json=startedBy"`
+	xxx_hidden_DateUpdated     *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
+	xxx_hidden_DateErased      *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=date_erased,json=dateErased"`
+	xxx_hidden_DateCreated     *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
+	xxx_hidden_SelfService     bool                   `protobuf:"varint,16,opt,name=self_service,json=selfService"`
+	xxx_hidden_FindingsVersion uint64                 `protobuf:"varint,17,opt,name=findings_version,json=findingsVersion"`
+	unknownFields              protoimpl.UnknownFields
+	sizeCache                  protoimpl.SizeCache
 }
 
 func (x *InventoryCount) Reset() {
@@ -159,6 +160,13 @@ func (x *InventoryCount) GetSelfService() bool {
 	return false
 }
 
+func (x *InventoryCount) GetFindingsVersion() uint64 {
+	if x != nil {
+		return x.xxx_hidden_FindingsVersion
+	}
+	return 0
+}
+
 func (x *InventoryCount) SetId(v []byte) {
 	if v == nil {
 		v = []byte{}
@@ -215,6 +223,10 @@ func (x *InventoryCount) SetDateCreated(v *timestamppb.Timestamp) {
 
 func (x *InventoryCount) SetSelfService(v bool) {
 	x.xxx_hidden_SelfService = v
+}
+
+func (x *InventoryCount) SetFindingsVersion(v uint64) {
+	x.xxx_hidden_FindingsVersion = v
 }
 
 func (x *InventoryCount) HasTenant() bool {
@@ -313,6 +325,9 @@ type InventoryCount_builder struct {
 	DateCreated *timestamppb.Timestamp
 	// A count anybody may scan into, for themselves: a self-audit.
 	SelfService bool
+	// Bumped whenever its findings change -- a scan, a reconcile, a resolution
+	// -- so a page watching the count hears about it (design 9.6).
+	FindingsVersion uint64
 }
 
 func (b0 InventoryCount_builder) Build() *InventoryCount {
@@ -332,6 +347,7 @@ func (b0 InventoryCount_builder) Build() *InventoryCount {
 	x.xxx_hidden_DateErased = b.DateErased
 	x.xxx_hidden_DateCreated = b.DateCreated
 	x.xxx_hidden_SelfService = b.SelfService
+	x.xxx_hidden_FindingsVersion = b.FindingsVersion
 	return m0
 }
 
@@ -688,7 +704,7 @@ var File_rove_count_proto protoreflect.FileDescriptor
 
 const file_rove_count_proto_rawDesc = "" +
 	"\n" +
-	"\x10rove/count.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x10rove/asset.proto\x1a\x18rove/payday/tenant.proto\"\xfb\x05\n" +
+	"\x10rove/count.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x10rove/asset.proto\x1a\x18rove/payday/tenant.proto\"\xa6\x06\n" +
 	"\x0eInventoryCount\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x12\n" +
@@ -706,7 +722,8 @@ const file_rove_count_proto_rawDesc = "" +
 	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
 	"dateErased\x12H\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12!\n" +
-	"\fself_service\x18\x10 \x01(\bR\vselfService:\x89\x01\xca\xfc\x15&\x12\x02\x10\x01\x1a \x12\x04page\x1a\x10\n" +
+	"\fself_service\x18\x10 \x01(\bR\vselfService\x12)\n" +
+	"\x10findings_version\x18\x11 \x01(\x04R\x0ffindingsVersion:\x89\x01\xca\xfc\x15&\x12\x02\x10\x01\x1a \x12\x04page\x1a\x10\n" +
 	"\fdate_created\x10\x0f\x1a\x06\n" +
 	"\x02id\x10\x01\x8a\xbb\x16[\b\x1f2=\n" +
 	"\x12\n" +

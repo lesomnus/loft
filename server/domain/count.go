@@ -122,6 +122,9 @@ func (s domainCount) Scan(ctx context.Context, req *app.InventoryCountScanReques
 		if err := t.begin(req.GetOp(), "count.scan", aid, seen, "실사 스캔", req.GetNote(), nil); err != nil {
 			return err
 		}
+		if err := t.findingsChanged(c); err != nil {
+			return err
+		}
 
 		row := app.CountFindingAddRequest_builder{
 			Tenant:           t.tenantRef(),
@@ -235,6 +238,9 @@ func (s domainCount) Reconcile(ctx context.Context, req *app.InventoryCountRecon
 				if err := t.begin(nil, "count.reconcile", pdid.Nil, t.now, "실사 대조", "", nil); err != nil {
 					return err
 				}
+				if err := t.findingsChanged(c); err != nil {
+					return err
+				}
 				begun = true
 			}
 			row := app.CountFindingAddRequest_builder{
@@ -303,6 +309,13 @@ func (s domainCount) Resolve(ctx context.Context, req *app.InventoryCountResolve
 		if err := t.begin(nil, "count.resolve", aid, t.now, "실사 결과 처리: "+res, req.GetReason(), nil); err != nil {
 			return err
 		}
+		c, err := t.next.InventoryCount().Get(t.ctx, app.InventoryCountGetRequest_builder{Ref: app.InventoryCountRef_builder{Id: f.GetCount().GetId()}.Build()}.Build())
+		if err != nil {
+			return err
+		}
+		if err := t.findingsChanged(c); err != nil {
+			return err
+		}
 		out, err = t.next.CountFinding().Patch(t.ctx, app.CountFindingPatchRequest_builder{
 			Ref:              req.GetRef(),
 			Resolution:       z.Ptr(res),
@@ -337,6 +350,20 @@ func (s domainCount) Close(ctx context.Context, req *app.InventoryCountCloseRequ
 		return err
 	})
 	return out, err
+}
+
+// findingsChanged tells whoever watches a count that its findings changed:
+// a page drawing its progress watches the count's row, since a watch names
+// the rows it follows and a finding that is new is named by nobody (design
+// 9.6). It is written before the finding, so two scans into one count take
+// their turns at the count's row.
+func (t *Tx) findingsChanged(c *app.InventoryCount) error {
+	_, err := t.next.InventoryCount().Patch(t.ctx, app.InventoryCountPatchRequest_builder{
+		Ref:              app.InventoryCountRef_builder{Id: c.GetId()}.Build(),
+		FindingsVersion:  z.Ptr(c.GetFindingsVersion() + 1),
+		DateUpdatedForce: z.Ptr(true),
+	}.Build())
+	return err
 }
 
 var _ = pd.CountFindingDomain

@@ -5,10 +5,10 @@ import { useNavigate, useParams } from 'react-router-dom'
 
 import type { Label } from '../../gen/rove/asset_pb.js'
 import type { Asset } from '../../gen/rove/asset_pb.js'
-import { LabelService, errorText, idStr, labelWorkspace, openWorkspace, raw, ref, workspace } from '../api.js'
+import { LabelService, errorText, idStr, labelWorkspace, openWorkspace, ref, workspace } from '../api.js'
 import { useCatalog } from '../catalog.js'
 import { AssetPicker } from '../pickers.js'
-import { useAct } from '../rpc.js'
+import { read, useAct } from '../rpc.js'
 import { Card, Field, PageHead, Spinner } from '../ui.js'
 
 /**
@@ -105,7 +105,7 @@ export function Scan(): ReactNode {
 		setBusy(true)
 		setErr('')
 		try {
-			const r = await raw.label.resolve({ code: t })
+			const r = await read(LabelService.method.resolve, { code: t })
 			if (r.asset !== undefined) {
 				go(`/assets/${idStr(r.asset.id)}`, { replace: code !== undefined })
 				return

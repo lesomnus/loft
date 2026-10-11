@@ -43,6 +43,9 @@ message InventoryCount {
 
   // A count anybody may scan into, for themselves: a self-audit.
   bool self_service = 16;
+  // Bumped whenever its findings change -- a scan, a reconcile, a resolution
+  // -- so a page watching the count hears about it (design 9.6).
+  uint64 findings_version = 17;
 
   option (orm.message) = {
     rpc: {crud: true}

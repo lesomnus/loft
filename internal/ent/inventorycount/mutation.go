@@ -15,24 +15,26 @@ import (
 
 // Mutation represents an operation that mutates the InventoryCount nodes in the graph.
 type Mutation struct {
-	op            ent.Op
-	typ           string
-	name          *string
-	desc          *string
-	status        *string
-	started_at    *time.Time
-	closed_at     *time.Time
-	started_by    *uuid.UUID
-	date_updated  *time.Time
-	date_erased   *time.Time
-	date_created  *time.Time
-	self_service  *bool
-	clearedFields map[string]struct{}
-	tenant        *uuid.UUID
-	clearedtenant bool
-	scope         *uuid.UUID
-	clearedscope  bool
-	predicates    []predicate.InventoryCount
+	op                  ent.Op
+	typ                 string
+	name                *string
+	desc                *string
+	status              *string
+	started_at          *time.Time
+	closed_at           *time.Time
+	started_by          *uuid.UUID
+	date_updated        *time.Time
+	date_erased         *time.Time
+	date_created        *time.Time
+	self_service        *bool
+	findings_version    *uint64
+	addfindings_version *int64
+	clearedFields       map[string]struct{}
+	tenant              *uuid.UUID
+	clearedtenant       bool
+	scope               *uuid.UUID
+	clearedscope        bool
+	predicates          []predicate.InventoryCount
 }
 
 // NewMutation creates a new Mutation for the InventoryCount entity.
@@ -304,6 +306,45 @@ func (m *Mutation) ResetSelfService() {
 	m.self_service = nil
 }
 
+// SetFindingsVersion sets the "findings_version" field.
+func (m *Mutation) SetFindingsVersion(u uint64) {
+	m.findings_version = &u
+	m.addfindings_version = nil
+}
+
+// FindingsVersion returns the value of the "findings_version" field in the mutation.
+func (m *Mutation) FindingsVersion() (r uint64, exists bool) {
+	v := m.findings_version
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// AddFindingsVersion adds u to the "findings_version" field.
+func (m *Mutation) AddFindingsVersion(u int64) {
+	if m.addfindings_version != nil {
+		*m.addfindings_version += u
+	} else {
+		m.addfindings_version = &u
+	}
+}
+
+// AddedFindingsVersion returns the value that was added to the "findings_version" field in this mutation.
+func (m *Mutation) AddedFindingsVersion() (r int64, exists bool) {
+	v := m.addfindings_version
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetFindingsVersion resets all changes to the "findings_version" field.
+func (m *Mutation) ResetFindingsVersion() {
+	m.findings_version = nil
+	m.addfindings_version = nil
+}
+
 // SetTenantId sets the "tenant_id" field.
 func (m *Mutation) SetTenantId(u uuid.UUID) {
 	m.tenant = &u
@@ -430,7 +471,7 @@ func (m *Mutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *Mutation) Fields() []string {
-	fields := make([]string, 0, 12)
+	fields := make([]string, 0, 13)
 	if m.name != nil {
 		fields = append(fields, FieldName)
 	}
@@ -460,6 +501,9 @@ func (m *Mutation) Fields() []string {
 	}
 	if m.self_service != nil {
 		fields = append(fields, FieldSelfService)
+	}
+	if m.findings_version != nil {
+		fields = append(fields, FieldFindingsVersion)
 	}
 	if m.tenant != nil {
 		fields = append(fields, FieldTenantId)
@@ -495,6 +539,8 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.DateCreated()
 	case FieldSelfService:
 		return m.SelfService()
+	case FieldFindingsVersion:
+		return m.FindingsVersion()
 	case FieldTenantId:
 		return m.TenantId()
 	case FieldScopeId:
@@ -585,6 +631,13 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetSelfService(v)
 		return nil
+	case FieldFindingsVersion:
+		v, ok := value.(uint64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetFindingsVersion(v)
+		return nil
 	case FieldTenantId:
 		v, ok := value.(uuid.UUID)
 		if !ok {
@@ -606,13 +659,21 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *Mutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addfindings_version != nil {
+		fields = append(fields, FieldFindingsVersion)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *Mutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case FieldFindingsVersion:
+		return m.AddedFindingsVersion()
+	}
 	return nil, false
 }
 
@@ -621,6 +682,13 @@ func (m *Mutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *Mutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case FieldFindingsVersion:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddFindingsVersion(v)
+		return nil
 	}
 	return fmt.Errorf("unknown InventoryCount numeric field %s", name)
 }
@@ -710,6 +778,9 @@ func (m *Mutation) ResetField(name string) error {
 		return nil
 	case FieldSelfService:
 		m.ResetSelfService()
+		return nil
+	case FieldFindingsVersion:
+		m.ResetFindingsVersion()
 		return nil
 	case FieldTenantId:
 		m.ResetTenantId()

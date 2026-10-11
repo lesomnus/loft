@@ -106,6 +106,11 @@ func SelfService(v bool) predicate.InventoryCount {
 	return predicate.InventoryCount(sql.FieldEQ(FieldSelfService, v))
 }
 
+// FindingsVersion applies equality check predicate on the "findings_version" field. It's identical to FindingsVersionEQ.
+func FindingsVersion(v uint64) predicate.InventoryCount {
+	return predicate.InventoryCount(sql.FieldEQ(FieldFindingsVersion, v))
+}
+
 // TenantId applies equality check predicate on the "tenant_id" field. It's identical to TenantIdEQ.
 func TenantId(v uuid.UUID) predicate.InventoryCount {
 	return predicate.InventoryCount(sql.FieldEQ(FieldTenantId, v))
@@ -609,6 +614,46 @@ func SelfServiceEQ(v bool) predicate.InventoryCount {
 // SelfServiceNEQ applies the NEQ predicate on the "self_service" field.
 func SelfServiceNEQ(v bool) predicate.InventoryCount {
 	return predicate.InventoryCount(sql.FieldNEQ(FieldSelfService, v))
+}
+
+// FindingsVersionEQ applies the EQ predicate on the "findings_version" field.
+func FindingsVersionEQ(v uint64) predicate.InventoryCount {
+	return predicate.InventoryCount(sql.FieldEQ(FieldFindingsVersion, v))
+}
+
+// FindingsVersionNEQ applies the NEQ predicate on the "findings_version" field.
+func FindingsVersionNEQ(v uint64) predicate.InventoryCount {
+	return predicate.InventoryCount(sql.FieldNEQ(FieldFindingsVersion, v))
+}
+
+// FindingsVersionIn applies the In predicate on the "findings_version" field.
+func FindingsVersionIn(vs ...uint64) predicate.InventoryCount {
+	return predicate.InventoryCount(sql.FieldIn(FieldFindingsVersion, vs...))
+}
+
+// FindingsVersionNotIn applies the NotIn predicate on the "findings_version" field.
+func FindingsVersionNotIn(vs ...uint64) predicate.InventoryCount {
+	return predicate.InventoryCount(sql.FieldNotIn(FieldFindingsVersion, vs...))
+}
+
+// FindingsVersionGT applies the GT predicate on the "findings_version" field.
+func FindingsVersionGT(v uint64) predicate.InventoryCount {
+	return predicate.InventoryCount(sql.FieldGT(FieldFindingsVersion, v))
+}
+
+// FindingsVersionGTE applies the GTE predicate on the "findings_version" field.
+func FindingsVersionGTE(v uint64) predicate.InventoryCount {
+	return predicate.InventoryCount(sql.FieldGTE(FieldFindingsVersion, v))
+}
+
+// FindingsVersionLT applies the LT predicate on the "findings_version" field.
+func FindingsVersionLT(v uint64) predicate.InventoryCount {
+	return predicate.InventoryCount(sql.FieldLT(FieldFindingsVersion, v))
+}
+
+// FindingsVersionLTE applies the LTE predicate on the "findings_version" field.
+func FindingsVersionLTE(v uint64) predicate.InventoryCount {
+	return predicate.InventoryCount(sql.FieldLTE(FieldFindingsVersion, v))
 }
 
 // TenantIdEQ applies the EQ predicate on the "tenant_id" field.
