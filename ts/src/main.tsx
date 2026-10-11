@@ -35,7 +35,6 @@ function Login(props: { onIn: () => void }): ReactNode {
 							body: JSON.stringify({
 								login: String(f.get('login') ?? ''),
 								password: String(f.get('password') ?? ''),
-								tenant: String(f.get('tenant') ?? ''),
 							}),
 						})
 						if (res.status === 204) {
@@ -45,11 +44,9 @@ function Login(props: { onIn: () => void }): ReactNode {
 						setBad(
 							res.status === 401
 								? '아이디 또는 비밀번호가 맞지 않습니다.'
-								: res.status === 409
-									? '이 계정은 아직 옮겨지지 않았습니다. 운영자에게 알려 주세요.'
-									: res.status === 503
-										? '지금은 로그인을 확인할 수 없습니다. 잠시 뒤에 다시 해 보세요.'
-										: `로그인할 수 없습니다 (${res.status}).`,
+								: res.status === 503
+									? '지금은 로그인을 확인할 수 없습니다. 잠시 뒤에 다시 해 보세요.'
+									: `로그인할 수 없습니다 (${res.status}).`,
 						)
 					} catch {
 						setBad('서버에 연결할 수 없습니다.')
@@ -73,13 +70,6 @@ function Login(props: { onIn: () => void }): ReactNode {
 					비밀번호
 					<input name="password" type="password" autoComplete="current-password" required />
 				</label>
-				<details>
-					<summary>조직 지정</summary>
-					<label>
-						조직 아이디
-						<input name="tenant" placeholder="여러 조직에 속한 경우에만" />
-					</label>
-				</details>
 				{bad !== '' && <p className="bad">{bad}</p>}
 				<button className="primary" disabled={busy}>
 					{busy ? '확인 중…' : '로그인'}

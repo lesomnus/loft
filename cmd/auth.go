@@ -3,16 +3,22 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/lesomnus/z"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
 	"github.com/lesomnus/payday/auth"
+	"github.com/lesomnus/payday/auth/authsession"
 	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/pdid"
 
 	app "github.com/lesomnus/rove"
+	"github.com/lesomnus/rove/internal/ent"
+	"github.com/lesomnus/rove/internal/ent/holder"
+	"github.com/lesomnus/rove/internal/ent/tenant"
 )
 
 // Resolver turns a claim into the frame a request is served in.
@@ -27,9 +33,20 @@ import (
 // is calling happens **before** there is anybody to be walled by, so a resolver
 // behind the wall would be asking a question whose answer it needs in order to
 // ask it.
-func Resolver(s app.Server) auth.Resolver {
+//
+// A session names an **account** and not a holder (D27). The holder a call is
+// served as is the account's membership of the workspace the call names in
+// [WorkspaceHeader] -- by alias or by identifier -- or its only membership when
+// the call names none. Every other credential names a holder, as before.
+func Resolver(s app.Server, db *ent.Client) auth.Resolver {
 	return auth.ResolverFunc(func(ctx context.Context, id auth.Identity) (*frame.Frame, error) {
-		ref, err := refOf(id)
+		var ref *app.HolderRef
+		var err error
+		if id.Method == authsession.Method {
+			ref, err = membership(ctx, db, id.Id)
+		} else {
+			ref, err = refOf(id)
+		}
 		if err != nil {
 			return nil, err
 		}
@@ -73,6 +90,51 @@ func Resolver(s app.Server) auth.Resolver {
 		// so a resolver cannot widen a token by forgetting.
 		return frame.New(actor, tenant, frame.Grant{}).WithRow(v), nil
 	})
+}
+
+// WorkspaceHeader is the metadata a call names its workspace in: an alias,
+// with or without its `@`, or a tenant identifier. A page served at
+// `/@<alias>/...` sends the alias on every call (design 9.11).
+const WorkspaceHeader = "rove-workspace"
+
+// membership is the holder an account is in the workspace a call names, or in
+// its only one.
+//
+// Not being in the workspace named is one answer whether or not there is such
+// a workspace, so a name says nothing about who else is here.
+func membership(ctx context.Context, db *ent.Client, account string) (*app.HolderRef, error) {
+	a, err := pdid.Parse(account)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %s", auth.ErrNoCredential, err)
+	}
+	q := db.Holder.Query().Where(holder.Account(a.Uuid()), holder.DateErasedIsNil())
+	ws := ""
+	if md, ok := metadata.FromIncomingContext(ctx); ok {
+		if vs := md.Get(WorkspaceHeader); len(vs) > 0 {
+			ws = strings.TrimPrefix(strings.TrimSpace(vs[0]), "@")
+		}
+	}
+	if ws != "" {
+		if t, err := pdid.Parse(ws); err == nil {
+			q = q.Where(holder.TenantId(t.Uuid()))
+		} else {
+			q = q.Where(holder.HasTenantWith(tenant.Alias(ws)))
+		}
+	}
+	hs, err := q.Limit(2).Ids(ctx)
+	if err != nil {
+		return nil, err
+	}
+	switch {
+	case len(hs) == 1:
+		return app.HolderRef_builder{Id: pdid.Id(hs[0]).Bytes()}.Build(), nil
+	case ws != "":
+		return nil, status.Errorf(codes.PermissionDenied, "this account is not in @%s", ws)
+	case len(hs) == 0:
+		return nil, status.Error(codes.FailedPrecondition, "this account is in no workspace")
+	default:
+		return nil, status.Errorf(codes.InvalidArgument, "this account is in more than one workspace: name one, in %s", WorkspaceHeader)
+	}
 }
 
 // refOf is the claim as a reference: an identifier when the credential named

@@ -17,6 +17,7 @@ import (
 type Mutation struct {
 	op            ent.Op
 	typ           string
+	account       *uuid.UUID
 	secret        *[]byte
 	grant         *[]byte
 	date_expires  *time.Time
@@ -25,10 +26,6 @@ type Mutation struct {
 	date_erased   *time.Time
 	date_created  *time.Time
 	clearedFields map[string]struct{}
-	tenant        *uuid.UUID
-	clearedtenant bool
-	holder        *uuid.UUID
-	clearedholder bool
 	predicates    []predicate.Session
 }
 
@@ -44,6 +41,25 @@ func NewMutation(op ent.Op) *Mutation {
 // Predicates returns the list of predicates set on the mutation.
 func (m *Mutation) Predicates() []predicate.Session {
 	return m.predicates
+}
+
+// SetAccount sets the "account" field.
+func (m *Mutation) SetAccount(u uuid.UUID) {
+	m.account = &u
+}
+
+// Account returns the value of the "account" field in the mutation.
+func (m *Mutation) Account() (r uuid.UUID, exists bool) {
+	v := m.account
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetAccount resets all changes to the "account" field.
+func (m *Mutation) ResetAccount() {
+	m.account = nil
 }
 
 // SetSecret sets the "secret" field.
@@ -257,98 +273,6 @@ func (m *Mutation) ResetDateCreated() {
 	delete(m.clearedFields, FieldDateCreated)
 }
 
-// SetTenantId sets the "tenant_id" field.
-func (m *Mutation) SetTenantId(u uuid.UUID) {
-	m.tenant = &u
-}
-
-// TenantId returns the value of the "tenant_id" field in the mutation.
-func (m *Mutation) TenantId() (r uuid.UUID, exists bool) {
-	v := m.tenant
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ResetTenantId resets all changes to the "tenant_id" field.
-func (m *Mutation) ResetTenantId() {
-	m.tenant = nil
-}
-
-// SetHolderId sets the "holder_id" field.
-func (m *Mutation) SetHolderId(u uuid.UUID) {
-	m.holder = &u
-}
-
-// HolderId returns the value of the "holder_id" field in the mutation.
-func (m *Mutation) HolderId() (r uuid.UUID, exists bool) {
-	v := m.holder
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ResetHolderId resets all changes to the "holder_id" field.
-func (m *Mutation) ResetHolderId() {
-	m.holder = nil
-}
-
-// ClearTenant clears the "tenant" edge to the Tenant entity.
-func (m *Mutation) ClearTenant() {
-	m.clearedtenant = true
-	m.clearedFields[FieldTenantId] = struct{}{}
-}
-
-// TenantCleared reports if the "tenant" edge to the Tenant entity was cleared.
-func (m *Mutation) TenantCleared() bool {
-	return m.clearedtenant
-}
-
-// TenantIds returns the "tenant" edge Ids in the mutation.
-// Note that Ids always returns len(Ids) <= 1 for unique edges, and you should use
-// TenantId instead. It exists only for internal usage by the builders.
-func (m *Mutation) TenantIds() (ids []uuid.UUID) {
-	if id := m.tenant; id != nil {
-		ids = append(ids, *id)
-	}
-	return
-}
-
-// ResetTenant resets all changes to the "tenant" edge.
-func (m *Mutation) ResetTenant() {
-	m.tenant = nil
-	m.clearedtenant = false
-}
-
-// ClearHolder clears the "holder" edge to the Holder entity.
-func (m *Mutation) ClearHolder() {
-	m.clearedholder = true
-	m.clearedFields[FieldHolderId] = struct{}{}
-}
-
-// HolderCleared reports if the "holder" edge to the Holder entity was cleared.
-func (m *Mutation) HolderCleared() bool {
-	return m.clearedholder
-}
-
-// HolderIds returns the "holder" edge Ids in the mutation.
-// Note that Ids always returns len(Ids) <= 1 for unique edges, and you should use
-// HolderId instead. It exists only for internal usage by the builders.
-func (m *Mutation) HolderIds() (ids []uuid.UUID) {
-	if id := m.holder; id != nil {
-		ids = append(ids, *id)
-	}
-	return
-}
-
-// ResetHolder resets all changes to the "holder" edge.
-func (m *Mutation) ResetHolder() {
-	m.holder = nil
-	m.clearedholder = false
-}
-
 // Where appends a list predicates to the Mutation builder.
 func (m *Mutation) Where(ps ...predicate.Session) {
 	m.predicates = append(m.predicates, ps...)
@@ -383,7 +307,10 @@ func (m *Mutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *Mutation) Fields() []string {
-	fields := make([]string, 0, 9)
+	fields := make([]string, 0, 8)
+	if m.account != nil {
+		fields = append(fields, FieldAccount)
+	}
 	if m.secret != nil {
 		fields = append(fields, FieldSecret)
 	}
@@ -405,12 +332,6 @@ func (m *Mutation) Fields() []string {
 	if m.date_created != nil {
 		fields = append(fields, FieldDateCreated)
 	}
-	if m.tenant != nil {
-		fields = append(fields, FieldTenantId)
-	}
-	if m.holder != nil {
-		fields = append(fields, FieldHolderId)
-	}
 	return fields
 }
 
@@ -419,6 +340,8 @@ func (m *Mutation) Fields() []string {
 // schema.
 func (m *Mutation) Field(name string) (ent.Value, bool) {
 	switch name {
+	case FieldAccount:
+		return m.Account()
 	case FieldSecret:
 		return m.Secret()
 	case FieldGrant:
@@ -433,10 +356,6 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.DateErased()
 	case FieldDateCreated:
 		return m.DateCreated()
-	case FieldTenantId:
-		return m.TenantId()
-	case FieldHolderId:
-		return m.HolderId()
 	}
 	return nil, false
 }
@@ -453,6 +372,13 @@ func (m *Mutation) OldField(ctx context.Context, name string) (ent.Value, error)
 // type.
 func (m *Mutation) SetField(name string, value ent.Value) error {
 	switch name {
+	case FieldAccount:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAccount(v)
+		return nil
 	case FieldSecret:
 		v, ok := value.([]byte)
 		if !ok {
@@ -501,20 +427,6 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDateCreated(v)
-		return nil
-	case FieldTenantId:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetTenantId(v)
-		return nil
-	case FieldHolderId:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetHolderId(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Session field %s", name)
@@ -604,6 +516,9 @@ func (m *Mutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *Mutation) ResetField(name string) error {
 	switch name {
+	case FieldAccount:
+		m.ResetAccount()
+		return nil
 	case FieldSecret:
 		m.ResetSecret()
 		return nil
@@ -625,47 +540,25 @@ func (m *Mutation) ResetField(name string) error {
 	case FieldDateCreated:
 		m.ResetDateCreated()
 		return nil
-	case FieldTenantId:
-		m.ResetTenantId()
-		return nil
-	case FieldHolderId:
-		m.ResetHolderId()
-		return nil
 	}
 	return fmt.Errorf("unknown Session field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *Mutation) AddedEdges() []string {
-	edges := make([]string, 0, 2)
-	if m.tenant != nil {
-		edges = append(edges, EdgeTenant)
-	}
-	if m.holder != nil {
-		edges = append(edges, EdgeHolder)
-	}
+	edges := make([]string, 0, 0)
 	return edges
 }
 
 // AddedIds returns all Ids (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *Mutation) AddedIds(name string) []ent.Value {
-	switch name {
-	case EdgeTenant:
-		if id := m.tenant; id != nil {
-			return []ent.Value{*id}
-		}
-	case EdgeHolder:
-		if id := m.holder; id != nil {
-			return []ent.Value{*id}
-		}
-	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *Mutation) RemovedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 0)
 	return edges
 }
 
@@ -677,52 +570,24 @@ func (m *Mutation) RemovedIds(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *Mutation) ClearedEdges() []string {
-	edges := make([]string, 0, 2)
-	if m.clearedtenant {
-		edges = append(edges, EdgeTenant)
-	}
-	if m.clearedholder {
-		edges = append(edges, EdgeHolder)
-	}
+	edges := make([]string, 0, 0)
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *Mutation) EdgeCleared(name string) bool {
-	switch name {
-	case EdgeTenant:
-		return m.clearedtenant
-	case EdgeHolder:
-		return m.clearedholder
-	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *Mutation) ClearEdge(name string) error {
-	switch name {
-	case EdgeTenant:
-		m.ClearTenant()
-		return nil
-	case EdgeHolder:
-		m.ClearHolder()
-		return nil
-	}
 	return fmt.Errorf("unknown Session unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *Mutation) ResetEdge(name string) error {
-	switch name {
-	case EdgeTenant:
-		m.ResetTenant()
-		return nil
-	case EdgeHolder:
-		m.ResetHolder()
-		return nil
-	}
 	return fmt.Errorf("unknown Session edge %s", name)
 }

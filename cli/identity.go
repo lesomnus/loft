@@ -3,17 +3,20 @@ package cli
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"strings"
 	"uuid"
 
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/xli"
 	"github.com/lesomnus/xli/flg"
+	"github.com/lesomnus/z"
 
+	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/cmd"
 	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/ent/session"
 	enttenant "github.com/lesomnus/rove/internal/ent/tenant"
 	"github.com/lesomnus/rove/internal/identity"
 )
@@ -41,14 +44,18 @@ func NewCmdIdentity(c *cmd.Config) *xli.Command {
 }
 
 // migrateIdentity is `rove identity migrate`, the upgrade of a deployment
-// whose tenants and logins were made here before roster held them. Nobody of
-// it is at roster, so nobody of it can sign in.
+// whose logins are holders that name no account (D27): made before roster held
+// people, or before holders named accounts. Nobody of them can sign in.
 //
-// On the roster in this process it writes every tenant and every login that
-// has not ended into roster with the identifiers they have here, gives each a
-// new password and prints it once, and ends the sessions from before. Run
-// again it makes nothing. A roster of its own is its operator's to write to,
-// so for one this prints what to make there, with the same identifiers.
+// On the roster in this process it makes the directory when there is none and
+// writes every such holder into it as an account with the identifier the
+// holder has, so that what the trail says each did is still theirs; it gives
+// each a new password and prints it once, and links the holder to it. A login
+// another workspace has too gets that workspace's alias beside it. Somebody
+// roster has by that identifier already is linked as they are. Run again it
+// makes nothing. A roster of its own is its operator's to write to, so for one
+// this prints what to make there, with the same identifiers, and links what
+// was made.
 //
 // Either way it then drops the table the passwords from before were kept in,
 // which nothing reads any more.
@@ -85,52 +92,129 @@ func migrateIdentity(ctx context.Context, self *xli.Command, c *cmd.Config) erro
 	return nil
 }
 
-// loginsOf is everybody who signs in to a tenant here, in the order they were
-// made.
-func loginsOf(ctx context.Context, s *cmd.Server, t *ent.Tenant) ([]*ent.Holder, error) {
+// unlinked is everybody who signs in to a workspace here and whose holder
+// names no account yet, in the order they were made.
+func unlinked(ctx context.Context, s *cmd.Server, t *ent.Tenant) ([]*ent.Holder, error) {
 	return s.Ent.Holder.Query().
-		Where(holder.TenantId(t.Id), holder.DateErasedIsNil()).
+		Where(holder.TenantId(t.Id), holder.DateErasedIsNil(), holder.AccountIsNil()).
 		Order(ent.Asc(holder.FieldDateCreated), ent.Asc(holder.FieldId)).
 		All(ctx)
 }
 
+// link makes a holder the membership of the account with its own identifier.
+// Through the stack, so the trail says it happened.
+func link(ctx context.Context, s *cmd.Server, h *ent.Holder) error {
+	id := pdid.Id(h.Id)
+	_, err := s.Base.Holder().Patch(ctx, app.HolderPatchRequest_builder{
+		Ref:              app.HolderRef_builder{Id: id.Bytes()}.Build(),
+		Account:          id.Bytes(),
+		DateUpdatedForce: z.Ptr(true),
+	}.Build())
+	return err
+}
+
+// freeAlias is a login for a holder in the directory: its own alias when
+// nobody there has it, and otherwise that alias with its workspace's beside it.
+// A login was unique inside one workspace and the directory is every
+// workspace's.
+func freeAlias(ctx context.Context, s *cmd.Server, alias, workspace string, chosen map[string]bool) (string, error) {
+	for i := 0; ; i++ {
+		v := alias
+		switch {
+		case i == 1:
+			v = alias + "-" + workspace
+		case i > 1:
+			v = fmt.Sprintf("%s-%s-%d", alias, workspace, i)
+		}
+		if chosen[v] || v == identity.Agent {
+			continue
+		}
+		free, err := aliasFree(ctx, s, v)
+		if err != nil {
+			return "", err
+		}
+		if free {
+			return v, nil
+		}
+	}
+}
+
+// aliasFree says whether nobody in the directory has a login. The
+// administrator roster makes a directory with is nobody: no holder here is it,
+// and it has no way to sign in, so [identity.Store.Adopt] gives its name to
+// the person here who has it.
+func aliasFree(ctx context.Context, s *cmd.Server, alias string) (bool, error) {
+	p, err := s.Identity.Lookup(ctx, alias)
+	if errors.Is(err, identity.ErrNoPerson) {
+		return true, nil
+	}
+	if err != nil || alias != identity.RosterAdministrator {
+		return false, err
+	}
+	used, err := s.Ent.Holder.Query().Where(holder.Or(holder.Account(p.Id.Uuid()), holder.Id(p.Id.Uuid()))).Exist(ctx)
+	return !used, err
+}
+
 func adoptAll(ctx context.Context, self *xli.Command, s *cmd.Server, tenants []*ent.Tenant, password string) error {
-	made := 0
+	if _, err := s.Identity.EnsureDirectory(ctx); err != nil {
+		return fmt.Errorf("roster: %w", err)
+	}
+
+	made, linked := 0, 0
+	chosen := map[string]bool{}
 	for _, t := range tenants {
-		hs, err := loginsOf(ctx, s, t)
+		hs, err := unlinked(ctx, s, t)
 		if err != nil {
 			return err
 		}
-		people := make([]identity.Adoptee, 0, len(hs))
+		people := []identity.Adoptee{}
+		logins := map[uuid.UUID]string{}
 		for _, h := range hs {
-			people = append(people, identity.Adoptee{Id: pdid.Id(h.Id), Alias: h.Alias, Name: h.Name})
+			// Somebody roster has by this identifier already -- made for this
+			// deployment before holders named accounts -- is that account.
+			p, err := s.Identity.ById(ctx, pdid.Id(h.Id).String())
+			if err == nil {
+				logins[h.Id] = p.Alias
+				continue
+			}
+			if !errors.Is(err, identity.ErrNoPerson) {
+				return fmt.Errorf("roster: %w", err)
+			}
+			alias, err := freeAlias(ctx, s, h.Alias, t.Alias, chosen)
+			if err != nil {
+				return fmt.Errorf("roster: %w", err)
+			}
+			chosen[alias] = true
+			logins[h.Id] = alias
+			people = append(people, identity.Adoptee{Id: pdid.Id(h.Id), Alias: alias, Name: h.Name})
 		}
-		passwords, err := s.Identity.Adopt(ctx, pdid.Id(t.Id), t.Alias, t.Name, people, password)
+		passwords, err := s.Identity.Adopt(ctx, people, password)
 		if err != nil {
 			return err
 		}
 
-		renewed := []uuid.UUID{}
 		for _, h := range hs {
-			pw, ok := passwords[h.Alias]
-			if !ok {
-				continue
+			if err := link(ctx, s, h); err != nil {
+				return err
 			}
-			self.Printf("@%s/%s  password %s\n", t.Alias, h.Alias, pw)
-			renewed = append(renewed, h.Id)
-			made++
-		}
-		// Signed in with a password that is not theirs any more.
-		if _, err := s.Ent.Session.Delete().Where(session.HolderIdIn(renewed...)).Exec(ctx); err != nil {
-			return err
+			login := logins[h.Id]
+			if pw, ok := passwords[login]; ok {
+				self.Printf("@%s/%s  login %s  password %s\n", t.Alias, h.Alias, login, pw)
+				made++
+			} else {
+				self.Printf("@%s/%s  login %s  (an account already)\n", t.Alias, h.Alias, login)
+				linked++
+			}
 		}
 	}
 
 	switch {
+	case made == 0 && linked == 0:
+		self.Printf("nobody to bring in: every holder here is an account's\n")
 	case made == 0:
-		self.Printf("nobody to bring in: roster has everybody here already\n")
+		self.Printf("\n%d holder(s) linked to the accounts roster had for them\n", linked)
 	case password != "":
-		self.Printf("\n%d login(s), every one with the password given; the ones from before roster are not brought along\n", made)
+		self.Printf("\n%d account(s), every one with the password given; the ones from before roster are not brought along\n", made)
 	default:
 		self.Printf("\n%d password(s), shown once; the ones from before roster are not brought along\n", made)
 	}
@@ -138,22 +222,39 @@ func adoptAll(ctx context.Context, self *xli.Command, s *cmd.Server, tenants []*
 }
 
 func describeAll(ctx context.Context, self *xli.Command, s *cmd.Server, tenants []*ent.Tenant) error {
-	self.Printf("# roster is not in this process: its operator makes these there, with the identifiers they have here\n")
+	d, err := s.Identity.Directory(ctx)
+	if err != nil {
+		return fmt.Errorf("roster: %w", err)
+	}
+	todo := 0
 	for _, t := range tenants {
-		hs, err := loginsOf(ctx, s, t)
+		hs, err := unlinked(ctx, s, t)
 		if err != nil {
 			return err
 		}
-		self.Printf("\nroster tenant add @%s %s\n", t.Alias, quoted(map[string]string{"id": pdid.Id(t.Id).String(), "name": t.Name}))
 		for _, h := range hs {
-			if h.Alias == "admin" {
-				self.Printf("# roster made @%s/admin with the tenant: erase it first, and bind this one to `everything` in its place\n", t.Alias)
+			// The ones roster's operator made already, with these identifiers,
+			// are linked; the rest are what to make.
+			if _, err := s.Identity.ById(ctx, pdid.Id(h.Id).String()); err == nil {
+				if err := link(ctx, s, h); err != nil {
+					return err
+				}
+				self.Printf("@%s/%s  linked\n", t.Alias, h.Alias)
+				continue
+			} else if !errors.Is(err, identity.ErrNoPerson) {
+				return fmt.Errorf("roster: %w", err)
 			}
-			self.Printf("roster holder add @%s/%s %s\n", t.Alias, h.Alias, quoted(map[string]string{"id": pdid.Id(h.Id).String(), "name": h.Name}))
+			if todo == 0 {
+				self.Printf("# roster is not in this process: its operator makes these accounts in @%s, with the identifiers they have here,\n", d.Alias)
+				self.Printf("# and gives each a way in there; then run this again to link them\n")
+			}
+			self.Printf("roster holder add @%s/%s %s\n", d.Alias, h.Alias, quoted(map[string]string{"id": pdid.Id(h.Id).String(), "name": h.Name}))
+			todo++
 		}
-		self.Printf("roster app install --tenant %s --role %s rove\n", t.Alias, strings.Join(identity.AgentMethods, ","))
 	}
-	self.Printf("\n# and gives each of them a way in there, such as `roster vouch reset @<tenant>/<login>`\n")
+	if todo == 0 {
+		self.Printf("nobody to bring in: every holder here is an account's\n")
+	}
 	return nil
 }
 

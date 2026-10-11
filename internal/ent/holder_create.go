@@ -95,6 +95,20 @@ func (_c *HolderCreate) SetNillableRole(v *string) *HolderCreate {
 	return _c
 }
 
+// SetAccount sets the "account" field.
+func (_c *HolderCreate) SetAccount(v uuid.UUID) *HolderCreate {
+	_c.mutation.SetAccount(v)
+	return _c
+}
+
+// SetNillableAccount sets the "account" field if the given value is not nil.
+func (_c *HolderCreate) SetNillableAccount(v *uuid.UUID) *HolderCreate {
+	if v != nil {
+		_c.SetAccount(*v)
+	}
+	return _c
+}
+
 // SetTenantId sets the "tenant_id" field.
 func (_c *HolderCreate) SetTenantId(v uuid.UUID) *HolderCreate {
 	_c.mutation.SetTenantId(v)
@@ -234,6 +248,10 @@ func (_c *HolderCreate) createSpec() (*Holder, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Role(); ok {
 		_spec.SetField(holder.FieldRole, field.TypeString, value)
 		_node.Role = value
+	}
+	if value, ok := _c.mutation.Account(); ok {
+		_spec.SetField(holder.FieldAccount, field.TypeUuid, value)
+		_node.Account = &value
 	}
 	if nodes := _c.mutation.TenantIds(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

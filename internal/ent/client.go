@@ -4905,38 +4905,6 @@ func (c *SessionClient) GetX(ctx context.Context, id uuid.UUID) *Session {
 	return obj
 }
 
-// QueryTenant queries the tenant edge of a Session.
-func (c *SessionClient) QueryTenant(_m *Session) *TenantQuery {
-	query := (&TenantClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.Id
-		step := sqlgraph.NewStep(
-			sqlgraph.From(session.Table, session.FieldId, id),
-			sqlgraph.To(tenant.Table, tenant.FieldId),
-			sqlgraph.Edge(sqlgraph.M2O, false, session.TenantTable, session.TenantColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryHolder queries the holder edge of a Session.
-func (c *SessionClient) QueryHolder(_m *Session) *HolderQuery {
-	query := (&HolderClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.Id
-		step := sqlgraph.NewStep(
-			sqlgraph.From(session.Table, session.FieldId, id),
-			sqlgraph.To(holder.Table, holder.FieldId),
-			sqlgraph.Edge(sqlgraph.M2O, false, session.HolderTable, session.HolderColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // Hooks returns the client hooks.
 func (c *SessionClient) Hooks() []Hook {
 	return c.hooks.Session

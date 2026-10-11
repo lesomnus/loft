@@ -631,6 +631,7 @@ var (
 		{Name: "date_erased", Type: field.TypeTime, Nullable: true},
 		{Name: "date_created", Type: field.TypeTime, Nullable: true},
 		{Name: "role", Type: field.TypeString, Nullable: true},
+		{Name: "account", Type: field.TypeUuid, Nullable: true},
 		{Name: "tenant_id", Type: field.TypeUuid},
 	}
 	// HolderTable holds the schema information for the "holder" table.
@@ -641,7 +642,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "holder_tenant_tenant",
-				Columns:    []*schema.Column{HolderColumns[9]},
+				Columns:    []*schema.Column{HolderColumns[10]},
 				RefColumns: []*schema.Column{TenantColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -650,7 +651,7 @@ var (
 			{
 				Name:    "holder_alias_tenant_id",
 				Unique:  true,
-				Columns: []*schema.Column{HolderColumns[1], HolderColumns[9]},
+				Columns: []*schema.Column{HolderColumns[1], HolderColumns[10]},
 				Annotation: &entsql.IndexAnnotation{
 					Where: "date_erased IS NULL",
 				},
@@ -1254,6 +1255,7 @@ var (
 	// SessionColumns holds the columns for the "session" table.
 	SessionColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUuid, Unique: true},
+		{Name: "account", Type: field.TypeUuid},
 		{Name: "secret", Type: field.TypeBytes, Nullable: true},
 		{Name: "grant", Type: field.TypeBytes, Nullable: true},
 		{Name: "date_expires", Type: field.TypeTime, Nullable: true},
@@ -1261,31 +1263,20 @@ var (
 		{Name: "date_updated", Type: field.TypeTime},
 		{Name: "date_erased", Type: field.TypeTime, Nullable: true},
 		{Name: "date_created", Type: field.TypeTime, Nullable: true},
-		{Name: "tenant_id", Type: field.TypeUuid},
-		{Name: "holder_id", Type: field.TypeUuid},
 	}
 	// SessionTable holds the schema information for the "session" table.
 	SessionTable = &schema.Table{
 		Name:       "session",
 		Columns:    SessionColumns,
 		PrimaryKey: []*schema.Column{SessionColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "session_tenant_tenant",
-				Columns:    []*schema.Column{SessionColumns[8]},
-				RefColumns: []*schema.Column{TenantColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-			{
-				Symbol:     "session_holder_holder",
-				Columns:    []*schema.Column{SessionColumns[9]},
-				RefColumns: []*schema.Column{HolderColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-		},
 		Indexes: []*schema.Index{
 			{
 				Name:    "session_secret",
+				Unique:  false,
+				Columns: []*schema.Column{SessionColumns[2]},
+			},
+			{
+				Name:    "session_account",
 				Unique:  false,
 				Columns: []*schema.Column{SessionColumns[1]},
 			},
@@ -1834,8 +1825,6 @@ func init() {
 	ReservationitemTable.Annotation = &entsql.Annotation{
 		Table: "reservationitem",
 	}
-	SessionTable.ForeignKeys[0].RefTable = TenantTable
-	SessionTable.ForeignKeys[1].RefTable = HolderTable
 	SessionTable.Annotation = &entsql.Annotation{
 		Table: "session",
 	}

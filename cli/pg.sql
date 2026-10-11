@@ -62,6 +62,13 @@ BEGIN
 END
 $$;
 
+-- An account is in a workspace once: one holder of it per tenant, among the
+-- holders still here (design 9.10, D27). The domain layer checks before it
+-- writes, and this is the answer to two writes at once. An index the schema
+-- does not know is one its check leaves alone.
+CREATE UNIQUE INDEX IF NOT EXISTS holder_account_once ON holder (tenant_id, account)
+	WHERE date_erased IS NULL AND account IS NOT NULL;
+
 -- No CHECK constraints here, though "stock is never negative" wants one: the
 -- schema check `serve` runs without `db.migrate` sees a CHECK it was not told
 -- about and refuses the database (lesomnus/payday#33). The EXCLUDE

@@ -2,6 +2,7 @@ package domain_test
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"testing"
 	"time"
@@ -19,6 +20,7 @@ import (
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/cli"
 	"github.com/lesomnus/rove/cmd"
+	"github.com/lesomnus/rove/internal/identity"
 	"github.com/lesomnus/rove/server/domain"
 	"github.com/lesomnus/rove/server/pd"
 )
@@ -67,17 +69,31 @@ func newEnv(t *testing.T) *env {
 	return e
 }
 
-// newTenant puts up a tenant and its owner the way `rove init` does -- at
-// roster, then here with roster's identifiers -- and answers with the owner
-// signed in.
+// newTenant puts up a workspace and its owner the way `rove init` does -- the
+// owner an account in the directory at roster, the workspace here and the
+// owner's membership of it -- and answers with the owner signed in.
 func (e *env) newTenant(alias string) (pdid.Id, context.Context) {
 	ctx := context.Background()
-	p, _, err := e.s.Identity.Seed(ctx, alias, "owner", pdid.Nil)
+	login := "owner-" + alias
+	_, err := e.s.Identity.Directory(ctx)
+	var p identity.Person
+	if errors.Is(err, identity.ErrNoDirectory) {
+		p, _, err = e.s.Identity.MakeDirectory(ctx, login)
+	} else {
+		e.x.NoError(err)
+		p, err = e.s.Identity.AddPerson(ctx, login, "Owner of "+alias, pdid.Nil)
+	}
 	e.x.NoError(err)
-	t, err := e.s.Base.Tenant().Add(ctx, app.TenantAddRequest_builder{Id: p.Tenant.Bytes(), Alias: alias, Name: alias}.Build())
+	t, err := e.s.Base.Tenant().Add(ctx, app.TenantAddRequest_builder{Alias: alias, Name: alias}.Build())
 	e.x.NoError(err)
 	tenant := app.TenantRef_builder{Id: t.GetId()}.Build()
-	h, err := e.s.Base.Holder().Add(ctx, app.HolderAddRequest_builder{Id: p.Id.Bytes(), Tenant: tenant, Alias: "owner", Name: "Owner", Role: z.Ptr("owner")}.Build())
+	h, err := e.s.Base.Holder().Add(ctx, app.HolderAddRequest_builder{
+		Tenant:  tenant,
+		Alias:   "owner",
+		Name:    "Owner",
+		Role:    z.Ptr("owner"),
+		Account: p.Id.Bytes(),
+	}.Build())
 	e.x.NoError(err)
 	_, err = e.s.Base.Party().Add(ctx, app.PartyAddRequest_builder{
 		Tenant: tenant,

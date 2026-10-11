@@ -234,7 +234,7 @@ function PartyDialog(props: { p: Party; role: string | undefined; onClose: () =>
 				<footer className="modal-actions">
 					<button onClick={() => setMode('edit')}>수정</button>
 					{p.kind === 'person' && p.holder === undefined && c.me.accountsHere && <button className="primary" onClick={() => setMode('invite')}>로그인 발급</button>}
-					{p.kind === 'person' && p.holder === undefined && !c.me.accountsHere && <span className="mute small">로그인은 roster에서 만듭니다. 그 사람이 처음 로그인하면 여기에 들어옵니다.</span>}
+					{p.kind === 'person' && p.holder === undefined && !c.me.accountsHere && <span className="mute small">계정은 roster에서 만듭니다.</span>}
 					{p.kind === 'person' && p.holder !== undefined && !self && (
 						<>
 							<button onClick={() => setMode('role')}>역할 변경</button>

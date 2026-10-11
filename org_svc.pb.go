@@ -3382,8 +3382,7 @@ func (b0 PartyPseudonymizeRequest_builder) Build() *PartyPseudonymizeRequest {
 type SessionAddRequest struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Tenant      *TenantRef             `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Holder      *HolderRef             `protobuf:"bytes,8,opt,name=holder"`
+	xxx_hidden_Account     []byte                 `protobuf:"bytes,8,opt,name=account"`
 	xxx_hidden_Secret      []byte                 `protobuf:"bytes,9,opt,name=secret"`
 	xxx_hidden_Grant       []byte                 `protobuf:"bytes,10,opt,name=grant"`
 	xxx_hidden_DateExpires *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=date_expires,json=dateExpires"`
@@ -3427,16 +3426,9 @@ func (x *SessionAddRequest) GetId() []byte {
 	return nil
 }
 
-func (x *SessionAddRequest) GetTenant() *TenantRef {
+func (x *SessionAddRequest) GetAccount() []byte {
 	if x != nil {
-		return x.xxx_hidden_Tenant
-	}
-	return nil
-}
-
-func (x *SessionAddRequest) GetHolder() *HolderRef {
-	if x != nil {
-		return x.xxx_hidden_Holder
+		return x.xxx_hidden_Account
 	}
 	return nil
 }
@@ -3481,15 +3473,14 @@ func (x *SessionAddRequest) SetId(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_Id = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 8)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 7)
 }
 
-func (x *SessionAddRequest) SetTenant(v *TenantRef) {
-	x.xxx_hidden_Tenant = v
-}
-
-func (x *SessionAddRequest) SetHolder(v *HolderRef) {
-	x.xxx_hidden_Holder = v
+func (x *SessionAddRequest) SetAccount(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Account = v
 }
 
 func (x *SessionAddRequest) SetSecret(v []byte) {
@@ -3497,7 +3488,7 @@ func (x *SessionAddRequest) SetSecret(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_Secret = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 8)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 7)
 }
 
 func (x *SessionAddRequest) SetGrant(v []byte) {
@@ -3505,7 +3496,7 @@ func (x *SessionAddRequest) SetGrant(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_Grant = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 8)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 7)
 }
 
 func (x *SessionAddRequest) SetDateExpires(v *timestamppb.Timestamp) {
@@ -3527,32 +3518,18 @@ func (x *SessionAddRequest) HasId() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
 }
 
-func (x *SessionAddRequest) HasTenant() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Tenant != nil
-}
-
-func (x *SessionAddRequest) HasHolder() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Holder != nil
-}
-
 func (x *SessionAddRequest) HasSecret() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
 }
 
 func (x *SessionAddRequest) HasGrant() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
 }
 
 func (x *SessionAddRequest) HasDateExpires() bool {
@@ -3581,21 +3558,13 @@ func (x *SessionAddRequest) ClearId() {
 	x.xxx_hidden_Id = nil
 }
 
-func (x *SessionAddRequest) ClearTenant() {
-	x.xxx_hidden_Tenant = nil
-}
-
-func (x *SessionAddRequest) ClearHolder() {
-	x.xxx_hidden_Holder = nil
-}
-
 func (x *SessionAddRequest) ClearSecret() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
 	x.xxx_hidden_Secret = nil
 }
 
 func (x *SessionAddRequest) ClearGrant() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
 	x.xxx_hidden_Grant = nil
 }
 
@@ -3615,8 +3584,7 @@ type SessionAddRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	Id          []byte
-	Tenant      *TenantRef
-	Holder      *HolderRef
+	Account     []byte
 	Secret      []byte
 	Grant       []byte
 	DateExpires *timestamppb.Timestamp
@@ -3629,17 +3597,16 @@ func (b0 SessionAddRequest_builder) Build() *SessionAddRequest {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.Id != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 8)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 7)
 		x.xxx_hidden_Id = b.Id
 	}
-	x.xxx_hidden_Tenant = b.Tenant
-	x.xxx_hidden_Holder = b.Holder
+	x.xxx_hidden_Account = b.Account
 	if b.Secret != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 8)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 7)
 		x.xxx_hidden_Secret = b.Secret
 	}
 	if b.Grant != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 8)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 7)
 		x.xxx_hidden_Grant = b.Grant
 	}
 	x.xxx_hidden_DateExpires = b.DateExpires
@@ -3870,8 +3837,7 @@ func (*sessionRef_Id) isSessionRef_Key() {}
 type SessionSelect struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_All         bool                   `protobuf:"varint,1,opt,name=all"`
-	xxx_hidden_Tenant      *TenantSelect          `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Holder      *HolderSelect          `protobuf:"bytes,8,opt,name=holder"`
+	xxx_hidden_Account     bool                   `protobuf:"varint,8,opt,name=account"`
 	xxx_hidden_Secret      bool                   `protobuf:"varint,9,opt,name=secret"`
 	xxx_hidden_Grant       bool                   `protobuf:"varint,10,opt,name=grant"`
 	xxx_hidden_DateExpires bool                   `protobuf:"varint,11,opt,name=date_expires,json=dateExpires"`
@@ -3917,18 +3883,11 @@ func (x *SessionSelect) GetAll() bool {
 	return false
 }
 
-func (x *SessionSelect) GetTenant() *TenantSelect {
+func (x *SessionSelect) GetAccount() bool {
 	if x != nil {
-		return x.xxx_hidden_Tenant
+		return x.xxx_hidden_Account
 	}
-	return nil
-}
-
-func (x *SessionSelect) GetHolder() *HolderSelect {
-	if x != nil {
-		return x.xxx_hidden_Holder
-	}
-	return nil
+	return false
 }
 
 func (x *SessionSelect) GetSecret() bool {
@@ -3982,50 +3941,47 @@ func (x *SessionSelect) GetDateCreated() bool {
 
 func (x *SessionSelect) SetAll(v bool) {
 	x.xxx_hidden_All = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 9)
 }
 
-func (x *SessionSelect) SetTenant(v *TenantSelect) {
-	x.xxx_hidden_Tenant = v
-}
-
-func (x *SessionSelect) SetHolder(v *HolderSelect) {
-	x.xxx_hidden_Holder = v
+func (x *SessionSelect) SetAccount(v bool) {
+	x.xxx_hidden_Account = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 9)
 }
 
 func (x *SessionSelect) SetSecret(v bool) {
 	x.xxx_hidden_Secret = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 9)
 }
 
 func (x *SessionSelect) SetGrant(v bool) {
 	x.xxx_hidden_Grant = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 9)
 }
 
 func (x *SessionSelect) SetDateExpires(v bool) {
 	x.xxx_hidden_DateExpires = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 9)
 }
 
 func (x *SessionSelect) SetDateIdle(v bool) {
 	x.xxx_hidden_DateIdle = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 9)
 }
 
 func (x *SessionSelect) SetDateUpdated(v bool) {
 	x.xxx_hidden_DateUpdated = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 9)
 }
 
 func (x *SessionSelect) SetDateErased(v bool) {
 	x.xxx_hidden_DateErased = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 9)
 }
 
 func (x *SessionSelect) SetDateCreated(v bool) {
 	x.xxx_hidden_DateCreated = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 9)
 }
 
 func (x *SessionSelect) HasAll() bool {
@@ -4035,67 +3991,60 @@ func (x *SessionSelect) HasAll() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
 }
 
-func (x *SessionSelect) HasTenant() bool {
+func (x *SessionSelect) HasAccount() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Tenant != nil
-}
-
-func (x *SessionSelect) HasHolder() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Holder != nil
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
 }
 
 func (x *SessionSelect) HasSecret() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
 }
 
 func (x *SessionSelect) HasGrant() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
 }
 
 func (x *SessionSelect) HasDateExpires() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
 }
 
 func (x *SessionSelect) HasDateIdle() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 6)
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
 }
 
 func (x *SessionSelect) HasDateUpdated() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 7)
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 6)
 }
 
 func (x *SessionSelect) HasDateErased() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 8)
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 7)
 }
 
 func (x *SessionSelect) HasDateCreated() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 9)
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 8)
 }
 
 func (x *SessionSelect) ClearAll() {
@@ -4103,46 +4052,43 @@ func (x *SessionSelect) ClearAll() {
 	x.xxx_hidden_All = false
 }
 
-func (x *SessionSelect) ClearTenant() {
-	x.xxx_hidden_Tenant = nil
-}
-
-func (x *SessionSelect) ClearHolder() {
-	x.xxx_hidden_Holder = nil
+func (x *SessionSelect) ClearAccount() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	x.xxx_hidden_Account = false
 }
 
 func (x *SessionSelect) ClearSecret() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
 	x.xxx_hidden_Secret = false
 }
 
 func (x *SessionSelect) ClearGrant() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
 	x.xxx_hidden_Grant = false
 }
 
 func (x *SessionSelect) ClearDateExpires() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 5)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
 	x.xxx_hidden_DateExpires = false
 }
 
 func (x *SessionSelect) ClearDateIdle() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 6)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 5)
 	x.xxx_hidden_DateIdle = false
 }
 
 func (x *SessionSelect) ClearDateUpdated() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 6)
 	x.xxx_hidden_DateUpdated = false
 }
 
 func (x *SessionSelect) ClearDateErased() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 8)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
 	x.xxx_hidden_DateErased = false
 }
 
 func (x *SessionSelect) ClearDateCreated() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 9)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 8)
 	x.xxx_hidden_DateCreated = false
 }
 
@@ -4150,8 +4096,7 @@ type SessionSelect_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	All         *bool
-	Tenant      *TenantSelect
-	Holder      *HolderSelect
+	Account     *bool
 	Secret      *bool
 	Grant       *bool
 	DateExpires *bool
@@ -4166,37 +4111,39 @@ func (b0 SessionSelect_builder) Build() *SessionSelect {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.All != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 9)
 		x.xxx_hidden_All = *b.All
 	}
-	x.xxx_hidden_Tenant = b.Tenant
-	x.xxx_hidden_Holder = b.Holder
+	if b.Account != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 9)
+		x.xxx_hidden_Account = *b.Account
+	}
 	if b.Secret != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 9)
 		x.xxx_hidden_Secret = *b.Secret
 	}
 	if b.Grant != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 9)
 		x.xxx_hidden_Grant = *b.Grant
 	}
 	if b.DateExpires != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 9)
 		x.xxx_hidden_DateExpires = *b.DateExpires
 	}
 	if b.DateIdle != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 9)
 		x.xxx_hidden_DateIdle = *b.DateIdle
 	}
 	if b.DateUpdated != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 9)
 		x.xxx_hidden_DateUpdated = *b.DateUpdated
 	}
 	if b.DateErased != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 9)
 		x.xxx_hidden_DateErased = *b.DateErased
 	}
 	if b.DateCreated != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 9)
 		x.xxx_hidden_DateCreated = *b.DateCreated
 	}
 	return m0
@@ -4205,6 +4152,7 @@ func (b0 SessionSelect_builder) Build() *SessionSelect {
 type SessionPatchRequest struct {
 	state                       protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Ref              *SessionRef            `protobuf:"bytes,1,opt,name=ref"`
+	xxx_hidden_Account          []byte                 `protobuf:"bytes,16,opt,name=account"`
 	xxx_hidden_Secret           []byte                 `protobuf:"bytes,18,opt,name=secret"`
 	xxx_hidden_Grant            []byte                 `protobuf:"bytes,20,opt,name=grant"`
 	xxx_hidden_DateExpires      *timestamppb.Timestamp `protobuf:"bytes,22,opt,name=date_expires,json=dateExpires"`
@@ -4247,6 +4195,13 @@ func (x *SessionPatchRequest) ProtoReflect() protoreflect.Message {
 func (x *SessionPatchRequest) GetRef() *SessionRef {
 	if x != nil {
 		return x.xxx_hidden_Ref
+	}
+	return nil
+}
+
+func (x *SessionPatchRequest) GetAccount() []byte {
+	if x != nil {
+		return x.xxx_hidden_Account
 	}
 	return nil
 }
@@ -4311,12 +4266,20 @@ func (x *SessionPatchRequest) SetRef(v *SessionRef) {
 	x.xxx_hidden_Ref = v
 }
 
+func (x *SessionPatchRequest) SetAccount(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Account = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 10)
+}
+
 func (x *SessionPatchRequest) SetSecret(v []byte) {
 	if v == nil {
 		v = []byte{}
 	}
 	x.xxx_hidden_Secret = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 9)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 10)
 }
 
 func (x *SessionPatchRequest) SetGrant(v []byte) {
@@ -4324,7 +4287,7 @@ func (x *SessionPatchRequest) SetGrant(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_Grant = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 9)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 10)
 }
 
 func (x *SessionPatchRequest) SetDateExpires(v *timestamppb.Timestamp) {
@@ -4333,7 +4296,7 @@ func (x *SessionPatchRequest) SetDateExpires(v *timestamppb.Timestamp) {
 
 func (x *SessionPatchRequest) SetDateExpiresNull(v bool) {
 	x.xxx_hidden_DateExpiresNull = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 9)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 10)
 }
 
 func (x *SessionPatchRequest) SetDateIdle(v *timestamppb.Timestamp) {
@@ -4342,7 +4305,7 @@ func (x *SessionPatchRequest) SetDateIdle(v *timestamppb.Timestamp) {
 
 func (x *SessionPatchRequest) SetDateIdleNull(v bool) {
 	x.xxx_hidden_DateIdleNull = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 9)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 10)
 }
 
 func (x *SessionPatchRequest) SetDateUpdated(v *timestamppb.Timestamp) {
@@ -4351,7 +4314,7 @@ func (x *SessionPatchRequest) SetDateUpdated(v *timestamppb.Timestamp) {
 
 func (x *SessionPatchRequest) SetDateUpdatedForce(v bool) {
 	x.xxx_hidden_DateUpdatedForce = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 9)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 10)
 }
 
 func (x *SessionPatchRequest) HasRef() bool {
@@ -4361,18 +4324,25 @@ func (x *SessionPatchRequest) HasRef() bool {
 	return x.xxx_hidden_Ref != nil
 }
 
-func (x *SessionPatchRequest) HasSecret() bool {
+func (x *SessionPatchRequest) HasAccount() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
 }
 
-func (x *SessionPatchRequest) HasGrant() bool {
+func (x *SessionPatchRequest) HasSecret() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
+}
+
+func (x *SessionPatchRequest) HasGrant() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
 }
 
 func (x *SessionPatchRequest) HasDateExpires() bool {
@@ -4386,7 +4356,7 @@ func (x *SessionPatchRequest) HasDateExpiresNull() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
 }
 
 func (x *SessionPatchRequest) HasDateIdle() bool {
@@ -4400,7 +4370,7 @@ func (x *SessionPatchRequest) HasDateIdleNull() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 6)
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 7)
 }
 
 func (x *SessionPatchRequest) HasDateUpdated() bool {
@@ -4414,20 +4384,25 @@ func (x *SessionPatchRequest) HasDateUpdatedForce() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 8)
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 9)
 }
 
 func (x *SessionPatchRequest) ClearRef() {
 	x.xxx_hidden_Ref = nil
 }
 
-func (x *SessionPatchRequest) ClearSecret() {
+func (x *SessionPatchRequest) ClearAccount() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	x.xxx_hidden_Account = nil
+}
+
+func (x *SessionPatchRequest) ClearSecret() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
 	x.xxx_hidden_Secret = nil
 }
 
 func (x *SessionPatchRequest) ClearGrant() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
 	x.xxx_hidden_Grant = nil
 }
 
@@ -4436,7 +4411,7 @@ func (x *SessionPatchRequest) ClearDateExpires() {
 }
 
 func (x *SessionPatchRequest) ClearDateExpiresNull() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 5)
 	x.xxx_hidden_DateExpiresNull = false
 }
 
@@ -4445,7 +4420,7 @@ func (x *SessionPatchRequest) ClearDateIdle() {
 }
 
 func (x *SessionPatchRequest) ClearDateIdleNull() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 6)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
 	x.xxx_hidden_DateIdleNull = false
 }
 
@@ -4454,7 +4429,7 @@ func (x *SessionPatchRequest) ClearDateUpdated() {
 }
 
 func (x *SessionPatchRequest) ClearDateUpdatedForce() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 8)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 9)
 	x.xxx_hidden_DateUpdatedForce = false
 }
 
@@ -4462,6 +4437,7 @@ type SessionPatchRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	Ref         *SessionRef
+	Account     []byte
 	Secret      []byte
 	Grant       []byte
 	DateExpires *timestamppb.Timestamp
@@ -4497,27 +4473,31 @@ func (b0 SessionPatchRequest_builder) Build() *SessionPatchRequest {
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Ref = b.Ref
+	if b.Account != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 10)
+		x.xxx_hidden_Account = b.Account
+	}
 	if b.Secret != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 9)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 10)
 		x.xxx_hidden_Secret = b.Secret
 	}
 	if b.Grant != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 9)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 10)
 		x.xxx_hidden_Grant = b.Grant
 	}
 	x.xxx_hidden_DateExpires = b.DateExpires
 	if b.DateExpiresNull != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 9)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 10)
 		x.xxx_hidden_DateExpiresNull = *b.DateExpiresNull
 	}
 	x.xxx_hidden_DateIdle = b.DateIdle
 	if b.DateIdleNull != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 9)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 10)
 		x.xxx_hidden_DateIdleNull = *b.DateIdleNull
 	}
 	x.xxx_hidden_DateUpdated = b.DateUpdated
 	if b.DateUpdatedForce != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 9)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 10)
 		x.xxx_hidden_DateUpdatedForce = *b.DateUpdatedForce
 	}
 	return m0
@@ -4841,11 +4821,10 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\x16PartyDeactivateRequest\x12 \n" +
 	"\x03ref\x18\x01 \x01(\v2\x0e.rove.PartyRefR\x03ref\"<\n" +
 	"\x18PartyPseudonymizeRequest\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.rove.PartyRefR\x03ref\"\xda\x02\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.rove.PartyRefR\x03ref\"\xa9\x02\n" +
 	"\x11SessionAddRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\x12'\n" +
-	"\x06holder\x18\b \x01(\v2\x0f.rove.HolderRefR\x06holder\x12\x16\n" +
+	"\x02id\x18\x01 \x01(\fR\x02id\x12\x1f\n" +
+	"\aaccount\x18\b \x01(\fB\x05\xaa\x01\x02\b\x02R\aaccount\x12\x16\n" +
 	"\x06secret\x18\t \x01(\fR\x06secret\x12\x14\n" +
 	"\x05grant\x18\n" +
 	" \x01(\fR\x05grant\x12=\n" +
@@ -4858,11 +4837,10 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\n" +
 	"SessionRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
-	"\x03key\"\xce\x02\n" +
+	"\x03key\"\x90\x02\n" +
 	"\rSessionSelect\x12\x10\n" +
-	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x12.rove.TenantSelectR\x06tenant\x12*\n" +
-	"\x06holder\x18\b \x01(\v2\x12.rove.HolderSelectR\x06holder\x12\x16\n" +
+	"\x03all\x18\x01 \x01(\bR\x03all\x12\x18\n" +
+	"\aaccount\x18\b \x01(\bR\aaccount\x12\x16\n" +
 	"\x06secret\x18\t \x01(\bR\x06secret\x12\x14\n" +
 	"\x05grant\x18\n" +
 	" \x01(\bR\x05grant\x12!\n" +
@@ -4871,9 +4849,10 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\fdate_updated\x18\r \x01(\bR\vdateUpdated\x12\x1f\n" +
 	"\vdate_erased\x18\x0e \x01(\bR\n" +
 	"dateErased\x12!\n" +
-	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\"\x9e\x03\n" +
+	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\"\xb8\x03\n" +
 	"\x13SessionPatchRequest\x12\"\n" +
-	"\x03ref\x18\x01 \x01(\v2\x10.rove.SessionRefR\x03ref\x12\x16\n" +
+	"\x03ref\x18\x01 \x01(\v2\x10.rove.SessionRefR\x03ref\x12\x18\n" +
+	"\aaccount\x18\x10 \x01(\fR\aaccount\x12\x16\n" +
 	"\x06secret\x18\x12 \x01(\fR\x06secret\x12\x14\n" +
 	"\x05grant\x18\x14 \x01(\fR\x05grant\x12=\n" +
 	"\fdate_expires\x18\x16 \x01(\v2\x1a.google.protobuf.TimestampR\vdateExpires\x12*\n" +
@@ -4996,64 +4975,60 @@ var file_rove_org_svc_g_proto_depIdxs = []int32{
 	2,  // 34: rove.PartySetPasswordRequest.ref:type_name -> rove.PartyRef
 	2,  // 35: rove.PartyDeactivateRequest.ref:type_name -> rove.PartyRef
 	2,  // 36: rove.PartyPseudonymizeRequest.ref:type_name -> rove.PartyRef
-	35, // 37: rove.SessionAddRequest.tenant:type_name -> rove.TenantRef
-	36, // 38: rove.SessionAddRequest.holder:type_name -> rove.HolderRef
-	37, // 39: rove.SessionAddRequest.date_expires:type_name -> google.protobuf.Timestamp
-	37, // 40: rove.SessionAddRequest.date_idle:type_name -> google.protobuf.Timestamp
-	37, // 41: rove.SessionAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	26, // 42: rove.SessionGetRequest.ref:type_name -> rove.SessionRef
-	27, // 43: rove.SessionGetRequest.select:type_name -> rove.SessionSelect
-	38, // 44: rove.SessionSelect.tenant:type_name -> rove.TenantSelect
-	39, // 45: rove.SessionSelect.holder:type_name -> rove.HolderSelect
-	26, // 46: rove.SessionPatchRequest.ref:type_name -> rove.SessionRef
-	37, // 47: rove.SessionPatchRequest.date_expires:type_name -> google.protobuf.Timestamp
-	37, // 48: rove.SessionPatchRequest.date_idle:type_name -> google.protobuf.Timestamp
-	37, // 49: rove.SessionPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	26, // 50: rove.SessionApplyRequest.ref:type_name -> rove.SessionRef
-	40, // 51: rove.SessionApplyRequest.patch:type_name -> patch.Patch
-	0,  // 52: rove.PartyService.Add:input_type -> rove.PartyAddRequest
-	1,  // 53: rove.PartyService.Get:input_type -> rove.PartyGetRequest
-	5,  // 54: rove.PartyService.Patch:input_type -> rove.PartyPatchRequest
-	6,  // 55: rove.PartyService.Apply:input_type -> rove.PartyApplyRequest
-	2,  // 56: rove.PartyService.Erase:input_type -> rove.PartyRef
-	8,  // 57: rove.PartyService.List:input_type -> rove.PartyListRequest
-	11, // 58: rove.PartyService.Watch:input_type -> rove.PartyWatchRequest
-	14, // 59: rove.PartyService.Me:input_type -> rove.PartyMeRequest
-	16, // 60: rove.PartyService.Update:input_type -> rove.PartyUpdateRequest
-	17, // 61: rove.PartyService.Invite:input_type -> rove.PartyInviteRequest
-	19, // 62: rove.PartyService.SetRole:input_type -> rove.PartySetRoleRequest
-	20, // 63: rove.PartyService.SetPassword:input_type -> rove.PartySetPasswordRequest
-	22, // 64: rove.PartyService.Deactivate:input_type -> rove.PartyDeactivateRequest
-	23, // 65: rove.PartyService.Pseudonymize:input_type -> rove.PartyPseudonymizeRequest
-	24, // 66: rove.SessionService.Add:input_type -> rove.SessionAddRequest
-	25, // 67: rove.SessionService.Get:input_type -> rove.SessionGetRequest
-	28, // 68: rove.SessionService.Patch:input_type -> rove.SessionPatchRequest
-	29, // 69: rove.SessionService.Apply:input_type -> rove.SessionApplyRequest
-	26, // 70: rove.SessionService.Erase:input_type -> rove.SessionRef
-	41, // 71: rove.PartyService.Add:output_type -> rove.Party
-	41, // 72: rove.PartyService.Get:output_type -> rove.Party
-	41, // 73: rove.PartyService.Patch:output_type -> rove.Party
-	41, // 74: rove.PartyService.Apply:output_type -> rove.Party
-	7,  // 75: rove.PartyService.Erase:output_type -> rove.PartyEraseResponse
-	9,  // 76: rove.PartyService.List:output_type -> rove.PartyListResponse
-	12, // 77: rove.PartyService.Watch:output_type -> rove.PartyWatchResponse
-	15, // 78: rove.PartyService.Me:output_type -> rove.PartyMeResponse
-	41, // 79: rove.PartyService.Update:output_type -> rove.Party
-	18, // 80: rove.PartyService.Invite:output_type -> rove.PartyInviteResponse
-	41, // 81: rove.PartyService.SetRole:output_type -> rove.Party
-	21, // 82: rove.PartyService.SetPassword:output_type -> rove.PartySetPasswordResponse
-	41, // 83: rove.PartyService.Deactivate:output_type -> rove.Party
-	41, // 84: rove.PartyService.Pseudonymize:output_type -> rove.Party
-	44, // 85: rove.SessionService.Add:output_type -> rove.Session
-	44, // 86: rove.SessionService.Get:output_type -> rove.Session
-	44, // 87: rove.SessionService.Patch:output_type -> rove.Session
-	44, // 88: rove.SessionService.Apply:output_type -> rove.Session
-	30, // 89: rove.SessionService.Erase:output_type -> rove.SessionEraseResponse
-	71, // [71:90] is the sub-list for method output_type
-	52, // [52:71] is the sub-list for method input_type
-	52, // [52:52] is the sub-list for extension type_name
-	52, // [52:52] is the sub-list for extension extendee
-	0,  // [0:52] is the sub-list for field type_name
+	37, // 37: rove.SessionAddRequest.date_expires:type_name -> google.protobuf.Timestamp
+	37, // 38: rove.SessionAddRequest.date_idle:type_name -> google.protobuf.Timestamp
+	37, // 39: rove.SessionAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	26, // 40: rove.SessionGetRequest.ref:type_name -> rove.SessionRef
+	27, // 41: rove.SessionGetRequest.select:type_name -> rove.SessionSelect
+	26, // 42: rove.SessionPatchRequest.ref:type_name -> rove.SessionRef
+	37, // 43: rove.SessionPatchRequest.date_expires:type_name -> google.protobuf.Timestamp
+	37, // 44: rove.SessionPatchRequest.date_idle:type_name -> google.protobuf.Timestamp
+	37, // 45: rove.SessionPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	26, // 46: rove.SessionApplyRequest.ref:type_name -> rove.SessionRef
+	40, // 47: rove.SessionApplyRequest.patch:type_name -> patch.Patch
+	0,  // 48: rove.PartyService.Add:input_type -> rove.PartyAddRequest
+	1,  // 49: rove.PartyService.Get:input_type -> rove.PartyGetRequest
+	5,  // 50: rove.PartyService.Patch:input_type -> rove.PartyPatchRequest
+	6,  // 51: rove.PartyService.Apply:input_type -> rove.PartyApplyRequest
+	2,  // 52: rove.PartyService.Erase:input_type -> rove.PartyRef
+	8,  // 53: rove.PartyService.List:input_type -> rove.PartyListRequest
+	11, // 54: rove.PartyService.Watch:input_type -> rove.PartyWatchRequest
+	14, // 55: rove.PartyService.Me:input_type -> rove.PartyMeRequest
+	16, // 56: rove.PartyService.Update:input_type -> rove.PartyUpdateRequest
+	17, // 57: rove.PartyService.Invite:input_type -> rove.PartyInviteRequest
+	19, // 58: rove.PartyService.SetRole:input_type -> rove.PartySetRoleRequest
+	20, // 59: rove.PartyService.SetPassword:input_type -> rove.PartySetPasswordRequest
+	22, // 60: rove.PartyService.Deactivate:input_type -> rove.PartyDeactivateRequest
+	23, // 61: rove.PartyService.Pseudonymize:input_type -> rove.PartyPseudonymizeRequest
+	24, // 62: rove.SessionService.Add:input_type -> rove.SessionAddRequest
+	25, // 63: rove.SessionService.Get:input_type -> rove.SessionGetRequest
+	28, // 64: rove.SessionService.Patch:input_type -> rove.SessionPatchRequest
+	29, // 65: rove.SessionService.Apply:input_type -> rove.SessionApplyRequest
+	26, // 66: rove.SessionService.Erase:input_type -> rove.SessionRef
+	41, // 67: rove.PartyService.Add:output_type -> rove.Party
+	41, // 68: rove.PartyService.Get:output_type -> rove.Party
+	41, // 69: rove.PartyService.Patch:output_type -> rove.Party
+	41, // 70: rove.PartyService.Apply:output_type -> rove.Party
+	7,  // 71: rove.PartyService.Erase:output_type -> rove.PartyEraseResponse
+	9,  // 72: rove.PartyService.List:output_type -> rove.PartyListResponse
+	12, // 73: rove.PartyService.Watch:output_type -> rove.PartyWatchResponse
+	15, // 74: rove.PartyService.Me:output_type -> rove.PartyMeResponse
+	41, // 75: rove.PartyService.Update:output_type -> rove.Party
+	18, // 76: rove.PartyService.Invite:output_type -> rove.PartyInviteResponse
+	41, // 77: rove.PartyService.SetRole:output_type -> rove.Party
+	21, // 78: rove.PartyService.SetPassword:output_type -> rove.PartySetPasswordResponse
+	41, // 79: rove.PartyService.Deactivate:output_type -> rove.Party
+	41, // 80: rove.PartyService.Pseudonymize:output_type -> rove.Party
+	44, // 81: rove.SessionService.Add:output_type -> rove.Session
+	44, // 82: rove.SessionService.Get:output_type -> rove.Session
+	44, // 83: rove.SessionService.Patch:output_type -> rove.Session
+	44, // 84: rove.SessionService.Apply:output_type -> rove.Session
+	30, // 85: rove.SessionService.Erase:output_type -> rove.SessionEraseResponse
+	67, // [67:86] is the sub-list for method output_type
+	48, // [48:67] is the sub-list for method input_type
+	48, // [48:48] is the sub-list for extension type_name
+	48, // [48:48] is the sub-list for extension extendee
+	0,  // [0:48] is the sub-list for field type_name
 }
 
 func init() { file_rove_org_svc_g_proto_init() }

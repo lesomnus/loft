@@ -14,35 +14,35 @@ import (
 
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/internal/ent/holder"
 	"github.com/lesomnus/rove/internal/ent/session"
+	"github.com/lesomnus/rove/internal/identity"
 	"github.com/lesomnus/rove/server/domain"
 )
 
-// NewCmdHolder is `rove holder`: a person's login, from a shell, on the roster
-// in this process (design 9.10).
+// NewCmdHolder is `rove holder`: an account and its memberships, from a shell,
+// on the roster in this process (design 9.10, D27).
 //
 // What the people screen does, for the operator who has no screen to do it
 // from -- the owner who lost their password above all. A deployment whose
-// roster is one of its own refuses both: its people are made and given
-// passwords there, by whoever administers the tenant.
+// roster is one of its own refuses both: its accounts are made and given
+// passwords there.
 func NewCmdHolder(c *cmd.Config) *xli.Command {
 	return &xli.Command{
 		Name:  "holder",
-		Brief: "a person's login, on the roster in this process",
+		Brief: "an account and its memberships, on the roster in this process",
 
 		Commands: xli.Commands{
 			{
 				Name:  "add",
-				Brief: "make somebody who signs in, with a password shown once",
+				Brief: "put an account in a workspace, making the account with a password shown once when it is new",
 				Flags: flg.Flags{
-					&flg.String{Name: "tenant", Brief: "the tenant, by alias"},
-					&flg.String{Name: "login", Brief: "their login"},
+					&flg.String{Name: "tenant", Brief: "the workspace, by alias"},
+					&flg.String{Name: "login", Brief: "the account's login"},
 					&flg.String{Name: "name", Brief: "their name; the login by default"},
 					&flg.String{Name: "email", Brief: "their e-mail, kept on the person record"},
-					&flg.String{Name: "role", Brief: "what they may do: " + strings.Join(domain.Roles, ", ") + "; member by default"},
-					&flg.String{Name: "password", Brief: "their password; empty makes one up"},
+					&flg.String{Name: "role", Brief: "what they may do there: " + strings.Join(domain.Roles, ", ") + "; member by default"},
+					&flg.String{Name: "password", Brief: "a new account's password; empty makes one up"},
 				},
 				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
 					return addHolder(ctx, self, c)
@@ -50,10 +50,9 @@ func NewCmdHolder(c *cmd.Config) *xli.Command {
 			},
 			{
 				Name:  "password",
-				Brief: "give somebody a new password, shown once, and end where they are signed in",
+				Brief: "give an account a new password, shown once, and end everywhere it is signed in",
 				Flags: flg.Flags{
-					&flg.String{Name: "tenant", Brief: "the tenant, by alias"},
-					&flg.String{Name: "login", Brief: "their login"},
+					&flg.String{Name: "login", Brief: "the account's login"},
 					&flg.String{Name: "password", Brief: "the new password; empty makes one up"},
 				},
 				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
@@ -77,7 +76,7 @@ func embedded(ctx context.Context, c *cmd.Config) (*cmd.Server, error) {
 	}
 	if !s.Identity.Embedded() {
 		s.Close()
-		return nil, errors.New("auth.roster names a roster of its own: people are made and given passwords there, by whoever administers the tenant")
+		return nil, errors.New("auth.roster names a roster of its own: accounts are made and given passwords there")
 	}
 	return s, nil
 }
@@ -109,36 +108,60 @@ func addHolder(ctx context.Context, self *xli.Command, c *cmd.Config) error {
 	if err != nil {
 		return err
 	}
-	if taken, err := s.Ent.Holder.Query().Where(holder.TenantId(t.Id), holder.Alias(login), holder.DateErasedIsNil()).Exist(ctx); err != nil {
-		return err
-	} else if taken {
-		return fmt.Errorf("--login: @%s/%s is somebody already", t.Alias, login)
+
+	// The account: the one by that login, or a new one.
+	made, fresh := "", false
+	p, err := s.Identity.Lookup(ctx, login)
+	switch {
+	case err == nil:
+		if flag(self, "password") != "" {
+			return fmt.Errorf("--password: %s is an account already, with a password of its own; `rove holder password` changes it", login)
+		}
+	case errors.Is(err, identity.ErrNoPerson):
+		p, err = s.Identity.AddPerson(ctx, login, name, pdid.Nil)
+		if err != nil {
+			return fmt.Errorf("roster: %w", err)
+		}
+		fresh = true
+		if pw := flag(self, "password"); pw != "" {
+			err = s.Identity.SetPassword(ctx, p.Id, pw)
+		} else {
+			made, err = s.Identity.IssuePassword(ctx, p.Id)
+		}
+		if err != nil {
+			s.Identity.ForgetPerson(ctx, p.Id)
+			return fmt.Errorf("roster: %w", err)
+		}
+	default:
+		return fmt.Errorf("roster: %w", err)
+	}
+	undo := func() {
+		if fresh {
+			s.Identity.ForgetPerson(ctx, p.Id)
+		}
 	}
 
-	// At roster, which is where they sign in, and then here with its
-	// identifier.
-	p, err := s.Identity.AddPerson(ctx, pdid.Id(t.Id), login, name, pdid.Nil)
-	if err != nil {
-		return fmt.Errorf("roster: %w", err)
+	if in, err := s.Ent.Holder.Query().Where(holder.TenantId(t.Id), holder.Account(p.Id.Uuid()), holder.DateErasedIsNil()).Exist(ctx); err != nil {
+		undo()
+		return err
+	} else if in {
+		return fmt.Errorf("--login: %s is in @%s already", login, t.Alias)
 	}
-	made := ""
-	if pw := flag(self, "password"); pw != "" {
-		err = s.Identity.SetPassword(ctx, p.Id, pw)
-	} else {
-		made, err = s.Identity.IssuePassword(ctx, p.Id)
-	}
-	if err != nil {
-		s.Identity.ForgetPerson(ctx, p.Id)
-		return fmt.Errorf("roster: %w", err)
+	if taken, err := s.Ent.Holder.Query().Where(holder.TenantId(t.Id), holder.Alias(p.Alias), holder.DateErasedIsNil()).Exist(ctx); err != nil {
+		undo()
+		return err
+	} else if taken {
+		undo()
+		return fmt.Errorf("--login: @%s/%s is somebody else already", t.Alias, p.Alias)
 	}
 
 	tref := app.TenantRef_builder{Id: pdid.Id(t.Id).Bytes()}.Build()
 	h, err := s.Base.Holder().Add(ctx, app.HolderAddRequest_builder{
-		Id:     p.Id.Bytes(),
-		Tenant: tref,
-		Alias:  login,
-		Name:   name,
-		Role:   z.Ptr(role),
+		Tenant:  tref,
+		Alias:   p.Alias,
+		Name:    name,
+		Role:    z.Ptr(role),
+		Account: p.Id.Bytes(),
 	}.Build())
 	if err == nil {
 		_, err = s.Base.Party().Add(ctx, app.PartyAddRequest_builder{
@@ -150,11 +173,11 @@ func addHolder(ctx context.Context, self *xli.Command, c *cmd.Config) error {
 		}.Build())
 	}
 	if err != nil {
-		s.Identity.ForgetPerson(ctx, p.Id)
+		undo()
 		return err
 	}
 
-	self.Printf("holder   @%s/%s (%s), %s\n", t.Alias, login, p.Id, role)
+	self.Printf("holder   @%s/%s (account %s), %s\n", t.Alias, p.Alias, p.Id, role)
 	if made != "" {
 		self.Printf("password %s\n", made)
 	}
@@ -173,37 +196,33 @@ func resetHolder(ctx context.Context, self *xli.Command, c *cmd.Config) error {
 	}
 	defer s.Close()
 
-	t, err := tenantNamed(ctx, s.Ent, self)
-	if err != nil {
-		return err
-	}
-	h, err := s.Ent.Holder.Query().Where(holder.TenantId(t.Id), holder.Alias(login), holder.DateErasedIsNil()).Only(ctx)
-	if ent.IsNotFound(err) {
-		return fmt.Errorf("--login: nobody here is @%s/%s", t.Alias, login)
+	p, err := s.Identity.Lookup(ctx, login)
+	if errors.Is(err, identity.ErrNoPerson) {
+		return fmt.Errorf("--login: there is no account %s", login)
 	}
 	if err != nil {
-		return err
+		return fmt.Errorf("roster: %w", err)
 	}
 
-	id := pdid.Id(h.Id)
 	made := ""
 	if pw := flag(self, "password"); pw != "" {
-		err = s.Identity.SetPassword(ctx, id, pw)
+		err = s.Identity.SetPassword(ctx, p.Id, pw)
 	} else {
-		made, err = s.Identity.IssuePassword(ctx, id)
+		made, err = s.Identity.IssuePassword(ctx, p.Id)
 	}
 	if err != nil {
 		return fmt.Errorf("roster: %w", err)
 	}
-	// Wherever they were signed in -- here, and at roster -- ends with it.
-	if err := s.Identity.Invalidate(ctx, id); err != nil {
+	// Wherever they were signed in -- here, in every workspace, and at
+	// roster -- ends with it.
+	if err := s.Identity.Invalidate(ctx, p.Id); err != nil {
 		return fmt.Errorf("roster: %w", err)
 	}
-	if _, err := s.Ent.Session.Delete().Where(session.HolderId(h.Id)).Exec(ctx); err != nil {
+	if _, err := s.Ent.Session.Delete().Where(session.Account(p.Id.Uuid())).Exec(ctx); err != nil {
 		return err
 	}
 
-	self.Printf("holder   @%s/%s\n", t.Alias, login)
+	self.Printf("account  %s (%s)\n", p.Alias, p.Id)
 	if made != "" {
 		self.Printf("password %s\n", made)
 	}

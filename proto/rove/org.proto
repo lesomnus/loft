@@ -80,17 +80,23 @@ message Party {
 // (design 9.10). It is not for another entity: an identifier in the trail of a
 // deployment from before says what it named.
 
-// Session is a signed-in browser. The key itself is never stored: `secret` is
-// its SHA-256, which is what a cookie is looked up by.
+// Session is a signed-in browser, and what it names is an account rather than a
+// membership: one sign-in reaches every workspace the account belongs to, and
+// which one a request is about is the request's to say (design 9.11). So it is
+// the deployment's and not any workspace's -- `global` -- and it is written
+// only by the server, through ent (`server/session`); the policy opens no RPC
+// of it. The key itself is never stored: `secret` is its SHA-256, which is
+// what a cookie is looked up by.
 message Session {
   bytes id = 1 [(orm.field) = {
     type: TYPE_UUID
     key: true
     default: ""
   }];
-  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
 
-  Holder holder = 8 [(orm.edge) = {immutable: true}];
+  // The account signed in: a holder at roster, in this deployment's
+  // directory.
+  bytes account = 8 [(orm.field) = {type: TYPE_UUID}];
   bytes secret = 9 [
     (orm.field) = {default: ""},
     (payday.field) = {secret: true}
@@ -112,11 +118,15 @@ message Session {
       {
         name: "secret"
         refs: [{name: "secret", number: 9}]
+      },
+      {
+        name: "account"
+        refs: [{name: "account", number: 8}]
       }
     ]
   };
   option (payday.entity) = {
     domain: 38
-    tenanted: {via: "tenant", agrees: ["holder.tenant"]}
+    global: {}
   };
 }

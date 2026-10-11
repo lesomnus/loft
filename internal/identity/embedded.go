@@ -182,39 +182,21 @@ func (e *embedded) agent(ctx context.Context, tenant string) error {
 	return nil
 }
 
-func (e *embedded) tenants(ctx context.Context) ([]string, error) {
-	ctx, cancel := unframed(ctx)
-	defer cancel()
-	var vs []string
-	after := ""
-	for {
-		res, err := e.rs.Ungated.Tenant().List(ctx, rstr.TenantListRequest_builder{Size: 100, After: after}.Build())
-		if err != nil {
-			return nil, err
-		}
-		for _, t := range res.GetItems() {
-			vs = append(vs, t.GetAlias())
-		}
-		if res.GetNext() == "" || len(res.GetItems()) == 0 {
-			slices.Sort(vs)
-			return vs, nil
-		}
-		after = res.GetNext()
-	}
-}
-
-// Seed makes a tenant and its first person at the embedded roster, bound to
-// the role that administers the tenant there, with a password shown once:
-// what `rove init` does. `id` is the identifier the tenant is given, and the
-// nil one mints a fresh one. An external roster refuses: its operator does
-// this.
-func (s *Store) Seed(ctx context.Context, tenant, holder string, id pdid.Id) (Person, string, error) {
+// MakeDirectory makes the directory at the embedded roster, with its first
+// account bound to the role that administers it there and a password shown
+// once: what `rove init` does on a deployment that has none. An external
+// roster refuses: its operator makes the directory.
+func (s *Store) MakeDirectory(ctx context.Context, login string) (Person, string, error) {
 	if s.em == nil {
 		return Person{}, "", ErrExternal
 	}
+	alias, err := s.directoryAlias(ctx)
+	if err != nil {
+		return Person{}, "", err
+	}
 	ctx, cancel := unframed(ctx)
 	defer cancel()
-	seeded, err := rostercmd.Seed(ctx, s.em.rs, rostercmd.Seeding{Tenant: tenant, Holder: holder, TenantId: id})
+	seeded, err := rostercmd.Seed(ctx, s.em.rs, rostercmd.Seeding{Tenant: alias, Holder: login})
 	if err != nil {
 		return Person{}, "", err
 	}
@@ -230,17 +212,45 @@ func (s *Store) Seed(ctx context.Context, tenant, holder string, id pdid.Id) (Pe
 	return p, secret, nil
 }
 
-// AddPerson makes a person in a tenant of the embedded roster, with no way to
-// sign in yet: IssuePassword or SetPassword gives them one. `id` is the
-// identifier they are given, and the nil one mints a fresh one.
-func (s *Store) AddPerson(ctx context.Context, tenant pdid.Id, alias, name string, id pdid.Id) (Person, error) {
+// EnsureDirectory is the directory at the embedded roster, made with nobody in
+// it but the administrator roster makes every tenant with when it is not
+// there: what bringing in a deployment from before roster starts from.
+func (s *Store) EnsureDirectory(ctx context.Context) (Directory, error) {
+	if s.em == nil {
+		return Directory{}, ErrExternal
+	}
+	d, err := s.Directory(ctx)
+	if !errors.Is(err, ErrNoDirectory) {
+		return d, err
+	}
+	alias, err := s.directoryAlias(ctx)
+	if err != nil {
+		return Directory{}, err
+	}
+	uctx, cancel := unframed(ctx)
+	defer cancel()
+	if _, err := s.em.rs.Ungated.Tenant().Add(uctx, rstr.TenantAddRequest_builder{Alias: alias, Name: alias}.Build()); err != nil {
+		return Directory{}, fmt.Errorf("directory @%s: %w", alias, err)
+	}
+
+	return s.Directory(ctx)
+}
+
+// AddPerson makes an account in the directory of the embedded roster, with no
+// way to sign in yet: IssuePassword or SetPassword gives it one. `id` is the
+// identifier it is given, and the nil one mints a fresh one.
+func (s *Store) AddPerson(ctx context.Context, alias, name string, id pdid.Id) (Person, error) {
 	if s.em == nil {
 		return Person{}, ErrExternal
+	}
+	d, err := s.Directory(ctx)
+	if err != nil {
+		return Person{}, err
 	}
 	ctx, cancel := unframed(ctx)
 	defer cancel()
 	req := rstr.HolderAddRequest_builder{
-		Tenant: rstr.TenantRef_builder{Id: tenant.Bytes()}.Build(),
+		Tenant: rstr.TenantRef_builder{Id: d.Id.Bytes()}.Build(),
 		Alias:  alias,
 		Name:   name,
 	}
@@ -379,51 +389,6 @@ func (s *Store) ForgetPerson(ctx context.Context, holder pdid.Id) error {
 	return err
 }
 
-// PeopleOf is everybody the embedded roster has in a tenant and has not
-// forgotten, Rove's own holder among them: what a tenant leaving takes out of
-// it.
-func (s *Store) PeopleOf(ctx context.Context, tenant pdid.Id) ([]pdid.Id, error) {
-	if s.em == nil {
-		return nil, ErrExternal
-	}
-	ctx, cancel := unframed(ctx)
-	defer cancel()
-	var vs []pdid.Id
-	after := ""
-	for {
-		res, err := s.em.rs.Ungated.Holder().List(ctx, rstr.HolderListRequest_builder{
-			Filters: []*rstr.HolderFilter{rstr.HolderFilter_builder{Tenant: rstr.TenantRef_builder{Id: tenant.Bytes()}.Build()}.Build()},
-			Size:    100,
-			After:   after,
-		}.Build())
-		if err != nil {
-			return nil, err
-		}
-		for _, v := range res.GetItems() {
-			id, err := pdid.From(v.GetId())
-			if err != nil {
-				return nil, err
-			}
-			vs = append(vs, id)
-		}
-		if res.GetNext() == "" || len(res.GetItems()) == 0 {
-			break
-		}
-		after = res.GetNext()
-	}
-	erased, err := s.em.erased(ctx)
-	if err != nil {
-		return nil, err
-	}
-	for id, of := range erased {
-		if of == tenant {
-			vs = append(vs, id)
-		}
-	}
-
-	return vs, nil
-}
-
 // erased is everybody erased here and not forgotten, by the tenant they are
 // in: what the servers' reads leave out.
 func (e *embedded) erased(ctx context.Context) (map[pdid.Id]pdid.Id, error) {
@@ -451,32 +416,30 @@ type Adoptee struct {
 	Name  string
 }
 
-// Adopt writes a tenant and its people, made here before roster held them,
-// into the embedded roster with the identifiers they already have, and issues
-// each of them a password -- `password`, or one made up for each when it is
-// empty: the upgrade of a deployment from before roster (design 9.10). What
-// roster has already is left alone, so it can be run again. It answers the
-// passwords by alias, for the people it made.
+// Adopt writes people made here before roster held them into the directory of
+// the embedded roster as accounts, with the identifiers they already have, and
+// issues each of them a password -- `password`, or one made up for each when
+// it is empty: the upgrade of a deployment from before roster (design 9.10).
+// Somebody roster has already is left alone, so it can be run again. It
+// answers the passwords by alias, for the accounts it made. The directory has
+// to be there ([Store.EnsureDirectory]).
 //
 // The verifiers they had are not brought along. Nothing says the two apps'
 // formats agree, and a road that brings in a verifier brings in whatever is
 // put on it.
-func (s *Store) Adopt(ctx context.Context, tenant pdid.Id, alias, name string, people []Adoptee, password string) (map[string]string, error) {
+func (s *Store) Adopt(ctx context.Context, people []Adoptee, password string) (map[string]string, error) {
 	if s.em == nil {
 		return nil, ErrExternal
 	}
+	d, err := s.Directory(ctx)
+	if err != nil {
+		return nil, err
+	}
+	alias := d.Alias
 	ctx, cancel := unframed(ctx)
 	defer cancel()
 	own := s.em.rs.Ungated
-	tref := rstr.TenantRef_builder{Id: tenant.Bytes()}.Build()
-	if _, err := own.Tenant().Get(ctx, rstr.TenantGetRequest_builder{Ref: tref}.Build()); err != nil {
-		if status.Code(err) != codes.NotFound {
-			return nil, err
-		}
-		if _, err := own.Tenant().Add(ctx, rstr.TenantAddRequest_builder{Id: tenant.Bytes(), Alias: alias, Name: name}.Build()); err != nil {
-			return nil, fmt.Errorf("tenant @%s: %w", alias, err)
-		}
-	}
+	tref := rstr.TenantRef_builder{Id: d.Id.Bytes()}.Build()
 
 	passwords := map[string]string{}
 	for _, p := range people {

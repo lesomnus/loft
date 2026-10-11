@@ -4710,6 +4710,23 @@ func (m *HolderMutation) OldRole(ctx context.Context) (v string, err error) {
 	return oldValue.Role, nil
 }
 
+// OldAccount returns the old "account" field's value of the Holder entity.
+// If the Holder object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *HolderMutation) OldAccount(ctx context.Context) (v *uuid.UUID, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldAccount is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldAccount requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAccount: %w", err)
+	}
+	return oldValue.Account, nil
+}
+
 // OldTenantId returns the old "tenant_id" field's value of the Holder entity.
 // If the Holder object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
@@ -4748,6 +4765,8 @@ func (m *HolderMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldDateCreated(ctx)
 	case holder.FieldRole:
 		return m.OldRole(ctx)
+	case holder.FieldAccount:
+		return m.OldAccount(ctx)
 	case holder.FieldTenantId:
 		return m.OldTenantId(ctx)
 	}
@@ -9104,6 +9123,23 @@ func (m *SessionMutation) Ids(ctx context.Context) ([]uuid.UUID, error) {
 	}
 }
 
+// OldAccount returns the old "account" field's value of the Session entity.
+// If the Session object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SessionMutation) OldAccount(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldAccount is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldAccount requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAccount: %w", err)
+	}
+	return oldValue.Account, nil
+}
+
 // OldSecret returns the old "secret" field's value of the Session entity.
 // If the Session object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
@@ -9223,45 +9259,13 @@ func (m *SessionMutation) OldDateCreated(ctx context.Context) (v time.Time, err 
 	return oldValue.DateCreated, nil
 }
 
-// OldTenantId returns the old "tenant_id" field's value of the Session entity.
-// If the Session object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *SessionMutation) OldTenantId(ctx context.Context) (v uuid.UUID, err error) {
-	if !m.Op().Is(OpUpdateOne) {
-		return v, errors.New("OldTenantId is only allowed on UpdateOne operations")
-	}
-	if _, exists := m.Id(); !exists || m.oldValue == nil {
-		return v, errors.New("OldTenantId requires an Id field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldTenantId: %w", err)
-	}
-	return oldValue.TenantId, nil
-}
-
-// OldHolderId returns the old "holder_id" field's value of the Session entity.
-// If the Session object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *SessionMutation) OldHolderId(ctx context.Context) (v uuid.UUID, err error) {
-	if !m.Op().Is(OpUpdateOne) {
-		return v, errors.New("OldHolderId is only allowed on UpdateOne operations")
-	}
-	if _, exists := m.Id(); !exists || m.oldValue == nil {
-		return v, errors.New("OldHolderId requires an Id field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldHolderId: %w", err)
-	}
-	return oldValue.HolderId, nil
-}
-
 // OldField returns the old value of the field from the database. An error is
 // returned if the mutation operation is not UpdateOne, or the query to the
 // database failed.
 func (m *SessionMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
+	case session.FieldAccount:
+		return m.OldAccount(ctx)
 	case session.FieldSecret:
 		return m.OldSecret(ctx)
 	case session.FieldGrant:
@@ -9276,10 +9280,6 @@ func (m *SessionMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldDateErased(ctx)
 	case session.FieldDateCreated:
 		return m.OldDateCreated(ctx)
-	case session.FieldTenantId:
-		return m.OldTenantId(ctx)
-	case session.FieldHolderId:
-		return m.OldHolderId(ctx)
 	}
 	return nil, fmt.Errorf("unknown Session field %s", name)
 }

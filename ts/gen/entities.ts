@@ -194,7 +194,7 @@ export const Holder = {
 	refs: [{ field: "tenant", to: "rove.Tenant" }],
 	alias: "alias",
 	key: "id",
-	ids: ["id"],
+	ids: ["id", "account"],
 	service: HolderService,
 } as const satisfies EntityDesc
 
@@ -357,9 +357,8 @@ export const Session = {
 	schema: SessionSchema,
 	domain: 38,
 	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "rove.Tenant" }, { field: "holder", to: "rove.Holder" }],
 	key: "id",
-	ids: ["id"],
+	ids: ["id", "account"],
 	secrets: ["secret"],
 	service: SessionService,
 } as const satisfies EntityDesc

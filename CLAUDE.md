@@ -129,20 +129,30 @@ People, their passwords and whether they may sign in are **roster's**
 empty runs one in this process on its own database (`roster.db` beside Rove's
 SQLite file, or `auth.roster.db`), reached over `bufconn`.
 
-A browser signs in at `POST /session` (`server/session`): the password goes to
-roster's `VouchService.Verify`, `server/tenancy` makes Rove's `Tenant` and
-`Holder` for whoever it vouched for on their first sign-in -- **with roster's
-identifiers**, so `Holder.id` is the `sub` -- and the cookie's session row is
-in Rove's database. Every call a session makes asks roster whether the person
-still stands (`identity.Store.Held`, cached `HeldTtl`); a roster that cannot be
-asked serves no session.
+**Two layers of tenant (D27).** A roster tenant is the **directory** accounts
+are in -- one per deployment, `auth.roster.directory` (`rove` on the embedded
+roster; the key's own tenant for an `rt_`) -- and a Rove tenant is a
+**workspace**. A `Holder` is an account's membership of one workspace: an
+identifier of its own, the roster account in `account`, and the `role`. Never
+pass a workspace id where `identity.Store` wants an account, or the other way:
+the store's API takes no tenant at all.
 
-Roles stay Rove's (`Holder.role`). On the embedded roster the people screen and
-`rove holder add|password` make logins and set passwords there; on an external
-one they are refused, and are done at roster. A deployment from before roster
-runs `rove identity migrate` once: its people go into the embedded roster with
-the identifiers they have, and get new passwords. `auth.Plain` is not wired; tests
-mint a session with `Server.Sessions.Mint` and send its cookie, and set
+A browser signs in at `POST /session` (`server/session`): the password goes to
+roster's `VouchService.Verify`, and the session -- a `global` row, written
+through ent, served by no RPC -- names the **account**. Every call names its
+workspace in `rove-workspace` (alias or id; `cmd.WorkspaceHeader`), or names
+none when the account has one membership, and `cmd.Resolver` frames the call as
+that membership. Every call is also held to what roster says of the account
+now (`identity.Store.Held`, cached `HeldTtl`); a roster that cannot be asked
+serves no session.
+
+Roles stay Rove's. On the embedded roster the people screen and `rove holder
+add|password` make accounts and set passwords there; on an external one they
+are refused, and are done at roster. Ending a membership (deactivate,
+pseudonymize) never touches the account. A deployment whose holders name no
+account runs `rove identity migrate` once. `auth.Plain` is not wired; tests
+mint a session with `Server.Sessions.Mint` and send its cookie (plus
+`rove-workspace` when the account has more than one membership), and set
 `c.Auth.Roster.Db` to a `pdtest.DB` of its own -- the default is a file.
 
 ## What may be called

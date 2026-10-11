@@ -29,5 +29,8 @@ func (e *Holder) Proto() *rove.Holder {
 	}
 	x.SetDateCreated(timestamppb.New(e.DateCreated))
 	x.SetRole(e.Role)
+	if e.Account != nil {
+		x.SetAccount(e.Account[:])
+	}
 	return x
 }

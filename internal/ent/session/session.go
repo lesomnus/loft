@@ -4,7 +4,6 @@ package session
 
 import (
 	"github.com/protobuf-orm/ent/dialect/sql"
-	"github.com/protobuf-orm/ent/dialect/sql/sqlgraph"
 )
 
 const (
@@ -12,6 +11,8 @@ const (
 	Label = "session"
 	// FieldId holds the string denoting the id field in the database.
 	FieldId = "id"
+	// FieldAccount holds the string denoting the account field in the database.
+	FieldAccount = "account"
 	// FieldSecret holds the string denoting the secret field in the database.
 	FieldSecret = "secret"
 	// FieldGrant holds the string denoting the grant field in the database.
@@ -26,35 +27,14 @@ const (
 	FieldDateErased = "date_erased"
 	// FieldDateCreated holds the string denoting the date_created field in the database.
 	FieldDateCreated = "date_created"
-	// FieldTenantId holds the string denoting the tenant_id field in the database.
-	FieldTenantId = "tenant_id"
-	// FieldHolderId holds the string denoting the holder_id field in the database.
-	FieldHolderId = "holder_id"
-	// EdgeTenant holds the string denoting the tenant edge name in mutations.
-	EdgeTenant = "tenant"
-	// EdgeHolder holds the string denoting the holder edge name in mutations.
-	EdgeHolder = "holder"
 	// Table holds the table name of the session in the database.
 	Table = "session"
-	// TenantTable is the table that holds the tenant relation/edge.
-	TenantTable = "session"
-	// TenantInverseTable is the table name for the Tenant entity.
-	// It exists in this package in order to avoid circular dependency with the "tenant" package.
-	TenantInverseTable = "tenant"
-	// TenantColumn is the table column denoting the tenant relation/edge.
-	TenantColumn = "tenant_id"
-	// HolderTable is the table that holds the holder relation/edge.
-	HolderTable = "session"
-	// HolderInverseTable is the table name for the Holder entity.
-	// It exists in this package in order to avoid circular dependency with the "holder" package.
-	HolderInverseTable = "holder"
-	// HolderColumn is the table column denoting the holder relation/edge.
-	HolderColumn = "holder_id"
 )
 
 // Columns holds all SQL columns for session fields.
 var Columns = []string{
 	FieldId,
+	FieldAccount,
 	FieldSecret,
 	FieldGrant,
 	FieldDateExpires,
@@ -62,8 +42,6 @@ var Columns = []string{
 	FieldDateUpdated,
 	FieldDateErased,
 	FieldDateCreated,
-	FieldTenantId,
-	FieldHolderId,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -82,6 +60,11 @@ type OrderOption func(*sql.Selector)
 // ById orders the results by the id field.
 func ById(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldId, opts...).ToFunc()
+}
+
+// ByAccount orders the results by the account field.
+func ByAccount(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAccount, opts...).ToFunc()
 }
 
 // ByDateExpires orders the results by the date_expires field.
@@ -107,42 +90,4 @@ func ByDateErased(opts ...sql.OrderTermOption) OrderOption {
 // ByDateCreated orders the results by the date_created field.
 func ByDateCreated(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDateCreated, opts...).ToFunc()
-}
-
-// ByTenantId orders the results by the tenant_id field.
-func ByTenantId(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldTenantId, opts...).ToFunc()
-}
-
-// ByHolderId orders the results by the holder_id field.
-func ByHolderId(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldHolderId, opts...).ToFunc()
-}
-
-// ByTenantField orders the results by tenant field.
-func ByTenantField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newTenantStep(), sql.OrderByField(field, opts...))
-	}
-}
-
-// ByHolderField orders the results by holder field.
-func ByHolderField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newHolderStep(), sql.OrderByField(field, opts...))
-	}
-}
-func newTenantStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldId),
-		sqlgraph.To(TenantInverseTable, FieldId),
-		sqlgraph.Edge(sqlgraph.M2O, false, TenantTable, TenantColumn),
-	)
-}
-func newHolderStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldId),
-		sqlgraph.To(HolderInverseTable, FieldId),
-		sqlgraph.Edge(sqlgraph.M2O, false, HolderTable, HolderColumn),
-	)
 }

@@ -42,7 +42,6 @@ import (
 	"github.com/lesomnus/rove/server/retention"
 	"github.com/lesomnus/rove/server/session"
 	"github.com/lesomnus/rove/server/storage"
-	"github.com/lesomnus/rove/server/tenancy"
 )
 
 // Server is a built app: the database it runs on and the two stacks it answers
@@ -329,12 +328,6 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 
 func (s *Server) Close() error { return errors.Join(s.Identity.Close(), s.Db.Close()) }
 
-// Anchor is what makes this deployment's rows for somebody roster vouched for,
-// the first time they arrive.
-func (s *Server) Anchor(c Config) tenancy.Anchor {
-	return tenancy.Anchor{Base: s.Base, Drv: s.Drv, Ungated: s.Ungated, LabelSuffix: c.App.Labels.Suffix}
-}
-
 // Offboard is what a tenant's export and purge work on.
 func (s *Server) Offboard(c Config) offboard.Deployment {
 	return offboard.Deployment{
@@ -372,8 +365,8 @@ func (s *Server) Grpc(ctx context.Context, c Config, opts ...grpc.ServerOption) 
 	}
 
 	chain := grpcx.Serving(ctx, grpcx.WithDeadline(c.Server.CallTimeout())).
-		WithUnary(auth.InterceptorUnary(h, Resolver(s.Ungated), auth.PublicDefault)).
-		WithStream(auth.InterceptorStream(h, Resolver(s.Ungated), auth.PublicDefault)).
+		WithUnary(auth.InterceptorUnary(h, Resolver(s.Ungated, s.Ent), auth.PublicDefault)).
+		WithStream(auth.InterceptorStream(h, Resolver(s.Ungated, s.Ent), auth.PublicDefault)).
 		WithUnary(grpcx.LimitUnary(c.Server.Limiter(), gate.ByTenant())).
 		With(gate.Interceptor(s.Policy)).
 		With(s.Watch.Interceptor()).
@@ -530,7 +523,7 @@ func spinEvery(d time.Duration, f func(ctx context.Context) error) spin.Func {
 func (s *Server) routes(mux *http.ServeMux, c Config) {
 	// Signing in and out. What is checked is a password, by roster, and a
 	// person who is new here is made here; see `server/session`.
-	login := session.SignIn(s.Sessions, s.Identity, s.Anchor(c))
+	login := session.SignIn(s.Sessions, s.Identity, s.Ent)
 	mux.Handle("POST /session", login)
 	mux.Handle("DELETE /session", login)
 

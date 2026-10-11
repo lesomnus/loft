@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"time"
+	"uuid"
 
 	"github.com/lesomnus/rove/internal/ent/holder"
 	"github.com/lesomnus/rove/internal/ent/predicate"
@@ -137,6 +138,26 @@ func (_u *HolderUpdate) ClearRole() *HolderUpdate {
 	return _u
 }
 
+// SetAccount sets the "account" field.
+func (_u *HolderUpdate) SetAccount(v uuid.UUID) *HolderUpdate {
+	_u.mutation.SetAccount(v)
+	return _u
+}
+
+// SetNillableAccount sets the "account" field if the given value is not nil.
+func (_u *HolderUpdate) SetNillableAccount(v *uuid.UUID) *HolderUpdate {
+	if v != nil {
+		_u.SetAccount(*v)
+	}
+	return _u
+}
+
+// ClearAccount clears the value of the "account" field.
+func (_u *HolderUpdate) ClearAccount() *HolderUpdate {
+	_u.mutation.ClearAccount()
+	return _u
+}
+
 // Mutation returns the HolderMutation object of the builder.
 func (_u *HolderUpdate) Mutation() *HolderMutation {
 	return _u.mutation
@@ -227,6 +248,12 @@ func (_u *HolderUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.RoleCleared() {
 		_spec.ClearField(holder.FieldRole, field.TypeString)
+	}
+	if value, ok := _u.mutation.Account(); ok {
+		_spec.SetField(holder.FieldAccount, field.TypeUuid, value)
+	}
+	if _u.mutation.AccountCleared() {
+		_spec.ClearField(holder.FieldAccount, field.TypeUuid)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
@@ -358,6 +385,26 @@ func (_u *HolderUpdateOne) ClearRole() *HolderUpdateOne {
 	return _u
 }
 
+// SetAccount sets the "account" field.
+func (_u *HolderUpdateOne) SetAccount(v uuid.UUID) *HolderUpdateOne {
+	_u.mutation.SetAccount(v)
+	return _u
+}
+
+// SetNillableAccount sets the "account" field if the given value is not nil.
+func (_u *HolderUpdateOne) SetNillableAccount(v *uuid.UUID) *HolderUpdateOne {
+	if v != nil {
+		_u.SetAccount(*v)
+	}
+	return _u
+}
+
+// ClearAccount clears the value of the "account" field.
+func (_u *HolderUpdateOne) ClearAccount() *HolderUpdateOne {
+	_u.mutation.ClearAccount()
+	return _u
+}
+
 // Mutation returns the HolderMutation object of the builder.
 func (_u *HolderUpdateOne) Mutation() *HolderMutation {
 	return _u.mutation
@@ -478,6 +525,12 @@ func (_u *HolderUpdateOne) sqlSave(ctx context.Context) (_node *Holder, err erro
 	}
 	if _u.mutation.RoleCleared() {
 		_spec.ClearField(holder.FieldRole, field.TypeString)
+	}
+	if value, ok := _u.mutation.Account(); ok {
+		_spec.SetField(holder.FieldAccount, field.TypeUuid, value)
+	}
+	if _u.mutation.AccountCleared() {
+		_spec.ClearField(holder.FieldAccount, field.TypeUuid)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	_node = &Holder{config: _u.config}

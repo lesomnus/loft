@@ -49,13 +49,19 @@ watch:
 # `addr` is a roster deployment of its own. `key` is what Rove acts with there,
 # as `env:NAME`, `file:PATH` or the key itself: an `rk_` its operator minted
 # (`roster control key add --allow /roster.NominationService/List rove`), which
-# serves every tenant that installed Rove (`roster app install --tenant acme
-# rove`), or an `rt_` of one tenant's.
+# serves every tenant that installed Rove (`roster app install --tenant
+# accounts rove`), or an `rt_` of one tenant's.
+#
+# `directory` is the roster tenant this deployment's accounts are in (D27):
+# workspaces are Rove's own tenants, and an account belongs to as many as it
+# is put in. An `rk_` is told which; an `rt_`'s is its own tenant; the roster
+# in this process has `rove`.
 #
 # auth:
 #   roster:
 #     addr: roster.example.com:443
 #     key: env:ROSTER_KEY
+#     directory: accounts
 #     # ca_file: /etc/rove/roster-ca.pem
 #   # or, in this process on PostgreSQL:
 #   roster:

@@ -8,12 +8,14 @@ import (
 	"slices"
 	"strings"
 	"time"
+	"uuid"
 
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/xli"
 	"github.com/lesomnus/xli/flg"
 
 	"github.com/lesomnus/rove/cmd"
+	"github.com/lesomnus/rove/internal/ent/holder"
 )
 
 // NewCmdTenant is `rove tenant`: what leaves with a tenant (design 8.2).
@@ -96,28 +98,30 @@ func NewCmdTenant(c *cmd.Config) *xli.Command {
 						return err
 					}
 
-					// The people of a roster in this process are Rove's to take
-					// with the tenant, and first: a purge that stops after them
-					// is run again and finishes, where one that stopped after the
-					// tenant could not be named again. At an external roster they
-					// are the tenant's, and its operator's to take.
+					// The accounts of a roster in this process that were in this
+					// workspace and are in no other go with it, and first: a
+					// purge that stops after them is run again and finishes,
+					// where one that stopped after the workspace could not be
+					// named again. An account in another workspace is still
+					// somebody's, and the accounts of a roster of its own are
+					// never Rove's to take.
 					forgotten := 0
 					if s.Identity.Embedded() {
-						people, err := s.Identity.PeopleOf(ctx, pdid.Id(t.Id))
+						accounts, err := onlyHere(ctx, s, t.Id)
 						if err != nil {
-							return fmt.Errorf("%s: roster: %w", t.Alias, err)
+							return fmt.Errorf("%s: %w", t.Alias, err)
 						}
-						for _, p := range people {
+						for _, a := range accounts {
 							if !yes {
 								break
 							}
-							if err := s.Identity.ForgetPerson(ctx, p); err != nil {
-								return fmt.Errorf("%s: roster: %d of %d people forgotten: %w", t.Alias, forgotten, len(people), err)
+							if err := s.Identity.ForgetPerson(ctx, a); err != nil {
+								return fmt.Errorf("%s: roster: %d of %d accounts forgotten: %w", t.Alias, forgotten, len(accounts), err)
 							}
 							forgotten++
 						}
 						if !yes {
-							forgotten = len(people)
+							forgotten = len(accounts)
 						}
 					}
 
@@ -141,7 +145,7 @@ func NewCmdTenant(c *cmd.Config) *xli.Command {
 						if !yes {
 							verb = "would forget"
 						}
-						self.Printf("  roster in this process: %s %d people, and what its trail said of them\n", verb, forgotten)
+						self.Printf("  roster in this process: %s %d account(s) in no other workspace, and what its trail said of them\n", verb, forgotten)
 					}
 					if len(x.Lost) > 0 {
 						self.Printf("  files that could not be removed: %s\n", strings.Join(x.Lost, ", "))
@@ -154,4 +158,35 @@ func NewCmdTenant(c *cmd.Config) *xli.Command {
 			},
 		},
 	}
+}
+
+// onlyHere is the accounts of a workspace's holders that are members of no
+// other workspace.
+func onlyHere(ctx context.Context, s *cmd.Server, workspace uuid.UUID) ([]pdid.Id, error) {
+	hs, err := s.Ent.Holder.Query().Where(holder.TenantId(workspace), holder.AccountNotNil()).All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	seen := map[uuid.UUID]bool{}
+	out := []pdid.Id{}
+	for _, h := range hs {
+		a := *h.Account
+		if seen[a] {
+			continue
+		}
+		seen[a] = true
+		elsewhere, err := s.Ent.Holder.Query().Where(
+			holder.Account(a),
+			holder.TenantIdNEQ(workspace),
+			holder.DateErasedIsNil(),
+		).Exist(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if !elsewhere {
+			out = append(out, pdid.Id(a))
+		}
+	}
+
+	return out, nil
 }

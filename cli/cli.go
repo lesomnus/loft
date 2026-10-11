@@ -93,6 +93,9 @@ func Cmd(c *cmd.Config) *xli.Command {
 // migration engine, and `cmd` is what an app's sandbox imports. A sandbox does
 // not migrate: there is no database there that outlives the page.
 func Migrate(ctx context.Context, s *cmd.Server) error {
+	if err := dropOldSessions(ctx, s); err != nil {
+		return err
+	}
 	if err := entmigrate.NewSchema(s.Drv).Create(ctx); err != nil {
 		return err
 	}
@@ -101,6 +104,28 @@ func Migrate(ctx context.Context, s *cmd.Server) error {
 	}
 	if _, err := s.Db.ExecContext(ctx, pgExtras); err != nil {
 		return fmt.Errorf("postgres extras: %w", err)
+	}
+	return nil
+}
+
+// dropOldSessions takes out a session table from before a session was an
+// account's (D27). Its rows each name a tenant and a holder the new ones have
+// no use for, and a migration only adds, so the columns would stay and refuse
+// every new row. Sessions are only who is signed in: everybody signs in again.
+func dropOldSessions(ctx context.Context, s *cmd.Server) error {
+	q := "SELECT count(*) FROM pragma_table_info('session') WHERE name = 'holder_id'"
+	if s.Dialect == "postgres" {
+		q = "SELECT count(*) FROM information_schema.columns WHERE table_schema = current_schema() AND table_name = 'session' AND column_name = 'holder_id'"
+	}
+	n := 0
+	if err := s.Db.QueryRowContext(ctx, q).Scan(&n); err != nil {
+		return fmt.Errorf("sessions from before accounts: %w", err)
+	}
+	if n == 0 {
+		return nil
+	}
+	if _, err := s.Db.ExecContext(ctx, "DROP TABLE session"); err != nil {
+		return fmt.Errorf("sessions from before accounts: %w", err)
 	}
 	return nil
 }

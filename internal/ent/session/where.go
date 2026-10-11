@@ -8,7 +8,6 @@ import (
 
 	"github.com/lesomnus/rove/internal/ent/predicate"
 	"github.com/protobuf-orm/ent/dialect/sql"
-	"github.com/protobuf-orm/ent/dialect/sql/sqlgraph"
 )
 
 // Id filters vertices based on their Id field.
@@ -56,6 +55,11 @@ func IdLTE(id uuid.UUID) predicate.Session {
 	return predicate.Session(sql.FieldLTE(FieldId, id))
 }
 
+// Account applies equality check predicate on the "account" field. It's identical to AccountEQ.
+func Account(v uuid.UUID) predicate.Session {
+	return predicate.Session(sql.FieldEQ(FieldAccount, v))
+}
+
 // Secret applies equality check predicate on the "secret" field. It's identical to SecretEQ.
 func Secret(v []byte) predicate.Session {
 	return predicate.Session(sql.FieldEQ(FieldSecret, v))
@@ -91,14 +95,44 @@ func DateCreated(v time.Time) predicate.Session {
 	return predicate.Session(sql.FieldEQ(FieldDateCreated, v))
 }
 
-// TenantId applies equality check predicate on the "tenant_id" field. It's identical to TenantIdEQ.
-func TenantId(v uuid.UUID) predicate.Session {
-	return predicate.Session(sql.FieldEQ(FieldTenantId, v))
+// AccountEQ applies the EQ predicate on the "account" field.
+func AccountEQ(v uuid.UUID) predicate.Session {
+	return predicate.Session(sql.FieldEQ(FieldAccount, v))
 }
 
-// HolderId applies equality check predicate on the "holder_id" field. It's identical to HolderIdEQ.
-func HolderId(v uuid.UUID) predicate.Session {
-	return predicate.Session(sql.FieldEQ(FieldHolderId, v))
+// AccountNEQ applies the NEQ predicate on the "account" field.
+func AccountNEQ(v uuid.UUID) predicate.Session {
+	return predicate.Session(sql.FieldNEQ(FieldAccount, v))
+}
+
+// AccountIn applies the In predicate on the "account" field.
+func AccountIn(vs ...uuid.UUID) predicate.Session {
+	return predicate.Session(sql.FieldIn(FieldAccount, vs...))
+}
+
+// AccountNotIn applies the NotIn predicate on the "account" field.
+func AccountNotIn(vs ...uuid.UUID) predicate.Session {
+	return predicate.Session(sql.FieldNotIn(FieldAccount, vs...))
+}
+
+// AccountGT applies the GT predicate on the "account" field.
+func AccountGT(v uuid.UUID) predicate.Session {
+	return predicate.Session(sql.FieldGT(FieldAccount, v))
+}
+
+// AccountGTE applies the GTE predicate on the "account" field.
+func AccountGTE(v uuid.UUID) predicate.Session {
+	return predicate.Session(sql.FieldGTE(FieldAccount, v))
+}
+
+// AccountLT applies the LT predicate on the "account" field.
+func AccountLT(v uuid.UUID) predicate.Session {
+	return predicate.Session(sql.FieldLT(FieldAccount, v))
+}
+
+// AccountLTE applies the LTE predicate on the "account" field.
+func AccountLTE(v uuid.UUID) predicate.Session {
+	return predicate.Session(sql.FieldLTE(FieldAccount, v))
 }
 
 // SecretEQ applies the EQ predicate on the "secret" field.
@@ -439,92 +473,6 @@ func DateCreatedIsNil() predicate.Session {
 // DateCreatedNotNil applies the NotNil predicate on the "date_created" field.
 func DateCreatedNotNil() predicate.Session {
 	return predicate.Session(sql.FieldNotNull(FieldDateCreated))
-}
-
-// TenantIdEQ applies the EQ predicate on the "tenant_id" field.
-func TenantIdEQ(v uuid.UUID) predicate.Session {
-	return predicate.Session(sql.FieldEQ(FieldTenantId, v))
-}
-
-// TenantIdNEQ applies the NEQ predicate on the "tenant_id" field.
-func TenantIdNEQ(v uuid.UUID) predicate.Session {
-	return predicate.Session(sql.FieldNEQ(FieldTenantId, v))
-}
-
-// TenantIdIn applies the In predicate on the "tenant_id" field.
-func TenantIdIn(vs ...uuid.UUID) predicate.Session {
-	return predicate.Session(sql.FieldIn(FieldTenantId, vs...))
-}
-
-// TenantIdNotIn applies the NotIn predicate on the "tenant_id" field.
-func TenantIdNotIn(vs ...uuid.UUID) predicate.Session {
-	return predicate.Session(sql.FieldNotIn(FieldTenantId, vs...))
-}
-
-// HolderIdEQ applies the EQ predicate on the "holder_id" field.
-func HolderIdEQ(v uuid.UUID) predicate.Session {
-	return predicate.Session(sql.FieldEQ(FieldHolderId, v))
-}
-
-// HolderIdNEQ applies the NEQ predicate on the "holder_id" field.
-func HolderIdNEQ(v uuid.UUID) predicate.Session {
-	return predicate.Session(sql.FieldNEQ(FieldHolderId, v))
-}
-
-// HolderIdIn applies the In predicate on the "holder_id" field.
-func HolderIdIn(vs ...uuid.UUID) predicate.Session {
-	return predicate.Session(sql.FieldIn(FieldHolderId, vs...))
-}
-
-// HolderIdNotIn applies the NotIn predicate on the "holder_id" field.
-func HolderIdNotIn(vs ...uuid.UUID) predicate.Session {
-	return predicate.Session(sql.FieldNotIn(FieldHolderId, vs...))
-}
-
-// HasTenant applies the HasEdge predicate on the "tenant" edge.
-func HasTenant() predicate.Session {
-	return predicate.Session(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldId),
-			sqlgraph.Edge(sqlgraph.M2O, false, TenantTable, TenantColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasTenantWith applies the HasEdge predicate on the "tenant" edge with a given conditions (other predicates).
-func HasTenantWith(preds ...predicate.Tenant) predicate.Session {
-	return predicate.Session(func(s *sql.Selector) {
-		step := newTenantStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasHolder applies the HasEdge predicate on the "holder" edge.
-func HasHolder() predicate.Session {
-	return predicate.Session(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldId),
-			sqlgraph.Edge(sqlgraph.M2O, false, HolderTable, HolderColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasHolderWith applies the HasEdge predicate on the "holder" edge with a given conditions (other predicates).
-func HasHolderWith(preds ...predicate.Holder) predicate.Session {
-	return predicate.Session(func(s *sql.Selector) {
-		step := newHolderStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
 }
 
 // And groups predicates with the AND operator between them.

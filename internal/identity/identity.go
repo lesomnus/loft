@@ -27,10 +27,8 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"maps"
 	"net"
 	"os"
-	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -48,6 +46,7 @@ import (
 	"github.com/lesomnus/payday/config"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/roster/rstr"
+	rostercore "github.com/lesomnus/roster/server/core"
 	"github.com/lesomnus/roster/server/front"
 )
 
@@ -76,6 +75,26 @@ type Config struct {
 	// Db is the embedded roster's database. Empty is `roster.db` in the
 	// directory Rove's own SQLite file is in.
 	Db config.DbConfig `yaml:"db"`
+
+	// Directory is the roster tenant whose people are this deployment's
+	// accounts (design 9.10, D27): one for the whole of a SaaS deployment, a
+	// customer's own for a Dedicated one. Workspaces are Rove's tenants and
+	// are not roster's at all. Empty is [DefaultDirectory] on the roster in
+	// this process, and the key's own tenant for an `rt_`; an `rk_` serves
+	// every tenant that nominated it, so which one holds the accounts is said
+	// here.
+	Directory string `yaml:"directory"`
+}
+
+// DefaultDirectory is the directory of the roster in this process when the
+// configuration names none.
+const DefaultDirectory = "rove"
+
+// Directory is the roster tenant this deployment's accounts are in.
+type Directory struct {
+	Id    pdid.Id
+	Alias string
+	Name  string
 }
 
 // Embedded says whether roster runs in this process.
@@ -83,6 +102,10 @@ func (c Config) Embedded() bool { return c.Addr == "" }
 
 // Agent is the alias of the holder Rove acts as in every tenant.
 const Agent = "rove"
+
+// RosterAdministrator is the holder roster makes every tenant with, so that
+// somebody can administer it, with no way to sign in until it is given one.
+const RosterAdministrator = rostercore.Administers
 
 // AgentMethods is what that holder may call: checking a password, reading a
 // person and their tenant, and -- for a tenant key -- whose key it is. It is
@@ -150,6 +173,9 @@ var (
 	// ErrUnreachable is a roster that could not be asked. A session is not
 	// served while it lasts: what roster would have said is not known.
 	ErrUnreachable = errors.New("roster cannot be asked just now")
+	// ErrNoDirectory is a directory that is not there yet: on the roster in
+	// this process, before `rove init` or `rove identity migrate` made it.
+	ErrNoDirectory = errors.New("there is no directory of accounts yet: `rove init` makes it")
 )
 
 // Locked is a refusal that says when the account opens again.
@@ -175,6 +201,10 @@ type Store struct {
 	// What roster said of each person a session names, and when.
 	hmu  sync.Mutex
 	held map[pdid.Id]held
+
+	// The directory, once it was found.
+	dmu sync.Mutex
+	dir Directory
 
 	// now is the clock, for the tests.
 	now func() time.Time
@@ -481,75 +511,15 @@ func (s *Store) ensureAgent(ctx context.Context, tenant string) error {
 	return nil
 }
 
-// Tenants is what this deployment serves: on an external roster the tenants
-// that nominated its deployment key or its tenant key's own; on the embedded
-// one every tenant.
-func (s *Store) Tenants(ctx context.Context) ([]string, error) {
-	if s.em != nil {
-		return s.em.tenants(ctx)
-	}
-	if !strings.HasPrefix(s.key, prefixDeploymentKey) {
-		own, err := s.ownTenant(ctx)
-		if err != nil {
-			return nil, err
-		}
-
-		return []string{own}, nil
-	}
-
-	s.tmu.Lock()
-	defer s.tmu.Unlock()
-	if now := s.now(); now.Sub(s.servedAt) >= ServedTtl && now.Sub(s.asked) >= servedRetry {
-		if err := s.nominations(ctx, now); err != nil {
-			s.servedErr = err
-			if s.served == nil {
-				return nil, err
-			}
-			// What was known a minute ago is still the best answer, and a
-			// later call asks again.
-			s.log.WarnContext(ctx, "identity: roster did not say which tenants nominated this key; the last answer stands", "err", err.Error())
-		}
-	} else if s.served == nil {
-		return nil, s.servedErr
-	}
-
-	return slices.Sorted(maps.Keys(s.served)), nil
-}
-
-// alias is the alias of a tenant this deployment serves, by identifier.
-func (s *Store) alias(ctx context.Context, tenant pdid.Id) (string, error) {
-	s.tmu.Lock()
-	v, ok := s.aliases[tenant]
-	s.tmu.Unlock()
-	if ok {
-		return v, nil
-	}
-	ts, err := s.Tenants(ctx)
-	if err != nil {
-		return "", err
-	}
-	for _, t := range ts {
-		id, _, err := s.Tenant(ctx, t)
-		if err != nil {
-			return "", err
-		}
-		if id == tenant {
-			return t, nil
-		}
-	}
-
-	return "", fmt.Errorf("%w: %s", ErrNoTenant, tenant)
-}
-
-// Verify checks a person's password with roster and answers who they are.
-// `login` is their alias, or -- with an `@` in it -- the address they are
-// reached at, within the tenant.
-func (s *Store) Verify(ctx context.Context, tenant, login, password string) (Person, error) {
-	as, err := s.as(ctx, tenant)
+// Verify checks an account's password with roster and answers who they are.
+// `login` is their alias in the directory, or -- with an `@` in it -- the
+// address they are reached at.
+func (s *Store) Verify(ctx context.Context, login, password string) (Person, error) {
+	as, d, err := s.inDirectory(ctx)
 	if err != nil {
 		return Person{}, err
 	}
-	who := rstr.VouchWho_builder{Tenant: tenant}
+	who := rstr.VouchWho_builder{Tenant: d.Alias}
 	if strings.Contains(login, "@") {
 		who.Address = login
 	} else {
@@ -583,51 +553,33 @@ func (s *Store) Verify(ctx context.Context, tenant, login, password string) (Per
 	return s.person(as, rstr.HolderRef_builder{Id: id.Bytes()}.Build())
 }
 
-// Lookup is a person by name, with nothing checked: for a caller some other
-// credential already vouched for.
-func (s *Store) Lookup(ctx context.Context, tenant, alias string) (Person, error) {
-	as, err := s.as(ctx, tenant)
+// Lookup is an account by its alias, with nothing checked: for a caller some
+// other credential already vouched for.
+func (s *Store) Lookup(ctx context.Context, alias string) (Person, error) {
+	as, d, err := s.inDirectory(ctx)
 	if err != nil {
 		return Person{}, err
 	}
 
 	return s.person(as, rstr.HolderRef_builder{
-		Slug: rstr.HolderRefBySlug_builder{Alias: z.Ptr(alias), Tenant: rstr.TenantRef_builder{Alias: z.Ptr(tenant)}.Build()}.Build(),
+		Slug: rstr.HolderRefBySlug_builder{Alias: z.Ptr(alias), Tenant: rstr.TenantRef_builder{Id: d.Id.Bytes()}.Build()}.Build(),
 	}.Build())
 }
 
-// ById is the person an issuer's `sub` names: roster's `sub` is a `Holder.id`,
-// so it is looked up as one, in each tenant this deployment serves until one of
-// them has it. Somebody in no tenant served here is nobody, whatever the issuer
-// vouched for.
+// ById is the account an issuer's `sub` names: roster's `sub` is a
+// `Holder.id`, looked up in the directory. Somebody the directory does not
+// have is nobody here, whatever the issuer vouched for.
 func (s *Store) ById(ctx context.Context, sub string) (Person, error) {
 	id, err := uuid.Parse(sub)
 	if err != nil {
 		return Person{}, fmt.Errorf("%w: %q is not roster's identifier", ErrNoPerson, sub)
 	}
-	tenants, err := s.Tenants(ctx)
+	as, _, err := s.inDirectory(ctx)
 	if err != nil {
 		return Person{}, err
 	}
-	slices.Sort(tenants)
-	for _, t := range tenants {
-		as, err := s.as(ctx, t)
-		if err != nil {
-			if errors.Is(err, ErrNoTenant) {
-				continue
-			}
 
-			return Person{}, err
-		}
-		p, err := s.person(as, rstr.HolderRef_builder{Id: id[:]}.Build())
-		if errors.Is(err, ErrNoPerson) {
-			continue
-		}
-
-		return p, err
-	}
-
-	return Person{}, ErrNoPerson
+	return s.person(as, rstr.HolderRef_builder{Id: id[:]}.Build())
 }
 
 func (s *Store) person(as context.Context, ref *rstr.HolderRef) (Person, error) {
@@ -665,8 +617,8 @@ func personOf(v *rstr.Holder) (Person, error) {
 	}, nil
 }
 
-// Tenant is a tenant this deployment serves, by alias.
-func (s *Store) Tenant(ctx context.Context, alias string) (id pdid.Id, name string, err error) {
+// tenant is a tenant at roster, by alias, asked as Rove's holder there.
+func (s *Store) tenant(ctx context.Context, alias string) (id pdid.Id, name string, err error) {
 	as, err := s.as(ctx, alias)
 	if err != nil {
 		return pdid.Nil, "", err
@@ -689,6 +641,76 @@ func (s *Store) Tenant(ctx context.Context, alias string) (id pdid.Id, name stri
 	}
 
 	return id, v.GetName(), err
+}
+
+// directoryAlias is the alias the directory goes by: what the configuration
+// says, and what the key is.
+func (s *Store) directoryAlias(ctx context.Context) (string, error) {
+	switch {
+	case s.em != nil:
+		if s.cfg.Directory != "" {
+			return s.cfg.Directory, nil
+		}
+
+		return DefaultDirectory, nil
+	case strings.HasPrefix(s.key, prefixDeploymentKey):
+		if s.cfg.Directory == "" {
+			return "", errors.New("auth.roster.directory: a deployment key serves every tenant that nominated it, and which of them holds this deployment's accounts is said here")
+		}
+
+		return s.cfg.Directory, nil
+	default:
+		own, err := s.ownTenant(ctx)
+		if err != nil {
+			return "", err
+		}
+		if s.cfg.Directory != "" && s.cfg.Directory != own {
+			return "", fmt.Errorf("auth.roster.directory: @%s, and this deployment's tenant key is @%s's", s.cfg.Directory, own)
+		}
+
+		return own, nil
+	}
+}
+
+// Directory is the roster tenant this deployment's accounts are in, found once
+// and kept. [ErrNoDirectory] on the roster in this process before anything
+// made it.
+func (s *Store) Directory(ctx context.Context) (Directory, error) {
+	s.dmu.Lock()
+	defer s.dmu.Unlock()
+	if s.dir.Alias != "" {
+		return s.dir, nil
+	}
+	alias, err := s.directoryAlias(ctx)
+	if err != nil {
+		return Directory{}, err
+	}
+	id, name, err := s.tenant(ctx, alias)
+	if err != nil {
+		if s.em != nil && errors.Is(err, ErrNoTenant) {
+			return Directory{}, fmt.Errorf("%w (@%s)", ErrNoDirectory, alias)
+		}
+
+		return Directory{}, err
+	}
+	s.dir = Directory{Id: id, Alias: alias, Name: name}
+
+	return s.dir, nil
+}
+
+// inDirectory is a context that calls roster as Rove's holder in the
+// directory, and the directory.
+func (s *Store) inDirectory(ctx context.Context) (context.Context, Directory, error) {
+	d, err := s.Directory(ctx)
+	if err != nil {
+		return nil, Directory{}, err
+	}
+	as, err := s.as(ctx, d.Alias)
+	if err != nil {
+		return nil, Directory{}, err
+	}
+
+	return as, d, nil
 }
 
 // Standing is what roster says of somebody now: when everything issued to them
@@ -718,20 +740,16 @@ func (v Standing) Good(at time.Time) bool {
 	return v.Disabled.IsZero() && v.Erased.IsZero() && !at.Before(v.Invalidated)
 }
 
-// StandingOf is what roster says of somebody of a tenant now. ErrNoPerson is
-// somebody roster does not have any more; anything else is a roster that could
-// not be asked. It is what a session is held to on every call it makes.
-func (s *Store) StandingOf(ctx context.Context, tenant, holder pdid.Id) (Standing, error) {
-	alias, err := s.alias(ctx, tenant)
-	if err != nil {
-		return Standing{}, err
-	}
-	as, err := s.as(ctx, alias)
+// StandingOf is what roster says of an account now. ErrNoPerson is somebody
+// roster does not have any more; anything else is a roster that could not be
+// asked. It is what a session is held to on every call it makes.
+func (s *Store) StandingOf(ctx context.Context, account pdid.Id) (Standing, error) {
+	as, d, err := s.inDirectory(ctx)
 	if err != nil {
 		return Standing{}, err
 	}
 	v, err := rstr.NewHolderServiceClient(s.conn).Get(as, rstr.HolderGetRequest_builder{
-		Ref:    rstr.HolderRef_builder{Id: holder.Bytes()}.Build(),
+		Ref:    rstr.HolderRef_builder{Id: account.Bytes()}.Build(),
 		Select: rstr.HolderSelect_builder{All: z.Ptr(true)}.Build(),
 	}.Build())
 	if err != nil {
@@ -741,7 +759,7 @@ func (s *Store) StandingOf(ctx context.Context, tenant, holder pdid.Id) (Standin
 
 		return Standing{}, fmt.Errorf("roster: %w", err)
 	}
-	st := Standing{Holder: holder, Tenant: tenant}
+	st := Standing{Holder: account, Tenant: d.Id}
 	if t := v.GetDateInvalidated(); t != nil {
 		st.Invalidated = t.AsTime()
 	}
@@ -771,10 +789,10 @@ type held struct {
 }
 
 // Held says whether a session that began at `began` is still good, by what
-// roster says of the person it names: ErrRefused when they were suspended,
+// roster says of the account it names: ErrRefused when they were suspended,
 // erased or signed out everywhere since -- or are not there at all -- and
 // ErrUnreachable when roster could not be asked, which is a refusal too.
-func (s *Store) Held(ctx context.Context, tenant, holder pdid.Id, began time.Time) error {
+func (s *Store) Held(ctx context.Context, holder pdid.Id, began time.Time) error {
 	now := s.now()
 	s.hmu.Lock()
 	v, ok := s.held[holder]
@@ -783,7 +801,7 @@ func (s *Store) Held(ctx context.Context, tenant, holder pdid.Id, began time.Tim
 	known := v.err == nil || errors.Is(v.err, ErrNoPerson)
 	fresh := ok && (known && now.Sub(v.at) < HeldTtl || !known && now.Sub(v.at) < heldRetry)
 	if !fresh {
-		st, err := s.StandingOf(ctx, tenant, holder)
+		st, err := s.StandingOf(ctx, holder)
 		v = held{st: st, err: err, at: now}
 		s.hmu.Lock()
 		s.held[holder] = v
@@ -808,18 +826,4 @@ func (s *Store) Recheck(holder pdid.Id) {
 	s.hmu.Lock()
 	delete(s.held, holder)
 	s.hmu.Unlock()
-}
-
-// Only is the one tenant this deployment serves, for a sign-in that names
-// none, and false when it serves more than one or none.
-func (s *Store) Only(ctx context.Context) (string, bool, error) {
-	ts, err := s.Tenants(ctx)
-	if err != nil {
-		return "", false, err
-	}
-	if len(ts) != 1 {
-		return "", false, nil
-	}
-
-	return ts[0], true, nil
 }
