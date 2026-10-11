@@ -1,13 +1,18 @@
 package domain_test
 
 import (
+	"context"
+	"strings"
 	"testing"
 	"time"
 
+	"github.com/lesomnus/payday/pdid"
+	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	app "github.com/lesomnus/rove"
+	"github.com/lesomnus/rove/server/domain"
 )
 
 func (e *env) model(name string) *app.ItemModel {
@@ -295,6 +300,126 @@ func TestImportExport(t *testing.T) {
 func TestLabels(t *testing.T) {
 	e := newEnv(t)
 	x := e.x
+	ctx := context.Background()
+
+	// No domain to have: every label prints with the deployment's own
+	// address and a code no other label in it has (D28).
+	room := e.space("회의실", nil)
+	a := e.item("노트북", "NB-7", room, day)
+	st, err := e.app().TenantDomain().Status(e.owner, &app.TenantDomainStatusRequest{})
+	x.NoError(err)
+	x.True(st.GetLabels(), "labels are on without a domain")
+	x.False(st.GetTenantDomains())
+	x.Equal("http://localhost:8080", st.GetBase())
+	_, err = e.app().TenantDomain().Add(e.owner, app.TenantDomainAddRequest_builder{Sub: ptr("acme")}.Build())
+	x.Equal(codes.FailedPrecondition, codeOf(err), "a domain of its own is nothing a workspace has here")
+
+	blank, err := e.app().Label().Print(e.owner, app.LabelPrintRequest_builder{Count: 3}.Build())
+	x.NoError(err)
+	x.Len(blank.GetUrls(), 3)
+	seen := map[string]bool{}
+	for i, l := range blank.GetLabels() {
+		x.Regexp(`^[0-9A-HJKMNP-TV-Z]{8}$`, l.GetCode())
+		x.Equal("http://localhost:8080/l/"+l.GetCode(), blank.GetUrls()[i])
+		x.False(seen[l.GetCode()], "two labels with one code")
+		seen[l.GetCode()] = true
+	}
+	l := blank.GetLabels()[0]
+	code := l.GetCode()
+
+	// A label printed before codes had none, and goes by its identifier.
+	old := blank.GetLabels()[1]
+	oldId, err := pdid.From(old.GetId())
+	x.NoError(err)
+	x.NoError(e.s.Ent.Label.UpdateOneId(oldId.Uuid()).ClearCode().Exec(ctx))
+
+	// Read however it comes: its URL, its code, the code as somebody types
+	// it off the label -- and the old one's URL on whatever host it was
+	// printed with.
+	typed := strings.ToLower(code[:4] + "-" + code[4:])
+	for v, want := range map[string][]byte{
+		blank.GetUrls()[0]: l.GetId(),
+		code:               l.GetId(),
+		typed:              l.GetId(),
+		"https://acme.l.test/l/" + domain.LabelCode(oldId): old.GetId(),
+		domain.LabelCode(oldId):                            old.GetId(),
+	} {
+		r, err := e.app().Label().Resolve(e.owner, app.LabelResolveRequest_builder{Code: v}.Build())
+		x.NoError(err, v)
+		x.True(sameId(want, r.GetLabel().GetId()), v)
+		x.False(r.HasAsset(), "a blank label is on nothing")
+	}
+
+	_, err = e.app().Label().Bind(e.owner, app.LabelBindRequest_builder{Ref: ref[app.LabelRef](l.GetId()), Asset: assetRef(a)}.Build())
+	x.NoError(err, "stuck on something without a domain either")
+	r, err := e.app().Label().Resolve(e.owner, app.LabelResolveRequest_builder{Code: code}.Build())
+	x.NoError(err)
+	x.True(sameId(a.GetId(), r.GetAsset().GetId()))
+
+	// Another workspace reads it as nothing, through the wall; which
+	// workspace it is in is the deployment's to say, for an account to be
+	// told which of its own to look in.
+	_, other := e.newTenant("other")
+	_, err = e.app().Label().Resolve(other, app.LabelResolveRequest_builder{Code: code}.Build())
+	x.Equal(codes.NotFound, codeOf(err), "another workspace's label reads as nothing")
+	aid, err := pdid.From(a.GetId())
+	x.NoError(err)
+	for _, v := range []string{code, typed, blank.GetUrls()[0], domain.LabelCode(oldId), aid.String()} {
+		in, ok, err := domain.LabelWorkspace(ctx, e.s.Ent, v)
+		x.NoError(err, v)
+		x.True(ok, v)
+		x.Equal(e.tenant, in, v)
+	}
+	for _, v := range []string{"ZZZZZZZZ", "NB-7", "", "https://example.com/"} {
+		_, ok, err := domain.LabelWorkspace(ctx, e.s.Ent, v)
+		x.NoError(err, v)
+		x.False(ok, v)
+	}
+	gone := blank.GetLabels()[2]
+	goneId, err := pdid.From(gone.GetId())
+	x.NoError(err)
+	x.NoError(e.s.Ent.Label.UpdateOneId(goneId.Uuid()).SetDateErased(e.now).Exec(ctx))
+	_, ok, err := domain.LabelWorkspace(ctx, e.s.Ent, gone.GetCode())
+	x.NoError(err)
+	x.False(ok, "an erased label is in no workspace")
+	_, err = e.app().Label().Resolve(e.owner, app.LabelResolveRequest_builder{Code: gone.GetCode()}.Build())
+	x.Equal(codes.NotFound, codeOf(err), "nor read in its own")
+
+	// One code, one label, in the whole deployment -- which the database
+	// holds as well.
+	theirs, err := e.app().Label().Print(other, app.LabelPrintRequest_builder{Count: 1}.Build())
+	x.NoError(err)
+	x.NotEqual(code, theirs.GetLabels()[0].GetCode())
+	tid, err := pdid.From(theirs.GetLabels()[0].GetId())
+	x.NoError(err)
+	x.Error(e.s.Ent.Label.UpdateOneId(tid.Uuid()).SetCode(code).Exec(ctx), "two labels with one code")
+}
+
+func TestNormalLabelCode(t *testing.T) {
+	x := require.New(t)
+	for in, want := range map[string]string{
+		"7K3MQ9TX":                        "7K3MQ9TX",
+		"7k3m-q9tx":                       "7K3MQ9TX",
+		" 7K3M Q9TX ":                     "7K3MQ9TX",
+		"ab1o-ilzz":                       "AB1011ZZ",
+		"https://rove.example/l/7K3MQ9TX": "7K3MQ9TX",
+	} {
+		got, ok := domain.NormalLabelCode(in)
+		x.True(ok, in)
+		x.Equal(want, got, in)
+	}
+	for _, in := range []string{"", "7K3MQ9T", "7K3MQ9TXX", "7K3MQ9TU", "NB-7", "https://rove.example/"} {
+		_, ok := domain.NormalLabelCode(in)
+		x.False(ok, in)
+	}
+}
+
+// TestLabelsOnTenantDomains is a deployment whose tenants print with domains
+// of their own (D23): none until one is added, and then that one's.
+func TestLabelsOnTenantDomains(t *testing.T) {
+	e := newEnv(t)
+	x := e.x
+	e.s.Deps.LabelTenantDomains = true
 
 	// No label domain yet: labels are off, and tags still resolve.
 	room := e.space("회의실", nil)
@@ -307,12 +432,13 @@ func TestLabels(t *testing.T) {
 	st, err := e.app().TenantDomain().Status(e.owner, &app.TenantDomainStatusRequest{})
 	x.NoError(err)
 	x.True(st.GetLabels())
+	x.True(st.GetTenantDomains())
 	x.Equal("acme.l.test", st.GetActive().GetHost())
 
 	blank, err := e.app().Label().Print(e.owner, app.LabelPrintRequest_builder{Count: 2}.Build())
 	x.NoError(err)
 	x.Len(blank.GetUrls(), 2)
-	x.Contains(blank.GetUrls()[0], "acme.l.test")
+	x.Equal("http://acme.l.test:8080/l/"+blank.GetLabels()[0].GetCode(), blank.GetUrls()[0], "the domain, on the scheme and port the deployment is on")
 
 	r, err := e.app().Label().Resolve(e.owner, app.LabelResolveRequest_builder{Code: blank.GetUrls()[0]}.Build())
 	x.NoError(err)

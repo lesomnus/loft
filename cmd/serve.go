@@ -425,7 +425,7 @@ func (s *Server) Workspaces(c Config) tenancy.Workspaces {
 		Base:        s.Base,
 		Drv:         s.Drv,
 		Ungated:     s.Ungated,
-		LabelSuffix: c.App.Labels.Suffix,
+		LabelSuffix: c.App.Labels.Default(),
 		Personal:    c.App.Workspaces.PersonalOn(),
 		Owned:       c.App.Workspaces.OwnedMax(),
 		Aliases:     s.Aliases(c),
@@ -595,18 +595,20 @@ func depsOf(c Config) (*domain.Deps, error) {
 	pub := c.App.Public()
 	port := pub.Port()
 	return &domain.Deps{
-		Files:         storage.Dir(files),
-		Sign:          storage.Signer{Key: key, Base: strings.TrimSuffix(pub.String(), "/"), TTL: 10 * time.Minute},
-		LabelSuffix:   c.App.Labels.Suffix,
-		LabelTarget:   c.App.Labels.Target,
-		LabelScheme:   pub.Scheme,
-		LabelPort:     port,
-		LookupTXT:     net.DefaultResolver.LookupTXT,
-		NoShowAfter:   c.App.NoShowAfter,
-		RestoreWithin: c.App.Workspaces.Restore(),
-		Retention:     c.App.Retention.Defaults(),
-		Mail:          sender,
-		AppUrl:        c.App.App(),
+		Files:              storage.Dir(files),
+		Sign:               storage.Signer{Key: key, Base: strings.TrimSuffix(pub.String(), "/"), TTL: 10 * time.Minute},
+		LabelSuffix:        c.App.Labels.Suffix,
+		LabelTarget:        c.App.Labels.Target,
+		LabelScheme:        pub.Scheme,
+		LabelPort:          port,
+		LabelTenantDomains: c.App.Labels.TenantDomains,
+		LabelBase:          strings.TrimSuffix(pub.String(), "/"),
+		LookupTXT:          net.DefaultResolver.LookupTXT,
+		NoShowAfter:        c.App.NoShowAfter,
+		RestoreWithin:      c.App.Workspaces.Restore(),
+		Retention:          c.App.Retention.Defaults(),
+		Mail:               sender,
+		AppUrl:             c.App.App(),
 		Invitations: domain.InvitationRules{
 			Ttl:     c.App.Invitations.Ttl,
 			Pending: c.App.Invitations.Pending,
@@ -668,20 +670,28 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 
 	// What an account has outside any one workspace: which it is in, and a
 	// new one.
-	acc := account.Handler(s.Sessions, s.Identity, ws, func(ctx context.Context, t pdid.Id, w io.Writer) error {
-		_, err := s.Offboard(c).Export(ctx, t, w)
-		return err
-	})
-	mux.Handle("GET /account", acc)
-	mux.Handle("POST /account/workspaces", acc)
-	mux.Handle("GET /account/workspaces/{alias}/export", acc)
+	account.Routes{
+		Sessions:   s.Sessions,
+		People:     s.Identity,
+		Workspaces: ws,
+		Export: func(ctx context.Context, t pdid.Id, w io.Writer) error {
+			_, err := s.Offboard(c).Export(ctx, t, w)
+			return err
+		},
+		// A label scanned in a workspace it is not in: the one of the
+		// account's own it is in, when there is one (D28).
+		Label: func(ctx context.Context, code string) (pdid.Id, bool, error) {
+			return domain.LabelWorkspace(ctx, s.Ent, code)
+		},
+	}.Mount(mux)
 
 	// Attachments, by the signed links the API answers with.
 	mux.Handle("GET /files/", s.Deps.Sign.Handler(s.Deps.Files, time.Now))
 
 	// A printed label: whatever host it was printed with, the code is sent to
 	// the page that resolves it. The page asks the API, through the wall, so
-	// a label of another tenant reads as nothing there.
+	// a label of another tenant reads as nothing there -- and then asks
+	// `/account/labels/{code}` which of the account's own it is in.
 	app := strings.TrimSuffix(c.App.App(), "/")
 	mux.HandleFunc("GET /l/{code}", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, app+"/scan/"+r.PathValue("code"), http.StatusFound)

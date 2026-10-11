@@ -3,7 +3,7 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 
 import type { Label } from '../../gen/rove/asset_pb.js'
-import { LabelService, TenantDomainService, errorText, idBytes, idStr } from '../api.js'
+import { LabelService, TenantDomainService, errorText, idBytes, idStr, labelCodeText } from '../api.js'
 import { useCatalog } from '../catalog.js'
 import { call, useRpc } from '../rpc.js'
 import { useAssets } from '../pickers.js'
@@ -17,6 +17,15 @@ const printing = new Map<string, ReturnType<typeof print>>()
 
 function print(ids: string[], blank: number) {
 	return call(LabelService.method.print, ids.length > 0 ? { assetIds: ids.map(idBytes) } : { count: Math.min(Math.max(blank, 1), 200) })
+}
+
+/** The host a label's address is on, for the sheet's heading. */
+function hostOf(u: string | undefined): string {
+	try {
+		return u === undefined ? '' : new URL(u).host
+	} catch {
+		return ''
+	}
 }
 
 /**
@@ -80,7 +89,7 @@ export function LabelSheet(): ReactNode {
 			<div className="no-print toolbar">
 				<Link to="/assets">← 돌아가기</Link>
 				<span>
-					라벨 {got.labels.length}장 · {status.data?.active?.host}
+					라벨 {got.labels.length}장 · {status.data?.active?.host ?? hostOf(got.urls[0])}
 				</span>
 				<select value={size} onChange={(e) => setSize(e.target.value)}>
 					<option value="s">작게 (40×20mm)</option>
@@ -100,7 +109,9 @@ export function LabelSheet(): ReactNode {
 							<div className="text">
 								<strong>{a?.tag ?? ''}</strong>
 								<span>{a?.name ?? '미부착 라벨'}</span>
-								<small>{c.me.tenant?.name || c.me.tenant?.alias}</small>
+								<small>
+									{labelCodeText(l.code)} {c.me.tenant?.name || c.me.tenant?.alias}
+								</small>
 							</div>
 						</div>
 					)

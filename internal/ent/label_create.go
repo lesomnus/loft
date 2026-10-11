@@ -112,6 +112,20 @@ func (_c *LabelCreate) SetBatch(v string) *LabelCreate {
 	return _c
 }
 
+// SetCode sets the "code" field.
+func (_c *LabelCreate) SetCode(v string) *LabelCreate {
+	_c.mutation.SetCode(v)
+	return _c
+}
+
+// SetNillableCode sets the "code" field if the given value is not nil.
+func (_c *LabelCreate) SetNillableCode(v *string) *LabelCreate {
+	if v != nil {
+		_c.SetCode(*v)
+	}
+	return _c
+}
+
 // SetTenantId sets the "tenant_id" field.
 func (_c *LabelCreate) SetTenantId(v uuid.UUID) *LabelCreate {
 	_c.mutation.SetTenantId(v)
@@ -267,6 +281,10 @@ func (_c *LabelCreate) createSpec() (*Label, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Batch(); ok {
 		_spec.SetField(label.FieldBatch, field.TypeString, value)
 		_node.Batch = value
+	}
+	if value, ok := _c.mutation.Code(); ok {
+		_spec.SetField(label.FieldCode, field.TypeString, value)
+		_node.Code = &value
 	}
 	if nodes := _c.mutation.TenantIds(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

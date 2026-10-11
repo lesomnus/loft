@@ -404,6 +404,9 @@ func TestNoCallReachesAnotherWorkspace(t *testing.T) {
 	c.App.Files = t.TempDir()
 	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
 	c.App.Labels.Suffix = "l.test"
+	// Label domains are rows a workspace has where workspaces have their own
+	// (D23), and the wall is tried on them too.
+	c.App.Labels.TenantDomains = true
 	run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234")
 	run(t, cli.NewCmdInit(&c), "--tenant", "beta", "--login", "boss", "--password", "boss12345", "--demo")
 

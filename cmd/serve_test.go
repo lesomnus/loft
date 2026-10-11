@@ -457,7 +457,8 @@ func TestAnAccountInNoWorkspaceIsGivenOne(t *testing.T) {
 	x.NoError(err)
 	x.Equal(1, n, "a second sign-in gave it a second workspace")
 
-	acc := account.Handler(w.s.Sessions, w.s.Identity, ws, func(context.Context, pdid.Id, io.Writer) error { return nil })
+	acc := http.NewServeMux()
+	account.Routes{Sessions: w.s.Sessions, People: w.s.Identity, Workspaces: ws, Export: func(context.Context, pdid.Id, io.Writer) error { return nil }}.Mount(acc)
 	ask := func(method, path, body string) *httptest.ResponseRecorder {
 		r := httptest.NewRequest(method, path, bytes.NewBufferString(body))
 		r.Header.Set("Cookie", cookie.Name+"="+cookie.Value)

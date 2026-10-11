@@ -1682,6 +1682,9 @@ func (s LabelServiceServer) Add(ctx context.Context, req *rove.LabelAddRequest) 
 		q.SetDateCreated(st.now())
 	}
 	q.SetBatch(req.GetBatch())
+	if req.HasCode() {
+		q.SetCode(req.GetCode())
+	}
 
 	u, err := q.Save(ctx)
 	if err != nil {
@@ -1773,6 +1776,9 @@ func LabelSelectedFields(m *rove.LabelSelect) []string {
 	if m.GetBatch() {
 		vs = append(vs, label.FieldBatch)
 	}
+	if m.GetCode() {
+		vs = append(vs, label.FieldCode)
+	}
 
 	return vs
 }
@@ -1861,7 +1867,7 @@ func LabelGetKey(ctx context.Context, db *ent.Client, ref *rove.LabelRef) (uuid.
 var labelOrmEntity = ormpatch.MustEntityOf(rove.File_rove_asset_proto, "Label")
 
 var labelPatchColumns = entpatch.Columns{
-	1: label.FieldId, 2: label.TenantColumn, 8: label.DomainColumn, 9: label.FieldSubjectId, 10: label.FieldState, 11: label.FieldBoundAt, 12: label.FieldPrintedAt, 13: label.FieldDateUpdated, 14: label.FieldDateErased, 15: label.FieldDateCreated, 16: label.FieldBatch}
+	1: label.FieldId, 2: label.TenantColumn, 8: label.DomainColumn, 9: label.FieldSubjectId, 10: label.FieldState, 11: label.FieldBoundAt, 12: label.FieldPrintedAt, 13: label.FieldDateUpdated, 14: label.FieldDateErased, 15: label.FieldDateCreated, 16: label.FieldBatch, 17: label.FieldCode}
 
 func (s LabelServiceServer) Apply(ctx context.Context, req *rove.LabelApplyRequest) (*rove.Label, error) {
 	if !req.HasPatch() {
@@ -2062,6 +2068,8 @@ func pickLabel(req *rove.LabelRef) (predicate.Label, error) {
 		} else {
 			return label.IdEQ(v), nil
 		}
+	case rove.LabelRef_Code_case:
+		return label.CodeEQ(req.GetCode()), nil
 	case rove.LabelRef_Key_not_set_case:
 		return nil, status.Errorf(codes.InvalidArgument, "key not set: Label")
 	default:

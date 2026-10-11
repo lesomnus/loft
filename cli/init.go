@@ -141,7 +141,7 @@ func NewCmdInit(c *cmd.Config) *xli.Command {
 			hid, _ := pdid.From(h.GetId())
 			ctx = frame.Into(ctx, frame.New(hid, tid, frame.Whole()).WithScope(frame.Only(tid)).WithRow(h))
 
-			if err := tenancy.SetUp(ctx, s.Ungated, alias, c.App.Labels.Suffix); err != nil {
+			if err := tenancy.SetUp(ctx, s.Ungated, alias, c.App.Labels.Default()); err != nil {
 				return err
 			}
 			if demo {

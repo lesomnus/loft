@@ -225,6 +225,15 @@ message Label {
   // The print run it came from, to find a sheet again.
   string batch = 16;
 
+  // What its QR says after `/l/`: eight of Crockford's base32, unique in the
+  // whole deployment (D28), so that a label is found from the app's own
+  // address whichever workspace it is in. Null on a label printed before
+  // there were codes, which goes by its identifier in base32 still.
+  string code = 17 [(orm.field) = {
+    nullable: true
+    unique: true
+  }];
+
   option (orm.message) = {
     rpc: {crud: true}
     indexes: [

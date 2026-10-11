@@ -128,9 +128,14 @@ app:
   # app_url: http://localhost:5173
   files: data/files
   labels:
-    # A tenant's default label host is `<tenant>.l.localhost`, which a browser
-    # resolves to this machine. A deployment names its own, such as
-    # `l.rove.example`.
+    # Off (SaaS, and the default): every label prints with `public_url` and a
+    # code unique in the deployment, `<public_url>/l/7K3MQ9TX` (D28). On
+    # (Dedicated): a workspace prints with a domain of its own (D23), and has
+    # labels only once it has one.
+    tenant_domains: false
+    # Where workspaces have domains of their own, a default one is
+    # `<workspace>.l.localhost`, which a browser resolves to this machine. A
+    # deployment names its own, such as `l.rove.example`.
     suffix: l.localhost
   session:
     idle: 24h

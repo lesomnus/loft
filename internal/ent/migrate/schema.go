@@ -885,6 +885,7 @@ var (
 		{Name: "date_erased", Type: field.TypeTime, Nullable: true},
 		{Name: "date_created", Type: field.TypeTime, Nullable: true},
 		{Name: "batch", Type: field.TypeString},
+		{Name: "code", Type: field.TypeString, Nullable: true},
 		{Name: "tenant_id", Type: field.TypeUuid},
 		{Name: "domain_id", Type: field.TypeUuid, Nullable: true},
 	}
@@ -896,13 +897,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "label_tenant_tenant",
-				Columns:    []*schema.Column{LabelColumns[9]},
+				Columns:    []*schema.Column{LabelColumns[10]},
 				RefColumns: []*schema.Column{TenantColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "label_tenantdomain_domain",
-				Columns:    []*schema.Column{LabelColumns[10]},
+				Columns:    []*schema.Column{LabelColumns[11]},
 				RefColumns: []*schema.Column{TenantdomainColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -917,6 +918,14 @@ var (
 				Name:    "label_subject_id",
 				Unique:  false,
 				Columns: []*schema.Column{LabelColumns[1]},
+			},
+			{
+				Name:    "label_code",
+				Unique:  true,
+				Columns: []*schema.Column{LabelColumns[9]},
+				Annotation: &entsql.IndexAnnotation{
+					Where: "date_erased IS NULL",
+				},
 			},
 		},
 	}

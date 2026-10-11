@@ -1,5 +1,6 @@
 // Package account is what a signed-in account has outside any one workspace:
-// the workspaces it is in, and making another (design 9.11).
+// the workspaces it is in, making another, and which of them a label it
+// scanned is in (design 9.11, D28).
 //
 // It is HTTP beside `/session` rather than an RPC, and that is the reason it
 // is a package of its own. Every RPC is served as a membership of one
@@ -60,10 +61,26 @@ type Workspace struct {
 // Exporter writes everything a workspace has, as `rove tenant export` does.
 type Exporter func(ctx context.Context, workspace pdid.Id, w io.Writer) error
 
-// Handler serves `GET /account`, `POST /account/workspaces`, and a
-// workspace's data for its owner at `GET /account/workspaces/{alias}/export`.
-func Handler(sessions *authsession.Sessions, people People, ws tenancy.Workspaces, export Exporter) http.Handler {
-	mux := http.NewServeMux()
+// LabelFinder is the workspace a scanned code is in, whichever workspace it
+// was scanned from, or false for none (`domain.LabelWorkspace`).
+type LabelFinder func(ctx context.Context, code string) (workspace pdid.Id, ok bool, err error)
+
+// Routes is what is served for an account beside `/session`.
+type Routes struct {
+	Sessions   *authsession.Sessions
+	People     People
+	Workspaces tenancy.Workspaces
+	Export     Exporter
+	// Label answers a scan made in a workspace a label is not in; nil
+	// answers none.
+	Label LabelFinder
+}
+
+// Mount serves `GET /account`, `POST /account/workspaces`, a workspace's
+// data for its owner at `GET /account/workspaces/{alias}/export`, and which of
+// the account's workspaces a label is in at `GET /account/labels/{code}`.
+func (a Routes) Mount(mux *http.ServeMux) {
+	sessions, people, ws := a.Sessions, a.People, a.Workspaces
 	mux.HandleFunc("GET /account/workspaces/{alias}/export", func(w http.ResponseWriter, r *http.Request) {
 		p, ok := SignedIn(w, r, sessions, people)
 		if !ok {
@@ -87,7 +104,7 @@ func Handler(sessions *authsession.Sessions, people People, ws tenancy.Workspace
 			w.Header().Set("Content-Type", "application/zip")
 			w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s-%s.zip"`, alias, time.Now().Format("20060102")))
 			w.Header().Set("Cache-Control", "no-store")
-			if err := export(r.Context(), m.Workspace, w); err != nil {
+			if err := a.Export(r.Context(), m.Workspace, w); err != nil {
 				log.From(r.Context()).ErrorContext(r.Context(), "account: an export failed part way", "workspace", alias, "err", err.Error())
 			}
 			return
@@ -139,8 +156,38 @@ func Handler(sessions *authsession.Sessions, people People, ws tenancy.Workspace
 		}
 		answer(w, http.StatusCreated, workspaceOf(m))
 	})
-
-	return mux
+	mux.HandleFunc("GET /account/labels/{code}", func(w http.ResponseWriter, r *http.Request) {
+		p, ok := SignedIn(w, r, sessions, people)
+		if !ok {
+			return
+		}
+		// A label in a workspace the account is not in reads as no label at
+		// all: which codes are somebody's is not for anybody else to learn.
+		// The memberships are asked first either way, so that the two take
+		// the same asking.
+		ms, err := ws.Of(r.Context(), p.Id)
+		if err != nil {
+			fail(w, r, err)
+			return
+		}
+		var (
+			in pdid.Id
+			at bool
+		)
+		if a.Label != nil {
+			if in, at, err = a.Label(r.Context(), r.PathValue("code")); err != nil {
+				fail(w, r, err)
+				return
+			}
+		}
+		for _, m := range ms {
+			if at && m.Workspace == in {
+				answer(w, http.StatusOK, workspaceOf(m))
+				return
+			}
+		}
+		http.Error(w, "no workspace of yours has this label", http.StatusNotFound)
+	})
 }
 
 // SignedIn is the account the request's session names, or false with the

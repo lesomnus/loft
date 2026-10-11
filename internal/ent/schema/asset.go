@@ -221,6 +221,9 @@ func (Label) Fields() []ent.Field {
 			Immutable().
 			Optional(),
 		field.String("batch"),
+		field.String("code").
+			Nillable().
+			Optional(),
 		field.Uuid("tenant_id").
 			Immutable(),
 		field.Uuid("domain_id").
@@ -245,6 +248,9 @@ func (Label) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("date_created", "id"),
 		index.Fields("subject_id"),
+		index.Fields("code").
+			Unique().
+			Annotations(entsql.IndexWhere("date_erased IS NULL")),
 	}
 }
 

@@ -153,6 +153,26 @@ func (_u *LabelUpdate) SetNillableBatch(v *string) *LabelUpdate {
 	return _u
 }
 
+// SetCode sets the "code" field.
+func (_u *LabelUpdate) SetCode(v string) *LabelUpdate {
+	_u.mutation.SetCode(v)
+	return _u
+}
+
+// SetNillableCode sets the "code" field if the given value is not nil.
+func (_u *LabelUpdate) SetNillableCode(v *string) *LabelUpdate {
+	if v != nil {
+		_u.SetCode(*v)
+	}
+	return _u
+}
+
+// ClearCode clears the value of the "code" field.
+func (_u *LabelUpdate) ClearCode() *LabelUpdate {
+	_u.mutation.ClearCode()
+	return _u
+}
+
 // SetDomainId sets the "domain_id" field.
 func (_u *LabelUpdate) SetDomainId(v uuid.UUID) *LabelUpdate {
 	_u.mutation.SetDomainId(v)
@@ -277,6 +297,12 @@ func (_u *LabelUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.Batch(); ok {
 		_spec.SetField(label.FieldBatch, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Code(); ok {
+		_spec.SetField(label.FieldCode, field.TypeString, value)
+	}
+	if _u.mutation.CodeCleared() {
+		_spec.ClearField(label.FieldCode, field.TypeString)
 	}
 	if _u.mutation.DomainCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -451,6 +477,26 @@ func (_u *LabelUpdateOne) SetNillableBatch(v *string) *LabelUpdateOne {
 	return _u
 }
 
+// SetCode sets the "code" field.
+func (_u *LabelUpdateOne) SetCode(v string) *LabelUpdateOne {
+	_u.mutation.SetCode(v)
+	return _u
+}
+
+// SetNillableCode sets the "code" field if the given value is not nil.
+func (_u *LabelUpdateOne) SetNillableCode(v *string) *LabelUpdateOne {
+	if v != nil {
+		_u.SetCode(*v)
+	}
+	return _u
+}
+
+// ClearCode clears the value of the "code" field.
+func (_u *LabelUpdateOne) ClearCode() *LabelUpdateOne {
+	_u.mutation.ClearCode()
+	return _u
+}
+
 // SetDomainId sets the "domain_id" field.
 func (_u *LabelUpdateOne) SetDomainId(v uuid.UUID) *LabelUpdateOne {
 	_u.mutation.SetDomainId(v)
@@ -605,6 +651,12 @@ func (_u *LabelUpdateOne) sqlSave(ctx context.Context) (_node *Label, err error)
 	}
 	if value, ok := _u.mutation.Batch(); ok {
 		_spec.SetField(label.FieldBatch, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Code(); ok {
+		_spec.SetField(label.FieldCode, field.TypeString, value)
+	}
+	if _u.mutation.CodeCleared() {
+		_spec.ClearField(label.FieldCode, field.TypeString)
 	}
 	if _u.mutation.DomainCleared() {
 		edge := &sqlgraph.EdgeSpec{

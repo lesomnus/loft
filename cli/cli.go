@@ -68,7 +68,7 @@ func Cmd(c *cmd.Config) *xli.Command {
 
 	// The terminal's half, which runs anywhere as a person and reads none of
 	// a deployment's configuration: it keeps its own (`ROVE_CLIENT_CONFIG`).
-	login, logout, whoami, use, ws, api := NewCmdLogin(), NewCmdLogout(), NewCmdWhoami(), NewCmdUse(), NewCmdWorkspace(), NewCmdApi()
+	login, logout, whoami, use, ws, api, scan := NewCmdLogin(), NewCmdLogout(), NewCmdWhoami(), NewCmdUse(), NewCmdWorkspace(), NewCmdApi(), NewCmdScan()
 
 	return &xli.Command{
 		Name:  cmd.Name,
@@ -94,9 +94,10 @@ func Cmd(c *cmd.Config) *xli.Command {
 			use,
 			ws,
 			api,
+			scan,
 		},
 
-		Handler: xli.Chain(cfg.Load(l, version, login, logout, whoami, use, ws, api), xli.RequireSubcommand()),
+		Handler: xli.Chain(cfg.Load(l, version, login, logout, whoami, use, ws, api, scan), xli.RequireSubcommand()),
 	}
 }
 
