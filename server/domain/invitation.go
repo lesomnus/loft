@@ -190,7 +190,7 @@ func (s domainInvitation) Add(ctx context.Context, req *app.InvitationAddRequest
 			return err
 		}
 		workspace = or(ws.Name, ws.Alias)
-		inviter = or(me.Name, me.Alias)
+		inviter = nameOf(t.ctx, t.db, me)
 
 		code = secret()
 		id := pdid.New(pd.InvitationDomain)
@@ -313,9 +313,10 @@ func (s domainInvitation) List(ctx context.Context, req *app.InvitationListReque
 		}
 	}
 
+	names := inviterNames(ctx, db, rows)
 	out := app.InvitationListResponse_builder{}.Build()
 	for _, v := range rows {
-		out.SetItems(append(out.GetItems(), protoOf(v, now)))
+		out.SetItems(append(out.GetItems(), protoOf(v, now, names)))
 	}
 	return out, nil
 }
@@ -563,12 +564,12 @@ func (s domainInvitation) mine(ctx context.Context, db *ent.Client, id uuid.UUID
 	if err != nil {
 		return nil, err
 	}
-	return protoOf(v, now), nil
+	return protoOf(v, now, inviterNames(ctx, db, []*ent.Invitation{v})), nil
 }
 
 // protoOf is an invitation as either side reads it: the workspace by its name
 // and alias, who invited by their name, and never the code its mail carried.
-func protoOf(v *ent.Invitation, now time.Time) *app.Invitation {
+func protoOf(v *ent.Invitation, now time.Time, names map[uuid.UUID]string) *app.Invitation {
 	b := app.Invitation_builder{
 		Id:          pdid.Id(v.Id).Bytes(),
 		Email:       v.Email,
@@ -584,8 +585,8 @@ func protoOf(v *ent.Invitation, now time.Time) *app.Invitation {
 		t.Alias, t.Name = w.Alias, w.Name
 	}
 	b.Tenant = t.Build()
-	h := app.Holder_builder{Id: pdid.Id(v.InviterId).Bytes()}
-	if w := v.Edges.Inviter; w != nil {
+	h := app.Holder_builder{Id: pdid.Id(v.InviterId).Bytes(), Name: names[v.InviterId]}
+	if w := v.Edges.Inviter; w != nil && h.Name == "" {
 		h.Name = or(w.Name, w.Alias)
 	}
 	b.Inviter = h.Build()
@@ -626,6 +627,35 @@ func byState(q *ent.InvitationQuery, state string, now time.Time) *ent.Invitatio
 	default:
 		return q.Where(invitation.State(state))
 	}
+}
+
+// nameOf is what somebody of the workspace is called: the person record their
+// membership is, or the membership's own name.
+func nameOf(ctx context.Context, db *ent.Client, h *ent.Holder) string {
+	if p, err := db.Party.Query().Where(entparty.HolderId(h.Id), entparty.DateErasedIsNil()).First(ctx); err == nil && p.Name != "" {
+		return p.Name
+	}
+	return or(h.Name, h.Alias)
+}
+
+// inviterNames is what the people who sent these are called, by their
+// membership: the person records they are.
+func inviterNames(ctx context.Context, db *ent.Client, rows []*ent.Invitation) map[uuid.UUID]string {
+	ids := make([]uuid.UUID, 0, len(rows))
+	for _, v := range rows {
+		ids = append(ids, v.InviterId)
+	}
+	out := map[uuid.UUID]string{}
+	ps, err := db.Party.Query().Where(entparty.HolderIdIn(ids...), entparty.DateErasedIsNil()).All(ctx)
+	if err != nil {
+		return out
+	}
+	for _, p := range ps {
+		if p.Name != "" {
+			out[p.HolderId] = p.Name
+		}
+	}
+	return out
 }
 
 // workspaceOf is the workspace a reference names, by identifier or alias.
