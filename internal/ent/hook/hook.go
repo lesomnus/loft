@@ -93,6 +93,18 @@ func (f BookableFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, er
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.BookableMutation", m)
 }
 
+// The CliLoginFunc type is an adapter to allow the use of ordinary
+// function as CliLogin mutator.
+type CliLoginFunc func(context.Context, *ent.CliLoginMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f CliLoginFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.CliLoginMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CliLoginMutation", m)
+}
+
 // The CountFindingFunc type is an adapter to allow the use of ordinary
 // function as CountFinding mutator.
 type CountFindingFunc func(context.Context, *ent.CountFindingMutation) (ent.Value, error)

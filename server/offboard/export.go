@@ -28,8 +28,8 @@ import (
 	"github.com/lesomnus/rove/internal/ent/event"
 	"github.com/lesomnus/rove/internal/ent/fact"
 	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/ent/invitation"
 	"github.com/lesomnus/rove/internal/ent/inventorycount"
+	"github.com/lesomnus/rove/internal/ent/invitation"
 	"github.com/lesomnus/rove/internal/ent/itemmodel"
 	"github.com/lesomnus/rove/internal/ent/label"
 	"github.com/lesomnus/rove/internal/ent/link"
@@ -200,6 +200,7 @@ var Withheld = map[string]string{
 	"audit":     "the trail, which is written apart as the tenant may read it",
 	"archived":  "the deployment's account of the trail's archive, every tenant's chunks at once",
 	"session":   "who is signed in",
+	"clilogin":  "a terminal waiting to be signed in, which is nobody's yet",
 	"outbox":    "the deployment's queue of what changed",
 	"treelock":  "the deployment's bookkeeping",
 	"legalhold": "the operator's",

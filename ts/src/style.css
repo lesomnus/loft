@@ -1487,3 +1487,15 @@ ul.state-tree .space {
 	}
 }
 
+
+/* A terminal asking to be signed in (`/cli`). */
+.terminal code.big {
+	font-size: 1.4em;
+	letter-spacing: 0.1em;
+}
+.terminal .actions {
+	display: flex;
+	gap: 8px;
+	justify-content: flex-end;
+	margin: 12px 0;
+}

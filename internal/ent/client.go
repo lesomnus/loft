@@ -17,6 +17,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/attachment"
 	"github.com/lesomnus/rove/internal/ent/audit"
 	"github.com/lesomnus/rove/internal/ent/bookable"
+	"github.com/lesomnus/rove/internal/ent/clilogin"
 	"github.com/lesomnus/rove/internal/ent/countfinding"
 	"github.com/lesomnus/rove/internal/ent/custody"
 	"github.com/lesomnus/rove/internal/ent/custodyline"
@@ -70,6 +71,8 @@ type Client struct {
 	Audit *AuditClient
 	// Bookable is the client for interacting with the Bookable builders.
 	Bookable *BookableClient
+	// CliLogin is the client for interacting with the CliLogin builders.
+	CliLogin *CliLoginClient
 	// CountFinding is the client for interacting with the CountFinding builders.
 	CountFinding *CountFindingClient
 	// Custody is the client for interacting with the Custody builders.
@@ -147,6 +150,7 @@ func (c *Client) init() {
 	c.Attachment = NewAttachmentClient(c.config)
 	c.Audit = NewAuditClient(c.config)
 	c.Bookable = NewBookableClient(c.config)
+	c.CliLogin = NewCliLoginClient(c.config)
 	c.CountFinding = NewCountFindingClient(c.config)
 	c.Custody = NewCustodyClient(c.config)
 	c.CustodyLine = NewCustodyLineClient(c.config)
@@ -276,6 +280,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Attachment:      NewAttachmentClient(cfg),
 		Audit:           NewAuditClient(cfg),
 		Bookable:        NewBookableClient(cfg),
+		CliLogin:        NewCliLoginClient(cfg),
 		CountFinding:    NewCountFindingClient(cfg),
 		Custody:         NewCustodyClient(cfg),
 		CustodyLine:     NewCustodyLineClient(cfg),
@@ -332,6 +337,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Attachment:      NewAttachmentClient(cfg),
 		Audit:           NewAuditClient(cfg),
 		Bookable:        NewBookableClient(cfg),
+		CliLogin:        NewCliLoginClient(cfg),
 		CountFinding:    NewCountFindingClient(cfg),
 		Custody:         NewCustodyClient(cfg),
 		CustodyLine:     NewCustodyLineClient(cfg),
@@ -438,12 +444,12 @@ func (c *Client) InTx() bool {
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.Allocation, c.Archived, c.Asset, c.AssetType, c.Attachment, c.Audit,
-		c.Bookable, c.CountFinding, c.Custody, c.CustodyLine, c.Event, c.Fact,
-		c.Holder, c.InventoryCount, c.Invitation, c.ItemModel, c.Label, c.LegalHold,
-		c.Link, c.Notification, c.Outbox, c.Party, c.Placement, c.Purchase,
-		c.PurchaseLine, c.Reservation, c.ReservationItem, c.Session, c.Stewardship,
-		c.Stock, c.StockMovement, c.Tenant, c.TenantContract, c.TenantDomain,
-		c.TreeLock, c.UsageSnapshot, c.WorkOrder,
+		c.Bookable, c.CliLogin, c.CountFinding, c.Custody, c.CustodyLine, c.Event,
+		c.Fact, c.Holder, c.InventoryCount, c.Invitation, c.ItemModel, c.Label,
+		c.LegalHold, c.Link, c.Notification, c.Outbox, c.Party, c.Placement,
+		c.Purchase, c.PurchaseLine, c.Reservation, c.ReservationItem, c.Session,
+		c.Stewardship, c.Stock, c.StockMovement, c.Tenant, c.TenantContract,
+		c.TenantDomain, c.TreeLock, c.UsageSnapshot, c.WorkOrder,
 	} {
 		n.Use(hooks...)
 	}
@@ -454,12 +460,12 @@ func (c *Client) Use(hooks ...Hook) {
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.Allocation, c.Archived, c.Asset, c.AssetType, c.Attachment, c.Audit,
-		c.Bookable, c.CountFinding, c.Custody, c.CustodyLine, c.Event, c.Fact,
-		c.Holder, c.InventoryCount, c.Invitation, c.ItemModel, c.Label, c.LegalHold,
-		c.Link, c.Notification, c.Outbox, c.Party, c.Placement, c.Purchase,
-		c.PurchaseLine, c.Reservation, c.ReservationItem, c.Session, c.Stewardship,
-		c.Stock, c.StockMovement, c.Tenant, c.TenantContract, c.TenantDomain,
-		c.TreeLock, c.UsageSnapshot, c.WorkOrder,
+		c.Bookable, c.CliLogin, c.CountFinding, c.Custody, c.CustodyLine, c.Event,
+		c.Fact, c.Holder, c.InventoryCount, c.Invitation, c.ItemModel, c.Label,
+		c.LegalHold, c.Link, c.Notification, c.Outbox, c.Party, c.Placement,
+		c.Purchase, c.PurchaseLine, c.Reservation, c.ReservationItem, c.Session,
+		c.Stewardship, c.Stock, c.StockMovement, c.Tenant, c.TenantContract,
+		c.TenantDomain, c.TreeLock, c.UsageSnapshot, c.WorkOrder,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -482,6 +488,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Audit.mutate(ctx, m)
 	case *BookableMutation:
 		return c.Bookable.mutate(ctx, m)
+	case *CliLoginMutation:
+		return c.CliLogin.mutate(ctx, m)
 	case *CountFindingMutation:
 		return c.CountFinding.mutate(ctx, m)
 	case *CustodyMutation:
@@ -1635,6 +1643,139 @@ func (c *BookableClient) mutate(ctx context.Context, m *BookableMutation) (Value
 		return (&BookableDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Bookable mutation op: %q", m.Op())
+	}
+}
+
+// CliLoginClient is a client for the CliLogin schema.
+type CliLoginClient struct {
+	config
+}
+
+// NewCliLoginClient returns a client for the CliLogin from the given config.
+func NewCliLoginClient(c config) *CliLoginClient {
+	return &CliLoginClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `clilogin.Hooks(f(g(h())))`.
+func (c *CliLoginClient) Use(hooks ...Hook) {
+	c.hooks.CliLogin = append(c.hooks.CliLogin, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `clilogin.Intercept(f(g(h())))`.
+func (c *CliLoginClient) Intercept(interceptors ...Interceptor) {
+	c.inters.CliLogin = append(c.inters.CliLogin, interceptors...)
+}
+
+// Create returns a builder for creating a CliLogin entity.
+func (c *CliLoginClient) Create() *CliLoginCreate {
+	mutation := newCliLoginMutation(c.config, OpCreate)
+	return &CliLoginCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of CliLogin entities.
+func (c *CliLoginClient) CreateBulk(builders ...*CliLoginCreate) *CliLoginCreateBulk {
+	return &CliLoginCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *CliLoginClient) MapCreateBulk(slice any, setFunc func(*CliLoginCreate, int)) *CliLoginCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &CliLoginCreateBulk{err: fmt.Errorf("calling to CliLoginClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*CliLoginCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &CliLoginCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for CliLogin.
+func (c *CliLoginClient) Update() *CliLoginUpdate {
+	mutation := newCliLoginMutation(c.config, OpUpdate)
+	return &CliLoginUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *CliLoginClient) UpdateOne(_m *CliLogin) *CliLoginUpdateOne {
+	mutation := newCliLoginMutation(c.config, OpUpdateOne, withCliLogin(_m))
+	return &CliLoginUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneId returns an update builder for the given id.
+func (c *CliLoginClient) UpdateOneId(id uuid.UUID) *CliLoginUpdateOne {
+	mutation := newCliLoginMutation(c.config, OpUpdateOne, withCliLoginId(id))
+	return &CliLoginUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for CliLogin.
+func (c *CliLoginClient) Delete() *CliLoginDelete {
+	mutation := newCliLoginMutation(c.config, OpDelete)
+	return &CliLoginDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *CliLoginClient) DeleteOne(_m *CliLogin) *CliLoginDeleteOne {
+	return c.DeleteOneId(_m.Id)
+}
+
+// DeleteOneId returns a builder for deleting the given entity by its id.
+func (c *CliLoginClient) DeleteOneId(id uuid.UUID) *CliLoginDeleteOne {
+	builder := c.Delete().Where(clilogin.Id(id))
+	builder.mutation.id = &id
+	builder.mutation.SetOp(OpDeleteOne)
+	return &CliLoginDeleteOne{builder}
+}
+
+// Query returns a query builder for CliLogin.
+func (c *CliLoginClient) Query() *CliLoginQuery {
+	return &CliLoginQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeCliLogin},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a CliLogin entity by its id.
+func (c *CliLoginClient) Get(ctx context.Context, id uuid.UUID) (*CliLogin, error) {
+	return c.Query().Where(clilogin.Id(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *CliLoginClient) GetX(ctx context.Context, id uuid.UUID) *CliLogin {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *CliLoginClient) Hooks() []Hook {
+	return c.hooks.CliLogin
+}
+
+// Interceptors returns the client interceptors.
+func (c *CliLoginClient) Interceptors() []Interceptor {
+	return c.inters.CliLogin
+}
+
+func (c *CliLoginClient) mutate(ctx context.Context, m *CliLoginMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&CliLoginCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&CliLoginUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&CliLoginUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&CliLoginDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown CliLogin mutation op: %q", m.Op())
 	}
 }
 
@@ -6575,7 +6716,7 @@ func (c *WorkOrderClient) mutate(ctx context.Context, m *WorkOrderMutation) (Val
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Allocation, Archived, Asset, AssetType, Attachment, Audit, Bookable,
+		Allocation, Archived, Asset, AssetType, Attachment, Audit, Bookable, CliLogin,
 		CountFinding, Custody, CustodyLine, Event, Fact, Holder, InventoryCount,
 		Invitation, ItemModel, Label, LegalHold, Link, Notification, Outbox, Party,
 		Placement, Purchase, PurchaseLine, Reservation, ReservationItem, Session,
@@ -6583,7 +6724,7 @@ type (
 		TreeLock, UsageSnapshot, WorkOrder []ent.Hook
 	}
 	inters struct {
-		Allocation, Archived, Asset, AssetType, Attachment, Audit, Bookable,
+		Allocation, Archived, Asset, AssetType, Attachment, Audit, Bookable, CliLogin,
 		CountFinding, Custody, CustodyLine, Event, Fact, Holder, InventoryCount,
 		Invitation, ItemModel, Label, LegalHold, Link, Notification, Outbox, Party,
 		Placement, Purchase, PurchaseLine, Reservation, ReservationItem, Session,

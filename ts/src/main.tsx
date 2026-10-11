@@ -32,6 +32,7 @@ import { Mark } from './marks.js'
 import { Rpc } from './rpc.js'
 import { Spinner, Toasts } from './ui.js'
 import { Inbox } from './invitations.js'
+import { Terminal } from './terminal.js'
 import { Elsewhere } from './workspaces.js'
 import './style.css'
 
@@ -159,6 +160,7 @@ type State =
 	| { at: 'unknown'; why: string }
 	| { at: 'elsewhere'; account: Account }
 	| { at: 'inbox'; account: Account }
+	| { at: 'terminal'; account: Account }
 	| { at: 'in'; account: Account }
 
 function Boot(): ReactNode {
@@ -179,6 +181,11 @@ function Boot(): ReactNode {
 			// opened by the link an invitation's mail carries.
 			if (location.pathname === '/invitations') {
 				setState({ at: 'inbox', account: a })
+				return
+			}
+			// A terminal asking to be signed in as the account (`rove login`).
+			if (location.pathname === '/cli') {
+				setState({ at: 'terminal', account: a })
 				return
 			}
 			if (workspace === '') {
@@ -243,6 +250,8 @@ function Boot(): ReactNode {
 			return <Elsewhere account={state.account} onSignOut={signOut} />
 		case 'inbox':
 			return <Inbox account={state.account} onSignOut={signOut} />
+		case 'terminal':
+			return <Terminal account={state.account} onSignOut={signOut} />
 		case 'in':
 			return (
 				<Rpc onSignedOut={out}>

@@ -158,6 +158,27 @@ func (s Store) Del(ctx context.Context, key string) error {
 	return err
 }
 
+// Adopt makes a session whose key somebody else holds: a terminal that made
+// one up and sent only what it hashes to (`server/clilogin`). It is the row
+// [Store.Put] writes, for an account, beginning now and good until `idle` and
+// `expires`, and the key is never seen here.
+func (s Store) Adopt(ctx context.Context, account pdid.Id, secret []byte, idle, expires time.Time) error {
+	if len(secret) != sha256.Size {
+		return errors.New("session: a secret is a SHA-256")
+	}
+	now := time.Now()
+	return s.Db.Session.Create().
+		SetId(pdid.New(pd.SessionDomain).Uuid()).
+		SetAccount(account.Uuid()).
+		SetSecret(secret).
+		SetGrant(whole).
+		SetNillableDateIdle(nonzero(idle)).
+		SetNillableDateExpires(nonzero(expires)).
+		SetDateCreated(now).
+		SetDateUpdated(now).
+		Exec(ctx)
+}
+
 // End deletes an account's sessions that began before `before`, or all of
 // them when it is zero: what roster said of the account voids them, and a row
 // left would be a cookie answered with no until it ran out.

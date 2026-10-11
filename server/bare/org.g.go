@@ -9,6 +9,7 @@ import (
 	patchpb "github.com/lesomnus/protobuf-patch/patchpb"
 	rove "github.com/lesomnus/rove"
 	ent "github.com/lesomnus/rove/internal/ent"
+	clilogin "github.com/lesomnus/rove/internal/ent/clilogin"
 	holder "github.com/lesomnus/rove/internal/ent/holder"
 	invitation "github.com/lesomnus/rove/internal/ent/invitation"
 	party "github.com/lesomnus/rove/internal/ent/party"
@@ -1586,6 +1587,482 @@ func pickInvitation(req *rove.InvitationRef) (predicate.Invitation, error) {
 		}
 	case rove.InvitationRef_Key_not_set_case:
 		return nil, status.Errorf(codes.InvalidArgument, "key not set: Invitation")
+	default:
+		return nil, status.Errorf(codes.Unimplemented, "unknown type of key: %s", req.WhichKey())
+	}
+}
+
+type CliLoginServiceServer struct {
+	Store
+
+	rove.UnimplementedCliLoginServiceServer
+}
+
+// NewCliLoginServiceServer answers with a server that runs its queries with `db`.
+//
+// It takes the options of [Server] so that what is built here can be told
+// where to report its writes and what it may see. Built without them, it
+// reports nowhere and sees everything.
+func NewCliLoginServiceServer(db *ent.Client, opts ...Option) rove.CliLoginServiceServer {
+	s := Server{Store: Store{Db: db}}
+	for _, opt := range opts {
+		opt(&s)
+	}
+	return CliLoginServiceServer{Store: s.Store}
+}
+
+// CliLoginNarrow answers with `p` and everything else that narrows a
+// read of a CliLogin: the rows that have not been erased, and whatever
+// `scope` says of those.
+//
+// Every read this package makes goes through it, and a read written by
+// hand should too -- a List is the one read nothing generates, and so the
+// one that would otherwise answer with rows nobody should be given.
+func CliLoginNarrow(ctx context.Context, scope Scope, p predicate.CliLogin) (predicate.CliLogin, error) {
+	ps := make([]predicate.CliLogin, 0, 3)
+
+	// A row that was erased is not a row a read answers with.
+	ps = append(ps, clilogin.DateErasedIsNil())
+	if p != nil {
+		ps = append(ps, p)
+	}
+	if scope != nil {
+		q, err := scope.CliLoginScope(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if q != nil {
+			ps = append(ps, q)
+		}
+	}
+
+	switch len(ps) {
+	case 0:
+		return nil, nil
+	case 1:
+		return ps[0], nil
+	default:
+		return clilogin.And(ps...), nil
+	}
+}
+
+// narrow is [CliLoginNarrow] with this server's own scope.
+func (s CliLoginServiceServer) narrow(ctx context.Context, p predicate.CliLogin) (predicate.CliLogin, error) {
+	return CliLoginNarrow(ctx, s.Scope, p)
+}
+
+func (s CliLoginServiceServer) Add(ctx context.Context, req *rove.CliLoginAddRequest) (*rove.CliLogin, error) {
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	q := st.Db.CliLogin.Create()
+	var k uuid.UUID
+	if req.HasId() {
+		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+		} else {
+			k = v
+		}
+	}
+	if v, err := mint(ctx, s.Mint, "rove.CliLogin", k, req.HasId()); err != nil {
+		return nil, err
+	} else {
+		q.SetId(v)
+	}
+	if req.HasSecret() {
+		q.SetSecret(req.GetSecret())
+	} else {
+		q.SetSecret([]byte{})
+	}
+	q.SetCode(req.GetCode())
+	q.SetClient(req.GetClient())
+	q.SetOrigin(req.GetOrigin())
+	if req.HasAccount() {
+		if v, err := entuuid.FromBytes(req.GetAccount()); err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "account: %s", err)
+		} else {
+			q.SetAccount(v)
+		}
+	}
+	q.SetState(req.GetState())
+	if req.HasDateExpires() {
+		q.SetDateExpires(req.GetDateExpires().AsTime())
+	} else {
+		q.SetDateExpires(st.now())
+	}
+	q.SetDateUpdated(st.now())
+	if req.HasDateCreated() {
+		q.SetDateCreated(req.GetDateCreated().AsTime())
+	} else {
+		q.SetDateCreated(st.now())
+	}
+
+	u, err := q.Save(ctx)
+	if err != nil {
+		if err, ok := err.(*ent.ConstraintError); ok {
+			if sqlgraph.IsUniqueConstraintError(err) {
+				return nil, status.Error(codes.AlreadyExists, "CliLogin already exists")
+			}
+			if sqlgraph.IsForeignKeyConstraintError(err) {
+				return nil, status.Error(codes.NotFound, "CliLogin: referenced entity not found")
+			}
+		}
+		return nil, err
+	}
+
+	if err := record(ctx, s.Rec, st.Db, Change{
+		By:  rove.CliLoginService_Add_FullMethodName,
+		Key: u.Id,
+	}); err != nil {
+		return nil, err
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+
+	return u.Proto(), nil
+}
+
+func (s CliLoginServiceServer) Get(ctx context.Context, req *rove.CliLoginGetRequest) (*rove.CliLogin, error) {
+	p, err := CliLoginPick(req.GetRef())
+	if err != nil {
+		return nil, err
+	}
+	p, err = s.narrow(ctx, p)
+	if err != nil {
+		return nil, err
+	}
+
+	q := s.Db.CliLogin.Query().Where(p)
+	CliLoginSelectInit(q, req.GetSelect())
+
+	v, err := q.Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, status.Error(codes.NotFound, "CliLogin not found")
+		}
+		return nil, err
+	}
+	return v.Proto(), nil
+}
+
+func selectCliLoginKey(q *ent.CliLoginQuery) {
+	q.Select(clilogin.FieldId)
+}
+
+func CliLoginSelectedFields(m *rove.CliLoginSelect) []string {
+	if m.GetAll() {
+		return clilogin.Columns
+	}
+
+	vs := make([]string, 0, len(clilogin.Columns))
+	{
+		vs = append(vs, clilogin.FieldId)
+	}
+	if m.GetSecret() {
+		vs = append(vs, clilogin.FieldSecret)
+	}
+	if m.GetCode() {
+		vs = append(vs, clilogin.FieldCode)
+	}
+	if m.GetClient() {
+		vs = append(vs, clilogin.FieldClient)
+	}
+	if m.GetOrigin() {
+		vs = append(vs, clilogin.FieldOrigin)
+	}
+	if m.GetAccount() {
+		vs = append(vs, clilogin.FieldAccount)
+	}
+	if m.GetState() {
+		vs = append(vs, clilogin.FieldState)
+	}
+	if m.GetDateExpires() {
+		vs = append(vs, clilogin.FieldDateExpires)
+	}
+	if m.GetDateUpdated() {
+		vs = append(vs, clilogin.FieldDateUpdated)
+	}
+	if m.GetDateErased() {
+		vs = append(vs, clilogin.FieldDateErased)
+	}
+	if m.GetDateCreated() {
+		vs = append(vs, clilogin.FieldDateCreated)
+	}
+
+	return vs
+}
+
+func CliLoginSelect(q *ent.CliLoginQuery, m *rove.CliLoginSelect) {
+	if !m.GetAll() {
+		fields := CliLoginSelectedFields(m)
+		q.Select(fields...)
+	}
+}
+
+func CliLoginSelectInit(q *ent.CliLoginQuery, m *rove.CliLoginSelect) {
+	if m != nil {
+		CliLoginSelect(q, m)
+	} else {
+	}
+}
+
+func (s CliLoginServiceServer) Patch(ctx context.Context, req *rove.CliLoginPatchRequest) (*rove.CliLogin, error) {
+	doc, err := ormpatch.FromPatchRequest(cliLoginOrmEntity, req.ProtoReflect(), nil)
+	if err != nil {
+		if _, ok := status.FromError(err); ok {
+			return nil, err
+		}
+		if errors.Is(err, ormpatch.ErrRequestLayout) {
+			return nil, status.Errorf(codes.Internal, "%s", err)
+		}
+		if errors.Is(err, ormpatch.ErrUnsupported) {
+			return nil, status.Errorf(codes.Unimplemented, "%s", err)
+		}
+		return nil, status.Errorf(codes.InvalidArgument, "%s", err)
+	}
+
+	return s.apply(ctx, req.GetRef(), doc, rove.CliLoginService_Patch_FullMethodName)
+}
+
+func CliLoginGetKey(ctx context.Context, db *ent.Client, ref *rove.CliLoginRef) (uuid.UUID, error) {
+	var z uuid.UUID
+	if ref.HasId() {
+		if v, err := entuuid.FromBytes(ref.GetId()); err != nil {
+			return z, status.Errorf(codes.InvalidArgument, "id: %s", err)
+		} else {
+			return v, nil
+		}
+	}
+
+	p, err := CliLoginPick(ref)
+	if err != nil {
+		return z, err
+	}
+
+	v, err := db.CliLogin.Query().Where(p).OnlyId(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return z, status.Error(codes.NotFound, "CliLogin not found")
+		}
+		return z, err
+	}
+
+	return v, nil
+}
+
+var cliLoginOrmEntity = ormpatch.MustEntityOf(rove.File_rove_org_proto, "CliLogin")
+
+var cliLoginPatchColumns = entpatch.Columns{
+	1: clilogin.FieldId, 8: clilogin.FieldSecret, 9: clilogin.FieldCode, 10: clilogin.FieldClient, 11: clilogin.FieldOrigin, 12: clilogin.FieldAccount, 16: clilogin.FieldState, 17: clilogin.FieldDateExpires, 13: clilogin.FieldDateUpdated, 14: clilogin.FieldDateErased, 15: clilogin.FieldDateCreated}
+
+func (s CliLoginServiceServer) Apply(ctx context.Context, req *rove.CliLoginApplyRequest) (*rove.CliLogin, error) {
+	if !req.HasPatch() {
+		return nil, status.Errorf(codes.InvalidArgument, "%s", ormpatch.ErrNoPatch)
+	}
+	return s.apply(ctx, req.GetRef(), req.GetPatch(), rove.CliLoginService_Apply_FullMethodName)
+}
+
+func (s CliLoginServiceServer) apply(ctx context.Context, ref *rove.CliLoginRef, doc *patchpb.Patch, by string) (*rove.CliLogin, error) {
+	plan := &ormpatch.Plan{Entity: cliLoginOrmEntity}
+	if doc != nil {
+		v, err := ormpatch.Compile(cliLoginOrmEntity, doc)
+		if err != nil {
+			if errors.Is(err, ormpatch.ErrUnsupported) {
+				return nil, status.Errorf(codes.Unimplemented, "%s", err)
+			}
+			return nil, status.Errorf(codes.InvalidArgument, "%s", err)
+		}
+		plan = v
+	}
+
+	pred, mod, err := entpatch.Build(plan, cliLoginPatchColumns, s.Db.Dialect())
+	if err != nil {
+		if errors.Is(err, entpatch.ErrValue) {
+			return nil, status.Errorf(codes.InvalidArgument, "%s", err)
+		}
+		return nil, status.Errorf(codes.Internal, "%s", err)
+	}
+
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, true)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	k, err := CliLoginGetKey(ctx, st.Db, ref)
+	if err != nil {
+		return nil, err
+	}
+	at := &rove.CliLoginRef{}
+	at.SetId(k[:])
+	p, err := s.narrow(ctx, clilogin.IdEQ(k))
+	if err != nil {
+		return nil, err
+	}
+
+	if mod == nil {
+		q := st.Db.CliLogin.Query().Where(p)
+		if pred != nil {
+			q.Where(predicate.CliLogin(pred))
+		}
+		if ok, err := q.Exist(ctx); err != nil {
+			return nil, err
+		} else if !ok {
+			return nil, func() error {
+				if ok, err := st.Db.CliLogin.Query().Where(p).Exist(ctx); err != nil {
+					return err
+				} else if !ok {
+					return status.Error(codes.NotFound, "CliLogin not found")
+				}
+				return status.Error(codes.FailedPrecondition, "a test in the patch did not hold")
+			}()
+		}
+	} else {
+		q := st.Db.CliLogin.Update().Where(p)
+		if pred != nil {
+			q.Where(predicate.CliLogin(pred))
+		}
+		q.Modify(mod)
+		if !plan.WritesTo(13) {
+			q.SetDateUpdated(st.now())
+		}
+		if n, err := q.Save(ctx); err != nil {
+			if err, ok := err.(*ent.ConstraintError); ok {
+				if sqlgraph.IsUniqueConstraintError(err) {
+					return nil, status.Error(codes.AlreadyExists, "CliLogin already exists")
+				}
+				if sqlgraph.IsForeignKeyConstraintError(err) {
+					return nil, status.Error(codes.NotFound, "CliLogin: referenced entity not found")
+				}
+			}
+			return nil, err
+		} else if n == 0 {
+			return nil, func() error {
+				if ok, err := st.Db.CliLogin.Query().Where(p).Exist(ctx); err != nil {
+					return err
+				} else if !ok {
+					return status.Error(codes.NotFound, "CliLogin not found")
+				}
+				return status.Error(codes.FailedPrecondition, "a test in the patch did not hold")
+			}()
+		}
+	}
+
+	if mod != nil {
+		if err := record(ctx, s.Rec, st.Db, Change{
+			By:    by,
+			Key:   k,
+			Patch: doc,
+		}); err != nil {
+			return nil, err
+		}
+	}
+
+	out, err := st.Get(ctx, at.Pick())
+	if err != nil {
+		return nil, err
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (s CliLoginServiceServer) Erase(ctx context.Context, req *rove.CliLoginRef) (*rove.CliLoginEraseResponse, error) {
+	p, err := CliLoginPick(req)
+	if err != nil {
+		return nil, err
+	}
+	p, err = s.narrow(ctx, p)
+	if err != nil {
+		return nil, err
+	}
+
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	var k any
+	if s.Rec != nil {
+		v, err := st.Db.CliLogin.Query().Where(p).OnlyId(ctx)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return &rove.CliLoginEraseResponse{}, nil
+			}
+			return nil, err
+		}
+
+		k = v
+		p = clilogin.And(p, clilogin.IdEQ(v))
+	}
+
+	u := st.Db.CliLogin.Update().Where(p)
+	u.SetDateErased(st.now())
+	u.SetDateUpdated(st.now())
+	n, err := u.Save(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if n > 0 {
+		if err := record(ctx, s.Rec, st.Db, Change{
+			By:  rove.CliLoginService_Erase_FullMethodName,
+			Key: k,
+		}); err != nil {
+			return nil, err
+		}
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+	res := &rove.CliLoginEraseResponse{}
+	res.SetErased(n > 0)
+
+	return res, nil
+}
+
+// CliLoginPick answers with the predicate this reference selects on,
+// among the rows that are still here.
+//
+// Erasure is part of the reference and not only part of a read's scope,
+// because a reference to a CliLogin is composed into the reference of
+// whatever names one: an index over an edge asks this for a predicate and
+// puts it inside `HasCliLoginWith`, where no narrowing of a CliLogin
+// is ever applied. A child of an erased row would otherwise be readable by
+// naming its parent.
+func CliLoginPick(req *rove.CliLoginRef) (predicate.CliLogin, error) {
+	p, err := pickCliLogin(req)
+	if err != nil {
+		return nil, err
+	}
+
+	return clilogin.And(clilogin.DateErasedIsNil(), p), nil
+}
+
+func pickCliLogin(req *rove.CliLoginRef) (predicate.CliLogin, error) {
+	switch req.WhichKey() {
+	case rove.CliLoginRef_Id_case:
+		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+		} else {
+			return clilogin.IdEQ(v), nil
+		}
+	case rove.CliLoginRef_Key_not_set_case:
+		return nil, status.Errorf(codes.InvalidArgument, "key not set: CliLogin")
 	default:
 		return nil, status.Errorf(codes.Unimplemented, "unknown type of key: %s", req.WhichKey())
 	}

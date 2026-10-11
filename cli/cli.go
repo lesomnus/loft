@@ -66,6 +66,10 @@ func Cmd(c *cmd.Config) *xli.Command {
 	// deployment whose configuration is wrong what build it is.
 	version := pdcmd.NewCmdVersion()
 
+	// The terminal's half, which runs anywhere as a person and reads none of
+	// a deployment's configuration: it keeps its own (`ROVE_CLIENT_CONFIG`).
+	login, logout, whoami, use, ws, api := NewCmdLogin(), NewCmdLogout(), NewCmdWhoami(), NewCmdUse(), NewCmdWorkspace(), NewCmdApi()
+
 	return &xli.Command{
 		Name:  cmd.Name,
 		Brief: "rove",
@@ -84,9 +88,15 @@ func Cmd(c *cmd.Config) *xli.Command {
 			NewCmdHolder(c),
 			NewCmdIdentity(c),
 			NewCmdTrail(c),
+			login,
+			logout,
+			whoami,
+			use,
+			ws,
+			api,
 		},
 
-		Handler: xli.Chain(cfg.Load(l, version), xli.RequireSubcommand()),
+		Handler: xli.Chain(cfg.Load(l, version, login, logout, whoami, use, ws, api), xli.RequireSubcommand()),
 	}
 }
 
