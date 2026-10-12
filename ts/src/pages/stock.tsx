@@ -5,7 +5,7 @@ import { StockMovementService, StockService, fmt, idBytes, idStr, op, ref } from
 import { modelName, useCatalog } from '../catalog.js'
 import { ModelSelect, SpaceSelect } from '../pickers.js'
 import { useAct, useRpc } from '../rpc.js'
-import { Empty, Field, FormModal, Load, Modal, PageHead } from '../ui.js'
+import { Empty, Field, FormModal, Load, Modal, PageHead, Select } from '../ui.js'
 import { movementWord } from '../words.js'
 
 type Mode = 'receive' | 'consume' | 'adjust' | 'transfer' | 'convert' | 'history'
@@ -162,10 +162,27 @@ function Change(props: { s: Stock; mode: Exclude<Mode, 'history'>; onClose: () =
 	)
 }
 
+/**
+ * What happened to a stock, newest first or in the order it happened. Either
+ * way is the list read by the server, which walks the same index from either
+ * end, so the oldest are the oldest there are and not the oldest of the newest
+ * page.
+ */
 function History(props: { s: Stock; onClose: () => void }): ReactNode {
-	const ms = useRpc(StockMovementService.method.list, { filters: [{ stock: ref(props.s.id) }], size: 200 })
+	const [order, setOrder] = useState<'newest' | 'oldest'>('newest')
+	const ms = useRpc(StockMovementService.method.list, { filters: [{ stock: ref(props.s.id) }], size: 200, reverse: order === 'oldest' })
 	return (
 		<Modal title={`${props.s.name} 내역`} onClose={props.onClose} wide>
+			<Field label="순서">
+				<Select
+					value={order}
+					onChange={(v) => setOrder(v === 'oldest' ? 'oldest' : 'newest')}
+					options={[
+						{ value: 'newest', label: '최신순' },
+						{ value: 'oldest', label: '오래된순' },
+					]}
+				/>
+			</Field>
 			<Load q={ms}>
 				{(d) =>
 					d.items.length === 0 ? (
@@ -181,17 +198,14 @@ function History(props: { s: Stock; onClose: () => void }): ReactNode {
 								</tr>
 							</thead>
 							<tbody>
-								{d.items
-									.slice()
-									.reverse()
-									.map((m) => (
-										<tr key={idStr(m.id)}>
-											<td>{fmt(m.occurredAt)}</td>
-											<td>{movementWord[m.reason] ?? m.reason}</td>
-											<td className={`num ${m.delta < 0n ? 'bad' : 'ok'}`}>{m.delta > 0n ? `+${m.delta}` : String(m.delta)}</td>
-											<td className="num">{String(m.balance)}</td>
-										</tr>
-									))}
+								{d.items.map((m) => (
+									<tr key={idStr(m.id)}>
+										<td>{fmt(m.occurredAt)}</td>
+										<td>{movementWord[m.reason] ?? m.reason}</td>
+										<td className={`num ${m.delta < 0n ? 'bad' : 'ok'}`}>{m.delta > 0n ? `+${m.delta}` : String(m.delta)}</td>
+										<td className="num">{String(m.balance)}</td>
+									</tr>
+								))}
 							</tbody>
 						</table>
 					)

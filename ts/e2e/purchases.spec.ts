@@ -106,10 +106,16 @@ test('stock is used, falls to what it should keep, and is received again; its hi
 	await row.getByRole('button', { name: '내역' }).click()
 	const history = page.getByRole('dialog')
 	await expect(history.getByRole('heading', { name: `${name} 내역` })).toBeVisible()
-	// In the order it happened, what it was made with first.
+	// Newest first, and then in the order it happened, what it was made with
+	// first -- each read by the server, and not a page turned over.
 	const moves = history.getByRole('table')
 	const rows = moves.locator('tbody').getByRole('row')
 	await expect(rows).toHaveCount(3)
+	await expect(await under(moves, rows.nth(0), '무엇')).toHaveText('입고')
+	await expect(await under(moves, rows.nth(0), '변화')).toHaveText('+5')
+	await expect(await under(moves, rows.nth(0), '남은 수량')).toHaveText('8')
+	await history.getByLabel('순서').selectOption({ label: '오래된순' })
+	await expect(await under(moves, rows.nth(0), '변화')).toHaveText('+10')
 	for (const [i, [what, change, balance]] of [
 		['입고', '+10', '10'],
 		['사용', '-7', '3'],

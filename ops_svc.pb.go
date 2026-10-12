@@ -1708,6 +1708,7 @@ type NotificationListRequest struct {
 	xxx_hidden_Filters *[]*NotificationFilter `protobuf:"bytes,1,rep,name=filters"`
 	xxx_hidden_Size    int32                  `protobuf:"varint,2,opt,name=size"`
 	xxx_hidden_After   string                 `protobuf:"bytes,3,opt,name=after"`
+	xxx_hidden_Reverse bool                   `protobuf:"varint,4,opt,name=reverse"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -1760,6 +1761,13 @@ func (x *NotificationListRequest) GetAfter() string {
 	return ""
 }
 
+func (x *NotificationListRequest) GetReverse() bool {
+	if x != nil {
+		return x.xxx_hidden_Reverse
+	}
+	return false
+}
+
 func (x *NotificationListRequest) SetFilters(v []*NotificationFilter) {
 	x.xxx_hidden_Filters = &v
 }
@@ -1770,6 +1778,10 @@ func (x *NotificationListRequest) SetSize(v int32) {
 
 func (x *NotificationListRequest) SetAfter(v string) {
 	x.xxx_hidden_After = v
+}
+
+func (x *NotificationListRequest) SetReverse(v bool) {
+	x.xxx_hidden_Reverse = v
 }
 
 type NotificationListRequest_builder struct {
@@ -1787,6 +1799,11 @@ type NotificationListRequest_builder struct {
 	// ahead of the page does not shift it and a caller reading through never sees
 	// one twice or misses one.
 	After string
+	// Read the order the other way round, every column of it at once -- newest
+	// first where it is oldest first -- which the index the order walks walks
+	// from the other end. A cursor is of the way it was read, so the next page
+	// carries on that way, and one of the other way is refused.
+	Reverse bool
 }
 
 func (b0 NotificationListRequest_builder) Build() *NotificationListRequest {
@@ -1796,6 +1813,7 @@ func (b0 NotificationListRequest_builder) Build() *NotificationListRequest {
 	x.xxx_hidden_Filters = &b.Filters
 	x.xxx_hidden_Size = b.Size
 	x.xxx_hidden_After = b.After
+	x.xxx_hidden_Reverse = b.Reverse
 	return m0
 }
 
@@ -3485,6 +3503,7 @@ type UsageSnapshotListRequest struct {
 	xxx_hidden_Filters *[]*UsageSnapshotFilter `protobuf:"bytes,1,rep,name=filters"`
 	xxx_hidden_Size    int32                   `protobuf:"varint,2,opt,name=size"`
 	xxx_hidden_After   string                  `protobuf:"bytes,3,opt,name=after"`
+	xxx_hidden_Reverse bool                    `protobuf:"varint,4,opt,name=reverse"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -3537,6 +3556,13 @@ func (x *UsageSnapshotListRequest) GetAfter() string {
 	return ""
 }
 
+func (x *UsageSnapshotListRequest) GetReverse() bool {
+	if x != nil {
+		return x.xxx_hidden_Reverse
+	}
+	return false
+}
+
 func (x *UsageSnapshotListRequest) SetFilters(v []*UsageSnapshotFilter) {
 	x.xxx_hidden_Filters = &v
 }
@@ -3547,6 +3573,10 @@ func (x *UsageSnapshotListRequest) SetSize(v int32) {
 
 func (x *UsageSnapshotListRequest) SetAfter(v string) {
 	x.xxx_hidden_After = v
+}
+
+func (x *UsageSnapshotListRequest) SetReverse(v bool) {
+	x.xxx_hidden_Reverse = v
 }
 
 type UsageSnapshotListRequest_builder struct {
@@ -3564,6 +3594,11 @@ type UsageSnapshotListRequest_builder struct {
 	// ahead of the page does not shift it and a caller reading through never sees
 	// one twice or misses one.
 	After string
+	// Read the order the other way round, every column of it at once -- newest
+	// first where it is oldest first -- which the index the order walks walks
+	// from the other end. A cursor is of the way it was read, so the next page
+	// carries on that way, and one of the other way is refused.
+	Reverse bool
 }
 
 func (b0 UsageSnapshotListRequest_builder) Build() *UsageSnapshotListRequest {
@@ -3573,6 +3608,7 @@ func (b0 UsageSnapshotListRequest_builder) Build() *UsageSnapshotListRequest {
 	x.xxx_hidden_Filters = &b.Filters
 	x.xxx_hidden_Size = b.Size
 	x.xxx_hidden_After = b.After
+	x.xxx_hidden_Reverse = b.Reverse
 	return m0
 }
 
@@ -4970,6 +5006,7 @@ type TenantContractListRequest struct {
 	xxx_hidden_Filters *[]*TenantContractFilter `protobuf:"bytes,1,rep,name=filters"`
 	xxx_hidden_Size    int32                    `protobuf:"varint,2,opt,name=size"`
 	xxx_hidden_After   string                   `protobuf:"bytes,3,opt,name=after"`
+	xxx_hidden_Reverse bool                     `protobuf:"varint,4,opt,name=reverse"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -5022,6 +5059,13 @@ func (x *TenantContractListRequest) GetAfter() string {
 	return ""
 }
 
+func (x *TenantContractListRequest) GetReverse() bool {
+	if x != nil {
+		return x.xxx_hidden_Reverse
+	}
+	return false
+}
+
 func (x *TenantContractListRequest) SetFilters(v []*TenantContractFilter) {
 	x.xxx_hidden_Filters = &v
 }
@@ -5032,6 +5076,10 @@ func (x *TenantContractListRequest) SetSize(v int32) {
 
 func (x *TenantContractListRequest) SetAfter(v string) {
 	x.xxx_hidden_After = v
+}
+
+func (x *TenantContractListRequest) SetReverse(v bool) {
+	x.xxx_hidden_Reverse = v
 }
 
 type TenantContractListRequest_builder struct {
@@ -5049,6 +5097,11 @@ type TenantContractListRequest_builder struct {
 	// ahead of the page does not shift it and a caller reading through never sees
 	// one twice or misses one.
 	After string
+	// Read the order the other way round, every column of it at once -- newest
+	// first where it is oldest first -- which the index the order walks walks
+	// from the other end. A cursor is of the way it was read, so the next page
+	// carries on that way, and one of the other way is refused.
+	Reverse bool
 }
 
 func (b0 TenantContractListRequest_builder) Build() *TenantContractListRequest {
@@ -5058,6 +5111,7 @@ func (b0 TenantContractListRequest_builder) Build() *TenantContractListRequest {
 	x.xxx_hidden_Filters = &b.Filters
 	x.xxx_hidden_Size = b.Size
 	x.xxx_hidden_After = b.After
+	x.xxx_hidden_Reverse = b.Reverse
 	return m0
 }
 
@@ -6202,6 +6256,7 @@ type LegalHoldListRequest struct {
 	xxx_hidden_Filters *[]*LegalHoldFilter    `protobuf:"bytes,1,rep,name=filters"`
 	xxx_hidden_Size    int32                  `protobuf:"varint,2,opt,name=size"`
 	xxx_hidden_After   string                 `protobuf:"bytes,3,opt,name=after"`
+	xxx_hidden_Reverse bool                   `protobuf:"varint,4,opt,name=reverse"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -6254,6 +6309,13 @@ func (x *LegalHoldListRequest) GetAfter() string {
 	return ""
 }
 
+func (x *LegalHoldListRequest) GetReverse() bool {
+	if x != nil {
+		return x.xxx_hidden_Reverse
+	}
+	return false
+}
+
 func (x *LegalHoldListRequest) SetFilters(v []*LegalHoldFilter) {
 	x.xxx_hidden_Filters = &v
 }
@@ -6264,6 +6326,10 @@ func (x *LegalHoldListRequest) SetSize(v int32) {
 
 func (x *LegalHoldListRequest) SetAfter(v string) {
 	x.xxx_hidden_After = v
+}
+
+func (x *LegalHoldListRequest) SetReverse(v bool) {
+	x.xxx_hidden_Reverse = v
 }
 
 type LegalHoldListRequest_builder struct {
@@ -6281,6 +6347,11 @@ type LegalHoldListRequest_builder struct {
 	// ahead of the page does not shift it and a caller reading through never sees
 	// one twice or misses one.
 	After string
+	// Read the order the other way round, every column of it at once -- newest
+	// first where it is oldest first -- which the index the order walks walks
+	// from the other end. A cursor is of the way it was read, so the next page
+	// carries on that way, and one of the other way is refused.
+	Reverse bool
 }
 
 func (b0 LegalHoldListRequest_builder) Build() *LegalHoldListRequest {
@@ -6290,6 +6361,7 @@ func (b0 LegalHoldListRequest_builder) Build() *LegalHoldListRequest {
 	x.xxx_hidden_Filters = &b.Filters
 	x.xxx_hidden_Size = b.Size
 	x.xxx_hidden_After = b.After
+	x.xxx_hidden_Reverse = b.Reverse
 	return m0
 }
 
@@ -6514,11 +6586,12 @@ const file_rove_ops_svc_g_proto_rawDesc = "" +
 	"\x03ref\x18\x01 \x01(\v2\x15.rove.NotificationRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"3\n" +
 	"\x19NotificationEraseResponse\x12\x16\n" +
-	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x85\x01\n" +
+	"\x06erased\x18\x01 \x01(\bR\x06erased\"\xa6\x01\n" +
 	"\x17NotificationListRequest\x122\n" +
 	"\afilters\x18\x01 \x03(\v2\x18.rove.NotificationFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
-	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\"_\n" +
+	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
+	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"_\n" +
 	"\x18NotificationListResponse\x12(\n" +
 	"\x05items\x18\x01 \x03(\v2\x12.rove.NotificationR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"z\n" +
@@ -6579,11 +6652,12 @@ const file_rove_ops_svc_g_proto_rawDesc = "" +
 	"\x03ref\x18\x01 \x01(\v2\x16.rove.UsageSnapshotRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"4\n" +
 	"\x1aUsageSnapshotEraseResponse\x12\x16\n" +
-	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x87\x01\n" +
+	"\x06erased\x18\x01 \x01(\bR\x06erased\"\xa8\x01\n" +
 	"\x18UsageSnapshotListRequest\x123\n" +
 	"\afilters\x18\x01 \x03(\v2\x19.rove.UsageSnapshotFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
-	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\"a\n" +
+	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
+	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"a\n" +
 	"\x19UsageSnapshotListResponse\x12)\n" +
 	"\x05items\x18\x01 \x03(\v2\x13.rove.UsageSnapshotR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"Q\n" +
@@ -6636,11 +6710,12 @@ const file_rove_ops_svc_g_proto_rawDesc = "" +
 	"\x03ref\x18\x01 \x01(\v2\x17.rove.TenantContractRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"5\n" +
 	"\x1bTenantContractEraseResponse\x12\x16\n" +
-	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x89\x01\n" +
+	"\x06erased\x18\x01 \x01(\bR\x06erased\"\xaa\x01\n" +
 	"\x19TenantContractListRequest\x124\n" +
 	"\afilters\x18\x01 \x03(\v2\x1a.rove.TenantContractFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
-	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\"c\n" +
+	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
+	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"c\n" +
 	"\x1aTenantContractListResponse\x12*\n" +
 	"\x05items\x18\x01 \x03(\v2\x14.rove.TenantContractR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"A\n" +
@@ -6680,11 +6755,12 @@ const file_rove_ops_svc_g_proto_rawDesc = "" +
 	"\x03ref\x18\x01 \x01(\v2\x12.rove.LegalHoldRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"0\n" +
 	"\x16LegalHoldEraseResponse\x12\x16\n" +
-	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x7f\n" +
+	"\x06erased\x18\x01 \x01(\bR\x06erased\"\xa0\x01\n" +
 	"\x14LegalHoldListRequest\x12/\n" +
 	"\afilters\x18\x01 \x03(\v2\x15.rove.LegalHoldFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
-	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\"Y\n" +
+	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
+	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"Y\n" +
 	"\x15LegalHoldListResponse\x12%\n" +
 	"\x05items\x18\x01 \x03(\v2\x0f.rove.LegalHoldR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"7\n" +

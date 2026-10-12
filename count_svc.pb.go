@@ -1627,6 +1627,7 @@ type InventoryCountListRequest struct {
 	xxx_hidden_Filters *[]*InventoryCountFilter `protobuf:"bytes,1,rep,name=filters"`
 	xxx_hidden_Size    int32                    `protobuf:"varint,2,opt,name=size"`
 	xxx_hidden_After   string                   `protobuf:"bytes,3,opt,name=after"`
+	xxx_hidden_Reverse bool                     `protobuf:"varint,4,opt,name=reverse"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -1679,6 +1680,13 @@ func (x *InventoryCountListRequest) GetAfter() string {
 	return ""
 }
 
+func (x *InventoryCountListRequest) GetReverse() bool {
+	if x != nil {
+		return x.xxx_hidden_Reverse
+	}
+	return false
+}
+
 func (x *InventoryCountListRequest) SetFilters(v []*InventoryCountFilter) {
 	x.xxx_hidden_Filters = &v
 }
@@ -1689,6 +1697,10 @@ func (x *InventoryCountListRequest) SetSize(v int32) {
 
 func (x *InventoryCountListRequest) SetAfter(v string) {
 	x.xxx_hidden_After = v
+}
+
+func (x *InventoryCountListRequest) SetReverse(v bool) {
+	x.xxx_hidden_Reverse = v
 }
 
 type InventoryCountListRequest_builder struct {
@@ -1706,6 +1718,11 @@ type InventoryCountListRequest_builder struct {
 	// ahead of the page does not shift it and a caller reading through never sees
 	// one twice or misses one.
 	After string
+	// Read the order the other way round, every column of it at once -- newest
+	// first where it is oldest first -- which the index the order walks walks
+	// from the other end. A cursor is of the way it was read, so the next page
+	// carries on that way, and one of the other way is refused.
+	Reverse bool
 }
 
 func (b0 InventoryCountListRequest_builder) Build() *InventoryCountListRequest {
@@ -1715,6 +1732,7 @@ func (b0 InventoryCountListRequest_builder) Build() *InventoryCountListRequest {
 	x.xxx_hidden_Filters = &b.Filters
 	x.xxx_hidden_Size = b.Size
 	x.xxx_hidden_After = b.After
+	x.xxx_hidden_Reverse = b.Reverse
 	return m0
 }
 
@@ -4594,6 +4612,7 @@ type CountFindingListRequest struct {
 	xxx_hidden_Filters *[]*CountFindingFilter `protobuf:"bytes,1,rep,name=filters"`
 	xxx_hidden_Size    int32                  `protobuf:"varint,2,opt,name=size"`
 	xxx_hidden_After   string                 `protobuf:"bytes,3,opt,name=after"`
+	xxx_hidden_Reverse bool                   `protobuf:"varint,4,opt,name=reverse"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -4646,6 +4665,13 @@ func (x *CountFindingListRequest) GetAfter() string {
 	return ""
 }
 
+func (x *CountFindingListRequest) GetReverse() bool {
+	if x != nil {
+		return x.xxx_hidden_Reverse
+	}
+	return false
+}
+
 func (x *CountFindingListRequest) SetFilters(v []*CountFindingFilter) {
 	x.xxx_hidden_Filters = &v
 }
@@ -4656,6 +4682,10 @@ func (x *CountFindingListRequest) SetSize(v int32) {
 
 func (x *CountFindingListRequest) SetAfter(v string) {
 	x.xxx_hidden_After = v
+}
+
+func (x *CountFindingListRequest) SetReverse(v bool) {
+	x.xxx_hidden_Reverse = v
 }
 
 type CountFindingListRequest_builder struct {
@@ -4673,6 +4703,11 @@ type CountFindingListRequest_builder struct {
 	// ahead of the page does not shift it and a caller reading through never sees
 	// one twice or misses one.
 	After string
+	// Read the order the other way round, every column of it at once -- newest
+	// first where it is oldest first -- which the index the order walks walks
+	// from the other end. A cursor is of the way it was read, so the next page
+	// carries on that way, and one of the other way is refused.
+	Reverse bool
 }
 
 func (b0 CountFindingListRequest_builder) Build() *CountFindingListRequest {
@@ -4682,6 +4717,7 @@ func (b0 CountFindingListRequest_builder) Build() *CountFindingListRequest {
 	x.xxx_hidden_Filters = &b.Filters
 	x.xxx_hidden_Size = b.Size
 	x.xxx_hidden_After = b.After
+	x.xxx_hidden_Reverse = b.Reverse
 	return m0
 }
 
@@ -5297,11 +5333,12 @@ const file_rove_count_svc_g_proto_rawDesc = "" +
 	"\x03ref\x18\x01 \x01(\v2\x17.rove.InventoryCountRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"5\n" +
 	"\x1bInventoryCountEraseResponse\x12\x16\n" +
-	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x89\x01\n" +
+	"\x06erased\x18\x01 \x01(\bR\x06erased\"\xaa\x01\n" +
 	"\x19InventoryCountListRequest\x124\n" +
 	"\afilters\x18\x01 \x03(\v2\x1a.rove.InventoryCountFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
-	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\"c\n" +
+	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
+	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"c\n" +
 	"\x1aInventoryCountListResponse\x12*\n" +
 	"\x05items\x18\x01 \x03(\v2\x14.rove.InventoryCountR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"\x7f\n" +
@@ -5414,11 +5451,12 @@ const file_rove_count_svc_g_proto_rawDesc = "" +
 	"\x03ref\x18\x01 \x01(\v2\x15.rove.CountFindingRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"3\n" +
 	"\x19CountFindingEraseResponse\x12\x16\n" +
-	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x85\x01\n" +
+	"\x06erased\x18\x01 \x01(\bR\x06erased\"\xa6\x01\n" +
 	"\x17CountFindingListRequest\x122\n" +
 	"\afilters\x18\x01 \x03(\v2\x18.rove.CountFindingFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
-	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\"_\n" +
+	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
+	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"_\n" +
 	"\x18CountFindingListResponse\x12(\n" +
 	"\x05items\x18\x01 \x03(\v2\x12.rove.CountFindingR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"\xc6\x01\n" +
