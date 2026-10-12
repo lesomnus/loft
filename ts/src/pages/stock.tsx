@@ -5,7 +5,7 @@ import { StockMovementService, StockService, fmt, idBytes, idStr, op, ref } from
 import { modelName, useCatalog } from '../catalog.js'
 import { ModelSelect, SpaceSelect } from '../pickers.js'
 import { useAct, useRpc } from '../rpc.js'
-import { Empty, Field, FormModal, Load, Modal, PageHead, Select } from '../ui.js'
+import { Empty, Field, FormModal, Load, Modal, OrderSelect, PageHead, type Order } from '../ui.js'
 import { movementWord } from '../words.js'
 
 type Mode = 'receive' | 'consume' | 'adjust' | 'transfer' | 'convert' | 'history'
@@ -169,20 +169,13 @@ function Change(props: { s: Stock; mode: Exclude<Mode, 'history'>; onClose: () =
  * page.
  */
 function History(props: { s: Stock; onClose: () => void }): ReactNode {
-	const [order, setOrder] = useState<'newest' | 'oldest'>('newest')
+	const [order, setOrder] = useState<Order>('newest')
 	const ms = useRpc(StockMovementService.method.list, { filters: [{ stock: ref(props.s.id) }], size: 200, reverse: order === 'oldest' })
 	return (
 		<Modal title={`${props.s.name} 내역`} onClose={props.onClose} wide>
-			<Field label="순서">
-				<Select
-					value={order}
-					onChange={(v) => setOrder(v === 'oldest' ? 'oldest' : 'newest')}
-					options={[
-						{ value: 'newest', label: '최신순' },
-						{ value: 'oldest', label: '오래된순' },
-					]}
-				/>
-			</Field>
+			<div className="filters">
+				<OrderSelect value={order} onChange={setOrder} />
+			</div>
 			<Load q={ms}>
 				{(d) =>
 					d.items.length === 0 ? (

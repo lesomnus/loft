@@ -6,14 +6,15 @@ import { CountFindingService, InventoryCountService, fmt, idBytes, idStr, op, re
 import { useCatalog } from '../catalog.js'
 import { SpaceSelect, useAssets } from '../pickers.js'
 import { Live, useAct, useRpc } from '../rpc.js'
-import { Badge, Card, Confirm, Empty, Field, FormModal, Load, PageHead, Select, Stat, useToast } from '../ui.js'
+import { Badge, Card, Confirm, Empty, Field, FormModal, Load, OrderSelect, PageHead, Select, Stat, useToast, type Order } from '../ui.js'
 import { countWord, findingWord, resolutionWord } from '../words.js'
 import { Camera } from './scan.js'
 
 export function Counts(): ReactNode {
 	const c = useCatalog()
 	const go = useNavigate()
-	const list = useRpc(InventoryCountService.method.list, { size: 200 })
+	const [order, setOrder] = useState<Order>('newest')
+	const list = useRpc(InventoryCountService.method.list, { size: 200, reverse: order === 'oldest' })
 	const [adding, setAdding] = useState(false)
 	return (
 		<>
@@ -22,25 +23,25 @@ export function Counts(): ReactNode {
 				sub="공간을 정해 실제로 있는 것을 스캔하고, 있어야 할 것과 맞춰 봅니다. 자가 실사는 누구나 스캔할 수 있습니다."
 				actions={c.can('manager') && <button className="primary" onClick={() => setAdding(true)}>+ 실사 시작</button>}
 			/>
+			<div className="filters">
+				<OrderSelect value={order} onChange={setOrder} />
+			</div>
 			<Load q={list}>
 				{(d) =>
 					d.items.length === 0 ? (
 						<Empty>진행한 실사가 없습니다.</Empty>
 					) : (
 						<ul className="rows cards">
-							{d.items
-								.slice()
-								.reverse()
-								.map((x) => (
-									<li key={idStr(x.id)} className="link" onClick={() => go(`/counts/${idStr(x.id)}`)}>
-										<span>
-											<strong>{x.name}</strong>
-											<span className="mute"> · {c.path(x.scope?.id)} · {fmt(x.startedAt, 'date')}</span>
-											{x.selfService && <span className="chip">자가 실사</span>}
-										</span>
-										<Badge v={x.status} words={countWord} />
-									</li>
-								))}
+							{d.items.map((x) => (
+								<li key={idStr(x.id)} className="link" onClick={() => go(`/counts/${idStr(x.id)}`)}>
+									<span>
+										<strong>{x.name}</strong>
+										<span className="mute"> · {c.path(x.scope?.id)} · {fmt(x.startedAt, 'date')}</span>
+										{x.selfService && <span className="chip">자가 실사</span>}
+									</span>
+									<Badge v={x.status} words={countWord} />
+								</li>
+							))}
 						</ul>
 					)
 				}
