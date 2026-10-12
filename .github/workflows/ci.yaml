@@ -78,3 +78,47 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: npx vite build
+
+  # The main flows in a browser (ts/e2e, plan.md M3): headless Chromium on
+  # the built page, against a rove built here that Playwright starts with
+  # `init --demo` (ts/playwright.config.ts, ts/e2e/serve.sh).
+  e2e:
+    # Noble, which Playwright 1.48 knows the packages of (`--with-deps`);
+    # ubuntu-latest moves on without it.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: ts
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ts/package-lock.json
+      - run: npm ci
+      - run: npx vite build
+      # Once, for both of the servers the tests stand up.
+      - name: build rove
+        working-directory: .
+        run: go build -o "$RUNNER_TEMP/rove" ./cmd/rove
+      - name: Chromium
+        run: npx playwright install --with-deps chromium
+      - name: browser tests
+        env:
+          E2E_ROVE: ${{ runner.temp }}/rove
+        run: npx playwright test
+      # What a failure leaves: the report, with each failed test's trace and
+      # screenshot, and each server's database and log (test-results/rove-*).
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: e2e
+          path: |
+            ts/playwright-report/
+            ts/test-results/
+          retention-days: 14

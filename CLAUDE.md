@@ -127,6 +127,12 @@ cd ts && npm install && npm run build   # or `npm run dev` on :5173, proxied to 
 process then needs a database of its own named too:
 `ROVE_AUTH_ROSTER_DB_DRIVER` and `ROVE_AUTH_ROSTER_DB_DSN`.
 
+The browser tests are `ts/e2e` (`cd ts && npm run build && npx playwright
+test`; README). Playwright starts a rove of its own -- `e2e/serve.sh`: this
+checkout, `init --demo`, a database in `ts/test-results/` -- so they never
+touch `data/`. A change to a page a flow goes through is not done until they
+pass; find things by role and label, as a person does.
+
 ## Signing in
 
 People, their passwords and whether they may sign in are **roster's**
