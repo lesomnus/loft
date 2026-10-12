@@ -5,12 +5,14 @@ on:
     branches: [main, prototype]
   pull_request:
 
+# Every job names its image rather than `ubuntu-latest`, so that the runner
+# moves when this file says so and not on GitHub's schedule (rove#57).
 jobs:
   go:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
       # The PostgreSQL a deployment runs: the official image with pg_bigm
@@ -39,7 +41,7 @@ jobs:
   # A PostgreSQL without pg_bigm -- what Azure, Naver Cloud and NHN Cloud
   # offer -- where pg_trgm answers instead. Only what that changes.
   postgres-trgm:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     services:
       postgres:
         image: postgres:18
@@ -54,8 +56,8 @@ jobs:
           --health-timeout 5s
           --health-retries 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
       - name: test search and migration on PostgreSQL without pg_bigm
@@ -64,13 +66,13 @@ jobs:
         run: go test ./server/domain ./cli
 
   ui:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     defaults:
       run:
         working-directory: ts
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -83,19 +85,19 @@ jobs:
   # the built page, against a rove built here that Playwright starts with
   # `init --demo` (ts/playwright.config.ts, ts/e2e/serve.sh).
   e2e:
-    # Noble, which Playwright 1.48 knows the packages of (`--with-deps`);
-    # ubuntu-latest moves on without it.
-    runs-on: ubuntu-24.04
+    # `--with-deps` installs what Chromium needs from the image's own packages,
+    # which Playwright knows for Ubuntu 26.04 from 1.61 on.
+    runs-on: ubuntu-26.04
     timeout-minutes: 15
     defaults:
       run:
         working-directory: ts
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -114,7 +116,7 @@ jobs:
         run: npx playwright test
       # What a failure leaves: the report, with each failed test's trace and
       # screenshot, and each server's database and log (test-results/rove-*).
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: e2e

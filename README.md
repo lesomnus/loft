@@ -339,7 +339,7 @@ npx playwright show-trace test-results/<실패한 테스트>/trace.zip
 CGO_ENABLED=0 GOOS=linux go build -o /tmp/rove ./cmd/rove
 docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp \
   -v "$PWD:$PWD" -v /tmp/rove:/tmp/rove -e E2E_ROVE=/tmp/rove -w "$PWD/ts" \
-  mcr.microsoft.com/playwright:v1.48.2-noble npx playwright test
+  mcr.microsoft.com/playwright:v1.63.0-noble npx playwright test
 ```
 
 포트가 겹치면 `E2E_PORT=19510`처럼 옮깁니다(그 포트와 +1, +10, +11을 씁니다).
