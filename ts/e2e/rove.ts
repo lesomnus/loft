@@ -31,6 +31,15 @@ export const people = {
 	counts: { login: 'gunwoo-lee', name: '이건우' },
 	workspaces: { login: 'yejun-kang', name: '강예준' },
 	reporter: { login: 'yujun-park', name: '박유준' },
+	stock: { login: 'jia-cho', name: '조지아' },
+	lent: { login: 'yerin-choi', name: '최예린' },
+	selfService: { login: 'daeun-cho', name: '조다은' },
+	camera: { login: 'sunwoo-yoon', name: '윤선우' },
+	closer: { login: 'eunwoo-kang', name: '강은우' },
+	inviter: { login: 'jiwoo-lee', name: '이지우' },
+	invitee: { login: 'daeun-choi', name: '최다은' },
+	declines: { login: 'sunwoo-jung', name: '정선우' },
+	sso: { login: 'eunwoo-jang', name: '장은우' },
 } as const
 
 /** A name nothing else in the run has. */
