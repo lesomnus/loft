@@ -207,11 +207,15 @@ export function Select(
 		options: { value: string; label: ReactNode }[]
 		empty?: string
 		required?: boolean
+		// What it is called when no field names it, as one in a row of
+		// filters is.
+		'aria-label'?: string
 	} & Labelled,
 ): ReactNode {
 	return (
 		<select
 			id={props.id}
+			aria-label={props['aria-label']}
 			aria-describedby={props['aria-describedby']}
 			value={props.value}
 			onChange={(e) => props.onChange(e.target.value)}
@@ -224,6 +228,28 @@ export function Select(
 				</option>
 			))}
 		</select>
+	)
+}
+
+/** Which way a list is read: newest first, or in the order things happened. */
+export type Order = 'newest' | 'oldest'
+
+/**
+ * The choice of which way a list is read. Either way is the server's reading
+ * (`reverse`), which walks the same index from either end, so the oldest are
+ * the oldest there are and not the oldest of the newest page.
+ */
+export function OrderSelect(props: { value: Order; onChange: (v: Order) => void }): ReactNode {
+	return (
+		<Select
+			aria-label="순서"
+			value={props.value}
+			onChange={(v) => props.onChange(v === 'oldest' ? 'oldest' : 'newest')}
+			options={[
+				{ value: 'newest', label: '최신순' },
+				{ value: 'oldest', label: '오래된순' },
+			]}
+		/>
 	)
 }
 

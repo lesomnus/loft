@@ -29,6 +29,14 @@ test('a purchase is ordered, and received as assets one by one and as stock by t
 	await expect(ordered).toContainText('주문')
 	await expect(ordered).toContainText('915,000원')
 
+	// Newest first, and then in the order they were made, the demo's first --
+	// each read by the server, and not a page turned over.
+	const purchases = page.getByRole('table').locator('tbody').getByRole('row')
+	await expect(purchases.first()).toContainText(name)
+	await page.getByLabel('순서').selectOption({ label: '오래된순' })
+	await expect(purchases.first()).toContainText('모니터 추가 구매')
+	await expect(purchases.last()).toContainText(name)
+
 	await ordered.click()
 	const opened = page.getByRole('dialog')
 	await expect(opened.getByRole('row').filter({ hasText: 'LG 27UP850' })).toContainText('자산')

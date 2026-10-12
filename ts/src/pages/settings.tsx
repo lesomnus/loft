@@ -23,7 +23,7 @@ import {
 import { modelName, useCatalog } from '../catalog.js'
 import { TypeSelect, useAssets } from '../pickers.js'
 import { useAct, useRpc } from '../rpc.js'
-import { Badge, Card, Confirm, Empty, Field, FormModal, Load, PageHead, Select, Tabs } from '../ui.js'
+import { Badge, Card, Confirm, Empty, Field, FormModal, Load, OrderSelect, PageHead, Select, Tabs, type Order } from '../ui.js'
 import { attrTypeWord, domainWord, kindWord } from '../words.js'
 
 export function Settings(): ReactNode {
@@ -583,12 +583,21 @@ function Audit(): ReactNode {
 }
 
 function Usage(): ReactNode {
-	const list = useRpc(UsageSnapshotService.method.list, { size: 60 })
+	const [order, setOrder] = useState<Order>('newest')
+	const list = useRpc(UsageSnapshotService.method.list, { size: 60, reverse: order === 'oldest' })
 	return (
-		<Card title="일별 사용량" actions={<span className="mute small">하루 한 번 기록 — 요금제가 생기면 쓰일 근거</span>}>
+		<Card
+			title="일별 사용량"
+			actions={
+				<>
+					<span className="mute small">하루 한 번 기록 — 요금제가 생기면 쓰일 근거</span>
+					<OrderSelect value={order} onChange={setOrder} />
+				</>
+			}
+		>
 			<Load q={list}>
 				{(d) => {
-					const rows = d.items.slice().reverse()
+					const rows = d.items
 					const keys = [...new Set(rows.flatMap((r) => Object.keys(r.metrics)))].sort()
 					return rows.length === 0 ? (
 						<Empty>아직 기록이 없습니다.</Empty>

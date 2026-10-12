@@ -6,12 +6,13 @@ import { PurchaseLineService, PurchaseService, fmt, idBytes, idStr, ref, won } f
 import { modelName, useCatalog } from '../catalog.js'
 import { ModelSelect, PartySelect, SpaceSelect } from '../pickers.js'
 import { useAct, useRpc } from '../rpc.js'
-import { Badge, Empty, Field, FormModal, Kv, Load, Modal, PageHead, Select } from '../ui.js'
+import { Badge, Empty, Field, FormModal, Kv, Load, Modal, OrderSelect, PageHead, Select, type Order } from '../ui.js'
 import { purchaseWord } from '../words.js'
 
 export function Purchases(): ReactNode {
 	const c = useCatalog()
-	const list = useRpc(PurchaseService.method.list, { size: 500 })
+	const [order, setOrder] = useState<Order>('newest')
+	const list = useRpc(PurchaseService.method.list, { size: 500, reverse: order === 'oldest' })
 	const [adding, setAdding] = useState(false)
 	const [open, setOpen] = useState<Purchase>()
 	return (
@@ -21,6 +22,9 @@ export function Purchases(): ReactNode {
 				sub="주문한 것을 적어 두고, 도착하면 입고 처리해 자산이나 재고로 등록합니다."
 				actions={<button className="primary" onClick={() => setAdding(true)}>+ 구매 등록</button>}
 			/>
+			<div className="filters">
+				<OrderSelect value={order} onChange={setOrder} />
+			</div>
 			<Load q={list}>
 				{(d) =>
 					d.items.length === 0 ? (
@@ -38,23 +42,20 @@ export function Purchases(): ReactNode {
 									</tr>
 								</thead>
 								<tbody>
-									{d.items
-										.slice()
-										.reverse()
-										.map((p) => (
-											<tr key={idStr(p.id)} className="link" onClick={() => setOpen(p)}>
-												<td>
-													{p.name}
-													{p.reference !== '' && <span className="mute"> · {p.reference}</span>}
-												</td>
-												<td>{c.party(p.vendor?.id)?.name ?? '-'}</td>
-												<td>{fmt(p.orderedAt, 'date')}</td>
-												<td className="num">{won(p.total)}</td>
-												<td>
-													<Badge v={p.status} words={purchaseWord} />
-												</td>
-											</tr>
-										))}
+									{d.items.map((p) => (
+										<tr key={idStr(p.id)} className="link" onClick={() => setOpen(p)}>
+											<td>
+												{p.name}
+												{p.reference !== '' && <span className="mute"> · {p.reference}</span>}
+											</td>
+											<td>{c.party(p.vendor?.id)?.name ?? '-'}</td>
+											<td>{fmt(p.orderedAt, 'date')}</td>
+											<td className="num">{won(p.total)}</td>
+											<td>
+												<Badge v={p.status} words={purchaseWord} />
+											</td>
+										</tr>
+									))}
 								</tbody>
 							</table>
 						</div>
