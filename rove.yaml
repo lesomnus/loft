@@ -39,7 +39,19 @@ watch:
   # leaving out. `memory` publishes inside this process, which is right for one
   # replica and silently wrong for two -- a client watching against one never
   # hears about a write that landed on another, and nothing reports it.
+  # Several processes on PostgreSQL name `postgres` (LISTEN/NOTIFY on the
+  # rows' own database).
   broker: memory
+
+spin:
+  # Named for the same reason: which process of the deployment runs the loops
+  # only one of them may -- the sweeps, the mail, the departures, the closing.
+  # `local` runs them all in this process, which is right for one replica and
+  # silently wrong for two: each would run every sweep. Several processes on
+  # PostgreSQL name `postgres` (an advisory lock on the rows' own database, not
+  # through a transaction pooler -- `spin.dsn` is for a direct address); a
+  # process that only answers requests names `none`.
+  lease: local
 
 # Who people are and how they sign in is roster's (design 9.10). With no
 # `addr`, roster runs in this process on a database of its own -- `roster.db`

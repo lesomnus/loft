@@ -9,7 +9,14 @@ package cli
 //
 // SQLite is what a checkout runs on; PostgreSQL is what a deployment does
 // (design 9.4), and the extras that only it has are in `migrations/pg`.
+//
+// And what PostgreSQL makes of several processes of one deployment, on its own
+// database and nothing else: `watch.broker: postgres` (`LISTEN`/`NOTIFY`, so a
+// watch hears a write another process made) and `spin.lease: postgres` (an
+// advisory lock, so one process runs each loop).
 import (
+	_ "github.com/lesomnus/payday/config/brokerpg"
 	_ "github.com/lesomnus/payday/config/dbpgx"
 	_ "github.com/lesomnus/payday/config/dbsqlite3"
+	_ "github.com/lesomnus/payday/config/leasepg"
 )

@@ -230,6 +230,17 @@ configuration; their own is `ROVE_CLIENT_CONFIG`. A new feature is an RPC, so it
 is a command too -- and anything HTTP-only beside the RPCs (`/account`) gets a
 command of its own (`rove workspace`).
 
+## Background work
+
+What `cmd/serve.go` appends to `s.Spin` runs under `spin.lease` (payday#54):
+every loop in **one** process of the deployment, but the ones marked
+`spin.InEveryProcess` -- a process's own work, as the roster stream that drops
+its cached answers is. So a loop has a name of its own (`spinEvery("rove.…",
+…)`, `spin.Called`): `spin.Run` refuses an unnamed one before anything starts.
+Hand over a `spin.Spinner`, never a thing with a `Run` method -- anything else
+in the list is skipped without a word. A lease is at most one at a time but for
+a moment around a failover, not exactly once: a loop is still safe run twice.
+
 ## What may be called
 
 `server/policy` is one table of role → RPC, and what is not in it is refused --
