@@ -7,6 +7,8 @@ import {
 	AssetService,
 	AttachmentService,
 	BookableService,
+	CustodyLineService,
+	CustodyService,
 	LabelService,
 	ReservationService,
 	WorkOrderService,
@@ -19,6 +21,7 @@ import {
 	raw,
 	readFile,
 	ref,
+	sameId,
 	ts,
 } from '../api.js'
 import { HistoryDays, modelName, useCatalog } from '../catalog.js'
@@ -107,6 +110,7 @@ function AssetView(props: { a: Asset }): ReactNode {
 				}
 				actions={
 					<>
+						<Acknowledge a={a} />
 						{mgr && <button onClick={() => setDialog('move')}>이동</button>}
 						{mgr && <button onClick={() => setDialog('set')}>정보·상태 변경</button>}
 						{mgr && a.kind === 'item' && a.custodian === undefined && (
@@ -212,6 +216,30 @@ function AssetView(props: { a: Asset }): ReactNode {
 			{dialog === 'bind' && <Bind a={a} onClose={() => setDialog(undefined)} />}
 			{dialog === 'upload' && <Upload a={a} onClose={() => setDialog(undefined)} />}
 		</>
+	)
+}
+
+/**
+ * The person something was handed to says it arrived, here: where scanning it
+ * brings them (plan.md M4, 스캔 → 인수 확인). The hand-over's own page and 내
+ * 정보 offer the same; this is the one a phone's camera opens.
+ *
+ * Only to that person, and only while it waits: what it was handed over in is
+ * the line of a hand-over still out with this asset on it.
+ */
+function Acknowledge(props: { a: Asset }): ReactNode {
+	const c = useCatalog()
+	const act = useAct()
+	const mine = props.a.custodian !== undefined && sameId(props.a.custodian.id, c.me.party?.id)
+	const lines = useRpc(CustodyLineService.method.list, mine ? { filters: [{ asset: ref(props.a.id) }], size: 50 } : null)
+	const out = mine ? lines.data?.items.find((l) => l.returnedAt === undefined && l.custody !== undefined) : undefined
+	const held = useRpc(CustodyService.method.get, out?.custody !== undefined ? { ref: ref(out.custody.id) } : null)
+	const x = held.data
+	if (out === undefined || x === undefined || !sameId(x.id, out.custody?.id) || x.status !== 'open' || x.acknowledgedAt !== undefined) return null
+	return (
+		<button className="primary" onClick={() => void act(CustodyService.method.acknowledge, { ref: ref(x.id) }, { ok: '인수를 확인했습니다.' })}>
+			인수 확인
+		</button>
 	)
 }
 
