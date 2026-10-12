@@ -29,13 +29,17 @@ export function Consent(props: { account: Account; onDone: () => void; onSignOut
 					{owes.map((d) => (
 						<li key={d.name}>
 							<label className="check">
-								<input type="checkbox" checked={checked[d.name] === true} onChange={(ev) => setChecked((v) => ({ ...v, [d.name]: ev.target.checked }))} />{' '}
-								{d.title}에 동의합니다 (필수)
-							</label>{' '}
+								<input type="checkbox" checked={checked[d.name] === true} onChange={(ev) => setChecked((v) => ({ ...v, [d.name]: ev.target.checked }))} />
+								<span className="what">
+									<span>
+										{d.title}에 동의합니다 <span className="mute">(필수)</span>
+									</span>
+									<span className="mute small">{d.version}</span>
+								</span>
+							</label>
 							<a href={d.url} target="_blank" rel="noreferrer">
 								읽기
-							</a>{' '}
-							<span className="mute small">{d.version}</span>
+							</a>
 						</li>
 					))}
 				</ul>

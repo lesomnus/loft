@@ -1436,6 +1436,43 @@ ul.state-tree .space {
 	gap: 4px;
 }
 
+/* the documents an account agrees to (consent.tsx): a row each, the box
+   beside what it agrees to -- `.login label` stacks a label's contents for
+   the sign-in form, which put the box above its sentence */
+.elsewhere ul.consent {
+	gap: 8px;
+}
+ul.consent > li {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 10px 12px;
+	border: 1px solid var(--line);
+	border-radius: 8px;
+}
+ul.consent label.check {
+	flex: 1;
+	flex-direction: row;
+	align-items: center;
+	gap: 10px;
+	font-size: 14px;
+	font-weight: 500;
+	color: var(--ink);
+}
+ul.consent label.check input {
+	flex: none;
+	margin: 0;
+}
+ul.consent .what {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+ul.consent > li > a {
+	flex: none;
+	font-size: 13px;
+}
+
 /* the invitations waiting for an account */
 .login > .inbox {
 	background: white;
