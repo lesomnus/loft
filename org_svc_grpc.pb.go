@@ -2191,3 +2191,267 @@ var ConsentService_ServiceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "rove/org_svc.g.proto",
 }
+
+const (
+	SignInFailureService_Add_FullMethodName   = "/rove.SignInFailureService/Add"
+	SignInFailureService_Get_FullMethodName   = "/rove.SignInFailureService/Get"
+	SignInFailureService_Patch_FullMethodName = "/rove.SignInFailureService/Patch"
+	SignInFailureService_Apply_FullMethodName = "/rove.SignInFailureService/Apply"
+	SignInFailureService_Erase_FullMethodName = "/rove.SignInFailureService/Erase"
+)
+
+// SignInFailureServiceClient is the client API for SignInFailureService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type SignInFailureServiceClient interface {
+	// Add creates a new SignInFailure
+	Add(ctx context.Context, in *SignInFailureAddRequest, opts ...grpc.CallOption) (*SignInFailure, error)
+	// Get retrieves a SignInFailure
+	Get(ctx context.Context, in *SignInFailureGetRequest, opts ...grpc.CallOption) (*SignInFailure, error)
+	// Patch updates an existing SignInFailure
+	Patch(ctx context.Context, in *SignInFailurePatchRequest, opts ...grpc.CallOption) (*SignInFailure, error)
+	// Apply applies a patch document to an existing SignInFailure
+	Apply(ctx context.Context, in *SignInFailureApplyRequest, opts ...grpc.CallOption) (*SignInFailure, error)
+	// Erase deletes a SignInFailure
+	Erase(ctx context.Context, in *SignInFailureRef, opts ...grpc.CallOption) (*SignInFailureEraseResponse, error)
+}
+
+type signInFailureServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewSignInFailureServiceClient(cc grpc.ClientConnInterface) SignInFailureServiceClient {
+	return &signInFailureServiceClient{cc}
+}
+
+func (c *signInFailureServiceClient) Add(ctx context.Context, in *SignInFailureAddRequest, opts ...grpc.CallOption) (*SignInFailure, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SignInFailure)
+	err := c.cc.Invoke(ctx, SignInFailureService_Add_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *signInFailureServiceClient) Get(ctx context.Context, in *SignInFailureGetRequest, opts ...grpc.CallOption) (*SignInFailure, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SignInFailure)
+	err := c.cc.Invoke(ctx, SignInFailureService_Get_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *signInFailureServiceClient) Patch(ctx context.Context, in *SignInFailurePatchRequest, opts ...grpc.CallOption) (*SignInFailure, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SignInFailure)
+	err := c.cc.Invoke(ctx, SignInFailureService_Patch_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *signInFailureServiceClient) Apply(ctx context.Context, in *SignInFailureApplyRequest, opts ...grpc.CallOption) (*SignInFailure, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SignInFailure)
+	err := c.cc.Invoke(ctx, SignInFailureService_Apply_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *signInFailureServiceClient) Erase(ctx context.Context, in *SignInFailureRef, opts ...grpc.CallOption) (*SignInFailureEraseResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SignInFailureEraseResponse)
+	err := c.cc.Invoke(ctx, SignInFailureService_Erase_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// SignInFailureServiceServer is the server API for SignInFailureService service.
+// All implementations must embed UnimplementedSignInFailureServiceServer
+// for forward compatibility.
+type SignInFailureServiceServer interface {
+	// Add creates a new SignInFailure
+	Add(context.Context, *SignInFailureAddRequest) (*SignInFailure, error)
+	// Get retrieves a SignInFailure
+	Get(context.Context, *SignInFailureGetRequest) (*SignInFailure, error)
+	// Patch updates an existing SignInFailure
+	Patch(context.Context, *SignInFailurePatchRequest) (*SignInFailure, error)
+	// Apply applies a patch document to an existing SignInFailure
+	Apply(context.Context, *SignInFailureApplyRequest) (*SignInFailure, error)
+	// Erase deletes a SignInFailure
+	Erase(context.Context, *SignInFailureRef) (*SignInFailureEraseResponse, error)
+	mustEmbedUnimplementedSignInFailureServiceServer()
+}
+
+// UnimplementedSignInFailureServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedSignInFailureServiceServer struct{}
+
+func (UnimplementedSignInFailureServiceServer) Add(context.Context, *SignInFailureAddRequest) (*SignInFailure, error) {
+	return nil, status.Error(codes.Unimplemented, "method Add not implemented")
+}
+func (UnimplementedSignInFailureServiceServer) Get(context.Context, *SignInFailureGetRequest) (*SignInFailure, error) {
+	return nil, status.Error(codes.Unimplemented, "method Get not implemented")
+}
+func (UnimplementedSignInFailureServiceServer) Patch(context.Context, *SignInFailurePatchRequest) (*SignInFailure, error) {
+	return nil, status.Error(codes.Unimplemented, "method Patch not implemented")
+}
+func (UnimplementedSignInFailureServiceServer) Apply(context.Context, *SignInFailureApplyRequest) (*SignInFailure, error) {
+	return nil, status.Error(codes.Unimplemented, "method Apply not implemented")
+}
+func (UnimplementedSignInFailureServiceServer) Erase(context.Context, *SignInFailureRef) (*SignInFailureEraseResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Erase not implemented")
+}
+func (UnimplementedSignInFailureServiceServer) mustEmbedUnimplementedSignInFailureServiceServer() {}
+func (UnimplementedSignInFailureServiceServer) testEmbeddedByValue()                              {}
+
+// UnsafeSignInFailureServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to SignInFailureServiceServer will
+// result in compilation errors.
+type UnsafeSignInFailureServiceServer interface {
+	mustEmbedUnimplementedSignInFailureServiceServer()
+}
+
+func RegisterSignInFailureServiceServer(s grpc.ServiceRegistrar, srv SignInFailureServiceServer) {
+	// If the following call panics, it indicates UnimplementedSignInFailureServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&SignInFailureService_ServiceDesc, srv)
+}
+
+func _SignInFailureService_Add_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SignInFailureAddRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SignInFailureServiceServer).Add(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SignInFailureService_Add_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SignInFailureServiceServer).Add(ctx, req.(*SignInFailureAddRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SignInFailureService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SignInFailureGetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SignInFailureServiceServer).Get(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SignInFailureService_Get_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SignInFailureServiceServer).Get(ctx, req.(*SignInFailureGetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SignInFailureService_Patch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SignInFailurePatchRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SignInFailureServiceServer).Patch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SignInFailureService_Patch_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SignInFailureServiceServer).Patch(ctx, req.(*SignInFailurePatchRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SignInFailureService_Apply_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SignInFailureApplyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SignInFailureServiceServer).Apply(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SignInFailureService_Apply_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SignInFailureServiceServer).Apply(ctx, req.(*SignInFailureApplyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SignInFailureService_Erase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SignInFailureRef)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SignInFailureServiceServer).Erase(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SignInFailureService_Erase_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SignInFailureServiceServer).Erase(ctx, req.(*SignInFailureRef))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// SignInFailureService_ServiceDesc is the grpc.ServiceDesc for SignInFailureService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var SignInFailureService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "rove.SignInFailureService",
+	HandlerType: (*SignInFailureServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Add",
+			Handler:    _SignInFailureService_Add_Handler,
+		},
+		{
+			MethodName: "Get",
+			Handler:    _SignInFailureService_Get_Handler,
+		},
+		{
+			MethodName: "Patch",
+			Handler:    _SignInFailureService_Patch_Handler,
+		},
+		{
+			MethodName: "Apply",
+			Handler:    _SignInFailureService_Apply_Handler,
+		},
+		{
+			MethodName: "Erase",
+			Handler:    _SignInFailureService_Erase_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "rove/org_svc.g.proto",
+}

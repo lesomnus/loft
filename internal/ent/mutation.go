@@ -42,6 +42,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/reservation"
 	"github.com/lesomnus/rove/internal/ent/reservationitem"
 	"github.com/lesomnus/rove/internal/ent/session"
+	"github.com/lesomnus/rove/internal/ent/signinfailure"
 	"github.com/lesomnus/rove/internal/ent/stewardship"
 	"github.com/lesomnus/rove/internal/ent/stock"
 	"github.com/lesomnus/rove/internal/ent/stockmovement"
@@ -94,6 +95,7 @@ const (
 	TypeReservation     = "Reservation"
 	TypeReservationItem = "ReservationItem"
 	TypeSession         = "Session"
+	TypeSignInFailure   = "SignInFailure"
 	TypeStewardship     = "Stewardship"
 	TypeStock           = "Stock"
 	TypeStockMovement   = "StockMovement"
@@ -3125,6 +3127,23 @@ func (m *CliLoginMutation) OldOrigin(ctx context.Context) (v string, err error) 
 	return oldValue.Origin, nil
 }
 
+// OldAddress returns the old "address" field's value of the CliLogin entity.
+// If the CliLogin object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CliLoginMutation) OldAddress(ctx context.Context) (v string, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldAddress is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldAddress requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAddress: %w", err)
+	}
+	return oldValue.Address, nil
+}
+
 // OldAccount returns the old "account" field's value of the CliLogin entity.
 // If the CliLogin object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
@@ -3240,6 +3259,8 @@ func (m *CliLoginMutation) OldField(ctx context.Context, name string) (ent.Value
 		return m.OldClient(ctx)
 	case clilogin.FieldOrigin:
 		return m.OldOrigin(ctx)
+	case clilogin.FieldAddress:
+		return m.OldAddress(ctx)
 	case clilogin.FieldAccount:
 		return m.OldAccount(ctx)
 	case clilogin.FieldState:
@@ -10644,6 +10665,164 @@ func (m *SessionMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldDateCreated(ctx)
 	}
 	return nil, fmt.Errorf("unknown Session field %s", name)
+}
+
+// SignInFailureMutation represents an operation that mutates the SignInFailure nodes in the graph.
+type SignInFailureMutation struct {
+	signinfailure.Mutation
+	config
+	id       *uuid.UUID
+	done     bool
+	oldValue func(context.Context) (*SignInFailure, error)
+}
+
+var _ ent.Mutation = (*SignInFailureMutation)(nil)
+
+// signinfailureOption allows management of the mutation configuration using functional options.
+type signinfailureOption func(*SignInFailureMutation)
+
+// newSignInFailureMutation creates new mutation for the SignInFailure entity.
+func newSignInFailureMutation(c config, op Op, opts ...signinfailureOption) *SignInFailureMutation {
+	m := &SignInFailureMutation{
+		Mutation: *signinfailure.NewMutation(op),
+		config:   c,
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// SetId sets the value of the id field. Note that this
+// operation is only accepted on creation of SignInFailure entities.
+func (m *SignInFailureMutation) SetId(id uuid.UUID) {
+	m.id = &id
+}
+
+// Id returns the Id value in the mutation. Note that the Id is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *SignInFailureMutation) Id() (id uuid.UUID, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// withSignInFailureId sets the Id field of the mutation.
+func withSignInFailureId(id uuid.UUID) signinfailureOption {
+	return func(m *SignInFailureMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *SignInFailure
+		)
+		m.oldValue = func(ctx context.Context) (*SignInFailure, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().SignInFailure.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withSignInFailure sets the old SignInFailure of the mutation.
+func withSignInFailure(node *SignInFailure) signinfailureOption {
+	return func(m *SignInFailureMutation) {
+		m.oldValue = func(context.Context) (*SignInFailure, error) {
+			return node, nil
+		}
+		m.id = &node.Id
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m SignInFailureMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m SignInFailureMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// Ids queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *SignInFailureMutation) Ids(ctx context.Context) ([]uuid.UUID, error) {
+	switch {
+	case m.Op().Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.Id()
+		if exists {
+			return []uuid.UUID{id}, nil
+		}
+		fallthrough
+	case m.Op().Is(OpUpdate | OpDelete):
+		return m.Client().SignInFailure.Query().Where(m.Predicates()...).Ids(ctx)
+	default:
+		return nil, fmt.Errorf("Ids is not allowed on %s operations", m.Op())
+	}
+}
+
+// OldSubject returns the old "subject" field's value of the SignInFailure entity.
+// If the SignInFailure object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SignInFailureMutation) OldSubject(ctx context.Context) (v []byte, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldSubject is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldSubject requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSubject: %w", err)
+	}
+	return oldValue.Subject, nil
+}
+
+// OldDateCreated returns the old "date_created" field's value of the SignInFailure entity.
+// If the SignInFailure object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SignInFailureMutation) OldDateCreated(ctx context.Context) (v time.Time, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldDateCreated is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldDateCreated requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDateCreated: %w", err)
+	}
+	return oldValue.DateCreated, nil
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *SignInFailureMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case signinfailure.FieldSubject:
+		return m.OldSubject(ctx)
+	case signinfailure.FieldDateCreated:
+		return m.OldDateCreated(ctx)
+	}
+	return nil, fmt.Errorf("unknown SignInFailure field %s", name)
 }
 
 // StewardshipMutation represents an operation that mutates the Stewardship nodes in the graph.

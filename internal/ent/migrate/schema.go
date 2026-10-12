@@ -392,6 +392,7 @@ var (
 		{Name: "code", Type: field.TypeString},
 		{Name: "client", Type: field.TypeString},
 		{Name: "origin", Type: field.TypeString},
+		{Name: "address", Type: field.TypeString, Nullable: true},
 		{Name: "account", Type: field.TypeUuid, Nullable: true},
 		{Name: "state", Type: field.TypeString},
 		{Name: "date_expires", Type: field.TypeTime, Nullable: true},
@@ -414,6 +415,11 @@ var (
 				Name:    "clilogin_secret",
 				Unique:  false,
 				Columns: []*schema.Column{CliloginColumns[1]},
+			},
+			{
+				Name:    "clilogin_address_date_created",
+				Unique:  false,
+				Columns: []*schema.Column{CliloginColumns[5], CliloginColumns[11]},
 			},
 		},
 	}
@@ -1453,6 +1459,30 @@ var (
 			},
 		},
 	}
+	// SigninfailureColumns holds the columns for the "signinfailure" table.
+	SigninfailureColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUuid, Unique: true},
+		{Name: "subject", Type: field.TypeBytes, Nullable: true},
+		{Name: "date_created", Type: field.TypeTime, Nullable: true},
+	}
+	// SigninfailureTable holds the schema information for the "signinfailure" table.
+	SigninfailureTable = &schema.Table{
+		Name:       "signinfailure",
+		Columns:    SigninfailureColumns,
+		PrimaryKey: []*schema.Column{SigninfailureColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "signinfailure_subject_date_created",
+				Unique:  false,
+				Columns: []*schema.Column{SigninfailureColumns[1], SigninfailureColumns[2]},
+			},
+			{
+				Name:    "signinfailure_date_created",
+				Unique:  false,
+				Columns: []*schema.Column{SigninfailureColumns[2]},
+			},
+		},
+	}
 	// StewardshipColumns holds the columns for the "stewardship" table.
 	StewardshipColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUuid, Unique: true},
@@ -1863,6 +1893,7 @@ var (
 		ReservationTable,
 		ReservationitemTable,
 		SessionTable,
+		SigninfailureTable,
 		StewardshipTable,
 		StockTable,
 		StockmovementTable,
@@ -2022,6 +2053,9 @@ func init() {
 	}
 	SessionTable.Annotation = &entsql.Annotation{
 		Table: "session",
+	}
+	SigninfailureTable.Annotation = &entsql.Annotation{
+		Table: "signinfailure",
 	}
 	StewardshipTable.ForeignKeys[0].RefTable = TenantTable
 	StewardshipTable.ForeignKeys[1].RefTable = AssetTable

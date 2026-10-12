@@ -7196,6 +7196,7 @@ type CliLoginAddRequest struct {
 	xxx_hidden_Code        string                 `protobuf:"bytes,9,opt,name=code"`
 	xxx_hidden_Client      string                 `protobuf:"bytes,10,opt,name=client"`
 	xxx_hidden_Origin      string                 `protobuf:"bytes,11,opt,name=origin"`
+	xxx_hidden_Address     *string                `protobuf:"bytes,18,opt,name=address"`
 	xxx_hidden_Account     []byte                 `protobuf:"bytes,12,opt,name=account"`
 	xxx_hidden_State       string                 `protobuf:"bytes,16,opt,name=state"`
 	xxx_hidden_DateExpires *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=date_expires,json=dateExpires"`
@@ -7266,6 +7267,16 @@ func (x *CliLoginAddRequest) GetOrigin() string {
 	return ""
 }
 
+func (x *CliLoginAddRequest) GetAddress() string {
+	if x != nil {
+		if x.xxx_hidden_Address != nil {
+			return *x.xxx_hidden_Address
+		}
+		return ""
+	}
+	return ""
+}
+
 func (x *CliLoginAddRequest) GetAccount() []byte {
 	if x != nil {
 		return x.xxx_hidden_Account
@@ -7299,7 +7310,7 @@ func (x *CliLoginAddRequest) SetId(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_Id = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 9)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 10)
 }
 
 func (x *CliLoginAddRequest) SetSecret(v []byte) {
@@ -7307,7 +7318,7 @@ func (x *CliLoginAddRequest) SetSecret(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_Secret = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 9)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 10)
 }
 
 func (x *CliLoginAddRequest) SetCode(v string) {
@@ -7322,12 +7333,17 @@ func (x *CliLoginAddRequest) SetOrigin(v string) {
 	x.xxx_hidden_Origin = v
 }
 
+func (x *CliLoginAddRequest) SetAddress(v string) {
+	x.xxx_hidden_Address = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 10)
+}
+
 func (x *CliLoginAddRequest) SetAccount(v []byte) {
 	if v == nil {
 		v = []byte{}
 	}
 	x.xxx_hidden_Account = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 9)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 10)
 }
 
 func (x *CliLoginAddRequest) SetState(v string) {
@@ -7356,11 +7372,18 @@ func (x *CliLoginAddRequest) HasSecret() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
 }
 
-func (x *CliLoginAddRequest) HasAccount() bool {
+func (x *CliLoginAddRequest) HasAddress() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
+}
+
+func (x *CliLoginAddRequest) HasAccount() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 6)
 }
 
 func (x *CliLoginAddRequest) HasDateExpires() bool {
@@ -7387,8 +7410,13 @@ func (x *CliLoginAddRequest) ClearSecret() {
 	x.xxx_hidden_Secret = nil
 }
 
-func (x *CliLoginAddRequest) ClearAccount() {
+func (x *CliLoginAddRequest) ClearAddress() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 5)
+	x.xxx_hidden_Address = nil
+}
+
+func (x *CliLoginAddRequest) ClearAccount() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 6)
 	x.xxx_hidden_Account = nil
 }
 
@@ -7408,6 +7436,7 @@ type CliLoginAddRequest_builder struct {
 	Code        string
 	Client      string
 	Origin      string
+	Address     *string
 	Account     []byte
 	State       string
 	DateExpires *timestamppb.Timestamp
@@ -7419,18 +7448,22 @@ func (b0 CliLoginAddRequest_builder) Build() *CliLoginAddRequest {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.Id != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 9)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 10)
 		x.xxx_hidden_Id = b.Id
 	}
 	if b.Secret != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 9)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 10)
 		x.xxx_hidden_Secret = b.Secret
 	}
 	x.xxx_hidden_Code = b.Code
 	x.xxx_hidden_Client = b.Client
 	x.xxx_hidden_Origin = b.Origin
+	if b.Address != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 10)
+		x.xxx_hidden_Address = b.Address
+	}
 	if b.Account != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 9)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 10)
 		x.xxx_hidden_Account = b.Account
 	}
 	x.xxx_hidden_State = b.State
@@ -7665,6 +7698,7 @@ type CliLoginSelect struct {
 	xxx_hidden_Code        bool                   `protobuf:"varint,9,opt,name=code"`
 	xxx_hidden_Client      bool                   `protobuf:"varint,10,opt,name=client"`
 	xxx_hidden_Origin      bool                   `protobuf:"varint,11,opt,name=origin"`
+	xxx_hidden_Address     bool                   `protobuf:"varint,18,opt,name=address"`
 	xxx_hidden_Account     bool                   `protobuf:"varint,12,opt,name=account"`
 	xxx_hidden_State       bool                   `protobuf:"varint,16,opt,name=state"`
 	xxx_hidden_DateExpires bool                   `protobuf:"varint,17,opt,name=date_expires,json=dateExpires"`
@@ -7737,6 +7771,13 @@ func (x *CliLoginSelect) GetOrigin() bool {
 	return false
 }
 
+func (x *CliLoginSelect) GetAddress() bool {
+	if x != nil {
+		return x.xxx_hidden_Address
+	}
+	return false
+}
+
 func (x *CliLoginSelect) GetAccount() bool {
 	if x != nil {
 		return x.xxx_hidden_Account
@@ -7781,57 +7822,62 @@ func (x *CliLoginSelect) GetDateCreated() bool {
 
 func (x *CliLoginSelect) SetAll(v bool) {
 	x.xxx_hidden_All = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 12)
 }
 
 func (x *CliLoginSelect) SetSecret(v bool) {
 	x.xxx_hidden_Secret = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 12)
 }
 
 func (x *CliLoginSelect) SetCode(v bool) {
 	x.xxx_hidden_Code = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 12)
 }
 
 func (x *CliLoginSelect) SetClient(v bool) {
 	x.xxx_hidden_Client = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 12)
 }
 
 func (x *CliLoginSelect) SetOrigin(v bool) {
 	x.xxx_hidden_Origin = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 12)
+}
+
+func (x *CliLoginSelect) SetAddress(v bool) {
+	x.xxx_hidden_Address = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 12)
 }
 
 func (x *CliLoginSelect) SetAccount(v bool) {
 	x.xxx_hidden_Account = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 12)
 }
 
 func (x *CliLoginSelect) SetState(v bool) {
 	x.xxx_hidden_State = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 12)
 }
 
 func (x *CliLoginSelect) SetDateExpires(v bool) {
 	x.xxx_hidden_DateExpires = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 12)
 }
 
 func (x *CliLoginSelect) SetDateUpdated(v bool) {
 	x.xxx_hidden_DateUpdated = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 12)
 }
 
 func (x *CliLoginSelect) SetDateErased(v bool) {
 	x.xxx_hidden_DateErased = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 12)
 }
 
 func (x *CliLoginSelect) SetDateCreated(v bool) {
 	x.xxx_hidden_DateCreated = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 12)
 }
 
 func (x *CliLoginSelect) HasAll() bool {
@@ -7869,46 +7915,53 @@ func (x *CliLoginSelect) HasOrigin() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
 }
 
-func (x *CliLoginSelect) HasAccount() bool {
+func (x *CliLoginSelect) HasAddress() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
 }
 
-func (x *CliLoginSelect) HasState() bool {
+func (x *CliLoginSelect) HasAccount() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 6)
 }
 
-func (x *CliLoginSelect) HasDateExpires() bool {
+func (x *CliLoginSelect) HasState() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 7)
 }
 
-func (x *CliLoginSelect) HasDateUpdated() bool {
+func (x *CliLoginSelect) HasDateExpires() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 8)
 }
 
-func (x *CliLoginSelect) HasDateErased() bool {
+func (x *CliLoginSelect) HasDateUpdated() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 9)
 }
 
-func (x *CliLoginSelect) HasDateCreated() bool {
+func (x *CliLoginSelect) HasDateErased() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 10)
+}
+
+func (x *CliLoginSelect) HasDateCreated() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 11)
 }
 
 func (x *CliLoginSelect) ClearAll() {
@@ -7936,33 +7989,38 @@ func (x *CliLoginSelect) ClearOrigin() {
 	x.xxx_hidden_Origin = false
 }
 
-func (x *CliLoginSelect) ClearAccount() {
+func (x *CliLoginSelect) ClearAddress() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 5)
+	x.xxx_hidden_Address = false
+}
+
+func (x *CliLoginSelect) ClearAccount() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 6)
 	x.xxx_hidden_Account = false
 }
 
 func (x *CliLoginSelect) ClearState() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 6)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
 	x.xxx_hidden_State = false
 }
 
 func (x *CliLoginSelect) ClearDateExpires() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 8)
 	x.xxx_hidden_DateExpires = false
 }
 
 func (x *CliLoginSelect) ClearDateUpdated() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 8)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 9)
 	x.xxx_hidden_DateUpdated = false
 }
 
 func (x *CliLoginSelect) ClearDateErased() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 9)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 10)
 	x.xxx_hidden_DateErased = false
 }
 
 func (x *CliLoginSelect) ClearDateCreated() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 10)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 11)
 	x.xxx_hidden_DateCreated = false
 }
 
@@ -7974,6 +8032,7 @@ type CliLoginSelect_builder struct {
 	Code        *bool
 	Client      *bool
 	Origin      *bool
+	Address     *bool
 	Account     *bool
 	State       *bool
 	DateExpires *bool
@@ -7987,47 +8046,51 @@ func (b0 CliLoginSelect_builder) Build() *CliLoginSelect {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.All != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 12)
 		x.xxx_hidden_All = *b.All
 	}
 	if b.Secret != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 12)
 		x.xxx_hidden_Secret = *b.Secret
 	}
 	if b.Code != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 12)
 		x.xxx_hidden_Code = *b.Code
 	}
 	if b.Client != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 12)
 		x.xxx_hidden_Client = *b.Client
 	}
 	if b.Origin != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 12)
 		x.xxx_hidden_Origin = *b.Origin
 	}
+	if b.Address != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 12)
+		x.xxx_hidden_Address = *b.Address
+	}
 	if b.Account != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 12)
 		x.xxx_hidden_Account = *b.Account
 	}
 	if b.State != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 12)
 		x.xxx_hidden_State = *b.State
 	}
 	if b.DateExpires != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 12)
 		x.xxx_hidden_DateExpires = *b.DateExpires
 	}
 	if b.DateUpdated != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 12)
 		x.xxx_hidden_DateUpdated = *b.DateUpdated
 	}
 	if b.DateErased != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 12)
 		x.xxx_hidden_DateErased = *b.DateErased
 	}
 	if b.DateCreated != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 12)
 		x.xxx_hidden_DateCreated = *b.DateCreated
 	}
 	return m0
@@ -8040,6 +8103,7 @@ type CliLoginPatchRequest struct {
 	xxx_hidden_Code             *string                `protobuf:"bytes,18,opt,name=code"`
 	xxx_hidden_Client           *string                `protobuf:"bytes,20,opt,name=client"`
 	xxx_hidden_Origin           *string                `protobuf:"bytes,22,opt,name=origin"`
+	xxx_hidden_Address          *string                `protobuf:"bytes,36,opt,name=address"`
 	xxx_hidden_Account          []byte                 `protobuf:"bytes,24,opt,name=account"`
 	xxx_hidden_AccountNull      bool                   `protobuf:"varint,25,opt,name=account_null,json=accountNull"`
 	xxx_hidden_State            *string                `protobuf:"bytes,32,opt,name=state"`
@@ -8121,6 +8185,16 @@ func (x *CliLoginPatchRequest) GetOrigin() string {
 	return ""
 }
 
+func (x *CliLoginPatchRequest) GetAddress() string {
+	if x != nil {
+		if x.xxx_hidden_Address != nil {
+			return *x.xxx_hidden_Address
+		}
+		return ""
+	}
+	return ""
+}
+
 func (x *CliLoginPatchRequest) GetAccount() []byte {
 	if x != nil {
 		return x.xxx_hidden_Account
@@ -8175,22 +8249,27 @@ func (x *CliLoginPatchRequest) SetSecret(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_Secret = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 12)
 }
 
 func (x *CliLoginPatchRequest) SetCode(v string) {
 	x.xxx_hidden_Code = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 12)
 }
 
 func (x *CliLoginPatchRequest) SetClient(v string) {
 	x.xxx_hidden_Client = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 12)
 }
 
 func (x *CliLoginPatchRequest) SetOrigin(v string) {
 	x.xxx_hidden_Origin = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 12)
+}
+
+func (x *CliLoginPatchRequest) SetAddress(v string) {
+	x.xxx_hidden_Address = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 12)
 }
 
 func (x *CliLoginPatchRequest) SetAccount(v []byte) {
@@ -8198,17 +8277,17 @@ func (x *CliLoginPatchRequest) SetAccount(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_Account = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 12)
 }
 
 func (x *CliLoginPatchRequest) SetAccountNull(v bool) {
 	x.xxx_hidden_AccountNull = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 12)
 }
 
 func (x *CliLoginPatchRequest) SetState(v string) {
 	x.xxx_hidden_State = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 12)
 }
 
 func (x *CliLoginPatchRequest) SetDateExpires(v *timestamppb.Timestamp) {
@@ -8221,7 +8300,7 @@ func (x *CliLoginPatchRequest) SetDateUpdated(v *timestamppb.Timestamp) {
 
 func (x *CliLoginPatchRequest) SetDateUpdatedForce(v bool) {
 	x.xxx_hidden_DateUpdatedForce = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 12)
 }
 
 func (x *CliLoginPatchRequest) HasRef() bool {
@@ -8259,25 +8338,32 @@ func (x *CliLoginPatchRequest) HasOrigin() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
 }
 
-func (x *CliLoginPatchRequest) HasAccount() bool {
+func (x *CliLoginPatchRequest) HasAddress() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
 }
 
-func (x *CliLoginPatchRequest) HasAccountNull() bool {
+func (x *CliLoginPatchRequest) HasAccount() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 6)
 }
 
-func (x *CliLoginPatchRequest) HasState() bool {
+func (x *CliLoginPatchRequest) HasAccountNull() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 7)
+}
+
+func (x *CliLoginPatchRequest) HasState() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 8)
 }
 
 func (x *CliLoginPatchRequest) HasDateExpires() bool {
@@ -8298,7 +8384,7 @@ func (x *CliLoginPatchRequest) HasDateUpdatedForce() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 10)
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 11)
 }
 
 func (x *CliLoginPatchRequest) ClearRef() {
@@ -8325,18 +8411,23 @@ func (x *CliLoginPatchRequest) ClearOrigin() {
 	x.xxx_hidden_Origin = nil
 }
 
-func (x *CliLoginPatchRequest) ClearAccount() {
+func (x *CliLoginPatchRequest) ClearAddress() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 5)
+	x.xxx_hidden_Address = nil
+}
+
+func (x *CliLoginPatchRequest) ClearAccount() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 6)
 	x.xxx_hidden_Account = nil
 }
 
 func (x *CliLoginPatchRequest) ClearAccountNull() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 6)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
 	x.xxx_hidden_AccountNull = false
 }
 
 func (x *CliLoginPatchRequest) ClearState() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 8)
 	x.xxx_hidden_State = nil
 }
 
@@ -8349,7 +8440,7 @@ func (x *CliLoginPatchRequest) ClearDateUpdated() {
 }
 
 func (x *CliLoginPatchRequest) ClearDateUpdatedForce() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 10)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 11)
 	x.xxx_hidden_DateUpdatedForce = false
 }
 
@@ -8361,6 +8452,7 @@ type CliLoginPatchRequest_builder struct {
 	Code    *string
 	Client  *string
 	Origin  *string
+	Address *string
 	Account []byte
 	// Clear account instead of writing it.
 	// It takes a field of its own because an unset value already means
@@ -8391,37 +8483,41 @@ func (b0 CliLoginPatchRequest_builder) Build() *CliLoginPatchRequest {
 	_, _ = b, x
 	x.xxx_hidden_Ref = b.Ref
 	if b.Secret != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 12)
 		x.xxx_hidden_Secret = b.Secret
 	}
 	if b.Code != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 12)
 		x.xxx_hidden_Code = b.Code
 	}
 	if b.Client != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 12)
 		x.xxx_hidden_Client = b.Client
 	}
 	if b.Origin != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 12)
 		x.xxx_hidden_Origin = b.Origin
 	}
+	if b.Address != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 12)
+		x.xxx_hidden_Address = b.Address
+	}
 	if b.Account != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 12)
 		x.xxx_hidden_Account = b.Account
 	}
 	if b.AccountNull != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 12)
 		x.xxx_hidden_AccountNull = *b.AccountNull
 	}
 	if b.State != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 12)
 		x.xxx_hidden_State = b.State
 	}
 	x.xxx_hidden_DateExpires = b.DateExpires
 	x.xxx_hidden_DateUpdated = b.DateUpdated
 	if b.DateUpdatedForce != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 12)
 		x.xxx_hidden_DateUpdatedForce = *b.DateUpdatedForce
 	}
 	return m0
@@ -10987,6 +11083,772 @@ func (b0 ConsentEraseResponse_builder) Build() *ConsentEraseResponse {
 	return m0
 }
 
+type SignInFailureAddRequest struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Subject     []byte                 `protobuf:"bytes,8,opt,name=subject"`
+	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *SignInFailureAddRequest) Reset() {
+	*x = SignInFailureAddRequest{}
+	mi := &file_rove_org_svc_g_proto_msgTypes[67]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SignInFailureAddRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SignInFailureAddRequest) ProtoMessage() {}
+
+func (x *SignInFailureAddRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_org_svc_g_proto_msgTypes[67]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *SignInFailureAddRequest) GetId() []byte {
+	if x != nil {
+		return x.xxx_hidden_Id
+	}
+	return nil
+}
+
+func (x *SignInFailureAddRequest) GetSubject() []byte {
+	if x != nil {
+		return x.xxx_hidden_Subject
+	}
+	return nil
+}
+
+func (x *SignInFailureAddRequest) GetDateCreated() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateCreated
+	}
+	return nil
+}
+
+func (x *SignInFailureAddRequest) SetId(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Id = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 3)
+}
+
+func (x *SignInFailureAddRequest) SetSubject(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Subject = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 3)
+}
+
+func (x *SignInFailureAddRequest) SetDateCreated(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateCreated = v
+}
+
+func (x *SignInFailureAddRequest) HasId() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
+}
+
+func (x *SignInFailureAddRequest) HasSubject() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
+}
+
+func (x *SignInFailureAddRequest) HasDateCreated() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateCreated != nil
+}
+
+func (x *SignInFailureAddRequest) ClearId() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_Id = nil
+}
+
+func (x *SignInFailureAddRequest) ClearSubject() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	x.xxx_hidden_Subject = nil
+}
+
+func (x *SignInFailureAddRequest) ClearDateCreated() {
+	x.xxx_hidden_DateCreated = nil
+}
+
+type SignInFailureAddRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Id          []byte
+	Subject     []byte
+	DateCreated *timestamppb.Timestamp
+}
+
+func (b0 SignInFailureAddRequest_builder) Build() *SignInFailureAddRequest {
+	m0 := &SignInFailureAddRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	if b.Id != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 3)
+		x.xxx_hidden_Id = b.Id
+	}
+	if b.Subject != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 3)
+		x.xxx_hidden_Subject = b.Subject
+	}
+	x.xxx_hidden_DateCreated = b.DateCreated
+	return m0
+}
+
+type SignInFailureGetRequest struct {
+	state             protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Ref    *SignInFailureRef      `protobuf:"bytes,1,opt,name=ref"`
+	xxx_hidden_Select *SignInFailureSelect   `protobuf:"bytes,2,opt,name=select"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *SignInFailureGetRequest) Reset() {
+	*x = SignInFailureGetRequest{}
+	mi := &file_rove_org_svc_g_proto_msgTypes[68]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SignInFailureGetRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SignInFailureGetRequest) ProtoMessage() {}
+
+func (x *SignInFailureGetRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_org_svc_g_proto_msgTypes[68]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *SignInFailureGetRequest) GetRef() *SignInFailureRef {
+	if x != nil {
+		return x.xxx_hidden_Ref
+	}
+	return nil
+}
+
+func (x *SignInFailureGetRequest) GetSelect() *SignInFailureSelect {
+	if x != nil {
+		return x.xxx_hidden_Select
+	}
+	return nil
+}
+
+func (x *SignInFailureGetRequest) SetRef(v *SignInFailureRef) {
+	x.xxx_hidden_Ref = v
+}
+
+func (x *SignInFailureGetRequest) SetSelect(v *SignInFailureSelect) {
+	x.xxx_hidden_Select = v
+}
+
+func (x *SignInFailureGetRequest) HasRef() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Ref != nil
+}
+
+func (x *SignInFailureGetRequest) HasSelect() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Select != nil
+}
+
+func (x *SignInFailureGetRequest) ClearRef() {
+	x.xxx_hidden_Ref = nil
+}
+
+func (x *SignInFailureGetRequest) ClearSelect() {
+	x.xxx_hidden_Select = nil
+}
+
+type SignInFailureGetRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Ref    *SignInFailureRef
+	Select *SignInFailureSelect
+}
+
+func (b0 SignInFailureGetRequest_builder) Build() *SignInFailureGetRequest {
+	m0 := &SignInFailureGetRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Ref = b.Ref
+	x.xxx_hidden_Select = b.Select
+	return m0
+}
+
+type SignInFailureRef struct {
+	state          protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Key isSignInFailureRef_Key `protobuf_oneof:"key"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *SignInFailureRef) Reset() {
+	*x = SignInFailureRef{}
+	mi := &file_rove_org_svc_g_proto_msgTypes[69]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SignInFailureRef) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SignInFailureRef) ProtoMessage() {}
+
+func (x *SignInFailureRef) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_org_svc_g_proto_msgTypes[69]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *SignInFailureRef) GetId() []byte {
+	if x != nil {
+		if x, ok := x.xxx_hidden_Key.(*signInFailureRef_Id); ok {
+			return x.Id
+		}
+	}
+	return nil
+}
+
+func (x *SignInFailureRef) SetId(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Key = &signInFailureRef_Id{v}
+}
+
+func (x *SignInFailureRef) HasKey() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Key != nil
+}
+
+func (x *SignInFailureRef) HasId() bool {
+	if x == nil {
+		return false
+	}
+	_, ok := x.xxx_hidden_Key.(*signInFailureRef_Id)
+	return ok
+}
+
+func (x *SignInFailureRef) ClearKey() {
+	x.xxx_hidden_Key = nil
+}
+
+func (x *SignInFailureRef) ClearId() {
+	if _, ok := x.xxx_hidden_Key.(*signInFailureRef_Id); ok {
+		x.xxx_hidden_Key = nil
+	}
+}
+
+const SignInFailureRef_Key_not_set_case case_SignInFailureRef_Key = 0
+const SignInFailureRef_Id_case case_SignInFailureRef_Key = 1
+
+func (x *SignInFailureRef) WhichKey() case_SignInFailureRef_Key {
+	if x == nil {
+		return SignInFailureRef_Key_not_set_case
+	}
+	switch x.xxx_hidden_Key.(type) {
+	case *signInFailureRef_Id:
+		return SignInFailureRef_Id_case
+	default:
+		return SignInFailureRef_Key_not_set_case
+	}
+}
+
+type SignInFailureRef_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// Fields of oneof xxx_hidden_Key:
+	Id []byte
+	// -- end of xxx_hidden_Key
+}
+
+func (b0 SignInFailureRef_builder) Build() *SignInFailureRef {
+	m0 := &SignInFailureRef{}
+	b, x := &b0, m0
+	_, _ = b, x
+	if b.Id != nil {
+		x.xxx_hidden_Key = &signInFailureRef_Id{b.Id}
+	}
+	return m0
+}
+
+type case_SignInFailureRef_Key protoreflect.FieldNumber
+
+func (x case_SignInFailureRef_Key) String() string {
+	md := file_rove_org_svc_g_proto_msgTypes[69].Descriptor()
+	if x == 0 {
+		return "not set"
+	}
+	return protoimpl.X.MessageFieldStringOf(md, protoreflect.FieldNumber(x))
+}
+
+type isSignInFailureRef_Key interface {
+	isSignInFailureRef_Key()
+}
+
+type signInFailureRef_Id struct {
+	Id []byte `protobuf:"bytes,1,opt,name=id,oneof"`
+}
+
+func (*signInFailureRef_Id) isSignInFailureRef_Key() {}
+
+type SignInFailureSelect struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_All         bool                   `protobuf:"varint,1,opt,name=all"`
+	xxx_hidden_Subject     bool                   `protobuf:"varint,8,opt,name=subject"`
+	xxx_hidden_DateCreated bool                   `protobuf:"varint,15,opt,name=date_created,json=dateCreated"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *SignInFailureSelect) Reset() {
+	*x = SignInFailureSelect{}
+	mi := &file_rove_org_svc_g_proto_msgTypes[70]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SignInFailureSelect) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SignInFailureSelect) ProtoMessage() {}
+
+func (x *SignInFailureSelect) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_org_svc_g_proto_msgTypes[70]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *SignInFailureSelect) GetAll() bool {
+	if x != nil {
+		return x.xxx_hidden_All
+	}
+	return false
+}
+
+func (x *SignInFailureSelect) GetSubject() bool {
+	if x != nil {
+		return x.xxx_hidden_Subject
+	}
+	return false
+}
+
+func (x *SignInFailureSelect) GetDateCreated() bool {
+	if x != nil {
+		return x.xxx_hidden_DateCreated
+	}
+	return false
+}
+
+func (x *SignInFailureSelect) SetAll(v bool) {
+	x.xxx_hidden_All = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 3)
+}
+
+func (x *SignInFailureSelect) SetSubject(v bool) {
+	x.xxx_hidden_Subject = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 3)
+}
+
+func (x *SignInFailureSelect) SetDateCreated(v bool) {
+	x.xxx_hidden_DateCreated = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 3)
+}
+
+func (x *SignInFailureSelect) HasAll() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
+}
+
+func (x *SignInFailureSelect) HasSubject() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
+}
+
+func (x *SignInFailureSelect) HasDateCreated() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
+}
+
+func (x *SignInFailureSelect) ClearAll() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_All = false
+}
+
+func (x *SignInFailureSelect) ClearSubject() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	x.xxx_hidden_Subject = false
+}
+
+func (x *SignInFailureSelect) ClearDateCreated() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
+	x.xxx_hidden_DateCreated = false
+}
+
+type SignInFailureSelect_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	All         *bool
+	Subject     *bool
+	DateCreated *bool
+}
+
+func (b0 SignInFailureSelect_builder) Build() *SignInFailureSelect {
+	m0 := &SignInFailureSelect{}
+	b, x := &b0, m0
+	_, _ = b, x
+	if b.All != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 3)
+		x.xxx_hidden_All = *b.All
+	}
+	if b.Subject != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 3)
+		x.xxx_hidden_Subject = *b.Subject
+	}
+	if b.DateCreated != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 3)
+		x.xxx_hidden_DateCreated = *b.DateCreated
+	}
+	return m0
+}
+
+type SignInFailurePatchRequest struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Ref         *SignInFailureRef      `protobuf:"bytes,1,opt,name=ref"`
+	xxx_hidden_Subject     []byte                 `protobuf:"bytes,16,opt,name=subject"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *SignInFailurePatchRequest) Reset() {
+	*x = SignInFailurePatchRequest{}
+	mi := &file_rove_org_svc_g_proto_msgTypes[71]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SignInFailurePatchRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SignInFailurePatchRequest) ProtoMessage() {}
+
+func (x *SignInFailurePatchRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_org_svc_g_proto_msgTypes[71]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *SignInFailurePatchRequest) GetRef() *SignInFailureRef {
+	if x != nil {
+		return x.xxx_hidden_Ref
+	}
+	return nil
+}
+
+func (x *SignInFailurePatchRequest) GetSubject() []byte {
+	if x != nil {
+		return x.xxx_hidden_Subject
+	}
+	return nil
+}
+
+func (x *SignInFailurePatchRequest) SetRef(v *SignInFailureRef) {
+	x.xxx_hidden_Ref = v
+}
+
+func (x *SignInFailurePatchRequest) SetSubject(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Subject = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 2)
+}
+
+func (x *SignInFailurePatchRequest) HasRef() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Ref != nil
+}
+
+func (x *SignInFailurePatchRequest) HasSubject() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
+}
+
+func (x *SignInFailurePatchRequest) ClearRef() {
+	x.xxx_hidden_Ref = nil
+}
+
+func (x *SignInFailurePatchRequest) ClearSubject() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	x.xxx_hidden_Subject = nil
+}
+
+type SignInFailurePatchRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Ref     *SignInFailureRef
+	Subject []byte
+}
+
+func (b0 SignInFailurePatchRequest_builder) Build() *SignInFailurePatchRequest {
+	m0 := &SignInFailurePatchRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Ref = b.Ref
+	if b.Subject != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 2)
+		x.xxx_hidden_Subject = b.Subject
+	}
+	return m0
+}
+
+type SignInFailureApplyRequest struct {
+	state            protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Ref   *SignInFailureRef      `protobuf:"bytes,1,opt,name=ref"`
+	xxx_hidden_Patch *patchpb.Patch         `protobuf:"bytes,2,opt,name=patch"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *SignInFailureApplyRequest) Reset() {
+	*x = SignInFailureApplyRequest{}
+	mi := &file_rove_org_svc_g_proto_msgTypes[72]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SignInFailureApplyRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SignInFailureApplyRequest) ProtoMessage() {}
+
+func (x *SignInFailureApplyRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_org_svc_g_proto_msgTypes[72]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *SignInFailureApplyRequest) GetRef() *SignInFailureRef {
+	if x != nil {
+		return x.xxx_hidden_Ref
+	}
+	return nil
+}
+
+func (x *SignInFailureApplyRequest) GetPatch() *patchpb.Patch {
+	if x != nil {
+		return x.xxx_hidden_Patch
+	}
+	return nil
+}
+
+func (x *SignInFailureApplyRequest) SetRef(v *SignInFailureRef) {
+	x.xxx_hidden_Ref = v
+}
+
+func (x *SignInFailureApplyRequest) SetPatch(v *patchpb.Patch) {
+	x.xxx_hidden_Patch = v
+}
+
+func (x *SignInFailureApplyRequest) HasRef() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Ref != nil
+}
+
+func (x *SignInFailureApplyRequest) HasPatch() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Patch != nil
+}
+
+func (x *SignInFailureApplyRequest) ClearRef() {
+	x.xxx_hidden_Ref = nil
+}
+
+func (x *SignInFailureApplyRequest) ClearPatch() {
+	x.xxx_hidden_Patch = nil
+}
+
+type SignInFailureApplyRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Ref   *SignInFailureRef
+	Patch *patchpb.Patch
+}
+
+func (b0 SignInFailureApplyRequest_builder) Build() *SignInFailureApplyRequest {
+	m0 := &SignInFailureApplyRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Ref = b.Ref
+	x.xxx_hidden_Patch = b.Patch
+	return m0
+}
+
+type SignInFailureEraseResponse struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Erased      bool                   `protobuf:"varint,1,opt,name=erased"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *SignInFailureEraseResponse) Reset() {
+	*x = SignInFailureEraseResponse{}
+	mi := &file_rove_org_svc_g_proto_msgTypes[73]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SignInFailureEraseResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SignInFailureEraseResponse) ProtoMessage() {}
+
+func (x *SignInFailureEraseResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_org_svc_g_proto_msgTypes[73]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *SignInFailureEraseResponse) GetErased() bool {
+	if x != nil {
+		return x.xxx_hidden_Erased
+	}
+	return false
+}
+
+func (x *SignInFailureEraseResponse) SetErased(v bool) {
+	x.xxx_hidden_Erased = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 1)
+}
+
+func (x *SignInFailureEraseResponse) HasErased() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
+}
+
+func (x *SignInFailureEraseResponse) ClearErased() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_Erased = false
+}
+
+type SignInFailureEraseResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// Erased is whether this call is the one that erased the row.
+	//
+	// False for a row that was already gone, was never there, or is out
+	// of this caller's reach -- which are one answer on purpose, and the
+	// reason the RPC does not fail instead.
+	Erased *bool
+}
+
+func (b0 SignInFailureEraseResponse_builder) Build() *SignInFailureEraseResponse {
+	m0 := &SignInFailureEraseResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	if b.Erased != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 1)
+		x.xxx_hidden_Erased = *b.Erased
+	}
+	return m0
+}
+
 // Account is who a call served as an account is from: an account of the
 // deployment's directory at roster (D27). Nothing keeps it; `cmd.Resolver`
 // puts it in the frame of a call an account makes before it is anybody's
@@ -11000,7 +11862,7 @@ type Account struct {
 
 func (x *Account) Reset() {
 	*x = Account{}
-	mi := &file_rove_org_svc_g_proto_msgTypes[67]
+	mi := &file_rove_org_svc_g_proto_msgTypes[74]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -11012,7 +11874,7 @@ func (x *Account) String() string {
 func (*Account) ProtoMessage() {}
 
 func (x *Account) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_org_svc_g_proto_msgTypes[67]
+	mi := &file_rove_org_svc_g_proto_msgTypes[74]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -11330,7 +12192,7 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\x17InvitationAcceptRequest\x12%\n" +
 	"\x03ref\x18\x01 \x01(\v2\x13.rove.InvitationRefR\x03ref\">\n" +
 	"\x15InvitationDenyRequest\x12%\n" +
-	"\x03ref\x18\x01 \x01(\v2\x13.rove.InvitationRefR\x03ref\"\xca\x02\n" +
+	"\x03ref\x18\x01 \x01(\v2\x13.rove.InvitationRefR\x03ref\"\xe4\x02\n" +
 	"\x12CliLoginAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12\x16\n" +
 	"\x06secret\x18\b \x01(\fR\x06secret\x12\x19\n" +
@@ -11338,6 +12200,7 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\x06client\x18\n" +
 	" \x01(\tB\x05\xaa\x01\x02\b\x02R\x06client\x12\x1d\n" +
 	"\x06origin\x18\v \x01(\tB\x05\xaa\x01\x02\b\x02R\x06origin\x12\x18\n" +
+	"\aaddress\x18\x12 \x01(\tR\aaddress\x12\x18\n" +
 	"\aaccount\x18\f \x01(\fR\aaccount\x12\x1b\n" +
 	"\x05state\x18\x10 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05state\x12=\n" +
 	"\fdate_expires\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampR\vdateExpires\x12=\n" +
@@ -11347,7 +12210,7 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\x06select\x18\x02 \x01(\v2\x14.rove.CliLoginSelectR\x06select\"&\n" +
 	"\vCliLoginRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
-	"\x03key\"\xb8\x02\n" +
+	"\x03key\"\xd2\x02\n" +
 	"\x0eCliLoginSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12\x16\n" +
 	"\x06secret\x18\b \x01(\bR\x06secret\x12\x12\n" +
@@ -11355,19 +12218,21 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\x06client\x18\n" +
 	" \x01(\bR\x06client\x12\x16\n" +
 	"\x06origin\x18\v \x01(\bR\x06origin\x12\x18\n" +
+	"\aaddress\x18\x12 \x01(\bR\aaddress\x12\x18\n" +
 	"\aaccount\x18\f \x01(\bR\aaccount\x12\x14\n" +
 	"\x05state\x18\x10 \x01(\bR\x05state\x12!\n" +
 	"\fdate_expires\x18\x11 \x01(\bR\vdateExpires\x12!\n" +
 	"\fdate_updated\x18\r \x01(\bR\vdateUpdated\x12\x1f\n" +
 	"\vdate_erased\x18\x0e \x01(\bR\n" +
 	"dateErased\x12!\n" +
-	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\"\x96\x03\n" +
+	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\"\xb0\x03\n" +
 	"\x14CliLoginPatchRequest\x12#\n" +
 	"\x03ref\x18\x01 \x01(\v2\x11.rove.CliLoginRefR\x03ref\x12\x16\n" +
 	"\x06secret\x18\x10 \x01(\fR\x06secret\x12\x12\n" +
 	"\x04code\x18\x12 \x01(\tR\x04code\x12\x16\n" +
 	"\x06client\x18\x14 \x01(\tR\x06client\x12\x16\n" +
 	"\x06origin\x18\x16 \x01(\tR\x06origin\x12\x18\n" +
+	"\aaddress\x18$ \x01(\tR\aaddress\x12\x18\n" +
 	"\aaccount\x18\x18 \x01(\fR\aaccount\x12!\n" +
 	"\faccount_null\x18\x19 \x01(\bR\vaccountNull\x12\x14\n" +
 	"\x05state\x18  \x01(\tR\x05state\x12=\n" +
@@ -11464,6 +12329,28 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\x03ref\x18\x01 \x01(\v2\x10.rove.ConsentRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\".\n" +
 	"\x14ConsentEraseResponse\x12\x16\n" +
+	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x82\x01\n" +
+	"\x17SignInFailureAddRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\fR\x02id\x12\x18\n" +
+	"\asubject\x18\b \x01(\fR\asubject\x12=\n" +
+	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\"v\n" +
+	"\x17SignInFailureGetRequest\x12(\n" +
+	"\x03ref\x18\x01 \x01(\v2\x16.rove.SignInFailureRefR\x03ref\x121\n" +
+	"\x06select\x18\x02 \x01(\v2\x19.rove.SignInFailureSelectR\x06select\"+\n" +
+	"\x10SignInFailureRef\x12\x10\n" +
+	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
+	"\x03key\"d\n" +
+	"\x13SignInFailureSelect\x12\x10\n" +
+	"\x03all\x18\x01 \x01(\bR\x03all\x12\x18\n" +
+	"\asubject\x18\b \x01(\bR\asubject\x12!\n" +
+	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\"_\n" +
+	"\x19SignInFailurePatchRequest\x12(\n" +
+	"\x03ref\x18\x01 \x01(\v2\x16.rove.SignInFailureRefR\x03ref\x12\x18\n" +
+	"\asubject\x18\x10 \x01(\fR\asubject\"i\n" +
+	"\x19SignInFailureApplyRequest\x12(\n" +
+	"\x03ref\x18\x01 \x01(\v2\x16.rove.SignInFailureRefR\x03ref\x12\"\n" +
+	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"4\n" +
+	"\x1aSignInFailureEraseResponse\x12\x16\n" +
 	"\x06erased\x18\x01 \x01(\bR\x06erased\" \n" +
 	"\aAccount\x12\x15\n" +
 	"\x02id\x18\x01 \x01(\fB\x05\xaa\x01\x02\b\x02R\x02id2\x86\x06\n" +
@@ -11517,292 +12404,322 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\x03Get\x12\x17.rove.ConsentGetRequest\x1a\r.rove.Consent\x121\n" +
 	"\x05Patch\x12\x19.rove.ConsentPatchRequest\x1a\r.rove.Consent\x121\n" +
 	"\x05Apply\x12\x19.rove.ConsentApplyRequest\x1a\r.rove.Consent\x125\n" +
-	"\x05Erase\x12\x10.rove.ConsentRef\x1a\x1a.rove.ConsentEraseResponseB\x1aZ\x18github.com/lesomnus/roveb\beditionsp\xe8\a"
+	"\x05Erase\x12\x10.rove.ConsentRef\x1a\x1a.rove.ConsentEraseResponse2\xcd\x02\n" +
+	"\x14SignInFailureService\x129\n" +
+	"\x03Add\x12\x1d.rove.SignInFailureAddRequest\x1a\x13.rove.SignInFailure\x129\n" +
+	"\x03Get\x12\x1d.rove.SignInFailureGetRequest\x1a\x13.rove.SignInFailure\x12=\n" +
+	"\x05Patch\x12\x1f.rove.SignInFailurePatchRequest\x1a\x13.rove.SignInFailure\x12=\n" +
+	"\x05Apply\x12\x1f.rove.SignInFailureApplyRequest\x1a\x13.rove.SignInFailure\x12A\n" +
+	"\x05Erase\x12\x16.rove.SignInFailureRef\x1a .rove.SignInFailureEraseResponseB\x1aZ\x18github.com/lesomnus/roveb\beditionsp\xe8\a"
 
-var file_rove_org_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 72)
+var file_rove_org_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 79)
 var file_rove_org_svc_g_proto_goTypes = []any{
-	(*PartyAddRequest)(nil),          // 0: rove.PartyAddRequest
-	(*PartyGetRequest)(nil),          // 1: rove.PartyGetRequest
-	(*PartyRef)(nil),                 // 2: rove.PartyRef
-	(*PartyRefByHolder)(nil),         // 3: rove.PartyRefByHolder
-	(*PartySelect)(nil),              // 4: rove.PartySelect
-	(*PartyPatchRequest)(nil),        // 5: rove.PartyPatchRequest
-	(*PartyApplyRequest)(nil),        // 6: rove.PartyApplyRequest
-	(*PartyEraseResponse)(nil),       // 7: rove.PartyEraseResponse
-	(*PartyListRequest)(nil),         // 8: rove.PartyListRequest
-	(*PartyListResponse)(nil),        // 9: rove.PartyListResponse
-	(*PartyFilter)(nil),              // 10: rove.PartyFilter
-	(*PartyWatchRequest)(nil),        // 11: rove.PartyWatchRequest
-	(*PartyWatchResponse)(nil),       // 12: rove.PartyWatchResponse
-	(*PartyWatchItem)(nil),           // 13: rove.PartyWatchItem
-	(*PartyMeRequest)(nil),           // 14: rove.PartyMeRequest
-	(*PartyMeResponse)(nil),          // 15: rove.PartyMeResponse
-	(*PartyUpdateRequest)(nil),       // 16: rove.PartyUpdateRequest
-	(*PartyInviteRequest)(nil),       // 17: rove.PartyInviteRequest
-	(*PartyInviteResponse)(nil),      // 18: rove.PartyInviteResponse
-	(*PartySetRoleRequest)(nil),      // 19: rove.PartySetRoleRequest
-	(*PartySetPasswordRequest)(nil),  // 20: rove.PartySetPasswordRequest
-	(*PartySetPasswordResponse)(nil), // 21: rove.PartySetPasswordResponse
-	(*PartyDeactivateRequest)(nil),   // 22: rove.PartyDeactivateRequest
-	(*PartyPseudonymizeRequest)(nil), // 23: rove.PartyPseudonymizeRequest
-	(*SessionAddRequest)(nil),        // 24: rove.SessionAddRequest
-	(*SessionGetRequest)(nil),        // 25: rove.SessionGetRequest
-	(*SessionRef)(nil),               // 26: rove.SessionRef
-	(*SessionSelect)(nil),            // 27: rove.SessionSelect
-	(*SessionPatchRequest)(nil),      // 28: rove.SessionPatchRequest
-	(*SessionApplyRequest)(nil),      // 29: rove.SessionApplyRequest
-	(*SessionEraseResponse)(nil),     // 30: rove.SessionEraseResponse
-	(*InvitationAddRequest)(nil),     // 31: rove.InvitationAddRequest
-	(*InvitationGetRequest)(nil),     // 32: rove.InvitationGetRequest
-	(*InvitationRef)(nil),            // 33: rove.InvitationRef
-	(*InvitationSelect)(nil),         // 34: rove.InvitationSelect
-	(*InvitationPatchRequest)(nil),   // 35: rove.InvitationPatchRequest
-	(*InvitationApplyRequest)(nil),   // 36: rove.InvitationApplyRequest
-	(*InvitationEraseResponse)(nil),  // 37: rove.InvitationEraseResponse
-	(*InvitationListRequest)(nil),    // 38: rove.InvitationListRequest
-	(*InvitationListResponse)(nil),   // 39: rove.InvitationListResponse
-	(*InvitationFilter)(nil),         // 40: rove.InvitationFilter
-	(*InvitationRevokeRequest)(nil),  // 41: rove.InvitationRevokeRequest
-	(*InvitationClaimRequest)(nil),   // 42: rove.InvitationClaimRequest
-	(*InvitationAcceptRequest)(nil),  // 43: rove.InvitationAcceptRequest
-	(*InvitationDenyRequest)(nil),    // 44: rove.InvitationDenyRequest
-	(*CliLoginAddRequest)(nil),       // 45: rove.CliLoginAddRequest
-	(*CliLoginGetRequest)(nil),       // 46: rove.CliLoginGetRequest
-	(*CliLoginRef)(nil),              // 47: rove.CliLoginRef
-	(*CliLoginSelect)(nil),           // 48: rove.CliLoginSelect
-	(*CliLoginPatchRequest)(nil),     // 49: rove.CliLoginPatchRequest
-	(*CliLoginApplyRequest)(nil),     // 50: rove.CliLoginApplyRequest
-	(*CliLoginEraseResponse)(nil),    // 51: rove.CliLoginEraseResponse
-	(*AliasHoldAddRequest)(nil),      // 52: rove.AliasHoldAddRequest
-	(*AliasHoldGetRequest)(nil),      // 53: rove.AliasHoldGetRequest
-	(*AliasHoldRef)(nil),             // 54: rove.AliasHoldRef
-	(*AliasHoldSelect)(nil),          // 55: rove.AliasHoldSelect
-	(*AliasHoldPatchRequest)(nil),    // 56: rove.AliasHoldPatchRequest
-	(*AliasHoldApplyRequest)(nil),    // 57: rove.AliasHoldApplyRequest
-	(*AliasHoldEraseResponse)(nil),   // 58: rove.AliasHoldEraseResponse
-	(*ConsentAddRequest)(nil),        // 59: rove.ConsentAddRequest
-	(*ConsentGetRequest)(nil),        // 60: rove.ConsentGetRequest
-	(*ConsentRef)(nil),               // 61: rove.ConsentRef
-	(*ConsentRefByAgreed)(nil),       // 62: rove.ConsentRefByAgreed
-	(*ConsentSelect)(nil),            // 63: rove.ConsentSelect
-	(*ConsentPatchRequest)(nil),      // 64: rove.ConsentPatchRequest
-	(*ConsentApplyRequest)(nil),      // 65: rove.ConsentApplyRequest
-	(*ConsentEraseResponse)(nil),     // 66: rove.ConsentEraseResponse
-	(*Account)(nil),                  // 67: rove.Account
-	nil,                              // 68: rove.PartyAddRequest.LabelsEntry
-	nil,                              // 69: rove.PartyPatchRequest.LabelsEntry
-	nil,                              // 70: rove.PartyFilter.LabelsEntry
-	nil,                              // 71: rove.PartyUpdateRequest.LabelsEntry
-	(*TenantRef)(nil),                // 72: rove.TenantRef
-	(*HolderRef)(nil),                // 73: rove.HolderRef
-	(*timestamppb.Timestamp)(nil),    // 74: google.protobuf.Timestamp
-	(*TenantSelect)(nil),             // 75: rove.TenantSelect
-	(*HolderSelect)(nil),             // 76: rove.HolderSelect
-	(*patchpb.Patch)(nil),            // 77: patch.Patch
-	(*Party)(nil),                    // 78: rove.Party
-	(*Holder)(nil),                   // 79: rove.Holder
-	(*Tenant)(nil),                   // 80: rove.Tenant
-	(*Invitation)(nil),               // 81: rove.Invitation
-	(*Session)(nil),                  // 82: rove.Session
-	(*CliLogin)(nil),                 // 83: rove.CliLogin
-	(*AliasHold)(nil),                // 84: rove.AliasHold
-	(*Consent)(nil),                  // 85: rove.Consent
+	(*PartyAddRequest)(nil),            // 0: rove.PartyAddRequest
+	(*PartyGetRequest)(nil),            // 1: rove.PartyGetRequest
+	(*PartyRef)(nil),                   // 2: rove.PartyRef
+	(*PartyRefByHolder)(nil),           // 3: rove.PartyRefByHolder
+	(*PartySelect)(nil),                // 4: rove.PartySelect
+	(*PartyPatchRequest)(nil),          // 5: rove.PartyPatchRequest
+	(*PartyApplyRequest)(nil),          // 6: rove.PartyApplyRequest
+	(*PartyEraseResponse)(nil),         // 7: rove.PartyEraseResponse
+	(*PartyListRequest)(nil),           // 8: rove.PartyListRequest
+	(*PartyListResponse)(nil),          // 9: rove.PartyListResponse
+	(*PartyFilter)(nil),                // 10: rove.PartyFilter
+	(*PartyWatchRequest)(nil),          // 11: rove.PartyWatchRequest
+	(*PartyWatchResponse)(nil),         // 12: rove.PartyWatchResponse
+	(*PartyWatchItem)(nil),             // 13: rove.PartyWatchItem
+	(*PartyMeRequest)(nil),             // 14: rove.PartyMeRequest
+	(*PartyMeResponse)(nil),            // 15: rove.PartyMeResponse
+	(*PartyUpdateRequest)(nil),         // 16: rove.PartyUpdateRequest
+	(*PartyInviteRequest)(nil),         // 17: rove.PartyInviteRequest
+	(*PartyInviteResponse)(nil),        // 18: rove.PartyInviteResponse
+	(*PartySetRoleRequest)(nil),        // 19: rove.PartySetRoleRequest
+	(*PartySetPasswordRequest)(nil),    // 20: rove.PartySetPasswordRequest
+	(*PartySetPasswordResponse)(nil),   // 21: rove.PartySetPasswordResponse
+	(*PartyDeactivateRequest)(nil),     // 22: rove.PartyDeactivateRequest
+	(*PartyPseudonymizeRequest)(nil),   // 23: rove.PartyPseudonymizeRequest
+	(*SessionAddRequest)(nil),          // 24: rove.SessionAddRequest
+	(*SessionGetRequest)(nil),          // 25: rove.SessionGetRequest
+	(*SessionRef)(nil),                 // 26: rove.SessionRef
+	(*SessionSelect)(nil),              // 27: rove.SessionSelect
+	(*SessionPatchRequest)(nil),        // 28: rove.SessionPatchRequest
+	(*SessionApplyRequest)(nil),        // 29: rove.SessionApplyRequest
+	(*SessionEraseResponse)(nil),       // 30: rove.SessionEraseResponse
+	(*InvitationAddRequest)(nil),       // 31: rove.InvitationAddRequest
+	(*InvitationGetRequest)(nil),       // 32: rove.InvitationGetRequest
+	(*InvitationRef)(nil),              // 33: rove.InvitationRef
+	(*InvitationSelect)(nil),           // 34: rove.InvitationSelect
+	(*InvitationPatchRequest)(nil),     // 35: rove.InvitationPatchRequest
+	(*InvitationApplyRequest)(nil),     // 36: rove.InvitationApplyRequest
+	(*InvitationEraseResponse)(nil),    // 37: rove.InvitationEraseResponse
+	(*InvitationListRequest)(nil),      // 38: rove.InvitationListRequest
+	(*InvitationListResponse)(nil),     // 39: rove.InvitationListResponse
+	(*InvitationFilter)(nil),           // 40: rove.InvitationFilter
+	(*InvitationRevokeRequest)(nil),    // 41: rove.InvitationRevokeRequest
+	(*InvitationClaimRequest)(nil),     // 42: rove.InvitationClaimRequest
+	(*InvitationAcceptRequest)(nil),    // 43: rove.InvitationAcceptRequest
+	(*InvitationDenyRequest)(nil),      // 44: rove.InvitationDenyRequest
+	(*CliLoginAddRequest)(nil),         // 45: rove.CliLoginAddRequest
+	(*CliLoginGetRequest)(nil),         // 46: rove.CliLoginGetRequest
+	(*CliLoginRef)(nil),                // 47: rove.CliLoginRef
+	(*CliLoginSelect)(nil),             // 48: rove.CliLoginSelect
+	(*CliLoginPatchRequest)(nil),       // 49: rove.CliLoginPatchRequest
+	(*CliLoginApplyRequest)(nil),       // 50: rove.CliLoginApplyRequest
+	(*CliLoginEraseResponse)(nil),      // 51: rove.CliLoginEraseResponse
+	(*AliasHoldAddRequest)(nil),        // 52: rove.AliasHoldAddRequest
+	(*AliasHoldGetRequest)(nil),        // 53: rove.AliasHoldGetRequest
+	(*AliasHoldRef)(nil),               // 54: rove.AliasHoldRef
+	(*AliasHoldSelect)(nil),            // 55: rove.AliasHoldSelect
+	(*AliasHoldPatchRequest)(nil),      // 56: rove.AliasHoldPatchRequest
+	(*AliasHoldApplyRequest)(nil),      // 57: rove.AliasHoldApplyRequest
+	(*AliasHoldEraseResponse)(nil),     // 58: rove.AliasHoldEraseResponse
+	(*ConsentAddRequest)(nil),          // 59: rove.ConsentAddRequest
+	(*ConsentGetRequest)(nil),          // 60: rove.ConsentGetRequest
+	(*ConsentRef)(nil),                 // 61: rove.ConsentRef
+	(*ConsentRefByAgreed)(nil),         // 62: rove.ConsentRefByAgreed
+	(*ConsentSelect)(nil),              // 63: rove.ConsentSelect
+	(*ConsentPatchRequest)(nil),        // 64: rove.ConsentPatchRequest
+	(*ConsentApplyRequest)(nil),        // 65: rove.ConsentApplyRequest
+	(*ConsentEraseResponse)(nil),       // 66: rove.ConsentEraseResponse
+	(*SignInFailureAddRequest)(nil),    // 67: rove.SignInFailureAddRequest
+	(*SignInFailureGetRequest)(nil),    // 68: rove.SignInFailureGetRequest
+	(*SignInFailureRef)(nil),           // 69: rove.SignInFailureRef
+	(*SignInFailureSelect)(nil),        // 70: rove.SignInFailureSelect
+	(*SignInFailurePatchRequest)(nil),  // 71: rove.SignInFailurePatchRequest
+	(*SignInFailureApplyRequest)(nil),  // 72: rove.SignInFailureApplyRequest
+	(*SignInFailureEraseResponse)(nil), // 73: rove.SignInFailureEraseResponse
+	(*Account)(nil),                    // 74: rove.Account
+	nil,                                // 75: rove.PartyAddRequest.LabelsEntry
+	nil,                                // 76: rove.PartyPatchRequest.LabelsEntry
+	nil,                                // 77: rove.PartyFilter.LabelsEntry
+	nil,                                // 78: rove.PartyUpdateRequest.LabelsEntry
+	(*TenantRef)(nil),                  // 79: rove.TenantRef
+	(*HolderRef)(nil),                  // 80: rove.HolderRef
+	(*timestamppb.Timestamp)(nil),      // 81: google.protobuf.Timestamp
+	(*TenantSelect)(nil),               // 82: rove.TenantSelect
+	(*HolderSelect)(nil),               // 83: rove.HolderSelect
+	(*patchpb.Patch)(nil),              // 84: patch.Patch
+	(*Party)(nil),                      // 85: rove.Party
+	(*Holder)(nil),                     // 86: rove.Holder
+	(*Tenant)(nil),                     // 87: rove.Tenant
+	(*Invitation)(nil),                 // 88: rove.Invitation
+	(*Session)(nil),                    // 89: rove.Session
+	(*CliLogin)(nil),                   // 90: rove.CliLogin
+	(*AliasHold)(nil),                  // 91: rove.AliasHold
+	(*Consent)(nil),                    // 92: rove.Consent
+	(*SignInFailure)(nil),              // 93: rove.SignInFailure
 }
 var file_rove_org_svc_g_proto_depIdxs = []int32{
-	72,  // 0: rove.PartyAddRequest.tenant:type_name -> rove.TenantRef
-	68,  // 1: rove.PartyAddRequest.labels:type_name -> rove.PartyAddRequest.LabelsEntry
-	73,  // 2: rove.PartyAddRequest.holder:type_name -> rove.HolderRef
-	74,  // 3: rove.PartyAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	79,  // 0: rove.PartyAddRequest.tenant:type_name -> rove.TenantRef
+	75,  // 1: rove.PartyAddRequest.labels:type_name -> rove.PartyAddRequest.LabelsEntry
+	80,  // 2: rove.PartyAddRequest.holder:type_name -> rove.HolderRef
+	81,  // 3: rove.PartyAddRequest.date_created:type_name -> google.protobuf.Timestamp
 	2,   // 4: rove.PartyGetRequest.ref:type_name -> rove.PartyRef
 	4,   // 5: rove.PartyGetRequest.select:type_name -> rove.PartySelect
 	3,   // 6: rove.PartyRef.holder:type_name -> rove.PartyRefByHolder
-	73,  // 7: rove.PartyRefByHolder.holder:type_name -> rove.HolderRef
-	75,  // 8: rove.PartySelect.tenant:type_name -> rove.TenantSelect
-	76,  // 9: rove.PartySelect.holder:type_name -> rove.HolderSelect
+	80,  // 7: rove.PartyRefByHolder.holder:type_name -> rove.HolderRef
+	82,  // 8: rove.PartySelect.tenant:type_name -> rove.TenantSelect
+	83,  // 9: rove.PartySelect.holder:type_name -> rove.HolderSelect
 	2,   // 10: rove.PartyPatchRequest.ref:type_name -> rove.PartyRef
-	69,  // 11: rove.PartyPatchRequest.labels:type_name -> rove.PartyPatchRequest.LabelsEntry
-	73,  // 12: rove.PartyPatchRequest.holder:type_name -> rove.HolderRef
-	74,  // 13: rove.PartyPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	76,  // 11: rove.PartyPatchRequest.labels:type_name -> rove.PartyPatchRequest.LabelsEntry
+	80,  // 12: rove.PartyPatchRequest.holder:type_name -> rove.HolderRef
+	81,  // 13: rove.PartyPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
 	2,   // 14: rove.PartyApplyRequest.ref:type_name -> rove.PartyRef
-	77,  // 15: rove.PartyApplyRequest.patch:type_name -> patch.Patch
+	84,  // 15: rove.PartyApplyRequest.patch:type_name -> patch.Patch
 	10,  // 16: rove.PartyListRequest.filters:type_name -> rove.PartyFilter
-	78,  // 17: rove.PartyListResponse.items:type_name -> rove.Party
+	85,  // 17: rove.PartyListResponse.items:type_name -> rove.Party
 	2,   // 18: rove.PartyFilter.ref:type_name -> rove.PartyRef
-	73,  // 19: rove.PartyFilter.holder:type_name -> rove.HolderRef
-	70,  // 20: rove.PartyFilter.labels:type_name -> rove.PartyFilter.LabelsEntry
+	80,  // 19: rove.PartyFilter.holder:type_name -> rove.HolderRef
+	77,  // 20: rove.PartyFilter.labels:type_name -> rove.PartyFilter.LabelsEntry
 	10,  // 21: rove.PartyWatchRequest.filters:type_name -> rove.PartyFilter
 	13,  // 22: rove.PartyWatchResponse.items:type_name -> rove.PartyWatchItem
-	78,  // 23: rove.PartyWatchItem.value:type_name -> rove.Party
-	79,  // 24: rove.PartyMeResponse.holder:type_name -> rove.Holder
-	78,  // 25: rove.PartyMeResponse.party:type_name -> rove.Party
-	80,  // 26: rove.PartyMeResponse.tenant:type_name -> rove.Tenant
-	74,  // 27: rove.PartyMeResponse.history_since:type_name -> google.protobuf.Timestamp
+	85,  // 23: rove.PartyWatchItem.value:type_name -> rove.Party
+	86,  // 24: rove.PartyMeResponse.holder:type_name -> rove.Holder
+	85,  // 25: rove.PartyMeResponse.party:type_name -> rove.Party
+	87,  // 26: rove.PartyMeResponse.tenant:type_name -> rove.Tenant
+	81,  // 27: rove.PartyMeResponse.history_since:type_name -> google.protobuf.Timestamp
 	2,   // 28: rove.PartyUpdateRequest.ref:type_name -> rove.PartyRef
-	71,  // 29: rove.PartyUpdateRequest.labels:type_name -> rove.PartyUpdateRequest.LabelsEntry
+	78,  // 29: rove.PartyUpdateRequest.labels:type_name -> rove.PartyUpdateRequest.LabelsEntry
 	2,   // 30: rove.PartyInviteRequest.ref:type_name -> rove.PartyRef
-	78,  // 31: rove.PartyInviteResponse.party:type_name -> rove.Party
-	79,  // 32: rove.PartyInviteResponse.holder:type_name -> rove.Holder
+	85,  // 31: rove.PartyInviteResponse.party:type_name -> rove.Party
+	86,  // 32: rove.PartyInviteResponse.holder:type_name -> rove.Holder
 	2,   // 33: rove.PartySetRoleRequest.ref:type_name -> rove.PartyRef
 	2,   // 34: rove.PartySetPasswordRequest.ref:type_name -> rove.PartyRef
 	2,   // 35: rove.PartyDeactivateRequest.ref:type_name -> rove.PartyRef
 	2,   // 36: rove.PartyPseudonymizeRequest.ref:type_name -> rove.PartyRef
-	74,  // 37: rove.SessionAddRequest.date_expires:type_name -> google.protobuf.Timestamp
-	74,  // 38: rove.SessionAddRequest.date_idle:type_name -> google.protobuf.Timestamp
-	74,  // 39: rove.SessionAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	81,  // 37: rove.SessionAddRequest.date_expires:type_name -> google.protobuf.Timestamp
+	81,  // 38: rove.SessionAddRequest.date_idle:type_name -> google.protobuf.Timestamp
+	81,  // 39: rove.SessionAddRequest.date_created:type_name -> google.protobuf.Timestamp
 	26,  // 40: rove.SessionGetRequest.ref:type_name -> rove.SessionRef
 	27,  // 41: rove.SessionGetRequest.select:type_name -> rove.SessionSelect
 	26,  // 42: rove.SessionPatchRequest.ref:type_name -> rove.SessionRef
-	74,  // 43: rove.SessionPatchRequest.date_expires:type_name -> google.protobuf.Timestamp
-	74,  // 44: rove.SessionPatchRequest.date_idle:type_name -> google.protobuf.Timestamp
-	74,  // 45: rove.SessionPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	81,  // 43: rove.SessionPatchRequest.date_expires:type_name -> google.protobuf.Timestamp
+	81,  // 44: rove.SessionPatchRequest.date_idle:type_name -> google.protobuf.Timestamp
+	81,  // 45: rove.SessionPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
 	26,  // 46: rove.SessionApplyRequest.ref:type_name -> rove.SessionRef
-	77,  // 47: rove.SessionApplyRequest.patch:type_name -> patch.Patch
-	72,  // 48: rove.InvitationAddRequest.tenant:type_name -> rove.TenantRef
-	73,  // 49: rove.InvitationAddRequest.inviter:type_name -> rove.HolderRef
+	84,  // 47: rove.SessionApplyRequest.patch:type_name -> patch.Patch
+	79,  // 48: rove.InvitationAddRequest.tenant:type_name -> rove.TenantRef
+	80,  // 49: rove.InvitationAddRequest.inviter:type_name -> rove.HolderRef
 	2,   // 50: rove.InvitationAddRequest.party:type_name -> rove.PartyRef
-	74,  // 51: rove.InvitationAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	74,  // 52: rove.InvitationAddRequest.date_expires:type_name -> google.protobuf.Timestamp
-	74,  // 53: rove.InvitationAddRequest.date_settled:type_name -> google.protobuf.Timestamp
-	73,  // 54: rove.InvitationAddRequest.holder:type_name -> rove.HolderRef
+	81,  // 51: rove.InvitationAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	81,  // 52: rove.InvitationAddRequest.date_expires:type_name -> google.protobuf.Timestamp
+	81,  // 53: rove.InvitationAddRequest.date_settled:type_name -> google.protobuf.Timestamp
+	80,  // 54: rove.InvitationAddRequest.holder:type_name -> rove.HolderRef
 	33,  // 55: rove.InvitationGetRequest.ref:type_name -> rove.InvitationRef
 	34,  // 56: rove.InvitationGetRequest.select:type_name -> rove.InvitationSelect
-	75,  // 57: rove.InvitationSelect.tenant:type_name -> rove.TenantSelect
-	76,  // 58: rove.InvitationSelect.inviter:type_name -> rove.HolderSelect
+	82,  // 57: rove.InvitationSelect.tenant:type_name -> rove.TenantSelect
+	83,  // 58: rove.InvitationSelect.inviter:type_name -> rove.HolderSelect
 	4,   // 59: rove.InvitationSelect.party:type_name -> rove.PartySelect
-	76,  // 60: rove.InvitationSelect.holder:type_name -> rove.HolderSelect
+	83,  // 60: rove.InvitationSelect.holder:type_name -> rove.HolderSelect
 	33,  // 61: rove.InvitationPatchRequest.ref:type_name -> rove.InvitationRef
 	2,   // 62: rove.InvitationPatchRequest.party:type_name -> rove.PartyRef
-	74,  // 63: rove.InvitationPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	74,  // 64: rove.InvitationPatchRequest.date_expires:type_name -> google.protobuf.Timestamp
-	74,  // 65: rove.InvitationPatchRequest.date_settled:type_name -> google.protobuf.Timestamp
-	73,  // 66: rove.InvitationPatchRequest.holder:type_name -> rove.HolderRef
+	81,  // 63: rove.InvitationPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	81,  // 64: rove.InvitationPatchRequest.date_expires:type_name -> google.protobuf.Timestamp
+	81,  // 65: rove.InvitationPatchRequest.date_settled:type_name -> google.protobuf.Timestamp
+	80,  // 66: rove.InvitationPatchRequest.holder:type_name -> rove.HolderRef
 	33,  // 67: rove.InvitationApplyRequest.ref:type_name -> rove.InvitationRef
-	77,  // 68: rove.InvitationApplyRequest.patch:type_name -> patch.Patch
+	84,  // 68: rove.InvitationApplyRequest.patch:type_name -> patch.Patch
 	40,  // 69: rove.InvitationListRequest.filters:type_name -> rove.InvitationFilter
-	81,  // 70: rove.InvitationListResponse.items:type_name -> rove.Invitation
+	88,  // 70: rove.InvitationListResponse.items:type_name -> rove.Invitation
 	33,  // 71: rove.InvitationFilter.ref:type_name -> rove.InvitationRef
-	72,  // 72: rove.InvitationFilter.tenant:type_name -> rove.TenantRef
+	79,  // 72: rove.InvitationFilter.tenant:type_name -> rove.TenantRef
 	33,  // 73: rove.InvitationRevokeRequest.ref:type_name -> rove.InvitationRef
 	33,  // 74: rove.InvitationAcceptRequest.ref:type_name -> rove.InvitationRef
 	33,  // 75: rove.InvitationDenyRequest.ref:type_name -> rove.InvitationRef
-	74,  // 76: rove.CliLoginAddRequest.date_expires:type_name -> google.protobuf.Timestamp
-	74,  // 77: rove.CliLoginAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	81,  // 76: rove.CliLoginAddRequest.date_expires:type_name -> google.protobuf.Timestamp
+	81,  // 77: rove.CliLoginAddRequest.date_created:type_name -> google.protobuf.Timestamp
 	47,  // 78: rove.CliLoginGetRequest.ref:type_name -> rove.CliLoginRef
 	48,  // 79: rove.CliLoginGetRequest.select:type_name -> rove.CliLoginSelect
 	47,  // 80: rove.CliLoginPatchRequest.ref:type_name -> rove.CliLoginRef
-	74,  // 81: rove.CliLoginPatchRequest.date_expires:type_name -> google.protobuf.Timestamp
-	74,  // 82: rove.CliLoginPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	81,  // 81: rove.CliLoginPatchRequest.date_expires:type_name -> google.protobuf.Timestamp
+	81,  // 82: rove.CliLoginPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
 	47,  // 83: rove.CliLoginApplyRequest.ref:type_name -> rove.CliLoginRef
-	77,  // 84: rove.CliLoginApplyRequest.patch:type_name -> patch.Patch
-	74,  // 85: rove.AliasHoldAddRequest.date_until:type_name -> google.protobuf.Timestamp
-	74,  // 86: rove.AliasHoldAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	84,  // 84: rove.CliLoginApplyRequest.patch:type_name -> patch.Patch
+	81,  // 85: rove.AliasHoldAddRequest.date_until:type_name -> google.protobuf.Timestamp
+	81,  // 86: rove.AliasHoldAddRequest.date_created:type_name -> google.protobuf.Timestamp
 	54,  // 87: rove.AliasHoldGetRequest.ref:type_name -> rove.AliasHoldRef
 	55,  // 88: rove.AliasHoldGetRequest.select:type_name -> rove.AliasHoldSelect
 	54,  // 89: rove.AliasHoldPatchRequest.ref:type_name -> rove.AliasHoldRef
-	74,  // 90: rove.AliasHoldPatchRequest.date_until:type_name -> google.protobuf.Timestamp
-	74,  // 91: rove.AliasHoldPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	81,  // 90: rove.AliasHoldPatchRequest.date_until:type_name -> google.protobuf.Timestamp
+	81,  // 91: rove.AliasHoldPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
 	54,  // 92: rove.AliasHoldApplyRequest.ref:type_name -> rove.AliasHoldRef
-	77,  // 93: rove.AliasHoldApplyRequest.patch:type_name -> patch.Patch
-	74,  // 94: rove.ConsentAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	84,  // 93: rove.AliasHoldApplyRequest.patch:type_name -> patch.Patch
+	81,  // 94: rove.ConsentAddRequest.date_created:type_name -> google.protobuf.Timestamp
 	61,  // 95: rove.ConsentGetRequest.ref:type_name -> rove.ConsentRef
 	63,  // 96: rove.ConsentGetRequest.select:type_name -> rove.ConsentSelect
 	62,  // 97: rove.ConsentRef.agreed:type_name -> rove.ConsentRefByAgreed
 	61,  // 98: rove.ConsentPatchRequest.ref:type_name -> rove.ConsentRef
 	61,  // 99: rove.ConsentApplyRequest.ref:type_name -> rove.ConsentRef
-	77,  // 100: rove.ConsentApplyRequest.patch:type_name -> patch.Patch
-	0,   // 101: rove.PartyService.Add:input_type -> rove.PartyAddRequest
-	1,   // 102: rove.PartyService.Get:input_type -> rove.PartyGetRequest
-	5,   // 103: rove.PartyService.Patch:input_type -> rove.PartyPatchRequest
-	6,   // 104: rove.PartyService.Apply:input_type -> rove.PartyApplyRequest
-	2,   // 105: rove.PartyService.Erase:input_type -> rove.PartyRef
-	8,   // 106: rove.PartyService.List:input_type -> rove.PartyListRequest
-	11,  // 107: rove.PartyService.Watch:input_type -> rove.PartyWatchRequest
-	14,  // 108: rove.PartyService.Me:input_type -> rove.PartyMeRequest
-	16,  // 109: rove.PartyService.Update:input_type -> rove.PartyUpdateRequest
-	17,  // 110: rove.PartyService.Invite:input_type -> rove.PartyInviteRequest
-	19,  // 111: rove.PartyService.SetRole:input_type -> rove.PartySetRoleRequest
-	20,  // 112: rove.PartyService.SetPassword:input_type -> rove.PartySetPasswordRequest
-	22,  // 113: rove.PartyService.Deactivate:input_type -> rove.PartyDeactivateRequest
-	23,  // 114: rove.PartyService.Pseudonymize:input_type -> rove.PartyPseudonymizeRequest
-	24,  // 115: rove.SessionService.Add:input_type -> rove.SessionAddRequest
-	25,  // 116: rove.SessionService.Get:input_type -> rove.SessionGetRequest
-	28,  // 117: rove.SessionService.Patch:input_type -> rove.SessionPatchRequest
-	29,  // 118: rove.SessionService.Apply:input_type -> rove.SessionApplyRequest
-	26,  // 119: rove.SessionService.Erase:input_type -> rove.SessionRef
-	31,  // 120: rove.InvitationService.Add:input_type -> rove.InvitationAddRequest
-	32,  // 121: rove.InvitationService.Get:input_type -> rove.InvitationGetRequest
-	35,  // 122: rove.InvitationService.Patch:input_type -> rove.InvitationPatchRequest
-	36,  // 123: rove.InvitationService.Apply:input_type -> rove.InvitationApplyRequest
-	33,  // 124: rove.InvitationService.Erase:input_type -> rove.InvitationRef
-	38,  // 125: rove.InvitationService.List:input_type -> rove.InvitationListRequest
-	41,  // 126: rove.InvitationService.Revoke:input_type -> rove.InvitationRevokeRequest
-	42,  // 127: rove.InvitationService.Claim:input_type -> rove.InvitationClaimRequest
-	43,  // 128: rove.InvitationService.Accept:input_type -> rove.InvitationAcceptRequest
-	44,  // 129: rove.InvitationService.Deny:input_type -> rove.InvitationDenyRequest
-	45,  // 130: rove.CliLoginService.Add:input_type -> rove.CliLoginAddRequest
-	46,  // 131: rove.CliLoginService.Get:input_type -> rove.CliLoginGetRequest
-	49,  // 132: rove.CliLoginService.Patch:input_type -> rove.CliLoginPatchRequest
-	50,  // 133: rove.CliLoginService.Apply:input_type -> rove.CliLoginApplyRequest
-	47,  // 134: rove.CliLoginService.Erase:input_type -> rove.CliLoginRef
-	52,  // 135: rove.AliasHoldService.Add:input_type -> rove.AliasHoldAddRequest
-	53,  // 136: rove.AliasHoldService.Get:input_type -> rove.AliasHoldGetRequest
-	56,  // 137: rove.AliasHoldService.Patch:input_type -> rove.AliasHoldPatchRequest
-	57,  // 138: rove.AliasHoldService.Apply:input_type -> rove.AliasHoldApplyRequest
-	54,  // 139: rove.AliasHoldService.Erase:input_type -> rove.AliasHoldRef
-	59,  // 140: rove.ConsentService.Add:input_type -> rove.ConsentAddRequest
-	60,  // 141: rove.ConsentService.Get:input_type -> rove.ConsentGetRequest
-	64,  // 142: rove.ConsentService.Patch:input_type -> rove.ConsentPatchRequest
-	65,  // 143: rove.ConsentService.Apply:input_type -> rove.ConsentApplyRequest
-	61,  // 144: rove.ConsentService.Erase:input_type -> rove.ConsentRef
-	78,  // 145: rove.PartyService.Add:output_type -> rove.Party
-	78,  // 146: rove.PartyService.Get:output_type -> rove.Party
-	78,  // 147: rove.PartyService.Patch:output_type -> rove.Party
-	78,  // 148: rove.PartyService.Apply:output_type -> rove.Party
-	7,   // 149: rove.PartyService.Erase:output_type -> rove.PartyEraseResponse
-	9,   // 150: rove.PartyService.List:output_type -> rove.PartyListResponse
-	12,  // 151: rove.PartyService.Watch:output_type -> rove.PartyWatchResponse
-	15,  // 152: rove.PartyService.Me:output_type -> rove.PartyMeResponse
-	78,  // 153: rove.PartyService.Update:output_type -> rove.Party
-	18,  // 154: rove.PartyService.Invite:output_type -> rove.PartyInviteResponse
-	78,  // 155: rove.PartyService.SetRole:output_type -> rove.Party
-	21,  // 156: rove.PartyService.SetPassword:output_type -> rove.PartySetPasswordResponse
-	78,  // 157: rove.PartyService.Deactivate:output_type -> rove.Party
-	78,  // 158: rove.PartyService.Pseudonymize:output_type -> rove.Party
-	82,  // 159: rove.SessionService.Add:output_type -> rove.Session
-	82,  // 160: rove.SessionService.Get:output_type -> rove.Session
-	82,  // 161: rove.SessionService.Patch:output_type -> rove.Session
-	82,  // 162: rove.SessionService.Apply:output_type -> rove.Session
-	30,  // 163: rove.SessionService.Erase:output_type -> rove.SessionEraseResponse
-	81,  // 164: rove.InvitationService.Add:output_type -> rove.Invitation
-	81,  // 165: rove.InvitationService.Get:output_type -> rove.Invitation
-	81,  // 166: rove.InvitationService.Patch:output_type -> rove.Invitation
-	81,  // 167: rove.InvitationService.Apply:output_type -> rove.Invitation
-	37,  // 168: rove.InvitationService.Erase:output_type -> rove.InvitationEraseResponse
-	39,  // 169: rove.InvitationService.List:output_type -> rove.InvitationListResponse
-	81,  // 170: rove.InvitationService.Revoke:output_type -> rove.Invitation
-	81,  // 171: rove.InvitationService.Claim:output_type -> rove.Invitation
-	81,  // 172: rove.InvitationService.Accept:output_type -> rove.Invitation
-	81,  // 173: rove.InvitationService.Deny:output_type -> rove.Invitation
-	83,  // 174: rove.CliLoginService.Add:output_type -> rove.CliLogin
-	83,  // 175: rove.CliLoginService.Get:output_type -> rove.CliLogin
-	83,  // 176: rove.CliLoginService.Patch:output_type -> rove.CliLogin
-	83,  // 177: rove.CliLoginService.Apply:output_type -> rove.CliLogin
-	51,  // 178: rove.CliLoginService.Erase:output_type -> rove.CliLoginEraseResponse
-	84,  // 179: rove.AliasHoldService.Add:output_type -> rove.AliasHold
-	84,  // 180: rove.AliasHoldService.Get:output_type -> rove.AliasHold
-	84,  // 181: rove.AliasHoldService.Patch:output_type -> rove.AliasHold
-	84,  // 182: rove.AliasHoldService.Apply:output_type -> rove.AliasHold
-	58,  // 183: rove.AliasHoldService.Erase:output_type -> rove.AliasHoldEraseResponse
-	85,  // 184: rove.ConsentService.Add:output_type -> rove.Consent
-	85,  // 185: rove.ConsentService.Get:output_type -> rove.Consent
-	85,  // 186: rove.ConsentService.Patch:output_type -> rove.Consent
-	85,  // 187: rove.ConsentService.Apply:output_type -> rove.Consent
-	66,  // 188: rove.ConsentService.Erase:output_type -> rove.ConsentEraseResponse
-	145, // [145:189] is the sub-list for method output_type
-	101, // [101:145] is the sub-list for method input_type
-	101, // [101:101] is the sub-list for extension type_name
-	101, // [101:101] is the sub-list for extension extendee
-	0,   // [0:101] is the sub-list for field type_name
+	84,  // 100: rove.ConsentApplyRequest.patch:type_name -> patch.Patch
+	81,  // 101: rove.SignInFailureAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	69,  // 102: rove.SignInFailureGetRequest.ref:type_name -> rove.SignInFailureRef
+	70,  // 103: rove.SignInFailureGetRequest.select:type_name -> rove.SignInFailureSelect
+	69,  // 104: rove.SignInFailurePatchRequest.ref:type_name -> rove.SignInFailureRef
+	69,  // 105: rove.SignInFailureApplyRequest.ref:type_name -> rove.SignInFailureRef
+	84,  // 106: rove.SignInFailureApplyRequest.patch:type_name -> patch.Patch
+	0,   // 107: rove.PartyService.Add:input_type -> rove.PartyAddRequest
+	1,   // 108: rove.PartyService.Get:input_type -> rove.PartyGetRequest
+	5,   // 109: rove.PartyService.Patch:input_type -> rove.PartyPatchRequest
+	6,   // 110: rove.PartyService.Apply:input_type -> rove.PartyApplyRequest
+	2,   // 111: rove.PartyService.Erase:input_type -> rove.PartyRef
+	8,   // 112: rove.PartyService.List:input_type -> rove.PartyListRequest
+	11,  // 113: rove.PartyService.Watch:input_type -> rove.PartyWatchRequest
+	14,  // 114: rove.PartyService.Me:input_type -> rove.PartyMeRequest
+	16,  // 115: rove.PartyService.Update:input_type -> rove.PartyUpdateRequest
+	17,  // 116: rove.PartyService.Invite:input_type -> rove.PartyInviteRequest
+	19,  // 117: rove.PartyService.SetRole:input_type -> rove.PartySetRoleRequest
+	20,  // 118: rove.PartyService.SetPassword:input_type -> rove.PartySetPasswordRequest
+	22,  // 119: rove.PartyService.Deactivate:input_type -> rove.PartyDeactivateRequest
+	23,  // 120: rove.PartyService.Pseudonymize:input_type -> rove.PartyPseudonymizeRequest
+	24,  // 121: rove.SessionService.Add:input_type -> rove.SessionAddRequest
+	25,  // 122: rove.SessionService.Get:input_type -> rove.SessionGetRequest
+	28,  // 123: rove.SessionService.Patch:input_type -> rove.SessionPatchRequest
+	29,  // 124: rove.SessionService.Apply:input_type -> rove.SessionApplyRequest
+	26,  // 125: rove.SessionService.Erase:input_type -> rove.SessionRef
+	31,  // 126: rove.InvitationService.Add:input_type -> rove.InvitationAddRequest
+	32,  // 127: rove.InvitationService.Get:input_type -> rove.InvitationGetRequest
+	35,  // 128: rove.InvitationService.Patch:input_type -> rove.InvitationPatchRequest
+	36,  // 129: rove.InvitationService.Apply:input_type -> rove.InvitationApplyRequest
+	33,  // 130: rove.InvitationService.Erase:input_type -> rove.InvitationRef
+	38,  // 131: rove.InvitationService.List:input_type -> rove.InvitationListRequest
+	41,  // 132: rove.InvitationService.Revoke:input_type -> rove.InvitationRevokeRequest
+	42,  // 133: rove.InvitationService.Claim:input_type -> rove.InvitationClaimRequest
+	43,  // 134: rove.InvitationService.Accept:input_type -> rove.InvitationAcceptRequest
+	44,  // 135: rove.InvitationService.Deny:input_type -> rove.InvitationDenyRequest
+	45,  // 136: rove.CliLoginService.Add:input_type -> rove.CliLoginAddRequest
+	46,  // 137: rove.CliLoginService.Get:input_type -> rove.CliLoginGetRequest
+	49,  // 138: rove.CliLoginService.Patch:input_type -> rove.CliLoginPatchRequest
+	50,  // 139: rove.CliLoginService.Apply:input_type -> rove.CliLoginApplyRequest
+	47,  // 140: rove.CliLoginService.Erase:input_type -> rove.CliLoginRef
+	52,  // 141: rove.AliasHoldService.Add:input_type -> rove.AliasHoldAddRequest
+	53,  // 142: rove.AliasHoldService.Get:input_type -> rove.AliasHoldGetRequest
+	56,  // 143: rove.AliasHoldService.Patch:input_type -> rove.AliasHoldPatchRequest
+	57,  // 144: rove.AliasHoldService.Apply:input_type -> rove.AliasHoldApplyRequest
+	54,  // 145: rove.AliasHoldService.Erase:input_type -> rove.AliasHoldRef
+	59,  // 146: rove.ConsentService.Add:input_type -> rove.ConsentAddRequest
+	60,  // 147: rove.ConsentService.Get:input_type -> rove.ConsentGetRequest
+	64,  // 148: rove.ConsentService.Patch:input_type -> rove.ConsentPatchRequest
+	65,  // 149: rove.ConsentService.Apply:input_type -> rove.ConsentApplyRequest
+	61,  // 150: rove.ConsentService.Erase:input_type -> rove.ConsentRef
+	67,  // 151: rove.SignInFailureService.Add:input_type -> rove.SignInFailureAddRequest
+	68,  // 152: rove.SignInFailureService.Get:input_type -> rove.SignInFailureGetRequest
+	71,  // 153: rove.SignInFailureService.Patch:input_type -> rove.SignInFailurePatchRequest
+	72,  // 154: rove.SignInFailureService.Apply:input_type -> rove.SignInFailureApplyRequest
+	69,  // 155: rove.SignInFailureService.Erase:input_type -> rove.SignInFailureRef
+	85,  // 156: rove.PartyService.Add:output_type -> rove.Party
+	85,  // 157: rove.PartyService.Get:output_type -> rove.Party
+	85,  // 158: rove.PartyService.Patch:output_type -> rove.Party
+	85,  // 159: rove.PartyService.Apply:output_type -> rove.Party
+	7,   // 160: rove.PartyService.Erase:output_type -> rove.PartyEraseResponse
+	9,   // 161: rove.PartyService.List:output_type -> rove.PartyListResponse
+	12,  // 162: rove.PartyService.Watch:output_type -> rove.PartyWatchResponse
+	15,  // 163: rove.PartyService.Me:output_type -> rove.PartyMeResponse
+	85,  // 164: rove.PartyService.Update:output_type -> rove.Party
+	18,  // 165: rove.PartyService.Invite:output_type -> rove.PartyInviteResponse
+	85,  // 166: rove.PartyService.SetRole:output_type -> rove.Party
+	21,  // 167: rove.PartyService.SetPassword:output_type -> rove.PartySetPasswordResponse
+	85,  // 168: rove.PartyService.Deactivate:output_type -> rove.Party
+	85,  // 169: rove.PartyService.Pseudonymize:output_type -> rove.Party
+	89,  // 170: rove.SessionService.Add:output_type -> rove.Session
+	89,  // 171: rove.SessionService.Get:output_type -> rove.Session
+	89,  // 172: rove.SessionService.Patch:output_type -> rove.Session
+	89,  // 173: rove.SessionService.Apply:output_type -> rove.Session
+	30,  // 174: rove.SessionService.Erase:output_type -> rove.SessionEraseResponse
+	88,  // 175: rove.InvitationService.Add:output_type -> rove.Invitation
+	88,  // 176: rove.InvitationService.Get:output_type -> rove.Invitation
+	88,  // 177: rove.InvitationService.Patch:output_type -> rove.Invitation
+	88,  // 178: rove.InvitationService.Apply:output_type -> rove.Invitation
+	37,  // 179: rove.InvitationService.Erase:output_type -> rove.InvitationEraseResponse
+	39,  // 180: rove.InvitationService.List:output_type -> rove.InvitationListResponse
+	88,  // 181: rove.InvitationService.Revoke:output_type -> rove.Invitation
+	88,  // 182: rove.InvitationService.Claim:output_type -> rove.Invitation
+	88,  // 183: rove.InvitationService.Accept:output_type -> rove.Invitation
+	88,  // 184: rove.InvitationService.Deny:output_type -> rove.Invitation
+	90,  // 185: rove.CliLoginService.Add:output_type -> rove.CliLogin
+	90,  // 186: rove.CliLoginService.Get:output_type -> rove.CliLogin
+	90,  // 187: rove.CliLoginService.Patch:output_type -> rove.CliLogin
+	90,  // 188: rove.CliLoginService.Apply:output_type -> rove.CliLogin
+	51,  // 189: rove.CliLoginService.Erase:output_type -> rove.CliLoginEraseResponse
+	91,  // 190: rove.AliasHoldService.Add:output_type -> rove.AliasHold
+	91,  // 191: rove.AliasHoldService.Get:output_type -> rove.AliasHold
+	91,  // 192: rove.AliasHoldService.Patch:output_type -> rove.AliasHold
+	91,  // 193: rove.AliasHoldService.Apply:output_type -> rove.AliasHold
+	58,  // 194: rove.AliasHoldService.Erase:output_type -> rove.AliasHoldEraseResponse
+	92,  // 195: rove.ConsentService.Add:output_type -> rove.Consent
+	92,  // 196: rove.ConsentService.Get:output_type -> rove.Consent
+	92,  // 197: rove.ConsentService.Patch:output_type -> rove.Consent
+	92,  // 198: rove.ConsentService.Apply:output_type -> rove.Consent
+	66,  // 199: rove.ConsentService.Erase:output_type -> rove.ConsentEraseResponse
+	93,  // 200: rove.SignInFailureService.Add:output_type -> rove.SignInFailure
+	93,  // 201: rove.SignInFailureService.Get:output_type -> rove.SignInFailure
+	93,  // 202: rove.SignInFailureService.Patch:output_type -> rove.SignInFailure
+	93,  // 203: rove.SignInFailureService.Apply:output_type -> rove.SignInFailure
+	73,  // 204: rove.SignInFailureService.Erase:output_type -> rove.SignInFailureEraseResponse
+	156, // [156:205] is the sub-list for method output_type
+	107, // [107:156] is the sub-list for method input_type
+	107, // [107:107] is the sub-list for extension type_name
+	107, // [107:107] is the sub-list for extension extendee
+	0,   // [0:107] is the sub-list for field type_name
 }
 
 func init() { file_rove_org_svc_g_proto_init() }
@@ -11835,15 +12752,18 @@ func file_rove_org_svc_g_proto_init() {
 		(*consentRef_Id)(nil),
 		(*consentRef_Agreed)(nil),
 	}
+	file_rove_org_svc_g_proto_msgTypes[69].OneofWrappers = []any{
+		(*signInFailureRef_Id)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_org_svc_g_proto_rawDesc), len(file_rove_org_svc_g_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   72,
+			NumMessages:   79,
 			NumExtensions: 0,
-			NumServices:   6,
+			NumServices:   7,
 		},
 		GoTypes:           file_rove_org_svc_g_proto_goTypes,
 		DependencyIndexes: file_rove_org_svc_g_proto_depIdxs,

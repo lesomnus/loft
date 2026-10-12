@@ -41,6 +41,7 @@ import (
 	reservation "github.com/lesomnus/rove/internal/ent/reservation"
 	reservationitem "github.com/lesomnus/rove/internal/ent/reservationitem"
 	session "github.com/lesomnus/rove/internal/ent/session"
+	signinfailure "github.com/lesomnus/rove/internal/ent/signinfailure"
 	stewardship "github.com/lesomnus/rove/internal/ent/stewardship"
 	stock "github.com/lesomnus/rove/internal/ent/stock"
 	stockmovement "github.com/lesomnus/rove/internal/ent/stockmovement"
@@ -357,6 +358,7 @@ type Scope interface {
 	CliLoginScope(ctx context.Context) (predicate.CliLogin, error)
 	AliasHoldScope(ctx context.Context) (predicate.AliasHold, error)
 	ConsentScope(ctx context.Context) (predicate.Consent, error)
+	SignInFailureScope(ctx context.Context) (predicate.SignInFailure, error)
 	AssetScope(ctx context.Context) (predicate.Asset, error)
 	TreeLockScope(ctx context.Context) (predicate.TreeLock, error)
 	TenantDomainScope(ctx context.Context) (predicate.TenantDomain, error)
@@ -429,6 +431,9 @@ func (Unscoped) AliasHoldScope(_ context.Context) (predicate.AliasHold, error) {
 	return nil, nil
 }
 func (Unscoped) ConsentScope(_ context.Context) (predicate.Consent, error) {
+	return nil, nil
+}
+func (Unscoped) SignInFailureScope(_ context.Context) (predicate.SignInFailure, error) {
 	return nil, nil
 }
 func (Unscoped) AssetScope(_ context.Context) (predicate.Asset, error) {
@@ -739,6 +744,26 @@ func (ss Scopes) ConsentScope(ctx context.Context) (predicate.Consent, error) {
 	}
 
 	return consent.And(ps...), nil
+}
+
+func (ss Scopes) SignInFailureScope(ctx context.Context) (predicate.SignInFailure, error) {
+	ps := make([]predicate.SignInFailure, 0, len(ss))
+	for _, s := range ss {
+		p, err := s.SignInFailureScope(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if p == nil {
+			continue
+		}
+
+		ps = append(ps, p)
+	}
+	if len(ps) == 0 {
+		return nil, nil
+	}
+
+	return signinfailure.And(ps...), nil
 }
 
 func (ss Scopes) AssetScope(ctx context.Context) (predicate.Asset, error) {
@@ -1476,7 +1501,10 @@ func (s Server) CliLogin() rove.CliLoginServiceServer { return CliLoginServiceSe
 func (s Server) AliasHold() rove.AliasHoldServiceServer {
 	return AliasHoldServiceServer{Store: s.Store}
 }
-func (s Server) Consent() rove.ConsentServiceServer   { return ConsentServiceServer{Store: s.Store} }
+func (s Server) Consent() rove.ConsentServiceServer { return ConsentServiceServer{Store: s.Store} }
+func (s Server) SignInFailure() rove.SignInFailureServiceServer {
+	return SignInFailureServiceServer{Store: s.Store}
+}
 func (s Server) Asset() rove.AssetServiceServer       { return AssetServiceServer{Store: s.Store} }
 func (s Server) TreeLock() rove.TreeLockServiceServer { return TreeLockServiceServer{Store: s.Store} }
 func (s Server) TenantDomain() rove.TenantDomainServiceServer {

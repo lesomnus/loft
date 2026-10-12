@@ -84,6 +84,26 @@ func (_u *CliLoginUpdate) SetNillableOrigin(v *string) *CliLoginUpdate {
 	return _u
 }
 
+// SetAddress sets the "address" field.
+func (_u *CliLoginUpdate) SetAddress(v string) *CliLoginUpdate {
+	_u.mutation.SetAddress(v)
+	return _u
+}
+
+// SetNillableAddress sets the "address" field if the given value is not nil.
+func (_u *CliLoginUpdate) SetNillableAddress(v *string) *CliLoginUpdate {
+	if v != nil {
+		_u.SetAddress(*v)
+	}
+	return _u
+}
+
+// ClearAddress clears the value of the "address" field.
+func (_u *CliLoginUpdate) ClearAddress() *CliLoginUpdate {
+	_u.mutation.ClearAddress()
+	return _u
+}
+
 // SetAccount sets the "account" field.
 func (_u *CliLoginUpdate) SetAccount(v uuid.UUID) *CliLoginUpdate {
 	_u.mutation.SetAccount(v)
@@ -234,6 +254,12 @@ func (_u *CliLoginUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Origin(); ok {
 		_spec.SetField(clilogin.FieldOrigin, field.TypeString, value)
 	}
+	if value, ok := _u.mutation.Address(); ok {
+		_spec.SetField(clilogin.FieldAddress, field.TypeString, value)
+	}
+	if _u.mutation.AddressCleared() {
+		_spec.ClearField(clilogin.FieldAddress, field.TypeString)
+	}
 	if value, ok := _u.mutation.Account(); ok {
 		_spec.SetField(clilogin.FieldAccount, field.TypeUuid, value)
 	}
@@ -334,6 +360,26 @@ func (_u *CliLoginUpdateOne) SetNillableOrigin(v *string) *CliLoginUpdateOne {
 	if v != nil {
 		_u.SetOrigin(*v)
 	}
+	return _u
+}
+
+// SetAddress sets the "address" field.
+func (_u *CliLoginUpdateOne) SetAddress(v string) *CliLoginUpdateOne {
+	_u.mutation.SetAddress(v)
+	return _u
+}
+
+// SetNillableAddress sets the "address" field if the given value is not nil.
+func (_u *CliLoginUpdateOne) SetNillableAddress(v *string) *CliLoginUpdateOne {
+	if v != nil {
+		_u.SetAddress(*v)
+	}
+	return _u
+}
+
+// ClearAddress clears the value of the "address" field.
+func (_u *CliLoginUpdateOne) ClearAddress() *CliLoginUpdateOne {
+	_u.mutation.ClearAddress()
 	return _u
 }
 
@@ -516,6 +562,12 @@ func (_u *CliLoginUpdateOne) sqlSave(ctx context.Context) (_node *CliLogin, err 
 	}
 	if value, ok := _u.mutation.Origin(); ok {
 		_spec.SetField(clilogin.FieldOrigin, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Address(); ok {
+		_spec.SetField(clilogin.FieldAddress, field.TypeString, value)
+	}
+	if _u.mutation.AddressCleared() {
+		_spec.ClearField(clilogin.FieldAddress, field.TypeString)
 	}
 	if value, ok := _u.mutation.Account(); ok {
 		_spec.SetField(clilogin.FieldAccount, field.TypeUuid, value)

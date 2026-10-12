@@ -46,6 +46,20 @@ func (_c *CliLoginCreate) SetOrigin(v string) *CliLoginCreate {
 	return _c
 }
 
+// SetAddress sets the "address" field.
+func (_c *CliLoginCreate) SetAddress(v string) *CliLoginCreate {
+	_c.mutation.SetAddress(v)
+	return _c
+}
+
+// SetNillableAddress sets the "address" field if the given value is not nil.
+func (_c *CliLoginCreate) SetNillableAddress(v *string) *CliLoginCreate {
+	if v != nil {
+		_c.SetAddress(*v)
+	}
+	return _c
+}
+
 // SetAccount sets the "account" field.
 func (_c *CliLoginCreate) SetAccount(v uuid.UUID) *CliLoginCreate {
 	_c.mutation.SetAccount(v)
@@ -223,6 +237,10 @@ func (_c *CliLoginCreate) createSpec() (*CliLogin, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Origin(); ok {
 		_spec.SetField(clilogin.FieldOrigin, field.TypeString, value)
 		_node.Origin = value
+	}
+	if value, ok := _c.mutation.Address(); ok {
+		_spec.SetField(clilogin.FieldAddress, field.TypeString, value)
+		_node.Address = value
 	}
 	if value, ok := _c.mutation.Account(); ok {
 		_spec.SetField(clilogin.FieldAccount, field.TypeUuid, value)

@@ -281,6 +281,11 @@ message CliLogin {
   string client = 10;
   string origin = 11;
 
+  // Where it asked from, without what the terminal says it is: what the limit
+  // on how many sign-ins one address may start in a while is counted by
+  // (`server/clilogin`).
+  string address = 18 [(orm.field) = {default: ""}];
+
   // The account that approved it, once one has.
   bytes account = 12 [(orm.field) = {
     type: TYPE_UUID
@@ -309,6 +314,13 @@ message CliLogin {
       {
         name: "secret"
         refs: [{name: "secret", number: 8}]
+      },
+      {
+        name: "address"
+        refs: [
+          {name: "address", number: 18},
+          {name: "date_created", number: 15}
+        ]
       }
     ]
   };
@@ -418,5 +430,59 @@ message Consent {
   option (payday.entity) = {
     domain: 44
     global: {}
+  };
+}
+
+
+// SignInFailure is one wrong answer at the sign-in form, counted against the
+// address it came from and the name it was for (`server/session`): ten in
+// fifteen minutes and the form refuses that pair for a while.
+//
+// A row, so that every process of a deployment counts the same failures. A
+// count in each process's memory is a limit per process, and a deployment of
+// several would have been that many times as easy to guess at. Nothing reads
+// one older than the window, and the sweep takes those away. It is the
+// deployment's (`global`), written only through ent by `server/session`, and
+// the policy opens no RPC of it.
+message SignInFailure {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+
+  // What the address and the name the failure was for hash to, as
+  // `Session.secret` is what a key hashes to: a reader of the table can count
+  // them and can read neither off it.
+  bytes subject = 8 [
+    (orm.field) = {default: ""},
+    (payday.field) = {secret: true}
+  ];
+
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "subject"
+        refs: [
+          {name: "subject", number: 8},
+          {name: "date_created", number: 15}
+        ]
+      },
+      {
+        name: "date_created"
+        refs: [{name: "date_created", number: 15}]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 45
+    global: {}
+    erase: {hard: {}}
   };
 }
