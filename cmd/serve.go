@@ -37,6 +37,7 @@ import (
 	"github.com/lesomnus/rove/internal/search"
 	"github.com/lesomnus/rove/server/account"
 	"github.com/lesomnus/rove/server/bare"
+	"github.com/lesomnus/rove/server/clientaddr"
 	"github.com/lesomnus/rove/server/clilogin"
 	"github.com/lesomnus/rove/server/closing"
 	"github.com/lesomnus/rove/server/consent"
@@ -591,6 +592,11 @@ func (s *Server) serveHttp(ctx context.Context, c Config, g *grpc.Server) (func(
 	// an ordinary route cannot collide with one.
 	s.Routes(h.ServeMux, c)
 
+	front, err := Front(c, h)
+	if err != nil {
+		return nil, err
+	}
+
 	l, err := net.Listen("tcp", c.Server.Http.Addr)
 	if err != nil {
 		return nil, err
@@ -598,7 +604,7 @@ func (s *Server) serveHttp(ctx context.Context, c Config, g *grpc.Server) (func(
 
 	// A client that takes its time over its headers holds a connection for
 	// nothing; a stream, once asked for, may take as long as it likes.
-	srv := &http.Server{Handler: guarded(h, c.App.Public().Scheme == "https"), ReadHeaderTimeout: 10 * time.Second}
+	srv := &http.Server{Handler: front, ReadHeaderTimeout: 10 * time.Second}
 	go func() {
 		if err := srv.Serve(l); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.From(ctx).ErrorContext(ctx, "http", slog.String("err", err.Error()))
@@ -608,6 +614,19 @@ func (s *Server) serveHttp(ctx context.Context, c Config, g *grpc.Server) (func(
 	log.From(ctx).InfoContext(ctx, "http", slog.String("addr", l.Addr().String()))
 
 	return func() { srv.Close() }, nil
+}
+
+// Front is what every HTTP request goes through before the routes: where it
+// came from, believing X-Forwarded-For from the proxies `app.trusted_proxies`
+// names and from nobody else (`server/clientaddr`), and the headers every
+// answer carries (`guarded`).
+func Front(c Config, h http.Handler) (http.Handler, error) {
+	proxies, err := clientaddr.Parse(c.App.TrustedProxies)
+	if err != nil {
+		return nil, fmt.Errorf("app.trusted_proxies: %w", err)
+	}
+
+	return guarded(proxies.Handler(h), c.App.Public().Scheme == "https"), nil
 }
 
 // depsOf is what the domain layer is told by the configuration.

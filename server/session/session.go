@@ -22,7 +22,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net"
 	"net/http"
 	"strings"
 	"time"
@@ -39,6 +38,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/session"
 	"github.com/lesomnus/rove/internal/ent/signinfailure"
 	"github.com/lesomnus/rove/internal/identity"
+	"github.com/lesomnus/rove/server/clientaddr"
 	"github.com/lesomnus/rove/server/pd"
 )
 
@@ -266,7 +266,7 @@ func SignIn(sessions *authsession.Sessions, people People, db *ent.Client, arriv
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
 		}
-		who := Subject(addr(r), in.Login)
+		who := Subject(clientaddr.Of(r), in.Login)
 		switch ok, err := failures.Ok(ctx, who); {
 		case err != nil:
 			log.From(ctx).WarnContext(ctx, "session: a sign-in whose failures could not be counted", "err", err.Error())
@@ -375,13 +375,6 @@ func accountAt(ctx context.Context, db *ent.Client, address string) (pdid.Id, er
 	return account, nil
 }
 
-func addr(r *http.Request) string {
-	host, _, err := net.SplitHostPort(r.RemoteAddr)
-	if err != nil {
-		return r.RemoteAddr
-	}
-	return host
-}
 
 // Failures is how many wrong answers a pair -- the address a sign-in came from
 // and the name it was for -- gave lately: [MaxFailures] in [Window], and the
