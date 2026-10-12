@@ -24,7 +24,7 @@
 	},
 	"devDependencies": {
 		"@bufbuild/protoc-gen-es": "^2.12.1",
-		"@playwright/test": "1.48.2",
+		"@playwright/test": "1.63.0",
 		"@types/node": "^22.10.2",
 		"@types/qrcode": "^1.5.5",
 		"@types/react": "^19.2.2",

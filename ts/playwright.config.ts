@@ -11,9 +11,9 @@ const port = Number(process.env.E2E_PORT ?? 18510)
 const app = `http://127.0.0.1:${port}`
 const consent = `http://127.0.0.1:${port + 10}`
 
-// Playwright 1.48 stops a web server by killing it (SIGKILL), so a server has
-// nothing to clean up on its way out: what it leaves is in test-results/, which
-// the next run empties first.
+// Playwright stops a web server by killing it (SIGKILL, with no
+// `gracefulShutdown` set), so a server has nothing to clean up on its way out:
+// what it leaves is in test-results/, which the next run empties first.
 const server = (at: number, ...args: string[]) => ({
 	command: ['sh', 'e2e/serve.sh', String(at), ...args].join(' '),
 	url: `http://127.0.0.1:${at}/`,
