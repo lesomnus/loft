@@ -83,17 +83,34 @@ jobs:
 
   # The main flows in a browser (ts/e2e, plan.md M3): headless Chromium on
   # the built page, against a rove built here that Playwright starts with
-  # `init --demo` (ts/playwright.config.ts, ts/e2e/serve.sh).
+  # `init --demo` (ts/playwright.config.ts, ts/e2e/serve.sh) -- on SQLite, and
+  # on the PostgreSQL a deployment runs, the `go` job's, with pg_bigm.
   e2e:
     # `--with-deps` installs what Chromium needs from the image's own packages,
     # which Playwright knows for Ubuntu 26.04 from 1.61 on.
     runs-on: ubuntu-26.04
     timeout-minutes: 15
+    strategy:
+      # Each database is an answer of its own, and one failing says nothing
+      # about the other.
+      fail-fast: false
+      matrix:
+        db: [sqlite, postgres]
     defaults:
       run:
         working-directory: ts
     steps:
       - uses: actions/checkout@v7
+      # As the `go` job has it (deploy/postgres, design 9.5), and started
+      # first, so that it is up by the time the page and rove are built. The
+      # servers make their own databases on it, fresh (ts/e2e/serve.sh).
+      - name: PostgreSQL with pg_bigm
+        if: matrix.db == 'postgres'
+        working-directory: .
+        run: |
+          docker build -t rove-postgres deploy/postgres
+          docker run -d --name postgres -p 5432:5432 \
+            -e POSTGRES_USER=rove -e POSTGRES_PASSWORD=rove -e POSTGRES_DB=rove rove-postgres
       - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
@@ -110,16 +127,22 @@ jobs:
         run: go build -o "$RUNNER_TEMP/rove" ./cmd/rove
       - name: Chromium
         run: npx playwright install --with-deps chromium
+      - name: PostgreSQL is up
+        if: matrix.db == 'postgres'
+        run: |
+          for i in $(seq 1 60); do docker exec postgres pg_isready -h 127.0.0.1 -U rove && exit 0; sleep 1; done
+          docker logs postgres; exit 1
       - name: browser tests
         env:
           E2E_ROVE: ${{ runner.temp }}/rove
+          E2E_POSTGRES: ${{ matrix.db == 'postgres' && 'postgres://rove:rove@127.0.0.1:5432/rove?sslmode=disable' || '' }}
         run: npx playwright test
       # What a failure leaves: the report, with each failed test's trace and
       # screenshot, and each server's database and log (test-results/rove-*).
       - uses: actions/upload-artifact@v7
         if: failure()
         with:
-          name: e2e
+          name: e2e-${{ matrix.db }}
           path: |
             ts/playwright-report/
             ts/test-results/

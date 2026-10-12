@@ -9,6 +9,12 @@
 # empties before every run and leaves after one, for a failure to be read.
 # `consent` also asks everybody to agree to terms first (`app.consent`).
 #
+# E2E_POSTGRES names a PostgreSQL to run on instead -- postgres://…, as one
+# who may make databases there. Each server then has two of its own, Rove's
+# and the roster's in it, e2e_rove_PORT and e2e_roster_PORT, dropped and made
+# again every run (e2e/postgres.mjs); the database E2E_POSTGRES names is only
+# where they are made from.
+#
 # Nothing of a desk's reaches it: its configuration is the environment written
 # here, every other ROVE_* is unset, and there is no rove.yaml where it runs.
 # E2E_ROVE names a rove already built -- CI's, or one built on a host for a
@@ -45,8 +51,19 @@ fi
 for v in $(env | sed -n 's/^\(ROVE_[A-Za-z0-9_]*\)=.*/\1/p'); do
 	unset "$v"
 done
-export ROVE_DB_DRIVER=sqlite3
-export ROVE_DB_DSN="file:$dir/rove.db?_pragma=foreign_keys(1)&_pragma=journal_mode(wal)&_pragma=busy_timeout(10000)"
+if [ -n "${E2E_POSTGRES:-}" ]; then
+	dsns=$(node "$here/postgres.mjs" "$E2E_POSTGRES" "e2e_rove_$port" "e2e_roster_$port")
+	export ROVE_DB_DRIVER=pgx
+	ROVE_DB_DSN=$(echo "$dsns" | sed -n 1p)
+	export ROVE_DB_DSN
+	export ROVE_AUTH_ROSTER_DB_DRIVER=pgx
+	ROVE_AUTH_ROSTER_DB_DSN=$(echo "$dsns" | sed -n 2p)
+	export ROVE_AUTH_ROSTER_DB_DSN
+	export ROVE_AUTH_ROSTER_DB_MIGRATE=true
+else
+	export ROVE_DB_DRIVER=sqlite3
+	export ROVE_DB_DSN="file:$dir/rove.db?_pragma=foreign_keys(1)&_pragma=journal_mode(wal)&_pragma=busy_timeout(10000)"
+fi
 export ROVE_DB_MIGRATE=true
 export ROVE_WATCH_BROKER=memory
 export ROVE_SPIN_LEASE=local

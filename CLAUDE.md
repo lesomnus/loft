@@ -129,9 +129,10 @@ process then needs a database of its own named too:
 
 The browser tests are `ts/e2e` (`cd ts && npm run build && npx playwright
 test`; README). Playwright starts a rove of its own -- `e2e/serve.sh`: this
-checkout, `init --demo`, a database in `ts/test-results/` -- so they never
-touch `data/`. A change to a page a flow goes through is not done until they
-pass; find things by role and label, as a person does.
+checkout, `init --demo`, a database in `ts/test-results/`, or with
+`E2E_POSTGRES` two made fresh on that PostgreSQL -- so they never touch
+`data/`. CI runs them on both. A change to a page a flow goes through is not
+done until they pass; find things by role and label, as a person does.
 
 A form's `Field` (`ts/src/ui.tsx`) is a <label> beside the **one** control it
 names, which takes the id the field hands it (`Labelled`). A field of more

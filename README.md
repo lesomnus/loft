@@ -323,7 +323,7 @@ cd ts && npm run check                                           # 타입 검사
 
 `ts/e2e`는 주요 흐름을 빌드된 화면에서 사람처럼 따라갑니다: 로그인, 자산 등록·검색·이동, 가져오기(csv, xlsx), 라벨 인쇄와 코드 스캔, 지급·인수 확인·반납(부분 반납 포함), 예약 승인, 실사 스캔, 고장 신고, 워크스페이스 만들기와 전환, 약관 동의, 터미널 로그인 승인.
 
-서버는 테스트가 띄웁니다. `ts/e2e/serve.sh`가 이 체크아웃의 rove를 빌드해 새 SQLite에 `init --demo`를 하고 `127.0.0.1:18510`에서, 약관 동의를 켠 두 번째 서버는 `18520`에서 띄웁니다. 설정은 그 스크립트의 환경변수가 전부라서 `data/`, `rove.yaml`, 셸의 `ROVE_*`는 쓰지 않습니다. 서버의 DB와 로그는 `ts/test-results/rove-<포트>/`에 남고, 다음 실행이 지웁니다.
+서버는 테스트가 띄웁니다. `ts/e2e/serve.sh`가 이 체크아웃의 rove를 빌드해 새 SQLite(아래처럼 주면 PostgreSQL)에 `init --demo`를 하고 `127.0.0.1:18510`에서, 약관 동의를 켠 두 번째 서버는 `18520`에서 띄웁니다. 설정은 그 스크립트의 환경변수가 전부라서 `data/`, `rove.yaml`, 셸의 `ROVE_*`는 쓰지 않습니다. 서버의 DB와 로그는 `ts/test-results/rove-<포트>/`에 남고, 다음 실행이 지웁니다.
 
 ```sh
 cd ts
@@ -343,3 +343,15 @@ docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp \
 ```
 
 포트가 겹치면 `E2E_PORT=19510`처럼 옮깁니다(그 포트와 +1, +10, +11을 씁니다).
+
+PostgreSQL에서 돌리려면 `E2E_POSTGRES`에 데이터베이스를 만들 수 있는 계정으로 그 서버의 주소를 줍니다. 서버마다 Rove와 roster의 데이터베이스를 하나씩(`e2e_rove_<포트>`, `e2e_roster_<포트>`) 그 서버에 두고, 실행할 때마다 지우고 새로 만듭니다(`ts/e2e/postgres.mjs`). CI는 SQLite와, `go` 잡과 같은 pg_bigm이 든 PostgreSQL(`deploy/postgres`) 둘 다에서 돌립니다.
+
+```sh
+docker build -t rove-postgres deploy/postgres
+docker run -d --rm --name rove-e2e-pg -p 127.0.0.1:55432:5432 \
+  -e POSTGRES_USER=rove -e POSTGRES_PASSWORD=rove -e POSTGRES_DB=rove rove-postgres
+E2E_POSTGRES='postgres://rove:rove@127.0.0.1:55432/rove?sslmode=disable' npx playwright test
+docker stop rove-e2e-pg
+```
+
+Playwright 이미지로 돌릴 때는 앞의 Playwright `docker run`에 `--network host`와 `-e E2E_POSTGRES=...`를 더해, 컨테이너 안에서도 그 주소가 닿게 합니다.
