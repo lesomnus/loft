@@ -19,6 +19,7 @@ import (
 	"google.golang.org/grpc/test/bufconn"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	"github.com/lesomnus/payday/auth"
 	"github.com/lesomnus/payday/config"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/spin"
@@ -82,6 +83,11 @@ func openEmbedded(ctx context.Context, cfg Config, stateDir string, log *slog.Lo
 		rs.Close()
 		return nil, fmt.Errorf("embedded roster: %w", err)
 	}
+	// It is served on bufconn, so nothing outside this process reaches it, and
+	// it believes its callers as a roster with no control plane does. Said so
+	// as that rather than with Plain's warning, which is about a port anybody
+	// might dial and read as a hole in Rove (rove#56).
+	rs.Auth = auth.PlainInProcess()
 	g, err := rs.Grpc(ctx, rc)
 	if err != nil {
 		rs.Close()

@@ -872,3 +872,16 @@ func TestAStreamRosterRefusesIsSaidAndThenHeld(t *testing.T) {
 		return err
 	}, func(v Standing) bool { return !v.Invalidated.IsZero() })
 }
+
+// TestTheRosterInThisProcessSaysWhereItIs: it believes its callers -- it has no
+// control plane -- and nothing outside this process reaches it, so it is served
+// with the in-process Plain. A roster left to fall back on Plain says so with
+// a warning about a port anybody might dial, which read as a hole in Rove
+// (rove#56).
+func TestTheRosterInThisProcessSaysWhereItIs(t *testing.T) {
+	x := require.New(t)
+	s := embeddedStore(t)
+
+	x.NotNil(s.em)
+	x.NotNil(s.em.rs.Auth, "served with what a roster falls back on, and its warning")
+}
