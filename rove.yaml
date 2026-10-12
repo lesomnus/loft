@@ -141,6 +141,11 @@ app:
   # Where a browser reaches the HTTP listener. Its scheme says whether the
   # session cookie needs HTTPS.
   public_url: http://localhost:8080
+  # The proxies in front whose X-Forwarded-For is believed: a network or an
+  # address each. Empty believes nobody's, which is right with nothing in
+  # front; behind one, name it, or every request is the proxy's and the sign-in
+  # limits are one limit for everybody behind it (`server/clientaddr`).
+  # trusted_proxies: [127.0.0.1]
   # The built UI (`cd ts && npm run build`), served at `/`. During
   # `npm run dev` the page is on :5173 and talks to this server through Vite's
   # proxy; set `app_url` to it so a scanned label opens there.

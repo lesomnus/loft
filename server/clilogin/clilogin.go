@@ -36,7 +36,6 @@ import (
 	"encoding/json"
 	"errors"
 	"mime"
-	"net"
 	"net/http"
 	"strings"
 	"time"
@@ -50,6 +49,7 @@ import (
 	entclilogin "github.com/lesomnus/rove/internal/ent/clilogin"
 	entsession "github.com/lesomnus/rove/internal/ent/session"
 	"github.com/lesomnus/rove/server/account"
+	"github.com/lesomnus/rove/server/clientaddr"
 	"github.com/lesomnus/rove/server/pd"
 	"github.com/lesomnus/rove/server/session"
 )
@@ -141,7 +141,7 @@ func (l *Logins) start(w http.ResponseWriter, r *http.Request) {
 	if !jsonBody(w, r) {
 		return
 	}
-	origin := originOf(r)
+	origin := clientaddr.Of(r)
 	switch ok, err := l.allow(r.Context(), origin); {
 	case err != nil:
 		fail(w, r, err)
@@ -408,17 +408,6 @@ func (l *Logins) freeCode(ctx context.Context, now time.Time) (string, error) {
 	return "", errors.New("cli: no free code")
 }
 
-// originOf is where a request came from, as a person would recognise it.
-func originOf(r *http.Request) string {
-	if v := strings.TrimSpace(strings.Split(r.Header.Get("X-Forwarded-For"), ",")[0]); v != "" {
-		return v
-	}
-	host, _, err := net.SplitHostPort(r.RemoteAddr)
-	if err != nil {
-		return r.RemoteAddr
-	}
-	return host
-}
 
 func agentOf(r *http.Request) string {
 	v := strings.TrimSpace(r.Header.Get("User-Agent"))

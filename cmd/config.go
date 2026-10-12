@@ -155,6 +155,12 @@ type AppConfig struct {
 	// as http://localhost:8080. Download links are made on it, and its scheme
 	// says whether the session cookie needs HTTPS.
 	PublicUrl string `yaml:"public_url"`
+	// TrustedProxies is the proxies in front of this deployment whose
+	// X-Forwarded-For is believed, each a network (`10.0.0.0/8`) or one
+	// address (`server/clientaddr`). Empty believes nobody's, which is right
+	// with nothing in front. Behind a proxy, it leaves every request coming
+	// from the proxy, so a sign-in limit is one limit for everybody behind it.
+	TrustedProxies []string `yaml:"trusted_proxies"`
 	// AppUrl is where the UI is: PublicUrl when this server serves the built
 	// UI, and the dev server's address during `npm run dev`. A scanned label
 	// is sent there.
