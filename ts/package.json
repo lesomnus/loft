@@ -8,7 +8,8 @@
 		"dev": "vite",
 		"build": "tsc -p tsconfig.json && vite build",
 		"preview": "vite preview",
-		"check": "tsc -p tsconfig.json"
+		"check": "tsc -p tsconfig.json && tsc -p e2e/tsconfig.json",
+		"e2e": "playwright test"
 	},
 	"dependencies": {
 		"@bufbuild/protobuf": "^2.12.1",
@@ -23,6 +24,7 @@
 	},
 	"devDependencies": {
 		"@bufbuild/protoc-gen-es": "^2.12.1",
+		"@playwright/test": "1.48.2",
 		"@types/node": "^22.10.2",
 		"@types/qrcode": "^1.5.5",
 		"@types/react": "^19.2.2",

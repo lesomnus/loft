@@ -318,3 +318,28 @@ cd ts && npm run check                                           # 타입 검사
 ```
 
 도메인 테스트는 실제 호출과 같은 경로(게이트, 테넌트 벽, 도메인 계층)를 지나고, `cmd` 테스트는 gRPC 체인(세션 쿠키, 역할 표, 배치) 전체를 지납니다.
+
+### 브라우저 테스트 (Playwright)
+
+`ts/e2e`는 주요 흐름을 빌드된 화면에서 사람처럼 따라갑니다: 로그인, 자산 등록·검색·이동, 가져오기(csv, xlsx), 라벨 인쇄와 코드 스캔, 지급·인수 확인·반납(부분 반납 포함), 예약 승인, 실사 스캔, 고장 신고, 워크스페이스 만들기와 전환, 약관 동의, 터미널 로그인 승인.
+
+서버는 테스트가 띄웁니다. `ts/e2e/serve.sh`가 이 체크아웃의 rove를 빌드해 새 SQLite에 `init --demo`를 하고 `127.0.0.1:18510`에서, 약관 동의를 켠 두 번째 서버는 `18520`에서 띄웁니다. 설정은 그 스크립트의 환경변수가 전부라서 `data/`, `rove.yaml`, 셸의 `ROVE_*`는 쓰지 않습니다. 서버의 DB와 로그는 `ts/test-results/rove-<포트>/`에 남고, 다음 실행이 지웁니다.
+
+```sh
+cd ts
+npm ci && npm run build                      # 테스트는 ts/dist를 씁니다
+npx playwright install --with-deps chromium  # 처음 한 번
+npx playwright test                          # 또는 npm run e2e
+npx playwright show-trace test-results/<실패한 테스트>/trace.zip
+```
+
+브라우저를 설치하지 않고 Playwright 이미지에서 돌릴 수도 있습니다. 이미지에는 Go가 없으니 미리 빌드한 rove를 `E2E_ROVE`로 넘기고, 태그는 `ts/package.json`의 `@playwright/test` 버전과 맞춥니다.
+
+```sh
+CGO_ENABLED=0 GOOS=linux go build -o /tmp/rove ./cmd/rove
+docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp \
+  -v "$PWD:$PWD" -v /tmp/rove:/tmp/rove -e E2E_ROVE=/tmp/rove -w "$PWD/ts" \
+  mcr.microsoft.com/playwright:v1.48.2-noble npx playwright test
+```
+
+포트가 겹치면 `E2E_PORT=19510`처럼 옮깁니다(그 포트와 +1, +10, +11을 씁니다).
