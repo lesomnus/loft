@@ -64,7 +64,13 @@ export function AssetPicker(props: {
 							<li key={idStr(a.id)}>
 								<button
 									type="button"
-									onClick={() => {
+									onClick={(e) => {
+										// A picker sits in a form's <label>, and picking
+										// swaps this list for the asset picked before the
+										// click is over. The label then sees no button of
+										// its own clicked and passes the click on to its
+										// first control -- 바꾸기, which unpicks it again.
+										e.preventDefault()
 										props.onChange(a)
 										setQ('')
 									}}
