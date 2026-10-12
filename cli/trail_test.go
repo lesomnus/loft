@@ -13,6 +13,7 @@ import (
 
 	"github.com/lesomnus/rove/cli"
 	"github.com/lesomnus/rove/cmd"
+	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/server/pd"
 )
 
@@ -64,4 +65,112 @@ func TestRowsFromBeforeTheKeyAreAcceptedOnce(t *testing.T) {
 	run(t, cli.NewCmdHolder(&c), "add", "--tenant", "acme", "--login", "kim", "--role", "member", "--password", "kim-password")
 	pass()
 	x.NoError(trail("verify"))
+}
+
+// TestADatabaseRestoredFromABackupIsAcceptedOnce is the runbook's step after the
+// database is restored from a backup older than the latest checkpoint
+// (docs/runbook/trail-integrity.md, lesomnus/payday#70). `verify` finds it
+// behind the checkpoint store, and a pass takes no checkpoint while it is; one
+// `rove trail accept` carries it on, numbered past the store's checkpoints,
+// and `verify` is clean at once.
+func TestADatabaseRestoredFromABackupIsAcceptedOnce(t *testing.T) {
+	x := require.New(t)
+	ctx := t.Context()
+
+	_, priv, err := ed25519.GenerateKey(rand.Reader)
+	x.NoError(err)
+	der, err := x509.MarshalPKCS8PrivateKey(priv)
+	x.NoError(err)
+
+	c := cmd.Config{}
+	c.Db.Driver, c.Db.Dsn = pdtest.DB(t)
+	c.Watch.Broker = "memory"
+	c.App.Files = t.TempDir()
+	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
+	c.Audit.Archive = t.TempDir()
+	c.Audit.Retain = time.Nanosecond
+	c.Audit.Checkpoints.Key = string(pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: der}))
+	run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner-pass-1234")
+
+	// The deployment as `serve` builds it, for what is done here and not at
+	// a shell: a pass, as the sweep runs one, and the database by hand.
+	with := func(fn func(s *cmd.Server)) {
+		s, err := cmd.Build(ctx, c)
+		x.NoError(err)
+		defer s.Close()
+		fn(s)
+	}
+	pass := func() { with(func(s *cmd.Server) { s.Trail.Pass(ctx, pd.TrailStore(s.Ent)) }) }
+	latest := func() (k int) {
+		with(func(s *cmd.Server) {
+			k, _, err = pd.TrailStore(s.Ent).Latest(ctx)
+			x.NoError(err)
+		})
+		return k
+	}
+	holder := func(login string) {
+		run(t, cli.NewCmdHolder(&c), "add", "--tenant", "acme", "--login", login, "--role", "member", "--password", login+"-password")
+	}
+	trail := func(args ...string) error { return cli.NewCmdTrail(&c).Run(ctx, args) }
+
+	pass()
+	x.NoError(trail("verify"))
+	then := latest()
+
+	// The backup, of the database's account of the archive.
+	var backup []*ent.Archived
+	with(func(s *cmd.Server) {
+		backup, err = s.Ent.Archived.Query().All(ctx)
+		x.NoError(err)
+	})
+
+	holder("kim")
+	pass()
+	since := latest()
+	x.Greater(since, then)
+
+	// Restored, and the archive and its checkpoints not.
+	with(func(s *cmd.Server) {
+		_, err := s.Ent.Archived.Delete().Exec(ctx)
+		x.NoError(err)
+		for _, v := range backup {
+			x.NoError(s.Ent.Archived.Create().
+				SetId(v.Id).
+				SetNamespace(v.Namespace).
+				SetDigest(v.Digest).
+				SetIntent(v.Intent).
+				SetLabels(v.Labels).
+				SetState(v.State).
+				SetSince(v.Since).
+				SetGone(v.Gone).
+				SetSignature(v.Signature).
+				SetSignedBy(v.SignedBy).
+				SetDateCreated(v.DateCreated).
+				SetDateUpdated(v.DateUpdated).
+				Exec(ctx))
+		}
+
+		v, err := s.Trail.Verify(ctx, pd.TrailStore(s.Ent), false)
+		x.NoError(err)
+		found := []string{}
+		for _, f := range v.Findings {
+			found = append(found, f.Kind)
+		}
+		x.Contains(found, "behind")
+	})
+	x.ErrorContains(trail("verify"), "findings")
+
+	holder("lee")
+	pass()
+	x.Equal(then, latest(), "a checkpoint was taken over a database behind the store")
+
+	x.NoError(trail("accept", "--why", "the database restored from the backup, and looked at"))
+	x.Equal(since+1, latest())
+	x.NoError(trail("verify", "--full"))
+
+	// And it goes on from there.
+	holder("park")
+	pass()
+	x.Greater(latest(), since+1)
+	x.NoError(trail("verify", "--full"))
 }
