@@ -121,10 +121,13 @@ jobs:
           cache-dependency-path: ts/package-lock.json
       - run: npm ci
       - run: npx vite build
-      # Once, for both of the servers the tests stand up.
+      # Once, for every server the tests stand up; and the issuer one of them
+      # signs people in through (ts/e2e/issuer.sh).
       - name: build rove
         working-directory: .
-        run: go build -o "$RUNNER_TEMP/rove" ./cmd/rove
+        run: |
+          go build -o "$RUNNER_TEMP/rove" ./cmd/rove
+          go build -o "$RUNNER_TEMP/oidctest" ./internal/oidctest/cmd/oidctest
       - name: Chromium
         run: npx playwright install --with-deps chromium
       - name: PostgreSQL is up
@@ -135,6 +138,7 @@ jobs:
       - name: browser tests
         env:
           E2E_ROVE: ${{ runner.temp }}/rove
+          E2E_ISSUER: ${{ runner.temp }}/oidctest
           E2E_POSTGRES: ${{ matrix.db == 'postgres' && 'postgres://rove:rove@127.0.0.1:5432/rove?sslmode=disable' || '' }}
         run: npx playwright test
       # What a failure leaves: the report, with each failed test's trace and

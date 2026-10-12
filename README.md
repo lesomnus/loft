@@ -323,9 +323,9 @@ cd ts && npm run check                                           # 타입 검사
 
 ### 브라우저 테스트 (Playwright)
 
-`ts/e2e`는 주요 흐름을 빌드된 화면에서 사람처럼 따라갑니다: 로그인, 자산 등록·검색·이동, 가져오기(csv, xlsx), 라벨 인쇄와 코드 스캔, 지급·인수 확인·반납(부분 반납 포함), 예약 승인, 실사 스캔, 고장 신고, 워크스페이스 만들기와 전환, 약관 동의, 터미널 로그인 승인.
+`ts/e2e`는 주요 흐름을 빌드된 화면에서 사람처럼 따라갑니다: 로그인(비밀번호, 그리고 roster의 발급자를 거치는 SSO), 자산 등록·검색·이동, 가져오기(csv, xlsx), 라벨 인쇄와 코드 스캔, 카메라로 라벨 스캔, 지급·인수 확인·반납(부분 반납 포함, 자산 화면에서 시작하는 지급), 구성원이 라벨을 스캔해 하는 인수 확인, 예약 승인, 실사 스캔, 고장 신고, 구매와 입고, 재고 사용·입고, 워크스페이스 만들기와 전환, 닫기·내려받기·복구, 초대 보내기와 수락·거절, 약관 동의, 터미널 로그인 승인.
 
-서버는 테스트가 띄웁니다. `ts/e2e/serve.sh`가 이 체크아웃의 rove를 빌드해 새 SQLite(아래처럼 주면 PostgreSQL)에 `init --demo`를 하고 `127.0.0.1:18510`에서, 약관 동의를 켠 두 번째 서버는 `18520`에서 띄웁니다. 설정은 그 스크립트의 환경변수가 전부라서 `data/`, `rove.yaml`, 셸의 `ROVE_*`는 쓰지 않습니다. 서버의 DB와 로그는 `ts/test-results/rove-<포트>/`에 남고, 다음 실행이 지웁니다.
+서버는 테스트가 띄웁니다. `ts/e2e/serve.sh`가 이 체크아웃의 rove를 빌드해 새 SQLite(아래처럼 주면 PostgreSQL)에 `init --demo`를 하고 `127.0.0.1:18510`에서, 약관 동의를 켠 두 번째 서버는 `18520`에서, SSO를 켠 세 번째 서버는 `18530`에서 띄웁니다. SSO의 발급자는 Go 테스트가 쓰는 `internal/oidctest`이고, `ts/e2e/issuer.sh`가 `internal/oidctest/cmd/oidctest`로 `18540`에서 띄웁니다. 설정은 그 스크립트들의 환경변수와 인자가 전부라서 `data/`, `rove.yaml`, 셸의 `ROVE_*`는 쓰지 않습니다. 서버의 DB와 로그는 `ts/test-results/rove-<포트>/`에 남고, 다음 실행이 지웁니다. 메일 서버를 정하지 않은 서버는 보낼 메일을 로그에 쓰므로, 초대 테스트는 그 로그에서 초대 링크를 읽습니다.
 
 ```sh
 cd ts
@@ -335,16 +335,18 @@ npx playwright test                          # 또는 npm run e2e
 npx playwright show-trace test-results/<실패한 테스트>/trace.zip
 ```
 
-브라우저를 설치하지 않고 Playwright 이미지에서 돌릴 수도 있습니다. 이미지에는 Go가 없으니 미리 빌드한 rove를 `E2E_ROVE`로 넘기고, 태그는 `ts/package.json`의 `@playwright/test` 버전과 맞춥니다.
+브라우저를 설치하지 않고 Playwright 이미지에서 돌릴 수도 있습니다. 이미지에는 Go가 없으니 미리 빌드한 rove와 발급자를 `E2E_ROVE`, `E2E_ISSUER`로 넘기고, 태그는 `ts/package.json`의 `@playwright/test` 버전과 맞춥니다.
 
 ```sh
 CGO_ENABLED=0 GOOS=linux go build -o /tmp/rove ./cmd/rove
+CGO_ENABLED=0 GOOS=linux go build -o /tmp/oidctest ./internal/oidctest/cmd/oidctest
 docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp \
-  -v "$PWD:$PWD" -v /tmp/rove:/tmp/rove -e E2E_ROVE=/tmp/rove -w "$PWD/ts" \
+  -v "$PWD:$PWD" -v /tmp/rove:/tmp/rove -v /tmp/oidctest:/tmp/oidctest \
+  -e E2E_ROVE=/tmp/rove -e E2E_ISSUER=/tmp/oidctest -w "$PWD/ts" \
   mcr.microsoft.com/playwright:v1.63.0-noble npx playwright test
 ```
 
-포트가 겹치면 `E2E_PORT=19510`처럼 옮깁니다(그 포트와 +1, +10, +11을 씁니다).
+포트가 겹치면 `E2E_PORT=19510`처럼 옮깁니다(그 포트와 +1, +10, +11, +20, +21, +30을 씁니다).
 
 PostgreSQL에서 돌리려면 `E2E_POSTGRES`에 데이터베이스를 만들 수 있는 계정으로 그 서버의 주소를 줍니다. 서버마다 Rove와 roster의 데이터베이스를 하나씩(`e2e_rove_<포트>`, `e2e_roster_<포트>`) 그 서버에 두고, 실행할 때마다 지우고 새로 만듭니다(`ts/e2e/postgres.mjs`). CI는 SQLite와, `go` 잡과 같은 pg_bigm이 든 PostgreSQL(`deploy/postgres`) 둘 다에서 돌립니다.
 

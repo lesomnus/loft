@@ -6,11 +6,15 @@ import { defineConfig, devices } from '@playwright/test'
 // E2E_POSTGRES on databases of its own there, made fresh every run.
 // `npx playwright test`, on a desk as in CI; README `## 테스트` has the rest.
 //
-// Two of them, since one asks for agreement to terms (`app.consent`) and the
-// other must not: every sign-in there begins with it.
+// Three of them, since one asks for agreement to terms (`app.consent`) and the
+// others must not -- every sign-in there begins with it -- and one signs people
+// in through an issuer (`auth.sso`), the test's own (e2e/issuer.sh), which the
+// others have no reason to ask.
 const port = Number(process.env.E2E_PORT ?? 18510)
 const app = `http://127.0.0.1:${port}`
 const consent = `http://127.0.0.1:${port + 10}`
+const sso = `http://127.0.0.1:${port + 20}`
+const issuer = `http://127.0.0.1:${port + 30}`
 
 // Playwright stops a web server by killing it (SIGKILL, with no
 // `gracefulShutdown` set), so a server has nothing to clean up on its way out:
@@ -45,8 +49,19 @@ export default defineConfig({
 		screenshot: 'only-on-failure',
 	},
 	projects: [
-		{ name: 'app', testIgnore: /consent\.spec\.ts/, use: { baseURL: app } },
+		{ name: 'app', testIgnore: /(consent|sso)\.spec\.ts/, use: { baseURL: app } },
 		{ name: 'consent', testMatch: /consent\.spec\.ts/, use: { baseURL: consent } },
+		{ name: 'sso', testMatch: /sso\.spec\.ts/, use: { baseURL: sso }, metadata: { issuer } },
 	],
-	webServer: [server(port), server(port + 10, 'consent')],
+	webServer: [
+		server(port),
+		server(port + 10, 'consent'),
+		server(port + 20, 'sso', issuer),
+		{
+			command: `sh e2e/issuer.sh ${port + 30} ${sso}`,
+			url: `${issuer}/.well-known/openid-configuration`,
+			timeout: 180_000,
+			reuseExistingServer: false,
+		},
+	],
 })

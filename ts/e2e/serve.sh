@@ -3,11 +3,13 @@
 # built from this checkout, `init --demo` on a SQLite database of its own, and
 # serving the built page (ts/dist) on 127.0.0.1:PORT.
 #
-#   sh e2e/serve.sh PORT [consent]
+#   sh e2e/serve.sh PORT [consent | sso ISSUER]
 #
 # Its database, files and log are in test-results/rove-PORT, which Playwright
 # empties before every run and leaves after one, for a failure to be read.
-# `consent` also asks everybody to agree to terms first (`app.consent`).
+# `consent` also asks everybody to agree to terms first (`app.consent`), and
+# `sso` signs people in through the issuer at ISSUER as well (`auth.sso`):
+# the test's own, which e2e/issuer.sh stands up.
 #
 # E2E_POSTGRES names a PostgreSQL to run on instead -- postgres://…, as one
 # who may make databases there. Each server then has two of its own, Rove's
@@ -24,7 +26,7 @@ set -eu
 port=${1:-}
 case $port in
 '' | *[!0-9]*)
-	echo "usage: sh e2e/serve.sh PORT [consent]" >&2
+	echo "usage: sh e2e/serve.sh PORT [consent | sso ISSUER]" >&2
 	exit 2
 	;;
 esac
@@ -74,12 +76,21 @@ export ROVE_APP_PUBLIC_URL=http://127.0.0.1:$port
 export ROVE_APP_WEB=$ts/dist
 export ROVE_APP_FILES=$dir/files
 export ROVE_APP_SIGNING_KEY=rove-e2e-signing-key-not-a-secret-$port
-if [ "${2:-}" = consent ]; then
+case ${2:-} in
+consent)
 	export ROVE_APP_CONSENT_TERMS_VERSION=2026-10-01
 	export ROVE_APP_CONSENT_TERMS_URL=https://example.com/terms
 	export ROVE_APP_CONSENT_PRIVACY_VERSION=2026-10-01
 	export ROVE_APP_CONSENT_PRIVACY_URL=https://example.com/privacy
-fi
+	;;
+sso)
+	# The client e2e/issuer.sh registers, with one button.
+	export ROVE_AUTH_SSO_ISSUER=${3:?"usage: sh e2e/serve.sh PORT sso ISSUER"}
+	export ROVE_AUTH_SSO_CLIENT_ID=rove-e2e
+	export ROVE_AUTH_SSO_CLIENT_SECRET=rove-e2e-client-secret-not-a-secret
+	export ROVE_AUTH_SSO_PROVIDERS='[{"connection":"google","label":"Google","mark":"google"}]'
+	;;
+esac
 
 # It writes a line for every call, so what it says goes to the log, and only
 # the end of that is shown -- when it stops on its own, which is a failure.
