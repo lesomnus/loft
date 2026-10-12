@@ -28,3 +28,35 @@ func TestStateDirIsWhereTheSqliteFileIs(t *testing.T) {
 	c.Db.Driver, c.Db.Dsn = "pgx", "postgres://rove@localhost/rove"
 	require.Empty(t, c.StateDir(), "a database that is not a file")
 }
+
+// TestSeveralProcessesSignWithOneKey: a deployment that names a lease or a
+// broker crossing processes is several of them, and a download link one signed
+// with a key it made up is refused by the next -- so it is told to name one.
+func TestSeveralProcessesSignWithOneKey(t *testing.T) {
+	for _, v := range []struct {
+		lease, broker, key string
+		says               []string
+	}{
+		{lease: "local", broker: "memory"},
+		{lease: "local", broker: "none"},
+		{lease: "postgres", broker: "memory", says: []string{"spin.lease: postgres"}},
+		{lease: "none", broker: "memory", says: []string{"spin.lease: none"}},
+		{lease: "local", broker: "postgres", says: []string{"watch.broker: postgres"}},
+		{lease: "postgres", broker: "postgres", says: []string{"spin.lease: postgres", "watch.broker: postgres"}},
+		{lease: "postgres", broker: "postgres", key: "one-key-everywhere"},
+	} {
+		c := cmd.Config{}
+		c.Spin.Lease, c.Watch.Broker, c.App.SigningKey = v.lease, v.broker, v.key
+
+		err := c.Replicas()
+		if len(v.says) == 0 {
+			require.NoError(t, err, "%+v", v)
+			continue
+		}
+		require.ErrorContains(t, err, "app.signing_key", "%+v", v)
+		require.ErrorContains(t, err, "ROVE_APP_SIGNING_KEY", "%+v", v)
+		for _, w := range v.says {
+			require.ErrorContains(t, err, w, "%+v", v)
+		}
+	}
+}

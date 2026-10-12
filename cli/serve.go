@@ -48,6 +48,11 @@ func NewCmdServe(c *cmd.Config) *xli.Command {
 			if err != nil {
 				return err
 			}
+			// And what a deployment of several processes needs every one of
+			// them told alike, now that it has said it is one.
+			if err := c.Replicas(); err != nil {
+				return err
+			}
 
 			s, err := cmd.Build(ctx, *c)
 			if err != nil {
