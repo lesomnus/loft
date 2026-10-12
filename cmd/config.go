@@ -122,6 +122,33 @@ func (c Config) StateDir() string {
 	return filepath.Dir(v)
 }
 
+// Replicas refuses what a deployment of several processes cannot be run with.
+//
+// A deployment says it is several processes by what it names: a lease other
+// than `local` hands its loops to whichever process holds them, and a broker
+// other than `memory` or `none` carries a write from one process to the
+// others. Said either way, what each process makes up for itself stops being
+// true of the rest, and the thing here a process makes up is the key the
+// download links are signed with. Left empty it is a key per process, so a link
+// one replica signed is refused by the next one the browser reaches -- now and
+// then, by whichever way the balancer went, with nothing in a log about why.
+func (c Config) Replicas() error {
+	var said []string
+	if c.Spin.Lease != config.LeaseLocal {
+		said = append(said, fmt.Sprintf("spin.lease: %s", c.Spin.Lease))
+	}
+	if b := c.Watch.Broker; b != config.BrokerMemory && b != config.BrokerNone {
+		said = append(said, fmt.Sprintf("watch.broker: %s", b))
+	}
+	if len(said) == 0 || c.App.SigningKey != "" {
+		return nil
+	}
+
+	return fmt.Errorf("app.signing_key: %s says this deployment is several processes, and with no key "+
+		"each makes one of its own -- a download link one signed is refused by the next. "+
+		"Set the same key on every one (ROVE_APP_SIGNING_KEY)", strings.Join(said, " and "))
+}
+
 // AppConfig is rove's own part of the configuration.
 type AppConfig struct {
 	// PublicUrl is where a browser reaches this server's HTTP listener, such
@@ -139,7 +166,9 @@ type AppConfig struct {
 	// Files is the directory attachments are kept in.
 	Files string `yaml:"files"`
 	// SigningKey signs the short-lived download links. Empty makes one per
-	// process, which means a link stops working when the process restarts.
+	// process, which means a link stops working when the process restarts --
+	// and, in a deployment of several, on every process but the one that
+	// signed it, which `serve` refuses (see [Config.Replicas]).
 	SigningKey string `yaml:"signing_key"`
 
 	Labels  LabelConfig   `yaml:"labels"`
