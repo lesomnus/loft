@@ -451,9 +451,11 @@ message SignInFailure {
     default: ""
   }];
 
-  // What the address and the name the failure was for hash to, as
-  // `Session.secret` is what a key hashes to: a reader of the table can count
-  // them and can read neither off it.
+  // What the address and the name the failure was for hash to. It keeps the
+  // pair out of plain sight, and no more than that: both halves can be guessed
+  // -- an address space, a directory's names -- so a reader of the table who
+  // tries them can tell whose a row is. What keeps it from saying much is that
+  // nothing older than the window is kept.
   bytes subject = 8 [
     (orm.field) = {default: ""},
     (payday.field) = {secret: true}
