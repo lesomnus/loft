@@ -340,31 +340,38 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		// What the notifications worth a mailbox say, sent after the
 		// operation that made them (`app.mail`; nothing without a server).
 		domain.Mailer{Drv: drv, Deps: deps},
-		spinEvery(time.Hour, store.Sweep),
-		spinEvery(time.Hour, s.Logins.Sweep),
+		spinEvery("rove.sessions", time.Hour, store.Sweep),
+		spinEvery("rove.cli-logins", time.Hour, s.Logins.Sweep),
 		// Closed workspaces whose window is over, destroyed unless held.
 		// Read when it runs: s.Closing is put together after the trail.
-		spinEvery(or(c.App.Workspaces.Every, time.Hour), func(ctx context.Context) error { return s.Closing.Sweep(ctx) }),
+		spinEvery("rove.closing", or(c.App.Workspaces.Every, time.Hour), func(ctx context.Context) error { return s.Closing.Sweep(ctx) }),
 		// The roster in this process's own housekeeping; nothing, for one of
-		// its own.
-		people,
+		// its own. Its loops are the deployment's like these, so it is one
+		// of them under a lease. (It was handed over as the store itself,
+		// which is no spin.Spinner, and so never ran.)
+		spin.Called("rove.roster", spin.Func(people.Run)),
 	)
 	if !people.Embedded() {
 		// What roster says of an account as it says it: sessions that end
 		// when roster ends them rather than at their next call, and an
 		// erased account beginning to leave. The roster in this process has
 		// no stream, and every change to its people is made from here.
-		s.Spin = append(s.Spin, spin.Func(func(ctx context.Context) error {
+		//
+		// Each process holds a stream of its own: what roster says is also
+		// what each process's own answers about an account are dropped by
+		// (`identity.Store.Recheck`), and what it writes here comes to the
+		// same thing written twice.
+		s.Spin = append(s.Spin, spin.InEveryProcess(spin.Called("rove.roster-stream", spin.Func(func(ctx context.Context) error {
 			return people.Follow(ctx, s.Lifecycle.Apply)
-		}))
+		}))))
 	}
 	// And the accounts still erased once roster's grace is over, leaving
 	// every workspace they were in.
-	s.Spin = append(s.Spin, spinEvery(c.App.Accounts.Interval(), s.Lifecycle.Sweep))
+	s.Spin = append(s.Spin, spinEvery("rove.departures", c.App.Accounts.Interval(), s.Lifecycle.Sweep))
 	// And every account asked about again, for an erasure the stream did not
 	// carry because this was not listening (design 9.10).
 	if d := c.App.Accounts.ReconcileEvery(); d > 0 {
-		s.Spin = append(s.Spin, spinEvery(d, s.Lifecycle.Reconciling))
+		s.Spin = append(s.Spin, spinEvery("rove.reconcile", d, s.Lifecycle.Reconciling))
 	}
 
 	// What the keep windows no longer reach, taken out of the history (design
@@ -665,14 +672,16 @@ const notBuilt = `<!doctype html><meta charset="utf-8"><title>Rove</title>
 <p>API는 이미 돌고 있습니다.</p>`
 
 // spinEvery runs `f` every `d`, and logs a pass that failed rather than
-// stopping: tidying a table is not a reason to stop serving.
-func spinEvery(d time.Duration, f func(ctx context.Context) error) spin.Func {
-	return spin.Every(d, func(ctx context.Context) error {
+// stopping: tidying a table is not a reason to stop serving. It is the
+// deployment's work, so under a lease one process runs it, and its name is what
+// the processes agree on.
+func spinEvery(name string, d time.Duration, f func(ctx context.Context) error) spin.Spinner {
+	return spin.Called(name, spin.Every(d, func(ctx context.Context) error {
 		if err := f(ctx); err != nil {
 			log.From(ctx).WarnContext(ctx, "tidy", slog.String("error", err.Error()))
 		}
 		return nil
-	})
+	}))
 }
 
 // Routes is what this app serves over HTTP besides its Rpcs.

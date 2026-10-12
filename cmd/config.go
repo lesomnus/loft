@@ -54,6 +54,11 @@ type Config struct {
 	// Auth is who people are (design 9.10).
 	Auth AuthConfig `yaml:"auth"`
 
+	// Spin is which process of the deployment runs the loops only one of them
+	// may -- the sweeps, the mail, the outbox -- named rather than defaulted
+	// for the reason the watch broker is (payday#54).
+	Spin config.SpinConfig `yaml:"spin"`
+
 	// App is what rove is configured with beyond payday's pieces.
 	App AppConfig `yaml:"app"`
 
