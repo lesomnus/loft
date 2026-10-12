@@ -30,9 +30,9 @@ require (
 	github.com/jackc/pgx/v5 v5.10.0
 	github.com/lesomnus/flob v0.0.0-20261010120939-21f89e60609e
 	github.com/lesomnus/otx v0.0.0-20260807173743-977a5687d6ba
-	github.com/lesomnus/payday v0.0.0-20261012122713-c40a0d711f46
+	github.com/lesomnus/payday v0.0.0-20261012161913-a36d5d09c512
 	github.com/lesomnus/protobuf-patch v0.0.0-20260803175157-e1b7a0c2804f
-	github.com/lesomnus/roster v0.0.0-20261012124133-8d3ba6a5e43d
+	github.com/lesomnus/roster v0.0.0-20261012163259-d1b9ec4a6fc6
 	github.com/lesomnus/xli v0.0.0-20261006060415-9f2e9ce97331
 	github.com/lesomnus/xli/cfg v0.1.2
 	github.com/lesomnus/z v0.0.0-20260531102454-3f1853bb4278
