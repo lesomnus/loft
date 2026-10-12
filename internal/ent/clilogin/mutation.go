@@ -21,6 +21,7 @@ type Mutation struct {
 	code          *string
 	client        *string
 	origin        *string
+	address       *string
 	account       *uuid.UUID
 	state         *string
 	date_expires  *time.Time
@@ -132,6 +133,38 @@ func (m *Mutation) Origin() (r string, exists bool) {
 // ResetOrigin resets all changes to the "origin" field.
 func (m *Mutation) ResetOrigin() {
 	m.origin = nil
+}
+
+// SetAddress sets the "address" field.
+func (m *Mutation) SetAddress(s string) {
+	m.address = &s
+}
+
+// Address returns the value of the "address" field in the mutation.
+func (m *Mutation) Address() (r string, exists bool) {
+	v := m.address
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearAddress clears the value of the "address" field.
+func (m *Mutation) ClearAddress() {
+	m.address = nil
+	m.clearedFields[FieldAddress] = struct{}{}
+}
+
+// AddressCleared returns if the "address" field was cleared in this mutation.
+func (m *Mutation) AddressCleared() bool {
+	_, ok := m.clearedFields[FieldAddress]
+	return ok
+}
+
+// ResetAddress resets all changes to the "address" field.
+func (m *Mutation) ResetAddress() {
+	m.address = nil
+	delete(m.clearedFields, FieldAddress)
 }
 
 // SetAccount sets the "account" field.
@@ -334,7 +367,7 @@ func (m *Mutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *Mutation) Fields() []string {
-	fields := make([]string, 0, 10)
+	fields := make([]string, 0, 11)
 	if m.secret != nil {
 		fields = append(fields, FieldSecret)
 	}
@@ -346,6 +379,9 @@ func (m *Mutation) Fields() []string {
 	}
 	if m.origin != nil {
 		fields = append(fields, FieldOrigin)
+	}
+	if m.address != nil {
+		fields = append(fields, FieldAddress)
 	}
 	if m.account != nil {
 		fields = append(fields, FieldAccount)
@@ -381,6 +417,8 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.GetClient()
 	case FieldOrigin:
 		return m.Origin()
+	case FieldAddress:
+		return m.Address()
 	case FieldAccount:
 		return m.Account()
 	case FieldState:
@@ -436,6 +474,13 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetOrigin(v)
+		return nil
+	case FieldAddress:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAddress(v)
 		return nil
 	case FieldAccount:
 		v, ok := value.(uuid.UUID)
@@ -512,6 +557,9 @@ func (m *Mutation) ClearedFields() []string {
 	if m.FieldCleared(FieldSecret) {
 		fields = append(fields, FieldSecret)
 	}
+	if m.FieldCleared(FieldAddress) {
+		fields = append(fields, FieldAddress)
+	}
 	if m.FieldCleared(FieldAccount) {
 		fields = append(fields, FieldAccount)
 	}
@@ -540,6 +588,9 @@ func (m *Mutation) ClearField(name string) error {
 	switch name {
 	case FieldSecret:
 		m.ClearSecret()
+		return nil
+	case FieldAddress:
+		m.ClearAddress()
 		return nil
 	case FieldAccount:
 		m.ClearAccount()
@@ -572,6 +623,9 @@ func (m *Mutation) ResetField(name string) error {
 		return nil
 	case FieldOrigin:
 		m.ResetOrigin()
+		return nil
+	case FieldAddress:
+		m.ResetAddress()
 		return nil
 	case FieldAccount:
 		m.ResetAccount()

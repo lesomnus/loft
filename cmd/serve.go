@@ -341,6 +341,7 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		// operation that made them (`app.mail`; nothing without a server).
 		domain.Mailer{Drv: drv, Deps: deps},
 		spinEvery("rove.sessions", time.Hour, store.Sweep),
+		spinEvery("rove.sign-in-failures", session.Window, session.Failures{Db: client}.Sweep),
 		spinEvery("rove.cli-logins", time.Hour, s.Logins.Sweep),
 		// Closed workspaces whose window is over, destroyed unless held.
 		// Read when it runs: s.Closing is put together after the trail.

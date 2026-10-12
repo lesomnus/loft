@@ -26,6 +26,8 @@ type CliLogin struct {
 	Client string `json:"client,omitempty"`
 	// Origin holds the value of the "origin" field.
 	Origin string `json:"origin,omitempty"`
+	// Address holds the value of the "address" field.
+	Address string `json:"address,omitempty"`
 	// Account holds the value of the "account" field.
 	Account *uuid.UUID `json:"account,omitempty"`
 	// State holds the value of the "state" field.
@@ -48,7 +50,7 @@ func (*CliLogin) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case clilogin.FieldSecret:
 			values[i] = new([]byte)
-		case clilogin.FieldCode, clilogin.FieldClient, clilogin.FieldOrigin, clilogin.FieldState:
+		case clilogin.FieldCode, clilogin.FieldClient, clilogin.FieldOrigin, clilogin.FieldAddress, clilogin.FieldState:
 			values[i] = new(sql.NullString)
 		case clilogin.FieldDateExpires, clilogin.FieldDateUpdated, clilogin.FieldDateErased, clilogin.FieldDateCreated:
 			values[i] = new(sql.NullTime)
@@ -100,6 +102,12 @@ func (_m *CliLogin) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field origin", values[i])
 			} else if value.Valid {
 				_m.Origin = value.String
+			}
+		case clilogin.FieldAddress:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field address", values[i])
+			} else if value.Valid {
+				_m.Address = value.String
 			}
 		case clilogin.FieldAccount:
 			if value, ok := values[i].(*sql.Null[uuid.UUID]); !ok {
@@ -186,6 +194,9 @@ func (_m *CliLogin) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("origin=")
 	builder.WriteString(_m.Origin)
+	builder.WriteString(", ")
+	builder.WriteString("address=")
+	builder.WriteString(_m.Address)
 	builder.WriteString(", ")
 	if v := _m.Account; v != nil {
 		builder.WriteString("account=")

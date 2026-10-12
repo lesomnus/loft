@@ -132,6 +132,9 @@ type ReservationItem func(*sql.Selector)
 // Session is the predicate function for session builders.
 type Session func(*sql.Selector)
 
+// SignInFailure is the predicate function for signinfailure builders.
+type SignInFailure func(*sql.Selector)
+
 // Stewardship is the predicate function for stewardship builders.
 type Stewardship func(*sql.Selector)
 

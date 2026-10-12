@@ -105,6 +105,9 @@ export const ReservationItemDomain = 27
 /** The domain identifiers of rove.Session carry. */
 export const SessionDomain = 38
 
+/** The domain identifiers of rove.SignInFailure carry. */
+export const SignInFailureDomain = 45
+
 /** The domain identifiers of rove.Stewardship carry. */
 export const StewardshipDomain = 15
 
@@ -165,6 +168,7 @@ pdid.register("rove.PurchaseLine", PurchaseLineDomain, "purchase-line")
 pdid.register("rove.Reservation", ReservationDomain, "reservation")
 pdid.register("rove.ReservationItem", ReservationItemDomain, "reservation-item")
 pdid.register("rove.Session", SessionDomain, "session")
+pdid.register("rove.SignInFailure", SignInFailureDomain, "sign-in-failure")
 pdid.register("rove.Stewardship", StewardshipDomain, "stewardship")
 pdid.register("rove.Stock", StockDomain, "stock")
 pdid.register("rove.StockMovement", StockMovementDomain, "stock-movement")

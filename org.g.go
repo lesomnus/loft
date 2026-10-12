@@ -307,3 +307,46 @@ func ConsentByAgreed(account []byte, document string, version string) *ConsentRe
 func ConsentGetByAgreed(account []byte, document string, version string) *ConsentGetRequest {
 	return ConsentGetRequest_builder{Ref: ConsentByAgreed(account, document, version)}.Build()
 }
+
+func (x *SignInFailureRef) Pick() *SignInFailureGetRequest {
+	return SignInFailureGetRequest_builder{Ref: x}.Build()
+}
+
+func (x *SignInFailure) Ref() *SignInFailureRef {
+	if v := x.GetId(); len(v) > 0 {
+		return SignInFailureById(v)
+	}
+
+	return nil
+}
+
+func (x *SignInFailure) Pick() *SignInFailureGetRequest {
+	return x.Ref().Pick()
+}
+
+func (x *SignInFailureRef) Picks(v *SignInFailure) bool {
+	switch x.WhichKey() {
+	case SignInFailureRef_Id_case:
+		return bytes.Equal(x.GetId(), v.GetId())
+	default:
+		return false
+	}
+}
+
+func (x *SignInFailureGetRequest) WithSelect(f func(s *SignInFailureSelect)) *SignInFailureGetRequest {
+	if !x.HasSelect() {
+		x.SetSelect(&SignInFailureSelect{})
+	}
+	f(x.GetSelect())
+	return x
+}
+
+func SignInFailureById(v []byte) *SignInFailureRef {
+	x := &SignInFailureRef{}
+	x.SetId(v)
+	return x
+}
+
+func SignInFailureGetById(v []byte) *SignInFailureGetRequest {
+	return SignInFailureGetRequest_builder{Ref: SignInFailureById(v)}.Build()
+}

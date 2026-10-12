@@ -39,7 +39,6 @@ import (
 	"net"
 	"net/http"
 	"strings"
-	"sync"
 	"time"
 	"unicode/utf8"
 
@@ -70,6 +69,19 @@ const Ttl = 10 * time.Minute
 // Interval is how often a terminal asks, in seconds.
 const Interval = 2
 
+// The most sign-ins one address may start in a while: a table nothing signed
+// in can write to is a table anybody can fill.
+//
+// Counted from the rows themselves (`CliLogin.address`), so every process of a
+// deployment counts the same ones; a count in each one's memory was a limit
+// per process. A sign-in that was answered and told so is gone and no longer
+// counts, which is only ever a terminal of somebody's own: one nobody approves
+// stays until it expires, and the window is as long as that.
+const (
+	PerAddress    = 20
+	AddressWindow = Ttl
+)
+
 // Logins is the three halves of a terminal signing in.
 type Logins struct {
 	Db       *ent.Client
@@ -88,15 +100,10 @@ type Logins struct {
 
 	// Now is the clock; tests move it.
 	Now func() time.Time
-
-	limit *limiter
 }
 
 // Mount puts the routes on a mux.
 func (l *Logins) Mount(mux *http.ServeMux) {
-	if l.limit == nil {
-		l.limit = &limiter{per: 10 * time.Minute, max: 20, seen: map[string][]time.Time{}}
-	}
 	mux.HandleFunc("POST /cli/logins", l.start)
 	mux.HandleFunc("POST /cli/logins/{id}/poll", l.poll)
 	mux.HandleFunc("GET /cli/logins", l.show)
@@ -135,7 +142,11 @@ func (l *Logins) start(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	origin := originOf(r)
-	if !l.limit.allow(origin, l.now()) {
+	switch ok, err := l.allow(r.Context(), origin); {
+	case err != nil:
+		fail(w, r, err)
+		return
+	case !ok:
 		http.Error(w, "too many sign-ins asked from here; wait a little", http.StatusTooManyRequests)
 		return
 	}
@@ -187,6 +198,7 @@ func (l *Logins) start(w http.ResponseWriter, r *http.Request) {
 		SetCode(code).
 		SetClient(client).
 		SetOrigin(origin + agentOf(r)).
+		SetAddress(origin).
 		SetState(pending).
 		SetDateExpires(now.Add(Ttl)).
 		SetDateCreated(now).
@@ -439,32 +451,14 @@ func fail(w http.ResponseWriter, r *http.Request, err error) {
 	http.Error(w, "cannot just now", http.StatusServiceUnavailable)
 }
 
-// limiter is how many sign-ins one address may start in a while: a table
-// nothing signed in can write to is a table anybody can fill.
-type limiter struct {
-	mu   sync.Mutex
-	per  time.Duration
-	max  int
-	seen map[string][]time.Time
-}
-
-func (l *limiter) allow(who string, now time.Time) bool {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	ts := l.seen[who][:0]
-	for _, t := range l.seen[who] {
-		if now.Sub(t) < l.per {
-			ts = append(ts, t)
-		}
+// allow answers whether an address may start another sign-in: fewer than
+// [PerAddress] started from it in the last [AddressWindow].
+func (l *Logins) allow(ctx context.Context, address string) (bool, error) {
+	n, err := l.Db.CliLogin.Query().
+		Where(entclilogin.Address(address), entclilogin.DateCreatedGT(l.now().Add(-AddressWindow))).
+		Count(ctx)
+	if err != nil {
+		return false, err
 	}
-	if len(ts) >= l.max {
-		l.seen[who] = ts
-		return false
-	}
-	l.seen[who] = append(ts, now)
-	if len(l.seen) > 10000 {
-		// Forget everybody rather than grow without end.
-		clear(l.seen)
-	}
-	return true
+	return n < PerAddress, nil
 }

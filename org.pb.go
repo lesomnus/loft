@@ -1011,6 +1011,7 @@ type CliLogin struct {
 	xxx_hidden_Code        string                 `protobuf:"bytes,9,opt,name=code"`
 	xxx_hidden_Client      string                 `protobuf:"bytes,10,opt,name=client"`
 	xxx_hidden_Origin      string                 `protobuf:"bytes,11,opt,name=origin"`
+	xxx_hidden_Address     string                 `protobuf:"bytes,18,opt,name=address"`
 	xxx_hidden_Account     []byte                 `protobuf:"bytes,12,opt,name=account"`
 	xxx_hidden_State       string                 `protobuf:"bytes,16,opt,name=state"`
 	xxx_hidden_DateExpires *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=date_expires,json=dateExpires"`
@@ -1081,6 +1082,13 @@ func (x *CliLogin) GetOrigin() string {
 	return ""
 }
 
+func (x *CliLogin) GetAddress() string {
+	if x != nil {
+		return x.xxx_hidden_Address
+	}
+	return ""
+}
+
 func (x *CliLogin) GetAccount() []byte {
 	if x != nil {
 		return x.xxx_hidden_Account
@@ -1147,6 +1155,10 @@ func (x *CliLogin) SetClient(v string) {
 
 func (x *CliLogin) SetOrigin(v string) {
 	x.xxx_hidden_Origin = v
+}
+
+func (x *CliLogin) SetAddress(v string) {
+	x.xxx_hidden_Address = v
 }
 
 func (x *CliLogin) SetAccount(v []byte) {
@@ -1233,6 +1245,10 @@ type CliLogin_builder struct {
 	// shows, so that a person approves their own terminal and nobody else's.
 	Client string
 	Origin string
+	// Where it asked from, without what the terminal says it is: what the limit
+	// on how many sign-ins one address may start in a while is counted by
+	// (`server/clilogin`).
+	Address string
 	// The account that approved it, once one has.
 	Account []byte
 	// `pending`, `approved` or `denied`. One still pending after
@@ -1253,6 +1269,7 @@ func (b0 CliLogin_builder) Build() *CliLogin {
 	x.xxx_hidden_Code = b.Code
 	x.xxx_hidden_Client = b.Client
 	x.xxx_hidden_Origin = b.Origin
+	x.xxx_hidden_Address = b.Address
 	x.xxx_hidden_Account = b.Account
 	x.xxx_hidden_State = b.State
 	x.xxx_hidden_DateExpires = b.DateExpires
@@ -1674,6 +1691,123 @@ func (b0 Consent_builder) Build() *Consent {
 	return m0
 }
 
+// SignInFailure is one wrong answer at the sign-in form, counted against the
+// address it came from and the name it was for (`server/session`): ten in
+// fifteen minutes and the form refuses that pair for a while.
+//
+// A row, so that every process of a deployment counts the same failures. A
+// count in each process's memory is a limit per process, and a deployment of
+// several would have been that many times as easy to guess at. Nothing reads
+// one older than the window, and the sweep takes those away. It is the
+// deployment's (`global`), written only through ent by `server/session`, and
+// the policy opens no RPC of it.
+type SignInFailure struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Subject     []byte                 `protobuf:"bytes,8,opt,name=subject"`
+	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *SignInFailure) Reset() {
+	*x = SignInFailure{}
+	mi := &file_rove_org_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SignInFailure) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SignInFailure) ProtoMessage() {}
+
+func (x *SignInFailure) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_org_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *SignInFailure) GetId() []byte {
+	if x != nil {
+		return x.xxx_hidden_Id
+	}
+	return nil
+}
+
+func (x *SignInFailure) GetSubject() []byte {
+	if x != nil {
+		return x.xxx_hidden_Subject
+	}
+	return nil
+}
+
+func (x *SignInFailure) GetDateCreated() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateCreated
+	}
+	return nil
+}
+
+func (x *SignInFailure) SetId(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Id = v
+}
+
+func (x *SignInFailure) SetSubject(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Subject = v
+}
+
+func (x *SignInFailure) SetDateCreated(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateCreated = v
+}
+
+func (x *SignInFailure) HasDateCreated() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateCreated != nil
+}
+
+func (x *SignInFailure) ClearDateCreated() {
+	x.xxx_hidden_DateCreated = nil
+}
+
+type SignInFailure_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Id []byte
+	// What the address and the name the failure was for hash to. It keeps the
+	// pair out of plain sight, and no more than that: both halves can be guessed
+	// -- an address space, a directory's names -- so a reader of the table who
+	// tries them can tell whose a row is. What keeps it from saying much is that
+	// nothing older than the window is kept.
+	Subject     []byte
+	DateCreated *timestamppb.Timestamp
+}
+
+func (b0 SignInFailure_builder) Build() *SignInFailure {
+	m0 := &SignInFailure{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Id = b.Id
+	x.xxx_hidden_Subject = b.Subject
+	x.xxx_hidden_DateCreated = b.DateCreated
+	return m0
+}
+
 var File_rove_org_proto protoreflect.FileDescriptor
 
 const file_rove_org_proto_rawDesc = "" +
@@ -1765,24 +1899,27 @@ const file_rove_org_proto_rawDesc = "" +
 	"\x03ref\x1a\b\n" +
 	"\x06tenant\x1a\t\n" +
 	"\aaccount\x1a\a\n" +
-	"\x05state 2(\xc8\x01\"\xa6\x04\n" +
+	"\x05state 2(\xc8\x01\"\xf3\x04\n" +
 	"\bCliLogin\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12%\n" +
 	"\x06secret\x18\b \x01(\fB\r\xea\x82\x16\x03\x82\x01\x00\xaa\xc1\x16\x02\b\x01R\x06secret\x12\x12\n" +
 	"\x04code\x18\t \x01(\tR\x04code\x12\x16\n" +
 	"\x06client\x18\n" +
 	" \x01(\tR\x06client\x12\x16\n" +
-	"\x06origin\x18\v \x01(\tR\x06origin\x12\"\n" +
+	"\x06origin\x18\v \x01(\tR\x06origin\x12!\n" +
+	"\aaddress\x18\x12 \x01(\tB\a\xea\x82\x16\x03\x82\x01\x00R\aaddress\x12\"\n" +
 	"\aaccount\x18\f \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\aaccount\x12\x14\n" +
 	"\x05state\x18\x10 \x01(\tR\x05state\x12F\n" +
 	"\fdate_expires\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\vdateExpires\x12F\n" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12D\n" +
 	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
 	"dateErased\x12H\n" +
-	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:8\xca\xfc\x15,\x12\x02\x10\x01\x1a\x10\x12\x04code\x1a\b\n" +
+	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:b\xca\xfc\x15V\x12\x02\x10\x01\x1a\x10\x12\x04code\x1a\b\n" +
 	"\x04code\x10\t\x1a\x14\x12\x06secret\x1a\n" +
 	"\n" +
-	"\x06secret\x10\b\x8a\xbb\x16\x04\b**\x00\"\xcf\x03\n" +
+	"\x06secret\x10\b\x1a(\x12\aaddress\x1a\v\n" +
+	"\aaddress\x10\x12\x1a\x10\n" +
+	"\fdate_created\x10\x0f\x8a\xbb\x16\x04\b**\x00\"\xcf\x03\n" +
 	"\tAliasHold\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12\x12\n" +
 	"\x04held\x18\b \x01(\tR\x04held\x12\x16\n" +
@@ -1810,9 +1947,17 @@ const file_rove_org_proto_rawDesc = "" +
 	"\aaccount\x10\b\x1a\f\n" +
 	"\bdocument\x10\t\x1a\v\n" +
 	"\aversion\x10\n" +
-	"0\x01\x8a\xbb\x16\x04\b,*\x00B\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"0\x01\x8a\xbb\x16\x04\b,*\x00\"\x81\x02\n" +
+	"\rSignInFailure\x12\x1b\n" +
+	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12'\n" +
+	"\asubject\x18\b \x01(\fB\r\xea\x82\x16\x03\x82\x01\x00\xaa\xc1\x16\x02\b\x01R\asubject\x12H\n" +
+	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:`\xca\xfc\x15P\x12\x02\x10\x01\x1a(\x12\asubject\x1a\v\n" +
+	"\asubject\x10\b\x1a\x10\n" +
+	"\fdate_created\x10\x0f\x1a \x12\fdate_created\x1a\x10\n" +
+	"\fdate_created\x10\x0f\x8a\xbb\x16\b\b-B\x02\n" +
+	"\x00*\x00B\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
-var file_rove_org_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_rove_org_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_rove_org_proto_goTypes = []any{
 	(*Party)(nil),                 // 0: rove.Party
 	(*Session)(nil),               // 1: rove.Session
@@ -1820,47 +1965,49 @@ var file_rove_org_proto_goTypes = []any{
 	(*CliLogin)(nil),              // 3: rove.CliLogin
 	(*AliasHold)(nil),             // 4: rove.AliasHold
 	(*Consent)(nil),               // 5: rove.Consent
-	nil,                           // 6: rove.Party.LabelsEntry
-	(*Tenant)(nil),                // 7: rove.Tenant
-	(*Holder)(nil),                // 8: rove.Holder
-	(*timestamppb.Timestamp)(nil), // 9: google.protobuf.Timestamp
+	(*SignInFailure)(nil),         // 6: rove.SignInFailure
+	nil,                           // 7: rove.Party.LabelsEntry
+	(*Tenant)(nil),                // 8: rove.Tenant
+	(*Holder)(nil),                // 9: rove.Holder
+	(*timestamppb.Timestamp)(nil), // 10: google.protobuf.Timestamp
 }
 var file_rove_org_proto_depIdxs = []int32{
-	7,  // 0: rove.Party.tenant:type_name -> rove.Tenant
-	6,  // 1: rove.Party.labels:type_name -> rove.Party.LabelsEntry
-	8,  // 2: rove.Party.holder:type_name -> rove.Holder
-	9,  // 3: rove.Party.date_updated:type_name -> google.protobuf.Timestamp
-	9,  // 4: rove.Party.date_erased:type_name -> google.protobuf.Timestamp
-	9,  // 5: rove.Party.date_created:type_name -> google.protobuf.Timestamp
-	9,  // 6: rove.Session.date_expires:type_name -> google.protobuf.Timestamp
-	9,  // 7: rove.Session.date_idle:type_name -> google.protobuf.Timestamp
-	9,  // 8: rove.Session.date_updated:type_name -> google.protobuf.Timestamp
-	9,  // 9: rove.Session.date_erased:type_name -> google.protobuf.Timestamp
-	9,  // 10: rove.Session.date_created:type_name -> google.protobuf.Timestamp
-	7,  // 11: rove.Invitation.tenant:type_name -> rove.Tenant
-	8,  // 12: rove.Invitation.inviter:type_name -> rove.Holder
+	8,  // 0: rove.Party.tenant:type_name -> rove.Tenant
+	7,  // 1: rove.Party.labels:type_name -> rove.Party.LabelsEntry
+	9,  // 2: rove.Party.holder:type_name -> rove.Holder
+	10, // 3: rove.Party.date_updated:type_name -> google.protobuf.Timestamp
+	10, // 4: rove.Party.date_erased:type_name -> google.protobuf.Timestamp
+	10, // 5: rove.Party.date_created:type_name -> google.protobuf.Timestamp
+	10, // 6: rove.Session.date_expires:type_name -> google.protobuf.Timestamp
+	10, // 7: rove.Session.date_idle:type_name -> google.protobuf.Timestamp
+	10, // 8: rove.Session.date_updated:type_name -> google.protobuf.Timestamp
+	10, // 9: rove.Session.date_erased:type_name -> google.protobuf.Timestamp
+	10, // 10: rove.Session.date_created:type_name -> google.protobuf.Timestamp
+	8,  // 11: rove.Invitation.tenant:type_name -> rove.Tenant
+	9,  // 12: rove.Invitation.inviter:type_name -> rove.Holder
 	0,  // 13: rove.Invitation.party:type_name -> rove.Party
-	9,  // 14: rove.Invitation.date_updated:type_name -> google.protobuf.Timestamp
-	9,  // 15: rove.Invitation.date_erased:type_name -> google.protobuf.Timestamp
-	9,  // 16: rove.Invitation.date_created:type_name -> google.protobuf.Timestamp
-	9,  // 17: rove.Invitation.date_expires:type_name -> google.protobuf.Timestamp
-	9,  // 18: rove.Invitation.date_settled:type_name -> google.protobuf.Timestamp
-	8,  // 19: rove.Invitation.holder:type_name -> rove.Holder
-	9,  // 20: rove.CliLogin.date_expires:type_name -> google.protobuf.Timestamp
-	9,  // 21: rove.CliLogin.date_updated:type_name -> google.protobuf.Timestamp
-	9,  // 22: rove.CliLogin.date_erased:type_name -> google.protobuf.Timestamp
-	9,  // 23: rove.CliLogin.date_created:type_name -> google.protobuf.Timestamp
-	9,  // 24: rove.AliasHold.date_until:type_name -> google.protobuf.Timestamp
-	9,  // 25: rove.AliasHold.date_updated:type_name -> google.protobuf.Timestamp
-	9,  // 26: rove.AliasHold.date_erased:type_name -> google.protobuf.Timestamp
-	9,  // 27: rove.AliasHold.date_created:type_name -> google.protobuf.Timestamp
-	9,  // 28: rove.Consent.date_erased:type_name -> google.protobuf.Timestamp
-	9,  // 29: rove.Consent.date_created:type_name -> google.protobuf.Timestamp
-	30, // [30:30] is the sub-list for method output_type
-	30, // [30:30] is the sub-list for method input_type
-	30, // [30:30] is the sub-list for extension type_name
-	30, // [30:30] is the sub-list for extension extendee
-	0,  // [0:30] is the sub-list for field type_name
+	10, // 14: rove.Invitation.date_updated:type_name -> google.protobuf.Timestamp
+	10, // 15: rove.Invitation.date_erased:type_name -> google.protobuf.Timestamp
+	10, // 16: rove.Invitation.date_created:type_name -> google.protobuf.Timestamp
+	10, // 17: rove.Invitation.date_expires:type_name -> google.protobuf.Timestamp
+	10, // 18: rove.Invitation.date_settled:type_name -> google.protobuf.Timestamp
+	9,  // 19: rove.Invitation.holder:type_name -> rove.Holder
+	10, // 20: rove.CliLogin.date_expires:type_name -> google.protobuf.Timestamp
+	10, // 21: rove.CliLogin.date_updated:type_name -> google.protobuf.Timestamp
+	10, // 22: rove.CliLogin.date_erased:type_name -> google.protobuf.Timestamp
+	10, // 23: rove.CliLogin.date_created:type_name -> google.protobuf.Timestamp
+	10, // 24: rove.AliasHold.date_until:type_name -> google.protobuf.Timestamp
+	10, // 25: rove.AliasHold.date_updated:type_name -> google.protobuf.Timestamp
+	10, // 26: rove.AliasHold.date_erased:type_name -> google.protobuf.Timestamp
+	10, // 27: rove.AliasHold.date_created:type_name -> google.protobuf.Timestamp
+	10, // 28: rove.Consent.date_erased:type_name -> google.protobuf.Timestamp
+	10, // 29: rove.Consent.date_created:type_name -> google.protobuf.Timestamp
+	10, // 30: rove.SignInFailure.date_created:type_name -> google.protobuf.Timestamp
+	31, // [31:31] is the sub-list for method output_type
+	31, // [31:31] is the sub-list for method input_type
+	31, // [31:31] is the sub-list for extension type_name
+	31, // [31:31] is the sub-list for extension extendee
+	0,  // [0:31] is the sub-list for field type_name
 }
 
 func init() { file_rove_org_proto_init() }
@@ -1876,7 +2023,7 @@ func file_rove_org_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_org_proto_rawDesc), len(file_rove_org_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

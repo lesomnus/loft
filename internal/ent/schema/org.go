@@ -212,6 +212,8 @@ func (CliLogin) Fields() []ent.Field {
 		field.String("code"),
 		field.String("client"),
 		field.String("origin"),
+		field.String("address").
+			Optional(),
 		field.Uuid("account").
 			Nillable().
 			Optional(),
@@ -232,6 +234,7 @@ func (CliLogin) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("code"),
 		index.Fields("secret"),
+		index.Fields("address", "date_created"),
 	}
 }
 
@@ -311,5 +314,35 @@ func (Consent) Indexes() []ent.Index {
 func (Consent) Annotations() []schema.Annotation {
 	return []schema.Annotation{
 		entsql.Annotation{Table: "consent"},
+	}
+}
+
+type SignInFailure struct {
+	ent.Schema
+}
+
+func (SignInFailure) Fields() []ent.Field {
+	return []ent.Field{
+		field.Uuid("id").
+			Unique().
+			Immutable(),
+		field.Bytes("subject").
+			Optional(),
+		field.Time("date_created").
+			Immutable().
+			Optional(),
+	}
+}
+
+func (SignInFailure) Indexes() []ent.Index {
+	return []ent.Index{
+		index.Fields("subject", "date_created"),
+		index.Fields("date_created"),
+	}
+}
+
+func (SignInFailure) Annotations() []schema.Annotation {
+	return []schema.Annotation{
+		entsql.Annotation{Table: "signinfailure"},
 	}
 }

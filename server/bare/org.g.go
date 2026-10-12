@@ -17,6 +17,7 @@ import (
 	party "github.com/lesomnus/rove/internal/ent/party"
 	predicate "github.com/lesomnus/rove/internal/ent/predicate"
 	session "github.com/lesomnus/rove/internal/ent/session"
+	signinfailure "github.com/lesomnus/rove/internal/ent/signinfailure"
 	ent1 "github.com/protobuf-orm/ent"
 	sqlgraph "github.com/protobuf-orm/ent/dialect/sql/sqlgraph"
 	graph "github.com/protobuf-orm/protobuf-orm/graph"
@@ -1685,6 +1686,11 @@ func (s CliLoginServiceServer) Add(ctx context.Context, req *rove.CliLoginAddReq
 	q.SetCode(req.GetCode())
 	q.SetClient(req.GetClient())
 	q.SetOrigin(req.GetOrigin())
+	if req.HasAddress() {
+		q.SetAddress(req.GetAddress())
+	} else {
+		q.SetAddress("")
+	}
 	if req.HasAccount() {
 		if v, err := entuuid.FromBytes(req.GetAccount()); err != nil {
 			return nil, status.Errorf(codes.InvalidArgument, "account: %s", err)
@@ -1779,6 +1785,9 @@ func CliLoginSelectedFields(m *rove.CliLoginSelect) []string {
 	if m.GetOrigin() {
 		vs = append(vs, clilogin.FieldOrigin)
 	}
+	if m.GetAddress() {
+		vs = append(vs, clilogin.FieldAddress)
+	}
 	if m.GetAccount() {
 		vs = append(vs, clilogin.FieldAccount)
 	}
@@ -1862,7 +1871,7 @@ func CliLoginGetKey(ctx context.Context, db *ent.Client, ref *rove.CliLoginRef) 
 var cliLoginOrmEntity = ormpatch.MustEntityOf(rove.File_rove_org_proto, "CliLogin")
 
 var cliLoginPatchColumns = entpatch.Columns{
-	1: clilogin.FieldId, 8: clilogin.FieldSecret, 9: clilogin.FieldCode, 10: clilogin.FieldClient, 11: clilogin.FieldOrigin, 12: clilogin.FieldAccount, 16: clilogin.FieldState, 17: clilogin.FieldDateExpires, 13: clilogin.FieldDateUpdated, 14: clilogin.FieldDateErased, 15: clilogin.FieldDateCreated}
+	1: clilogin.FieldId, 8: clilogin.FieldSecret, 9: clilogin.FieldCode, 10: clilogin.FieldClient, 11: clilogin.FieldOrigin, 18: clilogin.FieldAddress, 12: clilogin.FieldAccount, 16: clilogin.FieldState, 17: clilogin.FieldDateExpires, 13: clilogin.FieldDateUpdated, 14: clilogin.FieldDateErased, 15: clilogin.FieldDateCreated}
 
 func (s CliLoginServiceServer) Apply(ctx context.Context, req *rove.CliLoginApplyRequest) (*rove.CliLogin, error) {
 	if !req.HasPatch() {
@@ -2984,6 +2993,413 @@ func pickConsent(req *rove.ConsentRef) (predicate.Consent, error) {
 		return consent.And(ps...), nil
 	case rove.ConsentRef_Key_not_set_case:
 		return nil, status.Errorf(codes.InvalidArgument, "key not set: Consent")
+	default:
+		return nil, status.Errorf(codes.Unimplemented, "unknown type of key: %s", req.WhichKey())
+	}
+}
+
+type SignInFailureServiceServer struct {
+	Store
+
+	rove.UnimplementedSignInFailureServiceServer
+}
+
+// NewSignInFailureServiceServer answers with a server that runs its queries with `db`.
+//
+// It takes the options of [Server] so that what is built here can be told
+// where to report its writes and what it may see. Built without them, it
+// reports nowhere and sees everything.
+func NewSignInFailureServiceServer(db *ent.Client, opts ...Option) rove.SignInFailureServiceServer {
+	s := Server{Store: Store{Db: db}}
+	for _, opt := range opts {
+		opt(&s)
+	}
+	return SignInFailureServiceServer{Store: s.Store}
+}
+
+// SignInFailureNarrow answers with `p` and everything else that narrows a
+// read of a SignInFailure, which is whatever `scope` says.
+//
+// Every read this package makes goes through it, and a read written by
+// hand should too -- a List is the one read nothing generates, and so the
+// one that would otherwise answer with rows nobody should be given.
+func SignInFailureNarrow(ctx context.Context, scope Scope, p predicate.SignInFailure) (predicate.SignInFailure, error) {
+	ps := make([]predicate.SignInFailure, 0, 2)
+	if p != nil {
+		ps = append(ps, p)
+	}
+	if scope != nil {
+		q, err := scope.SignInFailureScope(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if q != nil {
+			ps = append(ps, q)
+		}
+	}
+
+	switch len(ps) {
+	case 0:
+		return nil, nil
+	case 1:
+		return ps[0], nil
+	default:
+		return signinfailure.And(ps...), nil
+	}
+}
+
+// narrow is [SignInFailureNarrow] with this server's own scope.
+func (s SignInFailureServiceServer) narrow(ctx context.Context, p predicate.SignInFailure) (predicate.SignInFailure, error) {
+	return SignInFailureNarrow(ctx, s.Scope, p)
+}
+
+func (s SignInFailureServiceServer) Add(ctx context.Context, req *rove.SignInFailureAddRequest) (*rove.SignInFailure, error) {
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	q := st.Db.SignInFailure.Create()
+	var k uuid.UUID
+	if req.HasId() {
+		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+		} else {
+			k = v
+		}
+	}
+	if v, err := mint(ctx, s.Mint, "rove.SignInFailure", k, req.HasId()); err != nil {
+		return nil, err
+	} else {
+		q.SetId(v)
+	}
+	if req.HasSubject() {
+		q.SetSubject(req.GetSubject())
+	} else {
+		q.SetSubject([]byte{})
+	}
+	if req.HasDateCreated() {
+		q.SetDateCreated(req.GetDateCreated().AsTime())
+	} else {
+		q.SetDateCreated(st.now())
+	}
+
+	u, err := q.Save(ctx)
+	if err != nil {
+		if err, ok := err.(*ent.ConstraintError); ok {
+			if sqlgraph.IsUniqueConstraintError(err) {
+				return nil, status.Error(codes.AlreadyExists, "SignInFailure already exists")
+			}
+			if sqlgraph.IsForeignKeyConstraintError(err) {
+				return nil, status.Error(codes.NotFound, "SignInFailure: referenced entity not found")
+			}
+		}
+		return nil, err
+	}
+
+	if err := record(ctx, s.Rec, st.Db, Change{
+		By:  rove.SignInFailureService_Add_FullMethodName,
+		Key: u.Id,
+	}); err != nil {
+		return nil, err
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+
+	return u.Proto(), nil
+}
+
+func (s SignInFailureServiceServer) Get(ctx context.Context, req *rove.SignInFailureGetRequest) (*rove.SignInFailure, error) {
+	p, err := SignInFailurePick(req.GetRef())
+	if err != nil {
+		return nil, err
+	}
+	p, err = s.narrow(ctx, p)
+	if err != nil {
+		return nil, err
+	}
+
+	q := s.Db.SignInFailure.Query().Where(p)
+	SignInFailureSelectInit(q, req.GetSelect())
+
+	v, err := q.Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, status.Error(codes.NotFound, "SignInFailure not found")
+		}
+		return nil, err
+	}
+	return v.Proto(), nil
+}
+
+func selectSignInFailureKey(q *ent.SignInFailureQuery) {
+	q.Select(signinfailure.FieldId)
+}
+
+func SignInFailureSelectedFields(m *rove.SignInFailureSelect) []string {
+	if m.GetAll() {
+		return signinfailure.Columns
+	}
+
+	vs := make([]string, 0, len(signinfailure.Columns))
+	{
+		vs = append(vs, signinfailure.FieldId)
+	}
+	if m.GetSubject() {
+		vs = append(vs, signinfailure.FieldSubject)
+	}
+	if m.GetDateCreated() {
+		vs = append(vs, signinfailure.FieldDateCreated)
+	}
+
+	return vs
+}
+
+func SignInFailureSelect(q *ent.SignInFailureQuery, m *rove.SignInFailureSelect) {
+	if !m.GetAll() {
+		fields := SignInFailureSelectedFields(m)
+		q.Select(fields...)
+	}
+}
+
+func SignInFailureSelectInit(q *ent.SignInFailureQuery, m *rove.SignInFailureSelect) {
+	if m != nil {
+		SignInFailureSelect(q, m)
+	} else {
+	}
+}
+
+func (s SignInFailureServiceServer) Patch(ctx context.Context, req *rove.SignInFailurePatchRequest) (*rove.SignInFailure, error) {
+	doc, err := ormpatch.FromPatchRequest(signInFailureOrmEntity, req.ProtoReflect(), nil)
+	if err != nil {
+		if _, ok := status.FromError(err); ok {
+			return nil, err
+		}
+		if errors.Is(err, ormpatch.ErrRequestLayout) {
+			return nil, status.Errorf(codes.Internal, "%s", err)
+		}
+		if errors.Is(err, ormpatch.ErrUnsupported) {
+			return nil, status.Errorf(codes.Unimplemented, "%s", err)
+		}
+		return nil, status.Errorf(codes.InvalidArgument, "%s", err)
+	}
+
+	return s.apply(ctx, req.GetRef(), doc, rove.SignInFailureService_Patch_FullMethodName)
+}
+
+func SignInFailureGetKey(ctx context.Context, db *ent.Client, ref *rove.SignInFailureRef) (uuid.UUID, error) {
+	var z uuid.UUID
+	if ref.HasId() {
+		if v, err := entuuid.FromBytes(ref.GetId()); err != nil {
+			return z, status.Errorf(codes.InvalidArgument, "id: %s", err)
+		} else {
+			return v, nil
+		}
+	}
+
+	p, err := SignInFailurePick(ref)
+	if err != nil {
+		return z, err
+	}
+
+	v, err := db.SignInFailure.Query().Where(p).OnlyId(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return z, status.Error(codes.NotFound, "SignInFailure not found")
+		}
+		return z, err
+	}
+
+	return v, nil
+}
+
+var signInFailureOrmEntity = ormpatch.MustEntityOf(rove.File_rove_org_proto, "SignInFailure")
+
+var signInFailurePatchColumns = entpatch.Columns{
+	1: signinfailure.FieldId, 8: signinfailure.FieldSubject, 15: signinfailure.FieldDateCreated}
+
+func (s SignInFailureServiceServer) Apply(ctx context.Context, req *rove.SignInFailureApplyRequest) (*rove.SignInFailure, error) {
+	if !req.HasPatch() {
+		return nil, status.Errorf(codes.InvalidArgument, "%s", ormpatch.ErrNoPatch)
+	}
+	return s.apply(ctx, req.GetRef(), req.GetPatch(), rove.SignInFailureService_Apply_FullMethodName)
+}
+
+func (s SignInFailureServiceServer) apply(ctx context.Context, ref *rove.SignInFailureRef, doc *patchpb.Patch, by string) (*rove.SignInFailure, error) {
+	plan := &ormpatch.Plan{Entity: signInFailureOrmEntity}
+	if doc != nil {
+		v, err := ormpatch.Compile(signInFailureOrmEntity, doc)
+		if err != nil {
+			if errors.Is(err, ormpatch.ErrUnsupported) {
+				return nil, status.Errorf(codes.Unimplemented, "%s", err)
+			}
+			return nil, status.Errorf(codes.InvalidArgument, "%s", err)
+		}
+		plan = v
+	}
+
+	pred, mod, err := entpatch.Build(plan, signInFailurePatchColumns, s.Db.Dialect())
+	if err != nil {
+		if errors.Is(err, entpatch.ErrValue) {
+			return nil, status.Errorf(codes.InvalidArgument, "%s", err)
+		}
+		return nil, status.Errorf(codes.Internal, "%s", err)
+	}
+
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, true)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	k, err := SignInFailureGetKey(ctx, st.Db, ref)
+	if err != nil {
+		return nil, err
+	}
+	at := &rove.SignInFailureRef{}
+	at.SetId(k[:])
+	p, err := s.narrow(ctx, signinfailure.IdEQ(k))
+	if err != nil {
+		return nil, err
+	}
+
+	if mod == nil {
+		q := st.Db.SignInFailure.Query().Where(p)
+		if pred != nil {
+			q.Where(predicate.SignInFailure(pred))
+		}
+		if ok, err := q.Exist(ctx); err != nil {
+			return nil, err
+		} else if !ok {
+			return nil, func() error {
+				if ok, err := st.Db.SignInFailure.Query().Where(p).Exist(ctx); err != nil {
+					return err
+				} else if !ok {
+					return status.Error(codes.NotFound, "SignInFailure not found")
+				}
+				return status.Error(codes.FailedPrecondition, "a test in the patch did not hold")
+			}()
+		}
+	} else {
+		q := st.Db.SignInFailure.Update().Where(p)
+		if pred != nil {
+			q.Where(predicate.SignInFailure(pred))
+		}
+		q.Modify(mod)
+		if n, err := q.Save(ctx); err != nil {
+			if err, ok := err.(*ent.ConstraintError); ok {
+				if sqlgraph.IsUniqueConstraintError(err) {
+					return nil, status.Error(codes.AlreadyExists, "SignInFailure already exists")
+				}
+				if sqlgraph.IsForeignKeyConstraintError(err) {
+					return nil, status.Error(codes.NotFound, "SignInFailure: referenced entity not found")
+				}
+			}
+			return nil, err
+		} else if n == 0 {
+			return nil, func() error {
+				if ok, err := st.Db.SignInFailure.Query().Where(p).Exist(ctx); err != nil {
+					return err
+				} else if !ok {
+					return status.Error(codes.NotFound, "SignInFailure not found")
+				}
+				return status.Error(codes.FailedPrecondition, "a test in the patch did not hold")
+			}()
+		}
+	}
+
+	if mod != nil {
+		if err := record(ctx, s.Rec, st.Db, Change{
+			By:    by,
+			Key:   k,
+			Patch: doc,
+		}); err != nil {
+			return nil, err
+		}
+	}
+
+	out, err := st.Get(ctx, at.Pick())
+	if err != nil {
+		return nil, err
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (s SignInFailureServiceServer) Erase(ctx context.Context, req *rove.SignInFailureRef) (*rove.SignInFailureEraseResponse, error) {
+	p, err := SignInFailurePick(req)
+	if err != nil {
+		return nil, err
+	}
+	p, err = s.narrow(ctx, p)
+	if err != nil {
+		return nil, err
+	}
+
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	var k any
+	if s.Rec != nil {
+		v, err := st.Db.SignInFailure.Query().Where(p).OnlyId(ctx)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return &rove.SignInFailureEraseResponse{}, nil
+			}
+			return nil, err
+		}
+
+		k = v
+		p = signinfailure.And(p, signinfailure.IdEQ(v))
+	}
+
+	n, err := st.Db.SignInFailure.Delete().Where(p).Exec(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if n > 0 {
+		if err := record(ctx, s.Rec, st.Db, Change{
+			By:  rove.SignInFailureService_Erase_FullMethodName,
+			Key: k,
+		}); err != nil {
+			return nil, err
+		}
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+	res := &rove.SignInFailureEraseResponse{}
+	res.SetErased(n > 0)
+
+	return res, nil
+}
+
+func SignInFailurePick(req *rove.SignInFailureRef) (predicate.SignInFailure, error) {
+	switch req.WhichKey() {
+	case rove.SignInFailureRef_Id_case:
+		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+		} else {
+			return signinfailure.IdEQ(v), nil
+		}
+	case rove.SignInFailureRef_Key_not_set_case:
+		return nil, status.Errorf(codes.InvalidArgument, "key not set: SignInFailure")
 	default:
 		return nil, status.Errorf(codes.Unimplemented, "unknown type of key: %s", req.WhichKey())
 	}

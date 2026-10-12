@@ -40,6 +40,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/reservation"
 	"github.com/lesomnus/rove/internal/ent/reservationitem"
 	"github.com/lesomnus/rove/internal/ent/session"
+	"github.com/lesomnus/rove/internal/ent/signinfailure"
 	"github.com/lesomnus/rove/internal/ent/stewardship"
 	"github.com/lesomnus/rove/internal/ent/stock"
 	"github.com/lesomnus/rove/internal/ent/stockmovement"
@@ -143,6 +144,7 @@ func checkColumn(t, c string) error {
 			reservation.Table:     reservation.ValidColumn,
 			reservationitem.Table: reservationitem.ValidColumn,
 			session.Table:         session.ValidColumn,
+			signinfailure.Table:   signinfailure.ValidColumn,
 			stewardship.Table:     stewardship.ValidColumn,
 			stock.Table:           stock.ValidColumn,
 			stockmovement.Table:   stockmovement.ValidColumn,

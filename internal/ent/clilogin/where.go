@@ -75,6 +75,11 @@ func Origin(v string) predicate.CliLogin {
 	return predicate.CliLogin(sql.FieldEQ(FieldOrigin, v))
 }
 
+// Address applies equality check predicate on the "address" field. It's identical to AddressEQ.
+func Address(v string) predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldEQ(FieldAddress, v))
+}
+
 // Account applies equality check predicate on the "account" field. It's identical to AccountEQ.
 func Account(v uuid.UUID) predicate.CliLogin {
 	return predicate.CliLogin(sql.FieldEQ(FieldAccount, v))
@@ -348,6 +353,81 @@ func OriginEqualFold(v string) predicate.CliLogin {
 // OriginContainsFold applies the ContainsFold predicate on the "origin" field.
 func OriginContainsFold(v string) predicate.CliLogin {
 	return predicate.CliLogin(sql.FieldContainsFold(FieldOrigin, v))
+}
+
+// AddressEQ applies the EQ predicate on the "address" field.
+func AddressEQ(v string) predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldEQ(FieldAddress, v))
+}
+
+// AddressNEQ applies the NEQ predicate on the "address" field.
+func AddressNEQ(v string) predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldNEQ(FieldAddress, v))
+}
+
+// AddressIn applies the In predicate on the "address" field.
+func AddressIn(vs ...string) predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldIn(FieldAddress, vs...))
+}
+
+// AddressNotIn applies the NotIn predicate on the "address" field.
+func AddressNotIn(vs ...string) predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldNotIn(FieldAddress, vs...))
+}
+
+// AddressGT applies the GT predicate on the "address" field.
+func AddressGT(v string) predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldGT(FieldAddress, v))
+}
+
+// AddressGTE applies the GTE predicate on the "address" field.
+func AddressGTE(v string) predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldGTE(FieldAddress, v))
+}
+
+// AddressLT applies the LT predicate on the "address" field.
+func AddressLT(v string) predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldLT(FieldAddress, v))
+}
+
+// AddressLTE applies the LTE predicate on the "address" field.
+func AddressLTE(v string) predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldLTE(FieldAddress, v))
+}
+
+// AddressContains applies the Contains predicate on the "address" field.
+func AddressContains(v string) predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldContains(FieldAddress, v))
+}
+
+// AddressHasPrefix applies the HasPrefix predicate on the "address" field.
+func AddressHasPrefix(v string) predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldHasPrefix(FieldAddress, v))
+}
+
+// AddressHasSuffix applies the HasSuffix predicate on the "address" field.
+func AddressHasSuffix(v string) predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldHasSuffix(FieldAddress, v))
+}
+
+// AddressIsNil applies the IsNil predicate on the "address" field.
+func AddressIsNil() predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldIsNull(FieldAddress))
+}
+
+// AddressNotNil applies the NotNil predicate on the "address" field.
+func AddressNotNil() predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldNotNull(FieldAddress))
+}
+
+// AddressEqualFold applies the EqualFold predicate on the "address" field.
+func AddressEqualFold(v string) predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldEqualFold(FieldAddress, v))
+}
+
+// AddressContainsFold applies the ContainsFold predicate on the "address" field.
+func AddressContainsFold(v string) predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldContainsFold(FieldAddress, v))
 }
 
 // AccountEQ applies the EQ predicate on the "account" field.

@@ -141,6 +141,7 @@ const (
 	ReservationDomain     pdid.Domain = 26 // "reservation"
 	ReservationItemDomain pdid.Domain = 27 // "reservation-item"
 	SessionDomain         pdid.Domain = 38 // "session"
+	SignInFailureDomain   pdid.Domain = 45 // "sign-in-failure"
 	StewardshipDomain     pdid.Domain = 15 // "stewardship"
 	StockDomain           pdid.Domain = 29 // "stock"
 	StockMovementDomain   pdid.Domain = 30 // "stock-movement"
@@ -184,6 +185,7 @@ func init() {
 	pdid.Register("rove.Reservation", ReservationDomain, "reservation")
 	pdid.Register("rove.ReservationItem", ReservationItemDomain, "reservation-item")
 	pdid.Register("rove.Session", SessionDomain, "session")
+	pdid.Register("rove.SignInFailure", SignInFailureDomain, "sign-in-failure")
 	pdid.Register("rove.Stewardship", StewardshipDomain, "stewardship")
 	pdid.Register("rove.Stock", StockDomain, "stock")
 	pdid.Register("rove.StockMovement", StockMovementDomain, "stock-movement")
@@ -231,6 +233,7 @@ var Domains = map[string]pdid.Domain{
 	"rove.Reservation":     ReservationDomain,
 	"rove.ReservationItem": ReservationItemDomain,
 	"rove.Session":         SessionDomain,
+	"rove.SignInFailure":   SignInFailureDomain,
 	"rove.Stewardship":     StewardshipDomain,
 	"rove.Stock":           StockDomain,
 	"rove.StockMovement":   StockMovementDomain,
@@ -561,6 +564,11 @@ func (wall) ReservationItemScope(ctx context.Context) (predicate.ReservationItem
 
 // SessionScope: declared `global`, so it is not behind the wall at all.
 func (wall) SessionScope(ctx context.Context) (predicate.Session, error) {
+	return nil, nil
+}
+
+// SignInFailureScope: declared `global`, so it is not behind the wall at all.
+func (wall) SignInFailureScope(ctx context.Context) (predicate.SignInFailure, error) {
 	return nil, nil
 }
 
@@ -13514,6 +13522,8 @@ func hidden(key pdid.Id, p *patchpb.Patch) *patchpb.Patch {
 		secret = []uint32{20}
 	case SessionDomain:
 		secret = []uint32{9, 16}
+	case SignInFailureDomain:
+		secret = []uint32{8}
 	}
 	if len(secret) == 0 {
 		// An entity that declared none, which is nearly all of them.
@@ -15306,6 +15316,70 @@ func hideCliLogin(v *rove.CliLogin) *rove.CliLogin {
 	return v
 }
 
+func (s Secret) SignInFailure() rove.SignInFailureServiceServer {
+	return secretSignInFailure{s, s.Next().SignInFailure()}
+}
+
+type secretSignInFailure struct {
+	Secret
+	rove.SignInFailureServiceServer
+}
+
+func (s secretSignInFailure) Add(ctx context.Context, req *rove.SignInFailureAddRequest) (*rove.SignInFailure, error) {
+	v, err := s.SignInFailureServiceServer.Add(ctx, req)
+
+	return hideSignInFailure(v), err
+}
+
+func (s secretSignInFailure) Get(ctx context.Context, req *rove.SignInFailureGetRequest) (*rove.SignInFailure, error) {
+	v, err := s.SignInFailureServiceServer.Get(ctx, req)
+
+	return hideSignInFailure(v), err
+}
+
+func (s secretSignInFailure) Patch(ctx context.Context, req *rove.SignInFailurePatchRequest) (*rove.SignInFailure, error) {
+	v, err := s.SignInFailureServiceServer.Patch(ctx, req)
+
+	return hideSignInFailure(v), err
+}
+
+func (s secretSignInFailure) Apply(ctx context.Context, req *rove.SignInFailureApplyRequest) (*rove.SignInFailure, error) {
+	v, err := s.SignInFailureServiceServer.Apply(ctx, req)
+
+	return hideSignInFailure(v), err
+}
+
+// hideSignInFailure clears what this entity declared it never answers with.
+//
+// A nil row passes through, because an error is answered with one and the
+// caller of this is handing both on.
+//
+// By field number and through the descriptor, rather than a setter per
+// field, because a setter's argument has a type and this has to hold for
+// every field a row can carry. A `Set<F>(nil)` per secret is what this
+// was, and it compiled only while every secret anybody had declared was
+// `bytes`: a `string` one ended the build in a generated file, and an
+// enum would have needed its own type spelled out here to say zero.
+//
+// Clear is also the truer word. A field with presence is **absent**
+// afterwards rather than present and empty, which is what "never answered
+// with" says; one without presence reads as its zero value either way.
+// And the numbers are the ones `hidden` filters the trail's patch by, so
+// the two cannot come to disagree about which fields they are.
+func hideSignInFailure(v *rove.SignInFailure) *rove.SignInFailure {
+	if v == nil {
+		return nil
+	}
+
+	m := v.ProtoReflect()
+	fs := m.Descriptor().Fields()
+	for _, n := range []protoreflect.FieldNumber{8} {
+		m.Clear(fs.ByNumber(n))
+	}
+
+	return v
+}
+
 // Intercept is the layer that runs gRPC interceptors between two layers.
 //
 // They are `grpc.UnaryServerInterceptor` and `grpc.StreamServerInterceptor`,
@@ -15845,6 +15919,40 @@ func (s interceptConsent) Apply(ctx context.Context, req *rove.ConsentApplyReque
 func (s interceptConsent) Erase(ctx context.Context, req *rove.ConsentRef) (*rove.ConsentEraseResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.ConsentServiceServer,
 		rove.ConsentService_Erase_FullMethodName, req, s.ConsentServiceServer.Erase)
+}
+
+func (s Intercept) SignInFailure() rove.SignInFailureServiceServer {
+	return interceptSignInFailure{s, s.Next().SignInFailure()}
+}
+
+type interceptSignInFailure struct {
+	Intercept
+	rove.SignInFailureServiceServer
+}
+
+func (s interceptSignInFailure) Add(ctx context.Context, req *rove.SignInFailureAddRequest) (*rove.SignInFailure, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.SignInFailureServiceServer,
+		rove.SignInFailureService_Add_FullMethodName, req, s.SignInFailureServiceServer.Add)
+}
+
+func (s interceptSignInFailure) Get(ctx context.Context, req *rove.SignInFailureGetRequest) (*rove.SignInFailure, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.SignInFailureServiceServer,
+		rove.SignInFailureService_Get_FullMethodName, req, s.SignInFailureServiceServer.Get)
+}
+
+func (s interceptSignInFailure) Patch(ctx context.Context, req *rove.SignInFailurePatchRequest) (*rove.SignInFailure, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.SignInFailureServiceServer,
+		rove.SignInFailureService_Patch_FullMethodName, req, s.SignInFailureServiceServer.Patch)
+}
+
+func (s interceptSignInFailure) Apply(ctx context.Context, req *rove.SignInFailureApplyRequest) (*rove.SignInFailure, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.SignInFailureServiceServer,
+		rove.SignInFailureService_Apply_FullMethodName, req, s.SignInFailureServiceServer.Apply)
+}
+
+func (s interceptSignInFailure) Erase(ctx context.Context, req *rove.SignInFailureRef) (*rove.SignInFailureEraseResponse, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.SignInFailureServiceServer,
+		rove.SignInFailureService_Erase_FullMethodName, req, s.SignInFailureServiceServer.Erase)
 }
 
 func (s Intercept) Asset() rove.AssetServiceServer {
@@ -19001,6 +19109,71 @@ func dispatch(ctx context.Context, s rove.Server, op *pdpb.Op) (*anypb.Any, erro
 		}
 
 		res, err := s.Consent().Erase(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.SignInFailureService_Add_FullMethodName:
+		v := &rove.SignInFailureAddRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.SignInFailure().Add(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.SignInFailureService_Get_FullMethodName:
+		v := &rove.SignInFailureGetRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.SignInFailure().Get(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.SignInFailureService_Patch_FullMethodName:
+		v := &rove.SignInFailurePatchRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.SignInFailure().Patch(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.SignInFailureService_Apply_FullMethodName:
+		v := &rove.SignInFailureApplyRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.SignInFailure().Apply(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.SignInFailureService_Erase_FullMethodName:
+		v := &rove.SignInFailureRef{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.SignInFailure().Erase(ctx, v)
 		if err != nil {
 			return nil, err
 		}

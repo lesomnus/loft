@@ -74,6 +74,8 @@ type Tx struct {
 	ReservationItem *ReservationItemClient
 	// Session is the client for interacting with the Session builders.
 	Session *SessionClient
+	// SignInFailure is the client for interacting with the SignInFailure builders.
+	SignInFailure *SignInFailureClient
 	// Stewardship is the client for interacting with the Stewardship builders.
 	Stewardship *StewardshipClient
 	// Stock is the client for interacting with the Stock builders.
@@ -254,6 +256,7 @@ func (tx *Tx) init() {
 	tx.Reservation = NewReservationClient(tx.config)
 	tx.ReservationItem = NewReservationItemClient(tx.config)
 	tx.Session = NewSessionClient(tx.config)
+	tx.SignInFailure = NewSignInFailureClient(tx.config)
 	tx.Stewardship = NewStewardshipClient(tx.config)
 	tx.Stock = NewStockClient(tx.config)
 	tx.StockMovement = NewStockMovementClient(tx.config)

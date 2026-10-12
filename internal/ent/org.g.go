@@ -123,6 +123,7 @@ func (e *CliLogin) Proto() *rove.CliLogin {
 	x.SetCode(e.Code)
 	x.SetClient(e.Client)
 	x.SetOrigin(e.Origin)
+	x.SetAddress(e.Address)
 	if e.Account != nil {
 		x.SetAccount(e.Account[:])
 	}
@@ -160,6 +161,13 @@ func (e *Consent) Proto() *rove.Consent {
 	if e.DateErased != nil {
 		x.SetDateErased(timestamppb.New(*e.DateErased))
 	}
+	x.SetDateCreated(timestamppb.New(e.DateCreated))
+	return x
+}
+func (e *SignInFailure) Proto() *rove.SignInFailure {
+	x := &rove.SignInFailure{}
+	x.SetId(e.Id[:])
+	x.SetSubject(e.Subject)
 	x.SetDateCreated(timestamppb.New(e.DateCreated))
 	return x
 }

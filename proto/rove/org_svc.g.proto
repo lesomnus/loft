@@ -130,6 +130,19 @@ service ConsentService {
   rpc Erase(ConsentRef) returns (ConsentEraseResponse);
 }
 
+service SignInFailureService {
+  // Add creates a new SignInFailure
+  rpc Add(SignInFailureAddRequest) returns (SignInFailure);
+  // Get retrieves a SignInFailure
+  rpc Get(SignInFailureGetRequest) returns (SignInFailure);
+  // Patch updates an existing SignInFailure
+  rpc Patch(SignInFailurePatchRequest) returns (SignInFailure);
+  // Apply applies a patch document to an existing SignInFailure
+  rpc Apply(SignInFailureApplyRequest) returns (SignInFailure);
+  // Erase deletes a SignInFailure
+  rpc Erase(SignInFailureRef) returns (SignInFailureEraseResponse);
+}
+
 message PartyAddRequest {
   bytes id = 1;
   TenantRef tenant = 2;
@@ -648,6 +661,7 @@ message CliLoginAddRequest {
   string code = 9 [features.field_presence = IMPLICIT];
   string client = 10 [features.field_presence = IMPLICIT];
   string origin = 11 [features.field_presence = IMPLICIT];
+  string address = 18;
   bytes account = 12;
   string state = 16 [features.field_presence = IMPLICIT];
   google.protobuf.Timestamp date_expires = 17;
@@ -671,6 +685,7 @@ message CliLoginSelect {
   bool code = 9;
   bool client = 10;
   bool origin = 11;
+  bool address = 18;
   bool account = 12;
   bool state = 16;
   bool date_expires = 17;
@@ -685,6 +700,7 @@ message CliLoginPatchRequest {
   string code = 18;
   string client = 20;
   string origin = 22;
+  string address = 36;
   bytes account = 24;
   // Clear account instead of writing it.
   // It takes a field of its own because an unset value already means
@@ -844,6 +860,48 @@ message ConsentApplyRequest {
 }
 
 message ConsentEraseResponse {
+  // Erased is whether this call is the one that erased the row.
+  //
+  // False for a row that was already gone, was never there, or is out
+  // of this caller's reach -- which are one answer on purpose, and the
+  // reason the RPC does not fail instead.
+  bool erased = 1;
+}
+
+message SignInFailureAddRequest {
+  bytes id = 1;
+  bytes subject = 8;
+  google.protobuf.Timestamp date_created = 15;
+}
+
+message SignInFailureGetRequest {
+  SignInFailureRef ref = 1;
+  SignInFailureSelect select = 2;
+}
+
+message SignInFailureRef {
+  oneof key {
+    bytes id = 1;
+  }
+}
+
+message SignInFailureSelect {
+  bool all = 1;
+  bool subject = 8;
+  bool date_created = 15;
+}
+
+message SignInFailurePatchRequest {
+  SignInFailureRef ref = 1;
+  bytes subject = 16;
+}
+
+message SignInFailureApplyRequest {
+  SignInFailureRef ref = 1;
+  patch.Patch patch = 2;
+}
+
+message SignInFailureEraseResponse {
   // Erased is whether this call is the one that erased the row.
   //
   // False for a row that was already gone, was never there, or is out

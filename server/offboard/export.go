@@ -197,16 +197,17 @@ var Exported = map[string]reader{
 // Withheld is every table an export leaves out, and why. A table in neither
 // this nor [Exported] is one nobody decided about, which a test refuses.
 var Withheld = map[string]string{
-	"audit":     "the trail, which is written apart as the tenant may read it",
-	"archived":  "the deployment's account of the trail's archive, every tenant's chunks at once",
-	"session":   "who is signed in",
-	"clilogin":  "a terminal waiting to be signed in, which is nobody's yet",
-	"aliashold": "the deployment's: addresses nobody may take for a while",
-	"consent":   "an account's, which agreed once for every workspace it is in",
-	"outbox":    "the deployment's queue of what changed",
-	"treelock":  "the deployment's bookkeeping",
-	"legalhold": "the operator's",
-	"tenant":    "the manifest's",
+	"audit":         "the trail, which is written apart as the tenant may read it",
+	"archived":      "the deployment's account of the trail's archive, every tenant's chunks at once",
+	"session":       "who is signed in",
+	"clilogin":      "a terminal waiting to be signed in, which is nobody's yet",
+	"aliashold":     "the deployment's: addresses nobody may take for a while",
+	"consent":       "an account's, which agreed once for every workspace it is in",
+	"signinfailure": "the deployment's: how often an address got a sign-in wrong lately",
+	"outbox":        "the deployment's queue of what changed",
+	"treelock":      "the deployment's bookkeeping",
+	"legalhold":     "the operator's",
+	"tenant":        "the manifest's",
 }
 
 // Export writes everything a tenant has as one zip archive: a JSON line per

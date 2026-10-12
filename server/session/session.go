@@ -25,7 +25,6 @@ import (
 	"net"
 	"net/http"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/lesomnus/otx/log"
@@ -38,6 +37,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/holder"
 	"github.com/lesomnus/rove/internal/ent/party"
 	"github.com/lesomnus/rove/internal/ent/session"
+	"github.com/lesomnus/rove/internal/ent/signinfailure"
 	"github.com/lesomnus/rove/internal/identity"
 	"github.com/lesomnus/rove/server/pd"
 )
@@ -236,11 +236,12 @@ type Arrive func(ctx context.Context, p identity.Person) error
 // what the account is given on arriving, then Rove's session cookie for it.
 //
 // A refusal is one answer whatever was wrong -- nobody by that name, the wrong
-// password, an address that keeps getting it wrong -- and a roster that cannot
-// be asked is another, since telling somebody their password is wrong when
-// nobody could check it is the answer that sends them to reset it.
+// password, an address that keeps getting it wrong, an account roster has
+// locked -- and a roster that cannot be asked is another, since telling
+// somebody their password is wrong when nobody could check it is the answer
+// that sends them to reset it.
 func SignIn(sessions *authsession.Sessions, people People, db *ent.Client, arrive Arrive) http.Handler {
-	l := &limiter{seen: map[string][]time.Time{}}
+	failures := Failures{Db: db}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodPost:
@@ -261,8 +262,17 @@ func SignIn(sessions *authsession.Sessions, people People, db *ent.Client, arriv
 			return
 		}
 		in.Login = strings.TrimSpace(in.Login)
-		who := addr(r) + "\x00" + strings.ToLower(in.Login)
-		if in.Login == "" || in.Password == "" || !l.ok(who) {
+		if in.Login == "" || in.Password == "" {
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+		who := Subject(addr(r), in.Login)
+		switch ok, err := failures.Ok(ctx, who); {
+		case err != nil:
+			log.From(ctx).WarnContext(ctx, "session: a sign-in whose failures could not be counted", "err", err.Error())
+			http.Error(w, "cannot sign in just now", http.StatusServiceUnavailable)
+			return
+		case !ok:
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
 		}
@@ -270,7 +280,9 @@ func SignIn(sessions *authsession.Sessions, people People, db *ent.Client, arriv
 		p, err := verify(ctx, people, db, in)
 		switch {
 		case errors.Is(err, errNo):
-			l.fail(who)
+			if err := failures.Fail(ctx, who); err != nil {
+				log.From(ctx).WarnContext(ctx, "session: a failure that could not be counted", "err", err.Error())
+			}
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
 		case err != nil:
@@ -278,7 +290,9 @@ func SignIn(sessions *authsession.Sessions, people People, db *ent.Client, arriv
 			http.Error(w, "cannot sign in just now", http.StatusServiceUnavailable)
 			return
 		}
-		l.forget(who)
+		if err := failures.Forget(ctx, who); err != nil {
+			log.From(ctx).WarnContext(ctx, "session: failures that could not be forgotten", "err", err.Error())
+		}
 
 		// A workspace that could not be made is not a sign-in refused: the
 		// account is who it is, and is told it is in no workspace.
@@ -369,41 +383,84 @@ func addr(r *http.Request) string {
 	return host
 }
 
-// limiter refuses a login from an address after ten failures in fifteen
-// minutes. It is per process, which is what one replica needs.
-type limiter struct {
-	mu   sync.Mutex
-	seen map[string][]time.Time
+// Failures is how many wrong answers a pair -- the address a sign-in came from
+// and the name it was for -- gave lately: [MaxFailures] in [Window], and the
+// pair is refused without roster being asked, until the oldest of them is
+// older than that. Signing in forgets them.
+//
+// They are rows (`SignInFailure`) and not a count in memory, so that every
+// process of a deployment holds a pair to the same ones: counted per process,
+// a deployment of N processes was N times as easy to guess at, by whoever's
+// requests the balancer spread. A pair is kept as its SHA-256 ([Subject]), so
+// the table says how often and not who.
+//
+// The count is read before roster is asked and written after it answers, so
+// requests that arrive together may each be the tenth. That is a limit held
+// to within the requests in flight, which is what it was in one process too.
+//
+// Roster's own lockout is the account's -- ten wrong in a row, whatever they
+// came from -- and this is the address's, which only Rove sees: roster is
+// asked by Rove, and every request reaches it from here.
+type Failures struct {
+	Db *ent.Client
+
+	// Now is the clock; tests move it.
+	Now func() time.Time
 }
 
 const (
-	maxFailures = 10
-	window      = 15 * time.Minute
+	// MaxFailures is how many wrong answers a pair may give in [Window].
+	MaxFailures = 10
+	// Window is how long one is held against it.
+	Window = 15 * time.Minute
 )
 
-func (l *limiter) ok(k string) bool {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	cut := time.Now().Add(-window)
-	vs := l.seen[k]
-	for len(vs) > 0 && vs[0].Before(cut) {
-		vs = vs[1:]
-	}
-	l.seen[k] = vs
-	if len(vs) == 0 {
-		delete(l.seen, k)
-	}
-	return len(vs) < maxFailures
+// Subject is what a failure is counted under: the address and the name the
+// form was given, folded, since a name is not told apart by its case, and
+// hashed.
+func Subject(address, login string) []byte {
+	v := sha256.Sum256([]byte(address + "\x00" + strings.ToLower(login)))
+	return v[:]
 }
 
-func (l *limiter) fail(k string) {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	l.seen[k] = append(l.seen[k], time.Now())
+func (f Failures) now() time.Time {
+	if f.Now != nil {
+		return f.Now()
+	}
+	return time.Now()
 }
 
-func (l *limiter) forget(k string) {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	delete(l.seen, k)
+// Ok answers whether a pair may be asked about: fewer than [MaxFailures] in
+// the last [Window].
+func (f Failures) Ok(ctx context.Context, subject []byte) (bool, error) {
+	n, err := f.Db.SignInFailure.Query().
+		Where(signinfailure.Subject(subject), signinfailure.DateCreatedGT(f.now().Add(-Window))).
+		Count(ctx)
+	if err != nil {
+		return false, err
+	}
+	return n < MaxFailures, nil
+}
+
+// Fail counts one wrong answer against a pair.
+func (f Failures) Fail(ctx context.Context, subject []byte) error {
+	return f.Db.SignInFailure.Create().
+		SetId(pdid.New(pd.SignInFailureDomain).Uuid()).
+		SetSubject(subject).
+		SetDateCreated(f.now()).
+		Exec(ctx)
+}
+
+// Forget is a pair signing in: what it got wrong before is not held against
+// it any more.
+func (f Failures) Forget(ctx context.Context, subject []byte) error {
+	_, err := f.Db.SignInFailure.Delete().Where(signinfailure.Subject(subject)).Exec(ctx)
+	return err
+}
+
+// Sweep deletes the failures nothing counts any more: those older than
+// [Window].
+func (f Failures) Sweep(ctx context.Context) error {
+	_, err := f.Db.SignInFailure.Delete().Where(signinfailure.DateCreatedLTE(f.now().Add(-Window))).Exec(ctx)
+	return err
 }

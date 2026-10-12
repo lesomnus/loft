@@ -381,6 +381,18 @@ func (f SessionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, err
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.SessionMutation", m)
 }
 
+// The SignInFailureFunc type is an adapter to allow the use of ordinary
+// function as SignInFailure mutator.
+type SignInFailureFunc func(context.Context, *ent.SignInFailureMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f SignInFailureFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.SignInFailureMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.SignInFailureMutation", m)
+}
+
 // The StewardshipFunc type is an adapter to allow the use of ordinary
 // function as Stewardship mutator.
 type StewardshipFunc func(context.Context, *ent.StewardshipMutation) (ent.Value, error)
