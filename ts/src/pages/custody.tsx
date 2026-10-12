@@ -328,7 +328,7 @@ export function NewCustody(props: { assets: Asset[]; party?: string; reservation
 					<input type="datetime-local" value={due} onChange={(e) => setDue(e.target.value)} required />
 				</Field>
 			)}
-			<Field label="자산 추가" wide>
+			<Field label="자산 추가" wide group>
 				<AssetPicker
 					value={next}
 					onChange={(a) => {
@@ -362,9 +362,9 @@ export function NewCustody(props: { assets: Asset[]; party?: string; reservation
 					options={(all.data?.items ?? []).map((s) => ({ value: idStr(s.id), label: `${s.name} (${s.quantity}${s.unit})` }))}
 				/>
 			</Field>
-			<Field label="수량">
-				<div className="inline">
-					<input type="number" min={1} value={qty} onChange={(e) => setQty(e.target.value)} />
+			<Field
+				label="수량"
+				beside={
 					<button
 						type="button"
 						disabled={stock === ''}
@@ -377,7 +377,9 @@ export function NewCustody(props: { assets: Asset[]; party?: string; reservation
 					>
 						추가
 					</button>
-				</div>
+				}
+			>
+				<input type="number" min={1} value={qty} onChange={(e) => setQty(e.target.value)} />
 			</Field>
 			{stocks.length > 0 && (
 				<ul className="rows wide">

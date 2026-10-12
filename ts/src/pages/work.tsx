@@ -138,7 +138,7 @@ export function NewWorkOrder(props: { asset?: Asset; onClose: () => void }): Rea
 				)
 			}}
 		>
-			<Field label="자산 *" wide>
+			<Field label="자산 *" wide group>
 				<AssetPicker value={asset} onChange={setAsset} />
 			</Field>
 			{mgr && (

@@ -133,6 +133,11 @@ checkout, `init --demo`, a database in `ts/test-results/` -- so they never
 touch `data/`. A change to a page a flow goes through is not done until they
 pass; find things by role and label, as a person does.
 
+A form's `Field` (`ts/src/ui.tsx`) is a <label> beside the **one** control it
+names, which takes the id the field hands it (`Labelled`). A field of more
+than one control -- an asset picker, a row of boxes -- is `group`; never put
+controls inside a <label> of your own.
+
 ## Signing in
 
 People, their passwords and whether they may sign in are **roster's**

@@ -185,7 +185,7 @@ function BindBlank(props: { label: Label; onDone: () => void }): ReactNode {
 			{c.can('manager') ? (
 				<>
 					<p>이 라벨을 붙일 자산을 고르세요.</p>
-					<Field label="자산" wide>
+					<Field label="자산" wide group>
 						<AssetPicker value={a} onChange={setA} />
 					</Field>
 					<div className="inline">

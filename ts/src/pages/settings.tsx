@@ -329,7 +329,7 @@ function BookableForm(props: { b: Bookable; onClose: () => void }): ReactNode {
 			<label className="check">
 				<input type="checkbox" checked={approval} onChange={(e) => setApproval(e.target.checked)} /> 승인 필요
 			</label>
-			<Field label="운영 요일" wide hint="아무것도 고르지 않으면 언제나">
+			<Field label="운영 요일" wide group hint="아무것도 고르지 않으면 언제나">
 				<div className="inline">
 					{weekdays.map((w, i) => (
 						<label key={i} className="check">
