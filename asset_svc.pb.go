@@ -2743,6 +2743,7 @@ type AssetListRequest struct {
 	xxx_hidden_Filters *[]*AssetFilter        `protobuf:"bytes,1,rep,name=filters"`
 	xxx_hidden_Size    int32                  `protobuf:"varint,2,opt,name=size"`
 	xxx_hidden_After   string                 `protobuf:"bytes,3,opt,name=after"`
+	xxx_hidden_Reverse bool                   `protobuf:"varint,4,opt,name=reverse"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -2795,6 +2796,13 @@ func (x *AssetListRequest) GetAfter() string {
 	return ""
 }
 
+func (x *AssetListRequest) GetReverse() bool {
+	if x != nil {
+		return x.xxx_hidden_Reverse
+	}
+	return false
+}
+
 func (x *AssetListRequest) SetFilters(v []*AssetFilter) {
 	x.xxx_hidden_Filters = &v
 }
@@ -2805,6 +2813,10 @@ func (x *AssetListRequest) SetSize(v int32) {
 
 func (x *AssetListRequest) SetAfter(v string) {
 	x.xxx_hidden_After = v
+}
+
+func (x *AssetListRequest) SetReverse(v bool) {
+	x.xxx_hidden_Reverse = v
 }
 
 type AssetListRequest_builder struct {
@@ -2822,6 +2834,11 @@ type AssetListRequest_builder struct {
 	// ahead of the page does not shift it and a caller reading through never sees
 	// one twice or misses one.
 	After string
+	// Read the order the other way round, every column of it at once -- newest
+	// first where it is oldest first -- which the index the order walks walks
+	// from the other end. A cursor is of the way it was read, so the next page
+	// carries on that way, and one of the other way is refused.
+	Reverse bool
 }
 
 func (b0 AssetListRequest_builder) Build() *AssetListRequest {
@@ -2831,6 +2848,7 @@ func (b0 AssetListRequest_builder) Build() *AssetListRequest {
 	x.xxx_hidden_Filters = &b.Filters
 	x.xxx_hidden_Size = b.Size
 	x.xxx_hidden_After = b.After
+	x.xxx_hidden_Reverse = b.Reverse
 	return m0
 }
 
@@ -8919,6 +8937,7 @@ type TenantDomainListRequest struct {
 	xxx_hidden_Filters *[]*TenantDomainFilter `protobuf:"bytes,1,rep,name=filters"`
 	xxx_hidden_Size    int32                  `protobuf:"varint,2,opt,name=size"`
 	xxx_hidden_After   string                 `protobuf:"bytes,3,opt,name=after"`
+	xxx_hidden_Reverse bool                   `protobuf:"varint,4,opt,name=reverse"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -8971,6 +8990,13 @@ func (x *TenantDomainListRequest) GetAfter() string {
 	return ""
 }
 
+func (x *TenantDomainListRequest) GetReverse() bool {
+	if x != nil {
+		return x.xxx_hidden_Reverse
+	}
+	return false
+}
+
 func (x *TenantDomainListRequest) SetFilters(v []*TenantDomainFilter) {
 	x.xxx_hidden_Filters = &v
 }
@@ -8981,6 +9007,10 @@ func (x *TenantDomainListRequest) SetSize(v int32) {
 
 func (x *TenantDomainListRequest) SetAfter(v string) {
 	x.xxx_hidden_After = v
+}
+
+func (x *TenantDomainListRequest) SetReverse(v bool) {
+	x.xxx_hidden_Reverse = v
 }
 
 type TenantDomainListRequest_builder struct {
@@ -8998,6 +9028,11 @@ type TenantDomainListRequest_builder struct {
 	// ahead of the page does not shift it and a caller reading through never sees
 	// one twice or misses one.
 	After string
+	// Read the order the other way round, every column of it at once -- newest
+	// first where it is oldest first -- which the index the order walks walks
+	// from the other end. A cursor is of the way it was read, so the next page
+	// carries on that way, and one of the other way is refused.
+	Reverse bool
 }
 
 func (b0 TenantDomainListRequest_builder) Build() *TenantDomainListRequest {
@@ -9007,6 +9042,7 @@ func (b0 TenantDomainListRequest_builder) Build() *TenantDomainListRequest {
 	x.xxx_hidden_Filters = &b.Filters
 	x.xxx_hidden_Size = b.Size
 	x.xxx_hidden_After = b.After
+	x.xxx_hidden_Reverse = b.Reverse
 	return m0
 }
 
@@ -11553,6 +11589,7 @@ type LabelListRequest struct {
 	xxx_hidden_Filters *[]*LabelFilter        `protobuf:"bytes,1,rep,name=filters"`
 	xxx_hidden_Size    int32                  `protobuf:"varint,2,opt,name=size"`
 	xxx_hidden_After   string                 `protobuf:"bytes,3,opt,name=after"`
+	xxx_hidden_Reverse bool                   `protobuf:"varint,4,opt,name=reverse"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -11605,6 +11642,13 @@ func (x *LabelListRequest) GetAfter() string {
 	return ""
 }
 
+func (x *LabelListRequest) GetReverse() bool {
+	if x != nil {
+		return x.xxx_hidden_Reverse
+	}
+	return false
+}
+
 func (x *LabelListRequest) SetFilters(v []*LabelFilter) {
 	x.xxx_hidden_Filters = &v
 }
@@ -11615,6 +11659,10 @@ func (x *LabelListRequest) SetSize(v int32) {
 
 func (x *LabelListRequest) SetAfter(v string) {
 	x.xxx_hidden_After = v
+}
+
+func (x *LabelListRequest) SetReverse(v bool) {
+	x.xxx_hidden_Reverse = v
 }
 
 type LabelListRequest_builder struct {
@@ -11632,6 +11680,11 @@ type LabelListRequest_builder struct {
 	// ahead of the page does not shift it and a caller reading through never sees
 	// one twice or misses one.
 	After string
+	// Read the order the other way round, every column of it at once -- newest
+	// first where it is oldest first -- which the index the order walks walks
+	// from the other end. A cursor is of the way it was read, so the next page
+	// carries on that way, and one of the other way is refused.
+	Reverse bool
 }
 
 func (b0 LabelListRequest_builder) Build() *LabelListRequest {
@@ -11641,6 +11694,7 @@ func (b0 LabelListRequest_builder) Build() *LabelListRequest {
 	x.xxx_hidden_Filters = &b.Filters
 	x.xxx_hidden_Size = b.Size
 	x.xxx_hidden_After = b.After
+	x.xxx_hidden_Reverse = b.Reverse
 	return m0
 }
 
@@ -14008,6 +14062,7 @@ type AttachmentListRequest struct {
 	xxx_hidden_Filters *[]*AttachmentFilter   `protobuf:"bytes,1,rep,name=filters"`
 	xxx_hidden_Size    int32                  `protobuf:"varint,2,opt,name=size"`
 	xxx_hidden_After   string                 `protobuf:"bytes,3,opt,name=after"`
+	xxx_hidden_Reverse bool                   `protobuf:"varint,4,opt,name=reverse"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -14060,6 +14115,13 @@ func (x *AttachmentListRequest) GetAfter() string {
 	return ""
 }
 
+func (x *AttachmentListRequest) GetReverse() bool {
+	if x != nil {
+		return x.xxx_hidden_Reverse
+	}
+	return false
+}
+
 func (x *AttachmentListRequest) SetFilters(v []*AttachmentFilter) {
 	x.xxx_hidden_Filters = &v
 }
@@ -14070,6 +14132,10 @@ func (x *AttachmentListRequest) SetSize(v int32) {
 
 func (x *AttachmentListRequest) SetAfter(v string) {
 	x.xxx_hidden_After = v
+}
+
+func (x *AttachmentListRequest) SetReverse(v bool) {
+	x.xxx_hidden_Reverse = v
 }
 
 type AttachmentListRequest_builder struct {
@@ -14087,6 +14153,11 @@ type AttachmentListRequest_builder struct {
 	// ahead of the page does not shift it and a caller reading through never sees
 	// one twice or misses one.
 	After string
+	// Read the order the other way round, every column of it at once -- newest
+	// first where it is oldest first -- which the index the order walks walks
+	// from the other end. A cursor is of the way it was read, so the next page
+	// carries on that way, and one of the other way is refused.
+	Reverse bool
 }
 
 func (b0 AttachmentListRequest_builder) Build() *AttachmentListRequest {
@@ -14096,6 +14167,7 @@ func (b0 AttachmentListRequest_builder) Build() *AttachmentListRequest {
 	x.xxx_hidden_Filters = &b.Filters
 	x.xxx_hidden_Size = b.Size
 	x.xxx_hidden_After = b.After
+	x.xxx_hidden_Reverse = b.Reverse
 	return m0
 }
 
@@ -14943,11 +15015,12 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x03ref\x18\x01 \x01(\v2\x0e.rove.AssetRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\",\n" +
 	"\x12AssetEraseResponse\x12\x16\n" +
-	"\x06erased\x18\x01 \x01(\bR\x06erased\"w\n" +
+	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x98\x01\n" +
 	"\x10AssetListRequest\x12+\n" +
 	"\afilters\x18\x01 \x03(\v2\x11.rove.AssetFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
-	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\"Q\n" +
+	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
+	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"Q\n" +
 	"\x11AssetListResponse\x12!\n" +
 	"\x05items\x18\x01 \x03(\v2\v.rove.AssetR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"\xfe\x03\n" +
@@ -15227,11 +15300,12 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x03ref\x18\x01 \x01(\v2\x15.rove.TenantDomainRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"3\n" +
 	"\x19TenantDomainEraseResponse\x12\x16\n" +
-	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x85\x01\n" +
+	"\x06erased\x18\x01 \x01(\bR\x06erased\"\xa6\x01\n" +
 	"\x17TenantDomainListRequest\x122\n" +
 	"\afilters\x18\x01 \x03(\v2\x18.rove.TenantDomainFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
-	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\"_\n" +
+	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
+	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"_\n" +
 	"\x18TenantDomainListResponse\x12(\n" +
 	"\x05items\x18\x01 \x03(\v2\x12.rove.TenantDomainR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"m\n" +
@@ -15324,11 +15398,12 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x03ref\x18\x01 \x01(\v2\x0e.rove.LabelRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\",\n" +
 	"\x12LabelEraseResponse\x12\x16\n" +
-	"\x06erased\x18\x01 \x01(\bR\x06erased\"w\n" +
+	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x98\x01\n" +
 	"\x10LabelListRequest\x12+\n" +
 	"\afilters\x18\x01 \x03(\v2\x11.rove.LabelFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
-	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\"Q\n" +
+	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
+	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"Q\n" +
 	"\x11LabelListResponse\x12!\n" +
 	"\x05items\x18\x01 \x03(\v2\v.rove.LabelR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"z\n" +
@@ -15421,11 +15496,12 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x03ref\x18\x01 \x01(\v2\x13.rove.AttachmentRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"1\n" +
 	"\x17AttachmentEraseResponse\x12\x16\n" +
-	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x81\x01\n" +
+	"\x06erased\x18\x01 \x01(\bR\x06erased\"\xa2\x01\n" +
 	"\x15AttachmentListRequest\x120\n" +
 	"\afilters\x18\x01 \x03(\v2\x16.rove.AttachmentFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
-	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\"[\n" +
+	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
+	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"[\n" +
 	"\x16AttachmentListResponse\x12&\n" +
 	"\x05items\x18\x01 \x03(\v2\x10.rove.AttachmentR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"X\n" +

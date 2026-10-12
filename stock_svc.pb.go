@@ -1367,6 +1367,7 @@ type StockListRequest struct {
 	xxx_hidden_Filters *[]*StockFilter        `protobuf:"bytes,1,rep,name=filters"`
 	xxx_hidden_Size    int32                  `protobuf:"varint,2,opt,name=size"`
 	xxx_hidden_After   string                 `protobuf:"bytes,3,opt,name=after"`
+	xxx_hidden_Reverse bool                   `protobuf:"varint,4,opt,name=reverse"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -1419,6 +1420,13 @@ func (x *StockListRequest) GetAfter() string {
 	return ""
 }
 
+func (x *StockListRequest) GetReverse() bool {
+	if x != nil {
+		return x.xxx_hidden_Reverse
+	}
+	return false
+}
+
 func (x *StockListRequest) SetFilters(v []*StockFilter) {
 	x.xxx_hidden_Filters = &v
 }
@@ -1429,6 +1437,10 @@ func (x *StockListRequest) SetSize(v int32) {
 
 func (x *StockListRequest) SetAfter(v string) {
 	x.xxx_hidden_After = v
+}
+
+func (x *StockListRequest) SetReverse(v bool) {
+	x.xxx_hidden_Reverse = v
 }
 
 type StockListRequest_builder struct {
@@ -1446,6 +1458,11 @@ type StockListRequest_builder struct {
 	// ahead of the page does not shift it and a caller reading through never sees
 	// one twice or misses one.
 	After string
+	// Read the order the other way round, every column of it at once -- newest
+	// first where it is oldest first -- which the index the order walks walks
+	// from the other end. A cursor is of the way it was read, so the next page
+	// carries on that way, and one of the other way is refused.
+	Reverse bool
 }
 
 func (b0 StockListRequest_builder) Build() *StockListRequest {
@@ -1455,6 +1472,7 @@ func (b0 StockListRequest_builder) Build() *StockListRequest {
 	x.xxx_hidden_Filters = &b.Filters
 	x.xxx_hidden_Size = b.Size
 	x.xxx_hidden_After = b.After
+	x.xxx_hidden_Reverse = b.Reverse
 	return m0
 }
 
@@ -3821,6 +3839,7 @@ type StockMovementListRequest struct {
 	xxx_hidden_Filters *[]*StockMovementFilter `protobuf:"bytes,1,rep,name=filters"`
 	xxx_hidden_Size    int32                   `protobuf:"varint,2,opt,name=size"`
 	xxx_hidden_After   string                  `protobuf:"bytes,3,opt,name=after"`
+	xxx_hidden_Reverse bool                    `protobuf:"varint,4,opt,name=reverse"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -3873,6 +3892,13 @@ func (x *StockMovementListRequest) GetAfter() string {
 	return ""
 }
 
+func (x *StockMovementListRequest) GetReverse() bool {
+	if x != nil {
+		return x.xxx_hidden_Reverse
+	}
+	return false
+}
+
 func (x *StockMovementListRequest) SetFilters(v []*StockMovementFilter) {
 	x.xxx_hidden_Filters = &v
 }
@@ -3883,6 +3909,10 @@ func (x *StockMovementListRequest) SetSize(v int32) {
 
 func (x *StockMovementListRequest) SetAfter(v string) {
 	x.xxx_hidden_After = v
+}
+
+func (x *StockMovementListRequest) SetReverse(v bool) {
+	x.xxx_hidden_Reverse = v
 }
 
 type StockMovementListRequest_builder struct {
@@ -3900,6 +3930,11 @@ type StockMovementListRequest_builder struct {
 	// ahead of the page does not shift it and a caller reading through never sees
 	// one twice or misses one.
 	After string
+	// Read the order the other way round, every column of it at once -- newest
+	// first where it is oldest first -- which the index the order walks walks
+	// from the other end. A cursor is of the way it was read, so the next page
+	// carries on that way, and one of the other way is refused.
+	Reverse bool
 }
 
 func (b0 StockMovementListRequest_builder) Build() *StockMovementListRequest {
@@ -3909,6 +3944,7 @@ func (b0 StockMovementListRequest_builder) Build() *StockMovementListRequest {
 	x.xxx_hidden_Filters = &b.Filters
 	x.xxx_hidden_Size = b.Size
 	x.xxx_hidden_After = b.After
+	x.xxx_hidden_Reverse = b.Reverse
 	return m0
 }
 
@@ -4179,11 +4215,12 @@ const file_rove_stock_svc_g_proto_rawDesc = "" +
 	"\x03ref\x18\x01 \x01(\v2\x0e.rove.StockRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\",\n" +
 	"\x12StockEraseResponse\x12\x16\n" +
-	"\x06erased\x18\x01 \x01(\bR\x06erased\"w\n" +
+	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x98\x01\n" +
 	"\x10StockListRequest\x12+\n" +
 	"\afilters\x18\x01 \x03(\v2\x11.rove.StockFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
-	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\"Q\n" +
+	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
+	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"Q\n" +
 	"\x11StockListResponse\x12!\n" +
 	"\x05items\x18\x01 \x03(\v2\v.rove.StockR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"\x7f\n" +
@@ -4271,11 +4308,12 @@ const file_rove_stock_svc_g_proto_rawDesc = "" +
 	"\x03ref\x18\x01 \x01(\v2\x16.rove.StockMovementRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"4\n" +
 	"\x1aStockMovementEraseResponse\x12\x16\n" +
-	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x87\x01\n" +
+	"\x06erased\x18\x01 \x01(\bR\x06erased\"\xa8\x01\n" +
 	"\x18StockMovementListRequest\x123\n" +
 	"\afilters\x18\x01 \x03(\v2\x19.rove.StockMovementFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
-	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\"a\n" +
+	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
+	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"a\n" +
 	"\x19StockMovementListResponse\x12)\n" +
 	"\x05items\x18\x01 \x03(\v2\x13.rove.StockMovementR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"}\n" +

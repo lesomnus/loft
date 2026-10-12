@@ -1481,6 +1481,7 @@ type AssetTypeListRequest struct {
 	xxx_hidden_Filters *[]*AssetTypeFilter    `protobuf:"bytes,1,rep,name=filters"`
 	xxx_hidden_Size    int32                  `protobuf:"varint,2,opt,name=size"`
 	xxx_hidden_After   string                 `protobuf:"bytes,3,opt,name=after"`
+	xxx_hidden_Reverse bool                   `protobuf:"varint,4,opt,name=reverse"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -1533,6 +1534,13 @@ func (x *AssetTypeListRequest) GetAfter() string {
 	return ""
 }
 
+func (x *AssetTypeListRequest) GetReverse() bool {
+	if x != nil {
+		return x.xxx_hidden_Reverse
+	}
+	return false
+}
+
 func (x *AssetTypeListRequest) SetFilters(v []*AssetTypeFilter) {
 	x.xxx_hidden_Filters = &v
 }
@@ -1543,6 +1551,10 @@ func (x *AssetTypeListRequest) SetSize(v int32) {
 
 func (x *AssetTypeListRequest) SetAfter(v string) {
 	x.xxx_hidden_After = v
+}
+
+func (x *AssetTypeListRequest) SetReverse(v bool) {
+	x.xxx_hidden_Reverse = v
 }
 
 type AssetTypeListRequest_builder struct {
@@ -1560,6 +1572,11 @@ type AssetTypeListRequest_builder struct {
 	// ahead of the page does not shift it and a caller reading through never sees
 	// one twice or misses one.
 	After string
+	// Read the order the other way round, every column of it at once -- newest
+	// first where it is oldest first -- which the index the order walks walks
+	// from the other end. A cursor is of the way it was read, so the next page
+	// carries on that way, and one of the other way is refused.
+	Reverse bool
 }
 
 func (b0 AssetTypeListRequest_builder) Build() *AssetTypeListRequest {
@@ -1569,6 +1586,7 @@ func (b0 AssetTypeListRequest_builder) Build() *AssetTypeListRequest {
 	x.xxx_hidden_Filters = &b.Filters
 	x.xxx_hidden_Size = b.Size
 	x.xxx_hidden_After = b.After
+	x.xxx_hidden_Reverse = b.Reverse
 	return m0
 }
 
@@ -3674,6 +3692,7 @@ type ItemModelListRequest struct {
 	xxx_hidden_Filters *[]*ItemModelFilter    `protobuf:"bytes,1,rep,name=filters"`
 	xxx_hidden_Size    int32                  `protobuf:"varint,2,opt,name=size"`
 	xxx_hidden_After   string                 `protobuf:"bytes,3,opt,name=after"`
+	xxx_hidden_Reverse bool                   `protobuf:"varint,4,opt,name=reverse"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -3726,6 +3745,13 @@ func (x *ItemModelListRequest) GetAfter() string {
 	return ""
 }
 
+func (x *ItemModelListRequest) GetReverse() bool {
+	if x != nil {
+		return x.xxx_hidden_Reverse
+	}
+	return false
+}
+
 func (x *ItemModelListRequest) SetFilters(v []*ItemModelFilter) {
 	x.xxx_hidden_Filters = &v
 }
@@ -3736,6 +3762,10 @@ func (x *ItemModelListRequest) SetSize(v int32) {
 
 func (x *ItemModelListRequest) SetAfter(v string) {
 	x.xxx_hidden_After = v
+}
+
+func (x *ItemModelListRequest) SetReverse(v bool) {
+	x.xxx_hidden_Reverse = v
 }
 
 type ItemModelListRequest_builder struct {
@@ -3753,6 +3783,11 @@ type ItemModelListRequest_builder struct {
 	// ahead of the page does not shift it and a caller reading through never sees
 	// one twice or misses one.
 	After string
+	// Read the order the other way round, every column of it at once -- newest
+	// first where it is oldest first -- which the index the order walks walks
+	// from the other end. A cursor is of the way it was read, so the next page
+	// carries on that way, and one of the other way is refused.
+	Reverse bool
 }
 
 func (b0 ItemModelListRequest_builder) Build() *ItemModelListRequest {
@@ -3762,6 +3797,7 @@ func (b0 ItemModelListRequest_builder) Build() *ItemModelListRequest {
 	x.xxx_hidden_Filters = &b.Filters
 	x.xxx_hidden_Size = b.Size
 	x.xxx_hidden_After = b.After
+	x.xxx_hidden_Reverse = b.Reverse
 	return m0
 }
 
@@ -4467,11 +4503,12 @@ const file_rove_catalog_svc_g_proto_rawDesc = "" +
 	"\x03ref\x18\x01 \x01(\v2\x12.rove.AssetTypeRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"0\n" +
 	"\x16AssetTypeEraseResponse\x12\x16\n" +
-	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x7f\n" +
+	"\x06erased\x18\x01 \x01(\bR\x06erased\"\xa0\x01\n" +
 	"\x14AssetTypeListRequest\x12/\n" +
 	"\afilters\x18\x01 \x03(\v2\x15.rove.AssetTypeFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
-	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\"Y\n" +
+	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
+	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"Y\n" +
 	"\x15AssetTypeListResponse\x12%\n" +
 	"\x05items\x18\x01 \x03(\v2\x0f.rove.AssetTypeR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"h\n" +
@@ -4554,11 +4591,12 @@ const file_rove_catalog_svc_g_proto_rawDesc = "" +
 	"\x03ref\x18\x01 \x01(\v2\x12.rove.ItemModelRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"0\n" +
 	"\x16ItemModelEraseResponse\x12\x16\n" +
-	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x7f\n" +
+	"\x06erased\x18\x01 \x01(\bR\x06erased\"\xa0\x01\n" +
 	"\x14ItemModelListRequest\x12/\n" +
 	"\afilters\x18\x01 \x03(\v2\x15.rove.ItemModelFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
-	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\"Y\n" +
+	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
+	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"Y\n" +
 	"\x15ItemModelListResponse\x12%\n" +
 	"\x05items\x18\x01 \x03(\v2\x0f.rove.ItemModelR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"_\n" +

@@ -1982,6 +1982,7 @@ type WorkOrderListRequest struct {
 	xxx_hidden_Filters *[]*WorkOrderFilter    `protobuf:"bytes,1,rep,name=filters"`
 	xxx_hidden_Size    int32                  `protobuf:"varint,2,opt,name=size"`
 	xxx_hidden_After   string                 `protobuf:"bytes,3,opt,name=after"`
+	xxx_hidden_Reverse bool                   `protobuf:"varint,4,opt,name=reverse"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -2034,6 +2035,13 @@ func (x *WorkOrderListRequest) GetAfter() string {
 	return ""
 }
 
+func (x *WorkOrderListRequest) GetReverse() bool {
+	if x != nil {
+		return x.xxx_hidden_Reverse
+	}
+	return false
+}
+
 func (x *WorkOrderListRequest) SetFilters(v []*WorkOrderFilter) {
 	x.xxx_hidden_Filters = &v
 }
@@ -2044,6 +2052,10 @@ func (x *WorkOrderListRequest) SetSize(v int32) {
 
 func (x *WorkOrderListRequest) SetAfter(v string) {
 	x.xxx_hidden_After = v
+}
+
+func (x *WorkOrderListRequest) SetReverse(v bool) {
+	x.xxx_hidden_Reverse = v
 }
 
 type WorkOrderListRequest_builder struct {
@@ -2061,6 +2073,11 @@ type WorkOrderListRequest_builder struct {
 	// ahead of the page does not shift it and a caller reading through never sees
 	// one twice or misses one.
 	After string
+	// Read the order the other way round, every column of it at once -- newest
+	// first where it is oldest first -- which the index the order walks walks
+	// from the other end. A cursor is of the way it was read, so the next page
+	// carries on that way, and one of the other way is refused.
+	Reverse bool
 }
 
 func (b0 WorkOrderListRequest_builder) Build() *WorkOrderListRequest {
@@ -2070,6 +2087,7 @@ func (b0 WorkOrderListRequest_builder) Build() *WorkOrderListRequest {
 	x.xxx_hidden_Filters = &b.Filters
 	x.xxx_hidden_Size = b.Size
 	x.xxx_hidden_After = b.After
+	x.xxx_hidden_Reverse = b.Reverse
 	return m0
 }
 
@@ -4686,6 +4704,7 @@ type PurchaseListRequest struct {
 	xxx_hidden_Filters *[]*PurchaseFilter     `protobuf:"bytes,1,rep,name=filters"`
 	xxx_hidden_Size    int32                  `protobuf:"varint,2,opt,name=size"`
 	xxx_hidden_After   string                 `protobuf:"bytes,3,opt,name=after"`
+	xxx_hidden_Reverse bool                   `protobuf:"varint,4,opt,name=reverse"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -4738,6 +4757,13 @@ func (x *PurchaseListRequest) GetAfter() string {
 	return ""
 }
 
+func (x *PurchaseListRequest) GetReverse() bool {
+	if x != nil {
+		return x.xxx_hidden_Reverse
+	}
+	return false
+}
+
 func (x *PurchaseListRequest) SetFilters(v []*PurchaseFilter) {
 	x.xxx_hidden_Filters = &v
 }
@@ -4748,6 +4774,10 @@ func (x *PurchaseListRequest) SetSize(v int32) {
 
 func (x *PurchaseListRequest) SetAfter(v string) {
 	x.xxx_hidden_After = v
+}
+
+func (x *PurchaseListRequest) SetReverse(v bool) {
+	x.xxx_hidden_Reverse = v
 }
 
 type PurchaseListRequest_builder struct {
@@ -4765,6 +4795,11 @@ type PurchaseListRequest_builder struct {
 	// ahead of the page does not shift it and a caller reading through never sees
 	// one twice or misses one.
 	After string
+	// Read the order the other way round, every column of it at once -- newest
+	// first where it is oldest first -- which the index the order walks walks
+	// from the other end. A cursor is of the way it was read, so the next page
+	// carries on that way, and one of the other way is refused.
+	Reverse bool
 }
 
 func (b0 PurchaseListRequest_builder) Build() *PurchaseListRequest {
@@ -4774,6 +4809,7 @@ func (b0 PurchaseListRequest_builder) Build() *PurchaseListRequest {
 	x.xxx_hidden_Filters = &b.Filters
 	x.xxx_hidden_Size = b.Size
 	x.xxx_hidden_After = b.After
+	x.xxx_hidden_Reverse = b.Reverse
 	return m0
 }
 
@@ -6851,6 +6887,7 @@ type PurchaseLineListRequest struct {
 	xxx_hidden_Filters *[]*PurchaseLineFilter `protobuf:"bytes,1,rep,name=filters"`
 	xxx_hidden_Size    int32                  `protobuf:"varint,2,opt,name=size"`
 	xxx_hidden_After   string                 `protobuf:"bytes,3,opt,name=after"`
+	xxx_hidden_Reverse bool                   `protobuf:"varint,4,opt,name=reverse"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -6903,6 +6940,13 @@ func (x *PurchaseLineListRequest) GetAfter() string {
 	return ""
 }
 
+func (x *PurchaseLineListRequest) GetReverse() bool {
+	if x != nil {
+		return x.xxx_hidden_Reverse
+	}
+	return false
+}
+
 func (x *PurchaseLineListRequest) SetFilters(v []*PurchaseLineFilter) {
 	x.xxx_hidden_Filters = &v
 }
@@ -6913,6 +6957,10 @@ func (x *PurchaseLineListRequest) SetSize(v int32) {
 
 func (x *PurchaseLineListRequest) SetAfter(v string) {
 	x.xxx_hidden_After = v
+}
+
+func (x *PurchaseLineListRequest) SetReverse(v bool) {
+	x.xxx_hidden_Reverse = v
 }
 
 type PurchaseLineListRequest_builder struct {
@@ -6930,6 +6978,11 @@ type PurchaseLineListRequest_builder struct {
 	// ahead of the page does not shift it and a caller reading through never sees
 	// one twice or misses one.
 	After string
+	// Read the order the other way round, every column of it at once -- newest
+	// first where it is oldest first -- which the index the order walks walks
+	// from the other end. A cursor is of the way it was read, so the next page
+	// carries on that way, and one of the other way is refused.
+	Reverse bool
 }
 
 func (b0 PurchaseLineListRequest_builder) Build() *PurchaseLineListRequest {
@@ -6939,6 +6992,7 @@ func (b0 PurchaseLineListRequest_builder) Build() *PurchaseLineListRequest {
 	x.xxx_hidden_Filters = &b.Filters
 	x.xxx_hidden_Size = b.Size
 	x.xxx_hidden_After = b.After
+	x.xxx_hidden_Reverse = b.Reverse
 	return m0
 }
 
@@ -7220,11 +7274,12 @@ const file_rove_work_svc_g_proto_rawDesc = "" +
 	"\x03ref\x18\x01 \x01(\v2\x12.rove.WorkOrderRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"0\n" +
 	"\x16WorkOrderEraseResponse\x12\x16\n" +
-	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x7f\n" +
+	"\x06erased\x18\x01 \x01(\bR\x06erased\"\xa0\x01\n" +
 	"\x14WorkOrderListRequest\x12/\n" +
 	"\afilters\x18\x01 \x03(\v2\x15.rove.WorkOrderFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
-	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\"Y\n" +
+	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
+	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"Y\n" +
 	"\x15WorkOrderListResponse\x12%\n" +
 	"\x05items\x18\x01 \x03(\v2\x0f.rove.WorkOrderR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"\xb1\x01\n" +
@@ -7330,11 +7385,12 @@ const file_rove_work_svc_g_proto_rawDesc = "" +
 	"\x03ref\x18\x01 \x01(\v2\x11.rove.PurchaseRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"/\n" +
 	"\x15PurchaseEraseResponse\x12\x16\n" +
-	"\x06erased\x18\x01 \x01(\bR\x06erased\"}\n" +
+	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x9e\x01\n" +
 	"\x13PurchaseListRequest\x12.\n" +
 	"\afilters\x18\x01 \x03(\v2\x14.rove.PurchaseFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
-	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\"W\n" +
+	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
+	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"W\n" +
 	"\x14PurchaseListResponse\x12$\n" +
 	"\x05items\x18\x01 \x03(\v2\x0e.rove.PurchaseR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"u\n" +
@@ -7411,11 +7467,12 @@ const file_rove_work_svc_g_proto_rawDesc = "" +
 	"\x03ref\x18\x01 \x01(\v2\x15.rove.PurchaseLineRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"3\n" +
 	"\x19PurchaseLineEraseResponse\x12\x16\n" +
-	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x85\x01\n" +
+	"\x06erased\x18\x01 \x01(\bR\x06erased\"\xa6\x01\n" +
 	"\x17PurchaseLineListRequest\x122\n" +
 	"\afilters\x18\x01 \x03(\v2\x18.rove.PurchaseLineFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
-	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\"_\n" +
+	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
+	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"_\n" +
 	"\x18PurchaseLineListResponse\x12(\n" +
 	"\x05items\x18\x01 \x03(\v2\x12.rove.PurchaseLineR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"\x96\x01\n" +

@@ -1764,6 +1764,7 @@ type PlacementListRequest struct {
 	xxx_hidden_Filters *[]*PlacementFilter    `protobuf:"bytes,1,rep,name=filters"`
 	xxx_hidden_Size    int32                  `protobuf:"varint,2,opt,name=size"`
 	xxx_hidden_After   string                 `protobuf:"bytes,3,opt,name=after"`
+	xxx_hidden_Reverse bool                   `protobuf:"varint,4,opt,name=reverse"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -1816,6 +1817,13 @@ func (x *PlacementListRequest) GetAfter() string {
 	return ""
 }
 
+func (x *PlacementListRequest) GetReverse() bool {
+	if x != nil {
+		return x.xxx_hidden_Reverse
+	}
+	return false
+}
+
 func (x *PlacementListRequest) SetFilters(v []*PlacementFilter) {
 	x.xxx_hidden_Filters = &v
 }
@@ -1826,6 +1834,10 @@ func (x *PlacementListRequest) SetSize(v int32) {
 
 func (x *PlacementListRequest) SetAfter(v string) {
 	x.xxx_hidden_After = v
+}
+
+func (x *PlacementListRequest) SetReverse(v bool) {
+	x.xxx_hidden_Reverse = v
 }
 
 type PlacementListRequest_builder struct {
@@ -1843,6 +1855,11 @@ type PlacementListRequest_builder struct {
 	// ahead of the page does not shift it and a caller reading through never sees
 	// one twice or misses one.
 	After string
+	// Read the order the other way round, every column of it at once -- newest
+	// first where it is oldest first -- which the index the order walks walks
+	// from the other end. A cursor is of the way it was read, so the next page
+	// carries on that way, and one of the other way is refused.
+	Reverse bool
 }
 
 func (b0 PlacementListRequest_builder) Build() *PlacementListRequest {
@@ -1852,6 +1869,7 @@ func (b0 PlacementListRequest_builder) Build() *PlacementListRequest {
 	x.xxx_hidden_Filters = &b.Filters
 	x.xxx_hidden_Size = b.Size
 	x.xxx_hidden_After = b.After
+	x.xxx_hidden_Reverse = b.Reverse
 	return m0
 }
 
@@ -3702,6 +3720,7 @@ type LinkListRequest struct {
 	xxx_hidden_Filters *[]*LinkFilter         `protobuf:"bytes,1,rep,name=filters"`
 	xxx_hidden_Size    int32                  `protobuf:"varint,2,opt,name=size"`
 	xxx_hidden_After   string                 `protobuf:"bytes,3,opt,name=after"`
+	xxx_hidden_Reverse bool                   `protobuf:"varint,4,opt,name=reverse"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -3754,6 +3773,13 @@ func (x *LinkListRequest) GetAfter() string {
 	return ""
 }
 
+func (x *LinkListRequest) GetReverse() bool {
+	if x != nil {
+		return x.xxx_hidden_Reverse
+	}
+	return false
+}
+
 func (x *LinkListRequest) SetFilters(v []*LinkFilter) {
 	x.xxx_hidden_Filters = &v
 }
@@ -3764,6 +3790,10 @@ func (x *LinkListRequest) SetSize(v int32) {
 
 func (x *LinkListRequest) SetAfter(v string) {
 	x.xxx_hidden_After = v
+}
+
+func (x *LinkListRequest) SetReverse(v bool) {
+	x.xxx_hidden_Reverse = v
 }
 
 type LinkListRequest_builder struct {
@@ -3781,6 +3811,11 @@ type LinkListRequest_builder struct {
 	// ahead of the page does not shift it and a caller reading through never sees
 	// one twice or misses one.
 	After string
+	// Read the order the other way round, every column of it at once -- newest
+	// first where it is oldest first -- which the index the order walks walks
+	// from the other end. A cursor is of the way it was read, so the next page
+	// carries on that way, and one of the other way is refused.
+	Reverse bool
 }
 
 func (b0 LinkListRequest_builder) Build() *LinkListRequest {
@@ -3790,6 +3825,7 @@ func (b0 LinkListRequest_builder) Build() *LinkListRequest {
 	x.xxx_hidden_Filters = &b.Filters
 	x.xxx_hidden_Size = b.Size
 	x.xxx_hidden_After = b.After
+	x.xxx_hidden_Reverse = b.Reverse
 	return m0
 }
 
@@ -5543,6 +5579,7 @@ type StewardshipListRequest struct {
 	xxx_hidden_Filters *[]*StewardshipFilter  `protobuf:"bytes,1,rep,name=filters"`
 	xxx_hidden_Size    int32                  `protobuf:"varint,2,opt,name=size"`
 	xxx_hidden_After   string                 `protobuf:"bytes,3,opt,name=after"`
+	xxx_hidden_Reverse bool                   `protobuf:"varint,4,opt,name=reverse"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -5595,6 +5632,13 @@ func (x *StewardshipListRequest) GetAfter() string {
 	return ""
 }
 
+func (x *StewardshipListRequest) GetReverse() bool {
+	if x != nil {
+		return x.xxx_hidden_Reverse
+	}
+	return false
+}
+
 func (x *StewardshipListRequest) SetFilters(v []*StewardshipFilter) {
 	x.xxx_hidden_Filters = &v
 }
@@ -5605,6 +5649,10 @@ func (x *StewardshipListRequest) SetSize(v int32) {
 
 func (x *StewardshipListRequest) SetAfter(v string) {
 	x.xxx_hidden_After = v
+}
+
+func (x *StewardshipListRequest) SetReverse(v bool) {
+	x.xxx_hidden_Reverse = v
 }
 
 type StewardshipListRequest_builder struct {
@@ -5622,6 +5670,11 @@ type StewardshipListRequest_builder struct {
 	// ahead of the page does not shift it and a caller reading through never sees
 	// one twice or misses one.
 	After string
+	// Read the order the other way round, every column of it at once -- newest
+	// first where it is oldest first -- which the index the order walks walks
+	// from the other end. A cursor is of the way it was read, so the next page
+	// carries on that way, and one of the other way is refused.
+	Reverse bool
 }
 
 func (b0 StewardshipListRequest_builder) Build() *StewardshipListRequest {
@@ -5631,6 +5684,7 @@ func (b0 StewardshipListRequest_builder) Build() *StewardshipListRequest {
 	x.xxx_hidden_Filters = &b.Filters
 	x.xxx_hidden_Size = b.Size
 	x.xxx_hidden_After = b.After
+	x.xxx_hidden_Reverse = b.Reverse
 	return m0
 }
 
@@ -7371,6 +7425,7 @@ type FactListRequest struct {
 	xxx_hidden_Filters *[]*FactFilter         `protobuf:"bytes,1,rep,name=filters"`
 	xxx_hidden_Size    int32                  `protobuf:"varint,2,opt,name=size"`
 	xxx_hidden_After   string                 `protobuf:"bytes,3,opt,name=after"`
+	xxx_hidden_Reverse bool                   `protobuf:"varint,4,opt,name=reverse"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -7423,6 +7478,13 @@ func (x *FactListRequest) GetAfter() string {
 	return ""
 }
 
+func (x *FactListRequest) GetReverse() bool {
+	if x != nil {
+		return x.xxx_hidden_Reverse
+	}
+	return false
+}
+
 func (x *FactListRequest) SetFilters(v []*FactFilter) {
 	x.xxx_hidden_Filters = &v
 }
@@ -7433,6 +7495,10 @@ func (x *FactListRequest) SetSize(v int32) {
 
 func (x *FactListRequest) SetAfter(v string) {
 	x.xxx_hidden_After = v
+}
+
+func (x *FactListRequest) SetReverse(v bool) {
+	x.xxx_hidden_Reverse = v
 }
 
 type FactListRequest_builder struct {
@@ -7450,6 +7516,11 @@ type FactListRequest_builder struct {
 	// ahead of the page does not shift it and a caller reading through never sees
 	// one twice or misses one.
 	After string
+	// Read the order the other way round, every column of it at once -- newest
+	// first where it is oldest first -- which the index the order walks walks
+	// from the other end. A cursor is of the way it was read, so the next page
+	// carries on that way, and one of the other way is refused.
+	Reverse bool
 }
 
 func (b0 FactListRequest_builder) Build() *FactListRequest {
@@ -7459,6 +7530,7 @@ func (b0 FactListRequest_builder) Build() *FactListRequest {
 	x.xxx_hidden_Filters = &b.Filters
 	x.xxx_hidden_Size = b.Size
 	x.xxx_hidden_After = b.After
+	x.xxx_hidden_Reverse = b.Reverse
 	return m0
 }
 
@@ -9236,6 +9308,7 @@ type EventListRequest struct {
 	xxx_hidden_Filters *[]*EventFilter        `protobuf:"bytes,1,rep,name=filters"`
 	xxx_hidden_Size    int32                  `protobuf:"varint,2,opt,name=size"`
 	xxx_hidden_After   string                 `protobuf:"bytes,3,opt,name=after"`
+	xxx_hidden_Reverse bool                   `protobuf:"varint,4,opt,name=reverse"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -9288,6 +9361,13 @@ func (x *EventListRequest) GetAfter() string {
 	return ""
 }
 
+func (x *EventListRequest) GetReverse() bool {
+	if x != nil {
+		return x.xxx_hidden_Reverse
+	}
+	return false
+}
+
 func (x *EventListRequest) SetFilters(v []*EventFilter) {
 	x.xxx_hidden_Filters = &v
 }
@@ -9298,6 +9378,10 @@ func (x *EventListRequest) SetSize(v int32) {
 
 func (x *EventListRequest) SetAfter(v string) {
 	x.xxx_hidden_After = v
+}
+
+func (x *EventListRequest) SetReverse(v bool) {
+	x.xxx_hidden_Reverse = v
 }
 
 type EventListRequest_builder struct {
@@ -9315,6 +9399,11 @@ type EventListRequest_builder struct {
 	// ahead of the page does not shift it and a caller reading through never sees
 	// one twice or misses one.
 	After string
+	// Read the order the other way round, every column of it at once -- newest
+	// first where it is oldest first -- which the index the order walks walks
+	// from the other end. A cursor is of the way it was read, so the next page
+	// carries on that way, and one of the other way is refused.
+	Reverse bool
 }
 
 func (b0 EventListRequest_builder) Build() *EventListRequest {
@@ -9324,6 +9413,7 @@ func (b0 EventListRequest_builder) Build() *EventListRequest {
 	x.xxx_hidden_Filters = &b.Filters
 	x.xxx_hidden_Size = b.Size
 	x.xxx_hidden_After = b.After
+	x.xxx_hidden_Reverse = b.Reverse
 	return m0
 }
 
@@ -9800,11 +9890,12 @@ const file_rove_history_svc_g_proto_rawDesc = "" +
 	"\x03ref\x18\x01 \x01(\v2\x12.rove.PlacementRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"0\n" +
 	"\x16PlacementEraseResponse\x12\x16\n" +
-	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x7f\n" +
+	"\x06erased\x18\x01 \x01(\bR\x06erased\"\xa0\x01\n" +
 	"\x14PlacementListRequest\x12/\n" +
 	"\afilters\x18\x01 \x03(\v2\x15.rove.PlacementFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
-	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\"Y\n" +
+	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
+	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"Y\n" +
 	"\x15PlacementListResponse\x12%\n" +
 	"\x05items\x18\x01 \x03(\v2\x0f.rove.PlacementR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"\x85\x01\n" +
@@ -9878,11 +9969,12 @@ const file_rove_history_svc_g_proto_rawDesc = "" +
 	"\x03ref\x18\x01 \x01(\v2\r.rove.LinkRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"+\n" +
 	"\x11LinkEraseResponse\x12\x16\n" +
-	"\x06erased\x18\x01 \x01(\bR\x06erased\"u\n" +
+	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x96\x01\n" +
 	"\x0fLinkListRequest\x12*\n" +
 	"\afilters\x18\x01 \x03(\v2\x10.rove.LinkFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
-	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\"O\n" +
+	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
+	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"O\n" +
 	"\x10LinkListResponse\x12 \n" +
 	"\x05items\x18\x01 \x03(\v2\n" +
 	".rove.LinkR\x05items\x12\x19\n" +
@@ -9946,11 +10038,12 @@ const file_rove_history_svc_g_proto_rawDesc = "" +
 	"\x03ref\x18\x01 \x01(\v2\x14.rove.StewardshipRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"2\n" +
 	"\x18StewardshipEraseResponse\x12\x16\n" +
-	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x83\x01\n" +
+	"\x06erased\x18\x01 \x01(\bR\x06erased\"\xa4\x01\n" +
 	"\x16StewardshipListRequest\x121\n" +
 	"\afilters\x18\x01 \x03(\v2\x17.rove.StewardshipFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
-	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\"]\n" +
+	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
+	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"]\n" +
 	"\x17StewardshipListResponse\x12'\n" +
 	"\x05items\x18\x01 \x03(\v2\x11.rove.StewardshipR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"\x9b\x01\n" +
@@ -10013,11 +10106,12 @@ const file_rove_history_svc_g_proto_rawDesc = "" +
 	"\x03ref\x18\x01 \x01(\v2\r.rove.FactRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"+\n" +
 	"\x11FactEraseResponse\x12\x16\n" +
-	"\x06erased\x18\x01 \x01(\bR\x06erased\"u\n" +
+	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x96\x01\n" +
 	"\x0fFactListRequest\x12*\n" +
 	"\afilters\x18\x01 \x03(\v2\x10.rove.FactFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
-	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\"O\n" +
+	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
+	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"O\n" +
 	"\x10FactListResponse\x12 \n" +
 	"\x05items\x18\x01 \x03(\v2\n" +
 	".rove.FactR\x05items\x12\x19\n" +
@@ -10084,11 +10178,12 @@ const file_rove_history_svc_g_proto_rawDesc = "" +
 	"\x03ref\x18\x01 \x01(\v2\x0e.rove.EventRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\",\n" +
 	"\x12EventEraseResponse\x12\x16\n" +
-	"\x06erased\x18\x01 \x01(\bR\x06erased\"w\n" +
+	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x98\x01\n" +
 	"\x10EventListRequest\x12+\n" +
 	"\afilters\x18\x01 \x03(\v2\x11.rove.EventFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
-	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\"Q\n" +
+	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
+	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"Q\n" +
 	"\x11EventListResponse\x12!\n" +
 	"\x05items\x18\x01 \x03(\v2\v.rove.EventR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"}\n" +

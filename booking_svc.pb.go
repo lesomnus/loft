@@ -1970,6 +1970,7 @@ type BookableListRequest struct {
 	xxx_hidden_Filters *[]*BookableFilter     `protobuf:"bytes,1,rep,name=filters"`
 	xxx_hidden_Size    int32                  `protobuf:"varint,2,opt,name=size"`
 	xxx_hidden_After   string                 `protobuf:"bytes,3,opt,name=after"`
+	xxx_hidden_Reverse bool                   `protobuf:"varint,4,opt,name=reverse"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -2022,6 +2023,13 @@ func (x *BookableListRequest) GetAfter() string {
 	return ""
 }
 
+func (x *BookableListRequest) GetReverse() bool {
+	if x != nil {
+		return x.xxx_hidden_Reverse
+	}
+	return false
+}
+
 func (x *BookableListRequest) SetFilters(v []*BookableFilter) {
 	x.xxx_hidden_Filters = &v
 }
@@ -2032,6 +2040,10 @@ func (x *BookableListRequest) SetSize(v int32) {
 
 func (x *BookableListRequest) SetAfter(v string) {
 	x.xxx_hidden_After = v
+}
+
+func (x *BookableListRequest) SetReverse(v bool) {
+	x.xxx_hidden_Reverse = v
 }
 
 type BookableListRequest_builder struct {
@@ -2049,6 +2061,11 @@ type BookableListRequest_builder struct {
 	// ahead of the page does not shift it and a caller reading through never sees
 	// one twice or misses one.
 	After string
+	// Read the order the other way round, every column of it at once -- newest
+	// first where it is oldest first -- which the index the order walks walks
+	// from the other end. A cursor is of the way it was read, so the next page
+	// carries on that way, and one of the other way is refused.
+	Reverse bool
 }
 
 func (b0 BookableListRequest_builder) Build() *BookableListRequest {
@@ -2058,6 +2075,7 @@ func (b0 BookableListRequest_builder) Build() *BookableListRequest {
 	x.xxx_hidden_Filters = &b.Filters
 	x.xxx_hidden_Size = b.Size
 	x.xxx_hidden_After = b.After
+	x.xxx_hidden_Reverse = b.Reverse
 	return m0
 }
 
@@ -5426,6 +5444,7 @@ type ReservationListRequest struct {
 	xxx_hidden_Filters *[]*ReservationFilter  `protobuf:"bytes,1,rep,name=filters"`
 	xxx_hidden_Size    int32                  `protobuf:"varint,2,opt,name=size"`
 	xxx_hidden_After   string                 `protobuf:"bytes,3,opt,name=after"`
+	xxx_hidden_Reverse bool                   `protobuf:"varint,4,opt,name=reverse"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -5478,6 +5497,13 @@ func (x *ReservationListRequest) GetAfter() string {
 	return ""
 }
 
+func (x *ReservationListRequest) GetReverse() bool {
+	if x != nil {
+		return x.xxx_hidden_Reverse
+	}
+	return false
+}
+
 func (x *ReservationListRequest) SetFilters(v []*ReservationFilter) {
 	x.xxx_hidden_Filters = &v
 }
@@ -5488,6 +5514,10 @@ func (x *ReservationListRequest) SetSize(v int32) {
 
 func (x *ReservationListRequest) SetAfter(v string) {
 	x.xxx_hidden_After = v
+}
+
+func (x *ReservationListRequest) SetReverse(v bool) {
+	x.xxx_hidden_Reverse = v
 }
 
 type ReservationListRequest_builder struct {
@@ -5505,6 +5535,11 @@ type ReservationListRequest_builder struct {
 	// ahead of the page does not shift it and a caller reading through never sees
 	// one twice or misses one.
 	After string
+	// Read the order the other way round, every column of it at once -- newest
+	// first where it is oldest first -- which the index the order walks walks
+	// from the other end. A cursor is of the way it was read, so the next page
+	// carries on that way, and one of the other way is refused.
+	Reverse bool
 }
 
 func (b0 ReservationListRequest_builder) Build() *ReservationListRequest {
@@ -5514,6 +5549,7 @@ func (b0 ReservationListRequest_builder) Build() *ReservationListRequest {
 	x.xxx_hidden_Filters = &b.Filters
 	x.xxx_hidden_Size = b.Size
 	x.xxx_hidden_After = b.After
+	x.xxx_hidden_Reverse = b.Reverse
 	return m0
 }
 
@@ -7539,6 +7575,7 @@ type ReservationItemListRequest struct {
 	xxx_hidden_Filters *[]*ReservationItemFilter `protobuf:"bytes,1,rep,name=filters"`
 	xxx_hidden_Size    int32                     `protobuf:"varint,2,opt,name=size"`
 	xxx_hidden_After   string                    `protobuf:"bytes,3,opt,name=after"`
+	xxx_hidden_Reverse bool                      `protobuf:"varint,4,opt,name=reverse"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -7591,6 +7628,13 @@ func (x *ReservationItemListRequest) GetAfter() string {
 	return ""
 }
 
+func (x *ReservationItemListRequest) GetReverse() bool {
+	if x != nil {
+		return x.xxx_hidden_Reverse
+	}
+	return false
+}
+
 func (x *ReservationItemListRequest) SetFilters(v []*ReservationItemFilter) {
 	x.xxx_hidden_Filters = &v
 }
@@ -7601,6 +7645,10 @@ func (x *ReservationItemListRequest) SetSize(v int32) {
 
 func (x *ReservationItemListRequest) SetAfter(v string) {
 	x.xxx_hidden_After = v
+}
+
+func (x *ReservationItemListRequest) SetReverse(v bool) {
+	x.xxx_hidden_Reverse = v
 }
 
 type ReservationItemListRequest_builder struct {
@@ -7618,6 +7666,11 @@ type ReservationItemListRequest_builder struct {
 	// ahead of the page does not shift it and a caller reading through never sees
 	// one twice or misses one.
 	After string
+	// Read the order the other way round, every column of it at once -- newest
+	// first where it is oldest first -- which the index the order walks walks
+	// from the other end. A cursor is of the way it was read, so the next page
+	// carries on that way, and one of the other way is refused.
+	Reverse bool
 }
 
 func (b0 ReservationItemListRequest_builder) Build() *ReservationItemListRequest {
@@ -7627,6 +7680,7 @@ func (b0 ReservationItemListRequest_builder) Build() *ReservationItemListRequest
 	x.xxx_hidden_Filters = &b.Filters
 	x.xxx_hidden_Size = b.Size
 	x.xxx_hidden_After = b.After
+	x.xxx_hidden_Reverse = b.Reverse
 	return m0
 }
 
@@ -9289,6 +9343,7 @@ type AllocationListRequest struct {
 	xxx_hidden_Filters *[]*AllocationFilter   `protobuf:"bytes,1,rep,name=filters"`
 	xxx_hidden_Size    int32                  `protobuf:"varint,2,opt,name=size"`
 	xxx_hidden_After   string                 `protobuf:"bytes,3,opt,name=after"`
+	xxx_hidden_Reverse bool                   `protobuf:"varint,4,opt,name=reverse"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -9341,6 +9396,13 @@ func (x *AllocationListRequest) GetAfter() string {
 	return ""
 }
 
+func (x *AllocationListRequest) GetReverse() bool {
+	if x != nil {
+		return x.xxx_hidden_Reverse
+	}
+	return false
+}
+
 func (x *AllocationListRequest) SetFilters(v []*AllocationFilter) {
 	x.xxx_hidden_Filters = &v
 }
@@ -9351,6 +9413,10 @@ func (x *AllocationListRequest) SetSize(v int32) {
 
 func (x *AllocationListRequest) SetAfter(v string) {
 	x.xxx_hidden_After = v
+}
+
+func (x *AllocationListRequest) SetReverse(v bool) {
+	x.xxx_hidden_Reverse = v
 }
 
 type AllocationListRequest_builder struct {
@@ -9368,6 +9434,11 @@ type AllocationListRequest_builder struct {
 	// ahead of the page does not shift it and a caller reading through never sees
 	// one twice or misses one.
 	After string
+	// Read the order the other way round, every column of it at once -- newest
+	// first where it is oldest first -- which the index the order walks walks
+	// from the other end. A cursor is of the way it was read, so the next page
+	// carries on that way, and one of the other way is refused.
+	Reverse bool
 }
 
 func (b0 AllocationListRequest_builder) Build() *AllocationListRequest {
@@ -9377,6 +9448,7 @@ func (b0 AllocationListRequest_builder) Build() *AllocationListRequest {
 	x.xxx_hidden_Filters = &b.Filters
 	x.xxx_hidden_Size = b.Size
 	x.xxx_hidden_After = b.After
+	x.xxx_hidden_Reverse = b.Reverse
 	return m0
 }
 
@@ -9702,11 +9774,12 @@ const file_rove_booking_svc_g_proto_rawDesc = "" +
 	"\x03ref\x18\x01 \x01(\v2\x11.rove.BookableRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"/\n" +
 	"\x15BookableEraseResponse\x12\x16\n" +
-	"\x06erased\x18\x01 \x01(\bR\x06erased\"}\n" +
+	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x9e\x01\n" +
 	"\x13BookableListRequest\x12.\n" +
 	"\afilters\x18\x01 \x03(\v2\x14.rove.BookableFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
-	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\"W\n" +
+	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
+	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"W\n" +
 	"\x14BookableListResponse\x12$\n" +
 	"\x05items\x18\x01 \x03(\v2\x0e.rove.BookableR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"\x9e\x01\n" +
@@ -9841,11 +9914,12 @@ const file_rove_booking_svc_g_proto_rawDesc = "" +
 	"\x03ref\x18\x01 \x01(\v2\x14.rove.ReservationRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"2\n" +
 	"\x18ReservationEraseResponse\x12\x16\n" +
-	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x83\x01\n" +
+	"\x06erased\x18\x01 \x01(\bR\x06erased\"\xa4\x01\n" +
 	"\x16ReservationListRequest\x121\n" +
 	"\afilters\x18\x01 \x03(\v2\x17.rove.ReservationFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
-	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\"]\n" +
+	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
+	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"]\n" +
 	"\x17ReservationListResponse\x12'\n" +
 	"\x05items\x18\x01 \x03(\v2\x11.rove.ReservationR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"\x96\x01\n" +
@@ -9918,11 +9992,12 @@ const file_rove_booking_svc_g_proto_rawDesc = "" +
 	"\x03ref\x18\x01 \x01(\v2\x18.rove.ReservationItemRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"6\n" +
 	"\x1cReservationItemEraseResponse\x12\x16\n" +
-	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x8b\x01\n" +
+	"\x06erased\x18\x01 \x01(\bR\x06erased\"\xac\x01\n" +
 	"\x1aReservationItemListRequest\x125\n" +
 	"\afilters\x18\x01 \x03(\v2\x1b.rove.ReservationItemFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
-	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\"e\n" +
+	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
+	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"e\n" +
 	"\x1bReservationItemListResponse\x12+\n" +
 	"\x05items\x18\x01 \x03(\v2\x15.rove.ReservationItemR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"\xa7\x01\n" +
@@ -9979,11 +10054,12 @@ const file_rove_booking_svc_g_proto_rawDesc = "" +
 	"\x03ref\x18\x01 \x01(\v2\x13.rove.AllocationRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"1\n" +
 	"\x17AllocationEraseResponse\x12\x16\n" +
-	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x81\x01\n" +
+	"\x06erased\x18\x01 \x01(\bR\x06erased\"\xa2\x01\n" +
 	"\x15AllocationListRequest\x120\n" +
 	"\afilters\x18\x01 \x03(\v2\x16.rove.AllocationFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
-	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\"[\n" +
+	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
+	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"[\n" +
 	"\x16AllocationListResponse\x12&\n" +
 	"\x05items\x18\x01 \x03(\v2\x10.rove.AllocationR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"\x90\x01\n" +
