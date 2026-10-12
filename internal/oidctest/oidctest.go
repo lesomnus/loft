@@ -67,8 +67,21 @@ type grant struct {
 // New stands one up for a client, closed when the test ends.
 func New(t *testing.T, clientId, secret string) *Issuer {
 	t.Helper()
-	k, err := rsa.GenerateKey(rand.Reader, 2048)
+	is, err := Unstarted(clientId, secret)
 	require.NoError(t, err)
+	is.Start()
+	t.Cleanup(is.Close)
+	return is
+}
+
+// Unstarted is one for a client, on a server not yet started: for what serves
+// it outside a test, as the browser tests' issuer does -- at an address of its
+// own, which is a listener put in before it starts (cmd/oidctest).
+func Unstarted(clientId, secret string) (*Issuer, error) {
+	k, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		return nil, err
+	}
 
 	is := &Issuer{ClientId: clientId, Secret: secret, key: k, grants: map[string]grant{}}
 	m := http.NewServeMux()
@@ -110,7 +123,7 @@ func New(t *testing.T, clientId, secret string) *Issuer {
 		case q.Get("response_type") != "code" || q.Get("code_challenge_method") != "S256" || q.Get("code_challenge") == "":
 			back.Set("error", "invalid_request")
 		default:
-			code := token(t)
+			code := token()
 			is.mu.Lock()
 			is.grants[code] = grant{nonce: q.Get("nonce"), challenge: q.Get("code_challenge"), redirect: q.Get("redirect_uri")}
 			is.mu.Unlock()
@@ -144,6 +157,7 @@ func New(t *testing.T, clientId, secret string) *Issuer {
 			return
 		}
 
+		is.mu.Lock()
 		claims := map[string]any{
 			"iss":   is.URL,
 			"aud":   is.ClientId,
@@ -155,12 +169,17 @@ func New(t *testing.T, clientId, secret string) *Issuer {
 		for k, v := range is.Claims {
 			claims[k] = v
 		}
-		raw := is.Sign(t, claims)
+		is.mu.Unlock()
+		raw, err := is.sign(claims)
+		if err != nil {
+			answer(w, http.StatusInternalServerError, map[string]string{"error": "server_error", "error_description": err.Error()})
+			return
+		}
 		is.mu.Lock()
 		is.tokens = append(is.tokens, raw)
 		is.mu.Unlock()
 		answer(w, http.StatusOK, map[string]any{
-			"access_token": token(t),
+			"access_token": token(),
 			"token_type":   "bearer",
 			"expires_in":   3600,
 			"id_token":     raw,
@@ -185,24 +204,43 @@ func New(t *testing.T, clientId, secret string) *Issuer {
 		}
 	})
 
-	is.Server = httptest.NewServer(m)
-	t.Cleanup(is.Close)
-	return is
+	is.Server = httptest.NewUnstartedServer(m)
+	return is, nil
+}
+
+// Next says who the next sign-in is, and what the next authorization answers
+// with instead of a code -- empty for a code -- from somewhere other than the
+// test that stood the issuer up: a request to the command serving it, which
+// is answered while the issuer answers others.
+func (is *Issuer) Next(subject, refuse string) {
+	is.mu.Lock()
+	defer is.mu.Unlock()
+	is.Subject, is.Refuse = subject, refuse
 }
 
 // Sign is one ID token with whatever claims are given, for a test that wants
 // to hand a relying party a bad one.
 func (is *Issuer) Sign(t *testing.T, claims map[string]any) string {
 	t.Helper()
-	b, err := json.Marshal(claims)
-	require.NoError(t, err)
-	s, err := jose.NewSigner(jose.SigningKey{Algorithm: jose.RS256, Key: is.key}, (&jose.SignerOptions{}).WithHeader("kid", "one"))
-	require.NoError(t, err)
-	o, err := s.Sign(b)
-	require.NoError(t, err)
-	v, err := o.CompactSerialize()
+	v, err := is.sign(claims)
 	require.NoError(t, err)
 	return v
+}
+
+func (is *Issuer) sign(claims map[string]any) (string, error) {
+	b, err := json.Marshal(claims)
+	if err != nil {
+		return "", err
+	}
+	s, err := jose.NewSigner(jose.SigningKey{Algorithm: jose.RS256, Key: is.key}, (&jose.SignerOptions{}).WithHeader("kid", "one"))
+	if err != nil {
+		return "", err
+	}
+	o, err := s.Sign(b)
+	if err != nil {
+		return "", err
+	}
+	return o.CompactSerialize()
 }
 
 // Asked is what the last authorization request carried.
@@ -238,10 +276,11 @@ func challengeOf(verifier string) string {
 	return base64.RawURLEncoding.EncodeToString(v[:])
 }
 
-func token(t *testing.T) string {
+// token is a value nobody can guess. crypto/rand's Read never fails: it ends
+// the program rather than answer an error.
+func token() string {
 	b := make([]byte, 18)
-	_, err := rand.Read(b)
-	require.NoError(t, err)
+	_, _ = rand.Read(b)
 	return base64.RawURLEncoding.EncodeToString(b)
 }
 
