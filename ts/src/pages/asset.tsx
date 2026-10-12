@@ -585,7 +585,7 @@ function Move(props: { a: Asset; onClose: () => void }): ReactNode {
 				</Field>
 			)}
 			{mode === 'asset' && (
-				<Field label="자산" wide>
+				<Field label="자산" wide group>
 					<AssetPicker value={into} onChange={setInto} exclude={[props.a.id]} />
 				</Field>
 			)}
@@ -747,7 +747,7 @@ function Relate(props: { a: Asset; onClose: () => void }): ReactNode {
 				)
 			}}
 		>
-			<Field label="대상" wide>
+			<Field label="대상" wide group>
 				<AssetPicker value={target} onChange={setTarget} exclude={[props.a.id]} placeholder="키트나 그룹을 찾으세요" />
 			</Field>
 			<Field label="관계">

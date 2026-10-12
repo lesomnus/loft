@@ -55,20 +55,41 @@ export async function signIn(page: Page, login: string, password = demoPassword)
 /**
  * The tests, with `as`: a browser of its own for somebody else, signed in --
  * a second person at a second desk -- and closed when the test is over.
+ *
+ * And held to every form field they open naming its control: one that names
+ * none says so in the console (ui.tsx, `Field`), and the test it was seen in
+ * fails, whichever page it was on.
  */
-export const test = base.extend<{ as: (login: string, password?: string) => Promise<Page> }>({
-	as: async ({ browser }, use) => {
+export const test = base.extend<{ as: (login: string, password?: string) => Promise<Page>; unnamed: string[] }>({
+	unnamed: [
+		async ({ page }, use) => {
+			const said: string[] = []
+			hear(page, said)
+			await use(said)
+			expect(said, 'a form field whose label names no control').toEqual([])
+		},
+		{ auto: true },
+	],
+	as: async ({ browser, unnamed }, use) => {
 		const opened: BrowserContext[] = []
 		await use(async (login, password = demoPassword) => {
 			const context = await browser.newContext()
 			opened.push(context)
 			const page = await context.newPage()
+			hear(page, unnamed)
 			await signIn(page, login, password)
 			return page
 		})
 		for (const c of opened) await c.close()
 	},
 })
+
+/** What `page` says in its console about a field that names nothing. */
+function hear(page: Page, into: string[]): void {
+	page.on('console', (m) => {
+		if (m.type() === 'error' && m.text().startsWith('Field:')) into.push(m.text())
+	})
+}
 
 /**
  * Picks the option of a `<select>` whose text has `text` in it. The app's
@@ -85,12 +106,14 @@ export async function choose(select: Locator, text: string): Promise<void> {
 }
 
 /**
- * The control of the form field named `name`. A field's label holds more than
- * its name -- a hint, and every option of a select inside it -- so it is the
- * label that begins with the name.
+ * The control of the form field named `name`, or the field itself when it is
+ * a group of controls -- an asset picker, a row of boxes -- whose own controls
+ * are then found in it by theirs. A field's label says its name and nothing
+ * else (ui.tsx, `Field`); a required one has a `*` after it, which `name` may
+ * leave off.
  */
 export function field(scope: Page | Locator, name: string): Locator {
-	return scope.getByLabel(new RegExp(`^${escape(name)}`))
+	return scope.getByLabel(new RegExp(`^${escape(name)}( \\*)?$`))
 }
 
 /** `text` as a pattern that matches it and nothing else. */

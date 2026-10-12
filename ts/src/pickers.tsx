@@ -11,7 +11,7 @@ import type { Asset } from '../gen/rove/asset_pb.js'
 import { AssetService, idBytes, idStr } from './api.js'
 import { modelName, useCatalog } from './catalog.js'
 import { read, useEpoch, useLive, useRpc } from './rpc.js'
-import { useDebounced } from './ui.js'
+import { useDebounced, type Labelled } from './ui.js'
 import { kindWord, partyKindWord } from './words.js'
 
 export function AssetLink(props: { a: { id: Uint8Array; tag: string; name: string } | undefined }): ReactNode {
@@ -23,7 +23,11 @@ export function AssetLink(props: { a: { id: Uint8Array; tag: string; name: strin
 	)
 }
 
-/** An asset, found by typing any of what Search matches. */
+/**
+ * An asset, found by typing any of what Search matches. It is more than one
+ * control -- what is typed, the assets found, and 바꾸기 once one is picked --
+ * so a field it is in is a `group` (ui.tsx, `Field`).
+ */
 export function AssetPicker(props: {
 	value: Asset | undefined
 	onChange: (a: Asset | undefined) => void
@@ -64,13 +68,7 @@ export function AssetPicker(props: {
 							<li key={idStr(a.id)}>
 								<button
 									type="button"
-									onClick={(e) => {
-										// A picker sits in a form's <label>, and picking
-										// swaps this list for the asset picked before the
-										// click is over. The label then sees no button of
-										// its own clicked and passes the click on to its
-										// first control -- 바꾸기, which unpicks it again.
-										e.preventDefault()
+									onClick={() => {
 										props.onChange(a)
 										setQ('')
 									}}
@@ -98,10 +96,16 @@ export function useSpaceOptions(): { value: string; label: string }[] {
 	)
 }
 
-export function SpaceSelect(props: { value: string; onChange: (v: string) => void; empty?: string; required?: boolean }): ReactNode {
+export function SpaceSelect(props: { value: string; onChange: (v: string) => void; empty?: string; required?: boolean } & Labelled): ReactNode {
 	const opts = useSpaceOptions()
 	return (
-		<select value={props.value} onChange={(e) => props.onChange(e.target.value)} required={props.required}>
+		<select
+			id={props.id}
+			aria-describedby={props['aria-describedby']}
+			value={props.value}
+			onChange={(e) => props.onChange(e.target.value)}
+			required={props.required}
+		>
 			<option value="">{props.empty ?? '공간 선택'}</option>
 			{opts.map((o) => (
 				<option key={o.value} value={o.value}>
@@ -112,20 +116,28 @@ export function SpaceSelect(props: { value: string; onChange: (v: string) => voi
 	)
 }
 
-export function PartySelect(props: {
-	value: string
-	onChange: (v: string) => void
-	kinds?: string[]
-	empty?: string
-	required?: boolean
-}): ReactNode {
+export function PartySelect(
+	props: {
+		value: string
+		onChange: (v: string) => void
+		kinds?: string[]
+		empty?: string
+		required?: boolean
+	} & Labelled,
+): ReactNode {
 	const c = useCatalog()
 	const kinds = props.kinds ?? ['person']
 	const vs = c.parties
 		.filter((p) => kinds.includes(p.kind))
 		.sort((a, b) => a.name.localeCompare(b.name, 'ko'))
 	return (
-		<select value={props.value} onChange={(e) => props.onChange(e.target.value)} required={props.required}>
+		<select
+			id={props.id}
+			aria-describedby={props['aria-describedby']}
+			value={props.value}
+			onChange={(e) => props.onChange(e.target.value)}
+			required={props.required}
+		>
 			<option value="">{props.empty ?? '선택'}</option>
 			{vs.map((p) => {
 				const team = c.party(p.parentId)
@@ -141,11 +153,11 @@ export function PartySelect(props: {
 	)
 }
 
-export function TypeSelect(props: { value: string; onChange: (v: string) => void; kind?: string; empty?: string }): ReactNode {
+export function TypeSelect(props: { value: string; onChange: (v: string) => void; kind?: string; empty?: string } & Labelled): ReactNode {
 	const c = useCatalog()
 	const vs = c.types.filter((t) => props.kind === undefined || t.kind === props.kind).sort((a, b) => a.name.localeCompare(b.name, 'ko'))
 	return (
-		<select value={props.value} onChange={(e) => props.onChange(e.target.value)}>
+		<select id={props.id} aria-describedby={props['aria-describedby']} value={props.value} onChange={(e) => props.onChange(e.target.value)}>
 			<option value="">{props.empty ?? '유형 없음'}</option>
 			{vs.map((t) => (
 				<option key={idStr(t.id)} value={idStr(t.id)}>
@@ -156,13 +168,13 @@ export function TypeSelect(props: { value: string; onChange: (v: string) => void
 	)
 }
 
-export function ModelSelect(props: { value: string; onChange: (v: string) => void; type?: string; empty?: string }): ReactNode {
+export function ModelSelect(props: { value: string; onChange: (v: string) => void; type?: string; empty?: string } & Labelled): ReactNode {
 	const c = useCatalog()
 	const vs = c.models
 		.filter((m) => props.type === undefined || props.type === '' || idStr(m.type?.id) === props.type)
 		.sort((a, b) => modelName(a).localeCompare(modelName(b), 'ko'))
 	return (
-		<select value={props.value} onChange={(e) => props.onChange(e.target.value)}>
+		<select id={props.id} aria-describedby={props['aria-describedby']} value={props.value} onChange={(e) => props.onChange(e.target.value)}>
 			<option value="">{props.empty ?? '모델 없음'}</option>
 			{vs.map((m) => (
 				<option key={idStr(m.id)} value={idStr(m.id)}>

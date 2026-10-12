@@ -125,7 +125,7 @@ function Install(props: { rack: Asset; u: number; onClose: () => void }): ReactN
 				)
 			}}
 		>
-			<Field label="장비" wide>
+			<Field label="장비" wide group>
 				<AssetPicker value={a} onChange={setA} kind="item" exclude={[props.rack.id]} />
 			</Field>
 			<Field label="아래 U">

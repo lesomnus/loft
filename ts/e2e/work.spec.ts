@@ -8,11 +8,13 @@ test('a member reports a fault on an asset, and it is on the work list', async (
 	await page.getByRole('button', { name: '+ 고장 신고' }).click()
 	const report = page.getByRole('dialog')
 	// The demo's MN-003 is this member's monitor.
-	await report.getByPlaceholder('태그, 이름, 시리얼로 찾기').fill('MN-003')
-	await report.getByRole('button', { name: /MN-003/ }).click()
-	// And picked, it stays picked (pickers.tsx). Its 바꾸기 button is named by
-	// the form's label it sits in, so it is found by what it says.
-	await expect(report.getByText('바꾸기', { exact: true })).toBeVisible()
+	const asset = field(report, '자산')
+	await asset.getByRole('searchbox').fill('MN-003')
+	await asset.getByRole('button', { name: /MN-003/ }).click()
+	// And picked, it stays picked: a click the picker redraws under was once
+	// handed on to 바꾸기, which unpicked it (rove#53).
+	await expect(asset.getByRole('button', { name: '바꾸기', exact: true })).toBeVisible()
+	await expect(asset).toContainText('MN-003')
 	await field(report, '증상').fill(symptom)
 	await report.getByRole('button', { name: '신고', exact: true }).click()
 	await said(page, '신고했습니다. 담당자에게 전달됩니다.')

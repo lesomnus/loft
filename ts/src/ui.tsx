@@ -5,12 +5,16 @@
  */
 
 import {
+	cloneElement,
 	createContext,
 	useCallback,
 	useContext,
 	useEffect,
+	useId,
+	useLayoutEffect,
 	useRef,
 	useState,
+	type ReactElement,
 	type ReactNode,
 } from 'react'
 
@@ -90,25 +94,129 @@ export function Tabs(props: { tabs: { key: string; label: ReactNode }[]; at: str
 	)
 }
 
-export function Field(props: { label: ReactNode; hint?: ReactNode; children: ReactNode; wide?: boolean }): ReactNode {
+/**
+ * What a control in a form is told by the field it is in: its id, which the
+ * field's <label> names it by, and the hint that describes it. A component
+ * that is a field's control takes these and puts them on its own element.
+ */
+export type Labelled = { id?: string; 'aria-describedby'?: string }
+
+/**
+ * A form's field: its name, the one control it names, and a hint.
+ *
+ * The <label> is beside the control and names it by its id, which the field
+ * hands the control it is given. It used to wrap the control instead, and a
+ * label that holds more than one control does two things nobody asked it to.
+ * It names every control in it by the whole of what it says, so a picker's
+ * 바꾸기 button was called by the field's name and the asset picked. And a
+ * click on one of them that the page redraws before the click is over is the
+ * label's own by the time the browser looks: it hands it on to its first
+ * control, which in an asset picker was the 바꾸기 just drawn, and that
+ * unpicked what had been picked (rove#53).
+ *
+ * A field of more than one control -- a picker, a row of boxes -- is a
+ * `group`: named by what it says, and naming nothing in it. Its controls say
+ * what they are themselves. `beside` is something that acts on the control,
+ * a button, set beside it rather than named by the field.
+ */
+export function Field(
+	props: { label: ReactNode; hint?: ReactNode; wide?: boolean } & (
+		| { group: true; children: ReactNode; beside?: undefined }
+		| { group?: false; children: ReactElement<Labelled>; beside?: ReactNode }
+	),
+): ReactNode {
+	const own = useId()
+	const hint = props.hint === undefined ? undefined : `${own}-hint`
+	const cls = `field ${props.wide ? 'wide' : ''}`
+	const said = props.hint !== undefined && (
+		<span className="hint" id={hint}>
+			{props.hint}
+		</span>
+	)
+
+	if (props.group === true) {
+		return (
+			<div className={cls} role="group" aria-labelledby={`${own}-label`} aria-describedby={hint}>
+				<span className="label" id={`${own}-label`}>
+					{props.label}
+				</span>
+				{props.children}
+				{said}
+			</div>
+		)
+	}
+
 	return (
-		<label className={`field ${props.wide ? 'wide' : ''}`}>
-			<span className="label">{props.label}</span>
+		<FieldControl label={props.label} beside={props.beside} id={props.children.props.id ?? own} hint={hint} cls={cls} said={said}>
 			{props.children}
-			{props.hint !== undefined && <span className="hint">{props.hint}</span>}
-		</label>
+		</FieldControl>
 	)
 }
 
-export function Select(props: {
-	value: string
-	onChange: (v: string) => void
-	options: { value: string; label: ReactNode }[]
-	empty?: string
-	required?: boolean
+function FieldControl(props: {
+	label: ReactNode
+	children: ReactElement<Labelled>
+	beside?: ReactNode
+	id: string
+	hint?: string
+	cls: string
+	said: ReactNode
 }): ReactNode {
+	const control = cloneElement(props.children, {
+		id: props.id,
+		'aria-describedby': [props.children.props['aria-describedby'], props.hint].filter((v) => v !== undefined).join(' ') || undefined,
+	})
+
+	// Said where it is wrong, since nothing else would say it: a control that
+	// does not take the id the field hands it is a field whose label names
+	// nothing, and that looks exactly like one that works. The browser tests
+	// fail on it (e2e/rove.ts).
+	useLayoutEffect(() => {
+		const el = document.getElementById(props.id)
+		if (el === null || !('labels' in el)) {
+			console.error(`Field: "${labelText(props.label)}" names no control; its control takes no id, or is a group`)
+		}
+	})
+
 	return (
-		<select value={props.value} onChange={(e) => props.onChange(e.target.value)} required={props.required}>
+		<div className={props.cls}>
+			<label className="label" htmlFor={props.id}>
+				{props.label}
+			</label>
+			{props.beside === undefined ? (
+				control
+			) : (
+				<div className="inline">
+					{control}
+					{props.beside}
+				</div>
+			)}
+			{props.said}
+		</div>
+	)
+}
+
+function labelText(v: ReactNode): string {
+	return typeof v === 'string' || typeof v === 'number' ? String(v) : '(a label that is not text)'
+}
+
+export function Select(
+	props: {
+		value: string
+		onChange: (v: string) => void
+		options: { value: string; label: ReactNode }[]
+		empty?: string
+		required?: boolean
+	} & Labelled,
+): ReactNode {
+	return (
+		<select
+			id={props.id}
+			aria-describedby={props['aria-describedby']}
+			value={props.value}
+			onChange={(e) => props.onChange(e.target.value)}
+			required={props.required}
+		>
 			{props.empty !== undefined && <option value="">{props.empty}</option>}
 			{props.options.map((o) => (
 				<option key={o.value} value={o.value}>
