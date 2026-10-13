@@ -294,6 +294,9 @@ func (Consent) Fields() []ent.Field {
 		field.String("document"),
 		field.String("version"),
 		field.String("client"),
+		field.Time("date_left").
+			Nillable().
+			Optional(),
 		field.Time("date_erased").
 			Nillable().
 			Optional(),

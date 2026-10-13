@@ -75,6 +75,11 @@ func Client(v string) predicate.Consent {
 	return predicate.Consent(sql.FieldEQ(FieldClient, v))
 }
 
+// DateLeft applies equality check predicate on the "date_left" field. It's identical to DateLeftEQ.
+func DateLeft(v time.Time) predicate.Consent {
+	return predicate.Consent(sql.FieldEQ(FieldDateLeft, v))
+}
+
 // DateErased applies equality check predicate on the "date_erased" field. It's identical to DateErasedEQ.
 func DateErased(v time.Time) predicate.Consent {
 	return predicate.Consent(sql.FieldEQ(FieldDateErased, v))
@@ -318,6 +323,56 @@ func ClientEqualFold(v string) predicate.Consent {
 // ClientContainsFold applies the ContainsFold predicate on the "client" field.
 func ClientContainsFold(v string) predicate.Consent {
 	return predicate.Consent(sql.FieldContainsFold(FieldClient, v))
+}
+
+// DateLeftEQ applies the EQ predicate on the "date_left" field.
+func DateLeftEQ(v time.Time) predicate.Consent {
+	return predicate.Consent(sql.FieldEQ(FieldDateLeft, v))
+}
+
+// DateLeftNEQ applies the NEQ predicate on the "date_left" field.
+func DateLeftNEQ(v time.Time) predicate.Consent {
+	return predicate.Consent(sql.FieldNEQ(FieldDateLeft, v))
+}
+
+// DateLeftIn applies the In predicate on the "date_left" field.
+func DateLeftIn(vs ...time.Time) predicate.Consent {
+	return predicate.Consent(sql.FieldIn(FieldDateLeft, vs...))
+}
+
+// DateLeftNotIn applies the NotIn predicate on the "date_left" field.
+func DateLeftNotIn(vs ...time.Time) predicate.Consent {
+	return predicate.Consent(sql.FieldNotIn(FieldDateLeft, vs...))
+}
+
+// DateLeftGT applies the GT predicate on the "date_left" field.
+func DateLeftGT(v time.Time) predicate.Consent {
+	return predicate.Consent(sql.FieldGT(FieldDateLeft, v))
+}
+
+// DateLeftGTE applies the GTE predicate on the "date_left" field.
+func DateLeftGTE(v time.Time) predicate.Consent {
+	return predicate.Consent(sql.FieldGTE(FieldDateLeft, v))
+}
+
+// DateLeftLT applies the LT predicate on the "date_left" field.
+func DateLeftLT(v time.Time) predicate.Consent {
+	return predicate.Consent(sql.FieldLT(FieldDateLeft, v))
+}
+
+// DateLeftLTE applies the LTE predicate on the "date_left" field.
+func DateLeftLTE(v time.Time) predicate.Consent {
+	return predicate.Consent(sql.FieldLTE(FieldDateLeft, v))
+}
+
+// DateLeftIsNil applies the IsNil predicate on the "date_left" field.
+func DateLeftIsNil() predicate.Consent {
+	return predicate.Consent(sql.FieldIsNull(FieldDateLeft))
+}
+
+// DateLeftNotNil applies the NotNil predicate on the "date_left" field.
+func DateLeftNotNil() predicate.Consent {
+	return predicate.Consent(sql.FieldNotNull(FieldDateLeft))
 }
 
 // DateErasedEQ applies the EQ predicate on the "date_erased" field.

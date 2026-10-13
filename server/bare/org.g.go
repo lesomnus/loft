@@ -2632,6 +2632,9 @@ func (s ConsentServiceServer) Add(ctx context.Context, req *rove.ConsentAddReque
 	q.SetDocument(req.GetDocument())
 	q.SetVersion(req.GetVersion())
 	q.SetClient(req.GetClient())
+	if req.HasDateLeft() {
+		q.SetDateLeft(req.GetDateLeft().AsTime())
+	}
 	if req.HasDateCreated() {
 		q.SetDateCreated(req.GetDateCreated().AsTime())
 	} else {
@@ -2712,6 +2715,9 @@ func ConsentSelectedFields(m *rove.ConsentSelect) []string {
 	if m.GetClient() {
 		vs = append(vs, consent.FieldClient)
 	}
+	if m.GetDateLeft() {
+		vs = append(vs, consent.FieldDateLeft)
+	}
 	if m.GetDateErased() {
 		vs = append(vs, consent.FieldDateErased)
 	}
@@ -2783,7 +2789,7 @@ func ConsentGetKey(ctx context.Context, db *ent.Client, ref *rove.ConsentRef) (u
 var consentOrmEntity = ormpatch.MustEntityOf(rove.File_rove_org_proto, "Consent")
 
 var consentPatchColumns = entpatch.Columns{
-	1: consent.FieldId, 8: consent.FieldAccount, 9: consent.FieldDocument, 10: consent.FieldVersion, 11: consent.FieldClient, 14: consent.FieldDateErased, 15: consent.FieldDateCreated}
+	1: consent.FieldId, 8: consent.FieldAccount, 9: consent.FieldDocument, 10: consent.FieldVersion, 11: consent.FieldClient, 12: consent.FieldDateLeft, 14: consent.FieldDateErased, 15: consent.FieldDateCreated}
 
 func (s ConsentServiceServer) Apply(ctx context.Context, req *rove.ConsentApplyRequest) (*rove.Consent, error) {
 	if !req.HasPatch() {

@@ -86,6 +86,26 @@ func (_u *ConsentUpdate) SetNillableClient(v *string) *ConsentUpdate {
 	return _u
 }
 
+// SetDateLeft sets the "date_left" field.
+func (_u *ConsentUpdate) SetDateLeft(v time.Time) *ConsentUpdate {
+	_u.mutation.SetDateLeft(v)
+	return _u
+}
+
+// SetNillableDateLeft sets the "date_left" field if the given value is not nil.
+func (_u *ConsentUpdate) SetNillableDateLeft(v *time.Time) *ConsentUpdate {
+	if v != nil {
+		_u.SetDateLeft(*v)
+	}
+	return _u
+}
+
+// ClearDateLeft clears the value of the "date_left" field.
+func (_u *ConsentUpdate) ClearDateLeft() *ConsentUpdate {
+	_u.mutation.ClearDateLeft()
+	return _u
+}
+
 // SetDateErased sets the "date_erased" field.
 func (_u *ConsentUpdate) SetDateErased(v time.Time) *ConsentUpdate {
 	_u.mutation.SetDateErased(v)
@@ -164,6 +184,12 @@ func (_u *ConsentUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.GetClient(); ok {
 		_spec.SetField(consent.FieldClient, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.DateLeft(); ok {
+		_spec.SetField(consent.FieldDateLeft, field.TypeTime, value)
+	}
+	if _u.mutation.DateLeftCleared() {
+		_spec.ClearField(consent.FieldDateLeft, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(consent.FieldDateErased, field.TypeTime, value)
@@ -249,6 +275,26 @@ func (_u *ConsentUpdateOne) SetNillableClient(v *string) *ConsentUpdateOne {
 	if v != nil {
 		_u.SetClient(*v)
 	}
+	return _u
+}
+
+// SetDateLeft sets the "date_left" field.
+func (_u *ConsentUpdateOne) SetDateLeft(v time.Time) *ConsentUpdateOne {
+	_u.mutation.SetDateLeft(v)
+	return _u
+}
+
+// SetNillableDateLeft sets the "date_left" field if the given value is not nil.
+func (_u *ConsentUpdateOne) SetNillableDateLeft(v *time.Time) *ConsentUpdateOne {
+	if v != nil {
+		_u.SetDateLeft(*v)
+	}
+	return _u
+}
+
+// ClearDateLeft clears the value of the "date_left" field.
+func (_u *ConsentUpdateOne) ClearDateLeft() *ConsentUpdateOne {
+	_u.mutation.ClearDateLeft()
 	return _u
 }
 
@@ -360,6 +406,12 @@ func (_u *ConsentUpdateOne) sqlSave(ctx context.Context) (_node *Consent, err er
 	}
 	if value, ok := _u.mutation.GetClient(); ok {
 		_spec.SetField(consent.FieldClient, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.DateLeft(); ok {
+		_spec.SetField(consent.FieldDateLeft, field.TypeTime, value)
+	}
+	if _u.mutation.DateLeftCleared() {
+		_spec.ClearField(consent.FieldDateLeft, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(consent.FieldDateErased, field.TypeTime, value)

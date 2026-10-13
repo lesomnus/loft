@@ -827,6 +827,7 @@ message ConsentAddRequest {
   string document = 9 [features.field_presence = IMPLICIT];
   string version = 10 [features.field_presence = IMPLICIT];
   string client = 11 [features.field_presence = IMPLICIT];
+  google.protobuf.Timestamp date_left = 12;
   google.protobuf.Timestamp date_created = 15;
 }
 
@@ -854,6 +855,7 @@ message ConsentSelect {
   bool document = 9;
   bool version = 10;
   bool client = 11;
+  bool date_left = 12;
   bool date_erased = 14;
   bool date_created = 15;
 }
@@ -864,6 +866,12 @@ message ConsentPatchRequest {
   string document = 18;
   string version = 20;
   string client = 22;
+  google.protobuf.Timestamp date_left = 24;
+  // Clear date_left instead of writing it.
+  // It takes a field of its own because an unset value already means
+  // "leave it alone", so no value could have meant NULL. It wins
+  // outright: setting both this and date_left clears.
+  bool date_left_null = 25;
 }
 
 message ConsentApplyRequest {

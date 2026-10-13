@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/lesomnus/payday/pdid"
 	"github.com/stretchr/testify/require"
@@ -16,8 +17,10 @@ import (
 
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/cmd"
+	"github.com/lesomnus/rove/internal/ent"
 	entconsent "github.com/lesomnus/rove/internal/ent/consent"
 	"github.com/lesomnus/rove/internal/ent/holder"
+	"github.com/lesomnus/rove/internal/identity"
 	"github.com/lesomnus/rove/server/account"
 	"github.com/lesomnus/rove/server/consent"
 )
@@ -161,4 +164,68 @@ func TestADocumentWithNowhereToReadItIsNotAsked(t *testing.T) {
 	docs, err := cmd.ConsentConfig{}.Documents()
 	x.NoError(err)
 	x.Empty(docs, "asking nothing is the default")
+}
+
+// TestAnAccountThatLeftKeepsWhatItAgreedToForTheWindow (rove#35): leaving
+// says so on what an account agreed to, which still counts; the agreements
+// stay for good while `app.consent.keep` says nothing, and once it says how
+// long, an account's go that long after it left -- and nobody else's.
+func TestAnAccountThatLeftKeepsWhatItAgreedToForTheWindow(t *testing.T) {
+	w := consentWorld(t)
+	x := w.x
+	ctx := context.Background()
+
+	now := time.Now()
+	w.s.Consents.Now = func() time.Time { return now }
+	t.Cleanup(func() { w.s.Consents.Now = nil })
+
+	agreed := map[string]string{"terms": terms.Version, "privacy": privacy.Version}
+	person := func(login string) identity.Person {
+		p, err := w.s.Identity.AddPerson(ctx, login, login, pdid.Nil)
+		x.NoError(err)
+		x.NoError(w.s.Consents.Agree(ctx, p.Id, agreed, "web"))
+		w.here(p, "member")
+		return p
+	}
+	rows := func(p identity.Person) []*ent.Consent {
+		vs, err := w.s.Ent.Consent.Query().Where(entconsent.Account(p.Id.Uuid())).All(ctx)
+		x.NoError(err)
+		return vs
+	}
+	kim, lee, park := person("kim"), person("lee"), person("park")
+
+	// kim leaves now, and lee eleven months on.
+	_, err := w.s.Lifecycle.Depart(ctx, kim.Id)
+	x.NoError(err)
+	for _, v := range rows(kim) {
+		x.NotNil(v.DateLeft, "leaving did not say so on what it agreed to")
+	}
+	ok, err := w.s.Consents.Settled(ctx, kim.Id)
+	x.NoError(err)
+	x.True(ok, "what it agreed to stopped counting as it left")
+
+	n, err := w.s.Consents.Sweep(ctx, 0)
+	x.NoError(err)
+	x.Zero(n, "app.consent.keep says nothing, and agreements went")
+
+	now = now.Add(335 * 24 * time.Hour)
+	_, err = w.s.Lifecycle.Depart(ctx, lee.Id)
+	x.NoError(err)
+
+	// A year after kim left, kept for ninety days.
+	now = now.Add(30 * 24 * time.Hour)
+	n, err = w.s.Consents.Sweep(ctx, 90*24*time.Hour)
+	x.NoError(err)
+	x.Equal(2, n, "kim's two")
+	x.Empty(rows(kim))
+	x.Len(rows(lee), 2, "lee left thirty days ago")
+	x.Len(rows(park), 2, "park is here")
+	for _, v := range rows(park) {
+		x.Nil(v.DateLeft)
+	}
+
+	// And kim, were it to come back, is asked again.
+	owed, err := w.s.Consents.Owed(ctx, kim.Id)
+	x.NoError(err)
+	x.Len(owed, 2)
 }

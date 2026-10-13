@@ -407,6 +407,13 @@ message Consent {
   // Where it agreed: `web` or `cli`.
   string client = 11;
 
+  // When the account left this deployment ([lifecycle.Lifecycle.Depart]):
+  // the agreement is kept from then for `app.consent.keep`, and forever when
+  // that says nothing (rove#35). It still counts while it is kept -- an
+  // account that comes back agreed to what it agreed to. Null while the
+  // account is here.
+  google.protobuf.Timestamp date_left = 12 [(orm.field) = {nullable: true}];
+
   google.protobuf.Timestamp date_erased = 14 [(orm.field) = {erased: {}}];
   google.protobuf.Timestamp date_created = 15 [(orm.field) = {
     immutable: true

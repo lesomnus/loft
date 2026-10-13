@@ -221,6 +221,12 @@ type AppConfig struct {
 type ConsentConfig struct {
 	Terms   DocumentConfig `yaml:"terms"`
 	Privacy DocumentConfig `yaml:"privacy"`
+
+	// Keep is how long an account's agreements are kept after it left this
+	// deployment, to show afterwards that they were made; past it they are
+	// destroyed. Unset keeps them for good, which is the default until the
+	// period is decided with legal review (rove#35).
+	Keep time.Duration `yaml:"keep"`
 }
 
 // DocumentConfig is one document an account agrees to.

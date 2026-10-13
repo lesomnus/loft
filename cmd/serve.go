@@ -328,6 +328,9 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		return nil, err
 	}
 	s.Consents = &consent.Consents{Db: client, Documents: docs, Now: deps.Clock}
+	// An account leaving says so on what it agreed to, which is what the
+	// window below counts from.
+	s.Lifecycle.Consents = s.Consents
 	if s.Sso, err = sso.New(c.Auth.Sso, c.App.App(), !c.Auth.SsoOnly, s.Sessions, people, s.Arrive(c)); err != nil {
 		people.Close()
 		db.Close()
@@ -370,6 +373,17 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	// And the accounts still erased once roster's grace is over, leaving
 	// every workspace they were in.
 	s.Spin = append(s.Spin, spinEvery("rove.departures", c.App.Accounts.Interval(), s.Lifecycle.Sweep))
+	// The agreements of accounts that left, once the window is over; none
+	// while it says nothing.
+	if keep := c.App.Consent.Keep; keep > 0 {
+		s.Spin = append(s.Spin, spinEvery("rove.consents", time.Hour, func(ctx context.Context) error {
+			n, err := s.Consents.Sweep(ctx, keep)
+			if n > 0 {
+				log.From(ctx).InfoContext(ctx, "consent: agreements of accounts that left, past app.consent.keep, destroyed", "agreements", n)
+			}
+			return err
+		}))
+	}
 	// And every account asked about again, for an erasure the stream did not
 	// carry because this was not listening (design 9.10).
 	if d := c.App.Accounts.ReconcileEvery(); d > 0 {

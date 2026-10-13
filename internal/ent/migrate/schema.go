@@ -432,6 +432,7 @@ var (
 		{Name: "document", Type: field.TypeString},
 		{Name: "version", Type: field.TypeString},
 		{Name: "client", Type: field.TypeString},
+		{Name: "date_left", Type: field.TypeTime, Nullable: true},
 		{Name: "date_erased", Type: field.TypeTime, Nullable: true},
 		{Name: "date_created", Type: field.TypeTime, Nullable: true},
 	}
