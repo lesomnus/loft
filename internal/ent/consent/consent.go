@@ -19,6 +19,8 @@ const (
 	FieldVersion = "version"
 	// FieldClient holds the string denoting the client field in the database.
 	FieldClient = "client"
+	// FieldDateLeft holds the string denoting the date_left field in the database.
+	FieldDateLeft = "date_left"
 	// FieldDateErased holds the string denoting the date_erased field in the database.
 	FieldDateErased = "date_erased"
 	// FieldDateCreated holds the string denoting the date_created field in the database.
@@ -34,6 +36,7 @@ var Columns = []string{
 	FieldDocument,
 	FieldVersion,
 	FieldClient,
+	FieldDateLeft,
 	FieldDateErased,
 	FieldDateCreated,
 }
@@ -74,6 +77,11 @@ func ByVersion(opts ...sql.OrderTermOption) OrderOption {
 // ByClient orders the results by the client field.
 func ByClient(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldClient, opts...).ToFunc()
+}
+
+// ByDateLeft orders the results by the date_left field.
+func ByDateLeft(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateLeft, opts...).ToFunc()
 }
 
 // ByDateErased orders the results by the date_erased field.

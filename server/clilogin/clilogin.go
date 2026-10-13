@@ -408,7 +408,6 @@ func (l *Logins) freeCode(ctx context.Context, now time.Time) (string, error) {
 	return "", errors.New("cli: no free code")
 }
 
-
 func agentOf(r *http.Request) string {
 	v := strings.TrimSpace(r.Header.Get("User-Agent"))
 	if v == "" {

@@ -179,6 +179,10 @@ app:
   # consent:
   #   terms: { version: "2026-10-01", url: https://rove.example/terms }
   #   privacy: { version: "2026-10-01", url: https://rove.example/privacy }
+  #   # How long an account's agreements are kept after it left; past it they
+  #   # are destroyed. Unset keeps them for good (rove#35: until legal review
+  #   # decides the period).
+  #   keep: 26280h
 
   # What a tenant's history is kept for (design 8). A tenant's own windows are
   # its contract's -- `rove contract set --tenant acme --view 365 --keep 730`

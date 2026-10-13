@@ -56,6 +56,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/holder"
 	"github.com/lesomnus/rove/internal/ent/invitation"
 	"github.com/lesomnus/rove/internal/identity"
+	"github.com/lesomnus/rove/server/consent"
 	"github.com/lesomnus/rove/server/domain"
 	"github.com/lesomnus/rove/server/session"
 )
@@ -80,6 +81,10 @@ type Lifecycle struct {
 	// Grace is how long after roster erased an account it leaves here, if
 	// roster has not restored it (`app.accounts.forget_after`).
 	Grace time.Duration
+
+	// Consents is what an account agreed to, which a departure says it left
+	// (`app.consent.keep`). Nil says nothing.
+	Consents *consent.Consents
 }
 
 // Apply is one event: what roster says of an account now. It carries state and
@@ -236,6 +241,14 @@ func (l Lifecycle) Depart(ctx context.Context, account pdid.Id) ([]Departed, err
 		done[v.TenantId] = true
 		if err := l.Deps.Unaddress(ctx, l.Base, l.Drv, pdid.Id(v.TenantId), account); err != nil {
 			return out, fmt.Errorf("workspace %s: %w", pdid.Id(v.TenantId), err)
+		}
+	}
+
+	// And what it agreed to here says it left, which is when the window it is
+	// kept for begins.
+	if l.Consents != nil {
+		if err := l.Consents.Left(ctx, account); err != nil {
+			return out, fmt.Errorf("consent: %w", err)
 		}
 	}
 

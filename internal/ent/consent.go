@@ -26,6 +26,8 @@ type Consent struct {
 	Version string `json:"version,omitempty"`
 	// Client holds the value of the "client" field.
 	Client string `json:"client,omitempty"`
+	// DateLeft holds the value of the "date_left" field.
+	DateLeft *time.Time `json:"date_left,omitempty"`
 	// DateErased holds the value of the "date_erased" field.
 	DateErased *time.Time `json:"date_erased,omitempty"`
 	// DateCreated holds the value of the "date_created" field.
@@ -40,7 +42,7 @@ func (*Consent) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case consent.FieldDocument, consent.FieldVersion, consent.FieldClient:
 			values[i] = new(sql.NullString)
-		case consent.FieldDateErased, consent.FieldDateCreated:
+		case consent.FieldDateLeft, consent.FieldDateErased, consent.FieldDateCreated:
 			values[i] = new(sql.NullTime)
 		case consent.FieldId, consent.FieldAccount:
 			values[i] = new(uuid.UUID)
@@ -88,6 +90,13 @@ func (_m *Consent) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field client", values[i])
 			} else if value.Valid {
 				_m.Client = value.String
+			}
+		case consent.FieldDateLeft:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field date_left", values[i])
+			} else if value.Valid {
+				_m.DateLeft = new(time.Time)
+				*_m.DateLeft = value.Time
 			}
 		case consent.FieldDateErased:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -149,6 +158,11 @@ func (_m *Consent) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("client=")
 	builder.WriteString(_m.Client)
+	builder.WriteString(", ")
+	if v := _m.DateLeft; v != nil {
+		builder.WriteString("date_left=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteString(", ")
 	if v := _m.DateErased; v != nil {
 		builder.WriteString("date_erased=")

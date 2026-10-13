@@ -1525,6 +1525,7 @@ type Consent struct {
 	xxx_hidden_Document    string                 `protobuf:"bytes,9,opt,name=document"`
 	xxx_hidden_Version     string                 `protobuf:"bytes,10,opt,name=version"`
 	xxx_hidden_Client      string                 `protobuf:"bytes,11,opt,name=client"`
+	xxx_hidden_DateLeft    *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=date_left,json=dateLeft"`
 	xxx_hidden_DateErased  *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=date_erased,json=dateErased"`
 	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
 	unknownFields          protoimpl.UnknownFields
@@ -1591,6 +1592,13 @@ func (x *Consent) GetClient() string {
 	return ""
 }
 
+func (x *Consent) GetDateLeft() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateLeft
+	}
+	return nil
+}
+
 func (x *Consent) GetDateErased() *timestamppb.Timestamp {
 	if x != nil {
 		return x.xxx_hidden_DateErased
@@ -1631,12 +1639,23 @@ func (x *Consent) SetClient(v string) {
 	x.xxx_hidden_Client = v
 }
 
+func (x *Consent) SetDateLeft(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateLeft = v
+}
+
 func (x *Consent) SetDateErased(v *timestamppb.Timestamp) {
 	x.xxx_hidden_DateErased = v
 }
 
 func (x *Consent) SetDateCreated(v *timestamppb.Timestamp) {
 	x.xxx_hidden_DateCreated = v
+}
+
+func (x *Consent) HasDateLeft() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateLeft != nil
 }
 
 func (x *Consent) HasDateErased() bool {
@@ -1651,6 +1670,10 @@ func (x *Consent) HasDateCreated() bool {
 		return false
 	}
 	return x.xxx_hidden_DateCreated != nil
+}
+
+func (x *Consent) ClearDateLeft() {
+	x.xxx_hidden_DateLeft = nil
 }
 
 func (x *Consent) ClearDateErased() {
@@ -1672,7 +1695,13 @@ type Consent_builder struct {
 	Document string
 	Version  string
 	// Where it agreed: `web` or `cli`.
-	Client      string
+	Client string
+	// When the account left this deployment ([lifecycle.Lifecycle.Depart]):
+	// the agreement is kept from then for `app.consent.keep`, and forever when
+	// that says nothing (rove#35). It still counts while it is kept -- an
+	// account that comes back agreed to what it agreed to. Null while the
+	// account is here.
+	DateLeft    *timestamppb.Timestamp
 	DateErased  *timestamppb.Timestamp
 	DateCreated *timestamppb.Timestamp
 }
@@ -1686,6 +1715,7 @@ func (b0 Consent_builder) Build() *Consent {
 	x.xxx_hidden_Document = b.Document
 	x.xxx_hidden_Version = b.Version
 	x.xxx_hidden_Client = b.Client
+	x.xxx_hidden_DateLeft = b.DateLeft
 	x.xxx_hidden_DateErased = b.DateErased
 	x.xxx_hidden_DateCreated = b.DateCreated
 	return m0
@@ -1933,14 +1963,15 @@ const file_rove_org_proto_rawDesc = "" +
 	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
 	"dateErased\x12H\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:\"\xca\xfc\x15\x16\x12\x02\x10\x01\x1a\x10\x12\x04held\x1a\b\n" +
-	"\x04held\x10\b\x8a\xbb\x16\x04\b+*\x00\"\xec\x02\n" +
+	"\x04held\x10\b\x8a\xbb\x16\x04\b+*\x00\"\xad\x03\n" +
 	"\aConsent\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12 \n" +
 	"\aaccount\x18\b \x01(\fB\x06\xea\x82\x16\x02\x10@R\aaccount\x12\x1a\n" +
 	"\bdocument\x18\t \x01(\tR\bdocument\x12\x18\n" +
 	"\aversion\x18\n" +
 	" \x01(\tR\aversion\x12\x16\n" +
-	"\x06client\x18\v \x01(\tR\x06client\x12D\n" +
+	"\x06client\x18\v \x01(\tR\x06client\x12?\n" +
+	"\tdate_left\x18\f \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\bdateLeft\x12D\n" +
 	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
 	"dateErased\x12H\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:D\xca\xfc\x158\x12\x02\x10\x01\x1a2\x12\x06agreed\x1a\v\n" +
@@ -2000,14 +2031,15 @@ var file_rove_org_proto_depIdxs = []int32{
 	10, // 25: rove.AliasHold.date_updated:type_name -> google.protobuf.Timestamp
 	10, // 26: rove.AliasHold.date_erased:type_name -> google.protobuf.Timestamp
 	10, // 27: rove.AliasHold.date_created:type_name -> google.protobuf.Timestamp
-	10, // 28: rove.Consent.date_erased:type_name -> google.protobuf.Timestamp
-	10, // 29: rove.Consent.date_created:type_name -> google.protobuf.Timestamp
-	10, // 30: rove.SignInFailure.date_created:type_name -> google.protobuf.Timestamp
-	31, // [31:31] is the sub-list for method output_type
-	31, // [31:31] is the sub-list for method input_type
-	31, // [31:31] is the sub-list for extension type_name
-	31, // [31:31] is the sub-list for extension extendee
-	0,  // [0:31] is the sub-list for field type_name
+	10, // 28: rove.Consent.date_left:type_name -> google.protobuf.Timestamp
+	10, // 29: rove.Consent.date_erased:type_name -> google.protobuf.Timestamp
+	10, // 30: rove.Consent.date_created:type_name -> google.protobuf.Timestamp
+	10, // 31: rove.SignInFailure.date_created:type_name -> google.protobuf.Timestamp
+	32, // [32:32] is the sub-list for method output_type
+	32, // [32:32] is the sub-list for method input_type
+	32, // [32:32] is the sub-list for extension type_name
+	32, // [32:32] is the sub-list for extension extendee
+	0,  // [0:32] is the sub-list for field type_name
 }
 
 func init() { file_rove_org_proto_init() }

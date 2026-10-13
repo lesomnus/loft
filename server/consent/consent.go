@@ -188,3 +188,37 @@ func (c *Consents) Of(ctx context.Context, account pdid.Id) ([]Agreement, error)
 	}
 	return out, nil
 }
+
+// Left records that an account left this deployment, now, on every agreement
+// it made that does not say so already: what [Consents.Sweep] counts the
+// window from. They still count -- an account that comes back agreed to what
+// it agreed to -- and its next sign-in asks nothing it answered.
+func (c *Consents) Left(ctx context.Context, account pdid.Id) error {
+	_, err := c.Db.Consent.Update().
+		Where(entconsent.Account(account.Uuid()), entconsent.DateLeftIsNil()).
+		SetDateLeft(c.now()).
+		Save(ctx)
+	return err
+}
+
+// Sweep destroys the agreements of accounts that left more than `keep` ago,
+// and answers how many. Zero keeps them for good, and destroys nothing.
+//
+// Destroyed rather than erased: an agreement is kept to show afterwards that
+// it was made, and past the window there is nothing it is kept for. Nothing
+// else is written of it, so there is no copy of it anywhere to forget.
+func (c *Consents) Sweep(ctx context.Context, keep time.Duration) (int, error) {
+	if keep <= 0 {
+		return 0, nil
+	}
+	n, err := c.Db.Consent.Delete().
+		Where(entconsent.DateLeftNotNil(), entconsent.DateLeftLT(c.now().Add(-keep))).
+		Exec(ctx)
+	if n > 0 {
+		// Whoever owed nothing because of them owes them again.
+		c.mu.Lock()
+		c.settled = nil
+		c.mu.Unlock()
+	}
+	return n, err
+}

@@ -3494,6 +3494,23 @@ func (m *ConsentMutation) OldClient(ctx context.Context) (v string, err error) {
 	return oldValue.Client, nil
 }
 
+// OldDateLeft returns the old "date_left" field's value of the Consent entity.
+// If the Consent object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ConsentMutation) OldDateLeft(ctx context.Context) (v *time.Time, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldDateLeft is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldDateLeft requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDateLeft: %w", err)
+	}
+	return oldValue.DateLeft, nil
+}
+
 // OldDateErased returns the old "date_erased" field's value of the Consent entity.
 // If the Consent object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
@@ -3541,6 +3558,8 @@ func (m *ConsentMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldVersion(ctx)
 	case consent.FieldClient:
 		return m.OldClient(ctx)
+	case consent.FieldDateLeft:
+		return m.OldDateLeft(ctx)
 	case consent.FieldDateErased:
 		return m.OldDateErased(ctx)
 	case consent.FieldDateCreated:

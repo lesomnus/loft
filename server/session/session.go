@@ -375,7 +375,6 @@ func accountAt(ctx context.Context, db *ent.Client, address string) (pdid.Id, er
 	return account, nil
 }
 
-
 // Failures is how many wrong answers a pair -- the address a sign-in came from
 // and the name it was for -- gave lately: [MaxFailures] in [Window], and the
 // pair is refused without roster being asked, until the oldest of them is

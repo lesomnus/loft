@@ -21,6 +21,7 @@ type Mutation struct {
 	document      *string
 	version       *string
 	client        *string
+	date_left     *time.Time
 	date_erased   *time.Time
 	date_created  *time.Time
 	clearedFields map[string]struct{}
@@ -115,6 +116,38 @@ func (m *Mutation) GetClient() (r string, exists bool) {
 // ResetClient resets all changes to the "client" field.
 func (m *Mutation) ResetClient() {
 	m.client = nil
+}
+
+// SetDateLeft sets the "date_left" field.
+func (m *Mutation) SetDateLeft(t time.Time) {
+	m.date_left = &t
+}
+
+// DateLeft returns the value of the "date_left" field in the mutation.
+func (m *Mutation) DateLeft() (r time.Time, exists bool) {
+	v := m.date_left
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearDateLeft clears the value of the "date_left" field.
+func (m *Mutation) ClearDateLeft() {
+	m.date_left = nil
+	m.clearedFields[FieldDateLeft] = struct{}{}
+}
+
+// DateLeftCleared returns if the "date_left" field was cleared in this mutation.
+func (m *Mutation) DateLeftCleared() bool {
+	_, ok := m.clearedFields[FieldDateLeft]
+	return ok
+}
+
+// ResetDateLeft resets all changes to the "date_left" field.
+func (m *Mutation) ResetDateLeft() {
+	m.date_left = nil
+	delete(m.clearedFields, FieldDateLeft)
 }
 
 // SetDateErased sets the "date_erased" field.
@@ -215,7 +248,7 @@ func (m *Mutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *Mutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 7)
 	if m.account != nil {
 		fields = append(fields, FieldAccount)
 	}
@@ -227,6 +260,9 @@ func (m *Mutation) Fields() []string {
 	}
 	if m.client != nil {
 		fields = append(fields, FieldClient)
+	}
+	if m.date_left != nil {
+		fields = append(fields, FieldDateLeft)
 	}
 	if m.date_erased != nil {
 		fields = append(fields, FieldDateErased)
@@ -250,6 +286,8 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.Version()
 	case FieldClient:
 		return m.GetClient()
+	case FieldDateLeft:
+		return m.DateLeft()
 	case FieldDateErased:
 		return m.DateErased()
 	case FieldDateCreated:
@@ -298,6 +336,13 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetClient(v)
 		return nil
+	case FieldDateLeft:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDateLeft(v)
+		return nil
 	case FieldDateErased:
 		v, ok := value.(time.Time)
 		if !ok {
@@ -342,6 +387,9 @@ func (m *Mutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *Mutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(FieldDateLeft) {
+		fields = append(fields, FieldDateLeft)
+	}
 	if m.FieldCleared(FieldDateErased) {
 		fields = append(fields, FieldDateErased)
 	}
@@ -362,6 +410,9 @@ func (m *Mutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *Mutation) ClearField(name string) error {
 	switch name {
+	case FieldDateLeft:
+		m.ClearDateLeft()
+		return nil
 	case FieldDateErased:
 		m.ClearDateErased()
 		return nil
@@ -387,6 +438,9 @@ func (m *Mutation) ResetField(name string) error {
 		return nil
 	case FieldClient:
 		m.ResetClient()
+		return nil
+	case FieldDateLeft:
+		m.ResetDateLeft()
 		return nil
 	case FieldDateErased:
 		m.ResetDateErased()

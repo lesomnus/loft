@@ -158,6 +158,9 @@ func (e *Consent) Proto() *rove.Consent {
 	x.SetDocument(e.Document)
 	x.SetVersion(e.Version)
 	x.SetClient(e.Client)
+	if e.DateLeft != nil {
+		x.SetDateLeft(timestamppb.New(*e.DateLeft))
+	}
 	if e.DateErased != nil {
 		x.SetDateErased(timestamppb.New(*e.DateErased))
 	}

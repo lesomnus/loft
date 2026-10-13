@@ -46,6 +46,20 @@ func (_c *ConsentCreate) SetClient(v string) *ConsentCreate {
 	return _c
 }
 
+// SetDateLeft sets the "date_left" field.
+func (_c *ConsentCreate) SetDateLeft(v time.Time) *ConsentCreate {
+	_c.mutation.SetDateLeft(v)
+	return _c
+}
+
+// SetNillableDateLeft sets the "date_left" field if the given value is not nil.
+func (_c *ConsentCreate) SetNillableDateLeft(v *time.Time) *ConsentCreate {
+	if v != nil {
+		_c.SetDateLeft(*v)
+	}
+	return _c
+}
+
 // SetDateErased sets the "date_erased" field.
 func (_c *ConsentCreate) SetDateErased(v time.Time) *ConsentCreate {
 	_c.mutation.SetDateErased(v)
@@ -180,6 +194,10 @@ func (_c *ConsentCreate) createSpec() (*Consent, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.GetClient(); ok {
 		_spec.SetField(consent.FieldClient, field.TypeString, value)
 		_node.Client = value
+	}
+	if value, ok := _c.mutation.DateLeft(); ok {
+		_spec.SetField(consent.FieldDateLeft, field.TypeTime, value)
+		_node.DateLeft = &value
 	}
 	if value, ok := _c.mutation.DateErased(); ok {
 		_spec.SetField(consent.FieldDateErased, field.TypeTime, value)
