@@ -227,6 +227,10 @@ type Tx struct {
 	tenant pdid.Id
 	now    time.Time
 
+	// locked is whether this operation holds the tree lock, and has taken its
+	// moment again since ([Tx.lockTree]).
+	locked bool
+
 	// The event every row written by this operation points at.
 	ev pdid.Id
 
@@ -448,6 +452,16 @@ func (t *Tx) begin(op []byte, kind string, subject pdid.Id, at time.Time, desc, 
 // It is a plain UPDATE rather than a Patch through the stack: the row is
 // bookkeeping, not a fact anybody watches or audits, and what matters is only
 // that the statement takes the row's lock.
+//
+// And then it takes the operation's moment again. One that began first and
+// waited here for another is applied after it, so it is recorded after it:
+// known at any instant, the tree is what had been applied by then, in the
+// order it was (rove#21; decided in rove#35). Taken before the lock, the
+// moment of the one that waited was earlier than the one it waited for, and
+// known at an instant between the two, its rows showed beside the state it
+// was applied over. So an operation that changes the tree takes this lock
+// before it reads its moment -- `t.now`, or `t.at` with nothing given -- or
+// checks anything against now.
 func (t *Tx) lockTree() error {
 	n, err := t.db.TreeLock.Update().
 		Where(treelock.TenantId(t.tenant.Uuid())).
@@ -456,16 +470,22 @@ func (t *Tx) lockTree() error {
 	if err != nil {
 		return err
 	}
-	if n > 0 {
-		return nil
+	if n == 0 {
+		// The first change in a tenant that `init` did not seed.
+		if _, err := t.next.TreeLock().Add(t.ctx, app.TreeLockAddRequest_builder{
+			Tenant:  t.tenantRef(),
+			Version: 1,
+		}.Build()); err != nil {
+			return err
+		}
 	}
 
-	// The first change in a tenant that `init` did not seed.
-	_, err = t.next.TreeLock().Add(t.ctx, app.TreeLockAddRequest_builder{
-		Tenant:  t.tenantRef(),
-		Version: 1,
-	}.Build())
-	return err
+	// Once: an operation's rows are all of one moment.
+	if !t.locked {
+		t.locked = true
+		t.now = t.deps.now()
+	}
+	return nil
 }
 
 // invalid is a refusal about one field of a request: the sentence a person

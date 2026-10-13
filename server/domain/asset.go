@@ -93,6 +93,13 @@ func (s domainAsset) Add(ctx context.Context, req *app.AssetAddRequest) (*app.As
 	}
 	var out *app.Asset
 	err := s.tx(ctx, func(t *Tx) error {
+		// Somewhere is a change to the tree: its lock before the moment
+		// ([Tx.lockTree]).
+		if req.HasTo() {
+			if err := t.lockTree(); err != nil {
+				return err
+			}
+		}
 		since, err := t.at(req.GetSince(), "since")
 		if err != nil {
 			return err
@@ -162,9 +169,6 @@ func (s domainAsset) Add(ctx context.Context, req *app.AssetAddRequest) (*app.As
 		var to *app.Asset
 		mode := req.GetMode()
 		if req.HasTo() {
-			if err := t.lockTree(); err != nil {
-				return err
-			}
 			if to, _, err = t.get(req.GetTo(), "to"); err != nil {
 				return err
 			}
@@ -354,11 +358,12 @@ func (s domainAsset) Erase(ctx context.Context, ref *app.AssetRef) (*app.AssetEr
 func (s domainAsset) Move(ctx context.Context, req *app.AssetMoveRequest) (*app.Asset, error) {
 	var out *app.Asset
 	err := s.tx(ctx, func(t *Tx) error {
-		at, err := t.at(req.GetAt(), "at")
-		if err != nil {
+		// The lock, and then the moment ([Tx.lockTree]).
+		if err := t.lockTree(); err != nil {
 			return err
 		}
-		if err := t.lockTree(); err != nil {
+		at, err := t.at(req.GetAt(), "at")
+		if err != nil {
 			return err
 		}
 		a, id, err := t.get(req.GetRef(), "ref")
@@ -1230,15 +1235,15 @@ func (s domainAsset) Correct(ctx context.Context, req *app.AssetCorrectRequest) 
 		if !req.GetRetract() && !req.HasValidFrom() {
 			return invalid("valid_from", "실제 시점을 적거나, 없었던 일로 취소하세요")
 		}
+		if err := t.lockTree(); err != nil {
+			return err
+		}
 		var when time.Time
 		if req.HasValidFrom() {
 			var err error
 			if when, err = t.at(req.GetValidFrom(), "valid_from"); err != nil {
 				return err
 			}
-		}
-		if err := t.lockTree(); err != nil {
-			return err
 		}
 		if err := t.done(req.GetOp()); err != nil {
 			return err
