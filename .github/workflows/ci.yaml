@@ -81,6 +81,51 @@ jobs:
       - run: npm run check
       - run: npx vite build
 
+  # The deployment bundle (Dockerfile, deploy/compose) as an operator brings
+  # it up: the image built, PostgreSQL, the migration, two `rove serve` behind
+  # Caddy and the operator's entry point -- and a workspace made, signed in to
+  # and asked through the proxy, and listed at the entry point. Nothing is
+  # pushed anywhere.
+  bundle:
+    runs-on: ubuntu-26.04
+    defaults:
+      run:
+        working-directory: deploy/compose
+    steps:
+      - uses: actions/checkout@v7
+      - name: what an operator fills in, made up
+        run: |
+          cp .env.example .env
+          sed -i -e "s/^ROVE_DOMAIN=.*/ROVE_DOMAIN=localhost/" \
+            -e "s/^POSTGRES_PASSWORD=.*/POSTGRES_PASSWORD=$(openssl rand -hex 24)/" \
+            -e "s/^ROVE_SIGNING_KEY=.*/ROVE_SIGNING_KEY=$(openssl rand -hex 32)/" \
+            -e "s/^ROVE_VERSION=.*/ROVE_VERSION=ci/" .env
+          mkdir -m 700 secrets
+          openssl genpkey -algorithm ed25519 -out secrets/checkpoints.pem
+          openssl rand -hex 32 > secrets/admin_key
+          chmod 444 secrets/*
+      - run: docker compose up -d --build
+      - name: it answers through the proxy
+        run: |
+          for i in $(seq 1 90); do curl -skf https://localhost/healthz && exit 0; sleep 2; done
+          exit 1
+      - name: a workspace, signed in to and asked
+        run: |
+          docker compose run --rm rove --config /etc/rove/rove.yaml init \
+            --tenant acme --name ACME --login owner --person Owner --email owner@example.com --password owner-pass-1234
+          curl -skf -c jar -H 'content-type: application/json' \
+            -d '{"login":"owner","password":"owner-pass-1234"}' https://localhost/session
+          # Each to whichever replica Caddy picks: a session is the database's.
+          for i in 1 2 3 4; do
+            curl -skf -b jar -H 'content-type: application/json' -H 'connect-protocol-version: 1' \
+              -d '{}' https://localhost/rove.PartyService/Me > /dev/null
+          done
+          curl -sf -H "authorization: Bearer $(cat secrets/admin_key)" \
+            http://127.0.0.1:8081/admin/workspaces | grep -q '"alias":"acme"'
+          docker run --rm rove:ci version
+      - if: failure()
+        run: docker compose ps -a && docker compose logs
+
   # The main flows in a browser (ts/e2e, plan.md M3): headless Chromium on
   # the built page, against a rove built here that Playwright starts with
   # `init --demo` (ts/playwright.config.ts, ts/e2e/serve.sh) -- on SQLite, and

@@ -1,0 +1,125 @@
+# Rove on one host: PostgreSQL, the migration that runs before anything
+# serves, two `rove serve`, the operator's entry point, and Caddy in front
+# with a certificate from Let's Encrypt. What to fill in, and in which order
+# to start it, is README.md.
+#
+#   cp .env.example .env    # then fill it in
+#   docker compose up -d --build
+
+name: rove
+
+x-rove: &rove
+  image: rove:${ROVE_VERSION:-local}
+  # Built once, by `migrate`, and used as it is by the rest.
+  pull_policy: never
+  environment: &env
+    ROVE_DB_DSN: postgres://rove:${POSTGRES_PASSWORD:?}@postgres:5432/rove?sslmode=disable
+    ROVE_AUTH_ROSTER_DB_DSN: postgres://rove:${POSTGRES_PASSWORD:?}@postgres:5432/roster?sslmode=disable
+    ROVE_APP_PUBLIC_URL: https://${ROVE_DOMAIN:?}
+    ROVE_APP_SIGNING_KEY: ${ROVE_SIGNING_KEY:?}
+    ROVE_APP_MAIL_HOST: ${ROVE_MAIL_HOST:-}
+    ROVE_APP_MAIL_PORT: ${ROVE_MAIL_PORT:-587}
+    ROVE_APP_MAIL_USERNAME: ${ROVE_MAIL_USERNAME:-}
+    ROVE_APP_MAIL_PASSWORD: ${ROVE_MAIL_PASSWORD:-}
+    ROVE_APP_MAIL_FROM: ${ROVE_MAIL_FROM:-}
+  volumes:
+    - ./rove.yaml:/etc/rove/rove.yaml:ro
+    - files:/var/lib/rove/files
+    - audit:/var/lib/rove/audit
+    - checkpoints:/var/lib/rove/checkpoints
+  secrets:
+    - checkpoints.pem
+  networks: [rove]
+  restart: unless-stopped
+
+services:
+  postgres:
+    build: ../postgres
+    environment:
+      POSTGRES_USER: rove
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
+      POSTGRES_DB: rove
+    volumes:
+      - postgres:/var/lib/postgresql
+      - ./initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "rove", "-d", "rove"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks: [rove]
+    restart: unless-stopped
+
+  # The tables brought into this build's shape, once, and then nothing: what
+  # serves only checks them (`db.migrate: false`).
+  migrate:
+    <<: *rove
+    build:
+      context: ../..
+      args:
+        VERSION: ${ROVE_VERSION:-}
+    pull_policy: build
+    command: ["--config", "/etc/rove/rove.yaml", "migrate"]
+    depends_on:
+      postgres: { condition: service_healthy }
+    restart: "no"
+
+  rove:
+    <<: *rove
+    command: ["--config", "/etc/rove/rove.yaml", "serve"]
+    deploy:
+      replicas: 2
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
+  # The operator's entry point, on the host's loopback only.
+  rove-admin:
+    <<: *rove
+    entrypoint: ["/usr/local/bin/rove-admin"]
+    command: ["--config", "/etc/rove/rove.yaml", "serve"]
+    ports:
+      - 127.0.0.1:8081:8081
+    secrets:
+      - checkpoints.pem
+      - admin_key
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
+  caddy:
+    image: caddy:2
+    environment:
+      ROVE_DOMAIN: ${ROVE_DOMAIN:?}
+    ports:
+      - 80:80
+      - 443:443
+      - 443:443/udp
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      rove:
+        # The one address `app.trusted_proxies` believes.
+        ipv4_address: 10.88.0.10
+    depends_on: [rove]
+    restart: unless-stopped
+
+networks:
+  rove:
+    ipam:
+      config:
+        - subnet: 10.88.0.0/24
+
+volumes:
+  postgres:
+  files:
+  audit:
+  checkpoints:
+  caddy_data:
+  caddy_config:
+
+secrets:
+  checkpoints.pem:
+    file: ./secrets/checkpoints.pem
+  admin_key:
+    file: ./secrets/admin_key

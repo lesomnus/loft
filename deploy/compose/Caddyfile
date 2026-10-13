@@ -1,0 +1,22 @@
+# In front of every `rove serve`: a certificate for ROVE_DOMAIN from Let's
+# Encrypt (Caddy's own CA for `localhost`), and each request to one of them.
+# Rove says its own security headers, so nothing here adds any.
+#
+# An ACME account needs no e-mail; to give one, a global block with
+# `email ops@example.com` above the site.
+
+{$ROVE_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy {
+		# Every replica `rove` answers to, asked again as they come and go.
+		dynamic a {
+			name rove
+			port 8080
+			refresh 5s
+		}
+		lb_policy round_robin
+		lb_try_duration 5s
+		# A watch is a stream: each part goes on as it is written.
+		flush_interval -1
+	}
+}
