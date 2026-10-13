@@ -227,8 +227,8 @@ type Tx struct {
 	tenant pdid.Id
 	now    time.Time
 
-	// locked is whether this operation holds the tree lock, and has taken its
-	// moment again since ([Tx.lockTree]).
+	// locked is whether this operation holds a lock it may have waited at,
+	// and has taken its moment again since ([Tx.holds]).
 	locked bool
 
 	// The event every row written by this operation points at.
@@ -480,12 +480,19 @@ func (t *Tx) lockTree() error {
 		}
 	}
 
-	// Once: an operation's rows are all of one moment.
+	t.holds()
+	return nil
+}
+
+// holds takes the operation's moment again the first time it holds a lock it
+// may have waited at -- the tree's ([Tx.lockTree]) or a reservation's
+// ([Tx.lockReservations]) -- so that one that waited for another is recorded
+// after it. Once: an operation's rows are all of one moment.
+func (t *Tx) holds() {
 	if !t.locked {
 		t.locked = true
 		t.now = t.deps.now()
 	}
-	return nil
 }
 
 // invalid is a refusal about one field of a request: the sentence a person
