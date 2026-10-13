@@ -1,0 +1,45 @@
+# `deploy/k8s/config.yaml` with the rig's answers: where it is opened, and the
+# proxy in front. Everything else is as the base says, so that what the rig
+# runs is what a deployment starts from.
+
+db:
+  driver: pgx
+  migrate: false
+
+server:
+  addr: ":50051"
+  max_recv_msg_size: 33554432
+  http:
+    addr: ":8080"
+    allow_web: true
+    origins: []
+
+watch:
+  broker: postgres
+spin:
+  lease: postgres
+
+auth:
+  roster:
+    db:
+      driver: pgx
+
+app:
+  public_url: https://rove.localhost
+  # k3s's pod network, which only Traefik's pods may reach the server from
+  # (the NetworkPolicy patch in `kustomization.yaml`).
+  trusted_proxies: [10.42.0.0/16]
+  files: /var/lib/rove/files
+  csp: report-only
+
+audit:
+  archive: /var/lib/rove/audit
+  checkpoints:
+    dir: /var/lib/rove/checkpoints
+    write_once: true
+    key: /run/secrets/rove/checkpoints.pem
+
+admin:
+  addr: 0.0.0.0:8081
+  keys:
+    operator: file:/run/secrets/rove-admin/operator

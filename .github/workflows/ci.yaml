@@ -126,6 +126,27 @@ jobs:
       - if: failure()
         run: docker compose ps -a && docker compose logs
 
+  # The reference deployment on Kubernetes (deploy/k8s, rove#39): k3d, the
+  # image this checkout builds, through the rig's overlay -- admitted under
+  # `restricted`, signed in to through the ingress, the operator's entry point
+  # reached by port-forward and by nothing else, and a new build rolled out
+  # and back (scripts/cluster.sh says what each step is for).
+  cluster:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      # The release's own binary, held to the digest its checksums say,
+      # rather than an installer that follows `main`.
+      - name: k3d
+        run: |
+          mkdir -p "${RUNNER_TEMP}/bin"
+          curl -fsSL -o "${RUNNER_TEMP}/bin/k3d" https://github.com/k3d-io/k3d/releases/download/v5.9.0/k3d-linux-amd64
+          echo "06d8f25bc3a971c4eb29e0ff08429b180402db0f4dec838c9eac427e296800a0  ${RUNNER_TEMP}/bin/k3d" | sha256sum -c -
+          chmod +x "${RUNNER_TEMP}/bin/k3d"
+          echo "${RUNNER_TEMP}/bin" >> "${GITHUB_PATH}"
+      - run: ./scripts/cluster.sh
+
   # The main flows in a browser (ts/e2e, plan.md M3): headless Chromium on
   # the built page, against a rove built here that Playwright starts with
   # `init --demo` (ts/playwright.config.ts, ts/e2e/serve.sh) -- on SQLite, and

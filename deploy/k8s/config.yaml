@@ -1,0 +1,91 @@
+# What every process in the pod is told (`--config`), beside what is secret,
+# which is in the Secrets `rove.yaml` names (README.md). A ROVE_* variable
+# beats what is written here. An overlay replaces this file with its own,
+# starting from this one.
+
+db:
+  driver: pgx
+  # dsn: ROVE_DB_DSN, from the Secret `rove`.
+  #
+  # The init container brings the tables along (`rove migrate`) before the
+  # pod serves; what serves only checks them.
+  migrate: false
+
+server:
+  # gRPC, which the NetworkPolicy lets nothing reach: browsers and `rove api`
+  # call the HTTP listener.
+  addr: ":50051"
+  max_recv_msg_size: 33554432
+  http:
+    addr: ":8080"
+    allow_web: true
+    # The page is served from the same address it calls.
+    origins: []
+
+# Two processes in the pod, the server and the operator's entry point, so the
+# database is where they meet: a change the entry point makes is heard by a
+# client watching the server, and each loop runs in one of them.
+watch:
+  broker: postgres
+spin:
+  lease: postgres
+
+# The roster in this process, on a database of its own beside Rove's.
+auth:
+  roster:
+    db:
+      driver: pgx
+      # dsn: ROVE_AUTH_ROSTER_DB_DSN, from the Secret `rove`.
+
+app:
+  # Where people open it, and what a label's QR code carries: decided before
+  # a label is printed, and not changed after (rove#35). Every overlay says
+  # its own.
+  #
+  # public_url: https://rove.example.com
+
+  # The ingress controller in front, whose X-Forwarded-For is believed: its
+  # pods' addresses, or the cluster's pod network -- which is only safe once
+  # the NetworkPolicy lets nothing but the controller reach the server
+  # (README.md). Empty believes nobody, so every request is from the
+  # controller's address, and the sign-in limits count everybody as one.
+  trusted_proxies: []
+
+  files: /var/lib/rove/files
+  csp: report-only
+
+  # mail: ROVE_APP_MAIL_*, the password from the Secret `rove`. With no host
+  # every invitation is written to the log instead.
+
+  # What an account agrees to before it uses anything here, once the
+  # documents are published (rove#35).
+  # consent:
+  #   terms: { version: "2026-11-01", url: https://rove.example.com/terms }
+  #   privacy: { version: "2026-11-01", url: https://rove.example.com/privacy }
+  #   keep: 26280h
+
+audit:
+  # Where the trail goes once it leaves the database, and the checkpoints of
+  # it, signed with a file key (rove#35): a volume each.
+  archive: /var/lib/rove/audit
+  checkpoints:
+    dir: /var/lib/rove/checkpoints
+    write_once: true
+    key: /run/secrets/rove/checkpoints.pem
+
+  # How long a row stays in the database and the archive. Nothing moves or
+  # goes until this says so, and the number is the regime's, not a default's
+  # (`rove.yaml` at the root says why). plan.md M5 has a membership's rows
+  # kept as PIPA keeps an access record:
+  #
+  # by:
+  #   holder:
+  #     profile: pipa
+
+# The operator's entry point (`rove-admin serve`): a container of its own in
+# the pod, which the NetworkPolicy lets nothing reach over the network. An
+# operator reaches it with `kubectl port-forward` (README.md).
+admin:
+  addr: 0.0.0.0:8081
+  keys:
+    operator: file:/run/secrets/rove-admin/operator

@@ -1,5 +1,6 @@
 # Rove as a deployment runs it: `rove` and `rove-admin`, and the built UI they
-# serve, on an image with nothing else in it (`deploy/compose`).
+# serve, on an image with nothing else in it (`deploy/k8s`, and `deploy/compose`
+# to try it on one machine).
 #
 #   docker build -t rove --build-arg VERSION=$(git describe --tags --always) .
 #

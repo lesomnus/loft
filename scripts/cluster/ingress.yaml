@@ -1,0 +1,24 @@
+# The rig's ingress: Traefik, which k3s ships, on its own certificate -- the
+# self-signed one it serves when it is given none. A deployment's holds its
+# certificate the way its cluster does (cert-manager, a load balancer's).
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: rove
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts: [rove.localhost]
+  rules:
+    - host: rove.localhost
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: rove
+                port: { name: http }

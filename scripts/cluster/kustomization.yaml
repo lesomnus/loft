@@ -1,0 +1,50 @@
+# The rig's overlay on `deploy/k8s` (`scripts/cluster.sh`): what a deployment
+# writes, with the rig's own answers -- a PostgreSQL of its own, the Traefik
+# k3s ships as the ingress, and the image this checkout built. It is also the
+# worked example of an overlay `deploy/k8s/README.md` points at, all but the
+# Secrets, which the script makes.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: rove
+
+resources:
+  - ../../deploy/k8s
+  - ./postgres.yaml
+  - ./ingress.yaml
+
+configMapGenerator:
+  # The base's file with the rig's address and proxy in it.
+  - name: rove
+    behavior: replace
+    files:
+      - rove.yaml=config.yaml
+  # Labelled with the database, which the script applies first and alone.
+  - name: postgres-initdb
+    files:
+      - 10-roster.sql=initdb.sql
+    options:
+      labels:
+        app.kubernetes.io/name: postgres
+
+patches:
+  # Only Traefik reaches the server -- which is what lets `trusted_proxies`
+  # name the whole pod network rather than Traefik's pods one by one.
+  - target: { kind: NetworkPolicy, name: rove }
+    patch: |-
+      - op: add
+        path: /spec/ingress/0/from
+        value:
+          - namespaceSelector:
+              matchLabels: { kubernetes.io/metadata.name: kube-system }
+            podSelector:
+              matchLabels: { app.kubernetes.io/name: traefik }
+
+images:
+  # What `scripts/cluster.sh` built and copied onto the node. A deployment
+  # names a digest here instead.
+  - name: ghcr.io/lesomnus/rove
+    newName: rove-cluster
+    newTag: rig
+  - name: rove-postgres
+    newTag: rig
