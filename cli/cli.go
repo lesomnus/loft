@@ -80,6 +80,7 @@ func Cmd(c *cmd.Config) *xli.Command {
 			version,
 			cfg.NewCmdConfig(l),
 			NewCmdInit(c),
+			NewCmdMigrate(c),
 			NewCmdServe(c),
 			NewCmdContract(c),
 			NewCmdHold(c),

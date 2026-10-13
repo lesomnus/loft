@@ -617,9 +617,7 @@ func (s *Server) serveHttp(ctx context.Context, c Config, g *grpc.Server) (func(
 		return nil, err
 	}
 
-	// A client that takes its time over its headers holds a connection for
-	// nothing; a stream, once asked for, may take as long as it likes.
-	srv := &http.Server{Handler: front, ReadHeaderTimeout: 10 * time.Second}
+	srv := httpServer(ctx, front)
 	go func() {
 		if err := srv.Serve(l); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.From(ctx).ErrorContext(ctx, "http", slog.String("err", err.Error()))
@@ -629,6 +627,24 @@ func (s *Server) serveHttp(ctx context.Context, c Config, g *grpc.Server) (func(
 	log.From(ctx).InfoContext(ctx, "http", slog.String("addr", l.Addr().String()))
 
 	return func() { srv.Close() }, nil
+}
+
+// httpServer is the HTTP listener's server. A client that takes its time over
+// its headers holds a connection for nothing; a stream, once asked for, may
+// take as long as it likes.
+//
+// And every request runs on ctx, which carries this process's telemetry and
+// its logger: what a route says -- a sign-in nobody could check, an issuer
+// that could not be asked, a page's broken policy -- is said where the rest of
+// the process says it. On the bare context a server gives a request it went to
+// the OpenTelemetry globals, which discard; the deployment bundle's first run
+// is what found that out.
+func httpServer(ctx context.Context, h http.Handler) *http.Server {
+	return &http.Server{
+		Handler:           h,
+		ReadHeaderTimeout: 10 * time.Second,
+		BaseContext:       func(net.Listener) context.Context { return ctx },
+	}
 }
 
 // Front is what every HTTP request goes through before the routes: where it

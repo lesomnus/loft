@@ -1,0 +1,77 @@
+# What every process of this deployment is told (`--config`), beside what is
+# secret, which is in `.env` and `secrets/` (README.md). A ROVE_* variable
+# beats what is written here.
+
+db:
+  driver: pgx
+  # dsn: ROVE_DB_DSN, from .env -- it carries the password.
+  #
+  # `rove migrate` brings the tables along, once, before anything serves
+  # (the `migrate` service); what serves only checks them.
+  migrate: false
+
+server:
+  addr: ":50051"
+  max_recv_msg_size: 33554432
+  http:
+    addr: ":8080"
+    allow_web: true
+    # The page is served from the same address it calls.
+    origins: []
+
+# Several processes, so the database is where they meet: a write one makes is
+# heard by a client watching another, and each loop runs in one of them.
+watch:
+  broker: postgres
+spin:
+  lease: postgres
+
+# The roster in this process, on a database of its own beside Rove's.
+auth:
+  roster:
+    db:
+      driver: pgx
+      # dsn: ROVE_AUTH_ROSTER_DB_DSN, from .env.
+
+app:
+  # public_url: ROVE_APP_PUBLIC_URL, https://<ROVE_DOMAIN>, from .env.
+  #
+  # Caddy is the one proxy in front, at the address compose.yaml gives it.
+  trusted_proxies: [10.88.0.10]
+  files: /var/lib/rove/files
+  csp: report-only
+
+  # mail: ROVE_APP_MAIL_*, from .env. With no host every invitation is
+  # written to the log instead.
+
+  # What an account agrees to before it uses anything here, once the
+  # documents are published (rove#35).
+  # consent:
+  #   terms: { version: "2026-11-01", url: https://rove.example/terms }
+  #   privacy: { version: "2026-11-01", url: https://rove.example/privacy }
+  #   keep: 26280h
+
+audit:
+  # Where the trail goes once it leaves the database, and the checkpoints of
+  # it, signed with a file key (rove#35): a volume of its own, written once.
+  archive: /var/lib/rove/audit
+  checkpoints:
+    dir: /var/lib/rove/checkpoints
+    write_once: true
+    key: /run/secrets/checkpoints.pem
+
+  # How long a row stays in the database and the archive. Nothing moves or
+  # goes until this says so, and the number is the regime's, not a default's
+  # (`rove.yaml` at the root says why). plan.md M5 has a membership's rows
+  # kept as PIPA keeps an access record:
+  #
+  # by:
+  #   holder:
+  #     profile: pipa
+
+# The operator's entry point (`rove-admin serve`), reached from the host
+# alone (compose.yaml publishes it on 127.0.0.1): over a VPN or a tunnel.
+admin:
+  addr: 0.0.0.0:8081
+  keys:
+    operator: file:/run/secrets/admin_key
