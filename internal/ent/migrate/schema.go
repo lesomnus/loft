@@ -725,6 +725,7 @@ var (
 		{Name: "account", Type: field.TypeUuid, Nullable: true},
 		{Name: "date_leaving", Type: field.TypeTime, Nullable: true},
 		{Name: "mail_off", Type: field.TypeBool},
+		{Name: "party", Type: field.TypeUuid, Nullable: true},
 		{Name: "tenant_id", Type: field.TypeUuid},
 	}
 	// HolderTable holds the schema information for the "holder" table.
@@ -735,7 +736,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "holder_tenant_tenant",
-				Columns:    []*schema.Column{HolderColumns[12]},
+				Columns:    []*schema.Column{HolderColumns[13]},
 				RefColumns: []*schema.Column{TenantColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -744,7 +745,7 @@ var (
 			{
 				Name:    "holder_alias_tenant_id",
 				Unique:  true,
-				Columns: []*schema.Column{HolderColumns[1], HolderColumns[12]},
+				Columns: []*schema.Column{HolderColumns[1], HolderColumns[13]},
 				Annotation: &entsql.IndexAnnotation{
 					Where: "date_erased IS NULL",
 				},

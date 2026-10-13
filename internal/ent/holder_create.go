@@ -129,6 +129,20 @@ func (_c *HolderCreate) SetMailOff(v bool) *HolderCreate {
 	return _c
 }
 
+// SetParty sets the "party" field.
+func (_c *HolderCreate) SetParty(v uuid.UUID) *HolderCreate {
+	_c.mutation.SetParty(v)
+	return _c
+}
+
+// SetNillableParty sets the "party" field if the given value is not nil.
+func (_c *HolderCreate) SetNillableParty(v *uuid.UUID) *HolderCreate {
+	if v != nil {
+		_c.SetParty(*v)
+	}
+	return _c
+}
+
 // SetTenantId sets the "tenant_id" field.
 func (_c *HolderCreate) SetTenantId(v uuid.UUID) *HolderCreate {
 	_c.mutation.SetTenantId(v)
@@ -283,6 +297,10 @@ func (_c *HolderCreate) createSpec() (*Holder, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.MailOff(); ok {
 		_spec.SetField(holder.FieldMailOff, field.TypeBool, value)
 		_node.MailOff = value
+	}
+	if value, ok := _c.mutation.Party(); ok {
+		_spec.SetField(holder.FieldParty, field.TypeUuid, value)
+		_node.Party = &value
 	}
 	if nodes := _c.mutation.TenantIds(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

@@ -106,6 +106,11 @@ func MailOff(v bool) predicate.Holder {
 	return predicate.Holder(sql.FieldEQ(FieldMailOff, v))
 }
 
+// Party applies equality check predicate on the "party" field. It's identical to PartyEQ.
+func Party(v uuid.UUID) predicate.Holder {
+	return predicate.Holder(sql.FieldEQ(FieldParty, v))
+}
+
 // TenantId applies equality check predicate on the "tenant_id" field. It's identical to TenantIdEQ.
 func TenantId(v uuid.UUID) predicate.Holder {
 	return predicate.Holder(sql.FieldEQ(FieldTenantId, v))
@@ -639,6 +644,56 @@ func MailOffEQ(v bool) predicate.Holder {
 // MailOffNEQ applies the NEQ predicate on the "mail_off" field.
 func MailOffNEQ(v bool) predicate.Holder {
 	return predicate.Holder(sql.FieldNEQ(FieldMailOff, v))
+}
+
+// PartyEQ applies the EQ predicate on the "party" field.
+func PartyEQ(v uuid.UUID) predicate.Holder {
+	return predicate.Holder(sql.FieldEQ(FieldParty, v))
+}
+
+// PartyNEQ applies the NEQ predicate on the "party" field.
+func PartyNEQ(v uuid.UUID) predicate.Holder {
+	return predicate.Holder(sql.FieldNEQ(FieldParty, v))
+}
+
+// PartyIn applies the In predicate on the "party" field.
+func PartyIn(vs ...uuid.UUID) predicate.Holder {
+	return predicate.Holder(sql.FieldIn(FieldParty, vs...))
+}
+
+// PartyNotIn applies the NotIn predicate on the "party" field.
+func PartyNotIn(vs ...uuid.UUID) predicate.Holder {
+	return predicate.Holder(sql.FieldNotIn(FieldParty, vs...))
+}
+
+// PartyGT applies the GT predicate on the "party" field.
+func PartyGT(v uuid.UUID) predicate.Holder {
+	return predicate.Holder(sql.FieldGT(FieldParty, v))
+}
+
+// PartyGTE applies the GTE predicate on the "party" field.
+func PartyGTE(v uuid.UUID) predicate.Holder {
+	return predicate.Holder(sql.FieldGTE(FieldParty, v))
+}
+
+// PartyLT applies the LT predicate on the "party" field.
+func PartyLT(v uuid.UUID) predicate.Holder {
+	return predicate.Holder(sql.FieldLT(FieldParty, v))
+}
+
+// PartyLTE applies the LTE predicate on the "party" field.
+func PartyLTE(v uuid.UUID) predicate.Holder {
+	return predicate.Holder(sql.FieldLTE(FieldParty, v))
+}
+
+// PartyIsNil applies the IsNil predicate on the "party" field.
+func PartyIsNil() predicate.Holder {
+	return predicate.Holder(sql.FieldIsNull(FieldParty))
+}
+
+// PartyNotNil applies the NotNil predicate on the "party" field.
+func PartyNotNil() predicate.Holder {
+	return predicate.Holder(sql.FieldNotNull(FieldParty))
 }
 
 // TenantIdEQ applies the EQ predicate on the "tenant_id" field.

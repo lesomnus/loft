@@ -48,6 +48,7 @@ type Holder struct {
 	xxx_hidden_Account     []byte                 `protobuf:"bytes,9,opt,name=account"`
 	xxx_hidden_DateLeaving *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=date_leaving,json=dateLeaving"`
 	xxx_hidden_MailOff     bool                   `protobuf:"varint,11,opt,name=mail_off,json=mailOff"`
+	xxx_hidden_Party       []byte                 `protobuf:"bytes,12,opt,name=party"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
 }
@@ -168,6 +169,13 @@ func (x *Holder) GetMailOff() bool {
 	return false
 }
 
+func (x *Holder) GetParty() []byte {
+	if x != nil {
+		return x.xxx_hidden_Party
+	}
+	return nil
+}
+
 func (x *Holder) SetId(v []byte) {
 	if v == nil {
 		v = []byte{}
@@ -224,6 +232,13 @@ func (x *Holder) SetDateLeaving(v *timestamppb.Timestamp) {
 
 func (x *Holder) SetMailOff(v bool) {
 	x.xxx_hidden_MailOff = v
+}
+
+func (x *Holder) SetParty(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Party = v
 }
 
 func (x *Holder) HasTenant() bool {
@@ -331,6 +346,15 @@ type Holder_builder struct {
 	// notifications still come, in the app. Theirs to set and nobody else's
 	// (`NotificationService.SetMail`).
 	MailOff bool
+	// The person record this was a membership of, kept from the moment a
+	// stopped login takes the record's link to it away
+	// (`PartyService.Deactivate`). A later 개인정보 삭제 of the record finds the
+	// membership through it and forgets the membership's names and the trail's
+	// copies of it too; through the record's link alone it found nothing
+	// (rove#25, decided in rove#35). Null on a membership the record still
+	// points at, and on one stopped before this was kept. Written by the
+	// domain layer, and by nobody else.
+	Party []byte
 }
 
 func (b0 Holder_builder) Build() *Holder {
@@ -350,6 +374,7 @@ func (b0 Holder_builder) Build() *Holder {
 	x.xxx_hidden_Account = b.Account
 	x.xxx_hidden_DateLeaving = b.DateLeaving
 	x.xxx_hidden_MailOff = b.MailOff
+	x.xxx_hidden_Party = b.Party
 	return m0
 }
 
@@ -357,7 +382,7 @@ var File_rove_payday_holder_proto protoreflect.FileDescriptor
 
 const file_rove_payday_holder_proto_rawDesc = "" +
 	"\n" +
-	"\x18rove/payday/holder.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x18rove/payday/tenant.proto\"\xef\x05\n" +
+	"\x18rove/payday/holder.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x18rove/payday/tenant.proto\"\x95\x06\n" +
 	"\x06Holder\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x14\n" +
@@ -373,7 +398,8 @@ const file_rove_payday_holder_proto_rawDesc = "" +
 	"\aaccount\x18\t \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\aaccount\x12E\n" +
 	"\fdate_leaving\x18\n" +
 	" \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\vdateLeaving\x12\x19\n" +
-	"\bmail_off\x18\v \x01(\bR\amailOff\x1a9\n" +
+	"\bmail_off\x18\v \x01(\bR\amailOff\x12$\n" +
+	"\x05party\x18\f \x01(\fB\x0e\xea\x82\x16\x04\x10@8\x01\xaa\xc1\x16\x02\x10\x01R\x05party\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:n\xca\xfc\x15%\x12\x02\x10\x01\x1a\x1f\x12\x04slug\x1a\t\n" +

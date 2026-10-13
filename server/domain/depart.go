@@ -144,7 +144,30 @@ func (t *Tx) pseudonymize(p *app.Party) (*app.Party, int, error) {
 
 	h := idOf(p.GetHolder().GetId())
 	held, err := t.endMembership(h, id, objects)
-	return out, held, err
+	if err != nil {
+		return out, held, err
+	}
+
+	// And the memberships it was before a login was stopped, which the
+	// record no longer points at: each keeps which record it was
+	// (`Holder.party`, rove#25). One stopped and then given again is two.
+	was, err := t.db.Holder.Query().
+		Where(holder.TenantId(t.tenant.Uuid()), holder.Party(id.Uuid())).
+		Ids(t.ctx)
+	if err != nil {
+		return out, held, err
+	}
+	for _, v := range was {
+		if pdid.Id(v) == h {
+			continue
+		}
+		n, err := t.endMembership(pdid.Id(v), id, nil)
+		if err != nil {
+			return out, held, err
+		}
+		held += n
+	}
+	return out, held, nil
 }
 
 // endMembership ends a membership of somebody being forgotten, and forgets

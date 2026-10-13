@@ -42,6 +42,8 @@ type Holder struct {
 	DateLeaving *time.Time `json:"date_leaving,omitempty"`
 	// MailOff holds the value of the "mail_off" field.
 	MailOff bool `json:"mail_off,omitempty"`
+	// Party holds the value of the "party" field.
+	Party *uuid.UUID `json:"party,omitempty"`
 	// TenantId holds the value of the "tenant_id" field.
 	TenantId uuid.UUID `json:"tenant_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -83,7 +85,7 @@ func (*Holder) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case holder.FieldDateUpdated, holder.FieldDateErased, holder.FieldDateCreated, holder.FieldDateLeaving:
 			values[i] = new(sql.NullTime)
-		case holder.FieldAccount:
+		case holder.FieldAccount, holder.FieldParty:
 			values[i] = new(sql.Null[uuid.UUID])
 		case holder.FieldId, holder.FieldTenantId:
 			values[i] = new(uuid.UUID)
@@ -179,6 +181,13 @@ func (_m *Holder) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.MailOff = value.Bool
 			}
+		case holder.FieldParty:
+			if value, ok := values[i].(*sql.Null[uuid.UUID]); !ok {
+				return fmt.Errorf("unexpected type %T for field party", values[i])
+			} else if value.Valid {
+				_m.Party = new(uuid.UUID)
+				*_m.Party = value.V
+			}
 		case holder.FieldTenantId:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
@@ -264,6 +273,11 @@ func (_m *Holder) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("mail_off=")
 	builder.WriteString(fmt.Sprintf("%v", _m.MailOff))
+	builder.WriteString(", ")
+	if v := _m.Party; v != nil {
+		builder.WriteString("party=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("tenant_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.TenantId))
