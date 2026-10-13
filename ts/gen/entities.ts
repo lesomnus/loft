@@ -227,7 +227,7 @@ export const Holder = {
 	refs: [{ field: "tenant", to: "rove.Tenant" }],
 	alias: "alias",
 	key: "id",
-	ids: ["id", "account"],
+	ids: ["id", "account", "party"],
 	service: HolderService,
 } as const satisfies EntityDesc
 

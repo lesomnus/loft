@@ -431,6 +431,14 @@ func (s domainParty) Deactivate(ctx context.Context, req *app.PartyDeactivateReq
 		}); err != nil {
 			return err
 		}
+		// The record's link to the membership goes below, and with it the
+		// one way a later 개인정보 삭제 had to the membership's names: the
+		// membership keeps which record it was (`Holder.party`, rove#25).
+		// Through ent, as [Tx.endMembership] writes a membership: a stamp,
+		// which no request may set.
+		if err := t.db.Holder.UpdateOneId(h.Uuid()).SetParty(uuidOf(p.GetId())).Exec(t.ctx); err != nil {
+			return err
+		}
 		if _, err := t.next.Holder().Erase(t.ctx, app.HolderRef_builder{Id: h.Bytes()}.Build()); err != nil {
 			return err
 		}

@@ -28,6 +28,7 @@ type Mutation struct {
 	account       *uuid.UUID
 	date_leaving  *time.Time
 	mail_off      *bool
+	party         *uuid.UUID
 	clearedFields map[string]struct{}
 	tenant        *uuid.UUID
 	clearedtenant bool
@@ -335,6 +336,38 @@ func (m *Mutation) ResetMailOff() {
 	m.mail_off = nil
 }
 
+// SetParty sets the "party" field.
+func (m *Mutation) SetParty(u uuid.UUID) {
+	m.party = &u
+}
+
+// Party returns the value of the "party" field in the mutation.
+func (m *Mutation) Party() (r uuid.UUID, exists bool) {
+	v := m.party
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearParty clears the value of the "party" field.
+func (m *Mutation) ClearParty() {
+	m.party = nil
+	m.clearedFields[FieldParty] = struct{}{}
+}
+
+// PartyCleared returns if the "party" field was cleared in this mutation.
+func (m *Mutation) PartyCleared() bool {
+	_, ok := m.clearedFields[FieldParty]
+	return ok
+}
+
+// ResetParty resets all changes to the "party" field.
+func (m *Mutation) ResetParty() {
+	m.party = nil
+	delete(m.clearedFields, FieldParty)
+}
+
 // SetTenantId sets the "tenant_id" field.
 func (m *Mutation) SetTenantId(u uuid.UUID) {
 	m.tenant = &u
@@ -415,7 +448,7 @@ func (m *Mutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *Mutation) Fields() []string {
-	fields := make([]string, 0, 12)
+	fields := make([]string, 0, 13)
 	if m.alias != nil {
 		fields = append(fields, FieldAlias)
 	}
@@ -448,6 +481,9 @@ func (m *Mutation) Fields() []string {
 	}
 	if m.mail_off != nil {
 		fields = append(fields, FieldMailOff)
+	}
+	if m.party != nil {
+		fields = append(fields, FieldParty)
 	}
 	if m.tenant != nil {
 		fields = append(fields, FieldTenantId)
@@ -482,6 +518,8 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.DateLeaving()
 	case FieldMailOff:
 		return m.MailOff()
+	case FieldParty:
+		return m.Party()
 	case FieldTenantId:
 		return m.TenantId()
 	}
@@ -577,6 +615,13 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetMailOff(v)
 		return nil
+	case FieldParty:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetParty(v)
+		return nil
 	case FieldTenantId:
 		v, ok := value.(uuid.UUID)
 		if !ok {
@@ -632,6 +677,9 @@ func (m *Mutation) ClearedFields() []string {
 	if m.FieldCleared(FieldDateLeaving) {
 		fields = append(fields, FieldDateLeaving)
 	}
+	if m.FieldCleared(FieldParty) {
+		fields = append(fields, FieldParty)
+	}
 	return fields
 }
 
@@ -663,6 +711,9 @@ func (m *Mutation) ClearField(name string) error {
 		return nil
 	case FieldDateLeaving:
 		m.ClearDateLeaving()
+		return nil
+	case FieldParty:
+		m.ClearParty()
 		return nil
 	}
 	return fmt.Errorf("unknown Holder nullable field %s", name)
@@ -704,6 +755,9 @@ func (m *Mutation) ResetField(name string) error {
 		return nil
 	case FieldMailOff:
 		m.ResetMailOff()
+		return nil
+	case FieldParty:
+		m.ResetParty()
 		return nil
 	case FieldTenantId:
 		m.ResetTenantId()

@@ -34,6 +34,8 @@ const (
 	FieldDateLeaving = "date_leaving"
 	// FieldMailOff holds the string denoting the mail_off field in the database.
 	FieldMailOff = "mail_off"
+	// FieldParty holds the string denoting the party field in the database.
+	FieldParty = "party"
 	// FieldTenantId holds the string denoting the tenant_id field in the database.
 	FieldTenantId = "tenant_id"
 	// EdgeTenant holds the string denoting the tenant edge name in mutations.
@@ -63,6 +65,7 @@ var Columns = []string{
 	FieldAccount,
 	FieldDateLeaving,
 	FieldMailOff,
+	FieldParty,
 	FieldTenantId,
 }
 
@@ -132,6 +135,11 @@ func ByDateLeaving(opts ...sql.OrderTermOption) OrderOption {
 // ByMailOff orders the results by the mail_off field.
 func ByMailOff(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldMailOff, opts...).ToFunc()
+}
+
+// ByParty orders the results by the party field.
+func ByParty(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldParty, opts...).ToFunc()
 }
 
 // ByTenantId orders the results by the tenant_id field.

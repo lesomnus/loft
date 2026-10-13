@@ -5644,6 +5644,23 @@ func (m *HolderMutation) OldMailOff(ctx context.Context) (v bool, err error) {
 	return oldValue.MailOff, nil
 }
 
+// OldParty returns the old "party" field's value of the Holder entity.
+// If the Holder object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *HolderMutation) OldParty(ctx context.Context) (v *uuid.UUID, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldParty is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldParty requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldParty: %w", err)
+	}
+	return oldValue.Party, nil
+}
+
 // OldTenantId returns the old "tenant_id" field's value of the Holder entity.
 // If the Holder object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
@@ -5688,6 +5705,8 @@ func (m *HolderMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldDateLeaving(ctx)
 	case holder.FieldMailOff:
 		return m.OldMailOff(ctx)
+	case holder.FieldParty:
+		return m.OldParty(ctx)
 	case holder.FieldTenantId:
 		return m.OldTenantId(ctx)
 	}

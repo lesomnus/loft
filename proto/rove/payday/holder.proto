@@ -165,4 +165,19 @@ message Holder {
   // notifications still come, in the app. Theirs to set and nobody else's
   // (`NotificationService.SetMail`).
   bool mail_off = 11;
+  // The person record this was a membership of, kept from the moment a
+  // stopped login takes the record's link to it away
+  // (`PartyService.Deactivate`). A later 개인정보 삭제 of the record finds the
+  // membership through it and forgets the membership's names and the trail's
+  // copies of it too; through the record's link alone it found nothing
+  // (rove#25, decided in rove#35). Null on a membership the record still
+  // points at, and on one stopped before this was kept. Written by the
+  // domain layer, and by nobody else.
+  bytes party = 12 [
+    (orm.field) = {
+      type: TYPE_UUID
+      nullable: true
+    },
+    (payday.field) = {stamped: true}
+  ];
 }

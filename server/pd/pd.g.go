@@ -12565,6 +12565,10 @@ func (s gateHolder) Add(ctx context.Context, req *rove.HolderAddRequest) (*rove.
 		return nil, err
 	}
 
+	if req.HasParty() {
+		return nil, pderr.Invalidf("party", "is established by this deployment and not asserted by a request")
+	}
+
 	if _, err := s.Gate.Next().Tenant().Get(ctx, rove.TenantGetRequest_builder{
 		Ref: req.GetTenant(),
 	}.Build()); err != nil {
