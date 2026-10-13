@@ -1,0 +1,143 @@
+edition = "2023";
+
+package rove;
+
+import "google/protobuf/timestamp.proto";
+import "orm.proto";
+import "payday.proto";
+import "rove/payday/tenant.proto";
+
+option features.field_presence = IMPLICIT;
+option go_package = "github.com/lesomnus/rove";
+
+// AssetType is a kind of asset this tenant tracks, with the attributes it
+// carries and the capabilities a view plugin selects on (design 3.4, 5).
+message AssetType {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  string name = 5;
+  string desc = 6;
+  map<string, string> labels = 7;
+
+  // Single inheritance: a child adds attributes and capabilities.
+  bytes parent_id = 8 [(orm.field) = {
+    type: TYPE_UUID
+    nullable: true
+  }];
+  // The kind an asset of this type is created as: item | space | kit | group.
+  string kind = 9;
+  TypeSpec spec = 10 [(orm.field) = {nullable: true}];
+  uint32 schema_version = 11;
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+  google.protobuf.Timestamp date_erased = 14 [(orm.field) = {erased: {}}];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "page"
+        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 8
+    list: {
+      order: [{field: {name: "date_created"}}, {field: {name: "id"}}]
+      by: [{name: "ref"}, {name: "kind"}, {name: "parent_id"}]
+      size: 100
+      max: 500
+    }
+    watch: {}
+  };
+}
+
+// TypeSpec is what an asset type says about its assets.
+message TypeSpec {
+  repeated AttributeDef attributes = 1;
+  repeated string capabilities = 2;
+}
+
+// AttributeDef is one attribute an asset of a type carries. Values are kept as
+// strings on the asset and checked against `type` on the way in.
+message AttributeDef {
+  // A stable key, never the label: renaming the label keeps the history.
+  string key = 1;
+  string label = 2;
+  // text | number | bool | date | enum
+  string type = 3;
+  bool required = 4;
+  repeated string options = 5;
+  string unit = 6;
+}
+
+// ItemModel is a maker's model several assets share, and the slots it has.
+message ItemModel {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  string name = 5;
+  string desc = 6;
+  map<string, string> labels = 7;
+
+  string maker = 8;
+  string code = 9;
+  AssetType type = 10 [(orm.edge) = {nullable: true}];
+  ModelSpec spec = 11 [(orm.field) = {nullable: true}];
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+  google.protobuf.Timestamp date_erased = 14 [(orm.field) = {erased: {}}];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "page"
+        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 9
+    list: {
+      order: [{field: {name: "date_created"}}, {field: {name: "id"}}]
+      by: [{name: "ref"}, {name: "type"}]
+      size: 100
+      max: 500
+    }
+    watch: {}
+  };
+}
+
+// ModelSpec is the physical shape of a model.
+message ModelSpec {
+  repeated SlotDef slots = 1;
+  // For a rack: how many units it has. For a rack-mounted device: how many it
+  // takes.
+  uint32 rack_units = 2;
+  uint32 height_units = 3;
+}
+
+// SlotDef is a named place a component goes: CPU0, DIMM3, BAY1.
+message SlotDef {
+  string name = 1;
+  string kind = 2;
+}

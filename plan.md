@@ -53,7 +53,8 @@ rove/
 ├── migrations/ent/          ent Plan 결과 (리뷰 후 커밋)
 ├── migrations/pg-extra/     직접 쓰는 PostgreSQL DDL
 ├── deploy/postgres/         pg_bigm을 넣은 PostgreSQL 18 이미지 (개발·CI·운영 공용)
-├── deploy/compose/          self-host 구성 (리버스 프록시, rove, rove-admin, PostgreSQL, 백업)
+├── deploy/k8s/              운영 배포의 kustomize base (rove, rove-admin, 마이그레이션; 2026-10-13부터 Kubernetes)
+├── deploy/compose/          같은 이미지를 한 대에 띄워 보는 구성 (로컬 시험, CI)
 ├── ts/                      React PWA
 ├── scripts/                 with-postgres, seed
 ├── design.md
@@ -70,7 +71,7 @@ pdid 도메인 번호는 한 번 정하면 바꾸거나 재사용하지 않는�
 | `AssetType` | 8 | 0 | soft | | Add, Get, List, Erase + `Update` |
 | `ItemModel` | 9 | 0 | soft | | Add, Get, List, Erase + `Update` |
 | `Party` | 10 | 0 | soft | | Add, Get, List, Erase + `Update`, `Pseudonymize` |
-| `Identity` | 11 | 0 | hard | | 없음 (로그인 흐름에서만) |
+| `Identity` | 11 | 0 | hard | | 만들지 않는다. IdP 계정의 대응은 roster가 갖는다(design 9.10절). 번호는 비워 둔다 |
 | `TreeLock` | 12 | 0 | hard | | 없음 |
 | `Placement` | 13 | 0 | hard (보존 잡) | | 없음 (이력 RPC로만 읽는다) |
 | `Link` | 14 | 0 | hard (보존 잡) | | 없음 |
@@ -87,6 +88,7 @@ pdid 도메인 번호는 한 번 정하면 바꾸거나 재사용하지 않는�
 
 - "외부에 여는 생성 RPC"에 없는 생성 메서드는 `seal`이 닫는다. "(완성)"은 도메인 레이어가 생성 동사를 완성한 것이고, 그 밖의 상태 변경은 새 도메인 RPC다(design 6장·9.8절).
 - 테넌트 행을 가리키는 엣지는 불변으로 두고 `agrees`에 선언한다. 바뀌는 참조(`Asset.parent`, `custodian`, `type`, `model`, `Party.parent`, `Party.account`)에는 pg-extra에 테넌트 일치 트리거를 둔다.
+- 프로토타입이 만든 `Credential`(37)은 비밀번호가 roster로 가면서 지웠다(design 9.10절). 번호는 비워 둔다. 예전 배포의 trail에 남은 ID가 그것을 가리킨다.
 
 ## 5. 마일스톤
 
@@ -115,16 +117,39 @@ MVP(Phase 0 + 1)는 M0~M5이고, 합쳐서 대략 13~16주로 본다.
   - 교차 테넌트: 모든 RPC에 다른 테넌트의 ID를 넣으면 NotFound 또는 InvalidArgument가 된다. 도메인 레이어를 거치지 않은 SQL은 트리거가 23503으로 거부한다.
   - SQLite(DB 제약 없음)와 PostgreSQL 모두 통과한다.
   - 성능: 자산 10만 개 시드에서 1,000노드 하위 트리 `QueryAt`의 p95가 1초 미만이다.
+  - **확인함**(rove#21, 2026-10-12):
+    - 시간 오라클: `TestWhatWasTrueThenIsWhatTheRuleSays`가 무작위 이력 100개를 SQLite와 PostgreSQL에서 돌린다. 지금 아는 것, 단계마다 알았던 것, 단계 사이의 순간을 모두 묻는다.
+    - 동시성: PostgreSQL에서 확인한다. 같은 작업(op)을 N번 동시에 보내면 한 번만 일어나고 모두 성공을 받는다. 서로 다른 이동 N건은 차례로 모두 반영된다. V10 순환 경쟁은 하나만 성공한다. 같은 슬롯과 겹치는 랙 위치에는 하나만 들어간다. D9가 이동을 직렬화하므로 "같은 자산의 동시 이동 N건 중 하나만 성공"은 같은 작업을 N번 보내는 경우로 읽는다.
+    - 재시도(M1 후속, rove#28): 지급·반납, 재고 시작·사용·이동·자산 전환, 실사 스캔, 예약, 자산 등록도 같은 작업을 다시 보내면 첫 사본의 결과를 받는다. 기한이 지났거나 실사가 끝난 뒤에 와도 같다. 동시에 N번 보내도 한 번만 일어난다(`TestEveryOperationSentManyTimesAtOnceIsMadeOnce`, design 6장 "동시성과 멱등성").
+    - 교차 테넌트: `TestNoCallReachesAnotherWorkspace`가 정책 표의 모든 메서드를 다른 워크스페이스의 ID로 부른다. 도메인 레이어를 거치지 않은 SQL은 테넌트 트리거(`cli/pg.sql`, 테넌트가 있는 테이블 사이의 모든 FK)가 23503으로 거부한다.
+    - 성능: `ROVE_PERF=1`로 켜는 측정에서 p50 192ms, p95 393ms였다(자산 10만 개, 배치 약 30만·Fact 약 40만 행, PostgreSQL 17).
+    - pg-extra(M1 후속, rove#28): 슬롯·랙 위치 `EXCLUDE`(`placement_slot_once`, `placement_rack_once`)와 Fact 부분 유일 인덱스(`fact_once`)를 더했다. 이제 M1의 pg-extra가 모두 있다. 도메인 레이어를 거치지 않은 SQL은 물리 부모·슬롯·랙·담당 역할·관계·Fact 어느 쪽이든 거부된다(`TestTheTreeHoldsUnderTheDomainLayer`).
 
 ### M2 — 계정·권한·운영자 (약 2주)
 
-- OIDC(Google Workspace, Microsoft Entra)와 `authsession`, `Identity`, 로그인 단계의 테넌트 선택.
+- 신원은 roster다(design 9.10절, D26·D27). 프로토타입의 비밀번호·DB 세션(report 결정 3)을 옮기고, SaaS의 계정과 워크스페이스를 세운다.
+  1. **roster에 붙기** — 완료(rove#5~#7, 2026-10-11): `internal/identity` 하나가 외부 roster(TLS, `rk_`/`rt_`)와 내장 roster(`bufconn`)를 같은 인터페이스로 감싼다. `auth.roster` 설정. Tenant·Holder를 roster의 ID에 고정해 처음 들어올 때 만든다. 비밀번호 로그인은 `VouchService.Verify`로, 세션을 쓰는 호출마다 roster에 사람을 확인한다(짧은 캐시, fail closed). `rove init`과 새 `rove holder add`는 내장 roster에 쓴다. 사람 화면의 로그인 발급·비밀번호 재설정·로그인 중지는 roster 호출이 된다. 내장 roster에서 로그인 중지·개인정보 삭제·조직 전체 삭제는 roster의 `forget`으로 그 사람을 바로 파기한다(Rove가 roster의 복구를 열지 않으므로 유예는 지연일 뿐이다). `Credential`과 `server/password`를 지운다. 기존 배포는 `rove identity migrate`.
+  2. **계정과 워크스페이스** — 완료(rove#9~#11, 2026-10-11)(D27): `Holder`가 자기 ID와 roster 계정(`account`)을 갖는 구성원 자격이 된다. 세션은 계정 단위이고, 워크스페이스는 경로(`/@<alias>`)로 고른다. 가입하면 개인 워크스페이스가 생기고, 워크스페이스 만들기(소유 N개 한도)와 전환을 둔다. 구성원 자격이 끝나는 것과 계정의 탈퇴를 나눈다(내장 roster의 파기는 탈퇴 때만). 1단계의 "처음 로그인하면 roster의 ID로 테넌트를 만든다"를 이것으로 바꾼다.
+  3. **SSO**(D28): 앱 호스트의 로그인 화면(Google·Microsoft·GitHub), roster issuer의 relying party(`/sso/login`, `/sso/callback`, `/sso/logout`), SaaS에서 비밀번호 로그인 끄기(`auth.sso_only`). roster에 GitHub 연결과 Microsoft의 모든 계정(`common`) 로그인이 필요하다 — roster#101·#102(머지), 버튼이 고른 연결로 바로 가기는 roster#103, Rove는 rove#12(서버)·#13(화면).
+  4. **초대**(D30): 초대 권한이 있는 역할(소유자·관리자)이 이메일과 자기 역할까지의 역할로 초대하고, 받은 사람이 로그인해 초대함에서 수락·거절한다. 초대장은 roster가 확인한 주소의 계정 것이고, 확인되지 않은 계정은 메일의 1회용 링크로 받는다. 받는 쪽 호출은 계정으로 처리한다. 초대는 roster가 아니라 Rove에 둔다. 메일은 SMTP 설정 — rove#14(서버)·#15(화면).
+  5. **생명주기**: `SyncService/Watch`를 따라가 roster의 중지·모든 곳에서 로그아웃은 세션 종료로, 계정의 탈퇴는 그 계정이 속한 모든 워크스페이스에서의 가명화(Party·trail)로 이어 간다. 탈퇴는 roster의 유예만큼 '떠나는 중'으로 기다렸다가 roster에 다시 묻고 한다. 마지막 소유자가 떠나면 남은 사람에게 넘긴다 — rove#16(스트림·세션·떠나는 중), rove#17(유예 뒤 탈퇴, `rove identity depart`·`reconcile`), roster#104(스트림이 처음 듣는 사람의 삭제도 보낸다, 머지). roster가 디렉터리를 닫으면 그 계정들의 세션이 끝나고(roster#105), 계정 삭제는 roster의 계정 페이지에서 한다(roster#106, `auth.roster.account_url`로 링크). `reconcile`은 서버가 하루에 한 번 스스로도 한다(2026-10-12 결정, `app.accounts.reconcile`) — rove#25.
+- **API와 터미널**(2026-10-12 결정): 모든 기능을 API로 열고 터미널에서도 쓴다. `rove login`(브라우저에서 승인하는 터미널 로그인)과 `rove api`(모든 RPC를 명령으로, 브라우저와 같은 주소로).
+- 워크스페이스 닫기(닫기·복구·파기 sweep, D29)와 alias(무작위 7자, 사용자는 못 바꾸고 운영자가 바꿈, 예약어, 보류) — 완료(2026-10-12).
+- 약관·개인정보 처리방침 동의(2026-10-12 결정 9) — 계정마다 문서·버전·시각을 기록하고, 동의 전에는 모든 호출을 거부하며, 개인 워크스페이스는 동의 뒤에 만든다(`app.consent`, `rove consent`).
+- 라벨의 전역 코드(D28) — 완료(2026-10-12): Crockford base32 8자를 서비스 주소(`/l/<코드>`)로 인쇄하고, 다른 워크스페이스의 라벨은 계정 조회(`GET /account/labels/{code}`, `rove scan`)로 그 워크스페이스에서 연다. 테넌트 도메인(D23)은 `app.labels.tenant_domains`를 켤 때만 쓴다.
+- **오프라인과 실시간**(2026-10-12 결정) — 완료(2026-10-12): 앱은 오프라인에서도 열려 마지막으로 본 내용을 읽기 전용으로 보여 준다(쓰기는 실사 스캔 큐만). 본 내용은 계정·워크스페이스별로 두고 로그아웃하면 지운다. 자산 상세·예약 캘린더·실사 진행 화면은 그 화면을 대표하는 행을 Watch해 다른 사람의 변경을 바로 반영한다(실사에 `findings_version`을 더했다).
+- 작업 기록(Event)이 사람을 이름이 아니라 ID로 기억하고, 읽을 때 지금의 이름(잊힌 사람은 가명)을 붙인다(design 8.2, 2026-10-12 결정). 그 전의 기록은 쓴 그대로다. `rove init`은 roster 계정에도 소유자의 이름을 준다 — rove#25.
 - Holder overlay `role`, 메서드별 최소 역할 표로 Policy 구현. 같은 Policy를 batch guard에 넘긴다.
-- 공개·운영자 바이너리 분리, `rove init`(첫 테넌트와 owner), 테넌트를 만들 때 유형 템플릿 복사.
-- **완료 기준**
-  - 역할 × 메서드 표 전체를 테스트한다.
-  - `member`가 batch 안에 관리자 작업을 끼워 넣지 못한다.
-  - 공개 스택은 여러 테넌트를 보는 자격 증명으로도 다른 테넌트 행을 돌려주지 않는다.
+- 공개·운영자 바이너리 분리 — 운영자 진입점과 CLI는 완료(2026-10-12, `rove-admin`). 셸의 운영자 명령을 `rove`에서 뺄지는 남았다. 테넌트의 첫 행이 생길 때 유형 템플릿 복사.
+- **완료 기준** — 모두 테스트가 있다(2026-10-12).
+  - 역할 × 메서드 표 전체를 테스트한다 — 서빙되는 모든 메서드를 모든 역할로 호출해 표가 말하는 대로인지(`cmd` TestEveryMethodIsAsTheTableSaysForEveryRole), 표 자체는 한 줄씩 리뷰하는 파일로(`server/policy/testdata/table.txt`, TestTheTableIsWhatItWasReviewedAs).
+  - `member`가 batch 안에 관리자 작업을 끼워 넣지 못한다 — 하나라도 거부되면 batch 전체가 거부되고 앞의 연산도 쓰이지 않는다(`cmd` TestAMemberSlipsNothingPastTheTableInABatch, TestTheRoleTable).
+  - 공개 스택은 여러 테넌트를 보는 자격 증명으로도 다른 테넌트 행을 돌려주지 않는다 — 두 워크스페이스의 구성원인 계정의 세션으로, 모든 메서드에 다른 워크스페이스의 ID를 넣는다(`cli` TestNoCallReachesAnotherWorkspace).
+  - 같은 신원 테스트가 내장 roster와 외부 roster(TCP 리스너와 키) 양쪽에서 통과한다 — `internal/identity` TestTheSameIdentityOnEitherRoster.
+  - roster에서 중지된 사람의 세션은 캐시 시간 안에 거부되고, roster에 물을 수 없으면 세션을 쓰는 호출은 `UNAVAILABLE`이다 — 알리지 않은 중지도 `HeldTtl`이 지나면 거부(TestTheSameIdentityOnEitherRoster), `cmd` TestARosterThatCannotBeAskedServesNoSession.
+  - Rove DB에 비밀번호도 그 검증값도 없다 — `cmd` TestNoPasswordIsKeptHere(비밀번호처럼 보이는 열은 무엇인지 하나씩 적는다).
+  - 한 계정이 두 워크스페이스에 속해도, 한 워크스페이스로 온 요청은 다른 워크스페이스의 행을 돌려주지 않는다 — `cmd` TestOneAccountInTwoWorkspaces, `cli` TestNoCallReachesAnotherWorkspace.
+  - SaaS 배포에는 비밀번호로 로그인하는 길이 없다 — `cmd` TestAPasswordIsNoWayInWhereTheIssuerIsTheOnlyOne, TestNoOtherDoorTakesAPassword(호출 헤더, 터미널 로그인, 비밀번호를 싣는 RPC).
 
 ### M3 — 웹 UI·QR·가져오기 (약 3~4주)
 
@@ -157,14 +182,14 @@ MVP(Phase 0 + 1)는 M0~M5이고, 합쳐서 대략 13~16주로 본다.
 ### M5 — MVP 마감과 파일럿 (약 2주)
 
 - `UsageSnapshot` spin 루프.
-- trail 보존 설정: Holder·Identity는 `pipa` 이상, 이력 도메인은 제품의 가장 짧은 보존 기간 이하(design 8.2절).
-- self-host 운영 환경(`deploy/compose`):
-  - 서버 준비, 리버스 프록시(ACME, 테넌트 도메인용 on-demand TLS), 공개·운영자 진입점, PostgreSQL.
-  - 운영자 진입점은 VPN에서만 닿게 한다.
+- trail 보존 설정: Holder는 `pipa` 이상(`audit.min` 또는 `audit.by`), 이력 도메인은 조직의 계약이 정하는 보존 기간(design 8.2절, `server/retention`).
+- 운영 환경: Kubernetes(`deploy/k8s`, 2026-10-13 결정). `deploy/compose`는 같은 이미지를 한 대에 띄워 보는 시험용이다.
+  - kustomize base와 k3d 시험(`scripts/cluster.sh`, CI `cluster`), 실제 배포는 그 위의 오버레이(GitOps).
+  - 인그레스와 인증서는 클러스터의 것. 공개 진입점만 인그레스에 두고, 운영자 진입점은 `kubectl port-forward`로만 닿게 한다.
 - 백업: pgBackRest(또는 WAL-G)로 WAL 보관 PITR을 하고, 첨부 디렉터리 백업과 함께 다른 장소로 보낸다. 복구 리허설로 RPO·RTO를 측정한다.
 - 관측: OTel 수집기와 대시보드, 디스크·백업·인증서 만료 경보.
-- 스테이징(같은 compose를 다른 호스트나 포트에)과 운영 배포 절차.
-- 보안 점검: payday 권한 가이드 13절 체크리스트, Rove 항목, 서버 하드닝(자동 보안 업데이트, 방화벽 80/443, 디스크·백업 암호화).
+- 스테이징(같은 base에 오버레이 하나 더)과 운영 배포 절차(`deploy/k8s/README.md`).
+- 보안 점검: payday 권한 가이드 13절 체크리스트, Rove 항목, 클러스터 쪽 하드닝(Pod Security, NetworkPolicy, RBAC, Secret 암호화, 디스크·백업 암호화).
 - 파일럿 고객 온보딩(기존 스프레드시트 가져오기).
 - **완료 기준**: 파일럿 테넌트가 실제로 쓰고 있다. 복구 리허설을 마쳤고, design 1.2절의 비기능 목표 측정값을 기록했다.
 
@@ -230,19 +255,35 @@ MVP 이후에 파일럿 피드백으로 순서를 다시 정한다.
 | 관리형 DB로 옮길 때 pg_bigm이 없는 경우 | 검색 품질 저하 | `Search` RPC 뒤에 폴백(design 9.5절) |
 | 테넌트 잠금 행 경합 | 대형 테넌트의 이동 지연 | 계측하고, 필요하면 사업장 단위 잠금으로 나눈다 |
 | 1인 개발 범위 | 일정 초과 | MVP 범위를 고정하고, Phase 2부터는 파일럿 피드백으로 다시 정한다 |
-| 서버 한 대(self-host) | 하드웨어 고장이 곧 장애 | 다른 장소의 PITR 백업, 분기 복구 리허설, compose로 재구축하는 절차 문서 |
+| 파드 한 개(ReadWriteOnce 볼륨) | 노드 장애나 배포가 곧 잠깐의 장애 | 다른 장소의 PITR 백업, 분기 복구 리허설, 오버레이로 다시 띄우는 절차 문서. 둘 이상은 S3(rove#45) 뒤에 |
 | 운영 부담(보안 업데이트, 인증서, 디스크) | 사고와 장애 | 자동 보안 업데이트, 인증서 만료·디스크·백업 실패 경보 |
 | 테넌트 도메인 인증서 남발 | ACME 발급 한도 소진 | 확인된 도메인에만 발급(on-demand TLS 확인 엔드포인트), 인증서 저장소 보존 |
 | Rove 기본 도메인 변경 | 기본 하위 도메인으로 인쇄한 라벨과 OIDC 등록이 깨진다 | 처음에 영구 도메인을 정하고 바꾸지 않는다 |
 
 ## 10. 정해야 할 것
 
-정한 것: 인프라는 self-host(design D21), QR 라벨 도메인은 테넌트마다 설정(D23), 첨부는 로컬 파일시스템으로 시작(D25).
+정한 것: 인프라는 self-host(design D21), QR 라벨 도메인은 테넌트마다 설정(D23), 첨부는 로컬 파일시스템으로 시작(D25). 신원(design 9.10절)에서 네 가지를 2026-10-11에 정했다.
+
+- **역할의 출처**: Rove의 `Holder.role`과 정책 표로 둔다. roster의 역할을 `HolderService/Reaches`로 읽는 것은 SCIM 그룹으로 권한을 주는 고객이 생길 때 다시 본다.
+- **테넌트를 만드는 사람과 탈퇴 순서**: 외부 roster에서는 roster 운영자가 만든다(`roster tenant add`, `roster app install --tenant <alias> rove`). 셀프 가입은 두지 않는다. 그 테넌트의 첫 사람이 처음 로그인할 때 Rove에 테넌트가 생기고 그 사람이 소유자가 된다. 탈퇴는 Rove 내보내기 → Rove 전체 삭제 → roster의 테넌트 정리 순서이고, 마지막은 roster 운영자의 일이다. 내장 roster에서는 `rove tenant purge`가 그 테넌트의 사람을 roster에서도 먼저 파기한다(roster에 테넌트를 통째로 지우는 기능이 아직 없어 테넌트 행은 남는다).
+- **사람 삭제의 방향**: 사람을 지우는 것은 roster의 일이다. Rove의 '개인정보 삭제'는 Rove 쪽(Party, Holder, trail)만 지운다. 내장 roster는 Rove만 쓰므로 거기서는 roster의 사람도 파기한다.
+- **옮길 기존 데이터**: 있으면 `rove identity migrate`로 같은 ID로 옮기고, 비밀번호는 새로 발급해 한 번 보여 준다.
+
+같은 날 제품군을 나누면서(design 1.3절) SaaS에 대해 더 정했다. 위의 둘째 항목(roster 운영자가 테넌트를 만들고 셀프 가입은 없다)은 SaaS에서 이것으로 바뀐다.
+
+- **제품군**: SaaS·Dedicated·CE 중 지금은 SaaS만 만든다(D27).
+- **두 층의 테넌트**: roster의 테넌트는 계정 디렉터리(SaaS는 하나)이고, Rove의 테넌트는 워크스페이스다. Holder는 구성원 자격이다(D27).
+- **로그인**: SaaS는 Google·Microsoft·GitHub SSO만 쓰고, 2단계 인증은 IdP의 것이다. 앱 호스트 한 곳에서 로그인하고 워크스페이스는 경로(`/@<alias>`)로 고른다. 회사 IdP는 Phase 3(D28).
+- **워크스페이스**: 가입하면 개인 워크스페이스가 하나 생기고, 소유한 워크스페이스 N개까지 무료, 그 이상은 결제. alias는 무작위로 시작하고 바꿀 수 있으며(유료여도 된다) 예약어가 있다. 라벨은 전역 코드를 쓴다(D28).
+- **초대**: 초대 권한이 있는 역할이 초대한다.
+- **워크스페이스 닫기**: 닫기 → 복구 30일 → 파기, hold는 파기를 멈추고, 풀린 alias는 1년 보류한다. 기간은 배포 설정과 계약으로 바꾼다(D29, design 8.4절).
 
 | 결정 | 언제까지 | 내용 |
 | --- | --- | --- |
 | 저장소 공개 여부와 라이선스 | 코드를 올리기 전(M0) | 지금 공개 저장소이고 LICENSE가 없다. 상용 SaaS의 소스를 공개할지, 공개한다면 어떤 라이선스인지 |
-| Rove 기본 도메인 | M2 전 | 앱 호스트, OIDC 리다이렉트 주소, 라벨 CNAME 대상, 기본 하위 도메인. 한 번 정하면 바꾸지 않는다 |
+| Rove 기본 도메인 | M2 3단계(SSO) 전 | 앱 호스트(예: `rove.io`)와 roster issuer의 호스트(예: `id.rove.io`), OIDC 리다이렉트 주소, 라벨의 호스트. 워크스페이스는 경로라 하위 도메인이 필요 없다. 한 번 정하면 바꾸지 않는다 |
+| 무료 워크스페이스 수 N과 그 이상의 요금, alias를 바꾸는 요금 | 결제를 붙이기 전 | design 11장 10번 |
+| 초대를 roster에 둘지 | M2 4단계 전 | 워크스페이스와 역할은 Rove의 것이지만, 초대 토큰·메일 발송·주소 확인은 앱마다 같다 |
 | 운영 서버와 백업 위치 | M5 전 | 서버를 어디에 둘지(자체 장비, 코로케이션, VPS), 백업을 보낼 다른 장소 |
 | 파일럿 | M3 중 | 아래 |
 
@@ -265,8 +306,8 @@ Rove에서 우회하고 있지만 payday에서 고치면 우회가 필요 없어
 | [#32](https://github.com/lesomnus/payday/issues/32) | Gate의 엣지 확인에 관한 문서 네 곳이 코드와 다르다 | 코드 기준으로 설계(6장) |
 | [#33](https://github.com/lesomnus/payday/issues/33) | `entschema.Check`가 ent 밖 FK를 거부하고, Plan이 같은 디렉터리의 ent 밖 객체를 지우려 한다 | pg-extra 디렉터리, 복합 FK 대신 트리거 |
 | [#34](https://github.com/lesomnus/payday/issues/34) | 앱 레이어는 부를 수 있고 호출자는 못 부르는 생성 동사를 선언할 방법이 없다 | `seal` 레이어 |
-| [#35](https://github.com/lesomnus/payday/issues/35) | trail 보존에 테넌트 차원이 없고, DB의 trail에서 특정인 정보를 지울 수 없다 | trail 파기를 제품 최단 보존 이하로, 특정인 삭제는 직접 |
-| [#36](https://github.com/lesomnus/payday/issues/36) | overlay로 payday 엔터티에 인덱스를 더할 수 없고, 거부 없이 버려진다 | `Identity` 엔터티 |
+| [#35](https://github.com/lesomnus/payday/issues/35) | trail 보존에 테넌트 차원이 없고, DB의 trail에서 특정인 정보를 지울 수 없다 | 해결됨: payday가 테넌트별로 묻고(`trail.Policy.Tenants`), Rove는 계약과 법적 보존으로 답한다(`server/retention`) |
+| [#36](https://github.com/lesomnus/payday/issues/36) | overlay로 payday 엔터티에 인덱스를 더할 수 없고, 거부 없이 버려진다 | `Identity` 엔터티를 따로 두려 했으나, IdP 계정의 대응이 roster로 가서 필요 없어졌다(design 9.10절) |
 | [#37](https://github.com/lesomnus/payday/issues/37) | 클라이언트 store에 오프라인 쓰기 큐가 없다 | Phase 2에 직접 구현 |
 
 처음 목록에 있던 "여러 행을 쓰는 RPC의 트랜잭션"은 이슈로 올리지 않았다. 최신 payday main의 서버 가이드에 "completing a generated verb"로 문서화되어 있고(`1308774`), `composite_test.go`가 그 패턴을 확인한다.

@@ -1,0 +1,310 @@
+edition = "2023";
+
+package rove;
+
+import "google/protobuf/timestamp.proto";
+import "orm.proto";
+import "payday.proto";
+import "rove/catalog.proto";
+import "rove/org.proto";
+import "rove/payday/tenant.proto";
+
+option features.field_presence = IMPLICIT;
+option go_package = "github.com/lesomnus/rove";
+
+// Asset is everything rove tracks the identity of: an item, a space, a kit or
+// a group (design 3.1). The place tree is the placement tree of space assets.
+//
+// What it holds is the **current** state. History is in the time rows
+// (history.proto), and the domain layer writes both in one transaction.
+message Asset {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  string name = 5;
+  string desc = 6;
+  map<string, string> labels = 7;
+
+  // item | space | kit | group
+  string kind = 8;
+  AssetType type = 9 [(orm.edge) = {nullable: true}];
+  ItemModel model = 10 [(orm.edge) = {nullable: true}];
+  // The number people read and write, unique within the tenant while the
+  // asset is not erased. Free text: Korean is fine.
+  string tag = 11;
+  string serial = 12;
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+  google.protobuf.Timestamp date_erased = 14 [(orm.field) = {erased: {}}];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  // ordered | active | in_repair | lost | retired | disposed
+  string status = 16;
+  // good | damaged | broken
+  string condition = 17;
+  // The current physical parent and how it is held there; see Placement.
+  bytes parent_id = 18 [(orm.field) = {
+    type: TYPE_UUID
+    nullable: true
+  }];
+  string placement_mode = 19;
+  string slot = 20;
+  // Who holds it now; see Stewardship.
+  Party custodian = 21 [(orm.edge) = {nullable: true}];
+  map<string, string> attributes = 22;
+  google.protobuf.Timestamp acquired_at = 23 [(orm.field) = {nullable: true}];
+  google.protobuf.Timestamp disposed_at = 24 [(orm.field) = {nullable: true}];
+  // Bumped whenever what is inside this asset changes, so a page watching a
+  // space or a kit hears about it (design 9.6).
+  uint64 content_version = 25;
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "page"
+        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+      },
+      {
+        name: "tag"
+        refs: [{name: "tag", number: 11}, {name: "tenant", number: 2}]
+        unique: true
+      },
+      {
+        name: "parent"
+        refs: [{name: "parent_id", number: 18}]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 7
+    list: {
+      order: [{field: {name: "date_created"}}, {field: {name: "id"}}]
+      by: [
+        {name: "ref"},
+        {name: "kind"},
+        {name: "status"},
+        {name: "type"},
+        {name: "model"},
+        {name: "parent_id"},
+        {name: "custodian"},
+        {name: "tag"},
+        {name: "labels"},
+        {name: "attributes"}
+      ]
+      size: 50
+      max: 500
+      filters: 8
+    }
+    watch: {}
+  };
+}
+
+// TreeLock is one row per tenant, written first by everything that changes the
+// placement tree, so that two such changes cannot interleave (design 3.2, D9).
+message TreeLock {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  uint64 version = 8;
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "tenant"
+        refs: [{name: "tenant", number: 2}]
+        unique: true
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 12
+    erase: {hard: {}}
+  };
+}
+
+// TenantDomain is a domain a tenant's QR labels are printed with (design 9.9).
+message TenantDomain {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  // A lowercase host name, unique across the deployment.
+  string host = 8 [(orm.field) = {unique: true}];
+  // label
+  string purpose = 9;
+  // pending | active | legacy | retired
+  string state = 10;
+  // The value the TXT record has to hold.
+  string token = 11;
+  // custom | default
+  string source = 12;
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+  google.protobuf.Timestamp date_erased = 14 [(orm.field) = {erased: {}}];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  google.protobuf.Timestamp verified_at = 16 [
+    (orm.field) = {nullable: true},
+    (payday.field) = {stamped: true}
+  ];
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "page"
+        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 24
+    list: {
+      order: [{field: {name: "date_created"}}, {field: {name: "id"}}]
+      by: [{name: "ref"}, {name: "state"}, {name: "purpose"}]
+      size: 50
+      max: 100
+    }
+    watch: {}
+  };
+}
+
+// Label is a printed QR label. It is printed with the tenant's label domain,
+// bound to an asset when it is stuck on, and can be voided and replaced.
+message Label {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  TenantDomain domain = 8 [(orm.edge) = {nullable: true}];
+  // The asset it is stuck on, by identifier.
+  bytes subject_id = 9 [(orm.field) = {
+    type: TYPE_UUID
+    nullable: true
+  }];
+  // new | bound | void
+  string state = 10;
+  google.protobuf.Timestamp bound_at = 11 [(orm.field) = {nullable: true}];
+  google.protobuf.Timestamp printed_at = 12 [(orm.field) = {nullable: true}];
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+  google.protobuf.Timestamp date_erased = 14 [(orm.field) = {erased: {}}];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  // The print run it came from, to find a sheet again.
+  string batch = 16;
+
+  // What its QR says after `/l/`: eight of Crockford's base32, unique in the
+  // whole deployment (D28), so that a label is found from the app's own
+  // address whichever workspace it is in. Null on a label printed before
+  // there were codes, which goes by its identifier in base32 still.
+  string code = 17 [(orm.field) = {
+    nullable: true
+    unique: true
+  }];
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "page"
+        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+      },
+      {
+        name: "subject"
+        refs: [{name: "subject_id", number: 9}]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 18
+    list: {
+      order: [{field: {name: "date_created"}}, {field: {name: "id"}}]
+      by: [{name: "ref"}, {name: "subject_id"}, {name: "state"}, {name: "batch"}]
+      size: 100
+      max: 500
+    }
+    watch: {}
+  };
+}
+
+// Attachment is a file kept for something: a photo of an asset, a receipt.
+message Attachment {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  // The file name as it was uploaded.
+  string name = 5;
+
+  bytes subject_id = 8 [(orm.field) = {type: TYPE_UUID}];
+  string object_key = 9;
+  uint64 size_bytes = 10;
+  string content_type = 11;
+  bytes sha256 = 12 [(orm.field) = {default: ""}];
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+  google.protobuf.Timestamp date_erased = 14 [(orm.field) = {erased: {}}];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "page"
+        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+      },
+      {
+        name: "subject"
+        refs: [{name: "subject_id", number: 8}]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 19
+    list: {
+      order: [{field: {name: "date_created"}}, {field: {name: "id"}}]
+      by: [{name: "ref"}, {name: "subject_id"}]
+      size: 50
+      max: 200
+    }
+    watch: {}
+  };
+}

@@ -1,0 +1,109 @@
+edition = "2023";
+
+package rove;
+
+import "google/protobuf/timestamp.proto";
+import "rove/asset_svc.g.proto";
+import "rove/booking.proto";
+
+option go_package = "github.com/lesomnus/rove";
+
+service BookableService {
+  rpc Update(BookableUpdateRequest) returns (Bookable);
+  // Availability answers when resources are taken between two moments.
+  rpc Availability(BookableAvailabilityRequest) returns (BookableAvailabilityResponse);
+}
+
+message BookableUpdateRequest {
+  BookableRef ref = 1;
+  string timezone = 2 [features.field_presence = IMPLICIT];
+  OpeningHours hours = 3;
+  bool hours_null = 4 [features.field_presence = IMPLICIT];
+  int32 buffer_before = 5 [features.field_presence = IMPLICIT];
+  int32 buffer_after = 6 [features.field_presence = IMPLICIT];
+  bool approval = 7 [features.field_presence = IMPLICIT];
+  int32 min_minutes = 8 [features.field_presence = IMPLICIT];
+  int32 max_minutes = 9 [features.field_presence = IMPLICIT];
+  int32 horizon_days = 10 [features.field_presence = IMPLICIT];
+  uint32 units = 11 [features.field_presence = IMPLICIT];
+  string exclusive_group = 12 [features.field_presence = IMPLICIT];
+  bool enabled = 13 [features.field_presence = IMPLICIT];
+}
+
+message BookableAvailabilityRequest {
+  repeated AssetRef resources = 1;
+  google.protobuf.Timestamp from = 2;
+  google.protobuf.Timestamp to = 3;
+}
+
+message BookableAvailabilityResponse {
+  repeated BusySpan busy = 1;
+}
+
+message BusySpan {
+  bytes resource_id = 1 [features.field_presence = IMPLICIT];
+  google.protobuf.Timestamp begins_at = 2;
+  google.protobuf.Timestamp ends_at = 3;
+  // reservation | maintenance | override | closed
+  string kind = 4 [features.field_presence = IMPLICIT];
+  bytes ref_id = 5 [features.field_presence = IMPLICIT];
+  uint32 units = 6 [features.field_presence = IMPLICIT];
+  bool blocking = 7 [features.field_presence = IMPLICIT];
+  string label = 8 [features.field_presence = IMPLICIT];
+}
+
+// What the completed Add takes beyond the reservation itself.
+message ReservationAddRequest {
+  repeated ReservationItemSpec items = 100;
+  // Hold only: take the time for a few minutes while the rest is decided.
+  bool hold = 101;
+  bytes op = 102;
+  // Book it again by this rule (RFC 5545): FREQ=WEEKLY;COUNT=4 and the like.
+  string repeat = 103;
+  // Book over a conflict, on purpose: the allocation does not block, and the
+  // reason is required (design 4). A manager's to do.
+  bool override = 104;
+  string reason = 105;
+}
+
+message ReservationItemSpec {
+  AssetRef resource = 1;
+  uint32 units = 2 [features.field_presence = IMPLICIT];
+}
+
+service ReservationService {
+  // Confirm turns a hold into a request or a confirmed reservation.
+  rpc Confirm(ReservationDecideRequest) returns (Reservation);
+  rpc Approve(ReservationDecideRequest) returns (Reservation);
+  rpc Reject(ReservationDecideRequest) returns (Reservation);
+  rpc Cancel(ReservationDecideRequest) returns (Reservation);
+  rpc CheckIn(ReservationDecideRequest) returns (Reservation);
+  rpc Complete(ReservationDecideRequest) returns (Reservation);
+  // Calendar answers reservations touching a span, for one resource or all.
+  rpc Calendar(ReservationCalendarRequest) returns (ReservationCalendarResponse);
+}
+
+message ReservationDecideRequest {
+  ReservationRef ref = 1;
+  string reason = 2 [features.field_presence = IMPLICIT];
+  // Cancel the whole series it belongs to.
+  bool series = 3 [features.field_presence = IMPLICIT];
+}
+
+message ReservationCalendarRequest {
+  repeated AssetRef resources = 1;
+  google.protobuf.Timestamp from = 2;
+  google.protobuf.Timestamp to = 3;
+  // Only the caller's own.
+  bool mine = 4 [features.field_presence = IMPLICIT];
+}
+
+message ReservationCalendarResponse {
+  repeated CalendarEntry entries = 1;
+}
+
+message CalendarEntry {
+  Reservation reservation = 1;
+  repeated bytes resource_ids = 2;
+  string party_name = 3 [features.field_presence = IMPLICIT];
+}

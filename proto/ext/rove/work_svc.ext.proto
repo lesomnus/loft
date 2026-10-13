@@ -1,0 +1,70 @@
+edition = "2023";
+
+package rove;
+
+import "google/protobuf/timestamp.proto";
+import "rove/asset.proto";
+import "rove/asset_svc.g.proto";
+import "rove/catalog_svc.g.proto";
+import "rove/work.proto";
+
+option go_package = "github.com/lesomnus/rove";
+
+service WorkOrderService {
+  rpc Update(WorkOrderUpdateRequest) returns (WorkOrder);
+  // Complete closes it; one that recurs opens the next.
+  rpc Complete(WorkOrderCompleteRequest) returns (WorkOrder);
+  rpc Cancel(WorkOrderCompleteRequest) returns (WorkOrder);
+}
+
+message WorkOrderUpdateRequest {
+  WorkOrderRef ref = 1;
+  string name = 2 [features.field_presence = IMPLICIT];
+  string desc = 3 [features.field_presence = IMPLICIT];
+  string status = 4 [features.field_presence = IMPLICIT];
+  google.protobuf.Timestamp begins_at = 5;
+  google.protobuf.Timestamp ends_at = 6;
+  int64 cost = 7 [features.field_presence = IMPLICIT];
+  string currency = 8 [features.field_presence = IMPLICIT];
+  bool blocking = 9 [features.field_presence = IMPLICIT];
+}
+
+message WorkOrderCompleteRequest {
+  WorkOrderRef ref = 1;
+  string reason = 2 [features.field_presence = IMPLICIT];
+  int64 cost = 3 [features.field_presence = IMPLICIT];
+  // The condition the asset is in afterwards.
+  string condition = 4 [features.field_presence = IMPLICIT];
+}
+
+// What the completed Add takes beyond the purchase: what was bought.
+message PurchaseAddRequest {
+  repeated PurchaseLineSpec lines = 100;
+}
+
+message PurchaseLineSpec {
+  ItemModelRef model = 1;
+  string desc = 2 [features.field_presence = IMPLICIT];
+  int64 quantity = 3 [features.field_presence = IMPLICIT];
+  int64 unit_cost = 4 [features.field_presence = IMPLICIT];
+  // asset | stock
+  string receive_as = 5 [features.field_presence = IMPLICIT];
+}
+
+service PurchaseService {
+  // Receive turns what arrived into assets or stock, in a space.
+  rpc Receive(PurchaseReceiveRequest) returns (PurchaseReceiveResponse);
+}
+
+message PurchaseReceiveRequest {
+  PurchaseRef ref = 1;
+  AssetRef into = 2;
+  string tag_prefix = 3 [features.field_presence = IMPLICIT];
+  google.protobuf.Timestamp at = 4;
+}
+
+message PurchaseReceiveResponse {
+  Purchase purchase = 1;
+  repeated Asset assets = 2;
+  uint32 stocked = 3 [features.field_presence = IMPLICIT];
+}

@@ -1,0 +1,23 @@
+edition = "2023";
+
+package rove;
+
+import "google/protobuf/timestamp.proto";
+import "rove/payday/audit.proto";
+
+option go_package = "github.com/lesomnus/rove";
+
+service AuditService {
+  // Recent answers the newest trail rows first, for a person reading what
+  // happened lately.
+  rpc Recent(AuditRecentRequest) returns (AuditRecentResponse);
+}
+
+message AuditRecentRequest {
+  uint32 size = 1 [features.field_presence = IMPLICIT];
+  google.protobuf.Timestamp before = 2;
+}
+
+message AuditRecentResponse {
+  repeated Audit items = 1;
+}

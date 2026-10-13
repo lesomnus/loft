@@ -1,0 +1,270 @@
+edition = "2023";
+
+package rove;
+
+import "google/protobuf/timestamp.proto";
+import "orm.proto";
+import "payday.proto";
+import "rove/asset.proto";
+import "rove/org.proto";
+import "rove/payday/tenant.proto";
+
+option features.field_presence = IMPLICIT;
+option go_package = "github.com/lesomnus/rove";
+
+// Bookable is what makes an asset reservable, and its rules (design 4).
+//
+// Its row is also the lock a reservation takes and the signal a calendar
+// watches: every reservation write bumps `schedule_version` first.
+message Bookable {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  Asset asset = 8 [(orm.edge) = {immutable: true}];
+  string timezone = 9;
+  OpeningHours hours = 10 [(orm.field) = {nullable: true}];
+  int32 buffer_before = 11;
+  int32 buffer_after = 12;
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+  google.protobuf.Timestamp date_erased = 14 [(orm.field) = {erased: {}}];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  bool approval = 16;
+  int32 min_minutes = 17;
+  int32 max_minutes = 18;
+  // How far ahead it may be reserved, in days. Zero is no limit.
+  int32 horizon_days = 19;
+  // 1 for an exclusive resource; more for a pool of interchangeable units.
+  uint32 units = 20;
+  // Spaces in one group exclude each other: booking the hall blocks the rooms.
+  string exclusive_group = 21;
+  uint64 schedule_version = 22;
+  bool enabled = 23;
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "page"
+        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+      },
+      {
+        name: "asset"
+        refs: [{name: "asset", number: 8}]
+        unique: true
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 25
+    tenanted: {via: "tenant", agrees: ["asset.tenant"]}
+    list: {
+      order: [{field: {name: "date_created"}}, {field: {name: "id"}}]
+      by: [{name: "ref"}, {name: "asset"}, {name: "exclusive_group"}, {name: "enabled"}]
+      size: 100
+      max: 500
+    }
+    watch: {}
+  };
+}
+
+// OpeningHours is when a resource may be used, per weekday, in its timezone.
+message OpeningHours {
+  repeated OpeningRange ranges = 1;
+}
+
+// OpeningRange is one span of one weekday: 0 is Sunday. Minutes from midnight.
+message OpeningRange {
+  int32 weekday = 1;
+  int32 from_minute = 2;
+  int32 to_minute = 3;
+}
+
+// Reservation is a right to use resources for a time (design 4).
+message Reservation {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  string name = 5;
+  string desc = 6;
+
+  // Who it is for.
+  Party party = 8 [(orm.edge) = {immutable: true}];
+  // The holder that asked.
+  bytes requested_by = 9 [(orm.field) = {
+    type: TYPE_UUID
+    nullable: true
+  }];
+  // held | requested | confirmed | in_use | completed | cancelled | rejected | expired | no_show
+  string status = 10;
+  google.protobuf.Timestamp begins_at = 11 [(orm.field) = {default: ""}];
+  google.protobuf.Timestamp ends_at = 12 [(orm.field) = {default: ""}];
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+  google.protobuf.Timestamp date_erased = 14 [(orm.field) = {erased: {}}];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  google.protobuf.Timestamp expires_at = 16 [(orm.field) = {nullable: true}];
+  // An RFC 5545 rule, for the first of a series.
+  string rrule = 17;
+  bytes series_id = 18 [(orm.field) = {
+    type: TYPE_UUID
+    nullable: true
+  }];
+  bytes decided_by = 19 [(orm.field) = {
+    type: TYPE_UUID
+    nullable: true
+  }];
+  google.protobuf.Timestamp checked_in_at = 20 [(orm.field) = {nullable: true}];
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "page"
+        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+      },
+      {
+        name: "party"
+        refs: [{name: "party", number: 8}, {name: "begins_at", number: 11}]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 26
+    tenanted: {via: "tenant", agrees: ["party.tenant"]}
+    list: {
+      order: [{field: {name: "date_created"}}, {field: {name: "id"}}]
+      by: [{name: "ref"}, {name: "party"}, {name: "status"}, {name: "series_id"}]
+      size: 100
+      max: 500
+    }
+    watch: {}
+  };
+}
+
+// ReservationItem is one resource a reservation asked for.
+message ReservationItem {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  Reservation reservation = 8 [(orm.edge) = {immutable: true}];
+  Asset resource = 9 [(orm.edge) = {immutable: true}];
+  uint32 units = 10;
+  // For a pool: the unit given out, once it is.
+  bytes assigned_id = 11 [(orm.field) = {
+    type: TYPE_UUID
+    nullable: true
+  }];
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "page"
+        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+      },
+      {
+        name: "reservation"
+        refs: [{name: "reservation", number: 8}]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 27
+    erase: {hard: {}}
+    tenanted: {via: "tenant", agrees: ["reservation.tenant", "resource.tenant"]}
+    list: {
+      order: [{field: {name: "date_created"}}, {field: {name: "id"}}]
+      by: [{name: "ref"}, {name: "reservation"}, {name: "resource"}]
+      size: 100
+      max: 500
+    }
+  };
+}
+
+// Allocation is a span of time a resource is taken: by a reservation, a hold,
+// maintenance or an override. Every conflict check is a check on these rows,
+// and on PostgreSQL an exclusion constraint backs it (design 4, 9.4).
+message Allocation {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  Asset resource = 8 [(orm.edge) = {immutable: true}];
+  // reservation | maintenance | override
+  string kind = 9;
+  bytes ref_id = 10 [(orm.field) = {
+    type: TYPE_UUID
+    nullable: true
+  }];
+  google.protobuf.Timestamp begins_at = 11 [(orm.field) = {default: ""}];
+  google.protobuf.Timestamp ends_at = 12 [(orm.field) = {default: ""}];
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  bool blocking = 16;
+  bool exclusive = 17;
+  uint32 units = 18;
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "page"
+        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+      },
+      {
+        name: "resource"
+        refs: [{name: "resource", number: 8}, {name: "begins_at", number: 11}]
+      },
+      {
+        name: "ref"
+        refs: [{name: "ref_id", number: 10}]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 28
+    erase: {hard: {}}
+    tenanted: {via: "tenant", agrees: ["resource.tenant"]}
+    list: {
+      order: [{field: {name: "date_created"}}, {field: {name: "id"}}]
+      by: [{name: "ref"}, {name: "resource"}, {name: "ref_id"}, {name: "kind"}]
+      size: 200
+      max: 1000
+    }
+  };
+}

@@ -1,0 +1,124 @@
+edition = "2023";
+
+package rove;
+
+import "google/protobuf/timestamp.proto";
+import "orm.proto";
+import "payday.proto";
+import "rove/asset.proto";
+import "rove/catalog.proto";
+import "rove/payday/tenant.proto";
+
+option features.field_presence = IMPLICIT;
+option go_package = "github.com/lesomnus/rove";
+
+// Stock is how many of a model are kept in a space: consumables and things
+// nobody tracks one by one (design 3.1).
+message Stock {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  string name = 5;
+  map<string, string> labels = 7;
+
+  ItemModel model = 8 [(orm.edge) = {immutable: true}];
+  Asset space = 9 [(orm.edge) = {immutable: true}];
+  int64 quantity = 10;
+  // Below this a notification goes out. Zero is none.
+  int64 threshold = 11;
+  string unit = 12;
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+  google.protobuf.Timestamp date_erased = 14 [(orm.field) = {erased: {}}];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "page"
+        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+      },
+      {
+        // Not unique here, though a model is kept once per space: a unique
+        // index over edges named otherwise than their targets does not
+        // generate (protobuf-orm/protoc-gen-orm-ent#1), so Stock.Add refuses
+        // a second one instead.
+        name: "slot"
+        refs: [{name: "model", number: 8}, {name: "space", number: 9}]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 29
+    tenanted: {via: "tenant", agrees: ["model.tenant", "space.tenant"]}
+    list: {
+      order: [{field: {name: "date_created"}}, {field: {name: "id"}}]
+      by: [{name: "ref"}, {name: "model"}, {name: "space"}]
+      size: 100
+      max: 500
+    }
+    watch: {}
+  };
+}
+
+// StockMovement is one change to a stock, written once.
+message StockMovement {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  Stock stock = 8 [(orm.edge) = {immutable: true}];
+  int64 delta = 9;
+  // receive | consume | transfer_in | transfer_out | adjust | convert | issue | return
+  string reason = 10;
+  bytes ref_id = 11 [(orm.field) = {
+    type: TYPE_UUID
+    nullable: true
+  }];
+  google.protobuf.Timestamp occurred_at = 12 [(orm.field) = {default: ""}];
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  bytes event_id = 16 [(orm.field) = {type: TYPE_UUID}];
+  int64 balance = 17;
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "page"
+        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+      },
+      {
+        name: "stock"
+        refs: [{name: "stock", number: 8}, {name: "occurred_at", number: 12}]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 30
+    erase: {hard: {}}
+    tenanted: {via: "tenant", agrees: ["stock.tenant"]}
+    list: {
+      order: [{field: {name: "date_created"}, desc: true}, {field: {name: "id"}, desc: true}]
+      by: [{name: "ref"}, {name: "stock"}, {name: "reason"}]
+      size: 100
+      max: 500
+    }
+  };
+}

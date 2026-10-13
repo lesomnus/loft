@@ -1,0 +1,144 @@
+edition = "2023";
+
+package rove;
+
+import "google/protobuf/timestamp.proto";
+import "orm.proto";
+import "payday.proto";
+import "rove/asset.proto";
+import "rove/payday/tenant.proto";
+
+option features.field_presence = IMPLICIT;
+option go_package = "github.com/lesomnus/rove";
+
+// InventoryCount is a physical count of what is under a space (design 2).
+message InventoryCount {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  string name = 5;
+  string desc = 6;
+
+  // The space the count covers, and everything under it.
+  Asset scope = 8 [(orm.edge) = {immutable: true}];
+  // open | closed
+  string status = 9;
+  google.protobuf.Timestamp started_at = 10 [(orm.field) = {default: ""}];
+  google.protobuf.Timestamp closed_at = 11 [(orm.field) = {nullable: true}];
+  bytes started_by = 12 [(orm.field) = {
+    type: TYPE_UUID
+    nullable: true
+  }];
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+  google.protobuf.Timestamp date_erased = 14 [(orm.field) = {erased: {}}];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  // A count anybody may scan into, for themselves: a self-audit.
+  bool self_service = 16;
+  // Bumped whenever its findings change -- a scan, a reconcile, a resolution
+  // -- so a page watching the count hears about it (design 9.6).
+  uint64 findings_version = 17;
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "page"
+        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 31
+    tenanted: {via: "tenant", agrees: ["scope.tenant"]}
+    list: {
+      order: [{field: {name: "date_created"}, desc: true}, {field: {name: "id"}, desc: true}]
+      by: [{name: "ref"}, {name: "scope"}, {name: "status"}]
+      size: 50
+      max: 200
+    }
+    watch: {}
+  };
+}
+
+// CountFinding is what a count found about one asset or one label.
+message CountFinding {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  string desc = 6;
+
+  InventoryCount count = 8 [(orm.edge) = {immutable: true}];
+  Asset asset = 9 [(orm.edge) = {
+    immutable: true
+    nullable: true
+  }];
+  bytes label_id = 10 [(orm.field) = {
+    type: TYPE_UUID
+    nullable: true
+  }];
+  // seen | misplaced | missing | unknown
+  string kind = 11;
+  bytes observed_parent_id = 12 [(orm.field) = {
+    type: TYPE_UUID
+    nullable: true
+  }];
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  bytes expected_parent_id = 16 [(orm.field) = {
+    type: TYPE_UUID
+    nullable: true
+  }];
+  // When it was seen, on the device: an offline scan arrives later.
+  google.protobuf.Timestamp seen_at = 17 [(orm.field) = {default: ""}];
+  bytes recorded_by = 18 [(orm.field) = {
+    type: TYPE_UUID
+    nullable: true
+  }];
+  // open | moved | lost | ignored
+  string resolution = 19;
+  google.protobuf.Timestamp resolved_at = 20 [(orm.field) = {nullable: true}];
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "page"
+        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+      },
+      {
+        name: "count"
+        refs: [{name: "count", number: 8}, {name: "kind", number: 11}]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 32
+    erase: {hard: {}}
+    tenanted: {via: "tenant", agrees: ["count.tenant", "asset.tenant"]}
+    list: {
+      order: [{field: {name: "date_created"}}, {field: {name: "id"}}]
+      by: [{name: "ref"}, {name: "count"}, {name: "asset"}, {name: "kind"}, {name: "resolution"}]
+      size: 200
+      max: 1000
+    }
+    watch: {}
+  };
+}

@@ -1,0 +1,249 @@
+name: ci
+
+on:
+  push:
+    branches: [main, prototype]
+  pull_request:
+
+# Every job names its image rather than `ubuntu-latest`, so that the runner
+# moves when this file says so and not on GitHub's schedule (rove#57).
+jobs:
+  go:
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+      # The PostgreSQL a deployment runs: the official image with pg_bigm
+      # (deploy/postgres, design 9.5). Built and started first, so that it is
+      # up by the time the SQLite run is done.
+      - name: PostgreSQL with pg_bigm
+        run: |
+          docker build -t rove-postgres deploy/postgres
+          docker run -d --name postgres -p 5432:5432 \
+            -e POSTGRES_USER=rove -e POSTGRES_PASSWORD=rove -e POSTGRES_DB=rove rove-postgres
+      - name: generated code matches the schema
+        run: go tool pd gen --check .
+      - name: vet
+        run: go vet ./...
+      - name: test on SQLite
+        run: go test ./...
+      - name: PostgreSQL is up
+        run: |
+          for i in $(seq 1 60); do docker exec postgres pg_isready -h 127.0.0.1 -U rove && exit 0; sleep 1; done
+          docker logs postgres; exit 1
+      - name: test on PostgreSQL
+        env:
+          PDTEST_POSTGRES: postgres://rove:rove@localhost:5432/rove?sslmode=disable
+        run: go test ./...
+
+  # A PostgreSQL without pg_bigm -- what Azure, Naver Cloud and NHN Cloud
+  # offer -- where pg_trgm answers instead. Only what that changes.
+  postgres-trgm:
+    runs-on: ubuntu-26.04
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: rove
+          POSTGRES_PASSWORD: rove
+          POSTGRES_DB: rove
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -h 127.0.0.1 -U rove"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+      - name: test search and migration on PostgreSQL without pg_bigm
+        env:
+          PDTEST_POSTGRES: postgres://rove:rove@localhost:5432/rove?sslmode=disable
+        run: go test ./server/domain ./cli
+
+  ui:
+    runs-on: ubuntu-26.04
+    defaults:
+      run:
+        working-directory: ts
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ts/package-lock.json
+      - run: npm ci
+      - run: npm run check
+      - run: npx vite build
+
+  # The deployment bundle (Dockerfile, deploy/compose) as an operator brings
+  # it up: the image built, PostgreSQL, the migration, two `rove serve` behind
+  # Caddy and the operator's entry point -- and a workspace made, signed in to
+  # and asked through the proxy, and listed at the entry point. Nothing is
+  # pushed anywhere.
+  bundle:
+    runs-on: ubuntu-26.04
+    defaults:
+      run:
+        working-directory: deploy/compose
+    steps:
+      - uses: actions/checkout@v7
+      - name: what an operator fills in, made up
+        run: |
+          cp .env.example .env
+          sed -i -e "s/^ROVE_DOMAIN=.*/ROVE_DOMAIN=localhost/" \
+            -e "s/^POSTGRES_PASSWORD=.*/POSTGRES_PASSWORD=$(openssl rand -hex 24)/" \
+            -e "s/^ROVE_SIGNING_KEY=.*/ROVE_SIGNING_KEY=$(openssl rand -hex 32)/" \
+            -e "s/^ROVE_VERSION=.*/ROVE_VERSION=ci/" .env
+          mkdir -m 700 secrets
+          openssl genpkey -algorithm ed25519 -out secrets/checkpoints.pem
+          openssl rand -hex 32 > secrets/admin_key
+          chmod 444 secrets/*
+      - run: docker compose up -d --build
+      - name: it answers through the proxy
+        run: |
+          for i in $(seq 1 90); do curl -skf https://localhost/healthz && exit 0; sleep 2; done
+          exit 1
+      - name: a workspace, signed in to and asked
+        run: |
+          docker compose run --rm rove --config /etc/rove/rove.yaml init \
+            --tenant acme --name ACME --login owner --person Owner --email owner@example.com --password owner-pass-1234
+          curl -skf -c jar -H 'content-type: application/json' \
+            -d '{"login":"owner","password":"owner-pass-1234"}' https://localhost/session
+          # Each to whichever replica Caddy picks: a session is the database's.
+          for i in 1 2 3 4; do
+            curl -skf -b jar -H 'content-type: application/json' -H 'connect-protocol-version: 1' \
+              -d '{}' https://localhost/rove.PartyService/Me > /dev/null
+          done
+          curl -sf -H "authorization: Bearer $(cat secrets/admin_key)" \
+            http://127.0.0.1:8081/admin/workspaces | grep -q '"alias":"acme"'
+          docker run --rm rove:ci version
+      - if: failure()
+        run: docker compose ps -a && docker compose logs
+
+  # What the Go vulnerability database says of the code this calls (rove#40):
+  # a known issue in a module, or in the standard library this is built with,
+  # that a path from here reaches. Red the day one is published, which is when
+  # it is worth knowing -- but for what is named below, each with why.
+  vuln:
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+      - name: govulncheck
+        run: |
+          # GO-2026-6615, otel/sdk/log: the fix needs otel/log v1, which the
+          # logging payday and otx are built on does not build with yet (#77).
+          accepted="GO-2026-6615"
+
+          go run golang.org/x/vuln/cmd/govulncheck@v1.9.0 -format json ./... > vuln.json || true
+          # A finding whose trace reaches a function is one this code calls;
+          # the rest are in a package or module it only has.
+          called="$(jq -r 'select(.finding != null and .finding.trace[0].function != null) | .finding.osv' vuln.json | sort -u)"
+          left="$(comm -23 <(printf '%s\n' "${called}" | sed '/^$/d') <(printf '%s\n' ${accepted} | sort -u))"
+          if [ -n "${left}" ]; then
+            echo "called, and not accepted:"
+            printf '  %s\n' ${left}
+            go run golang.org/x/vuln/cmd/govulncheck@v1.9.0 ./... || true
+            exit 1
+          fi
+          echo "govulncheck: nothing called but ${accepted}"
+
+  # The reference deployment on Kubernetes (deploy/k8s, rove#39): k3d, the
+  # image this checkout builds, through the rig's overlay -- admitted under
+  # `restricted`, signed in to through the ingress, the operator's entry point
+  # reached by port-forward and by nothing else, and a new build rolled out
+  # and back (scripts/cluster.sh says what each step is for).
+  cluster:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      # The release's own binary, held to the digest its checksums say,
+      # rather than an installer that follows `main`.
+      - name: k3d
+        run: |
+          mkdir -p "${RUNNER_TEMP}/bin"
+          curl -fsSL -o "${RUNNER_TEMP}/bin/k3d" https://github.com/k3d-io/k3d/releases/download/v5.9.0/k3d-linux-amd64
+          echo "06d8f25bc3a971c4eb29e0ff08429b180402db0f4dec838c9eac427e296800a0  ${RUNNER_TEMP}/bin/k3d" | sha256sum -c -
+          chmod +x "${RUNNER_TEMP}/bin/k3d"
+          echo "${RUNNER_TEMP}/bin" >> "${GITHUB_PATH}"
+      - run: ./scripts/cluster.sh
+
+  # The main flows in a browser (ts/e2e, plan.md M3): headless Chromium on
+  # the built page, against a rove built here that Playwright starts with
+  # `init --demo` (ts/playwright.config.ts, ts/e2e/serve.sh) -- on SQLite, and
+  # on the PostgreSQL a deployment runs, the `go` job's, with pg_bigm.
+  e2e:
+    # `--with-deps` installs what Chromium needs from the image's own packages,
+    # which Playwright knows for Ubuntu 26.04 from 1.61 on.
+    runs-on: ubuntu-26.04
+    timeout-minutes: 15
+    strategy:
+      # Each database is an answer of its own, and one failing says nothing
+      # about the other.
+      fail-fast: false
+      matrix:
+        db: [sqlite, postgres]
+    defaults:
+      run:
+        working-directory: ts
+    steps:
+      - uses: actions/checkout@v7
+      # As the `go` job has it (deploy/postgres, design 9.5), and started
+      # first, so that it is up by the time the page and rove are built. The
+      # servers make their own databases on it, fresh (ts/e2e/serve.sh).
+      - name: PostgreSQL with pg_bigm
+        if: matrix.db == 'postgres'
+        working-directory: .
+        run: |
+          docker build -t rove-postgres deploy/postgres
+          docker run -d --name postgres -p 5432:5432 \
+            -e POSTGRES_USER=rove -e POSTGRES_PASSWORD=rove -e POSTGRES_DB=rove rove-postgres
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ts/package-lock.json
+      - run: npm ci
+      - run: npx vite build
+      # Once, for every server the tests stand up; and the issuer one of them
+      # signs people in through (ts/e2e/issuer.sh).
+      - name: build rove
+        working-directory: .
+        run: |
+          go build -o "$RUNNER_TEMP/rove" ./cmd/rove
+          go build -o "$RUNNER_TEMP/oidctest" ./internal/oidctest/cmd/oidctest
+      - name: Chromium
+        run: npx playwright install --with-deps chromium
+      - name: PostgreSQL is up
+        if: matrix.db == 'postgres'
+        run: |
+          for i in $(seq 1 60); do docker exec postgres pg_isready -h 127.0.0.1 -U rove && exit 0; sleep 1; done
+          docker logs postgres; exit 1
+      - name: browser tests
+        env:
+          E2E_ROVE: ${{ runner.temp }}/rove
+          E2E_ISSUER: ${{ runner.temp }}/oidctest
+          E2E_POSTGRES: ${{ matrix.db == 'postgres' && 'postgres://rove:rove@127.0.0.1:5432/rove?sslmode=disable' || '' }}
+        run: npx playwright test
+      # What a failure leaves: the report, with each failed test's trace and
+      # screenshot, and each server's database and log (test-results/rove-*).
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: e2e-${{ matrix.db }}
+          path: |
+            ts/playwright-report/
+            ts/test-results/
+          retention-days: 14

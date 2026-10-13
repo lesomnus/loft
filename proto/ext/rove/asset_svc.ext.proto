@@ -1,0 +1,380 @@
+edition = "2023";
+
+package rove;
+
+import "google/protobuf/timestamp.proto";
+import "rove/asset.proto";
+import "rove/catalog_svc.g.proto";
+import "rove/org_svc.g.proto";
+
+option go_package = "github.com/lesomnus/rove";
+
+// What rove adds to the asset contract: the operations a person does with an
+// asset, and the reads that answer "what was it then". Everything that changes
+// an asset is one of these, or the generated Add and Erase the domain layer
+// completes (design 6, D24).
+service AssetService {
+  // Move puts an asset inside another from a moment on: on a shelf, into a
+  // computer, into a rack at a U position. Without `to` it takes it out of
+  // wherever it was.
+  rpc Move(AssetMoveRequest) returns (Asset);
+  // SetAttributes changes what an asset is from a moment on: its name, status,
+  // condition, type, model or any attribute.
+  rpc SetAttributes(AssetSetAttributesRequest) returns (Asset);
+  // Assign makes a party the owner, manager or custodian from a moment on, or
+  // ends the role.
+  rpc Assign(AssetAssignRequest) returns (Asset);
+  // Relate adds or ends a logical relation: membership of a kit or a group.
+  // (Not `Link`: an RPC named after an entity collides with the stack's
+  // accessor for it.)
+  rpc Relate(AssetRelateRequest) returns (Asset);
+  // Correct fixes the past: a time row was wrong, or happened at another
+  // time. The old row is superseded, never edited (design 3.3).
+  rpc Correct(AssetCorrectRequest) returns (Asset);
+
+  rpc Timeline(AssetTimelineRequest) returns (AssetTimelineResponse);
+  // QueryAt answers an asset and everything inside it as it was at `at`, by
+  // what is known now -- or by what was known at `known`, which is AsOf.
+  rpc QueryAt(AssetQueryAtRequest) returns (AssetQueryAtResponse);
+  rpc Diff(AssetDiffRequest) returns (AssetDiffResponse);
+  rpc Search(AssetSearchRequest) returns (AssetSearchResponse);
+  rpc Report(AssetReportRequest) returns (AssetReportResponse);
+
+  rpc Import(AssetImportRequest) returns (AssetImportResponse);
+  rpc Export(AssetExportRequest) returns (AssetExportResponse);
+}
+
+// What the completed Add takes beyond the row itself.
+message AssetAddRequest {
+  // When the asset started being what the request says: the initial facts
+  // and placement are valid from here. Empty is now.
+  google.protobuf.Timestamp since = 100;
+  // A client-minted Event id, so that a retry is the same operation.
+  bytes op = 101;
+  string reason = 102;
+  // Where it is, from `since`. Taken from here rather than from parent_id so
+  // that a mode and a slot come with it.
+  AssetRef to = 103;
+  string mode = 104;
+}
+
+message AssetMoveRequest {
+  AssetRef ref = 1;
+  // Where it goes. Absent: out of wherever it was.
+  AssetRef to = 2;
+  // located | installed | part
+  string mode = 3 [features.field_presence = IMPLICIT];
+  string slot = 4 [features.field_presence = IMPLICIT];
+  int32 u_from = 5 [features.field_presence = IMPLICIT];
+  int32 u_to = 6 [features.field_presence = IMPLICIT];
+  google.protobuf.Timestamp at = 7;
+  string reason = 8 [features.field_presence = IMPLICIT];
+  bytes op = 9 [features.field_presence = IMPLICIT];
+}
+
+message AssetSetAttributesRequest {
+  AssetRef ref = 1;
+  // Keys: name, desc, status, condition, serial, tag, type, model, or an
+  // attribute key. An empty value clears an attribute.
+  map<string, string> set = 2;
+  repeated string clear = 3;
+  google.protobuf.Timestamp at = 4;
+  string reason = 5 [features.field_presence = IMPLICIT];
+  bytes op = 6 [features.field_presence = IMPLICIT];
+}
+
+message AssetAssignRequest {
+  AssetRef ref = 1;
+  // owner | manager | custodian
+  string role = 2 [features.field_presence = IMPLICIT];
+  // Absent ends the role.
+  PartyRef party = 3;
+  google.protobuf.Timestamp at = 4;
+  string reason = 5 [features.field_presence = IMPLICIT];
+  bytes op = 6 [features.field_presence = IMPLICIT];
+}
+
+message AssetRelateRequest {
+  AssetRef ref = 1;
+  AssetRef target = 2;
+  // member_of | connected_to
+  string kind = 3 [features.field_presence = IMPLICIT];
+  bool required = 4 [features.field_presence = IMPLICIT];
+  // End the relation instead of starting it.
+  bool end = 5 [features.field_presence = IMPLICIT];
+  google.protobuf.Timestamp at = 6;
+  string reason = 7 [features.field_presence = IMPLICIT];
+  bytes op = 8 [features.field_presence = IMPLICIT];
+}
+
+message AssetCorrectRequest {
+  AssetRef ref = 1;
+  // The time row being corrected: a placement, stewardship, link or fact.
+  bytes row_id = 2 [features.field_presence = IMPLICIT];
+  // It never happened.
+  bool retract = 3 [features.field_presence = IMPLICIT];
+  // It happened, but from this moment instead.
+  google.protobuf.Timestamp valid_from = 4;
+  string reason = 5 [features.field_presence = IMPLICIT];
+  bytes op = 6 [features.field_presence = IMPLICIT];
+}
+
+message AssetTimelineRequest {
+  AssetRef ref = 1;
+  // Also the rows later corrections superseded.
+  bool superseded = 2 [features.field_presence = IMPLICIT];
+  // As the system knew it then.
+  google.protobuf.Timestamp known = 3;
+  uint32 limit = 4 [features.field_presence = IMPLICIT];
+}
+
+message AssetTimelineResponse {
+  repeated TimelineEntry entries = 1;
+}
+
+message TimelineEntry {
+  // placement | fact | stewardship | link | event
+  string kind = 1 [features.field_presence = IMPLICIT];
+  bytes row_id = 2 [features.field_presence = IMPLICIT];
+  google.protobuf.Timestamp valid_from = 3;
+  google.protobuf.Timestamp valid_to = 4;
+  google.protobuf.Timestamp recorded_at = 5;
+  google.protobuf.Timestamp superseded_at = 6;
+  // What it says, for a person.
+  string summary = 7 [features.field_presence = IMPLICIT];
+  map<string, string> detail = 8;
+  bytes event_id = 9 [features.field_presence = IMPLICIT];
+  string event_kind = 10 [features.field_presence = IMPLICIT];
+  string reason = 11 [features.field_presence = IMPLICIT];
+  string actor = 12 [features.field_presence = IMPLICIT];
+  bytes other_id = 13 [features.field_presence = IMPLICIT];
+  string other_name = 14 [features.field_presence = IMPLICIT];
+}
+
+message AssetQueryAtRequest {
+  AssetRef root = 1;
+  google.protobuf.Timestamp at = 2;
+  // AsOf: by what was recorded at this moment. Empty is what is known now.
+  google.protobuf.Timestamp known = 3;
+  // How deep under the root. Zero is everything.
+  uint32 depth = 4 [features.field_presence = IMPLICIT];
+}
+
+message AssetQueryAtResponse {
+  repeated AssetState items = 1;
+}
+
+// AssetState is one asset as it was at a moment.
+message AssetState {
+  bytes id = 1 [features.field_presence = IMPLICIT];
+  bytes parent_id = 2 [features.field_presence = IMPLICIT];
+  string mode = 3 [features.field_presence = IMPLICIT];
+  string slot = 4 [features.field_presence = IMPLICIT];
+  int32 u_from = 5 [features.field_presence = IMPLICIT];
+  int32 u_to = 6 [features.field_presence = IMPLICIT];
+  // name, status, condition, attr.<key> ... as they were.
+  map<string, string> facts = 7;
+  // role -> party id, and role -> party name.
+  map<string, string> stewards = 8;
+  map<string, string> steward_names = 9;
+  uint32 depth = 10 [features.field_presence = IMPLICIT];
+  string kind = 11 [features.field_presence = IMPLICIT];
+  string tag = 12 [features.field_presence = IMPLICIT];
+  bool existed = 13 [features.field_presence = IMPLICIT];
+}
+
+message AssetDiffRequest {
+  AssetRef root = 1;
+  google.protobuf.Timestamp from = 2;
+  google.protobuf.Timestamp to = 3;
+}
+
+message AssetDiffResponse {
+  repeated AssetChange changes = 1;
+}
+
+message AssetChange {
+  bytes id = 1 [features.field_presence = IMPLICIT];
+  string tag = 2 [features.field_presence = IMPLICIT];
+  string name = 3 [features.field_presence = IMPLICIT];
+  // entered | left | moved | changed
+  string what = 4 [features.field_presence = IMPLICIT];
+  string field = 5 [features.field_presence = IMPLICIT];
+  string before = 6 [features.field_presence = IMPLICIT];
+  string after = 7 [features.field_presence = IMPLICIT];
+}
+
+message AssetSearchRequest {
+  string q = 1 [features.field_presence = IMPLICIT];
+  string kind = 2 [features.field_presence = IMPLICIT];
+  string status = 3 [features.field_presence = IMPLICIT];
+  AssetTypeRef type = 4;
+  // Only what is inside this asset now, at any depth.
+  AssetRef within = 5;
+  uint32 size = 6 [features.field_presence = IMPLICIT];
+  uint32 offset = 7 [features.field_presence = IMPLICIT];
+  PartyRef custodian = 8;
+}
+
+message AssetSearchResponse {
+  repeated Asset items = 1;
+  uint32 total = 2 [features.field_presence = IMPLICIT];
+}
+
+message AssetReportRequest {
+  // summary | custody | utilization | stock | work
+  string kind = 1 [features.field_presence = IMPLICIT];
+  google.protobuf.Timestamp from = 2;
+  google.protobuf.Timestamp to = 3;
+}
+
+message AssetReportResponse {
+  repeated ReportRow rows = 1;
+}
+
+message ReportRow {
+  string group = 1 [features.field_presence = IMPLICIT];
+  string key = 2 [features.field_presence = IMPLICIT];
+  string label = 3 [features.field_presence = IMPLICIT];
+  double value = 4 [features.field_presence = IMPLICIT];
+  map<string, string> detail = 5;
+}
+
+message AssetImportRequest {
+  // csv | xlsx
+  string format = 1 [features.field_presence = IMPLICIT];
+  bytes data = 2 [features.field_presence = IMPLICIT];
+  // Report what would happen, change nothing.
+  bool dry_run = 3 [features.field_presence = IMPLICIT];
+}
+
+message AssetImportResponse {
+  uint32 created = 1 [features.field_presence = IMPLICIT];
+  uint32 updated = 2 [features.field_presence = IMPLICIT];
+  uint32 skipped = 3 [features.field_presence = IMPLICIT];
+  repeated string errors = 4;
+  repeated string warnings = 5;
+}
+
+message AssetExportRequest {
+  // csv | xlsx
+  string format = 1 [features.field_presence = IMPLICIT];
+}
+
+message AssetExportResponse {
+  bytes data = 1 [features.field_presence = IMPLICIT];
+  string content_type = 2 [features.field_presence = IMPLICIT];
+  string name = 3 [features.field_presence = IMPLICIT];
+}
+
+service LabelService {
+  // Print makes labels for the tenant's active label domain: new ones to bind
+  // later, or one for each asset given, bound already.
+  rpc Print(LabelPrintRequest) returns (LabelPrintResponse);
+  rpc Bind(LabelBindRequest) returns (Label);
+  rpc Unbind(LabelUnbindRequest) returns (Label);
+  // Resolve reads what a scanned code names.
+  rpc Resolve(LabelResolveRequest) returns (LabelResolveResponse);
+}
+
+message LabelPrintRequest {
+  uint32 count = 1 [features.field_presence = IMPLICIT];
+  string batch = 2 [features.field_presence = IMPLICIT];
+  repeated bytes asset_ids = 3;
+}
+
+message LabelPrintResponse {
+  repeated Label labels = 1;
+  // The URL each label encodes, in the same order.
+  repeated string urls = 2;
+}
+
+message LabelBindRequest {
+  LabelRef ref = 1;
+  AssetRef asset = 2;
+  bytes op = 3 [features.field_presence = IMPLICIT];
+}
+
+message LabelUnbindRequest {
+  LabelRef ref = 1;
+  // Void the label as well: it is damaged or lost.
+  bool void = 2 [features.field_presence = IMPLICIT];
+}
+
+message LabelResolveRequest {
+  // What the scanner read: the URL, or the label id alone.
+  string code = 1 [features.field_presence = IMPLICIT];
+}
+
+message LabelResolveResponse {
+  Label label = 1;
+  Asset asset = 2;
+}
+
+service TenantDomainService {
+  // Verify checks the TXT record of a pending custom domain.
+  rpc Verify(TenantDomainVerifyRequest) returns (TenantDomain);
+  // Activate makes a verified domain the one new labels are printed with; the
+  // active one before it becomes legacy and keeps resolving.
+  rpc Activate(TenantDomainActivateRequest) returns (TenantDomain);
+  rpc Retire(TenantDomainRetireRequest) returns (TenantDomain);
+  // Status answers whether labels are on for this tenant, and with what.
+  rpc Status(TenantDomainStatusRequest) returns (TenantDomainStatusResponse);
+}
+
+message TenantDomainAddRequest {
+  // The label for a default subdomain; the host is made from it.
+  string sub = 100;
+}
+
+message TenantDomainVerifyRequest {
+  TenantDomainRef ref = 1;
+}
+
+message TenantDomainActivateRequest {
+  TenantDomainRef ref = 1;
+}
+
+message TenantDomainRetireRequest {
+  TenantDomainRef ref = 1;
+  // Retire even though labels were printed with it.
+  bool force = 2 [features.field_presence = IMPLICIT];
+}
+
+message TenantDomainStatusRequest {}
+
+message TenantDomainStatusResponse {
+  bool labels = 1 [features.field_presence = IMPLICIT];
+  TenantDomain active = 2;
+  // The host a custom domain's CNAME has to point at.
+  string target = 3 [features.field_presence = IMPLICIT];
+  // The suffix a default subdomain gets.
+  string default_suffix = 4 [features.field_presence = IMPLICIT];
+  // Whether a tenant prints with a domain of its own (D23). Off, labels
+  // print with the deployment's own address and are always on (D28).
+  bool tenant_domains = 5 [features.field_presence = IMPLICIT];
+  // What a label prints with when it has no domain to: `<base>/l/<code>`.
+  string base = 6 [features.field_presence = IMPLICIT];
+}
+
+service AttachmentService {
+  rpc Upload(AttachmentUploadRequest) returns (Attachment);
+  // Url answers a short-lived signed address to download the file.
+  rpc Url(AttachmentUrlRequest) returns (AttachmentUrlResponse);
+}
+
+message AttachmentUploadRequest {
+  bytes subject_id = 1 [features.field_presence = IMPLICIT];
+  string name = 2 [features.field_presence = IMPLICIT];
+  string content_type = 3 [features.field_presence = IMPLICIT];
+  bytes data = 4 [features.field_presence = IMPLICIT];
+}
+
+message AttachmentUrlRequest {
+  AttachmentRef ref = 1;
+}
+
+message AttachmentUrlResponse {
+  string url = 1 [features.field_presence = IMPLICIT];
+  google.protobuf.Timestamp expires_at = 2;
+}

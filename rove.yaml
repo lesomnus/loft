@@ -1,0 +1,256 @@
+# What this deployment is configured with.
+#
+# A file, then the environment over the top of it: `ROVE_DB_DSN` beats what
+# is written here. `rove config` prints what came out, and
+# `rove config env` lists every variable there is.
+
+db:
+  driver: sqlite3
+  # WAL and a busy timeout, because the background sweeps write while requests
+  # do, and SQLite has one writer.
+  dsn: "file:data/rove.db?_pragma=foreign_keys(1)&_pragma=journal_mode(wal)&_pragma=busy_timeout(10000)"
+  # A checkout brings its tables up to date as it starts. A deployment says
+  # this on purpose, or migrates before it serves.
+  migrate: true
+
+server:
+  addr: ":50051"
+  # An attachment or an imported sheet is up to 20 MiB, and a page sends it as
+  # base64 inside JSON.
+  max_recv_msg_size: 33554432
+
+  # The second listener, for whatever cannot speak gRPC -- which is every
+  # browser. Delete this block and no port is opened, which is what an app with
+  # no page in front of it should do.
+  #
+  # It is the same server: a call arrives as JSON over POST, is re-encoded and
+  # handed to the handler a gRPC client would have reached, so it goes through
+  # the same interceptors and behind the same wall.
+  http:
+    addr: ":8080"
+    allow_web: true
+    # Which page may call. Nothing here is same-origin only, which is right for
+    # a built UI this server also serves and wrong for `npm run dev` -- that is
+    # 5173, and a different origin.
+    origins: ["http://localhost:5173"]
+
+watch:
+  # Named rather than defaulted, and it is the one field this app is refused for
+  # leaving out. `memory` publishes inside this process, which is right for one
+  # replica and silently wrong for two -- a client watching against one never
+  # hears about a write that landed on another, and nothing reports it.
+  # Several processes on PostgreSQL name `postgres` (LISTEN/NOTIFY on the
+  # rows' own database).
+  broker: memory
+
+spin:
+  # Named for the same reason: which process of the deployment runs the loops
+  # only one of them may -- the sweeps, the mail, the departures, the closing.
+  # `local` runs them all in this process, which is right for one replica and
+  # silently wrong for two: each would run every sweep. Several processes on
+  # PostgreSQL name `postgres` (an advisory lock on the rows' own database, not
+  # through a transaction pooler -- `spin.dsn` is for a direct address); a
+  # process that only answers requests names `none`.
+  lease: local
+
+# Who people are and how they sign in is roster's (design 9.10). With no
+# `addr`, roster runs in this process on a database of its own -- `roster.db`
+# beside the SQLite file above, or `db:` here, which a PostgreSQL deployment
+# names -- and nothing outside the process can reach it.
+#
+# `addr` is a roster deployment of its own. `key` is what Rove acts with there,
+# as `env:NAME`, `file:PATH` or the key itself: an `rk_` its operator minted
+# (`roster control key add --allow /roster.NominationService/List rove`), which
+# serves every tenant that installed Rove (`roster app install --tenant
+# accounts rove`), or an `rt_` of one tenant's.
+#
+# `directory` is the roster tenant this deployment's accounts are in (D27):
+# workspaces are Rove's own tenants, and an account belongs to as many as it
+# is put in. An `rk_` is told which; an `rt_`'s is its own tenant; the roster
+# in this process has `rove`.
+#
+# `account_url` is roster's account page, at the directory's front door: the
+# page "내 정보" sends somebody to for how they sign in, and to its `#leave`
+# to delete their account where the directory offers that (roster's
+# `TenantConfig.leave`). Only a roster of its own has one.
+#
+# auth:
+#   roster:
+#     addr: roster.example.com:443
+#     key: env:ROSTER_KEY
+#     directory: accounts
+#     # account_url: https://id.example.com/
+#     # ca_file: /etc/rove/roster-ca.pem
+#   # or, in this process on PostgreSQL:
+#   roster:
+#     db:
+#       driver: pgx
+#       dsn: postgres://rove:rove@localhost:5432/roster
+#
+# `sso` signs people in through roster's issuer -- its Hydra, in front of the
+# directory -- and draws a button per connection of the directory there (D28).
+# The client is registered at Hydra with `client_secret_basic`,
+# `<app_url>/sso/callback` as its redirect and `<app_url>/` as where a
+# sign-out may come back to. `sso_only` turns the password form off, which is
+# what a deployment whose people all arrive that way says.
+#
+# auth:
+#   sso:
+#     issuer: https://id.rove.example
+#     client_id: rove
+#     client_secret: env:ROVE_SSO_SECRET
+#     providers:
+#       - { connection: google, label: Google, mark: google }
+#       - { connection: microsoft, label: Microsoft, mark: microsoft }
+#       - { connection: github, label: GitHub, mark: github }
+#   sso_only: true
+
+# rove's own.
+#
+# `mail` is the SMTP server what goes to a mailbox is sent through -- an
+# invitation (design 9.11). With no host nothing is sent, and each message,
+# its link included, is written to the log. `invitations` is how long one
+# waits and how many a workspace may have out. `accounts` is how long the
+# memberships of an account roster erased wait before it leaves every
+# workspace it was in: roster's own grace, `holder.forget_after`, and kept
+# equal to it (design 9.10); and how often every account is asked about at
+# roster again, for an erasure the stream did not carry.
+#
+# app:
+#   mail:
+#     host: smtp.example.com
+#     port: 587                          # 465 with `tls: implicit`
+#     username: rove
+#     password: env:ROVE_MAIL_PASSWORD
+#     from: "Rove <no-reply@rove.example>"
+#     tls: starttls                      # starttls | implicit | none
+#   invitations:
+#     ttl: 720h                          # 30 days
+#     pending: 50                        # waiting at once, per workspace
+#     daily: 100                         # sent in a day, per workspace
+#   workspaces:
+#     alias_length: 7                    # a new address; grows by itself when crowded
+#     reserved: [acme-corp]              # beside the app's own (`tenancy.Reserved`)
+#     restore_within: 720h               # a closed workspace may be restored for 30 days
+#     alias_hold: 8760h                  # then its address is nobody's for a year
+#   accounts:
+#     forget_after: 720h                 # 30 days, roster's default
+#     every: 1h                          # how often the leaving are looked at
+#     reconcile: 24h                     # every account asked about again; 0 is off
+app:
+  # Where a browser reaches the HTTP listener. Its scheme says whether the
+  # session cookie needs HTTPS.
+  public_url: http://localhost:8080
+  # The proxies in front whose X-Forwarded-For is believed: a network or an
+  # address each. Empty believes nobody's, which is right with nothing in
+  # front; behind one, name it, or every request is the proxy's and the sign-in
+  # limits are one limit for everybody behind it (`server/clientaddr`).
+  # trusted_proxies: [127.0.0.1]
+  # The built UI (`cd ts && npm run build`), served at `/`. During
+  # `npm run dev` the page is on :5173 and talks to this server through Vite's
+  # proxy; set `app_url` to it so a scanned label opens there.
+  web: ts/dist
+  # app_url: http://localhost:5173
+  # How a page is held to its Content Security Policy (`server/csp`):
+  # report-only (the default) has browsers report what a page does that it
+  # does not allow to /csp-report, which logs it; enforce stops it too; off
+  # says neither. Framing is refused whatever this says.
+  # csp: report-only
+  files: data/files
+  labels:
+    # Off (SaaS, and the default): every label prints with `public_url` and a
+    # code unique in the deployment, `<public_url>/l/7K3MQ9TX` (D28). On
+    # (Dedicated): a workspace prints with a domain of its own (D23), and has
+    # labels only once it has one.
+    tenant_domains: false
+    # Where workspaces have domains of their own, a default one is
+    # `<workspace>.l.localhost`, which a browser resolves to this machine. A
+    # deployment names its own, such as `l.rove.example`.
+    suffix: l.localhost
+  session:
+    idle: 24h
+    lifetime: 168h
+  # A room nobody checked into is released this long after it began.
+  no_show_after: 15m
+  sweep: 1m
+  # What an account agrees to before it uses anything here (design 9.11):
+  # each document at the version in force, read at its url. A new version is
+  # agreed to again. None, the default, asks nothing.
+  # consent:
+  #   terms: { version: "2026-10-01", url: https://rove.example/terms }
+  #   privacy: { version: "2026-10-01", url: https://rove.example/privacy }
+  #   # How long an account's agreements are kept after it left; past it they
+  #   # are destroyed. Unset keeps them for good (rove#35: until legal review
+  #   # decides the period).
+  #   keep: 26280h
+
+  # What a tenant's history is kept for (design 8). A tenant's own windows are
+  # its contract's -- `rove contract set --tenant acme --view 365 --keep 730`
+  # -- and these are what a tenant with no contract gets. `apply` is the
+  # deployment saying a window may destroy: off, the view window still
+  # applies to what a tenant reads, and nothing is removed.
+  #
+  # `rove retention plan` says what a pass would take, changing nothing.
+  #
+  # retention:
+  #   apply: false
+  #   view: 8760h
+  #   keep: 17520h
+  #   every: 1h
+
+  # What an account may make (design 9.11). `personal` gives an account in no
+  # workspace one of its own when it signs in, which is what signing up is;
+  # `owned` is how many it owns before another is paid for (-1 is no limit).
+  #
+  # workspaces:
+  #   personal: true
+  #   owned: 3
+
+# How long the trail keeps a row. Every write this app makes is recorded, and
+# **nothing else applies a window**: with no block here the table is kept whole,
+# forever, and it is the one that grows without anybody writing to it.
+#
+# Left out rather than filled in, because a scaffold cannot know what this app
+# is regulated as -- and a wrong number here is the mistake worth being loudest
+# about, since it works: the sweep runs, the table stops growing, every graph
+# improves, and what it is doing is destroying the evidence.
+#
+# `retain` is how long a row stays in the database and `destroy` is how long the
+# archive holds it afterwards. Naming `retain` with nowhere for the rows to go
+# is refused where this process comes up, unless `discard: true` says the
+# deployment means to keep nothing.
+#
+# `profile:` fills both from a named regime -- pci, hipaa, sox, pipa,
+# pipa-sensitive, gdpr, forever -- and `trail.Profiles` carries the sentence
+# each number comes from, so what is written here is arguable rather than
+# arbitrary. Anything set beside a profile wins.
+#
+# `by:` is per kind of thing, keyed by what the schema registered. Obligations
+# are not uniform: what was done to a person eventually has to stop existing,
+# and what a machine did is an operating record with the opposite requirement.
+#
+# With an archive, the database keeps an account of what it holds, and
+# `rove trail verify` checks the two. `checkpoints:` is where every pass leaves
+# what the archive held: on a disk that refuses deletion, and signed with a key
+# mounted as a secret -- or given as the PEM document itself, through
+# ROVE_AUDIT_CHECKPOINTS_KEY.
+#
+# audit:
+#   profile: pipa
+#   archive: /var/lib/rove/audit
+#   checkpoints:
+#     dir: /mnt/worm/rove/checkpoints
+#     key: /run/secrets/checkpoints.pem
+#   by:
+#     holder:
+#       profile: gdpr
+
+# The operator's entry point (design 6장): `rove-admin serve` beside this
+# deployment, on an address only the operators' network reaches, and never by
+# `rove serve`. Each operator holds a key of 32 characters or more; what they
+# do is logged with their name.
+#
+# admin:
+#   addr: 127.0.0.1:8081
+#   keys:
+#     alice: env:ROVE_ADMIN_KEY_ALICE

@@ -1,0 +1,12 @@
+.gen/
+dist/
+node_modules/
+*.db
+*.db-*
+/data/
+test-results/
+playwright-report/
+
+# A deployment's own, never committed (deploy/compose/README.md).
+deploy/compose/.env
+deploy/compose/secrets/

@@ -1,0 +1,337 @@
+edition = "2023";
+
+package rove;
+
+import "google/protobuf/timestamp.proto";
+import "orm.proto";
+import "payday.proto";
+import "rove/asset.proto";
+import "rove/org.proto";
+import "rove/payday/tenant.proto";
+
+option features.field_presence = IMPLICIT;
+option go_package = "github.com/lesomnus/rove";
+
+// The time rows (design 3.3). Each is written once and changed only by being
+// superseded: `superseded_at` and `superseded_by` are set once, by the domain
+// layer, when a correction or a later fact replaces the row. `date_created` is
+// when the system learned it; `valid_from`/`valid_to` are when it was true.
+
+// Placement is a child asset physically inside a parent asset.
+message Placement {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  Asset child = 8 [(orm.edge) = {immutable: true}];
+  Asset parent = 9 [(orm.edge) = {immutable: true}];
+  // located | installed | part
+  string mode = 10;
+  string slot = 11;
+  // A rack position, inclusive, when the parent is a rack. Zero is none.
+  int32 u_from = 12;
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  int32 u_to = 16;
+  google.protobuf.Timestamp valid_from = 17 [(orm.field) = {default: ""}];
+  google.protobuf.Timestamp valid_to = 18 [(orm.field) = {nullable: true}];
+  bytes event_id = 19 [(orm.field) = {type: TYPE_UUID}];
+  google.protobuf.Timestamp superseded_at = 20 [
+    (orm.field) = {nullable: true},
+    (payday.field) = {stamped: true}
+  ];
+  bytes superseded_by = 21 [(orm.field) = {
+    type: TYPE_UUID
+    nullable: true
+  }];
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "page"
+        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+      },
+      {
+        name: "child"
+        refs: [{name: "child", number: 8}, {name: "valid_from", number: 17}]
+      },
+      {
+        name: "parent"
+        refs: [{name: "parent", number: 9}, {name: "valid_from", number: 17}]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 13
+    erase: {hard: {}}
+    tenanted: {via: "tenant", agrees: ["child.tenant", "parent.tenant"]}
+    list: {
+      order: [{field: {name: "date_created"}}, {field: {name: "id"}}]
+      by: [{name: "ref"}, {name: "child"}, {name: "parent"}]
+      size: 100
+      max: 1000
+    }
+  };
+}
+
+// Link is a logical relation between two assets: membership of a kit or a
+// group, or a connection. Many to many.
+message Link {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  map<string, string> labels = 7;
+
+  Asset source = 8 [(orm.edge) = {immutable: true}];
+  Asset target = 9 [(orm.edge) = {immutable: true}];
+  // member_of | connected_to
+  string kind = 10;
+  // For member_of: the kit cannot go out without it.
+  bool required = 11;
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  google.protobuf.Timestamp valid_from = 17 [(orm.field) = {default: ""}];
+  google.protobuf.Timestamp valid_to = 18 [(orm.field) = {nullable: true}];
+  bytes event_id = 19 [(orm.field) = {type: TYPE_UUID}];
+  google.protobuf.Timestamp superseded_at = 20 [
+    (orm.field) = {nullable: true},
+    (payday.field) = {stamped: true}
+  ];
+  bytes superseded_by = 21 [(orm.field) = {
+    type: TYPE_UUID
+    nullable: true
+  }];
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "page"
+        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+      },
+      {
+        name: "source"
+        refs: [{name: "source", number: 8}, {name: "valid_from", number: 17}]
+      },
+      {
+        name: "target"
+        refs: [{name: "target", number: 9}, {name: "valid_from", number: 17}]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 14
+    erase: {hard: {}}
+    tenanted: {via: "tenant", agrees: ["source.tenant", "target.tenant"]}
+    list: {
+      order: [{field: {name: "date_created"}}, {field: {name: "id"}}]
+      by: [{name: "ref"}, {name: "source"}, {name: "target"}, {name: "kind"}]
+      size: 100
+      max: 1000
+    }
+  };
+}
+
+// Stewardship is who an asset is owned by, managed by or held by. One party
+// per role at a time.
+message Stewardship {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  Asset asset = 8 [(orm.edge) = {immutable: true}];
+  Party party = 9 [(orm.edge) = {immutable: true}];
+  // owner | manager | custodian
+  string role = 10;
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  google.protobuf.Timestamp valid_from = 17 [(orm.field) = {default: ""}];
+  google.protobuf.Timestamp valid_to = 18 [(orm.field) = {nullable: true}];
+  bytes event_id = 19 [(orm.field) = {type: TYPE_UUID}];
+  google.protobuf.Timestamp superseded_at = 20 [
+    (orm.field) = {nullable: true},
+    (payday.field) = {stamped: true}
+  ];
+  bytes superseded_by = 21 [(orm.field) = {
+    type: TYPE_UUID
+    nullable: true
+  }];
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "page"
+        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+      },
+      {
+        name: "asset"
+        refs: [{name: "asset", number: 8}, {name: "valid_from", number: 17}]
+      },
+      {
+        name: "party"
+        refs: [{name: "party", number: 9}, {name: "valid_from", number: 17}]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 15
+    erase: {hard: {}}
+    tenanted: {via: "tenant", agrees: ["asset.tenant", "party.tenant"]}
+    list: {
+      order: [{field: {name: "date_created"}}, {field: {name: "id"}}]
+      by: [{name: "ref"}, {name: "asset"}, {name: "party"}, {name: "role"}]
+      size: 100
+      max: 1000
+    }
+  };
+}
+
+// Fact is one attribute of an asset from a moment on: "from valid_from, key is
+// value" (design 3.3, D5).
+message Fact {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  Asset asset = 8 [(orm.edge) = {immutable: true}];
+  // status | condition | name | type | model | tag | serial | attr.<key> ...
+  string key = 9;
+  // The value as text; empty with `cleared` means the key stopped having one.
+  string value = 10;
+  bool cleared = 11;
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  google.protobuf.Timestamp valid_from = 17 [(orm.field) = {default: ""}];
+  bytes event_id = 19 [(orm.field) = {type: TYPE_UUID}];
+  google.protobuf.Timestamp superseded_at = 20 [
+    (orm.field) = {nullable: true},
+    (payday.field) = {stamped: true}
+  ];
+  bytes superseded_by = 21 [(orm.field) = {
+    type: TYPE_UUID
+    nullable: true
+  }];
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "page"
+        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+      },
+      {
+        name: "asset"
+        refs: [{name: "asset", number: 8}, {name: "key", number: 9}, {name: "valid_from", number: 17}]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 16
+    erase: {hard: {}}
+    tenanted: {via: "tenant", agrees: ["asset.tenant"]}
+    list: {
+      order: [{field: {name: "date_created"}}, {field: {name: "id"}}]
+      by: [{name: "ref"}, {name: "asset"}, {name: "key"}]
+      size: 100
+      max: 1000
+    }
+  };
+}
+
+// Event is one domain operation: what was done, by whom, when it happened and
+// why. Time rows point at the event that wrote them.
+message Event {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  // A short sentence for a person to read.
+  string desc = 6;
+
+  // asset.add | asset.move | custody.issue | reservation.approve | ...
+  string kind = 8;
+  // The holder that asked, or empty for the deployment's own work.
+  bytes actor_id = 9 [(orm.field) = {
+    type: TYPE_UUID
+    nullable: true
+  }];
+  google.protobuf.Timestamp occurred_at = 10 [(orm.field) = {default: ""}];
+  string reason = 11;
+  // The primary thing this was about, so a timeline can find it.
+  bytes subject_id = 12 [(orm.field) = {
+    type: TYPE_UUID
+    nullable: true
+  }];
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  bytes trace_id = 16 [(orm.field) = {default: ""}];
+  // What the operation said, as JSON, for a person reading the history.
+  string payload = 17;
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "page"
+        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+      },
+      {
+        name: "subject"
+        refs: [{name: "subject_id", number: 12}, {name: "occurred_at", number: 10}]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 17
+    erase: {hard: {}}
+    list: {
+      order: [{field: {name: "date_created"}, desc: true}, {field: {name: "id"}, desc: true}]
+      by: [{name: "ref"}, {name: "subject_id"}, {name: "kind"}, {name: "actor_id"}]
+      size: 50
+      max: 500
+    }
+  };
+}

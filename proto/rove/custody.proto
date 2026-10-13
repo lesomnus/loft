@@ -1,0 +1,146 @@
+edition = "2023";
+
+package rove;
+
+import "google/protobuf/timestamp.proto";
+import "orm.proto";
+import "payday.proto";
+import "rove/asset.proto";
+import "rove/org.proto";
+import "rove/stock.proto";
+import "rove/payday/tenant.proto";
+
+option features.field_presence = IMPLICIT;
+option go_package = "github.com/lesomnus/rove";
+
+// Custody is a document handing assets to somebody: an issue for keeps or a
+// loan with a due date. Adding one opens the custodian stewardships of its
+// lines; returning closes them (design D6).
+message Custody {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  string desc = 6;
+
+  Party party = 8 [(orm.edge) = {immutable: true}];
+  // issue | loan
+  string kind = 9;
+  // open | returned | cancelled
+  string status = 10;
+  google.protobuf.Timestamp issued_at = 11 [(orm.field) = {default: ""}];
+  google.protobuf.Timestamp due_at = 12 [(orm.field) = {nullable: true}];
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+  google.protobuf.Timestamp date_erased = 14 [(orm.field) = {erased: {}}];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  google.protobuf.Timestamp acknowledged_at = 16 [
+    (orm.field) = {nullable: true},
+    (payday.field) = {stamped: true}
+  ];
+  google.protobuf.Timestamp returned_at = 17 [(orm.field) = {nullable: true}];
+  bytes reservation_id = 18 [(orm.field) = {
+    type: TYPE_UUID
+    nullable: true
+  }];
+  bytes issued_by = 19 [(orm.field) = {
+    type: TYPE_UUID
+    nullable: true
+  }];
+  bool overdue_noticed = 20;
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "page"
+        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+      },
+      {
+        name: "party"
+        refs: [{name: "party", number: 8}, {name: "issued_at", number: 11}]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 21
+    tenanted: {via: "tenant", agrees: ["party.tenant"]}
+    list: {
+      order: [{field: {name: "date_created"}, desc: true}, {field: {name: "id"}, desc: true}]
+      by: [{name: "ref"}, {name: "party"}, {name: "status"}, {name: "kind"}, {name: "reservation_id"}]
+      size: 100
+      max: 500
+    }
+    watch: {}
+  };
+}
+
+// CustodyLine is one thing a custody handed over: an asset, or a quantity of a
+// stock.
+message CustodyLine {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  Custody custody = 8 [(orm.edge) = {immutable: true}];
+  Asset asset = 9 [(orm.edge) = {
+    immutable: true
+    nullable: true
+  }];
+  Stock stock = 10 [(orm.edge) = {
+    immutable: true
+    nullable: true
+  }];
+  int64 quantity = 11;
+  int64 returned_quantity = 12;
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  google.protobuf.Timestamp out_at = 16 [(orm.field) = {default: ""}];
+  google.protobuf.Timestamp returned_at = 17 [(orm.field) = {nullable: true}];
+  string condition_out = 18;
+  string condition_in = 19;
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "page"
+        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+      },
+      {
+        name: "custody"
+        refs: [{name: "custody", number: 8}]
+      },
+      {
+        name: "asset"
+        refs: [{name: "asset", number: 9}]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 22
+    erase: {hard: {}}
+    tenanted: {via: "tenant", agrees: ["custody.tenant", "asset.tenant", "stock.tenant"]}
+    list: {
+      order: [{field: {name: "date_created"}}, {field: {name: "id"}}]
+      by: [{name: "ref"}, {name: "custody"}, {name: "asset"}, {name: "stock"}]
+      size: 200
+      max: 1000
+    }
+  };
+}

@@ -1,0 +1,56 @@
+edition = "2023";
+
+package rove;
+
+import "google/protobuf/timestamp.proto";
+import "rove/asset_svc.g.proto";
+import "rove/custody.proto";
+import "rove/stock_svc.g.proto";
+
+option go_package = "github.com/lesomnus/rove";
+
+// What the completed Add takes beyond the custody itself: what is handed over.
+message CustodyAddRequest {
+  repeated CustodyLineSpec lines = 100;
+  bytes op = 101;
+}
+
+message CustodyLineSpec {
+  AssetRef asset = 1;
+  StockRef stock = 2;
+  int64 quantity = 3 [features.field_presence = IMPLICIT];
+  string condition = 4 [features.field_presence = IMPLICIT];
+}
+
+service CustodyService {
+  // Acknowledge is the receiver saying they have it.
+  rpc Acknowledge(CustodyAcknowledgeRequest) returns (Custody);
+  // Return takes back some or all of what was handed over.
+  rpc Return(CustodyReturnRequest) returns (Custody);
+  rpc Extend(CustodyExtendRequest) returns (Custody);
+}
+
+message CustodyAcknowledgeRequest {
+  CustodyRef ref = 1;
+}
+
+message CustodyReturnRequest {
+  CustodyRef ref = 1;
+  // Empty: everything still out.
+  repeated CustodyReturnLine lines = 2;
+  google.protobuf.Timestamp at = 3;
+  // Where the returned assets go.
+  AssetRef to = 4;
+  bytes op = 5 [features.field_presence = IMPLICIT];
+}
+
+message CustodyReturnLine {
+  CustodyLineRef line = 1;
+  int64 quantity = 2 [features.field_presence = IMPLICIT];
+  string condition = 3 [features.field_presence = IMPLICIT];
+}
+
+message CustodyExtendRequest {
+  CustodyRef ref = 1;
+  google.protobuf.Timestamp due_at = 2;
+}

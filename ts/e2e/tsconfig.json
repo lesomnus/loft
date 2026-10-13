@@ -1,0 +1,9 @@
+{
+	// The browser tests and their configuration, which run in node: Playwright
+	// compiles them itself, and this is for `npm run check` to read them too.
+	"extends": "../tsconfig.json",
+	"compilerOptions": {
+		"types": ["node"]
+	},
+	"include": [".", "../playwright.config.ts"]
+}

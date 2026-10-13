@@ -1,0 +1,238 @@
+edition = "2023";
+
+package rove;
+
+import "google/protobuf/timestamp.proto";
+import "orm.proto";
+import "payday.proto";
+import "rove/payday/holder.proto";
+import "rove/payday/tenant.proto";
+
+option features.field_presence = IMPLICIT;
+option go_package = "github.com/lesomnus/rove";
+
+// Notification is a message for one holder: an overdue loan, a reservation to
+// approve, a stock running low.
+message Notification {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  string name = 5;
+  string desc = 6;
+
+  Holder holder = 8 [(orm.edge) = {immutable: true}];
+  // custody.overdue | reservation.requested | reservation.decided | stock.low | work.due | count.finding
+  string kind = 9;
+  bytes subject_id = 10 [(orm.field) = {
+    type: TYPE_UUID
+    nullable: true
+  }];
+  google.protobuf.Timestamp read_at = 11 [(orm.field) = {nullable: true}];
+  // Where a page goes to act on it.
+  string link = 12;
+
+  // Whether it goes by mail as well: set as it is written, so that an
+  // operation that is undone queues nothing, and only for the kinds that are
+  // worth a mailbox (an approval asked and answered, custody overdue,
+  // maintenance due). `date_mailed` is when it went, and `mail_tries` how
+  // often it failed to; what is queued and not yet sent is sent by
+  // `domain.Mailer`, outside every operation.
+  bool mail = 16;
+  google.protobuf.Timestamp date_mailed = 17 [(orm.field) = {nullable: true}];
+  uint32 mail_tries = 18;
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "page"
+        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+      },
+      {
+        name: "holder"
+        refs: [{name: "holder", number: 8}, {name: "date_created", number: 15}]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 36
+    erase: {hard: {}}
+    tenanted: {via: "tenant", agrees: ["holder.tenant"]}
+    list: {
+      order: [{field: {name: "date_created"}, desc: true}, {field: {name: "id"}, desc: true}]
+      by: [{name: "ref"}, {name: "holder"}, {name: "kind"}]
+      size: 50
+      max: 200
+    }
+  };
+}
+
+// UsageSnapshot is one tenant's usage on one day (design 7.1).
+message UsageSnapshot {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  // YYYY-MM-DD, UTC.
+  string day = 8;
+  map<string, string> metrics = 9;
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "page"
+        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+      },
+      {
+        name: "day"
+        refs: [{name: "tenant", number: 2}, {name: "day", number: 8}]
+        unique: true
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 20
+    erase: {hard: {}}
+    list: {
+      order: [{field: {name: "date_created"}, desc: true}, {field: {name: "id"}, desc: true}]
+      by: [{name: "ref"}, {name: "day"}]
+      size: 31
+      max: 400
+    }
+  };
+}
+
+
+// TenantContract is what a tenant's contract says about its history: how far
+// back it may look, and how long its history is kept (design 8).
+//
+// The operator's, and the tenant's to read: no role may write one, and the
+// operator's path does (`rove contract`). Not fields on Tenant, because a
+// tenant's own people write that row, and because a contract has a time
+// dimension -- a plan changes on the first of the month, a downgrade waits out
+// its grace -- which a row per change states and a field cannot.
+//
+// The one in force is the latest whose `date_effective` has come. What the
+// windows are now, grace included, is `server/retention`.
+message TenantContract {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+
+  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  // The plan, as the people reading it call it: "free", "pro", an agreement's
+  // number.
+  string name = 5;
+  string desc = 6;
+
+  // How far back the tenant may look at its history, in days. 0 is all of it.
+  // It shrinks the moment a contract says so.
+  uint32 view_days = 8;
+
+  // How long its history is kept at all, in days. 0 is forever. Only the
+  // operator's switch, `app.retention.apply`, lets this destroy anything.
+  uint32 keep_days = 9;
+
+  // How long a shorter `keep_days` waits before it applies, in days: the
+  // contract before this one keeps its history for that long, so a plan that
+  // comes back in time has lost nothing.
+  uint32 grace_days = 10;
+
+  // From when this one applies. Unsaid is now.
+  google.protobuf.Timestamp date_effective = 11 [(orm.field) = {default: ""}];
+
+  // Withdrawn, for a change that was a mistake. A contract in force is
+  // replaced by a newer one rather than taken back.
+  google.protobuf.Timestamp date_erased = 14 [(orm.field) = {erased: {}}];
+
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "effective"
+        refs: [{name: "tenant", number: 2}, {name: "date_effective", number: 11}]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 39
+    list: {
+      order: [{field: {name: "date_effective"}, desc: true}, {field: {name: "id"}, desc: true}]
+      by: [{name: "ref"}]
+      size: 20
+      max: 100
+    }
+  };
+}
+
+
+// LegalHold is a legal hold on a tenant's history: while one is on, nothing of
+// it is destroyed -- rove's history, and the trail, which payday holds from the
+// same answer (payday#35).
+//
+// The operator's, like the contract, and the tenant's people who run it may
+// read it. Placed and lifted, never edited: a hold is evidence of its own, and
+// what it says is when it began, why, and when it ended.
+message LegalHold {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+
+  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  // What it is for: a case, a demand, an agreement.
+  string name = 5;
+  string desc = 6;
+
+  // When it was lifted. Unset is a hold that is on.
+  google.protobuf.Timestamp date_lifted = 8 [(orm.field) = {nullable: true}];
+
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  option (orm.message) = {
+    rpc: {crud: true}
+  };
+  option (payday.entity) = {
+    domain: 40
+    erase: {hard: {}}
+    list: {
+      order: [{field: {name: "date_created"}, desc: true}, {field: {name: "id"}, desc: true}]
+      by: [{name: "ref"}]
+      size: 20
+      max: 100
+    }
+  };
+}

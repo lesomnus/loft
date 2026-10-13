@@ -1,0 +1,55 @@
+edition = "2023";
+
+package rove;
+
+import "google/protobuf/timestamp.proto";
+import "rove/asset_svc.g.proto";
+import "rove/count.proto";
+
+option go_package = "github.com/lesomnus/rove";
+
+service InventoryCountService {
+  // Scan records that something was seen, where. Offline scans arrive with the
+  // device's `seen_at` and their own op, so a replay is the same scan.
+  rpc Scan(InventoryCountScanRequest) returns (CountFinding);
+  // Reconcile marks what was expected under the scope and never seen.
+  rpc Reconcile(InventoryCountReconcileRequest) returns (InventoryCountReconcileResponse);
+  // Resolve settles one finding: move the asset to where it was seen, report it
+  // lost, or ignore it.
+  rpc Resolve(InventoryCountResolveRequest) returns (CountFinding);
+  rpc Close(InventoryCountCloseRequest) returns (InventoryCount);
+}
+
+message InventoryCountScanRequest {
+  InventoryCountRef ref = 1;
+  // What was scanned: a label code, or an asset directly.
+  string code = 2 [features.field_presence = IMPLICIT];
+  AssetRef asset = 3;
+  // Where it was seen. Empty is the count's scope.
+  AssetRef at = 4;
+  google.protobuf.Timestamp seen_at = 5;
+  bytes op = 6 [features.field_presence = IMPLICIT];
+  string note = 7 [features.field_presence = IMPLICIT];
+}
+
+message InventoryCountReconcileRequest {
+  InventoryCountRef ref = 1;
+}
+
+message InventoryCountReconcileResponse {
+  uint32 missing = 1 [features.field_presence = IMPLICIT];
+  uint32 seen = 2 [features.field_presence = IMPLICIT];
+  uint32 misplaced = 3 [features.field_presence = IMPLICIT];
+  uint32 unknown = 4 [features.field_presence = IMPLICIT];
+}
+
+message InventoryCountResolveRequest {
+  CountFindingRef ref = 1;
+  // moved | lost | ignored
+  string resolution = 2 [features.field_presence = IMPLICIT];
+  string reason = 3 [features.field_presence = IMPLICIT];
+}
+
+message InventoryCountCloseRequest {
+  InventoryCountRef ref = 1;
+}

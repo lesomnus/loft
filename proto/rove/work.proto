@@ -1,0 +1,179 @@
+edition = "2023";
+
+package rove;
+
+import "google/protobuf/timestamp.proto";
+import "orm.proto";
+import "payday.proto";
+import "rove/asset.proto";
+import "rove/catalog.proto";
+import "rove/org.proto";
+import "rove/payday/tenant.proto";
+
+option features.field_presence = IMPLICIT;
+option go_package = "github.com/lesomnus/rove";
+
+// WorkOrder is a repair, an inspection or maintenance of an asset. One that
+// blocks takes the asset's time like a reservation does.
+message WorkOrder {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  string name = 5;
+  string desc = 6;
+
+  Asset asset = 8 [(orm.edge) = {immutable: true}];
+  // repair | inspection | maintenance | rma
+  string kind = 9;
+  // open | scheduled | in_progress | done | cancelled
+  string status = 10;
+  google.protobuf.Timestamp begins_at = 11 [(orm.field) = {nullable: true}];
+  google.protobuf.Timestamp ends_at = 12 [(orm.field) = {nullable: true}];
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+  google.protobuf.Timestamp date_erased = 14 [(orm.field) = {erased: {}}];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  Party vendor = 16 [(orm.edge) = {nullable: true}];
+  int64 cost = 17;
+  string currency = 18;
+  google.protobuf.Timestamp completed_at = 19 [(orm.field) = {nullable: true}];
+  bool blocking = 20;
+  // For a recurring inspection: how many days after this one the next is due.
+  int32 every_days = 21;
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "page"
+        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+      },
+      {
+        name: "asset"
+        refs: [{name: "asset", number: 8}]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 33
+    tenanted: {via: "tenant", agrees: ["asset.tenant"]}
+    list: {
+      order: [{field: {name: "date_created"}, desc: true}, {field: {name: "id"}, desc: true}]
+      by: [{name: "ref"}, {name: "asset"}, {name: "status"}, {name: "kind"}, {name: "vendor"}]
+      size: 100
+      max: 500
+    }
+    watch: {}
+  };
+}
+
+// Purchase is where assets and stock came from, and what they cost.
+message Purchase {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  string name = 5;
+  string desc = 6;
+
+  Party vendor = 8 [(orm.edge) = {nullable: true}];
+  string reference = 9;
+  // ordered | received | cancelled
+  string status = 10;
+  google.protobuf.Timestamp ordered_at = 11 [(orm.field) = {default: ""}];
+  google.protobuf.Timestamp received_at = 12 [(orm.field) = {nullable: true}];
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+  google.protobuf.Timestamp date_erased = 14 [(orm.field) = {erased: {}}];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  string currency = 16;
+  int64 total = 17;
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "page"
+        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 34
+    list: {
+      order: [{field: {name: "date_created"}, desc: true}, {field: {name: "id"}, desc: true}]
+      by: [{name: "ref"}, {name: "vendor"}, {name: "status"}]
+      size: 100
+      max: 500
+    }
+    watch: {}
+  };
+}
+
+// PurchaseLine is one thing bought: a model and a quantity, received into
+// assets or stock.
+message PurchaseLine {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  string desc = 6;
+
+  Purchase purchase = 8 [(orm.edge) = {immutable: true}];
+  ItemModel model = 9 [(orm.edge) = {nullable: true}];
+  int64 quantity = 10;
+  int64 unit_cost = 11;
+  int64 received_quantity = 12;
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  // received as: asset | stock
+  string receive_as = 16;
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "page"
+        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+      },
+      {
+        name: "purchase"
+        refs: [{name: "purchase", number: 8}]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 35
+    erase: {hard: {}}
+    tenanted: {via: "tenant", agrees: ["purchase.tenant"]}
+    list: {
+      order: [{field: {name: "date_created"}}, {field: {name: "id"}}]
+      by: [{name: "ref"}, {name: "purchase"}, {name: "model"}]
+      size: 200
+      max: 1000
+    }
+  };
+}

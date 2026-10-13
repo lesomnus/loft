@@ -1,0 +1,15 @@
+Copyright (c) 2026 Seunghyun Hwang. All rights reserved.
+
+This repository is published so that it can be read. No license is granted to
+use, copy, modify, merge, publish, distribute, sublicense or sell any part of
+it, in source or in any other form, for any purpose, commercial or otherwise,
+without prior written permission from the copyright holder.
+
+Viewing and forking this repository on GitHub are permitted only to the extent
+the GitHub Terms of Service require. No other right is granted, by implication
+or otherwise.
+
+Third-party components keep their own licenses. In particular, the files that
+payday (https://github.com/lesomnus/payday) copies into or generates from this
+repository, such as everything under proto/rove/payday/, remain under the
+Apache License, Version 2.0.

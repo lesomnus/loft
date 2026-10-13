@@ -1,0 +1,36 @@
+edition = "2023";
+
+package rove;
+
+import "rove/catalog.proto";
+
+option go_package = "github.com/lesomnus/rove";
+
+service AssetTypeService {
+  rpc Update(AssetTypeUpdateRequest) returns (AssetType);
+}
+
+message AssetTypeUpdateRequest {
+  AssetTypeRef ref = 1;
+  string name = 2 [features.field_presence = IMPLICIT];
+  string desc = 3 [features.field_presence = IMPLICIT];
+  bytes parent_id = 4 [features.field_presence = IMPLICIT];
+  bool parent_null = 5 [features.field_presence = IMPLICIT];
+  string kind = 6 [features.field_presence = IMPLICIT];
+  TypeSpec spec = 7;
+}
+
+service ItemModelService {
+  rpc Update(ItemModelUpdateRequest) returns (ItemModel);
+}
+
+message ItemModelUpdateRequest {
+  ItemModelRef ref = 1;
+  string name = 2 [features.field_presence = IMPLICIT];
+  string desc = 3 [features.field_presence = IMPLICIT];
+  string maker = 4 [features.field_presence = IMPLICIT];
+  string code = 5 [features.field_presence = IMPLICIT];
+  AssetTypeRef type = 6;
+  bool type_null = 7 [features.field_presence = IMPLICIT];
+  ModelSpec spec = 8;
+}

@@ -1,0 +1,55 @@
+edition = "2023";
+
+package rove;
+
+import "google/protobuf/timestamp.proto";
+import "rove/asset.proto";
+import "rove/asset_svc.g.proto";
+import "rove/stock.proto";
+
+option go_package = "github.com/lesomnus/rove";
+
+service StockService {
+  // Receive, Consume and Adjust change a stock by a quantity, with a reason.
+  rpc Receive(StockChangeRequest) returns (Stock);
+  rpc Consume(StockChangeRequest) returns (Stock);
+  rpc Adjust(StockChangeRequest) returns (Stock);
+  // Transfer moves a quantity to the same model's stock in another space.
+  rpc Transfer(StockTransferRequest) returns (Stock);
+  // Convert takes units out of a stock and makes them assets of their own.
+  rpc Convert(StockConvertRequest) returns (StockConvertResponse);
+}
+
+message StockAddRequest {
+  bytes op = 100;
+}
+
+message StockChangeRequest {
+  StockRef ref = 1;
+  int64 quantity = 2 [features.field_presence = IMPLICIT];
+  string reason = 3 [features.field_presence = IMPLICIT];
+  google.protobuf.Timestamp at = 4;
+  bytes op = 5 [features.field_presence = IMPLICIT];
+}
+
+message StockTransferRequest {
+  StockRef ref = 1;
+  AssetRef to = 2;
+  int64 quantity = 3 [features.field_presence = IMPLICIT];
+  string reason = 4 [features.field_presence = IMPLICIT];
+  google.protobuf.Timestamp at = 5;
+  bytes op = 6 [features.field_presence = IMPLICIT];
+}
+
+message StockConvertRequest {
+  StockRef ref = 1;
+  int64 quantity = 2 [features.field_presence = IMPLICIT];
+  // A prefix the new assets' tags start with; numbers follow.
+  string tag_prefix = 3 [features.field_presence = IMPLICIT];
+  bytes op = 4 [features.field_presence = IMPLICIT];
+}
+
+message StockConvertResponse {
+  Stock stock = 1;
+  repeated Asset assets = 2;
+}
