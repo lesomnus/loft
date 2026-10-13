@@ -295,6 +295,39 @@ func TestManyUsesOfOneStockAtOnceAllCount(t *testing.T) {
 	x.Equal([]int64{12, 13, 14, 15, 16, 17, 18, 19}, left, "each from what the last left")
 }
 
+// TestOppositeTransfersAtOnceAllLand: stock moved from one shelf to the other
+// and back at the same moment, twenty times over. A transfer holds both stocks
+// before it moves either, in one order; taking each as it moved, the two waited
+// for each other and PostgreSQL refused one as a deadlock in nearly every
+// round. No unit was made or lost then either -- a refused transfer moved
+// nothing -- but somebody was refused for nothing they did.
+func TestOppositeTransfersAtOnceAllLand(t *testing.T) {
+	e := newEnv(t)
+	e.postgresOnly()
+	x := e.x
+	m := e.model("AA 건전지")
+	a, b := e.space("창고 A", nil), e.space("창고 B", nil)
+	sa, sb := e.stock(m, a, 50, 0), e.stock(m, b, 50, 0)
+
+	for round := range 20 {
+		errs := together(2, func(i int) error {
+			from, to := sa, b
+			if i == 1 {
+				from, to = sb, a
+			}
+			_, err := e.app().Stock().Transfer(e.owner, app.StockTransferRequest_builder{
+				Ref: ref[app.StockRef](from.GetId()), To: assetRef(to), Quantity: 1, Op: newOp(),
+			}.Build())
+			return err
+		})
+		for i, err := range errs {
+			x.NoError(err, "round %d, transfer %d", round, i)
+		}
+	}
+	x.EqualValues(50, e.quantity(sa), "every unit back where it started")
+	x.EqualValues(50, e.quantity(sb))
+}
+
 // TestTwoMovesThatWouldMakeALoopTogetherDoNotBothLand: V10. With b inside c
 // and d inside a, putting a into b is fine and so is putting c into d -- but
 // both would put each inside the other. Locking only the rows each move
