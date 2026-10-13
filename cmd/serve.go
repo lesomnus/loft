@@ -159,6 +159,28 @@ type Server struct {
 	Spin []any
 }
 
+// Open opens what holds a deployment's state and nothing that serves it: the
+// database, and the roster in this process, which brings its own database
+// along as it opens. No files, no trail, no key.
+//
+// It is what `rove migrate` stands on, which runs where none of those are to
+// be had. In Kubernetes that is before a pod serves, while the volumes it will
+// serve from may still be held by the one before it (deploy/k8s).
+func Open(ctx context.Context, c Config) (*Server, error) {
+	db, dialect, err := c.Db.Open(ctx)
+	if err != nil {
+		return nil, err
+	}
+	people, err := identity.Open(ctx, c.Auth.Roster, c.StateDir(), log.From(ctx))
+	if err != nil {
+		db.Close()
+		return nil, err
+	}
+	drv := entsql.OpenDB(dialect, db)
+
+	return &Server{Db: db, Ent: ent.NewClient(ent.Driver(drv)), Drv: drv, Dialect: dialect, Deps: &domain.Deps{}, Identity: people}, nil
+}
+
 // Build opens the database and stacks the servers.
 //
 // The two hooks are the whole of what payday puts in the write and read paths,

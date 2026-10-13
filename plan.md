@@ -53,7 +53,8 @@ rove/
 ├── migrations/ent/          ent Plan 결과 (리뷰 후 커밋)
 ├── migrations/pg-extra/     직접 쓰는 PostgreSQL DDL
 ├── deploy/postgres/         pg_bigm을 넣은 PostgreSQL 18 이미지 (개발·CI·운영 공용)
-├── deploy/compose/          self-host 구성 (리버스 프록시, rove, rove-admin, PostgreSQL, 백업)
+├── deploy/k8s/              운영 배포의 kustomize base (rove, rove-admin, 마이그레이션; 2026-10-13부터 Kubernetes)
+├── deploy/compose/          같은 이미지를 한 대에 띄워 보는 구성 (로컬 시험, CI)
 ├── ts/                      React PWA
 ├── scripts/                 with-postgres, seed
 ├── design.md
@@ -182,13 +183,13 @@ MVP(Phase 0 + 1)는 M0~M5이고, 합쳐서 대략 13~16주로 본다.
 
 - `UsageSnapshot` spin 루프.
 - trail 보존 설정: Holder는 `pipa` 이상(`audit.min` 또는 `audit.by`), 이력 도메인은 조직의 계약이 정하는 보존 기간(design 8.2절, `server/retention`).
-- self-host 운영 환경(`deploy/compose`):
-  - 서버 준비, 리버스 프록시(ACME, 테넌트 도메인용 on-demand TLS), 공개·운영자 진입점, PostgreSQL.
-  - 운영자 진입점은 VPN에서만 닿게 한다.
+- 운영 환경: Kubernetes(`deploy/k8s`, 2026-10-13 결정). `deploy/compose`는 같은 이미지를 한 대에 띄워 보는 시험용이다.
+  - kustomize base와 k3d 시험(`scripts/cluster.sh`, CI `cluster`), 실제 배포는 그 위의 오버레이(GitOps).
+  - 인그레스와 인증서는 클러스터의 것. 공개 진입점만 인그레스에 두고, 운영자 진입점은 `kubectl port-forward`로만 닿게 한다.
 - 백업: pgBackRest(또는 WAL-G)로 WAL 보관 PITR을 하고, 첨부 디렉터리 백업과 함께 다른 장소로 보낸다. 복구 리허설로 RPO·RTO를 측정한다.
 - 관측: OTel 수집기와 대시보드, 디스크·백업·인증서 만료 경보.
-- 스테이징(같은 compose를 다른 호스트나 포트에)과 운영 배포 절차.
-- 보안 점검: payday 권한 가이드 13절 체크리스트, Rove 항목, 서버 하드닝(자동 보안 업데이트, 방화벽 80/443, 디스크·백업 암호화).
+- 스테이징(같은 base에 오버레이 하나 더)과 운영 배포 절차(`deploy/k8s/README.md`).
+- 보안 점검: payday 권한 가이드 13절 체크리스트, Rove 항목, 클러스터 쪽 하드닝(Pod Security, NetworkPolicy, RBAC, Secret 암호화, 디스크·백업 암호화).
 - 파일럿 고객 온보딩(기존 스프레드시트 가져오기).
 - **완료 기준**: 파일럿 테넌트가 실제로 쓰고 있다. 복구 리허설을 마쳤고, design 1.2절의 비기능 목표 측정값을 기록했다.
 
@@ -254,7 +255,7 @@ MVP 이후에 파일럿 피드백으로 순서를 다시 정한다.
 | 관리형 DB로 옮길 때 pg_bigm이 없는 경우 | 검색 품질 저하 | `Search` RPC 뒤에 폴백(design 9.5절) |
 | 테넌트 잠금 행 경합 | 대형 테넌트의 이동 지연 | 계측하고, 필요하면 사업장 단위 잠금으로 나눈다 |
 | 1인 개발 범위 | 일정 초과 | MVP 범위를 고정하고, Phase 2부터는 파일럿 피드백으로 다시 정한다 |
-| 서버 한 대(self-host) | 하드웨어 고장이 곧 장애 | 다른 장소의 PITR 백업, 분기 복구 리허설, compose로 재구축하는 절차 문서 |
+| 파드 한 개(ReadWriteOnce 볼륨) | 노드 장애나 배포가 곧 잠깐의 장애 | 다른 장소의 PITR 백업, 분기 복구 리허설, 오버레이로 다시 띄우는 절차 문서. 둘 이상은 S3(rove#45) 뒤에 |
 | 운영 부담(보안 업데이트, 인증서, 디스크) | 사고와 장애 | 자동 보안 업데이트, 인증서 만료·디스크·백업 실패 경보 |
 | 테넌트 도메인 인증서 남발 | ACME 발급 한도 소진 | 확인된 도메인에만 발급(on-demand TLS 확인 엔드포인트), 인증서 저장소 보존 |
 | Rove 기본 도메인 변경 | 기본 하위 도메인으로 인쇄한 라벨과 OIDC 등록이 깨진다 | 처음에 영구 도메인을 정하고 바꾸지 않는다 |

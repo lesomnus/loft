@@ -15,12 +15,16 @@ import (
 // database whose shape is not its own rather than altering tables itself
 // (`serve`). The roster in this process brings its own database along as it
 // opens.
+//
+// It opens the databases and nothing else (`cmd.Open`): no files, no trail,
+// no key. So it runs where a server could not -- before a pod serves, with
+// none of the volumes it will serve from mounted (deploy/k8s).
 func NewCmdMigrate(c *cmd.Config) *xli.Command {
 	return &xli.Command{
 		Name:  "migrate",
 		Brief: "bring the database into this build's shape, and serve nothing",
 		Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
-			s, err := cmd.Build(ctx, *c)
+			s, err := cmd.Open(ctx, *c)
 			if err != nil {
 				return err
 			}
