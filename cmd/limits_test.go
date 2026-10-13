@@ -62,6 +62,7 @@ func (w *world) another(t *testing.T) *cmd.Server {
 func signInAt(h http.Handler, addr, login, password string) int {
 	b, _ := json.Marshal(session.Login{Login: login, Password: password})
 	r := httptest.NewRequest(http.MethodPost, "/session", bytes.NewReader(b))
+	r.Header.Set("Content-Type", "application/json")
 	r.RemoteAddr = addr + ":1234"
 	rec := httptest.NewRecorder()
 	h.ServeHTTP(rec, r)

@@ -57,7 +57,7 @@ resources:
    ```
 
    채울 것:
-   - `app.public_url`: 반드시 넣습니다. 라벨 QR이 이 주소를 담으므로 라벨을 인쇄하기 전에 정하고 바꾸지 않습니다.
+   - `app.public_url`: 반드시 넣습니다. 없으면 서버가 뜨지 않습니다(rove#40). 라벨 QR이 이 주소를 담으므로 라벨을 인쇄하기 전에 정하고 바꾸지 않습니다.
    - `app.trusted_proxies`: 인그레스 컨트롤러의 주소입니다(아래 5).
    - `app.mail`, `app.consent`, `audit.by`: 정해지는 대로 넣습니다(rove#35).
 4. **인그레스.** 호스트, TLS(cert-manager 등), 백엔드 `rove:8080`을 정합니다.
@@ -125,7 +125,7 @@ export ROVE_ADMIN_URL=http://127.0.0.1:8081 ROVE_ADMIN_KEY=file:./operator
 rove-admin workspace ls
 ```
 
-들어올 수 있는 사람은 그 namespace의 `pods/portforward` 권한(RBAC)을 가진 사람입니다. VPN 대신 클러스터 권한이 첫 번째 문이고, 운영자 키가 두 번째 문입니다.
+들어올 수 있는 사람은 그 namespace의 `pods/portforward` 권한(RBAC)을 가진 사람입니다. VPN 대신 클러스터 권한이 첫 번째 문이고, 운영자 키가 두 번째 문입니다. `pods/exec`도 운영자에게만 줍니다. 파드 안에서는 DB 접속 정보가 보이고, 셸의 운영자 명령은 그것으로 DB에 바로 붙습니다(`docs/security.md`).
 
 ## 스테이징
 

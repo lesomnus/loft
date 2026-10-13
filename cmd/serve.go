@@ -652,8 +652,9 @@ func (s *Server) serveHttp(ctx context.Context, c Config, g *grpc.Server) (func(
 }
 
 // httpServer is the HTTP listener's server. A client that takes its time over
-// its headers holds a connection for nothing; a stream, once asked for, may
-// take as long as it likes.
+// its headers holds a connection for nothing, and so does one that keeps a
+// connection open between requests and never sends the next (rove#40); a
+// stream, once asked for, may take as long as it likes.
 //
 // And every request runs on ctx, which carries this process's telemetry and
 // its logger: what a route says -- a sign-in nobody could check, an issuer
@@ -665,6 +666,7 @@ func httpServer(ctx context.Context, h http.Handler) *http.Server {
 	return &http.Server{
 		Handler:           h,
 		ReadHeaderTimeout: 10 * time.Second,
+		IdleTimeout:       2 * time.Minute,
 		BaseContext:       func(net.Listener) context.Context { return ctx },
 	}
 }

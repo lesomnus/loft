@@ -133,6 +133,7 @@ func TestAnAccountIsGivenItsWorkspaceWhenItAgrees(t *testing.T) {
 	mux := http.NewServeMux()
 	w.s.Routes(mux, w.c)
 	r := httptest.NewRequest(http.MethodPost, "/session", strings.NewReader(`{"login":"park","password":"correct horse"}`))
+	r.Header.Set("Content-Type", "application/json")
 	rec := httptest.NewRecorder()
 	mux.ServeHTTP(rec, r)
 	x.Equal(http.StatusNoContent, rec.Code)

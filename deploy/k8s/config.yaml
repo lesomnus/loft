@@ -40,7 +40,7 @@ auth:
 app:
   # Where people open it, and what a label's QR code carries: decided before
   # a label is printed, and not changed after (rove#35). Every overlay says
-  # its own.
+  # its own, and the server does not start without one (rove#40).
   #
   # public_url: https://rove.example.com
 

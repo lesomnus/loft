@@ -37,6 +37,7 @@ func TestAnAddressACallerWritesDoesNotMoveTheLimits(t *testing.T) {
 	post := func(h http.Handler, peer, xff string) int {
 		b, _ := json.Marshal(session.Login{Login: "ghost", Password: "a guess"})
 		r := httptest.NewRequest(http.MethodPost, "/session", bytes.NewReader(b))
+		r.Header.Set("Content-Type", "application/json")
 		r.RemoteAddr = peer + ":1234"
 		if xff != "" {
 			r.Header.Set("X-Forwarded-For", xff)

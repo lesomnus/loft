@@ -92,6 +92,7 @@ func newCmdServe(c *cmd.Config) *xli.Command {
 			srv := &http.Server{
 				Handler:           admin.Routes{S: s, C: *c, Operators: ops}.Handler(),
 				ReadHeaderTimeout: 10 * time.Second,
+				IdleTimeout:       2 * time.Minute,
 				BaseContext:       func(net.Listener) context.Context { return ctx },
 			}
 			go func() {

@@ -47,6 +47,7 @@ func TestSeveralProcessesSignWithOneKey(t *testing.T) {
 	} {
 		c := cmd.Config{}
 		c.Spin.Lease, c.Watch.Broker, c.App.SigningKey = v.lease, v.broker, v.key
+		c.App.PublicUrl = "https://rove.example.com"
 
 		err := c.Replicas()
 		if len(v.says) == 0 {
@@ -59,4 +60,23 @@ func TestSeveralProcessesSignWithOneKey(t *testing.T) {
 			require.ErrorContains(t, err, w, "%+v", v)
 		}
 	}
+}
+
+// TestADeploymentIsToldWhereItIs: several processes are a deployment, and one
+// that names no `app.public_url` would answer as http://localhost:8080 --
+// cookies without `Secure`, links and labels on an address nobody opens -- so
+// it does not start. A checkout, one process on its own, is still that
+// address by default.
+func TestADeploymentIsToldWhereItIs(t *testing.T) {
+	c := cmd.Config{}
+	c.Spin.Lease, c.Watch.Broker, c.App.SigningKey = "local", "memory", ""
+	require.NoError(t, c.Replicas(), "a checkout")
+
+	c.Spin.Lease, c.Watch.Broker, c.App.SigningKey = "postgres", "postgres", "one-key-everywhere"
+	err := c.Replicas()
+	require.ErrorContains(t, err, "app.public_url")
+	require.ErrorContains(t, err, "ROVE_APP_PUBLIC_URL")
+
+	c.App.PublicUrl = "https://rove.example.com"
+	require.NoError(t, c.Replicas())
 }
