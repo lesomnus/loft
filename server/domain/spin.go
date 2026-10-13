@@ -108,14 +108,28 @@ func (w Sweeper) Pass(ctx context.Context) error {
 	return nil
 }
 
-// closeReservation moves a reservation to a state that takes no time.
-func (t *Tx) closeReservation(r *ent.Reservation, to, kind, desc string) error {
+// closeReservation moves a reservation to a state that takes no time -- if it
+// is still what the sweep found it to be once this holds it
+// ([Tx.lockReservations]): a check-in, a confirm or a pickup that went first is
+// not undone by a sweep that read the reservation before it. It answers whether
+// it did.
+func (t *Tx) closeReservation(r *ent.Reservation, to, kind, desc string) (bool, error) {
 	id := pdid.Id(r.Id)
+	if err := t.lockReservations(id); err != nil {
+		return false, err
+	}
+	now, err := t.db.Reservation.Query().Where(reservation.Id(r.Id), reservation.TenantId(t.tenant.Uuid())).Only(t.ctx)
+	if err != nil {
+		return false, err
+	}
+	if now.Status != r.Status {
+		return false, nil
+	}
 	if err := t.begin(nil, kind, id, t.now, desc+": "+r.Name, "", nil); err != nil {
-		return err
+		return false, err
 	}
 	if err := t.lockAllocations(id); err != nil {
-		return err
+		return false, err
 	}
 	if _, err := t.next.Reservation().Patch(t.ctx, app.ReservationPatchRequest_builder{
 		Ref:              app.ReservationRef_builder{Id: id.Bytes()}.Build(),
@@ -123,9 +137,9 @@ func (t *Tx) closeReservation(r *ent.Reservation, to, kind, desc string) error {
 		ExpiresAtNull:    z.Ptr(true),
 		DateUpdatedForce: z.Ptr(true),
 	}.Build()); err != nil {
-		return err
+		return false, err
 	}
-	return t.settleAllocations(id, to)
+	return true, t.settleAllocations(id, to)
 }
 
 // sweepHolds lets go of holds nobody confirmed in time.
@@ -140,7 +154,7 @@ func sweepHolds(t *Tx) error {
 		return err
 	}
 	for _, r := range rs {
-		if err := t.closeReservation(r, resExpired, "reservation.expire", "홀드 만료"); err != nil {
+		if _, err := t.closeReservation(r, resExpired, "reservation.expire", "홀드 만료"); err != nil {
 			return err
 		}
 	}
@@ -160,8 +174,12 @@ func sweepRequests(t *Tx) error {
 		return err
 	}
 	for _, r := range rs {
-		if err := t.closeReservation(r, resExpired, "reservation.expire", "승인 대기 만료"); err != nil {
+		closed, err := t.closeReservation(r, resExpired, "reservation.expire", "승인 대기 만료")
+		if err != nil {
 			return err
+		}
+		if !closed {
+			continue
 		}
 		if err := t.notifyParty(r.PartyId, "reservation.expired", "예약 만료: "+r.Name,
 			"시작 전까지 승인되지 않아 예약이 만료되었습니다", pdid.Id(r.Id), "/reservations"); err != nil {
@@ -216,8 +234,12 @@ func sweepNoShows(t *Tx) error {
 			// due back.
 			continue
 		}
-		if err := t.closeReservation(r, resNoShow, "reservation.no_show", "노쇼"); err != nil {
+		closed, err := t.closeReservation(r, resNoShow, "reservation.no_show", "노쇼")
+		if err != nil {
 			return err
+		}
+		if !closed {
+			continue
 		}
 		body := fmt.Sprintf("시작 후 %d분 안에 체크인하지 않아 예약이 해제되었습니다", int(grace.Minutes()))
 		if !spaces {
@@ -255,7 +277,7 @@ func sweepFinished(t *Tx) error {
 		if !spaces {
 			continue
 		}
-		if err := t.closeReservation(r, resCompleted, "reservation.complete", "예약 종료"); err != nil {
+		if _, err := t.closeReservation(r, resCompleted, "reservation.complete", "예약 종료"); err != nil {
 			return err
 		}
 	}

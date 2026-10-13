@@ -84,7 +84,16 @@ func (s domainCustody) Add(ctx context.Context, req *app.CustodyAddRequest) (*ap
 		}
 		if len(req.GetReservationId()) > 0 {
 			// A pickup fulfils a reservation: it is in use from now, and what
-			// it held is now held by this custody instead.
+			// it held is now held by this custody instead. Held first and read
+			// after ([Tx.lockReservations]): a no-show sweep at the same moment
+			// is one or the other, and not a custody against a no-show.
+			rid, err := pdid.From(req.GetReservationId())
+			if err != nil {
+				return invalid("reservation_id", "예약 식별자가 올바르지 않습니다")
+			}
+			if err := t.lockReservations(rid); err != nil {
+				return err
+			}
 			r, err := t.next.Reservation().Get(t.ctx, app.ReservationGetRequest_builder{Ref: app.ReservationRef_builder{Id: req.GetReservationId()}.Build()}.Build())
 			if err != nil {
 				return err
@@ -348,7 +357,11 @@ func (s domainCustody) Return(ctx context.Context, req *app.CustodyReturnRequest
 		}
 
 		// Everything is back, so the reservation it fulfilled is over and
-		// whatever time it still held is free.
+		// whatever time it still held is free -- if it is still in use once
+		// this holds it ([Tx.lockReservations]).
+		if err := t.lockReservations(idOf(c.GetReservationId())); err != nil {
+			return err
+		}
 		r, err := t.db.Reservation.Query().Where(reservation.Id(uuidOf(c.GetReservationId())), reservation.TenantId(t.tenant.Uuid())).Only(t.ctx)
 		if err != nil || r.Status != resInUse {
 			return nil

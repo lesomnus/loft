@@ -12,6 +12,7 @@ import (
 
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/z"
+	"github.com/protobuf-orm/ent/dialect/sql"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
@@ -709,7 +710,7 @@ func (s domainReservation) decide(ctx context.Context, req *app.ReservationDecid
 		if err != nil {
 			return err
 		}
-		targets := []*app.Reservation{r}
+		ids := []pdid.Id{idOf(r.GetId())}
 		if req.GetSeries() && len(r.GetSeriesId()) > 0 {
 			rs, err := t.db.Reservation.Query().Where(
 				reservation.TenantId(t.tenant.Uuid()),
@@ -719,14 +720,23 @@ func (s domainReservation) decide(ctx context.Context, req *app.ReservationDecid
 			if err != nil {
 				return err
 			}
-			targets = nil
+			ids = ids[:0]
 			for _, k := range rs {
-				v, err := t.next.Reservation().Get(t.ctx, app.ReservationGetRequest_builder{Ref: app.ReservationRef_builder{Id: pdid.Id(k).Bytes()}.Build()}.Build())
-				if err != nil {
-					return err
-				}
-				targets = append(targets, v)
+				ids = append(ids, pdid.Id(k))
 			}
+		}
+
+		// Every one held, and then each read for what it is now.
+		if err := t.lockReservations(ids...); err != nil {
+			return err
+		}
+		targets := make([]*app.Reservation, 0, len(ids))
+		for _, k := range ids {
+			v, err := t.next.Reservation().Get(t.ctx, app.ReservationGetRequest_builder{Ref: app.ReservationRef_builder{Id: k.Bytes()}.Build()}.Build())
+			if err != nil {
+				return err
+			}
+			targets = append(targets, v)
 		}
 
 		for _, r := range targets {
@@ -785,6 +795,36 @@ func (s domainReservation) decide(ctx context.Context, req *app.ReservationDecid
 		return nil
 	})
 	return out, err
+}
+
+// lockReservations holds the rows of these reservations, one at a time in
+// identifier order, before anything about them is decided: what a transition
+// decides on is what a reservation is once this has it, after whatever held it
+// before. Decided on what was read before the lock, two transitions at once
+// both found it as it was and the second wrote over the first -- a check-in and
+// the no-show sweep left it a no-show with the person told they had checked
+// in, a confirm and a reject were both told they had done it (rove#35).
+//
+// The lock is the row's own, so it is held against every write of it, and it
+// comes before the resources' ([Tx.lockAllocations]) in every operation that
+// takes both.
+func (t *Tx) lockReservations(ids ...pdid.Id) error {
+	us := make([]uuid.UUID, 0, len(ids))
+	for _, v := range ids {
+		us = append(us, v.Uuid())
+	}
+	slices.SortFunc(us, func(a, b uuid.UUID) int { return a.Compare(b) })
+	for _, u := range slices.Compact(us) {
+		// Written as it is, which is what takes the row's lock.
+		if _, err := t.db.Reservation.Update().
+			Where(reservation.Id(u), reservation.TenantId(t.tenant.Uuid())).
+			Modify(func(b *sql.UpdateBuilder) { b.Set(reservation.FieldStatus, sql.Expr(reservation.FieldStatus)) }).
+			Save(t.ctx); err != nil {
+			return err
+		}
+	}
+	t.holds()
+	return nil
 }
 
 // lockAllocations takes the locks of the resources a reservation holds.
@@ -858,6 +898,13 @@ func (s domainReservation) decideTo(ctx context.Context, req *app.ReservationDec
 	err := s.tx(ctx, func(t *Tx) error {
 		r, err := t.next.Reservation().Get(t.ctx, app.ReservationGetRequest_builder{Ref: req.GetRef()}.Build())
 		if err != nil {
+			return err
+		}
+		// Held, and then read for what it is now ([Tx.lockReservations]).
+		if err := t.lockReservations(idOf(r.GetId())); err != nil {
+			return err
+		}
+		if r, err = t.next.Reservation().Get(t.ctx, app.ReservationGetRequest_builder{Ref: req.GetRef()}.Build()); err != nil {
 			return err
 		}
 		if !slices.Contains(from, r.GetStatus()) {
