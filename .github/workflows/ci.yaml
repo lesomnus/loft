@@ -2,7 +2,7 @@ name: ci
 
 on:
   push:
-    branches: [main, prototype]
+    branches: [main]
   pull_request:
 
 # Every job names its image rather than `ubuntu-latest`, so that the runner
@@ -247,3 +247,37 @@ jobs:
             ts/playwright-report/
             ts/test-results/
           retention-days: 14
+
+  # The image, last, and only once everything above is green -- as roster's
+  # is: what is in the registry is what a deployment may run. Pushed from
+  # `main` alone, since a branch that has not been merged is not that; the
+  # `bundle` and `cluster` jobs already build it on every pull request.
+  #
+  # `:edge` moves with `main`. The digest it says in the run's summary is what
+  # an overlay pins (deploy/k8s/README.md), so that a deployment changes when
+  # its repository says so and not when somebody pushes here.
+  image:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [go, postgres-trgm, ui, bundle, vuln, cluster, e2e]
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: read
+      packages: write # ghcr.io/lesomnus/rove
+    steps:
+      - uses: actions/checkout@v7
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      # The source label is what links the package to this repository on
+      # GHCR, and the commit is the one `rove version` names beside `edge`.
+      - name: build and push
+        run: |
+          docker build -t ghcr.io/lesomnus/rove:edge \
+            --build-arg VERSION=edge \
+            --label org.opencontainers.image.source=https://github.com/${{ github.repository }} \
+            --label org.opencontainers.image.revision=${{ github.sha }} .
+          docker push ghcr.io/lesomnus/rove:edge
+          digest="$(docker inspect --format '{{index .RepoDigests 0}}' ghcr.io/lesomnus/rove:edge)"
+          echo "pushed \`${digest}\` (${{ github.sha }})" | tee -a "${GITHUB_STEP_SUMMARY}"

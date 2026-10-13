@@ -93,7 +93,7 @@ curl https://<호스트>/healthz   # ok
 
 ## 새 버전 올리기
 
-1. **빌드.** 이미지를 만들어(`docker build .`) 레지스트리에 올리고 digest를 적어 둡니다. 어느 레지스트리에 올릴지는 아직 정하지 않았습니다.
+1. **빌드.** main에 머지되면 CI의 `image` 작업이 모든 검사가 통과한 뒤 `ghcr.io/lesomnus/rove:edge`로 올립니다. digest는 그 실행의 요약(Summary)에 남습니다. 오버레이에는 `edge`가 아니라 이 digest를 적습니다.
 2. **스테이징.** 스테이징 오버레이의 digest를 바꿔 sync합니다. `healthz`, 로그인, 바꾼 기능을 확인합니다.
 3. **운영.** 같은 digest를 운영 오버레이에 넣고 sync합니다.
    - 순서는 이렇습니다: 이전 파드가 내려가고, 새 파드의 `migrate`가 테이블을 맞추고, 그다음 `rove`와 `rove-admin`이 뜹니다. 그동안 수십 초 끊깁니다.
@@ -151,6 +151,6 @@ k3d와 Docker가 필요합니다. 이 체크아웃으로 이미지를 빌드해�
 
 - PostgreSQL과 백업, 복구 리허설: rove#37
 - 관측(수집기, 대시보드, 경보): rove#38
-- 이미지 레지스트리와 자동 배포: 정할 것(rove#39)
+- 자동 배포: 오버레이의 digest를 바꾸는 것은 사람이 합니다
 - 워크스페이스별 라벨 도메인(`app.labels.tenant_domains`): K8s에서는 on-demand TLS 대신 도메인마다 인증서(cert-manager)가 필요해서 아직 없습니다
 - 파드 둘 이상: rove#45
