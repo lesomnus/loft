@@ -156,6 +156,7 @@ func TestADeploymentFromBeforeRosterIsBroughtIntoIt(t *testing.T) {
 
 	login := rovesession.SignIn(s.Sessions, s.Identity, s.Ent, nil)
 	r := httptest.NewRequest(http.MethodPost, "/session", bytes.NewBufferString(`{"login":"admin","password":"`+got["acme/admin"].password+`"}`))
+	r.Header.Set("Content-Type", "application/json")
 	rec := httptest.NewRecorder()
 	login.ServeHTTP(rec, r)
 	x.Equal(http.StatusNoContent, rec.Code)

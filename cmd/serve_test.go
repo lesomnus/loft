@@ -193,6 +193,44 @@ func TestTheRoleTable(t *testing.T) {
 
 // TestSignIn is a password roster checked, and a session for the account: the
 // workspaces it reaches are the ones it is a member of.
+// TestASignInAFormOfAnotherSiteCouldPostIsRefused: a page on another site
+// can post a form at `/session` -- `text/plain` whose body is JSON, or the
+// form encoding -- and nothing stops a browser from following it. Answered,
+// it is somebody signed in as an account of that page's choosing, where
+// whatever they do next is kept (login CSRF, rove#40). Only JSON is answered,
+// which no other site can send here without this one agreeing to it first.
+func TestASignInAFormOfAnotherSiteCouldPostIsRefused(t *testing.T) {
+	w := newWorld(t)
+	x := w.x
+	ctx := context.Background()
+
+	park, err := w.s.Identity.AddPerson(ctx, "park", "박", pdid.Nil)
+	x.NoError(err)
+	x.NoError(w.s.Identity.SetPassword(ctx, park.Id, "correct horse"))
+
+	login := session.SignIn(w.s.Sessions, w.s.Identity, w.s.Ent, nil)
+	post := func(ct, body string) *httptest.ResponseRecorder {
+		r := httptest.NewRequest(http.MethodPost, "/session", bytes.NewBufferString(body))
+		if ct != "" {
+			r.Header.Set("Content-Type", ct)
+		}
+		r.RemoteAddr = "10.0.0.1:1234"
+		rec := httptest.NewRecorder()
+		login.ServeHTTP(rec, r)
+		return rec
+	}
+
+	for _, ct := range []string{"text/plain", "application/x-www-form-urlencoded", "multipart/form-data; boundary=x", ""} {
+		res := post(ct, `{"login":"park","password":"correct horse","x":"="}`)
+		x.Equal(http.StatusUnsupportedMediaType, res.Code, "%q", ct)
+		x.Empty(res.Result().Cookies(), "%q signed somebody in", ct)
+	}
+
+	res := post("application/json; charset=utf-8", `{"login":"park","password":"correct horse"}`)
+	x.Equal(http.StatusNoContent, res.Code)
+	x.NotEmpty(res.Result().Cookies())
+}
+
 func TestSignIn(t *testing.T) {
 	w := newWorld(t)
 	x := w.x
@@ -207,6 +245,7 @@ func TestSignIn(t *testing.T) {
 	login := session.SignIn(w.s.Sessions, w.s.Identity, w.s.Ent, nil)
 	post := func(body string) *httptest.ResponseRecorder {
 		r := httptest.NewRequest(http.MethodPost, "/session", bytes.NewBufferString(body))
+		r.Header.Set("Content-Type", "application/json")
 		r.RemoteAddr = "10.0.0.1:1234"
 		rec := httptest.NewRecorder()
 		login.ServeHTTP(rec, r)
@@ -372,6 +411,7 @@ func TestARosterThatCannotBeAskedServesNoSession(t *testing.T) {
 
 	login := session.SignIn(w.s.Sessions, w.s.Identity, w.s.Ent, nil)
 	r := httptest.NewRequest(http.MethodPost, "/session", bytes.NewBufferString(`{"login":"owner","password":"anything at all"}`))
+	r.Header.Set("Content-Type", "application/json")
 	rec := httptest.NewRecorder()
 	login.ServeHTTP(rec, r)
 	x.Equal(http.StatusServiceUnavailable, rec.Code, "a password nobody could check is not a wrong one")
@@ -436,6 +476,7 @@ func TestAnAccountInNoWorkspaceIsGivenOne(t *testing.T) {
 	login := session.SignIn(w.s.Sessions, w.s.Identity, w.s.Ent, ws.Arrive)
 	signIn := func() *http.Cookie {
 		r := httptest.NewRequest(http.MethodPost, "/session", bytes.NewBufferString(`{"login":"park","password":"correct horse"}`))
+		r.Header.Set("Content-Type", "application/json")
 		rec := httptest.NewRecorder()
 		login.ServeHTTP(rec, r)
 		x.Equal(http.StatusNoContent, rec.Code)
@@ -511,6 +552,7 @@ func TestAnAccountInNoWorkspaceIsGivenOne(t *testing.T) {
 		ws := w.s.Workspaces(w.c)
 		ws.Personal = false
 		r := httptest.NewRequest(http.MethodPost, "/session", bytes.NewBufferString(`{"login":"lee","password":"correct horse"}`))
+		r.Header.Set("Content-Type", "application/json")
 		rec := httptest.NewRecorder()
 		session.SignIn(w.s.Sessions, w.s.Identity, w.s.Ent, ws.Arrive).ServeHTTP(rec, r)
 		x.Equal(http.StatusNoContent, rec.Code)

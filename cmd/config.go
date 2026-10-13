@@ -132,6 +132,11 @@ func (c Config) StateDir() string {
 // download links are signed with. Left empty it is a key per process, so a link
 // one replica signed is refused by the next one the browser reaches -- now and
 // then, by whichever way the balancer went, with nothing in a log about why.
+//
+// And where it is: a process told no `app.public_url` answers as if it were
+// http://localhost:8080 -- its session cookie without `Secure`, its download
+// links and its labels' codes on an address nobody opens -- which is right for
+// a checkout and is a deployment nobody noticed was misconfigured (rove#40).
 func (c Config) Replicas() error {
 	var said []string
 	if c.Spin.Lease != config.LeaseLocal {
@@ -140,13 +145,21 @@ func (c Config) Replicas() error {
 	if b := c.Watch.Broker; b != config.BrokerMemory && b != config.BrokerNone {
 		said = append(said, fmt.Sprintf("watch.broker: %s", b))
 	}
-	if len(said) == 0 || c.App.SigningKey != "" {
+	if len(said) == 0 {
 		return nil
 	}
+	if c.App.SigningKey == "" {
+		return fmt.Errorf("app.signing_key: %s says this deployment is several processes, and with no key "+
+			"each makes one of its own -- a download link one signed is refused by the next. "+
+			"Set the same key on every one (ROVE_APP_SIGNING_KEY)", strings.Join(said, " and "))
+	}
+	if c.App.PublicUrl == "" {
+		return fmt.Errorf("app.public_url: %s says this is a deployment, and with no address it answers as "+
+			"http://localhost:8080 -- its session cookie without Secure, its links and labels on an address "+
+			"nobody opens. Set the address people open (ROVE_APP_PUBLIC_URL)", strings.Join(said, " and "))
+	}
 
-	return fmt.Errorf("app.signing_key: %s says this deployment is several processes, and with no key "+
-		"each makes one of its own -- a download link one signed is refused by the next. "+
-		"Set the same key on every one (ROVE_APP_SIGNING_KEY)", strings.Join(said, " and "))
+	return nil
 }
 
 // AppConfig is rove's own part of the configuration.

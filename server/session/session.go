@@ -22,6 +22,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"mime"
 	"net/http"
 	"strings"
 	"time"
@@ -252,6 +253,16 @@ func SignIn(sessions *authsession.Sessions, people People, db *ent.Client, arriv
 		default:
 			w.Header().Set("Allow", "POST, DELETE")
 			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
+		// Asked as JSON, which a page of another site cannot do without this
+		// one agreeing to it first (CORS). A form can post anything else --
+		// `text/plain` whose body happens to be JSON -- and a sign-in it
+		// could post is somebody's browser signed in as an account of the
+		// form's choosing, which then keeps whatever they put in (rove#40).
+		if ct, _, _ := mime.ParseMediaType(r.Header.Get("Content-Type")); ct != "application/json" {
+			http.Error(w, "asked as JSON", http.StatusUnsupportedMediaType)
 			return
 		}
 

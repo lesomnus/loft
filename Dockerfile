@@ -19,7 +19,12 @@ RUN npm run build
 # The binaries, static: the SQLite driver is WebAssembly in Go and asks for no
 # C library, so neither does anything else. The toolchain stamps the commit
 # from the repository, and VERSION names the release (`rove version`).
-FROM golang:1.27-bookworm AS go
+#
+# The patch release, named: the standard library is linked into the binary,
+# so its fixes arrive only by building with the release that has them -- and
+# this image's Go is the one that builds (it does not fetch the `toolchain`
+# go.mod names). The two say the same release (rove#40).
+FROM golang:1.27.2-bookworm AS go
 ARG VERSION=
 WORKDIR /src
 COPY go.mod go.sum ./
