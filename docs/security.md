@@ -48,13 +48,13 @@
    - 고침: 이제 JSON만 받습니다(415). 다른 사이트는 이 서버의 허락(CORS) 없이 JSON을 보낼 수 없습니다(`TestASignInAFormOfAnotherSiteCouldPostIsRefused`).
    - 다른 쓰기는 이미 막혀 있었습니다. 쿠키로 인증하는 쓰기는 쿠키가 `SameSite=Lax`라 다른 사이트의 POST에 실리지 않고, `/account`와 `/cli`는 원래 JSON만 받았습니다.
 2. **공개 주소가 없는 배포.** 여러 프로세스로 도는데 `app.public_url`이 없으면 `http://localhost:8080`으로 동작했습니다. 세션 쿠키에 Secure가 빠지고, 링크와 라벨도 아무도 열지 않는 주소를 가리켰습니다. 이제 서버가 시작하지 않습니다(`TestADeploymentIsToldWhereItIs`).
-3. **의존성 취약점** (govulncheck, 이 코드가 실제로 부르는 것): 19개에서 1개로 줄었습니다.
+3. **의존성 취약점** (govulncheck, 이 코드가 실제로 부르는 것): 19개에서 0개로 줄었습니다.
    - Go 1.27.2: 표준 라이브러리 12개. HTTP/2 서버 크래시와 메모리 고갈, 요청 해석 어긋남, Range 헤더, MIME, TLS, html/template입니다. `go.mod`의 `toolchain`과 `Dockerfile`이 같은 릴리스를 가리킵니다.
    - gRPC 1.83.2: 서버 패닉과 메모리 고갈, 2개.
    - OpenTelemetry SDK 1.45.0: 내보내기 설정이 로그에 주소를 남기는 문제, 1개.
    - excelize 2.11.0: 3개. 가져오기로 누구나 올리는 엑셀 파일을 읽는 라이브러리라서, 메모리 고갈이나 패닉이 실제로 일어날 수 있었습니다.
-   - 남은 1개: GO-2026-6615(OTel 로그 SDK)는 payday·otx·mkot와 함께 올려야 합니다(rove#77).
-   - CI `vuln` 작업이 새로 생겼습니다. 이 하나만 알고 넘어가고, 새로 보이는 취약점이 있으면 실패합니다.
+   - 마지막 1개였던 GO-2026-6615(OTel 로그 SDK)는 OTel을 v1.47로 올려 고쳤습니다. 로그 API가 v1이 되면서 mkot, otx, payday도 함께 바꿨습니다(rove#77).
+   - CI `vuln` 작업이 새로 생겼습니다. 이 코드가 부르는 취약점이 새로 보이면 실패합니다. 예외(`accepted`)는 지금 없습니다.
 4. **유휴 연결.** 두 HTTP 서버(`rove`, `rove-admin`)가 요청 사이에 비어 있는 연결을 2분 뒤 닫습니다. 요청 헤더 제한(10초)은 원래 있었습니다.
 5. **K8s 배포**(rove#39와 함께).
    - `restricted` Pod Security, NetworkPolicy, 서비스 계정 토큰 없음, 서비스 링크 변수 없음.

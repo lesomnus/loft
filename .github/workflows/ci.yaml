@@ -129,7 +129,7 @@ jobs:
   # What the Go vulnerability database says of the code this calls (rove#40):
   # a known issue in a module, or in the standard library this is built with,
   # that a path from here reaches. Red the day one is published, which is when
-  # it is worth knowing -- but for what is named below, each with why.
+  # it is worth knowing -- but for what `accepted` names, each with why.
   vuln:
     runs-on: ubuntu-26.04
     steps:
@@ -139,9 +139,9 @@ jobs:
           go-version-file: go.mod
       - name: govulncheck
         run: |
-          # GO-2026-6615, otel/sdk/log: the fix needs otel/log v1, which the
-          # logging payday and otx are built on does not build with yet (#77).
-          accepted="GO-2026-6615"
+          # Nothing, since #77 brought otel/log v1 in through mkot, otx and
+          # payday. An entry is an ID and a comment saying why it may wait.
+          accepted=""
 
           go run golang.org/x/vuln/cmd/govulncheck@v1.9.0 -format json ./... > vuln.json || true
           # A finding whose trace reaches a function is one this code calls;
@@ -154,7 +154,7 @@ jobs:
             go run golang.org/x/vuln/cmd/govulncheck@v1.9.0 ./... || true
             exit 1
           fi
-          echo "govulncheck: nothing called but ${accepted}"
+          echo "govulncheck: nothing called${accepted:+ but ${accepted}}"
 
   # The reference deployment on Kubernetes (deploy/k8s, rove#39): k3d, the
   # image this checkout builds, through the rig's overlay -- admitted under
