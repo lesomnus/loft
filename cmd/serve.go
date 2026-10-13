@@ -41,6 +41,7 @@ import (
 	"github.com/lesomnus/rove/server/clilogin"
 	"github.com/lesomnus/rove/server/closing"
 	"github.com/lesomnus/rove/server/consent"
+	"github.com/lesomnus/rove/server/csp"
 	"github.com/lesomnus/rove/server/domain"
 	"github.com/lesomnus/rove/server/lifecycle"
 	"github.com/lesomnus/rove/server/mail"
@@ -625,8 +626,12 @@ func Front(c Config, h http.Handler) (http.Handler, error) {
 	if err != nil {
 		return nil, fmt.Errorf("app.trusted_proxies: %w", err)
 	}
+	mode, err := csp.Parse(c.App.Csp)
+	if err != nil {
+		return nil, fmt.Errorf("app.csp: %w", err)
+	}
 
-	return guarded(proxies.Handler(h), c.App.Public().Scheme == "https"), nil
+	return guarded(proxies.Handler(h), c.App.Public().Scheme == "https", mode, csp.Policy(c.Auth.Sso.Issuer)), nil
 }
 
 // depsOf is what the domain layer is told by the configuration.
@@ -770,6 +775,10 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("ok"))
 	})
+
+	// What browsers report a page did that its policy does not allow
+	// (`app.csp`), logged.
+	mux.Handle("POST "+csp.Path, &csp.Reports{})
 
 	// The built UI, with every path it does not have answered by its index,
 	// which is how a page that routes on the client is served.

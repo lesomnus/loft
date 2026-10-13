@@ -168,6 +168,12 @@ type AppConfig struct {
 	// Web is a directory holding the built UI, served at `/`. Empty serves
 	// none, which is right while the UI runs on its own dev server.
 	Web string `yaml:"web"`
+	// Csp is how a page is held to its Content Security Policy
+	// (`server/csp`): `report-only`, the default, has browsers report what a
+	// page does that the policy does not allow to `/csp-report`, which logs
+	// it; `enforce` stops it as well; `off` says neither. Framing is refused
+	// whatever this says.
+	Csp string `yaml:"csp"`
 
 	// Files is the directory attachments are kept in.
 	Files string `yaml:"files"`

@@ -68,8 +68,13 @@ export async function signIn(page: Page, login: string, password = demoPassword)
  * And held to every form field they open naming its control: one that names
  * none says so in the console (ui.tsx, `Field`), and the test it was seen in
  * fails, whichever page it was on.
+ *
+ * And to the Content Security Policy the pages are shown with: whatever a page
+ * does that it does not allow, the browser says in the console, reported only
+ * or stopped (`app.csp`, `server/csp`), and the test fails. That is how the
+ * policy is known to fit the app before anything is stopped by it.
  */
-export const test = base.extend<{ as: (login: string, password?: string) => Promise<Page>; unnamed: string[] }>({
+export const test = base.extend<{ as: (login: string, password?: string) => Promise<Page>; unnamed: string[]; breaches: string[] }>({
 	unnamed: [
 		async ({ page }, use) => {
 			const said: string[] = []
@@ -79,13 +84,23 @@ export const test = base.extend<{ as: (login: string, password?: string) => Prom
 		},
 		{ auto: true },
 	],
-	as: async ({ browser, unnamed }, use) => {
+	breaches: [
+		async ({ page }, use) => {
+			const said: string[] = []
+			heed(page, said)
+			await use(said)
+			expect(said, 'what a page did that its Content Security Policy does not allow').toEqual([])
+		},
+		{ auto: true },
+	],
+	as: async ({ browser, unnamed, breaches }, use) => {
 		const opened: BrowserContext[] = []
 		await use(async (login, password = demoPassword) => {
 			const context = await browser.newContext()
 			opened.push(context)
 			const page = await context.newPage()
 			hear(page, unnamed)
+			heed(page, breaches)
 			await signIn(page, login, password)
 			return page
 		})
@@ -97,6 +112,17 @@ export const test = base.extend<{ as: (login: string, password?: string) => Prom
 function hear(page: Page, into: string[]): void {
 	page.on('console', (m) => {
 		if (m.type() === 'error' && m.text().startsWith('Field:')) into.push(m.text())
+	})
+}
+
+/**
+ * What `page` says in its console about breaking its Content Security Policy:
+ * for a page a test opens in a browser of its own, which the fixture does not
+ * see, with `breaches` as `into`.
+ */
+export function heed(page: Page, into: string[]): void {
+	page.on('console', (m) => {
+		if (m.text().includes('Content Security Policy')) into.push(m.text())
 	})
 }
 
