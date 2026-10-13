@@ -3,8 +3,10 @@ package domain
 import (
 	"context"
 	"fmt"
+	"slices"
 	"strings"
 	"time"
+	"uuid"
 
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/z"
@@ -91,6 +93,25 @@ func (s domainStock) Add(ctx context.Context, req *app.StockAddRequest) (*app.St
 		return s.StockServiceServer.Get(ctx, app.StockGetRequest_builder{Ref: app.StockRef_builder{Id: id}.Build()}.Build())
 	}
 	return out, err
+}
+
+// lockStocks holds these stocks' rows, one at a time in identifier order. An
+// operation that moves stock between two holds both before it moves either:
+// taking each as it moved, two transfers between the same two shelves in
+// opposite directions at once each held one and waited for the other, and
+// PostgreSQL ended it by refusing one as a deadlock.
+func (t *Tx) lockStocks(ids ...uuid.UUID) error {
+	us := slices.Clone(ids)
+	slices.SortFunc(us, func(a, b uuid.UUID) int { return a.Compare(b) })
+	for _, u := range slices.Compact(us) {
+		if err := t.db.Stock.Update().
+			Where(stock.Id(u), stock.TenantId(t.tenant.Uuid())).
+			AddQuantity(0).
+			Exec(t.ctx); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // moveStock changes a stock by `delta` and writes the movement, refusing to go
@@ -230,9 +251,6 @@ func (s domainStock) Transfer(ctx context.Context, req *app.StockTransferRequest
 		if err := t.begin(req.GetOp(), "stock.transfer", pdid.Nil, at, fmt.Sprintf("재고 이동: %s %d → %s", st.GetName(), q, sp.GetName()), req.GetReason(), nil); err != nil {
 			return err
 		}
-		if err := t.moveStock(st, -q, "transfer_out", pdid.Nil, at); err != nil {
-			return err
-		}
 
 		dst, err := t.db.Stock.Query().Where(
 			stock.TenantId(t.tenant.Uuid()),
@@ -260,6 +278,14 @@ func (s domainStock) Transfer(ctx context.Context, req *app.StockTransferRequest
 				return err
 			}
 		default:
+			return err
+		}
+
+		// Both held before either moves ([Tx.lockStocks]).
+		if err := t.lockStocks(uuidOf(st.GetId()), uuidOf(target.GetId())); err != nil {
+			return err
+		}
+		if err := t.moveStock(st, -q, "transfer_out", pdid.Nil, at); err != nil {
 			return err
 		}
 		if err := t.moveStock(target, q, "transfer_in", pdid.Nil, at); err != nil {
