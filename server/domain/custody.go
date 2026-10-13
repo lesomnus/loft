@@ -57,12 +57,13 @@ func (s domainCustody) Add(ctx context.Context, req *app.CustodyAddRequest) (*ap
 		if kind != "issue" && kind != "loan" {
 			return invalid("kind", "지급 또는 대여입니다")
 		}
-		if req.HasDueAt() && !req.GetDueAt().AsTime().After(t.now) {
-			return invalid("due_at", "반납 기한은 지금 이후여야 합니다")
-		}
-
+		// The lock before the due date is held against now: the moment is
+		// taken once it is held ([Tx.lockTree]).
 		if err := t.lockTree(); err != nil {
 			return err
+		}
+		if req.HasDueAt() && !req.GetDueAt().AsTime().After(t.now) {
+			return invalid("due_at", "반납 기한은 지금 이후여야 합니다")
 		}
 		if err := t.begin(req.GetOp(), "custody.issue", id, t.now, map[string]string{"issue": "지급", "loan": "대여"}[kind]+": {party}", req.GetDesc(), map[string]string{"lines": fmt.Sprint(len(req.GetLines())), "party": idOf(p.GetId()).String()}); err != nil {
 			return err
