@@ -151,6 +151,11 @@ app:
   # proxy; set `app_url` to it so a scanned label opens there.
   web: ts/dist
   # app_url: http://localhost:5173
+  # How a page is held to its Content Security Policy (`server/csp`):
+  # report-only (the default) has browsers report what a page does that it
+  # does not allow to /csp-report, which logs it; enforce stops it too; off
+  # says neither. Framing is refused whatever this says.
+  # csp: report-only
   files: data/files
   labels:
     # Off (SaaS, and the default): every label prints with `public_url` and a

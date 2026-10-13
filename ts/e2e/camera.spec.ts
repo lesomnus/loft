@@ -1,11 +1,11 @@
 import { printed, video } from './qr.js'
-import { expect, people, signIn, test, workspace } from './rove.js'
+import { expect, heed, people, signIn, test, workspace } from './rove.js'
 
 // The scan page's camera, with a label held up to it: Chromium plays a video
 // of the label's QR as its camera, and the page reads it as it reads a real
 // one (scan.tsx) -- nothing typed.
 
-test('a label held up to the camera opens what it is on', async ({ page, playwright, baseURL }, info) => {
+test('a label held up to the camera opens what it is on', async ({ page, playwright, baseURL, breaches }, info) => {
 	await signIn(page, people.labels.login)
 	await page.goto(`${workspace}/assets`)
 	await page.getByPlaceholder('이름, 태그, 시리얼, 모델, 사용자', { exact: true }).fill('NB-051')
@@ -30,6 +30,8 @@ test('a label held up to the camera opens what it is on', async ({ page, playwri
 			permissions: ['camera'],
 		})
 		const scan = await context.newPage()
+		// The camera page is held to its policy too.
+		heed(scan, breaches)
 		await signIn(scan, people.camera.login)
 		await scan.getByRole('link', { name: /스캔/ }).click()
 		await expect(scan.getByRole('heading', { level: 1 })).toContainText('NB-051')
