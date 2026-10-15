@@ -32,9 +32,9 @@ require (
 	github.com/jackc/pgx/v5 v5.10.0
 	github.com/lesomnus/flob v0.0.0-20261010120939-21f89e60609e
 	github.com/lesomnus/otx v0.0.0-20261013182912-d2af55df512e
-	github.com/lesomnus/payday v0.0.0-20261013184205-2288ad3f4553
+	github.com/lesomnus/payday v0.0.0-20261015093934-9afe52101185
 	github.com/lesomnus/protobuf-patch v0.0.0-20260803175157-e1b7a0c2804f
-	github.com/lesomnus/roster v0.0.0-20261013185254-f44c8cb69f36
+	github.com/lesomnus/roster v0.0.0-20261015134132-870a2defae96
 	github.com/lesomnus/xli v0.0.0-20261006060415-9f2e9ce97331
 	github.com/lesomnus/xli/cfg v0.1.2
 	github.com/lesomnus/z v0.0.0-20260531102454-3f1853bb4278
@@ -54,12 +54,15 @@ require (
 
 require (
 	ariga.io/atlas v1.3.0 // indirect
+	cel.dev/cel-go v0.32.0 // indirect
+	cel.dev/expr v0.25.2 // indirect
 	connectrpc.com/connect v1.20.0 // indirect
 	connectrpc.com/cors v0.1.0 // indirect
 	connectrpc.com/vanguard v0.4.0 // indirect
 	filippo.io/age v1.3.2 // indirect
 	filippo.io/hpke v0.4.0 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
+	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
 	github.com/apparentlymart/go-textseg/v17 v17.0.1 // indirect
 	github.com/bmatcuk/doublestar v1.3.4 // indirect
@@ -99,7 +102,7 @@ require (
 	github.com/petermattis/goid v0.0.0-20260716134002-a9b348f0a2b9 // indirect
 	github.com/philhofer/fwd v1.2.0 // indirect
 	github.com/protobuf-orm/protobuf-merge v0.0.0-20261009205601-8502fad9e678 // indirect
-	github.com/protobuf-orm/protoc-gen-orm-ent v0.0.0-20261010070757-67358807600f // indirect
+	github.com/protobuf-orm/protoc-gen-orm-ent v0.0.0-20261014175108-4698cb92c79b // indirect
 	github.com/protobuf-orm/protoc-gen-orm-go v0.0.0-20261010065542-f9ac5b66df3e // indirect
 	github.com/protobuf-orm/protoc-gen-orm-service v0.0.0-20260906213434-46a5916d5339 // indirect
 	github.com/richardlehane/mscfb v1.0.7 // indirect

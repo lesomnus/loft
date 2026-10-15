@@ -15,13 +15,18 @@ import (
 	party "github.com/lesomnus/rove/internal/ent/party"
 	predicate "github.com/lesomnus/rove/internal/ent/predicate"
 	stock "github.com/lesomnus/rove/internal/ent/stock"
+	tenant "github.com/lesomnus/rove/internal/ent/tenant"
 	ent1 "github.com/protobuf-orm/ent"
+	dialect "github.com/protobuf-orm/ent/dialect"
+	sql "github.com/protobuf-orm/ent/dialect/sql"
 	sqlgraph "github.com/protobuf-orm/ent/dialect/sql/sqlgraph"
 	ormpatch "github.com/protobuf-orm/protobuf-orm/ormpatch"
 	entpatch "github.com/protobuf-orm/protoc-gen-orm-ent/runtime/entpatch"
 	entuuid "github.com/protobuf-orm/protoc-gen-orm-ent/runtime/entuuid"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	proto "google.golang.org/protobuf/proto"
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	uuid "uuid"
 )
 
@@ -84,6 +89,53 @@ func (s CustodyServiceServer) narrow(ctx context.Context, p predicate.Custody) (
 	return CustodyNarrow(ctx, s.Scope, p)
 }
 
+func (s CustodyServiceServer) snapshot(ctx context.Context, p predicate.Custody, lock bool) (*ent.Custody, error) {
+	q := s.Db.Custody.Query().Where(p)
+	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
+	q.WithParty(func(q *ent.PartyQuery) { q.Select(party.FieldId) })
+	q.Modify(func(q *sql.Selector) {
+		if lock && s.Db.Dialect() != dialect.SQLite {
+			q.ForUpdate()
+		}
+	})
+	return q.Only(ctx)
+}
+func (s CustodyServiceServer) image(v *rove.Custody) *rove.Custody {
+	if v == nil {
+		return nil
+	}
+	out := proto.Clone(v).(*rove.Custody)
+	m := out.ProtoReflect()
+	{
+		f := m.Descriptor().Fields().ByNumber(2)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	{
+		f := m.Descriptor().Fields().ByNumber(8)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	return out
+}
 func (s CustodyServiceServer) Add(ctx context.Context, req *rove.CustodyAddRequest) (*rove.Custody, error) {
 	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
 	if err != nil {
@@ -177,9 +229,22 @@ func (s CustodyServiceServer) Add(ctx context.Context, req *rove.CustodyAddReque
 		return nil, err
 	}
 
+	v := u.Proto()
+	for _, d := range ds {
+		d(v)
+	}
+	var value *rove.Custody
+	if snapshotOptions(s.Rec, rove.CustodyService_Add_FullMethodName).Value {
+		stored, err := st.snapshot(ctx, custody.IdEQ(u.Id), false)
+		if err != nil {
+			return nil, err
+		}
+		value = s.image(stored.Proto())
+	}
 	if err := record(ctx, s.Rec, st.Db, Change{
-		By:  rove.CustodyService_Add_FullMethodName,
-		Key: u.Id,
+		By:    rove.CustodyService_Add_FullMethodName,
+		Key:   u.Id,
+		Value: value,
 	}); err != nil {
 		return nil, err
 	}
@@ -187,10 +252,6 @@ func (s CustodyServiceServer) Add(ctx context.Context, req *rove.CustodyAddReque
 		return nil, err
 	}
 
-	v := u.Proto()
-	for _, d := range ds {
-		d(v)
-	}
 	return v, nil
 }
 
@@ -397,6 +458,18 @@ func (s CustodyServiceServer) apply(ctx context.Context, ref *rove.CustodyRef, d
 		return nil, err
 	}
 
+	var previous *rove.Custody
+	images := snapshotOptions(s.Rec, by)
+	if images.Previous && mod != nil {
+		u, err := st.snapshot(ctx, p, true)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return nil, status.Error(codes.NotFound, "resource not found")
+			}
+			return nil, err
+		}
+		previous = s.image(u.Proto())
+	}
 	if mod == nil {
 		q := st.Db.Custody.Query().Where(p)
 		if pred != nil {
@@ -445,20 +518,25 @@ func (s CustodyServiceServer) apply(ctx context.Context, ref *rove.CustodyRef, d
 		}
 	}
 
+	out, err := st.Get(ctx, at.Pick())
+	if err != nil {
+		return nil, err
+	}
 	if mod != nil {
+		var value *rove.Custody
+		if images.Value {
+			value = s.image(out)
+		}
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:    by,
-			Key:   k,
-			Patch: doc,
+			By:       by,
+			Key:      k,
+			Patch:    doc,
+			Previous: previous, Value: value,
 		}); err != nil {
 			return nil, err
 		}
 	}
 
-	out, err := st.Get(ctx, at.Pick())
-	if err != nil {
-		return nil, err
-	}
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
@@ -485,8 +563,16 @@ func (s CustodyServiceServer) Erase(ctx context.Context, req *rove.CustodyRef) (
 	st.Db = tx.Db
 
 	var k any
+	var previous *rove.Custody
 	if s.Rec != nil {
-		v, err := st.Db.Custody.Query().Where(p).OnlyId(ctx)
+		images := snapshotOptions(s.Rec, rove.CustodyService_Erase_FullMethodName)
+		var v *ent.Custody
+		var err error
+		if images.Previous {
+			v, err = st.snapshot(ctx, p, true)
+		} else {
+			v, err = st.Db.Custody.Query().Where(p).Select(custody.FieldId).Only(ctx)
+		}
 		if err != nil {
 			if ent.IsNotFound(err) {
 				return &rove.CustodyEraseResponse{}, nil
@@ -494,8 +580,11 @@ func (s CustodyServiceServer) Erase(ctx context.Context, req *rove.CustodyRef) (
 			return nil, err
 		}
 
-		k = v
-		p = custody.And(p, custody.IdEQ(v))
+		k = v.Id
+		if images.Previous {
+			previous = s.image(v.Proto())
+		}
+		p = custody.And(p, custody.IdEQ(v.Id))
 	}
 
 	u := st.Db.Custody.Update().Where(p)
@@ -507,8 +596,9 @@ func (s CustodyServiceServer) Erase(ctx context.Context, req *rove.CustodyRef) (
 	}
 	if n > 0 {
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:  rove.CustodyService_Erase_FullMethodName,
-			Key: k,
+			By:       rove.CustodyService_Erase_FullMethodName,
+			Key:      k,
+			Previous: previous,
 		}); err != nil {
 			return nil, err
 		}
@@ -610,6 +700,83 @@ func (s CustodyLineServiceServer) narrow(ctx context.Context, p predicate.Custod
 	return CustodyLineNarrow(ctx, s.Scope, p)
 }
 
+func (s CustodyLineServiceServer) snapshot(ctx context.Context, p predicate.CustodyLine, lock bool) (*ent.CustodyLine, error) {
+	q := s.Db.CustodyLine.Query().Where(p)
+	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
+	q.WithCustody(func(q *ent.CustodyQuery) { q.Select(custody.FieldId) })
+	q.WithAsset(func(q *ent.AssetQuery) { q.Select(asset.FieldId) })
+	q.WithStock(func(q *ent.StockQuery) { q.Select(stock.FieldId) })
+	q.Modify(func(q *sql.Selector) {
+		if lock && s.Db.Dialect() != dialect.SQLite {
+			q.ForUpdate()
+		}
+	})
+	return q.Only(ctx)
+}
+func (s CustodyLineServiceServer) image(v *rove.CustodyLine) *rove.CustodyLine {
+	if v == nil {
+		return nil
+	}
+	out := proto.Clone(v).(*rove.CustodyLine)
+	m := out.ProtoReflect()
+	{
+		f := m.Descriptor().Fields().ByNumber(2)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	{
+		f := m.Descriptor().Fields().ByNumber(8)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	{
+		f := m.Descriptor().Fields().ByNumber(9)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	{
+		f := m.Descriptor().Fields().ByNumber(10)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	return out
+}
 func (s CustodyLineServiceServer) Add(ctx context.Context, req *rove.CustodyLineAddRequest) (*rove.CustodyLine, error) {
 	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
 	if err != nil {
@@ -703,9 +870,22 @@ func (s CustodyLineServiceServer) Add(ctx context.Context, req *rove.CustodyLine
 		return nil, err
 	}
 
+	v := u.Proto()
+	for _, d := range ds {
+		d(v)
+	}
+	var value *rove.CustodyLine
+	if snapshotOptions(s.Rec, rove.CustodyLineService_Add_FullMethodName).Value {
+		stored, err := st.snapshot(ctx, custodyline.IdEQ(u.Id), false)
+		if err != nil {
+			return nil, err
+		}
+		value = s.image(stored.Proto())
+	}
 	if err := record(ctx, s.Rec, st.Db, Change{
-		By:  rove.CustodyLineService_Add_FullMethodName,
-		Key: u.Id,
+		By:    rove.CustodyLineService_Add_FullMethodName,
+		Key:   u.Id,
+		Value: value,
 	}); err != nil {
 		return nil, err
 	}
@@ -713,10 +893,6 @@ func (s CustodyLineServiceServer) Add(ctx context.Context, req *rove.CustodyLine
 		return nil, err
 	}
 
-	v := u.Proto()
-	for _, d := range ds {
-		d(v)
-	}
 	return v, nil
 }
 
@@ -922,6 +1098,18 @@ func (s CustodyLineServiceServer) apply(ctx context.Context, ref *rove.CustodyLi
 		return nil, err
 	}
 
+	var previous *rove.CustodyLine
+	images := snapshotOptions(s.Rec, by)
+	if images.Previous && mod != nil {
+		u, err := st.snapshot(ctx, p, true)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return nil, status.Error(codes.NotFound, "resource not found")
+			}
+			return nil, err
+		}
+		previous = s.image(u.Proto())
+	}
 	if mod == nil {
 		q := st.Db.CustodyLine.Query().Where(p)
 		if pred != nil {
@@ -970,20 +1158,25 @@ func (s CustodyLineServiceServer) apply(ctx context.Context, ref *rove.CustodyLi
 		}
 	}
 
+	out, err := st.Get(ctx, at.Pick())
+	if err != nil {
+		return nil, err
+	}
 	if mod != nil {
+		var value *rove.CustodyLine
+		if images.Value {
+			value = s.image(out)
+		}
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:    by,
-			Key:   k,
-			Patch: doc,
+			By:       by,
+			Key:      k,
+			Patch:    doc,
+			Previous: previous, Value: value,
 		}); err != nil {
 			return nil, err
 		}
 	}
 
-	out, err := st.Get(ctx, at.Pick())
-	if err != nil {
-		return nil, err
-	}
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
@@ -1010,8 +1203,16 @@ func (s CustodyLineServiceServer) Erase(ctx context.Context, req *rove.CustodyLi
 	st.Db = tx.Db
 
 	var k any
+	var previous *rove.CustodyLine
 	if s.Rec != nil {
-		v, err := st.Db.CustodyLine.Query().Where(p).OnlyId(ctx)
+		images := snapshotOptions(s.Rec, rove.CustodyLineService_Erase_FullMethodName)
+		var v *ent.CustodyLine
+		var err error
+		if images.Previous {
+			v, err = st.snapshot(ctx, p, true)
+		} else {
+			v, err = st.Db.CustodyLine.Query().Where(p).Select(custodyline.FieldId).Only(ctx)
+		}
 		if err != nil {
 			if ent.IsNotFound(err) {
 				return &rove.CustodyLineEraseResponse{}, nil
@@ -1019,8 +1220,11 @@ func (s CustodyLineServiceServer) Erase(ctx context.Context, req *rove.CustodyLi
 			return nil, err
 		}
 
-		k = v
-		p = custodyline.And(p, custodyline.IdEQ(v))
+		k = v.Id
+		if images.Previous {
+			previous = s.image(v.Proto())
+		}
+		p = custodyline.And(p, custodyline.IdEQ(v.Id))
 	}
 
 	n, err := st.Db.CustodyLine.Delete().Where(p).Exec(ctx)
@@ -1029,8 +1233,9 @@ func (s CustodyLineServiceServer) Erase(ctx context.Context, req *rove.CustodyLi
 	}
 	if n > 0 {
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:  rove.CustodyLineService_Erase_FullMethodName,
-			Key: k,
+			By:       rove.CustodyLineService_Erase_FullMethodName,
+			Key:      k,
+			Previous: previous,
 		}); err != nil {
 			return nil, err
 		}

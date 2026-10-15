@@ -15,7 +15,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file rove/payday/outbox.proto.
  */
 export const file_rove_payday_outbox: GenFile = /*@__PURE__*/
-  fileDesc("Chhyb3ZlL3BheWRheS9vdXRib3gucHJvdG8SBHJvdmUi/gEKBk91dGJveBIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASGQoJdGVuYW50X2lkGAIgASgMQgbqghYCEEASGAoIYWN0b3JfaWQYCCABKAxCBuqCFgIQQBIOCgZtZXRob2QYCSABKAkSCgoCYnkYCiABKAkSGQoJb2JqZWN0X2lkGAsgASgMQgbqghYCEEASDQoFcGF0Y2gYDCABKAwSOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAOiPK/BURGg8SBXF1ZXVlGgYKAmlkEAGKuxYKCARCAgoASAQqAEIfWhhnaXRodWIuY29tL2xlc29tbnVzL3JvdmWSAwIIAmIIZWRpdGlvbnNw6Ac", [file_google_protobuf_timestamp, file_orm, file_payday]);
+  fileDesc("Chhyb3ZlL3BheWRheS9vdXRib3gucHJvdG8SBHJvdmUilQIKBk91dGJveBIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASGQoJdGVuYW50X2lkGAIgASgMQgbqghYCEEASGAoIYWN0b3JfaWQYCCABKAxCBuqCFgIQQBIOCgZtZXRob2QYCSABKAkSCgoCYnkYCiABKAkSGQoJb2JqZWN0X2lkGAsgASgMQgbqghYCEEASDQoFcGF0Y2gYDCABKAwSOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAEhUKBWV2ZW50GBAgASgMQgbqghYCOAE6I8r8FREaDxIFcXVldWUaBgoCaWQQAYq7FgoIBEICCgBIBCoAQh9aGGdpdGh1Yi5jb20vbGVzb21udXMvcm92ZZIDAggCYghlZGl0aW9uc3DoBw", [file_google_protobuf_timestamp, file_orm, file_payday]);
 
 /**
  * Outbox is a write that has to be published even if this process does not
@@ -124,6 +124,13 @@ export type Outbox = Message<"rove.Outbox"> & {
    * @generated from field: google.protobuf.Timestamp date_created = 15;
    */
   dateCreated?: Timestamp | undefined;
+
+  /**
+   * Packed WatchEvent, absent on legacy key-only entries. Contains public data.
+   *
+   * @generated from field: bytes event = 16;
+   */
+  event: Uint8Array;
 };
 
 /**

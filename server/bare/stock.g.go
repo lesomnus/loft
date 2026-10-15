@@ -14,13 +14,18 @@ import (
 	predicate "github.com/lesomnus/rove/internal/ent/predicate"
 	stock "github.com/lesomnus/rove/internal/ent/stock"
 	stockmovement "github.com/lesomnus/rove/internal/ent/stockmovement"
+	tenant "github.com/lesomnus/rove/internal/ent/tenant"
 	ent1 "github.com/protobuf-orm/ent"
+	dialect "github.com/protobuf-orm/ent/dialect"
+	sql "github.com/protobuf-orm/ent/dialect/sql"
 	sqlgraph "github.com/protobuf-orm/ent/dialect/sql/sqlgraph"
 	ormpatch "github.com/protobuf-orm/protobuf-orm/ormpatch"
 	entpatch "github.com/protobuf-orm/protoc-gen-orm-ent/runtime/entpatch"
 	entuuid "github.com/protobuf-orm/protoc-gen-orm-ent/runtime/entuuid"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	proto "google.golang.org/protobuf/proto"
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	uuid "uuid"
 )
 
@@ -83,6 +88,68 @@ func (s StockServiceServer) narrow(ctx context.Context, p predicate.Stock) (pred
 	return StockNarrow(ctx, s.Scope, p)
 }
 
+func (s StockServiceServer) snapshot(ctx context.Context, p predicate.Stock, lock bool) (*ent.Stock, error) {
+	q := s.Db.Stock.Query().Where(p)
+	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
+	q.WithModel(func(q *ent.ItemModelQuery) { q.Select(itemmodel.FieldId) })
+	q.WithSpace(func(q *ent.AssetQuery) { q.Select(asset.FieldId) })
+	q.Modify(func(q *sql.Selector) {
+		if lock && s.Db.Dialect() != dialect.SQLite {
+			q.ForUpdate()
+		}
+	})
+	return q.Only(ctx)
+}
+func (s StockServiceServer) image(v *rove.Stock) *rove.Stock {
+	if v == nil {
+		return nil
+	}
+	out := proto.Clone(v).(*rove.Stock)
+	m := out.ProtoReflect()
+	{
+		f := m.Descriptor().Fields().ByNumber(2)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	{
+		f := m.Descriptor().Fields().ByNumber(8)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	{
+		f := m.Descriptor().Fields().ByNumber(9)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	return out
+}
 func (s StockServiceServer) Add(ctx context.Context, req *rove.StockAddRequest) (*rove.Stock, error) {
 	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
 	if err != nil {
@@ -159,9 +226,22 @@ func (s StockServiceServer) Add(ctx context.Context, req *rove.StockAddRequest) 
 		return nil, err
 	}
 
+	v := u.Proto()
+	for _, d := range ds {
+		d(v)
+	}
+	var value *rove.Stock
+	if snapshotOptions(s.Rec, rove.StockService_Add_FullMethodName).Value {
+		stored, err := st.snapshot(ctx, stock.IdEQ(u.Id), false)
+		if err != nil {
+			return nil, err
+		}
+		value = s.image(stored.Proto())
+	}
 	if err := record(ctx, s.Rec, st.Db, Change{
-		By:  rove.StockService_Add_FullMethodName,
-		Key: u.Id,
+		By:    rove.StockService_Add_FullMethodName,
+		Key:   u.Id,
+		Value: value,
 	}); err != nil {
 		return nil, err
 	}
@@ -169,10 +249,6 @@ func (s StockServiceServer) Add(ctx context.Context, req *rove.StockAddRequest) 
 		return nil, err
 	}
 
-	v := u.Proto()
-	for _, d := range ds {
-		d(v)
-	}
 	return v, nil
 }
 
@@ -371,6 +447,18 @@ func (s StockServiceServer) apply(ctx context.Context, ref *rove.StockRef, doc *
 		return nil, err
 	}
 
+	var previous *rove.Stock
+	images := snapshotOptions(s.Rec, by)
+	if images.Previous && mod != nil {
+		u, err := st.snapshot(ctx, p, true)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return nil, status.Error(codes.NotFound, "resource not found")
+			}
+			return nil, err
+		}
+		previous = s.image(u.Proto())
+	}
 	if mod == nil {
 		q := st.Db.Stock.Query().Where(p)
 		if pred != nil {
@@ -419,20 +507,25 @@ func (s StockServiceServer) apply(ctx context.Context, ref *rove.StockRef, doc *
 		}
 	}
 
+	out, err := st.Get(ctx, at.Pick())
+	if err != nil {
+		return nil, err
+	}
 	if mod != nil {
+		var value *rove.Stock
+		if images.Value {
+			value = s.image(out)
+		}
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:    by,
-			Key:   k,
-			Patch: doc,
+			By:       by,
+			Key:      k,
+			Patch:    doc,
+			Previous: previous, Value: value,
 		}); err != nil {
 			return nil, err
 		}
 	}
 
-	out, err := st.Get(ctx, at.Pick())
-	if err != nil {
-		return nil, err
-	}
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
@@ -459,8 +552,16 @@ func (s StockServiceServer) Erase(ctx context.Context, req *rove.StockRef) (*rov
 	st.Db = tx.Db
 
 	var k any
+	var previous *rove.Stock
 	if s.Rec != nil {
-		v, err := st.Db.Stock.Query().Where(p).OnlyId(ctx)
+		images := snapshotOptions(s.Rec, rove.StockService_Erase_FullMethodName)
+		var v *ent.Stock
+		var err error
+		if images.Previous {
+			v, err = st.snapshot(ctx, p, true)
+		} else {
+			v, err = st.Db.Stock.Query().Where(p).Select(stock.FieldId).Only(ctx)
+		}
 		if err != nil {
 			if ent.IsNotFound(err) {
 				return &rove.StockEraseResponse{}, nil
@@ -468,8 +569,11 @@ func (s StockServiceServer) Erase(ctx context.Context, req *rove.StockRef) (*rov
 			return nil, err
 		}
 
-		k = v
-		p = stock.And(p, stock.IdEQ(v))
+		k = v.Id
+		if images.Previous {
+			previous = s.image(v.Proto())
+		}
+		p = stock.And(p, stock.IdEQ(v.Id))
 	}
 
 	u := st.Db.Stock.Update().Where(p)
@@ -481,8 +585,9 @@ func (s StockServiceServer) Erase(ctx context.Context, req *rove.StockRef) (*rov
 	}
 	if n > 0 {
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:  rove.StockService_Erase_FullMethodName,
-			Key: k,
+			By:       rove.StockService_Erase_FullMethodName,
+			Key:      k,
+			Previous: previous,
 		}); err != nil {
 			return nil, err
 		}
@@ -584,6 +689,53 @@ func (s StockMovementServiceServer) narrow(ctx context.Context, p predicate.Stoc
 	return StockMovementNarrow(ctx, s.Scope, p)
 }
 
+func (s StockMovementServiceServer) snapshot(ctx context.Context, p predicate.StockMovement, lock bool) (*ent.StockMovement, error) {
+	q := s.Db.StockMovement.Query().Where(p)
+	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
+	q.WithStock(func(q *ent.StockQuery) { q.Select(stock.FieldId) })
+	q.Modify(func(q *sql.Selector) {
+		if lock && s.Db.Dialect() != dialect.SQLite {
+			q.ForUpdate()
+		}
+	})
+	return q.Only(ctx)
+}
+func (s StockMovementServiceServer) image(v *rove.StockMovement) *rove.StockMovement {
+	if v == nil {
+		return nil
+	}
+	out := proto.Clone(v).(*rove.StockMovement)
+	m := out.ProtoReflect()
+	{
+		f := m.Descriptor().Fields().ByNumber(2)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	{
+		f := m.Descriptor().Fields().ByNumber(8)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	return out
+}
 func (s StockMovementServiceServer) Add(ctx context.Context, req *rove.StockMovementAddRequest) (*rove.StockMovement, error) {
 	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
 	if err != nil {
@@ -665,9 +817,22 @@ func (s StockMovementServiceServer) Add(ctx context.Context, req *rove.StockMove
 		return nil, err
 	}
 
+	v := u.Proto()
+	for _, d := range ds {
+		d(v)
+	}
+	var value *rove.StockMovement
+	if snapshotOptions(s.Rec, rove.StockMovementService_Add_FullMethodName).Value {
+		stored, err := st.snapshot(ctx, stockmovement.IdEQ(u.Id), false)
+		if err != nil {
+			return nil, err
+		}
+		value = s.image(stored.Proto())
+	}
 	if err := record(ctx, s.Rec, st.Db, Change{
-		By:  rove.StockMovementService_Add_FullMethodName,
-		Key: u.Id,
+		By:    rove.StockMovementService_Add_FullMethodName,
+		Key:   u.Id,
+		Value: value,
 	}); err != nil {
 		return nil, err
 	}
@@ -675,10 +840,6 @@ func (s StockMovementServiceServer) Add(ctx context.Context, req *rove.StockMove
 		return nil, err
 	}
 
-	v := u.Proto()
-	for _, d := range ds {
-		d(v)
-	}
 	return v, nil
 }
 
@@ -870,6 +1031,18 @@ func (s StockMovementServiceServer) apply(ctx context.Context, ref *rove.StockMo
 		return nil, err
 	}
 
+	var previous *rove.StockMovement
+	images := snapshotOptions(s.Rec, by)
+	if images.Previous && mod != nil {
+		u, err := st.snapshot(ctx, p, true)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return nil, status.Error(codes.NotFound, "resource not found")
+			}
+			return nil, err
+		}
+		previous = s.image(u.Proto())
+	}
 	if mod == nil {
 		q := st.Db.StockMovement.Query().Where(p)
 		if pred != nil {
@@ -918,20 +1091,25 @@ func (s StockMovementServiceServer) apply(ctx context.Context, ref *rove.StockMo
 		}
 	}
 
+	out, err := st.Get(ctx, at.Pick())
+	if err != nil {
+		return nil, err
+	}
 	if mod != nil {
+		var value *rove.StockMovement
+		if images.Value {
+			value = s.image(out)
+		}
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:    by,
-			Key:   k,
-			Patch: doc,
+			By:       by,
+			Key:      k,
+			Patch:    doc,
+			Previous: previous, Value: value,
 		}); err != nil {
 			return nil, err
 		}
 	}
 
-	out, err := st.Get(ctx, at.Pick())
-	if err != nil {
-		return nil, err
-	}
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
@@ -958,8 +1136,16 @@ func (s StockMovementServiceServer) Erase(ctx context.Context, req *rove.StockMo
 	st.Db = tx.Db
 
 	var k any
+	var previous *rove.StockMovement
 	if s.Rec != nil {
-		v, err := st.Db.StockMovement.Query().Where(p).OnlyId(ctx)
+		images := snapshotOptions(s.Rec, rove.StockMovementService_Erase_FullMethodName)
+		var v *ent.StockMovement
+		var err error
+		if images.Previous {
+			v, err = st.snapshot(ctx, p, true)
+		} else {
+			v, err = st.Db.StockMovement.Query().Where(p).Select(stockmovement.FieldId).Only(ctx)
+		}
 		if err != nil {
 			if ent.IsNotFound(err) {
 				return &rove.StockMovementEraseResponse{}, nil
@@ -967,8 +1153,11 @@ func (s StockMovementServiceServer) Erase(ctx context.Context, req *rove.StockMo
 			return nil, err
 		}
 
-		k = v
-		p = stockmovement.And(p, stockmovement.IdEQ(v))
+		k = v.Id
+		if images.Previous {
+			previous = s.image(v.Proto())
+		}
+		p = stockmovement.And(p, stockmovement.IdEQ(v.Id))
 	}
 
 	n, err := st.Db.StockMovement.Delete().Where(p).Exec(ctx)
@@ -977,8 +1166,9 @@ func (s StockMovementServiceServer) Erase(ctx context.Context, req *rove.StockMo
 	}
 	if n > 0 {
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:  rove.StockMovementService_Erase_FullMethodName,
-			Key: k,
+			By:       rove.StockMovementService_Erase_FullMethodName,
+			Key:      k,
+			Previous: previous,
 		}); err != nil {
 			return nil, err
 		}

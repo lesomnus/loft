@@ -13,15 +13,20 @@ import (
 	legalhold "github.com/lesomnus/rove/internal/ent/legalhold"
 	notification "github.com/lesomnus/rove/internal/ent/notification"
 	predicate "github.com/lesomnus/rove/internal/ent/predicate"
+	tenant "github.com/lesomnus/rove/internal/ent/tenant"
 	tenantcontract "github.com/lesomnus/rove/internal/ent/tenantcontract"
 	usagesnapshot "github.com/lesomnus/rove/internal/ent/usagesnapshot"
 	ent1 "github.com/protobuf-orm/ent"
+	dialect "github.com/protobuf-orm/ent/dialect"
+	sql "github.com/protobuf-orm/ent/dialect/sql"
 	sqlgraph "github.com/protobuf-orm/ent/dialect/sql/sqlgraph"
 	ormpatch "github.com/protobuf-orm/protobuf-orm/ormpatch"
 	entpatch "github.com/protobuf-orm/protoc-gen-orm-ent/runtime/entpatch"
 	entuuid "github.com/protobuf-orm/protoc-gen-orm-ent/runtime/entuuid"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	proto "google.golang.org/protobuf/proto"
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	uuid "uuid"
 )
 
@@ -80,6 +85,53 @@ func (s NotificationServiceServer) narrow(ctx context.Context, p predicate.Notif
 	return NotificationNarrow(ctx, s.Scope, p)
 }
 
+func (s NotificationServiceServer) snapshot(ctx context.Context, p predicate.Notification, lock bool) (*ent.Notification, error) {
+	q := s.Db.Notification.Query().Where(p)
+	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
+	q.WithHolder(func(q *ent.HolderQuery) { q.Select(holder.FieldId) })
+	q.Modify(func(q *sql.Selector) {
+		if lock && s.Db.Dialect() != dialect.SQLite {
+			q.ForUpdate()
+		}
+	})
+	return q.Only(ctx)
+}
+func (s NotificationServiceServer) image(v *rove.Notification) *rove.Notification {
+	if v == nil {
+		return nil
+	}
+	out := proto.Clone(v).(*rove.Notification)
+	m := out.ProtoReflect()
+	{
+		f := m.Descriptor().Fields().ByNumber(2)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	{
+		f := m.Descriptor().Fields().ByNumber(8)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	return out
+}
 func (s NotificationServiceServer) Add(ctx context.Context, req *rove.NotificationAddRequest) (*rove.Notification, error) {
 	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
 	if err != nil {
@@ -160,9 +212,22 @@ func (s NotificationServiceServer) Add(ctx context.Context, req *rove.Notificati
 		return nil, err
 	}
 
+	v := u.Proto()
+	for _, d := range ds {
+		d(v)
+	}
+	var value *rove.Notification
+	if snapshotOptions(s.Rec, rove.NotificationService_Add_FullMethodName).Value {
+		stored, err := st.snapshot(ctx, notification.IdEQ(u.Id), false)
+		if err != nil {
+			return nil, err
+		}
+		value = s.image(stored.Proto())
+	}
 	if err := record(ctx, s.Rec, st.Db, Change{
-		By:  rove.NotificationService_Add_FullMethodName,
-		Key: u.Id,
+		By:    rove.NotificationService_Add_FullMethodName,
+		Key:   u.Id,
+		Value: value,
 	}); err != nil {
 		return nil, err
 	}
@@ -170,10 +235,6 @@ func (s NotificationServiceServer) Add(ctx context.Context, req *rove.Notificati
 		return nil, err
 	}
 
-	v := u.Proto()
-	for _, d := range ds {
-		d(v)
-	}
 	return v, nil
 }
 
@@ -374,6 +435,18 @@ func (s NotificationServiceServer) apply(ctx context.Context, ref *rove.Notifica
 		return nil, err
 	}
 
+	var previous *rove.Notification
+	images := snapshotOptions(s.Rec, by)
+	if images.Previous && mod != nil {
+		u, err := st.snapshot(ctx, p, true)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return nil, status.Error(codes.NotFound, "resource not found")
+			}
+			return nil, err
+		}
+		previous = s.image(u.Proto())
+	}
 	if mod == nil {
 		q := st.Db.Notification.Query().Where(p)
 		if pred != nil {
@@ -422,20 +495,25 @@ func (s NotificationServiceServer) apply(ctx context.Context, ref *rove.Notifica
 		}
 	}
 
+	out, err := st.Get(ctx, at.Pick())
+	if err != nil {
+		return nil, err
+	}
 	if mod != nil {
+		var value *rove.Notification
+		if images.Value {
+			value = s.image(out)
+		}
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:    by,
-			Key:   k,
-			Patch: doc,
+			By:       by,
+			Key:      k,
+			Patch:    doc,
+			Previous: previous, Value: value,
 		}); err != nil {
 			return nil, err
 		}
 	}
 
-	out, err := st.Get(ctx, at.Pick())
-	if err != nil {
-		return nil, err
-	}
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
@@ -462,8 +540,16 @@ func (s NotificationServiceServer) Erase(ctx context.Context, req *rove.Notifica
 	st.Db = tx.Db
 
 	var k any
+	var previous *rove.Notification
 	if s.Rec != nil {
-		v, err := st.Db.Notification.Query().Where(p).OnlyId(ctx)
+		images := snapshotOptions(s.Rec, rove.NotificationService_Erase_FullMethodName)
+		var v *ent.Notification
+		var err error
+		if images.Previous {
+			v, err = st.snapshot(ctx, p, true)
+		} else {
+			v, err = st.Db.Notification.Query().Where(p).Select(notification.FieldId).Only(ctx)
+		}
 		if err != nil {
 			if ent.IsNotFound(err) {
 				return &rove.NotificationEraseResponse{}, nil
@@ -471,8 +557,11 @@ func (s NotificationServiceServer) Erase(ctx context.Context, req *rove.Notifica
 			return nil, err
 		}
 
-		k = v
-		p = notification.And(p, notification.IdEQ(v))
+		k = v.Id
+		if images.Previous {
+			previous = s.image(v.Proto())
+		}
+		p = notification.And(p, notification.IdEQ(v.Id))
 	}
 
 	n, err := st.Db.Notification.Delete().Where(p).Exec(ctx)
@@ -481,8 +570,9 @@ func (s NotificationServiceServer) Erase(ctx context.Context, req *rove.Notifica
 	}
 	if n > 0 {
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:  rove.NotificationService_Erase_FullMethodName,
-			Key: k,
+			By:       rove.NotificationService_Erase_FullMethodName,
+			Key:      k,
+			Previous: previous,
 		}); err != nil {
 			return nil, err
 		}
@@ -566,6 +656,38 @@ func (s UsageSnapshotServiceServer) narrow(ctx context.Context, p predicate.Usag
 	return UsageSnapshotNarrow(ctx, s.Scope, p)
 }
 
+func (s UsageSnapshotServiceServer) snapshot(ctx context.Context, p predicate.UsageSnapshot, lock bool) (*ent.UsageSnapshot, error) {
+	q := s.Db.UsageSnapshot.Query().Where(p)
+	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
+	q.Modify(func(q *sql.Selector) {
+		if lock && s.Db.Dialect() != dialect.SQLite {
+			q.ForUpdate()
+		}
+	})
+	return q.Only(ctx)
+}
+func (s UsageSnapshotServiceServer) image(v *rove.UsageSnapshot) *rove.UsageSnapshot {
+	if v == nil {
+		return nil
+	}
+	out := proto.Clone(v).(*rove.UsageSnapshot)
+	m := out.ProtoReflect()
+	{
+		f := m.Descriptor().Fields().ByNumber(2)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	return out
+}
 func (s UsageSnapshotServiceServer) Add(ctx context.Context, req *rove.UsageSnapshotAddRequest) (*rove.UsageSnapshot, error) {
 	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
 	if err != nil {
@@ -623,9 +745,22 @@ func (s UsageSnapshotServiceServer) Add(ctx context.Context, req *rove.UsageSnap
 		return nil, err
 	}
 
+	v := u.Proto()
+	for _, d := range ds {
+		d(v)
+	}
+	var value *rove.UsageSnapshot
+	if snapshotOptions(s.Rec, rove.UsageSnapshotService_Add_FullMethodName).Value {
+		stored, err := st.snapshot(ctx, usagesnapshot.IdEQ(u.Id), false)
+		if err != nil {
+			return nil, err
+		}
+		value = s.image(stored.Proto())
+	}
 	if err := record(ctx, s.Rec, st.Db, Change{
-		By:  rove.UsageSnapshotService_Add_FullMethodName,
-		Key: u.Id,
+		By:    rove.UsageSnapshotService_Add_FullMethodName,
+		Key:   u.Id,
+		Value: value,
 	}); err != nil {
 		return nil, err
 	}
@@ -633,10 +768,6 @@ func (s UsageSnapshotServiceServer) Add(ctx context.Context, req *rove.UsageSnap
 		return nil, err
 	}
 
-	v := u.Proto()
-	for _, d := range ds {
-		d(v)
-	}
 	return v, nil
 }
 
@@ -809,6 +940,18 @@ func (s UsageSnapshotServiceServer) apply(ctx context.Context, ref *rove.UsageSn
 		return nil, err
 	}
 
+	var previous *rove.UsageSnapshot
+	images := snapshotOptions(s.Rec, by)
+	if images.Previous && mod != nil {
+		u, err := st.snapshot(ctx, p, true)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return nil, status.Error(codes.NotFound, "resource not found")
+			}
+			return nil, err
+		}
+		previous = s.image(u.Proto())
+	}
 	if mod == nil {
 		q := st.Db.UsageSnapshot.Query().Where(p)
 		if pred != nil {
@@ -857,20 +1000,25 @@ func (s UsageSnapshotServiceServer) apply(ctx context.Context, ref *rove.UsageSn
 		}
 	}
 
+	out, err := st.Get(ctx, at.Pick())
+	if err != nil {
+		return nil, err
+	}
 	if mod != nil {
+		var value *rove.UsageSnapshot
+		if images.Value {
+			value = s.image(out)
+		}
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:    by,
-			Key:   k,
-			Patch: doc,
+			By:       by,
+			Key:      k,
+			Patch:    doc,
+			Previous: previous, Value: value,
 		}); err != nil {
 			return nil, err
 		}
 	}
 
-	out, err := st.Get(ctx, at.Pick())
-	if err != nil {
-		return nil, err
-	}
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
@@ -897,8 +1045,16 @@ func (s UsageSnapshotServiceServer) Erase(ctx context.Context, req *rove.UsageSn
 	st.Db = tx.Db
 
 	var k any
+	var previous *rove.UsageSnapshot
 	if s.Rec != nil {
-		v, err := st.Db.UsageSnapshot.Query().Where(p).OnlyId(ctx)
+		images := snapshotOptions(s.Rec, rove.UsageSnapshotService_Erase_FullMethodName)
+		var v *ent.UsageSnapshot
+		var err error
+		if images.Previous {
+			v, err = st.snapshot(ctx, p, true)
+		} else {
+			v, err = st.Db.UsageSnapshot.Query().Where(p).Select(usagesnapshot.FieldId).Only(ctx)
+		}
 		if err != nil {
 			if ent.IsNotFound(err) {
 				return &rove.UsageSnapshotEraseResponse{}, nil
@@ -906,8 +1062,11 @@ func (s UsageSnapshotServiceServer) Erase(ctx context.Context, req *rove.UsageSn
 			return nil, err
 		}
 
-		k = v
-		p = usagesnapshot.And(p, usagesnapshot.IdEQ(v))
+		k = v.Id
+		if images.Previous {
+			previous = s.image(v.Proto())
+		}
+		p = usagesnapshot.And(p, usagesnapshot.IdEQ(v.Id))
 	}
 
 	n, err := st.Db.UsageSnapshot.Delete().Where(p).Exec(ctx)
@@ -916,8 +1075,9 @@ func (s UsageSnapshotServiceServer) Erase(ctx context.Context, req *rove.UsageSn
 	}
 	if n > 0 {
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:  rove.UsageSnapshotService_Erase_FullMethodName,
-			Key: k,
+			By:       rove.UsageSnapshotService_Erase_FullMethodName,
+			Key:      k,
+			Previous: previous,
 		}); err != nil {
 			return nil, err
 		}
@@ -1015,6 +1175,38 @@ func (s TenantContractServiceServer) narrow(ctx context.Context, p predicate.Ten
 	return TenantContractNarrow(ctx, s.Scope, p)
 }
 
+func (s TenantContractServiceServer) snapshot(ctx context.Context, p predicate.TenantContract, lock bool) (*ent.TenantContract, error) {
+	q := s.Db.TenantContract.Query().Where(p)
+	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
+	q.Modify(func(q *sql.Selector) {
+		if lock && s.Db.Dialect() != dialect.SQLite {
+			q.ForUpdate()
+		}
+	})
+	return q.Only(ctx)
+}
+func (s TenantContractServiceServer) image(v *rove.TenantContract) *rove.TenantContract {
+	if v == nil {
+		return nil
+	}
+	out := proto.Clone(v).(*rove.TenantContract)
+	m := out.ProtoReflect()
+	{
+		f := m.Descriptor().Fields().ByNumber(2)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	return out
+}
 func (s TenantContractServiceServer) Add(ctx context.Context, req *rove.TenantContractAddRequest) (*rove.TenantContract, error) {
 	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
 	if err != nil {
@@ -1077,9 +1269,22 @@ func (s TenantContractServiceServer) Add(ctx context.Context, req *rove.TenantCo
 		return nil, err
 	}
 
+	v := u.Proto()
+	for _, d := range ds {
+		d(v)
+	}
+	var value *rove.TenantContract
+	if snapshotOptions(s.Rec, rove.TenantContractService_Add_FullMethodName).Value {
+		stored, err := st.snapshot(ctx, tenantcontract.IdEQ(u.Id), false)
+		if err != nil {
+			return nil, err
+		}
+		value = s.image(stored.Proto())
+	}
 	if err := record(ctx, s.Rec, st.Db, Change{
-		By:  rove.TenantContractService_Add_FullMethodName,
-		Key: u.Id,
+		By:    rove.TenantContractService_Add_FullMethodName,
+		Key:   u.Id,
+		Value: value,
 	}); err != nil {
 		return nil, err
 	}
@@ -1087,10 +1292,6 @@ func (s TenantContractServiceServer) Add(ctx context.Context, req *rove.TenantCo
 		return nil, err
 	}
 
-	v := u.Proto()
-	for _, d := range ds {
-		d(v)
-	}
 	return v, nil
 }
 
@@ -1275,6 +1476,18 @@ func (s TenantContractServiceServer) apply(ctx context.Context, ref *rove.Tenant
 		return nil, err
 	}
 
+	var previous *rove.TenantContract
+	images := snapshotOptions(s.Rec, by)
+	if images.Previous && mod != nil {
+		u, err := st.snapshot(ctx, p, true)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return nil, status.Error(codes.NotFound, "resource not found")
+			}
+			return nil, err
+		}
+		previous = s.image(u.Proto())
+	}
 	if mod == nil {
 		q := st.Db.TenantContract.Query().Where(p)
 		if pred != nil {
@@ -1320,20 +1533,25 @@ func (s TenantContractServiceServer) apply(ctx context.Context, ref *rove.Tenant
 		}
 	}
 
+	out, err := st.Get(ctx, at.Pick())
+	if err != nil {
+		return nil, err
+	}
 	if mod != nil {
+		var value *rove.TenantContract
+		if images.Value {
+			value = s.image(out)
+		}
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:    by,
-			Key:   k,
-			Patch: doc,
+			By:       by,
+			Key:      k,
+			Patch:    doc,
+			Previous: previous, Value: value,
 		}); err != nil {
 			return nil, err
 		}
 	}
 
-	out, err := st.Get(ctx, at.Pick())
-	if err != nil {
-		return nil, err
-	}
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
@@ -1360,8 +1578,16 @@ func (s TenantContractServiceServer) Erase(ctx context.Context, req *rove.Tenant
 	st.Db = tx.Db
 
 	var k any
+	var previous *rove.TenantContract
 	if s.Rec != nil {
-		v, err := st.Db.TenantContract.Query().Where(p).OnlyId(ctx)
+		images := snapshotOptions(s.Rec, rove.TenantContractService_Erase_FullMethodName)
+		var v *ent.TenantContract
+		var err error
+		if images.Previous {
+			v, err = st.snapshot(ctx, p, true)
+		} else {
+			v, err = st.Db.TenantContract.Query().Where(p).Select(tenantcontract.FieldId).Only(ctx)
+		}
 		if err != nil {
 			if ent.IsNotFound(err) {
 				return &rove.TenantContractEraseResponse{}, nil
@@ -1369,8 +1595,11 @@ func (s TenantContractServiceServer) Erase(ctx context.Context, req *rove.Tenant
 			return nil, err
 		}
 
-		k = v
-		p = tenantcontract.And(p, tenantcontract.IdEQ(v))
+		k = v.Id
+		if images.Previous {
+			previous = s.image(v.Proto())
+		}
+		p = tenantcontract.And(p, tenantcontract.IdEQ(v.Id))
 	}
 
 	u := st.Db.TenantContract.Update().Where(p)
@@ -1381,8 +1610,9 @@ func (s TenantContractServiceServer) Erase(ctx context.Context, req *rove.Tenant
 	}
 	if n > 0 {
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:  rove.TenantContractService_Erase_FullMethodName,
-			Key: k,
+			By:       rove.TenantContractService_Erase_FullMethodName,
+			Key:      k,
+			Previous: previous,
 		}); err != nil {
 			return nil, err
 		}
@@ -1484,6 +1714,38 @@ func (s LegalHoldServiceServer) narrow(ctx context.Context, p predicate.LegalHol
 	return LegalHoldNarrow(ctx, s.Scope, p)
 }
 
+func (s LegalHoldServiceServer) snapshot(ctx context.Context, p predicate.LegalHold, lock bool) (*ent.LegalHold, error) {
+	q := s.Db.LegalHold.Query().Where(p)
+	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
+	q.Modify(func(q *sql.Selector) {
+		if lock && s.Db.Dialect() != dialect.SQLite {
+			q.ForUpdate()
+		}
+	})
+	return q.Only(ctx)
+}
+func (s LegalHoldServiceServer) image(v *rove.LegalHold) *rove.LegalHold {
+	if v == nil {
+		return nil
+	}
+	out := proto.Clone(v).(*rove.LegalHold)
+	m := out.ProtoReflect()
+	{
+		f := m.Descriptor().Fields().ByNumber(2)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	return out
+}
 func (s LegalHoldServiceServer) Add(ctx context.Context, req *rove.LegalHoldAddRequest) (*rove.LegalHold, error) {
 	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
 	if err != nil {
@@ -1541,9 +1803,22 @@ func (s LegalHoldServiceServer) Add(ctx context.Context, req *rove.LegalHoldAddR
 		return nil, err
 	}
 
+	v := u.Proto()
+	for _, d := range ds {
+		d(v)
+	}
+	var value *rove.LegalHold
+	if snapshotOptions(s.Rec, rove.LegalHoldService_Add_FullMethodName).Value {
+		stored, err := st.snapshot(ctx, legalhold.IdEQ(u.Id), false)
+		if err != nil {
+			return nil, err
+		}
+		value = s.image(stored.Proto())
+	}
 	if err := record(ctx, s.Rec, st.Db, Change{
-		By:  rove.LegalHoldService_Add_FullMethodName,
-		Key: u.Id,
+		By:    rove.LegalHoldService_Add_FullMethodName,
+		Key:   u.Id,
+		Value: value,
 	}); err != nil {
 		return nil, err
 	}
@@ -1551,10 +1826,6 @@ func (s LegalHoldServiceServer) Add(ctx context.Context, req *rove.LegalHoldAddR
 		return nil, err
 	}
 
-	v := u.Proto()
-	for _, d := range ds {
-		d(v)
-	}
 	return v, nil
 }
 
@@ -1727,6 +1998,18 @@ func (s LegalHoldServiceServer) apply(ctx context.Context, ref *rove.LegalHoldRe
 		return nil, err
 	}
 
+	var previous *rove.LegalHold
+	images := snapshotOptions(s.Rec, by)
+	if images.Previous && mod != nil {
+		u, err := st.snapshot(ctx, p, true)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return nil, status.Error(codes.NotFound, "resource not found")
+			}
+			return nil, err
+		}
+		previous = s.image(u.Proto())
+	}
 	if mod == nil {
 		q := st.Db.LegalHold.Query().Where(p)
 		if pred != nil {
@@ -1772,20 +2055,25 @@ func (s LegalHoldServiceServer) apply(ctx context.Context, ref *rove.LegalHoldRe
 		}
 	}
 
+	out, err := st.Get(ctx, at.Pick())
+	if err != nil {
+		return nil, err
+	}
 	if mod != nil {
+		var value *rove.LegalHold
+		if images.Value {
+			value = s.image(out)
+		}
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:    by,
-			Key:   k,
-			Patch: doc,
+			By:       by,
+			Key:      k,
+			Patch:    doc,
+			Previous: previous, Value: value,
 		}); err != nil {
 			return nil, err
 		}
 	}
 
-	out, err := st.Get(ctx, at.Pick())
-	if err != nil {
-		return nil, err
-	}
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
@@ -1812,8 +2100,16 @@ func (s LegalHoldServiceServer) Erase(ctx context.Context, req *rove.LegalHoldRe
 	st.Db = tx.Db
 
 	var k any
+	var previous *rove.LegalHold
 	if s.Rec != nil {
-		v, err := st.Db.LegalHold.Query().Where(p).OnlyId(ctx)
+		images := snapshotOptions(s.Rec, rove.LegalHoldService_Erase_FullMethodName)
+		var v *ent.LegalHold
+		var err error
+		if images.Previous {
+			v, err = st.snapshot(ctx, p, true)
+		} else {
+			v, err = st.Db.LegalHold.Query().Where(p).Select(legalhold.FieldId).Only(ctx)
+		}
 		if err != nil {
 			if ent.IsNotFound(err) {
 				return &rove.LegalHoldEraseResponse{}, nil
@@ -1821,8 +2117,11 @@ func (s LegalHoldServiceServer) Erase(ctx context.Context, req *rove.LegalHoldRe
 			return nil, err
 		}
 
-		k = v
-		p = legalhold.And(p, legalhold.IdEQ(v))
+		k = v.Id
+		if images.Previous {
+			previous = s.image(v.Proto())
+		}
+		p = legalhold.And(p, legalhold.IdEQ(v.Id))
 	}
 
 	n, err := st.Db.LegalHold.Delete().Where(p).Exec(ctx)
@@ -1831,8 +2130,9 @@ func (s LegalHoldServiceServer) Erase(ctx context.Context, req *rove.LegalHoldRe
 	}
 	if n > 0 {
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:  rove.LegalHoldService_Erase_FullMethodName,
-			Key: k,
+			By:       rove.LegalHoldService_Erase_FullMethodName,
+			Key:      k,
+			Previous: previous,
 		}); err != nil {
 			return nil, err
 		}

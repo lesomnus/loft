@@ -13,13 +13,18 @@ import (
 	countfinding "github.com/lesomnus/rove/internal/ent/countfinding"
 	inventorycount "github.com/lesomnus/rove/internal/ent/inventorycount"
 	predicate "github.com/lesomnus/rove/internal/ent/predicate"
+	tenant "github.com/lesomnus/rove/internal/ent/tenant"
 	ent1 "github.com/protobuf-orm/ent"
+	dialect "github.com/protobuf-orm/ent/dialect"
+	sql "github.com/protobuf-orm/ent/dialect/sql"
 	sqlgraph "github.com/protobuf-orm/ent/dialect/sql/sqlgraph"
 	ormpatch "github.com/protobuf-orm/protobuf-orm/ormpatch"
 	entpatch "github.com/protobuf-orm/protoc-gen-orm-ent/runtime/entpatch"
 	entuuid "github.com/protobuf-orm/protoc-gen-orm-ent/runtime/entuuid"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	proto "google.golang.org/protobuf/proto"
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	uuid "uuid"
 )
 
@@ -82,6 +87,53 @@ func (s InventoryCountServiceServer) narrow(ctx context.Context, p predicate.Inv
 	return InventoryCountNarrow(ctx, s.Scope, p)
 }
 
+func (s InventoryCountServiceServer) snapshot(ctx context.Context, p predicate.InventoryCount, lock bool) (*ent.InventoryCount, error) {
+	q := s.Db.InventoryCount.Query().Where(p)
+	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
+	q.WithScope(func(q *ent.AssetQuery) { q.Select(asset.FieldId) })
+	q.Modify(func(q *sql.Selector) {
+		if lock && s.Db.Dialect() != dialect.SQLite {
+			q.ForUpdate()
+		}
+	})
+	return q.Only(ctx)
+}
+func (s InventoryCountServiceServer) image(v *rove.InventoryCount) *rove.InventoryCount {
+	if v == nil {
+		return nil
+	}
+	out := proto.Clone(v).(*rove.InventoryCount)
+	m := out.ProtoReflect()
+	{
+		f := m.Descriptor().Fields().ByNumber(2)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	{
+		f := m.Descriptor().Fields().ByNumber(8)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	return out
+}
 func (s InventoryCountServiceServer) Add(ctx context.Context, req *rove.InventoryCountAddRequest) (*rove.InventoryCount, error) {
 	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
 	if err != nil {
@@ -163,9 +215,22 @@ func (s InventoryCountServiceServer) Add(ctx context.Context, req *rove.Inventor
 		return nil, err
 	}
 
+	v := u.Proto()
+	for _, d := range ds {
+		d(v)
+	}
+	var value *rove.InventoryCount
+	if snapshotOptions(s.Rec, rove.InventoryCountService_Add_FullMethodName).Value {
+		stored, err := st.snapshot(ctx, inventorycount.IdEQ(u.Id), false)
+		if err != nil {
+			return nil, err
+		}
+		value = s.image(stored.Proto())
+	}
 	if err := record(ctx, s.Rec, st.Db, Change{
-		By:  rove.InventoryCountService_Add_FullMethodName,
-		Key: u.Id,
+		By:    rove.InventoryCountService_Add_FullMethodName,
+		Key:   u.Id,
+		Value: value,
 	}); err != nil {
 		return nil, err
 	}
@@ -173,10 +238,6 @@ func (s InventoryCountServiceServer) Add(ctx context.Context, req *rove.Inventor
 		return nil, err
 	}
 
-	v := u.Proto()
-	for _, d := range ds {
-		d(v)
-	}
 	return v, nil
 }
 
@@ -377,6 +438,18 @@ func (s InventoryCountServiceServer) apply(ctx context.Context, ref *rove.Invent
 		return nil, err
 	}
 
+	var previous *rove.InventoryCount
+	images := snapshotOptions(s.Rec, by)
+	if images.Previous && mod != nil {
+		u, err := st.snapshot(ctx, p, true)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return nil, status.Error(codes.NotFound, "resource not found")
+			}
+			return nil, err
+		}
+		previous = s.image(u.Proto())
+	}
 	if mod == nil {
 		q := st.Db.InventoryCount.Query().Where(p)
 		if pred != nil {
@@ -425,20 +498,25 @@ func (s InventoryCountServiceServer) apply(ctx context.Context, ref *rove.Invent
 		}
 	}
 
+	out, err := st.Get(ctx, at.Pick())
+	if err != nil {
+		return nil, err
+	}
 	if mod != nil {
+		var value *rove.InventoryCount
+		if images.Value {
+			value = s.image(out)
+		}
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:    by,
-			Key:   k,
-			Patch: doc,
+			By:       by,
+			Key:      k,
+			Patch:    doc,
+			Previous: previous, Value: value,
 		}); err != nil {
 			return nil, err
 		}
 	}
 
-	out, err := st.Get(ctx, at.Pick())
-	if err != nil {
-		return nil, err
-	}
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
@@ -465,8 +543,16 @@ func (s InventoryCountServiceServer) Erase(ctx context.Context, req *rove.Invent
 	st.Db = tx.Db
 
 	var k any
+	var previous *rove.InventoryCount
 	if s.Rec != nil {
-		v, err := st.Db.InventoryCount.Query().Where(p).OnlyId(ctx)
+		images := snapshotOptions(s.Rec, rove.InventoryCountService_Erase_FullMethodName)
+		var v *ent.InventoryCount
+		var err error
+		if images.Previous {
+			v, err = st.snapshot(ctx, p, true)
+		} else {
+			v, err = st.Db.InventoryCount.Query().Where(p).Select(inventorycount.FieldId).Only(ctx)
+		}
 		if err != nil {
 			if ent.IsNotFound(err) {
 				return &rove.InventoryCountEraseResponse{}, nil
@@ -474,8 +560,11 @@ func (s InventoryCountServiceServer) Erase(ctx context.Context, req *rove.Invent
 			return nil, err
 		}
 
-		k = v
-		p = inventorycount.And(p, inventorycount.IdEQ(v))
+		k = v.Id
+		if images.Previous {
+			previous = s.image(v.Proto())
+		}
+		p = inventorycount.And(p, inventorycount.IdEQ(v.Id))
 	}
 
 	u := st.Db.InventoryCount.Update().Where(p)
@@ -487,8 +576,9 @@ func (s InventoryCountServiceServer) Erase(ctx context.Context, req *rove.Invent
 	}
 	if n > 0 {
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:  rove.InventoryCountService_Erase_FullMethodName,
-			Key: k,
+			By:       rove.InventoryCountService_Erase_FullMethodName,
+			Key:      k,
+			Previous: previous,
 		}); err != nil {
 			return nil, err
 		}
@@ -590,6 +680,68 @@ func (s CountFindingServiceServer) narrow(ctx context.Context, p predicate.Count
 	return CountFindingNarrow(ctx, s.Scope, p)
 }
 
+func (s CountFindingServiceServer) snapshot(ctx context.Context, p predicate.CountFinding, lock bool) (*ent.CountFinding, error) {
+	q := s.Db.CountFinding.Query().Where(p)
+	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
+	q.WithCount(func(q *ent.InventoryCountQuery) { q.Select(inventorycount.FieldId) })
+	q.WithAsset(func(q *ent.AssetQuery) { q.Select(asset.FieldId) })
+	q.Modify(func(q *sql.Selector) {
+		if lock && s.Db.Dialect() != dialect.SQLite {
+			q.ForUpdate()
+		}
+	})
+	return q.Only(ctx)
+}
+func (s CountFindingServiceServer) image(v *rove.CountFinding) *rove.CountFinding {
+	if v == nil {
+		return nil
+	}
+	out := proto.Clone(v).(*rove.CountFinding)
+	m := out.ProtoReflect()
+	{
+		f := m.Descriptor().Fields().ByNumber(2)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	{
+		f := m.Descriptor().Fields().ByNumber(8)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	{
+		f := m.Descriptor().Fields().ByNumber(9)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	return out
+}
 func (s CountFindingServiceServer) Add(ctx context.Context, req *rove.CountFindingAddRequest) (*rove.CountFinding, error) {
 	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
 	if err != nil {
@@ -700,9 +852,22 @@ func (s CountFindingServiceServer) Add(ctx context.Context, req *rove.CountFindi
 		return nil, err
 	}
 
+	v := u.Proto()
+	for _, d := range ds {
+		d(v)
+	}
+	var value *rove.CountFinding
+	if snapshotOptions(s.Rec, rove.CountFindingService_Add_FullMethodName).Value {
+		stored, err := st.snapshot(ctx, countfinding.IdEQ(u.Id), false)
+		if err != nil {
+			return nil, err
+		}
+		value = s.image(stored.Proto())
+	}
 	if err := record(ctx, s.Rec, st.Db, Change{
-		By:  rove.CountFindingService_Add_FullMethodName,
-		Key: u.Id,
+		By:    rove.CountFindingService_Add_FullMethodName,
+		Key:   u.Id,
+		Value: value,
 	}); err != nil {
 		return nil, err
 	}
@@ -710,10 +875,6 @@ func (s CountFindingServiceServer) Add(ctx context.Context, req *rove.CountFindi
 		return nil, err
 	}
 
-	v := u.Proto()
-	for _, d := range ds {
-		d(v)
-	}
 	return v, nil
 }
 
@@ -921,6 +1082,18 @@ func (s CountFindingServiceServer) apply(ctx context.Context, ref *rove.CountFin
 		return nil, err
 	}
 
+	var previous *rove.CountFinding
+	images := snapshotOptions(s.Rec, by)
+	if images.Previous && mod != nil {
+		u, err := st.snapshot(ctx, p, true)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return nil, status.Error(codes.NotFound, "resource not found")
+			}
+			return nil, err
+		}
+		previous = s.image(u.Proto())
+	}
 	if mod == nil {
 		q := st.Db.CountFinding.Query().Where(p)
 		if pred != nil {
@@ -969,20 +1142,25 @@ func (s CountFindingServiceServer) apply(ctx context.Context, ref *rove.CountFin
 		}
 	}
 
+	out, err := st.Get(ctx, at.Pick())
+	if err != nil {
+		return nil, err
+	}
 	if mod != nil {
+		var value *rove.CountFinding
+		if images.Value {
+			value = s.image(out)
+		}
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:    by,
-			Key:   k,
-			Patch: doc,
+			By:       by,
+			Key:      k,
+			Patch:    doc,
+			Previous: previous, Value: value,
 		}); err != nil {
 			return nil, err
 		}
 	}
 
-	out, err := st.Get(ctx, at.Pick())
-	if err != nil {
-		return nil, err
-	}
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
@@ -1009,8 +1187,16 @@ func (s CountFindingServiceServer) Erase(ctx context.Context, req *rove.CountFin
 	st.Db = tx.Db
 
 	var k any
+	var previous *rove.CountFinding
 	if s.Rec != nil {
-		v, err := st.Db.CountFinding.Query().Where(p).OnlyId(ctx)
+		images := snapshotOptions(s.Rec, rove.CountFindingService_Erase_FullMethodName)
+		var v *ent.CountFinding
+		var err error
+		if images.Previous {
+			v, err = st.snapshot(ctx, p, true)
+		} else {
+			v, err = st.Db.CountFinding.Query().Where(p).Select(countfinding.FieldId).Only(ctx)
+		}
 		if err != nil {
 			if ent.IsNotFound(err) {
 				return &rove.CountFindingEraseResponse{}, nil
@@ -1018,8 +1204,11 @@ func (s CountFindingServiceServer) Erase(ctx context.Context, req *rove.CountFin
 			return nil, err
 		}
 
-		k = v
-		p = countfinding.And(p, countfinding.IdEQ(v))
+		k = v.Id
+		if images.Previous {
+			previous = s.image(v.Proto())
+		}
+		p = countfinding.And(p, countfinding.IdEQ(v.Id))
 	}
 
 	n, err := st.Db.CountFinding.Delete().Where(p).Exec(ctx)
@@ -1028,8 +1217,9 @@ func (s CountFindingServiceServer) Erase(ctx context.Context, req *rove.CountFin
 	}
 	if n > 0 {
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:  rove.CountFindingService_Erase_FullMethodName,
-			Key: k,
+			By:       rove.CountFindingService_Erase_FullMethodName,
+			Key:      k,
+			Previous: previous,
 		}); err != nil {
 			return nil, err
 		}
