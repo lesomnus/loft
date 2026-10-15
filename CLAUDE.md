@@ -273,6 +273,24 @@ them (`{party}`, `{holder}`, `{alias}`) and its payload carries the identifier
 (`go test ./server/domain`) go through the whole stack; set `PDTEST_POSTGRES` to
 run them on PostgreSQL.
 
+## Search
+
+Search is moving from the database (`internal/search`, pg_bigm) to OpenSearch
+with nori, for a deployment whose `app.search.opensearch` names a cluster
+(D31, rove#83). What is there now is `server/opensearch`: the client (its
+HTTP API, no library), the index (`assets.json`, whose shape is `Version`:
+bump it with any change), and `Reindex`, which fills a new index and moves
+the alias `<index>-assets` onto it in one step; and `rove search
+status|reindex|remove|analyze`. Keeping the index current and asking it are
+the issue's next steps. The index is a copy: a search takes identifiers from
+it and reads the rows through the wall.
+
+A test that needs a cluster takes `internal/opensearchtest.Config(t)`
+(`PDTEST_OPENSEARCH`, and `PDTEST_OPENSEARCH_CA` for TLS) and skips without
+one. CI's `opensearch` job runs every such package on `deploy/opensearch`
+with the security plugin on, signed in with the role README gives an
+operator -- a call that needs more than that role fails there.
+
 ## Reference
 
 - `README.md` — running it, in Korean

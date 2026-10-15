@@ -89,6 +89,7 @@ func Cmd(c *cmd.Config) *xli.Command {
 			NewCmdHolder(c),
 			NewCmdIdentity(c),
 			NewCmdTrail(c),
+			NewCmdSearch(c),
 			login,
 			logout,
 			whoami,

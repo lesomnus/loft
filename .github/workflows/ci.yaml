@@ -65,6 +65,53 @@ jobs:
           PDTEST_POSTGRES: postgres://rove:rove@localhost:5432/rove?sslmode=disable
         run: go test ./server/domain ./cli
 
+  # Search on OpenSearch with nori (D31, deploy/opensearch): the image a
+  # deployment runs, with its security plugin on -- TLS on the demo
+  # certificates -- and Rove signed in with the role README says it needs,
+  # which is how a permission it lacks shows up here rather than at an
+  # operator's. The tests are the ones that ask for a cluster
+  # (internal/opensearchtest); without one they skip.
+  opensearch:
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+      - name: OpenSearch with nori
+        run: |
+          docker build -t rove-opensearch deploy/opensearch
+          admin="Ad9!$(openssl rand -hex 16)"
+          docker run -d --name opensearch -p 127.0.0.1:9200:9200 \
+            -e discovery.type=single-node -e OPENSEARCH_INITIAL_ADMIN_PASSWORD="${admin}" \
+            -e OPENSEARCH_JAVA_OPTS="-Xms512m -Xmx512m" rove-opensearch
+          for i in $(seq 1 90); do
+            curl -skf -u "admin:${admin}" https://localhost:9200/_cluster/health > /dev/null && break
+            [ "${i}" -lt 90 ] || { echo "OpenSearch did not come up"; exit 1; }
+            sleep 2
+          done
+          ca="${RUNNER_TEMP}/opensearch-ca.pem"
+          docker cp opensearch:/usr/share/opensearch/config/root-ca.pem "${ca}"
+          api() {
+            curl -sS --fail-with-body --cacert "${ca}" -u "admin:${admin}" -H 'Content-Type: application/json' \
+              -X PUT "https://localhost:9200/_plugins/_security/api/$1" -d "$2"
+            echo
+          }
+          # README's role, on the names the tests make their indexes with.
+          api roles/rove '{"cluster_permissions":["indices:data/write/bulk"],"index_permissions":[{"index_patterns":["rovetest-*"],"allowed_actions":["indices_all"]}]}'
+          password="Rv9-$(openssl rand -hex 16)"
+          api internalusers/rove "{\"password\":\"${password}\"}"
+          api rolesmapping/rove '{"users":["rove"]}'
+          echo "PDTEST_OPENSEARCH=https://rove:${password}@localhost:9200" >> "${GITHUB_ENV}"
+          echo "PDTEST_OPENSEARCH_CA=${ca}" >> "${GITHUB_ENV}"
+      - name: the tests that search
+        run: |
+          pkgs="$(go list -f '{{.ImportPath}} {{join .TestImports " "}} {{join .XTestImports " "}}' ./... | awk '{ for (i = 2; i <= NF; i++) if ($i == "github.com/lesomnus/rove/internal/opensearchtest") { print $1; break } }')"
+          echo "${pkgs}"
+          go test ${pkgs}
+      - if: failure()
+        run: docker logs opensearch 2>&1 | tail -100
+
   ui:
     runs-on: ubuntu-26.04
     defaults:
@@ -258,7 +305,7 @@ jobs:
   # its repository says so and not when somebody pushes here.
   image:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [go, postgres-trgm, ui, bundle, vuln, cluster, e2e]
+    needs: [go, postgres-trgm, opensearch, ui, bundle, vuln, cluster, e2e]
     runs-on: ubuntu-26.04
     permissions:
       contents: read
