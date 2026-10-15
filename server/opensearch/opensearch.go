@@ -155,9 +155,12 @@ func New(c Config, resolve func(string) (string, error)) (*Client, error) {
 	}, nil
 }
 
-// Close lets go of the connections the client keeps.
+// Close lets go of the connections the client keeps; a nil client, which is
+// no cluster, has none.
 func (c *Client) Close() {
-	c.http.CloseIdleConnections()
+	if c != nil {
+		c.http.CloseIdleConnections()
+	}
 }
 
 // Error is a request the cluster answered and refused.

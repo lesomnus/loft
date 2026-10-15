@@ -157,6 +157,12 @@ func (d Deployment) rows(ctx context.Context, tenant pdid.Id, dry bool, n map[st
 	}
 	n["tenant"] = v
 
+	if d.Unindex != nil {
+		if err := d.Unindex(ctx, tx.Client(), tid); err != nil {
+			return nil, err
+		}
+	}
+
 	if dry {
 		return keys, nil
 	}

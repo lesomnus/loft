@@ -7,7 +7,7 @@
 | 항목 | 결과 | 어디서 지키나 |
 | --- | --- | --- |
 | `auth.Plain`을 아무도 닿는 곳에 두지 않는다 | 문제없음 | 공개 서버는 세션 쿠키로 읽습니다(`cmd.Build`가 `Server.Auth`를 채움). Plain은 내장 roster를 프로세스 안에서(bufconn) 부를 때만 씁니다(`internal/identity`) |
-| 벽 밖(`global: {}`)의 엔티티 목록을 읽는다 | 7개, 모두 RPC로 열려 있지 않음 | Session, CliLogin, AliasHold, Consent, SignInFailure, Outbox, Archived. 권한 표에 이들의 RPC가 하나도 없고, 생기면 `TestNothingBeyondTheWallIsInTheTable`(새로)이 실패합니다 |
+| 벽 밖(`global: {}`)의 엔티티 목록을 읽는다 | 8개, 모두 RPC로 열려 있지 않음 | Session, CliLogin, AliasHold, Consent, SignInFailure, SearchStale, Outbox, Archived. 권한 표에 이들의 RPC가 하나도 없고, 생기면 `TestNothingBeyondTheWallIsInTheTable`(새로)이 실패합니다 |
 | 서빙하는 서버는 벽이 있는 것이고, 벽 없는 것은 서빙하지 않는다 | 문제없음 | `app.RegisterServer(g, s.Walled)`, batch도 `s.Walled`(`cmd/serve.go`) |
 | `gate.Interceptor`가 `auth.Interceptor` 뒤에 있다 | 문제없음 | `Server.Grpc`의 순서: auth → 호출 제한 → gate → watch → 닫힌 워크스페이스 |
 | 정책이 gate와 batch의 Guard 둘 다에 간다 | 문제없음 | `gate.Interceptor(s.Policy)`, `c.Server.Guard(s.Policy)`. 서빙되는 스택이 표대로인지는 `TestEveryMethodIsAsTheTableSaysForEveryRole`이 봅니다 |
@@ -28,6 +28,7 @@
 | 공개 바이너리에 운영자 코드가 없다 | 문제없음 | `TestThePublicBinaryLinksNoOperatorCode`(새로)가 `go list -deps`로 확인합니다 |
 | 보안 헤더와 CSP | 문제없음 | 아래 "보안 헤더와 CSP" 참고 |
 | 로그인과 터미널 로그인 제한 | 문제없음 | 아래 "로그인 제한" 참고 |
+| 검색 클러스터(OpenSearch)에 가는 것 | 문제없음 | 아래 "검색 색인" 참고 |
 
 - **운영자 진입점.**
   - K8s: Service가 없고, NetworkPolicy가 8081을 막습니다. 들어오는 길은 `kubectl port-forward` 하나입니다.
@@ -40,6 +41,12 @@
   - 같은 주소에서 같은 아이디로 15분에 10번, 한 주소에서 터미널 로그인은 10분에 20번까지입니다. DB에서 세므로 서버가 여러 대여도 한 번에 셉니다(`cmd/limits_test.go`).
   - 계정 잠금은 roster가 합니다.
   - 이 제한은 `app.trusted_proxies`가 맞아야 맞게 셉니다(`deploy/k8s/README.md`).
+
+- **검색 색인**(D31, rove#83).
+  - 색인은 DB의 사본입니다. 자산의 이름, 태그, 시리얼과 함께 보유자 이름이 들어갑니다.
+  - 개인정보 삭제(가명화)로 사람 이름이 바뀌면 그 사람이 가진 자산의 문서도 다시 만듭니다. 워크스페이스를 파기하면 그 문서도 모두 지웁니다(`TestTheIndexHearsOfWhatChanged`).
+  - Rove는 TLS(`ca_file`)로 접속하고, 클러스터 권한은 bulk 쓰기 하나뿐인 role로 로그인합니다. CI의 `opensearch` 작업이 그 role로 돌아서, 권한이 더 필요한 호출은 거기서 실패합니다.
+  - 검색 결과는 ID일 뿐이고, 행은 벽을 거쳐 읽습니다. 브라우저는 OpenSearch에 닿지 않습니다.
 
 ## 이번 점검에서 고친 것
 

@@ -194,3 +194,63 @@ func (c *Client) Remove(ctx context.Context) error {
 	}
 	return nil
 }
+
+// deleteTenant takes every document of one workspace out of an index.
+//
+// They are found a thousand at a time and deleted in bulk, rather than with
+// `_delete_by_query`: that scrolls, and the cluster asks a role to be allowed
+// to scroll on the cluster as a whole. The deletes carry no version, since
+// nothing of a workspace that went comes back to be kept against.
+func (c *Client) deleteTenant(ctx context.Context, name, tenant string) error {
+	q := map[string]any{
+		"size":    1000,
+		"_source": false,
+		"query":   map[string]any{"term": map[string]any{"tenant": tenant}},
+	}
+	for {
+		var v struct {
+			Hits struct {
+				Hits []struct {
+					Id string `json:"_id"`
+				} `json:"hits"`
+			} `json:"hits"`
+		}
+		if err := c.call(ctx, "POST", "/"+url.PathEscape(name)+"/_search", q, &v); err != nil {
+			return err
+		}
+		if len(v.Hits.Hits) == 0 {
+			return nil
+		}
+		ops := make([]Op, len(v.Hits.Hits))
+		for i, h := range v.Hits.Hits {
+			ops[i] = Op{Index: name, Id: h.Id}
+		}
+		if _, err := c.Bulk(ctx, ops); err != nil {
+			return err
+		}
+		// So that the next search does not find what was just deleted.
+		if err := c.refresh(ctx, name); err != nil {
+			return err
+		}
+	}
+}
+
+// doc is the document an index holds of an asset, and its version; nil when
+// it holds none.
+func (c *Client) doc(ctx context.Context, name, id string) (*Doc, int64, error) {
+	var v struct {
+		Found   bool  `json:"found"`
+		Version int64 `json:"_version"`
+		Source  Doc   `json:"_source"`
+	}
+	if err := c.call(ctx, "GET", "/"+url.PathEscape(name)+"/_doc/"+url.PathEscape(id), nil, &v); err != nil {
+		if IsNotFound(err) {
+			return nil, 0, nil
+		}
+		return nil, 0, err
+	}
+	if !v.Found {
+		return nil, 0, nil
+	}
+	return &v.Source, v.Version, nil
+}

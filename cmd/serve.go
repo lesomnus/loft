@@ -46,6 +46,7 @@ import (
 	"github.com/lesomnus/rove/server/lifecycle"
 	"github.com/lesomnus/rove/server/mail"
 	"github.com/lesomnus/rove/server/offboard"
+	"github.com/lesomnus/rove/server/opensearch"
 	"github.com/lesomnus/rove/server/pd"
 	"github.com/lesomnus/rove/server/policy"
 	"github.com/lesomnus/rove/server/retention"
@@ -118,6 +119,10 @@ type Server struct {
 	// Closing is what becomes of a closed workspace and of a workspace's
 	// address (D29, `server/closing`).
 	Closing closing.Closing
+
+	// Search is the OpenSearch cluster the index of assets is kept on, and
+	// nil when the configuration names none (D31, `server/opensearch`).
+	Search *opensearch.Client
 
 	// Sso is this deployment as a relying party of roster's issuer, and what
 	// the sign-in page is told about the ways in.
@@ -225,6 +230,19 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	// quietly appending in call order is a thing a framework should decide, so
 	// the order is written here where it can be read.
 	rec := bare.Recorders{pd.Recorder(), pd.WatchRecorder(w)}
+
+	// The search engine, when one is named (D31). What makes a document of
+	// its index stale is written down with the write itself, and a loop below
+	// makes it again.
+	engine, err := opensearch.New(c.App.Search.Opensearch, identity.ResolveRef)
+	if err != nil {
+		db.Close()
+		return nil, err
+	}
+	if engine != nil {
+		rec = append(rec, opensearch.Recorder())
+		log.From(ctx).InfoContext(ctx, "search: the index of assets is kept on OpenSearch", "alias", engine.Alias())
+	}
 	if c.Watch.Outbox {
 		// Last, so that a queue this could not be written to undoes a write
 		// which the trail and the in-process publish have already agreed to
@@ -304,7 +322,7 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	// workspace it is not a member of yet: the domain layer's alone.
 	deps.Base = base
 
-	s := &Server{Db: db, Ent: client, Drv: drv, Dialect: dialect, Watch: w, Walled: stacked, Ungated: ungated, Base: base, Deps: deps, Identity: people}
+	s := &Server{Db: db, Ent: client, Drv: drv, Dialect: dialect, Watch: w, Walled: stacked, Ungated: ungated, Base: base, Deps: deps, Identity: people, Search: engine}
 
 	// Who is calling is a session cookie, held on every call to what roster
 	// says of its person, and what they may do is their role.
@@ -418,6 +436,10 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	if c.App.Retention.Apply {
 		s.Spin = append(s.Spin, domain.Expirer{Server: base, Drv: drv, Deps: deps, Every: c.App.Retention.Every})
 	}
+	if s.Search != nil {
+		// What the recorder wrote down, into the index (D31).
+		s.Spin = append(s.Spin, opensearch.Indexer{Client: s.Search, Db: client, Now: deps.Clock})
+	}
 	if c.Watch.Outbox && b != nil {
 		// The loop that makes an event durable. It is not a layer and not a
 		// method on any server -- `spin.Run` finds it in whatever is handed
@@ -479,7 +501,10 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	return s, nil
 }
 
-func (s *Server) Close() error { return errors.Join(s.Identity.Close(), s.Db.Close()) }
+func (s *Server) Close() error {
+	s.Search.Close()
+	return errors.Join(s.Identity.Close(), s.Db.Close())
+}
 
 // Workspaces is how an account comes to be in a workspace of its own.
 func (s *Server) Workspaces(c Config) tenancy.Workspaces {
@@ -515,7 +540,7 @@ func (s *Server) Aliases(c Config) tenancy.Aliases {
 
 // Offboard is what a tenant's export and purge work on.
 func (s *Server) Offboard(c Config) offboard.Deployment {
-	return offboard.Deployment{
+	d := offboard.Deployment{
 		Ent:       s.Ent,
 		Drv:       s.Drv,
 		Files:     s.Deps.Files,
@@ -523,6 +548,12 @@ func (s *Server) Offboard(c Config) offboard.Deployment {
 		Retention: c.App.Retention.Defaults(),
 		Now:       s.Deps.Clock,
 	}
+	if s.Search != nil {
+		// A purge's rows go past the recorder, so it says itself that the
+		// workspace's documents go.
+		d.Unindex = opensearch.Forget
+	}
+	return d
 }
 
 // Grpc builds the server every call arrives at.

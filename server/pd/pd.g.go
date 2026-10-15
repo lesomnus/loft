@@ -62,6 +62,7 @@ import (
 	purchaseline "github.com/lesomnus/rove/internal/ent/purchaseline"
 	reservation "github.com/lesomnus/rove/internal/ent/reservation"
 	reservationitem "github.com/lesomnus/rove/internal/ent/reservationitem"
+	searchstale "github.com/lesomnus/rove/internal/ent/searchstale"
 	session "github.com/lesomnus/rove/internal/ent/session"
 	signinfailure "github.com/lesomnus/rove/internal/ent/signinfailure"
 	stewardship "github.com/lesomnus/rove/internal/ent/stewardship"
@@ -147,6 +148,7 @@ const (
 	PurchaseLineDomain    pdid.Domain = 35 // "purchase-line"
 	ReservationDomain     pdid.Domain = 26 // "reservation"
 	ReservationItemDomain pdid.Domain = 27 // "reservation-item"
+	SearchStaleDomain     pdid.Domain = 46 // "search-stale"
 	SessionDomain         pdid.Domain = 38 // "session"
 	SignInFailureDomain   pdid.Domain = 45 // "sign-in-failure"
 	StewardshipDomain     pdid.Domain = 15 // "stewardship"
@@ -191,6 +193,7 @@ func init() {
 	pdid.Register("rove.PurchaseLine", PurchaseLineDomain, "purchase-line")
 	pdid.Register("rove.Reservation", ReservationDomain, "reservation")
 	pdid.Register("rove.ReservationItem", ReservationItemDomain, "reservation-item")
+	pdid.Register("rove.SearchStale", SearchStaleDomain, "search-stale")
 	pdid.Register("rove.Session", SessionDomain, "session")
 	pdid.Register("rove.SignInFailure", SignInFailureDomain, "sign-in-failure")
 	pdid.Register("rove.Stewardship", StewardshipDomain, "stewardship")
@@ -239,6 +242,7 @@ var Domains = map[string]pdid.Domain{
 	"rove.PurchaseLine":    PurchaseLineDomain,
 	"rove.Reservation":     ReservationDomain,
 	"rove.ReservationItem": ReservationItemDomain,
+	"rove.SearchStale":     SearchStaleDomain,
 	"rove.Session":         SessionDomain,
 	"rove.SignInFailure":   SignInFailureDomain,
 	"rove.Stewardship":     StewardshipDomain,
@@ -567,6 +571,11 @@ func (wall) ReservationItemScope(ctx context.Context) (predicate.ReservationItem
 	}
 
 	return reservationitem.TenantIdIn(vs...), nil
+}
+
+// SearchStaleScope: declared `global`, so it is not behind the wall at all.
+func (wall) SearchStaleScope(ctx context.Context) (predicate.SearchStale, error) {
+	return nil, nil
 }
 
 // SessionScope: declared `global`, so it is not behind the wall at all.
@@ -18257,6 +18266,40 @@ func (s interceptAudit) Recent(ctx context.Context, req *rove.AuditRecentRequest
 		rove.AuditService_Recent_FullMethodName, req, s.AuditServiceServer.Recent)
 }
 
+func (s Intercept) SearchStale() rove.SearchStaleServiceServer {
+	return interceptSearchStale{s, s.Next().SearchStale()}
+}
+
+type interceptSearchStale struct {
+	Intercept
+	rove.SearchStaleServiceServer
+}
+
+func (s interceptSearchStale) Add(ctx context.Context, req *rove.SearchStaleAddRequest) (*rove.SearchStale, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.SearchStaleServiceServer,
+		rove.SearchStaleService_Add_FullMethodName, req, s.SearchStaleServiceServer.Add)
+}
+
+func (s interceptSearchStale) Get(ctx context.Context, req *rove.SearchStaleGetRequest) (*rove.SearchStale, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.SearchStaleServiceServer,
+		rove.SearchStaleService_Get_FullMethodName, req, s.SearchStaleServiceServer.Get)
+}
+
+func (s interceptSearchStale) Patch(ctx context.Context, req *rove.SearchStalePatchRequest) (*rove.SearchStale, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.SearchStaleServiceServer,
+		rove.SearchStaleService_Patch_FullMethodName, req, s.SearchStaleServiceServer.Patch)
+}
+
+func (s interceptSearchStale) Apply(ctx context.Context, req *rove.SearchStaleApplyRequest) (*rove.SearchStale, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.SearchStaleServiceServer,
+		rove.SearchStaleService_Apply_FullMethodName, req, s.SearchStaleServiceServer.Apply)
+}
+
+func (s interceptSearchStale) Erase(ctx context.Context, req *rove.SearchStaleRef) (*rove.SearchStaleEraseResponse, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.SearchStaleServiceServer,
+		rove.SearchStaleService_Erase_FullMethodName, req, s.SearchStaleServiceServer.Erase)
+}
+
 func (s Intercept) WorkOrder() rove.WorkOrderServiceServer {
 	return interceptWorkOrder{s, s.Next().WorkOrder()}
 }
@@ -22870,6 +22913,71 @@ func dispatch(ctx context.Context, s rove.Server, op *pdpb.Op) (*anypb.Any, erro
 
 		return anypb.New(res)
 
+	case rove.SearchStaleService_Add_FullMethodName:
+		v := &rove.SearchStaleAddRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.SearchStale().Add(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.SearchStaleService_Get_FullMethodName:
+		v := &rove.SearchStaleGetRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.SearchStale().Get(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.SearchStaleService_Patch_FullMethodName:
+		v := &rove.SearchStalePatchRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.SearchStale().Patch(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.SearchStaleService_Apply_FullMethodName:
+		v := &rove.SearchStaleApplyRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.SearchStale().Apply(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.SearchStaleService_Erase_FullMethodName:
+		v := &rove.SearchStaleRef{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.SearchStale().Erase(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
 	case rove.WorkOrderService_Add_FullMethodName:
 		v := &rove.WorkOrderAddRequest{}
 		if err := op.GetRequest().UnmarshalTo(v); err != nil {
@@ -23203,6 +23311,7 @@ func Resources(s rove.Server, drv dialect.Driver, guard batch.Guard, w *watch.Wa
 		&rove.PurchaseLine{},
 		&rove.Reservation{},
 		&rove.ReservationItem{},
+		&rove.SearchStale{},
 		&rove.Session{},
 		&rove.SignInFailure{},
 		&rove.Stewardship{},
@@ -24329,6 +24438,37 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			return publicResource(v), nil
+		case *rove.SearchStale:
+			ctx, err := read.Allow(ctx, rove.SearchStaleService_Get_FullMethodName)
+			if err != nil {
+				switch status.Code(err) {
+				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
+					return nil, nil
+				}
+				return nil, err
+			}
+			pred, err := bare.SearchStaleNarrow(ctx, scope, nil)
+			if err != nil {
+				return nil, err
+			}
+			row, err := resourcesql.Row(db.Dialect(), searchstale.Table, []resourcesql.Column{
+				{Number: 1, Name: searchstale.FieldId, Type: 64, Nullable: false, Key: 0},
+				{Number: 8, Name: searchstale.FieldKind, Type: 9, Nullable: false, Key: 0},
+				{Number: 9, Name: searchstale.FieldKey, Type: 64, Nullable: false, Key: 0},
+				{Number: 15, Name: searchstale.FieldDateCreated, Type: 65, Nullable: false, Key: 0},
+			}, v)
+			if err != nil {
+				return nil, err
+			}
+			query := db.SearchStale.Query()
+			if pred != nil {
+				query.Where(pred)
+			}
+			ok, err := query.Modify(func(q *sql.Selector) { q.From(row) }).Exist(ctx)
+			if err != nil || !ok {
+				return nil, err
+			}
+			return publicResource(v), nil
 		case *rove.Session:
 			ctx, err := read.Allow(ctx, rove.SessionService_Get_FullMethodName)
 			if err != nil {
@@ -24986,6 +25126,14 @@ func resourceChangeKind(method string) pdpb.ChangeKind {
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
 	case rove.ReservationItemService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
+	case rove.SearchStaleService_Add_FullMethodName:
+		return pdpb.ChangeKind_CHANGE_KIND_CREATED
+	case rove.SearchStaleService_Patch_FullMethodName:
+		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
+	case rove.SearchStaleService_Apply_FullMethodName:
+		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
+	case rove.SearchStaleService_Erase_FullMethodName:
+		return pdpb.ChangeKind_CHANGE_KIND_DELETED
 	case rove.SessionService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
 	case rove.SessionService_Patch_FullMethodName:
@@ -25092,7 +25240,7 @@ func (r resourceRecorder) Record(ctx context.Context, s bare.Server, c bare.Chan
 		return nil
 	}
 	switch image.ProtoReflect().Descriptor().FullName() {
-	case "rove.AliasHold", "rove.Allocation", "rove.Asset", "rove.AssetType", "rove.Attachment", "rove.Audit", "rove.Bookable", "rove.CliLogin", "rove.Consent", "rove.CountFinding", "rove.Custody", "rove.CustodyLine", "rove.Event", "rove.Fact", "rove.Holder", "rove.InventoryCount", "rove.Invitation", "rove.ItemModel", "rove.Label", "rove.LegalHold", "rove.Link", "rove.Notification", "rove.Party", "rove.Placement", "rove.Purchase", "rove.PurchaseLine", "rove.Reservation", "rove.ReservationItem", "rove.Session", "rove.SignInFailure", "rove.Stewardship", "rove.Stock", "rove.StockMovement", "rove.Tenant", "rove.TenantContract", "rove.TenantDomain", "rove.TreeLock", "rove.UsageSnapshot", "rove.WorkOrder":
+	case "rove.AliasHold", "rove.Allocation", "rove.Asset", "rove.AssetType", "rove.Attachment", "rove.Audit", "rove.Bookable", "rove.CliLogin", "rove.Consent", "rove.CountFinding", "rove.Custody", "rove.CustodyLine", "rove.Event", "rove.Fact", "rove.Holder", "rove.InventoryCount", "rove.Invitation", "rove.ItemModel", "rove.Label", "rove.LegalHold", "rove.Link", "rove.Notification", "rove.Party", "rove.Placement", "rove.Purchase", "rove.PurchaseLine", "rove.Reservation", "rove.ReservationItem", "rove.SearchStale", "rove.Session", "rove.SignInFailure", "rove.Stewardship", "rove.Stock", "rove.StockMovement", "rove.Tenant", "rove.TenantContract", "rove.TenantDomain", "rove.TreeLock", "rove.UsageSnapshot", "rove.WorkOrder":
 	default:
 		return nil
 	}

@@ -40,6 +40,7 @@ import (
 	purchaseline "github.com/lesomnus/rove/internal/ent/purchaseline"
 	reservation "github.com/lesomnus/rove/internal/ent/reservation"
 	reservationitem "github.com/lesomnus/rove/internal/ent/reservationitem"
+	searchstale "github.com/lesomnus/rove/internal/ent/searchstale"
 	session "github.com/lesomnus/rove/internal/ent/session"
 	signinfailure "github.com/lesomnus/rove/internal/ent/signinfailure"
 	stewardship "github.com/lesomnus/rove/internal/ent/stewardship"
@@ -434,6 +435,7 @@ type Scope interface {
 	ArchivedScope(ctx context.Context) (predicate.Archived, error)
 	AuditScope(ctx context.Context) (predicate.Audit, error)
 	OutboxScope(ctx context.Context) (predicate.Outbox, error)
+	SearchStaleScope(ctx context.Context) (predicate.SearchStale, error)
 	WorkOrderScope(ctx context.Context) (predicate.WorkOrder, error)
 	PurchaseScope(ctx context.Context) (predicate.Purchase, error)
 	PurchaseLineScope(ctx context.Context) (predicate.PurchaseLine, error)
@@ -563,6 +565,9 @@ func (Unscoped) AuditScope(_ context.Context) (predicate.Audit, error) {
 	return nil, nil
 }
 func (Unscoped) OutboxScope(_ context.Context) (predicate.Outbox, error) {
+	return nil, nil
+}
+func (Unscoped) SearchStaleScope(_ context.Context) (predicate.SearchStale, error) {
 	return nil, nil
 }
 func (Unscoped) WorkOrderScope(_ context.Context) (predicate.WorkOrder, error) {
@@ -1354,6 +1359,26 @@ func (ss Scopes) OutboxScope(ctx context.Context) (predicate.Outbox, error) {
 	return outbox.And(ps...), nil
 }
 
+func (ss Scopes) SearchStaleScope(ctx context.Context) (predicate.SearchStale, error) {
+	ps := make([]predicate.SearchStale, 0, len(ss))
+	for _, s := range ss {
+		p, err := s.SearchStaleScope(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if p == nil {
+			continue
+		}
+
+		ps = append(ps, p)
+	}
+	if len(ps) == 0 {
+		return nil, nil
+	}
+
+	return searchstale.And(ps...), nil
+}
+
 func (ss Scopes) WorkOrderScope(ctx context.Context) (predicate.WorkOrder, error) {
 	ps := make([]predicate.WorkOrder, 0, len(ss))
 	for _, s := range ss {
@@ -1610,6 +1635,9 @@ func (s Server) LegalHold() rove.LegalHoldServiceServer {
 func (s Server) Archived() rove.ArchivedServiceServer { return ArchivedServiceServer{Store: s.Store} }
 func (s Server) Audit() rove.AuditServiceServer       { return AuditServiceServer{Store: s.Store} }
 func (s Server) Outbox() rove.OutboxServiceServer     { return OutboxServiceServer{Store: s.Store} }
+func (s Server) SearchStale() rove.SearchStaleServiceServer {
+	return SearchStaleServiceServer{Store: s.Store}
+}
 func (s Server) WorkOrder() rove.WorkOrderServiceServer {
 	return WorkOrderServiceServer{Store: s.Store}
 }

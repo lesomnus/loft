@@ -281,9 +281,14 @@ with nori, for a deployment whose `app.search.opensearch` names a cluster
 HTTP API, no library), the index (`assets.json`, whose shape is `Version`:
 bump it with any change), and `Reindex`, which fills a new index and moves
 the alias `<index>-assets` onto it in one step; and `rove search
-status|reindex|remove|analyze`. Keeping the index current and asking it are
-the issue's next steps. The index is a copy: a search takes identifiers from
-it and reads the rows through the wall.
+status|reindex|remove|analyze`. The index is kept current by
+`opensearch.Recorder`, which writes a `SearchStale` row in the transaction of
+any write to an asset or to what its document takes a name from (type, model,
+party), and `opensearch.Indexer`, the loop that makes those documents again
+from the database. A purge goes past the recorders, so it writes its own row
+(`offboard.Deployment.Unindex`). Asking the index is the issue's next step.
+The index is a copy: a search takes identifiers from it and reads the rows
+through the wall.
 
 A test that needs a cluster takes `internal/opensearchtest.Config(t)`
 (`PDTEST_OPENSEARCH`, and `PDTEST_OPENSEARCH_CA` for TLS) and skips without

@@ -1,0 +1,240 @@
+package opensearch
+
+import (
+	"context"
+	"fmt"
+	"log/slog"
+	"maps"
+	"slices"
+	"time"
+	"uuid"
+
+	"github.com/lesomnus/otx/log"
+
+	"github.com/lesomnus/rove/internal/ent"
+	"github.com/lesomnus/rove/internal/ent/asset"
+	"github.com/lesomnus/rove/internal/ent/predicate"
+	"github.com/lesomnus/rove/internal/ent/searchstale"
+)
+
+// batch is how many rows of the queue one pass takes, and chunk how many
+// assets it reads and writes at a time.
+var (
+	batch = 256
+	chunk = 500
+)
+
+// Indexer is the loop that keeps the index current (D31): what [Recorder]
+// wrote down, made again from what the database says now, and the rows taken
+// out once it is written.
+//
+// What it writes is the database now and not what the change said, so a row
+// is never too late or too early, and two passes over one -- a lease changing
+// hands -- write the same. Each document carries its version ([DocOf]), and
+// the index keeps the newer of two.
+//
+// It writes to every index of assets the deployment has: the one the alias
+// points at, and one a reindex is filling. A pass reads the queue first and
+// the indexes after, and a reindex makes its index before it reads the
+// database; so a reindex either began in time to be written to, or reads
+// every change the pass is about for itself.
+type Indexer struct {
+	Client *Client
+	Db     *ent.Client
+	// Every is how long it waits when there was nothing to do: about how long
+	// a change takes to be found. Unset is a second.
+	Every time.Duration
+	// Now is the clock; unset is time.Now.
+	Now func() time.Time
+}
+
+// SpinName is what the processes of a deployment call it, and agree on: one
+// of them runs it (`spin.lease`).
+func (x Indexer) SpinName() string { return "rove.search.index" }
+
+func (x Indexer) now() time.Time {
+	if x.Now != nil {
+		return x.Now()
+	}
+	return time.Now()
+}
+
+// Spin runs passes until ctx ends.
+//
+// A pass that took a whole batch is followed by another at once. One that
+// failed -- a cluster that does not answer -- is followed by a wait that
+// doubles up to a minute, and the queue keeps what it had: the log says so
+// when it begins, once a minute while it lasts, and when it is over.
+func (x Indexer) Spin(ctx context.Context) error {
+	every := x.Every
+	if every <= 0 {
+		every = time.Second
+	}
+	var down time.Duration
+	for {
+		n, err := x.Pass(ctx)
+		wait := every
+		switch {
+		case ctx.Err() != nil:
+			return nil
+		case err != nil:
+			if down == 0 || down == time.Minute {
+				log.From(ctx).WarnContext(ctx, "search: the index is not kept current; what changed waits", slog.String("error", err.Error()))
+			}
+			down = min(max(2*down, time.Second), time.Minute)
+			wait = down
+		default:
+			if down > 0 {
+				log.From(ctx).InfoContext(ctx, "search: the index is kept current again")
+				down = 0
+			}
+			if n >= batch {
+				wait = 0
+			}
+		}
+
+		t := time.NewTimer(wait)
+		select {
+		case <-ctx.Done():
+			t.Stop()
+			return nil
+		case <-t.C:
+		}
+	}
+}
+
+// Pass makes again the documents of up to [batch] rows of the queue, and
+// takes those rows out; it answers how many it took. A pass that fails takes
+// none out, and the next one tries them again.
+func (x Indexer) Pass(ctx context.Context) (int, error) {
+	rows, err := x.Db.SearchStale.Query().
+		Order(ent.Asc(searchstale.FieldDateCreated), ent.Asc(searchstale.FieldId)).
+		Limit(batch).
+		All(ctx)
+	if err != nil || len(rows) == 0 {
+		return 0, err
+	}
+
+	// After the rows; see [Indexer].
+	indexes, err := x.Client.indexes(ctx)
+	if err != nil {
+		return 0, err
+	}
+	// With no index there is nothing to keep current: the reindex that makes
+	// one reads all of it.
+	if len(indexes) > 0 {
+		if err := x.apply(ctx, indexes, rows); err != nil {
+			return 0, err
+		}
+	}
+
+	ids := make([]uuid.UUID, len(rows))
+	for i, r := range rows {
+		ids[i] = r.Id
+	}
+	if _, err := x.Db.SearchStale.Delete().Where(searchstale.IdIn(ids...)).Exec(ctx); err != nil {
+		return 0, err
+	}
+	return len(rows), nil
+}
+
+// apply writes to every one of indexes what rows say is stale.
+func (x Indexer) apply(ctx context.Context, indexes []string, rows []*ent.SearchStale) error {
+	assets := map[uuid.UUID]bool{}
+	var types, models, parties, tenants []uuid.UUID
+	for _, r := range rows {
+		switch r.Kind {
+		case KindAsset:
+			assets[r.Key] = true
+		case KindAssetType:
+			types = append(types, r.Key)
+		case KindItemModel:
+			models = append(models, r.Key)
+		case KindParty:
+			parties = append(parties, r.Key)
+		case KindTenant:
+			tenants = append(tenants, r.Key)
+		}
+	}
+
+	// A workspace that went: every document of it, whatever else is said.
+	for _, t := range tenants {
+		for _, idx := range indexes {
+			if err := x.Client.deleteTenant(ctx, idx, t.String()); err != nil {
+				return fmt.Errorf("forget the workspace %s in %s: %w", t, idx, err)
+			}
+		}
+	}
+
+	// What an asset's document takes a name from: every asset that takes it.
+	var from []predicate.Asset
+	if len(types) > 0 {
+		from = append(from, asset.TypeIdIn(types...))
+	}
+	if len(models) > 0 {
+		from = append(from, asset.ModelIdIn(models...))
+	}
+	if len(parties) > 0 {
+		from = append(from, asset.CustodianIdIn(parties...))
+	}
+	if len(from) > 0 {
+		ids, err := x.Db.Asset.Query().Where(asset.Or(from...), asset.DateErasedIsNil()).Ids(ctx)
+		if err != nil {
+			return err
+		}
+		for _, k := range ids {
+			assets[k] = true
+		}
+	}
+
+	keys := slices.SortedFunc(maps.Keys(assets), func(a, b uuid.UUID) int { return slices.Compare(a[:], b[:]) })
+	for part := range slices.Chunk(keys, chunk) {
+		if err := x.write(ctx, indexes, part); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// write puts the documents of the assets keys name into every one of
+// indexes, as the database has them now: a document for each, and none for
+// one that was erased or is gone.
+func (x Indexer) write(ctx context.Context, indexes []string, keys []uuid.UUID) error {
+	rows, err := x.Db.Asset.Query().
+		Where(asset.IdIn(keys...)).
+		WithType().WithModel().WithCustodian().
+		All(ctx)
+	if err != nil {
+		return err
+	}
+
+	// A delete is versioned past everything it might follow: the newest of
+	// the rows the document was made of, and now.
+	gone := x.now().UnixMicro()
+	found := map[uuid.UUID]bool{}
+	ops := make([]Op, 0, len(keys)*len(indexes))
+	for _, a := range rows {
+		found[a.Id] = true
+		d, v := DocOf(a)
+		if a.DateErased != nil {
+			v = max(v, a.DateErased.UnixMicro(), gone) + 1
+			for _, idx := range indexes {
+				ops = append(ops, Op{Index: idx, Id: a.Id.String(), Version: v})
+			}
+			continue
+		}
+		for _, idx := range indexes {
+			ops = append(ops, Op{Index: idx, Id: a.Id.String(), Version: v, Doc: &d})
+		}
+	}
+	for _, k := range keys {
+		if found[k] {
+			continue
+		}
+		for _, idx := range indexes {
+			ops = append(ops, Op{Index: idx, Id: k.String(), Version: gone + 1})
+		}
+	}
+	_, err = x.Client.Bulk(ctx, ops)
+	return err
+}

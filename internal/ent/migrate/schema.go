@@ -1433,6 +1433,26 @@ var (
 			},
 		},
 	}
+	// SearchstaleColumns holds the columns for the "searchstale" table.
+	SearchstaleColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUuid, Unique: true},
+		{Name: "kind", Type: field.TypeString},
+		{Name: "key", Type: field.TypeUuid},
+		{Name: "date_created", Type: field.TypeTime, Nullable: true},
+	}
+	// SearchstaleTable holds the schema information for the "searchstale" table.
+	SearchstaleTable = &schema.Table{
+		Name:       "searchstale",
+		Columns:    SearchstaleColumns,
+		PrimaryKey: []*schema.Column{SearchstaleColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "searchstale_date_created",
+				Unique:  false,
+				Columns: []*schema.Column{SearchstaleColumns[3]},
+			},
+		},
+	}
 	// SessionColumns holds the columns for the "session" table.
 	SessionColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUuid, Unique: true},
@@ -1897,6 +1917,7 @@ var (
 		PurchaselineTable,
 		ReservationTable,
 		ReservationitemTable,
+		SearchstaleTable,
 		SessionTable,
 		SigninfailureTable,
 		StewardshipTable,
@@ -2055,6 +2076,9 @@ func init() {
 	ReservationitemTable.ForeignKeys[2].RefTable = AssetTable
 	ReservationitemTable.Annotation = &entsql.Annotation{
 		Table: "reservationitem",
+	}
+	SearchstaleTable.Annotation = &entsql.Annotation{
+		Table: "searchstale",
 	}
 	SessionTable.Annotation = &entsql.Annotation{
 		Table: "session",
