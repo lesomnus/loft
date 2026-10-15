@@ -16,13 +16,18 @@ import (
 	predicate "github.com/lesomnus/rove/internal/ent/predicate"
 	reservation "github.com/lesomnus/rove/internal/ent/reservation"
 	reservationitem "github.com/lesomnus/rove/internal/ent/reservationitem"
+	tenant "github.com/lesomnus/rove/internal/ent/tenant"
 	ent1 "github.com/protobuf-orm/ent"
+	dialect "github.com/protobuf-orm/ent/dialect"
+	sql "github.com/protobuf-orm/ent/dialect/sql"
 	sqlgraph "github.com/protobuf-orm/ent/dialect/sql/sqlgraph"
 	ormpatch "github.com/protobuf-orm/protobuf-orm/ormpatch"
 	entpatch "github.com/protobuf-orm/protoc-gen-orm-ent/runtime/entpatch"
 	entuuid "github.com/protobuf-orm/protoc-gen-orm-ent/runtime/entuuid"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	proto "google.golang.org/protobuf/proto"
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	uuid "uuid"
 )
 
@@ -85,6 +90,53 @@ func (s BookableServiceServer) narrow(ctx context.Context, p predicate.Bookable)
 	return BookableNarrow(ctx, s.Scope, p)
 }
 
+func (s BookableServiceServer) snapshot(ctx context.Context, p predicate.Bookable, lock bool) (*ent.Bookable, error) {
+	q := s.Db.Bookable.Query().Where(p)
+	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
+	q.WithAsset(func(q *ent.AssetQuery) { q.Select(asset.FieldId) })
+	q.Modify(func(q *sql.Selector) {
+		if lock && s.Db.Dialect() != dialect.SQLite {
+			q.ForUpdate()
+		}
+	})
+	return q.Only(ctx)
+}
+func (s BookableServiceServer) image(v *rove.Bookable) *rove.Bookable {
+	if v == nil {
+		return nil
+	}
+	out := proto.Clone(v).(*rove.Bookable)
+	m := out.ProtoReflect()
+	{
+		f := m.Descriptor().Fields().ByNumber(2)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	{
+		f := m.Descriptor().Fields().ByNumber(8)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	return out
+}
 func (s BookableServiceServer) Add(ctx context.Context, req *rove.BookableAddRequest) (*rove.Bookable, error) {
 	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
 	if err != nil {
@@ -160,9 +212,22 @@ func (s BookableServiceServer) Add(ctx context.Context, req *rove.BookableAddReq
 		return nil, err
 	}
 
+	v := u.Proto()
+	for _, d := range ds {
+		d(v)
+	}
+	var value *rove.Bookable
+	if snapshotOptions(s.Rec, rove.BookableService_Add_FullMethodName).Value {
+		stored, err := st.snapshot(ctx, bookable.IdEQ(u.Id), false)
+		if err != nil {
+			return nil, err
+		}
+		value = s.image(stored.Proto())
+	}
 	if err := record(ctx, s.Rec, st.Db, Change{
-		By:  rove.BookableService_Add_FullMethodName,
-		Key: u.Id,
+		By:    rove.BookableService_Add_FullMethodName,
+		Key:   u.Id,
+		Value: value,
 	}); err != nil {
 		return nil, err
 	}
@@ -170,10 +235,6 @@ func (s BookableServiceServer) Add(ctx context.Context, req *rove.BookableAddReq
 		return nil, err
 	}
 
-	v := u.Proto()
-	for _, d := range ds {
-		d(v)
-	}
 	return v, nil
 }
 
@@ -386,6 +447,18 @@ func (s BookableServiceServer) apply(ctx context.Context, ref *rove.BookableRef,
 		return nil, err
 	}
 
+	var previous *rove.Bookable
+	images := snapshotOptions(s.Rec, by)
+	if images.Previous && mod != nil {
+		u, err := st.snapshot(ctx, p, true)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return nil, status.Error(codes.NotFound, "resource not found")
+			}
+			return nil, err
+		}
+		previous = s.image(u.Proto())
+	}
 	if mod == nil {
 		q := st.Db.Bookable.Query().Where(p)
 		if pred != nil {
@@ -434,20 +507,25 @@ func (s BookableServiceServer) apply(ctx context.Context, ref *rove.BookableRef,
 		}
 	}
 
+	out, err := st.Get(ctx, at.Pick())
+	if err != nil {
+		return nil, err
+	}
 	if mod != nil {
+		var value *rove.Bookable
+		if images.Value {
+			value = s.image(out)
+		}
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:    by,
-			Key:   k,
-			Patch: doc,
+			By:       by,
+			Key:      k,
+			Patch:    doc,
+			Previous: previous, Value: value,
 		}); err != nil {
 			return nil, err
 		}
 	}
 
-	out, err := st.Get(ctx, at.Pick())
-	if err != nil {
-		return nil, err
-	}
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
@@ -474,8 +552,16 @@ func (s BookableServiceServer) Erase(ctx context.Context, req *rove.BookableRef)
 	st.Db = tx.Db
 
 	var k any
+	var previous *rove.Bookable
 	if s.Rec != nil {
-		v, err := st.Db.Bookable.Query().Where(p).OnlyId(ctx)
+		images := snapshotOptions(s.Rec, rove.BookableService_Erase_FullMethodName)
+		var v *ent.Bookable
+		var err error
+		if images.Previous {
+			v, err = st.snapshot(ctx, p, true)
+		} else {
+			v, err = st.Db.Bookable.Query().Where(p).Select(bookable.FieldId).Only(ctx)
+		}
 		if err != nil {
 			if ent.IsNotFound(err) {
 				return &rove.BookableEraseResponse{}, nil
@@ -483,8 +569,11 @@ func (s BookableServiceServer) Erase(ctx context.Context, req *rove.BookableRef)
 			return nil, err
 		}
 
-		k = v
-		p = bookable.And(p, bookable.IdEQ(v))
+		k = v.Id
+		if images.Previous {
+			previous = s.image(v.Proto())
+		}
+		p = bookable.And(p, bookable.IdEQ(v.Id))
 	}
 
 	u := st.Db.Bookable.Update().Where(p)
@@ -496,8 +585,9 @@ func (s BookableServiceServer) Erase(ctx context.Context, req *rove.BookableRef)
 	}
 	if n > 0 {
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:  rove.BookableService_Erase_FullMethodName,
-			Key: k,
+			By:       rove.BookableService_Erase_FullMethodName,
+			Key:      k,
+			Previous: previous,
 		}); err != nil {
 			return nil, err
 		}
@@ -612,6 +702,53 @@ func (s ReservationServiceServer) narrow(ctx context.Context, p predicate.Reserv
 	return ReservationNarrow(ctx, s.Scope, p)
 }
 
+func (s ReservationServiceServer) snapshot(ctx context.Context, p predicate.Reservation, lock bool) (*ent.Reservation, error) {
+	q := s.Db.Reservation.Query().Where(p)
+	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
+	q.WithParty(func(q *ent.PartyQuery) { q.Select(party.FieldId) })
+	q.Modify(func(q *sql.Selector) {
+		if lock && s.Db.Dialect() != dialect.SQLite {
+			q.ForUpdate()
+		}
+	})
+	return q.Only(ctx)
+}
+func (s ReservationServiceServer) image(v *rove.Reservation) *rove.Reservation {
+	if v == nil {
+		return nil
+	}
+	out := proto.Clone(v).(*rove.Reservation)
+	m := out.ProtoReflect()
+	{
+		f := m.Descriptor().Fields().ByNumber(2)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	{
+		f := m.Descriptor().Fields().ByNumber(8)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	return out
+}
 func (s ReservationServiceServer) Add(ctx context.Context, req *rove.ReservationAddRequest) (*rove.Reservation, error) {
 	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
 	if err != nil {
@@ -714,9 +851,22 @@ func (s ReservationServiceServer) Add(ctx context.Context, req *rove.Reservation
 		return nil, err
 	}
 
+	v := u.Proto()
+	for _, d := range ds {
+		d(v)
+	}
+	var value *rove.Reservation
+	if snapshotOptions(s.Rec, rove.ReservationService_Add_FullMethodName).Value {
+		stored, err := st.snapshot(ctx, reservation.IdEQ(u.Id), false)
+		if err != nil {
+			return nil, err
+		}
+		value = s.image(stored.Proto())
+	}
 	if err := record(ctx, s.Rec, st.Db, Change{
-		By:  rove.ReservationService_Add_FullMethodName,
-		Key: u.Id,
+		By:    rove.ReservationService_Add_FullMethodName,
+		Key:   u.Id,
+		Value: value,
 	}); err != nil {
 		return nil, err
 	}
@@ -724,10 +874,6 @@ func (s ReservationServiceServer) Add(ctx context.Context, req *rove.Reservation
 		return nil, err
 	}
 
-	v := u.Proto()
-	for _, d := range ds {
-		d(v)
-	}
 	return v, nil
 }
 
@@ -937,6 +1083,18 @@ func (s ReservationServiceServer) apply(ctx context.Context, ref *rove.Reservati
 		return nil, err
 	}
 
+	var previous *rove.Reservation
+	images := snapshotOptions(s.Rec, by)
+	if images.Previous && mod != nil {
+		u, err := st.snapshot(ctx, p, true)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return nil, status.Error(codes.NotFound, "resource not found")
+			}
+			return nil, err
+		}
+		previous = s.image(u.Proto())
+	}
 	if mod == nil {
 		q := st.Db.Reservation.Query().Where(p)
 		if pred != nil {
@@ -985,20 +1143,25 @@ func (s ReservationServiceServer) apply(ctx context.Context, ref *rove.Reservati
 		}
 	}
 
+	out, err := st.Get(ctx, at.Pick())
+	if err != nil {
+		return nil, err
+	}
 	if mod != nil {
+		var value *rove.Reservation
+		if images.Value {
+			value = s.image(out)
+		}
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:    by,
-			Key:   k,
-			Patch: doc,
+			By:       by,
+			Key:      k,
+			Patch:    doc,
+			Previous: previous, Value: value,
 		}); err != nil {
 			return nil, err
 		}
 	}
 
-	out, err := st.Get(ctx, at.Pick())
-	if err != nil {
-		return nil, err
-	}
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
@@ -1025,8 +1188,16 @@ func (s ReservationServiceServer) Erase(ctx context.Context, req *rove.Reservati
 	st.Db = tx.Db
 
 	var k any
+	var previous *rove.Reservation
 	if s.Rec != nil {
-		v, err := st.Db.Reservation.Query().Where(p).OnlyId(ctx)
+		images := snapshotOptions(s.Rec, rove.ReservationService_Erase_FullMethodName)
+		var v *ent.Reservation
+		var err error
+		if images.Previous {
+			v, err = st.snapshot(ctx, p, true)
+		} else {
+			v, err = st.Db.Reservation.Query().Where(p).Select(reservation.FieldId).Only(ctx)
+		}
 		if err != nil {
 			if ent.IsNotFound(err) {
 				return &rove.ReservationEraseResponse{}, nil
@@ -1034,8 +1205,11 @@ func (s ReservationServiceServer) Erase(ctx context.Context, req *rove.Reservati
 			return nil, err
 		}
 
-		k = v
-		p = reservation.And(p, reservation.IdEQ(v))
+		k = v.Id
+		if images.Previous {
+			previous = s.image(v.Proto())
+		}
+		p = reservation.And(p, reservation.IdEQ(v.Id))
 	}
 
 	u := st.Db.Reservation.Update().Where(p)
@@ -1047,8 +1221,9 @@ func (s ReservationServiceServer) Erase(ctx context.Context, req *rove.Reservati
 	}
 	if n > 0 {
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:  rove.ReservationService_Erase_FullMethodName,
-			Key: k,
+			By:       rove.ReservationService_Erase_FullMethodName,
+			Key:      k,
+			Previous: previous,
 		}); err != nil {
 			return nil, err
 		}
@@ -1150,6 +1325,68 @@ func (s ReservationItemServiceServer) narrow(ctx context.Context, p predicate.Re
 	return ReservationItemNarrow(ctx, s.Scope, p)
 }
 
+func (s ReservationItemServiceServer) snapshot(ctx context.Context, p predicate.ReservationItem, lock bool) (*ent.ReservationItem, error) {
+	q := s.Db.ReservationItem.Query().Where(p)
+	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
+	q.WithReservation(func(q *ent.ReservationQuery) { q.Select(reservation.FieldId) })
+	q.WithResource(func(q *ent.AssetQuery) { q.Select(asset.FieldId) })
+	q.Modify(func(q *sql.Selector) {
+		if lock && s.Db.Dialect() != dialect.SQLite {
+			q.ForUpdate()
+		}
+	})
+	return q.Only(ctx)
+}
+func (s ReservationItemServiceServer) image(v *rove.ReservationItem) *rove.ReservationItem {
+	if v == nil {
+		return nil
+	}
+	out := proto.Clone(v).(*rove.ReservationItem)
+	m := out.ProtoReflect()
+	{
+		f := m.Descriptor().Fields().ByNumber(2)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	{
+		f := m.Descriptor().Fields().ByNumber(8)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	{
+		f := m.Descriptor().Fields().ByNumber(9)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	return out
+}
 func (s ReservationItemServiceServer) Add(ctx context.Context, req *rove.ReservationItemAddRequest) (*rove.ReservationItem, error) {
 	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
 	if err != nil {
@@ -1227,9 +1464,22 @@ func (s ReservationItemServiceServer) Add(ctx context.Context, req *rove.Reserva
 		return nil, err
 	}
 
+	v := u.Proto()
+	for _, d := range ds {
+		d(v)
+	}
+	var value *rove.ReservationItem
+	if snapshotOptions(s.Rec, rove.ReservationItemService_Add_FullMethodName).Value {
+		stored, err := st.snapshot(ctx, reservationitem.IdEQ(u.Id), false)
+		if err != nil {
+			return nil, err
+		}
+		value = s.image(stored.Proto())
+	}
 	if err := record(ctx, s.Rec, st.Db, Change{
-		By:  rove.ReservationItemService_Add_FullMethodName,
-		Key: u.Id,
+		By:    rove.ReservationItemService_Add_FullMethodName,
+		Key:   u.Id,
+		Value: value,
 	}); err != nil {
 		return nil, err
 	}
@@ -1237,10 +1487,6 @@ func (s ReservationItemServiceServer) Add(ctx context.Context, req *rove.Reserva
 		return nil, err
 	}
 
-	v := u.Proto()
-	for _, d := range ds {
-		d(v)
-	}
 	return v, nil
 }
 
@@ -1427,6 +1673,18 @@ func (s ReservationItemServiceServer) apply(ctx context.Context, ref *rove.Reser
 		return nil, err
 	}
 
+	var previous *rove.ReservationItem
+	images := snapshotOptions(s.Rec, by)
+	if images.Previous && mod != nil {
+		u, err := st.snapshot(ctx, p, true)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return nil, status.Error(codes.NotFound, "resource not found")
+			}
+			return nil, err
+		}
+		previous = s.image(u.Proto())
+	}
 	if mod == nil {
 		q := st.Db.ReservationItem.Query().Where(p)
 		if pred != nil {
@@ -1475,20 +1733,25 @@ func (s ReservationItemServiceServer) apply(ctx context.Context, ref *rove.Reser
 		}
 	}
 
+	out, err := st.Get(ctx, at.Pick())
+	if err != nil {
+		return nil, err
+	}
 	if mod != nil {
+		var value *rove.ReservationItem
+		if images.Value {
+			value = s.image(out)
+		}
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:    by,
-			Key:   k,
-			Patch: doc,
+			By:       by,
+			Key:      k,
+			Patch:    doc,
+			Previous: previous, Value: value,
 		}); err != nil {
 			return nil, err
 		}
 	}
 
-	out, err := st.Get(ctx, at.Pick())
-	if err != nil {
-		return nil, err
-	}
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
@@ -1515,8 +1778,16 @@ func (s ReservationItemServiceServer) Erase(ctx context.Context, req *rove.Reser
 	st.Db = tx.Db
 
 	var k any
+	var previous *rove.ReservationItem
 	if s.Rec != nil {
-		v, err := st.Db.ReservationItem.Query().Where(p).OnlyId(ctx)
+		images := snapshotOptions(s.Rec, rove.ReservationItemService_Erase_FullMethodName)
+		var v *ent.ReservationItem
+		var err error
+		if images.Previous {
+			v, err = st.snapshot(ctx, p, true)
+		} else {
+			v, err = st.Db.ReservationItem.Query().Where(p).Select(reservationitem.FieldId).Only(ctx)
+		}
 		if err != nil {
 			if ent.IsNotFound(err) {
 				return &rove.ReservationItemEraseResponse{}, nil
@@ -1524,8 +1795,11 @@ func (s ReservationItemServiceServer) Erase(ctx context.Context, req *rove.Reser
 			return nil, err
 		}
 
-		k = v
-		p = reservationitem.And(p, reservationitem.IdEQ(v))
+		k = v.Id
+		if images.Previous {
+			previous = s.image(v.Proto())
+		}
+		p = reservationitem.And(p, reservationitem.IdEQ(v.Id))
 	}
 
 	n, err := st.Db.ReservationItem.Delete().Where(p).Exec(ctx)
@@ -1534,8 +1808,9 @@ func (s ReservationItemServiceServer) Erase(ctx context.Context, req *rove.Reser
 	}
 	if n > 0 {
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:  rove.ReservationItemService_Erase_FullMethodName,
-			Key: k,
+			By:       rove.ReservationItemService_Erase_FullMethodName,
+			Key:      k,
+			Previous: previous,
 		}); err != nil {
 			return nil, err
 		}
@@ -1619,6 +1894,53 @@ func (s AllocationServiceServer) narrow(ctx context.Context, p predicate.Allocat
 	return AllocationNarrow(ctx, s.Scope, p)
 }
 
+func (s AllocationServiceServer) snapshot(ctx context.Context, p predicate.Allocation, lock bool) (*ent.Allocation, error) {
+	q := s.Db.Allocation.Query().Where(p)
+	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
+	q.WithResource(func(q *ent.AssetQuery) { q.Select(asset.FieldId) })
+	q.Modify(func(q *sql.Selector) {
+		if lock && s.Db.Dialect() != dialect.SQLite {
+			q.ForUpdate()
+		}
+	})
+	return q.Only(ctx)
+}
+func (s AllocationServiceServer) image(v *rove.Allocation) *rove.Allocation {
+	if v == nil {
+		return nil
+	}
+	out := proto.Clone(v).(*rove.Allocation)
+	m := out.ProtoReflect()
+	{
+		f := m.Descriptor().Fields().ByNumber(2)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	{
+		f := m.Descriptor().Fields().ByNumber(8)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	return out
+}
 func (s AllocationServiceServer) Add(ctx context.Context, req *rove.AllocationAddRequest) (*rove.Allocation, error) {
 	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
 	if err != nil {
@@ -1701,9 +2023,22 @@ func (s AllocationServiceServer) Add(ctx context.Context, req *rove.AllocationAd
 		return nil, err
 	}
 
+	v := u.Proto()
+	for _, d := range ds {
+		d(v)
+	}
+	var value *rove.Allocation
+	if snapshotOptions(s.Rec, rove.AllocationService_Add_FullMethodName).Value {
+		stored, err := st.snapshot(ctx, allocation.IdEQ(u.Id), false)
+		if err != nil {
+			return nil, err
+		}
+		value = s.image(stored.Proto())
+	}
 	if err := record(ctx, s.Rec, st.Db, Change{
-		By:  rove.AllocationService_Add_FullMethodName,
-		Key: u.Id,
+		By:    rove.AllocationService_Add_FullMethodName,
+		Key:   u.Id,
+		Value: value,
 	}); err != nil {
 		return nil, err
 	}
@@ -1711,10 +2046,6 @@ func (s AllocationServiceServer) Add(ctx context.Context, req *rove.AllocationAd
 		return nil, err
 	}
 
-	v := u.Proto()
-	for _, d := range ds {
-		d(v)
-	}
 	return v, nil
 }
 
@@ -1909,6 +2240,18 @@ func (s AllocationServiceServer) apply(ctx context.Context, ref *rove.Allocation
 		return nil, err
 	}
 
+	var previous *rove.Allocation
+	images := snapshotOptions(s.Rec, by)
+	if images.Previous && mod != nil {
+		u, err := st.snapshot(ctx, p, true)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return nil, status.Error(codes.NotFound, "resource not found")
+			}
+			return nil, err
+		}
+		previous = s.image(u.Proto())
+	}
 	if mod == nil {
 		q := st.Db.Allocation.Query().Where(p)
 		if pred != nil {
@@ -1957,20 +2300,25 @@ func (s AllocationServiceServer) apply(ctx context.Context, ref *rove.Allocation
 		}
 	}
 
+	out, err := st.Get(ctx, at.Pick())
+	if err != nil {
+		return nil, err
+	}
 	if mod != nil {
+		var value *rove.Allocation
+		if images.Value {
+			value = s.image(out)
+		}
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:    by,
-			Key:   k,
-			Patch: doc,
+			By:       by,
+			Key:      k,
+			Patch:    doc,
+			Previous: previous, Value: value,
 		}); err != nil {
 			return nil, err
 		}
 	}
 
-	out, err := st.Get(ctx, at.Pick())
-	if err != nil {
-		return nil, err
-	}
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
@@ -1997,8 +2345,16 @@ func (s AllocationServiceServer) Erase(ctx context.Context, req *rove.Allocation
 	st.Db = tx.Db
 
 	var k any
+	var previous *rove.Allocation
 	if s.Rec != nil {
-		v, err := st.Db.Allocation.Query().Where(p).OnlyId(ctx)
+		images := snapshotOptions(s.Rec, rove.AllocationService_Erase_FullMethodName)
+		var v *ent.Allocation
+		var err error
+		if images.Previous {
+			v, err = st.snapshot(ctx, p, true)
+		} else {
+			v, err = st.Db.Allocation.Query().Where(p).Select(allocation.FieldId).Only(ctx)
+		}
 		if err != nil {
 			if ent.IsNotFound(err) {
 				return &rove.AllocationEraseResponse{}, nil
@@ -2006,8 +2362,11 @@ func (s AllocationServiceServer) Erase(ctx context.Context, req *rove.Allocation
 			return nil, err
 		}
 
-		k = v
-		p = allocation.And(p, allocation.IdEQ(v))
+		k = v.Id
+		if images.Previous {
+			previous = s.image(v.Proto())
+		}
+		p = allocation.And(p, allocation.IdEQ(v.Id))
 	}
 
 	n, err := st.Db.Allocation.Delete().Where(p).Exec(ctx)
@@ -2016,8 +2375,9 @@ func (s AllocationServiceServer) Erase(ctx context.Context, req *rove.Allocation
 	}
 	if n > 0 {
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:  rove.AllocationService_Erase_FullMethodName,
-			Key: k,
+			By:       rove.AllocationService_Erase_FullMethodName,
+			Key:      k,
+			Previous: previous,
 		}); err != nil {
 			return nil, err
 		}

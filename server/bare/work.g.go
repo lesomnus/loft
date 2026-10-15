@@ -15,8 +15,11 @@ import (
 	predicate "github.com/lesomnus/rove/internal/ent/predicate"
 	purchase "github.com/lesomnus/rove/internal/ent/purchase"
 	purchaseline "github.com/lesomnus/rove/internal/ent/purchaseline"
+	tenant "github.com/lesomnus/rove/internal/ent/tenant"
 	workorder "github.com/lesomnus/rove/internal/ent/workorder"
 	ent1 "github.com/protobuf-orm/ent"
+	dialect "github.com/protobuf-orm/ent/dialect"
+	sql "github.com/protobuf-orm/ent/dialect/sql"
 	sqlgraph "github.com/protobuf-orm/ent/dialect/sql/sqlgraph"
 	graph "github.com/protobuf-orm/protobuf-orm/graph"
 	ormpatch "github.com/protobuf-orm/protobuf-orm/ormpatch"
@@ -24,6 +27,7 @@ import (
 	entuuid "github.com/protobuf-orm/protoc-gen-orm-ent/runtime/entuuid"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	proto "google.golang.org/protobuf/proto"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	uuid "uuid"
 )
@@ -87,6 +91,68 @@ func (s WorkOrderServiceServer) narrow(ctx context.Context, p predicate.WorkOrde
 	return WorkOrderNarrow(ctx, s.Scope, p)
 }
 
+func (s WorkOrderServiceServer) snapshot(ctx context.Context, p predicate.WorkOrder, lock bool) (*ent.WorkOrder, error) {
+	q := s.Db.WorkOrder.Query().Where(p)
+	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
+	q.WithAsset(func(q *ent.AssetQuery) { q.Select(asset.FieldId) })
+	q.WithVendor(func(q *ent.PartyQuery) { q.Select(party.FieldId) })
+	q.Modify(func(q *sql.Selector) {
+		if lock && s.Db.Dialect() != dialect.SQLite {
+			q.ForUpdate()
+		}
+	})
+	return q.Only(ctx)
+}
+func (s WorkOrderServiceServer) image(v *rove.WorkOrder) *rove.WorkOrder {
+	if v == nil {
+		return nil
+	}
+	out := proto.Clone(v).(*rove.WorkOrder)
+	m := out.ProtoReflect()
+	{
+		f := m.Descriptor().Fields().ByNumber(2)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	{
+		f := m.Descriptor().Fields().ByNumber(8)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	{
+		f := m.Descriptor().Fields().ByNumber(16)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	return out
+}
 func (s WorkOrderServiceServer) Add(ctx context.Context, req *rove.WorkOrderAddRequest) (*rove.WorkOrder, error) {
 	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
 	if err != nil {
@@ -175,9 +241,22 @@ func (s WorkOrderServiceServer) Add(ctx context.Context, req *rove.WorkOrderAddR
 		return nil, err
 	}
 
+	v := u.Proto()
+	for _, d := range ds {
+		d(v)
+	}
+	var value *rove.WorkOrder
+	if snapshotOptions(s.Rec, rove.WorkOrderService_Add_FullMethodName).Value {
+		stored, err := st.snapshot(ctx, workorder.IdEQ(u.Id), false)
+		if err != nil {
+			return nil, err
+		}
+		value = s.image(stored.Proto())
+	}
 	if err := record(ctx, s.Rec, st.Db, Change{
-		By:  rove.WorkOrderService_Add_FullMethodName,
-		Key: u.Id,
+		By:    rove.WorkOrderService_Add_FullMethodName,
+		Key:   u.Id,
+		Value: value,
 	}); err != nil {
 		return nil, err
 	}
@@ -185,10 +264,6 @@ func (s WorkOrderServiceServer) Add(ctx context.Context, req *rove.WorkOrderAddR
 		return nil, err
 	}
 
-	v := u.Proto()
-	for _, d := range ds {
-		d(v)
-	}
 	return v, nil
 }
 
@@ -415,6 +490,18 @@ func (s WorkOrderServiceServer) apply(ctx context.Context, ref *rove.WorkOrderRe
 		return nil, err
 	}
 
+	var previous *rove.WorkOrder
+	images := snapshotOptions(s.Rec, by)
+	if images.Previous && mod != nil {
+		u, err := st.snapshot(ctx, p, true)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return nil, status.Error(codes.NotFound, "resource not found")
+			}
+			return nil, err
+		}
+		previous = s.image(u.Proto())
+	}
 	if mod == nil {
 		q := st.Db.WorkOrder.Query().Where(p)
 		if pred != nil {
@@ -463,20 +550,25 @@ func (s WorkOrderServiceServer) apply(ctx context.Context, ref *rove.WorkOrderRe
 		}
 	}
 
+	out, err := st.Get(ctx, at.Pick())
+	if err != nil {
+		return nil, err
+	}
 	if mod != nil {
+		var value *rove.WorkOrder
+		if images.Value {
+			value = s.image(out)
+		}
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:    by,
-			Key:   k,
-			Patch: doc,
+			By:       by,
+			Key:      k,
+			Patch:    doc,
+			Previous: previous, Value: value,
 		}); err != nil {
 			return nil, err
 		}
 	}
 
-	out, err := st.Get(ctx, at.Pick())
-	if err != nil {
-		return nil, err
-	}
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
@@ -503,8 +595,16 @@ func (s WorkOrderServiceServer) Erase(ctx context.Context, req *rove.WorkOrderRe
 	st.Db = tx.Db
 
 	var k any
+	var previous *rove.WorkOrder
 	if s.Rec != nil {
-		v, err := st.Db.WorkOrder.Query().Where(p).OnlyId(ctx)
+		images := snapshotOptions(s.Rec, rove.WorkOrderService_Erase_FullMethodName)
+		var v *ent.WorkOrder
+		var err error
+		if images.Previous {
+			v, err = st.snapshot(ctx, p, true)
+		} else {
+			v, err = st.Db.WorkOrder.Query().Where(p).Select(workorder.FieldId).Only(ctx)
+		}
 		if err != nil {
 			if ent.IsNotFound(err) {
 				return &rove.WorkOrderEraseResponse{}, nil
@@ -512,8 +612,11 @@ func (s WorkOrderServiceServer) Erase(ctx context.Context, req *rove.WorkOrderRe
 			return nil, err
 		}
 
-		k = v
-		p = workorder.And(p, workorder.IdEQ(v))
+		k = v.Id
+		if images.Previous {
+			previous = s.image(v.Proto())
+		}
+		p = workorder.And(p, workorder.IdEQ(v.Id))
 	}
 
 	u := st.Db.WorkOrder.Update().Where(p)
@@ -525,8 +628,9 @@ func (s WorkOrderServiceServer) Erase(ctx context.Context, req *rove.WorkOrderRe
 	}
 	if n > 0 {
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:  rove.WorkOrderService_Erase_FullMethodName,
-			Key: k,
+			By:       rove.WorkOrderService_Erase_FullMethodName,
+			Key:      k,
+			Previous: previous,
 		}); err != nil {
 			return nil, err
 		}
@@ -632,6 +736,53 @@ func (s PurchaseServiceServer) narrow(ctx context.Context, p predicate.Purchase)
 	return PurchaseNarrow(ctx, s.Scope, p)
 }
 
+func (s PurchaseServiceServer) snapshot(ctx context.Context, p predicate.Purchase, lock bool) (*ent.Purchase, error) {
+	q := s.Db.Purchase.Query().Where(p)
+	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
+	q.WithVendor(func(q *ent.PartyQuery) { q.Select(party.FieldId) })
+	q.Modify(func(q *sql.Selector) {
+		if lock && s.Db.Dialect() != dialect.SQLite {
+			q.ForUpdate()
+		}
+	})
+	return q.Only(ctx)
+}
+func (s PurchaseServiceServer) image(v *rove.Purchase) *rove.Purchase {
+	if v == nil {
+		return nil
+	}
+	out := proto.Clone(v).(*rove.Purchase)
+	m := out.ProtoReflect()
+	{
+		f := m.Descriptor().Fields().ByNumber(2)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	{
+		f := m.Descriptor().Fields().ByNumber(8)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	return out
+}
 func (s PurchaseServiceServer) Add(ctx context.Context, req *rove.PurchaseAddRequest) (*rove.Purchase, error) {
 	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
 	if err != nil {
@@ -709,9 +860,22 @@ func (s PurchaseServiceServer) Add(ctx context.Context, req *rove.PurchaseAddReq
 		return nil, err
 	}
 
+	v := u.Proto()
+	for _, d := range ds {
+		d(v)
+	}
+	var value *rove.Purchase
+	if snapshotOptions(s.Rec, rove.PurchaseService_Add_FullMethodName).Value {
+		stored, err := st.snapshot(ctx, purchase.IdEQ(u.Id), false)
+		if err != nil {
+			return nil, err
+		}
+		value = s.image(stored.Proto())
+	}
 	if err := record(ctx, s.Rec, st.Db, Change{
-		By:  rove.PurchaseService_Add_FullMethodName,
-		Key: u.Id,
+		By:    rove.PurchaseService_Add_FullMethodName,
+		Key:   u.Id,
+		Value: value,
 	}); err != nil {
 		return nil, err
 	}
@@ -719,10 +883,6 @@ func (s PurchaseServiceServer) Add(ctx context.Context, req *rove.PurchaseAddReq
 		return nil, err
 	}
 
-	v := u.Proto()
-	for _, d := range ds {
-		d(v)
-	}
 	return v, nil
 }
 
@@ -933,6 +1093,18 @@ func (s PurchaseServiceServer) apply(ctx context.Context, ref *rove.PurchaseRef,
 		return nil, err
 	}
 
+	var previous *rove.Purchase
+	images := snapshotOptions(s.Rec, by)
+	if images.Previous && mod != nil {
+		u, err := st.snapshot(ctx, p, true)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return nil, status.Error(codes.NotFound, "resource not found")
+			}
+			return nil, err
+		}
+		previous = s.image(u.Proto())
+	}
 	if mod == nil {
 		q := st.Db.Purchase.Query().Where(p)
 		if pred != nil {
@@ -981,20 +1153,25 @@ func (s PurchaseServiceServer) apply(ctx context.Context, ref *rove.PurchaseRef,
 		}
 	}
 
+	out, err := st.Get(ctx, at.Pick())
+	if err != nil {
+		return nil, err
+	}
 	if mod != nil {
+		var value *rove.Purchase
+		if images.Value {
+			value = s.image(out)
+		}
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:    by,
-			Key:   k,
-			Patch: doc,
+			By:       by,
+			Key:      k,
+			Patch:    doc,
+			Previous: previous, Value: value,
 		}); err != nil {
 			return nil, err
 		}
 	}
 
-	out, err := st.Get(ctx, at.Pick())
-	if err != nil {
-		return nil, err
-	}
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
@@ -1021,8 +1198,16 @@ func (s PurchaseServiceServer) Erase(ctx context.Context, req *rove.PurchaseRef)
 	st.Db = tx.Db
 
 	var k any
+	var previous *rove.Purchase
 	if s.Rec != nil {
-		v, err := st.Db.Purchase.Query().Where(p).OnlyId(ctx)
+		images := snapshotOptions(s.Rec, rove.PurchaseService_Erase_FullMethodName)
+		var v *ent.Purchase
+		var err error
+		if images.Previous {
+			v, err = st.snapshot(ctx, p, true)
+		} else {
+			v, err = st.Db.Purchase.Query().Where(p).Select(purchase.FieldId).Only(ctx)
+		}
 		if err != nil {
 			if ent.IsNotFound(err) {
 				return &rove.PurchaseEraseResponse{}, nil
@@ -1030,8 +1215,11 @@ func (s PurchaseServiceServer) Erase(ctx context.Context, req *rove.PurchaseRef)
 			return nil, err
 		}
 
-		k = v
-		p = purchase.And(p, purchase.IdEQ(v))
+		k = v.Id
+		if images.Previous {
+			previous = s.image(v.Proto())
+		}
+		p = purchase.And(p, purchase.IdEQ(v.Id))
 	}
 
 	u := st.Db.Purchase.Update().Where(p)
@@ -1043,8 +1231,9 @@ func (s PurchaseServiceServer) Erase(ctx context.Context, req *rove.PurchaseRef)
 	}
 	if n > 0 {
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:  rove.PurchaseService_Erase_FullMethodName,
-			Key: k,
+			By:       rove.PurchaseService_Erase_FullMethodName,
+			Key:      k,
+			Previous: previous,
 		}); err != nil {
 			return nil, err
 		}
@@ -1146,6 +1335,68 @@ func (s PurchaseLineServiceServer) narrow(ctx context.Context, p predicate.Purch
 	return PurchaseLineNarrow(ctx, s.Scope, p)
 }
 
+func (s PurchaseLineServiceServer) snapshot(ctx context.Context, p predicate.PurchaseLine, lock bool) (*ent.PurchaseLine, error) {
+	q := s.Db.PurchaseLine.Query().Where(p)
+	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
+	q.WithPurchase(func(q *ent.PurchaseQuery) { q.Select(purchase.FieldId) })
+	q.WithModel(func(q *ent.ItemModelQuery) { q.Select(itemmodel.FieldId) })
+	q.Modify(func(q *sql.Selector) {
+		if lock && s.Db.Dialect() != dialect.SQLite {
+			q.ForUpdate()
+		}
+	})
+	return q.Only(ctx)
+}
+func (s PurchaseLineServiceServer) image(v *rove.PurchaseLine) *rove.PurchaseLine {
+	if v == nil {
+		return nil
+	}
+	out := proto.Clone(v).(*rove.PurchaseLine)
+	m := out.ProtoReflect()
+	{
+		f := m.Descriptor().Fields().ByNumber(2)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	{
+		f := m.Descriptor().Fields().ByNumber(8)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	{
+		f := m.Descriptor().Fields().ByNumber(9)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	return out
+}
 func (s PurchaseLineServiceServer) Add(ctx context.Context, req *rove.PurchaseLineAddRequest) (*rove.PurchaseLine, error) {
 	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
 	if err != nil {
@@ -1222,9 +1473,22 @@ func (s PurchaseLineServiceServer) Add(ctx context.Context, req *rove.PurchaseLi
 		return nil, err
 	}
 
+	v := u.Proto()
+	for _, d := range ds {
+		d(v)
+	}
+	var value *rove.PurchaseLine
+	if snapshotOptions(s.Rec, rove.PurchaseLineService_Add_FullMethodName).Value {
+		stored, err := st.snapshot(ctx, purchaseline.IdEQ(u.Id), false)
+		if err != nil {
+			return nil, err
+		}
+		value = s.image(stored.Proto())
+	}
 	if err := record(ctx, s.Rec, st.Db, Change{
-		By:  rove.PurchaseLineService_Add_FullMethodName,
-		Key: u.Id,
+		By:    rove.PurchaseLineService_Add_FullMethodName,
+		Key:   u.Id,
+		Value: value,
 	}); err != nil {
 		return nil, err
 	}
@@ -1232,10 +1496,6 @@ func (s PurchaseLineServiceServer) Add(ctx context.Context, req *rove.PurchaseLi
 		return nil, err
 	}
 
-	v := u.Proto()
-	for _, d := range ds {
-		d(v)
-	}
 	return v, nil
 }
 
@@ -1441,6 +1701,18 @@ func (s PurchaseLineServiceServer) apply(ctx context.Context, ref *rove.Purchase
 		return nil, err
 	}
 
+	var previous *rove.PurchaseLine
+	images := snapshotOptions(s.Rec, by)
+	if images.Previous && mod != nil {
+		u, err := st.snapshot(ctx, p, true)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return nil, status.Error(codes.NotFound, "resource not found")
+			}
+			return nil, err
+		}
+		previous = s.image(u.Proto())
+	}
 	if mod == nil {
 		q := st.Db.PurchaseLine.Query().Where(p)
 		if pred != nil {
@@ -1489,20 +1761,25 @@ func (s PurchaseLineServiceServer) apply(ctx context.Context, ref *rove.Purchase
 		}
 	}
 
+	out, err := st.Get(ctx, at.Pick())
+	if err != nil {
+		return nil, err
+	}
 	if mod != nil {
+		var value *rove.PurchaseLine
+		if images.Value {
+			value = s.image(out)
+		}
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:    by,
-			Key:   k,
-			Patch: doc,
+			By:       by,
+			Key:      k,
+			Patch:    doc,
+			Previous: previous, Value: value,
 		}); err != nil {
 			return nil, err
 		}
 	}
 
-	out, err := st.Get(ctx, at.Pick())
-	if err != nil {
-		return nil, err
-	}
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
@@ -1529,8 +1806,16 @@ func (s PurchaseLineServiceServer) Erase(ctx context.Context, req *rove.Purchase
 	st.Db = tx.Db
 
 	var k any
+	var previous *rove.PurchaseLine
 	if s.Rec != nil {
-		v, err := st.Db.PurchaseLine.Query().Where(p).OnlyId(ctx)
+		images := snapshotOptions(s.Rec, rove.PurchaseLineService_Erase_FullMethodName)
+		var v *ent.PurchaseLine
+		var err error
+		if images.Previous {
+			v, err = st.snapshot(ctx, p, true)
+		} else {
+			v, err = st.Db.PurchaseLine.Query().Where(p).Select(purchaseline.FieldId).Only(ctx)
+		}
 		if err != nil {
 			if ent.IsNotFound(err) {
 				return &rove.PurchaseLineEraseResponse{}, nil
@@ -1538,8 +1823,11 @@ func (s PurchaseLineServiceServer) Erase(ctx context.Context, req *rove.Purchase
 			return nil, err
 		}
 
-		k = v
-		p = purchaseline.And(p, purchaseline.IdEQ(v))
+		k = v.Id
+		if images.Previous {
+			previous = s.image(v.Proto())
+		}
+		p = purchaseline.And(p, purchaseline.IdEQ(v.Id))
 	}
 
 	n, err := st.Db.PurchaseLine.Delete().Where(p).Exec(ctx)
@@ -1548,8 +1836,9 @@ func (s PurchaseLineServiceServer) Erase(ctx context.Context, req *rove.Purchase
 	}
 	if n > 0 {
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:  rove.PurchaseLineService_Erase_FullMethodName,
-			Key: k,
+			By:       rove.PurchaseLineService_Erase_FullMethodName,
+			Key:      k,
+			Previous: previous,
 		}); err != nil {
 			return nil, err
 		}

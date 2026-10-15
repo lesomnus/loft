@@ -18,7 +18,10 @@ import (
 	predicate "github.com/lesomnus/rove/internal/ent/predicate"
 	session "github.com/lesomnus/rove/internal/ent/session"
 	signinfailure "github.com/lesomnus/rove/internal/ent/signinfailure"
+	tenant "github.com/lesomnus/rove/internal/ent/tenant"
 	ent1 "github.com/protobuf-orm/ent"
+	dialect "github.com/protobuf-orm/ent/dialect"
+	sql "github.com/protobuf-orm/ent/dialect/sql"
 	sqlgraph "github.com/protobuf-orm/ent/dialect/sql/sqlgraph"
 	graph "github.com/protobuf-orm/protobuf-orm/graph"
 	ormpatch "github.com/protobuf-orm/protobuf-orm/ormpatch"
@@ -26,6 +29,7 @@ import (
 	entuuid "github.com/protobuf-orm/protoc-gen-orm-ent/runtime/entuuid"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	proto "google.golang.org/protobuf/proto"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	uuid "uuid"
 )
@@ -89,6 +93,53 @@ func (s PartyServiceServer) narrow(ctx context.Context, p predicate.Party) (pred
 	return PartyNarrow(ctx, s.Scope, p)
 }
 
+func (s PartyServiceServer) snapshot(ctx context.Context, p predicate.Party, lock bool) (*ent.Party, error) {
+	q := s.Db.Party.Query().Where(p)
+	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
+	q.WithHolder(func(q *ent.HolderQuery) { q.Select(holder.FieldId) })
+	q.Modify(func(q *sql.Selector) {
+		if lock && s.Db.Dialect() != dialect.SQLite {
+			q.ForUpdate()
+		}
+	})
+	return q.Only(ctx)
+}
+func (s PartyServiceServer) image(v *rove.Party) *rove.Party {
+	if v == nil {
+		return nil
+	}
+	out := proto.Clone(v).(*rove.Party)
+	m := out.ProtoReflect()
+	{
+		f := m.Descriptor().Fields().ByNumber(2)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	{
+		f := m.Descriptor().Fields().ByNumber(10)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	return out
+}
 func (s PartyServiceServer) Add(ctx context.Context, req *rove.PartyAddRequest) (*rove.Party, error) {
 	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
 	if err != nil {
@@ -168,9 +219,22 @@ func (s PartyServiceServer) Add(ctx context.Context, req *rove.PartyAddRequest) 
 		return nil, err
 	}
 
+	v := u.Proto()
+	for _, d := range ds {
+		d(v)
+	}
+	var value *rove.Party
+	if snapshotOptions(s.Rec, rove.PartyService_Add_FullMethodName).Value {
+		stored, err := st.snapshot(ctx, party.IdEQ(u.Id), false)
+		if err != nil {
+			return nil, err
+		}
+		value = s.image(stored.Proto())
+	}
 	if err := record(ctx, s.Rec, st.Db, Change{
-		By:  rove.PartyService_Add_FullMethodName,
-		Key: u.Id,
+		By:    rove.PartyService_Add_FullMethodName,
+		Key:   u.Id,
+		Value: value,
 	}); err != nil {
 		return nil, err
 	}
@@ -178,10 +242,6 @@ func (s PartyServiceServer) Add(ctx context.Context, req *rove.PartyAddRequest) 
 		return nil, err
 	}
 
-	v := u.Proto()
-	for _, d := range ds {
-		d(v)
-	}
 	return v, nil
 }
 
@@ -392,6 +452,18 @@ func (s PartyServiceServer) apply(ctx context.Context, ref *rove.PartyRef, doc *
 		return nil, err
 	}
 
+	var previous *rove.Party
+	images := snapshotOptions(s.Rec, by)
+	if images.Previous && mod != nil {
+		u, err := st.snapshot(ctx, p, true)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return nil, status.Error(codes.NotFound, "resource not found")
+			}
+			return nil, err
+		}
+		previous = s.image(u.Proto())
+	}
 	if mod == nil {
 		q := st.Db.Party.Query().Where(p)
 		if pred != nil {
@@ -440,20 +512,25 @@ func (s PartyServiceServer) apply(ctx context.Context, ref *rove.PartyRef, doc *
 		}
 	}
 
+	out, err := st.Get(ctx, at.Pick())
+	if err != nil {
+		return nil, err
+	}
 	if mod != nil {
+		var value *rove.Party
+		if images.Value {
+			value = s.image(out)
+		}
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:    by,
-			Key:   k,
-			Patch: doc,
+			By:       by,
+			Key:      k,
+			Patch:    doc,
+			Previous: previous, Value: value,
 		}); err != nil {
 			return nil, err
 		}
 	}
 
-	out, err := st.Get(ctx, at.Pick())
-	if err != nil {
-		return nil, err
-	}
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
@@ -480,8 +557,16 @@ func (s PartyServiceServer) Erase(ctx context.Context, req *rove.PartyRef) (*rov
 	st.Db = tx.Db
 
 	var k any
+	var previous *rove.Party
 	if s.Rec != nil {
-		v, err := st.Db.Party.Query().Where(p).OnlyId(ctx)
+		images := snapshotOptions(s.Rec, rove.PartyService_Erase_FullMethodName)
+		var v *ent.Party
+		var err error
+		if images.Previous {
+			v, err = st.snapshot(ctx, p, true)
+		} else {
+			v, err = st.Db.Party.Query().Where(p).Select(party.FieldId).Only(ctx)
+		}
 		if err != nil {
 			if ent.IsNotFound(err) {
 				return &rove.PartyEraseResponse{}, nil
@@ -489,8 +574,11 @@ func (s PartyServiceServer) Erase(ctx context.Context, req *rove.PartyRef) (*rov
 			return nil, err
 		}
 
-		k = v
-		p = party.And(p, party.IdEQ(v))
+		k = v.Id
+		if images.Previous {
+			previous = s.image(v.Proto())
+		}
+		p = party.And(p, party.IdEQ(v.Id))
 	}
 
 	u := st.Db.Party.Update().Where(p)
@@ -502,8 +590,9 @@ func (s PartyServiceServer) Erase(ctx context.Context, req *rove.PartyRef) (*rov
 	}
 	if n > 0 {
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:  rove.PartyService_Erase_FullMethodName,
-			Key: k,
+			By:       rove.PartyService_Erase_FullMethodName,
+			Key:      k,
+			Previous: previous,
 		}); err != nil {
 			return nil, err
 		}
@@ -618,6 +707,22 @@ func (s SessionServiceServer) narrow(ctx context.Context, p predicate.Session) (
 	return SessionNarrow(ctx, s.Scope, p)
 }
 
+func (s SessionServiceServer) snapshot(ctx context.Context, p predicate.Session, lock bool) (*ent.Session, error) {
+	q := s.Db.Session.Query().Where(p)
+	q.Modify(func(q *sql.Selector) {
+		if lock && s.Db.Dialect() != dialect.SQLite {
+			q.ForUpdate()
+		}
+	})
+	return q.Only(ctx)
+}
+func (s SessionServiceServer) image(v *rove.Session) *rove.Session {
+	if v == nil {
+		return nil
+	}
+	out := proto.Clone(v).(*rove.Session)
+	return out
+}
 func (s SessionServiceServer) Add(ctx context.Context, req *rove.SessionAddRequest) (*rove.Session, error) {
 	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
 	if err != nil {
@@ -686,9 +791,19 @@ func (s SessionServiceServer) Add(ctx context.Context, req *rove.SessionAddReque
 		return nil, err
 	}
 
+	v := u.Proto()
+	var value *rove.Session
+	if snapshotOptions(s.Rec, rove.SessionService_Add_FullMethodName).Value {
+		stored, err := st.snapshot(ctx, session.IdEQ(u.Id), false)
+		if err != nil {
+			return nil, err
+		}
+		value = s.image(stored.Proto())
+	}
 	if err := record(ctx, s.Rec, st.Db, Change{
-		By:  rove.SessionService_Add_FullMethodName,
-		Key: u.Id,
+		By:    rove.SessionService_Add_FullMethodName,
+		Key:   u.Id,
+		Value: value,
 	}); err != nil {
 		return nil, err
 	}
@@ -696,7 +811,7 @@ func (s SessionServiceServer) Add(ctx context.Context, req *rove.SessionAddReque
 		return nil, err
 	}
 
-	return u.Proto(), nil
+	return v, nil
 }
 
 func (s SessionServiceServer) Get(ctx context.Context, req *rove.SessionGetRequest) (*rove.Session, error) {
@@ -877,6 +992,18 @@ func (s SessionServiceServer) apply(ctx context.Context, ref *rove.SessionRef, d
 		return nil, err
 	}
 
+	var previous *rove.Session
+	images := snapshotOptions(s.Rec, by)
+	if images.Previous && mod != nil {
+		u, err := st.snapshot(ctx, p, true)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return nil, status.Error(codes.NotFound, "resource not found")
+			}
+			return nil, err
+		}
+		previous = s.image(u.Proto())
+	}
 	if mod == nil {
 		q := st.Db.Session.Query().Where(p)
 		if pred != nil {
@@ -925,20 +1052,25 @@ func (s SessionServiceServer) apply(ctx context.Context, ref *rove.SessionRef, d
 		}
 	}
 
+	out, err := st.Get(ctx, at.Pick())
+	if err != nil {
+		return nil, err
+	}
 	if mod != nil {
+		var value *rove.Session
+		if images.Value {
+			value = s.image(out)
+		}
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:    by,
-			Key:   k,
-			Patch: doc,
+			By:       by,
+			Key:      k,
+			Patch:    doc,
+			Previous: previous, Value: value,
 		}); err != nil {
 			return nil, err
 		}
 	}
 
-	out, err := st.Get(ctx, at.Pick())
-	if err != nil {
-		return nil, err
-	}
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
@@ -965,8 +1097,16 @@ func (s SessionServiceServer) Erase(ctx context.Context, req *rove.SessionRef) (
 	st.Db = tx.Db
 
 	var k any
+	var previous *rove.Session
 	if s.Rec != nil {
-		v, err := st.Db.Session.Query().Where(p).OnlyId(ctx)
+		images := snapshotOptions(s.Rec, rove.SessionService_Erase_FullMethodName)
+		var v *ent.Session
+		var err error
+		if images.Previous {
+			v, err = st.snapshot(ctx, p, true)
+		} else {
+			v, err = st.Db.Session.Query().Where(p).Select(session.FieldId).Only(ctx)
+		}
 		if err != nil {
 			if ent.IsNotFound(err) {
 				return &rove.SessionEraseResponse{}, nil
@@ -974,8 +1114,11 @@ func (s SessionServiceServer) Erase(ctx context.Context, req *rove.SessionRef) (
 			return nil, err
 		}
 
-		k = v
-		p = session.And(p, session.IdEQ(v))
+		k = v.Id
+		if images.Previous {
+			previous = s.image(v.Proto())
+		}
+		p = session.And(p, session.IdEQ(v.Id))
 	}
 
 	u := st.Db.Session.Update().Where(p)
@@ -987,8 +1130,9 @@ func (s SessionServiceServer) Erase(ctx context.Context, req *rove.SessionRef) (
 	}
 	if n > 0 {
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:  rove.SessionService_Erase_FullMethodName,
-			Key: k,
+			By:       rove.SessionService_Erase_FullMethodName,
+			Key:      k,
+			Previous: previous,
 		}); err != nil {
 			return nil, err
 		}
@@ -1094,6 +1238,83 @@ func (s InvitationServiceServer) narrow(ctx context.Context, p predicate.Invitat
 	return InvitationNarrow(ctx, s.Scope, p)
 }
 
+func (s InvitationServiceServer) snapshot(ctx context.Context, p predicate.Invitation, lock bool) (*ent.Invitation, error) {
+	q := s.Db.Invitation.Query().Where(p)
+	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
+	q.WithInviter(func(q *ent.HolderQuery) { q.Select(holder.FieldId) })
+	q.WithParty(func(q *ent.PartyQuery) { q.Select(party.FieldId) })
+	q.WithHolder(func(q *ent.HolderQuery) { q.Select(holder.FieldId) })
+	q.Modify(func(q *sql.Selector) {
+		if lock && s.Db.Dialect() != dialect.SQLite {
+			q.ForUpdate()
+		}
+	})
+	return q.Only(ctx)
+}
+func (s InvitationServiceServer) image(v *rove.Invitation) *rove.Invitation {
+	if v == nil {
+		return nil
+	}
+	out := proto.Clone(v).(*rove.Invitation)
+	m := out.ProtoReflect()
+	{
+		f := m.Descriptor().Fields().ByNumber(2)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	{
+		f := m.Descriptor().Fields().ByNumber(8)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	{
+		f := m.Descriptor().Fields().ByNumber(11)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	{
+		f := m.Descriptor().Fields().ByNumber(19)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	return out
+}
 func (s InvitationServiceServer) Add(ctx context.Context, req *rove.InvitationAddRequest) (*rove.Invitation, error) {
 	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
 	if err != nil {
@@ -1196,9 +1417,22 @@ func (s InvitationServiceServer) Add(ctx context.Context, req *rove.InvitationAd
 		return nil, err
 	}
 
+	v := u.Proto()
+	for _, d := range ds {
+		d(v)
+	}
+	var value *rove.Invitation
+	if snapshotOptions(s.Rec, rove.InvitationService_Add_FullMethodName).Value {
+		stored, err := st.snapshot(ctx, invitation.IdEQ(u.Id), false)
+		if err != nil {
+			return nil, err
+		}
+		value = s.image(stored.Proto())
+	}
 	if err := record(ctx, s.Rec, st.Db, Change{
-		By:  rove.InvitationService_Add_FullMethodName,
-		Key: u.Id,
+		By:    rove.InvitationService_Add_FullMethodName,
+		Key:   u.Id,
+		Value: value,
 	}); err != nil {
 		return nil, err
 	}
@@ -1206,10 +1440,6 @@ func (s InvitationServiceServer) Add(ctx context.Context, req *rove.InvitationAd
 		return nil, err
 	}
 
-	v := u.Proto()
-	for _, d := range ds {
-		d(v)
-	}
 	return v, nil
 }
 
@@ -1437,6 +1667,18 @@ func (s InvitationServiceServer) apply(ctx context.Context, ref *rove.Invitation
 		return nil, err
 	}
 
+	var previous *rove.Invitation
+	images := snapshotOptions(s.Rec, by)
+	if images.Previous && mod != nil {
+		u, err := st.snapshot(ctx, p, true)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return nil, status.Error(codes.NotFound, "resource not found")
+			}
+			return nil, err
+		}
+		previous = s.image(u.Proto())
+	}
 	if mod == nil {
 		q := st.Db.Invitation.Query().Where(p)
 		if pred != nil {
@@ -1485,20 +1727,25 @@ func (s InvitationServiceServer) apply(ctx context.Context, ref *rove.Invitation
 		}
 	}
 
+	out, err := st.Get(ctx, at.Pick())
+	if err != nil {
+		return nil, err
+	}
 	if mod != nil {
+		var value *rove.Invitation
+		if images.Value {
+			value = s.image(out)
+		}
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:    by,
-			Key:   k,
-			Patch: doc,
+			By:       by,
+			Key:      k,
+			Patch:    doc,
+			Previous: previous, Value: value,
 		}); err != nil {
 			return nil, err
 		}
 	}
 
-	out, err := st.Get(ctx, at.Pick())
-	if err != nil {
-		return nil, err
-	}
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
@@ -1525,8 +1772,16 @@ func (s InvitationServiceServer) Erase(ctx context.Context, req *rove.Invitation
 	st.Db = tx.Db
 
 	var k any
+	var previous *rove.Invitation
 	if s.Rec != nil {
-		v, err := st.Db.Invitation.Query().Where(p).OnlyId(ctx)
+		images := snapshotOptions(s.Rec, rove.InvitationService_Erase_FullMethodName)
+		var v *ent.Invitation
+		var err error
+		if images.Previous {
+			v, err = st.snapshot(ctx, p, true)
+		} else {
+			v, err = st.Db.Invitation.Query().Where(p).Select(invitation.FieldId).Only(ctx)
+		}
 		if err != nil {
 			if ent.IsNotFound(err) {
 				return &rove.InvitationEraseResponse{}, nil
@@ -1534,8 +1789,11 @@ func (s InvitationServiceServer) Erase(ctx context.Context, req *rove.Invitation
 			return nil, err
 		}
 
-		k = v
-		p = invitation.And(p, invitation.IdEQ(v))
+		k = v.Id
+		if images.Previous {
+			previous = s.image(v.Proto())
+		}
+		p = invitation.And(p, invitation.IdEQ(v.Id))
 	}
 
 	u := st.Db.Invitation.Update().Where(p)
@@ -1547,8 +1805,9 @@ func (s InvitationServiceServer) Erase(ctx context.Context, req *rove.Invitation
 	}
 	if n > 0 {
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:  rove.InvitationService_Erase_FullMethodName,
-			Key: k,
+			By:       rove.InvitationService_Erase_FullMethodName,
+			Key:      k,
+			Previous: previous,
 		}); err != nil {
 			return nil, err
 		}
@@ -1654,6 +1913,22 @@ func (s CliLoginServiceServer) narrow(ctx context.Context, p predicate.CliLogin)
 	return CliLoginNarrow(ctx, s.Scope, p)
 }
 
+func (s CliLoginServiceServer) snapshot(ctx context.Context, p predicate.CliLogin, lock bool) (*ent.CliLogin, error) {
+	q := s.Db.CliLogin.Query().Where(p)
+	q.Modify(func(q *sql.Selector) {
+		if lock && s.Db.Dialect() != dialect.SQLite {
+			q.ForUpdate()
+		}
+	})
+	return q.Only(ctx)
+}
+func (s CliLoginServiceServer) image(v *rove.CliLogin) *rove.CliLogin {
+	if v == nil {
+		return nil
+	}
+	out := proto.Clone(v).(*rove.CliLogin)
+	return out
+}
 func (s CliLoginServiceServer) Add(ctx context.Context, req *rove.CliLoginAddRequest) (*rove.CliLogin, error) {
 	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
 	if err != nil {
@@ -1724,9 +1999,19 @@ func (s CliLoginServiceServer) Add(ctx context.Context, req *rove.CliLoginAddReq
 		return nil, err
 	}
 
+	v := u.Proto()
+	var value *rove.CliLogin
+	if snapshotOptions(s.Rec, rove.CliLoginService_Add_FullMethodName).Value {
+		stored, err := st.snapshot(ctx, clilogin.IdEQ(u.Id), false)
+		if err != nil {
+			return nil, err
+		}
+		value = s.image(stored.Proto())
+	}
 	if err := record(ctx, s.Rec, st.Db, Change{
-		By:  rove.CliLoginService_Add_FullMethodName,
-		Key: u.Id,
+		By:    rove.CliLoginService_Add_FullMethodName,
+		Key:   u.Id,
+		Value: value,
 	}); err != nil {
 		return nil, err
 	}
@@ -1734,7 +2019,7 @@ func (s CliLoginServiceServer) Add(ctx context.Context, req *rove.CliLoginAddReq
 		return nil, err
 	}
 
-	return u.Proto(), nil
+	return v, nil
 }
 
 func (s CliLoginServiceServer) Get(ctx context.Context, req *rove.CliLoginGetRequest) (*rove.CliLogin, error) {
@@ -1921,6 +2206,18 @@ func (s CliLoginServiceServer) apply(ctx context.Context, ref *rove.CliLoginRef,
 		return nil, err
 	}
 
+	var previous *rove.CliLogin
+	images := snapshotOptions(s.Rec, by)
+	if images.Previous && mod != nil {
+		u, err := st.snapshot(ctx, p, true)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return nil, status.Error(codes.NotFound, "resource not found")
+			}
+			return nil, err
+		}
+		previous = s.image(u.Proto())
+	}
 	if mod == nil {
 		q := st.Db.CliLogin.Query().Where(p)
 		if pred != nil {
@@ -1969,20 +2266,25 @@ func (s CliLoginServiceServer) apply(ctx context.Context, ref *rove.CliLoginRef,
 		}
 	}
 
+	out, err := st.Get(ctx, at.Pick())
+	if err != nil {
+		return nil, err
+	}
 	if mod != nil {
+		var value *rove.CliLogin
+		if images.Value {
+			value = s.image(out)
+		}
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:    by,
-			Key:   k,
-			Patch: doc,
+			By:       by,
+			Key:      k,
+			Patch:    doc,
+			Previous: previous, Value: value,
 		}); err != nil {
 			return nil, err
 		}
 	}
 
-	out, err := st.Get(ctx, at.Pick())
-	if err != nil {
-		return nil, err
-	}
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
@@ -2009,8 +2311,16 @@ func (s CliLoginServiceServer) Erase(ctx context.Context, req *rove.CliLoginRef)
 	st.Db = tx.Db
 
 	var k any
+	var previous *rove.CliLogin
 	if s.Rec != nil {
-		v, err := st.Db.CliLogin.Query().Where(p).OnlyId(ctx)
+		images := snapshotOptions(s.Rec, rove.CliLoginService_Erase_FullMethodName)
+		var v *ent.CliLogin
+		var err error
+		if images.Previous {
+			v, err = st.snapshot(ctx, p, true)
+		} else {
+			v, err = st.Db.CliLogin.Query().Where(p).Select(clilogin.FieldId).Only(ctx)
+		}
 		if err != nil {
 			if ent.IsNotFound(err) {
 				return &rove.CliLoginEraseResponse{}, nil
@@ -2018,8 +2328,11 @@ func (s CliLoginServiceServer) Erase(ctx context.Context, req *rove.CliLoginRef)
 			return nil, err
 		}
 
-		k = v
-		p = clilogin.And(p, clilogin.IdEQ(v))
+		k = v.Id
+		if images.Previous {
+			previous = s.image(v.Proto())
+		}
+		p = clilogin.And(p, clilogin.IdEQ(v.Id))
 	}
 
 	u := st.Db.CliLogin.Update().Where(p)
@@ -2031,8 +2344,9 @@ func (s CliLoginServiceServer) Erase(ctx context.Context, req *rove.CliLoginRef)
 	}
 	if n > 0 {
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:  rove.CliLoginService_Erase_FullMethodName,
-			Key: k,
+			By:       rove.CliLoginService_Erase_FullMethodName,
+			Key:      k,
+			Previous: previous,
 		}); err != nil {
 			return nil, err
 		}
@@ -2138,6 +2452,22 @@ func (s AliasHoldServiceServer) narrow(ctx context.Context, p predicate.AliasHol
 	return AliasHoldNarrow(ctx, s.Scope, p)
 }
 
+func (s AliasHoldServiceServer) snapshot(ctx context.Context, p predicate.AliasHold, lock bool) (*ent.AliasHold, error) {
+	q := s.Db.AliasHold.Query().Where(p)
+	q.Modify(func(q *sql.Selector) {
+		if lock && s.Db.Dialect() != dialect.SQLite {
+			q.ForUpdate()
+		}
+	})
+	return q.Only(ctx)
+}
+func (s AliasHoldServiceServer) image(v *rove.AliasHold) *rove.AliasHold {
+	if v == nil {
+		return nil
+	}
+	out := proto.Clone(v).(*rove.AliasHold)
+	return out
+}
 func (s AliasHoldServiceServer) Add(ctx context.Context, req *rove.AliasHoldAddRequest) (*rove.AliasHold, error) {
 	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
 	if err != nil {
@@ -2195,9 +2525,19 @@ func (s AliasHoldServiceServer) Add(ctx context.Context, req *rove.AliasHoldAddR
 		return nil, err
 	}
 
+	v := u.Proto()
+	var value *rove.AliasHold
+	if snapshotOptions(s.Rec, rove.AliasHoldService_Add_FullMethodName).Value {
+		stored, err := st.snapshot(ctx, aliashold.IdEQ(u.Id), false)
+		if err != nil {
+			return nil, err
+		}
+		value = s.image(stored.Proto())
+	}
 	if err := record(ctx, s.Rec, st.Db, Change{
-		By:  rove.AliasHoldService_Add_FullMethodName,
-		Key: u.Id,
+		By:    rove.AliasHoldService_Add_FullMethodName,
+		Key:   u.Id,
+		Value: value,
 	}); err != nil {
 		return nil, err
 	}
@@ -2205,7 +2545,7 @@ func (s AliasHoldServiceServer) Add(ctx context.Context, req *rove.AliasHoldAddR
 		return nil, err
 	}
 
-	return u.Proto(), nil
+	return v, nil
 }
 
 func (s AliasHoldServiceServer) Get(ctx context.Context, req *rove.AliasHoldGetRequest) (*rove.AliasHold, error) {
@@ -2383,6 +2723,18 @@ func (s AliasHoldServiceServer) apply(ctx context.Context, ref *rove.AliasHoldRe
 		return nil, err
 	}
 
+	var previous *rove.AliasHold
+	images := snapshotOptions(s.Rec, by)
+	if images.Previous && mod != nil {
+		u, err := st.snapshot(ctx, p, true)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return nil, status.Error(codes.NotFound, "resource not found")
+			}
+			return nil, err
+		}
+		previous = s.image(u.Proto())
+	}
 	if mod == nil {
 		q := st.Db.AliasHold.Query().Where(p)
 		if pred != nil {
@@ -2431,20 +2783,25 @@ func (s AliasHoldServiceServer) apply(ctx context.Context, ref *rove.AliasHoldRe
 		}
 	}
 
+	out, err := st.Get(ctx, at.Pick())
+	if err != nil {
+		return nil, err
+	}
 	if mod != nil {
+		var value *rove.AliasHold
+		if images.Value {
+			value = s.image(out)
+		}
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:    by,
-			Key:   k,
-			Patch: doc,
+			By:       by,
+			Key:      k,
+			Patch:    doc,
+			Previous: previous, Value: value,
 		}); err != nil {
 			return nil, err
 		}
 	}
 
-	out, err := st.Get(ctx, at.Pick())
-	if err != nil {
-		return nil, err
-	}
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
@@ -2471,8 +2828,16 @@ func (s AliasHoldServiceServer) Erase(ctx context.Context, req *rove.AliasHoldRe
 	st.Db = tx.Db
 
 	var k any
+	var previous *rove.AliasHold
 	if s.Rec != nil {
-		v, err := st.Db.AliasHold.Query().Where(p).OnlyId(ctx)
+		images := snapshotOptions(s.Rec, rove.AliasHoldService_Erase_FullMethodName)
+		var v *ent.AliasHold
+		var err error
+		if images.Previous {
+			v, err = st.snapshot(ctx, p, true)
+		} else {
+			v, err = st.Db.AliasHold.Query().Where(p).Select(aliashold.FieldId).Only(ctx)
+		}
 		if err != nil {
 			if ent.IsNotFound(err) {
 				return &rove.AliasHoldEraseResponse{}, nil
@@ -2480,8 +2845,11 @@ func (s AliasHoldServiceServer) Erase(ctx context.Context, req *rove.AliasHoldRe
 			return nil, err
 		}
 
-		k = v
-		p = aliashold.And(p, aliashold.IdEQ(v))
+		k = v.Id
+		if images.Previous {
+			previous = s.image(v.Proto())
+		}
+		p = aliashold.And(p, aliashold.IdEQ(v.Id))
 	}
 
 	u := st.Db.AliasHold.Update().Where(p)
@@ -2493,8 +2861,9 @@ func (s AliasHoldServiceServer) Erase(ctx context.Context, req *rove.AliasHoldRe
 	}
 	if n > 0 {
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:  rove.AliasHoldService_Erase_FullMethodName,
-			Key: k,
+			By:       rove.AliasHoldService_Erase_FullMethodName,
+			Key:      k,
+			Previous: previous,
 		}); err != nil {
 			return nil, err
 		}
@@ -2600,6 +2969,22 @@ func (s ConsentServiceServer) narrow(ctx context.Context, p predicate.Consent) (
 	return ConsentNarrow(ctx, s.Scope, p)
 }
 
+func (s ConsentServiceServer) snapshot(ctx context.Context, p predicate.Consent, lock bool) (*ent.Consent, error) {
+	q := s.Db.Consent.Query().Where(p)
+	q.Modify(func(q *sql.Selector) {
+		if lock && s.Db.Dialect() != dialect.SQLite {
+			q.ForUpdate()
+		}
+	})
+	return q.Only(ctx)
+}
+func (s ConsentServiceServer) image(v *rove.Consent) *rove.Consent {
+	if v == nil {
+		return nil
+	}
+	out := proto.Clone(v).(*rove.Consent)
+	return out
+}
 func (s ConsentServiceServer) Add(ctx context.Context, req *rove.ConsentAddRequest) (*rove.Consent, error) {
 	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
 	if err != nil {
@@ -2654,9 +3039,19 @@ func (s ConsentServiceServer) Add(ctx context.Context, req *rove.ConsentAddReque
 		return nil, err
 	}
 
+	v := u.Proto()
+	var value *rove.Consent
+	if snapshotOptions(s.Rec, rove.ConsentService_Add_FullMethodName).Value {
+		stored, err := st.snapshot(ctx, consent.IdEQ(u.Id), false)
+		if err != nil {
+			return nil, err
+		}
+		value = s.image(stored.Proto())
+	}
 	if err := record(ctx, s.Rec, st.Db, Change{
-		By:  rove.ConsentService_Add_FullMethodName,
-		Key: u.Id,
+		By:    rove.ConsentService_Add_FullMethodName,
+		Key:   u.Id,
+		Value: value,
 	}); err != nil {
 		return nil, err
 	}
@@ -2664,7 +3059,7 @@ func (s ConsentServiceServer) Add(ctx context.Context, req *rove.ConsentAddReque
 		return nil, err
 	}
 
-	return u.Proto(), nil
+	return v, nil
 }
 
 func (s ConsentServiceServer) Get(ctx context.Context, req *rove.ConsentGetRequest) (*rove.Consent, error) {
@@ -2839,6 +3234,18 @@ func (s ConsentServiceServer) apply(ctx context.Context, ref *rove.ConsentRef, d
 		return nil, err
 	}
 
+	var previous *rove.Consent
+	images := snapshotOptions(s.Rec, by)
+	if images.Previous && mod != nil {
+		u, err := st.snapshot(ctx, p, true)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return nil, status.Error(codes.NotFound, "resource not found")
+			}
+			return nil, err
+		}
+		previous = s.image(u.Proto())
+	}
 	if mod == nil {
 		q := st.Db.Consent.Query().Where(p)
 		if pred != nil {
@@ -2884,20 +3291,25 @@ func (s ConsentServiceServer) apply(ctx context.Context, ref *rove.ConsentRef, d
 		}
 	}
 
+	out, err := st.Get(ctx, at.Pick())
+	if err != nil {
+		return nil, err
+	}
 	if mod != nil {
+		var value *rove.Consent
+		if images.Value {
+			value = s.image(out)
+		}
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:    by,
-			Key:   k,
-			Patch: doc,
+			By:       by,
+			Key:      k,
+			Patch:    doc,
+			Previous: previous, Value: value,
 		}); err != nil {
 			return nil, err
 		}
 	}
 
-	out, err := st.Get(ctx, at.Pick())
-	if err != nil {
-		return nil, err
-	}
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
@@ -2924,8 +3336,16 @@ func (s ConsentServiceServer) Erase(ctx context.Context, req *rove.ConsentRef) (
 	st.Db = tx.Db
 
 	var k any
+	var previous *rove.Consent
 	if s.Rec != nil {
-		v, err := st.Db.Consent.Query().Where(p).OnlyId(ctx)
+		images := snapshotOptions(s.Rec, rove.ConsentService_Erase_FullMethodName)
+		var v *ent.Consent
+		var err error
+		if images.Previous {
+			v, err = st.snapshot(ctx, p, true)
+		} else {
+			v, err = st.Db.Consent.Query().Where(p).Select(consent.FieldId).Only(ctx)
+		}
 		if err != nil {
 			if ent.IsNotFound(err) {
 				return &rove.ConsentEraseResponse{}, nil
@@ -2933,8 +3353,11 @@ func (s ConsentServiceServer) Erase(ctx context.Context, req *rove.ConsentRef) (
 			return nil, err
 		}
 
-		k = v
-		p = consent.And(p, consent.IdEQ(v))
+		k = v.Id
+		if images.Previous {
+			previous = s.image(v.Proto())
+		}
+		p = consent.And(p, consent.IdEQ(v.Id))
 	}
 
 	u := st.Db.Consent.Update().Where(p)
@@ -2945,8 +3368,9 @@ func (s ConsentServiceServer) Erase(ctx context.Context, req *rove.ConsentRef) (
 	}
 	if n > 0 {
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:  rove.ConsentService_Erase_FullMethodName,
-			Key: k,
+			By:       rove.ConsentService_Erase_FullMethodName,
+			Key:      k,
+			Previous: previous,
 		}); err != nil {
 			return nil, err
 		}
@@ -3059,6 +3483,22 @@ func (s SignInFailureServiceServer) narrow(ctx context.Context, p predicate.Sign
 	return SignInFailureNarrow(ctx, s.Scope, p)
 }
 
+func (s SignInFailureServiceServer) snapshot(ctx context.Context, p predicate.SignInFailure, lock bool) (*ent.SignInFailure, error) {
+	q := s.Db.SignInFailure.Query().Where(p)
+	q.Modify(func(q *sql.Selector) {
+		if lock && s.Db.Dialect() != dialect.SQLite {
+			q.ForUpdate()
+		}
+	})
+	return q.Only(ctx)
+}
+func (s SignInFailureServiceServer) image(v *rove.SignInFailure) *rove.SignInFailure {
+	if v == nil {
+		return nil
+	}
+	out := proto.Clone(v).(*rove.SignInFailure)
+	return out
+}
 func (s SignInFailureServiceServer) Add(ctx context.Context, req *rove.SignInFailureAddRequest) (*rove.SignInFailure, error) {
 	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
 	if err != nil {
@@ -3107,9 +3547,19 @@ func (s SignInFailureServiceServer) Add(ctx context.Context, req *rove.SignInFai
 		return nil, err
 	}
 
+	v := u.Proto()
+	var value *rove.SignInFailure
+	if snapshotOptions(s.Rec, rove.SignInFailureService_Add_FullMethodName).Value {
+		stored, err := st.snapshot(ctx, signinfailure.IdEQ(u.Id), false)
+		if err != nil {
+			return nil, err
+		}
+		value = s.image(stored.Proto())
+	}
 	if err := record(ctx, s.Rec, st.Db, Change{
-		By:  rove.SignInFailureService_Add_FullMethodName,
-		Key: u.Id,
+		By:    rove.SignInFailureService_Add_FullMethodName,
+		Key:   u.Id,
+		Value: value,
 	}); err != nil {
 		return nil, err
 	}
@@ -3117,7 +3567,7 @@ func (s SignInFailureServiceServer) Add(ctx context.Context, req *rove.SignInFai
 		return nil, err
 	}
 
-	return u.Proto(), nil
+	return v, nil
 }
 
 func (s SignInFailureServiceServer) Get(ctx context.Context, req *rove.SignInFailureGetRequest) (*rove.SignInFailure, error) {
@@ -3277,6 +3727,18 @@ func (s SignInFailureServiceServer) apply(ctx context.Context, ref *rove.SignInF
 		return nil, err
 	}
 
+	var previous *rove.SignInFailure
+	images := snapshotOptions(s.Rec, by)
+	if images.Previous && mod != nil {
+		u, err := st.snapshot(ctx, p, true)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return nil, status.Error(codes.NotFound, "resource not found")
+			}
+			return nil, err
+		}
+		previous = s.image(u.Proto())
+	}
 	if mod == nil {
 		q := st.Db.SignInFailure.Query().Where(p)
 		if pred != nil {
@@ -3322,20 +3784,25 @@ func (s SignInFailureServiceServer) apply(ctx context.Context, ref *rove.SignInF
 		}
 	}
 
+	out, err := st.Get(ctx, at.Pick())
+	if err != nil {
+		return nil, err
+	}
 	if mod != nil {
+		var value *rove.SignInFailure
+		if images.Value {
+			value = s.image(out)
+		}
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:    by,
-			Key:   k,
-			Patch: doc,
+			By:       by,
+			Key:      k,
+			Patch:    doc,
+			Previous: previous, Value: value,
 		}); err != nil {
 			return nil, err
 		}
 	}
 
-	out, err := st.Get(ctx, at.Pick())
-	if err != nil {
-		return nil, err
-	}
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
@@ -3362,8 +3829,16 @@ func (s SignInFailureServiceServer) Erase(ctx context.Context, req *rove.SignInF
 	st.Db = tx.Db
 
 	var k any
+	var previous *rove.SignInFailure
 	if s.Rec != nil {
-		v, err := st.Db.SignInFailure.Query().Where(p).OnlyId(ctx)
+		images := snapshotOptions(s.Rec, rove.SignInFailureService_Erase_FullMethodName)
+		var v *ent.SignInFailure
+		var err error
+		if images.Previous {
+			v, err = st.snapshot(ctx, p, true)
+		} else {
+			v, err = st.Db.SignInFailure.Query().Where(p).Select(signinfailure.FieldId).Only(ctx)
+		}
 		if err != nil {
 			if ent.IsNotFound(err) {
 				return &rove.SignInFailureEraseResponse{}, nil
@@ -3371,8 +3846,11 @@ func (s SignInFailureServiceServer) Erase(ctx context.Context, req *rove.SignInF
 			return nil, err
 		}
 
-		k = v
-		p = signinfailure.And(p, signinfailure.IdEQ(v))
+		k = v.Id
+		if images.Previous {
+			previous = s.image(v.Proto())
+		}
+		p = signinfailure.And(p, signinfailure.IdEQ(v.Id))
 	}
 
 	n, err := st.Db.SignInFailure.Delete().Where(p).Exec(ctx)
@@ -3381,8 +3859,9 @@ func (s SignInFailureServiceServer) Erase(ctx context.Context, req *rove.SignInF
 	}
 	if n > 0 {
 		if err := record(ctx, s.Rec, st.Db, Change{
-			By:  rove.SignInFailureService_Erase_FullMethodName,
-			Key: k,
+			By:       rove.SignInFailureService_Erase_FullMethodName,
+			Key:      k,
+			Previous: previous,
 		}); err != nil {
 			return nil, err
 		}
