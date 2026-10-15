@@ -61,6 +61,11 @@ func (x Indexer) now() time.Time {
 
 // Spin runs passes until ctx ends.
 //
+// Before the first it makes the index, when there is none or it is not the
+// shape this build makes ([Version]): a deployment that has just named a
+// cluster, or a build that changed the index, searches once it is whole, and
+// until then from what there was.
+//
 // A pass that took a whole batch is followed by another at once. One that
 // failed -- a cluster that does not answer -- is followed by a wait that
 // doubles up to a minute, and the queue keeps what it had: the log says so
@@ -71,8 +76,17 @@ func (x Indexer) Spin(ctx context.Context) error {
 		every = time.Second
 	}
 	var down time.Duration
+	made := false
 	for {
-		n, err := x.Pass(ctx)
+		var n int
+		var err error
+		if !made {
+			err = x.ensure(ctx)
+			made = err == nil
+		}
+		if made {
+			n, err = x.Pass(ctx)
+		}
 		wait := every
 		switch {
 		case ctx.Err() != nil:
@@ -101,6 +115,30 @@ func (x Indexer) Spin(ctx context.Context) error {
 		case <-t.C:
 		}
 	}
+}
+
+// ensure makes the index from the database when there is none to keep
+// current, or none of this build's shape.
+func (x Indexer) ensure(ctx context.Context) error {
+	st, err := x.Client.Status(ctx)
+	if err != nil {
+		return err
+	}
+	if st.Index != "" && st.Version == Version {
+		return nil
+	}
+	l := log.From(ctx)
+	if st.Index == "" {
+		l.InfoContext(ctx, "search: no index of assets yet; making one from the database", "alias", st.Alias)
+	} else {
+		l.InfoContext(ctx, "search: the index of assets is of another shape; making it again", "index", st.Index, "version", st.Version, "makes", Version)
+	}
+	r, err := Reindex(ctx, x.Client, x.Db, x.now(), nil)
+	if err != nil {
+		return err
+	}
+	l.InfoContext(ctx, "search: made the index of assets", "index", r.Index, "assets", r.Docs)
+	return nil
 }
 
 // Pass makes again the documents of up to [batch] rows of the queue, and

@@ -24,3 +24,15 @@ func Make(c *Client, now time.Time) (string, error) {
 	name := c.fresh(now)
 	return name, c.create(context.Background(), name)
 }
+
+// MakeOld makes an index of an older shape and points the alias at it: what a
+// deployment has after a build that changed the index.
+func MakeOld(c *Client, now time.Time) (string, error) {
+	ctx := context.Background()
+	name := c.fresh(now)
+	old := map[string]any{"mappings": map[string]any{"_meta": map[string]any{"version": Version - 1}}}
+	if err := c.call(ctx, "PUT", "/"+name, old, nil); err != nil {
+		return "", err
+	}
+	return name, c.point(ctx, name)
+}

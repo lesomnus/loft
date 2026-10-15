@@ -241,7 +241,7 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	}
 	if engine != nil {
 		rec = append(rec, opensearch.Recorder())
-		log.From(ctx).InfoContext(ctx, "search: the index of assets is kept on OpenSearch", "alias", engine.Alias())
+		log.From(ctx).InfoContext(ctx, "search: OpenSearch answers, from the index of assets", "alias", engine.Alias())
 	}
 	if c.Watch.Outbox {
 		// Last, so that a queue this could not be written to undoes a write
@@ -323,6 +323,7 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	deps.Base = base
 
 	s := &Server{Db: db, Ent: client, Drv: drv, Dialect: dialect, Watch: w, Walled: stacked, Ungated: ungated, Base: base, Deps: deps, Identity: people, Search: engine}
+	deps.Finder = engine
 
 	// Who is calling is a session cookie, held on every call to what roster
 	// says of its person, and what they may do is their role.
