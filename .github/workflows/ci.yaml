@@ -451,12 +451,34 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       # The source label is what links the package to this repository on
       # GHCR, and the commit is the one `rove version` names beside `edge`.
+      #
+      # `:edge` only moves forward. Merges made one after another run side
+      # by side and finish in any order, and the last to push won: a run of
+      # an earlier merge put `:edge` back behind a later one (2026-10-17). So
+      # a run whose commit is behind the one `:edge` holds pushes nothing --
+      # asked right before the push, since the build takes minutes and a
+      # later run may push meanwhile. Behind and not the head is the rule,
+      # not "not the head of main": a later merge that failed its gates
+      # pushes nothing either, and the one before it still should.
       - name: build and push
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           docker build -t ghcr.io/lesomnus/rove:edge \
             --build-arg VERSION=edge \
             --label org.opencontainers.image.source=https://github.com/${{ github.repository }} \
             --label org.opencontainers.image.revision=${{ github.sha }} .
+          held="$(docker buildx imagetools inspect ghcr.io/lesomnus/rove:edge \
+            --format '{{ index .Image.Config.Labels "org.opencontainers.image.revision" }}' 2>/dev/null || true)"
+          if [ -n "${held}" ] && [ "${held}" != "${GITHUB_SHA}" ]; then
+            # Ahead, or diverged from a history rewritten, moves it; behind
+            # does not. A compare that fails pushes, as before.
+            how="$(gh api "repos/${GITHUB_REPOSITORY}/compare/${held}...${GITHUB_SHA}" --jq .status 2>/dev/null || echo unknown)"
+            if [ "${how}" = "behind" ]; then
+              echo "\`:edge\` holds ${held}, which ${GITHUB_SHA} is behind: nothing pushed" | tee -a "${GITHUB_STEP_SUMMARY}"
+              exit 0
+            fi
+          fi
           docker push ghcr.io/lesomnus/rove:edge
           digest="$(docker inspect --format '{{index .RepoDigests 0}}' ghcr.io/lesomnus/rove:edge)"
           echo "pushed \`${digest}\` (${{ github.sha }})" | tee -a "${GITHUB_STEP_SUMMARY}"
