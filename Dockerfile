@@ -30,7 +30,11 @@ WORKDIR /src
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN flags="-s -w -X github.com/lesomnus/payday/version.version=${VERSION}" \
+# The build cache is a cache mount, so that building again compiles what
+# changed and not the rest -- a desk's next build, and CI's, which carries it
+# from one run to the next by this id (scripts/gocache.sh).
+RUN --mount=type=cache,id=rove-go-build,target=/root/.cache/go-build \
+	flags="-s -w -X github.com/lesomnus/payday/version.version=${VERSION}" \
 	&& CGO_ENABLED=0 go build -trimpath -ldflags="${flags}" -o /out/rove ./cmd/rove \
 	&& CGO_ENABLED=0 go build -trimpath -ldflags="${flags}" -o /out/rove-admin ./cmd/rove-admin
 # Where a deployment's state goes, made here so that a volume mounted on them
