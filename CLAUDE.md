@@ -244,6 +244,16 @@ configuration; their own is `ROVE_CLIENT_CONFIG`. A new feature is an RPC, so it
 is a command too -- and anything HTTP-only beside the RPCs (`/account`) gets a
 command of its own (`rove workspace`).
 
+`rove mcp` is that terminal as an MCP server on stdin and stdout (`cli/mcp.go`,
+D32): Claude Code or Claude Desktop starts it, and every tool is RPCs as the
+person signed in, read again each call, through the same policy and wall. The
+deployment does not know there is an assistant. Every tool reads; one that
+writes waits for a way for the person to say yes first (rove#91). A tool
+answers with the names a person reads beside the ids other tools take, and
+never a person's email or phone: what it answers goes to the assistant's
+provider. Its tests run the command over pipes with the SDK's client
+(`cli/mcp_test.go`).
+
 ## Background work
 
 What `cmd/serve.go` appends to `s.Spin` runs under `spin.lease` (payday#54):

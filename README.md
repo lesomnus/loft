@@ -132,6 +132,33 @@ go run ./cmd/rove logout
 - 로그인 정보는 `~/.config/rove/client.json`(`ROVE_CLIENT_CONFIG`)에 주인만 읽을 수 있게 저장됩니다. 세션 키가 들어 있습니다.
 - `rove api`는 서버의 설정을 읽지 않습니다. 서버 상자에서 쓰는 운영자 명령(`init`, `tenant`, `identity` 등)과는 다릅니다.
 
+### 비서에게 읽히기 (MCP)
+
+`rove mcp`는 MCP 서버입니다(D32). Claude Code나 Claude Desktop 같은 MCP 클라이언트가 이 명령을 띄우면, 비서가 터미널에 로그인한 계정으로 워크스페이스를 읽습니다. 먼저 `rove login`을 하고, `rove`가 PATH에 있어야 합니다(`go install ./cmd/rove`).
+
+```sh
+claude mcp add --scope user rove -- rove mcp                  # Claude Code
+claude mcp add --scope user rove-lab -- rove mcp --workspace lab   # 다른 워크스페이스는 따로
+```
+
+Claude Desktop은 설정 파일(`claude_desktop_config.json`)의 `mcpServers`에 넣습니다.
+
+```json
+{
+  "mcpServers": {
+    "rove": { "command": "rove", "args": ["mcp"] }
+  }
+}
+```
+
+- **도구는 모두 읽기만 합니다.**
+  - 자산 찾기(`search_assets`), 자산 하나(`get_asset`), 이력(`asset_history`), 어느 시점의 모습(`asset_at`)
+  - 최근에 일어난 일(`recent_events`), 지급과 대여(`list_custody`), 예약(`reservations`), 사람과 팀(`list_people`)
+  - 누구로 읽는지(`whoami`)
+- 브라우저와 같은 권한 표와 벽을 따르므로, 비서는 그 사람이 볼 수 있는 것만 봅니다. 서버는 MCP를 모르고, 새로 여는 것도 없습니다.
+- 로그인은 부를 때마다 다시 읽습니다. `rove login`과 `rove use`는 비서를 다시 띄우지 않아도 다음 호출부터 적용됩니다.
+- 도구의 답(자산과 사람의 이름 등)은 비서를 제공하는 쪽으로 갑니다. 그래서 사람의 이메일과 전화번호는 답에 넣지 않습니다.
+
 ### UI 개발
 
 ```sh
