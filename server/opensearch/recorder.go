@@ -68,6 +68,9 @@ func (recorder) Record(ctx context.Context, s bare.Server, c bare.Change) error 
 	if s.Now != nil {
 		now = s.Now()
 	}
+	if w, ok := ctx.Value(writtenKey{}).(*written); ok && kind == KindAsset {
+		w.add(k)
+	}
 	return stale(ctx, s.Db, kind, k, now)
 }
 

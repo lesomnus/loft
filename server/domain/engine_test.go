@@ -88,20 +88,22 @@ func TestTheEngineFindsTheWordsKoreanIsWrittenIn(t *testing.T) {
 	e := newSearchingEnv(t)
 	x := e.x
 	room := e.space("창고", nil)
-	for i, n := range []string{"웹서버", "DB서버", "GPU 서버", "GPU서버", "고성능GPU서버", "NVIDIA GPU", "회의실의자", "의자", "27인치 모니터"} {
+	for i, n := range []string{"웹서버", "DB서버", "GPU 서버", "GPU서버", "고성능GPU서버", "NVIDIA GPU", "회의실의자", "의자", "27인치 모니터", "웹 서버 2"} {
 		e.item(n, fmt.Sprintf("T-%02d", i), room, day)
 	}
 	e.indexed()
 
-	x.ElementsMatch([]string{"웹서버", "DB서버", "GPU 서버", "GPU서버", "고성능GPU서버"}, e.searched("서버"), "a compound, by its last word")
+	x.ElementsMatch([]string{"웹서버", "DB서버", "GPU 서버", "GPU서버", "고성능GPU서버", "웹 서버 2"}, e.searched("서버"), "a compound, by its last word")
 	x.ElementsMatch([]string{"회의실의자", "의자"}, e.searched("의자를"), "a particle is not asked for")
 	x.Equal([]string{"27인치 모니터"}, e.searched("모니떠"), "a letter wrong")
+	x.Equal("회의실의자", e.ranked(q("회의실의자"))[0], "a word typed whole is every piece of it")
+	x.Empty(e.searched("E2E-ABC12"), "a tag nobody has finds nothing, though a piece of it -- 2 -- is a word of 웹 서버 2")
 
 	got := e.ranked(q("GPU 서버"))
-	x.Len(got, 6, "%v", got)
+	x.Len(got, 7, "%v", got)
 	x.ElementsMatch([]string{"GPU 서버", "GPU서버", "고성능GPU서버"}, got[:3], "both words first: %v", got)
 	x.Equal("NVIDIA GPU", got[3], "then the rarer one: %v", got)
-	x.ElementsMatch([]string{"웹서버", "DB서버"}, got[4:], "then the other: %v", got)
+	x.ElementsMatch([]string{"웹서버", "DB서버", "웹 서버 2"}, got[4:], "then the other: %v", got)
 }
 
 // TestTheEngineNarrowsAsTheRequestDoes: what a thing is, who has it, where it

@@ -2,6 +2,7 @@ package opensearch
 
 import (
 	"context"
+	"strings"
 	"uuid"
 
 	"github.com/lesomnus/rove/internal/search"
@@ -41,9 +42,10 @@ var fields = []string{"name^6", "type^4", "model^4", "maker^2", "custodian^2"}
 // Best first is, in order: a tag or a serial typed whole; every word typed,
 // in whichever of the fields they are; then some of the words, the rarer
 // counting for more -- `GPU 서버` finds `GPU서버` first, then `NVIDIA GPU`,
-// then `웹서버`. Beside those it finds the start of a word as it is being
-// typed, a word with a letter wrong in a name, and a tag or a serial in
-// part.
+// then `웹서버`. A word is all of its pieces, so a tag nobody has finds
+// nothing rather than whatever shares a letter with it. Beside those it
+// finds the start of a word as it is being typed, a word with a letter wrong
+// in a name, and a tag or a serial in part.
 func (c *Client) Search(ctx context.Context, q Query) ([]uuid.UUID, int64, error) {
 	body := map[string]any{
 		"query":            query(q),
@@ -92,12 +94,20 @@ func query(q Query) map[string]any {
 		return map[string]any{"match": map[string]any{field: map[string]any{"query": text, "boost": boost}}}
 	}
 
+	// A word typed is every piece nori makes of it -- 회의실의자 is 회의실
+	// and 의자, and E2E-ABC12 is e, 2, abc and 12, none of which alone is
+	// what was meant -- and of the words typed, any will do.
+	each := []any{}
+	for _, w := range strings.Fields(text) {
+		each = append(each, map[string]any{"multi_match": map[string]any{"query": w, "fields": fields, "type": "cross_fields", "operator": "and"}})
+	}
+
 	should := []any{
 		term("tag", text, 10),
 		term("serial", text, 10),
 		// Every word, wherever it is: counted once more than some of them.
 		map[string]any{"multi_match": map[string]any{"query": text, "fields": fields, "type": "cross_fields", "operator": "and", "boost": 2}},
-		map[string]any{"multi_match": map[string]any{"query": text, "fields": fields}},
+		map[string]any{"bool": map[string]any{"should": each, "minimum_should_match": 1}},
 		// The start of a word, as it is typed.
 		match("name.prefix", 1),
 		match("model.prefix", 2),
