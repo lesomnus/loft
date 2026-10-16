@@ -48,6 +48,9 @@ type plan struct {
 	method  string
 	summary string
 	run     func(ctx context.Context, conn grpc.ClientConnInterface) (*mcpRef, error)
+	// more is what a run answered beside what it made or changed, which apply
+	// passes on: the codes and addresses of labels made.
+	more    []string
 	expires time.Time
 	done    bool
 }
@@ -160,8 +163,9 @@ type mcpApplyIn struct {
 }
 
 type mcpApplied struct {
-	Done   string  `json:"done" jsonschema:"what was done"`
-	Result *mcpRef `json:"result,omitempty" jsonschema:"what it made or changed, by id"`
+	Done   string   `json:"done" jsonschema:"what was done"`
+	Result *mcpRef  `json:"result,omitempty" jsonschema:"what it made or changed, by id"`
+	More   []string `json:"more,omitempty" jsonschema:"what else it answered: the codes and addresses of labels made"`
 }
 
 func (t mcpTools) apply(ctx context.Context, _ *mcp.CallToolRequest, in mcpApplyIn) (*mcp.CallToolResult, mcpApplied, error) {
@@ -181,7 +185,7 @@ func (t mcpTools) apply(ctx context.Context, _ *mcp.CallToolRequest, in mcpApply
 		return nil, out, failed(err)
 	}
 	t.plans.finish(p)
-	out.Done, out.Result = p.summary, res
+	out.Done, out.Result, out.More = p.summary, res, p.more
 	return nil, out, nil
 }
 
