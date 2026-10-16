@@ -144,9 +144,9 @@ go run ./cmd/rove logout
   - `rove whoami`가 그 목록을 보여 줍니다. 넓히려면 `--allow` 없이 다시 로그인합니다.
 - `rove api`는 서버의 설정을 읽지 않습니다. 서버 상자에서 쓰는 운영자 명령(`init`, `tenant`, `identity` 등)과는 다릅니다.
 
-### 비서에게 읽히기 (MCP)
+### 비서에게 맡기기 (MCP)
 
-`rove mcp`는 MCP 서버입니다(D32). Claude Code나 Claude Desktop 같은 MCP 클라이언트가 이 명령을 띄우면, 비서가 터미널에 로그인한 계정으로 워크스페이스를 읽습니다. 먼저 `rove login`을 하고, `rove`가 PATH에 있어야 합니다(`go install ./cmd/rove`).
+`rove mcp`는 MCP 서버입니다(D32). Claude Code나 Claude Desktop 같은 MCP 클라이언트가 이 명령을 띄우면, 비서가 터미널에 로그인한 계정으로 워크스페이스를 읽고, 그 사람이 승인한 것을 바꿉니다. 먼저 `rove login`을 하고, `rove`가 PATH에 있어야 합니다(`go install ./cmd/rove`).
 
 ```sh
 claude mcp add --scope user rove -- rove mcp                  # Claude Code
