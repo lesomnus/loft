@@ -57,6 +57,17 @@ app:
   # mail: ROVE_APP_MAIL_*, the password from the Secret `rove`. With no host
   # every invitation is written to the log instead.
 
+  # Search on OpenSearch with nori (D31), on a cluster this deployment does
+  # not run (README.md): its role, its user and the Secret `rove-search`.
+  # Unset, the database answers a search.
+  # search:
+  #   opensearch:
+  #     addrs: [https://opensearch.search.svc:9200]
+  #     username: rove
+  #     # password: ROVE_APP_SEARCH_OPENSEARCH_PASSWORD, from the Secret.
+  #     ca_file: /run/secrets/rove-search/ca.pem
+  #     index: rove
+
   # What an account agrees to before it uses anything here, once the
   # documents are published (rove#35).
   # consent:

@@ -1,0 +1,25 @@
+# OpenSearch as this bundle runs it (compose.search.yaml): one node, TLS on
+# the certificates `search-init.sh` made, and nobody signed in but Rove.
+
+cluster.name: rove
+network.host: 0.0.0.0
+discovery.type: single-node
+bootstrap.memory_lock: false
+
+plugins.security.ssl.transport.pemcert_filepath: certs/search.pem
+plugins.security.ssl.transport.pemkey_filepath: certs/search-key.pem
+plugins.security.ssl.transport.pemtrustedcas_filepath: certs/search-ca.pem
+plugins.security.ssl.transport.enforce_hostname_verification: false
+plugins.security.ssl.http.enabled: true
+plugins.security.ssl.http.pemcert_filepath: certs/search.pem
+plugins.security.ssl.http.pemkey_filepath: certs/search-key.pem
+plugins.security.ssl.http.pemtrustedcas_filepath: certs/search-ca.pem
+plugins.security.nodes_dn: ["CN=opensearch"]
+
+# The users and roles in opensearch-security/ -- Rove's, and nobody else's --
+# read once, when the cluster is first made. Changing them is making the
+# cluster again (README.md), which loses nothing: the index is a copy.
+plugins.security.allow_default_init_securityindex: true
+plugins.security.restapi.roles_enabled: []
+plugins.security.system_indices.enabled: true
+plugins.security.audit.type: noop

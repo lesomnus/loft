@@ -190,7 +190,7 @@ PostgreSQL이면 서버를 여러 대 띄울 수 있습니다. 상태는 데이�
 
 색인은 서버가 만듭니다. 처음 뜰 때 색인이 없거나, 색인의 모양이 바뀐 빌드가 뜨면 루프가 DB로 새로 만든 뒤 별칭을 옮깁니다. 그동안 검색은 옛 색인이 답하고, 옛 색인이 없으면 "지금은 검색할 수 없습니다"입니다.
 
-compose와 K8s 예시에 OpenSearch를 넣는 일과 브라우저 테스트는 다음 단계입니다(rove#83).
+운영 구성에서 켜는 법은 `deploy/compose/README.md`의 "검색을 켜려면"과 `deploy/k8s/README.md`의 9에 있습니다.
 
 - **바뀐 것이 색인에 닿는 길:**
   - 자산, 유형, 모델, 사람이 바뀌면 같은 트랜잭션에 "다시 색인할 것"(`searchstale`)이 남습니다.
@@ -453,3 +453,9 @@ docker stop rove-e2e-pg
 ```
 
 Playwright 이미지로 돌릴 때는 앞의 Playwright `docker run`에 `--network host`와 `-e E2E_POSTGRES=...`를 더해, 컨테이너 안에서도 그 주소가 닿게 합니다.
+
+검색을 OpenSearch로 돌리려면 `E2E_OPENSEARCH`에 클러스터 주소를 줍니다. TLS면 `https://사용자:비밀번호@…`로 주고, CA는 `E2E_OPENSEARCH_CA`에 줍니다. 서버마다 자기 인덱스(`e2e-<포트>-…`)를 쓰고, 뜨기 전에 지운 뒤 자기 DB로 다시 만듭니다. CI의 `e2e (sqlite, opensearch)`가 이렇게 돕니다(`scripts/opensearch.sh`). 개발용 클러스터는 위의 "검색 엔진"에 있습니다.
+
+```sh
+E2E_OPENSEARCH=http://127.0.0.1:9200 npx playwright test
+```

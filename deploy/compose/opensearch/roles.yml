@@ -1,0 +1,12 @@
+# What Rove may do on the cluster (README.md): write in bulk, and anything to
+# its own indexes. Nothing else is anybody's here.
+_meta:
+  type: "roles"
+  config_version: 2
+
+rove:
+  cluster_permissions:
+    - "indices:data/write/bulk"
+  index_permissions:
+    - index_patterns: ["rove-*"]
+      allowed_actions: ["indices_all"]

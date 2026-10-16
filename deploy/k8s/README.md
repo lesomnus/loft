@@ -45,6 +45,7 @@ resources:
    | | `mail-password` | SMTP 비밀번호. 없어도 됩니다 | |
    | `rove-checkpoints` | `checkpoints.pem` | 감사 기록 서명 키. 잃으면 이전 체크포인트를 검증할 수 없으니 **백업에 함께 넣습니다** | `openssl genpkey -algorithm ed25519` |
    | `rove-admin` | 운영자 이름마다 파일 하나(`operator`) | 운영자 키, 32자 이상. 운영자를 더하면 `admin.keys`에도 이름을 더합니다 | `openssl rand -hex 32` |
+   | `rove-search` | `password`, `ca.pem` | 검색 클러스터의 Rove 사용자 비밀번호와 그 클러스터의 CA. 검색을 켤 때만 둡니다(아래 9) | |
 
 3. **설정.** base의 `config.yaml`을 복사해 채우고 바꿔 끼웁니다.
 
@@ -73,6 +74,13 @@ resources:
    - pg_bigm이 있으면 두 글자 한국어 검색이 빨라집니다(`deploy/postgres`). 없어도 검색은 됩니다.
    - 어디서 돌릴지(operator인지 관리형인지)는 백업과 함께 정합니다(rove#37).
    - LISTEN과 세션 잠금은 트랜잭션 모드 풀러를 거치면 안 됩니다. 풀러를 쓴다면 `watch.dsn`과 `spin.dsn`에 DB로 바로 가는 주소를 줍니다.
+9. **검색(선택).** OpenSearch와 한국어 분석기 nori가 검색에 답하게 합니다(D31).
+   - 클러스터는 이 구성에 들어 있지 않습니다. 공식 Helm 차트나 OpenSearch Kubernetes Operator로 따로 띄웁니다. 이미지는 nori를 넣은 `deploy/opensearch`를 씁니다.
+   - 클러스터에 Rove의 role과 사용자를 만듭니다. role은 bulk 쓰기와 자기 인덱스뿐입니다(루트 README의 "검색 엔진").
+   - Secret `rove-search`에 그 사용자의 `password`와 클러스터의 `ca.pem`을 넣습니다. 파드의 세 컨테이너(migrate, rove, rove-admin)가 모두 받습니다. 운영자가 파기한 워크스페이스도 색인에서 빠져야 하기 때문입니다.
+   - `config.yaml`의 `app.search.opensearch` 주석을 풀어 주소를 넣습니다.
+   - 색인은 서버가 처음 뜰 때 DB로 만들고, 그다음부터 바뀐 것을 따라갑니다. 색인은 사본이라 클러스터의 데이터를 백업하지 않아도 됩니다.
+   - NetworkPolicy는 들어오는 것만 막으므로, 파드에서 클러스터로 나가는 길은 열려 있습니다. 클러스터 쪽에서 Rove의 파드만 받도록 좁힙니다.
 
 ## 처음 띄우기
 

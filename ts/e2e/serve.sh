@@ -17,6 +17,11 @@
 # again every run (e2e/postgres.mjs); the database E2E_POSTGRES names is only
 # where they are made from.
 #
+# E2E_OPENSEARCH names an OpenSearch to search on (D31) -- https://user:pass@…,
+# the password in letters a URL leaves as they are, and its CA in
+# E2E_OPENSEARCH_CA. Each server has indexes of its own there, e2e-PORT-…,
+# taken out and made again from its database before it serves.
+#
 # Nothing of a desk's reaches it: its configuration is the environment written
 # here, every other ROVE_* is unset, and there is no rove.yaml where it runs.
 # E2E_ROVE names a rove already built -- CI's, or one built on a host for a
@@ -66,6 +71,21 @@ else
 	export ROVE_DB_DRIVER=sqlite3
 	export ROVE_DB_DSN="file:$dir/rove.db?_pragma=foreign_keys(1)&_pragma=journal_mode(wal)&_pragma=busy_timeout(10000)"
 fi
+if [ -n "${E2E_OPENSEARCH:-}" ]; then
+	scheme=${E2E_OPENSEARCH%%://*}
+	node=${E2E_OPENSEARCH#*://}
+	case $node in
+	*@*)
+		auth=${node%%@*}
+		node=${node#*@}
+		export ROVE_APP_SEARCH_OPENSEARCH_USERNAME="${auth%%:*}"
+		export ROVE_APP_SEARCH_OPENSEARCH_PASSWORD="${auth#*:}"
+		;;
+	esac
+	export ROVE_APP_SEARCH_OPENSEARCH_ADDRS="$scheme://$node"
+	export ROVE_APP_SEARCH_OPENSEARCH_CA_FILE="${E2E_OPENSEARCH_CA:-}"
+	export ROVE_APP_SEARCH_OPENSEARCH_INDEX="e2e-$port"
+fi
 export ROVE_DB_MIGRATE=true
 export ROVE_WATCH_BROKER=memory
 export ROVE_SPIN_LEASE=local
@@ -98,4 +118,9 @@ trap 'status=$?; [ "$status" -eq 0 ] || tail -n 40 "$log" >&2' EXIT
 
 cd "$dir"
 "$bin" init --tenant acme --login owner --password owner-pass-1234 --demo >"$log" 2>&1
+if [ -n "${E2E_OPENSEARCH:-}" ]; then
+	# What a run before left there is another database's.
+	"$bin" search remove --yes >>"$log" 2>&1
+	"$bin" search reindex >>"$log" 2>&1
+fi
 "$bin" serve >>"$log" 2>&1
