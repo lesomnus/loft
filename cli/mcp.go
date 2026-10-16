@@ -72,7 +72,8 @@ const mcpInstructions = `Rove is the register of a workspace's tangible assets: 
 - An asset is an item, a space (a room, a shelf, a rack), a kit or a group, and is inside another: "where" is the chain of what it is in, the outermost first.
 - Tools take the ids other tools answer with. An asset may also be named by its tag.
 - Times are RFC 3339; a date alone is midnight in this machine's zone.
-- Everything here reads, as the person signed in; nothing changes the register.`
+- The read tools read, as the person signed in. To change the register, a plan_* tool answers what would happen, in names, with a token: show the person that summary, and only once they say yes, call apply with the token and the summary word for word. A plan changes nothing; a plan never applied does nothing.
+- What may be done is the person's role's to say, and a terminal signed in with rove login --allow is held to what it allows.`
 
 // newMcp is the server `rove mcp` runs: the tools, each of them reads, over
 // the connection the terminal's sign-in makes for `ws`.
@@ -81,8 +82,11 @@ func newMcp(ws string, log *slog.Logger) *mcp.Server {
 		Instructions: mcpInstructions,
 		Logger:       log,
 	})
-	t := mcpTools{ws: ws}
+	t := mcpTools{ws: ws, plans: &mcpPlans{m: map[string]*plan{}}}
 	read := &mcp.ToolAnnotations{ReadOnlyHint: true}
+	plans := &mcp.ToolAnnotations{ReadOnlyHint: true, Title: "plan a change"}
+	yes := true
+	writes := &mcp.ToolAnnotations{DestructiveHint: &yes, Title: "apply a planned change"}
 
 	mcp.AddTool(s, &mcp.Tool{
 		Name:        "whoami",
@@ -149,6 +153,44 @@ func newMcp(ws string, log *slog.Logger) *mcp.Server {
 		Description: "Find models by a name, who makes them, a code, or what they are a model of -- or list them, of a type, with no query.",
 		Annotations: read,
 	}, t.findModels)
+	mcp.AddTool(s, &mcp.Tool{
+		Name: "plan_asset",
+		Description: "Plan a change to an asset, which changes nothing: add one, move it into another (or out of it), set what it is, assign who owns, manages or has it, relate it to another, correct a row of its history, or erase one added by mistake. " +
+			"Answers the summary to show the person, and the token apply takes once they agree.",
+		InputSchema: mcpSchema[mcpAssetPlan](map[string][]any{
+			"action":   {"add", "move", "set", "assign", "relate", "correct", "erase"},
+			"kind":     {"item", "space", "kit", "group"},
+			"mode":     {"located", "installed", "part"},
+			"role":     {"owner", "manager", "custodian"},
+			"relation": {"member_of", "connected_to"},
+		}),
+		Annotations: plans,
+	}, t.planAsset)
+	mcp.AddTool(s, &mcp.Tool{
+		Name: "plan_custody",
+		Description: "Plan a hand-over, which changes nothing: issue assets or supplies to somebody (a loan, with a due date), take back some or all of what is out, give it longer, or say the receiver has it. " +
+			"Answers the summary to show the person, and the token apply takes once they agree.",
+		InputSchema: mcpSchema[mcpCustodyPlan](map[string][]any{
+			"action": {"issue", "return", "extend", "acknowledge"},
+			"kind":   {"issue", "loan"},
+		}),
+		Annotations: plans,
+	}, t.planCustody)
+	mcp.AddTool(s, &mcp.Tool{
+		Name: "plan_reservation",
+		Description: "Plan a reservation, which changes nothing: reserve rooms or equipment for a span of time, or confirm, approve, reject, cancel, check in or complete one. " +
+			"Answers the summary to show the person, and the token apply takes once they agree.",
+		InputSchema: mcpSchema[mcpReservationPlan](map[string][]any{
+			"action": {"reserve", "confirm", "approve", "reject", "cancel", "check_in", "complete"},
+		}),
+		Annotations: plans,
+	}, t.planReservation)
+	mcp.AddTool(s, &mcp.Tool{
+		Name: "apply",
+		Description: "Carry out a plan a plan_* tool made, once the person has read its summary and said yes: the token, and the summary word for word. " +
+			"It is the one tool that changes the register, as the person signed in, and the history names them.",
+		Annotations: writes,
+	}, t.apply)
 	return s
 }
 
@@ -169,6 +211,8 @@ type mcpTools struct {
 	// The workspace named on the command line, over `ROVE_WORKSPACE` and `rove
 	// use`.
 	ws string
+	// The plans made and not yet applied, for every call of this process.
+	plans *mcpPlans
 }
 
 // call is what one tool call reads with: the terminal's sign-in as it is now,
@@ -209,6 +253,9 @@ type mcpCall struct {
 	conn   grpc.ClientConnInterface
 
 	me *app.PartyMeResponse
+	// allow is what GET /account said the sign-in is narrowed to, once asked:
+	// empty for nothing.
+	allow []string
 
 	mu      sync.Mutex
 	assets  map[pdid.Id]*app.Asset
@@ -688,6 +735,7 @@ type mcpHistoryIn struct {
 
 type mcpEntry struct {
 	Kind       string `json:"kind" jsonschema:"placement, fact, stewardship, link or event"`
+	Row        string `json:"row,omitempty" jsonschema:"the row, which plan_asset's correct takes; an event is not one"`
 	From       string `json:"from" jsonschema:"when it became so, or when it happened"`
 	Until      string `json:"until,omitempty" jsonschema:"when it stopped being so"`
 	What       string `json:"what"`
@@ -730,8 +778,13 @@ func (t mcpTools) assetHistory(ctx context.Context, _ *mcp.CallToolRequest, in m
 	}
 	out.Asset = mcpRef{Id: idString(a.GetId()), Name: a.GetName()}
 	for _, e := range v.GetEntries() {
+		row := ""
+		if e.GetKind() != "event" {
+			row = idString(e.GetRowId())
+		}
 		out.Entries = append(out.Entries, mcpEntry{
 			Kind:       e.GetKind(),
+			Row:        row,
 			From:       stamp(e.GetValidFrom()),
 			Until:      stamp(e.GetValidTo()),
 			What:       e.GetSummary(),
@@ -892,6 +945,7 @@ type mcpCustodyIn struct {
 }
 
 type mcpLine struct {
+	Id        string  `json:"id" jsonschema:"the line, which plan_custody's return takes"`
 	Asset     *mcpRef `json:"asset,omitempty"`
 	Stock     *mcpRef `json:"stock,omitempty" jsonschema:"supplies handed over by quantity"`
 	Quantity  int64   `json:"quantity"`
@@ -1012,6 +1066,7 @@ func (t mcpTools) listCustody(ctx context.Context, _ *mcp.CallToolRequest, in mc
 		}
 		for _, l := range lines[i] {
 			line := mcpLine{
+				Id:        idString(l.GetId()),
 				Quantity:  l.GetQuantity(),
 				Returned:  l.GetReturnedQuantity(),
 				Out:       stamp(l.GetOutAt()),

@@ -144,9 +144,9 @@ go run ./cmd/rove logout
   - `rove whoami`가 그 목록을 보여 줍니다. 넓히려면 `--allow` 없이 다시 로그인합니다.
 - `rove api`는 서버의 설정을 읽지 않습니다. 서버 상자에서 쓰는 운영자 명령(`init`, `tenant`, `identity` 등)과는 다릅니다.
 
-### 비서에게 읽히기 (MCP)
+### 비서에게 맡기기 (MCP)
 
-`rove mcp`는 MCP 서버입니다(D32). Claude Code나 Claude Desktop 같은 MCP 클라이언트가 이 명령을 띄우면, 비서가 터미널에 로그인한 계정으로 워크스페이스를 읽습니다. 먼저 `rove login`을 하고, `rove`가 PATH에 있어야 합니다(`go install ./cmd/rove`).
+`rove mcp`는 MCP 서버입니다(D32). Claude Code나 Claude Desktop 같은 MCP 클라이언트가 이 명령을 띄우면, 비서가 터미널에 로그인한 계정으로 워크스페이스를 읽고, 그 사람이 승인한 것을 바꿉니다. 먼저 `rove login`을 하고, `rove`가 PATH에 있어야 합니다(`go install ./cmd/rove`).
 
 ```sh
 claude mcp add --scope user rove -- rove mcp                  # Claude Code
@@ -163,11 +163,18 @@ Claude Desktop은 설정 파일(`claude_desktop_config.json`)의 `mcpServers`에
 }
 ```
 
-- **도구는 모두 읽기만 합니다.**
+- **읽는 도구:**
   - 자산 찾기(`search_assets`), 자산 하나(`get_asset`), 이력(`asset_history`), 어느 시점의 모습(`asset_at`)
   - 최근에 일어난 일(`recent_events`), 지급과 대여(`list_custody`), 예약(`reservations`)
   - 사람과 팀 찾기(`find_people`), 모델 찾기(`find_models`)
   - 누구로 읽는지(`whoami`)
+- **쓰기는 미리보기와 적용, 두 단계입니다(D33).**
+  - `plan_asset`(등록, 이동, 속성 변경, 담당 지정, 연결, 정정, 등록 취소), `plan_custody`(지급·대여, 반납, 기한 연장, 인수 확인), `plan_reservation`(예약, 확정, 승인, 반려, 취소, 체크인, 완료)은 아무것도 바꾸지 않습니다.
+  - 이 도구들은 바뀔 것을 이름으로 적은 문장("이동: NB-1 개발용 노트북, 본관 › 3층 창고 → 본관 › 4층 회의실 (놓임)")과 토큰을 돌려줍니다.
+  - 사람이 그 문장을 보고 "예"라고 하면, 비서가 `apply`에 토큰과 그 문장을 그대로 넘겨 실행합니다. 문장이 `apply`의 인자라서, 클라이언트가 실행 전에 묻는 승인 창에도 그 문장이 보입니다.
+  - 토큰은 10분 동안, 한 번만 쓰입니다. 같은 작업을 다시 보내도 서버는 한 번으로 처리합니다.
+  - 이력에는 그 사람이 한 것으로 남습니다.
+- **비서가 할 수 있는 것을 좁히려면** 그 터미널을 `rove login --allow`로 로그인합니다. 예를 들어 `--allow read`면 읽기만 하고, 미리보기 단계에서 거부됩니다.
 - 브라우저와 같은 권한 표와 벽을 따르므로, 비서는 그 사람이 볼 수 있는 것만 봅니다. 서버는 MCP를 모르고, 새로 여는 것도 없습니다.
 - 로그인은 부를 때마다 다시 읽습니다. `rove login`과 `rove use`는 비서를 다시 띄우지 않아도 다음 호출부터 적용됩니다.
 - 도구의 답(자산과 사람의 이름 등)은 비서를 제공하는 쪽으로 갑니다. 그래서 사람의 이메일과 전화번호는 답에 넣지 않습니다.
