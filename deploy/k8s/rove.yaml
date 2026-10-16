@@ -173,6 +173,10 @@ spec:
               valueFrom: { secretKeyRef: { name: rove, key: signing-key } }
             - name: ROVE_APP_MAIL_PASSWORD
               valueFrom: { secretKeyRef: { name: rove, key: mail-password, optional: true } }
+            # The node's address, for a collector on every node: what `otel:`
+            # names as ${env:HOST_IP} (config.yaml).
+            - name: HOST_IP
+              valueFrom: { fieldRef: { fieldPath: status.hostIP } }
           ports:
             - { name: http, containerPort: 8080 }
           readinessProbe:
@@ -219,6 +223,8 @@ spec:
               valueFrom: { secretKeyRef: { name: rove, key: signing-key } }
             - name: ROVE_APP_MAIL_PASSWORD
               valueFrom: { secretKeyRef: { name: rove, key: mail-password, optional: true } }
+            - name: HOST_IP
+              valueFrom: { fieldRef: { fieldPath: status.hostIP } }
           ports:
             - { name: admin, containerPort: 8081 }
           # Listening, which is all that can be asked of it without a key.

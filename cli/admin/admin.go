@@ -78,6 +78,16 @@ func newCmdServe(c *cmd.Config) *xli.Command {
 			if len(ops) == 0 {
 				return errors.New("admin.keys: an entry point nobody holds a key to is one nobody can use")
 			}
+			// Before the server, as `rove serve` does: what it builds logs,
+			// traces and measures into the providers it finds on ctx, and
+			// without these into ones that discard -- an entry point whose
+			// every request went unlogged.
+			ctx, done, err := cmd.Telemetry(ctx, c)
+			if err != nil {
+				return err
+			}
+			defer done()
+
 			s, err := cmd.Build(ctx, *c)
 			if err != nil {
 				return err

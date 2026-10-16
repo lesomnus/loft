@@ -33,7 +33,7 @@ func NewCmdServe(c *cmd.Config) *xli.Command {
 			// `Build` answers with is a context carrying the providers, and
 			// what reads them is `grpcx` -- so a server built on a context
 			// this did not touch traces and logs into providers that discard.
-			ctx, done, err := Telemetry(ctx, c)
+			ctx, done, err := cmd.Telemetry(ctx, c)
 			if err != nil {
 				return err
 			}
