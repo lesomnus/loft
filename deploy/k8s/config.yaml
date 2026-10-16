@@ -86,8 +86,10 @@ audit:
 
   # How long a row stays in the database and the archive. Nothing moves or
   # goes until this says so, and the number is the regime's, not a default's
-  # (`rove.yaml` at the root says why). plan.md M5 has a membership's rows
-  # kept as PIPA keeps an access record:
+  # (`rove.yaml` at the root says why). Until some window is set no pass
+  # runs, and so no checkpoint is taken either: the archive and the
+  # checkpoints above wait for it (`docs/runbook/restore.md`). plan.md M5 has
+  # a membership's rows kept as PIPA keeps an access record:
   #
   # by:
   #   holder:

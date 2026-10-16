@@ -312,6 +312,8 @@ PostgreSQL이면 서버를 여러 대 띄울 수 있습니다. 상태는 데이�
 
 운영에서는 서버가 테이블을 직접 바꾸지 않습니다(`db.migrate: false`). 새 빌드를 띄우기 전에 `rove migrate`로 테이블을 맞추고, 모양이 다르면 `serve`는 시작하지 않습니다.
 
+Kubernetes에 띄우는 참조 배포는 [`deploy/k8s`](deploy/k8s/README.md)입니다. 무엇을 백업하고 어떤 순서로 되살리는지는 [백업과 복구](docs/runbook/restore.md)에 있습니다.
+
 ### 휴대폰으로 스캔하려면
 
 브라우저는 **HTTPS 이거나 localhost 일 때만** 카메라를 열어 줍니다. 그래서 PC의 `http://localhost:8080` 은 그 PC에서만 카메라 스캔이 됩니다.
