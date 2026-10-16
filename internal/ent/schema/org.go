@@ -217,6 +217,8 @@ func (CliLogin) Fields() []ent.Field {
 		field.Uuid("account").
 			Nillable().
 			Optional(),
+		field.Bytes("grant").
+			Optional(),
 		field.String("state"),
 		field.Time("date_expires").
 			Optional(),

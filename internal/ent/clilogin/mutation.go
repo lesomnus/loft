@@ -23,6 +23,7 @@ type Mutation struct {
 	origin        *string
 	address       *string
 	account       *uuid.UUID
+	grant         *[]byte
 	state         *string
 	date_expires  *time.Time
 	date_updated  *time.Time
@@ -199,6 +200,38 @@ func (m *Mutation) ResetAccount() {
 	delete(m.clearedFields, FieldAccount)
 }
 
+// SetGrant sets the "grant" field.
+func (m *Mutation) SetGrant(b []byte) {
+	m.grant = &b
+}
+
+// Grant returns the value of the "grant" field in the mutation.
+func (m *Mutation) Grant() (r []byte, exists bool) {
+	v := m.grant
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearGrant clears the value of the "grant" field.
+func (m *Mutation) ClearGrant() {
+	m.grant = nil
+	m.clearedFields[FieldGrant] = struct{}{}
+}
+
+// GrantCleared returns if the "grant" field was cleared in this mutation.
+func (m *Mutation) GrantCleared() bool {
+	_, ok := m.clearedFields[FieldGrant]
+	return ok
+}
+
+// ResetGrant resets all changes to the "grant" field.
+func (m *Mutation) ResetGrant() {
+	m.grant = nil
+	delete(m.clearedFields, FieldGrant)
+}
+
 // SetState sets the "state" field.
 func (m *Mutation) SetState(s string) {
 	m.state = &s
@@ -367,7 +400,7 @@ func (m *Mutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *Mutation) Fields() []string {
-	fields := make([]string, 0, 11)
+	fields := make([]string, 0, 12)
 	if m.secret != nil {
 		fields = append(fields, FieldSecret)
 	}
@@ -385,6 +418,9 @@ func (m *Mutation) Fields() []string {
 	}
 	if m.account != nil {
 		fields = append(fields, FieldAccount)
+	}
+	if m.grant != nil {
+		fields = append(fields, FieldGrant)
 	}
 	if m.state != nil {
 		fields = append(fields, FieldState)
@@ -421,6 +457,8 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.Address()
 	case FieldAccount:
 		return m.Account()
+	case FieldGrant:
+		return m.Grant()
 	case FieldState:
 		return m.State()
 	case FieldDateExpires:
@@ -488,6 +526,13 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetAccount(v)
+		return nil
+	case FieldGrant:
+		v, ok := value.([]byte)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetGrant(v)
 		return nil
 	case FieldState:
 		v, ok := value.(string)
@@ -563,6 +608,9 @@ func (m *Mutation) ClearedFields() []string {
 	if m.FieldCleared(FieldAccount) {
 		fields = append(fields, FieldAccount)
 	}
+	if m.FieldCleared(FieldGrant) {
+		fields = append(fields, FieldGrant)
+	}
 	if m.FieldCleared(FieldDateExpires) {
 		fields = append(fields, FieldDateExpires)
 	}
@@ -594,6 +642,9 @@ func (m *Mutation) ClearField(name string) error {
 		return nil
 	case FieldAccount:
 		m.ClearAccount()
+		return nil
+	case FieldGrant:
+		m.ClearGrant()
 		return nil
 	case FieldDateExpires:
 		m.ClearDateExpires()
@@ -629,6 +680,9 @@ func (m *Mutation) ResetField(name string) error {
 		return nil
 	case FieldAccount:
 		m.ResetAccount()
+		return nil
+	case FieldGrant:
+		m.ResetGrant()
 		return nil
 	case FieldState:
 		m.ResetState()

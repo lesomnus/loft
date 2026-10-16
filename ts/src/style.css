@@ -1550,3 +1550,7 @@ ul.consent > li > a {
 	justify-content: flex-end;
 	margin: 12px 0;
 }
+.terminal ul.allow {
+	margin: 0 0 4px;
+	padding-left: 18px;
+}

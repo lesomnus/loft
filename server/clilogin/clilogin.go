@@ -14,6 +14,11 @@
 //  3. the terminal, asking all the while (`POST /cli/logins/{id}/poll`), hears
 //     it was approved and uses the key it kept.
 //
+// A terminal may ask for less than its account may do: the methods it lists
+// (`rove login --allow`, D33), which the page shows and the session is
+// narrowed to -- an assistant handed that terminal can do that much and no
+// more, whatever it does with the key.
+//
 // No key crosses the wire after it was made, nothing written here could be
 // signed in with, and the session is a session like a browser's: held to
 // roster on every call, ended by signing out or by roster, idle and lifetime
@@ -37,6 +42,7 @@ import (
 	"errors"
 	"mime"
 	"net/http"
+	"regexp"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -128,6 +134,37 @@ type Asking struct {
 	Origin  string    `json:"origin"`
 	Created time.Time `json:"created"`
 	Expires time.Time `json:"expires"`
+	// Allow is the methods it asked to be narrowed to; absent is all that
+	// the account may do.
+	Allow []string `json:"allow,omitempty"`
+}
+
+// The most methods one terminal may list, and how long one may be: a grant
+// is read on every call.
+const (
+	MaxAllow    = 64
+	MaxAllowLen = 200
+)
+
+// method is what payday reads as a method or a pattern of them
+// (`frame.Covers`): `/package.Service/Method`, any part of which may be `*`.
+var method = regexp.MustCompile(`^/(\*|[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*)\.(\*|[A-Za-z_][A-Za-z0-9_]*)/(\*|[A-Za-z_][A-Za-z0-9_]*)$`)
+
+// allowed is what a terminal asked to be narrowed to, as a session's grant
+// keeps it, or an error saying what about it is not one.
+func allowed(vs []string) ([]byte, error) {
+	if len(vs) > MaxAllow {
+		return nil, errors.New("allow: at most 64 methods")
+	}
+	out := make([]string, 0, len(vs))
+	for _, v := range vs {
+		v = strings.TrimSpace(v)
+		if len(v) > MaxAllowLen || !method.MatchString(v) {
+			return nil, errors.New("allow: " + v + " is not a method, nor a pattern of them: /rove.AssetService/Search, /rove.ReservationService/*, /rove.*/Get")
+		}
+		out = append(out, v)
+	}
+	return session.Grant(out)
 }
 
 func (l *Logins) now() time.Time {
@@ -151,11 +188,17 @@ func (l *Logins) start(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var in struct {
-		Secret string `json:"secret"`
-		Client string `json:"client"`
+		Secret string   `json:"secret"`
+		Client string   `json:"client"`
+		Allow  []string `json:"allow"`
 	}
-	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 4<<10)).Decode(&in); err != nil {
-		http.Error(w, `a terminal asks as {"secret": ..., "client": ...}`, http.StatusBadRequest)
+	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 32<<10)).Decode(&in); err != nil {
+		http.Error(w, `a terminal asks as {"secret": ..., "client": ..., "allow": [...]}`, http.StatusBadRequest)
+		return
+	}
+	grant, err := allowed(in.Allow)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	secret, err := base64.RawURLEncoding.DecodeString(in.Secret)
@@ -199,6 +242,7 @@ func (l *Logins) start(w http.ResponseWriter, r *http.Request) {
 		SetClient(client).
 		SetOrigin(origin + agentOf(r)).
 		SetAddress(origin).
+		SetGrant(grant).
 		SetState(pending).
 		SetDateExpires(now.Add(Ttl)).
 		SetDateCreated(now).
@@ -271,9 +315,15 @@ func (l *Logins) show(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
+	allow, err := session.Actions(v.Grant)
+	if err != nil {
+		fail(w, r, err)
+		return
+	}
 	reply(w, http.StatusOK, Asking{
 		Code: v.Code, Client: v.Client, Origin: v.Origin,
 		Created: v.DateCreated, Expires: v.DateExpires,
+		Allow: allow,
 	})
 }
 
@@ -318,11 +368,12 @@ func (l *Logins) answer(to string) http.HandlerFunc {
 			return
 		}
 		if to == approved {
-			if err := l.Store.Adopt(ctx, p.Id, v.Secret, now.Add(l.Idle), now.Add(l.Lifetime)); err != nil {
+			if err := l.Store.Adopt(ctx, p.Id, v.Secret, v.Grant, now.Add(l.Idle), now.Add(l.Lifetime)); err != nil {
 				fail(w, r, err)
 				return
 			}
-			log.From(ctx).InfoContext(ctx, "cli: a terminal was signed in", "account", p.Id.String(), "client", v.Client, "origin", v.Origin)
+			allow, _ := session.Actions(v.Grant)
+			log.From(ctx).InfoContext(ctx, "cli: a terminal was signed in", "account", p.Id.String(), "client", v.Client, "origin", v.Origin, "allow", strings.Join(allow, " "))
 		}
 		w.WriteHeader(http.StatusNoContent)
 	}

@@ -7407,6 +7407,7 @@ type CliLoginAddRequest struct {
 	xxx_hidden_Origin      string                 `protobuf:"bytes,11,opt,name=origin"`
 	xxx_hidden_Address     *string                `protobuf:"bytes,18,opt,name=address"`
 	xxx_hidden_Account     []byte                 `protobuf:"bytes,12,opt,name=account"`
+	xxx_hidden_Grant       []byte                 `protobuf:"bytes,19,opt,name=grant"`
 	xxx_hidden_State       string                 `protobuf:"bytes,16,opt,name=state"`
 	xxx_hidden_DateExpires *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=date_expires,json=dateExpires"`
 	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
@@ -7493,6 +7494,13 @@ func (x *CliLoginAddRequest) GetAccount() []byte {
 	return nil
 }
 
+func (x *CliLoginAddRequest) GetGrant() []byte {
+	if x != nil {
+		return x.xxx_hidden_Grant
+	}
+	return nil
+}
+
 func (x *CliLoginAddRequest) GetState() string {
 	if x != nil {
 		return x.xxx_hidden_State
@@ -7519,7 +7527,7 @@ func (x *CliLoginAddRequest) SetId(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_Id = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 11)
 }
 
 func (x *CliLoginAddRequest) SetSecret(v []byte) {
@@ -7527,7 +7535,7 @@ func (x *CliLoginAddRequest) SetSecret(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_Secret = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 11)
 }
 
 func (x *CliLoginAddRequest) SetCode(v string) {
@@ -7544,7 +7552,7 @@ func (x *CliLoginAddRequest) SetOrigin(v string) {
 
 func (x *CliLoginAddRequest) SetAddress(v string) {
 	x.xxx_hidden_Address = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 11)
 }
 
 func (x *CliLoginAddRequest) SetAccount(v []byte) {
@@ -7552,7 +7560,15 @@ func (x *CliLoginAddRequest) SetAccount(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_Account = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 11)
+}
+
+func (x *CliLoginAddRequest) SetGrant(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Grant = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 11)
 }
 
 func (x *CliLoginAddRequest) SetState(v string) {
@@ -7595,6 +7611,13 @@ func (x *CliLoginAddRequest) HasAccount() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 6)
 }
 
+func (x *CliLoginAddRequest) HasGrant() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 7)
+}
+
 func (x *CliLoginAddRequest) HasDateExpires() bool {
 	if x == nil {
 		return false
@@ -7629,6 +7652,11 @@ func (x *CliLoginAddRequest) ClearAccount() {
 	x.xxx_hidden_Account = nil
 }
 
+func (x *CliLoginAddRequest) ClearGrant() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
+	x.xxx_hidden_Grant = nil
+}
+
 func (x *CliLoginAddRequest) ClearDateExpires() {
 	x.xxx_hidden_DateExpires = nil
 }
@@ -7647,6 +7675,7 @@ type CliLoginAddRequest_builder struct {
 	Origin      string
 	Address     *string
 	Account     []byte
+	Grant       []byte
 	State       string
 	DateExpires *timestamppb.Timestamp
 	DateCreated *timestamppb.Timestamp
@@ -7657,23 +7686,27 @@ func (b0 CliLoginAddRequest_builder) Build() *CliLoginAddRequest {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.Id != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 11)
 		x.xxx_hidden_Id = b.Id
 	}
 	if b.Secret != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 11)
 		x.xxx_hidden_Secret = b.Secret
 	}
 	x.xxx_hidden_Code = b.Code
 	x.xxx_hidden_Client = b.Client
 	x.xxx_hidden_Origin = b.Origin
 	if b.Address != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 11)
 		x.xxx_hidden_Address = b.Address
 	}
 	if b.Account != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 11)
 		x.xxx_hidden_Account = b.Account
+	}
+	if b.Grant != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 11)
+		x.xxx_hidden_Grant = b.Grant
 	}
 	x.xxx_hidden_State = b.State
 	x.xxx_hidden_DateExpires = b.DateExpires
@@ -7909,6 +7942,7 @@ type CliLoginSelect struct {
 	xxx_hidden_Origin      bool                   `protobuf:"varint,11,opt,name=origin"`
 	xxx_hidden_Address     bool                   `protobuf:"varint,18,opt,name=address"`
 	xxx_hidden_Account     bool                   `protobuf:"varint,12,opt,name=account"`
+	xxx_hidden_Grant       bool                   `protobuf:"varint,19,opt,name=grant"`
 	xxx_hidden_State       bool                   `protobuf:"varint,16,opt,name=state"`
 	xxx_hidden_DateExpires bool                   `protobuf:"varint,17,opt,name=date_expires,json=dateExpires"`
 	xxx_hidden_DateUpdated bool                   `protobuf:"varint,13,opt,name=date_updated,json=dateUpdated"`
@@ -7994,6 +8028,13 @@ func (x *CliLoginSelect) GetAccount() bool {
 	return false
 }
 
+func (x *CliLoginSelect) GetGrant() bool {
+	if x != nil {
+		return x.xxx_hidden_Grant
+	}
+	return false
+}
+
 func (x *CliLoginSelect) GetState() bool {
 	if x != nil {
 		return x.xxx_hidden_State
@@ -8031,62 +8072,67 @@ func (x *CliLoginSelect) GetDateCreated() bool {
 
 func (x *CliLoginSelect) SetAll(v bool) {
 	x.xxx_hidden_All = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 12)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 13)
 }
 
 func (x *CliLoginSelect) SetSecret(v bool) {
 	x.xxx_hidden_Secret = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 12)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 13)
 }
 
 func (x *CliLoginSelect) SetCode(v bool) {
 	x.xxx_hidden_Code = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 12)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 13)
 }
 
 func (x *CliLoginSelect) SetClient(v bool) {
 	x.xxx_hidden_Client = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 12)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 13)
 }
 
 func (x *CliLoginSelect) SetOrigin(v bool) {
 	x.xxx_hidden_Origin = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 12)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 13)
 }
 
 func (x *CliLoginSelect) SetAddress(v bool) {
 	x.xxx_hidden_Address = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 12)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 13)
 }
 
 func (x *CliLoginSelect) SetAccount(v bool) {
 	x.xxx_hidden_Account = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 12)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 13)
+}
+
+func (x *CliLoginSelect) SetGrant(v bool) {
+	x.xxx_hidden_Grant = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 13)
 }
 
 func (x *CliLoginSelect) SetState(v bool) {
 	x.xxx_hidden_State = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 12)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 13)
 }
 
 func (x *CliLoginSelect) SetDateExpires(v bool) {
 	x.xxx_hidden_DateExpires = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 12)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 13)
 }
 
 func (x *CliLoginSelect) SetDateUpdated(v bool) {
 	x.xxx_hidden_DateUpdated = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 12)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 13)
 }
 
 func (x *CliLoginSelect) SetDateErased(v bool) {
 	x.xxx_hidden_DateErased = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 12)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 13)
 }
 
 func (x *CliLoginSelect) SetDateCreated(v bool) {
 	x.xxx_hidden_DateCreated = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 12)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 12, 13)
 }
 
 func (x *CliLoginSelect) HasAll() bool {
@@ -8138,39 +8184,46 @@ func (x *CliLoginSelect) HasAccount() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 6)
 }
 
-func (x *CliLoginSelect) HasState() bool {
+func (x *CliLoginSelect) HasGrant() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 7)
 }
 
-func (x *CliLoginSelect) HasDateExpires() bool {
+func (x *CliLoginSelect) HasState() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 8)
 }
 
-func (x *CliLoginSelect) HasDateUpdated() bool {
+func (x *CliLoginSelect) HasDateExpires() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 9)
 }
 
-func (x *CliLoginSelect) HasDateErased() bool {
+func (x *CliLoginSelect) HasDateUpdated() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 10)
 }
 
-func (x *CliLoginSelect) HasDateCreated() bool {
+func (x *CliLoginSelect) HasDateErased() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 11)
+}
+
+func (x *CliLoginSelect) HasDateCreated() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 12)
 }
 
 func (x *CliLoginSelect) ClearAll() {
@@ -8208,28 +8261,33 @@ func (x *CliLoginSelect) ClearAccount() {
 	x.xxx_hidden_Account = false
 }
 
-func (x *CliLoginSelect) ClearState() {
+func (x *CliLoginSelect) ClearGrant() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
+	x.xxx_hidden_Grant = false
+}
+
+func (x *CliLoginSelect) ClearState() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 8)
 	x.xxx_hidden_State = false
 }
 
 func (x *CliLoginSelect) ClearDateExpires() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 8)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 9)
 	x.xxx_hidden_DateExpires = false
 }
 
 func (x *CliLoginSelect) ClearDateUpdated() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 9)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 10)
 	x.xxx_hidden_DateUpdated = false
 }
 
 func (x *CliLoginSelect) ClearDateErased() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 10)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 11)
 	x.xxx_hidden_DateErased = false
 }
 
 func (x *CliLoginSelect) ClearDateCreated() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 11)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 12)
 	x.xxx_hidden_DateCreated = false
 }
 
@@ -8243,6 +8301,7 @@ type CliLoginSelect_builder struct {
 	Origin      *bool
 	Address     *bool
 	Account     *bool
+	Grant       *bool
 	State       *bool
 	DateExpires *bool
 	DateUpdated *bool
@@ -8255,51 +8314,55 @@ func (b0 CliLoginSelect_builder) Build() *CliLoginSelect {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.All != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 12)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 13)
 		x.xxx_hidden_All = *b.All
 	}
 	if b.Secret != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 12)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 13)
 		x.xxx_hidden_Secret = *b.Secret
 	}
 	if b.Code != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 12)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 13)
 		x.xxx_hidden_Code = *b.Code
 	}
 	if b.Client != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 12)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 13)
 		x.xxx_hidden_Client = *b.Client
 	}
 	if b.Origin != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 12)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 13)
 		x.xxx_hidden_Origin = *b.Origin
 	}
 	if b.Address != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 12)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 13)
 		x.xxx_hidden_Address = *b.Address
 	}
 	if b.Account != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 12)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 13)
 		x.xxx_hidden_Account = *b.Account
 	}
+	if b.Grant != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 13)
+		x.xxx_hidden_Grant = *b.Grant
+	}
 	if b.State != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 12)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 13)
 		x.xxx_hidden_State = *b.State
 	}
 	if b.DateExpires != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 12)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 13)
 		x.xxx_hidden_DateExpires = *b.DateExpires
 	}
 	if b.DateUpdated != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 12)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 13)
 		x.xxx_hidden_DateUpdated = *b.DateUpdated
 	}
 	if b.DateErased != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 12)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 13)
 		x.xxx_hidden_DateErased = *b.DateErased
 	}
 	if b.DateCreated != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 12)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 12, 13)
 		x.xxx_hidden_DateCreated = *b.DateCreated
 	}
 	return m0
@@ -8315,6 +8378,7 @@ type CliLoginPatchRequest struct {
 	xxx_hidden_Address          *string                `protobuf:"bytes,36,opt,name=address"`
 	xxx_hidden_Account          []byte                 `protobuf:"bytes,24,opt,name=account"`
 	xxx_hidden_AccountNull      bool                   `protobuf:"varint,25,opt,name=account_null,json=accountNull"`
+	xxx_hidden_Grant            []byte                 `protobuf:"bytes,38,opt,name=grant"`
 	xxx_hidden_State            *string                `protobuf:"bytes,32,opt,name=state"`
 	xxx_hidden_DateExpires      *timestamppb.Timestamp `protobuf:"bytes,34,opt,name=date_expires,json=dateExpires"`
 	xxx_hidden_DateUpdated      *timestamppb.Timestamp `protobuf:"bytes,26,opt,name=date_updated,json=dateUpdated"`
@@ -8418,6 +8482,13 @@ func (x *CliLoginPatchRequest) GetAccountNull() bool {
 	return false
 }
 
+func (x *CliLoginPatchRequest) GetGrant() []byte {
+	if x != nil {
+		return x.xxx_hidden_Grant
+	}
+	return nil
+}
+
 func (x *CliLoginPatchRequest) GetState() string {
 	if x != nil {
 		if x.xxx_hidden_State != nil {
@@ -8458,27 +8529,27 @@ func (x *CliLoginPatchRequest) SetSecret(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_Secret = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 12)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 13)
 }
 
 func (x *CliLoginPatchRequest) SetCode(v string) {
 	x.xxx_hidden_Code = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 12)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 13)
 }
 
 func (x *CliLoginPatchRequest) SetClient(v string) {
 	x.xxx_hidden_Client = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 12)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 13)
 }
 
 func (x *CliLoginPatchRequest) SetOrigin(v string) {
 	x.xxx_hidden_Origin = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 12)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 13)
 }
 
 func (x *CliLoginPatchRequest) SetAddress(v string) {
 	x.xxx_hidden_Address = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 12)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 13)
 }
 
 func (x *CliLoginPatchRequest) SetAccount(v []byte) {
@@ -8486,17 +8557,25 @@ func (x *CliLoginPatchRequest) SetAccount(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_Account = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 12)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 13)
 }
 
 func (x *CliLoginPatchRequest) SetAccountNull(v bool) {
 	x.xxx_hidden_AccountNull = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 12)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 13)
+}
+
+func (x *CliLoginPatchRequest) SetGrant(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Grant = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 13)
 }
 
 func (x *CliLoginPatchRequest) SetState(v string) {
 	x.xxx_hidden_State = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 12)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 13)
 }
 
 func (x *CliLoginPatchRequest) SetDateExpires(v *timestamppb.Timestamp) {
@@ -8509,7 +8588,7 @@ func (x *CliLoginPatchRequest) SetDateUpdated(v *timestamppb.Timestamp) {
 
 func (x *CliLoginPatchRequest) SetDateUpdatedForce(v bool) {
 	x.xxx_hidden_DateUpdatedForce = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 12)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 12, 13)
 }
 
 func (x *CliLoginPatchRequest) HasRef() bool {
@@ -8568,11 +8647,18 @@ func (x *CliLoginPatchRequest) HasAccountNull() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 7)
 }
 
-func (x *CliLoginPatchRequest) HasState() bool {
+func (x *CliLoginPatchRequest) HasGrant() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 8)
+}
+
+func (x *CliLoginPatchRequest) HasState() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 9)
 }
 
 func (x *CliLoginPatchRequest) HasDateExpires() bool {
@@ -8593,7 +8679,7 @@ func (x *CliLoginPatchRequest) HasDateUpdatedForce() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 11)
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 12)
 }
 
 func (x *CliLoginPatchRequest) ClearRef() {
@@ -8635,8 +8721,13 @@ func (x *CliLoginPatchRequest) ClearAccountNull() {
 	x.xxx_hidden_AccountNull = false
 }
 
-func (x *CliLoginPatchRequest) ClearState() {
+func (x *CliLoginPatchRequest) ClearGrant() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 8)
+	x.xxx_hidden_Grant = nil
+}
+
+func (x *CliLoginPatchRequest) ClearState() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 9)
 	x.xxx_hidden_State = nil
 }
 
@@ -8649,7 +8740,7 @@ func (x *CliLoginPatchRequest) ClearDateUpdated() {
 }
 
 func (x *CliLoginPatchRequest) ClearDateUpdatedForce() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 11)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 12)
 	x.xxx_hidden_DateUpdatedForce = false
 }
 
@@ -8668,6 +8759,7 @@ type CliLoginPatchRequest_builder struct {
 	// "leave it alone", so no value could have meant NULL. It wins
 	// outright: setting both this and account clears.
 	AccountNull *bool
+	Grant       []byte
 	State       *string
 	DateExpires *timestamppb.Timestamp
 	// The version this update requires the stored date_updated to be.
@@ -8692,41 +8784,45 @@ func (b0 CliLoginPatchRequest_builder) Build() *CliLoginPatchRequest {
 	_, _ = b, x
 	x.xxx_hidden_Ref = b.Ref
 	if b.Secret != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 12)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 13)
 		x.xxx_hidden_Secret = b.Secret
 	}
 	if b.Code != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 12)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 13)
 		x.xxx_hidden_Code = b.Code
 	}
 	if b.Client != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 12)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 13)
 		x.xxx_hidden_Client = b.Client
 	}
 	if b.Origin != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 12)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 13)
 		x.xxx_hidden_Origin = b.Origin
 	}
 	if b.Address != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 12)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 13)
 		x.xxx_hidden_Address = b.Address
 	}
 	if b.Account != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 12)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 13)
 		x.xxx_hidden_Account = b.Account
 	}
 	if b.AccountNull != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 12)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 13)
 		x.xxx_hidden_AccountNull = *b.AccountNull
 	}
+	if b.Grant != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 13)
+		x.xxx_hidden_Grant = b.Grant
+	}
 	if b.State != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 12)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 13)
 		x.xxx_hidden_State = b.State
 	}
 	x.xxx_hidden_DateExpires = b.DateExpires
 	x.xxx_hidden_DateUpdated = b.DateUpdated
 	if b.DateUpdatedForce != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 12)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 12, 13)
 		x.xxx_hidden_DateUpdatedForce = *b.DateUpdatedForce
 	}
 	return m0
@@ -12525,7 +12621,7 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\x17InvitationAcceptRequest\x12%\n" +
 	"\x03ref\x18\x01 \x01(\v2\x13.rove.InvitationRefR\x03ref\">\n" +
 	"\x15InvitationDenyRequest\x12%\n" +
-	"\x03ref\x18\x01 \x01(\v2\x13.rove.InvitationRefR\x03ref\"\xe4\x02\n" +
+	"\x03ref\x18\x01 \x01(\v2\x13.rove.InvitationRefR\x03ref\"\xfa\x02\n" +
 	"\x12CliLoginAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12\x16\n" +
 	"\x06secret\x18\b \x01(\fR\x06secret\x12\x19\n" +
@@ -12534,7 +12630,8 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	" \x01(\tB\x05\xaa\x01\x02\b\x02R\x06client\x12\x1d\n" +
 	"\x06origin\x18\v \x01(\tB\x05\xaa\x01\x02\b\x02R\x06origin\x12\x18\n" +
 	"\aaddress\x18\x12 \x01(\tR\aaddress\x12\x18\n" +
-	"\aaccount\x18\f \x01(\fR\aaccount\x12\x1b\n" +
+	"\aaccount\x18\f \x01(\fR\aaccount\x12\x14\n" +
+	"\x05grant\x18\x13 \x01(\fR\x05grant\x12\x1b\n" +
 	"\x05state\x18\x10 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05state\x12=\n" +
 	"\fdate_expires\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampR\vdateExpires\x12=\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\"g\n" +
@@ -12543,7 +12640,7 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\x06select\x18\x02 \x01(\v2\x14.rove.CliLoginSelectR\x06select\"&\n" +
 	"\vCliLoginRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
-	"\x03key\"\xd2\x02\n" +
+	"\x03key\"\xe8\x02\n" +
 	"\x0eCliLoginSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12\x16\n" +
 	"\x06secret\x18\b \x01(\bR\x06secret\x12\x12\n" +
@@ -12553,12 +12650,13 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\x06origin\x18\v \x01(\bR\x06origin\x12\x18\n" +
 	"\aaddress\x18\x12 \x01(\bR\aaddress\x12\x18\n" +
 	"\aaccount\x18\f \x01(\bR\aaccount\x12\x14\n" +
+	"\x05grant\x18\x13 \x01(\bR\x05grant\x12\x14\n" +
 	"\x05state\x18\x10 \x01(\bR\x05state\x12!\n" +
 	"\fdate_expires\x18\x11 \x01(\bR\vdateExpires\x12!\n" +
 	"\fdate_updated\x18\r \x01(\bR\vdateUpdated\x12\x1f\n" +
 	"\vdate_erased\x18\x0e \x01(\bR\n" +
 	"dateErased\x12!\n" +
-	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\"\xb0\x03\n" +
+	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\"\xc6\x03\n" +
 	"\x14CliLoginPatchRequest\x12#\n" +
 	"\x03ref\x18\x01 \x01(\v2\x11.rove.CliLoginRefR\x03ref\x12\x16\n" +
 	"\x06secret\x18\x10 \x01(\fR\x06secret\x12\x12\n" +
@@ -12568,6 +12666,7 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\aaddress\x18$ \x01(\tR\aaddress\x12\x18\n" +
 	"\aaccount\x18\x18 \x01(\fR\aaccount\x12!\n" +
 	"\faccount_null\x18\x19 \x01(\bR\vaccountNull\x12\x14\n" +
+	"\x05grant\x18& \x01(\fR\x05grant\x12\x14\n" +
 	"\x05state\x18  \x01(\tR\x05state\x12=\n" +
 	"\fdate_expires\x18\" \x01(\v2\x1a.google.protobuf.TimestampR\vdateExpires\x12=\n" +
 	"\fdate_updated\x18\x1a \x01(\v2\x1a.google.protobuf.TimestampR\vdateUpdated\x12,\n" +

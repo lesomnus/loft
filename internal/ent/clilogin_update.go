@@ -124,6 +124,18 @@ func (_u *CliLoginUpdate) ClearAccount() *CliLoginUpdate {
 	return _u
 }
 
+// SetGrant sets the "grant" field.
+func (_u *CliLoginUpdate) SetGrant(v []byte) *CliLoginUpdate {
+	_u.mutation.SetGrant(v)
+	return _u
+}
+
+// ClearGrant clears the value of the "grant" field.
+func (_u *CliLoginUpdate) ClearGrant() *CliLoginUpdate {
+	_u.mutation.ClearGrant()
+	return _u
+}
+
 // SetState sets the "state" field.
 func (_u *CliLoginUpdate) SetState(v string) *CliLoginUpdate {
 	_u.mutation.SetState(v)
@@ -266,6 +278,12 @@ func (_u *CliLoginUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.AccountCleared() {
 		_spec.ClearField(clilogin.FieldAccount, field.TypeUuid)
 	}
+	if value, ok := _u.mutation.Grant(); ok {
+		_spec.SetField(clilogin.FieldGrant, field.TypeBytes, value)
+	}
+	if _u.mutation.GrantCleared() {
+		_spec.ClearField(clilogin.FieldGrant, field.TypeBytes)
+	}
 	if value, ok := _u.mutation.State(); ok {
 		_spec.SetField(clilogin.FieldState, field.TypeString, value)
 	}
@@ -400,6 +418,18 @@ func (_u *CliLoginUpdateOne) SetNillableAccount(v *uuid.UUID) *CliLoginUpdateOne
 // ClearAccount clears the value of the "account" field.
 func (_u *CliLoginUpdateOne) ClearAccount() *CliLoginUpdateOne {
 	_u.mutation.ClearAccount()
+	return _u
+}
+
+// SetGrant sets the "grant" field.
+func (_u *CliLoginUpdateOne) SetGrant(v []byte) *CliLoginUpdateOne {
+	_u.mutation.SetGrant(v)
+	return _u
+}
+
+// ClearGrant clears the value of the "grant" field.
+func (_u *CliLoginUpdateOne) ClearGrant() *CliLoginUpdateOne {
+	_u.mutation.ClearGrant()
 	return _u
 }
 
@@ -574,6 +604,12 @@ func (_u *CliLoginUpdateOne) sqlSave(ctx context.Context) (_node *CliLogin, err 
 	}
 	if _u.mutation.AccountCleared() {
 		_spec.ClearField(clilogin.FieldAccount, field.TypeUuid)
+	}
+	if value, ok := _u.mutation.Grant(); ok {
+		_spec.SetField(clilogin.FieldGrant, field.TypeBytes, value)
+	}
+	if _u.mutation.GrantCleared() {
+		_spec.ClearField(clilogin.FieldGrant, field.TypeBytes)
 	}
 	if value, ok := _u.mutation.State(); ok {
 		_spec.SetField(clilogin.FieldState, field.TypeString, value)

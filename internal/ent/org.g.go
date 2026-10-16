@@ -127,6 +127,7 @@ func (e *CliLogin) Proto() *rove.CliLogin {
 	if e.Account != nil {
 		x.SetAccount(e.Account[:])
 	}
+	x.SetGrant(e.Grant)
 	x.SetState(e.State)
 	x.SetDateExpires(timestamppb.New(e.DateExpires))
 	x.SetDateUpdated(timestamppb.New(e.DateUpdated))

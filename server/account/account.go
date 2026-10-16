@@ -23,6 +23,7 @@ import (
 	"github.com/lesomnus/otx/log"
 	"github.com/lesomnus/payday/auth"
 	"github.com/lesomnus/payday/auth/authsession"
+	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/pdid"
 
 	"github.com/lesomnus/rove/internal/identity"
@@ -51,6 +52,9 @@ type Account struct {
 	// Owes is what it has to agree to before it uses anything here, at the
 	// versions in force; absent for nothing (design 9.11).
 	Owes []consent.Document `json:"owes,omitempty"`
+	// Allow is the methods the session asking is narrowed to (`rove login
+	// --allow`, D33); absent is all that the account may do.
+	Allow []string `json:"allow,omitempty"`
 }
 
 // Workspace is one an account is in.
@@ -131,7 +135,7 @@ func (a Routes) Mount(mux *http.ServeMux) {
 		http.Error(w, "only the workspace's owner takes its data out", http.StatusForbidden)
 	})
 	mux.HandleFunc("GET /account", func(w http.ResponseWriter, r *http.Request) {
-		p, ok := SignedIn(w, r, sessions, people)
+		p, g, ok := Reading(w, r, sessions, people)
 		if !ok {
 			return
 		}
@@ -144,6 +148,9 @@ func (a Routes) Mount(mux *http.ServeMux) {
 		if v.Owes, err = a.Consent.Owed(r.Context(), p.Id); err != nil {
 			fail(w, r, err)
 			return
+		}
+		if !g.AnyAction() {
+			v.Allow = g.Actions()
 		}
 		answer(w, http.StatusOK, v)
 	})
@@ -188,7 +195,7 @@ func (a Routes) Mount(mux *http.ServeMux) {
 		answer(w, http.StatusCreated, workspaceOf(m))
 	})
 	mux.HandleFunc("GET /account/labels/{code}", func(w http.ResponseWriter, r *http.Request) {
-		p, ok := SignedIn(w, r, sessions, people)
+		p, _, ok := Reading(w, r, sessions, people)
 		if !ok {
 			return
 		}
@@ -220,7 +227,7 @@ func (a Routes) Mount(mux *http.ServeMux) {
 		http.Error(w, "no workspace of yours has this label", http.StatusNotFound)
 	})
 	mux.HandleFunc("GET /account/consents", func(w http.ResponseWriter, r *http.Request) {
-		p, ok := SignedIn(w, r, sessions, people)
+		p, _, ok := Reading(w, r, sessions, people)
 		if !ok {
 			return
 		}
@@ -287,33 +294,56 @@ func (a Routes) Mount(mux *http.ServeMux) {
 
 // SignedIn is the account the request's session names, or false with the
 // answer written: what every HTTP route beside the RPCs asks first.
+//
+// A session narrowed to some methods (`rove login --allow`, D33) is refused.
+// What is served beside the RPCs is no method a grant names, and what a route
+// here does -- approve another terminal, take a workspace's data out, make
+// one, agree to terms -- is not what a terminal that may do less than its
+// account asked for: one that could approve a terminal for all of it would
+// have been narrowed to nothing. The few that only read what an account is
+// ask [Reading] instead.
 func SignedIn(w http.ResponseWriter, r *http.Request, sessions *authsession.Sessions, people People) (identity.Person, bool) {
+	p, g, ok := Reading(w, r, sessions, people)
+	if !ok {
+		return identity.Person{}, false
+	}
+	if !g.IsWhole() {
+		http.Error(w, "this sign-in may only do what `rove login --allow` named, and this is not that: sign in without it", http.StatusForbidden)
+		return identity.Person{}, false
+	}
+	return p, true
+}
+
+// Reading is [SignedIn] for a route that only reads what the account is --
+// itself, what it agreed to, which of its workspaces a label is in -- which
+// any session may ask, however narrowed; and the grant it is narrowed by.
+func Reading(w http.ResponseWriter, r *http.Request, sessions *authsession.Sessions, people People) (identity.Person, frame.Grant, bool) {
 	ctx := r.Context()
 	key := sessions.KeyOf(r.Header.Values("Cookie"))
 	if key == "" {
 		http.Error(w, "who is asking?", http.StatusUnauthorized)
-		return identity.Person{}, false
+		return identity.Person{}, frame.Grant{}, false
 	}
 	v, err := sessions.Read(ctx, key)
 	switch {
 	case errors.Is(err, authsession.ErrNoSession):
 		http.Error(w, "who is asking?", http.StatusUnauthorized)
-		return identity.Person{}, false
+		return identity.Person{}, frame.Grant{}, false
 	case err != nil:
 		fail(w, r, err)
-		return identity.Person{}, false
+		return identity.Person{}, frame.Grant{}, false
 	}
 	p, err := people.ById(ctx, v.Id)
 	switch {
 	case errors.Is(err, identity.ErrNoPerson):
 		http.Error(w, "who is asking?", http.StatusUnauthorized)
-		return identity.Person{}, false
+		return identity.Person{}, frame.Grant{}, false
 	case err != nil:
 		fail(w, r, err)
-		return identity.Person{}, false
+		return identity.Person{}, frame.Grant{}, false
 	}
 
-	return p, true
+	return p, v.Grant, true
 }
 
 func accountOf(ctx context.Context, ws tenancy.Workspaces, p identity.Person) (Account, error) {

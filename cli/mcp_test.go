@@ -364,11 +364,17 @@ func TestAnAssistantSeesWhatItsPersonMay(t *testing.T) {
 	x.Equal(lab, me.Workspace.Alias)
 	x.Len(me.Workspaces, 2)
 
-	// Signed in again, as somebody in one of them: the next call is theirs.
+	// Signed in again, as somebody in one of them and narrowed to reading:
+	// the next call is theirs, and says so.
 	a := s.assistant()
-	s.signIn("kim", "kim-password")
+	s.signIn("kim", "kim-password", "read")
 	a.call("search_assets", map[string]any{"query": "프린터"}, &v)
 	x.Equal([]string{"공용 프린터"}, names(v), "a member reads the register of the workspace they are in")
+	var narrowed struct {
+		Allow []string `json:"allow"`
+	}
+	a.call("whoami", nil, &narrowed)
+	x.Contains(narrowed.Allow, "/rove.*/Search")
 
 	run(t, cli.NewCmdLogout())
 	x.Contains(a.refused("search_assets", map[string]any{"query": "프린터"}), "rove login")

@@ -17,6 +17,7 @@
 package session
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"encoding/json"
@@ -32,6 +33,8 @@ import (
 	"github.com/lesomnus/payday/auth/authsession"
 	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/pdid"
+	"github.com/lesomnus/payday/pdpb"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/internal/ent/holder"
@@ -69,6 +72,50 @@ func digest(key string) []byte {
 
 // whole is the one grant a password gives: whatever the person may do.
 var whole = []byte("whole")
+
+// Grant is what a session's row keeps of what it is narrowed to: [whole] for
+// none, which is what a password and a terminal that asked for nothing get,
+// or payday's Grant listing the methods it may call (`rove login --allow`,
+// D33). Every tenant and every set: a terminal is narrowed by what it may do,
+// and where is its account's.
+func Grant(actions []string) ([]byte, error) {
+	if len(actions) == 0 {
+		return whole, nil
+	}
+	v, err := auth.Introspection(auth.Identity{Grant: frame.Whole().To(actions...)})
+	if err != nil {
+		return nil, err
+	}
+	return proto.Marshal(v.GetGrant())
+}
+
+// Actions is the methods a row's grant is narrowed to, as somebody reads
+// them: nil for one that is narrowed to none.
+func Actions(b []byte) ([]string, error) {
+	g, err := grantOf(b)
+	if err != nil || g.AnyAction() {
+		return nil, err
+	}
+	return g.Actions(), nil
+}
+
+// grantOf is what a row's grant allows, read back as payday reads one off a
+// token: an attenuation of whatever the account may do, which the gRPC chain
+// holds every call to.
+func grantOf(b []byte) (frame.Grant, error) {
+	if len(b) == 0 || bytes.Equal(b, whole) {
+		return frame.Whole(), nil
+	}
+	g := &pdpb.Grant{}
+	if err := proto.Unmarshal(b, g); err != nil {
+		return frame.Grant{}, err
+	}
+	id, err := auth.IdentityFrom(pdpb.TokenIntrospectResponse_builder{Grant: g}.Build())
+	if err != nil {
+		return frame.Grant{}, err
+	}
+	return id.Grant, nil
+}
 
 func (s Store) Put(ctx context.Context, v authsession.Session) error {
 	account, err := pdid.Parse(v.Id)
@@ -135,10 +182,14 @@ func (s Store) Get(ctx context.Context, key string) (authsession.Session, error)
 	}
 	// No tenant: an account is in none, and which workspace a call is about
 	// is the call's to say.
+	g, err := grantOf(v.Grant)
+	if err != nil {
+		return authsession.Session{}, fmt.Errorf("session: what it allows: %w", err)
+	}
 	out := authsession.Session{
 		Key:   key,
 		Id:    pdid.Id(v.Account).String(),
-		Grant: frame.Whole(),
+		Grant: g,
 	}
 	if v.DateExpires != nil {
 		out.Expires = *v.DateExpires
@@ -162,17 +213,24 @@ func (s Store) Del(ctx context.Context, key string) error {
 // Adopt makes a session whose key somebody else holds: a terminal that made
 // one up and sent only what it hashes to (`server/clilogin`). It is the row
 // [Store.Put] writes, for an account, beginning now and good until `idle` and
-// `expires`, and the key is never seen here.
-func (s Store) Adopt(ctx context.Context, account pdid.Id, secret []byte, idle, expires time.Time) error {
+// `expires`, narrowed to `grant` ([Grant]; empty is [whole]), and the key is
+// never seen here.
+func (s Store) Adopt(ctx context.Context, account pdid.Id, secret, grant []byte, idle, expires time.Time) error {
 	if len(secret) != sha256.Size {
 		return errors.New("session: a secret is a SHA-256")
+	}
+	if len(grant) == 0 {
+		grant = whole
+	}
+	if _, err := grantOf(grant); err != nil {
+		return fmt.Errorf("session: what it allows: %w", err)
 	}
 	now := time.Now()
 	return s.Db.Session.Create().
 		SetId(pdid.New(pd.SessionDomain).Uuid()).
 		SetAccount(account.Uuid()).
 		SetSecret(secret).
-		SetGrant(whole).
+		SetGrant(grant).
 		SetNillableDateIdle(nonzero(idle)).
 		SetNillableDateExpires(nonzero(expires)).
 		SetDateCreated(now).

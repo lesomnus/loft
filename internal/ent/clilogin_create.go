@@ -74,6 +74,12 @@ func (_c *CliLoginCreate) SetNillableAccount(v *uuid.UUID) *CliLoginCreate {
 	return _c
 }
 
+// SetGrant sets the "grant" field.
+func (_c *CliLoginCreate) SetGrant(v []byte) *CliLoginCreate {
+	_c.mutation.SetGrant(v)
+	return _c
+}
+
 // SetState sets the "state" field.
 func (_c *CliLoginCreate) SetState(v string) *CliLoginCreate {
 	_c.mutation.SetState(v)
@@ -245,6 +251,10 @@ func (_c *CliLoginCreate) createSpec() (*CliLogin, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Account(); ok {
 		_spec.SetField(clilogin.FieldAccount, field.TypeUuid, value)
 		_node.Account = &value
+	}
+	if value, ok := _c.mutation.Grant(); ok {
+		_spec.SetField(clilogin.FieldGrant, field.TypeBytes, value)
+		_node.Grant = value
 	}
 	if value, ok := _c.mutation.State(); ok {
 		_spec.SetField(clilogin.FieldState, field.TypeString, value)

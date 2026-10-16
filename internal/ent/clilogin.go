@@ -30,6 +30,8 @@ type CliLogin struct {
 	Address string `json:"address,omitempty"`
 	// Account holds the value of the "account" field.
 	Account *uuid.UUID `json:"account,omitempty"`
+	// Grant holds the value of the "grant" field.
+	Grant []byte `json:"grant,omitempty"`
 	// State holds the value of the "state" field.
 	State string `json:"state,omitempty"`
 	// DateExpires holds the value of the "date_expires" field.
@@ -48,7 +50,7 @@ func (*CliLogin) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case clilogin.FieldSecret:
+		case clilogin.FieldSecret, clilogin.FieldGrant:
 			values[i] = new([]byte)
 		case clilogin.FieldCode, clilogin.FieldClient, clilogin.FieldOrigin, clilogin.FieldAddress, clilogin.FieldState:
 			values[i] = new(sql.NullString)
@@ -115,6 +117,12 @@ func (_m *CliLogin) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Account = new(uuid.UUID)
 				*_m.Account = value.V
+			}
+		case clilogin.FieldGrant:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field grant", values[i])
+			} else if value != nil {
+				_m.Grant = *value
 			}
 		case clilogin.FieldState:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -202,6 +210,9 @@ func (_m *CliLogin) String() string {
 		builder.WriteString("account=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
+	builder.WriteString(", ")
+	builder.WriteString("grant=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Grant))
 	builder.WriteString(", ")
 	builder.WriteString("state=")
 	builder.WriteString(_m.State)

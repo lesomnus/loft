@@ -85,6 +85,11 @@ func Account(v uuid.UUID) predicate.CliLogin {
 	return predicate.CliLogin(sql.FieldEQ(FieldAccount, v))
 }
 
+// Grant applies equality check predicate on the "grant" field. It's identical to GrantEQ.
+func Grant(v []byte) predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldEQ(FieldGrant, v))
+}
+
 // State applies equality check predicate on the "state" field. It's identical to StateEQ.
 func State(v string) predicate.CliLogin {
 	return predicate.CliLogin(sql.FieldEQ(FieldState, v))
@@ -478,6 +483,56 @@ func AccountIsNil() predicate.CliLogin {
 // AccountNotNil applies the NotNil predicate on the "account" field.
 func AccountNotNil() predicate.CliLogin {
 	return predicate.CliLogin(sql.FieldNotNull(FieldAccount))
+}
+
+// GrantEQ applies the EQ predicate on the "grant" field.
+func GrantEQ(v []byte) predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldEQ(FieldGrant, v))
+}
+
+// GrantNEQ applies the NEQ predicate on the "grant" field.
+func GrantNEQ(v []byte) predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldNEQ(FieldGrant, v))
+}
+
+// GrantIn applies the In predicate on the "grant" field.
+func GrantIn(vs ...[]byte) predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldIn(FieldGrant, vs...))
+}
+
+// GrantNotIn applies the NotIn predicate on the "grant" field.
+func GrantNotIn(vs ...[]byte) predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldNotIn(FieldGrant, vs...))
+}
+
+// GrantGT applies the GT predicate on the "grant" field.
+func GrantGT(v []byte) predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldGT(FieldGrant, v))
+}
+
+// GrantGTE applies the GTE predicate on the "grant" field.
+func GrantGTE(v []byte) predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldGTE(FieldGrant, v))
+}
+
+// GrantLT applies the LT predicate on the "grant" field.
+func GrantLT(v []byte) predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldLT(FieldGrant, v))
+}
+
+// GrantLTE applies the LTE predicate on the "grant" field.
+func GrantLTE(v []byte) predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldLTE(FieldGrant, v))
+}
+
+// GrantIsNil applies the IsNil predicate on the "grant" field.
+func GrantIsNil() predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldIsNull(FieldGrant))
+}
+
+// GrantNotNil applies the NotNil predicate on the "grant" field.
+func GrantNotNil() predicate.CliLogin {
+	return predicate.CliLogin(sql.FieldNotNull(FieldGrant))
 }
 
 // StateEQ applies the EQ predicate on the "state" field.
