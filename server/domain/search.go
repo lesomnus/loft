@@ -10,23 +10,22 @@ import (
 	"github.com/lesomnus/rove/internal/search"
 )
 
-// What `AssetService.Search` asks the database (design 9.5, `internal/search`).
+// What `AssetService.Search` asks the database, in a deployment that names no
+// search engine (design 9.5, `internal/search`).
 
 // found is the assets of `tenant` that `q` finds, as a predicate on the asset
 // table.
 //
 // It is a set of identifiers per column -- the tag, the name, the serial, and
 // through the asset the name of its type, the name and maker of its model and
-// the name of who has it -- joined with UNION, rather than one OR over all of
-// them. An OR that reaches into other tables is a scan of the asset table
-// whatever indexes there are; a UNION is one index scan a column, which is
-// what the indexes `cli/pg.sql` makes were made for.
+// the name of who has it -- joined with UNION, each column compared on its own
+// rather than all of them in one OR across the joins.
 //
-// Below what the database's index answers (`Mode.ByPrefix`) it is the tag and
-// the name by prefix, and nothing else.
-func found(postgres bool, m search.Mode, tenant uuid.UUID, q string) func(*sql.Selector) {
+// A single letter (`search.ByPrefix`) is the tag and the name by prefix, and
+// nothing else.
+func found(postgres bool, tenant uuid.UUID, q string) func(*sql.Selector) {
 	f := search.Fold(q)
-	prefix := m.ByPrefix(f)
+	prefix := search.ByPrefix(f)
 	pattern := "%" + search.Like(f) + "%"
 	if prefix {
 		pattern = search.Like(f) + "%"
@@ -73,28 +72,6 @@ func found(postgres bool, m search.Mode, tenant uuid.UUID, q string) func(*sql.S
 	}
 }
 
-// SearchQuery is what a search for `q` in `tenant` asks the database, as SQL
-// and its arguments: the identifiers of what it finds, before the filters and
-// the order a request adds. It is what an EXPLAIN is run on to see which index
-// answers it -- a test does, and so can an operator wondering whether pg_bigm
-// is in use.
-func SearchQuery(d string, m search.Mode, tenant uuid.UUID, q string) (string, []any) {
-	s := sql.Dialect(d).Select(asset.FieldId).From(sql.Table(asset.Table))
-	found(d == dialect.Postgres, m, tenant, q)(s)
-
-	return s.Query()
-}
-
 // postgres says whether this transaction is on PostgreSQL, where the text is
-// compared by its normal form and an index answers.
+// compared by its normal form.
 func (t *Tx) postgres() bool { return t.drv.Dialect() == dialect.Postgres }
-
-// searchMode is the mode a deployment's database was found to have, and no
-// index at all for a layer built without one.
-func (d *Deps) searchMode() search.Mode {
-	if d == nil {
-		return search.Plain
-	}
-
-	return d.Search
-}

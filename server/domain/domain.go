@@ -36,7 +36,6 @@ import (
 	"github.com/lesomnus/rove/internal/ent/event"
 	"github.com/lesomnus/rove/internal/ent/treelock"
 	"github.com/lesomnus/rove/internal/identity"
-	"github.com/lesomnus/rove/internal/search"
 	"github.com/lesomnus/rove/server/mail"
 	"github.com/lesomnus/rove/server/opensearch"
 	"github.com/lesomnus/rove/server/pd"
@@ -82,12 +81,8 @@ type Deps struct {
 	// when nobody checked in. Zero holds nobody to checking in.
 	NoShowAfter time.Duration
 
-	// Search is which index this database answers a search with: what the
-	// migration found (`cli.Migrate`), and no index on SQLite. See
-	// `internal/search`.
-	Search search.Mode
-	// Finder is the search engine a search asks instead, when the deployment
-	// names one (D31); nil asks the database.
+	// Finder is the search engine a search asks, when the deployment names
+	// one (D31); nil asks the database (`internal/search`).
 	Finder *opensearch.Client
 
 	// Retention is the windows of a tenant with no contract (design 8). The

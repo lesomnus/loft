@@ -46,5 +46,3 @@ images:
   - name: ghcr.io/lesomnus/rove
     newName: rove-cluster
     newTag: rig
-  - name: rove-postgres
-    newTag: rig

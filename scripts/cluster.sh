@@ -96,7 +96,7 @@ cleanup() {
 		k3d cluster delete "${CLUSTER}" >/dev/null 2>&1 || true
 		# The names it gave what it built, and not the layers, which the
 		# next run builds on.
-		docker image rm "rove-cluster:rig" "rove-cluster:next" "rove-postgres:rig" >/dev/null 2>&1 || true
+		docker image rm "rove-cluster:rig" "rove-cluster:next" >/dev/null 2>&1 || true
 	else
 		echo
 		echo "cluster: left up, with its kubeconfig written nowhere. To look:"
@@ -227,12 +227,14 @@ node="$(docker inspect -f "{{(index .NetworkSettings.Networks \"k3d-${CLUSTER}\"
 
 echo "== the images this checkout builds"
 tried docker build -q -t "rove-cluster:rig" . >/dev/null
-tried docker build -q -t "rove-postgres:rig" deploy/postgres >/dev/null
+# PostgreSQL as it is published, onto the node with the rest, so that nothing
+# in the cluster waits on a registry.
+tried docker pull -q postgres:18 >/dev/null
 # The next build, which is this one under another name: a rollout is a new
 # image, whatever is in it, and what is under test is the rollout.
 docker tag "rove-cluster:rig" "rove-cluster:next"
 standing
-imported="$(k3d image import "rove-cluster:rig" "rove-cluster:next" "rove-postgres:rig" -c "${CLUSTER}" 2>&1)" || true
+imported="$(k3d image import "rove-cluster:rig" "rove-cluster:next" "postgres:18" -c "${CLUSTER}" 2>&1)" || true
 case "${imported}" in
 *ERRO*)
 	printf '%s\n' "${imported}" >&2

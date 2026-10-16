@@ -145,15 +145,14 @@ cd ts && npm run dev             # :5173, API 호출은 Vite가 :8080으로 넘�
 
 ### PostgreSQL로 실행
 
-배포 데이터베이스는 PostgreSQL입니다. SQLite에는 없는 안전장치(예약·위치가 겹치면 DB가 거부하는 EXCLUDE 제약 등)와 검색 인덱스가 `serve` 의 마이그레이션 때 함께 설치됩니다.
+배포 데이터베이스는 PostgreSQL이고, 공식 이미지를 그대로 씁니다. SQLite에는 없는 안전장치(예약·위치가 겹치면 DB가 거부하는 EXCLUDE 제약 등)가 `serve` 의 마이그레이션 때 함께 설치됩니다. 필요한 확장은 `btree_gist` 하나입니다.
 
-검색은 **pg_bigm** 확장이 있으면 두 글자부터("의자") 인덱스로 찾습니다. 공식 PostgreSQL 이미지에는 없으므로 [`deploy/postgres`](deploy/postgres/Dockerfile)의 이미지(공식 이미지 + pg_bigm)를 씁니다. pg_bigm이 없는 데이터베이스(Azure, 네이버 클라우드, NHN 클라우드 등)에서는 pg_trgm으로 세 글자부터 찾고, 그보다 짧으면 태그·이름의 앞부분으로 찾습니다. 서버 로그의 `search:` 줄이 어느 쪽인지 말해 줍니다. pg_bigm은 superuser만 설치할 수 있는 확장이라, Rove의 DB 계정이 superuser가 아니면 DB 관리자가 한 번 `CREATE EXTENSION pg_bigm` 을 실행합니다.
+검색은 아래의 검색 엔진(OpenSearch)이 답합니다. 클러스터를 설정하지 않으면 데이터베이스가 인덱스 없이 그 워크스페이스의 행을 모두 읽어서 답합니다. 개발용과 작은 배포에는 그것으로 충분합니다.
 
 내장 roster도 같은 서버의 다른 데이터베이스를 씁니다.
 
 ```sh
-docker build -t rove-postgres deploy/postgres
-docker run -d --name rove-pg -e POSTGRES_USER=rove -e POSTGRES_PASSWORD=rove -p 5432:5432 rove-postgres
+docker run -d --name rove-pg -e POSTGRES_USER=rove -e POSTGRES_PASSWORD=rove -p 5432:5432 postgres:18
 docker exec rove-pg createdb -U rove roster
 export ROVE_DB_DRIVER=pgx ROVE_DB_DSN='postgres://rove:rove@localhost:5432/rove?sslmode=disable'
 export ROVE_AUTH_ROSTER_DB_DRIVER=pgx ROVE_AUTH_ROSTER_DB_DSN='postgres://rove:rove@localhost:5432/roster?sslmode=disable'
@@ -177,7 +176,7 @@ PostgreSQL이면 서버를 여러 대 띄울 수 있습니다. 상태는 데이�
 
 ### 검색 엔진 (OpenSearch)
 
-설정에 클러스터가 없으면 검색은 데이터베이스가 답합니다(위의 pg_bigm). `app.search.opensearch`로 클러스터를 주면 OpenSearch와 한국어 분석기 nori가 답합니다. nori는 "웹서버"를 웹 · 서버로, "의자를"을 의자로 나눠서 찾습니다(D31).
+설정에 클러스터가 없으면 검색은 데이터베이스가 답합니다(인덱스 없이 행을 모두 읽습니다). `app.search.opensearch`로 클러스터를 주면 OpenSearch와 한국어 분석기 nori가 답합니다. nori는 "웹서버"를 웹 · 서버로, "의자를"을 의자로 나눠서 찾습니다(D31).
 
 무엇을 입력했는지에 따라 이렇게 찾습니다.
 
@@ -410,7 +409,7 @@ go tool pd gen --check .  # 생성물이 스키마와 같은지 (CI가 하는 �
 
 ```sh
 go test ./...                                                    # SQLite
-PDTEST_POSTGRES='postgres://rove:rove@localhost:5432/rove?sslmode=disable' go test ./...   # PostgreSQL (deploy/postgres 이미지면 pg_bigm까지)
+PDTEST_POSTGRES='postgres://rove:rove@localhost:5432/rove?sslmode=disable' go test ./...   # PostgreSQL (공식 postgres:18 이미지)
 PDTEST_OPENSEARCH=http://127.0.0.1:9200 go test ./...           # 검색 색인까지 (deploy/opensearch; TLS면 https://user:pass@... 와 PDTEST_OPENSEARCH_CA)
 cd ts && npm run check                                           # 타입 검사
 ```
@@ -444,12 +443,11 @@ docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp \
 
 포트가 겹치면 `E2E_PORT=19510`처럼 옮깁니다(그 포트와 +1, +10, +11, +20, +21, +30을 씁니다).
 
-PostgreSQL에서 돌리려면 `E2E_POSTGRES`에 데이터베이스를 만들 수 있는 계정으로 그 서버의 주소를 줍니다. 서버마다 Rove와 roster의 데이터베이스를 하나씩(`e2e_rove_<포트>`, `e2e_roster_<포트>`) 그 서버에 두고, 실행할 때마다 지우고 새로 만듭니다(`ts/e2e/postgres.mjs`). CI는 SQLite와, `go` 잡과 같은 pg_bigm이 든 PostgreSQL(`deploy/postgres`) 둘 다에서 돌립니다.
+PostgreSQL에서 돌리려면 `E2E_POSTGRES`에 데이터베이스를 만들 수 있는 계정으로 그 서버의 주소를 줍니다. 서버마다 Rove와 roster의 데이터베이스를 하나씩(`e2e_rove_<포트>`, `e2e_roster_<포트>`) 그 서버에 두고, 실행할 때마다 지우고 새로 만듭니다(`ts/e2e/postgres.mjs`). CI는 SQLite와, `go` 잡과 같은 PostgreSQL(공식 `postgres:18`) 둘 다에서 돌립니다.
 
 ```sh
-docker build -t rove-postgres deploy/postgres
 docker run -d --rm --name rove-e2e-pg -p 127.0.0.1:55432:5432 \
-  -e POSTGRES_USER=rove -e POSTGRES_PASSWORD=rove -e POSTGRES_DB=rove rove-postgres
+  -e POSTGRES_USER=rove -e POSTGRES_PASSWORD=rove -e POSTGRES_DB=rove postgres:18
 E2E_POSTGRES='postgres://rove:rove@127.0.0.1:55432/rove?sslmode=disable' npx playwright test
 docker stop rove-e2e-pg
 ```

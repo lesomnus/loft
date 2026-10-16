@@ -30,14 +30,12 @@ jobs:
           restore-keys: |
             go-${{ runner.os }}-${{ hashFiles('go.sum') }}-
             go-${{ runner.os }}-
-      # The PostgreSQL a deployment runs: the official image with pg_bigm
-      # (deploy/postgres, design 9.5). Built and started first, so that it is
-      # up by the time the SQLite run is done.
-      - name: PostgreSQL with pg_bigm
+      # The PostgreSQL a deployment runs, the official image. Started first, so
+      # that it is up by the time the SQLite run is done.
+      - name: PostgreSQL
         run: |
-          docker build -t rove-postgres deploy/postgres
           docker run -d --name postgres -p 5432:5432 \
-            -e POSTGRES_USER=rove -e POSTGRES_PASSWORD=rove -e POSTGRES_DB=rove rove-postgres
+            -e POSTGRES_USER=rove -e POSTGRES_PASSWORD=rove -e POSTGRES_DB=rove postgres:18
       - name: generated code matches the schema
         run: go tool pd gen --check .
       - name: vet
@@ -61,48 +59,6 @@ jobs:
             ~/.cache/go-build
             ~/go/pkg/mod
           key: go-${{ runner.os }}-${{ hashFiles('go.sum') }}-${{ github.sha }}
-
-  # A PostgreSQL without pg_bigm -- what Azure, Naver Cloud and NHN Cloud
-  # offer -- where pg_trgm answers instead. Only what that changes.
-  postgres-trgm:
-    runs-on: ubuntu-26.04
-    services:
-      postgres:
-        image: postgres:18
-        env:
-          POSTGRES_USER: rove
-          POSTGRES_PASSWORD: rove
-          POSTGRES_DB: rove
-        ports: ["5432:5432"]
-        options: >-
-          --health-cmd "pg_isready -h 127.0.0.1 -U rove"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-go@v7
-        with:
-          go-version-file: go.mod
-          # The cache is the one below, not setup-go's: setup-go keys it by
-          # go.sum alone, so whichever job finished first -- `vuln` -- saved
-          # it, and every job built rove from cold on what govulncheck left.
-          cache: false
-      # What the `go` job compiled last time: every package and every test,
-      # which is what the other jobs build a part of.
-      - uses: actions/cache/restore@v6
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: go-${{ runner.os }}-${{ hashFiles('go.sum') }}-${{ github.sha }}
-          restore-keys: |
-            go-${{ runner.os }}-${{ hashFiles('go.sum') }}-
-            go-${{ runner.os }}-
-      - name: test search and migration on PostgreSQL without pg_bigm
-        env:
-          PDTEST_POSTGRES: postgres://rove:rove@localhost:5432/rove?sslmode=disable
-        run: go test ./server/domain ./cli
 
   # Search on OpenSearch with nori (D31, deploy/opensearch): the image a
   # deployment runs, with its security plugin on -- TLS on the demo
@@ -296,8 +252,8 @@ jobs:
   # The main flows in a browser (ts/e2e, plan.md M3): headless Chromium on
   # the built page, against a rove built here that Playwright starts with
   # `init --demo` (ts/playwright.config.ts, ts/e2e/serve.sh) -- on SQLite, and
-  # on the PostgreSQL a deployment runs, the `go` job's, with pg_bigm; and on
-  # SQLite searching with OpenSearch (D31), beside the run that does not.
+  # on the PostgreSQL a deployment runs, the `go` job's; and on SQLite
+  # searching with OpenSearch (D31), beside the run that does not.
   e2e:
     name: e2e (${{ matrix.db }}${{ matrix.search && format(', {0}', matrix.search) || '' }})
     # `--with-deps` installs what Chromium needs from the image's own packages,
@@ -326,16 +282,15 @@ jobs:
         if: matrix.search == 'opensearch'
         working-directory: .
         run: scripts/opensearch.sh start
-      # As the `go` job has it (deploy/postgres, design 9.5), and started
-      # first, so that it is up by the time the page and rove are built. The
-      # servers make their own databases on it, fresh (ts/e2e/serve.sh).
-      - name: PostgreSQL with pg_bigm
+      # As the `go` job has it, and started first, so that it is up by the
+      # time the page and rove are built. The servers make their own
+      # databases on it, fresh (ts/e2e/serve.sh).
+      - name: PostgreSQL
         if: matrix.db == 'postgres'
         working-directory: .
         run: |
-          docker build -t rove-postgres deploy/postgres
           docker run -d --name postgres -p 5432:5432 \
-            -e POSTGRES_USER=rove -e POSTGRES_PASSWORD=rove -e POSTGRES_DB=rove rove-postgres
+            -e POSTGRES_USER=rove -e POSTGRES_PASSWORD=rove -e POSTGRES_DB=rove postgres:18
       - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
@@ -406,7 +361,7 @@ jobs:
   # its repository says so and not when somebody pushes here.
   image:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [go, postgres-trgm, opensearch, ui, bundle, vuln, cluster, e2e]
+    needs: [go, opensearch, ui, bundle, vuln, cluster, e2e]
     runs-on: ubuntu-26.04
     permissions:
       contents: read

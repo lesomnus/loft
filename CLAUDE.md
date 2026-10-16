@@ -275,9 +275,11 @@ run them on PostgreSQL.
 
 ## Search
 
-Search is moving from the database (`internal/search`, pg_bigm) to OpenSearch
-with nori, for a deployment whose `app.search.opensearch` names a cluster
-(D31, rove#83). What is there now is `server/opensearch`: the client (its
+Search is OpenSearch with nori, for a deployment whose
+`app.search.opensearch` names a cluster (D31, rove#83); one that names none
+asks the database (`internal/search`), which reads the tenant's rows with no
+index -- pg_bigm is gone, and the database's search is not made faster. The
+engine is `server/opensearch`: the client (its
 HTTP API, no library), the index (`assets.json`, whose shape is `Version`:
 bump it with any change), and `Reindex`, which fills a new index and moves
 the alias `<index>-assets` onto it in one step; and `rove search
