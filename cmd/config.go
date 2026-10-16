@@ -20,6 +20,7 @@ import (
 	"github.com/lesomnus/rove/internal/identity"
 	"github.com/lesomnus/rove/server/consent"
 	"github.com/lesomnus/rove/server/mail"
+	"github.com/lesomnus/rove/server/opensearch"
 	"github.com/lesomnus/rove/server/retention"
 	"github.com/lesomnus/rove/server/sso"
 )
@@ -227,6 +228,16 @@ type AppConfig struct {
 	// Consent is what an account agrees to before it uses this deployment
 	// (design 9.11).
 	Consent ConsentConfig `yaml:"consent"`
+
+	// Search is what answers a search (D31, design 9.5).
+	Search SearchConfig `yaml:"search"`
+}
+
+// SearchConfig is what answers a search: the OpenSearch cluster it names, or
+// -- naming none -- the database, which is a checkout and a deployment small
+// enough not to need one.
+type SearchConfig struct {
+	Opensearch opensearch.Config `yaml:"opensearch"`
 }
 
 // ConsentConfig is what an account agrees to before it uses this deployment:

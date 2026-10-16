@@ -175,6 +175,60 @@ PostgreSQL이면 서버를 여러 대 띄울 수 있습니다. 상태는 데이�
 
 설정할 수 있는 모든 값은 `go run ./cmd/rove config env` 로 볼 수 있습니다. 기본값은 [`rove.yaml`](rove.yaml)에 있습니다.
 
+### 검색 엔진 (OpenSearch)
+
+설정에 클러스터가 없으면 검색은 데이터베이스가 답합니다(위의 pg_bigm). `app.search.opensearch`로 클러스터를 주면 OpenSearch와 한국어 분석기 nori가 답합니다. nori는 "웹서버"를 웹 · 서버로, "의자를"을 의자로 나눠서 찾습니다(D31).
+
+옮기는 중입니다(rove#83). 지금은 색인을 만들고 확인하는 명령까지 있습니다. 바뀐 것을 색인에 보내는 일과 검색을 OpenSearch로 옮기는 일은 다음 단계입니다.
+
+그 전까지 색인은 만든 때의 사본이고, 바뀐 것을 따라가지 않습니다. 보유자의 이름도 들어가므로, 개인정보를 삭제해도 색인에는 옛 이름이 남습니다. 그래서 시험해 본 뒤에는 `rove search remove --yes`로 지워 둡니다.
+
+- **이미지:** [`deploy/opensearch`](deploy/opensearch/Dockerfile)입니다. 공식 이미지에 nori를 넣었고, 쓰지 않는 플러그인은 뺐습니다. TLS와 인증을 맡는 security 플러그인은 남겼습니다.
+- **설정:**
+
+  ```yaml
+  app:
+    search:
+      opensearch:
+        addrs: [https://search-0:9200]   # 노드 여럿. 답하지 않는 노드는 건너뜁니다
+        username: rove
+        password: env:ROVE_SEARCH_PASSWORD   # file:/run/secrets/..., 또는 값 그대로
+        ca_file: /etc/rove/opensearch-ca.pem
+        index: rove   # 인덱스 이름의 앞부분. 별칭 rove-assets가 rove-assets-<시각>을 가리킵니다
+  ```
+
+  환경변수로는 `ROVE_APP_SEARCH_OPENSEARCH_ADDRS=https://search-0:9200,https://search-1:9200`처럼 씁니다. 한 클러스터를 여러 배포가 나눠 쓰면 `index`를 배포마다 다르게 줍니다.
+- **Rove 계정의 role:** 클러스터 권한은 bulk 쓰기 하나이고, 인덱스 권한은 자기 이름(`<index>-*`)에만 줍니다. CI가 이 role로 테스트를 돌립니다.
+
+  ```sh
+  curl -u admin --cacert root-ca.pem -X PUT https://search-0:9200/_plugins/_security/api/roles/rove \
+    -H 'Content-Type: application/json' \
+    -d '{"cluster_permissions":["indices:data/write/bulk"],"index_permissions":[{"index_patterns":["rove-*"],"allowed_actions":["indices_all"]}]}'
+  ```
+
+- **명령:**
+
+  ```sh
+  rove search reindex          # DB의 자산으로 새 인덱스를 만들어 다 채운 뒤, 별칭을 옮기고 옛 인덱스를 지움
+  rove search status           # 별칭이 가리키는 인덱스, 문서 수와 DB의 자산 수
+  rove search analyze 웹서버    # 그 글을 어떤 낱말로 나누는지: 색인할 때와 찾을 때
+  rove search remove --yes     # 이 배포가 만든 인덱스와 별칭을 모두 지움
+  ```
+
+  - reindex 동안에도 별칭은 다 채워진 인덱스만 가리킵니다. 옛 인덱스에서 새 인덱스로 한 번에 넘어갑니다.
+  - reindex는 한 번에 하나만 돌립니다. 둘째는 첫째가 쓰는 중인 인덱스를 지웁니다.
+  - 인덱스 이름의 시각은 UTC입니다.
+- **개발용 클러스터:** 보안 플러그인을 끄고 loopback에만 띄웁니다.
+
+  ```sh
+  docker build -t rove-opensearch deploy/opensearch
+  docker run -d --name rove-os -p 127.0.0.1:9200:9200 -e discovery.type=single-node \
+    -e DISABLE_SECURITY_PLUGIN=true -e DISABLE_INSTALL_DEMO_CONFIG=true \
+    -e OPENSEARCH_JAVA_OPTS='-Xms512m -Xmx512m' rove-opensearch
+  export ROVE_APP_SEARCH_OPENSEARCH_ADDRS=http://127.0.0.1:9200
+  go run ./cmd/rove search reindex
+  ```
+
 ### 운영에 띄우기 (운영자)
 
 [`deploy/compose`](deploy/compose/README.md)가 한 대의 서버에 띄우는 운영 구성 전체입니다. PostgreSQL, 마이그레이션, `rove serve` 두 대, 운영자 진입점, 인증서를 받는 Caddy가 들어 있습니다. 운영자가 채울 것은 도메인과 비밀값(`.env`, `secrets/`)이고, 이미지는 저장소 루트의 `Dockerfile`로 짓습니다(`docker build -t rove .`).
@@ -340,6 +394,7 @@ go tool pd gen --check .  # 생성물이 스키마와 같은지 (CI가 하는 �
 ```sh
 go test ./...                                                    # SQLite
 PDTEST_POSTGRES='postgres://rove:rove@localhost:5432/rove?sslmode=disable' go test ./...   # PostgreSQL (deploy/postgres 이미지면 pg_bigm까지)
+PDTEST_OPENSEARCH=http://127.0.0.1:9200 go test ./...           # 검색 색인까지 (deploy/opensearch; TLS면 https://user:pass@... 와 PDTEST_OPENSEARCH_CA)
 cd ts && npm run check                                           # 타입 검사
 ```
 
