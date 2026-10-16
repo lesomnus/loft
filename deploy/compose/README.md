@@ -9,6 +9,7 @@
 | `rove` ×2 | `rove serve`. 백그라운드 작업은 리스로 한 대만 돌고(`spin.lease: postgres`), 변경 알림은 DB로 주고받습니다(`watch.broker: postgres`) |
 | `rove-admin` | 운영자 진입점. 호스트의 `127.0.0.1:8081`에만 열립니다 |
 | `caddy` | 80/443. Let's Encrypt 인증서를 받고 두 `rove`에 나눠 보냅니다 |
+| `opensearch` | 선택. 켜면 검색을 OpenSearch와 한국어 분석기 nori가 답합니다(`compose.search.yaml`, 아래 "검색을 켜려면") |
 
 서버 한 대에 이대로 올릴 수도 있습니다(Let's Encrypt까지 됩니다). 그럴 때 붙일 것은 리눅스 서버 한 대(Docker와 compose), 그 서버를 가리키는 도메인(DNS A 레코드), 열린 80/443 포트입니다. 운영의 기준은 `deploy/k8s`입니다.
 
@@ -62,6 +63,35 @@ docker compose run --rm rove --config /etc/rove/rove.yaml init \
 curl https://$ROVE_DOMAIN/healthz     # ok
 ```
 
+## 검색을 켜려면 (OpenSearch)
+
+검색은 기본으로 데이터베이스가 답합니다. `compose.search.yaml`을 함께 읽게 하면 OpenSearch와 한국어 분석기 nori가 답합니다(D31). 붙여 쓴 낱말(웹서버), 조사(의자를), 오타도 찾습니다. 서버에 메모리가 약 1 GB 더 듭니다(힙 512 MB, `.env`의 `ROVE_SEARCH_HEAP`로 바꿉니다).
+
+```sh
+./search-init.sh                                               # 한 번. secrets/에 인증서와 비밀번호를 만듭니다
+echo 'COMPOSE_FILE=compose.yaml:compose.search.yaml' >> .env
+docker compose up -d --build
+docker compose run --rm rove --config /etc/rove/rove.yaml search status
+```
+
+- **색인은 서버가 만듭니다.** 처음 뜰 때 색인이 없으면 DB의 자산으로 만들고, 그다음부터 바뀐 것을 1초쯤 안에 반영합니다. `rove search reindex`를 따로 할 필요는 없습니다.
+- **`search-init.sh`가 `secrets/`에 만드는 것:**
+  - 이 배포만의 CA와, 그 CA가 서명한 `opensearch`의 인증서
+  - Rove가 로그인할 비밀번호
+  - 그 비밀번호의 해시를 담은 사용자 파일
+  - CA의 키는 서명한 뒤 버립니다.
+- **클러스터에는 사용자가 Rove 하나뿐입니다.** 데모 계정과 admin이 없습니다. Rove의 role은 bulk 쓰기와 자기 인덱스(`rove-*`)뿐입니다(`opensearch/roles.yml`).
+- **인증서나 비밀번호를 바꾸려면** 클러스터를 새로 만듭니다. 색인은 사본이라 잃는 것이 없습니다.
+
+  ```sh
+  docker compose down && docker volume rm rove_opensearch
+  rm secrets/search* && ./search-init.sh
+  docker compose up -d
+  ```
+
+- **끄려면** `.env`에서 `COMPOSE_FILE` 줄을 지우고 `docker compose up -d --remove-orphans`를 합니다. 검색은 다시 데이터베이스가 답합니다.
+- `rove`, `rove-admin`, `migrate` 모두 같은 검색 설정을 받습니다. 운영자가 워크스페이스를 파기한 것도 색인에 닿아야 하기 때문입니다.
+
 ## 운영자 진입점
 
 `rove-admin`은 호스트의 루프백에만 열립니다. 다른 곳에서는 VPN이나 SSH 터널로 들어옵니다.
@@ -89,6 +119,7 @@ ROVE_VERSION=$(git describe --tags --always) docker compose up -d --build
 | `audit` | 감사 기록 보관소 |
 | `checkpoints` | 감사 기록 체크포인트. 삭제를 거부하는 디스크에 두면 더 좋습니다(`docs/runbook/trail-integrity.md`) |
 | `caddy_data` | 인증서 |
+| `opensearch` | 검색 색인. 켰을 때만 있고, DB로 다시 만들 수 있어서 백업하지 않아도 됩니다 |
 
 백업할 것은 이 볼륨들과 `.env`, `secrets/`입니다. PostgreSQL 시점 복원, 백업을 다른 장소로 보내기, 복구 리허설은 rove#37입니다. DB를 백업에서 복원한 뒤에는 런북의 "DB를 백업에서 복원했을 때"를 따릅니다.
 

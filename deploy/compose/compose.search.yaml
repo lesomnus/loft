@@ -1,0 +1,76 @@
+# Search on OpenSearch with nori (D31), for a deployment that says so: read
+# after compose.yaml, which this adds the cluster to, and tells every rove
+# about it. README.md says how to turn it on:
+#
+#   ./search-init.sh                                          # once
+#   echo COMPOSE_FILE=compose.yaml:compose.search.yaml >> .env
+#   docker compose up -d --build
+#
+# What the cluster holds is a copy the database makes again, so its volume is
+# never anything to keep: the servers make the index when there is none.
+
+x-search: &search
+  ROVE_APP_SEARCH_OPENSEARCH_ADDRS: https://opensearch:9200
+  ROVE_APP_SEARCH_OPENSEARCH_USERNAME: rove
+  ROVE_APP_SEARCH_OPENSEARCH_PASSWORD: file:/run/secrets/search_password
+  ROVE_APP_SEARCH_OPENSEARCH_CA_FILE: /run/secrets/search-ca.pem
+
+services:
+  opensearch:
+    build: ../opensearch
+    image: rove-opensearch:local
+    environment:
+      # The demo's users and certificates are not what this runs with: the
+      # users and roles are opensearch/ and secrets/, read when the cluster
+      # is first made.
+      DISABLE_INSTALL_DEMO_CONFIG: "true"
+      OPENSEARCH_JAVA_OPTS: -Xms${ROVE_SEARCH_HEAP:-512m} -Xmx${ROVE_SEARCH_HEAP:-512m}
+    volumes:
+      - opensearch:/usr/share/opensearch/data
+      - ./opensearch/opensearch.yml:/usr/share/opensearch/config/opensearch.yml:ro
+      - ./opensearch/roles.yml:/usr/share/opensearch/config/opensearch-security/roles.yml:ro
+      - ./opensearch/roles_mapping.yml:/usr/share/opensearch/config/opensearch-security/roles_mapping.yml:ro
+      - ./secrets/search-users.yml:/usr/share/opensearch/config/opensearch-security/internal_users.yml:ro
+      - ./secrets/search.pem:/usr/share/opensearch/config/certs/search.pem:ro
+      - ./secrets/search-key.pem:/usr/share/opensearch/config/certs/search-key.pem:ro
+      - ./secrets/search-ca.pem:/usr/share/opensearch/config/certs/search-ca.pem:ro
+    # Up is answering, and asking who is calling: a node whose security is
+    # not set up yet answers 503.
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          curl -s -o /dev/null -w '%{http_code}' --resolve opensearch:9200:127.0.0.1
+          --cacert /usr/share/opensearch/config/certs/search-ca.pem https://opensearch:9200 | grep -q 401
+      interval: 5s
+      timeout: 5s
+      retries: 60
+    networks: [rove]
+    restart: unless-stopped
+
+  migrate:
+    environment: *search
+    secrets: [search_password, search-ca.pem]
+
+  rove:
+    environment: *search
+    secrets: [search_password, search-ca.pem]
+    depends_on:
+      opensearch: { condition: service_healthy }
+
+  # The operator's changes have to reach the index too: a workspace an
+  # operator purges goes from it the way it goes from the database.
+  rove-admin:
+    environment: *search
+    secrets: [search_password, search-ca.pem]
+    depends_on:
+      opensearch: { condition: service_healthy }
+
+volumes:
+  opensearch:
+
+secrets:
+  search_password:
+    file: ./secrets/search_password
+  search-ca.pem:
+    file: ./secrets/search-ca.pem

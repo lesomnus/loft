@@ -3,7 +3,8 @@ import { defineConfig, devices } from '@playwright/test'
 // The browser tests (plan.md M3): the main flows, driven through the built page
 // as people do, against a rove of their own that `e2e/serve.sh` builds from
 // this checkout and starts with `init --demo` -- on SQLite, or with
-// E2E_POSTGRES on databases of its own there, made fresh every run.
+// E2E_POSTGRES on databases of its own there, made fresh every run; and with
+// E2E_OPENSEARCH searching on that cluster, on indexes of its own.
 // `npx playwright test`, on a desk as in CI; README `## 테스트` has the rest.
 //
 // Three of them, since one asks for agreement to terms (`app.consent`) and the

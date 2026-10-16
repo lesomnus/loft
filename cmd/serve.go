@@ -586,8 +586,12 @@ func (s *Server) Grpc(ctx context.Context, c Config, opts ...grpc.ServerOption) 
 		WithStream(auth.InterceptorStream(h, Resolver(s.Ungated, s.Ent, s.Consents), auth.PublicDefault)).
 		WithUnary(grpcx.LimitUnary(c.Server.Limiter(), LimitKey())).
 		With(gate.Interceptor(s.Policy)).
-		With(s.Watch.Interceptor()).
-		WithUnary(grpcx.ClosedUnary(c.Server.Closed()))
+		With(s.Watch.Interceptor())
+	if s.Search != nil {
+		// What a call wrote, searchable once it answers (D31).
+		chain = chain.WithUnary(opensearch.Indexer{Client: s.Search, Db: s.Ent}.Interceptor())
+	}
+	chain = chain.WithUnary(grpcx.ClosedUnary(c.Server.Closed()))
 
 	os := append(opts, chain.ServerOptions()...)
 	// A certificate that cannot be read is a server that must not start, which

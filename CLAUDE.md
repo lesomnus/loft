@@ -287,7 +287,9 @@ any write to an asset or to what its document takes a name from (type, model,
 party), and `opensearch.Indexer`, the loop that makes those documents again
 from the database. A purge goes past the recorders, so it writes its own row
 (`offboard.Deployment.Unindex`). The loop also makes the index when there is
-none, or none of this build's `Version`. `AssetService.Search` with text
+none, or none of this build's `Version`. A call's own asset writes are in the
+index before it answers (`Indexer.Interceptor`, in the gRPC chain): save and
+search finds it; anything else is the loop's, a second or so later. `AssetService.Search` with text
 asks it (`Deps.Finder`, `Tx.searchEngine`) and reads what it found through the
 wall, in its order; a search with filters only, or a deployment with no
 cluster, is the database's. The index is a copy: it is never asked who may

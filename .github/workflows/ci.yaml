@@ -75,35 +75,14 @@ jobs:
     runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v7
+      # Coming up while Go is set up (scripts/opensearch.sh).
+      - name: OpenSearch with nori
+        run: scripts/opensearch.sh start
       - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
-      - name: OpenSearch with nori
-        run: |
-          docker build -t rove-opensearch deploy/opensearch
-          admin="Ad9!$(openssl rand -hex 16)"
-          docker run -d --name opensearch -p 127.0.0.1:9200:9200 \
-            -e discovery.type=single-node -e OPENSEARCH_INITIAL_ADMIN_PASSWORD="${admin}" \
-            -e OPENSEARCH_JAVA_OPTS="-Xms512m -Xmx512m" rove-opensearch
-          for i in $(seq 1 90); do
-            curl -skf -u "admin:${admin}" https://localhost:9200/_cluster/health > /dev/null && break
-            [ "${i}" -lt 90 ] || { echo "OpenSearch did not come up"; exit 1; }
-            sleep 2
-          done
-          ca="${RUNNER_TEMP}/opensearch-ca.pem"
-          docker cp opensearch:/usr/share/opensearch/config/root-ca.pem "${ca}"
-          api() {
-            curl -sS --fail-with-body --cacert "${ca}" -u "admin:${admin}" -H 'Content-Type: application/json' \
-              -X PUT "https://localhost:9200/_plugins/_security/api/$1" -d "$2"
-            echo
-          }
-          # README's role, on the names the tests make their indexes with.
-          api roles/rove '{"cluster_permissions":["indices:data/write/bulk"],"index_permissions":[{"index_patterns":["rovetest-*"],"allowed_actions":["indices_all"]}]}'
-          password="Rv9-$(openssl rand -hex 16)"
-          api internalusers/rove "{\"password\":\"${password}\"}"
-          api rolesmapping/rove '{"users":["rove"]}'
-          echo "PDTEST_OPENSEARCH=https://rove:${password}@localhost:9200" >> "${GITHUB_ENV}"
-          echo "PDTEST_OPENSEARCH_CA=${ca}" >> "${GITHUB_ENV}"
+      - name: OpenSearch is up
+        run: scripts/opensearch.sh ready 'rovetest-*' | grep '^PDTEST_' >> "${GITHUB_ENV}"
       - name: the tests that search
         run: |
           pkgs="$(go list -f '{{.ImportPath}} {{join .TestImports " "}} {{join .XTestImports " "}}' ./... | awk '{ for (i = 2; i <= NF; i++) if ($i == "github.com/lesomnus/rove/internal/opensearchtest") { print $1; break } }')"
@@ -130,9 +109,10 @@ jobs:
 
   # The deployment bundle (Dockerfile, deploy/compose) as an operator brings
   # it up: the image built, PostgreSQL, the migration, two `rove serve` behind
-  # Caddy and the operator's entry point -- and a workspace made, signed in to
-  # and asked through the proxy, and listed at the entry point. Nothing is
-  # pushed anywhere.
+  # Caddy and the operator's entry point, and search on OpenSearch as README
+  # turns it on -- and a workspace made, signed in to and asked through the
+  # proxy, searched, and listed at the entry point. Nothing is pushed
+  # anywhere.
   bundle:
     runs-on: ubuntu-26.04
     defaults:
@@ -151,6 +131,9 @@ jobs:
           openssl genpkey -algorithm ed25519 -out secrets/checkpoints.pem
           openssl rand -hex 32 > secrets/admin_key
           chmod 444 secrets/*
+          # Search on, as README's "검색을 켜려면" turns it on.
+          ./search-init.sh
+          echo 'COMPOSE_FILE=compose.yaml:compose.search.yaml' >> .env
       - run: docker compose up -d --build
       - name: it answers through the proxy
         run: |
@@ -170,6 +153,23 @@ jobs:
           curl -sf -H "authorization: Bearer $(cat secrets/admin_key)" \
             http://127.0.0.1:8081/admin/workspaces | grep -q '"alias":"acme"'
           docker run --rm rove:ci version
+      - name: a search the engine answers
+        run: |
+          rpc() {
+            curl -skf -b jar -H 'content-type: application/json' -H 'connect-protocol-version: 1' \
+              -d "$2" "https://localhost/rove.AssetService/$1"
+          }
+          rpc Add '{"name":"고성능GPU서버","kind":"item","tag":"SV-1"}' > /dev/null
+          # A word with a particle on it, which the database's LIKE never
+          # finds: found, it is nori's. A second or two, for the loop.
+          for i in $(seq 1 30); do
+            out="$(rpc Search '{"q":"서버를"}')"
+            echo "${out}" | grep -q '고성능GPU서버' && exit 0
+            sleep 1
+          done
+          echo "${out}"
+          docker compose logs rove | grep search
+          exit 1
       - if: failure()
         run: docker compose ps -a && docker compose logs
 
@@ -227,8 +227,10 @@ jobs:
   # The main flows in a browser (ts/e2e, plan.md M3): headless Chromium on
   # the built page, against a rove built here that Playwright starts with
   # `init --demo` (ts/playwright.config.ts, ts/e2e/serve.sh) -- on SQLite, and
-  # on the PostgreSQL a deployment runs, the `go` job's, with pg_bigm.
+  # on the PostgreSQL a deployment runs, the `go` job's, with pg_bigm; and on
+  # SQLite searching with OpenSearch (D31), beside the run that does not.
   e2e:
+    name: e2e (${{ matrix.db }}${{ matrix.search && format(', {0}', matrix.search) || '' }})
     # `--with-deps` installs what Chromium needs from the image's own packages,
     # which Playwright knows for Ubuntu 26.04 from 1.61 on.
     runs-on: ubuntu-26.04
@@ -239,11 +241,22 @@ jobs:
       fail-fast: false
       matrix:
         db: [sqlite, postgres]
+        search: [""]
+        include:
+          - db: sqlite
+            search: opensearch
     defaults:
       run:
         working-directory: ts
     steps:
       - uses: actions/checkout@v7
+      # Started first and left to come up in the background, as PostgreSQL
+      # is below: the image builds and the node starts while the page and
+      # rove are built (scripts/opensearch.sh).
+      - name: OpenSearch with nori
+        if: matrix.search == 'opensearch'
+        working-directory: .
+        run: scripts/opensearch.sh start
       # As the `go` job has it (deploy/postgres, design 9.5), and started
       # first, so that it is up by the time the page and rove are built. The
       # servers make their own databases on it, fresh (ts/e2e/serve.sh).
@@ -278,6 +291,10 @@ jobs:
         run: |
           for i in $(seq 1 60); do docker exec postgres pg_isready -h 127.0.0.1 -U rove && exit 0; sleep 1; done
           docker logs postgres; exit 1
+      - name: OpenSearch is up
+        if: matrix.search == 'opensearch'
+        working-directory: .
+        run: scripts/opensearch.sh ready 'e2e-*' | grep '^E2E_' >> "${GITHUB_ENV}"
       - name: browser tests
         env:
           E2E_ROVE: ${{ runner.temp }}/rove
@@ -289,7 +306,7 @@ jobs:
       - uses: actions/upload-artifact@v7
         if: failure()
         with:
-          name: e2e-${{ matrix.db }}
+          name: e2e-${{ matrix.db }}${{ matrix.search && format('-{0}', matrix.search) || '' }}
           path: |
             ts/playwright-report/
             ts/test-results/
