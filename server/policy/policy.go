@@ -131,6 +131,7 @@ func init() {
 	allow(Admin, "AssetTypeService", "Add", "Update", "Erase")
 	allow(Manager, "ItemModelService", "Add", "Update")
 	allow(Admin, "ItemModelService", "Erase")
+	allow(Read, "ItemModelService", "Search")
 
 	allow(Read, "LabelService", "Resolve")
 	allow(Manager, "LabelService", "Print", "Bind", "Unbind")
@@ -142,7 +143,7 @@ func init() {
 	allow(Member, "AttachmentService", "Upload")
 	allow(Manager, "AttachmentService", "Erase")
 
-	allow(Read, "PartyService", "Me")
+	allow(Read, "PartyService", "Me", "Search")
 	// Their own password; somebody else's is an admin's, which the domain
 	// layer checks against the row.
 	allow(Read, "PartyService", "SetPassword")

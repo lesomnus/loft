@@ -120,6 +120,8 @@ func TestAnAssistantReadsTheWorkspaceAsItsPerson(t *testing.T) {
 	laptop := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "개발용 노트북", "kind": "item", "tag": "NB-1", "to": {"id": "`+room+`"}}`))
 	made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "회의실 의자", "kind": "item", "tag": "CH-1", "to": {"id": "`+room+`"}}`))
 	team := made(t, run(t, cli.NewCmdApi(), "party", "add", "-o", "json", `{"name": "개발팀", "kind": "team"}`))
+	notebook := made(t, run(t, cli.NewCmdApi(), "asset-type", "add", "-o", "json", `{"name": "노트북", "kind": "item"}`))
+	run(t, cli.NewCmdApi(), "item-model", "add", "-o", "json", `{"name": "ThinkPad X1", "maker": "Lenovo", "type": {"id": "`+notebook+`"}}`)
 	kim := made(t, run(t, cli.NewCmdApi(), "party", "add", "-o", "json", `{"name": "김민수", "kind": "person", "parentId": "`+team+`"}`))
 	due := time.Now().Add(72 * time.Hour).UTC().Format(time.RFC3339)
 	run(t, cli.NewCmdApi(), "custody", "add", "-o", "json", `{"party": {"id": "`+kim+`"}, "dueAt": "`+due+`", "lines": [{"asset": {"id": "`+laptop+`"}}]}`)
@@ -276,9 +278,10 @@ func TestAnAssistantReadsTheWorkspaceAsItsPerson(t *testing.T) {
 		x.Empty(v.Items)
 	}
 
-	// People.
+	// People, and models.
 	{
 		var v struct {
+			Total int `json:"total"`
 			Items []struct {
 				Id   string `json:"id"`
 				Name string `json:"name"`
@@ -286,14 +289,26 @@ func TestAnAssistantReadsTheWorkspaceAsItsPerson(t *testing.T) {
 				In   *ref   `json:"in"`
 			} `json:"items"`
 		}
-		a.call("list_people", map[string]any{"name": "민수"}, &v)
+		a.call("find_people", map[string]any{"query": "민수"}, &v)
 		x.Len(v.Items, 1)
 		x.Equal(kim, v.Items[0].Id)
 		x.Equal(&ref{team, "개발팀"}, v.Items[0].In)
 
-		a.call("list_people", map[string]any{"kind": "team"}, &v)
+		a.call("find_people", map[string]any{"kind": "team"}, &v)
 		x.Len(v.Items, 1)
 		x.Equal("개발팀", v.Items[0].Name)
+
+		var m struct {
+			Items []struct {
+				Name  string `json:"name"`
+				Maker string `json:"maker"`
+				Type  *ref   `json:"type"`
+			} `json:"items"`
+		}
+		a.call("find_models", map[string]any{"query": "lenovo"}, &m)
+		x.Len(m.Items, 1)
+		x.Equal("ThinkPad X1", m.Items[0].Name)
+		x.Equal(&ref{notebook, "노트북"}, m.Items[0].Type)
 	}
 
 	// Reservations.

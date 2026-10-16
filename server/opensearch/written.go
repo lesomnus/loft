@@ -12,39 +12,43 @@ import (
 	"google.golang.org/grpc"
 )
 
-// written is the assets one call wrote, as [Recorder] heard of them.
+// written is what one call wrote, of each [Index], as [Recorder] heard of
+// it.
 type written struct {
 	mu   sync.Mutex
-	keys []uuid.UUID
+	keys map[*Index][]uuid.UUID
 }
 
 type writtenKey struct{}
 
-func (w *written) add(k uuid.UUID) {
+func (w *written) add(ix *Index, k uuid.UUID) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
-	if !slices.Contains(w.keys, k) {
-		w.keys = append(w.keys, k)
+	if w.keys == nil {
+		w.keys = map[*Index][]uuid.UUID{}
+	}
+	if !slices.Contains(w.keys[ix], k) {
+		w.keys[ix] = append(w.keys[ix], k)
 	}
 }
 
-// Interceptor writes the documents of the assets a call wrote before the
-// call answers, and makes them searchable at once: somebody who saves a thing
-// and then looks for it finds it, rather than a second or two later when the
+// Interceptor writes the documents of what a call wrote before the call
+// answers, and makes them searchable at once: somebody who saves a thing and
+// then looks for it finds it, rather than a second or two later when the
 // loop gets to it -- receiving a purchase, say, which shows what it received
 // by searching for its tags.
 //
-// It is the caller's own writes, and assets only: a type or a model renamed
-// is any number of documents, and those wait for the loop. And it is the
-// sooner of two ways and not the only one -- what it could not write, the
-// loop writes from the rows the recorder wrote all the same, so a cluster
-// that is slow or down costs a call two seconds at most and is not its
-// failure.
+// It is the caller's own writes, and of each the document of the row itself:
+// a type or a model renamed is any number of documents of assets, and those
+// wait for the loop. And it is the sooner of two ways and not the only one --
+// what it could not write, the loop writes from the rows the recorder wrote
+// all the same, so a cluster that is slow or down costs a call two seconds at
+// most and is not its failure.
 func (x Indexer) Interceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		w := &written{}
 		res, err := handler(context.WithValue(ctx, writtenKey{}, w), req)
-		if err != nil || len(w.keys) == 0 || len(w.keys) > chunk {
+		if err != nil || len(w.keys) == 0 {
 			return res, err
 		}
 
@@ -59,19 +63,29 @@ func (x Indexer) Interceptor() grpc.UnaryServerInterceptor {
 	}
 }
 
-// writeNow writes the documents of keys to every index of the deployment and
-// refreshes them.
-func (x Indexer) writeNow(ctx context.Context, keys []uuid.UUID) error {
-	indexes, err := x.Client.indexes(ctx)
-	if err != nil || len(indexes) == 0 {
-		return err
-	}
-	if err := x.write(ctx, indexes, keys); err != nil {
-		return err
-	}
-	for _, idx := range indexes {
-		if err := x.Client.refresh(ctx, idx); err != nil {
+// writeNow writes the documents of keys to every index of their [Index] and
+// refreshes them. A call that wrote more than a chunk of one leaves it to the
+// loop.
+func (x Indexer) writeNow(ctx context.Context, keys map[*Index][]uuid.UUID) error {
+	for _, ix := range Indexes {
+		ks := keys[ix]
+		if len(ks) == 0 || len(ks) > chunk {
+			continue
+		}
+		indexes, err := x.Client.indexes(ctx, ix)
+		if err != nil {
 			return err
+		}
+		if len(indexes) == 0 {
+			continue
+		}
+		if err := x.write(ctx, ix, indexes, ks); err != nil {
+			return err
+		}
+		for _, idx := range indexes {
+			if err := x.Client.refresh(ctx, idx); err != nil {
+				return err
+			}
 		}
 	}
 	return nil

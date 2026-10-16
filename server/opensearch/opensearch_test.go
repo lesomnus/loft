@@ -95,13 +95,13 @@ func TestARequestGoesOnToANodeThatAnswers(t *testing.T) {
 	x.NoError(err)
 	defer c.Close()
 
-	s, err := c.Status(t.Context())
+	s, err := c.Status(t.Context(), opensearch.Assets)
 	x.NoError(err)
 	x.Equal("rove-assets", s.Alias)
 	x.Empty(s.Index, "an alias that is not there is a deployment with no index yet")
 	x.Equal(2, *n)
 
-	_, err = c.Status(t.Context())
+	_, err = c.Status(t.Context(), opensearch.Assets)
 	x.NoError(err)
 	x.Equal(4, *n)
 }
@@ -129,7 +129,7 @@ func TestItSignsInAndTrustsTheCaItIsGiven(t *testing.T) {
 	good := opensearch.Config{Addrs: []string{s.URL}, Username: "rove", Password: "env:ROVE_TEST_SEARCH_PASSWORD", CaFile: ca}
 	c, err := opensearch.New(good, resolve)
 	x.NoError(err)
-	_, err = c.Status(t.Context())
+	_, err = c.Status(t.Context(), opensearch.Assets)
 	x.NoError(err)
 
 	bad := good
@@ -137,7 +137,7 @@ func TestItSignsInAndTrustsTheCaItIsGiven(t *testing.T) {
 	t.Setenv("NOT_THE_PASSWORD", "guess")
 	c, err = opensearch.New(bad, resolve)
 	x.NoError(err)
-	_, err = c.Status(t.Context())
+	_, err = c.Status(t.Context(), opensearch.Assets)
 	var e *opensearch.Error
 	x.ErrorAs(err, &e)
 	x.Equal(http.StatusUnauthorized, e.Status)
@@ -147,7 +147,7 @@ func TestItSignsInAndTrustsTheCaItIsGiven(t *testing.T) {
 	untrusted.CaFile = ""
 	c, err = opensearch.New(untrusted, resolve)
 	x.NoError(err)
-	_, err = c.Status(t.Context())
+	_, err = c.Status(t.Context(), opensearch.Assets)
 	x.ErrorContains(err, "certificate")
 }
 
@@ -170,9 +170,9 @@ func TestAnOlderDocumentIsStaleAndNotAFailure(t *testing.T) {
 	x.NoError(err)
 
 	ops := []opensearch.Op{
-		{Id: "a", Version: 7, Doc: &opensearch.Doc{Tenant: "t", Name: "웹서버"}},
-		{Id: "b", Version: 3, Doc: &opensearch.Doc{Tenant: "t"}},
-		{Id: "c", Version: 9},
+		{Index: "rove-assets", Id: "a", Version: 7, Doc: &opensearch.Doc{Tenant: "t", Name: "웹서버"}},
+		{Index: "rove-assets", Id: "b", Version: 3, Doc: &opensearch.Doc{Tenant: "t"}},
+		{Index: "rove-assets", Id: "c", Version: 9},
 	}
 	answer = `{"errors":true,"items":[
 		{"index":{"_id":"a","status":201}},

@@ -25,13 +25,21 @@ const (
 )
 
 // watched is the services whose writes make documents stale, by the kind of
-// what they write: assets, and what an asset's document takes a name from
-// ([DocOf]).
+// what they write: assets, people and models, and what their documents take
+// a name from ([DocOf], [PartyDocOf], [ModelDocOf]).
 var watched = map[string]string{
 	"rove.AssetService":     KindAsset,
 	"rove.AssetTypeService": KindAssetType,
 	"rove.ItemModelService": KindItemModel,
 	"rove.PartyService":     KindParty,
+}
+
+// own is the [Index] whose document of a row is the row's own: what a call
+// that wrote it writes before it answers ([Indexer.Interceptor]).
+var own = map[string]*Index{
+	KindAsset:     Assets,
+	KindItemModel: Models,
+	KindParty:     Parties,
 }
 
 // Recorder writes down every write that makes documents of the index stale,
@@ -68,8 +76,10 @@ func (recorder) Record(ctx context.Context, s bare.Server, c bare.Change) error 
 	if s.Now != nil {
 		now = s.Now()
 	}
-	if w, ok := ctx.Value(writtenKey{}).(*written); ok && kind == KindAsset {
-		w.add(k)
+	if w, ok := ctx.Value(writtenKey{}).(*written); ok {
+		if ix, ok := own[kind]; ok {
+			w.add(ix, k)
+		}
 	}
 	return stale(ctx, s.Db, kind, k, now)
 }

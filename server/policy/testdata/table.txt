@@ -75,6 +75,7 @@
 /rove.ItemModelService/Erase	admin
 /rove.ItemModelService/Get	read
 /rove.ItemModelService/List	read
+/rove.ItemModelService/Search	read
 /rove.ItemModelService/Update	manager
 /rove.ItemModelService/Watch	read
 /rove.LabelService/Bind	manager
@@ -96,6 +97,7 @@
 /rove.PartyService/List	read
 /rove.PartyService/Me	read
 /rove.PartyService/Pseudonymize	admin
+/rove.PartyService/Search	read
 /rove.PartyService/SetPassword	read
 /rove.PartyService/SetRole	admin
 /rove.PartyService/Update	admin

@@ -15,9 +15,11 @@ import (
 	"net/url"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/server/opensearch"
 )
 
@@ -58,4 +60,14 @@ func Config(t testing.TB) opensearch.Config {
 		}
 	})
 	return c
+}
+
+// Made makes every index of c from db, as the loop does before its first
+// pass: what a test that searches begins with.
+func Made(t testing.TB, c *opensearch.Client, db *ent.Client) {
+	t.Helper()
+	for _, ix := range opensearch.Indexes {
+		_, err := opensearch.Reindex(context.Background(), c, db, ix, time.Now(), nil)
+		require.NoError(t, err, ix.Name)
+	}
 }

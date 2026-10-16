@@ -51,6 +51,10 @@ service PartyService {
   rpc Deactivate(PartyDeactivateRequest) returns (Party);
   // Pseudonymize answers a request to forget a person (design 8.2).
   rpc Pseudonymize(PartyPseudonymizeRequest) returns (Party);
+  // Search finds people, teams, organizations and vendors by what a person
+  // types: a name or part of it, a code, the team one is in. A deployment
+  // that names a search engine asks it (D31, rove#91).
+  rpc Search(PartySearchRequest) returns (PartySearchResponse);
 }
 
 service SessionService {
@@ -407,6 +411,19 @@ message PartyDeactivateRequest {
 
 message PartyPseudonymizeRequest {
   PartyRef ref = 1;
+}
+
+message PartySearchRequest {
+  string q = 1 [features.field_presence = IMPLICIT];
+  // person | team | org | vendor
+  string kind = 2 [features.field_presence = IMPLICIT];
+  uint32 size = 3 [features.field_presence = IMPLICIT];
+  uint32 offset = 4 [features.field_presence = IMPLICIT];
+}
+
+message PartySearchResponse {
+  repeated Party items = 1;
+  uint32 total = 2 [features.field_presence = IMPLICIT];
 }
 
 message SessionAddRequest {

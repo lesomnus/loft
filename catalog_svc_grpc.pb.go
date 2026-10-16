@@ -433,6 +433,7 @@ const (
 	ItemModelService_List_FullMethodName   = "/rove.ItemModelService/List"
 	ItemModelService_Watch_FullMethodName  = "/rove.ItemModelService/Watch"
 	ItemModelService_Update_FullMethodName = "/rove.ItemModelService/Update"
+	ItemModelService_Search_FullMethodName = "/rove.ItemModelService/Search"
 )
 
 // ItemModelServiceClient is the client API for ItemModelService service.
@@ -464,6 +465,10 @@ type ItemModelServiceClient interface {
 	// being read -- and that is harmless for the same reason.
 	Watch(ctx context.Context, in *ItemModelWatchRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ItemModelWatchResponse], error)
 	Update(ctx context.Context, in *ItemModelUpdateRequest, opts ...grpc.CallOption) (*ItemModel, error)
+	// Search finds models by what a person types: a name, who makes it, a
+	// code, what it is a model of. A deployment that names a search engine
+	// asks it (D31, rove#91).
+	Search(ctx context.Context, in *ItemModelSearchRequest, opts ...grpc.CallOption) (*ItemModelSearchResponse, error)
 }
 
 type itemModelServiceClient struct {
@@ -563,6 +568,16 @@ func (c *itemModelServiceClient) Update(ctx context.Context, in *ItemModelUpdate
 	return out, nil
 }
 
+func (c *itemModelServiceClient) Search(ctx context.Context, in *ItemModelSearchRequest, opts ...grpc.CallOption) (*ItemModelSearchResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ItemModelSearchResponse)
+	err := c.cc.Invoke(ctx, ItemModelService_Search_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ItemModelServiceServer is the server API for ItemModelService service.
 // All implementations must embed UnimplementedItemModelServiceServer
 // for forward compatibility.
@@ -592,6 +607,10 @@ type ItemModelServiceServer interface {
 	// being read -- and that is harmless for the same reason.
 	Watch(*ItemModelWatchRequest, grpc.ServerStreamingServer[ItemModelWatchResponse]) error
 	Update(context.Context, *ItemModelUpdateRequest) (*ItemModel, error)
+	// Search finds models by what a person types: a name, who makes it, a
+	// code, what it is a model of. A deployment that names a search engine
+	// asks it (D31, rove#91).
+	Search(context.Context, *ItemModelSearchRequest) (*ItemModelSearchResponse, error)
 	mustEmbedUnimplementedItemModelServiceServer()
 }
 
@@ -625,6 +644,9 @@ func (UnimplementedItemModelServiceServer) Watch(*ItemModelWatchRequest, grpc.Se
 }
 func (UnimplementedItemModelServiceServer) Update(context.Context, *ItemModelUpdateRequest) (*ItemModel, error) {
 	return nil, status.Error(codes.Unimplemented, "method Update not implemented")
+}
+func (UnimplementedItemModelServiceServer) Search(context.Context, *ItemModelSearchRequest) (*ItemModelSearchResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Search not implemented")
 }
 func (UnimplementedItemModelServiceServer) mustEmbedUnimplementedItemModelServiceServer() {}
 func (UnimplementedItemModelServiceServer) testEmbeddedByValue()                          {}
@@ -784,6 +806,24 @@ func _ItemModelService_Update_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ItemModelService_Search_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ItemModelSearchRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ItemModelServiceServer).Search(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ItemModelService_Search_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ItemModelServiceServer).Search(ctx, req.(*ItemModelSearchRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ItemModelService_ServiceDesc is the grpc.ServiceDesc for ItemModelService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -818,6 +858,10 @@ var ItemModelService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Update",
 			Handler:    _ItemModelService_Update_Handler,
+		},
+		{
+			MethodName: "Search",
+			Handler:    _ItemModelService_Search_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

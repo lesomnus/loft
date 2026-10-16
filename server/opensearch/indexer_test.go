@@ -16,6 +16,8 @@ import (
 	"github.com/lesomnus/rove/cmd"
 	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/internal/ent/asset"
+	"github.com/lesomnus/rove/internal/ent/itemmodel"
+	"github.com/lesomnus/rove/internal/ent/party"
 	"github.com/lesomnus/rove/internal/opensearchtest"
 	"github.com/lesomnus/rove/server/opensearch"
 )
@@ -41,15 +43,21 @@ func demo(t *testing.T, search bool) (cmd.Config, *cmd.Server) {
 	return c, s
 }
 
-// indexed is s with its index made, and the queue the demo left -- every
-// write of it written down -- worked off.
+// indexed is s with its indexes made, and the queue the demo left -- every
+// write of it written down -- worked off; and what the reindex of assets did.
 func indexed(t *testing.T, s *cmd.Server) opensearch.Reindexed {
 	t.Helper()
 	ctx := context.Background()
 	x := require.New(t)
 	x.Positive(queued(t, s), "the demo was written down as it was made")
-	r, err := opensearch.Reindex(ctx, s.Search, s.Ent, time.Now(), nil)
-	x.NoError(err)
+	var r opensearch.Reindexed
+	for _, ix := range opensearch.Indexes {
+		v, err := opensearch.Reindex(ctx, s.Search, s.Ent, ix, time.Now(), nil)
+		x.NoError(err)
+		if ix == opensearch.Assets {
+			r = v
+		}
+	}
 	for {
 		n, err := opensearch.Indexer{Client: s.Search, Db: s.Ent}.Pass(ctx)
 		x.NoError(err)
@@ -82,14 +90,14 @@ func TestNothingIsWrittenDownWithoutACluster(t *testing.T) {
 
 // TestTheIndexHearsOfWhatChanged: an asset renamed, the model it is of
 // renamed, the person who has it forgotten, the asset erased, and the
-// workspace taken out of the deployment -- each of them in the index after a
-// pass, and the queue empty again.
+// workspace taken out of the deployment -- each of them in the indexes after
+// a pass, and the queue empty again.
 func TestTheIndexHearsOfWhatChanged(t *testing.T) {
 	x := require.New(t)
 	ctx := context.Background()
 	c, s := demo(t, true)
 	indexed(t, s)
-	idx := s.Search.Alias()
+	idx := s.Search.Alias(opensearch.Assets)
 	pass := func() {
 		t.Helper()
 		_, err := opensearch.Indexer{Client: s.Search, Db: s.Ent}.Pass(ctx)
@@ -126,6 +134,9 @@ func TestTheIndexHearsOfWhatChanged(t *testing.T) {
 	for _, v := range same {
 		x.Equal("poweredge r770", docOf(v).Model, "%s takes its model's name", v.Name)
 	}
+	m, _, err := opensearch.ModelDocIn(s.Search, s.Search.Alias(opensearch.Models), a.ModelId.String())
+	x.NoError(err)
+	x.Equal("poweredge r770", m.Name, "the model's own document")
 
 	// The person who has it, forgotten as 개인정보 삭제 forgets them: the
 	// name they had is not in the index any more.
@@ -137,6 +148,9 @@ func TestTheIndexHearsOfWhatChanged(t *testing.T) {
 	x.NoError(err)
 	pass()
 	x.Equal("익명 1a2b3c4d", docOf(a).Custodian)
+	p, _, err := opensearch.PartyDocIn(s.Search, s.Search.Alias(opensearch.Parties), a.CustodianId.String())
+	x.NoError(err)
+	x.Equal("익명 1a2b3c4d", p.Name, "the person's own document")
 
 	// A write that has nothing to do with a document writes nothing down.
 	h, err := s.Ent.Holder.Query().First(ctx)
@@ -158,9 +172,52 @@ func TestTheIndexHearsOfWhatChanged(t *testing.T) {
 	x.NoError(err)
 	x.Equal(1, queued(t, s), "the purge says so itself, since its rows go past the recorder")
 	pass()
-	st, err := s.Search.Status(ctx)
+	for _, ix := range opensearch.Indexes {
+		st, err := s.Search.Status(ctx, ix)
+		x.NoError(err)
+		x.Zero(st.Docs, ix.Name)
+	}
+}
+
+// TestADocumentIsMadeAgainWithWhatItTakesANameFrom: a team renamed is in the
+// documents of its people, and a type renamed in those of its models.
+func TestADocumentIsMadeAgainWithWhatItTakesANameFrom(t *testing.T) {
+	x := require.New(t)
+	ctx := context.Background()
+	_, s := demo(t, true)
+	indexed(t, s)
+	pass := func() {
+		t.Helper()
+		_, err := opensearch.Indexer{Client: s.Search, Db: s.Ent}.Pass(ctx)
+		x.NoError(err)
+	}
+
+	team, err := s.Ent.Party.Query().Where(party.Kind("team"), party.DateErasedIsNil()).First(ctx)
 	x.NoError(err)
-	x.Zero(st.Docs)
+	people, err := s.Ent.Party.Query().Where(party.ParentId(team.Id), party.DateErasedIsNil()).All(ctx)
+	x.NoError(err)
+	x.NotEmpty(people, "the demo puts people in teams")
+	_, err = s.Base.Party().Patch(ctx, app.PartyPatchRequest_builder{
+		Ref: app.PartyRef_builder{Id: pdid.Id(team.Id).Bytes()}.Build(), Name: z.Ptr("플랫폼팀"), DateUpdatedForce: z.Ptr(true),
+	}.Build())
+	x.NoError(err)
+	pass()
+	for _, p := range people {
+		d, _, err := opensearch.PartyDocIn(s.Search, s.Search.Alias(opensearch.Parties), p.Id.String())
+		x.NoError(err)
+		x.Equal("플랫폼팀", d.In, "%s is in the team by its name now", p.Name)
+	}
+
+	model, err := s.Ent.ItemModel.Query().Where(itemmodel.DateErasedIsNil()).First(ctx)
+	x.NoError(err)
+	_, err = s.Base.AssetType().Patch(ctx, app.AssetTypePatchRequest_builder{
+		Ref: app.AssetTypeRef_builder{Id: pdid.Id(model.TypeId).Bytes()}.Build(), Name: z.Ptr("고성능 장비"), DateUpdatedForce: z.Ptr(true),
+	}.Build())
+	x.NoError(err)
+	pass()
+	d, _, err := opensearch.ModelDocIn(s.Search, s.Search.Alias(opensearch.Models), model.Id.String())
+	x.NoError(err)
+	x.Equal("고성능 장비", d.Type)
 }
 
 // TestWhatAPassCannotWriteWaitsInTheQueue for the next pass, and a cluster
@@ -193,7 +250,7 @@ func TestWhatAPassCannotWriteWaitsInTheQueue(t *testing.T) {
 	n, err := opensearch.Indexer{Client: s.Search, Db: s.Ent}.Pass(ctx)
 	x.NoError(err)
 	x.Equal(1, n)
-	d, _, err := opensearch.DocIn(s.Search, s.Search.Alias(), a.Id.String())
+	d, _, err := opensearch.DocIn(s.Search, s.Search.Alias(opensearch.Assets), a.Id.String())
 	x.NoError(err)
 	x.Equal("웹서버", d.Name)
 }
@@ -205,7 +262,7 @@ func TestAPassWritesToTheIndexAReindexIsFilling(t *testing.T) {
 	ctx := context.Background()
 	_, s := demo(t, true)
 	r := indexed(t, s)
-	filling, err := opensearch.Make(s.Search, time.Now().Add(time.Second))
+	filling, err := opensearch.Make(s.Search, opensearch.Assets, time.Now().Add(time.Second))
 	x.NoError(err)
 
 	a, err := s.Ent.Asset.Query().First(ctx)
@@ -227,12 +284,19 @@ func TestAPassWritesToTheIndexAReindexIsFilling(t *testing.T) {
 }
 
 // TestTheLoopMakesTheIndexWhenThereIsNone, or when what there is is of a
-// shape this build does not make, and searches from it once it is whole.
+// shape this build does not make, and searches from it once it is whole --
+// each of them.
 func TestTheLoopMakesTheIndexWhenThereIsNone(t *testing.T) {
 	x := require.New(t)
+	ctx := context.Background()
 	_, s := demo(t, true)
-	want, err := s.Ent.Asset.Query().Where(asset.DateErasedIsNil()).Count(context.Background())
+	assets, err := s.Ent.Asset.Query().Where(asset.DateErasedIsNil()).Count(ctx)
 	x.NoError(err)
+	parties, err := s.Ent.Party.Query().Where(party.DateErasedIsNil()).Count(ctx)
+	x.NoError(err)
+	models, err := s.Ent.ItemModel.Query().Where(itemmodel.DateErasedIsNil()).Count(ctx)
+	x.NoError(err)
+	want := map[*opensearch.Index]int{opensearch.Assets: assets, opensearch.Parties: parties, opensearch.Models: models}
 
 	made := func() opensearch.State {
 		t.Helper()
@@ -247,18 +311,26 @@ func TestTheLoopMakesTheIndexWhenThereIsNone(t *testing.T) {
 		}()
 		var st opensearch.State
 		x.Eventually(func() bool {
-			st, err = s.Search.Status(context.Background())
-			x.NoError(err)
-			// Whole, and what it replaced deleted: the alias moves before
-			// the old index goes.
-			return st.Index != "" && st.Version == opensearch.Version && st.Docs == int64(want) && len(st.Others) == 0
+			for _, ix := range opensearch.Indexes {
+				v, err := s.Search.Status(context.Background(), ix)
+				x.NoError(err)
+				// Whole, and what it replaced deleted: the alias moves
+				// before the old index goes.
+				if v.Index == "" || v.Version != ix.Version || v.Docs != int64(want[ix]) || len(v.Others) > 0 {
+					return false
+				}
+				if ix == opensearch.Assets {
+					st = v
+				}
+			}
+			return true
 		}, 20*time.Second, 50*time.Millisecond)
 		return st
 	}
 
 	first := made()
 
-	old, err := opensearch.MakeOld(s.Search, time.Now().Add(time.Hour))
+	old, err := opensearch.MakeOld(s.Search, opensearch.Assets, time.Now().Add(time.Hour))
 	x.NoError(err)
 	second := made()
 	x.NotEqual(old, second.Index, "an index of another shape is made again")

@@ -11,7 +11,10 @@ import (
 	"github.com/lesomnus/xli/flg"
 
 	"github.com/lesomnus/rove/cmd"
+	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/internal/ent/asset"
+	"github.com/lesomnus/rove/internal/ent/itemmodel"
+	"github.com/lesomnus/rove/internal/ent/party"
 	"github.com/lesomnus/rove/internal/identity"
 	"github.com/lesomnus/rove/server/opensearch"
 )
@@ -26,21 +29,21 @@ func NewCmdSearch(c *cmd.Config) *xli.Command {
 		Commands: xli.Commands{
 			{
 				Name:  "status",
-				Brief: "what the index of assets is, against what the database holds",
+				Brief: "what each index is -- of assets, parties and models -- against what the database holds",
 				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
 					return searchStatus(ctx, self, c)
 				}),
 			},
 			{
 				Name:  "reindex",
-				Brief: "make the index of assets again from the database, and search it once it is whole",
+				Brief: "make each index again from the database, and search it once it is whole",
 				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
 					return searchReindex(ctx, self, c)
 				}),
 			},
 			{
 				Name:  "remove",
-				Brief: "delete every index of assets this deployment made, and the alias with them",
+				Brief: "delete every index this deployment made, and the aliases with them",
 				Flags: flg.Flags{
 					&flg.Switch{Name: "yes", Brief: "do it; without this it only says what it would do"},
 				},
@@ -75,6 +78,18 @@ func searchClient(c *cmd.Config) (*opensearch.Client, error) {
 	return o, nil
 }
 
+// held is how many rows of what ix holds documents of the database has, not
+// erased.
+func held(ctx context.Context, db *ent.Client, ix *opensearch.Index) (int, error) {
+	switch ix {
+	case opensearch.Parties:
+		return db.Party.Query().Where(party.DateErasedIsNil()).Count(ctx)
+	case opensearch.Models:
+		return db.ItemModel.Query().Where(itemmodel.DateErasedIsNil()).Count(ctx)
+	}
+	return db.Asset.Query().Where(asset.DateErasedIsNil()).Count(ctx)
+}
+
 // searchStatus is `rove search status`.
 func searchStatus(ctx context.Context, self *xli.Command, c *cmd.Config) error {
 	o, err := searchClient(c)
@@ -88,26 +103,28 @@ func searchStatus(ctx context.Context, self *xli.Command, c *cmd.Config) error {
 	}
 	defer s.Close()
 
-	st, err := o.Status(ctx)
-	if err != nil {
-		return err
-	}
-	assets, err := s.Ent.Asset.Query().Where(asset.DateErasedIsNil()).Count(ctx)
-	if err != nil {
-		return err
-	}
-
-	if st.Index == "" {
-		self.Printf("%s points at no index: `rove search reindex` makes one (%d assets)\n", st.Alias, assets)
-	} else {
-		self.Printf("%s → %s\n", st.Alias, st.Index)
-		self.Printf("  %d documents, %d assets in the database\n", st.Docs, assets)
-		if st.Version != opensearch.Version {
-			self.Printf("  made in shape %d, and this build makes %d: `rove search reindex` makes it again\n", st.Version, opensearch.Version)
+	for _, ix := range opensearch.Indexes {
+		st, err := o.Status(ctx, ix)
+		if err != nil {
+			return err
 		}
-	}
-	if len(st.Others) > 0 {
-		self.Printf("  left by a reindex that stopped, and deleted by the next: %s\n", strings.Join(st.Others, ", "))
+		n, err := held(ctx, s.Ent, ix)
+		if err != nil {
+			return err
+		}
+
+		if st.Index == "" {
+			self.Printf("%s points at no index: `rove search reindex` makes one (%d %s)\n", st.Alias, n, ix.Name)
+		} else {
+			self.Printf("%s → %s\n", st.Alias, st.Index)
+			self.Printf("  %d documents, %d %s in the database\n", st.Docs, n, ix.Name)
+			if st.Version != ix.Version {
+				self.Printf("  made in shape %d, and this build makes %d: `rove search reindex` makes it again\n", st.Version, ix.Version)
+			}
+		}
+		if len(st.Others) > 0 {
+			self.Printf("  left by a reindex that stopped, and deleted by the next: %s\n", strings.Join(st.Others, ", "))
+		}
 	}
 	return nil
 }
@@ -125,17 +142,19 @@ func searchReindex(ctx context.Context, self *xli.Command, c *cmd.Config) error 
 	}
 	defer s.Close()
 
-	r, err := opensearch.Reindex(ctx, o, s.Ent, time.Now(), func(n int) {
-		if n%10000 == 0 {
-			self.Printf("  %d assets\n", n)
+	for _, ix := range opensearch.Indexes {
+		r, err := opensearch.Reindex(ctx, o, s.Ent, ix, time.Now(), func(n int) {
+			if n%10000 == 0 {
+				self.Printf("  %d %s\n", n, ix.Name)
+			}
+		})
+		if err != nil {
+			return err
 		}
-	})
-	if err != nil {
-		return err
-	}
-	self.Printf("made %s with %d assets, and %s points at it\n", r.Index, r.Docs, o.Alias())
-	for _, v := range r.Replaced {
-		self.Printf("deleted %s\n", v)
+		self.Printf("made %s with %d %s, and %s points at it\n", r.Index, r.Docs, ix.Name, o.Alias(ix))
+		for _, v := range r.Replaced {
+			self.Printf("deleted %s\n", v)
+		}
 	}
 	return nil
 }
@@ -150,16 +169,19 @@ func searchRemove(ctx context.Context, self *xli.Command, c *cmd.Config, yes boo
 	}
 	defer o.Close()
 
-	st, err := o.Status(ctx)
-	if err != nil {
-		return err
-	}
-	names := st.Others
-	if st.Index != "" {
-		names = append([]string{st.Index}, names...)
+	names := []string{}
+	for _, ix := range opensearch.Indexes {
+		st, err := o.Status(ctx, ix)
+		if err != nil {
+			return err
+		}
+		if st.Index != "" {
+			names = append(names, st.Index)
+		}
+		names = append(names, st.Others...)
 	}
 	if len(names) == 0 {
-		self.Printf("%s has no index to delete\n", st.Alias)
+		self.Printf("this deployment has no index to delete\n")
 		return nil
 	}
 	if !yes {
@@ -185,7 +207,7 @@ func searchAnalyze(ctx context.Context, self *xli.Command, c *cmd.Config, text s
 		words, err := o.Analyze(ctx, v.analyzer, text)
 		if err != nil {
 			if opensearch.IsNotFound(err) {
-				return errors.New(o.Alias() + " points at no index: `rove search reindex` makes one")
+				return errors.New(o.Alias(opensearch.Assets) + " points at no index: `rove search reindex` makes one")
 			}
 			return err
 		}

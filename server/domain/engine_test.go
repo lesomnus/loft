@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net"
 	"testing"
-	"time"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -21,8 +20,7 @@ import (
 func newSearchingEnv(t *testing.T) *env {
 	t.Helper()
 	e := newEnvWith(t, func(c *cmd.Config) { c.App.Search.Opensearch = opensearchtest.Config(t) })
-	_, err := opensearch.Reindex(context.Background(), e.s.Search, e.s.Ent, time.Now(), nil)
-	e.x.NoError(err)
+	opensearchtest.Made(t, e.s.Search, e.s.Ent)
 	return e
 }
 

@@ -30,15 +30,6 @@ func found(postgres bool, tenant uuid.UUID, q string) func(*sql.Selector) {
 	if prefix {
 		pattern = search.Like(f) + "%"
 	}
-	fold := func(col string) string {
-		if postgres {
-			return "lower(normalize(" + col + ", NFKC))"
-		}
-		// SQLite has no normal forms; the query is folded, the rows are
-		// compared as they are.
-		return "lower(" + col + ")"
-	}
-
 	type set struct{ from, text string }
 	sets := []set{
 		{`asset a`, `a."tag"`},
@@ -63,13 +54,45 @@ func found(postgres bool, tenant uuid.UUID, q string) func(*sql.Selector) {
 				}
 				b.S(`SELECT a."id" FROM ` + v.from + ` WHERE a."tenant_id" = `)
 				b.Arg(tenant)
-				b.S(" AND " + fold(v.text) + " LIKE ")
+				b.S(" AND " + fold(postgres, v.text) + " LIKE ")
 				b.Arg(pattern)
 				b.S(` ESCAPE '\'`)
 			}
 			b.S(")")
 		}))
 	}
+}
+
+// like is the rows of a table one of whose columns has q in it, folded --
+// begins with it, for a single letter, and then the first column alone: what
+// the searches of people and models ask the database (`find.go`).
+func like(postgres bool, cols []string, q string) func(*sql.Selector) {
+	f := search.Fold(q)
+	pattern := "%" + search.Like(f) + "%"
+	if search.ByPrefix(f) {
+		pattern, cols = search.Like(f)+"%", cols[:1]
+	}
+	return func(s *sql.Selector) {
+		ps := make([]*sql.Predicate, 0, len(cols))
+		for _, c := range cols {
+			ps = append(ps, sql.P(func(b *sql.Builder) {
+				b.S(fold(postgres, s.C(c)) + " LIKE ")
+				b.Arg(pattern)
+				b.S(` ESCAPE '\'`)
+			}))
+		}
+		s.Where(sql.Or(ps...))
+	}
+}
+
+// fold is a column as the database compares it with what was typed.
+func fold(postgres bool, col string) string {
+	if postgres {
+		return "lower(normalize(" + col + ", NFKC))"
+	}
+	// SQLite has no normal forms; the query is folded, the rows are compared
+	// as they are.
+	return "lower(" + col + ")"
 }
 
 // postgres says whether this transaction is on PostgreSQL, where the text is

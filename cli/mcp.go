@@ -25,7 +25,6 @@ import (
 	"github.com/lesomnus/payday/version"
 
 	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/search"
 )
 
 // NewCmdMcp is `rove mcp`: an MCP server on stdin and stdout, for an
@@ -137,13 +136,19 @@ func newMcp(ws string, log *slog.Logger) *mcp.Server {
 		Annotations: read,
 	}, t.reservations)
 	mcp.AddTool(s, &mcp.Tool{
-		Name:        "list_people",
-		Description: "People, teams, organizations and vendors in the workspace, with the team each is in: the ids search_assets and list_custody take.",
+		Name: "find_people",
+		Description: "Find people, teams, organizations and vendors by a name or part of it, a code, or the team one is in -- or list them, of a kind, with no query. " +
+			"Answers the ids search_assets and list_custody take, and the team each is in.",
 		InputSchema: mcpSchema[mcpPeopleIn](map[string][]any{
 			"kind": {"person", "team", "org", "vendor"},
 		}),
 		Annotations: read,
-	}, t.listPeople)
+	}, t.findPeople)
+	mcp.AddTool(s, &mcp.Tool{
+		Name:        "find_models",
+		Description: "Find models by a name, who makes them, a code, or what they are a model of -- or list them, of a type, with no query.",
+		Annotations: read,
+	}, t.findModels)
 	return s
 }
 
@@ -544,7 +549,7 @@ type mcpSearchIn struct {
 	Kind      string `json:"kind,omitempty" jsonschema:"only assets of this kind"`
 	Status    string `json:"status,omitempty" jsonschema:"only assets in this status"`
 	Within    string `json:"within,omitempty" jsonschema:"only what is inside this asset now, at any depth: its id or its tag"`
-	Custodian string `json:"custodian,omitempty" jsonschema:"only what this person or team has: an id list_people answers with"`
+	Custodian string `json:"custodian,omitempty" jsonschema:"only what this person or team has: an id find_people answers with"`
 	Type      string `json:"type,omitempty" jsonschema:"only assets of this type: a type id another answer gave"`
 	Limit     int    `json:"limit,omitempty" jsonschema:"how many to answer with: 20 if left out, 100 at most"`
 	Offset    int    `json:"offset,omitempty" jsonschema:"how many to skip, for the next page"`
@@ -877,7 +882,7 @@ func (t mcpTools) recentEvents(ctx context.Context, _ *mcp.CallToolRequest, in m
 }
 
 type mcpCustodyIn struct {
-	Party  string `json:"party,omitempty" jsonschema:"only what this person or team was given: an id list_people answers with"`
+	Party  string `json:"party,omitempty" jsonschema:"only what this person or team was given: an id find_people answers with"`
 	Status string `json:"status,omitempty" jsonschema:"open (still out) if left out; any is every state"`
 	Kind   string `json:"kind,omitempty" jsonschema:"issue (handed over to keep) or loan (lent, due back)"`
 	Limit  int    `json:"limit,omitempty" jsonschema:"how many hand-overs: 20 if left out, 100 at most"`
@@ -1119,9 +1124,10 @@ func (t mcpTools) reservations(ctx context.Context, _ *mcp.CallToolRequest, in m
 }
 
 type mcpPeopleIn struct {
-	Name  string `json:"name,omitempty" jsonschema:"only those whose name has this in it"`
-	Kind  string `json:"kind,omitempty" jsonschema:"only this kind"`
-	Limit int    `json:"limit,omitempty" jsonschema:"how many: 50 if left out, 200 at most"`
+	Query  string `json:"query,omitempty" jsonschema:"a name or part of it, a code, or a team's name; every one of the kind if left out"`
+	Kind   string `json:"kind,omitempty" jsonschema:"only this kind"`
+	Limit  int    `json:"limit,omitempty" jsonschema:"how many: 20 if left out, 100 at most"`
+	Offset int    `json:"offset,omitempty" jsonschema:"how many to skip, for the next page"`
 }
 
 type mcpParty struct {
@@ -1133,14 +1139,11 @@ type mcpParty struct {
 }
 
 type mcpPeople struct {
+	Total int        `json:"total" jsonschema:"how many match in all"`
 	Items []mcpParty `json:"items"`
-	More  bool       `json:"more" jsonschema:"whether there are more than these: narrow it, or ask for more"`
 }
 
-// listPeople reads the workspace's parties through the generated List and
-// matches a name here, in this process: the database is not asked to search
-// them, and the engine will be (rove#91).
-func (t mcpTools) listPeople(ctx context.Context, _ *mcp.CallToolRequest, in mcpPeopleIn) (*mcp.CallToolResult, mcpPeople, error) {
+func (t mcpTools) findPeople(ctx context.Context, _ *mcp.CallToolRequest, in mcpPeopleIn) (*mcp.CallToolResult, mcpPeople, error) {
 	out := mcpPeople{Items: []mcpParty{}}
 	c, err := t.call(ctx)
 	if err != nil {
@@ -1148,53 +1151,98 @@ func (t mcpTools) listPeople(ctx context.Context, _ *mcp.CallToolRequest, in mcp
 	}
 	n := in.Limit
 	if n <= 0 {
-		n = 50
+		n = 20
 	}
-	n = min(n, 200)
-	want := search.Fold(strings.TrimSpace(in.Name))
-	filters := []*app.PartyFilter{}
-	if in.Kind != "" {
-		f := &app.PartyFilter{}
-		f.SetKind(in.Kind)
-		filters = append(filters, f)
-	}
-	found := []*app.Party{}
-	after := ""
-	// Ten pages of two hundred at most, which is a big workspace's people.
-	for range 10 {
-		v, err := app.NewPartyServiceClient(c.conn).List(ctx, app.PartyListRequest_builder{Filters: filters, Size: 200, After: after}.Build())
-		if err != nil {
-			return nil, out, failed(err)
-		}
-		for _, p := range v.GetItems() {
-			if want != "" && !strings.Contains(search.Fold(p.GetName()), want) {
-				continue
-			}
-			found = append(found, p)
-		}
-		after = v.GetNext()
-		if after == "" || len(found) > n {
-			break
-		}
-	}
-	if len(found) > n {
-		found, out.More = found[:n], true
-	} else if after != "" {
-		out.More = true
+	v, err := app.NewPartyServiceClient(c.conn).Search(ctx, app.PartySearchRequest_builder{
+		Q:      in.Query,
+		Kind:   in.Kind,
+		Size:   uint32(min(n, 100)),
+		Offset: uint32(max(in.Offset, 0)),
+	}.Build())
+	if err != nil {
+		return nil, out, failed(err)
 	}
 	ups := []pdid.Id{}
-	for _, p := range found {
+	for _, p := range v.GetItems() {
 		c.parties[pid(p.GetId())] = p.GetName()
 		ups = append(ups, pid(p.GetParentId()))
 	}
 	c.fetchParties(ups)
-	for _, p := range found {
+	out.Total = int(v.GetTotal())
+	for _, p := range v.GetItems() {
 		out.Items = append(out.Items, mcpParty{
 			Id:   idString(p.GetId()),
 			Name: p.GetName(),
 			Kind: p.GetKind(),
 			In:   c.named(c.parties, p.GetParentId()),
 			Code: p.GetCode(),
+		})
+	}
+	return nil, out, nil
+}
+
+type mcpModelsIn struct {
+	Query  string `json:"query,omitempty" jsonschema:"a name, who makes it, a code, or what it is a model of; every one if left out"`
+	Type   string `json:"type,omitempty" jsonschema:"only models of this type: a type id another answer gave"`
+	Limit  int    `json:"limit,omitempty" jsonschema:"how many: 20 if left out, 100 at most"`
+	Offset int    `json:"offset,omitempty" jsonschema:"how many to skip, for the next page"`
+}
+
+type mcpModel struct {
+	Id    string  `json:"id"`
+	Name  string  `json:"name"`
+	Maker string  `json:"maker,omitempty"`
+	Code  string  `json:"code,omitempty"`
+	Type  *mcpRef `json:"type,omitempty" jsonschema:"what it is a model of"`
+}
+
+type mcpModels struct {
+	Total int        `json:"total" jsonschema:"how many match in all"`
+	Items []mcpModel `json:"items"`
+}
+
+func (t mcpTools) findModels(ctx context.Context, _ *mcp.CallToolRequest, in mcpModelsIn) (*mcp.CallToolResult, mcpModels, error) {
+	out := mcpModels{Items: []mcpModel{}}
+	c, err := t.call(ctx)
+	if err != nil {
+		return nil, out, err
+	}
+	n := in.Limit
+	if n <= 0 {
+		n = 20
+	}
+	req := app.ItemModelSearchRequest_builder{
+		Q:      in.Query,
+		Size:   uint32(min(n, 100)),
+		Offset: uint32(max(in.Offset, 0)),
+	}.Build()
+	if in.Type != "" {
+		id, err := idOf("type", in.Type)
+		if err != nil {
+			return nil, out, err
+		}
+		req.SetType(app.AssetTypeById(id.Bytes()))
+	}
+	v, err := app.NewItemModelServiceClient(c.conn).Search(ctx, req)
+	if err != nil {
+		return nil, out, failed(err)
+	}
+	types := []pdid.Id{}
+	for _, m := range v.GetItems() {
+		types = append(types, pid(m.GetType().GetId()))
+	}
+	fetch(c, c.types, types, func(id pdid.Id) (string, error) {
+		v, err := app.NewAssetTypeServiceClient(c.conn).Get(ctx, app.AssetTypeGetRequest_builder{Ref: app.AssetTypeById(id.Bytes())}.Build())
+		return v.GetName(), err
+	})
+	out.Total = int(v.GetTotal())
+	for _, m := range v.GetItems() {
+		out.Items = append(out.Items, mcpModel{
+			Id:    idString(m.GetId()),
+			Name:  m.GetName(),
+			Maker: m.GetMaker(),
+			Code:  m.GetCode(),
+			Type:  c.named(c.types, m.GetType().GetId()),
 		})
 	}
 	return nil, out, nil
