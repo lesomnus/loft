@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -123,12 +124,14 @@ func (s *served) waiting() string {
 
 // login runs `rove login` and answers it in a browser as somebody: what
 // `answer` does with the code it was shown.
-func (s *served) login(answer func(code string)) error {
+func (s *served) login(answer func(code string), args ...string) error {
 	s.t.Helper()
 	k := cli.NewCmdLogin()
 	k.Writer = io.Discard
 	done := make(chan error, 1)
-	go func() { done <- k.Run(context.Background(), []string{"--url", s.url, "--no-browser"}) }()
+	go func() {
+		done <- k.Run(context.Background(), append([]string{"--url", s.url, "--no-browser"}, args...))
+	}()
 	answer(s.waiting())
 	select {
 	case err := <-done:
@@ -139,17 +142,33 @@ func (s *served) login(answer func(code string)) error {
 	}
 }
 
-// signIn is a terminal signed in as somebody, approved in their browser.
-func (s *served) signIn(login, password string) {
+// signIn is a terminal signed in as somebody, approved in their browser --
+// narrowed to what `allow` names, for `rove login --allow`.
+func (s *served) signIn(login, password string, allow ...string) {
 	s.t.Helper()
 	cookie := s.browser(login, password)
+	args := []string{}
+	for _, v := range allow {
+		args = append(args, "--allow", v)
+	}
 	s.x.NoError(s.login(func(code string) {
 		status, body := s.http(http.MethodGet, "/cli/logins?code="+code, cookie, nil)
 		s.x.Equal(http.StatusOK, status, body)
 		s.x.Contains(body, "rove CLI on", "what the page shows of the terminal asking")
 		status, body = s.http(http.MethodPost, "/cli/logins/approve", cookie, map[string]string{"code": code})
 		s.x.Equal(http.StatusNoContent, status, body)
-	}))
+	}, args...))
+}
+
+// terminal is the cookie the terminal signed in last holds, as `rove api`
+// sends it.
+func (s *served) terminal() string {
+	s.t.Helper()
+	b, err := os.ReadFile(os.Getenv("ROVE_CLIENT_CONFIG"))
+	s.x.NoError(err)
+	var v struct{ Cookie, Key string }
+	s.x.NoError(json.Unmarshal(b, &v))
+	return v.Cookie + "=" + v.Key
 }
 
 // TestATerminalSignsInByBeingApproved.
@@ -201,6 +220,59 @@ func TestATerminalIsHeldToWhatItsAccountMay(t *testing.T) {
 	x.NotContains(out, "error")
 	err := cli.NewCmdApi().Run(context.Background(), []string{"asset", "add", `{"name": "x"}`})
 	x.ErrorContains(err, "PermissionDenied")
+}
+
+// TestATerminalMayBeNarrowed to some methods (D33): what it asked for is on
+// the page that approves it, and on every call after it the server holds it
+// to them -- whatever its account may do, and whoever holds its key. Beside
+// the RPCs it reads what its account is, and does nothing an account does:
+// it approves no terminal, takes no data out, makes no workspace.
+func TestATerminalMayBeNarrowed(t *testing.T) {
+	s := serve(t)
+	x := s.x
+	browser := s.browser("owner", "owner1234")
+	x.NoError(s.login(func(code string) {
+		status, body := s.http(http.MethodGet, "/cli/logins?code="+code, browser, nil)
+		x.Equal(http.StatusOK, status, body)
+		x.Contains(body, `"allow":["/rove.*/Get","/rove.*/List"`, "the page shows what it asks for: %s", body)
+		status, body = s.http(http.MethodPost, "/cli/logins/approve", browser, map[string]string{"code": code})
+		x.Equal(http.StatusNoContent, status, body)
+	}, "--allow", "read"))
+
+	out := run(t, cli.NewCmdWhoami())
+	x.Contains(out, "allowed only: /rove.*/Get, /rove.*/List")
+	out = run(t, cli.NewCmdApi(), "asset", "ls", "-o", "json")
+	x.NotContains(out, "error", "a read")
+	err := cli.NewCmdApi().Run(context.Background(), []string{"asset", "add", `{"name": "x"}`})
+	x.ErrorContains(err, "PermissionDenied")
+	x.ErrorContains(err, "this credential is not for that", "though the owner may")
+
+	narrowed := s.terminal()
+	status, body := s.http(http.MethodGet, "/account", narrowed, nil)
+	x.Equal(http.StatusOK, status, body)
+	x.Contains(body, `"allow":[`)
+	status, _ = s.http(http.MethodGet, "/account/workspaces/acme/export", narrowed, nil)
+	x.Equal(http.StatusForbidden, status, "no data out")
+	status, _ = s.http(http.MethodPost, "/account/workspaces", narrowed, map[string]string{"name": "몰래"})
+	x.Equal(http.StatusForbidden, status, "no workspace made")
+
+	// Nor another terminal approved, which would be one that may do all of it.
+	other := s.login(func(code string) {
+		status, _ := s.http(http.MethodPost, "/cli/logins/approve", narrowed, map[string]string{"code": code})
+		x.Equal(http.StatusForbidden, status)
+		status, _ = s.http(http.MethodPost, "/cli/logins/deny", browser, map[string]string{"code": code})
+		x.Equal(http.StatusNoContent, status)
+	})
+	x.ErrorContains(other, "turned away")
+
+	// A pattern of one service is that service.
+	s.signIn("owner", "owner1234", "/rove.AssetService/*")
+	run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "노트북", "tag": "NB-1"}`)
+	err = cli.NewCmdApi().Run(context.Background(), []string{"party", "add", `{"name": "김민수"}`})
+	x.ErrorContains(err, "this credential is not for that")
+
+	status, body = s.http(http.MethodPost, "/cli/logins", "", map[string]any{"secret": strings.Repeat("D", 43), "allow": []string{"rove.AssetService"}})
+	x.Equal(http.StatusBadRequest, status, "a pattern that is not one: %s", body)
 }
 
 // TestAWatchComesThroughTheBrowsersAddress: a server stream, which is what

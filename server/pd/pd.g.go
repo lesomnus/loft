@@ -23689,6 +23689,7 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				{Number: 10, Name: clilogin.FieldClient, Type: 9, Nullable: false, Key: 0},
 				{Number: 11, Name: clilogin.FieldOrigin, Type: 9, Nullable: false, Key: 0},
 				{Number: 18, Name: clilogin.FieldAddress, Type: 9, Nullable: false, Key: 0},
+				{Number: 19, Name: clilogin.FieldGrant, Type: 12, Nullable: false, Key: 0},
 				{Number: 16, Name: clilogin.FieldState, Type: 9, Nullable: false, Key: 0},
 				{Number: 17, Name: clilogin.FieldDateExpires, Type: 65, Nullable: false, Key: 0},
 				{Number: 13, Name: clilogin.FieldDateUpdated, Type: 65, Nullable: false, Key: 0},

@@ -1013,6 +1013,7 @@ type CliLogin struct {
 	xxx_hidden_Origin      string                 `protobuf:"bytes,11,opt,name=origin"`
 	xxx_hidden_Address     string                 `protobuf:"bytes,18,opt,name=address"`
 	xxx_hidden_Account     []byte                 `protobuf:"bytes,12,opt,name=account"`
+	xxx_hidden_Grant       []byte                 `protobuf:"bytes,19,opt,name=grant"`
 	xxx_hidden_State       string                 `protobuf:"bytes,16,opt,name=state"`
 	xxx_hidden_DateExpires *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=date_expires,json=dateExpires"`
 	xxx_hidden_DateUpdated *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
@@ -1096,6 +1097,13 @@ func (x *CliLogin) GetAccount() []byte {
 	return nil
 }
 
+func (x *CliLogin) GetGrant() []byte {
+	if x != nil {
+		return x.xxx_hidden_Grant
+	}
+	return nil
+}
+
 func (x *CliLogin) GetState() string {
 	if x != nil {
 		return x.xxx_hidden_State
@@ -1166,6 +1174,13 @@ func (x *CliLogin) SetAccount(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_Account = v
+}
+
+func (x *CliLogin) SetGrant(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Grant = v
 }
 
 func (x *CliLogin) SetState(v string) {
@@ -1251,6 +1266,10 @@ type CliLogin_builder struct {
 	Address string
 	// The account that approved it, once one has.
 	Account []byte
+	// What the terminal asked to be allowed, which the page shows and the
+	// session it gets is narrowed to: `Session.grant`'s bytes. Empty is all
+	// that the account may do (`rove login --allow`, D33).
+	Grant []byte
 	// `pending`, `approved` or `denied`. One still pending after
 	// `date_expires` is expired, which is said where it is read.
 	State       string
@@ -1271,6 +1290,7 @@ func (b0 CliLogin_builder) Build() *CliLogin {
 	x.xxx_hidden_Origin = b.Origin
 	x.xxx_hidden_Address = b.Address
 	x.xxx_hidden_Account = b.Account
+	x.xxx_hidden_Grant = b.Grant
 	x.xxx_hidden_State = b.State
 	x.xxx_hidden_DateExpires = b.DateExpires
 	x.xxx_hidden_DateUpdated = b.DateUpdated
@@ -1929,7 +1949,7 @@ const file_rove_org_proto_rawDesc = "" +
 	"\x03ref\x1a\b\n" +
 	"\x06tenant\x1a\t\n" +
 	"\aaccount\x1a\a\n" +
-	"\x05state 2(\xc8\x01\"\xf3\x04\n" +
+	"\x05state 2(\xc8\x01\"\x92\x05\n" +
 	"\bCliLogin\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12%\n" +
 	"\x06secret\x18\b \x01(\fB\r\xea\x82\x16\x03\x82\x01\x00\xaa\xc1\x16\x02\b\x01R\x06secret\x12\x12\n" +
@@ -1938,7 +1958,8 @@ const file_rove_org_proto_rawDesc = "" +
 	" \x01(\tR\x06client\x12\x16\n" +
 	"\x06origin\x18\v \x01(\tR\x06origin\x12!\n" +
 	"\aaddress\x18\x12 \x01(\tB\a\xea\x82\x16\x03\x82\x01\x00R\aaddress\x12\"\n" +
-	"\aaccount\x18\f \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\aaccount\x12\x14\n" +
+	"\aaccount\x18\f \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\aaccount\x12\x1d\n" +
+	"\x05grant\x18\x13 \x01(\fB\a\xea\x82\x16\x03\x82\x01\x00R\x05grant\x12\x14\n" +
 	"\x05state\x18\x10 \x01(\tR\x05state\x12F\n" +
 	"\fdate_expires\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\vdateExpires\x12F\n" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12D\n" +

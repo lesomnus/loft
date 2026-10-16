@@ -292,6 +292,11 @@ message CliLogin {
     nullable: true
   }];
 
+  // What the terminal asked to be allowed, which the page shows and the
+  // session it gets is narrowed to: `Session.grant`'s bytes. Empty is all
+  // that the account may do (`rove login --allow`, D33).
+  bytes grant = 19 [(orm.field) = {default: ""}];
+
   // `pending`, `approved` or `denied`. One still pending after
   // `date_expires` is expired, which is said where it is read.
   string state = 16;

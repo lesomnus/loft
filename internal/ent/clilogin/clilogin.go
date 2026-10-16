@@ -23,6 +23,8 @@ const (
 	FieldAddress = "address"
 	// FieldAccount holds the string denoting the account field in the database.
 	FieldAccount = "account"
+	// FieldGrant holds the string denoting the grant field in the database.
+	FieldGrant = "grant"
 	// FieldState holds the string denoting the state field in the database.
 	FieldState = "state"
 	// FieldDateExpires holds the string denoting the date_expires field in the database.
@@ -46,6 +48,7 @@ var Columns = []string{
 	FieldOrigin,
 	FieldAddress,
 	FieldAccount,
+	FieldGrant,
 	FieldState,
 	FieldDateExpires,
 	FieldDateUpdated,

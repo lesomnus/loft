@@ -19,6 +19,8 @@ type Asking = {
 	origin: string
 	created: string
 	expires: string
+	/** The methods it asked to be narrowed to (`rove login --allow`); absent is all of the account's. */
+	allow?: string[]
 }
 
 type State =
@@ -101,6 +103,23 @@ export function Terminal(props: { account: Account; onSignOut: () => void }): Re
 							<dd>{state.v.origin}</dd>
 							<dt>요청 시각</dt>
 							<dd>{fmt(new Date(state.v.created))}</dd>
+							<dt>할 수 있는 것</dt>
+							<dd>
+								{state.v.allow?.length ? (
+									<>
+										<ul className="allow">
+											{state.v.allow.map((v) => (
+												<li key={v}>
+													<code>{v}</code>
+												</li>
+											))}
+										</ul>
+										<span className="mute small">이 터미널은 이 작업만 할 수 있습니다.</span>
+									</>
+								) : (
+									'이 계정이 할 수 있는 모든 작업'
+								)}
+							</dd>
 						</dl>
 						<p className="bad">
 							방금 내 컴퓨터의 터미널에서 <code>rove login</code>을 실행했고, 터미널에 같은 코드가 보일 때만 승인하세요. 누군가 이 주소를 보내며 승인해 달라고 했다면 거절하세요.

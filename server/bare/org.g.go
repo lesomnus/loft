@@ -1973,6 +1973,11 @@ func (s CliLoginServiceServer) Add(ctx context.Context, req *rove.CliLoginAddReq
 			q.SetAccount(v)
 		}
 	}
+	if req.HasGrant() {
+		q.SetGrant(req.GetGrant())
+	} else {
+		q.SetGrant([]byte{})
+	}
 	q.SetState(req.GetState())
 	if req.HasDateExpires() {
 		q.SetDateExpires(req.GetDateExpires().AsTime())
@@ -2076,6 +2081,9 @@ func CliLoginSelectedFields(m *rove.CliLoginSelect) []string {
 	if m.GetAccount() {
 		vs = append(vs, clilogin.FieldAccount)
 	}
+	if m.GetGrant() {
+		vs = append(vs, clilogin.FieldGrant)
+	}
 	if m.GetState() {
 		vs = append(vs, clilogin.FieldState)
 	}
@@ -2156,7 +2164,7 @@ func CliLoginGetKey(ctx context.Context, db *ent.Client, ref *rove.CliLoginRef) 
 var cliLoginOrmEntity = ormpatch.MustEntityOf(rove.File_rove_org_proto, "CliLogin")
 
 var cliLoginPatchColumns = entpatch.Columns{
-	1: clilogin.FieldId, 8: clilogin.FieldSecret, 9: clilogin.FieldCode, 10: clilogin.FieldClient, 11: clilogin.FieldOrigin, 18: clilogin.FieldAddress, 12: clilogin.FieldAccount, 16: clilogin.FieldState, 17: clilogin.FieldDateExpires, 13: clilogin.FieldDateUpdated, 14: clilogin.FieldDateErased, 15: clilogin.FieldDateCreated}
+	1: clilogin.FieldId, 8: clilogin.FieldSecret, 9: clilogin.FieldCode, 10: clilogin.FieldClient, 11: clilogin.FieldOrigin, 18: clilogin.FieldAddress, 12: clilogin.FieldAccount, 19: clilogin.FieldGrant, 16: clilogin.FieldState, 17: clilogin.FieldDateExpires, 13: clilogin.FieldDateUpdated, 14: clilogin.FieldDateErased, 15: clilogin.FieldDateCreated}
 
 func (s CliLoginServiceServer) Apply(ctx context.Context, req *rove.CliLoginApplyRequest) (*rove.CliLogin, error) {
 	if !req.HasPatch() {

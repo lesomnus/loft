@@ -184,6 +184,7 @@ func NewCmdLogin() *xli.Command {
 		Flags: flg.Flags{
 			&flg.String{Name: "url", Brief: "the app's address, e.g. https://rove.example; the last one used when left out"},
 			&flg.Switch{Name: "no-browser", Brief: "print the address to open rather than opening it"},
+			&flg.Strings{Name: "allow", Brief: "only this method or pattern (/rove.ReservationService/*, /rove.*/Get), again for more; `read` is every method that only reads"},
 		},
 		Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
 			was, err := loadClient()
@@ -201,7 +202,8 @@ func NewCmdLogin() *xli.Command {
 				return fmt.Errorf("--url: %w", err)
 			}
 			quiet, _ := flg.Find[bool](self, "no-browser")
-			v, err := login(ctx, self, strings.TrimSuffix(base, "/"), !quiet)
+			allow, _ := flg.Find[[]string](self, "allow")
+			v, err := login(ctx, self, strings.TrimSuffix(base, "/"), !quiet, expand(allow))
 			if err != nil {
 				return err
 			}
@@ -228,7 +230,37 @@ func NewCmdLogin() *xli.Command {
 	}
 }
 
-func login(ctx context.Context, self *xli.Command, base string, browser bool) (clientConfig, error) {
+// reads is what `rove login --allow read` asks for: the methods that only
+// read -- every entity's Get, List and Watch, and the searches, histories and
+// answers beside them -- for a terminal handed to an assistant that may look
+// and not touch. Named by pattern, so that a read added later is one too, and
+// never a method that writes: SetPassword and MarkRead are not here.
+var reads = []string{
+	"/rove.*/Get", "/rove.*/List", "/rove.*/Watch", "/rove.*/Search", "/rove.*/Recent",
+	"/rove.AssetService/Timeline", "/rove.AssetService/QueryAt", "/rove.AssetService/Diff", "/rove.AssetService/Report",
+	"/rove.ReservationService/Calendar", "/rove.BookableService/Availability",
+	"/rove.PartyService/Me", "/rove.LabelService/Resolve", "/rove.TenantDomainService/Status",
+	"/rove.AttachmentService/Url", "/rove.NotificationService/Inbox",
+}
+
+// expand is what `--allow` named, with `read` as [reads].
+func expand(vs []string) []string {
+	out := []string{}
+	for _, v := range vs {
+		for _, w := range strings.Split(v, ",") {
+			switch w = strings.TrimSpace(w); w {
+			case "":
+			case "read":
+				out = append(out, reads...)
+			default:
+				out = append(out, w)
+			}
+		}
+	}
+	return out
+}
+
+func login(ctx context.Context, self *xli.Command, base string, browser bool, allow []string) (clientConfig, error) {
 	raw := make([]byte, 32)
 	if _, err := rand.Read(raw); err != nil {
 		return clientConfig{}, err
@@ -240,11 +272,15 @@ func login(ctx context.Context, self *xli.Command, base string, browser bool) (c
 	host, _ := os.Hostname()
 	c := clientConfig{Url: base}
 	var started clilogin.Started
-	if _, err := c.do(ctx, http.MethodPost, "/cli/logins", map[string]string{
+	if _, err := c.do(ctx, http.MethodPost, "/cli/logins", map[string]any{
 		"secret": secret,
 		"client": fmt.Sprintf("rove CLI on %s (%s/%s)", host, runtime.GOOS, runtime.GOARCH),
+		"allow":  allow,
 	}, &started); err != nil {
 		return clientConfig{}, err
+	}
+	if len(allow) > 0 {
+		self.Printf("Asking to be allowed only:\n  %s\n\n", strings.Join(allow, "\n  "))
 	}
 	self.Printf("Open this address signed in, and approve it if it shows %s:\n\n  %s\n\n", started.Code, started.Approve)
 	if browser {
@@ -340,11 +376,15 @@ func NewCmdWhoami() *xli.Command {
 					Name  string `json:"name"`
 					Role  string `json:"role"`
 				} `json:"workspaces"`
+				Allow []string `json:"allow"`
 			}
 			if _, err := c.do(ctx, http.MethodGet, "/account", nil, &me); err != nil {
 				return err
 			}
 			self.Printf("%s (%s) at %s\n", me.Login, me.Name, c.Url)
+			if len(me.Allow) > 0 {
+				self.Printf("  allowed only: %s\n", strings.Join(me.Allow, ", "))
+			}
 			for _, w := range me.Workspaces {
 				mark := " "
 				if w.Alias == c.Workspace {

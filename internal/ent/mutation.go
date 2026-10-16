@@ -3201,6 +3201,23 @@ func (m *CliLoginMutation) OldAccount(ctx context.Context) (v *uuid.UUID, err er
 	return oldValue.Account, nil
 }
 
+// OldGrant returns the old "grant" field's value of the CliLogin entity.
+// If the CliLogin object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CliLoginMutation) OldGrant(ctx context.Context) (v []byte, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldGrant is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldGrant requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldGrant: %w", err)
+	}
+	return oldValue.Grant, nil
+}
+
 // OldState returns the old "state" field's value of the CliLogin entity.
 // If the CliLogin object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
@@ -3303,6 +3320,8 @@ func (m *CliLoginMutation) OldField(ctx context.Context, name string) (ent.Value
 		return m.OldAddress(ctx)
 	case clilogin.FieldAccount:
 		return m.OldAccount(ctx)
+	case clilogin.FieldGrant:
+		return m.OldGrant(ctx)
 	case clilogin.FieldState:
 		return m.OldState(ctx)
 	case clilogin.FieldDateExpires:

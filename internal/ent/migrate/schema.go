@@ -396,6 +396,7 @@ var (
 		{Name: "origin", Type: field.TypeString},
 		{Name: "address", Type: field.TypeString, Nullable: true},
 		{Name: "account", Type: field.TypeUuid, Nullable: true},
+		{Name: "grant", Type: field.TypeBytes, Nullable: true},
 		{Name: "state", Type: field.TypeString},
 		{Name: "date_expires", Type: field.TypeTime, Nullable: true},
 		{Name: "date_updated", Type: field.TypeTime},
@@ -421,7 +422,7 @@ var (
 			{
 				Name:    "clilogin_address_date_created",
 				Unique:  false,
-				Columns: []*schema.Column{CliloginColumns[5], CliloginColumns[11]},
+				Columns: []*schema.Column{CliloginColumns[5], CliloginColumns[12]},
 			},
 		},
 	}

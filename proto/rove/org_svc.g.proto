@@ -692,6 +692,7 @@ message CliLoginAddRequest {
   string origin = 11 [features.field_presence = IMPLICIT];
   string address = 18;
   bytes account = 12;
+  bytes grant = 19;
   string state = 16 [features.field_presence = IMPLICIT];
   google.protobuf.Timestamp date_expires = 17;
   google.protobuf.Timestamp date_created = 15;
@@ -716,6 +717,7 @@ message CliLoginSelect {
   bool origin = 11;
   bool address = 18;
   bool account = 12;
+  bool grant = 19;
   bool state = 16;
   bool date_expires = 17;
   bool date_updated = 13;
@@ -736,6 +738,7 @@ message CliLoginPatchRequest {
   // "leave it alone", so no value could have meant NULL. It wins
   // outright: setting both this and account clears.
   bool account_null = 25;
+  bytes grant = 38;
   string state = 32;
   google.protobuf.Timestamp date_expires = 34;
   // The version this update requires the stored date_updated to be.

@@ -501,6 +501,7 @@ type mcpWhoami struct {
 	Person     *mcpRef        `json:"person,omitempty" jsonschema:"the person this account is in that workspace"`
 	History    string         `json:"history" jsonschema:"how far back the workspace keeps its history"`
 	Workspaces []mcpWorkspace `json:"workspaces" jsonschema:"every workspace the account is in; another is read by starting rove mcp --workspace ALIAS"`
+	Allow      []string       `json:"allow,omitempty" jsonschema:"the only methods this terminal's sign-in may call (rove login --allow); absent is all that the account may do"`
 }
 
 func (t mcpTools) whoami(ctx context.Context, _ *mcp.CallToolRequest, _ mcpWhoamiIn) (*mcp.CallToolResult, mcpWhoami, error) {
@@ -513,11 +514,12 @@ func (t mcpTools) whoami(ctx context.Context, _ *mcp.CallToolRequest, _ mcpWhoam
 		Login      string         `json:"login"`
 		Name       string         `json:"name"`
 		Workspaces []mcpWorkspace `json:"workspaces"`
+		Allow      []string       `json:"allow"`
 	}
 	if _, err := c.client.do(ctx, http.MethodGet, "/account", nil, &account); err != nil {
 		return nil, out, err
 	}
-	out.Deployment, out.Login, out.Name, out.Workspaces = c.client.Url, account.Login, account.Name, account.Workspaces
+	out.Deployment, out.Login, out.Name, out.Workspaces, out.Allow = c.client.Url, account.Login, account.Name, account.Workspaces, account.Allow
 	if out.Workspaces == nil {
 		out.Workspaces = []mcpWorkspace{}
 	}
