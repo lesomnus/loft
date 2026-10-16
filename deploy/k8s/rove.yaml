@@ -143,6 +143,10 @@ spec:
             # configuration names one (`app.search.opensearch`, README.md).
             - name: ROVE_APP_SEARCH_OPENSEARCH_PASSWORD
               valueFrom: { secretKeyRef: { name: rove-search, key: password, optional: true } }
+            # Here too, though it sends nothing: the file is read whole, and an
+            # `${env:...}` it names that is not set is refused.
+            - name: HOST_IP
+              valueFrom: { fieldRef: { fieldPath: status.hostIP } }
           resources:
             requests: { cpu: 100m, memory: 128Mi }
             limits: { memory: 512Mi }

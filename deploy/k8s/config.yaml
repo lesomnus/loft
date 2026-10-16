@@ -24,9 +24,11 @@ server:
 
 # Telemetry, in the OpenTelemetry Collector's own configuration language.
 # Unset, the request log goes to stdout and nothing else is sent anywhere. A
-# collector on every node is reached at the node's own address, which the pod
-# is told as HOST_IP (rove.yaml); a collector behind a Service is named
-# instead. `resource/rove` is what says the telemetry is Rove's.
+# collector on every node is reached at the node's own address, which every
+# container of the pod is told as HOST_IP (rove.yaml) -- the migration's too,
+# since an `${env:...}` that is not set is refused wherever this file is read.
+# A collector behind a Service is named instead. `resource/rove` is what says
+# the telemetry is Rove's.
 #
 # otel:
 #   exporters:
