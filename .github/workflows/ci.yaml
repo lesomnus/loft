@@ -67,15 +67,19 @@ jobs:
           # go.sum alone, so whichever job finished first -- `vuln` -- saved
           # it, and every job built rove from cold on what govulncheck left.
           cache: false
-      # What the `go` job compiled last time: every package and every test,
-      # which is what the other jobs build a part of.
+      # A cache of its own, beside the `go` job's: what it keeps of a run is
+      # the tests' results on PostgreSQL, so that a package nothing changed in
+      # is not tested again. Until it has saved one, the `go` job's has what
+      # is compiled.
       - uses: actions/cache/restore@v6
         with:
           path: |
             ~/.cache/go-build
             ~/go/pkg/mod
-          key: go-${{ runner.os }}-${{ hashFiles('go.sum') }}-${{ github.sha }}
+          key: go-postgres-${{ runner.os }}-${{ hashFiles('go.sum') }}-${{ github.sha }}
           restore-keys: |
+            go-postgres-${{ runner.os }}-${{ hashFiles('go.sum') }}-
+            go-postgres-${{ runner.os }}-
             go-${{ runner.os }}-${{ hashFiles('go.sum') }}-
             go-${{ runner.os }}-
       - name: PostgreSQL is up
@@ -86,6 +90,13 @@ jobs:
         env:
           PDTEST_POSTGRES: postgres://rove:rove@localhost:5432/rove?sslmode=disable
         run: go test ./...
+      - uses: actions/cache/save@v6
+        if: always()
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: go-postgres-${{ runner.os }}-${{ hashFiles('go.sum') }}-${{ github.sha }}
 
   # Search on OpenSearch with nori (D31, deploy/opensearch): the image a
   # deployment runs, with its security plugin on -- TLS on the demo
