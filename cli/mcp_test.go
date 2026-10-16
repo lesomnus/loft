@@ -379,3 +379,177 @@ func TestAnAssistantSeesWhatItsPersonMay(t *testing.T) {
 	run(t, cli.NewCmdLogout())
 	x.Contains(a.refused("search_assets", map[string]any{"query": "프린터"}), "rove login")
 }
+
+type planned struct {
+	Token   string `json:"token"`
+	Summary string `json:"summary"`
+}
+
+// plan is a plan_* tool's answer.
+func (a *assistant) plan(tool string, args map[string]any) planned {
+	a.s.t.Helper()
+	var v planned
+	a.call(tool, args, &v)
+	a.s.x.NotEmpty(v.Token)
+	return v
+}
+
+// apply carries a plan out, as the person said yes to it.
+func (a *assistant) apply(p planned) {
+	a.s.t.Helper()
+	var v struct {
+		Done string `json:"done"`
+	}
+	a.call("apply", map[string]any{"token": p.Token, "summary": p.Summary}, &v)
+	a.s.x.Equal(p.Summary, v.Done)
+}
+
+// where is the names of what an asset is in now, the outermost first.
+func (a *assistant) where(tag string) []string {
+	a.s.t.Helper()
+	var v answered
+	a.call("get_asset", map[string]any{"asset": tag}, &v)
+	out := []string{}
+	for _, r := range v.Where {
+		out = append(out, r.Name)
+	}
+	return out
+}
+
+// TestAnAssistantChangesTheRegisterOnceThePersonSaysYes (D33): a plan says
+// what would happen in names and changes nothing; apply, with its token and
+// its sentence, does it, once. Who may is the person's role, and a terminal
+// narrowed to reading is told so before anything is put to them.
+func TestAnAssistantChangesTheRegisterOnceThePersonSaysYes(t *testing.T) {
+	s := serve(t)
+	x := s.x
+	s.signIn("owner", "owner1234")
+	building := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "본관", "kind": "space", "tag": "B-1"}`))
+	made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "3층 창고", "kind": "space", "tag": "R-3", "to": {"id": "`+building+`"}}`))
+	room := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "4층 회의실", "kind": "space", "tag": "R-4", "to": {"id": "`+building+`"}}`))
+	run(t, cli.NewCmdApi(), "bookable", "add", "-o", "json", `{"asset": {"id": "`+room+`"}, "enabled": true}`)
+	kim := made(t, run(t, cli.NewCmdApi(), "party", "add", "-o", "json", `{"name": "김민수", "kind": "person"}`))
+	a := s.assistant()
+
+	// Added, where it is put.
+	p := a.plan("plan_asset", map[string]any{"action": "add", "name": "개발용 노트북", "tag": "NB-1", "to": "R-3"})
+	x.Equal("등록: NB-1 개발용 노트북 (물품), 본관 › 3층 창고에 놓임", p.Summary)
+	var found struct {
+		Total int `json:"total"`
+	}
+	a.call("search_assets", map[string]any{"query": "NB-1"}, &found)
+	x.Zero(found.Total, "a plan changes nothing")
+	a.apply(p)
+	x.Equal([]string{"본관", "3층 창고"}, a.where("NB-1"))
+
+	// Moved; and a plan is applied once, as it was read.
+	p = a.plan("plan_asset", map[string]any{"action": "move", "asset": "NB-1", "to": "R-4", "reason": "회의 준비"})
+	x.Equal("이동: NB-1 개발용 노트북, 본관 › 3층 창고 → 본관 › 4층 회의실 (놓임) — 회의 준비", p.Summary)
+	x.Contains(a.refused("apply", map[string]any{"token": p.Token, "summary": "이동: NB-1 → 다른 곳"}), "not this plan's")
+	x.Equal([]string{"본관", "3층 창고"}, a.where("NB-1"), "not until the person's yes")
+	a.apply(p)
+	x.Equal([]string{"본관", "4층 회의실"}, a.where("NB-1"))
+	x.Contains(a.refused("apply", map[string]any{"token": p.Token, "summary": p.Summary}), "applied already")
+	x.Contains(a.refused("apply", map[string]any{"token": "plan_nothing", "summary": p.Summary}), "no such plan")
+
+	// What it is, and who manages it.
+	p = a.plan("plan_asset", map[string]any{"action": "set", "asset": "NB-1", "set": map[string]any{"condition": "damaged"}})
+	x.Equal("속성 변경: NB-1 개발용 노트북: 컨디션 → 손상", p.Summary)
+	a.apply(p)
+	p = a.plan("plan_asset", map[string]any{"action": "assign", "asset": "NB-1", "role": "manager", "party": kim})
+	x.Equal("관리 담당자 지정: NB-1 개발용 노트북 → 김민수", p.Summary)
+	a.apply(p)
+	var full answered
+	a.call("get_asset", map[string]any{"asset": "NB-1"}, &full)
+	x.Equal("김민수", full.Stewards["manager"])
+
+	// A row of its history that was wrong, by the row asset_history names;
+	// and a relation to another.
+	var hist struct {
+		Entries []struct {
+			Kind string `json:"kind"`
+			Row  string `json:"row"`
+			What string `json:"what"`
+		} `json:"entries"`
+	}
+	a.call("asset_history", map[string]any{"asset": "NB-1"}, &hist)
+	row, what := "", ""
+	for _, e := range hist.Entries {
+		if e.Kind == "fact" && strings.Contains(e.What, "손상") && row == "" {
+			row, what = e.Row, e.What
+		}
+	}
+	x.NotEmpty(row, "the condition, a fact with a row: %+v", hist.Entries)
+	p = a.plan("plan_asset", map[string]any{"action": "correct", "asset": "NB-1", "row": row, "retract": true, "reason": "잘못 입력"})
+	x.Equal("정정: NB-1 개발용 노트북의 기록 '"+what+"'을(를) 없었던 일로 — 잘못 입력", p.Summary)
+	a.apply(p)
+	made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "도킹 스테이션", "kind": "item", "tag": "DK-1"}`))
+	p = a.plan("plan_asset", map[string]any{"action": "relate", "asset": "NB-1", "target": "DK-1", "relation": "connected_to"})
+	x.Equal("연결: NB-1 개발용 노트북 ↔ DK-1 도킹 스테이션", p.Summary)
+	a.apply(p)
+
+	// Lent, and given back.
+	due := time.Now().Add(72 * time.Hour)
+	p = a.plan("plan_custody", map[string]any{"action": "issue", "party": kim, "assets": []string{"NB-1"}, "due": due.Format(time.RFC3339)})
+	x.Equal("대여: NB-1 개발용 노트북 → 김민수, 반납 기한 "+due.Local().Format("2006-01-02 15:04"), p.Summary)
+	a.apply(p)
+	var out struct {
+		Items []struct {
+			Id     string `json:"id"`
+			Status string `json:"status"`
+			Lines  []struct {
+				Id string `json:"id"`
+			} `json:"lines"`
+		} `json:"items"`
+	}
+	a.call("list_custody", nil, &out)
+	x.Len(out.Items, 1)
+	x.NotEmpty(out.Items[0].Lines[0].Id)
+	p = a.plan("plan_custody", map[string]any{"action": "return", "custody": out.Items[0].Id, "to": "R-3"})
+	x.Equal("반납: 김민수에게 대여한 것: 아직 나가 있는 것 전부 → 본관 › 3층 창고", p.Summary)
+	a.apply(p)
+	a.call("list_custody", nil, &out)
+	x.Empty(out.Items, "nothing out")
+	x.Equal([]string{"본관", "3층 창고"}, a.where("NB-1"), "back where it was put")
+
+	// Reserved, and cancelled.
+	now := time.Now()
+	begins := time.Date(now.Year(), now.Month(), now.Day()+1, 14, 0, 0, 0, time.Local)
+	ends := begins.Add(time.Hour)
+	p = a.plan("plan_reservation", map[string]any{"action": "reserve", "assets": []string{"R-4"}, "begins": begins.Format(time.RFC3339), "ends": ends.Format(time.RFC3339), "name": "주간 회의"})
+	x.Equal("예약: R-4 4층 회의실, "+begins.Local().Format("2006-01-02 15:04")+"–"+ends.Local().Format("15:04")+", 주간 회의", p.Summary)
+	a.apply(p)
+	var cal struct {
+		Items []struct {
+			Id     string `json:"id"`
+			Status string `json:"status"`
+		} `json:"items"`
+	}
+	a.call("reservations", map[string]any{"assets": []string{"R-4"}, "from": begins.Add(-time.Minute).Format(time.RFC3339), "to": ends.Format(time.RFC3339)}, &cal)
+	x.Len(cal.Items, 1)
+	p = a.plan("plan_reservation", map[string]any{"action": "cancel", "reservation": cal.Items[0].Id, "reason": "일정 변경"})
+	x.Contains(p.Summary, "예약 취소: R-4 4층 회의실, ")
+	a.apply(p)
+	a.call("reservations", map[string]any{"assets": []string{"R-4"}, "from": begins.Add(-time.Minute).Format(time.RFC3339), "to": ends.Format(time.RFC3339)}, &cal)
+	x.Equal("cancelled", cal.Items[0].Status)
+
+	// Added by mistake, and taken back.
+	p = a.plan("plan_asset", map[string]any{"action": "add", "name": "잘못 넣은 모니터", "tag": "MN-9"})
+	a.apply(p)
+	p = a.plan("plan_asset", map[string]any{"action": "erase", "asset": "MN-9"})
+	x.Equal("등록 취소: MN-9 잘못 넣은 모니터 (잘못 등록한 것으로 지웁니다)", p.Summary)
+	a.apply(p)
+	a.call("search_assets", map[string]any{"query": "MN-9"}, &found)
+	x.Zero(found.Total)
+
+	// A member may plan what they may not do; the server says no when it
+	// is applied.
+	s.signIn("kim", "kim-password")
+	p = a.plan("plan_asset", map[string]any{"action": "move", "asset": "NB-1", "to": "R-4"})
+	x.Contains(a.refused("apply", map[string]any{"token": p.Token, "summary": p.Summary}), "PermissionDenied")
+
+	// A terminal narrowed to reading is told so before anything is put to
+	// the person.
+	s.signIn("owner", "owner1234", "read")
+	x.Contains(a.refused("plan_asset", map[string]any{"action": "move", "asset": "NB-1", "to": "R-4"}), "may not call /rove.AssetService/Move")
+}

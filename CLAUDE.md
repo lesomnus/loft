@@ -255,8 +255,13 @@ terminal that could approve another would have been narrowed to nothing.
 `rove mcp` is that terminal as an MCP server on stdin and stdout (`cli/mcp.go`,
 D32): Claude Code or Claude Desktop starts it, and every tool is RPCs as the
 person signed in, read again each call, through the same policy and wall. The
-deployment does not know there is an assistant. Every tool reads; one that
-writes waits for a way for the person to say yes first (rove#91). A tool
+deployment does not know there is an assistant. A change is two tools (D33,
+`cli/mcp_write.go`): a `plan_*` reads what it names and answers, in names, what
+would happen and a token, changing nothing; `apply` takes the token and that
+sentence word for word -- so the client's prompt before it shows what it does
+-- and makes the call, with the op the plan minted. Who may is the policy
+table's and the domain's, at apply; a narrowed sign-in is told at the plan. A
+tool
 answers with the names a person reads beside the ids other tools take, and
 never a person's email or phone: what it answers goes to the assistant's
 provider. Its tests run the command over pipes with the SDK's client
