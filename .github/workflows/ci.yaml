@@ -30,25 +30,11 @@ jobs:
           restore-keys: |
             go-${{ runner.os }}-${{ hashFiles('go.sum') }}-
             go-${{ runner.os }}-
-      # The PostgreSQL a deployment runs, the official image. Started first, so
-      # that it is up by the time the SQLite run is done.
-      - name: PostgreSQL
-        run: |
-          docker run -d --name postgres -p 5432:5432 \
-            -e POSTGRES_USER=rove -e POSTGRES_PASSWORD=rove -e POSTGRES_DB=rove postgres:18
       - name: generated code matches the schema
         run: go tool pd gen --check .
       - name: vet
         run: go vet ./...
       - name: test on SQLite
-        run: go test ./...
-      - name: PostgreSQL is up
-        run: |
-          for i in $(seq 1 60); do docker exec postgres pg_isready -h 127.0.0.1 -U rove && exit 0; sleep 1; done
-          docker logs postgres; exit 1
-      - name: test on PostgreSQL
-        env:
-          PDTEST_POSTGRES: postgres://rove:rove@localhost:5432/rove?sslmode=disable
         run: go test ./...
       # Saved by this job alone, the one that compiles all of it, for every
       # job of the next run to restore.
@@ -59,6 +45,47 @@ jobs:
             ~/.cache/go-build
             ~/go/pkg/mod
           key: go-${{ runner.os }}-${{ hashFiles('go.sum') }}-${{ github.sha }}
+
+  # The suite again, on the PostgreSQL a deployment runs, the official image
+  # (pdtest.DB). A job of its own beside `go` rather than a step after its
+  # SQLite run: it is the longest part of the suite -- every test makes a
+  # schema of its own and migrates it, one test at a time -- and it needs
+  # nothing that run makes.
+  postgres:
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v7
+      # Started first, so that it is up by the time the tests are built.
+      - name: PostgreSQL
+        run: |
+          docker run -d --name postgres -p 5432:5432 \
+            -e POSTGRES_USER=rove -e POSTGRES_PASSWORD=rove -e POSTGRES_DB=rove postgres:18
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+          # The cache is the one below, not setup-go's: setup-go keys it by
+          # go.sum alone, so whichever job finished first -- `vuln` -- saved
+          # it, and every job built rove from cold on what govulncheck left.
+          cache: false
+      # What the `go` job compiled last time: every package and every test,
+      # which is what the other jobs build a part of.
+      - uses: actions/cache/restore@v6
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: go-${{ runner.os }}-${{ hashFiles('go.sum') }}-${{ github.sha }}
+          restore-keys: |
+            go-${{ runner.os }}-${{ hashFiles('go.sum') }}-
+            go-${{ runner.os }}-
+      - name: PostgreSQL is up
+        run: |
+          for i in $(seq 1 60); do docker exec postgres pg_isready -h 127.0.0.1 -U rove && exit 0; sleep 1; done
+          docker logs postgres; exit 1
+      - name: test on PostgreSQL
+        env:
+          PDTEST_POSTGRES: postgres://rove:rove@localhost:5432/rove?sslmode=disable
+        run: go test ./...
 
   # Search on OpenSearch with nori (D31, deploy/opensearch): the image a
   # deployment runs, with its security plugin on -- TLS on the demo
@@ -130,6 +157,18 @@ jobs:
         working-directory: deploy/compose
     steps:
       - uses: actions/checkout@v7
+      # The image's Go build cache, as the `cluster` job left it, so that
+      # compose's build compiles what changed and not all of rove.
+      - uses: actions/cache/restore@v6
+        with:
+          path: ${{ runner.temp }}/gocache
+          key: image-go-${{ hashFiles('go.sum') }}-${{ github.sha }}
+          restore-keys: |
+            image-go-${{ hashFiles('go.sum') }}-
+            image-go-
+      - name: the image's Go build cache, into the builder
+        working-directory: .
+        run: scripts/gocache.sh load "${RUNNER_TEMP}/gocache"
       - name: what an operator fills in, made up
         run: |
           cp .env.example .env
@@ -247,7 +286,29 @@ jobs:
           echo "06d8f25bc3a971c4eb29e0ff08429b180402db0f4dec838c9eac427e296800a0  ${RUNNER_TEMP}/bin/k3d" | sha256sum -c -
           chmod +x "${RUNNER_TEMP}/bin/k3d"
           echo "${RUNNER_TEMP}/bin" >> "${GITHUB_PATH}"
+      # The image's Go build cache as the last run left it, so that building
+      # the image compiles what changed and not all of rove: without it, each
+      # build was 100 to 130 seconds of compiling (scripts/gocache.sh).
+      - uses: actions/cache/restore@v6
+        with:
+          path: ${{ runner.temp }}/gocache
+          key: image-go-${{ hashFiles('go.sum') }}-${{ github.sha }}
+          restore-keys: |
+            image-go-${{ hashFiles('go.sum') }}-
+            image-go-
+      - name: the image's Go build cache, into the builder
+        run: scripts/gocache.sh load "${RUNNER_TEMP}/gocache"
       - run: ./scripts/cluster.sh
+      # Saved by this job alone, as `go` saves its own: it builds the image on
+      # every run, and `bundle` builds the same one.
+      - name: the image's Go build cache, out of the builder
+        if: always()
+        run: scripts/gocache.sh save "${RUNNER_TEMP}/gocache"
+      - uses: actions/cache/save@v6
+        if: always()
+        with:
+          path: ${{ runner.temp }}/gocache
+          key: image-go-${{ hashFiles('go.sum') }}-${{ github.sha }}
 
   # The main flows in a browser (ts/e2e, plan.md M3): headless Chromium on
   # the built page, against a rove built here that Playwright starts with
@@ -359,9 +420,13 @@ jobs:
   # `:edge` moves with `main`. The digest it says in the run's summary is what
   # an overlay pins (deploy/k8s/README.md), so that a deployment changes when
   # its repository says so and not when somebody pushes here.
+  #
+  # Built from nothing, and not on the Go build cache `cluster` carries
+  # between runs (scripts/gocache.sh): what a deployment runs is compiled
+  # from the source alone, and nobody is waiting on this job.
   image:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [go, opensearch, ui, bundle, vuln, cluster, e2e]
+    needs: [go, postgres, opensearch, ui, bundle, vuln, cluster, e2e]
     runs-on: ubuntu-26.04
     permissions:
       contents: read
