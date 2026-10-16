@@ -17,6 +17,12 @@
 # that gives a build cache mounts of its own rather than the builder's, and
 # what it copied would go nowhere. A build argument that is new every time is
 # what makes them run rather than be found in the builder's cache.
+#
+# What `save` keeps is what the builds since `load` used or made, and no more,
+# so that it does not grow by every commit's packages. Go marks an entry used
+# by its modification time, at most once an hour; `load` makes every entry it
+# copied two hours old and leaves a mark, and `save` copies what is newer than
+# the mark.
 set -euo pipefail
 
 : "${ALPINE_IMAGE:=alpine:3.22}"
@@ -35,10 +41,14 @@ load)
 		echo "gocache: nothing in $dir"
 		exit 0
 	fi
-	docker build -q --build-arg "run=$run" -f - "$dir" > /dev/null <<EOF
+	stale=$(date -u -d '2 hours ago' '+%Y-%m-%d %H:%M:%S')
+	docker build -q --build-arg "run=$run" --build-arg "stale=$stale" -f - "$dir" > /dev/null <<EOF
 FROM $ALPINE_IMAGE
-ARG run
-RUN --mount=type=cache,id=rove-go-build,target=/cache --mount=type=bind,target=/kept cp -a /kept/. /cache/
+ARG run stale
+RUN --mount=type=cache,id=rove-go-build,target=/cache --mount=type=bind,target=/kept \
+	cp -a /kept/. /cache/ \
+	&& find /cache -type f -exec touch -d "\$stale" {} + \
+	&& touch /cache/.loaded
 EOF
 	;;
 save)
@@ -48,7 +58,9 @@ save)
 	docker build -q --build-arg "run=$run" -o "type=local,dest=$dir" -f - "$empty" > /dev/null <<EOF
 FROM $ALPINE_IMAGE AS kept
 ARG run
-RUN --mount=type=cache,id=rove-go-build,target=/cache mkdir /kept && cp -a /cache/. /kept/
+RUN --mount=type=cache,id=rove-go-build,target=/cache mkdir /kept && cd /cache \
+	&& if [ -e .loaded ]; then find . -type f -newer .loaded; else find . -type f; fi > /tmp/kept \
+	&& tar -cf - -T /tmp/kept | tar -C /kept -xf -
 FROM scratch
 COPY --from=kept /kept /
 EOF
