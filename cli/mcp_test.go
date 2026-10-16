@@ -536,6 +536,31 @@ func TestAnAssistantChangesTheRegisterOnceThePersonSaysYes(t *testing.T) {
 	a.call("reservations", map[string]any{"assets": []string{"R-4"}, "from": begins.Add(-time.Minute).Format(time.RFC3339), "to": ends.Format(time.RFC3339)}, &cal)
 	x.Equal("cancelled", cal.Items[0].Status)
 
+	// Two applies of one plan at once: one does it, and the other is told.
+	p = a.plan("plan_asset", map[string]any{"action": "add", "name": "동시에 넣은 모니터", "tag": "MN-2"})
+	results := make(chan *mcp.CallToolResult, 2)
+	for range 2 {
+		go func() {
+			res, err := a.session.CallTool(context.Background(), &mcp.CallToolParams{Name: "apply", Arguments: map[string]any{"token": p.Token, "summary": p.Summary}})
+			x.NoError(err)
+			results <- res
+		}()
+	}
+	ok, refused := 0, 0
+	for range 2 {
+		res := <-results
+		if res.IsError {
+			refused++
+			x.Regexp("applied already|being applied already", said(res))
+		} else {
+			ok++
+		}
+	}
+	x.Equal(1, ok)
+	x.Equal(1, refused)
+	a.call("search_assets", map[string]any{"query": "MN-2"}, &found)
+	x.Equal(1, found.Total, "added once")
+
 	// Added by mistake, and taken back.
 	p = a.plan("plan_asset", map[string]any{"action": "add", "name": "잘못 넣은 모니터", "tag": "MN-9"})
 	a.apply(p)

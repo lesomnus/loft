@@ -52,6 +52,9 @@ type plan struct {
 	// passes on: the codes and addresses of labels made.
 	more    []string
 	expires time.Time
+	// running is an apply of it under way, and done one that succeeded: a
+	// plan is carried out by one apply at a time, and once.
+	running bool
 	done    bool
 }
 
@@ -82,7 +85,8 @@ func (ps *mcpPlans) put(p *plan) (string, error) {
 	return token, nil
 }
 
-// take is the plan a token names, if the sentence is its own.
+// take is the plan a token names, if the sentence is its own, for one apply
+// to carry out: [mcpPlans.finish] says how it went.
 func (ps *mcpPlans) take(token, summary string) (*plan, error) {
 	ps.mu.Lock()
 	defer ps.mu.Unlock()
@@ -92,16 +96,20 @@ func (ps *mcpPlans) take(token, summary string) (*plan, error) {
 		return nil, errors.New("no such plan, or it is more than ten minutes old: plan it again")
 	case p.done:
 		return nil, errors.New("this plan was applied already")
+	case p.running:
+		return nil, errors.New("this plan is being applied already")
 	case strings.TrimSpace(summary) != p.summary:
 		return nil, fmt.Errorf("summary: not this plan's; it is %q", p.summary)
 	}
+	p.running = true
 	return p, nil
 }
 
-func (ps *mcpPlans) finish(p *plan) {
+// finish is an apply over: the plan done, or there to be applied again.
+func (ps *mcpPlans) finish(p *plan, ok bool) {
 	ps.mu.Lock()
 	defer ps.mu.Unlock()
-	p.done = true
+	p.running, p.done = false, ok
 }
 
 // op is a new operation's identifier: an Event's, which the domain takes as
@@ -176,15 +184,17 @@ func (t mcpTools) apply(ctx context.Context, _ *mcp.CallToolRequest, in mcpApply
 	}
 	c, err := t.call(ctx)
 	if err != nil {
+		t.plans.finish(p, false)
 		return nil, out, err
 	}
 	res, err := p.run(ctx, c.conn)
 	if err != nil {
 		// Not applied, or not known to be: the same token sends the same op
 		// again, which the server takes as the same operation.
+		t.plans.finish(p, false)
 		return nil, out, failed(err)
 	}
-	t.plans.finish(p)
+	t.plans.finish(p, true)
 	out.Done, out.Result, out.More = p.summary, res, p.more
 	return nil, out, nil
 }
