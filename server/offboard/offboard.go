@@ -17,6 +17,7 @@ import (
 	"maps"
 	"slices"
 	"time"
+	"uuid"
 
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/trail"
@@ -45,6 +46,12 @@ type Deployment struct {
 	Retention retention.Defaults
 
 	Now func() time.Time
+
+	// Unindex is told, in the transaction that deletes a tenant's rows, that
+	// the tenant is going: what keeps a copy of its rows elsewhere -- the
+	// search index (`opensearch.Forget`) -- and would not hear of it, since
+	// the rows go past the recorders. Nil is nothing elsewhere.
+	Unindex func(ctx context.Context, db *ent.Client, tenant uuid.UUID) error
 }
 
 func (d Deployment) now() time.Time {
@@ -71,8 +78,10 @@ var Trail = []string{"audit", "archived"}
 
 // Shared is the deployment's own tables, which no tenant has rows in: sessions
 // and agreements are an account's, and an account is in no workspace (D27);
-// a failed sign-in is an address's, before anybody is anybody.
-var Shared = []string{"session", "clilogin", "aliashold", "consent", "signinfailure"}
+// a failed sign-in is an address's, before anybody is anybody; and what the
+// search index has yet to hear of is the deployment's work, which a purge
+// adds to rather than takes from.
+var Shared = []string{"session", "clilogin", "aliashold", "consent", "signinfailure", "searchstale"}
 
 // Tables is every table a tenant has rows in, each before every table it
 // points at, so that deleting in this order leaves no reference dangling. The

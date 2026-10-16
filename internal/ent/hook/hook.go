@@ -369,6 +369,18 @@ func (f ReservationItemFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Va
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ReservationItemMutation", m)
 }
 
+// The SearchStaleFunc type is an adapter to allow the use of ordinary
+// function as SearchStale mutator.
+type SearchStaleFunc func(context.Context, *ent.SearchStaleMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f SearchStaleFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.SearchStaleMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.SearchStaleMutation", m)
+}
+
 // The SessionFunc type is an adapter to allow the use of ordinary
 // function as Session mutator.
 type SessionFunc func(context.Context, *ent.SessionMutation) (ent.Value, error)

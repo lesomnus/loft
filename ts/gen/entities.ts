@@ -26,6 +26,7 @@ import { HolderSchema } from './rove/payday/holder_pb.js'
 import { LegalHoldSchema, NotificationSchema, TenantContractSchema, UsageSnapshotSchema } from './rove/ops_pb.js'
 import { OutboxSchema } from './rove/payday/outbox_pb.js'
 import { PurchaseSchema, PurchaseLineSchema, WorkOrderSchema } from './rove/work_pb.js'
+import { SearchStaleSchema } from './rove/search_pb.js'
 import { StockSchema, StockMovementSchema } from './rove/stock_pb.js'
 import { TenantSchema } from './rove/payday/tenant_pb.js'
 import { AliasHoldService, CliLoginService, ConsentService, InvitationService, PartyService, SessionService, SignInFailureService } from './rove/org_svc_pb.js'
@@ -41,6 +42,7 @@ import { HolderService } from './rove/payday/holder_svc_pb.js'
 import { LegalHoldService, NotificationService, TenantContractService, UsageSnapshotService } from './rove/ops_svc_pb.js'
 import { OutboxService } from './rove/payday/outbox_svc_pb.js'
 import { PurchaseService, PurchaseLineService, WorkOrderService } from './rove/work_svc_pb.js'
+import { SearchStaleService } from './rove/search_svc_pb.js'
 import { StockService, StockMovementService } from './rove/stock_svc_pb.js'
 import { TenantService } from './rove/payday/tenant_svc_pb.js'
 
@@ -397,6 +399,16 @@ export const ReservationItem = {
 	service: ReservationItemService,
 } as const satisfies EntityDesc
 
+/** rove.SearchStale, as the store holds it. */
+export const SearchStale = {
+	typeName: "rove.SearchStale",
+	schema: SearchStaleSchema,
+	domain: 46,
+	key: "id",
+	ids: ["id", "key"],
+	service: SearchStaleService,
+} as const satisfies EntityDesc
+
 /** rove.Session, as the store holds it. */
 export const Session = {
 	typeName: "rove.Session",
@@ -528,5 +540,5 @@ export const WorkOrder = {
 } as const satisfies EntityDesc
 
 /** Every entity of this app, which is what a store is opened over. */
-export const entities = [AliasHold, Allocation, Archived, Asset, AssetType, Attachment, Audit, Bookable, CliLogin, Consent, CountFinding, Custody, CustodyLine, Event, Fact, Holder, InventoryCount, Invitation, ItemModel, Label, LegalHold, Link, Notification, Outbox, Party, Placement, Purchase, PurchaseLine, Reservation, ReservationItem, Session, SignInFailure, Stewardship, Stock, StockMovement, Tenant, TenantContract, TenantDomain, TreeLock, UsageSnapshot, WorkOrder] as const
+export const entities = [AliasHold, Allocation, Archived, Asset, AssetType, Attachment, Audit, Bookable, CliLogin, Consent, CountFinding, Custody, CustodyLine, Event, Fact, Holder, InventoryCount, Invitation, ItemModel, Label, LegalHold, Link, Notification, Outbox, Party, Placement, Purchase, PurchaseLine, Reservation, ReservationItem, SearchStale, Session, SignInFailure, Stewardship, Stock, StockMovement, Tenant, TenantContract, TenantDomain, TreeLock, UsageSnapshot, WorkOrder] as const
 

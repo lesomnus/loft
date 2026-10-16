@@ -40,6 +40,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/purchaseline"
 	"github.com/lesomnus/rove/internal/ent/reservation"
 	"github.com/lesomnus/rove/internal/ent/reservationitem"
+	"github.com/lesomnus/rove/internal/ent/searchstale"
 	"github.com/lesomnus/rove/internal/ent/session"
 	"github.com/lesomnus/rove/internal/ent/signinfailure"
 	"github.com/lesomnus/rove/internal/ent/stewardship"
@@ -120,6 +121,8 @@ type Client struct {
 	Reservation *ReservationClient
 	// ReservationItem is the client for interacting with the ReservationItem builders.
 	ReservationItem *ReservationItemClient
+	// SearchStale is the client for interacting with the SearchStale builders.
+	SearchStale *SearchStaleClient
 	// Session is the client for interacting with the Session builders.
 	Session *SessionClient
 	// SignInFailure is the client for interacting with the SignInFailure builders.
@@ -182,6 +185,7 @@ func (c *Client) init() {
 	c.PurchaseLine = NewPurchaseLineClient(c.config)
 	c.Reservation = NewReservationClient(c.config)
 	c.ReservationItem = NewReservationItemClient(c.config)
+	c.SearchStale = NewSearchStaleClient(c.config)
 	c.Session = NewSessionClient(c.config)
 	c.SignInFailure = NewSignInFailureClient(c.config)
 	c.Stewardship = NewStewardshipClient(c.config)
@@ -315,6 +319,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		PurchaseLine:    NewPurchaseLineClient(cfg),
 		Reservation:     NewReservationClient(cfg),
 		ReservationItem: NewReservationItemClient(cfg),
+		SearchStale:     NewSearchStaleClient(cfg),
 		Session:         NewSessionClient(cfg),
 		SignInFailure:   NewSignInFailureClient(cfg),
 		Stewardship:     NewStewardshipClient(cfg),
@@ -375,6 +380,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		PurchaseLine:    NewPurchaseLineClient(cfg),
 		Reservation:     NewReservationClient(cfg),
 		ReservationItem: NewReservationItemClient(cfg),
+		SearchStale:     NewSearchStaleClient(cfg),
 		Session:         NewSessionClient(cfg),
 		SignInFailure:   NewSignInFailureClient(cfg),
 		Stewardship:     NewStewardshipClient(cfg),
@@ -466,8 +472,9 @@ func (c *Client) Use(hooks ...Hook) {
 		c.CustodyLine, c.Event, c.Fact, c.Holder, c.InventoryCount, c.Invitation,
 		c.ItemModel, c.Label, c.LegalHold, c.Link, c.Notification, c.Outbox, c.Party,
 		c.Placement, c.Purchase, c.PurchaseLine, c.Reservation, c.ReservationItem,
-		c.Session, c.SignInFailure, c.Stewardship, c.Stock, c.StockMovement, c.Tenant,
-		c.TenantContract, c.TenantDomain, c.TreeLock, c.UsageSnapshot, c.WorkOrder,
+		c.SearchStale, c.Session, c.SignInFailure, c.Stewardship, c.Stock,
+		c.StockMovement, c.Tenant, c.TenantContract, c.TenantDomain, c.TreeLock,
+		c.UsageSnapshot, c.WorkOrder,
 	} {
 		n.Use(hooks...)
 	}
@@ -482,8 +489,9 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 		c.CustodyLine, c.Event, c.Fact, c.Holder, c.InventoryCount, c.Invitation,
 		c.ItemModel, c.Label, c.LegalHold, c.Link, c.Notification, c.Outbox, c.Party,
 		c.Placement, c.Purchase, c.PurchaseLine, c.Reservation, c.ReservationItem,
-		c.Session, c.SignInFailure, c.Stewardship, c.Stock, c.StockMovement, c.Tenant,
-		c.TenantContract, c.TenantDomain, c.TreeLock, c.UsageSnapshot, c.WorkOrder,
+		c.SearchStale, c.Session, c.SignInFailure, c.Stewardship, c.Stock,
+		c.StockMovement, c.Tenant, c.TenantContract, c.TenantDomain, c.TreeLock,
+		c.UsageSnapshot, c.WorkOrder,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -552,6 +560,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Reservation.mutate(ctx, m)
 	case *ReservationItemMutation:
 		return c.ReservationItem.mutate(ctx, m)
+	case *SearchStaleMutation:
+		return c.SearchStale.mutate(ctx, m)
 	case *SessionMutation:
 		return c.Session.mutate(ctx, m)
 	case *SignInFailureMutation:
@@ -5433,6 +5443,139 @@ func (c *ReservationItemClient) mutate(ctx context.Context, m *ReservationItemMu
 	}
 }
 
+// SearchStaleClient is a client for the SearchStale schema.
+type SearchStaleClient struct {
+	config
+}
+
+// NewSearchStaleClient returns a client for the SearchStale from the given config.
+func NewSearchStaleClient(c config) *SearchStaleClient {
+	return &SearchStaleClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `searchstale.Hooks(f(g(h())))`.
+func (c *SearchStaleClient) Use(hooks ...Hook) {
+	c.hooks.SearchStale = append(c.hooks.SearchStale, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `searchstale.Intercept(f(g(h())))`.
+func (c *SearchStaleClient) Intercept(interceptors ...Interceptor) {
+	c.inters.SearchStale = append(c.inters.SearchStale, interceptors...)
+}
+
+// Create returns a builder for creating a SearchStale entity.
+func (c *SearchStaleClient) Create() *SearchStaleCreate {
+	mutation := newSearchStaleMutation(c.config, OpCreate)
+	return &SearchStaleCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of SearchStale entities.
+func (c *SearchStaleClient) CreateBulk(builders ...*SearchStaleCreate) *SearchStaleCreateBulk {
+	return &SearchStaleCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *SearchStaleClient) MapCreateBulk(slice any, setFunc func(*SearchStaleCreate, int)) *SearchStaleCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &SearchStaleCreateBulk{err: fmt.Errorf("calling to SearchStaleClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*SearchStaleCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &SearchStaleCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for SearchStale.
+func (c *SearchStaleClient) Update() *SearchStaleUpdate {
+	mutation := newSearchStaleMutation(c.config, OpUpdate)
+	return &SearchStaleUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *SearchStaleClient) UpdateOne(_m *SearchStale) *SearchStaleUpdateOne {
+	mutation := newSearchStaleMutation(c.config, OpUpdateOne, withSearchStale(_m))
+	return &SearchStaleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneId returns an update builder for the given id.
+func (c *SearchStaleClient) UpdateOneId(id uuid.UUID) *SearchStaleUpdateOne {
+	mutation := newSearchStaleMutation(c.config, OpUpdateOne, withSearchStaleId(id))
+	return &SearchStaleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for SearchStale.
+func (c *SearchStaleClient) Delete() *SearchStaleDelete {
+	mutation := newSearchStaleMutation(c.config, OpDelete)
+	return &SearchStaleDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *SearchStaleClient) DeleteOne(_m *SearchStale) *SearchStaleDeleteOne {
+	return c.DeleteOneId(_m.Id)
+}
+
+// DeleteOneId returns a builder for deleting the given entity by its id.
+func (c *SearchStaleClient) DeleteOneId(id uuid.UUID) *SearchStaleDeleteOne {
+	builder := c.Delete().Where(searchstale.Id(id))
+	builder.mutation.id = &id
+	builder.mutation.SetOp(OpDeleteOne)
+	return &SearchStaleDeleteOne{builder}
+}
+
+// Query returns a query builder for SearchStale.
+func (c *SearchStaleClient) Query() *SearchStaleQuery {
+	return &SearchStaleQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeSearchStale},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a SearchStale entity by its id.
+func (c *SearchStaleClient) Get(ctx context.Context, id uuid.UUID) (*SearchStale, error) {
+	return c.Query().Where(searchstale.Id(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *SearchStaleClient) GetX(ctx context.Context, id uuid.UUID) *SearchStale {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *SearchStaleClient) Hooks() []Hook {
+	return c.hooks.SearchStale
+}
+
+// Interceptors returns the client interceptors.
+func (c *SearchStaleClient) Interceptors() []Interceptor {
+	return c.inters.SearchStale
+}
+
+func (c *SearchStaleClient) mutate(ctx context.Context, m *SearchStaleMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&SearchStaleCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&SearchStaleUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&SearchStaleUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&SearchStaleDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown SearchStale mutation op: %q", m.Op())
+	}
+}
+
 // SessionClient is a client for the Session schema.
 type SessionClient struct {
 	config
@@ -7143,7 +7286,7 @@ type (
 		CliLogin, Consent, CountFinding, Custody, CustodyLine, Event, Fact, Holder,
 		InventoryCount, Invitation, ItemModel, Label, LegalHold, Link, Notification,
 		Outbox, Party, Placement, Purchase, PurchaseLine, Reservation, ReservationItem,
-		Session, SignInFailure, Stewardship, Stock, StockMovement, Tenant,
+		SearchStale, Session, SignInFailure, Stewardship, Stock, StockMovement, Tenant,
 		TenantContract, TenantDomain, TreeLock, UsageSnapshot, WorkOrder []ent.Hook
 	}
 	inters struct {
@@ -7151,7 +7294,7 @@ type (
 		CliLogin, Consent, CountFinding, Custody, CustodyLine, Event, Fact, Holder,
 		InventoryCount, Invitation, ItemModel, Label, LegalHold, Link, Notification,
 		Outbox, Party, Placement, Purchase, PurchaseLine, Reservation, ReservationItem,
-		Session, SignInFailure, Stewardship, Stock, StockMovement, Tenant,
+		SearchStale, Session, SignInFailure, Stewardship, Stock, StockMovement, Tenant,
 		TenantContract, TenantDomain, TreeLock, UsageSnapshot,
 		WorkOrder []ent.Interceptor
 	}

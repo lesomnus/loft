@@ -81,10 +81,10 @@ func TestNothingBeyondTheWallIsInTheTable(t *testing.T) {
 	})
 	sort.Strings(global)
 	// Sessions, terminal sign-ins, held addresses, consents, sign-in failures,
-	// and payday's outbox and archive manifest: if this is shorter, the
-	// registry was read before the schema was linked, and the test says
-	// nothing.
-	require.GreaterOrEqual(t, len(global), 7, "the global entities: %v", global)
+	// the search index's queue, and payday's outbox and archive manifest: if
+	// this is shorter, the registry was read before the schema was linked,
+	// and the test says nothing.
+	require.GreaterOrEqual(t, len(global), 8, "the global entities: %v", global)
 
 	for m := range Table {
 		for _, g := range global {

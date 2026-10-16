@@ -490,7 +490,10 @@ CREATE TRIGGER asset_parent_same_tenant BEFORE INSERT OR UPDATE OF parent_id, te
 
 ### 9.5 검색
 
-- **검색 엔진으로 옮기는 중이다(D31, rove#83).** 클러스터를 설정한 배포에서는 OpenSearch와 nori가 답한다(`server/opensearch`, `app.search.opensearch`). 색인은 DB의 자산으로 만들고(`rove search reindex`), 단계는 rove#83에 있다. 아래는 클러스터가 없을 때 데이터베이스가 답하는 방식이다.
+- **검색 엔진으로 옮기는 중이다(D31, rove#83).** 클러스터를 설정한 배포에서는 OpenSearch와 nori가 답한다(`server/opensearch`, `app.search.opensearch`).
+  - 색인은 DB의 자산으로 만든다(`rove search reindex`).
+  - 바뀐 것은 쓰기와 같은 트랜잭션에 `SearchStale`로 남고, 한 프로세스의 루프가 그 문서를 DB의 지금 상태로 다시 만든다. 문서는 만든 행들의 최신 시각을 버전으로 가져서, 늦게 도착한 옛 읽기가 새 문서를 덮지 못한다.
+  - 단계는 rove#83에 있다. 아래는 클러스터가 없을 때 데이터베이스가 답하는 방식이다.
 - PostgreSQL 기본 전문 검색은 한국어 형태소를 다루지 못하고, `pg_trgm` GIN 인덱스는 3글자 미만 질의에 쓰이지 않는다. 의자·책상·조명처럼 2음절 이름이 흔하므로 **`pg_bigm`을 쓴다.** PostgreSQL 18에서 pg_bigm 1.2의 GIN 인덱스는 `%의자%`를 인덱스로 찾는다. 1음절 질의는 결과가 많아 순차 탐색이 되므로, 1글자 입력은 태그·이름 접두 일치로 처리한다(확인함).
 - **찾는 대상**(`AssetService.Search`): 자산의 이름·태그·시리얼, 그리고 자산을 거쳐 유형 이름, 모델 이름·제조사, 보유자 이름. 열마다 GIN 인덱스(`<표>_<열>_bigm`)를 두고, 질의는 열마다 id 집합을 구해 `UNION`으로 합친다. 다른 표에 걸친 `OR` 하나는 인덱스가 있어도 자산 표를 처음부터 읽기 때문이다. 접두 일치는 `(tenant_id, 접은 값) text_pattern_ops` B-tree(`asset_tag_prefix`, `asset_name_prefix`)가 답하고, 유형·모델·보유자에서 자산으로 돌아오는 길에는 `asset (type_id)`·`(model_id)`·`(custodian_id)` 인덱스를 둔다(`cli/pg.sql`).
 - **접어서 비교한다**: 저장된 값과 입력을 모두 `lower(normalize(x, NFKC))`로 접는다(서버는 `internal/search.Fold`). 그래서 전각 `ＡＢＣ`는 `abc`로, 반각 `ｶﾒﾗ`는 `カメラ`로 찾는다. 히라가나↔가타카나, 간체↔번체는 정규형이 아니라 사전의 일이라 하지 않는다. LIKE의 `%`·`_`는 입력 그대로의 글자로 찾는다.
