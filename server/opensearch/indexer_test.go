@@ -225,3 +225,42 @@ func TestAPassWritesToTheIndexAReindexIsFilling(t *testing.T) {
 		x.Positive(v)
 	}
 }
+
+// TestTheLoopMakesTheIndexWhenThereIsNone, or when what there is is of a
+// shape this build does not make, and searches from it once it is whole.
+func TestTheLoopMakesTheIndexWhenThereIsNone(t *testing.T) {
+	x := require.New(t)
+	_, s := demo(t, true)
+	want, err := s.Ent.Asset.Query().Where(asset.DateErasedIsNil()).Count(context.Background())
+	x.NoError(err)
+
+	made := func() opensearch.State {
+		t.Helper()
+		ctx, cancel := context.WithCancel(context.Background())
+		done := make(chan error)
+		go func() {
+			done <- (opensearch.Indexer{Client: s.Search, Db: s.Ent, Every: 10 * time.Millisecond}).Spin(ctx)
+		}()
+		defer func() {
+			cancel()
+			x.NoError(<-done)
+		}()
+		var st opensearch.State
+		x.Eventually(func() bool {
+			st, err = s.Search.Status(context.Background())
+			x.NoError(err)
+			// Whole, and what it replaced deleted: the alias moves before
+			// the old index goes.
+			return st.Index != "" && st.Version == opensearch.Version && st.Docs == int64(want) && len(st.Others) == 0
+		}, 20*time.Second, 50*time.Millisecond)
+		return st
+	}
+
+	first := made()
+
+	old, err := opensearch.MakeOld(s.Search, time.Now().Add(time.Hour))
+	x.NoError(err)
+	second := made()
+	x.NotEqual(old, second.Index, "an index of another shape is made again")
+	x.NotEqual(first.Index, second.Index)
+}

@@ -14,7 +14,12 @@
           "max_gram": 32,
           "token_chars": ["letter", "digit", "punctuation", "symbol"]
         },
-        "trigram": { "type": "ngram", "min_gram": 3, "max_gram": 3, "token_chars": ["letter", "digit"] }
+        "trigram": {
+          "type": "ngram",
+          "min_gram": 3,
+          "max_gram": 3,
+          "token_chars": ["letter", "digit", "punctuation", "symbol"]
+        }
       },
       "normalizer": {
         "lower": { "type": "custom", "filter": ["lowercase"] }
@@ -29,7 +34,7 @@
     }
   },
   "mappings": {
-    "_meta": { "version": 1 },
+    "_meta": { "version": 2 },
     "dynamic": "strict",
     "properties": {
       "tenant": { "type": "keyword" },
@@ -52,7 +57,8 @@
         "type": "keyword",
         "normalizer": "lower",
         "fields": {
-          "prefix": { "type": "text", "analyzer": "prefix", "search_analyzer": "prefix_search" }
+          "prefix": { "type": "text", "analyzer": "prefix", "search_analyzer": "prefix_search" },
+          "part": { "type": "text", "analyzer": "trigram" }
         }
       },
       "serial": {

@@ -25,7 +25,7 @@ var assetsIndex []byte
 // and fields. An index made by a build with another one answers with what that
 // build put in it, which is what `rove search status` points out and `rove
 // search reindex` cures.
-const Version = 1
+const Version = 2
 
 // Alias is the name the index of assets is searched and written by. It points
 // at one index at a time, which `rove search reindex` replaces in one step.
@@ -253,4 +253,11 @@ func (c *Client) doc(ctx context.Context, name, id string) (*Doc, int64, error) 
 		return nil, 0, nil
 	}
 	return &v.Source, v.Version, nil
+}
+
+// Refresh makes what was written to the index searchable now, rather than at
+// its next refresh, a second at most: what a test that writes and then
+// searches waits for.
+func (c *Client) Refresh(ctx context.Context) error {
+	return c.refresh(ctx, c.Alias())
 }

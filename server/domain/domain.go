@@ -38,6 +38,7 @@ import (
 	"github.com/lesomnus/rove/internal/identity"
 	"github.com/lesomnus/rove/internal/search"
 	"github.com/lesomnus/rove/server/mail"
+	"github.com/lesomnus/rove/server/opensearch"
 	"github.com/lesomnus/rove/server/pd"
 	"github.com/lesomnus/rove/server/retention"
 	"github.com/lesomnus/rove/server/storage"
@@ -85,6 +86,9 @@ type Deps struct {
 	// migration found (`cli.Migrate`), and no index on SQLite. See
 	// `internal/search`.
 	Search search.Mode
+	// Finder is the search engine a search asks instead, when the deployment
+	// names one (D31); nil asks the database.
+	Finder *opensearch.Client
 
 	// Retention is the windows of a tenant with no contract (design 8). The
 	// zero value shows all of the history.

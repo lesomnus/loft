@@ -40,7 +40,11 @@ type env struct {
 	n      int
 }
 
-func newEnv(t *testing.T) *env {
+func newEnv(t *testing.T) *env { return newEnvWith(t, nil) }
+
+// newEnvWith is [newEnv] with the configuration as with says, before the
+// deployment is built.
+func newEnvWith(t *testing.T, with func(c *cmd.Config)) *env {
 	t.Helper()
 	x := require.New(t)
 	ctx := context.Background()
@@ -55,6 +59,9 @@ func newEnv(t *testing.T) *env {
 	c.App.NoShowAfter = 15 * time.Minute
 	// The roster in this process, on a database of its own beside.
 	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
+	if with != nil {
+		with(&c)
+	}
 
 	s, err := cmd.Build(ctx, c)
 	x.NoError(err)

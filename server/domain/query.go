@@ -3,6 +3,7 @@ package domain
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"maps"
 	"slices"
 	"sort"
@@ -10,6 +11,7 @@ import (
 	"time"
 	"uuid"
 
+	"github.com/lesomnus/otx/log"
 	"github.com/lesomnus/payday/pdid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -31,6 +33,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/stewardship"
 	"github.com/lesomnus/rove/internal/ent/stock"
 	"github.com/lesomnus/rove/internal/ent/workorder"
+	"github.com/lesomnus/rove/server/opensearch"
 )
 
 // visible narrows time rows to what was recorded by `known` and not yet
@@ -725,12 +728,20 @@ func unionKeys(a, b map[string]string) []string {
 }
 
 // Search finds assets by what a person types: a name, a tag, a serial, in
-// part. On PostgreSQL the bigram index answers it, or pg_trgm's where pg_bigm
-// is not installed (design 9.5, [found]).
+// part.
+//
+// A deployment that names a search engine asks it (D31), and what it finds
+// is read through the wall like anything else, best first. One that names
+// none asks the database: on PostgreSQL the bigram index, or pg_trgm's where
+// pg_bigm is not installed (design 9.5, [found]). A search with nothing typed
+// is the filters alone, and the database answers it either way.
 func (s domainAsset) Search(ctx context.Context, req *app.AssetSearchRequest) (*app.AssetSearchResponse, error) {
 	t, err := s.read(ctx)
 	if err != nil {
 		return nil, err
+	}
+	if q := strings.TrimSpace(req.GetQ()); q != "" && t.deps.Finder != nil {
+		return t.searchEngine(req, q)
 	}
 	tid := t.tenant.Uuid()
 	ps := []predicate.Asset{asset.TenantId(tid), asset.DateErasedIsNil()}
@@ -777,15 +788,63 @@ func (s domainAsset) Search(ctx context.Context, req *app.AssetSearchRequest) (*
 		return nil, err
 	}
 
-	items := make([]*app.Asset, 0, len(rows))
-	for _, k := range rows {
+	return t.found(rows, total), nil
+}
+
+// found is the assets keys name, read through the wall in that order, and
+// the total a search counted. One the caller may not see, or that went since
+// it was counted, is left out.
+func (t *Tx) found(keys []uuid.UUID, total int) *app.AssetSearchResponse {
+	items := make([]*app.Asset, 0, len(keys))
+	for _, k := range keys {
 		v, _, err := t.get(assetRef(k), "id")
 		if err != nil {
 			continue
 		}
 		items = append(items, v)
 	}
-	return app.AssetSearchResponse_builder{Items: items, Total: uint32(total)}.Build(), nil
+	return app.AssetSearchResponse_builder{Items: items, Total: uint32(total)}.Build()
+}
+
+// searchEngine is a search the engine answers (D31): the same request, asked
+// of the index, and what it finds read as [Tx.found] reads it.
+func (t *Tx) searchEngine(req *app.AssetSearchRequest, q string) (*app.AssetSearchResponse, error) {
+	f := opensearch.Query{
+		Tenant: t.tenant.Uuid(),
+		Q:      q,
+		Kind:   req.GetKind(),
+		Status: req.GetStatus(),
+		Offset: int(req.GetOffset()),
+		Size:   int(req.GetSize()),
+	}
+	if f.Size <= 0 || f.Size > 500 {
+		f.Size = 50
+	}
+	if f.Offset+f.Size > opensearch.Window {
+		return nil, invalid("offset", "검색은 앞의 %d건까지만 넘겨 볼 수 있습니다", opensearch.Window)
+	}
+	if req.HasType() {
+		f.Type = uuidOf(req.GetType().GetId())
+	}
+	if req.HasCustodian() {
+		f.Custodian = uuidOf(req.GetCustodian().GetId())
+	}
+	if req.HasWithin() {
+		_, root, err := t.get(req.GetWithin(), "within")
+		if err != nil {
+			return nil, err
+		}
+		if f.Within, err = t.descendants(root.Uuid()); err != nil {
+			return nil, err
+		}
+	}
+
+	keys, total, err := t.deps.Finder.Search(t.ctx, f)
+	if err != nil {
+		log.From(t.ctx).WarnContext(t.ctx, "search: the engine did not answer", slog.String("error", err.Error()))
+		return nil, status.Error(codes.Unavailable, "지금은 검색할 수 없습니다. 잠시 뒤에 다시 해 보세요")
+	}
+	return t.found(keys, int(total)), nil
 }
 
 // descendants answers what is inside an asset now, at any depth, by the

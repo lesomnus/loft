@@ -286,9 +286,12 @@ status|reindex|remove|analyze`. The index is kept current by
 any write to an asset or to what its document takes a name from (type, model,
 party), and `opensearch.Indexer`, the loop that makes those documents again
 from the database. A purge goes past the recorders, so it writes its own row
-(`offboard.Deployment.Unindex`). Asking the index is the issue's next step.
-The index is a copy: a search takes identifiers from it and reads the rows
-through the wall.
+(`offboard.Deployment.Unindex`). The loop also makes the index when there is
+none, or none of this build's `Version`. `AssetService.Search` with text
+asks it (`Deps.Finder`, `Tx.searchEngine`) and reads what it found through the
+wall, in its order; a search with filters only, or a deployment with no
+cluster, is the database's. The index is a copy: it is never asked who may
+see what.
 
 A test that needs a cluster takes `internal/opensearchtest.Config(t)`
 (`PDTEST_OPENSEARCH`, and `PDTEST_OPENSEARCH_CA` for TLS) and skips without
