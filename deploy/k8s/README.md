@@ -71,7 +71,7 @@ resources:
 6. **스토리지.** `storageClassName`과 크기를 정합니다. 체크포인트는 삭제를 거부하는 클래스가 있으면 그것을 씁니다(`docs/runbook/trail-integrity.md`).
 7. **이미지.** 태그가 아니라 digest로 고정합니다: `images: [{name: ghcr.io/lesomnus/rove, digest: sha256:…}]`.
 8. **PostgreSQL.** Rove와 내장 roster의 데이터베이스 두 개가 필요합니다.
-   - pg_bigm이 있으면 두 글자 한국어 검색이 빨라집니다(`deploy/postgres`). 없어도 검색은 됩니다.
+   - 필요한 확장은 `btree_gist` 하나입니다. 검색은 9의 검색 엔진이 답하고, 없으면 데이터베이스가 인덱스 없이 답합니다.
    - 어디서 돌릴지(operator인지 관리형인지)는 백업과 함께 정합니다(rove#37).
    - LISTEN과 세션 잠금은 트랜잭션 모드 풀러를 거치면 안 됩니다. 풀러를 쓴다면 `watch.dsn`과 `spin.dsn`에 DB로 바로 가는 주소를 줍니다.
 9. **검색(선택).** OpenSearch와 한국어 분석기 nori가 검색에 답하게 합니다(D31).

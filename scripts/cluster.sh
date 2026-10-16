@@ -227,7 +227,13 @@ node="$(docker inspect -f "{{(index .NetworkSettings.Networks \"k3d-${CLUSTER}\"
 
 echo "== the images this checkout builds"
 tried docker build -q -t "rove-cluster:rig" . >/dev/null
-tried docker build -q -t "rove-postgres:rig" deploy/postgres >/dev/null
+# PostgreSQL as it is published, made an image of this host's own so that it
+# goes onto the node with the rest and nothing in the cluster waits on a
+# registry: a pulled image saves with the index of every platform it was
+# published for and the layers of one, which the node refuses to import.
+mkdir -p "${work}/postgres"
+printf 'FROM postgres:18\n' >"${work}/postgres/Dockerfile"
+tried docker build -q -t "rove-postgres:rig" "${work}/postgres" >/dev/null
 # The next build, which is this one under another name: a rollout is a new
 # image, whatever is in it, and what is under test is the rollout.
 docker tag "rove-cluster:rig" "rove-cluster:next"

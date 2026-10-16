@@ -732,9 +732,9 @@ func unionKeys(a, b map[string]string) []string {
 //
 // A deployment that names a search engine asks it (D31), and what it finds
 // is read through the wall like anything else, best first. One that names
-// none asks the database: on PostgreSQL the bigram index, or pg_trgm's where
-// pg_bigm is not installed (design 9.5, [found]). A search with nothing typed
-// is the filters alone, and the database answers it either way.
+// none asks the database, which reads every row of the tenant ([found]). A
+// search with nothing typed is the filters alone, and the database answers it
+// either way.
 func (s domainAsset) Search(ctx context.Context, req *app.AssetSearchRequest) (*app.AssetSearchResponse, error) {
 	t, err := s.read(ctx)
 	if err != nil {
@@ -747,8 +747,8 @@ func (s domainAsset) Search(ctx context.Context, req *app.AssetSearchRequest) (*
 	ps := []predicate.Asset{asset.TenantId(tid), asset.DateErasedIsNil()}
 	if q := strings.TrimSpace(req.GetQ()); q != "" {
 		// What a person would type: a name, a tag, a serial, or what it is,
-		// who made it and who has it -- each answered by its own index.
-		ps = append(ps, predicate.Asset(found(t.postgres(), t.deps.searchMode(), tid, q)))
+		// who made it and who has it.
+		ps = append(ps, predicate.Asset(found(t.postgres(), tid, q)))
 	}
 	if v := req.GetKind(); v != "" {
 		ps = append(ps, asset.Kind(v))

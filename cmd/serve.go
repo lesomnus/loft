@@ -34,7 +34,6 @@ import (
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/internal/identity"
-	"github.com/lesomnus/rove/internal/search"
 	"github.com/lesomnus/rove/server/account"
 	"github.com/lesomnus/rove/server/bare"
 	"github.com/lesomnus/rove/server/clientaddr"
@@ -256,14 +255,6 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	if err != nil {
 		db.Close()
 		return nil, err
-	}
-	// Which index answers a search, as the last migration left the database;
-	// `cli.Migrate` asks again after it has made them.
-	if dialect == "postgres" {
-		if deps.Search, err = search.Detect(ctx, db); err != nil {
-			db.Close()
-			return nil, fmt.Errorf("search: %w", err)
-		}
 	}
 
 	// Who people are is roster's: one of its own, or one in this process on a

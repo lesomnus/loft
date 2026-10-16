@@ -4,7 +4,7 @@
 
 | 서비스 | 하는 일 |
 | --- | --- |
-| `postgres` | PostgreSQL 18 + pg_bigm(`deploy/postgres`). Rove와 내장 roster가 데이터베이스를 하나씩 씁니다(`rove`, `roster`) |
+| `postgres` | PostgreSQL 18(공식 이미지). Rove와 내장 roster가 데이터베이스를 하나씩 씁니다(`rove`, `roster`) |
 | `migrate` | 이 빌드의 스키마로 테이블을 맞추고 끝납니다(`rove migrate`). 서버는 이것이 끝난 뒤에 뜨고, 스스로는 테이블을 바꾸지 않습니다(`db.migrate: false`) |
 | `rove` ×2 | `rove serve`. 백그라운드 작업은 리스로 한 대만 돌고(`spin.lease: postgres`), 변경 알림은 DB로 주고받습니다(`watch.broker: postgres`) |
 | `rove-admin` | 운영자 진입점. 호스트의 `127.0.0.1:8081`에만 열립니다 |

@@ -19,17 +19,13 @@ func TestTextIsFoldedAsTheDatabaseFoldsIt(t *testing.T) {
 	x.Equal("의자", search.Fold("의자"), "Hangul as it is")
 }
 
-// TestWhatIsShortGoesByPrefix: one letter for pg_bigm and for no index, one or
-// two for pg_trgm -- counted in letters, not bytes.
-func TestWhatIsShortGoesByPrefix(t *testing.T) {
+// TestASingleLetterGoesByPrefix -- counted in letters, not bytes.
+func TestASingleLetterGoesByPrefix(t *testing.T) {
 	x := require.New(t)
-	for _, m := range []search.Mode{search.Bigram, search.Plain} {
-		x.True(m.ByPrefix("의"), m)
-		x.False(m.ByPrefix("의자"), m)
-	}
-	x.True(search.Trigram.ByPrefix("의자"))
-	x.False(search.Trigram.ByPrefix("노트북"))
-	x.True(search.Trigram.ByPrefix("m"))
+	x.True(search.ByPrefix("의"))
+	x.True(search.ByPrefix("m"))
+	x.False(search.ByPrefix("의자"))
+	x.False(search.ByPrefix("노트북"))
 }
 
 // TestALikePatternMatchesWhatWasTyped: `%`, `_` and the escape itself are

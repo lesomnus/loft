@@ -34,7 +34,7 @@ x-rove: &rove
 
 services:
   postgres:
-    build: ../postgres
+    image: postgres:18
     environment:
       POSTGRES_USER: rove
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}

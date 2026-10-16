@@ -52,7 +52,7 @@ rove/
 ├── cmd/rove-admin/          운영자 진입점 (내부망)
 ├── migrations/ent/          ent Plan 결과 (리뷰 후 커밋)
 ├── migrations/pg-extra/     직접 쓰는 PostgreSQL DDL
-├── deploy/postgres/         pg_bigm을 넣은 PostgreSQL 18 이미지 (개발·CI·운영 공용)
+├── deploy/opensearch/       nori를 넣은 OpenSearch 이미지 (검색, D31). PostgreSQL은 공식 이미지
 ├── deploy/k8s/              운영 배포의 kustomize base (rove, rove-admin, 마이그레이션; 2026-10-13부터 Kubernetes)
 ├── deploy/compose/          같은 이미지를 한 대에 띄워 보는 구성 (로컬 시험, CI)
 ├── ts/                      React PWA
@@ -96,7 +96,7 @@ MVP(Phase 0 + 1)는 M0~M5이고, 합쳐서 대략 13~16주로 본다.
 
 ### M0 — 기반 (약 1주)
 
-- devcontainer: 이름 오타는 고쳤다(`lesomnus/rove`). `deploy/postgres` 이미지로 PostgreSQL 서비스를 붙이고(payday처럼 docker-in-docker를 써도 된다), `scripts/with-postgres.sh`를 둔다.
+- devcontainer: 이름 오타는 고쳤다(`lesomnus/rove`). PostgreSQL 서비스를 붙이고(공식 이미지. payday처럼 docker-in-docker를 써도 된다), `scripts/with-postgres.sh`를 둔다.
 - `pd new`로 골격을 만들고, proto 패키지를 `rove`로, payday 버전을 고정한다.
 - 마이그레이션 적용 명령: ent 디렉터리 다음 pg-extra 디렉터리, 그 뒤 `entschema.Check`.
 - CI 골격(7장).
@@ -153,7 +153,7 @@ MVP(Phase 0 + 1)는 M0~M5이고, 합쳐서 대략 13~16주로 본다.
 
 ### M3 — 웹 UI·QR·가져오기 (약 3~4주)
 
-- React PWA: 자산 목록·상세·타임라인·시점 슬라이더·Diff, 공간 트리, 검색(`Search` RPC, pg_bigm).
+- React PWA: 자산 목록·상세·타임라인·시점 슬라이더·Diff, 공간 트리, 검색(`Search` RPC, 지금은 OpenSearch: D31).
 - TenantDomain(design 9.9절):
   - 자체 도메인과 Rove 기본 하위 도메인 중 선택.
   - 확인용 TXT 토큰 발급과, spin 루프의 DNS 확인.
@@ -223,7 +223,7 @@ MVP 이후에 파일럿 피드백으로 순서를 다시 정한다.
 | 작업 | 내용 |
 | --- | --- |
 | `go` | gofmt, vet, 테스트 (SQLite) |
-| `go-pg` | `deploy/postgres` 이미지를 서비스로 띄우고 같은 테스트 + PostgreSQL 전용 테스트 |
+| `go-pg` | 공식 PostgreSQL 이미지를 띄우고 같은 테스트 + PostgreSQL 전용 테스트 |
 | `gen` | `go tool pd gen --check --ts .` |
 | `buf` | lint, main 대비 breaking |
 | `migrate` | 새 DB에 ent → pg-extra 적용, `entschema.Check` 통과, dev DB에 Plan을 돌려 새 파일이 없는지 확인 |
@@ -252,7 +252,7 @@ MVP 이후에 파일럿 피드백으로 순서를 다시 정한다.
 | payday 변경(`dev` 라벨, protobuf-orm과 함께 바뀜) | 재생성·마이그레이션이 깨진다 | 버전 고정, CI의 `pd gen --check`, 업그레이드는 별도 작업으로 |
 | 시간 모델의 복잡도 | 버그와 지연 | M1에서 오라클 테스트를 먼저 만들고, UI 전에 API를 굳힌다 |
 | SQLite에서만 통과 | 운영 장애 | 도메인 테스트는 PostgreSQL 필수 |
-| 관리형 DB로 옮길 때 pg_bigm이 없는 경우 | 검색 품질 저하 | `Search` RPC 뒤에 폴백(design 9.5절) |
+| 관리형 DB로 옮길 때 pg_bigm이 없는 경우 | 검색 품질 저하 | `Search` RPC 뒤에 폴백(design 9.5절). **D31 이후 해당 없음**: 검색은 OpenSearch가 답한다 |
 | 테넌트 잠금 행 경합 | 대형 테넌트의 이동 지연 | 계측하고, 필요하면 사업장 단위 잠금으로 나눈다 |
 | 1인 개발 범위 | 일정 초과 | MVP 범위를 고정하고, Phase 2부터는 파일럿 피드백으로 다시 정한다 |
 | 파드 한 개(ReadWriteOnce 볼륨) | 노드 장애나 배포가 곧 잠깐의 장애 | 다른 장소의 PITR 백업, 분기 복구 리허설, 오버레이로 다시 띄우는 절차 문서. 둘 이상은 S3(rove#45) 뒤에 |

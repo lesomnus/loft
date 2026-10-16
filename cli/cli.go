@@ -25,9 +25,7 @@ import (
 	"context"
 	_ "embed"
 	"fmt"
-	"log/slog"
 
-	"github.com/lesomnus/otx/log"
 	"github.com/lesomnus/xli"
 	"github.com/lesomnus/xli/cfg"
 	"github.com/lesomnus/xli/flg"
@@ -36,7 +34,6 @@ import (
 
 	"github.com/lesomnus/rove/cmd"
 	entmigrate "github.com/lesomnus/rove/internal/ent/migrate"
-	"github.com/lesomnus/rove/internal/search"
 )
 
 // Cmd is this app's own command line: what payday and xli supply, plus
@@ -122,19 +119,6 @@ func Migrate(ctx context.Context, s *cmd.Server) error {
 	if _, err := s.Db.ExecContext(ctx, pgExtras); err != nil {
 		return fmt.Errorf("postgres extras: %w", err)
 	}
-
-	// Which index answers a search is what the extras just made, read back
-	// and said, so that a deployment without pg_bigm knows it is slower.
-	m, err := search.Detect(ctx, s.Db)
-	if err != nil {
-		return fmt.Errorf("search: %w", err)
-	}
-	s.Deps.Search = m
-	lv := slog.LevelInfo
-	if m != search.Bigram {
-		lv = slog.LevelWarn
-	}
-	log.From(ctx).Log(ctx, lv, "search: "+m.Says(true))
 	return nil
 }
 
