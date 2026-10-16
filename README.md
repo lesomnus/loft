@@ -153,7 +153,8 @@ Claude Desktop은 설정 파일(`claude_desktop_config.json`)의 `mcpServers`에
 
 - **도구는 모두 읽기만 합니다.**
   - 자산 찾기(`search_assets`), 자산 하나(`get_asset`), 이력(`asset_history`), 어느 시점의 모습(`asset_at`)
-  - 최근에 일어난 일(`recent_events`), 지급과 대여(`list_custody`), 예약(`reservations`), 사람과 팀(`list_people`)
+  - 최근에 일어난 일(`recent_events`), 지급과 대여(`list_custody`), 예약(`reservations`)
+  - 사람과 팀 찾기(`find_people`), 모델 찾기(`find_models`)
   - 누구로 읽는지(`whoami`)
 - 브라우저와 같은 권한 표와 벽을 따르므로, 비서는 그 사람이 볼 수 있는 것만 봅니다. 서버는 MCP를 모르고, 새로 여는 것도 없습니다.
 - 로그인은 부를 때마다 다시 읽습니다. `rove login`과 `rove use`는 비서를 다시 띄우지 않아도 다음 호출부터 적용됩니다.
@@ -205,12 +206,16 @@ PostgreSQL이면 서버를 여러 대 띄울 수 있습니다. 상태는 데이�
 
 설정에 클러스터가 없으면 검색은 데이터베이스가 답합니다(인덱스 없이 행을 모두 읽습니다). `app.search.opensearch`로 클러스터를 주면 OpenSearch와 한국어 분석기 nori가 답합니다. nori는 "웹서버"를 웹 · 서버로, "의자를"을 의자로 나눠서 찾습니다(D31).
 
+자산(`AssetService.Search`)과 사람·팀·거래처(`PartyService.Search`), 모델(`ItemModelService.Search`)을 이렇게 찾습니다. 색인은 셋이 따로이고, 별칭도 `<index>-assets`, `<index>-parties`, `<index>-models`로 따로입니다.
+
 무엇을 입력했는지에 따라 이렇게 찾습니다.
 
 - **낱말:** 붙여 쓴 합성어(웹서버)와 조사가 붙은 낱말(의자를)도 낱말로 찾습니다. 쳐 넣은 한 낱말은 그 조각을 모두 갖춘 것만 찾습니다. 그래서 없는 태그(E2E-ABC12)는 글자 몇 개가 겹치는 다른 자산을 끌어오지 않습니다.
 - **두 낱말:** 둘 다 맞은 것을 먼저 보여 주고, 그다음은 드문 낱말이 맞은 것부터입니다. "GPU 서버"면 GPU서버, NVIDIA GPU, 웹서버 순입니다.
 - **태그와 시리얼:** 통째로도, 일부로도 찾습니다.
 - **이름:** 입력하는 중인 앞부분으로도, 한 글자 틀린 것으로도 찾습니다.
+- **사람:** 이름의 두 글자 이상 일부로도 찾습니다("민수"로 김민수). 이름 전체가 맞은 사람이 먼저입니다. 팀 이름으로 찾으면 팀이 먼저 나오고, 그 팀의 사람이 뒤에 나옵니다. 이메일과 전화번호는 색인에 넣지 않습니다.
+- **모델:** 이름, 제조사, 코드, 유형 이름으로 찾습니다.
 
 저장한 것은 그 응답이 오기 전에 색인에 들어갑니다. 저장하고 바로 검색해도 보입니다. 다른 사람이나 다른 프로세스가 바꾼 것은 1초쯤 늦을 수 있습니다.
 
@@ -222,7 +227,7 @@ PostgreSQL이면 서버를 여러 대 띄울 수 있습니다. 상태는 데이�
 
 - **바뀐 것이 색인에 닿는 길:**
   - 자산, 유형, 모델, 사람이 바뀌면 같은 트랜잭션에 "다시 색인할 것"(`searchstale`)이 남습니다.
-  - 배포에서 한 서버의 루프(`rove.search.index`)가 1초쯤 안에 그 문서를 DB의 지금 상태로 다시 만듭니다.
+  - 배포에서 한 서버의 루프(`rove.search.index`)가 1초쯤 안에 그 문서를 DB의 지금 상태로 다시 만듭니다. 이름을 빌려 오는 문서도 함께입니다: 모델 이름이 바뀌면 그 모델의 자산, 유형 이름이 바뀌면 그 유형의 모델, 팀 이름이 바뀌면 그 팀의 사람입니다.
   - 개인정보 삭제로 바뀐 이름도, 지운 자산도, 파기한 워크스페이스도 이 길로 색인에서 사라집니다.
 - **클러스터가 답하지 않으면** 바뀐 것은 큐에서 기다립니다. 로그에는 시작할 때, 이어지는 동안 1분에 한 번, 다시 될 때 남습니다.
 
@@ -237,7 +242,7 @@ PostgreSQL이면 서버를 여러 대 띄울 수 있습니다. 상태는 데이�
         username: rove
         password: env:ROVE_SEARCH_PASSWORD   # file:/run/secrets/..., 또는 값 그대로
         ca_file: /etc/rove/opensearch-ca.pem
-        index: rove   # 인덱스 이름의 앞부분. 별칭 rove-assets가 rove-assets-<시각>을 가리킵니다
+        index: rove   # 인덱스 이름의 앞부분. 별칭 rove-assets가 rove-assets-<시각>을 가리킵니다 (parties, models도 같음)
   ```
 
   환경변수로는 `ROVE_APP_SEARCH_OPENSEARCH_ADDRS=https://search-0:9200,https://search-1:9200`처럼 씁니다. 한 클러스터를 여러 배포가 나눠 쓰면 `index`를 배포마다 다르게 줍니다.
@@ -252,8 +257,8 @@ PostgreSQL이면 서버를 여러 대 띄울 수 있습니다. 상태는 데이�
 - **명령:**
 
   ```sh
-  rove search reindex          # 지금 다시 만들기: DB의 자산으로 새 인덱스를 다 채운 뒤, 별칭을 옮기고 옛 인덱스를 지움
-  rove search status           # 별칭이 가리키는 인덱스, 문서 수와 DB의 자산 수
+  rove search reindex          # 지금 다시 만들기: 색인마다 DB로 새 인덱스를 다 채운 뒤, 별칭을 옮기고 옛 인덱스를 지움
+  rove search status           # 색인마다 별칭이 가리키는 인덱스, 문서 수와 DB의 행 수
   rove search analyze 웹서버    # 그 글을 어떤 낱말로 나누는지: 색인할 때와 찾을 때
   rove search remove --yes     # 이 배포가 만든 인덱스와 별칭을 모두 지움
   ```

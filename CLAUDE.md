@@ -289,27 +289,30 @@ Search is OpenSearch with nori, for a deployment whose
 `app.search.opensearch` names a cluster (D31, rove#83); one that names none
 asks the database (`internal/search`), which reads the tenant's rows with no
 index -- pg_bigm is gone, and the database's search is not made faster. The
-engine is `server/opensearch`: the client (its
-HTTP API, no library), the index (`assets.json`, whose shape is `Version`:
-bump it with any change), and `Reindex`, which fills a new index and moves
-the alias `<index>-assets` onto it in one step; and `rove search
-status|reindex|remove|analyze`. The index is kept current by
-`opensearch.Recorder`, which writes a `SearchStale` row in the transaction of
-any write to an asset or to what its document takes a name from (type, model,
-party), and `opensearch.Indexer`, the loop that makes those documents again
-from the database. A purge goes past the recorders, so it writes its own row
-(`offboard.Deployment.Unindex`). The loop also makes the index when there is
-none, or none of this build's `Version`. A call's own asset writes are in the
-index before it answers (`Indexer.Interceptor`, in the gRPC chain): save and
-search finds it; anything else is the loop's, a second or so later. `AssetService.Search` with text
-asks it (`Deps.Finder`, `Tx.searchEngine`) and reads what it found through the
-wall, in its order; a search with filters only, or a deployment with no
-cluster, is the database's. The index is a copy: it is never asked who may
-see what.
+engine is `server/opensearch`: the client (its HTTP API, no library), and an
+`Index` for each kind of thing searched -- `Assets`, `Parties`, `Models`
+(rove#91), each with its own shape (`assets.json`, `parties.json`,
+`models.json`, and its `Version`: bump it with any change), its own alias
+`<index>-<name>` and `Reindex`, which fills a new index and moves the alias
+onto it in one step; and `rove search status|reindex|remove|analyze`, which
+go over all of them. The indexes are kept current by `opensearch.Recorder`,
+which writes a `SearchStale` row in the transaction of any write to an asset,
+a party or a model or to what their documents take a name from (type, model,
+party, a party's team), and `opensearch.Indexer`, the loop that makes those
+documents again from the database. A purge goes past the recorders, so it
+writes its own row (`offboard.Deployment.Unindex`). The loop also makes an
+index when there is none, or none of this build's `Version`. A call's own
+writes are in the index before it answers (`Indexer.Interceptor`, in the gRPC
+chain): save and search finds it; anything else is the loop's, a second or so
+later. `AssetService.Search`, `PartyService.Search` and
+`ItemModelService.Search` with text ask it (`Deps.Finder`), and read what it
+found through the wall, in its order; a search with filters only, or a
+deployment with no cluster, is the database's. The index is a copy: it is
+never asked who may see what, and holds no person's email or phone.
 
 A test that needs a cluster takes `internal/opensearchtest.Config(t)`
 (`PDTEST_OPENSEARCH`, and `PDTEST_OPENSEARCH_CA` for TLS) and skips without
-one. CI's `opensearch` job runs every such package on `deploy/opensearch`
+one, and makes every index with `opensearchtest.Made`. CI's `opensearch` job runs every such package on `deploy/opensearch`
 with the security plugin on, signed in with the role README gives an
 operator -- a call that needs more than that role fails there.
 

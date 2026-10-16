@@ -7,39 +7,38 @@ import (
 	"uuid"
 
 	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/asset"
 )
 
-// page is how many assets a reindex reads from the database, and writes to
-// the index, at a time.
+// page is how many rows a reindex reads from the database, and writes to the
+// index, at a time.
 var page = 1000
 
 // Reindexed is what a reindex did.
 type Reindexed struct {
 	// Index is the index it made and pointed the alias at.
 	Index string
-	// Docs is how many assets it wrote there.
+	// Docs is how many documents it wrote there.
 	Docs int
 	// Replaced is the indexes it deleted: the one the alias pointed at
 	// before, and any a reindex that stopped halfway left behind.
 	Replaced []string
 }
 
-// Reindex makes the index of assets again from db.
+// Reindex makes the index of ix again from db.
 //
-// It is a new index, every asset that is not erased written into it, and the
-// alias moved onto it in one step, so that a search answers from the old
-// index until the new one is whole and never from neither. The index the alias
-// pointed at is deleted after, and so is any one a reindex that stopped
-// halfway left. One reindex runs at a time: a second deletes what the first
-// is still writing.
+// It is a new index, everything of its kind that is not erased written into
+// it, and the alias moved onto it in one step, so that a search answers from
+// the old index until the new one is whole and never from neither. The index
+// the alias pointed at is deleted after, and so is any one a reindex that
+// stopped halfway left. One reindex of an Index runs at a time: a second
+// deletes what the first is still writing.
 //
-// It is how a deployment begins to search with OpenSearch, how a new [Version]
-// of the index comes into use, and how an index that was lost or has gone
+// It is how a deployment begins to search with OpenSearch, how a new
+// [Index.Version] comes into use, and how an index that was lost or has gone
 // wrong is made right; done says how far it is, after every page.
-func Reindex(ctx context.Context, c *Client, db *ent.Client, now time.Time, done func(n int)) (Reindexed, error) {
-	out := Reindexed{Index: c.fresh(now)}
-	if err := c.create(ctx, out.Index); err != nil {
+func Reindex(ctx context.Context, c *Client, db *ent.Client, ix *Index, now time.Time, done func(n int)) (Reindexed, error) {
+	out := Reindexed{Index: c.fresh(ix, now)}
+	if err := c.create(ctx, ix, out.Index); err != nil {
 		return out, fmt.Errorf("make %s: %w", out.Index, err)
 	}
 
@@ -47,15 +46,7 @@ func Reindex(ctx context.Context, c *Client, db *ent.Client, now time.Time, done
 	// page is the same query however far in it is.
 	var last *uuid.UUID
 	for {
-		q := db.Asset.Query().
-			Where(asset.DateErasedIsNil()).
-			WithType().WithModel().WithCustodian().
-			Order(ent.Asc(asset.FieldId)).
-			Limit(page)
-		if last != nil {
-			q.Where(asset.IdGT(*last))
-		}
-		rows, err := q.All(ctx)
+		rows, err := ix.page(ctx, db, last, page)
 		if err != nil {
 			return out, err
 		}
@@ -64,9 +55,8 @@ func Reindex(ctx context.Context, c *Client, db *ent.Client, now time.Time, done
 		}
 
 		ops := make([]Op, 0, len(rows))
-		for _, a := range rows {
-			d, v := DocOf(a)
-			ops = append(ops, Op{Index: out.Index, Id: a.Id.String(), Version: v, Doc: &d})
+		for _, r := range rows {
+			ops = append(ops, Op{Index: out.Index, Id: r.key.String(), Version: r.version, Doc: r.doc})
 		}
 		if _, err := c.Bulk(ctx, ops); err != nil {
 			return out, fmt.Errorf("write %s: %w", out.Index, err)
@@ -76,7 +66,7 @@ func Reindex(ctx context.Context, c *Client, db *ent.Client, now time.Time, done
 			done(out.Docs)
 		}
 
-		k := rows[len(rows)-1].Id
+		k := rows[len(rows)-1].key
 		last = &k
 		if len(rows) < page {
 			break
@@ -86,11 +76,11 @@ func Reindex(ctx context.Context, c *Client, db *ent.Client, now time.Time, done
 	if err := c.refresh(ctx, out.Index); err != nil {
 		return out, err
 	}
-	if err := c.point(ctx, out.Index); err != nil {
-		return out, fmt.Errorf("point %s at %s: %w", c.Alias(), out.Index, err)
+	if err := c.point(ctx, ix, out.Index); err != nil {
+		return out, fmt.Errorf("point %s at %s: %w", c.Alias(ix), out.Index, err)
 	}
 
-	names, err := c.indexes(ctx)
+	names, err := c.indexes(ctx, ix)
 	if err != nil {
 		return out, err
 	}
@@ -106,25 +96,25 @@ func Reindex(ctx context.Context, c *Client, db *ent.Client, now time.Time, done
 	return out, nil
 }
 
-// State is what the index of assets is now.
+// State is what the index of an [Index] is now.
 type State struct {
 	Alias string
 	// Index is what the alias points at; empty is nothing, which is a
-	// deployment that has not reindexed yet.
+	// deployment that has not made one yet.
 	Index string
-	// Version is the shape Index was made in; see [Version].
+	// Version is the shape Index was made in; see [Index.Version].
 	Version int
 	// Docs is how many documents it holds.
 	Docs int64
-	// Others is every other index of assets this deployment has: what a
-	// reindex that stopped halfway left behind.
+	// Others is every other index of it this deployment has: what a reindex
+	// that stopped halfway left behind.
 	Others []string
 }
 
-// Status is what the index of assets is now.
-func (c *Client) Status(ctx context.Context) (State, error) {
-	s := State{Alias: c.Alias()}
-	idx, err := c.current(ctx)
+// Status is what the index of ix is now.
+func (c *Client) Status(ctx context.Context, ix *Index) (State, error) {
+	s := State{Alias: c.Alias(ix)}
+	idx, err := c.current(ctx, ix)
 	if err != nil {
 		return s, err
 	}
@@ -137,7 +127,7 @@ func (c *Client) Status(ctx context.Context) (State, error) {
 			return s, err
 		}
 	}
-	names, err := c.indexes(ctx)
+	names, err := c.indexes(ctx, ix)
 	if err != nil {
 		return s, err
 	}

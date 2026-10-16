@@ -1,0 +1,72 @@
+{
+  "settings": {
+    "index": {
+      "number_of_shards": 1,
+      "auto_expand_replicas": "0-1"
+    },
+    "analysis": {
+      "tokenizer": {
+        "ko_mixed": { "type": "nori_tokenizer", "decompound_mode": "mixed" },
+        "ko_discard": { "type": "nori_tokenizer", "decompound_mode": "discard" },
+        "prefix": {
+          "type": "edge_ngram",
+          "min_gram": 1,
+          "max_gram": 32,
+          "token_chars": ["letter", "digit", "punctuation", "symbol"]
+        },
+        "bigram": {
+          "type": "ngram",
+          "min_gram": 2,
+          "max_gram": 2,
+          "token_chars": ["letter", "digit"]
+        },
+        "trigram": {
+          "type": "ngram",
+          "min_gram": 3,
+          "max_gram": 3,
+          "token_chars": ["letter", "digit", "punctuation", "symbol"]
+        }
+      },
+      "normalizer": {
+        "lower": { "type": "custom", "filter": ["lowercase"] }
+      },
+      "analyzer": {
+        "ko": { "type": "custom", "tokenizer": "ko_mixed", "filter": ["nori_part_of_speech", "lowercase"] },
+        "ko_search": { "type": "custom", "tokenizer": "ko_discard", "filter": ["nori_part_of_speech", "lowercase"] },
+        "prefix": { "type": "custom", "tokenizer": "prefix", "filter": ["lowercase"] },
+        "prefix_search": { "type": "custom", "tokenizer": "keyword", "filter": ["lowercase"] },
+        "bigram": { "type": "custom", "tokenizer": "bigram", "filter": ["lowercase"] },
+        "trigram": { "type": "custom", "tokenizer": "trigram", "filter": ["lowercase"] }
+      }
+    }
+  },
+  "mappings": {
+    "_meta": { "version": 1 },
+    "dynamic": "strict",
+    "properties": {
+      "tenant": { "type": "keyword" },
+      "kind": { "type": "keyword" },
+      "in_id": { "type": "keyword" },
+      "name": {
+        "type": "text",
+        "analyzer": "ko",
+        "search_analyzer": "ko_search",
+        "fields": {
+          "exact": { "type": "keyword", "normalizer": "lower" },
+          "plain": { "type": "text", "analyzer": "standard" },
+          "prefix": { "type": "text", "analyzer": "prefix", "search_analyzer": "prefix_search" },
+          "part": { "type": "text", "analyzer": "bigram" }
+        }
+      },
+      "code": {
+        "type": "keyword",
+        "normalizer": "lower",
+        "fields": {
+          "prefix": { "type": "text", "analyzer": "prefix", "search_analyzer": "prefix_search" },
+          "part": { "type": "text", "analyzer": "trigram" }
+        }
+      },
+      "in": { "type": "text", "analyzer": "ko", "search_analyzer": "ko_search" }
+    }
+  }
+}

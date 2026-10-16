@@ -52,15 +52,21 @@ func TestAReindexMakesTheIndexAndPointsTheAliasAtIt(t *testing.T) {
 
 	out := run(t, cli.NewCmdSearch(&c), "reindex")
 	x.Contains(out, "points at it")
+	for _, ix := range opensearch.Indexes {
+		x.Contains(out, " "+ix.Name+", and ", "every index, made: %s", out)
+	}
 	o, err := opensearch.New(c.App.Search.Opensearch, func(s string) (string, error) { return s, nil })
 	x.NoError(err)
 	defer o.Close()
-	first, err := o.Status(ctx)
+	first, err := o.Status(ctx, opensearch.Assets)
 	x.NoError(err)
 	x.NotEmpty(first.Index)
-	x.Equal(opensearch.Version, first.Version)
+	x.Equal(opensearch.Assets.Version, first.Version)
 	x.EqualValues(assets, first.Docs)
-	x.Contains(run(t, cli.NewCmdSearch(&c), "status"), first.Index)
+	status := run(t, cli.NewCmdSearch(&c), "status")
+	x.Contains(status, first.Index)
+	x.Contains(status, o.Alias(opensearch.Parties)+" → ")
+	x.Contains(status, o.Alias(opensearch.Models)+" → ")
 
 	words, err := o.Analyze(ctx, "ko", "웹서버")
 	x.NoError(err)
@@ -72,7 +78,7 @@ func TestAReindexMakesTheIndexAndPointsTheAliasAtIt(t *testing.T) {
 
 	out = run(t, cli.NewCmdSearch(&c), "reindex")
 	x.Contains(out, "deleted "+first.Index)
-	second, err := o.Status(ctx)
+	second, err := o.Status(ctx, opensearch.Assets)
 	x.NoError(err)
 	x.NotEqual(first.Index, second.Index)
 	x.EqualValues(assets, second.Docs)

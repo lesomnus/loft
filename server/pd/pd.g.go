@@ -16654,6 +16654,11 @@ func (s interceptItemModel) Update(ctx context.Context, req *rove.ItemModelUpdat
 		rove.ItemModelService_Update_FullMethodName, req, s.ItemModelServiceServer.Update)
 }
 
+func (s interceptItemModel) Search(ctx context.Context, req *rove.ItemModelSearchRequest) (*rove.ItemModelSearchResponse, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.ItemModelServiceServer,
+		rove.ItemModelService_Search_FullMethodName, req, s.ItemModelServiceServer.Search)
+}
+
 func (s Intercept) Holder() rove.HolderServiceServer {
 	return interceptHolder{s, s.Next().Holder()}
 }
@@ -16775,6 +16780,11 @@ func (s interceptParty) Deactivate(ctx context.Context, req *rove.PartyDeactivat
 func (s interceptParty) Pseudonymize(ctx context.Context, req *rove.PartyPseudonymizeRequest) (*rove.Party, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PartyServiceServer,
 		rove.PartyService_Pseudonymize_FullMethodName, req, s.PartyServiceServer.Pseudonymize)
+}
+
+func (s interceptParty) Search(ctx context.Context, req *rove.PartySearchRequest) (*rove.PartySearchResponse, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.PartyServiceServer,
+		rove.PartyService_Search_FullMethodName, req, s.PartyServiceServer.Search)
 }
 
 func (s Intercept) Session() rove.SessionServiceServer {
@@ -19650,6 +19660,19 @@ func dispatch(ctx context.Context, s rove.Server, op *pdpb.Op) (*anypb.Any, erro
 
 		return anypb.New(res)
 
+	case rove.ItemModelService_Search_FullMethodName:
+		v := &rove.ItemModelSearchRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.ItemModel().Search(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
 	case rove.HolderService_Add_FullMethodName:
 		v := &rove.HolderAddRequest{}
 		if err := op.GetRequest().UnmarshalTo(v); err != nil {
@@ -19891,6 +19914,19 @@ func dispatch(ctx context.Context, s rove.Server, op *pdpb.Op) (*anypb.Any, erro
 		}
 
 		res, err := s.Party().Pseudonymize(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.PartyService_Search_FullMethodName:
+		v := &rove.PartySearchRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.Party().Search(ctx, v)
 		if err != nil {
 			return nil, err
 		}

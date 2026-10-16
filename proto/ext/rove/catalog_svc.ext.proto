@@ -22,6 +22,23 @@ message AssetTypeUpdateRequest {
 
 service ItemModelService {
   rpc Update(ItemModelUpdateRequest) returns (ItemModel);
+  // Search finds models by what a person types: a name, who makes it, a
+  // code, what it is a model of. A deployment that names a search engine
+  // asks it (D31, rove#91).
+  rpc Search(ItemModelSearchRequest) returns (ItemModelSearchResponse);
+}
+
+message ItemModelSearchRequest {
+  string q = 1 [features.field_presence = IMPLICIT];
+  // Only models of this type.
+  AssetTypeRef type = 2;
+  uint32 size = 3 [features.field_presence = IMPLICIT];
+  uint32 offset = 4 [features.field_presence = IMPLICIT];
+}
+
+message ItemModelSearchResponse {
+  repeated ItemModel items = 1;
+  uint32 total = 2 [features.field_presence = IMPLICIT];
 }
 
 message ItemModelUpdateRequest {

@@ -3,7 +3,6 @@ package domain
 import (
 	"context"
 	"fmt"
-	"log/slog"
 	"maps"
 	"slices"
 	"sort"
@@ -11,7 +10,6 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/lesomnus/otx/log"
 	"github.com/lesomnus/payday/pdid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -841,8 +839,7 @@ func (t *Tx) searchEngine(req *app.AssetSearchRequest, q string) (*app.AssetSear
 
 	keys, total, err := t.deps.Finder.Search(t.ctx, f)
 	if err != nil {
-		log.From(t.ctx).WarnContext(t.ctx, "search: the engine did not answer", slog.String("error", err.Error()))
-		return nil, status.Error(codes.Unavailable, "지금은 검색할 수 없습니다. 잠시 뒤에 다시 해 보세요")
+		return nil, t.unanswered(err)
 	}
 	return t.found(keys, int(total)), nil
 }

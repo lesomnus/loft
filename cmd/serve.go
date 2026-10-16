@@ -240,7 +240,7 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	}
 	if engine != nil {
 		rec = append(rec, opensearch.Recorder())
-		log.From(ctx).InfoContext(ctx, "search: OpenSearch answers, from the index of assets", "alias", engine.Alias())
+		log.From(ctx).InfoContext(ctx, "search: OpenSearch answers, from the indexes of assets, parties and models", "assets", engine.Alias(opensearch.Assets))
 	}
 	if c.Watch.Outbox {
 		// Last, so that a queue this could not be written to undoes a write

@@ -33,6 +33,7 @@ const (
 	PartyService_SetPassword_FullMethodName  = "/rove.PartyService/SetPassword"
 	PartyService_Deactivate_FullMethodName   = "/rove.PartyService/Deactivate"
 	PartyService_Pseudonymize_FullMethodName = "/rove.PartyService/Pseudonymize"
+	PartyService_Search_FullMethodName       = "/rove.PartyService/Search"
 )
 
 // PartyServiceClient is the client API for PartyService service.
@@ -78,6 +79,10 @@ type PartyServiceClient interface {
 	Deactivate(ctx context.Context, in *PartyDeactivateRequest, opts ...grpc.CallOption) (*Party, error)
 	// Pseudonymize answers a request to forget a person (design 8.2).
 	Pseudonymize(ctx context.Context, in *PartyPseudonymizeRequest, opts ...grpc.CallOption) (*Party, error)
+	// Search finds people, teams, organizations and vendors by what a person
+	// types: a name or part of it, a code, the team one is in. A deployment
+	// that names a search engine asks it (D31, rove#91).
+	Search(ctx context.Context, in *PartySearchRequest, opts ...grpc.CallOption) (*PartySearchResponse, error)
 }
 
 type partyServiceClient struct {
@@ -237,6 +242,16 @@ func (c *partyServiceClient) Pseudonymize(ctx context.Context, in *PartyPseudony
 	return out, nil
 }
 
+func (c *partyServiceClient) Search(ctx context.Context, in *PartySearchRequest, opts ...grpc.CallOption) (*PartySearchResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PartySearchResponse)
+	err := c.cc.Invoke(ctx, PartyService_Search_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PartyServiceServer is the server API for PartyService service.
 // All implementations must embed UnimplementedPartyServiceServer
 // for forward compatibility.
@@ -280,6 +295,10 @@ type PartyServiceServer interface {
 	Deactivate(context.Context, *PartyDeactivateRequest) (*Party, error)
 	// Pseudonymize answers a request to forget a person (design 8.2).
 	Pseudonymize(context.Context, *PartyPseudonymizeRequest) (*Party, error)
+	// Search finds people, teams, organizations and vendors by what a person
+	// types: a name or part of it, a code, the team one is in. A deployment
+	// that names a search engine asks it (D31, rove#91).
+	Search(context.Context, *PartySearchRequest) (*PartySearchResponse, error)
 	mustEmbedUnimplementedPartyServiceServer()
 }
 
@@ -331,6 +350,9 @@ func (UnimplementedPartyServiceServer) Deactivate(context.Context, *PartyDeactiv
 }
 func (UnimplementedPartyServiceServer) Pseudonymize(context.Context, *PartyPseudonymizeRequest) (*Party, error) {
 	return nil, status.Error(codes.Unimplemented, "method Pseudonymize not implemented")
+}
+func (UnimplementedPartyServiceServer) Search(context.Context, *PartySearchRequest) (*PartySearchResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Search not implemented")
 }
 func (UnimplementedPartyServiceServer) mustEmbedUnimplementedPartyServiceServer() {}
 func (UnimplementedPartyServiceServer) testEmbeddedByValue()                      {}
@@ -598,6 +620,24 @@ func _PartyService_Pseudonymize_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PartyService_Search_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PartySearchRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PartyServiceServer).Search(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PartyService_Search_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PartyServiceServer).Search(ctx, req.(*PartySearchRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // PartyService_ServiceDesc is the grpc.ServiceDesc for PartyService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -656,6 +696,10 @@ var PartyService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Pseudonymize",
 			Handler:    _PartyService_Pseudonymize_Handler,
+		},
+		{
+			MethodName: "Search",
+			Handler:    _PartyService_Search_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

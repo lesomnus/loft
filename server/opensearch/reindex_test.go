@@ -44,12 +44,12 @@ func TestAReindexTurnsPagesInKeyOrder(t *testing.T) {
 	x.NoError(err)
 	defer o.Close()
 	pages := 0
-	r, err := opensearch.Reindex(ctx, o, s.Ent, time.Now(), func(int) { pages++ })
+	r, err := opensearch.Reindex(ctx, o, s.Ent, opensearch.Assets, time.Now(), func(int) { pages++ })
 	x.NoError(err)
 	x.Equal(want, r.Docs)
 	x.Equal((want+16)/17, pages)
 
-	st, err := o.Status(ctx)
+	st, err := o.Status(ctx, opensearch.Assets)
 	x.NoError(err)
 	x.Equal(r.Index, st.Index)
 	x.EqualValues(want, st.Docs)
