@@ -510,6 +510,9 @@ func TestAnAssistantChangesTheRegisterOnceThePersonSaysYes(t *testing.T) {
 	a.apply(p)
 	a.call("list_custody", nil, &out)
 	x.Empty(out.Items, "nothing out")
+	a.call("list_custody", map[string]any{"status": "any"}, &out)
+	x.Len(out.Items, 1, "every state, which is a list of no filter")
+	x.Equal("returned", out.Items[0].Status)
 	x.Equal([]string{"본관", "3층 창고"}, a.where("NB-1"), "back where it was put")
 
 	// Reserved, and cancelled.
@@ -533,6 +536,31 @@ func TestAnAssistantChangesTheRegisterOnceThePersonSaysYes(t *testing.T) {
 	a.call("reservations", map[string]any{"assets": []string{"R-4"}, "from": begins.Add(-time.Minute).Format(time.RFC3339), "to": ends.Format(time.RFC3339)}, &cal)
 	x.Equal("cancelled", cal.Items[0].Status)
 
+	// Two applies of one plan at once: one does it, and the other is told.
+	p = a.plan("plan_asset", map[string]any{"action": "add", "name": "동시에 넣은 모니터", "tag": "MN-2"})
+	results := make(chan *mcp.CallToolResult, 2)
+	for range 2 {
+		go func() {
+			res, err := a.session.CallTool(context.Background(), &mcp.CallToolParams{Name: "apply", Arguments: map[string]any{"token": p.Token, "summary": p.Summary}})
+			x.NoError(err)
+			results <- res
+		}()
+	}
+	ok, refused := 0, 0
+	for range 2 {
+		res := <-results
+		if res.IsError {
+			refused++
+			x.Regexp("applied already|being applied already", said(res))
+		} else {
+			ok++
+		}
+	}
+	x.Equal(1, ok)
+	x.Equal(1, refused)
+	a.call("search_assets", map[string]any{"query": "MN-2"}, &found)
+	x.Equal(1, found.Total, "added once")
+
 	// Added by mistake, and taken back.
 	p = a.plan("plan_asset", map[string]any{"action": "add", "name": "잘못 넣은 모니터", "tag": "MN-9"})
 	a.apply(p)
@@ -552,4 +580,171 @@ func TestAnAssistantChangesTheRegisterOnceThePersonSaysYes(t *testing.T) {
 	// the person.
 	s.signIn("owner", "owner1234", "read")
 	x.Contains(a.refused("plan_asset", map[string]any{"action": "move", "asset": "NB-1", "to": "R-4"}), "may not call /rove.AssetService/Move")
+}
+
+// applied carries a plan out and answers what else apply said.
+func (a *assistant) applied(p planned) []string {
+	a.s.t.Helper()
+	var v struct {
+		Done string   `json:"done"`
+		More []string `json:"more"`
+	}
+	a.call("apply", map[string]any{"token": p.Token, "summary": p.Summary}, &v)
+	a.s.x.Equal(p.Summary, v.Done)
+	return v.More
+}
+
+// TestAnAssistantKeepsTheRestOfTheRegister (D33): stock, a repair, a count,
+// a purchase, a model and labels, each planned in names and applied; and
+// the lists that answer the ids the plans take.
+func TestAnAssistantKeepsTheRestOfTheRegister(t *testing.T) {
+	s := serve(t)
+	x := s.x
+	s.signIn("owner", "owner1234")
+	building := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "본관", "kind": "space", "tag": "B-1"}`))
+	store := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "창고", "kind": "space", "tag": "S-1", "to": {"id": "`+building+`"}}`))
+	made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "2층 창고", "kind": "space", "tag": "S-2", "to": {"id": "`+building+`"}}`))
+	made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "개발용 노트북", "kind": "item", "tag": "NB-1", "to": {"id": "`+store+`"}}`))
+	made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "사무용 의자", "kind": "item", "tag": "CH-1", "to": {"id": "`+store+`"}}`))
+	vendor := made(t, run(t, cli.NewCmdApi(), "party", "add", "-o", "json", `{"name": "델코리아", "kind": "vendor"}`))
+	a := s.assistant()
+
+	// A model, and stock of it.
+	p := a.plan("plan_model", map[string]any{"action": "add", "name": "A4 복사용지", "maker": "한국제지", "code": "A4-80"})
+	x.Equal("모델 등록: A4 복사용지 (한국제지), 코드 A4-80", p.Summary)
+	a.apply(p)
+	var models struct {
+		Items []struct {
+			Id string `json:"id"`
+		} `json:"items"`
+	}
+	a.call("find_models", map[string]any{"query": "a4-80"}, &models)
+	x.Len(models.Items, 1)
+	paper := models.Items[0].Id
+	p = a.plan("plan_model", map[string]any{"action": "update", "model": paper, "maker": "한국제지(주)"})
+	x.Equal("모델 변경: A4 복사용지: 제조사 → 한국제지(주)", p.Summary)
+	a.apply(p)
+
+	p = a.plan("plan_stock", map[string]any{"action": "add", "name": "A4 용지", "model": paper, "space": "S-1", "quantity": 10, "unit": "박스", "threshold": 3})
+	x.Equal("재고 등록: A4 용지 10박스, 본관 › 창고 (모델 A4 복사용지, 3박스 이하면 부족)", p.Summary)
+	a.apply(p)
+	var stock struct {
+		Items []struct {
+			Id       string `json:"id"`
+			Quantity int64  `json:"quantity"`
+			Low      bool   `json:"low"`
+		} `json:"items"`
+	}
+	a.call("list_stock", map[string]any{"name": "a4"}, &stock)
+	x.Len(stock.Items, 1)
+	sheets := stock.Items[0].Id
+	p = a.plan("plan_stock", map[string]any{"action": "consume", "stock": sheets, "quantity": 8})
+	x.Equal("사용: A4 용지 -8박스 (10 → 2)", p.Summary)
+	a.apply(p)
+	a.call("list_stock", map[string]any{"low": true}, &stock)
+	x.Len(stock.Items, 1, "low, at or below its threshold")
+	p = a.plan("plan_stock", map[string]any{"action": "receive", "stock": sheets, "quantity": 5})
+	x.Equal("입고: A4 용지 +5박스 (2 → 7)", p.Summary)
+	a.apply(p)
+	p = a.plan("plan_stock", map[string]any{"action": "adjust", "stock": sheets, "quantity": -1, "reason": "실사 결과"})
+	x.Equal("조정: A4 용지 -1박스 (7 → 6) — 실사 결과", p.Summary)
+	a.apply(p)
+	p = a.plan("plan_stock", map[string]any{"action": "transfer", "stock": sheets, "to": "S-2", "quantity": 2})
+	x.Equal("재고 이동: A4 용지 2박스, 본관 › 창고 → 본관 › 2층 창고", p.Summary)
+	a.apply(p)
+	a.call("list_stock", map[string]any{"space": "S-1"}, &stock)
+	x.EqualValues(4, stock.Items[0].Quantity)
+
+	// A repair, from reported to done.
+	p = a.plan("plan_work_order", map[string]any{"action": "report", "asset": "NB-1", "name": "화면 깜빡임"})
+	x.Equal("작업 접수: NB-1 개발용 노트북: 화면 깜빡임 (수리)", p.Summary)
+	a.apply(p)
+	var work struct {
+		Items []struct {
+			Id     string `json:"id"`
+			Status string `json:"status"`
+		} `json:"items"`
+	}
+	a.call("list_work_orders", map[string]any{"asset": "NB-1"}, &work)
+	x.Len(work.Items, 1)
+	p = a.plan("plan_work_order", map[string]any{"action": "update", "work_order": work.Items[0].Id, "status": "in_progress"})
+	x.Equal("작업 변경: 화면 깜빡임: 상태 → 진행 중", p.Summary)
+	a.apply(p)
+	p = a.plan("plan_work_order", map[string]any{"action": "complete", "work_order": work.Items[0].Id, "condition": "good", "reason": "패널 교체"})
+	x.Equal("작업 완료: 화면 깜빡임, 컨디션 → 양호 — 패널 교체", p.Summary)
+	a.apply(p)
+	a.call("list_work_orders", map[string]any{"asset": "NB-1"}, &work)
+	x.Equal("done", work.Items[0].Status)
+
+	// A count of the store: one thing seen, one never, and that one settled.
+	p = a.plan("plan_count", map[string]any{"action": "start", "name": "10월 실사", "scope": "S-1"})
+	x.Equal("실사 시작: 10월 실사, 본관 › 창고 안의 모든 것", p.Summary)
+	a.apply(p)
+	var counts struct {
+		Items []struct {
+			Id       string `json:"id"`
+			Status   string `json:"status"`
+			Findings []struct {
+				Id    string `json:"id"`
+				Kind  string `json:"kind"`
+				Asset *ref   `json:"asset"`
+			} `json:"findings"`
+		} `json:"items"`
+	}
+	a.call("list_counts", map[string]any{"status": "open"}, &counts)
+	x.Len(counts.Items, 1)
+	count := counts.Items[0].Id
+	p = a.plan("plan_count", map[string]any{"action": "scan", "count": count, "asset": "NB-1"})
+	x.Equal("실사 스캔: 10월 실사: NB-1 개발용 노트북 확인", p.Summary)
+	a.apply(p)
+	p = a.plan("plan_count", map[string]any{"action": "reconcile", "count": count})
+	more := a.applied(p)
+	x.Len(more, 1)
+	x.Contains(more[0], "미발견 1")
+	a.call("list_counts", map[string]any{"count": count}, &counts)
+	missing := ""
+	for _, f := range counts.Items[0].Findings {
+		if f.Kind == "missing" {
+			missing = f.Id
+			x.Equal("CH-1 사무용 의자", f.Asset.Name)
+		}
+	}
+	x.NotEmpty(missing)
+	p = a.plan("plan_count", map[string]any{"action": "resolve", "finding": missing, "resolution": "ignored", "reason": "다른 층에 있음"})
+	x.Equal("실사 처리: CH-1 사무용 의자: 무시 — 다른 층에 있음", p.Summary)
+	a.apply(p)
+	p = a.plan("plan_count", map[string]any{"action": "close", "count": count})
+	a.apply(p)
+
+	// Bought, and received as assets.
+	p = a.plan("plan_purchase", map[string]any{"action": "add", "name": "노트북 2대", "vendor": vendor, "currency": "KRW",
+		"lines": []map[string]any{{"model": paper, "quantity": 2, "unit_cost": 1500000, "receive_as": "asset"}}})
+	x.Equal("구매 등록: 노트북 2대, 델코리아에서: A4 복사용지 ×2 (자산으로), 합계 3000000 KRW", p.Summary)
+	a.apply(p)
+	var bought struct {
+		Items []struct {
+			Id    string `json:"id"`
+			Lines []struct {
+				Quantity int64 `json:"quantity"`
+			} `json:"lines"`
+		} `json:"items"`
+	}
+	a.call("list_purchases", map[string]any{"status": "ordered"}, &bought)
+	x.Len(bought.Items, 1)
+	p = a.plan("plan_purchase", map[string]any{"action": "receive", "purchase": bought.Items[0].Id, "into": "S-2", "tag_prefix": "NB-2"})
+	x.Equal("구매 입고: 노트북 2대 → 본관 › 2층 창고 (자산 번호 NB-2…)", p.Summary)
+	x.Len(a.applied(p), 2, "the two assets it made")
+
+	// Labels: made, stuck on, taken off.
+	p = a.plan("plan_label", map[string]any{"action": "print", "count": 2})
+	x.Equal("라벨 만들기: 새 라벨 2장", p.Summary)
+	codes := a.applied(p)
+	x.Len(codes, 2)
+	code := strings.Fields(codes[0])[0]
+	p = a.plan("plan_label", map[string]any{"action": "bind", "label": code, "asset": "NB-1"})
+	x.Equal("라벨 연결: "+code+" → NB-1 개발용 노트북", p.Summary)
+	a.apply(p)
+	p = a.plan("plan_label", map[string]any{"action": "unbind", "label": code, "void": true})
+	x.Equal("라벨 해제: "+code+" (폐기, 다시 쓰지 않음)", p.Summary)
+	a.apply(p)
 }

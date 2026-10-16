@@ -167,9 +167,19 @@ Claude Desktop은 설정 파일(`claude_desktop_config.json`)의 `mcpServers`에
   - 자산 찾기(`search_assets`), 자산 하나(`get_asset`), 이력(`asset_history`), 어느 시점의 모습(`asset_at`)
   - 최근에 일어난 일(`recent_events`), 지급과 대여(`list_custody`), 예약(`reservations`)
   - 사람과 팀 찾기(`find_people`), 모델 찾기(`find_models`)
+  - 재고(`list_stock`), 작업 지시(`list_work_orders`), 실사와 그 결과(`list_counts`), 구매(`list_purchases`)
   - 누구로 읽는지(`whoami`)
 - **쓰기는 미리보기와 적용, 두 단계입니다(D33).**
-  - `plan_asset`(등록, 이동, 속성 변경, 담당 지정, 연결, 정정, 등록 취소), `plan_custody`(지급·대여, 반납, 기한 연장, 인수 확인), `plan_reservation`(예약, 확정, 승인, 반려, 취소, 체크인, 완료)은 아무것도 바꾸지 않습니다.
+  - 미리보기 도구는 아무것도 바꾸지 않습니다.
+    - `plan_asset`: 등록, 이동, 속성 변경, 담당 지정, 연결, 정정, 등록 취소
+    - `plan_custody`: 지급·대여, 반납, 기한 연장, 인수 확인
+    - `plan_reservation`: 예약, 확정, 승인, 반려, 취소, 체크인, 완료
+    - `plan_stock`: 재고 등록, 입고, 사용, 조정, 이동, 자산으로 전환
+    - `plan_count`: 실사 시작, 스캔, 대조, 처리, 마감
+    - `plan_work_order`: 수리·점검 접수, 변경, 완료, 취소
+    - `plan_purchase`: 구매 등록, 입고
+    - `plan_model`: 모델 등록, 변경
+    - `plan_label`: 라벨 만들기, 연결, 해제
   - 이 도구들은 바뀔 것을 이름으로 적은 문장("이동: NB-1 개발용 노트북, 본관 › 3층 창고 → 본관 › 4층 회의실 (놓임)")과 토큰을 돌려줍니다.
   - 사람이 그 문장을 보고 "예"라고 하면, 비서가 `apply`에 토큰과 그 문장을 그대로 넘겨 실행합니다. 문장이 `apply`의 인자라서, 클라이언트가 실행 전에 묻는 승인 창에도 그 문장이 보입니다.
   - 토큰은 10분 동안, 한 번만 쓰입니다. 같은 작업을 다시 보내도 서버는 한 번으로 처리합니다.

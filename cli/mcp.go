@@ -186,6 +186,82 @@ func newMcp(ws string, log *slog.Logger) *mcp.Server {
 		Annotations: plans,
 	}, t.planReservation)
 	mcp.AddTool(s, &mcp.Tool{
+		Name:        "list_stock",
+		Description: "Supplies kept by quantity: how many there are of each, where, and which are low -- the ids plan_stock and plan_custody take.",
+		Annotations: read,
+	}, t.listStock)
+	mcp.AddTool(s, &mcp.Tool{
+		Name:        "list_work_orders",
+		Description: "Repairs, inspections and maintenance: on what, by whom, in what state -- the ids plan_work_order takes. Newest first.",
+		InputSchema: mcpSchema[mcpWorkIn](map[string][]any{
+			"status": {"open", "scheduled", "in_progress", "done", "cancelled"},
+			"kind":   {"repair", "inspection", "maintenance", "rma"},
+		}),
+		Annotations: read,
+	}, t.listWorkOrders)
+	mcp.AddTool(s, &mcp.Tool{
+		Name:        "list_counts",
+		Description: "Inventory counts, newest first; one of them by id with what it found -- seen, misplaced, missing, unknown -- and the ids plan_count takes.",
+		InputSchema: mcpSchema[mcpCountsIn](map[string][]any{"status": {"open", "closed"}}),
+		Annotations: read,
+	}, t.listCounts)
+	mcp.AddTool(s, &mcp.Tool{
+		Name:        "list_purchases",
+		Description: "Purchases, newest first; one of them by id with what was bought and what has arrived -- the ids plan_purchase takes.",
+		InputSchema: mcpSchema[mcpPurchasesIn](map[string][]any{"status": {"ordered", "received", "cancelled"}}),
+		Annotations: read,
+	}, t.listPurchases)
+	mcp.AddTool(s, &mcp.Tool{
+		Name: "plan_stock",
+		Description: "Plan a change to supplies kept by quantity, which changes nothing: register a stock, receive more, consume some, adjust it to what was counted, move some to another space, or make some of it assets of their own. " +
+			"Answers the summary to show the person, and the token apply takes once they agree.",
+		InputSchema: mcpSchema[mcpStockPlan](map[string][]any{"action": {"add", "receive", "consume", "adjust", "transfer", "convert"}}),
+		Annotations: plans,
+	}, t.planStock)
+	mcp.AddTool(s, &mcp.Tool{
+		Name: "plan_count",
+		Description: "Plan a step of an inventory count, which changes nothing: start one over a space, record what was seen, mark what was never seen, settle a finding, or close it. " +
+			"Answers the summary to show the person, and the token apply takes once they agree.",
+		InputSchema: mcpSchema[mcpCountPlan](map[string][]any{
+			"action":     {"start", "scan", "reconcile", "resolve", "close"},
+			"resolution": {"moved", "lost", "ignored"},
+		}),
+		Annotations: plans,
+	}, t.planCount)
+	mcp.AddTool(s, &mcp.Tool{
+		Name: "plan_work_order",
+		Description: "Plan a repair, inspection or maintenance, which changes nothing: report one on an asset, change it, complete it, or cancel it. " +
+			"Answers the summary to show the person, and the token apply takes once they agree.",
+		InputSchema: mcpSchema[mcpWorkPlan](map[string][]any{
+			"action":    {"report", "update", "complete", "cancel"},
+			"kind":      {"repair", "inspection", "maintenance", "rma"},
+			"status":    {"open", "scheduled", "in_progress"},
+			"condition": {"good", "damaged", "broken"},
+		}),
+		Annotations: plans,
+	}, t.planWorkOrder)
+	mcp.AddTool(s, &mcp.Tool{
+		Name: "plan_purchase",
+		Description: "Plan a purchase, which changes nothing: register what is bought from whom, or receive what arrived into a space, as assets or stock. " +
+			"Answers the summary to show the person, and the token apply takes once they agree.",
+		InputSchema: mcpSchema[mcpPurchasePlan](map[string][]any{"action": {"add", "receive"}}),
+		Annotations: plans,
+	}, t.planPurchase)
+	mcp.AddTool(s, &mcp.Tool{
+		Name: "plan_model",
+		Description: "Plan a model -- what an asset is a make of -- which changes nothing: register one, or change one. " +
+			"Answers the summary to show the person, and the token apply takes once they agree.",
+		InputSchema: mcpSchema[mcpModelPlan](map[string][]any{"action": {"add", "update"}}),
+		Annotations: plans,
+	}, t.planModel)
+	mcp.AddTool(s, &mcp.Tool{
+		Name: "plan_label",
+		Description: "Plan labels, which changes nothing: make new ones (or one for each of some assets), stick one on an asset, or take one off. " +
+			"Answers the summary to show the person, and the token apply takes once they agree; apply answers the codes and addresses of labels made.",
+		InputSchema: mcpSchema[mcpLabelPlan](map[string][]any{"action": {"print", "bind", "unbind"}}),
+		Annotations: plans,
+	}, t.planLabel)
+	mcp.AddTool(s, &mcp.Tool{
 		Name: "apply",
 		Description: "Carry out a plan a plan_* tool made, once the person has read its summary and said yes: the token, and the summary word for word. " +
 			"It is the one tool that changes the register, as the person signed in, and the history names them.",
@@ -1003,7 +1079,7 @@ func (t mcpTools) listCustody(ctx context.Context, _ *mcp.CallToolRequest, in mc
 		n = 20
 	}
 	v, err := app.NewCustodyServiceClient(c.conn).List(ctx, app.CustodyListRequest_builder{
-		Filters: []*app.CustodyFilter{f},
+		Filters: filters(f),
 		Size:    int32(min(n, 100)),
 		After:   in.Cursor,
 	}.Build())

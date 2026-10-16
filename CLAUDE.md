@@ -256,7 +256,7 @@ terminal that could approve another would have been narrowed to nothing.
 D32): Claude Code or Claude Desktop starts it, and every tool is RPCs as the
 person signed in, read again each call, through the same policy and wall. The
 deployment does not know there is an assistant. A change is two tools (D33,
-`cli/mcp_write.go`): a `plan_*` reads what it names and answers, in names, what
+`cli/mcp_write.go`, `cli/mcp_more.go`): a `plan_*` reads what it names and answers, in names, what
 would happen and a token, changing nothing; `apply` takes the token and that
 sentence word for word -- so the client's prompt before it shows what it does
 -- and makes the call, with the op the plan minted. Who may is the policy
