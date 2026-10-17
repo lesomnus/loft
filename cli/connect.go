@@ -10,13 +10,17 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
+	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
+
+	app "github.com/lesomnus/rove"
 )
 
 // connectConn is a connection to a deployment through the address a browser
@@ -39,6 +43,14 @@ type connectConn struct {
 
 var _ grpc.ClientConnInterface = (*connectConn)(nil)
 
+// slow is the calls given longer than a server gives one that names no
+// deadline (payday's grpcx.Deadline, thirty seconds unless a deployment says
+// otherwise), when the caller named none either: what they do takes longer
+// at the size they allow. An import of 5,000 rows is minutes (rove#103).
+var slow = map[string]time.Duration{
+	app.AssetService_Import_FullMethodName: 10 * time.Minute,
+}
+
 func (c *connectConn) request(ctx context.Context, method, contentType string, body io.Reader) (*http.Request, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.base+method, body)
 	if err != nil {
@@ -58,6 +70,13 @@ func (c *connectConn) request(ctx context.Context, method, contentType string, b
 	}
 	req.Header.Set("Content-Type", contentType)
 	req.Header.Set("Connect-Protocol-Version", "1")
+	// The deadline, in the protocol's own header: a server keeps a call to
+	// the one it names, and caps only one that names none.
+	if at, ok := ctx.Deadline(); ok {
+		if ms := time.Until(at).Milliseconds(); ms > 0 {
+			req.Header.Set("Connect-Timeout-Ms", strconv.FormatInt(ms, 10))
+		}
+	}
 	return req, nil
 }
 
@@ -73,6 +92,13 @@ func (c *connectConn) Invoke(ctx context.Context, method string, args, reply any
 	body, err := proto.Marshal(in)
 	if err != nil {
 		return status.Errorf(codes.Internal, "connect: %v", err)
+	}
+	if d, ok := slow[method]; ok {
+		if _, named := ctx.Deadline(); !named {
+			var cancel context.CancelFunc
+			ctx, cancel = context.WithTimeout(ctx, d)
+			defer cancel()
+		}
 	}
 	req, err := c.request(ctx, method, "application/proto", bytes.NewReader(body))
 	if err != nil {
