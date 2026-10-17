@@ -137,33 +137,28 @@ func (s PartyServiceServer) image(v *rove.Party) *rove.Party {
 	}
 	return out
 }
-func (s PartyServiceServer) Add(ctx context.Context, req *rove.PartyAddRequest) (*rove.Party, error) {
-	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Close()
 
-	st := s
-	st.Db = tx.Db
-
+// create is the row an Add of `req` writes, as a builder not yet saved,
+// and what the answer says about its edges. Add and AddMany both write
+// with it, so that an item of an AddMany is the row an Add of it would be.
+func (st PartyServiceServer) create(ctx context.Context, req *rove.PartyAddRequest) (*ent.PartyCreate, []func(v *rove.Party), error) {
 	ds := make([]func(v *rove.Party), 0, 2)
 	q := st.Db.Party.Create()
 	var k uuid.UUID
 	if req.HasId() {
 		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
 		} else {
 			k = v
 		}
 	}
-	if v, err := mint(ctx, s.Mint, "rove.Party", k, req.HasId()); err != nil {
-		return nil, err
+	if v, err := mint(ctx, st.Mint, "rove.Party", k, req.HasId()); err != nil {
+		return nil, nil, err
 	} else {
 		q.SetId(v)
 	}
 	if k, err := TenantGetKey(ctx, st.Db, req.GetTenant()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetTenantId(k)
 		ds = append(ds, func(v *rove.Party) {
@@ -178,14 +173,14 @@ func (s PartyServiceServer) Add(ctx context.Context, req *rove.PartyAddRequest) 
 	q.SetKind(req.GetKind())
 	if req.HasParentId() {
 		if v, err := entuuid.FromBytes(req.GetParentId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "parent_id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "parent_id: %s", err)
 		} else {
 			q.SetParentId(v)
 		}
 	}
 	if req.HasHolder() {
 		if k, err := HolderGetKey(ctx, st.Db, req.GetHolder()); err != nil {
-			return nil, err
+			return nil, nil, err
 		} else {
 			q.SetHolderId(k)
 			ds = append(ds, func(v *rove.Party) {
@@ -202,6 +197,23 @@ func (s PartyServiceServer) Add(ctx context.Context, req *rove.PartyAddRequest) 
 		q.SetDateCreated(st.now())
 	}
 	q.SetCode(req.GetCode())
+	return q, ds, nil
+}
+
+func (s PartyServiceServer) Add(ctx context.Context, req *rove.PartyAddRequest) (*rove.Party, error) {
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	q, ds, err := st.create(ctx, req)
+	if err != nil {
+		return nil, err
+	}
 
 	var stored *ent.Party
 	if snapshotOptions(s.Rec, rove.PartyService_Add_FullMethodName).Value {
@@ -241,6 +253,38 @@ func (s PartyServiceServer) Add(ctx context.Context, req *rove.PartyAddRequest) 
 	}
 
 	return v, nil
+}
+
+// PartyAddRule is what a layer in front says about one row an Add of Party
+// would write: the request to write it with -- the one it was handed, or a
+// copy it changed -- or a refusal. Nil is the request it was handed.
+type PartyAddRule func(ctx context.Context, req *rove.PartyAddRequest) (*rove.PartyAddRequest, error)
+
+// PartyWithAddRule answers with `next` behind `rule` for the RPCs that add.
+// An Add is asked about, and every item of an AddMany in order, and the
+// call is refused for the first one that is -- an AddMany naming the item.
+// What reaches `next` is one call either way: an AddMany stays one AddMany.
+//
+// A layer that overrides Add itself, for something an Add does that a rule
+// cannot say, still has its AddMany asked through this.
+func PartyWithAddRule(next rove.PartyServiceServer, rule PartyAddRule) rove.PartyServiceServer {
+	return partyAddRuled{next, rule}
+}
+
+type partyAddRuled struct {
+	rove.PartyServiceServer
+	rule PartyAddRule
+}
+
+func (s partyAddRuled) Add(ctx context.Context, req *rove.PartyAddRequest) (*rove.Party, error) {
+	r, err := s.rule(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		r = req
+	}
+	return s.PartyServiceServer.Add(ctx, r)
 }
 
 func (s PartyServiceServer) Get(ctx context.Context, req *rove.PartyGetRequest) (*rove.Party, error) {
@@ -718,32 +762,28 @@ func (s SessionServiceServer) image(v *rove.Session) *rove.Session {
 	out := proto.Clone(v).(*rove.Session)
 	return out
 }
-func (s SessionServiceServer) Add(ctx context.Context, req *rove.SessionAddRequest) (*rove.Session, error) {
-	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Close()
 
-	st := s
-	st.Db = tx.Db
-
+// create is the row an Add of `req` writes, as a builder not yet saved,
+// and what the answer says about its edges. Add and AddMany both write
+// with it, so that an item of an AddMany is the row an Add of it would be.
+func (st SessionServiceServer) create(ctx context.Context, req *rove.SessionAddRequest) (*ent.SessionCreate, []func(v *rove.Session), error) {
+	var ds []func(v *rove.Session)
 	q := st.Db.Session.Create()
 	var k uuid.UUID
 	if req.HasId() {
 		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
 		} else {
 			k = v
 		}
 	}
-	if v, err := mint(ctx, s.Mint, "rove.Session", k, req.HasId()); err != nil {
-		return nil, err
+	if v, err := mint(ctx, st.Mint, "rove.Session", k, req.HasId()); err != nil {
+		return nil, nil, err
 	} else {
 		q.SetId(v)
 	}
 	if v, err := entuuid.FromBytes(req.GetAccount()); err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "account: %s", err)
+		return nil, nil, status.Errorf(codes.InvalidArgument, "account: %s", err)
 	} else {
 		q.SetAccount(v)
 	}
@@ -772,6 +812,23 @@ func (s SessionServiceServer) Add(ctx context.Context, req *rove.SessionAddReque
 	} else {
 		q.SetDateCreated(st.now())
 	}
+	return q, ds, nil
+}
+
+func (s SessionServiceServer) Add(ctx context.Context, req *rove.SessionAddRequest) (*rove.Session, error) {
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	q, ds, err := st.create(ctx, req)
+	if err != nil {
+		return nil, err
+	}
 
 	var stored *ent.Session
 	if snapshotOptions(s.Rec, rove.SessionService_Add_FullMethodName).Value {
@@ -792,6 +849,9 @@ func (s SessionServiceServer) Add(ctx context.Context, req *rove.SessionAddReque
 	}
 
 	v := u.Proto()
+	for _, d := range ds {
+		d(v)
+	}
 	var value *rove.Session
 	if stored != nil {
 		value = s.image(stored.Proto())
@@ -808,6 +868,38 @@ func (s SessionServiceServer) Add(ctx context.Context, req *rove.SessionAddReque
 	}
 
 	return v, nil
+}
+
+// SessionAddRule is what a layer in front says about one row an Add of Session
+// would write: the request to write it with -- the one it was handed, or a
+// copy it changed -- or a refusal. Nil is the request it was handed.
+type SessionAddRule func(ctx context.Context, req *rove.SessionAddRequest) (*rove.SessionAddRequest, error)
+
+// SessionWithAddRule answers with `next` behind `rule` for the RPCs that add.
+// An Add is asked about, and every item of an AddMany in order, and the
+// call is refused for the first one that is -- an AddMany naming the item.
+// What reaches `next` is one call either way: an AddMany stays one AddMany.
+//
+// A layer that overrides Add itself, for something an Add does that a rule
+// cannot say, still has its AddMany asked through this.
+func SessionWithAddRule(next rove.SessionServiceServer, rule SessionAddRule) rove.SessionServiceServer {
+	return sessionAddRuled{next, rule}
+}
+
+type sessionAddRuled struct {
+	rove.SessionServiceServer
+	rule SessionAddRule
+}
+
+func (s sessionAddRuled) Add(ctx context.Context, req *rove.SessionAddRequest) (*rove.Session, error) {
+	r, err := s.rule(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		r = req
+	}
+	return s.SessionServiceServer.Add(ctx, r)
 }
 
 func (s SessionServiceServer) Get(ctx context.Context, req *rove.SessionGetRequest) (*rove.Session, error) {
@@ -1306,33 +1398,28 @@ func (s InvitationServiceServer) image(v *rove.Invitation) *rove.Invitation {
 	}
 	return out
 }
-func (s InvitationServiceServer) Add(ctx context.Context, req *rove.InvitationAddRequest) (*rove.Invitation, error) {
-	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Close()
 
-	st := s
-	st.Db = tx.Db
-
+// create is the row an Add of `req` writes, as a builder not yet saved,
+// and what the answer says about its edges. Add and AddMany both write
+// with it, so that an item of an AddMany is the row an Add of it would be.
+func (st InvitationServiceServer) create(ctx context.Context, req *rove.InvitationAddRequest) (*ent.InvitationCreate, []func(v *rove.Invitation), error) {
 	ds := make([]func(v *rove.Invitation), 0, 4)
 	q := st.Db.Invitation.Create()
 	var k uuid.UUID
 	if req.HasId() {
 		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
 		} else {
 			k = v
 		}
 	}
-	if v, err := mint(ctx, s.Mint, "rove.Invitation", k, req.HasId()); err != nil {
-		return nil, err
+	if v, err := mint(ctx, st.Mint, "rove.Invitation", k, req.HasId()); err != nil {
+		return nil, nil, err
 	} else {
 		q.SetId(v)
 	}
 	if k, err := TenantGetKey(ctx, st.Db, req.GetTenant()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetTenantId(k)
 		ds = append(ds, func(v *rove.Invitation) {
@@ -1340,7 +1427,7 @@ func (s InvitationServiceServer) Add(ctx context.Context, req *rove.InvitationAd
 		})
 	}
 	if k, err := HolderGetKey(ctx, st.Db, req.GetInviter()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetInviterId(k)
 		ds = append(ds, func(v *rove.Invitation) {
@@ -1351,7 +1438,7 @@ func (s InvitationServiceServer) Add(ctx context.Context, req *rove.InvitationAd
 	q.SetRole(req.GetRole())
 	if req.HasParty() {
 		if k, err := PartyGetKey(ctx, st.Db, req.GetParty()); err != nil {
-			return nil, err
+			return nil, nil, err
 		} else {
 			q.SetPartyId(k)
 			ds = append(ds, func(v *rove.Invitation) {
@@ -1361,7 +1448,7 @@ func (s InvitationServiceServer) Add(ctx context.Context, req *rove.InvitationAd
 	}
 	if req.HasAccount() {
 		if v, err := entuuid.FromBytes(req.GetAccount()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "account: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "account: %s", err)
 		} else {
 			q.SetAccount(v)
 		}
@@ -1383,7 +1470,7 @@ func (s InvitationServiceServer) Add(ctx context.Context, req *rove.InvitationAd
 	}
 	if req.HasHolder() {
 		if k, err := HolderGetKey(ctx, st.Db, req.GetHolder()); err != nil {
-			return nil, err
+			return nil, nil, err
 		} else {
 			q.SetHolderId(k)
 			ds = append(ds, func(v *rove.Invitation) {
@@ -1393,6 +1480,23 @@ func (s InvitationServiceServer) Add(ctx context.Context, req *rove.InvitationAd
 	}
 	if req.HasClaim() {
 		q.SetClaim(req.GetClaim())
+	}
+	return q, ds, nil
+}
+
+func (s InvitationServiceServer) Add(ctx context.Context, req *rove.InvitationAddRequest) (*rove.Invitation, error) {
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	q, ds, err := st.create(ctx, req)
+	if err != nil {
+		return nil, err
 	}
 
 	var stored *ent.Invitation
@@ -1433,6 +1537,38 @@ func (s InvitationServiceServer) Add(ctx context.Context, req *rove.InvitationAd
 	}
 
 	return v, nil
+}
+
+// InvitationAddRule is what a layer in front says about one row an Add of Invitation
+// would write: the request to write it with -- the one it was handed, or a
+// copy it changed -- or a refusal. Nil is the request it was handed.
+type InvitationAddRule func(ctx context.Context, req *rove.InvitationAddRequest) (*rove.InvitationAddRequest, error)
+
+// InvitationWithAddRule answers with `next` behind `rule` for the RPCs that add.
+// An Add is asked about, and every item of an AddMany in order, and the
+// call is refused for the first one that is -- an AddMany naming the item.
+// What reaches `next` is one call either way: an AddMany stays one AddMany.
+//
+// A layer that overrides Add itself, for something an Add does that a rule
+// cannot say, still has its AddMany asked through this.
+func InvitationWithAddRule(next rove.InvitationServiceServer, rule InvitationAddRule) rove.InvitationServiceServer {
+	return invitationAddRuled{next, rule}
+}
+
+type invitationAddRuled struct {
+	rove.InvitationServiceServer
+	rule InvitationAddRule
+}
+
+func (s invitationAddRuled) Add(ctx context.Context, req *rove.InvitationAddRequest) (*rove.Invitation, error) {
+	r, err := s.rule(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		r = req
+	}
+	return s.InvitationServiceServer.Add(ctx, r)
 }
 
 func (s InvitationServiceServer) Get(ctx context.Context, req *rove.InvitationGetRequest) (*rove.Invitation, error) {
@@ -1916,27 +2052,23 @@ func (s CliLoginServiceServer) image(v *rove.CliLogin) *rove.CliLogin {
 	out := proto.Clone(v).(*rove.CliLogin)
 	return out
 }
-func (s CliLoginServiceServer) Add(ctx context.Context, req *rove.CliLoginAddRequest) (*rove.CliLogin, error) {
-	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Close()
 
-	st := s
-	st.Db = tx.Db
-
+// create is the row an Add of `req` writes, as a builder not yet saved,
+// and what the answer says about its edges. Add and AddMany both write
+// with it, so that an item of an AddMany is the row an Add of it would be.
+func (st CliLoginServiceServer) create(ctx context.Context, req *rove.CliLoginAddRequest) (*ent.CliLoginCreate, []func(v *rove.CliLogin), error) {
+	var ds []func(v *rove.CliLogin)
 	q := st.Db.CliLogin.Create()
 	var k uuid.UUID
 	if req.HasId() {
 		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
 		} else {
 			k = v
 		}
 	}
-	if v, err := mint(ctx, s.Mint, "rove.CliLogin", k, req.HasId()); err != nil {
-		return nil, err
+	if v, err := mint(ctx, st.Mint, "rove.CliLogin", k, req.HasId()); err != nil {
+		return nil, nil, err
 	} else {
 		q.SetId(v)
 	}
@@ -1955,7 +2087,7 @@ func (s CliLoginServiceServer) Add(ctx context.Context, req *rove.CliLoginAddReq
 	}
 	if req.HasAccount() {
 		if v, err := entuuid.FromBytes(req.GetAccount()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "account: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "account: %s", err)
 		} else {
 			q.SetAccount(v)
 		}
@@ -1977,6 +2109,23 @@ func (s CliLoginServiceServer) Add(ctx context.Context, req *rove.CliLoginAddReq
 	} else {
 		q.SetDateCreated(st.now())
 	}
+	return q, ds, nil
+}
+
+func (s CliLoginServiceServer) Add(ctx context.Context, req *rove.CliLoginAddRequest) (*rove.CliLogin, error) {
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	q, ds, err := st.create(ctx, req)
+	if err != nil {
+		return nil, err
+	}
 
 	var stored *ent.CliLogin
 	if snapshotOptions(s.Rec, rove.CliLoginService_Add_FullMethodName).Value {
@@ -1997,6 +2146,9 @@ func (s CliLoginServiceServer) Add(ctx context.Context, req *rove.CliLoginAddReq
 	}
 
 	v := u.Proto()
+	for _, d := range ds {
+		d(v)
+	}
 	var value *rove.CliLogin
 	if stored != nil {
 		value = s.image(stored.Proto())
@@ -2013,6 +2165,38 @@ func (s CliLoginServiceServer) Add(ctx context.Context, req *rove.CliLoginAddReq
 	}
 
 	return v, nil
+}
+
+// CliLoginAddRule is what a layer in front says about one row an Add of CliLogin
+// would write: the request to write it with -- the one it was handed, or a
+// copy it changed -- or a refusal. Nil is the request it was handed.
+type CliLoginAddRule func(ctx context.Context, req *rove.CliLoginAddRequest) (*rove.CliLoginAddRequest, error)
+
+// CliLoginWithAddRule answers with `next` behind `rule` for the RPCs that add.
+// An Add is asked about, and every item of an AddMany in order, and the
+// call is refused for the first one that is -- an AddMany naming the item.
+// What reaches `next` is one call either way: an AddMany stays one AddMany.
+//
+// A layer that overrides Add itself, for something an Add does that a rule
+// cannot say, still has its AddMany asked through this.
+func CliLoginWithAddRule(next rove.CliLoginServiceServer, rule CliLoginAddRule) rove.CliLoginServiceServer {
+	return cliLoginAddRuled{next, rule}
+}
+
+type cliLoginAddRuled struct {
+	rove.CliLoginServiceServer
+	rule CliLoginAddRule
+}
+
+func (s cliLoginAddRuled) Add(ctx context.Context, req *rove.CliLoginAddRequest) (*rove.CliLogin, error) {
+	r, err := s.rule(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		r = req
+	}
+	return s.CliLoginServiceServer.Add(ctx, r)
 }
 
 func (s CliLoginServiceServer) Get(ctx context.Context, req *rove.CliLoginGetRequest) (*rove.CliLogin, error) {
@@ -2463,27 +2647,23 @@ func (s AliasHoldServiceServer) image(v *rove.AliasHold) *rove.AliasHold {
 	out := proto.Clone(v).(*rove.AliasHold)
 	return out
 }
-func (s AliasHoldServiceServer) Add(ctx context.Context, req *rove.AliasHoldAddRequest) (*rove.AliasHold, error) {
-	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Close()
 
-	st := s
-	st.Db = tx.Db
-
+// create is the row an Add of `req` writes, as a builder not yet saved,
+// and what the answer says about its edges. Add and AddMany both write
+// with it, so that an item of an AddMany is the row an Add of it would be.
+func (st AliasHoldServiceServer) create(ctx context.Context, req *rove.AliasHoldAddRequest) (*ent.AliasHoldCreate, []func(v *rove.AliasHold), error) {
+	var ds []func(v *rove.AliasHold)
 	q := st.Db.AliasHold.Create()
 	var k uuid.UUID
 	if req.HasId() {
 		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
 		} else {
 			k = v
 		}
 	}
-	if v, err := mint(ctx, s.Mint, "rove.AliasHold", k, req.HasId()); err != nil {
-		return nil, err
+	if v, err := mint(ctx, st.Mint, "rove.AliasHold", k, req.HasId()); err != nil {
+		return nil, nil, err
 	} else {
 		q.SetId(v)
 	}
@@ -2491,7 +2671,7 @@ func (s AliasHoldServiceServer) Add(ctx context.Context, req *rove.AliasHoldAddR
 	q.SetReason(req.GetReason())
 	q.SetMovedTo(req.GetMovedTo())
 	if v, err := entuuid.FromBytes(req.GetTenant()); err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "tenant: %s", err)
+		return nil, nil, status.Errorf(codes.InvalidArgument, "tenant: %s", err)
 	} else {
 		q.SetTenant(v)
 	}
@@ -2505,6 +2685,23 @@ func (s AliasHoldServiceServer) Add(ctx context.Context, req *rove.AliasHoldAddR
 		q.SetDateCreated(req.GetDateCreated().AsTime())
 	} else {
 		q.SetDateCreated(st.now())
+	}
+	return q, ds, nil
+}
+
+func (s AliasHoldServiceServer) Add(ctx context.Context, req *rove.AliasHoldAddRequest) (*rove.AliasHold, error) {
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	q, ds, err := st.create(ctx, req)
+	if err != nil {
+		return nil, err
 	}
 
 	var stored *ent.AliasHold
@@ -2526,6 +2723,9 @@ func (s AliasHoldServiceServer) Add(ctx context.Context, req *rove.AliasHoldAddR
 	}
 
 	v := u.Proto()
+	for _, d := range ds {
+		d(v)
+	}
 	var value *rove.AliasHold
 	if stored != nil {
 		value = s.image(stored.Proto())
@@ -2542,6 +2742,38 @@ func (s AliasHoldServiceServer) Add(ctx context.Context, req *rove.AliasHoldAddR
 	}
 
 	return v, nil
+}
+
+// AliasHoldAddRule is what a layer in front says about one row an Add of AliasHold
+// would write: the request to write it with -- the one it was handed, or a
+// copy it changed -- or a refusal. Nil is the request it was handed.
+type AliasHoldAddRule func(ctx context.Context, req *rove.AliasHoldAddRequest) (*rove.AliasHoldAddRequest, error)
+
+// AliasHoldWithAddRule answers with `next` behind `rule` for the RPCs that add.
+// An Add is asked about, and every item of an AddMany in order, and the
+// call is refused for the first one that is -- an AddMany naming the item.
+// What reaches `next` is one call either way: an AddMany stays one AddMany.
+//
+// A layer that overrides Add itself, for something an Add does that a rule
+// cannot say, still has its AddMany asked through this.
+func AliasHoldWithAddRule(next rove.AliasHoldServiceServer, rule AliasHoldAddRule) rove.AliasHoldServiceServer {
+	return aliasHoldAddRuled{next, rule}
+}
+
+type aliasHoldAddRuled struct {
+	rove.AliasHoldServiceServer
+	rule AliasHoldAddRule
+}
+
+func (s aliasHoldAddRuled) Add(ctx context.Context, req *rove.AliasHoldAddRequest) (*rove.AliasHold, error) {
+	r, err := s.rule(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		r = req
+	}
+	return s.AliasHoldServiceServer.Add(ctx, r)
 }
 
 func (s AliasHoldServiceServer) Get(ctx context.Context, req *rove.AliasHoldGetRequest) (*rove.AliasHold, error) {
@@ -2980,32 +3212,28 @@ func (s ConsentServiceServer) image(v *rove.Consent) *rove.Consent {
 	out := proto.Clone(v).(*rove.Consent)
 	return out
 }
-func (s ConsentServiceServer) Add(ctx context.Context, req *rove.ConsentAddRequest) (*rove.Consent, error) {
-	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Close()
 
-	st := s
-	st.Db = tx.Db
-
+// create is the row an Add of `req` writes, as a builder not yet saved,
+// and what the answer says about its edges. Add and AddMany both write
+// with it, so that an item of an AddMany is the row an Add of it would be.
+func (st ConsentServiceServer) create(ctx context.Context, req *rove.ConsentAddRequest) (*ent.ConsentCreate, []func(v *rove.Consent), error) {
+	var ds []func(v *rove.Consent)
 	q := st.Db.Consent.Create()
 	var k uuid.UUID
 	if req.HasId() {
 		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
 		} else {
 			k = v
 		}
 	}
-	if v, err := mint(ctx, s.Mint, "rove.Consent", k, req.HasId()); err != nil {
-		return nil, err
+	if v, err := mint(ctx, st.Mint, "rove.Consent", k, req.HasId()); err != nil {
+		return nil, nil, err
 	} else {
 		q.SetId(v)
 	}
 	if v, err := entuuid.FromBytes(req.GetAccount()); err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "account: %s", err)
+		return nil, nil, status.Errorf(codes.InvalidArgument, "account: %s", err)
 	} else {
 		q.SetAccount(v)
 	}
@@ -3019,6 +3247,23 @@ func (s ConsentServiceServer) Add(ctx context.Context, req *rove.ConsentAddReque
 		q.SetDateCreated(req.GetDateCreated().AsTime())
 	} else {
 		q.SetDateCreated(st.now())
+	}
+	return q, ds, nil
+}
+
+func (s ConsentServiceServer) Add(ctx context.Context, req *rove.ConsentAddRequest) (*rove.Consent, error) {
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	q, ds, err := st.create(ctx, req)
+	if err != nil {
+		return nil, err
 	}
 
 	var stored *ent.Consent
@@ -3040,6 +3285,9 @@ func (s ConsentServiceServer) Add(ctx context.Context, req *rove.ConsentAddReque
 	}
 
 	v := u.Proto()
+	for _, d := range ds {
+		d(v)
+	}
 	var value *rove.Consent
 	if stored != nil {
 		value = s.image(stored.Proto())
@@ -3056,6 +3304,38 @@ func (s ConsentServiceServer) Add(ctx context.Context, req *rove.ConsentAddReque
 	}
 
 	return v, nil
+}
+
+// ConsentAddRule is what a layer in front says about one row an Add of Consent
+// would write: the request to write it with -- the one it was handed, or a
+// copy it changed -- or a refusal. Nil is the request it was handed.
+type ConsentAddRule func(ctx context.Context, req *rove.ConsentAddRequest) (*rove.ConsentAddRequest, error)
+
+// ConsentWithAddRule answers with `next` behind `rule` for the RPCs that add.
+// An Add is asked about, and every item of an AddMany in order, and the
+// call is refused for the first one that is -- an AddMany naming the item.
+// What reaches `next` is one call either way: an AddMany stays one AddMany.
+//
+// A layer that overrides Add itself, for something an Add does that a rule
+// cannot say, still has its AddMany asked through this.
+func ConsentWithAddRule(next rove.ConsentServiceServer, rule ConsentAddRule) rove.ConsentServiceServer {
+	return consentAddRuled{next, rule}
+}
+
+type consentAddRuled struct {
+	rove.ConsentServiceServer
+	rule ConsentAddRule
+}
+
+func (s consentAddRuled) Add(ctx context.Context, req *rove.ConsentAddRequest) (*rove.Consent, error) {
+	r, err := s.rule(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		r = req
+	}
+	return s.ConsentServiceServer.Add(ctx, r)
 }
 
 func (s ConsentServiceServer) Get(ctx context.Context, req *rove.ConsentGetRequest) (*rove.Consent, error) {
@@ -3494,27 +3774,23 @@ func (s SignInFailureServiceServer) image(v *rove.SignInFailure) *rove.SignInFai
 	out := proto.Clone(v).(*rove.SignInFailure)
 	return out
 }
-func (s SignInFailureServiceServer) Add(ctx context.Context, req *rove.SignInFailureAddRequest) (*rove.SignInFailure, error) {
-	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Close()
 
-	st := s
-	st.Db = tx.Db
-
+// create is the row an Add of `req` writes, as a builder not yet saved,
+// and what the answer says about its edges. Add and AddMany both write
+// with it, so that an item of an AddMany is the row an Add of it would be.
+func (st SignInFailureServiceServer) create(ctx context.Context, req *rove.SignInFailureAddRequest) (*ent.SignInFailureCreate, []func(v *rove.SignInFailure), error) {
+	var ds []func(v *rove.SignInFailure)
 	q := st.Db.SignInFailure.Create()
 	var k uuid.UUID
 	if req.HasId() {
 		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
 		} else {
 			k = v
 		}
 	}
-	if v, err := mint(ctx, s.Mint, "rove.SignInFailure", k, req.HasId()); err != nil {
-		return nil, err
+	if v, err := mint(ctx, st.Mint, "rove.SignInFailure", k, req.HasId()); err != nil {
+		return nil, nil, err
 	} else {
 		q.SetId(v)
 	}
@@ -3527,6 +3803,23 @@ func (s SignInFailureServiceServer) Add(ctx context.Context, req *rove.SignInFai
 		q.SetDateCreated(req.GetDateCreated().AsTime())
 	} else {
 		q.SetDateCreated(st.now())
+	}
+	return q, ds, nil
+}
+
+func (s SignInFailureServiceServer) Add(ctx context.Context, req *rove.SignInFailureAddRequest) (*rove.SignInFailure, error) {
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	q, ds, err := st.create(ctx, req)
+	if err != nil {
+		return nil, err
 	}
 
 	var stored *ent.SignInFailure
@@ -3548,6 +3841,9 @@ func (s SignInFailureServiceServer) Add(ctx context.Context, req *rove.SignInFai
 	}
 
 	v := u.Proto()
+	for _, d := range ds {
+		d(v)
+	}
 	var value *rove.SignInFailure
 	if stored != nil {
 		value = s.image(stored.Proto())
@@ -3564,6 +3860,38 @@ func (s SignInFailureServiceServer) Add(ctx context.Context, req *rove.SignInFai
 	}
 
 	return v, nil
+}
+
+// SignInFailureAddRule is what a layer in front says about one row an Add of SignInFailure
+// would write: the request to write it with -- the one it was handed, or a
+// copy it changed -- or a refusal. Nil is the request it was handed.
+type SignInFailureAddRule func(ctx context.Context, req *rove.SignInFailureAddRequest) (*rove.SignInFailureAddRequest, error)
+
+// SignInFailureWithAddRule answers with `next` behind `rule` for the RPCs that add.
+// An Add is asked about, and every item of an AddMany in order, and the
+// call is refused for the first one that is -- an AddMany naming the item.
+// What reaches `next` is one call either way: an AddMany stays one AddMany.
+//
+// A layer that overrides Add itself, for something an Add does that a rule
+// cannot say, still has its AddMany asked through this.
+func SignInFailureWithAddRule(next rove.SignInFailureServiceServer, rule SignInFailureAddRule) rove.SignInFailureServiceServer {
+	return signInFailureAddRuled{next, rule}
+}
+
+type signInFailureAddRuled struct {
+	rove.SignInFailureServiceServer
+	rule SignInFailureAddRule
+}
+
+func (s signInFailureAddRuled) Add(ctx context.Context, req *rove.SignInFailureAddRequest) (*rove.SignInFailure, error) {
+	r, err := s.rule(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		r = req
+	}
+	return s.SignInFailureServiceServer.Add(ctx, r)
 }
 
 func (s SignInFailureServiceServer) Get(ctx context.Context, req *rove.SignInFailureGetRequest) (*rove.SignInFailure, error) {

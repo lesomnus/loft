@@ -6216,6 +6216,124 @@ func (b0 FactAddRequest_builder) Build() *FactAddRequest {
 	return m0
 }
 
+type FactAddManyRequest struct {
+	state            protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Items *[]*FactAddRequest     `protobuf:"bytes,1,rep,name=items"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *FactAddManyRequest) Reset() {
+	*x = FactAddManyRequest{}
+	mi := &file_rove_history_svc_g_proto_msgTypes[31]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FactAddManyRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FactAddManyRequest) ProtoMessage() {}
+
+func (x *FactAddManyRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_history_svc_g_proto_msgTypes[31]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *FactAddManyRequest) GetItems() []*FactAddRequest {
+	if x != nil {
+		if x.xxx_hidden_Items != nil {
+			return *x.xxx_hidden_Items
+		}
+	}
+	return nil
+}
+
+func (x *FactAddManyRequest) SetItems(v []*FactAddRequest) {
+	x.xxx_hidden_Items = &v
+}
+
+type FactAddManyRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Items []*FactAddRequest
+}
+
+func (b0 FactAddManyRequest_builder) Build() *FactAddManyRequest {
+	m0 := &FactAddManyRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Items = &b.Items
+	return m0
+}
+
+type FactAddManyResponse struct {
+	state            protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Items *[]*Fact               `protobuf:"bytes,1,rep,name=items"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *FactAddManyResponse) Reset() {
+	*x = FactAddManyResponse{}
+	mi := &file_rove_history_svc_g_proto_msgTypes[32]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FactAddManyResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FactAddManyResponse) ProtoMessage() {}
+
+func (x *FactAddManyResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_history_svc_g_proto_msgTypes[32]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *FactAddManyResponse) GetItems() []*Fact {
+	if x != nil {
+		if x.xxx_hidden_Items != nil {
+			return *x.xxx_hidden_Items
+		}
+	}
+	return nil
+}
+
+func (x *FactAddManyResponse) SetItems(v []*Fact) {
+	x.xxx_hidden_Items = &v
+}
+
+type FactAddManyResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Items []*Fact
+}
+
+func (b0 FactAddManyResponse_builder) Build() *FactAddManyResponse {
+	m0 := &FactAddManyResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Items = &b.Items
+	return m0
+}
+
 type FactGetRequest struct {
 	state             protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Ref    *FactRef               `protobuf:"bytes,1,opt,name=ref"`
@@ -6226,7 +6344,7 @@ type FactGetRequest struct {
 
 func (x *FactGetRequest) Reset() {
 	*x = FactGetRequest{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[31]
+	mi := &file_rove_history_svc_g_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6238,7 +6356,7 @@ func (x *FactGetRequest) String() string {
 func (*FactGetRequest) ProtoMessage() {}
 
 func (x *FactGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[31]
+	mi := &file_rove_history_svc_g_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6318,7 +6436,7 @@ type FactRef struct {
 
 func (x *FactRef) Reset() {
 	*x = FactRef{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[32]
+	mi := &file_rove_history_svc_g_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6330,7 +6448,7 @@ func (x *FactRef) String() string {
 func (*FactRef) ProtoMessage() {}
 
 func (x *FactRef) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[32]
+	mi := &file_rove_history_svc_g_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6418,7 +6536,7 @@ func (b0 FactRef_builder) Build() *FactRef {
 type case_FactRef_Key protoreflect.FieldNumber
 
 func (x case_FactRef_Key) String() string {
-	md := file_rove_history_svc_g_proto_msgTypes[32].Descriptor()
+	md := file_rove_history_svc_g_proto_msgTypes[34].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -6457,7 +6575,7 @@ type FactSelect struct {
 
 func (x *FactSelect) Reset() {
 	*x = FactSelect{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[33]
+	mi := &file_rove_history_svc_g_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6469,7 +6587,7 @@ func (x *FactSelect) String() string {
 func (*FactSelect) ProtoMessage() {}
 
 func (x *FactSelect) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[33]
+	mi := &file_rove_history_svc_g_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6852,7 +6970,7 @@ type FactPatchRequest struct {
 
 func (x *FactPatchRequest) Reset() {
 	*x = FactPatchRequest{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[34]
+	mi := &file_rove_history_svc_g_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6864,7 +6982,7 @@ func (x *FactPatchRequest) String() string {
 func (*FactPatchRequest) ProtoMessage() {}
 
 func (x *FactPatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[34]
+	mi := &file_rove_history_svc_g_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7257,7 +7375,7 @@ type FactApplyRequest struct {
 
 func (x *FactApplyRequest) Reset() {
 	*x = FactApplyRequest{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[35]
+	mi := &file_rove_history_svc_g_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7269,7 +7387,7 @@ func (x *FactApplyRequest) String() string {
 func (*FactApplyRequest) ProtoMessage() {}
 
 func (x *FactApplyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[35]
+	mi := &file_rove_history_svc_g_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7351,7 +7469,7 @@ type FactEraseResponse struct {
 
 func (x *FactEraseResponse) Reset() {
 	*x = FactEraseResponse{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[36]
+	mi := &file_rove_history_svc_g_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7363,7 +7481,7 @@ func (x *FactEraseResponse) String() string {
 func (*FactEraseResponse) ProtoMessage() {}
 
 func (x *FactEraseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[36]
+	mi := &file_rove_history_svc_g_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7432,7 +7550,7 @@ type FactListRequest struct {
 
 func (x *FactListRequest) Reset() {
 	*x = FactListRequest{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[37]
+	mi := &file_rove_history_svc_g_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7444,7 +7562,7 @@ func (x *FactListRequest) String() string {
 func (*FactListRequest) ProtoMessage() {}
 
 func (x *FactListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[37]
+	mi := &file_rove_history_svc_g_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7544,7 +7662,7 @@ type FactListResponse struct {
 
 func (x *FactListResponse) Reset() {
 	*x = FactListResponse{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[38]
+	mi := &file_rove_history_svc_g_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7556,7 +7674,7 @@ func (x *FactListResponse) String() string {
 func (*FactListResponse) ProtoMessage() {}
 
 func (x *FactListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[38]
+	mi := &file_rove_history_svc_g_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7627,7 +7745,7 @@ type FactFilter struct {
 
 func (x *FactFilter) Reset() {
 	*x = FactFilter{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[39]
+	mi := &file_rove_history_svc_g_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7639,7 +7757,7 @@ func (x *FactFilter) String() string {
 func (*FactFilter) ProtoMessage() {}
 
 func (x *FactFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[39]
+	mi := &file_rove_history_svc_g_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7763,7 +7881,7 @@ type EventAddRequest struct {
 
 func (x *EventAddRequest) Reset() {
 	*x = EventAddRequest{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[40]
+	mi := &file_rove_history_svc_g_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7775,7 +7893,7 @@ func (x *EventAddRequest) String() string {
 func (*EventAddRequest) ProtoMessage() {}
 
 func (x *EventAddRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[40]
+	mi := &file_rove_history_svc_g_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8060,7 +8178,7 @@ type EventGetRequest struct {
 
 func (x *EventGetRequest) Reset() {
 	*x = EventGetRequest{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[41]
+	mi := &file_rove_history_svc_g_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8072,7 +8190,7 @@ func (x *EventGetRequest) String() string {
 func (*EventGetRequest) ProtoMessage() {}
 
 func (x *EventGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[41]
+	mi := &file_rove_history_svc_g_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8152,7 +8270,7 @@ type EventRef struct {
 
 func (x *EventRef) Reset() {
 	*x = EventRef{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[42]
+	mi := &file_rove_history_svc_g_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8164,7 +8282,7 @@ func (x *EventRef) String() string {
 func (*EventRef) ProtoMessage() {}
 
 func (x *EventRef) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[42]
+	mi := &file_rove_history_svc_g_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8252,7 +8370,7 @@ func (b0 EventRef_builder) Build() *EventRef {
 type case_EventRef_Key protoreflect.FieldNumber
 
 func (x case_EventRef_Key) String() string {
-	md := file_rove_history_svc_g_proto_msgTypes[42].Descriptor()
+	md := file_rove_history_svc_g_proto_msgTypes[44].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -8291,7 +8409,7 @@ type EventSelect struct {
 
 func (x *EventSelect) Reset() {
 	*x = EventSelect{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[43]
+	mi := &file_rove_history_svc_g_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8303,7 +8421,7 @@ func (x *EventSelect) String() string {
 func (*EventSelect) ProtoMessage() {}
 
 func (x *EventSelect) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[43]
+	mi := &file_rove_history_svc_g_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8692,7 +8810,7 @@ type EventPatchRequest struct {
 
 func (x *EventPatchRequest) Reset() {
 	*x = EventPatchRequest{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[44]
+	mi := &file_rove_history_svc_g_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8704,7 +8822,7 @@ func (x *EventPatchRequest) String() string {
 func (*EventPatchRequest) ProtoMessage() {}
 
 func (x *EventPatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[44]
+	mi := &file_rove_history_svc_g_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9140,7 +9258,7 @@ type EventApplyRequest struct {
 
 func (x *EventApplyRequest) Reset() {
 	*x = EventApplyRequest{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[45]
+	mi := &file_rove_history_svc_g_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9152,7 +9270,7 @@ func (x *EventApplyRequest) String() string {
 func (*EventApplyRequest) ProtoMessage() {}
 
 func (x *EventApplyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[45]
+	mi := &file_rove_history_svc_g_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9234,7 +9352,7 @@ type EventEraseResponse struct {
 
 func (x *EventEraseResponse) Reset() {
 	*x = EventEraseResponse{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[46]
+	mi := &file_rove_history_svc_g_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9246,7 +9364,7 @@ func (x *EventEraseResponse) String() string {
 func (*EventEraseResponse) ProtoMessage() {}
 
 func (x *EventEraseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[46]
+	mi := &file_rove_history_svc_g_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9315,7 +9433,7 @@ type EventListRequest struct {
 
 func (x *EventListRequest) Reset() {
 	*x = EventListRequest{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[47]
+	mi := &file_rove_history_svc_g_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9327,7 +9445,7 @@ func (x *EventListRequest) String() string {
 func (*EventListRequest) ProtoMessage() {}
 
 func (x *EventListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[47]
+	mi := &file_rove_history_svc_g_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9427,7 +9545,7 @@ type EventListResponse struct {
 
 func (x *EventListResponse) Reset() {
 	*x = EventListResponse{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[48]
+	mi := &file_rove_history_svc_g_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9439,7 +9557,7 @@ func (x *EventListResponse) String() string {
 func (*EventListResponse) ProtoMessage() {}
 
 func (x *EventListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[48]
+	mi := &file_rove_history_svc_g_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9511,7 +9629,7 @@ type EventFilter struct {
 
 func (x *EventFilter) Reset() {
 	*x = EventFilter{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[49]
+	mi := &file_rove_history_svc_g_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9523,7 +9641,7 @@ func (x *EventFilter) String() string {
 func (*EventFilter) ProtoMessage() {}
 
 func (x *EventFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[49]
+	mi := &file_rove_history_svc_g_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9677,7 +9795,7 @@ type EventRecentRequest struct {
 
 func (x *EventRecentRequest) Reset() {
 	*x = EventRecentRequest{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[50]
+	mi := &file_rove_history_svc_g_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9689,7 +9807,7 @@ func (x *EventRecentRequest) String() string {
 func (*EventRecentRequest) ProtoMessage() {}
 
 func (x *EventRecentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[50]
+	mi := &file_rove_history_svc_g_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9773,7 +9891,7 @@ type EventRecentResponse struct {
 
 func (x *EventRecentResponse) Reset() {
 	*x = EventRecentResponse{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[51]
+	mi := &file_rove_history_svc_g_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9785,7 +9903,7 @@ func (x *EventRecentResponse) String() string {
 func (*EventRecentResponse) ProtoMessage() {}
 
 func (x *EventRecentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[51]
+	mi := &file_rove_history_svc_g_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10065,7 +10183,12 @@ const file_rove_history_svc_g_proto_rawDesc = "" +
 	"valid_from\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampR\tvalidFrom\x12 \n" +
 	"\bevent_id\x18\x13 \x01(\fB\x05\xaa\x01\x02\b\x02R\aeventId\x12?\n" +
 	"\rsuperseded_at\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampR\fsupersededAt\x12#\n" +
-	"\rsuperseded_by\x18\x15 \x01(\fR\fsupersededBy\"[\n" +
+	"\rsuperseded_by\x18\x15 \x01(\fR\fsupersededBy\"@\n" +
+	"\x12FactAddManyRequest\x12*\n" +
+	"\x05items\x18\x01 \x03(\v2\x14.rove.FactAddRequestR\x05items\"7\n" +
+	"\x13FactAddManyResponse\x12 \n" +
+	"\x05items\x18\x01 \x03(\v2\n" +
+	".rove.FactR\x05items\"[\n" +
 	"\x0eFactGetRequest\x12\x1f\n" +
 	"\x03ref\x18\x01 \x01(\v2\r.rove.FactRefR\x03ref\x12(\n" +
 	"\x06select\x18\x02 \x01(\v2\x10.rove.FactSelectR\x06select\"\"\n" +
@@ -10223,10 +10346,11 @@ const file_rove_history_svc_g_proto_rawDesc = "" +
 	"\x05Patch\x12\x1d.rove.StewardshipPatchRequest\x1a\x11.rove.Stewardship\x129\n" +
 	"\x05Apply\x12\x1d.rove.StewardshipApplyRequest\x1a\x11.rove.Stewardship\x12=\n" +
 	"\x05Erase\x12\x14.rove.StewardshipRef\x1a\x1e.rove.StewardshipEraseResponse\x12C\n" +
-	"\x04List\x12\x1c.rove.StewardshipListRequest\x1a\x1d.rove.StewardshipListResponse2\xa1\x02\n" +
+	"\x04List\x12\x1c.rove.StewardshipListRequest\x1a\x1d.rove.StewardshipListResponse2\xe1\x02\n" +
 	"\vFactService\x12'\n" +
 	"\x03Add\x12\x14.rove.FactAddRequest\x1a\n" +
-	".rove.Fact\x12'\n" +
+	".rove.Fact\x12>\n" +
+	"\aAddMany\x12\x18.rove.FactAddManyRequest\x1a\x19.rove.FactAddManyResponse\x12'\n" +
 	"\x03Get\x12\x14.rove.FactGetRequest\x1a\n" +
 	".rove.Fact\x12+\n" +
 	"\x05Patch\x12\x16.rove.FactPatchRequest\x1a\n" +
@@ -10244,7 +10368,7 @@ const file_rove_history_svc_g_proto_rawDesc = "" +
 	"\x04List\x12\x16.rove.EventListRequest\x1a\x17.rove.EventListResponse\x12=\n" +
 	"\x06Recent\x12\x18.rove.EventRecentRequest\x1a\x19.rove.EventRecentResponseB\x1aZ\x18github.com/lesomnus/roveb\beditionsp\xe8\a"
 
-var file_rove_history_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 54)
+var file_rove_history_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 56)
 var file_rove_history_svc_g_proto_goTypes = []any{
 	(*PlacementAddRequest)(nil),      // 0: rove.PlacementAddRequest
 	(*PlacementGetRequest)(nil),      // 1: rove.PlacementGetRequest
@@ -10277,220 +10401,226 @@ var file_rove_history_svc_g_proto_goTypes = []any{
 	(*StewardshipListResponse)(nil),  // 28: rove.StewardshipListResponse
 	(*StewardshipFilter)(nil),        // 29: rove.StewardshipFilter
 	(*FactAddRequest)(nil),           // 30: rove.FactAddRequest
-	(*FactGetRequest)(nil),           // 31: rove.FactGetRequest
-	(*FactRef)(nil),                  // 32: rove.FactRef
-	(*FactSelect)(nil),               // 33: rove.FactSelect
-	(*FactPatchRequest)(nil),         // 34: rove.FactPatchRequest
-	(*FactApplyRequest)(nil),         // 35: rove.FactApplyRequest
-	(*FactEraseResponse)(nil),        // 36: rove.FactEraseResponse
-	(*FactListRequest)(nil),          // 37: rove.FactListRequest
-	(*FactListResponse)(nil),         // 38: rove.FactListResponse
-	(*FactFilter)(nil),               // 39: rove.FactFilter
-	(*EventAddRequest)(nil),          // 40: rove.EventAddRequest
-	(*EventGetRequest)(nil),          // 41: rove.EventGetRequest
-	(*EventRef)(nil),                 // 42: rove.EventRef
-	(*EventSelect)(nil),              // 43: rove.EventSelect
-	(*EventPatchRequest)(nil),        // 44: rove.EventPatchRequest
-	(*EventApplyRequest)(nil),        // 45: rove.EventApplyRequest
-	(*EventEraseResponse)(nil),       // 46: rove.EventEraseResponse
-	(*EventListRequest)(nil),         // 47: rove.EventListRequest
-	(*EventListResponse)(nil),        // 48: rove.EventListResponse
-	(*EventFilter)(nil),              // 49: rove.EventFilter
-	(*EventRecentRequest)(nil),       // 50: rove.EventRecentRequest
-	(*EventRecentResponse)(nil),      // 51: rove.EventRecentResponse
-	nil,                              // 52: rove.LinkAddRequest.LabelsEntry
-	nil,                              // 53: rove.LinkPatchRequest.LabelsEntry
-	(*TenantRef)(nil),                // 54: rove.TenantRef
-	(*AssetRef)(nil),                 // 55: rove.AssetRef
-	(*timestamppb.Timestamp)(nil),    // 56: google.protobuf.Timestamp
-	(*TenantSelect)(nil),             // 57: rove.TenantSelect
-	(*AssetSelect)(nil),              // 58: rove.AssetSelect
-	(*patchpb.Patch)(nil),            // 59: patch.Patch
-	(*Placement)(nil),                // 60: rove.Placement
-	(*Link)(nil),                     // 61: rove.Link
-	(*PartyRef)(nil),                 // 62: rove.PartyRef
-	(*PartySelect)(nil),              // 63: rove.PartySelect
-	(*Stewardship)(nil),              // 64: rove.Stewardship
-	(*Fact)(nil),                     // 65: rove.Fact
-	(*Event)(nil),                    // 66: rove.Event
+	(*FactAddManyRequest)(nil),       // 31: rove.FactAddManyRequest
+	(*FactAddManyResponse)(nil),      // 32: rove.FactAddManyResponse
+	(*FactGetRequest)(nil),           // 33: rove.FactGetRequest
+	(*FactRef)(nil),                  // 34: rove.FactRef
+	(*FactSelect)(nil),               // 35: rove.FactSelect
+	(*FactPatchRequest)(nil),         // 36: rove.FactPatchRequest
+	(*FactApplyRequest)(nil),         // 37: rove.FactApplyRequest
+	(*FactEraseResponse)(nil),        // 38: rove.FactEraseResponse
+	(*FactListRequest)(nil),          // 39: rove.FactListRequest
+	(*FactListResponse)(nil),         // 40: rove.FactListResponse
+	(*FactFilter)(nil),               // 41: rove.FactFilter
+	(*EventAddRequest)(nil),          // 42: rove.EventAddRequest
+	(*EventGetRequest)(nil),          // 43: rove.EventGetRequest
+	(*EventRef)(nil),                 // 44: rove.EventRef
+	(*EventSelect)(nil),              // 45: rove.EventSelect
+	(*EventPatchRequest)(nil),        // 46: rove.EventPatchRequest
+	(*EventApplyRequest)(nil),        // 47: rove.EventApplyRequest
+	(*EventEraseResponse)(nil),       // 48: rove.EventEraseResponse
+	(*EventListRequest)(nil),         // 49: rove.EventListRequest
+	(*EventListResponse)(nil),        // 50: rove.EventListResponse
+	(*EventFilter)(nil),              // 51: rove.EventFilter
+	(*EventRecentRequest)(nil),       // 52: rove.EventRecentRequest
+	(*EventRecentResponse)(nil),      // 53: rove.EventRecentResponse
+	nil,                              // 54: rove.LinkAddRequest.LabelsEntry
+	nil,                              // 55: rove.LinkPatchRequest.LabelsEntry
+	(*TenantRef)(nil),                // 56: rove.TenantRef
+	(*AssetRef)(nil),                 // 57: rove.AssetRef
+	(*timestamppb.Timestamp)(nil),    // 58: google.protobuf.Timestamp
+	(*TenantSelect)(nil),             // 59: rove.TenantSelect
+	(*AssetSelect)(nil),              // 60: rove.AssetSelect
+	(*patchpb.Patch)(nil),            // 61: patch.Patch
+	(*Placement)(nil),                // 62: rove.Placement
+	(*Link)(nil),                     // 63: rove.Link
+	(*PartyRef)(nil),                 // 64: rove.PartyRef
+	(*PartySelect)(nil),              // 65: rove.PartySelect
+	(*Stewardship)(nil),              // 66: rove.Stewardship
+	(*Fact)(nil),                     // 67: rove.Fact
+	(*Event)(nil),                    // 68: rove.Event
 }
 var file_rove_history_svc_g_proto_depIdxs = []int32{
-	54,  // 0: rove.PlacementAddRequest.tenant:type_name -> rove.TenantRef
-	55,  // 1: rove.PlacementAddRequest.child:type_name -> rove.AssetRef
-	55,  // 2: rove.PlacementAddRequest.parent:type_name -> rove.AssetRef
-	56,  // 3: rove.PlacementAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	56,  // 4: rove.PlacementAddRequest.valid_from:type_name -> google.protobuf.Timestamp
-	56,  // 5: rove.PlacementAddRequest.valid_to:type_name -> google.protobuf.Timestamp
-	56,  // 6: rove.PlacementAddRequest.superseded_at:type_name -> google.protobuf.Timestamp
+	56,  // 0: rove.PlacementAddRequest.tenant:type_name -> rove.TenantRef
+	57,  // 1: rove.PlacementAddRequest.child:type_name -> rove.AssetRef
+	57,  // 2: rove.PlacementAddRequest.parent:type_name -> rove.AssetRef
+	58,  // 3: rove.PlacementAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	58,  // 4: rove.PlacementAddRequest.valid_from:type_name -> google.protobuf.Timestamp
+	58,  // 5: rove.PlacementAddRequest.valid_to:type_name -> google.protobuf.Timestamp
+	58,  // 6: rove.PlacementAddRequest.superseded_at:type_name -> google.protobuf.Timestamp
 	2,   // 7: rove.PlacementGetRequest.ref:type_name -> rove.PlacementRef
 	3,   // 8: rove.PlacementGetRequest.select:type_name -> rove.PlacementSelect
-	57,  // 9: rove.PlacementSelect.tenant:type_name -> rove.TenantSelect
-	58,  // 10: rove.PlacementSelect.child:type_name -> rove.AssetSelect
-	58,  // 11: rove.PlacementSelect.parent:type_name -> rove.AssetSelect
+	59,  // 9: rove.PlacementSelect.tenant:type_name -> rove.TenantSelect
+	60,  // 10: rove.PlacementSelect.child:type_name -> rove.AssetSelect
+	60,  // 11: rove.PlacementSelect.parent:type_name -> rove.AssetSelect
 	2,   // 12: rove.PlacementPatchRequest.ref:type_name -> rove.PlacementRef
-	56,  // 13: rove.PlacementPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	56,  // 14: rove.PlacementPatchRequest.valid_from:type_name -> google.protobuf.Timestamp
-	56,  // 15: rove.PlacementPatchRequest.valid_to:type_name -> google.protobuf.Timestamp
-	56,  // 16: rove.PlacementPatchRequest.superseded_at:type_name -> google.protobuf.Timestamp
+	58,  // 13: rove.PlacementPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	58,  // 14: rove.PlacementPatchRequest.valid_from:type_name -> google.protobuf.Timestamp
+	58,  // 15: rove.PlacementPatchRequest.valid_to:type_name -> google.protobuf.Timestamp
+	58,  // 16: rove.PlacementPatchRequest.superseded_at:type_name -> google.protobuf.Timestamp
 	2,   // 17: rove.PlacementApplyRequest.ref:type_name -> rove.PlacementRef
-	59,  // 18: rove.PlacementApplyRequest.patch:type_name -> patch.Patch
+	61,  // 18: rove.PlacementApplyRequest.patch:type_name -> patch.Patch
 	9,   // 19: rove.PlacementListRequest.filters:type_name -> rove.PlacementFilter
-	60,  // 20: rove.PlacementListResponse.items:type_name -> rove.Placement
+	62,  // 20: rove.PlacementListResponse.items:type_name -> rove.Placement
 	2,   // 21: rove.PlacementFilter.ref:type_name -> rove.PlacementRef
-	55,  // 22: rove.PlacementFilter.child:type_name -> rove.AssetRef
-	55,  // 23: rove.PlacementFilter.parent:type_name -> rove.AssetRef
-	54,  // 24: rove.LinkAddRequest.tenant:type_name -> rove.TenantRef
-	52,  // 25: rove.LinkAddRequest.labels:type_name -> rove.LinkAddRequest.LabelsEntry
-	55,  // 26: rove.LinkAddRequest.source:type_name -> rove.AssetRef
-	55,  // 27: rove.LinkAddRequest.target:type_name -> rove.AssetRef
-	56,  // 28: rove.LinkAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	56,  // 29: rove.LinkAddRequest.valid_from:type_name -> google.protobuf.Timestamp
-	56,  // 30: rove.LinkAddRequest.valid_to:type_name -> google.protobuf.Timestamp
-	56,  // 31: rove.LinkAddRequest.superseded_at:type_name -> google.protobuf.Timestamp
+	57,  // 22: rove.PlacementFilter.child:type_name -> rove.AssetRef
+	57,  // 23: rove.PlacementFilter.parent:type_name -> rove.AssetRef
+	56,  // 24: rove.LinkAddRequest.tenant:type_name -> rove.TenantRef
+	54,  // 25: rove.LinkAddRequest.labels:type_name -> rove.LinkAddRequest.LabelsEntry
+	57,  // 26: rove.LinkAddRequest.source:type_name -> rove.AssetRef
+	57,  // 27: rove.LinkAddRequest.target:type_name -> rove.AssetRef
+	58,  // 28: rove.LinkAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	58,  // 29: rove.LinkAddRequest.valid_from:type_name -> google.protobuf.Timestamp
+	58,  // 30: rove.LinkAddRequest.valid_to:type_name -> google.protobuf.Timestamp
+	58,  // 31: rove.LinkAddRequest.superseded_at:type_name -> google.protobuf.Timestamp
 	12,  // 32: rove.LinkGetRequest.ref:type_name -> rove.LinkRef
 	13,  // 33: rove.LinkGetRequest.select:type_name -> rove.LinkSelect
-	57,  // 34: rove.LinkSelect.tenant:type_name -> rove.TenantSelect
-	58,  // 35: rove.LinkSelect.source:type_name -> rove.AssetSelect
-	58,  // 36: rove.LinkSelect.target:type_name -> rove.AssetSelect
+	59,  // 34: rove.LinkSelect.tenant:type_name -> rove.TenantSelect
+	60,  // 35: rove.LinkSelect.source:type_name -> rove.AssetSelect
+	60,  // 36: rove.LinkSelect.target:type_name -> rove.AssetSelect
 	12,  // 37: rove.LinkPatchRequest.ref:type_name -> rove.LinkRef
-	53,  // 38: rove.LinkPatchRequest.labels:type_name -> rove.LinkPatchRequest.LabelsEntry
-	56,  // 39: rove.LinkPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	56,  // 40: rove.LinkPatchRequest.valid_from:type_name -> google.protobuf.Timestamp
-	56,  // 41: rove.LinkPatchRequest.valid_to:type_name -> google.protobuf.Timestamp
-	56,  // 42: rove.LinkPatchRequest.superseded_at:type_name -> google.protobuf.Timestamp
+	55,  // 38: rove.LinkPatchRequest.labels:type_name -> rove.LinkPatchRequest.LabelsEntry
+	58,  // 39: rove.LinkPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	58,  // 40: rove.LinkPatchRequest.valid_from:type_name -> google.protobuf.Timestamp
+	58,  // 41: rove.LinkPatchRequest.valid_to:type_name -> google.protobuf.Timestamp
+	58,  // 42: rove.LinkPatchRequest.superseded_at:type_name -> google.protobuf.Timestamp
 	12,  // 43: rove.LinkApplyRequest.ref:type_name -> rove.LinkRef
-	59,  // 44: rove.LinkApplyRequest.patch:type_name -> patch.Patch
+	61,  // 44: rove.LinkApplyRequest.patch:type_name -> patch.Patch
 	19,  // 45: rove.LinkListRequest.filters:type_name -> rove.LinkFilter
-	61,  // 46: rove.LinkListResponse.items:type_name -> rove.Link
+	63,  // 46: rove.LinkListResponse.items:type_name -> rove.Link
 	12,  // 47: rove.LinkFilter.ref:type_name -> rove.LinkRef
-	55,  // 48: rove.LinkFilter.source:type_name -> rove.AssetRef
-	55,  // 49: rove.LinkFilter.target:type_name -> rove.AssetRef
-	54,  // 50: rove.StewardshipAddRequest.tenant:type_name -> rove.TenantRef
-	55,  // 51: rove.StewardshipAddRequest.asset:type_name -> rove.AssetRef
-	62,  // 52: rove.StewardshipAddRequest.party:type_name -> rove.PartyRef
-	56,  // 53: rove.StewardshipAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	56,  // 54: rove.StewardshipAddRequest.valid_from:type_name -> google.protobuf.Timestamp
-	56,  // 55: rove.StewardshipAddRequest.valid_to:type_name -> google.protobuf.Timestamp
-	56,  // 56: rove.StewardshipAddRequest.superseded_at:type_name -> google.protobuf.Timestamp
+	57,  // 48: rove.LinkFilter.source:type_name -> rove.AssetRef
+	57,  // 49: rove.LinkFilter.target:type_name -> rove.AssetRef
+	56,  // 50: rove.StewardshipAddRequest.tenant:type_name -> rove.TenantRef
+	57,  // 51: rove.StewardshipAddRequest.asset:type_name -> rove.AssetRef
+	64,  // 52: rove.StewardshipAddRequest.party:type_name -> rove.PartyRef
+	58,  // 53: rove.StewardshipAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	58,  // 54: rove.StewardshipAddRequest.valid_from:type_name -> google.protobuf.Timestamp
+	58,  // 55: rove.StewardshipAddRequest.valid_to:type_name -> google.protobuf.Timestamp
+	58,  // 56: rove.StewardshipAddRequest.superseded_at:type_name -> google.protobuf.Timestamp
 	22,  // 57: rove.StewardshipGetRequest.ref:type_name -> rove.StewardshipRef
 	23,  // 58: rove.StewardshipGetRequest.select:type_name -> rove.StewardshipSelect
-	57,  // 59: rove.StewardshipSelect.tenant:type_name -> rove.TenantSelect
-	58,  // 60: rove.StewardshipSelect.asset:type_name -> rove.AssetSelect
-	63,  // 61: rove.StewardshipSelect.party:type_name -> rove.PartySelect
+	59,  // 59: rove.StewardshipSelect.tenant:type_name -> rove.TenantSelect
+	60,  // 60: rove.StewardshipSelect.asset:type_name -> rove.AssetSelect
+	65,  // 61: rove.StewardshipSelect.party:type_name -> rove.PartySelect
 	22,  // 62: rove.StewardshipPatchRequest.ref:type_name -> rove.StewardshipRef
-	56,  // 63: rove.StewardshipPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	56,  // 64: rove.StewardshipPatchRequest.valid_from:type_name -> google.protobuf.Timestamp
-	56,  // 65: rove.StewardshipPatchRequest.valid_to:type_name -> google.protobuf.Timestamp
-	56,  // 66: rove.StewardshipPatchRequest.superseded_at:type_name -> google.protobuf.Timestamp
+	58,  // 63: rove.StewardshipPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	58,  // 64: rove.StewardshipPatchRequest.valid_from:type_name -> google.protobuf.Timestamp
+	58,  // 65: rove.StewardshipPatchRequest.valid_to:type_name -> google.protobuf.Timestamp
+	58,  // 66: rove.StewardshipPatchRequest.superseded_at:type_name -> google.protobuf.Timestamp
 	22,  // 67: rove.StewardshipApplyRequest.ref:type_name -> rove.StewardshipRef
-	59,  // 68: rove.StewardshipApplyRequest.patch:type_name -> patch.Patch
+	61,  // 68: rove.StewardshipApplyRequest.patch:type_name -> patch.Patch
 	29,  // 69: rove.StewardshipListRequest.filters:type_name -> rove.StewardshipFilter
-	64,  // 70: rove.StewardshipListResponse.items:type_name -> rove.Stewardship
+	66,  // 70: rove.StewardshipListResponse.items:type_name -> rove.Stewardship
 	22,  // 71: rove.StewardshipFilter.ref:type_name -> rove.StewardshipRef
-	55,  // 72: rove.StewardshipFilter.asset:type_name -> rove.AssetRef
-	62,  // 73: rove.StewardshipFilter.party:type_name -> rove.PartyRef
-	54,  // 74: rove.FactAddRequest.tenant:type_name -> rove.TenantRef
-	55,  // 75: rove.FactAddRequest.asset:type_name -> rove.AssetRef
-	56,  // 76: rove.FactAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	56,  // 77: rove.FactAddRequest.valid_from:type_name -> google.protobuf.Timestamp
-	56,  // 78: rove.FactAddRequest.superseded_at:type_name -> google.protobuf.Timestamp
-	32,  // 79: rove.FactGetRequest.ref:type_name -> rove.FactRef
-	33,  // 80: rove.FactGetRequest.select:type_name -> rove.FactSelect
-	57,  // 81: rove.FactSelect.tenant:type_name -> rove.TenantSelect
-	58,  // 82: rove.FactSelect.asset:type_name -> rove.AssetSelect
-	32,  // 83: rove.FactPatchRequest.ref:type_name -> rove.FactRef
-	56,  // 84: rove.FactPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	56,  // 85: rove.FactPatchRequest.valid_from:type_name -> google.protobuf.Timestamp
-	56,  // 86: rove.FactPatchRequest.superseded_at:type_name -> google.protobuf.Timestamp
-	32,  // 87: rove.FactApplyRequest.ref:type_name -> rove.FactRef
-	59,  // 88: rove.FactApplyRequest.patch:type_name -> patch.Patch
-	39,  // 89: rove.FactListRequest.filters:type_name -> rove.FactFilter
-	65,  // 90: rove.FactListResponse.items:type_name -> rove.Fact
-	32,  // 91: rove.FactFilter.ref:type_name -> rove.FactRef
-	55,  // 92: rove.FactFilter.asset:type_name -> rove.AssetRef
-	54,  // 93: rove.EventAddRequest.tenant:type_name -> rove.TenantRef
-	56,  // 94: rove.EventAddRequest.occurred_at:type_name -> google.protobuf.Timestamp
-	56,  // 95: rove.EventAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	42,  // 96: rove.EventGetRequest.ref:type_name -> rove.EventRef
-	43,  // 97: rove.EventGetRequest.select:type_name -> rove.EventSelect
-	57,  // 98: rove.EventSelect.tenant:type_name -> rove.TenantSelect
-	42,  // 99: rove.EventPatchRequest.ref:type_name -> rove.EventRef
-	56,  // 100: rove.EventPatchRequest.occurred_at:type_name -> google.protobuf.Timestamp
-	56,  // 101: rove.EventPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	42,  // 102: rove.EventApplyRequest.ref:type_name -> rove.EventRef
-	59,  // 103: rove.EventApplyRequest.patch:type_name -> patch.Patch
-	49,  // 104: rove.EventListRequest.filters:type_name -> rove.EventFilter
-	66,  // 105: rove.EventListResponse.items:type_name -> rove.Event
-	42,  // 106: rove.EventFilter.ref:type_name -> rove.EventRef
-	56,  // 107: rove.EventRecentRequest.before:type_name -> google.protobuf.Timestamp
-	66,  // 108: rove.EventRecentResponse.items:type_name -> rove.Event
-	0,   // 109: rove.PlacementService.Add:input_type -> rove.PlacementAddRequest
-	1,   // 110: rove.PlacementService.Get:input_type -> rove.PlacementGetRequest
-	4,   // 111: rove.PlacementService.Patch:input_type -> rove.PlacementPatchRequest
-	5,   // 112: rove.PlacementService.Apply:input_type -> rove.PlacementApplyRequest
-	2,   // 113: rove.PlacementService.Erase:input_type -> rove.PlacementRef
-	7,   // 114: rove.PlacementService.List:input_type -> rove.PlacementListRequest
-	10,  // 115: rove.LinkService.Add:input_type -> rove.LinkAddRequest
-	11,  // 116: rove.LinkService.Get:input_type -> rove.LinkGetRequest
-	14,  // 117: rove.LinkService.Patch:input_type -> rove.LinkPatchRequest
-	15,  // 118: rove.LinkService.Apply:input_type -> rove.LinkApplyRequest
-	12,  // 119: rove.LinkService.Erase:input_type -> rove.LinkRef
-	17,  // 120: rove.LinkService.List:input_type -> rove.LinkListRequest
-	20,  // 121: rove.StewardshipService.Add:input_type -> rove.StewardshipAddRequest
-	21,  // 122: rove.StewardshipService.Get:input_type -> rove.StewardshipGetRequest
-	24,  // 123: rove.StewardshipService.Patch:input_type -> rove.StewardshipPatchRequest
-	25,  // 124: rove.StewardshipService.Apply:input_type -> rove.StewardshipApplyRequest
-	22,  // 125: rove.StewardshipService.Erase:input_type -> rove.StewardshipRef
-	27,  // 126: rove.StewardshipService.List:input_type -> rove.StewardshipListRequest
-	30,  // 127: rove.FactService.Add:input_type -> rove.FactAddRequest
-	31,  // 128: rove.FactService.Get:input_type -> rove.FactGetRequest
-	34,  // 129: rove.FactService.Patch:input_type -> rove.FactPatchRequest
-	35,  // 130: rove.FactService.Apply:input_type -> rove.FactApplyRequest
-	32,  // 131: rove.FactService.Erase:input_type -> rove.FactRef
-	37,  // 132: rove.FactService.List:input_type -> rove.FactListRequest
-	40,  // 133: rove.EventService.Add:input_type -> rove.EventAddRequest
-	41,  // 134: rove.EventService.Get:input_type -> rove.EventGetRequest
-	44,  // 135: rove.EventService.Patch:input_type -> rove.EventPatchRequest
-	45,  // 136: rove.EventService.Apply:input_type -> rove.EventApplyRequest
-	42,  // 137: rove.EventService.Erase:input_type -> rove.EventRef
-	47,  // 138: rove.EventService.List:input_type -> rove.EventListRequest
-	50,  // 139: rove.EventService.Recent:input_type -> rove.EventRecentRequest
-	60,  // 140: rove.PlacementService.Add:output_type -> rove.Placement
-	60,  // 141: rove.PlacementService.Get:output_type -> rove.Placement
-	60,  // 142: rove.PlacementService.Patch:output_type -> rove.Placement
-	60,  // 143: rove.PlacementService.Apply:output_type -> rove.Placement
-	6,   // 144: rove.PlacementService.Erase:output_type -> rove.PlacementEraseResponse
-	8,   // 145: rove.PlacementService.List:output_type -> rove.PlacementListResponse
-	61,  // 146: rove.LinkService.Add:output_type -> rove.Link
-	61,  // 147: rove.LinkService.Get:output_type -> rove.Link
-	61,  // 148: rove.LinkService.Patch:output_type -> rove.Link
-	61,  // 149: rove.LinkService.Apply:output_type -> rove.Link
-	16,  // 150: rove.LinkService.Erase:output_type -> rove.LinkEraseResponse
-	18,  // 151: rove.LinkService.List:output_type -> rove.LinkListResponse
-	64,  // 152: rove.StewardshipService.Add:output_type -> rove.Stewardship
-	64,  // 153: rove.StewardshipService.Get:output_type -> rove.Stewardship
-	64,  // 154: rove.StewardshipService.Patch:output_type -> rove.Stewardship
-	64,  // 155: rove.StewardshipService.Apply:output_type -> rove.Stewardship
-	26,  // 156: rove.StewardshipService.Erase:output_type -> rove.StewardshipEraseResponse
-	28,  // 157: rove.StewardshipService.List:output_type -> rove.StewardshipListResponse
-	65,  // 158: rove.FactService.Add:output_type -> rove.Fact
-	65,  // 159: rove.FactService.Get:output_type -> rove.Fact
-	65,  // 160: rove.FactService.Patch:output_type -> rove.Fact
-	65,  // 161: rove.FactService.Apply:output_type -> rove.Fact
-	36,  // 162: rove.FactService.Erase:output_type -> rove.FactEraseResponse
-	38,  // 163: rove.FactService.List:output_type -> rove.FactListResponse
-	66,  // 164: rove.EventService.Add:output_type -> rove.Event
-	66,  // 165: rove.EventService.Get:output_type -> rove.Event
-	66,  // 166: rove.EventService.Patch:output_type -> rove.Event
-	66,  // 167: rove.EventService.Apply:output_type -> rove.Event
-	46,  // 168: rove.EventService.Erase:output_type -> rove.EventEraseResponse
-	48,  // 169: rove.EventService.List:output_type -> rove.EventListResponse
-	51,  // 170: rove.EventService.Recent:output_type -> rove.EventRecentResponse
-	140, // [140:171] is the sub-list for method output_type
-	109, // [109:140] is the sub-list for method input_type
-	109, // [109:109] is the sub-list for extension type_name
-	109, // [109:109] is the sub-list for extension extendee
-	0,   // [0:109] is the sub-list for field type_name
+	57,  // 72: rove.StewardshipFilter.asset:type_name -> rove.AssetRef
+	64,  // 73: rove.StewardshipFilter.party:type_name -> rove.PartyRef
+	56,  // 74: rove.FactAddRequest.tenant:type_name -> rove.TenantRef
+	57,  // 75: rove.FactAddRequest.asset:type_name -> rove.AssetRef
+	58,  // 76: rove.FactAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	58,  // 77: rove.FactAddRequest.valid_from:type_name -> google.protobuf.Timestamp
+	58,  // 78: rove.FactAddRequest.superseded_at:type_name -> google.protobuf.Timestamp
+	30,  // 79: rove.FactAddManyRequest.items:type_name -> rove.FactAddRequest
+	67,  // 80: rove.FactAddManyResponse.items:type_name -> rove.Fact
+	34,  // 81: rove.FactGetRequest.ref:type_name -> rove.FactRef
+	35,  // 82: rove.FactGetRequest.select:type_name -> rove.FactSelect
+	59,  // 83: rove.FactSelect.tenant:type_name -> rove.TenantSelect
+	60,  // 84: rove.FactSelect.asset:type_name -> rove.AssetSelect
+	34,  // 85: rove.FactPatchRequest.ref:type_name -> rove.FactRef
+	58,  // 86: rove.FactPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	58,  // 87: rove.FactPatchRequest.valid_from:type_name -> google.protobuf.Timestamp
+	58,  // 88: rove.FactPatchRequest.superseded_at:type_name -> google.protobuf.Timestamp
+	34,  // 89: rove.FactApplyRequest.ref:type_name -> rove.FactRef
+	61,  // 90: rove.FactApplyRequest.patch:type_name -> patch.Patch
+	41,  // 91: rove.FactListRequest.filters:type_name -> rove.FactFilter
+	67,  // 92: rove.FactListResponse.items:type_name -> rove.Fact
+	34,  // 93: rove.FactFilter.ref:type_name -> rove.FactRef
+	57,  // 94: rove.FactFilter.asset:type_name -> rove.AssetRef
+	56,  // 95: rove.EventAddRequest.tenant:type_name -> rove.TenantRef
+	58,  // 96: rove.EventAddRequest.occurred_at:type_name -> google.protobuf.Timestamp
+	58,  // 97: rove.EventAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	44,  // 98: rove.EventGetRequest.ref:type_name -> rove.EventRef
+	45,  // 99: rove.EventGetRequest.select:type_name -> rove.EventSelect
+	59,  // 100: rove.EventSelect.tenant:type_name -> rove.TenantSelect
+	44,  // 101: rove.EventPatchRequest.ref:type_name -> rove.EventRef
+	58,  // 102: rove.EventPatchRequest.occurred_at:type_name -> google.protobuf.Timestamp
+	58,  // 103: rove.EventPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	44,  // 104: rove.EventApplyRequest.ref:type_name -> rove.EventRef
+	61,  // 105: rove.EventApplyRequest.patch:type_name -> patch.Patch
+	51,  // 106: rove.EventListRequest.filters:type_name -> rove.EventFilter
+	68,  // 107: rove.EventListResponse.items:type_name -> rove.Event
+	44,  // 108: rove.EventFilter.ref:type_name -> rove.EventRef
+	58,  // 109: rove.EventRecentRequest.before:type_name -> google.protobuf.Timestamp
+	68,  // 110: rove.EventRecentResponse.items:type_name -> rove.Event
+	0,   // 111: rove.PlacementService.Add:input_type -> rove.PlacementAddRequest
+	1,   // 112: rove.PlacementService.Get:input_type -> rove.PlacementGetRequest
+	4,   // 113: rove.PlacementService.Patch:input_type -> rove.PlacementPatchRequest
+	5,   // 114: rove.PlacementService.Apply:input_type -> rove.PlacementApplyRequest
+	2,   // 115: rove.PlacementService.Erase:input_type -> rove.PlacementRef
+	7,   // 116: rove.PlacementService.List:input_type -> rove.PlacementListRequest
+	10,  // 117: rove.LinkService.Add:input_type -> rove.LinkAddRequest
+	11,  // 118: rove.LinkService.Get:input_type -> rove.LinkGetRequest
+	14,  // 119: rove.LinkService.Patch:input_type -> rove.LinkPatchRequest
+	15,  // 120: rove.LinkService.Apply:input_type -> rove.LinkApplyRequest
+	12,  // 121: rove.LinkService.Erase:input_type -> rove.LinkRef
+	17,  // 122: rove.LinkService.List:input_type -> rove.LinkListRequest
+	20,  // 123: rove.StewardshipService.Add:input_type -> rove.StewardshipAddRequest
+	21,  // 124: rove.StewardshipService.Get:input_type -> rove.StewardshipGetRequest
+	24,  // 125: rove.StewardshipService.Patch:input_type -> rove.StewardshipPatchRequest
+	25,  // 126: rove.StewardshipService.Apply:input_type -> rove.StewardshipApplyRequest
+	22,  // 127: rove.StewardshipService.Erase:input_type -> rove.StewardshipRef
+	27,  // 128: rove.StewardshipService.List:input_type -> rove.StewardshipListRequest
+	30,  // 129: rove.FactService.Add:input_type -> rove.FactAddRequest
+	31,  // 130: rove.FactService.AddMany:input_type -> rove.FactAddManyRequest
+	33,  // 131: rove.FactService.Get:input_type -> rove.FactGetRequest
+	36,  // 132: rove.FactService.Patch:input_type -> rove.FactPatchRequest
+	37,  // 133: rove.FactService.Apply:input_type -> rove.FactApplyRequest
+	34,  // 134: rove.FactService.Erase:input_type -> rove.FactRef
+	39,  // 135: rove.FactService.List:input_type -> rove.FactListRequest
+	42,  // 136: rove.EventService.Add:input_type -> rove.EventAddRequest
+	43,  // 137: rove.EventService.Get:input_type -> rove.EventGetRequest
+	46,  // 138: rove.EventService.Patch:input_type -> rove.EventPatchRequest
+	47,  // 139: rove.EventService.Apply:input_type -> rove.EventApplyRequest
+	44,  // 140: rove.EventService.Erase:input_type -> rove.EventRef
+	49,  // 141: rove.EventService.List:input_type -> rove.EventListRequest
+	52,  // 142: rove.EventService.Recent:input_type -> rove.EventRecentRequest
+	62,  // 143: rove.PlacementService.Add:output_type -> rove.Placement
+	62,  // 144: rove.PlacementService.Get:output_type -> rove.Placement
+	62,  // 145: rove.PlacementService.Patch:output_type -> rove.Placement
+	62,  // 146: rove.PlacementService.Apply:output_type -> rove.Placement
+	6,   // 147: rove.PlacementService.Erase:output_type -> rove.PlacementEraseResponse
+	8,   // 148: rove.PlacementService.List:output_type -> rove.PlacementListResponse
+	63,  // 149: rove.LinkService.Add:output_type -> rove.Link
+	63,  // 150: rove.LinkService.Get:output_type -> rove.Link
+	63,  // 151: rove.LinkService.Patch:output_type -> rove.Link
+	63,  // 152: rove.LinkService.Apply:output_type -> rove.Link
+	16,  // 153: rove.LinkService.Erase:output_type -> rove.LinkEraseResponse
+	18,  // 154: rove.LinkService.List:output_type -> rove.LinkListResponse
+	66,  // 155: rove.StewardshipService.Add:output_type -> rove.Stewardship
+	66,  // 156: rove.StewardshipService.Get:output_type -> rove.Stewardship
+	66,  // 157: rove.StewardshipService.Patch:output_type -> rove.Stewardship
+	66,  // 158: rove.StewardshipService.Apply:output_type -> rove.Stewardship
+	26,  // 159: rove.StewardshipService.Erase:output_type -> rove.StewardshipEraseResponse
+	28,  // 160: rove.StewardshipService.List:output_type -> rove.StewardshipListResponse
+	67,  // 161: rove.FactService.Add:output_type -> rove.Fact
+	32,  // 162: rove.FactService.AddMany:output_type -> rove.FactAddManyResponse
+	67,  // 163: rove.FactService.Get:output_type -> rove.Fact
+	67,  // 164: rove.FactService.Patch:output_type -> rove.Fact
+	67,  // 165: rove.FactService.Apply:output_type -> rove.Fact
+	38,  // 166: rove.FactService.Erase:output_type -> rove.FactEraseResponse
+	40,  // 167: rove.FactService.List:output_type -> rove.FactListResponse
+	68,  // 168: rove.EventService.Add:output_type -> rove.Event
+	68,  // 169: rove.EventService.Get:output_type -> rove.Event
+	68,  // 170: rove.EventService.Patch:output_type -> rove.Event
+	68,  // 171: rove.EventService.Apply:output_type -> rove.Event
+	48,  // 172: rove.EventService.Erase:output_type -> rove.EventEraseResponse
+	50,  // 173: rove.EventService.List:output_type -> rove.EventListResponse
+	53,  // 174: rove.EventService.Recent:output_type -> rove.EventRecentResponse
+	143, // [143:175] is the sub-list for method output_type
+	111, // [111:143] is the sub-list for method input_type
+	111, // [111:111] is the sub-list for extension type_name
+	111, // [111:111] is the sub-list for extension extendee
+	0,   // [0:111] is the sub-list for field type_name
 }
 
 func init() { file_rove_history_svc_g_proto_init() }
@@ -10511,10 +10641,10 @@ func file_rove_history_svc_g_proto_init() {
 	file_rove_history_svc_g_proto_msgTypes[22].OneofWrappers = []any{
 		(*stewardshipRef_Id)(nil),
 	}
-	file_rove_history_svc_g_proto_msgTypes[32].OneofWrappers = []any{
+	file_rove_history_svc_g_proto_msgTypes[34].OneofWrappers = []any{
 		(*factRef_Id)(nil),
 	}
-	file_rove_history_svc_g_proto_msgTypes[42].OneofWrappers = []any{
+	file_rove_history_svc_g_proto_msgTypes[44].OneofWrappers = []any{
 		(*eventRef_Id)(nil),
 	}
 	type x struct{}
@@ -10523,7 +10653,7 @@ func file_rove_history_svc_g_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_history_svc_g_proto_rawDesc), len(file_rove_history_svc_g_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   54,
+			NumMessages:   56,
 			NumExtensions: 0,
 			NumServices:   5,
 		},

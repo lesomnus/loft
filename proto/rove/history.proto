@@ -248,7 +248,13 @@ message Fact {
   }];
 
   option (orm.message) = {
-    rpc: {crud: true}
+    // AddMany as well: an asset is made with a fact for each of what it is --
+    // its name, status, type, every attribute -- and they are one statement
+    // rather than one each (payday#84).
+    rpc: {
+      crud: true
+      add: {many: {}}
+    }
     indexes: [
       {
         name: "page"

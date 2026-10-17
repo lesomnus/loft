@@ -146,33 +146,28 @@ func (s StockServiceServer) image(v *rove.Stock) *rove.Stock {
 	}
 	return out
 }
-func (s StockServiceServer) Add(ctx context.Context, req *rove.StockAddRequest) (*rove.Stock, error) {
-	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Close()
 
-	st := s
-	st.Db = tx.Db
-
+// create is the row an Add of `req` writes, as a builder not yet saved,
+// and what the answer says about its edges. Add and AddMany both write
+// with it, so that an item of an AddMany is the row an Add of it would be.
+func (st StockServiceServer) create(ctx context.Context, req *rove.StockAddRequest) (*ent.StockCreate, []func(v *rove.Stock), error) {
 	ds := make([]func(v *rove.Stock), 0, 3)
 	q := st.Db.Stock.Create()
 	var k uuid.UUID
 	if req.HasId() {
 		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
 		} else {
 			k = v
 		}
 	}
-	if v, err := mint(ctx, s.Mint, "rove.Stock", k, req.HasId()); err != nil {
-		return nil, err
+	if v, err := mint(ctx, st.Mint, "rove.Stock", k, req.HasId()); err != nil {
+		return nil, nil, err
 	} else {
 		q.SetId(v)
 	}
 	if k, err := TenantGetKey(ctx, st.Db, req.GetTenant()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetTenantId(k)
 		ds = append(ds, func(v *rove.Stock) {
@@ -184,7 +179,7 @@ func (s StockServiceServer) Add(ctx context.Context, req *rove.StockAddRequest) 
 		q.SetLabels(u)
 	}
 	if k, err := ItemModelGetKey(ctx, st.Db, req.GetModel()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetModelId(k)
 		ds = append(ds, func(v *rove.Stock) {
@@ -192,7 +187,7 @@ func (s StockServiceServer) Add(ctx context.Context, req *rove.StockAddRequest) 
 		})
 	}
 	if k, err := AssetGetKey(ctx, st.Db, req.GetSpace()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetSpaceId(k)
 		ds = append(ds, func(v *rove.Stock) {
@@ -207,6 +202,23 @@ func (s StockServiceServer) Add(ctx context.Context, req *rove.StockAddRequest) 
 		q.SetDateCreated(req.GetDateCreated().AsTime())
 	} else {
 		q.SetDateCreated(st.now())
+	}
+	return q, ds, nil
+}
+
+func (s StockServiceServer) Add(ctx context.Context, req *rove.StockAddRequest) (*rove.Stock, error) {
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	q, ds, err := st.create(ctx, req)
+	if err != nil {
+		return nil, err
 	}
 
 	var stored *ent.Stock
@@ -247,6 +259,38 @@ func (s StockServiceServer) Add(ctx context.Context, req *rove.StockAddRequest) 
 	}
 
 	return v, nil
+}
+
+// StockAddRule is what a layer in front says about one row an Add of Stock
+// would write: the request to write it with -- the one it was handed, or a
+// copy it changed -- or a refusal. Nil is the request it was handed.
+type StockAddRule func(ctx context.Context, req *rove.StockAddRequest) (*rove.StockAddRequest, error)
+
+// StockWithAddRule answers with `next` behind `rule` for the RPCs that add.
+// An Add is asked about, and every item of an AddMany in order, and the
+// call is refused for the first one that is -- an AddMany naming the item.
+// What reaches `next` is one call either way: an AddMany stays one AddMany.
+//
+// A layer that overrides Add itself, for something an Add does that a rule
+// cannot say, still has its AddMany asked through this.
+func StockWithAddRule(next rove.StockServiceServer, rule StockAddRule) rove.StockServiceServer {
+	return stockAddRuled{next, rule}
+}
+
+type stockAddRuled struct {
+	rove.StockServiceServer
+	rule StockAddRule
+}
+
+func (s stockAddRuled) Add(ctx context.Context, req *rove.StockAddRequest) (*rove.Stock, error) {
+	r, err := s.rule(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		r = req
+	}
+	return s.StockServiceServer.Add(ctx, r)
 }
 
 func (s StockServiceServer) Get(ctx context.Context, req *rove.StockGetRequest) (*rove.Stock, error) {
@@ -727,33 +771,28 @@ func (s StockMovementServiceServer) image(v *rove.StockMovement) *rove.StockMove
 	}
 	return out
 }
-func (s StockMovementServiceServer) Add(ctx context.Context, req *rove.StockMovementAddRequest) (*rove.StockMovement, error) {
-	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Close()
 
-	st := s
-	st.Db = tx.Db
-
+// create is the row an Add of `req` writes, as a builder not yet saved,
+// and what the answer says about its edges. Add and AddMany both write
+// with it, so that an item of an AddMany is the row an Add of it would be.
+func (st StockMovementServiceServer) create(ctx context.Context, req *rove.StockMovementAddRequest) (*ent.StockMovementCreate, []func(v *rove.StockMovement), error) {
 	ds := make([]func(v *rove.StockMovement), 0, 2)
 	q := st.Db.StockMovement.Create()
 	var k uuid.UUID
 	if req.HasId() {
 		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
 		} else {
 			k = v
 		}
 	}
-	if v, err := mint(ctx, s.Mint, "rove.StockMovement", k, req.HasId()); err != nil {
-		return nil, err
+	if v, err := mint(ctx, st.Mint, "rove.StockMovement", k, req.HasId()); err != nil {
+		return nil, nil, err
 	} else {
 		q.SetId(v)
 	}
 	if k, err := TenantGetKey(ctx, st.Db, req.GetTenant()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetTenantId(k)
 		ds = append(ds, func(v *rove.StockMovement) {
@@ -761,7 +800,7 @@ func (s StockMovementServiceServer) Add(ctx context.Context, req *rove.StockMove
 		})
 	}
 	if k, err := StockGetKey(ctx, st.Db, req.GetStock()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetStockId(k)
 		ds = append(ds, func(v *rove.StockMovement) {
@@ -772,7 +811,7 @@ func (s StockMovementServiceServer) Add(ctx context.Context, req *rove.StockMove
 	q.SetReason(req.GetReason())
 	if req.HasRefId() {
 		if v, err := entuuid.FromBytes(req.GetRefId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "ref_id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "ref_id: %s", err)
 		} else {
 			q.SetRefId(v)
 		}
@@ -789,11 +828,28 @@ func (s StockMovementServiceServer) Add(ctx context.Context, req *rove.StockMove
 		q.SetDateCreated(st.now())
 	}
 	if v, err := entuuid.FromBytes(req.GetEventId()); err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "event_id: %s", err)
+		return nil, nil, status.Errorf(codes.InvalidArgument, "event_id: %s", err)
 	} else {
 		q.SetEventId(v)
 	}
 	q.SetBalance(req.GetBalance())
+	return q, ds, nil
+}
+
+func (s StockMovementServiceServer) Add(ctx context.Context, req *rove.StockMovementAddRequest) (*rove.StockMovement, error) {
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	q, ds, err := st.create(ctx, req)
+	if err != nil {
+		return nil, err
+	}
 
 	var stored *ent.StockMovement
 	if snapshotOptions(s.Rec, rove.StockMovementService_Add_FullMethodName).Value {
@@ -833,6 +889,38 @@ func (s StockMovementServiceServer) Add(ctx context.Context, req *rove.StockMove
 	}
 
 	return v, nil
+}
+
+// StockMovementAddRule is what a layer in front says about one row an Add of StockMovement
+// would write: the request to write it with -- the one it was handed, or a
+// copy it changed -- or a refusal. Nil is the request it was handed.
+type StockMovementAddRule func(ctx context.Context, req *rove.StockMovementAddRequest) (*rove.StockMovementAddRequest, error)
+
+// StockMovementWithAddRule answers with `next` behind `rule` for the RPCs that add.
+// An Add is asked about, and every item of an AddMany in order, and the
+// call is refused for the first one that is -- an AddMany naming the item.
+// What reaches `next` is one call either way: an AddMany stays one AddMany.
+//
+// A layer that overrides Add itself, for something an Add does that a rule
+// cannot say, still has its AddMany asked through this.
+func StockMovementWithAddRule(next rove.StockMovementServiceServer, rule StockMovementAddRule) rove.StockMovementServiceServer {
+	return stockMovementAddRuled{next, rule}
+}
+
+type stockMovementAddRuled struct {
+	rove.StockMovementServiceServer
+	rule StockMovementAddRule
+}
+
+func (s stockMovementAddRuled) Add(ctx context.Context, req *rove.StockMovementAddRequest) (*rove.StockMovement, error) {
+	r, err := s.rule(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		r = req
+	}
+	return s.StockMovementServiceServer.Add(ctx, r)
 }
 
 func (s StockMovementServiceServer) Get(ctx context.Context, req *rove.StockMovementGetRequest) (*rove.StockMovement, error) {

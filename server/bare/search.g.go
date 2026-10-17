@@ -95,6 +95,40 @@ func (s SearchStaleServiceServer) image(v *rove.SearchStale) *rove.SearchStale {
 	out := proto.Clone(v).(*rove.SearchStale)
 	return out
 }
+
+// create is the row an Add of `req` writes, as a builder not yet saved,
+// and what the answer says about its edges. Add and AddMany both write
+// with it, so that an item of an AddMany is the row an Add of it would be.
+func (st SearchStaleServiceServer) create(ctx context.Context, req *rove.SearchStaleAddRequest) (*ent.SearchStaleCreate, []func(v *rove.SearchStale), error) {
+	var ds []func(v *rove.SearchStale)
+	q := st.Db.SearchStale.Create()
+	var k uuid.UUID
+	if req.HasId() {
+		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
+			return nil, nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+		} else {
+			k = v
+		}
+	}
+	if v, err := mint(ctx, st.Mint, "rove.SearchStale", k, req.HasId()); err != nil {
+		return nil, nil, err
+	} else {
+		q.SetId(v)
+	}
+	q.SetKind(req.GetKind())
+	if v, err := entuuid.FromBytes(req.GetKey()); err != nil {
+		return nil, nil, status.Errorf(codes.InvalidArgument, "key: %s", err)
+	} else {
+		q.SetKey(v)
+	}
+	if req.HasDateCreated() {
+		q.SetDateCreated(req.GetDateCreated().AsTime())
+	} else {
+		q.SetDateCreated(st.now())
+	}
+	return q, ds, nil
+}
+
 func (s SearchStaleServiceServer) Add(ctx context.Context, req *rove.SearchStaleAddRequest) (*rove.SearchStale, error) {
 	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
 	if err != nil {
@@ -105,30 +139,9 @@ func (s SearchStaleServiceServer) Add(ctx context.Context, req *rove.SearchStale
 	st := s
 	st.Db = tx.Db
 
-	q := st.Db.SearchStale.Create()
-	var k uuid.UUID
-	if req.HasId() {
-		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
-		} else {
-			k = v
-		}
-	}
-	if v, err := mint(ctx, s.Mint, "rove.SearchStale", k, req.HasId()); err != nil {
+	q, ds, err := st.create(ctx, req)
+	if err != nil {
 		return nil, err
-	} else {
-		q.SetId(v)
-	}
-	q.SetKind(req.GetKind())
-	if v, err := entuuid.FromBytes(req.GetKey()); err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "key: %s", err)
-	} else {
-		q.SetKey(v)
-	}
-	if req.HasDateCreated() {
-		q.SetDateCreated(req.GetDateCreated().AsTime())
-	} else {
-		q.SetDateCreated(st.now())
 	}
 
 	var stored *ent.SearchStale
@@ -150,6 +163,9 @@ func (s SearchStaleServiceServer) Add(ctx context.Context, req *rove.SearchStale
 	}
 
 	v := u.Proto()
+	for _, d := range ds {
+		d(v)
+	}
 	var value *rove.SearchStale
 	if stored != nil {
 		value = s.image(stored.Proto())
@@ -166,6 +182,38 @@ func (s SearchStaleServiceServer) Add(ctx context.Context, req *rove.SearchStale
 	}
 
 	return v, nil
+}
+
+// SearchStaleAddRule is what a layer in front says about one row an Add of SearchStale
+// would write: the request to write it with -- the one it was handed, or a
+// copy it changed -- or a refusal. Nil is the request it was handed.
+type SearchStaleAddRule func(ctx context.Context, req *rove.SearchStaleAddRequest) (*rove.SearchStaleAddRequest, error)
+
+// SearchStaleWithAddRule answers with `next` behind `rule` for the RPCs that add.
+// An Add is asked about, and every item of an AddMany in order, and the
+// call is refused for the first one that is -- an AddMany naming the item.
+// What reaches `next` is one call either way: an AddMany stays one AddMany.
+//
+// A layer that overrides Add itself, for something an Add does that a rule
+// cannot say, still has its AddMany asked through this.
+func SearchStaleWithAddRule(next rove.SearchStaleServiceServer, rule SearchStaleAddRule) rove.SearchStaleServiceServer {
+	return searchStaleAddRuled{next, rule}
+}
+
+type searchStaleAddRuled struct {
+	rove.SearchStaleServiceServer
+	rule SearchStaleAddRule
+}
+
+func (s searchStaleAddRuled) Add(ctx context.Context, req *rove.SearchStaleAddRequest) (*rove.SearchStale, error) {
+	r, err := s.rule(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		r = req
+	}
+	return s.SearchStaleServiceServer.Add(ctx, r)
 }
 
 func (s SearchStaleServiceServer) Get(ctx context.Context, req *rove.SearchStaleGetRequest) (*rove.SearchStale, error) {

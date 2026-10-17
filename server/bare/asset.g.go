@@ -165,33 +165,28 @@ func (s AssetServiceServer) image(v *rove.Asset) *rove.Asset {
 	}
 	return out
 }
-func (s AssetServiceServer) Add(ctx context.Context, req *rove.AssetAddRequest) (*rove.Asset, error) {
-	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Close()
 
-	st := s
-	st.Db = tx.Db
-
+// create is the row an Add of `req` writes, as a builder not yet saved,
+// and what the answer says about its edges. Add and AddMany both write
+// with it, so that an item of an AddMany is the row an Add of it would be.
+func (st AssetServiceServer) create(ctx context.Context, req *rove.AssetAddRequest) (*ent.AssetCreate, []func(v *rove.Asset), error) {
 	ds := make([]func(v *rove.Asset), 0, 4)
 	q := st.Db.Asset.Create()
 	var k uuid.UUID
 	if req.HasId() {
 		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
 		} else {
 			k = v
 		}
 	}
-	if v, err := mint(ctx, s.Mint, "rove.Asset", k, req.HasId()); err != nil {
-		return nil, err
+	if v, err := mint(ctx, st.Mint, "rove.Asset", k, req.HasId()); err != nil {
+		return nil, nil, err
 	} else {
 		q.SetId(v)
 	}
 	if k, err := TenantGetKey(ctx, st.Db, req.GetTenant()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetTenantId(k)
 		ds = append(ds, func(v *rove.Asset) {
@@ -206,7 +201,7 @@ func (s AssetServiceServer) Add(ctx context.Context, req *rove.AssetAddRequest) 
 	q.SetKind(req.GetKind())
 	if req.HasType() {
 		if k, err := AssetTypeGetKey(ctx, st.Db, req.GetType()); err != nil {
-			return nil, err
+			return nil, nil, err
 		} else {
 			q.SetTypeId(k)
 			ds = append(ds, func(v *rove.Asset) {
@@ -216,7 +211,7 @@ func (s AssetServiceServer) Add(ctx context.Context, req *rove.AssetAddRequest) 
 	}
 	if req.HasModel() {
 		if k, err := ItemModelGetKey(ctx, st.Db, req.GetModel()); err != nil {
-			return nil, err
+			return nil, nil, err
 		} else {
 			q.SetModelId(k)
 			ds = append(ds, func(v *rove.Asset) {
@@ -236,7 +231,7 @@ func (s AssetServiceServer) Add(ctx context.Context, req *rove.AssetAddRequest) 
 	q.SetCondition(req.GetCondition())
 	if req.HasParentId() {
 		if v, err := entuuid.FromBytes(req.GetParentId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "parent_id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "parent_id: %s", err)
 		} else {
 			q.SetParentId(v)
 		}
@@ -245,7 +240,7 @@ func (s AssetServiceServer) Add(ctx context.Context, req *rove.AssetAddRequest) 
 	q.SetSlot(req.GetSlot())
 	if req.HasCustodian() {
 		if k, err := PartyGetKey(ctx, st.Db, req.GetCustodian()); err != nil {
-			return nil, err
+			return nil, nil, err
 		} else {
 			q.SetCustodianId(k)
 			ds = append(ds, func(v *rove.Asset) {
@@ -263,6 +258,23 @@ func (s AssetServiceServer) Add(ctx context.Context, req *rove.AssetAddRequest) 
 		q.SetDisposedAt(req.GetDisposedAt().AsTime())
 	}
 	q.SetContentVersion(req.GetContentVersion())
+	return q, ds, nil
+}
+
+func (s AssetServiceServer) Add(ctx context.Context, req *rove.AssetAddRequest) (*rove.Asset, error) {
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	q, ds, err := st.create(ctx, req)
+	if err != nil {
+		return nil, err
+	}
 
 	var stored *ent.Asset
 	if snapshotOptions(s.Rec, rove.AssetService_Add_FullMethodName).Value {
@@ -302,6 +314,38 @@ func (s AssetServiceServer) Add(ctx context.Context, req *rove.AssetAddRequest) 
 	}
 
 	return v, nil
+}
+
+// AssetAddRule is what a layer in front says about one row an Add of Asset
+// would write: the request to write it with -- the one it was handed, or a
+// copy it changed -- or a refusal. Nil is the request it was handed.
+type AssetAddRule func(ctx context.Context, req *rove.AssetAddRequest) (*rove.AssetAddRequest, error)
+
+// AssetWithAddRule answers with `next` behind `rule` for the RPCs that add.
+// An Add is asked about, and every item of an AddMany in order, and the
+// call is refused for the first one that is -- an AddMany naming the item.
+// What reaches `next` is one call either way: an AddMany stays one AddMany.
+//
+// A layer that overrides Add itself, for something an Add does that a rule
+// cannot say, still has its AddMany asked through this.
+func AssetWithAddRule(next rove.AssetServiceServer, rule AssetAddRule) rove.AssetServiceServer {
+	return assetAddRuled{next, rule}
+}
+
+type assetAddRuled struct {
+	rove.AssetServiceServer
+	rule AssetAddRule
+}
+
+func (s assetAddRuled) Add(ctx context.Context, req *rove.AssetAddRequest) (*rove.Asset, error) {
+	r, err := s.rule(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		r = req
+	}
+	return s.AssetServiceServer.Add(ctx, r)
 }
 
 func (s AssetServiceServer) Get(ctx context.Context, req *rove.AssetGetRequest) (*rove.Asset, error) {
@@ -836,33 +880,28 @@ func (s TreeLockServiceServer) image(v *rove.TreeLock) *rove.TreeLock {
 	}
 	return out
 }
-func (s TreeLockServiceServer) Add(ctx context.Context, req *rove.TreeLockAddRequest) (*rove.TreeLock, error) {
-	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Close()
 
-	st := s
-	st.Db = tx.Db
-
+// create is the row an Add of `req` writes, as a builder not yet saved,
+// and what the answer says about its edges. Add and AddMany both write
+// with it, so that an item of an AddMany is the row an Add of it would be.
+func (st TreeLockServiceServer) create(ctx context.Context, req *rove.TreeLockAddRequest) (*ent.TreeLockCreate, []func(v *rove.TreeLock), error) {
 	ds := make([]func(v *rove.TreeLock), 0, 1)
 	q := st.Db.TreeLock.Create()
 	var k uuid.UUID
 	if req.HasId() {
 		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
 		} else {
 			k = v
 		}
 	}
-	if v, err := mint(ctx, s.Mint, "rove.TreeLock", k, req.HasId()); err != nil {
-		return nil, err
+	if v, err := mint(ctx, st.Mint, "rove.TreeLock", k, req.HasId()); err != nil {
+		return nil, nil, err
 	} else {
 		q.SetId(v)
 	}
 	if k, err := TenantGetKey(ctx, st.Db, req.GetTenant()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetTenantId(k)
 		ds = append(ds, func(v *rove.TreeLock) {
@@ -875,6 +914,23 @@ func (s TreeLockServiceServer) Add(ctx context.Context, req *rove.TreeLockAddReq
 		q.SetDateCreated(req.GetDateCreated().AsTime())
 	} else {
 		q.SetDateCreated(st.now())
+	}
+	return q, ds, nil
+}
+
+func (s TreeLockServiceServer) Add(ctx context.Context, req *rove.TreeLockAddRequest) (*rove.TreeLock, error) {
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	q, ds, err := st.create(ctx, req)
+	if err != nil {
+		return nil, err
 	}
 
 	var stored *ent.TreeLock
@@ -915,6 +971,38 @@ func (s TreeLockServiceServer) Add(ctx context.Context, req *rove.TreeLockAddReq
 	}
 
 	return v, nil
+}
+
+// TreeLockAddRule is what a layer in front says about one row an Add of TreeLock
+// would write: the request to write it with -- the one it was handed, or a
+// copy it changed -- or a refusal. Nil is the request it was handed.
+type TreeLockAddRule func(ctx context.Context, req *rove.TreeLockAddRequest) (*rove.TreeLockAddRequest, error)
+
+// TreeLockWithAddRule answers with `next` behind `rule` for the RPCs that add.
+// An Add is asked about, and every item of an AddMany in order, and the
+// call is refused for the first one that is -- an AddMany naming the item.
+// What reaches `next` is one call either way: an AddMany stays one AddMany.
+//
+// A layer that overrides Add itself, for something an Add does that a rule
+// cannot say, still has its AddMany asked through this.
+func TreeLockWithAddRule(next rove.TreeLockServiceServer, rule TreeLockAddRule) rove.TreeLockServiceServer {
+	return treeLockAddRuled{next, rule}
+}
+
+type treeLockAddRuled struct {
+	rove.TreeLockServiceServer
+	rule TreeLockAddRule
+}
+
+func (s treeLockAddRuled) Add(ctx context.Context, req *rove.TreeLockAddRequest) (*rove.TreeLock, error) {
+	r, err := s.rule(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		r = req
+	}
+	return s.TreeLockServiceServer.Add(ctx, r)
 }
 
 func (s TreeLockServiceServer) Get(ctx context.Context, req *rove.TreeLockGetRequest) (*rove.TreeLock, error) {
@@ -1346,33 +1434,28 @@ func (s TenantDomainServiceServer) image(v *rove.TenantDomain) *rove.TenantDomai
 	}
 	return out
 }
-func (s TenantDomainServiceServer) Add(ctx context.Context, req *rove.TenantDomainAddRequest) (*rove.TenantDomain, error) {
-	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Close()
 
-	st := s
-	st.Db = tx.Db
-
+// create is the row an Add of `req` writes, as a builder not yet saved,
+// and what the answer says about its edges. Add and AddMany both write
+// with it, so that an item of an AddMany is the row an Add of it would be.
+func (st TenantDomainServiceServer) create(ctx context.Context, req *rove.TenantDomainAddRequest) (*ent.TenantDomainCreate, []func(v *rove.TenantDomain), error) {
 	ds := make([]func(v *rove.TenantDomain), 0, 1)
 	q := st.Db.TenantDomain.Create()
 	var k uuid.UUID
 	if req.HasId() {
 		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
 		} else {
 			k = v
 		}
 	}
-	if v, err := mint(ctx, s.Mint, "rove.TenantDomain", k, req.HasId()); err != nil {
-		return nil, err
+	if v, err := mint(ctx, st.Mint, "rove.TenantDomain", k, req.HasId()); err != nil {
+		return nil, nil, err
 	} else {
 		q.SetId(v)
 	}
 	if k, err := TenantGetKey(ctx, st.Db, req.GetTenant()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetTenantId(k)
 		ds = append(ds, func(v *rove.TenantDomain) {
@@ -1392,6 +1475,23 @@ func (s TenantDomainServiceServer) Add(ctx context.Context, req *rove.TenantDoma
 	}
 	if req.HasVerifiedAt() {
 		q.SetVerifiedAt(req.GetVerifiedAt().AsTime())
+	}
+	return q, ds, nil
+}
+
+func (s TenantDomainServiceServer) Add(ctx context.Context, req *rove.TenantDomainAddRequest) (*rove.TenantDomain, error) {
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	q, ds, err := st.create(ctx, req)
+	if err != nil {
+		return nil, err
 	}
 
 	var stored *ent.TenantDomain
@@ -1432,6 +1532,38 @@ func (s TenantDomainServiceServer) Add(ctx context.Context, req *rove.TenantDoma
 	}
 
 	return v, nil
+}
+
+// TenantDomainAddRule is what a layer in front says about one row an Add of TenantDomain
+// would write: the request to write it with -- the one it was handed, or a
+// copy it changed -- or a refusal. Nil is the request it was handed.
+type TenantDomainAddRule func(ctx context.Context, req *rove.TenantDomainAddRequest) (*rove.TenantDomainAddRequest, error)
+
+// TenantDomainWithAddRule answers with `next` behind `rule` for the RPCs that add.
+// An Add is asked about, and every item of an AddMany in order, and the
+// call is refused for the first one that is -- an AddMany naming the item.
+// What reaches `next` is one call either way: an AddMany stays one AddMany.
+//
+// A layer that overrides Add itself, for something an Add does that a rule
+// cannot say, still has its AddMany asked through this.
+func TenantDomainWithAddRule(next rove.TenantDomainServiceServer, rule TenantDomainAddRule) rove.TenantDomainServiceServer {
+	return tenantDomainAddRuled{next, rule}
+}
+
+type tenantDomainAddRuled struct {
+	rove.TenantDomainServiceServer
+	rule TenantDomainAddRule
+}
+
+func (s tenantDomainAddRuled) Add(ctx context.Context, req *rove.TenantDomainAddRequest) (*rove.TenantDomain, error) {
+	r, err := s.rule(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		r = req
+	}
+	return s.TenantDomainServiceServer.Add(ctx, r)
 }
 
 func (s TenantDomainServiceServer) Get(ctx context.Context, req *rove.TenantDomainGetRequest) (*rove.TenantDomain, error) {
@@ -1909,33 +2041,28 @@ func (s LabelServiceServer) image(v *rove.Label) *rove.Label {
 	}
 	return out
 }
-func (s LabelServiceServer) Add(ctx context.Context, req *rove.LabelAddRequest) (*rove.Label, error) {
-	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Close()
 
-	st := s
-	st.Db = tx.Db
-
+// create is the row an Add of `req` writes, as a builder not yet saved,
+// and what the answer says about its edges. Add and AddMany both write
+// with it, so that an item of an AddMany is the row an Add of it would be.
+func (st LabelServiceServer) create(ctx context.Context, req *rove.LabelAddRequest) (*ent.LabelCreate, []func(v *rove.Label), error) {
 	ds := make([]func(v *rove.Label), 0, 2)
 	q := st.Db.Label.Create()
 	var k uuid.UUID
 	if req.HasId() {
 		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
 		} else {
 			k = v
 		}
 	}
-	if v, err := mint(ctx, s.Mint, "rove.Label", k, req.HasId()); err != nil {
-		return nil, err
+	if v, err := mint(ctx, st.Mint, "rove.Label", k, req.HasId()); err != nil {
+		return nil, nil, err
 	} else {
 		q.SetId(v)
 	}
 	if k, err := TenantGetKey(ctx, st.Db, req.GetTenant()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetTenantId(k)
 		ds = append(ds, func(v *rove.Label) {
@@ -1944,7 +2071,7 @@ func (s LabelServiceServer) Add(ctx context.Context, req *rove.LabelAddRequest) 
 	}
 	if req.HasDomain() {
 		if k, err := TenantDomainGetKey(ctx, st.Db, req.GetDomain()); err != nil {
-			return nil, err
+			return nil, nil, err
 		} else {
 			q.SetDomainId(k)
 			ds = append(ds, func(v *rove.Label) {
@@ -1954,7 +2081,7 @@ func (s LabelServiceServer) Add(ctx context.Context, req *rove.LabelAddRequest) 
 	}
 	if req.HasSubjectId() {
 		if v, err := entuuid.FromBytes(req.GetSubjectId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "subject_id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "subject_id: %s", err)
 		} else {
 			q.SetSubjectId(v)
 		}
@@ -1975,6 +2102,23 @@ func (s LabelServiceServer) Add(ctx context.Context, req *rove.LabelAddRequest) 
 	q.SetBatch(req.GetBatch())
 	if req.HasCode() {
 		q.SetCode(req.GetCode())
+	}
+	return q, ds, nil
+}
+
+func (s LabelServiceServer) Add(ctx context.Context, req *rove.LabelAddRequest) (*rove.Label, error) {
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	q, ds, err := st.create(ctx, req)
+	if err != nil {
+		return nil, err
 	}
 
 	var stored *ent.Label
@@ -2015,6 +2159,38 @@ func (s LabelServiceServer) Add(ctx context.Context, req *rove.LabelAddRequest) 
 	}
 
 	return v, nil
+}
+
+// LabelAddRule is what a layer in front says about one row an Add of Label
+// would write: the request to write it with -- the one it was handed, or a
+// copy it changed -- or a refusal. Nil is the request it was handed.
+type LabelAddRule func(ctx context.Context, req *rove.LabelAddRequest) (*rove.LabelAddRequest, error)
+
+// LabelWithAddRule answers with `next` behind `rule` for the RPCs that add.
+// An Add is asked about, and every item of an AddMany in order, and the
+// call is refused for the first one that is -- an AddMany naming the item.
+// What reaches `next` is one call either way: an AddMany stays one AddMany.
+//
+// A layer that overrides Add itself, for something an Add does that a rule
+// cannot say, still has its AddMany asked through this.
+func LabelWithAddRule(next rove.LabelServiceServer, rule LabelAddRule) rove.LabelServiceServer {
+	return labelAddRuled{next, rule}
+}
+
+type labelAddRuled struct {
+	rove.LabelServiceServer
+	rule LabelAddRule
+}
+
+func (s labelAddRuled) Add(ctx context.Context, req *rove.LabelAddRequest) (*rove.Label, error) {
+	r, err := s.rule(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		r = req
+	}
+	return s.LabelServiceServer.Add(ctx, r)
 }
 
 func (s LabelServiceServer) Get(ctx context.Context, req *rove.LabelGetRequest) (*rove.Label, error) {
@@ -2494,33 +2670,28 @@ func (s AttachmentServiceServer) image(v *rove.Attachment) *rove.Attachment {
 	}
 	return out
 }
-func (s AttachmentServiceServer) Add(ctx context.Context, req *rove.AttachmentAddRequest) (*rove.Attachment, error) {
-	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Close()
 
-	st := s
-	st.Db = tx.Db
-
+// create is the row an Add of `req` writes, as a builder not yet saved,
+// and what the answer says about its edges. Add and AddMany both write
+// with it, so that an item of an AddMany is the row an Add of it would be.
+func (st AttachmentServiceServer) create(ctx context.Context, req *rove.AttachmentAddRequest) (*ent.AttachmentCreate, []func(v *rove.Attachment), error) {
 	ds := make([]func(v *rove.Attachment), 0, 1)
 	q := st.Db.Attachment.Create()
 	var k uuid.UUID
 	if req.HasId() {
 		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
 		} else {
 			k = v
 		}
 	}
-	if v, err := mint(ctx, s.Mint, "rove.Attachment", k, req.HasId()); err != nil {
-		return nil, err
+	if v, err := mint(ctx, st.Mint, "rove.Attachment", k, req.HasId()); err != nil {
+		return nil, nil, err
 	} else {
 		q.SetId(v)
 	}
 	if k, err := TenantGetKey(ctx, st.Db, req.GetTenant()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetTenantId(k)
 		ds = append(ds, func(v *rove.Attachment) {
@@ -2529,7 +2700,7 @@ func (s AttachmentServiceServer) Add(ctx context.Context, req *rove.AttachmentAd
 	}
 	q.SetName(req.GetName())
 	if v, err := entuuid.FromBytes(req.GetSubjectId()); err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "subject_id: %s", err)
+		return nil, nil, status.Errorf(codes.InvalidArgument, "subject_id: %s", err)
 	} else {
 		q.SetSubjectId(v)
 	}
@@ -2546,6 +2717,23 @@ func (s AttachmentServiceServer) Add(ctx context.Context, req *rove.AttachmentAd
 		q.SetDateCreated(req.GetDateCreated().AsTime())
 	} else {
 		q.SetDateCreated(st.now())
+	}
+	return q, ds, nil
+}
+
+func (s AttachmentServiceServer) Add(ctx context.Context, req *rove.AttachmentAddRequest) (*rove.Attachment, error) {
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	q, ds, err := st.create(ctx, req)
+	if err != nil {
+		return nil, err
 	}
 
 	var stored *ent.Attachment
@@ -2586,6 +2774,38 @@ func (s AttachmentServiceServer) Add(ctx context.Context, req *rove.AttachmentAd
 	}
 
 	return v, nil
+}
+
+// AttachmentAddRule is what a layer in front says about one row an Add of Attachment
+// would write: the request to write it with -- the one it was handed, or a
+// copy it changed -- or a refusal. Nil is the request it was handed.
+type AttachmentAddRule func(ctx context.Context, req *rove.AttachmentAddRequest) (*rove.AttachmentAddRequest, error)
+
+// AttachmentWithAddRule answers with `next` behind `rule` for the RPCs that add.
+// An Add is asked about, and every item of an AddMany in order, and the
+// call is refused for the first one that is -- an AddMany naming the item.
+// What reaches `next` is one call either way: an AddMany stays one AddMany.
+//
+// A layer that overrides Add itself, for something an Add does that a rule
+// cannot say, still has its AddMany asked through this.
+func AttachmentWithAddRule(next rove.AttachmentServiceServer, rule AttachmentAddRule) rove.AttachmentServiceServer {
+	return attachmentAddRuled{next, rule}
+}
+
+type attachmentAddRuled struct {
+	rove.AttachmentServiceServer
+	rule AttachmentAddRule
+}
+
+func (s attachmentAddRuled) Add(ctx context.Context, req *rove.AttachmentAddRequest) (*rove.Attachment, error) {
+	r, err := s.rule(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		r = req
+	}
+	return s.AttachmentServiceServer.Add(ctx, r)
 }
 
 func (s AttachmentServiceServer) Get(ctx context.Context, req *rove.AttachmentGetRequest) (*rove.Attachment, error) {

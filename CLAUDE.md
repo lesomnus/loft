@@ -89,6 +89,11 @@ such method.
 **Do not edit the generated `Gate`.** Your authorization goes in your own layer
 in front of it, or into the `gate.Policy` you inject.
 
+A rule about the row an `Add` writes goes on the server behind with
+`bare.<E>WithAddRule` rather than in an `Add` you override: an entity that asks
+for `AddMany` (`Fact` does) is written by both, and an override says it of one
+(payday's `docs/guide/server.md`).
+
 ## Two servers, and one of them has no wall
 
 `cmd/serve.go` builds `Walled` and `Ungated` (and `Base`, which is `Ungated`

@@ -58,6 +58,8 @@ service StewardshipService {
 service FactService {
   // Add creates a new Fact
   rpc Add(FactAddRequest) returns (Fact);
+  // AddMany creates up to 1000 new Fact rows in one call, all of them or none
+  rpc AddMany(FactAddManyRequest) returns (FactAddManyResponse);
   // Get retrieves a Fact
   rpc Get(FactGetRequest) returns (Fact);
   // Patch updates an existing Fact
@@ -522,6 +524,14 @@ message FactAddRequest {
   bytes event_id = 19 [features.field_presence = IMPLICIT];
   google.protobuf.Timestamp superseded_at = 20;
   bytes superseded_by = 21;
+}
+
+message FactAddManyRequest {
+  repeated FactAddRequest items = 1;
+}
+
+message FactAddManyResponse {
+  repeated Fact items = 1;
 }
 
 message FactGetRequest {

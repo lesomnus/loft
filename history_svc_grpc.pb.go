@@ -931,12 +931,13 @@ var StewardshipService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	FactService_Add_FullMethodName   = "/rove.FactService/Add"
-	FactService_Get_FullMethodName   = "/rove.FactService/Get"
-	FactService_Patch_FullMethodName = "/rove.FactService/Patch"
-	FactService_Apply_FullMethodName = "/rove.FactService/Apply"
-	FactService_Erase_FullMethodName = "/rove.FactService/Erase"
-	FactService_List_FullMethodName  = "/rove.FactService/List"
+	FactService_Add_FullMethodName     = "/rove.FactService/Add"
+	FactService_AddMany_FullMethodName = "/rove.FactService/AddMany"
+	FactService_Get_FullMethodName     = "/rove.FactService/Get"
+	FactService_Patch_FullMethodName   = "/rove.FactService/Patch"
+	FactService_Apply_FullMethodName   = "/rove.FactService/Apply"
+	FactService_Erase_FullMethodName   = "/rove.FactService/Erase"
+	FactService_List_FullMethodName    = "/rove.FactService/List"
 )
 
 // FactServiceClient is the client API for FactService service.
@@ -945,6 +946,8 @@ const (
 type FactServiceClient interface {
 	// Add creates a new Fact
 	Add(ctx context.Context, in *FactAddRequest, opts ...grpc.CallOption) (*Fact, error)
+	// AddMany creates up to 1000 new Fact rows in one call, all of them or none
+	AddMany(ctx context.Context, in *FactAddManyRequest, opts ...grpc.CallOption) (*FactAddManyResponse, error)
 	// Get retrieves a Fact
 	Get(ctx context.Context, in *FactGetRequest, opts ...grpc.CallOption) (*Fact, error)
 	// Patch updates an existing Fact
@@ -969,6 +972,16 @@ func (c *factServiceClient) Add(ctx context.Context, in *FactAddRequest, opts ..
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Fact)
 	err := c.cc.Invoke(ctx, FactService_Add_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *factServiceClient) AddMany(ctx context.Context, in *FactAddManyRequest, opts ...grpc.CallOption) (*FactAddManyResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(FactAddManyResponse)
+	err := c.cc.Invoke(ctx, FactService_AddMany_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1031,6 +1044,8 @@ func (c *factServiceClient) List(ctx context.Context, in *FactListRequest, opts 
 type FactServiceServer interface {
 	// Add creates a new Fact
 	Add(context.Context, *FactAddRequest) (*Fact, error)
+	// AddMany creates up to 1000 new Fact rows in one call, all of them or none
+	AddMany(context.Context, *FactAddManyRequest) (*FactAddManyResponse, error)
 	// Get retrieves a Fact
 	Get(context.Context, *FactGetRequest) (*Fact, error)
 	// Patch updates an existing Fact
@@ -1053,6 +1068,9 @@ type UnimplementedFactServiceServer struct{}
 
 func (UnimplementedFactServiceServer) Add(context.Context, *FactAddRequest) (*Fact, error) {
 	return nil, status.Error(codes.Unimplemented, "method Add not implemented")
+}
+func (UnimplementedFactServiceServer) AddMany(context.Context, *FactAddManyRequest) (*FactAddManyResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method AddMany not implemented")
 }
 func (UnimplementedFactServiceServer) Get(context.Context, *FactGetRequest) (*Fact, error) {
 	return nil, status.Error(codes.Unimplemented, "method Get not implemented")
@@ -1104,6 +1122,24 @@ func _FactService_Add_Handler(srv interface{}, ctx context.Context, dec func(int
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(FactServiceServer).Add(ctx, req.(*FactAddRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _FactService_AddMany_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FactAddManyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FactServiceServer).AddMany(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: FactService_AddMany_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FactServiceServer).AddMany(ctx, req.(*FactAddManyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1208,6 +1244,10 @@ var FactService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Add",
 			Handler:    _FactService_Add_Handler,
+		},
+		{
+			MethodName: "AddMany",
+			Handler:    _FactService_AddMany_Handler,
 		},
 		{
 			MethodName: "Get",
