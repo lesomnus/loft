@@ -22,6 +22,7 @@ type LabelCreate struct {
 	config
 	mutation *LabelMutation
 	hooks    []Hook
+	stored   **Label
 }
 
 // SetSubjectId sets the "subject_id" field.
@@ -246,6 +247,18 @@ func (_c *LabelCreate) createSpec() (*Label, *sqlgraph.CreateSpec) {
 		_node = &Label{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(label.Table, sqlgraph.NewFieldSpec(label.FieldId, field.TypeUuid))
 	)
+	if _c.stored != nil {
+		_stored := &Label{config: _c.config}
+		_spec.Returning = label.Columns
+		_spec.ScanValues = _stored.scanValues
+		_spec.Assign = func(columns []string, values []any) error {
+			if err := _stored.assignValues(columns, values); err != nil {
+				return err
+			}
+			*_c.stored = _stored
+			return nil
+		}
+	}
 	if id, ok := _c.mutation.Id(); ok {
 		_node.Id = id
 		_spec.Id.Value = &id
@@ -321,6 +334,25 @@ func (_c *LabelCreate) createSpec() (*Label, *sqlgraph.CreateSpec) {
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
+}
+
+// Stored has Save read the Label back, into `v`, as the database stored
+// it: at the precision of its columns, with the defaults the database filled
+// in and what a trigger before the write made of it. Save itself answers with
+// the Label as this builder had it.
+//
+// The INSERT reads it, with RETURNING, where the dialect has it, so that the
+// row and the reading of it are one statement. MySQL has none, and an INSERT
+// with a conflict clause may have written nothing, so for those it is a query
+// by the Id just after the INSERT. Either way it is read on the driver the
+// INSERT ran on, so inside a transaction it is that transaction's row. Its
+// edges are not loaded.
+//
+// `v` is written only by a Save that wrote the row: one that failed, or that a
+// hook answered without writing, leaves it as it was.
+func (_c *LabelCreate) Stored(v **Label) *LabelCreate {
+	_c.stored = v
+	return _c
 }
 
 // LabelCreateBulk is the builder for creating many Label entities in bulk.

@@ -174,6 +174,11 @@ func (s AssetTypeServiceServer) Add(ctx context.Context, req *rove.AssetTypeAddR
 		q.SetDateCreated(st.now())
 	}
 
+	var stored *ent.AssetType
+	if snapshotOptions(s.Rec, rove.AssetTypeService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -192,11 +197,7 @@ func (s AssetTypeServiceServer) Add(ctx context.Context, req *rove.AssetTypeAddR
 		d(v)
 	}
 	var value *rove.AssetType
-	if snapshotOptions(s.Rec, rove.AssetTypeService_Add_FullMethodName).Value {
-		stored, err := st.snapshot(ctx, assettype.IdEQ(u.Id), false)
-		if err != nil {
-			return nil, err
-		}
+	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{
@@ -749,6 +750,11 @@ func (s ItemModelServiceServer) Add(ctx context.Context, req *rove.ItemModelAddR
 		q.SetDateCreated(st.now())
 	}
 
+	var stored *ent.ItemModel
+	if snapshotOptions(s.Rec, rove.ItemModelService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -767,11 +773,7 @@ func (s ItemModelServiceServer) Add(ctx context.Context, req *rove.ItemModelAddR
 		d(v)
 	}
 	var value *rove.ItemModel
-	if snapshotOptions(s.Rec, rove.ItemModelService_Add_FullMethodName).Value {
-		stored, err := st.snapshot(ctx, itemmodel.IdEQ(u.Id), false)
-		if err != nil {
-			return nil, err
-		}
+	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{

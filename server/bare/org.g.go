@@ -203,6 +203,11 @@ func (s PartyServiceServer) Add(ctx context.Context, req *rove.PartyAddRequest) 
 	}
 	q.SetCode(req.GetCode())
 
+	var stored *ent.Party
+	if snapshotOptions(s.Rec, rove.PartyService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -221,11 +226,7 @@ func (s PartyServiceServer) Add(ctx context.Context, req *rove.PartyAddRequest) 
 		d(v)
 	}
 	var value *rove.Party
-	if snapshotOptions(s.Rec, rove.PartyService_Add_FullMethodName).Value {
-		stored, err := st.snapshot(ctx, party.IdEQ(u.Id), false)
-		if err != nil {
-			return nil, err
-		}
+	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{
@@ -772,6 +773,11 @@ func (s SessionServiceServer) Add(ctx context.Context, req *rove.SessionAddReque
 		q.SetDateCreated(st.now())
 	}
 
+	var stored *ent.Session
+	if snapshotOptions(s.Rec, rove.SessionService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -787,11 +793,7 @@ func (s SessionServiceServer) Add(ctx context.Context, req *rove.SessionAddReque
 
 	v := u.Proto()
 	var value *rove.Session
-	if snapshotOptions(s.Rec, rove.SessionService_Add_FullMethodName).Value {
-		stored, err := st.snapshot(ctx, session.IdEQ(u.Id), false)
-		if err != nil {
-			return nil, err
-		}
+	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{
@@ -1393,6 +1395,11 @@ func (s InvitationServiceServer) Add(ctx context.Context, req *rove.InvitationAd
 		q.SetClaim(req.GetClaim())
 	}
 
+	var stored *ent.Invitation
+	if snapshotOptions(s.Rec, rove.InvitationService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -1411,11 +1418,7 @@ func (s InvitationServiceServer) Add(ctx context.Context, req *rove.InvitationAd
 		d(v)
 	}
 	var value *rove.Invitation
-	if snapshotOptions(s.Rec, rove.InvitationService_Add_FullMethodName).Value {
-		stored, err := st.snapshot(ctx, invitation.IdEQ(u.Id), false)
-		if err != nil {
-			return nil, err
-		}
+	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{
@@ -1975,6 +1978,11 @@ func (s CliLoginServiceServer) Add(ctx context.Context, req *rove.CliLoginAddReq
 		q.SetDateCreated(st.now())
 	}
 
+	var stored *ent.CliLogin
+	if snapshotOptions(s.Rec, rove.CliLoginService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -1990,11 +1998,7 @@ func (s CliLoginServiceServer) Add(ctx context.Context, req *rove.CliLoginAddReq
 
 	v := u.Proto()
 	var value *rove.CliLogin
-	if snapshotOptions(s.Rec, rove.CliLoginService_Add_FullMethodName).Value {
-		stored, err := st.snapshot(ctx, clilogin.IdEQ(u.Id), false)
-		if err != nil {
-			return nil, err
-		}
+	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{
@@ -2503,6 +2507,11 @@ func (s AliasHoldServiceServer) Add(ctx context.Context, req *rove.AliasHoldAddR
 		q.SetDateCreated(st.now())
 	}
 
+	var stored *ent.AliasHold
+	if snapshotOptions(s.Rec, rove.AliasHoldService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -2518,11 +2527,7 @@ func (s AliasHoldServiceServer) Add(ctx context.Context, req *rove.AliasHoldAddR
 
 	v := u.Proto()
 	var value *rove.AliasHold
-	if snapshotOptions(s.Rec, rove.AliasHoldService_Add_FullMethodName).Value {
-		stored, err := st.snapshot(ctx, aliashold.IdEQ(u.Id), false)
-		if err != nil {
-			return nil, err
-		}
+	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{
@@ -3016,6 +3021,11 @@ func (s ConsentServiceServer) Add(ctx context.Context, req *rove.ConsentAddReque
 		q.SetDateCreated(st.now())
 	}
 
+	var stored *ent.Consent
+	if snapshotOptions(s.Rec, rove.ConsentService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -3031,11 +3041,7 @@ func (s ConsentServiceServer) Add(ctx context.Context, req *rove.ConsentAddReque
 
 	v := u.Proto()
 	var value *rove.Consent
-	if snapshotOptions(s.Rec, rove.ConsentService_Add_FullMethodName).Value {
-		stored, err := st.snapshot(ctx, consent.IdEQ(u.Id), false)
-		if err != nil {
-			return nil, err
-		}
+	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{
@@ -3523,6 +3529,11 @@ func (s SignInFailureServiceServer) Add(ctx context.Context, req *rove.SignInFai
 		q.SetDateCreated(st.now())
 	}
 
+	var stored *ent.SignInFailure
+	if snapshotOptions(s.Rec, rove.SignInFailureService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -3538,11 +3549,7 @@ func (s SignInFailureServiceServer) Add(ctx context.Context, req *rove.SignInFai
 
 	v := u.Proto()
 	var value *rove.SignInFailure
-	if snapshotOptions(s.Rec, rove.SignInFailureService_Add_FullMethodName).Value {
-		stored, err := st.snapshot(ctx, signinfailure.IdEQ(u.Id), false)
-		if err != nil {
-			return nil, err
-		}
+	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{

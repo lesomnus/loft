@@ -131,6 +131,11 @@ func (s SearchStaleServiceServer) Add(ctx context.Context, req *rove.SearchStale
 		q.SetDateCreated(st.now())
 	}
 
+	var stored *ent.SearchStale
+	if snapshotOptions(s.Rec, rove.SearchStaleService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -146,11 +151,7 @@ func (s SearchStaleServiceServer) Add(ctx context.Context, req *rove.SearchStale
 
 	v := u.Proto()
 	var value *rove.SearchStale
-	if snapshotOptions(s.Rec, rove.SearchStaleService_Add_FullMethodName).Value {
-		stored, err := st.snapshot(ctx, searchstale.IdEQ(u.Id), false)
-		if err != nil {
-			return nil, err
-		}
+	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{

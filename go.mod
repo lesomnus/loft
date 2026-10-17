@@ -35,14 +35,14 @@ require (
 	github.com/lesomnus/flob v0.0.0-20261010120939-21f89e60609e
 	github.com/lesomnus/mkot/otlp v0.0.0-20261013182918-46d8b05a79b3
 	github.com/lesomnus/otx v0.0.0-20261013182912-d2af55df512e
-	github.com/lesomnus/payday v0.0.0-20261017131246-aee7ba32103c
+	github.com/lesomnus/payday v0.0.0-20261017181221-609818e78568
 	github.com/lesomnus/protobuf-patch v0.0.0-20260803175157-e1b7a0c2804f
-	github.com/lesomnus/roster v0.1.1-0.20261017133244-75c40c998e73
+	github.com/lesomnus/roster v0.1.1-0.20261017183047-67781c3fae97
 	github.com/lesomnus/xli v0.0.0-20261006060415-9f2e9ce97331
 	github.com/lesomnus/xli/cfg v0.1.2
 	github.com/lesomnus/z v0.0.0-20260531102454-3f1853bb4278
 	github.com/modelcontextprotocol/go-sdk v1.8.0
-	github.com/protobuf-orm/ent v0.0.0-20261010083551-979efcebf01a
+	github.com/protobuf-orm/ent v0.0.0-20261017174831-c860506f95cd
 	github.com/protobuf-orm/protobuf-orm v0.0.0-20260906212449-04c0cd58f10a
 	github.com/protobuf-orm/protoc-gen-orm-ent/runtime v0.0.0-20260906232518-fa1777a2628d
 	github.com/stretchr/testify v1.12.1
@@ -110,7 +110,7 @@ require (
 	github.com/petermattis/goid v0.0.0-20260716134002-a9b348f0a2b9 // indirect
 	github.com/philhofer/fwd v1.2.0 // indirect
 	github.com/protobuf-orm/protobuf-merge v0.0.0-20261009205601-8502fad9e678 // indirect
-	github.com/protobuf-orm/protoc-gen-orm-ent v0.0.0-20261017122531-84992e10d5a6 // indirect
+	github.com/protobuf-orm/protoc-gen-orm-ent v0.0.0-20261017175217-c90b390a6470 // indirect
 	github.com/protobuf-orm/protoc-gen-orm-go v0.0.0-20261010065542-f9ac5b66df3e // indirect
 	github.com/protobuf-orm/protoc-gen-orm-service v0.0.0-20260906213434-46a5916d5339 // indirect
 	github.com/richardlehane/mscfb v1.0.7 // indirect

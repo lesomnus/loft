@@ -196,6 +196,11 @@ func (s NotificationServiceServer) Add(ctx context.Context, req *rove.Notificati
 		q.SetDateCreated(st.now())
 	}
 
+	var stored *ent.Notification
+	if snapshotOptions(s.Rec, rove.NotificationService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -214,11 +219,7 @@ func (s NotificationServiceServer) Add(ctx context.Context, req *rove.Notificati
 		d(v)
 	}
 	var value *rove.Notification
-	if snapshotOptions(s.Rec, rove.NotificationService_Add_FullMethodName).Value {
-		stored, err := st.snapshot(ctx, notification.IdEQ(u.Id), false)
-		if err != nil {
-			return nil, err
-		}
+	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{
@@ -725,6 +726,11 @@ func (s UsageSnapshotServiceServer) Add(ctx context.Context, req *rove.UsageSnap
 		q.SetDateCreated(st.now())
 	}
 
+	var stored *ent.UsageSnapshot
+	if snapshotOptions(s.Rec, rove.UsageSnapshotService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -743,11 +749,7 @@ func (s UsageSnapshotServiceServer) Add(ctx context.Context, req *rove.UsageSnap
 		d(v)
 	}
 	var value *rove.UsageSnapshot
-	if snapshotOptions(s.Rec, rove.UsageSnapshotService_Add_FullMethodName).Value {
-		stored, err := st.snapshot(ctx, usagesnapshot.IdEQ(u.Id), false)
-		if err != nil {
-			return nil, err
-		}
+	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{
@@ -1246,6 +1248,11 @@ func (s TenantContractServiceServer) Add(ctx context.Context, req *rove.TenantCo
 		q.SetDateCreated(st.now())
 	}
 
+	var stored *ent.TenantContract
+	if snapshotOptions(s.Rec, rove.TenantContractService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -1264,11 +1271,7 @@ func (s TenantContractServiceServer) Add(ctx context.Context, req *rove.TenantCo
 		d(v)
 	}
 	var value *rove.TenantContract
-	if snapshotOptions(s.Rec, rove.TenantContractService_Add_FullMethodName).Value {
-		stored, err := st.snapshot(ctx, tenantcontract.IdEQ(u.Id), false)
-		if err != nil {
-			return nil, err
-		}
+	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{
@@ -1777,6 +1780,11 @@ func (s LegalHoldServiceServer) Add(ctx context.Context, req *rove.LegalHoldAddR
 		q.SetDateCreated(st.now())
 	}
 
+	var stored *ent.LegalHold
+	if snapshotOptions(s.Rec, rove.LegalHoldService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -1795,11 +1803,7 @@ func (s LegalHoldServiceServer) Add(ctx context.Context, req *rove.LegalHoldAddR
 		d(v)
 	}
 	var value *rove.LegalHold
-	if snapshotOptions(s.Rec, rove.LegalHoldService_Add_FullMethodName).Value {
-		stored, err := st.snapshot(ctx, legalhold.IdEQ(u.Id), false)
-		if err != nil {
-			return nil, err
-		}
+	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{

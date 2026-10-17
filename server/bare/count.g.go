@@ -199,6 +199,11 @@ func (s InventoryCountServiceServer) Add(ctx context.Context, req *rove.Inventor
 	q.SetSelfService(req.GetSelfService())
 	q.SetFindingsVersion(req.GetFindingsVersion())
 
+	var stored *ent.InventoryCount
+	if snapshotOptions(s.Rec, rove.InventoryCountService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -217,11 +222,7 @@ func (s InventoryCountServiceServer) Add(ctx context.Context, req *rove.Inventor
 		d(v)
 	}
 	var value *rove.InventoryCount
-	if snapshotOptions(s.Rec, rove.InventoryCountService_Add_FullMethodName).Value {
-		stored, err := st.snapshot(ctx, inventorycount.IdEQ(u.Id), false)
-		if err != nil {
-			return nil, err
-		}
+	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{
@@ -830,6 +831,11 @@ func (s CountFindingServiceServer) Add(ctx context.Context, req *rove.CountFindi
 		q.SetResolvedAt(req.GetResolvedAt().AsTime())
 	}
 
+	var stored *ent.CountFinding
+	if snapshotOptions(s.Rec, rove.CountFindingService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -848,11 +854,7 @@ func (s CountFindingServiceServer) Add(ctx context.Context, req *rove.CountFindi
 		d(v)
 	}
 	var value *rove.CountFinding
-	if snapshotOptions(s.Rec, rove.CountFindingService_Add_FullMethodName).Value {
-		stored, err := st.snapshot(ctx, countfinding.IdEQ(u.Id), false)
-		if err != nil {
-			return nil, err
-		}
+	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{

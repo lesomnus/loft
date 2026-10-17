@@ -264,6 +264,11 @@ func (s AssetServiceServer) Add(ctx context.Context, req *rove.AssetAddRequest) 
 	}
 	q.SetContentVersion(req.GetContentVersion())
 
+	var stored *ent.Asset
+	if snapshotOptions(s.Rec, rove.AssetService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -282,11 +287,7 @@ func (s AssetServiceServer) Add(ctx context.Context, req *rove.AssetAddRequest) 
 		d(v)
 	}
 	var value *rove.Asset
-	if snapshotOptions(s.Rec, rove.AssetService_Add_FullMethodName).Value {
-		stored, err := st.snapshot(ctx, asset.IdEQ(u.Id), false)
-		if err != nil {
-			return nil, err
-		}
+	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{
@@ -876,6 +877,11 @@ func (s TreeLockServiceServer) Add(ctx context.Context, req *rove.TreeLockAddReq
 		q.SetDateCreated(st.now())
 	}
 
+	var stored *ent.TreeLock
+	if snapshotOptions(s.Rec, rove.TreeLockService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -894,11 +900,7 @@ func (s TreeLockServiceServer) Add(ctx context.Context, req *rove.TreeLockAddReq
 		d(v)
 	}
 	var value *rove.TreeLock
-	if snapshotOptions(s.Rec, rove.TreeLockService_Add_FullMethodName).Value {
-		stored, err := st.snapshot(ctx, treelock.IdEQ(u.Id), false)
-		if err != nil {
-			return nil, err
-		}
+	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{
@@ -1392,6 +1394,11 @@ func (s TenantDomainServiceServer) Add(ctx context.Context, req *rove.TenantDoma
 		q.SetVerifiedAt(req.GetVerifiedAt().AsTime())
 	}
 
+	var stored *ent.TenantDomain
+	if snapshotOptions(s.Rec, rove.TenantDomainService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -1410,11 +1417,7 @@ func (s TenantDomainServiceServer) Add(ctx context.Context, req *rove.TenantDoma
 		d(v)
 	}
 	var value *rove.TenantDomain
-	if snapshotOptions(s.Rec, rove.TenantDomainService_Add_FullMethodName).Value {
-		stored, err := st.snapshot(ctx, tenantdomain.IdEQ(u.Id), false)
-		if err != nil {
-			return nil, err
-		}
+	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{
@@ -1974,6 +1977,11 @@ func (s LabelServiceServer) Add(ctx context.Context, req *rove.LabelAddRequest) 
 		q.SetCode(req.GetCode())
 	}
 
+	var stored *ent.Label
+	if snapshotOptions(s.Rec, rove.LabelService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -1992,11 +2000,7 @@ func (s LabelServiceServer) Add(ctx context.Context, req *rove.LabelAddRequest) 
 		d(v)
 	}
 	var value *rove.Label
-	if snapshotOptions(s.Rec, rove.LabelService_Add_FullMethodName).Value {
-		stored, err := st.snapshot(ctx, label.IdEQ(u.Id), false)
-		if err != nil {
-			return nil, err
-		}
+	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{
@@ -2544,6 +2548,11 @@ func (s AttachmentServiceServer) Add(ctx context.Context, req *rove.AttachmentAd
 		q.SetDateCreated(st.now())
 	}
 
+	var stored *ent.Attachment
+	if snapshotOptions(s.Rec, rove.AttachmentService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -2562,11 +2571,7 @@ func (s AttachmentServiceServer) Add(ctx context.Context, req *rove.AttachmentAd
 		d(v)
 	}
 	var value *rove.Attachment
-	if snapshotOptions(s.Rec, rove.AttachmentService_Add_FullMethodName).Value {
-		stored, err := st.snapshot(ctx, attachment.IdEQ(u.Id), false)
-		if err != nil {
-			return nil, err
-		}
+	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{

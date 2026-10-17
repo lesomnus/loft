@@ -196,6 +196,11 @@ func (s BookableServiceServer) Add(ctx context.Context, req *rove.BookableAddReq
 	q.SetScheduleVersion(req.GetScheduleVersion())
 	q.SetEnabled(req.GetEnabled())
 
+	var stored *ent.Bookable
+	if snapshotOptions(s.Rec, rove.BookableService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -214,11 +219,7 @@ func (s BookableServiceServer) Add(ctx context.Context, req *rove.BookableAddReq
 		d(v)
 	}
 	var value *rove.Bookable
-	if snapshotOptions(s.Rec, rove.BookableService_Add_FullMethodName).Value {
-		stored, err := st.snapshot(ctx, bookable.IdEQ(u.Id), false)
-		if err != nil {
-			return nil, err
-		}
+	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{
@@ -830,6 +831,11 @@ func (s ReservationServiceServer) Add(ctx context.Context, req *rove.Reservation
 		q.SetCheckedInAt(req.GetCheckedInAt().AsTime())
 	}
 
+	var stored *ent.Reservation
+	if snapshotOptions(s.Rec, rove.ReservationService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -848,11 +854,7 @@ func (s ReservationServiceServer) Add(ctx context.Context, req *rove.Reservation
 		d(v)
 	}
 	var value *rove.Reservation
-	if snapshotOptions(s.Rec, rove.ReservationService_Add_FullMethodName).Value {
-		stored, err := st.snapshot(ctx, reservation.IdEQ(u.Id), false)
-		if err != nil {
-			return nil, err
-		}
+	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{
@@ -1437,6 +1439,11 @@ func (s ReservationItemServiceServer) Add(ctx context.Context, req *rove.Reserva
 		q.SetDateCreated(st.now())
 	}
 
+	var stored *ent.ReservationItem
+	if snapshotOptions(s.Rec, rove.ReservationItemService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -1455,11 +1462,7 @@ func (s ReservationItemServiceServer) Add(ctx context.Context, req *rove.Reserva
 		d(v)
 	}
 	var value *rove.ReservationItem
-	if snapshotOptions(s.Rec, rove.ReservationItemService_Add_FullMethodName).Value {
-		stored, err := st.snapshot(ctx, reservationitem.IdEQ(u.Id), false)
-		if err != nil {
-			return nil, err
-		}
+	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{
@@ -1990,6 +1993,11 @@ func (s AllocationServiceServer) Add(ctx context.Context, req *rove.AllocationAd
 	q.SetExclusive(req.GetExclusive())
 	q.SetUnits(req.GetUnits())
 
+	var stored *ent.Allocation
+	if snapshotOptions(s.Rec, rove.AllocationService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -2008,11 +2016,7 @@ func (s AllocationServiceServer) Add(ctx context.Context, req *rove.AllocationAd
 		d(v)
 	}
 	var value *rove.Allocation
-	if snapshotOptions(s.Rec, rove.AllocationService_Add_FullMethodName).Value {
-		stored, err := st.snapshot(ctx, allocation.IdEQ(u.Id), false)
-		if err != nil {
-			return nil, err
-		}
+	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{

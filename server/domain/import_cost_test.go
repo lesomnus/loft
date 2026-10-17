@@ -54,13 +54,16 @@ func (c *perConn) most() int {
 
 // TestAnImportedRowIsAFewStatements holds what #103 bought. A row of a sheet
 // sent 149 statements, one round trip each, so a sheet of 5,000 took two
-// minutes; it sends 37. Nearly all of what went was the layers under this one
-// asking again what they had already asked: the generator loading every edge
-// to answer a key the row holds (protoc-gen-orm-ent#9), and the gate's read
-// through the wall and the sink's of a tenant, for every reference of every
-// write -- asked once a transaction now, because [Deps.run] begins one with
-// `seen.For` (payday#84). Either coming back would be a sheet taking twice as
-// long, and nothing else would say so.
+// minutes; it sends 19. Nearly all of what went was the layers under this one
+// asking again what they had already asked, or saying one row at a time what
+// could be said together: the generator loading every edge to answer a key
+// the row holds (protoc-gen-orm-ent#9); the gate's read through the wall and
+// the sink's of a tenant, for every reference of every write, asked once in
+// the transaction [Deps.run] begins (payday#85, #89); the trail reading again
+// the row its write had just read (payday#87); and the trail written a row a
+// statement, where it is written a few hundred to one (payday#88). Any of them
+// coming back would be a sheet taking half as long again, or twice as long,
+// and nothing else would say so.
 //
 // It is a ceiling with room in it rather than the number, so that a statement
 // a row really needs is a decision to raise it and not a test to fix.
@@ -112,5 +115,5 @@ func TestAnImportedRowIsAFewStatements(t *testing.T) {
 
 	per := float64(c.most()) / rows
 	t.Logf("%.1f statements a row", per)
-	x.LessOrEqual(per, 40.0, "an imported row is %.1f statements; it was 37 when this was written, and 149 before #103", per)
+	x.LessOrEqual(per, 22.0, "an imported row is %.1f statements; it was 18.8 when this was written, 37 before payday#87 and #88, and 149 before #103", per)
 }

@@ -228,6 +228,11 @@ func (s PlacementServiceServer) Add(ctx context.Context, req *rove.PlacementAddR
 		}
 	}
 
+	var stored *ent.Placement
+	if snapshotOptions(s.Rec, rove.PlacementService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -246,11 +251,7 @@ func (s PlacementServiceServer) Add(ctx context.Context, req *rove.PlacementAddR
 		d(v)
 	}
 	var value *rove.Placement
-	if snapshotOptions(s.Rec, rove.PlacementService_Add_FullMethodName).Value {
-		stored, err := st.snapshot(ctx, placement.IdEQ(u.Id), false)
-		if err != nil {
-			return nil, err
-		}
+	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{
@@ -831,6 +832,11 @@ func (s LinkServiceServer) Add(ctx context.Context, req *rove.LinkAddRequest) (*
 		}
 	}
 
+	var stored *ent.Link
+	if snapshotOptions(s.Rec, rove.LinkService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -849,11 +855,7 @@ func (s LinkServiceServer) Add(ctx context.Context, req *rove.LinkAddRequest) (*
 		d(v)
 	}
 	var value *rove.Link
-	if snapshotOptions(s.Rec, rove.LinkService_Add_FullMethodName).Value {
-		stored, err := st.snapshot(ctx, link.IdEQ(u.Id), false)
-		if err != nil {
-			return nil, err
-		}
+	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{
@@ -1427,6 +1429,11 @@ func (s StewardshipServiceServer) Add(ctx context.Context, req *rove.Stewardship
 		}
 	}
 
+	var stored *ent.Stewardship
+	if snapshotOptions(s.Rec, rove.StewardshipService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -1445,11 +1452,7 @@ func (s StewardshipServiceServer) Add(ctx context.Context, req *rove.Stewardship
 		d(v)
 	}
 	var value *rove.Stewardship
-	if snapshotOptions(s.Rec, rove.StewardshipService_Add_FullMethodName).Value {
-		stored, err := st.snapshot(ctx, stewardship.IdEQ(u.Id), false)
-		if err != nil {
-			return nil, err
-		}
+	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{
@@ -1994,6 +1997,11 @@ func (s FactServiceServer) Add(ctx context.Context, req *rove.FactAddRequest) (*
 		}
 	}
 
+	var stored *ent.Fact
+	if snapshotOptions(s.Rec, rove.FactService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -2012,11 +2020,7 @@ func (s FactServiceServer) Add(ctx context.Context, req *rove.FactAddRequest) (*
 		d(v)
 	}
 	var value *rove.Fact
-	if snapshotOptions(s.Rec, rove.FactService_Add_FullMethodName).Value {
-		stored, err := st.snapshot(ctx, fact.IdEQ(u.Id), false)
-		if err != nil {
-			return nil, err
-		}
+	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{
@@ -2541,6 +2545,11 @@ func (s EventServiceServer) Add(ctx context.Context, req *rove.EventAddRequest) 
 	}
 	q.SetPayload(req.GetPayload())
 
+	var stored *ent.Event
+	if snapshotOptions(s.Rec, rove.EventService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -2559,11 +2568,7 @@ func (s EventServiceServer) Add(ctx context.Context, req *rove.EventAddRequest) 
 		d(v)
 	}
 	var value *rove.Event
-	if snapshotOptions(s.Rec, rove.EventService_Add_FullMethodName).Value {
-		stored, err := st.snapshot(ctx, event.IdEQ(u.Id), false)
-		if err != nil {
-			return nil, err
-		}
+	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{
