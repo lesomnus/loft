@@ -1,0 +1,22 @@
+# Grafana over what the collector keeps -- ClickHouse's OpenTelemetry tables
+# and Loki -- and a collector in the cluster for what Kubernetes and the
+# platform say (rove#38). README.md says what an overlay brings.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# No namespace: an overlay chooses one.
+resources:
+  - ./grafana.yaml
+  - ./collector.yaml
+
+configMapGenerator:
+  # Where the data is. An overlay replaces it with its own
+  # (`behavior: replace`), starting from this one.
+  - name: grafana-datasources
+    files:
+      - datasources.yaml
+  # What `dashboards/gen.py` writes. A changed dashboard is a new pod.
+  - name: grafana-dashboards
+    files:
+      - dashboards/rove-service.json
+      - dashboards/rove-platform.json

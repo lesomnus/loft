@@ -85,7 +85,7 @@ resources:
 10. **수집기(선택).** `config.yaml`의 `otel:`이 로그·추적·지표를 OTLP로 수집기에 보냅니다. 없으면 요청 로그는 표준 출력에만 나옵니다.
     - 노드마다 수집기가 있으면 파드가 받는 `HOST_IP`(그 노드의 주소)로 보냅니다. Service 뒤의 수집기라면 그 주소를 씁니다. 예는 `config.yaml`의 주석에 있습니다.
     - 서버와 운영자 진입점이 같은 설정으로 함께 보냅니다. 둘 다 `service.name`이 `rove`입니다.
-    - 대시보드와 경보는 이 구성에 없습니다(rove#38). 무엇을 보고 무엇에 경보를 걸지는 `docs/runbook/observe.md`에 있습니다.
+    - 대시보드는 [`deploy/observe`](../observe/README.md)에 있습니다. 이미 있는 ClickHouse와 Loki 위의 Grafana입니다. 경보는 아직 없고, 무엇에 걸지는 `docs/runbook/observe.md`에 있습니다(rove#38).
 
 ## 처음 띄우기
 

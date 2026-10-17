@@ -1,0 +1,32 @@
+# Rove's own metrics beside CNPG's (rove#38): the loops whose lease is held
+# -- each loop runs where its lease is -- and the rows waiting for the search
+# indexer. Applied beside the database, in its namespace, and named by the
+# Cluster:
+#
+#   spec:
+#     monitoring:
+#       customQueriesConfigMap:
+#         - { name: rove-db-monitoring, key: queries }
+#
+# Both read statistics views, which the exporter's role reads without a grant.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rove-db-monitoring
+  labels:
+    cnpg.io/reload: ""
+data:
+  queries: |
+    rove_spin:
+      query: "SELECT count(*) AS leases FROM pg_locks WHERE locktype = 'advisory' AND classid = 1885631344 AND objsubid = 2 AND granted"
+      metrics:
+        - leases:
+            usage: GAUGE
+            description: "Leases held by payday's spin, one for each loop that runs"
+    rove_search:
+      query: "SELECT n_live_tup AS stale FROM pg_stat_user_tables WHERE relname = 'searchstale'"
+      target_databases: [rove]
+      metrics:
+        - stale:
+            usage: GAUGE
+            description: "Rows waiting for the search indexer (an estimate)"

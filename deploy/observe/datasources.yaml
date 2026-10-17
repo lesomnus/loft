@@ -1,0 +1,28 @@
+# Grafana's data sources, by the uids the dashboards name. An overlay replaces
+# this file with its own addresses; the password comes from the Secret
+# `grafana` as CLICKHOUSE_PASSWORD.
+apiVersion: 1
+datasources:
+  # A ClickHouse the collector's `clickhouse` exporter writes to, in its
+  # `otel` database, through an account that can only read (`readonly=2`:
+  # SELECT and the per-query SET the plugin needs). One node of a cluster
+  # answers for all of them through its Distributed tables (the dashboards'
+  # `suffix`).
+  - name: ClickHouse
+    uid: clickhouse
+    type: grafana-clickhouse-datasource
+    isDefault: true
+    jsonData:
+      host: clickhouse.example.internal
+      port: 9000
+      protocol: native
+      secure: false
+      username: grafana
+      defaultDatabase: otel
+    secureJsonData:
+      password: $CLICKHOUSE_PASSWORD
+  # Loki, for the dashboards' log panel. Without one that panel is empty.
+  - name: Loki
+    uid: loki
+    type: loki
+    url: http://loki.example.internal:3100
