@@ -35,15 +35,15 @@ require (
 	github.com/lesomnus/flob v0.0.0-20261010120939-21f89e60609e
 	github.com/lesomnus/mkot/otlp v0.0.0-20261013182918-46d8b05a79b3
 	github.com/lesomnus/otx v0.0.0-20261013182912-d2af55df512e
-	github.com/lesomnus/payday v0.0.0-20261017210753-e653d21b760b
+	github.com/lesomnus/payday v0.0.0-20261017220656-3c812c8556e3
 	github.com/lesomnus/protobuf-patch v0.0.0-20260803175157-e1b7a0c2804f
-	github.com/lesomnus/roster v0.1.1-0.20261017211417-c72b43021084
+	github.com/lesomnus/roster v0.1.1-0.20261017222143-dfce1dc4b36d
 	github.com/lesomnus/xli v0.0.0-20261006060415-9f2e9ce97331
 	github.com/lesomnus/xli/cfg v0.1.2
 	github.com/lesomnus/z v0.0.0-20260531102454-3f1853bb4278
 	github.com/modelcontextprotocol/go-sdk v1.8.0
-	github.com/protobuf-orm/ent v0.0.0-20261017195509-ccb638a33740
-	github.com/protobuf-orm/protobuf-orm v0.0.0-20261017194719-b1318979edf2
+	github.com/protobuf-orm/ent v0.0.0-20261017215450-5460d907499b
+	github.com/protobuf-orm/protobuf-orm v0.0.0-20261017212716-3430237a8656
 	github.com/protobuf-orm/protoc-gen-orm-ent/runtime v0.0.0-20260906232518-fa1777a2628d
 	github.com/stretchr/testify v1.12.1
 	github.com/xuri/excelize/v2 v2.11.0
@@ -110,9 +110,9 @@ require (
 	github.com/petermattis/goid v0.0.0-20260716134002-a9b348f0a2b9 // indirect
 	github.com/philhofer/fwd v1.2.0 // indirect
 	github.com/protobuf-orm/protobuf-merge v0.0.0-20261009205601-8502fad9e678 // indirect
-	github.com/protobuf-orm/protoc-gen-orm-ent v0.0.0-20261017202428-39d596692bae // indirect
+	github.com/protobuf-orm/protoc-gen-orm-ent v0.0.0-20261017215935-3d29dadf7073 // indirect
 	github.com/protobuf-orm/protoc-gen-orm-go v0.0.0-20261010065542-f9ac5b66df3e // indirect
-	github.com/protobuf-orm/protoc-gen-orm-service v0.0.0-20261017200014-a5d9b32c7e9e // indirect
+	github.com/protobuf-orm/protoc-gen-orm-service v0.0.0-20261017215512-5234846ec2e4 // indirect
 	github.com/richardlehane/mscfb v1.0.7 // indirect
 	github.com/richardlehane/msoleps v1.0.6 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
