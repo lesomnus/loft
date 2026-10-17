@@ -213,7 +213,8 @@ func (CliLogin) Fields() []ent.Field {
 		field.String("client"),
 		field.String("origin"),
 		field.String("address").
-			Optional(),
+			Optional().
+			Default(""),
 		field.Uuid("account").
 			Nillable().
 			Optional(),

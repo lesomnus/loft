@@ -167,6 +167,7 @@ func (_c *HolderCreate) Mutation() *HolderMutation {
 
 // Save creates the Holder in the database.
 func (_c *HolderCreate) Save(ctx context.Context) (*Holder, error) {
+	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -189,6 +190,14 @@ func (_c *HolderCreate) Exec(ctx context.Context) error {
 func (_c *HolderCreate) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (_c *HolderCreate) defaults() {
+	if _, ok := _c.mutation.Role(); !ok {
+		v := holder.DefaultRole
+		_c.mutation.SetRole(v)
 	}
 }
 
@@ -340,6 +349,7 @@ func (_c *HolderCreateBulk) Save(ctx context.Context) ([]*Holder, error) {
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*HolderMutation)
 				if !ok {

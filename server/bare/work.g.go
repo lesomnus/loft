@@ -15,7 +15,6 @@ import (
 	predicate "github.com/lesomnus/rove/internal/ent/predicate"
 	purchase "github.com/lesomnus/rove/internal/ent/purchase"
 	purchaseline "github.com/lesomnus/rove/internal/ent/purchaseline"
-	tenant "github.com/lesomnus/rove/internal/ent/tenant"
 	workorder "github.com/lesomnus/rove/internal/ent/workorder"
 	ent1 "github.com/protobuf-orm/ent"
 	dialect "github.com/protobuf-orm/ent/dialect"
@@ -93,9 +92,6 @@ func (s WorkOrderServiceServer) narrow(ctx context.Context, p predicate.WorkOrde
 
 func (s WorkOrderServiceServer) snapshot(ctx context.Context, p predicate.WorkOrder, lock bool) (*ent.WorkOrder, error) {
 	q := s.Db.WorkOrder.Query().Where(p)
-	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
-	q.WithAsset(func(q *ent.AssetQuery) { q.Select(asset.FieldId) })
-	q.WithVendor(func(q *ent.PartyQuery) { q.Select(party.FieldId) })
 	q.Modify(func(q *sql.Selector) {
 		if lock && s.Db.Dialect() != dialect.SQLite {
 			q.ForUpdate()
@@ -376,10 +372,6 @@ func WorkOrderSelect(q *ent.WorkOrderQuery, m *rove.WorkOrderSelect) {
 func WorkOrderSelectInit(q *ent.WorkOrderQuery, m *rove.WorkOrderSelect) {
 	if m != nil {
 		WorkOrderSelect(q, m)
-	} else {
-		q.WithTenant(selectTenantKey)
-		q.WithAsset(selectAssetKey)
-		q.WithVendor(selectPartyKey)
 	}
 }
 
@@ -738,8 +730,6 @@ func (s PurchaseServiceServer) narrow(ctx context.Context, p predicate.Purchase)
 
 func (s PurchaseServiceServer) snapshot(ctx context.Context, p predicate.Purchase, lock bool) (*ent.Purchase, error) {
 	q := s.Db.Purchase.Query().Where(p)
-	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
-	q.WithVendor(func(q *ent.PartyQuery) { q.Select(party.FieldId) })
 	q.Modify(func(q *sql.Selector) {
 		if lock && s.Db.Dialect() != dialect.SQLite {
 			q.ForUpdate()
@@ -980,9 +970,6 @@ func PurchaseSelect(q *ent.PurchaseQuery, m *rove.PurchaseSelect) {
 func PurchaseSelectInit(q *ent.PurchaseQuery, m *rove.PurchaseSelect) {
 	if m != nil {
 		PurchaseSelect(q, m)
-	} else {
-		q.WithTenant(selectTenantKey)
-		q.WithVendor(selectPartyKey)
 	}
 }
 
@@ -1337,9 +1324,6 @@ func (s PurchaseLineServiceServer) narrow(ctx context.Context, p predicate.Purch
 
 func (s PurchaseLineServiceServer) snapshot(ctx context.Context, p predicate.PurchaseLine, lock bool) (*ent.PurchaseLine, error) {
 	q := s.Db.PurchaseLine.Query().Where(p)
-	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
-	q.WithPurchase(func(q *ent.PurchaseQuery) { q.Select(purchase.FieldId) })
-	q.WithModel(func(q *ent.ItemModelQuery) { q.Select(itemmodel.FieldId) })
 	q.Modify(func(q *sql.Selector) {
 		if lock && s.Db.Dialect() != dialect.SQLite {
 			q.ForUpdate()
@@ -1587,10 +1571,6 @@ func PurchaseLineSelect(q *ent.PurchaseLineQuery, m *rove.PurchaseLineSelect) {
 func PurchaseLineSelectInit(q *ent.PurchaseLineQuery, m *rove.PurchaseLineSelect) {
 	if m != nil {
 		PurchaseLineSelect(q, m)
-	} else {
-		q.WithTenant(selectTenantKey)
-		q.WithPurchase(selectPurchaseKey)
-		q.WithModel(selectItemModelKey)
 	}
 }
 

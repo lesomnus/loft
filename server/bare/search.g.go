@@ -226,7 +226,6 @@ func SearchStaleSelect(q *ent.SearchStaleQuery, m *rove.SearchStaleSelect) {
 func SearchStaleSelectInit(q *ent.SearchStaleQuery, m *rove.SearchStaleSelect) {
 	if m != nil {
 		SearchStaleSelect(q, m)
-	} else {
 	}
 }
 

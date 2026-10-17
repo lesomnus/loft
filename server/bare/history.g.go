@@ -17,7 +17,6 @@ import (
 	placement "github.com/lesomnus/rove/internal/ent/placement"
 	predicate "github.com/lesomnus/rove/internal/ent/predicate"
 	stewardship "github.com/lesomnus/rove/internal/ent/stewardship"
-	tenant "github.com/lesomnus/rove/internal/ent/tenant"
 	ent1 "github.com/protobuf-orm/ent"
 	dialect "github.com/protobuf-orm/ent/dialect"
 	sql "github.com/protobuf-orm/ent/dialect/sql"
@@ -89,9 +88,6 @@ func (s PlacementServiceServer) narrow(ctx context.Context, p predicate.Placemen
 
 func (s PlacementServiceServer) snapshot(ctx context.Context, p predicate.Placement, lock bool) (*ent.Placement, error) {
 	q := s.Db.Placement.Query().Where(p)
-	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
-	q.WithChild(func(q *ent.AssetQuery) { q.Select(asset.FieldId) })
-	q.WithParent(func(q *ent.AssetQuery) { q.Select(asset.FieldId) })
 	q.Modify(func(q *sql.Selector) {
 		if lock && s.Db.Dialect() != dialect.SQLite {
 			q.ForUpdate()
@@ -371,10 +367,6 @@ func PlacementSelect(q *ent.PlacementQuery, m *rove.PlacementSelect) {
 func PlacementSelectInit(q *ent.PlacementQuery, m *rove.PlacementSelect) {
 	if m != nil {
 		PlacementSelect(q, m)
-	} else {
-		q.WithTenant(selectTenantKey)
-		q.WithChild(selectAssetKey)
-		q.WithParent(selectAssetKey)
 	}
 }
 
@@ -698,9 +690,6 @@ func (s LinkServiceServer) narrow(ctx context.Context, p predicate.Link) (predic
 
 func (s LinkServiceServer) snapshot(ctx context.Context, p predicate.Link, lock bool) (*ent.Link, error) {
 	q := s.Db.Link.Query().Where(p)
-	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
-	q.WithSource(func(q *ent.AssetQuery) { q.Select(asset.FieldId) })
-	q.WithTarget(func(q *ent.AssetQuery) { q.Select(asset.FieldId) })
 	q.Modify(func(q *sql.Selector) {
 		if lock && s.Db.Dialect() != dialect.SQLite {
 			q.ForUpdate()
@@ -978,10 +967,6 @@ func LinkSelect(q *ent.LinkQuery, m *rove.LinkSelect) {
 func LinkSelectInit(q *ent.LinkQuery, m *rove.LinkSelect) {
 	if m != nil {
 		LinkSelect(q, m)
-	} else {
-		q.WithTenant(selectTenantKey)
-		q.WithSource(selectAssetKey)
-		q.WithTarget(selectAssetKey)
 	}
 }
 
@@ -1305,9 +1290,6 @@ func (s StewardshipServiceServer) narrow(ctx context.Context, p predicate.Stewar
 
 func (s StewardshipServiceServer) snapshot(ctx context.Context, p predicate.Stewardship, lock bool) (*ent.Stewardship, error) {
 	q := s.Db.Stewardship.Query().Where(p)
-	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
-	q.WithAsset(func(q *ent.AssetQuery) { q.Select(asset.FieldId) })
-	q.WithParty(func(q *ent.PartyQuery) { q.Select(party.FieldId) })
 	q.Modify(func(q *sql.Selector) {
 		if lock && s.Db.Dialect() != dialect.SQLite {
 			q.ForUpdate()
@@ -1575,10 +1557,6 @@ func StewardshipSelect(q *ent.StewardshipQuery, m *rove.StewardshipSelect) {
 func StewardshipSelectInit(q *ent.StewardshipQuery, m *rove.StewardshipSelect) {
 	if m != nil {
 		StewardshipSelect(q, m)
-	} else {
-		q.WithTenant(selectTenantKey)
-		q.WithAsset(selectAssetKey)
-		q.WithParty(selectPartyKey)
 	}
 }
 
@@ -1902,8 +1880,6 @@ func (s FactServiceServer) narrow(ctx context.Context, p predicate.Fact) (predic
 
 func (s FactServiceServer) snapshot(ctx context.Context, p predicate.Fact, lock bool) (*ent.Fact, error) {
 	q := s.Db.Fact.Query().Where(p)
-	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
-	q.WithAsset(func(q *ent.AssetQuery) { q.Select(asset.FieldId) })
 	q.Modify(func(q *sql.Selector) {
 		if lock && s.Db.Dialect() != dialect.SQLite {
 			q.ForUpdate()
@@ -2145,9 +2121,6 @@ func FactSelect(q *ent.FactQuery, m *rove.FactSelect) {
 func FactSelectInit(q *ent.FactQuery, m *rove.FactSelect) {
 	if m != nil {
 		FactSelect(q, m)
-	} else {
-		q.WithTenant(selectTenantKey)
-		q.WithAsset(selectAssetKey)
 	}
 }
 
@@ -2471,7 +2444,6 @@ func (s EventServiceServer) narrow(ctx context.Context, p predicate.Event) (pred
 
 func (s EventServiceServer) snapshot(ctx context.Context, p predicate.Event, lock bool) (*ent.Event, error) {
 	q := s.Db.Event.Query().Where(p)
-	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
 	q.Modify(func(q *sql.Selector) {
 		if lock && s.Db.Dialect() != dialect.SQLite {
 			q.ForUpdate()
@@ -2693,8 +2665,6 @@ func EventSelect(q *ent.EventQuery, m *rove.EventSelect) {
 func EventSelectInit(q *ent.EventQuery, m *rove.EventSelect) {
 	if m != nil {
 		EventSelect(q, m)
-	} else {
-		q.WithTenant(selectTenantKey)
 	}
 }
 

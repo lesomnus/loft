@@ -280,7 +280,6 @@ func AuditSelect(q *ent.AuditQuery, m *rove.AuditSelect) {
 func AuditSelectInit(q *ent.AuditQuery, m *rove.AuditSelect) {
 	if m != nil {
 		AuditSelect(q, m)
-	} else {
 	}
 }
 
