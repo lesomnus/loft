@@ -22,6 +22,25 @@ server:
     # The page is served from the same address it calls.
     origins: []
 
+# Telemetry, in the OpenTelemetry Collector's own configuration language.
+# Unset, the request log goes to stdout and nothing else is sent anywhere. A
+# collector on every node is reached at the node's own address, which every
+# container of the pod is told as HOST_IP (rove.yaml) -- the migration's too,
+# since an `${env:...}` that is not set is refused wherever this file is read.
+# A collector behind a Service is named instead. `resource/rove` is what says
+# the telemetry is Rove's.
+#
+# otel:
+#   exporters:
+#     otlp:
+#       endpoint: http://${env:HOST_IP}:4317
+#   processors:
+#     sampler: { type: parent_based, ratio: 0.1 }
+#   providers:
+#     tracer: { processors: [sampler, resource/rove], exporters: [otlp] }
+#     meter: { processors: [resource/rove], exporters: [otlp] }
+#     logger: { processors: [resource/rove], exporters: [otlp, pretty] }
+
 # Two processes in the pod, the server and the operator's entry point, so the
 # database is where they meet: a change the entry point makes is heard by a
 # client watching the server, and each loop runs in one of them.

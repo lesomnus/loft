@@ -1,21 +1,26 @@
-package cli
+package cmd
 
 import (
 	"context"
 
+	// The exporter a collector is reached with. mkot knows an exporter by the
+	// name a package registers, and without this one an `otel:` naming
+	// `otlp` is refused at start: what is left is the pretty exporter, and so
+	// stdout.
+	_ "github.com/lesomnus/mkot/otlp"
 	"github.com/lesomnus/payday/config"
-
-	"github.com/lesomnus/rove/cmd"
 )
 
 // Telemetry builds what this app's `otel:` describes and puts it on the
 // context, answering with that context and what shuts it down.
 //
 // It is written here rather than done by payday, and that is the same decision
-// `cmd/serve.go` makes about the stack: the order is load-bearing and belongs
+// `serve.go` makes about the stack: the order is load-bearing and belongs
 // where it can be read. `Build` answers with a **new context**, and everything
 // that logs, traces or measures reads the providers off it -- so this has to
-// happen before `cmd.Build`, and a reader has to be able to see that it does.
+// happen before [Build], and a reader has to be able to see that it does.
+// Both servers call it: `rove serve` and the operator's entry point,
+// `rove-admin serve`.
 //
 // # What it costs to leave out
 //
@@ -37,9 +42,9 @@ import (
 // console rather than to a stderr nothing reads. The request logger is named
 // there rather than through `grpcx`, since a message port has no
 // `grpc.ServerOption`.
-func Telemetry(ctx context.Context, c *cmd.Config) (context.Context, func(), error) {
+func Telemetry(ctx context.Context, c *Config) (context.Context, func(), error) {
 	ctx, o, err := c.Otel.Build(ctx, config.Service{
-		Name: cmd.Name,
+		Name: Name,
 
 		// The Go package instruments are created from. Without it an
 		// instrument is attributed to whichever library happened to make it,
