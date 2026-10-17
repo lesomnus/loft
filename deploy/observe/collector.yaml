@@ -1,0 +1,160 @@
+# A collector in the cluster for what Rove cannot say of itself: CNPG's
+# metrics (WAL archiving, backups, and Rove's own queries, cnpg-monitoring.yaml),
+# cert-manager's certificates, and the cluster's objects (restarts, jobs,
+# pods). It sends them on over OTLP -- to the collector on its node, at
+# HOST_IP, by default -- and so to the same ClickHouse as Rove's own.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: otel-collector
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: rove-observe-otel-collector
+rules:
+  # What the k8s_cluster receiver reads, and the pods the scrape finds CNPG's
+  # instances among. Reading, and nothing else.
+  - apiGroups: [""]
+    resources: [events, namespaces, namespaces/status, nodes, nodes/spec, pods, pods/status, replicationcontrollers, replicationcontrollers/status, resourcequotas, services]
+    verbs: [get, list, watch]
+  - apiGroups: [apps]
+    resources: [daemonsets, deployments, replicasets, statefulsets]
+    verbs: [get, list, watch]
+  - apiGroups: [batch]
+    resources: [jobs, cronjobs]
+    verbs: [get, list, watch]
+  - apiGroups: [autoscaling]
+    resources: [horizontalpodautoscalers]
+    verbs: [get, list, watch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: rove-observe-otel-collector
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: rove-observe-otel-collector
+subjects:
+  - kind: ServiceAccount
+    name: otel-collector
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: otel-collector
+data:
+  config.yaml: |
+    receivers:
+      k8s_cluster:
+        auth_type: serviceAccount
+        collection_interval: 30s
+        node_conditions_to_report: [Ready, MemoryPressure, DiskPressure, PIDPressure]
+      prometheus:
+        config:
+          scrape_configs:
+            # Every PostgreSQL instance CNPG runs, on its metrics port.
+            - job_name: cnpg
+              scrape_interval: 30s
+              kubernetes_sd_configs:
+                - role: pod
+                  selectors:
+                    - role: pod
+                      label: cnpg.io/podRole=instance
+              relabel_configs:
+                - source_labels: [__meta_kubernetes_pod_container_port_name]
+                  regex: metrics
+                  action: keep
+                - source_labels: [__meta_kubernetes_namespace]
+                  target_label: namespace
+                - source_labels: [__meta_kubernetes_pod_name]
+                  target_label: pod
+                - source_labels: [__meta_kubernetes_pod_label_cnpg_io_cluster]
+                  target_label: cluster
+            # cert-manager's controller, as its chart names it.
+            - job_name: cert-manager
+              scrape_interval: 60s
+              static_configs:
+                - targets: [cert-manager.cert-manager.svc:9402]
+    processors:
+      memory_limiter:
+        check_interval: 5s
+        limit_mib: 160
+      resource:
+        attributes:
+          - { key: k8s.cluster.name, value: "${env:CLUSTER_NAME}", action: upsert }
+      batch: {}
+    exporters:
+      otlp_grpc:
+        endpoint: ${env:OTLP_ENDPOINT}
+        tls: { insecure: true }
+    service:
+      telemetry:
+        logs: { level: warn }
+      pipelines:
+        metrics:
+          receivers: [k8s_cluster, prometheus]
+          processors: [memory_limiter, resource, batch]
+          exporters: [otlp_grpc]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otel-collector
+  labels:
+    app.kubernetes.io/name: otel-collector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: otel-collector
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: otel-collector
+    spec:
+      serviceAccountName: otel-collector
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        seccompProfile: { type: RuntimeDefault }
+      containers:
+        - name: otelcol
+          image: docker.io/otel/opentelemetry-collector-contrib:0.162.0@sha256:39923a8e431bd1f57be82411999d389fcfe40857492e4365456d97a4c1f74be6
+          args: ["--config", "/etc/otelcol/config.yaml"]
+          env:
+            - name: HOST_IP
+              valueFrom: { fieldRef: { fieldPath: status.hostIP } }
+            # The collector on this node. An overlay names a Service instead
+            # where there is no collector on every node.
+            - { name: OTLP_ENDPOINT, value: "$(HOST_IP):4317" }
+            # What the dashboards and a cluster with neighbours tell it by.
+            - { name: CLUSTER_NAME, value: rove }
+          resources:
+            requests: { cpu: 20m, memory: 64Mi }
+            limits: { memory: 200Mi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+          volumeMounts:
+            - { name: config, mountPath: /etc/otelcol, readOnly: true }
+      volumes:
+        - name: config
+          configMap: { name: otel-collector }
+---
+# Nothing reaches it: it only scrapes and sends.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: otel-collector
+  labels:
+    app.kubernetes.io/name: otel-collector
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: otel-collector
+  policyTypes: [Ingress]
