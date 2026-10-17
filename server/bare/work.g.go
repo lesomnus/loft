@@ -224,6 +224,11 @@ func (s WorkOrderServiceServer) Add(ctx context.Context, req *rove.WorkOrderAddR
 	q.SetBlocking(req.GetBlocking())
 	q.SetEveryDays(req.GetEveryDays())
 
+	var stored *ent.WorkOrder
+	if snapshotOptions(s.Rec, rove.WorkOrderService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -242,11 +247,7 @@ func (s WorkOrderServiceServer) Add(ctx context.Context, req *rove.WorkOrderAddR
 		d(v)
 	}
 	var value *rove.WorkOrder
-	if snapshotOptions(s.Rec, rove.WorkOrderService_Add_FullMethodName).Value {
-		stored, err := st.snapshot(ctx, workorder.IdEQ(u.Id), false)
-		if err != nil {
-			return nil, err
-		}
+	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{
@@ -837,6 +838,11 @@ func (s PurchaseServiceServer) Add(ctx context.Context, req *rove.PurchaseAddReq
 	q.SetCurrency(req.GetCurrency())
 	q.SetTotal(req.GetTotal())
 
+	var stored *ent.Purchase
+	if snapshotOptions(s.Rec, rove.PurchaseService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -855,11 +861,7 @@ func (s PurchaseServiceServer) Add(ctx context.Context, req *rove.PurchaseAddReq
 		d(v)
 	}
 	var value *rove.Purchase
-	if snapshotOptions(s.Rec, rove.PurchaseService_Add_FullMethodName).Value {
-		stored, err := st.snapshot(ctx, purchase.IdEQ(u.Id), false)
-		if err != nil {
-			return nil, err
-		}
+	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{
@@ -1444,6 +1446,11 @@ func (s PurchaseLineServiceServer) Add(ctx context.Context, req *rove.PurchaseLi
 	}
 	q.SetReceiveAs(req.GetReceiveAs())
 
+	var stored *ent.PurchaseLine
+	if snapshotOptions(s.Rec, rove.PurchaseLineService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -1462,11 +1469,7 @@ func (s PurchaseLineServiceServer) Add(ctx context.Context, req *rove.PurchaseLi
 		d(v)
 	}
 	var value *rove.PurchaseLine
-	if snapshotOptions(s.Rec, rove.PurchaseLineService_Add_FullMethodName).Value {
-		stored, err := st.snapshot(ctx, purchaseline.IdEQ(u.Id), false)
-		if err != nil {
-			return nil, err
-		}
+	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{

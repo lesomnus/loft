@@ -213,6 +213,11 @@ func (s CustodyServiceServer) Add(ctx context.Context, req *rove.CustodyAddReque
 	}
 	q.SetOverdueNoticed(req.GetOverdueNoticed())
 
+	var stored *ent.Custody
+	if snapshotOptions(s.Rec, rove.CustodyService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -231,11 +236,7 @@ func (s CustodyServiceServer) Add(ctx context.Context, req *rove.CustodyAddReque
 		d(v)
 	}
 	var value *rove.Custody
-	if snapshotOptions(s.Rec, rove.CustodyService_Add_FullMethodName).Value {
-		stored, err := st.snapshot(ctx, custody.IdEQ(u.Id), false)
-		if err != nil {
-			return nil, err
-		}
+	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{
@@ -847,6 +848,11 @@ func (s CustodyLineServiceServer) Add(ctx context.Context, req *rove.CustodyLine
 	q.SetConditionOut(req.GetConditionOut())
 	q.SetConditionIn(req.GetConditionIn())
 
+	var stored *ent.CustodyLine
+	if snapshotOptions(s.Rec, rove.CustodyLineService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -865,11 +871,7 @@ func (s CustodyLineServiceServer) Add(ctx context.Context, req *rove.CustodyLine
 		d(v)
 	}
 	var value *rove.CustodyLine
-	if snapshotOptions(s.Rec, rove.CustodyLineService_Add_FullMethodName).Value {
-		stored, err := st.snapshot(ctx, custodyline.IdEQ(u.Id), false)
-		if err != nil {
-			return nil, err
-		}
+	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{

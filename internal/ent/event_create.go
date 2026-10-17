@@ -21,6 +21,7 @@ type EventCreate struct {
 	config
 	mutation *EventMutation
 	hooks    []Hook
+	stored   **Event
 }
 
 // SetDesc sets the "desc" field.
@@ -222,6 +223,18 @@ func (_c *EventCreate) createSpec() (*Event, *sqlgraph.CreateSpec) {
 		_node = &Event{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(event.Table, sqlgraph.NewFieldSpec(event.FieldId, field.TypeUuid))
 	)
+	if _c.stored != nil {
+		_stored := &Event{config: _c.config}
+		_spec.Returning = event.Columns
+		_spec.ScanValues = _stored.scanValues
+		_spec.Assign = func(columns []string, values []any) error {
+			if err := _stored.assignValues(columns, values); err != nil {
+				return err
+			}
+			*_c.stored = _stored
+			return nil
+		}
+	}
 	if id, ok := _c.mutation.Id(); ok {
 		_node.Id = id
 		_spec.Id.Value = &id
@@ -284,6 +297,25 @@ func (_c *EventCreate) createSpec() (*Event, *sqlgraph.CreateSpec) {
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
+}
+
+// Stored has Save read the Event back, into `v`, as the database stored
+// it: at the precision of its columns, with the defaults the database filled
+// in and what a trigger before the write made of it. Save itself answers with
+// the Event as this builder had it.
+//
+// The INSERT reads it, with RETURNING, where the dialect has it, so that the
+// row and the reading of it are one statement. MySQL has none, and an INSERT
+// with a conflict clause may have written nothing, so for those it is a query
+// by the Id just after the INSERT. Either way it is read on the driver the
+// INSERT ran on, so inside a transaction it is that transaction's row. Its
+// edges are not loaded.
+//
+// `v` is written only by a Save that wrote the row: one that failed, or that a
+// hook answered without writing, leaves it as it was.
+func (_c *EventCreate) Stored(v **Event) *EventCreate {
+	_c.stored = v
+	return _c
 }
 
 // EventCreateBulk is the builder for creating many Event entities in bulk.

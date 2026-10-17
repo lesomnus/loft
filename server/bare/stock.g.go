@@ -209,6 +209,11 @@ func (s StockServiceServer) Add(ctx context.Context, req *rove.StockAddRequest) 
 		q.SetDateCreated(st.now())
 	}
 
+	var stored *ent.Stock
+	if snapshotOptions(s.Rec, rove.StockService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -227,11 +232,7 @@ func (s StockServiceServer) Add(ctx context.Context, req *rove.StockAddRequest) 
 		d(v)
 	}
 	var value *rove.Stock
-	if snapshotOptions(s.Rec, rove.StockService_Add_FullMethodName).Value {
-		stored, err := st.snapshot(ctx, stock.IdEQ(u.Id), false)
-		if err != nil {
-			return nil, err
-		}
+	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{
@@ -794,6 +795,11 @@ func (s StockMovementServiceServer) Add(ctx context.Context, req *rove.StockMove
 	}
 	q.SetBalance(req.GetBalance())
 
+	var stored *ent.StockMovement
+	if snapshotOptions(s.Rec, rove.StockMovementService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -812,11 +818,7 @@ func (s StockMovementServiceServer) Add(ctx context.Context, req *rove.StockMove
 		d(v)
 	}
 	var value *rove.StockMovement
-	if snapshotOptions(s.Rec, rove.StockMovementService_Add_FullMethodName).Value {
-		stored, err := st.snapshot(ctx, stockmovement.IdEQ(u.Id), false)
-		if err != nil {
-			return nil, err
-		}
+	if stored != nil {
 		value = s.image(stored.Proto())
 	}
 	if err := record(ctx, s.Rec, st.Db, Change{
