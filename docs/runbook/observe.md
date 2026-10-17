@@ -22,7 +22,8 @@ Rove가 내보내는 것과, 그중 무엇을 대시보드에 두고 무엇에 �
 | 무엇이 보이면 | 뜻 | 할 일 |
 | --- | --- | --- |
 | `` `trail verify` ``(백틱까지)를 담은 경고 | 감사 기록 보관소가 DB의 기록이나 체크포인트와 맞지 않음 | [감사 기록 위변조 감지 대응](trail-integrity.md) |
-| `spin failed` | 백그라운드 작업(보존 패스, 정리, 메일 등)이 오류로 끝남. `spin=`이 어느 작업인지 말합니다 | 오류를 보고 원인을 고칩니다. 다음 주기에 다시 돕니다 |
+| `spin failed` | 백그라운드 루프 하나가 오류로 끝나서 **프로세스가 멈춤**. 서버가 함께 내려가고 쿠버네티스가 다시 띄웁니다(재시작 횟수가 늘어남). `spin=`이 어느 루프인지, `error=`가 왜인지 말합니다 | 원인을 고칩니다. 고치지 않으면 다시 떠도 같은 자리에서 또 멈춥니다 |
+| `tidy`(경고, `spin=`과 `error=`가 붙음) | 주기 작업(세션·로그인 정리, 워크스페이스 파기, 계정 대조 등) 한 번이 실패함. 프로세스는 그대로이고 다음 주기에 다시 합니다 | 같은 `spin=`으로 이어지면 원인을 봅니다 |
 | `spin lost its lease`가 이어짐, `spinpg: the lease's database cannot be asked` | DB에 닿지 않아 백그라운드 작업이 멈춤 | DB와 그 연결(NetworkPolicy, 비밀번호)을 봅니다 |
 | `roster: … Unavailable`, `session: a sign-in nobody could check`, 요청이 `Unavailable`로 끝남(`rpc.grpc.status`, 화면에는 503 `cannot say just now`) | 계정을 물을 roster에 닿지 않아, 로그인한 요청을 받지 못함 | 외부 roster면 그쪽을 봅니다. 내장 roster인 #100 이전 빌드면 프로세스를 다시 띄웁니다([백업과 복구](restore.md)의 "알려진 것") |
 | `search: the index is not kept current; what changed waits` | 검색 클러스터에 닿지 않음. 검색은 "지금은 검색할 수 없습니다"로 답함. 1분에 한 번씩 남습니다 | 검색 클러스터와 Rove의 사용자·role을 봅니다. 돌아오면 쌓인 것을 따라잡습니다 |
@@ -48,6 +49,21 @@ Rove가 내보내는 것과, 그중 무엇을 대시보드에 두고 무엇에 �
 | 인증서가 14일 안에 만료됨 | cert-manager의 `certmanager_certificate_expiration_timestamp_seconds` |
 | 노드 디스크 사용률 80% 초과 | 노드 지표(hostmetrics 등). 볼륨이 노드 디스크라면 그 사용률이 곧 볼륨의 것입니다 |
 | 파드가 다시 시작되거나 준비되지 않음 | Kubernetes 파드 상태 |
+
+## 백그라운드 작업이 어디서 도나
+
+`spin.lease: postgres`이면 루프마다 PostgreSQL의 advisory lock(리스)을 쥔 프로세스 하나에서만 돕니다. 지금 누가 쥐고 있는지는 DB가 말합니다(payday `spin/spinpg`).
+
+```sql
+SELECT a.pid, a.client_addr, a.backend_start, count(*) AS leases
+FROM pg_locks l JOIN pg_stat_activity a USING (pid)
+WHERE l.locktype = 'advisory' AND l.classid = 1885631344 AND l.objsubid = 2 AND l.granted
+GROUP BY 1, 2, 3;
+```
+
+- 리스는 프로세스마다 연결 하나(`application_name = payday.spin`)에 모입니다. `client_addr`은 그 파드의 주소입니다(서버와 운영자 진입점은 한 파드라 주소가 같습니다).
+- `leases`는 그 프로세스가 돌리는 루프의 수입니다. 행이 하나도 없으면 아무 루프도 돌지 않는 것입니다. DB가 돌아오기를 기다리는 동안이 그렇습니다(`spin lost its lease`).
+- 행이 둘이면 루프가 두 프로세스에 나뉘어 있습니다. 장애 조치 직후의 잠깐을 빼면 같은 루프가 두 곳에서 돌지는 않습니다.
 
 ## 대시보드
 
