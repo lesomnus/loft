@@ -24,6 +24,7 @@ import (
 	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/gate"
 	"github.com/lesomnus/payday/pdid"
+	"github.com/lesomnus/payday/seen"
 	"github.com/protobuf-orm/ent/dialect"
 	"github.com/protobuf-orm/protoc-gen-orm-ent/runtime/enttx"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
@@ -315,6 +316,11 @@ func (d *Deps) run(ctx context.Context, server app.Server, drv dialect.Driver, a
 	}
 
 	ctx, sh := sharedOf(ctx, drv)
+	// And what the layers below ask about the rows this transaction names,
+	// asked once for all of its operations: the gate's read through the wall
+	// and the sink's of a tenant were each a round trip for every reference
+	// of every write (payday#84, #103).
+	ctx = seen.For(ctx, drv)
 	t := &Tx{
 		ctx:    ctx,
 		next:   next,
