@@ -107,11 +107,14 @@ func openEmbedded(ctx context.Context, cfg Config, stateDir string, log *slog.Lo
 	return e, nil
 }
 
+// run is roster's housekeeping, and only that: the server it keeps house for
+// is served from [openEmbedded] until [embedded.Close]. Under a lease this
+// ends whenever the lease is lost -- the database gone for a moment -- and
+// runs again when it is held, and every session in the meantime is checked at
+// this server; stopping it here left the process with no roster to ask until
+// it was restarted.
 func (e *embedded) run(ctx context.Context) error {
-	err := spin.Run(ctx, slices.Values(e.rs.Spin))
-	e.g.Stop()
-
-	return err
+	return spin.Run(ctx, slices.Values(e.rs.Spin))
 }
 
 func (e *embedded) Close() error {

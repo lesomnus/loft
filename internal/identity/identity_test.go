@@ -211,6 +211,31 @@ func TestTheRosterInThisProcessIsRovesOwn(t *testing.T) {
 	})
 }
 
+// TestTheRosterInThisProcessOutlivesItsHousekeeping is the embedded roster
+// once its housekeeping has stopped. Under a lease that is whenever the lease
+// is lost -- the database gone for a moment -- and it starts again when the
+// lease is held again, while every session this process serves is checked at
+// roster all along: the server is not the housekeeping's to stop.
+func TestTheRosterInThisProcessOutlivesItsHousekeeping(t *testing.T) {
+	x := require.New(t)
+	ctx := t.Context()
+	s := embeddedStore(t)
+	kim, secret, err := s.MakeDirectory(ctx, "kim", "Kim")
+	x.NoError(err)
+
+	for i := range 2 {
+		run, stop := context.WithCancel(ctx)
+		done := make(chan error, 1)
+		go func() { done <- s.Run(run) }()
+		stop()
+		<-done
+
+		p, err := s.Verify(ctx, "kim", secret)
+		x.NoError(err, "a sign-in after the housekeeping stopped %d times", i+1)
+		x.Equal(kim, p)
+	}
+}
+
 // external is a roster deployment of its own -- data plane, control plane and
 // a key ring for second factors -- served on a TCP listener, the way a roster
 // operator stands one up: `init`, a tenant with a person in it, and a
