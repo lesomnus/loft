@@ -32,6 +32,11 @@ STATUS = "LogAttributes.rpc.grpc.status::String"
 ELAPSED_MS = "LogAttributes.server.elapsed_ns::UInt64 / 1e6"
 SERVER_ERRORS = "('Internal', 'Unknown', 'Unavailable', 'DeadlineExceeded', 'DataLoss', 'Unimplemented')"
 
+# The app's own warnings and errors: not the request log, whose lines for a
+# call that did not end OK are warnings too (they are "OK가 아닌 응답").
+WARNINGS = ("ServiceName = 'rove' AND SeverityText IN ('WARN', 'ERROR') "
+            "AND Body NOT IN ('gRPC in', 'gRPC out')")
+
 
 def target(sql, fmt="timeseries", ref="A"):
     return {
@@ -172,8 +177,8 @@ def service():
     b.add(stat("p95 지연", f"SELECT quantile(0.95)({ELAPSED_MS}) AS value {CALLS}", "ms",
                "서버가 요청을 처리한 시간(server.elapsed_ns)의 p95. design 1.2: 단건·목록 300ms", green_red(200, 300), 1), 6, 4)
     b.add(stat("경고·오류 로그",
-               f"SELECT count() AS value FROM {LOGS} WHERE $__timeFilter(Timestamp) AND ServiceName = 'rove' AND SeverityText IN ('WARN', 'ERROR')",
-               "short", "기간 안의 WARN·ERROR 로그 수. 아래 표와 로그에서 무엇인지 봅니다", green_red(1, 50)), 6, 4)
+               f"SELECT count() AS value FROM {LOGS} WHERE $__timeFilter(Timestamp) AND {WARNINGS}",
+               "short", "기간 안의 WARN·ERROR 로그 수(요청 로그는 뺌). 아래 표와 로그에서 무엇인지 봅니다", green_red(1, 50)), 6, 4)
 
     b.add(timeseries("메서드별 요청",
                      f"SELECT $__timeInterval(Timestamp) AS time, {METHOD} AS method, count() / $__interval_s AS calls {CALLS} GROUP BY time, method ORDER BY time",
@@ -194,13 +199,13 @@ def service():
     b.row("백그라운드 작업")
     b.add(timeseries("경고·오류 (내용별)",
                      f"SELECT $__timeInterval(Timestamp) AS time, concat(SeverityText, ' ', Body) AS log, count() AS lines FROM {LOGS} "
-                     "WHERE $__timeFilter(Timestamp) AND ServiceName = 'rove' AND SeverityText IN ('WARN', 'ERROR') GROUP BY time, log ORDER BY time",
+                     f"WHERE $__timeFilter(Timestamp) AND {WARNINGS} GROUP BY time, log ORDER BY time",
                      "short", "`spin failed`는 프로세스가 멈춘 것, `tidy`는 주기 작업 한 번의 실패, `` `trail verify` ``는 감사 기록(docs/runbook/observe.md)", stack=True), 12, 8)
     b.add(table("경고·오류 (최근)",
                 f"SELECT Timestamp AS time, SeverityText AS level, Body AS log, LogAttributes.spin::String AS spin, "
                 f"coalesce(nullIf(LogAttributes.error::String, ''), nullIf(LogAttributes.err::String, ''), LogAttributes.finding::String) AS detail FROM {LOGS} "
-                "WHERE $__timeFilter(Timestamp) AND ServiceName = 'rove' AND SeverityText IN ('WARN', 'ERROR') ORDER BY Timestamp DESC LIMIT 100",
-                "가장 최근 100줄"), 12, 8)
+                f"WHERE $__timeFilter(Timestamp) AND {WARNINGS} ORDER BY Timestamp DESC LIMIT 100",
+                "가장 최근 100줄(요청 로그는 뺌)"), 12, 8)
     b.add(timeseries("리스를 쥔 루프",
                      series(GAUGE, "cnpg_rove_spin_leases", "ResourceAttributes['k8s.namespace.name']"),
                      "short", "payday spin의 리스(advisory lock) 수 = 돌고 있는 루프 수. 0이면 아무 루프도 돌지 않습니다(DB를 기다리는 중)", legend="list", decimals=0), 12, 7)
@@ -208,8 +213,8 @@ def service():
                      series(GAUGE, "cnpg_rove_search_stale", "ResourceAttributes['k8s.namespace.name']"),
                      "short", "색인기를 기다리는 SearchStale 행(추정치). 가져오기 직후 잠깐 늘고 1초쯤 안에 줄어야 합니다", legend="list", decimals=0), 12, 7)
     b.add({
-        "type": "logs", "title": "로그 (WARN·ERROR, Loki)", "datasource": LOKI,
-        "targets": [{"refId": "A", "datasource": LOKI, "expr": '{service_name="rove"} | severity_text=~"WARN|ERROR"'}],
+        "type": "logs", "title": "로그 (WARN·ERROR, 요청 로그는 뺌, Loki)", "datasource": LOKI,
+        "targets": [{"refId": "A", "datasource": LOKI, "expr": '{service_name="rove"} != "gRPC in" != "gRPC out" | severity_text=~"WARN|ERROR"'}],
         "options": {"showTime": True, "wrapLogMessage": True, "sortOrder": "Descending", "enableLogDetails": True},
     }, 24, 10)
     return b.json()

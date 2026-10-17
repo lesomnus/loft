@@ -266,7 +266,7 @@
     {
       "type": "stat",
       "title": "경고·오류 로그",
-      "description": "기간 안의 WARN·ERROR 로그 수. 아래 표와 로그에서 무엇인지 봅니다",
+      "description": "기간 안의 WARN·ERROR 로그 수(요청 로그는 뺌). 아래 표와 로그에서 무엇인지 봅니다",
       "datasource": {
         "type": "grafana-clickhouse-datasource",
         "uid": "clickhouse"
@@ -281,7 +281,7 @@
           "editorType": "sql",
           "format": 1,
           "queryType": "table",
-          "rawSql": "SELECT count() AS value FROM ${db}.otel_logs${suffix} WHERE $__timeFilter(Timestamp) AND ServiceName = 'rove' AND SeverityText IN ('WARN', 'ERROR')"
+          "rawSql": "SELECT count() AS value FROM ${db}.otel_logs${suffix} WHERE $__timeFilter(Timestamp) AND ServiceName = 'rove' AND SeverityText IN ('WARN', 'ERROR') AND Body NOT IN ('gRPC in', 'gRPC out')"
         }
       ],
       "fieldConfig": {
@@ -620,7 +620,7 @@
           "editorType": "sql",
           "format": 0,
           "queryType": "timeseries",
-          "rawSql": "SELECT $__timeInterval(Timestamp) AS time, concat(SeverityText, ' ', Body) AS log, count() AS lines FROM ${db}.otel_logs${suffix} WHERE $__timeFilter(Timestamp) AND ServiceName = 'rove' AND SeverityText IN ('WARN', 'ERROR') GROUP BY time, log ORDER BY time"
+          "rawSql": "SELECT $__timeInterval(Timestamp) AS time, concat(SeverityText, ' ', Body) AS log, count() AS lines FROM ${db}.otel_logs${suffix} WHERE $__timeFilter(Timestamp) AND ServiceName = 'rove' AND SeverityText IN ('WARN', 'ERROR') AND Body NOT IN ('gRPC in', 'gRPC out') GROUP BY time, log ORDER BY time"
         }
       ],
       "fieldConfig": {
@@ -662,7 +662,7 @@
     {
       "type": "table",
       "title": "경고·오류 (최근)",
-      "description": "가장 최근 100줄",
+      "description": "가장 최근 100줄(요청 로그는 뺌)",
       "datasource": {
         "type": "grafana-clickhouse-datasource",
         "uid": "clickhouse"
@@ -677,7 +677,7 @@
           "editorType": "sql",
           "format": 1,
           "queryType": "table",
-          "rawSql": "SELECT Timestamp AS time, SeverityText AS level, Body AS log, LogAttributes.spin::String AS spin, coalesce(nullIf(LogAttributes.error::String, ''), nullIf(LogAttributes.err::String, ''), LogAttributes.finding::String) AS detail FROM ${db}.otel_logs${suffix} WHERE $__timeFilter(Timestamp) AND ServiceName = 'rove' AND SeverityText IN ('WARN', 'ERROR') ORDER BY Timestamp DESC LIMIT 100"
+          "rawSql": "SELECT Timestamp AS time, SeverityText AS level, Body AS log, LogAttributes.spin::String AS spin, coalesce(nullIf(LogAttributes.error::String, ''), nullIf(LogAttributes.err::String, ''), LogAttributes.finding::String) AS detail FROM ${db}.otel_logs${suffix} WHERE $__timeFilter(Timestamp) AND ServiceName = 'rove' AND SeverityText IN ('WARN', 'ERROR') AND Body NOT IN ('gRPC in', 'gRPC out') ORDER BY Timestamp DESC LIMIT 100"
         }
       ],
       "fieldConfig": {
@@ -818,7 +818,7 @@
     },
     {
       "type": "logs",
-      "title": "로그 (WARN·ERROR, Loki)",
+      "title": "로그 (WARN·ERROR, 요청 로그는 뺌, Loki)",
       "datasource": {
         "type": "loki",
         "uid": "loki"
@@ -830,7 +830,7 @@
             "type": "loki",
             "uid": "loki"
           },
-          "expr": "{service_name=\"rove\"} | severity_text=~\"WARN|ERROR\""
+          "expr": "{service_name=\"rove\"} != \"gRPC in\" != \"gRPC out\" | severity_text=~\"WARN|ERROR\""
         }
       ],
       "options": {
