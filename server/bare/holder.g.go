@@ -11,7 +11,6 @@ import (
 	ent "github.com/lesomnus/rove/internal/ent"
 	holder "github.com/lesomnus/rove/internal/ent/holder"
 	predicate "github.com/lesomnus/rove/internal/ent/predicate"
-	tenant "github.com/lesomnus/rove/internal/ent/tenant"
 	ent1 "github.com/protobuf-orm/ent"
 	dialect "github.com/protobuf-orm/ent/dialect"
 	sql "github.com/protobuf-orm/ent/dialect/sql"
@@ -87,7 +86,6 @@ func (s HolderServiceServer) narrow(ctx context.Context, p predicate.Holder) (pr
 
 func (s HolderServiceServer) snapshot(ctx context.Context, p predicate.Holder, lock bool) (*ent.Holder, error) {
 	q := s.Db.Holder.Query().Where(p)
-	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
 	q.Modify(func(q *sql.Selector) {
 		if lock && s.Db.Dialect() != dialect.SQLite {
 			q.ForUpdate()
@@ -165,7 +163,7 @@ func (s HolderServiceServer) Add(ctx context.Context, req *rove.HolderAddRequest
 	if req.HasRole() {
 		q.SetRole(req.GetRole())
 	} else {
-		q.SetRole("")
+		q.SetRole("member")
 	}
 	if req.HasAccount() {
 		if v, err := entuuid.FromBytes(req.GetAccount()); err != nil {
@@ -316,8 +314,6 @@ func HolderSelect(q *ent.HolderQuery, m *rove.HolderSelect) {
 func HolderSelectInit(q *ent.HolderQuery, m *rove.HolderSelect) {
 	if m != nil {
 		HolderSelect(q, m)
-	} else {
-		q.WithTenant(selectTenantKey)
 	}
 }
 

@@ -79,6 +79,11 @@ func ValidColumn(column string) bool {
 	return false
 }
 
+var (
+	// DefaultRole holds the default value on creation for the "role" field.
+	DefaultRole string
+)
+
 // OrderOption defines the ordering options for the Holder queries.
 type OrderOption func(*sql.Selector)
 

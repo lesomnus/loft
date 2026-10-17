@@ -14,7 +14,6 @@ import (
 	predicate "github.com/lesomnus/rove/internal/ent/predicate"
 	stock "github.com/lesomnus/rove/internal/ent/stock"
 	stockmovement "github.com/lesomnus/rove/internal/ent/stockmovement"
-	tenant "github.com/lesomnus/rove/internal/ent/tenant"
 	ent1 "github.com/protobuf-orm/ent"
 	dialect "github.com/protobuf-orm/ent/dialect"
 	sql "github.com/protobuf-orm/ent/dialect/sql"
@@ -90,9 +89,6 @@ func (s StockServiceServer) narrow(ctx context.Context, p predicate.Stock) (pred
 
 func (s StockServiceServer) snapshot(ctx context.Context, p predicate.Stock, lock bool) (*ent.Stock, error) {
 	q := s.Db.Stock.Query().Where(p)
-	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
-	q.WithModel(func(q *ent.ItemModelQuery) { q.Select(itemmodel.FieldId) })
-	q.WithSpace(func(q *ent.AssetQuery) { q.Select(asset.FieldId) })
 	q.Modify(func(q *sql.Selector) {
 		if lock && s.Db.Dialect() != dialect.SQLite {
 			q.ForUpdate()
@@ -343,10 +339,6 @@ func StockSelect(q *ent.StockQuery, m *rove.StockSelect) {
 func StockSelectInit(q *ent.StockQuery, m *rove.StockSelect) {
 	if m != nil {
 		StockSelect(q, m)
-	} else {
-		q.WithTenant(selectTenantKey)
-		q.WithModel(selectItemModelKey)
-		q.WithSpace(selectAssetKey)
 	}
 }
 
@@ -691,8 +683,6 @@ func (s StockMovementServiceServer) narrow(ctx context.Context, p predicate.Stoc
 
 func (s StockMovementServiceServer) snapshot(ctx context.Context, p predicate.StockMovement, lock bool) (*ent.StockMovement, error) {
 	q := s.Db.StockMovement.Query().Where(p)
-	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
-	q.WithStock(func(q *ent.StockQuery) { q.Select(stock.FieldId) })
 	q.Modify(func(q *sql.Selector) {
 		if lock && s.Db.Dialect() != dialect.SQLite {
 			q.ForUpdate()
@@ -928,9 +918,6 @@ func StockMovementSelect(q *ent.StockMovementQuery, m *rove.StockMovementSelect)
 func StockMovementSelectInit(q *ent.StockMovementQuery, m *rove.StockMovementSelect) {
 	if m != nil {
 		StockMovementSelect(q, m)
-	} else {
-		q.WithTenant(selectTenantKey)
-		q.WithStock(selectStockKey)
 	}
 }
 

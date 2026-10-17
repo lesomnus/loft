@@ -13,7 +13,6 @@ import (
 	countfinding "github.com/lesomnus/rove/internal/ent/countfinding"
 	inventorycount "github.com/lesomnus/rove/internal/ent/inventorycount"
 	predicate "github.com/lesomnus/rove/internal/ent/predicate"
-	tenant "github.com/lesomnus/rove/internal/ent/tenant"
 	ent1 "github.com/protobuf-orm/ent"
 	dialect "github.com/protobuf-orm/ent/dialect"
 	sql "github.com/protobuf-orm/ent/dialect/sql"
@@ -89,8 +88,6 @@ func (s InventoryCountServiceServer) narrow(ctx context.Context, p predicate.Inv
 
 func (s InventoryCountServiceServer) snapshot(ctx context.Context, p predicate.InventoryCount, lock bool) (*ent.InventoryCount, error) {
 	q := s.Db.InventoryCount.Query().Where(p)
-	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
-	q.WithScope(func(q *ent.AssetQuery) { q.Select(asset.FieldId) })
 	q.Modify(func(q *sql.Selector) {
 		if lock && s.Db.Dialect() != dialect.SQLite {
 			q.ForUpdate()
@@ -335,9 +332,6 @@ func InventoryCountSelect(q *ent.InventoryCountQuery, m *rove.InventoryCountSele
 func InventoryCountSelectInit(q *ent.InventoryCountQuery, m *rove.InventoryCountSelect) {
 	if m != nil {
 		InventoryCountSelect(q, m)
-	} else {
-		q.WithTenant(selectTenantKey)
-		q.WithScope(selectAssetKey)
 	}
 }
 
@@ -682,9 +676,6 @@ func (s CountFindingServiceServer) narrow(ctx context.Context, p predicate.Count
 
 func (s CountFindingServiceServer) snapshot(ctx context.Context, p predicate.CountFinding, lock bool) (*ent.CountFinding, error) {
 	q := s.Db.CountFinding.Query().Where(p)
-	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
-	q.WithCount(func(q *ent.InventoryCountQuery) { q.Select(inventorycount.FieldId) })
-	q.WithAsset(func(q *ent.AssetQuery) { q.Select(asset.FieldId) })
 	q.Modify(func(q *sql.Selector) {
 		if lock && s.Db.Dialect() != dialect.SQLite {
 			q.ForUpdate()
@@ -978,10 +969,6 @@ func CountFindingSelect(q *ent.CountFindingQuery, m *rove.CountFindingSelect) {
 func CountFindingSelectInit(q *ent.CountFindingQuery, m *rove.CountFindingSelect) {
 	if m != nil {
 		CountFindingSelect(q, m)
-	} else {
-		q.WithTenant(selectTenantKey)
-		q.WithCount(selectInventoryCountKey)
-		q.WithAsset(selectAssetKey)
 	}
 }
 

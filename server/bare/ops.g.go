@@ -13,7 +13,6 @@ import (
 	legalhold "github.com/lesomnus/rove/internal/ent/legalhold"
 	notification "github.com/lesomnus/rove/internal/ent/notification"
 	predicate "github.com/lesomnus/rove/internal/ent/predicate"
-	tenant "github.com/lesomnus/rove/internal/ent/tenant"
 	tenantcontract "github.com/lesomnus/rove/internal/ent/tenantcontract"
 	usagesnapshot "github.com/lesomnus/rove/internal/ent/usagesnapshot"
 	ent1 "github.com/protobuf-orm/ent"
@@ -87,8 +86,6 @@ func (s NotificationServiceServer) narrow(ctx context.Context, p predicate.Notif
 
 func (s NotificationServiceServer) snapshot(ctx context.Context, p predicate.Notification, lock bool) (*ent.Notification, error) {
 	q := s.Db.Notification.Query().Where(p)
-	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
-	q.WithHolder(func(q *ent.HolderQuery) { q.Select(holder.FieldId) })
 	q.Modify(func(q *sql.Selector) {
 		if lock && s.Db.Dialect() != dialect.SQLite {
 			q.ForUpdate()
@@ -332,9 +329,6 @@ func NotificationSelect(q *ent.NotificationQuery, m *rove.NotificationSelect) {
 func NotificationSelectInit(q *ent.NotificationQuery, m *rove.NotificationSelect) {
 	if m != nil {
 		NotificationSelect(q, m)
-	} else {
-		q.WithTenant(selectTenantKey)
-		q.WithHolder(selectHolderKey)
 	}
 }
 
@@ -658,7 +652,6 @@ func (s UsageSnapshotServiceServer) narrow(ctx context.Context, p predicate.Usag
 
 func (s UsageSnapshotServiceServer) snapshot(ctx context.Context, p predicate.UsageSnapshot, lock bool) (*ent.UsageSnapshot, error) {
 	q := s.Db.UsageSnapshot.Query().Where(p)
-	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
 	q.Modify(func(q *sql.Selector) {
 		if lock && s.Db.Dialect() != dialect.SQLite {
 			q.ForUpdate()
@@ -838,8 +831,6 @@ func UsageSnapshotSelect(q *ent.UsageSnapshotQuery, m *rove.UsageSnapshotSelect)
 func UsageSnapshotSelectInit(q *ent.UsageSnapshotQuery, m *rove.UsageSnapshotSelect) {
 	if m != nil {
 		UsageSnapshotSelect(q, m)
-	} else {
-		q.WithTenant(selectTenantKey)
 	}
 }
 
@@ -1177,7 +1168,6 @@ func (s TenantContractServiceServer) narrow(ctx context.Context, p predicate.Ten
 
 func (s TenantContractServiceServer) snapshot(ctx context.Context, p predicate.TenantContract, lock bool) (*ent.TenantContract, error) {
 	q := s.Db.TenantContract.Query().Where(p)
-	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
 	q.Modify(func(q *sql.Selector) {
 		if lock && s.Db.Dialect() != dialect.SQLite {
 			q.ForUpdate()
@@ -1374,8 +1364,6 @@ func TenantContractSelect(q *ent.TenantContractQuery, m *rove.TenantContractSele
 func TenantContractSelectInit(q *ent.TenantContractQuery, m *rove.TenantContractSelect) {
 	if m != nil {
 		TenantContractSelect(q, m)
-	} else {
-		q.WithTenant(selectTenantKey)
 	}
 }
 
@@ -1716,7 +1704,6 @@ func (s LegalHoldServiceServer) narrow(ctx context.Context, p predicate.LegalHol
 
 func (s LegalHoldServiceServer) snapshot(ctx context.Context, p predicate.LegalHold, lock bool) (*ent.LegalHold, error) {
 	q := s.Db.LegalHold.Query().Where(p)
-	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
 	q.Modify(func(q *sql.Selector) {
 		if lock && s.Db.Dialect() != dialect.SQLite {
 			q.ForUpdate()
@@ -1896,8 +1883,6 @@ func LegalHoldSelect(q *ent.LegalHoldQuery, m *rove.LegalHoldSelect) {
 func LegalHoldSelectInit(q *ent.LegalHoldQuery, m *rove.LegalHoldSelect) {
 	if m != nil {
 		LegalHoldSelect(q, m)
-	} else {
-		q.WithTenant(selectTenantKey)
 	}
 }
 

@@ -66,6 +66,11 @@ func ValidColumn(column string) bool {
 	return false
 }
 
+var (
+	// DefaultAddress holds the default value on creation for the "address" field.
+	DefaultAddress string
+)
+
 // OrderOption defines the ordering options for the CliLogin queries.
 type OrderOption func(*sql.Selector)
 

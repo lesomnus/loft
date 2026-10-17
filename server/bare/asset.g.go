@@ -16,7 +16,6 @@ import (
 	label "github.com/lesomnus/rove/internal/ent/label"
 	party "github.com/lesomnus/rove/internal/ent/party"
 	predicate "github.com/lesomnus/rove/internal/ent/predicate"
-	tenant "github.com/lesomnus/rove/internal/ent/tenant"
 	tenantdomain "github.com/lesomnus/rove/internal/ent/tenantdomain"
 	treelock "github.com/lesomnus/rove/internal/ent/treelock"
 	ent1 "github.com/protobuf-orm/ent"
@@ -95,10 +94,6 @@ func (s AssetServiceServer) narrow(ctx context.Context, p predicate.Asset) (pred
 
 func (s AssetServiceServer) snapshot(ctx context.Context, p predicate.Asset, lock bool) (*ent.Asset, error) {
 	q := s.Db.Asset.Query().Where(p)
-	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
-	q.WithType(func(q *ent.AssetTypeQuery) { q.Select(assettype.FieldId) })
-	q.WithModel(func(q *ent.ItemModelQuery) { q.Select(itemmodel.FieldId) })
-	q.WithCustodian(func(q *ent.PartyQuery) { q.Select(party.FieldId) })
 	q.Modify(func(q *sql.Selector) {
 		if lock && s.Db.Dialect() != dialect.SQLite {
 			q.ForUpdate()
@@ -435,11 +430,6 @@ func AssetSelect(q *ent.AssetQuery, m *rove.AssetSelect) {
 func AssetSelectInit(q *ent.AssetQuery, m *rove.AssetSelect) {
 	if m != nil {
 		AssetSelect(q, m)
-	} else {
-		q.WithTenant(selectTenantKey)
-		q.WithType(selectAssetTypeKey)
-		q.WithModel(selectItemModelKey)
-		q.WithCustodian(selectPartyKey)
 	}
 }
 
@@ -816,7 +806,6 @@ func (s TreeLockServiceServer) narrow(ctx context.Context, p predicate.TreeLock)
 
 func (s TreeLockServiceServer) snapshot(ctx context.Context, p predicate.TreeLock, lock bool) (*ent.TreeLock, error) {
 	q := s.Db.TreeLock.Query().Where(p)
-	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
 	q.Modify(func(q *sql.Selector) {
 		if lock && s.Db.Dialect() != dialect.SQLite {
 			q.ForUpdate()
@@ -990,8 +979,6 @@ func TreeLockSelect(q *ent.TreeLockQuery, m *rove.TreeLockSelect) {
 func TreeLockSelectInit(q *ent.TreeLockQuery, m *rove.TreeLockSelect) {
 	if m != nil {
 		TreeLockSelect(q, m)
-	} else {
-		q.WithTenant(selectTenantKey)
 	}
 }
 
@@ -1328,7 +1315,6 @@ func (s TenantDomainServiceServer) narrow(ctx context.Context, p predicate.Tenan
 
 func (s TenantDomainServiceServer) snapshot(ctx context.Context, p predicate.TenantDomain, lock bool) (*ent.TenantDomain, error) {
 	q := s.Db.TenantDomain.Query().Where(p)
-	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
 	q.Modify(func(q *sql.Selector) {
 		if lock && s.Db.Dialect() != dialect.SQLite {
 			q.ForUpdate()
@@ -1527,8 +1513,6 @@ func TenantDomainSelect(q *ent.TenantDomainQuery, m *rove.TenantDomainSelect) {
 func TenantDomainSelectInit(q *ent.TenantDomainQuery, m *rove.TenantDomainSelect) {
 	if m != nil {
 		TenantDomainSelect(q, m)
-	} else {
-		q.WithTenant(selectTenantKey)
 	}
 }
 
@@ -1879,8 +1863,6 @@ func (s LabelServiceServer) narrow(ctx context.Context, p predicate.Label) (pred
 
 func (s LabelServiceServer) snapshot(ctx context.Context, p predicate.Label, lock bool) (*ent.Label, error) {
 	q := s.Db.Label.Query().Where(p)
-	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
-	q.WithDomain(func(q *ent.TenantDomainQuery) { q.Select(tenantdomain.FieldId) })
 	q.Modify(func(q *sql.Selector) {
 		if lock && s.Db.Dialect() != dialect.SQLite {
 			q.ForUpdate()
@@ -2119,9 +2101,6 @@ func LabelSelect(q *ent.LabelQuery, m *rove.LabelSelect) {
 func LabelSelectInit(q *ent.LabelQuery, m *rove.LabelSelect) {
 	if m != nil {
 		LabelSelect(q, m)
-	} else {
-		q.WithTenant(selectTenantKey)
-		q.WithDomain(selectTenantDomainKey)
 	}
 }
 
@@ -2482,7 +2461,6 @@ func (s AttachmentServiceServer) narrow(ctx context.Context, p predicate.Attachm
 
 func (s AttachmentServiceServer) snapshot(ctx context.Context, p predicate.Attachment, lock bool) (*ent.Attachment, error) {
 	q := s.Db.Attachment.Query().Where(p)
-	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
 	q.Modify(func(q *sql.Selector) {
 		if lock && s.Db.Dialect() != dialect.SQLite {
 			q.ForUpdate()
@@ -2687,8 +2665,6 @@ func AttachmentSelect(q *ent.AttachmentQuery, m *rove.AttachmentSelect) {
 func AttachmentSelectInit(q *ent.AttachmentQuery, m *rove.AttachmentSelect) {
 	if m != nil {
 		AttachmentSelect(q, m)
-	} else {
-		q.WithTenant(selectTenantKey)
 	}
 }
 

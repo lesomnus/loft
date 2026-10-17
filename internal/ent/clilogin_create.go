@@ -147,6 +147,7 @@ func (_c *CliLoginCreate) Mutation() *CliLoginMutation {
 
 // Save creates the CliLogin in the database.
 func (_c *CliLoginCreate) Save(ctx context.Context) (*CliLogin, error) {
+	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -169,6 +170,14 @@ func (_c *CliLoginCreate) Exec(ctx context.Context) error {
 func (_c *CliLoginCreate) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (_c *CliLoginCreate) defaults() {
+	if _, ok := _c.mutation.Address(); !ok {
+		v := clilogin.DefaultAddress
+		_c.mutation.SetAddress(v)
 	}
 }
 
@@ -297,6 +306,7 @@ func (_c *CliLoginCreateBulk) Save(ctx context.Context) ([]*CliLogin, error) {
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*CliLoginMutation)
 				if !ok {

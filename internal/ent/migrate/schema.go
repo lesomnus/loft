@@ -286,7 +286,7 @@ var (
 		{Name: "actor_tenant_id", Type: field.TypeUuid},
 		{Name: "value", Type: field.TypeBytes},
 		{Name: "counterpart_tenant_id", Type: field.TypeUuid, Nullable: true},
-		{Name: "domain", Type: field.TypeUint32, Nullable: true},
+		{Name: "domain", Type: field.TypeUint32, Nullable: true, Default: 0},
 	}
 	// AuditTable holds the schema information for the "audit" table.
 	AuditTable = &schema.Table{
@@ -394,7 +394,7 @@ var (
 		{Name: "code", Type: field.TypeString},
 		{Name: "client", Type: field.TypeString},
 		{Name: "origin", Type: field.TypeString},
-		{Name: "address", Type: field.TypeString, Nullable: true},
+		{Name: "address", Type: field.TypeString, Nullable: true, Default: ""},
 		{Name: "account", Type: field.TypeUuid, Nullable: true},
 		{Name: "grant", Type: field.TypeBytes, Nullable: true},
 		{Name: "state", Type: field.TypeString},
@@ -723,7 +723,7 @@ var (
 		{Name: "date_updated", Type: field.TypeTime},
 		{Name: "date_erased", Type: field.TypeTime, Nullable: true},
 		{Name: "date_created", Type: field.TypeTime, Nullable: true},
-		{Name: "role", Type: field.TypeString, Nullable: true},
+		{Name: "role", Type: field.TypeString, Nullable: true, Default: "member"},
 		{Name: "account", Type: field.TypeUuid, Nullable: true},
 		{Name: "date_leaving", Type: field.TypeTime, Nullable: true},
 		{Name: "mail_off", Type: field.TypeBool},

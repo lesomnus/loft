@@ -16,7 +16,6 @@ import (
 	predicate "github.com/lesomnus/rove/internal/ent/predicate"
 	reservation "github.com/lesomnus/rove/internal/ent/reservation"
 	reservationitem "github.com/lesomnus/rove/internal/ent/reservationitem"
-	tenant "github.com/lesomnus/rove/internal/ent/tenant"
 	ent1 "github.com/protobuf-orm/ent"
 	dialect "github.com/protobuf-orm/ent/dialect"
 	sql "github.com/protobuf-orm/ent/dialect/sql"
@@ -92,8 +91,6 @@ func (s BookableServiceServer) narrow(ctx context.Context, p predicate.Bookable)
 
 func (s BookableServiceServer) snapshot(ctx context.Context, p predicate.Bookable, lock bool) (*ent.Bookable, error) {
 	q := s.Db.Bookable.Query().Where(p)
-	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
-	q.WithAsset(func(q *ent.AssetQuery) { q.Select(asset.FieldId) })
 	q.Modify(func(q *sql.Selector) {
 		if lock && s.Db.Dialect() != dialect.SQLite {
 			q.ForUpdate()
@@ -344,9 +341,6 @@ func BookableSelect(q *ent.BookableQuery, m *rove.BookableSelect) {
 func BookableSelectInit(q *ent.BookableQuery, m *rove.BookableSelect) {
 	if m != nil {
 		BookableSelect(q, m)
-	} else {
-		q.WithTenant(selectTenantKey)
-		q.WithAsset(selectAssetKey)
 	}
 }
 
@@ -704,8 +698,6 @@ func (s ReservationServiceServer) narrow(ctx context.Context, p predicate.Reserv
 
 func (s ReservationServiceServer) snapshot(ctx context.Context, p predicate.Reservation, lock bool) (*ent.Reservation, error) {
 	q := s.Db.Reservation.Query().Where(p)
-	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
-	q.WithParty(func(q *ent.PartyQuery) { q.Select(party.FieldId) })
 	q.Modify(func(q *sql.Selector) {
 		if lock && s.Db.Dialect() != dialect.SQLite {
 			q.ForUpdate()
@@ -980,9 +972,6 @@ func ReservationSelect(q *ent.ReservationQuery, m *rove.ReservationSelect) {
 func ReservationSelectInit(q *ent.ReservationQuery, m *rove.ReservationSelect) {
 	if m != nil {
 		ReservationSelect(q, m)
-	} else {
-		q.WithTenant(selectTenantKey)
-		q.WithParty(selectPartyKey)
 	}
 }
 
@@ -1327,9 +1316,6 @@ func (s ReservationItemServiceServer) narrow(ctx context.Context, p predicate.Re
 
 func (s ReservationItemServiceServer) snapshot(ctx context.Context, p predicate.ReservationItem, lock bool) (*ent.ReservationItem, error) {
 	q := s.Db.ReservationItem.Query().Where(p)
-	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
-	q.WithReservation(func(q *ent.ReservationQuery) { q.Select(reservation.FieldId) })
-	q.WithResource(func(q *ent.AssetQuery) { q.Select(asset.FieldId) })
 	q.Modify(func(q *sql.Selector) {
 		if lock && s.Db.Dialect() != dialect.SQLite {
 			q.ForUpdate()
@@ -1569,10 +1555,6 @@ func ReservationItemSelect(q *ent.ReservationItemQuery, m *rove.ReservationItemS
 func ReservationItemSelectInit(q *ent.ReservationItemQuery, m *rove.ReservationItemSelect) {
 	if m != nil {
 		ReservationItemSelect(q, m)
-	} else {
-		q.WithTenant(selectTenantKey)
-		q.WithReservation(selectReservationKey)
-		q.WithResource(selectAssetKey)
 	}
 }
 
@@ -1896,8 +1878,6 @@ func (s AllocationServiceServer) narrow(ctx context.Context, p predicate.Allocat
 
 func (s AllocationServiceServer) snapshot(ctx context.Context, p predicate.Allocation, lock bool) (*ent.Allocation, error) {
 	q := s.Db.Allocation.Query().Where(p)
-	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
-	q.WithResource(func(q *ent.AssetQuery) { q.Select(asset.FieldId) })
 	q.Modify(func(q *sql.Selector) {
 		if lock && s.Db.Dialect() != dialect.SQLite {
 			q.ForUpdate()
@@ -2137,9 +2117,6 @@ func AllocationSelect(q *ent.AllocationQuery, m *rove.AllocationSelect) {
 func AllocationSelectInit(q *ent.AllocationQuery, m *rove.AllocationSelect) {
 	if m != nil {
 		AllocationSelect(q, m)
-	} else {
-		q.WithTenant(selectTenantKey)
-		q.WithResource(selectAssetKey)
 	}
 }
 

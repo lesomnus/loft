@@ -5,7 +5,10 @@ package ent
 import (
 	"github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/internal/ent/assettype"
+	"github.com/lesomnus/rove/internal/ent/audit"
 	"github.com/lesomnus/rove/internal/ent/bookable"
+	"github.com/lesomnus/rove/internal/ent/clilogin"
+	"github.com/lesomnus/rove/internal/ent/holder"
 	"github.com/lesomnus/rove/internal/ent/itemmodel"
 	"github.com/lesomnus/rove/internal/ent/schema"
 
@@ -21,11 +24,29 @@ func init() {
 	// assettypeDescSpec is the schema descriptor for spec field.
 	assettypeDescSpec := assettypeFields[6].Descriptor()
 	assettype.ValueScanner.Spec = assettypeDescSpec.ValueScanner.(field.TypeValueScanner[*rove.TypeSpec])
+	auditFields := schema.Audit{}.Fields()
+	_ = auditFields
+	// auditDescDomain is the schema descriptor for domain field.
+	auditDescDomain := auditFields[11].Descriptor()
+	// audit.DefaultDomain holds the default value on creation for the domain field.
+	audit.DefaultDomain = auditDescDomain.Default.(uint32)
 	bookableFields := schema.Bookable{}.Fields()
 	_ = bookableFields
 	// bookableDescHours is the schema descriptor for hours field.
 	bookableDescHours := bookableFields[2].Descriptor()
 	bookable.ValueScanner.Hours = bookableDescHours.ValueScanner.(field.TypeValueScanner[*rove.OpeningHours])
+	cliloginFields := schema.CliLogin{}.Fields()
+	_ = cliloginFields
+	// cliloginDescAddress is the schema descriptor for address field.
+	cliloginDescAddress := cliloginFields[5].Descriptor()
+	// clilogin.DefaultAddress holds the default value on creation for the address field.
+	clilogin.DefaultAddress = cliloginDescAddress.Default.(string)
+	holderFields := schema.Holder{}.Fields()
+	_ = holderFields
+	// holderDescRole is the schema descriptor for role field.
+	holderDescRole := holderFields[8].Descriptor()
+	// holder.DefaultRole holds the default value on creation for the role field.
+	holder.DefaultRole = holderDescRole.Default.(string)
 	itemmodelFields := schema.ItemModel{}.Fields()
 	_ = itemmodelFields
 	// itemmodelDescSpec is the schema descriptor for spec field.

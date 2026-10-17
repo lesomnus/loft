@@ -15,7 +15,6 @@ import (
 	party "github.com/lesomnus/rove/internal/ent/party"
 	predicate "github.com/lesomnus/rove/internal/ent/predicate"
 	stock "github.com/lesomnus/rove/internal/ent/stock"
-	tenant "github.com/lesomnus/rove/internal/ent/tenant"
 	ent1 "github.com/protobuf-orm/ent"
 	dialect "github.com/protobuf-orm/ent/dialect"
 	sql "github.com/protobuf-orm/ent/dialect/sql"
@@ -91,8 +90,6 @@ func (s CustodyServiceServer) narrow(ctx context.Context, p predicate.Custody) (
 
 func (s CustodyServiceServer) snapshot(ctx context.Context, p predicate.Custody, lock bool) (*ent.Custody, error) {
 	q := s.Db.Custody.Query().Where(p)
-	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
-	q.WithParty(func(q *ent.PartyQuery) { q.Select(party.FieldId) })
 	q.Modify(func(q *sql.Selector) {
 		if lock && s.Db.Dialect() != dialect.SQLite {
 			q.ForUpdate()
@@ -355,9 +352,6 @@ func CustodySelect(q *ent.CustodyQuery, m *rove.CustodySelect) {
 func CustodySelectInit(q *ent.CustodyQuery, m *rove.CustodySelect) {
 	if m != nil {
 		CustodySelect(q, m)
-	} else {
-		q.WithTenant(selectTenantKey)
-		q.WithParty(selectPartyKey)
 	}
 }
 
@@ -702,10 +696,6 @@ func (s CustodyLineServiceServer) narrow(ctx context.Context, p predicate.Custod
 
 func (s CustodyLineServiceServer) snapshot(ctx context.Context, p predicate.CustodyLine, lock bool) (*ent.CustodyLine, error) {
 	q := s.Db.CustodyLine.Query().Where(p)
-	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
-	q.WithCustody(func(q *ent.CustodyQuery) { q.Select(custody.FieldId) })
-	q.WithAsset(func(q *ent.AssetQuery) { q.Select(asset.FieldId) })
-	q.WithStock(func(q *ent.StockQuery) { q.Select(stock.FieldId) })
 	q.Modify(func(q *sql.Selector) {
 		if lock && s.Db.Dialect() != dialect.SQLite {
 			q.ForUpdate()
@@ -993,11 +983,6 @@ func CustodyLineSelect(q *ent.CustodyLineQuery, m *rove.CustodyLineSelect) {
 func CustodyLineSelectInit(q *ent.CustodyLineQuery, m *rove.CustodyLineSelect) {
 	if m != nil {
 		CustodyLineSelect(q, m)
-	} else {
-		q.WithTenant(selectTenantKey)
-		q.WithCustody(selectCustodyKey)
-		q.WithAsset(selectAssetKey)
-		q.WithStock(selectStockKey)
 	}
 }
 

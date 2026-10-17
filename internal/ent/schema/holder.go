@@ -34,7 +34,8 @@ func (Holder) Fields() []ent.Field {
 			Immutable().
 			Optional(),
 		field.String("role").
-			Optional(),
+			Optional().
+			Default("member"),
 		field.Uuid("account").
 			Nillable().
 			Optional(),

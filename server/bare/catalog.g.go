@@ -12,7 +12,6 @@ import (
 	assettype "github.com/lesomnus/rove/internal/ent/assettype"
 	itemmodel "github.com/lesomnus/rove/internal/ent/itemmodel"
 	predicate "github.com/lesomnus/rove/internal/ent/predicate"
-	tenant "github.com/lesomnus/rove/internal/ent/tenant"
 	ent1 "github.com/protobuf-orm/ent"
 	dialect "github.com/protobuf-orm/ent/dialect"
 	sql "github.com/protobuf-orm/ent/dialect/sql"
@@ -89,7 +88,6 @@ func (s AssetTypeServiceServer) narrow(ctx context.Context, p predicate.AssetTyp
 
 func (s AssetTypeServiceServer) snapshot(ctx context.Context, p predicate.AssetType, lock bool) (*ent.AssetType, error) {
 	q := s.Db.AssetType.Query().Where(p)
-	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
 	q.Modify(func(q *sql.Selector) {
 		if lock && s.Db.Dialect() != dialect.SQLite {
 			q.ForUpdate()
@@ -300,8 +298,6 @@ func AssetTypeSelect(q *ent.AssetTypeQuery, m *rove.AssetTypeSelect) {
 func AssetTypeSelectInit(q *ent.AssetTypeQuery, m *rove.AssetTypeSelect) {
 	if m != nil {
 		AssetTypeSelect(q, m)
-	} else {
-		q.WithTenant(selectTenantKey)
 	}
 }
 
@@ -650,8 +646,6 @@ func (s ItemModelServiceServer) narrow(ctx context.Context, p predicate.ItemMode
 
 func (s ItemModelServiceServer) snapshot(ctx context.Context, p predicate.ItemModel, lock bool) (*ent.ItemModel, error) {
 	q := s.Db.ItemModel.Query().Where(p)
-	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
-	q.WithType(func(q *ent.AssetTypeQuery) { q.Select(assettype.FieldId) })
 	q.Modify(func(q *sql.Selector) {
 		if lock && s.Db.Dialect() != dialect.SQLite {
 			q.ForUpdate()
@@ -882,9 +876,6 @@ func ItemModelSelect(q *ent.ItemModelQuery, m *rove.ItemModelSelect) {
 func ItemModelSelectInit(q *ent.ItemModelQuery, m *rove.ItemModelSelect) {
 	if m != nil {
 		ItemModelSelect(q, m)
-	} else {
-		q.WithTenant(selectTenantKey)
-		q.WithType(selectAssetTypeKey)
 	}
 }
 

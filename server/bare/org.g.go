@@ -18,7 +18,6 @@ import (
 	predicate "github.com/lesomnus/rove/internal/ent/predicate"
 	session "github.com/lesomnus/rove/internal/ent/session"
 	signinfailure "github.com/lesomnus/rove/internal/ent/signinfailure"
-	tenant "github.com/lesomnus/rove/internal/ent/tenant"
 	ent1 "github.com/protobuf-orm/ent"
 	dialect "github.com/protobuf-orm/ent/dialect"
 	sql "github.com/protobuf-orm/ent/dialect/sql"
@@ -95,8 +94,6 @@ func (s PartyServiceServer) narrow(ctx context.Context, p predicate.Party) (pred
 
 func (s PartyServiceServer) snapshot(ctx context.Context, p predicate.Party, lock bool) (*ent.Party, error) {
 	q := s.Db.Party.Query().Where(p)
-	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
-	q.WithHolder(func(q *ent.HolderQuery) { q.Select(holder.FieldId) })
 	q.Modify(func(q *sql.Selector) {
 		if lock && s.Db.Dialect() != dialect.SQLite {
 			q.ForUpdate()
@@ -339,9 +336,6 @@ func PartySelect(q *ent.PartyQuery, m *rove.PartySelect) {
 func PartySelectInit(q *ent.PartyQuery, m *rove.PartySelect) {
 	if m != nil {
 		PartySelect(q, m)
-	} else {
-		q.WithTenant(selectTenantKey)
-		q.WithHolder(selectHolderKey)
 	}
 }
 
@@ -891,7 +885,6 @@ func SessionSelect(q *ent.SessionQuery, m *rove.SessionSelect) {
 func SessionSelectInit(q *ent.SessionQuery, m *rove.SessionSelect) {
 	if m != nil {
 		SessionSelect(q, m)
-	} else {
 	}
 }
 
@@ -1240,10 +1233,6 @@ func (s InvitationServiceServer) narrow(ctx context.Context, p predicate.Invitat
 
 func (s InvitationServiceServer) snapshot(ctx context.Context, p predicate.Invitation, lock bool) (*ent.Invitation, error) {
 	q := s.Db.Invitation.Query().Where(p)
-	q.WithTenant(func(q *ent.TenantQuery) { q.Select(tenant.FieldId) })
-	q.WithInviter(func(q *ent.HolderQuery) { q.Select(holder.FieldId) })
-	q.WithParty(func(q *ent.PartyQuery) { q.Select(party.FieldId) })
-	q.WithHolder(func(q *ent.HolderQuery) { q.Select(holder.FieldId) })
 	q.Modify(func(q *sql.Selector) {
 		if lock && s.Db.Dialect() != dialect.SQLite {
 			q.ForUpdate()
@@ -1546,11 +1535,6 @@ func InvitationSelect(q *ent.InvitationQuery, m *rove.InvitationSelect) {
 func InvitationSelectInit(q *ent.InvitationQuery, m *rove.InvitationSelect) {
 	if m != nil {
 		InvitationSelect(q, m)
-	} else {
-		q.WithTenant(selectTenantKey)
-		q.WithInviter(selectHolderKey)
-		q.WithParty(selectPartyKey)
-		q.WithHolder(selectHolderKey)
 	}
 }
 
@@ -2113,7 +2097,6 @@ func CliLoginSelect(q *ent.CliLoginQuery, m *rove.CliLoginSelect) {
 func CliLoginSelectInit(q *ent.CliLoginQuery, m *rove.CliLoginSelect) {
 	if m != nil {
 		CliLoginSelect(q, m)
-	} else {
 	}
 }
 
@@ -2630,7 +2613,6 @@ func AliasHoldSelect(q *ent.AliasHoldQuery, m *rove.AliasHoldSelect) {
 func AliasHoldSelectInit(q *ent.AliasHoldQuery, m *rove.AliasHoldSelect) {
 	if m != nil {
 		AliasHoldSelect(q, m)
-	} else {
 	}
 }
 
@@ -3141,7 +3123,6 @@ func ConsentSelect(q *ent.ConsentQuery, m *rove.ConsentSelect) {
 func ConsentSelectInit(q *ent.ConsentQuery, m *rove.ConsentSelect) {
 	if m != nil {
 		ConsentSelect(q, m)
-	} else {
 	}
 }
 
@@ -3634,7 +3615,6 @@ func SignInFailureSelect(q *ent.SignInFailureQuery, m *rove.SignInFailureSelect)
 func SignInFailureSelectInit(q *ent.SignInFailureQuery, m *rove.SignInFailureSelect) {
 	if m != nil {
 		SignInFailureSelect(q, m)
-	} else {
 	}
 }
 
