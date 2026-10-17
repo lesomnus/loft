@@ -528,7 +528,12 @@ func (im *importer) write() error {
 }
 
 func rowError(line int, err error) error {
-	st := status.Convert(err)
+	st, ok := status.FromError(err)
+	if !ok {
+		// A sheet that ran out of time is that, and not something unknown
+		// (rove#103).
+		st = status.FromContextError(err)
+	}
 	return status.Errorf(st.Code(), "%d행: %s", line, st.Message())
 }
 

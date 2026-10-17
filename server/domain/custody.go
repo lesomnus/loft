@@ -315,7 +315,7 @@ func (s domainCustody) Return(ctx context.Context, req *app.CustodyReturnRequest
 					}
 					tl, changed := old.set(at, &place{parent: uuidOf(to.GetId()), mode: "located"})
 					if changed {
-						if err := t.checkPlacements(a, tl, old); err != nil {
+						if err := t.checkPlacements(a, tl, old, false); err != nil {
 							return err
 						}
 						if err := t.writePlacements(a, old, tl); err != nil {

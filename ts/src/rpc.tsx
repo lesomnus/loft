@@ -55,8 +55,10 @@ export async function call<I extends DescMessage, O extends DescMessage>(
 	method: DescMethodUnary<I, O>,
 	input: MessageInitShape<I>,
 	signal?: AbortSignal,
+	timeoutMs?: number,
 ): Promise<MessageShape<O>> {
-	return clientOf(method.parent)[method.localName](input, signal === undefined ? undefined : { signal })
+	if (signal === undefined && timeoutMs === undefined) return clientOf(method.parent)[method.localName](input)
+	return clientOf(method.parent)[method.localName](input, { signal, timeoutMs })
 }
 
 /**
@@ -202,7 +204,11 @@ export function useRpc<I extends DescMessage, O extends DescMessage>(
 export type Act = <I extends DescMessage, O extends DescMessage>(
 	method: DescMethodUnary<I, O>,
 	input: MessageInitShape<I>,
-	opts?: { ok?: string; quiet?: boolean },
+	/**
+	 * `timeoutMs` is how long the call may take, said to the server, which
+	 * otherwise gives a call that names none thirty seconds.
+	 */
+	opts?: { ok?: string; quiet?: boolean; timeoutMs?: number },
 ) => Promise<MessageShape<O> | undefined>
 
 /** What a write offline is told. */
@@ -228,7 +234,7 @@ export function useAct(): Act {
 				return undefined
 			}
 			try {
-				const v = await call(method, input)
+				const v = await call(method, input, undefined, opts.timeoutMs)
 				setOffline(false)
 				if (opts.ok !== undefined) toast(opts.ok)
 				bump()

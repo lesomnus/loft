@@ -235,6 +235,37 @@ type Tx struct {
 
 	// win is the tenant's history windows, once something asked.
 	win *retention.Window
+
+	// shared is what every operation in this transaction shares, the ones
+	// it is made of included ([sharedOf]).
+	shared *shared
+}
+
+// shared is kept for a whole transaction, across the operations one is made
+// of: each is a Tx of its own on the same driver ([Tx.layer]), and what one
+// did is what the next need not do again.
+type shared struct {
+	// bumped is the containers whose watchers were already told this
+	// transaction ([Tx.bump]): told once, they look once, and see all of it.
+	bumped map[uuid.UUID]bool
+}
+
+type sharedKey struct{}
+
+// sharedOf is the transaction's [shared], made by the outermost operation and
+// found on the context by every operation it calls -- `drv` being one already
+// in that transaction. An operation that begins a transaction of its own,
+// whatever context it was handed (the deployment's own work in a tenant, say),
+// shares nothing with the one that called it: what that one did may yet be
+// rolled back.
+func sharedOf(ctx context.Context, drv dialect.Driver) (context.Context, *shared) {
+	if in, ok := drv.(dialect.InTxDriver); ok && in.InTx() {
+		if v, ok := ctx.Value(sharedKey{}).(*shared); ok {
+			return ctx, v
+		}
+	}
+	v := &shared{bumped: map[uuid.UUID]bool{}}
+	return context.WithValue(ctx, sharedKey{}, v), v
 }
 
 // errDone is an operation that already happened: its op was seen before.
@@ -283,6 +314,7 @@ func (d *Deps) run(ctx context.Context, server app.Server, drv dialect.Driver, a
 		return err
 	}
 
+	ctx, sh := sharedOf(ctx, drv)
 	t := &Tx{
 		ctx:    ctx,
 		next:   next,
@@ -292,6 +324,7 @@ func (d *Deps) run(ctx context.Context, server app.Server, drv dialect.Driver, a
 		actor:  actor,
 		tenant: tenant,
 		now:    d.now(),
+		shared: sh,
 	}
 	if err := f(t); err != nil {
 		if errors.Is(err, errDone) {

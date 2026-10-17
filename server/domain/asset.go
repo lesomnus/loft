@@ -221,7 +221,7 @@ func (s domainAsset) Add(ctx context.Context, req *app.AssetAddRequest) (*app.As
 			facts["attr."+k] = v
 		}
 		for _, k := range sortedKeys(facts) {
-			if err := t.addFact(id.Uuid(), k, facts[k], false, since); err != nil {
+			if err := t.addFirstFact(id.Uuid(), k, facts[k], since); err != nil {
 				return err
 			}
 		}
@@ -229,7 +229,7 @@ func (s domainAsset) Add(ctx context.Context, req *app.AssetAddRequest) (*app.As
 		if to != nil {
 			old := timeline[place]{}
 			tl, _ := old.set(since, &place{parent: uuidOf(to.GetId()), mode: mode, slot: req.GetSlot()})
-			if err := t.checkPlacements(id.Uuid(), tl, old); err != nil {
+			if err := t.checkPlacements(id.Uuid(), tl, old, true); err != nil {
 				return err
 			}
 			if err := t.writePlacements(id.Uuid(), old, tl); err != nil {
@@ -405,7 +405,7 @@ func (s domainAsset) Move(ctx context.Context, req *app.AssetMoveRequest) (*app.
 			out = a
 			return nil
 		}
-		if err := t.checkPlacements(id.Uuid(), tl, old); err != nil {
+		if err := t.checkPlacements(id.Uuid(), tl, old, false); err != nil {
 			return err
 		}
 
@@ -468,7 +468,10 @@ func (t *Tx) placements(child uuid.UUID) (timeline[place], error) {
 
 // checkPlacements refuses a placement timeline that puts the child inside
 // itself, or into a slot or rack position another asset holds at the time.
-func (t *Tx) checkPlacements(child uuid.UUID, tl, old timeline[place]) error {
+//
+// A child this operation made (`fresh`) has nothing inside it, so no parent
+// can be inside it, and the parents' chain is not walked for one.
+func (t *Tx) checkPlacements(child uuid.UUID, tl, old timeline[place], fresh bool) error {
 	_, added := tl.diff(old)
 	for _, s := range added {
 		p := s.state.parent
@@ -483,7 +486,7 @@ func (t *Tx) checkPlacements(child uuid.UUID, tl, old timeline[place]) error {
 		if s.contains(t.now) && !s.from.Equal(t.now) {
 			times = append(times, t.now)
 		}
-		for i := 0; i < len(times) && i < 32; i++ {
+		for i := 0; !fresh && i < len(times) && i < 32; i++ {
 			chain, changes, err := t.ancestors(p, times[i], s)
 			if err != nil {
 				return err
@@ -697,8 +700,14 @@ func (t *Tx) refresh(child uuid.UUID, old, tl timeline[place]) (*app.Asset, erro
 	return a, err
 }
 
-// bump tells whoever watches a container that what is inside it changed.
+// bump tells whoever watches a container that what is inside it changed --
+// once a transaction: told once, they look once and see all of it. An import
+// of a hundred things into one room told it a hundred times, each a write of
+// its own through every layer (rove#103).
 func (t *Tx) bump(container uuid.UUID) error {
+	if t.shared != nil && t.shared.bumped[container] {
+		return nil
+	}
 	v, err := t.db.Asset.Query().Where(asset.Id(container), asset.TenantId(t.tenant.Uuid())).Only(t.ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -711,6 +720,9 @@ func (t *Tx) bump(container uuid.UUID) error {
 		ContentVersion:   z.Ptr(v.ContentVersion + 1),
 		DateUpdatedForce: z.Ptr(true),
 	}.Build())
+	if err == nil && t.shared != nil {
+		t.shared.bumped[container] = true
+	}
 	return err
 }
 
@@ -733,7 +745,17 @@ func (t *Tx) addFact(id uuid.UUID, key, value string, cleared bool, at time.Time
 		}
 	}
 
-	_, err = t.next.Fact().Add(t.ctx, app.FactAddRequest_builder{
+	return t.writeFact(id, key, value, cleared, at)
+}
+
+// addFirstFact is [Tx.addFact] for an asset this operation made: nothing was
+// recorded of it before, so there is nothing to supersede or to ask about.
+func (t *Tx) addFirstFact(id uuid.UUID, key, value string, at time.Time) error {
+	return t.writeFact(id, key, value, false, at)
+}
+
+func (t *Tx) writeFact(id uuid.UUID, key, value string, cleared bool, at time.Time) error {
+	_, err := t.next.Fact().Add(t.ctx, app.FactAddRequest_builder{
 		Tenant:    t.tenantRef(),
 		Asset:     assetRef(id),
 		Key:       key,
@@ -1270,7 +1292,7 @@ func (s domainAsset) Correct(ctx context.Context, req *app.AssetCorrectRequest) 
 			if !req.GetRetract() {
 				tl, _ = tl.set(when, &gone.state)
 			}
-			if err := t.checkPlacements(id.Uuid(), tl, old); err != nil {
+			if err := t.checkPlacements(id.Uuid(), tl, old, false); err != nil {
 				return err
 			}
 			if err := begin("배치"); err != nil {

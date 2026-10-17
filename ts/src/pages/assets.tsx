@@ -304,6 +304,13 @@ function NewAsset(props: { onClose: () => void }): ReactNode {
 	)
 }
 
+/**
+ * How long an import may take: a sheet of the 5,000 rows the server takes at
+ * once is minutes, and a call that names no deadline is given thirty seconds
+ * (rove#103).
+ */
+const importTimeoutMs = 10 * 60 * 1000
+
 function Import(props: { onClose: () => void }): ReactNode {
 	const act = useAct()
 	const [file, setFile] = useState<File | undefined>()
@@ -313,7 +320,7 @@ function Import(props: { onClose: () => void }): ReactNode {
 		if (file === undefined) return false
 		const data = await readFile(file)
 		const format = file.name.toLowerCase().endsWith('.xlsx') ? 'xlsx' : 'csv'
-		const v = await act(AssetService.method.import, { format, data, dryRun: dry }, { ok: dry ? undefined : '가져왔습니다.' })
+		const v = await act(AssetService.method.import, { format, data, dryRun: dry }, { ok: dry ? undefined : '가져왔습니다.', timeoutMs: importTimeoutMs })
 		if (v === undefined) return false
 		setResult({ dry, created: v.created, updated: v.updated, skipped: v.skipped, errors: v.errors, warnings: v.warnings })
 		return false
