@@ -145,33 +145,28 @@ func (s PlacementServiceServer) image(v *rove.Placement) *rove.Placement {
 	}
 	return out
 }
-func (s PlacementServiceServer) Add(ctx context.Context, req *rove.PlacementAddRequest) (*rove.Placement, error) {
-	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Close()
 
-	st := s
-	st.Db = tx.Db
-
+// create is the row an Add of `req` writes, as a builder not yet saved,
+// and what the answer says about its edges. Add and AddMany both write
+// with it, so that an item of an AddMany is the row an Add of it would be.
+func (st PlacementServiceServer) create(ctx context.Context, req *rove.PlacementAddRequest) (*ent.PlacementCreate, []func(v *rove.Placement), error) {
 	ds := make([]func(v *rove.Placement), 0, 3)
 	q := st.Db.Placement.Create()
 	var k uuid.UUID
 	if req.HasId() {
 		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
 		} else {
 			k = v
 		}
 	}
-	if v, err := mint(ctx, s.Mint, "rove.Placement", k, req.HasId()); err != nil {
-		return nil, err
+	if v, err := mint(ctx, st.Mint, "rove.Placement", k, req.HasId()); err != nil {
+		return nil, nil, err
 	} else {
 		q.SetId(v)
 	}
 	if k, err := TenantGetKey(ctx, st.Db, req.GetTenant()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetTenantId(k)
 		ds = append(ds, func(v *rove.Placement) {
@@ -179,7 +174,7 @@ func (s PlacementServiceServer) Add(ctx context.Context, req *rove.PlacementAddR
 		})
 	}
 	if k, err := AssetGetKey(ctx, st.Db, req.GetChild()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetChildId(k)
 		ds = append(ds, func(v *rove.Placement) {
@@ -187,7 +182,7 @@ func (s PlacementServiceServer) Add(ctx context.Context, req *rove.PlacementAddR
 		})
 	}
 	if k, err := AssetGetKey(ctx, st.Db, req.GetParent()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetParentId(k)
 		ds = append(ds, func(v *rove.Placement) {
@@ -213,7 +208,7 @@ func (s PlacementServiceServer) Add(ctx context.Context, req *rove.PlacementAddR
 		q.SetValidTo(req.GetValidTo().AsTime())
 	}
 	if v, err := entuuid.FromBytes(req.GetEventId()); err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "event_id: %s", err)
+		return nil, nil, status.Errorf(codes.InvalidArgument, "event_id: %s", err)
 	} else {
 		q.SetEventId(v)
 	}
@@ -222,10 +217,27 @@ func (s PlacementServiceServer) Add(ctx context.Context, req *rove.PlacementAddR
 	}
 	if req.HasSupersededBy() {
 		if v, err := entuuid.FromBytes(req.GetSupersededBy()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "superseded_by: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "superseded_by: %s", err)
 		} else {
 			q.SetSupersededBy(v)
 		}
+	}
+	return q, ds, nil
+}
+
+func (s PlacementServiceServer) Add(ctx context.Context, req *rove.PlacementAddRequest) (*rove.Placement, error) {
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	q, ds, err := st.create(ctx, req)
+	if err != nil {
+		return nil, err
 	}
 
 	var stored *ent.Placement
@@ -266,6 +278,38 @@ func (s PlacementServiceServer) Add(ctx context.Context, req *rove.PlacementAddR
 	}
 
 	return v, nil
+}
+
+// PlacementAddRule is what a layer in front says about one row an Add of Placement
+// would write: the request to write it with -- the one it was handed, or a
+// copy it changed -- or a refusal. Nil is the request it was handed.
+type PlacementAddRule func(ctx context.Context, req *rove.PlacementAddRequest) (*rove.PlacementAddRequest, error)
+
+// PlacementWithAddRule answers with `next` behind `rule` for the RPCs that add.
+// An Add is asked about, and every item of an AddMany in order, and the
+// call is refused for the first one that is -- an AddMany naming the item.
+// What reaches `next` is one call either way: an AddMany stays one AddMany.
+//
+// A layer that overrides Add itself, for something an Add does that a rule
+// cannot say, still has its AddMany asked through this.
+func PlacementWithAddRule(next rove.PlacementServiceServer, rule PlacementAddRule) rove.PlacementServiceServer {
+	return placementAddRuled{next, rule}
+}
+
+type placementAddRuled struct {
+	rove.PlacementServiceServer
+	rule PlacementAddRule
+}
+
+func (s placementAddRuled) Add(ctx context.Context, req *rove.PlacementAddRequest) (*rove.Placement, error) {
+	r, err := s.rule(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		r = req
+	}
+	return s.PlacementServiceServer.Add(ctx, r)
 }
 
 func (s PlacementServiceServer) Get(ctx context.Context, req *rove.PlacementGetRequest) (*rove.Placement, error) {
@@ -748,33 +792,28 @@ func (s LinkServiceServer) image(v *rove.Link) *rove.Link {
 	}
 	return out
 }
-func (s LinkServiceServer) Add(ctx context.Context, req *rove.LinkAddRequest) (*rove.Link, error) {
-	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Close()
 
-	st := s
-	st.Db = tx.Db
-
+// create is the row an Add of `req` writes, as a builder not yet saved,
+// and what the answer says about its edges. Add and AddMany both write
+// with it, so that an item of an AddMany is the row an Add of it would be.
+func (st LinkServiceServer) create(ctx context.Context, req *rove.LinkAddRequest) (*ent.LinkCreate, []func(v *rove.Link), error) {
 	ds := make([]func(v *rove.Link), 0, 3)
 	q := st.Db.Link.Create()
 	var k uuid.UUID
 	if req.HasId() {
 		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
 		} else {
 			k = v
 		}
 	}
-	if v, err := mint(ctx, s.Mint, "rove.Link", k, req.HasId()); err != nil {
-		return nil, err
+	if v, err := mint(ctx, st.Mint, "rove.Link", k, req.HasId()); err != nil {
+		return nil, nil, err
 	} else {
 		q.SetId(v)
 	}
 	if k, err := TenantGetKey(ctx, st.Db, req.GetTenant()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetTenantId(k)
 		ds = append(ds, func(v *rove.Link) {
@@ -785,7 +824,7 @@ func (s LinkServiceServer) Add(ctx context.Context, req *rove.LinkAddRequest) (*
 		q.SetLabels(u)
 	}
 	if k, err := AssetGetKey(ctx, st.Db, req.GetSource()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetSourceId(k)
 		ds = append(ds, func(v *rove.Link) {
@@ -793,7 +832,7 @@ func (s LinkServiceServer) Add(ctx context.Context, req *rove.LinkAddRequest) (*
 		})
 	}
 	if k, err := AssetGetKey(ctx, st.Db, req.GetTarget()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetTargetId(k)
 		ds = append(ds, func(v *rove.Link) {
@@ -817,7 +856,7 @@ func (s LinkServiceServer) Add(ctx context.Context, req *rove.LinkAddRequest) (*
 		q.SetValidTo(req.GetValidTo().AsTime())
 	}
 	if v, err := entuuid.FromBytes(req.GetEventId()); err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "event_id: %s", err)
+		return nil, nil, status.Errorf(codes.InvalidArgument, "event_id: %s", err)
 	} else {
 		q.SetEventId(v)
 	}
@@ -826,10 +865,27 @@ func (s LinkServiceServer) Add(ctx context.Context, req *rove.LinkAddRequest) (*
 	}
 	if req.HasSupersededBy() {
 		if v, err := entuuid.FromBytes(req.GetSupersededBy()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "superseded_by: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "superseded_by: %s", err)
 		} else {
 			q.SetSupersededBy(v)
 		}
+	}
+	return q, ds, nil
+}
+
+func (s LinkServiceServer) Add(ctx context.Context, req *rove.LinkAddRequest) (*rove.Link, error) {
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	q, ds, err := st.create(ctx, req)
+	if err != nil {
+		return nil, err
 	}
 
 	var stored *ent.Link
@@ -870,6 +926,38 @@ func (s LinkServiceServer) Add(ctx context.Context, req *rove.LinkAddRequest) (*
 	}
 
 	return v, nil
+}
+
+// LinkAddRule is what a layer in front says about one row an Add of Link
+// would write: the request to write it with -- the one it was handed, or a
+// copy it changed -- or a refusal. Nil is the request it was handed.
+type LinkAddRule func(ctx context.Context, req *rove.LinkAddRequest) (*rove.LinkAddRequest, error)
+
+// LinkWithAddRule answers with `next` behind `rule` for the RPCs that add.
+// An Add is asked about, and every item of an AddMany in order, and the
+// call is refused for the first one that is -- an AddMany naming the item.
+// What reaches `next` is one call either way: an AddMany stays one AddMany.
+//
+// A layer that overrides Add itself, for something an Add does that a rule
+// cannot say, still has its AddMany asked through this.
+func LinkWithAddRule(next rove.LinkServiceServer, rule LinkAddRule) rove.LinkServiceServer {
+	return linkAddRuled{next, rule}
+}
+
+type linkAddRuled struct {
+	rove.LinkServiceServer
+	rule LinkAddRule
+}
+
+func (s linkAddRuled) Add(ctx context.Context, req *rove.LinkAddRequest) (*rove.Link, error) {
+	r, err := s.rule(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		r = req
+	}
+	return s.LinkServiceServer.Add(ctx, r)
 }
 
 func (s LinkServiceServer) Get(ctx context.Context, req *rove.LinkGetRequest) (*rove.Link, error) {
@@ -1349,33 +1437,28 @@ func (s StewardshipServiceServer) image(v *rove.Stewardship) *rove.Stewardship {
 	}
 	return out
 }
-func (s StewardshipServiceServer) Add(ctx context.Context, req *rove.StewardshipAddRequest) (*rove.Stewardship, error) {
-	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Close()
 
-	st := s
-	st.Db = tx.Db
-
+// create is the row an Add of `req` writes, as a builder not yet saved,
+// and what the answer says about its edges. Add and AddMany both write
+// with it, so that an item of an AddMany is the row an Add of it would be.
+func (st StewardshipServiceServer) create(ctx context.Context, req *rove.StewardshipAddRequest) (*ent.StewardshipCreate, []func(v *rove.Stewardship), error) {
 	ds := make([]func(v *rove.Stewardship), 0, 3)
 	q := st.Db.Stewardship.Create()
 	var k uuid.UUID
 	if req.HasId() {
 		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
 		} else {
 			k = v
 		}
 	}
-	if v, err := mint(ctx, s.Mint, "rove.Stewardship", k, req.HasId()); err != nil {
-		return nil, err
+	if v, err := mint(ctx, st.Mint, "rove.Stewardship", k, req.HasId()); err != nil {
+		return nil, nil, err
 	} else {
 		q.SetId(v)
 	}
 	if k, err := TenantGetKey(ctx, st.Db, req.GetTenant()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetTenantId(k)
 		ds = append(ds, func(v *rove.Stewardship) {
@@ -1383,7 +1466,7 @@ func (s StewardshipServiceServer) Add(ctx context.Context, req *rove.Stewardship
 		})
 	}
 	if k, err := AssetGetKey(ctx, st.Db, req.GetAsset()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetAssetId(k)
 		ds = append(ds, func(v *rove.Stewardship) {
@@ -1391,7 +1474,7 @@ func (s StewardshipServiceServer) Add(ctx context.Context, req *rove.Stewardship
 		})
 	}
 	if k, err := PartyGetKey(ctx, st.Db, req.GetParty()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetPartyId(k)
 		ds = append(ds, func(v *rove.Stewardship) {
@@ -1414,7 +1497,7 @@ func (s StewardshipServiceServer) Add(ctx context.Context, req *rove.Stewardship
 		q.SetValidTo(req.GetValidTo().AsTime())
 	}
 	if v, err := entuuid.FromBytes(req.GetEventId()); err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "event_id: %s", err)
+		return nil, nil, status.Errorf(codes.InvalidArgument, "event_id: %s", err)
 	} else {
 		q.SetEventId(v)
 	}
@@ -1423,10 +1506,27 @@ func (s StewardshipServiceServer) Add(ctx context.Context, req *rove.Stewardship
 	}
 	if req.HasSupersededBy() {
 		if v, err := entuuid.FromBytes(req.GetSupersededBy()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "superseded_by: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "superseded_by: %s", err)
 		} else {
 			q.SetSupersededBy(v)
 		}
+	}
+	return q, ds, nil
+}
+
+func (s StewardshipServiceServer) Add(ctx context.Context, req *rove.StewardshipAddRequest) (*rove.Stewardship, error) {
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	q, ds, err := st.create(ctx, req)
+	if err != nil {
+		return nil, err
 	}
 
 	var stored *ent.Stewardship
@@ -1467,6 +1567,38 @@ func (s StewardshipServiceServer) Add(ctx context.Context, req *rove.Stewardship
 	}
 
 	return v, nil
+}
+
+// StewardshipAddRule is what a layer in front says about one row an Add of Stewardship
+// would write: the request to write it with -- the one it was handed, or a
+// copy it changed -- or a refusal. Nil is the request it was handed.
+type StewardshipAddRule func(ctx context.Context, req *rove.StewardshipAddRequest) (*rove.StewardshipAddRequest, error)
+
+// StewardshipWithAddRule answers with `next` behind `rule` for the RPCs that add.
+// An Add is asked about, and every item of an AddMany in order, and the
+// call is refused for the first one that is -- an AddMany naming the item.
+// What reaches `next` is one call either way: an AddMany stays one AddMany.
+//
+// A layer that overrides Add itself, for something an Add does that a rule
+// cannot say, still has its AddMany asked through this.
+func StewardshipWithAddRule(next rove.StewardshipServiceServer, rule StewardshipAddRule) rove.StewardshipServiceServer {
+	return stewardshipAddRuled{next, rule}
+}
+
+type stewardshipAddRuled struct {
+	rove.StewardshipServiceServer
+	rule StewardshipAddRule
+}
+
+func (s stewardshipAddRuled) Add(ctx context.Context, req *rove.StewardshipAddRequest) (*rove.Stewardship, error) {
+	r, err := s.rule(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		r = req
+	}
+	return s.StewardshipServiceServer.Add(ctx, r)
 }
 
 func (s StewardshipServiceServer) Get(ctx context.Context, req *rove.StewardshipGetRequest) (*rove.Stewardship, error) {
@@ -1926,33 +2058,28 @@ func (s FactServiceServer) image(v *rove.Fact) *rove.Fact {
 	}
 	return out
 }
-func (s FactServiceServer) Add(ctx context.Context, req *rove.FactAddRequest) (*rove.Fact, error) {
-	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Close()
 
-	st := s
-	st.Db = tx.Db
-
+// create is the row an Add of `req` writes, as a builder not yet saved,
+// and what the answer says about its edges. Add and AddMany both write
+// with it, so that an item of an AddMany is the row an Add of it would be.
+func (st FactServiceServer) create(ctx context.Context, req *rove.FactAddRequest) (*ent.FactCreate, []func(v *rove.Fact), error) {
 	ds := make([]func(v *rove.Fact), 0, 2)
 	q := st.Db.Fact.Create()
 	var k uuid.UUID
 	if req.HasId() {
 		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
 		} else {
 			k = v
 		}
 	}
-	if v, err := mint(ctx, s.Mint, "rove.Fact", k, req.HasId()); err != nil {
-		return nil, err
+	if v, err := mint(ctx, st.Mint, "rove.Fact", k, req.HasId()); err != nil {
+		return nil, nil, err
 	} else {
 		q.SetId(v)
 	}
 	if k, err := TenantGetKey(ctx, st.Db, req.GetTenant()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetTenantId(k)
 		ds = append(ds, func(v *rove.Fact) {
@@ -1960,7 +2087,7 @@ func (s FactServiceServer) Add(ctx context.Context, req *rove.FactAddRequest) (*
 		})
 	}
 	if k, err := AssetGetKey(ctx, st.Db, req.GetAsset()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetAssetId(k)
 		ds = append(ds, func(v *rove.Fact) {
@@ -1982,7 +2109,7 @@ func (s FactServiceServer) Add(ctx context.Context, req *rove.FactAddRequest) (*
 		q.SetValidFrom(st.now())
 	}
 	if v, err := entuuid.FromBytes(req.GetEventId()); err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "event_id: %s", err)
+		return nil, nil, status.Errorf(codes.InvalidArgument, "event_id: %s", err)
 	} else {
 		q.SetEventId(v)
 	}
@@ -1991,10 +2118,27 @@ func (s FactServiceServer) Add(ctx context.Context, req *rove.FactAddRequest) (*
 	}
 	if req.HasSupersededBy() {
 		if v, err := entuuid.FromBytes(req.GetSupersededBy()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "superseded_by: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "superseded_by: %s", err)
 		} else {
 			q.SetSupersededBy(v)
 		}
+	}
+	return q, ds, nil
+}
+
+func (s FactServiceServer) Add(ctx context.Context, req *rove.FactAddRequest) (*rove.Fact, error) {
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	q, ds, err := st.create(ctx, req)
+	if err != nil {
+		return nil, err
 	}
 
 	var stored *ent.Fact
@@ -2035,6 +2179,149 @@ func (s FactServiceServer) Add(ctx context.Context, req *rove.FactAddRequest) (*
 	}
 
 	return v, nil
+}
+
+// FactAddManyMax is the most items one AddMany of Fact carries.
+const FactAddManyMax = 1000
+
+// factAddManyRows is how many rows one INSERT of an AddMany
+// writes: as many as fit in what a statement binds on every engine, and
+// no more than a few hundred.
+const factAddManyRows = 500
+
+// AddMany adds every item as Add would add it, in one transaction: all of
+// the rows or none of them. The rows come back in the order of the items.
+//
+// An item that cannot be a row is refused naming the item, before anything
+// is written. A refusal by the database is the whole statement's, and does
+// not say which row it was about.
+func (s FactServiceServer) AddMany(ctx context.Context, req *rove.FactAddManyRequest) (*rove.FactAddManyResponse, error) {
+	items := req.GetItems()
+	if len(items) > FactAddManyMax {
+		return nil, status.Errorf(codes.InvalidArgument, "items: at most %d in one call, and there are %d", FactAddManyMax, len(items))
+	}
+	if len(items) == 0 {
+		return rove.FactAddManyResponse_builder{}.Build(), nil
+	}
+
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, true)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	images := snapshotOptions(s.Rec, rove.FactService_AddMany_FullMethodName).Value
+	qs := make([]*ent.FactCreate, len(items))
+	dss := make([][]func(v *rove.Fact), len(items))
+	stored := make([]*ent.Fact, len(items))
+	for i, item := range items {
+		q, ds, err := st.create(ctx, item)
+		if err != nil {
+			return nil, ItemError(i, err)
+		}
+		if images {
+			q.Stored(&stored[i])
+		}
+		qs[i], dss[i] = q, ds
+	}
+
+	us := make([]*ent.Fact, 0, len(qs))
+	for lo := 0; lo < len(qs); lo += factAddManyRows {
+		vs, err := st.Db.Fact.CreateBulk(qs[lo:min(lo+factAddManyRows, len(qs))]...).Save(ctx)
+		if err != nil {
+			if err, ok := err.(*ent.ConstraintError); ok {
+				if sqlgraph.IsUniqueConstraintError(err) {
+					return nil, status.Error(codes.AlreadyExists, "Fact already exists")
+				}
+				if sqlgraph.IsForeignKeyConstraintError(err) {
+					return nil, status.Error(codes.NotFound, "Fact: referenced entity not found")
+				}
+			}
+			return nil, err
+		}
+		us = append(us, vs...)
+	}
+
+	out := make([]*rove.Fact, len(us))
+	for i, u := range us {
+		v := u.Proto()
+		for _, d := range dss[i] {
+			d(v)
+		}
+		out[i] = v
+
+		var value *rove.Fact
+		if stored[i] != nil {
+			value = s.image(stored[i].Proto())
+		}
+		if err := record(ctx, s.Rec, st.Db, Change{
+			By:    rove.FactService_AddMany_FullMethodName,
+			Key:   u.Id,
+			Value: value,
+		}); err != nil {
+			return nil, err
+		}
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+
+	return rove.FactAddManyResponse_builder{Items: out}.Build(), nil
+}
+
+// FactAddRule is what a layer in front says about one row an Add of Fact
+// would write: the request to write it with -- the one it was handed, or a
+// copy it changed -- or a refusal. Nil is the request it was handed.
+type FactAddRule func(ctx context.Context, req *rove.FactAddRequest) (*rove.FactAddRequest, error)
+
+// FactWithAddRule answers with `next` behind `rule` for the RPCs that add.
+// An Add is asked about, and every item of an AddMany in order, and the
+// call is refused for the first one that is -- an AddMany naming the item.
+// What reaches `next` is one call either way: an AddMany stays one AddMany.
+//
+// A layer that overrides Add itself, for something an Add does that a rule
+// cannot say, still has its AddMany asked through this.
+func FactWithAddRule(next rove.FactServiceServer, rule FactAddRule) rove.FactServiceServer {
+	return factAddRuled{next, rule}
+}
+
+type factAddRuled struct {
+	rove.FactServiceServer
+	rule FactAddRule
+}
+
+func (s factAddRuled) Add(ctx context.Context, req *rove.FactAddRequest) (*rove.Fact, error) {
+	r, err := s.rule(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		r = req
+	}
+	return s.FactServiceServer.Add(ctx, r)
+}
+
+func (s factAddRuled) AddMany(ctx context.Context, req *rove.FactAddManyRequest) (*rove.FactAddManyResponse, error) {
+	items := req.GetItems()
+	if len(items) > FactAddManyMax {
+		return nil, status.Errorf(codes.InvalidArgument, "items: at most %d in one call, and there are %d", FactAddManyMax, len(items))
+	}
+
+	rs := make([]*rove.FactAddRequest, len(items))
+	for i, item := range items {
+		r, err := s.rule(ctx, item)
+		if err != nil {
+			return nil, ItemError(i, err)
+		}
+		if r == nil {
+			r = item
+		}
+		rs[i] = r
+	}
+	return s.FactServiceServer.AddMany(ctx, rove.FactAddManyRequest_builder{Items: rs}.Build())
 }
 
 func (s FactServiceServer) Get(ctx context.Context, req *rove.FactGetRequest) (*rove.Fact, error) {
@@ -2477,33 +2764,28 @@ func (s EventServiceServer) image(v *rove.Event) *rove.Event {
 	}
 	return out
 }
-func (s EventServiceServer) Add(ctx context.Context, req *rove.EventAddRequest) (*rove.Event, error) {
-	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Close()
 
-	st := s
-	st.Db = tx.Db
-
+// create is the row an Add of `req` writes, as a builder not yet saved,
+// and what the answer says about its edges. Add and AddMany both write
+// with it, so that an item of an AddMany is the row an Add of it would be.
+func (st EventServiceServer) create(ctx context.Context, req *rove.EventAddRequest) (*ent.EventCreate, []func(v *rove.Event), error) {
 	ds := make([]func(v *rove.Event), 0, 1)
 	q := st.Db.Event.Create()
 	var k uuid.UUID
 	if req.HasId() {
 		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
 		} else {
 			k = v
 		}
 	}
-	if v, err := mint(ctx, s.Mint, "rove.Event", k, req.HasId()); err != nil {
-		return nil, err
+	if v, err := mint(ctx, st.Mint, "rove.Event", k, req.HasId()); err != nil {
+		return nil, nil, err
 	} else {
 		q.SetId(v)
 	}
 	if k, err := TenantGetKey(ctx, st.Db, req.GetTenant()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetTenantId(k)
 		ds = append(ds, func(v *rove.Event) {
@@ -2514,7 +2796,7 @@ func (s EventServiceServer) Add(ctx context.Context, req *rove.EventAddRequest) 
 	q.SetKind(req.GetKind())
 	if req.HasActorId() {
 		if v, err := entuuid.FromBytes(req.GetActorId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "actor_id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "actor_id: %s", err)
 		} else {
 			q.SetActorId(v)
 		}
@@ -2527,7 +2809,7 @@ func (s EventServiceServer) Add(ctx context.Context, req *rove.EventAddRequest) 
 	q.SetReason(req.GetReason())
 	if req.HasSubjectId() {
 		if v, err := entuuid.FromBytes(req.GetSubjectId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "subject_id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "subject_id: %s", err)
 		} else {
 			q.SetSubjectId(v)
 		}
@@ -2544,6 +2826,23 @@ func (s EventServiceServer) Add(ctx context.Context, req *rove.EventAddRequest) 
 		q.SetTraceId([]byte{})
 	}
 	q.SetPayload(req.GetPayload())
+	return q, ds, nil
+}
+
+func (s EventServiceServer) Add(ctx context.Context, req *rove.EventAddRequest) (*rove.Event, error) {
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	q, ds, err := st.create(ctx, req)
+	if err != nil {
+		return nil, err
+	}
 
 	var stored *ent.Event
 	if snapshotOptions(s.Rec, rove.EventService_Add_FullMethodName).Value {
@@ -2583,6 +2882,38 @@ func (s EventServiceServer) Add(ctx context.Context, req *rove.EventAddRequest) 
 	}
 
 	return v, nil
+}
+
+// EventAddRule is what a layer in front says about one row an Add of Event
+// would write: the request to write it with -- the one it was handed, or a
+// copy it changed -- or a refusal. Nil is the request it was handed.
+type EventAddRule func(ctx context.Context, req *rove.EventAddRequest) (*rove.EventAddRequest, error)
+
+// EventWithAddRule answers with `next` behind `rule` for the RPCs that add.
+// An Add is asked about, and every item of an AddMany in order, and the
+// call is refused for the first one that is -- an AddMany naming the item.
+// What reaches `next` is one call either way: an AddMany stays one AddMany.
+//
+// A layer that overrides Add itself, for something an Add does that a rule
+// cannot say, still has its AddMany asked through this.
+func EventWithAddRule(next rove.EventServiceServer, rule EventAddRule) rove.EventServiceServer {
+	return eventAddRuled{next, rule}
+}
+
+type eventAddRuled struct {
+	rove.EventServiceServer
+	rule EventAddRule
+}
+
+func (s eventAddRuled) Add(ctx context.Context, req *rove.EventAddRequest) (*rove.Event, error) {
+	r, err := s.rule(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		r = req
+	}
+	return s.EventServiceServer.Add(ctx, r)
 }
 
 func (s EventServiceServer) Get(ctx context.Context, req *rove.EventGetRequest) (*rove.Event, error) {

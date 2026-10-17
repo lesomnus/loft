@@ -149,33 +149,28 @@ func (s WorkOrderServiceServer) image(v *rove.WorkOrder) *rove.WorkOrder {
 	}
 	return out
 }
-func (s WorkOrderServiceServer) Add(ctx context.Context, req *rove.WorkOrderAddRequest) (*rove.WorkOrder, error) {
-	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Close()
 
-	st := s
-	st.Db = tx.Db
-
+// create is the row an Add of `req` writes, as a builder not yet saved,
+// and what the answer says about its edges. Add and AddMany both write
+// with it, so that an item of an AddMany is the row an Add of it would be.
+func (st WorkOrderServiceServer) create(ctx context.Context, req *rove.WorkOrderAddRequest) (*ent.WorkOrderCreate, []func(v *rove.WorkOrder), error) {
 	ds := make([]func(v *rove.WorkOrder), 0, 3)
 	q := st.Db.WorkOrder.Create()
 	var k uuid.UUID
 	if req.HasId() {
 		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
 		} else {
 			k = v
 		}
 	}
-	if v, err := mint(ctx, s.Mint, "rove.WorkOrder", k, req.HasId()); err != nil {
-		return nil, err
+	if v, err := mint(ctx, st.Mint, "rove.WorkOrder", k, req.HasId()); err != nil {
+		return nil, nil, err
 	} else {
 		q.SetId(v)
 	}
 	if k, err := TenantGetKey(ctx, st.Db, req.GetTenant()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetTenantId(k)
 		ds = append(ds, func(v *rove.WorkOrder) {
@@ -185,7 +180,7 @@ func (s WorkOrderServiceServer) Add(ctx context.Context, req *rove.WorkOrderAddR
 	q.SetName(req.GetName())
 	q.SetDesc(req.GetDesc())
 	if k, err := AssetGetKey(ctx, st.Db, req.GetAsset()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetAssetId(k)
 		ds = append(ds, func(v *rove.WorkOrder) {
@@ -208,7 +203,7 @@ func (s WorkOrderServiceServer) Add(ctx context.Context, req *rove.WorkOrderAddR
 	}
 	if req.HasVendor() {
 		if k, err := PartyGetKey(ctx, st.Db, req.GetVendor()); err != nil {
-			return nil, err
+			return nil, nil, err
 		} else {
 			q.SetVendorId(k)
 			ds = append(ds, func(v *rove.WorkOrder) {
@@ -223,6 +218,23 @@ func (s WorkOrderServiceServer) Add(ctx context.Context, req *rove.WorkOrderAddR
 	}
 	q.SetBlocking(req.GetBlocking())
 	q.SetEveryDays(req.GetEveryDays())
+	return q, ds, nil
+}
+
+func (s WorkOrderServiceServer) Add(ctx context.Context, req *rove.WorkOrderAddRequest) (*rove.WorkOrder, error) {
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	q, ds, err := st.create(ctx, req)
+	if err != nil {
+		return nil, err
+	}
 
 	var stored *ent.WorkOrder
 	if snapshotOptions(s.Rec, rove.WorkOrderService_Add_FullMethodName).Value {
@@ -262,6 +274,38 @@ func (s WorkOrderServiceServer) Add(ctx context.Context, req *rove.WorkOrderAddR
 	}
 
 	return v, nil
+}
+
+// WorkOrderAddRule is what a layer in front says about one row an Add of WorkOrder
+// would write: the request to write it with -- the one it was handed, or a
+// copy it changed -- or a refusal. Nil is the request it was handed.
+type WorkOrderAddRule func(ctx context.Context, req *rove.WorkOrderAddRequest) (*rove.WorkOrderAddRequest, error)
+
+// WorkOrderWithAddRule answers with `next` behind `rule` for the RPCs that add.
+// An Add is asked about, and every item of an AddMany in order, and the
+// call is refused for the first one that is -- an AddMany naming the item.
+// What reaches `next` is one call either way: an AddMany stays one AddMany.
+//
+// A layer that overrides Add itself, for something an Add does that a rule
+// cannot say, still has its AddMany asked through this.
+func WorkOrderWithAddRule(next rove.WorkOrderServiceServer, rule WorkOrderAddRule) rove.WorkOrderServiceServer {
+	return workOrderAddRuled{next, rule}
+}
+
+type workOrderAddRuled struct {
+	rove.WorkOrderServiceServer
+	rule WorkOrderAddRule
+}
+
+func (s workOrderAddRuled) Add(ctx context.Context, req *rove.WorkOrderAddRequest) (*rove.WorkOrder, error) {
+	r, err := s.rule(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		r = req
+	}
+	return s.WorkOrderServiceServer.Add(ctx, r)
 }
 
 func (s WorkOrderServiceServer) Get(ctx context.Context, req *rove.WorkOrderGetRequest) (*rove.WorkOrder, error) {
@@ -774,33 +818,28 @@ func (s PurchaseServiceServer) image(v *rove.Purchase) *rove.Purchase {
 	}
 	return out
 }
-func (s PurchaseServiceServer) Add(ctx context.Context, req *rove.PurchaseAddRequest) (*rove.Purchase, error) {
-	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Close()
 
-	st := s
-	st.Db = tx.Db
-
+// create is the row an Add of `req` writes, as a builder not yet saved,
+// and what the answer says about its edges. Add and AddMany both write
+// with it, so that an item of an AddMany is the row an Add of it would be.
+func (st PurchaseServiceServer) create(ctx context.Context, req *rove.PurchaseAddRequest) (*ent.PurchaseCreate, []func(v *rove.Purchase), error) {
 	ds := make([]func(v *rove.Purchase), 0, 2)
 	q := st.Db.Purchase.Create()
 	var k uuid.UUID
 	if req.HasId() {
 		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
 		} else {
 			k = v
 		}
 	}
-	if v, err := mint(ctx, s.Mint, "rove.Purchase", k, req.HasId()); err != nil {
-		return nil, err
+	if v, err := mint(ctx, st.Mint, "rove.Purchase", k, req.HasId()); err != nil {
+		return nil, nil, err
 	} else {
 		q.SetId(v)
 	}
 	if k, err := TenantGetKey(ctx, st.Db, req.GetTenant()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetTenantId(k)
 		ds = append(ds, func(v *rove.Purchase) {
@@ -811,7 +850,7 @@ func (s PurchaseServiceServer) Add(ctx context.Context, req *rove.PurchaseAddReq
 	q.SetDesc(req.GetDesc())
 	if req.HasVendor() {
 		if k, err := PartyGetKey(ctx, st.Db, req.GetVendor()); err != nil {
-			return nil, err
+			return nil, nil, err
 		} else {
 			q.SetVendorId(k)
 			ds = append(ds, func(v *rove.Purchase) {
@@ -837,6 +876,23 @@ func (s PurchaseServiceServer) Add(ctx context.Context, req *rove.PurchaseAddReq
 	}
 	q.SetCurrency(req.GetCurrency())
 	q.SetTotal(req.GetTotal())
+	return q, ds, nil
+}
+
+func (s PurchaseServiceServer) Add(ctx context.Context, req *rove.PurchaseAddRequest) (*rove.Purchase, error) {
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	q, ds, err := st.create(ctx, req)
+	if err != nil {
+		return nil, err
+	}
 
 	var stored *ent.Purchase
 	if snapshotOptions(s.Rec, rove.PurchaseService_Add_FullMethodName).Value {
@@ -876,6 +932,38 @@ func (s PurchaseServiceServer) Add(ctx context.Context, req *rove.PurchaseAddReq
 	}
 
 	return v, nil
+}
+
+// PurchaseAddRule is what a layer in front says about one row an Add of Purchase
+// would write: the request to write it with -- the one it was handed, or a
+// copy it changed -- or a refusal. Nil is the request it was handed.
+type PurchaseAddRule func(ctx context.Context, req *rove.PurchaseAddRequest) (*rove.PurchaseAddRequest, error)
+
+// PurchaseWithAddRule answers with `next` behind `rule` for the RPCs that add.
+// An Add is asked about, and every item of an AddMany in order, and the
+// call is refused for the first one that is -- an AddMany naming the item.
+// What reaches `next` is one call either way: an AddMany stays one AddMany.
+//
+// A layer that overrides Add itself, for something an Add does that a rule
+// cannot say, still has its AddMany asked through this.
+func PurchaseWithAddRule(next rove.PurchaseServiceServer, rule PurchaseAddRule) rove.PurchaseServiceServer {
+	return purchaseAddRuled{next, rule}
+}
+
+type purchaseAddRuled struct {
+	rove.PurchaseServiceServer
+	rule PurchaseAddRule
+}
+
+func (s purchaseAddRuled) Add(ctx context.Context, req *rove.PurchaseAddRequest) (*rove.Purchase, error) {
+	r, err := s.rule(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		r = req
+	}
+	return s.PurchaseServiceServer.Add(ctx, r)
 }
 
 func (s PurchaseServiceServer) Get(ctx context.Context, req *rove.PurchaseGetRequest) (*rove.Purchase, error) {
@@ -1383,33 +1471,28 @@ func (s PurchaseLineServiceServer) image(v *rove.PurchaseLine) *rove.PurchaseLin
 	}
 	return out
 }
-func (s PurchaseLineServiceServer) Add(ctx context.Context, req *rove.PurchaseLineAddRequest) (*rove.PurchaseLine, error) {
-	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Close()
 
-	st := s
-	st.Db = tx.Db
-
+// create is the row an Add of `req` writes, as a builder not yet saved,
+// and what the answer says about its edges. Add and AddMany both write
+// with it, so that an item of an AddMany is the row an Add of it would be.
+func (st PurchaseLineServiceServer) create(ctx context.Context, req *rove.PurchaseLineAddRequest) (*ent.PurchaseLineCreate, []func(v *rove.PurchaseLine), error) {
 	ds := make([]func(v *rove.PurchaseLine), 0, 3)
 	q := st.Db.PurchaseLine.Create()
 	var k uuid.UUID
 	if req.HasId() {
 		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
 		} else {
 			k = v
 		}
 	}
-	if v, err := mint(ctx, s.Mint, "rove.PurchaseLine", k, req.HasId()); err != nil {
-		return nil, err
+	if v, err := mint(ctx, st.Mint, "rove.PurchaseLine", k, req.HasId()); err != nil {
+		return nil, nil, err
 	} else {
 		q.SetId(v)
 	}
 	if k, err := TenantGetKey(ctx, st.Db, req.GetTenant()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetTenantId(k)
 		ds = append(ds, func(v *rove.PurchaseLine) {
@@ -1418,7 +1501,7 @@ func (s PurchaseLineServiceServer) Add(ctx context.Context, req *rove.PurchaseLi
 	}
 	q.SetDesc(req.GetDesc())
 	if k, err := PurchaseGetKey(ctx, st.Db, req.GetPurchase()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetPurchaseId(k)
 		ds = append(ds, func(v *rove.PurchaseLine) {
@@ -1427,7 +1510,7 @@ func (s PurchaseLineServiceServer) Add(ctx context.Context, req *rove.PurchaseLi
 	}
 	if req.HasModel() {
 		if k, err := ItemModelGetKey(ctx, st.Db, req.GetModel()); err != nil {
-			return nil, err
+			return nil, nil, err
 		} else {
 			q.SetModelId(k)
 			ds = append(ds, func(v *rove.PurchaseLine) {
@@ -1445,6 +1528,23 @@ func (s PurchaseLineServiceServer) Add(ctx context.Context, req *rove.PurchaseLi
 		q.SetDateCreated(st.now())
 	}
 	q.SetReceiveAs(req.GetReceiveAs())
+	return q, ds, nil
+}
+
+func (s PurchaseLineServiceServer) Add(ctx context.Context, req *rove.PurchaseLineAddRequest) (*rove.PurchaseLine, error) {
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	q, ds, err := st.create(ctx, req)
+	if err != nil {
+		return nil, err
+	}
 
 	var stored *ent.PurchaseLine
 	if snapshotOptions(s.Rec, rove.PurchaseLineService_Add_FullMethodName).Value {
@@ -1484,6 +1584,38 @@ func (s PurchaseLineServiceServer) Add(ctx context.Context, req *rove.PurchaseLi
 	}
 
 	return v, nil
+}
+
+// PurchaseLineAddRule is what a layer in front says about one row an Add of PurchaseLine
+// would write: the request to write it with -- the one it was handed, or a
+// copy it changed -- or a refusal. Nil is the request it was handed.
+type PurchaseLineAddRule func(ctx context.Context, req *rove.PurchaseLineAddRequest) (*rove.PurchaseLineAddRequest, error)
+
+// PurchaseLineWithAddRule answers with `next` behind `rule` for the RPCs that add.
+// An Add is asked about, and every item of an AddMany in order, and the
+// call is refused for the first one that is -- an AddMany naming the item.
+// What reaches `next` is one call either way: an AddMany stays one AddMany.
+//
+// A layer that overrides Add itself, for something an Add does that a rule
+// cannot say, still has its AddMany asked through this.
+func PurchaseLineWithAddRule(next rove.PurchaseLineServiceServer, rule PurchaseLineAddRule) rove.PurchaseLineServiceServer {
+	return purchaseLineAddRuled{next, rule}
+}
+
+type purchaseLineAddRuled struct {
+	rove.PurchaseLineServiceServer
+	rule PurchaseLineAddRule
+}
+
+func (s purchaseLineAddRuled) Add(ctx context.Context, req *rove.PurchaseLineAddRequest) (*rove.PurchaseLine, error) {
+	r, err := s.rule(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		r = req
+	}
+	return s.PurchaseLineServiceServer.Add(ctx, r)
 }
 
 func (s PurchaseLineServiceServer) Get(ctx context.Context, req *rove.PurchaseLineGetRequest) (*rove.PurchaseLine, error) {

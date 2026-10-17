@@ -220,10 +220,8 @@ func (s domainAsset) Add(ctx context.Context, req *app.AssetAddRequest) (*app.As
 		for k, v := range a.GetAttributes() {
 			facts["attr."+k] = v
 		}
-		for _, k := range sortedKeys(facts) {
-			if err := t.addFirstFact(id.Uuid(), k, facts[k], since); err != nil {
-				return err
-			}
+		if err := t.addFirstFacts(id.Uuid(), facts, since); err != nil {
+			return err
 		}
 
 		if to != nil {
@@ -748,14 +746,32 @@ func (t *Tx) addFact(id uuid.UUID, key, value string, cleared bool, at time.Time
 	return t.writeFact(id, key, value, cleared, at)
 }
 
-// addFirstFact is [Tx.addFact] for an asset this operation made: nothing was
-// recorded of it before, so there is nothing to supersede or to ask about.
-func (t *Tx) addFirstFact(id uuid.UUID, key, value string, at time.Time) error {
-	return t.writeFact(id, key, value, false, at)
+// addFirstFacts is [Tx.addFact] of every key of `facts` for an asset this
+// operation made: nothing was recorded of it before, so there is nothing to
+// supersede or to ask about.
+//
+// One AddMany, in the order of the keys: an asset is made with a fact for each
+// of what it is, and they are one statement rather than one each
+// (payday#84). Each is still the row an Add of it would have been, asked what
+// an Add is.
+func (t *Tx) addFirstFacts(id uuid.UUID, facts map[string]string, at time.Time) error {
+	items := make([]*app.FactAddRequest, 0, len(facts))
+	for _, k := range sortedKeys(facts) {
+		items = append(items, t.factOf(id, k, facts[k], false, at))
+	}
+
+	_, err := t.next.Fact().AddMany(t.ctx, app.FactAddManyRequest_builder{Items: items}.Build())
+	return err
 }
 
 func (t *Tx) writeFact(id uuid.UUID, key, value string, cleared bool, at time.Time) error {
-	_, err := t.next.Fact().Add(t.ctx, app.FactAddRequest_builder{
+	_, err := t.next.Fact().Add(t.ctx, t.factOf(id, key, value, cleared, at))
+	return err
+}
+
+// factOf is the request a fact of this operation is written with.
+func (t *Tx) factOf(id uuid.UUID, key, value string, cleared bool, at time.Time) *app.FactAddRequest {
+	return app.FactAddRequest_builder{
 		Tenant:    t.tenantRef(),
 		Asset:     assetRef(id),
 		Key:       key,
@@ -766,8 +782,7 @@ func (t *Tx) writeFact(id uuid.UUID, key, value string, cleared bool, at time.Ti
 		// Known from the moment of the operation, as what it supersedes stops
 		// being; see [Tx.writePlacements].
 		DateCreated: ts(t.now),
-	}.Build())
-	return err
+	}.Build()
 }
 
 // factsAt answers every key's value at `at`, by what was recorded by `known`

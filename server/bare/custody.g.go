@@ -133,33 +133,28 @@ func (s CustodyServiceServer) image(v *rove.Custody) *rove.Custody {
 	}
 	return out
 }
-func (s CustodyServiceServer) Add(ctx context.Context, req *rove.CustodyAddRequest) (*rove.Custody, error) {
-	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Close()
 
-	st := s
-	st.Db = tx.Db
-
+// create is the row an Add of `req` writes, as a builder not yet saved,
+// and what the answer says about its edges. Add and AddMany both write
+// with it, so that an item of an AddMany is the row an Add of it would be.
+func (st CustodyServiceServer) create(ctx context.Context, req *rove.CustodyAddRequest) (*ent.CustodyCreate, []func(v *rove.Custody), error) {
 	ds := make([]func(v *rove.Custody), 0, 2)
 	q := st.Db.Custody.Create()
 	var k uuid.UUID
 	if req.HasId() {
 		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
 		} else {
 			k = v
 		}
 	}
-	if v, err := mint(ctx, s.Mint, "rove.Custody", k, req.HasId()); err != nil {
-		return nil, err
+	if v, err := mint(ctx, st.Mint, "rove.Custody", k, req.HasId()); err != nil {
+		return nil, nil, err
 	} else {
 		q.SetId(v)
 	}
 	if k, err := TenantGetKey(ctx, st.Db, req.GetTenant()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetTenantId(k)
 		ds = append(ds, func(v *rove.Custody) {
@@ -168,7 +163,7 @@ func (s CustodyServiceServer) Add(ctx context.Context, req *rove.CustodyAddReque
 	}
 	q.SetDesc(req.GetDesc())
 	if k, err := PartyGetKey(ctx, st.Db, req.GetParty()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetPartyId(k)
 		ds = append(ds, func(v *rove.Custody) {
@@ -199,19 +194,36 @@ func (s CustodyServiceServer) Add(ctx context.Context, req *rove.CustodyAddReque
 	}
 	if req.HasReservationId() {
 		if v, err := entuuid.FromBytes(req.GetReservationId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "reservation_id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "reservation_id: %s", err)
 		} else {
 			q.SetReservationId(v)
 		}
 	}
 	if req.HasIssuedBy() {
 		if v, err := entuuid.FromBytes(req.GetIssuedBy()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "issued_by: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "issued_by: %s", err)
 		} else {
 			q.SetIssuedBy(v)
 		}
 	}
 	q.SetOverdueNoticed(req.GetOverdueNoticed())
+	return q, ds, nil
+}
+
+func (s CustodyServiceServer) Add(ctx context.Context, req *rove.CustodyAddRequest) (*rove.Custody, error) {
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	q, ds, err := st.create(ctx, req)
+	if err != nil {
+		return nil, err
+	}
 
 	var stored *ent.Custody
 	if snapshotOptions(s.Rec, rove.CustodyService_Add_FullMethodName).Value {
@@ -251,6 +263,38 @@ func (s CustodyServiceServer) Add(ctx context.Context, req *rove.CustodyAddReque
 	}
 
 	return v, nil
+}
+
+// CustodyAddRule is what a layer in front says about one row an Add of Custody
+// would write: the request to write it with -- the one it was handed, or a
+// copy it changed -- or a refusal. Nil is the request it was handed.
+type CustodyAddRule func(ctx context.Context, req *rove.CustodyAddRequest) (*rove.CustodyAddRequest, error)
+
+// CustodyWithAddRule answers with `next` behind `rule` for the RPCs that add.
+// An Add is asked about, and every item of an AddMany in order, and the
+// call is refused for the first one that is -- an AddMany naming the item.
+// What reaches `next` is one call either way: an AddMany stays one AddMany.
+//
+// A layer that overrides Add itself, for something an Add does that a rule
+// cannot say, still has its AddMany asked through this.
+func CustodyWithAddRule(next rove.CustodyServiceServer, rule CustodyAddRule) rove.CustodyServiceServer {
+	return custodyAddRuled{next, rule}
+}
+
+type custodyAddRuled struct {
+	rove.CustodyServiceServer
+	rule CustodyAddRule
+}
+
+func (s custodyAddRuled) Add(ctx context.Context, req *rove.CustodyAddRequest) (*rove.Custody, error) {
+	r, err := s.rule(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		r = req
+	}
+	return s.CustodyServiceServer.Add(ctx, r)
 }
 
 func (s CustodyServiceServer) Get(ctx context.Context, req *rove.CustodyGetRequest) (*rove.Custody, error) {
@@ -768,33 +812,28 @@ func (s CustodyLineServiceServer) image(v *rove.CustodyLine) *rove.CustodyLine {
 	}
 	return out
 }
-func (s CustodyLineServiceServer) Add(ctx context.Context, req *rove.CustodyLineAddRequest) (*rove.CustodyLine, error) {
-	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Close()
 
-	st := s
-	st.Db = tx.Db
-
+// create is the row an Add of `req` writes, as a builder not yet saved,
+// and what the answer says about its edges. Add and AddMany both write
+// with it, so that an item of an AddMany is the row an Add of it would be.
+func (st CustodyLineServiceServer) create(ctx context.Context, req *rove.CustodyLineAddRequest) (*ent.CustodyLineCreate, []func(v *rove.CustodyLine), error) {
 	ds := make([]func(v *rove.CustodyLine), 0, 4)
 	q := st.Db.CustodyLine.Create()
 	var k uuid.UUID
 	if req.HasId() {
 		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
 		} else {
 			k = v
 		}
 	}
-	if v, err := mint(ctx, s.Mint, "rove.CustodyLine", k, req.HasId()); err != nil {
-		return nil, err
+	if v, err := mint(ctx, st.Mint, "rove.CustodyLine", k, req.HasId()); err != nil {
+		return nil, nil, err
 	} else {
 		q.SetId(v)
 	}
 	if k, err := TenantGetKey(ctx, st.Db, req.GetTenant()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetTenantId(k)
 		ds = append(ds, func(v *rove.CustodyLine) {
@@ -802,7 +841,7 @@ func (s CustodyLineServiceServer) Add(ctx context.Context, req *rove.CustodyLine
 		})
 	}
 	if k, err := CustodyGetKey(ctx, st.Db, req.GetCustody()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetCustodyId(k)
 		ds = append(ds, func(v *rove.CustodyLine) {
@@ -811,7 +850,7 @@ func (s CustodyLineServiceServer) Add(ctx context.Context, req *rove.CustodyLine
 	}
 	if req.HasAsset() {
 		if k, err := AssetGetKey(ctx, st.Db, req.GetAsset()); err != nil {
-			return nil, err
+			return nil, nil, err
 		} else {
 			q.SetAssetId(k)
 			ds = append(ds, func(v *rove.CustodyLine) {
@@ -821,7 +860,7 @@ func (s CustodyLineServiceServer) Add(ctx context.Context, req *rove.CustodyLine
 	}
 	if req.HasStock() {
 		if k, err := StockGetKey(ctx, st.Db, req.GetStock()); err != nil {
-			return nil, err
+			return nil, nil, err
 		} else {
 			q.SetStockId(k)
 			ds = append(ds, func(v *rove.CustodyLine) {
@@ -847,6 +886,23 @@ func (s CustodyLineServiceServer) Add(ctx context.Context, req *rove.CustodyLine
 	}
 	q.SetConditionOut(req.GetConditionOut())
 	q.SetConditionIn(req.GetConditionIn())
+	return q, ds, nil
+}
+
+func (s CustodyLineServiceServer) Add(ctx context.Context, req *rove.CustodyLineAddRequest) (*rove.CustodyLine, error) {
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	q, ds, err := st.create(ctx, req)
+	if err != nil {
+		return nil, err
+	}
 
 	var stored *ent.CustodyLine
 	if snapshotOptions(s.Rec, rove.CustodyLineService_Add_FullMethodName).Value {
@@ -886,6 +942,38 @@ func (s CustodyLineServiceServer) Add(ctx context.Context, req *rove.CustodyLine
 	}
 
 	return v, nil
+}
+
+// CustodyLineAddRule is what a layer in front says about one row an Add of CustodyLine
+// would write: the request to write it with -- the one it was handed, or a
+// copy it changed -- or a refusal. Nil is the request it was handed.
+type CustodyLineAddRule func(ctx context.Context, req *rove.CustodyLineAddRequest) (*rove.CustodyLineAddRequest, error)
+
+// CustodyLineWithAddRule answers with `next` behind `rule` for the RPCs that add.
+// An Add is asked about, and every item of an AddMany in order, and the
+// call is refused for the first one that is -- an AddMany naming the item.
+// What reaches `next` is one call either way: an AddMany stays one AddMany.
+//
+// A layer that overrides Add itself, for something an Add does that a rule
+// cannot say, still has its AddMany asked through this.
+func CustodyLineWithAddRule(next rove.CustodyLineServiceServer, rule CustodyLineAddRule) rove.CustodyLineServiceServer {
+	return custodyLineAddRuled{next, rule}
+}
+
+type custodyLineAddRuled struct {
+	rove.CustodyLineServiceServer
+	rule CustodyLineAddRule
+}
+
+func (s custodyLineAddRuled) Add(ctx context.Context, req *rove.CustodyLineAddRequest) (*rove.CustodyLine, error) {
+	r, err := s.rule(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		r = req
+	}
+	return s.CustodyLineServiceServer.Add(ctx, r)
 }
 
 func (s CustodyLineServiceServer) Get(ctx context.Context, req *rove.CustodyLineGetRequest) (*rove.CustodyLine, error) {

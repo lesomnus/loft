@@ -131,33 +131,28 @@ func (s InventoryCountServiceServer) image(v *rove.InventoryCount) *rove.Invento
 	}
 	return out
 }
-func (s InventoryCountServiceServer) Add(ctx context.Context, req *rove.InventoryCountAddRequest) (*rove.InventoryCount, error) {
-	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Close()
 
-	st := s
-	st.Db = tx.Db
-
+// create is the row an Add of `req` writes, as a builder not yet saved,
+// and what the answer says about its edges. Add and AddMany both write
+// with it, so that an item of an AddMany is the row an Add of it would be.
+func (st InventoryCountServiceServer) create(ctx context.Context, req *rove.InventoryCountAddRequest) (*ent.InventoryCountCreate, []func(v *rove.InventoryCount), error) {
 	ds := make([]func(v *rove.InventoryCount), 0, 2)
 	q := st.Db.InventoryCount.Create()
 	var k uuid.UUID
 	if req.HasId() {
 		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
 		} else {
 			k = v
 		}
 	}
-	if v, err := mint(ctx, s.Mint, "rove.InventoryCount", k, req.HasId()); err != nil {
-		return nil, err
+	if v, err := mint(ctx, st.Mint, "rove.InventoryCount", k, req.HasId()); err != nil {
+		return nil, nil, err
 	} else {
 		q.SetId(v)
 	}
 	if k, err := TenantGetKey(ctx, st.Db, req.GetTenant()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetTenantId(k)
 		ds = append(ds, func(v *rove.InventoryCount) {
@@ -167,7 +162,7 @@ func (s InventoryCountServiceServer) Add(ctx context.Context, req *rove.Inventor
 	q.SetName(req.GetName())
 	q.SetDesc(req.GetDesc())
 	if k, err := AssetGetKey(ctx, st.Db, req.GetScope()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetScopeId(k)
 		ds = append(ds, func(v *rove.InventoryCount) {
@@ -185,7 +180,7 @@ func (s InventoryCountServiceServer) Add(ctx context.Context, req *rove.Inventor
 	}
 	if req.HasStartedBy() {
 		if v, err := entuuid.FromBytes(req.GetStartedBy()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "started_by: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "started_by: %s", err)
 		} else {
 			q.SetStartedBy(v)
 		}
@@ -198,6 +193,23 @@ func (s InventoryCountServiceServer) Add(ctx context.Context, req *rove.Inventor
 	}
 	q.SetSelfService(req.GetSelfService())
 	q.SetFindingsVersion(req.GetFindingsVersion())
+	return q, ds, nil
+}
+
+func (s InventoryCountServiceServer) Add(ctx context.Context, req *rove.InventoryCountAddRequest) (*rove.InventoryCount, error) {
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	q, ds, err := st.create(ctx, req)
+	if err != nil {
+		return nil, err
+	}
 
 	var stored *ent.InventoryCount
 	if snapshotOptions(s.Rec, rove.InventoryCountService_Add_FullMethodName).Value {
@@ -237,6 +249,38 @@ func (s InventoryCountServiceServer) Add(ctx context.Context, req *rove.Inventor
 	}
 
 	return v, nil
+}
+
+// InventoryCountAddRule is what a layer in front says about one row an Add of InventoryCount
+// would write: the request to write it with -- the one it was handed, or a
+// copy it changed -- or a refusal. Nil is the request it was handed.
+type InventoryCountAddRule func(ctx context.Context, req *rove.InventoryCountAddRequest) (*rove.InventoryCountAddRequest, error)
+
+// InventoryCountWithAddRule answers with `next` behind `rule` for the RPCs that add.
+// An Add is asked about, and every item of an AddMany in order, and the
+// call is refused for the first one that is -- an AddMany naming the item.
+// What reaches `next` is one call either way: an AddMany stays one AddMany.
+//
+// A layer that overrides Add itself, for something an Add does that a rule
+// cannot say, still has its AddMany asked through this.
+func InventoryCountWithAddRule(next rove.InventoryCountServiceServer, rule InventoryCountAddRule) rove.InventoryCountServiceServer {
+	return inventoryCountAddRuled{next, rule}
+}
+
+type inventoryCountAddRuled struct {
+	rove.InventoryCountServiceServer
+	rule InventoryCountAddRule
+}
+
+func (s inventoryCountAddRuled) Add(ctx context.Context, req *rove.InventoryCountAddRequest) (*rove.InventoryCount, error) {
+	r, err := s.rule(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		r = req
+	}
+	return s.InventoryCountServiceServer.Add(ctx, r)
 }
 
 func (s InventoryCountServiceServer) Get(ctx context.Context, req *rove.InventoryCountGetRequest) (*rove.InventoryCount, error) {
@@ -734,33 +778,28 @@ func (s CountFindingServiceServer) image(v *rove.CountFinding) *rove.CountFindin
 	}
 	return out
 }
-func (s CountFindingServiceServer) Add(ctx context.Context, req *rove.CountFindingAddRequest) (*rove.CountFinding, error) {
-	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Close()
 
-	st := s
-	st.Db = tx.Db
-
+// create is the row an Add of `req` writes, as a builder not yet saved,
+// and what the answer says about its edges. Add and AddMany both write
+// with it, so that an item of an AddMany is the row an Add of it would be.
+func (st CountFindingServiceServer) create(ctx context.Context, req *rove.CountFindingAddRequest) (*ent.CountFindingCreate, []func(v *rove.CountFinding), error) {
 	ds := make([]func(v *rove.CountFinding), 0, 3)
 	q := st.Db.CountFinding.Create()
 	var k uuid.UUID
 	if req.HasId() {
 		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
 		} else {
 			k = v
 		}
 	}
-	if v, err := mint(ctx, s.Mint, "rove.CountFinding", k, req.HasId()); err != nil {
-		return nil, err
+	if v, err := mint(ctx, st.Mint, "rove.CountFinding", k, req.HasId()); err != nil {
+		return nil, nil, err
 	} else {
 		q.SetId(v)
 	}
 	if k, err := TenantGetKey(ctx, st.Db, req.GetTenant()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetTenantId(k)
 		ds = append(ds, func(v *rove.CountFinding) {
@@ -769,7 +808,7 @@ func (s CountFindingServiceServer) Add(ctx context.Context, req *rove.CountFindi
 	}
 	q.SetDesc(req.GetDesc())
 	if k, err := InventoryCountGetKey(ctx, st.Db, req.GetCount()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetCountId(k)
 		ds = append(ds, func(v *rove.CountFinding) {
@@ -778,7 +817,7 @@ func (s CountFindingServiceServer) Add(ctx context.Context, req *rove.CountFindi
 	}
 	if req.HasAsset() {
 		if k, err := AssetGetKey(ctx, st.Db, req.GetAsset()); err != nil {
-			return nil, err
+			return nil, nil, err
 		} else {
 			q.SetAssetId(k)
 			ds = append(ds, func(v *rove.CountFinding) {
@@ -788,7 +827,7 @@ func (s CountFindingServiceServer) Add(ctx context.Context, req *rove.CountFindi
 	}
 	if req.HasLabelId() {
 		if v, err := entuuid.FromBytes(req.GetLabelId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "label_id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "label_id: %s", err)
 		} else {
 			q.SetLabelId(v)
 		}
@@ -796,7 +835,7 @@ func (s CountFindingServiceServer) Add(ctx context.Context, req *rove.CountFindi
 	q.SetKind(req.GetKind())
 	if req.HasObservedParentId() {
 		if v, err := entuuid.FromBytes(req.GetObservedParentId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "observed_parent_id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "observed_parent_id: %s", err)
 		} else {
 			q.SetObservedParentId(v)
 		}
@@ -809,7 +848,7 @@ func (s CountFindingServiceServer) Add(ctx context.Context, req *rove.CountFindi
 	}
 	if req.HasExpectedParentId() {
 		if v, err := entuuid.FromBytes(req.GetExpectedParentId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "expected_parent_id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "expected_parent_id: %s", err)
 		} else {
 			q.SetExpectedParentId(v)
 		}
@@ -821,7 +860,7 @@ func (s CountFindingServiceServer) Add(ctx context.Context, req *rove.CountFindi
 	}
 	if req.HasRecordedBy() {
 		if v, err := entuuid.FromBytes(req.GetRecordedBy()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "recorded_by: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "recorded_by: %s", err)
 		} else {
 			q.SetRecordedBy(v)
 		}
@@ -829,6 +868,23 @@ func (s CountFindingServiceServer) Add(ctx context.Context, req *rove.CountFindi
 	q.SetResolution(req.GetResolution())
 	if req.HasResolvedAt() {
 		q.SetResolvedAt(req.GetResolvedAt().AsTime())
+	}
+	return q, ds, nil
+}
+
+func (s CountFindingServiceServer) Add(ctx context.Context, req *rove.CountFindingAddRequest) (*rove.CountFinding, error) {
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	q, ds, err := st.create(ctx, req)
+	if err != nil {
+		return nil, err
 	}
 
 	var stored *ent.CountFinding
@@ -869,6 +925,38 @@ func (s CountFindingServiceServer) Add(ctx context.Context, req *rove.CountFindi
 	}
 
 	return v, nil
+}
+
+// CountFindingAddRule is what a layer in front says about one row an Add of CountFinding
+// would write: the request to write it with -- the one it was handed, or a
+// copy it changed -- or a refusal. Nil is the request it was handed.
+type CountFindingAddRule func(ctx context.Context, req *rove.CountFindingAddRequest) (*rove.CountFindingAddRequest, error)
+
+// CountFindingWithAddRule answers with `next` behind `rule` for the RPCs that add.
+// An Add is asked about, and every item of an AddMany in order, and the
+// call is refused for the first one that is -- an AddMany naming the item.
+// What reaches `next` is one call either way: an AddMany stays one AddMany.
+//
+// A layer that overrides Add itself, for something an Add does that a rule
+// cannot say, still has its AddMany asked through this.
+func CountFindingWithAddRule(next rove.CountFindingServiceServer, rule CountFindingAddRule) rove.CountFindingServiceServer {
+	return countFindingAddRuled{next, rule}
+}
+
+type countFindingAddRuled struct {
+	rove.CountFindingServiceServer
+	rule CountFindingAddRule
+}
+
+func (s countFindingAddRuled) Add(ctx context.Context, req *rove.CountFindingAddRequest) (*rove.CountFinding, error) {
+	r, err := s.rule(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		r = req
+	}
+	return s.CountFindingServiceServer.Add(ctx, r)
 }
 
 func (s CountFindingServiceServer) Get(ctx context.Context, req *rove.CountFindingGetRequest) (*rove.CountFinding, error) {

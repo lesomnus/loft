@@ -134,33 +134,28 @@ func (s BookableServiceServer) image(v *rove.Bookable) *rove.Bookable {
 	}
 	return out
 }
-func (s BookableServiceServer) Add(ctx context.Context, req *rove.BookableAddRequest) (*rove.Bookable, error) {
-	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Close()
 
-	st := s
-	st.Db = tx.Db
-
+// create is the row an Add of `req` writes, as a builder not yet saved,
+// and what the answer says about its edges. Add and AddMany both write
+// with it, so that an item of an AddMany is the row an Add of it would be.
+func (st BookableServiceServer) create(ctx context.Context, req *rove.BookableAddRequest) (*ent.BookableCreate, []func(v *rove.Bookable), error) {
 	ds := make([]func(v *rove.Bookable), 0, 2)
 	q := st.Db.Bookable.Create()
 	var k uuid.UUID
 	if req.HasId() {
 		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
 		} else {
 			k = v
 		}
 	}
-	if v, err := mint(ctx, s.Mint, "rove.Bookable", k, req.HasId()); err != nil {
-		return nil, err
+	if v, err := mint(ctx, st.Mint, "rove.Bookable", k, req.HasId()); err != nil {
+		return nil, nil, err
 	} else {
 		q.SetId(v)
 	}
 	if k, err := TenantGetKey(ctx, st.Db, req.GetTenant()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetTenantId(k)
 		ds = append(ds, func(v *rove.Bookable) {
@@ -168,7 +163,7 @@ func (s BookableServiceServer) Add(ctx context.Context, req *rove.BookableAddReq
 		})
 	}
 	if k, err := AssetGetKey(ctx, st.Db, req.GetAsset()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetAssetId(k)
 		ds = append(ds, func(v *rove.Bookable) {
@@ -195,6 +190,23 @@ func (s BookableServiceServer) Add(ctx context.Context, req *rove.BookableAddReq
 	q.SetExclusiveGroup(req.GetExclusiveGroup())
 	q.SetScheduleVersion(req.GetScheduleVersion())
 	q.SetEnabled(req.GetEnabled())
+	return q, ds, nil
+}
+
+func (s BookableServiceServer) Add(ctx context.Context, req *rove.BookableAddRequest) (*rove.Bookable, error) {
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	q, ds, err := st.create(ctx, req)
+	if err != nil {
+		return nil, err
+	}
 
 	var stored *ent.Bookable
 	if snapshotOptions(s.Rec, rove.BookableService_Add_FullMethodName).Value {
@@ -234,6 +246,38 @@ func (s BookableServiceServer) Add(ctx context.Context, req *rove.BookableAddReq
 	}
 
 	return v, nil
+}
+
+// BookableAddRule is what a layer in front says about one row an Add of Bookable
+// would write: the request to write it with -- the one it was handed, or a
+// copy it changed -- or a refusal. Nil is the request it was handed.
+type BookableAddRule func(ctx context.Context, req *rove.BookableAddRequest) (*rove.BookableAddRequest, error)
+
+// BookableWithAddRule answers with `next` behind `rule` for the RPCs that add.
+// An Add is asked about, and every item of an AddMany in order, and the
+// call is refused for the first one that is -- an AddMany naming the item.
+// What reaches `next` is one call either way: an AddMany stays one AddMany.
+//
+// A layer that overrides Add itself, for something an Add does that a rule
+// cannot say, still has its AddMany asked through this.
+func BookableWithAddRule(next rove.BookableServiceServer, rule BookableAddRule) rove.BookableServiceServer {
+	return bookableAddRuled{next, rule}
+}
+
+type bookableAddRuled struct {
+	rove.BookableServiceServer
+	rule BookableAddRule
+}
+
+func (s bookableAddRuled) Add(ctx context.Context, req *rove.BookableAddRequest) (*rove.Bookable, error) {
+	r, err := s.rule(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		r = req
+	}
+	return s.BookableServiceServer.Add(ctx, r)
 }
 
 func (s BookableServiceServer) Get(ctx context.Context, req *rove.BookableGetRequest) (*rove.Bookable, error) {
@@ -742,33 +786,28 @@ func (s ReservationServiceServer) image(v *rove.Reservation) *rove.Reservation {
 	}
 	return out
 }
-func (s ReservationServiceServer) Add(ctx context.Context, req *rove.ReservationAddRequest) (*rove.Reservation, error) {
-	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Close()
 
-	st := s
-	st.Db = tx.Db
-
+// create is the row an Add of `req` writes, as a builder not yet saved,
+// and what the answer says about its edges. Add and AddMany both write
+// with it, so that an item of an AddMany is the row an Add of it would be.
+func (st ReservationServiceServer) create(ctx context.Context, req *rove.ReservationAddRequest) (*ent.ReservationCreate, []func(v *rove.Reservation), error) {
 	ds := make([]func(v *rove.Reservation), 0, 2)
 	q := st.Db.Reservation.Create()
 	var k uuid.UUID
 	if req.HasId() {
 		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
 		} else {
 			k = v
 		}
 	}
-	if v, err := mint(ctx, s.Mint, "rove.Reservation", k, req.HasId()); err != nil {
-		return nil, err
+	if v, err := mint(ctx, st.Mint, "rove.Reservation", k, req.HasId()); err != nil {
+		return nil, nil, err
 	} else {
 		q.SetId(v)
 	}
 	if k, err := TenantGetKey(ctx, st.Db, req.GetTenant()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetTenantId(k)
 		ds = append(ds, func(v *rove.Reservation) {
@@ -778,7 +817,7 @@ func (s ReservationServiceServer) Add(ctx context.Context, req *rove.Reservation
 	q.SetName(req.GetName())
 	q.SetDesc(req.GetDesc())
 	if k, err := PartyGetKey(ctx, st.Db, req.GetParty()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetPartyId(k)
 		ds = append(ds, func(v *rove.Reservation) {
@@ -787,7 +826,7 @@ func (s ReservationServiceServer) Add(ctx context.Context, req *rove.Reservation
 	}
 	if req.HasRequestedBy() {
 		if v, err := entuuid.FromBytes(req.GetRequestedBy()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "requested_by: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "requested_by: %s", err)
 		} else {
 			q.SetRequestedBy(v)
 		}
@@ -815,20 +854,37 @@ func (s ReservationServiceServer) Add(ctx context.Context, req *rove.Reservation
 	q.SetRrule(req.GetRrule())
 	if req.HasSeriesId() {
 		if v, err := entuuid.FromBytes(req.GetSeriesId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "series_id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "series_id: %s", err)
 		} else {
 			q.SetSeriesId(v)
 		}
 	}
 	if req.HasDecidedBy() {
 		if v, err := entuuid.FromBytes(req.GetDecidedBy()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "decided_by: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "decided_by: %s", err)
 		} else {
 			q.SetDecidedBy(v)
 		}
 	}
 	if req.HasCheckedInAt() {
 		q.SetCheckedInAt(req.GetCheckedInAt().AsTime())
+	}
+	return q, ds, nil
+}
+
+func (s ReservationServiceServer) Add(ctx context.Context, req *rove.ReservationAddRequest) (*rove.Reservation, error) {
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	q, ds, err := st.create(ctx, req)
+	if err != nil {
+		return nil, err
 	}
 
 	var stored *ent.Reservation
@@ -869,6 +925,38 @@ func (s ReservationServiceServer) Add(ctx context.Context, req *rove.Reservation
 	}
 
 	return v, nil
+}
+
+// ReservationAddRule is what a layer in front says about one row an Add of Reservation
+// would write: the request to write it with -- the one it was handed, or a
+// copy it changed -- or a refusal. Nil is the request it was handed.
+type ReservationAddRule func(ctx context.Context, req *rove.ReservationAddRequest) (*rove.ReservationAddRequest, error)
+
+// ReservationWithAddRule answers with `next` behind `rule` for the RPCs that add.
+// An Add is asked about, and every item of an AddMany in order, and the
+// call is refused for the first one that is -- an AddMany naming the item.
+// What reaches `next` is one call either way: an AddMany stays one AddMany.
+//
+// A layer that overrides Add itself, for something an Add does that a rule
+// cannot say, still has its AddMany asked through this.
+func ReservationWithAddRule(next rove.ReservationServiceServer, rule ReservationAddRule) rove.ReservationServiceServer {
+	return reservationAddRuled{next, rule}
+}
+
+type reservationAddRuled struct {
+	rove.ReservationServiceServer
+	rule ReservationAddRule
+}
+
+func (s reservationAddRuled) Add(ctx context.Context, req *rove.ReservationAddRequest) (*rove.Reservation, error) {
+	r, err := s.rule(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		r = req
+	}
+	return s.ReservationServiceServer.Add(ctx, r)
 }
 
 func (s ReservationServiceServer) Get(ctx context.Context, req *rove.ReservationGetRequest) (*rove.Reservation, error) {
@@ -1375,6 +1463,67 @@ func (s ReservationItemServiceServer) image(v *rove.ReservationItem) *rove.Reser
 	}
 	return out
 }
+
+// create is the row an Add of `req` writes, as a builder not yet saved,
+// and what the answer says about its edges. Add and AddMany both write
+// with it, so that an item of an AddMany is the row an Add of it would be.
+func (st ReservationItemServiceServer) create(ctx context.Context, req *rove.ReservationItemAddRequest) (*ent.ReservationItemCreate, []func(v *rove.ReservationItem), error) {
+	ds := make([]func(v *rove.ReservationItem), 0, 3)
+	q := st.Db.ReservationItem.Create()
+	var k uuid.UUID
+	if req.HasId() {
+		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
+			return nil, nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+		} else {
+			k = v
+		}
+	}
+	if v, err := mint(ctx, st.Mint, "rove.ReservationItem", k, req.HasId()); err != nil {
+		return nil, nil, err
+	} else {
+		q.SetId(v)
+	}
+	if k, err := TenantGetKey(ctx, st.Db, req.GetTenant()); err != nil {
+		return nil, nil, err
+	} else {
+		q.SetTenantId(k)
+		ds = append(ds, func(v *rove.ReservationItem) {
+			v.SetTenant(rove.Tenant_builder{Id: k[:]}.Build())
+		})
+	}
+	if k, err := ReservationGetKey(ctx, st.Db, req.GetReservation()); err != nil {
+		return nil, nil, err
+	} else {
+		q.SetReservationId(k)
+		ds = append(ds, func(v *rove.ReservationItem) {
+			v.SetReservation(rove.Reservation_builder{Id: k[:]}.Build())
+		})
+	}
+	if k, err := AssetGetKey(ctx, st.Db, req.GetResource()); err != nil {
+		return nil, nil, err
+	} else {
+		q.SetResourceId(k)
+		ds = append(ds, func(v *rove.ReservationItem) {
+			v.SetResource(rove.Asset_builder{Id: k[:]}.Build())
+		})
+	}
+	q.SetUnits(req.GetUnits())
+	if req.HasAssignedId() {
+		if v, err := entuuid.FromBytes(req.GetAssignedId()); err != nil {
+			return nil, nil, status.Errorf(codes.InvalidArgument, "assigned_id: %s", err)
+		} else {
+			q.SetAssignedId(v)
+		}
+	}
+	q.SetDateUpdated(st.now())
+	if req.HasDateCreated() {
+		q.SetDateCreated(req.GetDateCreated().AsTime())
+	} else {
+		q.SetDateCreated(st.now())
+	}
+	return q, ds, nil
+}
+
 func (s ReservationItemServiceServer) Add(ctx context.Context, req *rove.ReservationItemAddRequest) (*rove.ReservationItem, error) {
 	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
 	if err != nil {
@@ -1385,58 +1534,9 @@ func (s ReservationItemServiceServer) Add(ctx context.Context, req *rove.Reserva
 	st := s
 	st.Db = tx.Db
 
-	ds := make([]func(v *rove.ReservationItem), 0, 3)
-	q := st.Db.ReservationItem.Create()
-	var k uuid.UUID
-	if req.HasId() {
-		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
-		} else {
-			k = v
-		}
-	}
-	if v, err := mint(ctx, s.Mint, "rove.ReservationItem", k, req.HasId()); err != nil {
+	q, ds, err := st.create(ctx, req)
+	if err != nil {
 		return nil, err
-	} else {
-		q.SetId(v)
-	}
-	if k, err := TenantGetKey(ctx, st.Db, req.GetTenant()); err != nil {
-		return nil, err
-	} else {
-		q.SetTenantId(k)
-		ds = append(ds, func(v *rove.ReservationItem) {
-			v.SetTenant(rove.Tenant_builder{Id: k[:]}.Build())
-		})
-	}
-	if k, err := ReservationGetKey(ctx, st.Db, req.GetReservation()); err != nil {
-		return nil, err
-	} else {
-		q.SetReservationId(k)
-		ds = append(ds, func(v *rove.ReservationItem) {
-			v.SetReservation(rove.Reservation_builder{Id: k[:]}.Build())
-		})
-	}
-	if k, err := AssetGetKey(ctx, st.Db, req.GetResource()); err != nil {
-		return nil, err
-	} else {
-		q.SetResourceId(k)
-		ds = append(ds, func(v *rove.ReservationItem) {
-			v.SetResource(rove.Asset_builder{Id: k[:]}.Build())
-		})
-	}
-	q.SetUnits(req.GetUnits())
-	if req.HasAssignedId() {
-		if v, err := entuuid.FromBytes(req.GetAssignedId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "assigned_id: %s", err)
-		} else {
-			q.SetAssignedId(v)
-		}
-	}
-	q.SetDateUpdated(st.now())
-	if req.HasDateCreated() {
-		q.SetDateCreated(req.GetDateCreated().AsTime())
-	} else {
-		q.SetDateCreated(st.now())
 	}
 
 	var stored *ent.ReservationItem
@@ -1477,6 +1577,38 @@ func (s ReservationItemServiceServer) Add(ctx context.Context, req *rove.Reserva
 	}
 
 	return v, nil
+}
+
+// ReservationItemAddRule is what a layer in front says about one row an Add of ReservationItem
+// would write: the request to write it with -- the one it was handed, or a
+// copy it changed -- or a refusal. Nil is the request it was handed.
+type ReservationItemAddRule func(ctx context.Context, req *rove.ReservationItemAddRequest) (*rove.ReservationItemAddRequest, error)
+
+// ReservationItemWithAddRule answers with `next` behind `rule` for the RPCs that add.
+// An Add is asked about, and every item of an AddMany in order, and the
+// call is refused for the first one that is -- an AddMany naming the item.
+// What reaches `next` is one call either way: an AddMany stays one AddMany.
+//
+// A layer that overrides Add itself, for something an Add does that a rule
+// cannot say, still has its AddMany asked through this.
+func ReservationItemWithAddRule(next rove.ReservationItemServiceServer, rule ReservationItemAddRule) rove.ReservationItemServiceServer {
+	return reservationItemAddRuled{next, rule}
+}
+
+type reservationItemAddRuled struct {
+	rove.ReservationItemServiceServer
+	rule ReservationItemAddRule
+}
+
+func (s reservationItemAddRuled) Add(ctx context.Context, req *rove.ReservationItemAddRequest) (*rove.ReservationItem, error) {
+	r, err := s.rule(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		r = req
+	}
+	return s.ReservationItemServiceServer.Add(ctx, r)
 }
 
 func (s ReservationItemServiceServer) Get(ctx context.Context, req *rove.ReservationItemGetRequest) (*rove.ReservationItem, error) {
@@ -1924,33 +2056,28 @@ func (s AllocationServiceServer) image(v *rove.Allocation) *rove.Allocation {
 	}
 	return out
 }
-func (s AllocationServiceServer) Add(ctx context.Context, req *rove.AllocationAddRequest) (*rove.Allocation, error) {
-	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Close()
 
-	st := s
-	st.Db = tx.Db
-
+// create is the row an Add of `req` writes, as a builder not yet saved,
+// and what the answer says about its edges. Add and AddMany both write
+// with it, so that an item of an AddMany is the row an Add of it would be.
+func (st AllocationServiceServer) create(ctx context.Context, req *rove.AllocationAddRequest) (*ent.AllocationCreate, []func(v *rove.Allocation), error) {
 	ds := make([]func(v *rove.Allocation), 0, 2)
 	q := st.Db.Allocation.Create()
 	var k uuid.UUID
 	if req.HasId() {
 		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
 		} else {
 			k = v
 		}
 	}
-	if v, err := mint(ctx, s.Mint, "rove.Allocation", k, req.HasId()); err != nil {
-		return nil, err
+	if v, err := mint(ctx, st.Mint, "rove.Allocation", k, req.HasId()); err != nil {
+		return nil, nil, err
 	} else {
 		q.SetId(v)
 	}
 	if k, err := TenantGetKey(ctx, st.Db, req.GetTenant()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetTenantId(k)
 		ds = append(ds, func(v *rove.Allocation) {
@@ -1958,7 +2085,7 @@ func (s AllocationServiceServer) Add(ctx context.Context, req *rove.AllocationAd
 		})
 	}
 	if k, err := AssetGetKey(ctx, st.Db, req.GetResource()); err != nil {
-		return nil, err
+		return nil, nil, err
 	} else {
 		q.SetResourceId(k)
 		ds = append(ds, func(v *rove.Allocation) {
@@ -1968,7 +2095,7 @@ func (s AllocationServiceServer) Add(ctx context.Context, req *rove.AllocationAd
 	q.SetKind(req.GetKind())
 	if req.HasRefId() {
 		if v, err := entuuid.FromBytes(req.GetRefId()); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "ref_id: %s", err)
+			return nil, nil, status.Errorf(codes.InvalidArgument, "ref_id: %s", err)
 		} else {
 			q.SetRefId(v)
 		}
@@ -1992,6 +2119,23 @@ func (s AllocationServiceServer) Add(ctx context.Context, req *rove.AllocationAd
 	q.SetBlocking(req.GetBlocking())
 	q.SetExclusive(req.GetExclusive())
 	q.SetUnits(req.GetUnits())
+	return q, ds, nil
+}
+
+func (s AllocationServiceServer) Add(ctx context.Context, req *rove.AllocationAddRequest) (*rove.Allocation, error) {
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	q, ds, err := st.create(ctx, req)
+	if err != nil {
+		return nil, err
+	}
 
 	var stored *ent.Allocation
 	if snapshotOptions(s.Rec, rove.AllocationService_Add_FullMethodName).Value {
@@ -2031,6 +2175,38 @@ func (s AllocationServiceServer) Add(ctx context.Context, req *rove.AllocationAd
 	}
 
 	return v, nil
+}
+
+// AllocationAddRule is what a layer in front says about one row an Add of Allocation
+// would write: the request to write it with -- the one it was handed, or a
+// copy it changed -- or a refusal. Nil is the request it was handed.
+type AllocationAddRule func(ctx context.Context, req *rove.AllocationAddRequest) (*rove.AllocationAddRequest, error)
+
+// AllocationWithAddRule answers with `next` behind `rule` for the RPCs that add.
+// An Add is asked about, and every item of an AddMany in order, and the
+// call is refused for the first one that is -- an AddMany naming the item.
+// What reaches `next` is one call either way: an AddMany stays one AddMany.
+//
+// A layer that overrides Add itself, for something an Add does that a rule
+// cannot say, still has its AddMany asked through this.
+func AllocationWithAddRule(next rove.AllocationServiceServer, rule AllocationAddRule) rove.AllocationServiceServer {
+	return allocationAddRuled{next, rule}
+}
+
+type allocationAddRuled struct {
+	rove.AllocationServiceServer
+	rule AllocationAddRule
+}
+
+func (s allocationAddRuled) Add(ctx context.Context, req *rove.AllocationAddRequest) (*rove.Allocation, error) {
+	r, err := s.rule(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		r = req
+	}
+	return s.AllocationServiceServer.Add(ctx, r)
 }
 
 func (s AllocationServiceServer) Get(ctx context.Context, req *rove.AllocationGetRequest) (*rove.Allocation, error) {
