@@ -61,6 +61,7 @@ resources:
    - `app.public_url`: 반드시 넣습니다. 없으면 서버가 뜨지 않습니다(rove#40). 라벨 QR이 이 주소를 담으므로 라벨을 인쇄하기 전에 정하고 바꾸지 않습니다.
    - `app.trusted_proxies`: 인그레스 컨트롤러의 주소입니다(아래 5).
    - `app.mail`, `app.consent`, `audit.by`: 정해지는 대로 넣습니다(rove#35).
+   - 감사 기록의 보존 기간(`audit.retain`, `audit.by`)이 하나도 없으면 보존 패스가 돌지 않아 체크포인트도 남지 않습니다. 지우지 않는 기간이라도 하나 둡니다(`docs/runbook/restore.md`).
 4. **인그레스.** 호스트, TLS(cert-manager 등), 백엔드 `rove:8080`을 정합니다.
    - 실시간 화면(watch)은 끝나지 않는 응답입니다. 그래서 프록시가 응답을 모아 두거나 일찍 끊으면 안 됩니다.
    - ingress-nginx라면 `nginx.ingress.kubernetes.io/proxy-buffering: "off"`를 주고 `proxy-read-timeout`을 길게 잡습니다.
@@ -116,7 +117,7 @@ curl https://<호스트>/healthz   # ok
   - 하지만 새 빌드가 컬럼의 타입이나 NULL 허용을 바꿨다면 이전 빌드는 뜨지 않습니다.
   - 새 빌드가 기본값 없는 필수 컬럼을 더했다면 이전 빌드는 그 표에 쓰지 못합니다.
   - 그런 변경은 두 번에 나눠 배포합니다. 먼저 넓게 더하고(NULL 허용, 기본값), 다음 배포에서 좁힙니다.
-- **DB를 백업에서 복원했다면** 런북의 "DB를 백업에서 복원했을 때"를 따릅니다(`docs/runbook/trail-integrity.md`).
+- **DB를 백업에서 복원했다면** 런북의 "DB를 백업에서 복원했을 때"를 따릅니다(`docs/runbook/trail-integrity.md`). 복원 순서와 확인은 `docs/runbook/restore.md`에 있습니다.
 
 ## 설정을 바꿀 때
 
@@ -157,7 +158,7 @@ k3d와 Docker가 필요합니다. 이 체크아웃으로 이미지를 빌드해�
 
 ## 이 구성에 없는 것
 
-- PostgreSQL과 백업, 복구 리허설: rove#37
+- PostgreSQL과 그 백업. 무엇을 백업하고 어떤 순서로 되살리는지, 리허설은 `docs/runbook/restore.md`에 있습니다(rove#37)
 - 관측(수집기, 대시보드, 경보): rove#38
 - 자동 배포: 오버레이의 digest를 바꾸는 것은 사람이 합니다
 - 워크스페이스별 라벨 도메인(`app.labels.tenant_domains`): K8s에서는 on-demand TLS 대신 도메인마다 인증서(cert-manager)가 필요해서 아직 없습니다
