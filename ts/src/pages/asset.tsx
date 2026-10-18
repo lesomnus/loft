@@ -313,6 +313,7 @@ function Timeline(props: { a: Asset }): ReactNode {
 											<span className="icon">{kindIcon[e.kind]}</span>
 											{e.summary}
 											{e.reason !== '' && <span className="reason"> — {e.reason}</span>}
+											{e.cause !== '' && <span className="mute small"> ({e.cause})</span>}
 										</span>
 										<span className="who mute small">
 											{e.actor !== '' && `${e.actor} · `}기록 {fmt(e.recordedAt)}

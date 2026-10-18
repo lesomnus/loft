@@ -4591,6 +4591,7 @@ type TimelineEntry struct {
 	xxx_hidden_Actor        string                 `protobuf:"bytes,12,opt,name=actor"`
 	xxx_hidden_OtherId      []byte                 `protobuf:"bytes,13,opt,name=other_id,json=otherId"`
 	xxx_hidden_OtherName    string                 `protobuf:"bytes,14,opt,name=other_name,json=otherName"`
+	xxx_hidden_Cause        string                 `protobuf:"bytes,15,opt,name=cause"`
 	unknownFields           protoimpl.UnknownFields
 	sizeCache               protoimpl.SizeCache
 }
@@ -4718,6 +4719,13 @@ func (x *TimelineEntry) GetOtherName() string {
 	return ""
 }
 
+func (x *TimelineEntry) GetCause() string {
+	if x != nil {
+		return x.xxx_hidden_Cause
+	}
+	return ""
+}
+
 func (x *TimelineEntry) SetKind(v string) {
 	x.xxx_hidden_Kind = v
 }
@@ -4783,6 +4791,10 @@ func (x *TimelineEntry) SetOtherName(v string) {
 	x.xxx_hidden_OtherName = v
 }
 
+func (x *TimelineEntry) SetCause(v string) {
+	x.xxx_hidden_Cause = v
+}
+
 func (x *TimelineEntry) HasValidFrom() bool {
 	if x == nil {
 		return false
@@ -4846,6 +4858,9 @@ type TimelineEntry_builder struct {
 	Actor     string
 	OtherId   []byte
 	OtherName string
+	// The operation this was part of, for a person, when it was one over many
+	// things: what the event that wrote this was caused by (design D34).
+	Cause string
 }
 
 func (b0 TimelineEntry_builder) Build() *TimelineEntry {
@@ -4866,6 +4881,7 @@ func (b0 TimelineEntry_builder) Build() *TimelineEntry {
 	x.xxx_hidden_Actor = b.Actor
 	x.xxx_hidden_OtherId = b.OtherId
 	x.xxx_hidden_OtherName = b.OtherName
+	x.xxx_hidden_Cause = b.Cause
 	return m0
 }
 
@@ -15105,7 +15121,7 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x05known\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x05known\x12\x1b\n" +
 	"\x05limit\x18\x04 \x01(\rB\x05\xaa\x01\x02\b\x02R\x05limit\"F\n" +
 	"\x15AssetTimelineResponse\x12-\n" +
-	"\aentries\x18\x01 \x03(\v2\x13.rove.TimelineEntryR\aentries\"\x99\x05\n" +
+	"\aentries\x18\x01 \x03(\v2\x13.rove.TimelineEntryR\aentries\"\xb6\x05\n" +
 	"\rTimelineEntry\x12\x19\n" +
 	"\x04kind\x18\x01 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\x12\x1c\n" +
 	"\x06row_id\x18\x02 \x01(\fB\x05\xaa\x01\x02\b\x02R\x05rowId\x129\n" +
@@ -15125,7 +15141,8 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x05actor\x18\f \x01(\tB\x05\xaa\x01\x02\b\x02R\x05actor\x12 \n" +
 	"\bother_id\x18\r \x01(\fB\x05\xaa\x01\x02\b\x02R\aotherId\x12$\n" +
 	"\n" +
-	"other_name\x18\x0e \x01(\tB\x05\xaa\x01\x02\b\x02R\totherName\x1a9\n" +
+	"other_name\x18\x0e \x01(\tB\x05\xaa\x01\x02\b\x02R\totherName\x12\x1b\n" +
+	"\x05cause\x18\x0f \x01(\tB\x05\xaa\x01\x02\b\x02R\x05cause\x1a9\n" +
 	"\vDetailEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb4\x01\n" +

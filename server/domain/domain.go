@@ -233,6 +233,11 @@ type Tx struct {
 	// The event every row written by this operation points at.
 	ev pdid.Id
 
+	// cause is the event of the operation this one is part of, when another
+	// operation in the same transaction called it ([Tx.layer]): this one's
+	// event is then a child of that one's (design D34).
+	cause pdid.Id
+
 	// win is the tenant's history windows, once something asked.
 	win *retention.Window
 
@@ -251,6 +256,22 @@ type shared struct {
 }
 
 type sharedKey struct{}
+
+// causeKey is the event of the operation in progress, on the context it calls
+// the operations it is made of with.
+type causeKey struct{}
+
+// causeOf is the event of the operation that called this one, when it is one
+// in the same transaction -- `drv` being one already in it. An operation that
+// begins a transaction of its own is nobody's part, whatever context it was
+// handed: as [sharedOf] says, what the caller did may yet be rolled back.
+func causeOf(ctx context.Context, drv dialect.Driver) pdid.Id {
+	if in, ok := drv.(dialect.InTxDriver); !ok || !in.InTx() {
+		return pdid.Nil
+	}
+	v, _ := ctx.Value(causeKey{}).(pdid.Id)
+	return v
+}
 
 // sharedOf is the transaction's [shared], made by the outermost operation and
 // found on the context by every operation it calls -- `drv` being one already
@@ -314,6 +335,7 @@ func (d *Deps) run(ctx context.Context, server app.Server, drv dialect.Driver, a
 		return err
 	}
 
+	cause := causeOf(ctx, drv)
 	ctx, sh := sharedOf(ctx, drv)
 	t := &Tx{
 		ctx:    ctx,
@@ -324,6 +346,7 @@ func (d *Deps) run(ctx context.Context, server app.Server, drv dialect.Driver, a
 		actor:  actor,
 		tenant: tenant,
 		now:    d.now(),
+		cause:  cause,
 		shared: sh,
 	}
 	if err := f(t); err != nil {
@@ -468,14 +491,61 @@ func (t *Tx) begin(op []byte, kind string, subject pdid.Id, at time.Time, desc, 
 	if !subject.IsZero() {
 		req.SetSubjectId(subject.Bytes())
 	}
+	if !t.cause.IsZero() {
+		req.SetCauseId(t.cause.Bytes())
+	}
 
 	v, err := t.next.Event().Add(t.ctx, req)
 	if err != nil {
 		return err
 	}
 
-	t.ev, err = pdid.From(v.GetId())
-	return err
+	if t.ev, err = pdid.From(v.GetId()); err != nil {
+		return err
+	}
+	// What this operation calls is part of it.
+	t.ctx = context.WithValue(t.ctx, causeKey{}, t.ev)
+	return nil
+}
+
+// child records what this operation did to one of the many things it is over,
+// as an event of that thing's own: `subject` its subject and this operation's
+// event its cause (design D34). The rows `f` writes point at it, so that the
+// thing's history holds what happened to it, and the operation's event says
+// what the operation was.
+//
+// It is for what an operation writes itself. One it calls through [Tx.layer]
+// records its own event, which is a child of this one's already.
+func (t *Tx) child(kind string, subject pdid.Id, at time.Time, desc, reason string, payload map[string]string, f func() error) error {
+	parent := t.ev
+	req := app.EventAddRequest_builder{
+		Tenant:     t.tenantRef(),
+		Kind:       kind,
+		OccurredAt: timestamppb.New(at),
+		Reason:     reason,
+		Desc:       desc,
+		Payload:    encode(payload),
+		SubjectId:  subject.Bytes(),
+		CauseId:    parent.Bytes(),
+	}.Build()
+	if !t.actor.IsZero() {
+		req.SetActorId(t.actor.Bytes())
+	}
+	v, err := t.next.Event().Add(t.ctx, req)
+	if err != nil {
+		return err
+	}
+	if f == nil {
+		return nil
+	}
+
+	id, err := pdid.From(v.GetId())
+	if err != nil {
+		return err
+	}
+	t.ev = id
+	defer func() { t.ev = parent }()
+	return f()
 }
 
 // lockTree takes the tenant's one tree lock, so that nothing else changes the

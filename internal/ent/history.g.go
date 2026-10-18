@@ -190,5 +190,8 @@ func (e *Event) Proto() *rove.Event {
 	x.SetDateCreated(timestamppb.New(e.DateCreated))
 	x.SetTraceId(e.TraceId)
 	x.SetPayload(e.Payload)
+	if e.CauseId != nil {
+		x.SetCauseId(e.CauseId[:])
+	}
 	return x
 }

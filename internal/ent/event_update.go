@@ -172,6 +172,26 @@ func (_u *EventUpdate) SetNillablePayload(v *string) *EventUpdate {
 	return _u
 }
 
+// SetCauseId sets the "cause_id" field.
+func (_u *EventUpdate) SetCauseId(v uuid.UUID) *EventUpdate {
+	_u.mutation.SetCauseId(v)
+	return _u
+}
+
+// SetNillableCauseId sets the "cause_id" field if the given value is not nil.
+func (_u *EventUpdate) SetNillableCauseId(v *uuid.UUID) *EventUpdate {
+	if v != nil {
+		_u.SetCauseId(*v)
+	}
+	return _u
+}
+
+// ClearCauseId clears the value of the "cause_id" field.
+func (_u *EventUpdate) ClearCauseId() *EventUpdate {
+	_u.mutation.ClearCauseId()
+	return _u
+}
+
 // Mutation returns the EventMutation object of the builder.
 func (_u *EventUpdate) Mutation() *EventMutation {
 	return _u.mutation
@@ -271,6 +291,12 @@ func (_u *EventUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.Payload(); ok {
 		_spec.SetField(event.FieldPayload, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.CauseId(); ok {
+		_spec.SetField(event.FieldCauseId, field.TypeUuid, value)
+	}
+	if _u.mutation.CauseIdCleared() {
+		_spec.ClearField(event.FieldCauseId, field.TypeUuid)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
@@ -436,6 +462,26 @@ func (_u *EventUpdateOne) SetNillablePayload(v *string) *EventUpdateOne {
 	return _u
 }
 
+// SetCauseId sets the "cause_id" field.
+func (_u *EventUpdateOne) SetCauseId(v uuid.UUID) *EventUpdateOne {
+	_u.mutation.SetCauseId(v)
+	return _u
+}
+
+// SetNillableCauseId sets the "cause_id" field if the given value is not nil.
+func (_u *EventUpdateOne) SetNillableCauseId(v *uuid.UUID) *EventUpdateOne {
+	if v != nil {
+		_u.SetCauseId(*v)
+	}
+	return _u
+}
+
+// ClearCauseId clears the value of the "cause_id" field.
+func (_u *EventUpdateOne) ClearCauseId() *EventUpdateOne {
+	_u.mutation.ClearCauseId()
+	return _u
+}
+
 // Mutation returns the EventMutation object of the builder.
 func (_u *EventUpdateOne) Mutation() *EventMutation {
 	return _u.mutation
@@ -565,6 +611,12 @@ func (_u *EventUpdateOne) sqlSave(ctx context.Context) (_node *Event, err error)
 	}
 	if value, ok := _u.mutation.Payload(); ok {
 		_spec.SetField(event.FieldPayload, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.CauseId(); ok {
+		_spec.SetField(event.FieldCauseId, field.TypeUuid, value)
+	}
+	if _u.mutation.CauseIdCleared() {
+		_spec.ClearField(event.FieldCauseId, field.TypeUuid)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	_node = &Event{config: _u.config}
