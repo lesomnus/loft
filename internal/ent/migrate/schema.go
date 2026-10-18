@@ -70,14 +70,14 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "allocation_date_created_id",
+				Name:    "allocation_tenant_id_date_created_id",
 				Unique:  false,
-				Columns: []*schema.Column{AllocationColumns[6], AllocationColumns[0]},
+				Columns: []*schema.Column{AllocationColumns[10], AllocationColumns[6], AllocationColumns[0]},
 			},
 			{
-				Name:    "allocation_begins_at_resource_id",
+				Name:    "allocation_resource_id_begins_at",
 				Unique:  false,
-				Columns: []*schema.Column{AllocationColumns[3], AllocationColumns[11]},
+				Columns: []*schema.Column{AllocationColumns[11], AllocationColumns[3]},
 			},
 			{
 				Name:    "allocation_ref_id",
@@ -178,9 +178,9 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "asset_date_created_id",
+				Name:    "asset_tenant_id_date_created_id",
 				Unique:  false,
-				Columns: []*schema.Column{AssetColumns[9], AssetColumns[0]},
+				Columns: []*schema.Column{AssetColumns[19], AssetColumns[9], AssetColumns[0]},
 			},
 			{
 				Name:    "asset_tag_tenant_id",
@@ -227,9 +227,9 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "assettype_date_created_id",
+				Name:    "assettype_tenant_id_date_created_id",
 				Unique:  false,
-				Columns: []*schema.Column{AssettypeColumns[10], AssettypeColumns[0]},
+				Columns: []*schema.Column{AssettypeColumns[11], AssettypeColumns[10], AssettypeColumns[0]},
 			},
 		},
 	}
@@ -262,9 +262,9 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "attachment_date_created_id",
+				Name:    "attachment_tenant_id_date_created_id",
 				Unique:  false,
-				Columns: []*schema.Column{AttachmentColumns[9], AttachmentColumns[0]},
+				Columns: []*schema.Column{AttachmentColumns[10], AttachmentColumns[9], AttachmentColumns[0]},
 			},
 			{
 				Name:    "attachment_subject_id",
@@ -374,9 +374,9 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "bookable_date_created_id",
+				Name:    "bookable_tenant_id_date_created_id",
 				Unique:  false,
-				Columns: []*schema.Column{BookableColumns[7], BookableColumns[0]},
+				Columns: []*schema.Column{BookableColumns[16], BookableColumns[7], BookableColumns[0]},
 			},
 			{
 				Name:    "bookable_asset_id",
@@ -499,14 +499,14 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "countfinding_date_created_id",
+				Name:    "countfinding_tenant_id_date_created_id",
 				Unique:  false,
-				Columns: []*schema.Column{CountfindingColumns[6], CountfindingColumns[0]},
+				Columns: []*schema.Column{CountfindingColumns[12], CountfindingColumns[6], CountfindingColumns[0]},
 			},
 			{
-				Name:    "countfinding_kind_count_id",
+				Name:    "countfinding_count_id_kind",
 				Unique:  false,
-				Columns: []*schema.Column{CountfindingColumns[3], CountfindingColumns[13]},
+				Columns: []*schema.Column{CountfindingColumns[13], CountfindingColumns[3]},
 			},
 		},
 	}
@@ -550,14 +550,14 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "custody_date_created_id",
+				Name:    "custody_tenant_id_date_created_id",
 				Unique:  false,
-				Columns: []*schema.Column{CustodyColumns[8], CustodyColumns[0]},
+				Columns: []*schema.Column{CustodyColumns[14], CustodyColumns[8], CustodyColumns[0]},
 			},
 			{
-				Name:    "custody_issued_at_party_id",
+				Name:    "custody_party_id_issued_at",
 				Unique:  false,
-				Columns: []*schema.Column{CustodyColumns[4], CustodyColumns[15]},
+				Columns: []*schema.Column{CustodyColumns[15], CustodyColumns[4]},
 			},
 		},
 	}
@@ -610,9 +610,9 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "custodyline_date_created_id",
+				Name:    "custodyline_tenant_id_date_created_id",
 				Unique:  false,
-				Columns: []*schema.Column{CustodylineColumns[4], CustodylineColumns[0]},
+				Columns: []*schema.Column{CustodylineColumns[9], CustodylineColumns[4], CustodylineColumns[0]},
 			},
 			{
 				Name:    "custodyline_custody_id",
@@ -657,9 +657,9 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "event_date_created_id",
+				Name:    "event_tenant_id_date_created_id",
 				Unique:  false,
-				Columns: []*schema.Column{EventColumns[8], EventColumns[0]},
+				Columns: []*schema.Column{EventColumns[12], EventColumns[8], EventColumns[0]},
 			},
 			{
 				Name:    "event_subject_id_occurred_at",
@@ -709,14 +709,14 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "fact_date_created_id",
+				Name:    "fact_tenant_id_date_created_id",
 				Unique:  false,
-				Columns: []*schema.Column{FactColumns[5], FactColumns[0]},
+				Columns: []*schema.Column{FactColumns[10], FactColumns[5], FactColumns[0]},
 			},
 			{
-				Name:    "fact_key_valid_from_asset_id",
+				Name:    "fact_asset_id_key_valid_from",
 				Unique:  false,
-				Columns: []*schema.Column{FactColumns[1], FactColumns[6], FactColumns[11]},
+				Columns: []*schema.Column{FactColumns[11], FactColumns[1], FactColumns[6]},
 			},
 		},
 	}
@@ -759,6 +759,11 @@ var (
 					Where: "date_erased IS NULL",
 				},
 			},
+			{
+				Name:    "holder_tenant_id_date_created_id",
+				Unique:  false,
+				Columns: []*schema.Column{HolderColumns[13], HolderColumns[7], HolderColumns[0]},
+			},
 		},
 	}
 	// InventorycountColumns holds the columns for the "inventorycount" table.
@@ -799,9 +804,9 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "inventorycount_date_created_id",
+				Name:    "inventorycount_tenant_id_date_created_id",
 				Unique:  false,
-				Columns: []*schema.Column{InventorycountColumns[9], InventorycountColumns[0]},
+				Columns: []*schema.Column{InventorycountColumns[12], InventorycountColumns[9], InventorycountColumns[0]},
 			},
 		},
 	}
@@ -856,9 +861,9 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "invitation_date_created_id",
+				Name:    "invitation_tenant_id_date_created_id",
 				Unique:  false,
-				Columns: []*schema.Column{InvitationColumns[6], InvitationColumns[0]},
+				Columns: []*schema.Column{InvitationColumns[11], InvitationColumns[6], InvitationColumns[0]},
 			},
 			{
 				Name:    "invitation_claim",
@@ -913,9 +918,9 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "itemmodel_date_created_id",
+				Name:    "itemmodel_tenant_id_date_created_id",
 				Unique:  false,
-				Columns: []*schema.Column{ItemmodelColumns[9], ItemmodelColumns[0]},
+				Columns: []*schema.Column{ItemmodelColumns[10], ItemmodelColumns[9], ItemmodelColumns[0]},
 			},
 		},
 	}
@@ -955,9 +960,9 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "label_date_created_id",
+				Name:    "label_tenant_id_date_created_id",
 				Unique:  false,
-				Columns: []*schema.Column{LabelColumns[7], LabelColumns[0]},
+				Columns: []*schema.Column{LabelColumns[10], LabelColumns[7], LabelColumns[0]},
 			},
 			{
 				Name:    "label_subject_id",
@@ -994,6 +999,13 @@ var (
 				Columns:    []*schema.Column{LegalholdColumns[5]},
 				RefColumns: []*schema.Column{TenantColumns[0]},
 				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "legalhold_tenant_id_date_created_id",
+				Unique:  false,
+				Columns: []*schema.Column{LegalholdColumns[5], LegalholdColumns[4], LegalholdColumns[0]},
 			},
 		},
 	}
@@ -1041,19 +1053,19 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "link_date_created_id",
+				Name:    "link_tenant_id_date_created_id",
 				Unique:  false,
-				Columns: []*schema.Column{LinkColumns[5], LinkColumns[0]},
+				Columns: []*schema.Column{LinkColumns[11], LinkColumns[5], LinkColumns[0]},
 			},
 			{
-				Name:    "link_valid_from_source_id",
+				Name:    "link_source_id_valid_from",
 				Unique:  false,
-				Columns: []*schema.Column{LinkColumns[6], LinkColumns[12]},
+				Columns: []*schema.Column{LinkColumns[12], LinkColumns[6]},
 			},
 			{
-				Name:    "link_valid_from_target_id",
+				Name:    "link_target_id_valid_from",
 				Unique:  false,
-				Columns: []*schema.Column{LinkColumns[6], LinkColumns[13]},
+				Columns: []*schema.Column{LinkColumns[13], LinkColumns[6]},
 			},
 		},
 	}
@@ -1095,14 +1107,14 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "notification_date_created_id",
+				Name:    "notification_tenant_id_date_created_id",
 				Unique:  false,
-				Columns: []*schema.Column{NotificationColumns[11], NotificationColumns[0]},
+				Columns: []*schema.Column{NotificationColumns[12], NotificationColumns[11], NotificationColumns[0]},
 			},
 			{
-				Name:    "notification_date_created_holder_id",
+				Name:    "notification_holder_id_date_created",
 				Unique:  false,
-				Columns: []*schema.Column{NotificationColumns[11], NotificationColumns[13]},
+				Columns: []*schema.Column{NotificationColumns[13], NotificationColumns[11]},
 			},
 		},
 	}
@@ -1169,9 +1181,9 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "party_date_created_id",
+				Name:    "party_tenant_id_date_created_id",
 				Unique:  false,
-				Columns: []*schema.Column{PartyColumns[10], PartyColumns[0]},
+				Columns: []*schema.Column{PartyColumns[12], PartyColumns[10], PartyColumns[0]},
 			},
 			{
 				Name:    "party_holder_id",
@@ -1228,19 +1240,19 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "placement_date_created_id",
+				Name:    "placement_tenant_id_date_created_id",
 				Unique:  false,
-				Columns: []*schema.Column{PlacementColumns[5], PlacementColumns[0]},
+				Columns: []*schema.Column{PlacementColumns[12], PlacementColumns[5], PlacementColumns[0]},
 			},
 			{
-				Name:    "placement_valid_from_child_id",
+				Name:    "placement_child_id_valid_from",
 				Unique:  false,
-				Columns: []*schema.Column{PlacementColumns[7], PlacementColumns[13]},
+				Columns: []*schema.Column{PlacementColumns[13], PlacementColumns[7]},
 			},
 			{
-				Name:    "placement_valid_from_parent_id",
+				Name:    "placement_parent_id_valid_from",
 				Unique:  false,
-				Columns: []*schema.Column{PlacementColumns[7], PlacementColumns[14]},
+				Columns: []*schema.Column{PlacementColumns[14], PlacementColumns[7]},
 			},
 		},
 	}
@@ -1282,9 +1294,9 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "purchase_date_created_id",
+				Name:    "purchase_tenant_id_date_created_id",
 				Unique:  false,
-				Columns: []*schema.Column{PurchaseColumns[9], PurchaseColumns[0]},
+				Columns: []*schema.Column{PurchaseColumns[12], PurchaseColumns[9], PurchaseColumns[0]},
 			},
 		},
 	}
@@ -1329,9 +1341,9 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "purchaseline_date_created_id",
+				Name:    "purchaseline_tenant_id_date_created_id",
 				Unique:  false,
-				Columns: []*schema.Column{PurchaselineColumns[6], PurchaselineColumns[0]},
+				Columns: []*schema.Column{PurchaselineColumns[8], PurchaselineColumns[6], PurchaselineColumns[0]},
 			},
 			{
 				Name:    "purchaseline_purchase_id",
@@ -1381,14 +1393,14 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "reservation_date_created_id",
+				Name:    "reservation_tenant_id_date_created_id",
 				Unique:  false,
-				Columns: []*schema.Column{ReservationColumns[9], ReservationColumns[0]},
+				Columns: []*schema.Column{ReservationColumns[15], ReservationColumns[9], ReservationColumns[0]},
 			},
 			{
-				Name:    "reservation_begins_at_party_id",
+				Name:    "reservation_party_id_begins_at",
 				Unique:  false,
-				Columns: []*schema.Column{ReservationColumns[5], ReservationColumns[16]},
+				Columns: []*schema.Column{ReservationColumns[16], ReservationColumns[5]},
 			},
 		},
 	}
@@ -1430,9 +1442,9 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "reservationitem_date_created_id",
+				Name:    "reservationitem_tenant_id_date_created_id",
 				Unique:  false,
-				Columns: []*schema.Column{ReservationitemColumns[4], ReservationitemColumns[0]},
+				Columns: []*schema.Column{ReservationitemColumns[5], ReservationitemColumns[4], ReservationitemColumns[0]},
 			},
 			{
 				Name:    "reservationitem_reservation_id",
@@ -1558,19 +1570,19 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "stewardship_date_created_id",
+				Name:    "stewardship_tenant_id_date_created_id",
 				Unique:  false,
-				Columns: []*schema.Column{StewardshipColumns[3], StewardshipColumns[0]},
+				Columns: []*schema.Column{StewardshipColumns[9], StewardshipColumns[3], StewardshipColumns[0]},
 			},
 			{
-				Name:    "stewardship_valid_from_asset_id",
+				Name:    "stewardship_asset_id_valid_from",
 				Unique:  false,
-				Columns: []*schema.Column{StewardshipColumns[4], StewardshipColumns[10]},
+				Columns: []*schema.Column{StewardshipColumns[10], StewardshipColumns[4]},
 			},
 			{
-				Name:    "stewardship_valid_from_party_id",
+				Name:    "stewardship_party_id_valid_from",
 				Unique:  false,
-				Columns: []*schema.Column{StewardshipColumns[4], StewardshipColumns[11]},
+				Columns: []*schema.Column{StewardshipColumns[11], StewardshipColumns[4]},
 			},
 		},
 	}
@@ -1616,9 +1628,9 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "stock_date_created_id",
+				Name:    "stock_tenant_id_date_created_id",
 				Unique:  false,
-				Columns: []*schema.Column{StockColumns[8], StockColumns[0]},
+				Columns: []*schema.Column{StockColumns[9], StockColumns[8], StockColumns[0]},
 			},
 			{
 				Name:    "stock_model_id_space_id",
@@ -1662,14 +1674,14 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "stockmovement_date_created_id",
+				Name:    "stockmovement_tenant_id_date_created_id",
 				Unique:  false,
-				Columns: []*schema.Column{StockmovementColumns[6], StockmovementColumns[0]},
+				Columns: []*schema.Column{StockmovementColumns[9], StockmovementColumns[6], StockmovementColumns[0]},
 			},
 			{
-				Name:    "stockmovement_occurred_at_stock_id",
+				Name:    "stockmovement_stock_id_occurred_at",
 				Unique:  false,
-				Columns: []*schema.Column{StockmovementColumns[4], StockmovementColumns[10]},
+				Columns: []*schema.Column{StockmovementColumns[10], StockmovementColumns[4]},
 			},
 		},
 	}
@@ -1692,6 +1704,13 @@ var (
 		Name:       "tenant",
 		Columns:    TenantColumns,
 		PrimaryKey: []*schema.Column{TenantColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "tenant_date_created_id",
+				Unique:  false,
+				Columns: []*schema.Column{TenantColumns[6], TenantColumns[0]},
+			},
+		},
 	}
 	// TenantcontractColumns holds the columns for the "tenantcontract" table.
 	TenantcontractColumns = []*schema.Column{
@@ -1721,9 +1740,9 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "tenantcontract_date_effective_tenant_id",
+				Name:    "tenantcontract_tenant_id_date_effective_id",
 				Unique:  false,
-				Columns: []*schema.Column{TenantcontractColumns[6], TenantcontractColumns[9]},
+				Columns: []*schema.Column{TenantcontractColumns[9], TenantcontractColumns[6], TenantcontractColumns[0]},
 			},
 		},
 	}
@@ -1756,9 +1775,9 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "tenantdomain_date_created_id",
+				Name:    "tenantdomain_tenant_id_date_created_id",
 				Unique:  false,
-				Columns: []*schema.Column{TenantdomainColumns[8], TenantdomainColumns[0]},
+				Columns: []*schema.Column{TenantdomainColumns[10], TenantdomainColumns[8], TenantdomainColumns[0]},
 			},
 			{
 				Name:    "tenantdomain_host",
@@ -1823,14 +1842,14 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "usagesnapshot_date_created_id",
+				Name:    "usagesnapshot_tenant_id_date_created_id",
 				Unique:  false,
-				Columns: []*schema.Column{UsagesnapshotColumns[4], UsagesnapshotColumns[0]},
+				Columns: []*schema.Column{UsagesnapshotColumns[5], UsagesnapshotColumns[4], UsagesnapshotColumns[0]},
 			},
 			{
-				Name:    "usagesnapshot_day_tenant_id",
+				Name:    "usagesnapshot_tenant_id_day",
 				Unique:  true,
-				Columns: []*schema.Column{UsagesnapshotColumns[1], UsagesnapshotColumns[5]},
+				Columns: []*schema.Column{UsagesnapshotColumns[5], UsagesnapshotColumns[1]},
 			},
 		},
 	}
@@ -1882,9 +1901,9 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "workorder_date_created_id",
+				Name:    "workorder_tenant_id_date_created_id",
 				Unique:  false,
-				Columns: []*schema.Column{WorkorderColumns[9], WorkorderColumns[0]},
+				Columns: []*schema.Column{WorkorderColumns[15], WorkorderColumns[9], WorkorderColumns[0]},
 			},
 			{
 				Name:    "workorder_asset_id",

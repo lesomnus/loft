@@ -58,7 +58,7 @@ message Placement {
     indexes: [
       {
         name: "page"
-        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+        refs: [{name: "tenant", number: 2}, {name: "date_created", number: 15}, {name: "id", number: 1}]
       },
       {
         name: "child"
@@ -125,7 +125,7 @@ message Link {
     indexes: [
       {
         name: "page"
-        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+        refs: [{name: "tenant", number: 2}, {name: "date_created", number: 15}, {name: "id", number: 1}]
       },
       {
         name: "source"
@@ -188,7 +188,7 @@ message Stewardship {
     indexes: [
       {
         name: "page"
-        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+        refs: [{name: "tenant", number: 2}, {name: "date_created", number: 15}, {name: "id", number: 1}]
       },
       {
         name: "asset"
@@ -258,7 +258,7 @@ message Fact {
     indexes: [
       {
         name: "page"
-        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+        refs: [{name: "tenant", number: 2}, {name: "date_created", number: 15}, {name: "id", number: 1}]
       },
       {
         name: "asset"
@@ -330,7 +330,7 @@ message Event {
     indexes: [
       {
         name: "page"
-        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+        refs: [{name: "tenant", number: 2}, {name: "date_created", number: 15}, {name: "id", number: 1}]
       },
       {
         name: "subject"

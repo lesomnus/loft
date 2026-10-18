@@ -59,7 +59,7 @@ message Notification {
     indexes: [
       {
         name: "page"
-        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+        refs: [{name: "tenant", number: 2}, {name: "date_created", number: 15}, {name: "id", number: 1}]
       },
       {
         name: "holder"
@@ -104,7 +104,7 @@ message UsageSnapshot {
     indexes: [
       {
         name: "page"
-        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+        refs: [{name: "tenant", number: 2}, {name: "date_created", number: 15}, {name: "id", number: 1}]
       },
       {
         name: "day"
@@ -181,7 +181,7 @@ message TenantContract {
     indexes: [
       {
         name: "effective"
-        refs: [{name: "tenant", number: 2}, {name: "date_effective", number: 11}]
+        refs: [{name: "tenant", number: 2}, {name: "date_effective", number: 11}, {name: "id", number: 1}]
       }
     ]
   };
@@ -227,6 +227,10 @@ message LegalHold {
 
   option (orm.message) = {
     rpc: {crud: true}
+    indexes: [
+      // The order its list reads in, the tenant first (#122).
+      {name: "page", refs: [{name: "tenant", number: 2}, {name: "date_created", number: 15}, {name: "id", number: 1}]}
+    ]
   };
   option (payday.entity) = {
     domain: 40

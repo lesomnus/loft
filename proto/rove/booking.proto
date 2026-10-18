@@ -54,7 +54,7 @@ message Bookable {
     indexes: [
       {
         name: "page"
-        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+        refs: [{name: "tenant", number: 2}, {name: "date_created", number: 15}, {name: "id", number: 1}]
       },
       {
         name: "asset"
@@ -137,7 +137,7 @@ message Reservation {
     indexes: [
       {
         name: "page"
-        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+        refs: [{name: "tenant", number: 2}, {name: "date_created", number: 15}, {name: "id", number: 1}]
       },
       {
         name: "party"
@@ -187,7 +187,7 @@ message ReservationItem {
     indexes: [
       {
         name: "page"
-        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+        refs: [{name: "tenant", number: 2}, {name: "date_created", number: 15}, {name: "id", number: 1}]
       },
       {
         name: "reservation"
@@ -244,7 +244,7 @@ message Allocation {
     indexes: [
       {
         name: "page"
-        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+        refs: [{name: "tenant", number: 2}, {name: "date_created", number: 15}, {name: "id", number: 1}]
       },
       {
         name: "resource"

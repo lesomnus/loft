@@ -73,9 +73,8 @@ func (Custody) Edges() []ent.Edge {
 
 func (Custody) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("date_created", "id"),
-		index.Fields("issued_at").
-			Edges("party"),
+		index.Fields("tenant_id", "date_created", "id"),
+		index.Fields("party_id", "issued_at"),
 	}
 }
 
@@ -145,9 +144,9 @@ func (CustodyLine) Edges() []ent.Edge {
 
 func (CustodyLine) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("date_created", "id"),
-		index.Edges("custody"),
-		index.Edges("asset"),
+		index.Fields("tenant_id", "date_created", "id"),
+		index.Fields("custody_id"),
+		index.Fields("asset_id"),
 	}
 }
 

@@ -61,8 +61,8 @@ func (Party) Edges() []ent.Edge {
 
 func (Party) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("date_created", "id"),
-		index.Edges("holder").
+		index.Fields("tenant_id", "date_created", "id"),
+		index.Fields("holder_id").
 			Unique().
 			Annotations(entsql.IndexWhere("date_erased IS NULL")),
 	}
@@ -185,7 +185,7 @@ func (Invitation) Edges() []ent.Edge {
 
 func (Invitation) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("date_created", "id"),
+		index.Fields("tenant_id", "date_created", "id"),
 		index.Fields("claim"),
 		index.Fields("account"),
 		index.Fields("email"),

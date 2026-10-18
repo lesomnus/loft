@@ -72,11 +72,9 @@ func (Placement) Edges() []ent.Edge {
 
 func (Placement) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("date_created", "id"),
-		index.Fields("valid_from").
-			Edges("child"),
-		index.Fields("valid_from").
-			Edges("parent"),
+		index.Fields("tenant_id", "date_created", "id"),
+		index.Fields("child_id", "valid_from"),
+		index.Fields("parent_id", "valid_from"),
 	}
 }
 
@@ -146,11 +144,9 @@ func (Link) Edges() []ent.Edge {
 
 func (Link) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("date_created", "id"),
-		index.Fields("valid_from").
-			Edges("source"),
-		index.Fields("valid_from").
-			Edges("target"),
+		index.Fields("tenant_id", "date_created", "id"),
+		index.Fields("source_id", "valid_from"),
+		index.Fields("target_id", "valid_from"),
 	}
 }
 
@@ -217,11 +213,9 @@ func (Stewardship) Edges() []ent.Edge {
 
 func (Stewardship) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("date_created", "id"),
-		index.Fields("valid_from").
-			Edges("asset"),
-		index.Fields("valid_from").
-			Edges("party"),
+		index.Fields("tenant_id", "date_created", "id"),
+		index.Fields("asset_id", "valid_from"),
+		index.Fields("party_id", "valid_from"),
 	}
 }
 
@@ -280,9 +274,8 @@ func (Fact) Edges() []ent.Edge {
 
 func (Fact) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("date_created", "id"),
-		index.Fields("key", "valid_from").
-			Edges("asset"),
+		index.Fields("tenant_id", "date_created", "id"),
+		index.Fields("asset_id", "key", "valid_from"),
 	}
 }
 
@@ -339,7 +332,7 @@ func (Event) Edges() []ent.Edge {
 
 func (Event) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("date_created", "id"),
+		index.Fields("tenant_id", "date_created", "id"),
 		index.Fields("subject_id", "occurred_at"),
 		index.Fields("cause_id"),
 	}

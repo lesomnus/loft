@@ -704,7 +704,7 @@ var File_rove_count_proto protoreflect.FileDescriptor
 
 const file_rove_count_proto_rawDesc = "" +
 	"\n" +
-	"\x10rove/count.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x10rove/asset.proto\x1a\x18rove/payday/tenant.proto\"\xa6\x06\n" +
+	"\x10rove/count.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x10rove/asset.proto\x1a\x18rove/payday/tenant.proto\"\xb2\x06\n" +
 	"\x0eInventoryCount\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x12\n" +
@@ -723,7 +723,9 @@ const file_rove_count_proto_rawDesc = "" +
 	"dateErased\x12H\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12!\n" +
 	"\fself_service\x18\x10 \x01(\bR\vselfService\x12)\n" +
-	"\x10findings_version\x18\x11 \x01(\x04R\x0ffindingsVersion:\x89\x01\xca\xfc\x15&\x12\x02\x10\x01\x1a \x12\x04page\x1a\x10\n" +
+	"\x10findings_version\x18\x11 \x01(\x04R\x0ffindingsVersion:\x95\x01\xca\xfc\x152\x12\x02\x10\x01\x1a,\x12\x04page\x1a\n" +
+	"\n" +
+	"\x06tenant\x10\x02\x1a\x10\n" +
 	"\fdate_created\x10\x0f\x1a\x06\n" +
 	"\x02id\x10\x01\x8a\xbb\x16[\b\x1f2=\n" +
 	"\x12\n" +
@@ -735,7 +737,7 @@ const file_rove_count_proto_rawDesc = "" +
 	"\x03ref\x1a\a\n" +
 	"\x05scope\x1a\b\n" +
 	"\x06status 2(\xc8\x01:\x00\"\x16\n" +
-	"\x06tenant\"\fscope.tenant\"\xa5\a\n" +
+	"\x06tenant\"\fscope.tenant\"\xb1\a\n" +
 	"\fCountFinding\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x12\n" +
@@ -756,7 +758,9 @@ const file_rove_count_proto_rawDesc = "" +
 	"resolution\x18\x13 \x01(\tR\n" +
 	"resolution\x12C\n" +
 	"\vresolved_at\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\n" +
-	"resolvedAt:\xcb\x01\xca\xfc\x15D\x12\x02\x10\x01\x1a \x12\x04page\x1a\x10\n" +
+	"resolvedAt:\xd7\x01\xca\xfc\x15P\x12\x02\x10\x01\x1a,\x12\x04page\x1a\n" +
+	"\n" +
+	"\x06tenant\x10\x02\x1a\x10\n" +
 	"\fdate_created\x10\x0f\x1a\x06\n" +
 	"\x02id\x10\x01\x1a\x1c\x12\x05count\x1a\t\n" +
 	"\x05count\x10\b\x1a\b\n" +

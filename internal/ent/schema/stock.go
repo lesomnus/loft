@@ -65,8 +65,8 @@ func (Stock) Edges() []ent.Edge {
 
 func (Stock) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("date_created", "id"),
-		index.Edges("model", "space"),
+		index.Fields("tenant_id", "date_created", "id"),
+		index.Fields("model_id", "space_id"),
 	}
 }
 
@@ -122,9 +122,8 @@ func (StockMovement) Edges() []ent.Edge {
 
 func (StockMovement) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("date_created", "id"),
-		index.Fields("occurred_at").
-			Edges("stock"),
+		index.Fields("tenant_id", "date_created", "id"),
+		index.Fields("stock_id", "occurred_at"),
 	}
 }
 
