@@ -319,6 +319,9 @@ func (Event) Fields() []ent.Field {
 		field.Bytes("trace_id").
 			Optional(),
 		field.String("payload"),
+		field.Uuid("cause_id").
+			Nillable().
+			Optional(),
 		field.Uuid("tenant_id").
 			Immutable(),
 	}
@@ -338,6 +341,7 @@ func (Event) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("date_created", "id"),
 		index.Fields("subject_id", "occurred_at"),
+		index.Fields("cause_id"),
 	}
 }
 

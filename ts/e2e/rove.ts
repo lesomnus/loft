@@ -21,7 +21,7 @@ export const owner = { login: 'owner', password: 'owner-pass-1234' }
 export const people = {
 	signIn: { login: 'jia-lim', name: '임지아' },
 	assets: { login: 'jimin-kim', name: '김지민' },
-	imports: { login: 'yerin-kim', name: '김예린' },
+	exports: { login: 'yerin-kim', name: '김예린' },
 	labels: { login: 'daeun-kim', name: '김다은' },
 	custody: { login: 'minjun-kim', name: '김민준' },
 	member: { login: 'haeun-lee', name: '이하은' },

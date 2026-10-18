@@ -204,7 +204,7 @@ export const Event = {
 	version: "dateUpdated",
 	refs: [{ field: "tenant", to: "rove.Tenant" }],
 	key: "id",
-	ids: ["id", "actorId", "subjectId"],
+	ids: ["id", "actorId", "subjectId", "causeId"],
 	service: EventService,
 } as const satisfies EntityDesc
 

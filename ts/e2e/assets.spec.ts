@@ -1,6 +1,7 @@
-import { writeFile } from 'node:fs/promises'
+import { readFile } from 'node:fs/promises'
 
 import { card, choose, expect, field, people, said, signIn, test, unique, workspace } from './rove.js'
+import { unzip } from './zip.js'
 
 test('an asset is registered, found, opened and moved, and its timeline says so', async ({ page }) => {
 	const name = unique('e2e 의자')
@@ -37,51 +38,22 @@ test('an asset is registered, found, opened and moved, and its timeline says so'
 	await expect(page.getByRole('listitem').filter({ hasText: '디자인팀 사무실 안' })).toContainText('e2e: 자리를 옮김')
 })
 
-test('a sheet is previewed before anything is imported, and imports what it showed (csv)', async ({ page }, info) => {
-	const name = unique('e2e 가져온 책상')
-	const tag = `E2E-${Math.random().toString(36).slice(2, 7).toUpperCase()}`
-	const file = info.outputPath('assets.csv')
-	await writeFile(file, `태그,이름,위치\n${tag},${name},본사/4층/창고\n`)
-	await signIn(page, people.imports.login)
-	await page.goto(`${workspace}/assets`)
-
-	await page.getByRole('button', { name: '가져오기', exact: true }).click()
-	const dialog = page.getByRole('dialog')
-	await field(dialog, '파일').setInputFiles(file)
-	await dialog.getByRole('button', { name: '미리 보기', exact: true }).click()
-	await expect(dialog.getByText('미리 보기: 새로 등록 1 · 수정 0 · 변화 없음 0')).toBeVisible()
-	await expect(dialog.getByText(/^오류/)).toHaveCount(0)
-
-	// Nothing is written until it is asked for.
-	await page.goto(`${workspace}/assets?q=${encodeURIComponent(tag)}`)
-	await expect(page.getByText('조건에 맞는 자산이 없습니다.')).toBeVisible()
-
-	await page.getByRole('button', { name: '가져오기', exact: true }).click()
-	await field(dialog, '파일').setInputFiles(file)
-	await dialog.getByRole('button', { name: '미리 보기', exact: true }).click()
-	await dialog.getByRole('button', { name: '이대로 가져오기' }).click()
-	await said(page, '가져왔습니다.')
-	await expect(dialog.getByText('완료: 새로 등록 1 · 수정 0 · 변화 없음 0')).toBeVisible()
-	await dialog.getByRole('button', { name: '닫기' }).click()
-
-	await page.goto(`${workspace}/assets?q=${encodeURIComponent(tag)}`)
-	await expect(page.getByRole('link', { name, exact: true })).toBeVisible()
-})
-
-test('an exported sheet previews back with no errors (xlsx)', async ({ page }, info) => {
-	await signIn(page, people.imports.login)
+test('the register is exported as a workbook to read', async ({ page }, info) => {
+	await signIn(page, people.exports.login)
 	await page.goto(`${workspace}/assets`)
 
 	const download = page.waitForEvent('download')
 	await page.getByRole('button', { name: '엑셀로 내보내기' }).click()
-	const file = info.outputPath('assets.xlsx')
-	await (await download).saveAs(file)
+	const got = await download
+	expect(got.suggestedFilename()).toMatch(/^rove-assets-\d{8}\.xlsx$/)
 
-	await page.getByRole('button', { name: '가져오기', exact: true }).click()
-	const dialog = page.getByRole('dialog')
-	await field(dialog, '파일').setInputFiles(file)
-	await dialog.getByRole('button', { name: '미리 보기', exact: true }).click()
-	await expect(dialog.getByText(/^미리 보기: /)).toBeVisible()
-	await expect(dialog.getByText(/^오류/)).toHaveCount(0)
-	await expect(dialog.getByRole('button', { name: '이대로 가져오기' })).toBeVisible()
+	// A workbook: a zip whose first sheet is the register.
+	const file = info.outputPath('assets.xlsx')
+	await got.saveAs(file)
+	const parts = unzip(await readFile(file))
+	expect(parts.has('xl/workbook.xml')).toBe(true)
+	expect([...parts.values()].map((v) => v.toString()).join('')).toContain('위치태그')
+
+	// And nothing reads one back: the sheet import is gone (design D34).
+	await expect(page.getByRole('button', { name: '가져오기', exact: true })).toHaveCount(0)
 })

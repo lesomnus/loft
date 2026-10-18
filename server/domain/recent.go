@@ -46,6 +46,11 @@ func (s domainEvent) Recent(ctx context.Context, req *app.EventRecentRequest) (*
 	if req.HasBefore() {
 		ps = append(ps, event.DateCreatedLT(req.GetBefore().AsTime()))
 	}
+	// An operation over many things once, rather than once for each of them
+	// as well: what it did to each is that thing's history (design D34).
+	if !req.GetChildren() {
+		ps = append(ps, event.CauseIdIsNil())
+	}
 	vs, err := t.db.Event.Query().Where(ps...).Order(event.ByDateCreated(sql.OrderDesc()), event.ById(sql.OrderDesc())).Limit(pageSize(req.GetSize())).All(ctx)
 	if err != nil {
 		return nil, err

@@ -663,6 +663,7 @@ message EventAddRequest {
   google.protobuf.Timestamp date_created = 15;
   bytes trace_id = 16;
   string payload = 17 [features.field_presence = IMPLICIT];
+  bytes cause_id = 18;
 }
 
 message EventGetRequest {
@@ -689,6 +690,7 @@ message EventSelect {
   bool date_created = 15;
   bool trace_id = 16;
   bool payload = 17;
+  bool cause_id = 18;
 }
 
 message EventPatchRequest {
@@ -725,6 +727,12 @@ message EventPatchRequest {
   bool date_updated_force = 27;
   bytes trace_id = 32;
   string payload = 34;
+  bytes cause_id = 36;
+  // Clear cause_id instead of writing it.
+  // It takes a field of its own because an unset value already means
+  // "leave it alone", so no value could have meant NULL. It wins
+  // outright: setting both this and cause_id clears.
+  bool cause_id_null = 37;
 }
 
 message EventApplyRequest {
@@ -782,6 +790,7 @@ message EventFilter {
   bytes subject_id = 2;
   string kind = 3;
   bytes actor_id = 4;
+  bytes cause_id = 5;
 }
 
 message EventRecentRequest {
@@ -790,6 +799,9 @@ message EventRecentRequest {
   string kind = 2 [features.field_presence = IMPLICIT];
   // Only events recorded before this, for the next page.
   google.protobuf.Timestamp before = 3;
+  // Also what an operation over many things did to each of them, which the
+  // feed otherwise leaves under the operation (design D34).
+  bool children = 4 [features.field_presence = IMPLICIT];
 }
 
 message EventRecentResponse {

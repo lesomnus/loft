@@ -4659,6 +4659,14 @@ func filterEvent(f *rove.EventFilter) (predicate.Event, error) {
 
 		ps = append(ps, event.ActorIdEQ(k))
 	}
+	if f.HasCauseId() {
+		k, err := entuuid.FromBytes(f.GetCauseId())
+		if err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "cause_id: %s", err)
+		}
+
+		ps = append(ps, event.CauseIdEQ(k))
+	}
 	if len(ps) == 0 {
 		return nil, status.Error(codes.InvalidArgument, "a filter that names nothing")
 	}
@@ -18110,11 +18118,6 @@ func (s interceptAsset) Report(ctx context.Context, req *rove.AssetReportRequest
 		rove.AssetService_Report_FullMethodName, req, s.AssetServiceServer.Report)
 }
 
-func (s interceptAsset) Import(ctx context.Context, req *rove.AssetImportRequest) (*rove.AssetImportResponse, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.AssetServiceServer,
-		rove.AssetService_Import_FullMethodName, req, s.AssetServiceServer.Import)
-}
-
 func (s interceptAsset) Export(ctx context.Context, req *rove.AssetExportRequest) (*rove.AssetExportResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AssetServiceServer,
 		rove.AssetService_Export_FullMethodName, req, s.AssetServiceServer.Export)
@@ -21595,19 +21598,6 @@ func dispatch(ctx context.Context, s rove.Server, op *pdpb.Op) (*anypb.Any, erro
 		}
 
 		res, err := s.Asset().Report(ctx, v)
-		if err != nil {
-			return nil, err
-		}
-
-		return anypb.New(res)
-
-	case rove.AssetService_Import_FullMethodName:
-		v := &rove.AssetImportRequest{}
-		if err := op.GetRequest().UnmarshalTo(v); err != nil {
-			return nil, batch.ErrRequest(m, err)
-		}
-
-		res, err := s.Asset().Import(ctx, v)
 		if err != nil {
 			return nil, err
 		}

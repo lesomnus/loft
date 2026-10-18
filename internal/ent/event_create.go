@@ -116,6 +116,20 @@ func (_c *EventCreate) SetPayload(v string) *EventCreate {
 	return _c
 }
 
+// SetCauseId sets the "cause_id" field.
+func (_c *EventCreate) SetCauseId(v uuid.UUID) *EventCreate {
+	_c.mutation.SetCauseId(v)
+	return _c
+}
+
+// SetNillableCauseId sets the "cause_id" field if the given value is not nil.
+func (_c *EventCreate) SetNillableCauseId(v *uuid.UUID) *EventCreate {
+	if v != nil {
+		_c.SetCauseId(*v)
+	}
+	return _c
+}
+
 // SetTenantId sets the "tenant_id" field.
 func (_c *EventCreate) SetTenantId(v uuid.UUID) *EventCreate {
 	_c.mutation.SetTenantId(v)
@@ -278,6 +292,10 @@ func (_c *EventCreate) createSpec() (*Event, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Payload(); ok {
 		_spec.SetField(event.FieldPayload, field.TypeString, value)
 		_node.Payload = value
+	}
+	if value, ok := _c.mutation.CauseId(); ok {
+		_spec.SetField(event.FieldCauseId, field.TypeUuid, value)
+		_node.CauseId = &value
 	}
 	if nodes := _c.mutation.TenantIds(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

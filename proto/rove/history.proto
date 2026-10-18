@@ -316,6 +316,14 @@ message Event {
   bytes trace_id = 16 [(orm.field) = {default: ""}];
   // What the operation said, as JSON, for a person reading the history.
   string payload = 17;
+  // The operation this is part of. An operation over many things records an
+  // event of its own and, for each thing it changed, a child: what it did to
+  // that one, with that one as the subject and this naming the operation's
+  // event (design D34). Empty on an operation's own event.
+  bytes cause_id = 18 [(orm.field) = {
+    type: TYPE_UUID
+    nullable: true
+  }];
 
   option (orm.message) = {
     rpc: {crud: true}
@@ -327,6 +335,10 @@ message Event {
       {
         name: "subject"
         refs: [{name: "subject_id", number: 12}, {name: "occurred_at", number: 10}]
+      },
+      {
+        name: "cause"
+        refs: [{name: "cause_id", number: 18}]
       }
     ]
   };
@@ -335,7 +347,7 @@ message Event {
     erase: {hard: {}}
     list: {
       order: [{field: {name: "date_created"}, desc: true}, {field: {name: "id"}, desc: true}]
-      by: [{name: "ref"}, {name: "subject_id"}, {name: "kind"}, {name: "actor_id"}]
+      by: [{name: "ref"}, {name: "subject_id"}, {name: "kind"}, {name: "actor_id"}, {name: "cause_id"}]
       size: 50
       max: 500
     }

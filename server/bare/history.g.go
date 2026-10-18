@@ -2826,6 +2826,13 @@ func (st EventServiceServer) create(ctx context.Context, req *rove.EventAddReque
 		q.SetTraceId([]byte{})
 	}
 	q.SetPayload(req.GetPayload())
+	if req.HasCauseId() {
+		if v, err := entuuid.FromBytes(req.GetCauseId()); err != nil {
+			return nil, nil, status.Errorf(codes.InvalidArgument, "cause_id: %s", err)
+		} else {
+			q.SetCauseId(v)
+		}
+	}
 	return q, ds, nil
 }
 
@@ -2982,6 +2989,9 @@ func EventSelectedFields(m *rove.EventSelect) []string {
 	if m.GetPayload() {
 		vs = append(vs, event.FieldPayload)
 	}
+	if m.GetCauseId() {
+		vs = append(vs, event.FieldCauseId)
+	}
 
 	return vs
 }
@@ -3051,7 +3061,7 @@ func EventGetKey(ctx context.Context, db *ent.Client, ref *rove.EventRef) (uuid.
 var eventOrmEntity = ormpatch.MustEntityOf(rove.File_rove_history_proto, "Event")
 
 var eventPatchColumns = entpatch.Columns{
-	1: event.FieldId, 2: event.TenantColumn, 6: event.FieldDesc, 8: event.FieldKind, 9: event.FieldActorId, 10: event.FieldOccurredAt, 11: event.FieldReason, 12: event.FieldSubjectId, 13: event.FieldDateUpdated, 15: event.FieldDateCreated, 16: event.FieldTraceId, 17: event.FieldPayload}
+	1: event.FieldId, 2: event.TenantColumn, 6: event.FieldDesc, 8: event.FieldKind, 9: event.FieldActorId, 10: event.FieldOccurredAt, 11: event.FieldReason, 12: event.FieldSubjectId, 13: event.FieldDateUpdated, 15: event.FieldDateCreated, 16: event.FieldTraceId, 17: event.FieldPayload, 18: event.FieldCauseId}
 
 func (s EventServiceServer) Apply(ctx context.Context, req *rove.EventApplyRequest) (*rove.Event, error) {
 	if !req.HasPatch() {

@@ -818,6 +818,7 @@ type mcpEntry struct {
 	Operation  string `json:"operation,omitempty" jsonschema:"for an event, its kind: asset.move, custody.issue, ..."`
 	Who        string `json:"who,omitempty"`
 	Why        string `json:"why,omitempty"`
+	Part       string `json:"part_of,omitempty" jsonschema:"the operation over many things this was part of, in its own words"`
 	Superseded string `json:"superseded,omitempty" jsonschema:"when a correction replaced it"`
 }
 
@@ -867,6 +868,7 @@ func (t mcpTools) assetHistory(ctx context.Context, _ *mcp.CallToolRequest, in m
 			Operation:  e.GetEventKind(),
 			Who:        e.GetActor(),
 			Why:        e.GetReason(),
+			Part:       e.GetCause(),
 			Superseded: stamp(e.GetSupersededAt()),
 		})
 	}
