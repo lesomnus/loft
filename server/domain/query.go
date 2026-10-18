@@ -257,11 +257,30 @@ func (s domainAsset) Timeline(ctx context.Context, req *app.AssetTimelineRequest
 			byId[k] = v
 		}
 	}
+	// What an event was part of, when it was what an operation over many
+	// things did to this one: the operation, in its own words (design D34).
+	causes := map[uuid.UUID]string{}
+	cause := func(v *ent.Event) string {
+		if v.CauseId == nil {
+			return ""
+		}
+		k := *v.CauseId
+		if s, ok := causes[k]; ok {
+			return s
+		}
+		s := ""
+		if c, err := t.db.Event.Query().Where(event.Id(k), event.TenantId(tid)).Only(ctx); err == nil {
+			s = names.say(c.Desc, c.Payload)
+		}
+		causes[k] = s
+		return s
+	}
 	for _, e := range entries {
 		if v, ok := byId[uuidOf(e.GetEventId())]; ok {
 			e.SetEventKind(v.Kind)
 			e.SetReason(v.Reason)
 			e.SetActor(names.actor(v.ActorId))
+			e.SetCause(cause(v))
 		}
 	}
 	// An event outside the window is still here when a row in it says it is
@@ -279,6 +298,11 @@ func (s domainAsset) Timeline(ctx context.Context, req *app.AssetTimelineRequest
 		e.SetEventKind(v.Kind)
 		e.SetReason(v.Reason)
 		e.SetActor(names.actor(v.ActorId))
+		// Not when it says what the operation did: a hand-over's child says
+		// "지급" of the asset as the hand-over says it of the person.
+		if c := cause(v); c != e.GetSummary() {
+			e.SetCause(c)
+		}
 		if v.Payload != "" {
 			e.SetDetail(decode(v.Payload))
 		}

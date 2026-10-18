@@ -869,13 +869,6 @@ ul.bars .num {
 	padding: 6px 0;
 	border-bottom: 1px solid var(--line-2);
 }
-.import-result ul {
-	margin: 6px 0;
-	padding-left: 18px;
-	max-height: 220px;
-	overflow-y: auto;
-}
-
 .toasts {
 	position: fixed;
 	bottom: 20px;

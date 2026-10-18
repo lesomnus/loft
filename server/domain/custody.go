@@ -65,7 +65,8 @@ func (s domainCustody) Add(ctx context.Context, req *app.CustodyAddRequest) (*ap
 		if req.HasDueAt() && !req.GetDueAt().AsTime().After(t.now) {
 			return invalid("due_at", "반납 기한은 지금 이후여야 합니다")
 		}
-		if err := t.begin(req.GetOp(), "custody.issue", id, t.now, map[string]string{"issue": "지급", "loan": "대여"}[kind]+": {party}", req.GetDesc(), map[string]string{"lines": fmt.Sprint(len(req.GetLines())), "party": idOf(p.GetId()).String()}); err != nil {
+		said := map[string]string{"issue": "지급", "loan": "대여"}[kind] + ": {party}"
+		if err := t.begin(req.GetOp(), "custody.issue", id, t.now, said, req.GetDesc(), map[string]string{"lines": fmt.Sprint(len(req.GetLines())), "party": idOf(p.GetId()).String()}); err != nil {
 			return err
 		}
 
@@ -140,16 +141,24 @@ func (s domainCustody) Add(ctx context.Context, req *app.CustodyAddRequest) (*ap
 				}
 				line.SetAsset(app.AssetRef_builder{Id: aid.Bytes()}.Build())
 				line.SetQuantity(1)
-				if _, err := t.steward(aid.Uuid(), "custodian", t.now, &steward{party: uuidOf(p.GetId())}, nil); err != nil {
+				// What the hand-over did to this asset is an event of its own,
+				// the hand-over its cause: the asset's history says it was
+				// handed over, and to whom (design D34).
+				if err := t.child("custody.issue", aid, t.now, said, req.GetDesc(), map[string]string{"party": idOf(p.GetId()).String(), "custody": id.String()}, func() error {
+					if _, err := t.steward(aid.Uuid(), "custodian", t.now, &steward{party: uuidOf(p.GetId())}, nil); err != nil {
+						return err
+					}
+					if c := l.GetCondition(); c != "" && c != a.GetCondition() && slices.Contains(Conditions, c) {
+						if err := t.addFact(aid.Uuid(), "condition", c, false, t.now); err != nil {
+							return err
+						}
+						if _, err := t.sync(aid.Uuid()); err != nil {
+							return err
+						}
+					}
+					return nil
+				}); err != nil {
 					return err
-				}
-				if c := l.GetCondition(); c != "" && c != a.GetCondition() && slices.Contains(Conditions, c) {
-					if err := t.addFact(aid.Uuid(), "condition", c, false, t.now); err != nil {
-						return err
-					}
-					if _, err := t.sync(aid.Uuid()); err != nil {
-						return err
-					}
 				}
 			case l.HasStock():
 				q := l.GetQuantity()
@@ -300,33 +309,38 @@ func (s domainCustody) Return(ctx context.Context, req *app.CustodyReturnRequest
 
 			if l.AssetId != (uuid.UUID{}) {
 				a := l.AssetId
-				if _, err := t.steward(a, "custodian", at, nil, nil); err != nil {
+				// What the return did to this asset is an event of its own, the
+				// return its cause (design D34).
+				if err := t.child("custody.return", pdid.Id(a), at, "반납", "", map[string]string{"custody": cid.String()}, func() error {
+					if _, err := t.steward(a, "custodian", at, nil, nil); err != nil {
+						return err
+					}
+					if cond != "" && slices.Contains(Conditions, cond) {
+						if err := t.addFact(a, "condition", cond, false, at); err != nil {
+							return err
+						}
+					}
+					if to != nil {
+						old, err := t.placements(a)
+						if err != nil {
+							return err
+						}
+						tl, changed := old.set(at, &place{parent: uuidOf(to.GetId()), mode: "located"})
+						if changed {
+							if err := t.checkPlacements(a, tl, old, false); err != nil {
+								return err
+							}
+							if err := t.writePlacements(a, old, tl); err != nil {
+								return err
+							}
+							if _, err := t.refresh(a, old, tl); err != nil {
+								return err
+							}
+						}
+					}
+					_, err := t.sync(a)
 					return err
-				}
-				if cond != "" && slices.Contains(Conditions, cond) {
-					if err := t.addFact(a, "condition", cond, false, at); err != nil {
-						return err
-					}
-				}
-				if to != nil {
-					old, err := t.placements(a)
-					if err != nil {
-						return err
-					}
-					tl, changed := old.set(at, &place{parent: uuidOf(to.GetId()), mode: "located"})
-					if changed {
-						if err := t.checkPlacements(a, tl, old, false); err != nil {
-							return err
-						}
-						if err := t.writePlacements(a, old, tl); err != nil {
-							return err
-						}
-						if _, err := t.refresh(a, old, tl); err != nil {
-							return err
-						}
-					}
-				}
-				if _, err := t.sync(a); err != nil {
+				}); err != nil {
 					return err
 				}
 			}

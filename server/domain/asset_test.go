@@ -7,7 +7,6 @@ import (
 
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/lesomnus/payday/pdid"
-	"github.com/lesomnus/z"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -426,32 +425,24 @@ func TestTheTreeHoldsUnderTheDomainLayer(t *testing.T) {
 
 // TestAContainerIsToldOnceATransaction: what is inside a container changing
 // is said to whoever watches it by its content version -- once a transaction,
-// however much of it changed. An import of three things into a room moves the
-// room's version by one, where it moved it by three, each a write of its own
+// however much of it changed. Three things made into a room at once move the
+// room's version by one, where they moved it by three, each a write of its own
 // through every layer (rove#103); the next change moves it again.
 func TestAContainerIsToldOnceATransaction(t *testing.T) {
 	e := newEnv(t)
 	x := e.x
 
-	_, err := e.app().Asset().Import(e.owner, app.AssetImportRequest_builder{Format: "csv", Data: []byte("종류,이름,태그\n공간,창고,SP-1\n")}.Build())
-	x.NoError(err)
-	room := func() uint64 {
-		v, err := e.app().Asset().Get(e.owner, app.AssetGetRequest_builder{Ref: app.AssetRef_builder{
-			Tag: app.AssetRefByTag_builder{Tenant: app.TenantRef_builder{Id: e.tenant.Bytes()}.Build(), Tag: z.Ptr("SP-1")}.Build(),
-		}.Build()}.Build())
-		x.NoError(err)
-		return v.GetContentVersion()
-	}
-	was := room()
+	room := e.space("창고", nil)
+	st := e.stock(e.model("의자"), room, 4, 0)
+	version := func() uint64 { return e.get(room).GetContentVersion() }
+	was := version()
 
-	v, err := e.app().Asset().Import(e.owner, app.AssetImportRequest_builder{Format: "csv",
-		Data: []byte("종류,이름,태그,위치태그\n물품,의자 1,CH-1,SP-1\n물품,의자 2,CH-2,SP-1\n물품,의자 3,CH-3,SP-1\n")}.Build())
+	v, err := e.app().Stock().Convert(e.owner, app.StockConvertRequest_builder{Ref: ref[app.StockRef](st.GetId()), Quantity: 3}.Build())
 	x.NoError(err)
-	x.EqualValues(3, v.GetCreated())
-	x.Equal(was+1, room(), "three things in, the room told once")
+	x.Len(v.GetAssets(), 3)
+	x.Equal(was+1, version(), "three things in, the room told once")
 
-	_, err = e.app().Asset().Import(e.owner, app.AssetImportRequest_builder{Format: "csv",
-		Data: []byte("종류,이름,태그,위치태그\n물품,의자 4,CH-4,SP-1\n")}.Build())
+	_, err = e.app().Stock().Convert(e.owner, app.StockConvertRequest_builder{Ref: ref[app.StockRef](st.GetId()), Quantity: 1}.Build())
 	x.NoError(err)
-	x.Equal(was+2, room(), "and told again by the next")
+	x.Equal(was+2, version(), "and told again by the next")
 }

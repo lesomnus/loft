@@ -638,6 +638,7 @@ var (
 		{Name: "date_created", Type: field.TypeTime, Nullable: true},
 		{Name: "trace_id", Type: field.TypeBytes, Nullable: true},
 		{Name: "payload", Type: field.TypeString},
+		{Name: "cause_id", Type: field.TypeUuid, Nullable: true},
 		{Name: "tenant_id", Type: field.TypeUuid},
 	}
 	// EventTable holds the schema information for the "event" table.
@@ -648,7 +649,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "event_tenant_tenant",
-				Columns:    []*schema.Column{EventColumns[11]},
+				Columns:    []*schema.Column{EventColumns[12]},
 				RefColumns: []*schema.Column{TenantColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -663,6 +664,11 @@ var (
 				Name:    "event_subject_id_occurred_at",
 				Unique:  false,
 				Columns: []*schema.Column{EventColumns[6], EventColumns[4]},
+			},
+			{
+				Name:    "event_cause_id",
+				Unique:  false,
+				Columns: []*schema.Column{EventColumns[11]},
 			},
 		},
 	}

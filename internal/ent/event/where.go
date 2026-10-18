@@ -106,6 +106,11 @@ func Payload(v string) predicate.Event {
 	return predicate.Event(sql.FieldEQ(FieldPayload, v))
 }
 
+// CauseId applies equality check predicate on the "cause_id" field. It's identical to CauseIdEQ.
+func CauseId(v uuid.UUID) predicate.Event {
+	return predicate.Event(sql.FieldEQ(FieldCauseId, v))
+}
+
 // TenantId applies equality check predicate on the "tenant_id" field. It's identical to TenantIdEQ.
 func TenantId(v uuid.UUID) predicate.Event {
 	return predicate.Event(sql.FieldEQ(FieldTenantId, v))
@@ -659,6 +664,56 @@ func PayloadEqualFold(v string) predicate.Event {
 // PayloadContainsFold applies the ContainsFold predicate on the "payload" field.
 func PayloadContainsFold(v string) predicate.Event {
 	return predicate.Event(sql.FieldContainsFold(FieldPayload, v))
+}
+
+// CauseIdEQ applies the EQ predicate on the "cause_id" field.
+func CauseIdEQ(v uuid.UUID) predicate.Event {
+	return predicate.Event(sql.FieldEQ(FieldCauseId, v))
+}
+
+// CauseIdNEQ applies the NEQ predicate on the "cause_id" field.
+func CauseIdNEQ(v uuid.UUID) predicate.Event {
+	return predicate.Event(sql.FieldNEQ(FieldCauseId, v))
+}
+
+// CauseIdIn applies the In predicate on the "cause_id" field.
+func CauseIdIn(vs ...uuid.UUID) predicate.Event {
+	return predicate.Event(sql.FieldIn(FieldCauseId, vs...))
+}
+
+// CauseIdNotIn applies the NotIn predicate on the "cause_id" field.
+func CauseIdNotIn(vs ...uuid.UUID) predicate.Event {
+	return predicate.Event(sql.FieldNotIn(FieldCauseId, vs...))
+}
+
+// CauseIdGT applies the GT predicate on the "cause_id" field.
+func CauseIdGT(v uuid.UUID) predicate.Event {
+	return predicate.Event(sql.FieldGT(FieldCauseId, v))
+}
+
+// CauseIdGTE applies the GTE predicate on the "cause_id" field.
+func CauseIdGTE(v uuid.UUID) predicate.Event {
+	return predicate.Event(sql.FieldGTE(FieldCauseId, v))
+}
+
+// CauseIdLT applies the LT predicate on the "cause_id" field.
+func CauseIdLT(v uuid.UUID) predicate.Event {
+	return predicate.Event(sql.FieldLT(FieldCauseId, v))
+}
+
+// CauseIdLTE applies the LTE predicate on the "cause_id" field.
+func CauseIdLTE(v uuid.UUID) predicate.Event {
+	return predicate.Event(sql.FieldLTE(FieldCauseId, v))
+}
+
+// CauseIdIsNil applies the IsNil predicate on the "cause_id" field.
+func CauseIdIsNil() predicate.Event {
+	return predicate.Event(sql.FieldIsNull(FieldCauseId))
+}
+
+// CauseIdNotNil applies the NotNil predicate on the "cause_id" field.
+func CauseIdNotNil() predicate.Event {
+	return predicate.Event(sql.FieldNotNull(FieldCauseId))
 }
 
 // TenantIdEQ applies the EQ predicate on the "tenant_id" field.

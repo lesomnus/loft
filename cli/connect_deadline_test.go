@@ -15,8 +15,7 @@ import (
 
 // TestACallSaysItsDeadline: a terminal's deadline goes with its call, as the
 // Connect protocol's own header, which is what a server keeps a call to rather
-// than its own default -- and an import that named none is given minutes,
-// since one of the size it allows takes longer than that default (rove#103).
+// than its own default.
 func TestACallSaysItsDeadline(t *testing.T) {
 	x := require.New(t)
 	said := make(chan string, 1)
@@ -34,11 +33,6 @@ func TestACallSaysItsDeadline(t *testing.T) {
 	ms, err := strconv.Atoi(<-said)
 	x.NoError(err)
 	x.InDelta(time.Minute.Milliseconds(), ms, 5000)
-
-	x.NoError(c.Invoke(t.Context(), app.AssetService_Import_FullMethodName, &app.AssetImportRequest{}, &app.AssetImportResponse{}))
-	ms, err = strconv.Atoi(<-said)
-	x.NoError(err)
-	x.Greater(ms, int((9 * time.Minute).Milliseconds()), "an import is given minutes of its own")
 
 	x.NoError(c.Invoke(t.Context(), app.AssetService_Get_FullMethodName, &app.AssetGetRequest{}, &app.Asset{}))
 	x.Empty(<-said, "a call that names no deadline says none")

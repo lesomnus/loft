@@ -32,6 +32,8 @@ const (
 	FieldTraceId = "trace_id"
 	// FieldPayload holds the string denoting the payload field in the database.
 	FieldPayload = "payload"
+	// FieldCauseId holds the string denoting the cause_id field in the database.
+	FieldCauseId = "cause_id"
 	// FieldTenantId holds the string denoting the tenant_id field in the database.
 	FieldTenantId = "tenant_id"
 	// EdgeTenant holds the string denoting the tenant edge name in mutations.
@@ -60,6 +62,7 @@ var Columns = []string{
 	FieldDateCreated,
 	FieldTraceId,
 	FieldPayload,
+	FieldCauseId,
 	FieldTenantId,
 }
 
@@ -124,6 +127,11 @@ func ByDateCreated(opts ...sql.OrderTermOption) OrderOption {
 // ByPayload orders the results by the payload field.
 func ByPayload(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPayload, opts...).ToFunc()
+}
+
+// ByCauseId orders the results by the cause_id field.
+func ByCauseId(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCauseId, opts...).ToFunc()
 }
 
 // ByTenantId orders the results by the tenant_id field.
