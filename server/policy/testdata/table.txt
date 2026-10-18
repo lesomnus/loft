@@ -8,7 +8,6 @@
 /rove.AssetService/Erase	manager
 /rove.AssetService/Export	manager
 /rove.AssetService/Get	read
-/rove.AssetService/Import	manager
 /rove.AssetService/List	read
 /rove.AssetService/Move	manager
 /rove.AssetService/QueryAt	read

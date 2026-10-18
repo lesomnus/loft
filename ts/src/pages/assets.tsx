@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 
 import type { AssetType } from '../../gen/rove/catalog_pb.js'
-import { AssetService, download, errorText, idBytes, idStr, raw, readFile, ref, ts } from '../api.js'
+import { AssetService, download, errorText, idBytes, idStr, raw, ref, ts } from '../api.js'
 import { modelName, useCatalog } from '../catalog.js'
 import { ModelSelect, SpaceSelect, TypeSelect, Where } from '../pickers.js'
 import { useAct, useRpc } from '../rpc.js'
@@ -23,7 +23,6 @@ export function Assets(): ReactNode {
 	const page = Number(sp.get('page') ?? '0')
 	const [picked, setPicked] = useState<Set<string>>(new Set())
 	const [adding, setAdding] = useState(false)
-	const [importing, setImporting] = useState(false)
 	const go = useNavigate()
 	const toast = useToast()
 
@@ -67,7 +66,6 @@ export function Assets(): ReactNode {
 						{c.can('manager') && (
 							<>
 								<button onClick={() => void exportAs('xlsx')}>엑셀로 내보내기</button>
-								<button onClick={() => setImporting(true)}>가져오기</button>
 								<button className="primary" onClick={() => setAdding(true)}>
 									+ 자산 등록
 								</button>
@@ -178,7 +176,6 @@ export function Assets(): ReactNode {
 				}
 			</Load>
 			{adding && <NewAsset onClose={() => setAdding(false)} />}
-			{importing && <Import onClose={() => setImporting(false)} />}
 		</>
 	)
 }
@@ -304,67 +301,3 @@ function NewAsset(props: { onClose: () => void }): ReactNode {
 	)
 }
 
-/**
- * How long an import may take: a sheet of the 5,000 rows the server takes at
- * once is minutes, and a call that names no deadline is given thirty seconds
- * (rove#103).
- */
-const importTimeoutMs = 10 * 60 * 1000
-
-function Import(props: { onClose: () => void }): ReactNode {
-	const act = useAct()
-	const [file, setFile] = useState<File | undefined>()
-	const [result, setResult] = useState<{ dry: boolean; created: number; updated: number; skipped: number; errors: string[]; warnings: string[] }>()
-
-	const run = async (dry: boolean) => {
-		if (file === undefined) return false
-		const data = await readFile(file)
-		const format = file.name.toLowerCase().endsWith('.xlsx') ? 'xlsx' : 'csv'
-		const v = await act(AssetService.method.import, { format, data, dryRun: dry }, { ok: dry ? undefined : '가져왔습니다.', timeoutMs: importTimeoutMs })
-		if (v === undefined) return false
-		setResult({ dry, created: v.created, updated: v.updated, skipped: v.skipped, errors: v.errors, warnings: v.warnings })
-		return false
-	}
-
-	return (
-		<FormModal title="자산 가져오기" submit="미리 보기" wide onClose={props.onClose} onSubmit={() => run(true)}>
-			<p className="wide">
-				CSV 또는 엑셀(xlsx) 첫 시트를 읽습니다. 열 이름은 <code>태그, 이름, 종류, 유형, 모델, 제조사, 시리얼, 상태, 컨디션, 위치, 위치태그, 사용자, 취득일, 기준일, 설명</code> 과
-				<code>속성.키</code> 를 씁니다. 태그가 이미 있으면 그 자산을 고칩니다. 위치는 <code>본사/3층/회의실 A</code> 처럼 적으면 없는 공간을 만듭니다.
-				먼저 미리 보기로 확인한 뒤 가져오세요. 내보낸 파일을 고쳐서 다시 가져올 수 있습니다.
-			</p>
-			<Field label="파일" wide>
-				<input type="file" accept=".csv,.xlsx" onChange={(e) => { setFile(e.target.files?.[0]); setResult(undefined) }} required />
-			</Field>
-			{result !== undefined && (
-				<div className="wide import-result">
-					<p>
-						<strong>{result.dry ? '미리 보기' : '완료'}</strong>: 새로 등록 {result.created} · 수정 {result.updated} · 변화 없음 {result.skipped}
-					</p>
-					{result.errors.length > 0 && (
-						<>
-							<p className="bad">오류 {result.errors.length}건 — 고친 뒤 다시 시도하세요. 아무것도 바뀌지 않았습니다.</p>
-							<ul className="bad small">
-								{result.errors.map((e, i) => (
-									<li key={i}>{e}</li>
-								))}
-							</ul>
-						</>
-					)}
-					{result.warnings.length > 0 && (
-						<ul className="warn small">
-							{result.warnings.map((e, i) => (
-								<li key={i}>{e}</li>
-							))}
-						</ul>
-					)}
-					{result.dry && result.errors.length === 0 && (
-						<button type="button" className="primary" onClick={() => void run(false)}>
-							이대로 가져오기
-						</button>
-					)}
-				</div>
-			)}
-		</FormModal>
-	)
-}

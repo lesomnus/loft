@@ -40,7 +40,9 @@ service AssetService {
   rpc Search(AssetSearchRequest) returns (AssetSearchResponse);
   rpc Report(AssetReportRequest) returns (AssetReportResponse);
 
-  rpc Import(AssetImportRequest) returns (AssetImportResponse);
+  // Export writes the register as a sheet, to read. Nothing reads one back:
+  // a restore is of the workspace's own export, and a sheet that edited the
+  // register by tag is gone (design D34).
   rpc Export(AssetExportRequest) returns (AssetExportResponse);
 }
 
@@ -238,22 +240,6 @@ message ReportRow {
   string label = 3 [features.field_presence = IMPLICIT];
   double value = 4 [features.field_presence = IMPLICIT];
   map<string, string> detail = 5;
-}
-
-message AssetImportRequest {
-  // csv | xlsx
-  string format = 1 [features.field_presence = IMPLICIT];
-  bytes data = 2 [features.field_presence = IMPLICIT];
-  // Report what would happen, change nothing.
-  bool dry_run = 3 [features.field_presence = IMPLICIT];
-}
-
-message AssetImportResponse {
-  uint32 created = 1 [features.field_presence = IMPLICIT];
-  uint32 updated = 2 [features.field_presence = IMPLICIT];
-  uint32 skipped = 3 [features.field_presence = IMPLICIT];
-  repeated string errors = 4;
-  repeated string warnings = 5;
 }
 
 message AssetExportRequest {
