@@ -22,9 +22,15 @@ message Party {
   }];
   Tenant tenant = 2 [(orm.edge) = {immutable: true}];
 
-  string name = 5;
-  string desc = 6;
-  map<string, string> labels = 7;
+  // What a party is called, what is said and labelled of it, how it is reached
+  // and the number it goes by are personal (payday#92): the trail records that
+  // one was set and never to what. The row is where a person is corrected and
+  // pseudonymized, and the trail is the copy nothing rewrites. A team's name
+  // is declared with a person's -- a field that is sometimes about a person is
+  // about a person -- so a team renamed is on the trail as `name` set.
+  string name = 5 [(payday.field) = {personal: true}];
+  string desc = 6 [(payday.field) = {personal: true}];
+  map<string, string> labels = 7 [(payday.field) = {personal: true}];
 
   // person | team | org | vendor
   string kind = 8;
@@ -37,8 +43,8 @@ message Party {
   // a unique index over an edge named otherwise does not generate
   // (protobuf-orm/protoc-gen-orm-ent#1).
   Holder holder = 10 [(orm.edge) = {nullable: true}];
-  string email = 11;
-  string phone = 12;
+  string email = 11 [(payday.field) = {personal: true}];
+  string phone = 12 [(payday.field) = {personal: true}];
 
   google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
   google.protobuf.Timestamp date_erased = 14 [(orm.field) = {erased: {}}];
@@ -48,7 +54,7 @@ message Party {
   }];
 
   // An employee number or a vendor code, free text.
-  string code = 16;
+  string code = 16 [(payday.field) = {personal: true}];
 
   option (orm.message) = {
     rpc: {crud: true}
@@ -174,8 +180,9 @@ message Invitation {
   // The address it was sent to, folded as an address is compared. Written
   // once, and emptied when the person it was for is forgotten -- by the
   // workspace, or by their account leaving (`server/domain/depart.go`) -- which
-  // is the one write it takes and why it is not immutable.
-  string email = 9;
+  // is the one write it takes and why it is not immutable. Personal
+  // (payday#92): on the trail as having been set, and never as what to.
+  string email = 9 [(payday.field) = {personal: true}];
 
   // What an account that accepts is here.
   string role = 10 [(orm.field) = {immutable: true}];

@@ -38,6 +38,7 @@ message AuditAddRequest {
   bytes value = 17 [features.field_presence = IMPLICIT];
   bytes counterpart_tenant_id = 18;
   uint32 domain = 19;
+  repeated uint32 fields = 20;
 }
 
 message AuditGetRequest {
@@ -64,6 +65,7 @@ message AuditSelect {
   bool value = 17;
   bool counterpart_tenant_id = 18;
   bool domain = 19;
+  bool fields = 20;
 }
 
 message AuditPatchRequest {
@@ -83,6 +85,7 @@ message AuditPatchRequest {
   // outright: setting both this and counterpart_tenant_id clears.
   bool counterpart_tenant_id_null = 37;
   uint32 domain = 38;
+  repeated uint32 fields = 40;
 }
 
 message AuditApplyRequest {

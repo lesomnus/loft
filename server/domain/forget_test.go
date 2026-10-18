@@ -2,6 +2,7 @@ package domain_test
 
 import (
 	"context"
+	"slices"
 	"strings"
 	"testing"
 	"uuid"
@@ -11,6 +12,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	app "github.com/lesomnus/rove"
+	"github.com/lesomnus/rove/cmd"
 	"github.com/lesomnus/rove/internal/ent/audit"
 	"github.com/lesomnus/rove/internal/ent/event"
 )
@@ -52,6 +54,55 @@ func TestAPersonForgottenIsForgottenInTheTrail(t *testing.T) {
 	full, after := e.copies(kim.GetId(), h)
 	x.Zero(full, "a copy of the person in the trail")
 	x.GreaterOrEqual(after, all, "the record that the writes happened went with them")
+}
+
+// TestTheTrailHoldsNoValueOfAPerson: what identifies or describes a person --
+// what they are called, how they are reached, the number they go by -- is
+// declared personal (payday#92), so the trail records that it was set and
+// never what to, even where it keeps rows. The forgetting above blanks what is
+// left; this is what was never there. (A membership's login is payday's own
+// declaration, and payday's test.)
+func TestTheTrailHoldsNoValueOfAPerson(t *testing.T) {
+	e := newEnvWith(t, func(c *cmd.Config) { c.Audit.Content = "value" })
+	x := e.x
+	_, kim := e.person("member")
+
+	_, err := e.app().Party().Update(e.owner, app.PartyUpdateRequest_builder{
+		Ref:   ref[app.PartyRef](kim.GetId()),
+		Name:  "김다시",
+		Email: "kim.again@example.com",
+		Phone: "010-9876-5432",
+		Code:  "EMP-0042",
+	}.Build())
+	x.NoError(err)
+
+	vs, err := e.s.Ent.Audit.Query().All(context.Background())
+	x.NoError(err)
+	rows := 0
+	for _, v := range vs {
+		for _, b := range [][]byte{v.Patch, v.Value} {
+			for _, said := range []string{
+				kim.GetName(), kim.GetEmail(), // what it was made with
+				"김다시", "kim.again@example.com", "010-9876-5432", "EMP-0042",
+			} {
+				x.NotEmpty(said)
+				x.NotContains(string(b), said, "the trail holds a value of the person")
+			}
+		}
+		if len(v.Value) > 0 {
+			rows++
+		}
+	}
+	x.Positive(rows, "the trail kept no rows, so the checks above never looked at one")
+
+	// And that they were set, by whom and when, is still the record.
+	set := false
+	for _, v := range vs {
+		if string(v.ObjectId[:]) == string(kim.GetId()) && slices.Contains(v.Fields, 11) && slices.Contains(v.Fields, 16) {
+			set = true
+		}
+	}
+	x.True(set, "nothing says the address and the number were set")
 }
 
 // TestAHoldKeepsWhatTheTrailSaidOfAPerson.

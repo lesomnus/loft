@@ -17,7 +17,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file rove/payday/holder.proto.
  */
 export const file_rove_payday_holder: GenFile = /*@__PURE__*/
-  fileDesc("Chhyb3ZlL3BheWRheS9ob2xkZXIucHJvdG8SBHJvdmUikAUKBkhvbGRlchIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASJAoGdGVuYW50GAIgASgLMgwucm92ZS5UZW5hbnRCBvKCFgJAARINCgVhbGlhcxgEIAEoCRIMCgRuYW1lGAUgASgJEgwKBGRlc2MYBiABKAkSKAoGbGFiZWxzGAcgAygLMhgucm92ZS5Ib2xkZXIuTGFiZWxzRW50cnkSOQoMZGF0ZV91cGRhdGVkGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4oBABI4CgtkYXRlX2VyYXNlZBgOIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOSAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAEhsKBHJvbGUYCCABKAlCDeqCFgmCAQZtZW1iZXISGQoHYWNjb3VudBgJIAEoDEII6oIWBBBAOAESOAoMZGF0ZV9sZWF2aW5nGAogASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIG6oIWAjgBEhAKCG1haWxfb2ZmGAsgASgIEh0KBXBhcnR5GAwgASgMQg7qghYEEEA4AarBFgIQARotCgtMYWJlbHNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBOm7K/BUlEgIQARofEgRzbHVnGgkKBWFsaWFzEAQaCgoGdGVuYW50EAIwAYq7FkEIAjI5ChAKDgoMZGF0ZV9jcmVhdGVkCgYKBAoCaWQaBQoDcmVmGggKBnRlbmFudBoICgZsYWJlbHMgFChkOgBIAkIfWhhnaXRodWIuY29tL2xlc29tbnVzL3JvdmWSAwIIAmIIZWRpdGlvbnNw6Ac", [file_google_protobuf_timestamp, file_orm, file_payday, file_rove_payday_tenant]);
+  fileDesc("Chhyb3ZlL3BheWRheS9ob2xkZXIucHJvdG8SBHJvdmUisAUKBkhvbGRlchIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASJAoGdGVuYW50GAIgASgLMgwucm92ZS5UZW5hbnRCBvKCFgJAARIVCgVhbGlhcxgEIAEoCUIGqsEWAhgBEhQKBG5hbWUYBSABKAlCBqrBFgIYARIUCgRkZXNjGAYgASgJQgaqwRYCGAESMAoGbGFiZWxzGAcgAygLMhgucm92ZS5Ib2xkZXIuTGFiZWxzRW50cnlCBqrBFgIYARI5CgxkYXRlX3VwZGF0ZWQYDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDigEAEjgKC2RhdGVfZXJhc2VkGA4gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA5IBABI7CgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgnqghYFQAGCAQASGwoEcm9sZRgIIAEoCUIN6oIWCYIBBm1lbWJlchIZCgdhY2NvdW50GAkgASgMQgjqghYEEEA4ARI4CgxkYXRlX2xlYXZpbmcYCiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESEAoIbWFpbF9vZmYYCyABKAgSHQoFcGFydHkYDCABKAxCDuqCFgQQQDgBqsEWAhABGi0KC0xhYmVsc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAE6bsr8FSUSAhABGh8SBHNsdWcaCQoFYWxpYXMQBBoKCgZ0ZW5hbnQQAjABirsWQQgCMjkKEAoOCgxkYXRlX2NyZWF0ZWQKBgoECgJpZBoFCgNyZWYaCAoGdGVuYW50GggKBmxhYmVscyAUKGQ6AEgCQh9aGGdpdGh1Yi5jb20vbGVzb21udXMvcm92ZZIDAggCYghlZGl0aW9uc3DoBw", [file_google_protobuf_timestamp, file_orm, file_payday, file_rove_payday_tenant]);
 
 /**
  * Holder is who a request is from.
@@ -51,6 +51,13 @@ export type Holder = Message<"rove.Holder"> & {
   /**
    * Alias is what a person writes this holder as, within its tenant:
    * `@acme/admin`. It is unique inside a tenant and not across the deployment.
+   *
+   * It and the three after it are **personal** (#92): a holder is somebody, and
+   * what they are called, what is said of them and what is labelled on them are
+   * theirs. The trail records that one of them was set, and never what to --
+   * the row is where a person is corrected and erased, and the trail is the
+   * copy nothing rewrites. Who a line of the trail is about stays on it: that
+   * is `actor_id` and `object_id`, which are identifiers.
    *
    * @generated from field: string alias = 4;
    */

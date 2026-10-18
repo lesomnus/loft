@@ -101,7 +101,7 @@ Phase 번호는 10장의 구현 단계와 같다.
 | --- | --- |
 | `Tenant` (payday) | 워크스페이스. 데이터·접근·과금의 경계. roster의 테넌트(계정 디렉터리)와는 다른 층이다(9.10절, D27) |
 | `Holder` (payday) | 워크스페이스의 구성원 자격과 역할. 계정은 roster의 것이고 Holder는 그 계정을 가리킨다(9.10절). 한 계정이 여러 워크스페이스에 속하면 워크스페이스마다 Holder가 하나씩 있다 |
-| `Audit` / `Outbox` (payday) | 모든 쓰기의 시스템 감사 기록(쓰기와 같은 트랜잭션), 발행 큐 |
+| `Audit` / `Outbox` (payday) | 모든 쓰기의 시스템 감사 기록(쓰기와 같은 트랜잭션), 발행 큐. 감사 기록은 기본으로 쓰기가 쓴 내용(patch)을 남기고, 행 전체는 `audit.content: value`일 때만 남긴다. personal로 선언한 사람의 값은 어느 수준에서도 남기지 않는다(payday#92) |
 | `Asset` | 추적 대상의 공통 정체성. `kind` = `ITEM`(실물) / `SPACE`(장소) / `KIT` / `GROUP`(풀·논리 그룹). 관계·QR·첨부·플러그인이 모두 여기에 붙는다 |
 | `AssetType` | 테넌트별 유형, 속성 스키마(버전), 기본 Capability, 단일 상속 |
 | `ItemModel` | 제조사·모델·규격·슬롯 정의. 여러 Asset이 같은 모델을 참조 |
@@ -349,7 +349,7 @@ Tenant/Plan ──> Entitlement/Policy engine ──────────┼�
   2. trail에서 이력을 담는 도메인(Asset, Placement, Link, Stewardship, Fact, Event)은 **그 조직의 계약이 정하는 보존 기간**을 따른다. payday가 조직마다 묻고, Rove가 `TenantContract`와 `LegalHold`로 답한다(`server/retention`). 그래서 제품에서 지운 이력이 trail에 값으로 남지 않고, 법적 보존은 둘을 함께 붙든다.
   3. 계정·권한 도메인(Holder)의 trail과 접근 기록 로그(9.7절)는 payday `pipa` 프로필(최소 1년) 이상으로 보존한다. 로그인과 비밀번호의 기록은 roster의 trail에 있다(9.10절).
   4. trail 용량이 문제가 되면, 그 자체로 기록 시각을 가진 불변 기록인 시간 행·Event의 쓰기를 recorder에서 빼는 것을 검토한다(payday의 "Changing what the trail records").
-- **개인정보**: 이력과 Event에는 Party·Holder ID만 남긴다. Event의 문장은 사람을 이름 대신 표시로 쓰고(`{party}` 사람 기록, `{holder}` 구성원 자격을 행위자처럼, `{alias}` 구성원 자격의 아이디), 그 ID를 payload에 둔다(`party=`, `holder=`). 읽을 때(`EventService.Recent`, `AssetService.Timeline`) 지금의 이름으로 채우므로, 이름을 바꾼 사람은 바뀐 이름으로, 잊힌 사람은 가명으로 읽힌다. 물건(태그, 유형, 모델, 예약·작업의 이름)은 그때의 이름을 쓴다. 개인정보가 아니고, 그때 무엇이라 불렸는지가 기록이다. 이렇게 하기 전(2026-10-12)에 쓴 Event는 쓴 그대로 남는다. 문장에 이름이 있고 누구에 대한 것인지 ID가 없어, 안전하게 가려낼 방법이 없다(이름은 같을 수도, 그 뒤에 바뀌었을 수도 있다). 테넌트 내보내기는 저장된 그대로(표시와 ID)를 담는다. 삭제 요청은 다음 순서로 처리한다. Party를 가명화하고, 그 Party와 Holder를 대상으로 한 trail 행의 `value`·`patch`를 DB와 아카이브에서 함께 비운다(payday `trail.Policy.Forget`, 가명화와 같은 트랜잭션). 법적 보존이 걸린 행은 그대로 두고 그 건수를 Event에 남기며, 보존이 풀린 뒤 다시 요청하면 마저 비운다. Holder는 soft erase하여 로그인을 막고, trail의 행위자 ID는 그대로 둔다.
+- **개인정보**: 이력과 Event에는 Party·Holder ID만 남긴다. Event의 문장은 사람을 이름 대신 표시로 쓰고(`{party}` 사람 기록, `{holder}` 구성원 자격을 행위자처럼, `{alias}` 구성원 자격의 아이디), 그 ID를 payload에 둔다(`party=`, `holder=`). 읽을 때(`EventService.Recent`, `AssetService.Timeline`) 지금의 이름으로 채우므로, 이름을 바꾼 사람은 바뀐 이름으로, 잊힌 사람은 가명으로 읽힌다. 물건(태그, 유형, 모델, 예약·작업의 이름)은 그때의 이름을 쓴다. 개인정보가 아니고, 그때 무엇이라 불렸는지가 기록이다. 이렇게 하기 전(2026-10-12)에 쓴 Event는 쓴 그대로 남는다. 문장에 이름이 있고 누구에 대한 것인지 ID가 없어, 안전하게 가려낼 방법이 없다(이름은 같을 수도, 그 뒤에 바뀌었을 수도 있다). 테넌트 내보내기는 저장된 그대로(표시와 ID)를 담는다. 삭제 요청은 다음 순서로 처리한다. Party를 가명화하고, 그 Party와 Holder를 대상으로 한 trail 행의 `value`·`patch`를 DB와 아카이브에서 함께 비운다(payday `trail.Policy.Forget`, 가명화와 같은 트랜잭션). 사람의 이름·설명·라벨·연락처·사번, 초대한 주소, 알림의 글, 구성원 자격의 이름과 아이디는 personal로 선언되어 trail에 애초에 값으로 남지 않는다(payday#92). trail은 그 필드를 바꿨다는 것과 누가 언제 바꿨는지만 기록한다. 그래서 비우는 것은 그 밖의 것, 곧 자유 텍스트와 이 선언 전에 쓴 행이다. 법적 보존이 걸린 행은 그대로 두고 그 건수를 Event에 남기며, 보존이 풀린 뒤 다시 요청하면 마저 비운다. Holder는 soft erase하여 로그인을 막고, trail의 행위자 ID는 그대로 둔다.
 - **분할**: 시간 행과 Event는 테넌트와 시각 기준으로 지울 수 있게 인덱스를 둔다. 테넌트마다 보존 기간이 다르므로 파티션 통째 삭제는 가장 긴 보존 기간에만 쓸 수 있고, 나머지는 배치 삭제다.
 - 만료 예정 데이터 관리자 대시보드와 사전 알림, 고객 내보내기(CSV/JSON/첨부 패키지) 경로와 유예 기간을 제공한다.
 - 계약 변경(업그레이드·다운그레이드)은 미래 효력, 유예 기간, 기존 데이터의 취급을 명확히 기록한다. 결제가 한 번 실패했다고 바로 삭제하지 않는다.
@@ -814,7 +814,7 @@ Rove     테넌트 = 워크스페이스                  acme: kim(owner), lee(m
 | D10 | 구현 기반은 payday. 생성 CRUD와 테넌트 경계를 쓰고, 쓰기는 도메인 RPC로만 | 테넌트 경계·trail·watch·클라이언트를 직접 만들지 않고, payday의 원칙이 Rove의 "도메인 작업 우선"과 같다 |
 | D11 | 테넌트 격리는 payday 경계 + Gate의 엣지 확인 + `agrees` + PostgreSQL 트리거. RLS·복합 FK는 쓰지 않음 | Gate는 여러 테넌트를 보는 호출자와 Gate 아래의 쓰기를 못 막는다. 복합 FK는 payday의 서버 시작 전 검사가 거부하고, RLS는 운영자 스택·정책 모델과 맞지 않는다 |
 | D12 | 운영은 PostgreSQL, SQLite는 테스트·데모. PostgreSQL 전용 DDL은 ent와 다른 마이그레이션 디렉터리에 두고 같은 리비전 흐름으로 적용 | 같은 디렉터리에 두면 Plan이 매번 지우려 한다. 규칙은 두 DB에서 같게 두고, DB 제약은 마지막 방어선으로 쓴다 |
-| D13 | 개인정보는 Party에만 두고 이력에는 ID만. 삭제는 가명화 + trail 정리 | 불변 이력에 복사된 개인정보는 나중에 지우기 어렵다 |
+| D13 | 개인정보는 Party에만 두고 이력에는 ID만. 삭제는 가명화 + trail 정리. trail에는 personal 필드의 값을 남기지 않는다(payday#92) | 불변 이력에 복사된 개인정보는 나중에 지우기 어렵다 |
 | D14 | 제품 이력(테넌트별 보존)과 payday trail(배포 단위 보존)을 분리 | trail에는 테넌트별 보존이 없고, 값 스냅샷이 제품 삭제를 무력화하지 않게 한다 |
 | D15 | OIDC 로그인은 Phase 0, SAML/SCIM은 Phase 3. 역할은 `gate.Policy`. **로그인 부분은 D26이 대체한다** | 직원 셀프서비스에는 처음부터 SSO가 필요하고, 기업 SSO는 유료 기능이다 |
 | D16 | 계측은 Phase 0에 일 단위 스냅샷만, 원장·Entitlement는 과금 직전 | 원천에서 다시 계산할 수 있으므로 미리 만들 필요가 없다 |
