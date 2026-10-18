@@ -12,6 +12,7 @@ import (
 	"errors"
 	"io"
 	"slices"
+	"strings"
 	"testing"
 	"time"
 	"uuid"
@@ -29,6 +30,7 @@ import (
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/cli"
 	"github.com/lesomnus/rove/cmd"
+	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/internal/ent/audit"
 	"github.com/lesomnus/rove/internal/ent/migrate"
 	"github.com/lesomnus/rove/server/offboard"
@@ -264,6 +266,92 @@ func TestAnExportHasAllOfIt(t *testing.T) {
 		x.NotContains(f.Name, "session")
 	}
 	x.NotContains(string(read("rows/party.jsonl")), "other", "another tenant's row")
+}
+
+// TestAnExportIsTheSameReadARowAtATime: read a row at a time, an export is the
+// one read a page at a time -- every row of every table and of the trail, once
+// and in the same order -- so that what an export holds is a page and not the
+// workspace (rove#120).
+func TestAnExportIsTheSameReadARowAtATime(t *testing.T) {
+	e := newEnv(t)
+	x := e.x
+	ctx := context.Background()
+	acme, other := e.tenant("acme"), e.tenant("other")
+
+	// Rows of the trail that name acme from another tenant, written among its
+	// own: what somebody of acme's did there, and what was done to acme from
+	// there. The trail of a tenant is three kinds of row, each read by an
+	// index of its own.
+	own, err := e.s.Ent.Audit.Query().Where(audit.TenantId(acme.id.Uuid())).Order(ent.Asc(audit.FieldDateCreated)).All(ctx)
+	x.NoError(err)
+	x.Greater(len(own), 2)
+	v := own[len(own)/2]
+	elsewhere := []uuid.UUID{uuid.NewV7(), uuid.NewV7()}
+	for i, set := range []func(*ent.AuditCreate) *ent.AuditCreate{
+		func(c *ent.AuditCreate) *ent.AuditCreate { return c.SetActorTenantId(acme.id.Uuid()) },
+		func(c *ent.AuditCreate) *ent.AuditCreate {
+			return c.SetActorTenantId(other.id.Uuid()).SetCounterpartTenantId(acme.id.Uuid())
+		},
+	} {
+		x.NoError(set(e.s.Ent.Audit.Create().
+			SetId(elsewhere[i]).
+			SetTenantId(other.id.Uuid()).
+			SetActorId(v.ActorId).
+			SetTraceId(v.TraceId).
+			SetAction(v.Action).
+			SetObjectId(v.ObjectId).
+			SetPatch(v.Patch).
+			SetValue(v.Value).
+			SetFields(v.Fields).
+			SetDomain(v.Domain).
+			SetDateCreated(v.DateCreated)).
+			Exec(ctx))
+	}
+
+	files := func() map[string]string {
+		var buf bytes.Buffer
+		_, err := e.s.Offboard(e.c).Export(ctx, acme.id, &buf)
+		x.NoError(err)
+		z, err := zip.NewReader(bytes.NewReader(buf.Bytes()), int64(buf.Len()))
+		x.NoError(err)
+		out := map[string]string{}
+		for _, f := range z.File {
+			if f.Name == "manifest.json" || f.Name == "signature.json" {
+				// Of the moment it was made.
+				continue
+			}
+			r, err := f.Open()
+			x.NoError(err)
+			b, err := io.ReadAll(r)
+			r.Close()
+			x.NoError(err)
+			out[f.Name] = string(b)
+		}
+		return out
+	}
+
+	whole := files()
+	offboard.SetPage(t, 1)
+	paged := files()
+	x.Equal(whole, paged)
+	x.Greater(strings.Count(paged["rows/asset.jsonl"], "\n"), 1, "every page was one row")
+
+	ids := []string{}
+	at := time.Time{}
+	s := bufio.NewScanner(strings.NewReader(paged["trail/database.jsonl"]))
+	for s.Scan() {
+		var r app.Audit
+		x.NoError(protojson.Unmarshal(s.Bytes(), &r))
+		ids = append(ids, base64.StdEncoding.EncodeToString(r.GetId()))
+		x.False(r.GetDateCreated().AsTime().Before(at), "the trail in the order it was written")
+		at = r.GetDateCreated().AsTime()
+	}
+	x.Len(ids, len(own)+len(elsewhere))
+	for _, id := range elsewhere {
+		x.Contains(ids, base64.StdEncoding.EncodeToString(id[:]))
+	}
+	slices.Sort(ids)
+	x.Len(slices.Compact(ids), len(own)+len(elsewhere), "a row of the trail twice")
 }
 
 // TestAnExportReadsTheArchiveThroughItsManifest: what the trail moved out of

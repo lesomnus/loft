@@ -8,9 +8,11 @@ import (
 	"crypto/x509"
 	"encoding/hex"
 	"io"
+	"math"
 	"slices"
 	"testing"
 	"time"
+	"uuid"
 
 	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/pdid"
@@ -57,7 +59,7 @@ func (e *env) restore(b []byte, o offboard.ImportOptions) (offboard.Restored, er
 func (e *env) rows(t pdid.Id) map[string][]string {
 	out := map[string][]string{}
 	for k, read := range offboard.Exported {
-		vs, err := read(context.Background(), e.s.Ent, t.Uuid())
+		vs, err := read(context.Background(), e.s.Ent, t.Uuid(), uuid.UUID{}, math.MaxInt32)
 		e.x.NoError(err)
 		for _, v := range vs {
 			b, err := protojson.Marshal(v)

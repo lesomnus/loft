@@ -2,8 +2,10 @@ package offboard
 
 import (
 	"archive/zip"
+	"bytes"
 	"context"
 	"crypto/sha256"
+	stdsql "database/sql"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -15,6 +17,7 @@ import (
 	"uuid"
 
 	"github.com/lesomnus/payday/pdid"
+	"github.com/protobuf-orm/ent/dialect"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 
@@ -39,6 +42,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/notification"
 	"github.com/lesomnus/rove/internal/ent/party"
 	"github.com/lesomnus/rove/internal/ent/placement"
+	"github.com/lesomnus/rove/internal/ent/predicate"
 	"github.com/lesomnus/rove/internal/ent/purchase"
 	"github.com/lesomnus/rove/internal/ent/purchaseline"
 	"github.com/lesomnus/rove/internal/ent/reservation"
@@ -88,8 +92,14 @@ type Manifest struct {
 	Digests map[string]string `json:"digests"`
 }
 
-// reader is every row of one kind a tenant has, as the API answers them.
-type reader func(ctx context.Context, db *ent.Client, t uuid.UUID) ([]proto.Message, error)
+// page is how many rows an export reads at once, of a table or of the trail,
+// which is what it holds of them: a workspace of any size is written in as
+// little.
+var page = 1000
+
+// reader is a page of the rows of one kind a tenant has, as the API answers
+// them: at most n, in the order of their keys, from the first after `after`.
+type reader func(ctx context.Context, db *ent.Client, t, after uuid.UUID, n int) ([]proto.Message, error)
 
 func each[T any, M proto.Message](f func(T) M) func([]T, error) ([]proto.Message, error) {
 	return func(vs []T, err error) ([]proto.Message, error) {
@@ -106,101 +116,101 @@ func each[T any, M proto.Message](f func(T) M) func([]T, error) ([]proto.Message
 
 // Exported is every kind an export writes, by its table.
 var Exported = map[string]reader{
-	"allocation": func(ctx context.Context, db *ent.Client, t uuid.UUID) ([]proto.Message, error) {
-		return each((*ent.Allocation).Proto)(db.Allocation.Query().Where(allocation.TenantId(t)).All(ctx))
+	"allocation": func(ctx context.Context, db *ent.Client, t, after uuid.UUID, n int) ([]proto.Message, error) {
+		return each((*ent.Allocation).Proto)(db.Allocation.Query().Where(allocation.TenantId(t), allocation.IdGT(after)).Order(ent.Asc(allocation.FieldId)).Limit(n).All(ctx))
 	},
-	"asset": func(ctx context.Context, db *ent.Client, t uuid.UUID) ([]proto.Message, error) {
-		return each((*ent.Asset).Proto)(db.Asset.Query().Where(asset.TenantId(t)).All(ctx))
+	"asset": func(ctx context.Context, db *ent.Client, t, after uuid.UUID, n int) ([]proto.Message, error) {
+		return each((*ent.Asset).Proto)(db.Asset.Query().Where(asset.TenantId(t), asset.IdGT(after)).Order(ent.Asc(asset.FieldId)).Limit(n).All(ctx))
 	},
-	"assettype": func(ctx context.Context, db *ent.Client, t uuid.UUID) ([]proto.Message, error) {
-		return each((*ent.AssetType).Proto)(db.AssetType.Query().Where(assettype.TenantId(t)).All(ctx))
+	"assettype": func(ctx context.Context, db *ent.Client, t, after uuid.UUID, n int) ([]proto.Message, error) {
+		return each((*ent.AssetType).Proto)(db.AssetType.Query().Where(assettype.TenantId(t), assettype.IdGT(after)).Order(ent.Asc(assettype.FieldId)).Limit(n).All(ctx))
 	},
-	"attachment": func(ctx context.Context, db *ent.Client, t uuid.UUID) ([]proto.Message, error) {
-		return each((*ent.Attachment).Proto)(db.Attachment.Query().Where(attachment.TenantId(t)).All(ctx))
+	"attachment": func(ctx context.Context, db *ent.Client, t, after uuid.UUID, n int) ([]proto.Message, error) {
+		return each((*ent.Attachment).Proto)(db.Attachment.Query().Where(attachment.TenantId(t), attachment.IdGT(after)).Order(ent.Asc(attachment.FieldId)).Limit(n).All(ctx))
 	},
-	"bookable": func(ctx context.Context, db *ent.Client, t uuid.UUID) ([]proto.Message, error) {
-		return each((*ent.Bookable).Proto)(db.Bookable.Query().Where(bookable.TenantId(t)).All(ctx))
+	"bookable": func(ctx context.Context, db *ent.Client, t, after uuid.UUID, n int) ([]proto.Message, error) {
+		return each((*ent.Bookable).Proto)(db.Bookable.Query().Where(bookable.TenantId(t), bookable.IdGT(after)).Order(ent.Asc(bookable.FieldId)).Limit(n).All(ctx))
 	},
-	"countfinding": func(ctx context.Context, db *ent.Client, t uuid.UUID) ([]proto.Message, error) {
-		return each((*ent.CountFinding).Proto)(db.CountFinding.Query().Where(countfinding.TenantId(t)).All(ctx))
+	"countfinding": func(ctx context.Context, db *ent.Client, t, after uuid.UUID, n int) ([]proto.Message, error) {
+		return each((*ent.CountFinding).Proto)(db.CountFinding.Query().Where(countfinding.TenantId(t), countfinding.IdGT(after)).Order(ent.Asc(countfinding.FieldId)).Limit(n).All(ctx))
 	},
-	"custody": func(ctx context.Context, db *ent.Client, t uuid.UUID) ([]proto.Message, error) {
-		return each((*ent.Custody).Proto)(db.Custody.Query().Where(custody.TenantId(t)).All(ctx))
+	"custody": func(ctx context.Context, db *ent.Client, t, after uuid.UUID, n int) ([]proto.Message, error) {
+		return each((*ent.Custody).Proto)(db.Custody.Query().Where(custody.TenantId(t), custody.IdGT(after)).Order(ent.Asc(custody.FieldId)).Limit(n).All(ctx))
 	},
-	"custodyline": func(ctx context.Context, db *ent.Client, t uuid.UUID) ([]proto.Message, error) {
-		return each((*ent.CustodyLine).Proto)(db.CustodyLine.Query().Where(custodyline.TenantId(t)).All(ctx))
+	"custodyline": func(ctx context.Context, db *ent.Client, t, after uuid.UUID, n int) ([]proto.Message, error) {
+		return each((*ent.CustodyLine).Proto)(db.CustodyLine.Query().Where(custodyline.TenantId(t), custodyline.IdGT(after)).Order(ent.Asc(custodyline.FieldId)).Limit(n).All(ctx))
 	},
-	"event": func(ctx context.Context, db *ent.Client, t uuid.UUID) ([]proto.Message, error) {
-		return each((*ent.Event).Proto)(db.Event.Query().Where(event.TenantId(t)).All(ctx))
+	"event": func(ctx context.Context, db *ent.Client, t, after uuid.UUID, n int) ([]proto.Message, error) {
+		return each((*ent.Event).Proto)(db.Event.Query().Where(event.TenantId(t), event.IdGT(after)).Order(ent.Asc(event.FieldId)).Limit(n).All(ctx))
 	},
-	"fact": func(ctx context.Context, db *ent.Client, t uuid.UUID) ([]proto.Message, error) {
-		return each((*ent.Fact).Proto)(db.Fact.Query().Where(fact.TenantId(t)).All(ctx))
+	"fact": func(ctx context.Context, db *ent.Client, t, after uuid.UUID, n int) ([]proto.Message, error) {
+		return each((*ent.Fact).Proto)(db.Fact.Query().Where(fact.TenantId(t), fact.IdGT(after)).Order(ent.Asc(fact.FieldId)).Limit(n).All(ctx))
 	},
-	"holder": func(ctx context.Context, db *ent.Client, t uuid.UUID) ([]proto.Message, error) {
-		return each((*ent.Holder).Proto)(db.Holder.Query().Where(holder.TenantId(t)).All(ctx))
+	"holder": func(ctx context.Context, db *ent.Client, t, after uuid.UUID, n int) ([]proto.Message, error) {
+		return each((*ent.Holder).Proto)(db.Holder.Query().Where(holder.TenantId(t), holder.IdGT(after)).Order(ent.Asc(holder.FieldId)).Limit(n).All(ctx))
 	},
 	// Who was invited, as what, and what became of it -- without the code a
 	// mail carried, which is a way in and nothing the tenant needs back.
-	"invitation": func(ctx context.Context, db *ent.Client, t uuid.UUID) ([]proto.Message, error) {
+	"invitation": func(ctx context.Context, db *ent.Client, t, after uuid.UUID, n int) ([]proto.Message, error) {
 		return each(func(v *ent.Invitation) proto.Message {
 			m := v.Proto()
 			m.SetClaim(nil)
 			return m
-		})(db.Invitation.Query().Where(invitation.TenantId(t)).All(ctx))
+		})(db.Invitation.Query().Where(invitation.TenantId(t), invitation.IdGT(after)).Order(ent.Asc(invitation.FieldId)).Limit(n).All(ctx))
 	},
-	"inventorycount": func(ctx context.Context, db *ent.Client, t uuid.UUID) ([]proto.Message, error) {
-		return each((*ent.InventoryCount).Proto)(db.InventoryCount.Query().Where(inventorycount.TenantId(t)).All(ctx))
+	"inventorycount": func(ctx context.Context, db *ent.Client, t, after uuid.UUID, n int) ([]proto.Message, error) {
+		return each((*ent.InventoryCount).Proto)(db.InventoryCount.Query().Where(inventorycount.TenantId(t), inventorycount.IdGT(after)).Order(ent.Asc(inventorycount.FieldId)).Limit(n).All(ctx))
 	},
-	"itemmodel": func(ctx context.Context, db *ent.Client, t uuid.UUID) ([]proto.Message, error) {
-		return each((*ent.ItemModel).Proto)(db.ItemModel.Query().Where(itemmodel.TenantId(t)).All(ctx))
+	"itemmodel": func(ctx context.Context, db *ent.Client, t, after uuid.UUID, n int) ([]proto.Message, error) {
+		return each((*ent.ItemModel).Proto)(db.ItemModel.Query().Where(itemmodel.TenantId(t), itemmodel.IdGT(after)).Order(ent.Asc(itemmodel.FieldId)).Limit(n).All(ctx))
 	},
-	"label": func(ctx context.Context, db *ent.Client, t uuid.UUID) ([]proto.Message, error) {
-		return each((*ent.Label).Proto)(db.Label.Query().Where(label.TenantId(t)).All(ctx))
+	"label": func(ctx context.Context, db *ent.Client, t, after uuid.UUID, n int) ([]proto.Message, error) {
+		return each((*ent.Label).Proto)(db.Label.Query().Where(label.TenantId(t), label.IdGT(after)).Order(ent.Asc(label.FieldId)).Limit(n).All(ctx))
 	},
-	"link": func(ctx context.Context, db *ent.Client, t uuid.UUID) ([]proto.Message, error) {
-		return each((*ent.Link).Proto)(db.Link.Query().Where(link.TenantId(t)).All(ctx))
+	"link": func(ctx context.Context, db *ent.Client, t, after uuid.UUID, n int) ([]proto.Message, error) {
+		return each((*ent.Link).Proto)(db.Link.Query().Where(link.TenantId(t), link.IdGT(after)).Order(ent.Asc(link.FieldId)).Limit(n).All(ctx))
 	},
-	"notification": func(ctx context.Context, db *ent.Client, t uuid.UUID) ([]proto.Message, error) {
-		return each((*ent.Notification).Proto)(db.Notification.Query().Where(notification.TenantId(t)).All(ctx))
+	"notification": func(ctx context.Context, db *ent.Client, t, after uuid.UUID, n int) ([]proto.Message, error) {
+		return each((*ent.Notification).Proto)(db.Notification.Query().Where(notification.TenantId(t), notification.IdGT(after)).Order(ent.Asc(notification.FieldId)).Limit(n).All(ctx))
 	},
-	"party": func(ctx context.Context, db *ent.Client, t uuid.UUID) ([]proto.Message, error) {
-		return each((*ent.Party).Proto)(db.Party.Query().Where(party.TenantId(t)).All(ctx))
+	"party": func(ctx context.Context, db *ent.Client, t, after uuid.UUID, n int) ([]proto.Message, error) {
+		return each((*ent.Party).Proto)(db.Party.Query().Where(party.TenantId(t), party.IdGT(after)).Order(ent.Asc(party.FieldId)).Limit(n).All(ctx))
 	},
-	"placement": func(ctx context.Context, db *ent.Client, t uuid.UUID) ([]proto.Message, error) {
-		return each((*ent.Placement).Proto)(db.Placement.Query().Where(placement.TenantId(t)).All(ctx))
+	"placement": func(ctx context.Context, db *ent.Client, t, after uuid.UUID, n int) ([]proto.Message, error) {
+		return each((*ent.Placement).Proto)(db.Placement.Query().Where(placement.TenantId(t), placement.IdGT(after)).Order(ent.Asc(placement.FieldId)).Limit(n).All(ctx))
 	},
-	"purchase": func(ctx context.Context, db *ent.Client, t uuid.UUID) ([]proto.Message, error) {
-		return each((*ent.Purchase).Proto)(db.Purchase.Query().Where(purchase.TenantId(t)).All(ctx))
+	"purchase": func(ctx context.Context, db *ent.Client, t, after uuid.UUID, n int) ([]proto.Message, error) {
+		return each((*ent.Purchase).Proto)(db.Purchase.Query().Where(purchase.TenantId(t), purchase.IdGT(after)).Order(ent.Asc(purchase.FieldId)).Limit(n).All(ctx))
 	},
-	"purchaseline": func(ctx context.Context, db *ent.Client, t uuid.UUID) ([]proto.Message, error) {
-		return each((*ent.PurchaseLine).Proto)(db.PurchaseLine.Query().Where(purchaseline.TenantId(t)).All(ctx))
+	"purchaseline": func(ctx context.Context, db *ent.Client, t, after uuid.UUID, n int) ([]proto.Message, error) {
+		return each((*ent.PurchaseLine).Proto)(db.PurchaseLine.Query().Where(purchaseline.TenantId(t), purchaseline.IdGT(after)).Order(ent.Asc(purchaseline.FieldId)).Limit(n).All(ctx))
 	},
-	"reservation": func(ctx context.Context, db *ent.Client, t uuid.UUID) ([]proto.Message, error) {
-		return each((*ent.Reservation).Proto)(db.Reservation.Query().Where(reservation.TenantId(t)).All(ctx))
+	"reservation": func(ctx context.Context, db *ent.Client, t, after uuid.UUID, n int) ([]proto.Message, error) {
+		return each((*ent.Reservation).Proto)(db.Reservation.Query().Where(reservation.TenantId(t), reservation.IdGT(after)).Order(ent.Asc(reservation.FieldId)).Limit(n).All(ctx))
 	},
-	"reservationitem": func(ctx context.Context, db *ent.Client, t uuid.UUID) ([]proto.Message, error) {
-		return each((*ent.ReservationItem).Proto)(db.ReservationItem.Query().Where(reservationitem.TenantId(t)).All(ctx))
+	"reservationitem": func(ctx context.Context, db *ent.Client, t, after uuid.UUID, n int) ([]proto.Message, error) {
+		return each((*ent.ReservationItem).Proto)(db.ReservationItem.Query().Where(reservationitem.TenantId(t), reservationitem.IdGT(after)).Order(ent.Asc(reservationitem.FieldId)).Limit(n).All(ctx))
 	},
-	"stewardship": func(ctx context.Context, db *ent.Client, t uuid.UUID) ([]proto.Message, error) {
-		return each((*ent.Stewardship).Proto)(db.Stewardship.Query().Where(stewardship.TenantId(t)).All(ctx))
+	"stewardship": func(ctx context.Context, db *ent.Client, t, after uuid.UUID, n int) ([]proto.Message, error) {
+		return each((*ent.Stewardship).Proto)(db.Stewardship.Query().Where(stewardship.TenantId(t), stewardship.IdGT(after)).Order(ent.Asc(stewardship.FieldId)).Limit(n).All(ctx))
 	},
-	"stock": func(ctx context.Context, db *ent.Client, t uuid.UUID) ([]proto.Message, error) {
-		return each((*ent.Stock).Proto)(db.Stock.Query().Where(stock.TenantId(t)).All(ctx))
+	"stock": func(ctx context.Context, db *ent.Client, t, after uuid.UUID, n int) ([]proto.Message, error) {
+		return each((*ent.Stock).Proto)(db.Stock.Query().Where(stock.TenantId(t), stock.IdGT(after)).Order(ent.Asc(stock.FieldId)).Limit(n).All(ctx))
 	},
-	"stockmovement": func(ctx context.Context, db *ent.Client, t uuid.UUID) ([]proto.Message, error) {
-		return each((*ent.StockMovement).Proto)(db.StockMovement.Query().Where(stockmovement.TenantId(t)).All(ctx))
+	"stockmovement": func(ctx context.Context, db *ent.Client, t, after uuid.UUID, n int) ([]proto.Message, error) {
+		return each((*ent.StockMovement).Proto)(db.StockMovement.Query().Where(stockmovement.TenantId(t), stockmovement.IdGT(after)).Order(ent.Asc(stockmovement.FieldId)).Limit(n).All(ctx))
 	},
-	"tenantcontract": func(ctx context.Context, db *ent.Client, t uuid.UUID) ([]proto.Message, error) {
-		return each((*ent.TenantContract).Proto)(db.TenantContract.Query().Where(tenantcontract.TenantId(t)).All(ctx))
+	"tenantcontract": func(ctx context.Context, db *ent.Client, t, after uuid.UUID, n int) ([]proto.Message, error) {
+		return each((*ent.TenantContract).Proto)(db.TenantContract.Query().Where(tenantcontract.TenantId(t), tenantcontract.IdGT(after)).Order(ent.Asc(tenantcontract.FieldId)).Limit(n).All(ctx))
 	},
-	"tenantdomain": func(ctx context.Context, db *ent.Client, t uuid.UUID) ([]proto.Message, error) {
-		return each((*ent.TenantDomain).Proto)(db.TenantDomain.Query().Where(tenantdomain.TenantId(t)).All(ctx))
+	"tenantdomain": func(ctx context.Context, db *ent.Client, t, after uuid.UUID, n int) ([]proto.Message, error) {
+		return each((*ent.TenantDomain).Proto)(db.TenantDomain.Query().Where(tenantdomain.TenantId(t), tenantdomain.IdGT(after)).Order(ent.Asc(tenantdomain.FieldId)).Limit(n).All(ctx))
 	},
-	"usagesnapshot": func(ctx context.Context, db *ent.Client, t uuid.UUID) ([]proto.Message, error) {
-		return each((*ent.UsageSnapshot).Proto)(db.UsageSnapshot.Query().Where(usagesnapshot.TenantId(t)).All(ctx))
+	"usagesnapshot": func(ctx context.Context, db *ent.Client, t, after uuid.UUID, n int) ([]proto.Message, error) {
+		return each((*ent.UsageSnapshot).Proto)(db.UsageSnapshot.Query().Where(usagesnapshot.TenantId(t), usagesnapshot.IdGT(after)).Order(ent.Asc(usagesnapshot.FieldId)).Limit(n).All(ctx))
 	},
-	"workorder": func(ctx context.Context, db *ent.Client, t uuid.UUID) ([]proto.Message, error) {
-		return each((*ent.WorkOrder).Proto)(db.WorkOrder.Query().Where(workorder.TenantId(t)).All(ctx))
+	"workorder": func(ctx context.Context, db *ent.Client, t, after uuid.UUID, n int) ([]proto.Message, error) {
+		return each((*ent.WorkOrder).Proto)(db.WorkOrder.Query().Where(workorder.TenantId(t), workorder.IdGT(after)).Order(ent.Asc(workorder.FieldId)).Limit(n).All(ctx))
 	},
 }
 
@@ -227,7 +237,11 @@ var Withheld = map[string]string{
 // kept. What it leaves out is in the manifest, with why.
 //
 // It reads, and changes nothing; a tenant under a legal hold is exported like
-// any other.
+// any other. It reads one moment of the workspace, whatever is written to it
+// meanwhile: read a table at a time outside one, an export could have a fact
+// and not the asset it is of, which a restore refuses. And it reads a [page]
+// at a time and writes it before the next, so that what it holds is not the
+// workspace's size.
 //
 // The manifest lists every file's SHA-256 and is signed with the trail's key
 // (`audit.checkpoints.key`), in `signature.json` beside it, so that a restore
@@ -238,7 +252,15 @@ func (d Deployment) Export(ctx context.Context, tenant pdid.Id, w io.Writer) (Ma
 	out := Manifest{Format: Format, ExportedAt: d.now().UTC(), Rows: map[string]int{}, Withheld: Withheld, Digests: map[string]string{}}
 	tid := tenant.Uuid()
 
-	t, err := d.Ent.Tenant.Query().Where(enttenant.Id(tid)).Only(ctx)
+	tx, err := d.Ent.BeginTx(ctx, snapshot(d.Ent.Dialect()))
+	if err != nil {
+		return out, err
+	}
+	// It writes nothing, so there is nothing to keep.
+	defer tx.Rollback()
+	db := tx.Client()
+
+	t, err := db.Tenant.Query().Where(enttenant.Id(tid)).Only(ctx)
 	if err != nil {
 		return out, fmt.Errorf("tenant %s: %w", tenant, err)
 	}
@@ -259,46 +281,53 @@ func (d Deployment) Export(ctx context.Context, tenant pdid.Id, w io.Writer) (Ma
 		hashes[name] = h
 		return io.MultiWriter(f, h), nil
 	}
-	lines := func(name string, vs []proto.Message) error {
-		f, err := create(name)
+	line := func(f io.Writer, v proto.Message) error {
+		b, err := protojson.Marshal(v)
 		if err != nil {
 			return err
 		}
-		for _, v := range vs {
-			b, err := protojson.Marshal(v)
-			if err != nil {
-				return err
-			}
-			if _, err := f.Write(append(b, '\n')); err != nil {
-				return err
-			}
-		}
-		return nil
+		_, err = f.Write(append(b, '\n'))
+		return err
 	}
 
 	for _, k := range slices.Sorted(maps.Keys(Exported)) {
-		vs, err := Exported[k](ctx, d.Ent, tid)
+		f, err := create("rows/" + k + ".jsonl")
 		if err != nil {
-			return out, fmt.Errorf("%s: %w", k, err)
-		}
-		if err := lines("rows/"+k+".jsonl", vs); err != nil {
 			return out, err
 		}
-		out.Rows[k] = len(vs)
+		out.Rows[k] = 0
+		var after uuid.UUID
+		for {
+			vs, err := Exported[k](ctx, db, tid, after, page)
+			if err != nil {
+				return out, fmt.Errorf("%s: %w", k, err)
+			}
+			for _, v := range vs {
+				if err := line(f, v); err != nil {
+					return out, err
+				}
+			}
+			out.Rows[k] += len(vs)
+			if len(vs) < page {
+				break
+			}
+			if after, err = idOf(vs[len(vs)-1]); err != nil {
+				return out, fmt.Errorf("%s: %w", k, err)
+			}
+		}
 	}
 
 	// The trail, by the wall's rule: the rows that name the tenant.
-	as, err := each((*ent.Audit).Proto)(d.Ent.Audit.Query().
-		Where(entaudit.Or(entaudit.TenantId(tid), entaudit.ActorTenantId(tid), entaudit.CounterpartTenantId(tid))).
-		Order(ent.Asc(entaudit.FieldDateCreated)).
-		All(ctx))
+	tf, err := create("trail/database.jsonl")
 	if err != nil {
-		return out, fmt.Errorf("trail: %w", err)
-	}
-	if err := lines("trail/database.jsonl", as); err != nil {
 		return out, err
 	}
-	out.Trail.Database = len(as)
+	if err := trailOf(ctx, db, tid, func(a *ent.Audit) error {
+		out.Trail.Database++
+		return line(tf, a.Proto())
+	}); err != nil {
+		return out, fmt.Errorf("trail: %w", err)
+	}
 
 	if d.Trail.Archive != nil {
 		f, err := create("trail/archive.jsonl")
@@ -306,8 +335,10 @@ func (d Deployment) Export(ctx context.Context, tenant pdid.Id, w io.Writer) (Ma
 			return out, err
 		}
 		// Through its manifest: only what the deployment wrote there, and
-		// only while its bytes are what was written.
-		if err := d.Trail.ReadTenant(ctx, pd.TrailStore(d.Ent), tenant, func(doc []byte) error {
+		// only while its bytes are what was written. The manifest of the
+		// moment the rows were read: a chunk archived since is rows the
+		// database part has.
+		if err := d.Trail.ReadTenant(ctx, pd.TrailStore(db), tenant, func(doc []byte) error {
 			out.Trail.Archive++
 			_, err := f.Write(append(doc, '\n'))
 			return err
@@ -317,7 +348,7 @@ func (d Deployment) Export(ctx context.Context, tenant pdid.Id, w io.Writer) (Ma
 	}
 
 	// The files the attachments kept.
-	keys, err := d.Ent.Attachment.Query().Where(attachment.TenantId(tid)).Select(attachment.FieldObjectKey).Strings(ctx)
+	keys, err := db.Attachment.Query().Where(attachment.TenantId(tid)).Select(attachment.FieldObjectKey).Strings(ctx)
 	if err != nil {
 		return out, err
 	}
@@ -378,4 +409,86 @@ func (d Deployment) Export(ctx context.Context, tenant pdid.Id, w io.Writer) (Ma
 	}
 
 	return out, z.Close()
+}
+
+// snapshot is a transaction that reads one moment of the database and writes
+// nothing: PostgreSQL's repeatable read, and on SQLite any transaction, which
+// reads the moment of its first read until it ends.
+func snapshot(d string) *stdsql.TxOptions {
+	if d == dialect.Postgres {
+		return &stdsql.TxOptions{Isolation: stdsql.LevelRepeatableRead, ReadOnly: true}
+	}
+	return &stdsql.TxOptions{ReadOnly: true}
+}
+
+// idOf is the key of a row, which the next page of its table begins after.
+func idOf(v proto.Message) (uuid.UUID, error) {
+	m := v.ProtoReflect()
+	return keyOf(m.Get(m.Descriptor().Fields().ByName("id")).Bytes())
+}
+
+// trailOf hands every row of the trail that names the tenant to f once, in
+// the order they were written. They are three kinds of row, each read a page
+// at a time by an index of its own -- the tenant's, then its people's in
+// another tenant, then the rows of what was done to it from another -- and
+// told apart so that none is in two.
+func trailOf(ctx context.Context, db *ent.Client, t uuid.UUID, f func(*ent.Audit) error) error {
+	type kind struct {
+		of   []predicate.Audit
+		rows []*ent.Audit // read and not yet handed on
+		last *ent.Audit   // the last read, which the next page begins after
+		done bool
+	}
+	ks := []*kind{
+		{of: []predicate.Audit{entaudit.TenantId(t)}},
+		{of: []predicate.Audit{entaudit.ActorTenantId(t), entaudit.TenantIdNEQ(t)}},
+		{of: []predicate.Audit{entaudit.CounterpartTenantId(t), entaudit.TenantIdNEQ(t), entaudit.ActorTenantIdNEQ(t)}},
+	}
+	fill := func(k *kind) error {
+		if len(k.rows) > 0 || k.done {
+			return nil
+		}
+		q := db.Audit.Query().Where(k.of...)
+		if v := k.last; v != nil {
+			q.Where(entaudit.DateCreatedGTE(v.DateCreated), entaudit.Or(
+				entaudit.DateCreatedGT(v.DateCreated),
+				entaudit.IdGT(v.Id),
+			))
+		}
+		vs, err := q.Order(ent.Asc(entaudit.FieldDateCreated), ent.Asc(entaudit.FieldId)).Limit(page).All(ctx)
+		if err != nil {
+			return err
+		}
+		k.rows, k.done = vs, len(vs) < page
+		if len(vs) > 0 {
+			k.last = vs[len(vs)-1]
+		}
+		return nil
+	}
+	before := func(a, b *ent.Audit) bool {
+		if !a.DateCreated.Equal(b.DateCreated) {
+			return a.DateCreated.Before(b.DateCreated)
+		}
+		return bytes.Compare(a.Id[:], b.Id[:]) < 0
+	}
+
+	for {
+		var next *kind
+		for _, k := range ks {
+			if err := fill(k); err != nil {
+				return err
+			}
+			if len(k.rows) > 0 && (next == nil || before(k.rows[0], next.rows[0])) {
+				next = k
+			}
+		}
+		if next == nil {
+			return nil
+		}
+		v := next.rows[0]
+		next.rows = next.rows[1:]
+		if err := f(v); err != nil {
+			return err
+		}
+	}
 }
