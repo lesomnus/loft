@@ -52,6 +52,29 @@ type Deployment struct {
 	// search index (`opensearch.Forget`) -- and would not hear of it, since
 	// the rows go past the recorders. Nil is nothing elsewhere.
 	Unindex func(ctx context.Context, db *ent.Client, tenant uuid.UUID) error
+
+	// Reindex is [Deployment.Unindex] of a restore: told, in the transaction
+	// that puts a tenant's rows back, that they are there
+	// (`opensearch.Remember`).
+	Reindex func(ctx context.Context, db *ent.Client, tenant uuid.UUID) error
+
+	// Aliases is what a restore asks of the address it restores a workspace
+	// at (`tenancy.Aliases`). Nil takes the export's as it is.
+	Aliases Aliases
+
+	// Known says whether the deployment's roster has an account: a restored
+	// member keeps its account when it does, and is restored with none when
+	// it does not. Nil keeps every account as the export has it.
+	Known func(ctx context.Context, account pdid.Id) (bool, error)
+}
+
+// Aliases is what a restore asks about addresses.
+type Aliases interface {
+	// Valid refuses an address no workspace may have.
+	Valid(v string) error
+
+	// Make is an address nobody has.
+	Make(ctx context.Context) (string, error)
 }
 
 func (d Deployment) now() time.Time {

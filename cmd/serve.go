@@ -541,9 +541,22 @@ func (s *Server) Offboard(c Config) offboard.Deployment {
 		Now:       s.Deps.Clock,
 	}
 	if s.Search != nil {
-		// A purge's rows go past the recorder, so it says itself that the
-		// workspace's documents go.
+		// A purge's rows go past the recorder, and a restore's, so each says
+		// itself that the workspace's documents go, or are to be made.
 		d.Unindex = opensearch.Forget
+		d.Reindex = opensearch.Remember
+	}
+	d.Aliases = s.Aliases(c)
+	if s.Identity != nil {
+		d.Known = func(ctx context.Context, account pdid.Id) (bool, error) {
+			_, err := s.Identity.StandingOf(ctx, account)
+			// A roster with no directory yet -- a deployment made to restore
+			// into -- has nobody.
+			if errors.Is(err, identity.ErrNoPerson) || errors.Is(err, identity.ErrNoDirectory) {
+				return false, nil
+			}
+			return err == nil, err
+		}
 	}
 	return d
 }

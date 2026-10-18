@@ -2,6 +2,7 @@ package opensearch
 
 import (
 	"context"
+	"slices"
 	"strings"
 	"time"
 	"uuid"
@@ -9,6 +10,9 @@ import (
 	"github.com/lesomnus/payday/pdid"
 
 	"github.com/lesomnus/rove/internal/ent"
+	"github.com/lesomnus/rove/internal/ent/asset"
+	"github.com/lesomnus/rove/internal/ent/itemmodel"
+	"github.com/lesomnus/rove/internal/ent/party"
 	"github.com/lesomnus/rove/server/bare"
 	"github.com/lesomnus/rove/server/pd"
 )
@@ -89,6 +93,43 @@ func (recorder) Record(ctx context.Context, s bare.Server, c bare.Change) error 
 // recorder (`offboard.Deployment.Unindex`).
 func Forget(ctx context.Context, db *ent.Client, tenant uuid.UUID) error {
 	return stale(ctx, db, KindTenant, tenant, time.Now())
+}
+
+// Remember is [Forget] of a restore: written down in the transaction that puts
+// a workspace's rows back, past the recorder too, that the document of every
+// one of them is to be made (`offboard.Deployment.Reindex`).
+func Remember(ctx context.Context, db *ent.Client, tenant uuid.UUID) error {
+	now := time.Now()
+	for kind, ids := range map[string]func() ([]uuid.UUID, error){
+		KindAsset: func() ([]uuid.UUID, error) {
+			return db.Asset.Query().Where(asset.TenantId(tenant), asset.DateErasedIsNil()).Ids(ctx)
+		},
+		KindItemModel: func() ([]uuid.UUID, error) {
+			return db.ItemModel.Query().Where(itemmodel.TenantId(tenant), itemmodel.DateErasedIsNil()).Ids(ctx)
+		},
+		KindParty: func() ([]uuid.UUID, error) {
+			return db.Party.Query().Where(party.TenantId(tenant), party.DateErasedIsNil()).Ids(ctx)
+		},
+	} {
+		keys, err := ids()
+		if err != nil {
+			return err
+		}
+		for part := range slices.Chunk(keys, 1000) {
+			rows := make([]*ent.SearchStaleCreate, len(part))
+			for i, k := range part {
+				rows[i] = db.SearchStale.Create().
+					SetId(pdid.New(pd.SearchStaleDomain).Uuid()).
+					SetKind(kind).
+					SetKey(k).
+					SetDateCreated(now)
+			}
+			if err := db.SearchStale.CreateBulk(rows...).Exec(ctx); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 func stale(ctx context.Context, db *ent.Client, kind string, key uuid.UUID, now time.Time) error {
