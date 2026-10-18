@@ -15,7 +15,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file rove/payday/audit.proto.
  */
 export const file_rove_payday_audit: GenFile = /*@__PURE__*/
-  fileDesc("Chdyb3ZlL3BheWRheS9hdWRpdC5wcm90bxIEcm92ZSLpBgoFQXVkaXQSFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEhkKCXRlbmFudF9pZBgCIAEoDEIG6oIWAhBAEhgKCGFjdG9yX2lkGAggASgMQgbqghYCEEASEAoIdHJhY2VfaWQYCSABKAwSDgoGYWN0aW9uGAogASgJEhkKCW9iamVjdF9pZBgLIAEoDEIG6oIWAhBAEg0KBXBhdGNoGAwgASgMEjsKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCeqCFgVAAYIBABIfCg9hY3Rvcl90ZW5hbnRfaWQYECABKAxCBuqCFgIQQBINCgV2YWx1ZRgRIAEoDBInChVjb3VudGVycGFydF90ZW5hbnRfaWQYEiABKAxCCOqCFgQQQDgBEhcKBmRvbWFpbhgTIAEoDUIH6oIWA4IBADqWBMr8FdgCEgIQARoXEgZvYmplY3QaDQoJb2JqZWN0X2lkEAsaKBIFdHJhaWwaDQoJdGVuYW50X2lkEAIaEAoMZGF0ZV9jcmVhdGVkEA8aOBIPYnlfYWN0b3JfdGVuYW50GhMKD2FjdG9yX3RlbmFudF9pZBAQGhAKDGRhdGVfY3JlYXRlZBAPGj0SDmJ5X2NvdW50ZXJwYXJ0GhkKFWNvdW50ZXJwYXJ0X3RlbmFudF9pZBASGhAKDGRhdGVfY3JlYXRlZBAPGikSCWJ5X2RvbWFpbhoKCgZkb21haW4QExoQCgxkYXRlX2NyZWF0ZWQQDxo/EhBieV90ZW5hbnRfZG9tYWluGg0KCXRlbmFudF9pZBACGgoKBmRvbWFpbhATGhAKDGRhdGVfY3JlYXRlZBAPGioSCGJ5X2FjdG9yGgwKCGFjdG9yX2lkEAgaEAoMZGF0ZV9jcmVhdGVkEA+Kuxa0AQgDMnUKEgoOCgxkYXRlX2NyZWF0ZWQQAQoICgQKAmlkEAEaCwoJb2JqZWN0X2lkGgoKCGFjdG9yX2lkGgsKCXRlbmFudF9pZBoRCg9hY3Rvcl90ZW5hbnRfaWQaFwoVY291bnRlcnBhcnRfdGVuYW50X2lkIDIoyAFCAgoASAMiMxIJdGVuYW50X2lkEg9hY3Rvcl90ZW5hbnRfaWQSFWNvdW50ZXJwYXJ0X3RlbmFudF9pZEIfWhhnaXRodWIuY29tL2xlc29tbnVzL3JvdmWSAwIIAmIIZWRpdGlvbnNw6Ac", [file_google_protobuf_timestamp, file_orm, file_payday]);
+  fileDesc("Chdyb3ZlL3BheWRheS9hdWRpdC5wcm90bxIEcm92ZSL5BgoFQXVkaXQSFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEhkKCXRlbmFudF9pZBgCIAEoDEIG6oIWAhBAEhgKCGFjdG9yX2lkGAggASgMQgbqghYCEEASEAoIdHJhY2VfaWQYCSABKAwSDgoGYWN0aW9uGAogASgJEhkKCW9iamVjdF9pZBgLIAEoDEIG6oIWAhBAEg0KBXBhdGNoGAwgASgMEjsKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCeqCFgVAAYIBABIfCg9hY3Rvcl90ZW5hbnRfaWQYECABKAxCBuqCFgIQQBINCgV2YWx1ZRgRIAEoDBInChVjb3VudGVycGFydF90ZW5hbnRfaWQYEiABKAxCCOqCFgQQQDgBEhcKBmRvbWFpbhgTIAEoDUIH6oIWA4IBABIOCgZmaWVsZHMYFCADKA06lgTK/BXYAhICEAEaFxIGb2JqZWN0Gg0KCW9iamVjdF9pZBALGigSBXRyYWlsGg0KCXRlbmFudF9pZBACGhAKDGRhdGVfY3JlYXRlZBAPGjgSD2J5X2FjdG9yX3RlbmFudBoTCg9hY3Rvcl90ZW5hbnRfaWQQEBoQCgxkYXRlX2NyZWF0ZWQQDxo9Eg5ieV9jb3VudGVycGFydBoZChVjb3VudGVycGFydF90ZW5hbnRfaWQQEhoQCgxkYXRlX2NyZWF0ZWQQDxopEglieV9kb21haW4aCgoGZG9tYWluEBMaEAoMZGF0ZV9jcmVhdGVkEA8aPxIQYnlfdGVuYW50X2RvbWFpbhoNCgl0ZW5hbnRfaWQQAhoKCgZkb21haW4QExoQCgxkYXRlX2NyZWF0ZWQQDxoqEghieV9hY3RvchoMCghhY3Rvcl9pZBAIGhAKDGRhdGVfY3JlYXRlZBAPirsWtAEIAzJ1ChIKDgoMZGF0ZV9jcmVhdGVkEAEKCAoECgJpZBABGgsKCW9iamVjdF9pZBoKCghhY3Rvcl9pZBoLCgl0ZW5hbnRfaWQaEQoPYWN0b3JfdGVuYW50X2lkGhcKFWNvdW50ZXJwYXJ0X3RlbmFudF9pZCAyKMgBQgIKAEgDIjMSCXRlbmFudF9pZBIPYWN0b3JfdGVuYW50X2lkEhVjb3VudGVycGFydF90ZW5hbnRfaWRCH1oYZ2l0aHViLmNvbS9sZXNvbW51cy9yb3ZlkgMCCAJiCGVkaXRpb25zcOgH", [file_google_protobuf_timestamp, file_orm, file_payday]);
 
 /**
  * Audit is one write that happened, and who made it.
@@ -134,9 +134,19 @@ export type Audit = Message<"rove.Audit"> & {
   objectId: Uint8Array;
 
   /**
-   * The patch document the write was compiled from, as it was marshaled, and
-   * empty for a write that was not one -- an Add or an Erase says everything it
-   * did in `action` and `object_id`.
+   * The patch document the write was compiled from, as it was marshaled -- and
+   * for an Add, the row it made as a patch from the empty row: an entry for
+   * every field the row holds, and an edge by the key of the row it names, as a
+   * Patch of the same fields says it (#92). An Add had no document once, and
+   * `value` was the whole record of what it made; at the default content level
+   * this is that record, and `value` is the one a deployment asks for.
+   *
+   * Empty for a write that was not one -- an Erase says everything it did in
+   * `action` and `object_id` -- and at the `fields` content level, which keeps
+   * which fields a write set and nothing they were set to. What a field
+   * declared `secret` or `personal` was set to is never in it, at any level:
+   * its entries are taken out before the document is kept, and its number is
+   * in `fields`.
    *
    * Stored as bytes rather than read back as a document, because that is what a
    * trail is for: written once, read by somebody asking what happened, and
@@ -170,7 +180,18 @@ export type Audit = Message<"rove.Audit"> & {
 
   /**
    * The row this happened to, marshaled, as it was when the event was over --
-   * an Erase included. An entity erased softly keeps its row, so the value of
+   * an Erase included -- and kept only where a deployment asked for it: the
+   * `value` content level, for the whole trail or for one kind of thing
+   * (`audit.content`, `audit.by.<kind>.content`). Empty at the others, of which
+   * `patch` is the default (#92). A field declared `secret` or `personal` is
+   * cleared out of it before it is kept.
+   *
+   * It is not the default because it is the whole row on every write, and the
+   * trail is the one table nothing rewrites: a write that changed a person's
+   * team copied their address in again, and erasing them meant blanking every
+   * copy, in the database and in the archive. The patch is what was written,
+   * and the row in its own table is what it became.
+   * An entity erased softly keeps its row, so the value of
    * its Erase is the whole of that row with the erase stamp on: everything of
    * the moment before, plus what the erase wrote -- the stamp, and the version
    * column beside it for an entity that carries one, since an erase is a write
@@ -179,11 +200,12 @@ export type Audit = Message<"rove.Audit"> & {
    * exists, and a copy taken earlier could be stale by the time the stamp
    * lands.
    *
-   * `patch` is the delta and this is the state, and the trail needs both for a
-   * reason each of them cannot answer alone. A patch says what changed and not
-   * what it became; and an Add and an Erase have no patch at all, so without
-   * this the two events that matter most -- what was created, what was
-   * destroyed -- record nothing but their own names.
+   * `patch` is the delta and this is the state, and a deployment that asks for
+   * both has a reason each cannot answer alone. A patch says what changed and
+   * not what it became: the version stamp, a default, a stamped field are the
+   * server's and in no document. An Add's patch says what it made, and an
+   * Erase's row is in its own table while the erase is soft -- the two events
+   * the trail once had nothing else to record for.
    *
    * The hard Erase is the one with nothing to read: the row is gone before the
    * recorder runs, so the value is **empty** and the record is filed under the
@@ -204,9 +226,10 @@ export type Audit = Message<"rove.Audit"> & {
    * version upgrade is not the right thing to decide how long somebody's
    * evidence lasts.
    *
-   * What it does **not** answer is erasing one person from the trail. That is
-   * about a subject rather than about age, and what it should blank is a
-   * decision an app's obligations make and payday cannot.
+   * Erasing one person from the trail is about a subject rather than about age,
+   * and is what `personal` is for: a field that holds them is never on the
+   * trail as a value. What no declaration reaches -- free text, and rows written
+   * before #92 -- `trail.Policy.Forget` still blanks.
    *
    * @generated from field: bytes value = 17;
    */
@@ -298,6 +321,25 @@ export type Audit = Message<"rove.Audit"> & {
    * @generated from field: uint32 domain = 19;
    */
   domain: number;
+
+  /**
+   * The numbers of the fields the write set, each once and in order: the first
+   * segment of every entry of its document, read before anything is taken out
+   * of it -- for an Add, the fields of the row it made (#92).
+   *
+   * It is what says a field was set when the trail may not say what to. A field
+   * declared `personal` or `secret` is never here as a value, so without this
+   * the record of somebody changing a person's address is a write to the person
+   * and nothing more -- and an entry with its value taken out has no shape a
+   * document can hold (see the recorder's `hidden`). It is kept at every content
+   * level, and at `fields` it is all a row says beyond who, what and when.
+   *
+   * Numbers rather than names, as everywhere else the trail names a field: a
+   * name is a label, and a field renamed is the same column.
+   *
+   * @generated from field: repeated uint32 fields = 20;
+   */
+  fields: number[];
 };
 
 /**

@@ -228,7 +228,16 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	// because `WithRecorder` refuses to be given twice: neither losing one nor
 	// quietly appending in call order is a thing a framework should decide, so
 	// the order is written here where it can be read.
-	rec := bare.Recorders{pd.Recorder(), pd.WatchRecorder(w)}
+	//
+	// What the trail keeps of each kind's writes is the deployment's to say,
+	// `audit.content` (payday#92) -- read here, where the trail is wired, so
+	// that a setting nobody handed over is not a setting that does nothing.
+	content, err := c.Audit.Contents()
+	if err != nil {
+		db.Close()
+		return nil, err
+	}
+	rec := bare.Recorders{pd.Recorder(content), pd.WatchRecorder(w)}
 
 	// The search engine, when one is named (D31). What makes a document of
 	// its index stale is written down with the write itself, and a loop below

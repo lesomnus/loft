@@ -301,6 +301,9 @@ type Notification_builder struct {
 
 	Id     []byte
 	Tenant *Tenant
+	// What it says, which names people as they are when it is written --
+	// "{name}님이 예약을 요청했습니다" -- so it is personal (payday#92): the trail
+	// records that a notice was written, and not what it said.
 	Name   string
 	Desc   string
 	Holder *Holder
@@ -938,12 +941,12 @@ var File_rove_ops_proto protoreflect.FileDescriptor
 
 const file_rove_ops_proto_rawDesc = "" +
 	"\n" +
-	"\x0erove/ops.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x18rove/payday/holder.proto\x1a\x18rove/payday/tenant.proto\"\xfd\x05\n" +
+	"\x0erove/ops.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x18rove/payday/holder.proto\x1a\x18rove/payday/tenant.proto\"\x8d\x06\n" +
 	"\fNotification\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x12\n" +
-	"\x04name\x18\x05 \x01(\tR\x04name\x12\x12\n" +
-	"\x04desc\x18\x06 \x01(\tR\x04desc\x12,\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
+	"\x04name\x18\x05 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\x04name\x12\x1a\n" +
+	"\x04desc\x18\x06 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\x04desc\x12,\n" +
 	"\x06holder\x18\b \x01(\v2\f.rove.HolderB\x06\xf2\x82\x16\x02@\x01R\x06holder\x12\x12\n" +
 	"\x04kind\x18\t \x01(\tR\x04kind\x12'\n" +
 	"\n" +
