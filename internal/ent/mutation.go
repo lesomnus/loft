@@ -5009,6 +5009,23 @@ func (m *EventMutation) OldPayload(ctx context.Context) (v string, err error) {
 	return oldValue.Payload, nil
 }
 
+// OldCauseId returns the old "cause_id" field's value of the Event entity.
+// If the Event object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EventMutation) OldCauseId(ctx context.Context) (v *uuid.UUID, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldCauseId is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldCauseId requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCauseId: %w", err)
+	}
+	return oldValue.CauseId, nil
+}
+
 // OldTenantId returns the old "tenant_id" field's value of the Event entity.
 // If the Event object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
@@ -5051,6 +5068,8 @@ func (m *EventMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldTraceId(ctx)
 	case event.FieldPayload:
 		return m.OldPayload(ctx)
+	case event.FieldCauseId:
+		return m.OldCauseId(ctx)
 	case event.FieldTenantId:
 		return m.OldTenantId(ctx)
 	}

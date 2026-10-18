@@ -27,6 +27,7 @@ type Mutation struct {
 	date_created  *time.Time
 	trace_id      *[]byte
 	payload       *string
+	cause_id      *uuid.UUID
 	clearedFields map[string]struct{}
 	tenant        *uuid.UUID
 	clearedtenant bool
@@ -302,6 +303,38 @@ func (m *Mutation) ResetPayload() {
 	m.payload = nil
 }
 
+// SetCauseId sets the "cause_id" field.
+func (m *Mutation) SetCauseId(u uuid.UUID) {
+	m.cause_id = &u
+}
+
+// CauseId returns the value of the "cause_id" field in the mutation.
+func (m *Mutation) CauseId() (r uuid.UUID, exists bool) {
+	v := m.cause_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearCauseId clears the value of the "cause_id" field.
+func (m *Mutation) ClearCauseId() {
+	m.cause_id = nil
+	m.clearedFields[FieldCauseId] = struct{}{}
+}
+
+// CauseIdCleared returns if the "cause_id" field was cleared in this mutation.
+func (m *Mutation) CauseIdCleared() bool {
+	_, ok := m.clearedFields[FieldCauseId]
+	return ok
+}
+
+// ResetCauseId resets all changes to the "cause_id" field.
+func (m *Mutation) ResetCauseId() {
+	m.cause_id = nil
+	delete(m.clearedFields, FieldCauseId)
+}
+
 // SetTenantId sets the "tenant_id" field.
 func (m *Mutation) SetTenantId(u uuid.UUID) {
 	m.tenant = &u
@@ -382,7 +415,7 @@ func (m *Mutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *Mutation) Fields() []string {
-	fields := make([]string, 0, 11)
+	fields := make([]string, 0, 12)
 	if m.desc != nil {
 		fields = append(fields, FieldDesc)
 	}
@@ -412,6 +445,9 @@ func (m *Mutation) Fields() []string {
 	}
 	if m.payload != nil {
 		fields = append(fields, FieldPayload)
+	}
+	if m.cause_id != nil {
+		fields = append(fields, FieldCauseId)
 	}
 	if m.tenant != nil {
 		fields = append(fields, FieldTenantId)
@@ -444,6 +480,8 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.TraceId()
 	case FieldPayload:
 		return m.Payload()
+	case FieldCauseId:
+		return m.CauseId()
 	case FieldTenantId:
 		return m.TenantId()
 	}
@@ -532,6 +570,13 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetPayload(v)
 		return nil
+	case FieldCauseId:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCauseId(v)
+		return nil
 	case FieldTenantId:
 		v, ok := value.(uuid.UUID)
 		if !ok {
@@ -584,6 +629,9 @@ func (m *Mutation) ClearedFields() []string {
 	if m.FieldCleared(FieldTraceId) {
 		fields = append(fields, FieldTraceId)
 	}
+	if m.FieldCleared(FieldCauseId) {
+		fields = append(fields, FieldCauseId)
+	}
 	return fields
 }
 
@@ -612,6 +660,9 @@ func (m *Mutation) ClearField(name string) error {
 		return nil
 	case FieldTraceId:
 		m.ClearTraceId()
+		return nil
+	case FieldCauseId:
+		m.ClearCauseId()
 		return nil
 	}
 	return fmt.Errorf("unknown Event nullable field %s", name)
@@ -650,6 +701,9 @@ func (m *Mutation) ResetField(name string) error {
 		return nil
 	case FieldPayload:
 		m.ResetPayload()
+		return nil
+	case FieldCauseId:
+		m.ResetCauseId()
 		return nil
 	case FieldTenantId:
 		m.ResetTenantId()

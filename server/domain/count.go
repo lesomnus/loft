@@ -330,6 +330,11 @@ func (s domainCount) Resolve(ctx context.Context, req *app.InventoryCountResolve
 			return invalid("resolution", "처리는 위치 반영, 분실, 무시 가운데 하나입니다")
 		}
 		aid := idOf(f.GetAsset().GetId())
+		// Before what it calls: the move or the loss it records is part of
+		// this, and says so (design D34).
+		if err := t.begin(nil, "count.resolve", aid, t.now, "실사 결과 처리: "+res, req.GetReason(), nil); err != nil {
+			return err
+		}
 		layer := t.layer()
 		switch res {
 		case "moved":
@@ -355,9 +360,6 @@ func (s domainCount) Resolve(ctx context.Context, req *app.InventoryCountResolve
 			}.Build()); err != nil {
 				return err
 			}
-		}
-		if err := t.begin(nil, "count.resolve", aid, t.now, "실사 결과 처리: "+res, req.GetReason(), nil); err != nil {
-			return err
 		}
 		c, err := t.next.InventoryCount().Get(t.ctx, app.InventoryCountGetRequest_builder{Ref: app.InventoryCountRef_builder{Id: f.GetCount().GetId()}.Build()}.Build())
 		if err != nil {

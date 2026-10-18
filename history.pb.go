@@ -1333,6 +1333,7 @@ type Event struct {
 	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
 	xxx_hidden_TraceId     []byte                 `protobuf:"bytes,16,opt,name=trace_id,json=traceId"`
 	xxx_hidden_Payload     string                 `protobuf:"bytes,17,opt,name=payload"`
+	xxx_hidden_CauseId     []byte                 `protobuf:"bytes,18,opt,name=cause_id,json=causeId"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
 }
@@ -1446,6 +1447,13 @@ func (x *Event) GetPayload() string {
 	return ""
 }
 
+func (x *Event) GetCauseId() []byte {
+	if x != nil {
+		return x.xxx_hidden_CauseId
+	}
+	return nil
+}
+
 func (x *Event) SetId(v []byte) {
 	if v == nil {
 		v = []byte{}
@@ -1504,6 +1512,13 @@ func (x *Event) SetTraceId(v []byte) {
 
 func (x *Event) SetPayload(v string) {
 	x.xxx_hidden_Payload = v
+}
+
+func (x *Event) SetCauseId(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_CauseId = v
 }
 
 func (x *Event) HasTenant() bool {
@@ -1570,6 +1585,11 @@ type Event_builder struct {
 	TraceId     []byte
 	// What the operation said, as JSON, for a person reading the history.
 	Payload string
+	// The operation this is part of. An operation over many things records an
+	// event of its own and, for each thing it changed, a child: what it did to
+	// that one, with that one as the subject and this naming the operation's
+	// event (design D34). Empty on an operation's own event.
+	CauseId []byte
 }
 
 func (b0 Event_builder) Build() *Event {
@@ -1588,6 +1608,7 @@ func (b0 Event_builder) Build() *Event {
 	x.xxx_hidden_DateCreated = b.DateCreated
 	x.xxx_hidden_TraceId = b.TraceId
 	x.xxx_hidden_Payload = b.Payload
+	x.xxx_hidden_CauseId = b.CauseId
 	return m0
 }
 
@@ -1742,7 +1763,7 @@ const file_rove_history_proto_rawDesc = "" +
 	"\x05asset\x1a\x05\n" +
 	"\x03key d(\xe8\aB\x02\n" +
 	"\x00\"\x16\n" +
-	"\x06tenant\"\fasset.tenant\"\xa7\x05\n" +
+	"\x06tenant\"\fasset.tenant\"\xef\x05\n" +
 	"\x05Event\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x12\n" +
@@ -1758,13 +1779,15 @@ const file_rove_history_proto_rawDesc = "" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12H\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12\"\n" +
 	"\btrace_id\x18\x10 \x01(\fB\a\xea\x82\x16\x03\x82\x01\x00R\atraceId\x12\x18\n" +
-	"\apayload\x18\x11 \x01(\tR\apayload:\xae\x01\xca\xfc\x15R\x12\x02\x10\x01\x1a \x12\x04page\x1a\x10\n" +
+	"\apayload\x18\x11 \x01(\tR\apayload\x12#\n" +
+	"\bcause_id\x18\x12 \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\acauseId:\xd1\x01\xca\xfc\x15i\x12\x02\x10\x01\x1a \x12\x04page\x1a\x10\n" +
 	"\fdate_created\x10\x0f\x1a\x06\n" +
 	"\x02id\x10\x01\x1a*\x12\asubject\x1a\x0e\n" +
 	"\n" +
 	"subject_id\x10\f\x1a\x0f\n" +
 	"\voccurred_at\x10\n" +
-	"\x8a\xbb\x16T\b\x112L\n" +
+	"\x1a\x15\x12\x05cause\x1a\f\n" +
+	"\bcause_id\x10\x12\x8a\xbb\x16`\b\x112X\n" +
 	"\x12\n" +
 	"\x0e\n" +
 	"\fdate_created\x10\x01\n" +
@@ -1776,7 +1799,9 @@ const file_rove_history_proto_rawDesc = "" +
 	"subject_id\x1a\x06\n" +
 	"\x04kind\x1a\n" +
 	"\n" +
-	"\bactor_id 2(\xf4\x03B\x02\n" +
+	"\bactor_id\x1a\n" +
+	"\n" +
+	"\bcause_id 2(\xf4\x03B\x02\n" +
 	"\x00B\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
 var file_rove_history_proto_msgTypes = make([]protoimpl.MessageInfo, 6)

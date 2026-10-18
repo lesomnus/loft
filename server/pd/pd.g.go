@@ -4659,6 +4659,14 @@ func filterEvent(f *rove.EventFilter) (predicate.Event, error) {
 
 		ps = append(ps, event.ActorIdEQ(k))
 	}
+	if f.HasCauseId() {
+		k, err := entuuid.FromBytes(f.GetCauseId())
+		if err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "cause_id: %s", err)
+		}
+
+		ps = append(ps, event.CauseIdEQ(k))
+	}
 	if len(ps) == 0 {
 		return nil, status.Error(codes.InvalidArgument, "a filter that names nothing")
 	}

@@ -536,10 +536,21 @@ func (s domainReservation) Add(ctx context.Context, req *app.ReservationAddReque
 			state = resRequested
 		}
 
-		if err := t.begin(req.GetOp(), "reservation.add", pdid.Id(wants[0].r.asset.Id), t.now,
-			fmt.Sprintf("예약: %s %s", wants[0].r.asset.Name, begins.Format("01-02 15:04")), req.GetReason(),
+		// The reservation's own event, and one for each thing it books: what
+		// it did to that thing is that thing's to show (design D34). The
+		// first thing was the subject of the only event there was, and the
+		// others had none.
+		said := fmt.Sprintf("예약: %s %s", wants[0].r.asset.Name, begins.Format("01-02 15:04"))
+		if err := t.begin(req.GetOp(), "reservation.add", id, t.now, said, req.GetReason(),
 			map[string]string{"state": state, "for": pdid.Id(who.Id).String(), "occurrences": strconv.Itoa(len(occs))}); err != nil {
 			return err
+		}
+		for _, w := range wants {
+			if err := t.child("reservation.add", pdid.Id(w.r.asset.Id), t.now,
+				fmt.Sprintf("예약: %s %s", w.r.asset.Name, begins.Format("01-02 15:04")), req.GetReason(),
+				map[string]string{"state": state, "for": pdid.Id(who.Id).String(), "reservation": id.String()}, nil); err != nil {
+				return err
+			}
 		}
 
 		var series []byte

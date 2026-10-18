@@ -19,6 +19,9 @@ message EventRecentRequest {
   string kind = 2 [features.field_presence = IMPLICIT];
   // Only events recorded before this, for the next page.
   google.protobuf.Timestamp before = 3;
+  // Also what an operation over many things did to each of them, which the
+  // feed otherwise leaves under the operation (design D34).
+  bool children = 4 [features.field_presence = IMPLICIT];
 }
 
 message EventRecentResponse {
