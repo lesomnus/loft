@@ -44,7 +44,7 @@ message Stock {
     indexes: [
       {
         name: "page"
-        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+        refs: [{name: "tenant", number: 2}, {name: "date_created", number: 15}, {name: "id", number: 1}]
       },
       {
         // Not unique here, though a model is kept once per space: a unique
@@ -102,7 +102,7 @@ message StockMovement {
     indexes: [
       {
         name: "page"
-        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+        refs: [{name: "tenant", number: 2}, {name: "date_created", number: 15}, {name: "id", number: 1}]
       },
       {
         name: "stock"

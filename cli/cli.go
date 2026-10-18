@@ -114,6 +114,12 @@ func Migrate(ctx context.Context, s *cmd.Server) error {
 	if err := entmigrate.NewSchema(s.Drv).Create(ctx); err != nil {
 		return err
 	}
+	// After: the index that replaces each is there by now.
+	for _, v := range Replaced {
+		if _, err := s.Db.ExecContext(ctx, "DROP INDEX IF EXISTS "+v); err != nil {
+			return fmt.Errorf("%s, an index this build replaced: %w", v, err)
+		}
+	}
 	if s.Dialect != "postgres" {
 		return nil
 	}
@@ -121,6 +127,59 @@ func Migrate(ctx context.Context, s *cmd.Server) error {
 		return fmt.Errorf("postgres extras: %w", err)
 	}
 	return nil
+}
+
+// Replaced are the indexes an earlier build made and this one does not. The
+// migration makes what the schema declares and drops nothing, so an index whose
+// columns changed would stay beside the one that replaced it -- written on every
+// insert and read by nothing. Each is dropped once its replacement is made.
+//
+// #122: every list index begins with the tenant now, and an index that declared
+// an edge before a field is in that order rather than with the edge last.
+var Replaced = []string{
+	"allocation_begins_at_resource_id",
+	"allocation_date_created_id",
+	"asset_date_created_id",
+	"assettype_date_created_id",
+	"attachment_date_created_id",
+	"bookable_date_created_id",
+	"countfinding_date_created_id",
+	"countfinding_kind_count_id",
+	"custody_date_created_id",
+	"custody_issued_at_party_id",
+	"custodyline_date_created_id",
+	"event_date_created_id",
+	"fact_date_created_id",
+	"fact_key_valid_from_asset_id",
+	"inventorycount_date_created_id",
+	"invitation_date_created_id",
+	"itemmodel_date_created_id",
+	"label_date_created_id",
+	"link_date_created_id",
+	"link_valid_from_source_id",
+	"link_valid_from_target_id",
+	"notification_date_created_holder_id",
+	"notification_date_created_id",
+	"party_date_created_id",
+	"placement_date_created_id",
+	"placement_valid_from_child_id",
+	"placement_valid_from_parent_id",
+	"purchase_date_created_id",
+	"purchaseline_date_created_id",
+	"reservation_begins_at_party_id",
+	"reservation_date_created_id",
+	"reservationitem_date_created_id",
+	"stewardship_date_created_id",
+	"stewardship_valid_from_asset_id",
+	"stewardship_valid_from_party_id",
+	"stock_date_created_id",
+	"stockmovement_date_created_id",
+	"stockmovement_occurred_at_stock_id",
+	"tenantcontract_date_effective_tenant_id",
+	"tenantdomain_date_created_id",
+	"usagesnapshot_date_created_id",
+	"usagesnapshot_day_tenant_id",
+	"workorder_date_created_id",
 }
 
 // dropOldSessions takes out a session table from before a session was an

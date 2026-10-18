@@ -67,8 +67,8 @@ func (Bookable) Edges() []ent.Edge {
 
 func (Bookable) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("date_created", "id"),
-		index.Edges("asset").
+		index.Fields("tenant_id", "date_created", "id"),
+		index.Fields("asset_id").
 			Unique().
 			Annotations(entsql.IndexWhere("date_erased IS NULL")),
 	}
@@ -143,9 +143,8 @@ func (Reservation) Edges() []ent.Edge {
 
 func (Reservation) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("date_created", "id"),
-		index.Fields("begins_at").
-			Edges("party"),
+		index.Fields("tenant_id", "date_created", "id"),
+		index.Fields("party_id", "begins_at"),
 	}
 }
 
@@ -203,8 +202,8 @@ func (ReservationItem) Edges() []ent.Edge {
 
 func (ReservationItem) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("date_created", "id"),
-		index.Edges("reservation"),
+		index.Fields("tenant_id", "date_created", "id"),
+		index.Fields("reservation_id"),
 	}
 }
 
@@ -262,9 +261,8 @@ func (Allocation) Edges() []ent.Edge {
 
 func (Allocation) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("date_created", "id"),
-		index.Fields("begins_at").
-			Edges("resource"),
+		index.Fields("tenant_id", "date_created", "id"),
+		index.Fields("resource_id", "begins_at"),
 		index.Fields("ref_id"),
 	}
 }

@@ -64,9 +64,8 @@ func (Notification) Edges() []ent.Edge {
 
 func (Notification) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("date_created", "id"),
-		index.Fields("date_created").
-			Edges("holder"),
+		index.Fields("tenant_id", "date_created", "id"),
+		index.Fields("holder_id", "date_created"),
 	}
 }
 
@@ -109,9 +108,8 @@ func (UsageSnapshot) Edges() []ent.Edge {
 
 func (UsageSnapshot) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("date_created", "id"),
-		index.Fields("day").
-			Edges("tenant").
+		index.Fields("tenant_id", "date_created", "id"),
+		index.Fields("tenant_id", "day").
 			Unique(),
 	}
 }
@@ -161,8 +159,7 @@ func (TenantContract) Edges() []ent.Edge {
 
 func (TenantContract) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("date_effective").
-			Edges("tenant"),
+		index.Fields("tenant_id", "date_effective", "id"),
 	}
 }
 
@@ -201,6 +198,12 @@ func (LegalHold) Edges() []ent.Edge {
 			Field("tenant_id").
 			Required().
 			Immutable(),
+	}
+}
+
+func (LegalHold) Indexes() []ent.Index {
+	return []ent.Index{
+		index.Fields("tenant_id", "date_created", "id"),
 	}
 }
 

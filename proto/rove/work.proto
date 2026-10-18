@@ -54,7 +54,7 @@ message WorkOrder {
     indexes: [
       {
         name: "page"
-        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+        refs: [{name: "tenant", number: 2}, {name: "date_created", number: 15}, {name: "id", number: 1}]
       },
       {
         name: "asset"
@@ -109,7 +109,7 @@ message Purchase {
     indexes: [
       {
         name: "page"
-        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+        refs: [{name: "tenant", number: 2}, {name: "date_created", number: 15}, {name: "id", number: 1}]
       }
     ]
   };
@@ -157,7 +157,7 @@ message PurchaseLine {
     indexes: [
       {
         name: "page"
-        refs: [{name: "date_created", number: 15}, {name: "id", number: 1}]
+        refs: [{name: "tenant", number: 2}, {name: "date_created", number: 15}, {name: "id", number: 1}]
       },
       {
         name: "purchase"

@@ -83,9 +83,8 @@ func (Asset) Edges() []ent.Edge {
 
 func (Asset) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("date_created", "id"),
-		index.Fields("tag").
-			Edges("tenant").
+		index.Fields("tenant_id", "date_created", "id"),
+		index.Fields("tag", "tenant_id").
 			Unique().
 			Annotations(entsql.IndexWhere("date_erased IS NULL")),
 		index.Fields("parent_id"),
@@ -129,7 +128,7 @@ func (TreeLock) Edges() []ent.Edge {
 
 func (TreeLock) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Edges("tenant").
+		index.Fields("tenant_id").
 			Unique(),
 	}
 }
@@ -181,7 +180,7 @@ func (TenantDomain) Edges() []ent.Edge {
 
 func (TenantDomain) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("date_created", "id"),
+		index.Fields("tenant_id", "date_created", "id"),
 		index.Fields("host").
 			Unique().
 			Annotations(entsql.IndexWhere("date_erased IS NULL")),
@@ -246,7 +245,7 @@ func (Label) Edges() []ent.Edge {
 
 func (Label) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("date_created", "id"),
+		index.Fields("tenant_id", "date_created", "id"),
 		index.Fields("subject_id"),
 		index.Fields("code").
 			Unique().
@@ -300,7 +299,7 @@ func (Attachment) Edges() []ent.Edge {
 
 func (Attachment) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("date_created", "id"),
+		index.Fields("tenant_id", "date_created", "id"),
 		index.Fields("subject_id"),
 	}
 }

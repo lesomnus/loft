@@ -65,7 +65,7 @@ func (InventoryCount) Edges() []ent.Edge {
 
 func (InventoryCount) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("date_created", "id"),
+		index.Fields("tenant_id", "date_created", "id"),
 	}
 }
 
@@ -139,9 +139,8 @@ func (CountFinding) Edges() []ent.Edge {
 
 func (CountFinding) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("date_created", "id"),
-		index.Fields("kind").
-			Edges("count"),
+		index.Fields("tenant_id", "date_created", "id"),
+		index.Fields("count_id", "kind"),
 	}
 }
 
