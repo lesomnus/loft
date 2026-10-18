@@ -1,8 +1,13 @@
 package offboard_test
 
 import (
+	"archive/zip"
 	"bytes"
 	"context"
+	"crypto/sha256"
+	"crypto/x509"
+	"encoding/hex"
+	"io"
 	"slices"
 	"testing"
 	"time"
@@ -120,6 +125,22 @@ func TestARestoreIsTheWorkspaceAsItWasExported(t *testing.T) {
 	x.Nil(ev.ActorId, "somebody in the workspace did it")
 	x.Contains(ev.Desc, "워크스페이스 복구")
 	x.Contains(ev.Payload, "rows=")
+
+	// It names the export it came from, which holds the trail it does not
+	// put back: by its manifest, and by the key that signed it.
+	zr, err := zip.NewReader(bytes.NewReader(b), int64(len(b)))
+	x.NoError(err)
+	f, err := zr.Open("manifest.json")
+	x.NoError(err)
+	mb, err := io.ReadAll(f)
+	x.NoError(err)
+	f.Close()
+	der, err := x509.MarshalPKIXPublicKey(e.s.Offboard(e.c).Trusted()[0])
+	x.NoError(err)
+	ms, ks := sha256.Sum256(mb), sha256.Sum256(der)
+	x.Contains(ev.Payload, "manifest=sha256:"+hex.EncodeToString(ms[:]))
+	x.Contains(ev.Payload, "signed_by=sha256:"+hex.EncodeToString(ks[:]))
+	x.Equal("sha256:"+hex.EncodeToString(ms[:]), got.Manifest)
 
 	// And it is a workspace: its owner reads its register through the wall.
 	h, err := e.s.Ent.Holder.Query().Where(holder.TenantId(acme.id.Uuid()), holder.Alias("owner")).Only(ctx)

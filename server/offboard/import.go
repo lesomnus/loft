@@ -79,6 +79,10 @@ type Restored struct {
 	// one after its roster forgot them. They are restored naming no account,
 	// which is what `rove identity migrate` gives one to.
 	Unlinked []string
+
+	// Manifest and Key are the export's [Fingerprints], which the restore's
+	// event records.
+	Manifest, Key string
 }
 
 // Total is the rows put back.
@@ -105,9 +109,12 @@ var ErrNotNew = errors.New("the deployment has the workspace already")
 // rows name are put back before that commits, and taken out again when it
 // does not.
 //
-// The trail is not put back. It is the history of another chain, which this
-// deployment's checkpoints do not vouch for and cannot take in without
-// breaking.
+// The trail is not put back, nor kept. It is the history of another chain,
+// which this deployment's checkpoints do not vouch for and cannot take in
+// without breaking; and kept beside it as it was signed, it is a copy no
+// erasure of a person reaches without breaking the signature. The export is
+// that history, verified by its own signature where it is kept, and the event
+// a restore records names it by its [Fingerprints].
 //
 // Nobody in the workspace does this, and the event it records says so by
 // naming nobody.
@@ -127,6 +134,9 @@ func (d Deployment) Import(ctx context.Context, r io.ReaderAt, size int64, o Imp
 		return out, fmt.Errorf("%w: its tenant: %v", ErrFormat, err)
 	}
 	out.Tenant = pdid.Id(tid)
+	if out.Manifest, out.Key, err = Fingerprints(r, size); err != nil {
+		return out, err
+	}
 
 	z, err := zip.NewReader(r, size)
 	if err != nil {
@@ -209,6 +219,8 @@ func (d Deployment) Import(ctx context.Context, r io.ReaderAt, size int64, o Imp
 	desc := fmt.Sprintf("워크스페이스 복구 (운영자): %s 내보내기에서", m.ExportedAt.Format(time.DateOnly))
 	payload := map[string]string{
 		"exported_at": m.ExportedAt.UTC().Format(time.RFC3339),
+		"manifest":    out.Manifest,
+		"signed_by":   out.Key,
 		"rows":        fmt.Sprint(out.Total()),
 		"files":       fmt.Sprint(m.Files),
 		"asked":       out.Asked,

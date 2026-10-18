@@ -107,7 +107,9 @@ func TestAnOperatorVerifiesAnExport(t *testing.T) {
 
 	out := filepath.Join(t.TempDir(), "acme.zip")
 	run(t, cli.NewCmdTenant(&c), "export", "--tenant", "acme", "--out", out)
-	x.Contains(run(t, cli.NewCmdTenant(&c), "verify", "--file", out), "acme, exported")
+	verified := run(t, cli.NewCmdTenant(&c), "verify", "--file", out)
+	x.Contains(verified, "acme, exported")
+	x.Contains(verified, "manifest sha256:")
 
 	// The same archive with one byte of one row changed.
 	b, err := os.ReadFile(out)
@@ -184,6 +186,7 @@ func TestAnOperatorRestoresAWorkspace(t *testing.T) {
 
 	done := run(t, cli.NewCmdTenant(&c), "import", "--file", out, "--yes")
 	x.Contains(done, "@acme: put back")
+	x.Contains(done, "from the export whose manifest is sha256:")
 	x.True(here())
 	x.ErrorIs(cli.NewCmdTenant(&c).Run(ctx, []string{"import", "--file", out, "--yes"}), offboard.ErrNotNew)
 

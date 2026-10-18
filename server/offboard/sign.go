@@ -245,3 +245,47 @@ func Verify(r io.ReaderAt, size int64, trust []crypto.PublicKey) (Manifest, erro
 
 	return m, nil
 }
+
+// Fingerprints names an export and the key it is signed by, as a restore
+// records them and `rove tenant verify` prints them: the SHA-256 of its
+// manifest, which holds the digest of every other file in it, and of the
+// public key its signature is by -- each `sha256:` and hex. Whoever keeps the
+// export can show by them that it is the one a workspace was restored from,
+// and the trail in it what the deployment it came from wrote (design D34).
+//
+// It believes nothing: [Verify] is what says the export is what its key
+// signed.
+func Fingerprints(r io.ReaderAt, size int64) (manifest, key string, err error) {
+	z, err := zip.NewReader(r, size)
+	if err != nil {
+		return "", "", fmt.Errorf("%w: not a zip archive: %v", ErrAltered, err)
+	}
+	read := func(name string) ([]byte, error) {
+		f, err := z.Open(name)
+		if err != nil {
+			return nil, err
+		}
+		defer f.Close()
+		return io.ReadAll(f)
+	}
+
+	mb, err := read(manifestName)
+	if err != nil {
+		return "", "", fmt.Errorf("%w: %s: %v", ErrAltered, manifestName, err)
+	}
+	sb, err := read(signatureName)
+	if err != nil {
+		return "", "", ErrUnsigned
+	}
+	var s Signature
+	if err := json.Unmarshal(sb, &s); err != nil {
+		return "", "", fmt.Errorf("%w: its signature does not read: %v", ErrForged, err)
+	}
+	der, err := base64.StdEncoding.DecodeString(s.Key)
+	if err != nil {
+		return "", "", fmt.Errorf("%w: its key does not read: %v", ErrForged, err)
+	}
+
+	m, k := sha256.Sum256(mb), sha256.Sum256(der)
+	return "sha256:" + hex.EncodeToString(m[:]), "sha256:" + hex.EncodeToString(k[:]), nil
+}

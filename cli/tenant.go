@@ -110,12 +110,17 @@ func NewCmdTenant(c *cmd.Config) *xli.Command {
 					if err != nil {
 						return fmt.Errorf("%s: %w", path, err)
 					}
+					manifest, key, err := offboard.Fingerprints(f, st.Size())
+					if err != nil {
+						return fmt.Errorf("%s: %w", path, err)
+					}
 					var t struct {
 						Alias string `json:"alias"`
 					}
 					_ = json.Unmarshal(m.Tenant, &t)
 					self.Printf("%s: %s, exported %s, signed by a trusted key; every one of its %d files is what was exported\n",
 						path, or(t.Alias, "a tenant"), m.ExportedAt.Format(time.RFC3339), len(m.Digests))
+					self.Printf("  manifest %s, key %s\n", manifest, key)
 					return nil
 				}),
 			},
@@ -256,6 +261,7 @@ func newCmdTenantImport(c *cmd.Config) *xli.Command {
 				parts = append(parts, fmt.Sprintf("%s %d", k, x.Rows[k]))
 			}
 			self.Printf("@%s: %s %d rows (%s), %d files\n", x.Alias, verb, x.Total(), strings.Join(parts, ", "), x.Files)
+			self.Printf("  from the export whose manifest is %s, signed by %s: keep it, for the trail it holds is not put back\n", x.Manifest, x.Key)
 			if x.Asked != "" {
 				self.Printf("  at @%s: the export's @%s is another workspace's here, or not one this deployment gives\n", x.Alias, x.Asked)
 			}
