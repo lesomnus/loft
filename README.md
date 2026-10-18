@@ -394,6 +394,12 @@ go run ./cmd/rove tenant purge --tenant rove                   # 무엇이 몇 �
 go run ./cmd/rove tenant purge --tenant rove --yes             # 실제로 지움: 모든 행, 파일, 감사 기록(DB와 보관소), 마지막으로 조직
 ```
 
+내보내기의 `manifest.json`에는 형식(`rove-export/1`)과 모든 파일의 SHA-256이 적히고, 감사 기록의 키(`audit.checkpoints.key`)로 서명한 `signature.json`이 옆에 붙습니다(design D34). 복구는 서명된 내보내기만 받으므로, 복구할 수 있는 내보내기를 내려면 키를 설정해야 합니다. 키가 없는 배포의 내보내기에는 서명이 없습니다. 조직의 데이터를 돌려주는 것은 같지만 복구에는 쓰이지 않습니다.
+
+```sh
+go run ./cmd/rove tenant verify --file rove.zip   # 이 배포(또는 audit.checkpoints.trust에 적은 키)가 쓴 그대로인지
+```
+
 내보내기에는 세션과 운영자의 hold는 들어가지 않고, 무엇을 왜 뺐는지가 `manifest.json`에 적힙니다. 로그인과 비밀번호는 roster의 것이라 Rove의 내보내기에 없습니다. hold가 걸린 조직은 지우지 않습니다. 사람 한 명의 개인정보 삭제는 사람 화면의 '개인정보 삭제'(가명화)이며, 감사 기록의 사본도 DB와 보관소에서 함께 비웁니다(hold가 걸린 것은 남김).
 
 내장 roster면 `purge --yes` 가 그 워크스페이스에만 있던 계정을 roster에서도 먼저 파기합니다. 다른 워크스페이스에도 있는 계정은 그 사람의 것이라 남깁니다. roster를 따로 운영하면 계정은 roster의 것이고 Rove는 건드리지 않습니다.

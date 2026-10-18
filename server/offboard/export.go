@@ -3,8 +3,11 @@ package offboard
 import (
 	"archive/zip"
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"hash"
 	"io"
 	"maps"
 	"slices"
@@ -53,6 +56,9 @@ import (
 
 // Manifest is what an export says about itself, as its `manifest.json`.
 type Manifest struct {
+	// Format is what the export is, which a restore reads by ([Format]).
+	Format string `json:"format"`
+
 	// Tenant is the tenant's row, as the API answers it.
 	Tenant json.RawMessage `json:"tenant"`
 
@@ -76,6 +82,10 @@ type Manifest struct {
 
 	// Withheld is what is left out, and why.
 	Withheld map[string]string `json:"withheld"`
+
+	// Digests is the SHA-256 of every other file in the export, by its name,
+	// hex: what the signature beside the manifest vouches for ([Verify]).
+	Digests map[string]string `json:"digests"`
 }
 
 // reader is every row of one kind a tenant has, as the API answers them.
@@ -218,8 +228,14 @@ var Withheld = map[string]string{
 //
 // It reads, and changes nothing; a tenant under a legal hold is exported like
 // any other.
+//
+// The manifest lists every file's SHA-256 and is signed with the trail's key
+// (`audit.checkpoints.key`), in `signature.json` beside it, so that a restore
+// can tell the export is what this deployment wrote ([Verify], design D34). A
+// deployment with no key writes an export without one, which is the tenant's
+// data all the same and is not one a restore takes.
 func (d Deployment) Export(ctx context.Context, tenant pdid.Id, w io.Writer) (Manifest, error) {
-	out := Manifest{ExportedAt: d.now().UTC(), Rows: map[string]int{}, Withheld: Withheld}
+	out := Manifest{Format: Format, ExportedAt: d.now().UTC(), Rows: map[string]int{}, Withheld: Withheld, Digests: map[string]string{}}
 	tid := tenant.Uuid()
 
 	t, err := d.Ent.Tenant.Query().Where(enttenant.Id(tid)).Only(ctx)
@@ -232,8 +248,19 @@ func (d Deployment) Export(ctx context.Context, tenant pdid.Id, w io.Writer) (Ma
 	}
 
 	z := zip.NewWriter(w)
-	lines := func(name string, vs []proto.Message) error {
+	// Every file goes through its digest on the way in.
+	hashes := map[string]hash.Hash{}
+	create := func(name string) (io.Writer, error) {
 		f, err := z.Create(name)
+		if err != nil {
+			return nil, err
+		}
+		h := sha256.New()
+		hashes[name] = h
+		return io.MultiWriter(f, h), nil
+	}
+	lines := func(name string, vs []proto.Message) error {
+		f, err := create(name)
 		if err != nil {
 			return err
 		}
@@ -274,7 +301,7 @@ func (d Deployment) Export(ctx context.Context, tenant pdid.Id, w io.Writer) (Ma
 	out.Trail.Database = len(as)
 
 	if d.Trail.Archive != nil {
-		f, err := z.Create("trail/archive.jsonl")
+		f, err := create("trail/archive.jsonl")
 		if err != nil {
 			return out, err
 		}
@@ -305,7 +332,7 @@ func (d Deployment) Export(ctx context.Context, tenant pdid.Id, w io.Writer) (Ma
 			out.Missing = append(out.Missing, k)
 			continue
 		}
-		f, err := z.Create("files/" + k)
+		f, err := create("files/" + k)
 		if err == nil {
 			_, err = io.Copy(f, r)
 		}
@@ -316,14 +343,38 @@ func (d Deployment) Export(ctx context.Context, tenant pdid.Id, w io.Writer) (Ma
 		out.Files++
 	}
 
-	f, err := z.Create("manifest.json")
+	for name, h := range hashes {
+		out.Digests[name] = hex.EncodeToString(h.Sum(nil))
+	}
+	mb, err := json.MarshalIndent(out, "", "  ")
 	if err != nil {
 		return out, err
 	}
-	e := json.NewEncoder(f)
-	e.SetIndent("", "  ")
-	if err := e.Encode(out); err != nil {
+	mb = append(mb, '\n')
+	f, err := z.Create(manifestName)
+	if err != nil {
 		return out, err
+	}
+	if _, err := f.Write(mb); err != nil {
+		return out, err
+	}
+
+	if d.Trail.Signer != nil {
+		s, err := sign(d.Trail.Signer, statement(mb))
+		if err != nil {
+			return out, fmt.Errorf("sign the manifest: %w", err)
+		}
+		sb, err := json.MarshalIndent(s, "", "  ")
+		if err != nil {
+			return out, err
+		}
+		f, err := z.Create(signatureName)
+		if err != nil {
+			return out, err
+		}
+		if _, err := f.Write(append(sb, '\n')); err != nil {
+			return out, err
+		}
 	}
 
 	return out, z.Close()

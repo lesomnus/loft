@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	"context"
+	"crypto"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -348,4 +349,122 @@ func TestAnExportReadsTheArchiveThroughItsManifest(t *testing.T) {
 	got, ids := export()
 	x.Equal(m.Trail.Archive, got.Trail.Archive, "the export took in a chunk nobody accounts for")
 	x.NotContains(ids, row["id"])
+}
+
+// rezip is an export with its files as `edit` leaves them, in the order they
+// were in: what somebody holding the file could make of it.
+func rezip(t *testing.T, b []byte, edit func(files map[string][]byte, order []string) []string) []byte {
+	t.Helper()
+	z, err := zip.NewReader(bytes.NewReader(b), int64(len(b)))
+	require.NoError(t, err)
+	files := map[string][]byte{}
+	order := []string{}
+	for _, f := range z.File {
+		r, err := f.Open()
+		require.NoError(t, err)
+		v, err := io.ReadAll(r)
+		r.Close()
+		require.NoError(t, err)
+		files[f.Name] = v
+		order = append(order, f.Name)
+	}
+	order = edit(files, order)
+
+	var out bytes.Buffer
+	w := zip.NewWriter(&out)
+	for _, name := range order {
+		f, err := w.Create(name)
+		require.NoError(t, err)
+		_, err = f.Write(files[name])
+		require.NoError(t, err)
+	}
+	require.NoError(t, w.Close())
+	return out.Bytes()
+}
+
+// TestAnExportSaysItIsWhatWasExported: every file of it is in a manifest the
+// deployment's key signed, so that a restore takes only what this deployment
+// wrote, unchanged -- a file anybody could edit would be a history anybody
+// could write (design D34).
+func TestAnExportSaysItIsWhatWasExported(t *testing.T) {
+	key, _, err := trail.GenerateKey()
+	require.NoError(t, err)
+	e := newEnv(t, func(c *cmd.Config) { c.Audit.Checkpoints.Key = string(key) })
+	x := e.x
+	acme := e.tenant("acme")
+
+	d := e.s.Offboard(e.c)
+	var buf bytes.Buffer
+	_, err = d.Export(context.Background(), acme.id, &buf)
+	x.NoError(err)
+	b := buf.Bytes()
+	verify := func(b []byte, trust ...crypto.PublicKey) (offboard.Manifest, error) {
+		if trust == nil {
+			trust = d.Trusted()
+		}
+		return offboard.Verify(bytes.NewReader(b), int64(len(b)), trust)
+	}
+
+	m, err := verify(b)
+	x.NoError(err)
+	x.Equal(offboard.Format, m.Format)
+	x.Equal(2, m.Rows["asset"])
+	x.Contains(m.Digests, "rows/asset.jsonl")
+	x.Contains(m.Digests, "files/"+acme.photo.GetObjectKey())
+
+	t.Run("a row changed", func(t *testing.T) {
+		_, err := verify(rezip(t, b, func(fs map[string][]byte, order []string) []string {
+			fs["rows/asset.jsonl"] = bytes.ReplaceAll(fs["rows/asset.jsonl"], []byte("노트북"), []byte("노트븍"))
+			return order
+		}))
+		require.ErrorIs(t, err, offboard.ErrAltered)
+	})
+	t.Run("the manifest changed to say so", func(t *testing.T) {
+		_, err := verify(rezip(t, b, func(fs map[string][]byte, order []string) []string {
+			fs["manifest.json"] = bytes.Replace(fs["manifest.json"], []byte(`"asset": 2`), []byte(`"asset": 3`), 1)
+			return order
+		}))
+		require.ErrorIs(t, err, offboard.ErrForged)
+	})
+	t.Run("a file put in", func(t *testing.T) {
+		_, err := verify(rezip(t, b, func(fs map[string][]byte, order []string) []string {
+			fs["rows/extra.jsonl"] = []byte("{}\n")
+			return append(order, "rows/extra.jsonl")
+		}))
+		require.ErrorIs(t, err, offboard.ErrAltered)
+		require.ErrorContains(t, err, "rows/extra.jsonl is not in its manifest")
+	})
+	t.Run("a file taken out", func(t *testing.T) {
+		_, err := verify(rezip(t, b, func(fs map[string][]byte, order []string) []string {
+			return slices.DeleteFunc(order, func(v string) bool { return v == "rows/asset.jsonl" })
+		}))
+		require.ErrorIs(t, err, offboard.ErrAltered)
+	})
+	t.Run("by a key nobody said to trust, until somebody does", func(t *testing.T) {
+		other, _, err := trail.GenerateKey()
+		require.NoError(t, err)
+		k, err := trail.ParseKey(other)
+		require.NoError(t, err)
+
+		_, err = verify(b, k.Public())
+		require.ErrorIs(t, err, offboard.ErrUntrusted)
+
+		// The other deployment's, named: an export that came from there.
+		e2 := newEnv(t, func(c *cmd.Config) { c.Audit.Checkpoints.Key = string(other) })
+		var buf bytes.Buffer
+		_, err = e2.s.Offboard(e2.c).Export(context.Background(), e2.tenant("acme").id, &buf)
+		require.NoError(t, err)
+		_, err = verify(buf.Bytes())
+		require.ErrorIs(t, err, offboard.ErrUntrusted)
+		_, err = verify(buf.Bytes(), append(d.Trusted(), k.Public())...)
+		require.NoError(t, err)
+	})
+	t.Run("and by no key at all", func(t *testing.T) {
+		e := newEnv(t)
+		var buf bytes.Buffer
+		_, err := e.s.Offboard(e.c).Export(context.Background(), e.tenant("acme").id, &buf)
+		require.NoError(t, err, "a deployment with no key still gives a tenant its data")
+		_, err = verify(buf.Bytes())
+		require.ErrorIs(t, err, offboard.ErrUnsigned)
+	})
 }
