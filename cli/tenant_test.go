@@ -135,3 +135,64 @@ func TestAnOperatorVerifiesAnExport(t *testing.T) {
 	err = cli.NewCmdTenant(&c).Run(t.Context(), []string{"verify", "--file", out})
 	x.ErrorIs(err, offboard.ErrAltered)
 }
+
+// TestAnOperatorRestoresAWorkspace: exported, purged and imported, a workspace
+// is back; a member whose account went with the purge is restored with none,
+// and `rove identity migrate` gives it one (design D34).
+func TestAnOperatorRestoresAWorkspace(t *testing.T) {
+	x := require.New(t)
+	ctx := context.Background()
+	key, _, err := trail.GenerateKey()
+	x.NoError(err)
+	c := cmd.Config{}
+	c.Db.Driver, c.Db.Dsn = pdtest.DB(t)
+	c.Watch.Broker = "memory"
+	c.App.Files = t.TempDir()
+	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
+	c.Audit.Checkpoints.Key = string(key)
+
+	run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234")
+	run(t, cli.NewCmdHolder(&c), "add", "--tenant", "acme", "--login", "kim", "--password", "kim-password")
+	// The owner is in another workspace too, so its account outlives the purge.
+	run(t, cli.NewCmdInit(&c), "--tenant", "beta", "--login", "owner")
+
+	out := filepath.Join(t.TempDir(), "acme.zip")
+	run(t, cli.NewCmdTenant(&c), "export", "--tenant", "acme", "--out", out)
+	run(t, cli.NewCmdTenant(&c), "purge", "--tenant", "acme", "--yes")
+
+	here := func() bool {
+		s, err := cmd.Build(ctx, c)
+		x.NoError(err)
+		defer s.Close()
+		v, err := s.Ent.Tenant.Query().Where(tenant.Alias("acme")).Exist(ctx)
+		x.NoError(err)
+		return v
+	}
+	signsIn := func(login, password string) error {
+		s, err := cmd.Build(ctx, c)
+		x.NoError(err)
+		defer s.Close()
+		_, err = s.Identity.Verify(ctx, login, password)
+		return err
+	}
+
+	dry := run(t, cli.NewCmdTenant(&c), "import", "--file", out)
+	x.Contains(dry, "@acme: would put back")
+	x.Contains(dry, "1 member(s) whose accounts this roster does not have, restored with none: kim")
+	x.Contains(dry, "nothing was put back")
+	x.False(here(), "a dry run put the workspace back")
+
+	done := run(t, cli.NewCmdTenant(&c), "import", "--file", out, "--yes")
+	x.Contains(done, "@acme: put back")
+	x.True(here())
+	x.ErrorIs(cli.NewCmdTenant(&c).Run(ctx, []string{"import", "--file", out, "--yes"}), offboard.ErrNotNew)
+
+	x.NoError(signsIn("owner", "owner1234"), "the owner's account is the one it had")
+	x.Error(signsIn("kim", "kim-password"), "an account the purge forgot")
+
+	m := run(t, cli.NewCmdIdentity(&c), "migrate")
+	_, after, ok := strings.Cut(m, "@acme/kim  login kim  password ")
+	x.True(ok, "%s", m)
+	password, _, _ := strings.Cut(after, "\n")
+	x.NoError(signsIn("kim", strings.TrimSpace(password)))
+}
