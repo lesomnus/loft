@@ -18110,11 +18110,6 @@ func (s interceptAsset) Report(ctx context.Context, req *rove.AssetReportRequest
 		rove.AssetService_Report_FullMethodName, req, s.AssetServiceServer.Report)
 }
 
-func (s interceptAsset) Import(ctx context.Context, req *rove.AssetImportRequest) (*rove.AssetImportResponse, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.AssetServiceServer,
-		rove.AssetService_Import_FullMethodName, req, s.AssetServiceServer.Import)
-}
-
 func (s interceptAsset) Export(ctx context.Context, req *rove.AssetExportRequest) (*rove.AssetExportResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AssetServiceServer,
 		rove.AssetService_Export_FullMethodName, req, s.AssetServiceServer.Export)
@@ -21595,19 +21590,6 @@ func dispatch(ctx context.Context, s rove.Server, op *pdpb.Op) (*anypb.Any, erro
 		}
 
 		res, err := s.Asset().Report(ctx, v)
-		if err != nil {
-			return nil, err
-		}
-
-		return anypb.New(res)
-
-	case rove.AssetService_Import_FullMethodName:
-		v := &rove.AssetImportRequest{}
-		if err := op.GetRequest().UnmarshalTo(v); err != nil {
-			return nil, batch.ErrRequest(m, err)
-		}
-
-		res, err := s.Asset().Import(ctx, v)
 		if err != nil {
 			return nil, err
 		}

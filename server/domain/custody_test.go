@@ -1,13 +1,16 @@
 package domain_test
 
 import (
+	"bytes"
 	"context"
+	"encoding/csv"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/lesomnus/payday/pdid"
 	"github.com/stretchr/testify/require"
+	"github.com/xuri/excelize/v2"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -247,58 +250,49 @@ func TestCount(t *testing.T) {
 	x.NoError(err)
 }
 
-func TestImportExport(t *testing.T) {
+// TestExportWritesTheRegister: the register as a sheet to read -- a row an
+// asset, in the words a person reads, and where it is as a path beside the tag
+// of what holds it. Nothing reads one back (design D34).
+func TestExportWritesTheRegister(t *testing.T) {
 	e := newEnv(t)
 	x := e.x
-	_, kim := e.person("member")
+	hq := e.space("본사", nil)
+	floor := e.space("3층", hq)
+	e.item("노트북", "NB-100", floor, day)
 
-	sheet := "태그,이름,종류,유형,모델,제조사,위치,사용자,취득일,속성.ram\n" +
-		"NB-100,새 노트북,물품,노트북,MacBook Air,Apple,본사/3층/개발팀,p1@example.com,2025-03-02,16\n" +
-		"SP-100,창고,공간,,,,본사/4층,,,\n" +
-		"MN-100,모니터,,,,,SP-100,,2025.03.04,\n"
-	dry, err := e.app().Asset().Import(e.owner, app.AssetImportRequest_builder{Format: "csv", Data: []byte(sheet), DryRun: true}.Build())
-	x.NoError(err)
-	x.Empty(dry.GetErrors())
-	x.EqualValues(3, dry.GetCreated())
-	found, err := e.app().Asset().Search(e.owner, app.AssetSearchRequest_builder{Q: "NB-100"}.Build())
-	x.NoError(err)
-	x.Zero(found.GetTotal(), "a dry run changes nothing")
+	header := []string{"태그", "이름", "종류", "유형", "모델", "제조사", "시리얼", "상태", "컨디션", "위치", "위치태그", "사용자", "취득일", "설명"}
+	find := func(rows [][]string) []string {
+		x.NotEmpty(rows)
+		x.Equal(header, rows[0][:len(header)])
+		for _, r := range rows[1:] {
+			if r[0] == "NB-100" {
+				return r
+			}
+		}
+		x.Fail("the asset is not in the sheet")
+		return nil
+	}
 
-	v, err := e.app().Asset().Import(e.owner, app.AssetImportRequest_builder{Format: "csv", Data: []byte(sheet)}.Build())
+	out, err := e.app().Asset().Export(e.owner, app.AssetExportRequest_builder{Format: "csv"}.Build())
 	x.NoError(err)
-	x.Empty(v.GetErrors())
-	x.EqualValues(3, v.GetCreated())
+	x.Equal("text/csv; charset=utf-8", out.GetContentType())
+	rows, err := csv.NewReader(bytes.NewReader(bytes.TrimPrefix(out.GetData(), []byte("\ufeff")))).ReadAll()
+	x.NoError(err)
+	row := find(rows)
+	x.Equal("노트북", row[1])
+	x.Equal("물품", row[2], "in the word a person reads")
+	x.Equal("사용중", row[7])
+	x.Equal("본사/3층", row[9], "where it is, as a path")
+	x.Equal(floor.GetTag(), row[10], "and the tag of what holds it")
 
-	found, err = e.app().Asset().Search(e.owner, app.AssetSearchRequest_builder{Q: "NB-100"}.Build())
+	out, err = e.app().Asset().Export(e.owner, app.AssetExportRequest_builder{Format: "xlsx"}.Build())
 	x.NoError(err)
-	x.EqualValues(1, found.GetTotal())
-	nb := found.GetItems()[0]
-	x.True(sameId(kim.GetId(), nb.GetCustodian().GetId()), "handed to the person the sheet named")
-	x.Equal("16", nb.GetAttributes()["ram"])
-	mn, err := e.app().Label().Resolve(e.owner, app.LabelResolveRequest_builder{Code: "MN-100"}.Build())
+	f, err := excelize.OpenReader(bytes.NewReader(out.GetData()))
 	x.NoError(err)
-	sp, err := e.app().Label().Resolve(e.owner, app.LabelResolveRequest_builder{Code: "SP-100"}.Build())
+	defer f.Close()
+	sheet, err := f.GetRows("자산")
 	x.NoError(err)
-	x.True(sameId(sp.GetAsset().GetId(), mn.GetAsset().GetParentId()), "placed by the tag of a row above it")
-
-	// The same sheet again changes nothing; one fixed row changes one thing.
-	v, err = e.app().Asset().Import(e.owner, app.AssetImportRequest_builder{Format: "csv", Data: []byte(sheet)}.Build())
-	x.NoError(err)
-	x.EqualValues(0, v.GetCreated())
-	x.EqualValues(3, v.GetSkipped())
-
-	bad := "태그,이름,상태\nX-1,,사용중\nX-2,뭔가,이상함\n"
-	v, err = e.app().Asset().Import(e.owner, app.AssetImportRequest_builder{Format: "csv", Data: []byte(bad)}.Build())
-	x.NoError(err)
-	x.Len(v.GetErrors(), 2, "every wrong row is answered at once")
-
-	out, err := e.app().Asset().Export(e.owner, app.AssetExportRequest_builder{Format: "xlsx"}.Build())
-	x.NoError(err)
-	x.NotEmpty(out.GetData())
-	back, err := e.app().Asset().Import(e.owner, app.AssetImportRequest_builder{Format: "xlsx", Data: out.GetData(), DryRun: true}.Build())
-	x.NoError(err)
-	x.Empty(back.GetErrors(), "what export writes, import reads")
-	x.EqualValues(0, back.GetCreated())
+	x.Equal(row[:11], find(sheet)[:11], "the workbook says what the sheet says")
 }
 
 func TestLabels(t *testing.T) {

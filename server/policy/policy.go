@@ -126,7 +126,7 @@ func init() {
 	oversee("UsageSnapshotService", "Get", "List")
 
 	allow(Read, "AssetService", "Timeline", "QueryAt", "Diff", "Search", "Report")
-	allow(Manager, "AssetService", "Add", "Erase", "Move", "SetAttributes", "Assign", "Relate", "Correct", "Import", "Export")
+	allow(Manager, "AssetService", "Add", "Erase", "Move", "SetAttributes", "Assign", "Relate", "Correct", "Export")
 
 	allow(Admin, "AssetTypeService", "Add", "Update", "Erase")
 	allow(Manager, "ItemModelService", "Add", "Update")

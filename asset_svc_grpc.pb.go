@@ -36,7 +36,6 @@ const (
 	AssetService_Diff_FullMethodName          = "/rove.AssetService/Diff"
 	AssetService_Search_FullMethodName        = "/rove.AssetService/Search"
 	AssetService_Report_FullMethodName        = "/rove.AssetService/Report"
-	AssetService_Import_FullMethodName        = "/rove.AssetService/Import"
 	AssetService_Export_FullMethodName        = "/rove.AssetService/Export"
 )
 
@@ -92,7 +91,9 @@ type AssetServiceClient interface {
 	Diff(ctx context.Context, in *AssetDiffRequest, opts ...grpc.CallOption) (*AssetDiffResponse, error)
 	Search(ctx context.Context, in *AssetSearchRequest, opts ...grpc.CallOption) (*AssetSearchResponse, error)
 	Report(ctx context.Context, in *AssetReportRequest, opts ...grpc.CallOption) (*AssetReportResponse, error)
-	Import(ctx context.Context, in *AssetImportRequest, opts ...grpc.CallOption) (*AssetImportResponse, error)
+	// Export writes the register as a sheet, to read. Nothing reads one back:
+	// a restore is of the workspace's own export, and a sheet that edited the
+	// register by tag is gone (design D34).
 	Export(ctx context.Context, in *AssetExportRequest, opts ...grpc.CallOption) (*AssetExportResponse, error)
 }
 
@@ -283,16 +284,6 @@ func (c *assetServiceClient) Report(ctx context.Context, in *AssetReportRequest,
 	return out, nil
 }
 
-func (c *assetServiceClient) Import(ctx context.Context, in *AssetImportRequest, opts ...grpc.CallOption) (*AssetImportResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(AssetImportResponse)
-	err := c.cc.Invoke(ctx, AssetService_Import_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *assetServiceClient) Export(ctx context.Context, in *AssetExportRequest, opts ...grpc.CallOption) (*AssetExportResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(AssetExportResponse)
@@ -355,7 +346,9 @@ type AssetServiceServer interface {
 	Diff(context.Context, *AssetDiffRequest) (*AssetDiffResponse, error)
 	Search(context.Context, *AssetSearchRequest) (*AssetSearchResponse, error)
 	Report(context.Context, *AssetReportRequest) (*AssetReportResponse, error)
-	Import(context.Context, *AssetImportRequest) (*AssetImportResponse, error)
+	// Export writes the register as a sheet, to read. Nothing reads one back:
+	// a restore is of the workspace's own export, and a sheet that edited the
+	// register by tag is gone (design D34).
 	Export(context.Context, *AssetExportRequest) (*AssetExportResponse, error)
 	mustEmbedUnimplementedAssetServiceServer()
 }
@@ -417,9 +410,6 @@ func (UnimplementedAssetServiceServer) Search(context.Context, *AssetSearchReque
 }
 func (UnimplementedAssetServiceServer) Report(context.Context, *AssetReportRequest) (*AssetReportResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Report not implemented")
-}
-func (UnimplementedAssetServiceServer) Import(context.Context, *AssetImportRequest) (*AssetImportResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method Import not implemented")
 }
 func (UnimplementedAssetServiceServer) Export(context.Context, *AssetExportRequest) (*AssetExportResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Export not implemented")
@@ -744,24 +734,6 @@ func _AssetService_Report_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AssetService_Import_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AssetImportRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AssetServiceServer).Import(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AssetService_Import_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AssetServiceServer).Import(ctx, req.(*AssetImportRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _AssetService_Export_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AssetExportRequest)
 	if err := dec(in); err != nil {
@@ -850,10 +822,6 @@ var AssetService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Report",
 			Handler:    _AssetService_Report_Handler,
-		},
-		{
-			MethodName: "Import",
-			Handler:    _AssetService_Import_Handler,
 		},
 		{
 			MethodName: "Export",
