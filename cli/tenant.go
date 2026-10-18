@@ -2,6 +2,7 @@ package cli
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"maps"
 	"os"
@@ -15,6 +16,7 @@ import (
 
 	"github.com/lesomnus/rove/cmd"
 	"github.com/lesomnus/rove/server/closing"
+	"github.com/lesomnus/rove/server/offboard"
 )
 
 // NewCmdTenant is `rove tenant`: what leaves with a tenant (design 8.2).
@@ -76,6 +78,44 @@ func NewCmdTenant(c *cmd.Config) *xli.Command {
 					if len(m.Missing) > 0 {
 						self.Printf("  missing from the file store: %s\n", strings.Join(m.Missing, ", "))
 					}
+					return nil
+				}),
+			},
+			{
+				Name:  "verify",
+				Brief: "whether an export is what this deployment, or one it trusts, wrote",
+				Flags: flg.Flags{
+					&flg.String{Name: "file", Brief: "the export"},
+				},
+				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
+					path, _ := flg.Find[string](self, "file")
+					if strings.TrimSpace(path) == "" {
+						return fmt.Errorf("--file: the export to verify")
+					}
+					p, err := c.Audit.Policy()
+					if err != nil {
+						return err
+					}
+					f, err := os.Open(path)
+					if err != nil {
+						return err
+					}
+					defer f.Close()
+					st, err := f.Stat()
+					if err != nil {
+						return err
+					}
+
+					m, err := offboard.Verify(f, st.Size(), offboard.TrustedBy(p))
+					if err != nil {
+						return fmt.Errorf("%s: %w", path, err)
+					}
+					var t struct {
+						Alias string `json:"alias"`
+					}
+					_ = json.Unmarshal(m.Tenant, &t)
+					self.Printf("%s: %s, exported %s, signed by a trusted key; every one of its %d files is what was exported\n",
+						path, or(t.Alias, "a tenant"), m.ExportedAt.Format(time.RFC3339), len(m.Digests))
 					return nil
 				}),
 			},

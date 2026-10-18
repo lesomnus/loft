@@ -1,13 +1,17 @@
 package cli_test
 
 import (
+	"archive/zip"
+	"bytes"
 	"context"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/lesomnus/payday/pdtest"
+	"github.com/lesomnus/payday/trail"
 	"github.com/lesomnus/xli"
 	"github.com/stretchr/testify/require"
 
@@ -15,6 +19,7 @@ import (
 	"github.com/lesomnus/rove/cmd"
 	"github.com/lesomnus/rove/internal/ent/tenant"
 	"github.com/lesomnus/rove/internal/identity"
+	"github.com/lesomnus/rove/server/offboard"
 )
 
 // run is a command's output, run the way a shell runs it.
@@ -83,4 +88,50 @@ func TestAPurgeTakesTheWorkspacesOwnAccountsOutOfTheRosterInThisProcess(t *testi
 	gone, err := s.Ent.Tenant.Query().Where(tenant.Alias("acme")).Exist(ctx)
 	x.NoError(err)
 	x.False(gone, "the workspace is still here")
+}
+
+// TestAnOperatorVerifiesAnExport: what an export says of itself, held to the
+// deployment's key -- an export this deployment wrote is verified, and one
+// somebody changed afterwards is not (design D34).
+func TestAnOperatorVerifiesAnExport(t *testing.T) {
+	x := require.New(t)
+	key, _, err := trail.GenerateKey()
+	x.NoError(err)
+	c := cmd.Config{}
+	c.Db.Driver, c.Db.Dsn = pdtest.DB(t)
+	c.Watch.Broker = "memory"
+	c.App.Files = t.TempDir()
+	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
+	c.Audit.Checkpoints.Key = string(key)
+	run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234")
+
+	out := filepath.Join(t.TempDir(), "acme.zip")
+	run(t, cli.NewCmdTenant(&c), "export", "--tenant", "acme", "--out", out)
+	x.Contains(run(t, cli.NewCmdTenant(&c), "verify", "--file", out), "acme, exported")
+
+	// The same archive with one byte of one row changed.
+	b, err := os.ReadFile(out)
+	x.NoError(err)
+	z, err := zip.NewReader(bytes.NewReader(b), int64(len(b)))
+	x.NoError(err)
+	var changed bytes.Buffer
+	w := zip.NewWriter(&changed)
+	for _, f := range z.File {
+		r, err := f.Open()
+		x.NoError(err)
+		v, err := io.ReadAll(r)
+		r.Close()
+		x.NoError(err)
+		if f.Name == "rows/tenant.jsonl" || strings.HasPrefix(f.Name, "rows/holder") {
+			v = bytes.Replace(v, []byte("owner"), []byte("0wner"), 1)
+		}
+		g, err := w.Create(f.Name)
+		x.NoError(err)
+		_, err = g.Write(v)
+		x.NoError(err)
+	}
+	x.NoError(w.Close())
+	x.NoError(os.WriteFile(out, changed.Bytes(), 0o600))
+	err = cli.NewCmdTenant(&c).Run(t.Context(), []string{"verify", "--file", out})
+	x.ErrorIs(err, offboard.ErrAltered)
 }
