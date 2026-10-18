@@ -16,6 +16,7 @@ import (
 	"io"
 	"mime"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -124,12 +125,28 @@ func (a Routes) Mount(mux *http.ServeMux) {
 			}
 			// Everything it has, open or closed: what an owner takes out
 			// before a workspace goes (D29).
-			w.Header().Set("Content-Type", "application/zip")
-			w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s-%s.zip"`, alias, time.Now().Format("20060102")))
-			w.Header().Set("Cache-Control", "no-store")
-			if err := a.Export(r.Context(), m.Workspace, w); err != nil {
-				log.From(r.Context()).ErrorContext(r.Context(), "account: an export failed part way", "workspace", alias, "err", err.Error())
+			//
+			// Written whole before the first byte goes: the moment it is
+			// read in is held while the database is read and not while a
+			// browser takes its time over the download, and one that fails
+			// is an answer that says so rather than a zip that stops part
+			// way (rove#120).
+			f, err := os.CreateTemp("", "rove-export-*.zip")
+			if err != nil {
+				fail(w, r, err)
+				return
 			}
+			defer os.Remove(f.Name())
+			defer f.Close()
+			if err := a.Export(r.Context(), m.Workspace, f); err != nil {
+				fail(w, r, fmt.Errorf("export of @%s: %w", alias, err))
+				return
+			}
+			name := fmt.Sprintf("%s-%s.zip", alias, time.Now().Format("20060102"))
+			w.Header().Set("Content-Type", "application/zip")
+			w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, name))
+			w.Header().Set("Cache-Control", "no-store")
+			http.ServeContent(w, r, name, time.Time{}, f)
 			return
 		}
 		http.Error(w, "only the workspace's owner takes its data out", http.StatusForbidden)

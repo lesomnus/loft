@@ -9,6 +9,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strconv"
 	"testing"
 	"time"
 
@@ -119,6 +120,7 @@ func TestAWorkspaceIsClosedByItsOwnerAndRestored(t *testing.T) {
 	zr, err := zip.NewReader(bytes.NewReader(res.Body.Bytes()), int64(res.Body.Len()))
 	x.NoError(err, "a zip")
 	x.NotEmpty(zr.File)
+	x.Equal(strconv.Itoa(res.Body.Len()), res.Header().Get("Content-Length"), "written whole before it was sent")
 	x.Equal(http.StatusForbidden, w.page(kim, http.MethodGet, "/account/workspaces/"+w.tenant.GetAlias()+"/export").Code)
 
 	_, err = tenants.Restore(w.owner, app.TenantRestoreRequest_builder{Ref: ref}.Build())
