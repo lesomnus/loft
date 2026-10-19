@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"time"
 
 	// The exporter a collector is reached with. mkot knows an exporter by the
 	// name a package registers, and without this one an `otel:` naming
@@ -62,6 +63,21 @@ func Telemetry(ctx context.Context, c *Config) (context.Context, func(), error) 
 
 	// Shutdown and not ForceFlush: shutting the providers down is what flushes
 	// the last batch, and a process that exits without it loses whatever that
-	// batch held.
-	return ctx, func() { o.Shutdown(ctx) }, nil
+	// batch held. Within [flushWithin], and on a context of its own: the one a
+	// command stopped with ^C was given is cancelled, and would flush nothing.
+	return ctx, func() {
+		ctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), flushWithin)
+		defer cancel()
+		o.Shutdown(ctx)
+	}, nil
 }
+
+// flushWithin is how long a process waits at its exit for its telemetry to
+// leave.
+//
+// A collector that does not answer held every exit for the OTLP exporter's own
+// timeout -- ten seconds, measured, for each signal with something left to
+// send: an operator's command at its last line, and `serve` for most of the
+// grace a pod is given to stop. An outage of the collector became a stall of
+// the deployment's own tools; now it costs what is in the last batch.
+var flushWithin = 5 * time.Second

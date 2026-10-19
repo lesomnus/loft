@@ -5,6 +5,7 @@ import (
 	"net"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/goccy/go-yaml"
 	"github.com/lesomnus/otx/log"
@@ -77,4 +78,41 @@ providers:
 	sink.mu.Lock()
 	defer sink.mu.Unlock()
 	x.Equal(map[string]string{"telemetry: over OTLP": "rove"}, sink.bodies)
+}
+
+// TestAnExitWaitsOnACollectorForAMomentOnly: with `otel:` naming a collector
+// nothing answers at, the last batch is given up after a moment rather than
+// waited on for the OTLP exporter's ten seconds, so a collector that is down
+// does not hold an operator's command at its last line.
+func TestAnExitWaitsOnACollectorForAMomentOnly(t *testing.T) {
+	x := require.New(t)
+
+	was := *cmd.FlushWithin
+	*cmd.FlushWithin = 200 * time.Millisecond
+	t.Cleanup(func() { *cmd.FlushWithin = was })
+
+	// An address nothing listens at.
+	lis, err := net.Listen("tcp", "127.0.0.1:0")
+	x.NoError(err)
+	addr := lis.Addr().String()
+	x.NoError(lis.Close())
+
+	var c cmd.Config
+	x.NoError(yaml.Unmarshal([]byte(`
+exporters:
+  otlp:
+    endpoint: http://`+addr+`
+providers:
+  logger:
+    processors: [resource/rove]
+    exporters: [otlp]
+`), &c.Otel))
+
+	ctx, done, err := cmd.Telemetry(t.Context(), &c)
+	x.NoError(err)
+	log.From(ctx).InfoContext(ctx, "telemetry: nobody to send this to")
+
+	began := time.Now()
+	done()
+	x.Less(time.Since(began), 3*time.Second, "the exit waited on the collector")
 }
