@@ -27,20 +27,20 @@ tool (
 )
 
 require (
-	github.com/coreos/go-oidc/v3 v3.20.0
-	github.com/go-jose/go-jose/v4 v4.1.4
+	github.com/coreos/go-oidc/v3 v3.21.0
+	github.com/go-jose/go-jose/v4 v4.1.6
 	github.com/goccy/go-yaml v1.19.2
 	github.com/google/jsonschema-go v0.4.3
 	github.com/jackc/pgx/v5 v5.10.0
 	github.com/lesomnus/flob v0.0.0-20261010120939-21f89e60609e
 	github.com/lesomnus/mkot/otlp v0.0.0-20261013182918-46d8b05a79b3
-	github.com/lesomnus/otx v0.0.0-20261013182912-d2af55df512e
+	github.com/lesomnus/otx v0.0.0-20261017184159-4cba7a26b155
 	github.com/lesomnus/payday v0.0.0-20261019084941-56a32f4a9617
-	github.com/lesomnus/protobuf-patch v0.0.0-20260803175157-e1b7a0c2804f
-	github.com/lesomnus/roster v0.1.1-0.20261019090900-e9944a350484
-	github.com/lesomnus/xli v0.0.0-20261006060415-9f2e9ce97331
-	github.com/lesomnus/xli/cfg v0.1.2
-	github.com/lesomnus/z v0.0.0-20260531102454-3f1853bb4278
+	github.com/lesomnus/protobuf-patch v0.0.0-20260907061053-07bbf2b842da
+	github.com/lesomnus/roster v0.1.1-0.20261019183440-4af1d33a04ac
+	github.com/lesomnus/xli v0.0.0-20261009121920-4ce270c7448c
+	github.com/lesomnus/xli/cfg v0.1.3
+	github.com/lesomnus/z v0.0.0-20260907061127-c3858eb05878
 	github.com/modelcontextprotocol/go-sdk v1.8.0
 	github.com/protobuf-orm/ent v0.0.0-20261017215450-5460d907499b
 	github.com/protobuf-orm/protobuf-orm v0.0.0-20261017212716-3430237a8656
@@ -48,11 +48,11 @@ require (
 	github.com/stretchr/testify v1.12.1
 	github.com/xuri/excelize/v2 v2.11.0
 	go.opentelemetry.io/proto/otlp v1.11.0
-	golang.org/x/oauth2 v0.36.0
+	golang.org/x/oauth2 v0.37.0
 	golang.org/x/sync v0.24.0
 	golang.org/x/text v0.43.0
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20260928230214-8a89bd6388cc
-	google.golang.org/grpc v1.83.2
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20261012220534-4341edf3f941
+	google.golang.org/grpc v1.84.0
 	google.golang.org/protobuf v1.36.12
 	pgregory.net/rapid v1.3.0
 )
@@ -76,14 +76,14 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/ettle/strcase v0.2.0 // indirect
 	github.com/fatih/color v1.19.0 // indirect
-	github.com/fxamacker/cbor/v2 v2.9.2 // indirect
+	github.com/fxamacker/cbor/v2 v2.9.6 // indirect
 	github.com/go-asn1-ber/asn1-ber v1.5.8 // indirect
 	github.com/go-logr/logr v1.4.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-openapi/inflect v1.0.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
-	github.com/go-webauthn/webauthn v0.17.4 // indirect
-	github.com/go-webauthn/x v0.2.6 // indirect
+	github.com/go-webauthn/webauthn v0.18.2 // indirect
+	github.com/go-webauthn/x v0.3.1 // indirect
 	github.com/gofrs/flock v0.13.0 // indirect
 	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
@@ -97,7 +97,7 @@ require (
 	github.com/lesomnus/mkot v0.0.0-20261013182918-46d8b05a79b3 // indirect
 	github.com/lesomnus/mkot/mkotx v0.0.0-20261013182918-46d8b05a79b3 // indirect
 	github.com/lesomnus/mkot/pretty v0.0.0-20261013182918-46d8b05a79b3 // indirect
-	github.com/lesomnus/otx/otxgrpc v0.0.0-20261013182912-d2af55df512e // indirect
+	github.com/lesomnus/otx/otxgrpc v0.0.0-20261017184159-4cba7a26b155 // indirect
 	github.com/lesomnus/pwr v0.0.0-20261015171245-2ec220d490d1 // indirect
 	github.com/lesomnus/pwr/cel v0.0.0-20261015172325-de464a5ef1fa // indirect
 	github.com/mattn/go-colorable v0.1.15 // indirect
@@ -147,7 +147,7 @@ require (
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
 	golang.org/x/crypto v0.58.0 // indirect
 	golang.org/x/exp v0.0.0-20260709172345-9ea1abe57597 // indirect
-	golang.org/x/image v0.45.0 // indirect
+	golang.org/x/image v0.47.0 // indirect
 	golang.org/x/mod v0.41.0 // indirect
 	golang.org/x/net v0.60.0 // indirect
 	golang.org/x/sys v0.49.0 // indirect
