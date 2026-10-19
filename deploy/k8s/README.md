@@ -140,6 +140,22 @@ rove-admin workspace ls
 
 들어올 수 있는 사람은 그 namespace의 `pods/portforward` 권한(RBAC)을 가진 사람입니다. VPN 대신 클러스터 권한이 첫 번째 문이고, 운영자 키가 두 번째 문입니다. `pods/exec`도 운영자에게만 줍니다. 파드 안에서는 DB 접속 정보가 보이고, 셸의 운영자 명령은 그것으로 DB에 바로 붙습니다(`docs/security.md`).
 
+## 워크스페이스 내보내기와 복구
+
+이미지에는 셸도 `tar`도 없어서 `kubectl cp`를 쓸 수 없습니다. 파일은 `kubectl exec`의 표준 입출력으로 옮깁니다. `--out -`는 내보내기를 stdout으로 쓰고, 명령이 하는 말은 stderr로 보냅니다. `--file -`는 stdin에서 읽습니다. 순서는 README의 '조직 탈퇴'와 '워크스페이스 복구'와 같습니다.
+
+```sh
+kubectl -n rove exec deploy/rove -c rove -- rove --config /etc/rove/rove.yaml tenant export --tenant acme --out - > acme.zip
+kubectl -n rove exec -i deploy/rove -c rove -- rove --config /etc/rove/rove.yaml tenant verify --file - < acme.zip
+kubectl -n rove exec deploy/rove -c rove -- rove --config /etc/rove/rove.yaml tenant purge --tenant acme --yes
+kubectl -n rove exec -i deploy/rove -c rove -- rove --config /etc/rove/rove.yaml tenant import --file - --yes < acme.zip
+```
+
+- `-t`는 붙이지 않습니다. 터미널이 끼면 바이너리가 깨집니다. `-i`는 stdin을 넘길 때만 붙입니다.
+- `verify`와 `import`는 stdin을 파드의 `/tmp`(emptyDir)에 임시 파일로 받아 읽고, 끝나면 지웁니다. zip은 순서대로 읽을 수 없기 때문입니다. 내보내기 크기만큼 자리가 필요합니다. 자산 10만 개 워크스페이스의 내보내기가 125 MB였습니다.
+- stdout으로 쓰다가 실패하면 받은 쪽에 반쯤 된 파일이 남습니다. 종료 코드로 알 수 있고, `tenant verify`도 그 파일을 거부합니다.
+- 명령의 로그는 배포의 로그와 같은 곳으로 갑니다. 기본은 stderr이고, stdout에는 내보내기만 나갑니다.
+
 ## 스테이징
 
 같은 base에 오버레이를 하나 더 둡니다. namespace, 데이터베이스 둘, 호스트, Secret을 모두 따로 갖습니다. 운영 키는 쓰지 않습니다. 라벨 QR이 `public_url`을 담으므로 스테이징에서 인쇄한 라벨은 운영에서 쓸 수 없습니다.
