@@ -1,9 +1,11 @@
 package cli
 
 import (
+	"bufio"
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"maps"
 	"os"
 	"slices"
@@ -38,7 +40,7 @@ func NewCmdTenant(c *cmd.Config) *xli.Command {
 				Brief: "everything a tenant has, as one zip archive",
 				Flags: flg.Flags{
 					&flg.String{Name: "tenant", Brief: "the tenant, by alias"},
-					&flg.String{Name: "out", Brief: "where to write it; <alias>-<date>.zip by default"},
+					&flg.String{Name: "out", Brief: "where to write it; <alias>-<date>.zip by default, and - is stdout"},
 				},
 				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
 					s, err := cmd.Build(ctx, *c)
@@ -56,27 +58,46 @@ func NewCmdTenant(c *cmd.Config) *xli.Command {
 						out = fmt.Sprintf("%s-%s.zip", t.Alias, time.Now().Format(time.DateOnly))
 					}
 
-					f, err := os.OpenFile(out, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600)
-					if err != nil {
-						return err
-					}
-					m, err := s.Offboard(*c).Export(ctx, pdid.Id(t.Id), f)
-					if cerr := f.Close(); err == nil {
-						err = cerr
-					}
-					if err != nil {
-						os.Remove(out)
-						return err
+					// What this says goes where the archive does not: on stdout
+					// beside a file, on stderr when the archive is stdout.
+					say := self.Writer
+					var m offboard.Manifest
+					if out == stdio {
+						// Half an archive is what a failure leaves in whatever
+						// caught it, as no file is there to take back; the exit
+						// status says so, and `tenant verify` refuses it.
+						say, out = self.ErrWriter, "stdout"
+						w := bufio.NewWriter(self.Writer)
+						m, err = s.Offboard(*c).Export(ctx, pdid.Id(t.Id), w)
+						if err == nil {
+							err = w.Flush()
+						}
+						if err != nil {
+							return err
+						}
+					} else {
+						f, err := os.OpenFile(out, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600)
+						if err != nil {
+							return err
+						}
+						m, err = s.Offboard(*c).Export(ctx, pdid.Id(t.Id), f)
+						if cerr := f.Close(); err == nil {
+							err = cerr
+						}
+						if err != nil {
+							os.Remove(out)
+							return err
+						}
 					}
 
 					rows := 0
 					for _, n := range m.Rows {
 						rows += n
 					}
-					self.Printf("%s: %d rows of %d kinds, %d files, the trail's %d rows and %d archived\n",
+					fmt.Fprintf(say, "%s: %d rows of %d kinds, %d files, the trail's %d rows and %d archived\n",
 						out, rows, len(m.Rows), m.Files, m.Trail.Database, m.Trail.Archive)
 					if len(m.Missing) > 0 {
-						self.Printf("  missing from the file store: %s\n", strings.Join(m.Missing, ", "))
+						fmt.Fprintf(say, "  missing from the file store: %s\n", strings.Join(m.Missing, ", "))
 					}
 					return nil
 				}),
@@ -85,7 +106,7 @@ func NewCmdTenant(c *cmd.Config) *xli.Command {
 				Name:  "verify",
 				Brief: "whether an export is what this deployment, or one it trusts, wrote",
 				Flags: flg.Flags{
-					&flg.String{Name: "file", Brief: "the export"},
+					&flg.String{Name: "file", Brief: "the export, or - to read it from stdin"},
 				},
 				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
 					path, _ := flg.Find[string](self, "file")
@@ -96,30 +117,26 @@ func NewCmdTenant(c *cmd.Config) *xli.Command {
 					if err != nil {
 						return err
 					}
-					f, err := os.Open(path)
+					f, size, done, err := spooled(self, path)
 					if err != nil {
 						return err
 					}
-					defer f.Close()
-					st, err := f.Stat()
-					if err != nil {
-						return err
-					}
+					defer done()
 
-					m, err := offboard.Verify(f, st.Size(), offboard.TrustedBy(p))
+					m, err := offboard.Verify(f, size, offboard.TrustedBy(p))
 					if err != nil {
-						return fmt.Errorf("%s: %w", path, err)
+						return fmt.Errorf("%s: %w", named(path), err)
 					}
-					manifest, key, err := offboard.Fingerprints(f, st.Size())
+					manifest, key, err := offboard.Fingerprints(f, size)
 					if err != nil {
-						return fmt.Errorf("%s: %w", path, err)
+						return fmt.Errorf("%s: %w", named(path), err)
 					}
 					var t struct {
 						Alias string `json:"alias"`
 					}
 					_ = json.Unmarshal(m.Tenant, &t)
 					self.Printf("%s: %s, exported %s, signed by a trusted key; every one of its %d files is what was exported\n",
-						path, or(t.Alias, "a tenant"), m.ExportedAt.Format(time.RFC3339), len(m.Digests))
+						named(path), or(t.Alias, "a tenant"), m.ExportedAt.Format(time.RFC3339), len(m.Digests))
 					self.Printf("  manifest %s, key %s\n", manifest, key)
 					return nil
 				}),
@@ -217,7 +234,7 @@ func newCmdTenantImport(c *cmd.Config) *xli.Command {
 		Name:  "import",
 		Brief: "restore a workspace from its signed export, into a deployment that does not have it",
 		Flags: flg.Flags{
-			&flg.String{Name: "file", Brief: "the export"},
+			&flg.String{Name: "file", Brief: "the export, or - to read it from stdin"},
 			&flg.String{Name: "alias", Brief: "the address to restore it at, instead of the export's"},
 			&flg.Switch{Name: "reuse", Brief: "take the address though another workspace's hold is on it"},
 			&flg.Switch{Name: "yes", Brief: "do it; without this it only says what it would put back"},
@@ -237,19 +254,15 @@ func newCmdTenantImport(c *cmd.Config) *xli.Command {
 			}
 			defer s.Close()
 
-			f, err := os.Open(path)
+			f, size, done, err := spooled(self, path)
 			if err != nil {
 				return err
 			}
-			defer f.Close()
-			st, err := f.Stat()
-			if err != nil {
-				return err
-			}
+			defer done()
 
-			x, err := s.Offboard(*c).Import(ctx, f, st.Size(), offboard.ImportOptions{Alias: alias, Reuse: reuse, Dry: !yes})
+			x, err := s.Offboard(*c).Import(ctx, f, size, offboard.ImportOptions{Alias: alias, Reuse: reuse, Dry: !yes})
 			if err != nil {
-				return fmt.Errorf("%s: %w", path, err)
+				return fmt.Errorf("%s: %w", named(path), err)
 			}
 
 			verb := "put back"
@@ -284,4 +297,53 @@ func newCmdTenantImport(c *cmd.Config) *xli.Command {
 			return nil
 		}),
 	}
+}
+
+// stdio is what `--out` and `--file` take, in place of a file, for the
+// command's own stdout or stdin. A deployment's image has nothing to copy a
+// file out of a container with, or into one, so an export leaves through
+// `kubectl exec` and comes back the same way (rove#126; `deploy/k8s`).
+const stdio = "-"
+
+// spooled is the export `path` names, opened, with its size and what to call
+// when done with it. For [stdio] it is what the command reads, written to a
+// temporary file first -- one only this user can read, as an export is the
+// whole of a workspace -- because an archive is read out of order and a pipe
+// only once. Done takes that file away again.
+func spooled(self *xli.Command, path string) (*os.File, int64, func(), error) {
+	if path != stdio {
+		f, err := os.Open(path)
+		if err != nil {
+			return nil, 0, nil, err
+		}
+		st, err := f.Stat()
+		if err != nil {
+			f.Close()
+			return nil, 0, nil, err
+		}
+		return f, st.Size(), func() { f.Close() }, nil
+	}
+
+	f, err := os.CreateTemp("", "rove-export-*.zip")
+	if err != nil {
+		return nil, 0, nil, err
+	}
+	done := func() {
+		f.Close()
+		os.Remove(f.Name())
+	}
+	n, err := io.Copy(f, self.ReadCloser)
+	if err != nil {
+		done()
+		return nil, 0, nil, fmt.Errorf("stdin: %w", err)
+	}
+	return f, n, done, nil
+}
+
+// named is what a message calls the export `path` names.
+func named(path string) string {
+	if path == stdio {
+		return "stdin"
+	}
+	return path
 }

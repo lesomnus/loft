@@ -199,3 +199,53 @@ func TestAnOperatorRestoresAWorkspace(t *testing.T) {
 	password, _, _ := strings.Cut(after, "\n")
 	x.NoError(signsIn("kim", strings.TrimSpace(password)))
 }
+
+// TestAWorkspaceLeavesAndComesBackThroughStdio: an export written to stdout is
+// the whole of stdout -- what the command says goes to stderr -- and is
+// verified and restored from stdin, through a temporary file that does not
+// outlive the command. It is how an export leaves a container with nothing in
+// it to copy a file with, and comes back into one: `kubectl exec` (rove#126).
+func TestAWorkspaceLeavesAndComesBackThroughStdio(t *testing.T) {
+	x := require.New(t)
+	ctx := context.Background()
+	key, _, err := trail.GenerateKey()
+	x.NoError(err)
+	c := cmd.Config{}
+	c.Db.Driver, c.Db.Dsn = pdtest.DB(t)
+	c.Watch.Broker = "memory"
+	c.App.Files = t.TempDir()
+	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
+	c.Audit.Checkpoints.Key = string(key)
+	tmp := t.TempDir()
+	t.Setenv("TMPDIR", tmp)
+
+	run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234")
+	run(t, cli.NewCmdInit(&c), "--tenant", "beta", "--login", "owner")
+
+	// stdio runs `rove tenant` with in as its stdin, and answers with what it
+	// wrote to stdout and to stderr.
+	stdio := func(in []byte, args ...string) (string, string) {
+		t.Helper()
+		var out, said bytes.Buffer
+		k := cli.NewCmdTenant(&c)
+		k.ReadCloser, k.Writer, k.ErrWriter = io.NopCloser(bytes.NewReader(in)), &out, &said
+		x.NoError(k.Run(ctx, args), "%s: %s", strings.Join(args, " "), said.String())
+		return out.String(), said.String()
+	}
+
+	archive, said := stdio(nil, "export", "--tenant", "acme", "--out", "-")
+	_, err = zip.NewReader(strings.NewReader(archive), int64(len(archive)))
+	x.NoError(err, "stdout is the archive, and nothing else")
+	x.Contains(said, "stdout: ", "and what the command says is on stderr")
+
+	verified, _ := stdio([]byte(archive), "verify", "--file", "-")
+	x.Contains(verified, "stdin: acme, exported")
+
+	run(t, cli.NewCmdTenant(&c), "purge", "--tenant", "acme", "--yes")
+	restored, _ := stdio([]byte(archive), "import", "--file", "-", "--yes")
+	x.Contains(restored, "@acme: put back")
+
+	left, err := filepath.Glob(filepath.Join(tmp, "rove-export-*.zip"))
+	x.NoError(err)
+	x.Empty(left, "the copy stdin was written to does not outlive the command")
+}
