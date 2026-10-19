@@ -25,10 +25,13 @@ import (
 	"context"
 	_ "embed"
 	"fmt"
+	"slices"
 
 	"github.com/lesomnus/xli"
 	"github.com/lesomnus/xli/cfg"
 	"github.com/lesomnus/xli/flg"
+	"github.com/lesomnus/xli/frm"
+	"github.com/lesomnus/xli/mode"
 
 	"github.com/lesomnus/payday/pdcmd"
 
@@ -67,6 +70,10 @@ func Cmd(c *cmd.Config) *xli.Command {
 	// a deployment's configuration: it keeps its own (`ROVE_CLIENT_CONFIG`).
 	login, logout, whoami, use, ws, api, scan, agree, assist := NewCmdLogin(), NewCmdLogout(), NewCmdWhoami(), NewCmdUse(), NewCmdWorkspace(), NewCmdApi(), NewCmdScan(), NewCmdConsent(), NewCmdMcp()
 
+	// The operator's half: each stands the stack up, does one thing and exits,
+	// and is observed as the deployment is (`observed`).
+	first, migrate, contract, hold, retention, tenant, holder, identity, trail, search := NewCmdInit(c), NewCmdMigrate(c), NewCmdContract(c), NewCmdHold(c), NewCmdRetention(c), NewCmdTenant(c), NewCmdHolder(c), NewCmdIdentity(c), NewCmdTrail(c), NewCmdSearch(c)
+
 	return &xli.Command{
 		Name:  cmd.Name,
 		Brief: "rove",
@@ -76,17 +83,17 @@ func Cmd(c *cmd.Config) *xli.Command {
 		Commands: []*xli.Command{
 			version,
 			cfg.NewCmdConfig(l),
-			NewCmdInit(c),
-			NewCmdMigrate(c),
+			first,
+			migrate,
 			NewCmdServe(c),
-			NewCmdContract(c),
-			NewCmdHold(c),
-			NewCmdRetention(c),
-			NewCmdTenant(c),
-			NewCmdHolder(c),
-			NewCmdIdentity(c),
-			NewCmdTrail(c),
-			NewCmdSearch(c),
+			contract,
+			hold,
+			retention,
+			tenant,
+			holder,
+			identity,
+			trail,
+			search,
 			login,
 			logout,
 			whoami,
@@ -98,8 +105,56 @@ func Cmd(c *cmd.Config) *xli.Command {
 			assist,
 		},
 
-		Handler: xli.Chain(cfg.Load(l, version, login, logout, whoami, use, ws, api, scan, agree, assist), xli.RequireSubcommand()),
+		Handler: xli.Chain(
+			cfg.Load(l, version, login, logout, whoami, use, ws, api, scan, agree, assist),
+			observed(c, first, migrate, contract, hold, retention, tenant, holder, identity, trail, search),
+			xli.RequireSubcommand(),
+		),
 	}
+}
+
+// observed builds the deployment's telemetry (`cmd.Telemetry`) for the commands
+// named and whatever runs below them, and runs them on the context that
+// carries it.
+//
+// They are the operator's. Each stands the stack up with `cmd.Build`, and a
+// server stood up on a context with no telemetry logs, traces and measures
+// nothing -- which `grpcx` says on stderr, and every one of these printed it.
+// With it, what an operator did is in the deployment's telemetry the way what
+// the deployment does is, attributed to the same service, and its log goes
+// where the deployment's goes: by default to stderr, never stdout, so a command
+// whose output is data keeps its stdout to itself.
+//
+// `serve` is not among them. It builds its own in the open, because its order
+// is the stack's (`cli/serve.go`). Neither is `config`, which only prints what
+// was read, nor the terminal's half, which reads none of it.
+func observed(c *cmd.Config, these ...*xli.Command) xli.Handler {
+	return xli.On(mode.Run, func(ctx context.Context, self *xli.Command, next xli.Next) error {
+		if !runs(ctx, self, these) {
+			return next(ctx)
+		}
+
+		ctx, done, err := cmd.Telemetry(ctx, c)
+		if err != nil {
+			return err
+		}
+		defer done()
+
+		return next(ctx)
+	})
+}
+
+// runs says one of these is among the commands being run: self, the ones above
+// it and the ones below, read as `cfg.Load` reads them.
+func runs(ctx context.Context, self *xli.Command, these []*xli.Command) bool {
+	path := self.Tree()
+	for f := frm.From(ctx); f != nil; f = f.Next() {
+		if c, ok := f.Cmd().(*xli.Command); ok && c != self {
+			path = append(path, c)
+		}
+	}
+
+	return slices.ContainsFunc(path, func(c *xli.Command) bool { return slices.Contains(these, c) })
 }
 
 // Migrate brings the database s runs on into the shape this app's schema says.
