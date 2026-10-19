@@ -66,6 +66,9 @@ export function Assets(): ReactNode {
 						{c.can('manager') && (
 							<>
 								<button onClick={() => void exportAs('xlsx')}>엑셀로 내보내기</button>
+								<Link className="button" to="/assets/register">
+									대량 등록
+								</Link>
 								<button className="primary" onClick={() => setAdding(true)}>
 									+ 자산 등록
 								</button>
