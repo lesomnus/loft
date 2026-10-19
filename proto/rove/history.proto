@@ -54,7 +54,12 @@ message Placement {
   }];
 
   option (orm.message) = {
-    rpc: {crud: true}
+    // AddMany as well: bulk registration places each asset it makes, a few
+    // hundred placements to a statement (design 9.13).
+    rpc: {
+      crud: true
+      add: {many: {}}
+    }
     indexes: [
       {
         name: "page"
@@ -326,7 +331,13 @@ message Event {
   }];
 
   option (orm.message) = {
-    rpc: {crud: true}
+    // AddMany as well: an operation over many things writes its children -- one
+    // event for each thing it changed -- a few hundred to a statement rather than
+    // one each, as bulk registration does (design 9.13).
+    rpc: {
+      crud: true
+      add: {many: {}}
+    }
     indexes: [
       {
         name: "page"

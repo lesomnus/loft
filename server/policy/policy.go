@@ -127,6 +127,10 @@ func init() {
 
 	allow(Read, "AssetService", "Timeline", "QueryAt", "Diff", "Search", "Report")
 	allow(Manager, "AssetService", "Add", "Erase", "Move", "SetAttributes", "Assign", "Relate", "Correct", "Export")
+	// Bulk registration, and reading its form: who may Add may add many
+	// (design 9.13). The types it makes are an admin's still -- the domain
+	// asks, as AssetTypeService.Add is asked here.
+	allow(Manager, "AssetService", "AddMany", "ReadSheet")
 
 	allow(Admin, "AssetTypeService", "Add", "Update", "Erase")
 	allow(Manager, "ItemModelService", "Add", "Update")

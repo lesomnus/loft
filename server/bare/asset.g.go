@@ -316,6 +316,97 @@ func (s AssetServiceServer) Add(ctx context.Context, req *rove.AssetAddRequest) 
 	return v, nil
 }
 
+// AssetAddManyMax is the most items one AddMany of Asset carries.
+const AssetAddManyMax = 1000
+
+// assetAddManyRows is how many rows one INSERT of an AddMany
+// writes: as many as fit in what a statement binds on every engine, and
+// no more than a few hundred.
+const assetAddManyRows = 500
+
+// AddMany adds every item as Add would add it, in one transaction: all of
+// the rows or none of them. The rows come back in the order of the items.
+//
+// An item that cannot be a row is refused naming the item, before anything
+// is written. A refusal by the database is the whole statement's, and does
+// not say which row it was about.
+func (s AssetServiceServer) AddMany(ctx context.Context, req *rove.AssetAddManyRequest) (*rove.AssetAddManyResponse, error) {
+	items := req.GetItems()
+	if len(items) > AssetAddManyMax {
+		return nil, status.Errorf(codes.InvalidArgument, "items: at most %d in one call, and there are %d", AssetAddManyMax, len(items))
+	}
+	if len(items) == 0 {
+		return rove.AssetAddManyResponse_builder{}.Build(), nil
+	}
+
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, true)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	images := snapshotOptions(s.Rec, rove.AssetService_AddMany_FullMethodName).Value
+	qs := make([]*ent.AssetCreate, len(items))
+	dss := make([][]func(v *rove.Asset), len(items))
+	stored := make([]*ent.Asset, len(items))
+	for i, item := range items {
+		q, ds, err := st.create(ctx, item)
+		if err != nil {
+			return nil, ItemError(i, err)
+		}
+		if images {
+			q.Stored(&stored[i])
+		}
+		qs[i], dss[i] = q, ds
+	}
+
+	us := make([]*ent.Asset, 0, len(qs))
+	for lo := 0; lo < len(qs); lo += assetAddManyRows {
+		vs, err := st.Db.Asset.CreateBulk(qs[lo:min(lo+assetAddManyRows, len(qs))]...).Save(ctx)
+		if err != nil {
+			if err, ok := err.(*ent.ConstraintError); ok {
+				if sqlgraph.IsUniqueConstraintError(err) {
+					return nil, status.Error(codes.AlreadyExists, "Asset already exists")
+				}
+				if sqlgraph.IsForeignKeyConstraintError(err) {
+					return nil, status.Error(codes.NotFound, "Asset: referenced entity not found")
+				}
+			}
+			return nil, err
+		}
+		us = append(us, vs...)
+	}
+
+	out := make([]*rove.Asset, len(us))
+	for i, u := range us {
+		v := u.Proto()
+		for _, d := range dss[i] {
+			d(v)
+		}
+		out[i] = v
+
+		var value *rove.Asset
+		if stored[i] != nil {
+			value = s.image(stored[i].Proto())
+		}
+		if err := record(ctx, s.Rec, st.Db, Change{
+			By:    rove.AssetService_AddMany_FullMethodName,
+			Key:   u.Id,
+			Value: value,
+		}); err != nil {
+			return nil, err
+		}
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+
+	return rove.AssetAddManyResponse_builder{Items: out}.Build(), nil
+}
+
 // AssetAddRule is what a layer in front says about one row an Add of Asset
 // would write: the request to write it with -- the one it was handed, or a
 // copy it changed -- or a refusal. Nil is the request it was handed.
@@ -346,6 +437,26 @@ func (s assetAddRuled) Add(ctx context.Context, req *rove.AssetAddRequest) (*rov
 		r = req
 	}
 	return s.AssetServiceServer.Add(ctx, r)
+}
+
+func (s assetAddRuled) AddMany(ctx context.Context, req *rove.AssetAddManyRequest) (*rove.AssetAddManyResponse, error) {
+	items := req.GetItems()
+	if len(items) > AssetAddManyMax {
+		return nil, status.Errorf(codes.InvalidArgument, "items: at most %d in one call, and there are %d", AssetAddManyMax, len(items))
+	}
+
+	rs := make([]*rove.AssetAddRequest, len(items))
+	for i, item := range items {
+		r, err := s.rule(ctx, item)
+		if err != nil {
+			return nil, ItemError(i, err)
+		}
+		if r == nil {
+			r = item
+		}
+		rs[i] = r
+	}
+	return s.AssetServiceServer.AddMany(ctx, rove.AssetAddManyRequest_builder{Items: rs}.Build())
 }
 
 func (s AssetServiceServer) Get(ctx context.Context, req *rove.AssetGetRequest) (*rove.Asset, error) {

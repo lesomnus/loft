@@ -1478,7 +1478,7 @@ var File_rove_asset_proto protoreflect.FileDescriptor
 
 const file_rove_asset_proto_rawDesc = "" +
 	"\n" +
-	"\x10rove/asset.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x12rove/catalog.proto\x1a\x0erove/org.proto\x1a\x18rove/payday/tenant.proto\"\xd2\n" +
+	"\x10rove/asset.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x12rove/catalog.proto\x1a\x0erove/org.proto\x1a\x18rove/payday/tenant.proto\"\xd7\n" +
 	"\n" +
 	"\x05Asset\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
@@ -1515,7 +1515,7 @@ const file_rove_asset_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a=\n" +
 	"\x0fAttributesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\xfd\x01\xca\xfc\x15i\x12\x02\x10\x01\x1a,\x12\x04page\x1a\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\x82\x02\xca\xfc\x15n\x12\a\x10\x01\x82\x01\x02\x12\x00\x1a,\x12\x04page\x1a\n" +
 	"\n" +
 	"\x06tenant\x10\x02\x1a\x10\n" +
 	"\fdate_created\x10\x0f\x1a\x06\n" +

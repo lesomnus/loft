@@ -42,8 +42,14 @@ service AssetService {
 
   // Export writes the register as a sheet, to read. Nothing reads one back:
   // a restore is of the workspace's own export, and a sheet that edited the
-  // register by tag is gone (design D34).
+  // register by tag is gone (design D34). With `template` it writes the form
+  // bulk registration reads instead.
   rpc Export(AssetExportRequest) returns (AssetExportResponse);
+  // ReadSheet reads a sheet in that form into the items an AddMany takes, and
+  // says what it could not read, by line. It writes nothing. The page and
+  // `rove register` read a sheet with it, so that the form is read in one
+  // place and the two read it alike (design 9.13).
+  rpc ReadSheet(AssetReadSheetRequest) returns (AssetReadSheetResponse);
 }
 
 // What the completed Add takes beyond the row itself.
@@ -58,6 +64,46 @@ message AssetAddRequest {
   // that a mode and a slot come with it.
   AssetRef to = 103;
   string mode = 104;
+  // The type by its name, for a request that does not know its id. AddMany
+  // finds it, and makes one when there is none and it is confirmed (design
+  // 9.13); Add takes `type`.
+  string type_name = 105;
+  // The model by its name, and its maker when one is said: found as
+  // `type_name` is, and made with the item's type when there is none.
+  string model_name = 106;
+  string maker = 107;
+}
+
+// What the completed AddMany is beyond the items: bulk registration, of new
+// assets only (design 9.13, D34). It is one operation -- an event of its own,
+// and one for each asset it makes -- all of it or nothing.
+message AssetAddManyRequest {
+  // Says what it would do, and does nothing.
+  bool dry_run = 100 [features.field_presence = IMPLICIT];
+  // A client-minted Event id, the operation's, so that a retry is the same one.
+  bytes op = 101 [features.field_presence = IMPLICIT];
+  string reason = 102 [features.field_presence = IMPLICIT];
+}
+
+message AssetAddManyResponse {
+  // What stops it, by item. A dry run answers with them; anything else is
+  // refused with them, and writes nothing.
+  repeated AssetAddManyIssue issues = 100;
+  // The tag each item has or is given, in the order of the items.
+  repeated string tags = 101;
+  // The types and models it makes, as they are named.
+  repeated string new_types = 102;
+  repeated string new_models = 103;
+  // The operation's event, once it has happened.
+  bytes event_id = 104 [features.field_presence = IMPLICIT];
+}
+
+message AssetAddManyIssue {
+  // The item, by its place in the request.
+  uint32 item = 1 [features.field_presence = IMPLICIT];
+  // What of it: a field of AssetAddRequest, as `tag`, `to` or `type_name`.
+  string field = 2 [features.field_presence = IMPLICIT];
+  string message = 3 [features.field_presence = IMPLICIT];
 }
 
 message AssetMoveRequest {
@@ -248,12 +294,37 @@ message ReportRow {
 message AssetExportRequest {
   // csv | xlsx
   string format = 1 [features.field_presence = IMPLICIT];
+  // The form bulk registration reads (ReadSheet) in place of the register:
+  // its columns and a row to show how they are filled in.
+  bool template = 2 [features.field_presence = IMPLICIT];
 }
 
 message AssetExportResponse {
   bytes data = 1 [features.field_presence = IMPLICIT];
   string content_type = 2 [features.field_presence = IMPLICIT];
   string name = 3 [features.field_presence = IMPLICIT];
+}
+
+message AssetReadSheetRequest {
+  bytes data = 1 [features.field_presence = IMPLICIT];
+  // csv | xlsx. Empty is told from the data.
+  string format = 2 [features.field_presence = IMPLICIT];
+}
+
+message AssetReadSheetResponse {
+  // A row each, but for a row it could not read.
+  repeated AssetAddRequest items = 1;
+  // The sheet's line of each item, to say where an issue is.
+  repeated uint32 lines = 2;
+  repeated AssetReadSheetIssue issues = 3;
+}
+
+message AssetReadSheetIssue {
+  // The sheet's line, counting the header as 1. Zero is the sheet as a whole:
+  // a column it does not know, or none it needs.
+  uint32 line = 1 [features.field_presence = IMPLICIT];
+  string column = 2 [features.field_presence = IMPLICIT];
+  string message = 3 [features.field_presence = IMPLICIT];
 }
 
 service LabelService {

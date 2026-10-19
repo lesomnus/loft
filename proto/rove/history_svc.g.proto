@@ -13,6 +13,8 @@ option go_package = "github.com/lesomnus/rove";
 service PlacementService {
   // Add creates a new Placement
   rpc Add(PlacementAddRequest) returns (Placement);
+  // AddMany creates up to 1000 new Placement rows in one call, all of them or none
+  rpc AddMany(PlacementAddManyRequest) returns (PlacementAddManyResponse);
   // Get retrieves a Placement
   rpc Get(PlacementGetRequest) returns (Placement);
   // Patch updates an existing Placement
@@ -75,6 +77,8 @@ service FactService {
 service EventService {
   // Add creates a new Event
   rpc Add(EventAddRequest) returns (Event);
+  // AddMany creates up to 1000 new Event rows in one call, all of them or none
+  rpc AddMany(EventAddManyRequest) returns (EventAddManyResponse);
   // Get retrieves a Event
   rpc Get(EventGetRequest) returns (Event);
   // Patch updates an existing Event
@@ -105,6 +109,14 @@ message PlacementAddRequest {
   bytes event_id = 19 [features.field_presence = IMPLICIT];
   google.protobuf.Timestamp superseded_at = 20;
   bytes superseded_by = 21;
+}
+
+message PlacementAddManyRequest {
+  repeated PlacementAddRequest items = 1;
+}
+
+message PlacementAddManyResponse {
+  repeated Placement items = 1;
 }
 
 message PlacementGetRequest {
@@ -664,6 +676,14 @@ message EventAddRequest {
   bytes trace_id = 16;
   string payload = 17 [features.field_presence = IMPLICIT];
   bytes cause_id = 18;
+}
+
+message EventAddManyRequest {
+  repeated EventAddRequest items = 1;
+}
+
+message EventAddManyResponse {
+  repeated Event items = 1;
 }
 
 message EventGetRequest {
