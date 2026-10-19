@@ -1,0 +1,36 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    "github>lesomnus/payday//renovate/app"
+  ],
+  "timezone": "Asia/Seoul",
+  "schedule": [
+    "* 0-8 * * 1"
+  ],
+  "prConcurrentLimit": 5,
+  "packageRules": [
+    {
+      "description": "roster moves with payday, by hand: rove links the roster generated with the payday it links, so a payday upgrade is `go get` of that roster and then `go tool pd upgrade --payday`.",
+      "matchManagers": ["gomod"],
+      "matchPackageNames": ["github.com/lesomnus/roster", "github.com/lesomnus/roster/**"],
+      "enabled": false
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "schedule": [
+      "at any time"
+    ],
+    "labels": [
+      "security"
+    ]
+  },
+  "osvVulnerabilityAlerts": true,
+  "postUpdateOptions": [
+    "gomodTidy"
+  ],
+  "reviewers": [
+    "lesomnus"
+  ]
+}
