@@ -6,7 +6,7 @@ import (
 	// The exporter a collector is reached with. mkot knows an exporter by the
 	// name a package registers, and without this one an `otel:` naming
 	// `otlp` is refused at start: what is left is the pretty exporter, and so
-	// stdout.
+	// stderr.
 	_ "github.com/lesomnus/mkot/otlp"
 	"github.com/lesomnus/payday/config"
 )
@@ -20,7 +20,8 @@ import (
 // that logs, traces or measures reads the providers off it -- so this has to
 // happen before [Build], and a reader has to be able to see that it does.
 // Both servers call it: `rove serve` and the operator's entry point,
-// `rove-admin serve`.
+// `rove-admin serve`. So does every operator command that stands the stack up
+// (`rove tenant`, `rove trail`, ...), once, from the root (`cli.observed`).
 //
 // # What it costs to leave out
 //
