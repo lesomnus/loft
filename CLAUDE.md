@@ -23,6 +23,18 @@ exits 0.
 go tool pd doctor .       # what would go wrong, before it does
 ```
 
+## Upgrading payday
+
+```sh
+go get github.com/lesomnus/roster@<the roster generated with that payday>
+go tool pd upgrade --payday <version>   # go get, tidy, its floors, and its pd gen --ts
+```
+
+roster first: rove links the roster generated with the payday it links, and a
+generated stamp from another payday is refused when it runs. `pd upgrade`
+commits nothing. Renovate leaves payday, protobuf-orm and roster alone
+(`renovate.json`, payday's `renovate/app` preset) -- only this moves them.
+
 ## Do not edit — regenerate
 
 | | |
