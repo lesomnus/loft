@@ -19,6 +19,7 @@ import { Me } from './pages/me.js'
 import { Notifications } from './pages/notifications.js'
 import { People } from './pages/people.js'
 import { Purchases } from './pages/purchases.js'
+import { Register } from './pages/register.js'
 import { Reservations } from './pages/reservations.js'
 import { Scan } from './pages/scan.js'
 import { Settings } from './pages/settings.js'
@@ -133,6 +134,7 @@ export function App(props: { account: Account; onSignOut: () => void }): ReactNo
 								<Routes>
 									<Route path="/" element={<Dashboard />} />
 									<Route path="/assets" element={<Assets />} />
+									<Route path="/assets/register" element={<Register />} />
 									<Route path="/assets/:id" element={<AssetPage />} />
 									<Route path="/spaces" element={<Spaces />} />
 									<Route path="/reservations" element={<Reservations />} />
