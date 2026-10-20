@@ -6670,10 +6670,10 @@ func (x *AssetExportRequest) SetTemplate(v bool) {
 type AssetExportRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	// csv | xlsx
+	// csv | xlsx, and csv only for the template.
 	Format string
 	// The form bulk registration reads (ReadSheet) in place of the register:
-	// its columns and a row to show how they are filled in.
+	// its header, as a CSV.
 	Template bool
 }
 
@@ -6775,11 +6775,10 @@ func (b0 AssetExportResponse_builder) Build() *AssetExportResponse {
 }
 
 type AssetReadSheetRequest struct {
-	state             protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Data   []byte                 `protobuf:"bytes,1,opt,name=data"`
-	xxx_hidden_Format string                 `protobuf:"bytes,2,opt,name=format"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Data []byte                 `protobuf:"bytes,1,opt,name=data"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *AssetReadSheetRequest) Reset() {
@@ -6814,13 +6813,6 @@ func (x *AssetReadSheetRequest) GetData() []byte {
 	return nil
 }
 
-func (x *AssetReadSheetRequest) GetFormat() string {
-	if x != nil {
-		return x.xxx_hidden_Format
-	}
-	return ""
-}
-
 func (x *AssetReadSheetRequest) SetData(v []byte) {
 	if v == nil {
 		v = []byte{}
@@ -6828,16 +6820,11 @@ func (x *AssetReadSheetRequest) SetData(v []byte) {
 	x.xxx_hidden_Data = v
 }
 
-func (x *AssetReadSheetRequest) SetFormat(v string) {
-	x.xxx_hidden_Format = v
-}
-
 type AssetReadSheetRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
+	// A CSV, in UTF-8 or in the CP949 Korean Excel saves.
 	Data []byte
-	// csv | xlsx. Empty is told from the data.
-	Format string
 }
 
 func (b0 AssetReadSheetRequest_builder) Build() *AssetReadSheetRequest {
@@ -6845,7 +6832,6 @@ func (b0 AssetReadSheetRequest_builder) Build() *AssetReadSheetRequest {
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Data = b.Data
-	x.xxx_hidden_Format = b.Format
 	return m0
 }
 
@@ -15749,10 +15735,9 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x13AssetExportResponse\x12\x19\n" +
 	"\x04data\x18\x01 \x01(\fB\x05\xaa\x01\x02\b\x02R\x04data\x12(\n" +
 	"\fcontent_type\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\vcontentType\x12\x19\n" +
-	"\x04name\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04name\"Q\n" +
+	"\x04name\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04name\"2\n" +
 	"\x15AssetReadSheetRequest\x12\x19\n" +
-	"\x04data\x18\x01 \x01(\fB\x05\xaa\x01\x02\b\x02R\x04data\x12\x1d\n" +
-	"\x06format\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06format\"\x8e\x01\n" +
+	"\x04data\x18\x01 \x01(\fB\x05\xaa\x01\x02\b\x02R\x04data\"\x8e\x01\n" +
 	"\x16AssetReadSheetResponse\x12+\n" +
 	"\x05items\x18\x01 \x03(\v2\x15.rove.AssetAddRequestR\x05items\x12\x14\n" +
 	"\x05lines\x18\x02 \x03(\rR\x05lines\x121\n" +

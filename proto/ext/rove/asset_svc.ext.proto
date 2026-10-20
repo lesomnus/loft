@@ -43,12 +43,14 @@ service AssetService {
   // Export writes the register as a sheet, to read. Nothing reads one back:
   // a restore is of the workspace's own export, and a sheet that edited the
   // register by tag is gone (design D34). With `template` it writes the form
-  // bulk registration reads instead.
+  // bulk registration reads instead, a CSV of its header.
   rpc Export(AssetExportRequest) returns (AssetExportResponse);
-  // ReadSheet reads a sheet in that form into the items an AddMany takes, and
+  // ReadSheet reads a CSV in that form into the items an AddMany takes, and
   // says what it could not read, by line. It writes nothing. The page and
   // `rove register` read a sheet with it, so that the form is read in one
-  // place and the two read it alike (design 9.13).
+  // place and the two read it alike. A workbook is refused unopened: what
+  // one person uploads is read in the process every workspace is served by,
+  // and a workbook takes a library as large as Excel to read (design 9.13).
   rpc ReadSheet(AssetReadSheetRequest) returns (AssetReadSheetResponse);
 }
 
@@ -292,10 +294,10 @@ message ReportRow {
 }
 
 message AssetExportRequest {
-  // csv | xlsx
+  // csv | xlsx, and csv only for the template.
   string format = 1 [features.field_presence = IMPLICIT];
   // The form bulk registration reads (ReadSheet) in place of the register:
-  // its columns and a row to show how they are filled in.
+  // its header, as a CSV.
   bool template = 2 [features.field_presence = IMPLICIT];
 }
 
@@ -306,9 +308,8 @@ message AssetExportResponse {
 }
 
 message AssetReadSheetRequest {
+  // A CSV, in UTF-8 or in the CP949 Korean Excel saves.
   bytes data = 1 [features.field_presence = IMPLICIT];
-  // csv | xlsx. Empty is told from the data.
-  string format = 2 [features.field_presence = IMPLICIT];
 }
 
 message AssetReadSheetResponse {

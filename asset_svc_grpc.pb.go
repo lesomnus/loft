@@ -98,12 +98,14 @@ type AssetServiceClient interface {
 	// Export writes the register as a sheet, to read. Nothing reads one back:
 	// a restore is of the workspace's own export, and a sheet that edited the
 	// register by tag is gone (design D34). With `template` it writes the form
-	// bulk registration reads instead.
+	// bulk registration reads instead, a CSV of its header.
 	Export(ctx context.Context, in *AssetExportRequest, opts ...grpc.CallOption) (*AssetExportResponse, error)
-	// ReadSheet reads a sheet in that form into the items an AddMany takes, and
+	// ReadSheet reads a CSV in that form into the items an AddMany takes, and
 	// says what it could not read, by line. It writes nothing. The page and
 	// `rove register` read a sheet with it, so that the form is read in one
-	// place and the two read it alike (design 9.13).
+	// place and the two read it alike. A workbook is refused unopened: what
+	// one person uploads is read in the process every workspace is served by,
+	// and a workbook takes a library as large as Excel to read (design 9.13).
 	ReadSheet(ctx context.Context, in *AssetReadSheetRequest, opts ...grpc.CallOption) (*AssetReadSheetResponse, error)
 }
 
@@ -381,12 +383,14 @@ type AssetServiceServer interface {
 	// Export writes the register as a sheet, to read. Nothing reads one back:
 	// a restore is of the workspace's own export, and a sheet that edited the
 	// register by tag is gone (design D34). With `template` it writes the form
-	// bulk registration reads instead.
+	// bulk registration reads instead, a CSV of its header.
 	Export(context.Context, *AssetExportRequest) (*AssetExportResponse, error)
-	// ReadSheet reads a sheet in that form into the items an AddMany takes, and
+	// ReadSheet reads a CSV in that form into the items an AddMany takes, and
 	// says what it could not read, by line. It writes nothing. The page and
 	// `rove register` read a sheet with it, so that the form is read in one
-	// place and the two read it alike (design 9.13).
+	// place and the two read it alike. A workbook is refused unopened: what
+	// one person uploads is read in the process every workspace is served by,
+	// and a workbook takes a library as large as Excel to read (design 9.13).
 	ReadSheet(context.Context, *AssetReadSheetRequest) (*AssetReadSheetResponse, error)
 	mustEmbedUnimplementedAssetServiceServer()
 }
