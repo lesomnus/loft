@@ -4,10 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"maps"
 	"slices"
 	"strings"
 
 	"github.com/lesomnus/otx/log"
+	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/trail"
 	"github.com/lesomnus/xli"
 	"github.com/lesomnus/xli/flg"
@@ -156,11 +158,20 @@ func rows(ctx context.Context, self *xli.Command, c *cmd.Config, accept bool, wh
 
 	self.Printf("%d rows read: %d match, %d differ, %d not on the trail, %d with no digest, %d under a key not given; %d checked against the archive\n",
 		v.Read, v.Matches, len(v.Differs), len(v.NotOnTrail), v.NoDigest, v.KeyNotHeld, v.Archived)
-	for _, id := range v.Differs {
-		self.Printf("  differs %s %s\n", id.Domain(), id)
-	}
-	for _, id := range v.NotOnTrail {
-		self.Printf("  not-on-trail %s %s\n", id.Domain(), id)
+	for _, f := range []struct {
+		what string
+		ids  []pdid.Id
+	}{
+		{"differs", v.Differs},
+		{"not-on-trail", v.NotOnTrail},
+	} {
+		if len(f.ids) == 0 {
+			continue
+		}
+		self.Printf("  %s by kind: %s\n", f.what, byKind(f.ids))
+		for _, id := range f.ids {
+			self.Printf("  %s %s %s\n", f.what, kindOf(id.Domain()), id)
+		}
 	}
 	if v.Ok() {
 		return nil
@@ -181,6 +192,45 @@ func rows(ctx context.Context, self *xli.Command, c *cmd.Config, accept bool, wh
 
 // AcceptedRows is the act `rove trail rows --accept` is on the trail as.
 const AcceptedRows = "rove.trail.rows.accept"
+
+// kinds is the name this app's schema gives each of its domains. Not pdid's:
+// the roster in this process registers its own kinds under the same numbers,
+// and pdid names a number two apps claim by the number alone.
+var kinds = func() map[pdid.Domain]string {
+	out := map[pdid.Domain]string{}
+	for full, d := range pd.Domains {
+		out[d] = strings.TrimPrefix(full, "rove.")
+	}
+	return out
+}()
+
+// kindOf is a domain by the name this app gives it.
+func kindOf(d pdid.Domain) string {
+	if v, ok := kinds[d]; ok {
+		return v
+	}
+	return d.String()
+}
+
+// byKind is how many of `ids` are of each kind, the most first.
+func byKind(ids []pdid.Id) string {
+	n := map[string]int{}
+	for _, id := range ids {
+		n[kindOf(id.Domain())]++
+	}
+	names := slices.Collect(maps.Keys(n))
+	slices.SortFunc(names, func(a, b string) int {
+		if c := n[b] - n[a]; c != 0 {
+			return c
+		}
+		return strings.Compare(a, b)
+	})
+	vs := make([]string, len(names))
+	for i, v := range names {
+		vs[i] = fmt.Sprintf("%s %d", v, n[v])
+	}
+	return strings.Join(vs, ", ")
+}
 
 func accept(ctx context.Context, self *xli.Command, c *cmd.Config, why string) error {
 	if strings.TrimSpace(why) == "" {
