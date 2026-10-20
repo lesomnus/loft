@@ -7,10 +7,13 @@ import (
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/pem"
+	"io"
+	"os"
 	"testing"
 	"time"
 
 	"github.com/lesomnus/payday/pdtest"
+	"github.com/lesomnus/xli"
 	"github.com/stretchr/testify/require"
 
 	"github.com/lesomnus/rove/cli"
@@ -221,7 +224,30 @@ func TestTheLiveRowsAreCheckedAgainstTheTrail(t *testing.T) {
 	x.NoError(err)
 	s.Close()
 	x.ErrorContains(trail("rows"), "1 are not on it")
+	out := runErr(t, cli.NewCmdTrail(&c), "rows")
+	x.Contains(out, "not-on-trail by kind: Holder 1", "named as this app names it")
+	x.Contains(out, "not-on-trail Holder ")
 
 	c.Audit.Digest.Key = ""
 	x.ErrorContains(trail("rows"), "audit.digest.key", "no key, nothing to check against")
+}
+
+// runErr is a command's output, run the way a shell runs it, whatever it ends
+// in.
+func runErr(t *testing.T, k *xli.Command, args ...string) string {
+	t.Helper()
+	x := require.New(t)
+
+	r, w, err := os.Pipe()
+	x.NoError(err)
+	was := os.Stdout
+	os.Stdout = w
+	_ = k.Run(t.Context(), args)
+	os.Stdout = was
+	x.NoError(w.Close())
+
+	b, err := io.ReadAll(r)
+	x.NoError(err)
+
+	return string(b)
 }
