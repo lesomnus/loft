@@ -61,10 +61,11 @@ service AssetService {
   rpc Diff(AssetDiffRequest) returns (AssetDiffResponse);
   rpc Search(AssetSearchRequest) returns (AssetSearchResponse);
   rpc Report(AssetReportRequest) returns (AssetReportResponse);
-  // Export writes the register as a sheet, to read. Nothing reads one back:
-  // a restore is of the workspace's own export, and a sheet that edited the
+  // Export writes the register as a CSV, to read. Nothing reads one back: a
+  // restore is of the workspace's own export, and a sheet that edited the
   // register by tag is gone (design D34). With `template` it writes the form
-  // bulk registration reads instead, a CSV of its header.
+  // bulk registration reads instead, its header. A CSV and never a workbook:
+  // rove neither reads nor writes one (design 9.13).
   rpc Export(AssetExportRequest) returns (AssetExportResponse);
   // ReadSheet reads a CSV in that form into the items an AddMany takes, and
   // says what it could not read, by line. It writes nothing. The page and
@@ -666,10 +667,8 @@ message ReportRow {
 }
 
 message AssetExportRequest {
-  // csv | xlsx, and csv only for the template.
-  string format = 1 [features.field_presence = IMPLICIT];
   // The form bulk registration reads (ReadSheet) in place of the register:
-  // its header, as a CSV.
+  // its header.
   bool template = 2 [features.field_presence = IMPLICIT];
 }
 

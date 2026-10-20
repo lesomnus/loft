@@ -46,7 +46,6 @@ require (
 	github.com/protobuf-orm/protobuf-orm v0.0.0-20261017212716-3430237a8656
 	github.com/protobuf-orm/protoc-gen-orm-ent/runtime v0.0.0-20260906232518-fa1777a2628d
 	github.com/stretchr/testify v1.12.1
-	github.com/xuri/excelize/v2 v2.11.1-0.20260930021559-01a9ff32fb3c
 	go.opentelemetry.io/proto/otlp v1.11.0
 	golang.org/x/oauth2 v0.37.0
 	golang.org/x/sync v0.24.0
@@ -113,17 +112,12 @@ require (
 	github.com/protobuf-orm/protoc-gen-orm-ent v0.0.0-20261018200936-5ccf5748ae26 // indirect
 	github.com/protobuf-orm/protoc-gen-orm-go v0.0.0-20261010065542-f9ac5b66df3e // indirect
 	github.com/protobuf-orm/protoc-gen-orm-service v0.0.0-20261017215512-5234846ec2e4 // indirect
-	github.com/richardlehane/mscfb v1.0.8 // indirect
-	github.com/richardlehane/msoleps v1.0.6 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/segmentio/asm v1.1.3 // indirect
 	github.com/segmentio/encoding v0.5.4 // indirect
 	github.com/tidwall/btree v1.8.1 // indirect
-	github.com/tiendc/go-deepcopy v1.7.2 // indirect
 	github.com/tinylib/msgp v1.6.4 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
-	github.com/xuri/efp v0.0.2 // indirect
-	github.com/xuri/nfp v0.0.2-0.20250530014748-2ddeb826f9a9 // indirect
 	github.com/yosida95/uritemplate/v3 v3.0.2 // indirect
 	github.com/zclconf/go-cty v1.19.0 // indirect
 	github.com/zclconf/go-cty-yaml v1.2.0 // indirect

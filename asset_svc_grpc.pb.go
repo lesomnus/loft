@@ -95,10 +95,11 @@ type AssetServiceClient interface {
 	Diff(ctx context.Context, in *AssetDiffRequest, opts ...grpc.CallOption) (*AssetDiffResponse, error)
 	Search(ctx context.Context, in *AssetSearchRequest, opts ...grpc.CallOption) (*AssetSearchResponse, error)
 	Report(ctx context.Context, in *AssetReportRequest, opts ...grpc.CallOption) (*AssetReportResponse, error)
-	// Export writes the register as a sheet, to read. Nothing reads one back:
-	// a restore is of the workspace's own export, and a sheet that edited the
+	// Export writes the register as a CSV, to read. Nothing reads one back: a
+	// restore is of the workspace's own export, and a sheet that edited the
 	// register by tag is gone (design D34). With `template` it writes the form
-	// bulk registration reads instead, a CSV of its header.
+	// bulk registration reads instead, its header. A CSV and never a workbook:
+	// rove neither reads nor writes one (design 9.13).
 	Export(ctx context.Context, in *AssetExportRequest, opts ...grpc.CallOption) (*AssetExportResponse, error)
 	// ReadSheet reads a CSV in that form into the items an AddMany takes, and
 	// says what it could not read, by line. It writes nothing. The page and
@@ -380,10 +381,11 @@ type AssetServiceServer interface {
 	Diff(context.Context, *AssetDiffRequest) (*AssetDiffResponse, error)
 	Search(context.Context, *AssetSearchRequest) (*AssetSearchResponse, error)
 	Report(context.Context, *AssetReportRequest) (*AssetReportResponse, error)
-	// Export writes the register as a sheet, to read. Nothing reads one back:
-	// a restore is of the workspace's own export, and a sheet that edited the
+	// Export writes the register as a CSV, to read. Nothing reads one back: a
+	// restore is of the workspace's own export, and a sheet that edited the
 	// register by tag is gone (design D34). With `template` it writes the form
-	// bulk registration reads instead, a CSV of its header.
+	// bulk registration reads instead, its header. A CSV and never a workbook:
+	// rove neither reads nor writes one (design 9.13).
 	Export(context.Context, *AssetExportRequest) (*AssetExportResponse, error)
 	// ReadSheet reads a CSV in that form into the items an AddMany takes, and
 	// says what it could not read, by line. It writes nothing. The page and

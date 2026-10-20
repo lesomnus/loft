@@ -10,7 +10,6 @@ import (
 
 	"github.com/lesomnus/payday/pdid"
 	"github.com/stretchr/testify/require"
-	"github.com/xuri/excelize/v2"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -250,7 +249,7 @@ func TestCount(t *testing.T) {
 	x.NoError(err)
 }
 
-// TestExportWritesTheRegister: the register as a sheet to read -- a row an
+// TestExportWritesTheRegister: the register as a CSV to read -- a row an
 // asset, in the words a person reads, and where it is as a path beside the tag
 // of what holds it. Nothing reads one back (design D34).
 func TestExportWritesTheRegister(t *testing.T) {
@@ -273,7 +272,7 @@ func TestExportWritesTheRegister(t *testing.T) {
 		return nil
 	}
 
-	out, err := e.app().Asset().Export(e.owner, app.AssetExportRequest_builder{Format: "csv"}.Build())
+	out, err := e.app().Asset().Export(e.owner, app.AssetExportRequest_builder{}.Build())
 	x.NoError(err)
 	x.Equal("text/csv; charset=utf-8", out.GetContentType())
 	rows, err := csv.NewReader(bytes.NewReader(bytes.TrimPrefix(out.GetData(), []byte("\ufeff")))).ReadAll()
@@ -284,15 +283,6 @@ func TestExportWritesTheRegister(t *testing.T) {
 	x.Equal("사용중", row[7])
 	x.Equal("본사/3층", row[9], "where it is, as a path")
 	x.Equal(floor.GetTag(), row[10], "and the tag of what holds it")
-
-	out, err = e.app().Asset().Export(e.owner, app.AssetExportRequest_builder{Format: "xlsx"}.Build())
-	x.NoError(err)
-	f, err := excelize.OpenReader(bytes.NewReader(out.GetData()))
-	x.NoError(err)
-	defer f.Close()
-	sheet, err := f.GetRows("자산")
-	x.NoError(err)
-	x.Equal(row[:11], find(sheet)[:11], "the workbook says what the sheet says")
 }
 
 func TestLabels(t *testing.T) {

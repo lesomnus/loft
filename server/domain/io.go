@@ -10,8 +10,6 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/xuri/excelize/v2"
-
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/internal/ent/asset"
@@ -38,8 +36,8 @@ var (
 // errDry is how a dry run ends: everything was done, and is rolled back.
 var errDry = errors.New("domain: dry run")
 
-// Export writes the register as a sheet to read: a row an asset, in the words
-// a person reads, and the place as a path beside the tag a machine can.
+// Export writes the register as a CSV to read: a row an asset, in the words a
+// person reads, and the place as a path beside the tag a machine can.
 //
 // Nothing reads one back. A sheet that edited the register by tag made a
 // value people change into what an asset is, so that another workspace's
@@ -50,14 +48,7 @@ func (s domainAsset) Export(ctx context.Context, req *app.AssetExportRequest) (*
 	if err != nil {
 		return nil, err
 	}
-	format := strings.ToLower(or(req.GetFormat(), "csv"))
-	if format != "csv" && format != "xlsx" {
-		return nil, invalid("format", "CSV 또는 엑셀(xlsx)만 됩니다")
-	}
 	if req.GetTemplate() {
-		if format != "csv" {
-			return nil, invalid("format", "대량 등록 양식은 CSV입니다")
-		}
 		return registerForm()
 	}
 
@@ -157,59 +148,20 @@ func (s domainAsset) Export(ctx context.Context, req *app.AssetExportRequest) (*
 		rows = append(rows, row)
 	}
 
-	return writeSheet(format, "rove-assets-"+t.now.In(Zone).Format("20060102"), "자산", rows)
+	return writeCSV("rove-assets-"+t.now.In(Zone).Format("20060102"), rows)
 }
 
-// writeSheet is `rows` as a file of `format`: a CSV with the mark Excel reads
-// it as UTF-8 by, or a workbook whose header is bold and stays in view.
-func writeSheet(format, name, sheet string, rows [][]string) (*app.AssetExportResponse, error) {
-	if format == "csv" {
-		b := bytes.Buffer{}
-		b.WriteString("\ufeff")
-		w := csv.NewWriter(&b)
-		if err := w.WriteAll(rows); err != nil {
-			return nil, err
-		}
-		return app.AssetExportResponse_builder{
-			Data:        b.Bytes(),
-			ContentType: "text/csv; charset=utf-8",
-			Name:        name + ".csv",
-		}.Build(), nil
-	}
-
-	f := excelize.NewFile()
-	defer f.Close()
-	if err := f.SetSheetName("Sheet1", sheet); err != nil {
-		return nil, err
-	}
-	width := 0
-	for i, row := range rows {
-		cell, err := excelize.CoordinatesToCellName(1, i+1)
-		if err != nil {
-			return nil, err
-		}
-		vs := make([]any, len(row))
-		for j, v := range row {
-			vs[j] = v
-		}
-		if err := f.SetSheetRow(sheet, cell, &vs); err != nil {
-			return nil, err
-		}
-		width = max(width, len(row))
-	}
-	bold, err := f.NewStyle(&excelize.Style{Font: &excelize.Font{Bold: true}})
-	if err == nil && width > 0 {
-		last, _ := excelize.CoordinatesToCellName(width, 1)
-		_ = f.SetCellStyle(sheet, "A1", last, bold)
-	}
-	_ = f.SetPanes(sheet, &excelize.Panes{Freeze: true, YSplit: 1, TopLeftCell: "A2", ActivePane: "bottomLeft"})
-	b, err := f.WriteToBuffer()
-	if err != nil {
+// writeCSV is `rows` as a CSV, with the mark Excel reads it as UTF-8 by.
+func writeCSV(name string, rows [][]string) (*app.AssetExportResponse, error) {
+	b := bytes.Buffer{}
+	b.WriteString("\ufeff")
+	w := csv.NewWriter(&b)
+	if err := w.WriteAll(rows); err != nil {
 		return nil, err
 	}
 	return app.AssetExportResponse_builder{
 		Data:        b.Bytes(),
-		ContentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-		Name:        name + ".xlsx",
+		ContentType: "text/csv; charset=utf-8",
+		Name:        name + ".csv",
 	}.Build(), nil
 }

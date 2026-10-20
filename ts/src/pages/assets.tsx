@@ -44,9 +44,9 @@ export function Assets(): ReactNode {
 		offset: page * PAGE,
 	})
 
-	const exportAs = async (format: string) => {
+	const exportRegister = async () => {
 		try {
-			const v = await raw.asset.export({ format })
+			const v = await raw.asset.export({})
 			download(v.data, v.name, v.contentType)
 		} catch (err) {
 			toast(errorText(err), 'bad')
@@ -65,7 +65,7 @@ export function Assets(): ReactNode {
 						)}
 						{c.can('manager') && (
 							<>
-								<button onClick={() => void exportAs('xlsx')}>엑셀로 내보내기</button>
+								<button onClick={() => void exportRegister()}>CSV로 내보내기</button>
 								<Link className="button" to="/assets/register">
 									대량 등록
 								</Link>

@@ -6614,7 +6614,6 @@ func (b0 ReportRow_builder) Build() *ReportRow {
 
 type AssetExportRequest struct {
 	state               protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Format   string                 `protobuf:"bytes,1,opt,name=format"`
 	xxx_hidden_Template bool                   `protobuf:"varint,2,opt,name=template"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
@@ -6645,22 +6644,11 @@ func (x *AssetExportRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *AssetExportRequest) GetFormat() string {
-	if x != nil {
-		return x.xxx_hidden_Format
-	}
-	return ""
-}
-
 func (x *AssetExportRequest) GetTemplate() bool {
 	if x != nil {
 		return x.xxx_hidden_Template
 	}
 	return false
-}
-
-func (x *AssetExportRequest) SetFormat(v string) {
-	x.xxx_hidden_Format = v
 }
 
 func (x *AssetExportRequest) SetTemplate(v bool) {
@@ -6670,10 +6658,8 @@ func (x *AssetExportRequest) SetTemplate(v bool) {
 type AssetExportRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	// csv | xlsx, and csv only for the template.
-	Format string
 	// The form bulk registration reads (ReadSheet) in place of the register:
-	// its header, as a CSV.
+	// its header.
 	Template bool
 }
 
@@ -6681,7 +6667,6 @@ func (b0 AssetExportRequest_builder) Build() *AssetExportRequest {
 	m0 := &AssetExportRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.xxx_hidden_Format = b.Format
 	x.xxx_hidden_Template = b.Template
 	return m0
 }
@@ -15728,9 +15713,8 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x06detail\x18\x05 \x03(\v2\x1b.rove.ReportRow.DetailEntryR\x06detail\x1a9\n" +
 	"\vDetailEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"V\n" +
-	"\x12AssetExportRequest\x12\x1d\n" +
-	"\x06format\x18\x01 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06format\x12!\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"7\n" +
+	"\x12AssetExportRequest\x12!\n" +
 	"\btemplate\x18\x02 \x01(\bB\x05\xaa\x01\x02\b\x02R\btemplate\"u\n" +
 	"\x13AssetExportResponse\x12\x19\n" +
 	"\x04data\x18\x01 \x01(\fB\x05\xaa\x01\x02\b\x02R\x04data\x12(\n" +

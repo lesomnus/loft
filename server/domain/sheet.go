@@ -81,7 +81,7 @@ func registerForm() (*app.AssetExportResponse, error) {
 	}
 	header = append(header, "속성.키")
 
-	return writeSheet("csv", "rove-대량등록-양식", "등록", [][]string{header})
+	return writeCSV("rove-대량등록-양식", [][]string{header})
 }
 
 // What a workbook begins with: a zip (.xlsx), or the OLE container an older
@@ -103,7 +103,8 @@ func (s domainAsset) ReadSheet(ctx context.Context, req *app.AssetReadSheetReque
 	// A workbook is not opened to be read: what one person uploads is read in
 	// the process every workspace is served by, reading a workbook takes a
 	// library as large as Excel -- formulas, encryption, the container an old
-	// one is in -- and a crafted workbook stops it (design 9.13).
+	// one is in -- and a crafted workbook stops it. Rove has none (design
+	// 9.13).
 	for _, mark := range workbookMarks {
 		if bytes.HasPrefix(req.GetData(), mark) {
 			return nil, invalid("data", "엑셀 파일은 받지 않습니다. 엑셀에서 파일 형식을 'CSV UTF-8(쉼표로 분리)'로 골라 저장한 파일을 올리세요")

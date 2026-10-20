@@ -1,6 +1,8 @@
 package domain_test
 
 import (
+	"archive/zip"
+	"bytes"
 	"context"
 	"os"
 	"strings"
@@ -11,7 +13,6 @@ import (
 	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/lesomnus/payday/pderr"
 	"github.com/lesomnus/z"
-	"github.com/xuri/excelize/v2"
 	"golang.org/x/text/encoding/korean"
 	"google.golang.org/grpc/codes"
 
@@ -306,12 +307,12 @@ func TestASheetIsReadIntoItems(t *testing.T) {
 }
 
 // TestTheFormIsWhatASheetIsReadAs: the template's header is the form's, and a
-// sheet written on it is read back as it was written. The form is a CSV only.
+// sheet written on it is read back as it was written.
 func TestTheFormIsWhatASheetIsReadAs(t *testing.T) {
 	e := newEnv(t)
 	x := e.x
 
-	v, err := e.app().Asset().Export(e.owner, app.AssetExportRequest_builder{Format: "csv", Template: true}.Build())
+	v, err := e.app().Asset().Export(e.owner, app.AssetExportRequest_builder{Template: true}.Build())
 	x.NoError(err)
 	header := strings.TrimPrefix(strings.TrimSpace(string(v.GetData())), "\ufeff")
 	x.Equal("이름,종류,유형,모델,제조사,시리얼,태그,위치태그,취득일,기준일,설명,상태,컨디션,속성.키", header)
@@ -324,9 +325,6 @@ func TestTheFormIsWhatASheetIsReadAs(t *testing.T) {
 	x.Len(res.GetItems(), 1)
 	x.Equal("active", res.GetItems()[0].GetStatus())
 	x.Equal("damaged", res.GetItems()[0].GetCondition())
-
-	_, err = e.app().Asset().Export(e.owner, app.AssetExportRequest_builder{Format: "xlsx", Template: true}.Build())
-	x.Equal(codes.InvalidArgument, codeOf(err))
 }
 
 // TestAWorkbookIsRefusedUnopened: a workbook is told by how it begins and
@@ -334,13 +332,15 @@ func TestTheFormIsWhatASheetIsReadAs(t *testing.T) {
 // is a zip, and an .xls -- and an encrypted .xlsx -- an OLE container.
 func TestAWorkbookIsRefusedUnopened(t *testing.T) {
 	e := newEnv(t)
-
-	book := excelize.NewFile()
-	defer book.Close()
 	x := e.x
-	x.NoError(book.SetSheetRow("Sheet1", "A1", &[]any{"이름"}))
-	xlsx, err := book.WriteToBuffer()
+
+	xlsx := bytes.Buffer{}
+	book := zip.NewWriter(&xlsx)
+	part, err := book.Create("[Content_Types].xml")
 	x.NoError(err)
+	_, err = part.Write([]byte(`<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"/>`))
+	x.NoError(err)
+	x.NoError(book.Close())
 
 	for name, data := range map[string][]byte{
 		"xlsx": xlsx.Bytes(),
