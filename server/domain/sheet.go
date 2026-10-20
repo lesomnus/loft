@@ -294,16 +294,7 @@ func blank(row []string) bool {
 func readTable(format string, data []byte) ([][]string, error) {
 	switch format {
 	case "xlsx":
-		f, err := excelize.OpenReader(bytes.NewReader(data))
-		if err != nil {
-			return nil, fmt.Errorf("엑셀(xlsx) 파일이 아닙니다: %w", err)
-		}
-		defer f.Close()
-		sheets := f.GetSheetList()
-		if len(sheets) == 0 {
-			return nil, errors.New("시트가 없습니다")
-		}
-		return f.GetRows(sheets[0])
+		return readWorkbook(data)
 
 	case "csv":
 		data = bytes.TrimPrefix(data, []byte("\xef\xbb\xbf"))
@@ -320,6 +311,60 @@ func readTable(format string, data []byte) ([][]string, error) {
 		return r.ReadAll()
 	}
 	return nil, fmt.Errorf("형식 %q는 csv나 xlsx입니다", format)
+}
+
+// The most a workbook is opened for: what is unzipped of it, and what of
+// that is held as XML rather than spilled to a file. A sheet of the form at
+// [MaxRegisterRows] is a few megabytes; what a zip says it holds is a claim,
+// and the library's own limit is sixteen gigabytes.
+const (
+	sheetUnzipLimit    = 64 << 20
+	sheetUnzipXMLLimit = 16 << 20
+)
+
+// maxSheetLines is the most lines a sheet is read to: the header, the rows of
+// one registration, and as many blank ones between them. Past it nothing a
+// registration could take is left, and a sheet claiming a row a million lines
+// down is not walked down to it.
+const maxSheetLines = 1 + 2*MaxRegisterRows
+
+// readWorkbook is the first sheet of a workbook somebody uploaded, read as
+// what it is: untrusted. It is opened within [sheetUnzipLimit], read row by
+// row to [maxSheetLines] rather than all of it at once, and a panic in the
+// library reading it is the workbook refused, not the server down.
+func readWorkbook(data []byte) (rows [][]string, err error) {
+	defer func() {
+		if v := recover(); v != nil {
+			rows, err = nil, fmt.Errorf("엑셀(xlsx) 파일을 읽을 수 없습니다: %v", v)
+		}
+	}()
+
+	f, err := excelize.OpenReader(bytes.NewReader(data), excelize.Options{
+		UnzipSizeLimit:    sheetUnzipLimit,
+		UnzipXMLSizeLimit: sheetUnzipXMLLimit,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("엑셀(xlsx) 파일이 아닙니다: %w", err)
+	}
+	defer f.Close()
+	sheets := f.GetSheetList()
+	if len(sheets) == 0 {
+		return nil, errors.New("시트가 없습니다")
+	}
+
+	it, err := f.Rows(sheets[0])
+	if err != nil {
+		return nil, err
+	}
+	defer it.Close()
+	for len(rows) < maxSheetLines && it.Next() {
+		cols, err := it.Columns()
+		if err != nil {
+			return nil, err
+		}
+		rows = append(rows, cols)
+	}
+	return rows, it.Error()
 }
 
 var dateLayouts = []string{

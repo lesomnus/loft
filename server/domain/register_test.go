@@ -392,3 +392,29 @@ func TestAnAssetRegisteredInBulkIsAFewStatements(t *testing.T) {
 	t.Logf("%.2f statements an asset", per)
 	x.LessOrEqual(per, 3.0, "an asset registered in bulk is %.2f statements; it was 2.1 when this was written (the conversion, an Add an asset, is 11.2)", per)
 }
+
+// TestASheetIsReadAsTheUntrustedFileItIs: a workbook claiming a row at the
+// bottom of what a sheet can hold is read to the end of what a registration
+// could take, not walked down to that row; and bytes that are no workbook are
+// refused, not a panic of the library reading them.
+func TestASheetIsReadAsTheUntrustedFileItIs(t *testing.T) {
+	e := newEnv(t)
+	x := e.x
+
+	book := excelize.NewFile()
+	x.NoError(book.SetCellValue("Sheet1", "A1", "이름"))
+	x.NoError(book.SetCellValue("Sheet1", "A2", "노트북"))
+	x.NoError(book.SetCellValue("Sheet1", "A1048576", "끝"))
+	b, err := book.WriteToBuffer()
+	x.NoError(err)
+
+	began := time.Now()
+	res, err := e.app().Asset().ReadSheet(e.owner, app.AssetReadSheetRequest_builder{Data: b.Bytes()}.Build())
+	x.NoError(err)
+	x.Less(time.Since(began), 5*time.Second, "walked down a million lines")
+	x.Len(res.GetItems(), 1)
+	x.Equal("노트북", res.GetItems()[0].GetName())
+
+	_, err = e.app().Asset().ReadSheet(e.owner, app.AssetReadSheetRequest_builder{Data: []byte("PK\x03\x04 not a workbook at all"), Format: "xlsx"}.Build())
+	x.Equal(codes.InvalidArgument, codeOf(err))
+}
