@@ -4,8 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
 	"strings"
 
+	"github.com/lesomnus/otx/log"
 	"github.com/lesomnus/payday/trail"
 	"github.com/lesomnus/xli"
 	"github.com/lesomnus/xli/flg"
@@ -28,9 +30,14 @@ import (
 //
 // `rows` is the database's rows against the trail: with `audit.digest.key`,
 // each row of the trail keeps a keyed digest of the row its write left, and
-// this digests every live row again and compares (payday#102). A row somebody
-// changed in the database past the servers is one that differs. It changes
-// nothing either, and fails when a row differs.
+// this digests every live row again and compares it with the newest row of the
+// trail about it -- in the database, or in the archive once it has left
+// (payday#102, #108). A row somebody changed in the database past the servers
+// is one that differs, and a row somebody added there is one nothing on the
+// trail is about. It changes nothing either, and fails on either. `rows
+// --accept` is an operator who has looked at each and decided the rows are
+// right -- a migration rewrote them, they were put back before a restore said
+// so -- and puts them on the trail as that act, with the why logged.
 func NewCmdTrail(c *cmd.Config) *xli.Command {
 	return &xli.Command{
 		Name:  "trail",
@@ -51,8 +58,14 @@ func NewCmdTrail(c *cmd.Config) *xli.Command {
 			{
 				Name:  "rows",
 				Brief: "check the live rows against the digests the trail keeps of them, changing nothing",
+				Flags: flg.Flags{
+					&flg.Switch{Name: "accept", Brief: "put what the check found on the trail as accepted, once somebody has looked"},
+					&flg.String{Name: "why", Brief: "what was looked at and decided, with --accept; it is logged"},
+				},
 				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
-					return rows(ctx, self, c)
+					accept, _ := flg.Find[bool](self, "accept")
+					why, _ := flg.Find[string](self, "why")
+					return rows(ctx, self, c, accept, why)
 				}),
 			},
 			{
@@ -117,7 +130,11 @@ func verify(ctx context.Context, self *xli.Command, c *cmd.Config, full bool) er
 	return fmt.Errorf("%d findings: look at each, and `rove trail accept --why ...` once the archive is right", len(v.Findings))
 }
 
-func rows(ctx context.Context, self *xli.Command, c *cmd.Config) error {
+func rows(ctx context.Context, self *xli.Command, c *cmd.Config, accept bool, why string) error {
+	if accept && strings.TrimSpace(why) == "" {
+		return errors.New("--why says what was looked at and decided")
+	}
+
 	cs, err := c.Audit.Contents()
 	if err != nil {
 		return fmt.Errorf("audit: %w", err)
@@ -132,22 +149,38 @@ func rows(ctx context.Context, self *xli.Command, c *cmd.Config) error {
 	}
 	defer s.Close()
 
-	v, err := pd.Digests(ctx, s.Ent, cs.Digest)
+	v, err := pd.Digests(ctx, s.Ent, cs.Digest, s.Trail)
 	if err != nil {
 		return err
 	}
 
-	self.Printf("%d rows read: %d match, %d differ, %d with no digest, %d not on the trail in the database, %d under a key not given\n",
-		v.Read, v.Matches, len(v.Differs), v.NoDigest, v.NotOnTrail, v.KeyNotHeld)
+	self.Printf("%d rows read: %d match, %d differ, %d not on the trail, %d with no digest, %d under a key not given; %d checked against the archive\n",
+		v.Read, v.Matches, len(v.Differs), len(v.NotOnTrail), v.NoDigest, v.KeyNotHeld, v.Archived)
+	for _, id := range v.Differs {
+		self.Printf("  differs %s %s\n", id.Domain(), id)
+	}
+	for _, id := range v.NotOnTrail {
+		self.Printf("  not-on-trail %s %s\n", id.Domain(), id)
+	}
 	if v.Ok() {
 		return nil
 	}
-	for _, id := range v.Differs {
-		self.Printf("  %s %s\n", id.Domain(), id)
+	if !accept {
+		return fmt.Errorf("%d rows differ from what the trail recorded and %d are not on it: look at each, and `rove trail rows --accept --why ...` once they are right", len(v.Differs), len(v.NotOnTrail))
 	}
 
-	return fmt.Errorf("%d rows differ from what the trail recorded: changed past the servers; look at each", len(v.Differs))
+	n, err := pd.Record(ctx, s.Ent, cs, AcceptedRows, slices.Concat(v.Differs, v.NotOnTrail))
+	if err != nil {
+		return fmt.Errorf("accept: %w", err)
+	}
+	log.From(ctx).InfoContext(ctx, "trail: rows accepted as they are", "why", why, "rows", n)
+	self.Printf("accepted %d rows; the trail says they are what they are now\n", n)
+
+	return nil
 }
+
+// AcceptedRows is the act `rove trail rows --accept` is on the trail as.
+const AcceptedRows = "rove.trail.rows.accept"
 
 func accept(ctx context.Context, self *xli.Command, c *cmd.Config, why string) error {
 	if strings.TrimSpace(why) == "" {

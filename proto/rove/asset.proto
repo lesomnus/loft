@@ -132,7 +132,6 @@ message TreeLock {
   }];
 
   option (orm.message) = {
-    rpc: {crud: true}
     indexes: [
       {
         name: "tenant"

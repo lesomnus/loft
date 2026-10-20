@@ -712,28 +712,10 @@ var PartyService_ServiceDesc = grpc.ServiceDesc{
 	Metadata: "rove/org_svc.g.proto",
 }
 
-const (
-	SessionService_Add_FullMethodName   = "/rove.SessionService/Add"
-	SessionService_Get_FullMethodName   = "/rove.SessionService/Get"
-	SessionService_Patch_FullMethodName = "/rove.SessionService/Patch"
-	SessionService_Apply_FullMethodName = "/rove.SessionService/Apply"
-	SessionService_Erase_FullMethodName = "/rove.SessionService/Erase"
-)
-
 // SessionServiceClient is the client API for SessionService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SessionServiceClient interface {
-	// Add creates a new Session
-	Add(ctx context.Context, in *SessionAddRequest, opts ...grpc.CallOption) (*Session, error)
-	// Get retrieves a Session
-	Get(ctx context.Context, in *SessionGetRequest, opts ...grpc.CallOption) (*Session, error)
-	// Patch updates an existing Session
-	Patch(ctx context.Context, in *SessionPatchRequest, opts ...grpc.CallOption) (*Session, error)
-	// Apply applies a patch document to an existing Session
-	Apply(ctx context.Context, in *SessionApplyRequest, opts ...grpc.CallOption) (*Session, error)
-	// Erase deletes a Session
-	Erase(ctx context.Context, in *SessionRef, opts ...grpc.CallOption) (*SessionEraseResponse, error)
 }
 
 type sessionServiceClient struct {
@@ -744,70 +726,10 @@ func NewSessionServiceClient(cc grpc.ClientConnInterface) SessionServiceClient {
 	return &sessionServiceClient{cc}
 }
 
-func (c *sessionServiceClient) Add(ctx context.Context, in *SessionAddRequest, opts ...grpc.CallOption) (*Session, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Session)
-	err := c.cc.Invoke(ctx, SessionService_Add_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *sessionServiceClient) Get(ctx context.Context, in *SessionGetRequest, opts ...grpc.CallOption) (*Session, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Session)
-	err := c.cc.Invoke(ctx, SessionService_Get_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *sessionServiceClient) Patch(ctx context.Context, in *SessionPatchRequest, opts ...grpc.CallOption) (*Session, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Session)
-	err := c.cc.Invoke(ctx, SessionService_Patch_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *sessionServiceClient) Apply(ctx context.Context, in *SessionApplyRequest, opts ...grpc.CallOption) (*Session, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Session)
-	err := c.cc.Invoke(ctx, SessionService_Apply_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *sessionServiceClient) Erase(ctx context.Context, in *SessionRef, opts ...grpc.CallOption) (*SessionEraseResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SessionEraseResponse)
-	err := c.cc.Invoke(ctx, SessionService_Erase_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // SessionServiceServer is the server API for SessionService service.
 // All implementations must embed UnimplementedSessionServiceServer
 // for forward compatibility.
 type SessionServiceServer interface {
-	// Add creates a new Session
-	Add(context.Context, *SessionAddRequest) (*Session, error)
-	// Get retrieves a Session
-	Get(context.Context, *SessionGetRequest) (*Session, error)
-	// Patch updates an existing Session
-	Patch(context.Context, *SessionPatchRequest) (*Session, error)
-	// Apply applies a patch document to an existing Session
-	Apply(context.Context, *SessionApplyRequest) (*Session, error)
-	// Erase deletes a Session
-	Erase(context.Context, *SessionRef) (*SessionEraseResponse, error)
 	mustEmbedUnimplementedSessionServiceServer()
 }
 
@@ -818,21 +740,6 @@ type SessionServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedSessionServiceServer struct{}
 
-func (UnimplementedSessionServiceServer) Add(context.Context, *SessionAddRequest) (*Session, error) {
-	return nil, status.Error(codes.Unimplemented, "method Add not implemented")
-}
-func (UnimplementedSessionServiceServer) Get(context.Context, *SessionGetRequest) (*Session, error) {
-	return nil, status.Error(codes.Unimplemented, "method Get not implemented")
-}
-func (UnimplementedSessionServiceServer) Patch(context.Context, *SessionPatchRequest) (*Session, error) {
-	return nil, status.Error(codes.Unimplemented, "method Patch not implemented")
-}
-func (UnimplementedSessionServiceServer) Apply(context.Context, *SessionApplyRequest) (*Session, error) {
-	return nil, status.Error(codes.Unimplemented, "method Apply not implemented")
-}
-func (UnimplementedSessionServiceServer) Erase(context.Context, *SessionRef) (*SessionEraseResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method Erase not implemented")
-}
 func (UnimplementedSessionServiceServer) mustEmbedUnimplementedSessionServiceServer() {}
 func (UnimplementedSessionServiceServer) testEmbeddedByValue()                        {}
 
@@ -854,126 +761,15 @@ func RegisterSessionServiceServer(s grpc.ServiceRegistrar, srv SessionServiceSer
 	s.RegisterService(&SessionService_ServiceDesc, srv)
 }
 
-func _SessionService_Add_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SessionAddRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SessionServiceServer).Add(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SessionService_Add_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SessionServiceServer).Add(ctx, req.(*SessionAddRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SessionService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SessionGetRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SessionServiceServer).Get(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SessionService_Get_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SessionServiceServer).Get(ctx, req.(*SessionGetRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SessionService_Patch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SessionPatchRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SessionServiceServer).Patch(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SessionService_Patch_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SessionServiceServer).Patch(ctx, req.(*SessionPatchRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SessionService_Apply_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SessionApplyRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SessionServiceServer).Apply(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SessionService_Apply_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SessionServiceServer).Apply(ctx, req.(*SessionApplyRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SessionService_Erase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SessionRef)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SessionServiceServer).Erase(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SessionService_Erase_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SessionServiceServer).Erase(ctx, req.(*SessionRef))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // SessionService_ServiceDesc is the grpc.ServiceDesc for SessionService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var SessionService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "rove.SessionService",
 	HandlerType: (*SessionServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "Add",
-			Handler:    _SessionService_Add_Handler,
-		},
-		{
-			MethodName: "Get",
-			Handler:    _SessionService_Get_Handler,
-		},
-		{
-			MethodName: "Patch",
-			Handler:    _SessionService_Patch_Handler,
-		},
-		{
-			MethodName: "Apply",
-			Handler:    _SessionService_Apply_Handler,
-		},
-		{
-			MethodName: "Erase",
-			Handler:    _SessionService_Erase_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "rove/org_svc.g.proto",
+	Methods:     []grpc.MethodDesc{},
+	Streams:     []grpc.StreamDesc{},
+	Metadata:    "rove/org_svc.g.proto",
 }
 
 const (
@@ -1444,28 +1240,10 @@ var InvitationService_ServiceDesc = grpc.ServiceDesc{
 	Metadata: "rove/org_svc.g.proto",
 }
 
-const (
-	CliLoginService_Add_FullMethodName   = "/rove.CliLoginService/Add"
-	CliLoginService_Get_FullMethodName   = "/rove.CliLoginService/Get"
-	CliLoginService_Patch_FullMethodName = "/rove.CliLoginService/Patch"
-	CliLoginService_Apply_FullMethodName = "/rove.CliLoginService/Apply"
-	CliLoginService_Erase_FullMethodName = "/rove.CliLoginService/Erase"
-)
-
 // CliLoginServiceClient is the client API for CliLoginService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CliLoginServiceClient interface {
-	// Add creates a new CliLogin
-	Add(ctx context.Context, in *CliLoginAddRequest, opts ...grpc.CallOption) (*CliLogin, error)
-	// Get retrieves a CliLogin
-	Get(ctx context.Context, in *CliLoginGetRequest, opts ...grpc.CallOption) (*CliLogin, error)
-	// Patch updates an existing CliLogin
-	Patch(ctx context.Context, in *CliLoginPatchRequest, opts ...grpc.CallOption) (*CliLogin, error)
-	// Apply applies a patch document to an existing CliLogin
-	Apply(ctx context.Context, in *CliLoginApplyRequest, opts ...grpc.CallOption) (*CliLogin, error)
-	// Erase deletes a CliLogin
-	Erase(ctx context.Context, in *CliLoginRef, opts ...grpc.CallOption) (*CliLoginEraseResponse, error)
 }
 
 type cliLoginServiceClient struct {
@@ -1476,70 +1254,10 @@ func NewCliLoginServiceClient(cc grpc.ClientConnInterface) CliLoginServiceClient
 	return &cliLoginServiceClient{cc}
 }
 
-func (c *cliLoginServiceClient) Add(ctx context.Context, in *CliLoginAddRequest, opts ...grpc.CallOption) (*CliLogin, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CliLogin)
-	err := c.cc.Invoke(ctx, CliLoginService_Add_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *cliLoginServiceClient) Get(ctx context.Context, in *CliLoginGetRequest, opts ...grpc.CallOption) (*CliLogin, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CliLogin)
-	err := c.cc.Invoke(ctx, CliLoginService_Get_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *cliLoginServiceClient) Patch(ctx context.Context, in *CliLoginPatchRequest, opts ...grpc.CallOption) (*CliLogin, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CliLogin)
-	err := c.cc.Invoke(ctx, CliLoginService_Patch_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *cliLoginServiceClient) Apply(ctx context.Context, in *CliLoginApplyRequest, opts ...grpc.CallOption) (*CliLogin, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CliLogin)
-	err := c.cc.Invoke(ctx, CliLoginService_Apply_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *cliLoginServiceClient) Erase(ctx context.Context, in *CliLoginRef, opts ...grpc.CallOption) (*CliLoginEraseResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CliLoginEraseResponse)
-	err := c.cc.Invoke(ctx, CliLoginService_Erase_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // CliLoginServiceServer is the server API for CliLoginService service.
 // All implementations must embed UnimplementedCliLoginServiceServer
 // for forward compatibility.
 type CliLoginServiceServer interface {
-	// Add creates a new CliLogin
-	Add(context.Context, *CliLoginAddRequest) (*CliLogin, error)
-	// Get retrieves a CliLogin
-	Get(context.Context, *CliLoginGetRequest) (*CliLogin, error)
-	// Patch updates an existing CliLogin
-	Patch(context.Context, *CliLoginPatchRequest) (*CliLogin, error)
-	// Apply applies a patch document to an existing CliLogin
-	Apply(context.Context, *CliLoginApplyRequest) (*CliLogin, error)
-	// Erase deletes a CliLogin
-	Erase(context.Context, *CliLoginRef) (*CliLoginEraseResponse, error)
 	mustEmbedUnimplementedCliLoginServiceServer()
 }
 
@@ -1550,21 +1268,6 @@ type CliLoginServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedCliLoginServiceServer struct{}
 
-func (UnimplementedCliLoginServiceServer) Add(context.Context, *CliLoginAddRequest) (*CliLogin, error) {
-	return nil, status.Error(codes.Unimplemented, "method Add not implemented")
-}
-func (UnimplementedCliLoginServiceServer) Get(context.Context, *CliLoginGetRequest) (*CliLogin, error) {
-	return nil, status.Error(codes.Unimplemented, "method Get not implemented")
-}
-func (UnimplementedCliLoginServiceServer) Patch(context.Context, *CliLoginPatchRequest) (*CliLogin, error) {
-	return nil, status.Error(codes.Unimplemented, "method Patch not implemented")
-}
-func (UnimplementedCliLoginServiceServer) Apply(context.Context, *CliLoginApplyRequest) (*CliLogin, error) {
-	return nil, status.Error(codes.Unimplemented, "method Apply not implemented")
-}
-func (UnimplementedCliLoginServiceServer) Erase(context.Context, *CliLoginRef) (*CliLoginEraseResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method Erase not implemented")
-}
 func (UnimplementedCliLoginServiceServer) mustEmbedUnimplementedCliLoginServiceServer() {}
 func (UnimplementedCliLoginServiceServer) testEmbeddedByValue()                         {}
 
@@ -1586,150 +1289,21 @@ func RegisterCliLoginServiceServer(s grpc.ServiceRegistrar, srv CliLoginServiceS
 	s.RegisterService(&CliLoginService_ServiceDesc, srv)
 }
 
-func _CliLoginService_Add_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CliLoginAddRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CliLoginServiceServer).Add(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: CliLoginService_Add_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CliLoginServiceServer).Add(ctx, req.(*CliLoginAddRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _CliLoginService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CliLoginGetRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CliLoginServiceServer).Get(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: CliLoginService_Get_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CliLoginServiceServer).Get(ctx, req.(*CliLoginGetRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _CliLoginService_Patch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CliLoginPatchRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CliLoginServiceServer).Patch(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: CliLoginService_Patch_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CliLoginServiceServer).Patch(ctx, req.(*CliLoginPatchRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _CliLoginService_Apply_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CliLoginApplyRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CliLoginServiceServer).Apply(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: CliLoginService_Apply_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CliLoginServiceServer).Apply(ctx, req.(*CliLoginApplyRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _CliLoginService_Erase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CliLoginRef)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CliLoginServiceServer).Erase(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: CliLoginService_Erase_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CliLoginServiceServer).Erase(ctx, req.(*CliLoginRef))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // CliLoginService_ServiceDesc is the grpc.ServiceDesc for CliLoginService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var CliLoginService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "rove.CliLoginService",
 	HandlerType: (*CliLoginServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "Add",
-			Handler:    _CliLoginService_Add_Handler,
-		},
-		{
-			MethodName: "Get",
-			Handler:    _CliLoginService_Get_Handler,
-		},
-		{
-			MethodName: "Patch",
-			Handler:    _CliLoginService_Patch_Handler,
-		},
-		{
-			MethodName: "Apply",
-			Handler:    _CliLoginService_Apply_Handler,
-		},
-		{
-			MethodName: "Erase",
-			Handler:    _CliLoginService_Erase_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "rove/org_svc.g.proto",
+	Methods:     []grpc.MethodDesc{},
+	Streams:     []grpc.StreamDesc{},
+	Metadata:    "rove/org_svc.g.proto",
 }
-
-const (
-	AliasHoldService_Add_FullMethodName   = "/rove.AliasHoldService/Add"
-	AliasHoldService_Get_FullMethodName   = "/rove.AliasHoldService/Get"
-	AliasHoldService_Patch_FullMethodName = "/rove.AliasHoldService/Patch"
-	AliasHoldService_Apply_FullMethodName = "/rove.AliasHoldService/Apply"
-	AliasHoldService_Erase_FullMethodName = "/rove.AliasHoldService/Erase"
-)
 
 // AliasHoldServiceClient is the client API for AliasHoldService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AliasHoldServiceClient interface {
-	// Add creates a new AliasHold
-	Add(ctx context.Context, in *AliasHoldAddRequest, opts ...grpc.CallOption) (*AliasHold, error)
-	// Get retrieves a AliasHold
-	Get(ctx context.Context, in *AliasHoldGetRequest, opts ...grpc.CallOption) (*AliasHold, error)
-	// Patch updates an existing AliasHold
-	Patch(ctx context.Context, in *AliasHoldPatchRequest, opts ...grpc.CallOption) (*AliasHold, error)
-	// Apply applies a patch document to an existing AliasHold
-	Apply(ctx context.Context, in *AliasHoldApplyRequest, opts ...grpc.CallOption) (*AliasHold, error)
-	// Erase deletes a AliasHold
-	Erase(ctx context.Context, in *AliasHoldRef, opts ...grpc.CallOption) (*AliasHoldEraseResponse, error)
 }
 
 type aliasHoldServiceClient struct {
@@ -1740,70 +1314,10 @@ func NewAliasHoldServiceClient(cc grpc.ClientConnInterface) AliasHoldServiceClie
 	return &aliasHoldServiceClient{cc}
 }
 
-func (c *aliasHoldServiceClient) Add(ctx context.Context, in *AliasHoldAddRequest, opts ...grpc.CallOption) (*AliasHold, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(AliasHold)
-	err := c.cc.Invoke(ctx, AliasHoldService_Add_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *aliasHoldServiceClient) Get(ctx context.Context, in *AliasHoldGetRequest, opts ...grpc.CallOption) (*AliasHold, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(AliasHold)
-	err := c.cc.Invoke(ctx, AliasHoldService_Get_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *aliasHoldServiceClient) Patch(ctx context.Context, in *AliasHoldPatchRequest, opts ...grpc.CallOption) (*AliasHold, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(AliasHold)
-	err := c.cc.Invoke(ctx, AliasHoldService_Patch_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *aliasHoldServiceClient) Apply(ctx context.Context, in *AliasHoldApplyRequest, opts ...grpc.CallOption) (*AliasHold, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(AliasHold)
-	err := c.cc.Invoke(ctx, AliasHoldService_Apply_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *aliasHoldServiceClient) Erase(ctx context.Context, in *AliasHoldRef, opts ...grpc.CallOption) (*AliasHoldEraseResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(AliasHoldEraseResponse)
-	err := c.cc.Invoke(ctx, AliasHoldService_Erase_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // AliasHoldServiceServer is the server API for AliasHoldService service.
 // All implementations must embed UnimplementedAliasHoldServiceServer
 // for forward compatibility.
 type AliasHoldServiceServer interface {
-	// Add creates a new AliasHold
-	Add(context.Context, *AliasHoldAddRequest) (*AliasHold, error)
-	// Get retrieves a AliasHold
-	Get(context.Context, *AliasHoldGetRequest) (*AliasHold, error)
-	// Patch updates an existing AliasHold
-	Patch(context.Context, *AliasHoldPatchRequest) (*AliasHold, error)
-	// Apply applies a patch document to an existing AliasHold
-	Apply(context.Context, *AliasHoldApplyRequest) (*AliasHold, error)
-	// Erase deletes a AliasHold
-	Erase(context.Context, *AliasHoldRef) (*AliasHoldEraseResponse, error)
 	mustEmbedUnimplementedAliasHoldServiceServer()
 }
 
@@ -1814,21 +1328,6 @@ type AliasHoldServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedAliasHoldServiceServer struct{}
 
-func (UnimplementedAliasHoldServiceServer) Add(context.Context, *AliasHoldAddRequest) (*AliasHold, error) {
-	return nil, status.Error(codes.Unimplemented, "method Add not implemented")
-}
-func (UnimplementedAliasHoldServiceServer) Get(context.Context, *AliasHoldGetRequest) (*AliasHold, error) {
-	return nil, status.Error(codes.Unimplemented, "method Get not implemented")
-}
-func (UnimplementedAliasHoldServiceServer) Patch(context.Context, *AliasHoldPatchRequest) (*AliasHold, error) {
-	return nil, status.Error(codes.Unimplemented, "method Patch not implemented")
-}
-func (UnimplementedAliasHoldServiceServer) Apply(context.Context, *AliasHoldApplyRequest) (*AliasHold, error) {
-	return nil, status.Error(codes.Unimplemented, "method Apply not implemented")
-}
-func (UnimplementedAliasHoldServiceServer) Erase(context.Context, *AliasHoldRef) (*AliasHoldEraseResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method Erase not implemented")
-}
 func (UnimplementedAliasHoldServiceServer) mustEmbedUnimplementedAliasHoldServiceServer() {}
 func (UnimplementedAliasHoldServiceServer) testEmbeddedByValue()                          {}
 
@@ -1850,150 +1349,21 @@ func RegisterAliasHoldServiceServer(s grpc.ServiceRegistrar, srv AliasHoldServic
 	s.RegisterService(&AliasHoldService_ServiceDesc, srv)
 }
 
-func _AliasHoldService_Add_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AliasHoldAddRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AliasHoldServiceServer).Add(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AliasHoldService_Add_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AliasHoldServiceServer).Add(ctx, req.(*AliasHoldAddRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AliasHoldService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AliasHoldGetRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AliasHoldServiceServer).Get(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AliasHoldService_Get_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AliasHoldServiceServer).Get(ctx, req.(*AliasHoldGetRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AliasHoldService_Patch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AliasHoldPatchRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AliasHoldServiceServer).Patch(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AliasHoldService_Patch_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AliasHoldServiceServer).Patch(ctx, req.(*AliasHoldPatchRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AliasHoldService_Apply_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AliasHoldApplyRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AliasHoldServiceServer).Apply(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AliasHoldService_Apply_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AliasHoldServiceServer).Apply(ctx, req.(*AliasHoldApplyRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AliasHoldService_Erase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AliasHoldRef)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AliasHoldServiceServer).Erase(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AliasHoldService_Erase_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AliasHoldServiceServer).Erase(ctx, req.(*AliasHoldRef))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // AliasHoldService_ServiceDesc is the grpc.ServiceDesc for AliasHoldService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var AliasHoldService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "rove.AliasHoldService",
 	HandlerType: (*AliasHoldServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "Add",
-			Handler:    _AliasHoldService_Add_Handler,
-		},
-		{
-			MethodName: "Get",
-			Handler:    _AliasHoldService_Get_Handler,
-		},
-		{
-			MethodName: "Patch",
-			Handler:    _AliasHoldService_Patch_Handler,
-		},
-		{
-			MethodName: "Apply",
-			Handler:    _AliasHoldService_Apply_Handler,
-		},
-		{
-			MethodName: "Erase",
-			Handler:    _AliasHoldService_Erase_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "rove/org_svc.g.proto",
+	Methods:     []grpc.MethodDesc{},
+	Streams:     []grpc.StreamDesc{},
+	Metadata:    "rove/org_svc.g.proto",
 }
-
-const (
-	ConsentService_Add_FullMethodName   = "/rove.ConsentService/Add"
-	ConsentService_Get_FullMethodName   = "/rove.ConsentService/Get"
-	ConsentService_Patch_FullMethodName = "/rove.ConsentService/Patch"
-	ConsentService_Apply_FullMethodName = "/rove.ConsentService/Apply"
-	ConsentService_Erase_FullMethodName = "/rove.ConsentService/Erase"
-)
 
 // ConsentServiceClient is the client API for ConsentService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ConsentServiceClient interface {
-	// Add creates a new Consent
-	Add(ctx context.Context, in *ConsentAddRequest, opts ...grpc.CallOption) (*Consent, error)
-	// Get retrieves a Consent
-	Get(ctx context.Context, in *ConsentGetRequest, opts ...grpc.CallOption) (*Consent, error)
-	// Patch updates an existing Consent
-	Patch(ctx context.Context, in *ConsentPatchRequest, opts ...grpc.CallOption) (*Consent, error)
-	// Apply applies a patch document to an existing Consent
-	Apply(ctx context.Context, in *ConsentApplyRequest, opts ...grpc.CallOption) (*Consent, error)
-	// Erase deletes a Consent
-	Erase(ctx context.Context, in *ConsentRef, opts ...grpc.CallOption) (*ConsentEraseResponse, error)
 }
 
 type consentServiceClient struct {
@@ -2004,70 +1374,10 @@ func NewConsentServiceClient(cc grpc.ClientConnInterface) ConsentServiceClient {
 	return &consentServiceClient{cc}
 }
 
-func (c *consentServiceClient) Add(ctx context.Context, in *ConsentAddRequest, opts ...grpc.CallOption) (*Consent, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Consent)
-	err := c.cc.Invoke(ctx, ConsentService_Add_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *consentServiceClient) Get(ctx context.Context, in *ConsentGetRequest, opts ...grpc.CallOption) (*Consent, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Consent)
-	err := c.cc.Invoke(ctx, ConsentService_Get_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *consentServiceClient) Patch(ctx context.Context, in *ConsentPatchRequest, opts ...grpc.CallOption) (*Consent, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Consent)
-	err := c.cc.Invoke(ctx, ConsentService_Patch_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *consentServiceClient) Apply(ctx context.Context, in *ConsentApplyRequest, opts ...grpc.CallOption) (*Consent, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Consent)
-	err := c.cc.Invoke(ctx, ConsentService_Apply_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *consentServiceClient) Erase(ctx context.Context, in *ConsentRef, opts ...grpc.CallOption) (*ConsentEraseResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ConsentEraseResponse)
-	err := c.cc.Invoke(ctx, ConsentService_Erase_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // ConsentServiceServer is the server API for ConsentService service.
 // All implementations must embed UnimplementedConsentServiceServer
 // for forward compatibility.
 type ConsentServiceServer interface {
-	// Add creates a new Consent
-	Add(context.Context, *ConsentAddRequest) (*Consent, error)
-	// Get retrieves a Consent
-	Get(context.Context, *ConsentGetRequest) (*Consent, error)
-	// Patch updates an existing Consent
-	Patch(context.Context, *ConsentPatchRequest) (*Consent, error)
-	// Apply applies a patch document to an existing Consent
-	Apply(context.Context, *ConsentApplyRequest) (*Consent, error)
-	// Erase deletes a Consent
-	Erase(context.Context, *ConsentRef) (*ConsentEraseResponse, error)
 	mustEmbedUnimplementedConsentServiceServer()
 }
 
@@ -2078,21 +1388,6 @@ type ConsentServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedConsentServiceServer struct{}
 
-func (UnimplementedConsentServiceServer) Add(context.Context, *ConsentAddRequest) (*Consent, error) {
-	return nil, status.Error(codes.Unimplemented, "method Add not implemented")
-}
-func (UnimplementedConsentServiceServer) Get(context.Context, *ConsentGetRequest) (*Consent, error) {
-	return nil, status.Error(codes.Unimplemented, "method Get not implemented")
-}
-func (UnimplementedConsentServiceServer) Patch(context.Context, *ConsentPatchRequest) (*Consent, error) {
-	return nil, status.Error(codes.Unimplemented, "method Patch not implemented")
-}
-func (UnimplementedConsentServiceServer) Apply(context.Context, *ConsentApplyRequest) (*Consent, error) {
-	return nil, status.Error(codes.Unimplemented, "method Apply not implemented")
-}
-func (UnimplementedConsentServiceServer) Erase(context.Context, *ConsentRef) (*ConsentEraseResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method Erase not implemented")
-}
 func (UnimplementedConsentServiceServer) mustEmbedUnimplementedConsentServiceServer() {}
 func (UnimplementedConsentServiceServer) testEmbeddedByValue()                        {}
 
@@ -2114,150 +1409,21 @@ func RegisterConsentServiceServer(s grpc.ServiceRegistrar, srv ConsentServiceSer
 	s.RegisterService(&ConsentService_ServiceDesc, srv)
 }
 
-func _ConsentService_Add_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ConsentAddRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ConsentServiceServer).Add(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ConsentService_Add_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ConsentServiceServer).Add(ctx, req.(*ConsentAddRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ConsentService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ConsentGetRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ConsentServiceServer).Get(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ConsentService_Get_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ConsentServiceServer).Get(ctx, req.(*ConsentGetRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ConsentService_Patch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ConsentPatchRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ConsentServiceServer).Patch(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ConsentService_Patch_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ConsentServiceServer).Patch(ctx, req.(*ConsentPatchRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ConsentService_Apply_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ConsentApplyRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ConsentServiceServer).Apply(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ConsentService_Apply_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ConsentServiceServer).Apply(ctx, req.(*ConsentApplyRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ConsentService_Erase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ConsentRef)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ConsentServiceServer).Erase(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ConsentService_Erase_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ConsentServiceServer).Erase(ctx, req.(*ConsentRef))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // ConsentService_ServiceDesc is the grpc.ServiceDesc for ConsentService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var ConsentService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "rove.ConsentService",
 	HandlerType: (*ConsentServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "Add",
-			Handler:    _ConsentService_Add_Handler,
-		},
-		{
-			MethodName: "Get",
-			Handler:    _ConsentService_Get_Handler,
-		},
-		{
-			MethodName: "Patch",
-			Handler:    _ConsentService_Patch_Handler,
-		},
-		{
-			MethodName: "Apply",
-			Handler:    _ConsentService_Apply_Handler,
-		},
-		{
-			MethodName: "Erase",
-			Handler:    _ConsentService_Erase_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "rove/org_svc.g.proto",
+	Methods:     []grpc.MethodDesc{},
+	Streams:     []grpc.StreamDesc{},
+	Metadata:    "rove/org_svc.g.proto",
 }
-
-const (
-	SignInFailureService_Add_FullMethodName   = "/rove.SignInFailureService/Add"
-	SignInFailureService_Get_FullMethodName   = "/rove.SignInFailureService/Get"
-	SignInFailureService_Patch_FullMethodName = "/rove.SignInFailureService/Patch"
-	SignInFailureService_Apply_FullMethodName = "/rove.SignInFailureService/Apply"
-	SignInFailureService_Erase_FullMethodName = "/rove.SignInFailureService/Erase"
-)
 
 // SignInFailureServiceClient is the client API for SignInFailureService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SignInFailureServiceClient interface {
-	// Add creates a new SignInFailure
-	Add(ctx context.Context, in *SignInFailureAddRequest, opts ...grpc.CallOption) (*SignInFailure, error)
-	// Get retrieves a SignInFailure
-	Get(ctx context.Context, in *SignInFailureGetRequest, opts ...grpc.CallOption) (*SignInFailure, error)
-	// Patch updates an existing SignInFailure
-	Patch(ctx context.Context, in *SignInFailurePatchRequest, opts ...grpc.CallOption) (*SignInFailure, error)
-	// Apply applies a patch document to an existing SignInFailure
-	Apply(ctx context.Context, in *SignInFailureApplyRequest, opts ...grpc.CallOption) (*SignInFailure, error)
-	// Erase deletes a SignInFailure
-	Erase(ctx context.Context, in *SignInFailureRef, opts ...grpc.CallOption) (*SignInFailureEraseResponse, error)
 }
 
 type signInFailureServiceClient struct {
@@ -2268,70 +1434,10 @@ func NewSignInFailureServiceClient(cc grpc.ClientConnInterface) SignInFailureSer
 	return &signInFailureServiceClient{cc}
 }
 
-func (c *signInFailureServiceClient) Add(ctx context.Context, in *SignInFailureAddRequest, opts ...grpc.CallOption) (*SignInFailure, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SignInFailure)
-	err := c.cc.Invoke(ctx, SignInFailureService_Add_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *signInFailureServiceClient) Get(ctx context.Context, in *SignInFailureGetRequest, opts ...grpc.CallOption) (*SignInFailure, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SignInFailure)
-	err := c.cc.Invoke(ctx, SignInFailureService_Get_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *signInFailureServiceClient) Patch(ctx context.Context, in *SignInFailurePatchRequest, opts ...grpc.CallOption) (*SignInFailure, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SignInFailure)
-	err := c.cc.Invoke(ctx, SignInFailureService_Patch_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *signInFailureServiceClient) Apply(ctx context.Context, in *SignInFailureApplyRequest, opts ...grpc.CallOption) (*SignInFailure, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SignInFailure)
-	err := c.cc.Invoke(ctx, SignInFailureService_Apply_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *signInFailureServiceClient) Erase(ctx context.Context, in *SignInFailureRef, opts ...grpc.CallOption) (*SignInFailureEraseResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SignInFailureEraseResponse)
-	err := c.cc.Invoke(ctx, SignInFailureService_Erase_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // SignInFailureServiceServer is the server API for SignInFailureService service.
 // All implementations must embed UnimplementedSignInFailureServiceServer
 // for forward compatibility.
 type SignInFailureServiceServer interface {
-	// Add creates a new SignInFailure
-	Add(context.Context, *SignInFailureAddRequest) (*SignInFailure, error)
-	// Get retrieves a SignInFailure
-	Get(context.Context, *SignInFailureGetRequest) (*SignInFailure, error)
-	// Patch updates an existing SignInFailure
-	Patch(context.Context, *SignInFailurePatchRequest) (*SignInFailure, error)
-	// Apply applies a patch document to an existing SignInFailure
-	Apply(context.Context, *SignInFailureApplyRequest) (*SignInFailure, error)
-	// Erase deletes a SignInFailure
-	Erase(context.Context, *SignInFailureRef) (*SignInFailureEraseResponse, error)
 	mustEmbedUnimplementedSignInFailureServiceServer()
 }
 
@@ -2342,21 +1448,6 @@ type SignInFailureServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedSignInFailureServiceServer struct{}
 
-func (UnimplementedSignInFailureServiceServer) Add(context.Context, *SignInFailureAddRequest) (*SignInFailure, error) {
-	return nil, status.Error(codes.Unimplemented, "method Add not implemented")
-}
-func (UnimplementedSignInFailureServiceServer) Get(context.Context, *SignInFailureGetRequest) (*SignInFailure, error) {
-	return nil, status.Error(codes.Unimplemented, "method Get not implemented")
-}
-func (UnimplementedSignInFailureServiceServer) Patch(context.Context, *SignInFailurePatchRequest) (*SignInFailure, error) {
-	return nil, status.Error(codes.Unimplemented, "method Patch not implemented")
-}
-func (UnimplementedSignInFailureServiceServer) Apply(context.Context, *SignInFailureApplyRequest) (*SignInFailure, error) {
-	return nil, status.Error(codes.Unimplemented, "method Apply not implemented")
-}
-func (UnimplementedSignInFailureServiceServer) Erase(context.Context, *SignInFailureRef) (*SignInFailureEraseResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method Erase not implemented")
-}
 func (UnimplementedSignInFailureServiceServer) mustEmbedUnimplementedSignInFailureServiceServer() {}
 func (UnimplementedSignInFailureServiceServer) testEmbeddedByValue()                              {}
 
@@ -2378,124 +1469,13 @@ func RegisterSignInFailureServiceServer(s grpc.ServiceRegistrar, srv SignInFailu
 	s.RegisterService(&SignInFailureService_ServiceDesc, srv)
 }
 
-func _SignInFailureService_Add_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SignInFailureAddRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SignInFailureServiceServer).Add(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SignInFailureService_Add_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SignInFailureServiceServer).Add(ctx, req.(*SignInFailureAddRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SignInFailureService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SignInFailureGetRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SignInFailureServiceServer).Get(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SignInFailureService_Get_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SignInFailureServiceServer).Get(ctx, req.(*SignInFailureGetRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SignInFailureService_Patch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SignInFailurePatchRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SignInFailureServiceServer).Patch(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SignInFailureService_Patch_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SignInFailureServiceServer).Patch(ctx, req.(*SignInFailurePatchRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SignInFailureService_Apply_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SignInFailureApplyRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SignInFailureServiceServer).Apply(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SignInFailureService_Apply_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SignInFailureServiceServer).Apply(ctx, req.(*SignInFailureApplyRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SignInFailureService_Erase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SignInFailureRef)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SignInFailureServiceServer).Erase(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SignInFailureService_Erase_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SignInFailureServiceServer).Erase(ctx, req.(*SignInFailureRef))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // SignInFailureService_ServiceDesc is the grpc.ServiceDesc for SignInFailureService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var SignInFailureService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "rove.SignInFailureService",
 	HandlerType: (*SignInFailureServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "Add",
-			Handler:    _SignInFailureService_Add_Handler,
-		},
-		{
-			MethodName: "Get",
-			Handler:    _SignInFailureService_Get_Handler,
-		},
-		{
-			MethodName: "Patch",
-			Handler:    _SignInFailureService_Patch_Handler,
-		},
-		{
-			MethodName: "Apply",
-			Handler:    _SignInFailureService_Apply_Handler,
-		},
-		{
-			MethodName: "Erase",
-			Handler:    _SignInFailureService_Erase_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "rove/org_svc.g.proto",
+	Methods:     []grpc.MethodDesc{},
+	Streams:     []grpc.StreamDesc{},
+	Metadata:    "rove/org_svc.g.proto",
 }

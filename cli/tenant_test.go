@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"bytes"
 	"context"
+	"encoding/base64"
 	"io"
 	"os"
 	"path/filepath"
@@ -152,6 +153,7 @@ func TestAnOperatorRestoresAWorkspace(t *testing.T) {
 	c.App.Files = t.TempDir()
 	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
 	c.Audit.Checkpoints.Key = string(key)
+	c.Audit.Digest.Key = "base64:" + base64.StdEncoding.EncodeToString(bytes.Repeat([]byte{7}, 32))
 
 	run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234")
 	run(t, cli.NewCmdHolder(&c), "add", "--tenant", "acme", "--login", "kim", "--password", "kim-password")
@@ -188,6 +190,9 @@ func TestAnOperatorRestoresAWorkspace(t *testing.T) {
 	x.Contains(done, "@acme: put back")
 	x.Contains(done, "from the export whose manifest is sha256:")
 	x.True(here())
+	// Every row put back is on the trail as the restore that put it there
+	// (payday#108), so a check of the rows finds nothing.
+	run(t, cli.NewCmdTrail(&c), "rows")
 	x.ErrorIs(cli.NewCmdTenant(&c).Run(ctx, []string{"import", "--file", out, "--yes"}), offboard.ErrNotNew)
 
 	x.NoError(signsIn("owner", "owner1234"), "the owner's account is the one it had")
@@ -198,6 +203,7 @@ func TestAnOperatorRestoresAWorkspace(t *testing.T) {
 	x.True(ok, "%s", m)
 	password, _, _ := strings.Cut(after, "\n")
 	x.NoError(signsIn("kim", strings.TrimSpace(password)))
+	run(t, cli.NewCmdTrail(&c), "rows")
 }
 
 // TestAWorkspaceLeavesAndComesBackThroughStdio: an export written to stdout is

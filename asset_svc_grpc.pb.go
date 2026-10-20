@@ -932,28 +932,10 @@ var AssetService_ServiceDesc = grpc.ServiceDesc{
 	Metadata: "rove/asset_svc.g.proto",
 }
 
-const (
-	TreeLockService_Add_FullMethodName   = "/rove.TreeLockService/Add"
-	TreeLockService_Get_FullMethodName   = "/rove.TreeLockService/Get"
-	TreeLockService_Patch_FullMethodName = "/rove.TreeLockService/Patch"
-	TreeLockService_Apply_FullMethodName = "/rove.TreeLockService/Apply"
-	TreeLockService_Erase_FullMethodName = "/rove.TreeLockService/Erase"
-)
-
 // TreeLockServiceClient is the client API for TreeLockService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TreeLockServiceClient interface {
-	// Add creates a new TreeLock
-	Add(ctx context.Context, in *TreeLockAddRequest, opts ...grpc.CallOption) (*TreeLock, error)
-	// Get retrieves a TreeLock
-	Get(ctx context.Context, in *TreeLockGetRequest, opts ...grpc.CallOption) (*TreeLock, error)
-	// Patch updates an existing TreeLock
-	Patch(ctx context.Context, in *TreeLockPatchRequest, opts ...grpc.CallOption) (*TreeLock, error)
-	// Apply applies a patch document to an existing TreeLock
-	Apply(ctx context.Context, in *TreeLockApplyRequest, opts ...grpc.CallOption) (*TreeLock, error)
-	// Erase deletes a TreeLock
-	Erase(ctx context.Context, in *TreeLockRef, opts ...grpc.CallOption) (*TreeLockEraseResponse, error)
 }
 
 type treeLockServiceClient struct {
@@ -964,70 +946,10 @@ func NewTreeLockServiceClient(cc grpc.ClientConnInterface) TreeLockServiceClient
 	return &treeLockServiceClient{cc}
 }
 
-func (c *treeLockServiceClient) Add(ctx context.Context, in *TreeLockAddRequest, opts ...grpc.CallOption) (*TreeLock, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TreeLock)
-	err := c.cc.Invoke(ctx, TreeLockService_Add_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *treeLockServiceClient) Get(ctx context.Context, in *TreeLockGetRequest, opts ...grpc.CallOption) (*TreeLock, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TreeLock)
-	err := c.cc.Invoke(ctx, TreeLockService_Get_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *treeLockServiceClient) Patch(ctx context.Context, in *TreeLockPatchRequest, opts ...grpc.CallOption) (*TreeLock, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TreeLock)
-	err := c.cc.Invoke(ctx, TreeLockService_Patch_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *treeLockServiceClient) Apply(ctx context.Context, in *TreeLockApplyRequest, opts ...grpc.CallOption) (*TreeLock, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TreeLock)
-	err := c.cc.Invoke(ctx, TreeLockService_Apply_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *treeLockServiceClient) Erase(ctx context.Context, in *TreeLockRef, opts ...grpc.CallOption) (*TreeLockEraseResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TreeLockEraseResponse)
-	err := c.cc.Invoke(ctx, TreeLockService_Erase_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // TreeLockServiceServer is the server API for TreeLockService service.
 // All implementations must embed UnimplementedTreeLockServiceServer
 // for forward compatibility.
 type TreeLockServiceServer interface {
-	// Add creates a new TreeLock
-	Add(context.Context, *TreeLockAddRequest) (*TreeLock, error)
-	// Get retrieves a TreeLock
-	Get(context.Context, *TreeLockGetRequest) (*TreeLock, error)
-	// Patch updates an existing TreeLock
-	Patch(context.Context, *TreeLockPatchRequest) (*TreeLock, error)
-	// Apply applies a patch document to an existing TreeLock
-	Apply(context.Context, *TreeLockApplyRequest) (*TreeLock, error)
-	// Erase deletes a TreeLock
-	Erase(context.Context, *TreeLockRef) (*TreeLockEraseResponse, error)
 	mustEmbedUnimplementedTreeLockServiceServer()
 }
 
@@ -1038,21 +960,6 @@ type TreeLockServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedTreeLockServiceServer struct{}
 
-func (UnimplementedTreeLockServiceServer) Add(context.Context, *TreeLockAddRequest) (*TreeLock, error) {
-	return nil, status.Error(codes.Unimplemented, "method Add not implemented")
-}
-func (UnimplementedTreeLockServiceServer) Get(context.Context, *TreeLockGetRequest) (*TreeLock, error) {
-	return nil, status.Error(codes.Unimplemented, "method Get not implemented")
-}
-func (UnimplementedTreeLockServiceServer) Patch(context.Context, *TreeLockPatchRequest) (*TreeLock, error) {
-	return nil, status.Error(codes.Unimplemented, "method Patch not implemented")
-}
-func (UnimplementedTreeLockServiceServer) Apply(context.Context, *TreeLockApplyRequest) (*TreeLock, error) {
-	return nil, status.Error(codes.Unimplemented, "method Apply not implemented")
-}
-func (UnimplementedTreeLockServiceServer) Erase(context.Context, *TreeLockRef) (*TreeLockEraseResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method Erase not implemented")
-}
 func (UnimplementedTreeLockServiceServer) mustEmbedUnimplementedTreeLockServiceServer() {}
 func (UnimplementedTreeLockServiceServer) testEmbeddedByValue()                         {}
 
@@ -1074,126 +981,15 @@ func RegisterTreeLockServiceServer(s grpc.ServiceRegistrar, srv TreeLockServiceS
 	s.RegisterService(&TreeLockService_ServiceDesc, srv)
 }
 
-func _TreeLockService_Add_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TreeLockAddRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TreeLockServiceServer).Add(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: TreeLockService_Add_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TreeLockServiceServer).Add(ctx, req.(*TreeLockAddRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _TreeLockService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TreeLockGetRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TreeLockServiceServer).Get(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: TreeLockService_Get_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TreeLockServiceServer).Get(ctx, req.(*TreeLockGetRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _TreeLockService_Patch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TreeLockPatchRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TreeLockServiceServer).Patch(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: TreeLockService_Patch_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TreeLockServiceServer).Patch(ctx, req.(*TreeLockPatchRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _TreeLockService_Apply_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TreeLockApplyRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TreeLockServiceServer).Apply(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: TreeLockService_Apply_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TreeLockServiceServer).Apply(ctx, req.(*TreeLockApplyRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _TreeLockService_Erase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TreeLockRef)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TreeLockServiceServer).Erase(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: TreeLockService_Erase_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TreeLockServiceServer).Erase(ctx, req.(*TreeLockRef))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // TreeLockService_ServiceDesc is the grpc.ServiceDesc for TreeLockService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var TreeLockService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "rove.TreeLockService",
 	HandlerType: (*TreeLockServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "Add",
-			Handler:    _TreeLockService_Add_Handler,
-		},
-		{
-			MethodName: "Get",
-			Handler:    _TreeLockService_Get_Handler,
-		},
-		{
-			MethodName: "Patch",
-			Handler:    _TreeLockService_Patch_Handler,
-		},
-		{
-			MethodName: "Apply",
-			Handler:    _TreeLockService_Apply_Handler,
-		},
-		{
-			MethodName: "Erase",
-			Handler:    _TreeLockService_Erase_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "rove/asset_svc.g.proto",
+	Methods:     []grpc.MethodDesc{},
+	Streams:     []grpc.StreamDesc{},
+	Metadata:    "rove/asset_svc.g.proto",
 }
 
 const (

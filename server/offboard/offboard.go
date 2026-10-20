@@ -19,6 +19,7 @@ import (
 	"time"
 	"uuid"
 
+	"github.com/lesomnus/payday/audit"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/trail"
 	"github.com/protobuf-orm/ent/dialect"
@@ -40,6 +41,11 @@ type Deployment struct {
 	// `retention.Trail` answers them; its archive is read for an export and
 	// erased for a purge.
 	Trail trail.Policy
+
+	// Audit is what the trail keeps of each kind's writes, as the recorder is
+	// given it: what a restore puts on the trail as its act, a row for each
+	// row it put back (payday#108).
+	Audit audit.Contents
 
 	// Retention is what a tenant with no contract gets, for its holds and
 	// windows.

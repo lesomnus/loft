@@ -21,6 +21,7 @@ import (
 	"time"
 	"uuid"
 
+	"github.com/lesomnus/payday/audit"
 	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/gate"
 	"github.com/lesomnus/payday/pdid"
@@ -115,6 +116,13 @@ type Deps struct {
 	// is not a member of yet. Never handed to anything a caller reaches; this
 	// layer writes through it, after its own checks, and nothing else does.
 	Base app.Server
+
+	// Audit is what the trail keeps of each kind's writes (`audit.content`,
+	// `audit.digest.key`), as the recorder is given it: what a write this
+	// package makes beneath the servers on purpose is put on the trail with,
+	// as the act it is (payday#108, `pd.Record`). The zero value records the
+	// act and keeps no digest of the row.
+	Audit audit.Contents
 }
 
 // People is roster, as the people operations reach it: the accounts of this
@@ -573,11 +581,17 @@ func (t *Tx) lockTree() error {
 		return err
 	}
 	if n == 0 {
-		// The first change in a tenant that `init` did not seed.
-		if _, err := t.next.TreeLock().Add(t.ctx, app.TreeLockAddRequest_builder{
-			Tenant:  t.tenantRef(),
-			Version: 1,
-		}.Build()); err != nil {
+		// The first change in a tenant. Through ent, as every write of it
+		// is: the lock is bookkeeping, and no server writes it, so it is no
+		// row of the trail either (payday#108).
+		now := t.deps.now()
+		if err := t.db.TreeLock.Create().
+			SetId(pdid.New(pd.TreeLockDomain).Uuid()).
+			SetTenantId(t.tenant.Uuid()).
+			SetVersion(1).
+			SetDateCreated(now).
+			SetDateUpdated(now).
+			Exec(t.ctx); err != nil {
 			return err
 		}
 	}

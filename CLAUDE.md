@@ -313,6 +313,14 @@ them (`{party}`, `{holder}`, `{alias}`) and its payload carries the identifier
 (`go test ./server/domain`) go through the whole stack; set `PDTEST_POSTGRES` to
 run them on PostgreSQL.
 
+**A write through ent is not on the trail**, and `rove trail rows` then finds
+the row -- a write past the servers is what it is there to find (payday#108).
+Write through the servers. Where a write cannot be one -- a claim on a
+condition, a restore -- put it on the trail as the act it is, in the same
+transaction: `pd.Record` with `Deps.Audit`, as the mailer and `tenant import`
+do. A kind no server ever writes (a session, the tree lock) declares no RPC, and
+is not checked. An UPDATE that changes nothing, to take a row's lock, is fine.
+
 ## Search
 
 Search is OpenSearch with nori, for a deployment whose

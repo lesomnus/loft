@@ -5,70 +5,7 @@ edition = "2023";
 
 package rove;
 
-import "google/protobuf/timestamp.proto";
-import "patch/patch.proto";
-import "rove/search.proto";
-
 option go_package = "github.com/lesomnus/rove";
 
 service SearchStaleService {
-	// Add creates a new SearchStale
-	rpc Add(SearchStaleAddRequest) returns (SearchStale);
-	// Get retrieves a SearchStale
-	rpc Get(SearchStaleGetRequest) returns (SearchStale);
-	// Patch updates an existing SearchStale
-	rpc Patch(SearchStalePatchRequest) returns (SearchStale);
-	// Apply applies a patch document to an existing SearchStale
-	rpc Apply(SearchStaleApplyRequest) returns (SearchStale);
-	// Erase deletes a SearchStale
-	rpc Erase(SearchStaleRef) returns (SearchStaleEraseResponse);
-}
-
-message SearchStaleAddRequest {
-	bytes id = 1;
-	string kind = 8 [
-		features.field_presence = IMPLICIT
-	];
-	bytes key = 9 [
-		features.field_presence = IMPLICIT
-	];
-	google.protobuf.Timestamp date_created = 15;
-}
-
-message SearchStaleRef {
-	oneof key {
-		bytes id = 1;
-	}
-}
-
-message SearchStaleSelect {
-	bool all = 1;
-	bool kind = 8;
-	bool key = 9;
-	bool date_created = 15;
-}
-
-message SearchStaleGetRequest {
-	SearchStaleRef ref = 1;
-	SearchStaleSelect select = 2;
-}
-
-message SearchStalePatchRequest {
-	SearchStaleRef ref = 1;
-	string kind = 16;
-	bytes key = 18;
-}
-
-message SearchStaleApplyRequest {
-	SearchStaleRef ref = 1;
-	patch.Patch patch = 2;
-}
-
-message SearchStaleEraseResponse {
-	// Erased is whether this call is the one that erased the row.
-	// 
-	// False for a row that was already gone, was never there, or is out
-	// of this caller's reach -- which are one answer on purpose, and the
-	// reason the RPC does not fail instead.
-	bool erased = 1;
 }

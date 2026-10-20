@@ -1,21 +1,27 @@
 package cmd_test
 
 import (
+	"bytes"
 	"context"
 	"testing"
 	"time"
 
+	"github.com/lesomnus/payday/audit"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/pdpb"
+	"github.com/lesomnus/payday/trail"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	app "github.com/lesomnus/rove"
+	"github.com/lesomnus/rove/internal/ent"
+	entaudit "github.com/lesomnus/rove/internal/ent/audit"
 	"github.com/lesomnus/rove/internal/ent/holder"
 	"github.com/lesomnus/rove/internal/ent/notification"
 	"github.com/lesomnus/rove/server/domain"
+	"github.com/lesomnus/rove/server/pd"
 )
 
 // TestAnOperationUndoneMailsNothing: a notification is queued in the
@@ -80,9 +86,31 @@ func TestAnOperationUndoneMailsNothing(t *testing.T) {
 	mail()
 	x.Empty(box.sent, "and nothing went by mail")
 
+	// The mailer's own writes are recorded acts, with a digest, so that a
+	// check of the rows finds the notification as the mailer left it
+	// (payday#108).
+	d, err := audit.NewDigest(bytes.Repeat([]byte{7}, 32))
+	x.NoError(err)
+	w.s.Deps.Audit = audit.Contents{Digest: d}
+
 	_, err = app.NewReservationServiceClient(w.conn).Add(kim, reserve(tomorrow.Add(2*time.Hour)))
 	x.NoError(err)
 	mail()
 	x.Len(box.sent, 1, "the same request on its own is mailed")
 	x.Equal("owner@acme.example", box.sent[0].To)
+
+	sent, err := w.s.Ent.Notification.Query().Where(notification.Kind("reservation.requested")).Only(ctx)
+	x.NoError(err)
+	rows, err := w.s.Ent.Audit.Query().Where(entaudit.ObjectId(sent.Id)).Order(ent.Asc(entaudit.FieldDateCreated), ent.Asc(entaudit.FieldId)).All(ctx)
+	x.NoError(err)
+	acts := []string{}
+	for _, v := range rows[1:] {
+		acts = append(acts, v.Action)
+	}
+	x.Equal([]string{domain.MailTried, domain.MailSent}, acts)
+
+	got, err := pd.Digests(ctx, w.s.Ent, d, trail.Policy{})
+	x.NoError(err)
+	x.True(got.Ok(), "%+v", got)
+	x.Positive(got.Matches, "the notification's newest row of the trail keeps a digest")
 }

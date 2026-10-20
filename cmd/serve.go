@@ -265,6 +265,9 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		db.Close()
 		return nil, err
 	}
+	// What the domain writes beneath the servers is on the trail as its act,
+	// kept as the recorder keeps a write (payday#108).
+	deps.Audit = content
 
 	// Who people are is roster's: one of its own, or one in this process on a
 	// database of its own.
@@ -546,6 +549,7 @@ func (s *Server) Offboard(c Config) offboard.Deployment {
 		Drv:       s.Drv,
 		Files:     s.Deps.Files,
 		Trail:     s.Trail,
+		Audit:     s.Deps.Audit,
 		Retention: c.App.Retention.Defaults(),
 		Now:       s.Deps.Clock,
 	}

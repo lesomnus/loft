@@ -18,6 +18,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/party"
 	"github.com/lesomnus/rove/internal/identity"
 	"github.com/lesomnus/rove/server/mail"
+	"github.com/lesomnus/rove/server/pd"
 )
 
 // Mailer sends by mail what the notifications of the mailed kinds say
@@ -107,16 +108,21 @@ func (m Mailer) one(ctx context.Context, db *ent.Client, n *ent.Notification) er
 
 	// Claimed by counting the try: of two servers asking at once, one
 	// counts it and sends, and the other finds it counted and moves on.
-	claimed, err := db.Notification.Update().
-		Where(
-			notification.Id(n.Id),
-			notification.Mail(true),
-			notification.DateMailedIsNil(),
-			notification.MailTries(n.MailTries),
-		).
-		AddMailTries(1).
-		Save(ctx)
-	if err != nil || claimed == 0 {
+	claimed := false
+	err = m.recorded(ctx, db, MailTried, n, func(db *ent.Client) (bool, error) {
+		k, err := db.Notification.Update().
+			Where(
+				notification.Id(n.Id),
+				notification.Mail(true),
+				notification.DateMailedIsNil(),
+				notification.MailTries(n.MailTries),
+			).
+			AddMailTries(1).
+			Save(ctx)
+		claimed = k > 0
+		return claimed, err
+	})
+	if err != nil || !claimed {
 		return err
 	}
 
@@ -128,12 +134,48 @@ func (m Mailer) one(ctx context.Context, db *ent.Client, n *ent.Notification) er
 		}
 		return err
 	}
-	return db.Notification.UpdateOneId(n.Id).SetDateMailed(m.Deps.now()).Exec(ctx)
+	return m.recorded(ctx, db, MailSent, n, func(db *ent.Client) (bool, error) {
+		return true, db.Notification.UpdateOneId(n.Id).SetDateMailed(m.Deps.now()).Exec(ctx)
+	})
 }
 
 // drop takes a notification off the queue without a mail.
 func (m Mailer) drop(ctx context.Context, db *ent.Client, n *ent.Notification) error {
-	return db.Notification.UpdateOneId(n.Id).SetMail(false).Exec(ctx)
+	return m.recorded(ctx, db, MailDropped, n, func(db *ent.Client) (bool, error) {
+		return true, db.Notification.UpdateOneId(n.Id).SetMail(false).Exec(ctx)
+	})
+}
+
+// The acts the mailer writes a notification with, as the trail names them.
+const (
+	MailTried   = "rove.mail.try"
+	MailSent    = "rove.mail.sent"
+	MailDropped = "rove.mail.drop"
+)
+
+// recorded is one of the mailer's writes of a notification, and the act on
+// the trail that says so, in one transaction (payday#108). The writes are the
+// mailer's own -- a try counted, a mail sent, a notification taken off the
+// queue -- and made through ent, since a claim is a condition no Patch can
+// state; recorded, a check of the rows finds the notification as the mailer
+// left it. `write` answers whether it wrote anything, and nothing is recorded
+// when it did not.
+func (m Mailer) recorded(ctx context.Context, db *ent.Client, act string, n *ent.Notification, write func(*ent.Client) (bool, error)) error {
+	tx, err := db.Tx(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	wrote, err := write(tx.Client())
+	if err != nil || !wrote {
+		return err
+	}
+	if _, err := pd.Record(ctx, tx.Client(), m.Deps.Audit, act, []pdid.Id{pdid.Id(n.Id)}); err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }
 
 // addressOf is where a membership's mail goes, or nowhere.
