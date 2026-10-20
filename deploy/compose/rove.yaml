@@ -60,6 +60,11 @@ audit:
     write_once: true
     key: /run/secrets/checkpoints.pem
 
+  # A keyed digest of the row each write left, so that `rove trail rows`
+  # finds a row changed in the database past the servers (payday#102).
+  digest:
+    key: /run/secrets/digest.key
+
   # How long a row stays in the database and the archive. Nothing moves or
   # goes until this says so, and the number is the regime's, not a default's
   # (`rove.yaml` at the root says why). plan.md M5 has a membership's rows

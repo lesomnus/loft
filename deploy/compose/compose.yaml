@@ -29,6 +29,7 @@ x-rove: &rove
     - checkpoints:/var/lib/rove/checkpoints
   secrets:
     - checkpoints.pem
+    - digest.key
   networks: [rove]
   restart: unless-stopped
 
@@ -81,6 +82,7 @@ services:
       - 127.0.0.1:8081:8081
     secrets:
       - checkpoints.pem
+      - digest.key
       - admin_key
     depends_on:
       migrate: { condition: service_completed_successfully }
@@ -121,5 +123,7 @@ volumes:
 secrets:
   checkpoints.pem:
     file: ./secrets/checkpoints.pem
+  digest.key:
+    file: ./secrets/digest.key
   admin_key:
     file: ./secrets/admin_key

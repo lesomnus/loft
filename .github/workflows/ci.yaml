@@ -189,6 +189,7 @@ jobs:
             -e "s/^ROVE_VERSION=.*/ROVE_VERSION=ci/" .env
           mkdir -m 700 secrets
           openssl genpkey -algorithm ed25519 -out secrets/checkpoints.pem
+          openssl rand -base64 32 > secrets/digest.key
           openssl rand -hex 32 > secrets/admin_key
           chmod 444 secrets/*
           # Search on, as README's "검색을 켜려면" turns it on.

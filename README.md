@@ -447,6 +447,7 @@ audit:
 go run ./cmd/rove trail verify          # 보관소를 DB의 기록·최신 체크포인트와 비교 (아무것도 바꾸지 않음)
 go run ./cmd/rove trail verify --full   # 모든 청크를 다 읽어 내용이 바뀌지 않았는지까지
 go run ./cmd/rove trail accept --why "백업에서 복원한 청크를 확인함"   # 살펴본 뒤, 보관소가 맞다고 DB의 기록을 맞춤
+go run ./cmd/rove trail rows            # 지금 DB의 행을 감사 기록이 남긴 지문과 비교 (아무것도 바꾸지 않음)
 ```
 
 `verify` 는 무언가 찾으면 실패로 끝나므로 일정에 걸어 둘 수 있습니다. 체크포인트는 삭제를 거부하는 디스크(`audit.checkpoints.dir`)에 따로 두고, `audit.checkpoints.key` 로 서명하는 것을 권합니다. 키는 파일 경로로 주거나 `ROVE_AUDIT_CHECKPOINTS_KEY` 에 PEM 문서 자체를 넣습니다. 조직 내보내기의 감사 기록도 DB가 기록해 둔 청크만, 내용이 그대로인 것만 읽습니다.
@@ -460,6 +461,13 @@ go run ./cmd/rove trail verify                                   # 그전에 쓴
 go run ./cmd/rove trail accept --why "행에 서명하기 전에 쓴 것"   # 한 번
 go run ./cmd/rove trail verify                                   # 깨끗함
 ```
+
+**행의 지문(payday#102).** `audit.digest.key`를 두면 감사 기록이 쓰기마다 그 쓰기가 남긴 행의 지문(HMAC)을 함께 남깁니다.
+- `trail rows`는 지금 DB의 행마다 지문을 다시 내어 마지막 감사 기록과 비교합니다. 앱을 거치지 않고 DB에서 직접 바뀐 행이 있으면 실패로 끝나므로 일정에 걸어 둘 수 있습니다.
+- 키는 `openssl rand -base64 32`로 만들어 비밀로 마운트하거나, `ROVE_AUDIT_DIGEST_KEY`에 `base64:`와 키를 넣습니다. DB와 DB 백업에는 넣지 않습니다.
+- 바꾼 키의 예전 것은 `audit.digest.previous`에 둡니다.
+- 개인정보 필드는 지문에서 빠집니다.
+- 키를 두기 전에 쓴 행과, 감사 기록이 보관소로 옮겨간 행은 비교하지 않고 따로 셉니다.
 
 ## 무엇이 있나
 

@@ -25,5 +25,7 @@ func (e *Audit) Proto() *rove.Audit {
 	}
 	x.SetDomain(e.Domain)
 	x.SetFields(e.Fields)
+	x.SetDigest(e.Digest)
+	x.SetDigestFields(e.DigestFields)
 	return x
 }

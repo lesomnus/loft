@@ -15,7 +15,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file rove/payday/audit.proto.
  */
 export const file_rove_payday_audit: GenFile = /*@__PURE__*/
-  fileDesc("Chdyb3ZlL3BheWRheS9hdWRpdC5wcm90bxIEcm92ZSL5BgoFQXVkaXQSFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEhkKCXRlbmFudF9pZBgCIAEoDEIG6oIWAhBAEhgKCGFjdG9yX2lkGAggASgMQgbqghYCEEASEAoIdHJhY2VfaWQYCSABKAwSDgoGYWN0aW9uGAogASgJEhkKCW9iamVjdF9pZBgLIAEoDEIG6oIWAhBAEg0KBXBhdGNoGAwgASgMEjsKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCeqCFgVAAYIBABIfCg9hY3Rvcl90ZW5hbnRfaWQYECABKAxCBuqCFgIQQBINCgV2YWx1ZRgRIAEoDBInChVjb3VudGVycGFydF90ZW5hbnRfaWQYEiABKAxCCOqCFgQQQDgBEhcKBmRvbWFpbhgTIAEoDUIH6oIWA4IBABIOCgZmaWVsZHMYFCADKA06lgTK/BXYAhICEAEaFxIGb2JqZWN0Gg0KCW9iamVjdF9pZBALGigSBXRyYWlsGg0KCXRlbmFudF9pZBACGhAKDGRhdGVfY3JlYXRlZBAPGjgSD2J5X2FjdG9yX3RlbmFudBoTCg9hY3Rvcl90ZW5hbnRfaWQQEBoQCgxkYXRlX2NyZWF0ZWQQDxo9Eg5ieV9jb3VudGVycGFydBoZChVjb3VudGVycGFydF90ZW5hbnRfaWQQEhoQCgxkYXRlX2NyZWF0ZWQQDxopEglieV9kb21haW4aCgoGZG9tYWluEBMaEAoMZGF0ZV9jcmVhdGVkEA8aPxIQYnlfdGVuYW50X2RvbWFpbhoNCgl0ZW5hbnRfaWQQAhoKCgZkb21haW4QExoQCgxkYXRlX2NyZWF0ZWQQDxoqEghieV9hY3RvchoMCghhY3Rvcl9pZBAIGhAKDGRhdGVfY3JlYXRlZBAPirsWtAEIAzJ1ChIKDgoMZGF0ZV9jcmVhdGVkEAEKCAoECgJpZBABGgsKCW9iamVjdF9pZBoKCghhY3Rvcl9pZBoLCgl0ZW5hbnRfaWQaEQoPYWN0b3JfdGVuYW50X2lkGhcKFWNvdW50ZXJwYXJ0X3RlbmFudF9pZCAyKMgBQgIKAEgDIjMSCXRlbmFudF9pZBIPYWN0b3JfdGVuYW50X2lkEhVjb3VudGVycGFydF90ZW5hbnRfaWRCH1oYZ2l0aHViLmNvbS9sZXNvbW51cy9yb3ZlkgMCCAJiCGVkaXRpb25zcOgH", [file_google_protobuf_timestamp, file_orm, file_payday]);
+  fileDesc("Chdyb3ZlL3BheWRheS9hdWRpdC5wcm90bxIEcm92ZSKpBwoFQXVkaXQSFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEhkKCXRlbmFudF9pZBgCIAEoDEIG6oIWAhBAEhgKCGFjdG9yX2lkGAggASgMQgbqghYCEEASEAoIdHJhY2VfaWQYCSABKAwSDgoGYWN0aW9uGAogASgJEhkKCW9iamVjdF9pZBgLIAEoDEIG6oIWAhBAEg0KBXBhdGNoGAwgASgMEjsKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCeqCFgVAAYIBABIfCg9hY3Rvcl90ZW5hbnRfaWQYECABKAxCBuqCFgIQQBINCgV2YWx1ZRgRIAEoDBInChVjb3VudGVycGFydF90ZW5hbnRfaWQYEiABKAxCCOqCFgQQQDgBEhcKBmRvbWFpbhgTIAEoDUIH6oIWA4IBABIOCgZmaWVsZHMYFCADKA0SFwoGZGlnZXN0GBUgASgMQgfqghYDggEAEhUKDWRpZ2VzdF9maWVsZHMYFiADKA06lgTK/BXYAhICEAEaFxIGb2JqZWN0Gg0KCW9iamVjdF9pZBALGigSBXRyYWlsGg0KCXRlbmFudF9pZBACGhAKDGRhdGVfY3JlYXRlZBAPGjgSD2J5X2FjdG9yX3RlbmFudBoTCg9hY3Rvcl90ZW5hbnRfaWQQEBoQCgxkYXRlX2NyZWF0ZWQQDxo9Eg5ieV9jb3VudGVycGFydBoZChVjb3VudGVycGFydF90ZW5hbnRfaWQQEhoQCgxkYXRlX2NyZWF0ZWQQDxopEglieV9kb21haW4aCgoGZG9tYWluEBMaEAoMZGF0ZV9jcmVhdGVkEA8aPxIQYnlfdGVuYW50X2RvbWFpbhoNCgl0ZW5hbnRfaWQQAhoKCgZkb21haW4QExoQCgxkYXRlX2NyZWF0ZWQQDxoqEghieV9hY3RvchoMCghhY3Rvcl9pZBAIGhAKDGRhdGVfY3JlYXRlZBAPirsWtAEIAzJ1ChIKDgoMZGF0ZV9jcmVhdGVkEAEKCAoECgJpZBABGgsKCW9iamVjdF9pZBoKCghhY3Rvcl9pZBoLCgl0ZW5hbnRfaWQaEQoPYWN0b3JfdGVuYW50X2lkGhcKFWNvdW50ZXJwYXJ0X3RlbmFudF9pZCAyKMgBQgIKAEgDIjMSCXRlbmFudF9pZBIPYWN0b3JfdGVuYW50X2lkEhVjb3VudGVycGFydF90ZW5hbnRfaWRCH1oYZ2l0aHViLmNvbS9sZXNvbW51cy9yb3ZlkgMCCAJiCGVkaXRpb25zcOgH", [file_google_protobuf_timestamp, file_orm, file_payday]);
 
 /**
  * Audit is one write that happened, and who made it.
@@ -340,6 +340,44 @@ export type Audit = Message<"rove.Audit"> & {
    * @generated from field: repeated uint32 fields = 20;
    */
   fields: number[];
+
+  /**
+   * A keyed digest of the row this write left (payday#102): HMAC-SHA256,
+   * under the deployment's `audit.digest.key`, of the row as `value` would
+   * hold it -- a field declared `secret` or `personal` cleared -- restricted
+   * to the fields in `digest_fields`, and of which thing it is and of that
+   * list. It is what says a live row is the one the last write the trail
+   * recorded left: digest the row again, and one somebody changed in the
+   * database past the servers does not match.
+   *
+   * Keyed, because a row of the trail in the database is not signed until a
+   * pass archives it, and a digest anybody can compute is one whoever can
+   * write the database computes again for the row they changed. The key is a
+   * file the process is given, not a row anything reads.
+   *
+   * A byte of version, eight of the key's fingerprint -- so a digest made
+   * before a rotation is checked with the key it was made under -- and the
+   * HMAC. Empty for a deployment with no key, for an Erase, which hands no
+   * row over, and for a row written before this.
+   *
+   * Defaulted, for the reason `domain` gives: the recorder is not the only
+   * writer of this table, and a column another writer must fill in is one it
+   * learns about from a refusal at run time.
+   *
+   * @generated from field: bytes digest = 21;
+   */
+  digest: Uint8Array;
+
+  /**
+   * The fields `digest` covers, by number: the entity's fields as the build
+   * that wrote it knew them, less what it cleared. So a column a later
+   * migration adds is outside every digest made before it, and an old row
+   * still matches; a column it covers that a migration rewrote does not,
+   * which is the point.
+   *
+   * @generated from field: repeated uint32 digest_fields = 22;
+   */
+  digestFields: number[];
 };
 
 /**

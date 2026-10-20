@@ -34,6 +34,7 @@ cp .env.example .env && chmod 600 .env
 ```sh
 mkdir -m 700 secrets
 openssl genpkey -algorithm ed25519 -out secrets/checkpoints.pem   # 감사 기록 체크포인트 서명 키
+openssl rand -base64 32 > secrets/digest.key                      # 감사 기록이 행마다 남기는 지문의 키
 openssl rand -hex 32 > secrets/admin_key                          # 운영자 키 (32자 이상)
 chmod 444 secrets/*   # 컨테이너 안의 사용자가 읽게. 디렉터리가 700이라 호스트의 다른 사용자는 못 읽습니다
 ```

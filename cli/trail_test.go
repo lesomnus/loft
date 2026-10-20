@@ -1,9 +1,11 @@
 package cli_test
 
 import (
+	"bytes"
 	"crypto/ed25519"
 	"crypto/rand"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/pem"
 	"testing"
 	"time"
@@ -14,6 +16,7 @@ import (
 	"github.com/lesomnus/rove/cli"
 	"github.com/lesomnus/rove/cmd"
 	"github.com/lesomnus/rove/internal/ent"
+	"github.com/lesomnus/rove/internal/ent/holder"
 	"github.com/lesomnus/rove/server/pd"
 )
 
@@ -173,4 +176,36 @@ func TestADatabaseRestoredFromABackupIsAcceptedOnce(t *testing.T) {
 	pass()
 	x.Greater(latest(), since+1)
 	x.NoError(trail("verify", "--full"))
+}
+
+// TestTheLiveRowsAreCheckedAgainstTheTrail is `rove trail rows`: with a digest
+// key, what the deployment wrote matches what the trail keeps of it, and a row
+// changed in the database itself, past the servers, does not (payday#102).
+func TestTheLiveRowsAreCheckedAgainstTheTrail(t *testing.T) {
+	x := require.New(t)
+	ctx := t.Context()
+
+	c := cmd.Config{}
+	c.Db.Driver, c.Db.Dsn = pdtest.DB(t)
+	c.Watch.Broker = "memory"
+	c.App.Files = t.TempDir()
+	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
+	c.Audit.Digest.Key = "base64:" + base64.StdEncoding.EncodeToString(bytes.Repeat([]byte{7}, 32))
+	run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner-pass-1234")
+	trail := func(args ...string) error { return cli.NewCmdTrail(&c).Run(ctx, args) }
+
+	x.NoError(trail("rows"))
+
+	// The owner's role, written in the database itself.
+	s, err := cmd.Build(ctx, c)
+	x.NoError(err)
+	owner, err := s.Ent.Holder.Query().Where(holder.Role("owner")).Only(ctx)
+	x.NoError(err)
+	x.NoError(s.Ent.Holder.UpdateOneId(owner.Id).SetRole("member").Exec(ctx))
+	s.Close()
+
+	x.ErrorContains(trail("rows"), "1 rows differ")
+
+	c.Audit.Digest.Key = ""
+	x.ErrorContains(trail("rows"), "audit.digest.key", "no key, nothing to check against")
 }
