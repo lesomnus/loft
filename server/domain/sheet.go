@@ -6,13 +6,12 @@ import (
 	"encoding/csv"
 	"errors"
 	"fmt"
-	"strconv"
+	"regexp"
 	"strings"
 	"time"
 	"unicode/utf8"
 
 	"github.com/lesomnus/z"
-	"github.com/xuri/excelize/v2"
 	"golang.org/x/text/encoding/korean"
 	"golang.org/x/text/transform"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -21,27 +20,27 @@ import (
 )
 
 // The form bulk registration reads (design 9.13): its columns, in the order
-// the template writes them, what each is, and what else a header may say for
-// it -- the export's words, and a few a register kept elsewhere uses.
+// the template writes them, and what else a header may say for each -- the
+// export's words, and a few a register kept elsewhere uses. What each takes
+// is said on the page that hands the form out (`ts/src/pages/register.tsx`).
 var registerColumns = []struct {
 	key   string
 	label string
-	about string
 	also  []string
 }{
-	{"name", "이름", "필수", []string{"name", "자산명", "품명"}},
-	{"kind", "종류", "물품, 공간, 키트, 그룹. 비우면 유형의 것, 그것도 없으면 물품", []string{"kind", "구분"}},
-	{"type", "유형", "이름으로. 없는 이름이면 새로 만듭니다(관리자만)", []string{"type", "분류"}},
-	{"model", "모델", "이름으로. 없는 이름이면 새로 만듭니다", []string{"model", "모델명"}},
-	{"maker", "제조사", "모델을 찾고 만들 때 함께 봅니다", []string{"maker"}},
-	{"serial", "시리얼", "", []string{"serial", "일련번호", "s/n"}},
-	{"tag", "태그", "비우면 정해 줍니다. 이미 있는 태그는 등록하지 않습니다", []string{"tag", "자산번호", "관리번호"}},
-	{"location_tag", "위치태그", "이미 있는 공간의 태그. 공간을 새로 만들지 않습니다", []string{"location_tag", "위치 태그"}},
-	{"acquired_at", "취득일", "2024-03-01처럼", []string{"acquired_at", "구매일"}},
-	{"since", "기준일", "입고일. 이력이 이날부터입니다. 비우면 오늘", []string{"since", "입고일"}},
-	{"desc", "설명", "", []string{"desc", "비고", "메모"}},
-	{"status", "상태", "사용중, 주문, 수리중, 분실, 불용, 폐기. 비우면 사용중", []string{"status"}},
-	{"condition", "컨디션", "양호, 손상, 고장. 비우면 양호", []string{"condition"}},
+	{"name", "이름", []string{"name", "자산명", "품명"}},
+	{"kind", "종류", []string{"kind", "구분"}},
+	{"type", "유형", []string{"type", "분류"}},
+	{"model", "모델", []string{"model", "모델명"}},
+	{"maker", "제조사", []string{"maker"}},
+	{"serial", "시리얼", []string{"serial", "일련번호", "s/n"}},
+	{"tag", "태그", []string{"tag", "자산번호", "관리번호"}},
+	{"location_tag", "위치태그", []string{"location_tag", "위치 태그"}},
+	{"acquired_at", "취득일", []string{"acquired_at", "구매일"}},
+	{"since", "기준일", []string{"since", "입고일"}},
+	{"desc", "설명", []string{"desc", "비고", "메모"}},
+	{"status", "상태", []string{"status"}},
+	{"condition", "컨디션", []string{"condition"}},
 }
 
 // What a header may say that the form does not take, and why.
@@ -74,42 +73,26 @@ func word(v string, words map[string]string) string {
 	return strings.ToLower(v)
 }
 
-// registerForm is the template: the form's header, alone, and in a workbook a
-// sheet beside it saying what each column is, with a row filled in.
-func registerForm(format string) (*app.AssetExportResponse, error) {
+// registerForm is the template: the form's header, as a CSV.
+func registerForm() (*app.AssetExportResponse, error) {
 	header := []string{}
 	for _, c := range registerColumns {
 		header = append(header, c.label)
 	}
 	header = append(header, "속성.키")
 
-	return writeSheet(format, "rove-대량등록-양식", "등록", [][]string{header}, func(f *excelize.File) error {
-		const sheet = "읽어 주세요"
-		if _, err := f.NewSheet(sheet); err != nil {
-			return err
-		}
-		rows := [][]string{{"열", "적는 것"}}
-		for _, c := range registerColumns {
-			rows = append(rows, []string{c.label, c.about})
-		}
-		rows = append(rows,
-			[]string{"속성.키", "유형의 속성. 열 이름을 '속성.' 다음에 속성 키로 적습니다 (예: 속성.색상)"},
-			[]string{},
-			[]string{"예", ""},
-		)
-		example := []string{"노트북", "물품", "노트북", "ThinkPad X1 Carbon", "Lenovo", "PF-12345", "", "SP-01", "2024-03-01", "", "개발팀 지급용"}
-		for i, c := range registerColumns[:len(example)] {
-			rows = append(rows, []string{c.label, example[i]})
-		}
-		rows = append(rows,
-			[]string{},
-			[]string{"'등록' 시트에 한 줄에 자산 하나씩 적습니다. 새 자산만 등록하고, 이미 있는 자산은 고치지 않습니다."},
-		)
-		return setRows(f, sheet, rows)
-	})
+	return writeCSV("rove-대량등록-양식", [][]string{header})
 }
 
-// ReadSheet reads a sheet in the form into the items an AddMany takes. It
+// What a workbook begins with: a zip (.xlsx), or the OLE container an older
+// one (.xls) and an encrypted one are.
+var workbookMarks = [][]byte{[]byte("PK\x03\x04"), []byte("\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1")}
+
+// exponent is a number as Excel writes a long one into a CSV, when its cell
+// is not text: 3.57951E+14, the digits after the sixth gone.
+var exponent = regexp.MustCompile(`^[0-9]+(\.[0-9]+)?[Ee]\+[0-9]+$`)
+
+// ReadSheet reads a CSV in the form into the items an AddMany takes. It
 // writes nothing, and does not look at the tenant: whether a tag is taken or
 // a place is there is the AddMany's to say, in its dry run.
 func (s domainAsset) ReadSheet(ctx context.Context, req *app.AssetReadSheetRequest) (*app.AssetReadSheetResponse, error) {
@@ -117,14 +100,17 @@ func (s domainAsset) ReadSheet(ctx context.Context, req *app.AssetReadSheetReque
 		return nil, err
 	}
 
-	format := strings.ToLower(req.GetFormat())
-	if format == "" {
-		format = "csv"
-		if bytes.HasPrefix(req.GetData(), []byte("PK\x03\x04")) {
-			format = "xlsx"
+	// A workbook is not opened to be read: what one person uploads is read in
+	// the process every workspace is served by, reading a workbook takes a
+	// library as large as Excel -- formulas, encryption, the container an old
+	// one is in -- and a crafted workbook stops it. Rove has none (design
+	// 9.13).
+	for _, mark := range workbookMarks {
+		if bytes.HasPrefix(req.GetData(), mark) {
+			return nil, invalid("data", "엑셀 파일은 받지 않습니다. 엑셀에서 파일 형식을 'CSV UTF-8(쉼표로 분리)'로 골라 저장한 파일을 올리세요")
 		}
 	}
-	table, err := readTable(format, req.GetData())
+	table, err := readCSV(req.GetData())
 	if err != nil {
 		return nil, invalid("data", "시트를 읽을 수 없습니다: %v", err)
 	}
@@ -216,11 +202,18 @@ func (s domainAsset) ReadSheet(ctx context.Context, req *app.AssetReadSheetReque
 				delete(placeholder, i)
 				continue
 			}
+			column := strings.TrimSpace(table[0][i])
+			// An identifier Excel took for a number and wrote short: the
+			// digits it dropped are not in the file to be read back.
+			if (attr[i] != "" || keys[i] == "serial" || keys[i] == "tag") && exponent.MatchString(v) {
+				say(line, column, "%q는 엑셀이 긴 숫자를 줄여 쓴 것입니다. 그 열의 셀 서식을 텍스트로 바꾸고 다시 적으세요", v)
+				ok = false
+				continue
+			}
 			if attr[i] != "" {
 				attrs[attr[i]] = v
 				continue
 			}
-			column := strings.TrimSpace(table[0][i])
 			switch keys[i] {
 			case "name":
 				item.SetName(v)
@@ -289,58 +282,37 @@ func blank(row []string) bool {
 	return true
 }
 
-// readTable reads the first sheet of a workbook, or a CSV in UTF-8 or in the
-// CP949 that Korean Excel saves by default.
-func readTable(format string, data []byte) ([][]string, error) {
-	switch format {
-	case "xlsx":
-		f, err := excelize.OpenReader(bytes.NewReader(data))
+// readCSV reads a CSV in UTF-8, or in the CP949 that Korean Excel saves by
+// default.
+func readCSV(data []byte) ([][]string, error) {
+	data = bytes.TrimPrefix(data, []byte("\xef\xbb\xbf"))
+	if !utf8.Valid(data) {
+		v, _, err := transform.Bytes(korean.EUCKR.NewDecoder(), data)
 		if err != nil {
-			return nil, fmt.Errorf("엑셀(xlsx) 파일이 아닙니다: %w", err)
+			return nil, errors.New("UTF-8도 CP949도 아닙니다")
 		}
-		defer f.Close()
-		sheets := f.GetSheetList()
-		if len(sheets) == 0 {
-			return nil, errors.New("시트가 없습니다")
-		}
-		return f.GetRows(sheets[0])
-
-	case "csv":
-		data = bytes.TrimPrefix(data, []byte("\xef\xbb\xbf"))
-		if !utf8.Valid(data) {
-			v, _, err := transform.Bytes(korean.EUCKR.NewDecoder(), data)
-			if err != nil {
-				return nil, errors.New("UTF-8도 CP949도 아닙니다")
-			}
-			data = v
-		}
-		r := csv.NewReader(bytes.NewReader(data))
-		r.FieldsPerRecord = -1
-		r.LazyQuotes = true
-		return r.ReadAll()
+		data = v
 	}
-	return nil, fmt.Errorf("형식 %q는 csv나 xlsx입니다", format)
+	r := csv.NewReader(bytes.NewReader(data))
+	r.FieldsPerRecord = -1
+	r.LazyQuotes = true
+	return r.ReadAll()
 }
 
 var dateLayouts = []string{
 	"2006-01-02", "2006.01.02", "2006/01/02", "20060102",
 	"2006-1-2", "2006.1.2", "2006/1/2", "2006. 1. 2", "2006. 01. 02",
 	"2006-01-02 15:04", "2006-01-02 15:04:05", "2006-01-02T15:04:05Z07:00",
-	"01-02-06", "1/2/06", "1/2/2006",
+	"1/2/06", "1/2/2006",
 }
 
-// parseDate reads a date as people write one, or as Excel stores one.
+// parseDate reads a date as people write one, and as Excel writes one into a
+// CSV in Korean or in English.
 func parseDate(v string) (time.Time, error) {
 	v = strings.TrimSuffix(strings.TrimSpace(v), ".")
 	for _, l := range dateLayouts {
 		if t, err := time.ParseInLocation(l, v, Zone); err == nil {
 			return t, nil
-		}
-	}
-	if n, err := strconv.ParseFloat(v, 64); err == nil && n > 1 && n < 100000 {
-		t, err := excelize.ExcelDateToTime(n, false)
-		if err == nil {
-			return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, Zone), nil
 		}
 	}
 	return time.Time{}, fmt.Errorf("%q는 날짜가 아닙니다 (2024-03-01처럼 적어 주세요)", v)

@@ -1,6 +1,7 @@
 package domain_test
 
 import (
+	"archive/zip"
 	"bytes"
 	"context"
 	"os"
@@ -12,7 +13,6 @@ import (
 	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/lesomnus/payday/pderr"
 	"github.com/lesomnus/z"
-	"github.com/xuri/excelize/v2"
 	"golang.org/x/text/encoding/korean"
 	"google.golang.org/grpc/codes"
 
@@ -263,27 +263,16 @@ const sheet = "이름,종류,유형,모델,제조사,시리얼,태그,위치태�
 
 // TestASheetIsReadIntoItems: by column, in the words a sheet writes; a column
 // the form does not take said once; a cell that is not what its column is
-// said where it is, and its row left out. The same in UTF-8, in the CP949
-// Korean Excel saves, and in a workbook.
+// said where it is, and its row left out. The same in UTF-8 and in the CP949
+// Korean Excel saves.
 func TestASheetIsReadIntoItems(t *testing.T) {
 	e := newEnv(t)
 	x := e.x
 
 	cp949, err := korean.EUCKR.NewEncoder().Bytes([]byte(sheet))
 	x.NoError(err)
-	book := excelize.NewFile()
-	for i, line := range strings.Split(strings.TrimSuffix(sheet, "\n"), "\n") {
-		cell, _ := excelize.CoordinatesToCellName(1, i+1)
-		vs := []any{}
-		for _, v := range strings.Split(line, ",") {
-			vs = append(vs, v)
-		}
-		x.NoError(book.SetSheetRow("Sheet1", cell, &vs))
-	}
-	xlsx, err := book.WriteToBuffer()
-	x.NoError(err)
 
-	for name, data := range map[string][]byte{"utf-8": append([]byte("\ufeff"), sheet...), "cp949": cp949, "xlsx": xlsx.Bytes()} {
+	for name, data := range map[string][]byte{"utf-8": append([]byte("\ufeff"), sheet...), "cp949": cp949} {
 		t.Run(name, func(t *testing.T) {
 			x := e.x
 			res, err := e.app().Asset().ReadSheet(e.owner, app.AssetReadSheetRequest_builder{Data: data}.Build())
@@ -318,13 +307,12 @@ func TestASheetIsReadIntoItems(t *testing.T) {
 }
 
 // TestTheFormIsWhatASheetIsReadAs: the template's header is the form's, and a
-// sheet written on it is read back as it was written; a workbook has a sheet
-// beside it saying what each column is.
+// sheet written on it is read back as it was written.
 func TestTheFormIsWhatASheetIsReadAs(t *testing.T) {
 	e := newEnv(t)
 	x := e.x
 
-	v, err := e.app().Asset().Export(e.owner, app.AssetExportRequest_builder{Format: "csv", Template: true}.Build())
+	v, err := e.app().Asset().Export(e.owner, app.AssetExportRequest_builder{Template: true}.Build())
 	x.NoError(err)
 	header := strings.TrimPrefix(strings.TrimSpace(string(v.GetData())), "\ufeff")
 	x.Equal("이름,종류,유형,모델,제조사,시리얼,태그,위치태그,취득일,기준일,설명,상태,컨디션,속성.키", header)
@@ -337,13 +325,59 @@ func TestTheFormIsWhatASheetIsReadAs(t *testing.T) {
 	x.Len(res.GetItems(), 1)
 	x.Equal("active", res.GetItems()[0].GetStatus())
 	x.Equal("damaged", res.GetItems()[0].GetCondition())
+}
 
-	wb, err := e.app().Asset().Export(e.owner, app.AssetExportRequest_builder{Format: "xlsx", Template: true}.Build())
+// TestAWorkbookIsRefusedUnopened: a workbook is told by how it begins and
+// refused, saying how to save it as the form is; nothing reads it. An .xlsx
+// is a zip, and an .xls -- and an encrypted .xlsx -- an OLE container.
+func TestAWorkbookIsRefusedUnopened(t *testing.T) {
+	e := newEnv(t)
+	x := e.x
+
+	xlsx := bytes.Buffer{}
+	book := zip.NewWriter(&xlsx)
+	part, err := book.Create("[Content_Types].xml")
 	x.NoError(err)
-	f, err := excelize.OpenReader(bytes.NewReader(wb.GetData()))
+	_, err = part.Write([]byte(`<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"/>`))
 	x.NoError(err)
-	defer f.Close()
-	x.Equal([]string{"등록", "읽어 주세요"}, f.GetSheetList())
+	x.NoError(book.Close())
+
+	for name, data := range map[string][]byte{
+		"xlsx": xlsx.Bytes(),
+		"xls":  append([]byte("\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1"), make([]byte, 512)...),
+	} {
+		t.Run(name, func(t *testing.T) {
+			x := e.x
+			_, err := e.app().Asset().ReadSheet(e.owner, app.AssetReadSheetRequest_builder{Data: data}.Build())
+			x.Equal(codes.InvalidArgument, codeOf(err))
+			x.Contains(err.Error(), "CSV UTF-8")
+		})
+	}
+}
+
+// TestALongNumberExcelWroteShortIsSaid: Excel writes a long number into a CSV
+// the way it shows it, 3.57951E+14, unless its cell is text. In an
+// identifier -- a serial, a tag, an attribute -- the digits it dropped are
+// gone, so the line is said and left out rather than registered short.
+func TestALongNumberExcelWroteShortIsSaid(t *testing.T) {
+	e := newEnv(t)
+	x := e.x
+
+	res, err := e.app().Asset().ReadSheet(e.owner, app.AssetReadSheetRequest_builder{
+		Data: []byte("이름,시리얼,태그,속성.IMEI,설명\n" +
+			"휴대폰,3.57951E+14,,,\n" +
+			"휴대폰,,1.2E+11,,\n" +
+			"휴대폰,,,3.5795E+14,\n" +
+			"휴대폰,357951234567890,P-1,357951234567890,1E+3\n"),
+	}.Build())
+	x.NoError(err)
+
+	said := []string{}
+	for _, v := range res.GetIssues() {
+		said = append(said, strings.Join([]string{string(rune('0' + v.GetLine())), v.GetColumn()}, " "))
+	}
+	x.Equal([]string{"2 시리얼", "3 태그", "4 속성.IMEI"}, said)
+	x.Equal([]uint32{5}, res.GetLines(), "the digits written out are read, and a description is not an identifier")
 }
 
 // TestAnAssetRegisteredInBulkIsAFewStatements is [TestAnAssetMadeInBulkIsAFewStatements]

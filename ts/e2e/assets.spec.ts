@@ -1,7 +1,6 @@
 import { readFile } from 'node:fs/promises'
 
 import { card, choose, expect, field, people, said, signIn, test, unique, workspace } from './rove.js'
-import { unzip } from './zip.js'
 
 test('an asset is registered, found, opened and moved, and its timeline says so', async ({ page }) => {
 	const name = unique('e2e 의자')
@@ -38,21 +37,22 @@ test('an asset is registered, found, opened and moved, and its timeline says so'
 	await expect(page.getByRole('listitem').filter({ hasText: '디자인팀 사무실 안' })).toContainText('e2e: 자리를 옮김')
 })
 
-test('the register is exported as a workbook to read', async ({ page }, info) => {
+test('the register is exported as a CSV to read', async ({ page }, info) => {
 	await signIn(page, people.exports.login)
 	await page.goto(`${workspace}/assets`)
 
 	const download = page.waitForEvent('download')
-	await page.getByRole('button', { name: '엑셀로 내보내기' }).click()
+	await page.getByRole('button', { name: 'CSV로 내보내기' }).click()
 	const got = await download
-	expect(got.suggestedFilename()).toMatch(/^rove-assets-\d{8}\.xlsx$/)
+	expect(got.suggestedFilename()).toMatch(/^rove-assets-\d{8}\.csv$/)
 
-	// A workbook: a zip whose first sheet is the register.
-	const file = info.outputPath('assets.xlsx')
+	// UTF-8 with the mark Excel reads it as UTF-8 by, the register's header
+	// first and a row an asset after it.
+	const file = info.outputPath('assets.csv')
 	await got.saveAs(file)
-	const parts = unzip(await readFile(file))
-	expect(parts.has('xl/workbook.xml')).toBe(true)
-	expect([...parts.values()].map((v) => v.toString()).join('')).toContain('위치태그')
+	const lines = (await readFile(file)).toString('utf8').split('\n')
+	expect(lines[0]).toMatch(/^\ufeff태그,이름,종류,.*,위치태그,/)
+	expect(lines.length).toBeGreaterThan(2)
 
 	// And nothing reads one back: the sheet import is gone (design D34).
 	await expect(page.getByRole('button', { name: '가져오기', exact: true })).toHaveCount(0)

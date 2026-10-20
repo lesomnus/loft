@@ -19,7 +19,16 @@ test('new assets are registered from a sheet, shown first, as one intake', async
 
 	const download = page.waitForEvent('download')
 	await page.getByRole('button', { name: '양식 내려받기' }).click()
-	expect((await download).suggestedFilename()).toBe('rove-대량등록-양식.xlsx')
+	expect((await download).suggestedFilename()).toBe('rove-대량등록-양식.csv')
+	await expect(card(page, '양식')).toContainText('CSV UTF-8')
+
+	// A workbook is refused unopened, saying how to save it as the form is.
+	await field(page, '시트').setInputFiles({
+		name: 'intake.xlsx',
+		mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+		buffer: Buffer.from('PK\x03\x04'),
+	})
+	await expect(page.getByRole('alert')).toContainText('엑셀 파일은 받지 않습니다')
 
 	// A tag that is an asset's already: said where it is, and nothing registered.
 	await field(page, '시트').setInputFiles(sheet([['e2e 중복', '물품', '', 'SP-12', '', '']]))

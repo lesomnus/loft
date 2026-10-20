@@ -29,10 +29,11 @@ func tried(t *testing.T, k *xli.Command, args ...string) (string, error) {
 	return string(b), err
 }
 
-// TestASheetIsRegisteredFromATerminal: `rove register` writes the form,
-// shows what a sheet in it would register -- line by line, with the tags it
-// would give and the models it would make -- and registers it only with
+// TestASheetIsRegisteredFromATerminal: `rove register` writes the form, a
+// CSV, shows what a sheet in it would register -- line by line, with the tags
+// it would give and the models it would make -- and registers it only with
 // `--yes`, as one intake. Sent again, its tags are taken, and it says where.
+// A workbook it neither writes nor has read.
 func TestASheetIsRegisteredFromATerminal(t *testing.T) {
 	s := serve(t)
 	x := s.x
@@ -49,6 +50,13 @@ func TestASheetIsRegisteredFromATerminal(t *testing.T) {
 	b, err := os.ReadFile(form)
 	x.NoError(err)
 	x.True(strings.HasPrefix(strings.TrimPrefix(string(b), "\ufeff"), "이름,종류,유형"), "%s", b)
+	_, err = tried(t, cli.NewCmdRegister(), "--form", filepath.Join(dir, "form.xlsx"))
+	x.ErrorContains(err, "양식은 CSV입니다")
+
+	book := filepath.Join(dir, "intake.xlsx")
+	x.NoError(os.WriteFile(book, []byte("PK\x03\x04"), 0o644))
+	_, err = tried(t, cli.NewCmdRegister(), book)
+	x.ErrorContains(err, "엑셀 파일은 받지 않습니다")
 
 	sheet := filepath.Join(dir, "intake.csv")
 	x.NoError(os.WriteFile(sheet, []byte("이름,태그,모델,제조사\n노트북,NB-1,X1,Lenovo\n모니터,,,\n"), 0o644))

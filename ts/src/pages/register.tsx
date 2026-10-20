@@ -31,12 +31,31 @@ const columnOf: Record<string, string> = {
 	slot: '자리',
 }
 
+/** What each column of the form takes: the form itself is only its header. */
+const formColumns: [string, string][] = [
+	['이름', '필수'],
+	['종류', '물품, 공간, 키트, 그룹. 비우면 유형의 것, 그것도 없으면 물품'],
+	['유형', '이름으로. 없는 이름이면 새로 만듭니다(관리자만)'],
+	['모델', '이름으로. 없는 이름이면 새로 만듭니다'],
+	['제조사', '모델을 찾고 만들 때 함께 봅니다'],
+	['시리얼', ''],
+	['태그', '비우면 정해 줍니다. 이미 있는 태그는 등록하지 않습니다'],
+	['위치태그', '이미 있는 공간의 태그. 공간을 새로 만들지 않습니다'],
+	['취득일', '2024-03-01처럼'],
+	['기준일', '입고일. 이력이 이날부터입니다. 비우면 오늘'],
+	['설명', ''],
+	['상태', '사용중, 주문, 수리중, 분실, 불용, 폐기. 비우면 사용중'],
+	['컨디션', '양호, 손상, 고장. 비우면 양호'],
+	['속성.키', "유형의 속성. 열 이름을 '속성.' 다음에 속성 키로 적습니다 (예: 속성.색상)"],
+]
+
 type Read = { file: string; sheet: AssetReadSheetResponse; dry?: AssetAddManyResponse }
 
 /**
- * Bulk registration (design 9.13): a sheet in rove's form, read by the
+ * Bulk registration (design 9.13): a CSV in rove's form, read by the
  * deployment, shown as what it would register -- every issue by its line --
- * and registered as one intake when nothing stops it.
+ * and registered as one intake when nothing stops it. A workbook the
+ * deployment refuses unopened, so the page says how to save one as a CSV.
  */
 export function Register(): ReactNode {
 	const c = useCatalog()
@@ -52,7 +71,7 @@ export function Register(): ReactNode {
 
 	const form = async () => {
 		try {
-			const v = await raw.asset.export({ format: 'xlsx', template: true })
+			const v = await raw.asset.export({ template: true })
 			download(v.data, v.name, v.contentType)
 		} catch (err) {
 			toast(errorText(err), 'bad')
@@ -66,7 +85,7 @@ export function Register(): ReactNode {
 		setBusy(true)
 		try {
 			const data = new Uint8Array(await f.arrayBuffer())
-			const sheet = await raw.asset.readSheet({ data, format: f.name.toLowerCase().endsWith('.xlsx') ? 'xlsx' : '' })
+			const sheet = await raw.asset.readSheet({ data })
 			const dry = sheet.items.length === 0 ? undefined : await raw.asset.addMany({ items: sheet.items, dryRun: true })
 			setRead({ file: f.name, sheet, dry })
 		} catch (err) {
@@ -98,13 +117,8 @@ export function Register(): ReactNode {
 			<Card>
 				<div className="form">
 					<div className="fields">
-						<Field label="시트" hint="양식에 맞춰 적은 .xlsx 또는 .csv">
-							<input
-								type="file"
-								accept=".xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-								disabled={busy}
-								onChange={(e) => void pick(e.target.files?.[0])}
-							/>
+						<Field label="시트" hint="양식에 맞춰 적어 CSV로 저장한 파일">
+							<input type="file" accept=".csv,text/csv" disabled={busy} onChange={(e) => void pick(e.target.files?.[0])} />
 						</Field>
 					</div>
 				</div>
@@ -115,7 +129,39 @@ export function Register(): ReactNode {
 				</p>
 			)}
 			{read !== undefined && <Preview read={read} reason={reason} setReason={setReason} busy={busy} onRegister={() => void register()} />}
+			<FormGuide />
 		</>
+	)
+}
+
+function FormGuide(): ReactNode {
+	return (
+		<Card title="양식">
+			<p className="mute small">
+				한 줄에 자산 하나씩 적습니다. 새 자산만 등록하고, 이미 있는 자산은 고치지 않습니다. 엑셀에서 적었으면 저장할 때 파일 형식을 'CSV UTF-8(쉼표로 분리)'로 고릅니다. 엑셀 파일(.xlsx)은 받지 않습니다.
+			</p>
+			<p className="mute small">
+				시리얼·태그·속성이 숫자뿐이면, 적기 전에 그 열의 셀 서식을 텍스트로 바꿉니다. 그러지 않으면 엑셀이 앞의 0을 지우고, 긴 숫자를 3.57951E+14처럼 줄여 저장합니다.
+			</p>
+			<div className="table-wrap">
+				<table className="table">
+					<thead>
+						<tr>
+							<th>열</th>
+							<th>적는 것</th>
+						</tr>
+					</thead>
+					<tbody>
+						{formColumns.map(([column, what]) => (
+							<tr key={column}>
+								<td>{column}</td>
+								<td>{what}</td>
+							</tr>
+						))}
+					</tbody>
+				</table>
+			</div>
+		</Card>
 	)
 }
 

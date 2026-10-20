@@ -36,12 +36,12 @@ var columnOf = map[string]string{
 	"attributes":  "속성",
 }
 
-// NewCmdRegister is `rove register FILE`: new assets from a sheet in rove's
+// NewCmdRegister is `rove register FILE`: new assets from a CSV in rove's
 // form, as one intake (design 9.13). The sheet is read by the deployment --
 // the form is read in one place, and the page reads it there too -- and what
 // would be registered is shown, every issue by its line, until `--yes`
-// registers it. With `--form` it writes the empty form to FILE instead, with
-// a sheet beside it, in a workbook, saying what each column is.
+// registers it. With `--form` it writes the empty form to FILE instead: a CSV
+// of its header, which Excel opens.
 func NewCmdRegister() *xli.Command {
 	return &xli.Command{
 		Name:  "register",
@@ -52,7 +52,7 @@ func NewCmdRegister() *xli.Command {
 			&flg.Switch{Name: "yes", Brief: "register them; without this it only says what it would"},
 			&flg.Switch{Name: "form", Brief: "write the empty form to FILE instead"},
 		},
-		Args: arg.Args{&arg.String{Name: "FILE", Brief: "a .csv or .xlsx in the form"}},
+		Args: arg.Args{&arg.String{Name: "FILE", Brief: "a .csv in the form; a workbook is refused"}},
 		Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
 			path, _ := arg.Get[string](self, "FILE")
 			yes, _ := flg.Find[bool](self, "yes")
@@ -60,18 +60,18 @@ func NewCmdRegister() *xli.Command {
 				ctx = context.WithValue(ctx, workspaceKey{}, ws)
 			}
 
-			format := ""
-			if strings.EqualFold(filepath.Ext(path), ".xlsx") {
-				format = "xlsx"
+			form, _ := flg.Find[bool](self, "form")
+			if form && !strings.EqualFold(filepath.Ext(path), ".csv") {
+				return errors.New("양식은 CSV입니다: 파일 이름을 양식.csv처럼 적으세요")
 			}
 			conn, _, err := remote{}.Connect(ctx)
 			if err != nil {
 				return err
 			}
 
-			if form, _ := flg.Find[bool](self, "form"); form {
+			if form {
 				out := &app.AssetExportResponse{}
-				if err := conn.Invoke(ctx, app.AssetService_Export_FullMethodName, app.AssetExportRequest_builder{Format: or(format, "csv"), Template: true}.Build(), out); err != nil {
+				if err := conn.Invoke(ctx, app.AssetService_Export_FullMethodName, app.AssetExportRequest_builder{Template: true}.Build(), out); err != nil {
 					return err
 				}
 				f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o644)
@@ -85,7 +85,7 @@ func NewCmdRegister() *xli.Command {
 				if err := f.Close(); err != nil {
 					return err
 				}
-				self.Printf("%s: 대량 등록 양식\n", path)
+				self.Printf("%s: 대량 등록 양식 (엑셀에서 적었으면 'CSV UTF-8(쉼표로 분리)'로 저장하세요)\n", path)
 				return next(ctx)
 			}
 
@@ -94,7 +94,7 @@ func NewCmdRegister() *xli.Command {
 				return err
 			}
 			sheet := &app.AssetReadSheetResponse{}
-			if err := conn.Invoke(ctx, app.AssetService_ReadSheet_FullMethodName, app.AssetReadSheetRequest_builder{Data: data, Format: format}.Build(), sheet); err != nil {
+			if err := conn.Invoke(ctx, app.AssetService_ReadSheet_FullMethodName, app.AssetReadSheetRequest_builder{Data: data}.Build(), sheet); err != nil {
 				return err
 			}
 			for _, v := range sheet.GetIssues() {
