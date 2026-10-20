@@ -284,6 +284,8 @@ func TestNoPasswordIsKeptHere(t *testing.T) {
 		"tenantdomain.token":       "the value of a DNS record that proves a label domain",
 		"tenantdomain.verified_at": "when that record was seen",
 		"archived.digest":          "the checksum of a chunk of the trail's archive",
+		"audit.digest":             "a keyed digest of the row a write left, which says whether a live row is still that row (payday#102)",
+		"audit.digest_fields":      "the numbers of the fields that digest covers",
 	}
 	x.Empty(secretsIn(migrate.Tables, known), "a column that could hold a password, or what a password is checked against")
 

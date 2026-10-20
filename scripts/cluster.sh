@@ -255,6 +255,7 @@ docker run --rm --entrypoint sh -v "${vol}:/w" "${OPENSSL_IMAGE}" -c '
 	set -e
 	mkdir -p /w/secrets && cd /w/secrets
 	openssl genpkey -algorithm ed25519 -out checkpoints.pem
+	openssl rand -base64 32 > digest.key
 	openssl rand -hex 32 > operator
 	pw="$(openssl rand -hex 24)"
 	printf "password=%s\n" "${pw}" > postgres.env
@@ -269,7 +270,7 @@ kube "kubectl create namespace ${NS} >/dev/null &&
 	kubectl label namespace ${NS} pod-security.kubernetes.io/enforce=restricted pod-security.kubernetes.io/warn=restricted >/dev/null &&
 	kubectl -n ${NS} create secret generic postgres --from-env-file=/w/secrets/postgres.env >/dev/null &&
 	kubectl -n ${NS} create secret generic rove --from-env-file=/w/secrets/rove.env >/dev/null &&
-	kubectl -n ${NS} create secret generic rove-checkpoints --from-file=checkpoints.pem=/w/secrets/checkpoints.pem >/dev/null &&
+	kubectl -n ${NS} create secret generic rove-checkpoints --from-file=checkpoints.pem=/w/secrets/checkpoints.pem --from-file=digest.key=/w/secrets/digest.key >/dev/null &&
 	kubectl -n ${NS} create secret generic rove-admin --from-file=operator=/w/secrets/operator >/dev/null"
 key="$(docker run --rm -v "${vol}:/w" "${ALPINE_IMAGE}" cat /w/secrets/operator)"
 

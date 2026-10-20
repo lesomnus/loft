@@ -15,7 +15,8 @@ import (
 )
 
 // NewCmdTrail is `rove trail`: the trail's archive, checked against the account
-// the database keeps of it (payday's `trail.Policy.Verify`).
+// the database keeps of it (payday's `trail.Policy.Verify`), and the live rows
+// checked against the trail (`rows`, payday's `pd.Digests`).
 //
 // `verify` is what every pass of the trail does lightly at its start -- the
 // archive's chunks by name and labels against the manifest, and the latest
@@ -24,6 +25,12 @@ import (
 // found something, so a schedule can run it. `accept` is an operator who has
 // looked at what it found and decided the archive is right -- a pass a crash
 // stopped, a chunk restored from a backup -- and says why.
+//
+// `rows` is the database's rows against the trail: with `audit.digest.key`,
+// each row of the trail keeps a keyed digest of the row its write left, and
+// this digests every live row again and compares (payday#102). A row somebody
+// changed in the database past the servers is one that differs. It changes
+// nothing either, and fails when a row differs.
 func NewCmdTrail(c *cmd.Config) *xli.Command {
 	return &xli.Command{
 		Name:  "trail",
@@ -39,6 +46,13 @@ func NewCmdTrail(c *cmd.Config) *xli.Command {
 				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
 					full, _ := flg.Find[bool](self, "full")
 					return verify(ctx, self, c, full)
+				}),
+			},
+			{
+				Name:  "rows",
+				Brief: "check the live rows against the digests the trail keeps of them, changing nothing",
+				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
+					return rows(ctx, self, c)
 				}),
 			},
 			{
@@ -101,6 +115,38 @@ func verify(ctx context.Context, self *xli.Command, c *cmd.Config, full bool) er
 	}
 
 	return fmt.Errorf("%d findings: look at each, and `rove trail accept --why ...` once the archive is right", len(v.Findings))
+}
+
+func rows(ctx context.Context, self *xli.Command, c *cmd.Config) error {
+	cs, err := c.Audit.Contents()
+	if err != nil {
+		return fmt.Errorf("audit: %w", err)
+	}
+	if cs.Digest == nil {
+		return errors.New("audit.digest.key names no key, so the trail keeps no digest to check a row against")
+	}
+
+	s, err := cmd.Build(ctx, *c)
+	if err != nil {
+		return err
+	}
+	defer s.Close()
+
+	v, err := pd.Digests(ctx, s.Ent, cs.Digest)
+	if err != nil {
+		return err
+	}
+
+	self.Printf("%d rows read: %d match, %d differ, %d with no digest, %d not on the trail in the database, %d under a key not given\n",
+		v.Read, v.Matches, len(v.Differs), v.NoDigest, v.NotOnTrail, v.KeyNotHeld)
+	if v.Ok() {
+		return nil
+	}
+	for _, id := range v.Differs {
+		self.Printf("  %s %s\n", id.Domain(), id)
+	}
+
+	return fmt.Errorf("%d rows differ from what the trail recorded: changed past the servers; look at each", len(v.Differs))
 }
 
 func accept(ctx context.Context, self *xli.Command, c *cmd.Config, why string) error {

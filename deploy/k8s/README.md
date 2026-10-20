@@ -44,6 +44,7 @@ resources:
    | | `signing-key` | 다운로드 링크 서명. 모든 프로세스가 같아야 합니다 | `openssl rand -base64 32` |
    | | `mail-password` | SMTP 비밀번호. 없어도 됩니다 | |
    | `rove-checkpoints` | `checkpoints.pem` | 감사 기록 서명 키. 잃으면 이전 체크포인트를 검증할 수 없으니 **백업에 함께 넣습니다** | `openssl genpkey -algorithm ed25519` |
+   | | `digest.key` | 감사 기록이 행마다 남기는 지문(HMAC)의 키. `rove trail rows`가 이것으로 DB에서 직접 바뀐 행을 찾습니다. 잃으면 이전 지문을 검증할 수 없으니 **백업에 함께 넣습니다**. DB 백업과는 따로 둡니다 | `openssl rand -base64 32` |
    | `rove-admin` | 운영자 이름마다 파일 하나(`operator`) | 운영자 키, 32자 이상. 운영자를 더하면 `admin.keys`에도 이름을 더합니다 | `openssl rand -hex 32` |
    | `rove-search` | `password`, `ca.pem` | 검색 클러스터의 Rove 사용자 비밀번호와 그 클러스터의 CA. 검색을 켤 때만 둡니다(아래 9) | |
 

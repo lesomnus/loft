@@ -103,6 +103,12 @@ audit:
     write_once: true
     key: /run/secrets/rove/checkpoints.pem
 
+  # A keyed digest of the row each write left, so that `rove trail rows`
+  # finds a row changed in the database past the servers (payday#102). The
+  # key is beside the checkpoints' in their Secret, and out of the database.
+  digest:
+    key: /run/secrets/rove/digest.key
+
   # How long a row stays in the database and the archive. Nothing moves or
   # goes until this says so, and the number is the regime's, not a default's
   # (`rove.yaml` at the root says why). Until some window is set no pass
