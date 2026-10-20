@@ -348,7 +348,7 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	s.Logins = &clilogin.Logins{
 		Db: client, Sessions: s.Sessions, Store: store, People: people, Cookie: cookie,
 		Idle: or(c.App.Session.Idle, 24*time.Hour), Lifetime: or(c.App.Session.Lifetime, 7*24*time.Hour),
-		App: c.App.App(),
+		App: c.App.App(), Audit: content,
 	}
 	s.Lifecycle = lifecycle.Lifecycle{
 		Db: client, Sessions: store, Base: base,
@@ -372,7 +372,7 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		db.Close()
 		return nil, err
 	}
-	s.Consents = &consent.Consents{Db: client, Documents: docs, Now: deps.Clock}
+	s.Consents = &consent.Consents{Db: client, Documents: docs, Now: deps.Clock, Audit: content}
 	// An account leaving says so on what it agreed to, which is what the
 	// window below counts from.
 	s.Lifecycle.Consents = s.Consents

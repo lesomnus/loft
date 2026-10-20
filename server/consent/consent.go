@@ -18,6 +18,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/lesomnus/payday/audit"
+	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/pdid"
 
 	"github.com/lesomnus/rove/internal/ent"
@@ -51,6 +53,12 @@ type Consents struct {
 	Db        *ent.Client
 	Documents []Document
 	Now       func() time.Time
+
+	// Audit is what the trail keeps, as the recorder is given it: every
+	// agreement, and every mark of one's account leaving, is put on the trail
+	// as the act it is (payday#108, `trail: {recorded: {}}` on Consent), so a
+	// check of the rows finds an agreement nobody made through here.
+	Audit audit.Contents
 
 	mu sync.Mutex
 	// settled is the accounts known to owe nothing. Owing nothing lasts
@@ -151,9 +159,11 @@ func (c *Consents) Agree(ctx context.Context, account pdid.Id, agreed map[string
 	if err != nil {
 		return err
 	}
+	made := make([]pdid.Id, 0, len(owed))
 	for _, d := range owed {
+		id := pdid.New(pd.ConsentDomain)
 		if err := tx.Consent.Create().
-			SetId(pdid.New(pd.ConsentDomain).Uuid()).
+			SetId(id.Uuid()).
 			SetAccount(account.Uuid()).
 			SetDocument(d.Name).
 			SetVersion(d.Version).
@@ -169,9 +179,22 @@ func (c *Consents) Agree(ctx context.Context, account pdid.Id, agreed map[string
 			}
 			return err
 		}
+		made = append(made, id)
+	}
+	// The account's own act, by the account.
+	as := frame.Into(ctx, frame.New(account, pdid.Nil, frame.Grant{}))
+	if _, err := pd.Record(as, tx.Client(), c.Audit, Agreed, made); err != nil {
+		_ = tx.Rollback()
+		return err
 	}
 	return tx.Commit()
 }
+
+// The acts an agreement is on the trail as.
+const (
+	Agreed = "rove.consent.agree"
+	Gone   = "rove.consent.left"
+)
 
 // Of is what an account agreed to, newest first.
 func (c *Consents) Of(ctx context.Context, account pdid.Id) ([]Agreement, error) {
@@ -194,19 +217,44 @@ func (c *Consents) Of(ctx context.Context, account pdid.Id) ([]Agreement, error)
 // window from. They still count -- an account that comes back agreed to what
 // it agreed to -- and its next sign-in asks nothing it answered.
 func (c *Consents) Left(ctx context.Context, account pdid.Id) error {
-	_, err := c.Db.Consent.Update().
-		Where(entconsent.Account(account.Uuid()), entconsent.DateLeftIsNil()).
+	tx, err := c.Db.Tx(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	ids, err := tx.Consent.Query().
+		Where(entconsent.Account(account.Uuid()), entconsent.DateLeftIsNil(), entconsent.DateErasedIsNil()).
+		Ids(ctx)
+	if err != nil || len(ids) == 0 {
+		return err
+	}
+	if _, err := tx.Consent.Update().
+		Where(entconsent.IdIn(ids...)).
 		SetDateLeft(c.now()).
-		Save(ctx)
-	return err
+		Save(ctx); err != nil {
+		return err
+	}
+
+	// The deployment's mark, which is what it is: nobody asked.
+	marked := make([]pdid.Id, len(ids))
+	for i, v := range ids {
+		marked[i] = pdid.Id(v)
+	}
+	if _, err := pd.Record(ctx, tx.Client(), c.Audit, Gone, marked); err != nil {
+		return err
+	}
+	return tx.Commit()
 }
 
 // Sweep destroys the agreements of accounts that left more than `keep` ago,
 // and answers how many. Zero keeps them for good, and destroys nothing.
 //
 // Destroyed rather than erased: an agreement is kept to show afterwards that
-// it was made, and past the window there is nothing it is kept for. Nothing
-// else is written of it, so there is no copy of it anywhere to forget.
+// it was made, and past the window there is nothing it is kept for. The trail
+// keeps that the act happened -- who, when, of which row, and a keyed digest
+// of it -- and nothing of what was agreed to, for as long as its own window
+// for the kind keeps any row (`audit.by.consent`).
 func (c *Consents) Sweep(ctx context.Context, keep time.Duration) (int, error) {
 	if keep <= 0 {
 		return 0, nil
