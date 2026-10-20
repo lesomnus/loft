@@ -9,7 +9,8 @@ package payday;
 // are checked by the policy (server/policy): owner, admin, manager, member,
 // auditor.
 message Holder {
-  string role = 8 [(orm.field) = {default: "member"}];
+  // Not personal: who made somebody an administrator is the record (payday#92).
+  string role = 8 [(orm.field) = {default: "member"}, (payday.field) = {personal: false}];
 
   // The account this is a membership of: a holder at roster, in this
   // deployment's directory (design 9.10, D27). An account belongs to many

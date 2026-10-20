@@ -172,7 +172,11 @@ message Holder {
       max: 100
     }
   };
-  string role = 8 [(orm.field) = {default: "member"}];
+  // Not personal: who made somebody an administrator is the record (payday#92).
+  string role = 8 [
+    (orm.field) = {default: "member"},
+    (payday.field) = {personal: false}
+  ];
   // The account this is a membership of: a holder at roster, in this
   // deployment's directory (design 9.10, D27). An account belongs to many
   // workspaces with one holder in each, every one its own row with its own

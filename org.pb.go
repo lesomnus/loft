@@ -300,7 +300,7 @@ type Party_builder struct {
 	Name   string
 	Desc   string
 	Labels map[string]string
-	// person | team | org | vendor
+	// person | team | org | vendor: what a party is, which is about no one.
 	Kind string
 	// The team a person is in, or the organization a team is in.
 	ParentId []byte
@@ -954,7 +954,8 @@ type Invitation_builder struct {
 	// is the one write it takes and why it is not immutable. Personal
 	// (payday#92): on the trail as having been set, and never as what to.
 	Email string
-	// What an account that accepts is here.
+	// What an account that accepts is here: a role, which is the record and not
+	// the person.
 	Role string
 	// The person record an account that accepts becomes: one this workspace
 	// already keeps, or empty for one made then.
@@ -1269,7 +1270,8 @@ type CliLogin_builder struct {
 	Origin string
 	// Where it asked from, without what the terminal says it is: what the limit
 	// on how many sign-ins one address may start in a while is counted by
-	// (`server/clilogin`).
+	// (`server/clilogin`). Not personal, on purpose (#119): an access record
+	// keeps where a sign-in came from, and so does the trail.
 	Address string
 	// The account that approved it, once one has.
 	Account []byte
@@ -1869,14 +1871,14 @@ var File_rove_org_proto protoreflect.FileDescriptor
 
 const file_rove_org_proto_rawDesc = "" +
 	"\n" +
-	"\x0erove/org.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x18rove/payday/holder.proto\x1a\x18rove/payday/tenant.proto\"\xc1\x06\n" +
+	"\x0erove/org.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x18rove/payday/holder.proto\x1a\x18rove/payday/tenant.proto\"\xc9\x06\n" +
 	"\x05Party\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
 	"\x04name\x18\x05 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\x04name\x12\x1a\n" +
 	"\x04desc\x18\x06 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\x04desc\x127\n" +
-	"\x06labels\x18\a \x03(\v2\x17.rove.Party.LabelsEntryB\x06\xaa\xc1\x16\x02\x18\x01R\x06labels\x12\x12\n" +
-	"\x04kind\x18\b \x01(\tR\x04kind\x12%\n" +
+	"\x06labels\x18\a \x03(\v2\x17.rove.Party.LabelsEntryB\x06\xaa\xc1\x16\x02\x18\x01R\x06labels\x12\x1a\n" +
+	"\x04kind\x18\b \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x04kind\x12%\n" +
 	"\tparent_id\x18\t \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\bparentId\x12,\n" +
 	"\x06holder\x18\n" +
 	" \x01(\v2\f.rove.HolderB\x06\xf2\x82\x16\x028\x01R\x06holder\x12\x1c\n" +
@@ -1924,22 +1926,22 @@ const file_rove_org_proto_rawDesc = "" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:>\xca\xfc\x152\x12\x02\x10\x01\x1a\x14\x12\x06secret\x1a\n" +
 	"\n" +
 	"\x06secret\x10\t\x1a\x16\x12\aaccount\x1a\v\n" +
-	"\aaccount\x10\b\x8a\xbb\x16\x04\b&*\x00\"\xa4\a\n" +
+	"\aaccount\x10\b\x8a\xbb\x16\x04\b&*\x00\"\xb2\a\n" +
 	"\n" +
 	"Invitation\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12.\n" +
 	"\ainviter\x18\b \x01(\v2\f.rove.HolderB\x06\xf2\x82\x16\x02@\x01R\ainviter\x12\x1c\n" +
-	"\x05email\x18\t \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\x05email\x12\x1a\n" +
+	"\x05email\x18\t \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\x05email\x12 \n" +
 	"\x04role\x18\n" +
-	" \x01(\tB\x06\xea\x82\x16\x02@\x01R\x04role\x12)\n" +
+	" \x01(\tB\f\xea\x82\x16\x02@\x01\xaa\xc1\x16\x02\x18\x00R\x04role\x12)\n" +
 	"\x05party\x18\v \x01(\v2\v.rove.PartyB\x06\xf2\x82\x16\x028\x01R\x05party\x12\"\n" +
 	"\aaccount\x18\f \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\aaccount\x12F\n" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12D\n" +
 	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
 	"dateErased\x12H\n" +
-	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12\x14\n" +
-	"\x05state\x18\x10 \x01(\tR\x05state\x12F\n" +
+	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12\x1c\n" +
+	"\x05state\x18\x10 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x05state\x12F\n" +
 	"\fdate_expires\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\vdateExpires\x12E\n" +
 	"\fdate_settled\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\vdateSettled\x12,\n" +
 	"\x06holder\x18\x13 \x01(\v2\f.rove.HolderB\x06\xf2\x82\x16\x028\x01R\x06holder\x12\"\n" +
@@ -1960,15 +1962,15 @@ const file_rove_org_proto_rawDesc = "" +
 	"\x03ref\x1a\b\n" +
 	"\x06tenant\x1a\t\n" +
 	"\aaccount\x1a\a\n" +
-	"\x05state 2(\xc8\x01\"\x92\x05\n" +
+	"\x05state 2(\xc8\x01\"\x98\x05\n" +
 	"\bCliLogin\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12%\n" +
 	"\x06secret\x18\b \x01(\fB\r\xea\x82\x16\x03\x82\x01\x00\xaa\xc1\x16\x02\b\x01R\x06secret\x12\x12\n" +
 	"\x04code\x18\t \x01(\tR\x04code\x12\x16\n" +
 	"\x06client\x18\n" +
 	" \x01(\tR\x06client\x12\x16\n" +
-	"\x06origin\x18\v \x01(\tR\x06origin\x12!\n" +
-	"\aaddress\x18\x12 \x01(\tB\a\xea\x82\x16\x03\x82\x01\x00R\aaddress\x12\"\n" +
+	"\x06origin\x18\v \x01(\tR\x06origin\x12'\n" +
+	"\aaddress\x18\x12 \x01(\tB\r\xea\x82\x16\x03\x82\x01\x00\xaa\xc1\x16\x02\x18\x00R\aaddress\x12\"\n" +
 	"\aaccount\x18\f \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\aaccount\x12\x1d\n" +
 	"\x05grant\x18\x13 \x01(\fB\a\xea\x82\x16\x03\x82\x01\x00R\x05grant\x12\x14\n" +
 	"\x05state\x18\x10 \x01(\tR\x05state\x12F\n" +

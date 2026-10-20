@@ -29,14 +29,14 @@ message Notification {
 
   Holder holder = 8 [(orm.edge) = {immutable: true}];
   // custody.overdue | reservation.requested | reservation.decided | stock.low | work.due | count.finding
-  string kind = 9;
+  string kind = 9 [(payday.field) = {personal: false}];
   bytes subject_id = 10 [(orm.field) = {
     type: TYPE_UUID
     nullable: true
   }];
   google.protobuf.Timestamp read_at = 11 [(orm.field) = {nullable: true}];
-  // Where a page goes to act on it.
-  string link = 12;
+  // Where a page goes to act on it: a path, which names a thing and not a person.
+  string link = 12 [(payday.field) = {personal: false}];
 
   // Whether it goes by mail as well: set as it is written, so that an
   // operation that is undone queues nothing, and only for the kinds that are

@@ -311,7 +311,7 @@ type Notification_builder struct {
 	Kind      string
 	SubjectId []byte
 	ReadAt    *timestamppb.Timestamp
-	// Where a page goes to act on it.
+	// Where a page goes to act on it: a path, which names a thing and not a person.
 	Link string
 	// Whether it goes by mail as well: set as it is written, so that an
 	// operation that is undone queues nothing, and only for the kinds that are
@@ -941,19 +941,19 @@ var File_rove_ops_proto protoreflect.FileDescriptor
 
 const file_rove_ops_proto_rawDesc = "" +
 	"\n" +
-	"\x0erove/ops.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x18rove/payday/holder.proto\x1a\x18rove/payday/tenant.proto\"\x99\x06\n" +
+	"\x0erove/ops.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x18rove/payday/holder.proto\x1a\x18rove/payday/tenant.proto\"\xa9\x06\n" +
 	"\fNotification\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
 	"\x04name\x18\x05 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\x04name\x12\x1a\n" +
 	"\x04desc\x18\x06 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\x04desc\x12,\n" +
-	"\x06holder\x18\b \x01(\v2\f.rove.HolderB\x06\xf2\x82\x16\x02@\x01R\x06holder\x12\x12\n" +
-	"\x04kind\x18\t \x01(\tR\x04kind\x12'\n" +
+	"\x06holder\x18\b \x01(\v2\f.rove.HolderB\x06\xf2\x82\x16\x02@\x01R\x06holder\x12\x1a\n" +
+	"\x04kind\x18\t \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x04kind\x12'\n" +
 	"\n" +
 	"subject_id\x18\n" +
 	" \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\tsubjectId\x12;\n" +
-	"\aread_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\x06readAt\x12\x12\n" +
-	"\x04link\x18\f \x01(\tR\x04link\x12\x12\n" +
+	"\aread_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\x06readAt\x12\x1a\n" +
+	"\x04link\x18\f \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x04link\x12\x12\n" +
 	"\x04mail\x18\x10 \x01(\bR\x04mail\x12C\n" +
 	"\vdate_mailed\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\n" +
 	"dateMailed\x12\x1d\n" +

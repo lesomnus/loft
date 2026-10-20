@@ -335,7 +335,8 @@ type Holder_builder struct {
 	// the alias comes free again.
 	DateErased  *timestamppb.Timestamp
 	DateCreated *timestamppb.Timestamp
-	Role        string
+	// Not personal: who made somebody an administrator is the record (payday#92).
+	Role string
 	// The account this is a membership of: a holder at roster, in this
 	// deployment's directory (design 9.10, D27). An account belongs to many
 	// workspaces with one holder in each, every one its own row with its own
@@ -389,7 +390,7 @@ var File_rove_payday_holder_proto protoreflect.FileDescriptor
 
 const file_rove_payday_holder_proto_rawDesc = "" +
 	"\n" +
-	"\x18rove/payday/holder.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x18rove/payday/tenant.proto\"\xe4\x06\n" +
+	"\x18rove/payday/holder.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x18rove/payday/tenant.proto\"\xea\x06\n" +
 	"\x06Holder\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1c\n" +
@@ -400,8 +401,8 @@ const file_rove_payday_holder_proto_rawDesc = "" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12D\n" +
 	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
 	"dateErased\x12H\n" +
-	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12!\n" +
-	"\x04role\x18\b \x01(\tB\r\xea\x82\x16\t\x82\x01\x06memberR\x04role\x12\"\n" +
+	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12'\n" +
+	"\x04role\x18\b \x01(\tB\x13\xea\x82\x16\t\x82\x01\x06member\xaa\xc1\x16\x02\x18\x00R\x04role\x12\"\n" +
 	"\aaccount\x18\t \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\aaccount\x12E\n" +
 	"\fdate_leaving\x18\n" +
 	" \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\vdateLeaving\x12\x19\n" +
