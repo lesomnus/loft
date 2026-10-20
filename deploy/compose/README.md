@@ -104,6 +104,8 @@ curl -H "authorization: Bearer $(cat secrets/admin_key)" http://127.0.0.1:8081/a
 
 ## 새 버전으로 올리기
 
+먼저 새로 필요한 것을 봅니다: `git fetch`한 뒤 `git diff HEAD..<올릴 커밋> -- deploy/compose`. `secrets/`에 만들 파일이 늘었으면 위 `secrets/`의 명령으로(`chmod 444`까지) **먼저 만듭니다**. 예를 들어 610c1c7부터는 `secrets/digest.key`가 있어야 뜹니다. 없으면 `docker compose up`이 `bind source path does not exist`로 멈춥니다.
+
 ```sh
 git pull                              # 또는 올릴 태그로
 ROVE_VERSION=$(git describe --tags --always) docker compose up -d --build

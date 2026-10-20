@@ -108,11 +108,14 @@ curl https://<호스트>/healthz   # ok
 ## 새 버전 올리기
 
 1. **빌드.** main에 머지되면 CI의 `image` 작업이 모든 검사가 통과한 뒤 `ghcr.io/lesomnus/rove:edge`로 올립니다. digest는 그 실행의 요약(Summary)에 남습니다. 오버레이에는 `edge`가 아니라 이 digest를 적습니다.
-2. **스테이징.** 스테이징 오버레이의 digest를 바꿔 sync합니다. `healthz`, 로그인, 바꾼 기능을 확인합니다.
-3. **운영.** 같은 digest를 운영 오버레이에 넣고 sync합니다.
+2. **새로 필요한 것.** 지금 올라가 있는 커밋과 새 커밋 사이에 이 디렉터리가 어떻게 바뀌었는지 봅니다: `git diff <지금 커밋>..<새 커밋> -- deploy/k8s`. 위 표에 Secret의 키가 늘었거나 `config.yaml`이 새 파일을 가리키면, **그 Secret을 먼저 넣고** 설정과 digest는 그다음에 sync합니다. 예를 들어 610c1c7부터는 `rove-checkpoints`에 `digest.key`가 있어야 뜹니다.
+   - 순서를 거꾸로 하면 새 파드의 `rove`와 `rove-admin`이 파일이 없다며 뜨지 않습니다(`digest: key: open /run/secrets/rove/digest.key: no such file or directory`). `Recreate`라 이전 파드는 이미 내려가 있으니, Secret을 넣을 때까지 끊깁니다.
+   - Secret을 오버레이에 함께 두었다면(SOPS) 같은 커밋에 넣어 한 번에 sync하면 됩니다. 따로 넣는다면 먼저 넣습니다.
+3. **스테이징.** 스테이징 오버레이의 digest를 바꿔 sync합니다. `healthz`, 로그인, 바꾼 기능을 확인합니다.
+4. **운영.** 같은 digest를 운영 오버레이에 넣고 sync합니다.
    - 순서는 이렇습니다: 이전 파드가 내려가고, 새 파드의 `migrate`가 테이블을 맞추고, 그다음 `rove`와 `rove-admin`이 뜹니다. 그동안 수십 초 끊깁니다.
    - 마이그레이션은 따로 하는 단계가 아니라 init 컨테이너입니다. 실패하면 파드가 뜨지 않고 다시 시도합니다. 이전 파드는 이미 없으니 그때는 되돌립니다.
-4. **확인.** `kubectl -n rove rollout status deploy/rove`로 상태를 보고 `kubectl -n rove logs deploy/rove --all-containers`로 로그를 봅니다.
+5. **확인.** `kubectl -n rove rollout status deploy/rove`로 상태를 보고 `kubectl -n rove logs deploy/rove --all-containers`로 로그를 봅니다.
 
 ## 되돌리기
 
