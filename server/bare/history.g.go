@@ -280,6 +280,97 @@ func (s PlacementServiceServer) Add(ctx context.Context, req *rove.PlacementAddR
 	return v, nil
 }
 
+// PlacementAddManyMax is the most items one AddMany of Placement carries.
+const PlacementAddManyMax = 1000
+
+// placementAddManyRows is how many rows one INSERT of an AddMany
+// writes: as many as fit in what a statement binds on every engine, and
+// no more than a few hundred.
+const placementAddManyRows = 500
+
+// AddMany adds every item as Add would add it, in one transaction: all of
+// the rows or none of them. The rows come back in the order of the items.
+//
+// An item that cannot be a row is refused naming the item, before anything
+// is written. A refusal by the database is the whole statement's, and does
+// not say which row it was about.
+func (s PlacementServiceServer) AddMany(ctx context.Context, req *rove.PlacementAddManyRequest) (*rove.PlacementAddManyResponse, error) {
+	items := req.GetItems()
+	if len(items) > PlacementAddManyMax {
+		return nil, status.Errorf(codes.InvalidArgument, "items: at most %d in one call, and there are %d", PlacementAddManyMax, len(items))
+	}
+	if len(items) == 0 {
+		return rove.PlacementAddManyResponse_builder{}.Build(), nil
+	}
+
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, true)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	images := snapshotOptions(s.Rec, rove.PlacementService_AddMany_FullMethodName).Value
+	qs := make([]*ent.PlacementCreate, len(items))
+	dss := make([][]func(v *rove.Placement), len(items))
+	stored := make([]*ent.Placement, len(items))
+	for i, item := range items {
+		q, ds, err := st.create(ctx, item)
+		if err != nil {
+			return nil, ItemError(i, err)
+		}
+		if images {
+			q.Stored(&stored[i])
+		}
+		qs[i], dss[i] = q, ds
+	}
+
+	us := make([]*ent.Placement, 0, len(qs))
+	for lo := 0; lo < len(qs); lo += placementAddManyRows {
+		vs, err := st.Db.Placement.CreateBulk(qs[lo:min(lo+placementAddManyRows, len(qs))]...).Save(ctx)
+		if err != nil {
+			if err, ok := err.(*ent.ConstraintError); ok {
+				if sqlgraph.IsUniqueConstraintError(err) {
+					return nil, status.Error(codes.AlreadyExists, "Placement already exists")
+				}
+				if sqlgraph.IsForeignKeyConstraintError(err) {
+					return nil, status.Error(codes.NotFound, "Placement: referenced entity not found")
+				}
+			}
+			return nil, err
+		}
+		us = append(us, vs...)
+	}
+
+	out := make([]*rove.Placement, len(us))
+	for i, u := range us {
+		v := u.Proto()
+		for _, d := range dss[i] {
+			d(v)
+		}
+		out[i] = v
+
+		var value *rove.Placement
+		if stored[i] != nil {
+			value = s.image(stored[i].Proto())
+		}
+		if err := record(ctx, s.Rec, st.Db, Change{
+			By:    rove.PlacementService_AddMany_FullMethodName,
+			Key:   u.Id,
+			Value: value,
+		}); err != nil {
+			return nil, err
+		}
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+
+	return rove.PlacementAddManyResponse_builder{Items: out}.Build(), nil
+}
+
 // PlacementAddRule is what a layer in front says about one row an Add of Placement
 // would write: the request to write it with -- the one it was handed, or a
 // copy it changed -- or a refusal. Nil is the request it was handed.
@@ -310,6 +401,26 @@ func (s placementAddRuled) Add(ctx context.Context, req *rove.PlacementAddReques
 		r = req
 	}
 	return s.PlacementServiceServer.Add(ctx, r)
+}
+
+func (s placementAddRuled) AddMany(ctx context.Context, req *rove.PlacementAddManyRequest) (*rove.PlacementAddManyResponse, error) {
+	items := req.GetItems()
+	if len(items) > PlacementAddManyMax {
+		return nil, status.Errorf(codes.InvalidArgument, "items: at most %d in one call, and there are %d", PlacementAddManyMax, len(items))
+	}
+
+	rs := make([]*rove.PlacementAddRequest, len(items))
+	for i, item := range items {
+		r, err := s.rule(ctx, item)
+		if err != nil {
+			return nil, ItemError(i, err)
+		}
+		if r == nil {
+			r = item
+		}
+		rs[i] = r
+	}
+	return s.PlacementServiceServer.AddMany(ctx, rove.PlacementAddManyRequest_builder{Items: rs}.Build())
 }
 
 func (s PlacementServiceServer) Get(ctx context.Context, req *rove.PlacementGetRequest) (*rove.Placement, error) {
@@ -2891,6 +3002,97 @@ func (s EventServiceServer) Add(ctx context.Context, req *rove.EventAddRequest) 
 	return v, nil
 }
 
+// EventAddManyMax is the most items one AddMany of Event carries.
+const EventAddManyMax = 1000
+
+// eventAddManyRows is how many rows one INSERT of an AddMany
+// writes: as many as fit in what a statement binds on every engine, and
+// no more than a few hundred.
+const eventAddManyRows = 500
+
+// AddMany adds every item as Add would add it, in one transaction: all of
+// the rows or none of them. The rows come back in the order of the items.
+//
+// An item that cannot be a row is refused naming the item, before anything
+// is written. A refusal by the database is the whole statement's, and does
+// not say which row it was about.
+func (s EventServiceServer) AddMany(ctx context.Context, req *rove.EventAddManyRequest) (*rove.EventAddManyResponse, error) {
+	items := req.GetItems()
+	if len(items) > EventAddManyMax {
+		return nil, status.Errorf(codes.InvalidArgument, "items: at most %d in one call, and there are %d", EventAddManyMax, len(items))
+	}
+	if len(items) == 0 {
+		return rove.EventAddManyResponse_builder{}.Build(), nil
+	}
+
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, true)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	images := snapshotOptions(s.Rec, rove.EventService_AddMany_FullMethodName).Value
+	qs := make([]*ent.EventCreate, len(items))
+	dss := make([][]func(v *rove.Event), len(items))
+	stored := make([]*ent.Event, len(items))
+	for i, item := range items {
+		q, ds, err := st.create(ctx, item)
+		if err != nil {
+			return nil, ItemError(i, err)
+		}
+		if images {
+			q.Stored(&stored[i])
+		}
+		qs[i], dss[i] = q, ds
+	}
+
+	us := make([]*ent.Event, 0, len(qs))
+	for lo := 0; lo < len(qs); lo += eventAddManyRows {
+		vs, err := st.Db.Event.CreateBulk(qs[lo:min(lo+eventAddManyRows, len(qs))]...).Save(ctx)
+		if err != nil {
+			if err, ok := err.(*ent.ConstraintError); ok {
+				if sqlgraph.IsUniqueConstraintError(err) {
+					return nil, status.Error(codes.AlreadyExists, "Event already exists")
+				}
+				if sqlgraph.IsForeignKeyConstraintError(err) {
+					return nil, status.Error(codes.NotFound, "Event: referenced entity not found")
+				}
+			}
+			return nil, err
+		}
+		us = append(us, vs...)
+	}
+
+	out := make([]*rove.Event, len(us))
+	for i, u := range us {
+		v := u.Proto()
+		for _, d := range dss[i] {
+			d(v)
+		}
+		out[i] = v
+
+		var value *rove.Event
+		if stored[i] != nil {
+			value = s.image(stored[i].Proto())
+		}
+		if err := record(ctx, s.Rec, st.Db, Change{
+			By:    rove.EventService_AddMany_FullMethodName,
+			Key:   u.Id,
+			Value: value,
+		}); err != nil {
+			return nil, err
+		}
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+
+	return rove.EventAddManyResponse_builder{Items: out}.Build(), nil
+}
+
 // EventAddRule is what a layer in front says about one row an Add of Event
 // would write: the request to write it with -- the one it was handed, or a
 // copy it changed -- or a refusal. Nil is the request it was handed.
@@ -2921,6 +3123,26 @@ func (s eventAddRuled) Add(ctx context.Context, req *rove.EventAddRequest) (*rov
 		r = req
 	}
 	return s.EventServiceServer.Add(ctx, r)
+}
+
+func (s eventAddRuled) AddMany(ctx context.Context, req *rove.EventAddManyRequest) (*rove.EventAddManyResponse, error) {
+	items := req.GetItems()
+	if len(items) > EventAddManyMax {
+		return nil, status.Errorf(codes.InvalidArgument, "items: at most %d in one call, and there are %d", EventAddManyMax, len(items))
+	}
+
+	rs := make([]*rove.EventAddRequest, len(items))
+	for i, item := range items {
+		r, err := s.rule(ctx, item)
+		if err != nil {
+			return nil, ItemError(i, err)
+		}
+		if r == nil {
+			r = item
+		}
+		rs[i] = r
+	}
+	return s.EventServiceServer.AddMany(ctx, rove.EventAddManyRequest_builder{Items: rs}.Build())
 }
 
 func (s EventServiceServer) Get(ctx context.Context, req *rove.EventGetRequest) (*rove.Event, error) {

@@ -66,7 +66,13 @@ message Asset {
   uint64 content_version = 25;
 
   option (orm.message) = {
-    rpc: {crud: true}
+    // AddMany as well: bulk registration makes a few thousand assets as one
+    // operation, a few hundred rows to a statement (design 9.13). What the
+    // domain makes of it is in `server/domain/register.go`.
+    rpc: {
+      crud: true
+      add: {many: {}}
+    }
     indexes: [
       {
         name: "page"

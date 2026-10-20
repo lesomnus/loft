@@ -2,6 +2,7 @@
 /rove.AllocationService/Get	read
 /rove.AllocationService/List	read
 /rove.AssetService/Add	manager
+/rove.AssetService/AddMany	manager
 /rove.AssetService/Assign	manager
 /rove.AssetService/Correct	manager
 /rove.AssetService/Diff	read
@@ -11,6 +12,7 @@
 /rove.AssetService/List	read
 /rove.AssetService/Move	manager
 /rove.AssetService/QueryAt	read
+/rove.AssetService/ReadSheet	manager
 /rove.AssetService/Relate	manager
 /rove.AssetService/Report	read
 /rove.AssetService/Search	read

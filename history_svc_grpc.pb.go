@@ -19,12 +19,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	PlacementService_Add_FullMethodName   = "/rove.PlacementService/Add"
-	PlacementService_Get_FullMethodName   = "/rove.PlacementService/Get"
-	PlacementService_Patch_FullMethodName = "/rove.PlacementService/Patch"
-	PlacementService_Apply_FullMethodName = "/rove.PlacementService/Apply"
-	PlacementService_Erase_FullMethodName = "/rove.PlacementService/Erase"
-	PlacementService_List_FullMethodName  = "/rove.PlacementService/List"
+	PlacementService_Add_FullMethodName     = "/rove.PlacementService/Add"
+	PlacementService_AddMany_FullMethodName = "/rove.PlacementService/AddMany"
+	PlacementService_Get_FullMethodName     = "/rove.PlacementService/Get"
+	PlacementService_Patch_FullMethodName   = "/rove.PlacementService/Patch"
+	PlacementService_Apply_FullMethodName   = "/rove.PlacementService/Apply"
+	PlacementService_Erase_FullMethodName   = "/rove.PlacementService/Erase"
+	PlacementService_List_FullMethodName    = "/rove.PlacementService/List"
 )
 
 // PlacementServiceClient is the client API for PlacementService service.
@@ -33,6 +34,8 @@ const (
 type PlacementServiceClient interface {
 	// Add creates a new Placement
 	Add(ctx context.Context, in *PlacementAddRequest, opts ...grpc.CallOption) (*Placement, error)
+	// AddMany creates up to 1000 new Placement rows in one call, all of them or none
+	AddMany(ctx context.Context, in *PlacementAddManyRequest, opts ...grpc.CallOption) (*PlacementAddManyResponse, error)
 	// Get retrieves a Placement
 	Get(ctx context.Context, in *PlacementGetRequest, opts ...grpc.CallOption) (*Placement, error)
 	// Patch updates an existing Placement
@@ -57,6 +60,16 @@ func (c *placementServiceClient) Add(ctx context.Context, in *PlacementAddReques
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Placement)
 	err := c.cc.Invoke(ctx, PlacementService_Add_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *placementServiceClient) AddMany(ctx context.Context, in *PlacementAddManyRequest, opts ...grpc.CallOption) (*PlacementAddManyResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PlacementAddManyResponse)
+	err := c.cc.Invoke(ctx, PlacementService_AddMany_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -119,6 +132,8 @@ func (c *placementServiceClient) List(ctx context.Context, in *PlacementListRequ
 type PlacementServiceServer interface {
 	// Add creates a new Placement
 	Add(context.Context, *PlacementAddRequest) (*Placement, error)
+	// AddMany creates up to 1000 new Placement rows in one call, all of them or none
+	AddMany(context.Context, *PlacementAddManyRequest) (*PlacementAddManyResponse, error)
 	// Get retrieves a Placement
 	Get(context.Context, *PlacementGetRequest) (*Placement, error)
 	// Patch updates an existing Placement
@@ -141,6 +156,9 @@ type UnimplementedPlacementServiceServer struct{}
 
 func (UnimplementedPlacementServiceServer) Add(context.Context, *PlacementAddRequest) (*Placement, error) {
 	return nil, status.Error(codes.Unimplemented, "method Add not implemented")
+}
+func (UnimplementedPlacementServiceServer) AddMany(context.Context, *PlacementAddManyRequest) (*PlacementAddManyResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method AddMany not implemented")
 }
 func (UnimplementedPlacementServiceServer) Get(context.Context, *PlacementGetRequest) (*Placement, error) {
 	return nil, status.Error(codes.Unimplemented, "method Get not implemented")
@@ -192,6 +210,24 @@ func _PlacementService_Add_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(PlacementServiceServer).Add(ctx, req.(*PlacementAddRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PlacementService_AddMany_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PlacementAddManyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PlacementServiceServer).AddMany(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PlacementService_AddMany_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PlacementServiceServer).AddMany(ctx, req.(*PlacementAddManyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -296,6 +332,10 @@ var PlacementService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Add",
 			Handler:    _PlacementService_Add_Handler,
+		},
+		{
+			MethodName: "AddMany",
+			Handler:    _PlacementService_AddMany_Handler,
 		},
 		{
 			MethodName: "Get",
@@ -1275,13 +1315,14 @@ var FactService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	EventService_Add_FullMethodName    = "/rove.EventService/Add"
-	EventService_Get_FullMethodName    = "/rove.EventService/Get"
-	EventService_Patch_FullMethodName  = "/rove.EventService/Patch"
-	EventService_Apply_FullMethodName  = "/rove.EventService/Apply"
-	EventService_Erase_FullMethodName  = "/rove.EventService/Erase"
-	EventService_List_FullMethodName   = "/rove.EventService/List"
-	EventService_Recent_FullMethodName = "/rove.EventService/Recent"
+	EventService_Add_FullMethodName     = "/rove.EventService/Add"
+	EventService_AddMany_FullMethodName = "/rove.EventService/AddMany"
+	EventService_Get_FullMethodName     = "/rove.EventService/Get"
+	EventService_Patch_FullMethodName   = "/rove.EventService/Patch"
+	EventService_Apply_FullMethodName   = "/rove.EventService/Apply"
+	EventService_Erase_FullMethodName   = "/rove.EventService/Erase"
+	EventService_List_FullMethodName    = "/rove.EventService/List"
+	EventService_Recent_FullMethodName  = "/rove.EventService/Recent"
 )
 
 // EventServiceClient is the client API for EventService service.
@@ -1290,6 +1331,8 @@ const (
 type EventServiceClient interface {
 	// Add creates a new Event
 	Add(ctx context.Context, in *EventAddRequest, opts ...grpc.CallOption) (*Event, error)
+	// AddMany creates up to 1000 new Event rows in one call, all of them or none
+	AddMany(ctx context.Context, in *EventAddManyRequest, opts ...grpc.CallOption) (*EventAddManyResponse, error)
 	// Get retrieves a Event
 	Get(ctx context.Context, in *EventGetRequest, opts ...grpc.CallOption) (*Event, error)
 	// Patch updates an existing Event
@@ -1317,6 +1360,16 @@ func (c *eventServiceClient) Add(ctx context.Context, in *EventAddRequest, opts 
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Event)
 	err := c.cc.Invoke(ctx, EventService_Add_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *eventServiceClient) AddMany(ctx context.Context, in *EventAddManyRequest, opts ...grpc.CallOption) (*EventAddManyResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(EventAddManyResponse)
+	err := c.cc.Invoke(ctx, EventService_AddMany_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1389,6 +1442,8 @@ func (c *eventServiceClient) Recent(ctx context.Context, in *EventRecentRequest,
 type EventServiceServer interface {
 	// Add creates a new Event
 	Add(context.Context, *EventAddRequest) (*Event, error)
+	// AddMany creates up to 1000 new Event rows in one call, all of them or none
+	AddMany(context.Context, *EventAddManyRequest) (*EventAddManyResponse, error)
 	// Get retrieves a Event
 	Get(context.Context, *EventGetRequest) (*Event, error)
 	// Patch updates an existing Event
@@ -1414,6 +1469,9 @@ type UnimplementedEventServiceServer struct{}
 
 func (UnimplementedEventServiceServer) Add(context.Context, *EventAddRequest) (*Event, error) {
 	return nil, status.Error(codes.Unimplemented, "method Add not implemented")
+}
+func (UnimplementedEventServiceServer) AddMany(context.Context, *EventAddManyRequest) (*EventAddManyResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method AddMany not implemented")
 }
 func (UnimplementedEventServiceServer) Get(context.Context, *EventGetRequest) (*Event, error) {
 	return nil, status.Error(codes.Unimplemented, "method Get not implemented")
@@ -1468,6 +1526,24 @@ func _EventService_Add_Handler(srv interface{}, ctx context.Context, dec func(in
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(EventServiceServer).Add(ctx, req.(*EventAddRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _EventService_AddMany_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EventAddManyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EventServiceServer).AddMany(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: EventService_AddMany_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EventServiceServer).AddMany(ctx, req.(*EventAddManyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1590,6 +1666,10 @@ var EventService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Add",
 			Handler:    _EventService_Add_Handler,
+		},
+		{
+			MethodName: "AddMany",
+			Handler:    _EventService_AddMany_Handler,
 		},
 		{
 			MethodName: "Get",

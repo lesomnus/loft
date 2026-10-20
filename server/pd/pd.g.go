@@ -15650,6 +15650,7 @@ func added(by string) bool {
 	case rove.AliasHoldService_Add_FullMethodName,
 		rove.AllocationService_Add_FullMethodName,
 		rove.AssetService_Add_FullMethodName,
+		rove.AssetService_AddMany_FullMethodName,
 		rove.AssetTypeService_Add_FullMethodName,
 		rove.AttachmentService_Add_FullMethodName,
 		rove.AuditService_Add_FullMethodName,
@@ -15660,6 +15661,7 @@ func added(by string) bool {
 		rove.CustodyService_Add_FullMethodName,
 		rove.CustodyLineService_Add_FullMethodName,
 		rove.EventService_Add_FullMethodName,
+		rove.EventService_AddMany_FullMethodName,
 		rove.FactService_Add_FullMethodName,
 		rove.FactService_AddMany_FullMethodName,
 		rove.HolderService_Add_FullMethodName,
@@ -15672,6 +15674,7 @@ func added(by string) bool {
 		rove.NotificationService_Add_FullMethodName,
 		rove.PartyService_Add_FullMethodName,
 		rove.PlacementService_Add_FullMethodName,
+		rove.PlacementService_AddMany_FullMethodName,
 		rove.PurchaseService_Add_FullMethodName,
 		rove.PurchaseLineService_Add_FullMethodName,
 		rove.ReservationService_Add_FullMethodName,
@@ -18463,6 +18466,11 @@ func (s interceptAsset) Add(ctx context.Context, req *rove.AssetAddRequest) (*ro
 		rove.AssetService_Add_FullMethodName, req, s.AssetServiceServer.Add)
 }
 
+func (s interceptAsset) AddMany(ctx context.Context, req *rove.AssetAddManyRequest) (*rove.AssetAddManyResponse, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.AssetServiceServer,
+		rove.AssetService_AddMany_FullMethodName, req, s.AssetServiceServer.AddMany)
+}
+
 func (s interceptAsset) Get(ctx context.Context, req *rove.AssetGetRequest) (*rove.Asset, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AssetServiceServer,
 		rove.AssetService_Get_FullMethodName, req, s.AssetServiceServer.Get)
@@ -18546,6 +18554,11 @@ func (s interceptAsset) Report(ctx context.Context, req *rove.AssetReportRequest
 func (s interceptAsset) Export(ctx context.Context, req *rove.AssetExportRequest) (*rove.AssetExportResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AssetServiceServer,
 		rove.AssetService_Export_FullMethodName, req, s.AssetServiceServer.Export)
+}
+
+func (s interceptAsset) ReadSheet(ctx context.Context, req *rove.AssetReadSheetRequest) (*rove.AssetReadSheetResponse, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.AssetServiceServer,
+		rove.AssetService_ReadSheet_FullMethodName, req, s.AssetServiceServer.ReadSheet)
 }
 
 func (s Intercept) TreeLock() rove.TreeLockServiceServer {
@@ -19303,6 +19316,11 @@ func (s interceptPlacement) Add(ctx context.Context, req *rove.PlacementAddReque
 		rove.PlacementService_Add_FullMethodName, req, s.PlacementServiceServer.Add)
 }
 
+func (s interceptPlacement) AddMany(ctx context.Context, req *rove.PlacementAddManyRequest) (*rove.PlacementAddManyResponse, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.PlacementServiceServer,
+		rove.PlacementService_AddMany_FullMethodName, req, s.PlacementServiceServer.AddMany)
+}
+
 func (s interceptPlacement) Get(ctx context.Context, req *rove.PlacementGetRequest) (*rove.Placement, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.PlacementServiceServer,
 		rove.PlacementService_Get_FullMethodName, req, s.PlacementServiceServer.Get)
@@ -19462,6 +19480,11 @@ type interceptEvent struct {
 func (s interceptEvent) Add(ctx context.Context, req *rove.EventAddRequest) (*rove.Event, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.EventServiceServer,
 		rove.EventService_Add_FullMethodName, req, s.EventServiceServer.Add)
+}
+
+func (s interceptEvent) AddMany(ctx context.Context, req *rove.EventAddManyRequest) (*rove.EventAddManyResponse, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.EventServiceServer,
+		rove.EventService_AddMany_FullMethodName, req, s.EventServiceServer.AddMany)
 }
 
 func (s interceptEvent) Get(ctx context.Context, req *rove.EventGetRequest) (*rove.Event, error) {
@@ -21834,6 +21857,19 @@ func dispatch(ctx context.Context, s rove.Server, op *pdpb.Op) (*anypb.Any, erro
 
 		return anypb.New(res)
 
+	case rove.AssetService_AddMany_FullMethodName:
+		v := &rove.AssetAddManyRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.Asset().AddMany(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
 	case rove.AssetService_Get_FullMethodName:
 		v := &rove.AssetGetRequest{}
 		if err := op.GetRequest().UnmarshalTo(v); err != nil {
@@ -22036,6 +22072,19 @@ func dispatch(ctx context.Context, s rove.Server, op *pdpb.Op) (*anypb.Any, erro
 		}
 
 		res, err := s.Asset().Export(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.AssetService_ReadSheet_FullMethodName:
+		v := &rove.AssetReadSheetRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.Asset().ReadSheet(ctx, v)
 		if err != nil {
 			return nil, err
 		}
@@ -23537,6 +23586,19 @@ func dispatch(ctx context.Context, s rove.Server, op *pdpb.Op) (*anypb.Any, erro
 
 		return anypb.New(res)
 
+	case rove.PlacementService_AddMany_FullMethodName:
+		v := &rove.PlacementAddManyRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.Placement().AddMany(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
 	case rove.PlacementService_Get_FullMethodName:
 		v := &rove.PlacementGetRequest{}
 		if err := op.GetRequest().UnmarshalTo(v); err != nil {
@@ -23856,6 +23918,19 @@ func dispatch(ctx context.Context, s rove.Server, op *pdpb.Op) (*anypb.Any, erro
 		}
 
 		res, err := s.Event().Add(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.EventService_AddMany_FullMethodName:
+		v := &rove.EventAddManyRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.Event().AddMany(ctx, v)
 		if err != nil {
 			return nil, err
 		}
@@ -26390,6 +26465,8 @@ func resourceChangeKind(method string) pdpb.ChangeKind {
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
 	case rove.AssetService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
+	case rove.AssetService_AddMany_FullMethodName:
+		return pdpb.ChangeKind_CHANGE_KIND_CREATED
 	case rove.AssetService_Patch_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
 	case rove.AssetService_Apply_FullMethodName:
@@ -26469,6 +26546,8 @@ func resourceChangeKind(method string) pdpb.ChangeKind {
 	case rove.CustodyLineService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
 	case rove.EventService_Add_FullMethodName:
+		return pdpb.ChangeKind_CHANGE_KIND_CREATED
+	case rove.EventService_AddMany_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
 	case rove.EventService_Patch_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
@@ -26559,6 +26638,8 @@ func resourceChangeKind(method string) pdpb.ChangeKind {
 	case rove.PartyService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
 	case rove.PlacementService_Add_FullMethodName:
+		return pdpb.ChangeKind_CHANGE_KIND_CREATED
+	case rove.PlacementService_AddMany_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
 	case rove.PlacementService_Patch_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED

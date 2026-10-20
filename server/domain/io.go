@@ -54,6 +54,9 @@ func (s domainAsset) Export(ctx context.Context, req *app.AssetExportRequest) (*
 	if format != "csv" && format != "xlsx" {
 		return nil, invalid("format", "CSV 또는 엑셀(xlsx)만 됩니다")
 	}
+	if req.GetTemplate() {
+		return registerForm(format)
+	}
 
 	as, err := t.db.Asset.Query().Where(asset.TenantId(t.tenant.Uuid()), asset.DateErasedIsNil()).All(ctx)
 	if err != nil {
@@ -151,7 +154,13 @@ func (s domainAsset) Export(ctx context.Context, req *app.AssetExportRequest) (*
 		rows = append(rows, row)
 	}
 
-	name := "rove-assets-" + t.now.In(Zone).Format("20060102")
+	return writeSheet(format, "rove-assets-"+t.now.In(Zone).Format("20060102"), "자산", rows, nil)
+}
+
+// writeSheet is `rows` as a file of `format`: a CSV with the mark Excel reads
+// it as UTF-8 by, or a workbook whose header is bold and stays in view -- and
+// beside it, in a workbook, a sheet `guide` writes, when there is one.
+func writeSheet(format, name, sheet string, rows [][]string, guide func(f *excelize.File) error) (*app.AssetExportResponse, error) {
 	if format == "csv" {
 		b := bytes.Buffer{}
 		b.WriteString("\ufeff")
@@ -168,29 +177,18 @@ func (s domainAsset) Export(ctx context.Context, req *app.AssetExportRequest) (*
 
 	f := excelize.NewFile()
 	defer f.Close()
-	sheet := "자산"
 	if err := f.SetSheetName("Sheet1", sheet); err != nil {
 		return nil, err
 	}
-	for i, row := range rows {
-		cell, err := excelize.CoordinatesToCellName(1, i+1)
-		if err != nil {
-			return nil, err
-		}
-		vs := make([]any, len(row))
-		for j, v := range row {
-			vs[j] = v
-		}
-		if err := f.SetSheetRow(sheet, cell, &vs); err != nil {
-			return nil, err
-		}
-	}
-	bold, err := f.NewStyle(&excelize.Style{Font: &excelize.Font{Bold: true}})
-	if err == nil {
-		last, _ := excelize.CoordinatesToCellName(len(header), 1)
-		_ = f.SetCellStyle(sheet, "A1", last, bold)
+	if err := setRows(f, sheet, rows); err != nil {
+		return nil, err
 	}
 	_ = f.SetPanes(sheet, &excelize.Panes{Freeze: true, YSplit: 1, TopLeftCell: "A2", ActivePane: "bottomLeft"})
+	if guide != nil {
+		if err := guide(f); err != nil {
+			return nil, err
+		}
+	}
 	b, err := f.WriteToBuffer()
 	if err != nil {
 		return nil, err
@@ -200,4 +198,29 @@ func (s domainAsset) Export(ctx context.Context, req *app.AssetExportRequest) (*
 		ContentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
 		Name:        name + ".xlsx",
 	}.Build(), nil
+}
+
+// setRows writes `rows` into `sheet` from its first cell, the first in bold.
+func setRows(f *excelize.File, sheet string, rows [][]string) error {
+	width := 0
+	for i, row := range rows {
+		cell, err := excelize.CoordinatesToCellName(1, i+1)
+		if err != nil {
+			return err
+		}
+		vs := make([]any, len(row))
+		for j, v := range row {
+			vs[j] = v
+		}
+		if err := f.SetSheetRow(sheet, cell, &vs); err != nil {
+			return err
+		}
+		width = max(width, len(row))
+	}
+	bold, err := f.NewStyle(&excelize.Style{Font: &excelize.Font{Bold: true}})
+	if err == nil && width > 0 {
+		last, _ := excelize.CoordinatesToCellName(width, 1)
+		_ = f.SetCellStyle(sheet, "A1", last, bold)
+	}
+	return nil
 }

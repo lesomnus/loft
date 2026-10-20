@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	AssetService_Add_FullMethodName           = "/rove.AssetService/Add"
+	AssetService_AddMany_FullMethodName       = "/rove.AssetService/AddMany"
 	AssetService_Get_FullMethodName           = "/rove.AssetService/Get"
 	AssetService_Patch_FullMethodName         = "/rove.AssetService/Patch"
 	AssetService_Apply_FullMethodName         = "/rove.AssetService/Apply"
@@ -37,6 +38,7 @@ const (
 	AssetService_Search_FullMethodName        = "/rove.AssetService/Search"
 	AssetService_Report_FullMethodName        = "/rove.AssetService/Report"
 	AssetService_Export_FullMethodName        = "/rove.AssetService/Export"
+	AssetService_ReadSheet_FullMethodName     = "/rove.AssetService/ReadSheet"
 )
 
 // AssetServiceClient is the client API for AssetService service.
@@ -45,6 +47,8 @@ const (
 type AssetServiceClient interface {
 	// Add creates a new Asset
 	Add(ctx context.Context, in *AssetAddRequest, opts ...grpc.CallOption) (*Asset, error)
+	// AddMany creates up to 1000 new Asset rows in one call, all of them or none
+	AddMany(ctx context.Context, in *AssetAddManyRequest, opts ...grpc.CallOption) (*AssetAddManyResponse, error)
 	// Get retrieves a Asset
 	Get(ctx context.Context, in *AssetGetRequest, opts ...grpc.CallOption) (*Asset, error)
 	// Patch updates an existing Asset
@@ -93,8 +97,14 @@ type AssetServiceClient interface {
 	Report(ctx context.Context, in *AssetReportRequest, opts ...grpc.CallOption) (*AssetReportResponse, error)
 	// Export writes the register as a sheet, to read. Nothing reads one back:
 	// a restore is of the workspace's own export, and a sheet that edited the
-	// register by tag is gone (design D34).
+	// register by tag is gone (design D34). With `template` it writes the form
+	// bulk registration reads instead.
 	Export(ctx context.Context, in *AssetExportRequest, opts ...grpc.CallOption) (*AssetExportResponse, error)
+	// ReadSheet reads a sheet in that form into the items an AddMany takes, and
+	// says what it could not read, by line. It writes nothing. The page and
+	// `rove register` read a sheet with it, so that the form is read in one
+	// place and the two read it alike (design 9.13).
+	ReadSheet(ctx context.Context, in *AssetReadSheetRequest, opts ...grpc.CallOption) (*AssetReadSheetResponse, error)
 }
 
 type assetServiceClient struct {
@@ -109,6 +119,16 @@ func (c *assetServiceClient) Add(ctx context.Context, in *AssetAddRequest, opts 
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Asset)
 	err := c.cc.Invoke(ctx, AssetService_Add_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *assetServiceClient) AddMany(ctx context.Context, in *AssetAddManyRequest, opts ...grpc.CallOption) (*AssetAddManyResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AssetAddManyResponse)
+	err := c.cc.Invoke(ctx, AssetService_AddMany_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -294,12 +314,24 @@ func (c *assetServiceClient) Export(ctx context.Context, in *AssetExportRequest,
 	return out, nil
 }
 
+func (c *assetServiceClient) ReadSheet(ctx context.Context, in *AssetReadSheetRequest, opts ...grpc.CallOption) (*AssetReadSheetResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AssetReadSheetResponse)
+	err := c.cc.Invoke(ctx, AssetService_ReadSheet_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AssetServiceServer is the server API for AssetService service.
 // All implementations must embed UnimplementedAssetServiceServer
 // for forward compatibility.
 type AssetServiceServer interface {
 	// Add creates a new Asset
 	Add(context.Context, *AssetAddRequest) (*Asset, error)
+	// AddMany creates up to 1000 new Asset rows in one call, all of them or none
+	AddMany(context.Context, *AssetAddManyRequest) (*AssetAddManyResponse, error)
 	// Get retrieves a Asset
 	Get(context.Context, *AssetGetRequest) (*Asset, error)
 	// Patch updates an existing Asset
@@ -348,8 +380,14 @@ type AssetServiceServer interface {
 	Report(context.Context, *AssetReportRequest) (*AssetReportResponse, error)
 	// Export writes the register as a sheet, to read. Nothing reads one back:
 	// a restore is of the workspace's own export, and a sheet that edited the
-	// register by tag is gone (design D34).
+	// register by tag is gone (design D34). With `template` it writes the form
+	// bulk registration reads instead.
 	Export(context.Context, *AssetExportRequest) (*AssetExportResponse, error)
+	// ReadSheet reads a sheet in that form into the items an AddMany takes, and
+	// says what it could not read, by line. It writes nothing. The page and
+	// `rove register` read a sheet with it, so that the form is read in one
+	// place and the two read it alike (design 9.13).
+	ReadSheet(context.Context, *AssetReadSheetRequest) (*AssetReadSheetResponse, error)
 	mustEmbedUnimplementedAssetServiceServer()
 }
 
@@ -362,6 +400,9 @@ type UnimplementedAssetServiceServer struct{}
 
 func (UnimplementedAssetServiceServer) Add(context.Context, *AssetAddRequest) (*Asset, error) {
 	return nil, status.Error(codes.Unimplemented, "method Add not implemented")
+}
+func (UnimplementedAssetServiceServer) AddMany(context.Context, *AssetAddManyRequest) (*AssetAddManyResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method AddMany not implemented")
 }
 func (UnimplementedAssetServiceServer) Get(context.Context, *AssetGetRequest) (*Asset, error) {
 	return nil, status.Error(codes.Unimplemented, "method Get not implemented")
@@ -414,6 +455,9 @@ func (UnimplementedAssetServiceServer) Report(context.Context, *AssetReportReque
 func (UnimplementedAssetServiceServer) Export(context.Context, *AssetExportRequest) (*AssetExportResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Export not implemented")
 }
+func (UnimplementedAssetServiceServer) ReadSheet(context.Context, *AssetReadSheetRequest) (*AssetReadSheetResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ReadSheet not implemented")
+}
 func (UnimplementedAssetServiceServer) mustEmbedUnimplementedAssetServiceServer() {}
 func (UnimplementedAssetServiceServer) testEmbeddedByValue()                      {}
 
@@ -449,6 +493,24 @@ func _AssetService_Add_Handler(srv interface{}, ctx context.Context, dec func(in
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AssetServiceServer).Add(ctx, req.(*AssetAddRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AssetService_AddMany_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AssetAddManyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AssetServiceServer).AddMany(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AssetService_AddMany_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AssetServiceServer).AddMany(ctx, req.(*AssetAddManyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -752,6 +814,24 @@ func _AssetService_Export_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AssetService_ReadSheet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AssetReadSheetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AssetServiceServer).ReadSheet(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AssetService_ReadSheet_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AssetServiceServer).ReadSheet(ctx, req.(*AssetReadSheetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AssetService_ServiceDesc is the grpc.ServiceDesc for AssetService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -762,6 +842,10 @@ var AssetService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Add",
 			Handler:    _AssetService_Add_Handler,
+		},
+		{
+			MethodName: "AddMany",
+			Handler:    _AssetService_AddMany_Handler,
 		},
 		{
 			MethodName: "Get",
@@ -826,6 +910,10 @@ var AssetService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Export",
 			Handler:    _AssetService_Export_Handler,
+		},
+		{
+			MethodName: "ReadSheet",
+			Handler:    _AssetService_ReadSheet_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
