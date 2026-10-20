@@ -41,7 +41,6 @@ message SearchStale {
   }];
 
   option (orm.message) = {
-    rpc: {crud: true}
     indexes: [
       {
         name: "date_created"

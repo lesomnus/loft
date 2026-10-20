@@ -16,6 +16,7 @@ import (
 	"github.com/lesomnus/rove/cli"
 	"github.com/lesomnus/rove/cmd"
 	"github.com/lesomnus/rove/internal/ent"
+	entaudit "github.com/lesomnus/rove/internal/ent/audit"
 	"github.com/lesomnus/rove/internal/ent/holder"
 	"github.com/lesomnus/rove/server/pd"
 )
@@ -205,6 +206,21 @@ func TestTheLiveRowsAreCheckedAgainstTheTrail(t *testing.T) {
 	s.Close()
 
 	x.ErrorContains(trail("rows"), "1 rows differ")
+
+	// Somebody who has looked accepts it as it is: an act on the trail, which
+	// says why (payday#108).
+	x.ErrorContains(trail("rows", "--accept"), "--why")
+	x.NoError(trail("rows", "--accept", "--why", "the owner asked to step down, and a migration did it"))
+	x.NoError(trail("rows"))
+
+	// And a row nothing on the trail is about -- what one added in the
+	// database past the servers looks like.
+	s, err = cmd.Build(ctx, c)
+	x.NoError(err)
+	_, err = s.Ent.Audit.Delete().Where(entaudit.ObjectId(owner.Id)).Exec(ctx)
+	x.NoError(err)
+	s.Close()
+	x.ErrorContains(trail("rows"), "1 are not on it")
 
 	c.Audit.Digest.Key = ""
 	x.ErrorContains(trail("rows"), "audit.digest.key", "no key, nothing to check against")

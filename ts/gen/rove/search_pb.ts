@@ -15,7 +15,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file rove/search.proto.
  */
 export const file_rove_search: GenFile = /*@__PURE__*/
-  fileDesc("ChFyb3ZlL3NlYXJjaC5wcm90bxIEcm92ZSK+AQoLU2VhcmNoU3RhbGUSFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEgwKBGtpbmQYCCABKAkSEwoDa2V5GAkgASgMQgbqghYCEEASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAOjbK/BUmEgIQARogEgxkYXRlX2NyZWF0ZWQaEAoMZGF0ZV9jcmVhdGVkEA+KuxYICC5CAgoAKgBCH1oYZ2l0aHViLmNvbS9sZXNvbW51cy9yb3ZlkgMCCAJiCGVkaXRpb25zcOgH", [file_google_protobuf_timestamp, file_orm, file_payday]);
+  fileDesc("ChFyb3ZlL3NlYXJjaC5wcm90bxIEcm92ZSK6AQoLU2VhcmNoU3RhbGUSFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEgwKBGtpbmQYCCABKAkSEwoDa2V5GAkgASgMQgbqghYCEEASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAOjLK/BUiGiASDGRhdGVfY3JlYXRlZBoQCgxkYXRlX2NyZWF0ZWQQD4q7FggILkICCgAqAEIfWhhnaXRodWIuY29tL2xlc29tbnVzL3JvdmWSAwIIAmIIZWRpdGlvbnNw6Ac", [file_google_protobuf_timestamp, file_orm, file_payday]);
 
 /**
  * SearchStale is something whose documents in the search index no longer say

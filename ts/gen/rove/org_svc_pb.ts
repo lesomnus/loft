@@ -8,7 +8,7 @@ import type { Timestamp } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
 import type { Patch } from "../patch/patch_pb.js";
 import { file_patch_patch } from "../patch/patch_pb.js";
-import type { AliasHoldSchema, CliLoginSchema, ConsentSchema, Invitation, InvitationSchema, Party, PartySchema, SessionSchema, SignInFailureSchema } from "./org_pb.js";
+import type { Invitation, InvitationSchema, Party, PartySchema } from "./org_pb.js";
 import { file_rove_org } from "./org_pb.js";
 import type { Holder } from "./payday/holder_pb.js";
 import { file_rove_payday_holder } from "./payday/holder_pb.js";
@@ -24,7 +24,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file rove/org_svc.g.proto.
  */
 export const file_rove_org_svc_g: GenFile = /*@__PURE__*/
-  fileDesc("ChRyb3ZlL29yZ19zdmMuZy5wcm90bxIEcm92ZSKGAwoPUGFydHlBZGRSZXF1ZXN0EgoKAmlkGAEgASgMEh8KBnRlbmFudBgCIAEoCzIPLnJvdmUuVGVuYW50UmVmEhMKBG5hbWUYBSABKAlCBaoBAggCEhMKBGRlc2MYBiABKAlCBaoBAggCEjEKBmxhYmVscxgHIAMoCzIhLnJvdmUuUGFydHlBZGRSZXF1ZXN0LkxhYmVsc0VudHJ5EhMKBGtpbmQYCCABKAlCBaoBAggCEhEKCXBhcmVudF9pZBgJIAEoDBIfCgZob2xkZXIYCiABKAsyDy5yb3ZlLkhvbGRlclJlZhIUCgVlbWFpbBgLIAEoCUIFqgECCAISFAoFcGhvbmUYDCABKAlCBaoBAggCEjAKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEwoEY29kZRgQIAEoCUIFqgECCAIaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASJRCg9QYXJ0eUdldFJlcXVlc3QSGwoDcmVmGAEgASgLMg4ucm92ZS5QYXJ0eVJlZhIhCgZzZWxlY3QYAiABKAsyES5yb3ZlLlBhcnR5U2VsZWN0IkkKCFBhcnR5UmVmEgwKAmlkGAEgASgMSAASKAoGaG9sZGVyGAogASgLMhYucm92ZS5QYXJ0eVJlZkJ5SG9sZGVySABCBQoDa2V5IjMKEFBhcnR5UmVmQnlIb2xkZXISHwoGaG9sZGVyGAogASgLMg8ucm92ZS5Ib2xkZXJSZWYinAIKC1BhcnR5U2VsZWN0EgsKA2FsbBgBIAEoCBIiCgZ0ZW5hbnQYAiABKAsyEi5yb3ZlLlRlbmFudFNlbGVjdBIMCgRuYW1lGAUgASgIEgwKBGRlc2MYBiABKAgSDgoGbGFiZWxzGAcgASgIEgwKBGtpbmQYCCABKAgSEQoJcGFyZW50X2lkGAkgASgIEiIKBmhvbGRlchgKIAEoCzISLnJvdmUuSG9sZGVyU2VsZWN0Eg0KBWVtYWlsGAsgASgIEg0KBXBob25lGAwgASgIEhQKDGRhdGVfdXBkYXRlZBgNIAEoCBITCgtkYXRlX2VyYXNlZBgOIAEoCBIUCgxkYXRlX2NyZWF0ZWQYDyABKAgSDAoEY29kZRgQIAEoCCKZAwoRUGFydHlQYXRjaFJlcXVlc3QSGwoDcmVmGAEgASgLMg4ucm92ZS5QYXJ0eVJlZhIMCgRuYW1lGAogASgJEgwKBGRlc2MYDCABKAkSMwoGbGFiZWxzGA4gAygLMiMucm92ZS5QYXJ0eVBhdGNoUmVxdWVzdC5MYWJlbHNFbnRyeRIMCgRraW5kGBAgASgJEhEKCXBhcmVudF9pZBgSIAEoDBIWCg5wYXJlbnRfaWRfbnVsbBgTIAEoCBIfCgZob2xkZXIYFCABKAsyDy5yb3ZlLkhvbGRlclJlZhITCgtob2xkZXJfbnVsbBgVIAEoCBINCgVlbWFpbBgWIAEoCRINCgVwaG9uZRgYIAEoCRIwCgxkYXRlX3VwZGF0ZWQYGiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhoKEmRhdGVfdXBkYXRlZF9mb3JjZRgbIAEoCBIMCgRjb2RlGCAgASgJGi0KC0xhYmVsc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiTQoRUGFydHlBcHBseVJlcXVlc3QSGwoDcmVmGAEgASgLMg4ucm92ZS5QYXJ0eVJlZhIbCgVwYXRjaBgCIAEoCzIMLnBhdGNoLlBhdGNoIiQKElBhcnR5RXJhc2VSZXNwb25zZRIOCgZlcmFzZWQYASABKAgieQoQUGFydHlMaXN0UmVxdWVzdBIiCgdmaWx0ZXJzGAEgAygLMhEucm92ZS5QYXJ0eUZpbHRlchITCgRzaXplGAIgASgFQgWqAQIIAhIUCgVhZnRlchgDIAEoCUIFqgECCAISFgoHcmV2ZXJzZRgEIAEoCEIFqgECCAIiRAoRUGFydHlMaXN0UmVzcG9uc2USGgoFaXRlbXMYASADKAsyCy5yb3ZlLlBhcnR5EhMKBG5leHQYAiABKAlCBaoBAggCIsoBCgtQYXJ0eUZpbHRlchIbCgNyZWYYASABKAsyDi5yb3ZlLlBhcnR5UmVmEgwKBGtpbmQYAiABKAkSEQoJcGFyZW50X2lkGAMgASgMEh8KBmhvbGRlchgEIAEoCzIPLnJvdmUuSG9sZGVyUmVmEi0KBmxhYmVscxgFIAMoCzIdLnJvdmUuUGFydHlGaWx0ZXIuTGFiZWxzRW50cnkaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASJVChFQYXJ0eVdhdGNoUmVxdWVzdBIiCgdmaWx0ZXJzGAEgAygLMhEucm92ZS5QYXJ0eUZpbHRlchIcCg1za2lwX3NuYXBzaG90GAIgASgIQgWqAQIIAiI5ChJQYXJ0eVdhdGNoUmVzcG9uc2USIwoFaXRlbXMYASADKAsyFC5yb3ZlLlBhcnR5V2F0Y2hJdGVtIk8KDlBhcnR5V2F0Y2hJdGVtEgoKAmlkGAEgASgMEhoKBXZhbHVlGAIgASgLMgsucm92ZS5QYXJ0eRIVCgZhY3Rpb24YAyABKAlCBaoBAggCIhAKDlBhcnR5TWVSZXF1ZXN0IogCCg9QYXJ0eU1lUmVzcG9uc2USHAoGaG9sZGVyGAEgASgLMgwucm92ZS5Ib2xkZXISGgoFcGFydHkYAiABKAsyCy5yb3ZlLlBhcnR5EhwKBnRlbmFudBgDIAEoCzIMLnJvdmUuVGVuYW50EhMKBHJvbGUYBCABKAlCBaoBAggCEjEKDWhpc3Rvcnlfc2luY2UYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhsKDGhpc3RvcnlfZGF5cxgGIAEoDUIFqgECCAISHAoNYWNjb3VudHNfaGVyZRgHIAEoCEIFqgECCAISGgoLYWNjb3VudF91cmwYCCABKAlCBaoBAggCIswCChJQYXJ0eVVwZGF0ZVJlcXVlc3QSGwoDcmVmGAEgASgLMg4ucm92ZS5QYXJ0eVJlZhITCgRuYW1lGAIgASgJQgWqAQIIAhITCgRkZXNjGAMgASgJQgWqAQIIAhITCgRraW5kGAQgASgJQgWqAQIIAhIYCglwYXJlbnRfaWQYBSABKAxCBaoBAggCEhoKC3BhcmVudF9udWxsGAYgASgIQgWqAQIIAhIUCgVlbWFpbBgHIAEoCUIFqgECCAISFAoFcGhvbmUYCCABKAlCBaoBAggCEhMKBGNvZGUYCSABKAlCBaoBAggCEjQKBmxhYmVscxgKIAMoCzIkLnJvdmUuUGFydHlVcGRhdGVSZXF1ZXN0LkxhYmVsc0VudHJ5Gi0KC0xhYmVsc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEidQoSUGFydHlJbnZpdGVSZXF1ZXN0EhsKA3JlZhgBIAEoCzIOLnJvdmUuUGFydHlSZWYSFAoFYWxpYXMYAiABKAlCBaoBAggCEhMKBHJvbGUYAyABKAlCBaoBAggCEhcKCHBhc3N3b3JkGAQgASgJQgWqAQIIAiJoChNQYXJ0eUludml0ZVJlc3BvbnNlEhoKBXBhcnR5GAEgASgLMgsucm92ZS5QYXJ0eRIcCgZob2xkZXIYAiABKAsyDC5yb3ZlLkhvbGRlchIXCghwYXNzd29yZBgDIAEoCUIFqgECCAIiRwoTUGFydHlTZXRSb2xlUmVxdWVzdBIbCgNyZWYYASABKAsyDi5yb3ZlLlBhcnR5UmVmEhMKBHJvbGUYAiABKAlCBaoBAggCImcKF1BhcnR5U2V0UGFzc3dvcmRSZXF1ZXN0EhsKA3JlZhgBIAEoCzIOLnJvdmUuUGFydHlSZWYSFgoHY3VycmVudBgCIAEoCUIFqgECCAISFwoIcGFzc3dvcmQYAyABKAlCBaoBAggCIhoKGFBhcnR5U2V0UGFzc3dvcmRSZXNwb25zZSI1ChZQYXJ0eURlYWN0aXZhdGVSZXF1ZXN0EhsKA3JlZhgBIAEoCzIOLnJvdmUuUGFydHlSZWYiNwoYUGFydHlQc2V1ZG9ueW1pemVSZXF1ZXN0EhsKA3JlZhgBIAEoCzIOLnJvdmUuUGFydHlSZWYiZwoSUGFydHlTZWFyY2hSZXF1ZXN0EhAKAXEYASABKAlCBaoBAggCEhMKBGtpbmQYAiABKAlCBaoBAggCEhMKBHNpemUYAyABKA1CBaoBAggCEhUKBm9mZnNldBgEIAEoDUIFqgECCAIiRwoTUGFydHlTZWFyY2hSZXNwb25zZRIaCgVpdGVtcxgBIAMoCzILLnJvdmUuUGFydHkSFAoFdG90YWwYAiABKA1CBaoBAggCIvcBChFTZXNzaW9uQWRkUmVxdWVzdBIKCgJpZBgBIAEoDBIWCgdhY2NvdW50GAggASgMQgWqAQIIAhIOCgZzZWNyZXQYCSABKAwSDQoFZ3JhbnQYCiABKAwSMAoMZGF0ZV9leHBpcmVzGAsgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBItCglkYXRlX2lkbGUYDCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEgwKBGhlbGQYECABKAwSMAoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCJXChFTZXNzaW9uR2V0UmVxdWVzdBIdCgNyZWYYASABKAsyEC5yb3ZlLlNlc3Npb25SZWYSIwoGc2VsZWN0GAIgASgLMhMucm92ZS5TZXNzaW9uU2VsZWN0IiEKClNlc3Npb25SZWYSDAoCaWQYASABKAxIAEIFCgNrZXkixAEKDVNlc3Npb25TZWxlY3QSCwoDYWxsGAEgASgIEg8KB2FjY291bnQYCCABKAgSDgoGc2VjcmV0GAkgASgIEg0KBWdyYW50GAogASgIEhQKDGRhdGVfZXhwaXJlcxgLIAEoCBIRCglkYXRlX2lkbGUYDCABKAgSDAoEaGVsZBgQIAEoCBIUCgxkYXRlX3VwZGF0ZWQYDSABKAgSEwoLZGF0ZV9lcmFzZWQYDiABKAgSFAoMZGF0ZV9jcmVhdGVkGA8gASgIIucCChNTZXNzaW9uUGF0Y2hSZXF1ZXN0Eh0KA3JlZhgBIAEoCzIQLnJvdmUuU2Vzc2lvblJlZhIPCgdhY2NvdW50GBAgASgMEg4KBnNlY3JldBgSIAEoDBINCgVncmFudBgUIAEoDBIwCgxkYXRlX2V4cGlyZXMYFiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhkKEWRhdGVfZXhwaXJlc19udWxsGBcgASgIEi0KCWRhdGVfaWRsZRgYIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASFgoOZGF0ZV9pZGxlX251bGwYGSABKAgSDAoEaGVsZBggIAEoDBIRCgloZWxkX251bGwYISABKAgSMAoMZGF0ZV91cGRhdGVkGBogASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIaChJkYXRlX3VwZGF0ZWRfZm9yY2UYGyABKAgiUQoTU2Vzc2lvbkFwcGx5UmVxdWVzdBIdCgNyZWYYASABKAsyEC5yb3ZlLlNlc3Npb25SZWYSGwoFcGF0Y2gYAiABKAsyDC5wYXRjaC5QYXRjaCImChRTZXNzaW9uRXJhc2VSZXNwb25zZRIOCgZlcmFzZWQYASABKAginAMKFEludml0YXRpb25BZGRSZXF1ZXN0EgoKAmlkGAEgASgMEh8KBnRlbmFudBgCIAEoCzIPLnJvdmUuVGVuYW50UmVmEiAKB2ludml0ZXIYCCABKAsyDy5yb3ZlLkhvbGRlclJlZhIUCgVlbWFpbBgJIAEoCUIFqgECCAISEwoEcm9sZRgKIAEoCUIFqgECCAISHQoFcGFydHkYCyABKAsyDi5yb3ZlLlBhcnR5UmVmEg8KB2FjY291bnQYDCABKAwSMAoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIUCgVzdGF0ZRgQIAEoCUIFqgECCAISMAoMZGF0ZV9leHBpcmVzGBEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIwCgxkYXRlX3NldHRsZWQYEiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEh8KBmhvbGRlchgTIAEoCzIPLnJvdmUuSG9sZGVyUmVmEg0KBWNsYWltGBQgASgMImAKFEludml0YXRpb25HZXRSZXF1ZXN0EiAKA3JlZhgBIAEoCzITLnJvdmUuSW52aXRhdGlvblJlZhImCgZzZWxlY3QYAiABKAsyFi5yb3ZlLkludml0YXRpb25TZWxlY3QiJAoNSW52aXRhdGlvblJlZhIMCgJpZBgBIAEoDEgAQgUKA2tleSLnAgoQSW52aXRhdGlvblNlbGVjdBILCgNhbGwYASABKAgSIgoGdGVuYW50GAIgASgLMhIucm92ZS5UZW5hbnRTZWxlY3QSIwoHaW52aXRlchgIIAEoCzISLnJvdmUuSG9sZGVyU2VsZWN0Eg0KBWVtYWlsGAkgASgIEgwKBHJvbGUYCiABKAgSIAoFcGFydHkYCyABKAsyES5yb3ZlLlBhcnR5U2VsZWN0Eg8KB2FjY291bnQYDCABKAgSFAoMZGF0ZV91cGRhdGVkGA0gASgIEhMKC2RhdGVfZXJhc2VkGA4gASgIEhQKDGRhdGVfY3JlYXRlZBgPIAEoCBINCgVzdGF0ZRgQIAEoCBIUCgxkYXRlX2V4cGlyZXMYESABKAgSFAoMZGF0ZV9zZXR0bGVkGBIgASgIEiIKBmhvbGRlchgTIAEoCzISLnJvdmUuSG9sZGVyU2VsZWN0Eg0KBWNsYWltGBQgASgIItgDChZJbnZpdGF0aW9uUGF0Y2hSZXF1ZXN0EiAKA3JlZhgBIAEoCzITLnJvdmUuSW52aXRhdGlvblJlZhINCgVlbWFpbBgSIAEoCRIdCgVwYXJ0eRgWIAEoCzIOLnJvdmUuUGFydHlSZWYSEgoKcGFydHlfbnVsbBgXIAEoCBIPCgdhY2NvdW50GBggASgMEhQKDGFjY291bnRfbnVsbBgZIAEoCBIwCgxkYXRlX3VwZGF0ZWQYGiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhoKEmRhdGVfdXBkYXRlZF9mb3JjZRgbIAEoCBINCgVzdGF0ZRggIAEoCRIwCgxkYXRlX2V4cGlyZXMYIiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjAKDGRhdGVfc2V0dGxlZBgkIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGQoRZGF0ZV9zZXR0bGVkX251bGwYJSABKAgSHwoGaG9sZGVyGCYgASgLMg8ucm92ZS5Ib2xkZXJSZWYSEwoLaG9sZGVyX251bGwYJyABKAgSDQoFY2xhaW0YKCABKAwSEgoKY2xhaW1fbnVsbBgpIAEoCCJXChZJbnZpdGF0aW9uQXBwbHlSZXF1ZXN0EiAKA3JlZhgBIAEoCzITLnJvdmUuSW52aXRhdGlvblJlZhIbCgVwYXRjaBgCIAEoCzIMLnBhdGNoLlBhdGNoIikKF0ludml0YXRpb25FcmFzZVJlc3BvbnNlEg4KBmVyYXNlZBgBIAEoCCKDAQoVSW52aXRhdGlvbkxpc3RSZXF1ZXN0EicKB2ZpbHRlcnMYASADKAsyFi5yb3ZlLkludml0YXRpb25GaWx0ZXISEwoEc2l6ZRgCIAEoBUIFqgECCAISFAoFYWZ0ZXIYAyABKAlCBaoBAggCEhYKB3JldmVyc2UYBCABKAhCBaoBAggCIk4KFkludml0YXRpb25MaXN0UmVzcG9uc2USHwoFaXRlbXMYASADKAsyEC5yb3ZlLkludml0YXRpb24SEwoEbmV4dBgCIAEoCUIFqgECCAIidQoQSW52aXRhdGlvbkZpbHRlchIgCgNyZWYYASABKAsyEy5yb3ZlLkludml0YXRpb25SZWYSHwoGdGVuYW50GAIgASgLMg8ucm92ZS5UZW5hbnRSZWYSDwoHYWNjb3VudBgDIAEoDBINCgVzdGF0ZRgEIAEoCSI7ChdJbnZpdGF0aW9uUmV2b2tlUmVxdWVzdBIgCgNyZWYYASABKAsyEy5yb3ZlLkludml0YXRpb25SZWYiLQoWSW52aXRhdGlvbkNsYWltUmVxdWVzdBITCgRjb2RlGAEgASgJQgWqAQIIAiI7ChdJbnZpdGF0aW9uQWNjZXB0UmVxdWVzdBIgCgNyZWYYASABKAsyEy5yb3ZlLkludml0YXRpb25SZWYiOQoVSW52aXRhdGlvbkRlbnlSZXF1ZXN0EiAKA3JlZhgBIAEoCzITLnJvdmUuSW52aXRhdGlvblJlZiKeAgoSQ2xpTG9naW5BZGRSZXF1ZXN0EgoKAmlkGAEgASgMEg4KBnNlY3JldBgIIAEoDBITCgRjb2RlGAkgASgJQgWqAQIIAhIVCgZjbGllbnQYCiABKAlCBaoBAggCEhUKBm9yaWdpbhgLIAEoCUIFqgECCAISDwoHYWRkcmVzcxgSIAEoCRIPCgdhY2NvdW50GAwgASgMEg0KBWdyYW50GBMgASgMEhQKBXN0YXRlGBAgASgJQgWqAQIIAhIwCgxkYXRlX2V4cGlyZXMYESABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjAKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiWgoSQ2xpTG9naW5HZXRSZXF1ZXN0Eh4KA3JlZhgBIAEoCzIRLnJvdmUuQ2xpTG9naW5SZWYSJAoGc2VsZWN0GAIgASgLMhQucm92ZS5DbGlMb2dpblNlbGVjdCIiCgtDbGlMb2dpblJlZhIMCgJpZBgBIAEoDEgAQgUKA2tleSLyAQoOQ2xpTG9naW5TZWxlY3QSCwoDYWxsGAEgASgIEg4KBnNlY3JldBgIIAEoCBIMCgRjb2RlGAkgASgIEg4KBmNsaWVudBgKIAEoCBIOCgZvcmlnaW4YCyABKAgSDwoHYWRkcmVzcxgSIAEoCBIPCgdhY2NvdW50GAwgASgIEg0KBWdyYW50GBMgASgIEg0KBXN0YXRlGBAgASgIEhQKDGRhdGVfZXhwaXJlcxgRIAEoCBIUCgxkYXRlX3VwZGF0ZWQYDSABKAgSEwoLZGF0ZV9lcmFzZWQYDiABKAgSFAoMZGF0ZV9jcmVhdGVkGA8gASgIIsoCChRDbGlMb2dpblBhdGNoUmVxdWVzdBIeCgNyZWYYASABKAsyES5yb3ZlLkNsaUxvZ2luUmVmEg4KBnNlY3JldBgQIAEoDBIMCgRjb2RlGBIgASgJEg4KBmNsaWVudBgUIAEoCRIOCgZvcmlnaW4YFiABKAkSDwoHYWRkcmVzcxgkIAEoCRIPCgdhY2NvdW50GBggASgMEhQKDGFjY291bnRfbnVsbBgZIAEoCBINCgVncmFudBgmIAEoDBINCgVzdGF0ZRggIAEoCRIwCgxkYXRlX2V4cGlyZXMYIiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjAKDGRhdGVfdXBkYXRlZBgaIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGgoSZGF0ZV91cGRhdGVkX2ZvcmNlGBsgASgIIlMKFENsaUxvZ2luQXBwbHlSZXF1ZXN0Eh4KA3JlZhgBIAEoCzIRLnJvdmUuQ2xpTG9naW5SZWYSGwoFcGF0Y2gYAiABKAsyDC5wYXRjaC5QYXRjaCInChVDbGlMb2dpbkVyYXNlUmVzcG9uc2USDgoGZXJhc2VkGAEgASgIIt8BChNBbGlhc0hvbGRBZGRSZXF1ZXN0EgoKAmlkGAEgASgMEhMKBGhlbGQYCCABKAlCBaoBAggCEhUKBnJlYXNvbhgJIAEoCUIFqgECCAISFwoIbW92ZWRfdG8YCiABKAlCBaoBAggCEhUKBnRlbmFudBgLIAEoDEIFqgECCAISLgoKZGF0ZV91bnRpbBgQIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMAoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCJdChNBbGlhc0hvbGRHZXRSZXF1ZXN0Eh8KA3JlZhgBIAEoCzISLnJvdmUuQWxpYXNIb2xkUmVmEiUKBnNlbGVjdBgCIAEoCzIVLnJvdmUuQWxpYXNIb2xkU2VsZWN0IiMKDEFsaWFzSG9sZFJlZhIMCgJpZBgBIAEoDEgAQgUKA2tleSKzAQoPQWxpYXNIb2xkU2VsZWN0EgsKA2FsbBgBIAEoCBIMCgRoZWxkGAggASgIEg4KBnJlYXNvbhgJIAEoCBIQCghtb3ZlZF90bxgKIAEoCBIOCgZ0ZW5hbnQYCyABKAgSEgoKZGF0ZV91bnRpbBgQIAEoCBIUCgxkYXRlX3VwZGF0ZWQYDSABKAgSEwoLZGF0ZV9lcmFzZWQYDiABKAgSFAoMZGF0ZV9jcmVhdGVkGA8gASgIIvYBChVBbGlhc0hvbGRQYXRjaFJlcXVlc3QSHwoDcmVmGAEgASgLMhIucm92ZS5BbGlhc0hvbGRSZWYSDAoEaGVsZBgQIAEoCRIOCgZyZWFzb24YEiABKAkSEAoIbW92ZWRfdG8YFCABKAkSDgoGdGVuYW50GBYgASgMEi4KCmRhdGVfdW50aWwYICABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjAKDGRhdGVfdXBkYXRlZBgaIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGgoSZGF0ZV91cGRhdGVkX2ZvcmNlGBsgASgIIlUKFUFsaWFzSG9sZEFwcGx5UmVxdWVzdBIfCgNyZWYYASABKAsyEi5yb3ZlLkFsaWFzSG9sZFJlZhIbCgVwYXRjaBgCIAEoCzIMLnBhdGNoLlBhdGNoIigKFkFsaWFzSG9sZEVyYXNlUmVzcG9uc2USDgoGZXJhc2VkGAEgASgIIuABChFDb25zZW50QWRkUmVxdWVzdBIKCgJpZBgBIAEoDBIWCgdhY2NvdW50GAggASgMQgWqAQIIAhIXCghkb2N1bWVudBgJIAEoCUIFqgECCAISFgoHdmVyc2lvbhgKIAEoCUIFqgECCAISFQoGY2xpZW50GAsgASgJQgWqAQIIAhItCglkYXRlX2xlZnQYDCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjAKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiVwoRQ29uc2VudEdldFJlcXVlc3QSHQoDcmVmGAEgASgLMhAucm92ZS5Db25zZW50UmVmEiMKBnNlbGVjdBgCIAEoCzITLnJvdmUuQ29uc2VudFNlbGVjdCJNCgpDb25zZW50UmVmEgwKAmlkGAEgASgMSAASKgoGYWdyZWVkGAggASgLMhgucm92ZS5Db25zZW50UmVmQnlBZ3JlZWRIAEIFCgNrZXkiSAoSQ29uc2VudFJlZkJ5QWdyZWVkEg8KB2FjY291bnQYCCABKAwSEAoIZG9jdW1lbnQYCSABKAkSDwoHdmVyc2lvbhgKIAEoCSKeAQoNQ29uc2VudFNlbGVjdBILCgNhbGwYASABKAgSDwoHYWNjb3VudBgIIAEoCBIQCghkb2N1bWVudBgJIAEoCBIPCgd2ZXJzaW9uGAogASgIEg4KBmNsaWVudBgLIAEoCBIRCglkYXRlX2xlZnQYDCABKAgSEwoLZGF0ZV9lcmFzZWQYDiABKAgSFAoMZGF0ZV9jcmVhdGVkGA8gASgIIr8BChNDb25zZW50UGF0Y2hSZXF1ZXN0Eh0KA3JlZhgBIAEoCzIQLnJvdmUuQ29uc2VudFJlZhIPCgdhY2NvdW50GBAgASgMEhAKCGRvY3VtZW50GBIgASgJEg8KB3ZlcnNpb24YFCABKAkSDgoGY2xpZW50GBYgASgJEi0KCWRhdGVfbGVmdBgYIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASFgoOZGF0ZV9sZWZ0X251bGwYGSABKAgiUQoTQ29uc2VudEFwcGx5UmVxdWVzdBIdCgNyZWYYASABKAsyEC5yb3ZlLkNvbnNlbnRSZWYSGwoFcGF0Y2gYAiABKAsyDC5wYXRjaC5QYXRjaCImChRDb25zZW50RXJhc2VSZXNwb25zZRIOCgZlcmFzZWQYASABKAgiaAoXU2lnbkluRmFpbHVyZUFkZFJlcXVlc3QSCgoCaWQYASABKAwSDwoHc3ViamVjdBgIIAEoDBIwCgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wImkKF1NpZ25JbkZhaWx1cmVHZXRSZXF1ZXN0EiMKA3JlZhgBIAEoCzIWLnJvdmUuU2lnbkluRmFpbHVyZVJlZhIpCgZzZWxlY3QYAiABKAsyGS5yb3ZlLlNpZ25JbkZhaWx1cmVTZWxlY3QiJwoQU2lnbkluRmFpbHVyZVJlZhIMCgJpZBgBIAEoDEgAQgUKA2tleSJJChNTaWduSW5GYWlsdXJlU2VsZWN0EgsKA2FsbBgBIAEoCBIPCgdzdWJqZWN0GAggASgIEhQKDGRhdGVfY3JlYXRlZBgPIAEoCCJRChlTaWduSW5GYWlsdXJlUGF0Y2hSZXF1ZXN0EiMKA3JlZhgBIAEoCzIWLnJvdmUuU2lnbkluRmFpbHVyZVJlZhIPCgdzdWJqZWN0GBAgASgMIl0KGVNpZ25JbkZhaWx1cmVBcHBseVJlcXVlc3QSIwoDcmVmGAEgASgLMhYucm92ZS5TaWduSW5GYWlsdXJlUmVmEhsKBXBhdGNoGAIgASgLMgwucGF0Y2guUGF0Y2giLAoaU2lnbkluRmFpbHVyZUVyYXNlUmVzcG9uc2USDgoGZXJhc2VkGAEgASgIIhwKB0FjY291bnQSEQoCaWQYASABKAxCBaoBAggCMsUGCgxQYXJ0eVNlcnZpY2USKQoDQWRkEhUucm92ZS5QYXJ0eUFkZFJlcXVlc3QaCy5yb3ZlLlBhcnR5EikKA0dldBIVLnJvdmUuUGFydHlHZXRSZXF1ZXN0Ggsucm92ZS5QYXJ0eRItCgVQYXRjaBIXLnJvdmUuUGFydHlQYXRjaFJlcXVlc3QaCy5yb3ZlLlBhcnR5Ei0KBUFwcGx5Ehcucm92ZS5QYXJ0eUFwcGx5UmVxdWVzdBoLLnJvdmUuUGFydHkSMQoFRXJhc2USDi5yb3ZlLlBhcnR5UmVmGhgucm92ZS5QYXJ0eUVyYXNlUmVzcG9uc2USNwoETGlzdBIWLnJvdmUuUGFydHlMaXN0UmVxdWVzdBoXLnJvdmUuUGFydHlMaXN0UmVzcG9uc2USPAoFV2F0Y2gSFy5yb3ZlLlBhcnR5V2F0Y2hSZXF1ZXN0Ghgucm92ZS5QYXJ0eVdhdGNoUmVzcG9uc2UwARIxCgJNZRIULnJvdmUuUGFydHlNZVJlcXVlc3QaFS5yb3ZlLlBhcnR5TWVSZXNwb25zZRIvCgZVcGRhdGUSGC5yb3ZlLlBhcnR5VXBkYXRlUmVxdWVzdBoLLnJvdmUuUGFydHkSPQoGSW52aXRlEhgucm92ZS5QYXJ0eUludml0ZVJlcXVlc3QaGS5yb3ZlLlBhcnR5SW52aXRlUmVzcG9uc2USMQoHU2V0Um9sZRIZLnJvdmUuUGFydHlTZXRSb2xlUmVxdWVzdBoLLnJvdmUuUGFydHkSTAoLU2V0UGFzc3dvcmQSHS5yb3ZlLlBhcnR5U2V0UGFzc3dvcmRSZXF1ZXN0Gh4ucm92ZS5QYXJ0eVNldFBhc3N3b3JkUmVzcG9uc2USNwoKRGVhY3RpdmF0ZRIcLnJvdmUuUGFydHlEZWFjdGl2YXRlUmVxdWVzdBoLLnJvdmUuUGFydHkSOwoMUHNldWRvbnltaXplEh4ucm92ZS5QYXJ0eVBzZXVkb255bWl6ZVJlcXVlc3QaCy5yb3ZlLlBhcnR5Ej0KBlNlYXJjaBIYLnJvdmUuUGFydHlTZWFyY2hSZXF1ZXN0Ghkucm92ZS5QYXJ0eVNlYXJjaFJlc3BvbnNlMosCCg5TZXNzaW9uU2VydmljZRItCgNBZGQSFy5yb3ZlLlNlc3Npb25BZGRSZXF1ZXN0Gg0ucm92ZS5TZXNzaW9uEi0KA0dldBIXLnJvdmUuU2Vzc2lvbkdldFJlcXVlc3QaDS5yb3ZlLlNlc3Npb24SMQoFUGF0Y2gSGS5yb3ZlLlNlc3Npb25QYXRjaFJlcXVlc3QaDS5yb3ZlLlNlc3Npb24SMQoFQXBwbHkSGS5yb3ZlLlNlc3Npb25BcHBseVJlcXVlc3QaDS5yb3ZlLlNlc3Npb24SNQoFRXJhc2USEC5yb3ZlLlNlc3Npb25SZWYaGi5yb3ZlLlNlc3Npb25FcmFzZVJlc3BvbnNlMtUEChFJbnZpdGF0aW9uU2VydmljZRIzCgNBZGQSGi5yb3ZlLkludml0YXRpb25BZGRSZXF1ZXN0GhAucm92ZS5JbnZpdGF0aW9uEjMKA0dldBIaLnJvdmUuSW52aXRhdGlvbkdldFJlcXVlc3QaEC5yb3ZlLkludml0YXRpb24SNwoFUGF0Y2gSHC5yb3ZlLkludml0YXRpb25QYXRjaFJlcXVlc3QaEC5yb3ZlLkludml0YXRpb24SNwoFQXBwbHkSHC5yb3ZlLkludml0YXRpb25BcHBseVJlcXVlc3QaEC5yb3ZlLkludml0YXRpb24SOwoFRXJhc2USEy5yb3ZlLkludml0YXRpb25SZWYaHS5yb3ZlLkludml0YXRpb25FcmFzZVJlc3BvbnNlEkEKBExpc3QSGy5yb3ZlLkludml0YXRpb25MaXN0UmVxdWVzdBocLnJvdmUuSW52aXRhdGlvbkxpc3RSZXNwb25zZRI5CgZSZXZva2USHS5yb3ZlLkludml0YXRpb25SZXZva2VSZXF1ZXN0GhAucm92ZS5JbnZpdGF0aW9uEjcKBUNsYWltEhwucm92ZS5JbnZpdGF0aW9uQ2xhaW1SZXF1ZXN0GhAucm92ZS5JbnZpdGF0aW9uEjkKBkFjY2VwdBIdLnJvdmUuSW52aXRhdGlvbkFjY2VwdFJlcXVlc3QaEC5yb3ZlLkludml0YXRpb24SNQoERGVueRIbLnJvdmUuSW52aXRhdGlvbkRlbnlSZXF1ZXN0GhAucm92ZS5JbnZpdGF0aW9uMpYCCg9DbGlMb2dpblNlcnZpY2USLwoDQWRkEhgucm92ZS5DbGlMb2dpbkFkZFJlcXVlc3QaDi5yb3ZlLkNsaUxvZ2luEi8KA0dldBIYLnJvdmUuQ2xpTG9naW5HZXRSZXF1ZXN0Gg4ucm92ZS5DbGlMb2dpbhIzCgVQYXRjaBIaLnJvdmUuQ2xpTG9naW5QYXRjaFJlcXVlc3QaDi5yb3ZlLkNsaUxvZ2luEjMKBUFwcGx5Ehoucm92ZS5DbGlMb2dpbkFwcGx5UmVxdWVzdBoOLnJvdmUuQ2xpTG9naW4SNwoFRXJhc2USES5yb3ZlLkNsaUxvZ2luUmVmGhsucm92ZS5DbGlMb2dpbkVyYXNlUmVzcG9uc2UyoQIKEEFsaWFzSG9sZFNlcnZpY2USMQoDQWRkEhkucm92ZS5BbGlhc0hvbGRBZGRSZXF1ZXN0Gg8ucm92ZS5BbGlhc0hvbGQSMQoDR2V0Ehkucm92ZS5BbGlhc0hvbGRHZXRSZXF1ZXN0Gg8ucm92ZS5BbGlhc0hvbGQSNQoFUGF0Y2gSGy5yb3ZlLkFsaWFzSG9sZFBhdGNoUmVxdWVzdBoPLnJvdmUuQWxpYXNIb2xkEjUKBUFwcGx5Ehsucm92ZS5BbGlhc0hvbGRBcHBseVJlcXVlc3QaDy5yb3ZlLkFsaWFzSG9sZBI5CgVFcmFzZRISLnJvdmUuQWxpYXNIb2xkUmVmGhwucm92ZS5BbGlhc0hvbGRFcmFzZVJlc3BvbnNlMosCCg5Db25zZW50U2VydmljZRItCgNBZGQSFy5yb3ZlLkNvbnNlbnRBZGRSZXF1ZXN0Gg0ucm92ZS5Db25zZW50Ei0KA0dldBIXLnJvdmUuQ29uc2VudEdldFJlcXVlc3QaDS5yb3ZlLkNvbnNlbnQSMQoFUGF0Y2gSGS5yb3ZlLkNvbnNlbnRQYXRjaFJlcXVlc3QaDS5yb3ZlLkNvbnNlbnQSMQoFQXBwbHkSGS5yb3ZlLkNvbnNlbnRBcHBseVJlcXVlc3QaDS5yb3ZlLkNvbnNlbnQSNQoFRXJhc2USEC5yb3ZlLkNvbnNlbnRSZWYaGi5yb3ZlLkNvbnNlbnRFcmFzZVJlc3BvbnNlMs0CChRTaWduSW5GYWlsdXJlU2VydmljZRI5CgNBZGQSHS5yb3ZlLlNpZ25JbkZhaWx1cmVBZGRSZXF1ZXN0GhMucm92ZS5TaWduSW5GYWlsdXJlEjkKA0dldBIdLnJvdmUuU2lnbkluRmFpbHVyZUdldFJlcXVlc3QaEy5yb3ZlLlNpZ25JbkZhaWx1cmUSPQoFUGF0Y2gSHy5yb3ZlLlNpZ25JbkZhaWx1cmVQYXRjaFJlcXVlc3QaEy5yb3ZlLlNpZ25JbkZhaWx1cmUSPQoFQXBwbHkSHy5yb3ZlLlNpZ25JbkZhaWx1cmVBcHBseVJlcXVlc3QaEy5yb3ZlLlNpZ25JbkZhaWx1cmUSQQoFRXJhc2USFi5yb3ZlLlNpZ25JbkZhaWx1cmVSZWYaIC5yb3ZlLlNpZ25JbkZhaWx1cmVFcmFzZVJlc3BvbnNlQhpaGGdpdGh1Yi5jb20vbGVzb21udXMvcm92ZWIIZWRpdGlvbnNw6Ac", [file_google_protobuf_timestamp, file_patch_patch, file_rove_org, file_rove_payday_holder, file_rove_payday_holder_svc_g, file_rove_payday_tenant, file_rove_payday_tenant_svc_g]);
+  fileDesc("ChRyb3ZlL29yZ19zdmMuZy5wcm90bxIEcm92ZSKGAwoPUGFydHlBZGRSZXF1ZXN0EgoKAmlkGAEgASgMEh8KBnRlbmFudBgCIAEoCzIPLnJvdmUuVGVuYW50UmVmEhMKBG5hbWUYBSABKAlCBaoBAggCEhMKBGRlc2MYBiABKAlCBaoBAggCEjEKBmxhYmVscxgHIAMoCzIhLnJvdmUuUGFydHlBZGRSZXF1ZXN0LkxhYmVsc0VudHJ5EhMKBGtpbmQYCCABKAlCBaoBAggCEhEKCXBhcmVudF9pZBgJIAEoDBIfCgZob2xkZXIYCiABKAsyDy5yb3ZlLkhvbGRlclJlZhIUCgVlbWFpbBgLIAEoCUIFqgECCAISFAoFcGhvbmUYDCABKAlCBaoBAggCEjAKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEwoEY29kZRgQIAEoCUIFqgECCAIaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASJRCg9QYXJ0eUdldFJlcXVlc3QSGwoDcmVmGAEgASgLMg4ucm92ZS5QYXJ0eVJlZhIhCgZzZWxlY3QYAiABKAsyES5yb3ZlLlBhcnR5U2VsZWN0IkkKCFBhcnR5UmVmEgwKAmlkGAEgASgMSAASKAoGaG9sZGVyGAogASgLMhYucm92ZS5QYXJ0eVJlZkJ5SG9sZGVySABCBQoDa2V5IjMKEFBhcnR5UmVmQnlIb2xkZXISHwoGaG9sZGVyGAogASgLMg8ucm92ZS5Ib2xkZXJSZWYinAIKC1BhcnR5U2VsZWN0EgsKA2FsbBgBIAEoCBIiCgZ0ZW5hbnQYAiABKAsyEi5yb3ZlLlRlbmFudFNlbGVjdBIMCgRuYW1lGAUgASgIEgwKBGRlc2MYBiABKAgSDgoGbGFiZWxzGAcgASgIEgwKBGtpbmQYCCABKAgSEQoJcGFyZW50X2lkGAkgASgIEiIKBmhvbGRlchgKIAEoCzISLnJvdmUuSG9sZGVyU2VsZWN0Eg0KBWVtYWlsGAsgASgIEg0KBXBob25lGAwgASgIEhQKDGRhdGVfdXBkYXRlZBgNIAEoCBITCgtkYXRlX2VyYXNlZBgOIAEoCBIUCgxkYXRlX2NyZWF0ZWQYDyABKAgSDAoEY29kZRgQIAEoCCKZAwoRUGFydHlQYXRjaFJlcXVlc3QSGwoDcmVmGAEgASgLMg4ucm92ZS5QYXJ0eVJlZhIMCgRuYW1lGAogASgJEgwKBGRlc2MYDCABKAkSMwoGbGFiZWxzGA4gAygLMiMucm92ZS5QYXJ0eVBhdGNoUmVxdWVzdC5MYWJlbHNFbnRyeRIMCgRraW5kGBAgASgJEhEKCXBhcmVudF9pZBgSIAEoDBIWCg5wYXJlbnRfaWRfbnVsbBgTIAEoCBIfCgZob2xkZXIYFCABKAsyDy5yb3ZlLkhvbGRlclJlZhITCgtob2xkZXJfbnVsbBgVIAEoCBINCgVlbWFpbBgWIAEoCRINCgVwaG9uZRgYIAEoCRIwCgxkYXRlX3VwZGF0ZWQYGiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhoKEmRhdGVfdXBkYXRlZF9mb3JjZRgbIAEoCBIMCgRjb2RlGCAgASgJGi0KC0xhYmVsc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiTQoRUGFydHlBcHBseVJlcXVlc3QSGwoDcmVmGAEgASgLMg4ucm92ZS5QYXJ0eVJlZhIbCgVwYXRjaBgCIAEoCzIMLnBhdGNoLlBhdGNoIiQKElBhcnR5RXJhc2VSZXNwb25zZRIOCgZlcmFzZWQYASABKAgieQoQUGFydHlMaXN0UmVxdWVzdBIiCgdmaWx0ZXJzGAEgAygLMhEucm92ZS5QYXJ0eUZpbHRlchITCgRzaXplGAIgASgFQgWqAQIIAhIUCgVhZnRlchgDIAEoCUIFqgECCAISFgoHcmV2ZXJzZRgEIAEoCEIFqgECCAIiRAoRUGFydHlMaXN0UmVzcG9uc2USGgoFaXRlbXMYASADKAsyCy5yb3ZlLlBhcnR5EhMKBG5leHQYAiABKAlCBaoBAggCIsoBCgtQYXJ0eUZpbHRlchIbCgNyZWYYASABKAsyDi5yb3ZlLlBhcnR5UmVmEgwKBGtpbmQYAiABKAkSEQoJcGFyZW50X2lkGAMgASgMEh8KBmhvbGRlchgEIAEoCzIPLnJvdmUuSG9sZGVyUmVmEi0KBmxhYmVscxgFIAMoCzIdLnJvdmUuUGFydHlGaWx0ZXIuTGFiZWxzRW50cnkaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASJVChFQYXJ0eVdhdGNoUmVxdWVzdBIiCgdmaWx0ZXJzGAEgAygLMhEucm92ZS5QYXJ0eUZpbHRlchIcCg1za2lwX3NuYXBzaG90GAIgASgIQgWqAQIIAiI5ChJQYXJ0eVdhdGNoUmVzcG9uc2USIwoFaXRlbXMYASADKAsyFC5yb3ZlLlBhcnR5V2F0Y2hJdGVtIk8KDlBhcnR5V2F0Y2hJdGVtEgoKAmlkGAEgASgMEhoKBXZhbHVlGAIgASgLMgsucm92ZS5QYXJ0eRIVCgZhY3Rpb24YAyABKAlCBaoBAggCIhAKDlBhcnR5TWVSZXF1ZXN0IogCCg9QYXJ0eU1lUmVzcG9uc2USHAoGaG9sZGVyGAEgASgLMgwucm92ZS5Ib2xkZXISGgoFcGFydHkYAiABKAsyCy5yb3ZlLlBhcnR5EhwKBnRlbmFudBgDIAEoCzIMLnJvdmUuVGVuYW50EhMKBHJvbGUYBCABKAlCBaoBAggCEjEKDWhpc3Rvcnlfc2luY2UYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhsKDGhpc3RvcnlfZGF5cxgGIAEoDUIFqgECCAISHAoNYWNjb3VudHNfaGVyZRgHIAEoCEIFqgECCAISGgoLYWNjb3VudF91cmwYCCABKAlCBaoBAggCIswCChJQYXJ0eVVwZGF0ZVJlcXVlc3QSGwoDcmVmGAEgASgLMg4ucm92ZS5QYXJ0eVJlZhITCgRuYW1lGAIgASgJQgWqAQIIAhITCgRkZXNjGAMgASgJQgWqAQIIAhITCgRraW5kGAQgASgJQgWqAQIIAhIYCglwYXJlbnRfaWQYBSABKAxCBaoBAggCEhoKC3BhcmVudF9udWxsGAYgASgIQgWqAQIIAhIUCgVlbWFpbBgHIAEoCUIFqgECCAISFAoFcGhvbmUYCCABKAlCBaoBAggCEhMKBGNvZGUYCSABKAlCBaoBAggCEjQKBmxhYmVscxgKIAMoCzIkLnJvdmUuUGFydHlVcGRhdGVSZXF1ZXN0LkxhYmVsc0VudHJ5Gi0KC0xhYmVsc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEidQoSUGFydHlJbnZpdGVSZXF1ZXN0EhsKA3JlZhgBIAEoCzIOLnJvdmUuUGFydHlSZWYSFAoFYWxpYXMYAiABKAlCBaoBAggCEhMKBHJvbGUYAyABKAlCBaoBAggCEhcKCHBhc3N3b3JkGAQgASgJQgWqAQIIAiJoChNQYXJ0eUludml0ZVJlc3BvbnNlEhoKBXBhcnR5GAEgASgLMgsucm92ZS5QYXJ0eRIcCgZob2xkZXIYAiABKAsyDC5yb3ZlLkhvbGRlchIXCghwYXNzd29yZBgDIAEoCUIFqgECCAIiRwoTUGFydHlTZXRSb2xlUmVxdWVzdBIbCgNyZWYYASABKAsyDi5yb3ZlLlBhcnR5UmVmEhMKBHJvbGUYAiABKAlCBaoBAggCImcKF1BhcnR5U2V0UGFzc3dvcmRSZXF1ZXN0EhsKA3JlZhgBIAEoCzIOLnJvdmUuUGFydHlSZWYSFgoHY3VycmVudBgCIAEoCUIFqgECCAISFwoIcGFzc3dvcmQYAyABKAlCBaoBAggCIhoKGFBhcnR5U2V0UGFzc3dvcmRSZXNwb25zZSI1ChZQYXJ0eURlYWN0aXZhdGVSZXF1ZXN0EhsKA3JlZhgBIAEoCzIOLnJvdmUuUGFydHlSZWYiNwoYUGFydHlQc2V1ZG9ueW1pemVSZXF1ZXN0EhsKA3JlZhgBIAEoCzIOLnJvdmUuUGFydHlSZWYiZwoSUGFydHlTZWFyY2hSZXF1ZXN0EhAKAXEYASABKAlCBaoBAggCEhMKBGtpbmQYAiABKAlCBaoBAggCEhMKBHNpemUYAyABKA1CBaoBAggCEhUKBm9mZnNldBgEIAEoDUIFqgECCAIiRwoTUGFydHlTZWFyY2hSZXNwb25zZRIaCgVpdGVtcxgBIAMoCzILLnJvdmUuUGFydHkSFAoFdG90YWwYAiABKA1CBaoBAggCIpwDChRJbnZpdGF0aW9uQWRkUmVxdWVzdBIKCgJpZBgBIAEoDBIfCgZ0ZW5hbnQYAiABKAsyDy5yb3ZlLlRlbmFudFJlZhIgCgdpbnZpdGVyGAggASgLMg8ucm92ZS5Ib2xkZXJSZWYSFAoFZW1haWwYCSABKAlCBaoBAggCEhMKBHJvbGUYCiABKAlCBaoBAggCEh0KBXBhcnR5GAsgASgLMg4ucm92ZS5QYXJ0eVJlZhIPCgdhY2NvdW50GAwgASgMEjAKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASFAoFc3RhdGUYECABKAlCBaoBAggCEjAKDGRhdGVfZXhwaXJlcxgRIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMAoMZGF0ZV9zZXR0bGVkGBIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIfCgZob2xkZXIYEyABKAsyDy5yb3ZlLkhvbGRlclJlZhINCgVjbGFpbRgUIAEoDCJgChRJbnZpdGF0aW9uR2V0UmVxdWVzdBIgCgNyZWYYASABKAsyEy5yb3ZlLkludml0YXRpb25SZWYSJgoGc2VsZWN0GAIgASgLMhYucm92ZS5JbnZpdGF0aW9uU2VsZWN0IiQKDUludml0YXRpb25SZWYSDAoCaWQYASABKAxIAEIFCgNrZXki5wIKEEludml0YXRpb25TZWxlY3QSCwoDYWxsGAEgASgIEiIKBnRlbmFudBgCIAEoCzISLnJvdmUuVGVuYW50U2VsZWN0EiMKB2ludml0ZXIYCCABKAsyEi5yb3ZlLkhvbGRlclNlbGVjdBINCgVlbWFpbBgJIAEoCBIMCgRyb2xlGAogASgIEiAKBXBhcnR5GAsgASgLMhEucm92ZS5QYXJ0eVNlbGVjdBIPCgdhY2NvdW50GAwgASgIEhQKDGRhdGVfdXBkYXRlZBgNIAEoCBITCgtkYXRlX2VyYXNlZBgOIAEoCBIUCgxkYXRlX2NyZWF0ZWQYDyABKAgSDQoFc3RhdGUYECABKAgSFAoMZGF0ZV9leHBpcmVzGBEgASgIEhQKDGRhdGVfc2V0dGxlZBgSIAEoCBIiCgZob2xkZXIYEyABKAsyEi5yb3ZlLkhvbGRlclNlbGVjdBINCgVjbGFpbRgUIAEoCCLYAwoWSW52aXRhdGlvblBhdGNoUmVxdWVzdBIgCgNyZWYYASABKAsyEy5yb3ZlLkludml0YXRpb25SZWYSDQoFZW1haWwYEiABKAkSHQoFcGFydHkYFiABKAsyDi5yb3ZlLlBhcnR5UmVmEhIKCnBhcnR5X251bGwYFyABKAgSDwoHYWNjb3VudBgYIAEoDBIUCgxhY2NvdW50X251bGwYGSABKAgSMAoMZGF0ZV91cGRhdGVkGBogASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIaChJkYXRlX3VwZGF0ZWRfZm9yY2UYGyABKAgSDQoFc3RhdGUYICABKAkSMAoMZGF0ZV9leHBpcmVzGCIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIwCgxkYXRlX3NldHRsZWQYJCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhkKEWRhdGVfc2V0dGxlZF9udWxsGCUgASgIEh8KBmhvbGRlchgmIAEoCzIPLnJvdmUuSG9sZGVyUmVmEhMKC2hvbGRlcl9udWxsGCcgASgIEg0KBWNsYWltGCggASgMEhIKCmNsYWltX251bGwYKSABKAgiVwoWSW52aXRhdGlvbkFwcGx5UmVxdWVzdBIgCgNyZWYYASABKAsyEy5yb3ZlLkludml0YXRpb25SZWYSGwoFcGF0Y2gYAiABKAsyDC5wYXRjaC5QYXRjaCIpChdJbnZpdGF0aW9uRXJhc2VSZXNwb25zZRIOCgZlcmFzZWQYASABKAgigwEKFUludml0YXRpb25MaXN0UmVxdWVzdBInCgdmaWx0ZXJzGAEgAygLMhYucm92ZS5JbnZpdGF0aW9uRmlsdGVyEhMKBHNpemUYAiABKAVCBaoBAggCEhQKBWFmdGVyGAMgASgJQgWqAQIIAhIWCgdyZXZlcnNlGAQgASgIQgWqAQIIAiJOChZJbnZpdGF0aW9uTGlzdFJlc3BvbnNlEh8KBWl0ZW1zGAEgAygLMhAucm92ZS5JbnZpdGF0aW9uEhMKBG5leHQYAiABKAlCBaoBAggCInUKEEludml0YXRpb25GaWx0ZXISIAoDcmVmGAEgASgLMhMucm92ZS5JbnZpdGF0aW9uUmVmEh8KBnRlbmFudBgCIAEoCzIPLnJvdmUuVGVuYW50UmVmEg8KB2FjY291bnQYAyABKAwSDQoFc3RhdGUYBCABKAkiOwoXSW52aXRhdGlvblJldm9rZVJlcXVlc3QSIAoDcmVmGAEgASgLMhMucm92ZS5JbnZpdGF0aW9uUmVmIi0KFkludml0YXRpb25DbGFpbVJlcXVlc3QSEwoEY29kZRgBIAEoCUIFqgECCAIiOwoXSW52aXRhdGlvbkFjY2VwdFJlcXVlc3QSIAoDcmVmGAEgASgLMhMucm92ZS5JbnZpdGF0aW9uUmVmIjkKFUludml0YXRpb25EZW55UmVxdWVzdBIgCgNyZWYYASABKAsyEy5yb3ZlLkludml0YXRpb25SZWYiHAoHQWNjb3VudBIRCgJpZBgBIAEoDEIFqgECCAIyxQYKDFBhcnR5U2VydmljZRIpCgNBZGQSFS5yb3ZlLlBhcnR5QWRkUmVxdWVzdBoLLnJvdmUuUGFydHkSKQoDR2V0EhUucm92ZS5QYXJ0eUdldFJlcXVlc3QaCy5yb3ZlLlBhcnR5Ei0KBVBhdGNoEhcucm92ZS5QYXJ0eVBhdGNoUmVxdWVzdBoLLnJvdmUuUGFydHkSLQoFQXBwbHkSFy5yb3ZlLlBhcnR5QXBwbHlSZXF1ZXN0Ggsucm92ZS5QYXJ0eRIxCgVFcmFzZRIOLnJvdmUuUGFydHlSZWYaGC5yb3ZlLlBhcnR5RXJhc2VSZXNwb25zZRI3CgRMaXN0EhYucm92ZS5QYXJ0eUxpc3RSZXF1ZXN0Ghcucm92ZS5QYXJ0eUxpc3RSZXNwb25zZRI8CgVXYXRjaBIXLnJvdmUuUGFydHlXYXRjaFJlcXVlc3QaGC5yb3ZlLlBhcnR5V2F0Y2hSZXNwb25zZTABEjEKAk1lEhQucm92ZS5QYXJ0eU1lUmVxdWVzdBoVLnJvdmUuUGFydHlNZVJlc3BvbnNlEi8KBlVwZGF0ZRIYLnJvdmUuUGFydHlVcGRhdGVSZXF1ZXN0Ggsucm92ZS5QYXJ0eRI9CgZJbnZpdGUSGC5yb3ZlLlBhcnR5SW52aXRlUmVxdWVzdBoZLnJvdmUuUGFydHlJbnZpdGVSZXNwb25zZRIxCgdTZXRSb2xlEhkucm92ZS5QYXJ0eVNldFJvbGVSZXF1ZXN0Ggsucm92ZS5QYXJ0eRJMCgtTZXRQYXNzd29yZBIdLnJvdmUuUGFydHlTZXRQYXNzd29yZFJlcXVlc3QaHi5yb3ZlLlBhcnR5U2V0UGFzc3dvcmRSZXNwb25zZRI3CgpEZWFjdGl2YXRlEhwucm92ZS5QYXJ0eURlYWN0aXZhdGVSZXF1ZXN0Ggsucm92ZS5QYXJ0eRI7CgxQc2V1ZG9ueW1pemUSHi5yb3ZlLlBhcnR5UHNldWRvbnltaXplUmVxdWVzdBoLLnJvdmUuUGFydHkSPQoGU2VhcmNoEhgucm92ZS5QYXJ0eVNlYXJjaFJlcXVlc3QaGS5yb3ZlLlBhcnR5U2VhcmNoUmVzcG9uc2UyEAoOU2Vzc2lvblNlcnZpY2Uy1QQKEUludml0YXRpb25TZXJ2aWNlEjMKA0FkZBIaLnJvdmUuSW52aXRhdGlvbkFkZFJlcXVlc3QaEC5yb3ZlLkludml0YXRpb24SMwoDR2V0Ehoucm92ZS5JbnZpdGF0aW9uR2V0UmVxdWVzdBoQLnJvdmUuSW52aXRhdGlvbhI3CgVQYXRjaBIcLnJvdmUuSW52aXRhdGlvblBhdGNoUmVxdWVzdBoQLnJvdmUuSW52aXRhdGlvbhI3CgVBcHBseRIcLnJvdmUuSW52aXRhdGlvbkFwcGx5UmVxdWVzdBoQLnJvdmUuSW52aXRhdGlvbhI7CgVFcmFzZRITLnJvdmUuSW52aXRhdGlvblJlZhodLnJvdmUuSW52aXRhdGlvbkVyYXNlUmVzcG9uc2USQQoETGlzdBIbLnJvdmUuSW52aXRhdGlvbkxpc3RSZXF1ZXN0Ghwucm92ZS5JbnZpdGF0aW9uTGlzdFJlc3BvbnNlEjkKBlJldm9rZRIdLnJvdmUuSW52aXRhdGlvblJldm9rZVJlcXVlc3QaEC5yb3ZlLkludml0YXRpb24SNwoFQ2xhaW0SHC5yb3ZlLkludml0YXRpb25DbGFpbVJlcXVlc3QaEC5yb3ZlLkludml0YXRpb24SOQoGQWNjZXB0Eh0ucm92ZS5JbnZpdGF0aW9uQWNjZXB0UmVxdWVzdBoQLnJvdmUuSW52aXRhdGlvbhI1CgREZW55Ehsucm92ZS5JbnZpdGF0aW9uRGVueVJlcXVlc3QaEC5yb3ZlLkludml0YXRpb24yEQoPQ2xpTG9naW5TZXJ2aWNlMhIKEEFsaWFzSG9sZFNlcnZpY2UyEAoOQ29uc2VudFNlcnZpY2UyFgoUU2lnbkluRmFpbHVyZVNlcnZpY2VCGloYZ2l0aHViLmNvbS9sZXNvbW51cy9yb3ZlYghlZGl0aW9uc3DoBw", [file_google_protobuf_timestamp, file_patch_patch, file_rove_org, file_rove_payday_holder, file_rove_payday_holder_svc_g, file_rove_payday_tenant, file_rove_payday_tenant_svc_g]);
 
 /**
  * @generated from message rove.PartyAddRequest
@@ -977,311 +977,6 @@ export const PartySearchResponseSchema: GenMessage<PartySearchResponse> = /*@__P
   messageDesc(file_rove_org_svc_g, 25);
 
 /**
- * @generated from message rove.SessionAddRequest
- */
-export type SessionAddRequest = Message<"rove.SessionAddRequest"> & {
-  /**
-   * @generated from field: bytes id = 1;
-   */
-  id: Uint8Array;
-
-  /**
-   * @generated from field: bytes account = 8 [features.field_presence = IMPLICIT];
-   */
-  account: Uint8Array;
-
-  /**
-   * @generated from field: bytes secret = 9;
-   */
-  secret: Uint8Array;
-
-  /**
-   * @generated from field: bytes grant = 10;
-   */
-  grant: Uint8Array;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_expires = 11;
-   */
-  dateExpires?: Timestamp | undefined;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_idle = 12;
-   */
-  dateIdle?: Timestamp | undefined;
-
-  /**
-   * @generated from field: bytes held = 16;
-   */
-  held: Uint8Array;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_created = 15;
-   */
-  dateCreated?: Timestamp | undefined;
-};
-
-/**
- * Describes the message rove.SessionAddRequest.
- * Use `create(SessionAddRequestSchema)` to create a new message.
- */
-export const SessionAddRequestSchema: GenMessage<SessionAddRequest> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 26);
-
-/**
- * @generated from message rove.SessionGetRequest
- */
-export type SessionGetRequest = Message<"rove.SessionGetRequest"> & {
-  /**
-   * @generated from field: rove.SessionRef ref = 1;
-   */
-  ref?: SessionRef | undefined;
-
-  /**
-   * @generated from field: rove.SessionSelect select = 2;
-   */
-  select?: SessionSelect | undefined;
-};
-
-/**
- * Describes the message rove.SessionGetRequest.
- * Use `create(SessionGetRequestSchema)` to create a new message.
- */
-export const SessionGetRequestSchema: GenMessage<SessionGetRequest> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 27);
-
-/**
- * @generated from message rove.SessionRef
- */
-export type SessionRef = Message<"rove.SessionRef"> & {
-  /**
-   * @generated from oneof rove.SessionRef.key
-   */
-  key: {
-    /**
-     * @generated from field: bytes id = 1;
-     */
-    value: Uint8Array;
-    case: "id";
-  } | { case: undefined; value?: undefined };
-};
-
-/**
- * Describes the message rove.SessionRef.
- * Use `create(SessionRefSchema)` to create a new message.
- */
-export const SessionRefSchema: GenMessage<SessionRef> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 28);
-
-/**
- * @generated from message rove.SessionSelect
- */
-export type SessionSelect = Message<"rove.SessionSelect"> & {
-  /**
-   * @generated from field: bool all = 1;
-   */
-  all: boolean;
-
-  /**
-   * @generated from field: bool account = 8;
-   */
-  account: boolean;
-
-  /**
-   * @generated from field: bool secret = 9;
-   */
-  secret: boolean;
-
-  /**
-   * @generated from field: bool grant = 10;
-   */
-  grant: boolean;
-
-  /**
-   * @generated from field: bool date_expires = 11;
-   */
-  dateExpires: boolean;
-
-  /**
-   * @generated from field: bool date_idle = 12;
-   */
-  dateIdle: boolean;
-
-  /**
-   * @generated from field: bool held = 16;
-   */
-  held: boolean;
-
-  /**
-   * @generated from field: bool date_updated = 13;
-   */
-  dateUpdated: boolean;
-
-  /**
-   * @generated from field: bool date_erased = 14;
-   */
-  dateErased: boolean;
-
-  /**
-   * @generated from field: bool date_created = 15;
-   */
-  dateCreated: boolean;
-};
-
-/**
- * Describes the message rove.SessionSelect.
- * Use `create(SessionSelectSchema)` to create a new message.
- */
-export const SessionSelectSchema: GenMessage<SessionSelect> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 29);
-
-/**
- * @generated from message rove.SessionPatchRequest
- */
-export type SessionPatchRequest = Message<"rove.SessionPatchRequest"> & {
-  /**
-   * @generated from field: rove.SessionRef ref = 1;
-   */
-  ref?: SessionRef | undefined;
-
-  /**
-   * @generated from field: bytes account = 16;
-   */
-  account: Uint8Array;
-
-  /**
-   * @generated from field: bytes secret = 18;
-   */
-  secret: Uint8Array;
-
-  /**
-   * @generated from field: bytes grant = 20;
-   */
-  grant: Uint8Array;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_expires = 22;
-   */
-  dateExpires?: Timestamp | undefined;
-
-  /**
-   * Clear date_expires instead of writing it.
-   * It takes a field of its own because an unset value already means
-   * "leave it alone", so no value could have meant NULL. It wins
-   * outright: setting both this and date_expires clears.
-   *
-   * @generated from field: bool date_expires_null = 23;
-   */
-  dateExpiresNull: boolean;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_idle = 24;
-   */
-  dateIdle?: Timestamp | undefined;
-
-  /**
-   * Clear date_idle instead of writing it.
-   * It takes a field of its own because an unset value already means
-   * "leave it alone", so no value could have meant NULL. It wins
-   * outright: setting both this and date_idle clears.
-   *
-   * @generated from field: bool date_idle_null = 25;
-   */
-  dateIdleNull: boolean;
-
-  /**
-   * @generated from field: bytes held = 32;
-   */
-  held: Uint8Array;
-
-  /**
-   * Clear held instead of writing it.
-   * It takes a field of its own because an unset value already means
-   * "leave it alone", so no value could have meant NULL. It wins
-   * outright: setting both this and held clears.
-   *
-   * @generated from field: bool held_null = 33;
-   */
-  heldNull: boolean;
-
-  /**
-   * The version this update requires the stored date_updated to be.
-   * It is a precondition, not a write: the update applies only if the row
-   * still holds this value, and the server stamps the new version itself.
-   * Setting it together with date_updated_force is an error --
-   * the version is the token every client's compare-and-swap is measured
-   * against, so it is not the caller's to choose.
-   *
-   * @generated from field: google.protobuf.Timestamp date_updated = 26;
-   */
-  dateUpdated?: Timestamp | undefined;
-
-  /**
-   * Update whatever the stored date_updated is, with no precondition.
-   * The server still stamps a new version, so other clients' tokens are
-   * invalidated as usual; this declines the check for THIS update only.
-   * One of date_updated or this must be set. An omitted version is
-   * refused rather than assumed, because an unset field cannot be told
-   * apart from a caller who never considered locking at all.
-   *
-   * @generated from field: bool date_updated_force = 27;
-   */
-  dateUpdatedForce: boolean;
-};
-
-/**
- * Describes the message rove.SessionPatchRequest.
- * Use `create(SessionPatchRequestSchema)` to create a new message.
- */
-export const SessionPatchRequestSchema: GenMessage<SessionPatchRequest> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 30);
-
-/**
- * @generated from message rove.SessionApplyRequest
- */
-export type SessionApplyRequest = Message<"rove.SessionApplyRequest"> & {
-  /**
-   * @generated from field: rove.SessionRef ref = 1;
-   */
-  ref?: SessionRef | undefined;
-
-  /**
-   * @generated from field: patch.Patch patch = 2;
-   */
-  patch?: Patch | undefined;
-};
-
-/**
- * Describes the message rove.SessionApplyRequest.
- * Use `create(SessionApplyRequestSchema)` to create a new message.
- */
-export const SessionApplyRequestSchema: GenMessage<SessionApplyRequest> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 31);
-
-/**
- * @generated from message rove.SessionEraseResponse
- */
-export type SessionEraseResponse = Message<"rove.SessionEraseResponse"> & {
-  /**
-   * Erased is whether this call is the one that erased the row.
-   *
-   * False for a row that was already gone, was never there, or is out
-   * of this caller's reach -- which are one answer on purpose, and the
-   * reason the RPC does not fail instead.
-   *
-   * @generated from field: bool erased = 1;
-   */
-  erased: boolean;
-};
-
-/**
- * Describes the message rove.SessionEraseResponse.
- * Use `create(SessionEraseResponseSchema)` to create a new message.
- */
-export const SessionEraseResponseSchema: GenMessage<SessionEraseResponse> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 32);
-
-/**
  * @generated from message rove.InvitationAddRequest
  */
 export type InvitationAddRequest = Message<"rove.InvitationAddRequest"> & {
@@ -1356,7 +1051,7 @@ export type InvitationAddRequest = Message<"rove.InvitationAddRequest"> & {
  * Use `create(InvitationAddRequestSchema)` to create a new message.
  */
 export const InvitationAddRequestSchema: GenMessage<InvitationAddRequest> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 33);
+  messageDesc(file_rove_org_svc_g, 26);
 
 /**
  * @generated from message rove.InvitationGetRequest
@@ -1378,7 +1073,7 @@ export type InvitationGetRequest = Message<"rove.InvitationGetRequest"> & {
  * Use `create(InvitationGetRequestSchema)` to create a new message.
  */
 export const InvitationGetRequestSchema: GenMessage<InvitationGetRequest> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 34);
+  messageDesc(file_rove_org_svc_g, 27);
 
 /**
  * @generated from message rove.InvitationRef
@@ -1401,7 +1096,7 @@ export type InvitationRef = Message<"rove.InvitationRef"> & {
  * Use `create(InvitationRefSchema)` to create a new message.
  */
 export const InvitationRefSchema: GenMessage<InvitationRef> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 35);
+  messageDesc(file_rove_org_svc_g, 28);
 
 /**
  * @generated from message rove.InvitationSelect
@@ -1488,7 +1183,7 @@ export type InvitationSelect = Message<"rove.InvitationSelect"> & {
  * Use `create(InvitationSelectSchema)` to create a new message.
  */
 export const InvitationSelectSchema: GenMessage<InvitationSelect> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 36);
+  messageDesc(file_rove_org_svc_g, 29);
 
 /**
  * @generated from message rove.InvitationPatchRequest
@@ -1619,7 +1314,7 @@ export type InvitationPatchRequest = Message<"rove.InvitationPatchRequest"> & {
  * Use `create(InvitationPatchRequestSchema)` to create a new message.
  */
 export const InvitationPatchRequestSchema: GenMessage<InvitationPatchRequest> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 37);
+  messageDesc(file_rove_org_svc_g, 30);
 
 /**
  * @generated from message rove.InvitationApplyRequest
@@ -1641,7 +1336,7 @@ export type InvitationApplyRequest = Message<"rove.InvitationApplyRequest"> & {
  * Use `create(InvitationApplyRequestSchema)` to create a new message.
  */
 export const InvitationApplyRequestSchema: GenMessage<InvitationApplyRequest> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 38);
+  messageDesc(file_rove_org_svc_g, 31);
 
 /**
  * @generated from message rove.InvitationEraseResponse
@@ -1664,7 +1359,7 @@ export type InvitationEraseResponse = Message<"rove.InvitationEraseResponse"> & 
  * Use `create(InvitationEraseResponseSchema)` to create a new message.
  */
 export const InvitationEraseResponseSchema: GenMessage<InvitationEraseResponse> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 39);
+  messageDesc(file_rove_org_svc_g, 32);
 
 /**
  * @generated from message rove.InvitationListRequest
@@ -1713,7 +1408,7 @@ export type InvitationListRequest = Message<"rove.InvitationListRequest"> & {
  * Use `create(InvitationListRequestSchema)` to create a new message.
  */
 export const InvitationListRequestSchema: GenMessage<InvitationListRequest> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 40);
+  messageDesc(file_rove_org_svc_g, 33);
 
 /**
  * @generated from message rove.InvitationListResponse
@@ -1743,7 +1438,7 @@ export type InvitationListResponse = Message<"rove.InvitationListResponse"> & {
  * Use `create(InvitationListResponseSchema)` to create a new message.
  */
 export const InvitationListResponseSchema: GenMessage<InvitationListResponse> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 41);
+  messageDesc(file_rove_org_svc_g, 34);
 
 /**
  * @generated from message rove.InvitationFilter
@@ -1775,7 +1470,7 @@ export type InvitationFilter = Message<"rove.InvitationFilter"> & {
  * Use `create(InvitationFilterSchema)` to create a new message.
  */
 export const InvitationFilterSchema: GenMessage<InvitationFilter> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 42);
+  messageDesc(file_rove_org_svc_g, 35);
 
 /**
  * @generated from message rove.InvitationRevokeRequest
@@ -1792,7 +1487,7 @@ export type InvitationRevokeRequest = Message<"rove.InvitationRevokeRequest"> & 
  * Use `create(InvitationRevokeRequestSchema)` to create a new message.
  */
 export const InvitationRevokeRequestSchema: GenMessage<InvitationRevokeRequest> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 43);
+  messageDesc(file_rove_org_svc_g, 36);
 
 /**
  * @generated from message rove.InvitationClaimRequest
@@ -1811,7 +1506,7 @@ export type InvitationClaimRequest = Message<"rove.InvitationClaimRequest"> & {
  * Use `create(InvitationClaimRequestSchema)` to create a new message.
  */
 export const InvitationClaimRequestSchema: GenMessage<InvitationClaimRequest> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 44);
+  messageDesc(file_rove_org_svc_g, 37);
 
 /**
  * @generated from message rove.InvitationAcceptRequest
@@ -1828,7 +1523,7 @@ export type InvitationAcceptRequest = Message<"rove.InvitationAcceptRequest"> & 
  * Use `create(InvitationAcceptRequestSchema)` to create a new message.
  */
 export const InvitationAcceptRequestSchema: GenMessage<InvitationAcceptRequest> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 45);
+  messageDesc(file_rove_org_svc_g, 38);
 
 /**
  * @generated from message rove.InvitationDenyRequest
@@ -1845,1037 +1540,7 @@ export type InvitationDenyRequest = Message<"rove.InvitationDenyRequest"> & {
  * Use `create(InvitationDenyRequestSchema)` to create a new message.
  */
 export const InvitationDenyRequestSchema: GenMessage<InvitationDenyRequest> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 46);
-
-/**
- * @generated from message rove.CliLoginAddRequest
- */
-export type CliLoginAddRequest = Message<"rove.CliLoginAddRequest"> & {
-  /**
-   * @generated from field: bytes id = 1;
-   */
-  id: Uint8Array;
-
-  /**
-   * @generated from field: bytes secret = 8;
-   */
-  secret: Uint8Array;
-
-  /**
-   * @generated from field: string code = 9 [features.field_presence = IMPLICIT];
-   */
-  code: string;
-
-  /**
-   * @generated from field: string client = 10 [features.field_presence = IMPLICIT];
-   */
-  client: string;
-
-  /**
-   * @generated from field: string origin = 11 [features.field_presence = IMPLICIT];
-   */
-  origin: string;
-
-  /**
-   * @generated from field: string address = 18;
-   */
-  address: string;
-
-  /**
-   * @generated from field: bytes account = 12;
-   */
-  account: Uint8Array;
-
-  /**
-   * @generated from field: bytes grant = 19;
-   */
-  grant: Uint8Array;
-
-  /**
-   * @generated from field: string state = 16 [features.field_presence = IMPLICIT];
-   */
-  state: string;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_expires = 17;
-   */
-  dateExpires?: Timestamp | undefined;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_created = 15;
-   */
-  dateCreated?: Timestamp | undefined;
-};
-
-/**
- * Describes the message rove.CliLoginAddRequest.
- * Use `create(CliLoginAddRequestSchema)` to create a new message.
- */
-export const CliLoginAddRequestSchema: GenMessage<CliLoginAddRequest> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 47);
-
-/**
- * @generated from message rove.CliLoginGetRequest
- */
-export type CliLoginGetRequest = Message<"rove.CliLoginGetRequest"> & {
-  /**
-   * @generated from field: rove.CliLoginRef ref = 1;
-   */
-  ref?: CliLoginRef | undefined;
-
-  /**
-   * @generated from field: rove.CliLoginSelect select = 2;
-   */
-  select?: CliLoginSelect | undefined;
-};
-
-/**
- * Describes the message rove.CliLoginGetRequest.
- * Use `create(CliLoginGetRequestSchema)` to create a new message.
- */
-export const CliLoginGetRequestSchema: GenMessage<CliLoginGetRequest> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 48);
-
-/**
- * @generated from message rove.CliLoginRef
- */
-export type CliLoginRef = Message<"rove.CliLoginRef"> & {
-  /**
-   * @generated from oneof rove.CliLoginRef.key
-   */
-  key: {
-    /**
-     * @generated from field: bytes id = 1;
-     */
-    value: Uint8Array;
-    case: "id";
-  } | { case: undefined; value?: undefined };
-};
-
-/**
- * Describes the message rove.CliLoginRef.
- * Use `create(CliLoginRefSchema)` to create a new message.
- */
-export const CliLoginRefSchema: GenMessage<CliLoginRef> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 49);
-
-/**
- * @generated from message rove.CliLoginSelect
- */
-export type CliLoginSelect = Message<"rove.CliLoginSelect"> & {
-  /**
-   * @generated from field: bool all = 1;
-   */
-  all: boolean;
-
-  /**
-   * @generated from field: bool secret = 8;
-   */
-  secret: boolean;
-
-  /**
-   * @generated from field: bool code = 9;
-   */
-  code: boolean;
-
-  /**
-   * @generated from field: bool client = 10;
-   */
-  client: boolean;
-
-  /**
-   * @generated from field: bool origin = 11;
-   */
-  origin: boolean;
-
-  /**
-   * @generated from field: bool address = 18;
-   */
-  address: boolean;
-
-  /**
-   * @generated from field: bool account = 12;
-   */
-  account: boolean;
-
-  /**
-   * @generated from field: bool grant = 19;
-   */
-  grant: boolean;
-
-  /**
-   * @generated from field: bool state = 16;
-   */
-  state: boolean;
-
-  /**
-   * @generated from field: bool date_expires = 17;
-   */
-  dateExpires: boolean;
-
-  /**
-   * @generated from field: bool date_updated = 13;
-   */
-  dateUpdated: boolean;
-
-  /**
-   * @generated from field: bool date_erased = 14;
-   */
-  dateErased: boolean;
-
-  /**
-   * @generated from field: bool date_created = 15;
-   */
-  dateCreated: boolean;
-};
-
-/**
- * Describes the message rove.CliLoginSelect.
- * Use `create(CliLoginSelectSchema)` to create a new message.
- */
-export const CliLoginSelectSchema: GenMessage<CliLoginSelect> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 50);
-
-/**
- * @generated from message rove.CliLoginPatchRequest
- */
-export type CliLoginPatchRequest = Message<"rove.CliLoginPatchRequest"> & {
-  /**
-   * @generated from field: rove.CliLoginRef ref = 1;
-   */
-  ref?: CliLoginRef | undefined;
-
-  /**
-   * @generated from field: bytes secret = 16;
-   */
-  secret: Uint8Array;
-
-  /**
-   * @generated from field: string code = 18;
-   */
-  code: string;
-
-  /**
-   * @generated from field: string client = 20;
-   */
-  client: string;
-
-  /**
-   * @generated from field: string origin = 22;
-   */
-  origin: string;
-
-  /**
-   * @generated from field: string address = 36;
-   */
-  address: string;
-
-  /**
-   * @generated from field: bytes account = 24;
-   */
-  account: Uint8Array;
-
-  /**
-   * Clear account instead of writing it.
-   * It takes a field of its own because an unset value already means
-   * "leave it alone", so no value could have meant NULL. It wins
-   * outright: setting both this and account clears.
-   *
-   * @generated from field: bool account_null = 25;
-   */
-  accountNull: boolean;
-
-  /**
-   * @generated from field: bytes grant = 38;
-   */
-  grant: Uint8Array;
-
-  /**
-   * @generated from field: string state = 32;
-   */
-  state: string;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_expires = 34;
-   */
-  dateExpires?: Timestamp | undefined;
-
-  /**
-   * The version this update requires the stored date_updated to be.
-   * It is a precondition, not a write: the update applies only if the row
-   * still holds this value, and the server stamps the new version itself.
-   * Setting it together with date_updated_force is an error --
-   * the version is the token every client's compare-and-swap is measured
-   * against, so it is not the caller's to choose.
-   *
-   * @generated from field: google.protobuf.Timestamp date_updated = 26;
-   */
-  dateUpdated?: Timestamp | undefined;
-
-  /**
-   * Update whatever the stored date_updated is, with no precondition.
-   * The server still stamps a new version, so other clients' tokens are
-   * invalidated as usual; this declines the check for THIS update only.
-   * One of date_updated or this must be set. An omitted version is
-   * refused rather than assumed, because an unset field cannot be told
-   * apart from a caller who never considered locking at all.
-   *
-   * @generated from field: bool date_updated_force = 27;
-   */
-  dateUpdatedForce: boolean;
-};
-
-/**
- * Describes the message rove.CliLoginPatchRequest.
- * Use `create(CliLoginPatchRequestSchema)` to create a new message.
- */
-export const CliLoginPatchRequestSchema: GenMessage<CliLoginPatchRequest> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 51);
-
-/**
- * @generated from message rove.CliLoginApplyRequest
- */
-export type CliLoginApplyRequest = Message<"rove.CliLoginApplyRequest"> & {
-  /**
-   * @generated from field: rove.CliLoginRef ref = 1;
-   */
-  ref?: CliLoginRef | undefined;
-
-  /**
-   * @generated from field: patch.Patch patch = 2;
-   */
-  patch?: Patch | undefined;
-};
-
-/**
- * Describes the message rove.CliLoginApplyRequest.
- * Use `create(CliLoginApplyRequestSchema)` to create a new message.
- */
-export const CliLoginApplyRequestSchema: GenMessage<CliLoginApplyRequest> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 52);
-
-/**
- * @generated from message rove.CliLoginEraseResponse
- */
-export type CliLoginEraseResponse = Message<"rove.CliLoginEraseResponse"> & {
-  /**
-   * Erased is whether this call is the one that erased the row.
-   *
-   * False for a row that was already gone, was never there, or is out
-   * of this caller's reach -- which are one answer on purpose, and the
-   * reason the RPC does not fail instead.
-   *
-   * @generated from field: bool erased = 1;
-   */
-  erased: boolean;
-};
-
-/**
- * Describes the message rove.CliLoginEraseResponse.
- * Use `create(CliLoginEraseResponseSchema)` to create a new message.
- */
-export const CliLoginEraseResponseSchema: GenMessage<CliLoginEraseResponse> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 53);
-
-/**
- * @generated from message rove.AliasHoldAddRequest
- */
-export type AliasHoldAddRequest = Message<"rove.AliasHoldAddRequest"> & {
-  /**
-   * @generated from field: bytes id = 1;
-   */
-  id: Uint8Array;
-
-  /**
-   * @generated from field: string held = 8 [features.field_presence = IMPLICIT];
-   */
-  held: string;
-
-  /**
-   * @generated from field: string reason = 9 [features.field_presence = IMPLICIT];
-   */
-  reason: string;
-
-  /**
-   * @generated from field: string moved_to = 10 [features.field_presence = IMPLICIT];
-   */
-  movedTo: string;
-
-  /**
-   * @generated from field: bytes tenant = 11 [features.field_presence = IMPLICIT];
-   */
-  tenant: Uint8Array;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_until = 16;
-   */
-  dateUntil?: Timestamp | undefined;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_created = 15;
-   */
-  dateCreated?: Timestamp | undefined;
-};
-
-/**
- * Describes the message rove.AliasHoldAddRequest.
- * Use `create(AliasHoldAddRequestSchema)` to create a new message.
- */
-export const AliasHoldAddRequestSchema: GenMessage<AliasHoldAddRequest> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 54);
-
-/**
- * @generated from message rove.AliasHoldGetRequest
- */
-export type AliasHoldGetRequest = Message<"rove.AliasHoldGetRequest"> & {
-  /**
-   * @generated from field: rove.AliasHoldRef ref = 1;
-   */
-  ref?: AliasHoldRef | undefined;
-
-  /**
-   * @generated from field: rove.AliasHoldSelect select = 2;
-   */
-  select?: AliasHoldSelect | undefined;
-};
-
-/**
- * Describes the message rove.AliasHoldGetRequest.
- * Use `create(AliasHoldGetRequestSchema)` to create a new message.
- */
-export const AliasHoldGetRequestSchema: GenMessage<AliasHoldGetRequest> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 55);
-
-/**
- * @generated from message rove.AliasHoldRef
- */
-export type AliasHoldRef = Message<"rove.AliasHoldRef"> & {
-  /**
-   * @generated from oneof rove.AliasHoldRef.key
-   */
-  key: {
-    /**
-     * @generated from field: bytes id = 1;
-     */
-    value: Uint8Array;
-    case: "id";
-  } | { case: undefined; value?: undefined };
-};
-
-/**
- * Describes the message rove.AliasHoldRef.
- * Use `create(AliasHoldRefSchema)` to create a new message.
- */
-export const AliasHoldRefSchema: GenMessage<AliasHoldRef> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 56);
-
-/**
- * @generated from message rove.AliasHoldSelect
- */
-export type AliasHoldSelect = Message<"rove.AliasHoldSelect"> & {
-  /**
-   * @generated from field: bool all = 1;
-   */
-  all: boolean;
-
-  /**
-   * @generated from field: bool held = 8;
-   */
-  held: boolean;
-
-  /**
-   * @generated from field: bool reason = 9;
-   */
-  reason: boolean;
-
-  /**
-   * @generated from field: bool moved_to = 10;
-   */
-  movedTo: boolean;
-
-  /**
-   * @generated from field: bool tenant = 11;
-   */
-  tenant: boolean;
-
-  /**
-   * @generated from field: bool date_until = 16;
-   */
-  dateUntil: boolean;
-
-  /**
-   * @generated from field: bool date_updated = 13;
-   */
-  dateUpdated: boolean;
-
-  /**
-   * @generated from field: bool date_erased = 14;
-   */
-  dateErased: boolean;
-
-  /**
-   * @generated from field: bool date_created = 15;
-   */
-  dateCreated: boolean;
-};
-
-/**
- * Describes the message rove.AliasHoldSelect.
- * Use `create(AliasHoldSelectSchema)` to create a new message.
- */
-export const AliasHoldSelectSchema: GenMessage<AliasHoldSelect> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 57);
-
-/**
- * @generated from message rove.AliasHoldPatchRequest
- */
-export type AliasHoldPatchRequest = Message<"rove.AliasHoldPatchRequest"> & {
-  /**
-   * @generated from field: rove.AliasHoldRef ref = 1;
-   */
-  ref?: AliasHoldRef | undefined;
-
-  /**
-   * @generated from field: string held = 16;
-   */
-  held: string;
-
-  /**
-   * @generated from field: string reason = 18;
-   */
-  reason: string;
-
-  /**
-   * @generated from field: string moved_to = 20;
-   */
-  movedTo: string;
-
-  /**
-   * @generated from field: bytes tenant = 22;
-   */
-  tenant: Uint8Array;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_until = 32;
-   */
-  dateUntil?: Timestamp | undefined;
-
-  /**
-   * The version this update requires the stored date_updated to be.
-   * It is a precondition, not a write: the update applies only if the row
-   * still holds this value, and the server stamps the new version itself.
-   * Setting it together with date_updated_force is an error --
-   * the version is the token every client's compare-and-swap is measured
-   * against, so it is not the caller's to choose.
-   *
-   * @generated from field: google.protobuf.Timestamp date_updated = 26;
-   */
-  dateUpdated?: Timestamp | undefined;
-
-  /**
-   * Update whatever the stored date_updated is, with no precondition.
-   * The server still stamps a new version, so other clients' tokens are
-   * invalidated as usual; this declines the check for THIS update only.
-   * One of date_updated or this must be set. An omitted version is
-   * refused rather than assumed, because an unset field cannot be told
-   * apart from a caller who never considered locking at all.
-   *
-   * @generated from field: bool date_updated_force = 27;
-   */
-  dateUpdatedForce: boolean;
-};
-
-/**
- * Describes the message rove.AliasHoldPatchRequest.
- * Use `create(AliasHoldPatchRequestSchema)` to create a new message.
- */
-export const AliasHoldPatchRequestSchema: GenMessage<AliasHoldPatchRequest> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 58);
-
-/**
- * @generated from message rove.AliasHoldApplyRequest
- */
-export type AliasHoldApplyRequest = Message<"rove.AliasHoldApplyRequest"> & {
-  /**
-   * @generated from field: rove.AliasHoldRef ref = 1;
-   */
-  ref?: AliasHoldRef | undefined;
-
-  /**
-   * @generated from field: patch.Patch patch = 2;
-   */
-  patch?: Patch | undefined;
-};
-
-/**
- * Describes the message rove.AliasHoldApplyRequest.
- * Use `create(AliasHoldApplyRequestSchema)` to create a new message.
- */
-export const AliasHoldApplyRequestSchema: GenMessage<AliasHoldApplyRequest> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 59);
-
-/**
- * @generated from message rove.AliasHoldEraseResponse
- */
-export type AliasHoldEraseResponse = Message<"rove.AliasHoldEraseResponse"> & {
-  /**
-   * Erased is whether this call is the one that erased the row.
-   *
-   * False for a row that was already gone, was never there, or is out
-   * of this caller's reach -- which are one answer on purpose, and the
-   * reason the RPC does not fail instead.
-   *
-   * @generated from field: bool erased = 1;
-   */
-  erased: boolean;
-};
-
-/**
- * Describes the message rove.AliasHoldEraseResponse.
- * Use `create(AliasHoldEraseResponseSchema)` to create a new message.
- */
-export const AliasHoldEraseResponseSchema: GenMessage<AliasHoldEraseResponse> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 60);
-
-/**
- * @generated from message rove.ConsentAddRequest
- */
-export type ConsentAddRequest = Message<"rove.ConsentAddRequest"> & {
-  /**
-   * @generated from field: bytes id = 1;
-   */
-  id: Uint8Array;
-
-  /**
-   * @generated from field: bytes account = 8 [features.field_presence = IMPLICIT];
-   */
-  account: Uint8Array;
-
-  /**
-   * @generated from field: string document = 9 [features.field_presence = IMPLICIT];
-   */
-  document: string;
-
-  /**
-   * @generated from field: string version = 10 [features.field_presence = IMPLICIT];
-   */
-  version: string;
-
-  /**
-   * @generated from field: string client = 11 [features.field_presence = IMPLICIT];
-   */
-  client: string;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_left = 12;
-   */
-  dateLeft?: Timestamp | undefined;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_created = 15;
-   */
-  dateCreated?: Timestamp | undefined;
-};
-
-/**
- * Describes the message rove.ConsentAddRequest.
- * Use `create(ConsentAddRequestSchema)` to create a new message.
- */
-export const ConsentAddRequestSchema: GenMessage<ConsentAddRequest> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 61);
-
-/**
- * @generated from message rove.ConsentGetRequest
- */
-export type ConsentGetRequest = Message<"rove.ConsentGetRequest"> & {
-  /**
-   * @generated from field: rove.ConsentRef ref = 1;
-   */
-  ref?: ConsentRef | undefined;
-
-  /**
-   * @generated from field: rove.ConsentSelect select = 2;
-   */
-  select?: ConsentSelect | undefined;
-};
-
-/**
- * Describes the message rove.ConsentGetRequest.
- * Use `create(ConsentGetRequestSchema)` to create a new message.
- */
-export const ConsentGetRequestSchema: GenMessage<ConsentGetRequest> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 62);
-
-/**
- * @generated from message rove.ConsentRef
- */
-export type ConsentRef = Message<"rove.ConsentRef"> & {
-  /**
-   * @generated from oneof rove.ConsentRef.key
-   */
-  key: {
-    /**
-     * @generated from field: bytes id = 1;
-     */
-    value: Uint8Array;
-    case: "id";
-  } | {
-    /**
-     * @generated from field: rove.ConsentRefByAgreed agreed = 8;
-     */
-    value: ConsentRefByAgreed;
-    case: "agreed";
-  } | { case: undefined; value?: undefined };
-};
-
-/**
- * Describes the message rove.ConsentRef.
- * Use `create(ConsentRefSchema)` to create a new message.
- */
-export const ConsentRefSchema: GenMessage<ConsentRef> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 63);
-
-/**
- * @generated from message rove.ConsentRefByAgreed
- */
-export type ConsentRefByAgreed = Message<"rove.ConsentRefByAgreed"> & {
-  /**
-   * @generated from field: bytes account = 8;
-   */
-  account: Uint8Array;
-
-  /**
-   * @generated from field: string document = 9;
-   */
-  document: string;
-
-  /**
-   * @generated from field: string version = 10;
-   */
-  version: string;
-};
-
-/**
- * Describes the message rove.ConsentRefByAgreed.
- * Use `create(ConsentRefByAgreedSchema)` to create a new message.
- */
-export const ConsentRefByAgreedSchema: GenMessage<ConsentRefByAgreed> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 64);
-
-/**
- * @generated from message rove.ConsentSelect
- */
-export type ConsentSelect = Message<"rove.ConsentSelect"> & {
-  /**
-   * @generated from field: bool all = 1;
-   */
-  all: boolean;
-
-  /**
-   * @generated from field: bool account = 8;
-   */
-  account: boolean;
-
-  /**
-   * @generated from field: bool document = 9;
-   */
-  document: boolean;
-
-  /**
-   * @generated from field: bool version = 10;
-   */
-  version: boolean;
-
-  /**
-   * @generated from field: bool client = 11;
-   */
-  client: boolean;
-
-  /**
-   * @generated from field: bool date_left = 12;
-   */
-  dateLeft: boolean;
-
-  /**
-   * @generated from field: bool date_erased = 14;
-   */
-  dateErased: boolean;
-
-  /**
-   * @generated from field: bool date_created = 15;
-   */
-  dateCreated: boolean;
-};
-
-/**
- * Describes the message rove.ConsentSelect.
- * Use `create(ConsentSelectSchema)` to create a new message.
- */
-export const ConsentSelectSchema: GenMessage<ConsentSelect> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 65);
-
-/**
- * @generated from message rove.ConsentPatchRequest
- */
-export type ConsentPatchRequest = Message<"rove.ConsentPatchRequest"> & {
-  /**
-   * @generated from field: rove.ConsentRef ref = 1;
-   */
-  ref?: ConsentRef | undefined;
-
-  /**
-   * @generated from field: bytes account = 16;
-   */
-  account: Uint8Array;
-
-  /**
-   * @generated from field: string document = 18;
-   */
-  document: string;
-
-  /**
-   * @generated from field: string version = 20;
-   */
-  version: string;
-
-  /**
-   * @generated from field: string client = 22;
-   */
-  client: string;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_left = 24;
-   */
-  dateLeft?: Timestamp | undefined;
-
-  /**
-   * Clear date_left instead of writing it.
-   * It takes a field of its own because an unset value already means
-   * "leave it alone", so no value could have meant NULL. It wins
-   * outright: setting both this and date_left clears.
-   *
-   * @generated from field: bool date_left_null = 25;
-   */
-  dateLeftNull: boolean;
-};
-
-/**
- * Describes the message rove.ConsentPatchRequest.
- * Use `create(ConsentPatchRequestSchema)` to create a new message.
- */
-export const ConsentPatchRequestSchema: GenMessage<ConsentPatchRequest> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 66);
-
-/**
- * @generated from message rove.ConsentApplyRequest
- */
-export type ConsentApplyRequest = Message<"rove.ConsentApplyRequest"> & {
-  /**
-   * @generated from field: rove.ConsentRef ref = 1;
-   */
-  ref?: ConsentRef | undefined;
-
-  /**
-   * @generated from field: patch.Patch patch = 2;
-   */
-  patch?: Patch | undefined;
-};
-
-/**
- * Describes the message rove.ConsentApplyRequest.
- * Use `create(ConsentApplyRequestSchema)` to create a new message.
- */
-export const ConsentApplyRequestSchema: GenMessage<ConsentApplyRequest> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 67);
-
-/**
- * @generated from message rove.ConsentEraseResponse
- */
-export type ConsentEraseResponse = Message<"rove.ConsentEraseResponse"> & {
-  /**
-   * Erased is whether this call is the one that erased the row.
-   *
-   * False for a row that was already gone, was never there, or is out
-   * of this caller's reach -- which are one answer on purpose, and the
-   * reason the RPC does not fail instead.
-   *
-   * @generated from field: bool erased = 1;
-   */
-  erased: boolean;
-};
-
-/**
- * Describes the message rove.ConsentEraseResponse.
- * Use `create(ConsentEraseResponseSchema)` to create a new message.
- */
-export const ConsentEraseResponseSchema: GenMessage<ConsentEraseResponse> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 68);
-
-/**
- * @generated from message rove.SignInFailureAddRequest
- */
-export type SignInFailureAddRequest = Message<"rove.SignInFailureAddRequest"> & {
-  /**
-   * @generated from field: bytes id = 1;
-   */
-  id: Uint8Array;
-
-  /**
-   * @generated from field: bytes subject = 8;
-   */
-  subject: Uint8Array;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_created = 15;
-   */
-  dateCreated?: Timestamp | undefined;
-};
-
-/**
- * Describes the message rove.SignInFailureAddRequest.
- * Use `create(SignInFailureAddRequestSchema)` to create a new message.
- */
-export const SignInFailureAddRequestSchema: GenMessage<SignInFailureAddRequest> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 69);
-
-/**
- * @generated from message rove.SignInFailureGetRequest
- */
-export type SignInFailureGetRequest = Message<"rove.SignInFailureGetRequest"> & {
-  /**
-   * @generated from field: rove.SignInFailureRef ref = 1;
-   */
-  ref?: SignInFailureRef | undefined;
-
-  /**
-   * @generated from field: rove.SignInFailureSelect select = 2;
-   */
-  select?: SignInFailureSelect | undefined;
-};
-
-/**
- * Describes the message rove.SignInFailureGetRequest.
- * Use `create(SignInFailureGetRequestSchema)` to create a new message.
- */
-export const SignInFailureGetRequestSchema: GenMessage<SignInFailureGetRequest> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 70);
-
-/**
- * @generated from message rove.SignInFailureRef
- */
-export type SignInFailureRef = Message<"rove.SignInFailureRef"> & {
-  /**
-   * @generated from oneof rove.SignInFailureRef.key
-   */
-  key: {
-    /**
-     * @generated from field: bytes id = 1;
-     */
-    value: Uint8Array;
-    case: "id";
-  } | { case: undefined; value?: undefined };
-};
-
-/**
- * Describes the message rove.SignInFailureRef.
- * Use `create(SignInFailureRefSchema)` to create a new message.
- */
-export const SignInFailureRefSchema: GenMessage<SignInFailureRef> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 71);
-
-/**
- * @generated from message rove.SignInFailureSelect
- */
-export type SignInFailureSelect = Message<"rove.SignInFailureSelect"> & {
-  /**
-   * @generated from field: bool all = 1;
-   */
-  all: boolean;
-
-  /**
-   * @generated from field: bool subject = 8;
-   */
-  subject: boolean;
-
-  /**
-   * @generated from field: bool date_created = 15;
-   */
-  dateCreated: boolean;
-};
-
-/**
- * Describes the message rove.SignInFailureSelect.
- * Use `create(SignInFailureSelectSchema)` to create a new message.
- */
-export const SignInFailureSelectSchema: GenMessage<SignInFailureSelect> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 72);
-
-/**
- * @generated from message rove.SignInFailurePatchRequest
- */
-export type SignInFailurePatchRequest = Message<"rove.SignInFailurePatchRequest"> & {
-  /**
-   * @generated from field: rove.SignInFailureRef ref = 1;
-   */
-  ref?: SignInFailureRef | undefined;
-
-  /**
-   * @generated from field: bytes subject = 16;
-   */
-  subject: Uint8Array;
-};
-
-/**
- * Describes the message rove.SignInFailurePatchRequest.
- * Use `create(SignInFailurePatchRequestSchema)` to create a new message.
- */
-export const SignInFailurePatchRequestSchema: GenMessage<SignInFailurePatchRequest> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 73);
-
-/**
- * @generated from message rove.SignInFailureApplyRequest
- */
-export type SignInFailureApplyRequest = Message<"rove.SignInFailureApplyRequest"> & {
-  /**
-   * @generated from field: rove.SignInFailureRef ref = 1;
-   */
-  ref?: SignInFailureRef | undefined;
-
-  /**
-   * @generated from field: patch.Patch patch = 2;
-   */
-  patch?: Patch | undefined;
-};
-
-/**
- * Describes the message rove.SignInFailureApplyRequest.
- * Use `create(SignInFailureApplyRequestSchema)` to create a new message.
- */
-export const SignInFailureApplyRequestSchema: GenMessage<SignInFailureApplyRequest> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 74);
-
-/**
- * @generated from message rove.SignInFailureEraseResponse
- */
-export type SignInFailureEraseResponse = Message<"rove.SignInFailureEraseResponse"> & {
-  /**
-   * Erased is whether this call is the one that erased the row.
-   *
-   * False for a row that was already gone, was never there, or is out
-   * of this caller's reach -- which are one answer on purpose, and the
-   * reason the RPC does not fail instead.
-   *
-   * @generated from field: bool erased = 1;
-   */
-  erased: boolean;
-};
-
-/**
- * Describes the message rove.SignInFailureEraseResponse.
- * Use `create(SignInFailureEraseResponseSchema)` to create a new message.
- */
-export const SignInFailureEraseResponseSchema: GenMessage<SignInFailureEraseResponse> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 75);
+  messageDesc(file_rove_org_svc_g, 39);
 
 /**
  * Account is who a call served as an account is from: an account of the
@@ -2897,7 +1562,7 @@ export type Account = Message<"rove.Account"> & {
  * Use `create(AccountSchema)` to create a new message.
  */
 export const AccountSchema: GenMessage<Account> = /*@__PURE__*/
-  messageDesc(file_rove_org_svc_g, 76);
+  messageDesc(file_rove_org_svc_g, 40);
 
 /**
  * @generated from service rove.PartyService
@@ -3072,56 +1737,6 @@ export const PartyService: GenService<{
  * @generated from service rove.SessionService
  */
 export const SessionService: GenService<{
-  /**
-   * Add creates a new Session
-   *
-   * @generated from rpc rove.SessionService.Add
-   */
-  add: {
-    methodKind: "unary";
-    input: typeof SessionAddRequestSchema;
-    output: typeof SessionSchema;
-  },
-  /**
-   * Get retrieves a Session
-   *
-   * @generated from rpc rove.SessionService.Get
-   */
-  get: {
-    methodKind: "unary";
-    input: typeof SessionGetRequestSchema;
-    output: typeof SessionSchema;
-  },
-  /**
-   * Patch updates an existing Session
-   *
-   * @generated from rpc rove.SessionService.Patch
-   */
-  patch: {
-    methodKind: "unary";
-    input: typeof SessionPatchRequestSchema;
-    output: typeof SessionSchema;
-  },
-  /**
-   * Apply applies a patch document to an existing Session
-   *
-   * @generated from rpc rove.SessionService.Apply
-   */
-  apply: {
-    methodKind: "unary";
-    input: typeof SessionApplyRequestSchema;
-    output: typeof SessionSchema;
-  },
-  /**
-   * Erase deletes a Session
-   *
-   * @generated from rpc rove.SessionService.Erase
-   */
-  erase: {
-    methodKind: "unary";
-    input: typeof SessionRefSchema;
-    output: typeof SessionEraseResponseSchema;
-  },
 }> = /*@__PURE__*/
   serviceDesc(file_rove_org_svc_g, 1);
 
@@ -3238,56 +1853,6 @@ export const InvitationService: GenService<{
  * @generated from service rove.CliLoginService
  */
 export const CliLoginService: GenService<{
-  /**
-   * Add creates a new CliLogin
-   *
-   * @generated from rpc rove.CliLoginService.Add
-   */
-  add: {
-    methodKind: "unary";
-    input: typeof CliLoginAddRequestSchema;
-    output: typeof CliLoginSchema;
-  },
-  /**
-   * Get retrieves a CliLogin
-   *
-   * @generated from rpc rove.CliLoginService.Get
-   */
-  get: {
-    methodKind: "unary";
-    input: typeof CliLoginGetRequestSchema;
-    output: typeof CliLoginSchema;
-  },
-  /**
-   * Patch updates an existing CliLogin
-   *
-   * @generated from rpc rove.CliLoginService.Patch
-   */
-  patch: {
-    methodKind: "unary";
-    input: typeof CliLoginPatchRequestSchema;
-    output: typeof CliLoginSchema;
-  },
-  /**
-   * Apply applies a patch document to an existing CliLogin
-   *
-   * @generated from rpc rove.CliLoginService.Apply
-   */
-  apply: {
-    methodKind: "unary";
-    input: typeof CliLoginApplyRequestSchema;
-    output: typeof CliLoginSchema;
-  },
-  /**
-   * Erase deletes a CliLogin
-   *
-   * @generated from rpc rove.CliLoginService.Erase
-   */
-  erase: {
-    methodKind: "unary";
-    input: typeof CliLoginRefSchema;
-    output: typeof CliLoginEraseResponseSchema;
-  },
 }> = /*@__PURE__*/
   serviceDesc(file_rove_org_svc_g, 3);
 
@@ -3295,56 +1860,6 @@ export const CliLoginService: GenService<{
  * @generated from service rove.AliasHoldService
  */
 export const AliasHoldService: GenService<{
-  /**
-   * Add creates a new AliasHold
-   *
-   * @generated from rpc rove.AliasHoldService.Add
-   */
-  add: {
-    methodKind: "unary";
-    input: typeof AliasHoldAddRequestSchema;
-    output: typeof AliasHoldSchema;
-  },
-  /**
-   * Get retrieves a AliasHold
-   *
-   * @generated from rpc rove.AliasHoldService.Get
-   */
-  get: {
-    methodKind: "unary";
-    input: typeof AliasHoldGetRequestSchema;
-    output: typeof AliasHoldSchema;
-  },
-  /**
-   * Patch updates an existing AliasHold
-   *
-   * @generated from rpc rove.AliasHoldService.Patch
-   */
-  patch: {
-    methodKind: "unary";
-    input: typeof AliasHoldPatchRequestSchema;
-    output: typeof AliasHoldSchema;
-  },
-  /**
-   * Apply applies a patch document to an existing AliasHold
-   *
-   * @generated from rpc rove.AliasHoldService.Apply
-   */
-  apply: {
-    methodKind: "unary";
-    input: typeof AliasHoldApplyRequestSchema;
-    output: typeof AliasHoldSchema;
-  },
-  /**
-   * Erase deletes a AliasHold
-   *
-   * @generated from rpc rove.AliasHoldService.Erase
-   */
-  erase: {
-    methodKind: "unary";
-    input: typeof AliasHoldRefSchema;
-    output: typeof AliasHoldEraseResponseSchema;
-  },
 }> = /*@__PURE__*/
   serviceDesc(file_rove_org_svc_g, 4);
 
@@ -3352,56 +1867,6 @@ export const AliasHoldService: GenService<{
  * @generated from service rove.ConsentService
  */
 export const ConsentService: GenService<{
-  /**
-   * Add creates a new Consent
-   *
-   * @generated from rpc rove.ConsentService.Add
-   */
-  add: {
-    methodKind: "unary";
-    input: typeof ConsentAddRequestSchema;
-    output: typeof ConsentSchema;
-  },
-  /**
-   * Get retrieves a Consent
-   *
-   * @generated from rpc rove.ConsentService.Get
-   */
-  get: {
-    methodKind: "unary";
-    input: typeof ConsentGetRequestSchema;
-    output: typeof ConsentSchema;
-  },
-  /**
-   * Patch updates an existing Consent
-   *
-   * @generated from rpc rove.ConsentService.Patch
-   */
-  patch: {
-    methodKind: "unary";
-    input: typeof ConsentPatchRequestSchema;
-    output: typeof ConsentSchema;
-  },
-  /**
-   * Apply applies a patch document to an existing Consent
-   *
-   * @generated from rpc rove.ConsentService.Apply
-   */
-  apply: {
-    methodKind: "unary";
-    input: typeof ConsentApplyRequestSchema;
-    output: typeof ConsentSchema;
-  },
-  /**
-   * Erase deletes a Consent
-   *
-   * @generated from rpc rove.ConsentService.Erase
-   */
-  erase: {
-    methodKind: "unary";
-    input: typeof ConsentRefSchema;
-    output: typeof ConsentEraseResponseSchema;
-  },
 }> = /*@__PURE__*/
   serviceDesc(file_rove_org_svc_g, 5);
 
@@ -3409,56 +1874,6 @@ export const ConsentService: GenService<{
  * @generated from service rove.SignInFailureService
  */
 export const SignInFailureService: GenService<{
-  /**
-   * Add creates a new SignInFailure
-   *
-   * @generated from rpc rove.SignInFailureService.Add
-   */
-  add: {
-    methodKind: "unary";
-    input: typeof SignInFailureAddRequestSchema;
-    output: typeof SignInFailureSchema;
-  },
-  /**
-   * Get retrieves a SignInFailure
-   *
-   * @generated from rpc rove.SignInFailureService.Get
-   */
-  get: {
-    methodKind: "unary";
-    input: typeof SignInFailureGetRequestSchema;
-    output: typeof SignInFailureSchema;
-  },
-  /**
-   * Patch updates an existing SignInFailure
-   *
-   * @generated from rpc rove.SignInFailureService.Patch
-   */
-  patch: {
-    methodKind: "unary";
-    input: typeof SignInFailurePatchRequestSchema;
-    output: typeof SignInFailureSchema;
-  },
-  /**
-   * Apply applies a patch document to an existing SignInFailure
-   *
-   * @generated from rpc rove.SignInFailureService.Apply
-   */
-  apply: {
-    methodKind: "unary";
-    input: typeof SignInFailureApplyRequestSchema;
-    output: typeof SignInFailureSchema;
-  },
-  /**
-   * Erase deletes a SignInFailure
-   *
-   * @generated from rpc rove.SignInFailureService.Erase
-   */
-  erase: {
-    methodKind: "unary";
-    input: typeof SignInFailureRefSchema;
-    output: typeof SignInFailureEraseResponseSchema;
-  },
 }> = /*@__PURE__*/
   serviceDesc(file_rove_org_svc_g, 6);
 

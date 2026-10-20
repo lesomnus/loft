@@ -127,7 +127,6 @@ message Session {
   }];
 
   option (orm.message) = {
-    rpc: {crud: true}
     indexes: [
       {
         name: "secret"
@@ -319,7 +318,6 @@ message CliLogin {
   }];
 
   option (orm.message) = {
-    rpc: {crud: true}
     indexes: [
       {
         name: "code"
@@ -381,7 +379,6 @@ message AliasHold {
   }];
 
   option (orm.message) = {
-    rpc: {crud: true}
     indexes: [
       {
         name: "held"
@@ -435,7 +432,6 @@ message Consent {
   }];
 
   option (orm.message) = {
-    rpc: {crud: true}
     indexes: [
       {
         name: "agreed"
@@ -488,7 +484,6 @@ message SignInFailure {
   }];
 
   option (orm.message) = {
-    rpc: {crud: true}
     indexes: [
       {
         name: "subject"

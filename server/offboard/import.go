@@ -116,6 +116,12 @@ var ErrNotNew = errors.New("the deployment has the workspace already")
 // that history, verified by its own signature where it is kept, and the event
 // a restore records names it by its [Fingerprints].
 //
+// What this deployment's trail says instead is the restore itself: a row of it
+// for every row put back, as the act [Imported], keeping the digest of the row
+// as it is and nothing of what it holds (payday#108). A check of the rows then
+// finds each as the restore left it, rather than as a row nothing on the trail
+// is about -- which is what a row somebody added past the servers looks like.
+//
 // Nobody in the workspace does this, and the event it records says so by
 // naming nobody.
 func (d Deployment) Import(ctx context.Context, r io.ReaderAt, size int64, o ImportOptions) (Restored, error) {
@@ -205,8 +211,10 @@ func (d Deployment) Import(ctx context.Context, r io.ReaderAt, size int64, o Imp
 		return out, fmt.Errorf("tenant: %w", err)
 	}
 
+	// Every row put back, for the trail to say so.
+	restored := []pdid.Id{out.Tenant}
 	for _, p := range plans {
-		n, err := d.restore(ctx, db, z, p, tid, &out)
+		n, err := d.restore(ctx, db, z, p, tid, &out, &restored)
 		if err != nil {
 			return out, err
 		}
@@ -230,8 +238,9 @@ func (d Deployment) Import(ctx context.Context, r io.ReaderAt, size int64, o Imp
 	if out.Reopened {
 		payload["reopened"] = "true"
 	}
+	event := pdid.New(pd.EventDomain)
 	if err := db.Event.Create().
-		SetId(pdid.New(pd.EventDomain).Uuid()).
+		SetId(event.Uuid()).
 		SetTenantId(tid).
 		SetKind("workspace.import").
 		SetDesc(desc).
@@ -242,6 +251,9 @@ func (d Deployment) Import(ctx context.Context, r io.ReaderAt, size int64, o Imp
 		SetDateUpdated(now).
 		Exec(ctx); err != nil {
 		return out, fmt.Errorf("the restore's event: %w", err)
+	}
+	if _, err := pd.Record(ctx, db, d.Audit, Imported, append(restored, event)); err != nil {
+		return out, fmt.Errorf("the restore's trail: %w", err)
 	}
 
 	if d.Reindex != nil {
@@ -362,7 +374,10 @@ func (d Deployment) address(ctx context.Context, db *ent.Client, tenant pdid.Id,
 }
 
 // restore writes back every row of one table the export has, as it was.
-func (d Deployment) restore(ctx context.Context, db *ent.Client, z *zip.Reader, p *plan, tenant uuid.UUID, out *Restored) (int, error) {
+// Imported is the act a restore is on the trail as.
+const Imported = "rove.workspace.import"
+
+func (d Deployment) restore(ctx context.Context, db *ent.Client, z *zip.Reader, p *plan, tenant uuid.UUID, out *Restored, restored *[]pdid.Id) (int, error) {
 	f, err := z.Open("rows/" + p.table + ".jsonl")
 	if errors.Is(err, fs.ErrNotExist) {
 		// A table the deployment that wrote it did not have yet, which had
@@ -408,6 +423,9 @@ func (d Deployment) restore(ctx context.Context, db *ent.Client, z *zip.Reader, 
 			}
 		}
 		batch = append(batch, v)
+		if id, err := pdid.From(v.Get(v.Descriptor().Fields().ByName("id")).Bytes()); err == nil {
+			*restored = append(*restored, id)
+		}
 		if len(batch) == p.chunk {
 			if err := flush(); err != nil {
 				return n, err

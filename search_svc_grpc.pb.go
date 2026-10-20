@@ -10,10 +10,7 @@
 package rove
 
 import (
-	context "context"
 	grpc "google.golang.org/grpc"
-	codes "google.golang.org/grpc/codes"
-	status "google.golang.org/grpc/status"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -21,28 +18,10 @@ import (
 // Requires gRPC-Go v1.64.0 or later.
 const _ = grpc.SupportPackageIsVersion9
 
-const (
-	SearchStaleService_Add_FullMethodName   = "/rove.SearchStaleService/Add"
-	SearchStaleService_Get_FullMethodName   = "/rove.SearchStaleService/Get"
-	SearchStaleService_Patch_FullMethodName = "/rove.SearchStaleService/Patch"
-	SearchStaleService_Apply_FullMethodName = "/rove.SearchStaleService/Apply"
-	SearchStaleService_Erase_FullMethodName = "/rove.SearchStaleService/Erase"
-)
-
 // SearchStaleServiceClient is the client API for SearchStaleService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SearchStaleServiceClient interface {
-	// Add creates a new SearchStale
-	Add(ctx context.Context, in *SearchStaleAddRequest, opts ...grpc.CallOption) (*SearchStale, error)
-	// Get retrieves a SearchStale
-	Get(ctx context.Context, in *SearchStaleGetRequest, opts ...grpc.CallOption) (*SearchStale, error)
-	// Patch updates an existing SearchStale
-	Patch(ctx context.Context, in *SearchStalePatchRequest, opts ...grpc.CallOption) (*SearchStale, error)
-	// Apply applies a patch document to an existing SearchStale
-	Apply(ctx context.Context, in *SearchStaleApplyRequest, opts ...grpc.CallOption) (*SearchStale, error)
-	// Erase deletes a SearchStale
-	Erase(ctx context.Context, in *SearchStaleRef, opts ...grpc.CallOption) (*SearchStaleEraseResponse, error)
 }
 
 type searchStaleServiceClient struct {
@@ -53,70 +32,10 @@ func NewSearchStaleServiceClient(cc grpc.ClientConnInterface) SearchStaleService
 	return &searchStaleServiceClient{cc}
 }
 
-func (c *searchStaleServiceClient) Add(ctx context.Context, in *SearchStaleAddRequest, opts ...grpc.CallOption) (*SearchStale, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SearchStale)
-	err := c.cc.Invoke(ctx, SearchStaleService_Add_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *searchStaleServiceClient) Get(ctx context.Context, in *SearchStaleGetRequest, opts ...grpc.CallOption) (*SearchStale, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SearchStale)
-	err := c.cc.Invoke(ctx, SearchStaleService_Get_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *searchStaleServiceClient) Patch(ctx context.Context, in *SearchStalePatchRequest, opts ...grpc.CallOption) (*SearchStale, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SearchStale)
-	err := c.cc.Invoke(ctx, SearchStaleService_Patch_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *searchStaleServiceClient) Apply(ctx context.Context, in *SearchStaleApplyRequest, opts ...grpc.CallOption) (*SearchStale, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SearchStale)
-	err := c.cc.Invoke(ctx, SearchStaleService_Apply_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *searchStaleServiceClient) Erase(ctx context.Context, in *SearchStaleRef, opts ...grpc.CallOption) (*SearchStaleEraseResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SearchStaleEraseResponse)
-	err := c.cc.Invoke(ctx, SearchStaleService_Erase_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // SearchStaleServiceServer is the server API for SearchStaleService service.
 // All implementations must embed UnimplementedSearchStaleServiceServer
 // for forward compatibility.
 type SearchStaleServiceServer interface {
-	// Add creates a new SearchStale
-	Add(context.Context, *SearchStaleAddRequest) (*SearchStale, error)
-	// Get retrieves a SearchStale
-	Get(context.Context, *SearchStaleGetRequest) (*SearchStale, error)
-	// Patch updates an existing SearchStale
-	Patch(context.Context, *SearchStalePatchRequest) (*SearchStale, error)
-	// Apply applies a patch document to an existing SearchStale
-	Apply(context.Context, *SearchStaleApplyRequest) (*SearchStale, error)
-	// Erase deletes a SearchStale
-	Erase(context.Context, *SearchStaleRef) (*SearchStaleEraseResponse, error)
 	mustEmbedUnimplementedSearchStaleServiceServer()
 }
 
@@ -127,21 +46,6 @@ type SearchStaleServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedSearchStaleServiceServer struct{}
 
-func (UnimplementedSearchStaleServiceServer) Add(context.Context, *SearchStaleAddRequest) (*SearchStale, error) {
-	return nil, status.Error(codes.Unimplemented, "method Add not implemented")
-}
-func (UnimplementedSearchStaleServiceServer) Get(context.Context, *SearchStaleGetRequest) (*SearchStale, error) {
-	return nil, status.Error(codes.Unimplemented, "method Get not implemented")
-}
-func (UnimplementedSearchStaleServiceServer) Patch(context.Context, *SearchStalePatchRequest) (*SearchStale, error) {
-	return nil, status.Error(codes.Unimplemented, "method Patch not implemented")
-}
-func (UnimplementedSearchStaleServiceServer) Apply(context.Context, *SearchStaleApplyRequest) (*SearchStale, error) {
-	return nil, status.Error(codes.Unimplemented, "method Apply not implemented")
-}
-func (UnimplementedSearchStaleServiceServer) Erase(context.Context, *SearchStaleRef) (*SearchStaleEraseResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method Erase not implemented")
-}
 func (UnimplementedSearchStaleServiceServer) mustEmbedUnimplementedSearchStaleServiceServer() {}
 func (UnimplementedSearchStaleServiceServer) testEmbeddedByValue()                            {}
 
@@ -163,124 +67,13 @@ func RegisterSearchStaleServiceServer(s grpc.ServiceRegistrar, srv SearchStaleSe
 	s.RegisterService(&SearchStaleService_ServiceDesc, srv)
 }
 
-func _SearchStaleService_Add_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SearchStaleAddRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SearchStaleServiceServer).Add(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SearchStaleService_Add_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SearchStaleServiceServer).Add(ctx, req.(*SearchStaleAddRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SearchStaleService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SearchStaleGetRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SearchStaleServiceServer).Get(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SearchStaleService_Get_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SearchStaleServiceServer).Get(ctx, req.(*SearchStaleGetRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SearchStaleService_Patch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SearchStalePatchRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SearchStaleServiceServer).Patch(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SearchStaleService_Patch_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SearchStaleServiceServer).Patch(ctx, req.(*SearchStalePatchRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SearchStaleService_Apply_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SearchStaleApplyRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SearchStaleServiceServer).Apply(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SearchStaleService_Apply_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SearchStaleServiceServer).Apply(ctx, req.(*SearchStaleApplyRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SearchStaleService_Erase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SearchStaleRef)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SearchStaleServiceServer).Erase(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SearchStaleService_Erase_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SearchStaleServiceServer).Erase(ctx, req.(*SearchStaleRef))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // SearchStaleService_ServiceDesc is the grpc.ServiceDesc for SearchStaleService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var SearchStaleService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "rove.SearchStaleService",
 	HandlerType: (*SearchStaleServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "Add",
-			Handler:    _SearchStaleService_Add_Handler,
-		},
-		{
-			MethodName: "Get",
-			Handler:    _SearchStaleService_Get_Handler,
-		},
-		{
-			MethodName: "Patch",
-			Handler:    _SearchStaleService_Patch_Handler,
-		},
-		{
-			MethodName: "Apply",
-			Handler:    _SearchStaleService_Apply_Handler,
-		},
-		{
-			MethodName: "Erase",
-			Handler:    _SearchStaleService_Erase_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "rove/search_svc.g.proto",
+	Methods:     []grpc.MethodDesc{},
+	Streams:     []grpc.StreamDesc{},
+	Metadata:    "rove/search_svc.g.proto",
 }

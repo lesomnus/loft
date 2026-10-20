@@ -76,18 +76,7 @@ service AssetService {
   rpc ReadSheet(AssetReadSheetRequest) returns (AssetReadSheetResponse);
 }
 
-service TreeLockService {
-  // Add creates a new TreeLock
-  rpc Add(TreeLockAddRequest) returns (TreeLock);
-  // Get retrieves a TreeLock
-  rpc Get(TreeLockGetRequest) returns (TreeLock);
-  // Patch updates an existing TreeLock
-  rpc Patch(TreeLockPatchRequest) returns (TreeLock);
-  // Apply applies a patch document to an existing TreeLock
-  rpc Apply(TreeLockApplyRequest) returns (TreeLock);
-  // Erase deletes a TreeLock
-  rpc Erase(TreeLockRef) returns (TreeLockEraseResponse);
-}
+service TreeLockService {}
 
 service TenantDomainService {
   // Add creates a new TenantDomain
@@ -697,70 +686,6 @@ message AssetReadSheetIssue {
   uint32 line = 1 [features.field_presence = IMPLICIT];
   string column = 2 [features.field_presence = IMPLICIT];
   string message = 3 [features.field_presence = IMPLICIT];
-}
-
-message TreeLockAddRequest {
-  bytes id = 1;
-  TenantRef tenant = 2;
-  uint64 version = 8 [features.field_presence = IMPLICIT];
-  google.protobuf.Timestamp date_created = 15;
-}
-
-message TreeLockGetRequest {
-  TreeLockRef ref = 1;
-  TreeLockSelect select = 2;
-}
-
-message TreeLockRef {
-  oneof key {
-    bytes id = 1;
-    TreeLockRefByTenant tenant = 2;
-  }
-}
-
-message TreeLockRefByTenant {
-  TenantRef tenant = 2;
-}
-
-message TreeLockSelect {
-  bool all = 1;
-  TenantSelect tenant = 2;
-  bool version = 8;
-  bool date_updated = 13;
-  bool date_created = 15;
-}
-
-message TreeLockPatchRequest {
-  TreeLockRef ref = 1;
-  uint64 version = 16;
-  // The version this update requires the stored date_updated to be.
-  // It is a precondition, not a write: the update applies only if the row
-  // still holds this value, and the server stamps the new version itself.
-  // Setting it together with date_updated_force is an error --
-  // the version is the token every client's compare-and-swap is measured
-  // against, so it is not the caller's to choose.
-  google.protobuf.Timestamp date_updated = 26;
-  // Update whatever the stored date_updated is, with no precondition.
-  // The server still stamps a new version, so other clients' tokens are
-  // invalidated as usual; this declines the check for THIS update only.
-  // One of date_updated or this must be set. An omitted version is
-  // refused rather than assumed, because an unset field cannot be told
-  // apart from a caller who never considered locking at all.
-  bool date_updated_force = 27;
-}
-
-message TreeLockApplyRequest {
-  TreeLockRef ref = 1;
-  patch.Patch patch = 2;
-}
-
-message TreeLockEraseResponse {
-  // Erased is whether this call is the one that erased the row.
-  //
-  // False for a row that was already gone, was never there, or is out
-  // of this caller's reach -- which are one answer on purpose, and the
-  // reason the RPC does not fail instead.
-  bool erased = 1;
 }
 
 message TenantDomainAddRequest {

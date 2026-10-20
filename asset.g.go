@@ -71,68 +71,6 @@ func AssetGetByTag(tag string, tenant *TenantRef) *AssetGetRequest {
 	return AssetGetRequest_builder{Ref: AssetByTag(tag, tenant)}.Build()
 }
 
-func (x *TreeLockRef) Pick() *TreeLockGetRequest {
-	return TreeLockGetRequest_builder{Ref: x}.Build()
-}
-
-func (x *TreeLock) Ref() *TreeLockRef {
-	if v := x.GetId(); len(v) > 0 {
-		return TreeLockById(v)
-	}
-	{
-		v1 := x.GetTenant()
-		if v1 != nil {
-			return TreeLockByTenant(v1.Ref())
-		}
-	}
-
-	return nil
-}
-
-func (x *TreeLock) Pick() *TreeLockGetRequest {
-	return x.Ref().Pick()
-}
-
-func (x *TreeLockRef) Picks(v *TreeLock) bool {
-	switch x.WhichKey() {
-	case TreeLockRef_Id_case:
-		return bytes.Equal(x.GetId(), v.GetId())
-	case TreeLockRef_Tenant_case:
-		x := x.GetTenant()
-		return (x.GetTenant().Picks(v.GetTenant()))
-	default:
-		return false
-	}
-}
-
-func (x *TreeLockGetRequest) WithSelect(f func(s *TreeLockSelect)) *TreeLockGetRequest {
-	if !x.HasSelect() {
-		x.SetSelect(&TreeLockSelect{})
-	}
-	f(x.GetSelect())
-	return x
-}
-
-func TreeLockById(v []byte) *TreeLockRef {
-	x := &TreeLockRef{}
-	x.SetId(v)
-	return x
-}
-
-func TreeLockGetById(v []byte) *TreeLockGetRequest {
-	return TreeLockGetRequest_builder{Ref: TreeLockById(v)}.Build()
-}
-
-func TreeLockByTenant(tenant *TenantRef) *TreeLockRef {
-	x := &TreeLockRefByTenant{}
-	x.SetTenant(tenant)
-	return TreeLockRef_builder{Tenant: x}.Build()
-}
-
-func TreeLockGetByTenant(tenant *TenantRef) *TreeLockGetRequest {
-	return TreeLockGetRequest_builder{Ref: TreeLockByTenant(tenant)}.Build()
-}
-
 func (x *TenantDomainRef) Pick() *TenantDomainGetRequest {
 	return TenantDomainGetRequest_builder{Ref: x}.Build()
 }
