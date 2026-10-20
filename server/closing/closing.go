@@ -23,6 +23,7 @@ import (
 	"uuid"
 
 	"github.com/lesomnus/otx/log"
+	"github.com/lesomnus/payday/audit"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/trail"
 	"github.com/lesomnus/z"
@@ -188,8 +189,17 @@ func (c Closing) hold(ctx context.Context, alias, reason, to string, tenant pdid
 	if err != nil || exists {
 		return err
 	}
-	return c.Db.AliasHold.Create().
-		SetId(pdid.New(pd.AliasHoldDomain).Uuid()).
+	// On the trail as the act it is (payday#108, `trail: {recorded: {}}` on
+	// AliasHold), by the deployment, in one transaction with the hold.
+	tx, err := c.Db.Tx(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	id := pdid.New(pd.AliasHoldDomain)
+	if err := tx.AliasHold.Create().
+		SetId(id.Uuid()).
 		SetHeld(alias).
 		SetReason(reason).
 		SetMovedTo(to).
@@ -197,8 +207,21 @@ func (c Closing) hold(ctx context.Context, alias, reason, to string, tenant pdid
 		SetDateUntil(now.Add(hold)).
 		SetDateCreated(now).
 		SetDateUpdated(now).
-		Exec(ctx)
+		Exec(ctx); err != nil {
+		return err
+	}
+	var cs audit.Contents
+	if c.Deps != nil {
+		cs = c.Deps.Audit
+	}
+	if _, err := pd.Record(ctx, tx.Client(), cs, Held, []pdid.Id{id}); err != nil {
+		return err
+	}
+	return tx.Commit()
 }
+
+// Held is the act a held address is on the trail as.
+const Held = "rove.alias.hold"
 
 // OnlyHere is the accounts of a workspace's members that are members of no
 // other workspace.

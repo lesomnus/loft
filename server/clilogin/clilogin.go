@@ -48,7 +48,9 @@ import (
 	"unicode/utf8"
 
 	"github.com/lesomnus/otx/log"
+	"github.com/lesomnus/payday/audit"
 	"github.com/lesomnus/payday/auth/authsession"
+	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/pdid"
 
 	"github.com/lesomnus/rove/internal/ent"
@@ -106,6 +108,39 @@ type Logins struct {
 
 	// Now is the clock; tests move it.
 	Now func() time.Time
+
+	// Audit is what the trail keeps, as the recorder is given it: a terminal
+	// asking, and a person answering it, are each put on the trail as the act
+	// they are (payday#108, `trail: {recorded: {}}` on CliLogin). The row goes
+	// once the terminal has its answer, and the trail is what is left of who
+	// let which terminal in.
+	Audit audit.Contents
+}
+
+// The acts a terminal's sign-in is on the trail as.
+const (
+	Asked    = "rove.cli-login.ask"
+	Approved = "rove.cli-login.approve"
+	Denied   = "rove.cli-login.deny"
+)
+
+// recorded is a write of a sign-in and the act on the trail that says so, in
+// one transaction.
+func (l *Logins) recorded(ctx context.Context, act string, write func(*ent.Client) (*ent.CliLogin, error)) (*ent.CliLogin, error) {
+	tx, err := l.Db.Tx(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	v, err := write(tx.Client())
+	if err != nil {
+		return nil, err
+	}
+	if _, err := pd.Record(ctx, tx.Client(), l.Audit, act, []pdid.Id{pdid.Id(v.Id)}); err != nil {
+		return nil, err
+	}
+	return v, tx.Commit()
 }
 
 // Mount puts the routes on a mux.
@@ -235,19 +270,22 @@ func (l *Logins) start(w http.ResponseWriter, r *http.Request) {
 		fail(w, r, err)
 		return
 	}
-	v, err := l.Db.CliLogin.Create().
-		SetId(pdid.New(pd.CliLoginDomain).Uuid()).
-		SetSecret(secret).
-		SetCode(code).
-		SetClient(client).
-		SetOrigin(origin + agentOf(r)).
-		SetAddress(origin).
-		SetGrant(grant).
-		SetState(pending).
-		SetDateExpires(now.Add(Ttl)).
-		SetDateCreated(now).
-		SetDateUpdated(now).
-		Save(ctx)
+	// Asked by nobody signed in: the terminal is who the row says it is.
+	v, err := l.recorded(ctx, Asked, func(db *ent.Client) (*ent.CliLogin, error) {
+		return db.CliLogin.Create().
+			SetId(pdid.New(pd.CliLoginDomain).Uuid()).
+			SetSecret(secret).
+			SetCode(code).
+			SetClient(client).
+			SetOrigin(origin + agentOf(r)).
+			SetAddress(origin).
+			SetGrant(grant).
+			SetState(pending).
+			SetDateExpires(now.Add(Ttl)).
+			SetDateCreated(now).
+			SetDateUpdated(now).
+			Save(ctx)
+	})
 	if err != nil {
 		fail(w, r, err)
 		return
@@ -352,14 +390,24 @@ func (l *Logins) answer(to string) http.HandlerFunc {
 
 		ctx := r.Context()
 		now := l.now()
-		u := l.Db.CliLogin.UpdateOneId(v.Id).
-			Where(entclilogin.State(pending)).
-			SetState(to).
-			SetDateUpdated(now)
+		act := Denied
 		if to == approved {
-			u = u.SetAccount(p.Id.Uuid())
+			act = Approved
 		}
-		if err := u.Exec(ctx); err != nil {
+		// Answered by the account signed in at the page, which is who the
+		// trail says answered.
+		as := frame.Into(ctx, frame.New(p.Id, pdid.Nil, frame.Grant{}))
+		_, err := l.recorded(as, act, func(db *ent.Client) (*ent.CliLogin, error) {
+			u := db.CliLogin.UpdateOneId(v.Id).
+				Where(entclilogin.State(pending)).
+				SetState(to).
+				SetDateUpdated(now)
+			if to == approved {
+				u = u.SetAccount(p.Id.Uuid())
+			}
+			return u.Save(ctx)
+		})
+		if err != nil {
 			if ent.IsNotFound(err) {
 				http.Error(w, "that sign-in was answered already", http.StatusConflict)
 				return

@@ -1011,7 +1011,8 @@ func (b0 Invitation_builder) Build() *Invitation {
 // their account. So no key is written here or sent back, and the row holds
 // nothing a reader of the database could sign in with. It is the
 // deployment's (`global`), written only through ent by `server/clilogin`,
-// and the policy opens no RPC of it.
+// and the policy opens no RPC of it. Each write is on the trail as its act,
+// so who let which terminal in outlives the row (payday#108).
 type CliLogin struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
@@ -1546,7 +1547,8 @@ func (b0 AliasHold_builder) Build() *AliasHold {
 //
 // The deployment's (`global`), and an account's rather than a workspace's: it
 // agrees once for every workspace it is in. Written only by `server/consent`,
-// and the policy opens no RPC of it.
+// and the policy opens no RPC of it; each write is on the trail as its act, so
+// an agreement nobody made through there is found (payday#108).
 type Consent struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
@@ -1910,7 +1912,7 @@ const file_rove_org_proto_rawDesc = "" +
 	"\x04kind\x1a\v\n" +
 	"\tparent_id\x1a\b\n" +
 	"\x06holder\x1a\b\n" +
-	"\x06labels 2(\xf4\x03:\x00\"\xcc\x04\n" +
+	"\x06labels 2(\xf4\x03:\x00\"\xc7\x05\n" +
 	"\aSession\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12 \n" +
 	"\aaccount\x18\b \x01(\fB\x06\xea\x82\x16\x02\x10@R\aaccount\x12%\n" +
@@ -1923,10 +1925,11 @@ const file_rove_org_proto_rawDesc = "" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12D\n" +
 	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
 	"dateErased\x12H\n" +
-	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated::\xca\xfc\x15.\x1a\x14\x12\x06secret\x1a\n" +
+	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:\xb4\x01\xca\xfc\x15.\x1a\x14\x12\x06secret\x1a\n" +
 	"\n" +
 	"\x06secret\x10\t\x1a\x16\x12\aaccount\x1a\v\n" +
-	"\aaccount\x10\b\x8a\xbb\x16\x04\b&*\x00\"\xb2\a\n" +
+	"\aaccount\x10\b\x8a\xbb\x16~\b&Rx\x12v\n" +
+	"ta sign-in, whose idle clock moves on every request; who signed in, and from where, is the access record's (rove#136)*\x00\"\xb2\a\n" +
 	"\n" +
 	"Invitation\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
@@ -1962,7 +1965,7 @@ const file_rove_org_proto_rawDesc = "" +
 	"\x03ref\x1a\b\n" +
 	"\x06tenant\x1a\t\n" +
 	"\aaccount\x1a\a\n" +
-	"\x05state 2(\xc8\x01\"\x94\x05\n" +
+	"\x05state 2(\xc8\x01\"\x98\x05\n" +
 	"\bCliLogin\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12%\n" +
 	"\x06secret\x18\b \x01(\fB\r\xea\x82\x16\x03\x82\x01\x00\xaa\xc1\x16\x02\b\x01R\x06secret\x12\x12\n" +
@@ -1978,12 +1981,13 @@ const file_rove_org_proto_rawDesc = "" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12D\n" +
 	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
 	"dateErased\x12H\n" +
-	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:^\xca\xfc\x15R\x1a\x10\x12\x04code\x1a\b\n" +
+	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:b\xca\xfc\x15R\x1a\x10\x12\x04code\x1a\b\n" +
 	"\x04code\x10\t\x1a\x14\x12\x06secret\x1a\n" +
 	"\n" +
 	"\x06secret\x10\b\x1a(\x12\aaddress\x1a\v\n" +
 	"\aaddress\x10\x12\x1a\x10\n" +
-	"\fdate_created\x10\x0f\x8a\xbb\x16\x04\b**\x00\"\xcb\x03\n" +
+	"\fdate_created\x10\x0f\x8a\xbb\x16\b\b*R\x02\n" +
+	"\x00*\x00\"\xcf\x03\n" +
 	"\tAliasHold\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12\x12\n" +
 	"\x04held\x18\b \x01(\tR\x04held\x12\x16\n" +
@@ -1996,8 +2000,9 @@ const file_rove_org_proto_rawDesc = "" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12D\n" +
 	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
 	"dateErased\x12H\n" +
-	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:\x1e\xca\xfc\x15\x12\x1a\x10\x12\x04held\x1a\b\n" +
-	"\x04held\x10\b\x8a\xbb\x16\x04\b+*\x00\"\xa9\x03\n" +
+	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:\"\xca\xfc\x15\x12\x1a\x10\x12\x04held\x1a\b\n" +
+	"\x04held\x10\b\x8a\xbb\x16\b\b+R\x02\n" +
+	"\x00*\x00\"\xad\x03\n" +
 	"\aConsent\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12 \n" +
 	"\aaccount\x18\b \x01(\fB\x06\xea\x82\x16\x02\x10@R\aaccount\x12\x1a\n" +
@@ -2008,19 +2013,21 @@ const file_rove_org_proto_rawDesc = "" +
 	"\tdate_left\x18\f \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\bdateLeft\x12D\n" +
 	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
 	"dateErased\x12H\n" +
-	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:@\xca\xfc\x154\x1a2\x12\x06agreed\x1a\v\n" +
+	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:D\xca\xfc\x154\x1a2\x12\x06agreed\x1a\v\n" +
 	"\aaccount\x10\b\x1a\f\n" +
 	"\bdocument\x10\t\x1a\v\n" +
 	"\aversion\x10\n" +
-	"0\x01\x8a\xbb\x16\x04\b,*\x00\"\xfd\x01\n" +
+	"0\x01\x8a\xbb\x16\b\b,R\x02\n" +
+	"\x00*\x00\"\xdf\x02\n" +
 	"\rSignInFailure\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12'\n" +
 	"\asubject\x18\b \x01(\fB\r\xea\x82\x16\x03\x82\x01\x00\xaa\xc1\x16\x02\b\x01R\asubject\x12H\n" +
-	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:\\\xca\xfc\x15L\x1a(\x12\asubject\x1a\v\n" +
+	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:\xbd\x01\xca\xfc\x15L\x1a(\x12\asubject\x1a\v\n" +
 	"\asubject\x10\b\x1a\x10\n" +
 	"\fdate_created\x10\x0f\x1a \x12\fdate_created\x1a\x10\n" +
-	"\fdate_created\x10\x0f\x8a\xbb\x16\b\b-B\x02\n" +
-	"\x00*\x00B\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"\fdate_created\x10\x0f\x8a\xbb\x16i\b-B\x02\n" +
+	"\x00R_\x12]\n" +
+	"[a count of the sign-ins an address got wrong, kept for hours to slow the next; nobody's act*\x00B\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
 var file_rove_org_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_rove_org_proto_goTypes = []any{

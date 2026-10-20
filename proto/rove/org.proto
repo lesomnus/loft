@@ -141,6 +141,7 @@ message Session {
   option (payday.entity) = {
     domain: 38
     global: {}
+    trail: {off: {why: "a sign-in, whose idle clock moves on every request; who signed in, and from where, is the access record's (rove#136)"}}
   };
 }
 
@@ -265,7 +266,8 @@ message Invitation {
 // their account. So no key is written here or sent back, and the row holds
 // nothing a reader of the database could sign in with. It is the
 // deployment's (`global`), written only through ent by `server/clilogin`,
-// and the policy opens no RPC of it.
+// and the policy opens no RPC of it. Each write is on the trail as its act,
+// so who let which terminal in outlives the row (payday#108).
 message CliLogin {
   bytes id = 1 [(orm.field) = {
     type: TYPE_UUID
@@ -339,6 +341,7 @@ message CliLogin {
   option (payday.entity) = {
     domain: 42
     global: {}
+    trail: {recorded: {}}
   };
 }
 
@@ -389,6 +392,7 @@ message AliasHold {
   option (payday.entity) = {
     domain: 43
     global: {}
+    trail: {recorded: {}}
   };
 }
 
@@ -399,7 +403,8 @@ message AliasHold {
 //
 // The deployment's (`global`), and an account's rather than a workspace's: it
 // agrees once for every workspace it is in. Written only by `server/consent`,
-// and the policy opens no RPC of it.
+// and the policy opens no RPC of it; each write is on the trail as its act, so
+// an agreement nobody made through there is found (payday#108).
 message Consent {
   bytes id = 1 [(orm.field) = {
     type: TYPE_UUID
@@ -447,6 +452,7 @@ message Consent {
   option (payday.entity) = {
     domain: 44
     global: {}
+    trail: {recorded: {}}
   };
 }
 
@@ -502,5 +508,6 @@ message SignInFailure {
     domain: 45
     global: {}
     erase: {hard: {}}
+    trail: {off: {why: "a count of the sign-ins an address got wrong, kept for hours to slow the next; nobody's act"}}
   };
 }

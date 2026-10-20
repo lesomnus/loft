@@ -143,6 +143,7 @@ message TreeLock {
   option (payday.entity) = {
     domain: 12
     erase: {hard: {}}
+    trail: {off: {why: "the lock every change of the placement tree takes, and its version: bookkeeping, not a fact"}}
   };
 }
 

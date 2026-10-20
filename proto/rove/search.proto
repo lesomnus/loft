@@ -52,5 +52,6 @@ message SearchStale {
     domain: 46
     global: {}
     erase: {hard: {}}
+    trail: {off: {why: "the search index's queue: that a document is to be made again, which the indexer takes within seconds"}}
   };
 }

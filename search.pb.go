@@ -159,14 +159,15 @@ var File_rove_search_proto protoreflect.FileDescriptor
 
 const file_rove_search_proto_rawDesc = "" +
 	"\n" +
-	"\x11rove/search.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\"\xd6\x01\n" +
+	"\x11rove/search.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\"\xc2\x02\n" +
 	"\vSearchStale\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12\x12\n" +
 	"\x04kind\x18\b \x01(\tR\x04kind\x12\x18\n" +
 	"\x03key\x18\t \x01(\fB\x06\xea\x82\x16\x02\x10@R\x03key\x12H\n" +
-	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:2\xca\xfc\x15\"\x1a \x12\fdate_created\x1a\x10\n" +
-	"\fdate_created\x10\x0f\x8a\xbb\x16\b\b.B\x02\n" +
-	"\x00*\x00B\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:\x9d\x01\xca\xfc\x15\"\x1a \x12\fdate_created\x1a\x10\n" +
+	"\fdate_created\x10\x0f\x8a\xbb\x16s\b.B\x02\n" +
+	"\x00Ri\x12g\n" +
+	"ethe search index's queue: that a document is to be made again, which the indexer takes within seconds*\x00B\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
 var file_rove_search_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_rove_search_proto_goTypes = []any{
