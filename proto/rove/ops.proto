@@ -173,13 +173,13 @@ message TenantContract {
   // `audit.by.access`. A shorter one waits out the grace as `keep_days` does,
   // and none goes below the deployment's floor, `audit.by.access.min`, which
   // it is raised to: the floor is what the law the deployment is under asks.
-  uint32 access_keep_days = 12;
+  uint32 access_keep_days = 12 [(orm.field) = {default: ""}];
 
   // How long the workspace may be restored once it is closed, in days, before
   // it is destroyed (D29). 0 is the deployment's
   // `app.workspaces.restore_within`. Read when it is closed: what the date of
   // its destruction is then is what its owner is told.
-  uint32 restore_days = 16;
+  uint32 restore_days = 16 [(orm.field) = {default: ""}];
 
   // Withdrawn, for a change that was a mistake. A contract in force is
   // replaced by a newer one rather than taken back.

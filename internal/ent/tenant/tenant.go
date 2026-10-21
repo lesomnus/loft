@@ -69,6 +69,15 @@ func ValidColumn(column string) bool {
 	return false
 }
 
+var (
+	// DefaultTimezone holds the default value on creation for the "timezone" field.
+	DefaultTimezone string
+	// DefaultCurrency holds the default value on creation for the "currency" field.
+	DefaultCurrency string
+	// DefaultNoShowMinutes holds the default value on creation for the "no_show_minutes" field.
+	DefaultNoShowMinutes int32
+)
+
 // OrderOption defines the ordering options for the Tenant queries.
 type OrderOption func(*sql.Selector)
 

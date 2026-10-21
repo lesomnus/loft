@@ -44,9 +44,9 @@ message TenantAddRequest {
   string closed_by = 9 [features.field_presence = IMPLICIT];
   string close_reason = 10 [features.field_presence = IMPLICIT];
   google.protobuf.Timestamp date_destroy = 11;
-  string timezone = 12 [features.field_presence = IMPLICIT];
-  string currency = 16 [features.field_presence = IMPLICIT];
-  int32 no_show_minutes = 17 [features.field_presence = IMPLICIT];
+  string timezone = 12;
+  string currency = 16;
+  int32 no_show_minutes = 17;
 }
 
 message TenantGetRequest {

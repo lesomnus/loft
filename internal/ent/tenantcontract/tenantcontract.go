@@ -73,6 +73,13 @@ func ValidColumn(column string) bool {
 	return false
 }
 
+var (
+	// DefaultAccessKeepDays holds the default value on creation for the "access_keep_days" field.
+	DefaultAccessKeepDays uint32
+	// DefaultRestoreDays holds the default value on creation for the "restore_days" field.
+	DefaultRestoreDays uint32
+)
+
 // OrderOption defines the ordering options for the TenantContract queries.
 type OrderOption func(*sql.Selector)
 

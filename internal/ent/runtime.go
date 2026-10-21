@@ -12,6 +12,8 @@ import (
 	"github.com/lesomnus/rove/internal/ent/holder"
 	"github.com/lesomnus/rove/internal/ent/itemmodel"
 	"github.com/lesomnus/rove/internal/ent/schema"
+	"github.com/lesomnus/rove/internal/ent/tenant"
+	"github.com/lesomnus/rove/internal/ent/tenantcontract"
 
 	"github.com/protobuf-orm/ent/schema/field"
 )
@@ -59,4 +61,28 @@ func init() {
 	// itemmodelDescSpec is the schema descriptor for spec field.
 	itemmodelDescSpec := itemmodelFields[6].Descriptor()
 	itemmodel.ValueScanner.Spec = itemmodelDescSpec.ValueScanner.(field.TypeValueScanner[*rove.ModelSpec])
+	tenantFields := schema.Tenant{}.Fields()
+	_ = tenantFields
+	// tenantDescTimezone is the schema descriptor for timezone field.
+	tenantDescTimezone := tenantFields[11].Descriptor()
+	// tenant.DefaultTimezone holds the default value on creation for the timezone field.
+	tenant.DefaultTimezone = tenantDescTimezone.Default.(string)
+	// tenantDescCurrency is the schema descriptor for currency field.
+	tenantDescCurrency := tenantFields[12].Descriptor()
+	// tenant.DefaultCurrency holds the default value on creation for the currency field.
+	tenant.DefaultCurrency = tenantDescCurrency.Default.(string)
+	// tenantDescNoShowMinutes is the schema descriptor for no_show_minutes field.
+	tenantDescNoShowMinutes := tenantFields[13].Descriptor()
+	// tenant.DefaultNoShowMinutes holds the default value on creation for the no_show_minutes field.
+	tenant.DefaultNoShowMinutes = tenantDescNoShowMinutes.Default.(int32)
+	tenantcontractFields := schema.TenantContract{}.Fields()
+	_ = tenantcontractFields
+	// tenantcontractDescAccessKeepDays is the schema descriptor for access_keep_days field.
+	tenantcontractDescAccessKeepDays := tenantcontractFields[7].Descriptor()
+	// tenantcontract.DefaultAccessKeepDays holds the default value on creation for the access_keep_days field.
+	tenantcontract.DefaultAccessKeepDays = tenantcontractDescAccessKeepDays.Default.(uint32)
+	// tenantcontractDescRestoreDays is the schema descriptor for restore_days field.
+	tenantcontractDescRestoreDays := tenantcontractFields[8].Descriptor()
+	// tenantcontract.DefaultRestoreDays holds the default value on creation for the restore_days field.
+	tenantcontract.DefaultRestoreDays = tenantcontractDescRestoreDays.Default.(uint32)
 }

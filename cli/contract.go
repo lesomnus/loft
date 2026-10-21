@@ -93,8 +93,8 @@ func newCmdContractSet(c *cmd.Config) *xli.Command {
 				ViewDays:       view,
 				KeepDays:       keep,
 				GraceDays:      grace,
-				AccessKeepDays: access,
-				RestoreDays:    restore,
+				AccessKeepDays: &access,
+				RestoreDays:    &restore,
 				DateEffective:  timestamppb.New(at),
 			}.Build())
 			if err != nil {

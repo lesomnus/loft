@@ -216,7 +216,7 @@ func TestAClosedWorkspaceIsKeptAsItsContractSays(t *testing.T) {
 	_, err := e.s.Base.TenantContract().Add(e.owner, app.TenantContractAddRequest_builder{
 		Tenant:        ws,
 		Name:          "enterprise",
-		RestoreDays:   90,
+		RestoreDays:   z.Ptr(uint32(90)),
 		DateEffective: timestamppb.New(e.now.Add(-time.Hour)),
 	}.Build())
 	x.NoError(err)

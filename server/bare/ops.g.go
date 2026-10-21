@@ -1325,8 +1325,16 @@ func (st TenantContractServiceServer) create(ctx context.Context, req *rove.Tena
 	} else {
 		q.SetDateEffective(st.now())
 	}
-	q.SetAccessKeepDays(req.GetAccessKeepDays())
-	q.SetRestoreDays(req.GetRestoreDays())
+	if req.HasAccessKeepDays() {
+		q.SetAccessKeepDays(req.GetAccessKeepDays())
+	} else {
+		q.SetAccessKeepDays(0)
+	}
+	if req.HasRestoreDays() {
+		q.SetRestoreDays(req.GetRestoreDays())
+	} else {
+		q.SetRestoreDays(0)
+	}
 	if req.HasDateCreated() {
 		q.SetDateCreated(req.GetDateCreated().AsTime())
 	} else {

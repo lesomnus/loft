@@ -272,10 +272,24 @@ func (m *Mutation) AddedAccessKeepDays() (r int32, exists bool) {
 	return *v, true
 }
 
+// ClearAccessKeepDays clears the value of the "access_keep_days" field.
+func (m *Mutation) ClearAccessKeepDays() {
+	m.access_keep_days = nil
+	m.addaccess_keep_days = nil
+	m.clearedFields[FieldAccessKeepDays] = struct{}{}
+}
+
+// AccessKeepDaysCleared returns if the "access_keep_days" field was cleared in this mutation.
+func (m *Mutation) AccessKeepDaysCleared() bool {
+	_, ok := m.clearedFields[FieldAccessKeepDays]
+	return ok
+}
+
 // ResetAccessKeepDays resets all changes to the "access_keep_days" field.
 func (m *Mutation) ResetAccessKeepDays() {
 	m.access_keep_days = nil
 	m.addaccess_keep_days = nil
+	delete(m.clearedFields, FieldAccessKeepDays)
 }
 
 // SetRestoreDays sets the "restore_days" field.
@@ -311,10 +325,24 @@ func (m *Mutation) AddedRestoreDays() (r int32, exists bool) {
 	return *v, true
 }
 
+// ClearRestoreDays clears the value of the "restore_days" field.
+func (m *Mutation) ClearRestoreDays() {
+	m.restore_days = nil
+	m.addrestore_days = nil
+	m.clearedFields[FieldRestoreDays] = struct{}{}
+}
+
+// RestoreDaysCleared returns if the "restore_days" field was cleared in this mutation.
+func (m *Mutation) RestoreDaysCleared() bool {
+	_, ok := m.clearedFields[FieldRestoreDays]
+	return ok
+}
+
 // ResetRestoreDays resets all changes to the "restore_days" field.
 func (m *Mutation) ResetRestoreDays() {
 	m.restore_days = nil
 	m.addrestore_days = nil
+	delete(m.clearedFields, FieldRestoreDays)
 }
 
 // SetDateErased sets the "date_erased" field.
@@ -714,6 +742,12 @@ func (m *Mutation) ClearedFields() []string {
 	if m.FieldCleared(FieldDateEffective) {
 		fields = append(fields, FieldDateEffective)
 	}
+	if m.FieldCleared(FieldAccessKeepDays) {
+		fields = append(fields, FieldAccessKeepDays)
+	}
+	if m.FieldCleared(FieldRestoreDays) {
+		fields = append(fields, FieldRestoreDays)
+	}
 	if m.FieldCleared(FieldDateErased) {
 		fields = append(fields, FieldDateErased)
 	}
@@ -736,6 +770,12 @@ func (m *Mutation) ClearField(name string) error {
 	switch name {
 	case FieldDateEffective:
 		m.ClearDateEffective()
+		return nil
+	case FieldAccessKeepDays:
+		m.ClearAccessKeepDays()
+		return nil
+	case FieldRestoreDays:
+		m.ClearRestoreDays()
 		return nil
 	case FieldDateErased:
 		m.ClearDateErased()
