@@ -2,7 +2,7 @@ module github.com/lesomnus/rove
 
 go 1.27.0
 
-toolchain go1.27.2
+toolchain go1.27.3
 
 // The generators, as tools of this module.
 //
