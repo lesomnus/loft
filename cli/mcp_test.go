@@ -670,6 +670,11 @@ func TestAnAssistantKeepsTheRestOfTheRegister(t *testing.T) {
 	p = a.plan("plan_work_order", map[string]any{"action": "update", "work_order": work.Items[0].Id, "status": "in_progress"})
 	x.Equal("작업 변경: 화면 깜빡임: 상태 → 진행 중", p.Summary)
 	a.apply(p)
+	p = a.plan("plan_work_order", map[string]any{"action": "update", "work_order": work.Items[0].Id, "cost": 450000})
+	x.Equal("작업 변경: 화면 깜빡임: 비용 → 450,000 KRW", p.Summary)
+	a.apply(p)
+	// Another currency under the same number is another amount.
+	x.Contains(a.refused("plan_work_order", map[string]any{"action": "update", "work_order": work.Items[0].Id, "currency": "USD", "name": "패널 교체"}), "cost:")
 	p = a.plan("plan_work_order", map[string]any{"action": "complete", "work_order": work.Items[0].Id, "condition": "good", "reason": "패널 교체"})
 	x.Equal("작업 완료: 화면 깜빡임, 컨디션 → 양호 — 패널 교체", p.Summary)
 	a.apply(p)

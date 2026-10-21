@@ -303,6 +303,8 @@ message WorkOrderUpdateRequest {
   google.protobuf.Timestamp ends_at = 6;
   // In `currency`'s minor unit, or the work's.
   int64 cost = 7 [features.field_presence = IMPLICIT];
+  // A work that has a cost moves to another currency only with `cost` said
+  // again in it: the same number there is another amount.
   string currency = 8 [features.field_presence = IMPLICIT];
   bool blocking = 9 [features.field_presence = IMPLICIT];
 }

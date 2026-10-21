@@ -192,6 +192,12 @@ func (s domainWorkOrder) Update(ctx context.Context, req *app.WorkOrderUpdateReq
 			if err := priced(v); err != nil {
 				return err
 			}
+			// A cost is a number of its currency's minor unit, so the same
+			// number in another currency is another amount: one that was
+			// recorded is said again in the currency it moves to (#144).
+			if v != w.GetCurrency() && w.GetCost() != 0 && req.GetCost() == 0 {
+				return invalid("cost", "통화를 바꾸려면 그 통화로 비용도 함께 적어 주세요")
+			}
 			patch.SetCurrency(v)
 		}
 		if err := t.begin(nil, "work.update", idOf(w.GetAsset().GetId()), t.now, "작업 수정: "+w.GetName(), "", nil); err != nil {

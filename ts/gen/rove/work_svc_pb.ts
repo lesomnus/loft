@@ -713,6 +713,9 @@ export type WorkOrderUpdateRequest = Message<"rove.WorkOrderUpdateRequest"> & {
   cost: bigint;
 
   /**
+   * A work that has a cost moves to another currency only with `cost` said
+   * again in it: the same number there is another amount.
+   *
    * @generated from field: string currency = 8 [features.field_presence = IMPLICIT];
    */
   currency: string;

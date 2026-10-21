@@ -864,6 +864,8 @@ func (c *mcpCall) workPlan(in mcpWorkPlan) (*plan, error) {
 		}
 		if in.Cost != 0 {
 			changes = append(changes, "비용 → "+money.String(in.Cost, or(in.Currency, w.GetCurrency())))
+		} else if in.Currency != "" && in.Currency != w.GetCurrency() && w.GetCost() != 0 {
+			return nil, errors.New("cost: what it cost in " + in.Currency + ", which a currency it moves to needs said again")
 		}
 		if blocking != w.GetBlocking() {
 			changes = append(changes, map[bool]string{true: "그동안 예약 막음", false: "예약 막지 않음"}[blocking])

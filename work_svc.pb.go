@@ -2818,7 +2818,9 @@ type WorkOrderUpdateRequest_builder struct {
 	BeginsAt *timestamppb.Timestamp
 	EndsAt   *timestamppb.Timestamp
 	// In `currency`'s minor unit, or the work's.
-	Cost     int64
+	Cost int64
+	// A work that has a cost moves to another currency only with `cost` said
+	// again in it: the same number there is another amount.
 	Currency string
 	Blocking bool
 }

@@ -116,6 +116,41 @@ func TestAWorkspaceSaysWhereItIs(t *testing.T) {
 		x.Equal(map[string]string{"USD": "15.00 USD", "KRW": "30,000 KRW"}, got)
 	})
 
+	t.Run("a cost moves to another currency only said again in it", func(t *testing.T) {
+		x := require.New(t)
+		desk := e.item("의자", "CH-1", nil, time.Hour)
+		w, err := e.app().WorkOrder().Add(e.owner, app.WorkOrderAddRequest_builder{
+			Asset: ref[app.AssetRef](desk.GetId()), Name: "바퀴 교체", Cost: 30000, Currency: "KRW",
+		}.Build())
+		x.NoError(err)
+		update := func(cost int64, currency string) (*app.WorkOrder, error) {
+			return e.app().WorkOrder().Update(e.owner, app.WorkOrderUpdateRequest_builder{
+				Ref: ref[app.WorkOrderRef](w.GetId()), Cost: cost, Currency: currency,
+			}.Build())
+		}
+
+		_, err = update(0, "USD")
+		x.Equal(codes.InvalidArgument, codeOf(err), "30,000 won read as 300 dollars")
+		v, err := update(2250, "USD")
+		x.NoError(err)
+		x.EqualValues(2250, v.GetCost())
+		x.Equal("USD", v.GetCurrency())
+		v, err = update(0, "USD")
+		x.NoError(err, "the currency it is in already")
+		x.EqualValues(2250, v.GetCost())
+
+		// And one that cost nothing yet has nothing to be read again.
+		free, err := e.app().WorkOrder().Add(e.owner, app.WorkOrderAddRequest_builder{
+			Asset: ref[app.AssetRef](desk.GetId()), Name: "점검", Currency: "KRW",
+		}.Build())
+		x.NoError(err)
+		v, err = e.app().WorkOrder().Update(e.owner, app.WorkOrderUpdateRequest_builder{
+			Ref: ref[app.WorkOrderRef](free.GetId()), Currency: "USD",
+		}.Build())
+		x.NoError(err)
+		x.Equal("USD", v.GetCurrency())
+	})
+
 	t.Run("and Me answers where it is", func(t *testing.T) {
 		x := require.New(t)
 
