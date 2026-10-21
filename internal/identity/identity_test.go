@@ -9,6 +9,7 @@ import (
 	"log/slog"
 	"net"
 	"os"
+	"slices"
 	"strings"
 	"sync"
 	"testing"
@@ -23,10 +24,12 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	"github.com/lesomnus/payday/access"
 	"github.com/lesomnus/payday/auth"
 	"github.com/lesomnus/payday/config"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/pdtest"
+	"github.com/lesomnus/payday/spin"
 	rostercli "github.com/lesomnus/roster/cli"
 	rostercmd "github.com/lesomnus/roster/cmd"
 	"github.com/lesomnus/roster/rstr"
@@ -226,7 +229,7 @@ func TestTheRosterInThisProcessOutlivesItsHousekeeping(t *testing.T) {
 	for i := range 2 {
 		run, stop := context.WithCancel(ctx)
 		done := make(chan error, 1)
-		go func() { done <- s.Run(run) }()
+		go func() { done <- spin.Run(run, slices.Values(s.Spinners())) }()
 		stop()
 		<-done
 
@@ -234,6 +237,41 @@ func TestTheRosterInThisProcessOutlivesItsHousekeeping(t *testing.T) {
 		x.NoError(err, "a sign-in after the housekeeping stopped %d times", i+1)
 		x.Equal(kim, p)
 	}
+}
+
+// TestTheRosterInThisProcessWritesItsRecordInEveryProcess: its loops are
+// handed over one by one, so the one roster runs in every process -- what
+// writes the reads its access record queued -- runs in a process that holds
+// no lease, and not only in the one that holds the deployment's.
+func TestTheRosterInThisProcessWritesItsRecordInEveryProcess(t *testing.T) {
+	x := require.New(t)
+	ctx := t.Context()
+	s := embeddedStore(t)
+	_, _, err := s.MakeDirectory(ctx, "kim", "Kim")
+	x.NoError(err)
+	dir, err := s.em.rs.Ent.Tenant.Query().First(ctx)
+	x.NoError(err)
+
+	run, stop := context.WithCancel(ctx)
+	done := make(chan error, 1)
+	go func() { done <- spin.Run(run, slices.Values(s.Spinners()), spin.WithLease(spin.Nowhere())) }()
+	t.Cleanup(func() {
+		stop()
+		<-done
+	})
+
+	w := s.em.rs.Access
+	w.Queue(access.Record{
+		Tenant:   pdid.Id(dir.Id),
+		Action:   "/test.Reads/Somebody",
+		Kind:     access.Read,
+		Result:   "ok",
+		At:       time.Now().UTC(),
+		Subjects: []pdid.Id{pdid.New(1)},
+		Count:    1,
+	})
+	x.Eventually(func() bool { return w.Pending() == 0 }, 5*time.Second, 50*time.Millisecond,
+		"what the roster in this process queued waited for a process holding a lease")
 }
 
 // external is a roster deployment of its own -- data plane, control plane and

@@ -22,7 +22,6 @@ import (
 	"github.com/lesomnus/payday/auth"
 	"github.com/lesomnus/payday/config"
 	"github.com/lesomnus/payday/pdid"
-	"github.com/lesomnus/payday/spin"
 	rostercli "github.com/lesomnus/roster/cli"
 	rostercmd "github.com/lesomnus/roster/cmd"
 	"github.com/lesomnus/roster/rstr"
@@ -107,15 +106,11 @@ func openEmbedded(ctx context.Context, cfg Config, stateDir string, log *slog.Lo
 	return e, nil
 }
 
-// run is roster's housekeeping, and only that: the server it keeps house for
-// is served from [openEmbedded] until [embedded.Close]. Under a lease this
-// ends whenever the lease is lost -- the database gone for a moment -- and
-// runs again when it is held, and every session in the meantime is checked at
-// this server; stopping it here left the process with no roster to ask until
-// it was restarted.
-func (e *embedded) run(ctx context.Context) error {
-	return spin.Run(ctx, slices.Values(e.rs.Spin))
-}
+// spinners is roster's housekeeping, and only that: the server it keeps
+// house for is served from [openEmbedded] until [embedded.Close], whatever
+// becomes of a loop -- stopping it with one left the process with no roster
+// to ask until it was restarted.
+func (e *embedded) spinners() []any { return e.rs.Spin }
 
 func (e *embedded) Close() error {
 	e.g.Stop()
