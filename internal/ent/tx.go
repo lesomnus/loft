@@ -14,6 +14,8 @@ type Tx struct {
 	config
 	// Access is the client for interacting with the Access builders.
 	Access *AccessClient
+	// AccessReview is the client for interacting with the AccessReview builders.
+	AccessReview *AccessReviewClient
 	// AliasHold is the client for interacting with the AliasHold builders.
 	AliasHold *AliasHoldClient
 	// Allocation is the client for interacting with the Allocation builders.
@@ -230,6 +232,7 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.Access = NewAccessClient(tx.config)
+	tx.AccessReview = NewAccessReviewClient(tx.config)
 	tx.AliasHold = NewAliasHoldClient(tx.config)
 	tx.Allocation = NewAllocationClient(tx.config)
 	tx.Archived = NewArchivedClient(tx.config)

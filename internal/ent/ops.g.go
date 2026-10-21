@@ -103,3 +103,29 @@ func (e *LegalHold) Proto() *rove.LegalHold {
 	x.SetDateCreated(timestamppb.New(e.DateCreated))
 	return x
 }
+func (e *AccessReview) Proto() *rove.AccessReview {
+	x := &rove.AccessReview{}
+	x.SetId(e.Id[:])
+	if v := e.Edges.Tenant; v != nil {
+		x.SetTenant(v.Proto())
+	} else if v := e.TenantId; v != *new(uuid.UUID) {
+		r := &rove.Tenant{}
+		r.SetId(v[:])
+		x.SetTenant(r)
+	}
+	x.SetDesc(e.Desc)
+	x.SetPeriodFrom(timestamppb.New(e.PeriodFrom))
+	x.SetPeriodTo(timestamppb.New(e.PeriodTo))
+	if v := e.Edges.Reviewer; v != nil {
+		x.SetReviewer(v.Proto())
+	} else if v := e.ReviewerId; v != *new(uuid.UUID) {
+		r := &rove.Holder{}
+		r.SetId(v[:])
+		x.SetReviewer(r)
+	}
+	x.SetCalls(e.Calls)
+	x.SetDownloads(e.Downloads)
+	x.SetDateCreated(timestamppb.New(e.DateCreated))
+	x.SetRefused(e.Refused)
+	return x
+}

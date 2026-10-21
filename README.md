@@ -458,7 +458,19 @@ go run ./cmd/rove api --reason "10월 자산 실사" asset export
 go run ./cmd/rove workspace export --reason "폐업 전 보관" acme
 ```
 
-- **읽는 사람:** 관리자와 감사자가 읽습니다(`rove api access ls`). 월별 점검 화면은 다음 단계입니다.
+- **점검(워크스페이스의 관리자·감사자):** 설정 › 접속기록에서 한 달씩 봅니다. 처음에는 지난달을 엽니다.
+  - 구성원(누가), 정보주체(누구의 정보), 종류(조회·수정·내려받기)로 좁혀 볼 수 있습니다.
+  - 내려받기는 그 이유가 함께 보입니다.
+  - 점검을 마치면 **점검 완료로 기록**합니다. 누가, 언제, 어느 기간을, 그때 몇 건이었는지와 점검 결과가 남고, 작업 기록(`access.review`)에도 남습니다. 점검 기록은 고치거나 지울 수 없습니다.
+  - 터미널에서는 `rove api access review`와 `rove api access-review add|ls`입니다.
+- **운영자:** `rove access ls`는 배포 전체의 접속기록을, `rove access reviews`는 점검 기록을 보여 줍니다. 이 명령은 이름 없이 ID만 보여 주고, 아무것도 바꾸지 않습니다. 정보주체가 자기 정보의 처리 내역을 물으면 `--subject`로 뽑습니다.
+
+```sh
+go run ./cmd/rove access ls --tenant acme --kind download --from 2026-10-01 --to 2026-11-01
+go run ./cmd/rove access ls --subject <사람 기록의 ID>
+go run ./cmd/rove access reviews --tenant acme
+```
+
 - **보존:** 감사 기록의 보존 장치를 그대로 씁니다. `deploy/`의 설정은 `audit.by.access: {profile: pipa-sensitive}`(DB에 90일, 보관소까지 2년)입니다. 법무 검토가 다른 기간을 정하면 그 값을 적습니다.
   - **조직마다:** 1년·2년을 가르는 기준(정보주체 수, 고유식별정보·민감정보)은 조직마다 다르므로, 계약이 그 조직의 기간을 정합니다(`rove contract set --access-keep 365`, rove#144). 계약이 말하지 않으면 배포의 기간입니다.
   - **바닥값:** 계약이 배포의 바닥값(`audit.by.access.min`, `deploy/`는 `{profile: pipa}`로 1년)보다 짧으면 바닥값으로 올라갑니다. 기간을 줄이는 계약은 이력처럼 유예(`--grace`)가 지난 뒤에, 그리고 `app.retention.apply`가 켜져 있을 때만 적용됩니다. hold가 걸린 조직은 아무것도 지우지 않습니다.

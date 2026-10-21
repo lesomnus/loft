@@ -975,6 +975,262 @@ func (b0 LegalHold_builder) Build() *LegalHold {
 	return m0
 }
 
+// AccessReview is that a stretch of the workspace's access record was
+// reviewed (rove#136): who looked it over, when, what it held then, and what
+// they found. PIPA's safety measures have a processor review its access
+// record every month, and check what each download was for; this is how the
+// workspace shows it did.
+//
+// The domain's Add writes it, which says who and counts what the stretch
+// held. Nothing changes one after, and none is erased: a review is the
+// evidence of itself, and goes with its workspace.
+type AccessReview struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Tenant      *Tenant                `protobuf:"bytes,2,opt,name=tenant"`
+	xxx_hidden_Desc        string                 `protobuf:"bytes,6,opt,name=desc"`
+	xxx_hidden_PeriodFrom  *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=period_from,json=periodFrom"`
+	xxx_hidden_PeriodTo    *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=period_to,json=periodTo"`
+	xxx_hidden_Reviewer    *Holder                `protobuf:"bytes,10,opt,name=reviewer"`
+	xxx_hidden_Calls       uint32                 `protobuf:"varint,11,opt,name=calls"`
+	xxx_hidden_Downloads   uint32                 `protobuf:"varint,12,opt,name=downloads"`
+	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
+	xxx_hidden_Refused     uint32                 `protobuf:"varint,16,opt,name=refused"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *AccessReview) Reset() {
+	*x = AccessReview{}
+	mi := &file_rove_ops_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AccessReview) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AccessReview) ProtoMessage() {}
+
+func (x *AccessReview) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_ops_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *AccessReview) GetId() []byte {
+	if x != nil {
+		return x.xxx_hidden_Id
+	}
+	return nil
+}
+
+func (x *AccessReview) GetTenant() *Tenant {
+	if x != nil {
+		return x.xxx_hidden_Tenant
+	}
+	return nil
+}
+
+func (x *AccessReview) GetDesc() string {
+	if x != nil {
+		return x.xxx_hidden_Desc
+	}
+	return ""
+}
+
+func (x *AccessReview) GetPeriodFrom() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_PeriodFrom
+	}
+	return nil
+}
+
+func (x *AccessReview) GetPeriodTo() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_PeriodTo
+	}
+	return nil
+}
+
+func (x *AccessReview) GetReviewer() *Holder {
+	if x != nil {
+		return x.xxx_hidden_Reviewer
+	}
+	return nil
+}
+
+func (x *AccessReview) GetCalls() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Calls
+	}
+	return 0
+}
+
+func (x *AccessReview) GetDownloads() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Downloads
+	}
+	return 0
+}
+
+func (x *AccessReview) GetDateCreated() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateCreated
+	}
+	return nil
+}
+
+func (x *AccessReview) GetRefused() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Refused
+	}
+	return 0
+}
+
+func (x *AccessReview) SetId(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Id = v
+}
+
+func (x *AccessReview) SetTenant(v *Tenant) {
+	x.xxx_hidden_Tenant = v
+}
+
+func (x *AccessReview) SetDesc(v string) {
+	x.xxx_hidden_Desc = v
+}
+
+func (x *AccessReview) SetPeriodFrom(v *timestamppb.Timestamp) {
+	x.xxx_hidden_PeriodFrom = v
+}
+
+func (x *AccessReview) SetPeriodTo(v *timestamppb.Timestamp) {
+	x.xxx_hidden_PeriodTo = v
+}
+
+func (x *AccessReview) SetReviewer(v *Holder) {
+	x.xxx_hidden_Reviewer = v
+}
+
+func (x *AccessReview) SetCalls(v uint32) {
+	x.xxx_hidden_Calls = v
+}
+
+func (x *AccessReview) SetDownloads(v uint32) {
+	x.xxx_hidden_Downloads = v
+}
+
+func (x *AccessReview) SetDateCreated(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateCreated = v
+}
+
+func (x *AccessReview) SetRefused(v uint32) {
+	x.xxx_hidden_Refused = v
+}
+
+func (x *AccessReview) HasTenant() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Tenant != nil
+}
+
+func (x *AccessReview) HasPeriodFrom() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_PeriodFrom != nil
+}
+
+func (x *AccessReview) HasPeriodTo() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_PeriodTo != nil
+}
+
+func (x *AccessReview) HasReviewer() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Reviewer != nil
+}
+
+func (x *AccessReview) HasDateCreated() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateCreated != nil
+}
+
+func (x *AccessReview) ClearTenant() {
+	x.xxx_hidden_Tenant = nil
+}
+
+func (x *AccessReview) ClearPeriodFrom() {
+	x.xxx_hidden_PeriodFrom = nil
+}
+
+func (x *AccessReview) ClearPeriodTo() {
+	x.xxx_hidden_PeriodTo = nil
+}
+
+func (x *AccessReview) ClearReviewer() {
+	x.xxx_hidden_Reviewer = nil
+}
+
+func (x *AccessReview) ClearDateCreated() {
+	x.xxx_hidden_DateCreated = nil
+}
+
+type AccessReview_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Id     []byte
+	Tenant *Tenant
+	// What the reviewer found, in their words.
+	Desc string
+	// The stretch of the record it covers, from `period_from` and before
+	// `period_to`: a month, as the page reviews it.
+	PeriodFrom *timestamppb.Timestamp
+	PeriodTo   *timestamppb.Timestamp
+	// Who reviewed it: the membership, as the trail names its actor.
+	Reviewer *Holder
+	// What the stretch held when it was reviewed: every call that carried
+	// somebody's data, the downloads among them, and the calls refused.
+	Calls       uint32
+	Downloads   uint32
+	DateCreated *timestamppb.Timestamp
+	Refused     uint32
+}
+
+func (b0 AccessReview_builder) Build() *AccessReview {
+	m0 := &AccessReview{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Id = b.Id
+	x.xxx_hidden_Tenant = b.Tenant
+	x.xxx_hidden_Desc = b.Desc
+	x.xxx_hidden_PeriodFrom = b.PeriodFrom
+	x.xxx_hidden_PeriodTo = b.PeriodTo
+	x.xxx_hidden_Reviewer = b.Reviewer
+	x.xxx_hidden_Calls = b.Calls
+	x.xxx_hidden_Downloads = b.Downloads
+	x.xxx_hidden_DateCreated = b.DateCreated
+	x.xxx_hidden_Refused = b.Refused
+	return m0
+}
+
 var File_rove_ops_proto protoreflect.FileDescriptor
 
 const file_rove_ops_proto_rawDesc = "" +
@@ -1089,42 +1345,72 @@ const file_rove_ops_proto_rawDesc = "" +
 	"\x04\n" +
 	"\x02id\x10\x01\x1a\x05\n" +
 	"\x03ref \x14(dB\x02\n" +
+	"\x00\"\xc9\x04\n" +
+	"\fAccessReview\x12\x1b\n" +
+	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
+	"\x04desc\x18\x06 \x01(\tB\x06\xea\x82\x16\x02@\x01R\x04desc\x12F\n" +
+	"\vperiod_from\x18\b \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\n" +
+	"periodFrom\x12B\n" +
+	"\tperiod_to\x18\t \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\bperiodTo\x120\n" +
+	"\breviewer\x18\n" +
+	" \x01(\v2\f.rove.HolderB\x06\xf2\x82\x16\x02@\x01R\breviewer\x12\x1c\n" +
+	"\x05calls\x18\v \x01(\rB\x06\xea\x82\x16\x02@\x01R\x05calls\x12$\n" +
+	"\tdownloads\x18\f \x01(\rB\x06\xea\x82\x16\x02@\x01R\tdownloads\x12H\n" +
+	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12 \n" +
+	"\arefused\x18\x10 \x01(\rB\x06\xea\x82\x16\x02@\x01R\arefused:d\xca\xfc\x152\x12\x02\x10\x01\x1a,\x12\x04page\x1a\n" +
+	"\n" +
+	"\x06tenant\x10\x02\x1a\x10\n" +
+	"\fdate_created\x10\x0f\x1a\x06\n" +
+	"\x02id\x10\x01\x8a\xbb\x16*\b/2\"\n" +
+	"\x12\n" +
+	"\x0e\n" +
+	"\fdate_created\x10\x01\n" +
+	"\b\n" +
+	"\x04\n" +
+	"\x02id\x10\x01 \x14(dB\x02\n" +
 	"\x00B\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
-var file_rove_ops_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_rove_ops_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_rove_ops_proto_goTypes = []any{
 	(*Notification)(nil),          // 0: rove.Notification
 	(*UsageSnapshot)(nil),         // 1: rove.UsageSnapshot
 	(*TenantContract)(nil),        // 2: rove.TenantContract
 	(*LegalHold)(nil),             // 3: rove.LegalHold
-	nil,                           // 4: rove.UsageSnapshot.MetricsEntry
-	(*Tenant)(nil),                // 5: rove.Tenant
-	(*Holder)(nil),                // 6: rove.Holder
-	(*timestamppb.Timestamp)(nil), // 7: google.protobuf.Timestamp
+	(*AccessReview)(nil),          // 4: rove.AccessReview
+	nil,                           // 5: rove.UsageSnapshot.MetricsEntry
+	(*Tenant)(nil),                // 6: rove.Tenant
+	(*Holder)(nil),                // 7: rove.Holder
+	(*timestamppb.Timestamp)(nil), // 8: google.protobuf.Timestamp
 }
 var file_rove_ops_proto_depIdxs = []int32{
-	5,  // 0: rove.Notification.tenant:type_name -> rove.Tenant
-	6,  // 1: rove.Notification.holder:type_name -> rove.Holder
-	7,  // 2: rove.Notification.read_at:type_name -> google.protobuf.Timestamp
-	7,  // 3: rove.Notification.date_mailed:type_name -> google.protobuf.Timestamp
-	7,  // 4: rove.Notification.date_updated:type_name -> google.protobuf.Timestamp
-	7,  // 5: rove.Notification.date_created:type_name -> google.protobuf.Timestamp
-	5,  // 6: rove.UsageSnapshot.tenant:type_name -> rove.Tenant
-	4,  // 7: rove.UsageSnapshot.metrics:type_name -> rove.UsageSnapshot.MetricsEntry
-	7,  // 8: rove.UsageSnapshot.date_updated:type_name -> google.protobuf.Timestamp
-	7,  // 9: rove.UsageSnapshot.date_created:type_name -> google.protobuf.Timestamp
-	5,  // 10: rove.TenantContract.tenant:type_name -> rove.Tenant
-	7,  // 11: rove.TenantContract.date_effective:type_name -> google.protobuf.Timestamp
-	7,  // 12: rove.TenantContract.date_erased:type_name -> google.protobuf.Timestamp
-	7,  // 13: rove.TenantContract.date_created:type_name -> google.protobuf.Timestamp
-	5,  // 14: rove.LegalHold.tenant:type_name -> rove.Tenant
-	7,  // 15: rove.LegalHold.date_lifted:type_name -> google.protobuf.Timestamp
-	7,  // 16: rove.LegalHold.date_created:type_name -> google.protobuf.Timestamp
-	17, // [17:17] is the sub-list for method output_type
-	17, // [17:17] is the sub-list for method input_type
-	17, // [17:17] is the sub-list for extension type_name
-	17, // [17:17] is the sub-list for extension extendee
-	0,  // [0:17] is the sub-list for field type_name
+	6,  // 0: rove.Notification.tenant:type_name -> rove.Tenant
+	7,  // 1: rove.Notification.holder:type_name -> rove.Holder
+	8,  // 2: rove.Notification.read_at:type_name -> google.protobuf.Timestamp
+	8,  // 3: rove.Notification.date_mailed:type_name -> google.protobuf.Timestamp
+	8,  // 4: rove.Notification.date_updated:type_name -> google.protobuf.Timestamp
+	8,  // 5: rove.Notification.date_created:type_name -> google.protobuf.Timestamp
+	6,  // 6: rove.UsageSnapshot.tenant:type_name -> rove.Tenant
+	5,  // 7: rove.UsageSnapshot.metrics:type_name -> rove.UsageSnapshot.MetricsEntry
+	8,  // 8: rove.UsageSnapshot.date_updated:type_name -> google.protobuf.Timestamp
+	8,  // 9: rove.UsageSnapshot.date_created:type_name -> google.protobuf.Timestamp
+	6,  // 10: rove.TenantContract.tenant:type_name -> rove.Tenant
+	8,  // 11: rove.TenantContract.date_effective:type_name -> google.protobuf.Timestamp
+	8,  // 12: rove.TenantContract.date_erased:type_name -> google.protobuf.Timestamp
+	8,  // 13: rove.TenantContract.date_created:type_name -> google.protobuf.Timestamp
+	6,  // 14: rove.LegalHold.tenant:type_name -> rove.Tenant
+	8,  // 15: rove.LegalHold.date_lifted:type_name -> google.protobuf.Timestamp
+	8,  // 16: rove.LegalHold.date_created:type_name -> google.protobuf.Timestamp
+	6,  // 17: rove.AccessReview.tenant:type_name -> rove.Tenant
+	8,  // 18: rove.AccessReview.period_from:type_name -> google.protobuf.Timestamp
+	8,  // 19: rove.AccessReview.period_to:type_name -> google.protobuf.Timestamp
+	7,  // 20: rove.AccessReview.reviewer:type_name -> rove.Holder
+	8,  // 21: rove.AccessReview.date_created:type_name -> google.protobuf.Timestamp
+	22, // [22:22] is the sub-list for method output_type
+	22, // [22:22] is the sub-list for method input_type
+	22, // [22:22] is the sub-list for extension type_name
+	22, // [22:22] is the sub-list for extension extendee
+	0,  // [0:22] is the sub-list for field type_name
 }
 
 func init() { file_rove_ops_proto_init() }
@@ -1140,7 +1426,7 @@ func file_rove_ops_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_ops_proto_rawDesc), len(file_rove_ops_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

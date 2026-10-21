@@ -15,6 +15,9 @@ import { pdid } from '@lesomnus/payday'
 /** The domain identifiers of rove.Access carry. */
 export const AccessDomain = 6
 
+/** The domain identifiers of rove.AccessReview carry. */
+export const AccessReviewDomain = 47
+
 /** The domain identifiers of rove.AliasHold carry. */
 export const AliasHoldDomain = 43
 
@@ -144,6 +147,7 @@ export const WorkOrderDomain = 33
 // Registered as this module is loaded, which is why importing it is the
 // whole of what an app does with it.
 pdid.register("rove.Access", AccessDomain, "access")
+pdid.register("rove.AccessReview", AccessReviewDomain, "access-review")
 pdid.register("rove.AliasHold", AliasHoldDomain, "alias-hold")
 pdid.register("rove.Allocation", AllocationDomain, "allocation")
 pdid.register("rove.Archived", ArchivedDomain, "archived")

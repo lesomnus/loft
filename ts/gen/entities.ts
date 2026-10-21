@@ -14,6 +14,7 @@
 import type { EntityDesc } from '@lesomnus/payday/store'
 
 import { AccessSchema } from './rove/payday/access_pb.js'
+import { AccessReviewSchema, LegalHoldSchema, NotificationSchema, TenantContractSchema, UsageSnapshotSchema } from './rove/ops_pb.js'
 import { AliasHoldSchema, CliLoginSchema, ConsentSchema, InvitationSchema, PartySchema, SessionSchema, SignInFailureSchema } from './rove/org_pb.js'
 import { AllocationSchema, BookableSchema, ReservationSchema, ReservationItemSchema } from './rove/booking_pb.js'
 import { ArchivedSchema } from './rove/payday/archived_pb.js'
@@ -24,13 +25,13 @@ import { CountFindingSchema, InventoryCountSchema } from './rove/count_pb.js'
 import { CustodySchema, CustodyLineSchema } from './rove/custody_pb.js'
 import { EventSchema, FactSchema, LinkSchema, PlacementSchema, StewardshipSchema } from './rove/history_pb.js'
 import { HolderSchema } from './rove/payday/holder_pb.js'
-import { LegalHoldSchema, NotificationSchema, TenantContractSchema, UsageSnapshotSchema } from './rove/ops_pb.js'
 import { OutboxSchema } from './rove/payday/outbox_pb.js'
 import { PurchaseSchema, PurchaseLineSchema, WorkOrderSchema } from './rove/work_pb.js'
 import { SearchStaleSchema } from './rove/search_pb.js'
 import { StockSchema, StockMovementSchema } from './rove/stock_pb.js'
 import { TenantSchema } from './rove/payday/tenant_pb.js'
 import { AccessService } from './rove/payday/access_svc_pb.js'
+import { AccessReviewService, LegalHoldService, NotificationService, TenantContractService, UsageSnapshotService } from './rove/ops_svc_pb.js'
 import { AliasHoldService, CliLoginService, ConsentService, InvitationService, PartyService, SessionService, SignInFailureService } from './rove/org_svc_pb.js'
 import { AllocationService, BookableService, ReservationService, ReservationItemService } from './rove/booking_svc_pb.js'
 import { ArchivedService } from './rove/payday/archived_svc_pb.js'
@@ -41,7 +42,6 @@ import { CountFindingService, InventoryCountService } from './rove/count_svc_pb.
 import { CustodyService, CustodyLineService } from './rove/custody_svc_pb.js'
 import { EventService, FactService, LinkService, PlacementService, StewardshipService } from './rove/history_svc_pb.js'
 import { HolderService } from './rove/payday/holder_svc_pb.js'
-import { LegalHoldService, NotificationService, TenantContractService, UsageSnapshotService } from './rove/ops_svc_pb.js'
 import { OutboxService } from './rove/payday/outbox_svc_pb.js'
 import { PurchaseService, PurchaseLineService, WorkOrderService } from './rove/work_svc_pb.js'
 import { SearchStaleService } from './rove/search_svc_pb.js'
@@ -56,6 +56,17 @@ export const Access = {
 	key: "id",
 	ids: ["id", "tenantId", "actorId", "actorTenantId"],
 	service: AccessService,
+} as const satisfies EntityDesc
+
+/** rove.AccessReview, as the store holds it. */
+export const AccessReview = {
+	typeName: "rove.AccessReview",
+	schema: AccessReviewSchema,
+	domain: 47,
+	refs: [{ field: "tenant", to: "rove.Tenant" }, { field: "reviewer", to: "rove.Holder" }],
+	key: "id",
+	ids: ["id"],
+	service: AccessReviewService,
 } as const satisfies EntityDesc
 
 /** rove.AliasHold, as the store holds it. */
@@ -552,5 +563,5 @@ export const WorkOrder = {
 } as const satisfies EntityDesc
 
 /** Every entity of this app, which is what a store is opened over. */
-export const entities = [Access, AliasHold, Allocation, Archived, Asset, AssetType, Attachment, Audit, Bookable, CliLogin, Consent, CountFinding, Custody, CustodyLine, Event, Fact, Holder, InventoryCount, Invitation, ItemModel, Label, LegalHold, Link, Notification, Outbox, Party, Placement, Purchase, PurchaseLine, Reservation, ReservationItem, SearchStale, Session, SignInFailure, Stewardship, Stock, StockMovement, Tenant, TenantContract, TenantDomain, TreeLock, UsageSnapshot, WorkOrder] as const
+export const entities = [Access, AccessReview, AliasHold, Allocation, Archived, Asset, AssetType, Attachment, Audit, Bookable, CliLogin, Consent, CountFinding, Custody, CustodyLine, Event, Fact, Holder, InventoryCount, Invitation, ItemModel, Label, LegalHold, Link, Notification, Outbox, Party, Placement, Purchase, PurchaseLine, Reservation, ReservationItem, SearchStale, Session, SignInFailure, Stewardship, Stock, StockMovement, Tenant, TenantContract, TenantDomain, TreeLock, UsageSnapshot, WorkOrder] as const
 

@@ -8,12 +8,14 @@ import (
 	"net/http"
 	"net/url"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/lesomnus/payday/access"
 	"github.com/lesomnus/payday/pdid"
@@ -185,4 +187,102 @@ func TestAWorkspacesExportSaysWhatItIsFor(t *testing.T) {
 	b, err := io.ReadAll(f)
 	x.NoError(err)
 	x.Contains(string(b), "GET /account/workspaces/{alias}/export")
+}
+
+// TestAMonthOfTheRecordIsReviewed is rove#136's other half: the workspace's
+// administrators and auditors read a stretch of its access record out --
+// who, whose data by name, from where, what a download was for -- narrowed
+// to a member, a person or a kind, a page at a time; and record that they
+// looked it over, with what it held then. A member does neither.
+func TestAMonthOfTheRecordIsReviewed(t *testing.T) {
+	w := newWorld(t)
+	x := w.x
+	ctx := context.Background()
+	park := w.person("박지민", "park@acme.example")
+	kim := w.holder("kim", "member")
+	lee := w.holder("lee", "admin")
+	choi := w.holder("choi", "auditor")
+	asKim, asLee, asChoi := w.signIn(kim), w.signIn(lee), w.signIn(choi)
+
+	parties := app.NewPartyServiceClient(w.conn)
+	for _, as := range []context.Context{asKim, asKim, asLee} {
+		_, err := parties.List(as, app.PartyListRequest_builder{}.Build())
+		x.NoError(err)
+	}
+	x.NoError(w.s.Access.Flush(ctx))
+
+	accesses := app.NewAccessServiceClient(w.conn)
+	from, to := time.Now().Add(-time.Hour), time.Now().Add(time.Hour)
+	review := func(edit func(*app.AccessReviewRequest)) *app.AccessReviewResponse {
+		t.Helper()
+		req := app.AccessReviewRequest_builder{From: timestamppb.New(from), To: timestamppb.New(to)}.Build()
+		if edit != nil {
+			edit(req)
+		}
+		v, err := accesses.Review(asChoi, req)
+		x.NoError(err)
+		return v
+	}
+
+	all := review(nil)
+	x.GreaterOrEqual(all.GetCalls(), uint32(3))
+	x.Zero(all.GetDownloads())
+	byKim := review(func(r *app.AccessReviewRequest) { r.SetActor(kim.GetId()) })
+	x.Len(byKim.GetItems(), 2, "kim's two lists")
+	for _, e := range byKim.GetItems() {
+		x.Equal("@kim", e.GetActorName())
+		x.Equal(app.PartyService_List_FullMethodName, e.GetAction())
+		x.Equal("read", e.GetKind())
+		x.Equal("ok", e.GetResult())
+		x.NotEmpty(e.GetAddress(), "where it came from")
+	}
+	ofPark := review(func(r *app.AccessReviewRequest) { r.SetSubject(park.GetId()) })
+	x.GreaterOrEqual(len(ofPark.GetItems()), 3)
+	for _, e := range ofPark.GetItems() {
+		x.Equal(park.GetId(), e.GetSubjects()[0].GetId(), "the person asked after, first")
+		x.Equal("박지민", e.GetSubjects()[0].GetName())
+		x.Equal("party", e.GetSubjects()[0].GetKind())
+	}
+	x.Empty(review(func(r *app.AccessReviewRequest) { r.SetKind("download") }).GetItems())
+
+	// A page at a time, each row once.
+	seen := map[string]bool{}
+	after := ""
+	for range 10 {
+		v := review(func(r *app.AccessReviewRequest) { r.SetActor(kim.GetId()); r.SetSize(1); r.SetAfter(after) })
+		for _, e := range v.GetItems() {
+			x.False(seen[string(e.GetId())], "a row twice")
+			seen[string(e.GetId())] = true
+		}
+		if after = v.GetNext(); after == "" {
+			break
+		}
+	}
+	x.Len(seen, 2)
+
+	_, err := accesses.Review(asKim, app.AccessReviewRequest_builder{From: timestamppb.New(from), To: timestamppb.New(to)}.Build())
+	x.Equal(codes.PermissionDenied, status.Code(err), "a member reviews nobody's record")
+	_, err = accesses.Review(asChoi, app.AccessReviewRequest_builder{From: timestamppb.New(to), To: timestamppb.New(from)}.Build())
+	x.Equal(codes.InvalidArgument, status.Code(err), "a stretch that ends before it begins")
+	_, err = accesses.Review(asChoi, app.AccessReviewRequest_builder{From: timestamppb.New(from.Add(-100 * 24 * time.Hour)), To: timestamppb.New(to)}.Build())
+	x.Equal(codes.InvalidArgument, status.Code(err), "more than a quarter at once")
+
+	// That it was looked over, by whom, with what the stretch held then.
+	reviews := app.NewAccessReviewServiceClient(w.conn)
+	v, err := reviews.Add(asChoi, app.AccessReviewAddRequest_builder{
+		PeriodFrom: timestamppb.New(from), PeriodTo: timestamppb.New(to), Desc: "이상 없음",
+	}.Build())
+	x.NoError(err)
+	x.Equal(choi.GetId(), v.GetReviewer().GetId())
+	x.GreaterOrEqual(v.GetCalls(), all.GetCalls())
+	x.Equal("이상 없음", v.GetDesc())
+	vs, err := reviews.List(asLee, app.AccessReviewListRequest_builder{}.Build())
+	x.NoError(err)
+	x.Len(vs.GetItems(), 1, "an administrator reads it too")
+	_, err = reviews.Add(asKim, app.AccessReviewAddRequest_builder{PeriodFrom: timestamppb.New(from), PeriodTo: timestamppb.New(to)}.Build())
+	x.Equal(codes.PermissionDenied, status.Code(err))
+	_, err = reviews.Add(asChoi, app.AccessReviewAddRequest_builder{
+		PeriodFrom: timestamppb.New(time.Now().Add(time.Hour)), PeriodTo: timestamppb.New(time.Now().Add(2 * time.Hour)),
+	}.Build())
+	x.Equal(codes.InvalidArgument, status.Code(err), "a stretch not come yet")
 }

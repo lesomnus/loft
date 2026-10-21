@@ -37,6 +37,7 @@ import (
 	rove "github.com/lesomnus/rove"
 	ent "github.com/lesomnus/rove/internal/ent"
 	access "github.com/lesomnus/rove/internal/ent/access"
+	accessreview "github.com/lesomnus/rove/internal/ent/accessreview"
 	aliashold "github.com/lesomnus/rove/internal/ent/aliashold"
 	allocation "github.com/lesomnus/rove/internal/ent/allocation"
 	archived "github.com/lesomnus/rove/internal/ent/archived"
@@ -124,6 +125,7 @@ func Check() error { return version.Same(Payday) }
 // number is chosen once and never given to something else.
 const (
 	AccessDomain          pdid.Domain = 6  // "access"
+	AccessReviewDomain    pdid.Domain = 47 // "access-review"
 	AliasHoldDomain       pdid.Domain = 43 // "alias-hold"
 	AllocationDomain      pdid.Domain = 28 // "allocation"
 	ArchivedDomain        pdid.Domain = 5  // "archived"
@@ -170,6 +172,7 @@ const (
 
 func init() {
 	pdid.Register("rove.Access", AccessDomain, "access")
+	pdid.Register("rove.AccessReview", AccessReviewDomain, "access-review")
 	pdid.Register("rove.AliasHold", AliasHoldDomain, "alias-hold")
 	pdid.Register("rove.Allocation", AllocationDomain, "allocation")
 	pdid.Register("rove.Archived", ArchivedDomain, "archived")
@@ -220,6 +223,7 @@ func init() {
 // which is the name a [Minter] is asked about.
 var Domains = map[string]pdid.Domain{
 	"rove.Access":          AccessDomain,
+	"rove.AccessReview":    AccessReviewDomain,
 	"rove.AliasHold":       AliasHoldDomain,
 	"rove.Allocation":      AllocationDomain,
 	"rove.Archived":        ArchivedDomain,
@@ -314,6 +318,16 @@ func (wall) AccessScope(ctx context.Context) (predicate.Access, error) {
 	}
 
 	return access.Or(access.TenantIdIn(vs...), access.ActorTenantIdIn(vs...)), nil
+}
+
+// AccessReviewScope: a row belongs to the tenant its "tenant" reaches.
+func (wall) AccessReviewScope(ctx context.Context) (predicate.AccessReview, error) {
+	vs, all, err := frame.Narrow(ctx)
+	if all || err != nil {
+		return nil, err
+	}
+
+	return accessreview.TenantIdIn(vs...), nil
 }
 
 // AliasHoldScope: declared `global`, so it is not behind the wall at all.
@@ -978,6 +992,140 @@ func filterAccess(f *rove.AccessFilter) (predicate.Access, error) {
 	}
 
 	return access.And(ps...), nil
+}
+
+type sinkAccessReview struct {
+	rove.AccessReviewServiceServer
+	store  bare.Store
+	w      *watch.Watch
+	namer  slug.Namer
+	joined bool
+}
+
+func (s Sink) AccessReview() rove.AccessReviewServiceServer {
+	return sinkAccessReview{s.Server.AccessReview(), s.Server.Store, s.w, s.namer, s.joined}
+}
+
+// orderAccessReview is how AccessReviews come back.
+//
+// The last column is the key, and it is not decoration: a cursor cannot
+// tell apart two rows equal in every column of the order, so the page after
+// the first of them either repeats the second or skips it. Rows written by
+// one request are stamped a moment apart at best.
+var orderAccessReview = []sqlpage.Order{
+	{Column: accessreview.FieldDateCreated, Desc: true},
+	{Column: accessreview.FieldId, Desc: true},
+}
+
+func afterAccessReview(v string, by []sqlpage.Order, tag string) (func(*sql.Selector), error) {
+	var (
+		at0 time.Time
+		at1 uuid.UUID
+	)
+	if err := pdAfter(v, tag, &at0, &at1); err != nil {
+		return nil, err
+	}
+
+	return sqlpage.After(by, []any{at0, at1})
+}
+
+func nextAccessReview(last *ent.AccessReview, tag string) (string, error) {
+	return pdNext(tag, last.DateCreated, last.Id)
+}
+
+// orderByAccessReview is an order as ent orders a query by it.
+func orderByAccessReview(by []sqlpage.Order) []accessreview.OrderOption {
+	out := make([]accessreview.OrderOption, len(by))
+	for i, o := range by {
+		if o.Desc {
+			out[i] = sql.OrderByField(o.Column, sql.OrderDesc()).ToFunc()
+			continue
+		}
+
+		out[i] = sql.OrderByField(o.Column).ToFunc()
+	}
+
+	return out
+}
+
+const (
+	// AccessReviewPageSize is what a request that did not say gets, and
+	// AccessReviewPageLimit is the most it gets however loudly it asks.
+	AccessReviewPageSize  = 20
+	AccessReviewPageLimit = 100
+
+	// AccessReviewFilterLimit is how many filters one request may carry. Each is a
+	// predicate in the same query, so it is what says how much of the
+	// database a request may ask to read -- and it is refused rather than
+	// clamped, because dropping half the filters would answer a question
+	// nobody asked.
+	AccessReviewFilterLimit = 32
+)
+
+// List answers with the AccessReviews that match any of the given filters, or with
+// every one there is if the request named none, a page at a time.
+func (s sinkAccessReview) List(ctx context.Context, req *rove.AccessReviewListRequest) (*rove.AccessReviewListResponse, error) {
+	q := s.store.Db.AccessReview.Query()
+
+	// Through the same narrowing every generated read goes through, and not
+	// by asking the scope alone: what narrows a read is the wall today and
+	// the wall and something else tomorrow, and a list that reached past it
+	// would be the one read that missed the something else.
+	if p, err := bare.AccessReviewNarrow(ctx, s.store.Scope, nil); err != nil {
+		return nil, err
+	} else if p != nil {
+		q.Where(p)
+	}
+
+	// Which order, and which way: one the schema declared, and never one a
+	// request makes up, since an order is a walk of an index.
+	by, after, next, tag := orderAccessReview, afterAccessReview, nextAccessReview, ""
+	if req.GetReverse() {
+		// The same index, walked from the other end.
+		by, tag = pdReverse(by), tag+"/reverse"
+	}
+
+	if v := req.GetAfter(); v != "" {
+		p, err := after(v, by, tag)
+		if err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "after: %s", err)
+		}
+
+		q.Where(p)
+	}
+
+	// One row more than the page, which is how "is there another" is answered
+	// without a second query and without a count. The extra is dropped before
+	// the answer is built; it was only ever asked for to see whether it was
+	// there -- so a full last page answers with no cursor rather than sending
+	// the caller back for an empty one.
+	size := sqlpage.Size(int(req.GetSize()), AccessReviewPageSize, AccessReviewPageLimit)
+	us, err := q.Order(orderByAccessReview(by)...).Limit(size + 1).All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	more := len(us) > size
+	if more {
+		us = us[:size]
+	}
+
+	items := make([]*rove.AccessReview, len(us))
+	for i, u := range us {
+		items[i] = u.Proto()
+	}
+
+	res := rove.AccessReviewListResponse_builder{Items: items}.Build()
+	if more {
+		v, err := next(us[len(us)-1], tag)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "next: %s", err)
+		}
+
+		res.SetNext(v)
+	}
+
+	return res, nil
 }
 
 type sinkAllocation struct {
@@ -13179,6 +13327,65 @@ func (s gateHolder) admit(ctx context.Context, req *rove.HolderAddRequest) (*rov
 	return req, nil
 }
 
+type gateAccessReview struct {
+	Gate
+	rove.AccessReviewServiceServer
+}
+
+func (s Gate) AccessReview() rove.AccessReviewServiceServer {
+	v := gateAccessReview{s, s.Next().AccessReview()}
+	v.AccessReviewServiceServer = bare.AccessReviewWithAddRule(v.AccessReviewServiceServer, v.admit)
+	return v
+}
+
+// admit refuses a AccessReview put into a Tenant this caller cannot see.
+//
+// The wall is a predicate and an Add has no query, so without this the
+// identifier in `tenant` becomes a foreign key with nothing consulted.
+// The row is then invisible to whoever planted it and visible to whoever
+// holds that Tenant, which is the shape of the bug rather than a
+// mitigation of it.
+//
+// NotFound rather than a refusal, for the reason on `gateHolder.admit`:
+// that a row exists is itself something a caller who may not see it
+// should not be told.
+//
+// It is what an Add is asked, and an AddMany of every item it carries;
+// see [Gate.AccessReview].
+func (s gateAccessReview) admit(ctx context.Context, req *rove.AccessReviewAddRequest) (*rove.AccessReviewAddRequest, error) {
+	if ref := req.GetTenant(); ref != nil {
+		if err := seen.Visible(ctx, s.Gate.drv, "Tenant", ref, func() error {
+			_, err := s.Gate.Next().Tenant().Get(ctx, rove.TenantGetRequest_builder{
+				Ref: ref,
+			}.Build())
+			return err
+		}); err != nil {
+			if status.Code(err) == codes.NotFound {
+				return nil, gate.ErrNotFound("Tenant")
+			}
+
+			return nil, err
+		}
+	}
+
+	if ref := req.GetReviewer(); ref != nil {
+		if err := seen.Visible(ctx, s.Gate.drv, "Holder", ref, func() error {
+			_, err := s.Gate.Next().Holder().Get(ctx, rove.HolderGetRequest_builder{
+				Ref: ref,
+			}.Build())
+			return err
+		}); err != nil {
+			if status.Code(err) == codes.NotFound {
+				return nil, gate.ErrNotFound("Holder")
+			}
+
+			return nil, err
+		}
+	}
+
+	return req, nil
+}
+
 type gateAllocation struct {
 	Gate
 	rove.AllocationServiceServer
@@ -15576,6 +15783,8 @@ func described(key pdid.Id) (protoreflect.MessageDescriptor, []protoreflect.Fiel
 	switch key.Domain() {
 	case AccessDomain:
 		return describedAccess.md, describedAccess.secret, describedAccess.personal
+	case AccessReviewDomain:
+		return describedAccessReview.md, describedAccessReview.secret, describedAccessReview.personal
 	case AliasHoldDomain:
 		return describedAliasHold.md, describedAliasHold.secret, describedAliasHold.personal
 	case AllocationDomain:
@@ -15686,6 +15895,9 @@ func describe(m proto.Message, secret, personal []protoreflect.FieldNumber) desc
 
 var (
 	describedAccess = describe((*rove.Access)(nil),
+		[]protoreflect.FieldNumber{},
+		[]protoreflect.FieldNumber{})
+	describedAccessReview = describe((*rove.AccessReview)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
 	describedAliasHold = describe((*rove.AliasHold)(nil),
@@ -15834,7 +16046,8 @@ func hidden(key pdid.Id, p *patchpb.Patch) *patchpb.Patch {
 // AddMany's for one of its items. See `bare.Change.By`.
 func added(by string) bool {
 	switch by {
-	case rove.AllocationService_Add_FullMethodName,
+	case rove.AccessReviewService_Add_FullMethodName,
+		rove.AllocationService_Add_FullMethodName,
 		rove.AssetService_Add_FullMethodName,
 		rove.AssetService_AddMany_FullMethodName,
 		rove.AssetTypeService_Add_FullMethodName,
@@ -15913,6 +16126,42 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		}
 
 		k, err := entuuid.FromBytes(row.GetTenantId())
+		if err != nil {
+			return uuid.Nil(), nil, err
+		}
+
+		return k, b, nil
+
+	case AccessReviewDomain:
+		row, handed := image.(*rove.AccessReview)
+		if !handed {
+			var err error
+			row, err = s.AccessReview().Get(ctx, rove.AccessReviewGetRequest_builder{
+				Ref: rove.AccessReviewRef_builder{Id: key.Bytes()}.Build(),
+			}.Build())
+			if err != nil {
+				if status.Code(err) == codes.NotFound {
+					return uuid.Nil(), []byte{}, nil
+				}
+
+				return uuid.Nil(), nil, err
+			}
+		}
+
+		b := []byte{}
+		if keep {
+			v, err := proto.Marshal(row)
+			if err != nil {
+				return uuid.Nil(), nil, err
+			}
+			b = v
+		}
+
+		if !row.HasTenant() {
+			return uuid.Nil(), b, nil
+		}
+
+		k, err := entuuid.FromBytes(row.GetTenant().GetId())
 		if err != nil {
 			return uuid.Nil(), nil, err
 		}
@@ -17750,6 +17999,9 @@ func Digests(ctx context.Context, db *ent.Client, d *audit1.Digest, p trail.Poli
 	}
 
 	out := audit1.Rows{}
+	if err := audit1.CheckKind(ctx, d, checkedAccessReview(db), archived, &out); err != nil {
+		return out, fmt.Errorf("access-review: %w", err)
+	}
 	if err := audit1.CheckKind(ctx, d, checkedAliasHold(db), archived, &out); err != nil {
 		return out, fmt.Errorf("alias-hold: %w", err)
 	}
@@ -17854,6 +18106,54 @@ func Digests(ctx context.Context, db *ent.Client, d *audit1.Digest, p trail.Poli
 	}
 	if err := audit1.CheckKind(ctx, d, checkedWorkOrder(db), archived, &out); err != nil {
 		return out, fmt.Errorf("work-order: %w", err)
+	}
+
+	return out, nil
+}
+
+// checkedAccessReview is what a check of the rows reads of the access-review kind.
+func checkedAccessReview(db *ent.Client) audit1.Kind {
+	read := func(ctx context.Context, ps ...predicate.AccessReview) (audit1.Page, error) {
+		var out audit1.Page
+		err := snapshot(ctx, db, func(ctx context.Context, db *ent.Client) error {
+			rows, err := liveAccessReview(ctx, db, ps...)
+			if err != nil {
+				return err
+			}
+
+			recorded, err := newestDigests(ctx, db, rows)
+			out = audit1.Page{Rows: rows, Recorded: recorded}
+			return err
+		})
+
+		return out, err
+	}
+
+	return audit1.Kind{
+		Domain: AccessReviewDomain,
+		After: func(ctx context.Context, after pdid.Id) (audit1.Page, error) {
+			return read(ctx, accessreview.IdGT(uuid.UUID(after)))
+		},
+		Of: func(ctx context.Context, ids []pdid.Id) (audit1.Page, error) {
+			return read(ctx, accessreview.IdIn(uuids(ids)...))
+		},
+	}
+}
+
+// liveAccessReview is the live rows `ps` says of the access-review kind, at most a page of
+// them in identifier order, each as a Get reads it.
+func liveAccessReview(ctx context.Context, db *ent.Client, ps ...predicate.AccessReview) ([]audit1.Live, error) {
+	q := db.AccessReview.Query().Where(ps...)
+	bare.AccessReviewSelectInit(q, nil)
+
+	vs, err := q.Order(accessreview.ById()).Limit(audit1.RowsPage).All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	out := make([]audit1.Live, len(vs))
+	for i, v := range vs {
+		out[i] = audit1.Live{Object: pdid.Id(v.Id), Row: v.Proto()}
 	}
 
 	return out, nil
@@ -19652,6 +19952,8 @@ func Record(ctx context.Context, db *ent.Client, content audit1.Contents, action
 		for page := range slices.Chunk(byKind[d], audit1.RowsPage) {
 			var rows []audit1.Live
 			switch d {
+			case AccessReviewDomain:
+				rows, err = liveAccessReview(ctx, db, accessreview.IdIn(uuids(page)...))
 			case AliasHoldDomain:
 				rows, err = liveAliasHold(ctx, db, aliashold.IdIn(uuids(page)...))
 			case AllocationDomain:
@@ -21565,6 +21867,45 @@ func (s interceptLegalHold) List(ctx context.Context, req *rove.LegalHoldListReq
 		rove.LegalHoldService_List_FullMethodName, req, s.LegalHoldServiceServer.List)
 }
 
+func (s Intercept) AccessReview() rove.AccessReviewServiceServer {
+	return interceptAccessReview{s, s.Next().AccessReview()}
+}
+
+type interceptAccessReview struct {
+	Intercept
+	rove.AccessReviewServiceServer
+}
+
+func (s interceptAccessReview) Add(ctx context.Context, req *rove.AccessReviewAddRequest) (*rove.AccessReview, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.AccessReviewServiceServer,
+		rove.AccessReviewService_Add_FullMethodName, req, s.AccessReviewServiceServer.Add)
+}
+
+func (s interceptAccessReview) Get(ctx context.Context, req *rove.AccessReviewGetRequest) (*rove.AccessReview, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.AccessReviewServiceServer,
+		rove.AccessReviewService_Get_FullMethodName, req, s.AccessReviewServiceServer.Get)
+}
+
+func (s interceptAccessReview) Patch(ctx context.Context, req *rove.AccessReviewPatchRequest) (*rove.AccessReview, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.AccessReviewServiceServer,
+		rove.AccessReviewService_Patch_FullMethodName, req, s.AccessReviewServiceServer.Patch)
+}
+
+func (s interceptAccessReview) Apply(ctx context.Context, req *rove.AccessReviewApplyRequest) (*rove.AccessReview, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.AccessReviewServiceServer,
+		rove.AccessReviewService_Apply_FullMethodName, req, s.AccessReviewServiceServer.Apply)
+}
+
+func (s interceptAccessReview) Erase(ctx context.Context, req *rove.AccessReviewRef) (*rove.AccessReviewEraseResponse, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.AccessReviewServiceServer,
+		rove.AccessReviewService_Erase_FullMethodName, req, s.AccessReviewServiceServer.Erase)
+}
+
+func (s interceptAccessReview) List(ctx context.Context, req *rove.AccessReviewListRequest) (*rove.AccessReviewListResponse, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.AccessReviewServiceServer,
+		rove.AccessReviewService_List_FullMethodName, req, s.AccessReviewServiceServer.List)
+}
+
 func (s Intercept) Access() rove.AccessServiceServer {
 	return interceptAccess{s, s.Next().Access()}
 }
@@ -21582,6 +21923,11 @@ func (s interceptAccess) Get(ctx context.Context, req *rove.AccessGetRequest) (*
 func (s interceptAccess) List(ctx context.Context, req *rove.AccessListRequest) (*rove.AccessListResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.AccessServiceServer,
 		rove.AccessService_List_FullMethodName, req, s.AccessServiceServer.List)
+}
+
+func (s interceptAccess) Review(ctx context.Context, req *rove.AccessReviewRequest) (*rove.AccessReviewResponse, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.AccessServiceServer,
+		rove.AccessService_Review_FullMethodName, req, s.AccessServiceServer.Review)
 }
 
 func (s Intercept) Audit() rove.AuditServiceServer {
@@ -26464,6 +26810,84 @@ func dispatch(ctx context.Context, s rove.Server, op *pdpb.Op) (*anypb.Any, erro
 
 		return anypb.New(res)
 
+	case rove.AccessReviewService_Add_FullMethodName:
+		v := &rove.AccessReviewAddRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.AccessReview().Add(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.AccessReviewService_Get_FullMethodName:
+		v := &rove.AccessReviewGetRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.AccessReview().Get(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.AccessReviewService_Patch_FullMethodName:
+		v := &rove.AccessReviewPatchRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.AccessReview().Patch(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.AccessReviewService_Apply_FullMethodName:
+		v := &rove.AccessReviewApplyRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.AccessReview().Apply(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.AccessReviewService_Erase_FullMethodName:
+		v := &rove.AccessReviewRef{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.AccessReview().Erase(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.AccessReviewService_List_FullMethodName:
+		v := &rove.AccessReviewListRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.AccessReview().List(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
 	case rove.AccessService_Get_FullMethodName:
 		v := &rove.AccessGetRequest{}
 		if err := op.GetRequest().UnmarshalTo(v); err != nil {
@@ -26484,6 +26908,19 @@ func dispatch(ctx context.Context, s rove.Server, op *pdpb.Op) (*anypb.Any, erro
 		}
 
 		res, err := s.Access().List(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.AccessService_Review_FullMethodName:
+		v := &rove.AccessReviewRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.Access().Review(ctx, v)
 		if err != nil {
 			return nil, err
 		}
@@ -26885,6 +27322,7 @@ func Resources(s rove.Server, drv dialect.Driver, guard batch.Guard, w *watch.Wa
 	}
 	return resource.New(b, w, project,
 		&rove.Access{},
+		&rove.AccessReview{},
 		&rove.AliasHold{},
 		&rove.Allocation{},
 		&rove.Archived{},
@@ -26992,6 +27430,43 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			query := db.Access.Query()
+			if pred != nil {
+				query.Where(pred)
+			}
+			ok, err := query.Modify(func(q *sql.Selector) { q.From(row) }).Exist(ctx)
+			if err != nil || !ok {
+				return nil, err
+			}
+			return publicResource(v), nil
+		case *rove.AccessReview:
+			ctx, err := read.Allow(ctx, rove.AccessReviewService_Get_FullMethodName)
+			if err != nil {
+				switch status.Code(err) {
+				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
+					return nil, nil
+				}
+				return nil, err
+			}
+			pred, err := bare.AccessReviewNarrow(ctx, scope, nil)
+			if err != nil {
+				return nil, err
+			}
+			row, err := resourcesql.Row(db.Dialect(), accessreview.Table, []resourcesql.Column{
+				{Number: 1, Name: accessreview.FieldId, Type: 64, Nullable: false, Key: 0},
+				{Number: 2, Name: accessreview.TenantColumn, Type: 64, Nullable: false, Key: 1},
+				{Number: 6, Name: accessreview.FieldDesc, Type: 9, Nullable: false, Key: 0},
+				{Number: 8, Name: accessreview.FieldPeriodFrom, Type: 65, Nullable: false, Key: 0},
+				{Number: 9, Name: accessreview.FieldPeriodTo, Type: 65, Nullable: false, Key: 0},
+				{Number: 10, Name: accessreview.ReviewerColumn, Type: 64, Nullable: false, Key: 1},
+				{Number: 11, Name: accessreview.FieldCalls, Type: 13, Nullable: false, Key: 0},
+				{Number: 12, Name: accessreview.FieldDownloads, Type: 13, Nullable: false, Key: 0},
+				{Number: 15, Name: accessreview.FieldDateCreated, Type: 65, Nullable: false, Key: 0},
+				{Number: 16, Name: accessreview.FieldRefused, Type: 13, Nullable: false, Key: 0},
+			}, v)
+			if err != nil {
+				return nil, err
+			}
+			query := db.AccessReview.Query()
 			if pred != nil {
 				query.Where(pred)
 			}
@@ -28316,6 +28791,14 @@ func (r resourceRecorder) Snapshots(method string) bare.SnapshotOptions {
 }
 func resourceChangeKind(method string) pdpb.ChangeKind {
 	switch method {
+	case rove.AccessReviewService_Add_FullMethodName:
+		return pdpb.ChangeKind_CHANGE_KIND_CREATED
+	case rove.AccessReviewService_Patch_FullMethodName:
+		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
+	case rove.AccessReviewService_Apply_FullMethodName:
+		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
+	case rove.AccessReviewService_Erase_FullMethodName:
+		return pdpb.ChangeKind_CHANGE_KIND_DELETED
 	case rove.AllocationService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
 	case rove.AllocationService_Patch_FullMethodName:
@@ -28606,7 +29089,7 @@ func (r resourceRecorder) Record(ctx context.Context, s bare.Server, c bare.Chan
 		return nil
 	}
 	switch image.ProtoReflect().Descriptor().FullName() {
-	case "rove.Access", "rove.Allocation", "rove.Asset", "rove.AssetType", "rove.Attachment", "rove.Audit", "rove.Bookable", "rove.CountFinding", "rove.Custody", "rove.CustodyLine", "rove.Event", "rove.Fact", "rove.Holder", "rove.InventoryCount", "rove.Invitation", "rove.ItemModel", "rove.Label", "rove.LegalHold", "rove.Link", "rove.Notification", "rove.Party", "rove.Placement", "rove.Purchase", "rove.PurchaseLine", "rove.Reservation", "rove.ReservationItem", "rove.Stewardship", "rove.Stock", "rove.StockMovement", "rove.Tenant", "rove.TenantContract", "rove.TenantDomain", "rove.UsageSnapshot", "rove.WorkOrder":
+	case "rove.Access", "rove.AccessReview", "rove.Allocation", "rove.Asset", "rove.AssetType", "rove.Attachment", "rove.Audit", "rove.Bookable", "rove.CountFinding", "rove.Custody", "rove.CustodyLine", "rove.Event", "rove.Fact", "rove.Holder", "rove.InventoryCount", "rove.Invitation", "rove.ItemModel", "rove.Label", "rove.LegalHold", "rove.Link", "rove.Notification", "rove.Party", "rove.Placement", "rove.Purchase", "rove.PurchaseLine", "rove.Reservation", "rove.ReservationItem", "rove.Stewardship", "rove.Stock", "rove.StockMovement", "rove.Tenant", "rove.TenantContract", "rove.TenantDomain", "rove.UsageSnapshot", "rove.WorkOrder":
 	default:
 		return nil
 	}

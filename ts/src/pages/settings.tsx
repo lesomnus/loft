@@ -7,6 +7,8 @@ import type { TenantDomain } from '../../gen/rove/asset_pb.js'
 import type { Tenant } from '../../gen/rove/payday/tenant_pb.js'
 import type { TenantDomainStatusResponse } from '../../gen/rove/asset_svc_pb.js'
 import {
+	AccessReviewService,
+	AccessService,
 	AssetTypeService,
 	AuditService,
 	BookableService,
@@ -15,11 +17,15 @@ import {
 	TenantDomainService,
 	TenantService,
 	UsageSnapshotService,
+	at,
 	daysWord,
 	fmt,
+	fmtWith,
 	idBytes,
 	idStr,
 	ref,
+	ts,
+	wall,
 	workspace,
 } from '../api.js'
 import { modelName, useCatalog } from '../catalog.js'
@@ -38,7 +44,13 @@ export function Settings(): ReactNode {
 		{ key: 'bookables', label: '예약 자원' },
 		{ key: 'labels', label: '라벨' },
 		{ key: 'events', label: '작업 기록' },
-		...(c.can('admin') || c.role === 'auditor' ? [{ key: 'audit', label: '감사 기록' }, { key: 'usage', label: '사용량' }] : []),
+		...(c.can('admin') || c.role === 'auditor'
+			? [
+					{ key: 'audit', label: '감사 기록' },
+					{ key: 'access', label: '접속기록' },
+					{ key: 'usage', label: '사용량' },
+				]
+			: []),
 		...(c.can('owner') ? [{ key: 'workspace', label: '워크스페이스' }] : []),
 	]
 	return (
@@ -51,6 +63,7 @@ export function Settings(): ReactNode {
 			{tab === 'labels' && <Labels />}
 			{tab === 'events' && <Events />}
 			{tab === 'audit' && <Audit />}
+			{tab === 'access' && <Access />}
 			{tab === 'usage' && <Usage />}
 			{tab === 'workspace' && <WorkspaceTab />}
 		</>
@@ -581,6 +594,202 @@ function Audit(): ReactNode {
 				}
 			</Load>
 		</Card>
+	)
+}
+
+const accessWord: Record<string, string> = { read: '조회', write: '수정', download: '내려받기' }
+
+/**
+ * The workspace's access record, a month at a time, as its administrators
+ * review it (rove#136): who read, wrote or took out whose data, from where,
+ * and what a download was for -- and that they looked it over. PIPA's safety
+ * measures ask for it every month.
+ */
+function Access(): ReactNode {
+	const c = useCatalog()
+	const act = useAct()
+	// Last month, on the workspace's wall: the one a review is usually of.
+	const [month, setMonth] = useState(() => {
+		const w = wall(new Date())
+		return { y: w.y, m: w.m - 1 }
+	})
+	const from = at(month.y, month.m, 1)
+	const to = at(month.y, month.m + 1, 1)
+	const [actor, setActor] = useState('')
+	const [subject, setSubject] = useState('')
+	const [kind, setKind] = useState('')
+	// Where each page begins, the first at the start.
+	const [pages, setPages] = useState<string[]>([''])
+	const after = pages[pages.length - 1] ?? ''
+	const q = useRpc(AccessService.method.review, {
+		from: ts(from),
+		to: ts(to),
+		actor: actor === '' ? undefined : idBytes(actor),
+		subject: subject === '' ? undefined : idBytes(subject),
+		kind,
+		size: 50,
+		after,
+	})
+	const reviews = useRpc(AccessReviewService.method.list, { size: 24 })
+	const [note, setNote] = useState('')
+	const name = (holder: Uint8Array | undefined): string => c.parties.find((p) => idStr(p.holder?.id) === idStr(holder))?.name ?? '?'
+	const label = fmtWith({ year: 'numeric', month: 'long' }, from)
+	const go = (by: number): void => {
+		const w = wall(at(month.y, month.m + by, 1))
+		setMonth({ y: w.y, m: w.m })
+		setPages([''])
+	}
+	const narrow = (set: (v: string) => void) => (v: string) => {
+		set(v)
+		setPages([''])
+	}
+	return (
+		<>
+			<Card
+				title={`접속기록 — ${label}`}
+				actions={
+					<div className="inline">
+						<button onClick={() => go(-1)}>‹ 이전 달</button>
+						<button onClick={() => go(1)}>다음 달 ›</button>
+						<button onClick={q.reload}>새로고침</button>
+					</div>
+				}
+			>
+				<p className="mute small">
+					개인정보를 읽거나 쓰거나 내려받은 호출마다 한 줄씩 남습니다. 매달 점검하고, 내려받기는 그 사유를 확인하세요.
+				</p>
+				<div className="filters">
+					<Select
+						aria-label="누가"
+						value={actor}
+						onChange={narrow(setActor)}
+						empty="모든 구성원"
+						options={c.parties.filter((p) => p.holder !== undefined).map((p) => ({ value: idStr(p.holder?.id), label: p.name }))}
+					/>
+					<Select
+						aria-label="누구의 정보"
+						value={subject}
+						onChange={narrow(setSubject)}
+						empty="모든 사람"
+						options={c.parties.filter((p) => p.kind === 'person').map((p) => ({ value: idStr(p.id), label: p.name }))}
+					/>
+					<Select
+						aria-label="종류"
+						value={kind}
+						onChange={narrow(setKind)}
+						empty="모든 종류"
+						options={Object.entries(accessWord).map(([value, label]) => ({ value, label }))}
+					/>
+				</div>
+				<Load q={q}>
+					{(d) => (
+						<>
+							<p>
+								이 달 {d.calls}건 · 내려받기 {d.downloads}건 · 거부 {d.refused}건
+							</p>
+							{d.items.length === 0 ? (
+								<Empty>이 조건에 맞는 기록이 없습니다.</Empty>
+							) : (
+								<div className="table-wrap">
+									<table className="table compact">
+										<thead>
+											<tr>
+												<th>언제</th>
+												<th>누가</th>
+												<th>무엇을</th>
+												<th>누구의 정보</th>
+												<th>어디서</th>
+												<th>결과</th>
+												<th>내려받은 이유</th>
+											</tr>
+										</thead>
+										<tbody>
+											{d.items.map((e) => {
+												const named = e.subjects.map((s) => s.name || s.kind).join(', ')
+												const rest = e.subjectCount - e.subjects.length
+												return (
+													<tr key={idStr(e.id)}>
+														<td>{fmt(e.at)}</td>
+														<td>{e.actorName}</td>
+														<td>
+															{accessWord[e.kind] ?? e.kind} <code>{e.action.replace('/rove.', '')}</code>
+														</td>
+														<td>
+															{named}
+															{rest > 0 ? ` 외 ${rest}명` : ''}
+														</td>
+														<td>{e.address || '-'}</td>
+														<td>{e.result === 'ok' ? '성공' : `거부 (${e.result})`}</td>
+														<td>{e.reason || (e.kind === 'download' ? '없음' : '')}</td>
+													</tr>
+												)
+											})}
+										</tbody>
+									</table>
+								</div>
+							)}
+							<div className="inline">
+								{pages.length > 1 && <button onClick={() => setPages(pages.slice(0, -1))}>‹ 앞 페이지</button>}
+								{d.next !== '' && <button onClick={() => setPages([...pages, d.next])}>다음 페이지 ›</button>}
+							</div>
+						</>
+					)}
+				</Load>
+			</Card>
+			<Card title="점검 기록">
+				<Field label="점검 결과" hint={`${label}의 접속기록을 점검했다는 기록으로 남습니다: 누가, 언제, 그때 기록이 몇 건이었는지와 함께.`}>
+					<textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} placeholder="예: 이상 없음. 내려받기 2건 모두 사유 확인" />
+				</Field>
+				<div className="actions">
+					<button
+						className="primary"
+						onClick={() =>
+							void act(AccessReviewService.method.add, { periodFrom: ts(from), periodTo: ts(to), desc: note }, { ok: '점검을 기록했습니다.' }).then((r) => {
+								if (r !== undefined) setNote('')
+							})
+						}
+					>
+						{label} 점검 완료로 기록
+					</button>
+				</div>
+				<Load q={reviews}>
+					{(d) =>
+						d.items.length === 0 ? (
+							<Empty>아직 점검 기록이 없습니다.</Empty>
+						) : (
+							<table className="table compact">
+								<thead>
+									<tr>
+										<th>점검한 기간</th>
+										<th>점검한 사람</th>
+										<th>기록한 때</th>
+										<th className="num">호출</th>
+										<th className="num">내려받기</th>
+										<th className="num">거부</th>
+										<th>점검 결과</th>
+									</tr>
+								</thead>
+								<tbody>
+									{d.items.map((r) => (
+										<tr key={idStr(r.id)}>
+											<td>
+												{fmt(r.periodFrom, 'date')} – {fmt(r.periodTo === undefined ? undefined : new Date(Number(r.periodTo.seconds) * 1000 - 1), 'date')}
+											</td>
+											<td>{name(r.reviewer?.id)}</td>
+											<td>{fmt(r.dateCreated)}</td>
+											<td className="num">{r.calls}</td>
+											<td className="num">{r.downloads}</td>
+											<td className="num">{r.refused}</td>
+											<td>{r.desc}</td>
+										</tr>
+									))}
+								</tbody>
+							</table>
+						)
+					}
+				</Load>
+			</Card>
+		</>
 	)
 }
 

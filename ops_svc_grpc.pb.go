@@ -1351,3 +1351,307 @@ var LegalHoldService_ServiceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "rove/ops_svc.g.proto",
 }
+
+const (
+	AccessReviewService_Add_FullMethodName   = "/rove.AccessReviewService/Add"
+	AccessReviewService_Get_FullMethodName   = "/rove.AccessReviewService/Get"
+	AccessReviewService_Patch_FullMethodName = "/rove.AccessReviewService/Patch"
+	AccessReviewService_Apply_FullMethodName = "/rove.AccessReviewService/Apply"
+	AccessReviewService_Erase_FullMethodName = "/rove.AccessReviewService/Erase"
+	AccessReviewService_List_FullMethodName  = "/rove.AccessReviewService/List"
+)
+
+// AccessReviewServiceClient is the client API for AccessReviewService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type AccessReviewServiceClient interface {
+	// Add creates a new AccessReview
+	Add(ctx context.Context, in *AccessReviewAddRequest, opts ...grpc.CallOption) (*AccessReview, error)
+	// Get retrieves a AccessReview
+	Get(ctx context.Context, in *AccessReviewGetRequest, opts ...grpc.CallOption) (*AccessReview, error)
+	// Patch updates an existing AccessReview
+	Patch(ctx context.Context, in *AccessReviewPatchRequest, opts ...grpc.CallOption) (*AccessReview, error)
+	// Apply applies a patch document to an existing AccessReview
+	Apply(ctx context.Context, in *AccessReviewApplyRequest, opts ...grpc.CallOption) (*AccessReview, error)
+	// Erase deletes a AccessReview
+	Erase(ctx context.Context, in *AccessReviewRef, opts ...grpc.CallOption) (*AccessReviewEraseResponse, error)
+	// List reads AccessReviews a page at a time.
+	List(ctx context.Context, in *AccessReviewListRequest, opts ...grpc.CallOption) (*AccessReviewListResponse, error)
+}
+
+type accessReviewServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewAccessReviewServiceClient(cc grpc.ClientConnInterface) AccessReviewServiceClient {
+	return &accessReviewServiceClient{cc}
+}
+
+func (c *accessReviewServiceClient) Add(ctx context.Context, in *AccessReviewAddRequest, opts ...grpc.CallOption) (*AccessReview, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AccessReview)
+	err := c.cc.Invoke(ctx, AccessReviewService_Add_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *accessReviewServiceClient) Get(ctx context.Context, in *AccessReviewGetRequest, opts ...grpc.CallOption) (*AccessReview, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AccessReview)
+	err := c.cc.Invoke(ctx, AccessReviewService_Get_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *accessReviewServiceClient) Patch(ctx context.Context, in *AccessReviewPatchRequest, opts ...grpc.CallOption) (*AccessReview, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AccessReview)
+	err := c.cc.Invoke(ctx, AccessReviewService_Patch_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *accessReviewServiceClient) Apply(ctx context.Context, in *AccessReviewApplyRequest, opts ...grpc.CallOption) (*AccessReview, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AccessReview)
+	err := c.cc.Invoke(ctx, AccessReviewService_Apply_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *accessReviewServiceClient) Erase(ctx context.Context, in *AccessReviewRef, opts ...grpc.CallOption) (*AccessReviewEraseResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AccessReviewEraseResponse)
+	err := c.cc.Invoke(ctx, AccessReviewService_Erase_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *accessReviewServiceClient) List(ctx context.Context, in *AccessReviewListRequest, opts ...grpc.CallOption) (*AccessReviewListResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AccessReviewListResponse)
+	err := c.cc.Invoke(ctx, AccessReviewService_List_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// AccessReviewServiceServer is the server API for AccessReviewService service.
+// All implementations must embed UnimplementedAccessReviewServiceServer
+// for forward compatibility.
+type AccessReviewServiceServer interface {
+	// Add creates a new AccessReview
+	Add(context.Context, *AccessReviewAddRequest) (*AccessReview, error)
+	// Get retrieves a AccessReview
+	Get(context.Context, *AccessReviewGetRequest) (*AccessReview, error)
+	// Patch updates an existing AccessReview
+	Patch(context.Context, *AccessReviewPatchRequest) (*AccessReview, error)
+	// Apply applies a patch document to an existing AccessReview
+	Apply(context.Context, *AccessReviewApplyRequest) (*AccessReview, error)
+	// Erase deletes a AccessReview
+	Erase(context.Context, *AccessReviewRef) (*AccessReviewEraseResponse, error)
+	// List reads AccessReviews a page at a time.
+	List(context.Context, *AccessReviewListRequest) (*AccessReviewListResponse, error)
+	mustEmbedUnimplementedAccessReviewServiceServer()
+}
+
+// UnimplementedAccessReviewServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedAccessReviewServiceServer struct{}
+
+func (UnimplementedAccessReviewServiceServer) Add(context.Context, *AccessReviewAddRequest) (*AccessReview, error) {
+	return nil, status.Error(codes.Unimplemented, "method Add not implemented")
+}
+func (UnimplementedAccessReviewServiceServer) Get(context.Context, *AccessReviewGetRequest) (*AccessReview, error) {
+	return nil, status.Error(codes.Unimplemented, "method Get not implemented")
+}
+func (UnimplementedAccessReviewServiceServer) Patch(context.Context, *AccessReviewPatchRequest) (*AccessReview, error) {
+	return nil, status.Error(codes.Unimplemented, "method Patch not implemented")
+}
+func (UnimplementedAccessReviewServiceServer) Apply(context.Context, *AccessReviewApplyRequest) (*AccessReview, error) {
+	return nil, status.Error(codes.Unimplemented, "method Apply not implemented")
+}
+func (UnimplementedAccessReviewServiceServer) Erase(context.Context, *AccessReviewRef) (*AccessReviewEraseResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Erase not implemented")
+}
+func (UnimplementedAccessReviewServiceServer) List(context.Context, *AccessReviewListRequest) (*AccessReviewListResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method List not implemented")
+}
+func (UnimplementedAccessReviewServiceServer) mustEmbedUnimplementedAccessReviewServiceServer() {}
+func (UnimplementedAccessReviewServiceServer) testEmbeddedByValue()                             {}
+
+// UnsafeAccessReviewServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to AccessReviewServiceServer will
+// result in compilation errors.
+type UnsafeAccessReviewServiceServer interface {
+	mustEmbedUnimplementedAccessReviewServiceServer()
+}
+
+func RegisterAccessReviewServiceServer(s grpc.ServiceRegistrar, srv AccessReviewServiceServer) {
+	// If the following call panics, it indicates UnimplementedAccessReviewServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&AccessReviewService_ServiceDesc, srv)
+}
+
+func _AccessReviewService_Add_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AccessReviewAddRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AccessReviewServiceServer).Add(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AccessReviewService_Add_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AccessReviewServiceServer).Add(ctx, req.(*AccessReviewAddRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AccessReviewService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AccessReviewGetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AccessReviewServiceServer).Get(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AccessReviewService_Get_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AccessReviewServiceServer).Get(ctx, req.(*AccessReviewGetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AccessReviewService_Patch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AccessReviewPatchRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AccessReviewServiceServer).Patch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AccessReviewService_Patch_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AccessReviewServiceServer).Patch(ctx, req.(*AccessReviewPatchRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AccessReviewService_Apply_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AccessReviewApplyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AccessReviewServiceServer).Apply(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AccessReviewService_Apply_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AccessReviewServiceServer).Apply(ctx, req.(*AccessReviewApplyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AccessReviewService_Erase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AccessReviewRef)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AccessReviewServiceServer).Erase(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AccessReviewService_Erase_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AccessReviewServiceServer).Erase(ctx, req.(*AccessReviewRef))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AccessReviewService_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AccessReviewListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AccessReviewServiceServer).List(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AccessReviewService_List_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AccessReviewServiceServer).List(ctx, req.(*AccessReviewListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// AccessReviewService_ServiceDesc is the grpc.ServiceDesc for AccessReviewService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var AccessReviewService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "rove.AccessReviewService",
+	HandlerType: (*AccessReviewServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Add",
+			Handler:    _AccessReviewService_Add_Handler,
+		},
+		{
+			MethodName: "Get",
+			Handler:    _AccessReviewService_Get_Handler,
+		},
+		{
+			MethodName: "Patch",
+			Handler:    _AccessReviewService_Patch_Handler,
+		},
+		{
+			MethodName: "Apply",
+			Handler:    _AccessReviewService_Apply_Handler,
+		},
+		{
+			MethodName: "Erase",
+			Handler:    _AccessReviewService_Erase_Handler,
+		},
+		{
+			MethodName: "List",
+			Handler:    _AccessReviewService_List_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "rove/ops_svc.g.proto",
+}

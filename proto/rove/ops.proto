@@ -257,3 +257,63 @@ message LegalHold {
     }
   };
 }
+
+
+// AccessReview is that a stretch of the workspace's access record was
+// reviewed (rove#136): who looked it over, when, what it held then, and what
+// they found. PIPA's safety measures have a processor review its access
+// record every month, and check what each download was for; this is how the
+// workspace shows it did.
+//
+// The domain's Add writes it, which says who and counts what the stretch
+// held. Nothing changes one after, and none is erased: a review is the
+// evidence of itself, and goes with its workspace.
+message AccessReview {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+
+  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  // What the reviewer found, in their words.
+  string desc = 6 [(orm.field) = {immutable: true}];
+
+  // The stretch of the record it covers, from `period_from` and before
+  // `period_to`: a month, as the page reviews it.
+  google.protobuf.Timestamp period_from = 8 [(orm.field) = {immutable: true, default: ""}];
+  google.protobuf.Timestamp period_to = 9 [(orm.field) = {immutable: true, default: ""}];
+
+  // Who reviewed it: the membership, as the trail names its actor.
+  Holder reviewer = 10 [(orm.edge) = {immutable: true}];
+
+  // What the stretch held when it was reviewed: every call that carried
+  // somebody's data, the downloads among them, and the calls refused.
+  uint32 calls = 11 [(orm.field) = {immutable: true}];
+  uint32 downloads = 12 [(orm.field) = {immutable: true}];
+
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  uint32 refused = 16 [(orm.field) = {immutable: true}];
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      // The order its list reads in, the tenant first (#122).
+      {name: "page", refs: [{name: "tenant", number: 2}, {name: "date_created", number: 15}, {name: "id", number: 1}]}
+    ]
+  };
+  option (payday.entity) = {
+    domain: 47
+    erase: {hard: {}}
+    list: {
+      order: [{field: {name: "date_created"}, desc: true}, {field: {name: "id"}, desc: true}]
+      size: 20
+      max: 100
+    }
+  };
+}

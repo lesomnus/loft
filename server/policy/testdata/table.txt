@@ -1,6 +1,10 @@
 /payday.BatchService/Do	read
+/rove.AccessReviewService/Add	admin +auditor
+/rove.AccessReviewService/Get	admin +auditor
+/rove.AccessReviewService/List	admin +auditor
 /rove.AccessService/Get	admin +auditor
 /rove.AccessService/List	admin +auditor
+/rove.AccessService/Review	admin +auditor
 /rove.AllocationService/Get	read
 /rove.AllocationService/List	read
 /rove.AssetService/Add	manager

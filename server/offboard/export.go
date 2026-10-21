@@ -25,6 +25,7 @@ import (
 
 	"github.com/lesomnus/rove/internal/ent"
 	entaccess "github.com/lesomnus/rove/internal/ent/access"
+	"github.com/lesomnus/rove/internal/ent/accessreview"
 	"github.com/lesomnus/rove/internal/ent/allocation"
 	"github.com/lesomnus/rove/internal/ent/asset"
 	"github.com/lesomnus/rove/internal/ent/assettype"
@@ -169,6 +170,11 @@ func each[T any, M proto.Message](f func(T) M) func([]T, error) ([]proto.Message
 
 // Exported is every kind an export writes, by its table.
 var Exported = map[string]reader{
+	// That the access record was reviewed: the workspace's own evidence, as
+	// its contracts are. The record itself goes with the trail.
+	"accessreview": func(ctx context.Context, db *ent.Client, t uuid.UUID, last *mark, n int) ([]proto.Message, *mark, error) {
+		return each((*ent.AccessReview).Proto)(db.AccessReview.Query().Where(accessreview.TenantId(t), after(last)).Order(ent.Asc(accessreview.FieldDateCreated, accessreview.FieldId)).Limit(n).All(ctx))
+	},
 	"allocation": func(ctx context.Context, db *ent.Client, t uuid.UUID, last *mark, n int) ([]proto.Message, *mark, error) {
 		return each((*ent.Allocation).Proto)(db.Allocation.Query().Where(allocation.TenantId(t), after(last)).Order(ent.Asc(allocation.FieldDateCreated, allocation.FieldId)).Limit(n).All(ctx))
 	},

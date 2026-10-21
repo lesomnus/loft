@@ -74,6 +74,21 @@ service LegalHoldService {
   rpc List(LegalHoldListRequest) returns (LegalHoldListResponse);
 }
 
+service AccessReviewService {
+  // Add creates a new AccessReview
+  rpc Add(AccessReviewAddRequest) returns (AccessReview);
+  // Get retrieves a AccessReview
+  rpc Get(AccessReviewGetRequest) returns (AccessReview);
+  // Patch updates an existing AccessReview
+  rpc Patch(AccessReviewPatchRequest) returns (AccessReview);
+  // Apply applies a patch document to an existing AccessReview
+  rpc Apply(AccessReviewApplyRequest) returns (AccessReview);
+  // Erase deletes a AccessReview
+  rpc Erase(AccessReviewRef) returns (AccessReviewEraseResponse);
+  // List reads AccessReviews a page at a time.
+  rpc List(AccessReviewListRequest) returns (AccessReviewListResponse);
+}
+
 message NotificationAddRequest {
   bytes id = 1;
   TenantRef tenant = 2;
@@ -553,3 +568,96 @@ message LegalHoldListResponse {
 message LegalHoldFilter {
   LegalHoldRef ref = 1;
 }
+
+message AccessReviewAddRequest {
+  bytes id = 1;
+  TenantRef tenant = 2;
+  string desc = 6 [features.field_presence = IMPLICIT];
+  google.protobuf.Timestamp period_from = 8;
+  google.protobuf.Timestamp period_to = 9;
+  HolderRef reviewer = 10;
+  uint32 calls = 11 [features.field_presence = IMPLICIT];
+  uint32 downloads = 12 [features.field_presence = IMPLICIT];
+  google.protobuf.Timestamp date_created = 15;
+  uint32 refused = 16 [features.field_presence = IMPLICIT];
+}
+
+message AccessReviewGetRequest {
+  AccessReviewRef ref = 1;
+  AccessReviewSelect select = 2;
+}
+
+message AccessReviewRef {
+  oneof key {
+    bytes id = 1;
+  }
+}
+
+message AccessReviewSelect {
+  bool all = 1;
+  TenantSelect tenant = 2;
+  bool desc = 6;
+  bool period_from = 8;
+  bool period_to = 9;
+  HolderSelect reviewer = 10;
+  bool calls = 11;
+  bool downloads = 12;
+  bool date_created = 15;
+  bool refused = 16;
+}
+
+message AccessReviewPatchRequest {
+  AccessReviewRef ref = 1;
+}
+
+message AccessReviewApplyRequest {
+  AccessReviewRef ref = 1;
+  patch.Patch patch = 2;
+}
+
+message AccessReviewEraseResponse {
+  // Erased is whether this call is the one that erased the row.
+  //
+  // False for a row that was already gone, was never there, or is out
+  // of this caller's reach -- which are one answer on purpose, and the
+  // reason the RPC does not fail instead.
+  bool erased = 1;
+}
+
+message AccessReviewListRequest {
+  // Bounded because the work is: each filter is a predicate in the same query,
+  // so this is what says how much of the database one request may read.
+  repeated AccessReviewFilter filters = 1;
+
+  // How many to answer with. Nothing said is what the schema declared, and more
+  // than the cap is the cap -- a caller asking for more than there is meant no
+  // harm, so it is not an error and it is not the whole table either.
+  int32 size = 2 [features.field_presence = IMPLICIT];
+
+  // Where to carry on from: the "next" of the answer before. It names the last
+  // row of that page rather than counting rows from the start, so a row added
+  // ahead of the page does not shift it and a caller reading through never sees
+  // one twice or misses one.
+  string after = 3 [features.field_presence = IMPLICIT];
+
+  // Read the order the other way round, every column of it at once -- newest
+  // first where it is oldest first -- which the index the order walks walks
+  // from the other end. A cursor is of the way it was read, so the next page
+  // carries on that way, and one of the other way is refused.
+  bool reverse = 4 [features.field_presence = IMPLICIT];
+}
+
+message AccessReviewListResponse {
+  repeated AccessReview items = 1;
+
+  // What to ask for next, and empty when this was the last of them.
+  //
+  // Empty means there is no more *for now*: a list is read as it is, and one
+  // that has grown since answers a fresh call. It is not empty merely because
+  // the page came back short -- a page is short when the last row of it was the
+  // last row there was, which is a thing the server can only know by having
+  // looked.
+  string next = 2 [features.field_presence = IMPLICIT];
+}
+
+message AccessReviewFilter {}

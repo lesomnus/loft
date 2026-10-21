@@ -19,7 +19,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file rove/ops.proto.
  */
 export const file_rove_ops: GenFile = /*@__PURE__*/
-  fileDesc("Cg5yb3ZlL29wcy5wcm90bxIEcm92ZSKzBQoMTm90aWZpY2F0aW9uEhcKAmlkGAEgASgMQgvqghYHEEAoAYIBABIkCgZ0ZW5hbnQYAiABKAsyDC5yb3ZlLlRlbmFudEIG8oIWAkABEhQKBG5hbWUYBSABKAlCBqrBFgIYARIUCgRkZXNjGAYgASgJQgaqwRYCGAESJAoGaG9sZGVyGAggASgLMgwucm92ZS5Ib2xkZXJCBvKCFgJAARIUCgRraW5kGAkgASgJQgaqwRYCGAASHAoKc3ViamVjdF9pZBgKIAEoDEII6oIWBBBAOAESMwoHcmVhZF9hdBgLIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCBuqCFgI4ARIUCgRsaW5rGAwgASgJQgaqwRYCGAASDAoEbWFpbBgQIAEoCBI3CgtkYXRlX21haWxlZBgRIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCBuqCFgI4ARISCgptYWlsX3RyaWVzGBIgASgNEjkKDGRhdGVfdXBkYXRlZBgNIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOKAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAOr8ByvwVWhICEAEaLBIEcGFnZRoKCgZ0ZW5hbnQQAhoQCgxkYXRlX2NyZWF0ZWQQDxoGCgJpZBABGiYSBmhvbGRlchoKCgZob2xkZXIQCBoQCgxkYXRlX2NyZWF0ZWQQD4q7Fl0IJDI8ChIKDgoMZGF0ZV9jcmVhdGVkEAEKCAoECgJpZBABGgUKA3JlZhoICgZob2xkZXIaBgoEa2luZCAyKMgBQgIKACIXCgZ0ZW5hbnQiDWhvbGRlci50ZW5hbnQiygMKDVVzYWdlU25hcHNob3QSFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEiQKBnRlbmFudBgCIAEoCzIMLnJvdmUuVGVuYW50QgbyghYCQAESCwoDZGF5GAggASgJEjEKB21ldHJpY3MYCSADKAsyIC5yb3ZlLlVzYWdlU25hcHNob3QuTWV0cmljc0VudHJ5EjkKDGRhdGVfdXBkYXRlZBgNIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOKAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAGi4KDE1ldHJpY3NFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBOpEByvwVUBICEAEaLBIEcGFnZRoKCgZ0ZW5hbnQQAhoQCgxkYXRlX2NyZWF0ZWQQDxoGCgJpZBABGhwSA2RheRoKCgZ0ZW5hbnQQAhoHCgNkYXkQCDABirsWOQgUMjEKEgoOCgxkYXRlX2NyZWF0ZWQQAQoICgQKAmlkEAEaBQoDcmVmGgUKA2RheSAfKJADQgIKACKNBAoOVGVuYW50Q29udHJhY3QSFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEiQKBnRlbmFudBgCIAEoCzIMLnJvdmUuVGVuYW50QgbyghYCQAESDAoEbmFtZRgFIAEoCRIMCgRkZXNjGAYgASgJEhEKCXZpZXdfZGF5cxgIIAEoDRIRCglrZWVwX2RheXMYCSABKA0SEgoKZ3JhY2VfZGF5cxgKIAEoDRI7Cg5kYXRlX2VmZmVjdGl2ZRgLIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOCAQASIQoQYWNjZXNzX2tlZXBfZGF5cxgMIAEoDUIH6oIWA4IBABIdCgxyZXN0b3JlX2RheXMYECABKA1CB+qCFgOCAQASOAoLZGF0ZV9lcmFzZWQYDiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDkgEAEjsKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCeqCFgVAAYIBADpwyvwVORICEAEaMxIJZWZmZWN0aXZlGgoKBnRlbmFudBACGhIKDmRhdGVfZWZmZWN0aXZlEAsaBgoCaWQQAYq7Fi8IJzIrChQKEAoOZGF0ZV9lZmZlY3RpdmUQAQoICgQKAmlkEAEaBQoDcmVmIBQoZCLJAgoJTGVnYWxIb2xkEhcKAmlkGAEgASgMQgvqghYHEEAoAYIBABIkCgZ0ZW5hbnQYAiABKAsyDC5yb3ZlLlRlbmFudEIG8oIWAkABEgwKBG5hbWUYBSABKAkSDAoEZGVzYxgGIAEoCRI3CgtkYXRlX2xpZnRlZBgIIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCBuqCFgI4ARI7CgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgnqghYFQAGCAQA6a8r8FTISAhABGiwSBHBhZ2UaCgoGdGVuYW50EAIaEAoMZGF0ZV9jcmVhdGVkEA8aBgoCaWQQAYq7FjEIKDIpChIKDgoMZGF0ZV9jcmVhdGVkEAEKCAoECgJpZBABGgUKA3JlZiAUKGRCAgoAQh9aGGdpdGh1Yi5jb20vbGVzb21udXMvcm92ZZIDAggCYghlZGl0aW9uc3DoBw", [file_google_protobuf_timestamp, file_orm, file_payday, file_rove_payday_holder, file_rove_payday_tenant]);
+  fileDesc("Cg5yb3ZlL29wcy5wcm90bxIEcm92ZSKzBQoMTm90aWZpY2F0aW9uEhcKAmlkGAEgASgMQgvqghYHEEAoAYIBABIkCgZ0ZW5hbnQYAiABKAsyDC5yb3ZlLlRlbmFudEIG8oIWAkABEhQKBG5hbWUYBSABKAlCBqrBFgIYARIUCgRkZXNjGAYgASgJQgaqwRYCGAESJAoGaG9sZGVyGAggASgLMgwucm92ZS5Ib2xkZXJCBvKCFgJAARIUCgRraW5kGAkgASgJQgaqwRYCGAASHAoKc3ViamVjdF9pZBgKIAEoDEII6oIWBBBAOAESMwoHcmVhZF9hdBgLIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCBuqCFgI4ARIUCgRsaW5rGAwgASgJQgaqwRYCGAASDAoEbWFpbBgQIAEoCBI3CgtkYXRlX21haWxlZBgRIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCBuqCFgI4ARISCgptYWlsX3RyaWVzGBIgASgNEjkKDGRhdGVfdXBkYXRlZBgNIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOKAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAOr8ByvwVWhICEAEaLBIEcGFnZRoKCgZ0ZW5hbnQQAhoQCgxkYXRlX2NyZWF0ZWQQDxoGCgJpZBABGiYSBmhvbGRlchoKCgZob2xkZXIQCBoQCgxkYXRlX2NyZWF0ZWQQD4q7Fl0IJDI8ChIKDgoMZGF0ZV9jcmVhdGVkEAEKCAoECgJpZBABGgUKA3JlZhoICgZob2xkZXIaBgoEa2luZCAyKMgBQgIKACIXCgZ0ZW5hbnQiDWhvbGRlci50ZW5hbnQiygMKDVVzYWdlU25hcHNob3QSFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEiQKBnRlbmFudBgCIAEoCzIMLnJvdmUuVGVuYW50QgbyghYCQAESCwoDZGF5GAggASgJEjEKB21ldHJpY3MYCSADKAsyIC5yb3ZlLlVzYWdlU25hcHNob3QuTWV0cmljc0VudHJ5EjkKDGRhdGVfdXBkYXRlZBgNIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOKAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAGi4KDE1ldHJpY3NFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBOpEByvwVUBICEAEaLBIEcGFnZRoKCgZ0ZW5hbnQQAhoQCgxkYXRlX2NyZWF0ZWQQDxoGCgJpZBABGhwSA2RheRoKCgZ0ZW5hbnQQAhoHCgNkYXkQCDABirsWOQgUMjEKEgoOCgxkYXRlX2NyZWF0ZWQQAQoICgQKAmlkEAEaBQoDcmVmGgUKA2RheSAfKJADQgIKACKNBAoOVGVuYW50Q29udHJhY3QSFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEiQKBnRlbmFudBgCIAEoCzIMLnJvdmUuVGVuYW50QgbyghYCQAESDAoEbmFtZRgFIAEoCRIMCgRkZXNjGAYgASgJEhEKCXZpZXdfZGF5cxgIIAEoDRIRCglrZWVwX2RheXMYCSABKA0SEgoKZ3JhY2VfZGF5cxgKIAEoDRI7Cg5kYXRlX2VmZmVjdGl2ZRgLIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOCAQASIQoQYWNjZXNzX2tlZXBfZGF5cxgMIAEoDUIH6oIWA4IBABIdCgxyZXN0b3JlX2RheXMYECABKA1CB+qCFgOCAQASOAoLZGF0ZV9lcmFzZWQYDiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDkgEAEjsKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCeqCFgVAAYIBADpwyvwVORICEAEaMxIJZWZmZWN0aXZlGgoKBnRlbmFudBACGhIKDmRhdGVfZWZmZWN0aXZlEAsaBgoCaWQQAYq7Fi8IJzIrChQKEAoOZGF0ZV9lZmZlY3RpdmUQAQoICgQKAmlkEAEaBQoDcmVmIBQoZCLJAgoJTGVnYWxIb2xkEhcKAmlkGAEgASgMQgvqghYHEEAoAYIBABIkCgZ0ZW5hbnQYAiABKAsyDC5yb3ZlLlRlbmFudEIG8oIWAkABEgwKBG5hbWUYBSABKAkSDAoEZGVzYxgGIAEoCRI3CgtkYXRlX2xpZnRlZBgIIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCBuqCFgI4ARI7CgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgnqghYFQAGCAQA6a8r8FTISAhABGiwSBHBhZ2UaCgoGdGVuYW50EAIaEAoMZGF0ZV9jcmVhdGVkEA8aBgoCaWQQAYq7FjEIKDIpChIKDgoMZGF0ZV9jcmVhdGVkEAEKCAoECgJpZBABGgUKA3JlZiAUKGRCAgoAIu8DCgxBY2Nlc3NSZXZpZXcSFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEiQKBnRlbmFudBgCIAEoCzIMLnJvdmUuVGVuYW50QgbyghYCQAESFAoEZGVzYxgGIAEoCUIG6oIWAkABEjoKC3BlcmlvZF9mcm9tGAggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAEjgKCXBlcmlvZF90bxgJIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCeqCFgVAAYIBABImCghyZXZpZXdlchgKIAEoCzIMLnJvdmUuSG9sZGVyQgbyghYCQAESFQoFY2FsbHMYCyABKA1CBuqCFgJAARIZCglkb3dubG9hZHMYDCABKA1CBuqCFgJAARI7CgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgnqghYFQAGCAQASFwoHcmVmdXNlZBgQIAEoDUIG6oIWAkABOmTK/BUyEgIQARosEgRwYWdlGgoKBnRlbmFudBACGhAKDGRhdGVfY3JlYXRlZBAPGgYKAmlkEAGKuxYqCC8yIgoSCg4KDGRhdGVfY3JlYXRlZBABCggKBAoCaWQQASAUKGRCAgoAQh9aGGdpdGh1Yi5jb20vbGVzb21udXMvcm92ZZIDAggCYghlZGl0aW9uc3DoBw", [file_google_protobuf_timestamp, file_orm, file_payday, file_rove_payday_holder, file_rove_payday_tenant]);
 
 /**
  * Notification is a message for one holder: an overdue loan, a reservation to
@@ -334,4 +334,86 @@ export type LegalHold = Message<"rove.LegalHold"> & {
  */
 export const LegalHoldSchema: GenMessage<LegalHold> = /*@__PURE__*/
   messageDesc(file_rove_ops, 3);
+
+/**
+ * AccessReview is that a stretch of the workspace's access record was
+ * reviewed (rove#136): who looked it over, when, what it held then, and what
+ * they found. PIPA's safety measures have a processor review its access
+ * record every month, and check what each download was for; this is how the
+ * workspace shows it did.
+ *
+ * The domain's Add writes it, which says who and counts what the stretch
+ * held. Nothing changes one after, and none is erased: a review is the
+ * evidence of itself, and goes with its workspace.
+ *
+ * @generated from message rove.AccessReview
+ */
+export type AccessReview = Message<"rove.AccessReview"> & {
+  /**
+   * @generated from field: bytes id = 1;
+   */
+  id: Uint8Array;
+
+  /**
+   * @generated from field: rove.Tenant tenant = 2;
+   */
+  tenant?: Tenant | undefined;
+
+  /**
+   * What the reviewer found, in their words.
+   *
+   * @generated from field: string desc = 6;
+   */
+  desc: string;
+
+  /**
+   * The stretch of the record it covers, from `period_from` and before
+   * `period_to`: a month, as the page reviews it.
+   *
+   * @generated from field: google.protobuf.Timestamp period_from = 8;
+   */
+  periodFrom?: Timestamp | undefined;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp period_to = 9;
+   */
+  periodTo?: Timestamp | undefined;
+
+  /**
+   * Who reviewed it: the membership, as the trail names its actor.
+   *
+   * @generated from field: rove.Holder reviewer = 10;
+   */
+  reviewer?: Holder | undefined;
+
+  /**
+   * What the stretch held when it was reviewed: every call that carried
+   * somebody's data, the downloads among them, and the calls refused.
+   *
+   * @generated from field: uint32 calls = 11;
+   */
+  calls: number;
+
+  /**
+   * @generated from field: uint32 downloads = 12;
+   */
+  downloads: number;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp date_created = 15;
+   */
+  dateCreated?: Timestamp | undefined;
+
+  /**
+   * @generated from field: uint32 refused = 16;
+   */
+  refused: number;
+};
+
+/**
+ * Describes the message rove.AccessReview.
+ * Use `create(AccessReviewSchema)` to create a new message.
+ */
+export const AccessReviewSchema: GenMessage<AccessReview> = /*@__PURE__*/
+  messageDesc(file_rove_ops, 4);
 
