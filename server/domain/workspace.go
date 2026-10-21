@@ -227,6 +227,15 @@ func (d *Deps) restoreWithin() time.Duration {
 	return d.RestoreWithin
 }
 
+// aliasHold is how long a destroyed workspace's address is kept from anybody
+// else.
+func (d *Deps) aliasHold() time.Duration {
+	if d == nil || d.AliasHold <= 0 {
+		return 365 * 24 * time.Hour
+	}
+	return d.AliasHold
+}
+
 // mine refuses a reference to any workspace but the caller's own.
 func (t *Tx) mine(ref *app.TenantRef) error {
 	if ref == nil {

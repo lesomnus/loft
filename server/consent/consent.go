@@ -192,8 +192,9 @@ func (c *Consents) Agree(ctx context.Context, account pdid.Id, agreed map[string
 
 // The acts an agreement is on the trail as.
 const (
-	Agreed = "rove.consent.agree"
-	Gone   = "rove.consent.left"
+	Agreed    = "rove.consent.agree"
+	Gone      = "rove.consent.left"
+	Destroyed = "rove.consent.destroy"
 )
 
 // Of is what an account agreed to, newest first.
@@ -252,21 +253,46 @@ func (c *Consents) Left(ctx context.Context, account pdid.Id) error {
 //
 // Destroyed rather than erased: an agreement is kept to show afterwards that
 // it was made, and past the window there is nothing it is kept for. The trail
-// keeps that the act happened -- who, when, of which row, and a keyed digest
-// of it -- and nothing of what was agreed to, for as long as its own window
-// for the kind keeps any row (`audit.by.consent`).
+// keeps that each act happened -- the agreement, the leaving, and this, the
+// deployment's destruction of it, in the same transaction -- as who, when, of
+// which row and a keyed digest of it, and nothing of what was agreed to. It
+// keeps them for as long as its own window for the kind keeps any row
+// (`audit.by.consent`, or the deployment's), as it keeps every act's actor.
 func (c *Consents) Sweep(ctx context.Context, keep time.Duration) (int, error) {
 	if keep <= 0 {
 		return 0, nil
 	}
-	n, err := c.Db.Consent.Delete().
-		Where(entconsent.DateLeftNotNil(), entconsent.DateLeftLT(c.now().Add(-keep))).
-		Exec(ctx)
-	if n > 0 {
-		// Whoever owed nothing because of them owes them again.
-		c.mu.Lock()
-		c.settled = nil
-		c.mu.Unlock()
+	tx, err := c.Db.Tx(ctx)
+	if err != nil {
+		return 0, err
 	}
-	return n, err
+	defer tx.Rollback()
+
+	ids, err := tx.Consent.Query().
+		Where(entconsent.DateLeftNotNil(), entconsent.DateLeftLT(c.now().Add(-keep))).
+		Ids(ctx)
+	if err != nil || len(ids) == 0 {
+		return 0, err
+	}
+	// While they are rows still: what the trail keeps is the digest of one.
+	gone := make([]pdid.Id, len(ids))
+	for i, v := range ids {
+		gone[i] = pdid.Id(v)
+	}
+	if _, err := pd.Record(ctx, tx.Client(), c.Audit, Destroyed, gone); err != nil {
+		return 0, err
+	}
+	n, err := tx.Consent.Delete().Where(entconsent.IdIn(ids...)).Exec(ctx)
+	if err != nil {
+		return 0, err
+	}
+	if err := tx.Commit(); err != nil {
+		return 0, err
+	}
+
+	// Whoever owed nothing because of them owes them again.
+	c.mu.Lock()
+	c.settled = nil
+	c.mu.Unlock()
+	return n, nil
 }

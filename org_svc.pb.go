@@ -2432,20 +2432,21 @@ func (b0 PartyMeRequest_builder) Build() *PartyMeRequest {
 }
 
 type PartyMeResponse struct {
-	state                   protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Holder       *Holder                `protobuf:"bytes,1,opt,name=holder"`
-	xxx_hidden_Party        *Party                 `protobuf:"bytes,2,opt,name=party"`
-	xxx_hidden_Tenant       *Tenant                `protobuf:"bytes,3,opt,name=tenant"`
-	xxx_hidden_Role         string                 `protobuf:"bytes,4,opt,name=role"`
-	xxx_hidden_HistorySince *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=history_since,json=historySince"`
-	xxx_hidden_HistoryDays  uint32                 `protobuf:"varint,6,opt,name=history_days,json=historyDays"`
-	xxx_hidden_AccountsHere bool                   `protobuf:"varint,7,opt,name=accounts_here,json=accountsHere"`
-	xxx_hidden_AccountUrl   string                 `protobuf:"bytes,8,opt,name=account_url,json=accountUrl"`
-	xxx_hidden_Timezone     string                 `protobuf:"bytes,9,opt,name=timezone"`
-	xxx_hidden_Currency     string                 `protobuf:"bytes,10,opt,name=currency"`
-	xxx_hidden_RestoreDays  uint32                 `protobuf:"varint,11,opt,name=restore_days,json=restoreDays"`
-	unknownFields           protoimpl.UnknownFields
-	sizeCache               protoimpl.SizeCache
+	state                    protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Holder        *Holder                `protobuf:"bytes,1,opt,name=holder"`
+	xxx_hidden_Party         *Party                 `protobuf:"bytes,2,opt,name=party"`
+	xxx_hidden_Tenant        *Tenant                `protobuf:"bytes,3,opt,name=tenant"`
+	xxx_hidden_Role          string                 `protobuf:"bytes,4,opt,name=role"`
+	xxx_hidden_HistorySince  *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=history_since,json=historySince"`
+	xxx_hidden_HistoryDays   uint32                 `protobuf:"varint,6,opt,name=history_days,json=historyDays"`
+	xxx_hidden_AccountsHere  bool                   `protobuf:"varint,7,opt,name=accounts_here,json=accountsHere"`
+	xxx_hidden_AccountUrl    string                 `protobuf:"bytes,8,opt,name=account_url,json=accountUrl"`
+	xxx_hidden_Timezone      string                 `protobuf:"bytes,9,opt,name=timezone"`
+	xxx_hidden_Currency      string                 `protobuf:"bytes,10,opt,name=currency"`
+	xxx_hidden_RestoreDays   uint32                 `protobuf:"varint,11,opt,name=restore_days,json=restoreDays"`
+	xxx_hidden_AliasHoldDays uint32                 `protobuf:"varint,12,opt,name=alias_hold_days,json=aliasHoldDays"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *PartyMeResponse) Reset() {
@@ -2550,6 +2551,13 @@ func (x *PartyMeResponse) GetRestoreDays() uint32 {
 	return 0
 }
 
+func (x *PartyMeResponse) GetAliasHoldDays() uint32 {
+	if x != nil {
+		return x.xxx_hidden_AliasHoldDays
+	}
+	return 0
+}
+
 func (x *PartyMeResponse) SetHolder(v *Holder) {
 	x.xxx_hidden_Holder = v
 }
@@ -2592,6 +2600,10 @@ func (x *PartyMeResponse) SetCurrency(v string) {
 
 func (x *PartyMeResponse) SetRestoreDays(v uint32) {
 	x.xxx_hidden_RestoreDays = v
+}
+
+func (x *PartyMeResponse) SetAliasHoldDays(v uint32) {
+	x.xxx_hidden_AliasHoldDays = v
 }
 
 func (x *PartyMeResponse) HasHolder() bool {
@@ -2666,6 +2678,9 @@ type PartyMeResponse_builder struct {
 	// How many days a closed workspace may be restored in (#144): its
 	// contract's, or the deployment's where it says none.
 	RestoreDays uint32
+	// And how many days its address is then kept from anybody else: the
+	// deployment's `app.workspaces.alias_hold`.
+	AliasHoldDays uint32
 }
 
 func (b0 PartyMeResponse_builder) Build() *PartyMeResponse {
@@ -2683,6 +2698,7 @@ func (b0 PartyMeResponse_builder) Build() *PartyMeResponse {
 	x.xxx_hidden_Timezone = b.Timezone
 	x.xxx_hidden_Currency = b.Currency
 	x.xxx_hidden_RestoreDays = b.RestoreDays
+	x.xxx_hidden_AliasHoldDays = b.AliasHoldDays
 	return m0
 }
 
@@ -6183,7 +6199,7 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12!\n" +
 	"\x05value\x18\x02 \x01(\v2\v.rove.PartyR\x05value\x12\x1d\n" +
 	"\x06action\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06action\"\x10\n" +
-	"\x0ePartyMeRequest\"\xca\x03\n" +
+	"\x0ePartyMeRequest\"\xf9\x03\n" +
 	"\x0fPartyMeResponse\x12$\n" +
 	"\x06holder\x18\x01 \x01(\v2\f.rove.HolderR\x06holder\x12!\n" +
 	"\x05party\x18\x02 \x01(\v2\v.rove.PartyR\x05party\x12$\n" +
@@ -6197,7 +6213,8 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\btimezone\x18\t \x01(\tB\x05\xaa\x01\x02\b\x02R\btimezone\x12!\n" +
 	"\bcurrency\x18\n" +
 	" \x01(\tB\x05\xaa\x01\x02\b\x02R\bcurrency\x12(\n" +
-	"\frestore_days\x18\v \x01(\rB\x05\xaa\x01\x02\b\x02R\vrestoreDays\"\xa1\x03\n" +
+	"\frestore_days\x18\v \x01(\rB\x05\xaa\x01\x02\b\x02R\vrestoreDays\x12-\n" +
+	"\x0falias_hold_days\x18\f \x01(\rB\x05\xaa\x01\x02\b\x02R\raliasHoldDays\"\xa1\x03\n" +
 	"\x12PartyUpdateRequest\x12 \n" +
 	"\x03ref\x18\x01 \x01(\v2\x0e.rove.PartyRefR\x03ref\x12\x19\n" +
 	"\x04name\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04name\x12\x19\n" +

@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/lesomnus/payday/audit"
 	"github.com/lesomnus/payday/pdid"
@@ -104,6 +105,21 @@ func TestWhatAnAccountAgreedToIsOnTheTrail(t *testing.T) {
 	// An agreement changed in the database: to a version nobody agreed to.
 	x.NoError(w.s.Ent.Consent.UpdateOneId(rows[0].Id).SetVersion("2026-09-01").Exec(ctx))
 	x.Equal([]pdid.Id{pdid.Id(rows[0].Id)}, w.check(t, d).Differs)
+
+	// And destroyed once the account has been gone longer than they are kept
+	// (`app.consent.keep`): the deployment's act, the last of each.
+	w.s.Consents.Now = func() time.Time { return time.Now().Add(91 * 24 * time.Hour) }
+	t.Cleanup(func() { w.s.Consents.Now = nil })
+	n, err := w.s.Consents.Sweep(ctx, 90*24*time.Hour)
+	x.NoError(err)
+	x.Equal(2, n)
+	for _, r := range rows {
+		acts := w.acts(t, pdid.Id(r.Id))
+		x.Equal(consent.Destroyed, acts[len(acts)-1].Action, "destroyed with no word on the trail")
+		x.Zero(acts[len(acts)-1].ActorId, "the deployment's act, not the account's")
+	}
+	got = w.check(t, d)
+	x.True(got.Ok(), "%+v", got)
 }
 
 func TestATerminalsSignInIsOnTheTrail(t *testing.T) {

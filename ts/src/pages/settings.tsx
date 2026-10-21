@@ -15,6 +15,7 @@ import {
 	TenantDomainService,
 	TenantService,
 	UsageSnapshotService,
+	daysWord,
 	fmt,
 	idBytes,
 	idStr,
@@ -729,7 +730,7 @@ function WorkspaceTab(): ReactNode {
 					<PlaceCard t={v} />
 					<Card title="워크스페이스 닫기">
 						<p>
-							닫으면 소유자 말고는 아무도 들어오지 못합니다. 소유자는 {c.me.restoreDays}일 안에 복구하거나 모든 데이터를 내려받을 수 있고, 그 뒤에는 이 워크스페이스의 모든 데이터가 지워집니다. 법적 보존이 걸려 있으면 풀릴 때까지 지우지 않습니다. 주소 @{v.alias}는 1년 동안 아무도 쓰지 못하게 보류됩니다.
+							닫으면 소유자 말고는 아무도 들어오지 못합니다. 소유자는 {c.me.restoreDays}일 안에 복구하거나 모든 데이터를 내려받을 수 있고, 그 뒤에는 이 워크스페이스의 모든 데이터가 지워집니다. 법적 보존이 걸려 있으면 풀릴 때까지 지우지 않습니다. 주소 @{v.alias}는 {daysWord(c.me.aliasHoldDays)} 동안 아무도 쓰지 못하게 보류됩니다.
 						</p>
 						<Field label={`확인을 위해 워크스페이스 이름(${v.name})을 그대로 입력하세요`}>
 							<input value={confirm} onChange={(e) => setConfirm(e.target.value)} />
