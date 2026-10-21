@@ -325,6 +325,19 @@ checked -- a session, the tree lock. `pd gen` refuses one that says neither.
 Whether a kind has RPCs is a separate question, about its API. An UPDATE that
 changes nothing, to take a row's lock, is fine.
 
+## Who saw whose data
+
+Every call that carries somebody's personal data is a row of payday's access
+record (rove#136, payday#111), read off what the schema declares `personal`:
+a new RPC is recorded without a line. What no declaration sees -- a name
+`namer.say` reads into a sentence, a column of a CSV, a name put in a mail --
+says `access.Saw` in the call that shows it. A download, which hands people's
+data out to be kept elsewhere, is in `cmd.Downloads` (the workspace's export is
+HTTP, `server/account`, and records itself): it says what it is for in
+`payday-reason-bin` -- base64, as every `-bin` key is -- or is refused. A file
+that names nobody is no download, and is a method of its own
+(`AssetService.Form`).
+
 ## Search
 
 Search is OpenSearch with nori, for a deployment whose

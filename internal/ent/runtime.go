@@ -4,6 +4,7 @@ package ent
 
 import (
 	"github.com/lesomnus/rove"
+	"github.com/lesomnus/rove/internal/ent/access"
 	"github.com/lesomnus/rove/internal/ent/assettype"
 	"github.com/lesomnus/rove/internal/ent/audit"
 	"github.com/lesomnus/rove/internal/ent/bookable"
@@ -19,6 +20,12 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	accessFields := schema.Access{}.Fields()
+	_ = accessFields
+	// accessDescDomain is the schema descriptor for domain field.
+	accessDescDomain := accessFields[10].Descriptor()
+	// access.DefaultDomain holds the default value on creation for the domain field.
+	access.DefaultDomain = accessDescDomain.Default.(uint32)
 	assettypeFields := schema.AssetType{}.Fields()
 	_ = assettypeFields
 	// assettypeDescSpec is the schema descriptor for spec field.

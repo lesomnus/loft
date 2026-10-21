@@ -71,7 +71,7 @@ export function Register(): ReactNode {
 
 	const form = async () => {
 		try {
-			const v = await raw.asset.export({ template: true })
+			const v = await raw.asset.form({})
 			download(v.data, v.name, v.contentType)
 		} catch (err) {
 			toast(errorText(err), 'bad')

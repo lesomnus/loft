@@ -38,6 +38,7 @@ const (
 	AssetService_Search_FullMethodName        = "/rove.AssetService/Search"
 	AssetService_Report_FullMethodName        = "/rove.AssetService/Report"
 	AssetService_Export_FullMethodName        = "/rove.AssetService/Export"
+	AssetService_Form_FullMethodName          = "/rove.AssetService/Form"
 	AssetService_ReadSheet_FullMethodName     = "/rove.AssetService/ReadSheet"
 )
 
@@ -97,10 +98,15 @@ type AssetServiceClient interface {
 	Report(ctx context.Context, in *AssetReportRequest, opts ...grpc.CallOption) (*AssetReportResponse, error)
 	// Export writes the register as a CSV, to read. Nothing reads one back: a
 	// restore is of the workspace's own export, and a sheet that edited the
-	// register by tag is gone (design D34). With `template` it writes the form
-	// bulk registration reads instead, its header. A CSV and never a workbook:
-	// rove neither reads nor writes one (design 9.13).
+	// register by tag is gone (design D34). A CSV and never a workbook: rove
+	// neither reads nor writes one (design 9.13).
+	//
+	// It is a download of the people the register names, so it says what it is
+	// for, in `payday-reason-bin`, and is refused without (rove#136).
 	Export(ctx context.Context, in *AssetExportRequest, opts ...grpc.CallOption) (*AssetExportResponse, error)
+	// Form writes the form bulk registration reads (ReadSheet): its header and
+	// nothing of the register, so it is no download of anybody.
+	Form(ctx context.Context, in *AssetFormRequest, opts ...grpc.CallOption) (*AssetExportResponse, error)
 	// ReadSheet reads a CSV in that form into the items an AddMany takes, and
 	// says what it could not read, by line. It writes nothing. The page and
 	// `rove register` read a sheet with it, so that the form is read in one
@@ -317,6 +323,16 @@ func (c *assetServiceClient) Export(ctx context.Context, in *AssetExportRequest,
 	return out, nil
 }
 
+func (c *assetServiceClient) Form(ctx context.Context, in *AssetFormRequest, opts ...grpc.CallOption) (*AssetExportResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AssetExportResponse)
+	err := c.cc.Invoke(ctx, AssetService_Form_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *assetServiceClient) ReadSheet(ctx context.Context, in *AssetReadSheetRequest, opts ...grpc.CallOption) (*AssetReadSheetResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(AssetReadSheetResponse)
@@ -383,10 +399,15 @@ type AssetServiceServer interface {
 	Report(context.Context, *AssetReportRequest) (*AssetReportResponse, error)
 	// Export writes the register as a CSV, to read. Nothing reads one back: a
 	// restore is of the workspace's own export, and a sheet that edited the
-	// register by tag is gone (design D34). With `template` it writes the form
-	// bulk registration reads instead, its header. A CSV and never a workbook:
-	// rove neither reads nor writes one (design 9.13).
+	// register by tag is gone (design D34). A CSV and never a workbook: rove
+	// neither reads nor writes one (design 9.13).
+	//
+	// It is a download of the people the register names, so it says what it is
+	// for, in `payday-reason-bin`, and is refused without (rove#136).
 	Export(context.Context, *AssetExportRequest) (*AssetExportResponse, error)
+	// Form writes the form bulk registration reads (ReadSheet): its header and
+	// nothing of the register, so it is no download of anybody.
+	Form(context.Context, *AssetFormRequest) (*AssetExportResponse, error)
 	// ReadSheet reads a CSV in that form into the items an AddMany takes, and
 	// says what it could not read, by line. It writes nothing. The page and
 	// `rove register` read a sheet with it, so that the form is read in one
@@ -460,6 +481,9 @@ func (UnimplementedAssetServiceServer) Report(context.Context, *AssetReportReque
 }
 func (UnimplementedAssetServiceServer) Export(context.Context, *AssetExportRequest) (*AssetExportResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Export not implemented")
+}
+func (UnimplementedAssetServiceServer) Form(context.Context, *AssetFormRequest) (*AssetExportResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Form not implemented")
 }
 func (UnimplementedAssetServiceServer) ReadSheet(context.Context, *AssetReadSheetRequest) (*AssetReadSheetResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ReadSheet not implemented")
@@ -820,6 +844,24 @@ func _AssetService_Export_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AssetService_Form_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AssetFormRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AssetServiceServer).Form(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AssetService_Form_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AssetServiceServer).Form(ctx, req.(*AssetFormRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _AssetService_ReadSheet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AssetReadSheetRequest)
 	if err := dec(in); err != nil {
@@ -916,6 +958,10 @@ var AssetService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Export",
 			Handler:    _AssetService_Export_Handler,
+		},
+		{
+			MethodName: "Form",
+			Handler:    _AssetService_Form_Handler,
 		},
 		{
 			MethodName: "ReadSheet",

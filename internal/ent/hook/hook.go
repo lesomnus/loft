@@ -9,6 +9,18 @@ import (
 	"github.com/lesomnus/rove/internal/ent"
 )
 
+// The AccessFunc type is an adapter to allow the use of ordinary
+// function as Access mutator.
+type AccessFunc func(context.Context, *ent.AccessMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f AccessFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.AccessMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AccessMutation", m)
+}
+
 // The AliasHoldFunc type is an adapter to allow the use of ordinary
 // function as AliasHold mutator.
 type AliasHoldFunc func(context.Context, *ent.AliasHoldMutation) (ent.Value, error)

@@ -1,6 +1,7 @@
 // Package clientaddr is where a request came from, for what is counted or
-// shown by it: the sign-in limits (`server/session`, `server/clilogin`) and the
-// address a terminal's sign-in is shown as asking from.
+// shown by it: the sign-in limits (`server/session`, `server/clilogin`), the
+// address a terminal's sign-in is shown as asking from, and where each row of
+// the access record says a call came from (payday#111).
 //
 // # Whose word is taken
 //
@@ -125,6 +126,15 @@ func Of(r *http.Request) string {
 	}
 
 	return hostOf(r.RemoteAddr)
+}
+
+// From is where the request a call came in on came from, as the
+// [Proxies.Handler] in front of it resolved -- what a call carried over the
+// transcoder, which serves it on the request's own context. False for one that
+// came in on no request through that handler.
+func From(ctx context.Context) (string, bool) {
+	v, ok := ctx.Value(key{}).(string)
+	return v, ok
 }
 
 func hostOf(v string) string {

@@ -7,6 +7,7 @@ import { modelName, useCatalog } from '../catalog.js'
 import { ModelSelect, SpaceSelect, TypeSelect, Where } from '../pickers.js'
 import { useAct, useRpc } from '../rpc.js'
 import { Badge, Empty, Field, FormModal, Load, PageHead, Search, Select, useDebounced, useToast } from '../ui.js'
+import { reasoned, ReasonModal } from '../reason.js'
 import { conditionWord, kindWord, statusWord } from '../words.js'
 
 const PAGE = 50
@@ -44,12 +45,16 @@ export function Assets(): ReactNode {
 		offset: page * PAGE,
 	})
 
-	const exportRegister = async () => {
+	// A download of the people the register names, so it says what for.
+	const [exporting, setExporting] = useState(false)
+	const exportRegister = async (why: string): Promise<boolean> => {
 		try {
-			const v = await raw.asset.export({})
+			const v = await raw.asset.export({}, reasoned(why))
 			download(v.data, v.name, v.contentType)
+			return true
 		} catch (err) {
 			toast(errorText(err), 'bad')
+			return false
 		}
 	}
 
@@ -65,7 +70,7 @@ export function Assets(): ReactNode {
 						)}
 						{c.can('manager') && (
 							<>
-								<button onClick={() => void exportRegister()}>CSV로 내보내기</button>
+								<button onClick={() => setExporting(true)}>CSV로 내보내기</button>
 								<Link className="button" to="/assets/register">
 									대량 등록
 								</Link>
@@ -179,6 +184,7 @@ export function Assets(): ReactNode {
 				}
 			</Load>
 			{adding && <NewAsset onClose={() => setAdding(false)} />}
+			{exporting && <ReasonModal title="자산 대장 내보내기" onClose={() => setExporting(false)} onReason={exportRegister} />}
 		</>
 	)
 }

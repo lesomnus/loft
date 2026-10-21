@@ -9,6 +9,7 @@ import (
 	patchpb "github.com/lesomnus/protobuf-patch/patchpb"
 	rove "github.com/lesomnus/rove"
 	ent "github.com/lesomnus/rove/internal/ent"
+	access "github.com/lesomnus/rove/internal/ent/access"
 	aliashold "github.com/lesomnus/rove/internal/ent/aliashold"
 	allocation "github.com/lesomnus/rove/internal/ent/allocation"
 	archived "github.com/lesomnus/rove/internal/ent/archived"
@@ -436,6 +437,7 @@ type Scope interface {
 	UsageSnapshotScope(ctx context.Context) (predicate.UsageSnapshot, error)
 	TenantContractScope(ctx context.Context) (predicate.TenantContract, error)
 	LegalHoldScope(ctx context.Context) (predicate.LegalHold, error)
+	AccessScope(ctx context.Context) (predicate.Access, error)
 	ArchivedScope(ctx context.Context) (predicate.Archived, error)
 	AuditScope(ctx context.Context) (predicate.Audit, error)
 	OutboxScope(ctx context.Context) (predicate.Outbox, error)
@@ -560,6 +562,9 @@ func (Unscoped) TenantContractScope(_ context.Context) (predicate.TenantContract
 	return nil, nil
 }
 func (Unscoped) LegalHoldScope(_ context.Context) (predicate.LegalHold, error) {
+	return nil, nil
+}
+func (Unscoped) AccessScope(_ context.Context) (predicate.Access, error) {
 	return nil, nil
 }
 func (Unscoped) ArchivedScope(_ context.Context) (predicate.Archived, error) {
@@ -1303,6 +1308,26 @@ func (ss Scopes) LegalHoldScope(ctx context.Context) (predicate.LegalHold, error
 	return legalhold.And(ps...), nil
 }
 
+func (ss Scopes) AccessScope(ctx context.Context) (predicate.Access, error) {
+	ps := make([]predicate.Access, 0, len(ss))
+	for _, s := range ss {
+		p, err := s.AccessScope(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if p == nil {
+			continue
+		}
+
+		ps = append(ps, p)
+	}
+	if len(ps) == 0 {
+		return nil, nil
+	}
+
+	return access.And(ps...), nil
+}
+
 func (ss Scopes) ArchivedScope(ctx context.Context) (predicate.Archived, error) {
 	ps := make([]predicate.Archived, 0, len(ss))
 	for _, s := range ss {
@@ -1691,6 +1716,7 @@ func (s Server) TenantContract() rove.TenantContractServiceServer {
 func (s Server) LegalHold() rove.LegalHoldServiceServer {
 	return LegalHoldServiceServer{Store: s.Store}
 }
+func (s Server) Access() rove.AccessServiceServer     { return AccessServiceServer{Store: s.Store} }
 func (s Server) Archived() rove.ArchivedServiceServer { return ArchivedServiceServer{Store: s.Store} }
 func (s Server) Audit() rove.AuditServiceServer       { return AuditServiceServer{Store: s.Store} }
 func (s Server) Outbox() rove.OutboxServiceServer     { return OutboxServiceServer{Store: s.Store} }

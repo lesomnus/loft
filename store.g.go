@@ -61,6 +61,7 @@ type Server interface {
 	UsageSnapshot() UsageSnapshotServiceServer
 	TenantContract() TenantContractServiceServer
 	LegalHold() LegalHoldServiceServer
+	Access() AccessServiceServer
 	Archived() ArchivedServiceServer
 	Audit() AuditServiceServer
 	Outbox() OutboxServiceServer
@@ -110,6 +111,7 @@ func RegisterServer(g grpc.ServiceRegistrar, s Server) {
 	RegisterUsageSnapshotServiceServer(g, s.UsageSnapshot())
 	RegisterTenantContractServiceServer(g, s.TenantContract())
 	RegisterLegalHoldServiceServer(g, s.LegalHold())
+	RegisterAccessServiceServer(g, s.Access())
 	RegisterArchivedServiceServer(g, s.Archived())
 	RegisterAuditServiceServer(g, s.Audit())
 	RegisterOutboxServiceServer(g, s.Outbox())
@@ -155,6 +157,7 @@ type UnimplementedServer struct {
 	UsageSnapshotServer   UsageSnapshotServiceServer
 	TenantContractServer  TenantContractServiceServer
 	LegalHoldServer       LegalHoldServiceServer
+	AccessServer          AccessServiceServer
 	ArchivedServer        ArchivedServiceServer
 	AuditServer           AuditServiceServer
 	OutboxServer          OutboxServiceServer
@@ -245,6 +248,7 @@ func (UnimplementedServer) TenantContract() TenantContractServiceServer {
 func (UnimplementedServer) LegalHold() LegalHoldServiceServer {
 	return UnimplementedLegalHoldServiceServer{}
 }
+func (UnimplementedServer) Access() AccessServiceServer { return UnimplementedAccessServiceServer{} }
 func (UnimplementedServer) Archived() ArchivedServiceServer {
 	return UnimplementedArchivedServiceServer{}
 }
@@ -299,6 +303,7 @@ type StaticServer struct {
 	UsageSnapshotServer   UsageSnapshotServiceServer
 	TenantContractServer  TenantContractServiceServer
 	LegalHoldServer       LegalHoldServiceServer
+	AccessServer          AccessServiceServer
 	ArchivedServer        ArchivedServiceServer
 	AuditServer           AuditServiceServer
 	OutboxServer          OutboxServiceServer
@@ -343,6 +348,7 @@ func (s StaticServer) Notification() NotificationServiceServer       { return s.
 func (s StaticServer) UsageSnapshot() UsageSnapshotServiceServer     { return s.UsageSnapshotServer }
 func (s StaticServer) TenantContract() TenantContractServiceServer   { return s.TenantContractServer }
 func (s StaticServer) LegalHold() LegalHoldServiceServer             { return s.LegalHoldServer }
+func (s StaticServer) Access() AccessServiceServer                   { return s.AccessServer }
 func (s StaticServer) Archived() ArchivedServiceServer               { return s.ArchivedServer }
 func (s StaticServer) Audit() AuditServiceServer                     { return s.AuditServer }
 func (s StaticServer) Outbox() OutboxServiceServer                   { return s.OutboxServer }
@@ -387,6 +393,7 @@ type Client interface {
 	UsageSnapshot() UsageSnapshotServiceClient
 	TenantContract() TenantContractServiceClient
 	LegalHold() LegalHoldServiceClient
+	Access() AccessServiceClient
 	Archived() ArchivedServiceClient
 	Audit() AuditServiceClient
 	Outbox() OutboxServiceClient
@@ -433,6 +440,7 @@ func NewClient(c *grpc.ClientConn) Client {
 		_UsageSnapshot:   NewUsageSnapshotServiceClient(c),
 		_TenantContract:  NewTenantContractServiceClient(c),
 		_LegalHold:       NewLegalHoldServiceClient(c),
+		_Access:          NewAccessServiceClient(c),
 		_Archived:        NewArchivedServiceClient(c),
 		_Audit:           NewAuditServiceClient(c),
 		_Outbox:          NewOutboxServiceClient(c),
@@ -479,6 +487,7 @@ type client struct {
 	_UsageSnapshot   UsageSnapshotServiceClient
 	_TenantContract  TenantContractServiceClient
 	_LegalHold       LegalHoldServiceClient
+	_Access          AccessServiceClient
 	_Archived        ArchivedServiceClient
 	_Audit           AuditServiceClient
 	_Outbox          OutboxServiceClient
@@ -523,6 +532,7 @@ func (c *client) Notification() NotificationServiceClient       { return c._Noti
 func (c *client) UsageSnapshot() UsageSnapshotServiceClient     { return c._UsageSnapshot }
 func (c *client) TenantContract() TenantContractServiceClient   { return c._TenantContract }
 func (c *client) LegalHold() LegalHoldServiceClient             { return c._LegalHold }
+func (c *client) Access() AccessServiceClient                   { return c._Access }
 func (c *client) Archived() ArchivedServiceClient               { return c._Archived }
 func (c *client) Audit() AuditServiceClient                     { return c._Audit }
 func (c *client) Outbox() OutboxServiceClient                   { return c._Outbox }

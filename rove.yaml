@@ -244,6 +244,11 @@ app:
 #   by:
 #     holder:
 #       profile: gdpr
+#     # Who read or wrote whose data (rove#136): two years under PIPA's safety
+#     # measures for a processor of fifty thousand people or more, which is
+#     # what deploy/ writes for rove's own deployments.
+#     access:
+#       profile: pipa-sensitive
 
 # The operator's entry point (design 6장): `rove-admin serve` beside this
 # deployment, on an address only the operators' network reaches, and never by

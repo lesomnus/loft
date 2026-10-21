@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/lesomnus/otx/log"
+	"github.com/lesomnus/payday/access"
 	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/gate"
 	"github.com/lesomnus/payday/pdid"
@@ -631,10 +632,15 @@ func byState(q *ent.InvitationQuery, state string, now time.Time) *ent.Invitatio
 
 // nameOf is what somebody of the workspace is called: the person record their
 // membership is, or the membership's own name.
+//
+// Either is a name no `personal` declaration sees in what the call answers or
+// sends, so the call says it carried it (rove#136).
 func nameOf(ctx context.Context, db *ent.Client, h *ent.Holder) string {
 	if p, err := db.Party.Query().Where(entparty.HolderId(h.Id), entparty.DateErasedIsNil()).First(ctx); err == nil && p.Name != "" {
+		access.Saw(ctx, access.Subject{Id: pdid.Id(p.Id), Tenant: pdid.Id(p.TenantId)})
 		return p.Name
 	}
+	access.Saw(ctx, access.Subject{Id: pdid.Id(h.Id), Tenant: pdid.Id(h.TenantId)})
 	return or(h.Name, h.Alias)
 }
 
@@ -653,6 +659,7 @@ func inviterNames(ctx context.Context, db *ent.Client, rows []*ent.Invitation) m
 	for _, p := range ps {
 		if p.Name != "" {
 			out[p.HolderId] = p.Name
+			access.Saw(ctx, access.Subject{Id: pdid.Id(p.Id), Tenant: pdid.Id(p.TenantId)})
 		}
 	}
 	return out

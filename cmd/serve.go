@@ -20,6 +20,7 @@ import (
 	entsql "github.com/protobuf-orm/ent/dialect/sql"
 	"google.golang.org/grpc"
 
+	"github.com/lesomnus/payday/access"
 	"github.com/lesomnus/payday/auth"
 	"github.com/lesomnus/payday/auth/authsession"
 	"github.com/lesomnus/payday/gate"
@@ -157,6 +158,12 @@ type Server struct {
 	// putting a rule in here that says some row is special.
 	Policy gate.Policy
 
+	// Access is the access record's writer (payday#111, rove#136): what a
+	// read's row waits in to be written with the others of its second, and
+	// what writes a download's before it is answered. Its loop is in
+	// [Server.Spin], each process's own.
+	Access *access.Writer
+
 	// Spin is whatever this deployment has to run besides answering requests.
 	// It is a slice rather than a method because a server with nothing to run
 	// should write nothing at all; see `payday/spin`.
@@ -237,7 +244,10 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		db.Close()
 		return nil, err
 	}
-	rec := bare.Recorders{pd.Recorder(content), pd.WatchRecorder(w)}
+	// The access record's after the publish (rove#136): what it writes at the
+	// commit is of the people the call's writes wrote, so it is told of each
+	// and writes once, in the same transaction.
+	rec := bare.Recorders{pd.Recorder(content), pd.WatchRecorder(w), pd.AccessRecorder()}
 
 	// The search engine, when one is named (D31). What makes a document of
 	// its index stale is written down with the write itself, and a loop below
@@ -381,6 +391,12 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		db.Close()
 		return nil, err
 	}
+
+	// Who read or wrote whose personal data (rove#136). A read's row is
+	// written a second later with the others, by a loop each process runs for
+	// itself and that writes what it holds once more as the process stops.
+	s.Access = &access.Writer{Sink: pd.AccessSink(client)}
+	s.Spin = append(s.Spin, spin.Called("rove.access", s.Access))
 
 	// What happens because time passed: holds that ran out, rooms nobody came
 	// to, loans that are late, the day's usage.
@@ -602,6 +618,7 @@ func (s *Server) Grpc(ctx context.Context, c Config, opts ...grpc.ServerOption) 
 		WithUnary(auth.InterceptorUnary(h, Resolver(s.Ungated, s.Ent, s.Consents), auth.PublicDefault)).
 		WithStream(auth.InterceptorStream(h, Resolver(s.Ungated, s.Ent, s.Consents), auth.PublicDefault)).
 		WithUnary(grpcx.LimitUnary(c.Server.Limiter(), LimitKey())).
+		With(s.accessed().Interceptor()).
 		With(gate.Interceptor(s.Policy)).
 		With(s.Watch.Interceptor())
 	if s.Search != nil {
@@ -722,6 +739,38 @@ func httpServer(ctx context.Context, h http.Handler) *http.Server {
 		IdleTimeout:       2 * time.Minute,
 		BaseContext:       func(net.Listener) context.Context { return ctx },
 	}
+}
+
+// Downloads are the RPCs that hand people's data out to be kept somewhere else
+// (rove#136): each says what it is for, in `payday-reason`, or is refused, and
+// its row of the access record is written before it is answered. The
+// workspace's export is one too, and is HTTP (`server/account`).
+var Downloads = []string{
+	app.AssetService_Export_FullMethodName,
+}
+
+// accessed is what the access record's interceptor is told of this app: whose
+// data a message carries, read off what the schema declared `personal`; where a
+// call came from, as `Front` resolved it past the proxies `app.trusted_proxies`
+// names; and which calls are downloads.
+func (s *Server) accessed() access.Config {
+	return access.Config{
+		Subjects:  pd.Subjects,
+		Refs:      pd.SubjectRefs,
+		Address:   addressOf,
+		Downloads: Downloads,
+		Writer:    s.Access,
+	}
+}
+
+// addressOf is where a call came from: the request it came in on, as `Front`
+// resolved it, or the connection's for one that came by no request.
+func addressOf(ctx context.Context) string {
+	if v, ok := clientaddr.From(ctx); ok {
+		return v
+	}
+
+	return access.Peer(ctx)
 }
 
 // Front is what every HTTP request goes through before the routes: where it
@@ -851,6 +900,10 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 			_, err := s.Offboard(c).Export(ctx, t, w)
 			return err
 		},
+		// The export is a download of everybody in the workspace, and the
+		// access record says so before it is written (rove#136).
+		Access:  s.Access,
+		Carried: s.Offboard(c).People,
 		// A label scanned in a workspace it is not in: the one of the
 		// account's own it is in, when there is one (D28).
 		Label: func(ctx context.Context, code string) (pdid.Id, bool, error) {

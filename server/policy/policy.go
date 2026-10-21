@@ -121,6 +121,9 @@ func init() {
 
 	// What only the people who run the tenant, or audit it, read.
 	oversee("AuditService", "Get", "List", "Recent")
+	// And who read or wrote whose data (rove#136): the record a tenant's
+	// administrators review each month, and an auditor reads.
+	oversee("AccessService", "Get", "List")
 	allow(Read, "EventService", "Recent")
 	oversee("HolderService", reads...)
 	oversee("UsageSnapshotService", "Get", "List")
@@ -130,7 +133,7 @@ func init() {
 	// Bulk registration, and reading its form: who may Add may add many
 	// (design 9.13). The types it makes are an admin's still -- the domain
 	// asks, as AssetTypeService.Add is asked here.
-	allow(Manager, "AssetService", "AddMany", "ReadSheet")
+	allow(Manager, "AssetService", "AddMany", "ReadSheet", "Form")
 
 	allow(Admin, "AssetTypeService", "Add", "Update", "Erase")
 	allow(Manager, "ItemModelService", "Add", "Update")

@@ -113,12 +113,20 @@ audit:
   # goes until this says so, and the number is the regime's, not a default's
   # (`rove.yaml` at the root says why). Until some window is set no pass
   # runs, and so no checkpoint is taken either: the archive and the
-  # checkpoints above wait for it (`docs/runbook/restore.md`). plan.md M5 has
-  # a membership's rows kept as PIPA keeps an access record:
+  # checkpoints above wait for it (`docs/runbook/restore.md`).
   #
-  # by:
-  #   holder:
-  #     profile: pipa
+  # The access record is the one kind whose regime is known (rove#136): PIPA's
+  # safety measures keep one two years for a processor of fifty thousand
+  # people or more, which a deployment of many workspaces is, `pipa-sensitive`
+  # -- until a legal review of the deployment says otherwise. Its rows leave
+  # the database for the archive above at ninety days.
+  by:
+    access:
+      profile: pipa-sensitive
+    # plan.md M5 has a membership's rows kept as PIPA keeps an access record:
+    #
+    # holder:
+    #   profile: pipa
 
 # The operator's entry point (`rove-admin serve`): a container of its own in
 # the pod, which the NetworkPolicy lets nothing reach over the network. An

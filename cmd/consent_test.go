@@ -66,7 +66,7 @@ func TestNothingIsServedBeforeTheAccountAgrees(t *testing.T) {
 		{Name: "privacy", Title: "개인정보 처리방침", Version: privacy.Version, Url: privacy.Url},
 	}, acc.Owes)
 	x.Equal(http.StatusForbidden, w.post(w.owner, "/account/workspaces", `{"name":"하나 더"}`).Code)
-	res = w.page(w.owner, http.MethodGet, "/account/workspaces/acme/export")
+	res = w.page(w.owner, http.MethodGet, "/account/workspaces/acme/export?reason=keeping")
 	x.Equal(http.StatusOK, res.Code, "what it has is its own, agreed or not")
 	x.Equal("application/zip", res.Header().Get("Content-Type"))
 
