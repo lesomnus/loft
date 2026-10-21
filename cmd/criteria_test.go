@@ -17,6 +17,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/lesomnus/payday/access"
 	"github.com/lesomnus/payday/gate"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/pdpb"
@@ -102,6 +103,11 @@ func TestEveryMethodIsAsTheTableSaysForEveryRole(t *testing.T) {
 	x.Greater(len(calls), 200, "every method the stack serves")
 
 	ask := func(ctx context.Context, c call) error {
+		// A download says what it is for, or is refused before the table is
+		// asked (rove#136): said here, so that what answers is the table.
+		if slices.Contains(cmd.Downloads, c.full) {
+			ctx = metadata.AppendToOutgoingContext(ctx, access.ReasonKey, "criteria")
+		}
 		in, err := protoregistry.GlobalTypes.FindMessageByName(c.md.Input().FullName())
 		if err != nil {
 			return err

@@ -41,8 +41,12 @@ test('the register is exported as a CSV to read', async ({ page }, info) => {
 	await signIn(page, people.exports.login)
 	await page.goto(`${workspace}/assets`)
 
-	const download = page.waitForEvent('download')
+	// It names people, so it says what for first, and the access record
+	// keeps that (rove#136).
 	await page.getByRole('button', { name: 'CSV로 내보내기' }).click()
+	await field(page, '내려받는 이유').fill('e2e: 자산 실사')
+	const download = page.waitForEvent('download')
+	await page.getByRole('button', { name: '내려받기', exact: true }).click()
 	const got = await download
 	expect(got.suggestedFilename()).toMatch(/^rove-assets-\d{8}\.csv$/)
 

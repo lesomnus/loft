@@ -6,6 +6,9 @@ import (
 	"github.com/protobuf-orm/ent/dialect/sql"
 )
 
+// Access is the predicate function for access builders.
+type Access func(*sql.Selector)
+
 // AliasHold is the predicate function for aliashold builders.
 type AliasHold func(*sql.Selector)
 

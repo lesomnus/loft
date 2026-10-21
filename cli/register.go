@@ -71,7 +71,7 @@ func NewCmdRegister() *xli.Command {
 
 			if form {
 				out := &app.AssetExportResponse{}
-				if err := conn.Invoke(ctx, app.AssetService_Export_FullMethodName, app.AssetExportRequest_builder{Template: true}.Build(), out); err != nil {
+				if err := conn.Invoke(ctx, app.AssetService_Form_FullMethodName, &app.AssetFormRequest{}, out); err != nil {
 					return err
 				}
 				f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o644)

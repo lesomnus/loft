@@ -10,6 +10,7 @@ import (
 	"time"
 	"uuid"
 
+	"github.com/lesomnus/payday/access"
 	"github.com/lesomnus/payday/pdid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -387,9 +388,17 @@ func (n *namer) party(id uuid.UUID) string {
 	v := "?"
 	if p, err := n.t.db.Party.Query().Where(party.Id(id), party.TenantId(n.t.tenant.Uuid())).Only(n.t.ctx); err == nil {
 		v = p.Name
+		n.saw(id)
 	}
 	n.partys[id] = v
 	return v
+}
+
+// saw says the call showed what a person is called, in a sentence no
+// `personal` declaration can see (rove#136): the row of the person record or
+// membership it read the name off.
+func (n *namer) saw(id uuid.UUID) {
+	access.Saw(n.t.ctx, access.Subject{Id: pdid.Id(id), Tenant: n.t.tenant})
 }
 
 func (n *namer) actor(id *uuid.UUID) string {
@@ -405,6 +414,7 @@ func (n *namer) actor(id *uuid.UUID) string {
 	v := "?"
 	if p, err := n.t.db.Party.Query().Where(party.TenantId(n.t.tenant.Uuid()), party.HolderId(*id)).First(n.t.ctx); err == nil {
 		v = p.Name
+		n.saw(p.Id)
 	} else {
 		v = n.member(*id)
 	}
@@ -422,6 +432,7 @@ func (n *namer) member(id uuid.UUID) string {
 	}
 	v := "?"
 	if h, err := n.t.db.Holder.Query().Where(holder.Id(id), holder.TenantId(n.t.tenant.Uuid())).Only(n.t.ctx); err == nil {
+		n.saw(id)
 		v = "@" + h.Alias
 		if h.Alias == "" {
 			// The membership of somebody forgotten names nobody, and goes

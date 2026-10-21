@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/binary"
 	"encoding/json"
 	"errors"
@@ -54,6 +55,12 @@ func (c *connectConn) request(ctx context.Context, method, contentType string, b
 	if md, ok := metadata.FromOutgoingContext(ctx); ok {
 		for k, vs := range md {
 			for _, v := range vs {
+				// A `-bin` key is any bytes, base64 on the wire as gRPC
+				// sends it: a header is ASCII, and a reason written in
+				// Korean is not (`access.ReasonKey`).
+				if strings.HasSuffix(k, "-bin") {
+					v = base64.RawStdEncoding.EncodeToString([]byte(v))
+				}
 				req.Header.Add(k, v)
 			}
 		}

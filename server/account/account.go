@@ -22,12 +22,15 @@ import (
 	"unicode/utf8"
 
 	"github.com/lesomnus/otx/log"
+	"github.com/lesomnus/payday/access"
 	"github.com/lesomnus/payday/auth"
 	"github.com/lesomnus/payday/auth/authsession"
 	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/pdid"
+	"github.com/lesomnus/payday/pdpb"
 
 	"github.com/lesomnus/rove/internal/identity"
+	"github.com/lesomnus/rove/server/clientaddr"
 	"github.com/lesomnus/rove/server/consent"
 	"github.com/lesomnus/rove/server/tenancy"
 )
@@ -77,12 +80,40 @@ type Exporter func(ctx context.Context, workspace pdid.Id, w io.Writer) error
 // was scanned from, or false for none (`domain.LabelWorkspace`).
 type LabelFinder func(ctx context.Context, code string) (workspace pdid.Id, ok bool, err error)
 
+// exportAction is what a workspace's export is called in the access record:
+// the route, since it is no RPC.
+const exportAction = "GET /account/workspaces/{alias}/export"
+
+// exported writes the row of the access record a workspace's export is: by
+// the owner's membership, of everybody its data holds, from where the request
+// came and why.
+func (a Routes) exported(r *http.Request, m tenancy.Membership, why string) error {
+	if a.Access == nil || a.Carried == nil {
+		return errors.New("the access record is not wired")
+	}
+
+	ctx := r.Context()
+	people, err := a.Carried(ctx, m.Workspace)
+	if err != nil {
+		return err
+	}
+
+	as := frame.Into(ctx, frame.New(m.Holder, m.Workspace, frame.Whole()))
+	d := pdpb.AccessDetail_builder{Address: clientaddr.Of(r), Reason: why}.Build()
+	return a.Access.Write(ctx, access.Records(as, exportAction, access.Download, "ok", people, d, time.Now())...)
+}
+
 // Routes is what is served for an account beside `/session`.
 type Routes struct {
 	Sessions   *authsession.Sessions
 	People     People
 	Workspaces tenancy.Workspaces
 	Export     Exporter
+	// Access is where a workspace's export is recorded before its first byte
+	// goes (rove#136), and Carried is whose data one carries. An export
+	// that cannot be recorded is refused, as one with no reason is.
+	Access  *access.Writer
+	Carried func(ctx context.Context, workspace pdid.Id) ([]access.Subject, error)
 	// Label answers a scan made in a workspace a label is not in; nil
 	// answers none.
 	Label LabelFinder
@@ -122,6 +153,19 @@ func (a Routes) Mount(mux *http.ServeMux) {
 			}
 			if m.Role != "owner" {
 				break
+			}
+			// Everybody's data, out of the deployment: a download, so it says
+			// what it is for, and its row of the access record is written
+			// before anything is read for it (rove#136).
+			why := strings.TrimSpace(r.URL.Query().Get("reason"))
+			if why == "" {
+				http.Error(w, "say what the export is for, in ?reason=: it hands everybody's data out, and is recorded", http.StatusBadRequest)
+				return
+			}
+			if err := a.exported(r, m, why); err != nil {
+				log.From(r.Context()).ErrorContext(r.Context(), "account: an export was refused, since its record could not be written", "workspace", m.Workspace, "err", err)
+				http.Error(w, access.ErrUnrecorded.Error(), http.StatusServiceUnavailable)
+				return
 			}
 			// Everything it has, open or closed: what an owner takes out
 			// before a workspace goes (D29).

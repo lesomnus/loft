@@ -12,6 +12,7 @@ import { useState, type ReactNode } from 'react'
 
 import { TenantService, errorText, fmt, idBytes, leavePage, makeWorkspace, openWorkspace, workspace, type Account, type Workspace } from './api.js'
 import { useWaiting } from './invitations.js'
+import { ReasonModal } from './reason.js'
 import { call } from './rpc.js'
 
 /** The form that makes a workspace and opens it. */
@@ -143,6 +144,12 @@ export function Elsewhere(props: { account: Account; onSignOut: () => void }): R
 export function Closed(props: { account: Account; ws: Workspace; onSignOut: () => void }): ReactNode {
 	const [busy, setBusy] = useState(false)
 	const [bad, setBad] = useState('')
+	// Everybody's data, so the export says what for (rove#136): a link the
+	// browser follows, which is what takes a file down without the page.
+	const [exporting, setExporting] = useState(false)
+	const exportWorkspace = async (why: string): Promise<void> => {
+		location.assign(`/account/workspaces/${encodeURIComponent(props.ws.alias)}/export?reason=${encodeURIComponent(why)}`)
+	}
 	const owner = props.ws.role === 'owner'
 	const restore = async (): Promise<void> => {
 		setBusy(true)
@@ -166,9 +173,7 @@ export function Closed(props: { account: Account; ws: Workspace; onSignOut: () =
 				</p>
 				{owner ? (
 					<div className="actions">
-						<a className="button" href={`/account/workspaces/${props.ws.alias}/export`}>
-							데이터 내려받기 (zip)
-						</a>
+						<button onClick={() => setExporting(true)}>데이터 내려받기 (zip)</button>
 						<button className="primary" disabled={busy} onClick={() => void restore()}>
 							복구
 						</button>
@@ -180,6 +185,7 @@ export function Closed(props: { account: Account; ws: Workspace; onSignOut: () =
 				<p className="mute small">
 					<a href="/">다른 워크스페이스로</a> · <a onClick={props.onSignOut}>로그아웃</a>
 				</p>
+				{exporting && <ReasonModal title="워크스페이스 데이터 내려받기" onClose={() => setExporting(false)} onReason={exportWorkspace} />}
 			</div>
 		</div>
 	)

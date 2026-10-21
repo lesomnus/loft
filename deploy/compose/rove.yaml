@@ -67,12 +67,20 @@ audit:
 
   # How long a row stays in the database and the archive. Nothing moves or
   # goes until this says so, and the number is the regime's, not a default's
-  # (`rove.yaml` at the root says why). plan.md M5 has a membership's rows
-  # kept as PIPA keeps an access record:
+  # (`rove.yaml` at the root says why).
   #
-  # by:
-  #   holder:
-  #     profile: pipa
+  # The access record is the one kind whose regime is known (rove#136): PIPA's
+  # safety measures keep one two years for a processor of fifty thousand
+  # people or more, `pipa-sensitive` -- until a legal review of the deployment
+  # says otherwise. Its rows leave the database for the archive above at
+  # ninety days.
+  by:
+    access:
+      profile: pipa-sensitive
+    # plan.md M5 has a membership's rows kept as PIPA keeps an access record:
+    #
+    # holder:
+    #   profile: pipa
 
 # The operator's entry point (`rove-admin serve`), reached from the host
 # alone (compose.yaml publishes it on 127.0.0.1): over a VPN or a tunnel.

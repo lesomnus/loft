@@ -102,8 +102,10 @@ func (d Deployment) held(ctx context.Context, tenant pdid.Id) error {
 	return nil
 }
 
-// Trail is the trail's tables: its rows, and the manifest of its archive.
-var Trail = []string{"audit", "archived"}
+// Trail is the trail's tables: its rows, the manifest of its archive, and the
+// access record, which is kept by the same passes as a kind of the trail's
+// (rove#136) and so leaves with a tenant the way the trail does.
+var Trail = []string{"audit", "archived", "access"}
 
 // Shared is the deployment's own tables, which no tenant has rows in: sessions
 // and agreements are an account's, and an account is in no workspace (D27);

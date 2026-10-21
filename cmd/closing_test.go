@@ -115,7 +115,7 @@ func TestAWorkspaceIsClosedByItsOwnerAndRestored(t *testing.T) {
 	x.NotNil(acc.Workspaces[0].Destroy)
 
 	// And what its owner takes out before it goes.
-	res = w.page(w.owner, http.MethodGet, "/account/workspaces/"+w.tenant.GetAlias()+"/export")
+	res = w.page(w.owner, http.MethodGet, "/account/workspaces/"+w.tenant.GetAlias()+"/export?reason=closing")
 	x.Equal(http.StatusOK, res.Code)
 	zr, err := zip.NewReader(bytes.NewReader(res.Body.Bytes()), int64(res.Body.Len()))
 	x.NoError(err, "a zip")

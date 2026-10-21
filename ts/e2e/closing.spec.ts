@@ -38,8 +38,10 @@ test('a workspace is closed by its owner, its data taken out, and restored', asy
 	await expect(page.getByRole('navigation')).toHaveCount(0)
 
 	// What it has, taken out while it is closed.
+	await page.getByRole('button', { name: '데이터 내려받기 (zip)' }).click()
+	await field(page, '내려받는 이유').fill('e2e: 닫기 전에 보관')
 	const taken = page.waitForEvent('download')
-	await page.getByRole('link', { name: '데이터 내려받기 (zip)' }).click()
+	await page.getByRole('button', { name: '내려받기', exact: true }).click()
 	const download = await taken
 	expect(download.suggestedFilename()).toMatch(new RegExp(`^${alias}-\\d{8}\\.zip$`))
 	const zip = unzip(await readFile(await download.path()))

@@ -10,6 +10,7 @@ import (
 	"reflect"
 	"uuid"
 
+	"github.com/lesomnus/rove/internal/ent/access"
 	"github.com/lesomnus/rove/internal/ent/aliashold"
 	"github.com/lesomnus/rove/internal/ent/allocation"
 	"github.com/lesomnus/rove/internal/ent/archived"
@@ -61,6 +62,8 @@ import (
 // Client is the client that holds all ent builders.
 type Client struct {
 	config
+	// Access is the client for interacting with the Access builders.
+	Access *AccessClient
 	// AliasHold is the client for interacting with the AliasHold builders.
 	AliasHold *AliasHoldClient
 	// Allocation is the client for interacting with the Allocation builders.
@@ -155,6 +158,7 @@ func NewClient(opts ...Option) *Client {
 }
 
 func (c *Client) init() {
+	c.Access = NewAccessClient(c.config)
 	c.AliasHold = NewAliasHoldClient(c.config)
 	c.Allocation = NewAllocationClient(c.config)
 	c.Archived = NewArchivedClient(c.config)
@@ -289,6 +293,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	return &Tx{
 		ctx:             ctx,
 		config:          cfg,
+		Access:          NewAccessClient(cfg),
 		AliasHold:       NewAliasHoldClient(cfg),
 		Allocation:      NewAllocationClient(cfg),
 		Archived:        NewArchivedClient(cfg),
@@ -350,6 +355,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	return &Tx{
 		ctx:             ctx,
 		config:          cfg,
+		Access:          NewAccessClient(cfg),
 		AliasHold:       NewAliasHoldClient(cfg),
 		Allocation:      NewAllocationClient(cfg),
 		Archived:        NewArchivedClient(cfg),
@@ -398,7 +404,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		AliasHold.
+//		Access.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -467,14 +473,14 @@ func (c *Client) InTx() bool {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.AliasHold, c.Allocation, c.Archived, c.Asset, c.AssetType, c.Attachment,
-		c.Audit, c.Bookable, c.CliLogin, c.Consent, c.CountFinding, c.Custody,
-		c.CustodyLine, c.Event, c.Fact, c.Holder, c.InventoryCount, c.Invitation,
-		c.ItemModel, c.Label, c.LegalHold, c.Link, c.Notification, c.Outbox, c.Party,
-		c.Placement, c.Purchase, c.PurchaseLine, c.Reservation, c.ReservationItem,
-		c.SearchStale, c.Session, c.SignInFailure, c.Stewardship, c.Stock,
-		c.StockMovement, c.Tenant, c.TenantContract, c.TenantDomain, c.TreeLock,
-		c.UsageSnapshot, c.WorkOrder,
+		c.Access, c.AliasHold, c.Allocation, c.Archived, c.Asset, c.AssetType,
+		c.Attachment, c.Audit, c.Bookable, c.CliLogin, c.Consent, c.CountFinding,
+		c.Custody, c.CustodyLine, c.Event, c.Fact, c.Holder, c.InventoryCount,
+		c.Invitation, c.ItemModel, c.Label, c.LegalHold, c.Link, c.Notification,
+		c.Outbox, c.Party, c.Placement, c.Purchase, c.PurchaseLine, c.Reservation,
+		c.ReservationItem, c.SearchStale, c.Session, c.SignInFailure, c.Stewardship,
+		c.Stock, c.StockMovement, c.Tenant, c.TenantContract, c.TenantDomain,
+		c.TreeLock, c.UsageSnapshot, c.WorkOrder,
 	} {
 		n.Use(hooks...)
 	}
@@ -484,14 +490,14 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.AliasHold, c.Allocation, c.Archived, c.Asset, c.AssetType, c.Attachment,
-		c.Audit, c.Bookable, c.CliLogin, c.Consent, c.CountFinding, c.Custody,
-		c.CustodyLine, c.Event, c.Fact, c.Holder, c.InventoryCount, c.Invitation,
-		c.ItemModel, c.Label, c.LegalHold, c.Link, c.Notification, c.Outbox, c.Party,
-		c.Placement, c.Purchase, c.PurchaseLine, c.Reservation, c.ReservationItem,
-		c.SearchStale, c.Session, c.SignInFailure, c.Stewardship, c.Stock,
-		c.StockMovement, c.Tenant, c.TenantContract, c.TenantDomain, c.TreeLock,
-		c.UsageSnapshot, c.WorkOrder,
+		c.Access, c.AliasHold, c.Allocation, c.Archived, c.Asset, c.AssetType,
+		c.Attachment, c.Audit, c.Bookable, c.CliLogin, c.Consent, c.CountFinding,
+		c.Custody, c.CustodyLine, c.Event, c.Fact, c.Holder, c.InventoryCount,
+		c.Invitation, c.ItemModel, c.Label, c.LegalHold, c.Link, c.Notification,
+		c.Outbox, c.Party, c.Placement, c.Purchase, c.PurchaseLine, c.Reservation,
+		c.ReservationItem, c.SearchStale, c.Session, c.SignInFailure, c.Stewardship,
+		c.Stock, c.StockMovement, c.Tenant, c.TenantContract, c.TenantDomain,
+		c.TreeLock, c.UsageSnapshot, c.WorkOrder,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -500,6 +506,8 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 // Mutate implements the ent.Mutator interface.
 func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
+	case *AccessMutation:
+		return c.Access.mutate(ctx, m)
 	case *AliasHoldMutation:
 		return c.AliasHold.mutate(ctx, m)
 	case *AllocationMutation:
@@ -586,6 +594,139 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.WorkOrder.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
+	}
+}
+
+// AccessClient is a client for the Access schema.
+type AccessClient struct {
+	config
+}
+
+// NewAccessClient returns a client for the Access from the given config.
+func NewAccessClient(c config) *AccessClient {
+	return &AccessClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `access.Hooks(f(g(h())))`.
+func (c *AccessClient) Use(hooks ...Hook) {
+	c.hooks.Access = append(c.hooks.Access, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `access.Intercept(f(g(h())))`.
+func (c *AccessClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Access = append(c.inters.Access, interceptors...)
+}
+
+// Create returns a builder for creating a Access entity.
+func (c *AccessClient) Create() *AccessCreate {
+	mutation := newAccessMutation(c.config, OpCreate)
+	return &AccessCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Access entities.
+func (c *AccessClient) CreateBulk(builders ...*AccessCreate) *AccessCreateBulk {
+	return &AccessCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *AccessClient) MapCreateBulk(slice any, setFunc func(*AccessCreate, int)) *AccessCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &AccessCreateBulk{err: fmt.Errorf("calling to AccessClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*AccessCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &AccessCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Access.
+func (c *AccessClient) Update() *AccessUpdate {
+	mutation := newAccessMutation(c.config, OpUpdate)
+	return &AccessUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *AccessClient) UpdateOne(_m *Access) *AccessUpdateOne {
+	mutation := newAccessMutation(c.config, OpUpdateOne, withAccess(_m))
+	return &AccessUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneId returns an update builder for the given id.
+func (c *AccessClient) UpdateOneId(id uuid.UUID) *AccessUpdateOne {
+	mutation := newAccessMutation(c.config, OpUpdateOne, withAccessId(id))
+	return &AccessUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Access.
+func (c *AccessClient) Delete() *AccessDelete {
+	mutation := newAccessMutation(c.config, OpDelete)
+	return &AccessDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *AccessClient) DeleteOne(_m *Access) *AccessDeleteOne {
+	return c.DeleteOneId(_m.Id)
+}
+
+// DeleteOneId returns a builder for deleting the given entity by its id.
+func (c *AccessClient) DeleteOneId(id uuid.UUID) *AccessDeleteOne {
+	builder := c.Delete().Where(access.Id(id))
+	builder.mutation.id = &id
+	builder.mutation.SetOp(OpDeleteOne)
+	return &AccessDeleteOne{builder}
+}
+
+// Query returns a query builder for Access.
+func (c *AccessClient) Query() *AccessQuery {
+	return &AccessQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeAccess},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Access entity by its id.
+func (c *AccessClient) Get(ctx context.Context, id uuid.UUID) (*Access, error) {
+	return c.Query().Where(access.Id(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *AccessClient) GetX(ctx context.Context, id uuid.UUID) *Access {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *AccessClient) Hooks() []Hook {
+	return c.hooks.Access
+}
+
+// Interceptors returns the client interceptors.
+func (c *AccessClient) Interceptors() []Interceptor {
+	return c.inters.Access
+}
+
+func (c *AccessClient) mutate(ctx context.Context, m *AccessMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&AccessCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&AccessUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&AccessUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&AccessDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Access mutation op: %q", m.Op())
 	}
 }
 
@@ -7282,20 +7423,21 @@ func (c *WorkOrderClient) mutate(ctx context.Context, m *WorkOrderMutation) (Val
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		AliasHold, Allocation, Archived, Asset, AssetType, Attachment, Audit, Bookable,
-		CliLogin, Consent, CountFinding, Custody, CustodyLine, Event, Fact, Holder,
-		InventoryCount, Invitation, ItemModel, Label, LegalHold, Link, Notification,
-		Outbox, Party, Placement, Purchase, PurchaseLine, Reservation, ReservationItem,
-		SearchStale, Session, SignInFailure, Stewardship, Stock, StockMovement, Tenant,
-		TenantContract, TenantDomain, TreeLock, UsageSnapshot, WorkOrder []ent.Hook
+		Access, AliasHold, Allocation, Archived, Asset, AssetType, Attachment, Audit,
+		Bookable, CliLogin, Consent, CountFinding, Custody, CustodyLine, Event, Fact,
+		Holder, InventoryCount, Invitation, ItemModel, Label, LegalHold, Link,
+		Notification, Outbox, Party, Placement, Purchase, PurchaseLine, Reservation,
+		ReservationItem, SearchStale, Session, SignInFailure, Stewardship, Stock,
+		StockMovement, Tenant, TenantContract, TenantDomain, TreeLock, UsageSnapshot,
+		WorkOrder []ent.Hook
 	}
 	inters struct {
-		AliasHold, Allocation, Archived, Asset, AssetType, Attachment, Audit, Bookable,
-		CliLogin, Consent, CountFinding, Custody, CustodyLine, Event, Fact, Holder,
-		InventoryCount, Invitation, ItemModel, Label, LegalHold, Link, Notification,
-		Outbox, Party, Placement, Purchase, PurchaseLine, Reservation, ReservationItem,
-		SearchStale, Session, SignInFailure, Stewardship, Stock, StockMovement, Tenant,
-		TenantContract, TenantDomain, TreeLock, UsageSnapshot,
+		Access, AliasHold, Allocation, Archived, Asset, AssetType, Attachment, Audit,
+		Bookable, CliLogin, Consent, CountFinding, Custody, CustodyLine, Event, Fact,
+		Holder, InventoryCount, Invitation, ItemModel, Label, LegalHold, Link,
+		Notification, Outbox, Party, Placement, Purchase, PurchaseLine, Reservation,
+		ReservationItem, SearchStale, Session, SignInFailure, Stewardship, Stock,
+		StockMovement, Tenant, TenantContract, TenantDomain, TreeLock, UsageSnapshot,
 		WorkOrder []ent.Interceptor
 	}
 )

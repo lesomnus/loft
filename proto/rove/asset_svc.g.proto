@@ -63,10 +63,15 @@ service AssetService {
   rpc Report(AssetReportRequest) returns (AssetReportResponse);
   // Export writes the register as a CSV, to read. Nothing reads one back: a
   // restore is of the workspace's own export, and a sheet that edited the
-  // register by tag is gone (design D34). With `template` it writes the form
-  // bulk registration reads instead, its header. A CSV and never a workbook:
-  // rove neither reads nor writes one (design 9.13).
+  // register by tag is gone (design D34). A CSV and never a workbook: rove
+  // neither reads nor writes one (design 9.13).
+  //
+  // It is a download of the people the register names, so it says what it is
+  // for, in `payday-reason-bin`, and is refused without (rove#136).
   rpc Export(AssetExportRequest) returns (AssetExportResponse);
+  // Form writes the form bulk registration reads (ReadSheet): its header and
+  // nothing of the register, so it is no download of anybody.
+  rpc Form(AssetFormRequest) returns (AssetExportResponse);
   // ReadSheet reads a CSV in that form into the items an AddMany takes, and
   // says what it could not read, by line. It writes nothing. The page and
   // `rove register` read a sheet with it, so that the form is read in one
@@ -656,9 +661,10 @@ message ReportRow {
 }
 
 message AssetExportRequest {
-  // The form bulk registration reads (ReadSheet) in place of the register:
-  // its header.
-  bool template = 2 [features.field_presence = IMPLICIT];
+  // Was `template`, the form in place of the register: `Form` now, since the
+  // one is a download of people and the other of nobody (rove#136).
+  reserved 2;
+  reserved template;
 }
 
 message AssetExportResponse {
@@ -666,6 +672,8 @@ message AssetExportResponse {
   string content_type = 2 [features.field_presence = IMPLICIT];
   string name = 3 [features.field_presence = IMPLICIT];
 }
+
+message AssetFormRequest {}
 
 message AssetReadSheetRequest {
   // A CSV, in UTF-8 or in the CP949 Korean Excel saves.

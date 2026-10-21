@@ -24,6 +24,7 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/lesomnus/rove/internal/ent"
+	entaccess "github.com/lesomnus/rove/internal/ent/access"
 	"github.com/lesomnus/rove/internal/ent/allocation"
 	"github.com/lesomnus/rove/internal/ent/asset"
 	"github.com/lesomnus/rove/internal/ent/assettype"
@@ -80,10 +81,13 @@ type Manifest struct {
 
 	// Trail is how many rows of the trail as the tenant may read it: in the
 	// database, `trail/database.jsonl`, and in the archive,
-	// `trail/archive.jsonl`.
+	// `trail/archive.jsonl`. Access is the access record's rows in the
+	// database, `trail/access.jsonl` (rove#136); what of it is archived is
+	// in the archive's file with the rest.
 	Trail struct {
 		Database int `json:"database"`
 		Archive  int `json:"archive"`
+		Access   int `json:"access"`
 	} `json:"trail"`
 
 	// Withheld is what is left out, and why.
@@ -267,6 +271,7 @@ var Exported = map[string]reader{
 // this nor [Exported] is one nobody decided about, which a test refuses.
 var Withheld = map[string]string{
 	"audit":         "the trail, which is written apart as the tenant may read it",
+	"access":        "the access record, the trail's: written apart with it, as the tenant may read it",
 	"archived":      "the deployment's account of the trail's archive, every tenant's chunks at once",
 	"session":       "who is signed in",
 	"clilogin":      "a terminal waiting to be signed in, which is nobody's yet",
@@ -374,6 +379,21 @@ func (d Deployment) Export(ctx context.Context, tenant pdid.Id, w io.Writer) (Ma
 		return line(tf, a.Proto())
 	}); err != nil {
 		return out, fmt.Errorf("trail: %w", err)
+	}
+
+	// And the access record, by the same rule (rove#136): who read or wrote
+	// whose data in the workspace, and what its own people did in another.
+	// The workspace is who answers for its people's data, and this is the
+	// record of what was done with it.
+	af, err := create("trail/access.jsonl")
+	if err != nil {
+		return out, err
+	}
+	if err := accessOf(ctx, db, tid, func(a *ent.Access) error {
+		out.Trail.Access++
+		return line(af, a.Proto())
+	}); err != nil {
+		return out, fmt.Errorf("access record: %w", err)
 	}
 
 	if d.Trail.Archive != nil {
@@ -531,4 +551,39 @@ func trailOf(ctx context.Context, db *ent.Client, t uuid.UUID, f func(*ent.Audit
 			return err
 		}
 	}
+}
+
+// accessOf hands `f` the access record's rows as the tenant may read them,
+// oldest first: those filed under it, and those of what its own people did in
+// another -- the wall's rule, as [trailOf] reads the trail by.
+func accessOf(ctx context.Context, db *ent.Client, t uuid.UUID, f func(*ent.Access) error) error {
+	for _, of := range [][]predicate.Access{
+		{entaccess.TenantId(t)},
+		{entaccess.ActorTenantId(t), entaccess.TenantIdNEQ(t)},
+	} {
+		var last *mark
+		for {
+			vs, err := db.Access.Query().
+				Where(of...).
+				Where(after(last)).
+				Order(ent.Asc(entaccess.FieldDateCreated, entaccess.FieldId)).
+				Limit(page).
+				All(ctx)
+			if err != nil {
+				return err
+			}
+			for _, v := range vs {
+				if err := f(v); err != nil {
+					return err
+				}
+			}
+			if len(vs) < page {
+				break
+			}
+			v := vs[len(vs)-1]
+			last = &mark{at: v.DateCreated, id: v.Id}
+		}
+	}
+
+	return nil
 }

@@ -1,4 +1,6 @@
 /payday.BatchService/Do	read
+/rove.AccessService/Get	admin +auditor
+/rove.AccessService/List	admin +auditor
 /rove.AllocationService/Get	read
 /rove.AllocationService/List	read
 /rove.AssetService/Add	manager
@@ -8,6 +10,7 @@
 /rove.AssetService/Diff	read
 /rove.AssetService/Erase	manager
 /rove.AssetService/Export	manager
+/rove.AssetService/Form	manager
 /rove.AssetService/Get	read
 /rove.AssetService/List	read
 /rove.AssetService/Move	manager

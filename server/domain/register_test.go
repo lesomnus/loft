@@ -312,7 +312,7 @@ func TestTheFormIsWhatASheetIsReadAs(t *testing.T) {
 	e := newEnv(t)
 	x := e.x
 
-	v, err := e.app().Asset().Export(e.owner, app.AssetExportRequest_builder{Template: true}.Build())
+	v, err := e.app().Asset().Form(e.owner, &app.AssetFormRequest{})
 	x.NoError(err)
 	header := strings.TrimPrefix(strings.TrimSpace(string(v.GetData())), "\ufeff")
 	x.Equal("이름,종류,유형,모델,제조사,시리얼,태그,위치태그,취득일,기준일,설명,상태,컨디션,속성.키", header)

@@ -10,6 +10,9 @@ import (
 	"time"
 	"uuid"
 
+	"github.com/lesomnus/payday/access"
+	"github.com/lesomnus/payday/pdid"
+
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/internal/ent/asset"
@@ -47,9 +50,6 @@ func (s domainAsset) Export(ctx context.Context, req *app.AssetExportRequest) (*
 	t, err := s.read(ctx)
 	if err != nil {
 		return nil, err
-	}
-	if req.GetTemplate() {
-		return registerForm()
 	}
 
 	as, err := t.db.Asset.Query().Where(asset.TenantId(t.tenant.Uuid()), asset.DateErasedIsNil()).All(ctx)
@@ -137,6 +137,11 @@ func (s domainAsset) Export(ctx context.Context, req *app.AssetExportRequest) (*
 		if a.AcquiredAt != nil {
 			acquired = a.AcquiredAt.In(Zone).Format(time.DateOnly)
 		}
+		// A column no `personal` declaration can see: the file carries the
+		// custodian's name, so the download is of them (rove#136).
+		if _, ok := partyName[a.CustodianId]; ok {
+			access.Saw(ctx, access.Subject{Id: pdid.Id(a.CustodianId), Tenant: t.tenant})
+		}
 		row := []string{
 			a.Tag, a.Name, or(kindSay[a.Kind], a.Kind), typeName[a.TypeId], mName, maker, a.Serial,
 			or(statusSay[a.Status], a.Status), or(conditionSay[a.Condition], a.Condition),
@@ -149,6 +154,16 @@ func (s domainAsset) Export(ctx context.Context, req *app.AssetExportRequest) (*
 	}
 
 	return writeCSV("rove-assets-"+t.now.In(Zone).Format("20060102"), rows)
+}
+
+// Form writes the form bulk registration reads: its header, and nothing of
+// the register, so that what it hands out is nobody's.
+func (s domainAsset) Form(ctx context.Context, _ *app.AssetFormRequest) (*app.AssetExportResponse, error) {
+	if _, err := s.read(ctx); err != nil {
+		return nil, err
+	}
+
+	return registerForm()
 }
 
 // writeCSV is `rows` as a CSV, with the mark Excel reads it as UTF-8 by.

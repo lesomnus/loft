@@ -22,12 +22,14 @@ import (
 	"github.com/lesomnus/xli"
 	"github.com/lesomnus/xli/arg"
 	"github.com/lesomnus/xli/flg"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/reflect/protoregistry"
 	"google.golang.org/protobuf/types/dynamicpb"
 
+	"github.com/lesomnus/payday/access"
 	"github.com/lesomnus/payday/pdcmd"
 
 	"github.com/lesomnus/rove/cmd"
@@ -500,8 +502,11 @@ func NewCmdWorkspace() *xli.Command {
 			{
 				Name:  "export",
 				Brief: "everything a workspace this account owns has, as one zip: what it takes out before it leaves",
-				Flags: flg.Flags{&flg.String{Name: "out", Brief: "where to write it; <workspace>-<date>.zip by default"}},
-				Args:  arg.Args{&arg.String{Name: "WORKSPACE", Brief: "by alias; the one `rove use` names by default", Optional: true}},
+				Flags: flg.Flags{
+					&flg.String{Name: "out", Brief: "where to write it; <workspace>-<date>.zip by default"},
+					&flg.String{Name: "reason", Brief: "what it is for: it hands everybody's data out, so it is required and recorded"},
+				},
+				Args: arg.Args{&arg.String{Name: "WORKSPACE", Brief: "by alias; the one `rove use` names by default", Optional: true}},
 				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
 					c, err := loadClient()
 					if err != nil {
@@ -517,6 +522,10 @@ func NewCmdWorkspace() *xli.Command {
 					if ws == "" {
 						return errors.New("WORKSPACE: which one (`rove whoami` lists them)")
 					}
+					why := strings.TrimSpace(flag(self, "reason"))
+					if why == "" {
+						return errors.New("--reason: what the export is for; it hands everybody's data out, and is recorded with why")
+					}
 					out := flag(self, "out")
 					if out == "" {
 						out = fmt.Sprintf("%s-%s.zip", ws, time.Now().Format("20060102"))
@@ -528,7 +537,7 @@ func NewCmdWorkspace() *xli.Command {
 						return err
 					}
 					defer os.Remove(tmp.Name())
-					if err := c.fetch(ctx, "/account/workspaces/"+url.PathEscape(ws)+"/export", tmp); err != nil {
+					if err := c.fetch(ctx, "/account/workspaces/"+url.PathEscape(ws)+"/export?reason="+url.QueryEscape(why), tmp); err != nil {
 						tmp.Close()
 						return err
 					}
@@ -625,12 +634,18 @@ func NewCmdApi() *xli.Command {
 		Brief: "every operation of a running deployment, as this terminal's account (`rove login` first)",
 		Flags: flg.Flags{
 			&flg.String{Name: "workspace", Brief: "the workspace to speak to, by alias; `rove use` sets the default"},
+			&flg.String{Name: "reason", Brief: "what a download is for -- `asset export` hands people's data out and is refused without one; it is recorded"},
 		},
 		Commands: append(t.Commands(), newCmdCall()),
 		Handler: xli.Chain(
 			xli.OnRunPass(func(ctx context.Context, self *xli.Command, next xli.Next) error {
 				if ws := flag(self, "workspace"); ws != "" {
 					ctx = context.WithValue(ctx, workspaceKey{}, ws)
+				}
+				// Said to every call, and read by the downloads: what the
+				// access record keeps beside who took what (rove#136).
+				if why := strings.TrimSpace(flag(self, "reason")); why != "" {
+					ctx = metadata.AppendToOutgoingContext(ctx, access.ReasonKey, why)
 				}
 				return next(ctx)
 			}),
