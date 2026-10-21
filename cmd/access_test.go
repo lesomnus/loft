@@ -15,6 +15,7 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/lesomnus/payday/access"
@@ -151,6 +152,19 @@ func TestADownloadOfPeopleSaysWhatItIsFor(t *testing.T) {
 
 	_, err = assets.Form(w.owner, &app.AssetFormRequest{})
 	x.NoError(err, "the form names nobody")
+
+	// Called by itself and nothing else: as an operation of a batch it can
+	// neither say what it is for nor be recorded before its answer leaves,
+	// whatever the batch's call said.
+	packed, err := anypb.New(&app.AssetExportRequest{})
+	x.NoError(err)
+	_, err = pdpb.NewBatchServiceClient(w.conn).Do(why, pdpb.BatchRequest_builder{
+		Ops: []*pdpb.Op{pdpb.Op_builder{Method: app.AssetService_Export_FullMethodName, Request: packed}.Build()},
+	}.Build())
+	x.Equal(codes.InvalidArgument, status.Code(err))
+	n, err := w.s.Ent.Access.Query().Where(entaccess.KindEQ("download")).Count(context.Background())
+	x.NoError(err)
+	x.Equal(1, n, "a batched export was let out")
 }
 
 // TestAWorkspacesExportSaysWhatItIsFor: everybody's data, out of the

@@ -123,8 +123,11 @@ func init() {
 	oversee("AuditService", "Get", "List", "Recent")
 	// And who read or wrote whose data (rove#136): the record a tenant's
 	// administrators review each month, and an auditor reads -- and that it
-	// was reviewed, which either of them records.
-	oversee("AccessService", "Get", "List", "Review")
+	// was reviewed, which either of them records. Read out by Review alone,
+	// which says on the record whom it named: the rows themselves -- where
+	// each call came from, what a read asked for -- are no RPC anybody is
+	// served.
+	oversee("AccessService", "Review")
 	oversee("AccessReviewService", "Add", "Get", "List")
 	allow(Read, "EventService", "Recent")
 	oversee("HolderService", reads...)

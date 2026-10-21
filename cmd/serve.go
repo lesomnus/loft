@@ -411,12 +411,12 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		// Closed workspaces whose window is over, destroyed unless held.
 		// Read when it runs: s.Closing is put together after the trail.
 		spinEvery("rove.closing", or(c.App.Workspaces.Every, time.Hour), func(ctx context.Context) error { return s.Closing.Sweep(ctx) }),
-		// The roster in this process's own housekeeping; nothing, for one of
-		// its own. Its loops are the deployment's like these, so it is one
-		// of them under a lease. (It was handed over as the store itself,
-		// which is no spin.Spinner, and so never ran.)
-		spin.Called("rove.roster", spin.Func(people.Run)),
 	)
+	// The roster in this process's own housekeeping, loop by loop as roster
+	// names them (`roster.*`); nothing, for one of its own. Each takes the
+	// lease its name says, and its access record's writer runs in every
+	// process as rove's does.
+	s.Spin = append(s.Spin, people.Spinners()...)
 	if !people.Embedded() {
 		// What roster says of an account as it says it: sessions that end
 		// when roster ends them rather than at their next call, and an
@@ -673,12 +673,29 @@ func (s *Server) Serve(ctx context.Context, c Config, l net.Listener) error {
 	}
 	defer stop()
 
+	stopped := make(chan struct{})
 	go func() {
 		<-ctx.Done()
 		g.GracefulStop()
+		close(stopped)
 	}()
 
-	return g.Serve(l)
+	err = g.Serve(l)
+	if ctx.Err() == nil {
+		return err
+	}
+
+	// Asked to stop: what was being answered ends first, and what it read is
+	// written after it -- the access record's own last write, as its loop
+	// stops, is too early for a call that answers while the server drains.
+	<-stopped
+	last, cancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Second)
+	defer cancel()
+	if err := s.Access.Flush(last); err != nil {
+		log.From(ctx).ErrorContext(ctx, "access: the record waiting to be written was lost as the server stopped", "rows", s.Access.Pending(), "err", err)
+	}
+
+	return err
 }
 
 // serveHttp is the second listener, for whatever cannot speak gRPC -- which is
@@ -745,9 +762,10 @@ func httpServer(ctx context.Context, h http.Handler) *http.Server {
 }
 
 // Downloads are the RPCs that hand people's data out to be kept somewhere else
-// (rove#136): each says what it is for, in `payday-reason`, or is refused, and
-// its row of the access record is written before it is answered. The
-// workspace's export is one too, and is HTTP (`server/account`).
+// (rove#136): each says what it is for, in `payday-reason-bin`, or is refused,
+// and its row of the access record is written before it is answered. Each is
+// called by itself, and refused as an operation of a batch. The workspace's
+// export is one too, and is HTTP (`server/account`).
 var Downloads = []string{
 	app.AssetService_Export_FullMethodName,
 }

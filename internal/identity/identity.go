@@ -342,15 +342,22 @@ func ResolveRef(ref string) (string, error) {
 // Embedded says whether roster runs in this process.
 func (s *Store) Embedded() bool { return s.em != nil }
 
-// Run serves the embedded roster's housekeeping until ctx ends; on an external
-// one it waits for ctx.
-func (s *Store) Run(ctx context.Context) error {
+// Spinners is the embedded roster's housekeeping, its loops as roster named
+// them, for the loops this process runs: each one under a lease of its own,
+// and the ones roster runs in every process -- its access record's writer --
+// in every process of this one. None, on an external roster, which keeps its
+// own house.
+//
+// They are handed over one by one rather than as one loop that runs them:
+// under a lease, one loop is one process, and a loop that must run in every
+// process -- what writes the reads this process queued -- ran in only the one
+// that held it.
+func (s *Store) Spinners() []any {
 	if s.em == nil {
-		<-ctx.Done()
 		return nil
 	}
 
-	return s.em.run(ctx)
+	return s.em.spinners()
 }
 
 // Close ends the connection and the embedded roster.
