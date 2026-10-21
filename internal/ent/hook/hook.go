@@ -21,6 +21,18 @@ func (f AccessFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, erro
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AccessMutation", m)
 }
 
+// The AccessReviewFunc type is an adapter to allow the use of ordinary
+// function as AccessReview mutator.
+type AccessReviewFunc func(context.Context, *ent.AccessReviewMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f AccessReviewFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.AccessReviewMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AccessReviewMutation", m)
+}
+
 // The AliasHoldFunc type is an adapter to allow the use of ordinary
 // function as AliasHold mutator.
 type AliasHoldFunc func(context.Context, *ent.AliasHoldMutation) (ent.Value, error)

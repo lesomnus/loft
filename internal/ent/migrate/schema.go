@@ -48,6 +48,46 @@ var (
 			},
 		},
 	}
+	// AccessreviewColumns holds the columns for the "accessreview" table.
+	AccessreviewColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUuid, Unique: true},
+		{Name: "desc", Type: field.TypeString},
+		{Name: "period_from", Type: field.TypeTime, Nullable: true},
+		{Name: "period_to", Type: field.TypeTime, Nullable: true},
+		{Name: "calls", Type: field.TypeUint32},
+		{Name: "downloads", Type: field.TypeUint32},
+		{Name: "date_created", Type: field.TypeTime, Nullable: true},
+		{Name: "refused", Type: field.TypeUint32},
+		{Name: "tenant_id", Type: field.TypeUuid},
+		{Name: "reviewer_id", Type: field.TypeUuid},
+	}
+	// AccessreviewTable holds the schema information for the "accessreview" table.
+	AccessreviewTable = &schema.Table{
+		Name:       "accessreview",
+		Columns:    AccessreviewColumns,
+		PrimaryKey: []*schema.Column{AccessreviewColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "accessreview_tenant_tenant",
+				Columns:    []*schema.Column{AccessreviewColumns[8]},
+				RefColumns: []*schema.Column{TenantColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "accessreview_holder_reviewer",
+				Columns:    []*schema.Column{AccessreviewColumns[9]},
+				RefColumns: []*schema.Column{HolderColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "accessreview_tenant_id_date_created_id",
+				Unique:  false,
+				Columns: []*schema.Column{AccessreviewColumns[8], AccessreviewColumns[6], AccessreviewColumns[0]},
+			},
+		},
+	}
 	// AliasholdColumns holds the columns for the "aliashold" table.
 	AliasholdColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUuid, Unique: true},
@@ -1961,6 +2001,7 @@ var (
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		AccessTable,
+		AccessreviewTable,
 		AliasholdTable,
 		AllocationTable,
 		ArchivedTable,
@@ -2009,6 +2050,11 @@ var (
 func init() {
 	AccessTable.Annotation = &entsql.Annotation{
 		Table: "access",
+	}
+	AccessreviewTable.ForeignKeys[0].RefTable = TenantTable
+	AccessreviewTable.ForeignKeys[1].RefTable = HolderTable
+	AccessreviewTable.Annotation = &entsql.Annotation{
+		Table: "accessreview",
 	}
 	AliasholdTable.Annotation = &entsql.Annotation{
 		Table: "aliashold",

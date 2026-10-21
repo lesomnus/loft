@@ -355,6 +355,13 @@ HTTP, `server/account`, and records itself): it says what it is for in
 that names nobody is no download, and is a method of its own
 (`AssetService.Form`).
 
+The workspace's administrators and auditors review it a month at a time
+(settings › 접속기록): `AccessService.Review` reads a stretch out -- each
+row's address and reason unmarshalled, the people it names by their names now,
+which is itself on the record -- and an `AccessReview`, written by the domain's
+`Add` and never changed, says who looked over which stretch and what it held.
+An operator reads the deployment's with `rove access ls|reviews`, ids only.
+
 ## Search
 
 Search is OpenSearch with nori, for a deployment whose

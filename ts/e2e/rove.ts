@@ -41,6 +41,7 @@ export const people = {
 	declines: { login: 'sunwoo-jung', name: '정선우' },
 	sso: { login: 'eunwoo-jang', name: '장은우' },
 	place: { login: 'hyunwoo-yoon', name: '윤현우' },
+	reviewer: { login: 'naeun-park', name: '박나은' },
 } as const
 
 /** A name nothing else in the run has. */

@@ -19,8 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AccessService_Get_FullMethodName  = "/rove.AccessService/Get"
-	AccessService_List_FullMethodName = "/rove.AccessService/List"
+	AccessService_Get_FullMethodName    = "/rove.AccessService/Get"
+	AccessService_List_FullMethodName   = "/rove.AccessService/List"
+	AccessService_Review_FullMethodName = "/rove.AccessService/Review"
 )
 
 // AccessServiceClient is the client API for AccessService service.
@@ -31,6 +32,13 @@ type AccessServiceClient interface {
 	Get(ctx context.Context, in *AccessGetRequest, opts ...grpc.CallOption) (*Access, error)
 	// List reads Accesss a page at a time.
 	List(ctx context.Context, in *AccessListRequest, opts ...grpc.CallOption) (*AccessListResponse, error)
+	// Review reads a stretch of the workspace's access record as its
+	// administrators review it each month (rove#136): newest first, each call
+	// with who made it and whose data it carried by name, where it came from,
+	// and what a download said it was for -- what a row holds marshalled, read
+	// out. A stretch is at most 92 days; a membership, a person and a kind
+	// narrow what it answers, and not what it counts.
+	Review(ctx context.Context, in *AccessReviewRequest, opts ...grpc.CallOption) (*AccessReviewResponse, error)
 }
 
 type accessServiceClient struct {
@@ -61,6 +69,16 @@ func (c *accessServiceClient) List(ctx context.Context, in *AccessListRequest, o
 	return out, nil
 }
 
+func (c *accessServiceClient) Review(ctx context.Context, in *AccessReviewRequest, opts ...grpc.CallOption) (*AccessReviewResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AccessReviewResponse)
+	err := c.cc.Invoke(ctx, AccessService_Review_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AccessServiceServer is the server API for AccessService service.
 // All implementations must embed UnimplementedAccessServiceServer
 // for forward compatibility.
@@ -69,6 +87,13 @@ type AccessServiceServer interface {
 	Get(context.Context, *AccessGetRequest) (*Access, error)
 	// List reads Accesss a page at a time.
 	List(context.Context, *AccessListRequest) (*AccessListResponse, error)
+	// Review reads a stretch of the workspace's access record as its
+	// administrators review it each month (rove#136): newest first, each call
+	// with who made it and whose data it carried by name, where it came from,
+	// and what a download said it was for -- what a row holds marshalled, read
+	// out. A stretch is at most 92 days; a membership, a person and a kind
+	// narrow what it answers, and not what it counts.
+	Review(context.Context, *AccessReviewRequest) (*AccessReviewResponse, error)
 	mustEmbedUnimplementedAccessServiceServer()
 }
 
@@ -84,6 +109,9 @@ func (UnimplementedAccessServiceServer) Get(context.Context, *AccessGetRequest) 
 }
 func (UnimplementedAccessServiceServer) List(context.Context, *AccessListRequest) (*AccessListResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method List not implemented")
+}
+func (UnimplementedAccessServiceServer) Review(context.Context, *AccessReviewRequest) (*AccessReviewResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Review not implemented")
 }
 func (UnimplementedAccessServiceServer) mustEmbedUnimplementedAccessServiceServer() {}
 func (UnimplementedAccessServiceServer) testEmbeddedByValue()                       {}
@@ -142,6 +170,24 @@ func _AccessService_List_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AccessService_Review_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AccessReviewRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AccessServiceServer).Review(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AccessService_Review_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AccessServiceServer).Review(ctx, req.(*AccessReviewRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AccessService_ServiceDesc is the grpc.ServiceDesc for AccessService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -156,6 +202,10 @@ var AccessService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "List",
 			Handler:    _AccessService_List_Handler,
+		},
+		{
+			MethodName: "Review",
+			Handler:    _AccessService_Review_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

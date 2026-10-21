@@ -21,18 +21,21 @@ import { unreachable } from './offline.js'
 import { AllocationService, BookableService, ReservationService } from '../gen/rove/booking_svc_pb.js'
 import { AssetService, AttachmentService, LabelService, TenantDomainService } from '../gen/rove/asset_svc_pb.js'
 import { AssetTypeService, ItemModelService } from '../gen/rove/catalog_svc_pb.js'
+import { AccessService } from '../gen/rove/payday/access_svc_pb.js'
 import { AuditService } from '../gen/rove/payday/audit_svc_pb.js'
 import { CountFindingService, InventoryCountService } from '../gen/rove/count_svc_pb.js'
 import { InvitationService, PartyService } from '../gen/rove/org_svc_pb.js'
 import { CustodyLineService, CustodyService } from '../gen/rove/custody_svc_pb.js'
 import { EventService } from '../gen/rove/history_svc_pb.js'
 import { HolderService } from '../gen/rove/payday/holder_svc_pb.js'
-import { NotificationService, UsageSnapshotService } from '../gen/rove/ops_svc_pb.js'
+import { AccessReviewService, NotificationService, UsageSnapshotService } from '../gen/rove/ops_svc_pb.js'
 import { PurchaseLineService, PurchaseService, WorkOrderService } from '../gen/rove/work_svc_pb.js'
 import { StockMovementService, StockService } from '../gen/rove/stock_svc_pb.js'
 import { TenantService } from '../gen/rove/payday/tenant_svc_pb.js'
 
 export {
+	AccessReviewService,
+	AccessService,
 	AllocationService,
 	AssetService,
 	AssetTypeService,

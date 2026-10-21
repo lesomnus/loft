@@ -199,3 +199,46 @@ func LegalHoldById(v []byte) *LegalHoldRef {
 func LegalHoldGetById(v []byte) *LegalHoldGetRequest {
 	return LegalHoldGetRequest_builder{Ref: LegalHoldById(v)}.Build()
 }
+
+func (x *AccessReviewRef) Pick() *AccessReviewGetRequest {
+	return AccessReviewGetRequest_builder{Ref: x}.Build()
+}
+
+func (x *AccessReview) Ref() *AccessReviewRef {
+	if v := x.GetId(); len(v) > 0 {
+		return AccessReviewById(v)
+	}
+
+	return nil
+}
+
+func (x *AccessReview) Pick() *AccessReviewGetRequest {
+	return x.Ref().Pick()
+}
+
+func (x *AccessReviewRef) Picks(v *AccessReview) bool {
+	switch x.WhichKey() {
+	case AccessReviewRef_Id_case:
+		return bytes.Equal(x.GetId(), v.GetId())
+	default:
+		return false
+	}
+}
+
+func (x *AccessReviewGetRequest) WithSelect(f func(s *AccessReviewSelect)) *AccessReviewGetRequest {
+	if !x.HasSelect() {
+		x.SetSelect(&AccessReviewSelect{})
+	}
+	f(x.GetSelect())
+	return x
+}
+
+func AccessReviewById(v []byte) *AccessReviewRef {
+	x := &AccessReviewRef{}
+	x.SetId(v)
+	return x
+}
+
+func AccessReviewGetById(v []byte) *AccessReviewGetRequest {
+	return AccessReviewGetRequest_builder{Ref: AccessReviewById(v)}.Build()
+}

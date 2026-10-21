@@ -12,6 +12,7 @@ import (
 
 	"github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/internal/ent/access"
+	"github.com/lesomnus/rove/internal/ent/accessreview"
 	"github.com/lesomnus/rove/internal/ent/aliashold"
 	"github.com/lesomnus/rove/internal/ent/allocation"
 	"github.com/lesomnus/rove/internal/ent/archived"
@@ -67,6 +68,7 @@ const (
 
 	// Node types.
 	TypeAccess          = "Access"
+	TypeAccessReview    = "AccessReview"
 	TypeAliasHold       = "AliasHold"
 	TypeAllocation      = "Allocation"
 	TypeArchived        = "Archived"
@@ -457,6 +459,297 @@ func (m *AccessMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldSubjectCount(ctx)
 	}
 	return nil, fmt.Errorf("unknown Access field %s", name)
+}
+
+// AccessReviewMutation represents an operation that mutates the AccessReview nodes in the graph.
+type AccessReviewMutation struct {
+	accessreview.Mutation
+	config
+	id       *uuid.UUID
+	done     bool
+	oldValue func(context.Context) (*AccessReview, error)
+}
+
+var _ ent.Mutation = (*AccessReviewMutation)(nil)
+
+// accessreviewOption allows management of the mutation configuration using functional options.
+type accessreviewOption func(*AccessReviewMutation)
+
+// newAccessReviewMutation creates new mutation for the AccessReview entity.
+func newAccessReviewMutation(c config, op Op, opts ...accessreviewOption) *AccessReviewMutation {
+	m := &AccessReviewMutation{
+		Mutation: *accessreview.NewMutation(op),
+		config:   c,
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// SetId sets the value of the id field. Note that this
+// operation is only accepted on creation of AccessReview entities.
+func (m *AccessReviewMutation) SetId(id uuid.UUID) {
+	m.id = &id
+}
+
+// Id returns the Id value in the mutation. Note that the Id is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *AccessReviewMutation) Id() (id uuid.UUID, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// withAccessReviewId sets the Id field of the mutation.
+func withAccessReviewId(id uuid.UUID) accessreviewOption {
+	return func(m *AccessReviewMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *AccessReview
+		)
+		m.oldValue = func(ctx context.Context) (*AccessReview, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().AccessReview.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withAccessReview sets the old AccessReview of the mutation.
+func withAccessReview(node *AccessReview) accessreviewOption {
+	return func(m *AccessReviewMutation) {
+		m.oldValue = func(context.Context) (*AccessReview, error) {
+			return node, nil
+		}
+		m.id = &node.Id
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m AccessReviewMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m AccessReviewMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// Ids queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *AccessReviewMutation) Ids(ctx context.Context) ([]uuid.UUID, error) {
+	switch {
+	case m.Op().Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.Id()
+		if exists {
+			return []uuid.UUID{id}, nil
+		}
+		fallthrough
+	case m.Op().Is(OpUpdate | OpDelete):
+		return m.Client().AccessReview.Query().Where(m.Predicates()...).Ids(ctx)
+	default:
+		return nil, fmt.Errorf("Ids is not allowed on %s operations", m.Op())
+	}
+}
+
+// OldDesc returns the old "desc" field's value of the AccessReview entity.
+// If the AccessReview object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AccessReviewMutation) OldDesc(ctx context.Context) (v string, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldDesc is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldDesc requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDesc: %w", err)
+	}
+	return oldValue.Desc, nil
+}
+
+// OldPeriodFrom returns the old "period_from" field's value of the AccessReview entity.
+// If the AccessReview object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AccessReviewMutation) OldPeriodFrom(ctx context.Context) (v time.Time, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldPeriodFrom is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldPeriodFrom requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPeriodFrom: %w", err)
+	}
+	return oldValue.PeriodFrom, nil
+}
+
+// OldPeriodTo returns the old "period_to" field's value of the AccessReview entity.
+// If the AccessReview object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AccessReviewMutation) OldPeriodTo(ctx context.Context) (v time.Time, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldPeriodTo is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldPeriodTo requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPeriodTo: %w", err)
+	}
+	return oldValue.PeriodTo, nil
+}
+
+// OldCalls returns the old "calls" field's value of the AccessReview entity.
+// If the AccessReview object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AccessReviewMutation) OldCalls(ctx context.Context) (v uint32, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldCalls is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldCalls requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCalls: %w", err)
+	}
+	return oldValue.Calls, nil
+}
+
+// OldDownloads returns the old "downloads" field's value of the AccessReview entity.
+// If the AccessReview object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AccessReviewMutation) OldDownloads(ctx context.Context) (v uint32, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldDownloads is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldDownloads requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDownloads: %w", err)
+	}
+	return oldValue.Downloads, nil
+}
+
+// OldDateCreated returns the old "date_created" field's value of the AccessReview entity.
+// If the AccessReview object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AccessReviewMutation) OldDateCreated(ctx context.Context) (v time.Time, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldDateCreated is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldDateCreated requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDateCreated: %w", err)
+	}
+	return oldValue.DateCreated, nil
+}
+
+// OldRefused returns the old "refused" field's value of the AccessReview entity.
+// If the AccessReview object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AccessReviewMutation) OldRefused(ctx context.Context) (v uint32, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldRefused is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldRefused requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRefused: %w", err)
+	}
+	return oldValue.Refused, nil
+}
+
+// OldTenantId returns the old "tenant_id" field's value of the AccessReview entity.
+// If the AccessReview object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AccessReviewMutation) OldTenantId(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldTenantId is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldTenantId requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTenantId: %w", err)
+	}
+	return oldValue.TenantId, nil
+}
+
+// OldReviewerId returns the old "reviewer_id" field's value of the AccessReview entity.
+// If the AccessReview object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AccessReviewMutation) OldReviewerId(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldReviewerId is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldReviewerId requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldReviewerId: %w", err)
+	}
+	return oldValue.ReviewerId, nil
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *AccessReviewMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case accessreview.FieldDesc:
+		return m.OldDesc(ctx)
+	case accessreview.FieldPeriodFrom:
+		return m.OldPeriodFrom(ctx)
+	case accessreview.FieldPeriodTo:
+		return m.OldPeriodTo(ctx)
+	case accessreview.FieldCalls:
+		return m.OldCalls(ctx)
+	case accessreview.FieldDownloads:
+		return m.OldDownloads(ctx)
+	case accessreview.FieldDateCreated:
+		return m.OldDateCreated(ctx)
+	case accessreview.FieldRefused:
+		return m.OldRefused(ctx)
+	case accessreview.FieldTenantId:
+		return m.OldTenantId(ctx)
+	case accessreview.FieldReviewerId:
+		return m.OldReviewerId(ctx)
+	}
+	return nil, fmt.Errorf("unknown AccessReview field %s", name)
 }
 
 // AliasHoldMutation represents an operation that mutates the AliasHold nodes in the graph.

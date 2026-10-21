@@ -6693,6 +6693,1297 @@ func (b0 LegalHoldFilter_builder) Build() *LegalHoldFilter {
 	return m0
 }
 
+type AccessReviewAddRequest struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Tenant      *TenantRef             `protobuf:"bytes,2,opt,name=tenant"`
+	xxx_hidden_Desc        string                 `protobuf:"bytes,6,opt,name=desc"`
+	xxx_hidden_PeriodFrom  *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=period_from,json=periodFrom"`
+	xxx_hidden_PeriodTo    *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=period_to,json=periodTo"`
+	xxx_hidden_Reviewer    *HolderRef             `protobuf:"bytes,10,opt,name=reviewer"`
+	xxx_hidden_Calls       uint32                 `protobuf:"varint,11,opt,name=calls"`
+	xxx_hidden_Downloads   uint32                 `protobuf:"varint,12,opt,name=downloads"`
+	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
+	xxx_hidden_Refused     uint32                 `protobuf:"varint,16,opt,name=refused"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *AccessReviewAddRequest) Reset() {
+	*x = AccessReviewAddRequest{}
+	mi := &file_rove_ops_svc_g_proto_msgTypes[47]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AccessReviewAddRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AccessReviewAddRequest) ProtoMessage() {}
+
+func (x *AccessReviewAddRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_ops_svc_g_proto_msgTypes[47]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *AccessReviewAddRequest) GetId() []byte {
+	if x != nil {
+		return x.xxx_hidden_Id
+	}
+	return nil
+}
+
+func (x *AccessReviewAddRequest) GetTenant() *TenantRef {
+	if x != nil {
+		return x.xxx_hidden_Tenant
+	}
+	return nil
+}
+
+func (x *AccessReviewAddRequest) GetDesc() string {
+	if x != nil {
+		return x.xxx_hidden_Desc
+	}
+	return ""
+}
+
+func (x *AccessReviewAddRequest) GetPeriodFrom() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_PeriodFrom
+	}
+	return nil
+}
+
+func (x *AccessReviewAddRequest) GetPeriodTo() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_PeriodTo
+	}
+	return nil
+}
+
+func (x *AccessReviewAddRequest) GetReviewer() *HolderRef {
+	if x != nil {
+		return x.xxx_hidden_Reviewer
+	}
+	return nil
+}
+
+func (x *AccessReviewAddRequest) GetCalls() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Calls
+	}
+	return 0
+}
+
+func (x *AccessReviewAddRequest) GetDownloads() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Downloads
+	}
+	return 0
+}
+
+func (x *AccessReviewAddRequest) GetDateCreated() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateCreated
+	}
+	return nil
+}
+
+func (x *AccessReviewAddRequest) GetRefused() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Refused
+	}
+	return 0
+}
+
+func (x *AccessReviewAddRequest) SetId(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Id = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 10)
+}
+
+func (x *AccessReviewAddRequest) SetTenant(v *TenantRef) {
+	x.xxx_hidden_Tenant = v
+}
+
+func (x *AccessReviewAddRequest) SetDesc(v string) {
+	x.xxx_hidden_Desc = v
+}
+
+func (x *AccessReviewAddRequest) SetPeriodFrom(v *timestamppb.Timestamp) {
+	x.xxx_hidden_PeriodFrom = v
+}
+
+func (x *AccessReviewAddRequest) SetPeriodTo(v *timestamppb.Timestamp) {
+	x.xxx_hidden_PeriodTo = v
+}
+
+func (x *AccessReviewAddRequest) SetReviewer(v *HolderRef) {
+	x.xxx_hidden_Reviewer = v
+}
+
+func (x *AccessReviewAddRequest) SetCalls(v uint32) {
+	x.xxx_hidden_Calls = v
+}
+
+func (x *AccessReviewAddRequest) SetDownloads(v uint32) {
+	x.xxx_hidden_Downloads = v
+}
+
+func (x *AccessReviewAddRequest) SetDateCreated(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateCreated = v
+}
+
+func (x *AccessReviewAddRequest) SetRefused(v uint32) {
+	x.xxx_hidden_Refused = v
+}
+
+func (x *AccessReviewAddRequest) HasId() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
+}
+
+func (x *AccessReviewAddRequest) HasTenant() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Tenant != nil
+}
+
+func (x *AccessReviewAddRequest) HasPeriodFrom() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_PeriodFrom != nil
+}
+
+func (x *AccessReviewAddRequest) HasPeriodTo() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_PeriodTo != nil
+}
+
+func (x *AccessReviewAddRequest) HasReviewer() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Reviewer != nil
+}
+
+func (x *AccessReviewAddRequest) HasDateCreated() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateCreated != nil
+}
+
+func (x *AccessReviewAddRequest) ClearId() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_Id = nil
+}
+
+func (x *AccessReviewAddRequest) ClearTenant() {
+	x.xxx_hidden_Tenant = nil
+}
+
+func (x *AccessReviewAddRequest) ClearPeriodFrom() {
+	x.xxx_hidden_PeriodFrom = nil
+}
+
+func (x *AccessReviewAddRequest) ClearPeriodTo() {
+	x.xxx_hidden_PeriodTo = nil
+}
+
+func (x *AccessReviewAddRequest) ClearReviewer() {
+	x.xxx_hidden_Reviewer = nil
+}
+
+func (x *AccessReviewAddRequest) ClearDateCreated() {
+	x.xxx_hidden_DateCreated = nil
+}
+
+type AccessReviewAddRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Id          []byte
+	Tenant      *TenantRef
+	Desc        string
+	PeriodFrom  *timestamppb.Timestamp
+	PeriodTo    *timestamppb.Timestamp
+	Reviewer    *HolderRef
+	Calls       uint32
+	Downloads   uint32
+	DateCreated *timestamppb.Timestamp
+	Refused     uint32
+}
+
+func (b0 AccessReviewAddRequest_builder) Build() *AccessReviewAddRequest {
+	m0 := &AccessReviewAddRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	if b.Id != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 10)
+		x.xxx_hidden_Id = b.Id
+	}
+	x.xxx_hidden_Tenant = b.Tenant
+	x.xxx_hidden_Desc = b.Desc
+	x.xxx_hidden_PeriodFrom = b.PeriodFrom
+	x.xxx_hidden_PeriodTo = b.PeriodTo
+	x.xxx_hidden_Reviewer = b.Reviewer
+	x.xxx_hidden_Calls = b.Calls
+	x.xxx_hidden_Downloads = b.Downloads
+	x.xxx_hidden_DateCreated = b.DateCreated
+	x.xxx_hidden_Refused = b.Refused
+	return m0
+}
+
+type AccessReviewGetRequest struct {
+	state             protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Ref    *AccessReviewRef       `protobuf:"bytes,1,opt,name=ref"`
+	xxx_hidden_Select *AccessReviewSelect    `protobuf:"bytes,2,opt,name=select"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *AccessReviewGetRequest) Reset() {
+	*x = AccessReviewGetRequest{}
+	mi := &file_rove_ops_svc_g_proto_msgTypes[48]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AccessReviewGetRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AccessReviewGetRequest) ProtoMessage() {}
+
+func (x *AccessReviewGetRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_ops_svc_g_proto_msgTypes[48]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *AccessReviewGetRequest) GetRef() *AccessReviewRef {
+	if x != nil {
+		return x.xxx_hidden_Ref
+	}
+	return nil
+}
+
+func (x *AccessReviewGetRequest) GetSelect() *AccessReviewSelect {
+	if x != nil {
+		return x.xxx_hidden_Select
+	}
+	return nil
+}
+
+func (x *AccessReviewGetRequest) SetRef(v *AccessReviewRef) {
+	x.xxx_hidden_Ref = v
+}
+
+func (x *AccessReviewGetRequest) SetSelect(v *AccessReviewSelect) {
+	x.xxx_hidden_Select = v
+}
+
+func (x *AccessReviewGetRequest) HasRef() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Ref != nil
+}
+
+func (x *AccessReviewGetRequest) HasSelect() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Select != nil
+}
+
+func (x *AccessReviewGetRequest) ClearRef() {
+	x.xxx_hidden_Ref = nil
+}
+
+func (x *AccessReviewGetRequest) ClearSelect() {
+	x.xxx_hidden_Select = nil
+}
+
+type AccessReviewGetRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Ref    *AccessReviewRef
+	Select *AccessReviewSelect
+}
+
+func (b0 AccessReviewGetRequest_builder) Build() *AccessReviewGetRequest {
+	m0 := &AccessReviewGetRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Ref = b.Ref
+	x.xxx_hidden_Select = b.Select
+	return m0
+}
+
+type AccessReviewRef struct {
+	state          protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Key isAccessReviewRef_Key  `protobuf_oneof:"key"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *AccessReviewRef) Reset() {
+	*x = AccessReviewRef{}
+	mi := &file_rove_ops_svc_g_proto_msgTypes[49]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AccessReviewRef) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AccessReviewRef) ProtoMessage() {}
+
+func (x *AccessReviewRef) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_ops_svc_g_proto_msgTypes[49]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *AccessReviewRef) GetId() []byte {
+	if x != nil {
+		if x, ok := x.xxx_hidden_Key.(*accessReviewRef_Id); ok {
+			return x.Id
+		}
+	}
+	return nil
+}
+
+func (x *AccessReviewRef) SetId(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Key = &accessReviewRef_Id{v}
+}
+
+func (x *AccessReviewRef) HasKey() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Key != nil
+}
+
+func (x *AccessReviewRef) HasId() bool {
+	if x == nil {
+		return false
+	}
+	_, ok := x.xxx_hidden_Key.(*accessReviewRef_Id)
+	return ok
+}
+
+func (x *AccessReviewRef) ClearKey() {
+	x.xxx_hidden_Key = nil
+}
+
+func (x *AccessReviewRef) ClearId() {
+	if _, ok := x.xxx_hidden_Key.(*accessReviewRef_Id); ok {
+		x.xxx_hidden_Key = nil
+	}
+}
+
+const AccessReviewRef_Key_not_set_case case_AccessReviewRef_Key = 0
+const AccessReviewRef_Id_case case_AccessReviewRef_Key = 1
+
+func (x *AccessReviewRef) WhichKey() case_AccessReviewRef_Key {
+	if x == nil {
+		return AccessReviewRef_Key_not_set_case
+	}
+	switch x.xxx_hidden_Key.(type) {
+	case *accessReviewRef_Id:
+		return AccessReviewRef_Id_case
+	default:
+		return AccessReviewRef_Key_not_set_case
+	}
+}
+
+type AccessReviewRef_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// Fields of oneof xxx_hidden_Key:
+	Id []byte
+	// -- end of xxx_hidden_Key
+}
+
+func (b0 AccessReviewRef_builder) Build() *AccessReviewRef {
+	m0 := &AccessReviewRef{}
+	b, x := &b0, m0
+	_, _ = b, x
+	if b.Id != nil {
+		x.xxx_hidden_Key = &accessReviewRef_Id{b.Id}
+	}
+	return m0
+}
+
+type case_AccessReviewRef_Key protoreflect.FieldNumber
+
+func (x case_AccessReviewRef_Key) String() string {
+	md := file_rove_ops_svc_g_proto_msgTypes[49].Descriptor()
+	if x == 0 {
+		return "not set"
+	}
+	return protoimpl.X.MessageFieldStringOf(md, protoreflect.FieldNumber(x))
+}
+
+type isAccessReviewRef_Key interface {
+	isAccessReviewRef_Key()
+}
+
+type accessReviewRef_Id struct {
+	Id []byte `protobuf:"bytes,1,opt,name=id,oneof"`
+}
+
+func (*accessReviewRef_Id) isAccessReviewRef_Key() {}
+
+type AccessReviewSelect struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_All         bool                   `protobuf:"varint,1,opt,name=all"`
+	xxx_hidden_Tenant      *TenantSelect          `protobuf:"bytes,2,opt,name=tenant"`
+	xxx_hidden_Desc        bool                   `protobuf:"varint,6,opt,name=desc"`
+	xxx_hidden_PeriodFrom  bool                   `protobuf:"varint,8,opt,name=period_from,json=periodFrom"`
+	xxx_hidden_PeriodTo    bool                   `protobuf:"varint,9,opt,name=period_to,json=periodTo"`
+	xxx_hidden_Reviewer    *HolderSelect          `protobuf:"bytes,10,opt,name=reviewer"`
+	xxx_hidden_Calls       bool                   `protobuf:"varint,11,opt,name=calls"`
+	xxx_hidden_Downloads   bool                   `protobuf:"varint,12,opt,name=downloads"`
+	xxx_hidden_DateCreated bool                   `protobuf:"varint,15,opt,name=date_created,json=dateCreated"`
+	xxx_hidden_Refused     bool                   `protobuf:"varint,16,opt,name=refused"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *AccessReviewSelect) Reset() {
+	*x = AccessReviewSelect{}
+	mi := &file_rove_ops_svc_g_proto_msgTypes[50]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AccessReviewSelect) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AccessReviewSelect) ProtoMessage() {}
+
+func (x *AccessReviewSelect) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_ops_svc_g_proto_msgTypes[50]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *AccessReviewSelect) GetAll() bool {
+	if x != nil {
+		return x.xxx_hidden_All
+	}
+	return false
+}
+
+func (x *AccessReviewSelect) GetTenant() *TenantSelect {
+	if x != nil {
+		return x.xxx_hidden_Tenant
+	}
+	return nil
+}
+
+func (x *AccessReviewSelect) GetDesc() bool {
+	if x != nil {
+		return x.xxx_hidden_Desc
+	}
+	return false
+}
+
+func (x *AccessReviewSelect) GetPeriodFrom() bool {
+	if x != nil {
+		return x.xxx_hidden_PeriodFrom
+	}
+	return false
+}
+
+func (x *AccessReviewSelect) GetPeriodTo() bool {
+	if x != nil {
+		return x.xxx_hidden_PeriodTo
+	}
+	return false
+}
+
+func (x *AccessReviewSelect) GetReviewer() *HolderSelect {
+	if x != nil {
+		return x.xxx_hidden_Reviewer
+	}
+	return nil
+}
+
+func (x *AccessReviewSelect) GetCalls() bool {
+	if x != nil {
+		return x.xxx_hidden_Calls
+	}
+	return false
+}
+
+func (x *AccessReviewSelect) GetDownloads() bool {
+	if x != nil {
+		return x.xxx_hidden_Downloads
+	}
+	return false
+}
+
+func (x *AccessReviewSelect) GetDateCreated() bool {
+	if x != nil {
+		return x.xxx_hidden_DateCreated
+	}
+	return false
+}
+
+func (x *AccessReviewSelect) GetRefused() bool {
+	if x != nil {
+		return x.xxx_hidden_Refused
+	}
+	return false
+}
+
+func (x *AccessReviewSelect) SetAll(v bool) {
+	x.xxx_hidden_All = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 10)
+}
+
+func (x *AccessReviewSelect) SetTenant(v *TenantSelect) {
+	x.xxx_hidden_Tenant = v
+}
+
+func (x *AccessReviewSelect) SetDesc(v bool) {
+	x.xxx_hidden_Desc = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 10)
+}
+
+func (x *AccessReviewSelect) SetPeriodFrom(v bool) {
+	x.xxx_hidden_PeriodFrom = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 10)
+}
+
+func (x *AccessReviewSelect) SetPeriodTo(v bool) {
+	x.xxx_hidden_PeriodTo = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 10)
+}
+
+func (x *AccessReviewSelect) SetReviewer(v *HolderSelect) {
+	x.xxx_hidden_Reviewer = v
+}
+
+func (x *AccessReviewSelect) SetCalls(v bool) {
+	x.xxx_hidden_Calls = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 10)
+}
+
+func (x *AccessReviewSelect) SetDownloads(v bool) {
+	x.xxx_hidden_Downloads = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 10)
+}
+
+func (x *AccessReviewSelect) SetDateCreated(v bool) {
+	x.xxx_hidden_DateCreated = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 10)
+}
+
+func (x *AccessReviewSelect) SetRefused(v bool) {
+	x.xxx_hidden_Refused = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 10)
+}
+
+func (x *AccessReviewSelect) HasAll() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
+}
+
+func (x *AccessReviewSelect) HasTenant() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Tenant != nil
+}
+
+func (x *AccessReviewSelect) HasDesc() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
+}
+
+func (x *AccessReviewSelect) HasPeriodFrom() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
+}
+
+func (x *AccessReviewSelect) HasPeriodTo() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
+}
+
+func (x *AccessReviewSelect) HasReviewer() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Reviewer != nil
+}
+
+func (x *AccessReviewSelect) HasCalls() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 6)
+}
+
+func (x *AccessReviewSelect) HasDownloads() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 7)
+}
+
+func (x *AccessReviewSelect) HasDateCreated() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 8)
+}
+
+func (x *AccessReviewSelect) HasRefused() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 9)
+}
+
+func (x *AccessReviewSelect) ClearAll() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_All = false
+}
+
+func (x *AccessReviewSelect) ClearTenant() {
+	x.xxx_hidden_Tenant = nil
+}
+
+func (x *AccessReviewSelect) ClearDesc() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
+	x.xxx_hidden_Desc = false
+}
+
+func (x *AccessReviewSelect) ClearPeriodFrom() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
+	x.xxx_hidden_PeriodFrom = false
+}
+
+func (x *AccessReviewSelect) ClearPeriodTo() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
+	x.xxx_hidden_PeriodTo = false
+}
+
+func (x *AccessReviewSelect) ClearReviewer() {
+	x.xxx_hidden_Reviewer = nil
+}
+
+func (x *AccessReviewSelect) ClearCalls() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 6)
+	x.xxx_hidden_Calls = false
+}
+
+func (x *AccessReviewSelect) ClearDownloads() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
+	x.xxx_hidden_Downloads = false
+}
+
+func (x *AccessReviewSelect) ClearDateCreated() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 8)
+	x.xxx_hidden_DateCreated = false
+}
+
+func (x *AccessReviewSelect) ClearRefused() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 9)
+	x.xxx_hidden_Refused = false
+}
+
+type AccessReviewSelect_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	All         *bool
+	Tenant      *TenantSelect
+	Desc        *bool
+	PeriodFrom  *bool
+	PeriodTo    *bool
+	Reviewer    *HolderSelect
+	Calls       *bool
+	Downloads   *bool
+	DateCreated *bool
+	Refused     *bool
+}
+
+func (b0 AccessReviewSelect_builder) Build() *AccessReviewSelect {
+	m0 := &AccessReviewSelect{}
+	b, x := &b0, m0
+	_, _ = b, x
+	if b.All != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 10)
+		x.xxx_hidden_All = *b.All
+	}
+	x.xxx_hidden_Tenant = b.Tenant
+	if b.Desc != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 10)
+		x.xxx_hidden_Desc = *b.Desc
+	}
+	if b.PeriodFrom != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 10)
+		x.xxx_hidden_PeriodFrom = *b.PeriodFrom
+	}
+	if b.PeriodTo != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 10)
+		x.xxx_hidden_PeriodTo = *b.PeriodTo
+	}
+	x.xxx_hidden_Reviewer = b.Reviewer
+	if b.Calls != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 10)
+		x.xxx_hidden_Calls = *b.Calls
+	}
+	if b.Downloads != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 10)
+		x.xxx_hidden_Downloads = *b.Downloads
+	}
+	if b.DateCreated != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 10)
+		x.xxx_hidden_DateCreated = *b.DateCreated
+	}
+	if b.Refused != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 10)
+		x.xxx_hidden_Refused = *b.Refused
+	}
+	return m0
+}
+
+type AccessReviewPatchRequest struct {
+	state          protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Ref *AccessReviewRef       `protobuf:"bytes,1,opt,name=ref"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *AccessReviewPatchRequest) Reset() {
+	*x = AccessReviewPatchRequest{}
+	mi := &file_rove_ops_svc_g_proto_msgTypes[51]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AccessReviewPatchRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AccessReviewPatchRequest) ProtoMessage() {}
+
+func (x *AccessReviewPatchRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_ops_svc_g_proto_msgTypes[51]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *AccessReviewPatchRequest) GetRef() *AccessReviewRef {
+	if x != nil {
+		return x.xxx_hidden_Ref
+	}
+	return nil
+}
+
+func (x *AccessReviewPatchRequest) SetRef(v *AccessReviewRef) {
+	x.xxx_hidden_Ref = v
+}
+
+func (x *AccessReviewPatchRequest) HasRef() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Ref != nil
+}
+
+func (x *AccessReviewPatchRequest) ClearRef() {
+	x.xxx_hidden_Ref = nil
+}
+
+type AccessReviewPatchRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Ref *AccessReviewRef
+}
+
+func (b0 AccessReviewPatchRequest_builder) Build() *AccessReviewPatchRequest {
+	m0 := &AccessReviewPatchRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Ref = b.Ref
+	return m0
+}
+
+type AccessReviewApplyRequest struct {
+	state            protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Ref   *AccessReviewRef       `protobuf:"bytes,1,opt,name=ref"`
+	xxx_hidden_Patch *patchpb.Patch         `protobuf:"bytes,2,opt,name=patch"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *AccessReviewApplyRequest) Reset() {
+	*x = AccessReviewApplyRequest{}
+	mi := &file_rove_ops_svc_g_proto_msgTypes[52]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AccessReviewApplyRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AccessReviewApplyRequest) ProtoMessage() {}
+
+func (x *AccessReviewApplyRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_ops_svc_g_proto_msgTypes[52]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *AccessReviewApplyRequest) GetRef() *AccessReviewRef {
+	if x != nil {
+		return x.xxx_hidden_Ref
+	}
+	return nil
+}
+
+func (x *AccessReviewApplyRequest) GetPatch() *patchpb.Patch {
+	if x != nil {
+		return x.xxx_hidden_Patch
+	}
+	return nil
+}
+
+func (x *AccessReviewApplyRequest) SetRef(v *AccessReviewRef) {
+	x.xxx_hidden_Ref = v
+}
+
+func (x *AccessReviewApplyRequest) SetPatch(v *patchpb.Patch) {
+	x.xxx_hidden_Patch = v
+}
+
+func (x *AccessReviewApplyRequest) HasRef() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Ref != nil
+}
+
+func (x *AccessReviewApplyRequest) HasPatch() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Patch != nil
+}
+
+func (x *AccessReviewApplyRequest) ClearRef() {
+	x.xxx_hidden_Ref = nil
+}
+
+func (x *AccessReviewApplyRequest) ClearPatch() {
+	x.xxx_hidden_Patch = nil
+}
+
+type AccessReviewApplyRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Ref   *AccessReviewRef
+	Patch *patchpb.Patch
+}
+
+func (b0 AccessReviewApplyRequest_builder) Build() *AccessReviewApplyRequest {
+	m0 := &AccessReviewApplyRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Ref = b.Ref
+	x.xxx_hidden_Patch = b.Patch
+	return m0
+}
+
+type AccessReviewEraseResponse struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Erased      bool                   `protobuf:"varint,1,opt,name=erased"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *AccessReviewEraseResponse) Reset() {
+	*x = AccessReviewEraseResponse{}
+	mi := &file_rove_ops_svc_g_proto_msgTypes[53]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AccessReviewEraseResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AccessReviewEraseResponse) ProtoMessage() {}
+
+func (x *AccessReviewEraseResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_ops_svc_g_proto_msgTypes[53]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *AccessReviewEraseResponse) GetErased() bool {
+	if x != nil {
+		return x.xxx_hidden_Erased
+	}
+	return false
+}
+
+func (x *AccessReviewEraseResponse) SetErased(v bool) {
+	x.xxx_hidden_Erased = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 1)
+}
+
+func (x *AccessReviewEraseResponse) HasErased() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
+}
+
+func (x *AccessReviewEraseResponse) ClearErased() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_Erased = false
+}
+
+type AccessReviewEraseResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// Erased is whether this call is the one that erased the row.
+	//
+	// False for a row that was already gone, was never there, or is out
+	// of this caller's reach -- which are one answer on purpose, and the
+	// reason the RPC does not fail instead.
+	Erased *bool
+}
+
+func (b0 AccessReviewEraseResponse_builder) Build() *AccessReviewEraseResponse {
+	m0 := &AccessReviewEraseResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	if b.Erased != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 1)
+		x.xxx_hidden_Erased = *b.Erased
+	}
+	return m0
+}
+
+type AccessReviewListRequest struct {
+	state              protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Filters *[]*AccessReviewFilter `protobuf:"bytes,1,rep,name=filters"`
+	xxx_hidden_Size    int32                  `protobuf:"varint,2,opt,name=size"`
+	xxx_hidden_After   string                 `protobuf:"bytes,3,opt,name=after"`
+	xxx_hidden_Reverse bool                   `protobuf:"varint,4,opt,name=reverse"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *AccessReviewListRequest) Reset() {
+	*x = AccessReviewListRequest{}
+	mi := &file_rove_ops_svc_g_proto_msgTypes[54]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AccessReviewListRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AccessReviewListRequest) ProtoMessage() {}
+
+func (x *AccessReviewListRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_ops_svc_g_proto_msgTypes[54]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *AccessReviewListRequest) GetFilters() []*AccessReviewFilter {
+	if x != nil {
+		if x.xxx_hidden_Filters != nil {
+			return *x.xxx_hidden_Filters
+		}
+	}
+	return nil
+}
+
+func (x *AccessReviewListRequest) GetSize() int32 {
+	if x != nil {
+		return x.xxx_hidden_Size
+	}
+	return 0
+}
+
+func (x *AccessReviewListRequest) GetAfter() string {
+	if x != nil {
+		return x.xxx_hidden_After
+	}
+	return ""
+}
+
+func (x *AccessReviewListRequest) GetReverse() bool {
+	if x != nil {
+		return x.xxx_hidden_Reverse
+	}
+	return false
+}
+
+func (x *AccessReviewListRequest) SetFilters(v []*AccessReviewFilter) {
+	x.xxx_hidden_Filters = &v
+}
+
+func (x *AccessReviewListRequest) SetSize(v int32) {
+	x.xxx_hidden_Size = v
+}
+
+func (x *AccessReviewListRequest) SetAfter(v string) {
+	x.xxx_hidden_After = v
+}
+
+func (x *AccessReviewListRequest) SetReverse(v bool) {
+	x.xxx_hidden_Reverse = v
+}
+
+type AccessReviewListRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// Bounded because the work is: each filter is a predicate in the same query,
+	// so this is what says how much of the database one request may read.
+	Filters []*AccessReviewFilter
+	// How many to answer with. Nothing said is what the schema declared, and more
+	// than the cap is the cap -- a caller asking for more than there is meant no
+	// harm, so it is not an error and it is not the whole table either.
+	Size int32
+	// Where to carry on from: the "next" of the answer before. It names the last
+	// row of that page rather than counting rows from the start, so a row added
+	// ahead of the page does not shift it and a caller reading through never sees
+	// one twice or misses one.
+	After string
+	// Read the order the other way round, every column of it at once -- newest
+	// first where it is oldest first -- which the index the order walks walks
+	// from the other end. A cursor is of the way it was read, so the next page
+	// carries on that way, and one of the other way is refused.
+	Reverse bool
+}
+
+func (b0 AccessReviewListRequest_builder) Build() *AccessReviewListRequest {
+	m0 := &AccessReviewListRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Filters = &b.Filters
+	x.xxx_hidden_Size = b.Size
+	x.xxx_hidden_After = b.After
+	x.xxx_hidden_Reverse = b.Reverse
+	return m0
+}
+
+type AccessReviewListResponse struct {
+	state            protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Items *[]*AccessReview       `protobuf:"bytes,1,rep,name=items"`
+	xxx_hidden_Next  string                 `protobuf:"bytes,2,opt,name=next"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *AccessReviewListResponse) Reset() {
+	*x = AccessReviewListResponse{}
+	mi := &file_rove_ops_svc_g_proto_msgTypes[55]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AccessReviewListResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AccessReviewListResponse) ProtoMessage() {}
+
+func (x *AccessReviewListResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_ops_svc_g_proto_msgTypes[55]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *AccessReviewListResponse) GetItems() []*AccessReview {
+	if x != nil {
+		if x.xxx_hidden_Items != nil {
+			return *x.xxx_hidden_Items
+		}
+	}
+	return nil
+}
+
+func (x *AccessReviewListResponse) GetNext() string {
+	if x != nil {
+		return x.xxx_hidden_Next
+	}
+	return ""
+}
+
+func (x *AccessReviewListResponse) SetItems(v []*AccessReview) {
+	x.xxx_hidden_Items = &v
+}
+
+func (x *AccessReviewListResponse) SetNext(v string) {
+	x.xxx_hidden_Next = v
+}
+
+type AccessReviewListResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Items []*AccessReview
+	// What to ask for next, and empty when this was the last of them.
+	//
+	// Empty means there is no more *for now*: a list is read as it is, and one
+	// that has grown since answers a fresh call. It is not empty merely because
+	// the page came back short -- a page is short when the last row of it was the
+	// last row there was, which is a thing the server can only know by having
+	// looked.
+	Next string
+}
+
+func (b0 AccessReviewListResponse_builder) Build() *AccessReviewListResponse {
+	m0 := &AccessReviewListResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Items = &b.Items
+	x.xxx_hidden_Next = b.Next
+	return m0
+}
+
+type AccessReviewFilter struct {
+	state         protoimpl.MessageState `protogen:"opaque.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AccessReviewFilter) Reset() {
+	*x = AccessReviewFilter{}
+	mi := &file_rove_ops_svc_g_proto_msgTypes[56]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AccessReviewFilter) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AccessReviewFilter) ProtoMessage() {}
+
+func (x *AccessReviewFilter) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_ops_svc_g_proto_msgTypes[56]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+type AccessReviewFilter_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+}
+
+func (b0 AccessReviewFilter_builder) Build() *AccessReviewFilter {
+	m0 := &AccessReviewFilter{}
+	b, x := &b0, m0
+	_, _ = b, x
+	return m0
+}
+
 var File_rove_ops_svc_g_proto protoreflect.FileDescriptor
 
 const file_rove_ops_svc_g_proto_rawDesc = "" +
@@ -6951,7 +8242,55 @@ const file_rove_ops_svc_g_proto_rawDesc = "" +
 	"\x05items\x18\x01 \x03(\v2\x0f.rove.LegalHoldR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"7\n" +
 	"\x0fLegalHoldFilter\x12$\n" +
-	"\x03ref\x18\x01 \x01(\v2\x12.rove.LegalHoldRefR\x03ref2\xf6\x04\n" +
+	"\x03ref\x18\x01 \x01(\v2\x12.rove.LegalHoldRefR\x03ref\"\xb1\x03\n" +
+	"\x16AccessReviewAddRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\x12\x19\n" +
+	"\x04desc\x18\x06 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04desc\x12;\n" +
+	"\vperiod_from\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"periodFrom\x127\n" +
+	"\tperiod_to\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\bperiodTo\x12+\n" +
+	"\breviewer\x18\n" +
+	" \x01(\v2\x0f.rove.HolderRefR\breviewer\x12\x1b\n" +
+	"\x05calls\x18\v \x01(\rB\x05\xaa\x01\x02\b\x02R\x05calls\x12#\n" +
+	"\tdownloads\x18\f \x01(\rB\x05\xaa\x01\x02\b\x02R\tdownloads\x12=\n" +
+	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\x12\x1f\n" +
+	"\arefused\x18\x10 \x01(\rB\x05\xaa\x01\x02\b\x02R\arefused\"s\n" +
+	"\x16AccessReviewGetRequest\x12'\n" +
+	"\x03ref\x18\x01 \x01(\v2\x15.rove.AccessReviewRefR\x03ref\x120\n" +
+	"\x06select\x18\x02 \x01(\v2\x18.rove.AccessReviewSelectR\x06select\"*\n" +
+	"\x0fAccessReviewRef\x12\x10\n" +
+	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
+	"\x03key\"\xc5\x02\n" +
+	"\x12AccessReviewSelect\x12\x10\n" +
+	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x12.rove.TenantSelectR\x06tenant\x12\x12\n" +
+	"\x04desc\x18\x06 \x01(\bR\x04desc\x12\x1f\n" +
+	"\vperiod_from\x18\b \x01(\bR\n" +
+	"periodFrom\x12\x1b\n" +
+	"\tperiod_to\x18\t \x01(\bR\bperiodTo\x12.\n" +
+	"\breviewer\x18\n" +
+	" \x01(\v2\x12.rove.HolderSelectR\breviewer\x12\x14\n" +
+	"\x05calls\x18\v \x01(\bR\x05calls\x12\x1c\n" +
+	"\tdownloads\x18\f \x01(\bR\tdownloads\x12!\n" +
+	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\x12\x18\n" +
+	"\arefused\x18\x10 \x01(\bR\arefused\"C\n" +
+	"\x18AccessReviewPatchRequest\x12'\n" +
+	"\x03ref\x18\x01 \x01(\v2\x15.rove.AccessReviewRefR\x03ref\"g\n" +
+	"\x18AccessReviewApplyRequest\x12'\n" +
+	"\x03ref\x18\x01 \x01(\v2\x15.rove.AccessReviewRefR\x03ref\x12\"\n" +
+	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"3\n" +
+	"\x19AccessReviewEraseResponse\x12\x16\n" +
+	"\x06erased\x18\x01 \x01(\bR\x06erased\"\xa6\x01\n" +
+	"\x17AccessReviewListRequest\x122\n" +
+	"\afilters\x18\x01 \x03(\v2\x18.rove.AccessReviewFilterR\afilters\x12\x19\n" +
+	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
+	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
+	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"_\n" +
+	"\x18AccessReviewListResponse\x12(\n" +
+	"\x05items\x18\x01 \x03(\v2\x12.rove.AccessReviewR\x05items\x12\x19\n" +
+	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"\x14\n" +
+	"\x12AccessReviewFilter2\xf6\x04\n" +
 	"\x13NotificationService\x127\n" +
 	"\x03Add\x12\x1c.rove.NotificationAddRequest\x1a\x12.rove.Notification\x127\n" +
 	"\x03Get\x12\x1c.rove.NotificationGetRequest\x1a\x12.rove.Notification\x12;\n" +
@@ -6982,9 +8321,16 @@ const file_rove_ops_svc_g_proto_rawDesc = "" +
 	"\x05Patch\x12\x1b.rove.LegalHoldPatchRequest\x1a\x0f.rove.LegalHold\x125\n" +
 	"\x05Apply\x12\x1b.rove.LegalHoldApplyRequest\x1a\x0f.rove.LegalHold\x129\n" +
 	"\x05Erase\x12\x12.rove.LegalHoldRef\x1a\x1c.rove.LegalHoldEraseResponse\x12?\n" +
-	"\x04List\x12\x1a.rove.LegalHoldListRequest\x1a\x1b.rove.LegalHoldListResponseB\x1aZ\x18github.com/lesomnus/roveb\beditionsp\xe8\a"
+	"\x04List\x12\x1a.rove.LegalHoldListRequest\x1a\x1b.rove.LegalHoldListResponse2\x89\x03\n" +
+	"\x13AccessReviewService\x127\n" +
+	"\x03Add\x12\x1c.rove.AccessReviewAddRequest\x1a\x12.rove.AccessReview\x127\n" +
+	"\x03Get\x12\x1c.rove.AccessReviewGetRequest\x1a\x12.rove.AccessReview\x12;\n" +
+	"\x05Patch\x12\x1e.rove.AccessReviewPatchRequest\x1a\x12.rove.AccessReview\x12;\n" +
+	"\x05Apply\x12\x1e.rove.AccessReviewApplyRequest\x1a\x12.rove.AccessReview\x12?\n" +
+	"\x05Erase\x12\x15.rove.AccessReviewRef\x1a\x1f.rove.AccessReviewEraseResponse\x12E\n" +
+	"\x04List\x12\x1d.rove.AccessReviewListRequest\x1a\x1e.rove.AccessReviewListResponseB\x1aZ\x18github.com/lesomnus/roveb\beditionsp\xe8\a"
 
-var file_rove_ops_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 49)
+var file_rove_ops_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 59)
 var file_rove_ops_svc_g_proto_goTypes = []any{
 	(*NotificationAddRequest)(nil),       // 0: rove.NotificationAddRequest
 	(*NotificationGetRequest)(nil),       // 1: rove.NotificationGetRequest
@@ -7033,141 +8379,178 @@ var file_rove_ops_svc_g_proto_goTypes = []any{
 	(*LegalHoldListRequest)(nil),         // 44: rove.LegalHoldListRequest
 	(*LegalHoldListResponse)(nil),        // 45: rove.LegalHoldListResponse
 	(*LegalHoldFilter)(nil),              // 46: rove.LegalHoldFilter
-	nil,                                  // 47: rove.UsageSnapshotAddRequest.MetricsEntry
-	nil,                                  // 48: rove.UsageSnapshotPatchRequest.MetricsEntry
-	(*TenantRef)(nil),                    // 49: rove.TenantRef
-	(*HolderRef)(nil),                    // 50: rove.HolderRef
-	(*timestamppb.Timestamp)(nil),        // 51: google.protobuf.Timestamp
-	(*TenantSelect)(nil),                 // 52: rove.TenantSelect
-	(*HolderSelect)(nil),                 // 53: rove.HolderSelect
-	(*patchpb.Patch)(nil),                // 54: patch.Patch
-	(*Notification)(nil),                 // 55: rove.Notification
-	(*UsageSnapshot)(nil),                // 56: rove.UsageSnapshot
-	(*TenantContract)(nil),               // 57: rove.TenantContract
-	(*LegalHold)(nil),                    // 58: rove.LegalHold
+	(*AccessReviewAddRequest)(nil),       // 47: rove.AccessReviewAddRequest
+	(*AccessReviewGetRequest)(nil),       // 48: rove.AccessReviewGetRequest
+	(*AccessReviewRef)(nil),              // 49: rove.AccessReviewRef
+	(*AccessReviewSelect)(nil),           // 50: rove.AccessReviewSelect
+	(*AccessReviewPatchRequest)(nil),     // 51: rove.AccessReviewPatchRequest
+	(*AccessReviewApplyRequest)(nil),     // 52: rove.AccessReviewApplyRequest
+	(*AccessReviewEraseResponse)(nil),    // 53: rove.AccessReviewEraseResponse
+	(*AccessReviewListRequest)(nil),      // 54: rove.AccessReviewListRequest
+	(*AccessReviewListResponse)(nil),     // 55: rove.AccessReviewListResponse
+	(*AccessReviewFilter)(nil),           // 56: rove.AccessReviewFilter
+	nil,                                  // 57: rove.UsageSnapshotAddRequest.MetricsEntry
+	nil,                                  // 58: rove.UsageSnapshotPatchRequest.MetricsEntry
+	(*TenantRef)(nil),                    // 59: rove.TenantRef
+	(*HolderRef)(nil),                    // 60: rove.HolderRef
+	(*timestamppb.Timestamp)(nil),        // 61: google.protobuf.Timestamp
+	(*TenantSelect)(nil),                 // 62: rove.TenantSelect
+	(*HolderSelect)(nil),                 // 63: rove.HolderSelect
+	(*patchpb.Patch)(nil),                // 64: patch.Patch
+	(*Notification)(nil),                 // 65: rove.Notification
+	(*UsageSnapshot)(nil),                // 66: rove.UsageSnapshot
+	(*TenantContract)(nil),               // 67: rove.TenantContract
+	(*LegalHold)(nil),                    // 68: rove.LegalHold
+	(*AccessReview)(nil),                 // 69: rove.AccessReview
 }
 var file_rove_ops_svc_g_proto_depIdxs = []int32{
-	49, // 0: rove.NotificationAddRequest.tenant:type_name -> rove.TenantRef
-	50, // 1: rove.NotificationAddRequest.holder:type_name -> rove.HolderRef
-	51, // 2: rove.NotificationAddRequest.read_at:type_name -> google.protobuf.Timestamp
-	51, // 3: rove.NotificationAddRequest.date_mailed:type_name -> google.protobuf.Timestamp
-	51, // 4: rove.NotificationAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	2,  // 5: rove.NotificationGetRequest.ref:type_name -> rove.NotificationRef
-	3,  // 6: rove.NotificationGetRequest.select:type_name -> rove.NotificationSelect
-	52, // 7: rove.NotificationSelect.tenant:type_name -> rove.TenantSelect
-	53, // 8: rove.NotificationSelect.holder:type_name -> rove.HolderSelect
-	2,  // 9: rove.NotificationPatchRequest.ref:type_name -> rove.NotificationRef
-	51, // 10: rove.NotificationPatchRequest.read_at:type_name -> google.protobuf.Timestamp
-	51, // 11: rove.NotificationPatchRequest.date_mailed:type_name -> google.protobuf.Timestamp
-	51, // 12: rove.NotificationPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	2,  // 13: rove.NotificationApplyRequest.ref:type_name -> rove.NotificationRef
-	54, // 14: rove.NotificationApplyRequest.patch:type_name -> patch.Patch
-	9,  // 15: rove.NotificationListRequest.filters:type_name -> rove.NotificationFilter
-	55, // 16: rove.NotificationListResponse.items:type_name -> rove.Notification
-	2,  // 17: rove.NotificationFilter.ref:type_name -> rove.NotificationRef
-	50, // 18: rove.NotificationFilter.holder:type_name -> rove.HolderRef
-	55, // 19: rove.NotificationInboxResponse.items:type_name -> rove.Notification
-	49, // 20: rove.UsageSnapshotAddRequest.tenant:type_name -> rove.TenantRef
-	47, // 21: rove.UsageSnapshotAddRequest.metrics:type_name -> rove.UsageSnapshotAddRequest.MetricsEntry
-	51, // 22: rove.UsageSnapshotAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	18, // 23: rove.UsageSnapshotGetRequest.ref:type_name -> rove.UsageSnapshotRef
-	20, // 24: rove.UsageSnapshotGetRequest.select:type_name -> rove.UsageSnapshotSelect
-	19, // 25: rove.UsageSnapshotRef.day:type_name -> rove.UsageSnapshotRefByDay
-	49, // 26: rove.UsageSnapshotRefByDay.tenant:type_name -> rove.TenantRef
-	52, // 27: rove.UsageSnapshotSelect.tenant:type_name -> rove.TenantSelect
-	18, // 28: rove.UsageSnapshotPatchRequest.ref:type_name -> rove.UsageSnapshotRef
-	48, // 29: rove.UsageSnapshotPatchRequest.metrics:type_name -> rove.UsageSnapshotPatchRequest.MetricsEntry
-	51, // 30: rove.UsageSnapshotPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	18, // 31: rove.UsageSnapshotApplyRequest.ref:type_name -> rove.UsageSnapshotRef
-	54, // 32: rove.UsageSnapshotApplyRequest.patch:type_name -> patch.Patch
-	26, // 33: rove.UsageSnapshotListRequest.filters:type_name -> rove.UsageSnapshotFilter
-	56, // 34: rove.UsageSnapshotListResponse.items:type_name -> rove.UsageSnapshot
-	18, // 35: rove.UsageSnapshotFilter.ref:type_name -> rove.UsageSnapshotRef
-	49, // 36: rove.TenantContractAddRequest.tenant:type_name -> rove.TenantRef
-	51, // 37: rove.TenantContractAddRequest.date_effective:type_name -> google.protobuf.Timestamp
-	51, // 38: rove.TenantContractAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	29, // 39: rove.TenantContractGetRequest.ref:type_name -> rove.TenantContractRef
-	30, // 40: rove.TenantContractGetRequest.select:type_name -> rove.TenantContractSelect
-	52, // 41: rove.TenantContractSelect.tenant:type_name -> rove.TenantSelect
-	29, // 42: rove.TenantContractPatchRequest.ref:type_name -> rove.TenantContractRef
-	51, // 43: rove.TenantContractPatchRequest.date_effective:type_name -> google.protobuf.Timestamp
-	29, // 44: rove.TenantContractApplyRequest.ref:type_name -> rove.TenantContractRef
-	54, // 45: rove.TenantContractApplyRequest.patch:type_name -> patch.Patch
-	36, // 46: rove.TenantContractListRequest.filters:type_name -> rove.TenantContractFilter
-	57, // 47: rove.TenantContractListResponse.items:type_name -> rove.TenantContract
-	29, // 48: rove.TenantContractFilter.ref:type_name -> rove.TenantContractRef
-	49, // 49: rove.LegalHoldAddRequest.tenant:type_name -> rove.TenantRef
-	51, // 50: rove.LegalHoldAddRequest.date_lifted:type_name -> google.protobuf.Timestamp
-	51, // 51: rove.LegalHoldAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	39, // 52: rove.LegalHoldGetRequest.ref:type_name -> rove.LegalHoldRef
-	40, // 53: rove.LegalHoldGetRequest.select:type_name -> rove.LegalHoldSelect
-	52, // 54: rove.LegalHoldSelect.tenant:type_name -> rove.TenantSelect
-	39, // 55: rove.LegalHoldPatchRequest.ref:type_name -> rove.LegalHoldRef
-	51, // 56: rove.LegalHoldPatchRequest.date_lifted:type_name -> google.protobuf.Timestamp
-	39, // 57: rove.LegalHoldApplyRequest.ref:type_name -> rove.LegalHoldRef
-	54, // 58: rove.LegalHoldApplyRequest.patch:type_name -> patch.Patch
-	46, // 59: rove.LegalHoldListRequest.filters:type_name -> rove.LegalHoldFilter
-	58, // 60: rove.LegalHoldListResponse.items:type_name -> rove.LegalHold
-	39, // 61: rove.LegalHoldFilter.ref:type_name -> rove.LegalHoldRef
-	0,  // 62: rove.NotificationService.Add:input_type -> rove.NotificationAddRequest
-	1,  // 63: rove.NotificationService.Get:input_type -> rove.NotificationGetRequest
-	4,  // 64: rove.NotificationService.Patch:input_type -> rove.NotificationPatchRequest
-	5,  // 65: rove.NotificationService.Apply:input_type -> rove.NotificationApplyRequest
-	2,  // 66: rove.NotificationService.Erase:input_type -> rove.NotificationRef
-	7,  // 67: rove.NotificationService.List:input_type -> rove.NotificationListRequest
-	10, // 68: rove.NotificationService.Inbox:input_type -> rove.NotificationInboxRequest
-	12, // 69: rove.NotificationService.MarkRead:input_type -> rove.NotificationMarkReadRequest
-	14, // 70: rove.NotificationService.SetMail:input_type -> rove.NotificationSetMailRequest
-	16, // 71: rove.UsageSnapshotService.Add:input_type -> rove.UsageSnapshotAddRequest
-	17, // 72: rove.UsageSnapshotService.Get:input_type -> rove.UsageSnapshotGetRequest
-	21, // 73: rove.UsageSnapshotService.Patch:input_type -> rove.UsageSnapshotPatchRequest
-	22, // 74: rove.UsageSnapshotService.Apply:input_type -> rove.UsageSnapshotApplyRequest
-	18, // 75: rove.UsageSnapshotService.Erase:input_type -> rove.UsageSnapshotRef
-	24, // 76: rove.UsageSnapshotService.List:input_type -> rove.UsageSnapshotListRequest
-	27, // 77: rove.TenantContractService.Add:input_type -> rove.TenantContractAddRequest
-	28, // 78: rove.TenantContractService.Get:input_type -> rove.TenantContractGetRequest
-	31, // 79: rove.TenantContractService.Patch:input_type -> rove.TenantContractPatchRequest
-	32, // 80: rove.TenantContractService.Apply:input_type -> rove.TenantContractApplyRequest
-	29, // 81: rove.TenantContractService.Erase:input_type -> rove.TenantContractRef
-	34, // 82: rove.TenantContractService.List:input_type -> rove.TenantContractListRequest
-	37, // 83: rove.LegalHoldService.Add:input_type -> rove.LegalHoldAddRequest
-	38, // 84: rove.LegalHoldService.Get:input_type -> rove.LegalHoldGetRequest
-	41, // 85: rove.LegalHoldService.Patch:input_type -> rove.LegalHoldPatchRequest
-	42, // 86: rove.LegalHoldService.Apply:input_type -> rove.LegalHoldApplyRequest
-	39, // 87: rove.LegalHoldService.Erase:input_type -> rove.LegalHoldRef
-	44, // 88: rove.LegalHoldService.List:input_type -> rove.LegalHoldListRequest
-	55, // 89: rove.NotificationService.Add:output_type -> rove.Notification
-	55, // 90: rove.NotificationService.Get:output_type -> rove.Notification
-	55, // 91: rove.NotificationService.Patch:output_type -> rove.Notification
-	55, // 92: rove.NotificationService.Apply:output_type -> rove.Notification
-	6,  // 93: rove.NotificationService.Erase:output_type -> rove.NotificationEraseResponse
-	8,  // 94: rove.NotificationService.List:output_type -> rove.NotificationListResponse
-	11, // 95: rove.NotificationService.Inbox:output_type -> rove.NotificationInboxResponse
-	13, // 96: rove.NotificationService.MarkRead:output_type -> rove.NotificationMarkReadResponse
-	15, // 97: rove.NotificationService.SetMail:output_type -> rove.NotificationSetMailResponse
-	56, // 98: rove.UsageSnapshotService.Add:output_type -> rove.UsageSnapshot
-	56, // 99: rove.UsageSnapshotService.Get:output_type -> rove.UsageSnapshot
-	56, // 100: rove.UsageSnapshotService.Patch:output_type -> rove.UsageSnapshot
-	56, // 101: rove.UsageSnapshotService.Apply:output_type -> rove.UsageSnapshot
-	23, // 102: rove.UsageSnapshotService.Erase:output_type -> rove.UsageSnapshotEraseResponse
-	25, // 103: rove.UsageSnapshotService.List:output_type -> rove.UsageSnapshotListResponse
-	57, // 104: rove.TenantContractService.Add:output_type -> rove.TenantContract
-	57, // 105: rove.TenantContractService.Get:output_type -> rove.TenantContract
-	57, // 106: rove.TenantContractService.Patch:output_type -> rove.TenantContract
-	57, // 107: rove.TenantContractService.Apply:output_type -> rove.TenantContract
-	33, // 108: rove.TenantContractService.Erase:output_type -> rove.TenantContractEraseResponse
-	35, // 109: rove.TenantContractService.List:output_type -> rove.TenantContractListResponse
-	58, // 110: rove.LegalHoldService.Add:output_type -> rove.LegalHold
-	58, // 111: rove.LegalHoldService.Get:output_type -> rove.LegalHold
-	58, // 112: rove.LegalHoldService.Patch:output_type -> rove.LegalHold
-	58, // 113: rove.LegalHoldService.Apply:output_type -> rove.LegalHold
-	43, // 114: rove.LegalHoldService.Erase:output_type -> rove.LegalHoldEraseResponse
-	45, // 115: rove.LegalHoldService.List:output_type -> rove.LegalHoldListResponse
-	89, // [89:116] is the sub-list for method output_type
-	62, // [62:89] is the sub-list for method input_type
-	62, // [62:62] is the sub-list for extension type_name
-	62, // [62:62] is the sub-list for extension extendee
-	0,  // [0:62] is the sub-list for field type_name
+	59,  // 0: rove.NotificationAddRequest.tenant:type_name -> rove.TenantRef
+	60,  // 1: rove.NotificationAddRequest.holder:type_name -> rove.HolderRef
+	61,  // 2: rove.NotificationAddRequest.read_at:type_name -> google.protobuf.Timestamp
+	61,  // 3: rove.NotificationAddRequest.date_mailed:type_name -> google.protobuf.Timestamp
+	61,  // 4: rove.NotificationAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	2,   // 5: rove.NotificationGetRequest.ref:type_name -> rove.NotificationRef
+	3,   // 6: rove.NotificationGetRequest.select:type_name -> rove.NotificationSelect
+	62,  // 7: rove.NotificationSelect.tenant:type_name -> rove.TenantSelect
+	63,  // 8: rove.NotificationSelect.holder:type_name -> rove.HolderSelect
+	2,   // 9: rove.NotificationPatchRequest.ref:type_name -> rove.NotificationRef
+	61,  // 10: rove.NotificationPatchRequest.read_at:type_name -> google.protobuf.Timestamp
+	61,  // 11: rove.NotificationPatchRequest.date_mailed:type_name -> google.protobuf.Timestamp
+	61,  // 12: rove.NotificationPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	2,   // 13: rove.NotificationApplyRequest.ref:type_name -> rove.NotificationRef
+	64,  // 14: rove.NotificationApplyRequest.patch:type_name -> patch.Patch
+	9,   // 15: rove.NotificationListRequest.filters:type_name -> rove.NotificationFilter
+	65,  // 16: rove.NotificationListResponse.items:type_name -> rove.Notification
+	2,   // 17: rove.NotificationFilter.ref:type_name -> rove.NotificationRef
+	60,  // 18: rove.NotificationFilter.holder:type_name -> rove.HolderRef
+	65,  // 19: rove.NotificationInboxResponse.items:type_name -> rove.Notification
+	59,  // 20: rove.UsageSnapshotAddRequest.tenant:type_name -> rove.TenantRef
+	57,  // 21: rove.UsageSnapshotAddRequest.metrics:type_name -> rove.UsageSnapshotAddRequest.MetricsEntry
+	61,  // 22: rove.UsageSnapshotAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	18,  // 23: rove.UsageSnapshotGetRequest.ref:type_name -> rove.UsageSnapshotRef
+	20,  // 24: rove.UsageSnapshotGetRequest.select:type_name -> rove.UsageSnapshotSelect
+	19,  // 25: rove.UsageSnapshotRef.day:type_name -> rove.UsageSnapshotRefByDay
+	59,  // 26: rove.UsageSnapshotRefByDay.tenant:type_name -> rove.TenantRef
+	62,  // 27: rove.UsageSnapshotSelect.tenant:type_name -> rove.TenantSelect
+	18,  // 28: rove.UsageSnapshotPatchRequest.ref:type_name -> rove.UsageSnapshotRef
+	58,  // 29: rove.UsageSnapshotPatchRequest.metrics:type_name -> rove.UsageSnapshotPatchRequest.MetricsEntry
+	61,  // 30: rove.UsageSnapshotPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	18,  // 31: rove.UsageSnapshotApplyRequest.ref:type_name -> rove.UsageSnapshotRef
+	64,  // 32: rove.UsageSnapshotApplyRequest.patch:type_name -> patch.Patch
+	26,  // 33: rove.UsageSnapshotListRequest.filters:type_name -> rove.UsageSnapshotFilter
+	66,  // 34: rove.UsageSnapshotListResponse.items:type_name -> rove.UsageSnapshot
+	18,  // 35: rove.UsageSnapshotFilter.ref:type_name -> rove.UsageSnapshotRef
+	59,  // 36: rove.TenantContractAddRequest.tenant:type_name -> rove.TenantRef
+	61,  // 37: rove.TenantContractAddRequest.date_effective:type_name -> google.protobuf.Timestamp
+	61,  // 38: rove.TenantContractAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	29,  // 39: rove.TenantContractGetRequest.ref:type_name -> rove.TenantContractRef
+	30,  // 40: rove.TenantContractGetRequest.select:type_name -> rove.TenantContractSelect
+	62,  // 41: rove.TenantContractSelect.tenant:type_name -> rove.TenantSelect
+	29,  // 42: rove.TenantContractPatchRequest.ref:type_name -> rove.TenantContractRef
+	61,  // 43: rove.TenantContractPatchRequest.date_effective:type_name -> google.protobuf.Timestamp
+	29,  // 44: rove.TenantContractApplyRequest.ref:type_name -> rove.TenantContractRef
+	64,  // 45: rove.TenantContractApplyRequest.patch:type_name -> patch.Patch
+	36,  // 46: rove.TenantContractListRequest.filters:type_name -> rove.TenantContractFilter
+	67,  // 47: rove.TenantContractListResponse.items:type_name -> rove.TenantContract
+	29,  // 48: rove.TenantContractFilter.ref:type_name -> rove.TenantContractRef
+	59,  // 49: rove.LegalHoldAddRequest.tenant:type_name -> rove.TenantRef
+	61,  // 50: rove.LegalHoldAddRequest.date_lifted:type_name -> google.protobuf.Timestamp
+	61,  // 51: rove.LegalHoldAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	39,  // 52: rove.LegalHoldGetRequest.ref:type_name -> rove.LegalHoldRef
+	40,  // 53: rove.LegalHoldGetRequest.select:type_name -> rove.LegalHoldSelect
+	62,  // 54: rove.LegalHoldSelect.tenant:type_name -> rove.TenantSelect
+	39,  // 55: rove.LegalHoldPatchRequest.ref:type_name -> rove.LegalHoldRef
+	61,  // 56: rove.LegalHoldPatchRequest.date_lifted:type_name -> google.protobuf.Timestamp
+	39,  // 57: rove.LegalHoldApplyRequest.ref:type_name -> rove.LegalHoldRef
+	64,  // 58: rove.LegalHoldApplyRequest.patch:type_name -> patch.Patch
+	46,  // 59: rove.LegalHoldListRequest.filters:type_name -> rove.LegalHoldFilter
+	68,  // 60: rove.LegalHoldListResponse.items:type_name -> rove.LegalHold
+	39,  // 61: rove.LegalHoldFilter.ref:type_name -> rove.LegalHoldRef
+	59,  // 62: rove.AccessReviewAddRequest.tenant:type_name -> rove.TenantRef
+	61,  // 63: rove.AccessReviewAddRequest.period_from:type_name -> google.protobuf.Timestamp
+	61,  // 64: rove.AccessReviewAddRequest.period_to:type_name -> google.protobuf.Timestamp
+	60,  // 65: rove.AccessReviewAddRequest.reviewer:type_name -> rove.HolderRef
+	61,  // 66: rove.AccessReviewAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	49,  // 67: rove.AccessReviewGetRequest.ref:type_name -> rove.AccessReviewRef
+	50,  // 68: rove.AccessReviewGetRequest.select:type_name -> rove.AccessReviewSelect
+	62,  // 69: rove.AccessReviewSelect.tenant:type_name -> rove.TenantSelect
+	63,  // 70: rove.AccessReviewSelect.reviewer:type_name -> rove.HolderSelect
+	49,  // 71: rove.AccessReviewPatchRequest.ref:type_name -> rove.AccessReviewRef
+	49,  // 72: rove.AccessReviewApplyRequest.ref:type_name -> rove.AccessReviewRef
+	64,  // 73: rove.AccessReviewApplyRequest.patch:type_name -> patch.Patch
+	56,  // 74: rove.AccessReviewListRequest.filters:type_name -> rove.AccessReviewFilter
+	69,  // 75: rove.AccessReviewListResponse.items:type_name -> rove.AccessReview
+	0,   // 76: rove.NotificationService.Add:input_type -> rove.NotificationAddRequest
+	1,   // 77: rove.NotificationService.Get:input_type -> rove.NotificationGetRequest
+	4,   // 78: rove.NotificationService.Patch:input_type -> rove.NotificationPatchRequest
+	5,   // 79: rove.NotificationService.Apply:input_type -> rove.NotificationApplyRequest
+	2,   // 80: rove.NotificationService.Erase:input_type -> rove.NotificationRef
+	7,   // 81: rove.NotificationService.List:input_type -> rove.NotificationListRequest
+	10,  // 82: rove.NotificationService.Inbox:input_type -> rove.NotificationInboxRequest
+	12,  // 83: rove.NotificationService.MarkRead:input_type -> rove.NotificationMarkReadRequest
+	14,  // 84: rove.NotificationService.SetMail:input_type -> rove.NotificationSetMailRequest
+	16,  // 85: rove.UsageSnapshotService.Add:input_type -> rove.UsageSnapshotAddRequest
+	17,  // 86: rove.UsageSnapshotService.Get:input_type -> rove.UsageSnapshotGetRequest
+	21,  // 87: rove.UsageSnapshotService.Patch:input_type -> rove.UsageSnapshotPatchRequest
+	22,  // 88: rove.UsageSnapshotService.Apply:input_type -> rove.UsageSnapshotApplyRequest
+	18,  // 89: rove.UsageSnapshotService.Erase:input_type -> rove.UsageSnapshotRef
+	24,  // 90: rove.UsageSnapshotService.List:input_type -> rove.UsageSnapshotListRequest
+	27,  // 91: rove.TenantContractService.Add:input_type -> rove.TenantContractAddRequest
+	28,  // 92: rove.TenantContractService.Get:input_type -> rove.TenantContractGetRequest
+	31,  // 93: rove.TenantContractService.Patch:input_type -> rove.TenantContractPatchRequest
+	32,  // 94: rove.TenantContractService.Apply:input_type -> rove.TenantContractApplyRequest
+	29,  // 95: rove.TenantContractService.Erase:input_type -> rove.TenantContractRef
+	34,  // 96: rove.TenantContractService.List:input_type -> rove.TenantContractListRequest
+	37,  // 97: rove.LegalHoldService.Add:input_type -> rove.LegalHoldAddRequest
+	38,  // 98: rove.LegalHoldService.Get:input_type -> rove.LegalHoldGetRequest
+	41,  // 99: rove.LegalHoldService.Patch:input_type -> rove.LegalHoldPatchRequest
+	42,  // 100: rove.LegalHoldService.Apply:input_type -> rove.LegalHoldApplyRequest
+	39,  // 101: rove.LegalHoldService.Erase:input_type -> rove.LegalHoldRef
+	44,  // 102: rove.LegalHoldService.List:input_type -> rove.LegalHoldListRequest
+	47,  // 103: rove.AccessReviewService.Add:input_type -> rove.AccessReviewAddRequest
+	48,  // 104: rove.AccessReviewService.Get:input_type -> rove.AccessReviewGetRequest
+	51,  // 105: rove.AccessReviewService.Patch:input_type -> rove.AccessReviewPatchRequest
+	52,  // 106: rove.AccessReviewService.Apply:input_type -> rove.AccessReviewApplyRequest
+	49,  // 107: rove.AccessReviewService.Erase:input_type -> rove.AccessReviewRef
+	54,  // 108: rove.AccessReviewService.List:input_type -> rove.AccessReviewListRequest
+	65,  // 109: rove.NotificationService.Add:output_type -> rove.Notification
+	65,  // 110: rove.NotificationService.Get:output_type -> rove.Notification
+	65,  // 111: rove.NotificationService.Patch:output_type -> rove.Notification
+	65,  // 112: rove.NotificationService.Apply:output_type -> rove.Notification
+	6,   // 113: rove.NotificationService.Erase:output_type -> rove.NotificationEraseResponse
+	8,   // 114: rove.NotificationService.List:output_type -> rove.NotificationListResponse
+	11,  // 115: rove.NotificationService.Inbox:output_type -> rove.NotificationInboxResponse
+	13,  // 116: rove.NotificationService.MarkRead:output_type -> rove.NotificationMarkReadResponse
+	15,  // 117: rove.NotificationService.SetMail:output_type -> rove.NotificationSetMailResponse
+	66,  // 118: rove.UsageSnapshotService.Add:output_type -> rove.UsageSnapshot
+	66,  // 119: rove.UsageSnapshotService.Get:output_type -> rove.UsageSnapshot
+	66,  // 120: rove.UsageSnapshotService.Patch:output_type -> rove.UsageSnapshot
+	66,  // 121: rove.UsageSnapshotService.Apply:output_type -> rove.UsageSnapshot
+	23,  // 122: rove.UsageSnapshotService.Erase:output_type -> rove.UsageSnapshotEraseResponse
+	25,  // 123: rove.UsageSnapshotService.List:output_type -> rove.UsageSnapshotListResponse
+	67,  // 124: rove.TenantContractService.Add:output_type -> rove.TenantContract
+	67,  // 125: rove.TenantContractService.Get:output_type -> rove.TenantContract
+	67,  // 126: rove.TenantContractService.Patch:output_type -> rove.TenantContract
+	67,  // 127: rove.TenantContractService.Apply:output_type -> rove.TenantContract
+	33,  // 128: rove.TenantContractService.Erase:output_type -> rove.TenantContractEraseResponse
+	35,  // 129: rove.TenantContractService.List:output_type -> rove.TenantContractListResponse
+	68,  // 130: rove.LegalHoldService.Add:output_type -> rove.LegalHold
+	68,  // 131: rove.LegalHoldService.Get:output_type -> rove.LegalHold
+	68,  // 132: rove.LegalHoldService.Patch:output_type -> rove.LegalHold
+	68,  // 133: rove.LegalHoldService.Apply:output_type -> rove.LegalHold
+	43,  // 134: rove.LegalHoldService.Erase:output_type -> rove.LegalHoldEraseResponse
+	45,  // 135: rove.LegalHoldService.List:output_type -> rove.LegalHoldListResponse
+	69,  // 136: rove.AccessReviewService.Add:output_type -> rove.AccessReview
+	69,  // 137: rove.AccessReviewService.Get:output_type -> rove.AccessReview
+	69,  // 138: rove.AccessReviewService.Patch:output_type -> rove.AccessReview
+	69,  // 139: rove.AccessReviewService.Apply:output_type -> rove.AccessReview
+	53,  // 140: rove.AccessReviewService.Erase:output_type -> rove.AccessReviewEraseResponse
+	55,  // 141: rove.AccessReviewService.List:output_type -> rove.AccessReviewListResponse
+	109, // [109:142] is the sub-list for method output_type
+	76,  // [76:109] is the sub-list for method input_type
+	76,  // [76:76] is the sub-list for extension type_name
+	76,  // [76:76] is the sub-list for extension extendee
+	0,   // [0:76] is the sub-list for field type_name
 }
 
 func init() { file_rove_ops_svc_g_proto_init() }
@@ -7191,15 +8574,18 @@ func file_rove_ops_svc_g_proto_init() {
 	file_rove_ops_svc_g_proto_msgTypes[39].OneofWrappers = []any{
 		(*legalHoldRef_Id)(nil),
 	}
+	file_rove_ops_svc_g_proto_msgTypes[49].OneofWrappers = []any{
+		(*accessReviewRef_Id)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_ops_svc_g_proto_rawDesc), len(file_rove_ops_svc_g_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   49,
+			NumMessages:   59,
 			NumExtensions: 0,
-			NumServices:   4,
+			NumServices:   5,
 		},
 		GoTypes:           file_rove_ops_svc_g_proto_goTypes,
 		DependencyIndexes: file_rove_ops_svc_g_proto_depIdxs,

@@ -9,6 +9,7 @@ package rove
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	unsafe "unsafe"
 )
@@ -1045,11 +1046,622 @@ func (b0 AccessFilter_builder) Build() *AccessFilter {
 	return m0
 }
 
+type AccessReviewRequest struct {
+	state              protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_From    *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=from"`
+	xxx_hidden_To      *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=to"`
+	xxx_hidden_Actor   []byte                 `protobuf:"bytes,3,opt,name=actor"`
+	xxx_hidden_Subject []byte                 `protobuf:"bytes,4,opt,name=subject"`
+	xxx_hidden_Kind    string                 `protobuf:"bytes,5,opt,name=kind"`
+	xxx_hidden_Size    uint32                 `protobuf:"varint,6,opt,name=size"`
+	xxx_hidden_After   string                 `protobuf:"bytes,7,opt,name=after"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *AccessReviewRequest) Reset() {
+	*x = AccessReviewRequest{}
+	mi := &file_rove_payday_access_svc_g_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AccessReviewRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AccessReviewRequest) ProtoMessage() {}
+
+func (x *AccessReviewRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_payday_access_svc_g_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *AccessReviewRequest) GetFrom() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_From
+	}
+	return nil
+}
+
+func (x *AccessReviewRequest) GetTo() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_To
+	}
+	return nil
+}
+
+func (x *AccessReviewRequest) GetActor() []byte {
+	if x != nil {
+		return x.xxx_hidden_Actor
+	}
+	return nil
+}
+
+func (x *AccessReviewRequest) GetSubject() []byte {
+	if x != nil {
+		return x.xxx_hidden_Subject
+	}
+	return nil
+}
+
+func (x *AccessReviewRequest) GetKind() string {
+	if x != nil {
+		return x.xxx_hidden_Kind
+	}
+	return ""
+}
+
+func (x *AccessReviewRequest) GetSize() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Size
+	}
+	return 0
+}
+
+func (x *AccessReviewRequest) GetAfter() string {
+	if x != nil {
+		return x.xxx_hidden_After
+	}
+	return ""
+}
+
+func (x *AccessReviewRequest) SetFrom(v *timestamppb.Timestamp) {
+	x.xxx_hidden_From = v
+}
+
+func (x *AccessReviewRequest) SetTo(v *timestamppb.Timestamp) {
+	x.xxx_hidden_To = v
+}
+
+func (x *AccessReviewRequest) SetActor(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Actor = v
+}
+
+func (x *AccessReviewRequest) SetSubject(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Subject = v
+}
+
+func (x *AccessReviewRequest) SetKind(v string) {
+	x.xxx_hidden_Kind = v
+}
+
+func (x *AccessReviewRequest) SetSize(v uint32) {
+	x.xxx_hidden_Size = v
+}
+
+func (x *AccessReviewRequest) SetAfter(v string) {
+	x.xxx_hidden_After = v
+}
+
+func (x *AccessReviewRequest) HasFrom() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_From != nil
+}
+
+func (x *AccessReviewRequest) HasTo() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_To != nil
+}
+
+func (x *AccessReviewRequest) ClearFrom() {
+	x.xxx_hidden_From = nil
+}
+
+func (x *AccessReviewRequest) ClearTo() {
+	x.xxx_hidden_To = nil
+}
+
+type AccessReviewRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// The stretch: from `from`, and before `to`.
+	From *timestamppb.Timestamp
+	To   *timestamppb.Timestamp
+	// Only the calls one membership made,
+	Actor []byte
+	// that carried one person's data -- a person record's or a membership's
+	// identifier,
+	Subject []byte
+	// or of one kind: `read`, `write` or `download`.
+	Kind string
+	// How many a page holds, and where the page before ended (`next`).
+	Size  uint32
+	After string
+}
+
+func (b0 AccessReviewRequest_builder) Build() *AccessReviewRequest {
+	m0 := &AccessReviewRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_From = b.From
+	x.xxx_hidden_To = b.To
+	x.xxx_hidden_Actor = b.Actor
+	x.xxx_hidden_Subject = b.Subject
+	x.xxx_hidden_Kind = b.Kind
+	x.xxx_hidden_Size = b.Size
+	x.xxx_hidden_After = b.After
+	return m0
+}
+
+type AccessReviewResponse struct {
+	state                protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Items     *[]*AccessEntry        `protobuf:"bytes,1,rep,name=items"`
+	xxx_hidden_Next      string                 `protobuf:"bytes,2,opt,name=next"`
+	xxx_hidden_Calls     uint32                 `protobuf:"varint,3,opt,name=calls"`
+	xxx_hidden_Downloads uint32                 `protobuf:"varint,4,opt,name=downloads"`
+	xxx_hidden_Refused   uint32                 `protobuf:"varint,5,opt,name=refused"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
+}
+
+func (x *AccessReviewResponse) Reset() {
+	*x = AccessReviewResponse{}
+	mi := &file_rove_payday_access_svc_g_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AccessReviewResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AccessReviewResponse) ProtoMessage() {}
+
+func (x *AccessReviewResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_payday_access_svc_g_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *AccessReviewResponse) GetItems() []*AccessEntry {
+	if x != nil {
+		if x.xxx_hidden_Items != nil {
+			return *x.xxx_hidden_Items
+		}
+	}
+	return nil
+}
+
+func (x *AccessReviewResponse) GetNext() string {
+	if x != nil {
+		return x.xxx_hidden_Next
+	}
+	return ""
+}
+
+func (x *AccessReviewResponse) GetCalls() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Calls
+	}
+	return 0
+}
+
+func (x *AccessReviewResponse) GetDownloads() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Downloads
+	}
+	return 0
+}
+
+func (x *AccessReviewResponse) GetRefused() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Refused
+	}
+	return 0
+}
+
+func (x *AccessReviewResponse) SetItems(v []*AccessEntry) {
+	x.xxx_hidden_Items = &v
+}
+
+func (x *AccessReviewResponse) SetNext(v string) {
+	x.xxx_hidden_Next = v
+}
+
+func (x *AccessReviewResponse) SetCalls(v uint32) {
+	x.xxx_hidden_Calls = v
+}
+
+func (x *AccessReviewResponse) SetDownloads(v uint32) {
+	x.xxx_hidden_Downloads = v
+}
+
+func (x *AccessReviewResponse) SetRefused(v uint32) {
+	x.xxx_hidden_Refused = v
+}
+
+type AccessReviewResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Items []*AccessEntry
+	// What to send as `after` for the page after this one; empty is none.
+	Next string
+	// What the whole stretch holds, whatever narrows the items: every call
+	// that carried somebody's data, the downloads among them, and the calls
+	// refused.
+	Calls     uint32
+	Downloads uint32
+	Refused   uint32
+}
+
+func (b0 AccessReviewResponse_builder) Build() *AccessReviewResponse {
+	m0 := &AccessReviewResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Items = &b.Items
+	x.xxx_hidden_Next = b.Next
+	x.xxx_hidden_Calls = b.Calls
+	x.xxx_hidden_Downloads = b.Downloads
+	x.xxx_hidden_Refused = b.Refused
+	return m0
+}
+
+// AccessEntry is one row of the access record, read out.
+type AccessEntry struct {
+	state                   protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id           []byte                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_At           *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=at"`
+	xxx_hidden_Actor        []byte                 `protobuf:"bytes,3,opt,name=actor"`
+	xxx_hidden_ActorName    string                 `protobuf:"bytes,4,opt,name=actor_name,json=actorName"`
+	xxx_hidden_Action       string                 `protobuf:"bytes,5,opt,name=action"`
+	xxx_hidden_Kind         string                 `protobuf:"bytes,6,opt,name=kind"`
+	xxx_hidden_Result       string                 `protobuf:"bytes,7,opt,name=result"`
+	xxx_hidden_Address      string                 `protobuf:"bytes,8,opt,name=address"`
+	xxx_hidden_Reason       string                 `protobuf:"bytes,9,opt,name=reason"`
+	xxx_hidden_Subjects     *[]*AccessSubject      `protobuf:"bytes,10,rep,name=subjects"`
+	xxx_hidden_SubjectCount uint32                 `protobuf:"varint,11,opt,name=subject_count,json=subjectCount"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
+}
+
+func (x *AccessEntry) Reset() {
+	*x = AccessEntry{}
+	mi := &file_rove_payday_access_svc_g_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AccessEntry) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AccessEntry) ProtoMessage() {}
+
+func (x *AccessEntry) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_payday_access_svc_g_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *AccessEntry) GetId() []byte {
+	if x != nil {
+		return x.xxx_hidden_Id
+	}
+	return nil
+}
+
+func (x *AccessEntry) GetAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_At
+	}
+	return nil
+}
+
+func (x *AccessEntry) GetActor() []byte {
+	if x != nil {
+		return x.xxx_hidden_Actor
+	}
+	return nil
+}
+
+func (x *AccessEntry) GetActorName() string {
+	if x != nil {
+		return x.xxx_hidden_ActorName
+	}
+	return ""
+}
+
+func (x *AccessEntry) GetAction() string {
+	if x != nil {
+		return x.xxx_hidden_Action
+	}
+	return ""
+}
+
+func (x *AccessEntry) GetKind() string {
+	if x != nil {
+		return x.xxx_hidden_Kind
+	}
+	return ""
+}
+
+func (x *AccessEntry) GetResult() string {
+	if x != nil {
+		return x.xxx_hidden_Result
+	}
+	return ""
+}
+
+func (x *AccessEntry) GetAddress() string {
+	if x != nil {
+		return x.xxx_hidden_Address
+	}
+	return ""
+}
+
+func (x *AccessEntry) GetReason() string {
+	if x != nil {
+		return x.xxx_hidden_Reason
+	}
+	return ""
+}
+
+func (x *AccessEntry) GetSubjects() []*AccessSubject {
+	if x != nil {
+		if x.xxx_hidden_Subjects != nil {
+			return *x.xxx_hidden_Subjects
+		}
+	}
+	return nil
+}
+
+func (x *AccessEntry) GetSubjectCount() uint32 {
+	if x != nil {
+		return x.xxx_hidden_SubjectCount
+	}
+	return 0
+}
+
+func (x *AccessEntry) SetId(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Id = v
+}
+
+func (x *AccessEntry) SetAt(v *timestamppb.Timestamp) {
+	x.xxx_hidden_At = v
+}
+
+func (x *AccessEntry) SetActor(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Actor = v
+}
+
+func (x *AccessEntry) SetActorName(v string) {
+	x.xxx_hidden_ActorName = v
+}
+
+func (x *AccessEntry) SetAction(v string) {
+	x.xxx_hidden_Action = v
+}
+
+func (x *AccessEntry) SetKind(v string) {
+	x.xxx_hidden_Kind = v
+}
+
+func (x *AccessEntry) SetResult(v string) {
+	x.xxx_hidden_Result = v
+}
+
+func (x *AccessEntry) SetAddress(v string) {
+	x.xxx_hidden_Address = v
+}
+
+func (x *AccessEntry) SetReason(v string) {
+	x.xxx_hidden_Reason = v
+}
+
+func (x *AccessEntry) SetSubjects(v []*AccessSubject) {
+	x.xxx_hidden_Subjects = &v
+}
+
+func (x *AccessEntry) SetSubjectCount(v uint32) {
+	x.xxx_hidden_SubjectCount = v
+}
+
+func (x *AccessEntry) HasAt() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_At != nil
+}
+
+func (x *AccessEntry) ClearAt() {
+	x.xxx_hidden_At = nil
+}
+
+type AccessEntry_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Id []byte
+	At *timestamppb.Timestamp
+	// Who made the call -- a membership, none for the deployment -- and what
+	// they are called now.
+	Actor     []byte
+	ActorName string
+	// The RPC, what it did to the data -- `read`, `write` or `download` -- and
+	// `ok` or the status code it was refused with.
+	Action string
+	Kind   string
+	Result string
+	// Where it came from, past the proxies the deployment trusts, and what a
+	// download said it was for.
+	Address string
+	Reason  string
+	// Whose data it carried, as far as the row names them, and how many it
+	// carried.
+	Subjects     []*AccessSubject
+	SubjectCount uint32
+}
+
+func (b0 AccessEntry_builder) Build() *AccessEntry {
+	m0 := &AccessEntry{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Id = b.Id
+	x.xxx_hidden_At = b.At
+	x.xxx_hidden_Actor = b.Actor
+	x.xxx_hidden_ActorName = b.ActorName
+	x.xxx_hidden_Action = b.Action
+	x.xxx_hidden_Kind = b.Kind
+	x.xxx_hidden_Result = b.Result
+	x.xxx_hidden_Address = b.Address
+	x.xxx_hidden_Reason = b.Reason
+	x.xxx_hidden_Subjects = &b.Subjects
+	x.xxx_hidden_SubjectCount = b.SubjectCount
+	return m0
+}
+
+// AccessSubject is somebody whose data a call carried.
+type AccessSubject struct {
+	state           protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id   []byte                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Kind string                 `protobuf:"bytes,2,opt,name=kind"`
+	xxx_hidden_Name string                 `protobuf:"bytes,3,opt,name=name"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *AccessSubject) Reset() {
+	*x = AccessSubject{}
+	mi := &file_rove_payday_access_svc_g_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AccessSubject) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AccessSubject) ProtoMessage() {}
+
+func (x *AccessSubject) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_payday_access_svc_g_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *AccessSubject) GetId() []byte {
+	if x != nil {
+		return x.xxx_hidden_Id
+	}
+	return nil
+}
+
+func (x *AccessSubject) GetKind() string {
+	if x != nil {
+		return x.xxx_hidden_Kind
+	}
+	return ""
+}
+
+func (x *AccessSubject) GetName() string {
+	if x != nil {
+		return x.xxx_hidden_Name
+	}
+	return ""
+}
+
+func (x *AccessSubject) SetId(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Id = v
+}
+
+func (x *AccessSubject) SetKind(v string) {
+	x.xxx_hidden_Kind = v
+}
+
+func (x *AccessSubject) SetName(v string) {
+	x.xxx_hidden_Name = v
+}
+
+type AccessSubject_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Id []byte
+	// What the identifier is of: `party`, `holder`, `invitation`, ...
+	Kind string
+	// What a person record or a membership is called now; empty for anything
+	// else, whose name is not one to show here (an invitation's address).
+	Name string
+}
+
+func (b0 AccessSubject_builder) Build() *AccessSubject {
+	m0 := &AccessSubject{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Id = b.Id
+	x.xxx_hidden_Kind = b.Kind
+	x.xxx_hidden_Name = b.Name
+	return m0
+}
+
 var File_rove_payday_access_svc_g_proto protoreflect.FileDescriptor
 
 const file_rove_payday_access_svc_g_proto_rawDesc = "" +
 	"\n" +
-	"\x1erove/payday/access_svc.g.proto\x12\x04rove\x1a\x18rove/payday/access.proto\"a\n" +
+	"\x1erove/payday/access_svc.g.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x18rove/payday/access.proto\"a\n" +
 	"\x10AccessGetRequest\x12!\n" +
 	"\x03ref\x18\x01 \x01(\v2\x0f.rove.AccessRefR\x03ref\x12*\n" +
 	"\x06select\x18\x02 \x01(\v2\x12.rove.AccessSelectR\x06select\"$\n" +
@@ -1083,35 +1695,80 @@ const file_rove_payday_access_svc_g_proto_rawDesc = "" +
 	"\bactor_id\x18\x01 \x01(\fR\aactorId\x12\x1b\n" +
 	"\ttenant_id\x18\x02 \x01(\fR\btenantId\x12&\n" +
 	"\x0factor_tenant_id\x18\x03 \x01(\fR\ractorTenantId\x12\x12\n" +
-	"\x04kind\x18\x04 \x01(\tR\x04kind2w\n" +
+	"\x04kind\x18\x04 \x01(\tR\x04kind\"\x82\x02\n" +
+	"\x13AccessReviewRequest\x12.\n" +
+	"\x04from\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
+	"\x02to\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\x12\x1b\n" +
+	"\x05actor\x18\x03 \x01(\fB\x05\xaa\x01\x02\b\x02R\x05actor\x12\x1f\n" +
+	"\asubject\x18\x04 \x01(\fB\x05\xaa\x01\x02\b\x02R\asubject\x12\x19\n" +
+	"\x04kind\x18\x05 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\x12\x19\n" +
+	"\x04size\x18\x06 \x01(\rB\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
+	"\x05after\x18\a \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\"\xbd\x01\n" +
+	"\x14AccessReviewResponse\x12'\n" +
+	"\x05items\x18\x01 \x03(\v2\x11.rove.AccessEntryR\x05items\x12\x19\n" +
+	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\x12\x1b\n" +
+	"\x05calls\x18\x03 \x01(\rB\x05\xaa\x01\x02\b\x02R\x05calls\x12#\n" +
+	"\tdownloads\x18\x04 \x01(\rB\x05\xaa\x01\x02\b\x02R\tdownloads\x12\x1f\n" +
+	"\arefused\x18\x05 \x01(\rB\x05\xaa\x01\x02\b\x02R\arefused\"\x89\x03\n" +
+	"\vAccessEntry\x12\x15\n" +
+	"\x02id\x18\x01 \x01(\fB\x05\xaa\x01\x02\b\x02R\x02id\x12*\n" +
+	"\x02at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x02at\x12\x1b\n" +
+	"\x05actor\x18\x03 \x01(\fB\x05\xaa\x01\x02\b\x02R\x05actor\x12$\n" +
+	"\n" +
+	"actor_name\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\tactorName\x12\x1d\n" +
+	"\x06action\x18\x05 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06action\x12\x19\n" +
+	"\x04kind\x18\x06 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\x12\x1d\n" +
+	"\x06result\x18\a \x01(\tB\x05\xaa\x01\x02\b\x02R\x06result\x12\x1f\n" +
+	"\aaddress\x18\b \x01(\tB\x05\xaa\x01\x02\b\x02R\aaddress\x12\x1d\n" +
+	"\x06reason\x18\t \x01(\tB\x05\xaa\x01\x02\b\x02R\x06reason\x12/\n" +
+	"\bsubjects\x18\n" +
+	" \x03(\v2\x13.rove.AccessSubjectR\bsubjects\x12*\n" +
+	"\rsubject_count\x18\v \x01(\rB\x05\xaa\x01\x02\b\x02R\fsubjectCount\"\\\n" +
+	"\rAccessSubject\x12\x15\n" +
+	"\x02id\x18\x01 \x01(\fB\x05\xaa\x01\x02\b\x02R\x02id\x12\x19\n" +
+	"\x04kind\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\x12\x19\n" +
+	"\x04name\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04name2\xb8\x01\n" +
 	"\rAccessService\x12+\n" +
 	"\x03Get\x12\x16.rove.AccessGetRequest\x1a\f.rove.Access\x129\n" +
-	"\x04List\x12\x17.rove.AccessListRequest\x1a\x18.rove.AccessListResponseB\x1aZ\x18github.com/lesomnus/roveb\beditionsp\xe8\a"
+	"\x04List\x12\x17.rove.AccessListRequest\x1a\x18.rove.AccessListResponse\x12?\n" +
+	"\x06Review\x12\x19.rove.AccessReviewRequest\x1a\x1a.rove.AccessReviewResponseB\x1aZ\x18github.com/lesomnus/roveb\beditionsp\xe8\a"
 
-var file_rove_payday_access_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_rove_payday_access_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_rove_payday_access_svc_g_proto_goTypes = []any{
-	(*AccessGetRequest)(nil),   // 0: rove.AccessGetRequest
-	(*AccessRef)(nil),          // 1: rove.AccessRef
-	(*AccessSelect)(nil),       // 2: rove.AccessSelect
-	(*AccessListRequest)(nil),  // 3: rove.AccessListRequest
-	(*AccessListResponse)(nil), // 4: rove.AccessListResponse
-	(*AccessFilter)(nil),       // 5: rove.AccessFilter
-	(*Access)(nil),             // 6: rove.Access
+	(*AccessGetRequest)(nil),      // 0: rove.AccessGetRequest
+	(*AccessRef)(nil),             // 1: rove.AccessRef
+	(*AccessSelect)(nil),          // 2: rove.AccessSelect
+	(*AccessListRequest)(nil),     // 3: rove.AccessListRequest
+	(*AccessListResponse)(nil),    // 4: rove.AccessListResponse
+	(*AccessFilter)(nil),          // 5: rove.AccessFilter
+	(*AccessReviewRequest)(nil),   // 6: rove.AccessReviewRequest
+	(*AccessReviewResponse)(nil),  // 7: rove.AccessReviewResponse
+	(*AccessEntry)(nil),           // 8: rove.AccessEntry
+	(*AccessSubject)(nil),         // 9: rove.AccessSubject
+	(*Access)(nil),                // 10: rove.Access
+	(*timestamppb.Timestamp)(nil), // 11: google.protobuf.Timestamp
 }
 var file_rove_payday_access_svc_g_proto_depIdxs = []int32{
-	1, // 0: rove.AccessGetRequest.ref:type_name -> rove.AccessRef
-	2, // 1: rove.AccessGetRequest.select:type_name -> rove.AccessSelect
-	5, // 2: rove.AccessListRequest.filters:type_name -> rove.AccessFilter
-	6, // 3: rove.AccessListResponse.items:type_name -> rove.Access
-	0, // 4: rove.AccessService.Get:input_type -> rove.AccessGetRequest
-	3, // 5: rove.AccessService.List:input_type -> rove.AccessListRequest
-	6, // 6: rove.AccessService.Get:output_type -> rove.Access
-	4, // 7: rove.AccessService.List:output_type -> rove.AccessListResponse
-	6, // [6:8] is the sub-list for method output_type
-	4, // [4:6] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	1,  // 0: rove.AccessGetRequest.ref:type_name -> rove.AccessRef
+	2,  // 1: rove.AccessGetRequest.select:type_name -> rove.AccessSelect
+	5,  // 2: rove.AccessListRequest.filters:type_name -> rove.AccessFilter
+	10, // 3: rove.AccessListResponse.items:type_name -> rove.Access
+	11, // 4: rove.AccessReviewRequest.from:type_name -> google.protobuf.Timestamp
+	11, // 5: rove.AccessReviewRequest.to:type_name -> google.protobuf.Timestamp
+	8,  // 6: rove.AccessReviewResponse.items:type_name -> rove.AccessEntry
+	11, // 7: rove.AccessEntry.at:type_name -> google.protobuf.Timestamp
+	9,  // 8: rove.AccessEntry.subjects:type_name -> rove.AccessSubject
+	0,  // 9: rove.AccessService.Get:input_type -> rove.AccessGetRequest
+	3,  // 10: rove.AccessService.List:input_type -> rove.AccessListRequest
+	6,  // 11: rove.AccessService.Review:input_type -> rove.AccessReviewRequest
+	10, // 12: rove.AccessService.Get:output_type -> rove.Access
+	4,  // 13: rove.AccessService.List:output_type -> rove.AccessListResponse
+	7,  // 14: rove.AccessService.Review:output_type -> rove.AccessReviewResponse
+	12, // [12:15] is the sub-list for method output_type
+	9,  // [9:12] is the sub-list for method input_type
+	9,  // [9:9] is the sub-list for extension type_name
+	9,  // [9:9] is the sub-list for extension extendee
+	0,  // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_rove_payday_access_svc_g_proto_init() }
@@ -1129,7 +1786,7 @@ func file_rove_payday_access_svc_g_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_payday_access_svc_g_proto_rawDesc), len(file_rove_payday_access_svc_g_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

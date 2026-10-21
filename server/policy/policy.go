@@ -122,8 +122,10 @@ func init() {
 	// What only the people who run the tenant, or audit it, read.
 	oversee("AuditService", "Get", "List", "Recent")
 	// And who read or wrote whose data (rove#136): the record a tenant's
-	// administrators review each month, and an auditor reads.
-	oversee("AccessService", "Get", "List")
+	// administrators review each month, and an auditor reads -- and that it
+	// was reviewed, which either of them records.
+	oversee("AccessService", "Get", "List", "Review")
+	oversee("AccessReviewService", "Add", "Get", "List")
 	allow(Read, "EventService", "Recent")
 	oversee("HolderService", reads...)
 	oversee("UsageSnapshotService", "Get", "List")

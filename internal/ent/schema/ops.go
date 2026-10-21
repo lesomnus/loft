@@ -218,3 +218,63 @@ func (LegalHold) Annotations() []schema.Annotation {
 		entsql.Annotation{Table: "legalhold"},
 	}
 }
+
+type AccessReview struct {
+	ent.Schema
+}
+
+func (AccessReview) Fields() []ent.Field {
+	return []ent.Field{
+		field.Uuid("id").
+			Unique().
+			Immutable(),
+		field.String("desc").
+			Immutable(),
+		field.Time("period_from").
+			Immutable().
+			Optional(),
+		field.Time("period_to").
+			Immutable().
+			Optional(),
+		field.Uint32("calls").
+			Immutable(),
+		field.Uint32("downloads").
+			Immutable(),
+		field.Time("date_created").
+			Immutable().
+			Optional(),
+		field.Uint32("refused").
+			Immutable(),
+		field.Uuid("tenant_id").
+			Immutable(),
+		field.Uuid("reviewer_id").
+			Immutable(),
+	}
+}
+
+func (AccessReview) Edges() []ent.Edge {
+	return []ent.Edge{
+		edge.To("tenant", Tenant.Type).
+			Unique().
+			Field("tenant_id").
+			Required().
+			Immutable(),
+		edge.To("reviewer", Holder.Type).
+			Unique().
+			Field("reviewer_id").
+			Required().
+			Immutable(),
+	}
+}
+
+func (AccessReview) Indexes() []ent.Index {
+	return []ent.Index{
+		index.Fields("tenant_id", "date_created", "id"),
+	}
+}
+
+func (AccessReview) Annotations() []schema.Annotation {
+	return []schema.Annotation{
+		entsql.Annotation{Table: "accessreview"},
+	}
+}

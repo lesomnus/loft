@@ -9,6 +9,7 @@ import (
 	patchpb "github.com/lesomnus/protobuf-patch/patchpb"
 	rove "github.com/lesomnus/rove"
 	ent "github.com/lesomnus/rove/internal/ent"
+	accessreview "github.com/lesomnus/rove/internal/ent/accessreview"
 	holder "github.com/lesomnus/rove/internal/ent/holder"
 	legalhold "github.com/lesomnus/rove/internal/ent/legalhold"
 	notification "github.com/lesomnus/rove/internal/ent/notification"
@@ -2337,6 +2338,596 @@ func LegalHoldPick(req *rove.LegalHoldRef) (predicate.LegalHold, error) {
 		}
 	case rove.LegalHoldRef_Key_not_set_case:
 		return nil, status.Errorf(codes.InvalidArgument, "key not set: LegalHold")
+	default:
+		return nil, status.Errorf(codes.Unimplemented, "unknown type of key: %s", req.WhichKey())
+	}
+}
+
+type AccessReviewServiceServer struct {
+	Store
+
+	rove.UnimplementedAccessReviewServiceServer
+}
+
+// NewAccessReviewServiceServer answers with a server that runs its queries with `db`.
+//
+// It takes the options of [Server] so that what is built here can be told
+// where to report its writes and what it may see. Built without them, it
+// reports nowhere and sees everything.
+func NewAccessReviewServiceServer(db *ent.Client, opts ...Option) rove.AccessReviewServiceServer {
+	s := Server{Store: Store{Db: db}}
+	for _, opt := range opts {
+		opt(&s)
+	}
+	return AccessReviewServiceServer{Store: s.Store}
+}
+
+// AccessReviewNarrow answers with `p` and everything else that narrows a
+// read of a AccessReview, which is whatever `scope` says.
+//
+// Every read this package makes goes through it, and a read written by
+// hand should too -- a List is the one read nothing generates, and so the
+// one that would otherwise answer with rows nobody should be given.
+func AccessReviewNarrow(ctx context.Context, scope Scope, p predicate.AccessReview) (predicate.AccessReview, error) {
+	ps := make([]predicate.AccessReview, 0, 2)
+	if p != nil {
+		ps = append(ps, p)
+	}
+	if scope != nil {
+		q, err := scope.AccessReviewScope(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if q != nil {
+			ps = append(ps, q)
+		}
+	}
+
+	switch len(ps) {
+	case 0:
+		return nil, nil
+	case 1:
+		return ps[0], nil
+	default:
+		return accessreview.And(ps...), nil
+	}
+}
+
+// narrow is [AccessReviewNarrow] with this server's own scope.
+func (s AccessReviewServiceServer) narrow(ctx context.Context, p predicate.AccessReview) (predicate.AccessReview, error) {
+	return AccessReviewNarrow(ctx, s.Scope, p)
+}
+
+func (s AccessReviewServiceServer) snapshot(ctx context.Context, p predicate.AccessReview, lock bool) (*ent.AccessReview, error) {
+	q := s.Db.AccessReview.Query().Where(p)
+	q.Modify(func(q *sql.Selector) {
+		if lock && s.Db.Dialect() != dialect.SQLite {
+			q.ForUpdate()
+		}
+	})
+	return q.Only(ctx)
+}
+func (s AccessReviewServiceServer) image(v *rove.AccessReview) *rove.AccessReview {
+	if v == nil {
+		return nil
+	}
+	out := proto.Clone(v).(*rove.AccessReview)
+	m := out.ProtoReflect()
+	{
+		f := m.Descriptor().Fields().ByNumber(2)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	{
+		f := m.Descriptor().Fields().ByNumber(10)
+		if m.Has(f) {
+			trim := func(r protoreflect.Message) {
+				r.Range(func(f protoreflect.FieldDescriptor, _ protoreflect.Value) bool {
+					if f.Number() != 1 {
+						r.Clear(f)
+					}
+					return true
+				})
+			}
+			trim(m.Get(f).Message())
+		}
+	}
+	return out
+}
+
+// create is the row an Add of `req` writes, as a builder not yet saved,
+// and what the answer says about its edges. Add and AddMany both write
+// with it, so that an item of an AddMany is the row an Add of it would be.
+func (st AccessReviewServiceServer) create(ctx context.Context, req *rove.AccessReviewAddRequest) (*ent.AccessReviewCreate, []func(v *rove.AccessReview), error) {
+	ds := make([]func(v *rove.AccessReview), 0, 2)
+	q := st.Db.AccessReview.Create()
+	var k uuid.UUID
+	if req.HasId() {
+		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
+			return nil, nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+		} else {
+			k = v
+		}
+	}
+	if v, err := mint(ctx, st.Mint, "rove.AccessReview", k, req.HasId()); err != nil {
+		return nil, nil, err
+	} else {
+		q.SetId(v)
+	}
+	if k, err := TenantGetKey(ctx, st.Db, req.GetTenant()); err != nil {
+		return nil, nil, err
+	} else {
+		q.SetTenantId(k)
+		ds = append(ds, func(v *rove.AccessReview) {
+			v.SetTenant(rove.Tenant_builder{Id: k[:]}.Build())
+		})
+	}
+	q.SetDesc(req.GetDesc())
+	if req.HasPeriodFrom() {
+		q.SetPeriodFrom(req.GetPeriodFrom().AsTime())
+	} else {
+		q.SetPeriodFrom(st.now())
+	}
+	if req.HasPeriodTo() {
+		q.SetPeriodTo(req.GetPeriodTo().AsTime())
+	} else {
+		q.SetPeriodTo(st.now())
+	}
+	if k, err := HolderGetKey(ctx, st.Db, req.GetReviewer()); err != nil {
+		return nil, nil, err
+	} else {
+		q.SetReviewerId(k)
+		ds = append(ds, func(v *rove.AccessReview) {
+			v.SetReviewer(rove.Holder_builder{Id: k[:]}.Build())
+		})
+	}
+	q.SetCalls(req.GetCalls())
+	q.SetDownloads(req.GetDownloads())
+	if req.HasDateCreated() {
+		q.SetDateCreated(req.GetDateCreated().AsTime())
+	} else {
+		q.SetDateCreated(st.now())
+	}
+	q.SetRefused(req.GetRefused())
+	return q, ds, nil
+}
+
+func (s AccessReviewServiceServer) Add(ctx context.Context, req *rove.AccessReviewAddRequest) (*rove.AccessReview, error) {
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	q, ds, err := st.create(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	var stored *ent.AccessReview
+	if snapshotOptions(s.Rec, rove.AccessReviewService_Add_FullMethodName).Value {
+		q.Stored(&stored)
+	}
+
+	u, err := q.Save(ctx)
+	if err != nil {
+		if err, ok := err.(*ent.ConstraintError); ok {
+			if sqlgraph.IsUniqueConstraintError(err) {
+				return nil, status.Error(codes.AlreadyExists, "AccessReview already exists")
+			}
+			if sqlgraph.IsForeignKeyConstraintError(err) {
+				return nil, status.Error(codes.NotFound, "AccessReview: referenced entity not found")
+			}
+		}
+		return nil, err
+	}
+
+	v := u.Proto()
+	for _, d := range ds {
+		d(v)
+	}
+	var value *rove.AccessReview
+	if stored != nil {
+		value = s.image(stored.Proto())
+	}
+	if err := record(ctx, s.Rec, st.Db, Change{
+		By:    rove.AccessReviewService_Add_FullMethodName,
+		Key:   u.Id,
+		Value: value,
+	}); err != nil {
+		return nil, err
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+
+	return v, nil
+}
+
+// AccessReviewAddRule is what a layer in front says about one row an Add of AccessReview
+// would write: the request to write it with -- the one it was handed, or a
+// copy it changed -- or a refusal. Nil is the request it was handed.
+type AccessReviewAddRule func(ctx context.Context, req *rove.AccessReviewAddRequest) (*rove.AccessReviewAddRequest, error)
+
+// AccessReviewWithAddRule answers with `next` behind `rule` for the RPCs that add.
+// An Add is asked about, and every item of an AddMany in order, and the
+// call is refused for the first one that is -- an AddMany naming the item.
+// What reaches `next` is one call either way: an AddMany stays one AddMany.
+//
+// A layer that overrides Add itself, for something an Add does that a rule
+// cannot say, still has its AddMany asked through this.
+func AccessReviewWithAddRule(next rove.AccessReviewServiceServer, rule AccessReviewAddRule) rove.AccessReviewServiceServer {
+	return accessReviewAddRuled{next, rule}
+}
+
+type accessReviewAddRuled struct {
+	rove.AccessReviewServiceServer
+	rule AccessReviewAddRule
+}
+
+func (s accessReviewAddRuled) Add(ctx context.Context, req *rove.AccessReviewAddRequest) (*rove.AccessReview, error) {
+	r, err := s.rule(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		r = req
+	}
+	return s.AccessReviewServiceServer.Add(ctx, r)
+}
+
+func (s AccessReviewServiceServer) Get(ctx context.Context, req *rove.AccessReviewGetRequest) (*rove.AccessReview, error) {
+	p, err := AccessReviewPick(req.GetRef())
+	if err != nil {
+		return nil, err
+	}
+	p, err = s.narrow(ctx, p)
+	if err != nil {
+		return nil, err
+	}
+
+	q := s.Db.AccessReview.Query().Where(p)
+	AccessReviewSelectInit(q, req.GetSelect())
+
+	v, err := q.Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, status.Error(codes.NotFound, "AccessReview not found")
+		}
+		return nil, err
+	}
+	return v.Proto(), nil
+}
+
+func selectAccessReviewKey(q *ent.AccessReviewQuery) {
+	q.Select(accessreview.FieldId)
+}
+
+func AccessReviewSelectedFields(m *rove.AccessReviewSelect) []string {
+	if m.GetAll() {
+		return accessreview.Columns
+	}
+
+	vs := make([]string, 0, len(accessreview.Columns))
+	{
+		vs = append(vs, accessreview.FieldId)
+	}
+	if m.GetDesc() {
+		vs = append(vs, accessreview.FieldDesc)
+	}
+	if m.GetPeriodFrom() {
+		vs = append(vs, accessreview.FieldPeriodFrom)
+	}
+	if m.GetPeriodTo() {
+		vs = append(vs, accessreview.FieldPeriodTo)
+	}
+	if m.GetCalls() {
+		vs = append(vs, accessreview.FieldCalls)
+	}
+	if m.GetDownloads() {
+		vs = append(vs, accessreview.FieldDownloads)
+	}
+	if m.GetDateCreated() {
+		vs = append(vs, accessreview.FieldDateCreated)
+	}
+	if m.GetRefused() {
+		vs = append(vs, accessreview.FieldRefused)
+	}
+
+	return vs
+}
+
+func AccessReviewSelect(q *ent.AccessReviewQuery, m *rove.AccessReviewSelect) {
+	if !m.GetAll() {
+		fields := AccessReviewSelectedFields(m)
+		q.Select(fields...)
+	}
+	if m.HasTenant() {
+		q.WithTenant(func(q *ent.TenantQuery) {
+			TenantSelect(q, m.GetTenant())
+		})
+	}
+	if m.HasReviewer() {
+		q.WithReviewer(func(q *ent.HolderQuery) {
+			q.Where(holder.DateErasedIsNil())
+			HolderSelect(q, m.GetReviewer())
+		})
+	}
+}
+
+func AccessReviewSelectInit(q *ent.AccessReviewQuery, m *rove.AccessReviewSelect) {
+	if m != nil {
+		AccessReviewSelect(q, m)
+	}
+}
+
+func (s AccessReviewServiceServer) Patch(ctx context.Context, req *rove.AccessReviewPatchRequest) (*rove.AccessReview, error) {
+	doc, err := ormpatch.FromPatchRequest(accessReviewOrmEntity, req.ProtoReflect(), nil)
+	if err != nil {
+		if _, ok := status.FromError(err); ok {
+			return nil, err
+		}
+		if errors.Is(err, ormpatch.ErrRequestLayout) {
+			return nil, status.Errorf(codes.Internal, "%s", err)
+		}
+		if errors.Is(err, ormpatch.ErrUnsupported) {
+			return nil, status.Errorf(codes.Unimplemented, "%s", err)
+		}
+		return nil, status.Errorf(codes.InvalidArgument, "%s", err)
+	}
+
+	return s.apply(ctx, req.GetRef(), doc, rove.AccessReviewService_Patch_FullMethodName)
+}
+
+func AccessReviewGetKey(ctx context.Context, db *ent.Client, ref *rove.AccessReviewRef) (uuid.UUID, error) {
+	var z uuid.UUID
+	if ref.HasId() {
+		if v, err := entuuid.FromBytes(ref.GetId()); err != nil {
+			return z, status.Errorf(codes.InvalidArgument, "id: %s", err)
+		} else {
+			return v, nil
+		}
+	}
+
+	p, err := AccessReviewPick(ref)
+	if err != nil {
+		return z, err
+	}
+
+	v, err := db.AccessReview.Query().Where(p).OnlyId(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return z, status.Error(codes.NotFound, "AccessReview not found")
+		}
+		return z, err
+	}
+
+	return v, nil
+}
+
+var accessReviewOrmEntity = ormpatch.MustEntityOf(rove.File_rove_ops_proto, "AccessReview")
+
+var accessReviewPatchColumns = entpatch.Columns{
+	1: accessreview.FieldId, 2: accessreview.TenantColumn, 6: accessreview.FieldDesc, 8: accessreview.FieldPeriodFrom, 9: accessreview.FieldPeriodTo, 10: accessreview.ReviewerColumn, 11: accessreview.FieldCalls, 12: accessreview.FieldDownloads, 15: accessreview.FieldDateCreated, 16: accessreview.FieldRefused}
+
+func (s AccessReviewServiceServer) Apply(ctx context.Context, req *rove.AccessReviewApplyRequest) (*rove.AccessReview, error) {
+	if !req.HasPatch() {
+		return nil, status.Errorf(codes.InvalidArgument, "%s", ormpatch.ErrNoPatch)
+	}
+	return s.apply(ctx, req.GetRef(), req.GetPatch(), rove.AccessReviewService_Apply_FullMethodName)
+}
+
+func (s AccessReviewServiceServer) apply(ctx context.Context, ref *rove.AccessReviewRef, doc *patchpb.Patch, by string) (*rove.AccessReview, error) {
+	plan := &ormpatch.Plan{Entity: accessReviewOrmEntity}
+	if doc != nil {
+		v, err := ormpatch.Compile(accessReviewOrmEntity, doc)
+		if err != nil {
+			if errors.Is(err, ormpatch.ErrUnsupported) {
+				return nil, status.Errorf(codes.Unimplemented, "%s", err)
+			}
+			return nil, status.Errorf(codes.InvalidArgument, "%s", err)
+		}
+		plan = v
+	}
+
+	pred, mod, err := entpatch.Build(plan, accessReviewPatchColumns, s.Db.Dialect())
+	if err != nil {
+		if errors.Is(err, entpatch.ErrValue) {
+			return nil, status.Errorf(codes.InvalidArgument, "%s", err)
+		}
+		return nil, status.Errorf(codes.Internal, "%s", err)
+	}
+
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, true)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	k, err := AccessReviewGetKey(ctx, st.Db, ref)
+	if err != nil {
+		return nil, err
+	}
+	at := &rove.AccessReviewRef{}
+	at.SetId(k[:])
+	p, err := s.narrow(ctx, accessreview.IdEQ(k))
+	if err != nil {
+		return nil, err
+	}
+
+	var previous *rove.AccessReview
+	images := snapshotOptions(s.Rec, by)
+	if images.Previous && mod != nil {
+		u, err := st.snapshot(ctx, p, true)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return nil, status.Error(codes.NotFound, "resource not found")
+			}
+			return nil, err
+		}
+		previous = s.image(u.Proto())
+	}
+	if mod == nil {
+		q := st.Db.AccessReview.Query().Where(p)
+		if pred != nil {
+			q.Where(predicate.AccessReview(pred))
+		}
+		if ok, err := q.Exist(ctx); err != nil {
+			return nil, err
+		} else if !ok {
+			return nil, func() error {
+				if ok, err := st.Db.AccessReview.Query().Where(p).Exist(ctx); err != nil {
+					return err
+				} else if !ok {
+					return status.Error(codes.NotFound, "AccessReview not found")
+				}
+				return status.Error(codes.FailedPrecondition, "a test in the patch did not hold")
+			}()
+		}
+	} else {
+		q := st.Db.AccessReview.Update().Where(p)
+		if pred != nil {
+			q.Where(predicate.AccessReview(pred))
+		}
+		q.Modify(mod)
+		if n, err := q.Save(ctx); err != nil {
+			if err, ok := err.(*ent.ConstraintError); ok {
+				if sqlgraph.IsUniqueConstraintError(err) {
+					return nil, status.Error(codes.AlreadyExists, "AccessReview already exists")
+				}
+				if sqlgraph.IsForeignKeyConstraintError(err) {
+					return nil, status.Error(codes.NotFound, "AccessReview: referenced entity not found")
+				}
+			}
+			return nil, err
+		} else if n == 0 {
+			return nil, func() error {
+				if ok, err := st.Db.AccessReview.Query().Where(p).Exist(ctx); err != nil {
+					return err
+				} else if !ok {
+					return status.Error(codes.NotFound, "AccessReview not found")
+				}
+				return status.Error(codes.FailedPrecondition, "a test in the patch did not hold")
+			}()
+		}
+	}
+
+	out, err := st.Get(ctx, at.Pick())
+	if err != nil {
+		return nil, err
+	}
+	if mod != nil {
+		var value *rove.AccessReview
+		if images.Value {
+			value = s.image(out)
+		}
+		if err := record(ctx, s.Rec, st.Db, Change{
+			By:       by,
+			Key:      k,
+			Patch:    doc,
+			Previous: previous, Value: value,
+		}); err != nil {
+			return nil, err
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (s AccessReviewServiceServer) Erase(ctx context.Context, req *rove.AccessReviewRef) (*rove.AccessReviewEraseResponse, error) {
+	p, err := AccessReviewPick(req)
+	if err != nil {
+		return nil, err
+	}
+	p, err = s.narrow(ctx, p)
+	if err != nil {
+		return nil, err
+	}
+
+	tx, err := ent1.JoinTx[*ent.Client, *ent.Tx](ctx, s.Db, s.Rec != nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Close()
+
+	st := s
+	st.Db = tx.Db
+
+	var k any
+	var previous *rove.AccessReview
+	if s.Rec != nil {
+		images := snapshotOptions(s.Rec, rove.AccessReviewService_Erase_FullMethodName)
+		var v *ent.AccessReview
+		var err error
+		if images.Previous {
+			v, err = st.snapshot(ctx, p, true)
+		} else {
+			v, err = st.Db.AccessReview.Query().Where(p).Select(accessreview.FieldId).Only(ctx)
+		}
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return &rove.AccessReviewEraseResponse{}, nil
+			}
+			return nil, err
+		}
+
+		k = v.Id
+		if images.Previous {
+			previous = s.image(v.Proto())
+		}
+		p = accessreview.And(p, accessreview.IdEQ(v.Id))
+	}
+
+	n, err := st.Db.AccessReview.Delete().Where(p).Exec(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if n > 0 {
+		if err := record(ctx, s.Rec, st.Db, Change{
+			By:       rove.AccessReviewService_Erase_FullMethodName,
+			Key:      k,
+			Previous: previous,
+		}); err != nil {
+			return nil, err
+		}
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+	res := &rove.AccessReviewEraseResponse{}
+	res.SetErased(n > 0)
+
+	return res, nil
+}
+
+func AccessReviewPick(req *rove.AccessReviewRef) (predicate.AccessReview, error) {
+	switch req.WhichKey() {
+	case rove.AccessReviewRef_Id_case:
+		if v, err := entuuid.FromBytes(req.GetId()); err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "id: %s", err)
+		} else {
+			return accessreview.IdEQ(v), nil
+		}
+	case rove.AccessReviewRef_Key_not_set_case:
+		return nil, status.Errorf(codes.InvalidArgument, "key not set: AccessReview")
 	default:
 		return nil, status.Errorf(codes.Unimplemented, "unknown type of key: %s", req.WhichKey())
 	}

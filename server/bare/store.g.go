@@ -10,6 +10,7 @@ import (
 	rove "github.com/lesomnus/rove"
 	ent "github.com/lesomnus/rove/internal/ent"
 	access "github.com/lesomnus/rove/internal/ent/access"
+	accessreview "github.com/lesomnus/rove/internal/ent/accessreview"
 	aliashold "github.com/lesomnus/rove/internal/ent/aliashold"
 	allocation "github.com/lesomnus/rove/internal/ent/allocation"
 	archived "github.com/lesomnus/rove/internal/ent/archived"
@@ -437,6 +438,7 @@ type Scope interface {
 	UsageSnapshotScope(ctx context.Context) (predicate.UsageSnapshot, error)
 	TenantContractScope(ctx context.Context) (predicate.TenantContract, error)
 	LegalHoldScope(ctx context.Context) (predicate.LegalHold, error)
+	AccessReviewScope(ctx context.Context) (predicate.AccessReview, error)
 	AccessScope(ctx context.Context) (predicate.Access, error)
 	ArchivedScope(ctx context.Context) (predicate.Archived, error)
 	AuditScope(ctx context.Context) (predicate.Audit, error)
@@ -562,6 +564,9 @@ func (Unscoped) TenantContractScope(_ context.Context) (predicate.TenantContract
 	return nil, nil
 }
 func (Unscoped) LegalHoldScope(_ context.Context) (predicate.LegalHold, error) {
+	return nil, nil
+}
+func (Unscoped) AccessReviewScope(_ context.Context) (predicate.AccessReview, error) {
 	return nil, nil
 }
 func (Unscoped) AccessScope(_ context.Context) (predicate.Access, error) {
@@ -1308,6 +1313,26 @@ func (ss Scopes) LegalHoldScope(ctx context.Context) (predicate.LegalHold, error
 	return legalhold.And(ps...), nil
 }
 
+func (ss Scopes) AccessReviewScope(ctx context.Context) (predicate.AccessReview, error) {
+	ps := make([]predicate.AccessReview, 0, len(ss))
+	for _, s := range ss {
+		p, err := s.AccessReviewScope(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if p == nil {
+			continue
+		}
+
+		ps = append(ps, p)
+	}
+	if len(ps) == 0 {
+		return nil, nil
+	}
+
+	return accessreview.And(ps...), nil
+}
+
 func (ss Scopes) AccessScope(ctx context.Context) (predicate.Access, error) {
 	ps := make([]predicate.Access, 0, len(ss))
 	for _, s := range ss {
@@ -1715,6 +1740,9 @@ func (s Server) TenantContract() rove.TenantContractServiceServer {
 }
 func (s Server) LegalHold() rove.LegalHoldServiceServer {
 	return LegalHoldServiceServer{Store: s.Store}
+}
+func (s Server) AccessReview() rove.AccessReviewServiceServer {
+	return AccessReviewServiceServer{Store: s.Store}
 }
 func (s Server) Access() rove.AccessServiceServer     { return AccessServiceServer{Store: s.Store} }
 func (s Server) Archived() rove.ArchivedServiceServer { return ArchivedServiceServer{Store: s.Store} }
