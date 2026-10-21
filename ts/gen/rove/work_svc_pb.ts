@@ -706,6 +706,8 @@ export type WorkOrderUpdateRequest = Message<"rove.WorkOrderUpdateRequest"> & {
   endsAt?: Timestamp | undefined;
 
   /**
+   * In `currency`'s minor unit, or the work's.
+   *
    * @generated from field: int64 cost = 7 [features.field_presence = IMPLICIT];
    */
   cost: bigint;
@@ -743,6 +745,8 @@ export type WorkOrderCompleteRequest = Message<"rove.WorkOrderCompleteRequest"> 
   reason: string;
 
   /**
+   * In the work's currency's minor unit.
+   *
    * @generated from field: int64 cost = 3 [features.field_presence = IMPLICIT];
    */
   cost: bigint;
@@ -859,6 +863,8 @@ export type PurchaseLineSpec = Message<"rove.PurchaseLineSpec"> & {
   quantity: bigint;
 
   /**
+   * In the purchase's currency's minor unit.
+   *
    * @generated from field: int64 unit_cost = 4 [features.field_presence = IMPLICIT];
    */
   unitCost: bigint;

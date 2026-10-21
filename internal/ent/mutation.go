@@ -12793,6 +12793,57 @@ func (m *TenantMutation) OldDateDestroy(ctx context.Context) (v *time.Time, err 
 	return oldValue.DateDestroy, nil
 }
 
+// OldTimezone returns the old "timezone" field's value of the Tenant entity.
+// If the Tenant object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TenantMutation) OldTimezone(ctx context.Context) (v string, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldTimezone is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldTimezone requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTimezone: %w", err)
+	}
+	return oldValue.Timezone, nil
+}
+
+// OldCurrency returns the old "currency" field's value of the Tenant entity.
+// If the Tenant object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TenantMutation) OldCurrency(ctx context.Context) (v string, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldCurrency is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldCurrency requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCurrency: %w", err)
+	}
+	return oldValue.Currency, nil
+}
+
+// OldNoShowMinutes returns the old "no_show_minutes" field's value of the Tenant entity.
+// If the Tenant object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TenantMutation) OldNoShowMinutes(ctx context.Context) (v int32, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldNoShowMinutes is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldNoShowMinutes requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldNoShowMinutes: %w", err)
+	}
+	return oldValue.NoShowMinutes, nil
+}
+
 // OldField returns the old value of the field from the database. An error is
 // returned if the mutation operation is not UpdateOne, or the query to the
 // database failed.
@@ -12818,6 +12869,12 @@ func (m *TenantMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldCloseReason(ctx)
 	case tenant.FieldDateDestroy:
 		return m.OldDateDestroy(ctx)
+	case tenant.FieldTimezone:
+		return m.OldTimezone(ctx)
+	case tenant.FieldCurrency:
+		return m.OldCurrency(ctx)
+	case tenant.FieldNoShowMinutes:
+		return m.OldNoShowMinutes(ctx)
 	}
 	return nil, fmt.Errorf("unknown Tenant field %s", name)
 }
@@ -13035,6 +13092,40 @@ func (m *TenantContractMutation) OldDateEffective(ctx context.Context) (v time.T
 	return oldValue.DateEffective, nil
 }
 
+// OldAccessKeepDays returns the old "access_keep_days" field's value of the TenantContract entity.
+// If the TenantContract object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TenantContractMutation) OldAccessKeepDays(ctx context.Context) (v uint32, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldAccessKeepDays is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldAccessKeepDays requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAccessKeepDays: %w", err)
+	}
+	return oldValue.AccessKeepDays, nil
+}
+
+// OldRestoreDays returns the old "restore_days" field's value of the TenantContract entity.
+// If the TenantContract object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TenantContractMutation) OldRestoreDays(ctx context.Context) (v uint32, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldRestoreDays is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldRestoreDays requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRestoreDays: %w", err)
+	}
+	return oldValue.RestoreDays, nil
+}
+
 // OldDateErased returns the old "date_erased" field's value of the TenantContract entity.
 // If the TenantContract object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
@@ -13103,6 +13194,10 @@ func (m *TenantContractMutation) OldField(ctx context.Context, name string) (ent
 		return m.OldGraceDays(ctx)
 	case tenantcontract.FieldDateEffective:
 		return m.OldDateEffective(ctx)
+	case tenantcontract.FieldAccessKeepDays:
+		return m.OldAccessKeepDays(ctx)
+	case tenantcontract.FieldRestoreDays:
+		return m.OldRestoreDays(ctx)
 	case tenantcontract.FieldDateErased:
 		return m.OldDateErased(ctx)
 	case tenantcontract.FieldDateCreated:

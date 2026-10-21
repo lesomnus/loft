@@ -42,7 +42,9 @@ message WorkOrder {
   }];
 
   Party vendor = 16 [(orm.edge) = {nullable: true}];
+  // In `currency`'s minor unit, as every amount is: won for KRW, cents for USD.
   int64 cost = 17;
+  // ISO 4217. A new one is priced in the workspace's.
   string currency = 18;
   google.protobuf.Timestamp completed_at = 19 [(orm.field) = {nullable: true}];
   bool blocking = 20;
@@ -101,7 +103,10 @@ message Purchase {
     default: ""
   }];
 
+  // ISO 4217, of the purchase and its lines. A new one is priced in the
+  // workspace's.
   string currency = 16;
+  // In `currency`'s minor unit, as every amount is: won for KRW, cents for USD.
   int64 total = 17;
 
   option (orm.message) = {
@@ -140,6 +145,7 @@ message PurchaseLine {
   Purchase purchase = 8 [(orm.edge) = {immutable: true}];
   ItemModel model = 9 [(orm.edge) = {nullable: true}];
   int64 quantity = 10;
+  // In the purchase's currency's minor unit.
   int64 unit_cost = 11;
   int64 received_quantity = 12;
 

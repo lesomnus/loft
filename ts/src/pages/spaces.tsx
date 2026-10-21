@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 import type { Asset } from '../../gen/rove/asset_pb.js'
 import type { AssetState } from '../../gen/rove/asset_svc_pb.js'
-import { AssetService, idBytes, idStr, localInput, ref, ts } from '../api.js'
+import { AssetService, fromInput, idBytes, idStr, localInput, ref, ts } from '../api.js'
 import { HistoryDays, useCatalog } from '../catalog.js'
 import { AssetLink } from '../pickers.js'
 import { useRpc } from '../rpc.js'
@@ -157,8 +157,8 @@ function Then(props: { root: string }): ReactNode {
 	const min = localInput(c.historyFrom())
 	const q = useRpc(AssetService.method.queryAt, {
 		root: ref(idBytes(props.root)),
-		at: ts(new Date(at)),
-		known: known === '' ? undefined : ts(new Date(known)),
+		at: ts(fromInput(at)),
+		known: known === '' ? undefined : ts(fromInput(known)),
 		depth: 0,
 	})
 	return (
@@ -264,7 +264,7 @@ function Diff(props: { root: string }): ReactNode {
 	const [from, setFrom] = useState(localInput(c.inHistory(new Date(Date.now() - 90 * 86400_000))))
 	const [to, setTo] = useState(localInput(new Date()))
 	const min = localInput(c.historyFrom())
-	const q = useRpc(AssetService.method.diff, { root: ref(idBytes(props.root)), from: ts(new Date(from)), to: ts(new Date(to)) })
+	const q = useRpc(AssetService.method.diff, { root: ref(idBytes(props.root)), from: ts(fromInput(from)), to: ts(fromInput(to)) })
 	return (
 		<Card
 			title="두 시점 비교"

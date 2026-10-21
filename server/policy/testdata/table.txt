@@ -148,6 +148,7 @@
 /rove.TenantDomainService/Verify	admin
 /rove.TenantDomainService/Watch	read
 /rove.TenantService/Close	owner
+/rove.TenantService/Configure	owner
 /rove.TenantService/Get	read
 /rove.TenantService/List	read
 /rove.TenantService/Patch	owner

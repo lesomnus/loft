@@ -15,7 +15,7 @@ import type { Bookable } from '../gen/rove/booking_pb.js'
 import type { AssetType, ItemModel } from '../gen/rove/catalog_pb.js'
 import type { Party } from '../gen/rove/org_pb.js'
 import type { PartyMeResponse } from '../gen/rove/org_svc_pb.js'
-import { AssetService, AssetTypeService, BookableService, ItemModelService, PartyService, idStr } from './api.js'
+import { AssetService, AssetTypeService, BookableService, ItemModelService, PartyService, idStr, localize } from './api.js'
 import { useRpc } from './rpc.js'
 import { Spinner } from './ui.js'
 
@@ -79,6 +79,10 @@ export function CatalogProvider(props: { children: ReactNode }): ReactNode {
 
 	const v = useMemo((): Catalog | undefined => {
 		if (me.data === undefined) return undefined
+		// Where the workspace is (#144), before anything in it is drawn: its
+		// dates in its zone and its amounts in its currency, as the server
+		// tells them.
+		localize({ timezone: me.data.timezone, currency: me.data.currency })
 		const t = byId(types.data?.items ?? [])
 		const m = byId(models.data?.items ?? [])
 		const p = byId(parties.data?.items ?? [])

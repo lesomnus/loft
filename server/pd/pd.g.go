@@ -20063,6 +20063,11 @@ func (s interceptTenant) Restore(ctx context.Context, req *rove.TenantRestoreReq
 		rove.TenantService_Restore_FullMethodName, req, s.TenantServiceServer.Restore)
 }
 
+func (s interceptTenant) Configure(ctx context.Context, req *rove.TenantConfigureRequest) (*rove.Tenant, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.TenantServiceServer,
+		rove.TenantService_Configure_FullMethodName, req, s.TenantServiceServer.Configure)
+}
+
 func (s Intercept) AssetType() rove.AssetTypeServiceServer {
 	return interceptAssetType{s, s.Next().AssetType()}
 }
@@ -23385,6 +23390,19 @@ func dispatch(ctx context.Context, s rove.Server, op *pdpb.Op) (*anypb.Any, erro
 		}
 
 		res, err := s.Tenant().Restore(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+
+		return anypb.New(res)
+
+	case rove.TenantService_Configure_FullMethodName:
+		v := &rove.TenantConfigureRequest{}
+		if err := op.GetRequest().UnmarshalTo(v); err != nil {
+			return nil, batch.ErrRequest(m, err)
+		}
+
+		res, err := s.Tenant().Configure(ctx, v)
 		if err != nil {
 			return nil, err
 		}
@@ -28093,6 +28111,9 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				{Number: 9, Name: tenant.FieldClosedBy, Type: 9, Nullable: false, Key: 0},
 				{Number: 10, Name: tenant.FieldCloseReason, Type: 9, Nullable: false, Key: 0},
 				{Number: 11, Name: tenant.FieldDateDestroy, Type: 65, Nullable: true, Key: 0},
+				{Number: 12, Name: tenant.FieldTimezone, Type: 9, Nullable: false, Key: 0},
+				{Number: 16, Name: tenant.FieldCurrency, Type: 9, Nullable: false, Key: 0},
+				{Number: 17, Name: tenant.FieldNoShowMinutes, Type: 5, Nullable: false, Key: 0},
 			}, v)
 			if err != nil {
 				return nil, err
@@ -28128,6 +28149,8 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				{Number: 9, Name: tenantcontract.FieldKeepDays, Type: 13, Nullable: false, Key: 0},
 				{Number: 10, Name: tenantcontract.FieldGraceDays, Type: 13, Nullable: false, Key: 0},
 				{Number: 11, Name: tenantcontract.FieldDateEffective, Type: 65, Nullable: false, Key: 0},
+				{Number: 12, Name: tenantcontract.FieldAccessKeepDays, Type: 13, Nullable: false, Key: 0},
+				{Number: 16, Name: tenantcontract.FieldRestoreDays, Type: 13, Nullable: false, Key: 0},
 				{Number: 14, Name: tenantcontract.FieldDateErased, Type: 65, Nullable: true, Key: 0},
 				{Number: 15, Name: tenantcontract.FieldDateCreated, Type: 65, Nullable: false, Key: 0},
 			}, v)

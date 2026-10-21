@@ -14,20 +14,24 @@ import (
 
 // Mutation represents an operation that mutates the Tenant nodes in the graph.
 type Mutation struct {
-	op            ent.Op
-	typ           string
-	alias         *string
-	name          *string
-	desc          *string
-	labels        *map[string]string
-	date_updated  *time.Time
-	date_created  *time.Time
-	date_closed   *time.Time
-	closed_by     *string
-	close_reason  *string
-	date_destroy  *time.Time
-	clearedFields map[string]struct{}
-	predicates    []predicate.Tenant
+	op                 ent.Op
+	typ                string
+	alias              *string
+	name               *string
+	desc               *string
+	labels             *map[string]string
+	date_updated       *time.Time
+	date_created       *time.Time
+	date_closed        *time.Time
+	closed_by          *string
+	close_reason       *string
+	date_destroy       *time.Time
+	timezone           *string
+	currency           *string
+	no_show_minutes    *int32
+	addno_show_minutes *int32
+	clearedFields      map[string]struct{}
+	predicates         []predicate.Tenant
 }
 
 // NewMutation creates a new Mutation for the Tenant entity.
@@ -286,6 +290,83 @@ func (m *Mutation) ResetDateDestroy() {
 	delete(m.clearedFields, FieldDateDestroy)
 }
 
+// SetTimezone sets the "timezone" field.
+func (m *Mutation) SetTimezone(s string) {
+	m.timezone = &s
+}
+
+// Timezone returns the value of the "timezone" field in the mutation.
+func (m *Mutation) Timezone() (r string, exists bool) {
+	v := m.timezone
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetTimezone resets all changes to the "timezone" field.
+func (m *Mutation) ResetTimezone() {
+	m.timezone = nil
+}
+
+// SetCurrency sets the "currency" field.
+func (m *Mutation) SetCurrency(s string) {
+	m.currency = &s
+}
+
+// Currency returns the value of the "currency" field in the mutation.
+func (m *Mutation) Currency() (r string, exists bool) {
+	v := m.currency
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetCurrency resets all changes to the "currency" field.
+func (m *Mutation) ResetCurrency() {
+	m.currency = nil
+}
+
+// SetNoShowMinutes sets the "no_show_minutes" field.
+func (m *Mutation) SetNoShowMinutes(i int32) {
+	m.no_show_minutes = &i
+	m.addno_show_minutes = nil
+}
+
+// NoShowMinutes returns the value of the "no_show_minutes" field in the mutation.
+func (m *Mutation) NoShowMinutes() (r int32, exists bool) {
+	v := m.no_show_minutes
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// AddNoShowMinutes adds i to the "no_show_minutes" field.
+func (m *Mutation) AddNoShowMinutes(i int32) {
+	if m.addno_show_minutes != nil {
+		*m.addno_show_minutes += i
+	} else {
+		m.addno_show_minutes = &i
+	}
+}
+
+// AddedNoShowMinutes returns the value that was added to the "no_show_minutes" field in this mutation.
+func (m *Mutation) AddedNoShowMinutes() (r int32, exists bool) {
+	v := m.addno_show_minutes
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetNoShowMinutes resets all changes to the "no_show_minutes" field.
+func (m *Mutation) ResetNoShowMinutes() {
+	m.no_show_minutes = nil
+	m.addno_show_minutes = nil
+}
+
 // Where appends a list predicates to the Mutation builder.
 func (m *Mutation) Where(ps ...predicate.Tenant) {
 	m.predicates = append(m.predicates, ps...)
@@ -320,7 +401,7 @@ func (m *Mutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *Mutation) Fields() []string {
-	fields := make([]string, 0, 10)
+	fields := make([]string, 0, 13)
 	if m.alias != nil {
 		fields = append(fields, FieldAlias)
 	}
@@ -351,6 +432,15 @@ func (m *Mutation) Fields() []string {
 	if m.date_destroy != nil {
 		fields = append(fields, FieldDateDestroy)
 	}
+	if m.timezone != nil {
+		fields = append(fields, FieldTimezone)
+	}
+	if m.currency != nil {
+		fields = append(fields, FieldCurrency)
+	}
+	if m.no_show_minutes != nil {
+		fields = append(fields, FieldNoShowMinutes)
+	}
 	return fields
 }
 
@@ -379,6 +469,12 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.CloseReason()
 	case FieldDateDestroy:
 		return m.DateDestroy()
+	case FieldTimezone:
+		return m.Timezone()
+	case FieldCurrency:
+		return m.Currency()
+	case FieldNoShowMinutes:
+		return m.NoShowMinutes()
 	}
 	return nil, false
 }
@@ -465,6 +561,27 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDateDestroy(v)
 		return nil
+	case FieldTimezone:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTimezone(v)
+		return nil
+	case FieldCurrency:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCurrency(v)
+		return nil
+	case FieldNoShowMinutes:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetNoShowMinutes(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Tenant field %s", name)
 }
@@ -472,13 +589,21 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *Mutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addno_show_minutes != nil {
+		fields = append(fields, FieldNoShowMinutes)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *Mutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case FieldNoShowMinutes:
+		return m.AddedNoShowMinutes()
+	}
 	return nil, false
 }
 
@@ -487,6 +612,13 @@ func (m *Mutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *Mutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case FieldNoShowMinutes:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddNoShowMinutes(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Tenant numeric field %s", name)
 }
@@ -570,6 +702,15 @@ func (m *Mutation) ResetField(name string) error {
 		return nil
 	case FieldDateDestroy:
 		m.ResetDateDestroy()
+		return nil
+	case FieldTimezone:
+		m.ResetTimezone()
+		return nil
+	case FieldCurrency:
+		m.ResetCurrency()
+		return nil
+	case FieldNoShowMinutes:
+		m.ResetNoShowMinutes()
 		return nil
 	}
 	return fmt.Errorf("unknown Tenant field %s", name)

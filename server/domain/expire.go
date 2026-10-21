@@ -119,7 +119,7 @@ func (d *Deps) Expire(ctx context.Context, server app.Server, drv dialect.Driver
 		}
 
 		return t.begin(nil, "retention.expired", pdid.Nil, t.now,
-			fmt.Sprintf("보존 기간이 지난 이력 %d건 삭제 (%s 이전)", out.Total(), out.Before.In(Zone).Format("2006년 1월 2일")),
+			fmt.Sprintf("보존 기간이 지난 이력 %d건 삭제 (%s 이전)", out.Total(), out.Before.In(t.zone()).Format("2006년 1월 2일")),
 			"", map[string]string{
 				"before":          out.Before.UTC().Format(time.RFC3339),
 				"placements":      fmt.Sprint(out.Placements),

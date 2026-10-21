@@ -32,6 +32,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/stewardship"
 	"github.com/lesomnus/rove/internal/ent/stock"
 	"github.com/lesomnus/rove/internal/ent/workorder"
+	"github.com/lesomnus/rove/internal/money"
 	"github.com/lesomnus/rove/server/opensearch"
 )
 
@@ -969,7 +970,7 @@ func (s domainAsset) Report(ctx context.Context, req *app.AssetReportRequest) (*
 		for _, c := range open {
 			byParty[c.PartyId]++
 			if c.DueAt != nil && c.DueAt.Before(t.now) {
-				row("overdue", pdid.Id(c.Id).String(), names.party(c.PartyId), t.now.Sub(*c.DueAt).Hours()/24, map[string]string{"due": c.DueAt.Format(time.DateOnly)})
+				row("overdue", pdid.Id(c.Id).String(), names.party(c.PartyId), t.now.Sub(*c.DueAt).Hours()/24, map[string]string{"due": c.DueAt.In(t.zone()).Format(time.DateOnly)})
 			}
 		}
 		for k, n := range byParty {
@@ -1046,16 +1047,21 @@ func (s domainAsset) Report(ctx context.Context, req *app.AssetReportRequest) (*
 		if err != nil {
 			return nil, err
 		}
-		byStatus := map[string]int{}
-		var cost int64
+		// What it cost, by the currency it was priced in (#144): a workspace
+		// that began pricing in another has amounts that add up to nothing.
+		byStatus, cost := map[string]int{}, map[string]int64{}
 		for _, w := range ws {
 			byStatus[w.Status]++
-			cost += w.Cost
+			if w.Cost != 0 {
+				cost[w.Currency] += w.Cost
+			}
 		}
 		for _, k := range sortedKeys(byStatus) {
 			row("status", k, k, float64(byStatus[k]), nil)
 		}
-		row("cost", "total", "비용 합계", float64(cost), nil)
+		for _, c := range sortedKeys(cost) {
+			row("cost", c, "비용 합계", float64(cost[c]), map[string]string{"amount": money.String(cost[c], c)})
+		}
 
 	default:
 		return nil, status.Error(codes.InvalidArgument, "보고서 종류가 올바르지 않습니다")

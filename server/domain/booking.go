@@ -72,7 +72,8 @@ func (s domainBookable) Add(ctx context.Context, req *app.BookableAddRequest) (*
 			return err
 		}
 		if row.GetTimezone() == "" {
-			row.SetTimezone("Asia/Seoul")
+			// Where the workspace is, unless the room is somewhere else.
+			row.SetTimezone(t.zone().String())
 		}
 		if _, err := time.LoadLocation(row.GetTimezone()); err != nil {
 			return invalid("timezone", "시간대가 올바르지 않습니다 (예: Asia/Seoul)")
@@ -511,7 +512,7 @@ func (s domainReservation) Add(ctx context.Context, req *app.ReservationAddReque
 			}
 			for _, o := range occs {
 				if w.item && !open(w.r.book, o[0], o[1]) && !override {
-					return failed("%s은(는) 그 시간에 운영하지 않습니다 (%s)", w.r.asset.Name, when(o[0]))
+					return failed("%s은(는) 그 시간에 운영하지 않습니다 (%s)", w.r.asset.Name, t.when(o[0]))
 				}
 				from, to := window(w.r.book, o[0], o[1])
 				cs, err := t.conflicts(w.r, from, to, w.units, nil)
@@ -520,7 +521,7 @@ func (s domainReservation) Add(ctx context.Context, req *app.ReservationAddReque
 				}
 				if len(cs) > 0 && !override {
 					return status.Errorf(codes.Aborted, "%s은(는) %s에 이미 예약되어 있습니다. 다른 시간을 고르세요",
-						w.r.asset.Name, when(o[0]))
+						w.r.asset.Name, t.when(o[0]))
 				}
 			}
 		}

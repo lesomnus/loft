@@ -100,6 +100,21 @@ func DateDestroy(v time.Time) predicate.Tenant {
 	return predicate.Tenant(sql.FieldEQ(FieldDateDestroy, v))
 }
 
+// Timezone applies equality check predicate on the "timezone" field. It's identical to TimezoneEQ.
+func Timezone(v string) predicate.Tenant {
+	return predicate.Tenant(sql.FieldEQ(FieldTimezone, v))
+}
+
+// Currency applies equality check predicate on the "currency" field. It's identical to CurrencyEQ.
+func Currency(v string) predicate.Tenant {
+	return predicate.Tenant(sql.FieldEQ(FieldCurrency, v))
+}
+
+// NoShowMinutes applies equality check predicate on the "no_show_minutes" field. It's identical to NoShowMinutesEQ.
+func NoShowMinutes(v int32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldEQ(FieldNoShowMinutes, v))
+}
+
 // AliasEQ applies the EQ predicate on the "alias" field.
 func AliasEQ(v string) predicate.Tenant {
 	return predicate.Tenant(sql.FieldEQ(FieldAlias, v))
@@ -623,6 +638,176 @@ func DateDestroyIsNil() predicate.Tenant {
 // DateDestroyNotNil applies the NotNil predicate on the "date_destroy" field.
 func DateDestroyNotNil() predicate.Tenant {
 	return predicate.Tenant(sql.FieldNotNull(FieldDateDestroy))
+}
+
+// TimezoneEQ applies the EQ predicate on the "timezone" field.
+func TimezoneEQ(v string) predicate.Tenant {
+	return predicate.Tenant(sql.FieldEQ(FieldTimezone, v))
+}
+
+// TimezoneNEQ applies the NEQ predicate on the "timezone" field.
+func TimezoneNEQ(v string) predicate.Tenant {
+	return predicate.Tenant(sql.FieldNEQ(FieldTimezone, v))
+}
+
+// TimezoneIn applies the In predicate on the "timezone" field.
+func TimezoneIn(vs ...string) predicate.Tenant {
+	return predicate.Tenant(sql.FieldIn(FieldTimezone, vs...))
+}
+
+// TimezoneNotIn applies the NotIn predicate on the "timezone" field.
+func TimezoneNotIn(vs ...string) predicate.Tenant {
+	return predicate.Tenant(sql.FieldNotIn(FieldTimezone, vs...))
+}
+
+// TimezoneGT applies the GT predicate on the "timezone" field.
+func TimezoneGT(v string) predicate.Tenant {
+	return predicate.Tenant(sql.FieldGT(FieldTimezone, v))
+}
+
+// TimezoneGTE applies the GTE predicate on the "timezone" field.
+func TimezoneGTE(v string) predicate.Tenant {
+	return predicate.Tenant(sql.FieldGTE(FieldTimezone, v))
+}
+
+// TimezoneLT applies the LT predicate on the "timezone" field.
+func TimezoneLT(v string) predicate.Tenant {
+	return predicate.Tenant(sql.FieldLT(FieldTimezone, v))
+}
+
+// TimezoneLTE applies the LTE predicate on the "timezone" field.
+func TimezoneLTE(v string) predicate.Tenant {
+	return predicate.Tenant(sql.FieldLTE(FieldTimezone, v))
+}
+
+// TimezoneContains applies the Contains predicate on the "timezone" field.
+func TimezoneContains(v string) predicate.Tenant {
+	return predicate.Tenant(sql.FieldContains(FieldTimezone, v))
+}
+
+// TimezoneHasPrefix applies the HasPrefix predicate on the "timezone" field.
+func TimezoneHasPrefix(v string) predicate.Tenant {
+	return predicate.Tenant(sql.FieldHasPrefix(FieldTimezone, v))
+}
+
+// TimezoneHasSuffix applies the HasSuffix predicate on the "timezone" field.
+func TimezoneHasSuffix(v string) predicate.Tenant {
+	return predicate.Tenant(sql.FieldHasSuffix(FieldTimezone, v))
+}
+
+// TimezoneEqualFold applies the EqualFold predicate on the "timezone" field.
+func TimezoneEqualFold(v string) predicate.Tenant {
+	return predicate.Tenant(sql.FieldEqualFold(FieldTimezone, v))
+}
+
+// TimezoneContainsFold applies the ContainsFold predicate on the "timezone" field.
+func TimezoneContainsFold(v string) predicate.Tenant {
+	return predicate.Tenant(sql.FieldContainsFold(FieldTimezone, v))
+}
+
+// CurrencyEQ applies the EQ predicate on the "currency" field.
+func CurrencyEQ(v string) predicate.Tenant {
+	return predicate.Tenant(sql.FieldEQ(FieldCurrency, v))
+}
+
+// CurrencyNEQ applies the NEQ predicate on the "currency" field.
+func CurrencyNEQ(v string) predicate.Tenant {
+	return predicate.Tenant(sql.FieldNEQ(FieldCurrency, v))
+}
+
+// CurrencyIn applies the In predicate on the "currency" field.
+func CurrencyIn(vs ...string) predicate.Tenant {
+	return predicate.Tenant(sql.FieldIn(FieldCurrency, vs...))
+}
+
+// CurrencyNotIn applies the NotIn predicate on the "currency" field.
+func CurrencyNotIn(vs ...string) predicate.Tenant {
+	return predicate.Tenant(sql.FieldNotIn(FieldCurrency, vs...))
+}
+
+// CurrencyGT applies the GT predicate on the "currency" field.
+func CurrencyGT(v string) predicate.Tenant {
+	return predicate.Tenant(sql.FieldGT(FieldCurrency, v))
+}
+
+// CurrencyGTE applies the GTE predicate on the "currency" field.
+func CurrencyGTE(v string) predicate.Tenant {
+	return predicate.Tenant(sql.FieldGTE(FieldCurrency, v))
+}
+
+// CurrencyLT applies the LT predicate on the "currency" field.
+func CurrencyLT(v string) predicate.Tenant {
+	return predicate.Tenant(sql.FieldLT(FieldCurrency, v))
+}
+
+// CurrencyLTE applies the LTE predicate on the "currency" field.
+func CurrencyLTE(v string) predicate.Tenant {
+	return predicate.Tenant(sql.FieldLTE(FieldCurrency, v))
+}
+
+// CurrencyContains applies the Contains predicate on the "currency" field.
+func CurrencyContains(v string) predicate.Tenant {
+	return predicate.Tenant(sql.FieldContains(FieldCurrency, v))
+}
+
+// CurrencyHasPrefix applies the HasPrefix predicate on the "currency" field.
+func CurrencyHasPrefix(v string) predicate.Tenant {
+	return predicate.Tenant(sql.FieldHasPrefix(FieldCurrency, v))
+}
+
+// CurrencyHasSuffix applies the HasSuffix predicate on the "currency" field.
+func CurrencyHasSuffix(v string) predicate.Tenant {
+	return predicate.Tenant(sql.FieldHasSuffix(FieldCurrency, v))
+}
+
+// CurrencyEqualFold applies the EqualFold predicate on the "currency" field.
+func CurrencyEqualFold(v string) predicate.Tenant {
+	return predicate.Tenant(sql.FieldEqualFold(FieldCurrency, v))
+}
+
+// CurrencyContainsFold applies the ContainsFold predicate on the "currency" field.
+func CurrencyContainsFold(v string) predicate.Tenant {
+	return predicate.Tenant(sql.FieldContainsFold(FieldCurrency, v))
+}
+
+// NoShowMinutesEQ applies the EQ predicate on the "no_show_minutes" field.
+func NoShowMinutesEQ(v int32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldEQ(FieldNoShowMinutes, v))
+}
+
+// NoShowMinutesNEQ applies the NEQ predicate on the "no_show_minutes" field.
+func NoShowMinutesNEQ(v int32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldNEQ(FieldNoShowMinutes, v))
+}
+
+// NoShowMinutesIn applies the In predicate on the "no_show_minutes" field.
+func NoShowMinutesIn(vs ...int32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldIn(FieldNoShowMinutes, vs...))
+}
+
+// NoShowMinutesNotIn applies the NotIn predicate on the "no_show_minutes" field.
+func NoShowMinutesNotIn(vs ...int32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldNotIn(FieldNoShowMinutes, vs...))
+}
+
+// NoShowMinutesGT applies the GT predicate on the "no_show_minutes" field.
+func NoShowMinutesGT(v int32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldGT(FieldNoShowMinutes, v))
+}
+
+// NoShowMinutesGTE applies the GTE predicate on the "no_show_minutes" field.
+func NoShowMinutesGTE(v int32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldGTE(FieldNoShowMinutes, v))
+}
+
+// NoShowMinutesLT applies the LT predicate on the "no_show_minutes" field.
+func NoShowMinutesLT(v int32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldLT(FieldNoShowMinutes, v))
+}
+
+// NoShowMinutesLTE applies the LTE predicate on the "no_show_minutes" field.
+func NoShowMinutesLTE(v int32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldLTE(FieldNoShowMinutes, v))
 }
 
 // And groups predicates with the AND operator between them.

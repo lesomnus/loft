@@ -107,6 +107,24 @@ func (_c *TenantCreate) SetNillableDateDestroy(v *time.Time) *TenantCreate {
 	return _c
 }
 
+// SetTimezone sets the "timezone" field.
+func (_c *TenantCreate) SetTimezone(v string) *TenantCreate {
+	_c.mutation.SetTimezone(v)
+	return _c
+}
+
+// SetCurrency sets the "currency" field.
+func (_c *TenantCreate) SetCurrency(v string) *TenantCreate {
+	_c.mutation.SetCurrency(v)
+	return _c
+}
+
+// SetNoShowMinutes sets the "no_show_minutes" field.
+func (_c *TenantCreate) SetNoShowMinutes(v int32) *TenantCreate {
+	_c.mutation.SetNoShowMinutes(v)
+	return _c
+}
+
 // SetId sets the "id" field.
 func (_c *TenantCreate) SetId(v uuid.UUID) *TenantCreate {
 	_c.mutation.SetId(v)
@@ -164,6 +182,15 @@ func (_c *TenantCreate) check() error {
 	}
 	if _, ok := _c.mutation.CloseReason(); !ok {
 		return &ValidationError{Name: "close_reason", err: errors.New(`ent: missing required field "Tenant.close_reason"`)}
+	}
+	if _, ok := _c.mutation.Timezone(); !ok {
+		return &ValidationError{Name: "timezone", err: errors.New(`ent: missing required field "Tenant.timezone"`)}
+	}
+	if _, ok := _c.mutation.Currency(); !ok {
+		return &ValidationError{Name: "currency", err: errors.New(`ent: missing required field "Tenant.currency"`)}
+	}
+	if _, ok := _c.mutation.NoShowMinutes(); !ok {
+		return &ValidationError{Name: "no_show_minutes", err: errors.New(`ent: missing required field "Tenant.no_show_minutes"`)}
 	}
 	return nil
 }
@@ -255,6 +282,18 @@ func (_c *TenantCreate) createSpec() (*Tenant, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.DateDestroy(); ok {
 		_spec.SetField(tenant.FieldDateDestroy, field.TypeTime, value)
 		_node.DateDestroy = &value
+	}
+	if value, ok := _c.mutation.Timezone(); ok {
+		_spec.SetField(tenant.FieldTimezone, field.TypeString, value)
+		_node.Timezone = value
+	}
+	if value, ok := _c.mutation.Currency(); ok {
+		_spec.SetField(tenant.FieldCurrency, field.TypeString, value)
+		_node.Currency = value
+	}
+	if value, ok := _c.mutation.NoShowMinutes(); ok {
+		_spec.SetField(tenant.FieldNoShowMinutes, field.TypeInt32, value)
+		_node.NoShowMinutes = value
 	}
 	return _node, _spec
 }

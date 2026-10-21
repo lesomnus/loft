@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
 import type { Asset } from '../../gen/rove/asset_pb.js'
 import type { Custody, CustodyLine } from '../../gen/rove/custody_pb.js'
-import { AssetService, CustodyLineService, CustodyService, StockService, dateOf, fmt, idBytes, idStr, op, ref, sameId, ts } from '../api.js'
+import { AssetService, CustodyLineService, CustodyService, StockService, dateOf, fmt, fromInput, idBytes, idStr, op, ref, sameId, ts } from '../api.js'
 import { useCatalog } from '../catalog.js'
 import { AssetLink, AssetPicker, PartySelect, SpaceSelect } from '../pickers.js'
 import { useAct, useRpc } from '../rpc.js'
@@ -212,7 +212,7 @@ function Return(props: { c: Custody; lines: CustodyLine[]; onClose: () => void }
 							ref: ref(props.c.id),
 							lines,
 							to: to === '' ? undefined : ref(idBytes(to)),
-							at: at === '' ? undefined : ts(new Date(at)),
+							at: at === '' ? undefined : ts(fromInput(at)),
 							op: key,
 						},
 						{ ok: '반납 처리했습니다.' },
@@ -264,7 +264,7 @@ function Extend(props: { c: Custody; onClose: () => void }): ReactNode {
 		<FormModal
 			title="반납 기한 연장"
 			onClose={props.onClose}
-			onSubmit={async () => (await act(CustodyService.method.extend, { ref: ref(props.c.id), dueAt: ts(new Date(due)) }, { ok: '연장했습니다.' })) !== undefined}
+			onSubmit={async () => (await act(CustodyService.method.extend, { ref: ref(props.c.id), dueAt: ts(fromInput(due)) }, { ok: '연장했습니다.' })) !== undefined}
 		>
 			<Field label="새 기한">
 				<input type="datetime-local" value={due} onChange={(e) => setDue(e.target.value)} required />
@@ -302,7 +302,7 @@ export function NewCustody(props: { assets: Asset[]; party?: string; reservation
 					{
 						party: ref(idBytes(party)),
 						kind,
-						dueAt: kind === 'loan' && due !== '' ? ts(new Date(due)) : undefined,
+						dueAt: kind === 'loan' && due !== '' ? ts(fromInput(due)) : undefined,
 						desc,
 						reservationId: props.reservation,
 						op: key,

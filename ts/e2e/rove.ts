@@ -40,6 +40,7 @@ export const people = {
 	invitee: { login: 'daeun-choi', name: '최다은' },
 	declines: { login: 'sunwoo-jung', name: '정선우' },
 	sso: { login: 'eunwoo-jang', name: '장은우' },
+	place: { login: 'hyunwoo-yoon', name: '윤현우' },
 } as const
 
 /** A name nothing else in the run has. */

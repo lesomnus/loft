@@ -127,7 +127,8 @@ message UsageSnapshot {
 
 
 // TenantContract is what a tenant's contract says about its history: how far
-// back it may look, and how long its history is kept (design 8).
+// back it may look, how long its history and its access record are kept, and
+// how long it may be restored once closed (design 8, #144).
 //
 // The operator's, and the tenant's to read: no role may write one, and the
 // operator's path does (`rove contract`). Not fields on Tenant, because a
@@ -166,6 +167,19 @@ message TenantContract {
 
   // From when this one applies. Unsaid is now.
   google.protobuf.Timestamp date_effective = 11 [(orm.field) = {default: ""}];
+
+  // How long the access record -- who read, wrote or took out whose data in
+  // the workspace -- is kept, in days (rove#136, #144). 0 is the deployment's
+  // `audit.by.access`. A shorter one waits out the grace as `keep_days` does,
+  // and none goes below the deployment's floor, `audit.by.access.min`, which
+  // it is raised to: the floor is what the law the deployment is under asks.
+  uint32 access_keep_days = 12;
+
+  // How long the workspace may be restored once it is closed, in days, before
+  // it is destroyed (D29). 0 is the deployment's
+  // `app.workspaces.restore_within`. Read when it is closed: what the date of
+  // its destruction is then is what its owner is told.
+  uint32 restore_days = 16;
 
   // Withdrawn, for a change that was a mistake. A contract in force is
   // replaced by a newer one rather than taken back.

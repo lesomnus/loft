@@ -38,8 +38,14 @@ type Tenant struct {
 	// CloseReason holds the value of the "close_reason" field.
 	CloseReason string `json:"close_reason,omitempty"`
 	// DateDestroy holds the value of the "date_destroy" field.
-	DateDestroy  *time.Time `json:"date_destroy,omitempty"`
-	selectValues sql.SelectValues
+	DateDestroy *time.Time `json:"date_destroy,omitempty"`
+	// Timezone holds the value of the "timezone" field.
+	Timezone string `json:"timezone,omitempty"`
+	// Currency holds the value of the "currency" field.
+	Currency string `json:"currency,omitempty"`
+	// NoShowMinutes holds the value of the "no_show_minutes" field.
+	NoShowMinutes int32 `json:"no_show_minutes,omitempty"`
+	selectValues  sql.SelectValues
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -49,7 +55,9 @@ func (*Tenant) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case tenant.FieldLabels:
 			values[i] = new([]byte)
-		case tenant.FieldAlias, tenant.FieldName, tenant.FieldDesc, tenant.FieldClosedBy, tenant.FieldCloseReason:
+		case tenant.FieldNoShowMinutes:
+			values[i] = new(sql.NullInt64)
+		case tenant.FieldAlias, tenant.FieldName, tenant.FieldDesc, tenant.FieldClosedBy, tenant.FieldCloseReason, tenant.FieldTimezone, tenant.FieldCurrency:
 			values[i] = new(sql.NullString)
 		case tenant.FieldDateUpdated, tenant.FieldDateCreated, tenant.FieldDateClosed, tenant.FieldDateDestroy:
 			values[i] = new(sql.NullTime)
@@ -140,6 +148,24 @@ func (_m *Tenant) assignValues(columns []string, values []any) error {
 				_m.DateDestroy = new(time.Time)
 				*_m.DateDestroy = value.Time
 			}
+		case tenant.FieldTimezone:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field timezone", values[i])
+			} else if value.Valid {
+				_m.Timezone = value.String
+			}
+		case tenant.FieldCurrency:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field currency", values[i])
+			} else if value.Valid {
+				_m.Currency = value.String
+			}
+		case tenant.FieldNoShowMinutes:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field no_show_minutes", values[i])
+			} else if value.Valid {
+				_m.NoShowMinutes = int32(value.Int64)
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -209,6 +235,15 @@ func (_m *Tenant) String() string {
 		builder.WriteString("date_destroy=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
+	builder.WriteString(", ")
+	builder.WriteString("timezone=")
+	builder.WriteString(_m.Timezone)
+	builder.WriteString(", ")
+	builder.WriteString("currency=")
+	builder.WriteString(_m.Currency)
+	builder.WriteString(", ")
+	builder.WriteString("no_show_minutes=")
+	builder.WriteString(fmt.Sprintf("%v", _m.NoShowMinutes))
 	builder.WriteByte(')')
 	return builder.String()
 }

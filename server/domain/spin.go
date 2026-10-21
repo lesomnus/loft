@@ -210,7 +210,7 @@ func (t *Tx) spacesOnly(rid uuid.UUID) (bool, error) {
 // sweepNoShows frees a room nobody checked into, once the grace is over, and
 // equipment nobody picked up by the time it was due back (design 4).
 func sweepNoShows(t *Tx) error {
-	grace := t.deps.NoShowAfter
+	grace := t.settings().noShow
 	if grace <= 0 {
 		return nil
 	}
@@ -256,7 +256,7 @@ func sweepNoShows(t *Tx) error {
 // completed by its return instead.
 func sweepFinished(t *Tx) error {
 	states := []string{resInUse}
-	if t.deps.NoShowAfter <= 0 {
+	if t.settings().noShow <= 0 {
 		// Nobody is held to checking in, so a confirmed room was used.
 		states = append(states, resConfirmed)
 	}
@@ -310,11 +310,11 @@ func sweepLoans(t *Tx) error {
 	for _, c := range late {
 		name := t.partyName(c.PartyId)
 		if err := t.notifyParty(c.PartyId, "custody.overdue", "반납 기한이 지났습니다",
-			fmt.Sprintf("%s에 반납하기로 한 물품이 아직 반납되지 않았습니다", c.DueAt.In(Zone).Format("1월 2일 15:04")), pdid.Id(c.Id), "/custody"); err != nil {
+			fmt.Sprintf("%s에 반납하기로 한 물품이 아직 반납되지 않았습니다", t.when(*c.DueAt)), pdid.Id(c.Id), "/custody"); err != nil {
 			return err
 		}
 		if err := t.notifyManagers("custody.overdue", "연체: "+name,
-			fmt.Sprintf("%s 반납 예정이던 대여가 연체되었습니다", c.DueAt.In(Zone).Format("1월 2일 15:04")), pdid.Id(c.Id), "/custody"); err != nil {
+			fmt.Sprintf("%s 반납 예정이던 대여가 연체되었습니다", t.when(*c.DueAt)), pdid.Id(c.Id), "/custody"); err != nil {
 			return err
 		}
 		if _, err := t.next.Custody().Patch(t.ctx, app.CustodyPatchRequest_builder{
@@ -345,7 +345,7 @@ func sweepLoans(t *Tx) error {
 			continue
 		}
 		if err := t.notifyParty(c.PartyId, "custody.due", "반납 예정 알림",
-			fmt.Sprintf("%s까지 반납해 주세요", c.DueAt.In(Zone).Format("1월 2일 15:04")), pdid.Id(c.Id), "/custody"); err != nil {
+			fmt.Sprintf("%s까지 반납해 주세요", t.when(*c.DueAt)), pdid.Id(c.Id), "/custody"); err != nil {
 			return err
 		}
 	}
@@ -381,7 +381,7 @@ func sweepWork(t *Tx) error {
 		}
 		when := "오늘"
 		if w.BeginsAt != nil {
-			when = w.BeginsAt.In(Zone).Format("1월 2일 15:04")
+			when = t.when(*w.BeginsAt)
 		}
 		if err := t.notifyManagers("work.due", "예정된 작업: "+w.Name, when+" 예정입니다", pdid.Id(w.Id), "/work"); err != nil {
 			return err
@@ -451,7 +451,7 @@ func sweepDomains(t *Tx) error {
 // tenant holds, for knowing what a plan would have to cover. Nothing reads it
 // to limit anybody.
 func sweepUsage(t *Tx) error {
-	day := t.now.In(Zone).Format(time.DateOnly)
+	day := t.now.In(t.zone()).Format(time.DateOnly)
 	done, err := t.db.UsageSnapshot.Query().Where(usagesnapshot.TenantId(t.tenant.Uuid()), usagesnapshot.Day(day)).Exist(t.ctx)
 	if err != nil || done {
 		return err

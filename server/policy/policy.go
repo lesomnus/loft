@@ -156,7 +156,7 @@ func init() {
 	allow(Read, "PartyService", "SetPassword")
 	allow(Admin, "PartyService", "Add", "Update", "Invite", "SetRole", "Deactivate", "Pseudonymize")
 
-	allow(Owner, "TenantService", "Patch", "Close", "Restore")
+	allow(Owner, "TenantService", "Patch", "Close", "Restore", "Configure")
 
 	allow(Read, "BookableService", "Availability")
 	allow(Admin, "BookableService", "Add", "Update")

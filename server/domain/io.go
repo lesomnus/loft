@@ -21,10 +21,6 @@ import (
 	"github.com/lesomnus/rove/internal/ent/party"
 )
 
-// Zone is where a date is written without a zone: the pilot's, until a tenant
-// says otherwise.
-var Zone = time.FixedZone("KST", 9*60*60)
-
 // The Korean words for rove's own values, which export writes and the pages
 // and refusals say.
 var (
@@ -135,7 +131,7 @@ func (s domainAsset) Export(ctx context.Context, req *app.AssetExportRequest) (*
 			}
 		}
 		if a.AcquiredAt != nil {
-			acquired = a.AcquiredAt.In(Zone).Format(time.DateOnly)
+			acquired = a.AcquiredAt.In(t.zone()).Format(time.DateOnly)
 		}
 		// A column no `personal` declaration can see: the file carries the
 		// custodian's name, so the download is of them (rove#136).
@@ -153,7 +149,7 @@ func (s domainAsset) Export(ctx context.Context, req *app.AssetExportRequest) (*
 		rows = append(rows, row)
 	}
 
-	return writeCSV("rove-assets-"+t.now.In(Zone).Format("20060102"), rows)
+	return writeCSV("rove-assets-"+t.now.In(t.zone()).Format("20060102"), rows)
 }
 
 // Form writes the form bulk registration reads: its header, and nothing of

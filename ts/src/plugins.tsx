@@ -16,7 +16,7 @@ import { Link } from 'react-router-dom'
 import type { Asset } from '../gen/rove/asset_pb.js'
 import type { AssetState } from '../gen/rove/asset_svc_pb.js'
 import type { AssetType, ItemModel } from '../gen/rove/catalog_pb.js'
-import { AssetService, idStr, ref, ts } from './api.js'
+import { AssetService, fromInput, idStr, ref, ts } from './api.js'
 import { AssetPicker } from './pickers.js'
 import { useAct, useRpc } from './rpc.js'
 import { Card, Field, FormModal } from './ui.js'
@@ -147,7 +147,7 @@ const warranty: Plugin = {
 }
 
 function Warranty(p: PluginProps): ReactNode {
-	const until = new Date(`${p.a.attributes['warranty_until']}T23:59:59`)
+	const until = fromInput(`${p.a.attributes['warranty_until']}T23:59:59`)
 	if (Number.isNaN(until.getTime())) return null
 	const days = Math.ceil((until.getTime() - Date.now()) / 86400_000)
 	const tone = days < 0 ? 'bad' : days < 90 ? 'warn' : 'ok'

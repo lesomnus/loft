@@ -31,6 +31,12 @@ const (
 	FieldCloseReason = "close_reason"
 	// FieldDateDestroy holds the string denoting the date_destroy field in the database.
 	FieldDateDestroy = "date_destroy"
+	// FieldTimezone holds the string denoting the timezone field in the database.
+	FieldTimezone = "timezone"
+	// FieldCurrency holds the string denoting the currency field in the database.
+	FieldCurrency = "currency"
+	// FieldNoShowMinutes holds the string denoting the no_show_minutes field in the database.
+	FieldNoShowMinutes = "no_show_minutes"
 	// Table holds the table name of the tenant in the database.
 	Table = "tenant"
 )
@@ -48,6 +54,9 @@ var Columns = []string{
 	FieldClosedBy,
 	FieldCloseReason,
 	FieldDateDestroy,
+	FieldTimezone,
+	FieldCurrency,
+	FieldNoShowMinutes,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -111,4 +120,19 @@ func ByCloseReason(opts ...sql.OrderTermOption) OrderOption {
 // ByDateDestroy orders the results by the date_destroy field.
 func ByDateDestroy(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDateDestroy, opts...).ToFunc()
+}
+
+// ByTimezone orders the results by the timezone field.
+func ByTimezone(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTimezone, opts...).ToFunc()
+}
+
+// ByCurrency orders the results by the currency field.
+func ByCurrency(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCurrency, opts...).ToFunc()
+}
+
+// ByNoShowMinutes orders the results by the no_show_minutes field.
+func ByNoShowMinutes(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldNoShowMinutes, opts...).ToFunc()
 }

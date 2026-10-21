@@ -419,7 +419,7 @@ func (s domainLabel) Print(ctx context.Context, req *app.LabelPrintRequest) (*ap
 		}
 		batch := strings.TrimSpace(req.GetBatch())
 		if batch == "" {
-			batch = t.now.Format("2006-01-02 15:04")
+			batch = t.now.In(t.zone()).Format("2006-01-02 15:04")
 		}
 
 		if err := t.begin(nil, "label.print", pdid.Nil, t.now, fmt.Sprintf("라벨 인쇄: %s", batch), "", map[string]string{"count": fmt.Sprint(max(n, len(ids)))}); err != nil {

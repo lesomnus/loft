@@ -78,6 +78,10 @@ type Deps struct {
 	// LookupTXT reads TXT records, for verifying a custom domain.
 	LookupTXT func(ctx context.Context, name string) ([]string, error)
 
+	// Locale is what a workspace that says nothing of its own is told in: its
+	// zone and its currency (`app.locale`, #144).
+	Locale Locale
+
 	// NoShowAfter is how long after a room reservation begins it is released
 	// when nobody checked in. Zero holds nobody to checking in.
 	NoShowAfter time.Duration
@@ -248,6 +252,10 @@ type Tx struct {
 
 	// win is the tenant's history windows, once something asked.
 	win *retention.Window
+
+	// own is the workspace's zone, currency and check-in rule, once
+	// something asked ([Tx.settings]).
+	own *workspaceSettings
 
 	// shared is what every operation in this transaction shares, the ones
 	// it is made of included ([sharedOf]).
@@ -671,7 +679,7 @@ func (t *Tx) inView(field string, at time.Time) error {
 	}
 
 	return refuse(codes.OutOfRange, field, fmt.Sprintf("이 조직은 최근 %d일(%s부터)의 이력만 볼 수 있습니다",
-		int(w.View/(24*time.Hour)), since.In(Zone).Format("2006년 1월 2일")))
+		int(w.View/(24*time.Hour)), since.In(t.zone()).Format("2006년 1월 2일")))
 }
 
 // gone answers whether a time row is history a view window beginning at
@@ -685,7 +693,6 @@ func gone(since time.Time, to, superseded *time.Time) bool {
 }
 
 // when is a moment as a person here reads one, in a refusal.
-func when(t time.Time) string { return t.In(Zone).Format("1월 2일 15:04") }
 
 // minutes is a duration as a person says it.
 func minutes(n int32) string {

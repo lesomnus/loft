@@ -719,7 +719,7 @@ func TestAnAssistantKeepsTheRestOfTheRegister(t *testing.T) {
 	// Bought, and received as assets.
 	p = a.plan("plan_purchase", map[string]any{"action": "add", "name": "노트북 2대", "vendor": vendor, "currency": "KRW",
 		"lines": []map[string]any{{"model": paper, "quantity": 2, "unit_cost": 1500000, "receive_as": "asset"}}})
-	x.Equal("구매 등록: 노트북 2대, 델코리아에서: A4 복사용지 ×2 (자산으로), 합계 3000000 KRW", p.Summary)
+	x.Equal("구매 등록: 노트북 2대, 델코리아에서: A4 복사용지 ×2 (자산으로), 합계 3,000,000 KRW", p.Summary)
 	a.apply(p)
 	var bought struct {
 		Items []struct {

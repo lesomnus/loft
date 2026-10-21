@@ -74,9 +74,17 @@ audit:
   # people or more, `pipa-sensitive` -- until a legal review of the deployment
   # says otherwise. Its rows leave the database for the archive above at
   # ninety days.
+  #
+  # That is what a workspace with no contract of its own is kept to. A
+  # contract says a workspace's own (`rove contract set --access-keep`,
+  # rove#144) -- a year for an organization under PIPA's lesser measures --
+  # and never less than `min`, PIPA's year for anybody: a contract that says
+  # less is kept to that.
   by:
     access:
       profile: pipa-sensitive
+      min:
+        profile: pipa
     # plan.md M5 has a membership's rows kept as PIPA keeps an access record:
     #
     # holder:

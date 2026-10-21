@@ -43,6 +43,9 @@ func (s domainWorkOrder) Add(ctx context.Context, req *app.WorkOrderAddRequest) 
 		if err != nil {
 			return err
 		}
+		if err := priced(req.GetCurrency()); err != nil {
+			return err
+		}
 		kind := or(req.GetKind(), "repair")
 		if !slices.Contains(WorkKinds, kind) {
 			return invalid("kind", "작업 구분이 올바르지 않습니다 (%s)", strings.Join(WorkKinds, ", "))
@@ -79,7 +82,7 @@ func (s domainWorkOrder) Add(ctx context.Context, req *app.WorkOrderAddRequest) 
 			Kind:      kind,
 			Status:    status,
 			Cost:      req.GetCost(),
-			Currency:  or(req.GetCurrency(), "KRW"),
+			Currency:  or(req.GetCurrency(), t.settings().currency),
 			Blocking:  req.GetBlocking(),
 			EveryDays: req.GetEveryDays(),
 		}.Build()
@@ -186,6 +189,9 @@ func (s domainWorkOrder) Update(ctx context.Context, req *app.WorkOrderUpdateReq
 			patch.SetCost(req.GetCost())
 		}
 		if v := req.GetCurrency(); v != "" {
+			if err := priced(v); err != nil {
+				return err
+			}
 			patch.SetCurrency(v)
 		}
 		if err := t.begin(nil, "work.update", idOf(w.GetAsset().GetId()), t.now, "작업 수정: "+w.GetName(), "", nil); err != nil {
@@ -311,6 +317,10 @@ func (s domainPurchase) Add(ctx context.Context, req *app.PurchaseAddRequest) (*
 		if len(req.GetLines()) == 0 {
 			return invalid("lines", "구매한 품목을 적어 주세요")
 		}
+		if err := priced(req.GetCurrency()); err != nil {
+			return err
+		}
+		currency := or(req.GetCurrency(), t.settings().currency)
 		if req.HasVendor() {
 			v, err := t.next.Party().Get(t.ctx, app.PartyGetRequest_builder{Ref: req.GetVendor()}.Build())
 			if err != nil {
@@ -336,9 +346,9 @@ func (s domainPurchase) Add(ctx context.Context, req *app.PurchaseAddRequest) (*
 		}
 		name := strings.TrimSpace(req.GetName())
 		if name == "" {
-			name = "구매 " + t.now.Format("2006-01-02")
+			name = "구매 " + t.now.In(t.zone()).Format("2006-01-02")
 		}
-		if err := t.begin(nil, "purchase.add", pdid.Nil, t.now, "구매 등록: "+name, "", map[string]string{"total": fmt.Sprint(total)}); err != nil {
+		if err := t.begin(nil, "purchase.add", pdid.Nil, t.now, "구매 등록: "+name, "", map[string]string{"total": fmt.Sprint(total), "currency": currency}); err != nil {
 			return err
 		}
 		row := app.PurchaseAddRequest_builder{
@@ -348,7 +358,7 @@ func (s domainPurchase) Add(ctx context.Context, req *app.PurchaseAddRequest) (*
 			Reference: req.GetReference(),
 			Status:    "ordered",
 			OrderedAt: ts(t.now),
-			Currency:  or(req.GetCurrency(), "KRW"),
+			Currency:  currency,
 			Total:     total,
 		}.Build()
 		if req.HasOrderedAt() {

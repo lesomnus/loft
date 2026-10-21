@@ -39,7 +39,7 @@ const nav: { to: string; label: string; icon: string; min?: 'manager' | 'admin' 
 	{ to: '/stock', label: '재고', icon: '▤' },
 	{ to: '/counts', label: '실사', icon: '✓' },
 	{ to: '/work', label: '작업', icon: '⚒' },
-	{ to: '/purchases', label: '구매', icon: '₩', min: 'manager' },
+	{ to: '/purchases', label: '구매', icon: '¤', min: 'manager' },
 	{ to: '/people', label: '사람', icon: '☺' },
 	{ to: '/settings', label: '설정', icon: '⚙' },
 ]

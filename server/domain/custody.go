@@ -412,7 +412,7 @@ func (s domainCustody) Extend(ctx context.Context, req *app.CustodyExtendRequest
 		if !req.HasDueAt() || !req.GetDueAt().AsTime().After(t.now) {
 			return invalid("due_at", "반납 기한은 지금 이후여야 합니다")
 		}
-		if err := t.begin(nil, "custody.extend", idOf(c.GetId()), t.now, "반납 기한 연장: "+req.GetDueAt().AsTime().Format(time.DateOnly), "", nil); err != nil {
+		if err := t.begin(nil, "custody.extend", idOf(c.GetId()), t.now, "반납 기한 연장: "+req.GetDueAt().AsTime().In(t.zone()).Format(time.DateOnly), "", nil); err != nil {
 			return err
 		}
 		out, err = t.next.Custody().Patch(t.ctx, app.CustodyPatchRequest_builder{

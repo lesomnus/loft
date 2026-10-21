@@ -242,10 +242,27 @@ an operator (`rove tenant close`), or by the deployment when an account
 leaving left nobody in it, and closing destroys nothing: `cmd.Resolver` refuses
 every call into a closed workspace but its owner's `Get` and `Restore`, and the
 owner can take its data out (`GET /account/workspaces/{alias}/export`). Once
-`app.workspaces.restore_within` is over and nothing holds it, `server/closing`
+its restore window is over -- its contract's `restore_days`, or
+`app.workspaces.restore_within` -- and nothing holds it, `server/closing`
 destroys it and holds its address (`AliasHold`). Addresses are made up
 (`tenancy.Aliases`) and nobody but an operator moves one (`rove tenant
 alias`); the domain layer refuses an alias in `TenantService.Patch`.
+
+## Where a workspace is
+
+A workspace says its own zone, currency and check-in rule (rove#144), its
+owner through `TenantService.Configure` -- the one door, with its event;
+`Patch` refuses them -- and the deployment's `app.locale` and
+`app.no_show_after` answer while it says nothing. In the domain layer that is
+`t.zone()`, `t.when(at)` and `t.settings()`: a date a person reads, a file's
+dates, the day a count falls on, all in the workspace's zone, never a fixed
+one. `PartyService.Me` answers what the server tells it in, and the page draws
+and reads dates on that wall whatever the browser's zone (`localize`;
+`fromInput` and never `new Date(v)` for an input, `wall`, `at` and `shift` for
+a calendar's days). An amount is a whole number of its currency's minor unit
+-- won for KRW, cents for USD (`internal/money`, and `money`/`amountIn` in
+`ts/src/api.ts`) -- and a row keeps the currency it was priced in, so amounts
+of two currencies are never added together.
 
 ## The terminal
 

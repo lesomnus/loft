@@ -79,7 +79,7 @@ func expire(ctx context.Context, self *xli.Command, c *cmd.Config, dry bool) err
 	if err != nil {
 		return err
 	}
-	p.Tenants = retention.Trail(s.Ent, p, c.App.Retention.Defaults())
+	p.Tenants = retention.Trail(s.Ent, p, cmd.RetentionDefaults(*c, p))
 	store := pd.TrailStore(s.Ent)
 
 	for _, t := range ts {

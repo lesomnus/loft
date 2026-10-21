@@ -24,6 +24,10 @@ const (
 	FieldGraceDays = "grace_days"
 	// FieldDateEffective holds the string denoting the date_effective field in the database.
 	FieldDateEffective = "date_effective"
+	// FieldAccessKeepDays holds the string denoting the access_keep_days field in the database.
+	FieldAccessKeepDays = "access_keep_days"
+	// FieldRestoreDays holds the string denoting the restore_days field in the database.
+	FieldRestoreDays = "restore_days"
 	// FieldDateErased holds the string denoting the date_erased field in the database.
 	FieldDateErased = "date_erased"
 	// FieldDateCreated holds the string denoting the date_created field in the database.
@@ -52,6 +56,8 @@ var Columns = []string{
 	FieldKeepDays,
 	FieldGraceDays,
 	FieldDateEffective,
+	FieldAccessKeepDays,
+	FieldRestoreDays,
 	FieldDateErased,
 	FieldDateCreated,
 	FieldTenantId,
@@ -103,6 +109,16 @@ func ByGraceDays(opts ...sql.OrderTermOption) OrderOption {
 // ByDateEffective orders the results by the date_effective field.
 func ByDateEffective(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDateEffective, opts...).ToFunc()
+}
+
+// ByAccessKeepDays orders the results by the access_keep_days field.
+func ByAccessKeepDays(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAccessKeepDays, opts...).ToFunc()
+}
+
+// ByRestoreDays orders the results by the restore_days field.
+func ByRestoreDays(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRestoreDays, opts...).ToFunc()
 }
 
 // ByDateErased orders the results by the date_erased field.

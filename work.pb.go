@@ -392,7 +392,9 @@ type WorkOrder_builder struct {
 	DateErased  *timestamppb.Timestamp
 	DateCreated *timestamppb.Timestamp
 	Vendor      *Party
-	Cost        int64
+	// In `currency`'s minor unit, as every amount is: won for KRW, cents for USD.
+	Cost int64
+	// ISO 4217. A new one is priced in the workspace's.
 	Currency    string
 	CompletedAt *timestamppb.Timestamp
 	Blocking    bool
@@ -721,8 +723,11 @@ type Purchase_builder struct {
 	DateUpdated *timestamppb.Timestamp
 	DateErased  *timestamppb.Timestamp
 	DateCreated *timestamppb.Timestamp
-	Currency    string
-	Total       int64
+	// ISO 4217, of the purchase and its lines. A new one is priced in the
+	// workspace's.
+	Currency string
+	// In `currency`'s minor unit, as every amount is: won for KRW, cents for USD.
+	Total int64
 }
 
 func (b0 Purchase_builder) Build() *Purchase {
@@ -972,12 +977,13 @@ func (x *PurchaseLine) ClearDateCreated() {
 type PurchaseLine_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Id               []byte
-	Tenant           *Tenant
-	Desc             string
-	Purchase         *Purchase
-	Model            *ItemModel
-	Quantity         int64
+	Id       []byte
+	Tenant   *Tenant
+	Desc     string
+	Purchase *Purchase
+	Model    *ItemModel
+	Quantity int64
+	// In the purchase's currency's minor unit.
 	UnitCost         int64
 	ReceivedQuantity int64
 	DateUpdated      *timestamppb.Timestamp

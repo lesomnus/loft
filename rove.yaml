@@ -131,7 +131,7 @@ spin:
 #   workspaces:
 #     alias_length: 7                    # a new address; grows by itself when crowded
 #     reserved: [acme-corp]              # beside the app's own (`tenancy.Reserved`)
-#     restore_within: 720h               # a closed workspace may be restored for 30 days
+#     restore_within: 720h               # a closed workspace may be restored for 30 days, or as its contract says
 #     alias_hold: 8760h                  # then its address is nobody's for a year
 #   accounts:
 #     forget_after: 720h                 # 30 days, roster's default
@@ -170,8 +170,15 @@ app:
   session:
     idle: 24h
     lifetime: 168h
-  # A room nobody checked into is released this long after it began.
+  # A room nobody checked into is released this long after it began, in a
+  # workspace that says nothing of its own (rove#144).
   no_show_after: 15m
+  # Where a workspace is when it says nothing of its own (rove#144): the zone
+  # its dates are told in, IANA's, and the currency a new amount is priced in,
+  # ISO 4217's. Unset are these.
+  # locale:
+  #   timezone: Asia/Seoul
+  #   currency: KRW
   sweep: 1m
   # What an account agrees to before it uses anything here (design 9.11):
   # each document at the version in force, read at its url. A new version is

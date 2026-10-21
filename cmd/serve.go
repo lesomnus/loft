@@ -487,12 +487,15 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		return nil, err
 	}
 
-	// And per tenant, from its contract, for the kinds that are history: their
-	// trail lasts as long as the history does, and a legal hold holds both.
-	// Only when the deployment has said a window may destroy, since this is
-	// what turns the sweep on for a deployment that configured no `audit:`.
-	if c.App.Retention.Apply {
-		p.Tenants = retention.Trail(client, p, c.App.Retention.Defaults())
+	// And per tenant, from its contract: the kinds that are history, whose
+	// trail lasts as long as the history does, and the access record (#144);
+	// a legal hold holds all of it. Asked when the deployment said a window
+	// may destroy, or keeps a window of its own -- since a tenant asked turns
+	// the sweep on, a deployment that configured no `audit:` asks nobody.
+	// With the windows off a contract is answered only where it keeps longer
+	// than the deployment would (`retention.Trail`).
+	if c.App.Retention.Apply || p.On() {
+		p.Tenants = retention.Trail(client, p, RetentionDefaults(c, p))
 	}
 
 	// What the trail kept of a person, forgotten in the database and in the
@@ -500,7 +503,7 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	// are asked whether or not the windows may destroy: a hold outweighs an
 	// erasure either way.
 	s.Trail = p
-	s.Trail.Tenants = retention.Trail(client, p, c.App.Retention.Defaults())
+	s.Trail.Tenants = retention.Trail(client, p, RetentionDefaults(c, p))
 	// After the trail's policy, which a destroy purges by.
 	s.Closing = closing.Closing{
 		Db: client, Offboard: s.Offboard(c), People: people,
@@ -812,6 +815,13 @@ func depsOf(c Config) (*domain.Deps, error) {
 		return nil, err
 	}
 
+	// What a workspace that says nothing of its own is told in, refused here
+	// rather than at the first date told in it.
+	locale := domain.Locale{Timezone: c.App.Locale.Timezone, Currency: c.App.Locale.Currency}
+	if err := locale.Check(); err != nil {
+		return nil, fmt.Errorf("app.locale.%w", err)
+	}
+
 	pub := c.App.Public()
 	port := pub.Port()
 	return &domain.Deps{
@@ -825,6 +835,7 @@ func depsOf(c Config) (*domain.Deps, error) {
 		LabelBase:          strings.TrimSuffix(pub.String(), "/"),
 		LookupTXT:          net.DefaultResolver.LookupTXT,
 		NoShowAfter:        c.App.NoShowAfter,
+		Locale:             locale,
 		RestoreWithin:      c.App.Workspaces.Restore(),
 		Retention:          c.App.Retention.Defaults(),
 		Mail:               sender,

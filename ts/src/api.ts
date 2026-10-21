@@ -324,9 +324,126 @@ export function dateOf(t: Timestamp | undefined): Date | undefined {
 	return timestampDate(t)
 }
 
-const dtf = new Intl.DateTimeFormat('ko-KR', { dateStyle: 'medium', timeStyle: 'short' })
-const df = new Intl.DateTimeFormat('ko-KR', { dateStyle: 'medium' })
-const tf = new Intl.DateTimeFormat('ko-KR', { timeStyle: 'short' })
+/**
+ * Where the workspace is (#144): the zone its dates are shown in, and the
+ * currency an amount that names none is in. The page's until the workspace
+ * says, and then the workspace's -- what its sentences on the server are told
+ * in too.
+ */
+export const place = { timezone: undefined as string | undefined, currency: 'KRW' }
+
+let dtf = new Intl.DateTimeFormat('ko-KR', { dateStyle: 'medium', timeStyle: 'short' })
+let df = new Intl.DateTimeFormat('ko-KR', { dateStyle: 'medium' })
+let tf = new Intl.DateTimeFormat('ko-KR', { timeStyle: 'short' })
+let pf = partsIn(undefined)
+
+function partsIn(timeZone: string | undefined): Intl.DateTimeFormat {
+	return new Intl.DateTimeFormat('en-US', {
+		timeZone,
+		hourCycle: 'h23',
+		weekday: 'short',
+		year: 'numeric',
+		month: 'numeric',
+		day: 'numeric',
+		hour: 'numeric',
+		minute: 'numeric',
+		second: 'numeric',
+	})
+}
+
+/** Tells dates and amounts where the workspace is from now on. */
+export function localize(v: { timezone?: string; currency?: string }): void {
+	const timeZone = v.timezone || undefined
+	try {
+		dtf = new Intl.DateTimeFormat('ko-KR', { dateStyle: 'medium', timeStyle: 'short', timeZone })
+		df = new Intl.DateTimeFormat('ko-KR', { dateStyle: 'medium', timeZone })
+		tf = new Intl.DateTimeFormat('ko-KR', { timeStyle: 'short', timeZone })
+		pf = partsIn(timeZone)
+		place.timezone = timeZone
+	} catch {
+		// A zone this browser does not know: the page's own, as before.
+	}
+	if (v.currency) place.currency = v.currency
+}
+
+/** A moment as the clock on the workspace's wall says it. */
+export type Wall = { y: number; m: number; d: number; h: number; mi: number; s: number; wd: number }
+
+const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+
+/**
+ * What the clock on the workspace's wall says at `t`: the year, the month
+ * from 0 and the day, the hour, the minute and the second, and the weekday
+ * from Sunday's 0 -- as `Date`'s own getters say them of the browser's.
+ */
+export function wall(t: Date): Wall {
+	const v: Record<string, string> = {}
+	for (const p of pf.formatToParts(t)) v[p.type] = p.value
+	return {
+		y: Number(v.year),
+		m: Number(v.month) - 1,
+		d: Number(v.day),
+		h: Number(v.hour) % 24,
+		mi: Number(v.minute),
+		s: Number(v.second),
+		wd: weekdays.indexOf(v.weekday ?? ''),
+	}
+}
+
+/**
+ * The moment the clock on the workspace's wall says this: `new Date(y, m, d,
+ * h, mi)` in its zone rather than the browser's. A day or an hour past the
+ * end of its month or day goes on into the next, as there. A time a change of
+ * the clocks skipped is the one an hour on.
+ */
+export function at(y: number, m: number, d: number, h = 0, mi = 0, s = 0): Date {
+	const said = Date.UTC(y, m, d, h, mi, s)
+	// The zone's wall at a moment, read as though it were UTC.
+	const read = (t: number): number => {
+		const w = wall(new Date(t))
+		return Date.UTC(w.y, w.m, w.d, w.h, w.mi, w.s)
+	}
+	const first = said - (read(said) - said)
+	// Once more, where the clocks changed between the two.
+	const second = said - (read(first) - first)
+	if (read(second) === said) return new Date(second)
+	if (read(first) === said) return new Date(first)
+	return new Date(Math.max(first, second))
+}
+
+/** The moment the workspace's wall says the same time `days` later. */
+export function shift(t: Date, days: number): Date {
+	const w = wall(t)
+	return at(w.y, w.m, w.d + days, w.h, w.mi, w.s)
+}
+
+/** A date the way `opts` says it, on the workspace's wall. */
+export function fmtWith(opts: Intl.DateTimeFormatOptions, d: Date): string {
+	return new Intl.DateTimeFormat('ko-KR', { ...opts, timeZone: place.timezone }).format(d)
+}
+
+/** A `<input type="datetime-local">` value for a moment, on the workspace's wall. */
+export function localInput(d: Date | undefined): string {
+	if (d === undefined) return ''
+	const p = (n: number) => String(n).padStart(2, '0')
+	const w = wall(d)
+	return `${w.y}-${p(w.m + 1)}-${p(w.d)}T${p(w.h)}:${p(w.mi)}`
+}
+
+export function dateInput(d: Date | undefined): string {
+	return localInput(d).slice(0, 10)
+}
+
+/**
+ * The moment a `datetime-local` or `date` input says, on the workspace's
+ * wall: what `new Date(v)` is in the browser's zone. Invalid is what that
+ * would be too.
+ */
+export function fromInput(v: string): Date {
+	const m = /^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2})(?::(\d{2}))?)?$/.exec(v.trim())
+	if (m === null) return new Date(Number.NaN)
+	return at(Number(m[1]), Number(m[2]) - 1, Number(m[3]), Number(m[4] ?? 0), Number(m[5] ?? 0), Number(m[6] ?? 0))
+}
 
 export function fmt(t: Timestamp | Date | undefined, only?: 'date' | 'time'): string {
 	const d = t instanceof Date ? t : dateOf(t)
@@ -350,17 +467,6 @@ export function ago(t: Timestamp | Date | undefined): string {
 	if (a < 86400 * 30) return rtf.format(Math.round(s / 86400), 'day')
 	if (a < 86400 * 365) return rtf.format(Math.round(s / 86400 / 30), 'month')
 	return rtf.format(Math.round(s / 86400 / 365), 'year')
-}
-
-/** A `<input type="datetime-local">` value for a moment, in local time. */
-export function localInput(d: Date | undefined): string {
-	if (d === undefined) return ''
-	const p = (n: number) => String(n).padStart(2, '0')
-	return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`
-}
-
-export function dateInput(d: Date | undefined): string {
-	return localInput(d).slice(0, 10)
 }
 
 /** What went wrong, for a person. */
@@ -432,6 +538,67 @@ export async function readFile(f: File): Promise<Uint8Array> {
 	return new Uint8Array(await f.arrayBuffer())
 }
 
-export function won(n: bigint | number): string {
-	return `${Number(n).toLocaleString('ko-KR')}원`
+/**
+ * The minor unit of every current ISO 4217 currency that has other than two
+ * digits after the point (`internal/money`). An amount is a whole number of
+ * its currency's minor unit (#144): won for KRW, cents for USD.
+ */
+const minorDigits: Record<string, number> = {
+	BIF: 0, CLP: 0, DJF: 0, GNF: 0, ISK: 0, JPY: 0, KMF: 0, KRW: 0, PYG: 0,
+	RWF: 0, UGX: 0, UYI: 0, VND: 0, VUV: 0, XAF: 0, XOF: 0, XPF: 0,
+	BHD: 3, IQD: 3, JOD: 3, KWD: 3, LYD: 3, OMR: 3, TND: 3,
+	CLF: 4, UYW: 4,
+}
+
+/** How many of an amount's digits in `currency` are after the point. */
+export function digitsOf(currency?: string): number {
+	return minorDigits[currency || place.currency] ?? 2
+}
+
+/** An amount as a number of the currency itself: 1250 cents is 12.5. */
+function major(n: bigint | number, currency?: string): number {
+	return Number(n) / 10 ** digitsOf(currency)
+}
+
+/** An amount in its currency, or the workspace's when it names none. */
+export function money(n: bigint | number, currency?: string): string {
+	const c = currency || place.currency
+	const d = digitsOf(c)
+	if (c === 'KRW') return `${major(n, c).toLocaleString('ko-KR')}원`
+	try {
+		return new Intl.NumberFormat('ko-KR', { style: 'currency', currency: c, minimumFractionDigits: d, maximumFractionDigits: d }).format(major(n, c))
+	} catch {
+		return `${major(n, c).toLocaleString('ko-KR', { minimumFractionDigits: d, maximumFractionDigits: d })} ${c}`
+	}
+}
+
+/** An amount as an input shows it: 1250 cents is "12.50", 0 is "". */
+export function amountText(n: bigint | number, currency?: string): string {
+	return Number(n) === 0 ? '' : major(n, currency).toFixed(digitsOf(currency))
+}
+
+/**
+ * What an input says, as an amount: "12.5" dollars is 1250n cents. Empty is
+ * zero; a figure the currency has no unit for -- a tenth of a won -- is
+ * undefined, and the input's `step` (`amountStep`) says so first.
+ */
+export function amountIn(text: string, currency?: string): bigint | undefined {
+	const v = text.trim()
+	if (v === '') return 0n
+	const d = digitsOf(currency)
+	const m = /^(\d*)(?:\.(\d*))?$/.exec(v)
+	if (m === null || v === '.' || (m[2] ?? '').length > d) return undefined
+	return BigInt((m[1] || '0') + (m[2] ?? '').padEnd(d, '0'))
+}
+
+/** What a column of amounts in `currency` is headed with: 원, or its code. */
+export function unitOf(currency?: string): string {
+	const c = currency || place.currency
+	return c === 'KRW' ? '원' : c
+}
+
+/** The `step` of an input an amount in `currency` is typed into: "0.01" for USD. */
+export function amountStep(currency?: string): string {
+	const d = digitsOf(currency)
+	return d === 0 ? '1' : `0.${'0'.repeat(d - 1)}1`
 }

@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import type { Purchase } from '../../gen/rove/work_pb.js'
-import { PurchaseLineService, PurchaseService, fmt, idBytes, idStr, ref, won } from '../api.js'
+import { PurchaseLineService, PurchaseService, amountIn, amountStep, fmt, idBytes, idStr, money, place, ref, unitOf } from '../api.js'
 import { modelName, useCatalog } from '../catalog.js'
 import { ModelSelect, PartySelect, SpaceSelect } from '../pickers.js'
 import { useAct, useRpc } from '../rpc.js'
@@ -50,7 +50,7 @@ export function Purchases(): ReactNode {
 											</td>
 											<td>{c.party(p.vendor?.id)?.name ?? '-'}</td>
 											<td>{fmt(p.orderedAt, 'date')}</td>
-											<td className="num">{won(p.total)}</td>
+											<td className="num">{money(p.total, p.currency)}</td>
 											<td>
 												<Badge v={p.status} words={purchaseWord} />
 											</td>
@@ -76,7 +76,9 @@ function NewPurchase(props: { onClose: () => void }): ReactNode {
 	const [reference, setReference] = useState('')
 	const [vendor, setVendor] = useState('')
 	const [lines, setLines] = useState<LineDraft[]>([{ model: '', desc: '', quantity: '1', unitCost: '0', receiveAs: 'asset' }])
-	const total = lines.reduce((s, l) => s + Number(l.quantity || 0) * Number(l.unitCost || 0), 0)
+	// A new purchase is priced in the workspace's currency, in its minor unit.
+	const currency = place.currency
+	const total = lines.reduce((s, l) => s + Number(l.quantity || 0) * Number(amountIn(l.unitCost, currency) ?? 0n), 0)
 	return (
 		<FormModal
 			title="구매 등록"
@@ -93,7 +95,7 @@ function NewPurchase(props: { onClose: () => void }): ReactNode {
 							model: l.model === '' ? undefined : ref(idBytes(l.model)),
 							desc: l.desc,
 							quantity: BigInt(l.quantity || '0'),
-							unitCost: BigInt(l.unitCost || '0'),
+							unitCost: amountIn(l.unitCost, currency) ?? 0n,
 							receiveAs: l.receiveAs,
 						})),
 					},
@@ -117,7 +119,7 @@ function NewPurchase(props: { onClose: () => void }): ReactNode {
 							<th>모델</th>
 							<th>설명</th>
 							<th>수량</th>
-							<th>단가 (원)</th>
+							<th>단가 ({unitOf(currency)})</th>
 							<th>입고 형태</th>
 							<th />
 						</tr>
@@ -137,7 +139,7 @@ function NewPurchase(props: { onClose: () => void }): ReactNode {
 										<input type="number" min={1} value={l.quantity} onChange={(e) => set({ quantity: e.target.value })} />
 									</td>
 									<td>
-										<input type="number" min={0} value={l.unitCost} onChange={(e) => set({ unitCost: e.target.value })} />
+										<input type="number" min={0} step={amountStep(currency)} value={l.unitCost} onChange={(e) => set({ unitCost: e.target.value })} />
 									</td>
 									<td>
 										<Select value={l.receiveAs} onChange={(v) => set({ receiveAs: v })} options={[{ value: 'asset', label: '자산 (하나씩)' }, { value: 'stock', label: '재고 (수량)' }]} />
@@ -156,7 +158,7 @@ function NewPurchase(props: { onClose: () => void }): ReactNode {
 					<button type="button" onClick={() => setLines([...lines, { model: '', desc: '', quantity: '1', unitCost: '0', receiveAs: 'asset' }])}>
 						+ 줄 추가
 					</button>
-					<span className="mute">합계 {won(total)}</span>
+					<span className="mute">합계 {money(total, currency)}</span>
 				</div>
 			</div>
 		</FormModal>
@@ -203,7 +205,7 @@ function PurchaseDialog(props: { p: Purchase; onClose: () => void }): ReactNode 
 					['주문 번호', p.reference || '-'],
 					['주문일', fmt(p.orderedAt, 'date')],
 					['입고일', fmt(p.receivedAt, 'date')],
-					['합계', won(p.total)],
+					['합계', money(p.total, p.currency)],
 				]}
 			/>
 			<Load q={lines}>
@@ -223,7 +225,7 @@ function PurchaseDialog(props: { p: Purchase; onClose: () => void }): ReactNode 
 								<tr key={idStr(l.id)}>
 									<td>{modelName(c.model(l.model?.id)) || l.desc}</td>
 									<td className="num">{String(l.quantity)}</td>
-									<td className="num">{won(l.unitCost)}</td>
+									<td className="num">{money(l.unitCost, p.currency)}</td>
 									<td>{l.receiveAs === 'stock' ? '재고' : '자산'}</td>
 									<td className="num">{String(l.receivedQuantity)}</td>
 								</tr>

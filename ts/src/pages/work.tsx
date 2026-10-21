@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 
 import type { Asset } from '../../gen/rove/asset_pb.js'
 import type { WorkOrder } from '../../gen/rove/work_pb.js'
-import { AssetService, WorkOrderService, dateOf, fmt, idBytes, idStr, localInput, ref, ts, won } from '../api.js'
+import { AssetService, WorkOrderService, amountIn, amountStep, amountText, dateOf, fmt, fromInput, idBytes, idStr, localInput, money, ref, ts, unitOf } from '../api.js'
 import { useCatalog } from '../catalog.js'
 import { AssetLink, AssetPicker, PartySelect } from '../pickers.js'
 import { useAct, useRpc } from '../rpc.js'
@@ -72,7 +72,7 @@ export function Work(): ReactNode {
 												<WorkAsset id={w.asset?.id} />
 											</td>
 											<td>{w.beginsAt !== undefined ? fmt(w.beginsAt) : <span className="mute">접수 {fmt(w.dateCreated, 'date')}</span>}</td>
-											<td>{w.cost > 0n ? won(w.cost) : '-'}</td>
+											<td>{w.cost > 0n ? money(w.cost, w.currency) : '-'}</td>
 											<td>
 												<Badge v={w.status} words={workStatusWord} />
 											</td>
@@ -126,12 +126,12 @@ export function NewWorkOrder(props: { asset?: Asset; onClose: () => void }): Rea
 							kind,
 							name,
 							desc,
-							beginsAt: begins === '' ? undefined : ts(new Date(begins)),
-							endsAt: ends === '' ? undefined : ts(new Date(ends)),
+							beginsAt: begins === '' ? undefined : ts(fromInput(begins)),
+							endsAt: ends === '' ? undefined : ts(fromInput(ends)),
 							blocking,
 							everyDays: Number(every || 0),
 							vendor: vendor === '' ? undefined : ref(idBytes(vendor)),
-							cost: BigInt(cost || '0'),
+							cost: amountIn(cost) ?? 0n,
 						},
 						{ ok: mgr ? '등록했습니다.' : '신고했습니다. 담당자에게 전달됩니다.' },
 					)) !== undefined
@@ -169,8 +169,8 @@ export function NewWorkOrder(props: { asset?: Asset; onClose: () => void }): Rea
 					<Field label="업체">
 						<PartySelect value={vendor} onChange={setVendor} kinds={['vendor']} empty="(없음)" />
 					</Field>
-					<Field label="예상 비용 (원)">
-						<input type="number" min={0} value={cost} onChange={(e) => setCost(e.target.value)} />
+					<Field label={`예상 비용 (${unitOf()})`}>
+						<input type="number" min={0} step={amountStep()} value={cost} onChange={(e) => setCost(e.target.value)} />
 					</Field>
 				</>
 			)}
@@ -189,7 +189,7 @@ function WorkDialog(props: { w: WorkOrder; onClose: () => void }): ReactNode {
 	const [begins, setBegins] = useState(localInput(dateOf(w.beginsAt)))
 	const [ends, setEnds] = useState(localInput(dateOf(w.endsAt)))
 	const [blocking, setBlocking] = useState(w.blocking)
-	const [cost, setCost] = useState(String(w.cost))
+	const [cost, setCost] = useState(amountText(w.cost, w.currency))
 	const [condition, setCondition] = useState('')
 	const [reason, setReason] = useState('')
 	const live = ['open', 'scheduled', 'in_progress'].includes(w.status)
@@ -206,7 +206,7 @@ function WorkDialog(props: { w: WorkOrder; onClose: () => void }): ReactNode {
 						['예약 막음', w.blocking ? '예' : '아니오'],
 						['반복', w.everyDays > 0 ? `${w.everyDays}일마다` : '-'],
 						['업체', c.party(w.vendor?.id)?.name ?? '-'],
-						['비용', w.cost > 0n ? won(w.cost) : '-'],
+						['비용', w.cost > 0n ? money(w.cost, w.currency) : '-'],
 						['완료', fmt(w.completedAt)],
 						['접수', fmt(w.dateCreated)],
 					]}
@@ -238,10 +238,10 @@ function WorkDialog(props: { w: WorkOrder; onClose: () => void }): ReactNode {
 							name,
 							desc,
 							status: status === w.status ? '' : status,
-							beginsAt: begins === '' ? undefined : ts(new Date(begins)),
-							endsAt: ends === '' ? undefined : ts(new Date(ends)),
+							beginsAt: begins === '' ? undefined : ts(fromInput(begins)),
+							endsAt: ends === '' ? undefined : ts(fromInput(ends)),
 							blocking,
-							cost: BigInt(cost || '0'),
+							cost: amountIn(cost, w.currency) ?? 0n,
 						},
 						{ ok: '수정했습니다.' },
 					)) !== undefined
@@ -266,8 +266,8 @@ function WorkDialog(props: { w: WorkOrder; onClose: () => void }): ReactNode {
 				<label className="check">
 					<input type="checkbox" checked={blocking} onChange={(e) => setBlocking(e.target.checked)} /> 예약 막기
 				</label>
-				<Field label="비용 (원)">
-					<input type="number" min={0} value={cost} onChange={(e) => setCost(e.target.value)} />
+				<Field label={`비용 (${unitOf(w.currency)})`}>
+					<input type="number" min={0} step={amountStep(w.currency)} value={cost} onChange={(e) => setCost(e.target.value)} />
 				</Field>
 				<Field label="자세히" wide>
 					<textarea value={desc} onChange={(e) => setDesc(e.target.value)} rows={3} />
@@ -285,15 +285,15 @@ function WorkDialog(props: { w: WorkOrder; onClose: () => void }): ReactNode {
 			onSubmit={async () =>
 				(await act(
 					mode === 'done' ? WorkOrderService.method.complete : WorkOrderService.method.cancel,
-					{ ref: ref(w.id), reason, cost: BigInt(cost || '0'), condition },
+					{ ref: ref(w.id), reason, cost: amountIn(cost, w.currency) ?? 0n, condition },
 					{ ok: mode === 'done' ? '완료했습니다.' : '취소했습니다.' },
 				)) !== undefined
 			}
 		>
 			{mode === 'done' && (
 				<>
-					<Field label="최종 비용 (원)">
-						<input type="number" min={0} value={cost} onChange={(e) => setCost(e.target.value)} />
+					<Field label={`최종 비용 (${unitOf(w.currency)})`}>
+						<input type="number" min={0} step={amountStep(w.currency)} value={cost} onChange={(e) => setCost(e.target.value)} />
 					</Field>
 					<Field label="작업 후 컨디션">
 						<Select value={condition} onChange={setCondition} empty="바꾸지 않음" options={Object.entries(conditionWord).map(([value, label]) => ({ value, label }))} />
