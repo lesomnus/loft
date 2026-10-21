@@ -75,6 +75,9 @@ message PartyMeResponse {
   // How many days a closed workspace may be restored in (#144): its
   // contract's, or the deployment's where it says none.
   uint32 restore_days = 11 [features.field_presence = IMPLICIT];
+  // And how many days its address is then kept from anybody else: the
+  // deployment's `app.workspaces.alias_hold`.
+  uint32 alias_hold_days = 12 [features.field_presence = IMPLICIT];
 }
 
 message PartyUpdateRequest {

@@ -99,13 +99,14 @@ func (s domainParty) Me(ctx context.Context, _ *app.PartyMeRequest) (*app.PartyM
 		return nil, err
 	}
 	out := app.PartyMeResponse_builder{
-		Holder:       h,
-		Tenant:       tn,
-		Role:         h.GetRole(),
-		AccountsHere: s.deps.People != nil && s.deps.People.Embedded(),
-		Timezone:     t.zone().String(),
-		Currency:     t.settings().currency,
-		RestoreDays:  uint32(t.restoreWithin() / (24 * time.Hour)),
+		Holder:        h,
+		Tenant:        tn,
+		Role:          h.GetRole(),
+		AccountsHere:  s.deps.People != nil && s.deps.People.Embedded(),
+		Timezone:      t.zone().String(),
+		Currency:      t.settings().currency,
+		RestoreDays:   uint32(t.restoreWithin() / (24 * time.Hour)),
+		AliasHoldDays: uint32(s.deps.aliasHold() / (24 * time.Hour)),
 	}.Build()
 	if s.deps.People != nil {
 		out.SetAccountUrl(s.deps.People.AccountPage())

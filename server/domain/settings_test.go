@@ -158,6 +158,7 @@ func TestAWorkspaceSaysWhereItIs(t *testing.T) {
 		x.NoError(err)
 		x.Equal("America/New_York", v.GetTimezone())
 		x.Equal("USD", v.GetCurrency())
+		x.EqualValues(365, v.GetAliasHoldDays(), "the deployment's, a year unset")
 	})
 
 	t.Run("a room waits as long as it says", func(t *testing.T) {

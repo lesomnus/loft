@@ -68,9 +68,11 @@ type Workspace struct {
 	Name  string `json:"name"`
 	Role  string `json:"role"`
 	// Closed is when it was closed and Destroy when it goes, for one that is
-	// closed (D29).
-	Closed  *time.Time `json:"closed,omitempty"`
-	Destroy *time.Time `json:"destroy,omitempty"`
+	// closed (D29), and AliasHoldDays how many days its address is then kept
+	// from anybody else (`app.workspaces.alias_hold`).
+	Closed        *time.Time `json:"closed,omitempty"`
+	Destroy       *time.Time `json:"destroy,omitempty"`
+	AliasHoldDays uint32     `json:"alias_hold_days,omitempty"`
 }
 
 // Exporter writes everything a workspace has, as `rove tenant export` does.
@@ -119,6 +121,9 @@ type Routes struct {
 	Label LabelFinder
 	// Manage is roster's account page (`auth.roster.account_url`).
 	Manage string
+	// AliasHold is how long a destroyed workspace's address is kept from
+	// anybody else, which the owner of a closed one is told.
+	AliasHold time.Duration
 	// Consent is what an account agrees to first; nil asks nothing.
 	Consent *consent.Consents
 	// Arrive is what an account that has just agreed is given: a workspace
@@ -200,7 +205,7 @@ func (a Routes) Mount(mux *http.ServeMux) {
 		if !ok {
 			return
 		}
-		v, err := accountOf(r.Context(), ws, p)
+		v, err := a.accountOf(r.Context(), ws, p)
 		if err != nil {
 			fail(w, r, err)
 			return
@@ -253,7 +258,7 @@ func (a Routes) Mount(mux *http.ServeMux) {
 			fail(w, r, err)
 			return
 		}
-		answer(w, http.StatusCreated, workspaceOf(m))
+		answer(w, http.StatusCreated, a.workspaceOf(m))
 	})
 	mux.HandleFunc("GET /account/labels/{code}", func(w http.ResponseWriter, r *http.Request) {
 		p, _, ok := Reading(w, r, sessions, people)
@@ -281,7 +286,7 @@ func (a Routes) Mount(mux *http.ServeMux) {
 		}
 		for _, m := range ms {
 			if at && m.Workspace == in {
-				answer(w, http.StatusOK, workspaceOf(m))
+				answer(w, http.StatusOK, a.workspaceOf(m))
 				return
 			}
 		}
@@ -407,14 +412,14 @@ func Reading(w http.ResponseWriter, r *http.Request, sessions *authsession.Sessi
 	return p, v.Grant, true
 }
 
-func accountOf(ctx context.Context, ws tenancy.Workspaces, p identity.Person) (Account, error) {
+func (a Routes) accountOf(ctx context.Context, ws tenancy.Workspaces, p identity.Person) (Account, error) {
 	ms, err := ws.Of(ctx, p.Id)
 	if err != nil {
 		return Account{}, err
 	}
 	out := Account{Id: p.Id.String(), Login: p.Alias, Name: p.Name, Workspaces: []Workspace{}}
 	for _, m := range ms {
-		out.Workspaces = append(out.Workspaces, workspaceOf(m))
+		out.Workspaces = append(out.Workspaces, a.workspaceOf(m))
 		if m.Role == "owner" {
 			out.Owns++
 		}
@@ -426,8 +431,12 @@ func accountOf(ctx context.Context, ws tenancy.Workspaces, p identity.Person) (A
 	return out, nil
 }
 
-func workspaceOf(m tenancy.Membership) Workspace {
-	return Workspace{Id: pdid.Id(m.Workspace).String(), Alias: m.Alias, Name: m.Name, Role: m.Role, Closed: m.Closed, Destroy: m.Destroy}
+func (a Routes) workspaceOf(m tenancy.Membership) Workspace {
+	w := Workspace{Id: pdid.Id(m.Workspace).String(), Alias: m.Alias, Name: m.Name, Role: m.Role, Closed: m.Closed, Destroy: m.Destroy}
+	if m.Closed != nil {
+		w.AliasHoldDays = uint32(a.AliasHold / (24 * time.Hour))
+	}
+	return w
 }
 
 func answer(w http.ResponseWriter, code int, v any) {

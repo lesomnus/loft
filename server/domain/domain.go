@@ -72,8 +72,11 @@ type Deps struct {
 	LabelBase          string
 
 	// RestoreWithin is how long a closed workspace may be restored before it
-	// is destroyed (D29); zero is 30 days.
+	// is destroyed (D29); zero is 30 days. AliasHold is how long its address
+	// is kept from anybody else after that, which its owner is told; zero is
+	// a year.
 	RestoreWithin time.Duration
+	AliasHold     time.Duration
 
 	// LookupTXT reads TXT records, for verifying a custom domain.
 	LookupTXT func(ctx context.Context, name string) ([]string, error)

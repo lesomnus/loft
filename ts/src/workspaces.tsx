@@ -10,7 +10,7 @@
 
 import { useState, type ReactNode } from 'react'
 
-import { TenantService, errorText, fmt, idBytes, leavePage, makeWorkspace, openWorkspace, workspace, type Account, type Workspace } from './api.js'
+import { TenantService, daysWord, errorText, fmt, idBytes, leavePage, makeWorkspace, openWorkspace, workspace, type Account, type Workspace } from './api.js'
 import { useWaiting } from './invitations.js'
 import { ReasonModal } from './reason.js'
 import { call } from './rpc.js'
@@ -169,7 +169,7 @@ export function Closed(props: { account: Account; ws: Workspace; onSignOut: () =
 			<div className="elsewhere">
 				<h2>{props.ws.name || props.ws.alias} — 닫힌 워크스페이스</h2>
 				<p>
-					{on(props.ws.closed)}에 닫혔습니다. 복구하지 않으면 {on(props.ws.destroy)} 이후 이 워크스페이스의 모든 데이터가 지워지고, 주소(@{props.ws.alias})는 1년 동안 아무도 쓰지 못하게 보류됩니다.
+					{on(props.ws.closed)}에 닫혔습니다. 복구하지 않으면 {on(props.ws.destroy)} 이후 이 워크스페이스의 모든 데이터가 지워지고, 주소(@{props.ws.alias})는 {daysWord(props.ws.alias_hold_days ?? 365)} 동안 아무도 쓰지 못하게 보류됩니다.
 				</p>
 				{owner ? (
 					<div className="actions">

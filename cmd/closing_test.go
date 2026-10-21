@@ -106,13 +106,15 @@ func TestAWorkspaceIsClosedByItsOwnerAndRestored(t *testing.T) {
 	_, err = tenants.Get(w.owner, app.TenantGetRequest_builder{Ref: ref}.Build())
 	x.NoError(err, "who sees it")
 
-	// What the page is told: which workspaces are closed, and until when.
+	// What the page is told: which workspaces are closed, until when, and
+	// how long their address is then held -- the deployment's, a year unset.
 	res := w.page(w.owner, http.MethodGet, "/account")
 	x.Equal(http.StatusOK, res.Code)
 	var acc account.Account
 	x.NoError(json.Unmarshal(res.Body.Bytes(), &acc))
 	x.NotNil(acc.Workspaces[0].Closed)
 	x.NotNil(acc.Workspaces[0].Destroy)
+	x.EqualValues(365, acc.Workspaces[0].AliasHoldDays)
 
 	// And what its owner takes out before it goes.
 	res = w.page(w.owner, http.MethodGet, "/account/workspaces/"+w.tenant.GetAlias()+"/export?reason=closing")

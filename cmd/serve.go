@@ -837,6 +837,7 @@ func depsOf(c Config) (*domain.Deps, error) {
 		NoShowAfter:        c.App.NoShowAfter,
 		Locale:             locale,
 		RestoreWithin:      c.App.Workspaces.Restore(),
+		AliasHold:          c.App.Workspaces.Hold(),
 		Retention:          c.App.Retention.Defaults(),
 		Mail:               sender,
 		AppUrl:             c.App.App(),
@@ -921,6 +922,9 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 			return domain.LabelWorkspace(ctx, s.Ent, code)
 		},
 		Manage: s.Identity.AccountPage(),
+		// What the owner of a closed workspace is told its address is then
+		// held for (D29).
+		AliasHold: c.App.Workspaces.Hold(),
 		// What it agrees to before anything else, and the workspace an
 		// account that just agreed is given (design 9.11).
 		Consent: s.Consents,

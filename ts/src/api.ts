@@ -90,6 +90,8 @@ export interface Workspace {
 	/** When it was closed, and when it goes unless restored (D29). */
 	closed?: string
 	destroy?: string
+	/** For a closed one: how many days its address is then held (D29). */
+	alias_hold_days?: number
 }
 
 /** The account signed in, and the workspaces it is in. */
@@ -454,6 +456,11 @@ export function fmt(t: Timestamp | Date | undefined, only?: 'date' | 'time'): st
 }
 
 const rtf = new Intl.RelativeTimeFormat('ko-KR', { numeric: 'auto' })
+
+/** A span of days the way a person says it: 365 is 1년, and 30 is 30일. */
+export function daysWord(n: number): string {
+	return n > 0 && n % 365 === 0 ? `${n / 365}년` : `${n}일`
+}
 
 /** How long ago or from now, the way a person says it. */
 export function ago(t: Timestamp | Date | undefined): string {
