@@ -113,15 +113,39 @@ func (_c *TenantCreate) SetTimezone(v string) *TenantCreate {
 	return _c
 }
 
+// SetNillableTimezone sets the "timezone" field if the given value is not nil.
+func (_c *TenantCreate) SetNillableTimezone(v *string) *TenantCreate {
+	if v != nil {
+		_c.SetTimezone(*v)
+	}
+	return _c
+}
+
 // SetCurrency sets the "currency" field.
 func (_c *TenantCreate) SetCurrency(v string) *TenantCreate {
 	_c.mutation.SetCurrency(v)
 	return _c
 }
 
+// SetNillableCurrency sets the "currency" field if the given value is not nil.
+func (_c *TenantCreate) SetNillableCurrency(v *string) *TenantCreate {
+	if v != nil {
+		_c.SetCurrency(*v)
+	}
+	return _c
+}
+
 // SetNoShowMinutes sets the "no_show_minutes" field.
 func (_c *TenantCreate) SetNoShowMinutes(v int32) *TenantCreate {
 	_c.mutation.SetNoShowMinutes(v)
+	return _c
+}
+
+// SetNillableNoShowMinutes sets the "no_show_minutes" field if the given value is not nil.
+func (_c *TenantCreate) SetNillableNoShowMinutes(v *int32) *TenantCreate {
+	if v != nil {
+		_c.SetNoShowMinutes(*v)
+	}
 	return _c
 }
 
@@ -138,6 +162,7 @@ func (_c *TenantCreate) Mutation() *TenantMutation {
 
 // Save creates the Tenant in the database.
 func (_c *TenantCreate) Save(ctx context.Context) (*Tenant, error) {
+	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -163,6 +188,22 @@ func (_c *TenantCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_c *TenantCreate) defaults() {
+	if _, ok := _c.mutation.Timezone(); !ok {
+		v := tenant.DefaultTimezone
+		_c.mutation.SetTimezone(v)
+	}
+	if _, ok := _c.mutation.Currency(); !ok {
+		v := tenant.DefaultCurrency
+		_c.mutation.SetCurrency(v)
+	}
+	if _, ok := _c.mutation.NoShowMinutes(); !ok {
+		v := tenant.DefaultNoShowMinutes
+		_c.mutation.SetNoShowMinutes(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (_c *TenantCreate) check() error {
 	if _, ok := _c.mutation.Alias(); !ok {
@@ -182,15 +223,6 @@ func (_c *TenantCreate) check() error {
 	}
 	if _, ok := _c.mutation.CloseReason(); !ok {
 		return &ValidationError{Name: "close_reason", err: errors.New(`ent: missing required field "Tenant.close_reason"`)}
-	}
-	if _, ok := _c.mutation.Timezone(); !ok {
-		return &ValidationError{Name: "timezone", err: errors.New(`ent: missing required field "Tenant.timezone"`)}
-	}
-	if _, ok := _c.mutation.Currency(); !ok {
-		return &ValidationError{Name: "currency", err: errors.New(`ent: missing required field "Tenant.currency"`)}
-	}
-	if _, ok := _c.mutation.NoShowMinutes(); !ok {
-		return &ValidationError{Name: "no_show_minutes", err: errors.New(`ent: missing required field "Tenant.no_show_minutes"`)}
 	}
 	return nil
 }
@@ -342,6 +374,7 @@ func (_c *TenantCreateBulk) Save(ctx context.Context) ([]*Tenant, error) {
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*TenantMutation)
 				if !ok {

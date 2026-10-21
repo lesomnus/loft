@@ -98,6 +98,55 @@ jobs:
             ~/go/pkg/mod
           key: go-postgres-${{ runner.os }}-${{ hashFiles('go.sum') }}-${{ github.sha }}
 
+  # A deployment with data in it, brought up to this build (scripts/upgrade.sh,
+  # #144): the build this one comes after -- the pull request's base, or what
+  # `main` was before this push -- makes a workspace and its demo, and this one
+  # migrates them, on SQLite and on PostgreSQL. Every other test starts from an
+  # empty database, which takes any column the schema adds; a column with no
+  # default cannot be added to a table with rows in it, and only this says so.
+  upgrade:
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      # Started first, so that it is up by the time rove is built.
+      - name: PostgreSQL
+        run: |
+          docker run -d --name postgres -p 5432:5432 \
+            -e POSTGRES_USER=rove -e POSTGRES_PASSWORD=rove -e POSTGRES_DB=rove postgres:18
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+          # The `go` job's cache, as the other jobs restore it.
+          cache: false
+      - uses: actions/cache/restore@v6
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: go-${{ runner.os }}-${{ hashFiles('go.sum') }}-${{ github.sha }}
+          restore-keys: |
+            go-${{ runner.os }}-${{ hashFiles('go.sum') }}-
+            go-${{ runner.os }}-
+      - name: this build, and the one it comes after
+        env:
+          BEFORE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          go build -o "${RUNNER_TEMP}/rove-now" ./cmd/rove
+          git worktree add --detach "${RUNNER_TEMP}/before" "${BEFORE}"
+          (cd "${RUNNER_TEMP}/before" && go build -o "${RUNNER_TEMP}/rove-before" ./cmd/rove)
+      - name: PostgreSQL is up
+        run: |
+          for i in $(seq 1 60); do docker exec postgres pg_isready -h 127.0.0.1 -U rove && exit 0; sleep 1; done
+          docker logs postgres; exit 1
+      - name: what the build before made, migrated by this one
+        env:
+          UPGRADE_POSTGRES: postgres://rove:rove@localhost:5432
+        run: |
+          docker exec postgres psql -U rove -qc 'create database upgrade_rove' -c 'create database upgrade_roster'
+          scripts/upgrade.sh "${RUNNER_TEMP}/rove-before" "${RUNNER_TEMP}/rove-now"
+
   # Search on OpenSearch with nori (D31, deploy/opensearch): the image a
   # deployment runs, with its security plugin on -- TLS on the demo
   # certificates -- and Rove signed in with the role README says it needs,
@@ -438,7 +487,7 @@ jobs:
   # from the source alone, and nobody is waiting on this job.
   image:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [go, postgres, opensearch, ui, bundle, vuln, cluster, e2e]
+    needs: [go, postgres, upgrade, opensearch, ui, bundle, vuln, cluster, e2e]
     runs-on: ubuntu-26.04
     permissions:
       contents: read

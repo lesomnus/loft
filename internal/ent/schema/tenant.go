@@ -38,9 +38,15 @@ func (Tenant) Fields() []ent.Field {
 		field.Time("date_destroy").
 			Nillable().
 			Optional(),
-		field.String("timezone"),
-		field.String("currency"),
-		field.Int32("no_show_minutes"),
+		field.String("timezone").
+			Optional().
+			Default(""),
+		field.String("currency").
+			Optional().
+			Default(""),
+		field.Int32("no_show_minutes").
+			Optional().
+			Default(0),
 	}
 }
 

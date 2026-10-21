@@ -74,9 +74,25 @@ func (_c *TenantContractCreate) SetAccessKeepDays(v uint32) *TenantContractCreat
 	return _c
 }
 
+// SetNillableAccessKeepDays sets the "access_keep_days" field if the given value is not nil.
+func (_c *TenantContractCreate) SetNillableAccessKeepDays(v *uint32) *TenantContractCreate {
+	if v != nil {
+		_c.SetAccessKeepDays(*v)
+	}
+	return _c
+}
+
 // SetRestoreDays sets the "restore_days" field.
 func (_c *TenantContractCreate) SetRestoreDays(v uint32) *TenantContractCreate {
 	_c.mutation.SetRestoreDays(v)
+	return _c
+}
+
+// SetNillableRestoreDays sets the "restore_days" field if the given value is not nil.
+func (_c *TenantContractCreate) SetNillableRestoreDays(v *uint32) *TenantContractCreate {
+	if v != nil {
+		_c.SetRestoreDays(*v)
+	}
 	return _c
 }
 
@@ -132,6 +148,7 @@ func (_c *TenantContractCreate) Mutation() *TenantContractMutation {
 
 // Save creates the TenantContract in the database.
 func (_c *TenantContractCreate) Save(ctx context.Context) (*TenantContract, error) {
+	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -157,6 +174,18 @@ func (_c *TenantContractCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_c *TenantContractCreate) defaults() {
+	if _, ok := _c.mutation.AccessKeepDays(); !ok {
+		v := tenantcontract.DefaultAccessKeepDays
+		_c.mutation.SetAccessKeepDays(v)
+	}
+	if _, ok := _c.mutation.RestoreDays(); !ok {
+		v := tenantcontract.DefaultRestoreDays
+		_c.mutation.SetRestoreDays(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (_c *TenantContractCreate) check() error {
 	if _, ok := _c.mutation.Name(); !ok {
@@ -173,12 +202,6 @@ func (_c *TenantContractCreate) check() error {
 	}
 	if _, ok := _c.mutation.GraceDays(); !ok {
 		return &ValidationError{Name: "grace_days", err: errors.New(`ent: missing required field "TenantContract.grace_days"`)}
-	}
-	if _, ok := _c.mutation.AccessKeepDays(); !ok {
-		return &ValidationError{Name: "access_keep_days", err: errors.New(`ent: missing required field "TenantContract.access_keep_days"`)}
-	}
-	if _, ok := _c.mutation.RestoreDays(); !ok {
-		return &ValidationError{Name: "restore_days", err: errors.New(`ent: missing required field "TenantContract.restore_days"`)}
 	}
 	if _, ok := _c.mutation.TenantId(); !ok {
 		return &ValidationError{Name: "tenant_id", err: errors.New(`ent: missing required field "TenantContract.tenant_id"`)}
@@ -341,6 +364,7 @@ func (_c *TenantContractCreateBulk) Save(ctx context.Context) ([]*TenantContract
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*TenantContractMutation)
 				if !ok {

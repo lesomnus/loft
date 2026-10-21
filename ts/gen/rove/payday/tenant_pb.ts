@@ -15,7 +15,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file rove/payday/tenant.proto.
  */
 export const file_rove_payday_tenant: GenFile = /*@__PURE__*/
-  fileDesc("Chhyb3ZlL3BheWRheS90ZW5hbnQucHJvdG8SBHJvdmUi3wQKBlRlbmFudBIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASFQoFYWxpYXMYBCABKAlCBuqCFgIwARIMCgRuYW1lGAUgASgJEgwKBGRlc2MYBiABKAkSKAoGbGFiZWxzGAcgAygLMhgucm92ZS5UZW5hbnQuTGFiZWxzRW50cnkSOQoMZGF0ZV91cGRhdGVkGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4oBABI7CgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgnqghYFQAGCAQASNwoLZGF0ZV9jbG9zZWQYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESEQoJY2xvc2VkX2J5GAkgASgJEhQKDGNsb3NlX3JlYXNvbhgKIAEoCRI4CgxkYXRlX2Rlc3Ryb3kYCyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESEAoIdGltZXpvbmUYDCABKAkSEAoIY3VycmVuY3kYECABKAkSFwoPbm9fc2hvd19taW51dGVzGBEgASgFGi0KC0xhYmVsc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAE6X8r8FSYSAhABGiASBHBhZ2UaEAoMZGF0ZV9jcmVhdGVkEA8aBgoCaWQQAYq7FjEIATIlChAKDgoMZGF0ZV9jcmVhdGVkCgYKBAoCaWQaBQoDcmVmIBQoZEICCgBIARoAQh9aGGdpdGh1Yi5jb20vbGVzb21udXMvcm92ZZIDAggCYghlZGl0aW9uc3DoBw", [file_google_protobuf_timestamp, file_orm, file_payday]);
+  fileDesc("Chhyb3ZlL3BheWRheS90ZW5hbnQucHJvdG8SBHJvdmUi+gQKBlRlbmFudBIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASFQoFYWxpYXMYBCABKAlCBuqCFgIwARIMCgRuYW1lGAUgASgJEgwKBGRlc2MYBiABKAkSKAoGbGFiZWxzGAcgAygLMhgucm92ZS5UZW5hbnQuTGFiZWxzRW50cnkSOQoMZGF0ZV91cGRhdGVkGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4oBABI7CgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgnqghYFQAGCAQASNwoLZGF0ZV9jbG9zZWQYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESEQoJY2xvc2VkX2J5GAkgASgJEhQKDGNsb3NlX3JlYXNvbhgKIAEoCRI4CgxkYXRlX2Rlc3Ryb3kYCyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESGQoIdGltZXpvbmUYDCABKAlCB+qCFgOCAQASGQoIY3VycmVuY3kYECABKAlCB+qCFgOCAQASIAoPbm9fc2hvd19taW51dGVzGBEgASgFQgfqghYDggEAGi0KC0xhYmVsc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAE6X8r8FSYSAhABGiASBHBhZ2UaEAoMZGF0ZV9jcmVhdGVkEA8aBgoCaWQQAYq7FjEIATIlChAKDgoMZGF0ZV9jcmVhdGVkCgYKBAoCaWQaBQoDcmVmIBQoZEICCgBIARoAQh9aGGdpdGh1Yi5jb20vbGVzb21udXMvcm92ZZIDAggCYghlZGl0aW9uc3DoBw", [file_google_protobuf_timestamp, file_orm, file_payday]);
 
 /**
  * Tenant is the wall an app is divided by.
@@ -112,7 +112,9 @@ export type Tenant = Message<"rove.Tenant"> & {
   /**
    * The workspace's own settings (#144): what differs from one organization to
    * the next where it operates, and is its owner's to say. Empty is the
-   * deployment's `app.locale`, or `app.no_show_after`.
+   * deployment's `app.locale`, or `app.no_show_after` -- and is what the
+   * database fills a workspace that was there before them with, which is
+   * why each says a default.
    *
    * Timezone is where a date said without a zone is: a file's dates, the time
    * in a notification, the day usage is counted by, the date a sheet's cell

@@ -3954,10 +3954,12 @@ func (x *TenantContractAddRequest) SetDateEffective(v *timestamppb.Timestamp) {
 
 func (x *TenantContractAddRequest) SetAccessKeepDays(v uint32) {
 	x.xxx_hidden_AccessKeepDays = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 11)
 }
 
 func (x *TenantContractAddRequest) SetRestoreDays(v uint32) {
 	x.xxx_hidden_RestoreDays = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 11)
 }
 
 func (x *TenantContractAddRequest) SetDateCreated(v *timestamppb.Timestamp) {
@@ -3985,6 +3987,20 @@ func (x *TenantContractAddRequest) HasDateEffective() bool {
 	return x.xxx_hidden_DateEffective != nil
 }
 
+func (x *TenantContractAddRequest) HasAccessKeepDays() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 8)
+}
+
+func (x *TenantContractAddRequest) HasRestoreDays() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 9)
+}
+
 func (x *TenantContractAddRequest) HasDateCreated() bool {
 	if x == nil {
 		return false
@@ -4005,6 +4021,16 @@ func (x *TenantContractAddRequest) ClearDateEffective() {
 	x.xxx_hidden_DateEffective = nil
 }
 
+func (x *TenantContractAddRequest) ClearAccessKeepDays() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 8)
+	x.xxx_hidden_AccessKeepDays = 0
+}
+
+func (x *TenantContractAddRequest) ClearRestoreDays() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 9)
+	x.xxx_hidden_RestoreDays = 0
+}
+
 func (x *TenantContractAddRequest) ClearDateCreated() {
 	x.xxx_hidden_DateCreated = nil
 }
@@ -4020,8 +4046,8 @@ type TenantContractAddRequest_builder struct {
 	KeepDays       uint32
 	GraceDays      uint32
 	DateEffective  *timestamppb.Timestamp
-	AccessKeepDays uint32
-	RestoreDays    uint32
+	AccessKeepDays *uint32
+	RestoreDays    *uint32
 	DateCreated    *timestamppb.Timestamp
 }
 
@@ -4040,8 +4066,14 @@ func (b0 TenantContractAddRequest_builder) Build() *TenantContractAddRequest {
 	x.xxx_hidden_KeepDays = b.KeepDays
 	x.xxx_hidden_GraceDays = b.GraceDays
 	x.xxx_hidden_DateEffective = b.DateEffective
-	x.xxx_hidden_AccessKeepDays = b.AccessKeepDays
-	x.xxx_hidden_RestoreDays = b.RestoreDays
+	if b.AccessKeepDays != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 11)
+		x.xxx_hidden_AccessKeepDays = *b.AccessKeepDays
+	}
+	if b.RestoreDays != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 11)
+		x.xxx_hidden_RestoreDays = *b.RestoreDays
+	}
 	x.xxx_hidden_DateCreated = b.DateCreated
 	return m0
 }
@@ -6811,7 +6843,7 @@ const file_rove_ops_svc_g_proto_rawDesc = "" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"Q\n" +
 	"\x13UsageSnapshotFilter\x12(\n" +
 	"\x03ref\x18\x01 \x01(\v2\x16.rove.UsageSnapshotRefR\x03ref\x12\x10\n" +
-	"\x03day\x18\x02 \x01(\tR\x03day\"\xd4\x03\n" +
+	"\x03day\x18\x02 \x01(\tR\x03day\"\xc6\x03\n" +
 	"\x18TenantContractAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\x12\x19\n" +
@@ -6822,9 +6854,9 @@ const file_rove_ops_svc_g_proto_rawDesc = "" +
 	"\n" +
 	"grace_days\x18\n" +
 	" \x01(\rB\x05\xaa\x01\x02\b\x02R\tgraceDays\x12A\n" +
-	"\x0edate_effective\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\rdateEffective\x12/\n" +
-	"\x10access_keep_days\x18\f \x01(\rB\x05\xaa\x01\x02\b\x02R\x0eaccessKeepDays\x12(\n" +
-	"\frestore_days\x18\x10 \x01(\rB\x05\xaa\x01\x02\b\x02R\vrestoreDays\x12=\n" +
+	"\x0edate_effective\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\rdateEffective\x12(\n" +
+	"\x10access_keep_days\x18\f \x01(\rR\x0eaccessKeepDays\x12!\n" +
+	"\frestore_days\x18\x10 \x01(\rR\vrestoreDays\x12=\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\"y\n" +
 	"\x18TenantContractGetRequest\x12)\n" +
 	"\x03ref\x18\x01 \x01(\v2\x17.rove.TenantContractRefR\x03ref\x122\n" +

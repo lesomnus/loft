@@ -695,6 +695,16 @@ func TimezoneHasSuffix(v string) predicate.Tenant {
 	return predicate.Tenant(sql.FieldHasSuffix(FieldTimezone, v))
 }
 
+// TimezoneIsNil applies the IsNil predicate on the "timezone" field.
+func TimezoneIsNil() predicate.Tenant {
+	return predicate.Tenant(sql.FieldIsNull(FieldTimezone))
+}
+
+// TimezoneNotNil applies the NotNil predicate on the "timezone" field.
+func TimezoneNotNil() predicate.Tenant {
+	return predicate.Tenant(sql.FieldNotNull(FieldTimezone))
+}
+
 // TimezoneEqualFold applies the EqualFold predicate on the "timezone" field.
 func TimezoneEqualFold(v string) predicate.Tenant {
 	return predicate.Tenant(sql.FieldEqualFold(FieldTimezone, v))
@@ -760,6 +770,16 @@ func CurrencyHasSuffix(v string) predicate.Tenant {
 	return predicate.Tenant(sql.FieldHasSuffix(FieldCurrency, v))
 }
 
+// CurrencyIsNil applies the IsNil predicate on the "currency" field.
+func CurrencyIsNil() predicate.Tenant {
+	return predicate.Tenant(sql.FieldIsNull(FieldCurrency))
+}
+
+// CurrencyNotNil applies the NotNil predicate on the "currency" field.
+func CurrencyNotNil() predicate.Tenant {
+	return predicate.Tenant(sql.FieldNotNull(FieldCurrency))
+}
+
 // CurrencyEqualFold applies the EqualFold predicate on the "currency" field.
 func CurrencyEqualFold(v string) predicate.Tenant {
 	return predicate.Tenant(sql.FieldEqualFold(FieldCurrency, v))
@@ -808,6 +828,16 @@ func NoShowMinutesLT(v int32) predicate.Tenant {
 // NoShowMinutesLTE applies the LTE predicate on the "no_show_minutes" field.
 func NoShowMinutesLTE(v int32) predicate.Tenant {
 	return predicate.Tenant(sql.FieldLTE(FieldNoShowMinutes, v))
+}
+
+// NoShowMinutesIsNil applies the IsNil predicate on the "no_show_minutes" field.
+func NoShowMinutesIsNil() predicate.Tenant {
+	return predicate.Tenant(sql.FieldIsNull(FieldNoShowMinutes))
+}
+
+// NoShowMinutesNotNil applies the NotNil predicate on the "no_show_minutes" field.
+func NoShowMinutesNotNil() predicate.Tenant {
+	return predicate.Tenant(sql.FieldNotNull(FieldNoShowMinutes))
 }
 
 // And groups predicates with the AND operator between them.

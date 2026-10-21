@@ -312,7 +312,9 @@ type Tenant_builder struct {
 	DateDestroy *timestamppb.Timestamp
 	// The workspace's own settings (#144): what differs from one organization to
 	// the next where it operates, and is its owner's to say. Empty is the
-	// deployment's `app.locale`, or `app.no_show_after`.
+	// deployment's `app.locale`, or `app.no_show_after` -- and is what the
+	// database fills a workspace that was there before them with, which is
+	// why each says a default.
 	//
 	// Timezone is where a date said without a zone is: a file's dates, the time
 	// in a notification, the day usage is counted by, the date a sheet's cell
@@ -354,7 +356,7 @@ var File_rove_payday_tenant_proto protoreflect.FileDescriptor
 
 const file_rove_payday_tenant_proto_rawDesc = "" +
 	"\n" +
-	"\x18rove/payday/tenant.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\"\xf7\x05\n" +
+	"\x18rove/payday/tenant.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\"\x92\x06\n" +
 	"\x06Tenant\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12\x1c\n" +
 	"\x05alias\x18\x04 \x01(\tB\x06\xea\x82\x16\x020\x01R\x05alias\x12\x12\n" +
@@ -368,10 +370,10 @@ const file_rove_payday_tenant_proto_rawDesc = "" +
 	"\tclosed_by\x18\t \x01(\tR\bclosedBy\x12!\n" +
 	"\fclose_reason\x18\n" +
 	" \x01(\tR\vcloseReason\x12E\n" +
-	"\fdate_destroy\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\vdateDestroy\x12\x1a\n" +
-	"\btimezone\x18\f \x01(\tR\btimezone\x12\x1a\n" +
-	"\bcurrency\x18\x10 \x01(\tR\bcurrency\x12&\n" +
-	"\x0fno_show_minutes\x18\x11 \x01(\x05R\rnoShowMinutes\x1a9\n" +
+	"\fdate_destroy\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\vdateDestroy\x12#\n" +
+	"\btimezone\x18\f \x01(\tB\a\xea\x82\x16\x03\x82\x01\x00R\btimezone\x12#\n" +
+	"\bcurrency\x18\x10 \x01(\tB\a\xea\x82\x16\x03\x82\x01\x00R\bcurrency\x12/\n" +
+	"\x0fno_show_minutes\x18\x11 \x01(\x05B\a\xea\x82\x16\x03\x82\x01\x00R\rnoShowMinutes\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:_\xca\xfc\x15&\x12\x02\x10\x01\x1a \x12\x04page\x1a\x10\n" +

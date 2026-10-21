@@ -11,6 +11,7 @@ import (
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/pdtest"
 	"github.com/lesomnus/payday/trail"
+	"github.com/lesomnus/z"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -280,7 +281,7 @@ func (e *env) accessContract(days, grace uint32, effective time.Time) {
 	_, err := e.s.Base.TenantContract().Add(e.ctx, app.TenantContractAddRequest_builder{
 		Tenant:         app.TenantRef_builder{Id: e.tenant.Bytes()}.Build(),
 		Name:           "access",
-		AccessKeepDays: days,
+		AccessKeepDays: &days,
 		GraceDays:      grace,
 		DateEffective:  timestamppb.New(effective),
 	}.Build())
@@ -352,7 +353,7 @@ func TestARestoreWindowIsTheContracts(t *testing.T) {
 	_, err := e.s.Base.TenantContract().Add(e.ctx, app.TenantContractAddRequest_builder{
 		Tenant:        app.TenantRef_builder{Id: e.tenant.Bytes()}.Build(),
 		Name:          "enterprise",
-		RestoreDays:   90,
+		RestoreDays:   z.Ptr(uint32(90)),
 		DateEffective: timestamppb.New(e.now.Add(-day)),
 	}.Build())
 	x.NoError(err)

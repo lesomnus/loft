@@ -34,8 +34,8 @@ type TenantAddRequest struct {
 	xxx_hidden_ClosedBy      string                 `protobuf:"bytes,9,opt,name=closed_by,json=closedBy"`
 	xxx_hidden_CloseReason   string                 `protobuf:"bytes,10,opt,name=close_reason,json=closeReason"`
 	xxx_hidden_DateDestroy   *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=date_destroy,json=dateDestroy"`
-	xxx_hidden_Timezone      string                 `protobuf:"bytes,12,opt,name=timezone"`
-	xxx_hidden_Currency      string                 `protobuf:"bytes,16,opt,name=currency"`
+	xxx_hidden_Timezone      *string                `protobuf:"bytes,12,opt,name=timezone"`
+	xxx_hidden_Currency      *string                `protobuf:"bytes,16,opt,name=currency"`
 	xxx_hidden_NoShowMinutes int32                  `protobuf:"varint,17,opt,name=no_show_minutes,json=noShowMinutes"`
 	XXX_raceDetectHookData   protoimpl.RaceDetectHookData
 	XXX_presence             [1]uint32
@@ -140,14 +140,20 @@ func (x *TenantAddRequest) GetDateDestroy() *timestamppb.Timestamp {
 
 func (x *TenantAddRequest) GetTimezone() string {
 	if x != nil {
-		return x.xxx_hidden_Timezone
+		if x.xxx_hidden_Timezone != nil {
+			return *x.xxx_hidden_Timezone
+		}
+		return ""
 	}
 	return ""
 }
 
 func (x *TenantAddRequest) GetCurrency() string {
 	if x != nil {
-		return x.xxx_hidden_Currency
+		if x.xxx_hidden_Currency != nil {
+			return *x.xxx_hidden_Currency
+		}
+		return ""
 	}
 	return ""
 }
@@ -204,15 +210,18 @@ func (x *TenantAddRequest) SetDateDestroy(v *timestamppb.Timestamp) {
 }
 
 func (x *TenantAddRequest) SetTimezone(v string) {
-	x.xxx_hidden_Timezone = v
+	x.xxx_hidden_Timezone = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 13)
 }
 
 func (x *TenantAddRequest) SetCurrency(v string) {
-	x.xxx_hidden_Currency = v
+	x.xxx_hidden_Currency = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 13)
 }
 
 func (x *TenantAddRequest) SetNoShowMinutes(v int32) {
 	x.xxx_hidden_NoShowMinutes = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 12, 13)
 }
 
 func (x *TenantAddRequest) HasId() bool {
@@ -243,6 +252,27 @@ func (x *TenantAddRequest) HasDateDestroy() bool {
 	return x.xxx_hidden_DateDestroy != nil
 }
 
+func (x *TenantAddRequest) HasTimezone() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 10)
+}
+
+func (x *TenantAddRequest) HasCurrency() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 11)
+}
+
+func (x *TenantAddRequest) HasNoShowMinutes() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 12)
+}
+
 func (x *TenantAddRequest) ClearId() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
 	x.xxx_hidden_Id = nil
@@ -260,6 +290,21 @@ func (x *TenantAddRequest) ClearDateDestroy() {
 	x.xxx_hidden_DateDestroy = nil
 }
 
+func (x *TenantAddRequest) ClearTimezone() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 10)
+	x.xxx_hidden_Timezone = nil
+}
+
+func (x *TenantAddRequest) ClearCurrency() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 11)
+	x.xxx_hidden_Currency = nil
+}
+
+func (x *TenantAddRequest) ClearNoShowMinutes() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 12)
+	x.xxx_hidden_NoShowMinutes = 0
+}
+
 type TenantAddRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
@@ -273,9 +318,9 @@ type TenantAddRequest_builder struct {
 	ClosedBy      string
 	CloseReason   string
 	DateDestroy   *timestamppb.Timestamp
-	Timezone      string
-	Currency      string
-	NoShowMinutes int32
+	Timezone      *string
+	Currency      *string
+	NoShowMinutes *int32
 }
 
 func (b0 TenantAddRequest_builder) Build() *TenantAddRequest {
@@ -295,9 +340,18 @@ func (b0 TenantAddRequest_builder) Build() *TenantAddRequest {
 	x.xxx_hidden_ClosedBy = b.ClosedBy
 	x.xxx_hidden_CloseReason = b.CloseReason
 	x.xxx_hidden_DateDestroy = b.DateDestroy
-	x.xxx_hidden_Timezone = b.Timezone
-	x.xxx_hidden_Currency = b.Currency
-	x.xxx_hidden_NoShowMinutes = b.NoShowMinutes
+	if b.Timezone != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 13)
+		x.xxx_hidden_Timezone = b.Timezone
+	}
+	if b.Currency != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 13)
+		x.xxx_hidden_Currency = b.Currency
+	}
+	if b.NoShowMinutes != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 12, 13)
+		x.xxx_hidden_NoShowMinutes = *b.NoShowMinutes
+	}
 	return m0
 }
 
@@ -2327,7 +2381,7 @@ var File_rove_payday_tenant_svc_g_proto protoreflect.FileDescriptor
 
 const file_rove_payday_tenant_svc_g_proto_rawDesc = "" +
 	"\n" +
-	"\x1erove/payday/tenant_svc.g.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x11patch/patch.proto\x1a\x18rove/payday/tenant.proto\"\xea\x04\n" +
+	"\x1erove/payday/tenant_svc.g.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x11patch/patch.proto\x1a\x18rove/payday/tenant.proto\"\xd5\x04\n" +
 	"\x10TenantAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12\x1b\n" +
 	"\x05alias\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05alias\x12\x19\n" +
@@ -2340,10 +2394,10 @@ const file_rove_payday_tenant_svc_g_proto_rawDesc = "" +
 	"\tclosed_by\x18\t \x01(\tB\x05\xaa\x01\x02\b\x02R\bclosedBy\x12(\n" +
 	"\fclose_reason\x18\n" +
 	" \x01(\tB\x05\xaa\x01\x02\b\x02R\vcloseReason\x12=\n" +
-	"\fdate_destroy\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\vdateDestroy\x12!\n" +
-	"\btimezone\x18\f \x01(\tB\x05\xaa\x01\x02\b\x02R\btimezone\x12!\n" +
-	"\bcurrency\x18\x10 \x01(\tB\x05\xaa\x01\x02\b\x02R\bcurrency\x12-\n" +
-	"\x0fno_show_minutes\x18\x11 \x01(\x05B\x05\xaa\x01\x02\b\x02R\rnoShowMinutes\x1a9\n" +
+	"\fdate_destroy\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\vdateDestroy\x12\x1a\n" +
+	"\btimezone\x18\f \x01(\tR\btimezone\x12\x1a\n" +
+	"\bcurrency\x18\x10 \x01(\tR\bcurrency\x12&\n" +
+	"\x0fno_show_minutes\x18\x11 \x01(\x05R\rnoShowMinutes\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"a\n" +

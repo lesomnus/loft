@@ -451,6 +451,16 @@ func AccessKeepDaysLTE(v uint32) predicate.TenantContract {
 	return predicate.TenantContract(sql.FieldLTE(FieldAccessKeepDays, v))
 }
 
+// AccessKeepDaysIsNil applies the IsNil predicate on the "access_keep_days" field.
+func AccessKeepDaysIsNil() predicate.TenantContract {
+	return predicate.TenantContract(sql.FieldIsNull(FieldAccessKeepDays))
+}
+
+// AccessKeepDaysNotNil applies the NotNil predicate on the "access_keep_days" field.
+func AccessKeepDaysNotNil() predicate.TenantContract {
+	return predicate.TenantContract(sql.FieldNotNull(FieldAccessKeepDays))
+}
+
 // RestoreDaysEQ applies the EQ predicate on the "restore_days" field.
 func RestoreDaysEQ(v uint32) predicate.TenantContract {
 	return predicate.TenantContract(sql.FieldEQ(FieldRestoreDays, v))
@@ -489,6 +499,16 @@ func RestoreDaysLT(v uint32) predicate.TenantContract {
 // RestoreDaysLTE applies the LTE predicate on the "restore_days" field.
 func RestoreDaysLTE(v uint32) predicate.TenantContract {
 	return predicate.TenantContract(sql.FieldLTE(FieldRestoreDays, v))
+}
+
+// RestoreDaysIsNil applies the IsNil predicate on the "restore_days" field.
+func RestoreDaysIsNil() predicate.TenantContract {
+	return predicate.TenantContract(sql.FieldIsNull(FieldRestoreDays))
+}
+
+// RestoreDaysNotNil applies the NotNil predicate on the "restore_days" field.
+func RestoreDaysNotNil() predicate.TenantContract {
+	return predicate.TenantContract(sql.FieldNotNull(FieldRestoreDays))
 }
 
 // DateErasedEQ applies the EQ predicate on the "date_erased" field.

@@ -136,8 +136,12 @@ func (TenantContract) Fields() []ent.Field {
 		field.Uint32("grace_days"),
 		field.Time("date_effective").
 			Optional(),
-		field.Uint32("access_keep_days"),
-		field.Uint32("restore_days"),
+		field.Uint32("access_keep_days").
+			Optional().
+			Default(0),
+		field.Uint32("restore_days").
+			Optional().
+			Default(0),
 		field.Time("date_erased").
 			Nillable().
 			Optional(),

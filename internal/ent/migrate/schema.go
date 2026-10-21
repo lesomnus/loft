@@ -1739,9 +1739,9 @@ var (
 		{Name: "closed_by", Type: field.TypeString},
 		{Name: "close_reason", Type: field.TypeString},
 		{Name: "date_destroy", Type: field.TypeTime, Nullable: true},
-		{Name: "timezone", Type: field.TypeString},
-		{Name: "currency", Type: field.TypeString},
-		{Name: "no_show_minutes", Type: field.TypeInt32},
+		{Name: "timezone", Type: field.TypeString, Nullable: true, Default: ""},
+		{Name: "currency", Type: field.TypeString, Nullable: true, Default: ""},
+		{Name: "no_show_minutes", Type: field.TypeInt32, Nullable: true, Default: 0},
 	}
 	// TenantTable holds the schema information for the "tenant" table.
 	TenantTable = &schema.Table{
@@ -1765,8 +1765,8 @@ var (
 		{Name: "keep_days", Type: field.TypeUint32},
 		{Name: "grace_days", Type: field.TypeUint32},
 		{Name: "date_effective", Type: field.TypeTime, Nullable: true},
-		{Name: "access_keep_days", Type: field.TypeUint32},
-		{Name: "restore_days", Type: field.TypeUint32},
+		{Name: "access_keep_days", Type: field.TypeUint32, Nullable: true, Default: 0},
+		{Name: "restore_days", Type: field.TypeUint32, Nullable: true, Default: 0},
 		{Name: "date_erased", Type: field.TypeTime, Nullable: true},
 		{Name: "date_created", Type: field.TypeTime, Nullable: true},
 		{Name: "tenant_id", Type: field.TypeUuid},

@@ -161,6 +161,12 @@ func (_u *TenantContractUpdate) AddAccessKeepDays(v int32) *TenantContractUpdate
 	return _u
 }
 
+// ClearAccessKeepDays clears the value of the "access_keep_days" field.
+func (_u *TenantContractUpdate) ClearAccessKeepDays() *TenantContractUpdate {
+	_u.mutation.ClearAccessKeepDays()
+	return _u
+}
+
 // SetRestoreDays sets the "restore_days" field.
 func (_u *TenantContractUpdate) SetRestoreDays(v uint32) *TenantContractUpdate {
 	_u.mutation.ResetRestoreDays()
@@ -179,6 +185,12 @@ func (_u *TenantContractUpdate) SetNillableRestoreDays(v *uint32) *TenantContrac
 // AddRestoreDays adds value to the "restore_days" field.
 func (_u *TenantContractUpdate) AddRestoreDays(v int32) *TenantContractUpdate {
 	_u.mutation.AddRestoreDays(v)
+	return _u
+}
+
+// ClearRestoreDays clears the value of the "restore_days" field.
+func (_u *TenantContractUpdate) ClearRestoreDays() *TenantContractUpdate {
+	_u.mutation.ClearRestoreDays()
 	return _u
 }
 
@@ -296,11 +308,17 @@ func (_u *TenantContractUpdate) sqlSave(ctx context.Context) (_node int, err err
 	if value, ok := _u.mutation.AddedAccessKeepDays(); ok {
 		_spec.AddField(tenantcontract.FieldAccessKeepDays, field.TypeUint32, value)
 	}
+	if _u.mutation.AccessKeepDaysCleared() {
+		_spec.ClearField(tenantcontract.FieldAccessKeepDays, field.TypeUint32)
+	}
 	if value, ok := _u.mutation.RestoreDays(); ok {
 		_spec.SetField(tenantcontract.FieldRestoreDays, field.TypeUint32, value)
 	}
 	if value, ok := _u.mutation.AddedRestoreDays(); ok {
 		_spec.AddField(tenantcontract.FieldRestoreDays, field.TypeUint32, value)
+	}
+	if _u.mutation.RestoreDaysCleared() {
+		_spec.ClearField(tenantcontract.FieldRestoreDays, field.TypeUint32)
 	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(tenantcontract.FieldDateErased, field.TypeTime, value)
@@ -465,6 +483,12 @@ func (_u *TenantContractUpdateOne) AddAccessKeepDays(v int32) *TenantContractUpd
 	return _u
 }
 
+// ClearAccessKeepDays clears the value of the "access_keep_days" field.
+func (_u *TenantContractUpdateOne) ClearAccessKeepDays() *TenantContractUpdateOne {
+	_u.mutation.ClearAccessKeepDays()
+	return _u
+}
+
 // SetRestoreDays sets the "restore_days" field.
 func (_u *TenantContractUpdateOne) SetRestoreDays(v uint32) *TenantContractUpdateOne {
 	_u.mutation.ResetRestoreDays()
@@ -483,6 +507,12 @@ func (_u *TenantContractUpdateOne) SetNillableRestoreDays(v *uint32) *TenantCont
 // AddRestoreDays adds value to the "restore_days" field.
 func (_u *TenantContractUpdateOne) AddRestoreDays(v int32) *TenantContractUpdateOne {
 	_u.mutation.AddRestoreDays(v)
+	return _u
+}
+
+// ClearRestoreDays clears the value of the "restore_days" field.
+func (_u *TenantContractUpdateOne) ClearRestoreDays() *TenantContractUpdateOne {
+	_u.mutation.ClearRestoreDays()
 	return _u
 }
 
@@ -630,11 +660,17 @@ func (_u *TenantContractUpdateOne) sqlSave(ctx context.Context) (_node *TenantCo
 	if value, ok := _u.mutation.AddedAccessKeepDays(); ok {
 		_spec.AddField(tenantcontract.FieldAccessKeepDays, field.TypeUint32, value)
 	}
+	if _u.mutation.AccessKeepDaysCleared() {
+		_spec.ClearField(tenantcontract.FieldAccessKeepDays, field.TypeUint32)
+	}
 	if value, ok := _u.mutation.RestoreDays(); ok {
 		_spec.SetField(tenantcontract.FieldRestoreDays, field.TypeUint32, value)
 	}
 	if value, ok := _u.mutation.AddedRestoreDays(); ok {
 		_spec.AddField(tenantcontract.FieldRestoreDays, field.TypeUint32, value)
+	}
+	if _u.mutation.RestoreDaysCleared() {
+		_spec.ClearField(tenantcontract.FieldRestoreDays, field.TypeUint32)
 	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(tenantcontract.FieldDateErased, field.TypeTime, value)

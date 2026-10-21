@@ -304,9 +304,22 @@ func (m *Mutation) Timezone() (r string, exists bool) {
 	return *v, true
 }
 
+// ClearTimezone clears the value of the "timezone" field.
+func (m *Mutation) ClearTimezone() {
+	m.timezone = nil
+	m.clearedFields[FieldTimezone] = struct{}{}
+}
+
+// TimezoneCleared returns if the "timezone" field was cleared in this mutation.
+func (m *Mutation) TimezoneCleared() bool {
+	_, ok := m.clearedFields[FieldTimezone]
+	return ok
+}
+
 // ResetTimezone resets all changes to the "timezone" field.
 func (m *Mutation) ResetTimezone() {
 	m.timezone = nil
+	delete(m.clearedFields, FieldTimezone)
 }
 
 // SetCurrency sets the "currency" field.
@@ -323,9 +336,22 @@ func (m *Mutation) Currency() (r string, exists bool) {
 	return *v, true
 }
 
+// ClearCurrency clears the value of the "currency" field.
+func (m *Mutation) ClearCurrency() {
+	m.currency = nil
+	m.clearedFields[FieldCurrency] = struct{}{}
+}
+
+// CurrencyCleared returns if the "currency" field was cleared in this mutation.
+func (m *Mutation) CurrencyCleared() bool {
+	_, ok := m.clearedFields[FieldCurrency]
+	return ok
+}
+
 // ResetCurrency resets all changes to the "currency" field.
 func (m *Mutation) ResetCurrency() {
 	m.currency = nil
+	delete(m.clearedFields, FieldCurrency)
 }
 
 // SetNoShowMinutes sets the "no_show_minutes" field.
@@ -361,10 +387,24 @@ func (m *Mutation) AddedNoShowMinutes() (r int32, exists bool) {
 	return *v, true
 }
 
+// ClearNoShowMinutes clears the value of the "no_show_minutes" field.
+func (m *Mutation) ClearNoShowMinutes() {
+	m.no_show_minutes = nil
+	m.addno_show_minutes = nil
+	m.clearedFields[FieldNoShowMinutes] = struct{}{}
+}
+
+// NoShowMinutesCleared returns if the "no_show_minutes" field was cleared in this mutation.
+func (m *Mutation) NoShowMinutesCleared() bool {
+	_, ok := m.clearedFields[FieldNoShowMinutes]
+	return ok
+}
+
 // ResetNoShowMinutes resets all changes to the "no_show_minutes" field.
 func (m *Mutation) ResetNoShowMinutes() {
 	m.no_show_minutes = nil
 	m.addno_show_minutes = nil
+	delete(m.clearedFields, FieldNoShowMinutes)
 }
 
 // Where appends a list predicates to the Mutation builder.
@@ -639,6 +679,15 @@ func (m *Mutation) ClearedFields() []string {
 	if m.FieldCleared(FieldDateDestroy) {
 		fields = append(fields, FieldDateDestroy)
 	}
+	if m.FieldCleared(FieldTimezone) {
+		fields = append(fields, FieldTimezone)
+	}
+	if m.FieldCleared(FieldCurrency) {
+		fields = append(fields, FieldCurrency)
+	}
+	if m.FieldCleared(FieldNoShowMinutes) {
+		fields = append(fields, FieldNoShowMinutes)
+	}
 	return fields
 }
 
@@ -664,6 +713,15 @@ func (m *Mutation) ClearField(name string) error {
 		return nil
 	case FieldDateDestroy:
 		m.ClearDateDestroy()
+		return nil
+	case FieldTimezone:
+		m.ClearTimezone()
+		return nil
+	case FieldCurrency:
+		m.ClearCurrency()
+		return nil
+	case FieldNoShowMinutes:
+		m.ClearNoShowMinutes()
 		return nil
 	}
 	return fmt.Errorf("unknown Tenant nullable field %s", name)

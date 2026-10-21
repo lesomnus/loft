@@ -135,9 +135,21 @@ func (st TenantServiceServer) create(ctx context.Context, req *rove.TenantAddReq
 	if req.HasDateDestroy() {
 		q.SetDateDestroy(req.GetDateDestroy().AsTime())
 	}
-	q.SetTimezone(req.GetTimezone())
-	q.SetCurrency(req.GetCurrency())
-	q.SetNoShowMinutes(req.GetNoShowMinutes())
+	if req.HasTimezone() {
+		q.SetTimezone(req.GetTimezone())
+	} else {
+		q.SetTimezone("")
+	}
+	if req.HasCurrency() {
+		q.SetCurrency(req.GetCurrency())
+	} else {
+		q.SetCurrency("")
+	}
+	if req.HasNoShowMinutes() {
+		q.SetNoShowMinutes(req.GetNoShowMinutes())
+	} else {
+		q.SetNoShowMinutes(0)
+	}
 	return q, ds, nil
 }
 
