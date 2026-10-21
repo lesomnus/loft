@@ -747,4 +747,23 @@ func TestAnAssistantKeepsTheRestOfTheRegister(t *testing.T) {
 	p = a.plan("plan_label", map[string]any{"action": "unbind", "label": code, "void": true})
 	x.Equal("라벨 해제: "+code+" (폐기, 다시 쓰지 않음)", p.Summary)
 	a.apply(p)
+
+	// Priced as planned: in the workspace's currency when it was planned,
+	// though the workspace prices in another by the time it is applied.
+	p = a.plan("plan_purchase", map[string]any{"action": "add", "name": "케이블",
+		"lines": []map[string]any{{"desc": "HDMI 케이블", "quantity": 2, "unit_cost": 12000}}})
+	x.Equal("구매 등록: 케이블: HDMI 케이블 ×2, 합계 24,000 KRW", p.Summary)
+	run(t, cli.NewCmdApi(), "tenant", "configure", "@acme", `{"currency": "USD"}`)
+	a.apply(p)
+	var priced struct {
+		Items []struct {
+			Name     string `json:"name"`
+			Total    int64  `json:"total"`
+			Currency string `json:"currency"`
+		} `json:"items"`
+	}
+	a.call("list_purchases", map[string]any{"status": "ordered"}, &priced)
+	x.Len(priced.Items, 1)
+	x.Equal("KRW", priced.Items[0].Currency, "priced in what the workspace said after it was planned")
+	x.EqualValues(24000, priced.Items[0].Total)
 }

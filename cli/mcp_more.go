@@ -949,7 +949,18 @@ func (c *mcpCall) purchasePlan(in mcpPurchasePlan) (*plan, error) {
 		if len(in.Lines) == 0 {
 			return nil, errors.New("lines: what is bought")
 		}
-		req := app.PurchaseAddRequest_builder{Name: name, Reference: in.Reference, Currency: in.Currency}.Build()
+		// The currency it is priced in, said in the request as the sentence
+		// says it: the workspace's, unless it is said, as it is when planned
+		// -- not as it may be by the time it is applied.
+		currency := in.Currency
+		if currency == "" {
+			me, err := c.whom()
+			if err != nil {
+				return nil, err
+			}
+			currency = me.GetCurrency()
+		}
+		req := app.PurchaseAddRequest_builder{Name: name, Reference: in.Reference, Currency: currency}.Build()
 		what, total := []string{}, int64(0)
 		for _, l := range in.Lines {
 			spec := app.PurchaseLineSpec_builder{Desc: l.Desc, Quantity: l.Quantity, UnitCost: l.UnitCost, ReceiveAs: l.ReceiveAs}.Build()
@@ -984,16 +995,6 @@ func (c *mcpCall) purchasePlan(in mcpPurchasePlan) (*plan, error) {
 		}
 		sum := ""
 		if total > 0 {
-			// In the currency it will be priced in: the workspace's, unless
-			// it is said.
-			currency := in.Currency
-			if currency == "" {
-				me, err := c.whom()
-				if err != nil {
-					return nil, err
-				}
-				currency = me.GetCurrency()
-			}
 			sum = ", 합계 " + money.String(total, currency)
 		}
 		return &plan{

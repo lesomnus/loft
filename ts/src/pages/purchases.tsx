@@ -91,6 +91,9 @@ function NewPurchase(props: { onClose: () => void }): ReactNode {
 						name,
 						reference,
 						vendor: vendor === '' ? undefined : ref(idBytes(vendor)),
+						// The currency the amounts were typed in, which the
+						// workspace may have changed since the page was drawn.
+						currency,
 						lines: lines.map((l) => ({
 							model: l.model === '' ? undefined : ref(idBytes(l.model)),
 							desc: l.desc,

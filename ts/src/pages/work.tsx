@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 
 import type { Asset } from '../../gen/rove/asset_pb.js'
 import type { WorkOrder } from '../../gen/rove/work_pb.js'
-import { AssetService, WorkOrderService, amountIn, amountStep, amountText, dateOf, fmt, fromInput, idBytes, idStr, localInput, money, ref, ts, unitOf } from '../api.js'
+import { AssetService, WorkOrderService, amountIn, amountStep, amountText, dateOf, fmt, fromInput, idBytes, idStr, localInput, money, place, ref, ts, unitOf } from '../api.js'
 import { useCatalog } from '../catalog.js'
 import { AssetLink, AssetPicker, PartySelect } from '../pickers.js'
 import { useAct, useRpc } from '../rpc.js'
@@ -132,6 +132,8 @@ export function NewWorkOrder(props: { asset?: Asset; onClose: () => void }): Rea
 							everyDays: Number(every || 0),
 							vendor: vendor === '' ? undefined : ref(idBytes(vendor)),
 							cost: amountIn(cost) ?? 0n,
+							// What the cost was typed in, as the form said it.
+							currency: place.currency,
 						},
 						{ ok: mgr ? '등록했습니다.' : '신고했습니다. 담당자에게 전달됩니다.' },
 					)) !== undefined
