@@ -5,14 +5,27 @@ on:
     branches: [main]
   pull_request:
 
+# To read the checkout, and nothing else, unless a job says otherwise -- and
+# one does, `image`, which runs on `main` alone. Said here rather than left to
+# the repository's default, which is a setting nobody reviews.
+permissions:
+  contents: read
+
 # Every job names its image rather than `ubuntu-latest`, so that the runner
 # moves when this file says so and not on GitHub's schedule (rove#57).
+#
+# And every action is named by the commit its version had when it was written
+# here, with that version after it: a tag is moved by whoever can push to the
+# action's repository, so a tag is code this file has never seen -- and
+# `image` hands one of them the token that pushes. Renovate moves the commit
+# and the comment together (`helpers:pinGitHubActionDigests`, in payday's
+# preset).
 jobs:
   go:
     runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-go@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: go.mod
           # The cache is the one below, not setup-go's: setup-go keys it by
@@ -21,7 +34,7 @@ jobs:
           cache: false
       # What the `go` job compiled last time: every package and every test,
       # which is what the other jobs build a part of.
-      - uses: actions/cache/restore@v6
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ~/.cache/go-build
@@ -38,7 +51,7 @@ jobs:
         run: go test ./...
       # Saved by this job alone, the one that compiles all of it, for every
       # job of the next run to restore.
-      - uses: actions/cache/save@v6
+      - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         if: always()
         with:
           path: |
@@ -54,13 +67,13 @@ jobs:
   postgres:
     runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       # Started first, so that it is up by the time the tests are built.
       - name: PostgreSQL
         run: |
           docker run -d --name postgres -p 5432:5432 \
             -e POSTGRES_USER=rove -e POSTGRES_PASSWORD=rove -e POSTGRES_DB=rove postgres:18
-      - uses: actions/setup-go@v7
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: go.mod
           # The cache is the one below, not setup-go's: setup-go keys it by
@@ -71,7 +84,7 @@ jobs:
       # the tests' results on PostgreSQL, so that a package nothing changed in
       # is not tested again. Until it has saved one, the `go` job's has what
       # is compiled.
-      - uses: actions/cache/restore@v6
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ~/.cache/go-build
@@ -90,7 +103,7 @@ jobs:
         env:
           PDTEST_POSTGRES: postgres://rove:rove@localhost:5432/rove?sslmode=disable
         run: go test ./...
-      - uses: actions/cache/save@v6
+      - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         if: always()
         with:
           path: |
@@ -107,7 +120,7 @@ jobs:
   upgrade:
     runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
       # Started first, so that it is up by the time rove is built.
@@ -115,12 +128,12 @@ jobs:
         run: |
           docker run -d --name postgres -p 5432:5432 \
             -e POSTGRES_USER=rove -e POSTGRES_PASSWORD=rove -e POSTGRES_DB=rove postgres:18
-      - uses: actions/setup-go@v7
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: go.mod
           # The `go` job's cache, as the other jobs restore it.
           cache: false
-      - uses: actions/cache/restore@v6
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ~/.cache/go-build
@@ -156,11 +169,11 @@ jobs:
   opensearch:
     runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       # Coming up while Go is set up (scripts/opensearch.sh).
       - name: OpenSearch with nori
         run: scripts/opensearch.sh start
-      - uses: actions/setup-go@v7
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: go.mod
           # The cache is the one below, not setup-go's: setup-go keys it by
@@ -169,7 +182,7 @@ jobs:
           cache: false
       # What the `go` job compiled last time: every package and every test,
       # which is what the other jobs build a part of.
-      - uses: actions/cache/restore@v6
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ~/.cache/go-build
@@ -194,8 +207,8 @@ jobs:
       run:
         working-directory: ts
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
           cache: npm
@@ -216,10 +229,10 @@ jobs:
       run:
         working-directory: deploy/compose
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       # The image's Go build cache, as the `cluster` job left it, so that
       # compose's build compiles what changed and not all of rove.
-      - uses: actions/cache/restore@v6
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ runner.temp }}/gocache
           key: image-go-${{ hashFiles('go.sum') }}-${{ github.sha }}
@@ -290,8 +303,8 @@ jobs:
   vuln:
     runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-go@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: go.mod
           # The cache is the one below, not setup-go's: setup-go keys it by
@@ -300,7 +313,7 @@ jobs:
           cache: false
       # What the `go` job compiled last time: every package and every test,
       # which is what the other jobs build a part of.
-      - uses: actions/cache/restore@v6
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ~/.cache/go-build
@@ -337,7 +350,7 @@ jobs:
     runs-on: ubuntu-26.04
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       # The release's own binary, held to the digest its checksums say,
       # rather than an installer that follows `main`.
       - name: k3d
@@ -350,7 +363,7 @@ jobs:
       # The image's Go build cache as the last run left it, so that building
       # the image compiles what changed and not all of rove: without it, each
       # build was 100 to 130 seconds of compiling (scripts/gocache.sh).
-      - uses: actions/cache/restore@v6
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ runner.temp }}/gocache
           key: image-go-${{ hashFiles('go.sum') }}-${{ github.sha }}
@@ -365,7 +378,7 @@ jobs:
       - name: the image's Go build cache, out of the builder
         if: always()
         run: scripts/gocache.sh save "${RUNNER_TEMP}/gocache"
-      - uses: actions/cache/save@v6
+      - uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         if: always()
         with:
           path: ${{ runner.temp }}/gocache
@@ -396,7 +409,7 @@ jobs:
       run:
         working-directory: ts
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       # Started first and left to come up in the background, as PostgreSQL
       # is below: the image builds and the node starts while the page and
       # rove are built (scripts/opensearch.sh).
@@ -413,7 +426,7 @@ jobs:
         run: |
           docker run -d --name postgres -p 5432:5432 \
             -e POSTGRES_USER=rove -e POSTGRES_PASSWORD=rove -e POSTGRES_DB=rove postgres:18
-      - uses: actions/setup-go@v7
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: go.mod
           # The cache is the one below, not setup-go's: setup-go keys it by
@@ -422,7 +435,7 @@ jobs:
           cache: false
       # What the `go` job compiled last time: every package and every test,
       # which is what the other jobs build a part of.
-      - uses: actions/cache/restore@v6
+      - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ~/.cache/go-build
@@ -431,7 +444,7 @@ jobs:
           restore-keys: |
             go-${{ runner.os }}-${{ hashFiles('go.sum') }}-
             go-${{ runner.os }}-
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
           cache: npm
@@ -464,7 +477,7 @@ jobs:
         run: npx playwright test
       # What a failure leaves: the report, with each failed test's trace and
       # screenshot, and each server's database and log (test-results/rove-*).
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: failure()
         with:
           name: e2e-${{ matrix.db }}${{ matrix.search && format('-{0}', matrix.search) || '' }}
@@ -493,8 +506,8 @@ jobs:
       contents: read
       packages: write # ghcr.io/lesomnus/rove
     steps:
-      - uses: actions/checkout@v7
-      - uses: docker/login-action@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
