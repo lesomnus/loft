@@ -289,8 +289,8 @@ func TestASheetIsReadIntoItems(t *testing.T) {
 			x.Equal("PF-1", nb.GetSerial())
 			x.Empty(nb.GetTag())
 			x.Equal("SP-01", nb.GetTo().GetTag().GetTag())
-			x.Equal("2024-03-01", nb.GetAcquiredAt().AsTime().In(domain.Zone).Format(time.DateOnly))
-			x.Equal("2024-03-02", nb.GetSince().AsTime().In(domain.Zone).Format(time.DateOnly))
+			x.Equal("2024-03-01", nb.GetAcquiredAt().AsTime().In(domain.DefaultZone).Format(time.DateOnly))
+			x.Equal("2024-03-02", nb.GetSince().AsTime().In(domain.DefaultZone).Format(time.DateOnly))
 			x.Equal("개발팀", nb.GetDesc())
 			x.Equal(map[string]string{"색상": "검정"}, nb.GetAttributes())
 			room := res.GetItems()[1]

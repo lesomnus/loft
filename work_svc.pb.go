@@ -2817,7 +2817,10 @@ type WorkOrderUpdateRequest_builder struct {
 	Status   string
 	BeginsAt *timestamppb.Timestamp
 	EndsAt   *timestamppb.Timestamp
-	Cost     int64
+	// In `currency`'s minor unit, or the work's.
+	Cost int64
+	// A work that has a cost moves to another currency only with `cost` said
+	// again in it: the same number there is another amount.
 	Currency string
 	Blocking bool
 }
@@ -2933,7 +2936,8 @@ type WorkOrderCompleteRequest_builder struct {
 
 	Ref    *WorkOrderRef
 	Reason string
-	Cost   int64
+	// In the work's currency's minor unit.
+	Cost int64
 	// The condition the asset is in afterwards.
 	Condition string
 }
@@ -3360,6 +3364,7 @@ type PurchaseLineSpec_builder struct {
 	Model    *ItemModelRef
 	Desc     string
 	Quantity int64
+	// In the purchase's currency's minor unit.
 	UnitCost int64
 	// asset | stock
 	ReceiveAs string

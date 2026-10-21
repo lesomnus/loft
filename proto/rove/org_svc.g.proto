@@ -305,6 +305,15 @@ message PartyMeResponse {
   // deleting it where its directory offers that -- for a roster of its own
   // (`auth.roster.account_url`). Empty is no such page.
   string account_url = 8 [features.field_presence = IMPLICIT];
+
+  // Where the workspace is, as the server tells it (#144): the zone its dates
+  // are told in, an IANA name, and the currency a new amount is priced in --
+  // the workspace's own, or the deployment's where it says none.
+  string timezone = 9 [features.field_presence = IMPLICIT];
+  string currency = 10 [features.field_presence = IMPLICIT];
+  // How many days a closed workspace may be restored in (#144): its
+  // contract's, or the deployment's where it says none.
+  uint32 restore_days = 11 [features.field_presence = IMPLICIT];
 }
 
 message PartyUpdateRequest {

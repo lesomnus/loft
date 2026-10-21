@@ -2441,6 +2441,9 @@ type PartyMeResponse struct {
 	xxx_hidden_HistoryDays  uint32                 `protobuf:"varint,6,opt,name=history_days,json=historyDays"`
 	xxx_hidden_AccountsHere bool                   `protobuf:"varint,7,opt,name=accounts_here,json=accountsHere"`
 	xxx_hidden_AccountUrl   string                 `protobuf:"bytes,8,opt,name=account_url,json=accountUrl"`
+	xxx_hidden_Timezone     string                 `protobuf:"bytes,9,opt,name=timezone"`
+	xxx_hidden_Currency     string                 `protobuf:"bytes,10,opt,name=currency"`
+	xxx_hidden_RestoreDays  uint32                 `protobuf:"varint,11,opt,name=restore_days,json=restoreDays"`
 	unknownFields           protoimpl.UnknownFields
 	sizeCache               protoimpl.SizeCache
 }
@@ -2526,6 +2529,27 @@ func (x *PartyMeResponse) GetAccountUrl() string {
 	return ""
 }
 
+func (x *PartyMeResponse) GetTimezone() string {
+	if x != nil {
+		return x.xxx_hidden_Timezone
+	}
+	return ""
+}
+
+func (x *PartyMeResponse) GetCurrency() string {
+	if x != nil {
+		return x.xxx_hidden_Currency
+	}
+	return ""
+}
+
+func (x *PartyMeResponse) GetRestoreDays() uint32 {
+	if x != nil {
+		return x.xxx_hidden_RestoreDays
+	}
+	return 0
+}
+
 func (x *PartyMeResponse) SetHolder(v *Holder) {
 	x.xxx_hidden_Holder = v
 }
@@ -2556,6 +2580,18 @@ func (x *PartyMeResponse) SetAccountsHere(v bool) {
 
 func (x *PartyMeResponse) SetAccountUrl(v string) {
 	x.xxx_hidden_AccountUrl = v
+}
+
+func (x *PartyMeResponse) SetTimezone(v string) {
+	x.xxx_hidden_Timezone = v
+}
+
+func (x *PartyMeResponse) SetCurrency(v string) {
+	x.xxx_hidden_Currency = v
+}
+
+func (x *PartyMeResponse) SetRestoreDays(v uint32) {
+	x.xxx_hidden_RestoreDays = v
 }
 
 func (x *PartyMeResponse) HasHolder() bool {
@@ -2622,6 +2658,14 @@ type PartyMeResponse_builder struct {
 	// deleting it where its directory offers that -- for a roster of its own
 	// (`auth.roster.account_url`). Empty is no such page.
 	AccountUrl string
+	// Where the workspace is, as the server tells it (#144): the zone its dates
+	// are told in, an IANA name, and the currency a new amount is priced in --
+	// the workspace's own, or the deployment's where it says none.
+	Timezone string
+	Currency string
+	// How many days a closed workspace may be restored in (#144): its
+	// contract's, or the deployment's where it says none.
+	RestoreDays uint32
 }
 
 func (b0 PartyMeResponse_builder) Build() *PartyMeResponse {
@@ -2636,6 +2680,9 @@ func (b0 PartyMeResponse_builder) Build() *PartyMeResponse {
 	x.xxx_hidden_HistoryDays = b.HistoryDays
 	x.xxx_hidden_AccountsHere = b.AccountsHere
 	x.xxx_hidden_AccountUrl = b.AccountUrl
+	x.xxx_hidden_Timezone = b.Timezone
+	x.xxx_hidden_Currency = b.Currency
+	x.xxx_hidden_RestoreDays = b.RestoreDays
 	return m0
 }
 
@@ -6136,7 +6183,7 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12!\n" +
 	"\x05value\x18\x02 \x01(\v2\v.rove.PartyR\x05value\x12\x1d\n" +
 	"\x06action\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06action\"\x10\n" +
-	"\x0ePartyMeRequest\"\xda\x02\n" +
+	"\x0ePartyMeRequest\"\xca\x03\n" +
 	"\x0fPartyMeResponse\x12$\n" +
 	"\x06holder\x18\x01 \x01(\v2\f.rove.HolderR\x06holder\x12!\n" +
 	"\x05party\x18\x02 \x01(\v2\v.rove.PartyR\x05party\x12$\n" +
@@ -6146,7 +6193,11 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\fhistory_days\x18\x06 \x01(\rB\x05\xaa\x01\x02\b\x02R\vhistoryDays\x12*\n" +
 	"\raccounts_here\x18\a \x01(\bB\x05\xaa\x01\x02\b\x02R\faccountsHere\x12&\n" +
 	"\vaccount_url\x18\b \x01(\tB\x05\xaa\x01\x02\b\x02R\n" +
-	"accountUrl\"\xa1\x03\n" +
+	"accountUrl\x12!\n" +
+	"\btimezone\x18\t \x01(\tB\x05\xaa\x01\x02\b\x02R\btimezone\x12!\n" +
+	"\bcurrency\x18\n" +
+	" \x01(\tB\x05\xaa\x01\x02\b\x02R\bcurrency\x12(\n" +
+	"\frestore_days\x18\v \x01(\rB\x05\xaa\x01\x02\b\x02R\vrestoreDays\"\xa1\x03\n" +
 	"\x12PartyUpdateRequest\x12 \n" +
 	"\x03ref\x18\x01 \x01(\v2\x0e.rove.PartyRefR\x03ref\x12\x19\n" +
 	"\x04name\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04name\x12\x19\n" +

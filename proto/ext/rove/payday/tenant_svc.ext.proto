@@ -13,6 +13,11 @@ service TenantService {
   rpc Close(TenantCloseRequest) returns (Tenant);
   // Restore opens a closed workspace again, while its restore window lasts.
   rpc Restore(TenantRestoreRequest) returns (Tenant);
+  // Configure is the workspace's own settings, its owner's to say (#144):
+  // where it is -- the zone its dates are told in, the currency a new amount
+  // is priced in -- and how long a room waits for whoever booked it. A field
+  // left out stays as it is; an empty one is the deployment's again.
+  rpc Configure(TenantConfigureRequest) returns (Tenant);
 }
 
 message TenantCloseRequest {
@@ -23,4 +28,14 @@ message TenantCloseRequest {
 
 message TenantRestoreRequest {
   TenantRef ref = 1;
+}
+
+message TenantConfigureRequest {
+  TenantRef ref = 1;
+  // An IANA zone, such as Asia/Seoul.
+  string timezone = 2;
+  // ISO 4217, such as KRW.
+  string currency = 3;
+  // Minutes; 0 is the deployment's, negative holds nobody to checking in.
+  int32 no_show_minutes = 4;
 }

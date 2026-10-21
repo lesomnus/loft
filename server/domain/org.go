@@ -103,6 +103,9 @@ func (s domainParty) Me(ctx context.Context, _ *app.PartyMeRequest) (*app.PartyM
 		Tenant:       tn,
 		Role:         h.GetRole(),
 		AccountsHere: s.deps.People != nil && s.deps.People.Embedded(),
+		Timezone:     t.zone().String(),
+		Currency:     t.settings().currency,
+		RestoreDays:  uint32(t.restoreWithin() / (24 * time.Hour)),
 	}.Build()
 	if s.deps.People != nil {
 		out.SetAccountUrl(s.deps.People.AccountPage())

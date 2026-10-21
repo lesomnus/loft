@@ -1739,6 +1739,9 @@ var (
 		{Name: "closed_by", Type: field.TypeString},
 		{Name: "close_reason", Type: field.TypeString},
 		{Name: "date_destroy", Type: field.TypeTime, Nullable: true},
+		{Name: "timezone", Type: field.TypeString},
+		{Name: "currency", Type: field.TypeString},
+		{Name: "no_show_minutes", Type: field.TypeInt32},
 	}
 	// TenantTable holds the schema information for the "tenant" table.
 	TenantTable = &schema.Table{
@@ -1762,6 +1765,8 @@ var (
 		{Name: "keep_days", Type: field.TypeUint32},
 		{Name: "grace_days", Type: field.TypeUint32},
 		{Name: "date_effective", Type: field.TypeTime, Nullable: true},
+		{Name: "access_keep_days", Type: field.TypeUint32},
+		{Name: "restore_days", Type: field.TypeUint32},
 		{Name: "date_erased", Type: field.TypeTime, Nullable: true},
 		{Name: "date_created", Type: field.TypeTime, Nullable: true},
 		{Name: "tenant_id", Type: field.TypeUuid},
@@ -1774,7 +1779,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "tenantcontract_tenant_tenant",
-				Columns:    []*schema.Column{TenantcontractColumns[9]},
+				Columns:    []*schema.Column{TenantcontractColumns[11]},
 				RefColumns: []*schema.Column{TenantColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -1783,7 +1788,7 @@ var (
 			{
 				Name:    "tenantcontract_tenant_id_date_effective_id",
 				Unique:  false,
-				Columns: []*schema.Column{TenantcontractColumns[9], TenantcontractColumns[6], TenantcontractColumns[0]},
+				Columns: []*schema.Column{TenantcontractColumns[11], TenantcontractColumns[6], TenantcontractColumns[0]},
 			},
 		},
 	}

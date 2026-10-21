@@ -1,9 +1,10 @@
-import { useState, type ReactNode } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 
 import type { Bookable } from '../../gen/rove/booking_pb.js'
 import type { AssetType, AttributeDef, ItemModel } from '../../gen/rove/catalog_pb.js'
 import type { TenantDomain } from '../../gen/rove/asset_pb.js'
+import type { Tenant } from '../../gen/rove/payday/tenant_pb.js'
 import type { TenantDomainStatusResponse } from '../../gen/rove/asset_svc_pb.js'
 import {
 	AssetTypeService,
@@ -635,9 +636,79 @@ function Usage(): ReactNode {
 	)
 }
 
+/**
+ * Where the workspace is, and how long a room waits for whoever booked it: the
+ * workspace's own settings, its owner's to say (#144). Empty is the
+ * deployment's.
+ */
+/**
+ * What a select of a workspace's zone or currency offers: what the browser
+ * knows, and what the workspace says though the browser knows nothing of it --
+ * or saving the card would say something else.
+ */
+function offered(known: string[], has: string): string[] {
+	return has === '' || known.includes(has) ? known : [has, ...known]
+}
+
+function PlaceCard(props: { t: Tenant }): ReactNode {
+	const act = useAct()
+	const c = useCatalog()
+	const zones = useMemo(() => offered(Intl.supportedValuesOf('timeZone'), props.t.timezone), [props.t.timezone])
+	const currencies = useMemo(() => offered(Intl.supportedValuesOf('currency'), props.t.currency), [props.t.currency])
+	// What the deployment says, as far as the page can know it: what the
+	// workspace is told in while it says nothing itself.
+	const deployment = (own: string, told: string): string => (own === '' ? `기본값 (${told})` : '기본값')
+	const [timezone, setTimezone] = useState(props.t.timezone)
+	const [currency, setCurrency] = useState(props.t.currency)
+	const [noShow, setNoShow] = useState(props.t.noShowMinutes > 0 ? String(props.t.noShowMinutes) : '')
+	const [unchecked, setUnchecked] = useState(props.t.noShowMinutes < 0)
+	const save = async (): Promise<void> => {
+		const noShowMinutes = unchecked ? -1 : noShow.trim() === '' ? 0 : Number(noShow)
+		const r = await act(TenantService.method.configure, { ref: ref(props.t.id), timezone, currency, noShowMinutes }, { ok: '저장했습니다.' })
+		// The page's dates follow the workspace from its first draw.
+		if (r !== undefined) location.reload()
+	}
+	return (
+		<Card title="지역과 예약">
+			<Field label="시간대" hint="파일의 날짜, 알림의 시각, 하루 단위 집계가 이 시간대를 따릅니다. 비우면 배포의 기본값입니다.">
+				<select value={timezone} onChange={(e) => setTimezone(e.target.value)}>
+					<option value="">{deployment(props.t.timezone, c.me.timezone)}</option>
+					{zones.map((z) => (
+						<option key={z} value={z}>
+							{z}
+						</option>
+					))}
+				</select>
+			</Field>
+			<Field label="통화" hint="새 구매와 작업의 금액이 이 통화로 기록됩니다. 이미 기록된 금액은 그대로입니다.">
+				<select value={currency} onChange={(e) => setCurrency(e.target.value)}>
+					<option value="">{deployment(props.t.currency, c.me.currency)}</option>
+					{currencies.map((c) => (
+						<option key={c} value={c}>
+							{c}
+						</option>
+					))}
+				</select>
+			</Field>
+			<Field label="노쇼 해제 (분)" hint="회의실 예약이 시작되고 이만큼 지나도록 체크인하지 않으면 예약을 풉니다. 비우면 배포의 기본값입니다.">
+				<input type="number" min={1} max={1440} value={noShow} disabled={unchecked} onChange={(e) => setNoShow(e.target.value)} />
+			</Field>
+			<label className="check">
+				<input type="checkbox" checked={unchecked} onChange={(e) => setUnchecked(e.target.checked)} /> 체크인을 받지 않음
+			</label>
+			<div className="actions">
+				<button className="primary" onClick={() => void save()}>
+					저장
+				</button>
+			</div>
+		</Card>
+	)
+}
+
 /** The workspace itself, for its owner: its address, and closing it (D29). */
 function WorkspaceTab(): ReactNode {
 	const act = useAct()
+	const c = useCatalog()
 	const t = useRpc(TenantService.method.get, { ref: { key: { case: 'alias', value: workspace } } })
 	const [confirm, setConfirm] = useState('')
 	const [reason, setReason] = useState('')
@@ -655,9 +726,10 @@ function WorkspaceTab(): ReactNode {
 							</dd>
 						</dl>
 					</Card>
+					<PlaceCard t={v} />
 					<Card title="워크스페이스 닫기">
 						<p>
-							닫으면 소유자 말고는 아무도 들어오지 못합니다. 소유자는 30일 안에 복구하거나 모든 데이터를 내려받을 수 있고, 그 뒤에는 이 워크스페이스의 모든 데이터가 지워집니다. 법적 보존이 걸려 있으면 풀릴 때까지 지우지 않습니다. 주소 @{v.alias}는 1년 동안 아무도 쓰지 못하게 보류됩니다.
+							닫으면 소유자 말고는 아무도 들어오지 못합니다. 소유자는 {c.me.restoreDays}일 안에 복구하거나 모든 데이터를 내려받을 수 있고, 그 뒤에는 이 워크스페이스의 모든 데이터가 지워집니다. 법적 보존이 걸려 있으면 풀릴 때까지 지우지 않습니다. 주소 @{v.alias}는 1년 동안 아무도 쓰지 못하게 보류됩니다.
 						</p>
 						<Field label={`확인을 위해 워크스페이스 이름(${v.name})을 그대로 입력하세요`}>
 							<input value={confirm} onChange={(e) => setConfirm(e.target.value)} />

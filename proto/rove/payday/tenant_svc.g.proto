@@ -26,6 +26,11 @@ service TenantService {
   rpc Close(TenantCloseRequest) returns (Tenant);
   // Restore opens a closed workspace again, while its restore window lasts.
   rpc Restore(TenantRestoreRequest) returns (Tenant);
+  // Configure is the workspace's own settings, its owner's to say (#144):
+  // where it is -- the zone its dates are told in, the currency a new amount
+  // is priced in -- and how long a room waits for whoever booked it. A field
+  // left out stays as it is; an empty one is the deployment's again.
+  rpc Configure(TenantConfigureRequest) returns (Tenant);
 }
 
 message TenantAddRequest {
@@ -39,6 +44,9 @@ message TenantAddRequest {
   string closed_by = 9 [features.field_presence = IMPLICIT];
   string close_reason = 10 [features.field_presence = IMPLICIT];
   google.protobuf.Timestamp date_destroy = 11;
+  string timezone = 12 [features.field_presence = IMPLICIT];
+  string currency = 16 [features.field_presence = IMPLICIT];
+  int32 no_show_minutes = 17 [features.field_presence = IMPLICIT];
 }
 
 message TenantGetRequest {
@@ -65,6 +73,9 @@ message TenantSelect {
   bool closed_by = 9;
   bool close_reason = 10;
   bool date_destroy = 11;
+  bool timezone = 12;
+  bool currency = 16;
+  bool no_show_minutes = 17;
 }
 
 message TenantPatchRequest {
@@ -101,6 +112,9 @@ message TenantPatchRequest {
   // "leave it alone", so no value could have meant NULL. It wins
   // outright: setting both this and date_destroy clears.
   bool date_destroy_null = 23;
+  string timezone = 24;
+  string currency = 32;
+  int32 no_show_minutes = 34;
 }
 
 message TenantApplyRequest {
@@ -165,4 +179,14 @@ message TenantCloseRequest {
 
 message TenantRestoreRequest {
   TenantRef ref = 1;
+}
+
+message TenantConfigureRequest {
+  TenantRef ref = 1;
+  // An IANA zone, such as Asia/Seoul.
+  string timezone = 2;
+  // ISO 4217, such as KRW.
+  string currency = 3;
+  // Minutes; 0 is the deployment's, negative holds nobody to checking in.
+  int32 no_show_minutes = 4;
 }

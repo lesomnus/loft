@@ -44,6 +44,16 @@ func Days(n uint32) time.Duration { return time.Duration(n) * day }
 type Defaults struct {
 	View time.Duration
 	Keep time.Duration
+
+	// Access is how long the deployment keeps the access record, from
+	// `audit.by.access`, which a contract's `access_keep_days` is in place of
+	// (#144). Zero is forever.
+	Access time.Duration
+
+	// Apply is `app.retention.apply`: whether a contract may have destroyed
+	// what the deployment's own windows would keep. Off, a contract still
+	// keeps the access record longer than the deployment would.
+	Apply bool
 }
 
 // Window is a tenant's history windows at one instant.
@@ -54,6 +64,14 @@ type Window struct {
 	// Keep is how long its history is kept, with every grace still running
 	// already in it. Zero is forever.
 	Keep time.Duration
+
+	// Access is how long its access record is kept, the same way: the
+	// contract's, or the deployment's where it says nothing (#144).
+	Access time.Duration
+
+	// Restore is how long it may be restored once closed (D29): the
+	// contract's, or zero for the deployment's.
+	Restore time.Duration
 
 	// Holds is what the legal holds on it are for. Empty is none; while there
 	// is one, nothing of the tenant's history is destroyed, whatever Keep says.
@@ -106,7 +124,7 @@ func Of(ctx context.Context, db *ent.Client, tenant pdid.Id, at time.Time, d Def
 		return Window{}, err
 	}
 
-	w := Window{View: d.View, Keep: d.Keep}
+	w := Window{View: d.View, Keep: d.Keep, Access: d.Access}
 	for _, h := range hs {
 		w.Holds = append(w.Holds, strings.TrimSpace(h.Name+" "+h.Desc))
 	}
@@ -117,6 +135,8 @@ func Of(ctx context.Context, db *ent.Client, tenant pdid.Id, at time.Time, d Def
 	w.Contract = vs[0]
 	w.View = Days(vs[0].ViewDays)
 	w.Keep = Days(vs[0].KeepDays)
+	w.Access = accessOf(vs[0], d)
+	w.Restore = Days(vs[0].RestoreDays)
 	for i := 1; i < len(vs); i++ {
 		// The one after this, whose grace is what keeps this one in force.
 		next := vs[i-1]
@@ -125,9 +145,20 @@ func Of(ctx context.Context, db *ent.Client, tenant pdid.Id, at time.Time, d Def
 		}
 
 		w.Keep = longer(w.Keep, Days(vs[i].KeepDays))
+		w.Access = longer(w.Access, accessOf(vs[i], d))
 	}
 
 	return w, nil
+}
+
+// accessOf is how long a contract keeps the access record: its own days, or
+// the deployment's when it says none.
+func accessOf(c *ent.TenantContract, d Defaults) time.Duration {
+	if c.AccessKeepDays == 0 {
+		return d.Access
+	}
+
+	return Days(c.AccessKeepDays)
 }
 
 // longer is the longer of two keep windows, where zero is forever.
@@ -163,6 +194,12 @@ var Kinds = []pdid.Domain{
 // A row moves out of the database on the deployment's own `retain` for the
 // kind, or at the keep window when that comes first; with no `retain` at all it
 // stays in the database until the keep window ends it.
+//
+// And the access record on the contract's `access_keep_days` (#144), which
+// the deployment's floor (`audit.by.access.min`) raises a shorter one to.
+// With `app.retention.apply` off a contract destroys nothing the deployment
+// would keep, so it is answered only where it keeps longer -- and the
+// history kinds not at all.
 func Trail(db *ent.Client, base trail.Policy, d Defaults) func(context.Context, pdid.Id) (trail.Tenant, error) {
 	return func(ctx context.Context, tenant pdid.Id) (trail.Tenant, error) {
 		w, err := Of(ctx, db, tenant, time.Now(), d)
@@ -170,27 +207,40 @@ func Trail(db *ent.Client, base trail.Policy, d Defaults) func(context.Context, 
 			return trail.Tenant{}, err
 		}
 
-		out := trail.Tenant{}
+		out := trail.Tenant{By: map[pdid.Domain]trail.Keep{}}
 		if w.Held() {
 			out.Hold = &trail.Hold{Why: strings.Join(w.Holds, "; ")}
 		}
-		if w.Keep <= 0 {
-			// Kept forever: the deployment's windows stand, which is what an
-			// answer that names no kind means.
-			return out, nil
+
+		// Kept forever is the deployment's windows standing, which is what
+		// an answer that names no kind means.
+		if d.Apply && w.Keep > 0 {
+			for _, k := range Kinds {
+				out.By[k] = keepFor(w.Keep, base.For(k).Retain)
+			}
 		}
 
-		out.By = map[pdid.Domain]trail.Keep{}
-		for _, k := range Kinds {
-			r := base.For(k).Retain
-			if r <= 0 || r >= w.Keep {
-				out.By[k] = trail.Keep{Retain: w.Keep, Discard: true}
-				continue
-			}
-
-			out.By[k] = trail.Keep{Retain: r, Destroy: w.Keep}
+		if w.Access != d.Access && (d.Apply || longer(w.Access, d.Access) == w.Access) {
+			out.By[pd.AccessDomain] = keepFor(w.Access, base.For(pd.AccessDomain).Retain)
+		}
+		if len(out.By) == 0 {
+			out.By = nil
 		}
 
 		return out, nil
+	}
+}
+
+// keepFor is a window of `life` as the trail keeps it: in the database for the
+// deployment's `retain` and in the archive after, or -- when it is shorter
+// than that -- in the database for the whole of it, with no copy kept.
+func keepFor(life, retain time.Duration) trail.Keep {
+	switch {
+	case life <= 0:
+		return trail.Keep{Retain: retain}
+	case retain <= 0 || retain >= life:
+		return trail.Keep{Retain: life, Discard: true}
+	default:
+		return trail.Keep{Retain: retain, Destroy: life}
 	}
 }

@@ -13,6 +13,7 @@ import (
 	"github.com/lesomnus/payday/pdid"
 
 	app "github.com/lesomnus/rove"
+	"github.com/lesomnus/rove/internal/money"
 	"github.com/lesomnus/rove/internal/search"
 )
 
@@ -166,8 +167,8 @@ type mcpWork struct {
 	Begins   string  `json:"begins,omitempty"`
 	Ends     string  `json:"ends,omitempty"`
 	Done     string  `json:"done,omitempty" jsonschema:"when it was completed"`
-	Cost     int64   `json:"cost,omitempty"`
-	Currency string  `json:"currency,omitempty"`
+	Cost     int64   `json:"cost,omitempty" jsonschema:"in the currency's minor unit: won for KRW, cents for USD"`
+	Currency string  `json:"currency,omitempty" jsonschema:"ISO 4217"`
 	Blocking bool    `json:"blocking,omitempty" jsonschema:"the asset cannot be reserved meanwhile"`
 	Every    int32   `json:"every_days,omitempty" jsonschema:"for a recurring inspection: days until the next"`
 	Desc     string  `json:"desc,omitempty"`
@@ -349,7 +350,7 @@ type mcpPurchaseLine struct {
 	Desc      string  `json:"desc,omitempty"`
 	Quantity  int64   `json:"quantity"`
 	Received  int64   `json:"received" jsonschema:"how many have arrived"`
-	UnitCost  int64   `json:"unit_cost,omitempty"`
+	UnitCost  int64   `json:"unit_cost,omitempty" jsonschema:"in the purchase's currency's minor unit"`
 	ReceiveAs string  `json:"receive_as,omitempty" jsonschema:"asset or stock: what each becomes when it arrives"`
 }
 
@@ -361,8 +362,8 @@ type mcpPurchase struct {
 	Reference string            `json:"reference,omitempty" jsonschema:"the vendor's order number, and the like"`
 	Ordered   string            `json:"ordered,omitempty"`
 	Received  string            `json:"received,omitempty"`
-	Total     int64             `json:"total,omitempty"`
-	Currency  string            `json:"currency,omitempty"`
+	Total     int64             `json:"total,omitempty" jsonschema:"in the currency's minor unit: won for KRW, cents for USD"`
+	Currency  string            `json:"currency,omitempty" jsonschema:"ISO 4217"`
 	Lines     []mcpPurchaseLine `json:"lines,omitempty"`
 }
 
@@ -772,8 +773,8 @@ type mcpWorkPlan struct {
 	Every    int32  `json:"every_days,omitempty" jsonschema:"report: for a recurring inspection, days until the next"`
 	Status   string `json:"status,omitempty" jsonschema:"update: open, scheduled or in_progress"`
 
-	Cost      int64  `json:"cost,omitempty" jsonschema:"update, complete: what it cost"`
-	Currency  string `json:"currency,omitempty" jsonschema:"update: KRW, USD"`
+	Cost      int64  `json:"cost,omitempty" jsonschema:"update, complete: what it cost, in the currency's minor unit: won for KRW, cents for USD"`
+	Currency  string `json:"currency,omitempty" jsonschema:"update: ISO 4217, such as KRW or USD; the work's if left out"`
 	Condition string `json:"condition,omitempty" jsonschema:"complete: what the asset is in afterwards: good, damaged or broken"`
 	Reason    string `json:"reason,omitempty" jsonschema:"complete, cancel: a note for the history"`
 }
@@ -862,7 +863,9 @@ func (c *mcpCall) workPlan(in mcpWorkPlan) (*plan, error) {
 			}
 		}
 		if in.Cost != 0 {
-			changes = append(changes, fmt.Sprintf("비용 → %d%s", in.Cost, clause(" %s", in.Currency)))
+			changes = append(changes, "비용 → "+money.String(in.Cost, or(in.Currency, w.GetCurrency())))
+		} else if in.Currency != "" && in.Currency != w.GetCurrency() && w.GetCost() != 0 {
+			return nil, errors.New("cost: what it cost in " + in.Currency + ", which a currency it moves to needs said again")
 		}
 		if blocking != w.GetBlocking() {
 			changes = append(changes, map[bool]string{true: "그동안 예약 막음", false: "예약 막지 않음"}[blocking])
@@ -886,7 +889,7 @@ func (c *mcpCall) workPlan(in mcpWorkPlan) (*plan, error) {
 		}
 		extra := ""
 		if in.Cost != 0 {
-			extra += fmt.Sprintf(", 비용 %d%s", in.Cost, clause(" %s", w.GetCurrency()))
+			extra += ", 비용 " + money.String(in.Cost, w.GetCurrency())
 		}
 		extra += clause(", 컨디션 → %s", said(conditionWord, in.Condition))
 		return &plan{
@@ -907,7 +910,7 @@ type mcpPurchaseLineIn struct {
 	Model     string `json:"model,omitempty" jsonschema:"what is bought, an id find_models answers with"`
 	Desc      string `json:"desc,omitempty" jsonschema:"what is bought, in words, for a line of no model"`
 	Quantity  int64  `json:"quantity" jsonschema:"how many"`
-	UnitCost  int64  `json:"unit_cost,omitempty" jsonschema:"what one costs"`
+	UnitCost  int64  `json:"unit_cost,omitempty" jsonschema:"what one costs, in the currency's minor unit: won for KRW, cents for USD"`
 	ReceiveAs string `json:"receive_as,omitempty" jsonschema:"asset (each its own) or stock (counted): what it becomes when it arrives"`
 }
 
@@ -918,7 +921,7 @@ type mcpPurchasePlan struct {
 	Name      string              `json:"name,omitempty" jsonschema:"add: what the purchase is"`
 	Vendor    string              `json:"vendor,omitempty" jsonschema:"add: who it is bought from, a vendor's id find_people answers with"`
 	Reference string              `json:"reference,omitempty" jsonschema:"add: the vendor's order number, and the like"`
-	Currency  string              `json:"currency,omitempty" jsonschema:"add: KRW, USD"`
+	Currency  string              `json:"currency,omitempty" jsonschema:"add: ISO 4217, such as KRW or USD; the workspace's if left out"`
 	Lines     []mcpPurchaseLineIn `json:"lines,omitempty" jsonschema:"add: what is bought"`
 
 	Into      string `json:"into,omitempty" jsonschema:"receive: the space what arrived goes into, by id or tag"`
@@ -948,7 +951,18 @@ func (c *mcpCall) purchasePlan(in mcpPurchasePlan) (*plan, error) {
 		if len(in.Lines) == 0 {
 			return nil, errors.New("lines: what is bought")
 		}
-		req := app.PurchaseAddRequest_builder{Name: name, Reference: in.Reference, Currency: in.Currency}.Build()
+		// The currency it is priced in, said in the request as the sentence
+		// says it: the workspace's, unless it is said, as it is when planned
+		// -- not as it may be by the time it is applied.
+		currency := in.Currency
+		if currency == "" {
+			me, err := c.whom()
+			if err != nil {
+				return nil, err
+			}
+			currency = me.GetCurrency()
+		}
+		req := app.PurchaseAddRequest_builder{Name: name, Reference: in.Reference, Currency: currency}.Build()
 		what, total := []string{}, int64(0)
 		for _, l := range in.Lines {
 			spec := app.PurchaseLineSpec_builder{Desc: l.Desc, Quantity: l.Quantity, UnitCost: l.UnitCost, ReceiveAs: l.ReceiveAs}.Build()
@@ -983,7 +997,7 @@ func (c *mcpCall) purchasePlan(in mcpPurchasePlan) (*plan, error) {
 		}
 		sum := ""
 		if total > 0 {
-			sum = fmt.Sprintf(", 합계 %d%s", total, clause(" %s", in.Currency))
+			sum = ", 합계 " + money.String(total, currency)
 		}
 		return &plan{
 			method:  app.PurchaseService_Add_FullMethodName,

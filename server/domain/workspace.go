@@ -2,6 +2,7 @@ package domain
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
@@ -44,8 +45,13 @@ func (s Domain) Tenant() app.TenantServiceServer { return domainTenant{s, s.Next
 
 // Patch is a workspace's own settings, less what is not its owner's to write:
 // its address, which nobody chose and only an operator moves (`rove tenant
-// alias`), and whether it is closed, which Close and Restore say.
+// alias`), and whether it is closed, which Close and Restore say. Its zone,
+// currency and check-in rule are its own (#144), and are held to what can be
+// told in.
 func (s domainTenant) Patch(ctx context.Context, req *app.TenantPatchRequest) (*app.Tenant, error) {
+	if req.HasTimezone() || req.HasCurrency() || req.HasNoShowMinutes() {
+		return nil, invalid("timezone", "시간대, 통화와 노쇼 해제는 TenantService.Configure로 정합니다")
+	}
 	if req.HasAlias() {
 		return nil, invalid("alias", "워크스페이스 주소는 바꿀 수 없습니다. 바꿔야 한다면 운영자에게 요청하세요")
 	}
@@ -53,6 +59,60 @@ func (s domainTenant) Patch(ctx context.Context, req *app.TenantPatchRequest) (*
 		return nil, invalid("date_closed", "닫기와 복구는 TenantService.Close와 Restore로 합니다")
 	}
 	return s.TenantServiceServer.Patch(ctx, req)
+}
+
+// Configure is the workspace's own settings, its owner's to say (#144): its
+// zone, its currency and how long a room waits for whoever booked it. One
+// operation, with an event that says what it came to.
+func (s domainTenant) Configure(ctx context.Context, req *app.TenantConfigureRequest) (*app.Tenant, error) {
+	if req.HasTimezone() {
+		if err := checkZone(req.GetTimezone()); err != nil {
+			return nil, invalid("timezone", "시간대가 올바르지 않습니다 (예: Asia/Seoul)")
+		}
+	}
+	if req.HasCurrency() {
+		if err := priced(req.GetCurrency()); err != nil {
+			return nil, err
+		}
+	}
+	if req.HasNoShowMinutes() && req.GetNoShowMinutes() > maxNoShowMinutes {
+		return nil, invalid("no_show_minutes", "노쇼 해제는 %d분(하루) 안에서 정합니다. 체크인을 받지 않으려면 음수를 넣으세요", maxNoShowMinutes)
+	}
+
+	var out *app.Tenant
+	err := s.tx(ctx, func(t *Tx) error {
+		if err := t.mine(req.GetRef()); err != nil {
+			return err
+		}
+
+		patch := app.TenantPatchRequest_builder{Ref: t.tenantRef(), DateUpdatedForce: z.Ptr(true)}.Build()
+		said := map[string]string{}
+		if req.HasTimezone() {
+			patch.SetTimezone(req.GetTimezone())
+			said["timezone"] = req.GetTimezone()
+		}
+		if req.HasCurrency() {
+			patch.SetCurrency(req.GetCurrency())
+			said["currency"] = req.GetCurrency()
+		}
+		if req.HasNoShowMinutes() {
+			patch.SetNoShowMinutes(req.GetNoShowMinutes())
+			said["no_show_minutes"] = fmt.Sprint(req.GetNoShowMinutes())
+		}
+		if len(said) == 0 {
+			v, err := t.next.Tenant().Get(t.ctx, app.TenantGetRequest_builder{Ref: t.tenantRef()}.Build())
+			out = v
+			return err
+		}
+
+		if err := t.begin(nil, "workspace.configure", pdid.Nil, t.now, "워크스페이스 설정 변경", "", said); err != nil {
+			return err
+		}
+		v, err := t.next.Tenant().Patch(t.ctx, patch)
+		out = v
+		return err
+	})
+	return out, err
 }
 
 // Close is the owner closing their workspace. They type its name, which is
@@ -148,7 +208,18 @@ func (d *Deps) NameOwner(ctx context.Context, server app.Server, drv dialect.Dri
 	})
 }
 
-// restoreWithin is how long a closed workspace may be restored.
+// restoreWithin is how long this workspace may be restored once closed: its
+// contract's, or the deployment's (#144).
+func (t *Tx) restoreWithin() time.Duration {
+	if w, err := t.window(); err == nil && w.Restore > 0 {
+		return w.Restore
+	}
+
+	return t.deps.restoreWithin()
+}
+
+// restoreWithin is how long a closed workspace may be restored, where its
+// contract says nothing.
 func (d *Deps) restoreWithin() time.Duration {
 	if d == nil || d.RestoreWithin <= 0 {
 		return 30 * 24 * time.Hour
@@ -184,7 +255,7 @@ func (t *Tx) closeWorkspace(by, reason string) (*app.Tenant, error) {
 	if cur.HasDateClosed() {
 		return nil, failed("이미 닫힌 워크스페이스입니다")
 	}
-	destroy := t.now.Add(t.deps.restoreWithin())
+	destroy := t.now.Add(t.restoreWithin())
 	desc := "워크스페이스 닫기"
 	switch by {
 	case ClosedByOperator:

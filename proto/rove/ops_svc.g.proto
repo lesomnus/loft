@@ -362,6 +362,8 @@ message TenantContractAddRequest {
   uint32 keep_days = 9 [features.field_presence = IMPLICIT];
   uint32 grace_days = 10 [features.field_presence = IMPLICIT];
   google.protobuf.Timestamp date_effective = 11;
+  uint32 access_keep_days = 12 [features.field_presence = IMPLICIT];
+  uint32 restore_days = 16 [features.field_presence = IMPLICIT];
   google.protobuf.Timestamp date_created = 15;
 }
 
@@ -385,6 +387,8 @@ message TenantContractSelect {
   bool keep_days = 9;
   bool grace_days = 10;
   bool date_effective = 11;
+  bool access_keep_days = 12;
+  bool restore_days = 16;
   bool date_erased = 14;
   bool date_created = 15;
 }
@@ -397,6 +401,8 @@ message TenantContractPatchRequest {
   uint32 keep_days = 18;
   uint32 grace_days = 20;
   google.protobuf.Timestamp date_effective = 22;
+  uint32 access_keep_days = 24;
+  uint32 restore_days = 32;
 }
 
 message TenantContractApplyRequest {

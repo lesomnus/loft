@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 
 import type { AssetType } from '../../gen/rove/catalog_pb.js'
-import { AssetService, download, errorText, idBytes, idStr, raw, ref, ts } from '../api.js'
+import { AssetService, download, errorText, fromInput, idBytes, idStr, raw, ref, ts } from '../api.js'
 import { modelName, useCatalog } from '../catalog.js'
 import { ModelSelect, SpaceSelect, TypeSelect, Where } from '../pickers.js'
 import { useAct, useRpc } from '../rpc.js'
@@ -260,8 +260,8 @@ function NewAsset(props: { onClose: () => void }): ReactNode {
 						type: type === '' ? undefined : ref(idBytes(type)),
 						model: model === '' ? undefined : ref(idBytes(model)),
 						to: to === '' ? undefined : ref(idBytes(to)),
-						acquiredAt: acquired === '' ? undefined : ts(new Date(acquired)),
-						since: since === '' ? undefined : ts(new Date(since)),
+						acquiredAt: acquired === '' ? undefined : ts(fromInput(acquired)),
+						since: since === '' ? undefined : ts(fromInput(since)),
 						attributes: Object.fromEntries(Object.entries(attrs).filter(([, x]) => x !== '')),
 						reason: '등록',
 					},

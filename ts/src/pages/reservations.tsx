@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 
 import type { CalendarEntry } from '../../gen/rove/booking_svc_pb.js'
 import type { Reservation } from '../../gen/rove/booking_pb.js'
-import { AssetService, BookableService, ReservationService, dateOf, fmt, idBytes, idStr, localInput, minute, op, ref, sameId, ts } from '../api.js'
+import { AssetService, BookableService, ReservationService, at, dateInput, dateOf, fmt, fmtWith, fromInput, idBytes, idStr, localInput, minute, op, ref, sameId, shift, ts, wall } from '../api.js'
 import { useCatalog } from '../catalog.js'
 import { PartySelect, useAssets } from '../pickers.js'
 import { Live, useAct, useRpc } from '../rpc.js'
@@ -15,10 +15,10 @@ const H0 = 7
 const H1 = 22
 const day = 86400_000
 
+/** The Monday of `d`'s week, at midnight on the workspace's wall. */
 function monday(d: Date): Date {
-	const x = new Date(d.getFullYear(), d.getMonth(), d.getDate())
-	const wd = (x.getDay() + 6) % 7
-	return new Date(x.getTime() - wd * day)
+	const w = wall(d)
+	return at(w.y, w.m, w.d - ((w.wd + 6) % 7))
 }
 
 export function Reservations(): ReactNode {
@@ -57,7 +57,7 @@ function Calendar(): ReactNode {
 	const [start, setStart] = useState(() => monday(new Date()))
 	const [draft, setDraft] = useState<{ from: Date; to: Date; resource: string }>()
 	const [open, setOpen] = useState<CalendarEntry>()
-	const end = new Date(start.getTime() + 7 * day)
+	const end = shift(start, 7)
 	const enabled = c.bookables.filter((b) => b.enabled)
 	const resources = resource === '' ? enabled.map((b) => b.asset?.id).filter((v): v is Uint8Array => v !== undefined) : [idBytes(resource)]
 
@@ -65,11 +65,12 @@ function Calendar(): ReactNode {
 	const busy = useRpc(BookableService.method.availability, resource === '' ? null : { resources: [ref(idBytes(resource))], from: ts(start), to: ts(end) })
 	const names = useResourceNames()
 
-	const days = Array.from({ length: 7 }, (_, i) => new Date(start.getTime() + i * day))
+	const days = Array.from({ length: 7 }, (_, i) => shift(start, i))
 	const hours = Array.from({ length: H1 - H0 }, (_, i) => H0 + i)
 	const pos = (from: Date, to: Date, d: Date) => {
-		const d0 = new Date(d.getFullYear(), d.getMonth(), d.getDate(), H0).getTime()
-		const d1 = new Date(d.getFullYear(), d.getMonth(), d.getDate(), H1).getTime()
+		const w = wall(d)
+		const d0 = at(w.y, w.m, w.d, H0).getTime()
+		const d1 = at(w.y, w.m, w.d, H1).getTime()
 		const a = Math.max(from.getTime(), d0)
 		const b = Math.min(to.getTime(), d1)
 		if (b <= a) return undefined
@@ -87,9 +88,9 @@ function Calendar(): ReactNode {
 					options={enabled.map((b) => ({ value: idStr(b.asset?.id), label: names.get(idStr(b.asset?.id)) ?? '…' }))}
 				/>
 				<div className="inline">
-					<button onClick={() => setStart(new Date(start.getTime() - 7 * day))}>‹ 이전 주</button>
+					<button onClick={() => setStart(shift(start, -7))}>‹ 이전 주</button>
 					<button onClick={() => setStart(monday(new Date()))}>이번 주</button>
-					<button onClick={() => setStart(new Date(start.getTime() + 7 * day))}>다음 주 ›</button>
+					<button onClick={() => setStart(shift(start, 7))}>다음 주 ›</button>
 				</div>
 				<span className="mute">
 					{fmt(start, 'date')} – {fmt(new Date(end.getTime() - 1), 'date')}
@@ -97,9 +98,9 @@ function Calendar(): ReactNode {
 				<button
 					className="primary"
 					onClick={() => {
-						const f = new Date()
-						f.setMinutes(0, 0, 0)
-						f.setHours(f.getHours() + 1)
+						// The next hour on the workspace's clock.
+						const w = wall(new Date())
+						const f = at(w.y, w.m, w.d, w.h + 1)
 						setDraft({ from: f, to: new Date(f.getTime() + 3600_000), resource })
 					}}
 				>
@@ -119,15 +120,16 @@ function Calendar(): ReactNode {
 						))}
 					</div>
 					{days.map((d) => (
-						<div key={d.toISOString()} className={`daycol ${d.toDateString() === new Date().toDateString() ? 'today' : ''}`}>
-							<div className="dayhead">{new Intl.DateTimeFormat('ko-KR', { weekday: 'short', month: 'numeric', day: 'numeric' }).format(d)}</div>
+						<div key={d.toISOString()} className={`daycol ${dateInput(d) === dateInput(new Date()) ? 'today' : ''}`}>
+							<div className="dayhead">{fmtWith({ weekday: 'short', month: 'numeric', day: 'numeric' }, d)}</div>
 							<div
 								className="slots"
 								onClick={(e) => {
 									const r = (e.currentTarget as HTMLElement).getBoundingClientRect()
 									const frac = (e.clientY - r.top) / r.height
 									const mins = Math.floor((frac * (H1 - H0) * 60) / 30) * 30
-									const from = new Date(d.getFullYear(), d.getMonth(), d.getDate(), H0, mins)
+									const w = wall(d)
+									const from = at(w.y, w.m, w.d, H0, mins)
 									setDraft({ from, to: new Date(from.getTime() + 3600_000), resource })
 								}}
 							>
@@ -230,8 +232,8 @@ function NewReservation(props: { draft: { from: Date; to: Date; resource: string
 					ReservationService.method.add,
 					{
 						name: name || '예약',
-						beginsAt: ts(new Date(from)),
-						endsAt: ts(new Date(to)),
+						beginsAt: ts(fromInput(from)),
+						endsAt: ts(fromInput(to)),
 						items: [{ resource: ref(idBytes(resource)) }],
 						repeat,
 						party: party === '' ? undefined : ref(idBytes(party)),

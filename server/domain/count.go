@@ -42,7 +42,7 @@ func (s domainCount) Add(ctx context.Context, req *app.InventoryCountAddRequest)
 		}
 		name := strings.TrimSpace(req.GetName())
 		if name == "" {
-			name = fmt.Sprintf("%s 실사 %s", sp.GetName(), t.now.Format("2006-01-02"))
+			name = fmt.Sprintf("%s 실사 %s", sp.GetName(), t.now.In(t.zone()).Format("2006-01-02"))
 		}
 		if err := t.begin(nil, "count.start", idOf(sp.GetId()), t.now, "실사 시작: "+name, "", nil); err != nil {
 			return err

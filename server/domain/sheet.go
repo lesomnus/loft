@@ -96,9 +96,12 @@ var exponent = regexp.MustCompile(`^[0-9]+(\.[0-9]+)?[Ee]\+[0-9]+$`)
 // writes nothing, and does not look at the tenant: whether a tag is taken or
 // a place is there is the AddMany's to say, in its dry run.
 func (s domainAsset) ReadSheet(ctx context.Context, req *app.AssetReadSheetRequest) (*app.AssetReadSheetResponse, error) {
-	if _, err := s.read(ctx); err != nil {
+	t, err := s.read(ctx)
+	if err != nil {
 		return nil, err
 	}
+	// A date in a cell is a day where the workspace is (#144).
+	zone := t.zone()
 
 	// A workbook is not opened to be read: what one person uploads is read in
 	// the process every workspace is served by, reading a workbook takes a
@@ -232,7 +235,7 @@ func (s domainAsset) ReadSheet(ctx context.Context, req *app.AssetReadSheetReque
 			case "location_tag":
 				item.SetTo(app.AssetRef_builder{Tag: app.AssetRefByTag_builder{Tag: z.Ptr(v)}.Build()}.Build())
 			case "acquired_at", "since":
-				at, err := parseDate(v)
+				at, err := parseDate(v, zone)
 				if err != nil {
 					say(line, column, "%s", err)
 					ok = false
@@ -308,10 +311,10 @@ var dateLayouts = []string{
 
 // parseDate reads a date as people write one, and as Excel writes one into a
 // CSV in Korean or in English.
-func parseDate(v string) (time.Time, error) {
+func parseDate(v string, zone *time.Location) (time.Time, error) {
 	v = strings.TrimSuffix(strings.TrimSpace(v), ".")
 	for _, l := range dateLayouts {
-		if t, err := time.ParseInLocation(l, v, Zone); err == nil {
+		if t, err := time.ParseInLocation(l, v, zone); err == nil {
 			return t, nil
 		}
 	}

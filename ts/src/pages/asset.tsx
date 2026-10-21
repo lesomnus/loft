@@ -14,6 +14,7 @@ import {
 	WorkOrderService,
 	dateOf,
 	fmt,
+	fromInput,
 	idBytes,
 	idStr,
 	localInput,
@@ -273,7 +274,7 @@ function Timeline(props: { a: Asset }): ReactNode {
 	const t = useRpc(AssetService.method.timeline, {
 		ref: ref(props.a.id),
 		superseded,
-		known: known === '' ? undefined : ts(new Date(known)),
+		known: known === '' ? undefined : ts(fromInput(known)),
 	})
 
 	return (
@@ -353,7 +354,7 @@ function Correct(props: { a: Asset; e: TimelineEntry; onClose: () => void }): Re
 						ref: ref(props.a.id),
 						rowId: props.e.rowId,
 						retract: how === 'retract',
-						validFrom: how === 'from' ? ts(new Date(from)) : undefined,
+						validFrom: how === 'from' ? ts(fromInput(from)) : undefined,
 						reason,
 					},
 					{ ok: '정정했습니다.' },
@@ -589,7 +590,7 @@ function Move(props: { a: Asset; onClose: () => void }): ReactNode {
 							slot,
 							uFrom: Number(uFrom || 0),
 							uTo: Number(uTo || 0),
-							at: at === '' ? undefined : ts(new Date(at)),
+							at: at === '' ? undefined : ts(fromInput(at)),
 							reason,
 						},
 						{ ok: '옮겼습니다.' },
@@ -684,7 +685,7 @@ function SetAttrs(props: { a: Asset; onClose: () => void }): ReactNode {
 				return (
 					(await act(
 						AssetService.method.setAttributes,
-						{ ref: ref(a.id), set, clear, at: at === '' ? undefined : ts(new Date(at)), reason },
+						{ ref: ref(a.id), set, clear, at: at === '' ? undefined : ts(fromInput(at)), reason },
 						{ ok: '바꿨습니다.' },
 					)) !== undefined
 				)
@@ -735,7 +736,7 @@ function Assign(props: { a: Asset; onClose: () => void }): ReactNode {
 						ref: ref(props.a.id),
 						role,
 						party: party === '' ? undefined : ref(idBytes(party)),
-						at: at === '' ? undefined : ts(new Date(at)),
+						at: at === '' ? undefined : ts(fromInput(at)),
 					},
 					{ ok: party === '' ? '해제했습니다.' : '지정했습니다.' },
 				)) !== undefined

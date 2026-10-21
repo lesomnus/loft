@@ -135,6 +135,9 @@ func (st TenantServiceServer) create(ctx context.Context, req *rove.TenantAddReq
 	if req.HasDateDestroy() {
 		q.SetDateDestroy(req.GetDateDestroy().AsTime())
 	}
+	q.SetTimezone(req.GetTimezone())
+	q.SetCurrency(req.GetCurrency())
+	q.SetNoShowMinutes(req.GetNoShowMinutes())
 	return q, ds, nil
 }
 
@@ -291,6 +294,15 @@ func TenantSelectedFields(m *rove.TenantSelect) []string {
 	if m.GetDateDestroy() {
 		vs = append(vs, tenant.FieldDateDestroy)
 	}
+	if m.GetTimezone() {
+		vs = append(vs, tenant.FieldTimezone)
+	}
+	if m.GetCurrency() {
+		vs = append(vs, tenant.FieldCurrency)
+	}
+	if m.GetNoShowMinutes() {
+		vs = append(vs, tenant.FieldNoShowMinutes)
+	}
 
 	return vs
 }
@@ -355,7 +367,7 @@ func TenantGetKey(ctx context.Context, db *ent.Client, ref *rove.TenantRef) (uui
 var tenantOrmEntity = ormpatch.MustEntityOf(rove.File_rove_payday_tenant_proto, "Tenant")
 
 var tenantPatchColumns = entpatch.Columns{
-	1: tenant.FieldId, 4: tenant.FieldAlias, 5: tenant.FieldName, 6: tenant.FieldDesc, 7: tenant.FieldLabels, 13: tenant.FieldDateUpdated, 15: tenant.FieldDateCreated, 8: tenant.FieldDateClosed, 9: tenant.FieldClosedBy, 10: tenant.FieldCloseReason, 11: tenant.FieldDateDestroy}
+	1: tenant.FieldId, 4: tenant.FieldAlias, 5: tenant.FieldName, 6: tenant.FieldDesc, 7: tenant.FieldLabels, 13: tenant.FieldDateUpdated, 15: tenant.FieldDateCreated, 8: tenant.FieldDateClosed, 9: tenant.FieldClosedBy, 10: tenant.FieldCloseReason, 11: tenant.FieldDateDestroy, 12: tenant.FieldTimezone, 16: tenant.FieldCurrency, 17: tenant.FieldNoShowMinutes}
 
 func (s TenantServiceServer) Apply(ctx context.Context, req *rove.TenantApplyRequest) (*rove.Tenant, error) {
 	if !req.HasPatch() {

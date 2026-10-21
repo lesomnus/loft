@@ -165,6 +165,55 @@ func (_u *TenantUpdate) ClearDateDestroy() *TenantUpdate {
 	return _u
 }
 
+// SetTimezone sets the "timezone" field.
+func (_u *TenantUpdate) SetTimezone(v string) *TenantUpdate {
+	_u.mutation.SetTimezone(v)
+	return _u
+}
+
+// SetNillableTimezone sets the "timezone" field if the given value is not nil.
+func (_u *TenantUpdate) SetNillableTimezone(v *string) *TenantUpdate {
+	if v != nil {
+		_u.SetTimezone(*v)
+	}
+	return _u
+}
+
+// SetCurrency sets the "currency" field.
+func (_u *TenantUpdate) SetCurrency(v string) *TenantUpdate {
+	_u.mutation.SetCurrency(v)
+	return _u
+}
+
+// SetNillableCurrency sets the "currency" field if the given value is not nil.
+func (_u *TenantUpdate) SetNillableCurrency(v *string) *TenantUpdate {
+	if v != nil {
+		_u.SetCurrency(*v)
+	}
+	return _u
+}
+
+// SetNoShowMinutes sets the "no_show_minutes" field.
+func (_u *TenantUpdate) SetNoShowMinutes(v int32) *TenantUpdate {
+	_u.mutation.ResetNoShowMinutes()
+	_u.mutation.SetNoShowMinutes(v)
+	return _u
+}
+
+// SetNillableNoShowMinutes sets the "no_show_minutes" field if the given value is not nil.
+func (_u *TenantUpdate) SetNillableNoShowMinutes(v *int32) *TenantUpdate {
+	if v != nil {
+		_u.SetNoShowMinutes(*v)
+	}
+	return _u
+}
+
+// AddNoShowMinutes adds value to the "no_show_minutes" field.
+func (_u *TenantUpdate) AddNoShowMinutes(v int32) *TenantUpdate {
+	_u.mutation.AddNoShowMinutes(v)
+	return _u
+}
+
 // Mutation returns the TenantMutation object of the builder.
 func (_u *TenantUpdate) Mutation() *TenantMutation {
 	return _u.mutation
@@ -250,6 +299,18 @@ func (_u *TenantUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.DateDestroyCleared() {
 		_spec.ClearField(tenant.FieldDateDestroy, field.TypeTime)
+	}
+	if value, ok := _u.mutation.Timezone(); ok {
+		_spec.SetField(tenant.FieldTimezone, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Currency(); ok {
+		_spec.SetField(tenant.FieldCurrency, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.NoShowMinutes(); ok {
+		_spec.SetField(tenant.FieldNoShowMinutes, field.TypeInt32, value)
+	}
+	if value, ok := _u.mutation.AddedNoShowMinutes(); ok {
+		_spec.AddField(tenant.FieldNoShowMinutes, field.TypeInt32, value)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
@@ -409,6 +470,55 @@ func (_u *TenantUpdateOne) ClearDateDestroy() *TenantUpdateOne {
 	return _u
 }
 
+// SetTimezone sets the "timezone" field.
+func (_u *TenantUpdateOne) SetTimezone(v string) *TenantUpdateOne {
+	_u.mutation.SetTimezone(v)
+	return _u
+}
+
+// SetNillableTimezone sets the "timezone" field if the given value is not nil.
+func (_u *TenantUpdateOne) SetNillableTimezone(v *string) *TenantUpdateOne {
+	if v != nil {
+		_u.SetTimezone(*v)
+	}
+	return _u
+}
+
+// SetCurrency sets the "currency" field.
+func (_u *TenantUpdateOne) SetCurrency(v string) *TenantUpdateOne {
+	_u.mutation.SetCurrency(v)
+	return _u
+}
+
+// SetNillableCurrency sets the "currency" field if the given value is not nil.
+func (_u *TenantUpdateOne) SetNillableCurrency(v *string) *TenantUpdateOne {
+	if v != nil {
+		_u.SetCurrency(*v)
+	}
+	return _u
+}
+
+// SetNoShowMinutes sets the "no_show_minutes" field.
+func (_u *TenantUpdateOne) SetNoShowMinutes(v int32) *TenantUpdateOne {
+	_u.mutation.ResetNoShowMinutes()
+	_u.mutation.SetNoShowMinutes(v)
+	return _u
+}
+
+// SetNillableNoShowMinutes sets the "no_show_minutes" field if the given value is not nil.
+func (_u *TenantUpdateOne) SetNillableNoShowMinutes(v *int32) *TenantUpdateOne {
+	if v != nil {
+		_u.SetNoShowMinutes(*v)
+	}
+	return _u
+}
+
+// AddNoShowMinutes adds value to the "no_show_minutes" field.
+func (_u *TenantUpdateOne) AddNoShowMinutes(v int32) *TenantUpdateOne {
+	_u.mutation.AddNoShowMinutes(v)
+	return _u
+}
+
 // Mutation returns the TenantMutation object of the builder.
 func (_u *TenantUpdateOne) Mutation() *TenantMutation {
 	return _u.mutation
@@ -524,6 +634,18 @@ func (_u *TenantUpdateOne) sqlSave(ctx context.Context) (_node *Tenant, err erro
 	}
 	if _u.mutation.DateDestroyCleared() {
 		_spec.ClearField(tenant.FieldDateDestroy, field.TypeTime)
+	}
+	if value, ok := _u.mutation.Timezone(); ok {
+		_spec.SetField(tenant.FieldTimezone, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.Currency(); ok {
+		_spec.SetField(tenant.FieldCurrency, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.NoShowMinutes(); ok {
+		_spec.SetField(tenant.FieldNoShowMinutes, field.TypeInt32, value)
+	}
+	if value, ok := _u.mutation.AddedNoShowMinutes(); ok {
+		_spec.AddField(tenant.FieldNoShowMinutes, field.TypeInt32, value)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	_node = &Tenant{config: _u.config}

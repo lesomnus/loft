@@ -16,11 +16,13 @@ import (
 	"time"
 
 	"github.com/lesomnus/payday/config"
+	"github.com/lesomnus/payday/trail"
 
 	"github.com/lesomnus/rove/internal/identity"
 	"github.com/lesomnus/rove/server/consent"
 	"github.com/lesomnus/rove/server/mail"
 	"github.com/lesomnus/rove/server/opensearch"
+	"github.com/lesomnus/rove/server/pd"
 	"github.com/lesomnus/rove/server/retention"
 	"github.com/lesomnus/rove/server/sso"
 )
@@ -200,8 +202,13 @@ type AppConfig struct {
 	Labels  LabelConfig   `yaml:"labels"`
 	Session SessionConfig `yaml:"session"`
 
+	// Locale is what a workspace that says nothing of its own is told in: its
+	// zone, an IANA name, and its currency, ISO 4217. Unset are Asia/Seoul and
+	// KRW. A workspace's owner says its own (#144).
+	Locale LocaleConfig `yaml:"locale"`
 	// NoShowAfter is how long after a room reservation begins it is released
-	// when nobody checked in. Zero holds nobody to checking in.
+	// when nobody checked in. Zero holds nobody to checking in. A workspace
+	// that says its own is held to that (#144).
 	NoShowAfter time.Duration `yaml:"no_show_after"`
 	// Sweep is the wait between passes of the background work.
 	Sweep time.Duration `yaml:"sweep"`
@@ -363,6 +370,8 @@ type WorkspacesConfig struct {
 	// RestoreWithin is how long a closed workspace may be restored before it
 	// is destroyed, and AliasHold how long its address is kept from anybody
 	// else after that, or after it moved (D29). Unset are 30 days and a year.
+	// A workspace whose contract says its own restore window is held to that
+	// (`restore_days`, #144).
 	RestoreWithin time.Duration `yaml:"restore_within"`
 	AliasHold     time.Duration `yaml:"alias_hold"`
 	// Every is how often closed workspaces are looked at. Unset is an hour.
@@ -419,7 +428,37 @@ type RetentionConfig struct {
 
 // Defaults is this as what `server/retention` reads.
 func (c RetentionConfig) Defaults() retention.Defaults {
-	return retention.Defaults{View: c.View, Keep: c.Keep}
+	return retention.Defaults{View: c.View, Keep: c.Keep, Apply: c.Apply}
+}
+
+// RetentionDefaults is what `server/retention` reads of the configuration
+// under the trail's policy `p`: what a tenant with no contract gets of its
+// history and of its access record (#144), and whether a contract destroys.
+func RetentionDefaults(c Config, p trail.Policy) retention.Defaults {
+	d := c.App.Retention.Defaults()
+	d.Access = LifeOf(p.For(pd.AccessDomain))
+
+	return d
+}
+
+// LifeOf is how long a window keeps a row at all: zero is forever.
+func LifeOf(k trail.Keep) time.Duration {
+	switch {
+	case k.Destroy > 0:
+		return k.Destroy
+	case k.Discard:
+		return k.Retain
+	default:
+		return 0
+	}
+}
+
+// LocaleConfig is where a workspace is when it says nothing of its own.
+type LocaleConfig struct {
+	// Timezone is where a date said without a zone is: Asia/Seoul unset.
+	Timezone string `yaml:"timezone"`
+	// Currency is what a new amount is priced in: KRW unset.
+	Currency string `yaml:"currency"`
 }
 
 // LabelConfig is how printed labels are addressed (design 9.9).

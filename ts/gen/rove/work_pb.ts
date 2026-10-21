@@ -102,11 +102,15 @@ export type WorkOrder = Message<"rove.WorkOrder"> & {
   vendor?: Party | undefined;
 
   /**
+   * In `currency`'s minor unit, as every amount is: won for KRW, cents for USD.
+   *
    * @generated from field: int64 cost = 17;
    */
   cost: bigint;
 
   /**
+   * ISO 4217. A new one is priced in the workspace's.
+   *
    * @generated from field: string currency = 18;
    */
   currency: string;
@@ -205,11 +209,16 @@ export type Purchase = Message<"rove.Purchase"> & {
   dateCreated?: Timestamp | undefined;
 
   /**
+   * ISO 4217, of the purchase and its lines. A new one is priced in the
+   * workspace's.
+   *
    * @generated from field: string currency = 16;
    */
   currency: string;
 
   /**
+   * In `currency`'s minor unit, as every amount is: won for KRW, cents for USD.
+   *
    * @generated from field: int64 total = 17;
    */
   total: bigint;
@@ -260,6 +269,8 @@ export type PurchaseLine = Message<"rove.PurchaseLine"> & {
   quantity: bigint;
 
   /**
+   * In the purchase's currency's minor unit.
+   *
    * @generated from field: int64 unit_cost = 11;
    */
   unitCost: bigint;

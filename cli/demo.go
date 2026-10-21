@@ -567,8 +567,8 @@ func (d *demo) bookings() error {
 	}
 
 	next := func(wd time.Weekday, h int) time.Time {
-		t := time.Now().In(domain.Zone)
-		t = time.Date(t.Year(), t.Month(), t.Day(), h, 0, 0, 0, domain.Zone).AddDate(0, 0, 1)
+		t := time.Now().In(domain.DefaultZone)
+		t = time.Date(t.Year(), t.Month(), t.Day(), h, 0, 0, 0, domain.DefaultZone).AddDate(0, 0, 1)
 		for t.Weekday() != wd {
 			t = t.AddDate(0, 0, 1)
 		}

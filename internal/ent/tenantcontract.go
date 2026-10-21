@@ -31,6 +31,10 @@ type TenantContract struct {
 	GraceDays uint32 `json:"grace_days,omitempty"`
 	// DateEffective holds the value of the "date_effective" field.
 	DateEffective time.Time `json:"date_effective,omitempty"`
+	// AccessKeepDays holds the value of the "access_keep_days" field.
+	AccessKeepDays uint32 `json:"access_keep_days,omitempty"`
+	// RestoreDays holds the value of the "restore_days" field.
+	RestoreDays uint32 `json:"restore_days,omitempty"`
 	// DateErased holds the value of the "date_erased" field.
 	DateErased *time.Time `json:"date_erased,omitempty"`
 	// DateCreated holds the value of the "date_created" field.
@@ -68,7 +72,7 @@ func (*TenantContract) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case tenantcontract.FieldViewDays, tenantcontract.FieldKeepDays, tenantcontract.FieldGraceDays:
+		case tenantcontract.FieldViewDays, tenantcontract.FieldKeepDays, tenantcontract.FieldGraceDays, tenantcontract.FieldAccessKeepDays, tenantcontract.FieldRestoreDays:
 			values[i] = new(sql.NullInt64)
 		case tenantcontract.FieldName, tenantcontract.FieldDesc:
 			values[i] = new(sql.NullString)
@@ -132,6 +136,18 @@ func (_m *TenantContract) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field date_effective", values[i])
 			} else if value.Valid {
 				_m.DateEffective = value.Time
+			}
+		case tenantcontract.FieldAccessKeepDays:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field access_keep_days", values[i])
+			} else if value.Valid {
+				_m.AccessKeepDays = uint32(value.Int64)
+			}
+		case tenantcontract.FieldRestoreDays:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field restore_days", values[i])
+			} else if value.Valid {
+				_m.RestoreDays = uint32(value.Int64)
 			}
 		case tenantcontract.FieldDateErased:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -210,6 +226,12 @@ func (_m *TenantContract) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("date_effective=")
 	builder.WriteString(_m.DateEffective.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("access_keep_days=")
+	builder.WriteString(fmt.Sprintf("%v", _m.AccessKeepDays))
+	builder.WriteString(", ")
+	builder.WriteString("restore_days=")
+	builder.WriteString(fmt.Sprintf("%v", _m.RestoreDays))
 	builder.WriteString(", ")
 	if v := _m.DateErased; v != nil {
 		builder.WriteString("date_erased=")

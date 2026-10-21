@@ -126,6 +126,7 @@ func (s domainInvitation) Add(ctx context.Context, req *app.InvitationAddRequest
 
 	var out *app.Invitation
 	var code, inviter, workspace string
+	zone := DefaultZone
 	err = s.tx(ctx, func(t *Tx) error {
 		me, err := t.db.Holder.Get(t.ctx, t.actor.Uuid())
 		if err != nil {
@@ -192,6 +193,7 @@ func (s domainInvitation) Add(ctx context.Context, req *app.InvitationAddRequest
 		}
 		workspace = or(ws.Name, ws.Alias)
 		inviter = nameOf(t.ctx, t.db, me)
+		zone = t.zone()
 
 		code = secret()
 		id := pdid.New(pd.InvitationDomain)
@@ -218,7 +220,7 @@ func (s domainInvitation) Add(ctx context.Context, req *app.InvitationAddRequest
 	// After the invitation is kept: a mail that did not go is an invitation
 	// that is still there, and still in the inbox of an account roster holds
 	// the address of. It is said, and sent again by inviting again.
-	if err := s.deps.mailInvitation(ctx, out, code, inviter, workspace); err != nil {
+	if err := s.deps.mailInvitation(ctx, out, code, inviter, workspace, zone); err != nil {
 		log.From(ctx).WarnContext(ctx, "invitation: the mail did not go", "invitation", idOf(out.GetId()).String(), "err", err.Error())
 	}
 	return withoutCode(out), nil
@@ -749,13 +751,13 @@ func secret() string {
 // what, and the link that brings an account to its inbox -- signing up first,
 // for an address that is no account's yet. One mail either way, so that what
 // is sent says nothing about who the address belongs to.
-func (d *Deps) mailInvitation(ctx context.Context, v *app.Invitation, code, inviter, workspace string) error {
+func (d *Deps) mailInvitation(ctx context.Context, v *app.Invitation, code, inviter, workspace string, zone *time.Location) error {
 	if d.Mail == nil {
 		return nil
 	}
 	link := strings.TrimSuffix(d.AppUrl, "/") + "/invitations?code=" + code
 	role := roleWords[v.GetRole()]
-	until := v.GetDateExpires().AsTime().In(Zone).Format("2006년 1월 2일")
+	until := v.GetDateExpires().AsTime().In(zone).Format("2006년 1월 2일")
 	body := fmt.Sprintf(`%s님이 Rove의 %s 워크스페이스에 %s%s 초대했습니다.
 
 아래 링크를 열고 로그인하면 초대함에서 수락하거나 거절할 수 있습니다.

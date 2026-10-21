@@ -36,20 +36,23 @@ const (
 // overlay that touches a number here, since the merge would take it silently
 // and `alias` would quietly become whatever the overlay said.
 type Tenant struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Alias       string                 `protobuf:"bytes,4,opt,name=alias"`
-	xxx_hidden_Name        string                 `protobuf:"bytes,5,opt,name=name"`
-	xxx_hidden_Desc        string                 `protobuf:"bytes,6,opt,name=desc"`
-	xxx_hidden_Labels      map[string]string      `protobuf:"bytes,7,rep,name=labels" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	xxx_hidden_DateUpdated *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
-	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_DateClosed  *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=date_closed,json=dateClosed"`
-	xxx_hidden_ClosedBy    string                 `protobuf:"bytes,9,opt,name=closed_by,json=closedBy"`
-	xxx_hidden_CloseReason string                 `protobuf:"bytes,10,opt,name=close_reason,json=closeReason"`
-	xxx_hidden_DateDestroy *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=date_destroy,json=dateDestroy"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	state                    protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id            []byte                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Alias         string                 `protobuf:"bytes,4,opt,name=alias"`
+	xxx_hidden_Name          string                 `protobuf:"bytes,5,opt,name=name"`
+	xxx_hidden_Desc          string                 `protobuf:"bytes,6,opt,name=desc"`
+	xxx_hidden_Labels        map[string]string      `protobuf:"bytes,7,rep,name=labels" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	xxx_hidden_DateUpdated   *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
+	xxx_hidden_DateCreated   *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
+	xxx_hidden_DateClosed    *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=date_closed,json=dateClosed"`
+	xxx_hidden_ClosedBy      string                 `protobuf:"bytes,9,opt,name=closed_by,json=closedBy"`
+	xxx_hidden_CloseReason   string                 `protobuf:"bytes,10,opt,name=close_reason,json=closeReason"`
+	xxx_hidden_DateDestroy   *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=date_destroy,json=dateDestroy"`
+	xxx_hidden_Timezone      string                 `protobuf:"bytes,12,opt,name=timezone"`
+	xxx_hidden_Currency      string                 `protobuf:"bytes,16,opt,name=currency"`
+	xxx_hidden_NoShowMinutes int32                  `protobuf:"varint,17,opt,name=no_show_minutes,json=noShowMinutes"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *Tenant) Reset() {
@@ -154,6 +157,27 @@ func (x *Tenant) GetDateDestroy() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *Tenant) GetTimezone() string {
+	if x != nil {
+		return x.xxx_hidden_Timezone
+	}
+	return ""
+}
+
+func (x *Tenant) GetCurrency() string {
+	if x != nil {
+		return x.xxx_hidden_Currency
+	}
+	return ""
+}
+
+func (x *Tenant) GetNoShowMinutes() int32 {
+	if x != nil {
+		return x.xxx_hidden_NoShowMinutes
+	}
+	return 0
+}
+
 func (x *Tenant) SetId(v []byte) {
 	if v == nil {
 		v = []byte{}
@@ -199,6 +223,18 @@ func (x *Tenant) SetCloseReason(v string) {
 
 func (x *Tenant) SetDateDestroy(v *timestamppb.Timestamp) {
 	x.xxx_hidden_DateDestroy = v
+}
+
+func (x *Tenant) SetTimezone(v string) {
+	x.xxx_hidden_Timezone = v
+}
+
+func (x *Tenant) SetCurrency(v string) {
+	x.xxx_hidden_Currency = v
+}
+
+func (x *Tenant) SetNoShowMinutes(v int32) {
+	x.xxx_hidden_NoShowMinutes = v
 }
 
 func (x *Tenant) HasDateUpdated() bool {
@@ -274,6 +310,23 @@ type Tenant_builder struct {
 	// was closed and the restore window (`app.workspaces.restore_within`), or
 	// whatever an operator made it since.
 	DateDestroy *timestamppb.Timestamp
+	// The workspace's own settings (#144): what differs from one organization to
+	// the next where it operates, and is its owner's to say. Empty is the
+	// deployment's `app.locale`, or `app.no_show_after`.
+	//
+	// Timezone is where a date said without a zone is: a file's dates, the time
+	// in a notification, the day usage is counted by, the date a sheet's cell
+	// means -- an IANA name, such as Asia/Seoul. Stored times are UTC whatever
+	// it says.
+	Timezone string
+	// Currency is what a new purchase or work order is priced in when it says
+	// nothing, ISO 4217, such as KRW. An amount keeps the currency it was
+	// written in.
+	Currency string
+	// NoShowMinutes is how long after a room's reservation begins it is freed
+	// when nobody checked in, in minutes. 0 is the deployment's; negative
+	// holds nobody to checking in.
+	NoShowMinutes int32
 }
 
 func (b0 Tenant_builder) Build() *Tenant {
@@ -291,6 +344,9 @@ func (b0 Tenant_builder) Build() *Tenant {
 	x.xxx_hidden_ClosedBy = b.ClosedBy
 	x.xxx_hidden_CloseReason = b.CloseReason
 	x.xxx_hidden_DateDestroy = b.DateDestroy
+	x.xxx_hidden_Timezone = b.Timezone
+	x.xxx_hidden_Currency = b.Currency
+	x.xxx_hidden_NoShowMinutes = b.NoShowMinutes
 	return m0
 }
 
@@ -298,7 +354,7 @@ var File_rove_payday_tenant_proto protoreflect.FileDescriptor
 
 const file_rove_payday_tenant_proto_rawDesc = "" +
 	"\n" +
-	"\x18rove/payday/tenant.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\"\x97\x05\n" +
+	"\x18rove/payday/tenant.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\"\xf7\x05\n" +
 	"\x06Tenant\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12\x1c\n" +
 	"\x05alias\x18\x04 \x01(\tB\x06\xea\x82\x16\x020\x01R\x05alias\x12\x12\n" +
@@ -312,7 +368,10 @@ const file_rove_payday_tenant_proto_rawDesc = "" +
 	"\tclosed_by\x18\t \x01(\tR\bclosedBy\x12!\n" +
 	"\fclose_reason\x18\n" +
 	" \x01(\tR\vcloseReason\x12E\n" +
-	"\fdate_destroy\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\vdateDestroy\x1a9\n" +
+	"\fdate_destroy\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\vdateDestroy\x12\x1a\n" +
+	"\btimezone\x18\f \x01(\tR\btimezone\x12\x1a\n" +
+	"\bcurrency\x18\x10 \x01(\tR\bcurrency\x12&\n" +
+	"\x0fno_show_minutes\x18\x11 \x01(\x05R\rnoShowMinutes\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:_\xca\xfc\x15&\x12\x02\x10\x01\x1a \x12\x04page\x1a\x10\n" +

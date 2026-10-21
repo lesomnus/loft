@@ -86,6 +86,16 @@ func DateEffective(v time.Time) predicate.TenantContract {
 	return predicate.TenantContract(sql.FieldEQ(FieldDateEffective, v))
 }
 
+// AccessKeepDays applies equality check predicate on the "access_keep_days" field. It's identical to AccessKeepDaysEQ.
+func AccessKeepDays(v uint32) predicate.TenantContract {
+	return predicate.TenantContract(sql.FieldEQ(FieldAccessKeepDays, v))
+}
+
+// RestoreDays applies equality check predicate on the "restore_days" field. It's identical to RestoreDaysEQ.
+func RestoreDays(v uint32) predicate.TenantContract {
+	return predicate.TenantContract(sql.FieldEQ(FieldRestoreDays, v))
+}
+
 // DateErased applies equality check predicate on the "date_erased" field. It's identical to DateErasedEQ.
 func DateErased(v time.Time) predicate.TenantContract {
 	return predicate.TenantContract(sql.FieldEQ(FieldDateErased, v))
@@ -399,6 +409,86 @@ func DateEffectiveIsNil() predicate.TenantContract {
 // DateEffectiveNotNil applies the NotNil predicate on the "date_effective" field.
 func DateEffectiveNotNil() predicate.TenantContract {
 	return predicate.TenantContract(sql.FieldNotNull(FieldDateEffective))
+}
+
+// AccessKeepDaysEQ applies the EQ predicate on the "access_keep_days" field.
+func AccessKeepDaysEQ(v uint32) predicate.TenantContract {
+	return predicate.TenantContract(sql.FieldEQ(FieldAccessKeepDays, v))
+}
+
+// AccessKeepDaysNEQ applies the NEQ predicate on the "access_keep_days" field.
+func AccessKeepDaysNEQ(v uint32) predicate.TenantContract {
+	return predicate.TenantContract(sql.FieldNEQ(FieldAccessKeepDays, v))
+}
+
+// AccessKeepDaysIn applies the In predicate on the "access_keep_days" field.
+func AccessKeepDaysIn(vs ...uint32) predicate.TenantContract {
+	return predicate.TenantContract(sql.FieldIn(FieldAccessKeepDays, vs...))
+}
+
+// AccessKeepDaysNotIn applies the NotIn predicate on the "access_keep_days" field.
+func AccessKeepDaysNotIn(vs ...uint32) predicate.TenantContract {
+	return predicate.TenantContract(sql.FieldNotIn(FieldAccessKeepDays, vs...))
+}
+
+// AccessKeepDaysGT applies the GT predicate on the "access_keep_days" field.
+func AccessKeepDaysGT(v uint32) predicate.TenantContract {
+	return predicate.TenantContract(sql.FieldGT(FieldAccessKeepDays, v))
+}
+
+// AccessKeepDaysGTE applies the GTE predicate on the "access_keep_days" field.
+func AccessKeepDaysGTE(v uint32) predicate.TenantContract {
+	return predicate.TenantContract(sql.FieldGTE(FieldAccessKeepDays, v))
+}
+
+// AccessKeepDaysLT applies the LT predicate on the "access_keep_days" field.
+func AccessKeepDaysLT(v uint32) predicate.TenantContract {
+	return predicate.TenantContract(sql.FieldLT(FieldAccessKeepDays, v))
+}
+
+// AccessKeepDaysLTE applies the LTE predicate on the "access_keep_days" field.
+func AccessKeepDaysLTE(v uint32) predicate.TenantContract {
+	return predicate.TenantContract(sql.FieldLTE(FieldAccessKeepDays, v))
+}
+
+// RestoreDaysEQ applies the EQ predicate on the "restore_days" field.
+func RestoreDaysEQ(v uint32) predicate.TenantContract {
+	return predicate.TenantContract(sql.FieldEQ(FieldRestoreDays, v))
+}
+
+// RestoreDaysNEQ applies the NEQ predicate on the "restore_days" field.
+func RestoreDaysNEQ(v uint32) predicate.TenantContract {
+	return predicate.TenantContract(sql.FieldNEQ(FieldRestoreDays, v))
+}
+
+// RestoreDaysIn applies the In predicate on the "restore_days" field.
+func RestoreDaysIn(vs ...uint32) predicate.TenantContract {
+	return predicate.TenantContract(sql.FieldIn(FieldRestoreDays, vs...))
+}
+
+// RestoreDaysNotIn applies the NotIn predicate on the "restore_days" field.
+func RestoreDaysNotIn(vs ...uint32) predicate.TenantContract {
+	return predicate.TenantContract(sql.FieldNotIn(FieldRestoreDays, vs...))
+}
+
+// RestoreDaysGT applies the GT predicate on the "restore_days" field.
+func RestoreDaysGT(v uint32) predicate.TenantContract {
+	return predicate.TenantContract(sql.FieldGT(FieldRestoreDays, v))
+}
+
+// RestoreDaysGTE applies the GTE predicate on the "restore_days" field.
+func RestoreDaysGTE(v uint32) predicate.TenantContract {
+	return predicate.TenantContract(sql.FieldGTE(FieldRestoreDays, v))
+}
+
+// RestoreDaysLT applies the LT predicate on the "restore_days" field.
+func RestoreDaysLT(v uint32) predicate.TenantContract {
+	return predicate.TenantContract(sql.FieldLT(FieldRestoreDays, v))
+}
+
+// RestoreDaysLTE applies the LTE predicate on the "restore_days" field.
+func RestoreDaysLTE(v uint32) predicate.TenantContract {
+	return predicate.TenantContract(sql.FieldLTE(FieldRestoreDays, v))
 }
 
 // DateErasedEQ applies the EQ predicate on the "date_erased" field.

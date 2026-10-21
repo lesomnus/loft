@@ -128,4 +128,21 @@ message Tenant {
   // was closed and the restore window (`app.workspaces.restore_within`), or
   // whatever an operator made it since.
   google.protobuf.Timestamp date_destroy = 11 [(orm.field) = {nullable: true}];
+  // The workspace's own settings (#144): what differs from one organization to
+  // the next where it operates, and is its owner's to say. Empty is the
+  // deployment's `app.locale`, or `app.no_show_after`.
+  //
+  // Timezone is where a date said without a zone is: a file's dates, the time
+  // in a notification, the day usage is counted by, the date a sheet's cell
+  // means -- an IANA name, such as Asia/Seoul. Stored times are UTC whatever
+  // it says.
+  string timezone = 12;
+  // Currency is what a new purchase or work order is priced in when it says
+  // nothing, ISO 4217, such as KRW. An amount keeps the currency it was
+  // written in.
+  string currency = 16;
+  // NoShowMinutes is how long after a room's reservation begins it is freed
+  // when nobody checked in, in minutes. 0 is the deployment's; negative
+  // holds nobody to checking in.
+  int32 no_show_minutes = 17;
 }

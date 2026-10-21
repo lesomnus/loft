@@ -16,7 +16,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file rove/payday/tenant_svc.g.proto.
  */
 export const file_rove_payday_tenant_svc_g: GenFile = /*@__PURE__*/
-  fileDesc("Ch5yb3ZlL3BheWRheS90ZW5hbnRfc3ZjLmcucHJvdG8SBHJvdmUijQMKEFRlbmFudEFkZFJlcXVlc3QSCgoCaWQYASABKAwSFAoFYWxpYXMYBCABKAlCBaoBAggCEhMKBG5hbWUYBSABKAlCBaoBAggCEhMKBGRlc2MYBiABKAlCBaoBAggCEjIKBmxhYmVscxgHIAMoCzIiLnJvdmUuVGVuYW50QWRkUmVxdWVzdC5MYWJlbHNFbnRyeRIwCgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi8KC2RhdGVfY2xvc2VkGAggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIYCgljbG9zZWRfYnkYCSABKAlCBaoBAggCEhsKDGNsb3NlX3JlYXNvbhgKIAEoCUIFqgECCAISMAoMZGF0ZV9kZXN0cm95GAsgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBotCgtMYWJlbHNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIlQKEFRlbmFudEdldFJlcXVlc3QSHAoDcmVmGAEgASgLMg8ucm92ZS5UZW5hbnRSZWYSIgoGc2VsZWN0GAIgASgLMhIucm92ZS5UZW5hbnRTZWxlY3QiMQoJVGVuYW50UmVmEgwKAmlkGAEgASgMSAASDwoFYWxpYXMYBCABKAlIAEIFCgNrZXki1gEKDFRlbmFudFNlbGVjdBILCgNhbGwYASABKAgSDQoFYWxpYXMYBCABKAgSDAoEbmFtZRgFIAEoCBIMCgRkZXNjGAYgASgIEg4KBmxhYmVscxgHIAEoCBIUCgxkYXRlX3VwZGF0ZWQYDSABKAgSFAoMZGF0ZV9jcmVhdGVkGA8gASgIEhMKC2RhdGVfY2xvc2VkGAggASgIEhEKCWNsb3NlZF9ieRgJIAEoCBIUCgxjbG9zZV9yZWFzb24YCiABKAgSFAoMZGF0ZV9kZXN0cm95GAsgASgIItEDChJUZW5hbnRQYXRjaFJlcXVlc3QSHAoDcmVmGAEgASgLMg8ucm92ZS5UZW5hbnRSZWYSDQoFYWxpYXMYCCABKAkSDAoEbmFtZRgKIAEoCRIMCgRkZXNjGAwgASgJEjQKBmxhYmVscxgOIAMoCzIkLnJvdmUuVGVuYW50UGF0Y2hSZXF1ZXN0LkxhYmVsc0VudHJ5EjAKDGRhdGVfdXBkYXRlZBgaIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGgoSZGF0ZV91cGRhdGVkX2ZvcmNlGBsgASgIEi8KC2RhdGVfY2xvc2VkGBAgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIYChBkYXRlX2Nsb3NlZF9udWxsGBEgASgIEhEKCWNsb3NlZF9ieRgSIAEoCRIUCgxjbG9zZV9yZWFzb24YFCABKAkSMAoMZGF0ZV9kZXN0cm95GBYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIZChFkYXRlX2Rlc3Ryb3lfbnVsbBgXIAEoCBotCgtMYWJlbHNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIk8KElRlbmFudEFwcGx5UmVxdWVzdBIcCgNyZWYYASABKAsyDy5yb3ZlLlRlbmFudFJlZhIbCgVwYXRjaBgCIAEoCzIMLnBhdGNoLlBhdGNoIiUKE1RlbmFudEVyYXNlUmVzcG9uc2USDgoGZXJhc2VkGAEgASgIInsKEVRlbmFudExpc3RSZXF1ZXN0EiMKB2ZpbHRlcnMYASADKAsyEi5yb3ZlLlRlbmFudEZpbHRlchITCgRzaXplGAIgASgFQgWqAQIIAhIUCgVhZnRlchgDIAEoCUIFqgECCAISFgoHcmV2ZXJzZRgEIAEoCEIFqgECCAIiRgoSVGVuYW50TGlzdFJlc3BvbnNlEhsKBWl0ZW1zGAEgAygLMgwucm92ZS5UZW5hbnQSEwoEbmV4dBgCIAEoCUIFqgECCAIiLAoMVGVuYW50RmlsdGVyEhwKA3JlZhgBIAEoCzIPLnJvdmUuVGVuYW50UmVmImEKElRlbmFudENsb3NlUmVxdWVzdBIcCgNyZWYYASABKAsyDy5yb3ZlLlRlbmFudFJlZhIWCgdjb25maXJtGAIgASgJQgWqAQIIAhIVCgZyZWFzb24YAyABKAlCBaoBAggCIjQKFFRlbmFudFJlc3RvcmVSZXF1ZXN0EhwKA3JlZhgBIAEoCzIPLnJvdmUuVGVuYW50UmVmMqEDCg1UZW5hbnRTZXJ2aWNlEisKA0FkZBIWLnJvdmUuVGVuYW50QWRkUmVxdWVzdBoMLnJvdmUuVGVuYW50EisKA0dldBIWLnJvdmUuVGVuYW50R2V0UmVxdWVzdBoMLnJvdmUuVGVuYW50Ei8KBVBhdGNoEhgucm92ZS5UZW5hbnRQYXRjaFJlcXVlc3QaDC5yb3ZlLlRlbmFudBIvCgVBcHBseRIYLnJvdmUuVGVuYW50QXBwbHlSZXF1ZXN0Ggwucm92ZS5UZW5hbnQSMwoFRXJhc2USDy5yb3ZlLlRlbmFudFJlZhoZLnJvdmUuVGVuYW50RXJhc2VSZXNwb25zZRI5CgRMaXN0Ehcucm92ZS5UZW5hbnRMaXN0UmVxdWVzdBoYLnJvdmUuVGVuYW50TGlzdFJlc3BvbnNlEi8KBUNsb3NlEhgucm92ZS5UZW5hbnRDbG9zZVJlcXVlc3QaDC5yb3ZlLlRlbmFudBIzCgdSZXN0b3JlEhoucm92ZS5UZW5hbnRSZXN0b3JlUmVxdWVzdBoMLnJvdmUuVGVuYW50QhpaGGdpdGh1Yi5jb20vbGVzb21udXMvcm92ZWIIZWRpdGlvbnNw6Ac", [file_google_protobuf_timestamp, file_patch_patch, file_rove_payday_tenant]);
+  fileDesc("Ch5yb3ZlL3BheWRheS90ZW5hbnRfc3ZjLmcucHJvdG8SBHJvdmUi3wMKEFRlbmFudEFkZFJlcXVlc3QSCgoCaWQYASABKAwSFAoFYWxpYXMYBCABKAlCBaoBAggCEhMKBG5hbWUYBSABKAlCBaoBAggCEhMKBGRlc2MYBiABKAlCBaoBAggCEjIKBmxhYmVscxgHIAMoCzIiLnJvdmUuVGVuYW50QWRkUmVxdWVzdC5MYWJlbHNFbnRyeRIwCgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi8KC2RhdGVfY2xvc2VkGAggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIYCgljbG9zZWRfYnkYCSABKAlCBaoBAggCEhsKDGNsb3NlX3JlYXNvbhgKIAEoCUIFqgECCAISMAoMZGF0ZV9kZXN0cm95GAsgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIXCgh0aW1lem9uZRgMIAEoCUIFqgECCAISFwoIY3VycmVuY3kYECABKAlCBaoBAggCEh4KD25vX3Nob3dfbWludXRlcxgRIAEoBUIFqgECCAIaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASJUChBUZW5hbnRHZXRSZXF1ZXN0EhwKA3JlZhgBIAEoCzIPLnJvdmUuVGVuYW50UmVmEiIKBnNlbGVjdBgCIAEoCzISLnJvdmUuVGVuYW50U2VsZWN0IjEKCVRlbmFudFJlZhIMCgJpZBgBIAEoDEgAEg8KBWFsaWFzGAQgASgJSABCBQoDa2V5IpMCCgxUZW5hbnRTZWxlY3QSCwoDYWxsGAEgASgIEg0KBWFsaWFzGAQgASgIEgwKBG5hbWUYBSABKAgSDAoEZGVzYxgGIAEoCBIOCgZsYWJlbHMYByABKAgSFAoMZGF0ZV91cGRhdGVkGA0gASgIEhQKDGRhdGVfY3JlYXRlZBgPIAEoCBITCgtkYXRlX2Nsb3NlZBgIIAEoCBIRCgljbG9zZWRfYnkYCSABKAgSFAoMY2xvc2VfcmVhc29uGAogASgIEhQKDGRhdGVfZGVzdHJveRgLIAEoCBIQCgh0aW1lem9uZRgMIAEoCBIQCghjdXJyZW5jeRgQIAEoCBIXCg9ub19zaG93X21pbnV0ZXMYESABKAgijgQKElRlbmFudFBhdGNoUmVxdWVzdBIcCgNyZWYYASABKAsyDy5yb3ZlLlRlbmFudFJlZhINCgVhbGlhcxgIIAEoCRIMCgRuYW1lGAogASgJEgwKBGRlc2MYDCABKAkSNAoGbGFiZWxzGA4gAygLMiQucm92ZS5UZW5hbnRQYXRjaFJlcXVlc3QuTGFiZWxzRW50cnkSMAoMZGF0ZV91cGRhdGVkGBogASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIaChJkYXRlX3VwZGF0ZWRfZm9yY2UYGyABKAgSLwoLZGF0ZV9jbG9zZWQYECABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhgKEGRhdGVfY2xvc2VkX251bGwYESABKAgSEQoJY2xvc2VkX2J5GBIgASgJEhQKDGNsb3NlX3JlYXNvbhgUIAEoCRIwCgxkYXRlX2Rlc3Ryb3kYFiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhkKEWRhdGVfZGVzdHJveV9udWxsGBcgASgIEhAKCHRpbWV6b25lGBggASgJEhAKCGN1cnJlbmN5GCAgASgJEhcKD25vX3Nob3dfbWludXRlcxgiIAEoBRotCgtMYWJlbHNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIk8KElRlbmFudEFwcGx5UmVxdWVzdBIcCgNyZWYYASABKAsyDy5yb3ZlLlRlbmFudFJlZhIbCgVwYXRjaBgCIAEoCzIMLnBhdGNoLlBhdGNoIiUKE1RlbmFudEVyYXNlUmVzcG9uc2USDgoGZXJhc2VkGAEgASgIInsKEVRlbmFudExpc3RSZXF1ZXN0EiMKB2ZpbHRlcnMYASADKAsyEi5yb3ZlLlRlbmFudEZpbHRlchITCgRzaXplGAIgASgFQgWqAQIIAhIUCgVhZnRlchgDIAEoCUIFqgECCAISFgoHcmV2ZXJzZRgEIAEoCEIFqgECCAIiRgoSVGVuYW50TGlzdFJlc3BvbnNlEhsKBWl0ZW1zGAEgAygLMgwucm92ZS5UZW5hbnQSEwoEbmV4dBgCIAEoCUIFqgECCAIiLAoMVGVuYW50RmlsdGVyEhwKA3JlZhgBIAEoCzIPLnJvdmUuVGVuYW50UmVmImEKElRlbmFudENsb3NlUmVxdWVzdBIcCgNyZWYYASABKAsyDy5yb3ZlLlRlbmFudFJlZhIWCgdjb25maXJtGAIgASgJQgWqAQIIAhIVCgZyZWFzb24YAyABKAlCBaoBAggCIjQKFFRlbmFudFJlc3RvcmVSZXF1ZXN0EhwKA3JlZhgBIAEoCzIPLnJvdmUuVGVuYW50UmVmInMKFlRlbmFudENvbmZpZ3VyZVJlcXVlc3QSHAoDcmVmGAEgASgLMg8ucm92ZS5UZW5hbnRSZWYSEAoIdGltZXpvbmUYAiABKAkSEAoIY3VycmVuY3kYAyABKAkSFwoPbm9fc2hvd19taW51dGVzGAQgASgFMtoDCg1UZW5hbnRTZXJ2aWNlEisKA0FkZBIWLnJvdmUuVGVuYW50QWRkUmVxdWVzdBoMLnJvdmUuVGVuYW50EisKA0dldBIWLnJvdmUuVGVuYW50R2V0UmVxdWVzdBoMLnJvdmUuVGVuYW50Ei8KBVBhdGNoEhgucm92ZS5UZW5hbnRQYXRjaFJlcXVlc3QaDC5yb3ZlLlRlbmFudBIvCgVBcHBseRIYLnJvdmUuVGVuYW50QXBwbHlSZXF1ZXN0Ggwucm92ZS5UZW5hbnQSMwoFRXJhc2USDy5yb3ZlLlRlbmFudFJlZhoZLnJvdmUuVGVuYW50RXJhc2VSZXNwb25zZRI5CgRMaXN0Ehcucm92ZS5UZW5hbnRMaXN0UmVxdWVzdBoYLnJvdmUuVGVuYW50TGlzdFJlc3BvbnNlEi8KBUNsb3NlEhgucm92ZS5UZW5hbnRDbG9zZVJlcXVlc3QaDC5yb3ZlLlRlbmFudBIzCgdSZXN0b3JlEhoucm92ZS5UZW5hbnRSZXN0b3JlUmVxdWVzdBoMLnJvdmUuVGVuYW50EjcKCUNvbmZpZ3VyZRIcLnJvdmUuVGVuYW50Q29uZmlndXJlUmVxdWVzdBoMLnJvdmUuVGVuYW50QhpaGGdpdGh1Yi5jb20vbGVzb21udXMvcm92ZWIIZWRpdGlvbnNw6Ac", [file_google_protobuf_timestamp, file_patch_patch, file_rove_payday_tenant]);
 
 /**
  * @generated from message rove.TenantAddRequest
@@ -71,6 +71,21 @@ export type TenantAddRequest = Message<"rove.TenantAddRequest"> & {
    * @generated from field: google.protobuf.Timestamp date_destroy = 11;
    */
   dateDestroy?: Timestamp | undefined;
+
+  /**
+   * @generated from field: string timezone = 12 [features.field_presence = IMPLICIT];
+   */
+  timezone: string;
+
+  /**
+   * @generated from field: string currency = 16 [features.field_presence = IMPLICIT];
+   */
+  currency: string;
+
+  /**
+   * @generated from field: int32 no_show_minutes = 17 [features.field_presence = IMPLICIT];
+   */
+  noShowMinutes: number;
 };
 
 /**
@@ -189,6 +204,21 @@ export type TenantSelect = Message<"rove.TenantSelect"> & {
    * @generated from field: bool date_destroy = 11;
    */
   dateDestroy: boolean;
+
+  /**
+   * @generated from field: bool timezone = 12;
+   */
+  timezone: boolean;
+
+  /**
+   * @generated from field: bool currency = 16;
+   */
+  currency: boolean;
+
+  /**
+   * @generated from field: bool no_show_minutes = 17;
+   */
+  noShowMinutes: boolean;
 };
 
 /**
@@ -290,6 +320,21 @@ export type TenantPatchRequest = Message<"rove.TenantPatchRequest"> & {
    * @generated from field: bool date_destroy_null = 23;
    */
   dateDestroyNull: boolean;
+
+  /**
+   * @generated from field: string timezone = 24;
+   */
+  timezone: string;
+
+  /**
+   * @generated from field: string currency = 32;
+   */
+  currency: string;
+
+  /**
+   * @generated from field: int32 no_show_minutes = 34;
+   */
+  noShowMinutes: number;
 };
 
 /**
@@ -485,6 +530,44 @@ export const TenantRestoreRequestSchema: GenMessage<TenantRestoreRequest> = /*@_
   messageDesc(file_rove_payday_tenant_svc_g, 11);
 
 /**
+ * @generated from message rove.TenantConfigureRequest
+ */
+export type TenantConfigureRequest = Message<"rove.TenantConfigureRequest"> & {
+  /**
+   * @generated from field: rove.TenantRef ref = 1;
+   */
+  ref?: TenantRef | undefined;
+
+  /**
+   * An IANA zone, such as Asia/Seoul.
+   *
+   * @generated from field: string timezone = 2;
+   */
+  timezone: string;
+
+  /**
+   * ISO 4217, such as KRW.
+   *
+   * @generated from field: string currency = 3;
+   */
+  currency: string;
+
+  /**
+   * Minutes; 0 is the deployment's, negative holds nobody to checking in.
+   *
+   * @generated from field: int32 no_show_minutes = 4;
+   */
+  noShowMinutes: number;
+};
+
+/**
+ * Describes the message rove.TenantConfigureRequest.
+ * Use `create(TenantConfigureRequestSchema)` to create a new message.
+ */
+export const TenantConfigureRequestSchema: GenMessage<TenantConfigureRequest> = /*@__PURE__*/
+  messageDesc(file_rove_payday_tenant_svc_g, 12);
+
+/**
  * @generated from service rove.TenantService
  */
 export const TenantService: GenService<{
@@ -568,6 +651,19 @@ export const TenantService: GenService<{
   restore: {
     methodKind: "unary";
     input: typeof TenantRestoreRequestSchema;
+    output: typeof TenantSchema;
+  },
+  /**
+   * Configure is the workspace's own settings, its owner's to say (#144):
+   * where it is -- the zone its dates are told in, the currency a new amount
+   * is priced in -- and how long a room waits for whoever booked it. A field
+   * left out stays as it is; an empty one is the deployment's again.
+   *
+   * @generated from rpc rove.TenantService.Configure
+   */
+  configure: {
+    methodKind: "unary";
+    input: typeof TenantConfigureRequestSchema;
     output: typeof TenantSchema;
   },
 }> = /*@__PURE__*/

@@ -188,7 +188,7 @@ func TestTheTrailOfTheHistoryLastsAsLongAsTheHistory(t *testing.T) {
 	e := newEnv(t)
 
 	base := trail.Policy{Archive: flob.NewMemStores(), By: map[pdid.Domain]trail.Keep{pd.FactDomain: {Retain: 90 * day}}}
-	answer := retention.Trail(e.s.Ent, base, retention.Defaults{})
+	answer := retention.Trail(e.s.Ent, base, retention.Defaults{Apply: true})
 
 	got, err := answer(e.ctx, e.tenant)
 	x.NoError(err)
@@ -227,7 +227,7 @@ func TestAPassTakesTheHistorysTrailOnTheTenantsWindow(t *testing.T) {
 	account := e.trailRow(pd.HolderDomain, old)
 
 	p := trail.Policy{Archive: flob.NewMemStores()}
-	p.Tenants = retention.Trail(e.s.Ent, p, retention.Defaults{})
+	p.Tenants = retention.Trail(e.s.Ent, p, retention.Defaults{Apply: true})
 	p.Pass(e.ctx, pd.TrailStore(e.s.Ent))
 
 	x.False(e.exists(history), "the trail of the history outlived the tenant's keep window")
@@ -270,4 +270,91 @@ func must[T any](v T, err error) T {
 	}
 
 	return v
+}
+
+// accessContract is a contract that says how long the access record is kept,
+// and nothing of the history.
+func (e *env) accessContract(days, grace uint32, effective time.Time) {
+	e.t.Helper()
+
+	_, err := e.s.Base.TenantContract().Add(e.ctx, app.TenantContractAddRequest_builder{
+		Tenant:         app.TenantRef_builder{Id: e.tenant.Bytes()}.Build(),
+		Name:           "access",
+		AccessKeepDays: days,
+		GraceDays:      grace,
+		DateEffective:  timestamppb.New(effective),
+	}.Build())
+	require.NoError(e.t, err)
+}
+
+// TestTheAccessRecordIsKeptAsTheTenantsContractSays (#144): how long a
+// workspace's access record is kept turns on the workspace -- how many people
+// it holds, what kind of data, where it is -- so its contract says, and the
+// deployment's `audit.by.access` is what one that says nothing gets. With the
+// windows off a contract destroys nothing the deployment would keep, so only a
+// longer one is answered.
+func TestTheAccessRecordIsKeptAsTheTenantsContractSays(t *testing.T) {
+	x := require.New(t)
+	e := newEnv(t)
+
+	twoYears := 730 * day
+	base := trail.Policy{Archive: flob.NewMemStores(), By: map[pdid.Domain]trail.Keep{pd.AccessDomain: {Retain: 90 * day, Destroy: twoYears}}}
+	off := retention.Defaults{Access: twoYears}
+	on := retention.Defaults{Access: twoYears, Apply: true}
+	answer := func(d retention.Defaults) trail.Tenant {
+		t.Helper()
+		v, err := retention.Trail(e.s.Ent, base, d)(e.ctx, e.tenant)
+		require.NoError(t, err)
+		return v
+	}
+
+	x.Nil(answer(on).By, "a tenant with no contract was answered")
+
+	e.accessContract(3*365, 0, e.now.Add(-2*day))
+	x.Equal(trail.Keep{Retain: 90 * day, Destroy: 3 * 365 * day}, answer(off).By[pd.AccessDomain], "a longer one waits for the windows")
+
+	e.accessContract(365, 0, e.now.Add(-day))
+	x.NotContains(answer(off).By, pd.AccessDomain, "a shorter one destroyed with the windows off")
+	x.Equal(trail.Keep{Retain: 90 * day, Destroy: 365 * day}, answer(on).By[pd.AccessDomain])
+	x.NotContains(answer(on).By, pd.AssetDomain, "an access contract named the history's windows")
+
+	t.Run("and none goes below the deployment's floor", func(t *testing.T) {
+		x := require.New(t)
+		e := newEnv(t)
+		e.accessContract(90, 0, e.now.Add(-day))
+
+		p := base
+		p.MinBy = map[pdid.Domain]trail.Floor{pd.AccessDomain: {Destroy: 365 * day}}
+		v, err := retention.Trail(e.s.Ent, p, on)(e.ctx, e.tenant)
+		x.NoError(err)
+		x.Equal(trail.Keep{Retain: 90 * day, Destroy: 365 * day}, p.ForTenant(v, pd.AccessDomain), "a contract went below the floor")
+	})
+
+	t.Run("and a shorter one waits out its grace", func(t *testing.T) {
+		x := require.New(t)
+		e := newEnv(t)
+		e.accessContract(3*365, 0, e.now.Add(-10*day))
+		e.accessContract(365, 30, e.now.Add(-day))
+
+		x.Equal(3*365*day, e.window(e.now).Access, "the record shrank before the grace was over")
+		x.Equal(365*day, e.window(e.now.Add(31*day)).Access)
+	})
+}
+
+// TestARestoreWindowIsTheContracts (#144): how long a closed workspace may be
+// restored is what its contract says, and the deployment's where it says none.
+func TestARestoreWindowIsTheContracts(t *testing.T) {
+	x := require.New(t)
+	e := newEnv(t)
+
+	x.Zero(e.window(e.now).Restore, "no contract, and yet a window of its own")
+
+	_, err := e.s.Base.TenantContract().Add(e.ctx, app.TenantContractAddRequest_builder{
+		Tenant:        app.TenantRef_builder{Id: e.tenant.Bytes()}.Build(),
+		Name:          "enterprise",
+		RestoreDays:   90,
+		DateEffective: timestamppb.New(e.now.Add(-day)),
+	}.Build())
+	x.NoError(err)
+	x.Equal(90*day, e.window(e.now).Restore)
 }

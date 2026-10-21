@@ -68,6 +68,18 @@ func (_c *TenantContractCreate) SetNillableDateEffective(v *time.Time) *TenantCo
 	return _c
 }
 
+// SetAccessKeepDays sets the "access_keep_days" field.
+func (_c *TenantContractCreate) SetAccessKeepDays(v uint32) *TenantContractCreate {
+	_c.mutation.SetAccessKeepDays(v)
+	return _c
+}
+
+// SetRestoreDays sets the "restore_days" field.
+func (_c *TenantContractCreate) SetRestoreDays(v uint32) *TenantContractCreate {
+	_c.mutation.SetRestoreDays(v)
+	return _c
+}
+
 // SetDateErased sets the "date_erased" field.
 func (_c *TenantContractCreate) SetDateErased(v time.Time) *TenantContractCreate {
 	_c.mutation.SetDateErased(v)
@@ -162,6 +174,12 @@ func (_c *TenantContractCreate) check() error {
 	if _, ok := _c.mutation.GraceDays(); !ok {
 		return &ValidationError{Name: "grace_days", err: errors.New(`ent: missing required field "TenantContract.grace_days"`)}
 	}
+	if _, ok := _c.mutation.AccessKeepDays(); !ok {
+		return &ValidationError{Name: "access_keep_days", err: errors.New(`ent: missing required field "TenantContract.access_keep_days"`)}
+	}
+	if _, ok := _c.mutation.RestoreDays(); !ok {
+		return &ValidationError{Name: "restore_days", err: errors.New(`ent: missing required field "TenantContract.restore_days"`)}
+	}
 	if _, ok := _c.mutation.TenantId(); !ok {
 		return &ValidationError{Name: "tenant_id", err: errors.New(`ent: missing required field "TenantContract.tenant_id"`)}
 	}
@@ -242,6 +260,14 @@ func (_c *TenantContractCreate) createSpec() (*TenantContract, *sqlgraph.CreateS
 	if value, ok := _c.mutation.DateEffective(); ok {
 		_spec.SetField(tenantcontract.FieldDateEffective, field.TypeTime, value)
 		_node.DateEffective = value
+	}
+	if value, ok := _c.mutation.AccessKeepDays(); ok {
+		_spec.SetField(tenantcontract.FieldAccessKeepDays, field.TypeUint32, value)
+		_node.AccessKeepDays = value
+	}
+	if value, ok := _c.mutation.RestoreDays(); ok {
+		_spec.SetField(tenantcontract.FieldRestoreDays, field.TypeUint32, value)
+		_node.RestoreDays = value
 	}
 	if value, ok := _c.mutation.DateErased(); ok {
 		_spec.SetField(tenantcontract.FieldDateErased, field.TypeTime, value)

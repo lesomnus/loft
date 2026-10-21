@@ -670,6 +670,11 @@ func TestAnAssistantKeepsTheRestOfTheRegister(t *testing.T) {
 	p = a.plan("plan_work_order", map[string]any{"action": "update", "work_order": work.Items[0].Id, "status": "in_progress"})
 	x.Equal("작업 변경: 화면 깜빡임: 상태 → 진행 중", p.Summary)
 	a.apply(p)
+	p = a.plan("plan_work_order", map[string]any{"action": "update", "work_order": work.Items[0].Id, "cost": 450000})
+	x.Equal("작업 변경: 화면 깜빡임: 비용 → 450,000 KRW", p.Summary)
+	a.apply(p)
+	// Another currency under the same number is another amount.
+	x.Contains(a.refused("plan_work_order", map[string]any{"action": "update", "work_order": work.Items[0].Id, "currency": "USD", "name": "패널 교체"}), "cost:")
 	p = a.plan("plan_work_order", map[string]any{"action": "complete", "work_order": work.Items[0].Id, "condition": "good", "reason": "패널 교체"})
 	x.Equal("작업 완료: 화면 깜빡임, 컨디션 → 양호 — 패널 교체", p.Summary)
 	a.apply(p)
@@ -719,7 +724,7 @@ func TestAnAssistantKeepsTheRestOfTheRegister(t *testing.T) {
 	// Bought, and received as assets.
 	p = a.plan("plan_purchase", map[string]any{"action": "add", "name": "노트북 2대", "vendor": vendor, "currency": "KRW",
 		"lines": []map[string]any{{"model": paper, "quantity": 2, "unit_cost": 1500000, "receive_as": "asset"}}})
-	x.Equal("구매 등록: 노트북 2대, 델코리아에서: A4 복사용지 ×2 (자산으로), 합계 3000000 KRW", p.Summary)
+	x.Equal("구매 등록: 노트북 2대, 델코리아에서: A4 복사용지 ×2 (자산으로), 합계 3,000,000 KRW", p.Summary)
 	a.apply(p)
 	var bought struct {
 		Items []struct {
@@ -747,4 +752,23 @@ func TestAnAssistantKeepsTheRestOfTheRegister(t *testing.T) {
 	p = a.plan("plan_label", map[string]any{"action": "unbind", "label": code, "void": true})
 	x.Equal("라벨 해제: "+code+" (폐기, 다시 쓰지 않음)", p.Summary)
 	a.apply(p)
+
+	// Priced as planned: in the workspace's currency when it was planned,
+	// though the workspace prices in another by the time it is applied.
+	p = a.plan("plan_purchase", map[string]any{"action": "add", "name": "케이블",
+		"lines": []map[string]any{{"desc": "HDMI 케이블", "quantity": 2, "unit_cost": 12000}}})
+	x.Equal("구매 등록: 케이블: HDMI 케이블 ×2, 합계 24,000 KRW", p.Summary)
+	run(t, cli.NewCmdApi(), "tenant", "configure", "@acme", `{"currency": "USD"}`)
+	a.apply(p)
+	var priced struct {
+		Items []struct {
+			Name     string `json:"name"`
+			Total    int64  `json:"total"`
+			Currency string `json:"currency"`
+		} `json:"items"`
+	}
+	a.call("list_purchases", map[string]any{"status": "ordered"}, &priced)
+	x.Len(priced.Items, 1)
+	x.Equal("KRW", priced.Items[0].Currency, "priced in what the workspace said after it was planned")
+	x.EqualValues(24000, priced.Items[0].Total)
 }

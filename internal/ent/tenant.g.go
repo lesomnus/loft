@@ -25,5 +25,8 @@ func (e *Tenant) Proto() *rove.Tenant {
 	if e.DateDestroy != nil {
 		x.SetDateDestroy(timestamppb.New(*e.DateDestroy))
 	}
+	x.SetTimezone(e.Timezone)
+	x.SetCurrency(e.Currency)
+	x.SetNoShowMinutes(e.NoShowMinutes)
 	return x
 }
