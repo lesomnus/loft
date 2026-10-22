@@ -229,7 +229,7 @@ func (a Routes) Mount(mux *http.ServeMux) {
 			http.Error(w, "a workspace is asked for as JSON", http.StatusUnsupportedMediaType)
 			return
 		}
-		p, ok := SignedIn(w, r, sessions, people)
+		p, ok := Own(w, r, sessions, people)
 		if !ok {
 			return
 		}
@@ -322,7 +322,7 @@ func (a Routes) Mount(mux *http.ServeMux) {
 			http.Error(w, "an agreement is sent as JSON", http.StatusUnsupportedMediaType)
 			return
 		}
-		p, ok := SignedIn(w, r, sessions, people)
+		p, ok := Own(w, r, sessions, people)
 		if !ok {
 			return
 		}
@@ -373,12 +373,34 @@ func (a Routes) Mount(mux *http.ServeMux) {
 // have been narrowed to nothing. The few that only read what an account is
 // ask [Reading] instead.
 func SignedIn(w http.ResponseWriter, r *http.Request, sessions *authsession.Sessions, people People) (identity.Person, bool) {
-	p, g, ok := Reading(w, r, sessions, people)
+	p, _, ok := signedIn(w, r, sessions, people)
+	return p, ok
+}
+
+func signedIn(w http.ResponseWriter, r *http.Request, sessions *authsession.Sessions, people People) (identity.Person, authsession.Session, bool) {
+	p, v, ok := reading(w, r, sessions, people)
+	if !ok {
+		return identity.Person{}, authsession.Session{}, false
+	}
+	if !v.Grant.IsWhole() {
+		http.Error(w, "this sign-in may only do what `rove login --allow` named, and this is not that: sign in without it", http.StatusForbidden)
+		return identity.Person{}, authsession.Session{}, false
+	}
+	return p, v, true
+}
+
+// Own is [SignedIn] for what an account does as itself -- agree to what the
+// deployment asks, make a workspace -- which is done signed in at the
+// service's address, and never with a session handed to a workspace's own
+// domain (rove#155): that one is the workspace's, and what the account says
+// of itself is not.
+func Own(w http.ResponseWriter, r *http.Request, sessions *authsession.Sessions, people People) (identity.Person, bool) {
+	p, v, ok := signedIn(w, r, sessions, people)
 	if !ok {
 		return identity.Person{}, false
 	}
-	if !g.IsWhole() {
-		http.Error(w, "this sign-in may only do what `rove login --allow` named, and this is not that: sign in without it", http.StatusForbidden)
+	if v.TenantId != "" {
+		http.Error(w, "this sign-in is a workspace's, on its own address: what the account does as itself is done at the service's", http.StatusForbidden)
 		return identity.Person{}, false
 	}
 	return p, true
@@ -388,32 +410,45 @@ func SignedIn(w http.ResponseWriter, r *http.Request, sessions *authsession.Sess
 // itself, what it agreed to, which of its workspaces a label is in -- which
 // any session may ask, however narrowed; and the grant it is narrowed by.
 func Reading(w http.ResponseWriter, r *http.Request, sessions *authsession.Sessions, people People) (identity.Person, frame.Grant, bool) {
+	p, v, ok := reading(w, r, sessions, people)
+	return p, v.Grant, ok
+}
+
+func reading(w http.ResponseWriter, r *http.Request, sessions *authsession.Sessions, people People) (identity.Person, authsession.Session, bool) {
 	ctx := r.Context()
 	key := sessions.KeyOf(r.Header.Values("Cookie"))
 	if key == "" {
 		http.Error(w, "who is asking?", http.StatusUnauthorized)
-		return identity.Person{}, frame.Grant{}, false
+		return identity.Person{}, authsession.Session{}, false
 	}
 	v, err := sessions.Read(ctx, key)
 	switch {
 	case errors.Is(err, authsession.ErrNoSession):
 		http.Error(w, "who is asking?", http.StatusUnauthorized)
-		return identity.Person{}, frame.Grant{}, false
+		return identity.Person{}, authsession.Session{}, false
 	case err != nil:
 		fail(w, r, err)
-		return identity.Person{}, frame.Grant{}, false
+		return identity.Person{}, authsession.Session{}, false
+	}
+	// A session handed to a workspace's own domain is that workspace's, on a
+	// host that pins it, and nobody anywhere else (rove#155).
+	if v.TenantId != "" {
+		if pin, ok := apphost.From(ctx); !ok || pin.Workspace.String() != v.TenantId {
+			http.Error(w, "who is asking?", http.StatusUnauthorized)
+			return identity.Person{}, authsession.Session{}, false
+		}
 	}
 	p, err := people.ById(ctx, v.Id)
 	switch {
 	case errors.Is(err, identity.ErrNoPerson):
 		http.Error(w, "who is asking?", http.StatusUnauthorized)
-		return identity.Person{}, frame.Grant{}, false
+		return identity.Person{}, authsession.Session{}, false
 	case err != nil:
 		fail(w, r, err)
-		return identity.Person{}, frame.Grant{}, false
+		return identity.Person{}, authsession.Session{}, false
 	}
 
-	return p, v.Grant, true
+	return p, v, true
 }
 
 func (a Routes) accountOf(r *http.Request, ws tenancy.Workspaces, p identity.Person) (Account, error) {

@@ -27,25 +27,6 @@ func TestTheExchangeSaysHowItSendsTheSecret(t *testing.T) {
 	x.Equal(is.URL+"/oauth2/sessions/logout", f.endSession)
 }
 
-func TestALandingIsAPathHere(t *testing.T) {
-	for next, want := range map[string]string{
-		"":                        "/",
-		"/":                       "/",
-		"/@acme/assets?q=rack":    "/@acme/assets?q=rack",
-		"/l/7k2m9q":               "/l/7k2m9q",
-		"https://evil.example/":   "/",
-		"//evil.example/x":        "/",
-		"/\\evil.example":         "/",
-		"evil":                    "/",
-		"javascript:alert(1)":     "/",
-		"/ok\r\nSet-Cookie: x=y":  "/",
-		"/\t/evil.example":        "/",
-		"https://rove.example/@x": "/",
-	} {
-		require.Equal(t, want, local(next), next)
-	}
-}
-
 // A configuration that cannot sign anybody in says so when it is read.
 func TestAConfigurationThatCannotWorkIsRefused(t *testing.T) {
 	x := require.New(t)

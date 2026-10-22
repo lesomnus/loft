@@ -117,6 +117,10 @@ type Server struct {
 	// (`rove login`, `server/clilogin`).
 	Logins *clilogin.Logins
 
+	// Handoff is signing in on a workspace's own domain: done at the
+	// service's address, and handed there (rove#155, `server/session`).
+	Handoff session.Handoff
+
 	// Closing is what becomes of a closed workspace and of a workspace's
 	// address (D29, `server/closing`).
 	Closing closing.Closing
@@ -390,6 +394,14 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		db.Close()
 		return nil, err
 	}
+	// And on a workspace's own domain, where nobody signs in: the service
+	// hands a sign-in there, to an account that has agreed to what it asks,
+	// and signing out there goes on to the issuer as it does here.
+	pub := c.App.Public()
+	s.Handoff = session.Handoff{
+		Db: client, Sessions: s.Sessions, Store: store, Agreed: s.Consents, Issuer: s.Sso,
+		Service: c.App.App(), Scheme: pub.Scheme, Port: pub.Port(),
+	}
 
 	// Who read or wrote whose personal data (rove#136). A read's row is
 	// written a second later with the others, by a loop each process runs for
@@ -407,6 +419,9 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		spinEvery("rove.sessions", time.Hour, store.Sweep),
 		spinEvery("rove.sign-in-failures", session.Window, session.Failures{Db: client}.Sweep),
 		spinEvery("rove.cli-logins", time.Hour, s.Logins.Sweep),
+		// Codes nobody brought back, every minute they would have been good
+		// for: a table of them is never more than a minute's.
+		spinEvery("rove.handoffs", session.CodeTtl, store.SweepHandoffs),
 		// Closed workspaces whose window is over, destroyed unless held.
 		// Read when it runs: s.Closing is put together after the trail.
 		spinEvery("rove.closing", or(c.App.Workspaces.Every, time.Hour), func(ctx context.Context) error { return s.Closing.Sweep(ctx) }),
@@ -944,6 +959,10 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 	// Through roster's issuer, and what the sign-in page is told about the
 	// ways in; see `server/sso`.
 	s.Sso.Mount(mux)
+
+	// On a workspace's own domain, a sign-in handed there from here, and
+	// signing out; see `server/session`'s handoff.
+	s.Handoff.Mount(mux)
 
 	// What an account has outside any one workspace: which it is in, and a
 	// new one.

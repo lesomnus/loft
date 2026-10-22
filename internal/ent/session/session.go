@@ -23,6 +23,10 @@ const (
 	FieldDateIdle = "date_idle"
 	// FieldHeld holds the string denoting the held field in the database.
 	FieldHeld = "held"
+	// FieldWorkspace holds the string denoting the workspace field in the database.
+	FieldWorkspace = "workspace"
+	// FieldParent holds the string denoting the parent field in the database.
+	FieldParent = "parent"
 	// FieldDateUpdated holds the string denoting the date_updated field in the database.
 	FieldDateUpdated = "date_updated"
 	// FieldDateErased holds the string denoting the date_erased field in the database.
@@ -42,6 +46,8 @@ var Columns = []string{
 	FieldDateExpires,
 	FieldDateIdle,
 	FieldHeld,
+	FieldWorkspace,
+	FieldParent,
 	FieldDateUpdated,
 	FieldDateErased,
 	FieldDateCreated,
@@ -78,6 +84,16 @@ func ByDateExpires(opts ...sql.OrderTermOption) OrderOption {
 // ByDateIdle orders the results by the date_idle field.
 func ByDateIdle(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDateIdle, opts...).ToFunc()
+}
+
+// ByWorkspace orders the results by the workspace field.
+func ByWorkspace(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldWorkspace, opts...).ToFunc()
+}
+
+// ByParent orders the results by the parent field.
+func ByParent(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldParent, opts...).ToFunc()
 }
 
 // ByDateUpdated orders the results by the date_updated field.

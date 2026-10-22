@@ -93,6 +93,10 @@ message Party {
 // only by the server, through ent (`server/session`); the policy opens no RPC
 // of it. The key itself is never stored: `secret` is its SHA-256, which is
 // what a cookie is looked up by.
+//
+// One handed to a workspace's own domain (rove#155) is the exception: a
+// cookie of that host's alone, bound to that workspace (`workspace`), and
+// handed from a sign-in here (`parent`).
 message Session {
   bytes id = 1 [(orm.field) = {
     type: TYPE_UUID
@@ -119,6 +123,24 @@ message Session {
     (payday.field) = {secret: true}
   ];
 
+  // The workspace a session handed to that workspace's own domain is bound
+  // to (rove#155): it is served as the account's membership of that
+  // workspace, on a host that pins it, and nowhere else. Null for a sign-in
+  // at the service's address, which names the account alone.
+  bytes workspace = 17 [(orm.field) = {
+    type: TYPE_UUID
+    nullable: true
+  }];
+
+  // The sign-in at the service's address a session on a workspace's domain
+  // was handed from (`Handoff`): it is good while that one is, keeps that one
+  // from idling out while it is used, and signing out on the domain ends that
+  // one with it. Null for a sign-in at the service's.
+  bytes parent = 18 [(orm.field) = {
+    type: TYPE_UUID
+    nullable: true
+  }];
+
   google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
   google.protobuf.Timestamp date_erased = 14 [(orm.field) = {erased: {}}];
   google.protobuf.Timestamp date_created = 15 [(orm.field) = {
@@ -135,6 +157,10 @@ message Session {
       {
         name: "account"
         refs: [{name: "account", number: 8}]
+      },
+      {
+        name: "parent"
+        refs: [{name: "parent", number: 18}]
       }
     ]
   };
@@ -514,5 +540,76 @@ message SignInFailure {
     global: {}
     erase: {hard: {}}
     trail: {off: {why: "a count of the sign-ins an address got wrong, kept for hours to slow the next; nobody's act"}}
+  };
+}
+
+
+
+// Handoff is a sign-in on its way from the service's address to a
+// workspace's own domain (rove#155, design 9.9): a code the service gave a
+// browser signed in there, which the browser exchanges on the domain for a
+// session of the domain's own.
+//
+// A code is good once, for a minute, for the account, the workspace and the
+// host it was made for, and for the round trip that host started (`state`).
+// It is never written down -- `secret` is what it hashes to, as a session's
+// key is -- and its row is gone when it is exchanged, whatever the exchange
+// comes to. It is the deployment's (`global`), written only through ent by
+// `server/session`, and the policy opens no RPC of it.
+message Handoff {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+
+  // What the code hashes to.
+  bytes secret = 8 [
+    (orm.field) = {default: ""},
+    (payday.field) = {secret: true}
+  ];
+
+  // Who it signs in, to which workspace, on which of that workspace's
+  // domains: an active `app` one when the code was made.
+  bytes account = 9 [(orm.field) = {type: TYPE_UUID}];
+  bytes workspace = 10 [(orm.field) = {type: TYPE_UUID}];
+  string host = 11;
+
+  // What the state the host started the round trip with hashes to: the code
+  // is good for that round trip and no other.
+  bytes state = 12 [
+    (orm.field) = {default: ""},
+    (payday.field) = {secret: true}
+  ];
+
+  // The sign-in at the service's address the code was given to, which the
+  // session it is exchanged for is handed from (`Session.parent`).
+  bytes parent = 16 [(orm.field) = {type: TYPE_UUID}];
+
+  google.protobuf.Timestamp date_expires = 17 [(orm.field) = {default: ""}];
+
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  option (orm.message) = {
+    indexes: [
+      {
+        name: "secret"
+        refs: [{name: "secret", number: 8}]
+        unique: true
+      },
+      {
+        name: "date_expires"
+        refs: [{name: "date_expires", number: 17}]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 48
+    global: {}
+    erase: {hard: {}}
+    trail: {off: {why: "a code a browser carries from the service's address to a workspace's domain, good once for a minute; the session it becomes is no act either, and who signed in where is the access record's"}}
   };
 }

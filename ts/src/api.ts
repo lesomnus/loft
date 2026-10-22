@@ -170,6 +170,12 @@ export interface Ways {
 	providers: Provider[]
 	/** Whether the password form is offered beside them. */
 	password: boolean
+	/**
+	 * Whether this is a workspace's own domain, where nobody signs in: the
+	 * page sends the browser to the service's address to be signed in, and it
+	 * comes back with a session of this host's (rove#155).
+	 */
+	handoff?: boolean
 }
 
 /** The ways in this deployment offers. A server with no `/sso` offers a password. */
@@ -201,6 +207,56 @@ export function signOutThroughIssuer(): void {
 	f.action = '/sso/logout'
 	document.body.append(f)
 	f.submit()
+}
+
+/** How many times a page sends the browser off to be signed in, in a while, before it stops and asks. */
+const handoffs = { max: 3, within: 60_000, key: 'rove-handoffs' }
+
+/**
+ * Sends the browser from a workspace's own domain to the service's address to
+ * be signed in, and back to where it is now. Unless somebody `asked` -- a
+ * button -- it answers false, sending nothing, when it has gone round more
+ * than a few times in a minute: something on the way does not take, and a
+ * button is better than a loop.
+ */
+export function handOff(asked = false): boolean {
+	const now = Date.now()
+	let recent: number[] = []
+	try {
+		recent = (JSON.parse(sessionStorage.getItem(handoffs.key) ?? '[]') as number[]).filter((t) => now - t < handoffs.within)
+	} catch {
+		// Nothing kept, which is the same as nothing recent.
+	}
+	if (!asked && recent.length >= handoffs.max) return false
+	try {
+		sessionStorage.setItem(handoffs.key, JSON.stringify([...recent, now]))
+	} catch {
+		// A browser that keeps nothing goes round as often as it is sent.
+	}
+	location.replace('/handoff/start?' + new URLSearchParams({ next: location.pathname + location.search }).toString())
+	return true
+}
+
+/**
+ * Signs out on a workspace's own domain: this host's session, and the sign-in
+ * at the service's address it was handed from. A form, as signing out at the
+ * issuer is, because the browser goes on to where that one ends.
+ */
+export function signOutThroughHandoff(): void {
+	const f = document.createElement('form')
+	f.method = 'post'
+	f.action = '/handoff/logout'
+	document.body.append(f)
+	f.submit()
+}
+
+/**
+ * Where a sign-in at the service's address goes on to: the handoff that sent
+ * the browser here to be signed in (`?next=/handoff?...`), and nowhere else.
+ */
+export function handingOff(): string {
+	const next = new URLSearchParams(location.search).get('next') ?? ''
+	return next.startsWith('/handoff?') ? next : ''
 }
 
 /** A new workspace the account owns, with an alias nobody chose. */

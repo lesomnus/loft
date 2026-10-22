@@ -115,10 +115,12 @@ var Trail = []string{"audit", "archived", "access", "rowseal", "owed"}
 
 // Shared is the deployment's own tables, which no tenant has rows in: sessions
 // and agreements are an account's, and an account is in no workspace (D27);
-// a failed sign-in is an address's, before anybody is anybody; and what the
-// search index has yet to hear of is the deployment's work, which a purge
-// adds to rather than takes from.
-var Shared = []string{"session", "clilogin", "aliashold", "consent", "signinfailure", "searchstale"}
+// a failed sign-in is an address's, before anybody is anybody; a code on its
+// way to a workspace's own domain is good for a minute, and a session handed
+// there is good on that domain alone, which goes with the workspace (rove#155);
+// and what the search index has yet to hear of is the deployment's work,
+// which a purge adds to rather than takes from.
+var Shared = []string{"session", "clilogin", "aliashold", "consent", "signinfailure", "handoff", "searchstale"}
 
 // Tables is every table a tenant has rows in, each before every table it
 // points at, so that deleting in this order leaves no reference dangling. The

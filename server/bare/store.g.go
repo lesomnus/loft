@@ -26,6 +26,7 @@ import (
 	custodyline "github.com/lesomnus/rove/internal/ent/custodyline"
 	event "github.com/lesomnus/rove/internal/ent/event"
 	fact "github.com/lesomnus/rove/internal/ent/fact"
+	handoff "github.com/lesomnus/rove/internal/ent/handoff"
 	holder "github.com/lesomnus/rove/internal/ent/holder"
 	inventorycount "github.com/lesomnus/rove/internal/ent/inventorycount"
 	invitation "github.com/lesomnus/rove/internal/ent/invitation"
@@ -415,6 +416,7 @@ type Scope interface {
 	AliasHoldScope(ctx context.Context) (predicate.AliasHold, error)
 	ConsentScope(ctx context.Context) (predicate.Consent, error)
 	SignInFailureScope(ctx context.Context) (predicate.SignInFailure, error)
+	HandoffScope(ctx context.Context) (predicate.Handoff, error)
 	AssetScope(ctx context.Context) (predicate.Asset, error)
 	TreeLockScope(ctx context.Context) (predicate.TreeLock, error)
 	TenantDomainScope(ctx context.Context) (predicate.TenantDomain, error)
@@ -494,6 +496,9 @@ func (Unscoped) ConsentScope(_ context.Context) (predicate.Consent, error) {
 	return nil, nil
 }
 func (Unscoped) SignInFailureScope(_ context.Context) (predicate.SignInFailure, error) {
+	return nil, nil
+}
+func (Unscoped) HandoffScope(_ context.Context) (predicate.Handoff, error) {
 	return nil, nil
 }
 func (Unscoped) AssetScope(_ context.Context) (predicate.Asset, error) {
@@ -836,6 +841,26 @@ func (ss Scopes) SignInFailureScope(ctx context.Context) (predicate.SignInFailur
 	}
 
 	return signinfailure.And(ps...), nil
+}
+
+func (ss Scopes) HandoffScope(ctx context.Context) (predicate.Handoff, error) {
+	ps := make([]predicate.Handoff, 0, len(ss))
+	for _, s := range ss {
+		p, err := s.HandoffScope(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if p == nil {
+			continue
+		}
+
+		ps = append(ps, p)
+	}
+	if len(ps) == 0 {
+		return nil, nil
+	}
+
+	return handoff.And(ps...), nil
 }
 
 func (ss Scopes) AssetScope(ctx context.Context) (predicate.Asset, error) {
@@ -1712,6 +1737,7 @@ func (s Server) Consent() rove.ConsentServiceServer { return ConsentServiceServe
 func (s Server) SignInFailure() rove.SignInFailureServiceServer {
 	return SignInFailureServiceServer{Store: s.Store}
 }
+func (s Server) Handoff() rove.HandoffServiceServer   { return HandoffServiceServer{Store: s.Store} }
 func (s Server) Asset() rove.AssetServiceServer       { return AssetServiceServer{Store: s.Store} }
 func (s Server) TreeLock() rove.TreeLockServiceServer { return TreeLockServiceServer{Store: s.Store} }
 func (s Server) TenantDomain() rove.TenantDomainServiceServer {

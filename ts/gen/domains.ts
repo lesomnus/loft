@@ -63,6 +63,9 @@ export const EventDomain = 17
 /** The domain identifiers of rove.Fact carry. */
 export const FactDomain = 16
 
+/** The domain identifiers of rove.Handoff carry. */
+export const HandoffDomain = 48
+
 /** The domain identifiers of rove.Holder carry. */
 export const HolderDomain = 2
 
@@ -166,6 +169,7 @@ pdid.register("rove.Custody", CustodyDomain, "custody")
 pdid.register("rove.CustodyLine", CustodyLineDomain, "custody-line")
 pdid.register("rove.Event", EventDomain, "event")
 pdid.register("rove.Fact", FactDomain, "fact")
+pdid.register("rove.Handoff", HandoffDomain, "handoff")
 pdid.register("rove.Holder", HolderDomain, "holder")
 pdid.register("rove.InventoryCount", InventoryCountDomain, "inventory-count")
 pdid.register("rove.Invitation", InvitationDomain, "invitation")

@@ -19,7 +19,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file rove/org.proto.
  */
 export const file_rove_org: GenFile = /*@__PURE__*/
-  fileDesc("Cg5yb3ZlL29yZy5wcm90bxIEcm92ZSLLBQoFUGFydHkSFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEiQKBnRlbmFudBgCIAEoCzIMLnJvdmUuVGVuYW50QgbyghYCQAESFAoEbmFtZRgFIAEoCUIGqsEWAhgBEhQKBGRlc2MYBiABKAlCBqrBFgIYARIvCgZsYWJlbHMYByADKAsyFy5yb3ZlLlBhcnR5LkxhYmVsc0VudHJ5QgaqwRYCGAESFAoEa2luZBgIIAEoCUIGqsEWAhgAEhsKCXBhcmVudF9pZBgJIAEoDEII6oIWBBBAOAESJAoGaG9sZGVyGAogASgLMgwucm92ZS5Ib2xkZXJCBvKCFgI4ARIVCgVlbWFpbBgLIAEoCUIGqsEWAhgBEhUKBXBob25lGAwgASgJQgaqwRYCGAESOQoMZGF0ZV91cGRhdGVkGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4oBABI4CgtkYXRlX2VyYXNlZBgOIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOSAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAEhQKBGNvZGUYECABKAlCBqrBFgIYARotCgtMYWJlbHNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBOqcByvwVShICEAEaLBIEcGFnZRoKCgZ0ZW5hbnQQAhoQCgxkYXRlX2NyZWF0ZWQQDxoGCgJpZBABGhYSBmhvbGRlchoKCgZob2xkZXIQCjABirsWVQgKMk8KEAoOCgxkYXRlX2NyZWF0ZWQKBgoECgJpZBoFCgNyZWYaBgoEa2luZBoLCglwYXJlbnRfaWQaCAoGaG9sZGVyGggKBmxhYmVscyAyKPQDOgAi6AQKB1Nlc3Npb24SFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEhcKB2FjY291bnQYCCABKAxCBuqCFgIQQBIdCgZzZWNyZXQYCSABKAxCDeqCFgOCAQCqwRYCCAESFgoFZ3JhbnQYCiABKAxCB+qCFgOCAQASOAoMZGF0ZV9leHBpcmVzGAsgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIG6oIWAjgBEjUKCWRhdGVfaWRsZRgMIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCBuqCFgI4ARIaCgRoZWxkGBAgASgMQgzqghYCOAGqwRYCCAESOQoMZGF0ZV91cGRhdGVkGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4oBABI4CgtkYXRlX2VyYXNlZBgOIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOSAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAOrQByvwVLhoUEgZzZWNyZXQaCgoGc2VjcmV0EAkaFhIHYWNjb3VudBoLCgdhY2NvdW50EAiKuxZ+CCZSeBJ2CnRhIHNpZ24taW4sIHdob3NlIGlkbGUgY2xvY2sgbW92ZXMgb24gZXZlcnkgcmVxdWVzdDsgd2hvIHNpZ25lZCBpbiwgYW5kIGZyb20gd2hlcmUsIGlzIHRoZSBhY2Nlc3MgcmVjb3JkJ3MgKHJvdmUjMTM2KSoAIqoGCgpJbnZpdGF0aW9uEhcKAmlkGAEgASgMQgvqghYHEEAoAYIBABIkCgZ0ZW5hbnQYAiABKAsyDC5yb3ZlLlRlbmFudEIG8oIWAkABEiUKB2ludml0ZXIYCCABKAsyDC5yb3ZlLkhvbGRlckIG8oIWAkABEhUKBWVtYWlsGAkgASgJQgaqwRYCGAESGgoEcm9sZRgKIAEoCUIM6oIWAkABqsEWAhgAEiIKBXBhcnR5GAsgASgLMgsucm92ZS5QYXJ0eUIG8oIWAjgBEhkKB2FjY291bnQYDCABKAxCCOqCFgQQQDgBEjkKDGRhdGVfdXBkYXRlZBgNIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOKAQASOAoLZGF0ZV9lcmFzZWQYDiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDkgEAEjsKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCeqCFgVAAYIBABIVCgVzdGF0ZRgQIAEoCUIGqsEWAhgAEjkKDGRhdGVfZXhwaXJlcxgRIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOCAQASOAoMZGF0ZV9zZXR0bGVkGBIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIG6oIWAjgBEiQKBmhvbGRlchgTIAEoCzIMLnJvdmUuSG9sZGVyQgbyghYCOAESGwoFY2xhaW0YFCABKAxCDOqCFgI4AarBFgIIATrCAcr8FXISAhABGiwSBHBhZ2UaCgoGdGVuYW50EAIaEAoMZGF0ZV9jcmVhdGVkEA8aBgoCaWQQARoSEgVjbGFpbRoJCgVjbGFpbRAUGhYSB2FjY291bnQaCwoHYWNjb3VudBAMGhISBWVtYWlsGgkKBWVtYWlsEAmKuxZICCkyRAoQCg4KDGRhdGVfY3JlYXRlZAoGCgQKAmlkGgUKA3JlZhoICgZ0ZW5hbnQaCQoHYWNjb3VudBoHCgVzdGF0ZSAyKMgBIqMECghDbGlMb2dpbhIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASHQoGc2VjcmV0GAggASgMQg3qghYDggEAqsEWAggBEgwKBGNvZGUYCSABKAkSDgoGY2xpZW50GAogASgJEg4KBm9yaWdpbhgLIAEoCRIeCgdhZGRyZXNzGBIgASgJQg3qghYDggEAqsEWAhgAEhkKB2FjY291bnQYDCABKAxCCOqCFgQQQDgBEhYKBWdyYW50GBMgASgMQgfqghYDggEAEg0KBXN0YXRlGBAgASgJEjkKDGRhdGVfZXhwaXJlcxgRIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOCAQASOQoMZGF0ZV91cGRhdGVkGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4oBABI4CgtkYXRlX2VyYXNlZBgOIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOSAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAOmLK/BVSGhASBGNvZGUaCAoEY29kZRAJGhQSBnNlY3JldBoKCgZzZWNyZXQQCBooEgdhZGRyZXNzGgsKB2FkZHJlc3MQEhoQCgxkYXRlX2NyZWF0ZWQQD4q7FggIKlICCgAqACL7AgoJQWxpYXNIb2xkEhcKAmlkGAEgASgMQgvqghYHEEAoAYIBABIMCgRoZWxkGAggASgJEg4KBnJlYXNvbhgJIAEoCRIQCghtb3ZlZF90bxgKIAEoCRIWCgZ0ZW5hbnQYCyABKAxCBuqCFgIQQBI3CgpkYXRlX3VudGlsGBAgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4IBABI5CgxkYXRlX3VwZGF0ZWQYDSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDigEAEjgKC2RhdGVfZXJhc2VkGA4gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA5IBABI7CgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgnqghYFQAGCAQA6Isr8FRIaEBIEaGVsZBoICgRoZWxkEAiKuxYICCtSAgoAKgAi4gIKB0NvbnNlbnQSFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEhcKB2FjY291bnQYCCABKAxCBuqCFgIQQBIQCghkb2N1bWVudBgJIAEoCRIPCgd2ZXJzaW9uGAogASgJEg4KBmNsaWVudBgLIAEoCRI1CglkYXRlX2xlZnQYDCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESOAoLZGF0ZV9lcmFzZWQYDiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDkgEAEjsKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCeqCFgVAAYIBADpEyvwVNBoyEgZhZ3JlZWQaCwoHYWNjb3VudBAIGgwKCGRvY3VtZW50EAkaCwoHdmVyc2lvbhAKMAGKuxYICCxSAgoAKgAixQIKDVNpZ25JbkZhaWx1cmUSFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEh4KB3N1YmplY3QYCCABKAxCDeqCFgOCAQCqwRYCCAESOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAOr0ByvwVTBooEgdzdWJqZWN0GgsKB3N1YmplY3QQCBoQCgxkYXRlX2NyZWF0ZWQQDxogEgxkYXRlX2NyZWF0ZWQaEAoMZGF0ZV9jcmVhdGVkEA+KuxZpCC1CAgoAUl8SXQpbYSBjb3VudCBvZiB0aGUgc2lnbi1pbnMgYW4gYWRkcmVzcyBnb3Qgd3JvbmcsIGtlcHQgZm9yIGhvdXJzIHRvIHNsb3cgdGhlIG5leHQ7IG5vYm9keSdzIGFjdCoAQh9aGGdpdGh1Yi5jb20vbGVzb21udXMvcm92ZZIDAggCYghlZGl0aW9uc3DoBw", [file_google_protobuf_timestamp, file_orm, file_payday, file_rove_payday_holder, file_rove_payday_tenant]);
+  fileDesc("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", [file_google_protobuf_timestamp, file_orm, file_payday, file_rove_payday_holder, file_rove_payday_tenant]);
 
 /**
  * Party is a person, a team, an organization or a vendor: whoever an asset is
@@ -133,6 +133,10 @@ export const PartySchema: GenMessage<Party> = /*@__PURE__*/
  * of it. The key itself is never stored: `secret` is its SHA-256, which is
  * what a cookie is looked up by.
  *
+ * One handed to a workspace's own domain (rove#155) is the exception: a
+ * cookie of that host's alone, bound to that workspace (`workspace`), and
+ * handed from a sign-in here (`parent`).
+ *
  * @generated from message rove.Session
  */
 export type Session = Message<"rove.Session"> & {
@@ -177,6 +181,26 @@ export type Session = Message<"rove.Session"> & {
    * @generated from field: bytes held = 16;
    */
   held: Uint8Array;
+
+  /**
+   * The workspace a session handed to that workspace's own domain is bound
+   * to (rove#155): it is served as the account's membership of that
+   * workspace, on a host that pins it, and nowhere else. Null for a sign-in
+   * at the service's address, which names the account alone.
+   *
+   * @generated from field: bytes workspace = 17;
+   */
+  workspace: Uint8Array;
+
+  /**
+   * The sign-in at the service's address a session on a workspace's domain
+   * was handed from (`Handoff`): it is good while that one is, keeps that one
+   * from idling out while it is used, and signing out on the domain ends that
+   * one with it. Null for a sign-in at the service's.
+   *
+   * @generated from field: bytes parent = 18;
+   */
+  parent: Uint8Array;
 
   /**
    * @generated from field: google.protobuf.Timestamp date_updated = 13;
@@ -644,4 +668,84 @@ export type SignInFailure = Message<"rove.SignInFailure"> & {
  */
 export const SignInFailureSchema: GenMessage<SignInFailure> = /*@__PURE__*/
   messageDesc(file_rove_org, 6);
+
+/**
+ * Handoff is a sign-in on its way from the service's address to a
+ * workspace's own domain (rove#155, design 9.9): a code the service gave a
+ * browser signed in there, which the browser exchanges on the domain for a
+ * session of the domain's own.
+ *
+ * A code is good once, for a minute, for the account, the workspace and the
+ * host it was made for, and for the round trip that host started (`state`).
+ * It is never written down -- `secret` is what it hashes to, as a session's
+ * key is -- and its row is gone when it is exchanged, whatever the exchange
+ * comes to. It is the deployment's (`global`), written only through ent by
+ * `server/session`, and the policy opens no RPC of it.
+ *
+ * @generated from message rove.Handoff
+ */
+export type Handoff = Message<"rove.Handoff"> & {
+  /**
+   * @generated from field: bytes id = 1;
+   */
+  id: Uint8Array;
+
+  /**
+   * What the code hashes to.
+   *
+   * @generated from field: bytes secret = 8;
+   */
+  secret: Uint8Array;
+
+  /**
+   * Who it signs in, to which workspace, on which of that workspace's
+   * domains: an active `app` one when the code was made.
+   *
+   * @generated from field: bytes account = 9;
+   */
+  account: Uint8Array;
+
+  /**
+   * @generated from field: bytes workspace = 10;
+   */
+  workspace: Uint8Array;
+
+  /**
+   * @generated from field: string host = 11;
+   */
+  host: string;
+
+  /**
+   * What the state the host started the round trip with hashes to: the code
+   * is good for that round trip and no other.
+   *
+   * @generated from field: bytes state = 12;
+   */
+  state: Uint8Array;
+
+  /**
+   * The sign-in at the service's address the code was given to, which the
+   * session it is exchanged for is handed from (`Session.parent`).
+   *
+   * @generated from field: bytes parent = 16;
+   */
+  parent: Uint8Array;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp date_expires = 17;
+   */
+  dateExpires?: Timestamp | undefined;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp date_created = 15;
+   */
+  dateCreated?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message rove.Handoff.
+ * Use `create(HandoffSchema)` to create a new message.
+ */
+export const HandoffSchema: GenMessage<Handoff> = /*@__PURE__*/
+  messageDesc(file_rove_org, 7);
 

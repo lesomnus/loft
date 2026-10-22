@@ -49,6 +49,8 @@ import (
 	"golang.org/x/oauth2"
 
 	"github.com/lesomnus/rove/internal/identity"
+	"github.com/lesomnus/rove/server/apphost"
+	"github.com/lesomnus/rove/server/landing"
 )
 
 // Config is the issuer this deployment signs people in through.
@@ -94,6 +96,10 @@ type Ways struct {
 	Providers []Provider `json:"providers"`
 	// Password says whether the form is offered beside them.
 	Password bool `json:"password"`
+	// Handoff says that this is a workspace's own domain, where nobody signs
+	// in: the page sends the browser to the service's address to be signed
+	// in, and back (`server/session`'s handoff, rove#155).
+	Handoff bool `json:"handoff,omitempty"`
 }
 
 // People is who an issuer's `sub` is, at roster.
@@ -205,6 +211,9 @@ func (rp *Rp) ways(w http.ResponseWriter, r *http.Request) {
 	if rp.c.On() {
 		v.Providers = append(v.Providers, rp.c.Providers...)
 	}
+	if _, ok := apphost.From(r.Context()); ok {
+		v = Ways{Providers: []Provider{}, Handoff: true}
+	}
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Cache-Control", "no-store")
 	_ = json.NewEncoder(w).Encode(v)
@@ -228,7 +237,7 @@ func (rp *Rp) login(w http.ResponseWriter, r *http.Request) {
 
 	state, nonce := secret(), secret()
 	verifier := oauth2.GenerateVerifier()
-	rp.put(state, flow{nonce: nonce, verifier: verifier, next: local(r.URL.Query().Get("next"))})
+	rp.put(state, flow{nonce: nonce, verifier: verifier, next: landing.Path(r.URL.Query().Get("next"))})
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     stateCookie,
@@ -366,34 +375,44 @@ func (rp *Rp) callback(w http.ResponseWriter, r *http.Request) {
 func (rp *Rp) logout(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	key := rp.sessions.KeyOf(r.Header.Values("Cookie"))
-	held := ""
+	var held map[string]string
 	if v, err := rp.sessions.Read(ctx, key); err == nil {
-		held = v.Held[hint]
+		held = v.Held
 	}
 	http.SetCookie(w, rp.sessions.End(ctx, key))
 
-	if held == "" {
-		http.Redirect(w, r, "/", http.StatusSeeOther)
-		return
+	to := rp.EndSession(ctx, held)
+	if to == "" {
+		to = "/"
+	}
+	http.Redirect(w, r, to, http.StatusSeeOther)
+}
+
+// EndSession is where a browser goes to end its session at the issuer too,
+// for a sign-in that kept the issuer's token (`held`, `Session.held`), and
+// comes back to this deployment's `/`: empty for one that kept none, and for
+// an issuer that publishes no way to end its own session -- the session here
+// is ended, and that is what there is. Signing out on a workspace's domain
+// goes there too (`server/session`'s handoff).
+func (rp *Rp) EndSession(ctx context.Context, held map[string]string) string {
+	token := held[hint]
+	if token == "" || !rp.c.On() {
+		return ""
 	}
 	f, err := rp.discovered(ctx)
 	if err != nil || f.endSession == "" {
-		// An issuer that publishes no way to end its own session: this one
-		// is ended, and that is what there is.
-		http.Redirect(w, r, "/", http.StatusSeeOther)
-		return
+		return ""
 	}
 	u, err := url.Parse(f.endSession)
 	if err != nil {
-		http.Redirect(w, r, "/", http.StatusSeeOther)
-		return
+		return ""
 	}
 	q := u.Query()
 	q.Set("client_id", rp.c.ClientId)
-	q.Set("id_token_hint", held)
+	q.Set("id_token_hint", token)
 	q.Set("post_logout_redirect_uri", rp.base+"/")
 	u.RawQuery = q.Encode()
-	http.Redirect(w, r, u.String(), http.StatusSeeOther)
+	return u.String()
 }
 
 // discovered is what the issuer published, asked for once it is needed and
@@ -476,22 +495,6 @@ func (rp *Rp) take(state string) (flow, bool) {
 		return flow{}, false
 	}
 	return f, true
-}
-
-// local is a path on this deployment to land on, and `/` for anything else: a
-// sign-in is a redirect, and one to wherever a link said would send somebody
-// who just signed in to a page made to look like this one.
-//
-// A path is what starts with one slash. Two is another host to a browser, and
-// so is a backslash where a slash would be, since a browser reads one as the
-// other; a control character, which a browser drops and which could close up
-// either, is refused by the parse.
-func local(next string) string {
-	u, err := url.Parse(next)
-	if err != nil || !strings.HasPrefix(next, "/") || strings.HasPrefix(next, "//") || strings.Contains(next, "\\") {
-		return "/"
-	}
-	return u.RequestURI()
 }
 
 // secret is 24 random bytes, for a state or a nonce.

@@ -32,7 +32,10 @@ type hosted struct {
 	h http.Handler
 }
 
-func newHosted(t *testing.T) *hosted {
+func newHosted(t *testing.T) *hosted { return newHostedWith(t, nil) }
+
+// newHostedWith is [newHosted] with one more say over its configuration.
+func newHostedWith(t *testing.T, with func(*cmd.Config)) *hosted {
 	web := t.TempDir()
 	if err := os.WriteFile(filepath.Join(web, "index.html"), []byte("<!doctype html>the app"), 0o644); err != nil {
 		t.Fatal(err)
@@ -40,6 +43,9 @@ func newHosted(t *testing.T) *hosted {
 	w := newWorldWith(t, func(c *cmd.Config) {
 		c.App.PublicUrl = "https://rove.example"
 		c.App.Web = web
+		if with != nil {
+			with(c)
+		}
 	})
 
 	g, err := w.s.Grpc(context.Background(), w.c)

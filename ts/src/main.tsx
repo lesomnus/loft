@@ -8,6 +8,11 @@
  * the server's to say (`GET /sso`). The page is about the workspace its
  * address names (`/@<alias>/...`), and one that names none opens the last one.
  *
+ * On a workspace's own domain nobody signs in (rove#155): the page sends the
+ * browser to the service's address (`/handoff/start`), which signs it in --
+ * and asks for what the account has not agreed to yet -- and hands back a
+ * session of that host's, and signing out there ends both.
+ *
  * With no network the page opens as who it was last signed in as, from what
  * it last saw (`offline.ts`); signing out, or being found signed out, drops
  * everything it kept.
@@ -20,11 +25,14 @@ import { createRoot } from 'react-dom/client'
 
 import '../gen/domains.js'
 import {
+	handingOff,
+	handOff,
 	lastWorkspace,
 	openWorkspace,
 	rememberWorkspace,
 	signedIn,
 	signInThrough,
+	signOutThroughHandoff,
 	signOutThroughIssuer,
 	waysIn,
 	workspace,
@@ -76,11 +84,18 @@ function Brand(): ReactNode {
 function Login(props: { ways: Ways; onIn: () => void }): ReactNode {
 	const [busy, setBusy] = useState(false)
 	const [bad, setBad] = useState(signinOutcome)
-	const { sso, providers, password } = props.ways
+	const { sso, providers, password, handoff } = props.ways
 	return (
 		<div className="login">
 			<div className="card">
 				<Brand />
+				{handoff === true && (
+					<div className="providers">
+						<button className="primary" onClick={() => handOff(true)}>
+							로그인
+						</button>
+					</div>
+				)}
 				{sso && (
 					<div className="providers">
 						{providers.length === 0 ? (
@@ -201,6 +216,10 @@ function Boot(): ReactNode {
 			if (a === 'out') {
 				// Signed out, here or anywhere else: nothing of theirs stays.
 				void forget()
+				// On a workspace's own domain, off to be signed in at the
+				// service's -- unless the last round trip came back refused,
+				// which a button tries again.
+				if (w.handoff === true && !new URLSearchParams(location.search).has('signin') && handOff()) return
 				setState({ at: 'out', ways: w })
 				return
 			}
@@ -213,7 +232,17 @@ function Boot(): ReactNode {
 			// What the deployment asks of an account comes before anything
 			// it has: every call is refused until it agrees (design 9.11).
 			if ((a.owes ?? []).length > 0) {
+				// On a workspace's own domain it is agreed to at the
+				// service's, on the way back here.
+				if (w.handoff === true && handOff()) return
 				setState({ at: 'consent', account: a })
+				return
+			}
+			// Signed in at the service's address for a workspace's own
+			// domain, which the browser goes back to.
+			const next = handingOff()
+			if (next !== '') {
+				location.replace(next)
 				return
 			}
 			// The invitations waiting for the account: about no workspace, and
@@ -262,6 +291,7 @@ function Boot(): ReactNode {
 
 	const out = useCallback(() => {
 		void forget()
+		if (ways.handoff === true && handOff()) return
 		setState({ at: 'out', ways })
 	}, [ways])
 	const signOut = useCallback(async () => {
@@ -271,6 +301,12 @@ function Boot(): ReactNode {
 		}
 		// What this browser kept of theirs goes first, whatever comes next.
 		await forget()
+		if (ways.handoff === true) {
+			// This host's session and the sign-in it was handed from, and on
+			// to wherever that one ends.
+			signOutThroughHandoff()
+			return
+		}
 		if (ways.sso) {
 			// To the issuer and back, which ends the page with it.
 			signOutThroughIssuer()

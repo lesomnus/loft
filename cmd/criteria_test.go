@@ -286,6 +286,7 @@ func TestNoPasswordIsKeptHere(t *testing.T) {
 		"session.secret":           "the digest of a session key this deployment made for a browser, or a terminal made and sent the digest of",
 		"session.held":             "the ID token an issuer handed over, given back to it at signing out",
 		"clilogin.secret":          "the digest of the session key a terminal made up, which it sent as a digest",
+		"handoff.secret":           "the digest of a code that hands a sign-in to a workspace's own domain, good once for a minute",
 		"invitation.claim":         "the digest of the code an invitation's mail carries, which proves the mailbox and signs nobody in",
 		"tenantdomain.token":       "the value of a DNS record that proves a label domain",
 		"tenantdomain.verified_at": "when that record was seen",

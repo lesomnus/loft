@@ -1479,3 +1479,63 @@ var SignInFailureService_ServiceDesc = grpc.ServiceDesc{
 	Streams:     []grpc.StreamDesc{},
 	Metadata:    "rove/org_svc.g.proto",
 }
+
+// HandoffServiceClient is the client API for HandoffService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type HandoffServiceClient interface {
+}
+
+type handoffServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewHandoffServiceClient(cc grpc.ClientConnInterface) HandoffServiceClient {
+	return &handoffServiceClient{cc}
+}
+
+// HandoffServiceServer is the server API for HandoffService service.
+// All implementations must embed UnimplementedHandoffServiceServer
+// for forward compatibility.
+type HandoffServiceServer interface {
+	mustEmbedUnimplementedHandoffServiceServer()
+}
+
+// UnimplementedHandoffServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedHandoffServiceServer struct{}
+
+func (UnimplementedHandoffServiceServer) mustEmbedUnimplementedHandoffServiceServer() {}
+func (UnimplementedHandoffServiceServer) testEmbeddedByValue()                        {}
+
+// UnsafeHandoffServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to HandoffServiceServer will
+// result in compilation errors.
+type UnsafeHandoffServiceServer interface {
+	mustEmbedUnimplementedHandoffServiceServer()
+}
+
+func RegisterHandoffServiceServer(s grpc.ServiceRegistrar, srv HandoffServiceServer) {
+	// If the following call panics, it indicates UnimplementedHandoffServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&HandoffService_ServiceDesc, srv)
+}
+
+// HandoffService_ServiceDesc is the grpc.ServiceDesc for HandoffService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var HandoffService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "rove.HandoffService",
+	HandlerType: (*HandoffServiceServer)(nil),
+	Methods:     []grpc.MethodDesc{},
+	Streams:     []grpc.StreamDesc{},
+	Metadata:    "rove/org_svc.g.proto",
+}

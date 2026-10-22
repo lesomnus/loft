@@ -30,6 +30,10 @@ type Session struct {
 	DateIdle *time.Time `json:"date_idle,omitempty"`
 	// Held holds the value of the "held" field.
 	Held *[]byte `json:"held,omitempty"`
+	// Workspace holds the value of the "workspace" field.
+	Workspace *uuid.UUID `json:"workspace,omitempty"`
+	// Parent holds the value of the "parent" field.
+	Parent *uuid.UUID `json:"parent,omitempty"`
 	// DateUpdated holds the value of the "date_updated" field.
 	DateUpdated time.Time `json:"date_updated,omitempty"`
 	// DateErased holds the value of the "date_erased" field.
@@ -48,6 +52,8 @@ func (*Session) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case session.FieldDateExpires, session.FieldDateIdle, session.FieldDateUpdated, session.FieldDateErased, session.FieldDateCreated:
 			values[i] = new(sql.NullTime)
+		case session.FieldWorkspace, session.FieldParent:
+			values[i] = new(sql.Null[uuid.UUID])
 		case session.FieldId, session.FieldAccount:
 			values[i] = new(uuid.UUID)
 		default:
@@ -108,6 +114,20 @@ func (_m *Session) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field held", values[i])
 			} else if value != nil {
 				_m.Held = value
+			}
+		case session.FieldWorkspace:
+			if value, ok := values[i].(*sql.Null[uuid.UUID]); !ok {
+				return fmt.Errorf("unexpected type %T for field workspace", values[i])
+			} else if value.Valid {
+				_m.Workspace = new(uuid.UUID)
+				*_m.Workspace = value.V
+			}
+		case session.FieldParent:
+			if value, ok := values[i].(*sql.Null[uuid.UUID]); !ok {
+				return fmt.Errorf("unexpected type %T for field parent", values[i])
+			} else if value.Valid {
+				_m.Parent = new(uuid.UUID)
+				*_m.Parent = value.V
 			}
 		case session.FieldDateUpdated:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -185,6 +205,16 @@ func (_m *Session) String() string {
 	builder.WriteString(", ")
 	if v := _m.Held; v != nil {
 		builder.WriteString("held=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.Workspace; v != nil {
+		builder.WriteString("workspace=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	if v := _m.Parent; v != nil {
+		builder.WriteString("parent=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
 	builder.WriteString(", ")
