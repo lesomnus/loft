@@ -1,0 +1,27 @@
+# Caddyfile, and workspaces' own domains beside it (rove#155): read instead of
+# Caddyfile once compose.domains.yaml is (README.md, "워크스페이스 도메인").
+#
+# The service's own address is Caddyfile's, as it was. Any other host a
+# browser asks for is a workspace's domain or nothing: before Caddy takes a
+# certificate for one -- loads it, obtains it, renews it -- it asks the
+# operator's entry point whether the host is a workspace's verified domain in
+# use, and how often it may (`admin.ask`). A host nobody verified is never
+# given one, and its handshake fails.
+{
+	on_demand_tls {
+		ask http://rove-admin:8082/internal/tls-ask
+	}
+	# More of Caddy's global options, from .env's ROVE_EDGE_OPTIONS: an e-mail
+	# for the ACME account, to hear of a certificate that cannot be renewed
+	# (`email ops@example.com`).
+	{$ROVE_EDGE_OPTIONS:}
+}
+
+import Caddyfile
+
+https:// {
+	tls {
+		on_demand
+	}
+	import rove
+}

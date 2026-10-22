@@ -84,6 +84,55 @@ type AdminConfig struct {
 	// `file:PATH` or the key itself: a request carries one as a bearer token,
 	// and what it did is logged with the name. None is a door nobody opens.
 	Keys map[string]string `yaml:"keys"`
+
+	// Ask is what the reverse proxy in front of workspaces' own domains asks
+	// before it takes a certificate for a host (`/internal/tls-ask`,
+	// rove#155).
+	Ask AskConfig `yaml:"ask"`
+}
+
+// AskConfig is where the proxy that takes certificates on demand asks
+// whether it may take one, and how often it is told yes.
+//
+// The proxy asks before every certificate it loads or takes that it does not
+// hold in memory: so on every handshake for a host while it has none, since
+// it keeps no account of an attempt that failed, and once for every host when
+// it starts. A yes is held to a rate for each host and for all of them, and
+// an answer past it is no for now (429), which the proxy asks again later.
+type AskConfig struct {
+	// Addr is a listener of its own that answers the ask and nothing else,
+	// so that a proxy facing the internet reaches no operator's door. Empty
+	// answers it on `admin.addr` alone.
+	Addr string `yaml:"addr"`
+
+	// HostBurst is how many yes answers one host is given at once, and
+	// HostEvery how often one more after. Unset are 10 and five minutes: a
+	// page opens a few connections at once, each a handshake the proxy asks
+	// for; one a host keeps failing to validate is then tried twelve times
+	// an hour, rather than on every handshake that reaches it -- about the
+	// failed validations Let's Encrypt holds a host to (five an hour).
+	HostBurst int           `yaml:"host_burst"`
+	HostEvery time.Duration `yaml:"host_every"`
+
+	// Burst and Every are the same for all hosts together. Unset are 300 and
+	// 30 seconds: a proxy that starts with every certificate in its storage
+	// asks for each of them once, and one more every 30 seconds is 120 an
+	// hour, under the 300 new orders in three hours Let's Encrypt allows an
+	// account.
+	Burst int           `yaml:"burst"`
+	Every time.Duration `yaml:"every"`
+}
+
+// HostRate is how many yes answers one host is given at once, and how often
+// one more after.
+func (c AskConfig) HostRate() (int, time.Duration) {
+	return or(c.HostBurst, 10), or(c.HostEvery, 5*time.Minute)
+}
+
+// Rate is how many yes answers all hosts together are given at once, and how
+// often one more after.
+func (c AskConfig) Rate() (int, time.Duration) {
+	return or(c.Burst, 300), or(c.Every, 30*time.Second)
 }
 
 // ListenAddr is where the operator's entry point listens.

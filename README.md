@@ -353,6 +353,11 @@ Kubernetes에 띄우는 참조 배포는 [`deploy/k8s`](deploy/k8s/README.md)입
   - **기본 주소**는 `app.labels.suffix` 아래 하위 도메인(`<이름>.<suffix>`)입니다. DNS 작업이 필요 없고 라벨만 씁니다. 새 워크스페이스에 저절로 생기지 않고, 원하는 워크스페이스가 추가합니다.
   - 호스트는 소문자와 ASCII(IDNA)로 저장합니다. 이 서비스의 주소와 그 아래 이름, IP 주소, `localhost` 아래 이름은 받지 않고, 한 호스트는 한 워크스페이스만 씁니다.
   - 도메인을 바꿔도 이전 도메인은 '이전 주소'로 남아 그 주소로 인쇄한 라벨이 계속 열립니다. 이전 앱 도메인은 `app.workspaces.domain_redirect`(기본 90일) 동안 페이지를 새 도메인으로 보냅니다. 서비스 주소로 인쇄한 라벨도 그대로 열립니다.
+  - **운영자가 켜는 법:** 워크스페이스 도메인의 인증서는 프런트가 요청 시점에 받습니다. compose는 `compose.domains.yaml`(`deploy/compose/README.md`의 "워크스페이스 도메인을 받으려면"), Kubernetes는 컴포넌트 `deploy/k8s/domains`(`deploy/k8s/README.md`의 11)로 켭니다.
+    - 프런트는 인증서를 받기 전에 운영자 진입점(`/internal/tls-ask`, `admin.ask`)에 묻습니다. 확인된 도메인에만, 정해진 횟수 안에서 받습니다.
+    - `app.labels.target`에 고객의 CNAME이 가리킬 이름을 넣습니다. 프런트를 가리키는 DNS 이름입니다.
+    - 서비스 주소의 인증서는 지금 그대로입니다.
+  - **고객이 DNS에 만들 것:** CNAME `<도메인>` → `app.labels.target`과, TXT `_rove-challenge.<도메인>` = 설정 화면의 토큰. CNAME을 둘 수 없는 apex라면 DNS 업체의 ALIAS·CNAME 펼치기로 같은 주소를 가리키게 합니다.
   - 확인된 뒤에도 TXT와 CNAME 레코드를 지우지 마세요. 쓰는 동안 한 시간마다 다시 확인하고, 여섯 번 연속(다섯 시간 넘게) 맞지 않으면 사용을 멈춥니다. 그러면 로그인과 링크는 서비스 주소로 돌아가고, 소유자와 관리자에게 알림이 갑니다. 레코드를 되돌리면 일주일 동안 저절로 다시 확인하고, 설정에서 바로 확인할 수도 있습니다.
   - 예전의 `app.labels.tenant_domains`는 없어졌습니다. 설정에 `true`로 남아 있으면 무시하고 시작할 때 경고합니다.
 

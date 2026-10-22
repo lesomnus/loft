@@ -94,28 +94,55 @@ func newCmdServe(c *cmd.Config) *xli.Command {
 			}
 			defer s.Close()
 
+			routes := admin.Routes{S: s, C: *c, Operators: ops, Ask: admin.NewIssuance(c.Admin.Ask)}
 			l, err := net.Listen("tcp", c.Admin.ListenAddr())
 			if err != nil {
 				return err
 			}
 			log.From(ctx).InfoContext(ctx, "admin", slog.String("addr", l.Addr().String()), slog.Int("operators", len(ops)))
-			srv := &http.Server{
-				Handler:           admin.Routes{S: s, C: *c, Operators: ops}.Handler(),
-				ReadHeaderTimeout: 10 * time.Second,
-				IdleTimeout:       2 * time.Minute,
-				BaseContext:       func(net.Listener) context.Context { return ctx },
+			srv := serving(ctx, routes.Handler())
+			// The ask alone, on a listener of its own, for a proxy that
+			// faces the internet (`admin.ask.addr`).
+			var ask *http.Server
+			if addr := c.Admin.Ask.Addr; addr != "" {
+				al, err := net.Listen("tcp", addr)
+				if err != nil {
+					l.Close()
+					return err
+				}
+				log.From(ctx).InfoContext(ctx, "admin: tls-ask", slog.String("addr", al.Addr().String()))
+				ask = serving(ctx, routes.AskHandler())
+				go func() {
+					if err := ask.Serve(al); err != nil && !errors.Is(err, http.ErrServerClosed) {
+						log.From(ctx).ErrorContext(ctx, "admin: tls-ask", slog.Any("err", err))
+					}
+				}()
 			}
 			go func() {
 				<-ctx.Done()
 				shut, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 				defer cancel()
 				_ = srv.Shutdown(shut)
+				if ask != nil {
+					_ = ask.Shutdown(shut)
+				}
 			}()
 			if err := srv.Serve(l); err != nil && !errors.Is(err, http.ErrServerClosed) {
 				return err
 			}
 			return next(ctx)
 		}),
+	}
+}
+
+// serving is an HTTP server for the entry point, on `ctx`: a client that
+// takes its time over its headers holds no connection for nothing.
+func serving(ctx context.Context, h http.Handler) *http.Server {
+	return &http.Server{
+		Handler:           h,
+		ReadHeaderTimeout: 10 * time.Second,
+		IdleTimeout:       2 * time.Minute,
+		BaseContext:       func(net.Listener) context.Context { return ctx },
 	}
 }
 

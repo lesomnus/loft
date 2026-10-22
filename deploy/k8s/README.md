@@ -16,6 +16,7 @@ resources:
 | `rove` Deployment | 파드 하나에 컨테이너 셋: `migrate`(init 컨테이너, `rove migrate`), `rove`(`rove serve`, 8080), `rove-admin`(운영자 진입점, 8081) |
 | PVC 셋 | `rove-files`(첨부), `rove-audit`(감사 기록 보관소), `rove-checkpoints`(그 체크포인트). 모두 ReadWriteOnce |
 | 컴포넌트 `witness/` (선택) | 감사 기록의 증인 저장소(`store:`)를 위한 PVC `rove-witness`와 그 마운트. base에는 넣지 않습니다(아래 6) |
+| 컴포넌트 `domains/` (선택) | 워크스페이스 도메인의 프런트: 인증서를 요청 시점에 받는 Caddy(`rove-edge`)와 그 PVC·LoadBalancer, 운영자 진입점의 물음 포트(`rove-ask`). 아래 11 |
 | `rove` Service | 8080 하나. 인그레스가 이리로 보냅니다. 운영자 진입점에는 Service가 없습니다 |
 | NetworkPolicy `rove` | 네트워크로는 8080만 받습니다. gRPC(50051)와 운영자 진입점(8081)에는 아무것도 닿지 않습니다 |
 | ConfigMap `rove` | `config.yaml`, 모든 프로세스가 `--config`로 읽는 파일 |
@@ -103,6 +104,39 @@ resources:
     - 서버와 운영자 진입점이 같은 설정으로 함께 보냅니다. 둘 다 `service.name`이 `rove`입니다.
     - 대시보드는 [`deploy/observe`](../observe/README.md)에 있습니다. 이미 있는 ClickHouse와 Loki 위의 Grafana입니다. 경보는 아직 없고, 무엇에 걸지는 `docs/runbook/observe.md`에 있습니다(rove#38).
 
+11. **워크스페이스 도메인(선택).** 워크스페이스가 자기 도메인(`assets.acme.co.kr`)에서 앱을 쓰게 합니다(rove#155). 서비스 주소의 인그레스와 인증서는 그대로 둡니다. 그 밖의 호스트를 받는 프런트를 따로 하나 둡니다.
+
+    ```yaml
+    components:
+      - github.com/lesomnus/rove//deploy/k8s/domains?ref=<base와 같은 커밋>
+    ```
+
+    - **무엇이 생기나.**
+      - `rove-edge`: Caddy, 파드 하나. 인증서와 ACME 계정은 PVC `rove-edge`(1 GiB)에 둡니다.
+      - Service `rove-edge`: LoadBalancer, 80과 443.
+      - `rove-ask`: 운영자 진입점의 `/internal/tls-ask`만 받는 포트(8082, `admin.ask.addr`).
+      - NetworkPolicy `rove-edge`: 그 포트와 서버의 8080에 프런트만 닿게 합니다.
+    - **인증서.** 프런트는 인증서를 불러오거나, 받거나, 갱신하기 전에 운영자 진입점에 묻습니다. 그 호스트가 확인되어 쓰이는 워크스페이스 도메인이어야 하고(`ready`, `active`, `legacy`), 너무 자주 묻지 않아야 합니다.
+      - 아니면 인증서가 없고 핸드셰이크가 실패합니다. 아무 도메인이나 이 프런트를 가리켜 인증서를 받아 갈 수 없습니다.
+      - DNS가 떠나 `lapsed`가 된 도메인은 갱신도 거절됩니다.
+    - **발급 횟수 제한**(`admin.ask`): Caddy는 2.8부터 자체 제한(`interval`, `burst`)을 없앴고, 제한은 묻는 곳이 합니다.
+      - 호스트 하나에는 한꺼번에 10번, 그 뒤로 5분에 한 번 "예"라고 답합니다(`host_burst`, `host_every`).
+      - 모든 호스트를 합쳐서는 한꺼번에 300번, 그 뒤로 30초에 한 번입니다(`burst`, `every`).
+      - 넘으면 429로 답하고, 프런트는 다음 핸드셰이크에서 다시 묻습니다.
+      - 왜 이 값인가:
+        - Caddy는 실패한 시도를 기억하지 않아, 인증서가 없는 동안 핸드셰이크마다 묻습니다. 검증에 계속 실패하는 호스트도 시간당 열두 번만 시도하게 됩니다(Let's Encrypt는 호스트당 실패 검증을 시간당 다섯 번까지 받습니다).
+        - 재시작한 프런트는 저장된 인증서마다 한 번씩 묻습니다. 300이면 그만큼의 도메인이 바로 뜨고, 그 뒤 시간당 120번은 Let's Encrypt의 계정당 새 주문 한도(3시간에 300)보다 적습니다.
+        - 도메인이 300개를 넘는 배포는 `burst`를 그 수에 맞춥니다.
+    - **오버레이가 정할 것:**
+      - `config.yaml`의 `app.labels.target`에 프런트의 LoadBalancer를 가리키는 DNS 이름(예: `edge.rove.example`)을 넣습니다. 고객의 CNAME이 이 이름을 가리키고, 한 시간마다 하는 DNS 재확인이 그것을 봅니다.
+      - `app.trusted_proxies`는 파드 네트워크를 넣었다면 그대로 프런트도 포함합니다.
+      - Service는 `externalTrafficPolicy: Local`입니다. 그래야 서버가 브라우저의 주소를 봅니다. 그러려면 로드밸런서가 프런트가 도는 노드로 보내야 합니다(클라우드의 LB는 대개 그렇게 합니다).
+      - ACME 계정의 메일은 프런트의 환경 변수 `ROVE_EDGE_OPTIONS`에 `email ops@example.com`으로 줍니다(patch). 줄마다 Caddy의 전역 옵션 하나입니다.
+      - PVC의 `storageClassName`과, 이미지 `caddy`의 digest를 정합니다.
+    - **고객이 할 일:** 설정 › 도메인과 라벨에 도메인을 더하고, 화면에 나오는 레코드 둘을 DNS에 만듭니다. 확인된 뒤에도 지우지 않습니다.
+      - CNAME `<도메인>` → `app.labels.target`. CNAME을 둘 수 없는 apex라면 DNS 업체의 ALIAS·CNAME 펼치기로 같은 주소를 가리킵니다.
+      - TXT `_rove-challenge.<도메인>` = 토큰.
+
 ## 처음 띄우기
 
 ```sh
@@ -149,7 +183,7 @@ curl https://<호스트>/healthz   # ok
 
 ## 운영자 진입점
 
-네트워크로는 닿지 않습니다. Service가 없고, NetworkPolicy가 8081을 닫습니다. 들어오는 길은 `kubectl port-forward` 하나입니다.
+네트워크로는 닿지 않습니다. Service가 없고, NetworkPolicy가 8081을 닫습니다. 들어오는 길은 `kubectl port-forward` 하나입니다. 컴포넌트 `domains/`가 여는 것은 따로 띄운 물음 포트(8082)뿐입니다. 거기에는 `/internal/tls-ask` 말고 아무것도 없고, 프런트만 닿습니다.
 
 ```sh
 kubectl -n rove port-forward deploy/rove 8081:8081 &
@@ -192,6 +226,7 @@ k3d와 Docker가 필요합니다. 이 체크아웃으로 이미지를 빌드해�
 - 인그레스를 거쳐 로그인되고, 보안 헤더와 CSP가 붙습니다.
 - 운영자 진입점은 port-forward로는 키에 답하고, 인그레스 컨트롤러가 아닌 파드에서는 서버에도 진입점에도 닿지 않습니다.
 - 새 빌드가 파드를 바꾸고 `rollout undo`가 이전 것을 되돌립니다. 그 사이에도 처음 로그인한 세션이 그대로 살아 있습니다.
+- 워크스페이스 도메인의 프런트(`domains/`)가 `restricted` 아래에서 뜹니다. 확인된 도메인은 요청 시점에 받은 인증서로 서빙하고(rig에서는 Caddy 자체 CA), 아무도 확인하지 않은 호스트에는 인증서를 주지 않습니다. 물음 포트에는 프런트 말고 아무것도 닿지 않습니다.
 
 기본 kubeconfig는 건드리지 않습니다. k3d에 그러지 말라고 하고, 스크립트도 그 파일을 읽지 않습니다.
 
