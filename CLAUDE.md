@@ -242,7 +242,7 @@ an operator (`rove tenant close`), or by the deployment when an account
 leaving left nobody in it, and closing destroys nothing: `cmd.Resolver` refuses
 every call into a closed workspace but its owner's `Get` and `Restore`, and the
 owner can take its data out (`GET /account/workspaces/{alias}/export`). Once
-its restore window is over -- its contract's `restore_days`, or
+its restore window is over -- its own `restore_days` (D36), or
 `app.workspaces.restore_within` -- and nothing holds it, `server/closing`
 destroys it and holds its address (`AliasHold`, whose reason says how it
 went). Destroying retires it unless the contract in force then says
@@ -260,10 +260,15 @@ in `TenantService.Patch`.
 
 ## Where a workspace is
 
-A workspace says its own zone, currency and check-in rule (rove#144), its
-owner through `TenantService.Configure` -- the one door, with its event;
-`Patch` refuses them -- and the deployment's `app.locale` and
-`app.no_show_after` answer while it says nothing. In the domain layer that is
+A workspace says its own zone, currency and check-in rule (rove#144), and how
+long it keeps its history and its access record and may be restored once
+closed (`keep_days`, `access_keep_days`, `restore_days`, D36), its owner
+through `TenantService.Configure` -- the one door, with its event; `Patch`
+refuses them -- and the deployment's `app.locale` and `app.no_show_after`
+answer while it says nothing. A window made shorter waits out
+`app.retention.grace`, and `TenantService.Preview` says what a change takes,
+and from when, before it is saved. What is kept is what is seen: there is no
+view window. In the domain layer that is
 `t.zone()`, `t.when(at)` and `t.settings()`: a date a person reads, a file's
 dates, the day a count falls on, all in the workspace's zone, never a fixed
 one. `PartyService.Me` answers what the server tells it in, and the page draws
