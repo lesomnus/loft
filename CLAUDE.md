@@ -341,7 +341,11 @@ transaction (`Domain.tx`), records an `Event`, and writes the time rows with the
 state they describe. An Event never copies a person's name: its sentence marks
 them (`{party}`, `{holder}`, `{alias}`) and its payload carries the identifier
 (`party=`, `holder=`), and the history names them as they are when it is read
-(`namer.say`, design 8.2). Read `server/domain/domain.go` first. Its tests
+(`namer.say`, design 8.2). A person forgotten (`Tx.forget`) has the trail's
+rows blanked in the operation's transaction and the archive's half owed there
+(payday#133); the operation that began the transaction pays it after its
+commit (`Deps.Pay`), the trail's next pass pays what that could not, and `rove
+trail owed` says what is left. Read `server/domain/domain.go` first. Its tests
 (`go test ./server/domain`) go through the whole stack; set `PDTEST_POSTGRES` to
 run them on PostgreSQL.
 
