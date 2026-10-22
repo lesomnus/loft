@@ -81,7 +81,6 @@ import (
 	tenantcontract "github.com/lesomnus/rove/internal/ent/tenantcontract"
 	tenantdomain "github.com/lesomnus/rove/internal/ent/tenantdomain"
 	treelock "github.com/lesomnus/rove/internal/ent/treelock"
-	usagesnapshot "github.com/lesomnus/rove/internal/ent/usagesnapshot"
 	workorder "github.com/lesomnus/rove/internal/ent/workorder"
 	bare "github.com/lesomnus/rove/server/bare"
 	dialect "github.com/protobuf-orm/ent/dialect"
@@ -174,7 +173,6 @@ const (
 	TenantContractDomain  pdid.Domain = 39  // "tenant-contract"
 	TenantDomainDomain    pdid.Domain = 24  // "tenant-domain"
 	TreeLockDomain        pdid.Domain = 12  // "tree-lock"
-	UsageSnapshotDomain   pdid.Domain = 20  // "usage-snapshot"
 	WorkOrderDomain       pdid.Domain = 33  // "work-order"
 )
 
@@ -222,7 +220,6 @@ func init() {
 	pdid.Register("rove.TenantContract", TenantContractDomain, "tenant-contract")
 	pdid.Register("rove.TenantDomain", TenantDomainDomain, "tenant-domain")
 	pdid.Register("rove.TreeLock", TreeLockDomain, "tree-lock")
-	pdid.Register("rove.UsageSnapshot", UsageSnapshotDomain, "usage-snapshot")
 	pdid.Register("rove.WorkOrder", WorkOrderDomain, "work-order")
 
 	pdid.RegisterTenant(TenantDomain)
@@ -274,7 +271,6 @@ var Domains = map[string]pdid.Domain{
 	"rove.TenantContract":  TenantContractDomain,
 	"rove.TenantDomain":    TenantDomainDomain,
 	"rove.TreeLock":        TreeLockDomain,
-	"rove.UsageSnapshot":   UsageSnapshotDomain,
 	"rove.WorkOrder":       WorkOrderDomain,
 }
 
@@ -358,8 +354,6 @@ var IndexRenames = []rename.Index{
 	{Table: "tenantcontract", From: "tenantcontract_tenant_id_date_effective_id", To: "tenantcontract_effective"},
 	{Table: "tenantdomain", From: "tenantdomain_tenant_id_date_created_id", To: "tenantdomain_page"},
 	{Table: "treelock", From: "treelock_tenant_id", To: "treelock_tenant"},
-	{Table: "usagesnapshot", From: "usagesnapshot_tenant_id_date_created_id", To: "usagesnapshot_page"},
-	{Table: "usagesnapshot", From: "usagesnapshot_tenant_id_day", To: "usagesnapshot_day"},
 	{Table: "workorder", From: "workorder_tenant_id_date_created_id", To: "workorder_page"},
 	{Table: "workorder", From: "workorder_asset_id", To: "workorder_asset"},
 }
@@ -794,16 +788,6 @@ func (wall) TreeLockScope(ctx context.Context) (predicate.TreeLock, error) {
 	}
 
 	return treelock.TenantIdIn(vs...), nil
-}
-
-// UsageSnapshotScope: a row belongs to the tenant its "tenant" reaches.
-func (wall) UsageSnapshotScope(ctx context.Context) (predicate.UsageSnapshot, error) {
-	vs, all, err := frame.Narrow(ctx)
-	if all || err != nil {
-		return nil, err
-	}
-
-	return usagesnapshot.TenantIdIn(vs...), nil
 }
 
 // WorkOrderScope: a row belongs to the tenant its "tenant" reaches.
@@ -13430,209 +13414,6 @@ func (s sinkTenantDomain) watchTenantDomainKeys(
 	return ks, nil
 }
 
-type sinkUsageSnapshot struct {
-	rove.UsageSnapshotServiceServer
-	store  bare.Store
-	w      *watch.Watch
-	namer  slug.Namer
-	joined bool
-}
-
-func (s Sink) UsageSnapshot() rove.UsageSnapshotServiceServer {
-	return sinkUsageSnapshot{s.Server.UsageSnapshot(), s.Server.Store, s.w, s.namer, s.joined}
-}
-
-// Erase forgets what the transaction was told about the row, before it is
-// erased: whether a frame may see it, and where a walk from it arrives.
-// Neither is true of a row that is gone, nor of another put under its
-// key. See [seen.Forget].
-func (s sinkUsageSnapshot) Erase(ctx context.Context, req *rove.UsageSnapshotRef) (*rove.UsageSnapshotEraseResponse, error) {
-	seen.Forget(s.store.Db.Driver(), "UsageSnapshot", req)
-
-	return s.UsageSnapshotServiceServer.Erase(ctx, req)
-}
-
-// Apply forgets what the transaction was told about the row, before it is
-// written: a document may move it to a set the caller cannot see. See
-// [seen.Forget].
-func (s sinkUsageSnapshot) Apply(ctx context.Context, req *rove.UsageSnapshotApplyRequest) (*rove.UsageSnapshot, error) {
-	seen.Forget(s.store.Db.Driver(), "UsageSnapshot", req.GetRef())
-
-	return s.UsageSnapshotServiceServer.Apply(ctx, req)
-}
-
-// Patch forgets what the transaction was told about the row, before it is
-// written; see [sinkUsageSnapshot.Apply].
-func (s sinkUsageSnapshot) Patch(ctx context.Context, req *rove.UsageSnapshotPatchRequest) (*rove.UsageSnapshot, error) {
-	seen.Forget(s.store.Db.Driver(), "UsageSnapshot", req.GetRef())
-
-	return s.UsageSnapshotServiceServer.Patch(ctx, req)
-}
-
-// orderUsageSnapshot is how UsageSnapshots come back.
-//
-// The last column is the key, and it is not decoration: a cursor cannot
-// tell apart two rows equal in every column of the order, so the page after
-// the first of them either repeats the second or skips it. Rows written by
-// one request are stamped a moment apart at best.
-var orderUsageSnapshot = []sqlpage.Order{
-	{Column: usagesnapshot.FieldDateCreated, Desc: true},
-	{Column: usagesnapshot.FieldId, Desc: true},
-}
-
-func afterUsageSnapshot(v string, by []sqlpage.Order, tag string) (func(*sql.Selector), error) {
-	var (
-		at0 time.Time
-		at1 uuid.UUID
-	)
-	if err := pdAfter(v, tag, &at0, &at1); err != nil {
-		return nil, err
-	}
-
-	return sqlpage.After(by, []any{at0, at1})
-}
-
-func nextUsageSnapshot(last *ent.UsageSnapshot, tag string) (string, error) {
-	return pdNext(tag, last.DateCreated, last.Id)
-}
-
-// orderByUsageSnapshot is an order as ent orders a query by it.
-func orderByUsageSnapshot(by []sqlpage.Order) []usagesnapshot.OrderOption {
-	out := make([]usagesnapshot.OrderOption, len(by))
-	for i, o := range by {
-		if o.Desc {
-			out[i] = sql.OrderByField(o.Column, sql.OrderDesc()).ToFunc()
-			continue
-		}
-
-		out[i] = sql.OrderByField(o.Column).ToFunc()
-	}
-
-	return out
-}
-
-const (
-	// UsageSnapshotPageSize is what a request that did not say gets, and
-	// UsageSnapshotPageLimit is the most it gets however loudly it asks.
-	UsageSnapshotPageSize  = 31
-	UsageSnapshotPageLimit = 400
-
-	// UsageSnapshotFilterLimit is how many filters one request may carry. Each is a
-	// predicate in the same query, so it is what says how much of the
-	// database a request may ask to read -- and it is refused rather than
-	// clamped, because dropping half the filters would answer a question
-	// nobody asked.
-	UsageSnapshotFilterLimit = 32
-)
-
-// List answers with the UsageSnapshots that match any of the given filters, or with
-// every one there is if the request named none, a page at a time.
-func (s sinkUsageSnapshot) List(ctx context.Context, req *rove.UsageSnapshotListRequest) (*rove.UsageSnapshotListResponse, error) {
-	q := s.store.Db.UsageSnapshot.Query()
-
-	// Through the same narrowing every generated read goes through, and not
-	// by asking the scope alone: what narrows a read is the wall today and
-	// the wall and something else tomorrow, and a list that reached past it
-	// would be the one read that missed the something else.
-	if p, err := bare.UsageSnapshotNarrow(ctx, s.store.Scope, nil); err != nil {
-		return nil, err
-	} else if p != nil {
-		q.Where(p)
-	}
-
-	if fs := req.GetFilters(); len(fs) > 0 {
-		if len(fs) > UsageSnapshotFilterLimit {
-			return nil, status.Errorf(codes.InvalidArgument,
-				"filters: %d of them, and %d is the most one list carries", len(fs), UsageSnapshotFilterLimit)
-		}
-
-		ps := make([]predicate.UsageSnapshot, 0, len(fs))
-		for i, f := range fs {
-			p, err := filterUsageSnapshot(f)
-			if err != nil {
-				return nil, status.Errorf(codes.InvalidArgument, "filters[%d]: %s", i, err)
-			}
-
-			ps = append(ps, p)
-		}
-
-		q.Where(usagesnapshot.Or(ps...))
-	}
-
-	// Which order, and which way: one the schema declared, and never one a
-	// request makes up, since an order is a walk of an index.
-	by, after, next, tag := orderUsageSnapshot, afterUsageSnapshot, nextUsageSnapshot, ""
-	if req.GetReverse() {
-		// The same index, walked from the other end.
-		by, tag = pdReverse(by), tag+"/reverse"
-	}
-
-	if v := req.GetAfter(); v != "" {
-		p, err := after(v, by, tag)
-		if err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "after: %s", err)
-		}
-
-		q.Where(p)
-	}
-
-	// One row more than the page, which is how "is there another" is answered
-	// without a second query and without a count. The extra is dropped before
-	// the answer is built; it was only ever asked for to see whether it was
-	// there -- so a full last page answers with no cursor rather than sending
-	// the caller back for an empty one.
-	size := sqlpage.Size(int(req.GetSize()), UsageSnapshotPageSize, UsageSnapshotPageLimit)
-	us, err := q.Order(orderByUsageSnapshot(by)...).Limit(size + 1).All(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	more := len(us) > size
-	if more {
-		us = us[:size]
-	}
-
-	items := make([]*rove.UsageSnapshot, len(us))
-	for i, u := range us {
-		items[i] = u.Proto()
-	}
-
-	res := rove.UsageSnapshotListResponse_builder{Items: items}.Build()
-	if more {
-		v, err := next(us[len(us)-1], tag)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "next: %s", err)
-		}
-
-		res.SetNext(v)
-	}
-
-	return res, nil
-}
-
-// filterUsageSnapshot turns one filter into the predicate that selects what it
-// names. Naming nothing is refused, since the request asked for "these" and
-// did not say which.
-func filterUsageSnapshot(f *rove.UsageSnapshotFilter) (predicate.UsageSnapshot, error) {
-	ps := make([]predicate.UsageSnapshot, 0, 1)
-	if f.HasRef() {
-		p, err := bare.UsageSnapshotPick(f.GetRef())
-		if err != nil {
-			return nil, err
-		}
-
-		ps = append(ps, p)
-	}
-	if f.HasDay() {
-		ps = append(ps, usagesnapshot.DayEQ(f.GetDay()))
-	}
-	if len(ps) == 0 {
-		return nil, status.Error(codes.InvalidArgument, "a filter that names nothing")
-	}
-
-	return usagesnapshot.And(ps...), nil
-}
-
 type sinkWorkOrder struct {
 	rove.WorkOrderServiceServer
 	store  bare.Store
@@ -16799,50 +16580,6 @@ func (s gateTenantDomain) admit(ctx context.Context, req *rove.TenantDomainAddRe
 	return req, nil
 }
 
-type gateUsageSnapshot struct {
-	Gate
-	rove.UsageSnapshotServiceServer
-}
-
-func (s Gate) UsageSnapshot() rove.UsageSnapshotServiceServer {
-	v := gateUsageSnapshot{s, s.Next().UsageSnapshot()}
-	v.UsageSnapshotServiceServer = bare.UsageSnapshotWithAddRule(v.UsageSnapshotServiceServer, v.admit)
-	return v
-}
-
-// admit refuses a UsageSnapshot put into a Tenant this caller cannot see.
-//
-// The wall is a predicate and an Add has no query, so without this the
-// identifier in `tenant` becomes a foreign key with nothing consulted.
-// The row is then invisible to whoever planted it and visible to whoever
-// holds that Tenant, which is the shape of the bug rather than a
-// mitigation of it.
-//
-// NotFound rather than a refusal, for the reason on `gateHolder.admit`:
-// that a row exists is itself something a caller who may not see it
-// should not be told.
-//
-// It is what an Add is asked, and an AddMany of every item it carries;
-// see [Gate.UsageSnapshot].
-func (s gateUsageSnapshot) admit(ctx context.Context, req *rove.UsageSnapshotAddRequest) (*rove.UsageSnapshotAddRequest, error) {
-	if ref := req.GetTenant(); ref != nil {
-		if err := seen.Visible(ctx, s.Gate.drv, "Tenant", ref, func() error {
-			_, err := s.Gate.Next().Tenant().Get(ctx, rove.TenantGetRequest_builder{
-				Ref: ref,
-			}.Build())
-			return err
-		}); err != nil {
-			if status.Code(err) == codes.NotFound {
-				return nil, gate.ErrNotFound("Tenant")
-			}
-
-			return nil, err
-		}
-	}
-
-	return req, nil
-}
-
 type gateWorkOrder struct {
 	Gate
 	rove.WorkOrderServiceServer
@@ -17339,8 +17076,6 @@ func described(key pdid.Id) (protoreflect.MessageDescriptor, []protoreflect.Fiel
 		return describedTenantDomain.md, describedTenantDomain.secret, describedTenantDomain.personal
 	case TreeLockDomain:
 		return describedTreeLock.md, describedTreeLock.secret, describedTreeLock.personal
-	case UsageSnapshotDomain:
-		return describedUsageSnapshot.md, describedUsageSnapshot.secret, describedUsageSnapshot.personal
 	case WorkOrderDomain:
 		return describedWorkOrder.md, describedWorkOrder.secret, describedWorkOrder.personal
 	}
@@ -17497,9 +17232,6 @@ var (
 	describedTreeLock = describe((*rove.TreeLock)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
-	describedUsageSnapshot = describe((*rove.UsageSnapshot)(nil),
-		[]protoreflect.FieldNumber{},
-		[]protoreflect.FieldNumber{})
 	describedWorkOrder = describe((*rove.WorkOrder)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
@@ -17559,7 +17291,6 @@ func added(by string) bool {
 		rove.TenantService_Add_FullMethodName,
 		rove.TenantContractService_Add_FullMethodName,
 		rove.TenantDomainService_Add_FullMethodName,
-		rove.UsageSnapshotService_Add_FullMethodName,
 		rove.WorkOrderService_Add_FullMethodName:
 		return true
 	}
@@ -18478,33 +18209,6 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 
 		return k, b, nil
 
-	case UsageSnapshotDomain:
-		row, ok := image.(*rove.UsageSnapshot)
-		if !ok {
-			return uuid.Nil(), []byte{}, nil
-		}
-
-		b := []byte{}
-		if keep {
-			kept := row
-			v, err := proto.Marshal(kept)
-			if err != nil {
-				return uuid.Nil(), nil, err
-			}
-			b = v
-		}
-
-		if !row.HasTenant() {
-			return uuid.Nil(), b, nil
-		}
-
-		k, err := entuuid.FromBytes(row.GetTenant().GetId())
-		if err != nil {
-			return uuid.Nil(), nil, err
-		}
-
-		return k, b, nil
-
 	case WorkOrderDomain:
 		row, ok := image.(*rove.WorkOrder)
 		if !ok {
@@ -18628,8 +18332,6 @@ func left(ctx context.Context, s bare.Server, key pdid.Id, image proto.Message) 
 		vs, err = rowsTenantDomain(ctx, s.Db, tenantdomain.IdEQ(uuid.UUID(key)))
 	case TreeLockDomain:
 		vs, err = rowsTreeLock(ctx, s.Db, treelock.IdEQ(uuid.UUID(key)))
-	case UsageSnapshotDomain:
-		vs, err = rowsUsageSnapshot(ctx, s.Db, usagesnapshot.IdEQ(uuid.UUID(key)))
 	case WorkOrderDomain:
 		vs, err = rowsWorkOrder(ctx, s.Db, workorder.IdEQ(uuid.UUID(key)))
 	default:
@@ -19100,9 +18802,6 @@ func Digests(ctx context.Context, db *ent.Client, d *audit1.Digest, p trail.Poli
 	}
 	if err := audit1.CheckKind(ctx, d, checkedTenantDomain(db), archived, &out); err != nil {
 		return out, fmt.Errorf("tenant-domain: %w", err)
-	}
-	if err := audit1.CheckKind(ctx, d, checkedUsageSnapshot(db), archived, &out); err != nil {
-		return out, fmt.Errorf("usage-snapshot: %w", err)
 	}
 	if err := audit1.CheckKind(ctx, d, checkedWorkOrder(db), archived, &out); err != nil {
 		return out, fmt.Errorf("work-order: %w", err)
@@ -20699,52 +20398,6 @@ func checkedTenantDomain(db *ent.Client) audit1.Kind {
 	}
 }
 
-// checkedUsageSnapshot is what a check of the rows reads of the usage-snapshot kind.
-func checkedUsageSnapshot(db *ent.Client) audit1.Kind {
-	read := func(ctx context.Context, ps ...predicate.UsageSnapshot) (audit1.Page, error) {
-		var out audit1.Page
-		err := snapshot(ctx, db, func(ctx context.Context, db *ent.Client) error {
-			rows, err := rowsUsageSnapshot(ctx, db, ps...)
-			if err != nil {
-				return err
-			}
-
-			recorded, err := newestDigests(ctx, db, objects(rows))
-			out = audit1.Page{Rows: rows, Recorded: recorded}
-			return err
-		})
-
-		return out, err
-	}
-
-	return audit1.Kind{
-		Domain: UsageSnapshotDomain,
-		After: func(ctx context.Context, after pdid.Id) (audit1.Page, error) {
-			return read(ctx, usagesnapshot.IdGT(uuid.UUID(after)))
-		},
-		Of: func(ctx context.Context, ids []pdid.Id) (audit1.Page, error) {
-			return read(ctx, usagesnapshot.IdIn(uuids(ids)...))
-		},
-		Trail: func(ctx context.Context, yield func([]pdid.Id) error) error {
-			return trailObjects(ctx, db, UsageSnapshotDomain, yield)
-		},
-		Gone: func(ctx context.Context, ids []pdid.Id) (map[pdid.Id]*audit1.Recorded, error) {
-			var out map[pdid.Id]*audit1.Recorded
-			err := snapshot(ctx, db, func(ctx context.Context, db *ent.Client) error {
-				rows, err := rowsUsageSnapshot(ctx, db, usagesnapshot.IdIn(uuids(ids)...))
-				if err != nil {
-					return err
-				}
-
-				out, err = goneOf(ctx, db, ids, rows)
-				return err
-			})
-
-			return out, err
-		},
-	}
-}
-
 // checkedWorkOrder is what a check of the rows reads of the work-order kind.
 func checkedWorkOrder(db *ent.Client) audit1.Kind {
 	read := func(ctx context.Context, ps ...predicate.WorkOrder) (audit1.Page, error) {
@@ -21544,26 +21197,6 @@ func rowsTreeLock(ctx context.Context, db *ent.Client, ps ...predicate.TreeLock)
 	return out, nil
 }
 
-// rowsUsageSnapshot is the rows `ps` says of the usage-snapshot kind -- every row there is,
-// live or erased softly -- at most a page of them in identifier order, each as
-// a Get reads it.
-func rowsUsageSnapshot(ctx context.Context, db *ent.Client, ps ...predicate.UsageSnapshot) ([]audit1.Live, error) {
-	q := db.UsageSnapshot.Query().Where(ps...)
-	bare.UsageSnapshotSelectInit(q, nil)
-
-	vs, err := q.Order(usagesnapshot.ById()).Limit(audit1.RowsPage).All(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	out := make([]audit1.Live, len(vs))
-	for i, v := range vs {
-		out[i] = audit1.Live{Object: pdid.Id(v.Id), Row: v.Proto()}
-	}
-
-	return out, nil
-}
-
 // rowsWorkOrder is the rows `ps` says of the work-order kind -- every row there is,
 // live or erased softly -- at most a page of them in identifier order, each as
 // a Get reads it.
@@ -21872,8 +21505,6 @@ func record(ctx context.Context, db *ent.Client, content audit1.Contents, action
 				rows, err = rowsTenantContract(ctx, db, tenantcontract.IdIn(uuids(page)...))
 			case TenantDomainDomain:
 				rows, err = rowsTenantDomain(ctx, db, tenantdomain.IdIn(uuids(page)...))
-			case UsageSnapshotDomain:
-				rows, err = rowsUsageSnapshot(ctx, db, usagesnapshot.IdIn(uuids(page)...))
 			case WorkOrderDomain:
 				rows, err = rowsWorkOrder(ctx, db, workorder.IdIn(uuids(page)...))
 			default:
@@ -22058,8 +21689,6 @@ func (s trailStore) Carry(ctx context.Context, digest *audit1.Digest, d pdid.Dom
 			rows, err = rowsTenantContract(ctx, s.db, tenantcontract.IdIn(uuids(ids)...))
 		case TenantDomainDomain:
 			rows, err = rowsTenantDomain(ctx, s.db, tenantdomain.IdIn(uuids(ids)...))
-		case UsageSnapshotDomain:
-			rows, err = rowsUsageSnapshot(ctx, s.db, usagesnapshot.IdIn(uuids(ids)...))
 		case WorkOrderDomain:
 			rows, err = rowsWorkOrder(ctx, s.db, workorder.IdIn(uuids(ids)...))
 		default:
@@ -23771,45 +23400,6 @@ func (s interceptNotification) MarkRead(ctx context.Context, req *rove.Notificat
 func (s interceptNotification) SetMail(ctx context.Context, req *rove.NotificationSetMailRequest) (*rove.NotificationSetMailResponse, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.NotificationServiceServer,
 		rove.NotificationService_SetMail_FullMethodName, req, s.NotificationServiceServer.SetMail)
-}
-
-func (s Intercept) UsageSnapshot() rove.UsageSnapshotServiceServer {
-	return interceptUsageSnapshot{s, s.Next().UsageSnapshot()}
-}
-
-type interceptUsageSnapshot struct {
-	Intercept
-	rove.UsageSnapshotServiceServer
-}
-
-func (s interceptUsageSnapshot) Add(ctx context.Context, req *rove.UsageSnapshotAddRequest) (*rove.UsageSnapshot, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.UsageSnapshotServiceServer,
-		rove.UsageSnapshotService_Add_FullMethodName, req, s.UsageSnapshotServiceServer.Add)
-}
-
-func (s interceptUsageSnapshot) Get(ctx context.Context, req *rove.UsageSnapshotGetRequest) (*rove.UsageSnapshot, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.UsageSnapshotServiceServer,
-		rove.UsageSnapshotService_Get_FullMethodName, req, s.UsageSnapshotServiceServer.Get)
-}
-
-func (s interceptUsageSnapshot) Patch(ctx context.Context, req *rove.UsageSnapshotPatchRequest) (*rove.UsageSnapshot, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.UsageSnapshotServiceServer,
-		rove.UsageSnapshotService_Patch_FullMethodName, req, s.UsageSnapshotServiceServer.Patch)
-}
-
-func (s interceptUsageSnapshot) Apply(ctx context.Context, req *rove.UsageSnapshotApplyRequest) (*rove.UsageSnapshot, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.UsageSnapshotServiceServer,
-		rove.UsageSnapshotService_Apply_FullMethodName, req, s.UsageSnapshotServiceServer.Apply)
-}
-
-func (s interceptUsageSnapshot) Erase(ctx context.Context, req *rove.UsageSnapshotRef) (*rove.UsageSnapshotEraseResponse, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.UsageSnapshotServiceServer,
-		rove.UsageSnapshotService_Erase_FullMethodName, req, s.UsageSnapshotServiceServer.Erase)
-}
-
-func (s interceptUsageSnapshot) List(ctx context.Context, req *rove.UsageSnapshotListRequest) (*rove.UsageSnapshotListResponse, error) {
-	return grpcx.RunUnary(ctx, s.unary, s.UsageSnapshotServiceServer,
-		rove.UsageSnapshotService_List_FullMethodName, req, s.UsageSnapshotServiceServer.List)
 }
 
 func (s Intercept) TenantContract() rove.TenantContractServiceServer {
@@ -26257,18 +25847,6 @@ func unpack(op *pdpb.Op) (proto.Message, error) {
 		v = &rove.NotificationMarkReadRequest{}
 	case rove.NotificationService_SetMail_FullMethodName:
 		v = &rove.NotificationSetMailRequest{}
-	case rove.UsageSnapshotService_Add_FullMethodName:
-		v = &rove.UsageSnapshotAddRequest{}
-	case rove.UsageSnapshotService_Get_FullMethodName:
-		v = &rove.UsageSnapshotGetRequest{}
-	case rove.UsageSnapshotService_Patch_FullMethodName:
-		v = &rove.UsageSnapshotPatchRequest{}
-	case rove.UsageSnapshotService_Apply_FullMethodName:
-		v = &rove.UsageSnapshotApplyRequest{}
-	case rove.UsageSnapshotService_Erase_FullMethodName:
-		v = &rove.UsageSnapshotRef{}
-	case rove.UsageSnapshotService_List_FullMethodName:
-		v = &rove.UsageSnapshotListRequest{}
 	case rove.TenantContractService_Add_FullMethodName:
 		v = &rove.TenantContractAddRequest{}
 	case rove.TenantContractService_Get_FullMethodName:
@@ -26829,18 +26407,6 @@ func dispatch(ctx context.Context, s rove.Server, m string, v proto.Message) (*a
 		res, err = s.Notification().MarkRead(ctx, v.(*rove.NotificationMarkReadRequest))
 	case rove.NotificationService_SetMail_FullMethodName:
 		res, err = s.Notification().SetMail(ctx, v.(*rove.NotificationSetMailRequest))
-	case rove.UsageSnapshotService_Add_FullMethodName:
-		res, err = s.UsageSnapshot().Add(ctx, v.(*rove.UsageSnapshotAddRequest))
-	case rove.UsageSnapshotService_Get_FullMethodName:
-		res, err = s.UsageSnapshot().Get(ctx, v.(*rove.UsageSnapshotGetRequest))
-	case rove.UsageSnapshotService_Patch_FullMethodName:
-		res, err = s.UsageSnapshot().Patch(ctx, v.(*rove.UsageSnapshotPatchRequest))
-	case rove.UsageSnapshotService_Apply_FullMethodName:
-		res, err = s.UsageSnapshot().Apply(ctx, v.(*rove.UsageSnapshotApplyRequest))
-	case rove.UsageSnapshotService_Erase_FullMethodName:
-		res, err = s.UsageSnapshot().Erase(ctx, v.(*rove.UsageSnapshotRef))
-	case rove.UsageSnapshotService_List_FullMethodName:
-		res, err = s.UsageSnapshot().List(ctx, v.(*rove.UsageSnapshotListRequest))
 	case rove.TenantContractService_Add_FullMethodName:
 		res, err = s.TenantContract().Add(ctx, v.(*rove.TenantContractAddRequest))
 	case rove.TenantContractService_Get_FullMethodName:
@@ -26983,7 +26549,6 @@ func Resources(s rove.Server, drv dialect.Driver, guard batch.Guard, w *watch.Wa
 		&rove.TenantContract{},
 		&rove.TenantDomain{},
 		&rove.TreeLock{},
-		&rove.UsageSnapshot{},
 		&rove.WorkOrder{},
 	)
 }
@@ -28300,38 +27865,6 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				return nil, err
 			}
 			return publicResource(v), nil
-		case *rove.UsageSnapshot:
-			ctx, err := read.Allow(ctx, rove.UsageSnapshotService_Get_FullMethodName, 1)
-			if err != nil {
-				switch status.Code(err) {
-				case codes.PermissionDenied, codes.Unauthenticated, codes.Unimplemented:
-					return nil, nil
-				}
-				return nil, err
-			}
-			pred, err := bare.UsageSnapshotNarrow(ctx, scope, nil)
-			if err != nil {
-				return nil, err
-			}
-			row, err := resourcesql.Row(db.Dialect(), usagesnapshot.Table, []resourcesql.Column{
-				{Number: 1, Name: usagesnapshot.FieldId, Type: 64, Nullable: false, Key: 0},
-				{Number: 2, Name: usagesnapshot.TenantColumn, Type: 64, Nullable: false, Key: 1},
-				{Number: 8, Name: usagesnapshot.FieldDay, Type: 9, Nullable: false, Key: 0},
-				{Number: 13, Name: usagesnapshot.FieldDateUpdated, Type: 65, Nullable: false, Key: 0},
-				{Number: 15, Name: usagesnapshot.FieldDateCreated, Type: 65, Nullable: false, Key: 0},
-			}, v)
-			if err != nil {
-				return nil, err
-			}
-			query := db.UsageSnapshot.Query()
-			if pred != nil {
-				query.Where(pred)
-			}
-			ok, err := query.Modify(func(q *sql.Selector) { q.From(row) }).Exist(ctx)
-			if err != nil || !ok {
-				return nil, err
-			}
-			return publicResource(v), nil
 		case *rove.WorkOrder:
 			ctx, err := read.Allow(ctx, rove.WorkOrderService_Get_FullMethodName, 1)
 			if err != nil {
@@ -28676,14 +28209,6 @@ func resourceChangeKind(method string) pdpb.ChangeKind {
 		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
 	case rove.TenantDomainService_Erase_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_DELETED
-	case rove.UsageSnapshotService_Add_FullMethodName:
-		return pdpb.ChangeKind_CHANGE_KIND_CREATED
-	case rove.UsageSnapshotService_Patch_FullMethodName:
-		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.UsageSnapshotService_Apply_FullMethodName:
-		return pdpb.ChangeKind_CHANGE_KIND_UPDATED
-	case rove.UsageSnapshotService_Erase_FullMethodName:
-		return pdpb.ChangeKind_CHANGE_KIND_DELETED
 	case rove.WorkOrderService_Add_FullMethodName:
 		return pdpb.ChangeKind_CHANGE_KIND_CREATED
 	case rove.WorkOrderService_Patch_FullMethodName:
@@ -28710,7 +28235,7 @@ func (r resourceRecorder) Record(ctx context.Context, s bare.Server, c bare.Chan
 		return nil
 	}
 	switch image.ProtoReflect().Descriptor().FullName() {
-	case "rove.Access", "rove.AccessReview", "rove.Allocation", "rove.Asset", "rove.AssetType", "rove.Attachment", "rove.Audit", "rove.Bookable", "rove.CountFinding", "rove.Custody", "rove.CustodyLine", "rove.Event", "rove.Fact", "rove.Holder", "rove.InventoryCount", "rove.Invitation", "rove.ItemModel", "rove.Label", "rove.LegalHold", "rove.Link", "rove.Notification", "rove.Party", "rove.Placement", "rove.Purchase", "rove.PurchaseLine", "rove.Reservation", "rove.ReservationItem", "rove.Stewardship", "rove.Stock", "rove.StockMovement", "rove.Tenant", "rove.TenantContract", "rove.TenantDomain", "rove.UsageSnapshot", "rove.WorkOrder":
+	case "rove.Access", "rove.AccessReview", "rove.Allocation", "rove.Asset", "rove.AssetType", "rove.Attachment", "rove.Audit", "rove.Bookable", "rove.CountFinding", "rove.Custody", "rove.CustodyLine", "rove.Event", "rove.Fact", "rove.Holder", "rove.InventoryCount", "rove.Invitation", "rove.ItemModel", "rove.Label", "rove.LegalHold", "rove.Link", "rove.Notification", "rove.Party", "rove.Placement", "rove.Purchase", "rove.PurchaseLine", "rove.Reservation", "rove.ReservationItem", "rove.Stewardship", "rove.Stock", "rove.StockMovement", "rove.Tenant", "rove.TenantContract", "rove.TenantDomain", "rove.WorkOrder":
 	default:
 		return nil
 	}

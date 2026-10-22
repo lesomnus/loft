@@ -57,7 +57,6 @@ import (
 	enttenant "github.com/lesomnus/rove/internal/ent/tenant"
 	"github.com/lesomnus/rove/internal/ent/tenantcontract"
 	"github.com/lesomnus/rove/internal/ent/tenantdomain"
-	"github.com/lesomnus/rove/internal/ent/usagesnapshot"
 	"github.com/lesomnus/rove/internal/ent/workorder"
 	"github.com/lesomnus/rove/server/pd"
 )
@@ -265,9 +264,6 @@ var Exported = map[string]reader{
 	"tenantdomain": func(ctx context.Context, db *ent.Client, t uuid.UUID, last *mark, n int) ([]proto.Message, *mark, error) {
 		return each((*ent.TenantDomain).Proto)(db.TenantDomain.Query().Where(tenantdomain.TenantId(t), after(last)).Order(ent.Asc(tenantdomain.FieldDateCreated, tenantdomain.FieldId)).Limit(n).All(ctx))
 	},
-	"usagesnapshot": func(ctx context.Context, db *ent.Client, t uuid.UUID, last *mark, n int) ([]proto.Message, *mark, error) {
-		return each((*ent.UsageSnapshot).Proto)(db.UsageSnapshot.Query().Where(usagesnapshot.TenantId(t), after(last)).Order(ent.Asc(usagesnapshot.FieldDateCreated, usagesnapshot.FieldId)).Limit(n).All(ctx))
-	},
 	"workorder": func(ctx context.Context, db *ent.Client, t uuid.UUID, last *mark, n int) ([]proto.Message, *mark, error) {
 		return each((*ent.WorkOrder).Proto)(db.WorkOrder.Query().Where(workorder.TenantId(t), after(last)).Order(ent.Asc(workorder.FieldDateCreated, workorder.FieldId)).Limit(n).All(ctx))
 	},
@@ -290,6 +286,15 @@ var Withheld = map[string]string{
 	"treelock":      "the deployment's bookkeeping",
 	"legalhold":     "the operator's",
 	"tenant":        "the manifest's",
+}
+
+// Dropped is every table an earlier build had and this one does not, and why
+// it went: a migration drops it, rows and all (`rove migrate`), and a restore
+// of an export made before leaves its rows behind and says how many
+// ([Restored.Left]). A table is never in this and in this build's schema at
+// once, which a test refuses.
+var Dropped = map[string]string{
+	"usagesnapshot": "a workspace's usage, written once a day until what is billed was measured outside rove, from the source (design 7, D35)",
 }
 
 // Export writes everything a tenant has as one zip archive: a JSON line per

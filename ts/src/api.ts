@@ -28,7 +28,7 @@ import { InvitationService, PartyService } from '../gen/rove/org_svc_pb.js'
 import { CustodyLineService, CustodyService } from '../gen/rove/custody_svc_pb.js'
 import { EventService } from '../gen/rove/history_svc_pb.js'
 import { HolderService } from '../gen/rove/payday/holder_svc_pb.js'
-import { AccessReviewService, NotificationService, UsageSnapshotService } from '../gen/rove/ops_svc_pb.js'
+import { AccessReviewService, NotificationService } from '../gen/rove/ops_svc_pb.js'
 import { PurchaseLineService, PurchaseService, WorkOrderService } from '../gen/rove/work_svc_pb.js'
 import { StockMovementService, StockService } from '../gen/rove/stock_svc_pb.js'
 import { TenantService } from '../gen/rove/payday/tenant_svc_pb.js'
@@ -60,7 +60,6 @@ export {
 	StockService,
 	TenantDomainService,
 	TenantService,
-	UsageSnapshotService,
 	WorkOrderService,
 }
 

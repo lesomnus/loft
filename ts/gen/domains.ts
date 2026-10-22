@@ -141,9 +141,6 @@ export const TenantDomainDomain = 24
 /** The domain identifiers of rove.TreeLock carry. */
 export const TreeLockDomain = 12
 
-/** The domain identifiers of rove.UsageSnapshot carry. */
-export const UsageSnapshotDomain = 20
-
 /** The domain identifiers of rove.WorkOrder carry. */
 export const WorkOrderDomain = 33
 
@@ -192,6 +189,5 @@ pdid.register("rove.Tenant", TenantDomain, "tenant")
 pdid.register("rove.TenantContract", TenantContractDomain, "tenant-contract")
 pdid.register("rove.TenantDomain", TenantDomainDomain, "tenant-domain")
 pdid.register("rove.TreeLock", TreeLockDomain, "tree-lock")
-pdid.register("rove.UsageSnapshot", UsageSnapshotDomain, "usage-snapshot")
 pdid.register("rove.WorkOrder", WorkOrderDomain, "work-order")
 

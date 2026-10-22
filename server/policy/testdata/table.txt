@@ -155,8 +155,6 @@
 /rove.TenantService/List	read
 /rove.TenantService/Patch	owner
 /rove.TenantService/Restore	owner
-/rove.UsageSnapshotService/Get	admin +auditor
-/rove.UsageSnapshotService/List	admin +auditor
 /rove.WorkOrderService/Add	member
 /rove.WorkOrderService/Cancel	manager
 /rove.WorkOrderService/Complete	manager

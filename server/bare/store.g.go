@@ -53,7 +53,6 @@ import (
 	tenantcontract "github.com/lesomnus/rove/internal/ent/tenantcontract"
 	tenantdomain "github.com/lesomnus/rove/internal/ent/tenantdomain"
 	treelock "github.com/lesomnus/rove/internal/ent/treelock"
-	usagesnapshot "github.com/lesomnus/rove/internal/ent/usagesnapshot"
 	workorder "github.com/lesomnus/rove/internal/ent/workorder"
 	dialect "github.com/protobuf-orm/ent/dialect"
 	entpatch "github.com/protobuf-orm/protoc-gen-orm-ent/runtime/entpatch"
@@ -436,7 +435,6 @@ type Scope interface {
 	FactScope(ctx context.Context) (predicate.Fact, error)
 	EventScope(ctx context.Context) (predicate.Event, error)
 	NotificationScope(ctx context.Context) (predicate.Notification, error)
-	UsageSnapshotScope(ctx context.Context) (predicate.UsageSnapshot, error)
 	TenantContractScope(ctx context.Context) (predicate.TenantContract, error)
 	LegalHoldScope(ctx context.Context) (predicate.LegalHold, error)
 	AccessReviewScope(ctx context.Context) (predicate.AccessReview, error)
@@ -557,9 +555,6 @@ func (Unscoped) EventScope(_ context.Context) (predicate.Event, error) {
 	return nil, nil
 }
 func (Unscoped) NotificationScope(_ context.Context) (predicate.Notification, error) {
-	return nil, nil
-}
-func (Unscoped) UsageSnapshotScope(_ context.Context) (predicate.UsageSnapshot, error) {
 	return nil, nil
 }
 func (Unscoped) TenantContractScope(_ context.Context) (predicate.TenantContract, error) {
@@ -1258,26 +1253,6 @@ func (ss Scopes) NotificationScope(ctx context.Context) (predicate.Notification,
 	return notification.And(ps...), nil
 }
 
-func (ss Scopes) UsageSnapshotScope(ctx context.Context) (predicate.UsageSnapshot, error) {
-	ps := make([]predicate.UsageSnapshot, 0, len(ss))
-	for _, s := range ss {
-		p, err := s.UsageSnapshotScope(ctx)
-		if err != nil {
-			return nil, err
-		}
-		if p == nil {
-			continue
-		}
-
-		ps = append(ps, p)
-	}
-	if len(ps) == 0 {
-		return nil, nil
-	}
-
-	return usagesnapshot.And(ps...), nil
-}
-
 func (ss Scopes) TenantContractScope(ctx context.Context) (predicate.TenantContract, error) {
 	ps := make([]predicate.TenantContract, 0, len(ss))
 	for _, s := range ss {
@@ -1756,9 +1731,6 @@ func (s Server) Fact() rove.FactServiceServer   { return FactServiceServer{Store
 func (s Server) Event() rove.EventServiceServer { return EventServiceServer{Store: s.Store} }
 func (s Server) Notification() rove.NotificationServiceServer {
 	return NotificationServiceServer{Store: s.Store}
-}
-func (s Server) UsageSnapshot() rove.UsageSnapshotServiceServer {
-	return UsageSnapshotServiceServer{Store: s.Store}
 }
 func (s Server) TenantContract() rove.TenantContractServiceServer {
 	return TenantContractServiceServer{Store: s.Store}

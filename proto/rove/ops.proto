@@ -80,50 +80,10 @@ message Notification {
   };
 }
 
-// UsageSnapshot is one tenant's usage on one day (design 7.1).
-message UsageSnapshot {
-  bytes id = 1 [(orm.field) = {
-    type: TYPE_UUID
-    key: true
-    default: ""
-  }];
-  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
-
-  // YYYY-MM-DD, UTC.
-  string day = 8;
-  map<string, string> metrics = 9;
-
-  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
-  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
-    immutable: true
-    default: ""
-  }];
-
-  option (orm.message) = {
-    rpc: {crud: true}
-    indexes: [
-      {
-        name: "page"
-        refs: [{name: "tenant", number: 2}, {name: "date_created", number: 15}, {name: "id", number: 1}]
-      },
-      {
-        name: "day"
-        refs: [{name: "tenant", number: 2}, {name: "day", number: 8}]
-        unique: true
-      }
-    ]
-  };
-  option (payday.entity) = {
-    domain: 20
-    erase: {hard: {}}
-    list: {
-      order: [{field: {name: "date_created"}, desc: true}, {field: {name: "id"}, desc: true}]
-      by: [{name: "ref"}, {name: "day"}]
-      size: 31
-      max: 400
-    }
-  };
-}
+// Domain 20 was UsageSnapshot's, a tenant's usage written once a day: what
+// is billed is measured outside rove, from the source -- the database, and
+// what the file store holds (design 7, D35). Never give it to anything else:
+// the trail still names rows by it.
 
 
 // TenantContract is what a tenant's contract says about its history: how far

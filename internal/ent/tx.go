@@ -98,8 +98,6 @@ type Tx struct {
 	TenantDomain *TenantDomainClient
 	// TreeLock is the client for interacting with the TreeLock builders.
 	TreeLock *TreeLockClient
-	// UsageSnapshot is the client for interacting with the UsageSnapshot builders.
-	UsageSnapshot *UsageSnapshotClient
 	// WorkOrder is the client for interacting with the WorkOrder builders.
 	WorkOrder *WorkOrderClient
 
@@ -276,7 +274,6 @@ func (tx *Tx) init() {
 	tx.TenantContract = NewTenantContractClient(tx.config)
 	tx.TenantDomain = NewTenantDomainClient(tx.config)
 	tx.TreeLock = NewTreeLockClient(tx.config)
-	tx.UsageSnapshot = NewUsageSnapshotClient(tx.config)
 	tx.WorkOrder = NewWorkOrderClient(tx.config)
 }
 

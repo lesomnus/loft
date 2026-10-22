@@ -19,7 +19,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file rove/ops.proto.
  */
 export const file_rove_ops: GenFile = /*@__PURE__*/
-  fileDesc("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", [file_google_protobuf_timestamp, file_orm, file_payday, file_rove_payday_holder, file_rove_payday_tenant]);
+  fileDesc("Cg5yb3ZlL29wcy5wcm90bxIEcm92ZSKzBQoMTm90aWZpY2F0aW9uEhcKAmlkGAEgASgMQgvqghYHEEAoAYIBABIkCgZ0ZW5hbnQYAiABKAsyDC5yb3ZlLlRlbmFudEIG8oIWAkABEhQKBG5hbWUYBSABKAlCBqrBFgIYARIUCgRkZXNjGAYgASgJQgaqwRYCGAESJAoGaG9sZGVyGAggASgLMgwucm92ZS5Ib2xkZXJCBvKCFgJAARIUCgRraW5kGAkgASgJQgaqwRYCGAASHAoKc3ViamVjdF9pZBgKIAEoDEII6oIWBBBAOAESMwoHcmVhZF9hdBgLIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCBuqCFgI4ARIUCgRsaW5rGAwgASgJQgaqwRYCGAASDAoEbWFpbBgQIAEoCBI3CgtkYXRlX21haWxlZBgRIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCBuqCFgI4ARISCgptYWlsX3RyaWVzGBIgASgNEjkKDGRhdGVfdXBkYXRlZBgNIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOKAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAOr8ByvwVWhICEAEaLBIEcGFnZRoKCgZ0ZW5hbnQQAhoQCgxkYXRlX2NyZWF0ZWQQDxoGCgJpZBABGiYSBmhvbGRlchoKCgZob2xkZXIQCBoQCgxkYXRlX2NyZWF0ZWQQD4q7Fl0IJDI8ChIKDgoMZGF0ZV9jcmVhdGVkEAEKCAoECgJpZBABGgUKA3JlZhoICgZob2xkZXIaBgoEa2luZCAyKMgBQgIKACIXCgZ0ZW5hbnQiDWhvbGRlci50ZW5hbnQirAQKDlRlbmFudENvbnRyYWN0EhcKAmlkGAEgASgMQgvqghYHEEAoAYIBABIkCgZ0ZW5hbnQYAiABKAsyDC5yb3ZlLlRlbmFudEIG8oIWAkABEgwKBG5hbWUYBSABKAkSDAoEZGVzYxgGIAEoCRIRCgl2aWV3X2RheXMYCCABKA0SEQoJa2VlcF9kYXlzGAkgASgNEhIKCmdyYWNlX2RheXMYCiABKA0SOwoOZGF0ZV9lZmZlY3RpdmUYCyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgfqghYDggEAEiEKEGFjY2Vzc19rZWVwX2RheXMYDCABKA1CB+qCFgOCAQASHQoMcmVzdG9yZV9kYXlzGBAgASgNQgfqghYDggEAEh0KDHB1cmdlX2Zsb29ycxgRIAEoCEIH6oIWA4IBABI4CgtkYXRlX2VyYXNlZBgOIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOSAQASOwoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAOnDK/BU5EgIQARozEgllZmZlY3RpdmUaCgoGdGVuYW50EAIaEgoOZGF0ZV9lZmZlY3RpdmUQCxoGCgJpZBABirsWLwgnMisKFAoQCg5kYXRlX2VmZmVjdGl2ZRABCggKBAoCaWQQARoFCgNyZWYgFChkIskCCglMZWdhbEhvbGQSFwoCaWQYASABKAxCC+qCFgcQQCgBggEAEiQKBnRlbmFudBgCIAEoCzIMLnJvdmUuVGVuYW50QgbyghYCQAESDAoEbmFtZRgFIAEoCRIMCgRkZXNjGAYgASgJEjcKC2RhdGVfbGlmdGVkGAggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIG6oIWAjgBEjsKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCeqCFgVAAYIBADpryvwVMhICEAEaLBIEcGFnZRoKCgZ0ZW5hbnQQAhoQCgxkYXRlX2NyZWF0ZWQQDxoGCgJpZBABirsWMQgoMikKEgoOCgxkYXRlX2NyZWF0ZWQQAQoICgQKAmlkEAEaBQoDcmVmIBQoZEICCgAi7wMKDEFjY2Vzc1JldmlldxIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASJAoGdGVuYW50GAIgASgLMgwucm92ZS5UZW5hbnRCBvKCFgJAARIUCgRkZXNjGAYgASgJQgbqghYCQAESOgoLcGVyaW9kX2Zyb20YCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgnqghYFQAGCAQASOAoJcGVyaW9kX3RvGAkgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIJ6oIWBUABggEAEiYKCHJldmlld2VyGAogASgLMgwucm92ZS5Ib2xkZXJCBvKCFgJAARIVCgVjYWxscxgLIAEoDUIG6oIWAkABEhkKCWRvd25sb2FkcxgMIAEoDUIG6oIWAkABEjsKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCeqCFgVAAYIBABIXCgdyZWZ1c2VkGBAgASgNQgbqghYCQAE6ZMr8FTISAhABGiwSBHBhZ2UaCgoGdGVuYW50EAIaEAoMZGF0ZV9jcmVhdGVkEA8aBgoCaWQQAYq7FioILzIiChIKDgoMZGF0ZV9jcmVhdGVkEAEKCAoECgJpZBABIBQoZEICCgBCH1oYZ2l0aHViLmNvbS9sZXNvbW51cy9yb3ZlkgMCCAJiCGVkaXRpb25zcOgH", [file_google_protobuf_timestamp, file_orm, file_payday, file_rove_payday_holder, file_rove_payday_tenant]);
 
 /**
  * Notification is a message for one holder: an overdue loan, a reservation to
@@ -120,52 +120,6 @@ export type Notification = Message<"rove.Notification"> & {
  */
 export const NotificationSchema: GenMessage<Notification> = /*@__PURE__*/
   messageDesc(file_rove_ops, 0);
-
-/**
- * UsageSnapshot is one tenant's usage on one day (design 7.1).
- *
- * @generated from message rove.UsageSnapshot
- */
-export type UsageSnapshot = Message<"rove.UsageSnapshot"> & {
-  /**
-   * @generated from field: bytes id = 1;
-   */
-  id: Uint8Array;
-
-  /**
-   * @generated from field: rove.Tenant tenant = 2;
-   */
-  tenant?: Tenant | undefined;
-
-  /**
-   * YYYY-MM-DD, UTC.
-   *
-   * @generated from field: string day = 8;
-   */
-  day: string;
-
-  /**
-   * @generated from field: map<string, string> metrics = 9;
-   */
-  metrics: { [key: string]: string };
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_updated = 13;
-   */
-  dateUpdated?: Timestamp | undefined;
-
-  /**
-   * @generated from field: google.protobuf.Timestamp date_created = 15;
-   */
-  dateCreated?: Timestamp | undefined;
-};
-
-/**
- * Describes the message rove.UsageSnapshot.
- * Use `create(UsageSnapshotSchema)` to create a new message.
- */
-export const UsageSnapshotSchema: GenMessage<UsageSnapshot> = /*@__PURE__*/
-  messageDesc(file_rove_ops, 1);
 
 /**
  * TenantContract is what a tenant's contract says about its history: how far
@@ -294,7 +248,7 @@ export type TenantContract = Message<"rove.TenantContract"> & {
  * Use `create(TenantContractSchema)` to create a new message.
  */
 export const TenantContractSchema: GenMessage<TenantContract> = /*@__PURE__*/
-  messageDesc(file_rove_ops, 2);
+  messageDesc(file_rove_ops, 1);
 
 /**
  * LegalHold is a legal hold on a tenant's history: while one is on, nothing of
@@ -348,7 +302,7 @@ export type LegalHold = Message<"rove.LegalHold"> & {
  * Use `create(LegalHoldSchema)` to create a new message.
  */
 export const LegalHoldSchema: GenMessage<LegalHold> = /*@__PURE__*/
-  messageDesc(file_rove_ops, 3);
+  messageDesc(file_rove_ops, 2);
 
 /**
  * AccessReview is that a stretch of the workspace's access record was
@@ -430,5 +384,5 @@ export type AccessReview = Message<"rove.AccessReview"> & {
  * Use `create(AccessReviewSchema)` to create a new message.
  */
 export const AccessReviewSchema: GenMessage<AccessReview> = /*@__PURE__*/
-  messageDesc(file_rove_ops, 4);
+  messageDesc(file_rove_ops, 3);
 

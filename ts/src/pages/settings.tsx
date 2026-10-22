@@ -16,7 +16,6 @@ import {
 	ItemModelService,
 	TenantDomainService,
 	TenantService,
-	UsageSnapshotService,
 	at,
 	daysWord,
 	fmt,
@@ -48,7 +47,6 @@ export function Settings(): ReactNode {
 			? [
 					{ key: 'audit', label: '감사 기록' },
 					{ key: 'access', label: '접속기록' },
-					{ key: 'usage', label: '사용량' },
 				]
 			: []),
 		...(c.can('owner') ? [{ key: 'workspace', label: '워크스페이스' }] : []),
@@ -64,7 +62,6 @@ export function Settings(): ReactNode {
 			{tab === 'events' && <Events />}
 			{tab === 'audit' && <Audit />}
 			{tab === 'access' && <Access />}
-			{tab === 'usage' && <Usage />}
 			{tab === 'workspace' && <WorkspaceTab />}
 		</>
 	)
@@ -790,59 +787,6 @@ function Access(): ReactNode {
 				</Load>
 			</Card>
 		</>
-	)
-}
-
-function Usage(): ReactNode {
-	const [order, setOrder] = useState<Order>('newest')
-	const list = useRpc(UsageSnapshotService.method.list, { size: 60, reverse: order === 'oldest' })
-	return (
-		<Card
-			title="일별 사용량"
-			actions={
-				<>
-					<span className="mute small">하루 한 번 기록 — 요금제가 생기면 쓰일 근거</span>
-					<OrderSelect value={order} onChange={setOrder} />
-				</>
-			}
-		>
-			<Load q={list}>
-				{(d) => {
-					const rows = d.items
-					const keys = [...new Set(rows.flatMap((r) => Object.keys(r.metrics)))].sort()
-					return rows.length === 0 ? (
-						<Empty>아직 기록이 없습니다.</Empty>
-					) : (
-						<div className="table-wrap">
-							<table className="table compact">
-								<thead>
-									<tr>
-										<th>날짜</th>
-										{keys.map((k) => (
-											<th key={k} className="num">
-												{k}
-											</th>
-										))}
-									</tr>
-								</thead>
-								<tbody>
-									{rows.map((r) => (
-										<tr key={idStr(r.id)}>
-											<td>{r.day}</td>
-											{keys.map((k) => (
-												<td key={k} className="num">
-													{r.metrics[k] ?? ''}
-												</td>
-											))}
-										</tr>
-									))}
-								</tbody>
-							</table>
-						</div>
-					)
-				}}
-			</Load>
-		</Card>
 	)
 }
 

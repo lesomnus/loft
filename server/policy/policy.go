@@ -131,7 +131,6 @@ func init() {
 	oversee("AccessReviewService", "Add", "Get", "List")
 	allow(Read, "EventService", "Recent")
 	oversee("HolderService", reads...)
-	oversee("UsageSnapshotService", "Get", "List")
 
 	allow(Read, "AssetService", "Timeline", "QueryAt", "Diff", "Search", "Report")
 	allow(Manager, "AssetService", "Add", "Erase", "Move", "SetAttributes", "Assign", "Relate", "Correct", "Export")
