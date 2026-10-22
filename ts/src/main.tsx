@@ -27,6 +27,7 @@ import '../gen/domains.js'
 import {
 	handingOff,
 	handOff,
+	labelWorkspace,
 	lastWorkspace,
 	openWorkspace,
 	rememberWorkspace,
@@ -176,6 +177,24 @@ function PasswordForm(props: {
 	)
 }
 
+/**
+ * The workspace of the account's that a label scanned at an address naming
+ * none is in (`/scan/<code>`, where `/l/<code>` lands): opened there, rather
+ * than in the one last opened, which may be on a domain of its own -- that
+ * domain serves its own labels alone, and could not send it on (rove#155).
+ * Nothing when the address is no label's, or the label is none of the
+ * account's.
+ */
+async function scannedIn(): Promise<Workspace | undefined> {
+	const m = /^\/scan\/([^/]+)$/.exec(location.pathname)
+	if (m === null) return undefined
+	try {
+		return await labelWorkspace(decodeURIComponent(m[1]))
+	} catch {
+		return undefined
+	}
+}
+
 type State =
 	| { at: 'checking' }
 	| { at: 'out'; ways: Ways }
@@ -258,11 +277,16 @@ function Boot(): ReactNode {
 			}
 			if (workspace === '') {
 				// An address that names no workspace -- the root, or a label
-				// scanned -- opens the one this browser was last in, and the
-				// first one otherwise, with the rest of the address kept.
-				const pick = a.workspaces.find((w) => w.alias === lastWorkspace()) ?? a.workspaces[0]
+				// scanned -- opens the one the label is in, or else the one
+				// this browser was last in, and the first one otherwise, with
+				// the rest of the address kept; but `?workspaces`, which a
+				// workspace's own domain sends somebody to for the account's
+				// others, asks which.
+				const pick = new URLSearchParams(location.search).has('workspaces')
+					? undefined
+					: ((await scannedIn()) ?? a.workspaces.find((w) => w.alias === lastWorkspace()) ?? a.workspaces[0])
 				if (pick !== undefined) {
-					openWorkspace(pick.alias, location.pathname + location.search, true)
+					openWorkspace(pick, location.pathname + location.search, true)
 					return
 				}
 				setState({ at: 'elsewhere', account: a })

@@ -66,6 +66,9 @@ type Account struct {
 	// page there offers nothing of the account's beside it -- making a
 	// workspace, the invitations -- which is the service's.
 	Pinned string `json:"pinned,omitempty"`
+	// Service is the service's address, said where Pinned is: where the
+	// account's other workspaces are opened from (`/?workspaces` there).
+	Service string `json:"service,omitempty"`
 }
 
 // Workspace is one an account is in.
@@ -80,6 +83,10 @@ type Workspace struct {
 	Closed        *time.Time `json:"closed,omitempty"`
 	Destroy       *time.Time `json:"destroy,omitempty"`
 	AliasHoldDays uint32     `json:"alias_hold_days,omitempty"`
+	// Home is where its app is, when that is a domain of its own (rove#155):
+	// the address a page of it begins with there, which the page goes to to
+	// open it. Absent while it is the service's.
+	Home string `json:"home,omitempty"`
 }
 
 // Exporter writes everything a workspace has, as `rove tenant export` does.
@@ -136,6 +143,12 @@ type Routes struct {
 	// Arrive is what an account that has just agreed is given: a workspace
 	// of its own, as a sign-in gives one.
 	Arrive func(ctx context.Context, p identity.Person) error
+	// Home is where a workspace's app is when that is a domain of its own,
+	// and empty while it is the service's (`apphost.Links`); nil says none.
+	// Service is where the service's page is, which a page on a workspace's
+	// domain sends somebody to for the account's other workspaces.
+	Home    func(ctx context.Context, workspace pdid.Id) (string, error)
+	Service string
 }
 
 // Mount serves `GET /account`, `POST /account/workspaces`, a workspace's
@@ -266,7 +279,12 @@ func (a Routes) Mount(mux *http.ServeMux) {
 			fail(w, r, err)
 			return
 		}
-		answer(w, http.StatusCreated, a.workspaceOf(m))
+		v, err := a.workspaceOf(r.Context(), m)
+		if err != nil {
+			fail(w, r, err)
+			return
+		}
+		answer(w, http.StatusCreated, v)
 	})
 	mux.HandleFunc("GET /account/labels/{code}", func(w http.ResponseWriter, r *http.Request) {
 		p, _, ok := Reading(w, r, sessions, people)
@@ -295,7 +313,12 @@ func (a Routes) Mount(mux *http.ServeMux) {
 		}
 		for _, m := range ms {
 			if at && m.Workspace == in {
-				answer(w, http.StatusOK, a.workspaceOf(m))
+				v, err := a.workspaceOf(r.Context(), m)
+				if err != nil {
+					fail(w, r, err)
+					return
+				}
+				answer(w, http.StatusOK, v)
 				return
 			}
 		}
@@ -463,10 +486,14 @@ func (a Routes) accountOf(r *http.Request, ws tenancy.Workspaces, p identity.Per
 	}
 	out := Account{Id: p.Id.String(), Login: p.Alias, Name: p.Name, Workspaces: []Workspace{}}
 	if pin, ok := apphost.From(r.Context()); ok {
-		out.Pinned = pin.Alias
+		out.Pinned, out.Service = pin.Alias, a.Service
 	}
 	for _, m := range pinned(r, ms) {
-		out.Workspaces = append(out.Workspaces, a.workspaceOf(m))
+		v, err := a.workspaceOf(r.Context(), m)
+		if err != nil {
+			return Account{}, err
+		}
+		out.Workspaces = append(out.Workspaces, v)
 		if m.Role == "owner" {
 			out.Owns++
 		}
@@ -495,12 +522,19 @@ func pinned(r *http.Request, ms []tenancy.Membership) []tenancy.Membership {
 	return out
 }
 
-func (a Routes) workspaceOf(m tenancy.Membership) Workspace {
+func (a Routes) workspaceOf(ctx context.Context, m tenancy.Membership) (Workspace, error) {
 	w := Workspace{Id: pdid.Id(m.Workspace).String(), Alias: m.Alias, Name: m.Name, Role: m.Role, Closed: m.Closed, Destroy: m.Destroy}
 	if m.Closed != nil {
 		w.AliasHoldDays = uint32(a.AliasHold / (24 * time.Hour))
 	}
-	return w
+	if a.Home != nil {
+		home, err := a.Home(ctx, m.Workspace)
+		if err != nil {
+			return Workspace{}, err
+		}
+		w.Home = home
+	}
+	return w, nil
 }
 
 func answer(w http.ResponseWriter, code int, v any) {

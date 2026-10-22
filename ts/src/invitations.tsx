@@ -164,7 +164,7 @@ export function Inbox(props: { account: Account; onSignOut: () => void }): React
 				)}
 				<div className="leave">
 					{back !== undefined && (
-						<button className="link" onClick={() => openWorkspace(back.alias)}>
+						<button className="link" onClick={() => openWorkspace(back)}>
 							워크스페이스로 돌아가기
 						</button>
 					)}

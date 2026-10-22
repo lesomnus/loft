@@ -64,7 +64,7 @@ export function Switcher(props: { account: Account; current: string }): ReactNod
 			<ul>
 				{props.account.workspaces.map((w) => (
 					<li key={w.id}>
-						<button className="link" aria-current={w.alias === workspace ? 'page' : undefined} onClick={() => openWorkspace(w.alias)}>
+						<button className="link" aria-current={w.alias === workspace ? 'page' : undefined} onClick={() => openWorkspace(w)}>
 							<span>{w.name || w.alias}</span>
 							<span className="mute small">
 								@{w.alias}
@@ -75,6 +75,11 @@ export function Switcher(props: { account: Account; current: string }): ReactNod
 				))}
 			</ul>
 			{/* On a workspace's own domain, what the account does beside it is the service's. */}
+			{props.account.pinned !== undefined && props.account.service !== undefined && (
+				<a className="link" href={`${props.account.service}/?workspaces`}>
+					다른 워크스페이스 ↗
+				</a>
+			)}
 			{props.account.pinned === undefined && (
 				<>
 					<a className="link invites" href="/invitations">
@@ -115,7 +120,7 @@ export function Elsewhere(props: { account: Account; onSignOut: () => void }): R
 						<ul>
 							{props.account.workspaces.map((w) => (
 								<li key={w.id}>
-									<button className="link" onClick={() => openWorkspace(w.alias)}>
+									<button className="link" onClick={() => openWorkspace(w)}>
 										{w.name || w.alias} <span className="mute small">@{w.alias}</span>
 									</button>
 								</li>
