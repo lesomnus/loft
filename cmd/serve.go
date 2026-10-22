@@ -10,6 +10,7 @@ import (
 	"log/slog"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -397,10 +398,9 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	// And on a workspace's own domain, where nobody signs in: the service
 	// hands a sign-in there, to an account that has agreed to what it asks,
 	// and signing out there goes on to the issuer as it does here.
-	pub := c.App.Public()
 	s.Handoff = session.Handoff{
 		Db: client, Sessions: s.Sessions, Store: store, Agreed: s.Consents, Issuer: s.Sso,
-		Service: c.App.App(), Scheme: pub.Scheme, Port: pub.Port(),
+		Links: c.App.Links(),
 	}
 
 	// Who read or wrote whose personal data (rove#136). A read's row is
@@ -880,17 +880,13 @@ func depsOf(c Config) (*domain.Deps, error) {
 		return nil, fmt.Errorf("app.locale.%w", err)
 	}
 
-	pub := c.App.Public()
-	port := pub.Port()
 	return &domain.Deps{
 		Files:         storage.Dir(files),
-		Sign:          storage.Signer{Key: key, Base: strings.TrimSuffix(pub.String(), "/"), TTL: 10 * time.Minute},
+		Sign:          storage.Signer{Key: key, TTL: 10 * time.Minute},
 		LabelSuffix:   c.App.Labels.Suffix,
 		LabelTarget:   c.App.Labels.Target,
-		LabelScheme:   pub.Scheme,
-		LabelPort:     port,
-		LabelBase:     strings.TrimSuffix(pub.String(), "/"),
 		ServiceHosts:  c.App.ServiceHosts(),
+		Links:         c.App.Links(),
 		LookupTXT:     net.DefaultResolver.LookupTXT,
 		NoShowAfter:   c.App.NoShowAfter,
 		Locale:        locale,
@@ -898,7 +894,6 @@ func depsOf(c Config) (*domain.Deps, error) {
 		AliasHold:     c.App.Workspaces.Hold(),
 		Retention:     c.App.Retention.Defaults(),
 		Mail:          sender,
-		AppUrl:        c.App.App(),
 		Invitations: domain.InvitationRules{
 			Ttl:     c.App.Invitations.Ttl,
 			Pending: c.App.Invitations.Pending,
@@ -1000,9 +995,22 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 	// the page that resolves it. The page asks the API, through the wall, so
 	// a label of another tenant reads as nothing there -- and then asks
 	// `/account/labels/{code}` which of the account's own it is in.
-	app := strings.TrimSuffix(c.App.App(), "/")
+	//
+	// The page is where the host's workspace is (rove#155): on a workspace's
+	// own domain, that domain; on one of its domains that pins nothing -- a
+	// label domain, an address it moved off -- its app domain while it has
+	// one; at the service's address otherwise. Which workspace a code is
+	// never decides it: the host does, so that a label says no more than
+	// what was printed on it.
+	links := c.App.Links()
 	mux.HandleFunc("GET /l/{code}", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, app+"/scan/"+r.PathValue("code"), http.StatusFound)
+		at, err := s.scanning(r, links)
+		if err != nil {
+			log.From(r.Context()).ErrorContext(r.Context(), "label: where its page is could not be told", "host", r.Host, "err", err)
+			http.Error(w, "cannot say just now", http.StatusServiceUnavailable)
+			return
+		}
+		http.Redirect(w, r, at+"/scan/"+url.PathEscape(r.PathValue("code")), http.StatusFound)
 	})
 
 	// What a reverse proxy issuing certificates on demand asks is the

@@ -22,6 +22,7 @@ import (
 	"github.com/lesomnus/payday/trail"
 
 	"github.com/lesomnus/rove/internal/identity"
+	"github.com/lesomnus/rove/server/apphost"
 	"github.com/lesomnus/rove/server/consent"
 	"github.com/lesomnus/rove/server/mail"
 	"github.com/lesomnus/rove/server/opensearch"
@@ -571,6 +572,12 @@ func (c AppConfig) ServiceHosts() []string {
 		}
 	}
 	return out
+}
+
+// Links is where every link this deployment makes begins: a workspace's on
+// its active app domain, and the rest at this address (rove#155).
+func (c AppConfig) Links() apphost.Links {
+	return apphost.Links{App: c.App(), Public: c.Public().String()}
 }
 
 // App is AppUrl, or the public address when the UI is served from it.

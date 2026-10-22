@@ -7,7 +7,6 @@ import (
 	"encoding/base64"
 	"errors"
 	"log/slog"
-	"net"
 	"net/http"
 	"net/url"
 	"strings"
@@ -75,16 +74,10 @@ type Handoff struct {
 	// issuer ([sso.Rp]); nil for none.
 	Issuer Issuer
 
-	// Service is where a browser reaches the service's address --
-	// `app.app_url`, or `app.public_url` -- which a domain sends it to, to
-	// sign in, and which signing out on one ends at.
-	Service string
-
-	// Scheme is what a browser reaches this deployment by, and Port the port
-	// it does, empty for the scheme's own: a workspace's domain is reached
-	// as the service is.
-	Scheme string
-	Port   string
+	// Links is where the service's address is -- which a domain sends a
+	// browser to, to sign in, and which signing out on one ends at -- and how
+	// a workspace's domain is reached.
+	Links apphost.Links
 
 	// Now is the clock; tests move it.
 	Now func() time.Time
@@ -129,7 +122,7 @@ func (h Handoff) now() time.Time {
 	return time.Now()
 }
 
-func (h Handoff) secure() bool { return h.Scheme == "https" }
+func (h Handoff) secure() bool { return h.Links.Secure() }
 
 // cookie is what the state a domain sent a browser off with is kept in, on
 // that host alone.
@@ -159,7 +152,7 @@ func (h Handoff) start(w http.ResponseWriter, r *http.Request) {
 	})
 	w.Header().Set("Cache-Control", "no-store")
 	q := url.Values{"to": {apphost.Host(r)}, "state": {state}}
-	http.Redirect(w, r, strings.TrimSuffix(h.Service, "/")+"/handoff?"+q.Encode(), http.StatusSeeOther)
+	http.Redirect(w, r, h.Links.Home(apphost.Page)+"/handoff?"+q.Encode(), http.StatusSeeOther)
 }
 
 // give is the service's: a code for the domain a browser came from, for the
@@ -273,13 +266,9 @@ func (h Handoff) give(w http.ResponseWriter, r *http.Request) {
 
 	// To the domain as it is written down, and never as the request named
 	// it.
-	host := d.Host
-	if h.Port != "" {
-		host = net.JoinHostPort(host, h.Port)
-	}
-	to := url.URL{Scheme: h.Scheme, Host: host, Path: "/handoff/callback", RawQuery: url.Values{"code": {code}, "state": {state}}.Encode()}
+	to := h.Links.On(d.Host) + "/handoff/callback?" + url.Values{"code": {code}, "state": {state}}.Encode()
 	w.Header().Set("Referrer-Policy", "no-referrer")
-	http.Redirect(w, r, to.String(), http.StatusSeeOther)
+	http.Redirect(w, r, to, http.StatusSeeOther)
 }
 
 // take is a domain exchanging the code a browser came back with for a
@@ -420,7 +409,7 @@ func (h Handoff) leave(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.SetCookie(w, h.Sessions.End(ctx, ""))
-	to := strings.TrimSuffix(h.Service, "/") + "/"
+	to := h.Links.Home(apphost.Page) + "/"
 	if h.Issuer != nil {
 		if u := h.Issuer.EndSession(ctx, held); u != "" {
 			to = u

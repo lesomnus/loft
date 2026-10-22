@@ -136,6 +136,29 @@ func (h Hosts) Handler(next http.Handler) http.Handler {
 	})
 }
 
+// scanning is where the page that resolves a label scanned on `r`'s host
+// begins: nothing on a workspace's own domain, whose page it is; the app
+// domain of the workspace whose domain it is, or the service's address while
+// it has none, on one of a workspace's domains that pins nothing; the
+// service's anywhere else.
+func (s *Server) scanning(r *http.Request, links apphost.Links) (string, error) {
+	if _, ok := apphost.From(r.Context()); ok {
+		return "", nil
+	}
+	d, err := s.Ent.TenantDomain.Query().Where(
+		tenantdomain.Host(apphost.Host(r)),
+		tenantdomain.StateIn("ready", "active", "legacy"),
+		tenantdomain.DateErasedIsNil(),
+	).Only(r.Context())
+	switch {
+	case ent.IsNotFound(err):
+		return links.Home(apphost.Page), nil
+	case err != nil:
+		return "", err
+	}
+	return links.Of(r.Context(), s.Ent, pdid.Id(d.TenantId), apphost.Page)
+}
+
 // refuses says why a request on a workspace's app domain is not served
 // there, or nothing when it is. A page or a file of another workspace is not
 // found here, rather than sent where it is: the domain serves its workspace

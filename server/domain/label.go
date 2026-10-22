@@ -31,6 +31,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/purchase"
 	"github.com/lesomnus/rove/internal/ent/tenantdomain"
 	"github.com/lesomnus/rove/internal/ent/workorder"
+	"github.com/lesomnus/rove/server/apphost"
 	"github.com/lesomnus/rove/server/pd"
 )
 
@@ -109,24 +110,6 @@ func (t *Tx) freeLabelCode() (string, error) {
 		}
 	}
 	return "", errors.New("labels: no code came free")
-}
-
-// labelURL answers the address a label prints: on the tenant's active
-// domain, `host`, or on this deployment's own address when it has none
-// (design 9.9, rove#155).
-func (d *Deps) labelURL(host string, code string) string {
-	if host == "" {
-		return strings.TrimSuffix(d.LabelBase, "/") + "/l/" + code
-	}
-	scheme := d.LabelScheme
-	if scheme == "" {
-		scheme = "https"
-	}
-	h := host
-	if p := d.LabelPort; p != "" && !(scheme == "https" && p == "443") && !(scheme == "http" && p == "80") {
-		h = host + ":" + p
-	}
-	return fmt.Sprintf("%s://%s/l/%s", scheme, h, code)
 }
 
 // The states a tenant domain is in (design 9.9).
@@ -418,7 +401,7 @@ func (s domainTenantDomain) Status(ctx context.Context, _ *app.TenantDomainStatu
 	out := app.TenantDomainStatusResponse_builder{
 		Target:        t.deps.LabelTarget,
 		DefaultSuffix: t.deps.LabelSuffix,
-		Base:          strings.TrimSuffix(t.deps.LabelBase, "/"),
+		Base:          t.deps.Links.Home(apphost.Label),
 	}.Build()
 	cur, err := t.activeDomain()
 	if err != nil {
@@ -452,6 +435,12 @@ func (s domainLabel) Print(ctx context.Context, req *app.LabelPrintRequest) (*ap
 		if err != nil {
 			return err
 		}
+		// What every label of these prints: its workspace's active domain,
+		// or this deployment's address while it has none (design 9.9).
+		at, err := t.deps.Links.Of(t.ctx, t.db, t.tenant, apphost.Label)
+		if err != nil {
+			return err
+		}
 		n := int(req.GetCount())
 		ids := req.GetAssetIds()
 		if len(ids) == 0 && (n <= 0 || n > 500) {
@@ -479,10 +468,8 @@ func (s domainLabel) Print(ctx context.Context, req *app.LabelPrintRequest) (*ap
 				Batch:     batch,
 				Code:      z.Ptr(code),
 			}.Build()
-			host := ""
 			if dom != nil {
 				req.SetDomain(app.TenantDomainRef_builder{Id: pdid.Id(dom.Id).Bytes()}.Build())
-				host = dom.Host
 			}
 			if subject != nil {
 				req.SetSubjectId(subject)
@@ -494,7 +481,7 @@ func (s domainLabel) Print(ctx context.Context, req *app.LabelPrintRequest) (*ap
 				return err
 			}
 			out.SetLabels(append(out.GetLabels(), v))
-			out.SetUrls(append(out.GetUrls(), t.deps.labelURL(host, code)))
+			out.SetUrls(append(out.GetUrls(), at+"/l/"+code))
 			return nil
 		}
 		if len(ids) > 0 {
@@ -792,6 +779,12 @@ func (s domainAttachment) Url(ctx context.Context, req *app.AttachmentUrlRequest
 	if err != nil {
 		return nil, err
 	}
-	u, exp := t.deps.Sign.URL(v.GetObjectKey(), v.GetName(), t.now)
+	// On the workspace's own domain while it has one, which serves its
+	// files; at the service's address otherwise.
+	at, err := t.deps.Links.Of(ctx, t.db, t.tenant, apphost.File)
+	if err != nil {
+		return nil, err
+	}
+	u, exp := t.deps.Sign.URL(at, v.GetObjectKey(), v.GetName(), t.now)
 	return app.AttachmentUrlResponse_builder{Url: u, ExpiresAt: ts(exp)}.Build(), nil
 }

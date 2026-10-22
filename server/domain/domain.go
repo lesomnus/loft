@@ -38,6 +38,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/event"
 	"github.com/lesomnus/rove/internal/ent/treelock"
 	"github.com/lesomnus/rove/internal/identity"
+	"github.com/lesomnus/rove/server/apphost"
 	"github.com/lesomnus/rove/server/mail"
 	"github.com/lesomnus/rove/server/opensearch"
 	"github.com/lesomnus/rove/server/pd"
@@ -61,16 +62,15 @@ type Deps struct {
 	LabelSuffix string
 	// LabelTarget is what a custom label domain's CNAME points at.
 	LabelTarget string
-	// LabelScheme is "https" in a deployment and "http" on a checkout.
-	LabelScheme string
-	// LabelPort is appended to label URLs when it is not the scheme's own,
-	// which is what a checkout on :8080 needs.
-	LabelPort string
 	// ServiceHosts is this deployment's own hosts -- where people sign in,
 	// and where the app is when a workspace has no domain of its own -- which
 	// no workspace may take as its domain, nor any name under them.
 	ServiceHosts []string
-	LabelBase    string
+
+	// Links is where every link made here begins: a workspace's on its
+	// active app domain, and the rest at the service's address (rove#155).
+	// A label, a signed file and a mail's link alike are made by it.
+	Links apphost.Links
 
 	// RestoreWithin is how long a closed workspace may be restored before it
 	// is destroyed (D29); zero is 30 days. AliasHold is how long its address
@@ -120,10 +120,9 @@ type Deps struct {
 	// is a deployment whose people cannot be changed from here.
 	People People
 
-	// Mail sends what goes to somebody's mailbox -- an invitation -- and
-	// AppUrl is where the link in it sends a browser. Nil sends nothing.
-	Mail   mail.Sender
-	AppUrl string
+	// Mail sends what goes to somebody's mailbox -- an invitation, a
+	// notification -- with a link [Deps.Links] makes. Nil sends nothing.
+	Mail mail.Sender
 
 	// Invitations is how long an invitation waits and how many a workspace
 	// may have out.

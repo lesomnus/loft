@@ -8,6 +8,10 @@
 // the HTTP beside the RPCs. A pin only ever narrows what a credential reaches
 // -- it names no member and grants nothing -- so where it is read, it is a
 // refusal of the rest.
+//
+// It is also where every link this deployment makes begins ([Links]): a link
+// to a workspace on its active `app` domain, and at the service's address
+// while it has none.
 package apphost
 
 import (
