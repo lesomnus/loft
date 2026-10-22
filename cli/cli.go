@@ -22,26 +22,32 @@
 package cli
 
 import (
+	"cmp"
 	"context"
 	"database/sql"
 	_ "embed"
 	"fmt"
 	"maps"
 	"slices"
-	"strings"
 	"time"
+	"uuid"
 
 	"github.com/lesomnus/xli"
 	"github.com/lesomnus/xli/cfg"
 	"github.com/lesomnus/xli/flg"
 	"github.com/lesomnus/xli/frm"
 	"github.com/lesomnus/xli/mode"
+	"github.com/protobuf-orm/ent/dialect"
+	entsql "github.com/protobuf-orm/ent/dialect/sql"
 
 	"github.com/lesomnus/payday/pdcmd"
+	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/rename"
 
 	"github.com/lesomnus/rove/cmd"
+	"github.com/lesomnus/rove/internal/ent"
 	entmigrate "github.com/lesomnus/rove/internal/ent/migrate"
+	"github.com/lesomnus/rove/internal/ent/tenantcontract"
 	"github.com/lesomnus/rove/server/offboard"
 	"github.com/lesomnus/rove/server/pd"
 )
@@ -191,6 +197,9 @@ func Migrate(ctx context.Context, s *cmd.Server) error {
 	if err := rename.Indexes(ctx, s.Db, s.Dialect, pd.IndexRenames); err != nil {
 		return err
 	}
+	if err := stashTerms(ctx, s); err != nil {
+		return err
+	}
 	if err := entmigrate.NewSchema(s.Drv).Create(ctx); err != nil {
 		return err
 	}
@@ -241,32 +250,36 @@ func dropGone(ctx context.Context, s *cmd.Server) error {
 	return nil
 }
 
-// moveTerms moves what the workspaces' contracts said of how long each keeps
-// its history and its access record and may be restored once closed onto the
-// workspaces, once: they are each workspace's own settings now (D36). Then the
-// contracts' columns for them go, and the view window's and the grace's with
-// them -- a migration only adds, and these say no default, so every contract
-// written without them would be refused.
+// The contracts' terms a workspace's own settings took over (D36), and the
+// columns they were kept in, with the view window's and the grace's: a
+// migration only adds, and these say no default, so every contract written
+// without them would be refused.
+var oldTerms = []string{"view_days", "keep_days", "grace_days", "access_keep_days", "restore_days"}
+
+// termsAside is where [stashTerms] sets the contracts' terms aside, by
+// contract, while the schema is migrated beneath them.
+const termsAside = "rove_contract_terms"
+
+// stashTerms sets aside what the workspaces' contracts said of how long each
+// keeps its history and its access record and may be restored once closed,
+// before the schema is migrated, for [moveTerms] to move onto the workspaces
+// once it is (D36).
 //
-// The contract in force says what a workspace keeps. The one before it says
-// what it kept before, from when the one in force took effect: a shorter window
-// waits out the deployment's grace (`app.retention.grace`) from then, as it
-// waited out the contract's own. What a contract dated ahead of the migration
-// said of these is not carried; the rest of it is, and it still takes effect.
+// Before, because the schema's migration may take the columns first. On
+// SQLite a table is changed by making it again -- a new table, its rows copied
+// in, the old one dropped -- and what is copied is the columns the schema
+// declares: a contract table that has to change for anything else, as one
+// from before `purge_floors` does, comes out of it without these. Set aside,
+// they are a table of their own the migration does not touch, until the move
+// has them.
 //
-// A contract that said any of them is a row a migration rewrote, and the trail
-// finds it so (`rove trail rows`) until an operator accepts it once.
-func moveTerms(ctx context.Context, s *cmd.Server) error {
-	q := "SELECT count(*) FROM pragma_table_info('tenantcontract') WHERE name = 'keep_days'"
-	if s.Dialect == "postgres" {
-		q = "SELECT count(*) FROM information_schema.columns WHERE table_schema = current_schema() AND table_name = 'tenantcontract' AND column_name = 'keep_days'"
-	}
-	n := 0
-	if err := s.Db.QueryRowContext(ctx, q).Scan(&n); err != nil {
-		return fmt.Errorf("the contracts' terms: %w", err)
-	}
-	if n == 0 {
-		return nil
+// While the columns are there they are what the contracts say, and the terms
+// are set aside again from them; once they are gone, what was set aside is
+// all there is, and it is kept.
+func stashTerms(ctx context.Context, s *cmd.Server) error {
+	has, err := hasColumn(ctx, s, "tenantcontract", "keep_days")
+	if err != nil || !has {
+		return err
 	}
 
 	tx, err := s.Db.BeginTx(ctx, nil)
@@ -274,99 +287,201 @@ func moveTerms(ctx context.Context, s *cmd.Server) error {
 		return err
 	}
 	defer tx.Rollback()
-
-	type terms struct {
-		tenant                any
-		effective             sql.NullTime
-		keep, access, restore sql.NullInt64
-	}
-	rows, err := tx.QueryContext(ctx, "SELECT tenant_id, date_effective, keep_days, access_keep_days, restore_days FROM tenantcontract "+
-		"WHERE date_erased IS NULL ORDER BY tenant_id, date_effective DESC, id DESC")
-	if err != nil {
-		return fmt.Errorf("the contracts' terms: %w", err)
-	}
-	byTenant := [][]terms{}
-	var last any
-	for rows.Next() {
-		var v terms
-		if err := rows.Scan(&v.tenant, &v.effective, &v.keep, &v.access, &v.restore); err != nil {
-			rows.Close()
-			return fmt.Errorf("the contracts' terms: %w", err)
-		}
-		if len(byTenant) == 0 || fmt.Sprint(v.tenant) != fmt.Sprint(last) {
-			byTenant = append(byTenant, nil)
-			last = v.tenant
-		}
-		byTenant[len(byTenant)-1] = append(byTenant[len(byTenant)-1], v)
-	}
-	rows.Close()
-	if err := rows.Err(); err != nil {
-		return fmt.Errorf("the contracts' terms: %w", err)
-	}
-
-	now := time.Now()
-	update := placeheld(s.Dialect, "UPDATE tenant SET keep_days = ?, access_keep_days = ?, restore_days = ?, "+
-		"keep_days_before = ?, date_keep_shortened = ?, access_keep_days_before = ?, date_access_keep_shortened = ? WHERE id = ?")
-	for _, vs := range byTenant {
-		i := slices.IndexFunc(vs, func(v terms) bool { return !v.effective.Valid || !v.effective.Time.After(now) })
-		if i < 0 {
-			continue
-		}
-		in := vs[i]
-		var keepBefore, accessBefore int64
-		var keepSince, accessSince any
-		if i+1 < len(vs) {
-			was := vs[i+1]
-			if outlasts(was.keep.Int64, in.keep.Int64) {
-				keepBefore, keepSince = was.keep.Int64, in.effective.Time
-			}
-			// Whether the deployment's access record outlasts a count of days is
-			// the deployment's to say when it is read: which keeps longer is
-			// read then.
-			if was.access.Int64 != in.access.Int64 {
-				accessBefore, accessSince = was.access.Int64, in.effective.Time
-			}
-		}
-		if _, err := tx.ExecContext(ctx, update, in.keep.Int64, in.access.Int64, in.restore.Int64,
-			keepBefore, keepSince, accessBefore, accessSince, in.tenant); err != nil {
-			return fmt.Errorf("the contracts' terms, onto %v: %w", in.tenant, err)
-		}
-	}
-
-	for _, c := range []string{"view_days", "keep_days", "grace_days", "access_keep_days", "restore_days"} {
-		if _, err := tx.ExecContext(ctx, "ALTER TABLE tenantcontract DROP COLUMN "+c); err != nil {
-			return fmt.Errorf("the contracts' %s: %w", c, err)
+	for _, q := range []string{
+		"DROP TABLE IF EXISTS " + termsAside,
+		"CREATE TABLE " + termsAside + " AS SELECT id AS contract_id, keep_days, access_keep_days, restore_days FROM tenantcontract",
+	} {
+		if _, err := tx.ExecContext(ctx, q); err != nil {
+			return fmt.Errorf("the contracts' terms, set aside: %w", err)
 		}
 	}
 
 	return tx.Commit()
 }
 
+// moveTerms moves the contracts' terms onto the workspaces, once: they are
+// each workspace's own settings now (D36). Then the contracts' columns for them
+// go, where the schema's migration left them, and what [stashTerms] set aside.
+//
+// The terms are the columns' while they are there -- what a contract written
+// since they were set aside says too -- and what was set aside once they are
+// not. A contract written after the columns had gone said none, and keeps
+// none.
+//
+// The contract in force says what a workspace keeps. The one before it says
+// what it kept before, from when the one in force took effect: a shorter window
+// waits out the deployment's grace (`app.retention.grace`) from then, as it
+// waited out the contract's own. What a contract dated ahead of the migration
+// said of these is not carried; the rest of it is, and it still takes effect.
+//
+// The contracts are read as the app reads them, through ent: which of them is
+// in force is their dates, in whatever form the database holds a time. A
+// contract whose terms do not read, or do not go onto its workspace, is
+// refused by name, and nothing is moved or dropped.
+//
+// A contract that said any of them is a row a migration rewrote, and the trail
+// finds it so (`rove trail rows`) until an operator accepts it once.
+func moveTerms(ctx context.Context, s *cmd.Server) error {
+	columns, err := hasColumn(ctx, s, "tenantcontract", "keep_days")
+	if err != nil {
+		return err
+	}
+	aside, err := hasTable(ctx, s, termsAside)
+	if err != nil {
+		return err
+	}
+	if !columns && !aside {
+		return nil
+	}
+
+	tdrv, tx, err := dialect.BeginTx(ctx, s.Drv)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	db := ent.NewClient(ent.Driver(tdrv))
+
+	from := "SELECT contract_id, keep_days, access_keep_days, restore_days FROM " + termsAside
+	if columns {
+		from = "SELECT id, keep_days, access_keep_days, restore_days FROM tenantcontract"
+	}
+	type terms struct{ keep, access, restore int64 }
+	said := map[uuid.UUID]terms{}
+	rows := &entsql.Rows{}
+	if err := tdrv.Query(ctx, from, []any{}, rows); err != nil {
+		return fmt.Errorf("the contracts' terms: %w", err)
+	}
+	for rows.Next() {
+		var id string
+		var keep, access, restore sql.NullInt64
+		if err := rows.Scan(&id, &keep, &access, &restore); err != nil {
+			rows.Close()
+			return fmt.Errorf("the contracts' terms: %w", err)
+		}
+		k, err := uuid.Parse(id)
+		if err != nil {
+			rows.Close()
+			return fmt.Errorf("the contracts' terms: contract %q: %w", id, err)
+		}
+		said[k] = terms{keep.Int64, access.Int64, restore.Int64}
+	}
+	rows.Close()
+	if err := rows.Err(); err != nil {
+		return fmt.Errorf("the contracts' terms: %w", err)
+	}
+
+	cs, err := db.TenantContract.Query().Where(tenantcontract.DateErasedIsNil()).All(ctx)
+	if err != nil {
+		return fmt.Errorf("the contracts, as they are read: %w", err)
+	}
+	byTenant := map[uuid.UUID][]*ent.TenantContract{}
+	for _, c := range cs {
+		byTenant[c.TenantId] = append(byTenant[c.TenantId], c)
+	}
+
+	now := time.Now()
+	for _, t := range slices.SortedFunc(maps.Keys(byTenant), func(a, b uuid.UUID) int { return a.Compare(b) }) {
+		vs := byTenant[t]
+		// The latest first, as the contract in force is read.
+		slices.SortFunc(vs, func(a, b *ent.TenantContract) int {
+			return cmp.Or(b.DateEffective.Compare(a.DateEffective), b.Id.Compare(a.Id))
+		})
+		i := slices.IndexFunc(vs, func(v *ent.TenantContract) bool { return !v.DateEffective.After(now) })
+		if i < 0 {
+			continue
+		}
+		in, is := vs[i], said[vs[i].Id]
+		up := db.Tenant.UpdateOneId(t).
+			SetKeepDays(uint32(is.keep)).
+			SetAccessKeepDays(uint32(is.access)).
+			SetRestoreDays(uint32(is.restore))
+		if i+1 < len(vs) {
+			was := said[vs[i+1].Id]
+			if outlasts(was.keep, is.keep) {
+				up.SetKeepDaysBefore(uint32(was.keep)).SetDateKeepShortened(in.DateEffective)
+			}
+			// Whether the deployment's access record outlasts a count of days is
+			// the deployment's to say when it is read: which keeps longer is
+			// read then.
+			if was.access != is.access {
+				up.SetAccessKeepDaysBefore(uint32(was.access)).SetDateAccessKeepShortened(in.DateEffective)
+			}
+		}
+		if err := up.Exec(ctx); err != nil {
+			return fmt.Errorf("contract %s, onto tenant %s: %w", pdid.Id(in.Id), pdid.Id(t), err)
+		}
+	}
+
+	if columns {
+		for _, c := range oldTerms {
+			has, err := hasColumnIn(ctx, tdrv, s.Dialect, "tenantcontract", c)
+			if err != nil {
+				return err
+			}
+			if !has {
+				continue
+			}
+			if err := tdrv.Exec(ctx, "ALTER TABLE tenantcontract DROP COLUMN "+c, []any{}, nil); err != nil {
+				return fmt.Errorf("the contracts' %s: %w", c, err)
+			}
+		}
+	}
+	if aside {
+		if err := tdrv.Exec(ctx, "DROP TABLE "+termsAside, []any{}, nil); err != nil {
+			return fmt.Errorf("the contracts' terms, set aside: %w", err)
+		}
+	}
+
+	return tx.Commit()
+}
+
+// hasColumn answers whether a table of the database has a column.
+func hasColumn(ctx context.Context, s *cmd.Server, table, column string) (bool, error) {
+	return hasColumnIn(ctx, s.Drv, s.Dialect, table, column)
+}
+
+// hasColumnIn is [hasColumn] through `drv`, which may be a transaction's.
+func hasColumnIn(ctx context.Context, drv dialect.Driver, d, table, column string) (bool, error) {
+	q := "SELECT count(*) FROM pragma_table_info(?) WHERE name = ?"
+	if d == "postgres" {
+		q = "SELECT count(*) FROM information_schema.columns WHERE table_schema = current_schema() AND table_name = $1 AND column_name = $2"
+	}
+
+	return counted(ctx, drv, q, table, column)
+}
+
+// hasTable answers whether the database has a table.
+func hasTable(ctx context.Context, s *cmd.Server, table string) (bool, error) {
+	q := "SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name = ?"
+	if s.Dialect == "postgres" {
+		q = "SELECT count(*) FROM information_schema.tables WHERE table_schema = current_schema() AND table_name = $1"
+	}
+
+	return counted(ctx, s.Drv, q, table)
+}
+
+// counted answers whether a count asked of the database is more than none.
+func counted(ctx context.Context, drv dialect.Driver, q string, args ...any) (bool, error) {
+	rows := &entsql.Rows{}
+	if err := drv.Query(ctx, q, args, rows); err != nil {
+		return false, err
+	}
+	defer rows.Close()
+
+	n := 0
+	if rows.Next() {
+		if err := rows.Scan(&n); err != nil {
+			return false, err
+		}
+	}
+
+	return n > 0, rows.Err()
+}
+
 // outlasts answers whether a count of days keeps longer than another, where 0
 // is forever.
 func outlasts(a, b int64) bool {
 	return b > 0 && (a == 0 || a > b)
-}
-
-// placeheld is a statement with each `?` as the dialect binds it: `$1`, `$2`
-// for PostgreSQL.
-func placeheld(dialect, q string) string {
-	if dialect != "postgres" {
-		return q
-	}
-
-	b := strings.Builder{}
-	n := 0
-	for _, r := range q {
-		if r == '?' {
-			n++
-			fmt.Fprintf(&b, "$%d", n)
-			continue
-		}
-		b.WriteRune(r)
-	}
-
-	return b.String()
 }
 
 // pgExtras is what PostgreSQL promises beyond the schema; see the file.

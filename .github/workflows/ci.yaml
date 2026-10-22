@@ -117,6 +117,14 @@ jobs:
   # migrates them, on SQLite and on PostgreSQL. Every other test starts from an
   # empty database, which takes any column the schema adds; a column with no
   # default cannot be added to a table with rows in it, and only this says so.
+  #
+  # And from the oldest build a deployment still runs, beside it: a migration
+  # from the build just before is one step, and a deployment that skipped some
+  # takes several at once -- on SQLite a table the schema changes is made
+  # again, and a step's own data, read after that, is not there (rove#163's
+  # contract terms, found going from staging's build). It costs a second old
+  # build, from its own modules, a minute or two of this job. Moved forward
+  # when no deployment runs it any more.
   upgrade:
     runs-on: ubuntu-26.04
     steps:
@@ -142,13 +150,17 @@ jobs:
           restore-keys: |
             go-${{ runner.os }}-${{ hashFiles('go.sum') }}-
             go-${{ runner.os }}-
-      - name: this build, and the one it comes after
+      - name: this build, the one it comes after, and the oldest a deployment runs
         env:
           BEFORE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          # Staging's (rove#99), a11e37d.
+          OLDEST: a11e37de920a67c5e36da74382173941dc6c303a
         run: |
           go build -o "${RUNNER_TEMP}/rove-now" ./cmd/rove
           git worktree add --detach "${RUNNER_TEMP}/before" "${BEFORE}"
           (cd "${RUNNER_TEMP}/before" && go build -o "${RUNNER_TEMP}/rove-before" ./cmd/rove)
+          git worktree add --detach "${RUNNER_TEMP}/oldest" "${OLDEST}"
+          (cd "${RUNNER_TEMP}/oldest" && go build -o "${RUNNER_TEMP}/rove-oldest" ./cmd/rove)
       - name: PostgreSQL is up
         run: |
           for i in $(seq 1 60); do docker exec postgres pg_isready -h 127.0.0.1 -U rove && exit 0; sleep 1; done
@@ -159,6 +171,13 @@ jobs:
         run: |
           docker exec postgres psql -U rove -qc 'create database upgrade_rove' -c 'create database upgrade_roster'
           scripts/upgrade.sh "${RUNNER_TEMP}/rove-before" "${RUNNER_TEMP}/rove-now"
+      - name: what the oldest build a deployment runs made, migrated by this one
+        env:
+          UPGRADE_POSTGRES: postgres://rove:rove@localhost:5432
+        run: |
+          docker exec postgres psql -U rove -qc 'drop database upgrade_rove' -c 'drop database upgrade_roster' \
+            -c 'create database upgrade_rove' -c 'create database upgrade_roster'
+          scripts/upgrade.sh "${RUNNER_TEMP}/rove-oldest" "${RUNNER_TEMP}/rove-now"
 
   # Search on OpenSearch with nori (D31, deploy/opensearch): the image a
   # deployment runs, with its security plugin on -- TLS on the demo
