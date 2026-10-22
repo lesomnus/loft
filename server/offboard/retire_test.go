@@ -4,11 +4,13 @@ import (
 	"bytes"
 	"context"
 	"encoding/base64"
+	"encoding/json"
 	"testing"
 	"time"
 
 	"github.com/lesomnus/payday/config"
 	"github.com/lesomnus/payday/pdid"
+	"github.com/lesomnus/payday/trail"
 	"github.com/lesomnus/z"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -146,43 +148,95 @@ func TestAWorkspaceLeavesAsItsContractSays(t *testing.T) {
 	x.False(plan.Retired, "a contract that purges retires")
 }
 
-// TestAWorkspaceThatRetiredIsNotRestoredUnderItsIdentifier: a workspace that
+// TestAWorkspaceThatRetiredIsRestoredUnderItsIdentifier: a workspace that
 // retired from a deployment with floors is a tenant that left to the trail
-// there, which would take what it wrote back under the same identifier, so a
-// restore of it is refused there and not elsewhere. A purge leaves the trail
-// no such record, and a purged workspace comes back as it always has. Each
-// destruction holds the address, saying which it was.
-func TestAWorkspaceThatRetiredIsNotRestoredUnderItsIdentifier(t *testing.T) {
+// there, which would take what it wrote back under the same identifier at the
+// next pass. So a restore of it there has the trail take it back first
+// (`trail.Policy.Return`, payday#141) -- and what it writes afterwards is
+// kept, and archived when its window says, as any workspace's is. A dry run
+// takes nothing back. A purge leaves the trail no such record, and a purged
+// workspace comes back as it always has. Each destruction holds the address,
+// saying which it was.
+func TestAWorkspaceThatRetiredIsRestoredUnderItsIdentifier(t *testing.T) {
 	archive := t.TempDir()
-	e, pub := signed(t, floorOnHolders, func(c *cmd.Config) { c.Audit.Archive = archive })
+	e, pub := signed(t, floorOnHolders, func(c *cmd.Config) {
+		c.Audit.Archive = archive
+		c.Audit.Retain = time.Nanosecond
+	})
 	x := e.x
 	ctx := context.Background()
+	store := pd.TrailStore(e.s.Ent)
 	acme, again := e.tenant("acme"), e.tenant("again")
 	reason := func(t pdid.Id) string {
 		v, err := e.s.Ent.AliasHold.Query().Where(aliashold.Tenant(t.Uuid())).Only(ctx)
 		x.NoError(err)
 		return v.Reason
 	}
+	retired := func(t pdid.Id) bool {
+		vs, err := e.s.Trail.Retired(ctx, store)
+		x.NoError(err)
+		_, ok := vs[t]
+		return ok
+	}
 
 	b := e.export(acme.id)
 	_, err := e.s.Closing.Destroy(ctx, e.row(acme.id), closing.Retire, false)
 	x.NoError(err)
 	x.Equal(offboard.ReasonRetired, reason(acme.id))
+	x.True(retired(acme.id), "the trail has no record that acme left")
 
-	_, err = e.restore(b, offboard.ImportOptions{Dry: true})
-	x.ErrorIs(err, offboard.ErrRetiredHere)
-	_, err = e.restore(b, offboard.ImportOptions{})
-	x.ErrorIs(err, offboard.ErrRetiredHere)
-	x.Empty(e.count(acme.id)["tenant"], "a refused restore put something back")
+	got, err := e.restore(b, offboard.ImportOptions{Dry: true})
+	x.NoError(err)
+	x.True(got.Retired)
+	x.Zero(got.Returned)
+	x.True(retired(acme.id), "a dry run took acme back")
+	x.Empty(e.count(acme.id)["tenant"], "a dry run put something back")
+
+	got, err = e.restore(b, offboard.ImportOptions{})
+	x.NoError(err)
+	x.True(got.Retired)
+	x.Positive(got.Returned, "the trail took nothing back")
+	x.False(retired(acme.id), "the trail still has acme as a tenant that left")
+
+	// What it writes now is a workspace's like any other: in the archive
+	// after the next pass, rather than gone with a tenant that left.
+	party, err := e.s.Base.Party().Add(ctx, app.PartyAddRequest_builder{
+		Tenant: app.TenantRef_builder{Id: acme.id.Bytes()}.Build(),
+		Name:   "Back again",
+		Kind:   "person",
+	}.Build())
+	x.NoError(err)
+	pid, err := pdid.From(party.GetId())
+	x.NoError(err)
+	e.s.Trail.Pass(ctx, store)
+	n, err := e.s.Ent.Audit.Query().Where(audit.ObjectId(pid.Uuid())).Count(ctx)
+	x.NoError(err)
+	x.Zero(n, "the pass left the new row's trail in the database")
+	kept := 0
+	x.NoError(trail.ReadTenant(ctx, e.s.Trail.Archive, acme.id, func(doc []byte) error {
+		var v struct {
+			ObjectId []byte `json:"objectId"`
+		}
+		if err := json.Unmarshal(doc, &v); err != nil {
+			return err
+		}
+		if bytes.Equal(v.ObjectId, party.GetId()) {
+			kept++
+		}
+		return nil
+	}))
+	x.Positive(kept, "what the restored workspace wrote is in neither the database nor the archive")
 
 	elsewhere := newEnv(t, func(c *cmd.Config) { c.Audit.Checkpoints.Trust = []string{pub} })
-	_, err = elsewhere.restore(b, offboard.ImportOptions{})
+	got, err = elsewhere.restore(b, offboard.ImportOptions{})
 	x.NoError(err, "refused where it never retired")
+	x.False(got.Retired)
 
 	b = e.export(again.id)
 	_, err = e.s.Closing.Destroy(ctx, e.row(again.id), closing.Purge, false)
 	x.NoError(err)
 	x.Equal(offboard.ReasonDestroyed, reason(again.id))
-	_, err = e.restore(b, offboard.ImportOptions{})
+	got, err = e.restore(b, offboard.ImportOptions{})
 	x.NoError(err, "a purged workspace is not restored where it was purged")
+	x.False(got.Retired)
 }

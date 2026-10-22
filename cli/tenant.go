@@ -296,6 +296,13 @@ func newCmdTenantImport(c *cmd.Config) *xli.Command {
 			if x.Reopened {
 				self.Printf("  it was closed when it was exported, and is open\n")
 			}
+			if x.Retired {
+				if yes {
+					self.Printf("  it retired from here, and the trail took it back first: %d records of the retirement lifted\n", x.Returned)
+				} else {
+					self.Printf("  it retired from here: the trail takes it back first, before anything of it is written\n")
+				}
+			}
 			if len(x.Missing) > 0 {
 				self.Printf("  files the export did not have, as the store it came from did not: %s\n", strings.Join(x.Missing, ", "))
 			}

@@ -102,6 +102,16 @@ audit:
     dir: /var/lib/rove/checkpoints
     write_once: true
     key: /run/secrets/rove/checkpoints.pem
+    # Who hears every checkpoint outside the database and the archive
+    # (payday#115), so that whoever can write both cannot cut the chain short
+    # at its head unseen. `log:` needs no volume: a line of the log and the
+    # gauge `payday.trail.checkpoint` for each, and a witness only with the
+    # two alerts on it that `docs/runbook/trail-integrity.md` gives. The store
+    # is a volume, which the base does not force on an overlay: the
+    # `witness/` component brings its claim and mounts, and then
+    #
+    #   witnesses: ["log:", "store:/var/lib/rove/witness"]
+    witnesses: ["log:"]
 
   # A keyed digest of the row each write left, so that `rove trail rows`
   # finds a row changed in the database past the servers (payday#102). The

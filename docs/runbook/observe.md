@@ -10,7 +10,7 @@ Rove가 내보내는 것과, 그중 무엇을 대시보드에 두고 무엇에 �
 | --- | --- |
 | 로그 | 요청마다 `gRPC in`과 `gRPC out` 두 줄. 속성은 `rpc.service`, `rpc.method`, `rpc.grpc.status`, `server.elapsed_ns`이고, 인증된 요청은 `authenticated`(`actor.id`, `actor.tenant`)도 남깁니다. 그 밖에 아래 표의 경고 |
 | 추적 | 요청마다 스팬 하나와 그 안의 것. 예시 설정은 10%만 보냅니다(`sampler`) |
-| 지표 | `rpc.server.call.duration`(초 단위 히스토그램, 메서드별). 60초마다 보냅니다 |
+| 지표 | `rpc.server.call.duration`(초 단위 히스토그램, 메서드별). 60초마다 보냅니다. 감사 기록의 증인 `log:`를 둔 배포는 체크포인트의 번호 `payday.trail.checkpoint`(게이지)도 보냅니다 |
 
 - 로그에 사람의 이름, 이메일, 전화번호는 남기지 않습니다. 남는 것은 식별자(`actor.id`)입니다.
 - 내장 roster 호출도 같은 서버의 요청으로 남습니다(`rpc.service`가 `roster.…`, 주소는 `bufconn`). 요청 수를 셀 때는 빼고 셉니다.
@@ -22,6 +22,10 @@ Rove가 내보내는 것과, 그중 무엇을 대시보드에 두고 무엇에 �
 | 무엇이 보이면 | 뜻 | 할 일 |
 | --- | --- | --- |
 | `` `trail verify` ``(백틱까지)를 담은 경고 | 감사 기록 보관소가 DB의 기록이나 체크포인트와 맞지 않음 | [감사 기록 위변조 감지 대응](trail-integrity.md) |
+| 게이지 `payday.trail.checkpoint`가 지난 30일의 최댓값보다 작음 | 감사 기록의 체크포인트 번호를 누가 되감음(증인 `log:`) | [체크포인트의 증인](trail-integrity.md#체크포인트의-증인)의 `unkept`, `rewritten` |
+| `trail: a checkpoint, heard`에 같은 `k`가 서로 다른 `digest`로 두 줄 | 같은 번호의 체크포인트를 다시 씀(증인 `log:`) | 같은 곳 |
+| 게이지 `payday.trail.checkpoint`가 패스 두 번(`audit.every`의 두 배)보다 오래 그대로. 패스마다 체크포인트를 남기는 배포만 | 증인이 듣지 못하게 막힘 | 같은 곳의 `unheard` |
+| `trail: a witness did not hear a checkpoint, and the next pass tells it again` | 증인 하나가 체크포인트를 듣지 못함. 작업은 계속하고 다음 패스가 다시 알려 줌 | 그 증인의 볼륨·디스크·권한을 봅니다. 이어지면 `verify`가 `unheard`를 찾습니다 |
 | `spin failed` | 백그라운드 루프 하나가 오류로 끝나서 **프로세스가 멈춤**. 서버가 함께 내려가고 쿠버네티스가 다시 띄웁니다(재시작 횟수가 늘어남). `spin=`이 어느 루프인지, `error=`가 왜인지 말합니다 | 원인을 고칩니다. 고치지 않으면 다시 떠도 같은 자리에서 또 멈춥니다 |
 | `tidy`(경고, `spin=`과 `error=`가 붙음) | 주기 작업(세션·로그인 정리, 워크스페이스 파기, 계정 대조 등) 한 번이 실패함. 프로세스는 그대로이고 다음 주기에 다시 합니다 | 같은 `spin=`으로 이어지면 원인을 봅니다 |
 | `spin lost its lease`가 이어짐, `spinpg: the lease's database cannot be asked` | DB에 닿지 않아 백그라운드 작업이 멈춤 | DB와 그 연결(NetworkPolicy, 비밀번호)을 봅니다 |

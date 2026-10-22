@@ -1516,8 +1516,8 @@ type AliasHold_builder struct {
 	// moved to. A hold of a destroyed workspace is also this deployment's word
 	// that it was destroyed here, and `retired` that it left keeping what the
 	// deployment's floors are on of its trail, which a restore of it under its
-	// identifier waits for (`offboard.ErrRetiredHere`): it stays when the hold is
-	// over.
+	// identifier has the trail take back first (`trail.Policy.Return`): it
+	// stays when the hold is over.
 	Reason  string
 	MovedTo string
 	// Whose it was.

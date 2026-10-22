@@ -38,6 +38,15 @@ audit:
     dir: /var/lib/rove/checkpoints
     write_once: true
     key: /run/secrets/rove/checkpoints.pem
+    # The base's `log:`, and the store the `witness/` component mounts.
+    witnesses: ["log:", "store:/var/lib/rove/witness"]
+  # The base's window on the access record, without which no pass runs and so
+  # no checkpoint is taken -- and the rig asks what the store heard of one.
+  by:
+    access:
+      profile: pipa-sensitive
+      min:
+        profile: pipa
 
 admin:
   addr: 0.0.0.0:8081

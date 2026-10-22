@@ -124,8 +124,8 @@ const Retired = "rove.workspace.retire"
 // every destruction writes (`closing.Closing.Destroy`): this deployment's word
 // that the workspace was destroyed here, which stays after the hold is over.
 // ReasonRetired is one that retired in a deployment that keeps floors, and so
-// left a record of it with the trail, which a restore under its identifier
-// waits for ([ErrRetiredHere]).
+// left a record of it with the trail, which a restore under its identifier has
+// the trail take back first ([Deployment.Import]).
 const (
 	ReasonDestroyed = "destroyed"
 	ReasonRetired   = "retired"

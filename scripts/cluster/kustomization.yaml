@@ -13,6 +13,11 @@ resources:
   - ./postgres.yaml
   - ./ingress.yaml
 
+# The trail's store witness, which the base leaves to an overlay because it is
+# a volume: what a deployment that wants one writes.
+components:
+  - ../../deploy/k8s/witness
+
 configMapGenerator:
   # The base's file with the rig's address and proxy in it.
   - name: rove

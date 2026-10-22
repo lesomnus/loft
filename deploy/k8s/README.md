@@ -15,6 +15,7 @@ resources:
 | --- | --- |
 | `rove` Deployment | 파드 하나에 컨테이너 셋: `migrate`(init 컨테이너, `rove migrate`), `rove`(`rove serve`, 8080), `rove-admin`(운영자 진입점, 8081) |
 | PVC 셋 | `rove-files`(첨부), `rove-audit`(감사 기록 보관소), `rove-checkpoints`(그 체크포인트). 모두 ReadWriteOnce |
+| 컴포넌트 `witness/` (선택) | 감사 기록의 증인 저장소(`store:`)를 위한 PVC `rove-witness`와 그 마운트. base에는 넣지 않습니다(아래 6) |
 | `rove` Service | 8080 하나. 인그레스가 이리로 보냅니다. 운영자 진입점에는 Service가 없습니다 |
 | NetworkPolicy `rove` | 네트워크로는 8080만 받습니다. gRPC(50051)와 운영자 진입점(8081)에는 아무것도 닿지 않습니다 |
 | ConfigMap `rove` | `config.yaml`, 모든 프로세스가 `--config`로 읽는 파일 |
@@ -71,6 +72,20 @@ resources:
    - 그래야 `trusted_proxies`에 파드 네트워크 전체를 넣어도 안전합니다. 서버에 바로 닿는 파드는 X-Forwarded-For를 마음대로 적을 수 있기 때문입니다.
    - 예는 `scripts/cluster/kustomization.yaml`의 patch에 있습니다(Traefik, `kube-system`).
 6. **스토리지.** `storageClassName`과 크기를 정합니다. 체크포인트는 삭제를 거부하는 클래스가 있으면 그것을 씁니다(`docs/runbook/trail-integrity.md`).
+   - **감사 기록의 증인.** base의 설정은 `audit.checkpoints.witnesses: ["log:"]`입니다. `log:`는 볼륨이 필요 없지만, 런북의 경보 두 개를 걸어야 증인 노릇을 합니다. 체크포인트를 따로 들어 두는 저장소(`store:`)도 두려면 컴포넌트를 넣고 설정에 이름을 적습니다. `scripts/cluster/`가 그 예입니다.
+
+     ```yaml
+     components:
+       - github.com/lesomnus/rove//deploy/k8s/witness?ref=<base와 같은 커밋>
+     ```
+
+     ```yaml
+     audit:
+       checkpoints:
+         witnesses: ["log:", "store:/var/lib/rove/witness"]
+     ```
+
+     `rove-witness`는 보관소와 다른 스토리지에, DB·보관소와 다른 권한으로 둡니다. 삭제를 거부하는 클래스면 더 좋습니다. 보관소와 같은 디스크의 증인은 증인이 아닙니다. 둘 다에 손댈 수 있는 사람은 둘에서 함께 지웁니다.
 7. **이미지.** 태그가 아니라 digest로 고정합니다: `images: [{name: ghcr.io/lesomnus/rove, digest: sha256:…}]`.
 8. **PostgreSQL.** Rove와 내장 roster의 데이터베이스 두 개가 필요합니다.
    - 필요한 확장은 `btree_gist` 하나입니다. 검색은 9의 검색 엔진이 답하고, 없으면 데이터베이스가 인덱스 없이 답합니다.

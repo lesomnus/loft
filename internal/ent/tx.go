@@ -76,6 +76,8 @@ type Tx struct {
 	Reservation *ReservationClient
 	// ReservationItem is the client for interacting with the ReservationItem builders.
 	ReservationItem *ReservationItemClient
+	// RowSeal is the client for interacting with the RowSeal builders.
+	RowSeal *RowSealClient
 	// SearchStale is the client for interacting with the SearchStale builders.
 	SearchStale *SearchStaleClient
 	// Session is the client for interacting with the Session builders.
@@ -263,6 +265,7 @@ func (tx *Tx) init() {
 	tx.PurchaseLine = NewPurchaseLineClient(tx.config)
 	tx.Reservation = NewReservationClient(tx.config)
 	tx.ReservationItem = NewReservationItemClient(tx.config)
+	tx.RowSeal = NewRowSealClient(tx.config)
 	tx.SearchStale = NewSearchStaleClient(tx.config)
 	tx.Session = NewSessionClient(tx.config)
 	tx.SignInFailure = NewSignInFailureClient(tx.config)

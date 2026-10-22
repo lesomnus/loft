@@ -1,0 +1,13 @@
+# What the store witness heard. Small -- a statement per checkpoint, a few
+# kilobytes each -- and kept for as long as the trail is: it only ever adds.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: rove-witness
+  labels:
+    app.kubernetes.io/name: rove
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 1Gi

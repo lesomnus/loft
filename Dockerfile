@@ -38,8 +38,9 @@ RUN --mount=type=cache,id=rove-go-build,target=/root/.cache/go-build \
 	&& CGO_ENABLED=0 go build -trimpath -ldflags="${flags}" -o /out/rove ./cmd/rove \
 	&& CGO_ENABLED=0 go build -trimpath -ldflags="${flags}" -o /out/rove-admin ./cmd/rove-admin
 # Where a deployment's state goes, made here so that a volume mounted on them
-# starts out owned by the user below.
-RUN mkdir -p /out/state/files /out/state/audit /out/state/checkpoints
+# starts out owned by the user below -- the trail's store witness among them
+# (payday#115), which a named volume would otherwise give to root.
+RUN mkdir -p /out/state/files /out/state/audit /out/state/checkpoints /out/state/witness
 
 FROM gcr.io/distroless/static-debian12:nonroot
 COPY --from=go /out/rove /out/rove-admin /usr/local/bin/

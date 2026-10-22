@@ -121,6 +121,7 @@ ROVE_VERSION=$(git describe --tags --always) docker compose up -d --build
 | `files` | 첨부 파일 |
 | `audit` | 감사 기록 보관소 |
 | `checkpoints` | 감사 기록 체크포인트. 삭제를 거부하는 디스크에 두면 더 좋습니다(`docs/runbook/trail-integrity.md`) |
+| `witness` | 감사 기록의 증인(`store:`)이 들은 체크포인트. 보관소와 다른 디스크, DB·보관소와 다른 권한에 두어야 증인 노릇을 합니다(`docs/runbook/trail-integrity.md`의 "체크포인트의 증인") |
 | `caddy_data` | 인증서 |
 | `opensearch` | 검색 색인. 켰을 때만 있고, DB로 다시 만들 수 있어서 백업하지 않아도 됩니다 |
 

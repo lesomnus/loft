@@ -1,0 +1,50 @@
+# The trail's store witness (payday#115): every checkpoint, heard on a volume
+# of its own, outside the database and the archive -- so that whoever can
+# write both cannot cut the chain short at its head without something they do
+# not hold saying so (`docs/runbook/trail-integrity.md`).
+#
+# A component, and not in the base, because it is a volume: the base names
+# `log:` alone, which needs none, and an overlay that wants the store says so
+#
+#   components:
+#     - github.com/lesomnus/rove//deploy/k8s/witness?ref=<the base's commit>
+#
+# and names it in its `config.yaml`:
+#
+#   audit:
+#     checkpoints:
+#       witnesses: ["log:", "store:/var/lib/rove/witness"]
+#
+# Its worth is where it is: an overlay gives this claim a class that refuses
+# deletion, and storage the database's and the archive's credentials do not
+# reach. A store on the archive's disk is no witness -- whoever takes
+# checkpoints out of the one takes them out of the other.
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+resources:
+  - ./pvc.yaml
+
+patches:
+  # Mounted where a checkpoint is taken: the server, whose passes take one
+  # each, and the operator's entry point, whose acts do. The migration takes
+  # none, and opens no witness.
+  - target: { kind: Deployment, name: rove }
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: rove
+      spec:
+        template:
+          spec:
+            containers:
+              - name: rove
+                volumeMounts:
+                  - { name: witness, mountPath: /var/lib/rove/witness }
+              - name: rove-admin
+                volumeMounts:
+                  - { name: witness, mountPath: /var/lib/rove/witness }
+            volumes:
+              - name: witness
+                persistentVolumeClaim: { claimName: rove-witness }

@@ -159,7 +159,8 @@ func (c Closing) Destroy(ctx context.Context, t *ent.Tenant, how How, dry bool) 
 
 	// The address first: held before the workspace is gone, so that no
 	// moment comes when it is free -- and saying how it went, which a restore
-	// of it here reads (`offboard.ErrRetiredHere`).
+	// of it here reads to have the trail take a retired one back first
+	// (`offboard.Deployment.Import`).
 	out := Destroyed{Purged: plan}
 	reason := offboard.ReasonDestroyed
 	if plan.Retired && c.Offboard.Floored() {

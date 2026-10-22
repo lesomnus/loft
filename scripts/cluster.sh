@@ -304,6 +304,16 @@ me() {
 }
 said "200" "a signed-in session was not answered as anybody" me
 
+# Every start runs a pass, the pass ends in a checkpoint, and every checkpoint
+# is told to the witnesses the configuration names (payday#115) -- `store:` on
+# the claim the `witness/` component brings. A witness that cannot hear stops
+# nothing, the act logs it and carries on, so a verification is what says it
+# is linked, its claim is writable by the pod's user, and the chain is held to
+# what it heard.
+echo "== the trail's newest checkpoint, as its witness heard it"
+said "heard by store:/var/lib/rove/witness: checkpoint " "the trail's witness heard no checkpoint" \
+	kube "kubectl -n ${NS} exec deploy/rove -c rove -- rove --config /etc/rove/rove.yaml trail verify 2>&1"
+
 echo "== the operator's entry point, over port-forward and over nothing else"
 admin() {
 	kube "kubectl -n ${NS} port-forward deploy/rove 8081:8081 >/dev/null 2>&1 & pf=\$!
