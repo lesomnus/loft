@@ -158,14 +158,13 @@ app:
   # csp: report-only
   files: data/files
   labels:
-    # Off (SaaS, and the default): every label prints with `public_url` and a
-    # code unique in the deployment, `<public_url>/l/7K3MQ9TX` (D28). On
-    # (Dedicated): a workspace prints with a domain of its own (D23), and has
-    # labels only once it has one.
-    tenant_domains: false
-    # Where workspaces have domains of their own, a default one is
-    # `<workspace>.l.localhost`, which a browser resolves to this machine. A
-    # deployment names its own, such as `l.rove.example`.
+    # A workspace prints its labels with its active domain when it has one,
+    # and with `public_url` and a code unique in the deployment otherwise,
+    # `<public_url>/l/7K3MQ9TX` (D28, rove#155). Any workspace may add a
+    # domain of its own -- what its CNAME points at is `target` -- or a
+    # default one under `suffix`, which needs no DNS work and is for labels
+    # alone: `<name>.l.localhost` here, which a browser resolves to this
+    # machine. A deployment names its own, such as `l.rove.example`, or none.
     suffix: l.localhost
   session:
     idle: 24h

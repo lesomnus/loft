@@ -356,11 +356,10 @@ func furnish(t *testing.T, s *cmd.Server, conn *grpc.ClientConn, alias, login st
 	item, err := s.Ent.Asset.Query().Where(asset.TenantId(tid), asset.Kind("item")).First(ctx)
 	x.NoError(err)
 
-	// `init` gives a workspace its default label domain when there is a
-	// suffix to give it under.
-	if _, err = app.NewTenantDomainServiceClient(conn).Add(as, app.TenantDomainAddRequest_builder{Sub: z.Ptr(alias)}.Build()); status.Code(err) != codes.AlreadyExists {
-		x.NoError(err)
-	}
+	// A default subdomain, which a workspace asks for under the suffix the
+	// deployment offers (rove#155).
+	_, err = app.NewTenantDomainServiceClient(conn).Add(as, app.TenantDomainAddRequest_builder{Sub: z.Ptr(alias)}.Build())
+	x.NoError(err)
 	_, err = app.NewLabelServiceClient(conn).Print(as, app.LabelPrintRequest_builder{Count: 1}.Build())
 	x.NoError(err)
 	count, err := app.NewInventoryCountServiceClient(conn).Add(as, app.InventoryCountAddRequest_builder{
@@ -402,10 +401,9 @@ func TestNoCallReachesAnotherWorkspace(t *testing.T) {
 	c.Watch.Broker = "memory"
 	c.App.Files = t.TempDir()
 	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
+	// Domains are rows a workspace has, and the wall is tried on them too: a
+	// default subdomain is one each workspace adds (`furnish`).
 	c.App.Labels.Suffix = "l.test"
-	// Label domains are rows a workspace has where workspaces have their own
-	// (D23), and the wall is tried on them too.
-	c.App.Labels.TenantDomains = true
 	run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234")
 	run(t, cli.NewCmdInit(&c), "--tenant", "beta", "--login", "boss", "--password", "boss12345", "--demo")
 

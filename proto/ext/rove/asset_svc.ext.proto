@@ -412,15 +412,20 @@ message TenantDomainRetireRequest {
 message TenantDomainStatusRequest {}
 
 message TenantDomainStatusResponse {
-  bool labels = 1 [features.field_presence = IMPLICIT];
+  // Labels are always on now (rove#155): a tenant prints with its active
+  // domain when it has one, and with the deployment's own address otherwise.
+  // `labels` said whether they were, and `tenant_domains` whether a tenant
+  // could have a domain at all, which every tenant now can.
+  reserved 1, 5;
+  reserved labels, tenant_domains;
+
+  // The domain new labels print with, and that the app is on (an `app`
+  // domain); none prints with `base`.
   TenantDomain active = 2;
   // The host a custom domain's CNAME has to point at.
   string target = 3 [features.field_presence = IMPLICIT];
-  // The suffix a default subdomain gets.
+  // The suffix a default subdomain gets; empty offers none.
   string default_suffix = 4 [features.field_presence = IMPLICIT];
-  // Whether a tenant prints with a domain of its own (D23). Off, labels
-  // print with the deployment's own address and are always on (D28).
-  bool tenant_domains = 5 [features.field_presence = IMPLICIT];
   // What a label prints with when it has no domain to: `<base>/l/<code>`.
   string base = 6 [features.field_presence = IMPLICIT];
 }

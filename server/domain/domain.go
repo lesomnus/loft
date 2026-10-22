@@ -65,11 +65,11 @@ type Deps struct {
 	// LabelPort is appended to label URLs when it is not the scheme's own,
 	// which is what a checkout on :8080 needs.
 	LabelPort string
-	// LabelTenantDomains says a tenant prints its labels with a domain of
-	// its own (D23); otherwise every label prints at LabelBase, this
-	// deployment's own address (D28).
-	LabelTenantDomains bool
-	LabelBase          string
+	// ServiceHosts is this deployment's own hosts -- where people sign in,
+	// and where the app is when a workspace has no domain of its own -- which
+	// no workspace may take as its domain, nor any name under them.
+	ServiceHosts []string
+	LabelBase    string
 
 	// RestoreWithin is how long a closed workspace may be restored before it
 	// is destroyed (D29); zero is 30 days. AliasHold is how long its address

@@ -14,6 +14,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	app "github.com/lesomnus/rove"
+	"github.com/lesomnus/rove/cmd"
 	"github.com/lesomnus/rove/internal/ent/asset"
 	"github.com/lesomnus/rove/internal/ent/event"
 	"github.com/lesomnus/rove/server/domain"
@@ -290,17 +291,15 @@ func TestLabels(t *testing.T) {
 	x := e.x
 	ctx := context.Background()
 
-	// No domain to have: every label prints with the deployment's own
-	// address and a code no other label in it has (D28).
+	// No domain of its own: every label prints with the deployment's own
+	// address and a code no other label in it has (D28) -- labels are on with
+	// no domain at all (rove#155).
 	room := e.space("회의실", nil)
 	a := e.item("노트북", "NB-7", room, day)
 	st, err := e.app().TenantDomain().Status(e.owner, &app.TenantDomainStatusRequest{})
 	x.NoError(err)
-	x.True(st.GetLabels(), "labels are on without a domain")
-	x.False(st.GetTenantDomains())
+	x.False(st.HasActive(), "a domain nobody added")
 	x.Equal("http://localhost:8080", st.GetBase())
-	_, err = e.app().TenantDomain().Add(e.owner, app.TenantDomainAddRequest_builder{Sub: ptr("acme")}.Build())
-	x.Equal(codes.FailedPrecondition, codeOf(err), "a domain of its own is nothing a workspace has here")
 
 	blank, err := e.app().Label().Print(e.owner, app.LabelPrintRequest_builder{Count: 3}.Build())
 	x.NoError(err)
@@ -402,25 +401,29 @@ func TestNormalLabelCode(t *testing.T) {
 	}
 }
 
-// TestLabelsOnTenantDomains is a deployment whose tenants print with domains
-// of their own (D23): none until one is added, and then that one's.
-func TestLabelsOnTenantDomains(t *testing.T) {
+// TestLabelsPrintWithTheActiveDomain is the one mode labels have now
+// (rove#155): with the tenant's active domain when it has one, and with the
+// deployment's own address when it has none -- never refused for want of a
+// domain, as D23's were. What was printed under either of the two modes
+// before goes on opening: a label on the deployment's address, and one on a
+// domain that is legacy since another took its place.
+func TestLabelsPrintWithTheActiveDomain(t *testing.T) {
 	e := newEnv(t)
 	x := e.x
-	e.s.Deps.LabelTenantDomains = true
 
-	// No label domain yet: labels are off, and tags still resolve.
 	room := e.space("회의실", nil)
 	a := e.item("노트북", "NB-7", room, day)
-	_, err := e.app().Label().Print(e.owner, app.LabelPrintRequest_builder{Count: 2}.Build())
-	x.Equal(codes.FailedPrecondition, codeOf(err))
+	before, err := e.app().Label().Print(e.owner, app.LabelPrintRequest_builder{Count: 1}.Build())
+	x.NoError(err, "labels with no domain of its own")
+	x.Equal("http://localhost:8080/l/"+before.GetLabels()[0].GetCode(), before.GetUrls()[0], "the deployment's own address (D28)")
 
-	_, err = e.app().TenantDomain().Add(e.owner, app.TenantDomainAddRequest_builder{Sub: ptr("acme")}.Build())
+	// A default subdomain, which is a label domain, verified already and the
+	// first the tenant has, so active.
+	d, err := e.app().TenantDomain().Add(e.owner, app.TenantDomainAddRequest_builder{Sub: ptr("acme")}.Build())
 	x.NoError(err)
+	x.Equal("label", d.GetPurpose())
 	st, err := e.app().TenantDomain().Status(e.owner, &app.TenantDomainStatusRequest{})
 	x.NoError(err)
-	x.True(st.GetLabels())
-	x.True(st.GetTenantDomains())
 	x.Equal("acme.l.test", st.GetActive().GetHost())
 
 	blank, err := e.app().Label().Print(e.owner, app.LabelPrintRequest_builder{Count: 2}.Build())
@@ -428,18 +431,81 @@ func TestLabelsOnTenantDomains(t *testing.T) {
 	x.Len(blank.GetUrls(), 2)
 	x.Equal("http://acme.l.test:8080/l/"+blank.GetLabels()[0].GetCode(), blank.GetUrls()[0], "the domain, on the scheme and port the deployment is on")
 
-	r, err := e.app().Label().Resolve(e.owner, app.LabelResolveRequest_builder{Code: blank.GetUrls()[0]}.Build())
+	// A custom domain is an app domain; once it is verified and taken in use,
+	// the default subdomain is legacy -- and every label printed so far opens.
+	own, err := e.app().TenantDomain().Add(e.owner, app.TenantDomainAddRequest_builder{Host: "Assets.Acme.Example."}.Build())
 	x.NoError(err)
-	x.False(r.HasAsset(), "a blank label is on nothing")
-	_, err = e.app().Label().Bind(e.owner, app.LabelBindRequest_builder{Ref: ref[app.LabelRef](r.GetLabel().GetId()), Asset: assetRef(a)}.Build())
+	x.Equal("app", own.GetPurpose())
+	x.Equal("assets.acme.example", own.GetHost(), "as it is kept")
+	x.Equal("pending", own.GetState())
+	pid, err := pdid.From(own.GetId())
 	x.NoError(err)
-	r, err = e.app().Label().Resolve(e.owner, app.LabelResolveRequest_builder{Code: blank.GetUrls()[0]}.Build())
+	x.NoError(e.s.Ent.TenantDomain.UpdateOneId(pid.Uuid()).SetState("ready").Exec(context.Background()))
+	_, err = e.app().TenantDomain().Activate(e.owner, app.TenantDomainActivateRequest_builder{Ref: ref[app.TenantDomainRef](own.GetId())}.Build())
+	x.NoError(err)
+	after, err := e.app().Label().Print(e.owner, app.LabelPrintRequest_builder{Count: 1}.Build())
+	x.NoError(err)
+	x.Equal("http://assets.acme.example:8080/l/"+after.GetLabels()[0].GetCode(), after.GetUrls()[0])
+	old, err := e.app().TenantDomain().Get(e.owner, app.TenantDomainGetRequest_builder{Ref: ref[app.TenantDomainRef](d.GetId())}.Build())
+	x.NoError(err)
+	x.Equal("legacy", old.GetState())
+
+	for _, u := range []string{before.GetUrls()[0], blank.GetUrls()[0], after.GetUrls()[0]} {
+		r, err := e.app().Label().Resolve(e.owner, app.LabelResolveRequest_builder{Code: u}.Build())
+		x.NoError(err, u)
+		x.False(r.HasAsset(), "a blank label is on nothing")
+	}
+	_, err = e.app().Label().Bind(e.owner, app.LabelBindRequest_builder{Ref: ref[app.LabelRef](before.GetLabels()[0].GetId()), Asset: assetRef(a)}.Build())
+	x.NoError(err)
+	r, err := e.app().Label().Resolve(e.owner, app.LabelResolveRequest_builder{Code: before.GetUrls()[0]}.Build())
 	x.NoError(err)
 	x.True(sameId(a.GetId(), r.GetAsset().GetId()))
 
 	_, other := e.newTenant("other")
 	_, err = e.app().Label().Resolve(other, app.LabelResolveRequest_builder{Code: blank.GetUrls()[0]}.Build())
 	x.Equal(codes.NotFound, codeOf(err), "another tenant's label reads as nothing")
+}
+
+// TestAWorkspaceDomainIsAHostNobodyElseHas: what a tenant may take as a
+// domain of its own (rove#155). A host name, kept as one -- lower case, its
+// ASCII form, no trailing dot -- and not an address, a name under localhost,
+// this deployment's own host or one under it, or one under the suffix
+// default subdomains are made with; and one tenant's only.
+func TestAWorkspaceDomainIsAHostNobodyElseHas(t *testing.T) {
+	e := newEnvWith(t, func(c *cmd.Config) {
+		c.App.PublicUrl = "https://rove.example"
+		c.App.AppUrl = "https://app.rove.example"
+	})
+	x := e.x
+	add := func(ctx context.Context, host string) (*app.TenantDomain, error) {
+		return e.app().TenantDomain().Add(ctx, app.TenantDomainAddRequest_builder{Host: host}.Build())
+	}
+
+	for _, host := range []string{
+		"", "not a host", "assets", "-a.example", "a..example",
+		"127.0.0.1", "[::1]", "::1",
+		"localhost", "a.localhost",
+		"rove.example", "acme.rove.example", "app.rove.example", "x.app.rove.example",
+		"l.test", "acme.l.test",
+	} {
+		_, err := add(e.owner, host)
+		x.Equal(codes.InvalidArgument, codeOf(err), "%q", host)
+	}
+
+	for _, ip := range []string{"127.0.0.1", "[::1]", "203.0.113.7"} {
+		_, err := add(e.owner, ip)
+		x.ErrorContains(err, "IP 주소", "an address is told to be one: %q", ip)
+	}
+
+	v, err := add(e.owner, "자산.회사.한국")
+	x.NoError(err)
+	x.Equal("xn--zf4bt9j.xn--vf4b131b.xn--3e0b707e", v.GetHost(), "its ASCII form")
+
+	_, err = add(e.owner, "ASSETS.example.com.")
+	x.NoError(err)
+	_, other := e.newTenant("other")
+	_, err = add(other, "assets.example.com")
+	x.Equal(codes.AlreadyExists, codeOf(err), "a host one tenant has")
 }
 
 // ops counts the events an operation's copies made.

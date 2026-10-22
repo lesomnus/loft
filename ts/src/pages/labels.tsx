@@ -48,7 +48,7 @@ export function LabelSheet(): ReactNode {
 	const assets = useAssets(ids.map((s) => idBytes(s)))
 
 	useEffect(() => {
-		if (status.data?.labels !== true) return
+		if (status.data === undefined) return
 		let live = true
 		void (async () => {
 			try {
@@ -70,17 +70,8 @@ export function LabelSheet(): ReactNode {
 			live = false
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [status.data?.labels])
+	}, [status.data === undefined])
 
-	if (status.data !== undefined && !status.data.labels) {
-		return (
-			<div className="print-page">
-				<p>
-					라벨 도메인이 설정되지 않아 QR 라벨을 만들 수 없습니다. <Link to="/settings?tab=labels">설정 › 라벨</Link>에서 도메인을 정하세요.
-				</p>
-			</div>
-		)
-	}
 	if (err !== '') return <div className="print-page bad">{err}</div>
 	if (got === undefined) return <div className="boot"><Spinner /></div>
 

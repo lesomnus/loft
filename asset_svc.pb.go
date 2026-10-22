@@ -9318,11 +9318,9 @@ func (b0 TenantDomainStatusRequest_builder) Build() *TenantDomainStatusRequest {
 
 type TenantDomainStatusResponse struct {
 	state                    protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Labels        bool                   `protobuf:"varint,1,opt,name=labels"`
 	xxx_hidden_Active        *TenantDomain          `protobuf:"bytes,2,opt,name=active"`
 	xxx_hidden_Target        string                 `protobuf:"bytes,3,opt,name=target"`
 	xxx_hidden_DefaultSuffix string                 `protobuf:"bytes,4,opt,name=default_suffix,json=defaultSuffix"`
-	xxx_hidden_TenantDomains bool                   `protobuf:"varint,5,opt,name=tenant_domains,json=tenantDomains"`
 	xxx_hidden_Base          string                 `protobuf:"bytes,6,opt,name=base"`
 	unknownFields            protoimpl.UnknownFields
 	sizeCache                protoimpl.SizeCache
@@ -9353,13 +9351,6 @@ func (x *TenantDomainStatusResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *TenantDomainStatusResponse) GetLabels() bool {
-	if x != nil {
-		return x.xxx_hidden_Labels
-	}
-	return false
-}
-
 func (x *TenantDomainStatusResponse) GetActive() *TenantDomain {
 	if x != nil {
 		return x.xxx_hidden_Active
@@ -9381,22 +9372,11 @@ func (x *TenantDomainStatusResponse) GetDefaultSuffix() string {
 	return ""
 }
 
-func (x *TenantDomainStatusResponse) GetTenantDomains() bool {
-	if x != nil {
-		return x.xxx_hidden_TenantDomains
-	}
-	return false
-}
-
 func (x *TenantDomainStatusResponse) GetBase() string {
 	if x != nil {
 		return x.xxx_hidden_Base
 	}
 	return ""
-}
-
-func (x *TenantDomainStatusResponse) SetLabels(v bool) {
-	x.xxx_hidden_Labels = v
 }
 
 func (x *TenantDomainStatusResponse) SetActive(v *TenantDomain) {
@@ -9409,10 +9389,6 @@ func (x *TenantDomainStatusResponse) SetTarget(v string) {
 
 func (x *TenantDomainStatusResponse) SetDefaultSuffix(v string) {
 	x.xxx_hidden_DefaultSuffix = v
-}
-
-func (x *TenantDomainStatusResponse) SetTenantDomains(v bool) {
-	x.xxx_hidden_TenantDomains = v
 }
 
 func (x *TenantDomainStatusResponse) SetBase(v string) {
@@ -9433,15 +9409,13 @@ func (x *TenantDomainStatusResponse) ClearActive() {
 type TenantDomainStatusResponse_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Labels bool
+	// The domain new labels print with, and that the app is on (an `app`
+	// domain); none prints with `base`.
 	Active *TenantDomain
 	// The host a custom domain's CNAME has to point at.
 	Target string
-	// The suffix a default subdomain gets.
+	// The suffix a default subdomain gets; empty offers none.
 	DefaultSuffix string
-	// Whether a tenant prints with a domain of its own (D23). Off, labels
-	// print with the deployment's own address and are always on (D28).
-	TenantDomains bool
 	// What a label prints with when it has no domain to: `<base>/l/<code>`.
 	Base string
 }
@@ -9450,11 +9424,9 @@ func (b0 TenantDomainStatusResponse_builder) Build() *TenantDomainStatusResponse
 	m0 := &TenantDomainStatusResponse{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.xxx_hidden_Labels = b.Labels
 	x.xxx_hidden_Active = b.Active
 	x.xxx_hidden_Target = b.Target
 	x.xxx_hidden_DefaultSuffix = b.DefaultSuffix
-	x.xxx_hidden_TenantDomains = b.TenantDomains
 	x.xxx_hidden_Base = b.Base
 	return m0
 }
@@ -14834,14 +14806,12 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x19TenantDomainRetireRequest\x12'\n" +
 	"\x03ref\x18\x01 \x01(\v2\x15.rove.TenantDomainRefR\x03ref\x12\x1b\n" +
 	"\x05force\x18\x02 \x01(\bB\x05\xaa\x01\x02\b\x02R\x05force\"\x1b\n" +
-	"\x19TenantDomainStatusRequest\"\xfd\x01\n" +
-	"\x1aTenantDomainStatusResponse\x12\x1d\n" +
-	"\x06labels\x18\x01 \x01(\bB\x05\xaa\x01\x02\b\x02R\x06labels\x12*\n" +
+	"\x19TenantDomainStatusRequest\"\xd4\x01\n" +
+	"\x1aTenantDomainStatusResponse\x12*\n" +
 	"\x06active\x18\x02 \x01(\v2\x12.rove.TenantDomainR\x06active\x12\x1d\n" +
 	"\x06target\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06target\x12,\n" +
-	"\x0edefault_suffix\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\rdefaultSuffix\x12,\n" +
-	"\x0etenant_domains\x18\x05 \x01(\bB\x05\xaa\x01\x02\b\x02R\rtenantDomains\x12\x19\n" +
-	"\x04base\x18\x06 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04base\"\x97\x03\n" +
+	"\x0edefault_suffix\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\rdefaultSuffix\x12\x19\n" +
+	"\x04base\x18\x06 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04baseJ\x04\b\x01\x10\x02J\x04\b\x05\x10\x06R\x06labelsR\x0etenant_domains\"\x97\x03\n" +
 	"\x0fLabelAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\x12-\n" +

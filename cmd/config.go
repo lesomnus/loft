@@ -13,6 +13,7 @@ import (
 	"net"
 	"net/url"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 
@@ -506,26 +507,22 @@ type LocaleConfig struct {
 // LabelConfig is how printed labels are addressed (design 9.9).
 type LabelConfig struct {
 	// Suffix is what a tenant's default label host ends with: a tenant that
-	// asks for `acme` prints `acme.<suffix>`. Empty offers no default
-	// subdomain, and a tenant has labels only with a domain of its own.
+	// asks for `acme` prints `acme.<suffix>`, with no DNS work of its own.
+	// Empty offers no default subdomain. A tenant with no domain prints with
+	// this deployment's own address (D28).
 	Suffix string `yaml:"suffix"`
-	// Target is what a custom label domain's CNAME points at.
+	// Target is what a custom domain's CNAME points at.
 	Target string `yaml:"target"`
-	// TenantDomains prints a tenant's labels with a domain of its own (D23),
-	// which is Dedicated's. Off, which is SaaS and the default, every label
-	// prints with this deployment's own address and a code unique in it
-	// (D28), and no tenant needs a domain to have labels.
+	// TenantDomains is gone (rove#155): every tenant may have a domain of its
+	// own, prints with it when it has one active, and with this deployment's
+	// own address otherwise -- so there is nothing to switch. Read only to
+	// say so where the process comes up, rather than to refuse a file
+	// written for a build before.
 	TenantDomains bool `yaml:"tenant_domains"`
 }
 
 // Default is the suffix a workspace is given a default label host under when
 // it is made: none where workspaces have no domains of their own.
-func (c LabelConfig) Default() string {
-	if !c.TenantDomains {
-		return ""
-	}
-	return c.Suffix
-}
 
 // SessionConfig is how long a browser stays signed in.
 type SessionConfig struct {
@@ -542,6 +539,19 @@ func (c AppConfig) Public() *url.URL {
 		u, _ = url.Parse("http://localhost:8080")
 	}
 	return u
+}
+
+// ServiceHosts is this deployment's own hosts: the public address's, and the
+// UI's when it is served from another. No workspace may take one as its
+// domain, nor any name under it (rove#155).
+func (c AppConfig) ServiceHosts() []string {
+	out := []string{strings.ToLower(c.Public().Hostname())}
+	if u, err := url.Parse(c.AppUrl); err == nil && u.Hostname() != "" {
+		if h := strings.ToLower(u.Hostname()); !slices.Contains(out, h) {
+			out = append(out, h)
+		}
+	}
+	return out
 }
 
 // App is AppUrl, or the public address when the UI is served from it.

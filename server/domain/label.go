@@ -8,6 +8,7 @@ import (
 	"encoding/base32"
 	"errors"
 	"fmt"
+	"net"
 	"net/url"
 	"path"
 	"regexp"
@@ -17,6 +18,7 @@ import (
 
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/z"
+	"golang.org/x/net/idna"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -109,8 +111,9 @@ func (t *Tx) freeLabelCode() (string, error) {
 	return "", errors.New("labels: no code came free")
 }
 
-// labelURL answers the address a label prints: on a tenant's own `host`
-// (D23), or on this deployment's own address when there is none (D28).
+// labelURL answers the address a label prints: on the tenant's active
+// domain, `host`, or on this deployment's own address when it has none
+// (design 9.9, rove#155).
 func (d *Deps) labelURL(host string, code string) string {
 	if host == "" {
 		return strings.TrimSuffix(d.LabelBase, "/") + "/l/" + code
@@ -135,6 +138,15 @@ const (
 	domainRetired = "retired"
 )
 
+// What a tenant domain is for (design 9.9, rove#155): `app` is the tenant's
+// own domain, which the whole app is on and its labels print with; `label` is
+// one its labels print with and nothing more -- a default subdomain, or a
+// custom domain added before domains carried the app.
+const (
+	purposeApp   = "app"
+	purposeLabel = "label"
+)
+
 var hostOk = regexp.MustCompile(`^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z][a-z0-9-]{0,61}[a-z0-9]$`)
 
 type domainTenantDomain struct {
@@ -146,18 +158,17 @@ func (s Domain) TenantDomain() app.TenantDomainServiceServer {
 	return domainTenantDomain{s, s.Next().TenantDomain()}
 }
 
-// Add registers a label domain: the tenant's own, to verify with a TXT
-// record, or a default subdomain of this deployment, verified already. Where
-// tenants have no domains of their own (D28) there is nothing to add one for.
+// Add registers a domain of the tenant's: its own (`host`), which the app is
+// on and its labels print with once a TXT record says it is the tenant's, or
+// a default subdomain of this deployment (`sub`), which its labels print with
+// and which is verified already. What it is for is decided here, not asked:
+// a custom domain is an `app` one, and a default subdomain a `label` one.
 func (s domainTenantDomain) Add(ctx context.Context, req *app.TenantDomainAddRequest) (*app.TenantDomain, error) {
 	var out *app.TenantDomain
 	err := s.tx(ctx, func(t *Tx) error {
-		if !t.deps.LabelTenantDomains {
-			return failed("이 서비스에서는 라벨이 서비스 주소로 인쇄되어 워크스페이스별 라벨 도메인이 없습니다")
-		}
 		row := app.TenantDomainAddRequest_builder{
 			Tenant:  t.tenantRef(),
-			Purpose: "label",
+			Purpose: purposeLabel,
 			Token:   token(),
 		}.Build()
 
@@ -172,19 +183,17 @@ func (s domainTenantDomain) Add(ctx context.Context, req *app.TenantDomainAddReq
 			row.SetSource("default")
 			row.SetState(domainReady)
 		} else {
-			host := strings.TrimSuffix(strings.ToLower(strings.TrimSpace(req.GetHost())), ".")
-			if !hostOk.MatchString(host) {
-				return invalid("host", "호스트 이름을 적어 주세요 (예: assets.example.com)")
-			}
-			if s := t.deps.LabelSuffix; s != "" && (host == s || strings.HasSuffix(host, "."+s)) {
-				return invalid("host", "%s의 하위 주소는 기본 주소로 추가하세요", s)
+			host, err := t.deps.domainHost(req.GetHost())
+			if err != nil {
+				return err
 			}
 			row.SetHost(host)
+			row.SetPurpose(purposeApp)
 			row.SetSource("custom")
 			row.SetState(domainPending)
 		}
 
-		if err := t.begin(nil, "domain.add", pdid.Nil, t.now, "라벨 도메인 등록: "+row.GetHost(), "", nil); err != nil {
+		if err := t.begin(nil, "domain.add", pdid.Nil, t.now, domainWords(row.GetPurpose())+" 등록: "+row.GetHost(), "", nil); err != nil {
 			return err
 		}
 		v, err := t.next.TenantDomain().Add(t.ctx, row)
@@ -222,10 +231,52 @@ func token() string {
 	return "rove-" + code32.EncodeToString(b)
 }
 
+// domainWords is what a domain is called in an event's sentence.
+func domainWords(purpose string) string {
+	if purpose == purposeApp {
+		return "워크스페이스 도메인"
+	}
+	return "라벨 도메인"
+}
+
+// domainHost is a host somebody typed for a tenant's own domain, as it is
+// kept -- lower case, in its ASCII form (IDNA), with no trailing dot -- or why
+// it is not one a tenant may take: not a host name, an address, a name under
+// `localhost`, this deployment's own host or a name under it (where people
+// sign in, and the app of every tenant with no domain), or a name under the
+// suffix default subdomains are made with. A host is the deployment's to give
+// once, to one tenant; the TXT record is what says the tenant holds it.
+func (d *Deps) domainHost(v string) (string, error) {
+	host := strings.TrimSuffix(strings.ToLower(strings.TrimSpace(v)), ".")
+	if net.ParseIP(strings.Trim(host, "[]")) != nil {
+		return "", invalid("host", "IP 주소가 아니라 호스트 이름을 적어 주세요 (예: assets.example.com)")
+	}
+	ascii, err := idna.Lookup.ToASCII(host)
+	if err != nil || !hostOk.MatchString(ascii) {
+		return "", invalid("host", "호스트 이름을 적어 주세요 (예: assets.example.com)")
+	}
+	host = ascii
+	if host == "localhost" || strings.HasSuffix(host, ".localhost") {
+		return "", invalid("host", "localhost 아래의 이름은 쓸 수 없습니다")
+	}
+	for _, s := range d.ServiceHosts {
+		if s != "" && (host == s || strings.HasSuffix(host, "."+s)) {
+			return "", invalid("host", "%s은(는) 이 서비스의 주소입니다", host)
+		}
+	}
+	if s := d.LabelSuffix; s != "" && (host == s || strings.HasSuffix(host, "."+s)) {
+		return "", invalid("host", "%s의 하위 주소는 기본 주소로 추가하세요", s)
+	}
+	return host, nil
+}
+
+// activeDomain is the tenant's one active domain, of either purpose: what its
+// labels print with, and -- an `app` one -- where its app is. None prints with
+// this deployment's own address.
 func (t *Tx) activeDomain() (*ent.TenantDomain, error) {
 	v, err := t.db.TenantDomain.Query().Where(
 		tenantdomain.TenantId(t.tenant.Uuid()),
-		tenantdomain.Purpose("label"),
+		tenantdomain.PurposeIn(purposeApp, purposeLabel),
 		tenantdomain.State(domainActive),
 		tenantdomain.DateErasedIsNil(),
 	).First(t.ctx)
@@ -278,7 +329,7 @@ func (s domainTenantDomain) Verify(ctx context.Context, req *app.TenantDomainVer
 		if !ok {
 			return failed("_rove-challenge.%s에 TXT 레코드 %s가 아직 없습니다. DNS 반영에 시간이 걸릴 수 있습니다", v.GetHost(), v.GetToken())
 		}
-		if err := t.begin(nil, "domain.verify", pdid.Nil, t.now, "라벨 도메인 확인: "+v.GetHost(), "", nil); err != nil {
+		if err := t.begin(nil, "domain.verify", pdid.Nil, t.now, domainWords(v.GetPurpose())+" 확인: "+v.GetHost(), "", nil); err != nil {
 			return err
 		}
 		out, err = t.next.TenantDomain().Patch(t.ctx, app.TenantDomainPatchRequest_builder{
@@ -304,7 +355,9 @@ func (d *Deps) verify(ctx context.Context, host, token string) (bool, error) {
 	return slices.Contains(vs, token), nil
 }
 
-// Activate makes a verified domain the one labels are printed with.
+// Activate makes a verified domain the tenant's active one: what new labels
+// print with, and for an `app` domain where the app is. The one active before
+// is legacy, and what was printed with it still opens.
 func (s domainTenantDomain) Activate(ctx context.Context, req *app.TenantDomainActivateRequest) (*app.TenantDomain, error) {
 	var out *app.TenantDomain
 	err := s.tx(ctx, func(t *Tx) error {
@@ -317,7 +370,7 @@ func (s domainTenantDomain) Activate(ctx context.Context, req *app.TenantDomainA
 		default:
 			return failed("%s은(는) 아직 확인되지 않았습니다. 확인된 도메인만 쓸 수 있습니다", v.GetHost())
 		}
-		if err := t.begin(nil, "domain.activate", pdid.Nil, t.now, "라벨 도메인 활성화: "+v.GetHost(), "", nil); err != nil {
+		if err := t.begin(nil, "domain.activate", pdid.Nil, t.now, domainWords(v.GetPurpose())+" 활성화: "+v.GetHost(), "", nil); err != nil {
 			return err
 		}
 		out, err = t.activate(v.GetId())
@@ -342,7 +395,7 @@ func (s domainTenantDomain) Retire(ctx context.Context, req *app.TenantDomainRet
 		if n > 0 && !req.GetForce() {
 			return failed("%s로 인쇄된 라벨 %d장이 더 이상 열리지 않게 됩니다. 그래도 중지하려면 강제로 중지하세요", v.GetHost(), n)
 		}
-		if err := t.begin(nil, "domain.retire", pdid.Nil, t.now, "라벨 도메인 은퇴: "+v.GetHost(), "", nil); err != nil {
+		if err := t.begin(nil, "domain.retire", pdid.Nil, t.now, domainWords(v.GetPurpose())+" 은퇴: "+v.GetHost(), "", nil); err != nil {
 			return err
 		}
 		out, err = t.next.TenantDomain().Patch(t.ctx, app.TenantDomainPatchRequest_builder{
@@ -355,7 +408,8 @@ func (s domainTenantDomain) Retire(ctx context.Context, req *app.TenantDomainRet
 	return out, err
 }
 
-// Status answers whether this tenant's labels are on.
+// Status answers where this tenant's labels print and what a domain of its
+// own takes: its active domain, or none and this deployment's address.
 func (s domainTenantDomain) Status(ctx context.Context, _ *app.TenantDomainStatusRequest) (*app.TenantDomainStatusResponse, error) {
 	t, err := s.read(ctx)
 	if err != nil {
@@ -364,10 +418,7 @@ func (s domainTenantDomain) Status(ctx context.Context, _ *app.TenantDomainStatu
 	out := app.TenantDomainStatusResponse_builder{
 		Target:        t.deps.LabelTarget,
 		DefaultSuffix: t.deps.LabelSuffix,
-		TenantDomains: t.deps.LabelTenantDomains,
 		Base:          strings.TrimSuffix(t.deps.LabelBase, "/"),
-		// Without domains of their own, every tenant's labels are on.
-		Labels: !t.deps.LabelTenantDomains,
 	}.Build()
 	cur, err := t.activeDomain()
 	if err != nil {
@@ -378,7 +429,6 @@ func (s domainTenantDomain) Status(ctx context.Context, _ *app.TenantDomainStatu
 		if err != nil {
 			return nil, err
 		}
-		out.SetLabels(true)
 		out.SetActive(v)
 	}
 	return out, nil
@@ -391,26 +441,16 @@ type domainLabel struct {
 
 func (s Domain) Label() app.LabelServiceServer { return domainLabel{s, s.Next().Label()} }
 
-// errLabelsOff is the answer while a tenant has no active label domain: a
-// label printed without one would encode a host the tenant cannot keep.
-func errLabelsOff() error {
-	return failed("라벨 도메인이 없어 QR 라벨이 꺼져 있습니다. 설정에서 도메인을 추가하세요")
-}
-
-// Print makes labels: with the tenant's active domain where tenants have
-// their own (D23), and with this deployment's own address otherwise (D28).
+// Print makes labels: with the tenant's active domain when it has one, and
+// with this deployment's own address otherwise (design 9.9, rove#155). Each
+// keeps the domain it was printed with, and opens on it for as long as the
+// domain is not retired, whichever domain is active then.
 func (s domainLabel) Print(ctx context.Context, req *app.LabelPrintRequest) (*app.LabelPrintResponse, error) {
 	var out *app.LabelPrintResponse
 	err := s.tx(ctx, func(t *Tx) error {
-		var dom *ent.TenantDomain
-		if t.deps.LabelTenantDomains {
-			var err error
-			if dom, err = t.activeDomain(); err != nil {
-				return err
-			}
-			if dom == nil {
-				return errLabelsOff()
-			}
+		dom, err := t.activeDomain()
+		if err != nil {
+			return err
 		}
 		n := int(req.GetCount())
 		ids := req.GetAssetIds()
@@ -482,15 +522,6 @@ func (s domainLabel) Print(ctx context.Context, req *app.LabelPrintRequest) (*ap
 func (s domainLabel) Bind(ctx context.Context, req *app.LabelBindRequest) (*app.Label, error) {
 	var out *app.Label
 	err := s.tx(ctx, func(t *Tx) error {
-		if t.deps.LabelTenantDomains {
-			dom, err := t.activeDomain()
-			if err != nil {
-				return err
-			}
-			if dom == nil {
-				return errLabelsOff()
-			}
-		}
 		l, err := t.next.Label().Get(t.ctx, app.LabelGetRequest_builder{Ref: req.GetRef()}.Build())
 		if err != nil {
 			return err

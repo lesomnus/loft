@@ -11,7 +11,8 @@
 //
 // The one path that asks for no key is `/internal/tls-ask`, which the reverse
 // proxy in front of the public entry point asks before it fetches a
-// certificate: whether a host is some workspace's label domain (design 9.9).
+// certificate: whether a host is some workspace's verified domain -- one its
+// app is on, or one its labels print with (design 9.9, rove#155).
 package admin
 
 import (
@@ -111,7 +112,8 @@ func (a Routes) Handler() http.Handler {
 }
 
 // tlsAsk answers a reverse proxy issuing certificates on demand: only a host
-// that is some workspace's label domain gets one.
+// that is some workspace's domain, verified and not retired, gets one --
+// whatever it is for, since a label printed with a domain opens on it.
 func (a Routes) tlsAsk(w http.ResponseWriter, r *http.Request) {
 	host := strings.ToLower(r.URL.Query().Get("domain"))
 	ok, err := a.S.Ent.TenantDomain.Query().Where(
@@ -120,7 +122,7 @@ func (a Routes) tlsAsk(w http.ResponseWriter, r *http.Request) {
 		tenantdomain.DateErasedIsNil(),
 	).Exist(r.Context())
 	if err != nil || !ok {
-		http.Error(w, "not a label domain here", http.StatusNotFound)
+		http.Error(w, "not a workspace's domain here", http.StatusNotFound)
 		return
 	}
 	w.WriteHeader(http.StatusOK)

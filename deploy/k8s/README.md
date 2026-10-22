@@ -200,5 +200,5 @@ k3d와 Docker가 필요합니다. 이 체크아웃으로 이미지를 빌드해�
 - PostgreSQL과 그 백업. 무엇을 백업하고 어떤 순서로 되살리는지, 리허설은 `docs/runbook/restore.md`에 있습니다(rove#37)
 - 관측(수집기, 대시보드, 경보): rove#38
 - 자동 배포: 오버레이의 digest를 바꾸는 것은 사람이 합니다
-- 워크스페이스별 라벨 도메인(`app.labels.tenant_domains`): K8s에서는 on-demand TLS 대신 도메인마다 인증서(cert-manager)가 필요해서 아직 없습니다
+- 워크스페이스 도메인의 인증서(rove#155): K8s에서는 on-demand TLS 대신 도메인마다 인증서(cert-manager)가 필요해서 아직 없습니다. rove#155의 TLS 앞단 PR이 다룹니다
 - 파드 둘 이상: rove#45
