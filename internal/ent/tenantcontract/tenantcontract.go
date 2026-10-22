@@ -28,6 +28,8 @@ const (
 	FieldAccessKeepDays = "access_keep_days"
 	// FieldRestoreDays holds the string denoting the restore_days field in the database.
 	FieldRestoreDays = "restore_days"
+	// FieldPurgeFloors holds the string denoting the purge_floors field in the database.
+	FieldPurgeFloors = "purge_floors"
 	// FieldDateErased holds the string denoting the date_erased field in the database.
 	FieldDateErased = "date_erased"
 	// FieldDateCreated holds the string denoting the date_created field in the database.
@@ -58,6 +60,7 @@ var Columns = []string{
 	FieldDateEffective,
 	FieldAccessKeepDays,
 	FieldRestoreDays,
+	FieldPurgeFloors,
 	FieldDateErased,
 	FieldDateCreated,
 	FieldTenantId,
@@ -78,6 +81,8 @@ var (
 	DefaultAccessKeepDays uint32
 	// DefaultRestoreDays holds the default value on creation for the "restore_days" field.
 	DefaultRestoreDays uint32
+	// DefaultPurgeFloors holds the default value on creation for the "purge_floors" field.
+	DefaultPurgeFloors bool
 )
 
 // OrderOption defines the ordering options for the TenantContract queries.
@@ -126,6 +131,11 @@ func ByAccessKeepDays(opts ...sql.OrderTermOption) OrderOption {
 // ByRestoreDays orders the results by the restore_days field.
 func ByRestoreDays(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldRestoreDays, opts...).ToFunc()
+}
+
+// ByPurgeFloors orders the results by the purge_floors field.
+func ByPurgeFloors(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPurgeFloors, opts...).ToFunc()
 }
 
 // ByDateErased orders the results by the date_erased field.

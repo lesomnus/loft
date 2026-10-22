@@ -181,6 +181,17 @@ message TenantContract {
   // its destruction is then is what its owner is told.
   uint32 restore_days = 16 [(orm.field) = {default: ""}];
 
+  // Whether the workspace's trail goes whole when it is destroyed, what the
+  // deployment's floors (`audit.min`, `audit.by.<kind>.min`) are still on with
+  // it (payday's `PurgeTenant`): for a workspace under a law or an agreement
+  // that asks for that, which the floors were not set for. Unset, it retires
+  // (`RetireTenant`, payday#115): what a floor is still on stays -- the access
+  // record PIPA has a processor keep for a year, whoever's data it was -- until
+  // the floor has passed, and the rest goes when the workspace does. One that
+  // purges waits out the grace of the contract before it, as a shorter
+  // `keep_days` does. Read when the workspace is destroyed.
+  bool purge_floors = 17 [(orm.field) = {default: ""}];
+
   // Withdrawn, for a change that was a mistake. A contract in force is
   // replaced by a newer one rather than taken back.
   google.protobuf.Timestamp date_erased = 14 [(orm.field) = {erased: {}}];

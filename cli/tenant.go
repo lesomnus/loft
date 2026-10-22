@@ -19,17 +19,18 @@ import (
 	"github.com/lesomnus/rove/cmd"
 	"github.com/lesomnus/rove/server/closing"
 	"github.com/lesomnus/rove/server/offboard"
+	"github.com/lesomnus/rove/server/retention"
 )
 
 // NewCmdTenant is `rove tenant`: what leaves with a tenant (design 8.2).
 //
-// The order is export, the grace an offboarding gives, then purge, and it is
-// the operator's to keep. Both are commands and not RPCs: no role in a tenant
-// may take everything out of it.
+// The order is export, the grace an offboarding gives, then a retirement or a
+// purge, and it is the operator's to keep. They are commands and not RPCs: no
+// role in a tenant may take everything out of it.
 func NewCmdTenant(c *cmd.Config) *xli.Command {
 	return &xli.Command{
 		Name:  "tenant",
-		Brief: "a tenant's end: closing, restoring, its address, its export, and its purge",
+		Brief: "a tenant's end: closing, restoring, its address, its export, and its retirement or purge",
 
 		Commands: xli.Commands{
 			newCmdTenantClose(c),
@@ -142,86 +143,97 @@ func NewCmdTenant(c *cmd.Config) *xli.Command {
 				}),
 			},
 			newCmdTenantImport(c),
-			{
-				Name:  "purge",
-				Brief: "take everything of a tenant out of the deployment, the tenant last",
-				Flags: flg.Flags{
-					&flg.String{Name: "tenant", Brief: "the tenant, by alias"},
-					&flg.Switch{Name: "yes", Brief: "do it; without this it only says what it would take"},
-				},
-				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
-					yes, _ := flg.Find[bool](self, "yes")
-
-					s, err := cmd.Build(ctx, *c)
-					if err != nil {
-						return err
-					}
-					defer s.Close()
-
-					t, err := tenantNamed(ctx, s.Ent, self)
-					if err != nil {
-						return err
-					}
-
-					// The accounts of a roster in this process that were in this
-					// workspace and are in no other go with it, and first: a
-					// purge that stops after them is run again and finishes,
-					// where one that stopped after the workspace could not be
-					// named again. An account in another workspace is still
-					// somebody's, and the accounts of a roster of its own are
-					// never Rove's to take.
-					forgotten := 0
-					if s.Identity.Embedded() {
-						accounts, err := closing.OnlyHere(ctx, s.Ent, t.Id)
-						if err != nil {
-							return fmt.Errorf("%s: %w", t.Alias, err)
-						}
-						for _, a := range accounts {
-							if !yes {
-								break
-							}
-							if err := s.Identity.ForgetPerson(ctx, a); err != nil {
-								return fmt.Errorf("%s: roster: %d of %d accounts forgotten: %w", t.Alias, forgotten, len(accounts), err)
-							}
-							forgotten++
-						}
-						if !yes {
-							forgotten = len(accounts)
-						}
-					}
-
-					x, err := s.Offboard(*c).Purge(ctx, pdid.Id(t.Id), !yes)
-					if err != nil {
-						return fmt.Errorf("%s: %w", t.Alias, err)
-					}
-
-					verb := "took"
-					if !yes {
-						verb = "would take"
-					}
-					parts := []string{}
-					for _, k := range slices.Sorted(maps.Keys(x.Rows)) {
-						parts = append(parts, fmt.Sprintf("%s %d", k, x.Rows[k]))
-					}
-					self.Printf("%s: %s %d rows (%s), %d files\n", t.Alias, verb, x.Total(), strings.Join(parts, ", "), x.Files)
-					self.Printf("  trail: %d rows removed, %d blanked, %d archived chunks\n", x.Trail.Removed, x.Trail.Blanked, x.Trail.Chunks)
-					if s.Identity.Embedded() {
-						verb := "forgot"
-						if !yes {
-							verb = "would forget"
-						}
-						self.Printf("  roster in this process: %s %d account(s) in no other workspace, and what its trail said of them\n", verb, forgotten)
-					}
-					if len(x.Lost) > 0 {
-						self.Printf("  files that could not be removed: %s\n", strings.Join(x.Lost, ", "))
-					}
-					if !yes {
-						self.Printf("(nothing was taken: `--yes` takes it. Export first -- `rove tenant export --tenant %s`)\n", t.Alias)
-					}
-					return nil
-				}),
-			},
+			newCmdTenantLeave(c, "retire", "take a tenant out of the deployment, keeping what the deployment's floors are on of its trail until they pass", closing.Retire),
+			newCmdTenantLeave(c, "purge", "take everything of a tenant out of the deployment, its whole trail with it, the tenant last", closing.Purge),
 		},
+	}
+}
+
+// newCmdTenantLeave is `rove tenant retire` and `rove tenant purge`: a
+// workspace destroyed by an operator's hand, as the closing sweep destroys one
+// whose restore window is over ([closing.Closing.Destroy]) -- its rows, its
+// files, the accounts of the roster in this process that were here alone, and
+// its address held -- with its trail as the command says (payday#115).
+//
+// `retire` keeps what the deployment's floors (`audit.min`,
+// `audit.by.<kind>.min`) are still on until each has passed: the access record
+// the law has the deployment keep whoever's data it was. `purge` takes that
+// too, for a workspace under a law or an agreement that asks for it. The
+// sweep does what the workspace's contract says (`purge_floors`); these do
+// what they are called, and say so when the contract says the other.
+func newCmdTenantLeave(c *cmd.Config, name, brief string, how closing.How) *xli.Command {
+	return &xli.Command{
+		Name:  name,
+		Brief: brief,
+		Flags: flg.Flags{
+			&flg.String{Name: "tenant", Brief: "the tenant, by alias"},
+			&flg.Switch{Name: "yes", Brief: "do it; without this it only says what it would take"},
+		},
+		Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
+			yes, _ := flg.Find[bool](self, "yes")
+
+			s, err := cmd.Build(ctx, *c)
+			if err != nil {
+				return err
+			}
+			defer s.Close()
+
+			t, err := tenantNamed(ctx, s.Ent, self)
+			if err != nil {
+				return err
+			}
+			w, err := retention.Of(ctx, s.Ent, pdid.Id(t.Id), time.Now(), cmd.RetentionDefaults(*c, s.Trail))
+			if err != nil {
+				return err
+			}
+
+			x, err := s.Closing.Destroy(ctx, t, how, !yes)
+			if err != nil {
+				return fmt.Errorf("%s: %w", t.Alias, err)
+			}
+
+			verb := "took"
+			if !yes {
+				verb = "would take"
+			}
+			parts := []string{}
+			for _, k := range slices.Sorted(maps.Keys(x.Rows)) {
+				parts = append(parts, fmt.Sprintf("%s %d", k, x.Rows[k]))
+			}
+			self.Printf("%s: %s %d rows (%s), %d files\n", t.Alias, verb, x.Total(), strings.Join(parts, ", "), x.Files)
+			self.Printf("  trail: %d rows removed, %d blanked, %d archived chunks\n", x.Trail.Removed, x.Trail.Blanked, x.Trail.Chunks)
+			if x.Retired {
+				if len(x.Trail.Kept) == 0 {
+					self.Printf("  kept: nothing, since no floor of the deployment's is on any of it\n")
+				} else {
+					kept := []string{}
+					for _, k := range slices.Sorted(maps.Keys(x.Trail.Kept)) {
+						kept = append(kept, fmt.Sprintf("%s %d", k, x.Trail.Kept[k]))
+					}
+					self.Printf("  kept until %s, for the deployment's floors: %s\n", x.Trail.Until.Format(time.DateOnly), strings.Join(kept, ", "))
+				}
+			}
+			if s.Identity.Embedded() {
+				verb := "forgot"
+				if !yes {
+					verb = "would forget"
+				}
+				self.Printf("  roster in this process: %s %d account(s) in no other workspace, and what its trail said of them\n", verb, x.Forgotten)
+			}
+			if len(x.Lost) > 0 {
+				self.Printf("  files that could not be removed: %s\n", strings.Join(x.Lost, ", "))
+			}
+			if !yes {
+				switch {
+				case how == closing.Purge && !w.Purge:
+					self.Printf("(its contract retires it, keeping what the deployment's floors are on: `rove tenant retire` does what it says)\n")
+				case how == closing.Retire && w.Purge:
+					self.Printf("(its contract purges it, what the deployment's floors are on too: `rove tenant purge` does what it says)\n")
+				}
+				self.Printf("(nothing was taken: `--yes` takes it. Export first -- `rove tenant export --tenant %s`)\n", t.Alias)
+			}
+			return nil
+		}),
 	}
 }
 

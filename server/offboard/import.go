@@ -99,6 +99,19 @@ func (x Restored) Total() int {
 // keeps an old export from turning a workspace back.
 var ErrNotNew = errors.New("the deployment has the workspace already")
 
+// ErrRetiredHere is a restore of a workspace that retired from this
+// deployment, under the identifier it had (payday#115).
+//
+// A retirement leaves the trail what the deployment's floors are on and a
+// record that the tenant left, which every pass goes by whatever the app says:
+// a tenant that left keeps nothing of its own. A workspace back under that
+// identifier would be that tenant to the trail -- what it writes taken at the
+// next pass, and the whole of its trail and its key once the last floor has
+// passed. Until the trail can take a tenant back, a restore of one is into
+// another deployment, where it never retired. A purged workspace leaves no
+// such record, and comes back here as it always has.
+var ErrRetiredHere = errors.New("the workspace retired from this deployment, whose trail keeps it as a tenant that left")
+
 // Import restores a workspace from its export into a deployment that does not
 // have it: every row as it was exported, under the identifier it had, so that
 // what pointed at it -- a printed label, a link -- still does (design D34). It
@@ -190,6 +203,12 @@ func (d Deployment) Import(ctx context.Context, r io.ReaderAt, size int64, o Imp
 		return out, err
 	} else if here {
 		return out, fmt.Errorf("%w: %s (@%s) is here; a restore is into a deployment that does not have it", ErrNotNew, out.Tenant, t.GetAlias())
+	}
+	if retired, err := db.AliasHold.Query().Where(aliashold.Tenant(tid), aliashold.Reason(ReasonRetired)).Exist(ctx); err != nil {
+		return out, err
+	} else if retired {
+		return out, fmt.Errorf("%w: %s (@%s) would be taken again by the trail, under the identifier it had; "+
+			"restore it into another deployment -- a restore under a new identifier is not one this build makes", ErrRetiredHere, out.Tenant, t.GetAlias())
 	}
 
 	var releasedHolds []pdid.Id

@@ -146,6 +146,9 @@ func (TenantContract) Fields() []ent.Field {
 		field.Uint32("restore_days").
 			Optional().
 			Default(0),
+		field.Bool("purge_floors").
+			Optional().
+			Default(false),
 		field.Time("date_erased").
 			Nillable().
 			Optional(),

@@ -1342,6 +1342,11 @@ func (st TenantContractServiceServer) create(ctx context.Context, req *rove.Tena
 	} else {
 		q.SetRestoreDays(0)
 	}
+	if req.HasPurgeFloors() {
+		q.SetPurgeFloors(req.GetPurgeFloors())
+	} else {
+		q.SetPurgeFloors(false)
+	}
 	if req.HasDateCreated() {
 		q.SetDateCreated(req.GetDateCreated().AsTime())
 	} else {
@@ -1498,6 +1503,9 @@ func TenantContractSelectedFields(m *rove.TenantContractSelect) []string {
 	if m.GetRestoreDays() {
 		vs = append(vs, tenantcontract.FieldRestoreDays)
 	}
+	if m.GetPurgeFloors() {
+		vs = append(vs, tenantcontract.FieldPurgeFloors)
+	}
 	if m.GetDateErased() {
 		vs = append(vs, tenantcontract.FieldDateErased)
 	}
@@ -1573,7 +1581,7 @@ func TenantContractGetKey(ctx context.Context, db *ent.Client, ref *rove.TenantC
 var tenantContractOrmEntity = ormpatch.MustEntityOf(rove.File_rove_ops_proto, "TenantContract")
 
 var tenantContractPatchColumns = entpatch.Columns{
-	1: tenantcontract.FieldId, 2: tenantcontract.TenantColumn, 5: tenantcontract.FieldName, 6: tenantcontract.FieldDesc, 8: tenantcontract.FieldViewDays, 9: tenantcontract.FieldKeepDays, 10: tenantcontract.FieldGraceDays, 11: tenantcontract.FieldDateEffective, 12: tenantcontract.FieldAccessKeepDays, 16: tenantcontract.FieldRestoreDays, 14: tenantcontract.FieldDateErased, 15: tenantcontract.FieldDateCreated}
+	1: tenantcontract.FieldId, 2: tenantcontract.TenantColumn, 5: tenantcontract.FieldName, 6: tenantcontract.FieldDesc, 8: tenantcontract.FieldViewDays, 9: tenantcontract.FieldKeepDays, 10: tenantcontract.FieldGraceDays, 11: tenantcontract.FieldDateEffective, 12: tenantcontract.FieldAccessKeepDays, 16: tenantcontract.FieldRestoreDays, 17: tenantcontract.FieldPurgeFloors, 14: tenantcontract.FieldDateErased, 15: tenantcontract.FieldDateCreated}
 
 func (s TenantContractServiceServer) Apply(ctx context.Context, req *rove.TenantContractApplyRequest) (*rove.TenantContract, error) {
 	if !req.HasPatch() {

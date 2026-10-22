@@ -536,6 +536,7 @@ type TenantContract struct {
 	xxx_hidden_DateEffective  *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=date_effective,json=dateEffective"`
 	xxx_hidden_AccessKeepDays uint32                 `protobuf:"varint,12,opt,name=access_keep_days,json=accessKeepDays"`
 	xxx_hidden_RestoreDays    uint32                 `protobuf:"varint,16,opt,name=restore_days,json=restoreDays"`
+	xxx_hidden_PurgeFloors    bool                   `protobuf:"varint,17,opt,name=purge_floors,json=purgeFloors"`
 	xxx_hidden_DateErased     *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=date_erased,json=dateErased"`
 	xxx_hidden_DateCreated    *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
 	unknownFields             protoimpl.UnknownFields
@@ -637,6 +638,13 @@ func (x *TenantContract) GetRestoreDays() uint32 {
 	return 0
 }
 
+func (x *TenantContract) GetPurgeFloors() bool {
+	if x != nil {
+		return x.xxx_hidden_PurgeFloors
+	}
+	return false
+}
+
 func (x *TenantContract) GetDateErased() *timestamppb.Timestamp {
 	if x != nil {
 		return x.xxx_hidden_DateErased
@@ -692,6 +700,10 @@ func (x *TenantContract) SetAccessKeepDays(v uint32) {
 
 func (x *TenantContract) SetRestoreDays(v uint32) {
 	x.xxx_hidden_RestoreDays = v
+}
+
+func (x *TenantContract) SetPurgeFloors(v bool) {
+	x.xxx_hidden_PurgeFloors = v
 }
 
 func (x *TenantContract) SetDateErased(v *timestamppb.Timestamp) {
@@ -778,6 +790,16 @@ type TenantContract_builder struct {
 	// `app.workspaces.restore_within`. Read when it is closed: what the date of
 	// its destruction is then is what its owner is told.
 	RestoreDays uint32
+	// Whether the workspace's trail goes whole when it is destroyed, what the
+	// deployment's floors (`audit.min`, `audit.by.<kind>.min`) are still on with
+	// it (payday's `PurgeTenant`): for a workspace under a law or an agreement
+	// that asks for that, which the floors were not set for. Unset, it retires
+	// (`RetireTenant`, payday#115): what a floor is still on stays -- the access
+	// record PIPA has a processor keep for a year, whoever's data it was -- until
+	// the floor has passed, and the rest goes when the workspace does. One that
+	// purges waits out the grace of the contract before it, as a shorter
+	// `keep_days` does. Read when the workspace is destroyed.
+	PurgeFloors bool
 	// Withdrawn, for a change that was a mistake. A contract in force is
 	// replaced by a newer one rather than taken back.
 	DateErased  *timestamppb.Timestamp
@@ -798,6 +820,7 @@ func (b0 TenantContract_builder) Build() *TenantContract {
 	x.xxx_hidden_DateEffective = b.DateEffective
 	x.xxx_hidden_AccessKeepDays = b.AccessKeepDays
 	x.xxx_hidden_RestoreDays = b.RestoreDays
+	x.xxx_hidden_PurgeFloors = b.PurgeFloors
 	x.xxx_hidden_DateErased = b.DateErased
 	x.xxx_hidden_DateCreated = b.DateCreated
 	return m0
@@ -1298,7 +1321,7 @@ const file_rove_ops_proto_rawDesc = "" +
 	"\x02id\x10\x01\x1a\x05\n" +
 	"\x03ref\x1a\x05\n" +
 	"\x03day \x1f(\x90\x03B\x02\n" +
-	"\x00\"\x89\x05\n" +
+	"\x00\"\xb5\x05\n" +
 	"\x0eTenantContract\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x12\n" +
@@ -1311,7 +1334,8 @@ const file_rove_ops_proto_rawDesc = "" +
 	" \x01(\rR\tgraceDays\x12J\n" +
 	"\x0edate_effective\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\rdateEffective\x121\n" +
 	"\x10access_keep_days\x18\f \x01(\rB\a\xea\x82\x16\x03\x82\x01\x00R\x0eaccessKeepDays\x12*\n" +
-	"\frestore_days\x18\x10 \x01(\rB\a\xea\x82\x16\x03\x82\x01\x00R\vrestoreDays\x12D\n" +
+	"\frestore_days\x18\x10 \x01(\rB\a\xea\x82\x16\x03\x82\x01\x00R\vrestoreDays\x12*\n" +
+	"\fpurge_floors\x18\x11 \x01(\bB\a\xea\x82\x16\x03\x82\x01\x00R\vpurgeFloors\x12D\n" +
 	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
 	"dateErased\x12H\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:p\xca\xfc\x159\x12\x02\x10\x01\x1a3\x12\teffective\x1a\n" +

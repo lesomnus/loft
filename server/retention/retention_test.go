@@ -361,3 +361,35 @@ func TestARestoreWindowIsTheContracts(t *testing.T) {
 	x.NoError(err)
 	x.Equal(90*day, e.window(e.now).Restore)
 }
+
+// TestAContractThatPurgesWaitsOutItsGrace (payday#115): a workspace retires
+// when it is destroyed, keeping what the deployment's floors are on, unless
+// the contract in force when it is says to purge -- and one that does waits
+// out the grace of a contract before it that retires, as a shorter keep does.
+func TestAContractThatPurgesWaitsOutItsGrace(t *testing.T) {
+	x := require.New(t)
+	e := newEnv(t)
+
+	x.False(e.window(e.now).Purge, "no contract, and yet it purges")
+
+	purge := func(name string, purges bool, grace uint32, effective time.Time) {
+		_, err := e.s.Base.TenantContract().Add(e.ctx, app.TenantContractAddRequest_builder{
+			Tenant:        app.TenantRef_builder{Id: e.tenant.Bytes()}.Build(),
+			Name:          name,
+			GraceDays:     grace,
+			PurgeFloors:   z.Ptr(purges),
+			DateEffective: timestamppb.New(effective),
+		}.Build())
+		x.NoError(err)
+	}
+
+	purge("kept", false, 0, e.now.Add(-60*day))
+	x.False(e.window(e.now).Purge)
+
+	purge("abroad", true, 30, e.now.Add(-day))
+	x.False(e.window(e.now).Purge, "a purge did not wait out the grace of the contract that retires")
+	x.True(e.window(e.now.Add(30*day)).Purge, "the grace is over, and still it retires")
+
+	purge("back", false, 0, e.now)
+	x.False(e.window(e.now.Add(30*day)).Purge, "the contract in force retires, and the one before it purges")
+}

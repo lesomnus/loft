@@ -379,6 +379,7 @@ message TenantContractAddRequest {
   google.protobuf.Timestamp date_effective = 11;
   uint32 access_keep_days = 12;
   uint32 restore_days = 16;
+  bool purge_floors = 17;
   google.protobuf.Timestamp date_created = 15;
 }
 
@@ -404,6 +405,7 @@ message TenantContractSelect {
   bool date_effective = 11;
   bool access_keep_days = 12;
   bool restore_days = 16;
+  bool purge_floors = 17;
   bool date_erased = 14;
   bool date_created = 15;
 }
@@ -418,6 +420,7 @@ message TenantContractPatchRequest {
   google.protobuf.Timestamp date_effective = 22;
   uint32 access_keep_days = 24;
   uint32 restore_days = 32;
+  bool purge_floors = 34;
 }
 
 message TenantContractApplyRequest {

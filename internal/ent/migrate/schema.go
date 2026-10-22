@@ -1807,6 +1807,7 @@ var (
 		{Name: "date_effective", Type: field.TypeTime, Nullable: true},
 		{Name: "access_keep_days", Type: field.TypeUint32, Nullable: true, Default: 0},
 		{Name: "restore_days", Type: field.TypeUint32, Nullable: true, Default: 0},
+		{Name: "purge_floors", Type: field.TypeBool, Nullable: true, Default: false},
 		{Name: "date_erased", Type: field.TypeTime, Nullable: true},
 		{Name: "date_created", Type: field.TypeTime, Nullable: true},
 		{Name: "tenant_id", Type: field.TypeUuid},
@@ -1819,7 +1820,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "tenantcontract_tenant_tenant",
-				Columns:    []*schema.Column{TenantcontractColumns[11]},
+				Columns:    []*schema.Column{TenantcontractColumns[12]},
 				RefColumns: []*schema.Column{TenantColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -1828,7 +1829,7 @@ var (
 			{
 				Name:    "tenantcontract_effective",
 				Unique:  false,
-				Columns: []*schema.Column{TenantcontractColumns[11], TenantcontractColumns[6], TenantcontractColumns[0]},
+				Columns: []*schema.Column{TenantcontractColumns[12], TenantcontractColumns[6], TenantcontractColumns[0]},
 			},
 		},
 	}

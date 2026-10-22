@@ -13419,6 +13419,23 @@ func (m *TenantContractMutation) OldRestoreDays(ctx context.Context) (v uint32, 
 	return oldValue.RestoreDays, nil
 }
 
+// OldPurgeFloors returns the old "purge_floors" field's value of the TenantContract entity.
+// If the TenantContract object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TenantContractMutation) OldPurgeFloors(ctx context.Context) (v bool, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldPurgeFloors is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldPurgeFloors requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPurgeFloors: %w", err)
+	}
+	return oldValue.PurgeFloors, nil
+}
+
 // OldDateErased returns the old "date_erased" field's value of the TenantContract entity.
 // If the TenantContract object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
@@ -13491,6 +13508,8 @@ func (m *TenantContractMutation) OldField(ctx context.Context, name string) (ent
 		return m.OldAccessKeepDays(ctx)
 	case tenantcontract.FieldRestoreDays:
 		return m.OldRestoreDays(ctx)
+	case tenantcontract.FieldPurgeFloors:
+		return m.OldPurgeFloors(ctx)
 	case tenantcontract.FieldDateErased:
 		return m.OldDateErased(ctx)
 	case tenantcontract.FieldDateCreated:

@@ -10,7 +10,9 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
+	"github.com/lesomnus/payday/config"
 	"github.com/lesomnus/payday/pdtest"
 	"github.com/lesomnus/payday/trail"
 	"github.com/lesomnus/xli"
@@ -82,6 +84,54 @@ func TestAPurgeTakesTheWorkspacesOwnAccountsOutOfTheRosterInThisProcess(t *testi
 	x.Contains(out, "roster in this process: forgot 1 account(s)")
 	x.ErrorIs(signsIn("kim", "kim-password"), identity.ErrRefused)
 	x.NoError(signsIn("owner", "owner1234"), "an account another workspace has went with it")
+
+	s, err := cmd.Build(ctx, c)
+	x.NoError(err)
+	defer s.Close()
+	gone, err := s.Ent.Tenant.Query().Where(tenant.Alias("acme")).Exist(ctx)
+	x.NoError(err)
+	x.False(gone, "the workspace is still here")
+}
+
+// TestAnOperatorRetiresAWorkspace (payday#115): `rove tenant retire` takes a
+// workspace out as `purge` does but for what the deployment's floors are on of
+// its trail, and says what it keeps and until when. Each says so when the
+// workspace's contract says the other (`rove contract set --purge-floors`).
+func TestAnOperatorRetiresAWorkspace(t *testing.T) {
+	x := require.New(t)
+	ctx := context.Background()
+
+	c := cmd.Config{}
+	c.Db.Driver, c.Db.Dsn = pdtest.DB(t)
+	c.Watch.Broker = "memory"
+	c.App.Files = t.TempDir()
+	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
+	c.Audit.Archive = t.TempDir()
+	c.Audit.Checkpoints.Key = pdtest.Key(t)
+	c.Audit.By = map[string]config.AuditKeepConfig{"holder": {Min: config.AuditMinConfig{Destroy: 365 * 24 * time.Hour}}}
+	run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234")
+	run(t, cli.NewCmdInit(&c), "--tenant", "beta", "--login", "owner")
+
+	out := run(t, cli.NewCmdContract(&c), "show", "--tenant", "acme")
+	x.Contains(out, "destroyed: retired", "a workspace with no contract is purged")
+
+	out = run(t, cli.NewCmdTenant(&c), "retire", "--tenant", "acme")
+	x.Contains(out, "acme: would take")
+	x.Contains(out, "for the deployment's floors: holder", "a retirement keeps nothing a floor is on")
+	x.NotContains(out, "its contract")
+	out = run(t, cli.NewCmdTenant(&c), "purge", "--tenant", "acme")
+	x.Contains(out, "its contract retires it", "a purge against its contract says nothing")
+	x.NotContains(out, "kept until")
+
+	out = run(t, cli.NewCmdContract(&c), "set", "--tenant", "beta", "--name", "abroad", "--purge-floors")
+	x.Contains(out, "destroyed: purged")
+	x.Contains(run(t, cli.NewCmdContract(&c), "show", "--tenant", "beta"), "then purge")
+	out = run(t, cli.NewCmdTenant(&c), "retire", "--tenant", "beta")
+	x.Contains(out, "its contract purges it", "a retirement against its contract says nothing")
+
+	out = run(t, cli.NewCmdTenant(&c), "retire", "--tenant", "acme", "--yes")
+	x.Contains(out, "acme: took")
+	x.Contains(out, "kept until ")
 
 	s, err := cmd.Build(ctx, c)
 	x.NoError(err)

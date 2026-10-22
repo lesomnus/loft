@@ -5,9 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"maps"
+	"os"
+	"os/user"
 	"slices"
 	"strings"
+	"time"
 
+	"github.com/lesomnus/flob"
 	"github.com/lesomnus/otx/log"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/trail"
@@ -28,7 +32,13 @@ import (
 // every chunk whole and checks its bytes. It changes nothing, and fails when it
 // found something, so a schedule can run it. `accept` is an operator who has
 // looked at what it found and decided the archive is right -- a pass a crash
-// stopped, a chunk restored from a backup -- and says why.
+// stopped, a chunk restored from a backup -- and says who and why. It is of
+// what was looked at (payday#115): `verify` prints the digest of what it
+// found, and `accept --of` takes it back, verifying again -- `--full` when the
+// check was -- and refused when that finds anything else. A database restored
+// from a backup is accepted as the restore it is, `--restored` naming the
+// checkpoint the backup holds. Who and why are kept in the checkpoint the
+// acceptance ends in, and `verify` lists the latest.
 //
 // `rows` is the database's rows against the trail: with `audit.digest.key`,
 // each row of the trail keeps a keyed digest of the row its write left, and
@@ -43,8 +53,10 @@ import (
 // did not read. `rows --accept` is an operator who has looked at each and
 // decided the rows are right -- a migration rewrote them, they were put back
 // before a restore said so -- and puts them on the trail as that act, gone ones
-// as gone, with the why logged. A forged line and a key not given are not
-// accepted.
+// as gone. It is of what was looked at too: `--of` is the digest `rows`
+// printed, and it is refused when the check now finds anything else. The
+// digest and the why are logged, and not on the trail, as `pd.Record` keeps no
+// reason. A forged line and a key not given are not accepted.
 func NewCmdTrail(c *cmd.Config) *xli.Command {
 	return &xli.Command{
 		Name:  "trail",
@@ -67,23 +79,36 @@ func NewCmdTrail(c *cmd.Config) *xli.Command {
 				Brief: "check the live rows against the digests the trail keeps of them, changing nothing",
 				Flags: flg.Flags{
 					&flg.Switch{Name: "accept", Brief: "put what the check found on the trail as accepted, once somebody has looked"},
+					&flg.String{Name: "of", Brief: "with --accept, the digest a check printed of what was looked at"},
 					&flg.String{Name: "why", Brief: "what was looked at and decided, with --accept; it is logged"},
 				},
 				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
 					accept, _ := flg.Find[bool](self, "accept")
+					of, _ := flg.Find[string](self, "of")
 					why, _ := flg.Find[string](self, "why")
-					return rows(ctx, self, c, accept, why)
+					return rows(ctx, self, c, accept, strings.TrimSpace(of), why)
 				}),
 			},
 			{
 				Name:  "accept",
 				Brief: "make the manifest say what the archive holds, once somebody has looked",
 				Flags: flg.Flags{
-					&flg.String{Name: "why", Brief: "what was looked at and decided; it is logged"},
+					&flg.String{Name: "of", Brief: "the digest `rove trail verify` printed of the findings looked at"},
+					&flg.String{Name: "by", Brief: "who accepts; the operator's user and host by default"},
+					&flg.String{Name: "why", Brief: "what was looked at and decided; it is kept"},
+					&flg.Switch{Name: "full", Brief: "the check looked at was --full"},
+					&flg.Int{Name: "restored", Brief: "for a database restored from a backup, the checkpoint the backup holds (0 for one from before the first)"},
 				},
 				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
+					of, _ := flg.Find[string](self, "of")
+					by, _ := flg.Find[string](self, "by")
 					why, _ := flg.Find[string](self, "why")
-					return accept(ctx, self, c, why)
+					a := trail.Acceptance{Of: flob.Digest(strings.TrimSpace(of)), By: strings.TrimSpace(by), Why: why}
+					a.Full, _ = flg.Find[bool](self, "full")
+					if k, ok := flg.Find[int](self, "restored"); ok {
+						a.Restored = &k
+					}
+					return accept(ctx, self, c, a)
 				}),
 			},
 		},
@@ -125,6 +150,12 @@ func verify(ctx context.Context, self *xli.Command, c *cmd.Config, full bool) er
 		read += fmt.Sprintf("; checkpoint %d compared", v.Checkpoint)
 	}
 	self.Printf("%s\n", read)
+	// What an acceptance of these findings names, and what was accepted
+	// before: who, why, and of what (payday#115).
+	self.Printf("digest %s\n", v.Digest)
+	for _, a := range v.Accepted {
+		self.Printf("accepted %s\n", acceptance(a))
+	}
 
 	if v.Ok() {
 		self.Printf("the archive is what the database says it is\n")
@@ -134,10 +165,40 @@ func verify(ctx context.Context, self *xli.Command, c *cmd.Config, full bool) er
 		self.Printf("  %s\n", f.String())
 	}
 
-	return fmt.Errorf("%d findings: look at each, and `rove trail accept --why ...` once the archive is right", len(v.Findings))
+	how := "--of " + string(v.Digest)
+	if full {
+		how += " --full"
+	}
+	if slices.ContainsFunc(v.Findings, func(f trail.Finding) bool { return f.Kind == "behind" }) {
+		how += " --restored <the checkpoint the backup holds>"
+	}
+
+	return fmt.Errorf("%d findings: look at each, and `rove trail accept %s --why ...` once the archive is right", len(v.Findings), how)
 }
 
-func rows(ctx context.Context, self *xli.Command, c *cmd.Config, accept bool, why string) error {
+// acceptance is one acceptance as `verify` lists it: the checkpoint it ended
+// in and when, who said it and why, and what it was of.
+func acceptance(a trail.Accepted) string {
+	kinds := make([]string, 0, len(a.Kinds))
+	for _, k := range slices.Sorted(maps.Keys(a.Kinds)) {
+		kinds = append(kinds, fmt.Sprintf("%s %d", k, a.Kinds[k]))
+	}
+	if len(kinds) == 0 {
+		kinds = append(kinds, "nothing")
+	}
+
+	v := fmt.Sprintf("at checkpoint %d, %s, by %s: %s (%s)", a.Checkpoint, a.At.UTC().Format(time.RFC3339), a.By, a.Why, strings.Join(kinds, ", "))
+	if a.Restored != nil {
+		v += fmt.Sprintf(", restoring checkpoint %d", *a.Restored)
+	}
+
+	return v
+}
+
+func rows(ctx context.Context, self *xli.Command, c *cmd.Config, accept bool, of, why string) error {
+	if accept && of == "" {
+		return errors.New("--of: the digest `rove trail rows` printed of what was looked at")
+	}
 	if accept && strings.TrimSpace(why) == "" {
 		return errors.New("--why says what was looked at and decided")
 	}
@@ -165,6 +226,9 @@ func rows(ctx context.Context, self *xli.Command, c *cmd.Config, accept bool, wh
 		"%d from before digests began, %d under a key let go; %d checked against the archive\n",
 		v.Read, v.Matches, len(v.Differs), len(v.Forged), len(v.NoDigest), len(v.NotOnTrail), len(v.KeyNotHeld), len(v.Missing),
 		v.BeforeDigests, v.Retired, v.Archived)
+	// What an acceptance of these findings names (payday#115).
+	digest := v.Digest()
+	self.Printf("digest %s\n", digest)
 	// Each finding a line, by what it is, then its kind and the row: what a
 	// schedule greps and an operator looks up (payday#115).
 	for _, f := range []struct {
@@ -203,7 +267,14 @@ func rows(ctx context.Context, self *xli.Command, c *cmd.Config, accept bool, wh
 
 	findings := len(v.Differs) + len(v.Forged) + len(v.NoDigest) + len(v.NotOnTrail) + len(v.KeyNotHeld) + len(v.Missing)
 	if !accept {
-		return fmt.Errorf("%d findings: look at each, and `rove trail rows --accept --why ...` once the rows are right", findings)
+		return fmt.Errorf("%d findings: look at each, and `rove trail rows --accept --of %s --why ...` once the rows are right", findings, digest)
+	}
+	// What was looked at, and nothing found since: an acceptance of rows
+	// somebody changed after the check that was read is of rows nobody looked
+	// at (payday#115).
+	if of != digest {
+		return fmt.Errorf("--of: the check looked at was %s, and this one found %s: "+
+			"run `rove trail rows` again, and look at what it finds", of, digest)
 	}
 	// A line whose digest is not its own, and one under a key not given, are
 	// nothing an acceptance can make right: the one is somebody's writing,
@@ -221,7 +292,7 @@ func rows(ctx context.Context, self *xli.Command, c *cmd.Config, accept bool, wh
 	if err != nil {
 		return fmt.Errorf("accept: %w", err)
 	}
-	log.From(ctx).InfoContext(ctx, "trail: rows accepted as they are", "why", why, "rows", there, "gone", gone)
+	log.From(ctx).InfoContext(ctx, "trail: rows accepted as they are", "of", digest, "why", why, "rows", there, "gone", gone)
 	self.Printf("accepted %d rows and %d gone; the trail says they are what they are now\n", there, gone)
 
 	return nil
@@ -269,9 +340,21 @@ func byKind(ids []pdid.Id) string {
 	return strings.Join(vs, ", ")
 }
 
-func accept(ctx context.Context, self *xli.Command, c *cmd.Config, why string) error {
-	if strings.TrimSpace(why) == "" {
+// accept is an acceptance of what a verification found, and of nothing else:
+// `a.Of` is the digest that verification printed (payday#115). Who accepts is
+// `a.By`, or the user and host of the shell it is run from.
+func accept(ctx context.Context, self *xli.Command, c *cmd.Config, a trail.Acceptance) error {
+	if a.Of == "" {
+		return errors.New("--of: the digest `rove trail verify` printed of the findings looked at")
+	}
+	if strings.TrimSpace(a.Why) == "" {
 		return errors.New("--why says what was looked at and decided")
+	}
+	if a.By == "" {
+		a.By = operator()
+	}
+	if a.By == "" {
+		return errors.New("--by: who accepts, since this shell does not say")
 	}
 
 	s, p, err := archived(ctx, c)
@@ -280,14 +363,40 @@ func accept(ctx context.Context, self *xli.Command, c *cmd.Config, why string) e
 	}
 	defer s.Close()
 
-	v, err := p.Accept(ctx, pd.TrailStore(s.Ent), why)
+	v, err := p.Accept(ctx, pd.TrailStore(s.Ent), a)
 	for _, f := range v.Findings {
 		self.Printf("  %s\n", f.String())
+	}
+	if errors.Is(err, trail.ErrUnreviewed) || errors.Is(err, trail.ErrRestored) {
+		again := "rove trail verify"
+		if a.Full {
+			again += " --full"
+		}
+		return fmt.Errorf("%w\n\nrun `%s` again, look at what it finds, and accept its digest", err, again)
 	}
 	if err != nil {
 		return err
 	}
 
-	self.Printf("accepted %d findings; the manifest says what the archive holds\n", len(v.Findings))
+	self.Printf("accepted %d findings, by %s; the manifest says what the archive holds\n", len(v.Findings), a.By)
 	return nil
+}
+
+// operator is who accepts when `--by` does not say: the user and the host of
+// the shell it is run from, and empty when neither can be told.
+func operator() string {
+	name := ""
+	if u, err := user.Current(); err == nil {
+		name = u.Username
+	}
+	host, _ := os.Hostname()
+
+	switch {
+	case name != "" && host != "":
+		return name + "@" + host
+	case name != "":
+		return name
+	default:
+		return host
+	}
 }
