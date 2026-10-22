@@ -1,13 +1,19 @@
 package cmd_test
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 
+	"github.com/lesomnus/payday/pdid"
+
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/internal/ent/tenantdomain"
+	"github.com/lesomnus/rove/server/account"
 )
 
 // TestALabelOpensWhereItsWorkspaceIs: a printed label sends whoever scans it
@@ -105,4 +111,54 @@ func TestALegacyDomainSendsItsPagesOn(t *testing.T) {
 	x.Equal(http.StatusFound, res.Code)
 	x.Equal("https://"+serviceHost+"/scan/7K3MQ9TX", res.Header().Get("Location"))
 	x.Equal(http.StatusNotFound, w.me(w.owner, "beta.example", "beta").Code, "and serves no call")
+}
+
+// TestAWorkspacesPageAtTheServiceGoesToItsDomain: a page of a workspace whose
+// app is on a domain of its own, opened at the service's address, is sent to
+// the same page there (rove#155), where the handoff signs the browser in; the
+// account says where each workspace's app is, for the page to go there
+// itself. What is the service's stays there: a call, the account, a label.
+// A domain not in use -- lapsed, legacy -- sends nothing anywhere.
+func TestAWorkspacesPageAtTheServiceGoesToItsDomain(t *testing.T) {
+	w := newHosted(t)
+	x := w.x
+	ctx := context.Background()
+
+	kim, err := w.s.Identity.AddPerson(ctx, "kim", "Kim", pdid.Nil)
+	x.NoError(err)
+	beta, err := w.s.Base.Tenant().Add(ctx, app.TenantAddRequest_builder{Alias: "beta"}.Build())
+	x.NoError(err)
+	as := w.session(w.here(kim, "member"))
+	w.member(beta, kim, "member")
+	w.domain(w.tenant, ownHost, "app", "active")
+	w.domain(beta, "beta.example", "app", "lapsed")
+
+	page := func(host, path string) *httptest.ResponseRecorder {
+		return w.send(nil, http.MethodGet, host, path, cookieIn(as))
+	}
+	res := page(serviceHost, "/@acme/assets?q=rack")
+	x.Equal(http.StatusFound, res.Code)
+	x.Equal("https://"+ownHost+"/@acme/assets?q=rack", res.Header().Get("Location"), "the same page, on its domain")
+	x.Equal(http.StatusOK, page(ownHost, "/@acme/assets").Code, "and served there")
+
+	// What is the service's stays there.
+	x.Equal(http.StatusOK, w.me(as, serviceHost, "acme").Code, "a call")
+	res = page(serviceHost, "/account")
+	x.Equal(http.StatusOK, res.Code)
+	var a account.Account
+	x.NoError(json.Unmarshal(res.Body.Bytes(), &a))
+	homes := map[string]string{}
+	for _, v := range a.Workspaces {
+		homes[v.Alias] = v.Home
+	}
+	x.Equal(map[string]string{"acme": "https://" + ownHost, "beta": ""}, homes, "where each workspace's app is")
+	x.Equal("https://"+serviceHost+"/scan/7K3MQ9TX", page(serviceHost, "/l/7K3MQ9TX").Header().Get("Location"), "a label scanned at the service's")
+
+	// A domain not in use sends nothing on.
+	x.Equal(http.StatusOK, page(serviceHost, "/@beta/assets").Code, "lapsed")
+	x.NoError(w.s.Ent.TenantDomain.Update().Where(tenantdomain.Host(ownHost)).SetState("legacy").Exec(ctx))
+	x.Equal(http.StatusOK, page(serviceHost, "/@acme/assets").Code, "legacy")
+	var logs bytes.Buffer
+	x.Equal(http.StatusOK, w.send(&logs, http.MethodGet, serviceHost, "/@nobody/assets", cookieIn(as)).Code, "and a workspace that is not there is the page's to say")
+	x.Empty(logs.String(), "and nothing went wrong")
 }

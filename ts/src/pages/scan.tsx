@@ -122,7 +122,7 @@ export function Scan(): ReactNode {
 				try {
 					const w = await labelWorkspace(t)
 					if (w !== undefined && w.alias !== workspace) {
-						openWorkspace(w.alias, `/scan/${encodeURIComponent(t)}`, code !== undefined)
+						openWorkspace(w, `/scan/${encodeURIComponent(t)}`, code !== undefined)
 						return
 					}
 				} catch {

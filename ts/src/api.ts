@@ -94,6 +94,11 @@ export interface Workspace {
 	destroy?: string
 	/** For a closed one: how many days its address is then held (D29). */
 	alias_hold_days?: number
+	/**
+	 * Where its app is when that is a domain of its own (rove#155): the
+	 * address a page of it begins with there, which opening it goes to.
+	 */
+	home?: string
 }
 
 /** The account signed in, and the workspaces it is in. */
@@ -113,6 +118,8 @@ export interface Account {
 	 * domain (rove#155): nothing of the account's beside it is offered here.
 	 */
 	pinned?: string
+	/** The service's address, said where `pinned` is: where the account's other workspaces are. */
+	service?: string
 }
 
 /** One document an account agrees to, at the version in force. */
@@ -315,13 +322,16 @@ export function rememberWorkspace(alias: string): void {
 }
 
 /**
- * Opens a workspace: the page again, at its address. `instead` replaces this
- * page in the history rather than following it, for a page that was only on
- * its way somewhere.
+ * Opens a workspace: the page again, at its address -- on the domain of its
+ * own its app is on, when it has one (rove#155), where the service would send
+ * the page anyway. `instead` replaces this page in the history rather than
+ * following it, for a page that was only on its way somewhere.
  */
-export function openWorkspace(alias: string, rest = '/', instead = false): void {
+export function openWorkspace(w: string | Workspace, rest = '/', instead = false): void {
+	const alias = typeof w === 'string' ? w : w.alias
+	const home = typeof w === 'string' ? '' : (w.home ?? '')
 	rememberWorkspace(alias)
-	const to = `/@${encodeURIComponent(alias)}${rest}`
+	const to = `${home}/@${encodeURIComponent(alias)}${rest}`
 	if (instead) location.replace(to)
 	else location.assign(to)
 }

@@ -11,6 +11,7 @@ import (
 	"github.com/lesomnus/payday/pdid"
 
 	"github.com/lesomnus/rove/internal/ent"
+	"github.com/lesomnus/rove/internal/ent/tenant"
 	"github.com/lesomnus/rove/internal/ent/tenantdomain"
 	"github.com/lesomnus/rove/server/apphost"
 	"github.com/lesomnus/rove/server/tenancy"
@@ -34,8 +35,10 @@ import (
 //   - **The deployment's own host** -- `app.public_url`'s, and `app.app_url`'s
 //     when the page is served from another -- is the service, as it always
 //     was: every workspace, by the path a page is at and the header a call
-//     names. A deployment told no address is a checkout, and every host that
-//     is no workspace's domain is the service's there.
+//     names; but a page of a workspace whose app is on its active `app`
+//     domain is sent to the same page there ([Server.Routes]), which nothing
+//     else is. A deployment told no address is a checkout, and every host
+//     that is no workspace's domain is the service's there.
 //   - **A workspace's domain that is not an active `app` one** -- a label
 //     domain, a default subdomain, an app domain that is legacy since another
 //     took its place, one that lapsed when its DNS stopped saying it is here,
@@ -201,6 +204,29 @@ func (s *Server) scanning(r *http.Request, links apphost.Links) (string, error) 
 		return "", err
 	}
 	return links.Of(r.Context(), s.Ent, pdid.Id(d.TenantId), apphost.Page)
+}
+
+// appOf is where workspace `ws`'s app is when that is a domain of its own --
+// its active `app` domain -- and empty while it is the service's.
+func (s *Server) appOf(ctx context.Context, links apphost.Links, ws pdid.Id) (string, error) {
+	at, err := links.Of(ctx, s.Ent, ws, apphost.Page)
+	if err != nil || at == links.Home(apphost.Page) {
+		return "", err
+	}
+	return at, nil
+}
+
+// domainOf is [Server.appOf] for the workspace at `alias`, and empty when
+// there is none.
+func (s *Server) domainOf(ctx context.Context, links apphost.Links, alias string) (string, error) {
+	id, err := s.Ent.Tenant.Query().Where(tenant.Alias(alias)).OnlyId(ctx)
+	switch {
+	case ent.IsNotFound(err):
+		return "", nil
+	case err != nil:
+		return "", err
+	}
+	return s.appOf(ctx, links, pdid.Id(id))
 }
 
 // refuses says why a request on a workspace's app domain is not served

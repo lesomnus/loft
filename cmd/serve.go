@@ -38,6 +38,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/internal/identity"
 	"github.com/lesomnus/rove/server/account"
+	"github.com/lesomnus/rove/server/apphost"
 	"github.com/lesomnus/rove/server/bare"
 	"github.com/lesomnus/rove/server/clientaddr"
 	"github.com/lesomnus/rove/server/clilogin"
@@ -922,6 +923,9 @@ func spinEvery(name string, d time.Duration, f func(ctx context.Context) error) 
 
 // Routes is what this app serves over HTTP besides its Rpcs.
 func (s *Server) Routes(mux *http.ServeMux, c Config) {
+	// Where every link made here begins (rove#155).
+	links := c.App.Links()
+
 	// Signing in and out. What is checked is a password, by roster, and an
 	// account in no workspace is given one; see `server/session`.
 	ws := s.Workspaces(c)
@@ -976,6 +980,12 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 		// account that just agreed is given (design 9.11).
 		Consent: s.Consents,
 		Arrive:  s.Arrive(c),
+		// Where a workspace's app is when it has a domain of its own, for
+		// the page to open it there (rove#155).
+		Home: func(ctx context.Context, ws pdid.Id) (string, error) {
+			return s.appOf(ctx, links, ws)
+		},
+		Service: links.Home(apphost.Page),
 	}.Mount(mux)
 
 	// Attachments, by the signed links the API answers with.
@@ -992,7 +1002,6 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 	// one; at the service's address otherwise. Which workspace a code is
 	// never decides it: the host does, so that a label says no more than
 	// what was printed on it.
-	links := c.App.Links()
 	mux.HandleFunc("GET /l/{code}", func(w http.ResponseWriter, r *http.Request) {
 		at, err := s.scanning(r, links)
 		if err != nil {
@@ -1035,6 +1044,24 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 					}
 					http.Redirect(w, r, u, http.StatusFound)
 					return
+				}
+				// A workspace whose app is on a domain of its own is opened
+				// there, the same page (rove#155), and the handoff signs the
+				// browser in on it. Not from that domain, whose pages these
+				// are, and not to a domain that is not in use: that one's
+				// workspace is the service's (`apphost.Links`). This is where
+				// the app is and no wall -- the service answers the
+				// workspace's calls all the same -- so a page whose domain
+				// cannot be told just now is served here.
+				if _, pinned := apphost.From(r.Context()); !pinned {
+					at, err := s.domainOf(r.Context(), links, alias)
+					if err != nil {
+						log.From(r.Context()).ErrorContext(r.Context(), "page: where a workspace's app is could not be told", "alias", alias, "err", err)
+					}
+					if at != "" {
+						http.Redirect(w, r, at+r.URL.RequestURI(), http.StatusFound)
+						return
+					}
 				}
 			}
 			p := filepath.Join(dir, filepath.FromSlash(filepath.Clean("/"+r.URL.Path)))
