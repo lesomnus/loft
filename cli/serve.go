@@ -67,6 +67,15 @@ func NewCmdServe(c *cmd.Config) *xli.Command {
 					slog.String("because", strings.Join(why, ", ")))
 			}
 
+			// A switch that is gone (rove#155): every workspace may have a
+			// domain of its own, and prints with it when one is active, so
+			// there is nothing for it to say. Said, so that a deployment that
+			// set it reads why its labels no longer wait for a domain.
+			if c.App.Labels.TenantDomains {
+				log.From(ctx).WarnContext(ctx, "labels: app.labels.tenant_domains is gone and is ignored: a workspace prints its labels with its active domain "+
+					"when it has one, and with app.public_url when it has none -- no workspace waits for a domain to have labels (rove#155)")
+			}
+
 			s, err := cmd.Build(ctx, *c)
 			if err != nil {
 				return err

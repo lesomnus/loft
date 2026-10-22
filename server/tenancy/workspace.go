@@ -38,10 +38,6 @@ type Workspaces struct {
 	// workspace's setup is written through as its owner.
 	Ungated app.Server
 
-	// LabelSuffix is what a default label subdomain ends with; empty gives a
-	// new workspace none.
-	LabelSuffix string
-
 	// Personal says whether an account in no workspace is given one when it
 	// arrives.
 	Personal bool
@@ -207,7 +203,7 @@ func (w Workspaces) create(ctx context.Context, owner identity.Person, name, ali
 	}
 	// As its owner, so that what it starts with reads as theirs.
 	as := frame.Into(ctx, frame.New(hid, tid, frame.Whole()).WithScope(frame.Only(tid)).WithRow(h))
-	if err := SetUp(as, ungated, alias, w.LabelSuffix); err != nil {
+	if err := SetUp(as, ungated); err != nil {
 		return Membership{}, err
 	}
 	if err := tx.Commit(); err != nil {

@@ -133,4 +133,4 @@ ROVE_VERSION=$(git describe --tags --always) docker compose up -d --build
 - 관측(수집기, 대시보드, 경보): rove#38
 - 스테이징과 배포 절차: rove#39
 - 보안 점검과 서버 하드닝: rove#40
-- 워크스페이스별 라벨 도메인(on-demand TLS): `app.labels.tenant_domains`를 켤 때 Caddy에 더합니다
+- 워크스페이스 도메인의 인증서(on-demand TLS): rove#155의 TLS 앞단 PR이 Caddy에 더합니다

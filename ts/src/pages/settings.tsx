@@ -5,7 +5,6 @@ import type { Bookable } from '../../gen/rove/booking_pb.js'
 import type { AssetType, AttributeDef, ItemModel } from '../../gen/rove/catalog_pb.js'
 import type { TenantDomain } from '../../gen/rove/asset_pb.js'
 import type { Tenant } from '../../gen/rove/payday/tenant_pb.js'
-import type { TenantDomainStatusResponse } from '../../gen/rove/asset_svc_pb.js'
 import {
 	AccessReviewService,
 	AccessService,
@@ -41,7 +40,7 @@ export function Settings(): ReactNode {
 		{ key: 'types', label: '유형' },
 		{ key: 'models', label: '모델' },
 		{ key: 'bookables', label: '예약 자원' },
-		{ key: 'labels', label: '라벨' },
+		{ key: 'labels', label: '도메인과 라벨' },
 		{ key: 'events', label: '작업 기록' },
 		...(c.can('admin') || c.role === 'auditor'
 			? [
@@ -383,69 +382,50 @@ function BookableForm(props: { b: Bookable; onClose: () => void }): ReactNode {
 }
 
 /**
- * Where labels print: the deployment's own address, with a code that is one
- * in the whole deployment (D28) -- or, where tenants have domains of their
- * own (D23), the tenant's.
+ * The workspace's domains, and where its labels print (rove#155): with its
+ * active domain when it has one, and with the deployment's own address when it
+ * has none -- with a code that is one in the whole deployment either way
+ * (D28). A custom domain is the workspace's own: an `app` domain, which the
+ * app is on once it is in use and its labels print with. A default subdomain,
+ * where the deployment offers one, is for its labels alone.
  */
 function Labels(): ReactNode {
-	const status = useRpc(TenantDomainService.method.status, {})
-	return (
-		<Load q={status}>
-			{(s) =>
-				s.tenantDomains ? (
-					<Domains s={s} />
-				) : (
-					<Card title="라벨">
-						<p>
-							QR 라벨은 이 서비스의 주소 <code>{s.base}/l/코드</code>로 인쇄됩니다. 코드는 서비스 전체에서 하나뿐이라 어느 워크스페이스의 라벨인지는 코드가 정합니다.{' '}
-							<Link to="/labels/print?count=24">빈 라벨 24장 인쇄</Link>
-						</p>
-						<p className="mute small">
-							다른 워크스페이스의 라벨을 스캔하면, 그 워크스페이스의 구성원이라면 그곳에서 열립니다. 카메라가 읽지 못할 때는 라벨 아래의 코드(예: 7K3M-Q9TX)를 스캔 화면에 입력하세요.
-						</p>
-					</Card>
-				)
-			}
-		</Load>
-	)
-}
-
-function Domains(props: { s: TenantDomainStatusResponse }): ReactNode {
 	const c = useCatalog()
 	const act = useAct()
-	const s = props.s
+	const status = useRpc(TenantDomainService.method.status, {})
 	const list = useRpc(TenantDomainService.method.list, { size: 50 })
 	const [adding, setAdding] = useState(false)
 	return (
-		<Card title="라벨 도메인" actions={c.can('admin') && <button className="primary small" onClick={() => setAdding(true)}>+ 도메인</button>}>
-			{s.labels ? (
-				<p>
-					새 라벨은 <code>{s.active?.host}</code> 주소로 인쇄됩니다.{' '}
-					<Link to="/labels/print?count=24">빈 라벨 24장 인쇄</Link>
-				</p>
-			) : (
-				<p className="warn">
-					라벨 도메인이 없어 QR 라벨 기능이 꺼져 있습니다. 태그로 찾기는 그대로 됩니다. 도메인을 추가하면 켜집니다.
-				</p>
+		<Load q={status}>
+			{(s) => (
+				<Card title="도메인과 라벨" actions={c.can('admin') && <button className="primary small" onClick={() => setAdding(true)}>+ 도메인</button>}>
+					<p>
+						새 라벨은 <code>{s.active !== undefined ? `${s.active.host}/l/코드` : `${s.base}/l/코드`}</code> 주소로 인쇄됩니다.{' '}
+						<Link to="/labels/print?count=24">빈 라벨 24장 인쇄</Link>
+					</p>
+					<p className="mute small">
+						코드는 서비스 전체에서 하나뿐이라, 어느 주소로 인쇄했든 어느 워크스페이스의 라벨인지는 코드가 정합니다. 다른 워크스페이스의 라벨을 스캔하면, 그 워크스페이스의 구성원이라면 그곳에서 열립니다. 카메라가 읽지 못할 때는 라벨 아래의 코드(예: 7K3M-Q9TX)를 스캔 화면에 입력하세요.
+					</p>
+					<Load q={list}>
+						{(d) =>
+							d.items.length === 0 ? (
+								<p className="mute">이 워크스페이스의 도메인이 없어 라벨은 서비스 주소로 인쇄됩니다.</p>
+							) : (
+								<ul className="rows">
+									{d.items.map((x) => (
+										<DomainRow key={idStr(x.id)} d={x} target={s.target} admin={c.can('admin')} act={act} />
+									))}
+								</ul>
+							)
+						}
+					</Load>
+					<p className="mute small">
+						인쇄한 라벨은 그 주소를 계속 씁니다. 도메인을 바꾸면 이전 도메인은 '이전 주소'로 남아 기존 라벨도 계속 열립니다. 중지하면 그 주소로 인쇄된 라벨이 더 이상 열리지 않습니다.
+					</p>
+					{adding && <NewDomain suffix={s.defaultSuffix} onClose={() => setAdding(false)} />}
+				</Card>
 			)}
-			<Load q={list}>
-				{(d) =>
-					d.items.length === 0 ? (
-						<Empty />
-					) : (
-						<ul className="rows">
-							{d.items.map((x) => (
-								<DomainRow key={idStr(x.id)} d={x} target={s.target} admin={c.can('admin')} act={act} />
-							))}
-						</ul>
-					)
-				}
-			</Load>
-			<p className="mute small">
-				인쇄한 라벨은 그 주소를 계속 씁니다. 도메인을 바꾸면 이전 도메인은 '이전 주소'로 남아 기존 라벨도 계속 열립니다. 중지하면 그 주소로 인쇄된 라벨이 더 이상 열리지 않습니다.
-			</p>
-			{adding && <NewDomain suffix={s.defaultSuffix} onClose={() => setAdding(false)} />}
-		</Card>
+		</Load>
 	)
 }
 
@@ -455,7 +435,10 @@ function DomainRow(props: { d: TenantDomain; target: string; admin: boolean; act
 		<li>
 			<span>
 				<code>{d.host}</code> <Badge v={d.state} words={domainWord} />
-				<span className="mute small"> {d.source === 'default' ? '기본 주소' : '자체 도메인'}</span>
+				<span className="mute small">
+					{' '}
+					{d.source === 'default' ? '기본 주소' : '자체 도메인'} · {d.purpose === 'app' ? '앱과 라벨' : '라벨'}
+				</span>
 				{d.state === 'pending' && (
 					<div className="small">
 						DNS에 TXT 레코드 <code>_rove-challenge.{d.host}</code> = <code>{d.token}</code>
@@ -473,7 +456,10 @@ function DomainRow(props: { d: TenantDomain; target: string; admin: boolean; act
 				<span className="inline">
 					{d.state === 'pending' && <button className="small" onClick={() => void props.act(TenantDomainService.method.verify, { ref: ref(d.id) }, { ok: '확인되었습니다.' })}>지금 확인</button>}
 					{['ready', 'legacy'].includes(d.state) && (
-						<button className="small primary" onClick={() => void props.act(TenantDomainService.method.activate, { ref: ref(d.id) }, { ok: '이제 이 주소로 인쇄합니다.' })}>
+						<button
+							className="small primary"
+							onClick={() => void props.act(TenantDomainService.method.activate, { ref: ref(d.id) }, { ok: d.purpose === 'app' ? '이제 이 도메인을 씁니다.' : '이제 이 주소로 인쇄합니다.' })}
+						>
 							사용
 						</button>
 					)}
@@ -494,11 +480,11 @@ function DomainRow(props: { d: TenantDomain; target: string; admin: boolean; act
 
 function NewDomain(props: { suffix: string; onClose: () => void }): ReactNode {
 	const act = useAct()
-	const [how, setHow] = useState(props.suffix !== '' ? 'sub' : 'custom')
+	const [how, setHow] = useState('custom')
 	const [v, setV] = useState('')
 	return (
 		<FormModal
-			title="라벨 도메인 추가"
+			title="도메인 추가"
 			onClose={props.onClose}
 			onSubmit={async () => (await act(TenantDomainService.method.add, how === 'sub' ? { sub: v } : { host: v }, { ok: '추가했습니다.' })) !== undefined}
 		>
@@ -507,8 +493,8 @@ function NewDomain(props: { suffix: string; onClose: () => void }): ReactNode {
 					value={how}
 					onChange={setHow}
 					options={[
-						...(props.suffix !== '' ? [{ value: 'sub', label: `기본 주소 (*.${props.suffix})` }] : []),
-						{ value: 'custom', label: '자체 도메인 (DNS 확인 필요)' },
+						{ value: 'custom', label: '자체 도메인 — 앱과 라벨 (DNS 확인 필요)' },
+						...(props.suffix !== '' ? [{ value: 'sub', label: `기본 주소 (*.${props.suffix}) — 라벨만` }] : []),
 					]}
 				/>
 			</Field>

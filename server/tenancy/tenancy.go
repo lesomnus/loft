@@ -8,28 +8,20 @@ package tenancy
 
 import (
 	"context"
-	"fmt"
-
-	"github.com/lesomnus/z"
 
 	app "github.com/lesomnus/rove"
 )
 
 // SetUp is what a tenant starts with: the types an asset register of an office
-// has, and a default label subdomain when the deployment offers one. It is
-// written as whoever `ctx` is in the tenant, through the stack with the domain
-// layer.
-func SetUp(ctx context.Context, s app.Server, alias, labelSuffix string) error {
-	if err := seedTypes(ctx, s); err != nil {
-		return err
-	}
-	if labelSuffix != "" {
-		if _, err := s.TenantDomain().Add(ctx, app.TenantDomainAddRequest_builder{Sub: z.Ptr(alias)}.Build()); err != nil {
-			return fmt.Errorf("label domain: %w", err)
-		}
-	}
-
-	return nil
+// has. It is written as whoever `ctx` is in the tenant, through the stack with
+// the domain layer.
+//
+// No domain: a tenant prints its labels with this deployment's address until
+// it adds one of its own, and a default subdomain is one it asks for
+// (rove#155). Starting every tenant on one was how a deployment whose labels
+// needed a domain gave them labels at all, which none does now.
+func SetUp(ctx context.Context, s app.Server) error {
+	return seedTypes(ctx, s)
 }
 
 func or(v, otherwise string) string {

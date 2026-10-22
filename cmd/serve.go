@@ -549,13 +549,12 @@ func (s *Server) Close() error {
 // Workspaces is how an account comes to be in a workspace of its own.
 func (s *Server) Workspaces(c Config) tenancy.Workspaces {
 	return tenancy.Workspaces{
-		Base:        s.Base,
-		Drv:         s.Drv,
-		Ungated:     s.Ungated,
-		LabelSuffix: c.App.Labels.Default(),
-		Personal:    c.App.Workspaces.PersonalOn(),
-		Owned:       c.App.Workspaces.OwnedMax(),
-		Aliases:     s.Aliases(c),
+		Base:     s.Base,
+		Drv:      s.Drv,
+		Ungated:  s.Ungated,
+		Personal: c.App.Workspaces.PersonalOn(),
+		Owned:    c.App.Workspaces.OwnedMax(),
+		Aliases:  s.Aliases(c),
 	}
 }
 
@@ -860,22 +859,22 @@ func depsOf(c Config) (*domain.Deps, error) {
 	pub := c.App.Public()
 	port := pub.Port()
 	return &domain.Deps{
-		Files:              storage.Dir(files),
-		Sign:               storage.Signer{Key: key, Base: strings.TrimSuffix(pub.String(), "/"), TTL: 10 * time.Minute},
-		LabelSuffix:        c.App.Labels.Suffix,
-		LabelTarget:        c.App.Labels.Target,
-		LabelScheme:        pub.Scheme,
-		LabelPort:          port,
-		LabelTenantDomains: c.App.Labels.TenantDomains,
-		LabelBase:          strings.TrimSuffix(pub.String(), "/"),
-		LookupTXT:          net.DefaultResolver.LookupTXT,
-		NoShowAfter:        c.App.NoShowAfter,
-		Locale:             locale,
-		RestoreWithin:      c.App.Workspaces.Restore(),
-		AliasHold:          c.App.Workspaces.Hold(),
-		Retention:          c.App.Retention.Defaults(),
-		Mail:               sender,
-		AppUrl:             c.App.App(),
+		Files:         storage.Dir(files),
+		Sign:          storage.Signer{Key: key, Base: strings.TrimSuffix(pub.String(), "/"), TTL: 10 * time.Minute},
+		LabelSuffix:   c.App.Labels.Suffix,
+		LabelTarget:   c.App.Labels.Target,
+		LabelScheme:   pub.Scheme,
+		LabelPort:     port,
+		LabelBase:     strings.TrimSuffix(pub.String(), "/"),
+		ServiceHosts:  c.App.ServiceHosts(),
+		LookupTXT:     net.DefaultResolver.LookupTXT,
+		NoShowAfter:   c.App.NoShowAfter,
+		Locale:        locale,
+		RestoreWithin: c.App.Workspaces.Restore(),
+		AliasHold:     c.App.Workspaces.Hold(),
+		Retention:     c.App.Retention.Defaults(),
+		Mail:          sender,
+		AppUrl:        c.App.App(),
 		Invitations: domain.InvitationRules{
 			Ttl:     c.App.Invitations.Ttl,
 			Pending: c.App.Invitations.Pending,
