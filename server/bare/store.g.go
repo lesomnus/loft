@@ -35,6 +35,7 @@ import (
 	link "github.com/lesomnus/rove/internal/ent/link"
 	notification "github.com/lesomnus/rove/internal/ent/notification"
 	outbox "github.com/lesomnus/rove/internal/ent/outbox"
+	owed "github.com/lesomnus/rove/internal/ent/owed"
 	party "github.com/lesomnus/rove/internal/ent/party"
 	placement "github.com/lesomnus/rove/internal/ent/placement"
 	predicate "github.com/lesomnus/rove/internal/ent/predicate"
@@ -442,6 +443,7 @@ type Scope interface {
 	ArchivedScope(ctx context.Context) (predicate.Archived, error)
 	AuditScope(ctx context.Context) (predicate.Audit, error)
 	OutboxScope(ctx context.Context) (predicate.Outbox, error)
+	OwedScope(ctx context.Context) (predicate.Owed, error)
 	RowSealScope(ctx context.Context) (predicate.RowSeal, error)
 	SearchStaleScope(ctx context.Context) (predicate.SearchStale, error)
 	WorkOrderScope(ctx context.Context) (predicate.WorkOrder, error)
@@ -576,6 +578,9 @@ func (Unscoped) AuditScope(_ context.Context) (predicate.Audit, error) {
 	return nil, nil
 }
 func (Unscoped) OutboxScope(_ context.Context) (predicate.Outbox, error) {
+	return nil, nil
+}
+func (Unscoped) OwedScope(_ context.Context) (predicate.Owed, error) {
 	return nil, nil
 }
 func (Unscoped) RowSealScope(_ context.Context) (predicate.RowSeal, error) {
@@ -1393,6 +1398,26 @@ func (ss Scopes) OutboxScope(ctx context.Context) (predicate.Outbox, error) {
 	return outbox.And(ps...), nil
 }
 
+func (ss Scopes) OwedScope(ctx context.Context) (predicate.Owed, error) {
+	ps := make([]predicate.Owed, 0, len(ss))
+	for _, s := range ss {
+		p, err := s.OwedScope(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if p == nil {
+			continue
+		}
+
+		ps = append(ps, p)
+	}
+	if len(ps) == 0 {
+		return nil, nil
+	}
+
+	return owed.And(ps...), nil
+}
+
 func (ss Scopes) RowSealScope(ctx context.Context) (predicate.RowSeal, error) {
 	ps := make([]predicate.RowSeal, 0, len(ss))
 	for _, s := range ss {
@@ -1745,6 +1770,7 @@ func (s Server) Access() rove.AccessServiceServer     { return AccessServiceServ
 func (s Server) Archived() rove.ArchivedServiceServer { return ArchivedServiceServer{Store: s.Store} }
 func (s Server) Audit() rove.AuditServiceServer       { return AuditServiceServer{Store: s.Store} }
 func (s Server) Outbox() rove.OutboxServiceServer     { return OutboxServiceServer{Store: s.Store} }
+func (s Server) Owed() rove.OwedServiceServer         { return OwedServiceServer{Store: s.Store} }
 func (s Server) RowSeal() rove.RowSealServiceServer   { return RowSealServiceServer{Store: s.Store} }
 func (s Server) SearchStale() rove.SearchStaleServiceServer {
 	return SearchStaleServiceServer{Store: s.Store}

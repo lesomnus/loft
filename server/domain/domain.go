@@ -21,6 +21,7 @@ import (
 	"time"
 	"uuid"
 
+	"github.com/lesomnus/otx/log"
 	"github.com/lesomnus/payday/audit"
 	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/gate"
@@ -97,13 +98,23 @@ type Deps struct {
 	// zero value shows all of the history.
 	Retention retention.Defaults
 
-	// Forget blanks what the trail kept of these objects -- its rows in the
-	// database `db` is a client on, which is the operation's transaction, and
-	// their copies in the archive -- except what a legal hold is on, and
-	// answers how much a hold kept (payday's `trail.Policy.Forget`). Nil
-	// blanks the database's rows only, which is all there is when the trail
-	// has no archive.
+	// Forget blanks what the trail kept of these objects in the database `db`
+	// is a client on, which is the operation's transaction, and owes the
+	// archive's half there (payday's `trail.Policy.Forget`, payday#115): a row
+	// of payday's `owed` for each, which a rollback takes with the rest. What
+	// a legal hold is on stays as it was, and it answers how many of the
+	// database's rows that kept; what a hold keeps in the archive stays owed
+	// (`rove trail owed`). Nil blanks the database's rows only, which is all
+	// there is when the trail has no archive.
 	Forget func(ctx context.Context, db *ent.Client, objects []pdid.Id) (held int, err error)
+
+	// Pay pays the archive's half of what a transaction forgot, once it has
+	// committed (payday's `trail.Policy.Pay`, naming them): the archive takes
+	// part in no transaction, and an erasure a person is owed is not left for
+	// later when it can be done at once. What it cannot pay stays owed, and
+	// the trail's next pass pays it before it moves anything. Nil leaves all
+	// of it to the pass.
+	Pay func(ctx context.Context, objects []pdid.Id) error
 
 	// People is where the people of a tenant are: roster (design 9.10). Nil
 	// is a deployment whose people cannot be changed from here.
@@ -272,6 +283,12 @@ type shared struct {
 	// bumped is the containers whose watchers were already told this
 	// transaction ([Tx.bump]): told once, they look once, and see all of it.
 	bumped map[uuid.UUID]bool
+
+	// forgot is what the trail's erasure was asked of in this transaction
+	// ([Tx.forget]), the archive's half of which it owes: paid by the
+	// operation that began the transaction, once it has committed
+	// ([Deps.Pay]).
+	forgot []pdid.Id
 }
 
 type sharedKey struct{}
@@ -343,6 +360,9 @@ func (s Domain) read(ctx context.Context) (*Tx, error) {
 // run is a transaction for an actor in a tenant, over `server`. A deployment's
 // own work passes pdid.Nil as the actor and an ungated server.
 func (d *Deps) run(ctx context.Context, server app.Server, drv dialect.Driver, actor, tenant pdid.Id, f func(t *Tx) error) error {
+	// Whether this begins the transaction or joins one: what it forgot is
+	// paid by the one that began it, which is the one whose commit counts.
+	began := !dialect.InTx(drv)
 	tdrv, tx, err := dialect.BeginTx(ctx, drv)
 	if err != nil {
 		return err
@@ -374,8 +394,21 @@ func (d *Deps) run(ctx context.Context, server app.Server, drv dialect.Driver, a
 		}
 		return err
 	}
+	if err := tx.Commit(); err != nil {
+		return err
+	}
 
-	return tx.Commit()
+	// The archive's half of what it forgot, owed now that it has committed.
+	// A payment that fails has undone nothing: the debt is written, and the
+	// trail's next pass pays it. Not the caller's to cancel, since what it
+	// asked for is done: a caller gone away leaves it to finish.
+	if began && len(sh.forgot) > 0 && d.Pay != nil {
+		if err := d.Pay(context.WithoutCancel(ctx), sh.forgot); err != nil {
+			log.From(ctx).WarnContext(ctx, "domain: the trail's erasure is owed, for its next pass to pay", "objects", len(sh.forgot), "err", err)
+		}
+	}
+
+	return nil
 }
 
 // System runs `f` as the deployment's own work in a tenant: an expired hold,

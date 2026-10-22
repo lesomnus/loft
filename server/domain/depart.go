@@ -39,7 +39,9 @@ type Departure struct {
 	// whose last owner this was with nobody to hand it to.
 	Owner     pdid.Id
 	Ownerless bool
-	// Held is how many of the trail's rows a legal hold kept as they were.
+	// Held is how many of the trail's rows in the database a legal hold kept
+	// as they were. What it keeps in the archive is learnt when the archive's
+	// half is paid, after the commit, and stays owed (`rove trail owed`).
 	Held int
 }
 

@@ -117,6 +117,9 @@ type Notification func(*sql.Selector)
 // Outbox is the predicate function for outbox builders.
 type Outbox func(*sql.Selector)
 
+// Owed is the predicate function for owed builders.
+type Owed func(*sql.Selector)
+
 // Party is the predicate function for party builders.
 type Party func(*sql.Selector)
 

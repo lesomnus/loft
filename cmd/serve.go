@@ -528,9 +528,15 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		Base: base, Drv: drv, Deps: deps,
 		Aliases: s.Aliases(c), Hold: c.App.Workspaces.Hold(),
 	}
+	// The trail's erasure in the operation's transaction, the archive's half
+	// owed there, and paid once it has committed (payday#115).
 	deps.Forget = func(ctx context.Context, db *ent.Client, objects []pdid.Id) (int, error) {
 		v, err := s.Trail.Forget(ctx, pd.TrailStore(db), objects)
 		return v.Held.Rows + v.Held.Chunks, err
+	}
+	deps.Pay = func(ctx context.Context, objects []pdid.Id) error {
+		_, err := s.Trail.Pay(ctx, pd.TrailStore(client), objects...)
+		return err
 	}
 
 	if p.On() {

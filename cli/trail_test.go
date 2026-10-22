@@ -28,9 +28,49 @@ import (
 	entaudit "github.com/lesomnus/rove/internal/ent/audit"
 	"github.com/lesomnus/rove/internal/ent/holder"
 	"github.com/lesomnus/rove/internal/ent/rowseal"
+	enttenant "github.com/lesomnus/rove/internal/ent/tenant"
 	"github.com/lesomnus/rove/server/bare"
 	"github.com/lesomnus/rove/server/pd"
 )
+
+// TestWhatTheTrailOwesIsSaid (payday#115): `rove trail owed` says what is
+// owed of the trail's erasures and not paid -- how many, and since when -- and
+// how many of them a legal hold keeps, by workspace, which is what waits for
+// it to lift. With nothing owed it says that.
+func TestWhatTheTrailOwesIsSaid(t *testing.T) {
+	x := require.New(t)
+	ctx := t.Context()
+
+	c := cmd.Config{}
+	c.Db.Driver, c.Db.Dsn = pdtest.DB(t)
+	c.Watch.Broker = "memory"
+	c.App.Files = t.TempDir()
+	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
+	run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner-pass-1234")
+
+	out, err := printed(t, cli.NewCmdTrail(&c), "owed")
+	x.NoError(err)
+	x.Contains(out, "nothing of the trail's erasures is owed")
+
+	// Two owed, and one of them kept by acme's hold, as a payment under a
+	// hold leaves it.
+	s, err := cmd.Build(ctx, c)
+	x.NoError(err)
+	defer s.Close()
+	acme, err := s.Ent.Tenant.Query().Where(enttenant.Alias("acme")).Only(ctx)
+	x.NoError(err)
+	store := pd.TrailStore(s.Ent)
+	x.NoError(store.Owe(ctx, []pdid.Id{pdid.New(pd.HolderDomain), pdid.New(pd.HolderDomain)}))
+	vs, err := store.Owed(ctx, pdtrail.Cursor{}, 10)
+	x.NoError(err)
+	x.Len(vs, 2)
+	x.NoError(store.Kept(ctx, vs[0].Key, []pdid.Id{pdid.Id(acme.Id)}))
+
+	out, err = printed(t, cli.NewCmdTrail(&c), "owed")
+	x.NoError(err)
+	x.Contains(out, "2 erasure(s) owed, the oldest since ")
+	x.Contains(out, "1 kept by a legal hold of @acme (")
+}
 
 // TestRowsNobodySignedAreAcceptedOnce is the one step a deployment takes whose
 // archive's account has rows nobody signed: written by a build from before

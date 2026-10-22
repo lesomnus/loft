@@ -478,6 +478,8 @@ func (s domainParty) Pseudonymize(ctx context.Context, req *app.PartyPseudonymiz
 		}
 		out = v
 
+		// What a hold kept of the trail in the database; what it keeps in
+		// the archive is learnt after the commit, and stays owed.
 		payload := map[string]string{}
 		if held > 0 {
 			payload["held"] = fmt.Sprint(held)
@@ -487,10 +489,16 @@ func (s domainParty) Pseudonymize(ctx context.Context, req *app.PartyPseudonymiz
 	return out, err
 }
 
-// forget blanks what the trail kept of these objects; see [Deps.Forget].
+// forget blanks what the trail kept of these objects; see [Deps.Forget]. The
+// archive's half it owes is paid once the transaction has committed
+// ([Deps.Pay]).
 func (t *Tx) forget(objects []pdid.Id) (int, error) {
 	if t.deps != nil && t.deps.Forget != nil {
-		return t.deps.Forget(t.ctx, t.db, objects)
+		held, err := t.deps.Forget(t.ctx, t.db, objects)
+		if err == nil && t.shared != nil {
+			t.shared.forgot = append(t.shared.forgot, objects...)
+		}
+		return held, err
 	}
 
 	ids := make([]uuid.UUID, 0, len(objects))

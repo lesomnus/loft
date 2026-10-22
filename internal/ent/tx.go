@@ -64,6 +64,8 @@ type Tx struct {
 	Notification *NotificationClient
 	// Outbox is the client for interacting with the Outbox builders.
 	Outbox *OutboxClient
+	// Owed is the client for interacting with the Owed builders.
+	Owed *OwedClient
 	// Party is the client for interacting with the Party builders.
 	Party *PartyClient
 	// Placement is the client for interacting with the Placement builders.
@@ -257,6 +259,7 @@ func (tx *Tx) init() {
 	tx.Link = NewLinkClient(tx.config)
 	tx.Notification = NewNotificationClient(tx.config)
 	tx.Outbox = NewOutboxClient(tx.config)
+	tx.Owed = NewOwedClient(tx.config)
 	tx.Party = NewPartyClient(tx.config)
 	tx.Placement = NewPlacementClient(tx.config)
 	tx.Purchase = NewPurchaseClient(tx.config)

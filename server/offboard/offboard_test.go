@@ -115,9 +115,10 @@ func (e *env) count(t pdid.Id) map[string]int {
 	out := map[string]int{}
 	drv := e.s.Ent.Driver()
 	for _, tb := range migrate.Tables {
-		if tb.Name == "archived" || slices.Contains(offboard.Shared, tb.Name) {
-			// The manifest of the trail's archive, a row per blob, and the
-			// deployment's own tables: no tenant's.
+		if tb.Name == "archived" || tb.Name == "owed" || slices.Contains(offboard.Shared, tb.Name) {
+			// The manifest of the trail's archive, a row per blob, the
+			// erasures the trail owes (payday#115), and the deployment's own
+			// tables: no tenant's.
 			continue
 		}
 
