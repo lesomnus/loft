@@ -18,6 +18,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/notification"
 	"github.com/lesomnus/rove/internal/ent/party"
 	"github.com/lesomnus/rove/internal/identity"
+	"github.com/lesomnus/rove/server/apphost"
 	"github.com/lesomnus/rove/server/mail"
 	"github.com/lesomnus/rove/server/pd"
 )
@@ -127,7 +128,11 @@ func (m Mailer) one(ctx context.Context, db *ent.Client, n *ent.Notification) er
 		return err
 	}
 
-	if err := m.Deps.Mail.Send(ctx, m.message(h, n, to)); err != nil {
+	at, err := m.Deps.Links.Of(ctx, db, pdid.Id(h.TenantId), apphost.Page)
+	if err != nil {
+		return err
+	}
+	if err := m.Deps.Mail.Send(ctx, m.message(h, n, at, to)); err != nil {
 		if n.MailTries+1 >= mailTries {
 			log.From(ctx).ErrorContext(ctx, "mail: a notification was given up on after every try",
 				"notification", pdid.Id(n.Id).String(), "tries", n.MailTries+1, slog.Any("err", err))
@@ -206,13 +211,13 @@ func (m Mailer) addressOf(ctx context.Context, db *ent.Client, h *ent.Holder) (s
 }
 
 // message is what a notification says, as a mail: its title, its words, and
-// the link that opens what it is about.
-func (m Mailer) message(h *ent.Holder, n *ent.Notification, to string) mail.Message {
+// the link that opens what it is about, on `at`: where its workspace is.
+func (m Mailer) message(h *ent.Holder, n *ent.Notification, at, to string) mail.Message {
 	workspace, alias := "", ""
 	if t := h.Edges.Tenant; t != nil {
 		workspace, alias = t.Name, t.Alias
 	}
-	link := strings.TrimSuffix(m.Deps.AppUrl, "/")
+	link := at
 	if alias != "" {
 		link += "/@" + alias
 	}

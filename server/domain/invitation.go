@@ -30,6 +30,7 @@ import (
 	entparty "github.com/lesomnus/rove/internal/ent/party"
 	"github.com/lesomnus/rove/internal/ent/predicate"
 	enttenant "github.com/lesomnus/rove/internal/ent/tenant"
+	"github.com/lesomnus/rove/server/apphost"
 	"github.com/lesomnus/rove/server/mail"
 	"github.com/lesomnus/rove/server/pd"
 	"github.com/lesomnus/rove/server/policy"
@@ -756,7 +757,10 @@ func (d *Deps) mailInvitation(ctx context.Context, v *app.Invitation, code, invi
 	if d.Mail == nil {
 		return nil
 	}
-	link := strings.TrimSuffix(d.AppUrl, "/") + "/invitations?code=" + code
+	// At the service's address, whatever domain the workspace has: the
+	// account answers it in its inbox, as itself, and is nobody's member in
+	// the workspace yet.
+	link := d.Links.Home(apphost.Page) + "/invitations?code=" + code
 	role := roleWords[v.GetRole()]
 	until := v.GetDateExpires().AsTime().In(zone).Format("2006년 1월 2일")
 	body := fmt.Sprintf(`%s님이 Rove의 %s 워크스페이스에 %s%s 초대했습니다.

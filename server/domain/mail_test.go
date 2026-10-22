@@ -61,7 +61,7 @@ func (e *env) mailing() *mailbox {
 	e.t.Helper()
 	box := &mailbox{}
 	e.s.Deps.Mail = box
-	e.s.Deps.AppUrl = "https://rove.example"
+	e.s.Deps.Links.App = "https://rove.example"
 	h, err := e.s.Ent.Holder.Query().Where(holder.Alias("owner"), holder.TenantId(e.tenant.Uuid())).Only(context.Background())
 	e.x.NoError(err)
 	e.x.NoError(e.s.Identity.AddAddress(context.Background(), pdid.Id(*h.Account), "owner@acme.example", true))

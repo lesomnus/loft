@@ -97,11 +97,12 @@ func (d Dir) Delete(_ context.Context, key string) error {
 	return nil
 }
 
-// Signer makes and checks download addresses.
+// Signer makes and checks download addresses. Where one begins is the
+// caller's to say (`apphost.Links`): the file's workspace's domain, or the
+// service's address.
 type Signer struct {
-	Key  []byte
-	Base string // where the HTTP listener answers, such as http://localhost:8080
-	TTL  time.Duration
+	Key []byte
+	TTL time.Duration
 }
 
 func (s Signer) mac(key string, exp int64, name string) string {
@@ -110,16 +111,16 @@ func (s Signer) mac(key string, exp int64, name string) string {
 	return base64.RawURLEncoding.EncodeToString(m.Sum(nil))
 }
 
-// URL answers an address that serves `key` until it expires, under a file
-// name for the browser to save it as.
-func (s Signer) URL(key, name string, now time.Time) (string, time.Time) {
+// URL answers an address on `base` that serves `key` until it expires, under
+// a file name for the browser to save it as.
+func (s Signer) URL(base, key, name string, now time.Time) (string, time.Time) {
 	ttl := s.TTL
 	if ttl <= 0 {
 		ttl = 10 * time.Minute
 	}
 	exp := now.Add(ttl)
 	v := fmt.Sprintf("%s/files/%s?e=%d&n=%s&s=%s",
-		strings.TrimSuffix(s.Base, "/"),
+		strings.TrimSuffix(base, "/"),
 		key,
 		exp.Unix(),
 		urlEscape(name),
