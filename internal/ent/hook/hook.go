@@ -525,18 +525,6 @@ func (f TreeLockFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, er
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TreeLockMutation", m)
 }
 
-// The UsageSnapshotFunc type is an adapter to allow the use of ordinary
-// function as UsageSnapshot mutator.
-type UsageSnapshotFunc func(context.Context, *ent.UsageSnapshotMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f UsageSnapshotFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.UsageSnapshotMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UsageSnapshotMutation", m)
-}
-
 // The WorkOrderFunc type is an adapter to allow the use of ordinary
 // function as WorkOrder mutator.
 type WorkOrderFunc func(context.Context, *ent.WorkOrderMutation) (ent.Value, error)

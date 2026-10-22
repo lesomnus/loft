@@ -347,171 +347,6 @@ func (b0 Notification_builder) Build() *Notification {
 	return m0
 }
 
-// UsageSnapshot is one tenant's usage on one day (design 7.1).
-type UsageSnapshot struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Tenant      *Tenant                `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Day         string                 `protobuf:"bytes,8,opt,name=day"`
-	xxx_hidden_Metrics     map[string]string      `protobuf:"bytes,9,rep,name=metrics" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	xxx_hidden_DateUpdated *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
-	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
-}
-
-func (x *UsageSnapshot) Reset() {
-	*x = UsageSnapshot{}
-	mi := &file_rove_ops_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UsageSnapshot) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UsageSnapshot) ProtoMessage() {}
-
-func (x *UsageSnapshot) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *UsageSnapshot) GetId() []byte {
-	if x != nil {
-		return x.xxx_hidden_Id
-	}
-	return nil
-}
-
-func (x *UsageSnapshot) GetTenant() *Tenant {
-	if x != nil {
-		return x.xxx_hidden_Tenant
-	}
-	return nil
-}
-
-func (x *UsageSnapshot) GetDay() string {
-	if x != nil {
-		return x.xxx_hidden_Day
-	}
-	return ""
-}
-
-func (x *UsageSnapshot) GetMetrics() map[string]string {
-	if x != nil {
-		return x.xxx_hidden_Metrics
-	}
-	return nil
-}
-
-func (x *UsageSnapshot) GetDateUpdated() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DateUpdated
-	}
-	return nil
-}
-
-func (x *UsageSnapshot) GetDateCreated() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DateCreated
-	}
-	return nil
-}
-
-func (x *UsageSnapshot) SetId(v []byte) {
-	if v == nil {
-		v = []byte{}
-	}
-	x.xxx_hidden_Id = v
-}
-
-func (x *UsageSnapshot) SetTenant(v *Tenant) {
-	x.xxx_hidden_Tenant = v
-}
-
-func (x *UsageSnapshot) SetDay(v string) {
-	x.xxx_hidden_Day = v
-}
-
-func (x *UsageSnapshot) SetMetrics(v map[string]string) {
-	x.xxx_hidden_Metrics = v
-}
-
-func (x *UsageSnapshot) SetDateUpdated(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DateUpdated = v
-}
-
-func (x *UsageSnapshot) SetDateCreated(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DateCreated = v
-}
-
-func (x *UsageSnapshot) HasTenant() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Tenant != nil
-}
-
-func (x *UsageSnapshot) HasDateUpdated() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DateUpdated != nil
-}
-
-func (x *UsageSnapshot) HasDateCreated() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DateCreated != nil
-}
-
-func (x *UsageSnapshot) ClearTenant() {
-	x.xxx_hidden_Tenant = nil
-}
-
-func (x *UsageSnapshot) ClearDateUpdated() {
-	x.xxx_hidden_DateUpdated = nil
-}
-
-func (x *UsageSnapshot) ClearDateCreated() {
-	x.xxx_hidden_DateCreated = nil
-}
-
-type UsageSnapshot_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Id     []byte
-	Tenant *Tenant
-	// YYYY-MM-DD, UTC.
-	Day         string
-	Metrics     map[string]string
-	DateUpdated *timestamppb.Timestamp
-	DateCreated *timestamppb.Timestamp
-}
-
-func (b0 UsageSnapshot_builder) Build() *UsageSnapshot {
-	m0 := &UsageSnapshot{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Id = b.Id
-	x.xxx_hidden_Tenant = b.Tenant
-	x.xxx_hidden_Day = b.Day
-	x.xxx_hidden_Metrics = b.Metrics
-	x.xxx_hidden_DateUpdated = b.DateUpdated
-	x.xxx_hidden_DateCreated = b.DateCreated
-	return m0
-}
-
 // TenantContract is what a tenant's contract says about its history: how far
 // back it may look, how long its history and its access record are kept, and
 // how long it may be restored once closed (design 8, #144).
@@ -545,7 +380,7 @@ type TenantContract struct {
 
 func (x *TenantContract) Reset() {
 	*x = TenantContract{}
-	mi := &file_rove_ops_proto_msgTypes[2]
+	mi := &file_rove_ops_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -557,7 +392,7 @@ func (x *TenantContract) String() string {
 func (*TenantContract) ProtoMessage() {}
 
 func (x *TenantContract) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_proto_msgTypes[2]
+	mi := &file_rove_ops_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -847,7 +682,7 @@ type LegalHold struct {
 
 func (x *LegalHold) Reset() {
 	*x = LegalHold{}
-	mi := &file_rove_ops_proto_msgTypes[3]
+	mi := &file_rove_ops_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -859,7 +694,7 @@ func (x *LegalHold) String() string {
 func (*LegalHold) ProtoMessage() {}
 
 func (x *LegalHold) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_proto_msgTypes[3]
+	mi := &file_rove_ops_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1025,7 +860,7 @@ type AccessReview struct {
 
 func (x *AccessReview) Reset() {
 	*x = AccessReview{}
-	mi := &file_rove_ops_proto_msgTypes[4]
+	mi := &file_rove_ops_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1037,7 +872,7 @@ func (x *AccessReview) String() string {
 func (*AccessReview) ProtoMessage() {}
 
 func (x *AccessReview) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_ops_proto_msgTypes[4]
+	mi := &file_rove_ops_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1295,33 +1130,7 @@ const file_rove_ops_proto_rawDesc = "" +
 	"\x06holder\x1a\x06\n" +
 	"\x04kind 2(\xc8\x01B\x02\n" +
 	"\x00\"\x17\n" +
-	"\x06tenant\"\rholder.tenant\"\x8a\x04\n" +
-	"\rUsageSnapshot\x12\x1b\n" +
-	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x10\n" +
-	"\x03day\x18\b \x01(\tR\x03day\x12:\n" +
-	"\ametrics\x18\t \x03(\v2 .rove.UsageSnapshot.MetricsEntryR\ametrics\x12F\n" +
-	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12H\n" +
-	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x1a:\n" +
-	"\fMetricsEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\x91\x01\xca\xfc\x15P\x12\x02\x10\x01\x1a,\x12\x04page\x1a\n" +
-	"\n" +
-	"\x06tenant\x10\x02\x1a\x10\n" +
-	"\fdate_created\x10\x0f\x1a\x06\n" +
-	"\x02id\x10\x01\x1a\x1c\x12\x03day\x1a\n" +
-	"\n" +
-	"\x06tenant\x10\x02\x1a\a\n" +
-	"\x03day\x10\b0\x01\x8a\xbb\x169\b\x1421\n" +
-	"\x12\n" +
-	"\x0e\n" +
-	"\fdate_created\x10\x01\n" +
-	"\b\n" +
-	"\x04\n" +
-	"\x02id\x10\x01\x1a\x05\n" +
-	"\x03ref\x1a\x05\n" +
-	"\x03day \x1f(\x90\x03B\x02\n" +
-	"\x00\"\xb5\x05\n" +
+	"\x06tenant\"\rholder.tenant\"\xb5\x05\n" +
 	"\x0eTenantContract\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x12\n" +
@@ -1395,46 +1204,40 @@ const file_rove_ops_proto_rawDesc = "" +
 	"\x02id\x10\x01 \x14(dB\x02\n" +
 	"\x00B\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
-var file_rove_ops_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_rove_ops_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_rove_ops_proto_goTypes = []any{
 	(*Notification)(nil),          // 0: rove.Notification
-	(*UsageSnapshot)(nil),         // 1: rove.UsageSnapshot
-	(*TenantContract)(nil),        // 2: rove.TenantContract
-	(*LegalHold)(nil),             // 3: rove.LegalHold
-	(*AccessReview)(nil),          // 4: rove.AccessReview
-	nil,                           // 5: rove.UsageSnapshot.MetricsEntry
-	(*Tenant)(nil),                // 6: rove.Tenant
-	(*Holder)(nil),                // 7: rove.Holder
-	(*timestamppb.Timestamp)(nil), // 8: google.protobuf.Timestamp
+	(*TenantContract)(nil),        // 1: rove.TenantContract
+	(*LegalHold)(nil),             // 2: rove.LegalHold
+	(*AccessReview)(nil),          // 3: rove.AccessReview
+	(*Tenant)(nil),                // 4: rove.Tenant
+	(*Holder)(nil),                // 5: rove.Holder
+	(*timestamppb.Timestamp)(nil), // 6: google.protobuf.Timestamp
 }
 var file_rove_ops_proto_depIdxs = []int32{
-	6,  // 0: rove.Notification.tenant:type_name -> rove.Tenant
-	7,  // 1: rove.Notification.holder:type_name -> rove.Holder
-	8,  // 2: rove.Notification.read_at:type_name -> google.protobuf.Timestamp
-	8,  // 3: rove.Notification.date_mailed:type_name -> google.protobuf.Timestamp
-	8,  // 4: rove.Notification.date_updated:type_name -> google.protobuf.Timestamp
-	8,  // 5: rove.Notification.date_created:type_name -> google.protobuf.Timestamp
-	6,  // 6: rove.UsageSnapshot.tenant:type_name -> rove.Tenant
-	5,  // 7: rove.UsageSnapshot.metrics:type_name -> rove.UsageSnapshot.MetricsEntry
-	8,  // 8: rove.UsageSnapshot.date_updated:type_name -> google.protobuf.Timestamp
-	8,  // 9: rove.UsageSnapshot.date_created:type_name -> google.protobuf.Timestamp
-	6,  // 10: rove.TenantContract.tenant:type_name -> rove.Tenant
-	8,  // 11: rove.TenantContract.date_effective:type_name -> google.protobuf.Timestamp
-	8,  // 12: rove.TenantContract.date_erased:type_name -> google.protobuf.Timestamp
-	8,  // 13: rove.TenantContract.date_created:type_name -> google.protobuf.Timestamp
-	6,  // 14: rove.LegalHold.tenant:type_name -> rove.Tenant
-	8,  // 15: rove.LegalHold.date_lifted:type_name -> google.protobuf.Timestamp
-	8,  // 16: rove.LegalHold.date_created:type_name -> google.protobuf.Timestamp
-	6,  // 17: rove.AccessReview.tenant:type_name -> rove.Tenant
-	8,  // 18: rove.AccessReview.period_from:type_name -> google.protobuf.Timestamp
-	8,  // 19: rove.AccessReview.period_to:type_name -> google.protobuf.Timestamp
-	7,  // 20: rove.AccessReview.reviewer:type_name -> rove.Holder
-	8,  // 21: rove.AccessReview.date_created:type_name -> google.protobuf.Timestamp
-	22, // [22:22] is the sub-list for method output_type
-	22, // [22:22] is the sub-list for method input_type
-	22, // [22:22] is the sub-list for extension type_name
-	22, // [22:22] is the sub-list for extension extendee
-	0,  // [0:22] is the sub-list for field type_name
+	4,  // 0: rove.Notification.tenant:type_name -> rove.Tenant
+	5,  // 1: rove.Notification.holder:type_name -> rove.Holder
+	6,  // 2: rove.Notification.read_at:type_name -> google.protobuf.Timestamp
+	6,  // 3: rove.Notification.date_mailed:type_name -> google.protobuf.Timestamp
+	6,  // 4: rove.Notification.date_updated:type_name -> google.protobuf.Timestamp
+	6,  // 5: rove.Notification.date_created:type_name -> google.protobuf.Timestamp
+	4,  // 6: rove.TenantContract.tenant:type_name -> rove.Tenant
+	6,  // 7: rove.TenantContract.date_effective:type_name -> google.protobuf.Timestamp
+	6,  // 8: rove.TenantContract.date_erased:type_name -> google.protobuf.Timestamp
+	6,  // 9: rove.TenantContract.date_created:type_name -> google.protobuf.Timestamp
+	4,  // 10: rove.LegalHold.tenant:type_name -> rove.Tenant
+	6,  // 11: rove.LegalHold.date_lifted:type_name -> google.protobuf.Timestamp
+	6,  // 12: rove.LegalHold.date_created:type_name -> google.protobuf.Timestamp
+	4,  // 13: rove.AccessReview.tenant:type_name -> rove.Tenant
+	6,  // 14: rove.AccessReview.period_from:type_name -> google.protobuf.Timestamp
+	6,  // 15: rove.AccessReview.period_to:type_name -> google.protobuf.Timestamp
+	5,  // 16: rove.AccessReview.reviewer:type_name -> rove.Holder
+	6,  // 17: rove.AccessReview.date_created:type_name -> google.protobuf.Timestamp
+	18, // [18:18] is the sub-list for method output_type
+	18, // [18:18] is the sub-list for method input_type
+	18, // [18:18] is the sub-list for extension type_name
+	18, // [18:18] is the sub-list for extension extendee
+	0,  // [0:18] is the sub-list for field type_name
 }
 
 func init() { file_rove_ops_proto_init() }
@@ -1450,7 +1253,7 @@ func file_rove_ops_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_ops_proto_rawDesc), len(file_rove_ops_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

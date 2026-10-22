@@ -77,6 +77,10 @@ type Restored struct {
 
 	Rows map[string]int
 
+	// Left is the rows of the export's that were not put back, by a table this
+	// build no longer has ([Dropped]): an export from before the table went.
+	Left map[string]int
+
 	// Files is the stored files put back, and Missing the ones its rows name
 	// that the export did not have -- missing from the store it came from
 	// when it was made, as its manifest says.
@@ -195,11 +199,19 @@ func (d Deployment) Import(ctx context.Context, r io.ReaderAt, size int64, o Imp
 		plans = append(plans, p)
 	}
 	// Rows of a table this build does not have are rows it cannot put back,
-	// and a restore that left them out would say it was all of it.
+	// and a restore that left them out would say it was all of it -- but for
+	// a table this build dropped, whose rows it leaves behind and says so.
 	for name, n := range m.Rows {
-		if n > 0 && !slices.ContainsFunc(plans, func(p *plan) bool { return p.table == name }) {
+		if n == 0 || slices.ContainsFunc(plans, func(p *plan) bool { return p.table == name }) {
+			continue
+		}
+		if _, ok := Dropped[name]; !ok {
 			return out, fmt.Errorf("%w: it has %d rows of %s, which this build does not have", ErrFormat, n, name)
 		}
+		if out.Left == nil {
+			out.Left = map[string]int{}
+		}
+		out.Left[name] = n
 	}
 
 	// Taken back by the trail first, if it retired from here: outside the
@@ -282,6 +294,13 @@ func (d Deployment) Import(ctx context.Context, r io.ReaderAt, size int64, o Imp
 	}
 	if out.Reopened {
 		payload["reopened"] = "true"
+	}
+	if len(out.Left) > 0 {
+		left := []string{}
+		for _, k := range slices.Sorted(maps.Keys(out.Left)) {
+			left = append(left, fmt.Sprintf("%s:%d", k, out.Left[k]))
+		}
+		payload["left"] = strings.Join(left, ",")
 	}
 	event := pdid.New(pd.EventDomain)
 	if err := db.Event.Create().

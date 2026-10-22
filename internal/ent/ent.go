@@ -52,7 +52,6 @@ import (
 	"github.com/lesomnus/rove/internal/ent/tenantcontract"
 	"github.com/lesomnus/rove/internal/ent/tenantdomain"
 	"github.com/lesomnus/rove/internal/ent/treelock"
-	"github.com/lesomnus/rove/internal/ent/usagesnapshot"
 	"github.com/lesomnus/rove/internal/ent/workorder"
 	"github.com/protobuf-orm/ent"
 	"github.com/protobuf-orm/ent/dialect/sql"
@@ -160,7 +159,6 @@ func checkColumn(t, c string) error {
 			tenantcontract.Table:  tenantcontract.ValidColumn,
 			tenantdomain.Table:    tenantdomain.ValidColumn,
 			treelock.Table:        treelock.ValidColumn,
-			usagesnapshot.Table:   usagesnapshot.ValidColumn,
 			workorder.Table:       workorder.ValidColumn,
 		})
 	})

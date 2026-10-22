@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/pdtest"
 	"github.com/lesomnus/payday/rename"
 	entschema "github.com/protobuf-orm/ent/dialect/sql/schema"
@@ -15,6 +16,8 @@ import (
 	"github.com/lesomnus/rove/cli"
 	"github.com/lesomnus/rove/cmd"
 	entmigrate "github.com/lesomnus/rove/internal/ent/migrate"
+	"github.com/lesomnus/rove/internal/ent/tenant"
+	"github.com/lesomnus/rove/server/offboard"
 	"github.com/lesomnus/rove/server/pd"
 )
 
@@ -142,4 +145,56 @@ func TestAnIndexAnEarlierBuildMadeIsMovedToItsName(t *testing.T) {
 	x.NoError(cli.Migrate(ctx, s))
 	x.False(has(page.From), "the old name stayed beside the new one")
 	x.True(has(page.To))
+}
+
+// TestATableAnEarlierBuildHadIsDropped: a table this build no longer has
+// (offboard.Dropped) goes when the database is migrated, rows and all. A
+// migration only adds, and a row of it left pointing at its workspace would
+// keep the workspace from being destroyed.
+func TestATableAnEarlierBuildHadIsDropped(t *testing.T) {
+	x := require.New(t)
+	ctx := t.Context()
+
+	c := cmd.Config{}
+	c.Db.Driver, c.Db.Dsn = pdtest.DB(t)
+	c.Watch.Broker = "memory"
+	c.App.Files = t.TempDir()
+	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
+	run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234")
+
+	s, err := cmd.Build(ctx, c)
+	x.NoError(err)
+	defer s.Close()
+	has := func(name string) bool {
+		q := "SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name = ?"
+		if s.Dialect == "postgres" {
+			q = "SELECT count(*) FROM information_schema.tables WHERE table_schema = current_schema() AND table_name = $1"
+		}
+		n := 0
+		x.NoError(s.Db.QueryRowContext(ctx, q, name).Scan(&n))
+		return n > 0
+	}
+
+	// The usage the build before wrote once a day, where it left it: a row
+	// of the workspace's, pointing at it.
+	x.Contains(offboard.Dropped, "usagesnapshot")
+	for _, q := range []string{
+		"CREATE TABLE usagesnapshot (id uuid PRIMARY KEY, day varchar NOT NULL, tenant_id uuid NOT NULL REFERENCES tenant (id))",
+		"INSERT INTO usagesnapshot (id, day, tenant_id) SELECT id, '2026-10-01', id FROM tenant WHERE alias = 'acme'",
+	} {
+		_, err := s.Db.ExecContext(ctx, q)
+		x.NoError(err, q)
+	}
+	x.True(has("usagesnapshot"))
+
+	x.NoError(cli.Migrate(ctx, s))
+	x.False(has("usagesnapshot"), "a table this build does not have stayed")
+	x.NoError(cli.Migrate(ctx, s), "a second time")
+
+	// And the workspace can be destroyed.
+	tid, err := s.Ent.Tenant.Query().Where(tenant.Alias("acme")).OnlyId(ctx)
+	x.NoError(err)
+	_, err = s.Offboard(c).Purge(ctx, pdid.Id(tid), false)
+	x.NoError(err)
+	x.False(s.Ent.Tenant.Query().Where(tenant.Id(tid)).ExistX(ctx))
 }

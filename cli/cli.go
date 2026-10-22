@@ -25,6 +25,7 @@ import (
 	"context"
 	_ "embed"
 	"fmt"
+	"maps"
 	"slices"
 
 	"github.com/lesomnus/xli"
@@ -38,6 +39,7 @@ import (
 
 	"github.com/lesomnus/rove/cmd"
 	entmigrate "github.com/lesomnus/rove/internal/ent/migrate"
+	"github.com/lesomnus/rove/server/offboard"
 	"github.com/lesomnus/rove/server/pd"
 )
 
@@ -180,6 +182,9 @@ func Migrate(ctx context.Context, s *cmd.Server) error {
 	if err := dropOldSessions(ctx, s); err != nil {
 		return err
 	}
+	if err := dropGone(ctx, s); err != nil {
+		return err
+	}
 	if err := rename.Indexes(ctx, s.Db, s.Dialect, pd.IndexRenames); err != nil {
 		return err
 	}
@@ -213,6 +218,19 @@ func dropOldSessions(ctx context.Context, s *cmd.Server) error {
 	}
 	if _, err := s.Db.ExecContext(ctx, "DROP TABLE session"); err != nil {
 		return fmt.Errorf("sessions from before accounts: %w", err)
+	}
+	return nil
+}
+
+// dropGone takes out the tables an earlier build had and this one does not
+// ([offboard.Dropped]), rows and all. A migration only adds, so the table
+// would stay -- and its rows each point at their tenant, which a workspace's
+// destruction could then not delete.
+func dropGone(ctx context.Context, s *cmd.Server) error {
+	for _, name := range slices.Sorted(maps.Keys(offboard.Dropped)) {
+		if _, err := s.Db.ExecContext(ctx, "DROP TABLE IF EXISTS "+name); err != nil {
+			return fmt.Errorf("%s, which this build does not have: %w", name, err)
+		}
 	}
 	return nil
 }

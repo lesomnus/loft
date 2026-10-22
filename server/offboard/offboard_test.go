@@ -159,6 +159,8 @@ func TestEveryTableIsDecidedAbout(t *testing.T) {
 		_, out := offboard.Exported[tb.Name]
 		_, held := offboard.Withheld[tb.Name]
 		x.True(out != held, "%s is exported, withheld, or both", tb.Name)
+		_, gone := offboard.Dropped[tb.Name]
+		x.False(gone, "%s is a table of this build's, and one it dropped", tb.Name)
 
 		if tb.Name == "tenant" || slices.Contains(offboard.Trail, tb.Name) || slices.Contains(offboard.Shared, tb.Name) {
 			x.NotContains(order, tb.Name)
