@@ -117,9 +117,8 @@ export type Tenant = Message<"rove.Tenant"> & {
    * why each says a default.
    *
    * Timezone is where a date said without a zone is: a file's dates, the time
-   * in a notification, the day usage is counted by, the date a sheet's cell
-   * means -- an IANA name, such as Asia/Seoul. Stored times are UTC whatever
-   * it says.
+   * in a notification, the date a sheet's cell means -- an IANA name, such as
+   * Asia/Seoul. Stored times are UTC whatever it says.
    *
    * @generated from field: string timezone = 12;
    */

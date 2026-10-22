@@ -400,7 +400,7 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	s.Spin = append(s.Spin, spin.Called("rove.access", s.Access))
 
 	// What happens because time passed: holds that ran out, rooms nobody came
-	// to, loans that are late, the day's usage.
+	// to, loans that are late.
 	s.Spin = append(s.Spin,
 		domain.Sweeper{Server: base, Drv: drv, Deps: deps, Every: c.App.Sweep},
 		// What the notifications worth a mailbox say, sent after the

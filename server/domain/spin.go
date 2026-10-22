@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"strconv"
 	"time"
 	"uuid"
 
@@ -18,20 +17,12 @@ import (
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/internal/ent/asset"
-	"github.com/lesomnus/rove/internal/ent/attachment"
 	"github.com/lesomnus/rove/internal/ent/custody"
-	"github.com/lesomnus/rove/internal/ent/event"
-	"github.com/lesomnus/rove/internal/ent/fact"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/ent/link"
 	"github.com/lesomnus/rove/internal/ent/notification"
 	"github.com/lesomnus/rove/internal/ent/party"
-	"github.com/lesomnus/rove/internal/ent/placement"
 	"github.com/lesomnus/rove/internal/ent/reservation"
 	"github.com/lesomnus/rove/internal/ent/reservationitem"
-	"github.com/lesomnus/rove/internal/ent/stewardship"
 	"github.com/lesomnus/rove/internal/ent/tenantdomain"
-	"github.com/lesomnus/rove/internal/ent/usagesnapshot"
 	"github.com/lesomnus/rove/internal/ent/workorder"
 )
 
@@ -77,7 +68,6 @@ var sweeps = []sweep{
 	{"loans", sweepLoans},
 	{"work", sweepWork},
 	{"domains", sweepDomains},
-	{"usage", sweepUsage},
 }
 
 // Pass runs every sweep in every tenant once. One that fails is logged and the
@@ -445,80 +435,4 @@ func sweepDomains(t *Tx) error {
 		}
 	}
 	return nil
-}
-
-// sweepUsage writes the day's usage once a day (design 7, phase 0): what the
-// tenant holds, for knowing what a plan would have to cover. Nothing reads it
-// to limit anybody.
-func sweepUsage(t *Tx) error {
-	day := t.now.In(t.zone()).Format(time.DateOnly)
-	done, err := t.db.UsageSnapshot.Query().Where(usagesnapshot.TenantId(t.tenant.Uuid()), usagesnapshot.Day(day)).Exist(t.ctx)
-	if err != nil || done {
-		return err
-	}
-
-	tn := t.tenant.Uuid()
-	m := map[string]string{}
-	count := func(key string, n int, err error) error {
-		if err != nil {
-			return err
-		}
-		m[key] = strconv.Itoa(n)
-		return nil
-	}
-	for _, k := range Kinds {
-		n, err := t.db.Asset.Query().Where(asset.TenantId(tn), asset.Kind(k), asset.DateErasedIsNil()).Count(t.ctx)
-		if err := count("assets."+k, n, err); err != nil {
-			return err
-		}
-	}
-	for _, k := range PartyKinds {
-		n, err := t.db.Party.Query().Where(party.TenantId(tn), party.Kind(k), party.DateErasedIsNil()).Count(t.ctx)
-		if err := count("parties."+k, n, err); err != nil {
-			return err
-		}
-	}
-	steps := []struct {
-		key string
-		n   func() (int, error)
-	}{
-		{"holders", func() (int, error) {
-			return t.db.Holder.Query().Where(holder.TenantId(tn), holder.DateErasedIsNil()).Count(t.ctx)
-		}},
-		{"events", func() (int, error) { return t.db.Event.Query().Where(event.TenantId(tn)).Count(t.ctx) }},
-		{"history.placements", func() (int, error) { return t.db.Placement.Query().Where(placement.TenantId(tn)).Count(t.ctx) }},
-		{"history.facts", func() (int, error) { return t.db.Fact.Query().Where(fact.TenantId(tn)).Count(t.ctx) }},
-		{"history.links", func() (int, error) { return t.db.Link.Query().Where(link.TenantId(tn)).Count(t.ctx) }},
-		{"history.stewardships", func() (int, error) {
-			return t.db.Stewardship.Query().Where(stewardship.TenantId(tn)).Count(t.ctx)
-		}},
-		{"reservations", func() (int, error) { return t.db.Reservation.Query().Where(reservation.TenantId(tn)).Count(t.ctx) }},
-		{"custodies", func() (int, error) { return t.db.Custody.Query().Where(custody.TenantId(tn)).Count(t.ctx) }},
-		{"attachments", func() (int, error) {
-			return t.db.Attachment.Query().Where(attachment.TenantId(tn), attachment.DateErasedIsNil()).Count(t.ctx)
-		}},
-	}
-	for _, s := range steps {
-		n, err := s.n()
-		if err := count(s.key, n, err); err != nil {
-			return err
-		}
-	}
-	var bytes []struct {
-		Sum int64 `json:"sum"`
-	}
-	if err := t.db.Attachment.Query().Where(attachment.TenantId(tn), attachment.DateErasedIsNil()).
-		Aggregate(ent.Sum(attachment.FieldSizeBytes)).Scan(t.ctx, &bytes); err != nil {
-		return err
-	}
-	if len(bytes) > 0 {
-		m["attachments.bytes"] = strconv.FormatInt(bytes[0].Sum, 10)
-	}
-
-	_, err = t.next.UsageSnapshot().Add(t.ctx, app.UsageSnapshotAddRequest_builder{
-		Tenant:  t.tenantRef(),
-		Day:     day,
-		Metrics: m,
-	}.Build())
-	return err
 }

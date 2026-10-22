@@ -1918,41 +1918,6 @@ var (
 			},
 		},
 	}
-	// UsagesnapshotColumns holds the columns for the "usagesnapshot" table.
-	UsagesnapshotColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeUuid, Unique: true},
-		{Name: "day", Type: field.TypeString},
-		{Name: "metrics", Type: field.TypeJson, Nullable: true},
-		{Name: "date_updated", Type: field.TypeTime},
-		{Name: "date_created", Type: field.TypeTime, Nullable: true},
-		{Name: "tenant_id", Type: field.TypeUuid},
-	}
-	// UsagesnapshotTable holds the schema information for the "usagesnapshot" table.
-	UsagesnapshotTable = &schema.Table{
-		Name:       "usagesnapshot",
-		Columns:    UsagesnapshotColumns,
-		PrimaryKey: []*schema.Column{UsagesnapshotColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "usagesnapshot_tenant_tenant",
-				Columns:    []*schema.Column{UsagesnapshotColumns[5]},
-				RefColumns: []*schema.Column{TenantColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-		},
-		Indexes: []*schema.Index{
-			{
-				Name:    "usagesnapshot_page",
-				Unique:  false,
-				Columns: []*schema.Column{UsagesnapshotColumns[5], UsagesnapshotColumns[4], UsagesnapshotColumns[0]},
-			},
-			{
-				Name:    "usagesnapshot_day",
-				Unique:  true,
-				Columns: []*schema.Column{UsagesnapshotColumns[5], UsagesnapshotColumns[1]},
-			},
-		},
-	}
 	// WorkorderColumns holds the columns for the "workorder" table.
 	WorkorderColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUuid, Unique: true},
@@ -2057,7 +2022,6 @@ var (
 		TenantcontractTable,
 		TenantdomainTable,
 		TreelockTable,
-		UsagesnapshotTable,
 		WorkorderTable,
 	}
 )
@@ -2258,10 +2222,6 @@ func init() {
 	TreelockTable.ForeignKeys[0].RefTable = TenantTable
 	TreelockTable.Annotation = &entsql.Annotation{
 		Table: "treelock",
-	}
-	UsagesnapshotTable.ForeignKeys[0].RefTable = TenantTable
-	UsagesnapshotTable.Annotation = &entsql.Annotation{
-		Table: "usagesnapshot",
 	}
 	WorkorderTable.ForeignKeys[0].RefTable = TenantTable
 	WorkorderTable.ForeignKeys[1].RefTable = AssetTable

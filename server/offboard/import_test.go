@@ -4,9 +4,13 @@ import (
 	"archive/zip"
 	"bytes"
 	"context"
+	"crypto"
+	"crypto/rand"
 	"crypto/sha256"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/hex"
+	"encoding/json"
 	"io"
 	"math"
 	"slices"
@@ -172,6 +176,92 @@ func cmpTenant(a, b *app.Tenant) []string {
 		out = append(out, "date_created")
 	}
 	return out
+}
+
+// resigned is an export as a deployment would have written it with `edit`
+// done -- its files edited, the files `edit` answers put in, every digest
+// said again and the manifest signed again by `k`, an Ed25519 key -- which is
+// how an export of an earlier build is made by this one.
+func resigned(t *testing.T, b []byte, k crypto.Signer, edit func(m *offboard.Manifest, fs map[string][]byte) []string) []byte {
+	t.Helper()
+	return rezip(t, b, func(fs map[string][]byte, order []string) []string {
+		var m offboard.Manifest
+		require.NoError(t, json.Unmarshal(fs["manifest.json"], &m))
+		order = append(order, edit(&m, fs)...)
+
+		m.Digests = map[string]string{}
+		for _, name := range order {
+			if name == "manifest.json" || name == "signature.json" {
+				continue
+			}
+			sum := sha256.Sum256(fs[name])
+			m.Digests[name] = hex.EncodeToString(sum[:])
+		}
+		mb, err := json.Marshal(m)
+		require.NoError(t, err)
+		der, err := x509.MarshalPKIXPublicKey(k.Public())
+		require.NoError(t, err)
+		sig, err := k.Sign(rand.Reader, append([]byte("rove export manifest\n"), mb...), crypto.Hash(0))
+		require.NoError(t, err)
+		sb, err := json.Marshal(offboard.Signature{Key: base64.StdEncoding.EncodeToString(der), Sig: base64.StdEncoding.EncodeToString(sig)})
+		require.NoError(t, err)
+		fs["manifest.json"], fs["signature.json"] = mb, sb
+		return order
+	})
+}
+
+// TestARestoreLeavesBehindWhatThisBuildDropped: an export from before a
+// table went (offboard.Dropped) is restored without its rows of it, and the
+// restore says how many it left behind, as its event does. One of a table
+// this build never had is refused as before: rows nothing can put back, of a
+// kind nobody decided to leave.
+func TestARestoreLeavesBehindWhatThisBuildDropped(t *testing.T) {
+	key, _, err := trail.GenerateKey()
+	require.NoError(t, err)
+	k, err := trail.ParseKey(key)
+	require.NoError(t, err)
+	e := newEnv(t, func(c *cmd.Config) { c.Audit.Checkpoints.Key = string(key) })
+	x := e.x
+	ctx := context.Background()
+	acme := e.tenant("acme")
+
+	before := e.rows(acme.id)
+	b := e.export(acme.id)
+	_, err = e.s.Offboard(e.c).Purge(ctx, acme.id, false)
+	x.NoError(err)
+
+	// The export with two rows of `table` in it, as a build that had the
+	// table wrote it.
+	with := func(table string) []byte {
+		return resigned(t, b, k, func(m *offboard.Manifest, fs map[string][]byte) []string {
+			name := "rows/" + table + ".jsonl"
+			fs[name] = []byte(`{"day":"2026-10-01","metrics":{"assets.item":"2"}}` + "\n" + `{"day":"2026-10-02","metrics":{"assets.item":"2"}}` + "\n")
+			m.Rows[table] = 2
+			return []string{name}
+		})
+	}
+
+	_, err = e.restore(with("gadget"), offboard.ImportOptions{})
+	x.ErrorIs(err, offboard.ErrFormat)
+	x.ErrorContains(err, "2 rows of gadget")
+	x.Empty(e.count(acme.id), "a restore that refused put something back")
+
+	x.Contains(offboard.Dropped, "usagesnapshot")
+	got, err := e.restore(with("usagesnapshot"), offboard.ImportOptions{})
+	x.NoError(err)
+	x.Equal(map[string]int{"usagesnapshot": 2}, got.Left)
+	x.NotContains(got.Rows, "usagesnapshot")
+	after := e.rows(acme.id)
+	for k := range before {
+		if k == "event" {
+			continue
+		}
+		x.Equal(before[k], after[k], "%s is not what was exported", k)
+	}
+
+	ev, err := e.s.Ent.Event.Query().Where(event.TenantId(acme.id.Uuid()), event.Kind("workspace.import")).Only(ctx)
+	x.NoError(err)
+	x.Contains(ev.Payload, "left=usagesnapshot:2")
 }
 
 // TestARestoreTakesOnlyWhatTheDeploymentWrote: an export with no signature,

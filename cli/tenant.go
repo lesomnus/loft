@@ -354,6 +354,9 @@ func newCmdTenantImport(c *cmd.Config) *xli.Command {
 					self.Printf("  it retired from here: the trail takes it back first, before anything of it is written\n")
 				}
 			}
+			for _, k := range slices.Sorted(maps.Keys(x.Left)) {
+				self.Printf("  %d rows of %s left behind: %s\n", x.Left[k], k, offboard.Dropped[k])
+			}
 			if len(x.Missing) > 0 {
 				self.Printf("  files the export did not have, as the store it came from did not: %s\n", strings.Join(x.Missing, ", "))
 			}

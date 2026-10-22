@@ -54,7 +54,6 @@ import (
 	"github.com/lesomnus/rove/internal/ent/tenantcontract"
 	"github.com/lesomnus/rove/internal/ent/tenantdomain"
 	"github.com/lesomnus/rove/internal/ent/treelock"
-	"github.com/lesomnus/rove/internal/ent/usagesnapshot"
 	"github.com/lesomnus/rove/internal/ent/workorder"
 	"github.com/protobuf-orm/ent"
 	"github.com/protobuf-orm/ent/dialect"
@@ -151,8 +150,6 @@ type Client struct {
 	TenantDomain *TenantDomainClient
 	// TreeLock is the client for interacting with the TreeLock builders.
 	TreeLock *TreeLockClient
-	// UsageSnapshot is the client for interacting with the UsageSnapshot builders.
-	UsageSnapshot *UsageSnapshotClient
 	// WorkOrder is the client for interacting with the WorkOrder builders.
 	WorkOrder *WorkOrderClient
 }
@@ -208,7 +205,6 @@ func (c *Client) init() {
 	c.TenantContract = NewTenantContractClient(c.config)
 	c.TenantDomain = NewTenantDomainClient(c.config)
 	c.TreeLock = NewTreeLockClient(c.config)
-	c.UsageSnapshot = NewUsageSnapshotClient(c.config)
 	c.WorkOrder = NewWorkOrderClient(c.config)
 }
 
@@ -345,7 +341,6 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		TenantContract:  NewTenantContractClient(cfg),
 		TenantDomain:    NewTenantDomainClient(cfg),
 		TreeLock:        NewTreeLockClient(cfg),
-		UsageSnapshot:   NewUsageSnapshotClient(cfg),
 		WorkOrder:       NewWorkOrderClient(cfg),
 	}, nil
 }
@@ -409,7 +404,6 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		TenantContract:  NewTenantContractClient(cfg),
 		TenantDomain:    NewTenantDomainClient(cfg),
 		TreeLock:        NewTreeLockClient(cfg),
-		UsageSnapshot:   NewUsageSnapshotClient(cfg),
 		WorkOrder:       NewWorkOrderClient(cfg),
 	}, nil
 }
@@ -493,7 +487,7 @@ func (c *Client) Use(hooks ...Hook) {
 		c.Notification, c.Outbox, c.Party, c.Placement, c.Purchase, c.PurchaseLine,
 		c.Reservation, c.ReservationItem, c.RowSeal, c.SearchStale, c.Session,
 		c.SignInFailure, c.Stewardship, c.Stock, c.StockMovement, c.Tenant,
-		c.TenantContract, c.TenantDomain, c.TreeLock, c.UsageSnapshot, c.WorkOrder,
+		c.TenantContract, c.TenantDomain, c.TreeLock, c.WorkOrder,
 	} {
 		n.Use(hooks...)
 	}
@@ -510,7 +504,7 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 		c.Notification, c.Outbox, c.Party, c.Placement, c.Purchase, c.PurchaseLine,
 		c.Reservation, c.ReservationItem, c.RowSeal, c.SearchStale, c.Session,
 		c.SignInFailure, c.Stewardship, c.Stock, c.StockMovement, c.Tenant,
-		c.TenantContract, c.TenantDomain, c.TreeLock, c.UsageSnapshot, c.WorkOrder,
+		c.TenantContract, c.TenantDomain, c.TreeLock, c.WorkOrder,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -605,8 +599,6 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.TenantDomain.mutate(ctx, m)
 	case *TreeLockMutation:
 		return c.TreeLock.mutate(ctx, m)
-	case *UsageSnapshotMutation:
-		return c.UsageSnapshot.mutate(ctx, m)
 	case *WorkOrderMutation:
 		return c.WorkOrder.mutate(ctx, m)
 	default:
@@ -7405,155 +7397,6 @@ func (c *TreeLockClient) mutate(ctx context.Context, m *TreeLockMutation) (Value
 	}
 }
 
-// UsageSnapshotClient is a client for the UsageSnapshot schema.
-type UsageSnapshotClient struct {
-	config
-}
-
-// NewUsageSnapshotClient returns a client for the UsageSnapshot from the given config.
-func NewUsageSnapshotClient(c config) *UsageSnapshotClient {
-	return &UsageSnapshotClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `usagesnapshot.Hooks(f(g(h())))`.
-func (c *UsageSnapshotClient) Use(hooks ...Hook) {
-	c.hooks.UsageSnapshot = append(c.hooks.UsageSnapshot, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `usagesnapshot.Intercept(f(g(h())))`.
-func (c *UsageSnapshotClient) Intercept(interceptors ...Interceptor) {
-	c.inters.UsageSnapshot = append(c.inters.UsageSnapshot, interceptors...)
-}
-
-// Create returns a builder for creating a UsageSnapshot entity.
-func (c *UsageSnapshotClient) Create() *UsageSnapshotCreate {
-	mutation := newUsageSnapshotMutation(c.config, OpCreate)
-	return &UsageSnapshotCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of UsageSnapshot entities.
-func (c *UsageSnapshotClient) CreateBulk(builders ...*UsageSnapshotCreate) *UsageSnapshotCreateBulk {
-	return &UsageSnapshotCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *UsageSnapshotClient) MapCreateBulk(slice any, setFunc func(*UsageSnapshotCreate, int)) *UsageSnapshotCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &UsageSnapshotCreateBulk{err: fmt.Errorf("calling to UsageSnapshotClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*UsageSnapshotCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &UsageSnapshotCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for UsageSnapshot.
-func (c *UsageSnapshotClient) Update() *UsageSnapshotUpdate {
-	mutation := newUsageSnapshotMutation(c.config, OpUpdate)
-	return &UsageSnapshotUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *UsageSnapshotClient) UpdateOne(_m *UsageSnapshot) *UsageSnapshotUpdateOne {
-	mutation := newUsageSnapshotMutation(c.config, OpUpdateOne, withUsageSnapshot(_m))
-	return &UsageSnapshotUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneId returns an update builder for the given id.
-func (c *UsageSnapshotClient) UpdateOneId(id uuid.UUID) *UsageSnapshotUpdateOne {
-	mutation := newUsageSnapshotMutation(c.config, OpUpdateOne, withUsageSnapshotId(id))
-	return &UsageSnapshotUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for UsageSnapshot.
-func (c *UsageSnapshotClient) Delete() *UsageSnapshotDelete {
-	mutation := newUsageSnapshotMutation(c.config, OpDelete)
-	return &UsageSnapshotDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *UsageSnapshotClient) DeleteOne(_m *UsageSnapshot) *UsageSnapshotDeleteOne {
-	return c.DeleteOneId(_m.Id)
-}
-
-// DeleteOneId returns a builder for deleting the given entity by its id.
-func (c *UsageSnapshotClient) DeleteOneId(id uuid.UUID) *UsageSnapshotDeleteOne {
-	builder := c.Delete().Where(usagesnapshot.Id(id))
-	builder.mutation.id = &id
-	builder.mutation.SetOp(OpDeleteOne)
-	return &UsageSnapshotDeleteOne{builder}
-}
-
-// Query returns a query builder for UsageSnapshot.
-func (c *UsageSnapshotClient) Query() *UsageSnapshotQuery {
-	return &UsageSnapshotQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeUsageSnapshot},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a UsageSnapshot entity by its id.
-func (c *UsageSnapshotClient) Get(ctx context.Context, id uuid.UUID) (*UsageSnapshot, error) {
-	return c.Query().Where(usagesnapshot.Id(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *UsageSnapshotClient) GetX(ctx context.Context, id uuid.UUID) *UsageSnapshot {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryTenant queries the tenant edge of a UsageSnapshot.
-func (c *UsageSnapshotClient) QueryTenant(_m *UsageSnapshot) *TenantQuery {
-	query := (&TenantClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.Id
-		step := sqlgraph.NewStep(
-			sqlgraph.From(usagesnapshot.Table, usagesnapshot.FieldId, id),
-			sqlgraph.To(tenant.Table, tenant.FieldId),
-			sqlgraph.Edge(sqlgraph.M2O, false, usagesnapshot.TenantTable, usagesnapshot.TenantColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *UsageSnapshotClient) Hooks() []Hook {
-	return c.hooks.UsageSnapshot
-}
-
-// Interceptors returns the client interceptors.
-func (c *UsageSnapshotClient) Interceptors() []Interceptor {
-	return c.inters.UsageSnapshot
-}
-
-func (c *UsageSnapshotClient) mutate(ctx context.Context, m *UsageSnapshotMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&UsageSnapshotCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&UsageSnapshotUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&UsageSnapshotUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&UsageSnapshotDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown UsageSnapshot mutation op: %q", m.Op())
-	}
-}
-
 // WorkOrderClient is a client for the WorkOrder schema.
 type WorkOrderClient struct {
 	config
@@ -7744,7 +7587,7 @@ type (
 		LegalHold, Link, Notification, Outbox, Party, Placement, Purchase,
 		PurchaseLine, Reservation, ReservationItem, RowSeal, SearchStale, Session,
 		SignInFailure, Stewardship, Stock, StockMovement, Tenant, TenantContract,
-		TenantDomain, TreeLock, UsageSnapshot, WorkOrder []ent.Hook
+		TenantDomain, TreeLock, WorkOrder []ent.Hook
 	}
 	inters struct {
 		Access, AccessReview, AliasHold, Allocation, Archived, Asset, AssetType,
@@ -7753,6 +7596,6 @@ type (
 		LegalHold, Link, Notification, Outbox, Party, Placement, Purchase,
 		PurchaseLine, Reservation, ReservationItem, RowSeal, SearchStale, Session,
 		SignInFailure, Stewardship, Stock, StockMovement, Tenant, TenantContract,
-		TenantDomain, TreeLock, UsageSnapshot, WorkOrder []ent.Interceptor
+		TenantDomain, TreeLock, WorkOrder []ent.Interceptor
 	}
 )

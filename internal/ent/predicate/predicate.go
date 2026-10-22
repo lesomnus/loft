@@ -168,8 +168,5 @@ type TenantDomain func(*sql.Selector)
 // TreeLock is the predicate function for treelock builders.
 type TreeLock func(*sql.Selector)
 
-// UsageSnapshot is the predicate function for usagesnapshot builders.
-type UsageSnapshot func(*sql.Selector)
-
 // WorkOrder is the predicate function for workorder builders.
 type WorkOrder func(*sql.Selector)

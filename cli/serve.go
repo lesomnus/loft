@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net"
 	"slices"
+	"strings"
 
 	"github.com/lesomnus/otx/log"
 	"github.com/lesomnus/xli"
@@ -54,6 +55,16 @@ func NewCmdServe(c *cmd.Config) *xli.Command {
 			// them told alike, now that it has said it is one.
 			if err := c.Replicas(); err != nil {
 				return err
+			}
+			// The roster in this process, where the deployment looks like
+			// production: said, and not refused -- one server on PostgreSQL
+			// behind its own name is what it is for, and that is the
+			// operator's to decide (README, "계정과 워크스페이스 (roster)").
+			if why := c.EmbeddedInProduction(); len(why) > 0 {
+				log.From(ctx).WarnContext(ctx, "identity: roster runs in this process, and this deployment looks like production: "+
+					"it answers this process alone, keeps people and passwords beside Rove's own data, and no other app can use the accounts. "+
+					"A deployment beyond one server runs roster apart (auth.roster.addr); see README.md#계정과-워크스페이스-roster",
+					slog.String("because", strings.Join(why, ", ")))
 			}
 
 			s, err := cmd.Build(ctx, *c)

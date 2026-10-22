@@ -89,7 +89,7 @@ Phase 번호는 10장의 구현 단계와 같다.
 | 현장/자동화 | 모바일 PWA·QR 인쇄 / 오프라인 실사 / RFID·GPS 연동, OS 인벤토리 대조 | 1 / 2 / 3 |
 | 통합/기업 기능 | roster 로그인(SaaS는 Google·Microsoft·GitHub SSO)과 역할 / API 토큰·Webhook, 기업 IdP·SCIM(roster), 사업장 단위 권한, ERP·HR·캘린더 연동, 고급 보고서 | 0 / 3 |
 | 플러그인 | 빌드 시 등록하는 뷰 플러그인 / 백엔드 도메인 모듈 / 서드파티 | 1 / 2–3 / 3 이후 |
-| SaaS 계측 | 테넌트별 일 단위 사용량 스냅샷 / 사용량 원장·Entitlement·과금 | 0 / 3 |
+| SaaS 계측 | Rove 밖의 계량 작업이 원천(DB 읽기 복제본, 첨부 저장소의 목록)에서 잰다(7장) / 사용량 원장·Entitlement·과금(Rove 밖) | 0 / 3 |
 
 **MVP는 Phase 0 + Phase 1**이다. 시간 복원 자산 레지스트리, 공간 계층, QR, 지급·반납까지를 담는다. 공간·장비 예약은 MVP 직후 Phase 2의 첫 기능이다. 차별점인 시점 복원을 먼저 검증하고, 충돌·승인·캘린더처럼 범위가 큰 예약은 그 위에 얹는다.
 
@@ -266,52 +266,144 @@ StockMovement(id, tenant, stock, delta, reason, ref_id?, occurred_at)
 - **트랜잭션**: 도메인 RPC 하나가 트랜잭션 하나다. payday trail·outbox가 같은 트랜잭션에 기록되므로 데이터와 감사 기록은 함께 성립하거나 함께 취소된다.
 - **연동(Phase 3)**: Webhook은 payday Outbox에서 `Event` 추가만 골라 전달한다. 조직 디렉터리·SSO·SCIM은 roster가 맡고(9.10절), 회계·ERP·HR, 캘린더, 자동 수집 에이전트를 확장 경계로 둔다.
 
-## 7. SaaS 과금 준비: 계측과 정책의 분리
+## 7. SaaS 과금 준비: 계량은 Rove 밖에서, 원천에서
 
-**원칙: 사용량 메트릭은 지금부터 모으되, 과금하려면 메트릭만으로는 부족하다.** 계량 대상의 명세, 테넌트 귀속, 중복 제거, 시간별 사용량, 계약상 권리(Entitlement), 보존·삭제 정책, 송장과 정정·환불이 가능한 사용량 원장이 함께 필요하다.
+**원칙: 청구할 숫자는 Rove 밖의 작업이 원천에서 계산한다.** 원천은 Rove의 데이터베이스(읽기 복제본)와 첨부 파일을 담은 저장소의 목록(inventory)이다. Prometheus·OTel 같은 모니터링 메트릭은 청구 기준이 아니다. 빠지거나 겹쳐도 알 수 없고, 다시 계산할 수 없으며, 테넌트 라벨은 카디널리티 문제를 만든다. Rove는 계량을 위한 행을 따로 쓰지 않는다. 원천에서 다시 계산할 수 있는 값을 Rove 안에 한 벌 더 두면 원천과 어긋날 수 있는 사본이 하나 늘 뿐이다. 그래서 하루 한 번 쓰던 `UsageSnapshot`은 지웠다(D35. 도메인 번호 20은 비워 둔다).
 
 ### 7.1 단계별로 만드는 것
 
 ```text
-Core operations ──> 시간 행·Event·첨부 (원천)
-                           │  (Phase 0: 일 단위 스냅샷)
-                           v
-                    UsageSnapshot ──> (Phase 3) Usage ledger ──> Aggregations
-                                                    │
-Tenant/Plan ──> Entitlement/Policy engine ──────────┼──> UI warnings / optional enforcement
-                                                    │
-                                          Future billing adapter
+Rove DB ──(읽기 복제본)──┐
+                         ├──> 계량 작업 ──> 사용량 원장 ──> 집계 ──> 청구 어댑터
+첨부 저장소의 목록 ──────┘   └──────────────── Rove 밖 ────────────────┘
 ```
 
-- **Phase 0**: spin 루프가 테넌트별 `UsageSnapshot`을 하루 한 번 기록한다(kind별 자산 수, 첨부 바이트, 이력 행 수와 논리 크기, 호출 수). `Entitlement` 확인 지점은 코드에 두되 항상 허용하는 `observe_only` 구현으로 시작한다.
-- **Phase 3, 과금 게이트 직전**: `Meter` 명세, 불변·멱등 `UsageLedger`, 계산 버전을 가진 `UsageAggregate`, `TenantContract`(요금제·약관 버전, 효력일, 예외 계약, 지불 상태), `BillingAdapter`(결제·인보이스 연계, 핵심 도메인과 분리).
-- **원천에서 다시 계산할 수 있다**: 시간 행과 첨부(생성·삭제 시각)가 원천이므로 개수와 저장량 미터는 원천에서 다시 계산할 수 있다. 그래서 초기에 원장이 없어도 된다. 단, 보존 삭제가 원천을 지우기 전에 그 기간의 집계를 확정해야 한다(8.3절의 순서).
+- **계량 작업**은 정해진 주기로 원천을 읽고, 읽은 시각과 함께 테넌트·미터별 값을 자기 원장에 쓴다. 원장은 불변이고 멱등이다(같은 시각·테넌트·미터는 한 행). 쿼리가 바뀌면 계산 버전을 올리고, 지난 값은 그때의 버전으로 남긴다.
+- **요금제·Entitlement·한도·청구**도 Rove 밖의 것이다. 요금제는 한도를 정하고 권한은 무엇을 할 수 있는지를 정한다는 6장의 원칙은 그대로다.
+- **원천에서 다시 계산할 수 있다**: 개수와 저장량의 원천은 행의 생성·삭제 시각(`date_created`, `date_erased`)과 첨부의 크기(`size_bytes`)다. 그래서 Rove 안에 원장이 없어도 된다. 다만 보존 작업과 워크스페이스 파기가 원천을 지우므로, 지워지기 전에 잰다(7.3절).
 
-### 7.2 권장 계측 항목
+### 7.2 미터와 원천 쿼리
 
-| Meter | 단위 | 용도 |
+| Meter | 단위 | 원천 |
 | --- | --- | --- |
-| `active_assets` (kind별) | 개 | 자산 규모·구간 과금 후보. 공간·키트·그룹을 따로 센다 |
-| `stock_skus` / `stock_quantity` | SKU / 개 | 수량형 재고 분리 파악 |
-| `active_users` / `admin_seats` | 명 | 시장 분석 및 과금 후보 |
-| `attachment_bytes` | bytes | 업로드한 원본 객체 저장량 |
-| `history_rows` / `history_bytes` | 행 / bytes | Rove 시간 행·Event의 수와 논리 크기. payday trail은 서비스 비용이므로 제외 |
-| `storage_byte_seconds` | byte·second | GB-month 원자료. **bigint로는 31일 달 기준 테넌트당 약 3.4TB·월에서 넘친다** — numeric으로 저장하거나 byte·hour 단위를 쓴다 |
-| `api_calls` / `webhook_deliveries` | 회 | 공정 사용과 비용 분석. 인증 뒤 gRPC 인터셉터에서 테넌트별로 센다 |
-| `reservations` / `bookable_resources` | 건 / 개 | 공간·장비 운영 규모 |
-| `plugin_storage_bytes` / `plugin_executions` | bytes / 회 | 플러그인별 비용 추적 |
-| `history_query_lookback` | 기간 | 조회 창 정책과 실제 수요 분석 |
+| `active_assets` (kind별) | 개 | `asset`. 공간·키트·그룹을 따로 센다 |
+| `members` / `admin_seats` | 명 | `holder`(구성원 자격) |
+| `stock_skus` / `stock_quantity` | SKU / 개 | `stock`. 잰 그때의 값만 있다 |
+| `bookable_resources` / `reservations` | 개 / 건 | `bookable`, `reservation` |
+| `history_rows` / `history_bytes` | 행 / bytes | 시간 행(`placement`, `link`, `stewardship`, `fact`)과 `event`의 수와 논리 크기. payday trail은 서비스 비용이므로 제외 |
+| `attachment_bytes` | bytes | `attachment.size_bytes`, 또는 저장소의 목록 |
+| `attachment_gb_month` | GB-month | `attachment`의 생성·삭제 시각, 또는 저장소 목록의 일 단위 표본(7.4절) |
 
-**청구용 미터링과 기술 모니터링은 다르다.** Prometheus 같은 시계열 메트릭을 청구 기준으로 쓰지 않고, 다시 계산할 수 있는 원천과 원장을 둔다. 운영용 메트릭에는 테넌트 라벨의 카디널리티 문제를 검토한다.
+원천이 없는 것은 미터로 두지 않는다. 기간 안에 무언가 한 사람(활성 사용자)은 쓰기라면 `event.actor_id`로 셀 수 있지만 읽기만 한 사람은 남지 않으므로, 사람은 좌석(`members`)으로 센다. API 호출 수도 데이터베이스에 없다. 접속기록(`access`, 9.7절)은 개인정보를 담은 호출만 남기는 기록이라 호출 수가 아니고, HTTP 로그는 모니터링이다. 호출로 과금하게 되면 그때 원천(게이트웨이의 요청 기록 같은)을 함께 정한다. Webhook과 플러그인은 그 기능이 생길 때 원천을 정한다.
 
-### 7.3 GB-month 계산 정의
+아래 쿼리는 PostgreSQL 읽기 복제본에 대한 것이다. `:at`은 재는 시각, `:from`·`:to`는 청구 기간 `[from, to)`이며, 워크스페이스는 `tenant_id`로 나눈다. 복제 지연만큼 늦은 값이므로 원장에는 읽은 시각을 함께 남긴다.
+
+**어느 시각의 개수.** soft erase하는 엔터티는 지워도 행이 남고 `date_erased`가 찍히므로, 행이 남아 있는 동안은 지난 시각의 개수도 다시 셀 수 있다.
+
+```sql
+-- active_assets: kind(item, space, kit, group)별 자산 수
+SELECT tenant_id, kind, count(*) AS assets
+FROM asset
+WHERE date_created <= :at AND (date_erased IS NULL OR date_erased > :at)
+GROUP BY tenant_id, kind;
+
+-- members / admin_seats
+SELECT tenant_id,
+       count(*) AS members,
+       count(*) FILTER (WHERE role IN ('owner', 'admin')) AS admin_seats
+FROM holder
+WHERE date_created <= :at AND (date_erased IS NULL OR date_erased > :at)
+GROUP BY tenant_id;
+```
+
+자산의 Erase는 오입력 취소이므로 빠진다. 처분·분실한 자산(`status`가 `disposed`, `lost` 등)을 셀지는 요금제가 정한다(11장 1). 구성원 자격을 끝내면(비활성화, 탈퇴) `date_erased`가 찍힌다.
+
+**지금 값만 있는 것.** 아래는 지난 시각으로 다시 셀 수 없다. 재고 수량은 이동(`stockmovement`)으로 바뀌는데 이동은 보존 작업이 지우고, 예약 자원의 `enabled`는 바뀐 이력이 행에 없다. 잰 그때의 값이 원장에 남는 값이다.
+
+```sql
+-- stock_skus / stock_quantity
+SELECT tenant_id, count(*) AS skus, sum(quantity) AS quantity
+FROM stock
+WHERE date_erased IS NULL
+GROUP BY tenant_id;
+
+-- bookable_resources
+SELECT tenant_id, count(*) AS bookables
+FROM bookable
+WHERE enabled AND date_erased IS NULL
+GROUP BY tenant_id;
+```
+
+**기간 안에 생긴 것.**
+
+```sql
+-- reservations: 기간 안에 만든 예약
+SELECT tenant_id, count(*) AS reservations
+FROM reservation
+WHERE date_created >= :from AND date_created < :to
+GROUP BY tenant_id;
+```
+
+**이력의 규모.** `pg_column_size(t.*)`는 행 하나의 크기다(압축된 TOAST 값을 넣고, 인덱스와 페이지 오버헤드는 뺀다). 이력은 바이트가 아니라 보존 기간 구간으로 과금하는 것을 권한다(7.4절).
+
+```sql
+-- history_rows / history_bytes
+SELECT tenant_id, 'placement' AS kind, count(*) AS rows, sum(pg_column_size(t.*)) AS bytes FROM placement t GROUP BY tenant_id
+UNION ALL SELECT tenant_id, 'link', count(*), sum(pg_column_size(t.*)) FROM link t GROUP BY tenant_id
+UNION ALL SELECT tenant_id, 'stewardship', count(*), sum(pg_column_size(t.*)) FROM stewardship t GROUP BY tenant_id
+UNION ALL SELECT tenant_id, 'fact', count(*), sum(pg_column_size(t.*)) FROM fact t GROUP BY tenant_id
+UNION ALL SELECT tenant_id, 'event', count(*), sum(pg_column_size(t.*)) FROM event t GROUP BY tenant_id;
+```
+
+**첨부.** 행으로 재면 고객에게 보이는 첨부의 양이다.
+
+```sql
+-- attachment_bytes: 그 시각에 보이는 첨부
+SELECT tenant_id, count(*) AS files, sum(size_bytes) AS bytes
+FROM attachment
+WHERE date_created <= :at AND (date_erased IS NULL OR date_erased > :at)
+GROUP BY tenant_id;
+
+-- attachment_gb_month: 기간 안에 각 첨부가 보인 시간 × 크기
+SELECT tenant_id,
+       sum(size_bytes::numeric
+           * extract(epoch FROM least(coalesce(date_erased, :to), :to) - greatest(date_created, :from)))
+         / extract(epoch FROM :to::timestamptz - :from::timestamptz) / 1e9 AS gb_month
+FROM attachment
+WHERE date_created < :to AND (date_erased IS NULL OR date_erased > :from)
+GROUP BY tenant_id;
+```
+
+byte·초는 `numeric`으로 곱한다. bigint로는 31일 달 기준 테넌트당 약 3.4 TB·월에서 넘친다.
+
+첨부를 지워도(`AttachmentService.Erase`, soft) 파일은 저장소에 남는다. 파일은 보존 작업이 그 첨부가 달린 문서와 함께 지우거나, 워크스페이스가 파기될 때 지운다. 그래서 고객에게 보이는 양(위의 쿼리)과 저장소가 실제로 가진 양이 다르고, 어느 쪽으로 청구할지는 계약이 정한다(11장 4). 저장소가 가진 양은 저장소의 목록에서 잰다. 파일의 키는 `<워크스페이스 id>/<YYYY>/<MM>/<첨부 id>`이므로 키의 첫 마디로 묶는다.
+
+- 로컬 디스크(`app.files`): `du -sb <app.files>/*/`. 디렉터리 이름이 워크스페이스 id다.
+- S3 호환 저장소(D25): 하루 한 번 나오는 S3 Inventory 보고서의 `Key`·`Size`를 키의 첫 마디로 묶어 더한다.
+
+목록으로 잰 GB-month는 하루 한 번의 표본을 하루치로 친다: `Σ(그날의 bytes) × 86400 / 그 달의 초 / 10^9`. 행이 지워진 뒤에도 그날 잰 값이 원장에 남으므로, 보존 작업과 파기가 지운 파일까지 들어간다. 하루보다 짧게 있다 지워진 파일은 빠질 수 있다.
+
+### 7.3 원천이 지워지기 전에 잰다
+
+미터는 그 원천이 지워지기 전에 잰다. Rove가 원천을 지우는 곳은 둘이다.
+
+1. **보존 작업**(8.3절, `rove retention run`. `serve`가 `app.retention.every`마다 돌리고, `app.retention.apply`가 켜졌을 때만 지운다): 보존 창이 시작되기 전에 끝난 시간 행, 끝난 문서(예약·Custody·실사·작업)와 거기 달린 첨부의 행과 파일, 재고 이동, 남은 행이 가리키지 않는 Event.
+2. **워크스페이스 파기**(8.4절, `server/closing`): 복구 기간이 지난 닫힌 워크스페이스의 모든 행과 파일.
+
+그래서 다음을 지킨다.
+
+- 계량 작업은 보존 작업보다 자주, 적어도 하루 한 번 돌고 잰 값을 원장에 남긴다. 한 달의 값은 월말에 원천을 다시 읽어서가 아니라 원장에 쌓인 값으로 계산한다. 보존 작업이 지운 행은 다시 읽을 수 없다.
+- 닫힌 워크스페이스도 파기될 때까지는 행이 남으므로 같은 주기로 잰다. 마지막 기간의 값은 파기 전에 확정한다. 복구 기간이 그 여유다.
+- 보존 기간을 줄이거나 보존 작업의 주기를 바꿀 때는 계량 작업이 그보다 먼저 재는지 확인한다(8.3절의 "해당 기간 계량 확정").
+
+### 7.4 GB-month 계산 정의
 
 - 예시 단위: **GB-month** = 한 달 동안 보유한 데이터의 시간가중 평균 GB. `GB`(10^9 bytes)인지 `GiB`(2^30 bytes)인지를 계약에 명시한다.
 - 적분형: `usage = ∫ stored_bytes(t) dt / seconds_in_billing_month / 10^9`(해당 달의 시간 길이 기준). 예: 한 달 내내 10 GB이면 10 GB-month, 한 달의 절반 동안만 10 GB이면 약 5 GB-month.
-- 분·시간 단위 스냅샷으로 근사하거나, 객체 생성·삭제 시점의 증감으로 정확한 byte-seconds를 계산한다.
+- 행의 생성·삭제 시각으로 정확한 byte·초를 계산하거나, 저장소 목록의 일 단위 표본으로 근사한다(7.2절).
 - **과금 데이터 크기 정의를 먼저 고정한다**: 첨부 원본, 미리보기·파생물, 이력, DB 레코드, 인덱스, 복제본, 백업 중 무엇을 포함하는가? 권장은 `원본 첨부 + 별도로 공지한 플러그인 데이터`를 바이트로 세고, 이력은 바이트가 아니라 **보존 기간 구간**으로 과금하는 것이다. 고객은 이벤트 하나가 몇 바이트인지 알 수 없어 이력 바이트를 예측하지 못한다. 물리 복제·DB 오버헤드는 서비스 비용으로 처리한다.
 - 무료 저장량, 초과분 GB-month, 프로레이션, 계측 지연·정정, 월 경계와 테넌트 시간대(청구는 UTC 등)를 계약으로 정의한다.
-- 사용자에게 현재 데이터량, 월 예상 초과량, 보존 구간별 이력 규모를 대시보드로 보여 준다.
+- 고객에게 보이는 사용량(현재 데이터량, 월 예상 초과량, 보존 구간별 이력 규모)은 청구 쪽이 원장에서 보여 준다. 고객이 보는 값과 청구값은 한 원장에서 나온다(10장 과금 도입 게이트의 (2)).
 
 ## 8. 조회 기간·보존 기간·삭제 정책 (초기 제안)
 
@@ -363,7 +455,7 @@ Tenant/Plan ──> Entitlement/Policy engine ──────────┼�
 
 ```text
 계약/정책 평가 → 보존 만료 후보 식별 → 법적·운영상 예외 검사
- → 관리자 사전 알림/내보내기/유예 → 해당 기간 사용량 집계 확정
+ → 관리자 사전 알림/내보내기/유예 → 해당 기간 계량 확정(Rove 밖, 7.3절)
  → 기준일에 걸친 행과 남길 Fact 확인 → 기록 삭제/비식별화
  → trail·검색·캐시 반영 → 백업 만료 대기/삭제 증빙 기록
 ```
@@ -407,7 +499,7 @@ Tenant/Plan ──> Entitlement/Policy engine ──────────┼�
 | Outbox · Watch | 현재 상태 화면 갱신, Webhook(Phase 3) |
 | pdid (UUIDv8 + 도메인 바이트, 클라이언트에서도 발급) | 멱등 키, batch에서 미리 정한 ID, 오프라인 큐, 여러 종류를 가리키는 참조 열 |
 | `auth`(세션·Bearer), `gate.Policy`, batch guard | 세션과 역할 권한. 사람이 누구인지는 roster가 답한다(9.10절) |
-| `spin` | 홀드 만료, no-show, 연체 알림, 알림 메일 발송, 테넌트 도메인 확인, 사용량 스냅샷, 보존 잡 |
+| `spin` | 홀드 만료, no-show, 연체 알림, 알림 메일 발송, 테넌트 도메인 확인, 보존 잡 |
 | 두 진입점(경계 있는 스택 / 운영자 스택) | 공개 바이너리와 운영자 바이너리 |
 
 **payday에 없어서 Rove가 직접 만드는 것**
@@ -584,7 +676,6 @@ Reservations: Availability / Hold / Request / Approve / Reject / Cancel / CheckI
 Inventory:    Receive / Move / Consume / Adjust / ConvertToAssets
 Counts:       Start / Scan / Reconcile / Close
 WorkOrders:   Open / Schedule / Complete
-Usage:        GetCurrent / GetDaily
 Retention:    GetPolicy / PreviewExpiry / Export / Hold / ApplyPolicy
 ```
 
@@ -774,7 +865,7 @@ Rove     테넌트 = 워크스페이스                  acme: kim(owner), lee(m
   - 같은 배포에 원본이 있으면 ID가 겹치므로 거부한다. 오래된 내보내기로 지금 데이터를 되돌리는 일도 이것으로 막힌다.
   - ID를 지키므로 붙여 둔 라벨과 링크가 계속 열린다.
 - 전부 한 트랜잭션이다. 한 행이라도 들어가지 못하면 아무것도 남기지 않는다. 파일은 커밋 전에 넣고, 커밋하지 못하면 다시 지운다.
-- 복구할 테이블과 필드는 스키마에서 읽는다(파기의 순서가 그렇듯). 나중에 생긴 엔터티와 필드도 따로 적지 않아도 복구되고, 모든 테이블의 모든 열에 갈 곳이 있는지는 테스트가 본다.
+- 복구할 테이블과 필드는 스키마에서 읽는다(파기의 순서가 그렇듯). 나중에 생긴 엔터티와 필드도 따로 적지 않아도 복구되고, 모든 테이블의 모든 열에 갈 곳이 있는지는 테스트가 본다. 이 빌드가 지운 테이블(`offboard.Dropped`, 예: 7장의 `UsageSnapshot`)의 행은 되살리지 않고, 두고 온 수를 복구 이벤트에 남긴다. 마이그레이션이 그 테이블을 지우므로 둘 곳도 없다. 그 밖에 이 빌드에 없는 테이블의 행이 있으면 거부한다. 빠뜨린 채로 다 되살렸다고 말하게 되기 때문이다.
 - **감사 기록은 새 배포의 체인에 섞지 않고, 배포 안에 따로 두지도 않는다.**
   - 섞으면 체인과 체크포인트가 깨진다.
   - 서명된 사본을 배포 안에 두면, 나중에 그 안의 사람을 개인정보 삭제할 때 서명을 깨지 않고는 사본에서 지울 수 없다.
@@ -794,7 +885,7 @@ Rove     테넌트 = 워크스페이스                  acme: kim(owner), lee(m
 
 **Phase 0 스파이크 — 완료(2026-10-10)**: (1) 마이그레이션은 디렉터리를 나누고 복합 FK 대신 트리거를 쓴다(9.4절). (2) `seal`과 도메인 트랜잭션은 batch 안에서도 동작하며, 도메인 레이어는 Gate 위에 둔다(9.3절). (3) Gate의 엣지 확인과 `agrees`는 다른 테넌트로의 참조를 거부한다(6장). (4) 관리형 DB의 확장 지원을 조사했다. 지금은 self-host이고, 표는 관리형으로 옮길 때 참고한다(9.5절). (5) 테넌트 잠금 행 없이는 동시 순환이 실제로 생긴다(3.2절). 방법과 근거는 [plan.md](plan.md) 1장에 있다.
 
-**Phase 0 — 기반**: payday 앱 골격, roster 신원과 세션(9.10절), 역할 Policy, 공개·운영자 진입점, `Asset`·`AssetType`·`ItemModel`·`Party`, 시간 행(`Placement`·`Stewardship`·`Fact`·`Link`)과 `Event`, 도메인 작업(자산 `Add`·`Erase` 완성, Move, Install, Remove, Assign, SetAttributes, Correct), `Timeline`·`QueryAt`·`AsOf`·`Diff`, `Label`, `Attachment`, 두 갈래 마이그레이션, `UsageSnapshot`. *검증*:
+**Phase 0 — 기반**: payday 앱 골격, roster 신원과 세션(9.10절), 역할 Policy, 공개·운영자 진입점, `Asset`·`AssetType`·`ItemModel`·`Party`, 시간 행(`Placement`·`Stewardship`·`Fact`·`Link`)과 `Event`, 도메인 작업(자산 `Add`·`Erase` 완성, Move, Install, Remove, Assign, SetAttributes, Correct), `Timeline`·`QueryAt`·`AsOf`·`Diff`, `Label`, `Attachment`, 두 갈래 마이그레이션. *검증*:
 - 교차 테넌트: 모든 RPC에 다른 테넌트의 ID를 넣으면 NotFound, `agrees` 위반 엣지는 거부.
 - 시간 오라클: 무작위 이동·정정 시퀀스를 생성해 `QueryAt(T)`·`AsOf(T, K)`가 단순 재생 구현의 결과와 같은지 속성 기반 테스트로 확인.
 - 동시성: 같은 자산의 동시 이동 N건 중 하나만 성공, 동시 순환 생성 시도는 거부, 같은 슬롯 동시 장착은 하나만 성공.
@@ -844,7 +935,7 @@ Rove     테넌트 = 워크스페이스                  acme: kim(owner), lee(m
 | D13 | 개인정보는 Party에만 두고 이력에는 ID만. 삭제는 가명화 + trail 정리. trail에는 personal 필드의 값을 남기지 않는다(payday#92) | 불변 이력에 복사된 개인정보는 나중에 지우기 어렵다 |
 | D14 | 제품 이력(테넌트별 보존)과 payday trail(배포 단위 보존)을 분리 | trail에는 테넌트별 보존이 없고, 값 스냅샷이 제품 삭제를 무력화하지 않게 한다 |
 | D15 | OIDC 로그인은 Phase 0, SAML/SCIM은 Phase 3. 역할은 `gate.Policy`. **로그인 부분은 D26이 대체한다** | 직원 셀프서비스에는 처음부터 SSO가 필요하고, 기업 SSO는 유료 기능이다 |
-| D16 | 계측은 Phase 0에 일 단위 스냅샷만, 원장·Entitlement는 과금 직전 | 원천에서 다시 계산할 수 있으므로 미리 만들 필요가 없다 |
+| D16 | 계측은 Phase 0에 일 단위 스냅샷만, 원장·Entitlement는 과금 직전. **D35가 대체한다** | 원천에서 다시 계산할 수 있으므로 미리 만들 필요가 없다 |
 | D17 | 관계 종류는 Phase 2까지 시스템이 정한 값. 전역 엔터티 없음 | 제약을 정적으로 걸 수 있고, 전역 행의 쓰기 권한 문제를 피한다 |
 | D18 | 자산 번호는 별도 필드(한글 허용), 처분은 상태, Erase는 오입력 취소용 | payday alias 문법과 맞지 않고, 처분한 자산의 번호를 재사용하지 않는다 |
 | D19 | 공간 예약은 캘린더 밖 공간과 장비 중심. 회의실 대체는 비목표 | 회의실은 기존 캘린더가 권위다 |
@@ -863,3 +954,4 @@ Rove     테넌트 = 워크스페이스                  acme: kim(owner), lee(m
 | D32 | 비서(MCP)는 터미널 명령 `rove mcp`로 붙고, `rove login`한 사람으로 RPC를 불러 읽는다. 도구는 읽기만 한다. 쓰는 도구와 원격 MCP(OAuth 2.1)는 나중이다 | 권한 표와 벽이 브라우저와 같아서 새로 지킬 것이 없고, 서버에 새 입구나 인증을 열지 않는다. 쓰기는 사람이 확인하는 흐름이 먼저다(rove#91) |
 | D33 | 비서의 쓰기는 미리보기와 적용의 두 단계다. 미리보기는 바뀔 것을 이름으로 적고, 적용은 그 문장을 인자로 받는다. 이력에는 행위자만 남는다. 구성원과 매니저의 작업을 연다. 비서를 좁히는 것은 터미널 로그인의 allow이고, 세션이 그 목록만 허락한다 | 사람이 무엇을 승인하는지 이름으로 보고, 클라이언트의 승인 창에도 그것이 보인다. 무엇을 할 수 있는지는 이미 권한 표가 정하므로, 더 좁히는 것은 사람이 자기 터미널에 고르게 한다(rove#94) |
 | D34 | 가져오기는 복구와 신규 대량 등록 둘이다. 시트로 고치는 가져오기는 없애고, 온보딩·외부 동기화는 외부 도구 연동으로, 일괄 수정은 나중으로 미룬다. 신규 대량 등록은 rove 양식으로 새 자산만 만들고, API는 도메인이 완성한 `AddMany`다. 워크스페이스 내보내기는 형식 버전과 배포의 서명을 갖고, 복구는 서명을 검증해 빈 새 워크스페이스에 ID를 지켜 넣는다. 여러 대상에 걸친 작업은 부모 Event 하나와 대상마다 자식 Event를 남긴다 | 태그로 맞춰 고치면 사람이 바꾸는 값이 정체성이 되고(태그가 같은 다른 물건을 고친다), 빈 칸의 뜻이 모호하며, 행마다 작업을 반복해 느리다. 목적마다 맞는 입력이 다르다. 복구할 파일을 손으로 고칠 수 있으면 이력을 위조할 수 있다. 자산의 이력에는 그 자산에 일어난 일이 그 자산의 Event로 있어야 한다 |
+| D35 | 청구할 숫자는 Rove 밖의 작업이 원천(DB 읽기 복제본, 첨부 저장소의 목록)에서 계산한다. Rove는 계량을 위한 행을 쓰지 않는다. `UsageSnapshot`은 지웠고 도메인 번호 20은 비워 둔다. 미터는 보존 작업과 파기가 원천을 지우기 전에 잰다(7장) | 원천에서 다시 계산할 수 있는 값을 한 벌 더 두면 어긋날 수 있는 사본만 늘어난다. 모니터링 메트릭은 빠짐과 겹침을 알 수 없고 다시 계산할 수 없다 |

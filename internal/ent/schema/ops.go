@@ -77,53 +77,6 @@ func (Notification) Annotations() []schema.Annotation {
 	}
 }
 
-type UsageSnapshot struct {
-	ent.Schema
-}
-
-func (UsageSnapshot) Fields() []ent.Field {
-	return []ent.Field{
-		field.Uuid("id").
-			Unique().
-			Immutable(),
-		field.String("day"),
-		field.Json("metrics", map[string]string{}).
-			Optional(),
-		field.Time("date_updated"),
-		field.Time("date_created").
-			Immutable().
-			Optional(),
-		field.Uuid("tenant_id").
-			Immutable(),
-	}
-}
-
-func (UsageSnapshot) Edges() []ent.Edge {
-	return []ent.Edge{
-		edge.To("tenant", Tenant.Type).
-			Unique().
-			Field("tenant_id").
-			Required().
-			Immutable(),
-	}
-}
-
-func (UsageSnapshot) Indexes() []ent.Index {
-	return []ent.Index{
-		index.Fields("tenant_id", "date_created", "id").
-			StorageKey("usagesnapshot_page"),
-		index.Fields("tenant_id", "day").
-			StorageKey("usagesnapshot_day").
-			Unique(),
-	}
-}
-
-func (UsageSnapshot) Annotations() []schema.Annotation {
-	return []schema.Annotation{
-		entsql.Annotation{Table: "usagesnapshot"},
-	}
-}
-
 type TenantContract struct {
 	ent.Schema
 }

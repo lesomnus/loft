@@ -58,7 +58,6 @@ type Server interface {
 	Fact() FactServiceServer
 	Event() EventServiceServer
 	Notification() NotificationServiceServer
-	UsageSnapshot() UsageSnapshotServiceServer
 	TenantContract() TenantContractServiceServer
 	LegalHold() LegalHoldServiceServer
 	AccessReview() AccessReviewServiceServer
@@ -110,7 +109,6 @@ func RegisterServer(g grpc.ServiceRegistrar, s Server) {
 	RegisterFactServiceServer(g, s.Fact())
 	RegisterEventServiceServer(g, s.Event())
 	RegisterNotificationServiceServer(g, s.Notification())
-	RegisterUsageSnapshotServiceServer(g, s.UsageSnapshot())
 	RegisterTenantContractServiceServer(g, s.TenantContract())
 	RegisterLegalHoldServiceServer(g, s.LegalHold())
 	RegisterAccessReviewServiceServer(g, s.AccessReview())
@@ -158,7 +156,6 @@ type UnimplementedServer struct {
 	FactServer            FactServiceServer
 	EventServer           EventServiceServer
 	NotificationServer    NotificationServiceServer
-	UsageSnapshotServer   UsageSnapshotServiceServer
 	TenantContractServer  TenantContractServiceServer
 	LegalHoldServer       LegalHoldServiceServer
 	AccessReviewServer    AccessReviewServiceServer
@@ -245,9 +242,6 @@ func (UnimplementedServer) Event() EventServiceServer { return UnimplementedEven
 func (UnimplementedServer) Notification() NotificationServiceServer {
 	return UnimplementedNotificationServiceServer{}
 }
-func (UnimplementedServer) UsageSnapshot() UsageSnapshotServiceServer {
-	return UnimplementedUsageSnapshotServiceServer{}
-}
 func (UnimplementedServer) TenantContract() TenantContractServiceServer {
 	return UnimplementedTenantContractServiceServer{}
 }
@@ -310,7 +304,6 @@ type StaticServer struct {
 	FactServer            FactServiceServer
 	EventServer           EventServiceServer
 	NotificationServer    NotificationServiceServer
-	UsageSnapshotServer   UsageSnapshotServiceServer
 	TenantContractServer  TenantContractServiceServer
 	LegalHoldServer       LegalHoldServiceServer
 	AccessReviewServer    AccessReviewServiceServer
@@ -357,7 +350,6 @@ func (s StaticServer) Stewardship() StewardshipServiceServer         { return s.
 func (s StaticServer) Fact() FactServiceServer                       { return s.FactServer }
 func (s StaticServer) Event() EventServiceServer                     { return s.EventServer }
 func (s StaticServer) Notification() NotificationServiceServer       { return s.NotificationServer }
-func (s StaticServer) UsageSnapshot() UsageSnapshotServiceServer     { return s.UsageSnapshotServer }
 func (s StaticServer) TenantContract() TenantContractServiceServer   { return s.TenantContractServer }
 func (s StaticServer) LegalHold() LegalHoldServiceServer             { return s.LegalHoldServer }
 func (s StaticServer) AccessReview() AccessReviewServiceServer       { return s.AccessReviewServer }
@@ -404,7 +396,6 @@ type Client interface {
 	Fact() FactServiceClient
 	Event() EventServiceClient
 	Notification() NotificationServiceClient
-	UsageSnapshot() UsageSnapshotServiceClient
 	TenantContract() TenantContractServiceClient
 	LegalHold() LegalHoldServiceClient
 	AccessReview() AccessReviewServiceClient
@@ -453,7 +444,6 @@ func NewClient(c *grpc.ClientConn) Client {
 		_Fact:            NewFactServiceClient(c),
 		_Event:           NewEventServiceClient(c),
 		_Notification:    NewNotificationServiceClient(c),
-		_UsageSnapshot:   NewUsageSnapshotServiceClient(c),
 		_TenantContract:  NewTenantContractServiceClient(c),
 		_LegalHold:       NewLegalHoldServiceClient(c),
 		_AccessReview:    NewAccessReviewServiceClient(c),
@@ -502,7 +492,6 @@ type client struct {
 	_Fact            FactServiceClient
 	_Event           EventServiceClient
 	_Notification    NotificationServiceClient
-	_UsageSnapshot   UsageSnapshotServiceClient
 	_TenantContract  TenantContractServiceClient
 	_LegalHold       LegalHoldServiceClient
 	_AccessReview    AccessReviewServiceClient
@@ -549,7 +538,6 @@ func (c *client) Stewardship() StewardshipServiceClient         { return c._Stew
 func (c *client) Fact() FactServiceClient                       { return c._Fact }
 func (c *client) Event() EventServiceClient                     { return c._Event }
 func (c *client) Notification() NotificationServiceClient       { return c._Notification }
-func (c *client) UsageSnapshot() UsageSnapshotServiceClient     { return c._UsageSnapshot }
 func (c *client) TenantContract() TenantContractServiceClient   { return c._TenantContract }
 func (c *client) LegalHold() LegalHoldServiceClient             { return c._LegalHold }
 func (c *client) AccessReview() AccessReviewServiceClient       { return c._AccessReview }

@@ -45,22 +45,6 @@ func (e *Notification) Proto() *rove.Notification {
 	x.SetDateCreated(timestamppb.New(e.DateCreated))
 	return x
 }
-func (e *UsageSnapshot) Proto() *rove.UsageSnapshot {
-	x := &rove.UsageSnapshot{}
-	x.SetId(e.Id[:])
-	if v := e.Edges.Tenant; v != nil {
-		x.SetTenant(v.Proto())
-	} else if v := e.TenantId; v != *new(uuid.UUID) {
-		r := &rove.Tenant{}
-		r.SetId(v[:])
-		x.SetTenant(r)
-	}
-	x.SetDay(e.Day)
-	x.SetMetrics(e.Metrics)
-	x.SetDateUpdated(timestamppb.New(e.DateUpdated))
-	x.SetDateCreated(timestamppb.New(e.DateCreated))
-	return x
-}
 func (e *TenantContract) Proto() *rove.TenantContract {
 	x := &rove.TenantContract{}
 	x.SetId(e.Id[:])

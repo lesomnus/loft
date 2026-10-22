@@ -317,9 +317,8 @@ type Tenant_builder struct {
 	// why each says a default.
 	//
 	// Timezone is where a date said without a zone is: a file's dates, the time
-	// in a notification, the day usage is counted by, the date a sheet's cell
-	// means -- an IANA name, such as Asia/Seoul. Stored times are UTC whatever
-	// it says.
+	// in a notification, the date a sheet's cell means -- an IANA name, such as
+	// Asia/Seoul. Stored times are UTC whatever it says.
 	Timezone string
 	// Currency is what a new purchase or work order is priced in when it says
 	// nothing, ISO 4217, such as KRW. An amount keeps the currency it was

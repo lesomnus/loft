@@ -338,8 +338,7 @@ func leaks(m protoreflect.Message, v victim, path string) string {
 // furnish gives a demo workspace one of each kind of row the demo does not
 // make, so that a call naming one names a real row of it: a label domain and a
 // label, a count and what it found, an attachment, an invitation -- as its
-// owner, over the wire -- and the operator's legal hold, contract and usage
-// day.
+// owner, over the wire -- and the operator's legal hold and contract.
 func furnish(t *testing.T, s *cmd.Server, conn *grpc.ClientConn, alias, login string) {
 	t.Helper()
 	x := require.New(t)
@@ -383,8 +382,6 @@ func furnish(t *testing.T, s *cmd.Server, conn *grpc.ClientConn, alias, login st
 	_, err = s.Base.LegalHold().Add(ctx, app.LegalHoldAddRequest_builder{Tenant: tref, Name: "사건 1"}.Build())
 	x.NoError(err)
 	_, err = s.Base.TenantContract().Add(ctx, app.TenantContractAddRequest_builder{Tenant: tref, Name: "계약", ViewDays: 3650, KeepDays: 3650}.Build())
-	x.NoError(err)
-	_, err = s.Base.UsageSnapshot().Add(ctx, app.UsageSnapshotAddRequest_builder{Tenant: tref, Day: "2026-10-01", Metrics: map[string]string{"active_assets": "1"}}.Build())
 	x.NoError(err)
 }
 

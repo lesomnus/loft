@@ -80,7 +80,7 @@ pdid 도메인 번호는 한 번 정하면 바꾸거나 재사용하지 않는�
 | `Event` | 17 | 0 | hard (보존 잡) | | 없음 (`Timeline`으로 읽는다) |
 | `Label` | 18 | 0 | soft | | Get + `Print`, `Bind`, `Unbind`, `Resolve` (테넌트 라벨 도메인이 있을 때만) |
 | `Attachment` | 19 | 0 | soft | | Get, List |
-| `UsageSnapshot` | 20 | 0 | hard | | 운영자 스택에서만 |
+| `UsageSnapshot` | 20 | 0 | hard | | 지웠다(아래). 번호는 비워 둔다 |
 | `Custody` | 21 | 1 | soft | ✓ | Add(완성: 지급), Get, List, Watch |
 | `CustodyLine` | 22 | 1 | hard | | Get, List |
 | `SpaceProfile` | 23 | 1 | hard | | Get + `Update` |
@@ -89,6 +89,7 @@ pdid 도메인 번호는 한 번 정하면 바꾸거나 재사용하지 않는�
 - "외부에 여는 생성 RPC"에 없는 생성 메서드는 `seal`이 닫는다. "(완성)"은 도메인 레이어가 생성 동사를 완성한 것이고, 그 밖의 상태 변경은 새 도메인 RPC다(design 6장·9.8절).
 - 테넌트 행을 가리키는 엣지는 불변으로 두고 `agrees`에 선언한다. 바뀌는 참조(`Asset.parent`, `custodian`, `type`, `model`, `Party.parent`, `Party.account`)에는 pg-extra에 테넌트 일치 트리거를 둔다.
 - 프로토타입이 만든 `Credential`(37)은 비밀번호가 roster로 가면서 지웠다(design 9.10절). 번호는 비워 둔다. 예전 배포의 trail에 남은 ID가 그것을 가리킨다.
+- `UsageSnapshot`(20)은 청구할 숫자를 Rove 밖에서 원천으로 재기로 하면서 지웠다(design 7장, D35). 번호는 비워 둔다. 예전 배포의 trail에 남은 ID가 그것을 가리킨다.
 
 ## 5. 마일스톤
 
@@ -181,7 +182,7 @@ MVP(Phase 0 + 1)는 M0~M5이고, 합쳐서 대략 13~16주로 본다.
 
 ### M5 — MVP 마감과 파일럿 (약 2주)
 
-- `UsageSnapshot` spin 루프.
+- 사용량 계량은 Rove 밖의 작업이 원천에서 한다(design 7장, D35). 처음에 둔 `UsageSnapshot` spin 루프는 지웠다.
 - trail 보존 설정: Holder는 `pipa` 이상(`audit.min` 또는 `audit.by`), 이력 도메인은 조직의 계약이 정하는 보존 기간(design 8.2절, `server/retention`).
 - 운영 환경: Kubernetes(`deploy/k8s`, 2026-10-13 결정). `deploy/compose`는 같은 이미지를 한 대에 띄워 보는 시험용이다.
   - kustomize base와 k3d 시험(`scripts/cluster.sh`, CI `cluster`), 실제 배포는 그 위의 오버레이(GitOps).
