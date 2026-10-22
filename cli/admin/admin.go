@@ -215,11 +215,14 @@ func yes(self *xli.Command, what string) error {
 	return nil
 }
 
+// at is the day of a moment as the operator's commands say it: in UTC, as
+// the shell's do, whatever zone the operator's own machine is in -- and so
+// the day a date given to one (`--effective 2026-01-01`) was given as.
 func at(t *time.Time) string {
 	if t == nil {
 		return "-"
 	}
-	return t.Local().Format(time.DateOnly)
+	return t.UTC().Format(time.DateOnly)
 }
 
 func printWorkspace(self *xli.Command, v admin.Workspace) {
@@ -255,7 +258,7 @@ func printDetail(self *xli.Command, v admin.Detail) {
 			desc = "\t" + c.Desc
 		}
 		self.Printf("  contract\t%s\t%s\tthen %s%s\n",
-			c.Effective.Local().Format(time.DateOnly), c.Name, then, desc)
+			at(&c.Effective), c.Name, then, desc)
 	}
 	for _, h := range v.Holds {
 		lifted := "held"
@@ -493,10 +496,12 @@ func newCmdHold() *xli.Command {
 	}
 }
 
-// instant reads a moment as a date or as RFC 3339.
+// instant reads a moment as RFC 3339, or a date as the start of that day in
+// UTC: the day an operator's command says it back as, whatever zone the
+// operator's machine is in, as the shell's `rove contract set` reads one.
 func instant(v string) (time.Time, error) {
 	v = strings.TrimSpace(v)
-	if t, err := time.ParseInLocation(time.DateOnly, v, time.Local); err == nil {
+	if t, err := time.Parse(time.DateOnly, v); err == nil {
 		return t, nil
 	}
 	return time.Parse(time.RFC3339, v)

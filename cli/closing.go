@@ -39,11 +39,11 @@ func newCmdTenantClose(c *cmd.Config) *xli.Command {
 				return err
 			}
 			if t.DateClosed != nil {
-				self.Printf("@%s is closed already, since %s; destroyed after %s\n", t.Alias, t.DateClosed.Format(time.DateOnly), when(t.DateDestroy))
+				self.Printf("@%s is closed already, since %s; destroyed after %s\n", t.Alias, day(*t.DateClosed), when(t.DateDestroy))
 				return next(ctx)
 			}
 			if !yes {
-				self.Printf("would close @%s; it is destroyed after %s unless restored\n", t.Alias, time.Now().Add(c.App.Workspaces.Restore()).Format(time.DateOnly))
+				self.Printf("would close @%s; it is destroyed after %s unless restored\n", t.Alias, day(time.Now().Add(c.App.Workspaces.Restore())))
 				self.Printf("(nothing was done: `--yes` does it)\n")
 				return next(ctx)
 			}
@@ -51,7 +51,7 @@ func newCmdTenantClose(c *cmd.Config) *xli.Command {
 			if err != nil {
 				return err
 			}
-			self.Printf("closed @%s; destroyed after %s unless restored\n", t.Alias, v.GetDateDestroy().AsTime().Format(time.DateOnly))
+			self.Printf("closed @%s; destroyed after %s unless restored\n", t.Alias, day(v.GetDateDestroy().AsTime()))
 			return next(ctx)
 		}),
 	}
@@ -117,14 +117,14 @@ func newCmdTenantAlias(c *cmd.Config) *xli.Command {
 				return err
 			}
 			if !yes {
-				self.Printf("would move @%s to @%s, holding @%s until %s\n", t.Alias, to, t.Alias, time.Now().Add(c.App.Workspaces.Hold()).Format(time.DateOnly))
+				self.Printf("would move @%s to @%s, holding @%s until %s\n", t.Alias, to, t.Alias, day(time.Now().Add(c.App.Workspaces.Hold())))
 				self.Printf("(nothing was done: `--yes` does it)\n")
 				return next(ctx)
 			}
 			if err := s.Closing.Rename(ctx, t.Alias, to, reuse); err != nil {
 				return err
 			}
-			self.Printf("moved @%s to @%s; @%s sends people on until %s\n", t.Alias, to, t.Alias, time.Now().Add(c.App.Workspaces.Hold()).Format(time.DateOnly))
+			self.Printf("moved @%s to @%s; @%s sends people on until %s\n", t.Alias, to, t.Alias, day(time.Now().Add(c.App.Workspaces.Hold())))
 			return next(ctx)
 		}),
 	}
@@ -134,5 +134,14 @@ func when(t *time.Time) string {
 	if t == nil {
 		return "never"
 	}
-	return t.Format(time.DateOnly)
+	return day(*t)
+}
+
+// day is the day of a moment as an operator's command says it: in UTC,
+// whatever zone the shell it runs in is in, as every date an operator's
+// command says is. A workspace's people read their dates in its own zone,
+// in the app (#144); a shell's are the deployment's, and the deployment's
+// is one zone for everybody who runs one.
+func day(t time.Time) string {
+	return t.UTC().Format(time.DateOnly)
 }

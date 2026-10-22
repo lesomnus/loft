@@ -164,6 +164,12 @@ func TestAnOperatorWritesEveryTermOfAContract(t *testing.T) {
 	x.NoError(err)
 	_, err = d.s.Ent.Tenant.UpdateOneId(tn.Id).SetKeepDays(730).SetRestoreDays(90).Save(ctx)
 	x.NoError(err)
+	// An operator fourteen hours ahead of UTC writes it, and one twelve behind
+	// reads it, for each of whom the first of January in UTC is another day:
+	// each is said the day it was given as.
+	was := time.Local
+	t.Cleanup(func() { time.Local = was })
+	time.Local = time.FixedZone("UTC+14", 14*60*60)
 
 	out, err := d.admin(t, "contract", "set", "--name", "enterprise", "--desc", "agreement 2026-7", "--purge-floors",
 		"--effective", "2026-01-01", "--yes", "acme")
@@ -176,7 +182,12 @@ func TestAnOperatorWritesEveryTermOfAContract(t *testing.T) {
 	x.Equal("enterprise", v.Name)
 	x.Equal("agreement 2026-7", v.Desc)
 	x.True(v.PurgeFloors)
-	x.Equal("2026-01-01", v.DateEffective.Local().Format(time.DateOnly))
+	x.Equal("2026-01-01", v.DateEffective.UTC().Format(time.DateOnly), "the day it was given as")
+	x.Contains(out, "contract\t2026-01-01\tenterprise", "said as the day it was given as, whatever the operator's zone")
+	time.Local = time.FixedZone("UTC-12", -12*60*60)
+	shown, err := d.admin(t, "workspace", "show", "acme")
+	x.NoError(err, shown)
+	x.Contains(shown, "contract\t2026-01-01\tenterprise", "read as another day, by an operator in another zone")
 
 	// One that says nothing more retires.
 	out, err = d.admin(t, "contract", "set", "--name", "standard", "--yes", "acme")
