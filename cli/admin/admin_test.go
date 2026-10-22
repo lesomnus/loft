@@ -260,3 +260,57 @@ func TestACertificateIsAskedForADomainInUse(t *testing.T) {
 		x.Equal(want, res.StatusCode, state)
 	}
 }
+
+// TestTheAskIsServedAloneAndHeldToItsRate: `admin.ask.addr` serves the ask
+// and no operator's door, with or without a key; a host nobody verified is
+// told no without spending a yes; and a host asked for more often than
+// `admin.ask` allows is told to ask again later.
+func TestTheAskIsServedAloneAndHeldToItsRate(t *testing.T) {
+	x := require.New(t)
+	d := deploy(t)
+	ctx := context.Background()
+
+	acme, err := d.s.Ent.Tenant.Query().Where(tenant.Alias("acme")).Only(ctx)
+	x.NoError(err)
+	for _, host := range []string{"a.acme.example", "b.acme.example"} {
+		x.NoError(d.s.Ent.TenantDomain.Create().
+			SetId(pdid.New(pd.TenantDomainDomain).Uuid()).
+			SetTenantId(acme.Id).
+			SetHost(host).
+			SetPurpose("app").
+			SetState("active").
+			SetToken("rove-test").
+			SetSource("custom").
+			SetDateUpdated(time.Now()).
+			Exec(ctx))
+	}
+	ops, err := admin.Operators(map[string]string{"alice": key})
+	x.NoError(err)
+	routes := admin.Routes{S: d.s, C: d.c, Operators: ops, Ask: admin.NewIssuance(cmd.AskConfig{HostBurst: 1, HostEvery: time.Hour, Burst: 2, Every: time.Hour})}
+	srv := httptest.NewServer(routes.AskHandler())
+	t.Cleanup(srv.Close)
+	ask := func(host string) int {
+		res, err := http.Get(srv.URL + "/internal/tls-ask?domain=" + host)
+		x.NoError(err)
+		res.Body.Close()
+		return res.StatusCode
+	}
+
+	for _, n := range []int{1, 2, 3} {
+		x.Equal(http.StatusNotFound, ask("nobody.example"), "nobody's, the %d. time", n)
+	}
+	x.Equal(http.StatusOK, ask("a.acme.example"), "nobody's spent no yes")
+	x.Equal(http.StatusTooManyRequests, ask("a.acme.example"), "a's own rate")
+	x.Equal(http.StatusOK, ask("B.acme.example."), "as a proxy may spell it")
+	x.Equal(http.StatusTooManyRequests, ask("b.acme.example"))
+
+	for _, path := range []string{"/admin/workspaces", "/"} {
+		req, err := http.NewRequest(http.MethodGet, srv.URL+path, nil)
+		x.NoError(err)
+		req.Header.Set("Authorization", "Bearer "+key)
+		res, err := http.DefaultClient.Do(req)
+		x.NoError(err)
+		res.Body.Close()
+		x.Equal(http.StatusNotFound, res.StatusCode, "%s: no operator's door on the ask's listener", path)
+	}
+}

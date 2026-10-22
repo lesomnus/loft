@@ -1,0 +1,43 @@
+# The front for workspaces' own domains (rove#155): a certificate for a host
+# on demand, and every request to it on to the server.
+#
+# Before it takes a certificate -- loads one from its volume, obtains one,
+# renews one -- it asks the operator's entry point whether the host is a
+# workspace's verified domain in use, and whether it may now (`admin.ask`). A
+# host nobody verified is never given one, and its handshake fails.
+{
+	# Ports a process that is nobody may listen on; the Service is 80 and 443.
+	http_port 8080
+	https_port 8443
+	# Sent to https:// as the Service has it, below: a redirect of Caddy's own
+	# would name the port it listens on.
+	auto_https disable_redirects
+	# HTTP/3 is UDP, which the Service does not carry.
+	servers {
+		protocols h1 h2
+	}
+	on_demand_tls {
+		ask http://rove-ask:8082/internal/tls-ask
+	}
+	# More of Caddy's global options, from the Deployment's environment, one
+	# a line: an e-mail for the ACME account, to hear of a certificate that
+	# cannot be renewed (`email ops@example.com`), or the rig's own CA.
+	{$ROVE_EDGE_OPTIONS:}
+}
+
+https:// {
+	tls {
+		on_demand
+	}
+	encode zstd gzip
+	reverse_proxy rove:8080 {
+		# A watch is a stream: each part goes on as it is written.
+		flush_interval -1
+	}
+}
+
+# Plain HTTP is a challenge Let's Encrypt asks, which Caddy answers before
+# this, or a browser sent on to HTTPS.
+http:// {
+	redir https://{host}{uri} 308
+}

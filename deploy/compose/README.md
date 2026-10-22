@@ -8,7 +8,7 @@
 | `migrate` | 이 빌드의 스키마로 테이블을 맞추고 끝납니다(`rove migrate`). 서버는 이것이 끝난 뒤에 뜨고, 스스로는 테이블을 바꾸지 않습니다(`db.migrate: false`) |
 | `rove` ×2 | `rove serve`. 백그라운드 작업은 리스로 한 대만 돌고(`spin.lease: postgres`), 변경 알림은 DB로 주고받습니다(`watch.broker: postgres`) |
 | `rove-admin` | 운영자 진입점. 호스트의 `127.0.0.1:8081`에만 열립니다 |
-| `caddy` | 80/443. Let's Encrypt 인증서를 받고 두 `rove`에 나눠 보냅니다 |
+| `caddy` | 80/443. Let's Encrypt 인증서를 받고 두 `rove`에 나눠 보냅니다. 켜면 워크스페이스 도메인의 인증서도 요청 시점에 받습니다(`compose.domains.yaml`, 아래 "워크스페이스 도메인을 받으려면") |
 | `opensearch` | 선택. 켜면 검색을 OpenSearch와 한국어 분석기 nori가 답합니다(`compose.search.yaml`, 아래 "검색을 켜려면") |
 
 서버 한 대에 이대로 올릴 수도 있습니다(Let's Encrypt까지 됩니다). 그럴 때 붙일 것은 리눅스 서버 한 대(Docker와 compose), 그 서버를 가리키는 도메인(DNS A 레코드), 열린 80/443 포트입니다. 운영의 기준은 `deploy/k8s`입니다.
@@ -92,6 +92,28 @@ docker compose run --rm rove --config /etc/rove/rove.yaml search status
 
 - **끄려면** `.env`에서 `COMPOSE_FILE` 줄을 지우고 `docker compose up -d --remove-orphans`를 합니다. 검색은 다시 데이터베이스가 답합니다.
 - `rove`, `rove-admin`, `migrate` 모두 같은 검색 설정을 받습니다. 운영자가 워크스페이스를 파기한 것도 색인에 닿아야 하기 때문입니다.
+
+## 워크스페이스 도메인을 받으려면
+
+워크스페이스가 자기 도메인(`assets.acme.co.kr`)에서 앱을 쓰게 하려면 `compose.domains.yaml`을 함께 읽게 합니다(rove#155). 서비스 주소(`ROVE_DOMAIN`)의 인증서는 지금과 같습니다.
+
+```sh
+echo 'COMPOSE_FILE=compose.yaml:compose.domains.yaml' >> .env   # 검색도 켰다면 compose.yaml:compose.search.yaml:compose.domains.yaml
+docker compose up -d
+```
+
+- **무엇이 바뀌나.**
+  - Caddy가 `Caddyfile` 대신 `Caddyfile.domains`를 읽습니다. 서비스 주소는 `Caddyfile` 그대로 가져오고, 그 밖의 호스트는 인증서를 요청 시점에 받습니다.
+  - 받기 전에(불러올 때도, 갱신할 때도) 운영자 진입점의 `/internal/tls-ask`에 묻습니다. `rove-admin`이 그 물음만 받는 포트(8082, `admin.ask.addr`)를 엽니다.
+  - 아무도 확인하지 않은 호스트에는 인증서가 없습니다. DNS가 떠나 `lapsed`가 된 도메인은 갱신도 거절됩니다.
+  - 인증서와 ACME 계정은 지금처럼 `caddy_data` 볼륨에 남습니다.
+- **발급 횟수**는 묻는 곳이 제한합니다(`rove.yaml`의 `admin.ask`). 기본은 호스트마다 한꺼번에 10번, 그 뒤 5분에 한 번이고, 모두 합쳐 한꺼번에 300번, 그 뒤 30초에 한 번입니다. 이유는 `deploy/k8s/README.md`의 11에 있습니다.
+- **고객의 CNAME이 가리킬 이름**은 `ROVE_DOMAIN`입니다. 다른 이름(같은 서버를 가리키는 `edge.rove.example` 등)을 쓰려면 `.env`의 `ROVE_EDGE_HOST`에 적습니다. 워크스페이스 설정에 이 이름이 나오고, 한 시간마다 하는 DNS 재확인이 이것을 봅니다.
+- **ACME 계정의 메일**은 `.env`에 `ROVE_EDGE_OPTIONS=email ops@example.com`으로 줍니다. 인증서를 갱신하지 못할 때 알림을 받습니다.
+- **고객이 할 일:** 설정 › 도메인과 라벨에 도메인을 더하고, 화면의 레코드 둘을 만듭니다. 확인된 뒤에도 지우지 않습니다.
+  - CNAME `<도메인>` → `ROVE_EDGE_HOST`(없으면 `ROVE_DOMAIN`). apex라면 DNS 업체의 ALIAS·CNAME 펼치기를 씁니다.
+  - TXT `_rove-challenge.<도메인>` = 토큰.
+- **끄려면** `COMPOSE_FILE`에서 `compose.domains.yaml`을 빼고 `docker compose up -d`를 합니다. 워크스페이스의 링크는 활성 앱 도메인으로 계속 만들어지니, 끄기 전에 워크스페이스들이 도메인을 거두게 합니다.
 
 ## 운영자 진입점
 

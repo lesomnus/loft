@@ -10,9 +10,12 @@
 // shell's operator commands write it.
 //
 // The one path that asks for no key is `/internal/tls-ask`, which the reverse
-// proxy in front of the public entry point asks before it fetches a
+// proxy in front of workspaces' own domains asks before it takes a
 // certificate: whether a host is some workspace's verified domain -- one its
-// app is on, or one its labels print with (design 9.9, rove#155).
+// app is on, or one its labels print with (design 9.9, rove#155) -- and that
+// it is not asked for more often than `admin.ask` allows ([Issuance]). It is
+// also served alone on a listener of its own (`admin.ask.addr`), so that a
+// proxy facing the internet reaches no operator's door.
 package admin
 
 import (
@@ -27,11 +30,13 @@ import (
 	"net/http"
 	"slices"
 	"strings"
+	"sync"
 	"time"
 	"uuid"
 
 	"github.com/lesomnus/otx/log"
 	"github.com/lesomnus/payday/pdid"
+	"golang.org/x/time/rate"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -81,6 +86,61 @@ type Routes struct {
 	S         *cmd.Server
 	C         cmd.Config
 	Operators []Operator
+
+	// Ask is how often the ask says yes; nil says it as often as it is asked.
+	Ask *Issuance
+}
+
+// Issuance is how often `/internal/tls-ask` says yes: a rate for each host and
+// one for all of them (`admin.ask`). It is this process's to keep, which is
+// enough for the one entry point a deployment runs.
+type Issuance struct {
+	all *rate.Limiter
+
+	burst int
+	every time.Duration
+	mu    sync.Mutex
+	// hosts is the rate of each host the ask said yes to, which is a
+	// workspace's verified domain: no more of them than there are.
+	hosts map[string]*rate.Limiter
+}
+
+// NewIssuance is the rates `c` says.
+func NewIssuance(c cmd.AskConfig) *Issuance {
+	burst, every := c.Rate()
+	hostBurst, hostEvery := c.HostRate()
+	return &Issuance{
+		all:   rate.NewLimiter(rate.Every(every), burst),
+		burst: hostBurst,
+		every: hostEvery,
+		hosts: map[string]*rate.Limiter{},
+	}
+}
+
+// allow answers whether one more certificate may be taken for `host` now:
+// its own rate first, and then all hosts'. One refused by either spends
+// neither.
+func (i *Issuance) allow(host string, now time.Time) bool {
+	i.mu.Lock()
+	l, ok := i.hosts[host]
+	if !ok {
+		l = rate.NewLimiter(rate.Every(i.every), i.burst)
+		i.hosts[host] = l
+	}
+	i.mu.Unlock()
+
+	own := l.ReserveN(now, 1)
+	if !own.OK() || own.DelayFrom(now) > 0 {
+		own.CancelAt(now)
+		return false
+	}
+	every := i.all.ReserveN(now, 1)
+	if !every.OK() || every.DelayFrom(now) > 0 {
+		every.CancelAt(now)
+		own.CancelAt(now)
+		return false
+	}
+	return true
 }
 
 type operatorKey struct{}
@@ -89,6 +149,14 @@ type operatorKey struct{}
 func Who(ctx context.Context) string {
 	v, _ := ctx.Value(operatorKey{}).(string)
 	return v
+}
+
+// AskHandler serves `/internal/tls-ask` and nothing else, for
+// `admin.ask.addr`.
+func (a Routes) AskHandler() http.Handler {
+	mux := http.NewServeMux()
+	mux.HandleFunc("GET /internal/tls-ask", a.tlsAsk)
+	return mux
 }
 
 // Handler serves the entry point.
@@ -112,17 +180,24 @@ func (a Routes) Handler() http.Handler {
 }
 
 // tlsAsk answers a reverse proxy issuing certificates on demand: only a host
-// that is some workspace's domain, verified and not retired, gets one --
-// whatever it is for, since a label printed with a domain opens on it.
+// that is some workspace's domain, verified and in use, gets one -- whatever
+// it is for, since a label printed with a domain opens on it -- and no more
+// often than [Issuance] allows.
 func (a Routes) tlsAsk(w http.ResponseWriter, r *http.Request) {
-	host := strings.ToLower(r.URL.Query().Get("domain"))
+	ctx := r.Context()
+	host := strings.TrimSuffix(strings.ToLower(r.URL.Query().Get("domain")), ".")
 	ok, err := a.S.Ent.TenantDomain.Query().Where(
 		tenantdomain.Host(host),
 		tenantdomain.StateIn("ready", "active", "legacy"),
 		tenantdomain.DateErasedIsNil(),
-	).Exist(r.Context())
+	).Exist(ctx)
 	if err != nil || !ok {
 		http.Error(w, "not a workspace's domain here", http.StatusNotFound)
+		return
+	}
+	if a.Ask != nil && !a.Ask.allow(host, time.Now()) {
+		log.From(ctx).WarnContext(ctx, "tls-ask: a certificate asked for more often than admin.ask allows, refused for now", "host", host)
+		http.Error(w, "asked for too often: ask again later", http.StatusTooManyRequests)
 		return
 	}
 	w.WriteHeader(http.StatusOK)

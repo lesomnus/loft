@@ -14,9 +14,12 @@ resources:
   - ./ingress.yaml
 
 # The trail's store witness, which the base leaves to an overlay because it is
-# a volume: what a deployment that wants one writes.
+# a volume: what a deployment that wants one writes. And the front for
+# workspaces' own domains (rove#155), on Caddy's own CA: nothing here is
+# reached from outside for Let's Encrypt to ask.
 components:
   - ../../deploy/k8s/witness
+  - ../../deploy/k8s/domains
 
 configMapGenerator:
   # The base's file with the rig's address and proxy in it.
@@ -33,6 +36,24 @@ configMapGenerator:
         app.kubernetes.io/name: postgres
 
 patches:
+  # The front behind no load balancer: k3s's own takes 80 and 443 for
+  # Traefik, and the rig asks the front from inside the cluster.
+  - target: { kind: Service, name: rove-edge }
+    patch: |-
+      - op: replace
+        path: /spec/type
+        value: ClusterIP
+      - op: remove
+        path: /spec/externalTrafficPolicy
+  - target: { kind: Deployment, name: rove-edge }
+    patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/env
+        value:
+          - name: ROVE_EDGE_OPTIONS
+            value: |-
+              local_certs
+              skip_install_trust
   # Only Traefik reaches the server -- which is what lets `trusted_proxies`
   # name the whole pod network rather than Traefik's pods one by one.
   - target: { kind: NetworkPolicy, name: rove }
@@ -52,4 +73,7 @@ images:
     newName: rove-cluster
     newTag: rig
   - name: rove-postgres
+    newTag: rig
+  - name: caddy
+    newName: rove-edge
     newTag: rig

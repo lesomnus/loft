@@ -17,7 +17,11 @@
 #     but the ingress controller (the NetworkPolicy);
 #   - a new build replaces the pod and migrates first, and `rollout undo` puts
 #     the one before back -- with the session signed in before both still
-#     signed in, because nothing a person holds was in the pod.
+#     signed in, because nothing a person holds was in the pod;
+#   - the front for workspaces' own domains (`deploy/k8s/domains`) comes up
+#     as nobody, takes a certificate for a workspace's verified domain and
+#     serves it, gives none to a host nobody verified, and is the one thing
+#     that reaches the operator's entry point's ask.
 #
 # Not in `go test`: it needs an engine and a few minutes. CI runs it (the
 # `cluster` job).
@@ -80,6 +84,7 @@ diagnose() {
 		kube "kubectl -n ${NS} get pods -o wide" 2>/dev/null || true
 		kube "kubectl -n ${NS} logs deploy/rove --all-containers --tail=40 --prefix" 2>/dev/null || true
 		kube "kubectl -n ${NS} logs statefulset/postgres --tail=20" 2>/dev/null || true
+		kube "kubectl -n ${NS} logs deploy/rove-edge --tail=40" 2>/dev/null || true
 		kube "kubectl -n ${NS} get events --sort-by=.lastTimestamp" 2>/dev/null | tail -30 || true
 	} >&2
 }
@@ -96,7 +101,7 @@ cleanup() {
 		k3d cluster delete "${CLUSTER}" >/dev/null 2>&1 || true
 		# The names it gave what it built, and not the layers, which the
 		# next run builds on.
-		docker image rm "rove-cluster:rig" "rove-cluster:next" "rove-postgres:rig" >/dev/null 2>&1 || true
+		docker image rm "rove-cluster:rig" "rove-cluster:next" "rove-postgres:rig" "rove-edge:rig" >/dev/null 2>&1 || true
 	else
 		echo
 		echo "cluster: left up, with its kubeconfig written nowhere. To look:"
@@ -234,11 +239,15 @@ tried docker build -q -t "rove-cluster:rig" . >/dev/null
 mkdir -p "${work}/postgres"
 printf 'FROM postgres:18\n' >"${work}/postgres/Dockerfile"
 tried docker build -q -t "rove-postgres:rig" "${work}/postgres" >/dev/null
+# And Caddy, for the front, the same way.
+mkdir -p "${work}/edge"
+printf 'FROM caddy:2.11.7\n' >"${work}/edge/Dockerfile"
+tried docker build -q -t "rove-edge:rig" "${work}/edge" >/dev/null
 # The next build, which is this one under another name: a rollout is a new
 # image, whatever is in it, and what is under test is the rollout.
 docker tag "rove-cluster:rig" "rove-cluster:next"
 standing
-imported="$(k3d image import "rove-cluster:rig" "rove-cluster:next" "rove-postgres:rig" -c "${CLUSTER}" 2>&1)" || true
+imported="$(k3d image import "rove-cluster:rig" "rove-cluster:next" "rove-postgres:rig" "rove-edge:rig" -c "${CLUSTER}" 2>&1)" || true
 case "${imported}" in
 *ERRO*)
 	printf '%s\n' "${imported}" >&2
@@ -280,7 +289,8 @@ echo "== rolled out"
 kube "kubectl apply -k /w/scripts/cluster -l app.kubernetes.io/name=postgres >/dev/null &&
 	kubectl -n ${NS} rollout status statefulset/postgres --timeout=300s >/dev/null"
 kube "kubectl apply -k /w/scripts/cluster >/dev/null &&
-	kubectl -n ${NS} rollout status deploy/rove --timeout=300s >/dev/null"
+	kubectl -n ${NS} rollout status deploy/rove --timeout=300s >/dev/null &&
+	kubectl -n ${NS} rollout status deploy/rove-edge --timeout=300s >/dev/null"
 said "this build's shape" "the init container did not migrate" \
 	kube "kubectl -n ${NS} logs deploy/rove -c migrate"
 
@@ -330,7 +340,7 @@ ip="$(kube "kubectl -n ${NS} get pod -l app.kubernetes.io/component=server -o js
 probe() {
 	kube "kubectl create namespace rig >/dev/null 2>&1; kubectl -n rig delete pod probe --ignore-not-found >/dev/null 2>&1
 		kubectl -n rig run probe --image=${CURL_IMAGE} --restart=Never --command -- sh -c \
-			'curl -sk -m 10 -H \"Host: rove.localhost\" https://traefik.kube-system.svc.cluster.local/healthz && echo through-the-ingress; curl -s -m 5 http://${ip}:8080/healthz && echo reached-the-server; curl -s -m 5 http://${ip}:8081/ && echo reached-the-entry-point; echo probed' >/dev/null
+			'curl -sk -m 10 -H \"Host: rove.localhost\" https://traefik.kube-system.svc.cluster.local/healthz && echo through-the-ingress; curl -s -m 5 http://${ip}:8080/healthz && echo reached-the-server; curl -s -m 5 http://${ip}:8081/ && echo reached-the-entry-point; curl -s -m 5 http://${ip}:8082/internal/tls-ask?domain=x && echo reached-the-ask; echo probed' >/dev/null
 		kubectl -n rig wait --for=jsonpath='{.status.phase}'=Succeeded pod/probe --timeout=120s >/dev/null
 		kubectl -n rig logs probe"
 }
@@ -339,6 +349,28 @@ said "probed" "the probe did not run" printf '%s' "${out}"
 said "through-the-ingress" "the probe could not reach the server through the ingress either" printf '%s' "${out}"
 unsaid "reached-the-server" "a pod that is not the ingress controller reached the server" printf '%s' "${out}"
 unsaid "reached-the-entry-point" "a pod reached the operator's entry point over the network" printf '%s' "${out}"
+unsaid "reached-the-ask" "a pod that is not the front reached the operator's entry point's ask" printf '%s' "${out}"
+
+# A workspace's own domain, verified -- its DNS is nothing the rig can serve,
+# so the row is told so -- and asked for through the front, from a pod, as a
+# browser would: served, on a certificate the front took on demand; and a
+# host nobody verified given none.
+echo "== a workspace's own domain, through the front"
+said "200" "a workspace's domain was not added" \
+	web -o /dev/null -w '%{http_code}' -b /w/jar -H 'content-type: application/json' -H 'connect-protocol-version: 1' \
+		-d '{"host":"assets.rig.example"}' https://rove.localhost/rove.TenantDomainService/Add
+kube "kubectl -n ${NS} exec statefulset/postgres -- psql -U rove -d rove -qc \"UPDATE tenantdomain SET state = 'active', verified_at = now() WHERE host = 'assets.rig.example'\" >/dev/null"
+front() {
+	kube "kubectl create namespace rig >/dev/null 2>&1; kubectl -n rig delete pod front --ignore-not-found >/dev/null 2>&1
+		kubectl -n rig run front --image=${CURL_IMAGE} --restart=Never --command -- sh -c \
+			'curl -sk -m 30 --connect-to assets.rig.example:443:rove-edge.${NS}.svc.cluster.local:443 https://assets.rig.example/healthz && echo served-the-domain; curl -sk -m 10 --connect-to nobody.rig.example:443:rove-edge.${NS}.svc.cluster.local:443 https://nobody.rig.example/healthz && echo served-nobody; echo probed' >/dev/null
+		kubectl -n rig wait --for=jsonpath='{.status.phase}'=Succeeded pod/front --timeout=120s >/dev/null
+		kubectl -n rig logs front"
+}
+out="$(front)"
+said "probed" "the probe of the front did not run" printf '%s' "${out}"
+said "served-the-domain" "the front did not serve a workspace's verified domain" printf '%s' "${out}"
+unsaid "served-nobody" "the front took a certificate for a host nobody verified" printf '%s' "${out}"
 
 echo "== a new build replaces the pod, and the one before comes back"
 kube "kubectl -n ${NS} set image deploy/rove migrate=rove-cluster:next rove=rove-cluster:next rove-admin=rove-cluster:next >/dev/null &&
