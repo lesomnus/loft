@@ -287,8 +287,12 @@ type AppConfig struct {
 
 	// Files is the directory attachments are kept in.
 	Files string `yaml:"files"`
-	// SigningKey signs the short-lived download links. Empty makes one per
-	// process, which means a link stops working when the process restarts --
+	// SigningKey signs the short-lived download links, and is what a key the
+	// sessions' keys are kept under is made from (`session.KeyFrom`): a
+	// session's key, a terminal's, a handoff's code are kept as an HMAC under
+	// it, which nobody who may only write the database can make. Rotating it
+	// signs everybody out. Empty makes one per process, which means a link
+	// stops working and everybody is signed out when the process restarts --
 	// and, in a deployment of several, on every process but the one that
 	// signed it, which `serve` refuses (see [Config.Replicas]).
 	SigningKey string `yaml:"signing_key"`

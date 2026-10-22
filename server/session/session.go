@@ -24,6 +24,8 @@ package session
 import (
 	"bytes"
 	"context"
+	"crypto/hkdf"
+	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/json"
 	"errors"
@@ -56,10 +58,18 @@ import (
 )
 
 // Store is an [authsession.Store] over the Session table. The key is never
-// written down: the row holds its SHA-256, which is what a cookie is looked up
-// by, so a copy of the table signs nobody in.
+// written down: the row holds what it is kept as ([Store.Kept]) -- an HMAC of
+// its SHA-256 under a key the database does not hold -- which is what a cookie
+// is looked up by. So a copy of the table signs nobody in, and neither does a
+// row put in it past the servers by whoever may write it: what a key of their
+// own is kept as is nothing they can work out without that key. Sessions are
+// no act on the trail, and this is what keeps the table from being a way in.
 type Store struct {
 	Db *ent.Client
+
+	// Key is what keys are kept under ([KeyFrom]); every process of a
+	// deployment holds the same, or a key one kept is none to the next.
+	Key []byte
 
 	// People is what a session's person is held to on every call; nil holds
 	// them to nothing, which only a test of the table itself wants.
@@ -74,9 +84,33 @@ type Held interface {
 
 var _ authsession.Store = Store{}
 
-func digest(key string) []byte {
-	v := sha256.Sum256([]byte(key))
-	return v[:]
+// KeyFrom is the key sessions, terminals' sign-ins and handoff codes are kept
+// under, made from `app.signing_key` (HKDF, with a label of its own): a key
+// every process of a deployment holds, and no database does -- the one place
+// the trail's adversary is not. The signing key signs download links as well,
+// and the label is what keeps what one is used for from saying anything of the
+// other. Rotating it signs everybody out.
+func KeyFrom(signing []byte) []byte {
+	k, err := hkdf.Key(sha256.New, signing, nil, "rove: what a session's key is kept as", sha256.Size)
+	if err != nil {
+		panic(err)
+	}
+	return k
+}
+
+// Kept is what a key -- a session's, a handoff's code -- is kept and looked up
+// as: the HMAC, under [Store.Key], of its SHA-256.
+func (s Store) Kept(key string) []byte {
+	sum := sha256.Sum256([]byte(key))
+	return s.KeptSum(sum[:])
+}
+
+// KeptSum is [Store.Kept] of a key whose SHA-256 is all that was sent: a
+// terminal's, which keeps the key and sends only that (`server/clilogin`).
+func (s Store) KeptSum(sum []byte) []byte {
+	m := hmac.New(sha256.New, s.Key)
+	m.Write(sum)
+	return m.Sum(nil)
 }
 
 // whole is the one grant a password gives: whatever the person may do.
@@ -143,7 +177,7 @@ func (s Store) Put(ctx context.Context, v authsession.Session) error {
 	// Put is also how the idle clock moves: the same key, again.
 	now := time.Now()
 	n, err := s.Db.Session.Update().
-		Where(session.Secret(digest(v.Key)), session.DateErasedIsNil()).
+		Where(session.Secret(s.Kept(v.Key)), session.DateErasedIsNil()).
 		SetNillableDateIdle(nonzero(v.Idle)).
 		SetNillableDateExpires(nonzero(v.Expires)).
 		SetDateUpdated(now).
@@ -158,7 +192,7 @@ func (s Store) Put(ctx context.Context, v authsession.Session) error {
 	create := s.Db.Session.Create().
 		SetId(pdid.New(pd.SessionDomain).Uuid()).
 		SetAccount(account.Uuid()).
-		SetSecret(digest(v.Key)).
+		SetSecret(s.Kept(v.Key)).
 		SetGrant(whole).
 		SetNillableDateIdle(nonzero(v.Idle)).
 		SetNillableDateExpires(nonzero(v.Expires)).
@@ -188,7 +222,7 @@ func (s Store) keep(ctx context.Context, v authsession.Session) error {
 	if v.TenantId == "" || v.Idle.IsZero() {
 		return nil
 	}
-	row, err := s.Db.Session.Query().Where(session.Secret(digest(v.Key))).Only(ctx)
+	row, err := s.Db.Session.Query().Where(session.Secret(s.Kept(v.Key))).Only(ctx)
 	if err != nil || row.Parent == nil {
 		return err
 	}
@@ -200,7 +234,7 @@ func (s Store) keep(ctx context.Context, v authsession.Session) error {
 }
 
 func (s Store) Get(ctx context.Context, key string) (authsession.Session, error) {
-	v, err := s.Db.Session.Query().Where(session.Secret(digest(key)), session.DateErasedIsNil()).Only(ctx)
+	v, err := s.Db.Session.Query().Where(session.Secret(s.Kept(key)), session.DateErasedIsNil()).Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return authsession.Session{}, authsession.ErrNoSession
@@ -265,7 +299,7 @@ func (s Store) Get(ctx context.Context, key string) (authsession.Session, error)
 }
 
 func (s Store) Del(ctx context.Context, key string) error {
-	_, err := s.Db.Session.Delete().Where(session.Secret(digest(key))).Exec(ctx)
+	_, err := s.Db.Session.Delete().Where(session.Secret(s.Kept(key))).Exec(ctx)
 	return err
 }
 
@@ -278,7 +312,7 @@ func (s Store) Leave(ctx context.Context, key string) (map[string]string, error)
 	if key == "" {
 		return nil, nil
 	}
-	v, err := s.Db.Session.Query().Where(session.Secret(digest(key))).Only(ctx)
+	v, err := s.Db.Session.Query().Where(session.Secret(s.Kept(key))).Only(ctx)
 	switch {
 	case ent.IsNotFound(err):
 		return nil, nil
@@ -305,13 +339,13 @@ func (s Store) Leave(ctx context.Context, key string) (map[string]string, error)
 }
 
 // Adopt makes a session whose key somebody else holds: a terminal that made
-// one up and sent only what it hashes to (`server/clilogin`). It is the row
-// [Store.Put] writes, for an account, beginning now and good until `idle` and
-// `expires`, narrowed to `grant` ([Grant]; empty is [whole]), and the key is
-// never seen here.
-func (s Store) Adopt(ctx context.Context, account pdid.Id, secret, grant []byte, idle, expires time.Time) error {
-	if len(secret) != sha256.Size {
-		return errors.New("session: a secret is a SHA-256")
+// one up and sent only its SHA-256 (`server/clilogin`), which is kept as
+// `kept` ([Store.KeptSum]). It is the row [Store.Put] writes, for an account,
+// beginning now and good until `idle` and `expires`, narrowed to `grant`
+// ([Grant]; empty is [whole]), and the key is never seen here.
+func (s Store) Adopt(ctx context.Context, account pdid.Id, kept, grant []byte, idle, expires time.Time) error {
+	if len(kept) != sha256.Size {
+		return errors.New("session: a key is kept as an HMAC-SHA-256")
 	}
 	if len(grant) == 0 {
 		grant = whole
@@ -323,7 +357,7 @@ func (s Store) Adopt(ctx context.Context, account pdid.Id, secret, grant []byte,
 	return s.Db.Session.Create().
 		SetId(pdid.New(pd.SessionDomain).Uuid()).
 		SetAccount(account.Uuid()).
-		SetSecret(secret).
+		SetSecret(kept).
 		SetGrant(grant).
 		SetNillableDateIdle(nonzero(idle)).
 		SetNillableDateExpires(nonzero(expires)).

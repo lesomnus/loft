@@ -343,8 +343,10 @@ func (b0 Party_builder) Build() *Party {
 // which one a request is about is the request's to say (design 9.11). So it is
 // the deployment's and not any workspace's -- `global` -- and it is written
 // only by the server, through ent (`server/session`); the policy opens no RPC
-// of it. The key itself is never stored: `secret` is its SHA-256, which is
-// what a cookie is looked up by.
+// of it. The key itself is never stored: `secret` is what it is kept as -- an
+// HMAC of its SHA-256 under a key the database does not hold
+// (`server/session`) -- which is what a cookie is looked up by, and which
+// nobody who may only write the database can make for a key of their own.
 //
 // One handed to a workspace's own domain (rove#155) is the exception: a
 // cookie of that host's alone, bound to that workspace (`workspace`), and
@@ -1051,8 +1053,8 @@ func (b0 Invitation_builder) Build() *Invitation {
 // browser (`rove login`).
 //
 // The terminal makes up the session key it will use, keeps it, and sends only
-// its SHA-256: `secret` is what the session will be looked up by, exactly as a
-// browser's is (`Session.secret`). A person signed in at the app approves the
+// its SHA-256, which is kept as a browser's key is (`Session.secret`): `secret`
+// is what the session will be looked up by. A person signed in at the app approves the
 // `code` the terminal shows them, and the approval makes that session for
 // their account. So no key is written here or sent back, and the row holds
 // nothing a reader of the database could sign in with. It is the
@@ -1306,7 +1308,7 @@ type CliLogin_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	Id []byte
-	// What the session's key hashes to, as `Session.secret`.
+	// What the session's key is kept as: `Session.secret`.
 	Secret []byte
 	// What the terminal shows and the person approves: eight letters and
 	// digits that read aloud, good for one approval.
@@ -1715,7 +1717,7 @@ func (b0 SignInFailure_builder) Build() *SignInFailure {
 //
 // A code is good once, for a minute, for the account, the workspace and the
 // host it was made for, and for the round trip that host started (`state`).
-// It is never written down -- `secret` is what it hashes to, as a session's
+// It is never written down -- `secret` is what it is kept as, as a session's
 // key is -- and its row is gone when it is exchanged, whatever the exchange
 // comes to. It is the deployment's (`global`), written only through ent by
 // `server/session`, and the policy opens no RPC of it.
@@ -1902,14 +1904,14 @@ type Handoff_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	Id []byte
-	// What the code hashes to.
+	// What the code is kept as, as a session's key is.
 	Secret []byte
 	// Who it signs in, to which workspace, on which of that workspace's
 	// domains: an active `app` one when the code was made.
 	Account   []byte
 	Workspace []byte
 	Host      string
-	// What the state the host started the round trip with hashes to: the code
+	// What the state the host started the round trip with is kept as: the code
 	// is good for that round trip and no other.
 	State []byte
 	// The sign-in at the service's address the code was given to, which the
