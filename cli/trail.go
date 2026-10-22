@@ -99,6 +99,8 @@ func NewCmdTrail(c *cmd.Config) *xli.Command {
 					return rows(ctx, self, c, accept, strings.TrimSpace(of), why)
 				}),
 			},
+			newCmdTrailExport(c),
+			newCmdTrailVerifyExport(c),
 			{
 				Name:  "accept",
 				Brief: "make the manifest say what the archive holds, once somebody has looked",

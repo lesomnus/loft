@@ -17,8 +17,11 @@ import (
 	"github.com/lesomnus/xli/flg"
 
 	"github.com/lesomnus/rove/cmd"
+	"github.com/lesomnus/rove/internal/ent"
+	"github.com/lesomnus/rove/internal/ent/aliashold"
 	"github.com/lesomnus/rove/server/closing"
 	"github.com/lesomnus/rove/server/offboard"
+	"github.com/lesomnus/rove/server/pd"
 	"github.com/lesomnus/rove/server/retention"
 )
 
@@ -143,6 +146,7 @@ func NewCmdTenant(c *cmd.Config) *xli.Command {
 				}),
 			},
 			newCmdTenantImport(c),
+			newCmdTenantRetired(c),
 			newCmdTenantLeave(c, "retire", "take a tenant out of the deployment, keeping what the deployment's floors are on of its trail until they pass", closing.Retire),
 			newCmdTenantLeave(c, "purge", "take everything of a tenant out of the deployment, its whole trail with it, the tenant last", closing.Purge),
 		},
@@ -233,6 +237,53 @@ func newCmdTenantLeave(c *cmd.Config, name, brief string, how closing.How) *xli.
 				self.Printf("(nothing was taken: `--yes` takes it. Export first -- `rove tenant export --tenant %s`)\n", t.Alias)
 			}
 			return nil
+		}),
+	}
+}
+
+// newCmdTenantRetired is `rove tenant retired`: the workspaces that retired
+// from this deployment and what is left of each -- when it retired, and until
+// when the deployment's floors keep what it kept (`trail.Policy.Retired`).
+// What an operator asked to preserve a workspace's records reads first:
+// whether they are still there (docs/runbook/preserve.md).
+func newCmdTenantRetired(c *cmd.Config) *xli.Command {
+	return &xli.Command{
+		Name:  "retired",
+		Brief: "the workspaces that retired, when, and until when what they kept is kept",
+		Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
+			s, err := cmd.Build(ctx, *c)
+			if err != nil {
+				return err
+			}
+			defer s.Close()
+
+			vs, err := s.Trail.Retired(ctx, pd.TrailStore(s.Ent))
+			if err != nil {
+				return err
+			}
+			ids := slices.SortedFunc(maps.Keys(vs), func(a, b pdid.Id) int { return vs[a].At.Compare(vs[b].At) })
+			now := time.Now()
+			for _, id := range ids {
+				v := vs[id]
+				alias := "-"
+				if h, err := s.Ent.AliasHold.Query().
+					Where(aliashold.Tenant(id.Uuid()), aliashold.Reason(offboard.ReasonRetired)).
+					Order(ent.Desc(aliashold.FieldDateCreated)).
+					First(ctx); err == nil {
+					alias = "@" + h.Held
+				} else if !ent.IsNotFound(err) {
+					return err
+				}
+				left := "kept until " + v.Until.Format(time.DateOnly)
+				if !now.Before(v.Until) {
+					left = "past its floors since " + v.Until.Format(time.DateOnly) + ": the next pass takes what is left"
+				}
+				self.Printf("%s\t%s\tretired %s\t%s\n", alias, id, v.At.Format(time.DateOnly), left)
+			}
+			if len(ids) == 0 {
+				self.Printf("no workspace has retired, or what each kept is gone\n")
+			}
+			return next(ctx)
 		}),
 	}
 }
