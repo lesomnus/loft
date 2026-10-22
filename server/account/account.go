@@ -31,6 +31,7 @@ import (
 	"github.com/lesomnus/payday/pdpb"
 
 	"github.com/lesomnus/rove/internal/identity"
+	"github.com/lesomnus/rove/server/apphost"
 	"github.com/lesomnus/rove/server/clientaddr"
 	"github.com/lesomnus/rove/server/consent"
 	"github.com/lesomnus/rove/server/tenancy"
@@ -152,6 +153,7 @@ func (a Routes) Mount(mux *http.ServeMux) {
 			fail(w, r, err)
 			return
 		}
+		ms = pinned(r, ms)
 		alias := r.PathValue("alias")
 		for _, m := range ms {
 			if m.Alias != alias {
@@ -206,7 +208,7 @@ func (a Routes) Mount(mux *http.ServeMux) {
 		if !ok {
 			return
 		}
-		v, err := a.accountOf(r.Context(), ws, p)
+		v, err := a.accountOf(r, ws, p)
 		if err != nil {
 			fail(w, r, err)
 			return
@@ -275,6 +277,7 @@ func (a Routes) Mount(mux *http.ServeMux) {
 			fail(w, r, err)
 			return
 		}
+		ms = pinned(r, ms)
 		var (
 			in pdid.Id
 			at bool
@@ -413,13 +416,13 @@ func Reading(w http.ResponseWriter, r *http.Request, sessions *authsession.Sessi
 	return p, v.Grant, true
 }
 
-func (a Routes) accountOf(ctx context.Context, ws tenancy.Workspaces, p identity.Person) (Account, error) {
-	ms, err := ws.Of(ctx, p.Id)
+func (a Routes) accountOf(r *http.Request, ws tenancy.Workspaces, p identity.Person) (Account, error) {
+	ms, err := ws.Of(r.Context(), p.Id)
 	if err != nil {
 		return Account{}, err
 	}
 	out := Account{Id: p.Id.String(), Login: p.Alias, Name: p.Name, Workspaces: []Workspace{}}
-	for _, m := range ms {
+	for _, m := range pinned(r, ms) {
 		out.Workspaces = append(out.Workspaces, a.workspaceOf(m))
 		if m.Role == "owner" {
 			out.Owns++
@@ -430,6 +433,23 @@ func (a Routes) accountOf(ctx context.Context, ws tenancy.Workspaces, p identity
 	}
 
 	return out, nil
+}
+
+// pinned is the memberships a request may see: on a workspace's own domain
+// the one in that workspace, and nothing of the account's others (rove#155);
+// all of them at the service's address.
+func pinned(r *http.Request, ms []tenancy.Membership) []tenancy.Membership {
+	pin, ok := apphost.From(r.Context())
+	if !ok {
+		return ms
+	}
+	out := []tenancy.Membership{}
+	for _, m := range ms {
+		if m.Workspace == pin.Workspace {
+			out = append(out, m)
+		}
+	}
+	return out
 }
 
 func (a Routes) workspaceOf(m tenancy.Membership) Workspace {

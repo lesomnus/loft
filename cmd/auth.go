@@ -21,6 +21,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/internal/ent/holder"
 	"github.com/lesomnus/rove/internal/ent/tenant"
+	"github.com/lesomnus/rove/server/apphost"
 	"github.com/lesomnus/rove/server/consent"
 )
 
@@ -45,8 +46,15 @@ import (
 // A session's account that has not agreed to what this deployment asks
 // (`consents`, design 9.11) is refused every call, with [ConsentOwed]: what it
 // agrees to is HTTP beside the RPCs (`server/account`), and its first page.
+//
+// A call that came to a workspace's own domain is pinned to that workspace
+// ([apphost.From], rove#155), and served as a membership of it or not at all:
+// a [WorkspaceHeader] that names another is refused rather than re-pointed,
+// a credential of another workspace's holder is refused, and so is a call an
+// account makes as itself across its workspaces ([AccountMethods]).
 func Resolver(s app.Server, db *ent.Client, consents *consent.Consents) auth.Resolver {
 	return auth.ResolverFunc(func(ctx context.Context, id auth.Identity) (*frame.Frame, error) {
+		pin, pinned := apphost.From(ctx)
 		var ref *app.HolderRef
 		var err error
 		if id.Method == authsession.Method {
@@ -54,6 +62,9 @@ func Resolver(s app.Server, db *ent.Client, consents *consent.Consents) auth.Res
 				return nil, err
 			}
 			if m, ok := grpc.Method(ctx); ok && AccountMethods[m] {
+				if pinned {
+					return nil, status.Errorf(codes.PermissionDenied, "this is @%s's address: what an account does across its workspaces is done at the service's", pin.Alias)
+				}
 				return asAccount(id.Id)
 			}
 			ref, err = membership(ctx, db, id.Id)
@@ -107,6 +118,10 @@ func Resolver(s app.Server, db *ent.Client, consents *consent.Consents) auth.Res
 		tenant, err := pdid.From(v.GetTenant().GetId())
 		if err != nil {
 			return nil, err
+		}
+		// Whatever the credential named, a pinned call is of its workspace.
+		if pinned && tenant != pin.Workspace {
+			return nil, status.Errorf(codes.PermissionDenied, "this is @%s's address, and serves no other workspace", pin.Alias)
 		}
 
 		// The grant is not set here. The interceptor takes it from the
@@ -211,6 +226,15 @@ func membership(ctx context.Context, db *ent.Client, account string) (*app.Holde
 			ws = strings.TrimPrefix(strings.TrimSpace(vs[0]), "@")
 		}
 	}
+	// On a workspace's own domain the workspace is the domain's (rove#155):
+	// one named otherwise is refused, and none named is that one.
+	named := ws
+	if pin, ok := apphost.From(ctx); ok {
+		if ws != "" && !pin.Names(ws) {
+			return nil, status.Errorf(codes.PermissionDenied, "this is @%s's address, and serves no other workspace: @%s is at the service's", pin.Alias, ws)
+		}
+		ws, named = pin.Workspace.String(), pin.Alias
+	}
 	if ws != "" {
 		if t, err := pdid.Parse(ws); err == nil {
 			q = q.Where(holder.TenantId(t.Uuid()))
@@ -226,7 +250,7 @@ func membership(ctx context.Context, db *ent.Client, account string) (*app.Holde
 	case len(hs) == 1:
 		return app.HolderRef_builder{Id: pdid.Id(hs[0]).Bytes()}.Build(), nil
 	case ws != "":
-		return nil, status.Errorf(codes.PermissionDenied, "this account is not in @%s", ws)
+		return nil, status.Errorf(codes.PermissionDenied, "this account is not in @%s", named)
 	case len(hs) == 0:
 		return nil, status.Error(codes.FailedPrecondition, "this account is in no workspace")
 	default:
