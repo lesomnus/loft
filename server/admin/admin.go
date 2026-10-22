@@ -191,13 +191,21 @@ type Member struct {
 	Leaving *time.Time `json:"leaving,omitempty"`
 }
 
-// Contract is what a workspace's history is held to from a moment on.
+// Contract is what a workspace's history is held to from a moment on: every
+// term of a `TenantContract` an operator writes.
 type Contract struct {
-	Name      string    `json:"name"`
-	ViewDays  uint32    `json:"view_days"`
-	KeepDays  uint32    `json:"keep_days"`
-	GraceDays uint32    `json:"grace_days"`
-	Effective time.Time `json:"effective"`
+	Name      string `json:"name"`
+	Desc      string `json:"desc,omitempty"`
+	ViewDays  uint32 `json:"view_days"`
+	KeepDays  uint32 `json:"keep_days"`
+	GraceDays uint32 `json:"grace_days"`
+	// AccessKeepDays and RestoreDays are the deployment's when 0 (#144).
+	AccessKeepDays uint32 `json:"access_keep_days"`
+	RestoreDays    uint32 `json:"restore_days"`
+	// PurgeFloors is a workspace destroyed purged, what the deployment's
+	// floors are on with it, and not retired (payday#115).
+	PurgeFloors bool      `json:"purge_floors"`
+	Effective   time.Time `json:"effective"`
 }
 
 // Hold is a legal hold on a workspace's history.
@@ -298,7 +306,12 @@ func (a Routes) show(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	for _, c := range cs {
-		out.Contracts = append(out.Contracts, Contract{Name: c.Name, ViewDays: c.ViewDays, KeepDays: c.KeepDays, GraceDays: c.GraceDays, Effective: c.DateEffective})
+		out.Contracts = append(out.Contracts, Contract{
+			Name: c.Name, Desc: c.Desc,
+			ViewDays: c.ViewDays, KeepDays: c.KeepDays, GraceDays: c.GraceDays,
+			AccessKeepDays: c.AccessKeepDays, RestoreDays: c.RestoreDays, PurgeFloors: c.PurgeFloors,
+			Effective: c.DateEffective,
+		})
 	}
 	ls, err := a.S.Ent.LegalHold.Query().Where(legalhold.TenantIdEQ(t.Id)).Order(ent.Desc(legalhold.FieldDateCreated)).All(ctx)
 	if err != nil {
@@ -412,11 +425,15 @@ func (a Routes) contract(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var in struct {
-		Name      string     `json:"name"`
-		ViewDays  uint32     `json:"view_days"`
-		KeepDays  uint32     `json:"keep_days"`
-		GraceDays uint32     `json:"grace_days"`
-		Effective *time.Time `json:"effective"`
+		Name           string     `json:"name"`
+		Desc           string     `json:"desc"`
+		ViewDays       uint32     `json:"view_days"`
+		KeepDays       uint32     `json:"keep_days"`
+		GraceDays      uint32     `json:"grace_days"`
+		AccessKeepDays uint32     `json:"access_keep_days"`
+		RestoreDays    uint32     `json:"restore_days"`
+		PurgeFloors    bool       `json:"purge_floors"`
+		Effective      *time.Time `json:"effective"`
 	}
 	if !read(w, r, &in) {
 		return
@@ -426,12 +443,16 @@ func (a Routes) contract(w http.ResponseWriter, r *http.Request) {
 		at = *in.Effective
 	}
 	if _, err := a.S.Base.TenantContract().Add(r.Context(), app.TenantContractAddRequest_builder{
-		Tenant:        app.TenantRef_builder{Id: t.Id[:]}.Build(),
-		Name:          strings.TrimSpace(in.Name),
-		ViewDays:      in.ViewDays,
-		KeepDays:      in.KeepDays,
-		GraceDays:     in.GraceDays,
-		DateEffective: timestamppb.New(at),
+		Tenant:         app.TenantRef_builder{Id: t.Id[:]}.Build(),
+		Name:           strings.TrimSpace(in.Name),
+		Desc:           strings.TrimSpace(in.Desc),
+		ViewDays:       in.ViewDays,
+		KeepDays:       in.KeepDays,
+		GraceDays:      in.GraceDays,
+		AccessKeepDays: &in.AccessKeepDays,
+		RestoreDays:    &in.RestoreDays,
+		PurgeFloors:    &in.PurgeFloors,
+		DateEffective:  timestamppb.New(at),
 	}.Build()); err != nil {
 		fail(w, r, err)
 		return

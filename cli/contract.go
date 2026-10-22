@@ -50,6 +50,7 @@ func newCmdContractSet(c *cmd.Config) *xli.Command {
 		Flags: flg.Flags{
 			&flg.String{Name: "tenant", Brief: "the tenant, by alias"},
 			&flg.String{Name: "name", Brief: "the plan, as people call it: free, pro, an agreement's number"},
+			&flg.String{Name: "desc", Brief: "more about it: an agreement's terms, a ticket"},
 			&flg.Uint32{Name: "view", Brief: "how far back the tenant may look, in days; 0 is all of it"},
 			&flg.Uint32{Name: "keep", Brief: "how long its history is kept, in days; 0 is forever"},
 			&flg.Uint32{Name: "grace", Brief: "how long a shorter keep waits before it applies, in days"},
@@ -71,6 +72,7 @@ func newCmdContractSet(c *cmd.Config) *xli.Command {
 			}
 
 			name, _ := flg.Find[string](self, "name")
+			desc, _ := flg.Find[string](self, "desc")
 			view, _ := flg.Find[uint32](self, "view")
 			keep, _ := flg.Find[uint32](self, "keep")
 			grace, _ := flg.Find[uint32](self, "grace")
@@ -92,6 +94,7 @@ func newCmdContractSet(c *cmd.Config) *xli.Command {
 			v, err := s.Base.TenantContract().Add(ctx, app.TenantContractAddRequest_builder{
 				Tenant:         app.TenantRef_builder{Id: t.Id[:]}.Build(),
 				Name:           strings.TrimSpace(name),
+				Desc:           strings.TrimSpace(desc),
 				ViewDays:       view,
 				KeepDays:       keep,
 				GraceDays:      grace,
@@ -140,10 +143,14 @@ func newCmdContractShow(c *cmd.Config) *xli.Command {
 				return err
 			}
 			for _, v := range vs {
-				self.Printf("%s  %-12s view %-6s keep %-6s grace %-6s access %-6s restore %-12s then %s\n",
+				desc := ""
+				if v.Desc != "" {
+					desc = "  " + v.Desc
+				}
+				self.Printf("%s  %-12s view %-6s keep %-6s grace %-6s access %-6s restore %-12s then %s%s\n",
 					v.DateEffective.UTC().Format(time.DateOnly), or(v.Name, "-"),
 					days(v.ViewDays, "all"), days(v.KeepDays, "forever"), days(v.GraceDays, "none"),
-					days(v.AccessKeepDays, "deployment's"), days(v.RestoreDays, "deployment's"), leaving(v.PurgeFloors))
+					days(v.AccessKeepDays, "deployment's"), days(v.RestoreDays, "deployment's"), leaving(v.PurgeFloors), desc)
 			}
 			if len(vs) == 0 {
 				self.Printf("no contract: the deployment's defaults apply\n")

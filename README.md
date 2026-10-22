@@ -389,6 +389,7 @@ go run ./cmd/rove-admin workspace restore --yes acme
 go run ./cmd/rove-admin workspace owner --member kim --yes acme    # 구성원을 소유자로 지정
 go run ./cmd/rove-admin workspace alias --to acme-kr --yes acme    # 주소 바꾸기 (이전 주소는 보류되고 새 주소로 넘김)
 go run ./cmd/rove-admin contract set --view 365 --keep 730 --yes acme
+go run ./cmd/rove-admin contract set --access-keep 365 --restore 90 --purge-floors --yes acme   # 셸의 `rove contract set`과 같은 항목
 go run ./cmd/rove-admin hold place --why "사건 번호" --yes acme; go run ./cmd/rove-admin hold lift --yes <ID>
 ```
 
