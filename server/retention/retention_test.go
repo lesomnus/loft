@@ -227,7 +227,9 @@ func TestAPassTakesTheHistorysTrailOnTheTenantsWindow(t *testing.T) {
 	history := e.trailRow(pd.AssetDomain, old)
 	account := e.trailRow(pd.HolderDomain, old)
 
-	p := trail.Policy{Archive: flob.NewMemStores()}
+	// With a key: a pass over an archive is refused without one to sign its
+	// account with (payday#115), and would take nothing.
+	p := trail.Policy{Archive: flob.NewMemStores(), Signer: pdtest.Signer(t)}
 	p.Tenants = retention.Trail(e.s.Ent, p, retention.Defaults{Apply: true})
 	p.Pass(e.ctx, pd.TrailStore(e.s.Ent))
 

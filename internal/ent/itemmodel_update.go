@@ -238,11 +238,20 @@ func (_u *ItemModelUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(itemmodel.FieldName, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(itemmodel.FieldName); ok {
+		_spec.SetField(itemmodel.FieldName, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Desc(); ok {
 		_spec.SetField(itemmodel.FieldDesc, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(itemmodel.FieldDesc); ok {
+		_spec.SetField(itemmodel.FieldDesc, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Labels(); ok {
 		_spec.SetField(itemmodel.FieldLabels, field.TypeJson, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(itemmodel.FieldLabels); ok {
+		_spec.SetField(itemmodel.FieldLabels, field.TypeJson, e)
 	}
 	if _u.mutation.LabelsCleared() {
 		_spec.ClearField(itemmodel.FieldLabels, field.TypeJson)
@@ -250,8 +259,14 @@ func (_u *ItemModelUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Maker(); ok {
 		_spec.SetField(itemmodel.FieldMaker, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(itemmodel.FieldMaker); ok {
+		_spec.SetField(itemmodel.FieldMaker, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Code(); ok {
 		_spec.SetField(itemmodel.FieldCode, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(itemmodel.FieldCode); ok {
+		_spec.SetField(itemmodel.FieldCode, field.TypeString, e)
 	}
 	if value, ok := _u.mutation.Spec(); ok {
 		vv, err := itemmodel.ValueScanner.Spec.Value(value)
@@ -263,14 +278,23 @@ func (_u *ItemModelUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 		_spec.SetField(itemmodel.FieldSpec, field.TypeJson, vv)
 	}
+	if e, ok := _u.mutation.FieldExpr(itemmodel.FieldSpec); ok {
+		_spec.SetField(itemmodel.FieldSpec, field.TypeJson, e)
+	}
 	if _u.mutation.SpecCleared() {
 		_spec.ClearField(itemmodel.FieldSpec, field.TypeJson)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(itemmodel.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(itemmodel.FieldDateUpdated); ok {
+		_spec.SetField(itemmodel.FieldDateUpdated, field.TypeTime, e)
+	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(itemmodel.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(itemmodel.FieldDateErased); ok {
+		_spec.SetField(itemmodel.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(itemmodel.FieldDateErased, field.TypeTime)
@@ -565,11 +589,20 @@ func (_u *ItemModelUpdateOne) sqlSave(ctx context.Context) (_node *ItemModel, er
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(itemmodel.FieldName, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(itemmodel.FieldName); ok {
+		_spec.SetField(itemmodel.FieldName, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Desc(); ok {
 		_spec.SetField(itemmodel.FieldDesc, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(itemmodel.FieldDesc); ok {
+		_spec.SetField(itemmodel.FieldDesc, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Labels(); ok {
 		_spec.SetField(itemmodel.FieldLabels, field.TypeJson, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(itemmodel.FieldLabels); ok {
+		_spec.SetField(itemmodel.FieldLabels, field.TypeJson, e)
 	}
 	if _u.mutation.LabelsCleared() {
 		_spec.ClearField(itemmodel.FieldLabels, field.TypeJson)
@@ -577,8 +610,14 @@ func (_u *ItemModelUpdateOne) sqlSave(ctx context.Context) (_node *ItemModel, er
 	if value, ok := _u.mutation.Maker(); ok {
 		_spec.SetField(itemmodel.FieldMaker, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(itemmodel.FieldMaker); ok {
+		_spec.SetField(itemmodel.FieldMaker, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Code(); ok {
 		_spec.SetField(itemmodel.FieldCode, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(itemmodel.FieldCode); ok {
+		_spec.SetField(itemmodel.FieldCode, field.TypeString, e)
 	}
 	if value, ok := _u.mutation.Spec(); ok {
 		vv, err := itemmodel.ValueScanner.Spec.Value(value)
@@ -590,14 +629,23 @@ func (_u *ItemModelUpdateOne) sqlSave(ctx context.Context) (_node *ItemModel, er
 		}
 		_spec.SetField(itemmodel.FieldSpec, field.TypeJson, vv)
 	}
+	if e, ok := _u.mutation.FieldExpr(itemmodel.FieldSpec); ok {
+		_spec.SetField(itemmodel.FieldSpec, field.TypeJson, e)
+	}
 	if _u.mutation.SpecCleared() {
 		_spec.ClearField(itemmodel.FieldSpec, field.TypeJson)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(itemmodel.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(itemmodel.FieldDateUpdated); ok {
+		_spec.SetField(itemmodel.FieldDateUpdated, field.TypeTime, e)
+	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(itemmodel.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(itemmodel.FieldDateErased); ok {
+		_spec.SetField(itemmodel.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(itemmodel.FieldDateErased, field.TypeTime)

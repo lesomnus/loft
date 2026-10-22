@@ -87,7 +87,7 @@ func (w Sweeper) Pass(ctx context.Context) error {
 	db := ent.NewClient(ent.Driver(w.Drv))
 	tenants, err := db.Tenant.Query().Ids(ctx)
 	if err != nil {
-		log.From(ctx).WarnContext(ctx, "sweep: tenants", slog.String("error", err.Error()))
+		log.From(ctx).WarnContext(ctx, "sweep: tenants", slog.Any("err", err))
 		return nil
 	}
 	for _, k := range tenants {
@@ -101,7 +101,7 @@ func (w Sweeper) Pass(ctx context.Context) error {
 				log.From(ctx).WarnContext(ctx, "sweep",
 					slog.String("sweep", s.name),
 					slog.String("tenant", tenant.String()),
-					slog.String("error", err.Error()))
+					slog.Any("err", err))
 			}
 		}
 	}

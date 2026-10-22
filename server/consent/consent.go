@@ -255,9 +255,10 @@ func (c *Consents) Left(ctx context.Context, account pdid.Id) error {
 // it was made, and past the window there is nothing it is kept for. The trail
 // keeps that each act happened -- the agreement, the leaving, and this, the
 // deployment's destruction of it, in the same transaction -- as who, when, of
-// which row and a keyed digest of it, and nothing of what was agreed to. It
-// keeps them for as long as its own window for the kind keeps any row
-// (`audit.by.consent`, or the deployment's), as it keeps every act's actor.
+// which row and a keyed digest of it, for this one a digest that says it went,
+// and nothing of what was agreed to. It keeps them for as long as its own
+// window for the kind keeps any row (`audit.by.consent`, or the deployment's),
+// as it keeps every act's actor.
 func (c *Consents) Sweep(ctx context.Context, keep time.Duration) (int, error) {
 	if keep <= 0 {
 		return 0, nil
@@ -274,16 +275,18 @@ func (c *Consents) Sweep(ctx context.Context, keep time.Duration) (int, error) {
 	if err != nil || len(ids) == 0 {
 		return 0, err
 	}
-	// While they are rows still: what the trail keeps is the digest of one.
+	n, err := tx.Consent.Delete().Where(entconsent.IdIn(ids...)).Exec(ctx)
+	if err != nil {
+		return 0, err
+	}
+	// Once they are rows no more: what the trail keeps is a digest that says
+	// each went (payday#115). One that said it was there, kept while it was,
+	// is a row the trail says is there and is not.
 	gone := make([]pdid.Id, len(ids))
 	for i, v := range ids {
 		gone[i] = pdid.Id(v)
 	}
-	if _, err := pd.Record(ctx, tx.Client(), c.Audit, Destroyed, gone); err != nil {
-		return 0, err
-	}
-	n, err := tx.Consent.Delete().Where(entconsent.IdIn(ids...)).Exec(ctx)
-	if err != nil {
+	if _, err := pd.RecordErased(ctx, tx.Client(), c.Audit, Destroyed, gone); err != nil {
 		return 0, err
 	}
 	if err := tx.Commit(); err != nil {

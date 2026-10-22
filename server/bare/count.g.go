@@ -216,6 +216,7 @@ func (s InventoryCountServiceServer) Add(ctx context.Context, req *rove.Inventor
 		q.Stored(&stored)
 	}
 
+	tx.Writing()
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -515,6 +516,7 @@ func (s InventoryCountServiceServer) apply(ctx context.Context, ref *rove.Invent
 		if !plan.WritesTo(13) {
 			q.SetDateUpdated(st.now())
 		}
+		tx.Writing()
 		if n, err := q.Save(ctx); err != nil {
 			if err, ok := err.(*ent.ConstraintError); ok {
 				if sqlgraph.IsUniqueConstraintError(err) {
@@ -606,6 +608,7 @@ func (s InventoryCountServiceServer) Erase(ctx context.Context, req *rove.Invent
 		p = inventorycount.And(p, inventorycount.IdEQ(v.Id))
 	}
 
+	tx.Writing()
 	u := st.Db.InventoryCount.Update().Where(p)
 	u.SetDateErased(st.now())
 	u.SetDateUpdated(st.now())
@@ -892,6 +895,7 @@ func (s CountFindingServiceServer) Add(ctx context.Context, req *rove.CountFindi
 		q.Stored(&stored)
 	}
 
+	tx.Writing()
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -1197,6 +1201,7 @@ func (s CountFindingServiceServer) apply(ctx context.Context, ref *rove.CountFin
 		if !plan.WritesTo(13) {
 			q.SetDateUpdated(st.now())
 		}
+		tx.Writing()
 		if n, err := q.Save(ctx); err != nil {
 			if err, ok := err.(*ent.ConstraintError); ok {
 				if sqlgraph.IsUniqueConstraintError(err) {
@@ -1288,6 +1293,7 @@ func (s CountFindingServiceServer) Erase(ctx context.Context, req *rove.CountFin
 		p = countfinding.And(p, countfinding.IdEQ(v.Id))
 	}
 
+	tx.Writing()
 	n, err := st.Db.CountFinding.Delete().Where(p).Exec(ctx)
 	if err != nil {
 		return nil, err

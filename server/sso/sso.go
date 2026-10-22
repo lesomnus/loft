@@ -35,6 +35,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"strings"
@@ -220,7 +221,7 @@ func (rp *Rp) login(w http.ResponseWriter, r *http.Request) {
 	}
 	f, err := rp.discovered(ctx)
 	if err != nil {
-		log.From(ctx).WarnContext(ctx, "sso: the issuer could not be asked", "err", err.Error())
+		log.From(ctx).WarnContext(ctx, "sso: the issuer could not be asked", slog.Any("err", err))
 		http.Error(w, "signing in is not possible just now", http.StatusServiceUnavailable)
 		return
 	}
@@ -318,7 +319,7 @@ func (rp *Rp) callback(w http.ResponseWriter, r *http.Request) {
 		failed("the issuer named nobody in this directory", err)
 		return
 	case err != nil:
-		log.From(ctx).WarnContext(ctx, "sso: a sign-in nobody could check", "err", err.Error())
+		log.From(ctx).WarnContext(ctx, "sso: a sign-in nobody could check", slog.Any("err", err))
 		http.Redirect(w, r, "/?signin=unavailable", http.StatusSeeOther)
 		return
 	}
@@ -327,7 +328,7 @@ func (rp *Rp) callback(w http.ResponseWriter, r *http.Request) {
 	// account is who it is, and is told it is in no workspace.
 	if rp.arrive != nil {
 		if err := rp.arrive(ctx, p); err != nil {
-			log.From(ctx).ErrorContext(ctx, "sso: an account arrived and was not given what it is given", "err", err.Error())
+			log.From(ctx).ErrorContext(ctx, "sso: an account arrived and was not given what it is given", slog.Any("err", err))
 		}
 	}
 
@@ -338,7 +339,7 @@ func (rp *Rp) callback(w http.ResponseWriter, r *http.Request) {
 		Held: map[string]string{hint: raw},
 	})
 	if err != nil {
-		log.From(ctx).ErrorContext(ctx, "sso: no session", "err", err.Error())
+		log.From(ctx).ErrorContext(ctx, "sso: no session", slog.Any("err", err))
 		http.Redirect(w, r, "/?signin=unavailable", http.StatusSeeOther)
 		return
 	}

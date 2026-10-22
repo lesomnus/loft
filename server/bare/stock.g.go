@@ -226,6 +226,7 @@ func (s StockServiceServer) Add(ctx context.Context, req *rove.StockAddRequest) 
 		q.Stored(&stored)
 	}
 
+	tx.Writing()
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -522,6 +523,7 @@ func (s StockServiceServer) apply(ctx context.Context, ref *rove.StockRef, doc *
 		if !plan.WritesTo(13) {
 			q.SetDateUpdated(st.now())
 		}
+		tx.Writing()
 		if n, err := q.Save(ctx); err != nil {
 			if err, ok := err.(*ent.ConstraintError); ok {
 				if sqlgraph.IsUniqueConstraintError(err) {
@@ -613,6 +615,7 @@ func (s StockServiceServer) Erase(ctx context.Context, req *rove.StockRef) (*rov
 		p = stock.And(p, stock.IdEQ(v.Id))
 	}
 
+	tx.Writing()
 	u := st.Db.Stock.Update().Where(p)
 	u.SetDateErased(st.now())
 	u.SetDateUpdated(st.now())
@@ -856,6 +859,7 @@ func (s StockMovementServiceServer) Add(ctx context.Context, req *rove.StockMove
 		q.Stored(&stored)
 	}
 
+	tx.Writing()
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -1146,6 +1150,7 @@ func (s StockMovementServiceServer) apply(ctx context.Context, ref *rove.StockMo
 		if !plan.WritesTo(13) {
 			q.SetDateUpdated(st.now())
 		}
+		tx.Writing()
 		if n, err := q.Save(ctx); err != nil {
 			if err, ok := err.(*ent.ConstraintError); ok {
 				if sqlgraph.IsUniqueConstraintError(err) {
@@ -1237,6 +1242,7 @@ func (s StockMovementServiceServer) Erase(ctx context.Context, req *rove.StockMo
 		p = stockmovement.And(p, stockmovement.IdEQ(v.Id))
 	}
 
+	tx.Writing()
 	n, err := st.Db.StockMovement.Delete().Where(p).Exec(ctx)
 	if err != nil {
 		return nil, err

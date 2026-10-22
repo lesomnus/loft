@@ -265,14 +265,23 @@ func (_u *LabelUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.SubjectId(); ok {
 		_spec.SetField(label.FieldSubjectId, field.TypeUuid, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(label.FieldSubjectId); ok {
+		_spec.SetField(label.FieldSubjectId, field.TypeUuid, e)
+	}
 	if _u.mutation.SubjectIdCleared() {
 		_spec.ClearField(label.FieldSubjectId, field.TypeUuid)
 	}
 	if value, ok := _u.mutation.State(); ok {
 		_spec.SetField(label.FieldState, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(label.FieldState); ok {
+		_spec.SetField(label.FieldState, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.BoundAt(); ok {
 		_spec.SetField(label.FieldBoundAt, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(label.FieldBoundAt); ok {
+		_spec.SetField(label.FieldBoundAt, field.TypeTime, e)
 	}
 	if _u.mutation.BoundAtCleared() {
 		_spec.ClearField(label.FieldBoundAt, field.TypeTime)
@@ -280,14 +289,23 @@ func (_u *LabelUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.PrintedAt(); ok {
 		_spec.SetField(label.FieldPrintedAt, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(label.FieldPrintedAt); ok {
+		_spec.SetField(label.FieldPrintedAt, field.TypeTime, e)
+	}
 	if _u.mutation.PrintedAtCleared() {
 		_spec.ClearField(label.FieldPrintedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(label.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(label.FieldDateUpdated); ok {
+		_spec.SetField(label.FieldDateUpdated, field.TypeTime, e)
+	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(label.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(label.FieldDateErased); ok {
+		_spec.SetField(label.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(label.FieldDateErased, field.TypeTime)
@@ -298,8 +316,14 @@ func (_u *LabelUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Batch(); ok {
 		_spec.SetField(label.FieldBatch, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(label.FieldBatch); ok {
+		_spec.SetField(label.FieldBatch, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Code(); ok {
 		_spec.SetField(label.FieldCode, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(label.FieldCode); ok {
+		_spec.SetField(label.FieldCode, field.TypeString, e)
 	}
 	if _u.mutation.CodeCleared() {
 		_spec.ClearField(label.FieldCode, field.TypeString)
@@ -619,14 +643,23 @@ func (_u *LabelUpdateOne) sqlSave(ctx context.Context) (_node *Label, err error)
 	if value, ok := _u.mutation.SubjectId(); ok {
 		_spec.SetField(label.FieldSubjectId, field.TypeUuid, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(label.FieldSubjectId); ok {
+		_spec.SetField(label.FieldSubjectId, field.TypeUuid, e)
+	}
 	if _u.mutation.SubjectIdCleared() {
 		_spec.ClearField(label.FieldSubjectId, field.TypeUuid)
 	}
 	if value, ok := _u.mutation.State(); ok {
 		_spec.SetField(label.FieldState, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(label.FieldState); ok {
+		_spec.SetField(label.FieldState, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.BoundAt(); ok {
 		_spec.SetField(label.FieldBoundAt, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(label.FieldBoundAt); ok {
+		_spec.SetField(label.FieldBoundAt, field.TypeTime, e)
 	}
 	if _u.mutation.BoundAtCleared() {
 		_spec.ClearField(label.FieldBoundAt, field.TypeTime)
@@ -634,14 +667,23 @@ func (_u *LabelUpdateOne) sqlSave(ctx context.Context) (_node *Label, err error)
 	if value, ok := _u.mutation.PrintedAt(); ok {
 		_spec.SetField(label.FieldPrintedAt, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(label.FieldPrintedAt); ok {
+		_spec.SetField(label.FieldPrintedAt, field.TypeTime, e)
+	}
 	if _u.mutation.PrintedAtCleared() {
 		_spec.ClearField(label.FieldPrintedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(label.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(label.FieldDateUpdated); ok {
+		_spec.SetField(label.FieldDateUpdated, field.TypeTime, e)
+	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(label.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(label.FieldDateErased); ok {
+		_spec.SetField(label.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(label.FieldDateErased, field.TypeTime)
@@ -652,8 +694,14 @@ func (_u *LabelUpdateOne) sqlSave(ctx context.Context) (_node *Label, err error)
 	if value, ok := _u.mutation.Batch(); ok {
 		_spec.SetField(label.FieldBatch, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(label.FieldBatch); ok {
+		_spec.SetField(label.FieldBatch, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Code(); ok {
 		_spec.SetField(label.FieldCode, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(label.FieldCode); ok {
+		_spec.SetField(label.FieldCode, field.TypeString, e)
 	}
 	if _u.mutation.CodeCleared() {
 		_spec.ClearField(label.FieldCode, field.TypeString)

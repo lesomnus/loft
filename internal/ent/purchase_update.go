@@ -288,17 +288,32 @@ func (_u *PurchaseUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(purchase.FieldName, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(purchase.FieldName); ok {
+		_spec.SetField(purchase.FieldName, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Desc(); ok {
 		_spec.SetField(purchase.FieldDesc, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(purchase.FieldDesc); ok {
+		_spec.SetField(purchase.FieldDesc, field.TypeString, e)
 	}
 	if value, ok := _u.mutation.Reference(); ok {
 		_spec.SetField(purchase.FieldReference, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(purchase.FieldReference); ok {
+		_spec.SetField(purchase.FieldReference, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(purchase.FieldStatus, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(purchase.FieldStatus); ok {
+		_spec.SetField(purchase.FieldStatus, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.OrderedAt(); ok {
 		_spec.SetField(purchase.FieldOrderedAt, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(purchase.FieldOrderedAt); ok {
+		_spec.SetField(purchase.FieldOrderedAt, field.TypeTime, e)
 	}
 	if _u.mutation.OrderedAtCleared() {
 		_spec.ClearField(purchase.FieldOrderedAt, field.TypeTime)
@@ -306,14 +321,23 @@ func (_u *PurchaseUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.ReceivedAt(); ok {
 		_spec.SetField(purchase.FieldReceivedAt, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(purchase.FieldReceivedAt); ok {
+		_spec.SetField(purchase.FieldReceivedAt, field.TypeTime, e)
+	}
 	if _u.mutation.ReceivedAtCleared() {
 		_spec.ClearField(purchase.FieldReceivedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(purchase.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(purchase.FieldDateUpdated); ok {
+		_spec.SetField(purchase.FieldDateUpdated, field.TypeTime, e)
+	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(purchase.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(purchase.FieldDateErased); ok {
+		_spec.SetField(purchase.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(purchase.FieldDateErased, field.TypeTime)
@@ -324,8 +348,14 @@ func (_u *PurchaseUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Currency(); ok {
 		_spec.SetField(purchase.FieldCurrency, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(purchase.FieldCurrency); ok {
+		_spec.SetField(purchase.FieldCurrency, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Total(); ok {
 		_spec.SetField(purchase.FieldTotal, field.TypeInt64, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(purchase.FieldTotal); ok {
+		_spec.SetField(purchase.FieldTotal, field.TypeInt64, e)
 	}
 	if value, ok := _u.mutation.AddedTotal(); ok {
 		_spec.AddField(purchase.FieldTotal, field.TypeInt64, value)
@@ -668,17 +698,32 @@ func (_u *PurchaseUpdateOne) sqlSave(ctx context.Context) (_node *Purchase, err 
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(purchase.FieldName, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(purchase.FieldName); ok {
+		_spec.SetField(purchase.FieldName, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Desc(); ok {
 		_spec.SetField(purchase.FieldDesc, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(purchase.FieldDesc); ok {
+		_spec.SetField(purchase.FieldDesc, field.TypeString, e)
 	}
 	if value, ok := _u.mutation.Reference(); ok {
 		_spec.SetField(purchase.FieldReference, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(purchase.FieldReference); ok {
+		_spec.SetField(purchase.FieldReference, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(purchase.FieldStatus, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(purchase.FieldStatus); ok {
+		_spec.SetField(purchase.FieldStatus, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.OrderedAt(); ok {
 		_spec.SetField(purchase.FieldOrderedAt, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(purchase.FieldOrderedAt); ok {
+		_spec.SetField(purchase.FieldOrderedAt, field.TypeTime, e)
 	}
 	if _u.mutation.OrderedAtCleared() {
 		_spec.ClearField(purchase.FieldOrderedAt, field.TypeTime)
@@ -686,14 +731,23 @@ func (_u *PurchaseUpdateOne) sqlSave(ctx context.Context) (_node *Purchase, err 
 	if value, ok := _u.mutation.ReceivedAt(); ok {
 		_spec.SetField(purchase.FieldReceivedAt, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(purchase.FieldReceivedAt); ok {
+		_spec.SetField(purchase.FieldReceivedAt, field.TypeTime, e)
+	}
 	if _u.mutation.ReceivedAtCleared() {
 		_spec.ClearField(purchase.FieldReceivedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(purchase.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(purchase.FieldDateUpdated); ok {
+		_spec.SetField(purchase.FieldDateUpdated, field.TypeTime, e)
+	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(purchase.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(purchase.FieldDateErased); ok {
+		_spec.SetField(purchase.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(purchase.FieldDateErased, field.TypeTime)
@@ -704,8 +758,14 @@ func (_u *PurchaseUpdateOne) sqlSave(ctx context.Context) (_node *Purchase, err 
 	if value, ok := _u.mutation.Currency(); ok {
 		_spec.SetField(purchase.FieldCurrency, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(purchase.FieldCurrency); ok {
+		_spec.SetField(purchase.FieldCurrency, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Total(); ok {
 		_spec.SetField(purchase.FieldTotal, field.TypeInt64, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(purchase.FieldTotal); ok {
+		_spec.SetField(purchase.FieldTotal, field.TypeInt64, e)
 	}
 	if value, ok := _u.mutation.AddedTotal(); ok {
 		_spec.AddField(purchase.FieldTotal, field.TypeInt64, value)

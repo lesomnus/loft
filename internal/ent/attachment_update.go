@@ -214,14 +214,26 @@ func (_u *AttachmentUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(attachment.FieldName, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(attachment.FieldName); ok {
+		_spec.SetField(attachment.FieldName, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.SubjectId(); ok {
 		_spec.SetField(attachment.FieldSubjectId, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(attachment.FieldSubjectId); ok {
+		_spec.SetField(attachment.FieldSubjectId, field.TypeUuid, e)
 	}
 	if value, ok := _u.mutation.ObjectKey(); ok {
 		_spec.SetField(attachment.FieldObjectKey, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(attachment.FieldObjectKey); ok {
+		_spec.SetField(attachment.FieldObjectKey, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.SizeBytes(); ok {
 		_spec.SetField(attachment.FieldSizeBytes, field.TypeUint64, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(attachment.FieldSizeBytes); ok {
+		_spec.SetField(attachment.FieldSizeBytes, field.TypeUint64, e)
 	}
 	if value, ok := _u.mutation.AddedSizeBytes(); ok {
 		_spec.AddField(attachment.FieldSizeBytes, field.TypeUint64, value)
@@ -229,8 +241,14 @@ func (_u *AttachmentUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 	if value, ok := _u.mutation.ContentType(); ok {
 		_spec.SetField(attachment.FieldContentType, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(attachment.FieldContentType); ok {
+		_spec.SetField(attachment.FieldContentType, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Sha256(); ok {
 		_spec.SetField(attachment.FieldSha256, field.TypeBytes, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(attachment.FieldSha256); ok {
+		_spec.SetField(attachment.FieldSha256, field.TypeBytes, e)
 	}
 	if _u.mutation.Sha256Cleared() {
 		_spec.ClearField(attachment.FieldSha256, field.TypeBytes)
@@ -238,8 +256,14 @@ func (_u *AttachmentUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(attachment.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(attachment.FieldDateUpdated); ok {
+		_spec.SetField(attachment.FieldDateUpdated, field.TypeTime, e)
+	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(attachment.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(attachment.FieldDateErased); ok {
+		_spec.SetField(attachment.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(attachment.FieldDateErased, field.TypeTime)
@@ -483,14 +507,26 @@ func (_u *AttachmentUpdateOne) sqlSave(ctx context.Context) (_node *Attachment, 
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(attachment.FieldName, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(attachment.FieldName); ok {
+		_spec.SetField(attachment.FieldName, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.SubjectId(); ok {
 		_spec.SetField(attachment.FieldSubjectId, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(attachment.FieldSubjectId); ok {
+		_spec.SetField(attachment.FieldSubjectId, field.TypeUuid, e)
 	}
 	if value, ok := _u.mutation.ObjectKey(); ok {
 		_spec.SetField(attachment.FieldObjectKey, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(attachment.FieldObjectKey); ok {
+		_spec.SetField(attachment.FieldObjectKey, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.SizeBytes(); ok {
 		_spec.SetField(attachment.FieldSizeBytes, field.TypeUint64, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(attachment.FieldSizeBytes); ok {
+		_spec.SetField(attachment.FieldSizeBytes, field.TypeUint64, e)
 	}
 	if value, ok := _u.mutation.AddedSizeBytes(); ok {
 		_spec.AddField(attachment.FieldSizeBytes, field.TypeUint64, value)
@@ -498,8 +534,14 @@ func (_u *AttachmentUpdateOne) sqlSave(ctx context.Context) (_node *Attachment, 
 	if value, ok := _u.mutation.ContentType(); ok {
 		_spec.SetField(attachment.FieldContentType, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(attachment.FieldContentType); ok {
+		_spec.SetField(attachment.FieldContentType, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Sha256(); ok {
 		_spec.SetField(attachment.FieldSha256, field.TypeBytes, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(attachment.FieldSha256); ok {
+		_spec.SetField(attachment.FieldSha256, field.TypeBytes, e)
 	}
 	if _u.mutation.Sha256Cleared() {
 		_spec.ClearField(attachment.FieldSha256, field.TypeBytes)
@@ -507,8 +549,14 @@ func (_u *AttachmentUpdateOne) sqlSave(ctx context.Context) (_node *Attachment, 
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(attachment.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(attachment.FieldDateUpdated); ok {
+		_spec.SetField(attachment.FieldDateUpdated, field.TypeTime, e)
+	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(attachment.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(attachment.FieldDateErased); ok {
+		_spec.SetField(attachment.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(attachment.FieldDateErased, field.TypeTime)

@@ -152,17 +152,26 @@ func (_u *ReservationItemUpdate) sqlSave(ctx context.Context) (_node int, err er
 	if value, ok := _u.mutation.Units(); ok {
 		_spec.SetField(reservationitem.FieldUnits, field.TypeUint32, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(reservationitem.FieldUnits); ok {
+		_spec.SetField(reservationitem.FieldUnits, field.TypeUint32, e)
+	}
 	if value, ok := _u.mutation.AddedUnits(); ok {
 		_spec.AddField(reservationitem.FieldUnits, field.TypeUint32, value)
 	}
 	if value, ok := _u.mutation.AssignedId(); ok {
 		_spec.SetField(reservationitem.FieldAssignedId, field.TypeUuid, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(reservationitem.FieldAssignedId); ok {
+		_spec.SetField(reservationitem.FieldAssignedId, field.TypeUuid, e)
+	}
 	if _u.mutation.AssignedIdCleared() {
 		_spec.ClearField(reservationitem.FieldAssignedId, field.TypeUuid)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(reservationitem.FieldDateUpdated, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(reservationitem.FieldDateUpdated); ok {
+		_spec.SetField(reservationitem.FieldDateUpdated, field.TypeTime, e)
 	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(reservationitem.FieldDateCreated, field.TypeTime)
@@ -341,17 +350,26 @@ func (_u *ReservationItemUpdateOne) sqlSave(ctx context.Context) (_node *Reserva
 	if value, ok := _u.mutation.Units(); ok {
 		_spec.SetField(reservationitem.FieldUnits, field.TypeUint32, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(reservationitem.FieldUnits); ok {
+		_spec.SetField(reservationitem.FieldUnits, field.TypeUint32, e)
+	}
 	if value, ok := _u.mutation.AddedUnits(); ok {
 		_spec.AddField(reservationitem.FieldUnits, field.TypeUint32, value)
 	}
 	if value, ok := _u.mutation.AssignedId(); ok {
 		_spec.SetField(reservationitem.FieldAssignedId, field.TypeUuid, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(reservationitem.FieldAssignedId); ok {
+		_spec.SetField(reservationitem.FieldAssignedId, field.TypeUuid, e)
+	}
 	if _u.mutation.AssignedIdCleared() {
 		_spec.ClearField(reservationitem.FieldAssignedId, field.TypeUuid)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(reservationitem.FieldDateUpdated, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(reservationitem.FieldDateUpdated); ok {
+		_spec.SetField(reservationitem.FieldDateUpdated, field.TypeTime, e)
 	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(reservationitem.FieldDateCreated, field.TypeTime)

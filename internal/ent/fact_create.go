@@ -173,6 +173,9 @@ func (_c *FactCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *FactCreate) check() error {
+	if fs := _c.mutation.ExprFields(); len(fs) > 0 {
+		return &ValidationError{Name: fs[0], err: fmt.Errorf(`ent: field "Fact.%s" was assigned an expression, which only an update writes`, fs[0])}
+	}
 	if _, ok := _c.mutation.Key(); !ok {
 		return &ValidationError{Name: "key", err: errors.New(`ent: missing required field "Fact.key"`)}
 	}

@@ -273,11 +273,20 @@ func (_u *PartyUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(party.FieldName, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(party.FieldName); ok {
+		_spec.SetField(party.FieldName, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Desc(); ok {
 		_spec.SetField(party.FieldDesc, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(party.FieldDesc); ok {
+		_spec.SetField(party.FieldDesc, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Labels(); ok {
 		_spec.SetField(party.FieldLabels, field.TypeJson, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(party.FieldLabels); ok {
+		_spec.SetField(party.FieldLabels, field.TypeJson, e)
 	}
 	if _u.mutation.LabelsCleared() {
 		_spec.ClearField(party.FieldLabels, field.TypeJson)
@@ -285,8 +294,14 @@ func (_u *PartyUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Kind(); ok {
 		_spec.SetField(party.FieldKind, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(party.FieldKind); ok {
+		_spec.SetField(party.FieldKind, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.ParentId(); ok {
 		_spec.SetField(party.FieldParentId, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(party.FieldParentId); ok {
+		_spec.SetField(party.FieldParentId, field.TypeUuid, e)
 	}
 	if _u.mutation.ParentIdCleared() {
 		_spec.ClearField(party.FieldParentId, field.TypeUuid)
@@ -294,14 +309,26 @@ func (_u *PartyUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Email(); ok {
 		_spec.SetField(party.FieldEmail, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(party.FieldEmail); ok {
+		_spec.SetField(party.FieldEmail, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Phone(); ok {
 		_spec.SetField(party.FieldPhone, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(party.FieldPhone); ok {
+		_spec.SetField(party.FieldPhone, field.TypeString, e)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(party.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(party.FieldDateUpdated); ok {
+		_spec.SetField(party.FieldDateUpdated, field.TypeTime, e)
+	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(party.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(party.FieldDateErased); ok {
+		_spec.SetField(party.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(party.FieldDateErased, field.TypeTime)
@@ -311,6 +338,9 @@ func (_u *PartyUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.Code(); ok {
 		_spec.SetField(party.FieldCode, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(party.FieldCode); ok {
+		_spec.SetField(party.FieldCode, field.TypeString, e)
 	}
 	if _u.mutation.HolderCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -635,11 +665,20 @@ func (_u *PartyUpdateOne) sqlSave(ctx context.Context) (_node *Party, err error)
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(party.FieldName, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(party.FieldName); ok {
+		_spec.SetField(party.FieldName, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Desc(); ok {
 		_spec.SetField(party.FieldDesc, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(party.FieldDesc); ok {
+		_spec.SetField(party.FieldDesc, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Labels(); ok {
 		_spec.SetField(party.FieldLabels, field.TypeJson, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(party.FieldLabels); ok {
+		_spec.SetField(party.FieldLabels, field.TypeJson, e)
 	}
 	if _u.mutation.LabelsCleared() {
 		_spec.ClearField(party.FieldLabels, field.TypeJson)
@@ -647,8 +686,14 @@ func (_u *PartyUpdateOne) sqlSave(ctx context.Context) (_node *Party, err error)
 	if value, ok := _u.mutation.Kind(); ok {
 		_spec.SetField(party.FieldKind, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(party.FieldKind); ok {
+		_spec.SetField(party.FieldKind, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.ParentId(); ok {
 		_spec.SetField(party.FieldParentId, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(party.FieldParentId); ok {
+		_spec.SetField(party.FieldParentId, field.TypeUuid, e)
 	}
 	if _u.mutation.ParentIdCleared() {
 		_spec.ClearField(party.FieldParentId, field.TypeUuid)
@@ -656,14 +701,26 @@ func (_u *PartyUpdateOne) sqlSave(ctx context.Context) (_node *Party, err error)
 	if value, ok := _u.mutation.Email(); ok {
 		_spec.SetField(party.FieldEmail, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(party.FieldEmail); ok {
+		_spec.SetField(party.FieldEmail, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Phone(); ok {
 		_spec.SetField(party.FieldPhone, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(party.FieldPhone); ok {
+		_spec.SetField(party.FieldPhone, field.TypeString, e)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(party.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(party.FieldDateUpdated); ok {
+		_spec.SetField(party.FieldDateUpdated, field.TypeTime, e)
+	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(party.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(party.FieldDateErased); ok {
+		_spec.SetField(party.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(party.FieldDateErased, field.TypeTime)
@@ -673,6 +730,9 @@ func (_u *PartyUpdateOne) sqlSave(ctx context.Context) (_node *Party, err error)
 	}
 	if value, ok := _u.mutation.Code(); ok {
 		_spec.SetField(party.FieldCode, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(party.FieldCode); ok {
+		_spec.SetField(party.FieldCode, field.TypeString, e)
 	}
 	if _u.mutation.HolderCleared() {
 		edge := &sqlgraph.EdgeSpec{

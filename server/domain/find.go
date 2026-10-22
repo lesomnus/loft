@@ -44,7 +44,7 @@ func page(size, offset uint32, engine bool) (int, int, error) {
 // error is the log's, and the caller is asked to try again rather than
 // answered from the database behind its back.
 func (t *Tx) unanswered(err error) error {
-	log.From(t.ctx).WarnContext(t.ctx, "search: the engine did not answer", slog.String("error", err.Error()))
+	log.From(t.ctx).WarnContext(t.ctx, "search: the engine did not answer", slog.Any("err", err))
 	return status.Error(codes.Unavailable, "지금은 검색할 수 없습니다. 잠시 뒤에 다시 해 보세요")
 }
 

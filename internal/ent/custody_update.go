@@ -304,14 +304,26 @@ func (_u *CustodyUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Desc(); ok {
 		_spec.SetField(custody.FieldDesc, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(custody.FieldDesc); ok {
+		_spec.SetField(custody.FieldDesc, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Kind(); ok {
 		_spec.SetField(custody.FieldKind, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(custody.FieldKind); ok {
+		_spec.SetField(custody.FieldKind, field.TypeString, e)
 	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(custody.FieldStatus, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(custody.FieldStatus); ok {
+		_spec.SetField(custody.FieldStatus, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.IssuedAt(); ok {
 		_spec.SetField(custody.FieldIssuedAt, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(custody.FieldIssuedAt); ok {
+		_spec.SetField(custody.FieldIssuedAt, field.TypeTime, e)
 	}
 	if _u.mutation.IssuedAtCleared() {
 		_spec.ClearField(custody.FieldIssuedAt, field.TypeTime)
@@ -319,14 +331,23 @@ func (_u *CustodyUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.DueAt(); ok {
 		_spec.SetField(custody.FieldDueAt, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(custody.FieldDueAt); ok {
+		_spec.SetField(custody.FieldDueAt, field.TypeTime, e)
+	}
 	if _u.mutation.DueAtCleared() {
 		_spec.ClearField(custody.FieldDueAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(custody.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(custody.FieldDateUpdated); ok {
+		_spec.SetField(custody.FieldDateUpdated, field.TypeTime, e)
+	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(custody.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(custody.FieldDateErased); ok {
+		_spec.SetField(custody.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(custody.FieldDateErased, field.TypeTime)
@@ -337,11 +358,17 @@ func (_u *CustodyUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.AcknowledgedAt(); ok {
 		_spec.SetField(custody.FieldAcknowledgedAt, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(custody.FieldAcknowledgedAt); ok {
+		_spec.SetField(custody.FieldAcknowledgedAt, field.TypeTime, e)
+	}
 	if _u.mutation.AcknowledgedAtCleared() {
 		_spec.ClearField(custody.FieldAcknowledgedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.ReturnedAt(); ok {
 		_spec.SetField(custody.FieldReturnedAt, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(custody.FieldReturnedAt); ok {
+		_spec.SetField(custody.FieldReturnedAt, field.TypeTime, e)
 	}
 	if _u.mutation.ReturnedAtCleared() {
 		_spec.ClearField(custody.FieldReturnedAt, field.TypeTime)
@@ -349,17 +376,26 @@ func (_u *CustodyUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.ReservationId(); ok {
 		_spec.SetField(custody.FieldReservationId, field.TypeUuid, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(custody.FieldReservationId); ok {
+		_spec.SetField(custody.FieldReservationId, field.TypeUuid, e)
+	}
 	if _u.mutation.ReservationIdCleared() {
 		_spec.ClearField(custody.FieldReservationId, field.TypeUuid)
 	}
 	if value, ok := _u.mutation.IssuedBy(); ok {
 		_spec.SetField(custody.FieldIssuedBy, field.TypeUuid, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(custody.FieldIssuedBy); ok {
+		_spec.SetField(custody.FieldIssuedBy, field.TypeUuid, e)
+	}
 	if _u.mutation.IssuedByCleared() {
 		_spec.ClearField(custody.FieldIssuedBy, field.TypeUuid)
 	}
 	if value, ok := _u.mutation.OverdueNoticed(); ok {
 		_spec.SetField(custody.FieldOverdueNoticed, field.TypeBool, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(custody.FieldOverdueNoticed); ok {
+		_spec.SetField(custody.FieldOverdueNoticed, field.TypeBool, e)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
@@ -687,14 +723,26 @@ func (_u *CustodyUpdateOne) sqlSave(ctx context.Context) (_node *Custody, err er
 	if value, ok := _u.mutation.Desc(); ok {
 		_spec.SetField(custody.FieldDesc, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(custody.FieldDesc); ok {
+		_spec.SetField(custody.FieldDesc, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Kind(); ok {
 		_spec.SetField(custody.FieldKind, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(custody.FieldKind); ok {
+		_spec.SetField(custody.FieldKind, field.TypeString, e)
 	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(custody.FieldStatus, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(custody.FieldStatus); ok {
+		_spec.SetField(custody.FieldStatus, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.IssuedAt(); ok {
 		_spec.SetField(custody.FieldIssuedAt, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(custody.FieldIssuedAt); ok {
+		_spec.SetField(custody.FieldIssuedAt, field.TypeTime, e)
 	}
 	if _u.mutation.IssuedAtCleared() {
 		_spec.ClearField(custody.FieldIssuedAt, field.TypeTime)
@@ -702,14 +750,23 @@ func (_u *CustodyUpdateOne) sqlSave(ctx context.Context) (_node *Custody, err er
 	if value, ok := _u.mutation.DueAt(); ok {
 		_spec.SetField(custody.FieldDueAt, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(custody.FieldDueAt); ok {
+		_spec.SetField(custody.FieldDueAt, field.TypeTime, e)
+	}
 	if _u.mutation.DueAtCleared() {
 		_spec.ClearField(custody.FieldDueAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(custody.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(custody.FieldDateUpdated); ok {
+		_spec.SetField(custody.FieldDateUpdated, field.TypeTime, e)
+	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(custody.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(custody.FieldDateErased); ok {
+		_spec.SetField(custody.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(custody.FieldDateErased, field.TypeTime)
@@ -720,11 +777,17 @@ func (_u *CustodyUpdateOne) sqlSave(ctx context.Context) (_node *Custody, err er
 	if value, ok := _u.mutation.AcknowledgedAt(); ok {
 		_spec.SetField(custody.FieldAcknowledgedAt, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(custody.FieldAcknowledgedAt); ok {
+		_spec.SetField(custody.FieldAcknowledgedAt, field.TypeTime, e)
+	}
 	if _u.mutation.AcknowledgedAtCleared() {
 		_spec.ClearField(custody.FieldAcknowledgedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.ReturnedAt(); ok {
 		_spec.SetField(custody.FieldReturnedAt, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(custody.FieldReturnedAt); ok {
+		_spec.SetField(custody.FieldReturnedAt, field.TypeTime, e)
 	}
 	if _u.mutation.ReturnedAtCleared() {
 		_spec.ClearField(custody.FieldReturnedAt, field.TypeTime)
@@ -732,17 +795,26 @@ func (_u *CustodyUpdateOne) sqlSave(ctx context.Context) (_node *Custody, err er
 	if value, ok := _u.mutation.ReservationId(); ok {
 		_spec.SetField(custody.FieldReservationId, field.TypeUuid, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(custody.FieldReservationId); ok {
+		_spec.SetField(custody.FieldReservationId, field.TypeUuid, e)
+	}
 	if _u.mutation.ReservationIdCleared() {
 		_spec.ClearField(custody.FieldReservationId, field.TypeUuid)
 	}
 	if value, ok := _u.mutation.IssuedBy(); ok {
 		_spec.SetField(custody.FieldIssuedBy, field.TypeUuid, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(custody.FieldIssuedBy); ok {
+		_spec.SetField(custody.FieldIssuedBy, field.TypeUuid, e)
+	}
 	if _u.mutation.IssuedByCleared() {
 		_spec.ClearField(custody.FieldIssuedBy, field.TypeUuid)
 	}
 	if value, ok := _u.mutation.OverdueNoticed(); ok {
 		_spec.SetField(custody.FieldOverdueNoticed, field.TypeBool, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(custody.FieldOverdueNoticed); ok {
+		_spec.SetField(custody.FieldOverdueNoticed, field.TypeBool, e)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	_node = &Custody{config: _u.config}

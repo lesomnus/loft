@@ -220,6 +220,7 @@ func (s PartyServiceServer) Add(ctx context.Context, req *rove.PartyAddRequest) 
 		q.Stored(&stored)
 	}
 
+	tx.Writing()
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -529,6 +530,7 @@ func (s PartyServiceServer) apply(ctx context.Context, ref *rove.PartyRef, doc *
 		if !plan.WritesTo(13) {
 			q.SetDateUpdated(st.now())
 		}
+		tx.Writing()
 		if n, err := q.Save(ctx); err != nil {
 			if err, ok := err.(*ent.ConstraintError); ok {
 				if sqlgraph.IsUniqueConstraintError(err) {
@@ -620,6 +622,7 @@ func (s PartyServiceServer) Erase(ctx context.Context, req *rove.PartyRef) (*rov
 		p = party.And(p, party.IdEQ(v.Id))
 	}
 
+	tx.Writing()
 	u := st.Db.Party.Update().Where(p)
 	u.SetDateErased(st.now())
 	u.SetDateUpdated(st.now())
@@ -984,6 +987,7 @@ func (s InvitationServiceServer) Add(ctx context.Context, req *rove.InvitationAd
 		q.Stored(&stored)
 	}
 
+	tx.Writing()
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -1308,6 +1312,7 @@ func (s InvitationServiceServer) apply(ctx context.Context, ref *rove.Invitation
 		if !plan.WritesTo(13) {
 			q.SetDateUpdated(st.now())
 		}
+		tx.Writing()
 		if n, err := q.Save(ctx); err != nil {
 			if err, ok := err.(*ent.ConstraintError); ok {
 				if sqlgraph.IsUniqueConstraintError(err) {
@@ -1399,6 +1404,7 @@ func (s InvitationServiceServer) Erase(ctx context.Context, req *rove.Invitation
 		p = invitation.And(p, invitation.IdEQ(v.Id))
 	}
 
+	tx.Writing()
 	u := st.Db.Invitation.Update().Where(p)
 	u.SetDateErased(st.now())
 	u.SetDateUpdated(st.now())

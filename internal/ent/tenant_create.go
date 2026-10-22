@@ -191,21 +191,30 @@ func (_c *TenantCreate) ExecX(ctx context.Context) {
 // defaults sets the default values of the builder before save.
 func (_c *TenantCreate) defaults() {
 	if _, ok := _c.mutation.Timezone(); !ok {
-		v := tenant.DefaultTimezone
-		_c.mutation.SetTimezone(v)
+		if _, ok := _c.mutation.FieldExpr(tenant.FieldTimezone); !ok {
+			v := tenant.DefaultTimezone
+			_c.mutation.SetTimezone(v)
+		}
 	}
 	if _, ok := _c.mutation.Currency(); !ok {
-		v := tenant.DefaultCurrency
-		_c.mutation.SetCurrency(v)
+		if _, ok := _c.mutation.FieldExpr(tenant.FieldCurrency); !ok {
+			v := tenant.DefaultCurrency
+			_c.mutation.SetCurrency(v)
+		}
 	}
 	if _, ok := _c.mutation.NoShowMinutes(); !ok {
-		v := tenant.DefaultNoShowMinutes
-		_c.mutation.SetNoShowMinutes(v)
+		if _, ok := _c.mutation.FieldExpr(tenant.FieldNoShowMinutes); !ok {
+			v := tenant.DefaultNoShowMinutes
+			_c.mutation.SetNoShowMinutes(v)
+		}
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *TenantCreate) check() error {
+	if fs := _c.mutation.ExprFields(); len(fs) > 0 {
+		return &ValidationError{Name: fs[0], err: fmt.Errorf(`ent: field "Tenant.%s" was assigned an expression, which only an update writes`, fs[0])}
+	}
 	if _, ok := _c.mutation.Alias(); !ok {
 		return &ValidationError{Name: "alias", err: errors.New(`ent: missing required field "Tenant.alias"`)}
 	}

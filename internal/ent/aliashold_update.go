@@ -190,17 +190,32 @@ func (_u *AliasHoldUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Held(); ok {
 		_spec.SetField(aliashold.FieldHeld, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(aliashold.FieldHeld); ok {
+		_spec.SetField(aliashold.FieldHeld, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Reason(); ok {
 		_spec.SetField(aliashold.FieldReason, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(aliashold.FieldReason); ok {
+		_spec.SetField(aliashold.FieldReason, field.TypeString, e)
 	}
 	if value, ok := _u.mutation.MovedTo(); ok {
 		_spec.SetField(aliashold.FieldMovedTo, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(aliashold.FieldMovedTo); ok {
+		_spec.SetField(aliashold.FieldMovedTo, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Tenant(); ok {
 		_spec.SetField(aliashold.FieldTenant, field.TypeUuid, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(aliashold.FieldTenant); ok {
+		_spec.SetField(aliashold.FieldTenant, field.TypeUuid, e)
+	}
 	if value, ok := _u.mutation.DateUntil(); ok {
 		_spec.SetField(aliashold.FieldDateUntil, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(aliashold.FieldDateUntil); ok {
+		_spec.SetField(aliashold.FieldDateUntil, field.TypeTime, e)
 	}
 	if _u.mutation.DateUntilCleared() {
 		_spec.ClearField(aliashold.FieldDateUntil, field.TypeTime)
@@ -208,8 +223,14 @@ func (_u *AliasHoldUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(aliashold.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(aliashold.FieldDateUpdated); ok {
+		_spec.SetField(aliashold.FieldDateUpdated, field.TypeTime, e)
+	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(aliashold.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(aliashold.FieldDateErased); ok {
+		_spec.SetField(aliashold.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(aliashold.FieldDateErased, field.TypeTime)
@@ -429,17 +450,32 @@ func (_u *AliasHoldUpdateOne) sqlSave(ctx context.Context) (_node *AliasHold, er
 	if value, ok := _u.mutation.Held(); ok {
 		_spec.SetField(aliashold.FieldHeld, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(aliashold.FieldHeld); ok {
+		_spec.SetField(aliashold.FieldHeld, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Reason(); ok {
 		_spec.SetField(aliashold.FieldReason, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(aliashold.FieldReason); ok {
+		_spec.SetField(aliashold.FieldReason, field.TypeString, e)
 	}
 	if value, ok := _u.mutation.MovedTo(); ok {
 		_spec.SetField(aliashold.FieldMovedTo, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(aliashold.FieldMovedTo); ok {
+		_spec.SetField(aliashold.FieldMovedTo, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Tenant(); ok {
 		_spec.SetField(aliashold.FieldTenant, field.TypeUuid, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(aliashold.FieldTenant); ok {
+		_spec.SetField(aliashold.FieldTenant, field.TypeUuid, e)
+	}
 	if value, ok := _u.mutation.DateUntil(); ok {
 		_spec.SetField(aliashold.FieldDateUntil, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(aliashold.FieldDateUntil); ok {
+		_spec.SetField(aliashold.FieldDateUntil, field.TypeTime, e)
 	}
 	if _u.mutation.DateUntilCleared() {
 		_spec.ClearField(aliashold.FieldDateUntil, field.TypeTime)
@@ -447,8 +483,14 @@ func (_u *AliasHoldUpdateOne) sqlSave(ctx context.Context) (_node *AliasHold, er
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(aliashold.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(aliashold.FieldDateUpdated); ok {
+		_spec.SetField(aliashold.FieldDateUpdated, field.TypeTime, e)
+	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(aliashold.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(aliashold.FieldDateErased); ok {
+		_spec.SetField(aliashold.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(aliashold.FieldDateErased, field.TypeTime)

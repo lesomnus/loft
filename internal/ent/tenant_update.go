@@ -282,14 +282,26 @@ func (_u *TenantUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Alias(); ok {
 		_spec.SetField(tenant.FieldAlias, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldAlias); ok {
+		_spec.SetField(tenant.FieldAlias, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(tenant.FieldName, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldName); ok {
+		_spec.SetField(tenant.FieldName, field.TypeString, e)
 	}
 	if value, ok := _u.mutation.Desc(); ok {
 		_spec.SetField(tenant.FieldDesc, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldDesc); ok {
+		_spec.SetField(tenant.FieldDesc, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Labels(); ok {
 		_spec.SetField(tenant.FieldLabels, field.TypeJson, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldLabels); ok {
+		_spec.SetField(tenant.FieldLabels, field.TypeJson, e)
 	}
 	if _u.mutation.LabelsCleared() {
 		_spec.ClearField(tenant.FieldLabels, field.TypeJson)
@@ -297,11 +309,17 @@ func (_u *TenantUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(tenant.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldDateUpdated); ok {
+		_spec.SetField(tenant.FieldDateUpdated, field.TypeTime, e)
+	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(tenant.FieldDateCreated, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DateClosed(); ok {
 		_spec.SetField(tenant.FieldDateClosed, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldDateClosed); ok {
+		_spec.SetField(tenant.FieldDateClosed, field.TypeTime, e)
 	}
 	if _u.mutation.DateClosedCleared() {
 		_spec.ClearField(tenant.FieldDateClosed, field.TypeTime)
@@ -309,11 +327,20 @@ func (_u *TenantUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.ClosedBy(); ok {
 		_spec.SetField(tenant.FieldClosedBy, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldClosedBy); ok {
+		_spec.SetField(tenant.FieldClosedBy, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.CloseReason(); ok {
 		_spec.SetField(tenant.FieldCloseReason, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldCloseReason); ok {
+		_spec.SetField(tenant.FieldCloseReason, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.DateDestroy(); ok {
 		_spec.SetField(tenant.FieldDateDestroy, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldDateDestroy); ok {
+		_spec.SetField(tenant.FieldDateDestroy, field.TypeTime, e)
 	}
 	if _u.mutation.DateDestroyCleared() {
 		_spec.ClearField(tenant.FieldDateDestroy, field.TypeTime)
@@ -321,17 +348,26 @@ func (_u *TenantUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Timezone(); ok {
 		_spec.SetField(tenant.FieldTimezone, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldTimezone); ok {
+		_spec.SetField(tenant.FieldTimezone, field.TypeString, e)
+	}
 	if _u.mutation.TimezoneCleared() {
 		_spec.ClearField(tenant.FieldTimezone, field.TypeString)
 	}
 	if value, ok := _u.mutation.Currency(); ok {
 		_spec.SetField(tenant.FieldCurrency, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldCurrency); ok {
+		_spec.SetField(tenant.FieldCurrency, field.TypeString, e)
+	}
 	if _u.mutation.CurrencyCleared() {
 		_spec.ClearField(tenant.FieldCurrency, field.TypeString)
 	}
 	if value, ok := _u.mutation.NoShowMinutes(); ok {
 		_spec.SetField(tenant.FieldNoShowMinutes, field.TypeInt32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldNoShowMinutes); ok {
+		_spec.SetField(tenant.FieldNoShowMinutes, field.TypeInt32, e)
 	}
 	if value, ok := _u.mutation.AddedNoShowMinutes(); ok {
 		_spec.AddField(tenant.FieldNoShowMinutes, field.TypeInt32, value)
@@ -644,14 +680,26 @@ func (_u *TenantUpdateOne) sqlSave(ctx context.Context) (_node *Tenant, err erro
 	if value, ok := _u.mutation.Alias(); ok {
 		_spec.SetField(tenant.FieldAlias, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldAlias); ok {
+		_spec.SetField(tenant.FieldAlias, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(tenant.FieldName, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldName); ok {
+		_spec.SetField(tenant.FieldName, field.TypeString, e)
 	}
 	if value, ok := _u.mutation.Desc(); ok {
 		_spec.SetField(tenant.FieldDesc, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldDesc); ok {
+		_spec.SetField(tenant.FieldDesc, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Labels(); ok {
 		_spec.SetField(tenant.FieldLabels, field.TypeJson, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldLabels); ok {
+		_spec.SetField(tenant.FieldLabels, field.TypeJson, e)
 	}
 	if _u.mutation.LabelsCleared() {
 		_spec.ClearField(tenant.FieldLabels, field.TypeJson)
@@ -659,11 +707,17 @@ func (_u *TenantUpdateOne) sqlSave(ctx context.Context) (_node *Tenant, err erro
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(tenant.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldDateUpdated); ok {
+		_spec.SetField(tenant.FieldDateUpdated, field.TypeTime, e)
+	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(tenant.FieldDateCreated, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DateClosed(); ok {
 		_spec.SetField(tenant.FieldDateClosed, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldDateClosed); ok {
+		_spec.SetField(tenant.FieldDateClosed, field.TypeTime, e)
 	}
 	if _u.mutation.DateClosedCleared() {
 		_spec.ClearField(tenant.FieldDateClosed, field.TypeTime)
@@ -671,11 +725,20 @@ func (_u *TenantUpdateOne) sqlSave(ctx context.Context) (_node *Tenant, err erro
 	if value, ok := _u.mutation.ClosedBy(); ok {
 		_spec.SetField(tenant.FieldClosedBy, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldClosedBy); ok {
+		_spec.SetField(tenant.FieldClosedBy, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.CloseReason(); ok {
 		_spec.SetField(tenant.FieldCloseReason, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldCloseReason); ok {
+		_spec.SetField(tenant.FieldCloseReason, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.DateDestroy(); ok {
 		_spec.SetField(tenant.FieldDateDestroy, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldDateDestroy); ok {
+		_spec.SetField(tenant.FieldDateDestroy, field.TypeTime, e)
 	}
 	if _u.mutation.DateDestroyCleared() {
 		_spec.ClearField(tenant.FieldDateDestroy, field.TypeTime)
@@ -683,17 +746,26 @@ func (_u *TenantUpdateOne) sqlSave(ctx context.Context) (_node *Tenant, err erro
 	if value, ok := _u.mutation.Timezone(); ok {
 		_spec.SetField(tenant.FieldTimezone, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldTimezone); ok {
+		_spec.SetField(tenant.FieldTimezone, field.TypeString, e)
+	}
 	if _u.mutation.TimezoneCleared() {
 		_spec.ClearField(tenant.FieldTimezone, field.TypeString)
 	}
 	if value, ok := _u.mutation.Currency(); ok {
 		_spec.SetField(tenant.FieldCurrency, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldCurrency); ok {
+		_spec.SetField(tenant.FieldCurrency, field.TypeString, e)
+	}
 	if _u.mutation.CurrencyCleared() {
 		_spec.ClearField(tenant.FieldCurrency, field.TypeString)
 	}
 	if value, ok := _u.mutation.NoShowMinutes(); ok {
 		_spec.SetField(tenant.FieldNoShowMinutes, field.TypeInt32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldNoShowMinutes); ok {
+		_spec.SetField(tenant.FieldNoShowMinutes, field.TypeInt32, e)
 	}
 	if value, ok := _u.mutation.AddedNoShowMinutes(); ok {
 		_spec.AddField(tenant.FieldNoShowMinutes, field.TypeInt32, value)

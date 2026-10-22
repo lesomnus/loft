@@ -265,14 +265,26 @@ func (_u *InventoryCountUpdate) sqlSave(ctx context.Context) (_node int, err err
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(inventorycount.FieldName, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(inventorycount.FieldName); ok {
+		_spec.SetField(inventorycount.FieldName, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Desc(); ok {
 		_spec.SetField(inventorycount.FieldDesc, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(inventorycount.FieldDesc); ok {
+		_spec.SetField(inventorycount.FieldDesc, field.TypeString, e)
 	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(inventorycount.FieldStatus, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(inventorycount.FieldStatus); ok {
+		_spec.SetField(inventorycount.FieldStatus, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.StartedAt(); ok {
 		_spec.SetField(inventorycount.FieldStartedAt, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(inventorycount.FieldStartedAt); ok {
+		_spec.SetField(inventorycount.FieldStartedAt, field.TypeTime, e)
 	}
 	if _u.mutation.StartedAtCleared() {
 		_spec.ClearField(inventorycount.FieldStartedAt, field.TypeTime)
@@ -280,11 +292,17 @@ func (_u *InventoryCountUpdate) sqlSave(ctx context.Context) (_node int, err err
 	if value, ok := _u.mutation.ClosedAt(); ok {
 		_spec.SetField(inventorycount.FieldClosedAt, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(inventorycount.FieldClosedAt); ok {
+		_spec.SetField(inventorycount.FieldClosedAt, field.TypeTime, e)
+	}
 	if _u.mutation.ClosedAtCleared() {
 		_spec.ClearField(inventorycount.FieldClosedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.StartedBy(); ok {
 		_spec.SetField(inventorycount.FieldStartedBy, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(inventorycount.FieldStartedBy); ok {
+		_spec.SetField(inventorycount.FieldStartedBy, field.TypeUuid, e)
 	}
 	if _u.mutation.StartedByCleared() {
 		_spec.ClearField(inventorycount.FieldStartedBy, field.TypeUuid)
@@ -292,8 +310,14 @@ func (_u *InventoryCountUpdate) sqlSave(ctx context.Context) (_node int, err err
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(inventorycount.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(inventorycount.FieldDateUpdated); ok {
+		_spec.SetField(inventorycount.FieldDateUpdated, field.TypeTime, e)
+	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(inventorycount.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(inventorycount.FieldDateErased); ok {
+		_spec.SetField(inventorycount.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(inventorycount.FieldDateErased, field.TypeTime)
@@ -304,8 +328,14 @@ func (_u *InventoryCountUpdate) sqlSave(ctx context.Context) (_node int, err err
 	if value, ok := _u.mutation.SelfService(); ok {
 		_spec.SetField(inventorycount.FieldSelfService, field.TypeBool, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(inventorycount.FieldSelfService); ok {
+		_spec.SetField(inventorycount.FieldSelfService, field.TypeBool, e)
+	}
 	if value, ok := _u.mutation.FindingsVersion(); ok {
 		_spec.SetField(inventorycount.FieldFindingsVersion, field.TypeUint64, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(inventorycount.FieldFindingsVersion); ok {
+		_spec.SetField(inventorycount.FieldFindingsVersion, field.TypeUint64, e)
 	}
 	if value, ok := _u.mutation.AddedFindingsVersion(); ok {
 		_spec.AddField(inventorycount.FieldFindingsVersion, field.TypeUint64, value)
@@ -597,14 +627,26 @@ func (_u *InventoryCountUpdateOne) sqlSave(ctx context.Context) (_node *Inventor
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(inventorycount.FieldName, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(inventorycount.FieldName); ok {
+		_spec.SetField(inventorycount.FieldName, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Desc(); ok {
 		_spec.SetField(inventorycount.FieldDesc, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(inventorycount.FieldDesc); ok {
+		_spec.SetField(inventorycount.FieldDesc, field.TypeString, e)
 	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(inventorycount.FieldStatus, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(inventorycount.FieldStatus); ok {
+		_spec.SetField(inventorycount.FieldStatus, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.StartedAt(); ok {
 		_spec.SetField(inventorycount.FieldStartedAt, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(inventorycount.FieldStartedAt); ok {
+		_spec.SetField(inventorycount.FieldStartedAt, field.TypeTime, e)
 	}
 	if _u.mutation.StartedAtCleared() {
 		_spec.ClearField(inventorycount.FieldStartedAt, field.TypeTime)
@@ -612,11 +654,17 @@ func (_u *InventoryCountUpdateOne) sqlSave(ctx context.Context) (_node *Inventor
 	if value, ok := _u.mutation.ClosedAt(); ok {
 		_spec.SetField(inventorycount.FieldClosedAt, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(inventorycount.FieldClosedAt); ok {
+		_spec.SetField(inventorycount.FieldClosedAt, field.TypeTime, e)
+	}
 	if _u.mutation.ClosedAtCleared() {
 		_spec.ClearField(inventorycount.FieldClosedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.StartedBy(); ok {
 		_spec.SetField(inventorycount.FieldStartedBy, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(inventorycount.FieldStartedBy); ok {
+		_spec.SetField(inventorycount.FieldStartedBy, field.TypeUuid, e)
 	}
 	if _u.mutation.StartedByCleared() {
 		_spec.ClearField(inventorycount.FieldStartedBy, field.TypeUuid)
@@ -624,8 +672,14 @@ func (_u *InventoryCountUpdateOne) sqlSave(ctx context.Context) (_node *Inventor
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(inventorycount.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(inventorycount.FieldDateUpdated); ok {
+		_spec.SetField(inventorycount.FieldDateUpdated, field.TypeTime, e)
+	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(inventorycount.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(inventorycount.FieldDateErased); ok {
+		_spec.SetField(inventorycount.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(inventorycount.FieldDateErased, field.TypeTime)
@@ -636,8 +690,14 @@ func (_u *InventoryCountUpdateOne) sqlSave(ctx context.Context) (_node *Inventor
 	if value, ok := _u.mutation.SelfService(); ok {
 		_spec.SetField(inventorycount.FieldSelfService, field.TypeBool, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(inventorycount.FieldSelfService); ok {
+		_spec.SetField(inventorycount.FieldSelfService, field.TypeBool, e)
+	}
 	if value, ok := _u.mutation.FindingsVersion(); ok {
 		_spec.SetField(inventorycount.FieldFindingsVersion, field.TypeUint64, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(inventorycount.FieldFindingsVersion); ok {
+		_spec.SetField(inventorycount.FieldFindingsVersion, field.TypeUint64, e)
 	}
 	if value, ok := _u.mutation.AddedFindingsVersion(); ok {
 		_spec.AddField(inventorycount.FieldFindingsVersion, field.TypeUint64, value)

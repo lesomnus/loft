@@ -217,11 +217,17 @@ func (_u *CustodyLineUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if value, ok := _u.mutation.Quantity(); ok {
 		_spec.SetField(custodyline.FieldQuantity, field.TypeInt64, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(custodyline.FieldQuantity); ok {
+		_spec.SetField(custodyline.FieldQuantity, field.TypeInt64, e)
+	}
 	if value, ok := _u.mutation.AddedQuantity(); ok {
 		_spec.AddField(custodyline.FieldQuantity, field.TypeInt64, value)
 	}
 	if value, ok := _u.mutation.ReturnedQuantity(); ok {
 		_spec.SetField(custodyline.FieldReturnedQuantity, field.TypeInt64, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(custodyline.FieldReturnedQuantity); ok {
+		_spec.SetField(custodyline.FieldReturnedQuantity, field.TypeInt64, e)
 	}
 	if value, ok := _u.mutation.AddedReturnedQuantity(); ok {
 		_spec.AddField(custodyline.FieldReturnedQuantity, field.TypeInt64, value)
@@ -229,11 +235,17 @@ func (_u *CustodyLineUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(custodyline.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(custodyline.FieldDateUpdated); ok {
+		_spec.SetField(custodyline.FieldDateUpdated, field.TypeTime, e)
+	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(custodyline.FieldDateCreated, field.TypeTime)
 	}
 	if value, ok := _u.mutation.OutAt(); ok {
 		_spec.SetField(custodyline.FieldOutAt, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(custodyline.FieldOutAt); ok {
+		_spec.SetField(custodyline.FieldOutAt, field.TypeTime, e)
 	}
 	if _u.mutation.OutAtCleared() {
 		_spec.ClearField(custodyline.FieldOutAt, field.TypeTime)
@@ -241,14 +253,23 @@ func (_u *CustodyLineUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if value, ok := _u.mutation.ReturnedAt(); ok {
 		_spec.SetField(custodyline.FieldReturnedAt, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(custodyline.FieldReturnedAt); ok {
+		_spec.SetField(custodyline.FieldReturnedAt, field.TypeTime, e)
+	}
 	if _u.mutation.ReturnedAtCleared() {
 		_spec.ClearField(custodyline.FieldReturnedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.ConditionOut(); ok {
 		_spec.SetField(custodyline.FieldConditionOut, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(custodyline.FieldConditionOut); ok {
+		_spec.SetField(custodyline.FieldConditionOut, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.ConditionIn(); ok {
 		_spec.SetField(custodyline.FieldConditionIn, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(custodyline.FieldConditionIn); ok {
+		_spec.SetField(custodyline.FieldConditionIn, field.TypeString, e)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
@@ -490,11 +511,17 @@ func (_u *CustodyLineUpdateOne) sqlSave(ctx context.Context) (_node *CustodyLine
 	if value, ok := _u.mutation.Quantity(); ok {
 		_spec.SetField(custodyline.FieldQuantity, field.TypeInt64, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(custodyline.FieldQuantity); ok {
+		_spec.SetField(custodyline.FieldQuantity, field.TypeInt64, e)
+	}
 	if value, ok := _u.mutation.AddedQuantity(); ok {
 		_spec.AddField(custodyline.FieldQuantity, field.TypeInt64, value)
 	}
 	if value, ok := _u.mutation.ReturnedQuantity(); ok {
 		_spec.SetField(custodyline.FieldReturnedQuantity, field.TypeInt64, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(custodyline.FieldReturnedQuantity); ok {
+		_spec.SetField(custodyline.FieldReturnedQuantity, field.TypeInt64, e)
 	}
 	if value, ok := _u.mutation.AddedReturnedQuantity(); ok {
 		_spec.AddField(custodyline.FieldReturnedQuantity, field.TypeInt64, value)
@@ -502,11 +529,17 @@ func (_u *CustodyLineUpdateOne) sqlSave(ctx context.Context) (_node *CustodyLine
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(custodyline.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(custodyline.FieldDateUpdated); ok {
+		_spec.SetField(custodyline.FieldDateUpdated, field.TypeTime, e)
+	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(custodyline.FieldDateCreated, field.TypeTime)
 	}
 	if value, ok := _u.mutation.OutAt(); ok {
 		_spec.SetField(custodyline.FieldOutAt, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(custodyline.FieldOutAt); ok {
+		_spec.SetField(custodyline.FieldOutAt, field.TypeTime, e)
 	}
 	if _u.mutation.OutAtCleared() {
 		_spec.ClearField(custodyline.FieldOutAt, field.TypeTime)
@@ -514,14 +547,23 @@ func (_u *CustodyLineUpdateOne) sqlSave(ctx context.Context) (_node *CustodyLine
 	if value, ok := _u.mutation.ReturnedAt(); ok {
 		_spec.SetField(custodyline.FieldReturnedAt, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(custodyline.FieldReturnedAt); ok {
+		_spec.SetField(custodyline.FieldReturnedAt, field.TypeTime, e)
+	}
 	if _u.mutation.ReturnedAtCleared() {
 		_spec.ClearField(custodyline.FieldReturnedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.ConditionOut(); ok {
 		_spec.SetField(custodyline.FieldConditionOut, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(custodyline.FieldConditionOut); ok {
+		_spec.SetField(custodyline.FieldConditionOut, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.ConditionIn(); ok {
 		_spec.SetField(custodyline.FieldConditionIn, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(custodyline.FieldConditionIn); ok {
+		_spec.SetField(custodyline.FieldConditionIn, field.TypeString, e)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	_node = &CustodyLine{config: _u.config}

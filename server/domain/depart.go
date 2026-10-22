@@ -15,6 +15,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/invitation"
 	"github.com/lesomnus/rove/internal/ent/party"
 	"github.com/lesomnus/rove/internal/ent/predicate"
+	"github.com/lesomnus/rove/server/pd"
 )
 
 // An account leaving the deployment (design 9.10, M2 step 5).
@@ -170,6 +171,9 @@ func (t *Tx) pseudonymize(p *app.Party) (*app.Party, int, error) {
 	return out, held, nil
 }
 
+// Pseudonymized is the act a membership's own name going is on the trail as.
+const Pseudonymized = "rove.holder.pseudonymize"
+
 // endMembership ends a membership of somebody being forgotten, and forgets
 // what the trail kept of it and of `objects` beside it: the person record
 // it was, and the invitations sent to them.
@@ -201,6 +205,13 @@ func (t *Tx) endMembership(member, person pdid.Id, objects []pdid.Id) (int, erro
 			SetDesc("").
 			SetLabels(map[string]string{}).
 			Exec(t.ctx); err != nil {
+			return 0, err
+		}
+		// And on the trail as the act it is: a digest of the row it leaves,
+		// and nothing of what it held. An erased row is checked as a live one
+		// is (payday#115), and one written past the servers that nothing
+		// records is a row the trail says is other than it is.
+		if _, err := pd.Record(t.ctx, t.db, t.audit(), Pseudonymized, []pdid.Id{member}); err != nil {
 			return 0, err
 		}
 		objects = append(objects, member)

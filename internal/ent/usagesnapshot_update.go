@@ -130,14 +130,23 @@ func (_u *UsageSnapshotUpdate) sqlSave(ctx context.Context) (_node int, err erro
 	if value, ok := _u.mutation.Day(); ok {
 		_spec.SetField(usagesnapshot.FieldDay, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(usagesnapshot.FieldDay); ok {
+		_spec.SetField(usagesnapshot.FieldDay, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Metrics(); ok {
 		_spec.SetField(usagesnapshot.FieldMetrics, field.TypeJson, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(usagesnapshot.FieldMetrics); ok {
+		_spec.SetField(usagesnapshot.FieldMetrics, field.TypeJson, e)
 	}
 	if _u.mutation.MetricsCleared() {
 		_spec.ClearField(usagesnapshot.FieldMetrics, field.TypeJson)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(usagesnapshot.FieldDateUpdated, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(usagesnapshot.FieldDateUpdated); ok {
+		_spec.SetField(usagesnapshot.FieldDateUpdated, field.TypeTime, e)
 	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(usagesnapshot.FieldDateCreated, field.TypeTime)
@@ -295,14 +304,23 @@ func (_u *UsageSnapshotUpdateOne) sqlSave(ctx context.Context) (_node *UsageSnap
 	if value, ok := _u.mutation.Day(); ok {
 		_spec.SetField(usagesnapshot.FieldDay, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(usagesnapshot.FieldDay); ok {
+		_spec.SetField(usagesnapshot.FieldDay, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Metrics(); ok {
 		_spec.SetField(usagesnapshot.FieldMetrics, field.TypeJson, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(usagesnapshot.FieldMetrics); ok {
+		_spec.SetField(usagesnapshot.FieldMetrics, field.TypeJson, e)
 	}
 	if _u.mutation.MetricsCleared() {
 		_spec.ClearField(usagesnapshot.FieldMetrics, field.TypeJson)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(usagesnapshot.FieldDateUpdated, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(usagesnapshot.FieldDateUpdated); ok {
+		_spec.SetField(usagesnapshot.FieldDateUpdated, field.TypeTime, e)
 	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(usagesnapshot.FieldDateCreated, field.TypeTime)

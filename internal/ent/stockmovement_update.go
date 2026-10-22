@@ -218,14 +218,23 @@ func (_u *StockMovementUpdate) sqlSave(ctx context.Context) (_node int, err erro
 	if value, ok := _u.mutation.Delta(); ok {
 		_spec.SetField(stockmovement.FieldDelta, field.TypeInt64, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(stockmovement.FieldDelta); ok {
+		_spec.SetField(stockmovement.FieldDelta, field.TypeInt64, e)
+	}
 	if value, ok := _u.mutation.AddedDelta(); ok {
 		_spec.AddField(stockmovement.FieldDelta, field.TypeInt64, value)
 	}
 	if value, ok := _u.mutation.Reason(); ok {
 		_spec.SetField(stockmovement.FieldReason, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(stockmovement.FieldReason); ok {
+		_spec.SetField(stockmovement.FieldReason, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.RefId(); ok {
 		_spec.SetField(stockmovement.FieldRefId, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(stockmovement.FieldRefId); ok {
+		_spec.SetField(stockmovement.FieldRefId, field.TypeUuid, e)
 	}
 	if _u.mutation.RefIdCleared() {
 		_spec.ClearField(stockmovement.FieldRefId, field.TypeUuid)
@@ -233,11 +242,17 @@ func (_u *StockMovementUpdate) sqlSave(ctx context.Context) (_node int, err erro
 	if value, ok := _u.mutation.OccurredAt(); ok {
 		_spec.SetField(stockmovement.FieldOccurredAt, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(stockmovement.FieldOccurredAt); ok {
+		_spec.SetField(stockmovement.FieldOccurredAt, field.TypeTime, e)
+	}
 	if _u.mutation.OccurredAtCleared() {
 		_spec.ClearField(stockmovement.FieldOccurredAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(stockmovement.FieldDateUpdated, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(stockmovement.FieldDateUpdated); ok {
+		_spec.SetField(stockmovement.FieldDateUpdated, field.TypeTime, e)
 	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(stockmovement.FieldDateCreated, field.TypeTime)
@@ -245,8 +260,14 @@ func (_u *StockMovementUpdate) sqlSave(ctx context.Context) (_node int, err erro
 	if value, ok := _u.mutation.EventId(); ok {
 		_spec.SetField(stockmovement.FieldEventId, field.TypeUuid, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(stockmovement.FieldEventId); ok {
+		_spec.SetField(stockmovement.FieldEventId, field.TypeUuid, e)
+	}
 	if value, ok := _u.mutation.Balance(); ok {
 		_spec.SetField(stockmovement.FieldBalance, field.TypeInt64, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(stockmovement.FieldBalance); ok {
+		_spec.SetField(stockmovement.FieldBalance, field.TypeInt64, e)
 	}
 	if value, ok := _u.mutation.AddedBalance(); ok {
 		_spec.AddField(stockmovement.FieldBalance, field.TypeInt64, value)
@@ -491,14 +512,23 @@ func (_u *StockMovementUpdateOne) sqlSave(ctx context.Context) (_node *StockMove
 	if value, ok := _u.mutation.Delta(); ok {
 		_spec.SetField(stockmovement.FieldDelta, field.TypeInt64, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(stockmovement.FieldDelta); ok {
+		_spec.SetField(stockmovement.FieldDelta, field.TypeInt64, e)
+	}
 	if value, ok := _u.mutation.AddedDelta(); ok {
 		_spec.AddField(stockmovement.FieldDelta, field.TypeInt64, value)
 	}
 	if value, ok := _u.mutation.Reason(); ok {
 		_spec.SetField(stockmovement.FieldReason, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(stockmovement.FieldReason); ok {
+		_spec.SetField(stockmovement.FieldReason, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.RefId(); ok {
 		_spec.SetField(stockmovement.FieldRefId, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(stockmovement.FieldRefId); ok {
+		_spec.SetField(stockmovement.FieldRefId, field.TypeUuid, e)
 	}
 	if _u.mutation.RefIdCleared() {
 		_spec.ClearField(stockmovement.FieldRefId, field.TypeUuid)
@@ -506,11 +536,17 @@ func (_u *StockMovementUpdateOne) sqlSave(ctx context.Context) (_node *StockMove
 	if value, ok := _u.mutation.OccurredAt(); ok {
 		_spec.SetField(stockmovement.FieldOccurredAt, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(stockmovement.FieldOccurredAt); ok {
+		_spec.SetField(stockmovement.FieldOccurredAt, field.TypeTime, e)
+	}
 	if _u.mutation.OccurredAtCleared() {
 		_spec.ClearField(stockmovement.FieldOccurredAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(stockmovement.FieldDateUpdated, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(stockmovement.FieldDateUpdated); ok {
+		_spec.SetField(stockmovement.FieldDateUpdated, field.TypeTime, e)
 	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(stockmovement.FieldDateCreated, field.TypeTime)
@@ -518,8 +554,14 @@ func (_u *StockMovementUpdateOne) sqlSave(ctx context.Context) (_node *StockMove
 	if value, ok := _u.mutation.EventId(); ok {
 		_spec.SetField(stockmovement.FieldEventId, field.TypeUuid, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(stockmovement.FieldEventId); ok {
+		_spec.SetField(stockmovement.FieldEventId, field.TypeUuid, e)
+	}
 	if value, ok := _u.mutation.Balance(); ok {
 		_spec.SetField(stockmovement.FieldBalance, field.TypeInt64, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(stockmovement.FieldBalance); ok {
+		_spec.SetField(stockmovement.FieldBalance, field.TypeInt64, e)
 	}
 	if value, ok := _u.mutation.AddedBalance(); ok {
 		_spec.AddField(stockmovement.FieldBalance, field.TypeInt64, value)

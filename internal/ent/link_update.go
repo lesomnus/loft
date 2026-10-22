@@ -245,17 +245,29 @@ func (_u *LinkUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Labels(); ok {
 		_spec.SetField(link.FieldLabels, field.TypeJson, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(link.FieldLabels); ok {
+		_spec.SetField(link.FieldLabels, field.TypeJson, e)
+	}
 	if _u.mutation.LabelsCleared() {
 		_spec.ClearField(link.FieldLabels, field.TypeJson)
 	}
 	if value, ok := _u.mutation.Kind(); ok {
 		_spec.SetField(link.FieldKind, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(link.FieldKind); ok {
+		_spec.SetField(link.FieldKind, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Required(); ok {
 		_spec.SetField(link.FieldRequired, field.TypeBool, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(link.FieldRequired); ok {
+		_spec.SetField(link.FieldRequired, field.TypeBool, e)
+	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(link.FieldDateUpdated, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(link.FieldDateUpdated); ok {
+		_spec.SetField(link.FieldDateUpdated, field.TypeTime, e)
 	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(link.FieldDateCreated, field.TypeTime)
@@ -263,11 +275,17 @@ func (_u *LinkUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.ValidFrom(); ok {
 		_spec.SetField(link.FieldValidFrom, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(link.FieldValidFrom); ok {
+		_spec.SetField(link.FieldValidFrom, field.TypeTime, e)
+	}
 	if _u.mutation.ValidFromCleared() {
 		_spec.ClearField(link.FieldValidFrom, field.TypeTime)
 	}
 	if value, ok := _u.mutation.ValidTo(); ok {
 		_spec.SetField(link.FieldValidTo, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(link.FieldValidTo); ok {
+		_spec.SetField(link.FieldValidTo, field.TypeTime, e)
 	}
 	if _u.mutation.ValidToCleared() {
 		_spec.ClearField(link.FieldValidTo, field.TypeTime)
@@ -275,14 +293,23 @@ func (_u *LinkUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.EventId(); ok {
 		_spec.SetField(link.FieldEventId, field.TypeUuid, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(link.FieldEventId); ok {
+		_spec.SetField(link.FieldEventId, field.TypeUuid, e)
+	}
 	if value, ok := _u.mutation.SupersededAt(); ok {
 		_spec.SetField(link.FieldSupersededAt, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(link.FieldSupersededAt); ok {
+		_spec.SetField(link.FieldSupersededAt, field.TypeTime, e)
 	}
 	if _u.mutation.SupersededAtCleared() {
 		_spec.ClearField(link.FieldSupersededAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.SupersededBy(); ok {
 		_spec.SetField(link.FieldSupersededBy, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(link.FieldSupersededBy); ok {
+		_spec.SetField(link.FieldSupersededBy, field.TypeUuid, e)
 	}
 	if _u.mutation.SupersededByCleared() {
 		_spec.ClearField(link.FieldSupersededBy, field.TypeUuid)
@@ -554,17 +581,29 @@ func (_u *LinkUpdateOne) sqlSave(ctx context.Context) (_node *Link, err error) {
 	if value, ok := _u.mutation.Labels(); ok {
 		_spec.SetField(link.FieldLabels, field.TypeJson, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(link.FieldLabels); ok {
+		_spec.SetField(link.FieldLabels, field.TypeJson, e)
+	}
 	if _u.mutation.LabelsCleared() {
 		_spec.ClearField(link.FieldLabels, field.TypeJson)
 	}
 	if value, ok := _u.mutation.Kind(); ok {
 		_spec.SetField(link.FieldKind, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(link.FieldKind); ok {
+		_spec.SetField(link.FieldKind, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Required(); ok {
 		_spec.SetField(link.FieldRequired, field.TypeBool, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(link.FieldRequired); ok {
+		_spec.SetField(link.FieldRequired, field.TypeBool, e)
+	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(link.FieldDateUpdated, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(link.FieldDateUpdated); ok {
+		_spec.SetField(link.FieldDateUpdated, field.TypeTime, e)
 	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(link.FieldDateCreated, field.TypeTime)
@@ -572,11 +611,17 @@ func (_u *LinkUpdateOne) sqlSave(ctx context.Context) (_node *Link, err error) {
 	if value, ok := _u.mutation.ValidFrom(); ok {
 		_spec.SetField(link.FieldValidFrom, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(link.FieldValidFrom); ok {
+		_spec.SetField(link.FieldValidFrom, field.TypeTime, e)
+	}
 	if _u.mutation.ValidFromCleared() {
 		_spec.ClearField(link.FieldValidFrom, field.TypeTime)
 	}
 	if value, ok := _u.mutation.ValidTo(); ok {
 		_spec.SetField(link.FieldValidTo, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(link.FieldValidTo); ok {
+		_spec.SetField(link.FieldValidTo, field.TypeTime, e)
 	}
 	if _u.mutation.ValidToCleared() {
 		_spec.ClearField(link.FieldValidTo, field.TypeTime)
@@ -584,14 +629,23 @@ func (_u *LinkUpdateOne) sqlSave(ctx context.Context) (_node *Link, err error) {
 	if value, ok := _u.mutation.EventId(); ok {
 		_spec.SetField(link.FieldEventId, field.TypeUuid, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(link.FieldEventId); ok {
+		_spec.SetField(link.FieldEventId, field.TypeUuid, e)
+	}
 	if value, ok := _u.mutation.SupersededAt(); ok {
 		_spec.SetField(link.FieldSupersededAt, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(link.FieldSupersededAt); ok {
+		_spec.SetField(link.FieldSupersededAt, field.TypeTime, e)
 	}
 	if _u.mutation.SupersededAtCleared() {
 		_spec.ClearField(link.FieldSupersededAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.SupersededBy(); ok {
 		_spec.SetField(link.FieldSupersededBy, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(link.FieldSupersededBy); ok {
+		_spec.SetField(link.FieldSupersededBy, field.TypeUuid, e)
 	}
 	if _u.mutation.SupersededByCleared() {
 		_spec.ClearField(link.FieldSupersededBy, field.TypeUuid)

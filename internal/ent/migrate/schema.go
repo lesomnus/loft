@@ -32,17 +32,17 @@ var (
 		PrimaryKey: []*schema.Column{AccessColumns[0]},
 		Indexes: []*schema.Index{
 			{
-				Name:    "access_tenant_id_date_created",
+				Name:    "access_access",
 				Unique:  false,
 				Columns: []*schema.Column{AccessColumns[1], AccessColumns[7]},
 			},
 			{
-				Name:    "access_actor_tenant_id_date_created",
+				Name:    "access_by_actor_tenant",
 				Unique:  false,
 				Columns: []*schema.Column{AccessColumns[8], AccessColumns[7]},
 			},
 			{
-				Name:    "access_actor_id_date_created",
+				Name:    "access_by_actor",
 				Unique:  false,
 				Columns: []*schema.Column{AccessColumns[2], AccessColumns[7]},
 			},
@@ -82,7 +82,7 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "accessreview_tenant_id_date_created_id",
+				Name:    "accessreview_page",
 				Unique:  false,
 				Columns: []*schema.Column{AccessreviewColumns[8], AccessreviewColumns[6], AccessreviewColumns[0]},
 			},
@@ -149,17 +149,17 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "allocation_tenant_id_date_created_id",
+				Name:    "allocation_page",
 				Unique:  false,
 				Columns: []*schema.Column{AllocationColumns[10], AllocationColumns[6], AllocationColumns[0]},
 			},
 			{
-				Name:    "allocation_resource_id_begins_at",
+				Name:    "allocation_resource",
 				Unique:  false,
 				Columns: []*schema.Column{AllocationColumns[11], AllocationColumns[3]},
 			},
 			{
-				Name:    "allocation_ref_id",
+				Name:    "allocation_ref",
 				Unique:  false,
 				Columns: []*schema.Column{AllocationColumns[2]},
 			},
@@ -187,7 +187,7 @@ var (
 		PrimaryKey: []*schema.Column{ArchivedColumns[0]},
 		Indexes: []*schema.Index{
 			{
-				Name:    "archived_namespace_digest",
+				Name:    "archived_blob",
 				Unique:  false,
 				Columns: []*schema.Column{ArchivedColumns[2], ArchivedColumns[3]},
 			},
@@ -257,12 +257,12 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "asset_tenant_id_date_created_id",
+				Name:    "asset_page",
 				Unique:  false,
 				Columns: []*schema.Column{AssetColumns[19], AssetColumns[9], AssetColumns[0]},
 			},
 			{
-				Name:    "asset_tag_tenant_id",
+				Name:    "asset_tag",
 				Unique:  true,
 				Columns: []*schema.Column{AssetColumns[5], AssetColumns[19]},
 				Annotation: &entsql.IndexAnnotation{
@@ -270,7 +270,7 @@ var (
 				},
 			},
 			{
-				Name:    "asset_parent_id",
+				Name:    "asset_parent",
 				Unique:  false,
 				Columns: []*schema.Column{AssetColumns[12]},
 			},
@@ -306,7 +306,7 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "assettype_tenant_id_date_created_id",
+				Name:    "assettype_page",
 				Unique:  false,
 				Columns: []*schema.Column{AssettypeColumns[11], AssettypeColumns[10], AssettypeColumns[0]},
 			},
@@ -341,12 +341,12 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "attachment_tenant_id_date_created_id",
+				Name:    "attachment_page",
 				Unique:  false,
 				Columns: []*schema.Column{AttachmentColumns[10], AttachmentColumns[9], AttachmentColumns[0]},
 			},
 			{
-				Name:    "attachment_subject_id",
+				Name:    "attachment_subject",
 				Unique:  false,
 				Columns: []*schema.Column{AttachmentColumns[2]},
 			},
@@ -377,37 +377,37 @@ var (
 		PrimaryKey: []*schema.Column{AuditColumns[0]},
 		Indexes: []*schema.Index{
 			{
-				Name:    "audit_object_id",
+				Name:    "audit_object",
 				Unique:  false,
 				Columns: []*schema.Column{AuditColumns[5]},
 			},
 			{
-				Name:    "audit_tenant_id_date_created",
+				Name:    "audit_trail",
 				Unique:  false,
 				Columns: []*schema.Column{AuditColumns[1], AuditColumns[7]},
 			},
 			{
-				Name:    "audit_actor_tenant_id_date_created",
+				Name:    "audit_by_actor_tenant",
 				Unique:  false,
 				Columns: []*schema.Column{AuditColumns[8], AuditColumns[7]},
 			},
 			{
-				Name:    "audit_counterpart_tenant_id_date_created",
+				Name:    "audit_by_counterpart",
 				Unique:  false,
 				Columns: []*schema.Column{AuditColumns[10], AuditColumns[7]},
 			},
 			{
-				Name:    "audit_domain_date_created",
+				Name:    "audit_by_domain",
 				Unique:  false,
 				Columns: []*schema.Column{AuditColumns[11], AuditColumns[7]},
 			},
 			{
-				Name:    "audit_tenant_id_domain_date_created",
+				Name:    "audit_by_tenant_domain",
 				Unique:  false,
 				Columns: []*schema.Column{AuditColumns[1], AuditColumns[11], AuditColumns[7]},
 			},
 			{
-				Name:    "audit_actor_id_date_created",
+				Name:    "audit_by_actor",
 				Unique:  false,
 				Columns: []*schema.Column{AuditColumns[2], AuditColumns[7]},
 			},
@@ -455,12 +455,12 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "bookable_tenant_id_date_created_id",
+				Name:    "bookable_page",
 				Unique:  false,
 				Columns: []*schema.Column{BookableColumns[16], BookableColumns[7], BookableColumns[0]},
 			},
 			{
-				Name:    "bookable_asset_id",
+				Name:    "bookable_asset",
 				Unique:  true,
 				Columns: []*schema.Column{BookableColumns[17]},
 				Annotation: &entsql.IndexAnnotation{
@@ -502,7 +502,7 @@ var (
 				Columns: []*schema.Column{CliloginColumns[1]},
 			},
 			{
-				Name:    "clilogin_address_date_created",
+				Name:    "clilogin_address",
 				Unique:  false,
 				Columns: []*schema.Column{CliloginColumns[5], CliloginColumns[12]},
 			},
@@ -526,7 +526,7 @@ var (
 		PrimaryKey: []*schema.Column{ConsentColumns[0]},
 		Indexes: []*schema.Index{
 			{
-				Name:    "consent_account_document_version",
+				Name:    "consent_agreed",
 				Unique:  true,
 				Columns: []*schema.Column{ConsentColumns[1], ConsentColumns[2], ConsentColumns[3]},
 				Annotation: &entsql.IndexAnnotation{
@@ -580,12 +580,12 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "countfinding_tenant_id_date_created_id",
+				Name:    "countfinding_page",
 				Unique:  false,
 				Columns: []*schema.Column{CountfindingColumns[12], CountfindingColumns[6], CountfindingColumns[0]},
 			},
 			{
-				Name:    "countfinding_count_id_kind",
+				Name:    "countfinding_count",
 				Unique:  false,
 				Columns: []*schema.Column{CountfindingColumns[13], CountfindingColumns[3]},
 			},
@@ -631,12 +631,12 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "custody_tenant_id_date_created_id",
+				Name:    "custody_page",
 				Unique:  false,
 				Columns: []*schema.Column{CustodyColumns[14], CustodyColumns[8], CustodyColumns[0]},
 			},
 			{
-				Name:    "custody_party_id_issued_at",
+				Name:    "custody_party",
 				Unique:  false,
 				Columns: []*schema.Column{CustodyColumns[15], CustodyColumns[4]},
 			},
@@ -691,17 +691,17 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "custodyline_tenant_id_date_created_id",
+				Name:    "custodyline_page",
 				Unique:  false,
 				Columns: []*schema.Column{CustodylineColumns[9], CustodylineColumns[4], CustodylineColumns[0]},
 			},
 			{
-				Name:    "custodyline_custody_id",
+				Name:    "custodyline_custody",
 				Unique:  false,
 				Columns: []*schema.Column{CustodylineColumns[10]},
 			},
 			{
-				Name:    "custodyline_asset_id",
+				Name:    "custodyline_asset",
 				Unique:  false,
 				Columns: []*schema.Column{CustodylineColumns[11]},
 			},
@@ -738,17 +738,17 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "event_tenant_id_date_created_id",
+				Name:    "event_page",
 				Unique:  false,
 				Columns: []*schema.Column{EventColumns[12], EventColumns[8], EventColumns[0]},
 			},
 			{
-				Name:    "event_subject_id_occurred_at",
+				Name:    "event_subject",
 				Unique:  false,
 				Columns: []*schema.Column{EventColumns[6], EventColumns[4]},
 			},
 			{
-				Name:    "event_cause_id",
+				Name:    "event_cause",
 				Unique:  false,
 				Columns: []*schema.Column{EventColumns[11]},
 			},
@@ -790,12 +790,12 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "fact_tenant_id_date_created_id",
+				Name:    "fact_page",
 				Unique:  false,
 				Columns: []*schema.Column{FactColumns[10], FactColumns[5], FactColumns[0]},
 			},
 			{
-				Name:    "fact_asset_id_key_valid_from",
+				Name:    "fact_asset",
 				Unique:  false,
 				Columns: []*schema.Column{FactColumns[11], FactColumns[1], FactColumns[6]},
 			},
@@ -833,7 +833,7 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "holder_alias_tenant_id",
+				Name:    "holder_slug",
 				Unique:  true,
 				Columns: []*schema.Column{HolderColumns[1], HolderColumns[13]},
 				Annotation: &entsql.IndexAnnotation{
@@ -841,7 +841,7 @@ var (
 				},
 			},
 			{
-				Name:    "holder_tenant_id_date_created_id",
+				Name:    "holder_page",
 				Unique:  false,
 				Columns: []*schema.Column{HolderColumns[13], HolderColumns[7], HolderColumns[0]},
 			},
@@ -885,7 +885,7 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "inventorycount_tenant_id_date_created_id",
+				Name:    "inventorycount_page",
 				Unique:  false,
 				Columns: []*schema.Column{InventorycountColumns[12], InventorycountColumns[9], InventorycountColumns[0]},
 			},
@@ -942,7 +942,7 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "invitation_tenant_id_date_created_id",
+				Name:    "invitation_page",
 				Unique:  false,
 				Columns: []*schema.Column{InvitationColumns[11], InvitationColumns[6], InvitationColumns[0]},
 			},
@@ -999,7 +999,7 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "itemmodel_tenant_id_date_created_id",
+				Name:    "itemmodel_page",
 				Unique:  false,
 				Columns: []*schema.Column{ItemmodelColumns[10], ItemmodelColumns[9], ItemmodelColumns[0]},
 			},
@@ -1041,12 +1041,12 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "label_tenant_id_date_created_id",
+				Name:    "label_page",
 				Unique:  false,
 				Columns: []*schema.Column{LabelColumns[10], LabelColumns[7], LabelColumns[0]},
 			},
 			{
-				Name:    "label_subject_id",
+				Name:    "label_subject",
 				Unique:  false,
 				Columns: []*schema.Column{LabelColumns[1]},
 			},
@@ -1084,7 +1084,7 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "legalhold_tenant_id_date_created_id",
+				Name:    "legalhold_page",
 				Unique:  false,
 				Columns: []*schema.Column{LegalholdColumns[5], LegalholdColumns[4], LegalholdColumns[0]},
 			},
@@ -1134,17 +1134,17 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "link_tenant_id_date_created_id",
+				Name:    "link_page",
 				Unique:  false,
 				Columns: []*schema.Column{LinkColumns[11], LinkColumns[5], LinkColumns[0]},
 			},
 			{
-				Name:    "link_source_id_valid_from",
+				Name:    "link_source",
 				Unique:  false,
 				Columns: []*schema.Column{LinkColumns[12], LinkColumns[6]},
 			},
 			{
-				Name:    "link_target_id_valid_from",
+				Name:    "link_target",
 				Unique:  false,
 				Columns: []*schema.Column{LinkColumns[13], LinkColumns[6]},
 			},
@@ -1188,12 +1188,12 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "notification_tenant_id_date_created_id",
+				Name:    "notification_page",
 				Unique:  false,
 				Columns: []*schema.Column{NotificationColumns[12], NotificationColumns[11], NotificationColumns[0]},
 			},
 			{
-				Name:    "notification_holder_id_date_created",
+				Name:    "notification_holder",
 				Unique:  false,
 				Columns: []*schema.Column{NotificationColumns[13], NotificationColumns[11]},
 			},
@@ -1218,7 +1218,7 @@ var (
 		PrimaryKey: []*schema.Column{OutboxColumns[0]},
 		Indexes: []*schema.Index{
 			{
-				Name:    "outbox_id",
+				Name:    "outbox_queue",
 				Unique:  false,
 				Columns: []*schema.Column{OutboxColumns[0]},
 			},
@@ -1262,12 +1262,12 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "party_tenant_id_date_created_id",
+				Name:    "party_page",
 				Unique:  false,
 				Columns: []*schema.Column{PartyColumns[12], PartyColumns[10], PartyColumns[0]},
 			},
 			{
-				Name:    "party_holder_id",
+				Name:    "party_holder",
 				Unique:  true,
 				Columns: []*schema.Column{PartyColumns[13]},
 				Annotation: &entsql.IndexAnnotation{
@@ -1321,17 +1321,17 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "placement_tenant_id_date_created_id",
+				Name:    "placement_page",
 				Unique:  false,
 				Columns: []*schema.Column{PlacementColumns[12], PlacementColumns[5], PlacementColumns[0]},
 			},
 			{
-				Name:    "placement_child_id_valid_from",
+				Name:    "placement_child",
 				Unique:  false,
 				Columns: []*schema.Column{PlacementColumns[13], PlacementColumns[7]},
 			},
 			{
-				Name:    "placement_parent_id_valid_from",
+				Name:    "placement_parent",
 				Unique:  false,
 				Columns: []*schema.Column{PlacementColumns[14], PlacementColumns[7]},
 			},
@@ -1375,7 +1375,7 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "purchase_tenant_id_date_created_id",
+				Name:    "purchase_page",
 				Unique:  false,
 				Columns: []*schema.Column{PurchaseColumns[12], PurchaseColumns[9], PurchaseColumns[0]},
 			},
@@ -1422,12 +1422,12 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "purchaseline_tenant_id_date_created_id",
+				Name:    "purchaseline_page",
 				Unique:  false,
 				Columns: []*schema.Column{PurchaselineColumns[8], PurchaselineColumns[6], PurchaselineColumns[0]},
 			},
 			{
-				Name:    "purchaseline_purchase_id",
+				Name:    "purchaseline_purchase",
 				Unique:  false,
 				Columns: []*schema.Column{PurchaselineColumns[9]},
 			},
@@ -1474,12 +1474,12 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "reservation_tenant_id_date_created_id",
+				Name:    "reservation_page",
 				Unique:  false,
 				Columns: []*schema.Column{ReservationColumns[15], ReservationColumns[9], ReservationColumns[0]},
 			},
 			{
-				Name:    "reservation_party_id_begins_at",
+				Name:    "reservation_party",
 				Unique:  false,
 				Columns: []*schema.Column{ReservationColumns[16], ReservationColumns[5]},
 			},
@@ -1523,12 +1523,12 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "reservationitem_tenant_id_date_created_id",
+				Name:    "reservationitem_page",
 				Unique:  false,
 				Columns: []*schema.Column{ReservationitemColumns[5], ReservationitemColumns[4], ReservationitemColumns[0]},
 			},
 			{
-				Name:    "reservationitem_reservation_id",
+				Name:    "reservationitem_reservation",
 				Unique:  false,
 				Columns: []*schema.Column{ReservationitemColumns[6]},
 			},
@@ -1598,7 +1598,7 @@ var (
 		PrimaryKey: []*schema.Column{SigninfailureColumns[0]},
 		Indexes: []*schema.Index{
 			{
-				Name:    "signinfailure_subject_date_created",
+				Name:    "signinfailure_subject",
 				Unique:  false,
 				Columns: []*schema.Column{SigninfailureColumns[1], SigninfailureColumns[2]},
 			},
@@ -1651,17 +1651,17 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "stewardship_tenant_id_date_created_id",
+				Name:    "stewardship_page",
 				Unique:  false,
 				Columns: []*schema.Column{StewardshipColumns[9], StewardshipColumns[3], StewardshipColumns[0]},
 			},
 			{
-				Name:    "stewardship_asset_id_valid_from",
+				Name:    "stewardship_asset",
 				Unique:  false,
 				Columns: []*schema.Column{StewardshipColumns[10], StewardshipColumns[4]},
 			},
 			{
-				Name:    "stewardship_party_id_valid_from",
+				Name:    "stewardship_party",
 				Unique:  false,
 				Columns: []*schema.Column{StewardshipColumns[11], StewardshipColumns[4]},
 			},
@@ -1709,12 +1709,12 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "stock_tenant_id_date_created_id",
+				Name:    "stock_page",
 				Unique:  false,
 				Columns: []*schema.Column{StockColumns[9], StockColumns[8], StockColumns[0]},
 			},
 			{
-				Name:    "stock_model_id_space_id",
+				Name:    "stock_slot",
 				Unique:  false,
 				Columns: []*schema.Column{StockColumns[10], StockColumns[11]},
 			},
@@ -1755,12 +1755,12 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "stockmovement_tenant_id_date_created_id",
+				Name:    "stockmovement_page",
 				Unique:  false,
 				Columns: []*schema.Column{StockmovementColumns[9], StockmovementColumns[6], StockmovementColumns[0]},
 			},
 			{
-				Name:    "stockmovement_stock_id_occurred_at",
+				Name:    "stockmovement_stock",
 				Unique:  false,
 				Columns: []*schema.Column{StockmovementColumns[10], StockmovementColumns[4]},
 			},
@@ -1790,7 +1790,7 @@ var (
 		PrimaryKey: []*schema.Column{TenantColumns[0]},
 		Indexes: []*schema.Index{
 			{
-				Name:    "tenant_date_created_id",
+				Name:    "tenant_page",
 				Unique:  false,
 				Columns: []*schema.Column{TenantColumns[6], TenantColumns[0]},
 			},
@@ -1826,7 +1826,7 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "tenantcontract_tenant_id_date_effective_id",
+				Name:    "tenantcontract_effective",
 				Unique:  false,
 				Columns: []*schema.Column{TenantcontractColumns[11], TenantcontractColumns[6], TenantcontractColumns[0]},
 			},
@@ -1861,7 +1861,7 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "tenantdomain_tenant_id_date_created_id",
+				Name:    "tenantdomain_page",
 				Unique:  false,
 				Columns: []*schema.Column{TenantdomainColumns[10], TenantdomainColumns[8], TenantdomainColumns[0]},
 			},
@@ -1898,7 +1898,7 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "treelock_tenant_id",
+				Name:    "treelock_tenant",
 				Unique:  true,
 				Columns: []*schema.Column{TreelockColumns[4]},
 			},
@@ -1928,12 +1928,12 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "usagesnapshot_tenant_id_date_created_id",
+				Name:    "usagesnapshot_page",
 				Unique:  false,
 				Columns: []*schema.Column{UsagesnapshotColumns[5], UsagesnapshotColumns[4], UsagesnapshotColumns[0]},
 			},
 			{
-				Name:    "usagesnapshot_tenant_id_day",
+				Name:    "usagesnapshot_day",
 				Unique:  true,
 				Columns: []*schema.Column{UsagesnapshotColumns[5], UsagesnapshotColumns[1]},
 			},
@@ -1987,12 +1987,12 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "workorder_tenant_id_date_created_id",
+				Name:    "workorder_page",
 				Unique:  false,
 				Columns: []*schema.Column{WorkorderColumns[15], WorkorderColumns[9], WorkorderColumns[0]},
 			},
 			{
-				Name:    "workorder_asset_id",
+				Name:    "workorder_asset",
 				Unique:  false,
 				Columns: []*schema.Column{WorkorderColumns[16]},
 			},

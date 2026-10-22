@@ -219,8 +219,14 @@ func (_u *StewardshipUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if value, ok := _u.mutation.Role(); ok {
 		_spec.SetField(stewardship.FieldRole, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(stewardship.FieldRole); ok {
+		_spec.SetField(stewardship.FieldRole, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(stewardship.FieldDateUpdated, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(stewardship.FieldDateUpdated); ok {
+		_spec.SetField(stewardship.FieldDateUpdated, field.TypeTime, e)
 	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(stewardship.FieldDateCreated, field.TypeTime)
@@ -228,11 +234,17 @@ func (_u *StewardshipUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if value, ok := _u.mutation.ValidFrom(); ok {
 		_spec.SetField(stewardship.FieldValidFrom, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(stewardship.FieldValidFrom); ok {
+		_spec.SetField(stewardship.FieldValidFrom, field.TypeTime, e)
+	}
 	if _u.mutation.ValidFromCleared() {
 		_spec.ClearField(stewardship.FieldValidFrom, field.TypeTime)
 	}
 	if value, ok := _u.mutation.ValidTo(); ok {
 		_spec.SetField(stewardship.FieldValidTo, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(stewardship.FieldValidTo); ok {
+		_spec.SetField(stewardship.FieldValidTo, field.TypeTime, e)
 	}
 	if _u.mutation.ValidToCleared() {
 		_spec.ClearField(stewardship.FieldValidTo, field.TypeTime)
@@ -240,14 +252,23 @@ func (_u *StewardshipUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if value, ok := _u.mutation.EventId(); ok {
 		_spec.SetField(stewardship.FieldEventId, field.TypeUuid, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(stewardship.FieldEventId); ok {
+		_spec.SetField(stewardship.FieldEventId, field.TypeUuid, e)
+	}
 	if value, ok := _u.mutation.SupersededAt(); ok {
 		_spec.SetField(stewardship.FieldSupersededAt, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(stewardship.FieldSupersededAt); ok {
+		_spec.SetField(stewardship.FieldSupersededAt, field.TypeTime, e)
 	}
 	if _u.mutation.SupersededAtCleared() {
 		_spec.ClearField(stewardship.FieldSupersededAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.SupersededBy(); ok {
 		_spec.SetField(stewardship.FieldSupersededBy, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(stewardship.FieldSupersededBy); ok {
+		_spec.SetField(stewardship.FieldSupersededBy, field.TypeUuid, e)
 	}
 	if _u.mutation.SupersededByCleared() {
 		_spec.ClearField(stewardship.FieldSupersededBy, field.TypeUuid)
@@ -493,8 +514,14 @@ func (_u *StewardshipUpdateOne) sqlSave(ctx context.Context) (_node *Stewardship
 	if value, ok := _u.mutation.Role(); ok {
 		_spec.SetField(stewardship.FieldRole, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(stewardship.FieldRole); ok {
+		_spec.SetField(stewardship.FieldRole, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(stewardship.FieldDateUpdated, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(stewardship.FieldDateUpdated); ok {
+		_spec.SetField(stewardship.FieldDateUpdated, field.TypeTime, e)
 	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(stewardship.FieldDateCreated, field.TypeTime)
@@ -502,11 +529,17 @@ func (_u *StewardshipUpdateOne) sqlSave(ctx context.Context) (_node *Stewardship
 	if value, ok := _u.mutation.ValidFrom(); ok {
 		_spec.SetField(stewardship.FieldValidFrom, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(stewardship.FieldValidFrom); ok {
+		_spec.SetField(stewardship.FieldValidFrom, field.TypeTime, e)
+	}
 	if _u.mutation.ValidFromCleared() {
 		_spec.ClearField(stewardship.FieldValidFrom, field.TypeTime)
 	}
 	if value, ok := _u.mutation.ValidTo(); ok {
 		_spec.SetField(stewardship.FieldValidTo, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(stewardship.FieldValidTo); ok {
+		_spec.SetField(stewardship.FieldValidTo, field.TypeTime, e)
 	}
 	if _u.mutation.ValidToCleared() {
 		_spec.ClearField(stewardship.FieldValidTo, field.TypeTime)
@@ -514,14 +547,23 @@ func (_u *StewardshipUpdateOne) sqlSave(ctx context.Context) (_node *Stewardship
 	if value, ok := _u.mutation.EventId(); ok {
 		_spec.SetField(stewardship.FieldEventId, field.TypeUuid, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(stewardship.FieldEventId); ok {
+		_spec.SetField(stewardship.FieldEventId, field.TypeUuid, e)
+	}
 	if value, ok := _u.mutation.SupersededAt(); ok {
 		_spec.SetField(stewardship.FieldSupersededAt, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(stewardship.FieldSupersededAt); ok {
+		_spec.SetField(stewardship.FieldSupersededAt, field.TypeTime, e)
 	}
 	if _u.mutation.SupersededAtCleared() {
 		_spec.ClearField(stewardship.FieldSupersededAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.SupersededBy(); ok {
 		_spec.SetField(stewardship.FieldSupersededBy, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(stewardship.FieldSupersededBy); ok {
+		_spec.SetField(stewardship.FieldSupersededBy, field.TypeUuid, e)
 	}
 	if _u.mutation.SupersededByCleared() {
 		_spec.ClearField(stewardship.FieldSupersededBy, field.TypeUuid)

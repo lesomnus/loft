@@ -61,8 +61,10 @@ func (Party) Edges() []ent.Edge {
 
 func (Party) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("tenant_id", "date_created", "id"),
+		index.Fields("tenant_id", "date_created", "id").
+			StorageKey("party_page"),
 		index.Fields("holder_id").
+			StorageKey("party_holder").
 			Unique().
 			Annotations(entsql.IndexWhere("date_erased IS NULL")),
 	}
@@ -109,8 +111,10 @@ func (Session) Fields() []ent.Field {
 
 func (Session) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("secret"),
-		index.Fields("account"),
+		index.Fields("secret").
+			StorageKey("session_secret"),
+		index.Fields("account").
+			StorageKey("session_account"),
 	}
 }
 
@@ -185,10 +189,14 @@ func (Invitation) Edges() []ent.Edge {
 
 func (Invitation) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("tenant_id", "date_created", "id"),
-		index.Fields("claim"),
-		index.Fields("account"),
-		index.Fields("email"),
+		index.Fields("tenant_id", "date_created", "id").
+			StorageKey("invitation_page"),
+		index.Fields("claim").
+			StorageKey("invitation_claim"),
+		index.Fields("account").
+			StorageKey("invitation_account"),
+		index.Fields("email").
+			StorageKey("invitation_email"),
 	}
 }
 
@@ -235,9 +243,12 @@ func (CliLogin) Fields() []ent.Field {
 
 func (CliLogin) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("code"),
-		index.Fields("secret"),
-		index.Fields("address", "date_created"),
+		index.Fields("code").
+			StorageKey("clilogin_code"),
+		index.Fields("secret").
+			StorageKey("clilogin_secret"),
+		index.Fields("address", "date_created").
+			StorageKey("clilogin_address"),
 	}
 }
 
@@ -274,7 +285,8 @@ func (AliasHold) Fields() []ent.Field {
 
 func (AliasHold) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("held"),
+		index.Fields("held").
+			StorageKey("aliashold_held"),
 	}
 }
 
@@ -312,6 +324,7 @@ func (Consent) Fields() []ent.Field {
 func (Consent) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("account", "document", "version").
+			StorageKey("consent_agreed").
 			Unique().
 			Annotations(entsql.IndexWhere("date_erased IS NULL")),
 	}
@@ -342,8 +355,10 @@ func (SignInFailure) Fields() []ent.Field {
 
 func (SignInFailure) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("subject", "date_created"),
-		index.Fields("date_created"),
+		index.Fields("subject", "date_created").
+			StorageKey("signinfailure_subject"),
+		index.Fields("date_created").
+			StorageKey("signinfailure_date_created"),
 	}
 }
 

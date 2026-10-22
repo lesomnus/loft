@@ -181,6 +181,9 @@ func (_c *EventCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *EventCreate) check() error {
+	if fs := _c.mutation.ExprFields(); len(fs) > 0 {
+		return &ValidationError{Name: fs[0], err: fmt.Errorf(`ent: field "Event.%s" was assigned an expression, which only an update writes`, fs[0])}
+	}
 	if _, ok := _c.mutation.Desc(); !ok {
 		return &ValidationError{Name: "desc", err: errors.New(`ent: missing required field "Event.desc"`)}
 	}

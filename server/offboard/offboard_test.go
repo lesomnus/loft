@@ -361,6 +361,7 @@ func TestAnExportReadsTheArchiveThroughItsManifest(t *testing.T) {
 	e := newEnv(t, func(c *cmd.Config) {
 		c.Audit.Archive = t.TempDir()
 		c.Audit.Retain = time.Nanosecond
+		c.Audit.Checkpoints.Key = pdtest.Key(t)
 	})
 	x := e.x
 	ctx := context.Background()

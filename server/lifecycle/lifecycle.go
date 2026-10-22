@@ -39,6 +39,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"time"
 	"uuid"
 
@@ -171,7 +172,7 @@ func (l Lifecycle) Sweep(ctx context.Context) error {
 			}
 		case err != nil:
 			log.From(ctx).WarnContext(ctx, "lifecycle: roster could not say whether an account is still gone; it is asked again next time",
-				"account", account.String(), "err", err.Error())
+				"account", account.String(), slog.Any("err", err))
 		case st.Erased.IsZero():
 			// Restored at roster, which is what the grace was for.
 			if err := l.Apply(ctx, st); err != nil {

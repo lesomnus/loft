@@ -275,11 +275,20 @@ func (_u *TenantContractUpdate) sqlSave(ctx context.Context) (_node int, err err
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(tenantcontract.FieldName, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(tenantcontract.FieldName); ok {
+		_spec.SetField(tenantcontract.FieldName, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Desc(); ok {
 		_spec.SetField(tenantcontract.FieldDesc, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(tenantcontract.FieldDesc); ok {
+		_spec.SetField(tenantcontract.FieldDesc, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.ViewDays(); ok {
 		_spec.SetField(tenantcontract.FieldViewDays, field.TypeUint32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenantcontract.FieldViewDays); ok {
+		_spec.SetField(tenantcontract.FieldViewDays, field.TypeUint32, e)
 	}
 	if value, ok := _u.mutation.AddedViewDays(); ok {
 		_spec.AddField(tenantcontract.FieldViewDays, field.TypeUint32, value)
@@ -287,11 +296,17 @@ func (_u *TenantContractUpdate) sqlSave(ctx context.Context) (_node int, err err
 	if value, ok := _u.mutation.KeepDays(); ok {
 		_spec.SetField(tenantcontract.FieldKeepDays, field.TypeUint32, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(tenantcontract.FieldKeepDays); ok {
+		_spec.SetField(tenantcontract.FieldKeepDays, field.TypeUint32, e)
+	}
 	if value, ok := _u.mutation.AddedKeepDays(); ok {
 		_spec.AddField(tenantcontract.FieldKeepDays, field.TypeUint32, value)
 	}
 	if value, ok := _u.mutation.GraceDays(); ok {
 		_spec.SetField(tenantcontract.FieldGraceDays, field.TypeUint32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenantcontract.FieldGraceDays); ok {
+		_spec.SetField(tenantcontract.FieldGraceDays, field.TypeUint32, e)
 	}
 	if value, ok := _u.mutation.AddedGraceDays(); ok {
 		_spec.AddField(tenantcontract.FieldGraceDays, field.TypeUint32, value)
@@ -299,11 +314,17 @@ func (_u *TenantContractUpdate) sqlSave(ctx context.Context) (_node int, err err
 	if value, ok := _u.mutation.DateEffective(); ok {
 		_spec.SetField(tenantcontract.FieldDateEffective, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(tenantcontract.FieldDateEffective); ok {
+		_spec.SetField(tenantcontract.FieldDateEffective, field.TypeTime, e)
+	}
 	if _u.mutation.DateEffectiveCleared() {
 		_spec.ClearField(tenantcontract.FieldDateEffective, field.TypeTime)
 	}
 	if value, ok := _u.mutation.AccessKeepDays(); ok {
 		_spec.SetField(tenantcontract.FieldAccessKeepDays, field.TypeUint32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenantcontract.FieldAccessKeepDays); ok {
+		_spec.SetField(tenantcontract.FieldAccessKeepDays, field.TypeUint32, e)
 	}
 	if value, ok := _u.mutation.AddedAccessKeepDays(); ok {
 		_spec.AddField(tenantcontract.FieldAccessKeepDays, field.TypeUint32, value)
@@ -314,6 +335,9 @@ func (_u *TenantContractUpdate) sqlSave(ctx context.Context) (_node int, err err
 	if value, ok := _u.mutation.RestoreDays(); ok {
 		_spec.SetField(tenantcontract.FieldRestoreDays, field.TypeUint32, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(tenantcontract.FieldRestoreDays); ok {
+		_spec.SetField(tenantcontract.FieldRestoreDays, field.TypeUint32, e)
+	}
 	if value, ok := _u.mutation.AddedRestoreDays(); ok {
 		_spec.AddField(tenantcontract.FieldRestoreDays, field.TypeUint32, value)
 	}
@@ -322,6 +346,9 @@ func (_u *TenantContractUpdate) sqlSave(ctx context.Context) (_node int, err err
 	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(tenantcontract.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenantcontract.FieldDateErased); ok {
+		_spec.SetField(tenantcontract.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(tenantcontract.FieldDateErased, field.TypeTime)
@@ -627,11 +654,20 @@ func (_u *TenantContractUpdateOne) sqlSave(ctx context.Context) (_node *TenantCo
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(tenantcontract.FieldName, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(tenantcontract.FieldName); ok {
+		_spec.SetField(tenantcontract.FieldName, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Desc(); ok {
 		_spec.SetField(tenantcontract.FieldDesc, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(tenantcontract.FieldDesc); ok {
+		_spec.SetField(tenantcontract.FieldDesc, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.ViewDays(); ok {
 		_spec.SetField(tenantcontract.FieldViewDays, field.TypeUint32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenantcontract.FieldViewDays); ok {
+		_spec.SetField(tenantcontract.FieldViewDays, field.TypeUint32, e)
 	}
 	if value, ok := _u.mutation.AddedViewDays(); ok {
 		_spec.AddField(tenantcontract.FieldViewDays, field.TypeUint32, value)
@@ -639,11 +675,17 @@ func (_u *TenantContractUpdateOne) sqlSave(ctx context.Context) (_node *TenantCo
 	if value, ok := _u.mutation.KeepDays(); ok {
 		_spec.SetField(tenantcontract.FieldKeepDays, field.TypeUint32, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(tenantcontract.FieldKeepDays); ok {
+		_spec.SetField(tenantcontract.FieldKeepDays, field.TypeUint32, e)
+	}
 	if value, ok := _u.mutation.AddedKeepDays(); ok {
 		_spec.AddField(tenantcontract.FieldKeepDays, field.TypeUint32, value)
 	}
 	if value, ok := _u.mutation.GraceDays(); ok {
 		_spec.SetField(tenantcontract.FieldGraceDays, field.TypeUint32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenantcontract.FieldGraceDays); ok {
+		_spec.SetField(tenantcontract.FieldGraceDays, field.TypeUint32, e)
 	}
 	if value, ok := _u.mutation.AddedGraceDays(); ok {
 		_spec.AddField(tenantcontract.FieldGraceDays, field.TypeUint32, value)
@@ -651,11 +693,17 @@ func (_u *TenantContractUpdateOne) sqlSave(ctx context.Context) (_node *TenantCo
 	if value, ok := _u.mutation.DateEffective(); ok {
 		_spec.SetField(tenantcontract.FieldDateEffective, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(tenantcontract.FieldDateEffective); ok {
+		_spec.SetField(tenantcontract.FieldDateEffective, field.TypeTime, e)
+	}
 	if _u.mutation.DateEffectiveCleared() {
 		_spec.ClearField(tenantcontract.FieldDateEffective, field.TypeTime)
 	}
 	if value, ok := _u.mutation.AccessKeepDays(); ok {
 		_spec.SetField(tenantcontract.FieldAccessKeepDays, field.TypeUint32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenantcontract.FieldAccessKeepDays); ok {
+		_spec.SetField(tenantcontract.FieldAccessKeepDays, field.TypeUint32, e)
 	}
 	if value, ok := _u.mutation.AddedAccessKeepDays(); ok {
 		_spec.AddField(tenantcontract.FieldAccessKeepDays, field.TypeUint32, value)
@@ -666,6 +714,9 @@ func (_u *TenantContractUpdateOne) sqlSave(ctx context.Context) (_node *TenantCo
 	if value, ok := _u.mutation.RestoreDays(); ok {
 		_spec.SetField(tenantcontract.FieldRestoreDays, field.TypeUint32, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(tenantcontract.FieldRestoreDays); ok {
+		_spec.SetField(tenantcontract.FieldRestoreDays, field.TypeUint32, e)
+	}
 	if value, ok := _u.mutation.AddedRestoreDays(); ok {
 		_spec.AddField(tenantcontract.FieldRestoreDays, field.TypeUint32, value)
 	}
@@ -674,6 +725,9 @@ func (_u *TenantContractUpdateOne) sqlSave(ctx context.Context) (_node *TenantCo
 	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(tenantcontract.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenantcontract.FieldDateErased); ok {
+		_spec.SetField(tenantcontract.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(tenantcontract.FieldDateErased, field.TypeTime)

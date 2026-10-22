@@ -145,6 +145,9 @@ func (_c *AttachmentCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *AttachmentCreate) check() error {
+	if fs := _c.mutation.ExprFields(); len(fs) > 0 {
+		return &ValidationError{Name: fs[0], err: fmt.Errorf(`ent: field "Attachment.%s" was assigned an expression, which only an update writes`, fs[0])}
+	}
 	if _, ok := _c.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Attachment.name"`)}
 	}

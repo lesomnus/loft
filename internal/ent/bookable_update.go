@@ -343,6 +343,9 @@ func (_u *BookableUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Timezone(); ok {
 		_spec.SetField(bookable.FieldTimezone, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(bookable.FieldTimezone); ok {
+		_spec.SetField(bookable.FieldTimezone, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Hours(); ok {
 		vv, err := bookable.ValueScanner.Hours.Value(value)
 		if err != nil {
@@ -353,11 +356,17 @@ func (_u *BookableUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 		_spec.SetField(bookable.FieldHours, field.TypeJson, vv)
 	}
+	if e, ok := _u.mutation.FieldExpr(bookable.FieldHours); ok {
+		_spec.SetField(bookable.FieldHours, field.TypeJson, e)
+	}
 	if _u.mutation.HoursCleared() {
 		_spec.ClearField(bookable.FieldHours, field.TypeJson)
 	}
 	if value, ok := _u.mutation.BufferBefore(); ok {
 		_spec.SetField(bookable.FieldBufferBefore, field.TypeInt32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(bookable.FieldBufferBefore); ok {
+		_spec.SetField(bookable.FieldBufferBefore, field.TypeInt32, e)
 	}
 	if value, ok := _u.mutation.AddedBufferBefore(); ok {
 		_spec.AddField(bookable.FieldBufferBefore, field.TypeInt32, value)
@@ -365,14 +374,23 @@ func (_u *BookableUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.BufferAfter(); ok {
 		_spec.SetField(bookable.FieldBufferAfter, field.TypeInt32, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(bookable.FieldBufferAfter); ok {
+		_spec.SetField(bookable.FieldBufferAfter, field.TypeInt32, e)
+	}
 	if value, ok := _u.mutation.AddedBufferAfter(); ok {
 		_spec.AddField(bookable.FieldBufferAfter, field.TypeInt32, value)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(bookable.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(bookable.FieldDateUpdated); ok {
+		_spec.SetField(bookable.FieldDateUpdated, field.TypeTime, e)
+	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(bookable.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(bookable.FieldDateErased); ok {
+		_spec.SetField(bookable.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(bookable.FieldDateErased, field.TypeTime)
@@ -383,8 +401,14 @@ func (_u *BookableUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Approval(); ok {
 		_spec.SetField(bookable.FieldApproval, field.TypeBool, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(bookable.FieldApproval); ok {
+		_spec.SetField(bookable.FieldApproval, field.TypeBool, e)
+	}
 	if value, ok := _u.mutation.MinMinutes(); ok {
 		_spec.SetField(bookable.FieldMinMinutes, field.TypeInt32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(bookable.FieldMinMinutes); ok {
+		_spec.SetField(bookable.FieldMinMinutes, field.TypeInt32, e)
 	}
 	if value, ok := _u.mutation.AddedMinMinutes(); ok {
 		_spec.AddField(bookable.FieldMinMinutes, field.TypeInt32, value)
@@ -392,11 +416,17 @@ func (_u *BookableUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.MaxMinutes(); ok {
 		_spec.SetField(bookable.FieldMaxMinutes, field.TypeInt32, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(bookable.FieldMaxMinutes); ok {
+		_spec.SetField(bookable.FieldMaxMinutes, field.TypeInt32, e)
+	}
 	if value, ok := _u.mutation.AddedMaxMinutes(); ok {
 		_spec.AddField(bookable.FieldMaxMinutes, field.TypeInt32, value)
 	}
 	if value, ok := _u.mutation.HorizonDays(); ok {
 		_spec.SetField(bookable.FieldHorizonDays, field.TypeInt32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(bookable.FieldHorizonDays); ok {
+		_spec.SetField(bookable.FieldHorizonDays, field.TypeInt32, e)
 	}
 	if value, ok := _u.mutation.AddedHorizonDays(); ok {
 		_spec.AddField(bookable.FieldHorizonDays, field.TypeInt32, value)
@@ -404,20 +434,32 @@ func (_u *BookableUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Units(); ok {
 		_spec.SetField(bookable.FieldUnits, field.TypeUint32, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(bookable.FieldUnits); ok {
+		_spec.SetField(bookable.FieldUnits, field.TypeUint32, e)
+	}
 	if value, ok := _u.mutation.AddedUnits(); ok {
 		_spec.AddField(bookable.FieldUnits, field.TypeUint32, value)
 	}
 	if value, ok := _u.mutation.ExclusiveGroup(); ok {
 		_spec.SetField(bookable.FieldExclusiveGroup, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(bookable.FieldExclusiveGroup); ok {
+		_spec.SetField(bookable.FieldExclusiveGroup, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.ScheduleVersion(); ok {
 		_spec.SetField(bookable.FieldScheduleVersion, field.TypeUint64, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(bookable.FieldScheduleVersion); ok {
+		_spec.SetField(bookable.FieldScheduleVersion, field.TypeUint64, e)
 	}
 	if value, ok := _u.mutation.AddedScheduleVersion(); ok {
 		_spec.AddField(bookable.FieldScheduleVersion, field.TypeUint64, value)
 	}
 	if value, ok := _u.mutation.Enabled(); ok {
 		_spec.SetField(bookable.FieldEnabled, field.TypeBool, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(bookable.FieldEnabled); ok {
+		_spec.SetField(bookable.FieldEnabled, field.TypeBool, e)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
@@ -784,6 +826,9 @@ func (_u *BookableUpdateOne) sqlSave(ctx context.Context) (_node *Bookable, err 
 	if value, ok := _u.mutation.Timezone(); ok {
 		_spec.SetField(bookable.FieldTimezone, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(bookable.FieldTimezone); ok {
+		_spec.SetField(bookable.FieldTimezone, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Hours(); ok {
 		vv, err := bookable.ValueScanner.Hours.Value(value)
 		if err != nil {
@@ -794,11 +839,17 @@ func (_u *BookableUpdateOne) sqlSave(ctx context.Context) (_node *Bookable, err 
 		}
 		_spec.SetField(bookable.FieldHours, field.TypeJson, vv)
 	}
+	if e, ok := _u.mutation.FieldExpr(bookable.FieldHours); ok {
+		_spec.SetField(bookable.FieldHours, field.TypeJson, e)
+	}
 	if _u.mutation.HoursCleared() {
 		_spec.ClearField(bookable.FieldHours, field.TypeJson)
 	}
 	if value, ok := _u.mutation.BufferBefore(); ok {
 		_spec.SetField(bookable.FieldBufferBefore, field.TypeInt32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(bookable.FieldBufferBefore); ok {
+		_spec.SetField(bookable.FieldBufferBefore, field.TypeInt32, e)
 	}
 	if value, ok := _u.mutation.AddedBufferBefore(); ok {
 		_spec.AddField(bookable.FieldBufferBefore, field.TypeInt32, value)
@@ -806,14 +857,23 @@ func (_u *BookableUpdateOne) sqlSave(ctx context.Context) (_node *Bookable, err 
 	if value, ok := _u.mutation.BufferAfter(); ok {
 		_spec.SetField(bookable.FieldBufferAfter, field.TypeInt32, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(bookable.FieldBufferAfter); ok {
+		_spec.SetField(bookable.FieldBufferAfter, field.TypeInt32, e)
+	}
 	if value, ok := _u.mutation.AddedBufferAfter(); ok {
 		_spec.AddField(bookable.FieldBufferAfter, field.TypeInt32, value)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(bookable.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(bookable.FieldDateUpdated); ok {
+		_spec.SetField(bookable.FieldDateUpdated, field.TypeTime, e)
+	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(bookable.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(bookable.FieldDateErased); ok {
+		_spec.SetField(bookable.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(bookable.FieldDateErased, field.TypeTime)
@@ -824,8 +884,14 @@ func (_u *BookableUpdateOne) sqlSave(ctx context.Context) (_node *Bookable, err 
 	if value, ok := _u.mutation.Approval(); ok {
 		_spec.SetField(bookable.FieldApproval, field.TypeBool, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(bookable.FieldApproval); ok {
+		_spec.SetField(bookable.FieldApproval, field.TypeBool, e)
+	}
 	if value, ok := _u.mutation.MinMinutes(); ok {
 		_spec.SetField(bookable.FieldMinMinutes, field.TypeInt32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(bookable.FieldMinMinutes); ok {
+		_spec.SetField(bookable.FieldMinMinutes, field.TypeInt32, e)
 	}
 	if value, ok := _u.mutation.AddedMinMinutes(); ok {
 		_spec.AddField(bookable.FieldMinMinutes, field.TypeInt32, value)
@@ -833,11 +899,17 @@ func (_u *BookableUpdateOne) sqlSave(ctx context.Context) (_node *Bookable, err 
 	if value, ok := _u.mutation.MaxMinutes(); ok {
 		_spec.SetField(bookable.FieldMaxMinutes, field.TypeInt32, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(bookable.FieldMaxMinutes); ok {
+		_spec.SetField(bookable.FieldMaxMinutes, field.TypeInt32, e)
+	}
 	if value, ok := _u.mutation.AddedMaxMinutes(); ok {
 		_spec.AddField(bookable.FieldMaxMinutes, field.TypeInt32, value)
 	}
 	if value, ok := _u.mutation.HorizonDays(); ok {
 		_spec.SetField(bookable.FieldHorizonDays, field.TypeInt32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(bookable.FieldHorizonDays); ok {
+		_spec.SetField(bookable.FieldHorizonDays, field.TypeInt32, e)
 	}
 	if value, ok := _u.mutation.AddedHorizonDays(); ok {
 		_spec.AddField(bookable.FieldHorizonDays, field.TypeInt32, value)
@@ -845,20 +917,32 @@ func (_u *BookableUpdateOne) sqlSave(ctx context.Context) (_node *Bookable, err 
 	if value, ok := _u.mutation.Units(); ok {
 		_spec.SetField(bookable.FieldUnits, field.TypeUint32, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(bookable.FieldUnits); ok {
+		_spec.SetField(bookable.FieldUnits, field.TypeUint32, e)
+	}
 	if value, ok := _u.mutation.AddedUnits(); ok {
 		_spec.AddField(bookable.FieldUnits, field.TypeUint32, value)
 	}
 	if value, ok := _u.mutation.ExclusiveGroup(); ok {
 		_spec.SetField(bookable.FieldExclusiveGroup, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(bookable.FieldExclusiveGroup); ok {
+		_spec.SetField(bookable.FieldExclusiveGroup, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.ScheduleVersion(); ok {
 		_spec.SetField(bookable.FieldScheduleVersion, field.TypeUint64, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(bookable.FieldScheduleVersion); ok {
+		_spec.SetField(bookable.FieldScheduleVersion, field.TypeUint64, e)
 	}
 	if value, ok := _u.mutation.AddedScheduleVersion(); ok {
 		_spec.AddField(bookable.FieldScheduleVersion, field.TypeUint64, value)
 	}
 	if value, ok := _u.mutation.Enabled(); ok {
 		_spec.SetField(bookable.FieldEnabled, field.TypeBool, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(bookable.FieldEnabled); ok {
+		_spec.SetField(bookable.FieldEnabled, field.TypeBool, e)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	_node = &Bookable{config: _u.config}

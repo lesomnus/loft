@@ -213,6 +213,7 @@ func (s BookableServiceServer) Add(ctx context.Context, req *rove.BookableAddReq
 		q.Stored(&stored)
 	}
 
+	tx.Writing()
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -524,6 +525,7 @@ func (s BookableServiceServer) apply(ctx context.Context, ref *rove.BookableRef,
 		if !plan.WritesTo(13) {
 			q.SetDateUpdated(st.now())
 		}
+		tx.Writing()
 		if n, err := q.Save(ctx); err != nil {
 			if err, ok := err.(*ent.ConstraintError); ok {
 				if sqlgraph.IsUniqueConstraintError(err) {
@@ -615,6 +617,7 @@ func (s BookableServiceServer) Erase(ctx context.Context, req *rove.BookableRef)
 		p = bookable.And(p, bookable.IdEQ(v.Id))
 	}
 
+	tx.Writing()
 	u := st.Db.Bookable.Update().Where(p)
 	u.SetDateErased(st.now())
 	u.SetDateUpdated(st.now())
@@ -892,6 +895,7 @@ func (s ReservationServiceServer) Add(ctx context.Context, req *rove.Reservation
 		q.Stored(&stored)
 	}
 
+	tx.Writing()
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -1200,6 +1204,7 @@ func (s ReservationServiceServer) apply(ctx context.Context, ref *rove.Reservati
 		if !plan.WritesTo(13) {
 			q.SetDateUpdated(st.now())
 		}
+		tx.Writing()
 		if n, err := q.Save(ctx); err != nil {
 			if err, ok := err.(*ent.ConstraintError); ok {
 				if sqlgraph.IsUniqueConstraintError(err) {
@@ -1291,6 +1296,7 @@ func (s ReservationServiceServer) Erase(ctx context.Context, req *rove.Reservati
 		p = reservation.And(p, reservation.IdEQ(v.Id))
 	}
 
+	tx.Writing()
 	u := st.Db.Reservation.Update().Where(p)
 	u.SetDateErased(st.now())
 	u.SetDateUpdated(st.now())
@@ -1544,6 +1550,7 @@ func (s ReservationItemServiceServer) Add(ctx context.Context, req *rove.Reserva
 		q.Stored(&stored)
 	}
 
+	tx.Writing()
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -1828,6 +1835,7 @@ func (s ReservationItemServiceServer) apply(ctx context.Context, ref *rove.Reser
 		if !plan.WritesTo(13) {
 			q.SetDateUpdated(st.now())
 		}
+		tx.Writing()
 		if n, err := q.Save(ctx); err != nil {
 			if err, ok := err.(*ent.ConstraintError); ok {
 				if sqlgraph.IsUniqueConstraintError(err) {
@@ -1919,6 +1927,7 @@ func (s ReservationItemServiceServer) Erase(ctx context.Context, req *rove.Reser
 		p = reservationitem.And(p, reservationitem.IdEQ(v.Id))
 	}
 
+	tx.Writing()
 	n, err := st.Db.ReservationItem.Delete().Where(p).Exec(ctx)
 	if err != nil {
 		return nil, err
@@ -2142,6 +2151,7 @@ func (s AllocationServiceServer) Add(ctx context.Context, req *rove.AllocationAd
 		q.Stored(&stored)
 	}
 
+	tx.Writing()
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -2435,6 +2445,7 @@ func (s AllocationServiceServer) apply(ctx context.Context, ref *rove.Allocation
 		if !plan.WritesTo(13) {
 			q.SetDateUpdated(st.now())
 		}
+		tx.Writing()
 		if n, err := q.Save(ctx); err != nil {
 			if err, ok := err.(*ent.ConstraintError); ok {
 				if sqlgraph.IsUniqueConstraintError(err) {
@@ -2526,6 +2537,7 @@ func (s AllocationServiceServer) Erase(ctx context.Context, req *rove.Allocation
 		p = allocation.And(p, allocation.IdEQ(v.Id))
 	}
 
+	tx.Writing()
 	n, err := st.Db.Allocation.Delete().Where(p).Exec(ctx)
 	if err != nil {
 		return nil, err

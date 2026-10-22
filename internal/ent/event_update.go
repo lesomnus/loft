@@ -253,11 +253,20 @@ func (_u *EventUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Desc(); ok {
 		_spec.SetField(event.FieldDesc, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(event.FieldDesc); ok {
+		_spec.SetField(event.FieldDesc, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Kind(); ok {
 		_spec.SetField(event.FieldKind, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(event.FieldKind); ok {
+		_spec.SetField(event.FieldKind, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.ActorId(); ok {
 		_spec.SetField(event.FieldActorId, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(event.FieldActorId); ok {
+		_spec.SetField(event.FieldActorId, field.TypeUuid, e)
 	}
 	if _u.mutation.ActorIdCleared() {
 		_spec.ClearField(event.FieldActorId, field.TypeUuid)
@@ -265,14 +274,23 @@ func (_u *EventUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.OccurredAt(); ok {
 		_spec.SetField(event.FieldOccurredAt, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(event.FieldOccurredAt); ok {
+		_spec.SetField(event.FieldOccurredAt, field.TypeTime, e)
+	}
 	if _u.mutation.OccurredAtCleared() {
 		_spec.ClearField(event.FieldOccurredAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.Reason(); ok {
 		_spec.SetField(event.FieldReason, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(event.FieldReason); ok {
+		_spec.SetField(event.FieldReason, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.SubjectId(); ok {
 		_spec.SetField(event.FieldSubjectId, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(event.FieldSubjectId); ok {
+		_spec.SetField(event.FieldSubjectId, field.TypeUuid, e)
 	}
 	if _u.mutation.SubjectIdCleared() {
 		_spec.ClearField(event.FieldSubjectId, field.TypeUuid)
@@ -280,11 +298,17 @@ func (_u *EventUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(event.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(event.FieldDateUpdated); ok {
+		_spec.SetField(event.FieldDateUpdated, field.TypeTime, e)
+	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(event.FieldDateCreated, field.TypeTime)
 	}
 	if value, ok := _u.mutation.TraceId(); ok {
 		_spec.SetField(event.FieldTraceId, field.TypeBytes, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(event.FieldTraceId); ok {
+		_spec.SetField(event.FieldTraceId, field.TypeBytes, e)
 	}
 	if _u.mutation.TraceIdCleared() {
 		_spec.ClearField(event.FieldTraceId, field.TypeBytes)
@@ -292,8 +316,14 @@ func (_u *EventUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Payload(); ok {
 		_spec.SetField(event.FieldPayload, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(event.FieldPayload); ok {
+		_spec.SetField(event.FieldPayload, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.CauseId(); ok {
 		_spec.SetField(event.FieldCauseId, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(event.FieldCauseId); ok {
+		_spec.SetField(event.FieldCauseId, field.TypeUuid, e)
 	}
 	if _u.mutation.CauseIdCleared() {
 		_spec.ClearField(event.FieldCauseId, field.TypeUuid)
@@ -573,11 +603,20 @@ func (_u *EventUpdateOne) sqlSave(ctx context.Context) (_node *Event, err error)
 	if value, ok := _u.mutation.Desc(); ok {
 		_spec.SetField(event.FieldDesc, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(event.FieldDesc); ok {
+		_spec.SetField(event.FieldDesc, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Kind(); ok {
 		_spec.SetField(event.FieldKind, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(event.FieldKind); ok {
+		_spec.SetField(event.FieldKind, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.ActorId(); ok {
 		_spec.SetField(event.FieldActorId, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(event.FieldActorId); ok {
+		_spec.SetField(event.FieldActorId, field.TypeUuid, e)
 	}
 	if _u.mutation.ActorIdCleared() {
 		_spec.ClearField(event.FieldActorId, field.TypeUuid)
@@ -585,14 +624,23 @@ func (_u *EventUpdateOne) sqlSave(ctx context.Context) (_node *Event, err error)
 	if value, ok := _u.mutation.OccurredAt(); ok {
 		_spec.SetField(event.FieldOccurredAt, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(event.FieldOccurredAt); ok {
+		_spec.SetField(event.FieldOccurredAt, field.TypeTime, e)
+	}
 	if _u.mutation.OccurredAtCleared() {
 		_spec.ClearField(event.FieldOccurredAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.Reason(); ok {
 		_spec.SetField(event.FieldReason, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(event.FieldReason); ok {
+		_spec.SetField(event.FieldReason, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.SubjectId(); ok {
 		_spec.SetField(event.FieldSubjectId, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(event.FieldSubjectId); ok {
+		_spec.SetField(event.FieldSubjectId, field.TypeUuid, e)
 	}
 	if _u.mutation.SubjectIdCleared() {
 		_spec.ClearField(event.FieldSubjectId, field.TypeUuid)
@@ -600,11 +648,17 @@ func (_u *EventUpdateOne) sqlSave(ctx context.Context) (_node *Event, err error)
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(event.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(event.FieldDateUpdated); ok {
+		_spec.SetField(event.FieldDateUpdated, field.TypeTime, e)
+	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(event.FieldDateCreated, field.TypeTime)
 	}
 	if value, ok := _u.mutation.TraceId(); ok {
 		_spec.SetField(event.FieldTraceId, field.TypeBytes, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(event.FieldTraceId); ok {
+		_spec.SetField(event.FieldTraceId, field.TypeBytes, e)
 	}
 	if _u.mutation.TraceIdCleared() {
 		_spec.ClearField(event.FieldTraceId, field.TypeBytes)
@@ -612,8 +666,14 @@ func (_u *EventUpdateOne) sqlSave(ctx context.Context) (_node *Event, err error)
 	if value, ok := _u.mutation.Payload(); ok {
 		_spec.SetField(event.FieldPayload, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(event.FieldPayload); ok {
+		_spec.SetField(event.FieldPayload, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.CauseId(); ok {
 		_spec.SetField(event.FieldCauseId, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(event.FieldCauseId); ok {
+		_spec.SetField(event.FieldCauseId, field.TypeUuid, e)
 	}
 	if _u.mutation.CauseIdCleared() {
 		_spec.ClearField(event.FieldCauseId, field.TypeUuid)

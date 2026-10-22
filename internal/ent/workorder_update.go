@@ -346,17 +346,32 @@ func (_u *WorkOrderUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(workorder.FieldName, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(workorder.FieldName); ok {
+		_spec.SetField(workorder.FieldName, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Desc(); ok {
 		_spec.SetField(workorder.FieldDesc, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(workorder.FieldDesc); ok {
+		_spec.SetField(workorder.FieldDesc, field.TypeString, e)
 	}
 	if value, ok := _u.mutation.Kind(); ok {
 		_spec.SetField(workorder.FieldKind, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(workorder.FieldKind); ok {
+		_spec.SetField(workorder.FieldKind, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(workorder.FieldStatus, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(workorder.FieldStatus); ok {
+		_spec.SetField(workorder.FieldStatus, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.BeginsAt(); ok {
 		_spec.SetField(workorder.FieldBeginsAt, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(workorder.FieldBeginsAt); ok {
+		_spec.SetField(workorder.FieldBeginsAt, field.TypeTime, e)
 	}
 	if _u.mutation.BeginsAtCleared() {
 		_spec.ClearField(workorder.FieldBeginsAt, field.TypeTime)
@@ -364,14 +379,23 @@ func (_u *WorkOrderUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.EndsAt(); ok {
 		_spec.SetField(workorder.FieldEndsAt, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(workorder.FieldEndsAt); ok {
+		_spec.SetField(workorder.FieldEndsAt, field.TypeTime, e)
+	}
 	if _u.mutation.EndsAtCleared() {
 		_spec.ClearField(workorder.FieldEndsAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(workorder.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(workorder.FieldDateUpdated); ok {
+		_spec.SetField(workorder.FieldDateUpdated, field.TypeTime, e)
+	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(workorder.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(workorder.FieldDateErased); ok {
+		_spec.SetField(workorder.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(workorder.FieldDateErased, field.TypeTime)
@@ -382,14 +406,23 @@ func (_u *WorkOrderUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Cost(); ok {
 		_spec.SetField(workorder.FieldCost, field.TypeInt64, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(workorder.FieldCost); ok {
+		_spec.SetField(workorder.FieldCost, field.TypeInt64, e)
+	}
 	if value, ok := _u.mutation.AddedCost(); ok {
 		_spec.AddField(workorder.FieldCost, field.TypeInt64, value)
 	}
 	if value, ok := _u.mutation.Currency(); ok {
 		_spec.SetField(workorder.FieldCurrency, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(workorder.FieldCurrency); ok {
+		_spec.SetField(workorder.FieldCurrency, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.CompletedAt(); ok {
 		_spec.SetField(workorder.FieldCompletedAt, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(workorder.FieldCompletedAt); ok {
+		_spec.SetField(workorder.FieldCompletedAt, field.TypeTime, e)
 	}
 	if _u.mutation.CompletedAtCleared() {
 		_spec.ClearField(workorder.FieldCompletedAt, field.TypeTime)
@@ -397,8 +430,14 @@ func (_u *WorkOrderUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Blocking(); ok {
 		_spec.SetField(workorder.FieldBlocking, field.TypeBool, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(workorder.FieldBlocking); ok {
+		_spec.SetField(workorder.FieldBlocking, field.TypeBool, e)
+	}
 	if value, ok := _u.mutation.EveryDays(); ok {
 		_spec.SetField(workorder.FieldEveryDays, field.TypeInt32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(workorder.FieldEveryDays); ok {
+		_spec.SetField(workorder.FieldEveryDays, field.TypeInt32, e)
 	}
 	if value, ok := _u.mutation.AddedEveryDays(); ok {
 		_spec.AddField(workorder.FieldEveryDays, field.TypeInt32, value)
@@ -799,17 +838,32 @@ func (_u *WorkOrderUpdateOne) sqlSave(ctx context.Context) (_node *WorkOrder, er
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(workorder.FieldName, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(workorder.FieldName); ok {
+		_spec.SetField(workorder.FieldName, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Desc(); ok {
 		_spec.SetField(workorder.FieldDesc, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(workorder.FieldDesc); ok {
+		_spec.SetField(workorder.FieldDesc, field.TypeString, e)
 	}
 	if value, ok := _u.mutation.Kind(); ok {
 		_spec.SetField(workorder.FieldKind, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(workorder.FieldKind); ok {
+		_spec.SetField(workorder.FieldKind, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(workorder.FieldStatus, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(workorder.FieldStatus); ok {
+		_spec.SetField(workorder.FieldStatus, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.BeginsAt(); ok {
 		_spec.SetField(workorder.FieldBeginsAt, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(workorder.FieldBeginsAt); ok {
+		_spec.SetField(workorder.FieldBeginsAt, field.TypeTime, e)
 	}
 	if _u.mutation.BeginsAtCleared() {
 		_spec.ClearField(workorder.FieldBeginsAt, field.TypeTime)
@@ -817,14 +871,23 @@ func (_u *WorkOrderUpdateOne) sqlSave(ctx context.Context) (_node *WorkOrder, er
 	if value, ok := _u.mutation.EndsAt(); ok {
 		_spec.SetField(workorder.FieldEndsAt, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(workorder.FieldEndsAt); ok {
+		_spec.SetField(workorder.FieldEndsAt, field.TypeTime, e)
+	}
 	if _u.mutation.EndsAtCleared() {
 		_spec.ClearField(workorder.FieldEndsAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(workorder.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(workorder.FieldDateUpdated); ok {
+		_spec.SetField(workorder.FieldDateUpdated, field.TypeTime, e)
+	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(workorder.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(workorder.FieldDateErased); ok {
+		_spec.SetField(workorder.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(workorder.FieldDateErased, field.TypeTime)
@@ -835,14 +898,23 @@ func (_u *WorkOrderUpdateOne) sqlSave(ctx context.Context) (_node *WorkOrder, er
 	if value, ok := _u.mutation.Cost(); ok {
 		_spec.SetField(workorder.FieldCost, field.TypeInt64, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(workorder.FieldCost); ok {
+		_spec.SetField(workorder.FieldCost, field.TypeInt64, e)
+	}
 	if value, ok := _u.mutation.AddedCost(); ok {
 		_spec.AddField(workorder.FieldCost, field.TypeInt64, value)
 	}
 	if value, ok := _u.mutation.Currency(); ok {
 		_spec.SetField(workorder.FieldCurrency, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(workorder.FieldCurrency); ok {
+		_spec.SetField(workorder.FieldCurrency, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.CompletedAt(); ok {
 		_spec.SetField(workorder.FieldCompletedAt, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(workorder.FieldCompletedAt); ok {
+		_spec.SetField(workorder.FieldCompletedAt, field.TypeTime, e)
 	}
 	if _u.mutation.CompletedAtCleared() {
 		_spec.ClearField(workorder.FieldCompletedAt, field.TypeTime)
@@ -850,8 +922,14 @@ func (_u *WorkOrderUpdateOne) sqlSave(ctx context.Context) (_node *WorkOrder, er
 	if value, ok := _u.mutation.Blocking(); ok {
 		_spec.SetField(workorder.FieldBlocking, field.TypeBool, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(workorder.FieldBlocking); ok {
+		_spec.SetField(workorder.FieldBlocking, field.TypeBool, e)
+	}
 	if value, ok := _u.mutation.EveryDays(); ok {
 		_spec.SetField(workorder.FieldEveryDays, field.TypeInt32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(workorder.FieldEveryDays); ok {
+		_spec.SetField(workorder.FieldEveryDays, field.TypeInt32, e)
 	}
 	if value, ok := _u.mutation.AddedEveryDays(); ok {
 		_spec.AddField(workorder.FieldEveryDays, field.TypeInt32, value)

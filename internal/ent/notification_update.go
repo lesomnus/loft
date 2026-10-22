@@ -259,14 +259,26 @@ func (_u *NotificationUpdate) sqlSave(ctx context.Context) (_node int, err error
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(notification.FieldName, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(notification.FieldName); ok {
+		_spec.SetField(notification.FieldName, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Desc(); ok {
 		_spec.SetField(notification.FieldDesc, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(notification.FieldDesc); ok {
+		_spec.SetField(notification.FieldDesc, field.TypeString, e)
 	}
 	if value, ok := _u.mutation.Kind(); ok {
 		_spec.SetField(notification.FieldKind, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(notification.FieldKind); ok {
+		_spec.SetField(notification.FieldKind, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.SubjectId(); ok {
 		_spec.SetField(notification.FieldSubjectId, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(notification.FieldSubjectId); ok {
+		_spec.SetField(notification.FieldSubjectId, field.TypeUuid, e)
 	}
 	if _u.mutation.SubjectIdCleared() {
 		_spec.ClearField(notification.FieldSubjectId, field.TypeUuid)
@@ -274,17 +286,29 @@ func (_u *NotificationUpdate) sqlSave(ctx context.Context) (_node int, err error
 	if value, ok := _u.mutation.ReadAt(); ok {
 		_spec.SetField(notification.FieldReadAt, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(notification.FieldReadAt); ok {
+		_spec.SetField(notification.FieldReadAt, field.TypeTime, e)
+	}
 	if _u.mutation.ReadAtCleared() {
 		_spec.ClearField(notification.FieldReadAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.Link(); ok {
 		_spec.SetField(notification.FieldLink, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(notification.FieldLink); ok {
+		_spec.SetField(notification.FieldLink, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Mail(); ok {
 		_spec.SetField(notification.FieldMail, field.TypeBool, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(notification.FieldMail); ok {
+		_spec.SetField(notification.FieldMail, field.TypeBool, e)
+	}
 	if value, ok := _u.mutation.DateMailed(); ok {
 		_spec.SetField(notification.FieldDateMailed, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(notification.FieldDateMailed); ok {
+		_spec.SetField(notification.FieldDateMailed, field.TypeTime, e)
 	}
 	if _u.mutation.DateMailedCleared() {
 		_spec.ClearField(notification.FieldDateMailed, field.TypeTime)
@@ -292,11 +316,17 @@ func (_u *NotificationUpdate) sqlSave(ctx context.Context) (_node int, err error
 	if value, ok := _u.mutation.MailTries(); ok {
 		_spec.SetField(notification.FieldMailTries, field.TypeUint32, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(notification.FieldMailTries); ok {
+		_spec.SetField(notification.FieldMailTries, field.TypeUint32, e)
+	}
 	if value, ok := _u.mutation.AddedMailTries(); ok {
 		_spec.AddField(notification.FieldMailTries, field.TypeUint32, value)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(notification.FieldDateUpdated, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(notification.FieldDateUpdated); ok {
+		_spec.SetField(notification.FieldDateUpdated, field.TypeTime, e)
 	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(notification.FieldDateCreated, field.TypeTime)
@@ -582,14 +612,26 @@ func (_u *NotificationUpdateOne) sqlSave(ctx context.Context) (_node *Notificati
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(notification.FieldName, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(notification.FieldName); ok {
+		_spec.SetField(notification.FieldName, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Desc(); ok {
 		_spec.SetField(notification.FieldDesc, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(notification.FieldDesc); ok {
+		_spec.SetField(notification.FieldDesc, field.TypeString, e)
 	}
 	if value, ok := _u.mutation.Kind(); ok {
 		_spec.SetField(notification.FieldKind, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(notification.FieldKind); ok {
+		_spec.SetField(notification.FieldKind, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.SubjectId(); ok {
 		_spec.SetField(notification.FieldSubjectId, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(notification.FieldSubjectId); ok {
+		_spec.SetField(notification.FieldSubjectId, field.TypeUuid, e)
 	}
 	if _u.mutation.SubjectIdCleared() {
 		_spec.ClearField(notification.FieldSubjectId, field.TypeUuid)
@@ -597,17 +639,29 @@ func (_u *NotificationUpdateOne) sqlSave(ctx context.Context) (_node *Notificati
 	if value, ok := _u.mutation.ReadAt(); ok {
 		_spec.SetField(notification.FieldReadAt, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(notification.FieldReadAt); ok {
+		_spec.SetField(notification.FieldReadAt, field.TypeTime, e)
+	}
 	if _u.mutation.ReadAtCleared() {
 		_spec.ClearField(notification.FieldReadAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.Link(); ok {
 		_spec.SetField(notification.FieldLink, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(notification.FieldLink); ok {
+		_spec.SetField(notification.FieldLink, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Mail(); ok {
 		_spec.SetField(notification.FieldMail, field.TypeBool, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(notification.FieldMail); ok {
+		_spec.SetField(notification.FieldMail, field.TypeBool, e)
+	}
 	if value, ok := _u.mutation.DateMailed(); ok {
 		_spec.SetField(notification.FieldDateMailed, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(notification.FieldDateMailed); ok {
+		_spec.SetField(notification.FieldDateMailed, field.TypeTime, e)
 	}
 	if _u.mutation.DateMailedCleared() {
 		_spec.ClearField(notification.FieldDateMailed, field.TypeTime)
@@ -615,11 +669,17 @@ func (_u *NotificationUpdateOne) sqlSave(ctx context.Context) (_node *Notificati
 	if value, ok := _u.mutation.MailTries(); ok {
 		_spec.SetField(notification.FieldMailTries, field.TypeUint32, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(notification.FieldMailTries); ok {
+		_spec.SetField(notification.FieldMailTries, field.TypeUint32, e)
+	}
 	if value, ok := _u.mutation.AddedMailTries(); ok {
 		_spec.AddField(notification.FieldMailTries, field.TypeUint32, value)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(notification.FieldDateUpdated, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(notification.FieldDateUpdated); ok {
+		_spec.SetField(notification.FieldDateUpdated, field.TypeTime, e)
 	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(notification.FieldDateCreated, field.TypeTime)

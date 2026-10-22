@@ -214,6 +214,7 @@ func (s NotificationServiceServer) Add(ctx context.Context, req *rove.Notificati
 		q.Stored(&stored)
 	}
 
+	tx.Writing()
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -513,6 +514,7 @@ func (s NotificationServiceServer) apply(ctx context.Context, ref *rove.Notifica
 		if !plan.WritesTo(13) {
 			q.SetDateUpdated(st.now())
 		}
+		tx.Writing()
 		if n, err := q.Save(ctx); err != nil {
 			if err, ok := err.(*ent.ConstraintError); ok {
 				if sqlgraph.IsUniqueConstraintError(err) {
@@ -604,6 +606,7 @@ func (s NotificationServiceServer) Erase(ctx context.Context, req *rove.Notifica
 		p = notification.And(p, notification.IdEQ(v.Id))
 	}
 
+	tx.Writing()
 	n, err := st.Db.Notification.Delete().Where(p).Exec(ctx)
 	if err != nil {
 		return nil, err
@@ -788,6 +791,7 @@ func (s UsageSnapshotServiceServer) Add(ctx context.Context, req *rove.UsageSnap
 		q.Stored(&stored)
 	}
 
+	tx.Writing()
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -1060,6 +1064,7 @@ func (s UsageSnapshotServiceServer) apply(ctx context.Context, ref *rove.UsageSn
 		if !plan.WritesTo(13) {
 			q.SetDateUpdated(st.now())
 		}
+		tx.Writing()
 		if n, err := q.Save(ctx); err != nil {
 			if err, ok := err.(*ent.ConstraintError); ok {
 				if sqlgraph.IsUniqueConstraintError(err) {
@@ -1151,6 +1156,7 @@ func (s UsageSnapshotServiceServer) Erase(ctx context.Context, req *rove.UsageSn
 		p = usagesnapshot.And(p, usagesnapshot.IdEQ(v.Id))
 	}
 
+	tx.Writing()
 	n, err := st.Db.UsageSnapshot.Delete().Where(p).Exec(ctx)
 	if err != nil {
 		return nil, err
@@ -1364,6 +1370,7 @@ func (s TenantContractServiceServer) Add(ctx context.Context, req *rove.TenantCo
 		q.Stored(&stored)
 	}
 
+	tx.Writing()
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -1651,6 +1658,7 @@ func (s TenantContractServiceServer) apply(ctx context.Context, ref *rove.Tenant
 			q.Where(predicate.TenantContract(pred))
 		}
 		q.Modify(mod)
+		tx.Writing()
 		if n, err := q.Save(ctx); err != nil {
 			if err, ok := err.(*ent.ConstraintError); ok {
 				if sqlgraph.IsUniqueConstraintError(err) {
@@ -1742,6 +1750,7 @@ func (s TenantContractServiceServer) Erase(ctx context.Context, req *rove.Tenant
 		p = tenantcontract.And(p, tenantcontract.IdEQ(v.Id))
 	}
 
+	tx.Writing()
 	u := st.Db.TenantContract.Update().Where(p)
 	u.SetDateErased(st.now())
 	n, err := u.Save(ctx)
@@ -1946,6 +1955,7 @@ func (s LegalHoldServiceServer) Add(ctx context.Context, req *rove.LegalHoldAddR
 		q.Stored(&stored)
 	}
 
+	tx.Writing()
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -2215,6 +2225,7 @@ func (s LegalHoldServiceServer) apply(ctx context.Context, ref *rove.LegalHoldRe
 			q.Where(predicate.LegalHold(pred))
 		}
 		q.Modify(mod)
+		tx.Writing()
 		if n, err := q.Save(ctx); err != nil {
 			if err, ok := err.(*ent.ConstraintError); ok {
 				if sqlgraph.IsUniqueConstraintError(err) {
@@ -2306,6 +2317,7 @@ func (s LegalHoldServiceServer) Erase(ctx context.Context, req *rove.LegalHoldRe
 		p = legalhold.And(p, legalhold.IdEQ(v.Id))
 	}
 
+	tx.Writing()
 	n, err := st.Db.LegalHold.Delete().Where(p).Exec(ctx)
 	if err != nil {
 		return nil, err
@@ -2521,6 +2533,7 @@ func (s AccessReviewServiceServer) Add(ctx context.Context, req *rove.AccessRevi
 		q.Stored(&stored)
 	}
 
+	tx.Writing()
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -2805,6 +2818,7 @@ func (s AccessReviewServiceServer) apply(ctx context.Context, ref *rove.AccessRe
 			q.Where(predicate.AccessReview(pred))
 		}
 		q.Modify(mod)
+		tx.Writing()
 		if n, err := q.Save(ctx); err != nil {
 			if err, ok := err.(*ent.ConstraintError); ok {
 				if sqlgraph.IsUniqueConstraintError(err) {
@@ -2896,6 +2910,7 @@ func (s AccessReviewServiceServer) Erase(ctx context.Context, req *rove.AccessRe
 		p = accessreview.And(p, accessreview.IdEQ(v.Id))
 	}
 
+	tx.Writing()
 	n, err := st.Db.AccessReview.Delete().Where(p).Exec(ctx)
 	if err != nil {
 		return nil, err

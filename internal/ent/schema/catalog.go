@@ -58,7 +58,8 @@ func (AssetType) Edges() []ent.Edge {
 
 func (AssetType) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("tenant_id", "date_created", "id"),
+		index.Fields("tenant_id", "date_created", "id").
+			StorageKey("assettype_page"),
 	}
 }
 
@@ -114,7 +115,8 @@ func (ItemModel) Edges() []ent.Edge {
 
 func (ItemModel) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("tenant_id", "date_created", "id"),
+		index.Fields("tenant_id", "date_created", "id").
+			StorageKey("itemmodel_page"),
 	}
 }
 

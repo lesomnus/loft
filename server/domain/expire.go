@@ -5,9 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"slices"
 	"time"
+	"uuid"
 
 	"github.com/lesomnus/otx/log"
+	"github.com/lesomnus/payday/audit"
 	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/spin"
@@ -32,6 +35,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/stewardship"
 	"github.com/lesomnus/rove/internal/ent/stockmovement"
 	"github.com/lesomnus/rove/internal/ent/workorder"
+	"github.com/lesomnus/rove/server/pd"
 )
 
 // Expired is what an expiry took, or would take, out of one tenant's history:
@@ -156,8 +160,14 @@ func (d *Deps) Expire(ctx context.Context, server app.Server, drv dialect.Driver
 // expire deletes, in an order no reference is left dangling by: the rows that
 // point at events before the events, a document's parts before it. It answers
 // the keys of the files the attachments that went kept.
+//
+// Each row that goes is on the trail as gone, in this transaction
+// (`pd.RecordErased`, payday#115): the rows are taken past the servers, and a
+// check of the rows would otherwise find every one a thing the trail says is
+// a row and is not.
 func (t *Tx) expire(c time.Time, out *Expired) ([]string, error) {
 	tid := t.tenant.Uuid()
+	removed := []pdid.Id{}
 	var err error
 	n := func(v int, e error) int {
 		if e != nil && err == nil {
@@ -176,35 +186,127 @@ func (t *Tx) expire(c time.Time, out *Expired) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	out.Attachments = n(t.db.Attachment.Delete().Where(atts).Exec(t.ctx))
+	out.Attachments = n(expireRows(t.ctx, &removed, t.db.Attachment.Query().Where(atts).Ids,
+		func(ctx context.Context, ids ...uuid.UUID) (int, error) {
+			return t.db.Attachment.Delete().Where(attachment.IdIn(ids...)).Exec(ctx)
+		}))
 
-	out.Placements = n(t.db.Placement.Delete().Where(placement.TenantId(tid), placementExpired(c)).Exec(t.ctx))
-	out.Links = n(t.db.Link.Delete().Where(link.TenantId(tid), linkExpired(c)).Exec(t.ctx))
-	out.Stewardships = n(t.db.Stewardship.Delete().Where(stewardship.TenantId(tid), stewardshipExpired(c)).Exec(t.ctx))
-	out.Facts = n(t.db.Fact.Delete().Where(fact.TenantId(tid), factExpired(c)).Exec(t.ctx))
-	out.StockMovements = n(t.db.StockMovement.Delete().Where(stockmovement.TenantId(tid), stockmovement.OccurredAtLT(c)).Exec(t.ctx))
+	out.Placements = n(expireRows(t.ctx, &removed, t.db.Placement.Query().Where(placement.TenantId(tid), placementExpired(c)).Ids,
+		func(ctx context.Context, ids ...uuid.UUID) (int, error) {
+			return t.db.Placement.Delete().Where(placement.IdIn(ids...)).Exec(ctx)
+		}))
+	out.Links = n(expireRows(t.ctx, &removed, t.db.Link.Query().Where(link.TenantId(tid), linkExpired(c)).Ids,
+		func(ctx context.Context, ids ...uuid.UUID) (int, error) {
+			return t.db.Link.Delete().Where(link.IdIn(ids...)).Exec(ctx)
+		}))
+	out.Stewardships = n(expireRows(t.ctx, &removed, t.db.Stewardship.Query().Where(stewardship.TenantId(tid), stewardshipExpired(c)).Ids,
+		func(ctx context.Context, ids ...uuid.UUID) (int, error) {
+			return t.db.Stewardship.Delete().Where(stewardship.IdIn(ids...)).Exec(ctx)
+		}))
+	out.Facts = n(expireRows(t.ctx, &removed, t.db.Fact.Query().Where(fact.TenantId(tid), factExpired(c)).Ids,
+		func(ctx context.Context, ids ...uuid.UUID) (int, error) {
+			return t.db.Fact.Delete().Where(fact.IdIn(ids...)).Exec(ctx)
+		}))
+	out.StockMovements = n(expireRows(t.ctx, &removed, t.db.StockMovement.Query().Where(stockmovement.TenantId(tid), stockmovement.OccurredAtLT(c)).Ids,
+		func(ctx context.Context, ids ...uuid.UUID) (int, error) {
+			return t.db.StockMovement.Delete().Where(stockmovement.IdIn(ids...)).Exec(ctx)
+		}))
 	if err != nil {
 		return nil, err
 	}
 
-	n(t.db.ReservationItem.Delete().Where(reservationitem.TenantId(tid), reservationitem.HasReservationWith(reservationOver(c))).Exec(t.ctx))
-	n(t.db.Allocation.Delete().Where(allocation.TenantId(tid), predicate.Allocation(idIn(allocation.FieldRefId, allocation.FieldTenantId, reservation.Table, reservation.FieldId, reservation.FieldTenantId, reservationOver(c)))).Exec(t.ctx))
-	out.Reservations = n(t.db.Reservation.Delete().Where(reservation.TenantId(tid), reservationOver(c)).Exec(t.ctx))
+	n(expireRows(t.ctx, &removed, t.db.ReservationItem.Query().Where(reservationitem.TenantId(tid), reservationitem.HasReservationWith(reservationOver(c))).Ids,
+		func(ctx context.Context, ids ...uuid.UUID) (int, error) {
+			return t.db.ReservationItem.Delete().Where(reservationitem.IdIn(ids...)).Exec(ctx)
+		}))
+	n(expireRows(t.ctx, &removed, t.db.Allocation.Query().Where(allocation.TenantId(tid), predicate.Allocation(idIn(allocation.FieldRefId, allocation.FieldTenantId, reservation.Table, reservation.FieldId, reservation.FieldTenantId, reservationOver(c)))).Ids,
+		func(ctx context.Context, ids ...uuid.UUID) (int, error) {
+			return t.db.Allocation.Delete().Where(allocation.IdIn(ids...)).Exec(ctx)
+		}))
+	out.Reservations = n(expireRows(t.ctx, &removed, t.db.Reservation.Query().Where(reservation.TenantId(tid), reservationOver(c)).Ids,
+		func(ctx context.Context, ids ...uuid.UUID) (int, error) {
+			return t.db.Reservation.Delete().Where(reservation.IdIn(ids...)).Exec(ctx)
+		}))
 
-	n(t.db.CustodyLine.Delete().Where(custodyline.TenantId(tid), custodyline.HasCustodyWith(custodyOver(c))).Exec(t.ctx))
-	out.Custodies = n(t.db.Custody.Delete().Where(custody.TenantId(tid), custodyOver(c)).Exec(t.ctx))
+	n(expireRows(t.ctx, &removed, t.db.CustodyLine.Query().Where(custodyline.TenantId(tid), custodyline.HasCustodyWith(custodyOver(c))).Ids,
+		func(ctx context.Context, ids ...uuid.UUID) (int, error) {
+			return t.db.CustodyLine.Delete().Where(custodyline.IdIn(ids...)).Exec(ctx)
+		}))
+	out.Custodies = n(expireRows(t.ctx, &removed, t.db.Custody.Query().Where(custody.TenantId(tid), custodyOver(c)).Ids,
+		func(ctx context.Context, ids ...uuid.UUID) (int, error) {
+			return t.db.Custody.Delete().Where(custody.IdIn(ids...)).Exec(ctx)
+		}))
 
-	n(t.db.CountFinding.Delete().Where(countfinding.TenantId(tid), countfinding.HasCountWith(countOver(c))).Exec(t.ctx))
-	out.Counts = n(t.db.InventoryCount.Delete().Where(inventorycount.TenantId(tid), countOver(c)).Exec(t.ctx))
+	n(expireRows(t.ctx, &removed, t.db.CountFinding.Query().Where(countfinding.TenantId(tid), countfinding.HasCountWith(countOver(c))).Ids,
+		func(ctx context.Context, ids ...uuid.UUID) (int, error) {
+			return t.db.CountFinding.Delete().Where(countfinding.IdIn(ids...)).Exec(ctx)
+		}))
+	out.Counts = n(expireRows(t.ctx, &removed, t.db.InventoryCount.Query().Where(inventorycount.TenantId(tid), countOver(c)).Ids,
+		func(ctx context.Context, ids ...uuid.UUID) (int, error) {
+			return t.db.InventoryCount.Delete().Where(inventorycount.IdIn(ids...)).Exec(ctx)
+		}))
 
-	n(t.db.Allocation.Delete().Where(allocation.TenantId(tid), predicate.Allocation(idIn(allocation.FieldRefId, allocation.FieldTenantId, workorder.Table, workorder.FieldId, workorder.FieldTenantId, workOver(c)))).Exec(t.ctx))
-	out.WorkOrders = n(t.db.WorkOrder.Delete().Where(workorder.TenantId(tid), workOver(c)).Exec(t.ctx))
+	n(expireRows(t.ctx, &removed, t.db.Allocation.Query().Where(allocation.TenantId(tid), predicate.Allocation(idIn(allocation.FieldRefId, allocation.FieldTenantId, workorder.Table, workorder.FieldId, workorder.FieldTenantId, workOver(c)))).Ids,
+		func(ctx context.Context, ids ...uuid.UUID) (int, error) {
+			return t.db.Allocation.Delete().Where(allocation.IdIn(ids...)).Exec(ctx)
+		}))
+	out.WorkOrders = n(expireRows(t.ctx, &removed, t.db.WorkOrder.Query().Where(workorder.TenantId(tid), workOver(c)).Ids,
+		func(ctx context.Context, ids ...uuid.UUID) (int, error) {
+			return t.db.WorkOrder.Delete().Where(workorder.IdIn(ids...)).Exec(ctx)
+		}))
 	if err != nil {
 		return nil, err
 	}
 
-	out.Events = n(t.db.Event.Delete().Where(event.TenantId(tid), eventExpired(c)).Exec(t.ctx))
-	return files, err
+	out.Events = n(expireRows(t.ctx, &removed, t.db.Event.Query().Where(event.TenantId(tid), eventExpired(c)).Ids,
+		func(ctx context.Context, ids ...uuid.UUID) (int, error) {
+			return t.db.Event.Delete().Where(event.IdIn(ids...)).Exec(ctx)
+		}))
+	if err != nil {
+		return nil, err
+	}
+
+	if _, err := pd.RecordErased(t.ctx, t.db, t.audit(), HistoryExpired, removed); err != nil {
+		return nil, fmt.Errorf("the trail: %w", err)
+	}
+	return files, nil
+}
+
+// HistoryExpired is the act a row of the history taken at the end of its
+// tenant's window is on the trail as.
+const HistoryExpired = "rove.history.expire"
+
+// audit is what the trail keeps of each kind's writes, for an act this
+// writes past the servers: the deployment's, or nothing when it said none.
+func (t *Tx) audit() audit.Contents {
+	if t.deps == nil {
+		return audit.Contents{}
+	}
+	return t.deps.Audit
+}
+
+// expireRows deletes the rows `ids` reads, by identifier and a page at a time, and
+// answers how many went, adding each to `removed` for the trail to be told it
+// went. By identifier rather than by the reading's own condition, so that what
+// is told is what went: a row a write beside this made to match after it was
+// read is left for the next pass.
+func expireRows(ctx context.Context, removed *[]pdid.Id, ids func(context.Context) ([]uuid.UUID, error), del func(context.Context, ...uuid.UUID) (int, error)) (int, error) {
+	vs, err := ids(ctx)
+	if err != nil {
+		return 0, err
+	}
+	n := 0
+	for page := range slices.Chunk(vs, audit.RowsPage) {
+		k, err := del(ctx, page...)
+		if err != nil {
+			return n, err
+		}
+		n += k
+	}
+	for _, v := range vs {
+		*removed = append(*removed, pdid.Id(v))
+	}
+	return n, nil
 }
 
 func placementExpired(c time.Time) predicate.Placement {
@@ -322,7 +424,7 @@ func (w Expirer) Pass(ctx context.Context) error {
 	db := ent.NewClient(ent.Driver(w.Drv))
 	tenants, err := db.Tenant.Query().Ids(ctx)
 	if err != nil {
-		log.From(ctx).WarnContext(ctx, "expire: tenants", slog.String("error", err.Error()))
+		log.From(ctx).WarnContext(ctx, "expire: tenants", slog.Any("err", err))
 		return nil
 	}
 	for _, k := range tenants {
@@ -333,7 +435,7 @@ func (w Expirer) Pass(ctx context.Context) error {
 		if err != nil {
 			log.From(ctx).WarnContext(ctx, "expire",
 				slog.String("tenant", pdid.Id(k).String()),
-				slog.String("error", err.Error()))
+				slog.Any("err", err))
 			continue
 		}
 		if x.Total() > 0 {

@@ -241,6 +241,7 @@ func (s WorkOrderServiceServer) Add(ctx context.Context, req *rove.WorkOrderAddR
 		q.Stored(&stored)
 	}
 
+	tx.Writing()
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -565,6 +566,7 @@ func (s WorkOrderServiceServer) apply(ctx context.Context, ref *rove.WorkOrderRe
 		if !plan.WritesTo(13) {
 			q.SetDateUpdated(st.now())
 		}
+		tx.Writing()
 		if n, err := q.Save(ctx); err != nil {
 			if err, ok := err.(*ent.ConstraintError); ok {
 				if sqlgraph.IsUniqueConstraintError(err) {
@@ -656,6 +658,7 @@ func (s WorkOrderServiceServer) Erase(ctx context.Context, req *rove.WorkOrderRe
 		p = workorder.And(p, workorder.IdEQ(v.Id))
 	}
 
+	tx.Writing()
 	u := st.Db.WorkOrder.Update().Where(p)
 	u.SetDateErased(st.now())
 	u.SetDateUpdated(st.now())
@@ -899,6 +902,7 @@ func (s PurchaseServiceServer) Add(ctx context.Context, req *rove.PurchaseAddReq
 		q.Stored(&stored)
 	}
 
+	tx.Writing()
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -1208,6 +1212,7 @@ func (s PurchaseServiceServer) apply(ctx context.Context, ref *rove.PurchaseRef,
 		if !plan.WritesTo(13) {
 			q.SetDateUpdated(st.now())
 		}
+		tx.Writing()
 		if n, err := q.Save(ctx); err != nil {
 			if err, ok := err.(*ent.ConstraintError); ok {
 				if sqlgraph.IsUniqueConstraintError(err) {
@@ -1299,6 +1304,7 @@ func (s PurchaseServiceServer) Erase(ctx context.Context, req *rove.PurchaseRef)
 		p = purchase.And(p, purchase.IdEQ(v.Id))
 	}
 
+	tx.Writing()
 	u := st.Db.Purchase.Update().Where(p)
 	u.SetDateErased(st.now())
 	u.SetDateUpdated(st.now())
@@ -1551,6 +1557,7 @@ func (s PurchaseLineServiceServer) Add(ctx context.Context, req *rove.PurchaseLi
 		q.Stored(&stored)
 	}
 
+	tx.Writing()
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -1854,6 +1861,7 @@ func (s PurchaseLineServiceServer) apply(ctx context.Context, ref *rove.Purchase
 		if !plan.WritesTo(13) {
 			q.SetDateUpdated(st.now())
 		}
+		tx.Writing()
 		if n, err := q.Save(ctx); err != nil {
 			if err, ok := err.(*ent.ConstraintError); ok {
 				if sqlgraph.IsUniqueConstraintError(err) {
@@ -1945,6 +1953,7 @@ func (s PurchaseLineServiceServer) Erase(ctx context.Context, req *rove.Purchase
 		p = purchaseline.And(p, purchaseline.IdEQ(v.Id))
 	}
 
+	tx.Writing()
 	n, err := st.Db.PurchaseLine.Delete().Where(p).Exec(ctx)
 	if err != nil {
 		return nil, err

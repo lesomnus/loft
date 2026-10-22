@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io/fs"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/lesomnus/xli"
@@ -12,6 +15,7 @@ import (
 
 	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/pdid"
+	"github.com/lesomnus/payday/trail"
 
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/cmd"
@@ -39,6 +43,14 @@ import (
 // Running it twice is an error rather than a no-op, because an alias is unique
 // and the database says so. That is the right answer -- an `init` that quietly
 // did nothing is one somebody runs against the wrong deployment and believes.
+//
+// A configuration that names the trail an archive and no key to sign its
+// account with -- which `serve` and the trail's commands refuse (payday#115)
+// -- is given a key of its own beside the archive, and `init` says where. That
+// is for a deployment being tried: there is no key everybody knows to fall
+// back on, a key that signs is never committed (`.gitignore`), and a
+// deployment's own is made apart and mounted as a secret, as `deploy/compose`
+// and `deploy/k8s` mount theirs.
 func NewCmdInit(c *cmd.Config) *xli.Command {
 	return &xli.Command{
 		Name:  "init",
@@ -69,6 +81,20 @@ func NewCmdInit(c *cmd.Config) *xli.Command {
 			email := get("email", "")
 			pw := get("password", "")
 			demo, _ := flg.Find[bool](self, "demo")
+
+			// The archive's key, before anything is built that reads it: this
+			// run signs with the key it writes, and the next one with whatever
+			// the configuration then names -- so it is said, and not kept.
+			if c.Audit.Archive != "" && c.Audit.Checkpoints.Key == "" {
+				path, err := keyFor(c.Audit.Archive)
+				if err != nil {
+					return err
+				}
+
+				c.Audit.Checkpoints.Key = path
+				self.Printf("the trail's archive is signed with a key of this deployment's own, written to %s\n", path)
+				self.Printf("name it as audit.checkpoints.key, or ROVE_AUDIT_CHECKPOINTS_KEY, before serving\n\n")
+			}
 
 			s, err := cmd.Build(ctx, *c)
 			if err != nil {
@@ -190,4 +216,33 @@ func ownerAccount(ctx context.Context, s *cmd.Server, login, name string) (ident
 	}
 
 	return p, made, nil
+}
+
+// keyFor writes a key for the trail's archive to sign its account with, made
+// fresh, beside the archive, and answers the file it is in. A file already
+// there is somebody's key, and is not written over.
+func keyFor(archive string) (string, error) {
+	doc, _, err := trail.GenerateKey()
+	if err != nil {
+		return "", err
+	}
+
+	path := filepath.Clean(archive) + "-checkpoints.pem"
+	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
+		return "", fmt.Errorf("a key for the trail: %w", err)
+	}
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o600)
+	if errors.Is(err, fs.ErrExist) {
+		return "", fmt.Errorf("a key for the trail: %s is one already; name it as audit.checkpoints.key, or move it away for a new one", path)
+	}
+	if err != nil {
+		return "", fmt.Errorf("a key for the trail: %w", err)
+	}
+	if _, err := f.Write(doc); err != nil {
+		f.Close()
+
+		return "", fmt.Errorf("a key for the trail: %w", err)
+	}
+
+	return path, f.Close()
 }

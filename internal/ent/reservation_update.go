@@ -324,11 +324,20 @@ func (_u *ReservationUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(reservation.FieldName, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(reservation.FieldName); ok {
+		_spec.SetField(reservation.FieldName, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Desc(); ok {
 		_spec.SetField(reservation.FieldDesc, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(reservation.FieldDesc); ok {
+		_spec.SetField(reservation.FieldDesc, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.RequestedBy(); ok {
 		_spec.SetField(reservation.FieldRequestedBy, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(reservation.FieldRequestedBy); ok {
+		_spec.SetField(reservation.FieldRequestedBy, field.TypeUuid, e)
 	}
 	if _u.mutation.RequestedByCleared() {
 		_spec.ClearField(reservation.FieldRequestedBy, field.TypeUuid)
@@ -336,8 +345,14 @@ func (_u *ReservationUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(reservation.FieldStatus, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(reservation.FieldStatus); ok {
+		_spec.SetField(reservation.FieldStatus, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.BeginsAt(); ok {
 		_spec.SetField(reservation.FieldBeginsAt, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(reservation.FieldBeginsAt); ok {
+		_spec.SetField(reservation.FieldBeginsAt, field.TypeTime, e)
 	}
 	if _u.mutation.BeginsAtCleared() {
 		_spec.ClearField(reservation.FieldBeginsAt, field.TypeTime)
@@ -345,14 +360,23 @@ func (_u *ReservationUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if value, ok := _u.mutation.EndsAt(); ok {
 		_spec.SetField(reservation.FieldEndsAt, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(reservation.FieldEndsAt); ok {
+		_spec.SetField(reservation.FieldEndsAt, field.TypeTime, e)
+	}
 	if _u.mutation.EndsAtCleared() {
 		_spec.ClearField(reservation.FieldEndsAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(reservation.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(reservation.FieldDateUpdated); ok {
+		_spec.SetField(reservation.FieldDateUpdated, field.TypeTime, e)
+	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(reservation.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(reservation.FieldDateErased); ok {
+		_spec.SetField(reservation.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(reservation.FieldDateErased, field.TypeTime)
@@ -363,14 +387,23 @@ func (_u *ReservationUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if value, ok := _u.mutation.ExpiresAt(); ok {
 		_spec.SetField(reservation.FieldExpiresAt, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(reservation.FieldExpiresAt); ok {
+		_spec.SetField(reservation.FieldExpiresAt, field.TypeTime, e)
+	}
 	if _u.mutation.ExpiresAtCleared() {
 		_spec.ClearField(reservation.FieldExpiresAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.Rrule(); ok {
 		_spec.SetField(reservation.FieldRrule, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(reservation.FieldRrule); ok {
+		_spec.SetField(reservation.FieldRrule, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.SeriesId(); ok {
 		_spec.SetField(reservation.FieldSeriesId, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(reservation.FieldSeriesId); ok {
+		_spec.SetField(reservation.FieldSeriesId, field.TypeUuid, e)
 	}
 	if _u.mutation.SeriesIdCleared() {
 		_spec.ClearField(reservation.FieldSeriesId, field.TypeUuid)
@@ -378,11 +411,17 @@ func (_u *ReservationUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if value, ok := _u.mutation.DecidedBy(); ok {
 		_spec.SetField(reservation.FieldDecidedBy, field.TypeUuid, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(reservation.FieldDecidedBy); ok {
+		_spec.SetField(reservation.FieldDecidedBy, field.TypeUuid, e)
+	}
 	if _u.mutation.DecidedByCleared() {
 		_spec.ClearField(reservation.FieldDecidedBy, field.TypeUuid)
 	}
 	if value, ok := _u.mutation.CheckedInAt(); ok {
 		_spec.SetField(reservation.FieldCheckedInAt, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(reservation.FieldCheckedInAt); ok {
+		_spec.SetField(reservation.FieldCheckedInAt, field.TypeTime, e)
 	}
 	if _u.mutation.CheckedInAtCleared() {
 		_spec.ClearField(reservation.FieldCheckedInAt, field.TypeTime)
@@ -733,11 +772,20 @@ func (_u *ReservationUpdateOne) sqlSave(ctx context.Context) (_node *Reservation
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(reservation.FieldName, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(reservation.FieldName); ok {
+		_spec.SetField(reservation.FieldName, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Desc(); ok {
 		_spec.SetField(reservation.FieldDesc, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(reservation.FieldDesc); ok {
+		_spec.SetField(reservation.FieldDesc, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.RequestedBy(); ok {
 		_spec.SetField(reservation.FieldRequestedBy, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(reservation.FieldRequestedBy); ok {
+		_spec.SetField(reservation.FieldRequestedBy, field.TypeUuid, e)
 	}
 	if _u.mutation.RequestedByCleared() {
 		_spec.ClearField(reservation.FieldRequestedBy, field.TypeUuid)
@@ -745,8 +793,14 @@ func (_u *ReservationUpdateOne) sqlSave(ctx context.Context) (_node *Reservation
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(reservation.FieldStatus, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(reservation.FieldStatus); ok {
+		_spec.SetField(reservation.FieldStatus, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.BeginsAt(); ok {
 		_spec.SetField(reservation.FieldBeginsAt, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(reservation.FieldBeginsAt); ok {
+		_spec.SetField(reservation.FieldBeginsAt, field.TypeTime, e)
 	}
 	if _u.mutation.BeginsAtCleared() {
 		_spec.ClearField(reservation.FieldBeginsAt, field.TypeTime)
@@ -754,14 +808,23 @@ func (_u *ReservationUpdateOne) sqlSave(ctx context.Context) (_node *Reservation
 	if value, ok := _u.mutation.EndsAt(); ok {
 		_spec.SetField(reservation.FieldEndsAt, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(reservation.FieldEndsAt); ok {
+		_spec.SetField(reservation.FieldEndsAt, field.TypeTime, e)
+	}
 	if _u.mutation.EndsAtCleared() {
 		_spec.ClearField(reservation.FieldEndsAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(reservation.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(reservation.FieldDateUpdated); ok {
+		_spec.SetField(reservation.FieldDateUpdated, field.TypeTime, e)
+	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(reservation.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(reservation.FieldDateErased); ok {
+		_spec.SetField(reservation.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(reservation.FieldDateErased, field.TypeTime)
@@ -772,14 +835,23 @@ func (_u *ReservationUpdateOne) sqlSave(ctx context.Context) (_node *Reservation
 	if value, ok := _u.mutation.ExpiresAt(); ok {
 		_spec.SetField(reservation.FieldExpiresAt, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(reservation.FieldExpiresAt); ok {
+		_spec.SetField(reservation.FieldExpiresAt, field.TypeTime, e)
+	}
 	if _u.mutation.ExpiresAtCleared() {
 		_spec.ClearField(reservation.FieldExpiresAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.Rrule(); ok {
 		_spec.SetField(reservation.FieldRrule, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(reservation.FieldRrule); ok {
+		_spec.SetField(reservation.FieldRrule, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.SeriesId(); ok {
 		_spec.SetField(reservation.FieldSeriesId, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(reservation.FieldSeriesId); ok {
+		_spec.SetField(reservation.FieldSeriesId, field.TypeUuid, e)
 	}
 	if _u.mutation.SeriesIdCleared() {
 		_spec.ClearField(reservation.FieldSeriesId, field.TypeUuid)
@@ -787,11 +859,17 @@ func (_u *ReservationUpdateOne) sqlSave(ctx context.Context) (_node *Reservation
 	if value, ok := _u.mutation.DecidedBy(); ok {
 		_spec.SetField(reservation.FieldDecidedBy, field.TypeUuid, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(reservation.FieldDecidedBy); ok {
+		_spec.SetField(reservation.FieldDecidedBy, field.TypeUuid, e)
+	}
 	if _u.mutation.DecidedByCleared() {
 		_spec.ClearField(reservation.FieldDecidedBy, field.TypeUuid)
 	}
 	if value, ok := _u.mutation.CheckedInAt(); ok {
 		_spec.SetField(reservation.FieldCheckedInAt, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(reservation.FieldCheckedInAt); ok {
+		_spec.SetField(reservation.FieldCheckedInAt, field.TypeTime, e)
 	}
 	if _u.mutation.CheckedInAtCleared() {
 		_spec.ClearField(reservation.FieldCheckedInAt, field.TypeTime)

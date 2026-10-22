@@ -74,8 +74,10 @@ func (WorkOrder) Edges() []ent.Edge {
 
 func (WorkOrder) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("tenant_id", "date_created", "id"),
-		index.Fields("asset_id"),
+		index.Fields("tenant_id", "date_created", "id").
+			StorageKey("workorder_page"),
+		index.Fields("asset_id").
+			StorageKey("workorder_asset"),
 	}
 }
 
@@ -134,7 +136,8 @@ func (Purchase) Edges() []ent.Edge {
 
 func (Purchase) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("tenant_id", "date_created", "id"),
+		index.Fields("tenant_id", "date_created", "id").
+			StorageKey("purchase_page"),
 	}
 }
 
@@ -191,8 +194,10 @@ func (PurchaseLine) Edges() []ent.Edge {
 
 func (PurchaseLine) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("tenant_id", "date_created", "id"),
-		index.Fields("purchase_id"),
+		index.Fields("tenant_id", "date_created", "id").
+			StorageKey("purchaseline_page"),
+		index.Fields("purchase_id").
+			StorageKey("purchaseline_purchase"),
 	}
 }
 

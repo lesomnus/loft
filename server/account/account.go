@@ -14,6 +14,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"mime"
 	"net/http"
 	"os"
@@ -452,6 +453,6 @@ func fail(w http.ResponseWriter, r *http.Request, err error) {
 		http.Error(w, "cannot say just now", http.StatusServiceUnavailable)
 		return
 	}
-	log.From(r.Context()).ErrorContext(r.Context(), "account", "err", err.Error())
+	log.From(r.Context()).ErrorContext(r.Context(), "account", slog.Any("err", err))
 	http.Error(w, "something went wrong", http.StatusInternalServerError)
 }
