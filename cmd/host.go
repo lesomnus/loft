@@ -24,9 +24,12 @@ import (
 //     The app is served there, and every call is served as a membership of
 //     that workspace and no other: a `rove-workspace` that names another is
 //     refused, never re-pointed (`cmd.Resolver`), and so is a page at
-//     `/@<alias>` of another. Signing in is not done there -- it is the
-//     service's (rove#155's handoff) -- nor is making a workspace, and a
-//     signed file link of another workspace's is not served there either.
+//     `/@<alias>` of another. Signing in and out is not done there but by
+//     the handoff (`/handoff/...`, `server/session`): the service signs a
+//     browser in and hands the domain a session of its own, which is the
+//     page's way in (`GET /sso` says so). Making a workspace is the
+//     service's too, and a signed file link of another workspace's is not
+//     served there either.
 //   - **The deployment's own host** -- `app.public_url`'s, and `app.app_url`'s
 //     when the page is served from another -- is the service, as it always
 //     was: every workspace, by the path a page is at and the header a call
@@ -140,9 +143,10 @@ func (h Hosts) Handler(next http.Handler) http.Handler {
 func refuses(p apphost.Pinned, r *http.Request, aliases tenancy.Aliases) string {
 	path := r.URL.Path
 	switch {
-	case path == "/session" && r.Method == http.MethodPost,
-		strings.HasPrefix(path, "/sso"),
+	case path == "/session",
+		strings.HasPrefix(path, "/sso") && (path != "/sso" || r.Method != http.MethodGet),
 		strings.HasPrefix(path, "/cli/"),
+		path == "/handoff",
 		path == "/account/workspaces" && r.Method == http.MethodPost:
 		return "this is @" + p.Alias + "'s address: sign in, and make a workspace, at the service's"
 	}

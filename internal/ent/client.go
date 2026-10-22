@@ -28,6 +28,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/custodyline"
 	"github.com/lesomnus/rove/internal/ent/event"
 	"github.com/lesomnus/rove/internal/ent/fact"
+	"github.com/lesomnus/rove/internal/ent/handoff"
 	"github.com/lesomnus/rove/internal/ent/holder"
 	"github.com/lesomnus/rove/internal/ent/inventorycount"
 	"github.com/lesomnus/rove/internal/ent/invitation"
@@ -99,6 +100,8 @@ type Client struct {
 	Event *EventClient
 	// Fact is the client for interacting with the Fact builders.
 	Fact *FactClient
+	// Handoff is the client for interacting with the Handoff builders.
+	Handoff *HandoffClient
 	// Holder is the client for interacting with the Holder builders.
 	Holder *HolderClient
 	// InventoryCount is the client for interacting with the InventoryCount builders.
@@ -182,6 +185,7 @@ func (c *Client) init() {
 	c.CustodyLine = NewCustodyLineClient(c.config)
 	c.Event = NewEventClient(c.config)
 	c.Fact = NewFactClient(c.config)
+	c.Handoff = NewHandoffClient(c.config)
 	c.Holder = NewHolderClient(c.config)
 	c.InventoryCount = NewInventoryCountClient(c.config)
 	c.Invitation = NewInvitationClient(c.config)
@@ -319,6 +323,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		CustodyLine:     NewCustodyLineClient(cfg),
 		Event:           NewEventClient(cfg),
 		Fact:            NewFactClient(cfg),
+		Handoff:         NewHandoffClient(cfg),
 		Holder:          NewHolderClient(cfg),
 		InventoryCount:  NewInventoryCountClient(cfg),
 		Invitation:      NewInvitationClient(cfg),
@@ -383,6 +388,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		CustodyLine:     NewCustodyLineClient(cfg),
 		Event:           NewEventClient(cfg),
 		Fact:            NewFactClient(cfg),
+		Handoff:         NewHandoffClient(cfg),
 		Holder:          NewHolderClient(cfg),
 		InventoryCount:  NewInventoryCountClient(cfg),
 		Invitation:      NewInvitationClient(cfg),
@@ -488,7 +494,7 @@ func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.Access, c.AccessReview, c.AliasHold, c.Allocation, c.Archived, c.Asset,
 		c.AssetType, c.Attachment, c.Audit, c.Bookable, c.CliLogin, c.Consent,
-		c.CountFinding, c.Custody, c.CustodyLine, c.Event, c.Fact, c.Holder,
+		c.CountFinding, c.Custody, c.CustodyLine, c.Event, c.Fact, c.Handoff, c.Holder,
 		c.InventoryCount, c.Invitation, c.ItemModel, c.Label, c.LegalHold, c.Link,
 		c.Notification, c.Outbox, c.Owed, c.Party, c.Placement, c.Purchase,
 		c.PurchaseLine, c.Reservation, c.ReservationItem, c.RowSeal, c.SearchStale,
@@ -505,7 +511,7 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.Access, c.AccessReview, c.AliasHold, c.Allocation, c.Archived, c.Asset,
 		c.AssetType, c.Attachment, c.Audit, c.Bookable, c.CliLogin, c.Consent,
-		c.CountFinding, c.Custody, c.CustodyLine, c.Event, c.Fact, c.Holder,
+		c.CountFinding, c.Custody, c.CustodyLine, c.Event, c.Fact, c.Handoff, c.Holder,
 		c.InventoryCount, c.Invitation, c.ItemModel, c.Label, c.LegalHold, c.Link,
 		c.Notification, c.Outbox, c.Owed, c.Party, c.Placement, c.Purchase,
 		c.PurchaseLine, c.Reservation, c.ReservationItem, c.RowSeal, c.SearchStale,
@@ -553,6 +559,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Event.mutate(ctx, m)
 	case *FactMutation:
 		return c.Fact.mutate(ctx, m)
+	case *HandoffMutation:
+		return c.Handoff.mutate(ctx, m)
 	case *HolderMutation:
 		return c.Holder.mutate(ctx, m)
 	case *InventoryCountMutation:
@@ -3256,6 +3264,139 @@ func (c *FactClient) mutate(ctx context.Context, m *FactMutation) (Value, error)
 		return (&FactDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Fact mutation op: %q", m.Op())
+	}
+}
+
+// HandoffClient is a client for the Handoff schema.
+type HandoffClient struct {
+	config
+}
+
+// NewHandoffClient returns a client for the Handoff from the given config.
+func NewHandoffClient(c config) *HandoffClient {
+	return &HandoffClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `handoff.Hooks(f(g(h())))`.
+func (c *HandoffClient) Use(hooks ...Hook) {
+	c.hooks.Handoff = append(c.hooks.Handoff, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `handoff.Intercept(f(g(h())))`.
+func (c *HandoffClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Handoff = append(c.inters.Handoff, interceptors...)
+}
+
+// Create returns a builder for creating a Handoff entity.
+func (c *HandoffClient) Create() *HandoffCreate {
+	mutation := newHandoffMutation(c.config, OpCreate)
+	return &HandoffCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Handoff entities.
+func (c *HandoffClient) CreateBulk(builders ...*HandoffCreate) *HandoffCreateBulk {
+	return &HandoffCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *HandoffClient) MapCreateBulk(slice any, setFunc func(*HandoffCreate, int)) *HandoffCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &HandoffCreateBulk{err: fmt.Errorf("calling to HandoffClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*HandoffCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &HandoffCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Handoff.
+func (c *HandoffClient) Update() *HandoffUpdate {
+	mutation := newHandoffMutation(c.config, OpUpdate)
+	return &HandoffUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *HandoffClient) UpdateOne(_m *Handoff) *HandoffUpdateOne {
+	mutation := newHandoffMutation(c.config, OpUpdateOne, withHandoff(_m))
+	return &HandoffUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneId returns an update builder for the given id.
+func (c *HandoffClient) UpdateOneId(id uuid.UUID) *HandoffUpdateOne {
+	mutation := newHandoffMutation(c.config, OpUpdateOne, withHandoffId(id))
+	return &HandoffUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Handoff.
+func (c *HandoffClient) Delete() *HandoffDelete {
+	mutation := newHandoffMutation(c.config, OpDelete)
+	return &HandoffDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *HandoffClient) DeleteOne(_m *Handoff) *HandoffDeleteOne {
+	return c.DeleteOneId(_m.Id)
+}
+
+// DeleteOneId returns a builder for deleting the given entity by its id.
+func (c *HandoffClient) DeleteOneId(id uuid.UUID) *HandoffDeleteOne {
+	builder := c.Delete().Where(handoff.Id(id))
+	builder.mutation.id = &id
+	builder.mutation.SetOp(OpDeleteOne)
+	return &HandoffDeleteOne{builder}
+}
+
+// Query returns a query builder for Handoff.
+func (c *HandoffClient) Query() *HandoffQuery {
+	return &HandoffQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeHandoff},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Handoff entity by its id.
+func (c *HandoffClient) Get(ctx context.Context, id uuid.UUID) (*Handoff, error) {
+	return c.Query().Where(handoff.Id(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *HandoffClient) GetX(ctx context.Context, id uuid.UUID) *Handoff {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *HandoffClient) Hooks() []Hook {
+	return c.hooks.Handoff
+}
+
+// Interceptors returns the client interceptors.
+func (c *HandoffClient) Interceptors() []Interceptor {
+	return c.inters.Handoff
+}
+
+func (c *HandoffClient) mutate(ctx context.Context, m *HandoffMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&HandoffCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&HandoffUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&HandoffUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&HandoffDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Handoff mutation op: %q", m.Op())
 	}
 }
 
@@ -7724,19 +7865,19 @@ type (
 	hooks struct {
 		Access, AccessReview, AliasHold, Allocation, Archived, Asset, AssetType,
 		Attachment, Audit, Bookable, CliLogin, Consent, CountFinding, Custody,
-		CustodyLine, Event, Fact, Holder, InventoryCount, Invitation, ItemModel, Label,
-		LegalHold, Link, Notification, Outbox, Owed, Party, Placement, Purchase,
-		PurchaseLine, Reservation, ReservationItem, RowSeal, SearchStale, Session,
-		SignInFailure, Stewardship, Stock, StockMovement, Tenant, TenantContract,
-		TenantDomain, TreeLock, WorkOrder []ent.Hook
+		CustodyLine, Event, Fact, Handoff, Holder, InventoryCount, Invitation,
+		ItemModel, Label, LegalHold, Link, Notification, Outbox, Owed, Party,
+		Placement, Purchase, PurchaseLine, Reservation, ReservationItem, RowSeal,
+		SearchStale, Session, SignInFailure, Stewardship, Stock, StockMovement, Tenant,
+		TenantContract, TenantDomain, TreeLock, WorkOrder []ent.Hook
 	}
 	inters struct {
 		Access, AccessReview, AliasHold, Allocation, Archived, Asset, AssetType,
 		Attachment, Audit, Bookable, CliLogin, Consent, CountFinding, Custody,
-		CustodyLine, Event, Fact, Holder, InventoryCount, Invitation, ItemModel, Label,
-		LegalHold, Link, Notification, Outbox, Owed, Party, Placement, Purchase,
-		PurchaseLine, Reservation, ReservationItem, RowSeal, SearchStale, Session,
-		SignInFailure, Stewardship, Stock, StockMovement, Tenant, TenantContract,
-		TenantDomain, TreeLock, WorkOrder []ent.Interceptor
+		CustodyLine, Event, Fact, Handoff, Holder, InventoryCount, Invitation,
+		ItemModel, Label, LegalHold, Link, Notification, Outbox, Owed, Party,
+		Placement, Purchase, PurchaseLine, Reservation, ReservationItem, RowSeal,
+		SearchStale, Session, SignInFailure, Stewardship, Stock, StockMovement, Tenant,
+		TenantContract, TenantDomain, TreeLock, WorkOrder []ent.Interceptor
 	}
 )

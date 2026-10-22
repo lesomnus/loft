@@ -12,6 +12,7 @@ import (
 	aliashold "github.com/lesomnus/rove/internal/ent/aliashold"
 	clilogin "github.com/lesomnus/rove/internal/ent/clilogin"
 	consent "github.com/lesomnus/rove/internal/ent/consent"
+	handoff "github.com/lesomnus/rove/internal/ent/handoff"
 	holder "github.com/lesomnus/rove/internal/ent/holder"
 	invitation "github.com/lesomnus/rove/internal/ent/invitation"
 	party "github.com/lesomnus/rove/internal/ent/party"
@@ -1693,4 +1694,59 @@ func SignInFailureNarrow(ctx context.Context, scope Scope, p predicate.SignInFai
 // narrow is [SignInFailureNarrow] with this server's own scope.
 func (s SignInFailureServiceServer) narrow(ctx context.Context, p predicate.SignInFailure) (predicate.SignInFailure, error) {
 	return SignInFailureNarrow(ctx, s.Scope, p)
+}
+
+type HandoffServiceServer struct {
+	Store
+
+	rove.UnimplementedHandoffServiceServer
+}
+
+// NewHandoffServiceServer answers with a server that runs its queries with `db`.
+//
+// It takes the options of [Server] so that what is built here can be told
+// where to report its writes and what it may see. Built without them, it
+// reports nowhere and sees everything.
+func NewHandoffServiceServer(db *ent.Client, opts ...Option) rove.HandoffServiceServer {
+	s := Server{Store: Store{Db: db}}
+	for _, opt := range opts {
+		opt(&s)
+	}
+	return HandoffServiceServer{Store: s.Store}
+}
+
+// HandoffNarrow answers with `p` and everything else that narrows a
+// read of a Handoff, which is whatever `scope` says.
+//
+// Every read this package makes goes through it, and a read written by
+// hand should too -- a List is the one read nothing generates, and so the
+// one that would otherwise answer with rows nobody should be given.
+func HandoffNarrow(ctx context.Context, scope Scope, p predicate.Handoff) (predicate.Handoff, error) {
+	ps := make([]predicate.Handoff, 0, 2)
+	if p != nil {
+		ps = append(ps, p)
+	}
+	if scope != nil {
+		q, err := scope.HandoffScope(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if q != nil {
+			ps = append(ps, q)
+		}
+	}
+
+	switch len(ps) {
+	case 0:
+		return nil, nil
+	case 1:
+		return ps[0], nil
+	default:
+		return handoff.And(ps...), nil
+	}
+}
+
+// narrow is [HandoffNarrow] with this server's own scope.
+func (s HandoffServiceServer) narrow(ctx context.Context, p predicate.Handoff) (predicate.Handoff, error) {
+	return HandoffNarrow(ctx, s.Scope, p)
 }

@@ -62,7 +62,7 @@ self.addEventListener('fetch', (e) => {
 
 /** Whether an address is the app's, rather than something the server answers itself. */
 function page(path) {
-	return !/^\/(sso|session|account|files|l|healthz)(\/|$)/.test(path)
+	return !/^\/(sso|session|account|files|l|healthz|handoff)(\/|$)/.test(path)
 }
 
 async function navigate(req) {

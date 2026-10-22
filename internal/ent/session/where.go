@@ -85,6 +85,16 @@ func Held(v []byte) predicate.Session {
 	return predicate.Session(sql.FieldEQ(FieldHeld, v))
 }
 
+// Workspace applies equality check predicate on the "workspace" field. It's identical to WorkspaceEQ.
+func Workspace(v uuid.UUID) predicate.Session {
+	return predicate.Session(sql.FieldEQ(FieldWorkspace, v))
+}
+
+// Parent applies equality check predicate on the "parent" field. It's identical to ParentEQ.
+func Parent(v uuid.UUID) predicate.Session {
+	return predicate.Session(sql.FieldEQ(FieldParent, v))
+}
+
 // DateUpdated applies equality check predicate on the "date_updated" field. It's identical to DateUpdatedEQ.
 func DateUpdated(v time.Time) predicate.Session {
 	return predicate.Session(sql.FieldEQ(FieldDateUpdated, v))
@@ -388,6 +398,106 @@ func HeldIsNil() predicate.Session {
 // HeldNotNil applies the NotNil predicate on the "held" field.
 func HeldNotNil() predicate.Session {
 	return predicate.Session(sql.FieldNotNull(FieldHeld))
+}
+
+// WorkspaceEQ applies the EQ predicate on the "workspace" field.
+func WorkspaceEQ(v uuid.UUID) predicate.Session {
+	return predicate.Session(sql.FieldEQ(FieldWorkspace, v))
+}
+
+// WorkspaceNEQ applies the NEQ predicate on the "workspace" field.
+func WorkspaceNEQ(v uuid.UUID) predicate.Session {
+	return predicate.Session(sql.FieldNEQ(FieldWorkspace, v))
+}
+
+// WorkspaceIn applies the In predicate on the "workspace" field.
+func WorkspaceIn(vs ...uuid.UUID) predicate.Session {
+	return predicate.Session(sql.FieldIn(FieldWorkspace, vs...))
+}
+
+// WorkspaceNotIn applies the NotIn predicate on the "workspace" field.
+func WorkspaceNotIn(vs ...uuid.UUID) predicate.Session {
+	return predicate.Session(sql.FieldNotIn(FieldWorkspace, vs...))
+}
+
+// WorkspaceGT applies the GT predicate on the "workspace" field.
+func WorkspaceGT(v uuid.UUID) predicate.Session {
+	return predicate.Session(sql.FieldGT(FieldWorkspace, v))
+}
+
+// WorkspaceGTE applies the GTE predicate on the "workspace" field.
+func WorkspaceGTE(v uuid.UUID) predicate.Session {
+	return predicate.Session(sql.FieldGTE(FieldWorkspace, v))
+}
+
+// WorkspaceLT applies the LT predicate on the "workspace" field.
+func WorkspaceLT(v uuid.UUID) predicate.Session {
+	return predicate.Session(sql.FieldLT(FieldWorkspace, v))
+}
+
+// WorkspaceLTE applies the LTE predicate on the "workspace" field.
+func WorkspaceLTE(v uuid.UUID) predicate.Session {
+	return predicate.Session(sql.FieldLTE(FieldWorkspace, v))
+}
+
+// WorkspaceIsNil applies the IsNil predicate on the "workspace" field.
+func WorkspaceIsNil() predicate.Session {
+	return predicate.Session(sql.FieldIsNull(FieldWorkspace))
+}
+
+// WorkspaceNotNil applies the NotNil predicate on the "workspace" field.
+func WorkspaceNotNil() predicate.Session {
+	return predicate.Session(sql.FieldNotNull(FieldWorkspace))
+}
+
+// ParentEQ applies the EQ predicate on the "parent" field.
+func ParentEQ(v uuid.UUID) predicate.Session {
+	return predicate.Session(sql.FieldEQ(FieldParent, v))
+}
+
+// ParentNEQ applies the NEQ predicate on the "parent" field.
+func ParentNEQ(v uuid.UUID) predicate.Session {
+	return predicate.Session(sql.FieldNEQ(FieldParent, v))
+}
+
+// ParentIn applies the In predicate on the "parent" field.
+func ParentIn(vs ...uuid.UUID) predicate.Session {
+	return predicate.Session(sql.FieldIn(FieldParent, vs...))
+}
+
+// ParentNotIn applies the NotIn predicate on the "parent" field.
+func ParentNotIn(vs ...uuid.UUID) predicate.Session {
+	return predicate.Session(sql.FieldNotIn(FieldParent, vs...))
+}
+
+// ParentGT applies the GT predicate on the "parent" field.
+func ParentGT(v uuid.UUID) predicate.Session {
+	return predicate.Session(sql.FieldGT(FieldParent, v))
+}
+
+// ParentGTE applies the GTE predicate on the "parent" field.
+func ParentGTE(v uuid.UUID) predicate.Session {
+	return predicate.Session(sql.FieldGTE(FieldParent, v))
+}
+
+// ParentLT applies the LT predicate on the "parent" field.
+func ParentLT(v uuid.UUID) predicate.Session {
+	return predicate.Session(sql.FieldLT(FieldParent, v))
+}
+
+// ParentLTE applies the LTE predicate on the "parent" field.
+func ParentLTE(v uuid.UUID) predicate.Session {
+	return predicate.Session(sql.FieldLTE(FieldParent, v))
+}
+
+// ParentIsNil applies the IsNil predicate on the "parent" field.
+func ParentIsNil() predicate.Session {
+	return predicate.Session(sql.FieldIsNull(FieldParent))
+}
+
+// ParentNotNil applies the NotNil predicate on the "parent" field.
+func ParentNotNil() predicate.Session {
+	return predicate.Session(sql.FieldNotNull(FieldParent))
 }
 
 // DateUpdatedEQ applies the EQ predicate on the "date_updated" field.

@@ -15,7 +15,7 @@ import type { EntityDesc } from '@lesomnus/payday/store'
 
 import { AccessSchema } from './rove/payday/access_pb.js'
 import { AccessReviewSchema, LegalHoldSchema, NotificationSchema, TenantContractSchema } from './rove/ops_pb.js'
-import { AliasHoldSchema, CliLoginSchema, ConsentSchema, InvitationSchema, PartySchema, SessionSchema, SignInFailureSchema } from './rove/org_pb.js'
+import { AliasHoldSchema, CliLoginSchema, ConsentSchema, HandoffSchema, InvitationSchema, PartySchema, SessionSchema, SignInFailureSchema } from './rove/org_pb.js'
 import { AllocationSchema, BookableSchema, ReservationSchema, ReservationItemSchema } from './rove/booking_pb.js'
 import { ArchivedSchema } from './rove/payday/archived_pb.js'
 import { AssetSchema, AttachmentSchema, LabelSchema, TenantDomainSchema, TreeLockSchema } from './rove/asset_pb.js'
@@ -34,7 +34,7 @@ import { StockSchema, StockMovementSchema } from './rove/stock_pb.js'
 import { TenantSchema } from './rove/payday/tenant_pb.js'
 import { AccessService } from './rove/payday/access_svc_pb.js'
 import { AccessReviewService, LegalHoldService, NotificationService, TenantContractService } from './rove/ops_svc_pb.js'
-import { AliasHoldService, CliLoginService, ConsentService, InvitationService, PartyService, SessionService, SignInFailureService } from './rove/org_svc_pb.js'
+import { AliasHoldService, CliLoginService, ConsentService, HandoffService, InvitationService, PartyService, SessionService, SignInFailureService } from './rove/org_svc_pb.js'
 import { AllocationService, BookableService, ReservationService, ReservationItemService } from './rove/booking_svc_pb.js'
 import { ArchivedService } from './rove/payday/archived_svc_pb.js'
 import { AssetService, AttachmentService, LabelService, TenantDomainService, TreeLockService } from './rove/asset_svc_pb.js'
@@ -245,6 +245,17 @@ export const Fact = {
 	key: "id",
 	ids: ["id", "eventId", "supersededBy"],
 	service: FactService,
+} as const satisfies EntityDesc
+
+/** rove.Handoff, as the store holds it. */
+export const Handoff = {
+	typeName: "rove.Handoff",
+	schema: HandoffSchema,
+	domain: 48,
+	key: "id",
+	ids: ["id", "account", "workspace", "parent"],
+	secrets: ["secret", "state"],
+	service: HandoffService,
 } as const satisfies EntityDesc
 
 /** rove.Holder, as the store holds it. */
@@ -463,7 +474,7 @@ export const Session = {
 	domain: 38,
 	version: "dateUpdated",
 	key: "id",
-	ids: ["id", "account"],
+	ids: ["id", "account", "workspace", "parent"],
 	secrets: ["secret", "held"],
 	service: SessionService,
 } as const satisfies EntityDesc
@@ -575,5 +586,5 @@ export const WorkOrder = {
 } as const satisfies EntityDesc
 
 /** Every entity of this app, which is what a store is opened over. */
-export const entities = [Access, AccessReview, AliasHold, Allocation, Archived, Asset, AssetType, Attachment, Audit, Bookable, CliLogin, Consent, CountFinding, Custody, CustodyLine, Event, Fact, Holder, InventoryCount, Invitation, ItemModel, Label, LegalHold, Link, Notification, Outbox, Owed, Party, Placement, Purchase, PurchaseLine, Reservation, ReservationItem, RowSeal, SearchStale, Session, SignInFailure, Stewardship, Stock, StockMovement, Tenant, TenantContract, TenantDomain, TreeLock, WorkOrder] as const
+export const entities = [Access, AccessReview, AliasHold, Allocation, Archived, Asset, AssetType, Attachment, Audit, Bookable, CliLogin, Consent, CountFinding, Custody, CustodyLine, Event, Fact, Handoff, Holder, InventoryCount, Invitation, ItemModel, Label, LegalHold, Link, Notification, Outbox, Owed, Party, Placement, Purchase, PurchaseLine, Reservation, ReservationItem, RowSeal, SearchStale, Session, SignInFailure, Stewardship, Stock, StockMovement, Tenant, TenantContract, TenantDomain, TreeLock, WorkOrder] as const
 

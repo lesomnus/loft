@@ -79,6 +79,9 @@ type Event func(*sql.Selector)
 // Fact is the predicate function for fact builders.
 type Fact func(*sql.Selector)
 
+// Handoff is the predicate function for handoff builders.
+type Handoff func(*sql.Selector)
+
 // Holder is the predicate function for holder builders.
 type Holder func(*sql.Selector)
 

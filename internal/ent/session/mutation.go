@@ -23,6 +23,8 @@ type Mutation struct {
 	date_expires  *time.Time
 	date_idle     *time.Time
 	held          *[]byte
+	workspace     *uuid.UUID
+	parent        *uuid.UUID
 	date_updated  *time.Time
 	date_erased   *time.Time
 	date_created  *time.Time
@@ -246,6 +248,78 @@ func (m *Mutation) ResetHeld() {
 	delete(m.exprs, FieldHeld)
 }
 
+// SetWorkspace sets the "workspace" field.
+func (m *Mutation) SetWorkspace(u uuid.UUID) {
+	m.workspace = &u
+	delete(m.clearedFields, FieldWorkspace)
+	delete(m.exprs, FieldWorkspace)
+}
+
+// Workspace returns the value of the "workspace" field in the mutation.
+func (m *Mutation) Workspace() (r uuid.UUID, exists bool) {
+	v := m.workspace
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearWorkspace clears the value of the "workspace" field.
+func (m *Mutation) ClearWorkspace() {
+	m.workspace = nil
+	delete(m.exprs, FieldWorkspace)
+	m.clearedFields[FieldWorkspace] = struct{}{}
+}
+
+// WorkspaceCleared returns if the "workspace" field was cleared in this mutation.
+func (m *Mutation) WorkspaceCleared() bool {
+	_, ok := m.clearedFields[FieldWorkspace]
+	return ok
+}
+
+// ResetWorkspace resets all changes to the "workspace" field.
+func (m *Mutation) ResetWorkspace() {
+	m.workspace = nil
+	delete(m.clearedFields, FieldWorkspace)
+	delete(m.exprs, FieldWorkspace)
+}
+
+// SetParent sets the "parent" field.
+func (m *Mutation) SetParent(u uuid.UUID) {
+	m.parent = &u
+	delete(m.clearedFields, FieldParent)
+	delete(m.exprs, FieldParent)
+}
+
+// Parent returns the value of the "parent" field in the mutation.
+func (m *Mutation) Parent() (r uuid.UUID, exists bool) {
+	v := m.parent
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearParent clears the value of the "parent" field.
+func (m *Mutation) ClearParent() {
+	m.parent = nil
+	delete(m.exprs, FieldParent)
+	m.clearedFields[FieldParent] = struct{}{}
+}
+
+// ParentCleared returns if the "parent" field was cleared in this mutation.
+func (m *Mutation) ParentCleared() bool {
+	_, ok := m.clearedFields[FieldParent]
+	return ok
+}
+
+// ResetParent resets all changes to the "parent" field.
+func (m *Mutation) ResetParent() {
+	m.parent = nil
+	delete(m.clearedFields, FieldParent)
+	delete(m.exprs, FieldParent)
+}
+
 // SetDateUpdated sets the "date_updated" field.
 func (m *Mutation) SetDateUpdated(t time.Time) {
 	m.date_updated = &t
@@ -370,7 +444,7 @@ func (m *Mutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *Mutation) Fields() []string {
-	fields := make([]string, 0, 9)
+	fields := make([]string, 0, 11)
 	if m.account != nil || m.exprs[FieldAccount] != nil {
 		fields = append(fields, FieldAccount)
 	}
@@ -388,6 +462,12 @@ func (m *Mutation) Fields() []string {
 	}
 	if m.held != nil || m.exprs[FieldHeld] != nil {
 		fields = append(fields, FieldHeld)
+	}
+	if m.workspace != nil || m.exprs[FieldWorkspace] != nil {
+		fields = append(fields, FieldWorkspace)
+	}
+	if m.parent != nil || m.exprs[FieldParent] != nil {
+		fields = append(fields, FieldParent)
 	}
 	if m.date_updated != nil || m.exprs[FieldDateUpdated] != nil {
 		fields = append(fields, FieldDateUpdated)
@@ -424,6 +504,10 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.DateIdle()
 	case FieldHeld:
 		return m.Held()
+	case FieldWorkspace:
+		return m.Workspace()
+	case FieldParent:
+		return m.Parent()
 	case FieldDateUpdated:
 		return m.DateUpdated()
 	case FieldDateErased:
@@ -509,6 +593,26 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetHeld(v)
 		return nil
+	case FieldWorkspace:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetWorkspace(v)
+		return nil
+	case FieldParent:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetParent(v)
+		return nil
 	case FieldDateUpdated:
 		v, ok := value.(time.Time)
 		if !ok {
@@ -573,6 +677,10 @@ func (m *Mutation) SetFieldExpr(name string, expr sql.Querier) error {
 		m.ResetDateIdle()
 	case FieldHeld:
 		m.ResetHeld()
+	case FieldWorkspace:
+		m.ResetWorkspace()
+	case FieldParent:
+		m.ResetParent()
 	case FieldDateUpdated:
 		m.ResetDateUpdated()
 	case FieldDateErased:
@@ -617,6 +725,12 @@ func (m *Mutation) ExprFields() []string {
 	}
 	if _, ok := m.exprs[FieldHeld]; ok {
 		fields = append(fields, FieldHeld)
+	}
+	if _, ok := m.exprs[FieldWorkspace]; ok {
+		fields = append(fields, FieldWorkspace)
+	}
+	if _, ok := m.exprs[FieldParent]; ok {
+		fields = append(fields, FieldParent)
 	}
 	if _, ok := m.exprs[FieldDateUpdated]; ok {
 		fields = append(fields, FieldDateUpdated)
@@ -668,6 +782,12 @@ func (m *Mutation) ClearedFields() []string {
 	if m.FieldCleared(FieldHeld) {
 		fields = append(fields, FieldHeld)
 	}
+	if m.FieldCleared(FieldWorkspace) {
+		fields = append(fields, FieldWorkspace)
+	}
+	if m.FieldCleared(FieldParent) {
+		fields = append(fields, FieldParent)
+	}
 	if m.FieldCleared(FieldDateErased) {
 		fields = append(fields, FieldDateErased)
 	}
@@ -703,6 +823,12 @@ func (m *Mutation) ClearField(name string) error {
 	case FieldHeld:
 		m.ClearHeld()
 		return nil
+	case FieldWorkspace:
+		m.ClearWorkspace()
+		return nil
+	case FieldParent:
+		m.ClearParent()
+		return nil
 	case FieldDateErased:
 		m.ClearDateErased()
 		return nil
@@ -734,6 +860,12 @@ func (m *Mutation) ResetField(name string) error {
 		return nil
 	case FieldHeld:
 		m.ResetHeld()
+		return nil
+	case FieldWorkspace:
+		m.ResetWorkspace()
+		return nil
+	case FieldParent:
+		m.ResetParent()
 		return nil
 	case FieldDateUpdated:
 		m.ResetDateUpdated()

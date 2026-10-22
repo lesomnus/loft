@@ -801,6 +801,36 @@ var (
 			},
 		},
 	}
+	// HandoffColumns holds the columns for the "handoff" table.
+	HandoffColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUuid, Unique: true},
+		{Name: "secret", Type: field.TypeBytes, Nullable: true},
+		{Name: "account", Type: field.TypeUuid},
+		{Name: "workspace", Type: field.TypeUuid},
+		{Name: "host", Type: field.TypeString},
+		{Name: "state", Type: field.TypeBytes, Nullable: true},
+		{Name: "parent", Type: field.TypeUuid},
+		{Name: "date_expires", Type: field.TypeTime, Nullable: true},
+		{Name: "date_created", Type: field.TypeTime, Nullable: true},
+	}
+	// HandoffTable holds the schema information for the "handoff" table.
+	HandoffTable = &schema.Table{
+		Name:       "handoff",
+		Columns:    HandoffColumns,
+		PrimaryKey: []*schema.Column{HandoffColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "handoff_secret",
+				Unique:  true,
+				Columns: []*schema.Column{HandoffColumns[1]},
+			},
+			{
+				Name:    "handoff_date_expires",
+				Unique:  false,
+				Columns: []*schema.Column{HandoffColumns[7]},
+			},
+		},
+	}
 	// HolderColumns holds the columns for the "holder" table.
 	HolderColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUuid, Unique: true},
@@ -1596,6 +1626,8 @@ var (
 		{Name: "date_expires", Type: field.TypeTime, Nullable: true},
 		{Name: "date_idle", Type: field.TypeTime, Nullable: true},
 		{Name: "held", Type: field.TypeBytes, Nullable: true},
+		{Name: "workspace", Type: field.TypeUuid, Nullable: true},
+		{Name: "parent", Type: field.TypeUuid, Nullable: true},
 		{Name: "date_updated", Type: field.TypeTime},
 		{Name: "date_erased", Type: field.TypeTime, Nullable: true},
 		{Name: "date_created", Type: field.TypeTime, Nullable: true},
@@ -1615,6 +1647,11 @@ var (
 				Name:    "session_account",
 				Unique:  false,
 				Columns: []*schema.Column{SessionColumns[1]},
+			},
+			{
+				Name:    "session_parent",
+				Unique:  false,
+				Columns: []*schema.Column{SessionColumns[8]},
 			},
 		},
 	}
@@ -2018,6 +2055,7 @@ var (
 		CustodylineTable,
 		EventTable,
 		FactTable,
+		HandoffTable,
 		HolderTable,
 		InventorycountTable,
 		InvitationTable,
@@ -2124,6 +2162,9 @@ func init() {
 	FactTable.ForeignKeys[1].RefTable = AssetTable
 	FactTable.Annotation = &entsql.Annotation{
 		Table: "fact",
+	}
+	HandoffTable.Annotation = &entsql.Annotation{
+		Table: "handoff",
 	}
 	HolderTable.ForeignKeys[0].RefTable = TenantTable
 	HolderTable.Annotation = &entsql.Annotation{

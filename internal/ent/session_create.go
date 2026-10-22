@@ -75,6 +75,34 @@ func (_c *SessionCreate) SetHeld(v []byte) *SessionCreate {
 	return _c
 }
 
+// SetWorkspace sets the "workspace" field.
+func (_c *SessionCreate) SetWorkspace(v uuid.UUID) *SessionCreate {
+	_c.mutation.SetWorkspace(v)
+	return _c
+}
+
+// SetNillableWorkspace sets the "workspace" field if the given value is not nil.
+func (_c *SessionCreate) SetNillableWorkspace(v *uuid.UUID) *SessionCreate {
+	if v != nil {
+		_c.SetWorkspace(*v)
+	}
+	return _c
+}
+
+// SetParent sets the "parent" field.
+func (_c *SessionCreate) SetParent(v uuid.UUID) *SessionCreate {
+	_c.mutation.SetParent(v)
+	return _c
+}
+
+// SetNillableParent sets the "parent" field if the given value is not nil.
+func (_c *SessionCreate) SetNillableParent(v *uuid.UUID) *SessionCreate {
+	if v != nil {
+		_c.SetParent(*v)
+	}
+	return _c
+}
+
 // SetDateUpdated sets the "date_updated" field.
 func (_c *SessionCreate) SetDateUpdated(v time.Time) *SessionCreate {
 	_c.mutation.SetDateUpdated(v)
@@ -232,6 +260,14 @@ func (_c *SessionCreate) createSpec() (*Session, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Held(); ok {
 		_spec.SetField(session.FieldHeld, field.TypeBytes, value)
 		_node.Held = &value
+	}
+	if value, ok := _c.mutation.Workspace(); ok {
+		_spec.SetField(session.FieldWorkspace, field.TypeUuid, value)
+		_node.Workspace = &value
+	}
+	if value, ok := _c.mutation.Parent(); ok {
+		_spec.SetField(session.FieldParent, field.TypeUuid, value)
+		_node.Parent = &value
 	}
 	if value, ok := _c.mutation.DateUpdated(); ok {
 		_spec.SetField(session.FieldDateUpdated, field.TypeTime, value)

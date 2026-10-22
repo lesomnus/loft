@@ -52,12 +52,21 @@ import (
 // a [WorkspaceHeader] that names another is refused rather than re-pointed,
 // a credential of another workspace's holder is refused, and so is a call an
 // account makes as itself across its workspaces ([AccountMethods]).
+//
+// A session handed to a workspace's own domain (`server/session`'s handoff)
+// is bound to that workspace, and is nobody but on a host that pins it: at
+// the service's address, or on another workspace's domain, it is no
+// credential at all. Its tenant is that workspace's, which payday holds the
+// frame to besides ([auth.Identity.TenantId]).
 func Resolver(s app.Server, db *ent.Client, consents *consent.Consents) auth.Resolver {
 	return auth.ResolverFunc(func(ctx context.Context, id auth.Identity) (*frame.Frame, error) {
 		pin, pinned := apphost.From(ctx)
 		var ref *app.HolderRef
 		var err error
 		if id.Method == authsession.Method {
+			if id.TenantId != "" && (!pinned || id.TenantId != pin.Workspace.String()) {
+				return nil, fmt.Errorf("%w: this sign-in was handed to a workspace's own domain, and is good there alone", auth.ErrNoCredential)
+			}
 			if err := settled(ctx, consents, id.Id); err != nil {
 				return nil, err
 			}

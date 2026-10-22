@@ -46,6 +46,8 @@ type Tx struct {
 	Event *EventClient
 	// Fact is the client for interacting with the Fact builders.
 	Fact *FactClient
+	// Handoff is the client for interacting with the Handoff builders.
+	Handoff *HandoffClient
 	// Holder is the client for interacting with the Holder builders.
 	Holder *HolderClient
 	// InventoryCount is the client for interacting with the InventoryCount builders.
@@ -250,6 +252,7 @@ func (tx *Tx) init() {
 	tx.CustodyLine = NewCustodyLineClient(tx.config)
 	tx.Event = NewEventClient(tx.config)
 	tx.Fact = NewFactClient(tx.config)
+	tx.Handoff = NewHandoffClient(tx.config)
 	tx.Holder = NewHolderClient(tx.config)
 	tx.InventoryCount = NewInventoryCountClient(tx.config)
 	tx.Invitation = NewInvitationClient(tx.config)

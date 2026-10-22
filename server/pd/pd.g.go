@@ -54,6 +54,7 @@ import (
 	custodyline "github.com/lesomnus/rove/internal/ent/custodyline"
 	event "github.com/lesomnus/rove/internal/ent/event"
 	fact "github.com/lesomnus/rove/internal/ent/fact"
+	handoff "github.com/lesomnus/rove/internal/ent/handoff"
 	holder "github.com/lesomnus/rove/internal/ent/holder"
 	inventorycount "github.com/lesomnus/rove/internal/ent/inventorycount"
 	invitation "github.com/lesomnus/rove/internal/ent/invitation"
@@ -148,6 +149,7 @@ const (
 	CustodyLineDomain     pdid.Domain = 22  // "custody-line"
 	EventDomain           pdid.Domain = 17  // "event"
 	FactDomain            pdid.Domain = 16  // "fact"
+	HandoffDomain         pdid.Domain = 48  // "handoff"
 	HolderDomain          pdid.Domain = 2   // "holder"
 	InventoryCountDomain  pdid.Domain = 31  // "inventory-count"
 	InvitationDomain      pdid.Domain = 41  // "invitation"
@@ -196,6 +198,7 @@ func init() {
 	pdid.Register("rove.CustodyLine", CustodyLineDomain, "custody-line")
 	pdid.Register("rove.Event", EventDomain, "event")
 	pdid.Register("rove.Fact", FactDomain, "fact")
+	pdid.Register("rove.Handoff", HandoffDomain, "handoff")
 	pdid.Register("rove.Holder", HolderDomain, "holder")
 	pdid.Register("rove.InventoryCount", InventoryCountDomain, "inventory-count")
 	pdid.Register("rove.Invitation", InvitationDomain, "invitation")
@@ -248,6 +251,7 @@ var Domains = map[string]pdid.Domain{
 	"rove.CustodyLine":     CustodyLineDomain,
 	"rove.Event":           EventDomain,
 	"rove.Fact":            FactDomain,
+	"rove.Handoff":         HandoffDomain,
 	"rove.Holder":          HolderDomain,
 	"rove.InventoryCount":  InventoryCountDomain,
 	"rove.Invitation":      InvitationDomain,
@@ -553,6 +557,11 @@ func (wall) FactScope(ctx context.Context) (predicate.Fact, error) {
 	}
 
 	return fact.TenantIdIn(vs...), nil
+}
+
+// HandoffScope: declared `global`, so it is not behind the wall at all.
+func (wall) HandoffScope(ctx context.Context) (predicate.Handoff, error) {
+	return nil, nil
 }
 
 // HolderScope: a row belongs to the tenant its "tenant" reaches.
@@ -17034,6 +17043,8 @@ func described(key pdid.Id) (protoreflect.MessageDescriptor, []protoreflect.Fiel
 		return describedEvent.md, describedEvent.secret, describedEvent.personal
 	case FactDomain:
 		return describedFact.md, describedFact.secret, describedFact.personal
+	case HandoffDomain:
+		return describedHandoff.md, describedHandoff.secret, describedHandoff.personal
 	case HolderDomain:
 		return describedHolder.md, describedHolder.secret, describedHolder.personal
 	case InventoryCountDomain:
@@ -17165,6 +17176,9 @@ var (
 		[]protoreflect.FieldNumber{})
 	describedFact = describe((*rove.Fact)(nil),
 		[]protoreflect.FieldNumber{},
+		[]protoreflect.FieldNumber{})
+	describedHandoff = describe((*rove.Handoff)(nil),
+		[]protoreflect.FieldNumber{8, 12},
 		[]protoreflect.FieldNumber{})
 	describedHolder = describe((*rove.Holder)(nil),
 		[]protoreflect.FieldNumber{},
@@ -18299,6 +18313,8 @@ func left(ctx context.Context, s bare.Server, key pdid.Id, image proto.Message) 
 		vs, err = rowsEvent(ctx, s.Db, event.IdEQ(uuid.UUID(key)))
 	case FactDomain:
 		vs, err = rowsFact(ctx, s.Db, fact.IdEQ(uuid.UUID(key)))
+	case HandoffDomain:
+		vs, err = rowsHandoff(ctx, s.Db, handoff.IdEQ(uuid.UUID(key)))
 	case HolderDomain:
 		vs, err = rowsHolder(ctx, s.Db, holder.IdEQ(uuid.UUID(key)))
 	case InventoryCountDomain:
@@ -18711,6 +18727,7 @@ func Digests(ctx context.Context, db *ent.Client, d *audit1.Digest, p trail.Poli
 	}
 
 	out := audit1.Rows{Skipped: []audit1.Skipped{
+		{Kind: "handoff", Why: "a code a browser carries from the service's address to a workspace's domain, good once for a minute; the session it becomes is no act either, and who signed in where is the access record's"},
 		{Kind: "search-stale", Why: "the search index's queue: that a document is to be made again, which the indexer takes within seconds"},
 		{Kind: "session", Why: "a sign-in, whose idle clock moves on every request; who signed in, and from where, is the access record's (rove#136)"},
 		{Kind: "sign-in-failure", Why: "a count of the sign-ins an address got wrong, kept for hours to slow the next; nobody's act"},
@@ -20724,6 +20741,25 @@ func rowsFact(ctx context.Context, db *ent.Client, ps ...predicate.Fact) ([]audi
 	bare.FactSelectInit(q, nil)
 
 	vs, err := q.Order(fact.ById()).Limit(audit1.RowsPage).All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	out := make([]audit1.Live, len(vs))
+	for i, v := range vs {
+		out[i] = audit1.Live{Object: pdid.Id(v.Id), Row: v.Proto()}
+	}
+
+	return out, nil
+}
+
+// rowsHandoff is the rows `ps` says of the handoff kind -- every row there is,
+// live or erased softly -- at most a page of them in identifier order, each as
+// a Get reads it.
+func rowsHandoff(ctx context.Context, db *ent.Client, ps ...predicate.Handoff) ([]audit1.Live, error) {
+	q := db.Handoff.Query().Where(ps...)
+
+	vs, err := q.Order(handoff.ById()).Limit(audit1.RowsPage).All(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -26634,6 +26670,7 @@ func Resources(s rove.Server, drv dialect.Driver, guard batch.Guard, w *watch.Wa
 		&rove.CustodyLine{},
 		&rove.Event{},
 		&rove.Fact{},
+		&rove.Handoff{},
 		&rove.Holder{},
 		&rove.InventoryCount{},
 		&rove.Invitation{},
@@ -26668,6 +26705,10 @@ func Resources(s rove.Server, drv dialect.Driver, guard batch.Guard, w *watch.Wa
 var resourceSecrets = map[protoreflect.FullName][]protoreflect.FieldNumber{
 	"rove.CliLogin": {
 		8,
+	},
+	"rove.Handoff": {
+		8,
+		12,
 	},
 	"rove.Invitation": {
 		20,

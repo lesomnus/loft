@@ -120,6 +120,46 @@ func (_u *SessionUpdate) ClearHeld() *SessionUpdate {
 	return _u
 }
 
+// SetWorkspace sets the "workspace" field.
+func (_u *SessionUpdate) SetWorkspace(v uuid.UUID) *SessionUpdate {
+	_u.mutation.SetWorkspace(v)
+	return _u
+}
+
+// SetNillableWorkspace sets the "workspace" field if the given value is not nil.
+func (_u *SessionUpdate) SetNillableWorkspace(v *uuid.UUID) *SessionUpdate {
+	if v != nil {
+		_u.SetWorkspace(*v)
+	}
+	return _u
+}
+
+// ClearWorkspace clears the value of the "workspace" field.
+func (_u *SessionUpdate) ClearWorkspace() *SessionUpdate {
+	_u.mutation.ClearWorkspace()
+	return _u
+}
+
+// SetParent sets the "parent" field.
+func (_u *SessionUpdate) SetParent(v uuid.UUID) *SessionUpdate {
+	_u.mutation.SetParent(v)
+	return _u
+}
+
+// SetNillableParent sets the "parent" field if the given value is not nil.
+func (_u *SessionUpdate) SetNillableParent(v *uuid.UUID) *SessionUpdate {
+	if v != nil {
+		_u.SetParent(*v)
+	}
+	return _u
+}
+
+// ClearParent clears the value of the "parent" field.
+func (_u *SessionUpdate) ClearParent() *SessionUpdate {
+	_u.mutation.ClearParent()
+	return _u
+}
+
 // SetDateUpdated sets the "date_updated" field.
 func (_u *SessionUpdate) SetDateUpdated(v time.Time) *SessionUpdate {
 	_u.mutation.SetDateUpdated(v)
@@ -252,6 +292,24 @@ func (_u *SessionUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.HeldCleared() {
 		_spec.ClearField(session.FieldHeld, field.TypeBytes)
 	}
+	if value, ok := _u.mutation.Workspace(); ok {
+		_spec.SetField(session.FieldWorkspace, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(session.FieldWorkspace); ok {
+		_spec.SetField(session.FieldWorkspace, field.TypeUuid, e)
+	}
+	if _u.mutation.WorkspaceCleared() {
+		_spec.ClearField(session.FieldWorkspace, field.TypeUuid)
+	}
+	if value, ok := _u.mutation.Parent(); ok {
+		_spec.SetField(session.FieldParent, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(session.FieldParent); ok {
+		_spec.SetField(session.FieldParent, field.TypeUuid, e)
+	}
+	if _u.mutation.ParentCleared() {
+		_spec.ClearField(session.FieldParent, field.TypeUuid)
+	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(session.FieldDateUpdated, field.TypeTime, value)
 	}
@@ -379,6 +437,46 @@ func (_u *SessionUpdateOne) SetHeld(v []byte) *SessionUpdateOne {
 // ClearHeld clears the value of the "held" field.
 func (_u *SessionUpdateOne) ClearHeld() *SessionUpdateOne {
 	_u.mutation.ClearHeld()
+	return _u
+}
+
+// SetWorkspace sets the "workspace" field.
+func (_u *SessionUpdateOne) SetWorkspace(v uuid.UUID) *SessionUpdateOne {
+	_u.mutation.SetWorkspace(v)
+	return _u
+}
+
+// SetNillableWorkspace sets the "workspace" field if the given value is not nil.
+func (_u *SessionUpdateOne) SetNillableWorkspace(v *uuid.UUID) *SessionUpdateOne {
+	if v != nil {
+		_u.SetWorkspace(*v)
+	}
+	return _u
+}
+
+// ClearWorkspace clears the value of the "workspace" field.
+func (_u *SessionUpdateOne) ClearWorkspace() *SessionUpdateOne {
+	_u.mutation.ClearWorkspace()
+	return _u
+}
+
+// SetParent sets the "parent" field.
+func (_u *SessionUpdateOne) SetParent(v uuid.UUID) *SessionUpdateOne {
+	_u.mutation.SetParent(v)
+	return _u
+}
+
+// SetNillableParent sets the "parent" field if the given value is not nil.
+func (_u *SessionUpdateOne) SetNillableParent(v *uuid.UUID) *SessionUpdateOne {
+	if v != nil {
+		_u.SetParent(*v)
+	}
+	return _u
+}
+
+// ClearParent clears the value of the "parent" field.
+func (_u *SessionUpdateOne) ClearParent() *SessionUpdateOne {
+	_u.mutation.ClearParent()
 	return _u
 }
 
@@ -543,6 +641,24 @@ func (_u *SessionUpdateOne) sqlSave(ctx context.Context) (_node *Session, err er
 	}
 	if _u.mutation.HeldCleared() {
 		_spec.ClearField(session.FieldHeld, field.TypeBytes)
+	}
+	if value, ok := _u.mutation.Workspace(); ok {
+		_spec.SetField(session.FieldWorkspace, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(session.FieldWorkspace); ok {
+		_spec.SetField(session.FieldWorkspace, field.TypeUuid, e)
+	}
+	if _u.mutation.WorkspaceCleared() {
+		_spec.ClearField(session.FieldWorkspace, field.TypeUuid)
+	}
+	if value, ok := _u.mutation.Parent(); ok {
+		_spec.SetField(session.FieldParent, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(session.FieldParent); ok {
+		_spec.SetField(session.FieldParent, field.TypeUuid, e)
+	}
+	if _u.mutation.ParentCleared() {
+		_spec.ClearField(session.FieldParent, field.TypeUuid)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(session.FieldDateUpdated, field.TypeTime, value)

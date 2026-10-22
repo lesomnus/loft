@@ -28,6 +28,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/custodyline"
 	"github.com/lesomnus/rove/internal/ent/event"
 	"github.com/lesomnus/rove/internal/ent/fact"
+	"github.com/lesomnus/rove/internal/ent/handoff"
 	"github.com/lesomnus/rove/internal/ent/holder"
 	"github.com/lesomnus/rove/internal/ent/inventorycount"
 	"github.com/lesomnus/rove/internal/ent/invitation"
@@ -85,6 +86,7 @@ const (
 	TypeCustodyLine     = "CustodyLine"
 	TypeEvent           = "Event"
 	TypeFact            = "Fact"
+	TypeHandoff         = "Handoff"
 	TypeHolder          = "Holder"
 	TypeInventoryCount  = "InventoryCount"
 	TypeInvitation      = "Invitation"
@@ -6107,6 +6109,278 @@ func (m *FactMutation) OldField(ctx context.Context, name string) (ent.Value, er
 	return nil, fmt.Errorf("unknown Fact field %s", name)
 }
 
+// HandoffMutation represents an operation that mutates the Handoff nodes in the graph.
+type HandoffMutation struct {
+	handoff.Mutation
+	config
+	id       *uuid.UUID
+	done     bool
+	oldValue func(context.Context) (*Handoff, error)
+}
+
+var _ ent.Mutation = (*HandoffMutation)(nil)
+
+// handoffOption allows management of the mutation configuration using functional options.
+type handoffOption func(*HandoffMutation)
+
+// newHandoffMutation creates new mutation for the Handoff entity.
+func newHandoffMutation(c config, op Op, opts ...handoffOption) *HandoffMutation {
+	m := &HandoffMutation{
+		Mutation: *handoff.NewMutation(op),
+		config:   c,
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// SetId sets the value of the id field. Note that this
+// operation is only accepted on creation of Handoff entities.
+func (m *HandoffMutation) SetId(id uuid.UUID) {
+	m.id = &id
+}
+
+// Id returns the Id value in the mutation. Note that the Id is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *HandoffMutation) Id() (id uuid.UUID, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// withHandoffId sets the Id field of the mutation.
+func withHandoffId(id uuid.UUID) handoffOption {
+	return func(m *HandoffMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Handoff
+		)
+		m.oldValue = func(ctx context.Context) (*Handoff, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Handoff.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withHandoff sets the old Handoff of the mutation.
+func withHandoff(node *Handoff) handoffOption {
+	return func(m *HandoffMutation) {
+		m.oldValue = func(context.Context) (*Handoff, error) {
+			return node, nil
+		}
+		m.id = &node.Id
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m HandoffMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m HandoffMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// Ids queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *HandoffMutation) Ids(ctx context.Context) ([]uuid.UUID, error) {
+	switch {
+	case m.Op().Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.Id()
+		if exists {
+			return []uuid.UUID{id}, nil
+		}
+		fallthrough
+	case m.Op().Is(OpUpdate | OpDelete):
+		return m.Client().Handoff.Query().Where(m.Predicates()...).Ids(ctx)
+	default:
+		return nil, fmt.Errorf("Ids is not allowed on %s operations", m.Op())
+	}
+}
+
+// OldSecret returns the old "secret" field's value of the Handoff entity.
+// If the Handoff object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *HandoffMutation) OldSecret(ctx context.Context) (v []byte, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldSecret is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldSecret requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSecret: %w", err)
+	}
+	return oldValue.Secret, nil
+}
+
+// OldAccount returns the old "account" field's value of the Handoff entity.
+// If the Handoff object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *HandoffMutation) OldAccount(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldAccount is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldAccount requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAccount: %w", err)
+	}
+	return oldValue.Account, nil
+}
+
+// OldWorkspace returns the old "workspace" field's value of the Handoff entity.
+// If the Handoff object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *HandoffMutation) OldWorkspace(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldWorkspace is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldWorkspace requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldWorkspace: %w", err)
+	}
+	return oldValue.Workspace, nil
+}
+
+// OldHost returns the old "host" field's value of the Handoff entity.
+// If the Handoff object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *HandoffMutation) OldHost(ctx context.Context) (v string, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldHost is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldHost requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldHost: %w", err)
+	}
+	return oldValue.Host, nil
+}
+
+// OldState returns the old "state" field's value of the Handoff entity.
+// If the Handoff object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *HandoffMutation) OldState(ctx context.Context) (v []byte, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldState is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldState requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldState: %w", err)
+	}
+	return oldValue.State, nil
+}
+
+// OldParent returns the old "parent" field's value of the Handoff entity.
+// If the Handoff object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *HandoffMutation) OldParent(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldParent is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldParent requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldParent: %w", err)
+	}
+	return oldValue.Parent, nil
+}
+
+// OldDateExpires returns the old "date_expires" field's value of the Handoff entity.
+// If the Handoff object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *HandoffMutation) OldDateExpires(ctx context.Context) (v time.Time, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldDateExpires is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldDateExpires requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDateExpires: %w", err)
+	}
+	return oldValue.DateExpires, nil
+}
+
+// OldDateCreated returns the old "date_created" field's value of the Handoff entity.
+// If the Handoff object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *HandoffMutation) OldDateCreated(ctx context.Context) (v time.Time, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldDateCreated is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldDateCreated requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDateCreated: %w", err)
+	}
+	return oldValue.DateCreated, nil
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *HandoffMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case handoff.FieldSecret:
+		return m.OldSecret(ctx)
+	case handoff.FieldAccount:
+		return m.OldAccount(ctx)
+	case handoff.FieldWorkspace:
+		return m.OldWorkspace(ctx)
+	case handoff.FieldHost:
+		return m.OldHost(ctx)
+	case handoff.FieldState:
+		return m.OldState(ctx)
+	case handoff.FieldParent:
+		return m.OldParent(ctx)
+	case handoff.FieldDateExpires:
+		return m.OldDateExpires(ctx)
+	case handoff.FieldDateCreated:
+		return m.OldDateCreated(ctx)
+	}
+	return nil, fmt.Errorf("unknown Handoff field %s", name)
+}
+
 // HolderMutation represents an operation that mutates the Holder nodes in the graph.
 type HolderMutation struct {
 	holder.Mutation
@@ -11957,6 +12231,40 @@ func (m *SessionMutation) OldHeld(ctx context.Context) (v *[]byte, err error) {
 	return oldValue.Held, nil
 }
 
+// OldWorkspace returns the old "workspace" field's value of the Session entity.
+// If the Session object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SessionMutation) OldWorkspace(ctx context.Context) (v *uuid.UUID, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldWorkspace is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldWorkspace requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldWorkspace: %w", err)
+	}
+	return oldValue.Workspace, nil
+}
+
+// OldParent returns the old "parent" field's value of the Session entity.
+// If the Session object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SessionMutation) OldParent(ctx context.Context) (v *uuid.UUID, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldParent is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldParent requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldParent: %w", err)
+	}
+	return oldValue.Parent, nil
+}
+
 // OldDateUpdated returns the old "date_updated" field's value of the Session entity.
 // If the Session object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
@@ -12025,6 +12333,10 @@ func (m *SessionMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldDateIdle(ctx)
 	case session.FieldHeld:
 		return m.OldHeld(ctx)
+	case session.FieldWorkspace:
+		return m.OldWorkspace(ctx)
+	case session.FieldParent:
+		return m.OldParent(ctx)
 	case session.FieldDateUpdated:
 		return m.OldDateUpdated(ctx)
 	case session.FieldDateErased:

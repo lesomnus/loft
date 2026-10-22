@@ -282,6 +282,7 @@ var Withheld = map[string]string{
 	"aliashold":     "the deployment's: addresses nobody may take for a while",
 	"consent":       "an account's, which agreed once for every workspace it is in",
 	"signinfailure": "the deployment's: how often an address got a sign-in wrong lately",
+	"handoff":       "a sign-in on its way to a workspace's own domain, good for a minute",
 	"searchstale":   "the deployment's queue of what the search index has yet to hear of",
 	"outbox":        "the deployment's queue of what changed",
 	"treelock":      "the deployment's bookkeeping",

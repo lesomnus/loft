@@ -26,6 +26,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/custodyline"
 	"github.com/lesomnus/rove/internal/ent/event"
 	"github.com/lesomnus/rove/internal/ent/fact"
+	"github.com/lesomnus/rove/internal/ent/handoff"
 	"github.com/lesomnus/rove/internal/ent/holder"
 	"github.com/lesomnus/rove/internal/ent/inventorycount"
 	"github.com/lesomnus/rove/internal/ent/invitation"
@@ -134,6 +135,7 @@ func checkColumn(t, c string) error {
 			custodyline.Table:     custodyline.ValidColumn,
 			event.Table:           event.ValidColumn,
 			fact.Table:            fact.ValidColumn,
+			handoff.Table:         handoff.ValidColumn,
 			holder.Table:          holder.ValidColumn,
 			inventorycount.Table:  inventorycount.ValidColumn,
 			invitation.Table:      invitation.ValidColumn,

@@ -92,6 +92,8 @@ service ConsentService {}
 
 service SignInFailureService {}
 
+service HandoffService {}
+
 message PartyAddRequest {
   bytes id = 1;
   TenantRef tenant = 2;
