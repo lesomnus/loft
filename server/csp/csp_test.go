@@ -44,6 +44,9 @@ func TestThePolicyIsWhatThePageLoads(t *testing.T) {
 	x.Equal("csp", d["report-to"])
 
 	x.Equal("'self'", directives(csp.Policy(""))["form-action"], "no issuer, no form goes anywhere else")
+	x.Equal("'self' https://rove.example https://app.rove.example https://id.example.com",
+		directives(csp.Policy("https://id.example.com/oauth2/", "https://rove.example", "https://app.rove.example/", "https://rove.example/"))["form-action"],
+		"a sign-out on a workspace's own domain is a form that lands at the service's address, once each")
 
 	for v, want := range map[string]csp.Mode{"": csp.ReportOnly, "report-only": csp.ReportOnly, "enforce": csp.Enforce, "off": csp.Off} {
 		got, err := csp.Parse(v)
