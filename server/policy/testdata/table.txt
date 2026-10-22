@@ -154,6 +154,7 @@
 /rove.TenantService/Get	read
 /rove.TenantService/List	read
 /rove.TenantService/Patch	owner
+/rove.TenantService/Preview	owner
 /rove.TenantService/Restore	owner
 /rove.WorkOrderService/Add	member
 /rove.WorkOrderService/Cancel	manager

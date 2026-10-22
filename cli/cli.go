@@ -23,10 +23,13 @@ package cli
 
 import (
 	"context"
+	"database/sql"
 	_ "embed"
 	"fmt"
 	"maps"
 	"slices"
+	"strings"
+	"time"
 
 	"github.com/lesomnus/xli"
 	"github.com/lesomnus/xli/cfg"
@@ -191,6 +194,9 @@ func Migrate(ctx context.Context, s *cmd.Server) error {
 	if err := entmigrate.NewSchema(s.Drv).Create(ctx); err != nil {
 		return err
 	}
+	if err := moveTerms(ctx, s); err != nil {
+		return err
+	}
 	if s.Dialect != "postgres" {
 		return nil
 	}
@@ -233,6 +239,134 @@ func dropGone(ctx context.Context, s *cmd.Server) error {
 		}
 	}
 	return nil
+}
+
+// moveTerms moves what the workspaces' contracts said of how long each keeps
+// its history and its access record and may be restored once closed onto the
+// workspaces, once: they are each workspace's own settings now (D36). Then the
+// contracts' columns for them go, and the view window's and the grace's with
+// them -- a migration only adds, and these say no default, so every contract
+// written without them would be refused.
+//
+// The contract in force says what a workspace keeps. The one before it says
+// what it kept before, from when the one in force took effect: a shorter window
+// waits out the deployment's grace (`app.retention.grace`) from then, as it
+// waited out the contract's own. What a contract dated ahead of the migration
+// said of these is not carried; the rest of it is, and it still takes effect.
+//
+// A contract that said any of them is a row a migration rewrote, and the trail
+// finds it so (`rove trail rows`) until an operator accepts it once.
+func moveTerms(ctx context.Context, s *cmd.Server) error {
+	q := "SELECT count(*) FROM pragma_table_info('tenantcontract') WHERE name = 'keep_days'"
+	if s.Dialect == "postgres" {
+		q = "SELECT count(*) FROM information_schema.columns WHERE table_schema = current_schema() AND table_name = 'tenantcontract' AND column_name = 'keep_days'"
+	}
+	n := 0
+	if err := s.Db.QueryRowContext(ctx, q).Scan(&n); err != nil {
+		return fmt.Errorf("the contracts' terms: %w", err)
+	}
+	if n == 0 {
+		return nil
+	}
+
+	tx, err := s.Db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	type terms struct {
+		tenant                any
+		effective             sql.NullTime
+		keep, access, restore sql.NullInt64
+	}
+	rows, err := tx.QueryContext(ctx, "SELECT tenant_id, date_effective, keep_days, access_keep_days, restore_days FROM tenantcontract "+
+		"WHERE date_erased IS NULL ORDER BY tenant_id, date_effective DESC, id DESC")
+	if err != nil {
+		return fmt.Errorf("the contracts' terms: %w", err)
+	}
+	byTenant := [][]terms{}
+	var last any
+	for rows.Next() {
+		var v terms
+		if err := rows.Scan(&v.tenant, &v.effective, &v.keep, &v.access, &v.restore); err != nil {
+			rows.Close()
+			return fmt.Errorf("the contracts' terms: %w", err)
+		}
+		if len(byTenant) == 0 || fmt.Sprint(v.tenant) != fmt.Sprint(last) {
+			byTenant = append(byTenant, nil)
+			last = v.tenant
+		}
+		byTenant[len(byTenant)-1] = append(byTenant[len(byTenant)-1], v)
+	}
+	rows.Close()
+	if err := rows.Err(); err != nil {
+		return fmt.Errorf("the contracts' terms: %w", err)
+	}
+
+	now := time.Now()
+	update := placeheld(s.Dialect, "UPDATE tenant SET keep_days = ?, access_keep_days = ?, restore_days = ?, "+
+		"keep_days_before = ?, date_keep_shortened = ?, access_keep_days_before = ?, date_access_keep_shortened = ? WHERE id = ?")
+	for _, vs := range byTenant {
+		i := slices.IndexFunc(vs, func(v terms) bool { return !v.effective.Valid || !v.effective.Time.After(now) })
+		if i < 0 {
+			continue
+		}
+		in := vs[i]
+		var keepBefore, accessBefore int64
+		var keepSince, accessSince any
+		if i+1 < len(vs) {
+			was := vs[i+1]
+			if outlasts(was.keep.Int64, in.keep.Int64) {
+				keepBefore, keepSince = was.keep.Int64, in.effective.Time
+			}
+			// Whether the deployment's access record outlasts a count of days is
+			// the deployment's to say when it is read: which keeps longer is
+			// read then.
+			if was.access.Int64 != in.access.Int64 {
+				accessBefore, accessSince = was.access.Int64, in.effective.Time
+			}
+		}
+		if _, err := tx.ExecContext(ctx, update, in.keep.Int64, in.access.Int64, in.restore.Int64,
+			keepBefore, keepSince, accessBefore, accessSince, in.tenant); err != nil {
+			return fmt.Errorf("the contracts' terms, onto %v: %w", in.tenant, err)
+		}
+	}
+
+	for _, c := range []string{"view_days", "keep_days", "grace_days", "access_keep_days", "restore_days"} {
+		if _, err := tx.ExecContext(ctx, "ALTER TABLE tenantcontract DROP COLUMN "+c); err != nil {
+			return fmt.Errorf("the contracts' %s: %w", c, err)
+		}
+	}
+
+	return tx.Commit()
+}
+
+// outlasts answers whether a count of days keeps longer than another, where 0
+// is forever.
+func outlasts(a, b int64) bool {
+	return b > 0 && (a == 0 || a > b)
+}
+
+// placeheld is a statement with each `?` as the dialect binds it: `$1`, `$2`
+// for PostgreSQL.
+func placeheld(dialect, q string) string {
+	if dialect != "postgres" {
+		return q
+	}
+
+	b := strings.Builder{}
+	n := 0
+	for _, r := range q {
+		if r == '?' {
+			n++
+			fmt.Fprintf(&b, "$%d", n)
+			continue
+		}
+		b.WriteRune(r)
+	}
+
+	return b.String()
 }
 
 // pgExtras is what PostgreSQL promises beyond the schema; see the file.

@@ -150,6 +150,37 @@ func (st TenantServiceServer) create(ctx context.Context, req *rove.TenantAddReq
 	} else {
 		q.SetNoShowMinutes(0)
 	}
+	if req.HasKeepDays() {
+		q.SetKeepDays(req.GetKeepDays())
+	} else {
+		q.SetKeepDays(0)
+	}
+	if req.HasAccessKeepDays() {
+		q.SetAccessKeepDays(req.GetAccessKeepDays())
+	} else {
+		q.SetAccessKeepDays(0)
+	}
+	if req.HasRestoreDays() {
+		q.SetRestoreDays(req.GetRestoreDays())
+	} else {
+		q.SetRestoreDays(0)
+	}
+	if req.HasKeepDaysBefore() {
+		q.SetKeepDaysBefore(req.GetKeepDaysBefore())
+	} else {
+		q.SetKeepDaysBefore(0)
+	}
+	if req.HasDateKeepShortened() {
+		q.SetDateKeepShortened(req.GetDateKeepShortened().AsTime())
+	}
+	if req.HasAccessKeepDaysBefore() {
+		q.SetAccessKeepDaysBefore(req.GetAccessKeepDaysBefore())
+	} else {
+		q.SetAccessKeepDaysBefore(0)
+	}
+	if req.HasDateAccessKeepShortened() {
+		q.SetDateAccessKeepShortened(req.GetDateAccessKeepShortened().AsTime())
+	}
 	return q, ds, nil
 }
 
@@ -316,6 +347,27 @@ func TenantSelectedFields(m *rove.TenantSelect) []string {
 	if m.GetNoShowMinutes() {
 		vs = append(vs, tenant.FieldNoShowMinutes)
 	}
+	if m.GetKeepDays() {
+		vs = append(vs, tenant.FieldKeepDays)
+	}
+	if m.GetAccessKeepDays() {
+		vs = append(vs, tenant.FieldAccessKeepDays)
+	}
+	if m.GetRestoreDays() {
+		vs = append(vs, tenant.FieldRestoreDays)
+	}
+	if m.GetKeepDaysBefore() {
+		vs = append(vs, tenant.FieldKeepDaysBefore)
+	}
+	if m.GetDateKeepShortened() {
+		vs = append(vs, tenant.FieldDateKeepShortened)
+	}
+	if m.GetAccessKeepDaysBefore() {
+		vs = append(vs, tenant.FieldAccessKeepDaysBefore)
+	}
+	if m.GetDateAccessKeepShortened() {
+		vs = append(vs, tenant.FieldDateAccessKeepShortened)
+	}
 
 	return vs
 }
@@ -380,7 +432,7 @@ func TenantGetKey(ctx context.Context, db *ent.Client, ref *rove.TenantRef) (uui
 var tenantOrmEntity = ormpatch.MustEntityOf(rove.File_rove_payday_tenant_proto, "Tenant")
 
 var tenantPatchColumns = entpatch.Columns{
-	1: tenant.FieldId, 4: tenant.FieldAlias, 5: tenant.FieldName, 6: tenant.FieldDesc, 7: tenant.FieldLabels, 13: tenant.FieldDateUpdated, 15: tenant.FieldDateCreated, 8: tenant.FieldDateClosed, 9: tenant.FieldClosedBy, 10: tenant.FieldCloseReason, 11: tenant.FieldDateDestroy, 12: tenant.FieldTimezone, 16: tenant.FieldCurrency, 17: tenant.FieldNoShowMinutes}
+	1: tenant.FieldId, 4: tenant.FieldAlias, 5: tenant.FieldName, 6: tenant.FieldDesc, 7: tenant.FieldLabels, 13: tenant.FieldDateUpdated, 15: tenant.FieldDateCreated, 8: tenant.FieldDateClosed, 9: tenant.FieldClosedBy, 10: tenant.FieldCloseReason, 11: tenant.FieldDateDestroy, 12: tenant.FieldTimezone, 16: tenant.FieldCurrency, 17: tenant.FieldNoShowMinutes, 18: tenant.FieldKeepDays, 19: tenant.FieldAccessKeepDays, 20: tenant.FieldRestoreDays, 21: tenant.FieldKeepDaysBefore, 22: tenant.FieldDateKeepShortened, 23: tenant.FieldAccessKeepDaysBefore, 24: tenant.FieldDateAccessKeepShortened}
 
 func (s TenantServiceServer) Apply(ctx context.Context, req *rove.TenantApplyRequest) (*rove.Tenant, error) {
 	if !req.HasPatch() {

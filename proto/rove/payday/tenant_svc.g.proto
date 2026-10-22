@@ -28,9 +28,16 @@ service TenantService {
   rpc Restore(TenantRestoreRequest) returns (Tenant);
   // Configure is the workspace's own settings, its owner's to say (#144):
   // where it is -- the zone its dates are told in, the currency a new amount
-  // is priced in -- and how long a room waits for whoever booked it. A field
-  // left out stays as it is; an empty one is the deployment's again.
+  // is priced in -- how long a room waits for whoever booked it, and how long
+  // it keeps its history and its access record and may be restored once
+  // closed (D36). A field left out stays as it is; an empty one is the
+  // deployment's again, or for its history forever. A window made shorter
+  // waits out the deployment's grace before it is the shorter one.
   rpc Configure(TenantConfigureRequest) returns (Tenant);
+  // Preview is what a change of how long the workspace keeps its history and
+  // its access record would come to, and when, changing nothing: what its
+  // owner is shown before Configure saves it. A field left out is as it is.
+  rpc Preview(TenantPreviewRequest) returns (TenantPreviewResponse);
 }
 
 message TenantAddRequest {
@@ -47,6 +54,13 @@ message TenantAddRequest {
   string timezone = 12;
   string currency = 16;
   int32 no_show_minutes = 17;
+  uint32 keep_days = 18;
+  uint32 access_keep_days = 19;
+  uint32 restore_days = 20;
+  uint32 keep_days_before = 21;
+  google.protobuf.Timestamp date_keep_shortened = 22;
+  uint32 access_keep_days_before = 23;
+  google.protobuf.Timestamp date_access_keep_shortened = 24;
 }
 
 message TenantGetRequest {
@@ -76,6 +90,13 @@ message TenantSelect {
   bool timezone = 12;
   bool currency = 16;
   bool no_show_minutes = 17;
+  bool keep_days = 18;
+  bool access_keep_days = 19;
+  bool restore_days = 20;
+  bool keep_days_before = 21;
+  bool date_keep_shortened = 22;
+  bool access_keep_days_before = 23;
+  bool date_access_keep_shortened = 24;
 }
 
 message TenantPatchRequest {
@@ -115,6 +136,23 @@ message TenantPatchRequest {
   string timezone = 24;
   string currency = 32;
   int32 no_show_minutes = 34;
+  uint32 keep_days = 36;
+  uint32 access_keep_days = 38;
+  uint32 restore_days = 40;
+  uint32 keep_days_before = 42;
+  google.protobuf.Timestamp date_keep_shortened = 44;
+  // Clear date_keep_shortened instead of writing it.
+  // It takes a field of its own because an unset value already means
+  // "leave it alone", so no value could have meant NULL. It wins
+  // outright: setting both this and date_keep_shortened clears.
+  bool date_keep_shortened_null = 45;
+  uint32 access_keep_days_before = 46;
+  google.protobuf.Timestamp date_access_keep_shortened = 48;
+  // Clear date_access_keep_shortened instead of writing it.
+  // It takes a field of its own because an unset value already means
+  // "leave it alone", so no value could have meant NULL. It wins
+  // outright: setting both this and date_access_keep_shortened clears.
+  bool date_access_keep_shortened_null = 49;
 }
 
 message TenantApplyRequest {
@@ -189,4 +227,52 @@ message TenantConfigureRequest {
   string currency = 3;
   // Minutes; 0 is the deployment's, negative holds nobody to checking in.
   int32 no_show_minutes = 4;
+  // Days its history is kept; 0 is forever.
+  uint32 keep_days = 5;
+  // Days its access record is kept; 0 is the deployment's, and none is below
+  // the deployment's floor.
+  uint32 access_keep_days = 6;
+  // Days it may be restored once closed; 0 is the deployment's.
+  uint32 restore_days = 7;
+}
+
+message TenantPreviewRequest {
+  TenantRef ref = 1;
+  uint32 keep_days = 2;
+  uint32 access_keep_days = 3;
+}
+
+// TenantPreviewResponse is how long the workspace would keep its history and
+// its access record, from when, and what that takes.
+message TenantPreviewResponse {
+  // Whether the deployment destroys anything by these windows at all
+  // (`app.retention.apply`). Off, what is below is what it would destroy
+  // once it does.
+  bool apply = 1 [features.field_presence = IMPLICIT];
+  // The grace a window made shorter waits out, in days
+  // (`app.retention.grace`).
+  uint32 grace_days = 2 [features.field_presence = IMPLICIT];
+
+  // How long the history is kept, in days -- 0 is forever -- and from when:
+  // now, or once the grace of a shorter one is over. Until then the longer one
+  // it had holds.
+  uint32 keep_days = 3 [features.field_presence = IMPLICIT];
+  google.protobuf.Timestamp keep_from = 4;
+  // What that takes of the history as it is now, by kind -- placements,
+  // facts, events, reservations, ... -- as a retention pass would: what was
+  // over before the window, `keep_days` before `keep_from`.
+  map<string, uint32> keep_takes = 5;
+
+  // How long the access record is kept, in days -- the deployment's where the
+  // workspace says none, and never below the floor -- and from when. 0 is
+  // forever.
+  uint32 access_keep_days = 6 [features.field_presence = IMPLICIT];
+  google.protobuf.Timestamp access_keep_from = 7;
+  // The deployment's floor, in days: the least the access record is kept,
+  // whatever the workspace says (`audit.by.access.min`).
+  uint32 access_floor_days = 8 [features.field_presence = IMPLICIT];
+
+  // Whether a legal hold is on: while one is, nothing is destroyed, whatever
+  // the windows say.
+  bool held = 9 [features.field_presence = IMPLICIT];
 }

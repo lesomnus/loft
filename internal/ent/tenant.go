@@ -45,7 +45,21 @@ type Tenant struct {
 	Currency string `json:"currency,omitempty"`
 	// NoShowMinutes holds the value of the "no_show_minutes" field.
 	NoShowMinutes int32 `json:"no_show_minutes,omitempty"`
-	selectValues  sql.SelectValues
+	// KeepDays holds the value of the "keep_days" field.
+	KeepDays uint32 `json:"keep_days,omitempty"`
+	// AccessKeepDays holds the value of the "access_keep_days" field.
+	AccessKeepDays uint32 `json:"access_keep_days,omitempty"`
+	// RestoreDays holds the value of the "restore_days" field.
+	RestoreDays uint32 `json:"restore_days,omitempty"`
+	// KeepDaysBefore holds the value of the "keep_days_before" field.
+	KeepDaysBefore uint32 `json:"keep_days_before,omitempty"`
+	// DateKeepShortened holds the value of the "date_keep_shortened" field.
+	DateKeepShortened *time.Time `json:"date_keep_shortened,omitempty"`
+	// AccessKeepDaysBefore holds the value of the "access_keep_days_before" field.
+	AccessKeepDaysBefore uint32 `json:"access_keep_days_before,omitempty"`
+	// DateAccessKeepShortened holds the value of the "date_access_keep_shortened" field.
+	DateAccessKeepShortened *time.Time `json:"date_access_keep_shortened,omitempty"`
+	selectValues            sql.SelectValues
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -55,11 +69,11 @@ func (*Tenant) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case tenant.FieldLabels:
 			values[i] = new([]byte)
-		case tenant.FieldNoShowMinutes:
+		case tenant.FieldNoShowMinutes, tenant.FieldKeepDays, tenant.FieldAccessKeepDays, tenant.FieldRestoreDays, tenant.FieldKeepDaysBefore, tenant.FieldAccessKeepDaysBefore:
 			values[i] = new(sql.NullInt64)
 		case tenant.FieldAlias, tenant.FieldName, tenant.FieldDesc, tenant.FieldClosedBy, tenant.FieldCloseReason, tenant.FieldTimezone, tenant.FieldCurrency:
 			values[i] = new(sql.NullString)
-		case tenant.FieldDateUpdated, tenant.FieldDateCreated, tenant.FieldDateClosed, tenant.FieldDateDestroy:
+		case tenant.FieldDateUpdated, tenant.FieldDateCreated, tenant.FieldDateClosed, tenant.FieldDateDestroy, tenant.FieldDateKeepShortened, tenant.FieldDateAccessKeepShortened:
 			values[i] = new(sql.NullTime)
 		case tenant.FieldId:
 			values[i] = new(uuid.UUID)
@@ -166,6 +180,50 @@ func (_m *Tenant) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.NoShowMinutes = int32(value.Int64)
 			}
+		case tenant.FieldKeepDays:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field keep_days", values[i])
+			} else if value.Valid {
+				_m.KeepDays = uint32(value.Int64)
+			}
+		case tenant.FieldAccessKeepDays:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field access_keep_days", values[i])
+			} else if value.Valid {
+				_m.AccessKeepDays = uint32(value.Int64)
+			}
+		case tenant.FieldRestoreDays:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field restore_days", values[i])
+			} else if value.Valid {
+				_m.RestoreDays = uint32(value.Int64)
+			}
+		case tenant.FieldKeepDaysBefore:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field keep_days_before", values[i])
+			} else if value.Valid {
+				_m.KeepDaysBefore = uint32(value.Int64)
+			}
+		case tenant.FieldDateKeepShortened:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field date_keep_shortened", values[i])
+			} else if value.Valid {
+				_m.DateKeepShortened = new(time.Time)
+				*_m.DateKeepShortened = value.Time
+			}
+		case tenant.FieldAccessKeepDaysBefore:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field access_keep_days_before", values[i])
+			} else if value.Valid {
+				_m.AccessKeepDaysBefore = uint32(value.Int64)
+			}
+		case tenant.FieldDateAccessKeepShortened:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field date_access_keep_shortened", values[i])
+			} else if value.Valid {
+				_m.DateAccessKeepShortened = new(time.Time)
+				*_m.DateAccessKeepShortened = value.Time
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -244,6 +302,31 @@ func (_m *Tenant) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("no_show_minutes=")
 	builder.WriteString(fmt.Sprintf("%v", _m.NoShowMinutes))
+	builder.WriteString(", ")
+	builder.WriteString("keep_days=")
+	builder.WriteString(fmt.Sprintf("%v", _m.KeepDays))
+	builder.WriteString(", ")
+	builder.WriteString("access_keep_days=")
+	builder.WriteString(fmt.Sprintf("%v", _m.AccessKeepDays))
+	builder.WriteString(", ")
+	builder.WriteString("restore_days=")
+	builder.WriteString(fmt.Sprintf("%v", _m.RestoreDays))
+	builder.WriteString(", ")
+	builder.WriteString("keep_days_before=")
+	builder.WriteString(fmt.Sprintf("%v", _m.KeepDaysBefore))
+	builder.WriteString(", ")
+	if v := _m.DateKeepShortened; v != nil {
+		builder.WriteString("date_keep_shortened=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("access_keep_days_before=")
+	builder.WriteString(fmt.Sprintf("%v", _m.AccessKeepDaysBefore))
+	builder.WriteString(", ")
+	if v := _m.DateAccessKeepShortened; v != nil {
+		builder.WriteString("date_access_keep_shortened=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }

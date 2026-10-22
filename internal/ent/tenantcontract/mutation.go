@@ -15,29 +15,19 @@ import (
 
 // Mutation represents an operation that mutates the TenantContract nodes in the graph.
 type Mutation struct {
-	op                  ent.Op
-	typ                 string
-	name                *string
-	desc                *string
-	view_days           *uint32
-	addview_days        *int32
-	keep_days           *uint32
-	addkeep_days        *int32
-	grace_days          *uint32
-	addgrace_days       *int32
-	date_effective      *time.Time
-	access_keep_days    *uint32
-	addaccess_keep_days *int32
-	restore_days        *uint32
-	addrestore_days     *int32
-	purge_floors        *bool
-	date_erased         *time.Time
-	date_created        *time.Time
-	clearedFields       map[string]struct{}
-	exprs               map[string]sql.Querier
-	tenant              *uuid.UUID
-	clearedtenant       bool
-	predicates          []predicate.TenantContract
+	op             ent.Op
+	typ            string
+	name           *string
+	desc           *string
+	date_effective *time.Time
+	purge_floors   *bool
+	date_erased    *time.Time
+	date_created   *time.Time
+	clearedFields  map[string]struct{}
+	exprs          map[string]sql.Querier
+	tenant         *uuid.UUID
+	clearedtenant  bool
+	predicates     []predicate.TenantContract
 }
 
 // NewMutation creates a new Mutation for the TenantContract entity.
@@ -96,129 +86,6 @@ func (m *Mutation) ResetDesc() {
 	delete(m.exprs, FieldDesc)
 }
 
-// SetViewDays sets the "view_days" field.
-func (m *Mutation) SetViewDays(u uint32) {
-	m.view_days = &u
-	m.addview_days = nil
-	delete(m.exprs, FieldViewDays)
-}
-
-// ViewDays returns the value of the "view_days" field in the mutation.
-func (m *Mutation) ViewDays() (r uint32, exists bool) {
-	v := m.view_days
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// AddViewDays adds u to the "view_days" field.
-func (m *Mutation) AddViewDays(u int32) {
-	if m.addview_days != nil {
-		*m.addview_days += u
-	} else {
-		m.addview_days = &u
-	}
-}
-
-// AddedViewDays returns the value that was added to the "view_days" field in this mutation.
-func (m *Mutation) AddedViewDays() (r int32, exists bool) {
-	v := m.addview_days
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ResetViewDays resets all changes to the "view_days" field.
-func (m *Mutation) ResetViewDays() {
-	m.view_days = nil
-	m.addview_days = nil
-	delete(m.exprs, FieldViewDays)
-}
-
-// SetKeepDays sets the "keep_days" field.
-func (m *Mutation) SetKeepDays(u uint32) {
-	m.keep_days = &u
-	m.addkeep_days = nil
-	delete(m.exprs, FieldKeepDays)
-}
-
-// KeepDays returns the value of the "keep_days" field in the mutation.
-func (m *Mutation) KeepDays() (r uint32, exists bool) {
-	v := m.keep_days
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// AddKeepDays adds u to the "keep_days" field.
-func (m *Mutation) AddKeepDays(u int32) {
-	if m.addkeep_days != nil {
-		*m.addkeep_days += u
-	} else {
-		m.addkeep_days = &u
-	}
-}
-
-// AddedKeepDays returns the value that was added to the "keep_days" field in this mutation.
-func (m *Mutation) AddedKeepDays() (r int32, exists bool) {
-	v := m.addkeep_days
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ResetKeepDays resets all changes to the "keep_days" field.
-func (m *Mutation) ResetKeepDays() {
-	m.keep_days = nil
-	m.addkeep_days = nil
-	delete(m.exprs, FieldKeepDays)
-}
-
-// SetGraceDays sets the "grace_days" field.
-func (m *Mutation) SetGraceDays(u uint32) {
-	m.grace_days = &u
-	m.addgrace_days = nil
-	delete(m.exprs, FieldGraceDays)
-}
-
-// GraceDays returns the value of the "grace_days" field in the mutation.
-func (m *Mutation) GraceDays() (r uint32, exists bool) {
-	v := m.grace_days
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// AddGraceDays adds u to the "grace_days" field.
-func (m *Mutation) AddGraceDays(u int32) {
-	if m.addgrace_days != nil {
-		*m.addgrace_days += u
-	} else {
-		m.addgrace_days = &u
-	}
-}
-
-// AddedGraceDays returns the value that was added to the "grace_days" field in this mutation.
-func (m *Mutation) AddedGraceDays() (r int32, exists bool) {
-	v := m.addgrace_days
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ResetGraceDays resets all changes to the "grace_days" field.
-func (m *Mutation) ResetGraceDays() {
-	m.grace_days = nil
-	m.addgrace_days = nil
-	delete(m.exprs, FieldGraceDays)
-}
-
 // SetDateEffective sets the "date_effective" field.
 func (m *Mutation) SetDateEffective(t time.Time) {
 	m.date_effective = &t
@@ -253,120 +120,6 @@ func (m *Mutation) ResetDateEffective() {
 	m.date_effective = nil
 	delete(m.clearedFields, FieldDateEffective)
 	delete(m.exprs, FieldDateEffective)
-}
-
-// SetAccessKeepDays sets the "access_keep_days" field.
-func (m *Mutation) SetAccessKeepDays(u uint32) {
-	m.access_keep_days = &u
-	m.addaccess_keep_days = nil
-	delete(m.clearedFields, FieldAccessKeepDays)
-	delete(m.exprs, FieldAccessKeepDays)
-}
-
-// AccessKeepDays returns the value of the "access_keep_days" field in the mutation.
-func (m *Mutation) AccessKeepDays() (r uint32, exists bool) {
-	v := m.access_keep_days
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// AddAccessKeepDays adds u to the "access_keep_days" field.
-func (m *Mutation) AddAccessKeepDays(u int32) {
-	if m.addaccess_keep_days != nil {
-		*m.addaccess_keep_days += u
-	} else {
-		m.addaccess_keep_days = &u
-	}
-}
-
-// AddedAccessKeepDays returns the value that was added to the "access_keep_days" field in this mutation.
-func (m *Mutation) AddedAccessKeepDays() (r int32, exists bool) {
-	v := m.addaccess_keep_days
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ClearAccessKeepDays clears the value of the "access_keep_days" field.
-func (m *Mutation) ClearAccessKeepDays() {
-	m.access_keep_days = nil
-	m.addaccess_keep_days = nil
-	delete(m.exprs, FieldAccessKeepDays)
-	m.clearedFields[FieldAccessKeepDays] = struct{}{}
-}
-
-// AccessKeepDaysCleared returns if the "access_keep_days" field was cleared in this mutation.
-func (m *Mutation) AccessKeepDaysCleared() bool {
-	_, ok := m.clearedFields[FieldAccessKeepDays]
-	return ok
-}
-
-// ResetAccessKeepDays resets all changes to the "access_keep_days" field.
-func (m *Mutation) ResetAccessKeepDays() {
-	m.access_keep_days = nil
-	m.addaccess_keep_days = nil
-	delete(m.clearedFields, FieldAccessKeepDays)
-	delete(m.exprs, FieldAccessKeepDays)
-}
-
-// SetRestoreDays sets the "restore_days" field.
-func (m *Mutation) SetRestoreDays(u uint32) {
-	m.restore_days = &u
-	m.addrestore_days = nil
-	delete(m.clearedFields, FieldRestoreDays)
-	delete(m.exprs, FieldRestoreDays)
-}
-
-// RestoreDays returns the value of the "restore_days" field in the mutation.
-func (m *Mutation) RestoreDays() (r uint32, exists bool) {
-	v := m.restore_days
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// AddRestoreDays adds u to the "restore_days" field.
-func (m *Mutation) AddRestoreDays(u int32) {
-	if m.addrestore_days != nil {
-		*m.addrestore_days += u
-	} else {
-		m.addrestore_days = &u
-	}
-}
-
-// AddedRestoreDays returns the value that was added to the "restore_days" field in this mutation.
-func (m *Mutation) AddedRestoreDays() (r int32, exists bool) {
-	v := m.addrestore_days
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ClearRestoreDays clears the value of the "restore_days" field.
-func (m *Mutation) ClearRestoreDays() {
-	m.restore_days = nil
-	m.addrestore_days = nil
-	delete(m.exprs, FieldRestoreDays)
-	m.clearedFields[FieldRestoreDays] = struct{}{}
-}
-
-// RestoreDaysCleared returns if the "restore_days" field was cleared in this mutation.
-func (m *Mutation) RestoreDaysCleared() bool {
-	_, ok := m.clearedFields[FieldRestoreDays]
-	return ok
-}
-
-// ResetRestoreDays resets all changes to the "restore_days" field.
-func (m *Mutation) ResetRestoreDays() {
-	m.restore_days = nil
-	m.addrestore_days = nil
-	delete(m.clearedFields, FieldRestoreDays)
-	delete(m.exprs, FieldRestoreDays)
 }
 
 // SetPurgeFloors sets the "purge_floors" field.
@@ -554,30 +307,15 @@ func (m *Mutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *Mutation) Fields() []string {
-	fields := make([]string, 0, 12)
+	fields := make([]string, 0, 7)
 	if m.name != nil || m.exprs[FieldName] != nil {
 		fields = append(fields, FieldName)
 	}
 	if m.desc != nil || m.exprs[FieldDesc] != nil {
 		fields = append(fields, FieldDesc)
 	}
-	if m.view_days != nil || m.exprs[FieldViewDays] != nil {
-		fields = append(fields, FieldViewDays)
-	}
-	if m.keep_days != nil || m.exprs[FieldKeepDays] != nil {
-		fields = append(fields, FieldKeepDays)
-	}
-	if m.grace_days != nil || m.exprs[FieldGraceDays] != nil {
-		fields = append(fields, FieldGraceDays)
-	}
 	if m.date_effective != nil || m.exprs[FieldDateEffective] != nil {
 		fields = append(fields, FieldDateEffective)
-	}
-	if m.access_keep_days != nil || m.exprs[FieldAccessKeepDays] != nil {
-		fields = append(fields, FieldAccessKeepDays)
-	}
-	if m.restore_days != nil || m.exprs[FieldRestoreDays] != nil {
-		fields = append(fields, FieldRestoreDays)
 	}
 	if m.purge_floors != nil || m.exprs[FieldPurgeFloors] != nil {
 		fields = append(fields, FieldPurgeFloors)
@@ -609,18 +347,8 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.Name()
 	case FieldDesc:
 		return m.Desc()
-	case FieldViewDays:
-		return m.ViewDays()
-	case FieldKeepDays:
-		return m.KeepDays()
-	case FieldGraceDays:
-		return m.GraceDays()
 	case FieldDateEffective:
 		return m.DateEffective()
-	case FieldAccessKeepDays:
-		return m.AccessKeepDays()
-	case FieldRestoreDays:
-		return m.RestoreDays()
 	case FieldPurgeFloors:
 		return m.PurgeFloors()
 	case FieldDateErased:
@@ -668,36 +396,6 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDesc(v)
 		return nil
-	case FieldViewDays:
-		v, ok := value.(uint32)
-		if !ok {
-			if e, ok := value.(sql.Querier); ok {
-				return m.SetFieldExpr(name, e)
-			}
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetViewDays(v)
-		return nil
-	case FieldKeepDays:
-		v, ok := value.(uint32)
-		if !ok {
-			if e, ok := value.(sql.Querier); ok {
-				return m.SetFieldExpr(name, e)
-			}
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetKeepDays(v)
-		return nil
-	case FieldGraceDays:
-		v, ok := value.(uint32)
-		if !ok {
-			if e, ok := value.(sql.Querier); ok {
-				return m.SetFieldExpr(name, e)
-			}
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetGraceDays(v)
-		return nil
 	case FieldDateEffective:
 		v, ok := value.(time.Time)
 		if !ok {
@@ -707,26 +405,6 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDateEffective(v)
-		return nil
-	case FieldAccessKeepDays:
-		v, ok := value.(uint32)
-		if !ok {
-			if e, ok := value.(sql.Querier); ok {
-				return m.SetFieldExpr(name, e)
-			}
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetAccessKeepDays(v)
-		return nil
-	case FieldRestoreDays:
-		v, ok := value.(uint32)
-		if !ok {
-			if e, ok := value.(sql.Querier); ok {
-				return m.SetFieldExpr(name, e)
-			}
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetRestoreDays(v)
 		return nil
 	case FieldPurgeFloors:
 		v, ok := value.(bool)
@@ -794,18 +472,8 @@ func (m *Mutation) SetFieldExpr(name string, expr sql.Querier) error {
 		m.ResetName()
 	case FieldDesc:
 		m.ResetDesc()
-	case FieldViewDays:
-		m.ResetViewDays()
-	case FieldKeepDays:
-		m.ResetKeepDays()
-	case FieldGraceDays:
-		m.ResetGraceDays()
 	case FieldDateEffective:
 		m.ResetDateEffective()
-	case FieldAccessKeepDays:
-		m.ResetAccessKeepDays()
-	case FieldRestoreDays:
-		m.ResetRestoreDays()
 	case FieldPurgeFloors:
 		m.ResetPurgeFloors()
 	case FieldDateErased:
@@ -841,23 +509,8 @@ func (m *Mutation) ExprFields() []string {
 	if _, ok := m.exprs[FieldDesc]; ok {
 		fields = append(fields, FieldDesc)
 	}
-	if _, ok := m.exprs[FieldViewDays]; ok {
-		fields = append(fields, FieldViewDays)
-	}
-	if _, ok := m.exprs[FieldKeepDays]; ok {
-		fields = append(fields, FieldKeepDays)
-	}
-	if _, ok := m.exprs[FieldGraceDays]; ok {
-		fields = append(fields, FieldGraceDays)
-	}
 	if _, ok := m.exprs[FieldDateEffective]; ok {
 		fields = append(fields, FieldDateEffective)
-	}
-	if _, ok := m.exprs[FieldAccessKeepDays]; ok {
-		fields = append(fields, FieldAccessKeepDays)
-	}
-	if _, ok := m.exprs[FieldRestoreDays]; ok {
-		fields = append(fields, FieldRestoreDays)
 	}
 	if _, ok := m.exprs[FieldPurgeFloors]; ok {
 		fields = append(fields, FieldPurgeFloors)
@@ -871,41 +524,13 @@ func (m *Mutation) ExprFields() []string {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *Mutation) AddedFields() []string {
-	var fields []string
-	if m.addview_days != nil {
-		fields = append(fields, FieldViewDays)
-	}
-	if m.addkeep_days != nil {
-		fields = append(fields, FieldKeepDays)
-	}
-	if m.addgrace_days != nil {
-		fields = append(fields, FieldGraceDays)
-	}
-	if m.addaccess_keep_days != nil {
-		fields = append(fields, FieldAccessKeepDays)
-	}
-	if m.addrestore_days != nil {
-		fields = append(fields, FieldRestoreDays)
-	}
-	return fields
+	return nil
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *Mutation) AddedField(name string) (ent.Value, bool) {
-	switch name {
-	case FieldViewDays:
-		return m.AddedViewDays()
-	case FieldKeepDays:
-		return m.AddedKeepDays()
-	case FieldGraceDays:
-		return m.AddedGraceDays()
-	case FieldAccessKeepDays:
-		return m.AddedAccessKeepDays()
-	case FieldRestoreDays:
-		return m.AddedRestoreDays()
-	}
 	return nil, false
 }
 
@@ -914,41 +539,6 @@ func (m *Mutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *Mutation) AddField(name string, value ent.Value) error {
 	switch name {
-	case FieldViewDays:
-		v, ok := value.(int32)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddViewDays(v)
-		return nil
-	case FieldKeepDays:
-		v, ok := value.(int32)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddKeepDays(v)
-		return nil
-	case FieldGraceDays:
-		v, ok := value.(int32)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddGraceDays(v)
-		return nil
-	case FieldAccessKeepDays:
-		v, ok := value.(int32)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddAccessKeepDays(v)
-		return nil
-	case FieldRestoreDays:
-		v, ok := value.(int32)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddRestoreDays(v)
-		return nil
 	}
 	return fmt.Errorf("unknown TenantContract numeric field %s", name)
 }
@@ -959,12 +549,6 @@ func (m *Mutation) ClearedFields() []string {
 	var fields []string
 	if m.FieldCleared(FieldDateEffective) {
 		fields = append(fields, FieldDateEffective)
-	}
-	if m.FieldCleared(FieldAccessKeepDays) {
-		fields = append(fields, FieldAccessKeepDays)
-	}
-	if m.FieldCleared(FieldRestoreDays) {
-		fields = append(fields, FieldRestoreDays)
 	}
 	if m.FieldCleared(FieldPurgeFloors) {
 		fields = append(fields, FieldPurgeFloors)
@@ -992,12 +576,6 @@ func (m *Mutation) ClearField(name string) error {
 	case FieldDateEffective:
 		m.ClearDateEffective()
 		return nil
-	case FieldAccessKeepDays:
-		m.ClearAccessKeepDays()
-		return nil
-	case FieldRestoreDays:
-		m.ClearRestoreDays()
-		return nil
 	case FieldPurgeFloors:
 		m.ClearPurgeFloors()
 		return nil
@@ -1021,23 +599,8 @@ func (m *Mutation) ResetField(name string) error {
 	case FieldDesc:
 		m.ResetDesc()
 		return nil
-	case FieldViewDays:
-		m.ResetViewDays()
-		return nil
-	case FieldKeepDays:
-		m.ResetKeepDays()
-		return nil
-	case FieldGraceDays:
-		m.ResetGraceDays()
-		return nil
 	case FieldDateEffective:
 		m.ResetDateEffective()
-		return nil
-	case FieldAccessKeepDays:
-		m.ResetAccessKeepDays()
-		return nil
-	case FieldRestoreDays:
-		m.ResetRestoreDays()
 		return nil
 	case FieldPurgeFloors:
 		m.ResetPurgeFloors()

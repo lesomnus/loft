@@ -177,11 +177,7 @@ func (t *Tx) expire(c time.Time, out *Expired) ([]string, error) {
 	}
 
 	// The files kept for the documents that go, before the documents.
-	atts := attachment.And(attachment.TenantId(tid), attachment.Or(
-		predicate.Attachment(idIn(attachment.FieldSubjectId, attachment.FieldTenantId, custody.Table, custody.FieldId, custody.FieldTenantId, custodyOver(c))),
-		predicate.Attachment(idIn(attachment.FieldSubjectId, attachment.FieldTenantId, workorder.Table, workorder.FieldId, workorder.FieldTenantId, workOver(c))),
-		predicate.Attachment(idIn(attachment.FieldSubjectId, attachment.FieldTenantId, countfinding.Table, countfinding.FieldId, countfinding.FieldTenantId, countfinding.HasCountWith(countOver(c)))),
-	))
+	atts := attachmentExpired(tid, c)
 	files, err := t.db.Attachment.Query().Where(atts).Select(attachment.FieldObjectKey).Strings(t.ctx)
 	if err != nil {
 		return nil, err
@@ -258,7 +254,7 @@ func (t *Tx) expire(c time.Time, out *Expired) ([]string, error) {
 		return nil, err
 	}
 
-	out.Events = n(expireRows(t.ctx, &removed, t.db.Event.Query().Where(event.TenantId(tid), eventExpired(c)).Ids,
+	out.Events = n(expireRows(t.ctx, &removed, t.db.Event.Query().Where(event.TenantId(tid), eventExpired(c, false)).Ids,
 		func(ctx context.Context, ids ...uuid.UUID) (int, error) {
 			return t.db.Event.Delete().Where(event.IdIn(ids...)).Exec(ctx)
 		}))
@@ -359,27 +355,108 @@ func factExpired(c time.Time) predicate.Fact {
 	)
 }
 
+// attachmentExpired is a file kept for a document that was over before `c`:
+// a loan given back, a work order done, a count closed.
+func attachmentExpired(tenant uuid.UUID, c time.Time) predicate.Attachment {
+	return attachment.And(attachment.TenantId(tenant), attachment.Or(
+		predicate.Attachment(idIn(attachment.FieldSubjectId, attachment.FieldTenantId, custody.Table, custody.FieldId, custody.FieldTenantId, custodyOver(c))),
+		predicate.Attachment(idIn(attachment.FieldSubjectId, attachment.FieldTenantId, workorder.Table, workorder.FieldId, workorder.FieldTenantId, workOver(c))),
+		predicate.Attachment(idIn(attachment.FieldSubjectId, attachment.FieldTenantId, countfinding.Table, countfinding.FieldId, countfinding.FieldTenantId, countfinding.HasCountWith(countOver(c)))),
+	))
+}
+
 // eventExpired is an event that happened and was recorded before `c` and that
-// no row left points at. The one that registered an asset stays: it is the
-// record of its acquisition (design 8.2).
-func eventExpired(c time.Time) predicate.Event {
+// no row left points at: of the rows there are, once the time rows the window
+// takes have gone -- or, `ahead`, of the rows the window leaves, for what is
+// read before they go ([Tx.takes]). The one that registered an asset stays: it
+// is the record of its acquisition (design 8.2).
+func eventExpired(c time.Time, ahead bool) predicate.Event {
 	return event.And(
 		event.OccurredAtLT(c),
 		event.DateCreatedLT(c),
 		event.KindNEQ("asset.add"),
 		func(s *sql.Selector) {
 			b := sql.Dialect(s.Dialect())
-			for _, r := range [][2]string{
-				{placement.Table, placement.FieldEventId},
-				{link.Table, link.FieldEventId},
-				{stewardship.Table, stewardship.FieldEventId},
-				{fact.Table, fact.FieldEventId},
-				{stockmovement.Table, stockmovement.FieldEventId},
+			for _, r := range []struct {
+				table, column string
+				gone          func(*sql.Selector)
+			}{
+				{placement.Table, placement.FieldEventId, placementExpired(c)},
+				{link.Table, link.FieldEventId, linkExpired(c)},
+				{stewardship.Table, stewardship.FieldEventId, stewardshipExpired(c)},
+				{fact.Table, fact.FieldEventId, factExpired(c)},
+				{stockmovement.Table, stockmovement.FieldEventId, stockmovement.OccurredAtLT(c)},
 			} {
-				t := b.Table(r[0])
-				s.Where(sql.NotExists(b.Select(t.C(r[1])).From(t).Where(sql.ColumnsEQ(t.C(r[1]), s.C(event.FieldId)))))
+				t := b.Table(r.table)
+				q := b.Select(t.C(r.column)).From(t).Where(sql.ColumnsEQ(t.C(r.column), s.C(event.FieldId)))
+				if ahead {
+					sql.NotPredicates(r.gone)(q)
+				}
+				s.Where(sql.NotExists(q))
 			}
 		},
+	)
+}
+
+// takes is what [Tx.expire] would take before `c`, read and not taken: each
+// kind by the predicate the expiry deletes it by, and the events by the rows
+// the window leaves pointing at them. A count, so that asking takes no lock
+// and writes nothing, however much there is: what a workspace's owner may
+// ask for as often as they like (TenantService.Preview).
+func (t *Tx) takes(c time.Time) (Expired, error) {
+	tid := t.tenant.Uuid()
+	out := Expired{Tenant: t.tenant, Before: c}
+	var err error
+	n := func(v int, e error) int {
+		if e != nil && err == nil {
+			err = e
+		}
+		return v
+	}
+
+	out.Attachments = n(t.db.Attachment.Query().Where(attachmentExpired(tid, c)).Count(t.ctx))
+	out.Placements = n(t.db.Placement.Query().Where(placement.TenantId(tid), placementExpired(c)).Count(t.ctx))
+	out.Links = n(t.db.Link.Query().Where(link.TenantId(tid), linkExpired(c)).Count(t.ctx))
+	out.Stewardships = n(t.db.Stewardship.Query().Where(stewardship.TenantId(tid), stewardshipExpired(c)).Count(t.ctx))
+	out.Facts = n(t.db.Fact.Query().Where(fact.TenantId(tid), factExpired(c)).Count(t.ctx))
+	out.StockMovements = n(t.db.StockMovement.Query().Where(stockmovement.TenantId(tid), stockmovement.OccurredAtLT(c)).Count(t.ctx))
+	out.Reservations = n(t.db.Reservation.Query().Where(reservation.TenantId(tid), reservationOver(c)).Count(t.ctx))
+	out.Custodies = n(t.db.Custody.Query().Where(custody.TenantId(tid), custodyOver(c)).Count(t.ctx))
+	out.Counts = n(t.db.InventoryCount.Query().Where(inventorycount.TenantId(tid), countOver(c)).Count(t.ctx))
+	out.WorkOrders = n(t.db.WorkOrder.Query().Where(workorder.TenantId(tid), workOver(c)).Count(t.ctx))
+	out.Events = n(t.db.Event.Query().Where(event.TenantId(tid), eventExpired(c, true)).Count(t.ctx))
+
+	return out, err
+}
+
+// reservationOver is a reservation that came to an end before `s`. One still
+// held, asked for or in use has not, whatever its time says.
+func reservationOver(s time.Time) predicate.Reservation {
+	return reservation.And(
+		reservation.StatusIn(resCompleted, resCancelled, resRejected, resExpired, resNoShow),
+		reservation.EndsAtLT(s),
+	)
+}
+
+// custodyOver is a hand-over all of which was back before `s`. A loan still
+// out is the present, however long ago it was made.
+func custodyOver(s time.Time) predicate.Custody {
+	return custody.And(custody.Status("returned"), custody.ReturnedAtNotNil(), custody.ReturnedAtLT(s))
+}
+
+// countOver is a count closed before `s`.
+func countOver(s time.Time) predicate.InventoryCount {
+	return inventorycount.And(inventorycount.Status("closed"), inventorycount.ClosedAtNotNil(), inventorycount.ClosedAtLT(s))
+}
+
+// workOver is a work order done or called off before `s`.
+func workOver(s time.Time) predicate.WorkOrder {
+	return workorder.And(
+		workorder.StatusIn("done", "cancelled"),
+		workorder.Or(
+			workorder.And(workorder.CompletedAtNotNil(), workorder.CompletedAtLT(s)),
+			workorder.And(workorder.CompletedAtIsNil(), workorder.DateUpdatedLT(s)),
+		),
 	)
 }
 

@@ -149,6 +149,104 @@ func (_c *TenantCreate) SetNillableNoShowMinutes(v *int32) *TenantCreate {
 	return _c
 }
 
+// SetKeepDays sets the "keep_days" field.
+func (_c *TenantCreate) SetKeepDays(v uint32) *TenantCreate {
+	_c.mutation.SetKeepDays(v)
+	return _c
+}
+
+// SetNillableKeepDays sets the "keep_days" field if the given value is not nil.
+func (_c *TenantCreate) SetNillableKeepDays(v *uint32) *TenantCreate {
+	if v != nil {
+		_c.SetKeepDays(*v)
+	}
+	return _c
+}
+
+// SetAccessKeepDays sets the "access_keep_days" field.
+func (_c *TenantCreate) SetAccessKeepDays(v uint32) *TenantCreate {
+	_c.mutation.SetAccessKeepDays(v)
+	return _c
+}
+
+// SetNillableAccessKeepDays sets the "access_keep_days" field if the given value is not nil.
+func (_c *TenantCreate) SetNillableAccessKeepDays(v *uint32) *TenantCreate {
+	if v != nil {
+		_c.SetAccessKeepDays(*v)
+	}
+	return _c
+}
+
+// SetRestoreDays sets the "restore_days" field.
+func (_c *TenantCreate) SetRestoreDays(v uint32) *TenantCreate {
+	_c.mutation.SetRestoreDays(v)
+	return _c
+}
+
+// SetNillableRestoreDays sets the "restore_days" field if the given value is not nil.
+func (_c *TenantCreate) SetNillableRestoreDays(v *uint32) *TenantCreate {
+	if v != nil {
+		_c.SetRestoreDays(*v)
+	}
+	return _c
+}
+
+// SetKeepDaysBefore sets the "keep_days_before" field.
+func (_c *TenantCreate) SetKeepDaysBefore(v uint32) *TenantCreate {
+	_c.mutation.SetKeepDaysBefore(v)
+	return _c
+}
+
+// SetNillableKeepDaysBefore sets the "keep_days_before" field if the given value is not nil.
+func (_c *TenantCreate) SetNillableKeepDaysBefore(v *uint32) *TenantCreate {
+	if v != nil {
+		_c.SetKeepDaysBefore(*v)
+	}
+	return _c
+}
+
+// SetDateKeepShortened sets the "date_keep_shortened" field.
+func (_c *TenantCreate) SetDateKeepShortened(v time.Time) *TenantCreate {
+	_c.mutation.SetDateKeepShortened(v)
+	return _c
+}
+
+// SetNillableDateKeepShortened sets the "date_keep_shortened" field if the given value is not nil.
+func (_c *TenantCreate) SetNillableDateKeepShortened(v *time.Time) *TenantCreate {
+	if v != nil {
+		_c.SetDateKeepShortened(*v)
+	}
+	return _c
+}
+
+// SetAccessKeepDaysBefore sets the "access_keep_days_before" field.
+func (_c *TenantCreate) SetAccessKeepDaysBefore(v uint32) *TenantCreate {
+	_c.mutation.SetAccessKeepDaysBefore(v)
+	return _c
+}
+
+// SetNillableAccessKeepDaysBefore sets the "access_keep_days_before" field if the given value is not nil.
+func (_c *TenantCreate) SetNillableAccessKeepDaysBefore(v *uint32) *TenantCreate {
+	if v != nil {
+		_c.SetAccessKeepDaysBefore(*v)
+	}
+	return _c
+}
+
+// SetDateAccessKeepShortened sets the "date_access_keep_shortened" field.
+func (_c *TenantCreate) SetDateAccessKeepShortened(v time.Time) *TenantCreate {
+	_c.mutation.SetDateAccessKeepShortened(v)
+	return _c
+}
+
+// SetNillableDateAccessKeepShortened sets the "date_access_keep_shortened" field if the given value is not nil.
+func (_c *TenantCreate) SetNillableDateAccessKeepShortened(v *time.Time) *TenantCreate {
+	if v != nil {
+		_c.SetDateAccessKeepShortened(*v)
+	}
+	return _c
+}
+
 // SetId sets the "id" field.
 func (_c *TenantCreate) SetId(v uuid.UUID) *TenantCreate {
 	_c.mutation.SetId(v)
@@ -206,6 +304,36 @@ func (_c *TenantCreate) defaults() {
 		if _, ok := _c.mutation.FieldExpr(tenant.FieldNoShowMinutes); !ok {
 			v := tenant.DefaultNoShowMinutes
 			_c.mutation.SetNoShowMinutes(v)
+		}
+	}
+	if _, ok := _c.mutation.KeepDays(); !ok {
+		if _, ok := _c.mutation.FieldExpr(tenant.FieldKeepDays); !ok {
+			v := tenant.DefaultKeepDays
+			_c.mutation.SetKeepDays(v)
+		}
+	}
+	if _, ok := _c.mutation.AccessKeepDays(); !ok {
+		if _, ok := _c.mutation.FieldExpr(tenant.FieldAccessKeepDays); !ok {
+			v := tenant.DefaultAccessKeepDays
+			_c.mutation.SetAccessKeepDays(v)
+		}
+	}
+	if _, ok := _c.mutation.RestoreDays(); !ok {
+		if _, ok := _c.mutation.FieldExpr(tenant.FieldRestoreDays); !ok {
+			v := tenant.DefaultRestoreDays
+			_c.mutation.SetRestoreDays(v)
+		}
+	}
+	if _, ok := _c.mutation.KeepDaysBefore(); !ok {
+		if _, ok := _c.mutation.FieldExpr(tenant.FieldKeepDaysBefore); !ok {
+			v := tenant.DefaultKeepDaysBefore
+			_c.mutation.SetKeepDaysBefore(v)
+		}
+	}
+	if _, ok := _c.mutation.AccessKeepDaysBefore(); !ok {
+		if _, ok := _c.mutation.FieldExpr(tenant.FieldAccessKeepDaysBefore); !ok {
+			v := tenant.DefaultAccessKeepDaysBefore
+			_c.mutation.SetAccessKeepDaysBefore(v)
 		}
 	}
 }
@@ -335,6 +463,34 @@ func (_c *TenantCreate) createSpec() (*Tenant, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.NoShowMinutes(); ok {
 		_spec.SetField(tenant.FieldNoShowMinutes, field.TypeInt32, value)
 		_node.NoShowMinutes = value
+	}
+	if value, ok := _c.mutation.KeepDays(); ok {
+		_spec.SetField(tenant.FieldKeepDays, field.TypeUint32, value)
+		_node.KeepDays = value
+	}
+	if value, ok := _c.mutation.AccessKeepDays(); ok {
+		_spec.SetField(tenant.FieldAccessKeepDays, field.TypeUint32, value)
+		_node.AccessKeepDays = value
+	}
+	if value, ok := _c.mutation.RestoreDays(); ok {
+		_spec.SetField(tenant.FieldRestoreDays, field.TypeUint32, value)
+		_node.RestoreDays = value
+	}
+	if value, ok := _c.mutation.KeepDaysBefore(); ok {
+		_spec.SetField(tenant.FieldKeepDaysBefore, field.TypeUint32, value)
+		_node.KeepDaysBefore = value
+	}
+	if value, ok := _c.mutation.DateKeepShortened(); ok {
+		_spec.SetField(tenant.FieldDateKeepShortened, field.TypeTime, value)
+		_node.DateKeepShortened = &value
+	}
+	if value, ok := _c.mutation.AccessKeepDaysBefore(); ok {
+		_spec.SetField(tenant.FieldAccessKeepDaysBefore, field.TypeUint32, value)
+		_node.AccessKeepDaysBefore = value
+	}
+	if value, ok := _c.mutation.DateAccessKeepShortened(); ok {
+		_spec.SetField(tenant.FieldDateAccessKeepShortened, field.TypeTime, value)
+		_node.DateAccessKeepShortened = &value
 	}
 	return _node, _spec
 }

@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"github.com/lesomnus/payday/config"
+	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/trail"
 
 	"github.com/lesomnus/rove/internal/identity"
@@ -256,8 +257,8 @@ type AppConfig struct {
 	// Sweep is the wait between passes of the background work.
 	Sweep time.Duration `yaml:"sweep"`
 
-	// Retention is the deployment's half of design 8: what a tenant with no
-	// contract keeps, and whether a window destroys anything at all.
+	// Retention is the deployment's half of design 8: whether a window
+	// destroys anything at all, and the grace a shorter one waits out.
 	Retention RetentionConfig `yaml:"retention"`
 
 	// Workspaces is what an account may make (design 9.11).
@@ -445,24 +446,28 @@ func (c WorkspacesConfig) OwnedMax() int {
 	return c.Owned
 }
 
-// RetentionConfig is the plan a tenant with no contract is on, and the switch
-// that lets a keep window destroy.
+// RetentionConfig is the deployment's half of design 8: whether a window
+// destroys anything at all, how long a window made shorter waits, and how
+// often the history is gone over.
 //
-// A tenant's own windows are its contract's (`rove contract`). What is here is
-// the deployment's default and its consent.
+// How long a workspace keeps its history is its own, its owner's to say
+// (`TenantService.Configure`, D36). What is here is the deployment's consent
+// and its grace.
 type RetentionConfig struct {
 	// Apply lets a keep window destroy what is past it: rove's own history,
 	// and the trail of the writes that made it. Off, which is the default, the
-	// windows are still read -- the view window applies, a dry run answers --
-	// and nothing is removed. Design 8 makes destruction wait until notice,
-	// export, grace and holds are settled, and this is the deployment saying
-	// they are.
+	// windows are still read -- a dry run answers, and a workspace's settings
+	// say what they would take -- and nothing is removed. Design 8 makes
+	// destruction wait until notice, export, grace and holds are settled, and
+	// this is the deployment saying they are.
 	Apply bool `yaml:"apply"`
 
-	// View and Keep are what a tenant with no contract gets, e.g. `8760h` for
-	// a year. Empty is all of its history shown, and all of it kept.
-	View time.Duration `yaml:"view"`
-	Keep time.Duration `yaml:"keep"`
+	// Grace is how long a window a workspace makes shorter -- its history's or
+	// its access record's -- waits before it is the shorter one, keeping the
+	// longer one meanwhile, so that a mistake undone in time has destroyed
+	// nothing. Empty is 30 days, as long as a closed workspace may be restored
+	// by default.
+	Grace time.Duration `yaml:"grace"`
 
 	// Every is how often what the keep windows no longer reach is taken out of
 	// the history, when Apply lets it be. An hour by default.
@@ -471,17 +476,31 @@ type RetentionConfig struct {
 
 // Defaults is this as what `server/retention` reads.
 func (c RetentionConfig) Defaults() retention.Defaults {
-	return retention.Defaults{View: c.View, Keep: c.Keep, Apply: c.Apply}
+	return retention.Defaults{Grace: c.Grace, Apply: c.Apply}
 }
 
 // RetentionDefaults is what `server/retention` reads of the configuration
-// under the trail's policy `p`: what a tenant with no contract gets of its
-// history and of its access record (#144), and whether a contract destroys.
+// under the trail's policy `p`: what a workspace that says nothing of its
+// access record gets (#144), the least it is kept, the grace, and whether a
+// window destroys.
 func RetentionDefaults(c Config, p trail.Policy) retention.Defaults {
 	d := c.App.Retention.Defaults()
 	d.Access = LifeOf(p.For(pd.AccessDomain))
+	d.AccessFloor = FloorOf(p, pd.AccessDomain)
 
 	return d
+}
+
+// FloorOf is the least the trail keeps a kind whatever a tenant answers: the
+// longer clock of the deployment's floor for it, `audit.min` and
+// `audit.by.<kind>.min` together. Zero is none.
+func FloorOf(p trail.Policy, d pdid.Domain) time.Duration {
+	f := p.Min
+	if v, ok := p.MinBy[d]; ok {
+		f.Retain, f.Destroy = max(f.Retain, v.Retain), max(f.Destroy, v.Destroy)
+	}
+
+	return max(f.Retain, f.Destroy)
 }
 
 // LifeOf is how long a window keeps a row at all: zero is forever.

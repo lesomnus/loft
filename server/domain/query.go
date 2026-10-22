@@ -89,13 +89,7 @@ func (v visible) fact() []predicate.Fact {
 }
 
 // Timeline answers an asset's history: the time rows about it and the events
-// that wrote them, newest first.
-//
-// It answers within the tenant's view window (design 8.1): a row that ended or
-// was superseded before the window began is left out, and so is a value an
-// attribute stopped having before then. What the window begins inside of is
-// the state it begins in, so a placement from years ago that still holds is
-// here, and so is the event that made it.
+// that wrote them, newest first -- all of what is kept of it (design 8, D36).
 func (s domainAsset) Timeline(ctx context.Context, req *app.AssetTimelineRequest) (*app.AssetTimelineResponse, error) {
 	t, err := s.read(ctx)
 	if err != nil {
@@ -117,14 +111,7 @@ func (s domainAsset) Timeline(ctx context.Context, req *app.AssetTimelineRequest
 	vis := visible{all: req.GetSuperseded()}
 	if req.HasKnown() {
 		k := req.GetKnown().AsTime()
-		if err := t.inView("known", k); err != nil {
-			return nil, err
-		}
 		vis.known = &k
-	}
-	since, err := t.since()
-	if err != nil {
-		return nil, err
 	}
 	tid := t.tenant.Uuid()
 	a := id.Uuid()
@@ -137,9 +124,6 @@ func (s domainAsset) Timeline(ctx context.Context, req *app.AssetTimelineRequest
 		return nil, err
 	}
 	for _, r := range ps {
-		if gone(since, r.ValidTo, r.SupersededAt) {
-			continue
-		}
 		e := entry("placement", r.Id, r.ValidFrom, r.ValidTo, r.DateCreated, r.SupersededAt, r.EventId)
 		e.SetOtherId(pdid.Id(r.ParentId).Bytes())
 		e.SetOtherName(names.asset(r.ParentId))
@@ -160,9 +144,6 @@ func (s domainAsset) Timeline(ctx context.Context, req *app.AssetTimelineRequest
 		return nil, err
 	}
 	for _, r := range ss {
-		if gone(since, r.ValidTo, r.SupersededAt) {
-			continue
-		}
 		e := entry("stewardship", r.Id, r.ValidFrom, r.ValidTo, r.DateCreated, r.SupersededAt, r.EventId)
 		e.SetOtherId(pdid.Id(r.PartyId).Bytes())
 		e.SetOtherName(names.party(r.PartyId))
@@ -176,9 +157,6 @@ func (s domainAsset) Timeline(ctx context.Context, req *app.AssetTimelineRequest
 		return nil, err
 	}
 	for _, r := range ls {
-		if gone(since, r.ValidTo, r.SupersededAt) {
-			continue
-		}
 		other := r.TargetId
 		dir := "→"
 		if r.TargetId == a {
@@ -197,24 +175,7 @@ func (s domainAsset) Timeline(ctx context.Context, req *app.AssetTimelineRequest
 	if err != nil {
 		return nil, err
 	}
-	// When each attribute took the value it had as the window began. A fact
-	// has no end of its own -- the next one of its key is its end -- so a value
-	// older than that is one the attribute had stopped having by then.
-	began := map[string]time.Time{}
-	if !since.IsZero() {
-		for _, r := range fs {
-			if r.ValidFrom.After(since) || (vis.all && r.SupersededAt != nil) {
-				continue
-			}
-			if b, ok := began[r.Key]; !ok || r.ValidFrom.After(b) {
-				began[r.Key] = r.ValidFrom
-			}
-		}
-	}
 	for _, r := range fs {
-		if gone(since, nil, r.SupersededAt) || r.ValidFrom.Before(began[r.Key]) {
-			continue
-		}
 		e := entry("fact", r.Id, r.ValidFrom, nil, r.DateCreated, r.SupersededAt, r.EventId)
 		v := r.Value
 		switch {
@@ -285,16 +246,7 @@ func (s domainAsset) Timeline(ctx context.Context, req *app.AssetTimelineRequest
 			e.SetCause(cause(v))
 		}
 	}
-	// An event outside the window is still here when a row in it says it is
-	// what wrote the row.
-	wrote := map[uuid.UUID]bool{}
-	for _, e := range entries {
-		wrote[uuidOf(e.GetEventId())] = true
-	}
 	for _, v := range evs {
-		if !since.IsZero() && v.OccurredAt.Before(since) && v.DateCreated.Before(since) && !wrote[v.Id] {
-			continue
-		}
 		e := entry("event", v.Id, v.OccurredAt, nil, v.DateCreated, nil, v.Id)
 		e.SetSummary(names.say(v.Desc, v.Payload))
 		e.SetEventKind(v.Kind)
@@ -532,8 +484,7 @@ func factName(k string) string {
 	return strings.TrimPrefix(k, "attr.")
 }
 
-// QueryAt answers an asset and what was inside it at a moment, which is a
-// moment in the tenant's view window (design 8.1).
+// QueryAt answers an asset and what was inside it at a moment.
 func (s domainAsset) QueryAt(ctx context.Context, req *app.AssetQueryAtRequest) (*app.AssetQueryAtResponse, error) {
 	t, err := s.read(ctx)
 	if err != nil {
@@ -547,15 +498,9 @@ func (s domainAsset) QueryAt(ctx context.Context, req *app.AssetQueryAtRequest) 
 	if req.HasAt() {
 		at = req.GetAt().AsTime()
 	}
-	if err := t.inView("at", at); err != nil {
-		return nil, err
-	}
 	vis := visible{}
 	if req.HasKnown() {
 		k := req.GetKnown().AsTime()
-		if err := t.inView("known", k); err != nil {
-			return nil, err
-		}
 		vis.known = &k
 	}
 
@@ -671,8 +616,7 @@ func (t *Tx) factsVisible(ids []uuid.UUID, at time.Time, vis visible) (map[uuid.
 	return t.factsAt(ids, at, vis.known)
 }
 
-// Diff answers what changed under an asset between two moments, both in the
-// tenant's view window.
+// Diff answers what changed under an asset between two moments.
 func (s domainAsset) Diff(ctx context.Context, req *app.AssetDiffRequest) (*app.AssetDiffResponse, error) {
 	t, err := s.read(ctx)
 	if err != nil {
@@ -684,12 +628,6 @@ func (s domainAsset) Diff(ctx context.Context, req *app.AssetDiffRequest) (*app.
 	}
 	if !req.HasFrom() || !req.HasTo() {
 		return nil, invalid("from", "비교할 두 시점을 정하세요")
-	}
-	if err := t.inView("from", req.GetFrom().AsTime()); err != nil {
-		return nil, err
-	}
-	if err := t.inView("to", req.GetTo().AsTime()); err != nil {
-		return nil, err
 	}
 	a, err := t.subtree(id.Uuid(), req.GetFrom().AsTime(), visible{}, 0)
 	if err != nil {
@@ -978,19 +916,9 @@ func (s domainAsset) Report(ctx context.Context, req *app.AssetReportRequest) (*
 		}
 
 	case "utilization":
-		since, err := t.since()
-		if err != nil {
-			return nil, err
-		}
 		from, to := t.now.AddDate(0, 0, -30), t.now
-		if from.Before(since) {
-			from = since
-		}
 		if req.HasFrom() {
 			from = req.GetFrom().AsTime()
-			if err := t.inView("from", from); err != nil {
-				return nil, err
-			}
 		}
 		if req.HasTo() {
 			to = req.GetTo().AsTime()
@@ -1034,16 +962,8 @@ func (s domainAsset) Report(ctx context.Context, req *app.AssetReportRequest) (*
 		}
 
 	case "work":
-		// The work still open, and what was done in the view window.
-		since, err := t.since()
-		if err != nil {
-			return nil, err
-		}
-		ps := []predicate.WorkOrder{workorder.TenantId(tid), workorder.DateErasedIsNil()}
-		if !since.IsZero() {
-			ps = append(ps, workorder.Not(workOver(since)))
-		}
-		ws, err := t.db.WorkOrder.Query().Where(ps...).All(ctx)
+		// The work still open, and what was done.
+		ws, err := t.db.WorkOrder.Query().Where(workorder.TenantId(tid), workorder.DateErasedIsNil()).All(ctx)
 		if err != nil {
 			return nil, err
 		}

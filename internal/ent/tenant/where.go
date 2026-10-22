@@ -115,6 +115,41 @@ func NoShowMinutes(v int32) predicate.Tenant {
 	return predicate.Tenant(sql.FieldEQ(FieldNoShowMinutes, v))
 }
 
+// KeepDays applies equality check predicate on the "keep_days" field. It's identical to KeepDaysEQ.
+func KeepDays(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldEQ(FieldKeepDays, v))
+}
+
+// AccessKeepDays applies equality check predicate on the "access_keep_days" field. It's identical to AccessKeepDaysEQ.
+func AccessKeepDays(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldEQ(FieldAccessKeepDays, v))
+}
+
+// RestoreDays applies equality check predicate on the "restore_days" field. It's identical to RestoreDaysEQ.
+func RestoreDays(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldEQ(FieldRestoreDays, v))
+}
+
+// KeepDaysBefore applies equality check predicate on the "keep_days_before" field. It's identical to KeepDaysBeforeEQ.
+func KeepDaysBefore(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldEQ(FieldKeepDaysBefore, v))
+}
+
+// DateKeepShortened applies equality check predicate on the "date_keep_shortened" field. It's identical to DateKeepShortenedEQ.
+func DateKeepShortened(v time.Time) predicate.Tenant {
+	return predicate.Tenant(sql.FieldEQ(FieldDateKeepShortened, v))
+}
+
+// AccessKeepDaysBefore applies equality check predicate on the "access_keep_days_before" field. It's identical to AccessKeepDaysBeforeEQ.
+func AccessKeepDaysBefore(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldEQ(FieldAccessKeepDaysBefore, v))
+}
+
+// DateAccessKeepShortened applies equality check predicate on the "date_access_keep_shortened" field. It's identical to DateAccessKeepShortenedEQ.
+func DateAccessKeepShortened(v time.Time) predicate.Tenant {
+	return predicate.Tenant(sql.FieldEQ(FieldDateAccessKeepShortened, v))
+}
+
 // AliasEQ applies the EQ predicate on the "alias" field.
 func AliasEQ(v string) predicate.Tenant {
 	return predicate.Tenant(sql.FieldEQ(FieldAlias, v))
@@ -838,6 +873,356 @@ func NoShowMinutesIsNil() predicate.Tenant {
 // NoShowMinutesNotNil applies the NotNil predicate on the "no_show_minutes" field.
 func NoShowMinutesNotNil() predicate.Tenant {
 	return predicate.Tenant(sql.FieldNotNull(FieldNoShowMinutes))
+}
+
+// KeepDaysEQ applies the EQ predicate on the "keep_days" field.
+func KeepDaysEQ(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldEQ(FieldKeepDays, v))
+}
+
+// KeepDaysNEQ applies the NEQ predicate on the "keep_days" field.
+func KeepDaysNEQ(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldNEQ(FieldKeepDays, v))
+}
+
+// KeepDaysIn applies the In predicate on the "keep_days" field.
+func KeepDaysIn(vs ...uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldIn(FieldKeepDays, vs...))
+}
+
+// KeepDaysNotIn applies the NotIn predicate on the "keep_days" field.
+func KeepDaysNotIn(vs ...uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldNotIn(FieldKeepDays, vs...))
+}
+
+// KeepDaysGT applies the GT predicate on the "keep_days" field.
+func KeepDaysGT(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldGT(FieldKeepDays, v))
+}
+
+// KeepDaysGTE applies the GTE predicate on the "keep_days" field.
+func KeepDaysGTE(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldGTE(FieldKeepDays, v))
+}
+
+// KeepDaysLT applies the LT predicate on the "keep_days" field.
+func KeepDaysLT(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldLT(FieldKeepDays, v))
+}
+
+// KeepDaysLTE applies the LTE predicate on the "keep_days" field.
+func KeepDaysLTE(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldLTE(FieldKeepDays, v))
+}
+
+// KeepDaysIsNil applies the IsNil predicate on the "keep_days" field.
+func KeepDaysIsNil() predicate.Tenant {
+	return predicate.Tenant(sql.FieldIsNull(FieldKeepDays))
+}
+
+// KeepDaysNotNil applies the NotNil predicate on the "keep_days" field.
+func KeepDaysNotNil() predicate.Tenant {
+	return predicate.Tenant(sql.FieldNotNull(FieldKeepDays))
+}
+
+// AccessKeepDaysEQ applies the EQ predicate on the "access_keep_days" field.
+func AccessKeepDaysEQ(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldEQ(FieldAccessKeepDays, v))
+}
+
+// AccessKeepDaysNEQ applies the NEQ predicate on the "access_keep_days" field.
+func AccessKeepDaysNEQ(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldNEQ(FieldAccessKeepDays, v))
+}
+
+// AccessKeepDaysIn applies the In predicate on the "access_keep_days" field.
+func AccessKeepDaysIn(vs ...uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldIn(FieldAccessKeepDays, vs...))
+}
+
+// AccessKeepDaysNotIn applies the NotIn predicate on the "access_keep_days" field.
+func AccessKeepDaysNotIn(vs ...uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldNotIn(FieldAccessKeepDays, vs...))
+}
+
+// AccessKeepDaysGT applies the GT predicate on the "access_keep_days" field.
+func AccessKeepDaysGT(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldGT(FieldAccessKeepDays, v))
+}
+
+// AccessKeepDaysGTE applies the GTE predicate on the "access_keep_days" field.
+func AccessKeepDaysGTE(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldGTE(FieldAccessKeepDays, v))
+}
+
+// AccessKeepDaysLT applies the LT predicate on the "access_keep_days" field.
+func AccessKeepDaysLT(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldLT(FieldAccessKeepDays, v))
+}
+
+// AccessKeepDaysLTE applies the LTE predicate on the "access_keep_days" field.
+func AccessKeepDaysLTE(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldLTE(FieldAccessKeepDays, v))
+}
+
+// AccessKeepDaysIsNil applies the IsNil predicate on the "access_keep_days" field.
+func AccessKeepDaysIsNil() predicate.Tenant {
+	return predicate.Tenant(sql.FieldIsNull(FieldAccessKeepDays))
+}
+
+// AccessKeepDaysNotNil applies the NotNil predicate on the "access_keep_days" field.
+func AccessKeepDaysNotNil() predicate.Tenant {
+	return predicate.Tenant(sql.FieldNotNull(FieldAccessKeepDays))
+}
+
+// RestoreDaysEQ applies the EQ predicate on the "restore_days" field.
+func RestoreDaysEQ(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldEQ(FieldRestoreDays, v))
+}
+
+// RestoreDaysNEQ applies the NEQ predicate on the "restore_days" field.
+func RestoreDaysNEQ(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldNEQ(FieldRestoreDays, v))
+}
+
+// RestoreDaysIn applies the In predicate on the "restore_days" field.
+func RestoreDaysIn(vs ...uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldIn(FieldRestoreDays, vs...))
+}
+
+// RestoreDaysNotIn applies the NotIn predicate on the "restore_days" field.
+func RestoreDaysNotIn(vs ...uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldNotIn(FieldRestoreDays, vs...))
+}
+
+// RestoreDaysGT applies the GT predicate on the "restore_days" field.
+func RestoreDaysGT(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldGT(FieldRestoreDays, v))
+}
+
+// RestoreDaysGTE applies the GTE predicate on the "restore_days" field.
+func RestoreDaysGTE(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldGTE(FieldRestoreDays, v))
+}
+
+// RestoreDaysLT applies the LT predicate on the "restore_days" field.
+func RestoreDaysLT(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldLT(FieldRestoreDays, v))
+}
+
+// RestoreDaysLTE applies the LTE predicate on the "restore_days" field.
+func RestoreDaysLTE(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldLTE(FieldRestoreDays, v))
+}
+
+// RestoreDaysIsNil applies the IsNil predicate on the "restore_days" field.
+func RestoreDaysIsNil() predicate.Tenant {
+	return predicate.Tenant(sql.FieldIsNull(FieldRestoreDays))
+}
+
+// RestoreDaysNotNil applies the NotNil predicate on the "restore_days" field.
+func RestoreDaysNotNil() predicate.Tenant {
+	return predicate.Tenant(sql.FieldNotNull(FieldRestoreDays))
+}
+
+// KeepDaysBeforeEQ applies the EQ predicate on the "keep_days_before" field.
+func KeepDaysBeforeEQ(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldEQ(FieldKeepDaysBefore, v))
+}
+
+// KeepDaysBeforeNEQ applies the NEQ predicate on the "keep_days_before" field.
+func KeepDaysBeforeNEQ(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldNEQ(FieldKeepDaysBefore, v))
+}
+
+// KeepDaysBeforeIn applies the In predicate on the "keep_days_before" field.
+func KeepDaysBeforeIn(vs ...uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldIn(FieldKeepDaysBefore, vs...))
+}
+
+// KeepDaysBeforeNotIn applies the NotIn predicate on the "keep_days_before" field.
+func KeepDaysBeforeNotIn(vs ...uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldNotIn(FieldKeepDaysBefore, vs...))
+}
+
+// KeepDaysBeforeGT applies the GT predicate on the "keep_days_before" field.
+func KeepDaysBeforeGT(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldGT(FieldKeepDaysBefore, v))
+}
+
+// KeepDaysBeforeGTE applies the GTE predicate on the "keep_days_before" field.
+func KeepDaysBeforeGTE(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldGTE(FieldKeepDaysBefore, v))
+}
+
+// KeepDaysBeforeLT applies the LT predicate on the "keep_days_before" field.
+func KeepDaysBeforeLT(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldLT(FieldKeepDaysBefore, v))
+}
+
+// KeepDaysBeforeLTE applies the LTE predicate on the "keep_days_before" field.
+func KeepDaysBeforeLTE(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldLTE(FieldKeepDaysBefore, v))
+}
+
+// KeepDaysBeforeIsNil applies the IsNil predicate on the "keep_days_before" field.
+func KeepDaysBeforeIsNil() predicate.Tenant {
+	return predicate.Tenant(sql.FieldIsNull(FieldKeepDaysBefore))
+}
+
+// KeepDaysBeforeNotNil applies the NotNil predicate on the "keep_days_before" field.
+func KeepDaysBeforeNotNil() predicate.Tenant {
+	return predicate.Tenant(sql.FieldNotNull(FieldKeepDaysBefore))
+}
+
+// DateKeepShortenedEQ applies the EQ predicate on the "date_keep_shortened" field.
+func DateKeepShortenedEQ(v time.Time) predicate.Tenant {
+	return predicate.Tenant(sql.FieldEQ(FieldDateKeepShortened, v))
+}
+
+// DateKeepShortenedNEQ applies the NEQ predicate on the "date_keep_shortened" field.
+func DateKeepShortenedNEQ(v time.Time) predicate.Tenant {
+	return predicate.Tenant(sql.FieldNEQ(FieldDateKeepShortened, v))
+}
+
+// DateKeepShortenedIn applies the In predicate on the "date_keep_shortened" field.
+func DateKeepShortenedIn(vs ...time.Time) predicate.Tenant {
+	return predicate.Tenant(sql.FieldIn(FieldDateKeepShortened, vs...))
+}
+
+// DateKeepShortenedNotIn applies the NotIn predicate on the "date_keep_shortened" field.
+func DateKeepShortenedNotIn(vs ...time.Time) predicate.Tenant {
+	return predicate.Tenant(sql.FieldNotIn(FieldDateKeepShortened, vs...))
+}
+
+// DateKeepShortenedGT applies the GT predicate on the "date_keep_shortened" field.
+func DateKeepShortenedGT(v time.Time) predicate.Tenant {
+	return predicate.Tenant(sql.FieldGT(FieldDateKeepShortened, v))
+}
+
+// DateKeepShortenedGTE applies the GTE predicate on the "date_keep_shortened" field.
+func DateKeepShortenedGTE(v time.Time) predicate.Tenant {
+	return predicate.Tenant(sql.FieldGTE(FieldDateKeepShortened, v))
+}
+
+// DateKeepShortenedLT applies the LT predicate on the "date_keep_shortened" field.
+func DateKeepShortenedLT(v time.Time) predicate.Tenant {
+	return predicate.Tenant(sql.FieldLT(FieldDateKeepShortened, v))
+}
+
+// DateKeepShortenedLTE applies the LTE predicate on the "date_keep_shortened" field.
+func DateKeepShortenedLTE(v time.Time) predicate.Tenant {
+	return predicate.Tenant(sql.FieldLTE(FieldDateKeepShortened, v))
+}
+
+// DateKeepShortenedIsNil applies the IsNil predicate on the "date_keep_shortened" field.
+func DateKeepShortenedIsNil() predicate.Tenant {
+	return predicate.Tenant(sql.FieldIsNull(FieldDateKeepShortened))
+}
+
+// DateKeepShortenedNotNil applies the NotNil predicate on the "date_keep_shortened" field.
+func DateKeepShortenedNotNil() predicate.Tenant {
+	return predicate.Tenant(sql.FieldNotNull(FieldDateKeepShortened))
+}
+
+// AccessKeepDaysBeforeEQ applies the EQ predicate on the "access_keep_days_before" field.
+func AccessKeepDaysBeforeEQ(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldEQ(FieldAccessKeepDaysBefore, v))
+}
+
+// AccessKeepDaysBeforeNEQ applies the NEQ predicate on the "access_keep_days_before" field.
+func AccessKeepDaysBeforeNEQ(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldNEQ(FieldAccessKeepDaysBefore, v))
+}
+
+// AccessKeepDaysBeforeIn applies the In predicate on the "access_keep_days_before" field.
+func AccessKeepDaysBeforeIn(vs ...uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldIn(FieldAccessKeepDaysBefore, vs...))
+}
+
+// AccessKeepDaysBeforeNotIn applies the NotIn predicate on the "access_keep_days_before" field.
+func AccessKeepDaysBeforeNotIn(vs ...uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldNotIn(FieldAccessKeepDaysBefore, vs...))
+}
+
+// AccessKeepDaysBeforeGT applies the GT predicate on the "access_keep_days_before" field.
+func AccessKeepDaysBeforeGT(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldGT(FieldAccessKeepDaysBefore, v))
+}
+
+// AccessKeepDaysBeforeGTE applies the GTE predicate on the "access_keep_days_before" field.
+func AccessKeepDaysBeforeGTE(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldGTE(FieldAccessKeepDaysBefore, v))
+}
+
+// AccessKeepDaysBeforeLT applies the LT predicate on the "access_keep_days_before" field.
+func AccessKeepDaysBeforeLT(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldLT(FieldAccessKeepDaysBefore, v))
+}
+
+// AccessKeepDaysBeforeLTE applies the LTE predicate on the "access_keep_days_before" field.
+func AccessKeepDaysBeforeLTE(v uint32) predicate.Tenant {
+	return predicate.Tenant(sql.FieldLTE(FieldAccessKeepDaysBefore, v))
+}
+
+// AccessKeepDaysBeforeIsNil applies the IsNil predicate on the "access_keep_days_before" field.
+func AccessKeepDaysBeforeIsNil() predicate.Tenant {
+	return predicate.Tenant(sql.FieldIsNull(FieldAccessKeepDaysBefore))
+}
+
+// AccessKeepDaysBeforeNotNil applies the NotNil predicate on the "access_keep_days_before" field.
+func AccessKeepDaysBeforeNotNil() predicate.Tenant {
+	return predicate.Tenant(sql.FieldNotNull(FieldAccessKeepDaysBefore))
+}
+
+// DateAccessKeepShortenedEQ applies the EQ predicate on the "date_access_keep_shortened" field.
+func DateAccessKeepShortenedEQ(v time.Time) predicate.Tenant {
+	return predicate.Tenant(sql.FieldEQ(FieldDateAccessKeepShortened, v))
+}
+
+// DateAccessKeepShortenedNEQ applies the NEQ predicate on the "date_access_keep_shortened" field.
+func DateAccessKeepShortenedNEQ(v time.Time) predicate.Tenant {
+	return predicate.Tenant(sql.FieldNEQ(FieldDateAccessKeepShortened, v))
+}
+
+// DateAccessKeepShortenedIn applies the In predicate on the "date_access_keep_shortened" field.
+func DateAccessKeepShortenedIn(vs ...time.Time) predicate.Tenant {
+	return predicate.Tenant(sql.FieldIn(FieldDateAccessKeepShortened, vs...))
+}
+
+// DateAccessKeepShortenedNotIn applies the NotIn predicate on the "date_access_keep_shortened" field.
+func DateAccessKeepShortenedNotIn(vs ...time.Time) predicate.Tenant {
+	return predicate.Tenant(sql.FieldNotIn(FieldDateAccessKeepShortened, vs...))
+}
+
+// DateAccessKeepShortenedGT applies the GT predicate on the "date_access_keep_shortened" field.
+func DateAccessKeepShortenedGT(v time.Time) predicate.Tenant {
+	return predicate.Tenant(sql.FieldGT(FieldDateAccessKeepShortened, v))
+}
+
+// DateAccessKeepShortenedGTE applies the GTE predicate on the "date_access_keep_shortened" field.
+func DateAccessKeepShortenedGTE(v time.Time) predicate.Tenant {
+	return predicate.Tenant(sql.FieldGTE(FieldDateAccessKeepShortened, v))
+}
+
+// DateAccessKeepShortenedLT applies the LT predicate on the "date_access_keep_shortened" field.
+func DateAccessKeepShortenedLT(v time.Time) predicate.Tenant {
+	return predicate.Tenant(sql.FieldLT(FieldDateAccessKeepShortened, v))
+}
+
+// DateAccessKeepShortenedLTE applies the LTE predicate on the "date_access_keep_shortened" field.
+func DateAccessKeepShortenedLTE(v time.Time) predicate.Tenant {
+	return predicate.Tenant(sql.FieldLTE(FieldDateAccessKeepShortened, v))
+}
+
+// DateAccessKeepShortenedIsNil applies the IsNil predicate on the "date_access_keep_shortened" field.
+func DateAccessKeepShortenedIsNil() predicate.Tenant {
+	return predicate.Tenant(sql.FieldIsNull(FieldDateAccessKeepShortened))
+}
+
+// DateAccessKeepShortenedNotNil applies the NotNil predicate on the "date_access_keep_shortened" field.
+func DateAccessKeepShortenedNotNil() predicate.Tenant {
+	return predicate.Tenant(sql.FieldNotNull(FieldDateAccessKeepShortened))
 }
 
 // And groups predicates with the AND operator between them.

@@ -37,6 +37,20 @@ const (
 	FieldCurrency = "currency"
 	// FieldNoShowMinutes holds the string denoting the no_show_minutes field in the database.
 	FieldNoShowMinutes = "no_show_minutes"
+	// FieldKeepDays holds the string denoting the keep_days field in the database.
+	FieldKeepDays = "keep_days"
+	// FieldAccessKeepDays holds the string denoting the access_keep_days field in the database.
+	FieldAccessKeepDays = "access_keep_days"
+	// FieldRestoreDays holds the string denoting the restore_days field in the database.
+	FieldRestoreDays = "restore_days"
+	// FieldKeepDaysBefore holds the string denoting the keep_days_before field in the database.
+	FieldKeepDaysBefore = "keep_days_before"
+	// FieldDateKeepShortened holds the string denoting the date_keep_shortened field in the database.
+	FieldDateKeepShortened = "date_keep_shortened"
+	// FieldAccessKeepDaysBefore holds the string denoting the access_keep_days_before field in the database.
+	FieldAccessKeepDaysBefore = "access_keep_days_before"
+	// FieldDateAccessKeepShortened holds the string denoting the date_access_keep_shortened field in the database.
+	FieldDateAccessKeepShortened = "date_access_keep_shortened"
 	// Table holds the table name of the tenant in the database.
 	Table = "tenant"
 )
@@ -57,6 +71,13 @@ var Columns = []string{
 	FieldTimezone,
 	FieldCurrency,
 	FieldNoShowMinutes,
+	FieldKeepDays,
+	FieldAccessKeepDays,
+	FieldRestoreDays,
+	FieldKeepDaysBefore,
+	FieldDateKeepShortened,
+	FieldAccessKeepDaysBefore,
+	FieldDateAccessKeepShortened,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -76,6 +97,16 @@ var (
 	DefaultCurrency string
 	// DefaultNoShowMinutes holds the default value on creation for the "no_show_minutes" field.
 	DefaultNoShowMinutes int32
+	// DefaultKeepDays holds the default value on creation for the "keep_days" field.
+	DefaultKeepDays uint32
+	// DefaultAccessKeepDays holds the default value on creation for the "access_keep_days" field.
+	DefaultAccessKeepDays uint32
+	// DefaultRestoreDays holds the default value on creation for the "restore_days" field.
+	DefaultRestoreDays uint32
+	// DefaultKeepDaysBefore holds the default value on creation for the "keep_days_before" field.
+	DefaultKeepDaysBefore uint32
+	// DefaultAccessKeepDaysBefore holds the default value on creation for the "access_keep_days_before" field.
+	DefaultAccessKeepDaysBefore uint32
 )
 
 // OrderOption defines the ordering options for the Tenant queries.
@@ -144,4 +175,39 @@ func ByCurrency(opts ...sql.OrderTermOption) OrderOption {
 // ByNoShowMinutes orders the results by the no_show_minutes field.
 func ByNoShowMinutes(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldNoShowMinutes, opts...).ToFunc()
+}
+
+// ByKeepDays orders the results by the keep_days field.
+func ByKeepDays(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldKeepDays, opts...).ToFunc()
+}
+
+// ByAccessKeepDays orders the results by the access_keep_days field.
+func ByAccessKeepDays(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAccessKeepDays, opts...).ToFunc()
+}
+
+// ByRestoreDays orders the results by the restore_days field.
+func ByRestoreDays(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRestoreDays, opts...).ToFunc()
+}
+
+// ByKeepDaysBefore orders the results by the keep_days_before field.
+func ByKeepDaysBefore(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldKeepDaysBefore, opts...).ToFunc()
+}
+
+// ByDateKeepShortened orders the results by the date_keep_shortened field.
+func ByDateKeepShortened(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateKeepShortened, opts...).ToFunc()
+}
+
+// ByAccessKeepDaysBefore orders the results by the access_keep_days_before field.
+func ByAccessKeepDaysBefore(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAccessKeepDaysBefore, opts...).ToFunc()
+}
+
+// ByDateAccessKeepShortened orders the results by the date_access_keep_shortened field.
+func ByDateAccessKeepShortened(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateAccessKeepShortened, opts...).ToFunc()
 }

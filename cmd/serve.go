@@ -198,8 +198,7 @@ func Open(ctx context.Context, c Config) (*Server, error) {
 // The two hooks are the whole of what payday puts in the write and read paths,
 // and both come out of what the schema declared: [pd.Minter] stamps a new row
 // with the domain of its entity and refuses one of another, [pd.Wall] narrows
-// every read to the tenants the caller may see -- and [domain.View] to the
-// part of their history their contract lets them look at.
+// every read to the tenants the caller may see.
 func Build(ctx context.Context, c Config) (*Server, error) {
 	db, dialect, err := c.Db.Open(ctx)
 	if err != nil {
@@ -299,10 +298,9 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		return nil, err
 	}
 
-	// The wall, and inside it the tenant's view window over what a predicate
-	// can narrow to it (design 8.1).
-	scope := bare.Scopes{pd.Wall(), domain.View(client, deps)}
-	walled, err := pd.NewSink(client, append(opts, bare.WithScope(scope))...)
+	// The wall. Nothing narrows a tenant's reads to less of its history than
+	// it keeps (D36).
+	walled, err := pd.NewSink(client, append(opts, bare.WithScope(pd.Wall()))...)
 	if err != nil {
 		people.Close()
 		db.Close()
@@ -504,16 +502,19 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		}
 	}
 
-	// And per tenant, from its contract: the kinds that are history, whose
-	// trail lasts as long as the history does, and the access record (#144);
-	// a legal hold holds all of it. Asked when the deployment said a window
-	// may destroy, or keeps a window of its own -- since a tenant asked turns
-	// the sweep on, a deployment that configured no `audit:` asks nobody.
-	// With the windows off a contract is answered only where it keeps longer
-	// than the deployment would (`retention.Trail`).
+	// And per tenant, from its own settings (D36): the kinds that are history,
+	// whose trail lasts as long as the history does, and the access record
+	// (#144); a legal hold holds all of it. Asked when the deployment said a
+	// window may destroy, or keeps a window of its own -- since a tenant asked
+	// turns the sweep on, a deployment that configured no `audit:` asks
+	// nobody. With the windows off a workspace is answered only where it keeps
+	// longer than the deployment would (`retention.Trail`).
 	if c.App.Retention.Apply || p.On() {
 		p.Tenants = retention.Trail(client, p, RetentionDefaults(c, p))
 	}
+	// And the domain's, which a workspace's own settings are read and held to
+	// by: the deployment's access record and its floor beside the grace.
+	deps.Retention = RetentionDefaults(c, p)
 
 	// What the trail kept of a person, forgotten in the database and in the
 	// archive both, when they are pseudonymized. Every tenant's legal holds
@@ -585,7 +586,7 @@ func (s *Server) Offboard(c Config) offboard.Deployment {
 		Files:     s.Deps.Files,
 		Trail:     s.Trail,
 		Audit:     s.Deps.Audit,
-		Retention: c.App.Retention.Defaults(),
+		Retention: RetentionDefaults(c, s.Trail),
 		Now:       s.Deps.Clock,
 	}
 	if s.Search != nil {

@@ -637,8 +637,8 @@ func refuse(c codes.Code, field, msg string) error {
 	return v.Err()
 }
 
-// window is the caller's tenant's history windows now (design 8.1), read
-// once per operation.
+// window is the caller's tenant's history windows now (design 8), read once
+// per operation.
 func (t *Tx) window() (retention.Window, error) {
 	if t.win != nil {
 		return *t.win, nil
@@ -655,44 +655,6 @@ func (t *Tx) window() (retention.Window, error) {
 
 	t.win = &w
 	return w, nil
-}
-
-// since is the oldest moment the caller's tenant may look at, and the zero
-// time when it may look at all of its history.
-func (t *Tx) since() (time.Time, error) {
-	w, err := t.window()
-	if err != nil {
-		return time.Time{}, err
-	}
-	return w.Since(t.now), nil
-}
-
-// inView refuses a moment before the view window: what a tenant may not look
-// at, it may not ask the state of either. OutOfRange rather than
-// InvalidArgument, because the same moment is a fine one under a longer
-// contract.
-func (t *Tx) inView(field string, at time.Time) error {
-	w, err := t.window()
-	if err != nil {
-		return err
-	}
-	since := w.Since(t.now)
-	if since.IsZero() || !at.Before(since) {
-		return nil
-	}
-
-	return refuse(codes.OutOfRange, field, fmt.Sprintf("이 조직은 최근 %d일(%s부터)의 이력만 볼 수 있습니다",
-		int(w.View/(24*time.Hour)), since.In(t.zone()).Format("2006년 1월 2일")))
-}
-
-// gone answers whether a time row is history a view window beginning at
-// `since` does not reach: it ended, or it was superseded, before the window
-// began. A row the window begins inside of is the state the window begins in.
-func gone(since time.Time, to, superseded *time.Time) bool {
-	if since.IsZero() {
-		return false
-	}
-	return (to != nil && !to.After(since)) || (superseded != nil && !superseded.After(since))
 }
 
 // when is a moment as a person here reads one, in a refusal.

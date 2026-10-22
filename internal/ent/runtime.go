@@ -75,18 +75,30 @@ func init() {
 	tenantDescNoShowMinutes := tenantFields[13].Descriptor()
 	// tenant.DefaultNoShowMinutes holds the default value on creation for the no_show_minutes field.
 	tenant.DefaultNoShowMinutes = tenantDescNoShowMinutes.Default.(int32)
+	// tenantDescKeepDays is the schema descriptor for keep_days field.
+	tenantDescKeepDays := tenantFields[14].Descriptor()
+	// tenant.DefaultKeepDays holds the default value on creation for the keep_days field.
+	tenant.DefaultKeepDays = tenantDescKeepDays.Default.(uint32)
+	// tenantDescAccessKeepDays is the schema descriptor for access_keep_days field.
+	tenantDescAccessKeepDays := tenantFields[15].Descriptor()
+	// tenant.DefaultAccessKeepDays holds the default value on creation for the access_keep_days field.
+	tenant.DefaultAccessKeepDays = tenantDescAccessKeepDays.Default.(uint32)
+	// tenantDescRestoreDays is the schema descriptor for restore_days field.
+	tenantDescRestoreDays := tenantFields[16].Descriptor()
+	// tenant.DefaultRestoreDays holds the default value on creation for the restore_days field.
+	tenant.DefaultRestoreDays = tenantDescRestoreDays.Default.(uint32)
+	// tenantDescKeepDaysBefore is the schema descriptor for keep_days_before field.
+	tenantDescKeepDaysBefore := tenantFields[17].Descriptor()
+	// tenant.DefaultKeepDaysBefore holds the default value on creation for the keep_days_before field.
+	tenant.DefaultKeepDaysBefore = tenantDescKeepDaysBefore.Default.(uint32)
+	// tenantDescAccessKeepDaysBefore is the schema descriptor for access_keep_days_before field.
+	tenantDescAccessKeepDaysBefore := tenantFields[19].Descriptor()
+	// tenant.DefaultAccessKeepDaysBefore holds the default value on creation for the access_keep_days_before field.
+	tenant.DefaultAccessKeepDaysBefore = tenantDescAccessKeepDaysBefore.Default.(uint32)
 	tenantcontractFields := schema.TenantContract{}.Fields()
 	_ = tenantcontractFields
-	// tenantcontractDescAccessKeepDays is the schema descriptor for access_keep_days field.
-	tenantcontractDescAccessKeepDays := tenantcontractFields[7].Descriptor()
-	// tenantcontract.DefaultAccessKeepDays holds the default value on creation for the access_keep_days field.
-	tenantcontract.DefaultAccessKeepDays = tenantcontractDescAccessKeepDays.Default.(uint32)
-	// tenantcontractDescRestoreDays is the schema descriptor for restore_days field.
-	tenantcontractDescRestoreDays := tenantcontractFields[8].Descriptor()
-	// tenantcontract.DefaultRestoreDays holds the default value on creation for the restore_days field.
-	tenantcontract.DefaultRestoreDays = tenantcontractDescRestoreDays.Default.(uint32)
 	// tenantcontractDescPurgeFloors is the schema descriptor for purge_floors field.
-	tenantcontractDescPurgeFloors := tenantcontractFields[9].Descriptor()
+	tenantcontractDescPurgeFloors := tenantcontractFields[4].Descriptor()
 	// tenantcontract.DefaultPurgeFloors holds the default value on creation for the purge_floors field.
 	tenantcontract.DefaultPurgeFloors = tenantcontractDescPurgeFloors.Default.(bool)
 }

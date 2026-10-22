@@ -36,23 +36,30 @@ const (
 // overlay that touches a number here, since the merge would take it silently
 // and `alias` would quietly become whatever the overlay said.
 type Tenant struct {
-	state                    protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id            []byte                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Alias         string                 `protobuf:"bytes,4,opt,name=alias"`
-	xxx_hidden_Name          string                 `protobuf:"bytes,5,opt,name=name"`
-	xxx_hidden_Desc          string                 `protobuf:"bytes,6,opt,name=desc"`
-	xxx_hidden_Labels        map[string]string      `protobuf:"bytes,7,rep,name=labels" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	xxx_hidden_DateUpdated   *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
-	xxx_hidden_DateCreated   *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_DateClosed    *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=date_closed,json=dateClosed"`
-	xxx_hidden_ClosedBy      string                 `protobuf:"bytes,9,opt,name=closed_by,json=closedBy"`
-	xxx_hidden_CloseReason   string                 `protobuf:"bytes,10,opt,name=close_reason,json=closeReason"`
-	xxx_hidden_DateDestroy   *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=date_destroy,json=dateDestroy"`
-	xxx_hidden_Timezone      string                 `protobuf:"bytes,12,opt,name=timezone"`
-	xxx_hidden_Currency      string                 `protobuf:"bytes,16,opt,name=currency"`
-	xxx_hidden_NoShowMinutes int32                  `protobuf:"varint,17,opt,name=no_show_minutes,json=noShowMinutes"`
-	unknownFields            protoimpl.UnknownFields
-	sizeCache                protoimpl.SizeCache
+	state                              protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id                      []byte                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Alias                   string                 `protobuf:"bytes,4,opt,name=alias"`
+	xxx_hidden_Name                    string                 `protobuf:"bytes,5,opt,name=name"`
+	xxx_hidden_Desc                    string                 `protobuf:"bytes,6,opt,name=desc"`
+	xxx_hidden_Labels                  map[string]string      `protobuf:"bytes,7,rep,name=labels" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	xxx_hidden_DateUpdated             *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
+	xxx_hidden_DateCreated             *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
+	xxx_hidden_DateClosed              *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=date_closed,json=dateClosed"`
+	xxx_hidden_ClosedBy                string                 `protobuf:"bytes,9,opt,name=closed_by,json=closedBy"`
+	xxx_hidden_CloseReason             string                 `protobuf:"bytes,10,opt,name=close_reason,json=closeReason"`
+	xxx_hidden_DateDestroy             *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=date_destroy,json=dateDestroy"`
+	xxx_hidden_Timezone                string                 `protobuf:"bytes,12,opt,name=timezone"`
+	xxx_hidden_Currency                string                 `protobuf:"bytes,16,opt,name=currency"`
+	xxx_hidden_NoShowMinutes           int32                  `protobuf:"varint,17,opt,name=no_show_minutes,json=noShowMinutes"`
+	xxx_hidden_KeepDays                uint32                 `protobuf:"varint,18,opt,name=keep_days,json=keepDays"`
+	xxx_hidden_AccessKeepDays          uint32                 `protobuf:"varint,19,opt,name=access_keep_days,json=accessKeepDays"`
+	xxx_hidden_RestoreDays             uint32                 `protobuf:"varint,20,opt,name=restore_days,json=restoreDays"`
+	xxx_hidden_KeepDaysBefore          uint32                 `protobuf:"varint,21,opt,name=keep_days_before,json=keepDaysBefore"`
+	xxx_hidden_DateKeepShortened       *timestamppb.Timestamp `protobuf:"bytes,22,opt,name=date_keep_shortened,json=dateKeepShortened"`
+	xxx_hidden_AccessKeepDaysBefore    uint32                 `protobuf:"varint,23,opt,name=access_keep_days_before,json=accessKeepDaysBefore"`
+	xxx_hidden_DateAccessKeepShortened *timestamppb.Timestamp `protobuf:"bytes,24,opt,name=date_access_keep_shortened,json=dateAccessKeepShortened"`
+	unknownFields                      protoimpl.UnknownFields
+	sizeCache                          protoimpl.SizeCache
 }
 
 func (x *Tenant) Reset() {
@@ -178,6 +185,55 @@ func (x *Tenant) GetNoShowMinutes() int32 {
 	return 0
 }
 
+func (x *Tenant) GetKeepDays() uint32 {
+	if x != nil {
+		return x.xxx_hidden_KeepDays
+	}
+	return 0
+}
+
+func (x *Tenant) GetAccessKeepDays() uint32 {
+	if x != nil {
+		return x.xxx_hidden_AccessKeepDays
+	}
+	return 0
+}
+
+func (x *Tenant) GetRestoreDays() uint32 {
+	if x != nil {
+		return x.xxx_hidden_RestoreDays
+	}
+	return 0
+}
+
+func (x *Tenant) GetKeepDaysBefore() uint32 {
+	if x != nil {
+		return x.xxx_hidden_KeepDaysBefore
+	}
+	return 0
+}
+
+func (x *Tenant) GetDateKeepShortened() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateKeepShortened
+	}
+	return nil
+}
+
+func (x *Tenant) GetAccessKeepDaysBefore() uint32 {
+	if x != nil {
+		return x.xxx_hidden_AccessKeepDaysBefore
+	}
+	return 0
+}
+
+func (x *Tenant) GetDateAccessKeepShortened() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateAccessKeepShortened
+	}
+	return nil
+}
+
 func (x *Tenant) SetId(v []byte) {
 	if v == nil {
 		v = []byte{}
@@ -237,6 +293,34 @@ func (x *Tenant) SetNoShowMinutes(v int32) {
 	x.xxx_hidden_NoShowMinutes = v
 }
 
+func (x *Tenant) SetKeepDays(v uint32) {
+	x.xxx_hidden_KeepDays = v
+}
+
+func (x *Tenant) SetAccessKeepDays(v uint32) {
+	x.xxx_hidden_AccessKeepDays = v
+}
+
+func (x *Tenant) SetRestoreDays(v uint32) {
+	x.xxx_hidden_RestoreDays = v
+}
+
+func (x *Tenant) SetKeepDaysBefore(v uint32) {
+	x.xxx_hidden_KeepDaysBefore = v
+}
+
+func (x *Tenant) SetDateKeepShortened(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateKeepShortened = v
+}
+
+func (x *Tenant) SetAccessKeepDaysBefore(v uint32) {
+	x.xxx_hidden_AccessKeepDaysBefore = v
+}
+
+func (x *Tenant) SetDateAccessKeepShortened(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateAccessKeepShortened = v
+}
+
 func (x *Tenant) HasDateUpdated() bool {
 	if x == nil {
 		return false
@@ -265,6 +349,20 @@ func (x *Tenant) HasDateDestroy() bool {
 	return x.xxx_hidden_DateDestroy != nil
 }
 
+func (x *Tenant) HasDateKeepShortened() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateKeepShortened != nil
+}
+
+func (x *Tenant) HasDateAccessKeepShortened() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateAccessKeepShortened != nil
+}
+
 func (x *Tenant) ClearDateUpdated() {
 	x.xxx_hidden_DateUpdated = nil
 }
@@ -279,6 +377,14 @@ func (x *Tenant) ClearDateClosed() {
 
 func (x *Tenant) ClearDateDestroy() {
 	x.xxx_hidden_DateDestroy = nil
+}
+
+func (x *Tenant) ClearDateKeepShortened() {
+	x.xxx_hidden_DateKeepShortened = nil
+}
+
+func (x *Tenant) ClearDateAccessKeepShortened() {
+	x.xxx_hidden_DateAccessKeepShortened = nil
 }
 
 type Tenant_builder struct {
@@ -328,6 +434,34 @@ type Tenant_builder struct {
 	// when nobody checked in, in minutes. 0 is the deployment's; negative
 	// holds nobody to checking in.
 	NoShowMinutes int32
+	// How long the workspace keeps what it was and did, its owner's to say as
+	// the rest of its settings (design 8, D36): what is kept is what is seen,
+	// and nothing narrows a read to less of it.
+	//
+	// KeepDays is how long its history -- the time rows, the events, the
+	// documents that are over -- is kept, in days, and the trail of the writes
+	// that made it with it. 0 is forever. Only the deployment's switch,
+	// `app.retention.apply`, lets it destroy anything.
+	KeepDays uint32
+	// AccessKeepDays is how long its access record -- who read, wrote or took
+	// out whose data in it -- is kept, in days (rove#136). 0 is the
+	// deployment's `audit.by.access`, and none is below the deployment's floor,
+	// `audit.by.access.min`: the floor is what the law the deployment is under
+	// asks.
+	AccessKeepDays uint32
+	// RestoreDays is how long it may be restored once closed, in days, before it
+	// is destroyed (D29). 0 is the deployment's `app.workspaces.restore_within`.
+	// Read when it is closed: the date of its destruction then is what its
+	// owner is told.
+	RestoreDays uint32
+	// What KeepDays and AccessKeepDays said before each was last made shorter,
+	// and when. A shorter window waits out the deployment's grace
+	// (`app.retention.grace`) from then, keeping the longer one meanwhile, so a
+	// mistake undone in time has destroyed nothing. Unset is nothing waiting.
+	KeepDaysBefore          uint32
+	DateKeepShortened       *timestamppb.Timestamp
+	AccessKeepDaysBefore    uint32
+	DateAccessKeepShortened *timestamppb.Timestamp
 }
 
 func (b0 Tenant_builder) Build() *Tenant {
@@ -348,6 +482,13 @@ func (b0 Tenant_builder) Build() *Tenant {
 	x.xxx_hidden_Timezone = b.Timezone
 	x.xxx_hidden_Currency = b.Currency
 	x.xxx_hidden_NoShowMinutes = b.NoShowMinutes
+	x.xxx_hidden_KeepDays = b.KeepDays
+	x.xxx_hidden_AccessKeepDays = b.AccessKeepDays
+	x.xxx_hidden_RestoreDays = b.RestoreDays
+	x.xxx_hidden_KeepDaysBefore = b.KeepDaysBefore
+	x.xxx_hidden_DateKeepShortened = b.DateKeepShortened
+	x.xxx_hidden_AccessKeepDaysBefore = b.AccessKeepDaysBefore
+	x.xxx_hidden_DateAccessKeepShortened = b.DateAccessKeepShortened
 	return m0
 }
 
@@ -355,7 +496,7 @@ var File_rove_payday_tenant_proto protoreflect.FileDescriptor
 
 const file_rove_payday_tenant_proto_rawDesc = "" +
 	"\n" +
-	"\x18rove/payday/tenant.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\"\x92\x06\n" +
+	"\x18rove/payday/tenant.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\"\xbf\t\n" +
 	"\x06Tenant\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12\x1c\n" +
 	"\x05alias\x18\x04 \x01(\tB\x06\xea\x82\x16\x020\x01R\x05alias\x12\x12\n" +
@@ -372,7 +513,14 @@ const file_rove_payday_tenant_proto_rawDesc = "" +
 	"\fdate_destroy\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\vdateDestroy\x12#\n" +
 	"\btimezone\x18\f \x01(\tB\a\xea\x82\x16\x03\x82\x01\x00R\btimezone\x12#\n" +
 	"\bcurrency\x18\x10 \x01(\tB\a\xea\x82\x16\x03\x82\x01\x00R\bcurrency\x12/\n" +
-	"\x0fno_show_minutes\x18\x11 \x01(\x05B\a\xea\x82\x16\x03\x82\x01\x00R\rnoShowMinutes\x1a9\n" +
+	"\x0fno_show_minutes\x18\x11 \x01(\x05B\a\xea\x82\x16\x03\x82\x01\x00R\rnoShowMinutes\x12$\n" +
+	"\tkeep_days\x18\x12 \x01(\rB\a\xea\x82\x16\x03\x82\x01\x00R\bkeepDays\x121\n" +
+	"\x10access_keep_days\x18\x13 \x01(\rB\a\xea\x82\x16\x03\x82\x01\x00R\x0eaccessKeepDays\x12*\n" +
+	"\frestore_days\x18\x14 \x01(\rB\a\xea\x82\x16\x03\x82\x01\x00R\vrestoreDays\x121\n" +
+	"\x10keep_days_before\x18\x15 \x01(\rB\a\xea\x82\x16\x03\x82\x01\x00R\x0ekeepDaysBefore\x12R\n" +
+	"\x13date_keep_shortened\x18\x16 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\x11dateKeepShortened\x12>\n" +
+	"\x17access_keep_days_before\x18\x17 \x01(\rB\a\xea\x82\x16\x03\x82\x01\x00R\x14accessKeepDaysBefore\x12_\n" +
+	"\x1adate_access_keep_shortened\x18\x18 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\x17dateAccessKeepShortened\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:_\xca\xfc\x15&\x12\x02\x10\x01\x1a \x12\x04page\x1a\x10\n" +
@@ -399,11 +547,13 @@ var file_rove_payday_tenant_proto_depIdxs = []int32{
 	2, // 2: rove.Tenant.date_created:type_name -> google.protobuf.Timestamp
 	2, // 3: rove.Tenant.date_closed:type_name -> google.protobuf.Timestamp
 	2, // 4: rove.Tenant.date_destroy:type_name -> google.protobuf.Timestamp
-	5, // [5:5] is the sub-list for method output_type
-	5, // [5:5] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	2, // 5: rove.Tenant.date_keep_shortened:type_name -> google.protobuf.Timestamp
+	2, // 6: rove.Tenant.date_access_keep_shortened:type_name -> google.protobuf.Timestamp
+	7, // [7:7] is the sub-list for method output_type
+	7, // [7:7] is the sub-list for method input_type
+	7, // [7:7] is the sub-list for extension type_name
+	7, // [7:7] is the sub-list for extension extendee
+	0, // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_rove_payday_tenant_proto_init() }

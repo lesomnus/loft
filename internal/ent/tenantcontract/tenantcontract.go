@@ -16,18 +16,8 @@ const (
 	FieldName = "name"
 	// FieldDesc holds the string denoting the desc field in the database.
 	FieldDesc = "desc"
-	// FieldViewDays holds the string denoting the view_days field in the database.
-	FieldViewDays = "view_days"
-	// FieldKeepDays holds the string denoting the keep_days field in the database.
-	FieldKeepDays = "keep_days"
-	// FieldGraceDays holds the string denoting the grace_days field in the database.
-	FieldGraceDays = "grace_days"
 	// FieldDateEffective holds the string denoting the date_effective field in the database.
 	FieldDateEffective = "date_effective"
-	// FieldAccessKeepDays holds the string denoting the access_keep_days field in the database.
-	FieldAccessKeepDays = "access_keep_days"
-	// FieldRestoreDays holds the string denoting the restore_days field in the database.
-	FieldRestoreDays = "restore_days"
 	// FieldPurgeFloors holds the string denoting the purge_floors field in the database.
 	FieldPurgeFloors = "purge_floors"
 	// FieldDateErased holds the string denoting the date_erased field in the database.
@@ -54,12 +44,7 @@ var Columns = []string{
 	FieldId,
 	FieldName,
 	FieldDesc,
-	FieldViewDays,
-	FieldKeepDays,
-	FieldGraceDays,
 	FieldDateEffective,
-	FieldAccessKeepDays,
-	FieldRestoreDays,
 	FieldPurgeFloors,
 	FieldDateErased,
 	FieldDateCreated,
@@ -77,10 +62,6 @@ func ValidColumn(column string) bool {
 }
 
 var (
-	// DefaultAccessKeepDays holds the default value on creation for the "access_keep_days" field.
-	DefaultAccessKeepDays uint32
-	// DefaultRestoreDays holds the default value on creation for the "restore_days" field.
-	DefaultRestoreDays uint32
 	// DefaultPurgeFloors holds the default value on creation for the "purge_floors" field.
 	DefaultPurgeFloors bool
 )
@@ -103,34 +84,9 @@ func ByDesc(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDesc, opts...).ToFunc()
 }
 
-// ByViewDays orders the results by the view_days field.
-func ByViewDays(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldViewDays, opts...).ToFunc()
-}
-
-// ByKeepDays orders the results by the keep_days field.
-func ByKeepDays(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldKeepDays, opts...).ToFunc()
-}
-
-// ByGraceDays orders the results by the grace_days field.
-func ByGraceDays(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldGraceDays, opts...).ToFunc()
-}
-
 // ByDateEffective orders the results by the date_effective field.
 func ByDateEffective(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDateEffective, opts...).ToFunc()
-}
-
-// ByAccessKeepDays orders the results by the access_keep_days field.
-func ByAccessKeepDays(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldAccessKeepDays, opts...).ToFunc()
-}
-
-// ByRestoreDays orders the results by the restore_days field.
-func ByRestoreDays(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldRestoreDays, opts...).ToFunc()
 }
 
 // ByPurgeFloors orders the results by the purge_floors field.

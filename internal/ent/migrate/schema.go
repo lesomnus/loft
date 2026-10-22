@@ -1795,6 +1795,13 @@ var (
 		{Name: "timezone", Type: field.TypeString, Nullable: true, Default: ""},
 		{Name: "currency", Type: field.TypeString, Nullable: true, Default: ""},
 		{Name: "no_show_minutes", Type: field.TypeInt32, Nullable: true, Default: 0},
+		{Name: "keep_days", Type: field.TypeUint32, Nullable: true, Default: 0},
+		{Name: "access_keep_days", Type: field.TypeUint32, Nullable: true, Default: 0},
+		{Name: "restore_days", Type: field.TypeUint32, Nullable: true, Default: 0},
+		{Name: "keep_days_before", Type: field.TypeUint32, Nullable: true, Default: 0},
+		{Name: "date_keep_shortened", Type: field.TypeTime, Nullable: true},
+		{Name: "access_keep_days_before", Type: field.TypeUint32, Nullable: true, Default: 0},
+		{Name: "date_access_keep_shortened", Type: field.TypeTime, Nullable: true},
 	}
 	// TenantTable holds the schema information for the "tenant" table.
 	TenantTable = &schema.Table{
@@ -1814,12 +1821,7 @@ var (
 		{Name: "id", Type: field.TypeUuid, Unique: true},
 		{Name: "name", Type: field.TypeString},
 		{Name: "desc", Type: field.TypeString},
-		{Name: "view_days", Type: field.TypeUint32},
-		{Name: "keep_days", Type: field.TypeUint32},
-		{Name: "grace_days", Type: field.TypeUint32},
 		{Name: "date_effective", Type: field.TypeTime, Nullable: true},
-		{Name: "access_keep_days", Type: field.TypeUint32, Nullable: true, Default: 0},
-		{Name: "restore_days", Type: field.TypeUint32, Nullable: true, Default: 0},
 		{Name: "purge_floors", Type: field.TypeBool, Nullable: true, Default: false},
 		{Name: "date_erased", Type: field.TypeTime, Nullable: true},
 		{Name: "date_created", Type: field.TypeTime, Nullable: true},
@@ -1833,7 +1835,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "tenantcontract_tenant_tenant",
-				Columns:    []*schema.Column{TenantcontractColumns[12]},
+				Columns:    []*schema.Column{TenantcontractColumns[7]},
 				RefColumns: []*schema.Column{TenantColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -1842,7 +1844,7 @@ var (
 			{
 				Name:    "tenantcontract_effective",
 				Unique:  false,
-				Columns: []*schema.Column{TenantcontractColumns[12], TenantcontractColumns[6], TenantcontractColumns[0]},
+				Columns: []*schema.Column{TenantcontractColumns[7], TenantcontractColumns[3], TenantcontractColumns[0]},
 			},
 		},
 	}

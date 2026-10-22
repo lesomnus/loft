@@ -88,17 +88,8 @@ func (TenantContract) Fields() []ent.Field {
 			Immutable(),
 		field.String("name"),
 		field.String("desc"),
-		field.Uint32("view_days"),
-		field.Uint32("keep_days"),
-		field.Uint32("grace_days"),
 		field.Time("date_effective").
 			Optional(),
-		field.Uint32("access_keep_days").
-			Optional().
-			Default(0),
-		field.Uint32("restore_days").
-			Optional().
-			Default(0),
 		field.Bool("purge_floors").
 			Optional().
 			Default(false),

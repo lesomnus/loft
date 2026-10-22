@@ -36,24 +36,6 @@ func (_c *TenantContractCreate) SetDesc(v string) *TenantContractCreate {
 	return _c
 }
 
-// SetViewDays sets the "view_days" field.
-func (_c *TenantContractCreate) SetViewDays(v uint32) *TenantContractCreate {
-	_c.mutation.SetViewDays(v)
-	return _c
-}
-
-// SetKeepDays sets the "keep_days" field.
-func (_c *TenantContractCreate) SetKeepDays(v uint32) *TenantContractCreate {
-	_c.mutation.SetKeepDays(v)
-	return _c
-}
-
-// SetGraceDays sets the "grace_days" field.
-func (_c *TenantContractCreate) SetGraceDays(v uint32) *TenantContractCreate {
-	_c.mutation.SetGraceDays(v)
-	return _c
-}
-
 // SetDateEffective sets the "date_effective" field.
 func (_c *TenantContractCreate) SetDateEffective(v time.Time) *TenantContractCreate {
 	_c.mutation.SetDateEffective(v)
@@ -64,34 +46,6 @@ func (_c *TenantContractCreate) SetDateEffective(v time.Time) *TenantContractCre
 func (_c *TenantContractCreate) SetNillableDateEffective(v *time.Time) *TenantContractCreate {
 	if v != nil {
 		_c.SetDateEffective(*v)
-	}
-	return _c
-}
-
-// SetAccessKeepDays sets the "access_keep_days" field.
-func (_c *TenantContractCreate) SetAccessKeepDays(v uint32) *TenantContractCreate {
-	_c.mutation.SetAccessKeepDays(v)
-	return _c
-}
-
-// SetNillableAccessKeepDays sets the "access_keep_days" field if the given value is not nil.
-func (_c *TenantContractCreate) SetNillableAccessKeepDays(v *uint32) *TenantContractCreate {
-	if v != nil {
-		_c.SetAccessKeepDays(*v)
-	}
-	return _c
-}
-
-// SetRestoreDays sets the "restore_days" field.
-func (_c *TenantContractCreate) SetRestoreDays(v uint32) *TenantContractCreate {
-	_c.mutation.SetRestoreDays(v)
-	return _c
-}
-
-// SetNillableRestoreDays sets the "restore_days" field if the given value is not nil.
-func (_c *TenantContractCreate) SetNillableRestoreDays(v *uint32) *TenantContractCreate {
-	if v != nil {
-		_c.SetRestoreDays(*v)
 	}
 	return _c
 }
@@ -190,18 +144,6 @@ func (_c *TenantContractCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (_c *TenantContractCreate) defaults() {
-	if _, ok := _c.mutation.AccessKeepDays(); !ok {
-		if _, ok := _c.mutation.FieldExpr(tenantcontract.FieldAccessKeepDays); !ok {
-			v := tenantcontract.DefaultAccessKeepDays
-			_c.mutation.SetAccessKeepDays(v)
-		}
-	}
-	if _, ok := _c.mutation.RestoreDays(); !ok {
-		if _, ok := _c.mutation.FieldExpr(tenantcontract.FieldRestoreDays); !ok {
-			v := tenantcontract.DefaultRestoreDays
-			_c.mutation.SetRestoreDays(v)
-		}
-	}
 	if _, ok := _c.mutation.PurgeFloors(); !ok {
 		if _, ok := _c.mutation.FieldExpr(tenantcontract.FieldPurgeFloors); !ok {
 			v := tenantcontract.DefaultPurgeFloors
@@ -220,15 +162,6 @@ func (_c *TenantContractCreate) check() error {
 	}
 	if _, ok := _c.mutation.Desc(); !ok {
 		return &ValidationError{Name: "desc", err: errors.New(`ent: missing required field "TenantContract.desc"`)}
-	}
-	if _, ok := _c.mutation.ViewDays(); !ok {
-		return &ValidationError{Name: "view_days", err: errors.New(`ent: missing required field "TenantContract.view_days"`)}
-	}
-	if _, ok := _c.mutation.KeepDays(); !ok {
-		return &ValidationError{Name: "keep_days", err: errors.New(`ent: missing required field "TenantContract.keep_days"`)}
-	}
-	if _, ok := _c.mutation.GraceDays(); !ok {
-		return &ValidationError{Name: "grace_days", err: errors.New(`ent: missing required field "TenantContract.grace_days"`)}
 	}
 	if _, ok := _c.mutation.TenantId(); !ok {
 		return &ValidationError{Name: "tenant_id", err: errors.New(`ent: missing required field "TenantContract.tenant_id"`)}
@@ -295,29 +228,9 @@ func (_c *TenantContractCreate) createSpec() (*TenantContract, *sqlgraph.CreateS
 		_spec.SetField(tenantcontract.FieldDesc, field.TypeString, value)
 		_node.Desc = value
 	}
-	if value, ok := _c.mutation.ViewDays(); ok {
-		_spec.SetField(tenantcontract.FieldViewDays, field.TypeUint32, value)
-		_node.ViewDays = value
-	}
-	if value, ok := _c.mutation.KeepDays(); ok {
-		_spec.SetField(tenantcontract.FieldKeepDays, field.TypeUint32, value)
-		_node.KeepDays = value
-	}
-	if value, ok := _c.mutation.GraceDays(); ok {
-		_spec.SetField(tenantcontract.FieldGraceDays, field.TypeUint32, value)
-		_node.GraceDays = value
-	}
 	if value, ok := _c.mutation.DateEffective(); ok {
 		_spec.SetField(tenantcontract.FieldDateEffective, field.TypeTime, value)
 		_node.DateEffective = value
-	}
-	if value, ok := _c.mutation.AccessKeepDays(); ok {
-		_spec.SetField(tenantcontract.FieldAccessKeepDays, field.TypeUint32, value)
-		_node.AccessKeepDays = value
-	}
-	if value, ok := _c.mutation.RestoreDays(); ok {
-		_spec.SetField(tenantcontract.FieldRestoreDays, field.TypeUint32, value)
-		_node.RestoreDays = value
 	}
 	if value, ok := _c.mutation.PurgeFloors(); ok {
 		_spec.SetField(tenantcontract.FieldPurgeFloors, field.TypeBool, value)

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import type { Asset } from '../../gen/rove/asset_pb.js'
 import type { AssetState } from '../../gen/rove/asset_svc_pb.js'
 import { AssetService, fromInput, idBytes, idStr, localInput, ref, ts } from '../api.js'
-import { HistoryDays, useCatalog } from '../catalog.js'
+import { useCatalog } from '../catalog.js'
 import { AssetLink } from '../pickers.js'
 import { useRpc } from '../rpc.js'
 import { Badge, Card, Empty, Load, PageHead, Select, Tabs } from '../ui.js'
@@ -151,10 +151,8 @@ function Contents(props: { id: string }): ReactNode {
 }
 
 function Then(props: { root: string }): ReactNode {
-	const c = useCatalog()
-	const [at, setAt] = useState(localInput(c.inHistory(new Date(Date.now() - 365 * 86400_000))))
+	const [at, setAt] = useState(localInput(new Date(Date.now() - 365 * 86400_000)))
 	const [known, setKnown] = useState('')
-	const min = localInput(c.historyFrom())
 	const q = useRpc(AssetService.method.queryAt, {
 		root: ref(idBytes(props.root)),
 		at: ts(fromInput(at)),
@@ -168,18 +166,17 @@ function Then(props: { root: string }): ReactNode {
 				<div className="inline">
 					<label className="inline">
 						시점
-						<input type="datetime-local" min={min} value={at} onChange={(e) => setAt(e.target.value)} />
+						<input type="datetime-local" value={at} onChange={(e) => setAt(e.target.value)} />
 					</label>
 					<label className="inline" title="그 시점 이후에 늦게 기록된 일을 빼고 봅니다">
 						기록 기준
-						<input type="datetime-local" min={min} value={known} onChange={(e) => setKnown(e.target.value)} />
+						<input type="datetime-local" value={known} onChange={(e) => setKnown(e.target.value)} />
 					</label>
 				</div>
 			}
 		>
 			<p className="mute small">
 				'시점'에 무엇이 어디에 있었는지 보여 줍니다. '기록 기준'을 정하면 그때까지 기록된 것만으로 봅니다 — 그때 시스템이 무엇을 알고 있었는지입니다.
-				<HistoryDays />
 			</p>
 			<Load q={q}>{(d) => <StateTree items={d.items} />}</Load>
 		</Card>
@@ -260,18 +257,16 @@ function valueOf(f: string, v: string): string {
 const whatWord: Record<string, string> = { entered: '들어옴', left: '나감', moved: '자리 바뀜', changed: '바뀜' }
 
 function Diff(props: { root: string }): ReactNode {
-	const c = useCatalog()
-	const [from, setFrom] = useState(localInput(c.inHistory(new Date(Date.now() - 90 * 86400_000))))
+	const [from, setFrom] = useState(localInput(new Date(Date.now() - 90 * 86400_000)))
 	const [to, setTo] = useState(localInput(new Date()))
-	const min = localInput(c.historyFrom())
 	const q = useRpc(AssetService.method.diff, { root: ref(idBytes(props.root)), from: ts(fromInput(from)), to: ts(fromInput(to)) })
 	return (
 		<Card
 			title="두 시점 비교"
 			actions={
 				<div className="inline">
-					<input type="datetime-local" min={min} value={from} onChange={(e) => setFrom(e.target.value)} />→
-					<input type="datetime-local" min={min} value={to} onChange={(e) => setTo(e.target.value)} />
+					<input type="datetime-local" value={from} onChange={(e) => setFrom(e.target.value)} />→
+					<input type="datetime-local" value={to} onChange={(e) => setTo(e.target.value)} />
 				</div>
 			}
 		>

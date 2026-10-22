@@ -57,16 +57,46 @@ func newEnv(t *testing.T) *env {
 	return &env{t: t, s: s, ctx: ctx, tenant: must(pdid.From(v.GetId())), now: time.Now()}
 }
 
+// says gives the workspace settings of its own, as they would be once
+// Configure has said them and any grace is over: written beneath the domain,
+// as an operator's shell would.
+func (e *env) says(keep, access, restore uint32) {
+	e.t.Helper()
+
+	_, err := e.s.Base.Tenant().Patch(e.ctx, app.TenantPatchRequest_builder{
+		Ref:              app.TenantRef_builder{Id: e.tenant.Bytes()}.Build(),
+		KeepDays:         &keep,
+		AccessKeepDays:   &access,
+		RestoreDays:      &restore,
+		DateUpdatedForce: z.Ptr(true),
+	}.Build())
+	require.NoError(e.t, err)
+}
+
+// shortened says the workspace's settings were made shorter at `at`, from
+// what they said before.
+func (e *env) shortened(keepBefore, accessBefore uint32, at time.Time) {
+	e.t.Helper()
+
+	_, err := e.s.Base.Tenant().Patch(e.ctx, app.TenantPatchRequest_builder{
+		Ref:                     app.TenantRef_builder{Id: e.tenant.Bytes()}.Build(),
+		KeepDaysBefore:          &keepBefore,
+		DateKeepShortened:       timestamppb.New(at),
+		AccessKeepDaysBefore:    &accessBefore,
+		DateAccessKeepShortened: timestamppb.New(at),
+		DateUpdatedForce:        z.Ptr(true),
+	}.Build())
+	require.NoError(e.t, err)
+}
+
 // contract writes one, the way `rove contract set` does.
-func (e *env) contract(name string, view, keep, grace uint32, effective time.Time) *app.TenantContract {
+func (e *env) contract(name string, purges bool, effective time.Time) *app.TenantContract {
 	e.t.Helper()
 
 	v, err := e.s.Base.TenantContract().Add(e.ctx, app.TenantContractAddRequest_builder{
 		Tenant:        app.TenantRef_builder{Id: e.tenant.Bytes()}.Build(),
 		Name:          name,
-		ViewDays:      view,
-		KeepDays:      keep,
-		GraceDays:     grace,
+		PurgeFloors:   z.Ptr(purges),
 		DateEffective: timestamppb.New(effective),
 	}.Build())
 	require.NoError(e.t, err)
@@ -77,57 +107,92 @@ func (e *env) contract(name string, view, keep, grace uint32, effective time.Tim
 func (e *env) window(at time.Time) retention.Window {
 	e.t.Helper()
 
-	w, err := retention.Of(e.ctx, e.s.Ent, e.tenant, at, retention.Defaults{})
+	return e.windowWith(at, retention.Defaults{})
+}
+
+func (e *env) windowWith(at time.Time, d retention.Defaults) retention.Window {
+	e.t.Helper()
+
+	w, err := retention.Of(e.ctx, e.s.Ent, e.tenant, at, d)
 	require.NoError(e.t, err)
 
 	return w
 }
 
-// TestAShorterKeepWaitsOutItsGrace.
-//
-// What a tenant may look at shrinks the moment its contract says so; what is
-// kept shrinks only once the grace is over, so a downgrade is not a deletion
-// on the day it is signed.
-func TestAShorterKeepWaitsOutItsGrace(t *testing.T) {
+// TestAShorterWindowWaitsOutTheGrace (D36): a window a workspace makes
+// shorter is the shorter one only once the deployment's grace is over, the
+// longer one held meanwhile, so a mistake undone in time has destroyed
+// nothing. Made shorter again within the grace, the longest window any of it
+// still owed is held until the grace of the last; made as long or longer, it
+// is in force at once; said again as it is, a grace running runs on.
+func TestAShorterWindowWaitsOutTheGrace(t *testing.T) {
 	x := require.New(t)
-	e := newEnv(t)
+	now := time.Now()
+	grace := 30 * day
+	set := func(s retention.Setting, v uint32, at time.Time) retention.Setting {
+		return s.Set(v, at, grace, retention.Days)
+	}
+	at := func(s retention.Setting, when time.Time) time.Duration { return s.At(when, grace, retention.Days) }
 
-	e.contract("free", 365, 730, 0, e.now.Add(-100*day))
-	e.contract("trial", 90, 180, 30, e.now.Add(-10*day))
+	s := set(retention.Setting{}, 365, now)
+	x.Zero(at(s, now), "forever lost to a number at once")
+	x.Zero(at(s, now.Add(grace-time.Second)))
+	x.Equal(365*day, at(s, now.Add(grace)))
+	x.Equal(now.Add(grace), s.Until(now, grace, retention.Days))
+	x.True(s.Until(now.Add(grace), grace, retention.Days).IsZero(), "a grace over, and still waiting")
 
-	w := e.window(e.now)
-	x.Equal(90*day, w.View, "the view did not shrink when the contract said")
-	x.Equal(730*day, w.Keep, "the keep shrank before the grace was over")
-	x.Equal("trial", w.Contract.Name)
+	s = set(s, 730, now.Add(10*day))
+	x.Zero(at(s, now.Add(grace)), "a window still shorter than what was held, in force before its own grace")
+	x.Equal(730*day, at(s, now.Add(10*day+grace)))
 
-	w = e.window(e.now.Add(21 * day))
-	x.Equal(180*day, w.Keep, "the grace never ended")
+	again := set(s, 730, now.Add(20*day))
+	x.Equal(s, again, "said again as it is, and its grace began anew")
+
+	x.Equal(retention.Setting{}, set(s, 0, now.Add(11*day)), "forever waited out a grace")
+
+	held := set(retention.Setting{Days: 365}, 730, now)
+	x.Equal(retention.Setting{Days: 730}, held, "a longer window waited")
+	shorter := set(held, 365, now)
+	x.Equal(730*day, at(shorter, now))
+	x.Equal(365*day, at(shorter, now.Add(grace)))
 }
 
-// TestAPlanThatComesBackInTimeHasLostNothing.
-func TestAPlanThatComesBackInTimeHasLostNothing(t *testing.T) {
+// TestAWorkspacesWindowsAreItsOwn (D36): how long a workspace keeps its
+// history and its access record, and may be restored once closed, are what it
+// says -- forever, the deployment's access record, and the deployment's
+// restore window while it says nothing -- and one that is not there, a
+// workspace destroyed whose trail is still asked about, keeps forever.
+func TestAWorkspacesWindowsAreItsOwn(t *testing.T) {
 	x := require.New(t)
 	e := newEnv(t)
+	d := retention.Defaults{Access: 730 * day, AccessFloor: 365 * day}
 
-	e.contract("pro", 0, 1825, 0, e.now.Add(-400*day))
-	e.contract("free", 365, 730, 30, e.now.Add(-20*day))
-	e.contract("pro", 0, 1825, 0, e.now.Add(-5*day))
+	w := e.windowWith(e.now, d)
+	x.Zero(w.Keep)
+	x.Equal(730*day, w.Access, "the deployment's access record")
+	x.Zero(w.Restore)
 
-	w := e.window(e.now)
-	x.Equal(time.Duration(0), w.View, "the plan that came back does not show all of the history again")
-	x.Equal(1825*day, w.Keep)
-}
+	e.says(180, 400, 90)
+	w = e.windowWith(e.now, d)
+	x.Equal(180*day, w.Keep)
+	x.Equal(400*day, w.Access)
+	x.Equal(90*day, w.Restore)
 
-// TestForeverIsLongerThanAnyNumberOfDays.
-func TestForeverIsLongerThanAnyNumberOfDays(t *testing.T) {
-	x := require.New(t)
-	e := newEnv(t)
+	e.says(180, 30, 90)
+	x.Equal(365*day, e.windowWith(e.now, d).Access, "an access record below the floor")
 
-	e.contract("enterprise", 0, 0, 0, e.now.Add(-400*day))
-	e.contract("free", 365, 730, 30, e.now.Add(-10*day))
+	e.shortened(0, 0, e.now.Add(-day))
+	w = e.windowWith(e.now, retention.Defaults{Access: 730 * day, Grace: 30 * day})
+	x.Zero(w.Keep, "made shorter a day ago, and the grace not over")
+	x.Equal(730*day, w.Access)
+	w = e.windowWith(e.now.Add(30*day), retention.Defaults{Access: 730 * day, Grace: 30 * day})
+	x.Equal(180*day, w.Keep)
+	x.Equal(30*day, w.Access)
 
-	x.Equal(time.Duration(0), e.window(e.now).Keep, "forever lost to a number during the grace")
-	x.Equal(730*day, e.window(e.now.Add(30*day)).Keep)
+	gone, err := retention.Of(e.ctx, e.s.Ent, pdid.New(pd.TenantDomain), e.now, d)
+	x.NoError(err, "a workspace no longer there")
+	x.Zero(gone.Keep)
+	x.Equal(730*day, gone.Access)
 }
 
 // TestOnlyTheContractInForceCounts.
@@ -137,25 +202,15 @@ func TestOnlyTheContractInForceCounts(t *testing.T) {
 
 	x.Nil(e.window(e.now).Contract, "a tenant with no contract has one")
 
-	e.contract("free", 365, 730, 0, e.now.Add(-10*day))
-	e.contract("pro", 0, 1825, 0, e.now.Add(10*day))
-	x.Equal("free", e.window(e.now).Contract.Name, "a contract from next month is in force today")
+	e.contract("standard", false, e.now.Add(-10*day))
+	e.contract("abroad", true, e.now.Add(10*day))
+	x.Equal("standard", e.window(e.now).Contract.Name, "a contract from next month is in force today")
 
 	// A withdrawn one, as `Erase` leaves it.
-	wrong := e.contract("mistake", 1, 1, 0, e.now.Add(-day))
+	wrong := e.contract("mistake", true, e.now.Add(-day))
 	_, err := e.s.Base.TenantContract().Erase(e.ctx, app.TenantContractRef_builder{Id: wrong.GetId()}.Build())
 	x.NoError(err)
-	x.Equal("free", e.window(e.now).Contract.Name, "a withdrawn contract is in force")
-
-	t.Run("and without one, the deployment's", func(t *testing.T) {
-		x := require.New(t)
-
-		e := newEnv(t)
-		w, err := retention.Of(e.ctx, e.s.Ent, e.tenant, e.now, retention.Defaults{View: 365 * day, Keep: 730 * day})
-		x.NoError(err)
-		x.Equal(365*day, w.View)
-		x.Equal(730*day, w.Keep)
-	})
+	x.Equal("standard", e.window(e.now).Contract.Name, "a withdrawn contract is in force")
 }
 
 // TestAHoldIsOnUntilItIsLifted.
@@ -196,7 +251,7 @@ func TestTheTrailOfTheHistoryLastsAsLongAsTheHistory(t *testing.T) {
 	x.Nil(got.By, "a tenant kept forever names windows")
 	x.Nil(got.Hold)
 
-	e.contract("free", 365, 730, 0, e.now.Add(-day))
+	e.says(730, 0, 0)
 	_, err = e.s.Base.LegalHold().Add(e.ctx, app.LegalHoldAddRequest_builder{
 		Tenant: app.TenantRef_builder{Id: e.tenant.Bytes()}.Build(),
 		Name:   "case 1",
@@ -210,7 +265,7 @@ func TestTheTrailOfTheHistoryLastsAsLongAsTheHistory(t *testing.T) {
 	x.Equal(trail.Keep{Retain: 90 * day, Destroy: 730 * day}, got.By[pd.FactDomain],
 		"the deployment's own retain for a kind was not kept")
 	x.Equal(trail.Keep{Retain: 730 * day, Discard: true}, got.By[pd.EventDomain])
-	x.NotContains(got.By, pd.HolderDomain, "who signed in is on a contract's window")
+	x.NotContains(got.By, pd.HolderDomain, "who signed in is on a workspace's window")
 }
 
 // TestAPassTakesTheHistorysTrailOnTheTenantsWindow.
@@ -221,7 +276,7 @@ func TestAPassTakesTheHistorysTrailOnTheTenantsWindow(t *testing.T) {
 	x := require.New(t)
 	e := newEnv(t)
 
-	e.contract("trial", 30, 100, 0, e.now.Add(-day))
+	e.says(100, 0, 0)
 
 	old := e.now.Add(-200 * day)
 	history := e.trailRow(pd.AssetDomain, old)
@@ -275,28 +330,13 @@ func must[T any](v T, err error) T {
 	return v
 }
 
-// accessContract is a contract that says how long the access record is kept,
-// and nothing of the history.
-func (e *env) accessContract(days, grace uint32, effective time.Time) {
-	e.t.Helper()
-
-	_, err := e.s.Base.TenantContract().Add(e.ctx, app.TenantContractAddRequest_builder{
-		Tenant:         app.TenantRef_builder{Id: e.tenant.Bytes()}.Build(),
-		Name:           "access",
-		AccessKeepDays: &days,
-		GraceDays:      grace,
-		DateEffective:  timestamppb.New(effective),
-	}.Build())
-	require.NoError(e.t, err)
-}
-
-// TestTheAccessRecordIsKeptAsTheTenantsContractSays (#144): how long a
+// TestTheAccessRecordIsKeptAsTheWorkspaceSays (#144, D36): how long a
 // workspace's access record is kept turns on the workspace -- how many people
-// it holds, what kind of data, where it is -- so its contract says, and the
-// deployment's `audit.by.access` is what one that says nothing gets. With the
-// windows off a contract destroys nothing the deployment would keep, so only a
-// longer one is answered.
-func TestTheAccessRecordIsKeptAsTheTenantsContractSays(t *testing.T) {
+// it holds, what kind of data, where it is -- so it says, and the deployment's
+// `audit.by.access` is what one that says nothing gets. With the windows off a
+// workspace destroys nothing the deployment would keep, so only a longer one
+// is answered.
+func TestTheAccessRecordIsKeptAsTheWorkspaceSays(t *testing.T) {
 	x := require.New(t)
 	e := newEnv(t)
 
@@ -311,85 +351,48 @@ func TestTheAccessRecordIsKeptAsTheTenantsContractSays(t *testing.T) {
 		return v
 	}
 
-	x.Nil(answer(on).By, "a tenant with no contract was answered")
+	x.Nil(answer(on).By, "a workspace that says nothing was answered")
 
-	e.accessContract(3*365, 0, e.now.Add(-2*day))
+	e.says(0, 3*365, 0)
 	x.Equal(trail.Keep{Retain: 90 * day, Destroy: 3 * 365 * day}, answer(off).By[pd.AccessDomain], "a longer one waits for the windows")
 
-	e.accessContract(365, 0, e.now.Add(-day))
+	e.says(0, 365, 0)
 	x.NotContains(answer(off).By, pd.AccessDomain, "a shorter one destroyed with the windows off")
 	x.Equal(trail.Keep{Retain: 90 * day, Destroy: 365 * day}, answer(on).By[pd.AccessDomain])
-	x.NotContains(answer(on).By, pd.AssetDomain, "an access contract named the history's windows")
+	x.NotContains(answer(on).By, pd.AssetDomain, "an access record named the history's windows")
 
 	t.Run("and none goes below the deployment's floor", func(t *testing.T) {
 		x := require.New(t)
 		e := newEnv(t)
-		e.accessContract(90, 0, e.now.Add(-day))
+		e.says(0, 90, 0)
 
 		p := base
 		p.MinBy = map[pdid.Domain]trail.Floor{pd.AccessDomain: {Destroy: 365 * day}}
 		v, err := retention.Trail(e.s.Ent, p, on)(e.ctx, e.tenant)
 		x.NoError(err)
-		x.Equal(trail.Keep{Retain: 90 * day, Destroy: 365 * day}, p.ForTenant(v, pd.AccessDomain), "a contract went below the floor")
-	})
-
-	t.Run("and a shorter one waits out its grace", func(t *testing.T) {
-		x := require.New(t)
-		e := newEnv(t)
-		e.accessContract(3*365, 0, e.now.Add(-10*day))
-		e.accessContract(365, 30, e.now.Add(-day))
-
-		x.Equal(3*365*day, e.window(e.now).Access, "the record shrank before the grace was over")
-		x.Equal(365*day, e.window(e.now.Add(31*day)).Access)
+		x.Equal(trail.Keep{Retain: 90 * day, Destroy: 365 * day}, p.ForTenant(v, pd.AccessDomain), "a workspace went below the floor")
 	})
 }
 
-// TestARestoreWindowIsTheContracts (#144): how long a closed workspace may be
-// restored is what its contract says, and the deployment's where it says none.
-func TestARestoreWindowIsTheContracts(t *testing.T) {
-	x := require.New(t)
-	e := newEnv(t)
-
-	x.Zero(e.window(e.now).Restore, "no contract, and yet a window of its own")
-
-	_, err := e.s.Base.TenantContract().Add(e.ctx, app.TenantContractAddRequest_builder{
-		Tenant:        app.TenantRef_builder{Id: e.tenant.Bytes()}.Build(),
-		Name:          "enterprise",
-		RestoreDays:   z.Ptr(uint32(90)),
-		DateEffective: timestamppb.New(e.now.Add(-day)),
-	}.Build())
-	x.NoError(err)
-	x.Equal(90*day, e.window(e.now).Restore)
-}
-
-// TestAContractThatPurgesWaitsOutItsGrace (payday#115): a workspace retires
+// TestAContractThatPurgesWaitsOutTheGrace (payday#115): a workspace retires
 // when it is destroyed, keeping what the deployment's floors are on, unless
 // the contract in force when it is says to purge -- and one that does waits
-// out the grace of a contract before it that retires, as a shorter keep does.
-func TestAContractThatPurgesWaitsOutItsGrace(t *testing.T) {
+// out the deployment's grace while a contract before it retires, as a shorter
+// window does.
+func TestAContractThatPurgesWaitsOutTheGrace(t *testing.T) {
 	x := require.New(t)
 	e := newEnv(t)
+	d := retention.Defaults{Grace: 30 * day}
 
-	x.False(e.window(e.now).Purge, "no contract, and yet it purges")
+	x.False(e.windowWith(e.now, d).Purge, "no contract, and yet it purges")
 
-	purge := func(name string, purges bool, grace uint32, effective time.Time) {
-		_, err := e.s.Base.TenantContract().Add(e.ctx, app.TenantContractAddRequest_builder{
-			Tenant:        app.TenantRef_builder{Id: e.tenant.Bytes()}.Build(),
-			Name:          name,
-			GraceDays:     grace,
-			PurgeFloors:   z.Ptr(purges),
-			DateEffective: timestamppb.New(effective),
-		}.Build())
-		x.NoError(err)
-	}
+	e.contract("kept", false, e.now.Add(-60*day))
+	x.False(e.windowWith(e.now, d).Purge)
 
-	purge("kept", false, 0, e.now.Add(-60*day))
-	x.False(e.window(e.now).Purge)
+	e.contract("abroad", true, e.now.Add(-day))
+	x.False(e.windowWith(e.now, d).Purge, "a purge did not wait out the grace while the contract before it retires")
+	x.True(e.windowWith(e.now.Add(29*day), d).Purge, "the grace is over, and still it retires")
 
-	purge("abroad", true, 30, e.now.Add(-day))
-	x.False(e.window(e.now).Purge, "a purge did not wait out the grace of the contract that retires")
-	x.True(e.window(e.now.Add(30*day)).Purge, "the grace is over, and still it retires")
-
-	purge("back", false, 0, e.now)
-	x.False(e.window(e.now.Add(30*day)).Purge, "the contract in force retires, and the one before it purges")
+	e.contract("back", false, e.now)
+	x.False(e.windowWith(e.now.Add(30*day), d).Purge, "the contract in force retires, and the one before it purges")
 }

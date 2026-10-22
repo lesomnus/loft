@@ -43,7 +43,16 @@ run() {
 check() {
 	log=$dir/$1.log
 	run "$log" "$before" init --tenant acme --login owner --password owner-pass-1234 --demo
-	run "$log" "$before" contract set --tenant acme --name before --view 365 --keep 730
+	# A contract -- and, by a build from before a workspace kept its history
+	# by its own settings (D36), what it said of that, which the migration
+	# moves onto the workspace.
+	keep=forever
+	if "$before" contract set --help 2>&1 | grep -q -- '--keep '; then
+		run "$log" "$before" contract set --tenant acme --name before --view 365 --keep 730
+		keep=730d
+	else
+		run "$log" "$before" contract set --tenant acme --name before
+	fi
 	run "$log" "$now" migrate
 	# And once more: nothing is left that the first did not do.
 	if ! "$now" migrate 2>&1 | grep -q "in this build's shape"; then
@@ -51,6 +60,11 @@ check() {
 		exit 1
 	fi
 	run "$log" "$now" contract show --tenant acme
+	if ! grep -q "history: kept $keep" "$log"; then
+		echo "upgrade: $1: the workspace does not keep its history for $keep, as its contract said" >&2
+		tail -n 20 "$log" >&2
+		exit 1
+	fi
 	echo "upgrade: $1: what the build before made is in this build's shape"
 }
 

@@ -19,7 +19,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file rove/ops.proto.
  */
 export const file_rove_ops: GenFile = /*@__PURE__*/
-  fileDesc("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", [file_google_protobuf_timestamp, file_orm, file_payday, file_rove_payday_holder, file_rove_payday_tenant]);
+  fileDesc("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", [file_google_protobuf_timestamp, file_orm, file_payday, file_rove_payday_holder, file_rove_payday_tenant]);
 
 /**
  * Notification is a message for one holder: an overdue loan, a reservation to
@@ -122,18 +122,20 @@ export const NotificationSchema: GenMessage<Notification> = /*@__PURE__*/
   messageDesc(file_rove_ops, 0);
 
 /**
- * TenantContract is what a tenant's contract says about its history: how far
- * back it may look, how long its history and its access record are kept, and
- * how long it may be restored once closed (design 8, #144).
+ * TenantContract is what the operator's agreement with a workspace says of
+ * what the deployment owes beyond it: whether its trail goes whole when it is
+ * destroyed (payday#115). How long the workspace keeps its history, its
+ * access record and its restore window are its own settings, its owner's to
+ * say (`Tenant.keep_days` and beside it, D36).
  *
  * The operator's, and the tenant's to read: no role may write one, and the
- * operator's path does (`rove contract`). Not fields on Tenant, because a
- * tenant's own people write that row, and because a contract has a time
- * dimension -- a plan changes on the first of the month, a downgrade waits out
- * its grace -- which a row per change states and a field cannot.
+ * operator's path does (`rove contract`, `rove-admin contract`). Not a field
+ * on Tenant, because a tenant's own people write that row, and because a
+ * contract has a time dimension -- an agreement signed for the first of next
+ * month -- which a row per change states and a field cannot.
  *
- * The one in force is the latest whose `date_effective` has come. What the
- * windows are now, grace included, is `server/retention`.
+ * The one in force is the latest whose `date_effective` has come. What it
+ * comes to now is `server/retention`.
  *
  * @generated from message rove.TenantContract
  */
@@ -149,8 +151,8 @@ export type TenantContract = Message<"rove.TenantContract"> & {
   tenant?: Tenant | undefined;
 
   /**
-   * The plan, as the people reading it call it: "free", "pro", an agreement's
-   * number.
+   * The agreement, as the people reading it call it: an agreement's number,
+   * "standard".
    *
    * @generated from field: string name = 5;
    */
@@ -162,57 +164,11 @@ export type TenantContract = Message<"rove.TenantContract"> & {
   desc: string;
 
   /**
-   * How far back the tenant may look at its history, in days. 0 is all of it.
-   * It shrinks the moment a contract says so.
-   *
-   * @generated from field: uint32 view_days = 8;
-   */
-  viewDays: number;
-
-  /**
-   * How long its history is kept at all, in days. 0 is forever. Only the
-   * operator's switch, `app.retention.apply`, lets this destroy anything.
-   *
-   * @generated from field: uint32 keep_days = 9;
-   */
-  keepDays: number;
-
-  /**
-   * How long a shorter `keep_days` waits before it applies, in days: the
-   * contract before this one keeps its history for that long, so a plan that
-   * comes back in time has lost nothing.
-   *
-   * @generated from field: uint32 grace_days = 10;
-   */
-  graceDays: number;
-
-  /**
    * From when this one applies. Unsaid is now.
    *
    * @generated from field: google.protobuf.Timestamp date_effective = 11;
    */
   dateEffective?: Timestamp | undefined;
-
-  /**
-   * How long the access record -- who read, wrote or took out whose data in
-   * the workspace -- is kept, in days (rove#136, #144). 0 is the deployment's
-   * `audit.by.access`. A shorter one waits out the grace as `keep_days` does,
-   * and none goes below the deployment's floor, `audit.by.access.min`, which
-   * it is raised to: the floor is what the law the deployment is under asks.
-   *
-   * @generated from field: uint32 access_keep_days = 12;
-   */
-  accessKeepDays: number;
-
-  /**
-   * How long the workspace may be restored once it is closed, in days, before
-   * it is destroyed (D29). 0 is the deployment's
-   * `app.workspaces.restore_within`. Read when it is closed: what the date of
-   * its destruction is then is what its owner is told.
-   *
-   * @generated from field: uint32 restore_days = 16;
-   */
-  restoreDays: number;
 
   /**
    * Whether the workspace's trail goes whole when it is destroyed, what the
@@ -222,8 +178,9 @@ export type TenantContract = Message<"rove.TenantContract"> & {
    * (`RetireTenant`, payday#115): what a floor is still on stays -- the access
    * record PIPA has a processor keep for a year, whoever's data it was -- until
    * the floor has passed, and the rest goes when the workspace does. One that
-   * purges waits out the grace of the contract before it, as a shorter
-   * `keep_days` does. Read when the workspace is destroyed.
+   * purges waits out the deployment's grace (`app.retention.grace`) while the
+   * contract before it retires, as a shorter `keep_days` does. Read when the
+   * workspace is destroyed.
    *
    * @generated from field: bool purge_floors = 17;
    */

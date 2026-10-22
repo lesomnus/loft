@@ -1,22 +1,22 @@
-// Package retention is what a tenant's contract says about its history, now
-// (design 8).
+// Package retention is how long a workspace keeps its history, now (design 8).
 //
-// Two windows, and they are not the same thing (design 8.1). The **view**
-// window is how far back the tenant may look: what the history calls answer,
-// and it shrinks the moment a contract says so. The **keep** window is how long
-// the history exists at all, which is what a sweep destroys by -- and it shrinks
-// only after the grace a contract gives, so a plan that comes back in time has
-// lost nothing.
+// One window, and what it keeps is what is seen (D36): nothing narrows a read
+// to less of the history than is kept. The **keep** window is how long the
+// history exists at all, which is what a sweep destroys by. The workspace says
+// it -- its owner, through `TenantService.Configure`, as the rest of its own
+// settings -- and one made shorter waits out the deployment's grace before it
+// is the shorter one, so a mistake undone in time has lost nothing.
 //
 // One answer, read by everything that keeps history: rove's own time rows and
 // events, and payday's trail of the writes that made them (payday#35). Two
 // answers would be a trail that outlives the history it records, or history the
 // trail has already forgotten the making of.
 //
-// What answers is [Of], from [app.TenantContract] and [app.LegalHold]: the
-// operator's rows, which a tenant reads and only `rove contract` and `rove hold`
-// write. Nothing here destroys anything. Whether anything may is the operator's
-// switch, `app.retention.apply`, read where the sweeps are wired.
+// What answers is [Of], from the workspace's own settings (`Tenant.keep_days`
+// and the ones beside it), the operator's [app.TenantContract] for what the
+// deployment owes beyond them, and [app.LegalHold]. Nothing here destroys
+// anything. Whether anything may is the operator's switch,
+// `app.retention.apply`, read where the sweeps are wired.
 package retention
 
 import (
@@ -35,82 +35,199 @@ import (
 
 const day = 24 * time.Hour
 
-// Days is a contract's count of days as a duration, zero staying zero.
+// Days is a count of days as a duration, zero staying zero.
 func Days(n uint32) time.Duration { return time.Duration(n) * day }
 
-// Defaults is what a tenant with no contract gets: the deployment's own plan,
-// from `app.retention`. The zero value is the safe one -- all of the history
-// shown, all of it kept.
-type Defaults struct {
-	View time.Duration
-	Keep time.Duration
+// Grace is how long a window made shorter waits before it is the shorter one,
+// when the deployment says nothing (`app.retention.grace`): as long as a
+// closed workspace may be restored by default (D29), which is the time a
+// deployment gives a mistake to be undone in.
+const Grace = 30 * day
 
+// Defaults is what the deployment says beside a workspace's own settings:
+// what a workspace that says nothing of its access record gets, the least it
+// is kept, the grace, and whether a window destroys at all.
+type Defaults struct {
 	// Access is how long the deployment keeps the access record, from
-	// `audit.by.access`, which a contract's `access_keep_days` is in place of
+	// `audit.by.access`, which a workspace's `access_keep_days` is in place of
 	// (#144). Zero is forever.
 	Access time.Duration
 
-	// Apply is `app.retention.apply`: whether a contract may have destroyed
-	// what the deployment's own windows would keep. Off, a contract still
+	// AccessFloor is the least the access record is kept whatever a workspace
+	// says, `audit.by.access.min`: what the law the deployment is under asks.
+	// Zero is no floor.
+	AccessFloor time.Duration
+
+	// Grace is how long a window made shorter waits before it is the shorter
+	// one (`app.retention.grace`). Zero is [Grace].
+	Grace time.Duration
+
+	// Apply is `app.retention.apply`: whether a workspace's window may destroy
+	// what the deployment's own windows would keep. Off, a workspace still
 	// keeps the access record longer than the deployment would.
 	Apply bool
 }
 
+// Wait is how long a window made shorter waits before it is the shorter one:
+// Grace, or [Grace] when it says none.
+func (d Defaults) Wait() time.Duration {
+	if d.Grace <= 0 {
+		return Grace
+	}
+
+	return d.Grace
+}
+
+// AccessDays is a workspace's count of days of its access record as a window,
+// as the trail keeps it: the deployment's for none, and never below the
+// floor. Zero is forever.
+func (d Defaults) AccessDays(n uint32) time.Duration {
+	w := d.Access
+	if n > 0 {
+		w = Days(n)
+	}
+	if w > 0 && w < d.AccessFloor {
+		return d.AccessFloor
+	}
+
+	return w
+}
+
 // Window is a tenant's history windows at one instant.
 type Window struct {
-	// View is how far back the tenant may look. Zero is all of it.
-	View time.Duration
-
-	// Keep is how long its history is kept, with every grace still running
-	// already in it. Zero is forever.
+	// Keep is how long its history is kept, with a grace still running already
+	// in it. Zero is forever.
 	Keep time.Duration
 
 	// Access is how long its access record is kept, the same way: the
-	// contract's, or the deployment's where it says nothing (#144).
+	// workspace's, or the deployment's where it says nothing (#144).
 	Access time.Duration
 
 	// Restore is how long it may be restored once closed (D29): the
-	// contract's, or zero for the deployment's.
+	// workspace's, or zero for the deployment's.
 	Restore time.Duration
 
 	// Purge is whether its trail goes whole when it is destroyed, what the
 	// deployment's floors are still on with it (`purge_floors`, payday#115).
 	// False, which is also a tenant with no contract, is a retirement: what a
 	// floor is on stays until it has passed. A contract that purges waits out
-	// the grace of one before it that retires, as a shorter keep does.
+	// the grace while one before it retires, as a shorter keep does.
 	Purge bool
 
 	// Holds is what the legal holds on it are for. Empty is none; while there
 	// is one, nothing of the tenant's history is destroyed, whatever Keep says.
 	Holds []string
 
-	// Contract is the contract in force, and nil when there is none and the
-	// deployment's defaults are what applies.
+	// Contract is the contract in force, and nil when there is none.
 	Contract *ent.TenantContract
 }
 
 // Held answers whether a legal hold is on.
 func (w Window) Held() bool { return len(w.Holds) > 0 }
 
-// Since is the oldest instant the tenant may look at, and the zero time when
-// it may look at all of it.
-func (w Window) Since(now time.Time) time.Time {
-	if w.View <= 0 {
+// Setting is one window as a workspace says it: the days it says now, and
+// what it said before it was last made shorter and when, which the grace
+// holds it to meanwhile. Shortened nil is nothing waiting.
+type Setting struct {
+	Days      uint32
+	Before    uint32
+	Shortened *time.Time
+}
+
+// KeepOf is how long a workspace says its history is kept.
+func KeepOf(t *ent.Tenant) Setting {
+	return Setting{Days: t.KeepDays, Before: t.KeepDaysBefore, Shortened: t.DateKeepShortened}
+}
+
+// AccessOf is how long a workspace says its access record is kept.
+func AccessOf(t *ent.Tenant) Setting {
+	return Setting{Days: t.AccessKeepDays, Before: t.AccessKeepDaysBefore, Shortened: t.DateAccessKeepShortened}
+}
+
+// held is the days the setting holds to at `at`, as they were said: what it
+// says, or -- while the grace of its shortening runs, and what it said before
+// keeps longer -- that.
+func (s Setting) held(at time.Time, grace time.Duration, days func(uint32) time.Duration) uint32 {
+	if s.Shortened != nil && at.Before(s.Shortened.Add(grace)) && outlasts(days(s.Before), days(s.Days)) {
+		return s.Before
+	}
+
+	return s.Days
+}
+
+// At is the window the setting comes to at `at`, its days read by `days`.
+func (s Setting) At(at time.Time, grace time.Duration, days func(uint32) time.Duration) time.Duration {
+	return days(s.held(at, grace, days))
+}
+
+// Until is when the grace of the setting's shortening is over and the window
+// is what it says, and the zero time when nothing waits at `at`.
+func (s Setting) Until(at time.Time, grace time.Duration, days func(uint32) time.Duration) time.Time {
+	if s.held(at, grace, days) == s.Days {
 		return time.Time{}
 	}
 
-	return now.Add(-w.View)
+	return s.Shortened.Add(grace)
+}
+
+// Set is the setting once it is said to be `v` at `at`. Said as it is, it is
+// as it was, and a grace running runs to its end. A window as long as the one
+// it holds to then, or longer, is that window at once, and nothing waits. A
+// shorter one waits out the grace from `at`, holding meanwhile to what it held
+// to: said again within a grace, the longest window any of it still owed is
+// held until the grace of the last.
+func (s Setting) Set(v uint32, at time.Time, grace time.Duration, days func(uint32) time.Duration) Setting {
+	if v == s.Days {
+		return s
+	}
+
+	held := s.held(at, grace, days)
+	if !outlasts(days(held), days(v)) {
+		return Setting{Days: v}
+	}
+
+	return Setting{Days: v, Before: held, Shortened: &at}
+}
+
+// outlasts answers whether window a keeps longer than b, where zero is
+// forever.
+func outlasts(a, b time.Duration) bool {
+	switch {
+	case b <= 0:
+		return false
+	case a <= 0:
+		return true
+	default:
+		return a > b
+	}
 }
 
 // Of answers a tenant's windows at `at`.
 //
-// The view window is the contract in force's. The keep window is the longest of
-// that contract's and of every contract before it whose successor's grace has
-// not run out: a downgrade on the first of the month with thirty days' grace
-// keeps what the old plan kept until the thirty-first, and a plan that comes
-// back before then has its history whole. Forever is longer than any number of
-// days.
+// The keep window and the access record's are the workspace's own, each held
+// to the longer one it said before while the grace of its shortening runs. A
+// tenant that is not there -- one destroyed, whose trail a pass still asks
+// about -- keeps forever, and its access record the deployment's.
+//
+// Whether its trail goes whole when it is destroyed is the contract in force's,
+// and a contract that purges waits out the grace while the one before it
+// retires: a contract signed to purge from today purges only once the grace
+// is over.
 func Of(ctx context.Context, db *ent.Client, tenant pdid.Id, at time.Time, d Defaults) (Window, error) {
+	w := Window{Access: d.AccessDays(0)}
+	grace := d.Wait()
+
+	t, err := db.Tenant.Get(ctx, tenant.Uuid())
+	switch {
+	case ent.IsNotFound(err):
+	case err != nil:
+		return Window{}, err
+	default:
+		w.Keep = KeepOf(t).At(at, grace, Days)
+		w.Access = AccessOf(t).At(at, grace, d.AccessDays)
+		w.Restore = Days(t.RestoreDays)
+	}
+
 	vs, err := db.TenantContract.Query().
 		Where(
 			tenantcontract.TenantIdEQ(tenant.Uuid()),
@@ -122,6 +239,18 @@ func Of(ctx context.Context, db *ent.Client, tenant pdid.Id, at time.Time, d Def
 	if err != nil {
 		return Window{}, err
 	}
+	if len(vs) > 0 {
+		w.Contract = vs[0]
+		w.Purge = vs[0].PurgeFloors
+		for i := 1; i < len(vs); i++ {
+			// The one after this, whose grace is what keeps this one in force.
+			if !at.Before(vs[i-1].DateEffective.Add(grace)) {
+				break
+			}
+
+			w.Purge = w.Purge && vs[i].PurgeFloors
+		}
+	}
 
 	hs, err := db.LegalHold.Query().
 		Where(legalhold.TenantIdEQ(tenant.Uuid()), legalhold.DateLiftedIsNil()).
@@ -130,44 +259,11 @@ func Of(ctx context.Context, db *ent.Client, tenant pdid.Id, at time.Time, d Def
 	if err != nil {
 		return Window{}, err
 	}
-
-	w := Window{View: d.View, Keep: d.Keep, Access: d.Access}
 	for _, h := range hs {
 		w.Holds = append(w.Holds, strings.TrimSpace(h.Name+" "+h.Desc))
 	}
-	if len(vs) == 0 {
-		return w, nil
-	}
-
-	w.Contract = vs[0]
-	w.View = Days(vs[0].ViewDays)
-	w.Keep = Days(vs[0].KeepDays)
-	w.Access = accessOf(vs[0], d)
-	w.Restore = Days(vs[0].RestoreDays)
-	w.Purge = vs[0].PurgeFloors
-	for i := 1; i < len(vs); i++ {
-		// The one after this, whose grace is what keeps this one in force.
-		next := vs[i-1]
-		if !at.Before(next.DateEffective.Add(Days(next.GraceDays))) {
-			break
-		}
-
-		w.Keep = longer(w.Keep, Days(vs[i].KeepDays))
-		w.Access = longer(w.Access, accessOf(vs[i], d))
-		w.Purge = w.Purge && vs[i].PurgeFloors
-	}
 
 	return w, nil
-}
-
-// accessOf is how long a contract keeps the access record: its own days, or
-// the deployment's when it says none.
-func accessOf(c *ent.TenantContract, d Defaults) time.Duration {
-	if c.AccessKeepDays == 0 {
-		return d.Access
-	}
-
-	return Days(c.AccessKeepDays)
 }
 
 // longer is the longer of two keep windows, where zero is forever.
@@ -198,15 +294,15 @@ var Kinds = []pdid.Domain{
 //
 // The rest of the trail -- who signed in, who changed whose role -- is the
 // deployment's, under `audit:`, and its floors (`audit.min`) hold whatever a
-// contract says.
+// workspace says.
 //
 // A row moves out of the database on the deployment's own `retain` for the
 // kind, or at the keep window when that comes first; with no `retain` at all it
 // stays in the database until the keep window ends it.
 //
-// And the access record on the contract's `access_keep_days` (#144), which
+// And the access record on the workspace's `access_keep_days` (#144), which
 // the deployment's floor (`audit.by.access.min`) raises a shorter one to.
-// With `app.retention.apply` off a contract destroys nothing the deployment
+// With `app.retention.apply` off a workspace destroys nothing the deployment
 // would keep, so it is answered only where it keeps longer -- and the
 // history kinds not at all.
 func Trail(db *ent.Client, base trail.Policy, d Defaults) func(context.Context, pdid.Id) (trail.Tenant, error) {

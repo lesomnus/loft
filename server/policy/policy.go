@@ -90,11 +90,9 @@ func init() {
 	// The register and its history are everybody's to read.
 	//
 	// The time rows -- Placement, Link, Stewardship, Fact -- are read through
-	// the history reads, Timeline, QueryAt and Diff, and not one by one: those
-	// answer within the tenant's view window (design 8.1), and the rows cannot
-	// be narrowed to it where they are kept without hiding them from the
-	// domain layer that supersedes them. The events can, and are; see
-	// `domain.View`.
+	// the history reads, Timeline, QueryAt and Diff, and not one by one: the
+	// history is told by the layer that writes it, as what each row was, with
+	// the names it is about.
 	for _, s := range []string{
 		"Asset", "AssetType", "ItemModel", "Attachment", "Label", "TenantDomain",
 		"Party",
@@ -160,7 +158,7 @@ func init() {
 	allow(Read, "PartyService", "SetPassword")
 	allow(Admin, "PartyService", "Add", "Update", "Invite", "SetRole", "Deactivate", "Pseudonymize")
 
-	allow(Owner, "TenantService", "Patch", "Close", "Restore", "Configure")
+	allow(Owner, "TenantService", "Patch", "Close", "Restore", "Configure", "Preview")
 
 	allow(Read, "BookableService", "Availability")
 	allow(Admin, "BookableService", "Add", "Update")
@@ -200,8 +198,10 @@ func init() {
 
 	// A tenant's contract and the legal holds on it are the operator's: `rove
 	// contract` and `rove hold` write them, from a shell, and no role here
-	// may. The contract is everybody's to read, since it is what decides how
-	// far back their history goes; a hold is for the people who run the tenant.
+	// may. The contract is everybody's to read, since it says what becomes of
+	// the workspace's trail when it is destroyed; a hold is for the people who
+	// run the tenant. How long the workspace keeps its history is its own,
+	// its owner's to say (`TenantService.Configure`, D36).
 	allow(Read, "TenantContractService", "Get", "List")
 	oversee("LegalHoldService", "Get", "List")
 

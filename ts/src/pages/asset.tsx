@@ -25,7 +25,7 @@ import {
 	sameId,
 	ts,
 } from '../api.js'
-import { HistoryDays, modelName, useCatalog } from '../catalog.js'
+import { modelName, useCatalog } from '../catalog.js'
 import { AssetLink, AssetPicker, PartySelect, SpaceSelect, Where } from '../pickers.js'
 import { Live, useAct, useRpc } from '../rpc.js'
 import { Badge, Card, Confirm, Empty, Field, FormModal, Kv, Load, PageHead, Select, Spinner, Tabs, useToast } from '../ui.js'
@@ -287,14 +287,13 @@ function Timeline(props: { a: Asset }): ReactNode {
 					</label>
 					<label className="inline" title="그때 시스템이 알던 대로 봅니다">
 						기록 시점
-						<input type="datetime-local" min={localInput(c.historyFrom())} value={known} onChange={(e) => setKnown(e.target.value)} />
+						<input type="datetime-local" value={known} onChange={(e) => setKnown(e.target.value)} />
 					</label>
 				</div>
 			}
 		>
 			<p className="mute small">
 				왼쪽은 실제로 그랬던 시점, 오른쪽 아래는 기록한 시점입니다. 늦게 알게 된 일도 그 시점으로 기록하고, 잘못된 기록은 지우지 않고 정정합니다.
-				<HistoryDays />
 			</p>
 			<Load q={t}>
 				{(d) =>
