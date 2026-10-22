@@ -14235,6 +14235,91 @@ func (m *TenantDomainMutation) OldVerifiedAt(ctx context.Context) (v *time.Time,
 	return oldValue.VerifiedAt, nil
 }
 
+// OldCheckedAt returns the old "checked_at" field's value of the TenantDomain entity.
+// If the TenantDomain object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TenantDomainMutation) OldCheckedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldCheckedAt is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldCheckedAt requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCheckedAt: %w", err)
+	}
+	return oldValue.CheckedAt, nil
+}
+
+// OldFailures returns the old "failures" field's value of the TenantDomain entity.
+// If the TenantDomain object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TenantDomainMutation) OldFailures(ctx context.Context) (v uint32, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldFailures is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldFailures requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldFailures: %w", err)
+	}
+	return oldValue.Failures, nil
+}
+
+// OldFailingSince returns the old "failing_since" field's value of the TenantDomain entity.
+// If the TenantDomain object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TenantDomainMutation) OldFailingSince(ctx context.Context) (v *time.Time, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldFailingSince is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldFailingSince requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldFailingSince: %w", err)
+	}
+	return oldValue.FailingSince, nil
+}
+
+// OldDateLapsed returns the old "date_lapsed" field's value of the TenantDomain entity.
+// If the TenantDomain object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TenantDomainMutation) OldDateLapsed(ctx context.Context) (v *time.Time, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldDateLapsed is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldDateLapsed requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDateLapsed: %w", err)
+	}
+	return oldValue.DateLapsed, nil
+}
+
+// OldRedirectUntil returns the old "redirect_until" field's value of the TenantDomain entity.
+// If the TenantDomain object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TenantDomainMutation) OldRedirectUntil(ctx context.Context) (v *time.Time, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldRedirectUntil is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldRedirectUntil requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRedirectUntil: %w", err)
+	}
+	return oldValue.RedirectUntil, nil
+}
+
 // OldTenantId returns the old "tenant_id" field's value of the TenantDomain entity.
 // If the TenantDomain object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
@@ -14275,6 +14360,16 @@ func (m *TenantDomainMutation) OldField(ctx context.Context, name string) (ent.V
 		return m.OldDateCreated(ctx)
 	case tenantdomain.FieldVerifiedAt:
 		return m.OldVerifiedAt(ctx)
+	case tenantdomain.FieldCheckedAt:
+		return m.OldCheckedAt(ctx)
+	case tenantdomain.FieldFailures:
+		return m.OldFailures(ctx)
+	case tenantdomain.FieldFailingSince:
+		return m.OldFailingSince(ctx)
+	case tenantdomain.FieldDateLapsed:
+		return m.OldDateLapsed(ctx)
+	case tenantdomain.FieldRedirectUntil:
+		return m.OldRedirectUntil(ctx)
 	case tenantdomain.FieldTenantId:
 		return m.OldTenantId(ctx)
 	}

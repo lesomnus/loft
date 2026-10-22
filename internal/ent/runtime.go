@@ -14,6 +14,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/schema"
 	"github.com/lesomnus/rove/internal/ent/tenant"
 	"github.com/lesomnus/rove/internal/ent/tenantcontract"
+	"github.com/lesomnus/rove/internal/ent/tenantdomain"
 
 	"github.com/protobuf-orm/ent/schema/field"
 )
@@ -101,4 +102,10 @@ func init() {
 	tenantcontractDescPurgeFloors := tenantcontractFields[4].Descriptor()
 	// tenantcontract.DefaultPurgeFloors holds the default value on creation for the purge_floors field.
 	tenantcontract.DefaultPurgeFloors = tenantcontractDescPurgeFloors.Default.(bool)
+	tenantdomainFields := schema.TenantDomain{}.Fields()
+	_ = tenantdomainFields
+	// tenantdomainDescFailures is the schema descriptor for failures field.
+	tenantdomainDescFailures := tenantdomainFields[11].Descriptor()
+	// tenantdomain.DefaultFailures holds the default value on creation for the failures field.
+	tenantdomain.DefaultFailures = tenantdomainDescFailures.Default.(uint32)
 }

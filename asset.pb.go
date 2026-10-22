@@ -658,22 +658,28 @@ func (b0 TreeLock_builder) Build() *TreeLock {
 	return m0
 }
 
-// TenantDomain is a domain a tenant's QR labels are printed with (design 9.9).
+// TenantDomain is a domain of a workspace's (design 9.9): one its whole app
+// is on (`app`), or one its QR labels print with (`label`).
 type TenantDomain struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Tenant      *Tenant                `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Host        string                 `protobuf:"bytes,8,opt,name=host"`
-	xxx_hidden_Purpose     string                 `protobuf:"bytes,9,opt,name=purpose"`
-	xxx_hidden_State       string                 `protobuf:"bytes,10,opt,name=state"`
-	xxx_hidden_Token       string                 `protobuf:"bytes,11,opt,name=token"`
-	xxx_hidden_Source      string                 `protobuf:"bytes,12,opt,name=source"`
-	xxx_hidden_DateUpdated *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
-	xxx_hidden_DateErased  *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=date_erased,json=dateErased"`
-	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_VerifiedAt  *timestamppb.Timestamp `protobuf:"bytes,16,opt,name=verified_at,json=verifiedAt"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	state                    protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id            []byte                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Tenant        *Tenant                `protobuf:"bytes,2,opt,name=tenant"`
+	xxx_hidden_Host          string                 `protobuf:"bytes,8,opt,name=host"`
+	xxx_hidden_Purpose       string                 `protobuf:"bytes,9,opt,name=purpose"`
+	xxx_hidden_State         string                 `protobuf:"bytes,10,opt,name=state"`
+	xxx_hidden_Token         string                 `protobuf:"bytes,11,opt,name=token"`
+	xxx_hidden_Source        string                 `protobuf:"bytes,12,opt,name=source"`
+	xxx_hidden_DateUpdated   *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
+	xxx_hidden_DateErased    *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=date_erased,json=dateErased"`
+	xxx_hidden_DateCreated   *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
+	xxx_hidden_VerifiedAt    *timestamppb.Timestamp `protobuf:"bytes,16,opt,name=verified_at,json=verifiedAt"`
+	xxx_hidden_CheckedAt     *timestamppb.Timestamp `protobuf:"bytes,18,opt,name=checked_at,json=checkedAt"`
+	xxx_hidden_Failures      uint32                 `protobuf:"varint,19,opt,name=failures"`
+	xxx_hidden_FailingSince  *timestamppb.Timestamp `protobuf:"bytes,20,opt,name=failing_since,json=failingSince"`
+	xxx_hidden_DateLapsed    *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=date_lapsed,json=dateLapsed"`
+	xxx_hidden_RedirectUntil *timestamppb.Timestamp `protobuf:"bytes,21,opt,name=redirect_until,json=redirectUntil"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *TenantDomain) Reset() {
@@ -778,6 +784,41 @@ func (x *TenantDomain) GetVerifiedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *TenantDomain) GetCheckedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_CheckedAt
+	}
+	return nil
+}
+
+func (x *TenantDomain) GetFailures() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Failures
+	}
+	return 0
+}
+
+func (x *TenantDomain) GetFailingSince() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_FailingSince
+	}
+	return nil
+}
+
+func (x *TenantDomain) GetDateLapsed() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateLapsed
+	}
+	return nil
+}
+
+func (x *TenantDomain) GetRedirectUntil() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_RedirectUntil
+	}
+	return nil
+}
+
 func (x *TenantDomain) SetId(v []byte) {
 	if v == nil {
 		v = []byte{}
@@ -825,6 +866,26 @@ func (x *TenantDomain) SetVerifiedAt(v *timestamppb.Timestamp) {
 	x.xxx_hidden_VerifiedAt = v
 }
 
+func (x *TenantDomain) SetCheckedAt(v *timestamppb.Timestamp) {
+	x.xxx_hidden_CheckedAt = v
+}
+
+func (x *TenantDomain) SetFailures(v uint32) {
+	x.xxx_hidden_Failures = v
+}
+
+func (x *TenantDomain) SetFailingSince(v *timestamppb.Timestamp) {
+	x.xxx_hidden_FailingSince = v
+}
+
+func (x *TenantDomain) SetDateLapsed(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateLapsed = v
+}
+
+func (x *TenantDomain) SetRedirectUntil(v *timestamppb.Timestamp) {
+	x.xxx_hidden_RedirectUntil = v
+}
+
 func (x *TenantDomain) HasTenant() bool {
 	if x == nil {
 		return false
@@ -860,6 +921,34 @@ func (x *TenantDomain) HasVerifiedAt() bool {
 	return x.xxx_hidden_VerifiedAt != nil
 }
 
+func (x *TenantDomain) HasCheckedAt() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_CheckedAt != nil
+}
+
+func (x *TenantDomain) HasFailingSince() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_FailingSince != nil
+}
+
+func (x *TenantDomain) HasDateLapsed() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateLapsed != nil
+}
+
+func (x *TenantDomain) HasRedirectUntil() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_RedirectUntil != nil
+}
+
 func (x *TenantDomain) ClearTenant() {
 	x.xxx_hidden_Tenant = nil
 }
@@ -880,6 +969,22 @@ func (x *TenantDomain) ClearVerifiedAt() {
 	x.xxx_hidden_VerifiedAt = nil
 }
 
+func (x *TenantDomain) ClearCheckedAt() {
+	x.xxx_hidden_CheckedAt = nil
+}
+
+func (x *TenantDomain) ClearFailingSince() {
+	x.xxx_hidden_FailingSince = nil
+}
+
+func (x *TenantDomain) ClearDateLapsed() {
+	x.xxx_hidden_DateLapsed = nil
+}
+
+func (x *TenantDomain) ClearRedirectUntil() {
+	x.xxx_hidden_RedirectUntil = nil
+}
+
 type TenantDomain_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
@@ -887,9 +992,9 @@ type TenantDomain_builder struct {
 	Tenant *Tenant
 	// A lowercase host name, unique across the deployment.
 	Host string
-	// label
+	// app | label
 	Purpose string
-	// pending | active | legacy | retired
+	// pending | ready | active | legacy | lapsed | retired
 	State string
 	// The value the TXT record has to hold.
 	Token string
@@ -899,6 +1004,20 @@ type TenantDomain_builder struct {
 	DateErased  *timestamppb.Timestamp
 	DateCreated *timestamppb.Timestamp
 	VerifiedAt  *timestamppb.Timestamp
+	// An active custom domain's DNS is asked about again every hour (rove#155):
+	// whether its TXT record still holds `token`, and whether it still points
+	// here. `checked_at` is when it was last asked, and `failures` how many
+	// answers in a row since `failing_since` said no -- one that said nothing,
+	// a timeout, is none. A domain whose DNS said no often enough for long
+	// enough lapses (`server/domain`'s sweep): `lapsed`, since `date_lapsed`,
+	// and active again only once its TXT record verifies again.
+	CheckedAt    *timestamppb.Timestamp
+	Failures     uint32
+	FailingSince *timestamppb.Timestamp
+	DateLapsed   *timestamppb.Timestamp
+	// For an `app` domain made legacy by another's activation: until when its
+	// pages send a browser on to where the workspace's app is now.
+	RedirectUntil *timestamppb.Timestamp
 }
 
 func (b0 TenantDomain_builder) Build() *TenantDomain {
@@ -916,6 +1035,11 @@ func (b0 TenantDomain_builder) Build() *TenantDomain {
 	x.xxx_hidden_DateErased = b.DateErased
 	x.xxx_hidden_DateCreated = b.DateCreated
 	x.xxx_hidden_VerifiedAt = b.VerifiedAt
+	x.xxx_hidden_CheckedAt = b.CheckedAt
+	x.xxx_hidden_Failures = b.Failures
+	x.xxx_hidden_FailingSince = b.FailingSince
+	x.xxx_hidden_DateLapsed = b.DateLapsed
+	x.xxx_hidden_RedirectUntil = b.RedirectUntil
 	return m0
 }
 
@@ -1550,7 +1674,7 @@ const file_rove_asset_proto_rawDesc = "" +
 	"\n" +
 	"\x06tenant\x10\x020\x01\x8a\xbb\x16g\b\fB\x02\n" +
 	"\x00R_\x12]\n" +
-	"[the lock every change of the placement tree takes, and its version: bookkeeping, not a fact\"\xf1\x04\n" +
+	"[the lock every change of the placement tree takes, and its version: bookkeeping, not a fact\"\xb3\a\n" +
 	"\fTenantDomain\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
@@ -1565,7 +1689,14 @@ const file_rove_asset_proto_rawDesc = "" +
 	"dateErased\x12H\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12I\n" +
 	"\vverified_at\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampB\f\xea\x82\x16\x028\x01\xaa\xc1\x16\x02\x10\x01R\n" +
-	"verifiedAt:y\xca\xfc\x152\x12\x02\x10\x01\x1a,\x12\x04page\x1a\n" +
+	"verifiedAt\x12A\n" +
+	"\n" +
+	"checked_at\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\tcheckedAt\x12$\n" +
+	"\bfailures\x18\x13 \x01(\rB\b\xea\x82\x16\x04\x82\x01\x010R\bfailures\x12G\n" +
+	"\rfailing_since\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\ffailingSince\x12C\n" +
+	"\vdate_lapsed\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\n" +
+	"dateLapsed\x12I\n" +
+	"\x0eredirect_until\x18\x15 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\rredirectUntil:y\xca\xfc\x152\x12\x02\x10\x01\x1a,\x12\x04page\x1a\n" +
 	"\n" +
 	"\x06tenant\x10\x02\x1a\x10\n" +
 	"\fdate_created\x10\x0f\x1a\x06\n" +
@@ -1682,22 +1813,26 @@ var file_rove_asset_proto_depIdxs = []int32{
 	10, // 16: rove.TenantDomain.date_erased:type_name -> google.protobuf.Timestamp
 	10, // 17: rove.TenantDomain.date_created:type_name -> google.protobuf.Timestamp
 	10, // 18: rove.TenantDomain.verified_at:type_name -> google.protobuf.Timestamp
-	7,  // 19: rove.Label.tenant:type_name -> rove.Tenant
-	2,  // 20: rove.Label.domain:type_name -> rove.TenantDomain
-	10, // 21: rove.Label.bound_at:type_name -> google.protobuf.Timestamp
-	10, // 22: rove.Label.printed_at:type_name -> google.protobuf.Timestamp
-	10, // 23: rove.Label.date_updated:type_name -> google.protobuf.Timestamp
-	10, // 24: rove.Label.date_erased:type_name -> google.protobuf.Timestamp
-	10, // 25: rove.Label.date_created:type_name -> google.protobuf.Timestamp
-	7,  // 26: rove.Attachment.tenant:type_name -> rove.Tenant
-	10, // 27: rove.Attachment.date_updated:type_name -> google.protobuf.Timestamp
-	10, // 28: rove.Attachment.date_erased:type_name -> google.protobuf.Timestamp
-	10, // 29: rove.Attachment.date_created:type_name -> google.protobuf.Timestamp
-	30, // [30:30] is the sub-list for method output_type
-	30, // [30:30] is the sub-list for method input_type
-	30, // [30:30] is the sub-list for extension type_name
-	30, // [30:30] is the sub-list for extension extendee
-	0,  // [0:30] is the sub-list for field type_name
+	10, // 19: rove.TenantDomain.checked_at:type_name -> google.protobuf.Timestamp
+	10, // 20: rove.TenantDomain.failing_since:type_name -> google.protobuf.Timestamp
+	10, // 21: rove.TenantDomain.date_lapsed:type_name -> google.protobuf.Timestamp
+	10, // 22: rove.TenantDomain.redirect_until:type_name -> google.protobuf.Timestamp
+	7,  // 23: rove.Label.tenant:type_name -> rove.Tenant
+	2,  // 24: rove.Label.domain:type_name -> rove.TenantDomain
+	10, // 25: rove.Label.bound_at:type_name -> google.protobuf.Timestamp
+	10, // 26: rove.Label.printed_at:type_name -> google.protobuf.Timestamp
+	10, // 27: rove.Label.date_updated:type_name -> google.protobuf.Timestamp
+	10, // 28: rove.Label.date_erased:type_name -> google.protobuf.Timestamp
+	10, // 29: rove.Label.date_created:type_name -> google.protobuf.Timestamp
+	7,  // 30: rove.Attachment.tenant:type_name -> rove.Tenant
+	10, // 31: rove.Attachment.date_updated:type_name -> google.protobuf.Timestamp
+	10, // 32: rove.Attachment.date_erased:type_name -> google.protobuf.Timestamp
+	10, // 33: rove.Attachment.date_created:type_name -> google.protobuf.Timestamp
+	34, // [34:34] is the sub-list for method output_type
+	34, // [34:34] is the sub-list for method input_type
+	34, // [34:34] is the sub-list for extension type_name
+	34, // [34:34] is the sub-list for extension extendee
+	0,  // [0:34] is the sub-list for field type_name
 }
 
 func init() { file_rove_asset_proto_init() }

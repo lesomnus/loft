@@ -706,6 +706,11 @@ message TenantDomainAddRequest {
   string source = 12 [features.field_presence = IMPLICIT];
   google.protobuf.Timestamp date_created = 15;
   google.protobuf.Timestamp verified_at = 16;
+  google.protobuf.Timestamp checked_at = 18;
+  uint32 failures = 19;
+  google.protobuf.Timestamp failing_since = 20;
+  google.protobuf.Timestamp date_lapsed = 17;
+  google.protobuf.Timestamp redirect_until = 21;
   // The label for a default subdomain; the host is made from it.
   string sub = 100;
 }
@@ -734,6 +739,11 @@ message TenantDomainSelect {
   bool date_erased = 14;
   bool date_created = 15;
   bool verified_at = 16;
+  bool checked_at = 18;
+  bool failures = 19;
+  bool failing_since = 20;
+  bool date_lapsed = 17;
+  bool redirect_until = 21;
 }
 
 message TenantDomainPatchRequest {
@@ -763,6 +773,31 @@ message TenantDomainPatchRequest {
   // "leave it alone", so no value could have meant NULL. It wins
   // outright: setting both this and verified_at clears.
   bool verified_at_null = 33;
+  google.protobuf.Timestamp checked_at = 36;
+  // Clear checked_at instead of writing it.
+  // It takes a field of its own because an unset value already means
+  // "leave it alone", so no value could have meant NULL. It wins
+  // outright: setting both this and checked_at clears.
+  bool checked_at_null = 37;
+  uint32 failures = 38;
+  google.protobuf.Timestamp failing_since = 40;
+  // Clear failing_since instead of writing it.
+  // It takes a field of its own because an unset value already means
+  // "leave it alone", so no value could have meant NULL. It wins
+  // outright: setting both this and failing_since clears.
+  bool failing_since_null = 41;
+  google.protobuf.Timestamp date_lapsed = 34;
+  // Clear date_lapsed instead of writing it.
+  // It takes a field of its own because an unset value already means
+  // "leave it alone", so no value could have meant NULL. It wins
+  // outright: setting both this and date_lapsed clears.
+  bool date_lapsed_null = 35;
+  google.protobuf.Timestamp redirect_until = 42;
+  // Clear redirect_until instead of writing it.
+  // It takes a field of its own because an unset value already means
+  // "leave it alone", so no value could have meant NULL. It wins
+  // outright: setting both this and redirect_until clears.
+  bool redirect_until_null = 43;
 }
 
 message TenantDomainApplyRequest {

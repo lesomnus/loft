@@ -4,8 +4,10 @@ import (
 	"context"
 	"net/http"
 	"testing"
+	"time"
 
 	app "github.com/lesomnus/rove"
+	"github.com/lesomnus/rove/internal/ent/tenantdomain"
 )
 
 // TestALabelOpensWhereItsWorkspaceIs: a printed label sends whoever scans it
@@ -58,4 +60,49 @@ func TestAWorkspacesDataIsTakenOutOnItsDomain(t *testing.T) {
 	x.Equal("application/zip", res.Header().Get("Content-Type"))
 	res = w.send(nil, http.MethodGet, serviceHost, export, cookieIn(w.owner))
 	x.Equal(http.StatusOK, res.Code, res.Body.String())
+}
+
+// TestALegacyDomainSendsItsPagesOn: an app domain another took the place of
+// sends a page asked for on it to where the workspace's app is now, the same
+// page, until its redirect is over (rove#155); a call is no page, and is not
+// sent anywhere. One that lapsed when its DNS stopped saying it is here sends
+// nothing on, and opens the labels printed with it -- at the service's, while
+// the workspace has no app domain.
+func TestALegacyDomainSendsItsPagesOn(t *testing.T) {
+	w := newHosted(t)
+	x := w.x
+	ctx := context.Background()
+
+	beta, err := w.s.Base.Tenant().Add(ctx, app.TenantAddRequest_builder{Alias: "beta"}.Build())
+	x.NoError(err)
+	w.domain(w.tenant, ownHost, "app", "active")
+	w.domain(w.tenant, "old.acme.example", "app", "legacy")
+	w.domain(beta, "beta.example", "app", "lapsed")
+	until := func(host string, at time.Time) {
+		x.NoError(w.s.Ent.TenantDomain.Update().Where(tenantdomain.Host(host)).SetRedirectUntil(at).Exec(ctx))
+	}
+	until("old.acme.example", time.Now().Add(time.Hour))
+
+	for _, method := range []string{http.MethodGet, http.MethodHead} {
+		res := w.send(nil, method, "old.acme.example", "/@acme/assets?q=rack")
+		x.Equal(http.StatusFound, res.Code, method)
+		x.Equal("https://"+ownHost+"/@acme/assets?q=rack", res.Header().Get("Location"), method)
+	}
+	x.Equal(http.StatusNotFound, w.me(w.owner, "old.acme.example", "acme").Code, "a call is sent nowhere")
+	res := w.send(nil, http.MethodGet, "old.acme.example", "/l/7K3MQ9TX")
+	x.Equal("https://"+ownHost+"/scan/7K3MQ9TX", res.Header().Get("Location"), "its labels open where the app is")
+
+	// Its redirect over: labels, and nothing else.
+	until("old.acme.example", time.Now().Add(-time.Second))
+	x.Equal(http.StatusNotFound, w.send(nil, http.MethodGet, "old.acme.example", "/@acme/assets").Code)
+	x.Equal(http.StatusFound, w.send(nil, http.MethodGet, "old.acme.example", "/l/7K3MQ9TX").Code)
+
+	// Lapsed: nothing sent on, whatever it says, and its labels open at the
+	// service's.
+	until("beta.example", time.Now().Add(time.Hour))
+	x.Equal(http.StatusNotFound, w.send(nil, http.MethodGet, "beta.example", "/@beta/assets").Code)
+	res = w.send(nil, http.MethodGet, "beta.example", "/l/7K3MQ9TX")
+	x.Equal(http.StatusFound, res.Code)
+	x.Equal("https://"+serviceHost+"/scan/7K3MQ9TX", res.Header().Get("Location"))
+	x.Equal(http.StatusNotFound, w.me(w.owner, "beta.example", "beta").Code, "and serves no call")
 }

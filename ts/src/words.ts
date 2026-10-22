@@ -99,6 +99,7 @@ export const domainWord: Record<string, string> = {
 	ready: '확인됨',
 	active: '사용 중',
 	legacy: '이전 주소',
+	lapsed: 'DNS 확인 실패',
 	retired: '중지',
 }
 

@@ -153,6 +153,113 @@ func (_u *TenantDomainUpdate) ClearVerifiedAt() *TenantDomainUpdate {
 	return _u
 }
 
+// SetCheckedAt sets the "checked_at" field.
+func (_u *TenantDomainUpdate) SetCheckedAt(v time.Time) *TenantDomainUpdate {
+	_u.mutation.SetCheckedAt(v)
+	return _u
+}
+
+// SetNillableCheckedAt sets the "checked_at" field if the given value is not nil.
+func (_u *TenantDomainUpdate) SetNillableCheckedAt(v *time.Time) *TenantDomainUpdate {
+	if v != nil {
+		_u.SetCheckedAt(*v)
+	}
+	return _u
+}
+
+// ClearCheckedAt clears the value of the "checked_at" field.
+func (_u *TenantDomainUpdate) ClearCheckedAt() *TenantDomainUpdate {
+	_u.mutation.ClearCheckedAt()
+	return _u
+}
+
+// SetFailures sets the "failures" field.
+func (_u *TenantDomainUpdate) SetFailures(v uint32) *TenantDomainUpdate {
+	_u.mutation.ResetFailures()
+	_u.mutation.SetFailures(v)
+	return _u
+}
+
+// SetNillableFailures sets the "failures" field if the given value is not nil.
+func (_u *TenantDomainUpdate) SetNillableFailures(v *uint32) *TenantDomainUpdate {
+	if v != nil {
+		_u.SetFailures(*v)
+	}
+	return _u
+}
+
+// AddFailures adds value to the "failures" field.
+func (_u *TenantDomainUpdate) AddFailures(v int32) *TenantDomainUpdate {
+	_u.mutation.AddFailures(v)
+	return _u
+}
+
+// ClearFailures clears the value of the "failures" field.
+func (_u *TenantDomainUpdate) ClearFailures() *TenantDomainUpdate {
+	_u.mutation.ClearFailures()
+	return _u
+}
+
+// SetFailingSince sets the "failing_since" field.
+func (_u *TenantDomainUpdate) SetFailingSince(v time.Time) *TenantDomainUpdate {
+	_u.mutation.SetFailingSince(v)
+	return _u
+}
+
+// SetNillableFailingSince sets the "failing_since" field if the given value is not nil.
+func (_u *TenantDomainUpdate) SetNillableFailingSince(v *time.Time) *TenantDomainUpdate {
+	if v != nil {
+		_u.SetFailingSince(*v)
+	}
+	return _u
+}
+
+// ClearFailingSince clears the value of the "failing_since" field.
+func (_u *TenantDomainUpdate) ClearFailingSince() *TenantDomainUpdate {
+	_u.mutation.ClearFailingSince()
+	return _u
+}
+
+// SetDateLapsed sets the "date_lapsed" field.
+func (_u *TenantDomainUpdate) SetDateLapsed(v time.Time) *TenantDomainUpdate {
+	_u.mutation.SetDateLapsed(v)
+	return _u
+}
+
+// SetNillableDateLapsed sets the "date_lapsed" field if the given value is not nil.
+func (_u *TenantDomainUpdate) SetNillableDateLapsed(v *time.Time) *TenantDomainUpdate {
+	if v != nil {
+		_u.SetDateLapsed(*v)
+	}
+	return _u
+}
+
+// ClearDateLapsed clears the value of the "date_lapsed" field.
+func (_u *TenantDomainUpdate) ClearDateLapsed() *TenantDomainUpdate {
+	_u.mutation.ClearDateLapsed()
+	return _u
+}
+
+// SetRedirectUntil sets the "redirect_until" field.
+func (_u *TenantDomainUpdate) SetRedirectUntil(v time.Time) *TenantDomainUpdate {
+	_u.mutation.SetRedirectUntil(v)
+	return _u
+}
+
+// SetNillableRedirectUntil sets the "redirect_until" field if the given value is not nil.
+func (_u *TenantDomainUpdate) SetNillableRedirectUntil(v *time.Time) *TenantDomainUpdate {
+	if v != nil {
+		_u.SetRedirectUntil(*v)
+	}
+	return _u
+}
+
+// ClearRedirectUntil clears the value of the "redirect_until" field.
+func (_u *TenantDomainUpdate) ClearRedirectUntil() *TenantDomainUpdate {
+	_u.mutation.ClearRedirectUntil()
+	return _u
+}
+
 // Mutation returns the TenantDomainMutation object of the builder.
 func (_u *TenantDomainUpdate) Mutation() *TenantDomainMutation {
 	return _u.mutation
@@ -267,6 +374,54 @@ func (_u *TenantDomainUpdate) sqlSave(ctx context.Context) (_node int, err error
 	}
 	if _u.mutation.VerifiedAtCleared() {
 		_spec.ClearField(tenantdomain.FieldVerifiedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.CheckedAt(); ok {
+		_spec.SetField(tenantdomain.FieldCheckedAt, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenantdomain.FieldCheckedAt); ok {
+		_spec.SetField(tenantdomain.FieldCheckedAt, field.TypeTime, e)
+	}
+	if _u.mutation.CheckedAtCleared() {
+		_spec.ClearField(tenantdomain.FieldCheckedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.Failures(); ok {
+		_spec.SetField(tenantdomain.FieldFailures, field.TypeUint32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenantdomain.FieldFailures); ok {
+		_spec.SetField(tenantdomain.FieldFailures, field.TypeUint32, e)
+	}
+	if value, ok := _u.mutation.AddedFailures(); ok {
+		_spec.AddField(tenantdomain.FieldFailures, field.TypeUint32, value)
+	}
+	if _u.mutation.FailuresCleared() {
+		_spec.ClearField(tenantdomain.FieldFailures, field.TypeUint32)
+	}
+	if value, ok := _u.mutation.FailingSince(); ok {
+		_spec.SetField(tenantdomain.FieldFailingSince, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenantdomain.FieldFailingSince); ok {
+		_spec.SetField(tenantdomain.FieldFailingSince, field.TypeTime, e)
+	}
+	if _u.mutation.FailingSinceCleared() {
+		_spec.ClearField(tenantdomain.FieldFailingSince, field.TypeTime)
+	}
+	if value, ok := _u.mutation.DateLapsed(); ok {
+		_spec.SetField(tenantdomain.FieldDateLapsed, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenantdomain.FieldDateLapsed); ok {
+		_spec.SetField(tenantdomain.FieldDateLapsed, field.TypeTime, e)
+	}
+	if _u.mutation.DateLapsedCleared() {
+		_spec.ClearField(tenantdomain.FieldDateLapsed, field.TypeTime)
+	}
+	if value, ok := _u.mutation.RedirectUntil(); ok {
+		_spec.SetField(tenantdomain.FieldRedirectUntil, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenantdomain.FieldRedirectUntil); ok {
+		_spec.SetField(tenantdomain.FieldRedirectUntil, field.TypeTime, e)
+	}
+	if _u.mutation.RedirectUntilCleared() {
+		_spec.ClearField(tenantdomain.FieldRedirectUntil, field.TypeTime)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
@@ -414,6 +569,113 @@ func (_u *TenantDomainUpdateOne) ClearVerifiedAt() *TenantDomainUpdateOne {
 	return _u
 }
 
+// SetCheckedAt sets the "checked_at" field.
+func (_u *TenantDomainUpdateOne) SetCheckedAt(v time.Time) *TenantDomainUpdateOne {
+	_u.mutation.SetCheckedAt(v)
+	return _u
+}
+
+// SetNillableCheckedAt sets the "checked_at" field if the given value is not nil.
+func (_u *TenantDomainUpdateOne) SetNillableCheckedAt(v *time.Time) *TenantDomainUpdateOne {
+	if v != nil {
+		_u.SetCheckedAt(*v)
+	}
+	return _u
+}
+
+// ClearCheckedAt clears the value of the "checked_at" field.
+func (_u *TenantDomainUpdateOne) ClearCheckedAt() *TenantDomainUpdateOne {
+	_u.mutation.ClearCheckedAt()
+	return _u
+}
+
+// SetFailures sets the "failures" field.
+func (_u *TenantDomainUpdateOne) SetFailures(v uint32) *TenantDomainUpdateOne {
+	_u.mutation.ResetFailures()
+	_u.mutation.SetFailures(v)
+	return _u
+}
+
+// SetNillableFailures sets the "failures" field if the given value is not nil.
+func (_u *TenantDomainUpdateOne) SetNillableFailures(v *uint32) *TenantDomainUpdateOne {
+	if v != nil {
+		_u.SetFailures(*v)
+	}
+	return _u
+}
+
+// AddFailures adds value to the "failures" field.
+func (_u *TenantDomainUpdateOne) AddFailures(v int32) *TenantDomainUpdateOne {
+	_u.mutation.AddFailures(v)
+	return _u
+}
+
+// ClearFailures clears the value of the "failures" field.
+func (_u *TenantDomainUpdateOne) ClearFailures() *TenantDomainUpdateOne {
+	_u.mutation.ClearFailures()
+	return _u
+}
+
+// SetFailingSince sets the "failing_since" field.
+func (_u *TenantDomainUpdateOne) SetFailingSince(v time.Time) *TenantDomainUpdateOne {
+	_u.mutation.SetFailingSince(v)
+	return _u
+}
+
+// SetNillableFailingSince sets the "failing_since" field if the given value is not nil.
+func (_u *TenantDomainUpdateOne) SetNillableFailingSince(v *time.Time) *TenantDomainUpdateOne {
+	if v != nil {
+		_u.SetFailingSince(*v)
+	}
+	return _u
+}
+
+// ClearFailingSince clears the value of the "failing_since" field.
+func (_u *TenantDomainUpdateOne) ClearFailingSince() *TenantDomainUpdateOne {
+	_u.mutation.ClearFailingSince()
+	return _u
+}
+
+// SetDateLapsed sets the "date_lapsed" field.
+func (_u *TenantDomainUpdateOne) SetDateLapsed(v time.Time) *TenantDomainUpdateOne {
+	_u.mutation.SetDateLapsed(v)
+	return _u
+}
+
+// SetNillableDateLapsed sets the "date_lapsed" field if the given value is not nil.
+func (_u *TenantDomainUpdateOne) SetNillableDateLapsed(v *time.Time) *TenantDomainUpdateOne {
+	if v != nil {
+		_u.SetDateLapsed(*v)
+	}
+	return _u
+}
+
+// ClearDateLapsed clears the value of the "date_lapsed" field.
+func (_u *TenantDomainUpdateOne) ClearDateLapsed() *TenantDomainUpdateOne {
+	_u.mutation.ClearDateLapsed()
+	return _u
+}
+
+// SetRedirectUntil sets the "redirect_until" field.
+func (_u *TenantDomainUpdateOne) SetRedirectUntil(v time.Time) *TenantDomainUpdateOne {
+	_u.mutation.SetRedirectUntil(v)
+	return _u
+}
+
+// SetNillableRedirectUntil sets the "redirect_until" field if the given value is not nil.
+func (_u *TenantDomainUpdateOne) SetNillableRedirectUntil(v *time.Time) *TenantDomainUpdateOne {
+	if v != nil {
+		_u.SetRedirectUntil(*v)
+	}
+	return _u
+}
+
+// ClearRedirectUntil clears the value of the "redirect_until" field.
+func (_u *TenantDomainUpdateOne) ClearRedirectUntil() *TenantDomainUpdateOne {
+	_u.mutation.ClearRedirectUntil()
+	return _u
+}
+
 // Mutation returns the TenantDomainMutation object of the builder.
 func (_u *TenantDomainUpdateOne) Mutation() *TenantDomainMutation {
 	return _u.mutation
@@ -558,6 +820,54 @@ func (_u *TenantDomainUpdateOne) sqlSave(ctx context.Context) (_node *TenantDoma
 	}
 	if _u.mutation.VerifiedAtCleared() {
 		_spec.ClearField(tenantdomain.FieldVerifiedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.CheckedAt(); ok {
+		_spec.SetField(tenantdomain.FieldCheckedAt, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenantdomain.FieldCheckedAt); ok {
+		_spec.SetField(tenantdomain.FieldCheckedAt, field.TypeTime, e)
+	}
+	if _u.mutation.CheckedAtCleared() {
+		_spec.ClearField(tenantdomain.FieldCheckedAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.Failures(); ok {
+		_spec.SetField(tenantdomain.FieldFailures, field.TypeUint32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenantdomain.FieldFailures); ok {
+		_spec.SetField(tenantdomain.FieldFailures, field.TypeUint32, e)
+	}
+	if value, ok := _u.mutation.AddedFailures(); ok {
+		_spec.AddField(tenantdomain.FieldFailures, field.TypeUint32, value)
+	}
+	if _u.mutation.FailuresCleared() {
+		_spec.ClearField(tenantdomain.FieldFailures, field.TypeUint32)
+	}
+	if value, ok := _u.mutation.FailingSince(); ok {
+		_spec.SetField(tenantdomain.FieldFailingSince, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenantdomain.FieldFailingSince); ok {
+		_spec.SetField(tenantdomain.FieldFailingSince, field.TypeTime, e)
+	}
+	if _u.mutation.FailingSinceCleared() {
+		_spec.ClearField(tenantdomain.FieldFailingSince, field.TypeTime)
+	}
+	if value, ok := _u.mutation.DateLapsed(); ok {
+		_spec.SetField(tenantdomain.FieldDateLapsed, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenantdomain.FieldDateLapsed); ok {
+		_spec.SetField(tenantdomain.FieldDateLapsed, field.TypeTime, e)
+	}
+	if _u.mutation.DateLapsedCleared() {
+		_spec.ClearField(tenantdomain.FieldDateLapsed, field.TypeTime)
+	}
+	if value, ok := _u.mutation.RedirectUntil(); ok {
+		_spec.SetField(tenantdomain.FieldRedirectUntil, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenantdomain.FieldRedirectUntil); ok {
+		_spec.SetField(tenantdomain.FieldRedirectUntil, field.TypeTime, e)
+	}
+	if _u.mutation.RedirectUntilCleared() {
+		_spec.ClearField(tenantdomain.FieldRedirectUntil, field.TypeTime)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	_node = &TenantDomain{config: _u.config}

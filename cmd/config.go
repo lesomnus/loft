@@ -420,6 +420,17 @@ type WorkspacesConfig struct {
 	AliasHold     time.Duration `yaml:"alias_hold"`
 	// Every is how often closed workspaces are looked at. Unset is an hour.
 	Every time.Duration `yaml:"every"`
+	// DomainRedirect is how long a workspace's app domain that another took
+	// the place of sends its pages on to the new one (rove#155): long enough
+	// for the links in the mail sent before and the bookmarks of everybody
+	// who works there to be followed, and learned anew. Unset is 90 days.
+	// Labels printed with it open on it for as long as it points here.
+	DomainRedirect time.Duration `yaml:"domain_redirect"`
+}
+
+// Redirect is how long a workspace's old app domain sends its pages on.
+func (c WorkspacesConfig) Redirect() time.Duration {
+	return or(c.DomainRedirect, 90*24*time.Hour)
 }
 
 // Restore is how long a closed workspace may be restored.

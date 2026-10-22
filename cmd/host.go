@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/lesomnus/otx/log"
 	"github.com/lesomnus/payday/pdid"
@@ -37,9 +38,12 @@ import (
 //     is no workspace's domain is the service's there.
 //   - **A workspace's domain that is not an active `app` one** -- a label
 //     domain, a default subdomain, an app domain that is legacy since another
-//     took its place, or one verified and not yet in use -- opens the labels
-//     printed with it, `/l/<code>`, and nothing else: an inactive or legacy
-//     domain pins nothing.
+//     took its place, one that lapsed when its DNS stopped saying it is here,
+//     or one verified and not yet in use -- opens the labels printed with it,
+//     `/l/<code>`, and nothing else: an inactive or legacy domain pins
+//     nothing. An app domain another took the place of sends its pages on to
+//     where the workspace's app is now, for a while
+//     (`app.workspaces.domain_redirect`).
 //   - **Any other host** is answered nothing but `/healthz`, which a probe asks
 //     by whatever address it reaches the pod at.
 type Hosts struct {
@@ -52,11 +56,18 @@ type Hosts struct {
 	// Aliases says where an address a workspace moved off went, for a page
 	// at an alias a pinned workspace moved off, which sends it on (D29).
 	Aliases tenancy.Aliases
+
+	// Links is where a legacy app domain sends its pages: where the
+	// workspace's app is now.
+	Links apphost.Links
+
+	// Now is the clock; tests move it.
+	Now func() time.Time
 }
 
 // Hosts is what decides by the host a request came to, for this deployment.
 func (s *Server) Hosts(c Config) Hosts {
-	h := Hosts{Db: s.Ent, Aliases: s.Aliases(c)}
+	h := Hosts{Db: s.Ent, Aliases: s.Aliases(c), Links: c.App.Links()}
 	if c.App.PublicUrl != "" {
 		h.Service = c.App.ServiceHosts()
 	}
@@ -77,28 +88,51 @@ const (
 	nowhere
 )
 
-// where answers what `host` is, and the workspace it pins a request to when
-// it is an active app domain.
-func (h Hosts) where(ctx context.Context, host string) (place, apphost.Pinned, error) {
+// where answers what `host` is: the workspace it pins a request to when it is
+// an active app domain, and the domain it is when it is any workspace's.
+func (h Hosts) where(ctx context.Context, host string) (place, apphost.Pinned, *ent.TenantDomain, error) {
 	d, err := h.Db.TenantDomain.Query().Where(
 		tenantdomain.Host(host),
-		tenantdomain.StateIn("ready", "active", "legacy"),
+		tenantdomain.StateIn("ready", "active", "legacy", "lapsed"),
 		tenantdomain.DateErasedIsNil(),
 	).WithTenant().Only(ctx)
 	switch {
 	case ent.IsNotFound(err):
 		if len(h.Service) == 0 || slices.Contains(h.Service, host) {
-			return atService, apphost.Pinned{}, nil
+			return atService, apphost.Pinned{}, nil, nil
 		}
-		return nowhere, apphost.Pinned{}, nil
+		return nowhere, apphost.Pinned{}, nil, nil
 	case err != nil:
-		return nowhere, apphost.Pinned{}, err
+		return nowhere, apphost.Pinned{}, nil, err
 	}
 	if d.Purpose != "app" || d.State != "active" || d.Edges.Tenant == nil {
-		return atDomain, apphost.Pinned{}, nil
+		return atDomain, apphost.Pinned{}, d, nil
 	}
 
-	return atWorkspace, apphost.Pinned{Workspace: pdid.Id(d.TenantId), Alias: d.Edges.Tenant.Alias}, nil
+	return atWorkspace, apphost.Pinned{Workspace: pdid.Id(d.TenantId), Alias: d.Edges.Tenant.Alias}, d, nil
+}
+
+// movedOn is where a page asked for on `d` is now, when `d` is an app domain
+// another took the place of and still sends its pages on; empty otherwise.
+func (h Hosts) movedOn(r *http.Request, d *ent.TenantDomain) (string, error) {
+	if d == nil || d.Purpose != "app" || d.State != "legacy" || d.RedirectUntil == nil {
+		return "", nil
+	}
+	if r.Method != http.MethodGet && r.Method != http.MethodHead {
+		return "", nil
+	}
+	now := time.Now()
+	if h.Now != nil {
+		now = h.Now()
+	}
+	if !now.Before(*d.RedirectUntil) {
+		return "", nil
+	}
+	at, err := h.Links.Of(r.Context(), h.Db, pdid.Id(d.TenantId), apphost.Page)
+	if err != nil {
+		return "", err
+	}
+	return at + r.URL.RequestURI(), nil
 }
 
 // Handler is `next` behind the decision the host makes; see [Hosts].
@@ -109,7 +143,7 @@ func (h Hosts) Handler(next http.Handler) http.Handler {
 			return
 		}
 
-		at, pin, err := h.where(r.Context(), apphost.Host(r))
+		at, pin, d, err := h.where(r.Context(), apphost.Host(r))
 		if err != nil {
 			log.From(r.Context()).ErrorContext(r.Context(), "hosts: which workspace a host is could not be told", "host", r.Host, "err", err)
 			http.Error(w, "cannot say just now", http.StatusServiceUnavailable)
@@ -121,6 +155,16 @@ func (h Hosts) Handler(next http.Handler) http.Handler {
 		case atDomain:
 			if r.Method == http.MethodGet && strings.HasPrefix(r.URL.Path, "/l/") {
 				next.ServeHTTP(w, r)
+				return
+			}
+			to, err := h.movedOn(r, d)
+			if err != nil {
+				log.From(r.Context()).ErrorContext(r.Context(), "hosts: where a moved domain's workspace is could not be told", "host", r.Host, "err", err)
+				http.Error(w, "cannot say just now", http.StatusServiceUnavailable)
+				return
+			}
+			if to != "" {
+				http.Redirect(w, r, to, http.StatusFound)
 				return
 			}
 			http.Error(w, "this address opens the labels printed with it, and nothing else", http.StatusNotFound)
@@ -147,7 +191,7 @@ func (s *Server) scanning(r *http.Request, links apphost.Links) (string, error) 
 	}
 	d, err := s.Ent.TenantDomain.Query().Where(
 		tenantdomain.Host(apphost.Host(r)),
-		tenantdomain.StateIn("ready", "active", "legacy"),
+		tenantdomain.StateIn("ready", "active", "legacy", "lapsed"),
 		tenantdomain.DateErasedIsNil(),
 	).Only(r.Context())
 	switch {

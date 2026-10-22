@@ -37,6 +37,16 @@ type TenantDomain struct {
 	DateCreated time.Time `json:"date_created,omitempty"`
 	// VerifiedAt holds the value of the "verified_at" field.
 	VerifiedAt *time.Time `json:"verified_at,omitempty"`
+	// CheckedAt holds the value of the "checked_at" field.
+	CheckedAt *time.Time `json:"checked_at,omitempty"`
+	// Failures holds the value of the "failures" field.
+	Failures uint32 `json:"failures,omitempty"`
+	// FailingSince holds the value of the "failing_since" field.
+	FailingSince *time.Time `json:"failing_since,omitempty"`
+	// DateLapsed holds the value of the "date_lapsed" field.
+	DateLapsed *time.Time `json:"date_lapsed,omitempty"`
+	// RedirectUntil holds the value of the "redirect_until" field.
+	RedirectUntil *time.Time `json:"redirect_until,omitempty"`
 	// TenantId holds the value of the "tenant_id" field.
 	TenantId uuid.UUID `json:"tenant_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -70,9 +80,11 @@ func (*TenantDomain) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case tenantdomain.FieldFailures:
+			values[i] = new(sql.NullInt64)
 		case tenantdomain.FieldHost, tenantdomain.FieldPurpose, tenantdomain.FieldState, tenantdomain.FieldToken, tenantdomain.FieldSource:
 			values[i] = new(sql.NullString)
-		case tenantdomain.FieldDateUpdated, tenantdomain.FieldDateErased, tenantdomain.FieldDateCreated, tenantdomain.FieldVerifiedAt:
+		case tenantdomain.FieldDateUpdated, tenantdomain.FieldDateErased, tenantdomain.FieldDateCreated, tenantdomain.FieldVerifiedAt, tenantdomain.FieldCheckedAt, tenantdomain.FieldFailingSince, tenantdomain.FieldDateLapsed, tenantdomain.FieldRedirectUntil:
 			values[i] = new(sql.NullTime)
 		case tenantdomain.FieldId, tenantdomain.FieldTenantId:
 			values[i] = new(uuid.UUID)
@@ -153,6 +165,40 @@ func (_m *TenantDomain) assignValues(columns []string, values []any) error {
 				_m.VerifiedAt = new(time.Time)
 				*_m.VerifiedAt = value.Time
 			}
+		case tenantdomain.FieldCheckedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field checked_at", values[i])
+			} else if value.Valid {
+				_m.CheckedAt = new(time.Time)
+				*_m.CheckedAt = value.Time
+			}
+		case tenantdomain.FieldFailures:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field failures", values[i])
+			} else if value.Valid {
+				_m.Failures = uint32(value.Int64)
+			}
+		case tenantdomain.FieldFailingSince:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field failing_since", values[i])
+			} else if value.Valid {
+				_m.FailingSince = new(time.Time)
+				*_m.FailingSince = value.Time
+			}
+		case tenantdomain.FieldDateLapsed:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field date_lapsed", values[i])
+			} else if value.Valid {
+				_m.DateLapsed = new(time.Time)
+				*_m.DateLapsed = value.Time
+			}
+		case tenantdomain.FieldRedirectUntil:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field redirect_until", values[i])
+			} else if value.Valid {
+				_m.RedirectUntil = new(time.Time)
+				*_m.RedirectUntil = value.Time
+			}
 		case tenantdomain.FieldTenantId:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
@@ -228,6 +274,29 @@ func (_m *TenantDomain) String() string {
 	builder.WriteString(", ")
 	if v := _m.VerifiedAt; v != nil {
 		builder.WriteString("verified_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	if v := _m.CheckedAt; v != nil {
+		builder.WriteString("checked_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("failures=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Failures))
+	builder.WriteString(", ")
+	if v := _m.FailingSince; v != nil {
+		builder.WriteString("failing_since=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	if v := _m.DateLapsed; v != nil {
+		builder.WriteString("date_lapsed=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	if v := _m.RedirectUntil; v != nil {
+		builder.WriteString("redirect_until=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")

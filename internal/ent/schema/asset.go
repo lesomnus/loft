@@ -167,6 +167,21 @@ func (TenantDomain) Fields() []ent.Field {
 		field.Time("verified_at").
 			Nillable().
 			Optional(),
+		field.Time("checked_at").
+			Nillable().
+			Optional(),
+		field.Uint32("failures").
+			Optional().
+			Default(0),
+		field.Time("failing_since").
+			Nillable().
+			Optional(),
+		field.Time("date_lapsed").
+			Nillable().
+			Optional(),
+		field.Time("redirect_until").
+			Nillable().
+			Optional(),
 		field.Uuid("tenant_id").
 			Immutable(),
 	}

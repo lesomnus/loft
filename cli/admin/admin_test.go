@@ -23,6 +23,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/tenant"
 	"github.com/lesomnus/rove/internal/ent/tenantcontract"
 	"github.com/lesomnus/rove/server/admin"
+	"github.com/lesomnus/rove/server/pd"
 )
 
 const key = "an-operators-key-long-enough-to-be-one"
@@ -220,4 +221,42 @@ func TestTheEntryPointAnswersOnlyAnOperatorsKey(t *testing.T) {
 	x.ErrorContains(err, "admin.keys.bob")
 	_, err = admin.Operators(map[string]string{"carol": "env:ROVE_NO_SUCH_KEY_HERE"})
 	x.ErrorContains(err, "admin.keys.carol")
+}
+
+// TestACertificateIsAskedForADomainInUse: a reverse proxy is told to take a
+// certificate for a workspace's domain that is verified and in use -- ready,
+// active, or legacy, whose labels and pages still open -- and for no other:
+// not one waiting for its TXT record, not one that lapsed when its DNS
+// stopped saying it is here (rove#155), not one retired.
+func TestACertificateIsAskedForADomainInUse(t *testing.T) {
+	x := require.New(t)
+	d := deploy(t)
+	ctx := context.Background()
+
+	acme, err := d.s.Ent.Tenant.Query().Where(tenant.Alias("acme")).Only(ctx)
+	x.NoError(err)
+	for state, want := range map[string]int{
+		"ready":   http.StatusOK,
+		"active":  http.StatusOK,
+		"legacy":  http.StatusOK,
+		"pending": http.StatusNotFound,
+		"lapsed":  http.StatusNotFound,
+		"retired": http.StatusNotFound,
+	} {
+		host := state + ".acme.example"
+		x.NoError(d.s.Ent.TenantDomain.Create().
+			SetId(pdid.New(pd.TenantDomainDomain).Uuid()).
+			SetTenantId(acme.Id).
+			SetHost(host).
+			SetPurpose("app").
+			SetState(state).
+			SetToken("rove-test").
+			SetSource("custom").
+			SetDateUpdated(time.Now()).
+			Exec(ctx))
+		res, err := http.Get(d.url + "/internal/tls-ask?domain=" + host)
+		x.NoError(err)
+		res.Body.Close()
+		x.Equal(want, res.StatusCode, state)
+	}
 }

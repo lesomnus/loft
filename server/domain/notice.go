@@ -22,6 +22,7 @@ var Mailed = map[string]bool{
 	"reservation.decided":   true, // to whoever asked
 	"custody.overdue":       true, // to who has it, and who manages it
 	"work.due":              true, // maintenance coming due, to who manages it
+	"domain.lapsed":         true, // a workspace's domain taken out of use, to who runs it
 }
 
 // notify leaves a message for one holder, queued for mail as well when it is
@@ -50,6 +51,28 @@ func (t *Tx) notifyManagers(kind, title, body string, subject pdid.Id, link stri
 	hs, err := t.db.Holder.Query().Where(
 		holder.TenantId(t.tenant.Uuid()),
 		holder.RoleIn("owner", "admin", "manager"),
+		holder.DateErasedIsNil(),
+	).Ids(t.ctx)
+	if err != nil {
+		return err
+	}
+	for _, h := range hs {
+		if pdid.Id(h) == t.actor {
+			continue
+		}
+		if err := t.notify(h, kind, title, body, subject, link); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// notifyAdmins tells whoever runs the workspace: its owners and
+// administrators, who may act on its domains and its people.
+func (t *Tx) notifyAdmins(kind, title, body string, subject pdid.Id, link string) error {
+	hs, err := t.db.Holder.Query().Where(
+		holder.TenantId(t.tenant.Uuid()),
+		holder.RoleIn("owner", "admin"),
 		holder.DateErasedIsNil(),
 	).Ids(t.ctx)
 	if err != nil {
