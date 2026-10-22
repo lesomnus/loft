@@ -73,6 +73,13 @@ ROVE_AUTH_ROSTER_ADDR=roster.example.com:443 ROVE_AUTH_ROSTER_DIRECTORY=accounts
 ROVE_AUTH_ROSTER_KEY=env:ROSTER_KEY ROSTER_KEY=rk_… go run ./cmd/rove serve
 ```
 
+**운영처럼 보이는 배포에서 내장 roster를 쓰면 `rove serve`가 시작할 때 경고합니다.** 거부하지는 않습니다. 운영처럼 보인다는 것은 DB가 PostgreSQL(`db.driver: pgx`)이거나, `app.public_url`이 이 기계(`localhost`, `*.localhost`, 루프백 주소)가 아닌 경우입니다. 경고에는 둘 중 무엇 때문인지가 함께 나옵니다.
+
+- 내장 roster는 서버 한 대의 배포를 간단하게 하려는 것입니다(design 9.10, CE).
+- 그 프로세스만 roster에 닿고, 사람과 비밀번호가 Rove의 데이터 옆에 있으며, 다른 앱은 그 계정을 쓸 수 없습니다.
+- 서버 한 대를 넘는 배포(SaaS, Dedicated, 여러 대)는 roster를 따로 운영합니다.
+- 서버 한 대의 CE를 PostgreSQL과 자기 도메인으로 운영한다면 이 경고는 그대로 두어도 됩니다.
+
 `EmailService`의 두 권한은 초대(D30)를 위한 것입니다. 초대장은 roster가 확인한 주소를 가진 계정의 초대함에 보이고, Rove는 그 주소를 이 권한으로 읽습니다. `SyncService/Watch`는 roster의 동기화 스트림입니다. roster가 계정을 중지·삭제하거나 모든 곳에서 로그아웃시키면 Rove가 그 자리에서 세션을 끝내고, 삭제된 계정을 떠나는 중으로 표시합니다. roster가 디렉터리를 닫으면(`roster tenant close`, roster#105) 그 디렉터리의 모든 계정의 세션이 끝나고, 닫혀 있는 동안은 아무도 로그인하지 못합니다. 아무것도 지우지 않으므로 디렉터리를 복구하면 다시 로그인할 수 있습니다.
 
 `auth.roster.account_url` 에 roster의 계정 페이지(디렉터리의 front door, 예: `https://id.example.com/`)를 주면, 내 정보 화면에 "로그인 방법 관리"와 "계정 탈퇴" 링크가 생깁니다. 탈퇴 링크는 그 페이지의 `#leave` 로 가고, 계정 삭제는 roster에서 합니다(`MeService.Leave`, roster#106). 삭제는 디렉터리가 허용할 때만 되므로, SaaS의 디렉터리는 roster 운영자가 `TenantConfig.leave` 를 켭니다(관리 콘솔의 테넌트 화면, 또는 resources 파일의 `config.leave`). 삭제된 계정은 위의 스트림으로 Rove에 들어와 떠나는 중이 됩니다.
