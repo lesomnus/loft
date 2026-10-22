@@ -50,6 +50,7 @@ import (
 
 	"github.com/lesomnus/rove/internal/identity"
 	"github.com/lesomnus/rove/server/apphost"
+	"github.com/lesomnus/rove/server/landing"
 )
 
 // Config is the issuer this deployment signs people in through.
@@ -236,7 +237,7 @@ func (rp *Rp) login(w http.ResponseWriter, r *http.Request) {
 
 	state, nonce := secret(), secret()
 	verifier := oauth2.GenerateVerifier()
-	rp.put(state, flow{nonce: nonce, verifier: verifier, next: local(r.URL.Query().Get("next"))})
+	rp.put(state, flow{nonce: nonce, verifier: verifier, next: landing.Path(r.URL.Query().Get("next"))})
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     stateCookie,
@@ -494,22 +495,6 @@ func (rp *Rp) take(state string) (flow, bool) {
 		return flow{}, false
 	}
 	return f, true
-}
-
-// local is a path on this deployment to land on, and `/` for anything else: a
-// sign-in is a redirect, and one to wherever a link said would send somebody
-// who just signed in to a page made to look like this one.
-//
-// A path is what starts with one slash. Two is another host to a browser, and
-// so is a backslash where a slash would be, since a browser reads one as the
-// other; a control character, which a browser drops and which could close up
-// either, is refused by the parse.
-func local(next string) string {
-	u, err := url.Parse(next)
-	if err != nil || !strings.HasPrefix(next, "/") || strings.HasPrefix(next, "//") || strings.Contains(next, "\\") {
-		return "/"
-	}
-	return u.RequestURI()
 }
 
 // secret is 24 random bytes, for a state or a nonce.

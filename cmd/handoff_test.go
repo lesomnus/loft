@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/sha256"
+	"encoding/base64"
 	"encoding/json"
 	"log/slog"
 	"net/http"
@@ -226,6 +227,46 @@ func TestASignInIsHandedToAWorkspacesDomain(t *testing.T) {
 
 	x.Contains(logs.String(), "already taken", "why a sign-in did not finish is logged")
 	x.NotContains(logs.String(), tr.code, "and the code is not")
+}
+
+// TestAHandoffLandsOnTheDomainAndNowhereElse: where the browser was when
+// the domain sent it off is where it lands once it is signed in, and that is a
+// path on the domain or its front page -- whatever spells another site: a
+// scheme, `//`, a backslash, or a path `net/url` would write back out as `//`.
+// The domain holds what its own cookie says to that again, at the end.
+func TestAHandoffLandsOnTheDomainAndNowhereElse(t *testing.T) {
+	w := newHosted(t)
+	x := w.x
+
+	as := w.session(w.holder("kim", "member"))
+	w.domain(w.tenant, ownHost, "app", "active")
+	lands := func(res *httptest.ResponseRecorder, want, why string) {
+		t.Helper()
+		x.Equal(http.StatusSeeOther, res.Code, why)
+		x.Equal(want, res.Header().Get("Location"), why)
+		x.NotNil(setCookie(res, authsession.DefaultCookie), why)
+	}
+
+	for next, want := range map[string]string{
+		"/@acme/assets?q=x":     "/@acme/assets?q=x",
+		"https://evil.example/": "/",
+		"//evil.example/x":      "/",
+		"/\\evil.example":       "/",
+		"/%2Fevil.example/ x":   "/",
+		"/%2Fevil.example/\"":   "/",
+	} {
+		tr := w.start(ownHost, next)
+		x.Equal(http.StatusSeeOther, w.give(as, ownHost, &tr).Code, next)
+		lands(w.take(nil, ownHost, tr, tr.state), want, next)
+	}
+
+	// What the domain's own cookie says, held to a path here again.
+	for _, next := range []string{"//evil.example/x", "/%2Fevil.example/ x", "https://evil.example/"} {
+		tr := w.start(ownHost, "/")
+		x.Equal(http.StatusSeeOther, w.give(as, ownHost, &tr).Code)
+		kept := &http.Cookie{Name: tr.state.Name, Value: tr.value + "." + base64.RawURLEncoding.EncodeToString([]byte(next))}
+		lands(w.take(nil, ownHost, tr, kept), "/", next)
+	}
 }
 
 // TestAHandoffGoesToAnActiveAppDomainAlone: the service makes a code for an

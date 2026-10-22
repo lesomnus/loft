@@ -26,6 +26,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/session"
 	"github.com/lesomnus/rove/internal/ent/tenantdomain"
 	"github.com/lesomnus/rove/server/apphost"
+	"github.com/lesomnus/rove/server/landing"
 	"github.com/lesomnus/rove/server/pd"
 )
 
@@ -146,7 +147,7 @@ func (h Handoff) start(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	state, next := secret(), local(r.URL.Query().Get("next"))
+	state, next := secret(), landing.Path(r.URL.Query().Get("next"))
 	http.SetCookie(w, &http.Cookie{
 		Name:     h.cookie(),
 		Value:    state + "." + base64.RawURLEncoding.EncodeToString([]byte(next)),
@@ -318,8 +319,10 @@ func (h Handoff) take(w http.ResponseWriter, r *http.Request) {
 	if c, err := r.Cookie(h.cookie()); err == nil {
 		var tail string
 		kept, tail, _ = strings.Cut(c.Value, ".")
+		// Held to a path here again, though this host wrote it: what a
+		// browser is sent to at the end is never another site.
 		if b, err := base64.RawURLEncoding.DecodeString(tail); err == nil {
-			next = local(string(b))
+			next = landing.Path(string(b))
 		}
 	}
 	now := h.now()
@@ -479,14 +482,4 @@ func secret() string {
 func madeHere(state string) bool {
 	b, err := base64.RawURLEncoding.DecodeString(state)
 	return err == nil && len(b) == 32
-}
-
-// local is `next` when it is a path on the host it is asked on, and `/`
-// otherwise: where a sign-in lands is never another site.
-func local(next string) string {
-	u, err := url.Parse(next)
-	if err != nil || !strings.HasPrefix(next, "/") || strings.HasPrefix(next, "//") || strings.Contains(next, "\\") {
-		return "/"
-	}
-	return u.RequestURI()
 }

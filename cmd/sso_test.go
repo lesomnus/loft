@@ -317,7 +317,7 @@ func TestASignInThroughTheIssuerIsHeldToWhatItStarted(t *testing.T) {
 	// A sign-in is a redirect, and one to wherever a link said would land
 	// somebody who just signed in on a page made to look like this one.
 	t.Run("it lands on this deployment and nowhere else", func(t *testing.T) {
-		for _, next := range []string{"https://evil.example/", "//evil.example/x", "/\\evil.example", "evil", "javascript:alert(1)"} {
+		for _, next := range []string{"https://evil.example/", "//evil.example/x", "/\\evil.example", "evil", "javascript:alert(1)", "/%2Fevil.example/ x", "/%2Fevil.example/\""} {
 			x := require.New(t)
 			b := w.browser()
 			res := w.through(b, "with=google&next="+url.QueryEscape(next))
