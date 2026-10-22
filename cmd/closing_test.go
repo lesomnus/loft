@@ -13,6 +13,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/lesomnus/payday/config"
 	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/z"
@@ -28,6 +29,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/holder"
 	enttenant "github.com/lesomnus/rove/internal/ent/tenant"
 	"github.com/lesomnus/rove/server/account"
+	"github.com/lesomnus/rove/server/offboard"
 	"github.com/lesomnus/rove/server/tenancy"
 )
 
@@ -183,6 +185,51 @@ func TestAClosedWorkspaceIsDestroyedOnceItsWindowIsOver(t *testing.T) {
 	free, err := w.s.Aliases(w.c).Free(ctx, w.tenant.GetAlias())
 	x.NoError(err)
 	x.False(free, "nobody else is that address to the people who knew it")
+}
+
+// TestAClosedWorkspaceThatCannotRetireWaits (payday#115): a closed workspace
+// whose contract retires it, in a deployment that keeps floors and no archive
+// to keep what they are on in, is not destroyed -- nor purged, which would
+// take what the floors are on -- and the sweep goes on without failing. It
+// waits, closed, as a held one does, until an operator settles it: here, a
+// contract that says to purge it.
+func TestAClosedWorkspaceThatCannotRetireWaits(t *testing.T) {
+	w := newWorldWith(t, func(c *cmd.Config) {
+		c.Audit.By = map[string]config.AuditKeepConfig{"access": {Min: config.AuditMinConfig{Destroy: 365 * 24 * time.Hour}}}
+	})
+	x := w.x
+	ctx := context.Background()
+	id, err := pdid.From(w.tenant.GetId())
+	x.NoError(err)
+	tenants := app.NewTenantServiceClient(w.conn)
+	ref := app.TenantRef_builder{Id: w.tenant.GetId()}.Build()
+	_, err = tenants.Close(w.owner, app.TenantCloseRequest_builder{Ref: ref, Confirm: w.tenant.GetName()}.Build())
+	x.NoError(err)
+	x.NoError(w.s.Ent.Tenant.UpdateOneId(id.Uuid()).SetDateDestroy(time.Now().Add(-time.Minute)).Exec(ctx))
+
+	alive := func() bool {
+		v, err := w.s.Ent.Tenant.Query().Where(enttenant.Alias(w.tenant.GetAlias())).Exist(ctx)
+		x.NoError(err)
+		return v
+	}
+	x.NoError(w.s.Closing.Sweep(ctx), "a workspace that cannot retire failed the sweep")
+	x.True(alive(), "destroyed, and what the floors are on with it")
+	n, err := w.s.Ent.AliasHold.Query().Where(aliashold.Held(w.tenant.GetAlias())).Count(ctx)
+	x.NoError(err)
+	x.Zero(n, "and nothing of its end has begun")
+
+	_, err = w.s.Base.TenantContract().Add(ctx, app.TenantContractAddRequest_builder{
+		Tenant:        ref,
+		Name:          "abroad",
+		PurgeFloors:   z.Ptr(true),
+		DateEffective: timestamppb.New(time.Now().Add(-time.Minute)),
+	}.Build())
+	x.NoError(err)
+	x.NoError(w.s.Closing.Sweep(ctx))
+	x.False(alive(), "purged once its contract says so")
+	held, err := w.s.Ent.AliasHold.Query().Where(aliashold.Held(w.tenant.GetAlias())).Only(ctx)
+	x.NoError(err)
+	x.Equal(offboard.ReasonDestroyed, held.Reason)
 }
 
 // TestAnAddressIsNotTheOwnersToChange: nobody chose it, and an operator alone

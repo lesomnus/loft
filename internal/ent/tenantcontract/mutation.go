@@ -30,6 +30,7 @@ type Mutation struct {
 	addaccess_keep_days *int32
 	restore_days        *uint32
 	addrestore_days     *int32
+	purge_floors        *bool
 	date_erased         *time.Time
 	date_created        *time.Time
 	clearedFields       map[string]struct{}
@@ -368,6 +369,42 @@ func (m *Mutation) ResetRestoreDays() {
 	delete(m.exprs, FieldRestoreDays)
 }
 
+// SetPurgeFloors sets the "purge_floors" field.
+func (m *Mutation) SetPurgeFloors(b bool) {
+	m.purge_floors = &b
+	delete(m.clearedFields, FieldPurgeFloors)
+	delete(m.exprs, FieldPurgeFloors)
+}
+
+// PurgeFloors returns the value of the "purge_floors" field in the mutation.
+func (m *Mutation) PurgeFloors() (r bool, exists bool) {
+	v := m.purge_floors
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearPurgeFloors clears the value of the "purge_floors" field.
+func (m *Mutation) ClearPurgeFloors() {
+	m.purge_floors = nil
+	delete(m.exprs, FieldPurgeFloors)
+	m.clearedFields[FieldPurgeFloors] = struct{}{}
+}
+
+// PurgeFloorsCleared returns if the "purge_floors" field was cleared in this mutation.
+func (m *Mutation) PurgeFloorsCleared() bool {
+	_, ok := m.clearedFields[FieldPurgeFloors]
+	return ok
+}
+
+// ResetPurgeFloors resets all changes to the "purge_floors" field.
+func (m *Mutation) ResetPurgeFloors() {
+	m.purge_floors = nil
+	delete(m.clearedFields, FieldPurgeFloors)
+	delete(m.exprs, FieldPurgeFloors)
+}
+
 // SetDateErased sets the "date_erased" field.
 func (m *Mutation) SetDateErased(t time.Time) {
 	m.date_erased = &t
@@ -517,7 +554,7 @@ func (m *Mutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *Mutation) Fields() []string {
-	fields := make([]string, 0, 11)
+	fields := make([]string, 0, 12)
 	if m.name != nil || m.exprs[FieldName] != nil {
 		fields = append(fields, FieldName)
 	}
@@ -541,6 +578,9 @@ func (m *Mutation) Fields() []string {
 	}
 	if m.restore_days != nil || m.exprs[FieldRestoreDays] != nil {
 		fields = append(fields, FieldRestoreDays)
+	}
+	if m.purge_floors != nil || m.exprs[FieldPurgeFloors] != nil {
+		fields = append(fields, FieldPurgeFloors)
 	}
 	if m.date_erased != nil || m.exprs[FieldDateErased] != nil {
 		fields = append(fields, FieldDateErased)
@@ -581,6 +621,8 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.AccessKeepDays()
 	case FieldRestoreDays:
 		return m.RestoreDays()
+	case FieldPurgeFloors:
+		return m.PurgeFloors()
 	case FieldDateErased:
 		return m.DateErased()
 	case FieldDateCreated:
@@ -686,6 +728,16 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetRestoreDays(v)
 		return nil
+	case FieldPurgeFloors:
+		v, ok := value.(bool)
+		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPurgeFloors(v)
+		return nil
 	case FieldDateErased:
 		v, ok := value.(time.Time)
 		if !ok {
@@ -754,6 +806,8 @@ func (m *Mutation) SetFieldExpr(name string, expr sql.Querier) error {
 		m.ResetAccessKeepDays()
 	case FieldRestoreDays:
 		m.ResetRestoreDays()
+	case FieldPurgeFloors:
+		m.ResetPurgeFloors()
 	case FieldDateErased:
 		m.ResetDateErased()
 	case FieldDateCreated:
@@ -804,6 +858,9 @@ func (m *Mutation) ExprFields() []string {
 	}
 	if _, ok := m.exprs[FieldRestoreDays]; ok {
 		fields = append(fields, FieldRestoreDays)
+	}
+	if _, ok := m.exprs[FieldPurgeFloors]; ok {
+		fields = append(fields, FieldPurgeFloors)
 	}
 	if _, ok := m.exprs[FieldDateErased]; ok {
 		fields = append(fields, FieldDateErased)
@@ -909,6 +966,9 @@ func (m *Mutation) ClearedFields() []string {
 	if m.FieldCleared(FieldRestoreDays) {
 		fields = append(fields, FieldRestoreDays)
 	}
+	if m.FieldCleared(FieldPurgeFloors) {
+		fields = append(fields, FieldPurgeFloors)
+	}
 	if m.FieldCleared(FieldDateErased) {
 		fields = append(fields, FieldDateErased)
 	}
@@ -937,6 +997,9 @@ func (m *Mutation) ClearField(name string) error {
 		return nil
 	case FieldRestoreDays:
 		m.ClearRestoreDays()
+		return nil
+	case FieldPurgeFloors:
+		m.ClearPurgeFloors()
 		return nil
 	case FieldDateErased:
 		m.ClearDateErased()
@@ -975,6 +1038,9 @@ func (m *Mutation) ResetField(name string) error {
 		return nil
 	case FieldRestoreDays:
 		m.ResetRestoreDays()
+		return nil
+	case FieldPurgeFloors:
+		m.ResetPurgeFloors()
 		return nil
 	case FieldDateErased:
 		m.ResetDateErased()

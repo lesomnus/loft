@@ -96,6 +96,20 @@ func (_c *TenantContractCreate) SetNillableRestoreDays(v *uint32) *TenantContrac
 	return _c
 }
 
+// SetPurgeFloors sets the "purge_floors" field.
+func (_c *TenantContractCreate) SetPurgeFloors(v bool) *TenantContractCreate {
+	_c.mutation.SetPurgeFloors(v)
+	return _c
+}
+
+// SetNillablePurgeFloors sets the "purge_floors" field if the given value is not nil.
+func (_c *TenantContractCreate) SetNillablePurgeFloors(v *bool) *TenantContractCreate {
+	if v != nil {
+		_c.SetPurgeFloors(*v)
+	}
+	return _c
+}
+
 // SetDateErased sets the "date_erased" field.
 func (_c *TenantContractCreate) SetDateErased(v time.Time) *TenantContractCreate {
 	_c.mutation.SetDateErased(v)
@@ -186,6 +200,12 @@ func (_c *TenantContractCreate) defaults() {
 		if _, ok := _c.mutation.FieldExpr(tenantcontract.FieldRestoreDays); !ok {
 			v := tenantcontract.DefaultRestoreDays
 			_c.mutation.SetRestoreDays(v)
+		}
+	}
+	if _, ok := _c.mutation.PurgeFloors(); !ok {
+		if _, ok := _c.mutation.FieldExpr(tenantcontract.FieldPurgeFloors); !ok {
+			v := tenantcontract.DefaultPurgeFloors
+			_c.mutation.SetPurgeFloors(v)
 		}
 	}
 }
@@ -298,6 +318,10 @@ func (_c *TenantContractCreate) createSpec() (*TenantContract, *sqlgraph.CreateS
 	if value, ok := _c.mutation.RestoreDays(); ok {
 		_spec.SetField(tenantcontract.FieldRestoreDays, field.TypeUint32, value)
 		_node.RestoreDays = value
+	}
+	if value, ok := _c.mutation.PurgeFloors(); ok {
+		_spec.SetField(tenantcontract.FieldPurgeFloors, field.TypeBool, value)
+		_node.PurgeFloors = value
 	}
 	if value, ok := _c.mutation.DateErased(); ok {
 		_spec.SetField(tenantcontract.FieldDateErased, field.TypeTime, value)

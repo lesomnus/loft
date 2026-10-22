@@ -85,4 +85,8 @@ func init() {
 	tenantcontractDescRestoreDays := tenantcontractFields[8].Descriptor()
 	// tenantcontract.DefaultRestoreDays holds the default value on creation for the restore_days field.
 	tenantcontract.DefaultRestoreDays = tenantcontractDescRestoreDays.Default.(uint32)
+	// tenantcontractDescPurgeFloors is the schema descriptor for purge_floors field.
+	tenantcontractDescPurgeFloors := tenantcontractFields[9].Descriptor()
+	// tenantcontract.DefaultPurgeFloors holds the default value on creation for the purge_floors field.
+	tenantcontract.DefaultPurgeFloors = tenantcontractDescPurgeFloors.Default.(bool)
 }

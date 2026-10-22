@@ -6,8 +6,11 @@
 // here is what comes after, and it is here because it destroys:
 //
 //   - [Closing.Sweep]: a workspace still closed once its restore window is
-//     over, and held by nothing, is destroyed -- every row, file and trail
-//     row of it, as `rove tenant purge` does -- and its address is held;
+//     over, and held by nothing, is destroyed -- every row and file of it,
+//     and its trail as its contract says: retired, keeping what the
+//     deployment's floors are on until they pass, or purged -- and its
+//     address is held. `rove tenant retire` and `purge` are the same
+//     destruction by an operator's hand ([Closing.Destroy]);
 //   - [Closing.Rename]: an operator moving a workspace to another address,
 //     which holds the old one and sends whoever arrives at it on.
 //
@@ -68,7 +71,10 @@ func (c Closing) now() time.Time {
 }
 
 // Sweep destroys the workspaces still closed once their window is over, and
-// held by nothing. One that is held waits, closed, and is looked at again.
+// held by nothing, as their contracts say. One that is held waits, closed, and
+// is looked at again; so does one whose contract retires it in a deployment
+// that keeps floors and no archive to keep them in ([offboard.ErrNoArchive]),
+// which an operator settles -- naming an archive, or purging it.
 func (c Closing) Sweep(ctx context.Context) error {
 	ts, err := c.Db.Tenant.Query().Where(
 		enttenant.DateClosedNotNil(),
@@ -80,9 +86,14 @@ func (c Closing) Sweep(ctx context.Context) error {
 	}
 	var errs []error
 	for _, t := range ts {
-		if err := c.Destroy(ctx, t); err != nil {
+		if _, err := c.Destroy(ctx, t, AsContracted, false); err != nil {
 			if errors.Is(err, trail.ErrHeld) {
 				log.From(ctx).InfoContext(ctx, "closing: a closed workspace is held, and waits", "workspace", t.Alias)
+				continue
+			}
+			if errors.Is(err, offboard.ErrNoArchive) {
+				log.From(ctx).WarnContext(ctx, "closing: a closed workspace waits: its contract retires it, keeping what the deployment's floors are on, "+
+					"and audit.archive names no archive to keep it in -- name one, or purge it (`rove tenant purge`)", "workspace", t.Alias)
 				continue
 			}
 			errs = append(errs, fmt.Errorf("@%s: %w", t.Alias, err))
@@ -91,42 +102,97 @@ func (c Closing) Sweep(ctx context.Context) error {
 	return errors.Join(errs...)
 }
 
-// Destroy is a closed workspace taken out of the deployment, and its address
-// held. A hold on it refuses, with [trail.ErrHeld], before anything is done.
-func (c Closing) Destroy(ctx context.Context, t *ent.Tenant) error {
-	id := pdid.Id(t.Id)
-	if _, err := c.Offboard.Purge(ctx, id, true); err != nil {
-		return err
-	}
+// How is which way a workspace's trail leaves with it.
+type How int
 
-	// The address first: held before the workspace is gone, so that no
-	// moment comes when it is free.
-	if err := c.hold(ctx, t.Alias, "destroyed", "", id); err != nil {
-		return err
+const (
+	// AsContracted is what its contract says now: retired, unless it says to
+	// purge (`offboard.Deployment.Leave`).
+	AsContracted How = iota
+
+	// Retire keeps what the deployment's floors are still on until they have
+	// passed (`offboard.Deployment.Retire`).
+	Retire
+
+	// Purge takes all of it, what the floors are on too
+	// (`offboard.Deployment.Purge`).
+	Purge
+)
+
+// Destroyed is what destroying a workspace did, or would.
+type Destroyed struct {
+	offboard.Purged
+
+	// Forgotten is the accounts of the roster in this process that were here
+	// and in no other workspace, which went with it.
+	Forgotten int
+}
+
+// Destroy is a workspace taken out of the deployment, its trail as `how`
+// says, and its address held -- which is also this deployment's word that the
+// workspace was destroyed here, read by a restore of it (`offboard.Import`).
+// `dry` says what it would do and does none of it.
+//
+// A hold on it refuses, [trail.ErrHeld], and so does a retirement this
+// deployment cannot keep, [offboard.ErrNoArchive]: both before anything is
+// done.
+func (c Closing) Destroy(ctx context.Context, t *ent.Tenant, how How, dry bool) (Destroyed, error) {
+	id := pdid.Id(t.Id)
+	plan, err := c.leave(ctx, id, how, true)
+	if err != nil {
+		return Destroyed{Purged: plan}, err
 	}
 
 	// The accounts of the roster in this process that were here and nowhere
 	// else go with it, and before it: a destroy that stops after them is run
 	// again and finishes. An account at a roster of its own is never Rove's
 	// to take.
+	var accounts []pdid.Id
 	if c.People != nil && c.People.Embedded() {
-		accounts, err := OnlyHere(ctx, c.Db, t.Id)
-		if err != nil {
-			return err
+		if accounts, err = OnlyHere(ctx, c.Db, t.Id); err != nil {
+			return Destroyed{Purged: plan}, err
 		}
-		for _, a := range accounts {
-			if err := c.People.ForgetPerson(ctx, a); err != nil {
-				return fmt.Errorf("roster: %w", err)
-			}
-		}
+	}
+	if dry {
+		return Destroyed{Purged: plan, Forgotten: len(accounts)}, nil
 	}
 
-	x, err := c.Offboard.Purge(ctx, id, false)
-	if err != nil {
-		return err
+	// The address first: held before the workspace is gone, so that no
+	// moment comes when it is free -- and saying how it went, which a restore
+	// of it here reads (`offboard.ErrRetiredHere`).
+	out := Destroyed{Purged: plan}
+	reason := offboard.ReasonDestroyed
+	if plan.Retired && c.Offboard.Floored() {
+		reason = offboard.ReasonRetired
 	}
-	log.From(ctx).InfoContext(ctx, "closing: a workspace was destroyed", "workspace", t.Alias, "rows", x.Total(), "files", x.Files)
-	return nil
+	if err := c.hold(ctx, t.Alias, reason, "", id); err != nil {
+		return out, err
+	}
+	for _, a := range accounts {
+		if err := c.People.ForgetPerson(ctx, a); err != nil {
+			return out, fmt.Errorf("roster: %d of %d accounts forgotten: %w", out.Forgotten, len(accounts), err)
+		}
+		out.Forgotten++
+	}
+
+	if out.Purged, err = c.leave(ctx, id, how, false); err != nil {
+		return out, err
+	}
+	log.From(ctx).InfoContext(ctx, "closing: a workspace was destroyed", "workspace", t.Alias, "rows", out.Total(), "files", out.Files,
+		"retired", out.Retired, "kept", out.Trail.Kept)
+	return out, nil
+}
+
+// leave is the workspace's rows, files and trail, as `how` says.
+func (c Closing) leave(ctx context.Context, id pdid.Id, how How, dry bool) (offboard.Purged, error) {
+	switch how {
+	case Retire:
+		return c.Offboard.Retire(ctx, id, dry)
+	case Purge:
+		return c.Offboard.Purge(ctx, id, dry)
+	default:
+		return c.Offboard.Leave(ctx, id, dry)
+	}
 }
 
 // Rename moves a workspace to another address, as an operator: the address is

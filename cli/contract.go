@@ -55,6 +55,7 @@ func newCmdContractSet(c *cmd.Config) *xli.Command {
 			&flg.Uint32{Name: "grace", Brief: "how long a shorter keep waits before it applies, in days"},
 			&flg.Uint32{Name: "access-keep", Brief: "how long the access record is kept, in days; 0 is the deployment's (audit.by.access), and none goes below its floor"},
 			&flg.Uint32{Name: "restore", Brief: "how long the workspace may be restored once closed, in days; 0 is the deployment's (app.workspaces.restore_within)"},
+			&flg.Switch{Name: "purge-floors", Brief: "when it is destroyed, take its whole trail, what the deployment's floors are on too; without this it retires, keeping that until the floors pass"},
 			&flg.String{Name: "effective", Brief: "from when, as 2006-01-02 or RFC 3339; now by default"},
 		},
 
@@ -75,6 +76,7 @@ func newCmdContractSet(c *cmd.Config) *xli.Command {
 			grace, _ := flg.Find[uint32](self, "grace")
 			access, _ := flg.Find[uint32](self, "access-keep")
 			restore, _ := flg.Find[uint32](self, "restore")
+			purge, _ := flg.Find[bool](self, "purge-floors")
 
 			s, err := cmd.Build(ctx, *c)
 			if err != nil {
@@ -95,6 +97,7 @@ func newCmdContractSet(c *cmd.Config) *xli.Command {
 				GraceDays:      grace,
 				AccessKeepDays: &access,
 				RestoreDays:    &restore,
+				PurgeFloors:    &purge,
 				DateEffective:  timestamppb.New(at),
 			}.Build())
 			if err != nil {
@@ -137,10 +140,10 @@ func newCmdContractShow(c *cmd.Config) *xli.Command {
 				return err
 			}
 			for _, v := range vs {
-				self.Printf("%s  %-12s view %-6s keep %-6s grace %-6s access %-6s restore %s\n",
+				self.Printf("%s  %-12s view %-6s keep %-6s grace %-6s access %-6s restore %-12s then %s\n",
 					v.DateEffective.UTC().Format(time.DateOnly), or(v.Name, "-"),
 					days(v.ViewDays, "all"), days(v.KeepDays, "forever"), days(v.GraceDays, "none"),
-					days(v.AccessKeepDays, "deployment's"), days(v.RestoreDays, "deployment's"))
+					days(v.AccessKeepDays, "deployment's"), days(v.RestoreDays, "deployment's"), leaving(v.PurgeFloors))
 			}
 			if len(vs) == 0 {
 				self.Printf("no contract: the deployment's defaults apply\n")
@@ -267,6 +270,10 @@ func showWindow(ctx context.Context, self *xli.Command, db *ent.Client, tenant p
 		restore = all.App.Workspaces.Restore()
 	}
 	self.Printf("restore: %s once closed\n", span(restore, "forever"))
+	self.Printf("destroyed: %s\n", map[bool]string{
+		false: "retired -- what the deployment's floors are on of its trail stays until they pass",
+		true:  "purged -- its whole trail, what the deployment's floors are on too",
+	}[w.Purge])
 
 	hs, err := db.LegalHold.Query().
 		Where(legalhold.TenantIdEQ(tenant.Uuid()), legalhold.DateLiftedIsNil()).
@@ -309,6 +316,16 @@ func instant(v string) (time.Time, error) {
 	}
 
 	return time.Parse(time.RFC3339, v)
+}
+
+// leaving is what a contract says of the trail when the workspace is
+// destroyed.
+func leaving(purge bool) string {
+	if purge {
+		return "purge"
+	}
+
+	return "retire"
 }
 
 func days(n uint32, zero string) string {

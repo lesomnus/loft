@@ -73,6 +73,13 @@ type Window struct {
 	// contract's, or zero for the deployment's.
 	Restore time.Duration
 
+	// Purge is whether its trail goes whole when it is destroyed, what the
+	// deployment's floors are still on with it (`purge_floors`, payday#115).
+	// False, which is also a tenant with no contract, is a retirement: what a
+	// floor is on stays until it has passed. A contract that purges waits out
+	// the grace of one before it that retires, as a shorter keep does.
+	Purge bool
+
 	// Holds is what the legal holds on it are for. Empty is none; while there
 	// is one, nothing of the tenant's history is destroyed, whatever Keep says.
 	Holds []string
@@ -137,6 +144,7 @@ func Of(ctx context.Context, db *ent.Client, tenant pdid.Id, at time.Time, d Def
 	w.Keep = Days(vs[0].KeepDays)
 	w.Access = accessOf(vs[0], d)
 	w.Restore = Days(vs[0].RestoreDays)
+	w.Purge = vs[0].PurgeFloors
 	for i := 1; i < len(vs); i++ {
 		// The one after this, whose grace is what keeps this one in force.
 		next := vs[i-1]
@@ -146,6 +154,7 @@ func Of(ctx context.Context, db *ent.Client, tenant pdid.Id, at time.Time, d Def
 
 		w.Keep = longer(w.Keep, Days(vs[i].KeepDays))
 		w.Access = longer(w.Access, accessOf(vs[i], d))
+		w.Purge = w.Purge && vs[i].PurgeFloors
 	}
 
 	return w, nil

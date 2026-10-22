@@ -96,6 +96,11 @@ func RestoreDays(v uint32) predicate.TenantContract {
 	return predicate.TenantContract(sql.FieldEQ(FieldRestoreDays, v))
 }
 
+// PurgeFloors applies equality check predicate on the "purge_floors" field. It's identical to PurgeFloorsEQ.
+func PurgeFloors(v bool) predicate.TenantContract {
+	return predicate.TenantContract(sql.FieldEQ(FieldPurgeFloors, v))
+}
+
 // DateErased applies equality check predicate on the "date_erased" field. It's identical to DateErasedEQ.
 func DateErased(v time.Time) predicate.TenantContract {
 	return predicate.TenantContract(sql.FieldEQ(FieldDateErased, v))
@@ -509,6 +514,26 @@ func RestoreDaysIsNil() predicate.TenantContract {
 // RestoreDaysNotNil applies the NotNil predicate on the "restore_days" field.
 func RestoreDaysNotNil() predicate.TenantContract {
 	return predicate.TenantContract(sql.FieldNotNull(FieldRestoreDays))
+}
+
+// PurgeFloorsEQ applies the EQ predicate on the "purge_floors" field.
+func PurgeFloorsEQ(v bool) predicate.TenantContract {
+	return predicate.TenantContract(sql.FieldEQ(FieldPurgeFloors, v))
+}
+
+// PurgeFloorsNEQ applies the NEQ predicate on the "purge_floors" field.
+func PurgeFloorsNEQ(v bool) predicate.TenantContract {
+	return predicate.TenantContract(sql.FieldNEQ(FieldPurgeFloors, v))
+}
+
+// PurgeFloorsIsNil applies the IsNil predicate on the "purge_floors" field.
+func PurgeFloorsIsNil() predicate.TenantContract {
+	return predicate.TenantContract(sql.FieldIsNull(FieldPurgeFloors))
+}
+
+// PurgeFloorsNotNil applies the NotNil predicate on the "purge_floors" field.
+func PurgeFloorsNotNil() predicate.TenantContract {
+	return predicate.TenantContract(sql.FieldNotNull(FieldPurgeFloors))
 }
 
 // DateErasedEQ applies the EQ predicate on the "date_erased" field.

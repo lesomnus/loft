@@ -35,6 +35,8 @@ type TenantContract struct {
 	AccessKeepDays uint32 `json:"access_keep_days,omitempty"`
 	// RestoreDays holds the value of the "restore_days" field.
 	RestoreDays uint32 `json:"restore_days,omitempty"`
+	// PurgeFloors holds the value of the "purge_floors" field.
+	PurgeFloors bool `json:"purge_floors,omitempty"`
 	// DateErased holds the value of the "date_erased" field.
 	DateErased *time.Time `json:"date_erased,omitempty"`
 	// DateCreated holds the value of the "date_created" field.
@@ -72,6 +74,8 @@ func (*TenantContract) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case tenantcontract.FieldPurgeFloors:
+			values[i] = new(sql.NullBool)
 		case tenantcontract.FieldViewDays, tenantcontract.FieldKeepDays, tenantcontract.FieldGraceDays, tenantcontract.FieldAccessKeepDays, tenantcontract.FieldRestoreDays:
 			values[i] = new(sql.NullInt64)
 		case tenantcontract.FieldName, tenantcontract.FieldDesc:
@@ -148,6 +152,12 @@ func (_m *TenantContract) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field restore_days", values[i])
 			} else if value.Valid {
 				_m.RestoreDays = uint32(value.Int64)
+			}
+		case tenantcontract.FieldPurgeFloors:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field purge_floors", values[i])
+			} else if value.Valid {
+				_m.PurgeFloors = value.Bool
 			}
 		case tenantcontract.FieldDateErased:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -232,6 +242,9 @@ func (_m *TenantContract) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("restore_days=")
 	builder.WriteString(fmt.Sprintf("%v", _m.RestoreDays))
+	builder.WriteString(", ")
+	builder.WriteString("purge_floors=")
+	builder.WriteString(fmt.Sprintf("%v", _m.PurgeFloors))
 	builder.WriteString(", ")
 	if v := _m.DateErased; v != nil {
 		builder.WriteString("date_erased=")

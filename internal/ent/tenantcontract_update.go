@@ -194,6 +194,26 @@ func (_u *TenantContractUpdate) ClearRestoreDays() *TenantContractUpdate {
 	return _u
 }
 
+// SetPurgeFloors sets the "purge_floors" field.
+func (_u *TenantContractUpdate) SetPurgeFloors(v bool) *TenantContractUpdate {
+	_u.mutation.SetPurgeFloors(v)
+	return _u
+}
+
+// SetNillablePurgeFloors sets the "purge_floors" field if the given value is not nil.
+func (_u *TenantContractUpdate) SetNillablePurgeFloors(v *bool) *TenantContractUpdate {
+	if v != nil {
+		_u.SetPurgeFloors(*v)
+	}
+	return _u
+}
+
+// ClearPurgeFloors clears the value of the "purge_floors" field.
+func (_u *TenantContractUpdate) ClearPurgeFloors() *TenantContractUpdate {
+	_u.mutation.ClearPurgeFloors()
+	return _u
+}
+
 // SetDateErased sets the "date_erased" field.
 func (_u *TenantContractUpdate) SetDateErased(v time.Time) *TenantContractUpdate {
 	_u.mutation.SetDateErased(v)
@@ -343,6 +363,15 @@ func (_u *TenantContractUpdate) sqlSave(ctx context.Context) (_node int, err err
 	}
 	if _u.mutation.RestoreDaysCleared() {
 		_spec.ClearField(tenantcontract.FieldRestoreDays, field.TypeUint32)
+	}
+	if value, ok := _u.mutation.PurgeFloors(); ok {
+		_spec.SetField(tenantcontract.FieldPurgeFloors, field.TypeBool, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenantcontract.FieldPurgeFloors); ok {
+		_spec.SetField(tenantcontract.FieldPurgeFloors, field.TypeBool, e)
+	}
+	if _u.mutation.PurgeFloorsCleared() {
+		_spec.ClearField(tenantcontract.FieldPurgeFloors, field.TypeBool)
 	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(tenantcontract.FieldDateErased, field.TypeTime, value)
@@ -543,6 +572,26 @@ func (_u *TenantContractUpdateOne) ClearRestoreDays() *TenantContractUpdateOne {
 	return _u
 }
 
+// SetPurgeFloors sets the "purge_floors" field.
+func (_u *TenantContractUpdateOne) SetPurgeFloors(v bool) *TenantContractUpdateOne {
+	_u.mutation.SetPurgeFloors(v)
+	return _u
+}
+
+// SetNillablePurgeFloors sets the "purge_floors" field if the given value is not nil.
+func (_u *TenantContractUpdateOne) SetNillablePurgeFloors(v *bool) *TenantContractUpdateOne {
+	if v != nil {
+		_u.SetPurgeFloors(*v)
+	}
+	return _u
+}
+
+// ClearPurgeFloors clears the value of the "purge_floors" field.
+func (_u *TenantContractUpdateOne) ClearPurgeFloors() *TenantContractUpdateOne {
+	_u.mutation.ClearPurgeFloors()
+	return _u
+}
+
 // SetDateErased sets the "date_erased" field.
 func (_u *TenantContractUpdateOne) SetDateErased(v time.Time) *TenantContractUpdateOne {
 	_u.mutation.SetDateErased(v)
@@ -722,6 +771,15 @@ func (_u *TenantContractUpdateOne) sqlSave(ctx context.Context) (_node *TenantCo
 	}
 	if _u.mutation.RestoreDaysCleared() {
 		_spec.ClearField(tenantcontract.FieldRestoreDays, field.TypeUint32)
+	}
+	if value, ok := _u.mutation.PurgeFloors(); ok {
+		_spec.SetField(tenantcontract.FieldPurgeFloors, field.TypeBool, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenantcontract.FieldPurgeFloors); ok {
+		_spec.SetField(tenantcontract.FieldPurgeFloors, field.TypeBool, e)
+	}
+	if _u.mutation.PurgeFloorsCleared() {
+		_spec.ClearField(tenantcontract.FieldPurgeFloors, field.TypeBool)
 	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(tenantcontract.FieldDateErased, field.TypeTime, value)
