@@ -155,7 +155,8 @@ func TestAnIndexAnEarlierBuildMadeIsMovedToItsName(t *testing.T) {
 // TestATableAnEarlierBuildHadIsDropped: a table this build no longer has
 // (offboard.Dropped) goes when the database is migrated, rows and all. A
 // migration only adds, and a row of it left pointing at its workspace would
-// keep the workspace from being destroyed.
+// keep the workspace from being destroyed -- and one naming an account, which
+// nothing reads or destroys any more, would be kept for good.
 func TestATableAnEarlierBuildHadIsDropped(t *testing.T) {
 	x := require.New(t)
 	ctx := t.Context()
@@ -192,8 +193,21 @@ func TestATableAnEarlierBuildHadIsDropped(t *testing.T) {
 	}
 	x.True(has("usagesnapshot"))
 
+	// And the agreements it kept before roster's ledger did (D37): an
+	// account's, of no workspace. Agreed again, to roster.
+	x.Contains(offboard.Dropped, "consent")
+	for _, q := range []string{
+		"CREATE TABLE consent (id uuid PRIMARY KEY, account uuid NOT NULL, document varchar NOT NULL, version varchar NOT NULL, client varchar NOT NULL)",
+		"INSERT INTO consent (id, account, document, version, client) SELECT id, id, 'terms', '2026-10-01', 'web' FROM tenant WHERE alias = 'acme'",
+	} {
+		_, err := s.Db.ExecContext(ctx, q)
+		x.NoError(err, q)
+	}
+	x.True(has("consent"))
+
 	x.NoError(cli.Migrate(ctx, s))
 	x.False(has("usagesnapshot"), "a table this build does not have stayed")
+	x.False(has("consent"), "the agreements this build does not keep stayed")
 	x.NoError(cli.Migrate(ctx, s), "a second time")
 
 	// And the workspace can be destroyed.

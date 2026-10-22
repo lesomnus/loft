@@ -357,6 +357,26 @@ func newExternal(t *testing.T) *external {
 	return e
 }
 
+// role patches the role acme installed Rove with to `methods`, the way the
+// README tells a roster operator to: the whole list, with `roster role patch`.
+func (e *external) role(t *testing.T, methods []string) {
+	t.Helper()
+	x := require.New(t)
+	var entity *xli.Command
+	for _, k := range rostercli.NewCmdEntities(&e.c) {
+		if k.Name == "role" {
+			entity = k
+		}
+	}
+	x.NotNil(entity)
+	quoted := make([]string, len(methods))
+	for i, m := range methods {
+		quoted[i] = `"` + m + `"`
+	}
+	x.NoError(entity.Run(t.Context(), []string{"patch", "@acme/" + Agent + "-app",
+		`{"methods": [` + strings.Join(quoted, ",") + `], "date_updated_force": true}`}))
+}
+
 func (e *external) open(t *testing.T, key, directory string) *Store {
 	t.Helper()
 	s, err := Open(t.Context(), Config{Addr: e.addr, Insecure: true, Key: key, Directory: directory}, "", slog.Default())
@@ -893,22 +913,7 @@ func (l *logs) String() string {
 func TestAStreamRosterRefusesIsSaidAndThenHeld(t *testing.T) {
 	x := require.New(t)
 	e := newExternal(t)
-	role := func(methods []string) {
-		t.Helper()
-		var entity *xli.Command
-		for _, k := range rostercli.NewCmdEntities(&e.c) {
-			if k.Name == "role" {
-				entity = k
-			}
-		}
-		x.NotNil(entity)
-		quoted := make([]string, len(methods))
-		for i, m := range methods {
-			quoted[i] = `"` + m + `"`
-		}
-		x.NoError(entity.Run(t.Context(), []string{"patch", "@acme/" + Agent + "-app",
-			`{"methods": [` + strings.Join(quoted, ",") + `], "date_updated_force": true}`}))
-	}
+	role := func(methods []string) { e.role(t, methods) }
 	without := []string{}
 	for _, m := range AgentMethods {
 		if m != "/roster.SyncService/Watch" {

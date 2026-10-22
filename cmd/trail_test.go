@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"testing"
-	"time"
 
 	"github.com/lesomnus/payday/audit"
 	"github.com/lesomnus/payday/pdid"
@@ -19,17 +18,15 @@ import (
 	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/internal/ent/aliashold"
 	entaudit "github.com/lesomnus/rove/internal/ent/audit"
-	entconsent "github.com/lesomnus/rove/internal/ent/consent"
 	"github.com/lesomnus/rove/internal/ent/holder"
 	"github.com/lesomnus/rove/server/clilogin"
 	"github.com/lesomnus/rove/server/closing"
-	"github.com/lesomnus/rove/server/consent"
 	"github.com/lesomnus/rove/server/pd"
 )
 
-// What Rove writes past its servers -- an agreement, a terminal's sign-in, an
-// address held -- is on the trail as the act it is (payday#108), so a check of
-// the rows finds nothing after it, and finds a row changed past it.
+// What Rove writes past its servers -- a terminal's sign-in, an address held
+// -- is on the trail as the act it is (payday#108), so a check of the rows
+// finds nothing after it, and finds a row changed past it.
 
 var digestKey = bytes.Repeat([]byte{7}, 32)
 
@@ -71,55 +68,6 @@ func (w *world) acts(t *testing.T, id pdid.Id) []*ent.Audit {
 	require.NoError(t, err)
 
 	return vs
-}
-
-func TestWhatAnAccountAgreedToIsOnTheTrail(t *testing.T) {
-	w, d := digestWorld(t, func(c *cmd.Config) {
-		c.App.Consent.Terms = terms
-		c.App.Consent.Privacy = privacy
-	})
-	x := w.x
-	ctx := context.Background()
-	h, err := w.s.Ent.Holder.Query().Where(holder.Role("owner")).First(ctx)
-	x.NoError(err)
-	owner := pdid.Id(*h.Account)
-
-	x.Equal(http.StatusNoContent, w.post(w.owner, "/account/consents", `{"agree":{"terms":"2026-10-01","privacy":"2026-10-01"}}`).Code)
-	rows, err := w.s.Ent.Consent.Query().Where(entconsent.Account(owner.Uuid())).All(ctx)
-	x.NoError(err)
-	x.Len(rows, 2)
-	for _, r := range rows {
-		acts := w.acts(t, pdid.Id(r.Id))
-		x.Len(acts, 1)
-		x.Equal(consent.Agreed, acts[0].Action)
-		x.Equal(owner.Uuid(), acts[0].ActorId, "the account's own act")
-	}
-	got := w.check(t, d)
-	x.True(got.Ok(), "%+v", got)
-
-	x.NoError(w.s.Consents.Left(ctx, owner))
-	x.Equal(consent.Gone, w.acts(t, pdid.Id(rows[0].Id))[1].Action)
-	got = w.check(t, d)
-	x.True(got.Ok(), "%+v", got)
-
-	// An agreement changed in the database: to a version nobody agreed to.
-	x.NoError(w.s.Ent.Consent.UpdateOneId(rows[0].Id).SetVersion("2026-09-01").Exec(ctx))
-	x.Equal([]pdid.Id{pdid.Id(rows[0].Id)}, w.check(t, d).Differs)
-
-	// And destroyed once the account has been gone longer than they are kept
-	// (`app.consent.keep`): the deployment's act, the last of each.
-	w.s.Consents.Now = func() time.Time { return time.Now().Add(91 * 24 * time.Hour) }
-	t.Cleanup(func() { w.s.Consents.Now = nil })
-	n, err := w.s.Consents.Sweep(ctx, 90*24*time.Hour)
-	x.NoError(err)
-	x.Equal(2, n)
-	for _, r := range rows {
-		acts := w.acts(t, pdid.Id(r.Id))
-		x.Equal(consent.Destroyed, acts[len(acts)-1].Action, "destroyed with no word on the trail")
-		x.Zero(acts[len(acts)-1].ActorId, "the deployment's act, not the account's")
-	}
-	got = w.check(t, d)
-	x.True(got.Ok(), "%+v", got)
 }
 
 func TestATerminalsSignInIsOnTheTrail(t *testing.T) {

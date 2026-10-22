@@ -300,15 +300,14 @@ type SearchConfig struct {
 //
 // A new version is agreed to again: every account is asked at its next page,
 // and refused every call until it has.
+//
+// Which documents is all this says. That an account agreed is roster's to
+// keep (D37), and so is for how long once the account is gone: a roster of
+// its own's `consent.keep`, or `auth.roster.consent_keep` for the one in this
+// process.
 type ConsentConfig struct {
 	Terms   DocumentConfig `yaml:"terms"`
 	Privacy DocumentConfig `yaml:"privacy"`
-
-	// Keep is how long an account's agreements are kept after it left this
-	// deployment, to show afterwards that they were made; past it they are
-	// destroyed. Unset keeps them for good, which is the default until the
-	// period is decided with legal review (rove#35).
-	Keep time.Duration `yaml:"keep"`
 }
 
 // DocumentConfig is one document an account agrees to.

@@ -62,7 +62,7 @@ resources:
    채울 것:
    - `app.public_url`: 반드시 넣습니다. 없으면 서버가 뜨지 않습니다(rove#40). 라벨 QR이 이 주소를 담으므로 라벨을 인쇄하기 전에 정하고 바꾸지 않습니다.
    - `app.trusted_proxies`: 인그레스 컨트롤러의 주소입니다(아래 5).
-   - `app.mail`, `app.consent`, `audit.by`: 정해지는 대로 넣습니다(rove#35).
+   - `app.mail`, `app.consent`, `auth.roster.consent_keep`, `audit.by`: 정해지는 대로 넣습니다(rove#35).
    - 감사 기록의 보존 기간(`audit.retain`, `audit.by`)이 하나도 없으면 보존 패스가 돌지 않아 체크포인트도 남지 않습니다. 지우지 않는 기간이라도 하나 둡니다(`docs/runbook/restore.md`).
 4. **인그레스.** 호스트, TLS(cert-manager 등), 백엔드 `rove:8080`을 정합니다.
    - 실시간 화면(watch)은 끝나지 않는 응답입니다. 그래서 프록시가 응답을 모아 두거나 일찍 끊으면 안 됩니다.

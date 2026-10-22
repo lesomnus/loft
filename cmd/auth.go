@@ -2,9 +2,12 @@ package cmd
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"log/slog"
 	"strings"
 
+	"github.com/lesomnus/otx/log"
 	"github.com/lesomnus/z"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -21,6 +24,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/internal/ent/holder"
 	"github.com/lesomnus/rove/internal/ent/tenant"
+	"github.com/lesomnus/rove/internal/identity"
 	"github.com/lesomnus/rove/server/apphost"
 	"github.com/lesomnus/rove/server/consent"
 )
@@ -44,8 +48,9 @@ import (
 // the call names none. Every other credential names a holder, as before.
 //
 // A session's account that has not agreed to what this deployment asks
-// (`consents`, design 9.11) is refused every call, with [ConsentOwed]: what it
-// agrees to is HTTP beside the RPCs (`server/account`), and its first page.
+// (`consents`, design 9.11) -- which roster's ledger says (D37) -- is refused
+// every call, with [ConsentOwed]: what it agrees to is HTTP beside the RPCs
+// (`server/account`), and its first page.
 //
 // A call that came to a workspace's own domain is pinned to that workspace
 // ([apphost.From], rove#155), and served as a membership of it or not at all:
@@ -171,7 +176,9 @@ var AccountMethods = map[string]bool{
 const ConsentOwed = "이용약관과 개인정보 처리방침에 동의해야 이용할 수 있습니다 (rove consent)"
 
 // settled refuses a session whose account has not agreed to what this
-// deployment asks.
+// deployment asks, and one whose agreement roster could not be asked about:
+// not owed, but not known to be settled either -- as a session is refused
+// while roster cannot say what its account is (`session.Store`).
 func settled(ctx context.Context, consents *consent.Consents, account string) error {
 	if !consents.Asks() {
 		return nil
@@ -181,10 +188,15 @@ func settled(ctx context.Context, consents *consent.Consents, account string) er
 		return fmt.Errorf("%w: %s", auth.ErrNoCredential, err)
 	}
 	ok, err := consents.Settled(ctx, a)
-	if err != nil {
-		return err
-	}
-	if !ok {
+	switch {
+	case errors.Is(err, identity.ErrNoPerson):
+		return fmt.Errorf("%w: %w", auth.ErrNoCredential, err)
+	case err != nil:
+		// What roster said stays here: it is about this deployment's
+		// standing at roster, and not the caller's to read.
+		log.From(ctx).WarnContext(ctx, "consent: what an account agreed to could not be asked", slog.Any("err", err))
+		return status.Error(codes.Unavailable, "cannot say just now whether this account agreed to the terms")
+	case !ok:
 		return status.Error(codes.FailedPrecondition, ConsentOwed)
 	}
 	return nil

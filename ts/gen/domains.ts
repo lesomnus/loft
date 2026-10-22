@@ -45,9 +45,6 @@ export const BookableDomain = 25
 /** The domain identifiers of rove.CliLogin carry. */
 export const CliLoginDomain = 42
 
-/** The domain identifiers of rove.Consent carry. */
-export const ConsentDomain = 44
-
 /** The domain identifiers of rove.CountFinding carry. */
 export const CountFindingDomain = 32
 
@@ -163,7 +160,6 @@ pdid.register("rove.Attachment", AttachmentDomain, "attachment")
 pdid.register("rove.Audit", AuditDomain, "audit")
 pdid.register("rove.Bookable", BookableDomain, "bookable")
 pdid.register("rove.CliLogin", CliLoginDomain, "cli-login")
-pdid.register("rove.Consent", ConsentDomain, "consent")
 pdid.register("rove.CountFinding", CountFindingDomain, "count-finding")
 pdid.register("rove.Custody", CustodyDomain, "custody")
 pdid.register("rove.CustodyLine", CustodyLineDomain, "custody-line")

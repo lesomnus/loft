@@ -61,6 +61,10 @@ func unframed(ctx context.Context) (context.Context, context.CancelFunc) {
 
 func openEmbedded(ctx context.Context, cfg Config, stateDir string, log *slog.Logger) (*embedded, error) {
 	rc := rostercmd.Config{Db: cfg.Db}
+	// What it keeps of an account's consents once the account is erased, and
+	// then destroys: its own housekeeping, run below, as a roster of its own
+	// runs it.
+	rc.Consent.Keep = cfg.ConsentKeep
 	if rc.Db.Driver == "" {
 		if stateDir == "" {
 			return nil, errors.New("auth.roster.db: the roster in this process needs a database, and there is no directory to put one in")

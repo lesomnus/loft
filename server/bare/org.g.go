@@ -11,7 +11,6 @@ import (
 	ent "github.com/lesomnus/rove/internal/ent"
 	aliashold "github.com/lesomnus/rove/internal/ent/aliashold"
 	clilogin "github.com/lesomnus/rove/internal/ent/clilogin"
-	consent "github.com/lesomnus/rove/internal/ent/consent"
 	handoff "github.com/lesomnus/rove/internal/ent/handoff"
 	holder "github.com/lesomnus/rove/internal/ent/holder"
 	invitation "github.com/lesomnus/rove/internal/ent/invitation"
@@ -1580,65 +1579,6 @@ func AliasHoldNarrow(ctx context.Context, scope Scope, p predicate.AliasHold) (p
 // narrow is [AliasHoldNarrow] with this server's own scope.
 func (s AliasHoldServiceServer) narrow(ctx context.Context, p predicate.AliasHold) (predicate.AliasHold, error) {
 	return AliasHoldNarrow(ctx, s.Scope, p)
-}
-
-type ConsentServiceServer struct {
-	Store
-
-	rove.UnimplementedConsentServiceServer
-}
-
-// NewConsentServiceServer answers with a server that runs its queries with `db`.
-//
-// It takes the options of [Server] so that what is built here can be told
-// where to report its writes and what it may see. Built without them, it
-// reports nowhere and sees everything.
-func NewConsentServiceServer(db *ent.Client, opts ...Option) rove.ConsentServiceServer {
-	s := Server{Store: Store{Db: db}}
-	for _, opt := range opts {
-		opt(&s)
-	}
-	return ConsentServiceServer{Store: s.Store}
-}
-
-// ConsentNarrow answers with `p` and everything else that narrows a
-// read of a Consent: the rows that have not been erased, and whatever
-// `scope` says of those.
-//
-// Every read this package makes goes through it, and a read written by
-// hand should too -- a List is the one read nothing generates, and so the
-// one that would otherwise answer with rows nobody should be given.
-func ConsentNarrow(ctx context.Context, scope Scope, p predicate.Consent) (predicate.Consent, error) {
-	ps := make([]predicate.Consent, 0, 3)
-
-	// A row that was erased is not a row a read answers with.
-	ps = append(ps, consent.DateErasedIsNil())
-	if p != nil {
-		ps = append(ps, p)
-	}
-	if scope != nil {
-		q, err := scope.ConsentScope(ctx)
-		if err != nil {
-			return nil, err
-		}
-		if q != nil {
-			ps = append(ps, q)
-		}
-	}
-
-	switch len(ps) {
-	case 0:
-		return nil, nil
-	case 1:
-		return ps[0], nil
-	default:
-		return consent.And(ps...), nil
-	}
-}
-
-// narrow is [ConsentNarrow] with this server's own scope.
-func (s ConsentServiceServer) narrow(ctx context.Context, p predicate.Consent) (predicate.Consent, error) {
-	return ConsentNarrow(ctx, s.Scope, p)
 }
 
 type SignInFailureServiceServer struct {

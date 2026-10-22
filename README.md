@@ -29,7 +29,11 @@ go run ./cmd/rove serve
 
 **계정**은 [roster](https://github.com/lesomnus/roster)의 것이고, **워크스페이스**는 Rove의 것입니다(design 9.10, D27). 계정과 비밀번호, 로그인할 수 있는지는 roster가 정하고, 계정 하나가 여러 워크스페이스에 속할 수 있습니다. 워크스페이스마다의 역할은 Rove의 사람 화면에서 정합니다. 기본은 roster를 Rove 프로세스 안에서 함께 띄우는 **내장** 모드라 따로 설치할 것이 없습니다. roster의 DB는 Rove의 SQLite 파일 옆 `data/roster.db` 이고, 계정은 그 안의 디렉터리 `rove`에 있습니다.
 
-- **약관 동의**(design 9.11): `app.consent.terms`와 `app.consent.privacy`에 버전과 문서 주소를 주면, 계정은 처음 들어올 때(그리고 버전이 바뀔 때마다) 동의 화면을 봅니다. 동의하기 전에는 모든 호출이 거부되고, 터미널에는 `rove consent`(무엇에 동의해야 하는지와 주소)와 `rove consent --agree`가 있습니다. 동의는 문서·버전·시각·화면/터미널로 계정마다 기록되고(내 정보 › 동의한 문서), 개인 워크스페이스는 동의한 뒤에 생깁니다. 동의하지 않아도 자기 워크스페이스의 데이터는 내려받을 수 있습니다. 문서 내용은 운영자가 따로 게시합니다. 버전을 비워 두면(기본값) 아무것도 묻지 않습니다. 계정이 탈퇴하면 그 동의 기록에 탈퇴 시각이 남고, `app.consent.keep`(예: `26280h`)이 지나면 지워집니다. 비워 두면(기본값) 지우지 않습니다. 기간은 법률 검토 뒤에 정합니다. 동의·탈퇴·삭제는 각각 감사 기록에 남습니다(`rove.consent.agree`, `.left`, `.destroy`). 감사 기록에는 그런 일이 있었다는 것(누가, 언제, 어느 행, 그 행의 지문)만 있고, 어느 문서의 어느 버전에 동의했는지는 없습니다. 이 기록은 감사 기록의 보존 기간(`audit.by.consent`, 없으면 배포 전체의 것)만큼 남습니다.
+- **약관 동의**(design 9.11): `app.consent.terms`와 `app.consent.privacy`에 버전과 문서 주소를 주면, 계정은 처음 들어올 때(그리고 버전이 바뀔 때마다) 동의 화면을 봅니다. 동의하기 전에는 모든 호출이 거부되고, 터미널에는 `rove consent`(무엇에 동의해야 하는지와 주소)와 `rove consent --agree`가 있습니다. 개인 워크스페이스는 동의한 뒤에 생깁니다. 동의하지 않아도 자기 워크스페이스의 데이터는 내려받을 수 있습니다. 문서 내용은 운영자가 따로 게시합니다. 버전을 비워 두면(기본값) 아무것도 묻지 않고, roster에도 묻지 않습니다.
+  - 동의 기록은 roster의 동의 원장(`ConsentService`)에 있습니다(D37). Rove의 설정에는 어느 문서의 어느 버전이 시행 중인지만 있고, 계정이 어느 문서의 어느 버전에 언제, 화면과 터미널 중 어디서 동의했는지는 roster가 고치지 않는 행으로 남깁니다(내 정보 › 동의한 문서). 동의는 roster의 감사 기록에도 남습니다.
+  - 호출마다 roster에 동의했는지 묻습니다. 동의했다는 답은 30초 동안 믿고, 동의하지 않았다는 답은 매번 다시 묻습니다. roster에 물을 수 없으면 호출이 거부됩니다(503).
+  - 계정이 roster에서 삭제되어도 동의 기록은 증거로 남고, roster의 `consent.keep`이 지나면 roster가 지웁니다. 내장 roster면 그 기간이 `auth.roster.consent_keep`(예: `26280h`)입니다. 비워 두면(기본값) 지우지 않습니다. 기간은 법률 검토 뒤에 정합니다(rove#35).
+  - 이 판 전에 Rove가 직접 갖고 있던 동의 기록은 마이그레이션이 지우고, 계정은 다음 화면에서 한 번 더 동의합니다. 예전 동의는 Rove의 감사 기록(`rove.consent.agree`)에 누가 언제 했는지만 남고, 배포 전체의 보존 기간을 따릅니다(따로 두려면 `audit.by.d44`). `app.consent.keep`이나 `audit.by.consent`를 적어 둔 설정은 서버가 시작하지 않으므로 지웁니다.
 - 처음 로그인한 계정이 어느 워크스페이스에도 없으면 자기 워크스페이스가 하나 생깁니다(가입). 워크스페이스는 계정마다 3개까지 더 만들 수 있고(`app.workspaces.owned`), 그 이상은 결제가 필요합니다(닫은 워크스페이스는 세지 않습니다). 이름은 직접 정하고, 주소(`/@…`)는 영문 소문자와 숫자 7자로 무작위로 정해집니다. 헷갈리는 i·l·o·0·1은 쓰지 않고 첫 글자는 영문입니다. 7자 주소가 붐비면 저절로 8자가 됩니다(`app.workspaces.alias_length`).
 - 주소는 사용자가 바꿀 수 없습니다. 운영자가 `rove tenant alias --tenant <지금 주소> --to <새 주소> --yes`로 바꾸면, 이전 주소는 1년(`app.workspaces.alias_hold`) 동안 아무도 쓰지 못하게 보류되고 그동안 새 주소로 넘겨 줍니다. 예약어(`www`, `api`, `admin`, `l`, `sso`, `login` 등, `app.workspaces.reserved`로 더함)는 쓸 수 없습니다.
 - **워크스페이스 닫기**(D29): 소유자는 설정 › 워크스페이스에서 이름을 입력해 닫습니다. 닫으면 소유자 말고는 아무도 들어오지 못하고, 소유자는 복구 기간 안에 복구하거나 모든 데이터를 zip으로 내려받을 수 있습니다. 복구 기간은 그 워크스페이스가 정하고(설정 › 워크스페이스 › 기록 보관), 정하지 않으면 30일(`app.workspaces.restore_within`)입니다. 닫기 화면이 그 기간을 알려 줍니다. 그 뒤에는 모든 데이터와 파일이 지워지고(법적 보존이 걸려 있으면 풀릴 때까지 기다림), 주소는 1년(`app.workspaces.alias_hold`) 동안 보류됩니다. 감사 기록은 계약이 정한 대로 떠납니다. 기본은 **은퇴**(retire)라서, 배포의 바닥값(`audit.min`, `audit.by.<종류>.min`)이 걸린 기록(접속기록 등)은 그 바닥값이 지날 때까지 남고 나머지는 함께 지워집니다. 계약이 `--purge-floors`를 말하면 감사 기록도 모두 지워집니다(아래 '조직 탈퇴'). 계정 탈퇴로 구성원이 아무도 남지 않은 워크스페이스는 저절로 닫힙니다. 운영자는 `rove tenant close|restore --tenant <주소> --yes`로 대신 닫고 엽니다.
@@ -66,7 +70,7 @@ go run ./cmd/rove serve
 # roster 운영자: 배포 키를 만들고(rk_… 출력), 디렉터리에 Rove를 설치
 roster control key add --allow /roster.NominationService/List rove
 roster tenant add @accounts '{"name": "Rove accounts"}'
-roster app install --tenant accounts --role /roster.VouchService/Verify,/roster.HolderService/Get,/roster.TenantService/Get,/roster.MeService/Get,/roster.EmailService/List,/roster.EmailService/Get,/roster.SyncService/Watch rove
+roster app install --tenant accounts --role /roster.VouchService/Verify,/roster.HolderService/Get,/roster.TenantService/Get,/roster.MeService/Get,/roster.EmailService/List,/roster.EmailService/Get,/roster.SyncService/Watch,/roster.ConsentService/Agree,/roster.ConsentService/Settled,/roster.ConsentService/List rove
 
 # Rove
 ROVE_AUTH_ROSTER_ADDR=roster.example.com:443 ROVE_AUTH_ROSTER_DIRECTORY=accounts \
@@ -80,17 +84,17 @@ ROVE_AUTH_ROSTER_KEY=env:ROSTER_KEY ROSTER_KEY=rk_… go run ./cmd/rove serve
 - 서버 한 대를 넘는 배포(SaaS, Dedicated, 여러 대)는 roster를 따로 운영합니다.
 - 서버 한 대의 CE를 PostgreSQL과 자기 도메인으로 운영한다면 이 경고는 그대로 두어도 됩니다.
 
-`EmailService`의 두 권한은 초대(D30)를 위한 것입니다. 초대장은 roster가 확인한 주소를 가진 계정의 초대함에 보이고, Rove는 그 주소를 이 권한으로 읽습니다. `SyncService/Watch`는 roster의 동기화 스트림입니다. roster가 계정을 중지·삭제하거나 모든 곳에서 로그아웃시키면 Rove가 그 자리에서 세션을 끝내고, 삭제된 계정을 떠나는 중으로 표시합니다. roster가 디렉터리를 닫으면(`roster tenant close`, roster#105) 그 디렉터리의 모든 계정의 세션이 끝나고, 닫혀 있는 동안은 아무도 로그인하지 못합니다. 아무것도 지우지 않으므로 디렉터리를 복구하면 다시 로그인할 수 있습니다.
+`EmailService`의 두 권한은 초대(D30)를 위한 것입니다. 초대장은 roster가 확인한 주소를 가진 계정의 초대함에 보이고, Rove는 그 주소를 이 권한으로 읽습니다. `SyncService/Watch`는 roster의 동기화 스트림입니다. roster가 계정을 중지·삭제하거나 모든 곳에서 로그아웃시키면 Rove가 그 자리에서 세션을 끝내고, 삭제된 계정을 떠나는 중으로 표시합니다. roster가 디렉터리를 닫으면(`roster tenant close`, roster#105) 그 디렉터리의 모든 계정의 세션이 끝나고, 닫혀 있는 동안은 아무도 로그인하지 못합니다. 아무것도 지우지 않으므로 디렉터리를 복구하면 다시 로그인할 수 있습니다. `ConsentService`의 세 권한은 약관 동의(`app.consent`, D37)를 위한 것입니다. Rove는 계정이 무엇을 빚졌는지 묻고(`Settled`), 동의를 기록하고(`Agree`), 동의한 문서를 읽습니다(`List`). Rove가 묻는 문서는 모두 필수라서 철회(`Withdraw`)는 쓰지 않습니다.
 
 `auth.roster.account_url` 에 roster의 계정 페이지(디렉터리의 front door, 예: `https://id.example.com/`)를 주면, 내 정보 화면에 "로그인 방법 관리"와 "계정 탈퇴" 링크가 생깁니다. 탈퇴 링크는 그 페이지의 `#leave` 로 가고, 계정 삭제는 roster에서 합니다(`MeService.Leave`, roster#106). 삭제는 디렉터리가 허용할 때만 되므로, SaaS의 디렉터리는 roster 운영자가 `TenantConfig.leave` 를 켭니다(관리 콘솔의 테넌트 화면, 또는 resources 파일의 `config.leave`). 삭제된 계정은 위의 스트림으로 Rove에 들어와 떠나는 중이 됩니다.
 
 이 권한들이 없던 때 설치한 배포는 역할을 넓혀야 합니다. `app install`을 다시 실행해도 이미 있는 역할은 그대로 두므로(roster `docs/apps.md`), roster 운영자가 역할을 직접 고칩니다. 목록을 통째로 바꾸므로 전체를 줍니다.
 
 ```sh
-roster role patch @accounts/rove-app '{"methods": ["/roster.VouchService/Verify", "/roster.HolderService/Get", "/roster.TenantService/Get", "/roster.MeService/Get", "/roster.EmailService/List", "/roster.EmailService/Get", "/roster.SyncService/Watch"], "date_updated_force": true}'
+roster role patch @accounts/rove-app '{"methods": ["/roster.VouchService/Verify", "/roster.HolderService/Get", "/roster.TenantService/Get", "/roster.MeService/Get", "/roster.EmailService/List", "/roster.EmailService/Get", "/roster.SyncService/Watch", "/roster.ConsentService/Agree", "/roster.ConsentService/Settled", "/roster.ConsentService/List"], "date_updated_force": true}'
 ```
 
-고치기 전까지는 초대 메일의 링크로 받은 초대장만 초대함에 보이고, 세션은 다음 호출에서(30초 안에) 끝나며, 삭제된 계정은 떠나는 중으로 표시되지 않습니다. 스트림을 거부당한 Rove는 서버 로그에 오류를 한 번 남기고 10분마다 다시 청하므로, 역할을 고친 뒤 다시 시작하지 않아도 됩니다. 조직의 키(`rt_…`)로 붙은 배포는 키가 허용한 메서드에도 들어 있어야 하므로 키를 새로 만듭니다.
+고치기 전까지는 초대 메일의 링크로 받은 초대장만 초대함에 보이고, 세션은 다음 호출에서(30초 안에) 끝나며, 삭제된 계정은 떠나는 중으로 표시되지 않습니다. 약관 동의를 묻는 배포는 계정이 동의했는지 알 수 없으므로 모든 계정의 호출이 거부됩니다(503, 서버 로그에 `roster role patch`가 적힙니다). 스트림을 거부당한 Rove는 서버 로그에 오류를 한 번 남기고 10분마다 다시 청하고, 동의 원장은 다음 호출에서 다시 물으므로, 역할을 고친 뒤 다시 시작하지 않아도 됩니다. 조직의 키(`rt_…`)로 붙은 배포는 키가 허용한 메서드에도 들어 있어야 하므로 키를 새로 만듭니다.
 
 **SSO로 로그인할 때**(SaaS, D28)는 roster의 issuer(Hydra와 Login App)를 거칩니다. 로그인 화면에 Google·Microsoft·GitHub 버튼이 생기고, 누르면 roster를 잠깐 지나 그 IdP에서 로그인한 뒤 돌아옵니다. 돌아온 계정은 비밀번호로 들어온 계정과 같고, 처음이면 개인 워크스페이스가 생깁니다. 로그아웃은 issuer의 세션까지 끝냅니다.
 
@@ -559,10 +563,10 @@ go run ./cmd/rove trail verify                                                 #
 - 다른 키로 검사하거나 키 없이 쓰던 배포를 검사하면, 통과하지 않고 모든 행을 찾아냅니다. 키를 둔 때(`audit.digest.since`)와 버린 키(`audit.digest.retired`)를 적으면 그 행들은 찾지 않고 셉니다.
 - Rove가 서버를 거치지 않고 일부러 쓰거나 지우는 행은 그 일을 한 행위로 감사 기록에 남깁니다. 그래서 찾을 것이 아닙니다.
   - 쓰는 것: 워크스페이스 복구(`tenant import`)가 되살린 행과 그때 되찾은 주소 보류, 알림 메일 발송, 운영자가 앞당겨 푼 주소 보류, 개인정보 삭제가 바꾼 구성원의 이름
-  - 지우는 것(`pd.RecordErased`): 보존 기간이 지난 이력, 탈퇴한 계정의 동의, 터미널 로그인
+  - 지우는 것(`pd.RecordErased`): 보존 기간이 지난 이력, 터미널 로그인
   - 워크스페이스 파기: purge는 그 워크스페이스의 감사 기록도 함께 파기하므로 남길 것이 없습니다. retire는 지운 행마다 지웠다는 기록(`rove.workspace.retire`)을 남기고, 바닥값이 걸린 종류의 것만 그 감사 기록과 함께 남습니다.
 - 서버가 쓰지 않는 종류는 스키마에 둘 중 하나를 적습니다. 적지 않으면 생성(`pd gen`)이 거부합니다.
-  - 쓸 때마다 행위로 기록: 동의, 터미널 로그인, 별칭 보류. 비교합니다.
+  - 쓸 때마다 행위로 기록: 터미널 로그인, 별칭 보류. 비교합니다. 동의는 roster의 것이라 roster의 감사 기록에 있습니다(D37).
   - 감사 기록에서 뺌(이유를 적음): 세션, 로그인 실패, 검색 대기열, 트리 잠금. 비교하지 않습니다.
 - 마이그레이션이 바꾼 행처럼 살펴보고 맞다고 판단한 것은 `--accept --of <다이제스트> --why`로 받아들입니다. 그 사이 찾은 것이 달라졌으면 거부합니다. 찾은 행마다 받아들였다는 기록이 감사 기록에 남고(없어진 행은 없어진 것으로), 다이제스트와 이유는 로그에 남습니다. `forged`와 `key-not-held`는 받아들이지 않습니다. 그 줄을 살펴보거나 키를 줍니다.
 - 키는 `openssl rand -base64 32`로 만들어 비밀로 마운트하거나, `ROVE_AUDIT_DIGEST_KEY`에 `base64:`와 키를 넣습니다. DB와 DB 백업에는 넣지 않습니다.

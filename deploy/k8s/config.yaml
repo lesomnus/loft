@@ -55,6 +55,10 @@ auth:
     db:
       driver: pgx
       # dsn: ROVE_AUTH_ROSTER_DB_DSN, from the Secret `rove`.
+    # How long what an erased account agreed to (`app.consent`) is kept
+    # before this roster destroys it, once decided with legal review
+    # (rove#35). Unset keeps it for good.
+    # consent_keep: 26280h
 
 app:
   # Where people open it, and what a label's QR code carries: decided before
@@ -92,7 +96,6 @@ app:
   # consent:
   #   terms: { version: "2026-11-01", url: https://rove.example.com/terms }
   #   privacy: { version: "2026-11-01", url: https://rove.example.com/privacy }
-  #   keep: 26280h
 
 audit:
   # Where the trail goes once it leaves the database, and the checkpoints of

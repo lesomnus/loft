@@ -4,9 +4,11 @@ import (
 	"context"
 	"testing"
 
+	"github.com/lesomnus/payday/pdid"
+
 	"github.com/lesomnus/rove/cli"
 	"github.com/lesomnus/rove/cmd"
-	entconsent "github.com/lesomnus/rove/internal/ent/consent"
+	"github.com/lesomnus/rove/internal/ent/holder"
 )
 
 // TestATerminalAgreesBeforeItIsServed: what a deployment asks to be agreed to
@@ -37,7 +39,12 @@ func TestATerminalAgreesBeforeItIsServed(t *testing.T) {
 	x.Contains(out, "agreed\tterms\t2026-10-01")
 	x.Contains(out, "agreed\tprivacy\t2026-10-01")
 
-	rows, err := s.s.Ent.Consent.Query().Where(entconsent.Client("cli")).Count(context.Background())
+	h, err := s.s.Ent.Holder.Query().Where(holder.Role("owner")).First(context.Background())
 	x.NoError(err)
-	x.Equal(2, rows, "agreed at a terminal")
+	vs, err := s.s.Identity.Agreements(context.Background(), pdid.Id(*h.Account))
+	x.NoError(err)
+	x.Len(vs, 2)
+	for _, v := range vs {
+		x.Equal("cli", v.Client, "agreed at a terminal")
+	}
 }

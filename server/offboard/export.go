@@ -280,7 +280,6 @@ var Withheld = map[string]string{
 	"session":       "who is signed in",
 	"clilogin":      "a terminal waiting to be signed in, which is nobody's yet",
 	"aliashold":     "the deployment's: addresses nobody may take for a while",
-	"consent":       "an account's, which agreed once for every workspace it is in",
 	"signinfailure": "the deployment's: how often an address got a sign-in wrong lately",
 	"handoff":       "a sign-in on its way to a workspace's own domain, good for a minute",
 	"searchstale":   "the deployment's queue of what the search index has yet to hear of",
@@ -297,6 +296,7 @@ var Withheld = map[string]string{
 // once, which a test refuses.
 var Dropped = map[string]string{
 	"usagesnapshot": "a workspace's usage, written once a day until what is billed was measured outside rove, from the source (design 7, D35)",
+	"consent":       "an account's agreements to the deployment's documents, kept here until roster's consent ledger kept them (design 9.11, D37)",
 }
 
 // Export writes everything a tenant has as one zip archive: a JSON line per
