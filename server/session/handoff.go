@@ -57,8 +57,9 @@ import (
 // session for a sign-in made through it, and the service's front page
 // otherwise.
 //
-// A code is never written down, nor logged: its row holds what it hashes to,
-// and a refusal says no more than that the sign-in did not finish. A terminal
+// A code is never written down, nor logged: its row holds what it is kept as
+// ([Store.Kept]), and a refusal says no more than that the sign-in did not
+// finish. A terminal
 // is signed in at the service's address alone (`server/clilogin`).
 type Handoff struct {
 	Db       *ent.Client
@@ -241,7 +242,7 @@ func (h Handoff) give(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "this account is not in @"+alias+": sign in as one that is", http.StatusForbidden)
 		return
 	}
-	parent, err := h.Db.Session.Query().Where(session.Secret(digest(key)), session.DateErasedIsNil()).OnlyId(ctx)
+	parent, err := h.Db.Session.Query().Where(session.Secret(h.Store.Kept(key)), session.DateErasedIsNil()).OnlyId(ctx)
 	if err != nil {
 		h.fail(w, r, "the sign-in here could not be read again", err)
 		return
@@ -251,11 +252,11 @@ func (h Handoff) give(w http.ResponseWriter, r *http.Request) {
 	now := h.now()
 	if err := h.Db.Handoff.Create().
 		SetId(pdid.New(pd.HandoffDomain).Uuid()).
-		SetSecret(digest(code)).
+		SetSecret(h.Store.Kept(code)).
 		SetAccount(account.Uuid()).
 		SetWorkspace(ws.Uuid()).
 		SetHost(d.Host).
-		SetState(digest(state)).
+		SetState(h.Store.Kept(state)).
 		SetParent(parent).
 		SetDateExpires(now.Add(CodeTtl)).
 		SetDateCreated(now).
@@ -331,7 +332,7 @@ func (h Handoff) take(w http.ResponseWriter, r *http.Request) {
 	case pdid.Id(v.Workspace) != pin.Workspace:
 		refused("a code made for another workspace", nil)
 		return
-	case subtle.ConstantTimeCompare(v.State, digest(state)) != 1:
+	case subtle.ConstantTimeCompare(v.State, h.Store.Kept(state)) != 1:
 		refused("a code made for another round trip", nil)
 		return
 	}
@@ -378,7 +379,7 @@ func (h Handoff) claim(ctx context.Context, code string) (*ent.Handoff, error) {
 	if code == "" {
 		return nil, nil
 	}
-	v, err := h.Db.Handoff.Query().Where(handoff.Secret(digest(code))).Only(ctx)
+	v, err := h.Db.Handoff.Query().Where(handoff.Secret(h.Store.Kept(code))).Only(ctx)
 	switch {
 	case ent.IsNotFound(err):
 		return nil, nil

@@ -25,7 +25,7 @@ cp .env.example .env && chmod 600 .env
 | --- | --- | --- |
 | `ROVE_DOMAIN` | 사람들이 여는 주소. 라벨 QR이 이 주소를 담으므로 **라벨을 인쇄하기 전에 정하고 바꾸지 않습니다**(rove#35) | |
 | `POSTGRES_PASSWORD` | DB 비밀번호. 영숫자만(DB 주소에 그대로 들어갑니다) | `openssl rand -hex 24` |
-| `ROVE_SIGNING_KEY` | 다운로드 링크 서명. 모든 서버가 같아야 합니다 | `openssl rand -base64 32` |
+| `ROVE_SIGNING_KEY` | 다운로드 링크 서명, 그리고 세션의 키를 보관하는 키(README의 "세션의 키"). 모든 서버가 같아야 하고, 바꾸면 모두 로그아웃됩니다 | `openssl rand -base64 32` |
 | `ROVE_MAIL_*` | 초대 메일을 보낼 SMTP. 비우면 메일 대신 로그에 남습니다 | |
 | `ROVE_VERSION` | 이미지 이름과 `rove version`이 말할 릴리스 이름 | `git describe --tags --always` |
 
@@ -125,6 +125,8 @@ curl -H "authorization: Bearer $(cat secrets/admin_key)" http://127.0.0.1:8081/a
 ```
 
 ## 새 버전으로 올리기
+
+세션을 키의 HMAC으로 보관하는 버전으로 처음 올리면 모두 한 번 다시 로그인합니다(README의 "세션의 키"). 그 밖에 할 일은 없습니다.
 
 먼저 새로 필요한 것을 봅니다: `git fetch`한 뒤 `git diff HEAD..<올릴 커밋> -- deploy/compose`. `secrets/`에 만들 파일이 늘었으면 위 `secrets/`의 명령으로(`chmod 444`까지) **먼저 만듭니다**. 예를 들어 610c1c7부터는 `secrets/digest.key`가 있어야 뜹니다. 없으면 `docker compose up`이 `bind source path does not exist`로 멈춥니다.
 

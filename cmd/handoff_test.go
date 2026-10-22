@@ -113,8 +113,7 @@ func (w *hosted) handOff(as context.Context, host string) *http.Cookie {
 
 // rowOf is the session row a cookie's key is.
 func (w *hosted) rowOf(c *http.Cookie) *ent.Session {
-	sum := sha256.Sum256([]byte(c.Value))
-	return w.s.Ent.Session.Query().Where(entsession.Secret(sum[:])).OnlyX(context.Background())
+	return w.s.Ent.Session.Query().Where(entsession.Secret(w.s.Handoff.Store.Kept(c.Value))).OnlyX(context.Background())
 }
 
 // setCookie is the cookie a response set by `name`, or nil.
@@ -184,7 +183,8 @@ func TestASignInIsHandedToAWorkspacesDomain(t *testing.T) {
 	x.NoError(err)
 	x.Len(rows, 1)
 	sum := sha256.Sum256([]byte(tr.code))
-	x.Equal(sum[:], rows[0].Secret, "written down as what it hashes to")
+	x.Equal(w.s.Handoff.Store.Kept(tr.code), rows[0].Secret, "written down as a session's key is")
+	x.NotEqual(sum[:], rows[0].Secret, "and not as its SHA-256, which anybody could write")
 	x.Equal(ownHost, rows[0].Host)
 	x.Equal(idOf(t, w.tenant), pdid.Id(rows[0].Workspace).String())
 	x.WithinDuration(time.Now().Add(session.CodeTtl), rows[0].DateExpires, 5*time.Second)
@@ -310,7 +310,7 @@ func TestAHandoffGoesToAnActiveAppDomainAlone(t *testing.T) {
 	x.NoError(err)
 	key := "a terminal's own key"
 	sum := sha256.Sum256([]byte(key))
-	x.NoError(w.s.Handoff.Store.Adopt(ctx, w.accountOf(inAcme), sum[:], grant, time.Now().Add(time.Hour), time.Now().Add(time.Hour)))
+	x.NoError(w.s.Handoff.Store.Adopt(ctx, w.accountOf(inAcme), w.s.Handoff.Store.KeptSum(sum[:]), grant, time.Now().Add(time.Hour), time.Now().Add(time.Hour)))
 	narrowed := withCookie(&http.Cookie{Name: authsession.DefaultCookie, Value: key})
 	x.Equal(http.StatusForbidden, w.give(narrowed, ownHost, &tr).Code, "a sign-in narrowed by `rove login --allow`")
 	bad := tr
@@ -410,8 +410,7 @@ func TestAHandoffCodeIsGoodForItsRoundTripAlone(t *testing.T) {
 		"made for another workspace": func(u *ent.HandoffUpdate) { u.SetWorkspace(inBeta.Uuid()) },
 	} {
 		a := code()
-		sum := sha256.Sum256([]byte(a.code))
-		u := w.s.Ent.Handoff.Update().Where(handoff.Secret(sum[:]))
+		u := w.s.Ent.Handoff.Update().Where(handoff.Secret(w.s.Handoff.Store.Kept(a.code)))
 		change(u)
 		x.Equal(1, u.SaveX(ctx))
 		refused(w.take(nil, ownHost, a, a.state), why)
@@ -427,8 +426,7 @@ func TestAHandoffCodeIsGoodForItsRoundTripAlone(t *testing.T) {
 		return hook.HandoffFunc(func(ctx context.Context, m *ent.HandoffMutation) (ent.Value, error) {
 			if first && m.Op().Is(ent.OpDelete) {
 				first = false
-				sum := sha256.Sum256([]byte(a.code))
-				w.s.Ent.Handoff.Delete().Where(handoff.Secret(sum[:])).ExecX(ctx)
+				w.s.Ent.Handoff.Delete().Where(handoff.Secret(w.s.Handoff.Store.Kept(a.code))).ExecX(ctx)
 			}
 			return next.Mutate(ctx, m)
 		})

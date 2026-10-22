@@ -345,7 +345,7 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 
 	// Who is calling is a session cookie, held on every call to what roster
 	// says of its person, and what they may do is their role.
-	store := session.Store{Db: client, People: people}
+	store := session.Store{Db: client, People: people, Key: session.KeyFrom(deps.Sign.Key)}
 	opts2 := []authsession.Option{
 		authsession.WithIdle(or(c.App.Session.Idle, 24*time.Hour)),
 		authsession.WithLifetime(or(c.App.Session.Lifetime, 7*24*time.Hour)),
