@@ -380,7 +380,7 @@ func furnish(t *testing.T, s *cmd.Server, conn *grpc.ClientConn, alias, login st
 	tref := app.TenantRef_builder{Id: pdid.Id(tid).Bytes()}.Build()
 	_, err = s.Base.LegalHold().Add(ctx, app.LegalHoldAddRequest_builder{Tenant: tref, Name: "사건 1"}.Build())
 	x.NoError(err)
-	_, err = s.Base.TenantContract().Add(ctx, app.TenantContractAddRequest_builder{Tenant: tref, Name: "계약", ViewDays: 3650, KeepDays: 3650}.Build())
+	_, err = s.Base.TenantContract().Add(ctx, app.TenantContractAddRequest_builder{Tenant: tref, Name: "계약"}.Build())
 	x.NoError(err)
 }
 

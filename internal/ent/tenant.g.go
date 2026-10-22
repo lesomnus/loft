@@ -28,5 +28,16 @@ func (e *Tenant) Proto() *rove.Tenant {
 	x.SetTimezone(e.Timezone)
 	x.SetCurrency(e.Currency)
 	x.SetNoShowMinutes(e.NoShowMinutes)
+	x.SetKeepDays(e.KeepDays)
+	x.SetAccessKeepDays(e.AccessKeepDays)
+	x.SetRestoreDays(e.RestoreDays)
+	x.SetKeepDaysBefore(e.KeepDaysBefore)
+	if e.DateKeepShortened != nil {
+		x.SetDateKeepShortened(timestamppb.New(*e.DateKeepShortened))
+	}
+	x.SetAccessKeepDaysBefore(e.AccessKeepDaysBefore)
+	if e.DateAccessKeepShortened != nil {
+		x.SetDateAccessKeepShortened(timestamppb.New(*e.DateAccessKeepShortened))
+	}
 	return x
 }

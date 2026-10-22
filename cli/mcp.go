@@ -663,7 +663,7 @@ func (t mcpTools) whoami(ctx context.Context, _ *mcp.CallToolRequest, _ mcpWhoam
 		out.Person = &mcpRef{Id: idString(p.GetId()), Name: p.GetName()}
 	}
 	out.History = "all of it"
-	if d := me.GetHistoryDays(); d > 0 {
+	if d := me.GetTenant().GetKeepDays(); d > 0 {
 		out.History = fmt.Sprintf("the last %d days", d)
 	}
 	return nil, out, nil

@@ -15,7 +15,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file rove/payday/tenant.proto.
  */
 export const file_rove_payday_tenant: GenFile = /*@__PURE__*/
-  fileDesc("Chhyb3ZlL3BheWRheS90ZW5hbnQucHJvdG8SBHJvdmUi+gQKBlRlbmFudBIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASFQoFYWxpYXMYBCABKAlCBuqCFgIwARIMCgRuYW1lGAUgASgJEgwKBGRlc2MYBiABKAkSKAoGbGFiZWxzGAcgAygLMhgucm92ZS5UZW5hbnQuTGFiZWxzRW50cnkSOQoMZGF0ZV91cGRhdGVkGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4oBABI7CgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgnqghYFQAGCAQASNwoLZGF0ZV9jbG9zZWQYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESEQoJY2xvc2VkX2J5GAkgASgJEhQKDGNsb3NlX3JlYXNvbhgKIAEoCRI4CgxkYXRlX2Rlc3Ryb3kYCyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESGQoIdGltZXpvbmUYDCABKAlCB+qCFgOCAQASGQoIY3VycmVuY3kYECABKAlCB+qCFgOCAQASIAoPbm9fc2hvd19taW51dGVzGBEgASgFQgfqghYDggEAGi0KC0xhYmVsc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAE6X8r8FSYSAhABGiASBHBhZ2UaEAoMZGF0ZV9jcmVhdGVkEA8aBgoCaWQQAYq7FjEIATIlChAKDgoMZGF0ZV9jcmVhdGVkCgYKBAoCaWQaBQoDcmVmIBQoZEICCgBIARoAQh9aGGdpdGh1Yi5jb20vbGVzb21udXMvcm92ZZIDAggCYghlZGl0aW9uc3DoBw", [file_google_protobuf_timestamp, file_orm, file_payday]);
+  fileDesc("Chhyb3ZlL3BheWRheS90ZW5hbnQucHJvdG8SBHJvdmUirgcKBlRlbmFudBIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASFQoFYWxpYXMYBCABKAlCBuqCFgIwARIMCgRuYW1lGAUgASgJEgwKBGRlc2MYBiABKAkSKAoGbGFiZWxzGAcgAygLMhgucm92ZS5UZW5hbnQuTGFiZWxzRW50cnkSOQoMZGF0ZV91cGRhdGVkGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4oBABI7CgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgnqghYFQAGCAQASNwoLZGF0ZV9jbG9zZWQYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESEQoJY2xvc2VkX2J5GAkgASgJEhQKDGNsb3NlX3JlYXNvbhgKIAEoCRI4CgxkYXRlX2Rlc3Ryb3kYCyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESGQoIdGltZXpvbmUYDCABKAlCB+qCFgOCAQASGQoIY3VycmVuY3kYECABKAlCB+qCFgOCAQASIAoPbm9fc2hvd19taW51dGVzGBEgASgFQgfqghYDggEAEhoKCWtlZXBfZGF5cxgSIAEoDUIH6oIWA4IBABIhChBhY2Nlc3Nfa2VlcF9kYXlzGBMgASgNQgfqghYDggEAEh0KDHJlc3RvcmVfZGF5cxgUIAEoDUIH6oIWA4IBABIhChBrZWVwX2RheXNfYmVmb3JlGBUgASgNQgfqghYDggEAEj8KE2RhdGVfa2VlcF9zaG9ydGVuZWQYFiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESKAoXYWNjZXNzX2tlZXBfZGF5c19iZWZvcmUYFyABKA1CB+qCFgOCAQASRgoaZGF0ZV9hY2Nlc3Nfa2VlcF9zaG9ydGVuZWQYGCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAEaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ATpfyvwVJhICEAEaIBIEcGFnZRoQCgxkYXRlX2NyZWF0ZWQQDxoGCgJpZBABirsWMQgBMiUKEAoOCgxkYXRlX2NyZWF0ZWQKBgoECgJpZBoFCgNyZWYgFChkQgIKAEgBGgBCH1oYZ2l0aHViLmNvbS9sZXNvbW51cy9yb3ZlkgMCCAJiCGVkaXRpb25zcOgH", [file_google_protobuf_timestamp, file_orm, file_payday]);
 
 /**
  * Tenant is the wall an app is divided by.
@@ -141,6 +141,66 @@ export type Tenant = Message<"rove.Tenant"> & {
    * @generated from field: int32 no_show_minutes = 17;
    */
   noShowMinutes: number;
+
+  /**
+   * How long the workspace keeps what it was and did, its owner's to say as
+   * the rest of its settings (design 8, D36): what is kept is what is seen,
+   * and nothing narrows a read to less of it.
+   *
+   * KeepDays is how long its history -- the time rows, the events, the
+   * documents that are over -- is kept, in days, and the trail of the writes
+   * that made it with it. 0 is forever. Only the deployment's switch,
+   * `app.retention.apply`, lets it destroy anything.
+   *
+   * @generated from field: uint32 keep_days = 18;
+   */
+  keepDays: number;
+
+  /**
+   * AccessKeepDays is how long its access record -- who read, wrote or took
+   * out whose data in it -- is kept, in days (rove#136). 0 is the
+   * deployment's `audit.by.access`, and none is below the deployment's floor,
+   * `audit.by.access.min`: the floor is what the law the deployment is under
+   * asks.
+   *
+   * @generated from field: uint32 access_keep_days = 19;
+   */
+  accessKeepDays: number;
+
+  /**
+   * RestoreDays is how long it may be restored once closed, in days, before it
+   * is destroyed (D29). 0 is the deployment's `app.workspaces.restore_within`.
+   * Read when it is closed: the date of its destruction then is what its
+   * owner is told.
+   *
+   * @generated from field: uint32 restore_days = 20;
+   */
+  restoreDays: number;
+
+  /**
+   * What KeepDays and AccessKeepDays said before each was last made shorter,
+   * and when. A shorter window waits out the deployment's grace
+   * (`app.retention.grace`) from then, keeping the longer one meanwhile, so a
+   * mistake undone in time has destroyed nothing. Unset is nothing waiting.
+   *
+   * @generated from field: uint32 keep_days_before = 21;
+   */
+  keepDaysBefore: number;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp date_keep_shortened = 22;
+   */
+  dateKeepShortened?: Timestamp | undefined;
+
+  /**
+   * @generated from field: uint32 access_keep_days_before = 23;
+   */
+  accessKeepDaysBefore: number;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp date_access_keep_shortened = 24;
+   */
+  dateAccessKeepShortened?: Timestamp | undefined;
 };
 
 /**

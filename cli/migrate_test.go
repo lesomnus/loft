@@ -1,24 +1,29 @@
 package cli_test
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"slices"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/pdtest"
 	"github.com/lesomnus/payday/rename"
 	entschema "github.com/protobuf-orm/ent/dialect/sql/schema"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
+	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/cli"
 	"github.com/lesomnus/rove/cmd"
 	entmigrate "github.com/lesomnus/rove/internal/ent/migrate"
 	"github.com/lesomnus/rove/internal/ent/tenant"
 	"github.com/lesomnus/rove/server/offboard"
 	"github.com/lesomnus/rove/server/pd"
+	"github.com/lesomnus/rove/server/retention"
 )
 
 // TestADeploymentMigratesBeforeItServes: `rove migrate` brings a database
@@ -197,4 +202,99 @@ func TestATableAnEarlierBuildHadIsDropped(t *testing.T) {
 	_, err = s.Offboard(c).Purge(ctx, pdid.Id(tid), false)
 	x.NoError(err)
 	x.False(s.Ent.Tenant.Query().Where(tenant.Id(tid)).ExistX(ctx))
+}
+
+// TestTheContractsTermsMoveOntoTheWorkspace (D36): what a workspace's
+// contracts said of how long it keeps its history and its access record and
+// may be restored once closed moves onto the workspace once, as its own
+// settings -- the contract in force's, and the one before it as what was kept
+// before, from when the one in force took effect, for the grace to hold a
+// shorter window to -- and the contracts' columns for them go.
+func TestTheContractsTermsMoveOntoTheWorkspace(t *testing.T) {
+	x := require.New(t)
+	ctx := t.Context()
+
+	c := cmd.Config{}
+	c.Db.Driver, c.Db.Dsn = pdtest.DB(t)
+	c.Watch.Broker = "memory"
+	c.App.Files = t.TempDir()
+	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
+	run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234")
+
+	s, err := cmd.Build(ctx, c)
+	x.NoError(err)
+	defer s.Close()
+	has := func(column string) bool {
+		q := "SELECT count(*) FROM pragma_table_info('tenantcontract') WHERE name = ?"
+		if s.Dialect == "postgres" {
+			q = "SELECT count(*) FROM information_schema.columns WHERE table_schema = current_schema() AND table_name = 'tenantcontract' AND column_name = $1"
+		}
+		n := 0
+		x.NoError(s.Db.QueryRowContext(ctx, q, column).Scan(&n))
+		return n > 0
+	}
+	exec := func(q string, args ...any) {
+		if s.Dialect == "postgres" {
+			for i := range args {
+				q = strings.Replace(q, "?", fmt.Sprintf("$%d", i+1), 1)
+			}
+		}
+		_, err := s.Db.ExecContext(ctx, q, args...)
+		x.NoError(err, q)
+	}
+
+	// The columns a build before this had, and its contracts: one from long
+	// ago that kept more, one in force since ten days ago, and one signed for
+	// next month.
+	for _, col := range []string{"view_days", "keep_days", "grace_days", "access_keep_days", "restore_days"} {
+		exec("ALTER TABLE tenantcontract ADD COLUMN " + col + " integer NOT NULL DEFAULT 0")
+	}
+	tn, err := s.Ent.Tenant.Query().Where(tenant.Alias("acme")).Only(ctx)
+	x.NoError(err)
+	now := time.Now().Truncate(time.Second)
+	contract := func(name string, effective time.Time, keep, access, restore uint32) {
+		v, err := s.Base.TenantContract().Add(ctx, app.TenantContractAddRequest_builder{
+			Tenant:        app.TenantRef_builder{Id: tn.Id[:]}.Build(),
+			Name:          name,
+			DateEffective: timestamppb.New(effective),
+		}.Build())
+		x.NoError(err)
+		exec("UPDATE tenantcontract SET view_days = 365, keep_days = ?, access_keep_days = ?, restore_days = ?, grace_days = 7 WHERE id = ?",
+			keep, access, restore, pdid.Id(v.GetId()).String())
+	}
+	contract("old", now.Add(-100*24*time.Hour), 730, 400, 0)
+	contract("now", now.Add(-10*24*time.Hour), 365, 0, 90)
+	contract("next", now.Add(10*24*time.Hour), 30, 30, 30)
+
+	x.NoError(cli.Migrate(ctx, s))
+	for _, col := range []string{"view_days", "keep_days", "grace_days", "access_keep_days", "restore_days"} {
+		x.False(has(col), "the contracts kept %s", col)
+	}
+	x.NoError(cli.Migrate(ctx, s), "a second time")
+
+	got, err := s.Ent.Tenant.Get(ctx, tn.Id)
+	x.NoError(err)
+	x.EqualValues(365, got.KeepDays, "the contract in force's")
+	x.EqualValues(0, got.AccessKeepDays)
+	x.EqualValues(90, got.RestoreDays)
+	x.EqualValues(730, got.KeepDaysBefore, "what the one before kept")
+	x.NotNil(got.DateKeepShortened)
+	x.WithinDuration(now.Add(-10*24*time.Hour), *got.DateKeepShortened, time.Second, "from when the one in force took effect")
+	x.EqualValues(400, got.AccessKeepDaysBefore)
+	x.NotNil(got.DateAccessKeepShortened)
+
+	// So the grace holds the longer window from then.
+	w, err := retention.Of(ctx, s.Ent, pdid.Id(tn.Id), now, retention.Defaults{Grace: 30 * 24 * time.Hour})
+	x.NoError(err)
+	x.Equal(730*24*time.Hour, w.Keep)
+	w, err = retention.Of(ctx, s.Ent, pdid.Id(tn.Id), now.Add(20*24*time.Hour), retention.Defaults{Grace: 30 * 24 * time.Hour})
+	x.NoError(err)
+	x.Equal(365*24*time.Hour, w.Keep)
+
+	// And a contract is written as it is now.
+	_, err = s.Base.TenantContract().Add(ctx, app.TenantContractAddRequest_builder{
+		Tenant: app.TenantRef_builder{Id: tn.Id[:]}.Build(),
+		Name:   "after",
+	}.Build())
+	x.NoError(err)
 }

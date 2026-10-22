@@ -24,16 +24,19 @@ import (
 	"github.com/lesomnus/rove/server/retention"
 )
 
-// NewCmdContract is `rove contract`: what a tenant's contract says about its
-// history -- how far back it may look, and how long it is kept (design 8).
+// NewCmdContract is `rove contract`: what the operator's agreement with a
+// workspace says of what the deployment owes beyond the workspace's own
+// settings -- whether its trail goes whole when it is destroyed -- and what
+// those settings and its holds come to now (design 8). How long a workspace
+// keeps its history is its own (D36), its owner's to say in its settings.
 //
 // A command and not an RPC, because the contract is the operator's and no role
-// in a tenant may write it: a tenant that could would be extending its own plan.
-// It writes through [cmd.Server.Base], which a request cannot reach.
+// in a tenant may write it. It writes through [cmd.Server.Base], which a
+// request cannot reach.
 func NewCmdContract(c *cmd.Config) *xli.Command {
 	return &xli.Command{
 		Name:  "contract",
-		Brief: "what a tenant's contract says about its history",
+		Brief: "what the operator's agreement with a workspace says beyond its own settings",
 
 		Commands: xli.Commands{
 			newCmdContractSet(c),
@@ -49,13 +52,8 @@ func newCmdContractSet(c *cmd.Config) *xli.Command {
 
 		Flags: flg.Flags{
 			&flg.String{Name: "tenant", Brief: "the tenant, by alias"},
-			&flg.String{Name: "name", Brief: "the plan, as people call it: free, pro, an agreement's number"},
+			&flg.String{Name: "name", Brief: "the agreement, as people call it: its number, standard"},
 			&flg.String{Name: "desc", Brief: "more about it: an agreement's terms, a ticket"},
-			&flg.Uint32{Name: "view", Brief: "how far back the tenant may look, in days; 0 is all of it"},
-			&flg.Uint32{Name: "keep", Brief: "how long its history is kept, in days; 0 is forever"},
-			&flg.Uint32{Name: "grace", Brief: "how long a shorter keep waits before it applies, in days"},
-			&flg.Uint32{Name: "access-keep", Brief: "how long the access record is kept, in days; 0 is the deployment's (audit.by.access), and none goes below its floor"},
-			&flg.Uint32{Name: "restore", Brief: "how long the workspace may be restored once closed, in days; 0 is the deployment's (app.workspaces.restore_within)"},
 			&flg.Switch{Name: "purge-floors", Brief: "when it is destroyed, take its whole trail, what the deployment's floors are on too; without this it retires, keeping that until the floors pass"},
 			&flg.String{Name: "effective", Brief: "from when, as 2006-01-02 or RFC 3339; now by default"},
 		},
@@ -73,11 +71,6 @@ func newCmdContractSet(c *cmd.Config) *xli.Command {
 
 			name, _ := flg.Find[string](self, "name")
 			desc, _ := flg.Find[string](self, "desc")
-			view, _ := flg.Find[uint32](self, "view")
-			keep, _ := flg.Find[uint32](self, "keep")
-			grace, _ := flg.Find[uint32](self, "grace")
-			access, _ := flg.Find[uint32](self, "access-keep")
-			restore, _ := flg.Find[uint32](self, "restore")
 			purge, _ := flg.Find[bool](self, "purge-floors")
 
 			s, err := cmd.Build(ctx, *c)
@@ -92,16 +85,11 @@ func newCmdContractSet(c *cmd.Config) *xli.Command {
 			}
 
 			v, err := s.Base.TenantContract().Add(ctx, app.TenantContractAddRequest_builder{
-				Tenant:         app.TenantRef_builder{Id: t.Id[:]}.Build(),
-				Name:           strings.TrimSpace(name),
-				Desc:           strings.TrimSpace(desc),
-				ViewDays:       view,
-				KeepDays:       keep,
-				GraceDays:      grace,
-				AccessKeepDays: &access,
-				RestoreDays:    &restore,
-				PurgeFloors:    &purge,
-				DateEffective:  timestamppb.New(at),
+				Tenant:        app.TenantRef_builder{Id: t.Id[:]}.Build(),
+				Name:          strings.TrimSpace(name),
+				Desc:          strings.TrimSpace(desc),
+				PurgeFloors:   &purge,
+				DateEffective: timestamppb.New(at),
 			}.Build())
 			if err != nil {
 				return err
@@ -117,7 +105,7 @@ func newCmdContractSet(c *cmd.Config) *xli.Command {
 func newCmdContractShow(c *cmd.Config) *xli.Command {
 	return &xli.Command{
 		Name:  "show",
-		Brief: "a tenant's contracts, its holds, and the windows they come to now",
+		Brief: "a workspace's contracts, its holds, and the windows its settings come to now",
 
 		Flags: flg.Flags{
 			&flg.String{Name: "tenant", Brief: "the tenant, by alias"},
@@ -147,13 +135,11 @@ func newCmdContractShow(c *cmd.Config) *xli.Command {
 				if v.Desc != "" {
 					desc = "  " + v.Desc
 				}
-				self.Printf("%s  %-12s view %-6s keep %-6s grace %-6s access %-6s restore %-12s then %s%s\n",
-					v.DateEffective.UTC().Format(time.DateOnly), or(v.Name, "-"),
-					days(v.ViewDays, "all"), days(v.KeepDays, "forever"), days(v.GraceDays, "none"),
-					days(v.AccessKeepDays, "deployment's"), days(v.RestoreDays, "deployment's"), leaving(v.PurgeFloors), desc)
+				self.Printf("%s  %-12s then %s%s\n",
+					v.DateEffective.UTC().Format(time.DateOnly), or(v.Name, "-"), leaving(v.PurgeFloors), desc)
 			}
 			if len(vs) == 0 {
-				self.Printf("no contract: the deployment's defaults apply\n")
+				self.Printf("no contract: a destroyed workspace retires\n")
 			}
 
 			return showWindow(ctx, self, s.Ent, pdid.Id(t.Id), *c)
@@ -248,9 +234,10 @@ func NewCmdHold(c *cmd.Config) *xli.Command {
 	}
 }
 
-// showWindow prints what a tenant's contracts and holds come to now: its
-// history's windows, what the trail keeps of its access record -- the floor
-// raising a shorter one -- and how long it may be restored once closed.
+// showWindow prints what a workspace's settings, contracts and holds come to
+// now: how long its history is kept, what the trail keeps of its access record
+// -- the floor raising a shorter one -- and how long it may be restored once
+// closed; and a window made shorter, until when the longer one holds.
 func showWindow(ctx context.Context, self *xli.Command, db *ent.Client, tenant pdid.Id, all cmd.Config) error {
 	c := all.App.Retention
 	p, err := all.Audit.Policy()
@@ -265,7 +252,15 @@ func showWindow(ctx context.Context, self *xli.Command, db *ent.Client, tenant p
 		return err
 	}
 
-	self.Printf("now: view %s, keep %s\n", span(w.View, "all"), span(w.Keep, "forever"))
+	self.Printf("history: kept %s\n", span(w.Keep, "forever"))
+	if t, err := db.Tenant.Get(ctx, tenant.Uuid()); err == nil {
+		if u := retention.KeepOf(t).Until(now, d.Wait(), retention.Days); !u.IsZero() {
+			self.Printf("  until %s, then %s: made shorter, and waiting out the grace\n", u.UTC().Format(time.DateOnly), days(t.KeepDays, "forever"))
+		}
+		if u := retention.AccessOf(t).Until(now, d.Wait(), d.AccessDays); !u.IsZero() {
+			self.Printf("  the access record's until %s, then %s: made shorter, and waiting out the grace\n", u.UTC().Format(time.DateOnly), span(d.AccessDays(t.AccessKeepDays), "forever"))
+		}
+	}
 
 	answer, err := retention.Trail(db, p, d)(ctx, tenant)
 	if err != nil {

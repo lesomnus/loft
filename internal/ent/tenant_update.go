@@ -232,6 +232,181 @@ func (_u *TenantUpdate) ClearNoShowMinutes() *TenantUpdate {
 	return _u
 }
 
+// SetKeepDays sets the "keep_days" field.
+func (_u *TenantUpdate) SetKeepDays(v uint32) *TenantUpdate {
+	_u.mutation.ResetKeepDays()
+	_u.mutation.SetKeepDays(v)
+	return _u
+}
+
+// SetNillableKeepDays sets the "keep_days" field if the given value is not nil.
+func (_u *TenantUpdate) SetNillableKeepDays(v *uint32) *TenantUpdate {
+	if v != nil {
+		_u.SetKeepDays(*v)
+	}
+	return _u
+}
+
+// AddKeepDays adds value to the "keep_days" field.
+func (_u *TenantUpdate) AddKeepDays(v int32) *TenantUpdate {
+	_u.mutation.AddKeepDays(v)
+	return _u
+}
+
+// ClearKeepDays clears the value of the "keep_days" field.
+func (_u *TenantUpdate) ClearKeepDays() *TenantUpdate {
+	_u.mutation.ClearKeepDays()
+	return _u
+}
+
+// SetAccessKeepDays sets the "access_keep_days" field.
+func (_u *TenantUpdate) SetAccessKeepDays(v uint32) *TenantUpdate {
+	_u.mutation.ResetAccessKeepDays()
+	_u.mutation.SetAccessKeepDays(v)
+	return _u
+}
+
+// SetNillableAccessKeepDays sets the "access_keep_days" field if the given value is not nil.
+func (_u *TenantUpdate) SetNillableAccessKeepDays(v *uint32) *TenantUpdate {
+	if v != nil {
+		_u.SetAccessKeepDays(*v)
+	}
+	return _u
+}
+
+// AddAccessKeepDays adds value to the "access_keep_days" field.
+func (_u *TenantUpdate) AddAccessKeepDays(v int32) *TenantUpdate {
+	_u.mutation.AddAccessKeepDays(v)
+	return _u
+}
+
+// ClearAccessKeepDays clears the value of the "access_keep_days" field.
+func (_u *TenantUpdate) ClearAccessKeepDays() *TenantUpdate {
+	_u.mutation.ClearAccessKeepDays()
+	return _u
+}
+
+// SetRestoreDays sets the "restore_days" field.
+func (_u *TenantUpdate) SetRestoreDays(v uint32) *TenantUpdate {
+	_u.mutation.ResetRestoreDays()
+	_u.mutation.SetRestoreDays(v)
+	return _u
+}
+
+// SetNillableRestoreDays sets the "restore_days" field if the given value is not nil.
+func (_u *TenantUpdate) SetNillableRestoreDays(v *uint32) *TenantUpdate {
+	if v != nil {
+		_u.SetRestoreDays(*v)
+	}
+	return _u
+}
+
+// AddRestoreDays adds value to the "restore_days" field.
+func (_u *TenantUpdate) AddRestoreDays(v int32) *TenantUpdate {
+	_u.mutation.AddRestoreDays(v)
+	return _u
+}
+
+// ClearRestoreDays clears the value of the "restore_days" field.
+func (_u *TenantUpdate) ClearRestoreDays() *TenantUpdate {
+	_u.mutation.ClearRestoreDays()
+	return _u
+}
+
+// SetKeepDaysBefore sets the "keep_days_before" field.
+func (_u *TenantUpdate) SetKeepDaysBefore(v uint32) *TenantUpdate {
+	_u.mutation.ResetKeepDaysBefore()
+	_u.mutation.SetKeepDaysBefore(v)
+	return _u
+}
+
+// SetNillableKeepDaysBefore sets the "keep_days_before" field if the given value is not nil.
+func (_u *TenantUpdate) SetNillableKeepDaysBefore(v *uint32) *TenantUpdate {
+	if v != nil {
+		_u.SetKeepDaysBefore(*v)
+	}
+	return _u
+}
+
+// AddKeepDaysBefore adds value to the "keep_days_before" field.
+func (_u *TenantUpdate) AddKeepDaysBefore(v int32) *TenantUpdate {
+	_u.mutation.AddKeepDaysBefore(v)
+	return _u
+}
+
+// ClearKeepDaysBefore clears the value of the "keep_days_before" field.
+func (_u *TenantUpdate) ClearKeepDaysBefore() *TenantUpdate {
+	_u.mutation.ClearKeepDaysBefore()
+	return _u
+}
+
+// SetDateKeepShortened sets the "date_keep_shortened" field.
+func (_u *TenantUpdate) SetDateKeepShortened(v time.Time) *TenantUpdate {
+	_u.mutation.SetDateKeepShortened(v)
+	return _u
+}
+
+// SetNillableDateKeepShortened sets the "date_keep_shortened" field if the given value is not nil.
+func (_u *TenantUpdate) SetNillableDateKeepShortened(v *time.Time) *TenantUpdate {
+	if v != nil {
+		_u.SetDateKeepShortened(*v)
+	}
+	return _u
+}
+
+// ClearDateKeepShortened clears the value of the "date_keep_shortened" field.
+func (_u *TenantUpdate) ClearDateKeepShortened() *TenantUpdate {
+	_u.mutation.ClearDateKeepShortened()
+	return _u
+}
+
+// SetAccessKeepDaysBefore sets the "access_keep_days_before" field.
+func (_u *TenantUpdate) SetAccessKeepDaysBefore(v uint32) *TenantUpdate {
+	_u.mutation.ResetAccessKeepDaysBefore()
+	_u.mutation.SetAccessKeepDaysBefore(v)
+	return _u
+}
+
+// SetNillableAccessKeepDaysBefore sets the "access_keep_days_before" field if the given value is not nil.
+func (_u *TenantUpdate) SetNillableAccessKeepDaysBefore(v *uint32) *TenantUpdate {
+	if v != nil {
+		_u.SetAccessKeepDaysBefore(*v)
+	}
+	return _u
+}
+
+// AddAccessKeepDaysBefore adds value to the "access_keep_days_before" field.
+func (_u *TenantUpdate) AddAccessKeepDaysBefore(v int32) *TenantUpdate {
+	_u.mutation.AddAccessKeepDaysBefore(v)
+	return _u
+}
+
+// ClearAccessKeepDaysBefore clears the value of the "access_keep_days_before" field.
+func (_u *TenantUpdate) ClearAccessKeepDaysBefore() *TenantUpdate {
+	_u.mutation.ClearAccessKeepDaysBefore()
+	return _u
+}
+
+// SetDateAccessKeepShortened sets the "date_access_keep_shortened" field.
+func (_u *TenantUpdate) SetDateAccessKeepShortened(v time.Time) *TenantUpdate {
+	_u.mutation.SetDateAccessKeepShortened(v)
+	return _u
+}
+
+// SetNillableDateAccessKeepShortened sets the "date_access_keep_shortened" field if the given value is not nil.
+func (_u *TenantUpdate) SetNillableDateAccessKeepShortened(v *time.Time) *TenantUpdate {
+	if v != nil {
+		_u.SetDateAccessKeepShortened(*v)
+	}
+	return _u
+}
+
+// ClearDateAccessKeepShortened clears the value of the "date_access_keep_shortened" field.
+func (_u *TenantUpdate) ClearDateAccessKeepShortened() *TenantUpdate {
+	_u.mutation.ClearDateAccessKeepShortened()
+	return _u
+}
+
 // Mutation returns the TenantMutation object of the builder.
 func (_u *TenantUpdate) Mutation() *TenantMutation {
 	return _u.mutation
@@ -374,6 +549,84 @@ func (_u *TenantUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.NoShowMinutesCleared() {
 		_spec.ClearField(tenant.FieldNoShowMinutes, field.TypeInt32)
+	}
+	if value, ok := _u.mutation.KeepDays(); ok {
+		_spec.SetField(tenant.FieldKeepDays, field.TypeUint32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldKeepDays); ok {
+		_spec.SetField(tenant.FieldKeepDays, field.TypeUint32, e)
+	}
+	if value, ok := _u.mutation.AddedKeepDays(); ok {
+		_spec.AddField(tenant.FieldKeepDays, field.TypeUint32, value)
+	}
+	if _u.mutation.KeepDaysCleared() {
+		_spec.ClearField(tenant.FieldKeepDays, field.TypeUint32)
+	}
+	if value, ok := _u.mutation.AccessKeepDays(); ok {
+		_spec.SetField(tenant.FieldAccessKeepDays, field.TypeUint32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldAccessKeepDays); ok {
+		_spec.SetField(tenant.FieldAccessKeepDays, field.TypeUint32, e)
+	}
+	if value, ok := _u.mutation.AddedAccessKeepDays(); ok {
+		_spec.AddField(tenant.FieldAccessKeepDays, field.TypeUint32, value)
+	}
+	if _u.mutation.AccessKeepDaysCleared() {
+		_spec.ClearField(tenant.FieldAccessKeepDays, field.TypeUint32)
+	}
+	if value, ok := _u.mutation.RestoreDays(); ok {
+		_spec.SetField(tenant.FieldRestoreDays, field.TypeUint32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldRestoreDays); ok {
+		_spec.SetField(tenant.FieldRestoreDays, field.TypeUint32, e)
+	}
+	if value, ok := _u.mutation.AddedRestoreDays(); ok {
+		_spec.AddField(tenant.FieldRestoreDays, field.TypeUint32, value)
+	}
+	if _u.mutation.RestoreDaysCleared() {
+		_spec.ClearField(tenant.FieldRestoreDays, field.TypeUint32)
+	}
+	if value, ok := _u.mutation.KeepDaysBefore(); ok {
+		_spec.SetField(tenant.FieldKeepDaysBefore, field.TypeUint32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldKeepDaysBefore); ok {
+		_spec.SetField(tenant.FieldKeepDaysBefore, field.TypeUint32, e)
+	}
+	if value, ok := _u.mutation.AddedKeepDaysBefore(); ok {
+		_spec.AddField(tenant.FieldKeepDaysBefore, field.TypeUint32, value)
+	}
+	if _u.mutation.KeepDaysBeforeCleared() {
+		_spec.ClearField(tenant.FieldKeepDaysBefore, field.TypeUint32)
+	}
+	if value, ok := _u.mutation.DateKeepShortened(); ok {
+		_spec.SetField(tenant.FieldDateKeepShortened, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldDateKeepShortened); ok {
+		_spec.SetField(tenant.FieldDateKeepShortened, field.TypeTime, e)
+	}
+	if _u.mutation.DateKeepShortenedCleared() {
+		_spec.ClearField(tenant.FieldDateKeepShortened, field.TypeTime)
+	}
+	if value, ok := _u.mutation.AccessKeepDaysBefore(); ok {
+		_spec.SetField(tenant.FieldAccessKeepDaysBefore, field.TypeUint32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldAccessKeepDaysBefore); ok {
+		_spec.SetField(tenant.FieldAccessKeepDaysBefore, field.TypeUint32, e)
+	}
+	if value, ok := _u.mutation.AddedAccessKeepDaysBefore(); ok {
+		_spec.AddField(tenant.FieldAccessKeepDaysBefore, field.TypeUint32, value)
+	}
+	if _u.mutation.AccessKeepDaysBeforeCleared() {
+		_spec.ClearField(tenant.FieldAccessKeepDaysBefore, field.TypeUint32)
+	}
+	if value, ok := _u.mutation.DateAccessKeepShortened(); ok {
+		_spec.SetField(tenant.FieldDateAccessKeepShortened, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldDateAccessKeepShortened); ok {
+		_spec.SetField(tenant.FieldDateAccessKeepShortened, field.TypeTime, e)
+	}
+	if _u.mutation.DateAccessKeepShortenedCleared() {
+		_spec.ClearField(tenant.FieldDateAccessKeepShortened, field.TypeTime)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
@@ -600,6 +853,181 @@ func (_u *TenantUpdateOne) ClearNoShowMinutes() *TenantUpdateOne {
 	return _u
 }
 
+// SetKeepDays sets the "keep_days" field.
+func (_u *TenantUpdateOne) SetKeepDays(v uint32) *TenantUpdateOne {
+	_u.mutation.ResetKeepDays()
+	_u.mutation.SetKeepDays(v)
+	return _u
+}
+
+// SetNillableKeepDays sets the "keep_days" field if the given value is not nil.
+func (_u *TenantUpdateOne) SetNillableKeepDays(v *uint32) *TenantUpdateOne {
+	if v != nil {
+		_u.SetKeepDays(*v)
+	}
+	return _u
+}
+
+// AddKeepDays adds value to the "keep_days" field.
+func (_u *TenantUpdateOne) AddKeepDays(v int32) *TenantUpdateOne {
+	_u.mutation.AddKeepDays(v)
+	return _u
+}
+
+// ClearKeepDays clears the value of the "keep_days" field.
+func (_u *TenantUpdateOne) ClearKeepDays() *TenantUpdateOne {
+	_u.mutation.ClearKeepDays()
+	return _u
+}
+
+// SetAccessKeepDays sets the "access_keep_days" field.
+func (_u *TenantUpdateOne) SetAccessKeepDays(v uint32) *TenantUpdateOne {
+	_u.mutation.ResetAccessKeepDays()
+	_u.mutation.SetAccessKeepDays(v)
+	return _u
+}
+
+// SetNillableAccessKeepDays sets the "access_keep_days" field if the given value is not nil.
+func (_u *TenantUpdateOne) SetNillableAccessKeepDays(v *uint32) *TenantUpdateOne {
+	if v != nil {
+		_u.SetAccessKeepDays(*v)
+	}
+	return _u
+}
+
+// AddAccessKeepDays adds value to the "access_keep_days" field.
+func (_u *TenantUpdateOne) AddAccessKeepDays(v int32) *TenantUpdateOne {
+	_u.mutation.AddAccessKeepDays(v)
+	return _u
+}
+
+// ClearAccessKeepDays clears the value of the "access_keep_days" field.
+func (_u *TenantUpdateOne) ClearAccessKeepDays() *TenantUpdateOne {
+	_u.mutation.ClearAccessKeepDays()
+	return _u
+}
+
+// SetRestoreDays sets the "restore_days" field.
+func (_u *TenantUpdateOne) SetRestoreDays(v uint32) *TenantUpdateOne {
+	_u.mutation.ResetRestoreDays()
+	_u.mutation.SetRestoreDays(v)
+	return _u
+}
+
+// SetNillableRestoreDays sets the "restore_days" field if the given value is not nil.
+func (_u *TenantUpdateOne) SetNillableRestoreDays(v *uint32) *TenantUpdateOne {
+	if v != nil {
+		_u.SetRestoreDays(*v)
+	}
+	return _u
+}
+
+// AddRestoreDays adds value to the "restore_days" field.
+func (_u *TenantUpdateOne) AddRestoreDays(v int32) *TenantUpdateOne {
+	_u.mutation.AddRestoreDays(v)
+	return _u
+}
+
+// ClearRestoreDays clears the value of the "restore_days" field.
+func (_u *TenantUpdateOne) ClearRestoreDays() *TenantUpdateOne {
+	_u.mutation.ClearRestoreDays()
+	return _u
+}
+
+// SetKeepDaysBefore sets the "keep_days_before" field.
+func (_u *TenantUpdateOne) SetKeepDaysBefore(v uint32) *TenantUpdateOne {
+	_u.mutation.ResetKeepDaysBefore()
+	_u.mutation.SetKeepDaysBefore(v)
+	return _u
+}
+
+// SetNillableKeepDaysBefore sets the "keep_days_before" field if the given value is not nil.
+func (_u *TenantUpdateOne) SetNillableKeepDaysBefore(v *uint32) *TenantUpdateOne {
+	if v != nil {
+		_u.SetKeepDaysBefore(*v)
+	}
+	return _u
+}
+
+// AddKeepDaysBefore adds value to the "keep_days_before" field.
+func (_u *TenantUpdateOne) AddKeepDaysBefore(v int32) *TenantUpdateOne {
+	_u.mutation.AddKeepDaysBefore(v)
+	return _u
+}
+
+// ClearKeepDaysBefore clears the value of the "keep_days_before" field.
+func (_u *TenantUpdateOne) ClearKeepDaysBefore() *TenantUpdateOne {
+	_u.mutation.ClearKeepDaysBefore()
+	return _u
+}
+
+// SetDateKeepShortened sets the "date_keep_shortened" field.
+func (_u *TenantUpdateOne) SetDateKeepShortened(v time.Time) *TenantUpdateOne {
+	_u.mutation.SetDateKeepShortened(v)
+	return _u
+}
+
+// SetNillableDateKeepShortened sets the "date_keep_shortened" field if the given value is not nil.
+func (_u *TenantUpdateOne) SetNillableDateKeepShortened(v *time.Time) *TenantUpdateOne {
+	if v != nil {
+		_u.SetDateKeepShortened(*v)
+	}
+	return _u
+}
+
+// ClearDateKeepShortened clears the value of the "date_keep_shortened" field.
+func (_u *TenantUpdateOne) ClearDateKeepShortened() *TenantUpdateOne {
+	_u.mutation.ClearDateKeepShortened()
+	return _u
+}
+
+// SetAccessKeepDaysBefore sets the "access_keep_days_before" field.
+func (_u *TenantUpdateOne) SetAccessKeepDaysBefore(v uint32) *TenantUpdateOne {
+	_u.mutation.ResetAccessKeepDaysBefore()
+	_u.mutation.SetAccessKeepDaysBefore(v)
+	return _u
+}
+
+// SetNillableAccessKeepDaysBefore sets the "access_keep_days_before" field if the given value is not nil.
+func (_u *TenantUpdateOne) SetNillableAccessKeepDaysBefore(v *uint32) *TenantUpdateOne {
+	if v != nil {
+		_u.SetAccessKeepDaysBefore(*v)
+	}
+	return _u
+}
+
+// AddAccessKeepDaysBefore adds value to the "access_keep_days_before" field.
+func (_u *TenantUpdateOne) AddAccessKeepDaysBefore(v int32) *TenantUpdateOne {
+	_u.mutation.AddAccessKeepDaysBefore(v)
+	return _u
+}
+
+// ClearAccessKeepDaysBefore clears the value of the "access_keep_days_before" field.
+func (_u *TenantUpdateOne) ClearAccessKeepDaysBefore() *TenantUpdateOne {
+	_u.mutation.ClearAccessKeepDaysBefore()
+	return _u
+}
+
+// SetDateAccessKeepShortened sets the "date_access_keep_shortened" field.
+func (_u *TenantUpdateOne) SetDateAccessKeepShortened(v time.Time) *TenantUpdateOne {
+	_u.mutation.SetDateAccessKeepShortened(v)
+	return _u
+}
+
+// SetNillableDateAccessKeepShortened sets the "date_access_keep_shortened" field if the given value is not nil.
+func (_u *TenantUpdateOne) SetNillableDateAccessKeepShortened(v *time.Time) *TenantUpdateOne {
+	if v != nil {
+		_u.SetDateAccessKeepShortened(*v)
+	}
+	return _u
+}
+
+// ClearDateAccessKeepShortened clears the value of the "date_access_keep_shortened" field.
+func (_u *TenantUpdateOne) ClearDateAccessKeepShortened() *TenantUpdateOne {
+	_u.mutation.ClearDateAccessKeepShortened()
+	return _u
+}
+
 // Mutation returns the TenantMutation object of the builder.
 func (_u *TenantUpdateOne) Mutation() *TenantMutation {
 	return _u.mutation
@@ -772,6 +1200,84 @@ func (_u *TenantUpdateOne) sqlSave(ctx context.Context) (_node *Tenant, err erro
 	}
 	if _u.mutation.NoShowMinutesCleared() {
 		_spec.ClearField(tenant.FieldNoShowMinutes, field.TypeInt32)
+	}
+	if value, ok := _u.mutation.KeepDays(); ok {
+		_spec.SetField(tenant.FieldKeepDays, field.TypeUint32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldKeepDays); ok {
+		_spec.SetField(tenant.FieldKeepDays, field.TypeUint32, e)
+	}
+	if value, ok := _u.mutation.AddedKeepDays(); ok {
+		_spec.AddField(tenant.FieldKeepDays, field.TypeUint32, value)
+	}
+	if _u.mutation.KeepDaysCleared() {
+		_spec.ClearField(tenant.FieldKeepDays, field.TypeUint32)
+	}
+	if value, ok := _u.mutation.AccessKeepDays(); ok {
+		_spec.SetField(tenant.FieldAccessKeepDays, field.TypeUint32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldAccessKeepDays); ok {
+		_spec.SetField(tenant.FieldAccessKeepDays, field.TypeUint32, e)
+	}
+	if value, ok := _u.mutation.AddedAccessKeepDays(); ok {
+		_spec.AddField(tenant.FieldAccessKeepDays, field.TypeUint32, value)
+	}
+	if _u.mutation.AccessKeepDaysCleared() {
+		_spec.ClearField(tenant.FieldAccessKeepDays, field.TypeUint32)
+	}
+	if value, ok := _u.mutation.RestoreDays(); ok {
+		_spec.SetField(tenant.FieldRestoreDays, field.TypeUint32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldRestoreDays); ok {
+		_spec.SetField(tenant.FieldRestoreDays, field.TypeUint32, e)
+	}
+	if value, ok := _u.mutation.AddedRestoreDays(); ok {
+		_spec.AddField(tenant.FieldRestoreDays, field.TypeUint32, value)
+	}
+	if _u.mutation.RestoreDaysCleared() {
+		_spec.ClearField(tenant.FieldRestoreDays, field.TypeUint32)
+	}
+	if value, ok := _u.mutation.KeepDaysBefore(); ok {
+		_spec.SetField(tenant.FieldKeepDaysBefore, field.TypeUint32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldKeepDaysBefore); ok {
+		_spec.SetField(tenant.FieldKeepDaysBefore, field.TypeUint32, e)
+	}
+	if value, ok := _u.mutation.AddedKeepDaysBefore(); ok {
+		_spec.AddField(tenant.FieldKeepDaysBefore, field.TypeUint32, value)
+	}
+	if _u.mutation.KeepDaysBeforeCleared() {
+		_spec.ClearField(tenant.FieldKeepDaysBefore, field.TypeUint32)
+	}
+	if value, ok := _u.mutation.DateKeepShortened(); ok {
+		_spec.SetField(tenant.FieldDateKeepShortened, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldDateKeepShortened); ok {
+		_spec.SetField(tenant.FieldDateKeepShortened, field.TypeTime, e)
+	}
+	if _u.mutation.DateKeepShortenedCleared() {
+		_spec.ClearField(tenant.FieldDateKeepShortened, field.TypeTime)
+	}
+	if value, ok := _u.mutation.AccessKeepDaysBefore(); ok {
+		_spec.SetField(tenant.FieldAccessKeepDaysBefore, field.TypeUint32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldAccessKeepDaysBefore); ok {
+		_spec.SetField(tenant.FieldAccessKeepDaysBefore, field.TypeUint32, e)
+	}
+	if value, ok := _u.mutation.AddedAccessKeepDaysBefore(); ok {
+		_spec.AddField(tenant.FieldAccessKeepDaysBefore, field.TypeUint32, value)
+	}
+	if _u.mutation.AccessKeepDaysBeforeCleared() {
+		_spec.ClearField(tenant.FieldAccessKeepDaysBefore, field.TypeUint32)
+	}
+	if value, ok := _u.mutation.DateAccessKeepShortened(); ok {
+		_spec.SetField(tenant.FieldDateAccessKeepShortened, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenant.FieldDateAccessKeepShortened); ok {
+		_spec.SetField(tenant.FieldDateAccessKeepShortened, field.TypeTime, e)
+	}
+	if _u.mutation.DateAccessKeepShortenedCleared() {
+		_spec.ClearField(tenant.FieldDateAccessKeepShortened, field.TypeTime)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	_node = &Tenant{config: _u.config}

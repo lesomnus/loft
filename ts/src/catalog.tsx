@@ -28,20 +28,6 @@ export interface Catalog {
 	/** Whether the signed-in person is at least `role`. */
 	can: (role: 'member' | 'manager' | 'admin' | 'owner') => boolean
 
-	/**
-	 * How many days back the tenant's history goes for it, by its contract
-	 * (design 8.1). Zero is all of it.
-	 */
-	historyDays: number
-	/**
-	 * The oldest moment worth asking the history about, an hour inside the
-	 * window so that a page left open does not drift out of it; undefined is
-	 * all of it.
-	 */
-	historyFrom: () => Date | undefined
-	/** `d`, or the oldest moment worth asking about when `d` is older. */
-	inHistory: (d: Date) => Date
-
 	types: AssetType[]
 	models: ItemModel[]
 	parties: Party[]
@@ -98,18 +84,10 @@ export function CatalogProvider(props: { children: ReactNode }): ReactNode {
 			}
 			return names.join(' › ')
 		}
-		const days = me.data.historyDays
-		const historyFrom = (): Date | undefined => (days > 0 ? new Date(Date.now() - days * 86400_000 + 3600_000) : undefined)
 		return {
 			me: me.data,
 			role,
 			can: (r) => (levels[role] ?? 0) >= (levels[r] ?? 9),
-			historyDays: days,
-			historyFrom,
-			inHistory: (d) => {
-				const from = historyFrom()
-				return from !== undefined && d < from ? from : d
-			},
 			types: types.data?.items ?? [],
 			models: models.data?.items ?? [],
 			parties: parties.data?.items ?? [],
@@ -131,13 +109,6 @@ export function CatalogProvider(props: { children: ReactNode }): ReactNode {
 		return <div className="boot">{me.state === 'error' ? '불러오지 못했습니다.' : <Spinner />}</div>
 	}
 	return <Ctx.Provider value={v}>{props.children}</Ctx.Provider>
-}
-
-/** How far back the history goes, said where a page asks about the past; nothing when it is all of it. */
-export function HistoryDays(): ReactNode {
-	const c = useCatalog()
-	if (c.historyDays === 0) return null
-	return <> 이 조직은 최근 {c.historyDays}일의 이력을 볼 수 있습니다.</>
 }
 
 /** A model as people say it: maker and name. */

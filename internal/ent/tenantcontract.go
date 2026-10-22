@@ -23,18 +23,8 @@ type TenantContract struct {
 	Name string `json:"name,omitempty"`
 	// Desc holds the value of the "desc" field.
 	Desc string `json:"desc,omitempty"`
-	// ViewDays holds the value of the "view_days" field.
-	ViewDays uint32 `json:"view_days,omitempty"`
-	// KeepDays holds the value of the "keep_days" field.
-	KeepDays uint32 `json:"keep_days,omitempty"`
-	// GraceDays holds the value of the "grace_days" field.
-	GraceDays uint32 `json:"grace_days,omitempty"`
 	// DateEffective holds the value of the "date_effective" field.
 	DateEffective time.Time `json:"date_effective,omitempty"`
-	// AccessKeepDays holds the value of the "access_keep_days" field.
-	AccessKeepDays uint32 `json:"access_keep_days,omitempty"`
-	// RestoreDays holds the value of the "restore_days" field.
-	RestoreDays uint32 `json:"restore_days,omitempty"`
 	// PurgeFloors holds the value of the "purge_floors" field.
 	PurgeFloors bool `json:"purge_floors,omitempty"`
 	// DateErased holds the value of the "date_erased" field.
@@ -76,8 +66,6 @@ func (*TenantContract) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case tenantcontract.FieldPurgeFloors:
 			values[i] = new(sql.NullBool)
-		case tenantcontract.FieldViewDays, tenantcontract.FieldKeepDays, tenantcontract.FieldGraceDays, tenantcontract.FieldAccessKeepDays, tenantcontract.FieldRestoreDays:
-			values[i] = new(sql.NullInt64)
 		case tenantcontract.FieldName, tenantcontract.FieldDesc:
 			values[i] = new(sql.NullString)
 		case tenantcontract.FieldDateEffective, tenantcontract.FieldDateErased, tenantcontract.FieldDateCreated:
@@ -117,41 +105,11 @@ func (_m *TenantContract) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Desc = value.String
 			}
-		case tenantcontract.FieldViewDays:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field view_days", values[i])
-			} else if value.Valid {
-				_m.ViewDays = uint32(value.Int64)
-			}
-		case tenantcontract.FieldKeepDays:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field keep_days", values[i])
-			} else if value.Valid {
-				_m.KeepDays = uint32(value.Int64)
-			}
-		case tenantcontract.FieldGraceDays:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field grace_days", values[i])
-			} else if value.Valid {
-				_m.GraceDays = uint32(value.Int64)
-			}
 		case tenantcontract.FieldDateEffective:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field date_effective", values[i])
 			} else if value.Valid {
 				_m.DateEffective = value.Time
-			}
-		case tenantcontract.FieldAccessKeepDays:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field access_keep_days", values[i])
-			} else if value.Valid {
-				_m.AccessKeepDays = uint32(value.Int64)
-			}
-		case tenantcontract.FieldRestoreDays:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field restore_days", values[i])
-			} else if value.Valid {
-				_m.RestoreDays = uint32(value.Int64)
 			}
 		case tenantcontract.FieldPurgeFloors:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -225,23 +183,8 @@ func (_m *TenantContract) String() string {
 	builder.WriteString("desc=")
 	builder.WriteString(_m.Desc)
 	builder.WriteString(", ")
-	builder.WriteString("view_days=")
-	builder.WriteString(fmt.Sprintf("%v", _m.ViewDays))
-	builder.WriteString(", ")
-	builder.WriteString("keep_days=")
-	builder.WriteString(fmt.Sprintf("%v", _m.KeepDays))
-	builder.WriteString(", ")
-	builder.WriteString("grace_days=")
-	builder.WriteString(fmt.Sprintf("%v", _m.GraceDays))
-	builder.WriteString(", ")
 	builder.WriteString("date_effective=")
 	builder.WriteString(_m.DateEffective.Format(time.ANSIC))
-	builder.WriteString(", ")
-	builder.WriteString("access_keep_days=")
-	builder.WriteString(fmt.Sprintf("%v", _m.AccessKeepDays))
-	builder.WriteString(", ")
-	builder.WriteString("restore_days=")
-	builder.WriteString(fmt.Sprintf("%v", _m.RestoreDays))
 	builder.WriteString(", ")
 	builder.WriteString("purge_floors=")
 	builder.WriteString(fmt.Sprintf("%v", _m.PurgeFloors))

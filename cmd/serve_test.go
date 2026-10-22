@@ -161,7 +161,7 @@ func TestTheRoleTable(t *testing.T) {
 	_, err = app.NewEventServiceClient(w.conn).Add(w.owner, app.EventAddRequest_builder{Kind: "forged"}.Build())
 	x.Equal(codes.PermissionDenied, code(err))
 	_, err = app.NewPlacementServiceClient(w.conn).List(w.owner, app.PlacementListRequest_builder{}.Build())
-	x.Equal(codes.PermissionDenied, code(err), "the time rows are read through the history, which keeps to the view window")
+	x.Equal(codes.PermissionDenied, code(err), "the time rows are read through the history, which tells them as what they were")
 
 	_, err = app.NewAuditServiceClient(w.conn).Recent(auditor, app.AuditRecentRequest_builder{}.Build())
 	x.NoError(err, "the trail is what an auditor is for")
@@ -419,10 +419,11 @@ func TestARosterThatCannotBeAskedServesNoSession(t *testing.T) {
 
 // TestAContractIsTheOperators.
 //
-// What a tenant's history is kept for is its contract, and a tenant that could
-// write its own would be extending its own plan. So everybody in the tenant
-// reads it, nobody writes it, and the holds on it are for the people who run
-// the tenant -- and the wall keeps one tenant's out of another's sight.
+// What the deployment owes a workspace beyond its own settings is the
+// operator's agreement with it, and a tenant that could write its own would be
+// rewriting the agreement. So everybody in the tenant reads it, nobody writes
+// it, and the holds on it are for the people who run the tenant -- and the
+// wall keeps one tenant's out of another's sight.
 func TestAContractIsTheOperators(t *testing.T) {
 	w := newWorld(t)
 	x := w.x
@@ -437,19 +438,18 @@ func TestAContractIsTheOperators(t *testing.T) {
 	x.NoError(err)
 	for _, tn := range []*app.Tenant{w.tenant, other} {
 		_, err := w.s.Base.TenantContract().Add(ctx, app.TenantContractAddRequest_builder{
-			Tenant:   app.TenantRef_builder{Id: tn.GetId()}.Build(),
-			Name:     tn.GetAlias(),
-			KeepDays: 730,
+			Tenant: app.TenantRef_builder{Id: tn.GetId()}.Build(),
+			Name:   tn.GetAlias(),
 		}.Build())
 		x.NoError(err)
 	}
 
 	vs, err := contracts.List(member, app.TenantContractListRequest_builder{}.Build())
-	x.NoError(err, "a member cannot read how long their history is kept")
+	x.NoError(err, "a member cannot read their workspace's agreement")
 	x.Len(vs.GetItems(), 1, "a tenant read another's contract")
 	x.Equal("acme", vs.GetItems()[0].GetName())
 
-	_, err = contracts.Add(w.owner, app.TenantContractAddRequest_builder{KeepDays: 0}.Build())
+	_, err = contracts.Add(w.owner, app.TenantContractAddRequest_builder{PurgeFloors: z.Ptr(true)}.Build())
 	x.Equal(codes.PermissionDenied, code(err), "an owner wrote their own contract")
 
 	_, err = holds.List(member, app.LegalHoldListRequest_builder{}.Build())

@@ -111,12 +111,6 @@ func (s domainParty) Me(ctx context.Context, _ *app.PartyMeRequest) (*app.PartyM
 	if s.deps.People != nil {
 		out.SetAccountUrl(s.deps.People.AccountPage())
 	}
-	if w, err := t.window(); err != nil {
-		return nil, err
-	} else if since := w.Since(t.now); !since.IsZero() {
-		out.SetHistorySince(ts(since))
-		out.SetHistoryDays(uint32(w.View / (24 * time.Hour)))
-	}
 	if p, err := t.db.Party.Query().Where(party.TenantId(t.tenant.Uuid()), party.HolderId(t.actor.Uuid()), party.DateErasedIsNil()).First(ctx); err == nil {
 		if v, err := t.next.Party().Get(ctx, app.PartyGetRequest_builder{Ref: app.PartyRef_builder{Id: pdid.Id(p.Id).Bytes()}.Build()}.Build()); err == nil {
 			out.SetParty(v)

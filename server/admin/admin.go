@@ -180,6 +180,7 @@ type Workspace struct {
 // Detail is one workspace, with who is in it and what it is held to.
 type Detail struct {
 	Workspace
+	Keeping   Keeping    `json:"keeping"`
 	People    []Member   `json:"people"`
 	Contracts []Contract `json:"contracts"`
 	Holds     []Hold     `json:"holds"`
@@ -193,17 +194,21 @@ type Member struct {
 	Leaving *time.Time `json:"leaving,omitempty"`
 }
 
-// Contract is what a workspace's history is held to from a moment on: every
-// term of a `TenantContract` an operator writes.
-type Contract struct {
-	Name      string `json:"name"`
-	Desc      string `json:"desc,omitempty"`
-	ViewDays  uint32 `json:"view_days"`
-	KeepDays  uint32 `json:"keep_days"`
-	GraceDays uint32 `json:"grace_days"`
-	// AccessKeepDays and RestoreDays are the deployment's when 0 (#144).
+// Keeping is how long a workspace keeps its history and its access record,
+// and may be restored once closed: its own settings, its owner's to say
+// (D36), which an operator reads and does not write. KeepDays 0 is forever;
+// AccessKeepDays and RestoreDays 0 are the deployment's.
+type Keeping struct {
+	KeepDays       uint32 `json:"keep_days"`
 	AccessKeepDays uint32 `json:"access_keep_days"`
 	RestoreDays    uint32 `json:"restore_days"`
+}
+
+// Contract is what the operator's agreement with a workspace says from a
+// moment on: every term of a `TenantContract` an operator writes.
+type Contract struct {
+	Name string `json:"name"`
+	Desc string `json:"desc,omitempty"`
 	// PurgeFloors is a workspace destroyed purged, what the deployment's
 	// floors are on with it, and not retired (payday#115).
 	PurgeFloors bool      `json:"purge_floors"`
@@ -291,6 +296,7 @@ func (a Routes) show(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	out := Detail{Workspace: v, People: []Member{}, Contracts: []Contract{}, Holds: []Hold{}}
+	out.Keeping = Keeping{KeepDays: t.KeepDays, AccessKeepDays: t.AccessKeepDays, RestoreDays: t.RestoreDays}
 	hs, err := a.S.Ent.Holder.Query().Where(holder.TenantId(t.Id), holder.DateErasedIsNil()).Order(ent.Asc(holder.FieldAlias)).All(ctx)
 	if err != nil {
 		fail(w, r, err)
@@ -309,9 +315,7 @@ func (a Routes) show(w http.ResponseWriter, r *http.Request) {
 	}
 	for _, c := range cs {
 		out.Contracts = append(out.Contracts, Contract{
-			Name: c.Name, Desc: c.Desc,
-			ViewDays: c.ViewDays, KeepDays: c.KeepDays, GraceDays: c.GraceDays,
-			AccessKeepDays: c.AccessKeepDays, RestoreDays: c.RestoreDays, PurgeFloors: c.PurgeFloors,
+			Name: c.Name, Desc: c.Desc, PurgeFloors: c.PurgeFloors,
 			Effective: c.DateEffective,
 		})
 	}
@@ -427,15 +431,10 @@ func (a Routes) contract(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var in struct {
-		Name           string     `json:"name"`
-		Desc           string     `json:"desc"`
-		ViewDays       uint32     `json:"view_days"`
-		KeepDays       uint32     `json:"keep_days"`
-		GraceDays      uint32     `json:"grace_days"`
-		AccessKeepDays uint32     `json:"access_keep_days"`
-		RestoreDays    uint32     `json:"restore_days"`
-		PurgeFloors    bool       `json:"purge_floors"`
-		Effective      *time.Time `json:"effective"`
+		Name        string     `json:"name"`
+		Desc        string     `json:"desc"`
+		PurgeFloors bool       `json:"purge_floors"`
+		Effective   *time.Time `json:"effective"`
 	}
 	if !read(w, r, &in) {
 		return
@@ -445,16 +444,11 @@ func (a Routes) contract(w http.ResponseWriter, r *http.Request) {
 		at = *in.Effective
 	}
 	if _, err := a.S.Base.TenantContract().Add(r.Context(), app.TenantContractAddRequest_builder{
-		Tenant:         app.TenantRef_builder{Id: t.Id[:]}.Build(),
-		Name:           strings.TrimSpace(in.Name),
-		Desc:           strings.TrimSpace(in.Desc),
-		ViewDays:       in.ViewDays,
-		KeepDays:       in.KeepDays,
-		GraceDays:      in.GraceDays,
-		AccessKeepDays: &in.AccessKeepDays,
-		RestoreDays:    &in.RestoreDays,
-		PurgeFloors:    &in.PurgeFloors,
-		DateEffective:  timestamppb.New(at),
+		Tenant:        app.TenantRef_builder{Id: t.Id[:]}.Build(),
+		Name:          strings.TrimSpace(in.Name),
+		Desc:          strings.TrimSpace(in.Desc),
+		PurgeFloors:   &in.PurgeFloors,
+		DateEffective: timestamppb.New(at),
 	}.Build()); err != nil {
 		fail(w, r, err)
 		return

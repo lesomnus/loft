@@ -306,3 +306,39 @@ func TestAWorkspaceLeavesAndComesBackThroughStdio(t *testing.T) {
 	x.NoError(err)
 	x.Empty(left, "the copy stdin was written to does not outlive the command")
 }
+
+// TestAContractShowsWhatTheWorkspaceKeeps (D36): how long a workspace keeps its
+// history is its own setting, which `rove contract show` says beside its
+// contracts -- a window made shorter, until when the longer one holds -- and
+// which no contract writes any more.
+func TestAContractShowsWhatTheWorkspaceKeeps(t *testing.T) {
+	x := require.New(t)
+	ctx := context.Background()
+
+	c := cmd.Config{}
+	c.Db.Driver, c.Db.Dsn = pdtest.DB(t)
+	c.Watch.Broker = "memory"
+	c.App.Files = t.TempDir()
+	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
+	run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234")
+
+	out := run(t, cli.NewCmdContract(&c), "show", "--tenant", "acme")
+	x.Contains(out, "history: kept forever", "a workspace that says nothing")
+	x.Contains(out, "no contract: a destroyed workspace retires")
+
+	s, err := cmd.Build(ctx, c)
+	x.NoError(err)
+	tn, err := s.Ent.Tenant.Query().Where(tenant.Alias("acme")).Only(ctx)
+	x.NoError(err)
+	since := time.Now().Add(-24 * time.Hour)
+	_, err = s.Ent.Tenant.UpdateOneId(tn.Id).SetKeepDays(180).SetKeepDaysBefore(0).SetDateKeepShortened(since).Save(ctx)
+	x.NoError(err)
+	s.Close()
+
+	out = run(t, cli.NewCmdContract(&c), "show", "--tenant", "acme")
+	x.Contains(out, "history: kept forever", "made shorter yesterday, and the grace not over")
+	x.Contains(out, "until "+since.Add(30*24*time.Hour).UTC().Format(time.DateOnly)+", then 180d")
+
+	err = cli.NewCmdContract(&c).Run(ctx, []string{"set", "--tenant", "acme", "--name", "pro", "--keep", "30"})
+	x.Error(err, "a workspace's own window, written by a contract")
+}

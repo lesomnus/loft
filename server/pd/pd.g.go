@@ -22022,6 +22022,11 @@ func (s interceptTenant) Configure(ctx context.Context, req *rove.TenantConfigur
 		rove.TenantService_Configure_FullMethodName, req, s.TenantServiceServer.Configure)
 }
 
+func (s interceptTenant) Preview(ctx context.Context, req *rove.TenantPreviewRequest) (*rove.TenantPreviewResponse, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.TenantServiceServer,
+		rove.TenantService_Preview_FullMethodName, req, s.TenantServiceServer.Preview)
+}
+
 func (s Intercept) AssetType() rove.AssetTypeServiceServer {
 	return interceptAssetType{s, s.Next().AssetType()}
 }
@@ -25413,6 +25418,8 @@ func unpack(op *pdpb.Op) (proto.Message, error) {
 		v = &rove.TenantRestoreRequest{}
 	case rove.TenantService_Configure_FullMethodName:
 		v = &rove.TenantConfigureRequest{}
+	case rove.TenantService_Preview_FullMethodName:
+		v = &rove.TenantPreviewRequest{}
 	case rove.AssetTypeService_Add_FullMethodName:
 		v = &rove.AssetTypeAddRequest{}
 	case rove.AssetTypeService_Get_FullMethodName:
@@ -25973,6 +25980,8 @@ func dispatch(ctx context.Context, s rove.Server, m string, v proto.Message) (*a
 		res, err = s.Tenant().Restore(ctx, v.(*rove.TenantRestoreRequest))
 	case rove.TenantService_Configure_FullMethodName:
 		res, err = s.Tenant().Configure(ctx, v.(*rove.TenantConfigureRequest))
+	case rove.TenantService_Preview_FullMethodName:
+		res, err = s.Tenant().Preview(ctx, v.(*rove.TenantPreviewRequest))
 	case rove.AssetTypeService_Add_FullMethodName:
 		res, err = s.AssetType().Add(ctx, v.(*rove.AssetTypeAddRequest))
 	case rove.AssetTypeService_Get_FullMethodName:
@@ -27774,6 +27783,13 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				{Number: 12, Name: tenant.FieldTimezone, Type: 9, Nullable: false, Key: 0},
 				{Number: 16, Name: tenant.FieldCurrency, Type: 9, Nullable: false, Key: 0},
 				{Number: 17, Name: tenant.FieldNoShowMinutes, Type: 5, Nullable: false, Key: 0},
+				{Number: 18, Name: tenant.FieldKeepDays, Type: 13, Nullable: false, Key: 0},
+				{Number: 19, Name: tenant.FieldAccessKeepDays, Type: 13, Nullable: false, Key: 0},
+				{Number: 20, Name: tenant.FieldRestoreDays, Type: 13, Nullable: false, Key: 0},
+				{Number: 21, Name: tenant.FieldKeepDaysBefore, Type: 13, Nullable: false, Key: 0},
+				{Number: 22, Name: tenant.FieldDateKeepShortened, Type: 65, Nullable: true, Key: 0},
+				{Number: 23, Name: tenant.FieldAccessKeepDaysBefore, Type: 13, Nullable: false, Key: 0},
+				{Number: 24, Name: tenant.FieldDateAccessKeepShortened, Type: 65, Nullable: true, Key: 0},
 			}, v)
 			if err != nil {
 				return nil, err
@@ -27805,12 +27821,7 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				{Number: 2, Name: tenantcontract.TenantColumn, Type: 64, Nullable: false, Key: 1},
 				{Number: 5, Name: tenantcontract.FieldName, Type: 9, Nullable: false, Key: 0},
 				{Number: 6, Name: tenantcontract.FieldDesc, Type: 9, Nullable: false, Key: 0},
-				{Number: 8, Name: tenantcontract.FieldViewDays, Type: 13, Nullable: false, Key: 0},
-				{Number: 9, Name: tenantcontract.FieldKeepDays, Type: 13, Nullable: false, Key: 0},
-				{Number: 10, Name: tenantcontract.FieldGraceDays, Type: 13, Nullable: false, Key: 0},
 				{Number: 11, Name: tenantcontract.FieldDateEffective, Type: 65, Nullable: false, Key: 0},
-				{Number: 12, Name: tenantcontract.FieldAccessKeepDays, Type: 13, Nullable: false, Key: 0},
-				{Number: 16, Name: tenantcontract.FieldRestoreDays, Type: 13, Nullable: false, Key: 0},
 				{Number: 17, Name: tenantcontract.FieldPurgeFloors, Type: 8, Nullable: false, Key: 0},
 				{Number: 14, Name: tenantcontract.FieldDateErased, Type: 65, Nullable: true, Key: 0},
 				{Number: 15, Name: tenantcontract.FieldDateCreated, Type: 65, Nullable: false, Key: 0},

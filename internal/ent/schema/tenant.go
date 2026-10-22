@@ -47,6 +47,27 @@ func (Tenant) Fields() []ent.Field {
 		field.Int32("no_show_minutes").
 			Optional().
 			Default(0),
+		field.Uint32("keep_days").
+			Optional().
+			Default(0),
+		field.Uint32("access_keep_days").
+			Optional().
+			Default(0),
+		field.Uint32("restore_days").
+			Optional().
+			Default(0),
+		field.Uint32("keep_days_before").
+			Optional().
+			Default(0),
+		field.Time("date_keep_shortened").
+			Nillable().
+			Optional(),
+		field.Uint32("access_keep_days_before").
+			Optional().
+			Default(0),
+		field.Time("date_access_keep_shortened").
+			Nillable().
+			Optional(),
 	}
 }
 

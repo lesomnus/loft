@@ -47,10 +47,16 @@ func (s Domain) Tenant() app.TenantServiceServer { return domainTenant{s, s.Next
 // its address, which nobody chose and only an operator moves (`rove tenant
 // alias`), and whether it is closed, which Close and Restore say. Its zone,
 // currency and check-in rule are its own (#144), and are held to what can be
-// told in.
+// told in; and how long it keeps its history (D36), which a grace holds a
+// shorter window to: all of them Configure's.
 func (s domainTenant) Patch(ctx context.Context, req *app.TenantPatchRequest) (*app.Tenant, error) {
 	if req.HasTimezone() || req.HasCurrency() || req.HasNoShowMinutes() {
 		return nil, invalid("timezone", "시간대, 통화와 노쇼 해제는 TenantService.Configure로 정합니다")
+	}
+	if req.HasKeepDays() || req.HasAccessKeepDays() || req.HasRestoreDays() ||
+		req.HasKeepDaysBefore() || req.HasDateKeepShortened() || req.GetDateKeepShortenedNull() ||
+		req.HasAccessKeepDaysBefore() || req.HasDateAccessKeepShortened() || req.GetDateAccessKeepShortenedNull() {
+		return nil, invalid("keep_days", "보존 기간과 복구 기간은 TenantService.Configure로 정합니다")
 	}
 	if req.HasAlias() {
 		return nil, invalid("alias", "워크스페이스 주소는 바꿀 수 없습니다. 바꿔야 한다면 운영자에게 요청하세요")
@@ -62,8 +68,10 @@ func (s domainTenant) Patch(ctx context.Context, req *app.TenantPatchRequest) (*
 }
 
 // Configure is the workspace's own settings, its owner's to say (#144): its
-// zone, its currency and how long a room waits for whoever booked it. One
-// operation, with an event that says what it came to.
+// zone, its currency, how long a room waits for whoever booked it, and how
+// long it keeps its history and its access record and may be restored once
+// closed (D36). One operation, with an event that says what it came to -- a
+// window made shorter, from when it is.
 func (s domainTenant) Configure(ctx context.Context, req *app.TenantConfigureRequest) (*app.Tenant, error) {
 	if req.HasTimezone() {
 		if err := checkZone(req.GetTimezone()); err != nil {
@@ -77,6 +85,9 @@ func (s domainTenant) Configure(ctx context.Context, req *app.TenantConfigureReq
 	}
 	if req.HasNoShowMinutes() && req.GetNoShowMinutes() > maxNoShowMinutes {
 		return nil, invalid("no_show_minutes", "노쇼 해제는 %d분(하루) 안에서 정합니다. 체크인을 받지 않으려면 음수를 넣으세요", maxNoShowMinutes)
+	}
+	if err := s.deps.checkKeep(days(req.HasKeepDays(), req.GetKeepDays()), days(req.HasAccessKeepDays(), req.GetAccessKeepDays()), days(req.HasRestoreDays(), req.GetRestoreDays())); err != nil {
+		return nil, err
 	}
 
 	var out *app.Tenant
@@ -98,6 +109,9 @@ func (s domainTenant) Configure(ctx context.Context, req *app.TenantConfigureReq
 		if req.HasNoShowMinutes() {
 			patch.SetNoShowMinutes(req.GetNoShowMinutes())
 			said["no_show_minutes"] = fmt.Sprint(req.GetNoShowMinutes())
+		}
+		if err := t.keepPatch(req, patch, said); err != nil {
+			return err
 		}
 		if len(said) == 0 {
 			v, err := t.next.Tenant().Get(t.ctx, app.TenantGetRequest_builder{Ref: t.tenantRef()}.Build())
@@ -209,7 +223,7 @@ func (d *Deps) NameOwner(ctx context.Context, server app.Server, drv dialect.Dri
 }
 
 // restoreWithin is how long this workspace may be restored once closed: its
-// contract's, or the deployment's (#144).
+// own, or the deployment's (#144, D36).
 func (t *Tx) restoreWithin() time.Duration {
 	if w, err := t.window(); err == nil && w.Restore > 0 {
 		return w.Restore
@@ -218,8 +232,8 @@ func (t *Tx) restoreWithin() time.Duration {
 	return t.deps.restoreWithin()
 }
 
-// restoreWithin is how long a closed workspace may be restored, where its
-// contract says nothing.
+// restoreWithin is how long a closed workspace may be restored, where it
+// says nothing.
 func (d *Deps) restoreWithin() time.Duration {
 	if d == nil || d.RestoreWithin <= 0 {
 		return 30 * 24 * time.Hour

@@ -205,30 +205,3 @@ func TestAWorkspaceSaysWhereItIs(t *testing.T) {
 		x.Equal("KRW", me.GetCurrency())
 	})
 }
-
-// TestAClosedWorkspaceIsKeptAsItsContractSays (#144): how long a closed
-// workspace may be restored is its contract's, the deployment's where it says
-// none -- and what its owner is told at the close.
-func TestAClosedWorkspaceIsKeptAsItsContractSays(t *testing.T) {
-	e := newEnv(t)
-	x := e.x
-	ws := app.TenantRef_builder{Id: e.tenant.Bytes()}.Build()
-
-	_, err := e.s.Base.TenantContract().Add(e.owner, app.TenantContractAddRequest_builder{
-		Tenant:        ws,
-		Name:          "enterprise",
-		RestoreDays:   z.Ptr(uint32(90)),
-		DateEffective: timestamppb.New(e.now.Add(-time.Hour)),
-	}.Build())
-	x.NoError(err)
-
-	me, err := e.app().Party().Me(e.owner, &app.PartyMeRequest{})
-	x.NoError(err)
-	x.EqualValues(90, me.GetRestoreDays(), "what the owner is told before the close")
-
-	cur, err := e.app().Tenant().Get(e.owner, app.TenantGetRequest_builder{Ref: ws}.Build())
-	x.NoError(err)
-	v, err := e.app().Tenant().Close(e.owner, app.TenantCloseRequest_builder{Ref: ws, Confirm: cur.GetName()}.Build())
-	x.NoError(err)
-	x.WithinDuration(e.now.Add(90*24*time.Hour), v.GetDateDestroy().AsTime(), time.Minute, "destroyed on the deployment's window, not the contract's")
-}

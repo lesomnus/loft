@@ -124,9 +124,9 @@ func TestAnOperatorWorksFromOutsideTheBox(t *testing.T) {
 	_, err = d.admin(t, "workspace", "alias", "--to", "acme", "--yes", "acme-two")
 	x.ErrorContains(err, "held", "the old address is held, and not taken back by accident")
 
-	out = must("contract", "set", "--name", "pilot", "--view", "30", "--keep", "60", "--yes", "acme-two")
+	out = must("contract", "set", "--name", "pilot", "--yes", "acme-two")
 	x.Contains(out, "contract\t")
-	x.Contains(out, "pilot\tview 30d keep 60d grace 0 access the deployment's restore the deployment's, then retire")
+	x.Contains(out, "pilot\tthen retire")
 
 	out = must("hold", "place", "--why", "a case", "--yes", "acme-two")
 	x.Contains(out, "a case\theld")
@@ -150,38 +150,40 @@ func TestAnOperatorWorksFromOutsideTheBox(t *testing.T) {
 }
 
 // TestAnOperatorWritesEveryTermOfAContract: `contract set` at the entry point
-// writes every term a contract has -- the access record's keep and the
-// restore window (#144), and whether a destroyed workspace's trail goes whole
-// (payday#115), as well as the windows -- and `show` says each.
+// writes every term a contract has -- whether a destroyed workspace's trail
+// goes whole (payday#115), and from when -- and `show` says each, beside how
+// long the workspace keeps its history by its own settings (D36), which an
+// operator reads and does not write.
 func TestAnOperatorWritesEveryTermOfAContract(t *testing.T) {
 	x := require.New(t)
 	d := deploy(t)
 	ctx := context.Background()
 
-	out, err := d.admin(t, "contract", "set", "--name", "enterprise", "--desc", "agreement 2026-7",
-		"--view", "30", "--keep", "60", "--grace", "7", "--access-keep", "730", "--restore", "90", "--purge-floors",
-		"--effective", "2026-01-01", "--yes", "acme")
-	x.NoError(err, out)
-	x.Contains(out, "enterprise\tview 30d keep 60d grace 7 access 730d restore 90d, then purge\tagreement 2026-7")
-
 	tn, err := d.s.Ent.Tenant.Query().Where(tenant.Alias("acme")).Only(ctx)
 	x.NoError(err)
+	_, err = d.s.Ent.Tenant.UpdateOneId(tn.Id).SetKeepDays(730).SetRestoreDays(90).Save(ctx)
+	x.NoError(err)
+
+	out, err := d.admin(t, "contract", "set", "--name", "enterprise", "--desc", "agreement 2026-7", "--purge-floors",
+		"--effective", "2026-01-01", "--yes", "acme")
+	x.NoError(err, out)
+	x.Contains(out, "enterprise\tthen purge\tagreement 2026-7")
+	x.Contains(out, "keeps\thistory 730d, access record the deployment's, restore 90d", "the workspace's own settings")
+
 	v, err := d.s.Ent.TenantContract.Query().Where(tenantcontract.TenantIdEQ(tn.Id)).Only(ctx)
 	x.NoError(err)
 	x.Equal("enterprise", v.Name)
 	x.Equal("agreement 2026-7", v.Desc)
-	x.EqualValues(30, v.ViewDays)
-	x.EqualValues(60, v.KeepDays)
-	x.EqualValues(7, v.GraceDays)
-	x.EqualValues(730, v.AccessKeepDays)
-	x.EqualValues(90, v.RestoreDays)
 	x.True(v.PurgeFloors)
 	x.Equal("2026-01-01", v.DateEffective.Local().Format(time.DateOnly))
 
-	// One that says none of them is the deployment's, and retires.
-	out, err = d.admin(t, "contract", "set", "--name", "free", "--yes", "acme")
+	// One that says nothing more retires.
+	out, err = d.admin(t, "contract", "set", "--name", "standard", "--yes", "acme")
 	x.NoError(err, out)
-	x.Contains(out, "free\tview all keep forever grace 0 access the deployment's restore the deployment's, then retire")
+	x.Contains(out, "standard\tthen retire")
+
+	_, err = d.admin(t, "contract", "set", "--name", "pro", "--keep", "60", "--yes", "acme")
+	x.Error(err, "a workspace's own window, written by an operator")
 }
 
 // TestTheEntryPointAnswersOnlyAnOperatorsKey: a request without a key, or

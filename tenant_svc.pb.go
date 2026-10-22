@@ -23,24 +23,31 @@ const (
 )
 
 type TenantAddRequest struct {
-	state                    protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id            []byte                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Alias         string                 `protobuf:"bytes,4,opt,name=alias"`
-	xxx_hidden_Name          string                 `protobuf:"bytes,5,opt,name=name"`
-	xxx_hidden_Desc          string                 `protobuf:"bytes,6,opt,name=desc"`
-	xxx_hidden_Labels        map[string]string      `protobuf:"bytes,7,rep,name=labels" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	xxx_hidden_DateCreated   *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_DateClosed    *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=date_closed,json=dateClosed"`
-	xxx_hidden_ClosedBy      string                 `protobuf:"bytes,9,opt,name=closed_by,json=closedBy"`
-	xxx_hidden_CloseReason   string                 `protobuf:"bytes,10,opt,name=close_reason,json=closeReason"`
-	xxx_hidden_DateDestroy   *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=date_destroy,json=dateDestroy"`
-	xxx_hidden_Timezone      *string                `protobuf:"bytes,12,opt,name=timezone"`
-	xxx_hidden_Currency      *string                `protobuf:"bytes,16,opt,name=currency"`
-	xxx_hidden_NoShowMinutes int32                  `protobuf:"varint,17,opt,name=no_show_minutes,json=noShowMinutes"`
-	XXX_raceDetectHookData   protoimpl.RaceDetectHookData
-	XXX_presence             [1]uint32
-	unknownFields            protoimpl.UnknownFields
-	sizeCache                protoimpl.SizeCache
+	state                              protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id                      []byte                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Alias                   string                 `protobuf:"bytes,4,opt,name=alias"`
+	xxx_hidden_Name                    string                 `protobuf:"bytes,5,opt,name=name"`
+	xxx_hidden_Desc                    string                 `protobuf:"bytes,6,opt,name=desc"`
+	xxx_hidden_Labels                  map[string]string      `protobuf:"bytes,7,rep,name=labels" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	xxx_hidden_DateCreated             *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
+	xxx_hidden_DateClosed              *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=date_closed,json=dateClosed"`
+	xxx_hidden_ClosedBy                string                 `protobuf:"bytes,9,opt,name=closed_by,json=closedBy"`
+	xxx_hidden_CloseReason             string                 `protobuf:"bytes,10,opt,name=close_reason,json=closeReason"`
+	xxx_hidden_DateDestroy             *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=date_destroy,json=dateDestroy"`
+	xxx_hidden_Timezone                *string                `protobuf:"bytes,12,opt,name=timezone"`
+	xxx_hidden_Currency                *string                `protobuf:"bytes,16,opt,name=currency"`
+	xxx_hidden_NoShowMinutes           int32                  `protobuf:"varint,17,opt,name=no_show_minutes,json=noShowMinutes"`
+	xxx_hidden_KeepDays                uint32                 `protobuf:"varint,18,opt,name=keep_days,json=keepDays"`
+	xxx_hidden_AccessKeepDays          uint32                 `protobuf:"varint,19,opt,name=access_keep_days,json=accessKeepDays"`
+	xxx_hidden_RestoreDays             uint32                 `protobuf:"varint,20,opt,name=restore_days,json=restoreDays"`
+	xxx_hidden_KeepDaysBefore          uint32                 `protobuf:"varint,21,opt,name=keep_days_before,json=keepDaysBefore"`
+	xxx_hidden_DateKeepShortened       *timestamppb.Timestamp `protobuf:"bytes,22,opt,name=date_keep_shortened,json=dateKeepShortened"`
+	xxx_hidden_AccessKeepDaysBefore    uint32                 `protobuf:"varint,23,opt,name=access_keep_days_before,json=accessKeepDaysBefore"`
+	xxx_hidden_DateAccessKeepShortened *timestamppb.Timestamp `protobuf:"bytes,24,opt,name=date_access_keep_shortened,json=dateAccessKeepShortened"`
+	XXX_raceDetectHookData             protoimpl.RaceDetectHookData
+	XXX_presence                       [1]uint32
+	unknownFields                      protoimpl.UnknownFields
+	sizeCache                          protoimpl.SizeCache
 }
 
 func (x *TenantAddRequest) Reset() {
@@ -165,12 +172,61 @@ func (x *TenantAddRequest) GetNoShowMinutes() int32 {
 	return 0
 }
 
+func (x *TenantAddRequest) GetKeepDays() uint32 {
+	if x != nil {
+		return x.xxx_hidden_KeepDays
+	}
+	return 0
+}
+
+func (x *TenantAddRequest) GetAccessKeepDays() uint32 {
+	if x != nil {
+		return x.xxx_hidden_AccessKeepDays
+	}
+	return 0
+}
+
+func (x *TenantAddRequest) GetRestoreDays() uint32 {
+	if x != nil {
+		return x.xxx_hidden_RestoreDays
+	}
+	return 0
+}
+
+func (x *TenantAddRequest) GetKeepDaysBefore() uint32 {
+	if x != nil {
+		return x.xxx_hidden_KeepDaysBefore
+	}
+	return 0
+}
+
+func (x *TenantAddRequest) GetDateKeepShortened() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateKeepShortened
+	}
+	return nil
+}
+
+func (x *TenantAddRequest) GetAccessKeepDaysBefore() uint32 {
+	if x != nil {
+		return x.xxx_hidden_AccessKeepDaysBefore
+	}
+	return 0
+}
+
+func (x *TenantAddRequest) GetDateAccessKeepShortened() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateAccessKeepShortened
+	}
+	return nil
+}
+
 func (x *TenantAddRequest) SetId(v []byte) {
 	if v == nil {
 		v = []byte{}
 	}
 	x.xxx_hidden_Id = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 13)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 20)
 }
 
 func (x *TenantAddRequest) SetAlias(v string) {
@@ -211,17 +267,50 @@ func (x *TenantAddRequest) SetDateDestroy(v *timestamppb.Timestamp) {
 
 func (x *TenantAddRequest) SetTimezone(v string) {
 	x.xxx_hidden_Timezone = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 13)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 20)
 }
 
 func (x *TenantAddRequest) SetCurrency(v string) {
 	x.xxx_hidden_Currency = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 13)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 20)
 }
 
 func (x *TenantAddRequest) SetNoShowMinutes(v int32) {
 	x.xxx_hidden_NoShowMinutes = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 12, 13)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 12, 20)
+}
+
+func (x *TenantAddRequest) SetKeepDays(v uint32) {
+	x.xxx_hidden_KeepDays = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 13, 20)
+}
+
+func (x *TenantAddRequest) SetAccessKeepDays(v uint32) {
+	x.xxx_hidden_AccessKeepDays = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 14, 20)
+}
+
+func (x *TenantAddRequest) SetRestoreDays(v uint32) {
+	x.xxx_hidden_RestoreDays = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 15, 20)
+}
+
+func (x *TenantAddRequest) SetKeepDaysBefore(v uint32) {
+	x.xxx_hidden_KeepDaysBefore = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 16, 20)
+}
+
+func (x *TenantAddRequest) SetDateKeepShortened(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateKeepShortened = v
+}
+
+func (x *TenantAddRequest) SetAccessKeepDaysBefore(v uint32) {
+	x.xxx_hidden_AccessKeepDaysBefore = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 18, 20)
+}
+
+func (x *TenantAddRequest) SetDateAccessKeepShortened(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateAccessKeepShortened = v
 }
 
 func (x *TenantAddRequest) HasId() bool {
@@ -273,6 +362,55 @@ func (x *TenantAddRequest) HasNoShowMinutes() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 12)
 }
 
+func (x *TenantAddRequest) HasKeepDays() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 13)
+}
+
+func (x *TenantAddRequest) HasAccessKeepDays() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 14)
+}
+
+func (x *TenantAddRequest) HasRestoreDays() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 15)
+}
+
+func (x *TenantAddRequest) HasKeepDaysBefore() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 16)
+}
+
+func (x *TenantAddRequest) HasDateKeepShortened() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateKeepShortened != nil
+}
+
+func (x *TenantAddRequest) HasAccessKeepDaysBefore() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 18)
+}
+
+func (x *TenantAddRequest) HasDateAccessKeepShortened() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateAccessKeepShortened != nil
+}
+
 func (x *TenantAddRequest) ClearId() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
 	x.xxx_hidden_Id = nil
@@ -305,22 +443,62 @@ func (x *TenantAddRequest) ClearNoShowMinutes() {
 	x.xxx_hidden_NoShowMinutes = 0
 }
 
+func (x *TenantAddRequest) ClearKeepDays() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 13)
+	x.xxx_hidden_KeepDays = 0
+}
+
+func (x *TenantAddRequest) ClearAccessKeepDays() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 14)
+	x.xxx_hidden_AccessKeepDays = 0
+}
+
+func (x *TenantAddRequest) ClearRestoreDays() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 15)
+	x.xxx_hidden_RestoreDays = 0
+}
+
+func (x *TenantAddRequest) ClearKeepDaysBefore() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 16)
+	x.xxx_hidden_KeepDaysBefore = 0
+}
+
+func (x *TenantAddRequest) ClearDateKeepShortened() {
+	x.xxx_hidden_DateKeepShortened = nil
+}
+
+func (x *TenantAddRequest) ClearAccessKeepDaysBefore() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 18)
+	x.xxx_hidden_AccessKeepDaysBefore = 0
+}
+
+func (x *TenantAddRequest) ClearDateAccessKeepShortened() {
+	x.xxx_hidden_DateAccessKeepShortened = nil
+}
+
 type TenantAddRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Id            []byte
-	Alias         string
-	Name          string
-	Desc          string
-	Labels        map[string]string
-	DateCreated   *timestamppb.Timestamp
-	DateClosed    *timestamppb.Timestamp
-	ClosedBy      string
-	CloseReason   string
-	DateDestroy   *timestamppb.Timestamp
-	Timezone      *string
-	Currency      *string
-	NoShowMinutes *int32
+	Id                      []byte
+	Alias                   string
+	Name                    string
+	Desc                    string
+	Labels                  map[string]string
+	DateCreated             *timestamppb.Timestamp
+	DateClosed              *timestamppb.Timestamp
+	ClosedBy                string
+	CloseReason             string
+	DateDestroy             *timestamppb.Timestamp
+	Timezone                *string
+	Currency                *string
+	NoShowMinutes           *int32
+	KeepDays                *uint32
+	AccessKeepDays          *uint32
+	RestoreDays             *uint32
+	KeepDaysBefore          *uint32
+	DateKeepShortened       *timestamppb.Timestamp
+	AccessKeepDaysBefore    *uint32
+	DateAccessKeepShortened *timestamppb.Timestamp
 }
 
 func (b0 TenantAddRequest_builder) Build() *TenantAddRequest {
@@ -328,7 +506,7 @@ func (b0 TenantAddRequest_builder) Build() *TenantAddRequest {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.Id != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 13)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 20)
 		x.xxx_hidden_Id = b.Id
 	}
 	x.xxx_hidden_Alias = b.Alias
@@ -341,17 +519,39 @@ func (b0 TenantAddRequest_builder) Build() *TenantAddRequest {
 	x.xxx_hidden_CloseReason = b.CloseReason
 	x.xxx_hidden_DateDestroy = b.DateDestroy
 	if b.Timezone != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 13)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 20)
 		x.xxx_hidden_Timezone = b.Timezone
 	}
 	if b.Currency != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 13)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 20)
 		x.xxx_hidden_Currency = b.Currency
 	}
 	if b.NoShowMinutes != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 12, 13)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 12, 20)
 		x.xxx_hidden_NoShowMinutes = *b.NoShowMinutes
 	}
+	if b.KeepDays != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 13, 20)
+		x.xxx_hidden_KeepDays = *b.KeepDays
+	}
+	if b.AccessKeepDays != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 14, 20)
+		x.xxx_hidden_AccessKeepDays = *b.AccessKeepDays
+	}
+	if b.RestoreDays != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 15, 20)
+		x.xxx_hidden_RestoreDays = *b.RestoreDays
+	}
+	if b.KeepDaysBefore != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 16, 20)
+		x.xxx_hidden_KeepDaysBefore = *b.KeepDaysBefore
+	}
+	x.xxx_hidden_DateKeepShortened = b.DateKeepShortened
+	if b.AccessKeepDaysBefore != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 18, 20)
+		x.xxx_hidden_AccessKeepDaysBefore = *b.AccessKeepDaysBefore
+	}
+	x.xxx_hidden_DateAccessKeepShortened = b.DateAccessKeepShortened
 	return m0
 }
 
@@ -615,25 +815,32 @@ func (*tenantRef_Id) isTenantRef_Key() {}
 func (*tenantRef_Alias) isTenantRef_Key() {}
 
 type TenantSelect struct {
-	state                    protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_All           bool                   `protobuf:"varint,1,opt,name=all"`
-	xxx_hidden_Alias         bool                   `protobuf:"varint,4,opt,name=alias"`
-	xxx_hidden_Name          bool                   `protobuf:"varint,5,opt,name=name"`
-	xxx_hidden_Desc          bool                   `protobuf:"varint,6,opt,name=desc"`
-	xxx_hidden_Labels        bool                   `protobuf:"varint,7,opt,name=labels"`
-	xxx_hidden_DateUpdated   bool                   `protobuf:"varint,13,opt,name=date_updated,json=dateUpdated"`
-	xxx_hidden_DateCreated   bool                   `protobuf:"varint,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_DateClosed    bool                   `protobuf:"varint,8,opt,name=date_closed,json=dateClosed"`
-	xxx_hidden_ClosedBy      bool                   `protobuf:"varint,9,opt,name=closed_by,json=closedBy"`
-	xxx_hidden_CloseReason   bool                   `protobuf:"varint,10,opt,name=close_reason,json=closeReason"`
-	xxx_hidden_DateDestroy   bool                   `protobuf:"varint,11,opt,name=date_destroy,json=dateDestroy"`
-	xxx_hidden_Timezone      bool                   `protobuf:"varint,12,opt,name=timezone"`
-	xxx_hidden_Currency      bool                   `protobuf:"varint,16,opt,name=currency"`
-	xxx_hidden_NoShowMinutes bool                   `protobuf:"varint,17,opt,name=no_show_minutes,json=noShowMinutes"`
-	XXX_raceDetectHookData   protoimpl.RaceDetectHookData
-	XXX_presence             [1]uint32
-	unknownFields            protoimpl.UnknownFields
-	sizeCache                protoimpl.SizeCache
+	state                              protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_All                     bool                   `protobuf:"varint,1,opt,name=all"`
+	xxx_hidden_Alias                   bool                   `protobuf:"varint,4,opt,name=alias"`
+	xxx_hidden_Name                    bool                   `protobuf:"varint,5,opt,name=name"`
+	xxx_hidden_Desc                    bool                   `protobuf:"varint,6,opt,name=desc"`
+	xxx_hidden_Labels                  bool                   `protobuf:"varint,7,opt,name=labels"`
+	xxx_hidden_DateUpdated             bool                   `protobuf:"varint,13,opt,name=date_updated,json=dateUpdated"`
+	xxx_hidden_DateCreated             bool                   `protobuf:"varint,15,opt,name=date_created,json=dateCreated"`
+	xxx_hidden_DateClosed              bool                   `protobuf:"varint,8,opt,name=date_closed,json=dateClosed"`
+	xxx_hidden_ClosedBy                bool                   `protobuf:"varint,9,opt,name=closed_by,json=closedBy"`
+	xxx_hidden_CloseReason             bool                   `protobuf:"varint,10,opt,name=close_reason,json=closeReason"`
+	xxx_hidden_DateDestroy             bool                   `protobuf:"varint,11,opt,name=date_destroy,json=dateDestroy"`
+	xxx_hidden_Timezone                bool                   `protobuf:"varint,12,opt,name=timezone"`
+	xxx_hidden_Currency                bool                   `protobuf:"varint,16,opt,name=currency"`
+	xxx_hidden_NoShowMinutes           bool                   `protobuf:"varint,17,opt,name=no_show_minutes,json=noShowMinutes"`
+	xxx_hidden_KeepDays                bool                   `protobuf:"varint,18,opt,name=keep_days,json=keepDays"`
+	xxx_hidden_AccessKeepDays          bool                   `protobuf:"varint,19,opt,name=access_keep_days,json=accessKeepDays"`
+	xxx_hidden_RestoreDays             bool                   `protobuf:"varint,20,opt,name=restore_days,json=restoreDays"`
+	xxx_hidden_KeepDaysBefore          bool                   `protobuf:"varint,21,opt,name=keep_days_before,json=keepDaysBefore"`
+	xxx_hidden_DateKeepShortened       bool                   `protobuf:"varint,22,opt,name=date_keep_shortened,json=dateKeepShortened"`
+	xxx_hidden_AccessKeepDaysBefore    bool                   `protobuf:"varint,23,opt,name=access_keep_days_before,json=accessKeepDaysBefore"`
+	xxx_hidden_DateAccessKeepShortened bool                   `protobuf:"varint,24,opt,name=date_access_keep_shortened,json=dateAccessKeepShortened"`
+	XXX_raceDetectHookData             protoimpl.RaceDetectHookData
+	XXX_presence                       [1]uint32
+	unknownFields                      protoimpl.UnknownFields
+	sizeCache                          protoimpl.SizeCache
 }
 
 func (x *TenantSelect) Reset() {
@@ -759,74 +966,158 @@ func (x *TenantSelect) GetNoShowMinutes() bool {
 	return false
 }
 
+func (x *TenantSelect) GetKeepDays() bool {
+	if x != nil {
+		return x.xxx_hidden_KeepDays
+	}
+	return false
+}
+
+func (x *TenantSelect) GetAccessKeepDays() bool {
+	if x != nil {
+		return x.xxx_hidden_AccessKeepDays
+	}
+	return false
+}
+
+func (x *TenantSelect) GetRestoreDays() bool {
+	if x != nil {
+		return x.xxx_hidden_RestoreDays
+	}
+	return false
+}
+
+func (x *TenantSelect) GetKeepDaysBefore() bool {
+	if x != nil {
+		return x.xxx_hidden_KeepDaysBefore
+	}
+	return false
+}
+
+func (x *TenantSelect) GetDateKeepShortened() bool {
+	if x != nil {
+		return x.xxx_hidden_DateKeepShortened
+	}
+	return false
+}
+
+func (x *TenantSelect) GetAccessKeepDaysBefore() bool {
+	if x != nil {
+		return x.xxx_hidden_AccessKeepDaysBefore
+	}
+	return false
+}
+
+func (x *TenantSelect) GetDateAccessKeepShortened() bool {
+	if x != nil {
+		return x.xxx_hidden_DateAccessKeepShortened
+	}
+	return false
+}
+
 func (x *TenantSelect) SetAll(v bool) {
 	x.xxx_hidden_All = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 14)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 21)
 }
 
 func (x *TenantSelect) SetAlias(v bool) {
 	x.xxx_hidden_Alias = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 14)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 21)
 }
 
 func (x *TenantSelect) SetName(v bool) {
 	x.xxx_hidden_Name = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 14)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 21)
 }
 
 func (x *TenantSelect) SetDesc(v bool) {
 	x.xxx_hidden_Desc = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 14)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 21)
 }
 
 func (x *TenantSelect) SetLabels(v bool) {
 	x.xxx_hidden_Labels = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 14)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 21)
 }
 
 func (x *TenantSelect) SetDateUpdated(v bool) {
 	x.xxx_hidden_DateUpdated = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 14)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 21)
 }
 
 func (x *TenantSelect) SetDateCreated(v bool) {
 	x.xxx_hidden_DateCreated = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 14)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 21)
 }
 
 func (x *TenantSelect) SetDateClosed(v bool) {
 	x.xxx_hidden_DateClosed = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 14)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 21)
 }
 
 func (x *TenantSelect) SetClosedBy(v bool) {
 	x.xxx_hidden_ClosedBy = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 14)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 21)
 }
 
 func (x *TenantSelect) SetCloseReason(v bool) {
 	x.xxx_hidden_CloseReason = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 14)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 21)
 }
 
 func (x *TenantSelect) SetDateDestroy(v bool) {
 	x.xxx_hidden_DateDestroy = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 14)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 21)
 }
 
 func (x *TenantSelect) SetTimezone(v bool) {
 	x.xxx_hidden_Timezone = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 14)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 21)
 }
 
 func (x *TenantSelect) SetCurrency(v bool) {
 	x.xxx_hidden_Currency = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 12, 14)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 12, 21)
 }
 
 func (x *TenantSelect) SetNoShowMinutes(v bool) {
 	x.xxx_hidden_NoShowMinutes = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 13, 14)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 13, 21)
+}
+
+func (x *TenantSelect) SetKeepDays(v bool) {
+	x.xxx_hidden_KeepDays = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 14, 21)
+}
+
+func (x *TenantSelect) SetAccessKeepDays(v bool) {
+	x.xxx_hidden_AccessKeepDays = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 15, 21)
+}
+
+func (x *TenantSelect) SetRestoreDays(v bool) {
+	x.xxx_hidden_RestoreDays = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 16, 21)
+}
+
+func (x *TenantSelect) SetKeepDaysBefore(v bool) {
+	x.xxx_hidden_KeepDaysBefore = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 17, 21)
+}
+
+func (x *TenantSelect) SetDateKeepShortened(v bool) {
+	x.xxx_hidden_DateKeepShortened = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 18, 21)
+}
+
+func (x *TenantSelect) SetAccessKeepDaysBefore(v bool) {
+	x.xxx_hidden_AccessKeepDaysBefore = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 19, 21)
+}
+
+func (x *TenantSelect) SetDateAccessKeepShortened(v bool) {
+	x.xxx_hidden_DateAccessKeepShortened = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 20, 21)
 }
 
 func (x *TenantSelect) HasAll() bool {
@@ -927,6 +1218,55 @@ func (x *TenantSelect) HasNoShowMinutes() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 13)
 }
 
+func (x *TenantSelect) HasKeepDays() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 14)
+}
+
+func (x *TenantSelect) HasAccessKeepDays() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 15)
+}
+
+func (x *TenantSelect) HasRestoreDays() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 16)
+}
+
+func (x *TenantSelect) HasKeepDaysBefore() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 17)
+}
+
+func (x *TenantSelect) HasDateKeepShortened() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 18)
+}
+
+func (x *TenantSelect) HasAccessKeepDaysBefore() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 19)
+}
+
+func (x *TenantSelect) HasDateAccessKeepShortened() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 20)
+}
+
 func (x *TenantSelect) ClearAll() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
 	x.xxx_hidden_All = false
@@ -997,23 +1337,65 @@ func (x *TenantSelect) ClearNoShowMinutes() {
 	x.xxx_hidden_NoShowMinutes = false
 }
 
+func (x *TenantSelect) ClearKeepDays() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 14)
+	x.xxx_hidden_KeepDays = false
+}
+
+func (x *TenantSelect) ClearAccessKeepDays() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 15)
+	x.xxx_hidden_AccessKeepDays = false
+}
+
+func (x *TenantSelect) ClearRestoreDays() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 16)
+	x.xxx_hidden_RestoreDays = false
+}
+
+func (x *TenantSelect) ClearKeepDaysBefore() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 17)
+	x.xxx_hidden_KeepDaysBefore = false
+}
+
+func (x *TenantSelect) ClearDateKeepShortened() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 18)
+	x.xxx_hidden_DateKeepShortened = false
+}
+
+func (x *TenantSelect) ClearAccessKeepDaysBefore() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 19)
+	x.xxx_hidden_AccessKeepDaysBefore = false
+}
+
+func (x *TenantSelect) ClearDateAccessKeepShortened() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 20)
+	x.xxx_hidden_DateAccessKeepShortened = false
+}
+
 type TenantSelect_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	All           *bool
-	Alias         *bool
-	Name          *bool
-	Desc          *bool
-	Labels        *bool
-	DateUpdated   *bool
-	DateCreated   *bool
-	DateClosed    *bool
-	ClosedBy      *bool
-	CloseReason   *bool
-	DateDestroy   *bool
-	Timezone      *bool
-	Currency      *bool
-	NoShowMinutes *bool
+	All                     *bool
+	Alias                   *bool
+	Name                    *bool
+	Desc                    *bool
+	Labels                  *bool
+	DateUpdated             *bool
+	DateCreated             *bool
+	DateClosed              *bool
+	ClosedBy                *bool
+	CloseReason             *bool
+	DateDestroy             *bool
+	Timezone                *bool
+	Currency                *bool
+	NoShowMinutes           *bool
+	KeepDays                *bool
+	AccessKeepDays          *bool
+	RestoreDays             *bool
+	KeepDaysBefore          *bool
+	DateKeepShortened       *bool
+	AccessKeepDaysBefore    *bool
+	DateAccessKeepShortened *bool
 }
 
 func (b0 TenantSelect_builder) Build() *TenantSelect {
@@ -1021,86 +1403,123 @@ func (b0 TenantSelect_builder) Build() *TenantSelect {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.All != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 14)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 21)
 		x.xxx_hidden_All = *b.All
 	}
 	if b.Alias != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 14)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 21)
 		x.xxx_hidden_Alias = *b.Alias
 	}
 	if b.Name != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 14)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 21)
 		x.xxx_hidden_Name = *b.Name
 	}
 	if b.Desc != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 14)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 21)
 		x.xxx_hidden_Desc = *b.Desc
 	}
 	if b.Labels != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 14)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 21)
 		x.xxx_hidden_Labels = *b.Labels
 	}
 	if b.DateUpdated != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 14)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 21)
 		x.xxx_hidden_DateUpdated = *b.DateUpdated
 	}
 	if b.DateCreated != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 14)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 21)
 		x.xxx_hidden_DateCreated = *b.DateCreated
 	}
 	if b.DateClosed != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 14)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 21)
 		x.xxx_hidden_DateClosed = *b.DateClosed
 	}
 	if b.ClosedBy != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 14)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 21)
 		x.xxx_hidden_ClosedBy = *b.ClosedBy
 	}
 	if b.CloseReason != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 14)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 21)
 		x.xxx_hidden_CloseReason = *b.CloseReason
 	}
 	if b.DateDestroy != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 14)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 21)
 		x.xxx_hidden_DateDestroy = *b.DateDestroy
 	}
 	if b.Timezone != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 14)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 21)
 		x.xxx_hidden_Timezone = *b.Timezone
 	}
 	if b.Currency != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 12, 14)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 12, 21)
 		x.xxx_hidden_Currency = *b.Currency
 	}
 	if b.NoShowMinutes != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 13, 14)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 13, 21)
 		x.xxx_hidden_NoShowMinutes = *b.NoShowMinutes
+	}
+	if b.KeepDays != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 14, 21)
+		x.xxx_hidden_KeepDays = *b.KeepDays
+	}
+	if b.AccessKeepDays != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 15, 21)
+		x.xxx_hidden_AccessKeepDays = *b.AccessKeepDays
+	}
+	if b.RestoreDays != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 16, 21)
+		x.xxx_hidden_RestoreDays = *b.RestoreDays
+	}
+	if b.KeepDaysBefore != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 17, 21)
+		x.xxx_hidden_KeepDaysBefore = *b.KeepDaysBefore
+	}
+	if b.DateKeepShortened != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 18, 21)
+		x.xxx_hidden_DateKeepShortened = *b.DateKeepShortened
+	}
+	if b.AccessKeepDaysBefore != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 19, 21)
+		x.xxx_hidden_AccessKeepDaysBefore = *b.AccessKeepDaysBefore
+	}
+	if b.DateAccessKeepShortened != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 20, 21)
+		x.xxx_hidden_DateAccessKeepShortened = *b.DateAccessKeepShortened
 	}
 	return m0
 }
 
 type TenantPatchRequest struct {
-	state                       protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Ref              *TenantRef             `protobuf:"bytes,1,opt,name=ref"`
-	xxx_hidden_Alias            *string                `protobuf:"bytes,8,opt,name=alias"`
-	xxx_hidden_Name             *string                `protobuf:"bytes,10,opt,name=name"`
-	xxx_hidden_Desc             *string                `protobuf:"bytes,12,opt,name=desc"`
-	xxx_hidden_Labels           map[string]string      `protobuf:"bytes,14,rep,name=labels" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	xxx_hidden_DateUpdated      *timestamppb.Timestamp `protobuf:"bytes,26,opt,name=date_updated,json=dateUpdated"`
-	xxx_hidden_DateUpdatedForce bool                   `protobuf:"varint,27,opt,name=date_updated_force,json=dateUpdatedForce"`
-	xxx_hidden_DateClosed       *timestamppb.Timestamp `protobuf:"bytes,16,opt,name=date_closed,json=dateClosed"`
-	xxx_hidden_DateClosedNull   bool                   `protobuf:"varint,17,opt,name=date_closed_null,json=dateClosedNull"`
-	xxx_hidden_ClosedBy         *string                `protobuf:"bytes,18,opt,name=closed_by,json=closedBy"`
-	xxx_hidden_CloseReason      *string                `protobuf:"bytes,20,opt,name=close_reason,json=closeReason"`
-	xxx_hidden_DateDestroy      *timestamppb.Timestamp `protobuf:"bytes,22,opt,name=date_destroy,json=dateDestroy"`
-	xxx_hidden_DateDestroyNull  bool                   `protobuf:"varint,23,opt,name=date_destroy_null,json=dateDestroyNull"`
-	xxx_hidden_Timezone         *string                `protobuf:"bytes,24,opt,name=timezone"`
-	xxx_hidden_Currency         *string                `protobuf:"bytes,32,opt,name=currency"`
-	xxx_hidden_NoShowMinutes    int32                  `protobuf:"varint,34,opt,name=no_show_minutes,json=noShowMinutes"`
-	XXX_raceDetectHookData      protoimpl.RaceDetectHookData
-	XXX_presence                [1]uint32
-	unknownFields               protoimpl.UnknownFields
-	sizeCache                   protoimpl.SizeCache
+	state                                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Ref                         *TenantRef             `protobuf:"bytes,1,opt,name=ref"`
+	xxx_hidden_Alias                       *string                `protobuf:"bytes,8,opt,name=alias"`
+	xxx_hidden_Name                        *string                `protobuf:"bytes,10,opt,name=name"`
+	xxx_hidden_Desc                        *string                `protobuf:"bytes,12,opt,name=desc"`
+	xxx_hidden_Labels                      map[string]string      `protobuf:"bytes,14,rep,name=labels" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	xxx_hidden_DateUpdated                 *timestamppb.Timestamp `protobuf:"bytes,26,opt,name=date_updated,json=dateUpdated"`
+	xxx_hidden_DateUpdatedForce            bool                   `protobuf:"varint,27,opt,name=date_updated_force,json=dateUpdatedForce"`
+	xxx_hidden_DateClosed                  *timestamppb.Timestamp `protobuf:"bytes,16,opt,name=date_closed,json=dateClosed"`
+	xxx_hidden_DateClosedNull              bool                   `protobuf:"varint,17,opt,name=date_closed_null,json=dateClosedNull"`
+	xxx_hidden_ClosedBy                    *string                `protobuf:"bytes,18,opt,name=closed_by,json=closedBy"`
+	xxx_hidden_CloseReason                 *string                `protobuf:"bytes,20,opt,name=close_reason,json=closeReason"`
+	xxx_hidden_DateDestroy                 *timestamppb.Timestamp `protobuf:"bytes,22,opt,name=date_destroy,json=dateDestroy"`
+	xxx_hidden_DateDestroyNull             bool                   `protobuf:"varint,23,opt,name=date_destroy_null,json=dateDestroyNull"`
+	xxx_hidden_Timezone                    *string                `protobuf:"bytes,24,opt,name=timezone"`
+	xxx_hidden_Currency                    *string                `protobuf:"bytes,32,opt,name=currency"`
+	xxx_hidden_NoShowMinutes               int32                  `protobuf:"varint,34,opt,name=no_show_minutes,json=noShowMinutes"`
+	xxx_hidden_KeepDays                    uint32                 `protobuf:"varint,36,opt,name=keep_days,json=keepDays"`
+	xxx_hidden_AccessKeepDays              uint32                 `protobuf:"varint,38,opt,name=access_keep_days,json=accessKeepDays"`
+	xxx_hidden_RestoreDays                 uint32                 `protobuf:"varint,40,opt,name=restore_days,json=restoreDays"`
+	xxx_hidden_KeepDaysBefore              uint32                 `protobuf:"varint,42,opt,name=keep_days_before,json=keepDaysBefore"`
+	xxx_hidden_DateKeepShortened           *timestamppb.Timestamp `protobuf:"bytes,44,opt,name=date_keep_shortened,json=dateKeepShortened"`
+	xxx_hidden_DateKeepShortenedNull       bool                   `protobuf:"varint,45,opt,name=date_keep_shortened_null,json=dateKeepShortenedNull"`
+	xxx_hidden_AccessKeepDaysBefore        uint32                 `protobuf:"varint,46,opt,name=access_keep_days_before,json=accessKeepDaysBefore"`
+	xxx_hidden_DateAccessKeepShortened     *timestamppb.Timestamp `protobuf:"bytes,48,opt,name=date_access_keep_shortened,json=dateAccessKeepShortened"`
+	xxx_hidden_DateAccessKeepShortenedNull bool                   `protobuf:"varint,49,opt,name=date_access_keep_shortened_null,json=dateAccessKeepShortenedNull"`
+	XXX_raceDetectHookData                 protoimpl.RaceDetectHookData
+	XXX_presence                           [1]uint32
+	unknownFields                          protoimpl.UnknownFields
+	sizeCache                              protoimpl.SizeCache
 }
 
 func (x *TenantPatchRequest) Reset() {
@@ -1261,23 +1680,86 @@ func (x *TenantPatchRequest) GetNoShowMinutes() int32 {
 	return 0
 }
 
+func (x *TenantPatchRequest) GetKeepDays() uint32 {
+	if x != nil {
+		return x.xxx_hidden_KeepDays
+	}
+	return 0
+}
+
+func (x *TenantPatchRequest) GetAccessKeepDays() uint32 {
+	if x != nil {
+		return x.xxx_hidden_AccessKeepDays
+	}
+	return 0
+}
+
+func (x *TenantPatchRequest) GetRestoreDays() uint32 {
+	if x != nil {
+		return x.xxx_hidden_RestoreDays
+	}
+	return 0
+}
+
+func (x *TenantPatchRequest) GetKeepDaysBefore() uint32 {
+	if x != nil {
+		return x.xxx_hidden_KeepDaysBefore
+	}
+	return 0
+}
+
+func (x *TenantPatchRequest) GetDateKeepShortened() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateKeepShortened
+	}
+	return nil
+}
+
+func (x *TenantPatchRequest) GetDateKeepShortenedNull() bool {
+	if x != nil {
+		return x.xxx_hidden_DateKeepShortenedNull
+	}
+	return false
+}
+
+func (x *TenantPatchRequest) GetAccessKeepDaysBefore() uint32 {
+	if x != nil {
+		return x.xxx_hidden_AccessKeepDaysBefore
+	}
+	return 0
+}
+
+func (x *TenantPatchRequest) GetDateAccessKeepShortened() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateAccessKeepShortened
+	}
+	return nil
+}
+
+func (x *TenantPatchRequest) GetDateAccessKeepShortenedNull() bool {
+	if x != nil {
+		return x.xxx_hidden_DateAccessKeepShortenedNull
+	}
+	return false
+}
+
 func (x *TenantPatchRequest) SetRef(v *TenantRef) {
 	x.xxx_hidden_Ref = v
 }
 
 func (x *TenantPatchRequest) SetAlias(v string) {
 	x.xxx_hidden_Alias = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 16)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 25)
 }
 
 func (x *TenantPatchRequest) SetName(v string) {
 	x.xxx_hidden_Name = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 16)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 25)
 }
 
 func (x *TenantPatchRequest) SetDesc(v string) {
 	x.xxx_hidden_Desc = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 16)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 25)
 }
 
 func (x *TenantPatchRequest) SetLabels(v map[string]string) {
@@ -1290,7 +1772,7 @@ func (x *TenantPatchRequest) SetDateUpdated(v *timestamppb.Timestamp) {
 
 func (x *TenantPatchRequest) SetDateUpdatedForce(v bool) {
 	x.xxx_hidden_DateUpdatedForce = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 16)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 25)
 }
 
 func (x *TenantPatchRequest) SetDateClosed(v *timestamppb.Timestamp) {
@@ -1299,17 +1781,17 @@ func (x *TenantPatchRequest) SetDateClosed(v *timestamppb.Timestamp) {
 
 func (x *TenantPatchRequest) SetDateClosedNull(v bool) {
 	x.xxx_hidden_DateClosedNull = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 16)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 25)
 }
 
 func (x *TenantPatchRequest) SetClosedBy(v string) {
 	x.xxx_hidden_ClosedBy = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 16)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 25)
 }
 
 func (x *TenantPatchRequest) SetCloseReason(v string) {
 	x.xxx_hidden_CloseReason = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 16)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 25)
 }
 
 func (x *TenantPatchRequest) SetDateDestroy(v *timestamppb.Timestamp) {
@@ -1318,22 +1800,65 @@ func (x *TenantPatchRequest) SetDateDestroy(v *timestamppb.Timestamp) {
 
 func (x *TenantPatchRequest) SetDateDestroyNull(v bool) {
 	x.xxx_hidden_DateDestroyNull = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 12, 16)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 12, 25)
 }
 
 func (x *TenantPatchRequest) SetTimezone(v string) {
 	x.xxx_hidden_Timezone = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 13, 16)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 13, 25)
 }
 
 func (x *TenantPatchRequest) SetCurrency(v string) {
 	x.xxx_hidden_Currency = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 14, 16)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 14, 25)
 }
 
 func (x *TenantPatchRequest) SetNoShowMinutes(v int32) {
 	x.xxx_hidden_NoShowMinutes = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 15, 16)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 15, 25)
+}
+
+func (x *TenantPatchRequest) SetKeepDays(v uint32) {
+	x.xxx_hidden_KeepDays = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 16, 25)
+}
+
+func (x *TenantPatchRequest) SetAccessKeepDays(v uint32) {
+	x.xxx_hidden_AccessKeepDays = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 17, 25)
+}
+
+func (x *TenantPatchRequest) SetRestoreDays(v uint32) {
+	x.xxx_hidden_RestoreDays = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 18, 25)
+}
+
+func (x *TenantPatchRequest) SetKeepDaysBefore(v uint32) {
+	x.xxx_hidden_KeepDaysBefore = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 19, 25)
+}
+
+func (x *TenantPatchRequest) SetDateKeepShortened(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateKeepShortened = v
+}
+
+func (x *TenantPatchRequest) SetDateKeepShortenedNull(v bool) {
+	x.xxx_hidden_DateKeepShortenedNull = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 21, 25)
+}
+
+func (x *TenantPatchRequest) SetAccessKeepDaysBefore(v uint32) {
+	x.xxx_hidden_AccessKeepDaysBefore = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 22, 25)
+}
+
+func (x *TenantPatchRequest) SetDateAccessKeepShortened(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateAccessKeepShortened = v
+}
+
+func (x *TenantPatchRequest) SetDateAccessKeepShortenedNull(v bool) {
+	x.xxx_hidden_DateAccessKeepShortenedNull = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 24, 25)
 }
 
 func (x *TenantPatchRequest) HasRef() bool {
@@ -1441,6 +1966,69 @@ func (x *TenantPatchRequest) HasNoShowMinutes() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 15)
 }
 
+func (x *TenantPatchRequest) HasKeepDays() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 16)
+}
+
+func (x *TenantPatchRequest) HasAccessKeepDays() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 17)
+}
+
+func (x *TenantPatchRequest) HasRestoreDays() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 18)
+}
+
+func (x *TenantPatchRequest) HasKeepDaysBefore() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 19)
+}
+
+func (x *TenantPatchRequest) HasDateKeepShortened() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateKeepShortened != nil
+}
+
+func (x *TenantPatchRequest) HasDateKeepShortenedNull() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 21)
+}
+
+func (x *TenantPatchRequest) HasAccessKeepDaysBefore() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 22)
+}
+
+func (x *TenantPatchRequest) HasDateAccessKeepShortened() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateAccessKeepShortened != nil
+}
+
+func (x *TenantPatchRequest) HasDateAccessKeepShortenedNull() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 24)
+}
+
 func (x *TenantPatchRequest) ClearRef() {
 	x.xxx_hidden_Ref = nil
 }
@@ -1512,6 +2100,49 @@ func (x *TenantPatchRequest) ClearNoShowMinutes() {
 	x.xxx_hidden_NoShowMinutes = 0
 }
 
+func (x *TenantPatchRequest) ClearKeepDays() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 16)
+	x.xxx_hidden_KeepDays = 0
+}
+
+func (x *TenantPatchRequest) ClearAccessKeepDays() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 17)
+	x.xxx_hidden_AccessKeepDays = 0
+}
+
+func (x *TenantPatchRequest) ClearRestoreDays() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 18)
+	x.xxx_hidden_RestoreDays = 0
+}
+
+func (x *TenantPatchRequest) ClearKeepDaysBefore() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 19)
+	x.xxx_hidden_KeepDaysBefore = 0
+}
+
+func (x *TenantPatchRequest) ClearDateKeepShortened() {
+	x.xxx_hidden_DateKeepShortened = nil
+}
+
+func (x *TenantPatchRequest) ClearDateKeepShortenedNull() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 21)
+	x.xxx_hidden_DateKeepShortenedNull = false
+}
+
+func (x *TenantPatchRequest) ClearAccessKeepDaysBefore() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 22)
+	x.xxx_hidden_AccessKeepDaysBefore = 0
+}
+
+func (x *TenantPatchRequest) ClearDateAccessKeepShortened() {
+	x.xxx_hidden_DateAccessKeepShortened = nil
+}
+
+func (x *TenantPatchRequest) ClearDateAccessKeepShortenedNull() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 24)
+	x.xxx_hidden_DateAccessKeepShortenedNull = false
+}
+
 type TenantPatchRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
@@ -1547,10 +2178,27 @@ type TenantPatchRequest_builder struct {
 	// It takes a field of its own because an unset value already means
 	// "leave it alone", so no value could have meant NULL. It wins
 	// outright: setting both this and date_destroy clears.
-	DateDestroyNull *bool
-	Timezone        *string
-	Currency        *string
-	NoShowMinutes   *int32
+	DateDestroyNull   *bool
+	Timezone          *string
+	Currency          *string
+	NoShowMinutes     *int32
+	KeepDays          *uint32
+	AccessKeepDays    *uint32
+	RestoreDays       *uint32
+	KeepDaysBefore    *uint32
+	DateKeepShortened *timestamppb.Timestamp
+	// Clear date_keep_shortened instead of writing it.
+	// It takes a field of its own because an unset value already means
+	// "leave it alone", so no value could have meant NULL. It wins
+	// outright: setting both this and date_keep_shortened clears.
+	DateKeepShortenedNull   *bool
+	AccessKeepDaysBefore    *uint32
+	DateAccessKeepShortened *timestamppb.Timestamp
+	// Clear date_access_keep_shortened instead of writing it.
+	// It takes a field of its own because an unset value already means
+	// "leave it alone", so no value could have meant NULL. It wins
+	// outright: setting both this and date_access_keep_shortened clears.
+	DateAccessKeepShortenedNull *bool
 }
 
 func (b0 TenantPatchRequest_builder) Build() *TenantPatchRequest {
@@ -1559,52 +2207,82 @@ func (b0 TenantPatchRequest_builder) Build() *TenantPatchRequest {
 	_, _ = b, x
 	x.xxx_hidden_Ref = b.Ref
 	if b.Alias != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 16)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 25)
 		x.xxx_hidden_Alias = b.Alias
 	}
 	if b.Name != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 16)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 25)
 		x.xxx_hidden_Name = b.Name
 	}
 	if b.Desc != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 16)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 25)
 		x.xxx_hidden_Desc = b.Desc
 	}
 	x.xxx_hidden_Labels = b.Labels
 	x.xxx_hidden_DateUpdated = b.DateUpdated
 	if b.DateUpdatedForce != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 16)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 25)
 		x.xxx_hidden_DateUpdatedForce = *b.DateUpdatedForce
 	}
 	x.xxx_hidden_DateClosed = b.DateClosed
 	if b.DateClosedNull != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 16)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 25)
 		x.xxx_hidden_DateClosedNull = *b.DateClosedNull
 	}
 	if b.ClosedBy != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 16)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 25)
 		x.xxx_hidden_ClosedBy = b.ClosedBy
 	}
 	if b.CloseReason != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 16)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 25)
 		x.xxx_hidden_CloseReason = b.CloseReason
 	}
 	x.xxx_hidden_DateDestroy = b.DateDestroy
 	if b.DateDestroyNull != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 12, 16)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 12, 25)
 		x.xxx_hidden_DateDestroyNull = *b.DateDestroyNull
 	}
 	if b.Timezone != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 13, 16)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 13, 25)
 		x.xxx_hidden_Timezone = b.Timezone
 	}
 	if b.Currency != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 14, 16)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 14, 25)
 		x.xxx_hidden_Currency = b.Currency
 	}
 	if b.NoShowMinutes != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 15, 16)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 15, 25)
 		x.xxx_hidden_NoShowMinutes = *b.NoShowMinutes
+	}
+	if b.KeepDays != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 16, 25)
+		x.xxx_hidden_KeepDays = *b.KeepDays
+	}
+	if b.AccessKeepDays != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 17, 25)
+		x.xxx_hidden_AccessKeepDays = *b.AccessKeepDays
+	}
+	if b.RestoreDays != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 18, 25)
+		x.xxx_hidden_RestoreDays = *b.RestoreDays
+	}
+	if b.KeepDaysBefore != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 19, 25)
+		x.xxx_hidden_KeepDaysBefore = *b.KeepDaysBefore
+	}
+	x.xxx_hidden_DateKeepShortened = b.DateKeepShortened
+	if b.DateKeepShortenedNull != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 21, 25)
+		x.xxx_hidden_DateKeepShortenedNull = *b.DateKeepShortenedNull
+	}
+	if b.AccessKeepDaysBefore != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 22, 25)
+		x.xxx_hidden_AccessKeepDaysBefore = *b.AccessKeepDaysBefore
+	}
+	x.xxx_hidden_DateAccessKeepShortened = b.DateAccessKeepShortened
+	if b.DateAccessKeepShortenedNull != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 24, 25)
+		x.xxx_hidden_DateAccessKeepShortenedNull = *b.DateAccessKeepShortenedNull
 	}
 	return m0
 }
@@ -2209,15 +2887,18 @@ func (b0 TenantRestoreRequest_builder) Build() *TenantRestoreRequest {
 }
 
 type TenantConfigureRequest struct {
-	state                    protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Ref           *TenantRef             `protobuf:"bytes,1,opt,name=ref"`
-	xxx_hidden_Timezone      *string                `protobuf:"bytes,2,opt,name=timezone"`
-	xxx_hidden_Currency      *string                `protobuf:"bytes,3,opt,name=currency"`
-	xxx_hidden_NoShowMinutes int32                  `protobuf:"varint,4,opt,name=no_show_minutes,json=noShowMinutes"`
-	XXX_raceDetectHookData   protoimpl.RaceDetectHookData
-	XXX_presence             [1]uint32
-	unknownFields            protoimpl.UnknownFields
-	sizeCache                protoimpl.SizeCache
+	state                     protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Ref            *TenantRef             `protobuf:"bytes,1,opt,name=ref"`
+	xxx_hidden_Timezone       *string                `protobuf:"bytes,2,opt,name=timezone"`
+	xxx_hidden_Currency       *string                `protobuf:"bytes,3,opt,name=currency"`
+	xxx_hidden_NoShowMinutes  int32                  `protobuf:"varint,4,opt,name=no_show_minutes,json=noShowMinutes"`
+	xxx_hidden_KeepDays       uint32                 `protobuf:"varint,5,opt,name=keep_days,json=keepDays"`
+	xxx_hidden_AccessKeepDays uint32                 `protobuf:"varint,6,opt,name=access_keep_days,json=accessKeepDays"`
+	xxx_hidden_RestoreDays    uint32                 `protobuf:"varint,7,opt,name=restore_days,json=restoreDays"`
+	XXX_raceDetectHookData    protoimpl.RaceDetectHookData
+	XXX_presence              [1]uint32
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
 }
 
 func (x *TenantConfigureRequest) Reset() {
@@ -2279,23 +2960,59 @@ func (x *TenantConfigureRequest) GetNoShowMinutes() int32 {
 	return 0
 }
 
+func (x *TenantConfigureRequest) GetKeepDays() uint32 {
+	if x != nil {
+		return x.xxx_hidden_KeepDays
+	}
+	return 0
+}
+
+func (x *TenantConfigureRequest) GetAccessKeepDays() uint32 {
+	if x != nil {
+		return x.xxx_hidden_AccessKeepDays
+	}
+	return 0
+}
+
+func (x *TenantConfigureRequest) GetRestoreDays() uint32 {
+	if x != nil {
+		return x.xxx_hidden_RestoreDays
+	}
+	return 0
+}
+
 func (x *TenantConfigureRequest) SetRef(v *TenantRef) {
 	x.xxx_hidden_Ref = v
 }
 
 func (x *TenantConfigureRequest) SetTimezone(v string) {
 	x.xxx_hidden_Timezone = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 4)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 7)
 }
 
 func (x *TenantConfigureRequest) SetCurrency(v string) {
 	x.xxx_hidden_Currency = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 4)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 7)
 }
 
 func (x *TenantConfigureRequest) SetNoShowMinutes(v int32) {
 	x.xxx_hidden_NoShowMinutes = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 4)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 7)
+}
+
+func (x *TenantConfigureRequest) SetKeepDays(v uint32) {
+	x.xxx_hidden_KeepDays = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 7)
+}
+
+func (x *TenantConfigureRequest) SetAccessKeepDays(v uint32) {
+	x.xxx_hidden_AccessKeepDays = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 7)
+}
+
+func (x *TenantConfigureRequest) SetRestoreDays(v uint32) {
+	x.xxx_hidden_RestoreDays = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 7)
 }
 
 func (x *TenantConfigureRequest) HasRef() bool {
@@ -2326,6 +3043,27 @@ func (x *TenantConfigureRequest) HasNoShowMinutes() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
 }
 
+func (x *TenantConfigureRequest) HasKeepDays() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
+}
+
+func (x *TenantConfigureRequest) HasAccessKeepDays() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
+}
+
+func (x *TenantConfigureRequest) HasRestoreDays() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 6)
+}
+
 func (x *TenantConfigureRequest) ClearRef() {
 	x.xxx_hidden_Ref = nil
 }
@@ -2345,6 +3083,21 @@ func (x *TenantConfigureRequest) ClearNoShowMinutes() {
 	x.xxx_hidden_NoShowMinutes = 0
 }
 
+func (x *TenantConfigureRequest) ClearKeepDays() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
+	x.xxx_hidden_KeepDays = 0
+}
+
+func (x *TenantConfigureRequest) ClearAccessKeepDays() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 5)
+	x.xxx_hidden_AccessKeepDays = 0
+}
+
+func (x *TenantConfigureRequest) ClearRestoreDays() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 6)
+	x.xxx_hidden_RestoreDays = 0
+}
+
 type TenantConfigureRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
@@ -2355,6 +3108,13 @@ type TenantConfigureRequest_builder struct {
 	Currency *string
 	// Minutes; 0 is the deployment's, negative holds nobody to checking in.
 	NoShowMinutes *int32
+	// Days its history is kept; 0 is forever.
+	KeepDays *uint32
+	// Days its access record is kept; 0 is the deployment's, and none is below
+	// the deployment's floor.
+	AccessKeepDays *uint32
+	// Days it may be restored once closed; 0 is the deployment's.
+	RestoreDays *uint32
 }
 
 func (b0 TenantConfigureRequest_builder) Build() *TenantConfigureRequest {
@@ -2363,17 +3123,370 @@ func (b0 TenantConfigureRequest_builder) Build() *TenantConfigureRequest {
 	_, _ = b, x
 	x.xxx_hidden_Ref = b.Ref
 	if b.Timezone != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 4)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 7)
 		x.xxx_hidden_Timezone = b.Timezone
 	}
 	if b.Currency != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 4)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 7)
 		x.xxx_hidden_Currency = b.Currency
 	}
 	if b.NoShowMinutes != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 4)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 7)
 		x.xxx_hidden_NoShowMinutes = *b.NoShowMinutes
 	}
+	if b.KeepDays != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 7)
+		x.xxx_hidden_KeepDays = *b.KeepDays
+	}
+	if b.AccessKeepDays != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 7)
+		x.xxx_hidden_AccessKeepDays = *b.AccessKeepDays
+	}
+	if b.RestoreDays != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 7)
+		x.xxx_hidden_RestoreDays = *b.RestoreDays
+	}
+	return m0
+}
+
+type TenantPreviewRequest struct {
+	state                     protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Ref            *TenantRef             `protobuf:"bytes,1,opt,name=ref"`
+	xxx_hidden_KeepDays       uint32                 `protobuf:"varint,2,opt,name=keep_days,json=keepDays"`
+	xxx_hidden_AccessKeepDays uint32                 `protobuf:"varint,3,opt,name=access_keep_days,json=accessKeepDays"`
+	XXX_raceDetectHookData    protoimpl.RaceDetectHookData
+	XXX_presence              [1]uint32
+	unknownFields             protoimpl.UnknownFields
+	sizeCache                 protoimpl.SizeCache
+}
+
+func (x *TenantPreviewRequest) Reset() {
+	*x = TenantPreviewRequest{}
+	mi := &file_rove_payday_tenant_svc_g_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TenantPreviewRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TenantPreviewRequest) ProtoMessage() {}
+
+func (x *TenantPreviewRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_payday_tenant_svc_g_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *TenantPreviewRequest) GetRef() *TenantRef {
+	if x != nil {
+		return x.xxx_hidden_Ref
+	}
+	return nil
+}
+
+func (x *TenantPreviewRequest) GetKeepDays() uint32 {
+	if x != nil {
+		return x.xxx_hidden_KeepDays
+	}
+	return 0
+}
+
+func (x *TenantPreviewRequest) GetAccessKeepDays() uint32 {
+	if x != nil {
+		return x.xxx_hidden_AccessKeepDays
+	}
+	return 0
+}
+
+func (x *TenantPreviewRequest) SetRef(v *TenantRef) {
+	x.xxx_hidden_Ref = v
+}
+
+func (x *TenantPreviewRequest) SetKeepDays(v uint32) {
+	x.xxx_hidden_KeepDays = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 3)
+}
+
+func (x *TenantPreviewRequest) SetAccessKeepDays(v uint32) {
+	x.xxx_hidden_AccessKeepDays = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 3)
+}
+
+func (x *TenantPreviewRequest) HasRef() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Ref != nil
+}
+
+func (x *TenantPreviewRequest) HasKeepDays() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
+}
+
+func (x *TenantPreviewRequest) HasAccessKeepDays() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
+}
+
+func (x *TenantPreviewRequest) ClearRef() {
+	x.xxx_hidden_Ref = nil
+}
+
+func (x *TenantPreviewRequest) ClearKeepDays() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	x.xxx_hidden_KeepDays = 0
+}
+
+func (x *TenantPreviewRequest) ClearAccessKeepDays() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
+	x.xxx_hidden_AccessKeepDays = 0
+}
+
+type TenantPreviewRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Ref            *TenantRef
+	KeepDays       *uint32
+	AccessKeepDays *uint32
+}
+
+func (b0 TenantPreviewRequest_builder) Build() *TenantPreviewRequest {
+	m0 := &TenantPreviewRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Ref = b.Ref
+	if b.KeepDays != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 3)
+		x.xxx_hidden_KeepDays = *b.KeepDays
+	}
+	if b.AccessKeepDays != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 3)
+		x.xxx_hidden_AccessKeepDays = *b.AccessKeepDays
+	}
+	return m0
+}
+
+// TenantPreviewResponse is how long the workspace would keep its history and
+// its access record, from when, and what that takes.
+type TenantPreviewResponse struct {
+	state                      protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Apply           bool                   `protobuf:"varint,1,opt,name=apply"`
+	xxx_hidden_GraceDays       uint32                 `protobuf:"varint,2,opt,name=grace_days,json=graceDays"`
+	xxx_hidden_KeepDays        uint32                 `protobuf:"varint,3,opt,name=keep_days,json=keepDays"`
+	xxx_hidden_KeepFrom        *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=keep_from,json=keepFrom"`
+	xxx_hidden_KeepTakes       map[string]uint32      `protobuf:"bytes,5,rep,name=keep_takes,json=keepTakes" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
+	xxx_hidden_AccessKeepDays  uint32                 `protobuf:"varint,6,opt,name=access_keep_days,json=accessKeepDays"`
+	xxx_hidden_AccessKeepFrom  *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=access_keep_from,json=accessKeepFrom"`
+	xxx_hidden_AccessFloorDays uint32                 `protobuf:"varint,8,opt,name=access_floor_days,json=accessFloorDays"`
+	xxx_hidden_Held            bool                   `protobuf:"varint,9,opt,name=held"`
+	unknownFields              protoimpl.UnknownFields
+	sizeCache                  protoimpl.SizeCache
+}
+
+func (x *TenantPreviewResponse) Reset() {
+	*x = TenantPreviewResponse{}
+	mi := &file_rove_payday_tenant_svc_g_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TenantPreviewResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TenantPreviewResponse) ProtoMessage() {}
+
+func (x *TenantPreviewResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_payday_tenant_svc_g_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *TenantPreviewResponse) GetApply() bool {
+	if x != nil {
+		return x.xxx_hidden_Apply
+	}
+	return false
+}
+
+func (x *TenantPreviewResponse) GetGraceDays() uint32 {
+	if x != nil {
+		return x.xxx_hidden_GraceDays
+	}
+	return 0
+}
+
+func (x *TenantPreviewResponse) GetKeepDays() uint32 {
+	if x != nil {
+		return x.xxx_hidden_KeepDays
+	}
+	return 0
+}
+
+func (x *TenantPreviewResponse) GetKeepFrom() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_KeepFrom
+	}
+	return nil
+}
+
+func (x *TenantPreviewResponse) GetKeepTakes() map[string]uint32 {
+	if x != nil {
+		return x.xxx_hidden_KeepTakes
+	}
+	return nil
+}
+
+func (x *TenantPreviewResponse) GetAccessKeepDays() uint32 {
+	if x != nil {
+		return x.xxx_hidden_AccessKeepDays
+	}
+	return 0
+}
+
+func (x *TenantPreviewResponse) GetAccessKeepFrom() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_AccessKeepFrom
+	}
+	return nil
+}
+
+func (x *TenantPreviewResponse) GetAccessFloorDays() uint32 {
+	if x != nil {
+		return x.xxx_hidden_AccessFloorDays
+	}
+	return 0
+}
+
+func (x *TenantPreviewResponse) GetHeld() bool {
+	if x != nil {
+		return x.xxx_hidden_Held
+	}
+	return false
+}
+
+func (x *TenantPreviewResponse) SetApply(v bool) {
+	x.xxx_hidden_Apply = v
+}
+
+func (x *TenantPreviewResponse) SetGraceDays(v uint32) {
+	x.xxx_hidden_GraceDays = v
+}
+
+func (x *TenantPreviewResponse) SetKeepDays(v uint32) {
+	x.xxx_hidden_KeepDays = v
+}
+
+func (x *TenantPreviewResponse) SetKeepFrom(v *timestamppb.Timestamp) {
+	x.xxx_hidden_KeepFrom = v
+}
+
+func (x *TenantPreviewResponse) SetKeepTakes(v map[string]uint32) {
+	x.xxx_hidden_KeepTakes = v
+}
+
+func (x *TenantPreviewResponse) SetAccessKeepDays(v uint32) {
+	x.xxx_hidden_AccessKeepDays = v
+}
+
+func (x *TenantPreviewResponse) SetAccessKeepFrom(v *timestamppb.Timestamp) {
+	x.xxx_hidden_AccessKeepFrom = v
+}
+
+func (x *TenantPreviewResponse) SetAccessFloorDays(v uint32) {
+	x.xxx_hidden_AccessFloorDays = v
+}
+
+func (x *TenantPreviewResponse) SetHeld(v bool) {
+	x.xxx_hidden_Held = v
+}
+
+func (x *TenantPreviewResponse) HasKeepFrom() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_KeepFrom != nil
+}
+
+func (x *TenantPreviewResponse) HasAccessKeepFrom() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_AccessKeepFrom != nil
+}
+
+func (x *TenantPreviewResponse) ClearKeepFrom() {
+	x.xxx_hidden_KeepFrom = nil
+}
+
+func (x *TenantPreviewResponse) ClearAccessKeepFrom() {
+	x.xxx_hidden_AccessKeepFrom = nil
+}
+
+type TenantPreviewResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// Whether the deployment destroys anything by these windows at all
+	// (`app.retention.apply`). Off, what is below is what it would destroy
+	// once it does.
+	Apply bool
+	// The grace a window made shorter waits out, in days
+	// (`app.retention.grace`).
+	GraceDays uint32
+	// How long the history is kept, in days -- 0 is forever -- and from when:
+	// now, or once the grace of a shorter one is over. Until then the longer one
+	// it had holds.
+	KeepDays uint32
+	KeepFrom *timestamppb.Timestamp
+	// What that takes of the history as it is now, by kind -- placements,
+	// facts, events, reservations, ... -- as a retention pass would: what was
+	// over before the window, `keep_days` before `keep_from`.
+	KeepTakes map[string]uint32
+	// How long the access record is kept, in days -- the deployment's where the
+	// workspace says none, and never below the floor -- and from when. 0 is
+	// forever.
+	AccessKeepDays uint32
+	AccessKeepFrom *timestamppb.Timestamp
+	// The deployment's floor, in days: the least the access record is kept,
+	// whatever the workspace says (`audit.by.access.min`).
+	AccessFloorDays uint32
+	// Whether a legal hold is on: while one is, nothing is destroyed, whatever
+	// the windows say.
+	Held bool
+}
+
+func (b0 TenantPreviewResponse_builder) Build() *TenantPreviewResponse {
+	m0 := &TenantPreviewResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Apply = b.Apply
+	x.xxx_hidden_GraceDays = b.GraceDays
+	x.xxx_hidden_KeepDays = b.KeepDays
+	x.xxx_hidden_KeepFrom = b.KeepFrom
+	x.xxx_hidden_KeepTakes = b.KeepTakes
+	x.xxx_hidden_AccessKeepDays = b.AccessKeepDays
+	x.xxx_hidden_AccessKeepFrom = b.AccessKeepFrom
+	x.xxx_hidden_AccessFloorDays = b.AccessFloorDays
+	x.xxx_hidden_Held = b.Held
 	return m0
 }
 
@@ -2381,7 +3494,7 @@ var File_rove_payday_tenant_svc_g_proto protoreflect.FileDescriptor
 
 const file_rove_payday_tenant_svc_g_proto_rawDesc = "" +
 	"\n" +
-	"\x1erove/payday/tenant_svc.g.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x11patch/patch.proto\x1a\x18rove/payday/tenant.proto\"\xd5\x04\n" +
+	"\x1erove/payday/tenant_svc.g.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x11patch/patch.proto\x1a\x18rove/payday/tenant.proto\"\xc5\a\n" +
 	"\x10TenantAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12\x1b\n" +
 	"\x05alias\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05alias\x12\x19\n" +
@@ -2397,7 +3510,14 @@ const file_rove_payday_tenant_svc_g_proto_rawDesc = "" +
 	"\fdate_destroy\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\vdateDestroy\x12\x1a\n" +
 	"\btimezone\x18\f \x01(\tR\btimezone\x12\x1a\n" +
 	"\bcurrency\x18\x10 \x01(\tR\bcurrency\x12&\n" +
-	"\x0fno_show_minutes\x18\x11 \x01(\x05R\rnoShowMinutes\x1a9\n" +
+	"\x0fno_show_minutes\x18\x11 \x01(\x05R\rnoShowMinutes\x12\x1b\n" +
+	"\tkeep_days\x18\x12 \x01(\rR\bkeepDays\x12(\n" +
+	"\x10access_keep_days\x18\x13 \x01(\rR\x0eaccessKeepDays\x12!\n" +
+	"\frestore_days\x18\x14 \x01(\rR\vrestoreDays\x12(\n" +
+	"\x10keep_days_before\x18\x15 \x01(\rR\x0ekeepDaysBefore\x12J\n" +
+	"\x13date_keep_shortened\x18\x16 \x01(\v2\x1a.google.protobuf.TimestampR\x11dateKeepShortened\x125\n" +
+	"\x17access_keep_days_before\x18\x17 \x01(\rR\x14accessKeepDaysBefore\x12W\n" +
+	"\x1adate_access_keep_shortened\x18\x18 \x01(\v2\x1a.google.protobuf.TimestampR\x17dateAccessKeepShortened\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"a\n" +
@@ -2407,7 +3527,7 @@ const file_rove_payday_tenant_svc_g_proto_rawDesc = "" +
 	"\tTenantRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02id\x12\x16\n" +
 	"\x05alias\x18\x04 \x01(\tH\x00R\x05aliasB\x05\n" +
-	"\x03key\"\xa0\x03\n" +
+	"\x03key\"\xd8\x05\n" +
 	"\fTenantSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12\x14\n" +
 	"\x05alias\x18\x04 \x01(\bR\x05alias\x12\x12\n" +
@@ -2424,7 +3544,14 @@ const file_rove_payday_tenant_svc_g_proto_rawDesc = "" +
 	"\fdate_destroy\x18\v \x01(\bR\vdateDestroy\x12\x1a\n" +
 	"\btimezone\x18\f \x01(\bR\btimezone\x12\x1a\n" +
 	"\bcurrency\x18\x10 \x01(\bR\bcurrency\x12&\n" +
-	"\x0fno_show_minutes\x18\x11 \x01(\bR\rnoShowMinutes\"\xcd\x05\n" +
+	"\x0fno_show_minutes\x18\x11 \x01(\bR\rnoShowMinutes\x12\x1b\n" +
+	"\tkeep_days\x18\x12 \x01(\bR\bkeepDays\x12(\n" +
+	"\x10access_keep_days\x18\x13 \x01(\bR\x0eaccessKeepDays\x12!\n" +
+	"\frestore_days\x18\x14 \x01(\bR\vrestoreDays\x12(\n" +
+	"\x10keep_days_before\x18\x15 \x01(\bR\x0ekeepDaysBefore\x12.\n" +
+	"\x13date_keep_shortened\x18\x16 \x01(\bR\x11dateKeepShortened\x125\n" +
+	"\x17access_keep_days_before\x18\x17 \x01(\bR\x14accessKeepDaysBefore\x12;\n" +
+	"\x1adate_access_keep_shortened\x18\x18 \x01(\bR\x17dateAccessKeepShortened\"\xbc\t\n" +
 	"\x12TenantPatchRequest\x12!\n" +
 	"\x03ref\x18\x01 \x01(\v2\x0f.rove.TenantRefR\x03ref\x12\x14\n" +
 	"\x05alias\x18\b \x01(\tR\x05alias\x12\x12\n" +
@@ -2443,7 +3570,16 @@ const file_rove_payday_tenant_svc_g_proto_rawDesc = "" +
 	"\x11date_destroy_null\x18\x17 \x01(\bR\x0fdateDestroyNull\x12\x1a\n" +
 	"\btimezone\x18\x18 \x01(\tR\btimezone\x12\x1a\n" +
 	"\bcurrency\x18  \x01(\tR\bcurrency\x12&\n" +
-	"\x0fno_show_minutes\x18\" \x01(\x05R\rnoShowMinutes\x1a9\n" +
+	"\x0fno_show_minutes\x18\" \x01(\x05R\rnoShowMinutes\x12\x1b\n" +
+	"\tkeep_days\x18$ \x01(\rR\bkeepDays\x12(\n" +
+	"\x10access_keep_days\x18& \x01(\rR\x0eaccessKeepDays\x12!\n" +
+	"\frestore_days\x18( \x01(\rR\vrestoreDays\x12(\n" +
+	"\x10keep_days_before\x18* \x01(\rR\x0ekeepDaysBefore\x12J\n" +
+	"\x13date_keep_shortened\x18, \x01(\v2\x1a.google.protobuf.TimestampR\x11dateKeepShortened\x127\n" +
+	"\x18date_keep_shortened_null\x18- \x01(\bR\x15dateKeepShortenedNull\x125\n" +
+	"\x17access_keep_days_before\x18. \x01(\rR\x14accessKeepDaysBefore\x12W\n" +
+	"\x1adate_access_keep_shortened\x180 \x01(\v2\x1a.google.protobuf.TimestampR\x17dateAccessKeepShortened\x12D\n" +
+	"\x1fdate_access_keep_shortened_null\x181 \x01(\bR\x1bdateAccessKeepShortenedNull\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"[\n" +
@@ -2467,12 +3603,34 @@ const file_rove_payday_tenant_svc_g_proto_rawDesc = "" +
 	"\aconfirm\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\aconfirm\x12\x1d\n" +
 	"\x06reason\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06reason\"9\n" +
 	"\x14TenantRestoreRequest\x12!\n" +
-	"\x03ref\x18\x01 \x01(\v2\x0f.rove.TenantRefR\x03ref\"\x9b\x01\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0f.rove.TenantRefR\x03ref\"\x85\x02\n" +
 	"\x16TenantConfigureRequest\x12!\n" +
 	"\x03ref\x18\x01 \x01(\v2\x0f.rove.TenantRefR\x03ref\x12\x1a\n" +
 	"\btimezone\x18\x02 \x01(\tR\btimezone\x12\x1a\n" +
 	"\bcurrency\x18\x03 \x01(\tR\bcurrency\x12&\n" +
-	"\x0fno_show_minutes\x18\x04 \x01(\x05R\rnoShowMinutes2\xda\x03\n" +
+	"\x0fno_show_minutes\x18\x04 \x01(\x05R\rnoShowMinutes\x12\x1b\n" +
+	"\tkeep_days\x18\x05 \x01(\rR\bkeepDays\x12(\n" +
+	"\x10access_keep_days\x18\x06 \x01(\rR\x0eaccessKeepDays\x12!\n" +
+	"\frestore_days\x18\a \x01(\rR\vrestoreDays\"\x80\x01\n" +
+	"\x14TenantPreviewRequest\x12!\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0f.rove.TenantRefR\x03ref\x12\x1b\n" +
+	"\tkeep_days\x18\x02 \x01(\rR\bkeepDays\x12(\n" +
+	"\x10access_keep_days\x18\x03 \x01(\rR\x0eaccessKeepDays\"\x85\x04\n" +
+	"\x15TenantPreviewResponse\x12\x1b\n" +
+	"\x05apply\x18\x01 \x01(\bB\x05\xaa\x01\x02\b\x02R\x05apply\x12$\n" +
+	"\n" +
+	"grace_days\x18\x02 \x01(\rB\x05\xaa\x01\x02\b\x02R\tgraceDays\x12\"\n" +
+	"\tkeep_days\x18\x03 \x01(\rB\x05\xaa\x01\x02\b\x02R\bkeepDays\x127\n" +
+	"\tkeep_from\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\bkeepFrom\x12I\n" +
+	"\n" +
+	"keep_takes\x18\x05 \x03(\v2*.rove.TenantPreviewResponse.KeepTakesEntryR\tkeepTakes\x12/\n" +
+	"\x10access_keep_days\x18\x06 \x01(\rB\x05\xaa\x01\x02\b\x02R\x0eaccessKeepDays\x12D\n" +
+	"\x10access_keep_from\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\x0eaccessKeepFrom\x121\n" +
+	"\x11access_floor_days\x18\b \x01(\rB\x05\xaa\x01\x02\b\x02R\x0faccessFloorDays\x12\x19\n" +
+	"\x04held\x18\t \x01(\bB\x05\xaa\x01\x02\b\x02R\x04held\x1a<\n" +
+	"\x0eKeepTakesEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\rR\x05value:\x028\x012\x9e\x04\n" +
 	"\rTenantService\x12+\n" +
 	"\x03Add\x12\x16.rove.TenantAddRequest\x1a\f.rove.Tenant\x12+\n" +
 	"\x03Get\x12\x16.rove.TenantGetRequest\x1a\f.rove.Tenant\x12/\n" +
@@ -2482,9 +3640,10 @@ const file_rove_payday_tenant_svc_g_proto_rawDesc = "" +
 	"\x04List\x12\x17.rove.TenantListRequest\x1a\x18.rove.TenantListResponse\x12/\n" +
 	"\x05Close\x12\x18.rove.TenantCloseRequest\x1a\f.rove.Tenant\x123\n" +
 	"\aRestore\x12\x1a.rove.TenantRestoreRequest\x1a\f.rove.Tenant\x127\n" +
-	"\tConfigure\x12\x1c.rove.TenantConfigureRequest\x1a\f.rove.TenantB\x1aZ\x18github.com/lesomnus/roveb\beditionsp\xe8\a"
+	"\tConfigure\x12\x1c.rove.TenantConfigureRequest\x1a\f.rove.Tenant\x12B\n" +
+	"\aPreview\x12\x1a.rove.TenantPreviewRequest\x1a\x1b.rove.TenantPreviewResponseB\x1aZ\x18github.com/lesomnus/roveb\beditionsp\xe8\a"
 
-var file_rove_payday_tenant_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_rove_payday_tenant_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
 var file_rove_payday_tenant_svc_g_proto_goTypes = []any{
 	(*TenantAddRequest)(nil),       // 0: rove.TenantAddRequest
 	(*TenantGetRequest)(nil),       // 1: rove.TenantGetRequest
@@ -2499,55 +3658,68 @@ var file_rove_payday_tenant_svc_g_proto_goTypes = []any{
 	(*TenantCloseRequest)(nil),     // 10: rove.TenantCloseRequest
 	(*TenantRestoreRequest)(nil),   // 11: rove.TenantRestoreRequest
 	(*TenantConfigureRequest)(nil), // 12: rove.TenantConfigureRequest
-	nil,                            // 13: rove.TenantAddRequest.LabelsEntry
-	nil,                            // 14: rove.TenantPatchRequest.LabelsEntry
-	(*timestamppb.Timestamp)(nil),  // 15: google.protobuf.Timestamp
-	(*patchpb.Patch)(nil),          // 16: patch.Patch
-	(*Tenant)(nil),                 // 17: rove.Tenant
+	(*TenantPreviewRequest)(nil),   // 13: rove.TenantPreviewRequest
+	(*TenantPreviewResponse)(nil),  // 14: rove.TenantPreviewResponse
+	nil,                            // 15: rove.TenantAddRequest.LabelsEntry
+	nil,                            // 16: rove.TenantPatchRequest.LabelsEntry
+	nil,                            // 17: rove.TenantPreviewResponse.KeepTakesEntry
+	(*timestamppb.Timestamp)(nil),  // 18: google.protobuf.Timestamp
+	(*patchpb.Patch)(nil),          // 19: patch.Patch
+	(*Tenant)(nil),                 // 20: rove.Tenant
 }
 var file_rove_payday_tenant_svc_g_proto_depIdxs = []int32{
-	13, // 0: rove.TenantAddRequest.labels:type_name -> rove.TenantAddRequest.LabelsEntry
-	15, // 1: rove.TenantAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	15, // 2: rove.TenantAddRequest.date_closed:type_name -> google.protobuf.Timestamp
-	15, // 3: rove.TenantAddRequest.date_destroy:type_name -> google.protobuf.Timestamp
-	2,  // 4: rove.TenantGetRequest.ref:type_name -> rove.TenantRef
-	3,  // 5: rove.TenantGetRequest.select:type_name -> rove.TenantSelect
-	2,  // 6: rove.TenantPatchRequest.ref:type_name -> rove.TenantRef
-	14, // 7: rove.TenantPatchRequest.labels:type_name -> rove.TenantPatchRequest.LabelsEntry
-	15, // 8: rove.TenantPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	15, // 9: rove.TenantPatchRequest.date_closed:type_name -> google.protobuf.Timestamp
-	15, // 10: rove.TenantPatchRequest.date_destroy:type_name -> google.protobuf.Timestamp
-	2,  // 11: rove.TenantApplyRequest.ref:type_name -> rove.TenantRef
-	16, // 12: rove.TenantApplyRequest.patch:type_name -> patch.Patch
-	9,  // 13: rove.TenantListRequest.filters:type_name -> rove.TenantFilter
-	17, // 14: rove.TenantListResponse.items:type_name -> rove.Tenant
-	2,  // 15: rove.TenantFilter.ref:type_name -> rove.TenantRef
-	2,  // 16: rove.TenantCloseRequest.ref:type_name -> rove.TenantRef
-	2,  // 17: rove.TenantRestoreRequest.ref:type_name -> rove.TenantRef
-	2,  // 18: rove.TenantConfigureRequest.ref:type_name -> rove.TenantRef
-	0,  // 19: rove.TenantService.Add:input_type -> rove.TenantAddRequest
-	1,  // 20: rove.TenantService.Get:input_type -> rove.TenantGetRequest
-	4,  // 21: rove.TenantService.Patch:input_type -> rove.TenantPatchRequest
-	5,  // 22: rove.TenantService.Apply:input_type -> rove.TenantApplyRequest
-	2,  // 23: rove.TenantService.Erase:input_type -> rove.TenantRef
-	7,  // 24: rove.TenantService.List:input_type -> rove.TenantListRequest
-	10, // 25: rove.TenantService.Close:input_type -> rove.TenantCloseRequest
-	11, // 26: rove.TenantService.Restore:input_type -> rove.TenantRestoreRequest
-	12, // 27: rove.TenantService.Configure:input_type -> rove.TenantConfigureRequest
-	17, // 28: rove.TenantService.Add:output_type -> rove.Tenant
-	17, // 29: rove.TenantService.Get:output_type -> rove.Tenant
-	17, // 30: rove.TenantService.Patch:output_type -> rove.Tenant
-	17, // 31: rove.TenantService.Apply:output_type -> rove.Tenant
-	6,  // 32: rove.TenantService.Erase:output_type -> rove.TenantEraseResponse
-	8,  // 33: rove.TenantService.List:output_type -> rove.TenantListResponse
-	17, // 34: rove.TenantService.Close:output_type -> rove.Tenant
-	17, // 35: rove.TenantService.Restore:output_type -> rove.Tenant
-	17, // 36: rove.TenantService.Configure:output_type -> rove.Tenant
-	28, // [28:37] is the sub-list for method output_type
-	19, // [19:28] is the sub-list for method input_type
-	19, // [19:19] is the sub-list for extension type_name
-	19, // [19:19] is the sub-list for extension extendee
-	0,  // [0:19] is the sub-list for field type_name
+	15, // 0: rove.TenantAddRequest.labels:type_name -> rove.TenantAddRequest.LabelsEntry
+	18, // 1: rove.TenantAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	18, // 2: rove.TenantAddRequest.date_closed:type_name -> google.protobuf.Timestamp
+	18, // 3: rove.TenantAddRequest.date_destroy:type_name -> google.protobuf.Timestamp
+	18, // 4: rove.TenantAddRequest.date_keep_shortened:type_name -> google.protobuf.Timestamp
+	18, // 5: rove.TenantAddRequest.date_access_keep_shortened:type_name -> google.protobuf.Timestamp
+	2,  // 6: rove.TenantGetRequest.ref:type_name -> rove.TenantRef
+	3,  // 7: rove.TenantGetRequest.select:type_name -> rove.TenantSelect
+	2,  // 8: rove.TenantPatchRequest.ref:type_name -> rove.TenantRef
+	16, // 9: rove.TenantPatchRequest.labels:type_name -> rove.TenantPatchRequest.LabelsEntry
+	18, // 10: rove.TenantPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	18, // 11: rove.TenantPatchRequest.date_closed:type_name -> google.protobuf.Timestamp
+	18, // 12: rove.TenantPatchRequest.date_destroy:type_name -> google.protobuf.Timestamp
+	18, // 13: rove.TenantPatchRequest.date_keep_shortened:type_name -> google.protobuf.Timestamp
+	18, // 14: rove.TenantPatchRequest.date_access_keep_shortened:type_name -> google.protobuf.Timestamp
+	2,  // 15: rove.TenantApplyRequest.ref:type_name -> rove.TenantRef
+	19, // 16: rove.TenantApplyRequest.patch:type_name -> patch.Patch
+	9,  // 17: rove.TenantListRequest.filters:type_name -> rove.TenantFilter
+	20, // 18: rove.TenantListResponse.items:type_name -> rove.Tenant
+	2,  // 19: rove.TenantFilter.ref:type_name -> rove.TenantRef
+	2,  // 20: rove.TenantCloseRequest.ref:type_name -> rove.TenantRef
+	2,  // 21: rove.TenantRestoreRequest.ref:type_name -> rove.TenantRef
+	2,  // 22: rove.TenantConfigureRequest.ref:type_name -> rove.TenantRef
+	2,  // 23: rove.TenantPreviewRequest.ref:type_name -> rove.TenantRef
+	18, // 24: rove.TenantPreviewResponse.keep_from:type_name -> google.protobuf.Timestamp
+	17, // 25: rove.TenantPreviewResponse.keep_takes:type_name -> rove.TenantPreviewResponse.KeepTakesEntry
+	18, // 26: rove.TenantPreviewResponse.access_keep_from:type_name -> google.protobuf.Timestamp
+	0,  // 27: rove.TenantService.Add:input_type -> rove.TenantAddRequest
+	1,  // 28: rove.TenantService.Get:input_type -> rove.TenantGetRequest
+	4,  // 29: rove.TenantService.Patch:input_type -> rove.TenantPatchRequest
+	5,  // 30: rove.TenantService.Apply:input_type -> rove.TenantApplyRequest
+	2,  // 31: rove.TenantService.Erase:input_type -> rove.TenantRef
+	7,  // 32: rove.TenantService.List:input_type -> rove.TenantListRequest
+	10, // 33: rove.TenantService.Close:input_type -> rove.TenantCloseRequest
+	11, // 34: rove.TenantService.Restore:input_type -> rove.TenantRestoreRequest
+	12, // 35: rove.TenantService.Configure:input_type -> rove.TenantConfigureRequest
+	13, // 36: rove.TenantService.Preview:input_type -> rove.TenantPreviewRequest
+	20, // 37: rove.TenantService.Add:output_type -> rove.Tenant
+	20, // 38: rove.TenantService.Get:output_type -> rove.Tenant
+	20, // 39: rove.TenantService.Patch:output_type -> rove.Tenant
+	20, // 40: rove.TenantService.Apply:output_type -> rove.Tenant
+	6,  // 41: rove.TenantService.Erase:output_type -> rove.TenantEraseResponse
+	8,  // 42: rove.TenantService.List:output_type -> rove.TenantListResponse
+	20, // 43: rove.TenantService.Close:output_type -> rove.Tenant
+	20, // 44: rove.TenantService.Restore:output_type -> rove.Tenant
+	20, // 45: rove.TenantService.Configure:output_type -> rove.Tenant
+	14, // 46: rove.TenantService.Preview:output_type -> rove.TenantPreviewResponse
+	37, // [37:47] is the sub-list for method output_type
+	27, // [27:37] is the sub-list for method input_type
+	27, // [27:27] is the sub-list for extension type_name
+	27, // [27:27] is the sub-list for extension extendee
+	0,  // [0:27] is the sub-list for field type_name
 }
 
 func init() { file_rove_payday_tenant_svc_g_proto_init() }
@@ -2566,7 +3738,7 @@ func file_rove_payday_tenant_svc_g_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_payday_tenant_svc_g_proto_rawDesc), len(file_rove_payday_tenant_svc_g_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   15,
+			NumMessages:   18,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -347,35 +347,32 @@ func (b0 Notification_builder) Build() *Notification {
 	return m0
 }
 
-// TenantContract is what a tenant's contract says about its history: how far
-// back it may look, how long its history and its access record are kept, and
-// how long it may be restored once closed (design 8, #144).
+// TenantContract is what the operator's agreement with a workspace says of
+// what the deployment owes beyond it: whether its trail goes whole when it is
+// destroyed (payday#115). How long the workspace keeps its history, its
+// access record and its restore window are its own settings, its owner's to
+// say (`Tenant.keep_days` and beside it, D36).
 //
 // The operator's, and the tenant's to read: no role may write one, and the
-// operator's path does (`rove contract`). Not fields on Tenant, because a
-// tenant's own people write that row, and because a contract has a time
-// dimension -- a plan changes on the first of the month, a downgrade waits out
-// its grace -- which a row per change states and a field cannot.
+// operator's path does (`rove contract`, `rove-admin contract`). Not a field
+// on Tenant, because a tenant's own people write that row, and because a
+// contract has a time dimension -- an agreement signed for the first of next
+// month -- which a row per change states and a field cannot.
 //
-// The one in force is the latest whose `date_effective` has come. What the
-// windows are now, grace included, is `server/retention`.
+// The one in force is the latest whose `date_effective` has come. What it
+// comes to now is `server/retention`.
 type TenantContract struct {
-	state                     protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id             []byte                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Tenant         *Tenant                `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Name           string                 `protobuf:"bytes,5,opt,name=name"`
-	xxx_hidden_Desc           string                 `protobuf:"bytes,6,opt,name=desc"`
-	xxx_hidden_ViewDays       uint32                 `protobuf:"varint,8,opt,name=view_days,json=viewDays"`
-	xxx_hidden_KeepDays       uint32                 `protobuf:"varint,9,opt,name=keep_days,json=keepDays"`
-	xxx_hidden_GraceDays      uint32                 `protobuf:"varint,10,opt,name=grace_days,json=graceDays"`
-	xxx_hidden_DateEffective  *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=date_effective,json=dateEffective"`
-	xxx_hidden_AccessKeepDays uint32                 `protobuf:"varint,12,opt,name=access_keep_days,json=accessKeepDays"`
-	xxx_hidden_RestoreDays    uint32                 `protobuf:"varint,16,opt,name=restore_days,json=restoreDays"`
-	xxx_hidden_PurgeFloors    bool                   `protobuf:"varint,17,opt,name=purge_floors,json=purgeFloors"`
-	xxx_hidden_DateErased     *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=date_erased,json=dateErased"`
-	xxx_hidden_DateCreated    *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
-	unknownFields             protoimpl.UnknownFields
-	sizeCache                 protoimpl.SizeCache
+	state                    protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id            []byte                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Tenant        *Tenant                `protobuf:"bytes,2,opt,name=tenant"`
+	xxx_hidden_Name          string                 `protobuf:"bytes,5,opt,name=name"`
+	xxx_hidden_Desc          string                 `protobuf:"bytes,6,opt,name=desc"`
+	xxx_hidden_DateEffective *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=date_effective,json=dateEffective"`
+	xxx_hidden_PurgeFloors   bool                   `protobuf:"varint,17,opt,name=purge_floors,json=purgeFloors"`
+	xxx_hidden_DateErased    *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=date_erased,json=dateErased"`
+	xxx_hidden_DateCreated   *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *TenantContract) Reset() {
@@ -431,46 +428,11 @@ func (x *TenantContract) GetDesc() string {
 	return ""
 }
 
-func (x *TenantContract) GetViewDays() uint32 {
-	if x != nil {
-		return x.xxx_hidden_ViewDays
-	}
-	return 0
-}
-
-func (x *TenantContract) GetKeepDays() uint32 {
-	if x != nil {
-		return x.xxx_hidden_KeepDays
-	}
-	return 0
-}
-
-func (x *TenantContract) GetGraceDays() uint32 {
-	if x != nil {
-		return x.xxx_hidden_GraceDays
-	}
-	return 0
-}
-
 func (x *TenantContract) GetDateEffective() *timestamppb.Timestamp {
 	if x != nil {
 		return x.xxx_hidden_DateEffective
 	}
 	return nil
-}
-
-func (x *TenantContract) GetAccessKeepDays() uint32 {
-	if x != nil {
-		return x.xxx_hidden_AccessKeepDays
-	}
-	return 0
-}
-
-func (x *TenantContract) GetRestoreDays() uint32 {
-	if x != nil {
-		return x.xxx_hidden_RestoreDays
-	}
-	return 0
 }
 
 func (x *TenantContract) GetPurgeFloors() bool {
@@ -513,28 +475,8 @@ func (x *TenantContract) SetDesc(v string) {
 	x.xxx_hidden_Desc = v
 }
 
-func (x *TenantContract) SetViewDays(v uint32) {
-	x.xxx_hidden_ViewDays = v
-}
-
-func (x *TenantContract) SetKeepDays(v uint32) {
-	x.xxx_hidden_KeepDays = v
-}
-
-func (x *TenantContract) SetGraceDays(v uint32) {
-	x.xxx_hidden_GraceDays = v
-}
-
 func (x *TenantContract) SetDateEffective(v *timestamppb.Timestamp) {
 	x.xxx_hidden_DateEffective = v
-}
-
-func (x *TenantContract) SetAccessKeepDays(v uint32) {
-	x.xxx_hidden_AccessKeepDays = v
-}
-
-func (x *TenantContract) SetRestoreDays(v uint32) {
-	x.xxx_hidden_RestoreDays = v
 }
 
 func (x *TenantContract) SetPurgeFloors(v bool) {
@@ -598,33 +540,12 @@ type TenantContract_builder struct {
 
 	Id     []byte
 	Tenant *Tenant
-	// The plan, as the people reading it call it: "free", "pro", an agreement's
-	// number.
+	// The agreement, as the people reading it call it: an agreement's number,
+	// "standard".
 	Name string
 	Desc string
-	// How far back the tenant may look at its history, in days. 0 is all of it.
-	// It shrinks the moment a contract says so.
-	ViewDays uint32
-	// How long its history is kept at all, in days. 0 is forever. Only the
-	// operator's switch, `app.retention.apply`, lets this destroy anything.
-	KeepDays uint32
-	// How long a shorter `keep_days` waits before it applies, in days: the
-	// contract before this one keeps its history for that long, so a plan that
-	// comes back in time has lost nothing.
-	GraceDays uint32
 	// From when this one applies. Unsaid is now.
 	DateEffective *timestamppb.Timestamp
-	// How long the access record -- who read, wrote or took out whose data in
-	// the workspace -- is kept, in days (rove#136, #144). 0 is the deployment's
-	// `audit.by.access`. A shorter one waits out the grace as `keep_days` does,
-	// and none goes below the deployment's floor, `audit.by.access.min`, which
-	// it is raised to: the floor is what the law the deployment is under asks.
-	AccessKeepDays uint32
-	// How long the workspace may be restored once it is closed, in days, before
-	// it is destroyed (D29). 0 is the deployment's
-	// `app.workspaces.restore_within`. Read when it is closed: what the date of
-	// its destruction is then is what its owner is told.
-	RestoreDays uint32
 	// Whether the workspace's trail goes whole when it is destroyed, what the
 	// deployment's floors (`audit.min`, `audit.by.<kind>.min`) are still on with
 	// it (payday's `PurgeTenant`): for a workspace under a law or an agreement
@@ -632,8 +553,9 @@ type TenantContract_builder struct {
 	// (`RetireTenant`, payday#115): what a floor is still on stays -- the access
 	// record PIPA has a processor keep for a year, whoever's data it was -- until
 	// the floor has passed, and the rest goes when the workspace does. One that
-	// purges waits out the grace of the contract before it, as a shorter
-	// `keep_days` does. Read when the workspace is destroyed.
+	// purges waits out the deployment's grace (`app.retention.grace`) while the
+	// contract before it retires, as a shorter `keep_days` does. Read when the
+	// workspace is destroyed.
 	PurgeFloors bool
 	// Withdrawn, for a change that was a mistake. A contract in force is
 	// replaced by a newer one rather than taken back.
@@ -649,12 +571,7 @@ func (b0 TenantContract_builder) Build() *TenantContract {
 	x.xxx_hidden_Tenant = b.Tenant
 	x.xxx_hidden_Name = b.Name
 	x.xxx_hidden_Desc = b.Desc
-	x.xxx_hidden_ViewDays = b.ViewDays
-	x.xxx_hidden_KeepDays = b.KeepDays
-	x.xxx_hidden_GraceDays = b.GraceDays
 	x.xxx_hidden_DateEffective = b.DateEffective
-	x.xxx_hidden_AccessKeepDays = b.AccessKeepDays
-	x.xxx_hidden_RestoreDays = b.RestoreDays
 	x.xxx_hidden_PurgeFloors = b.PurgeFloors
 	x.xxx_hidden_DateErased = b.DateErased
 	x.xxx_hidden_DateCreated = b.DateCreated
@@ -1130,20 +1047,13 @@ const file_rove_ops_proto_rawDesc = "" +
 	"\x06holder\x1a\x06\n" +
 	"\x04kind 2(\xc8\x01B\x02\n" +
 	"\x00\"\x17\n" +
-	"\x06tenant\"\rholder.tenant\"\xb5\x05\n" +
+	"\x06tenant\"\rholder.tenant\"\xdd\x04\n" +
 	"\x0eTenantContract\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x12\n" +
 	"\x04name\x18\x05 \x01(\tR\x04name\x12\x12\n" +
-	"\x04desc\x18\x06 \x01(\tR\x04desc\x12\x1b\n" +
-	"\tview_days\x18\b \x01(\rR\bviewDays\x12\x1b\n" +
-	"\tkeep_days\x18\t \x01(\rR\bkeepDays\x12\x1d\n" +
-	"\n" +
-	"grace_days\x18\n" +
-	" \x01(\rR\tgraceDays\x12J\n" +
-	"\x0edate_effective\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\rdateEffective\x121\n" +
-	"\x10access_keep_days\x18\f \x01(\rB\a\xea\x82\x16\x03\x82\x01\x00R\x0eaccessKeepDays\x12*\n" +
-	"\frestore_days\x18\x10 \x01(\rB\a\xea\x82\x16\x03\x82\x01\x00R\vrestoreDays\x12*\n" +
+	"\x04desc\x18\x06 \x01(\tR\x04desc\x12J\n" +
+	"\x0edate_effective\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\rdateEffective\x12*\n" +
 	"\fpurge_floors\x18\x11 \x01(\bB\a\xea\x82\x16\x03\x82\x01\x00R\vpurgeFloors\x12D\n" +
 	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
 	"dateErased\x12H\n" +
@@ -1158,7 +1068,10 @@ const file_rove_ops_proto_rawDesc = "" +
 	"\b\n" +
 	"\x04\n" +
 	"\x02id\x10\x01\x1a\x05\n" +
-	"\x03ref \x14(d\"\xfa\x02\n" +
+	"\x03ref \x14(dJ\x04\b\b\x10\tJ\x04\b\t\x10\n" +
+	"J\x04\b\n" +
+	"\x10\vJ\x04\b\f\x10\rJ\x04\b\x10\x10\x11R\tview_daysR\tkeep_daysR\n" +
+	"grace_daysR\x10access_keep_daysR\frestore_days\"\xfa\x02\n" +
 	"\tLegalHold\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x12\n" +

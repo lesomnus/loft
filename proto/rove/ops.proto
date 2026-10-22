@@ -86,18 +86,20 @@ message Notification {
 // the trail still names rows by it.
 
 
-// TenantContract is what a tenant's contract says about its history: how far
-// back it may look, how long its history and its access record are kept, and
-// how long it may be restored once closed (design 8, #144).
+// TenantContract is what the operator's agreement with a workspace says of
+// what the deployment owes beyond it: whether its trail goes whole when it is
+// destroyed (payday#115). How long the workspace keeps its history, its
+// access record and its restore window are its own settings, its owner's to
+// say (`Tenant.keep_days` and beside it, D36).
 //
 // The operator's, and the tenant's to read: no role may write one, and the
-// operator's path does (`rove contract`). Not fields on Tenant, because a
-// tenant's own people write that row, and because a contract has a time
-// dimension -- a plan changes on the first of the month, a downgrade waits out
-// its grace -- which a row per change states and a field cannot.
+// operator's path does (`rove contract`, `rove-admin contract`). Not a field
+// on Tenant, because a tenant's own people write that row, and because a
+// contract has a time dimension -- an agreement signed for the first of next
+// month -- which a row per change states and a field cannot.
 //
-// The one in force is the latest whose `date_effective` has come. What the
-// windows are now, grace included, is `server/retention`.
+// The one in force is the latest whose `date_effective` has come. What it
+// comes to now is `server/retention`.
 message TenantContract {
   bytes id = 1 [(orm.field) = {
     type: TYPE_UUID
@@ -107,39 +109,20 @@ message TenantContract {
 
   Tenant tenant = 2 [(orm.edge) = {immutable: true}];
 
-  // The plan, as the people reading it call it: "free", "pro", an agreement's
-  // number.
+  // The agreement, as the people reading it call it: an agreement's number,
+  // "standard".
   string name = 5;
   string desc = 6;
 
-  // How far back the tenant may look at its history, in days. 0 is all of it.
-  // It shrinks the moment a contract says so.
-  uint32 view_days = 8;
-
-  // How long its history is kept at all, in days. 0 is forever. Only the
-  // operator's switch, `app.retention.apply`, lets this destroy anything.
-  uint32 keep_days = 9;
-
-  // How long a shorter `keep_days` waits before it applies, in days: the
-  // contract before this one keeps its history for that long, so a plan that
-  // comes back in time has lost nothing.
-  uint32 grace_days = 10;
+  // Were the view window, how long the history was kept, the grace a shorter
+  // one waited out, the access record's keep and the restore window: the
+  // view is gone, and what is kept is what is seen; the rest are the
+  // workspace's own (D36), and the grace the deployment's.
+  reserved 8, 9, 10, 12, 16;
+  reserved view_days, keep_days, grace_days, access_keep_days, restore_days;
 
   // From when this one applies. Unsaid is now.
   google.protobuf.Timestamp date_effective = 11 [(orm.field) = {default: ""}];
-
-  // How long the access record -- who read, wrote or took out whose data in
-  // the workspace -- is kept, in days (rove#136, #144). 0 is the deployment's
-  // `audit.by.access`. A shorter one waits out the grace as `keep_days` does,
-  // and none goes below the deployment's floor, `audit.by.access.min`, which
-  // it is raised to: the floor is what the law the deployment is under asks.
-  uint32 access_keep_days = 12 [(orm.field) = {default: ""}];
-
-  // How long the workspace may be restored once it is closed, in days, before
-  // it is destroyed (D29). 0 is the deployment's
-  // `app.workspaces.restore_within`. Read when it is closed: what the date of
-  // its destruction is then is what its owner is told.
-  uint32 restore_days = 16 [(orm.field) = {default: ""}];
 
   // Whether the workspace's trail goes whole when it is destroyed, what the
   // deployment's floors (`audit.min`, `audit.by.<kind>.min`) are still on with
@@ -148,8 +131,9 @@ message TenantContract {
   // (`RetireTenant`, payday#115): what a floor is still on stays -- the access
   // record PIPA has a processor keep for a year, whoever's data it was -- until
   // the floor has passed, and the rest goes when the workspace does. One that
-  // purges waits out the grace of the contract before it, as a shorter
-  // `keep_days` does. Read when the workspace is destroyed.
+  // purges waits out the deployment's grace (`app.retention.grace`) while the
+  // contract before it retires, as a shorter `keep_days` does. Read when the
+  // workspace is destroyed.
   bool purge_floors = 17 [(orm.field) = {default: ""}];
 
   // Withdrawn, for a change that was a mistake. A contract in force is

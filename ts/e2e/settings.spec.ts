@@ -90,3 +90,44 @@ test("a workspace's owner says where it is, and its amounts are in its currency"
 	await expect(row).toContainText('오전 10:00')
 	await expect(row).toContainText('US$40.25')
 })
+
+// How long a workspace keeps its history is its owner's to say (D36), and what
+// a shorter window would take -- and from when, once the deployment's grace is
+// over -- is said before it is saved.
+test("a workspace's owner says how long it keeps its history, and is told first what that takes", async ({ page }) => {
+	const name = unique('e2e 보관')
+	await signIn(page, people.keeper.login)
+
+	const switcher = page.locator('summary')
+	await switcher.click()
+	await page.getByRole('button', { name: '+ 새 워크스페이스' }).click()
+	await page.getByPlaceholder('워크스페이스 이름').fill(name)
+	await page.getByRole('button', { name: '만들기', exact: true }).click()
+	await expect(switcher).toHaveText(name)
+
+	await page.getByRole('navigation').getByRole('link', { name: /설정/ }).click()
+	await page.getByRole('tab', { name: '워크스페이스' }).click()
+	const keep = card(page, '기록 보관')
+	await expect(field(keep, '이력 보관 (일)')).toHaveValue('')
+	await expect(keep.getByRole('status')).toHaveCount(0)
+
+	// A shorter window, said before it is saved: from when -- once the grace
+	// is over -- what it takes then of what the workspace has, its own
+	// beginning among it, and that this deployment destroys nothing by it yet.
+	await field(keep, '이력 보관 (일)').fill('30')
+	const told = keep.getByRole('status')
+	const then = new Intl.DateTimeFormat('ko-KR', { dateStyle: 'medium', timeZone: 'Asia/Seoul' }).format(
+		new Date(Date.now() + 30 * 86400_000),
+	)
+	await expect(told).toContainText(`${then}부터 30일보다 오래된 이력이 지워집니다`)
+	await expect(told).toContainText(/작업 기록 \d+건/)
+	await expect(told).toContainText('이 배포는 아직 보관 기간으로 기록을 지우지 않습니다')
+	await expect(told).not.toContainText('접속기록')
+
+	const drawn = page.waitForEvent('load')
+	await keep.getByRole('button', { name: '저장', exact: true }).click()
+	await drawn
+	await expect(field(keep, '이력 보관 (일)')).toHaveValue('30')
+	await expect(keep.getByRole('status')).toHaveCount(0)
+	await expect(keep).toContainText('줄인 이력 보관 기간은')
+})

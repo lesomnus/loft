@@ -32,7 +32,7 @@ go run ./cmd/rove serve
 - **약관 동의**(design 9.11): `app.consent.terms`와 `app.consent.privacy`에 버전과 문서 주소를 주면, 계정은 처음 들어올 때(그리고 버전이 바뀔 때마다) 동의 화면을 봅니다. 동의하기 전에는 모든 호출이 거부되고, 터미널에는 `rove consent`(무엇에 동의해야 하는지와 주소)와 `rove consent --agree`가 있습니다. 동의는 문서·버전·시각·화면/터미널로 계정마다 기록되고(내 정보 › 동의한 문서), 개인 워크스페이스는 동의한 뒤에 생깁니다. 동의하지 않아도 자기 워크스페이스의 데이터는 내려받을 수 있습니다. 문서 내용은 운영자가 따로 게시합니다. 버전을 비워 두면(기본값) 아무것도 묻지 않습니다. 계정이 탈퇴하면 그 동의 기록에 탈퇴 시각이 남고, `app.consent.keep`(예: `26280h`)이 지나면 지워집니다. 비워 두면(기본값) 지우지 않습니다. 기간은 법률 검토 뒤에 정합니다. 동의·탈퇴·삭제는 각각 감사 기록에 남습니다(`rove.consent.agree`, `.left`, `.destroy`). 감사 기록에는 그런 일이 있었다는 것(누가, 언제, 어느 행, 그 행의 지문)만 있고, 어느 문서의 어느 버전에 동의했는지는 없습니다. 이 기록은 감사 기록의 보존 기간(`audit.by.consent`, 없으면 배포 전체의 것)만큼 남습니다.
 - 처음 로그인한 계정이 어느 워크스페이스에도 없으면 자기 워크스페이스가 하나 생깁니다(가입). 워크스페이스는 계정마다 3개까지 더 만들 수 있고(`app.workspaces.owned`), 그 이상은 결제가 필요합니다(닫은 워크스페이스는 세지 않습니다). 이름은 직접 정하고, 주소(`/@…`)는 영문 소문자와 숫자 7자로 무작위로 정해집니다. 헷갈리는 i·l·o·0·1은 쓰지 않고 첫 글자는 영문입니다. 7자 주소가 붐비면 저절로 8자가 됩니다(`app.workspaces.alias_length`).
 - 주소는 사용자가 바꿀 수 없습니다. 운영자가 `rove tenant alias --tenant <지금 주소> --to <새 주소> --yes`로 바꾸면, 이전 주소는 1년(`app.workspaces.alias_hold`) 동안 아무도 쓰지 못하게 보류되고 그동안 새 주소로 넘겨 줍니다. 예약어(`www`, `api`, `admin`, `l`, `sso`, `login` 등, `app.workspaces.reserved`로 더함)는 쓸 수 없습니다.
-- **워크스페이스 닫기**(D29): 소유자는 설정 › 워크스페이스에서 이름을 입력해 닫습니다. 닫으면 소유자 말고는 아무도 들어오지 못하고, 소유자는 복구 기간 안에 복구하거나 모든 데이터를 zip으로 내려받을 수 있습니다. 복구 기간은 그 워크스페이스의 계약이 정하고(`rove contract set --restore`), 계약이 말하지 않으면 30일(`app.workspaces.restore_within`)입니다. 닫기 화면이 그 기간을 알려 줍니다. 그 뒤에는 모든 데이터와 파일이 지워지고(법적 보존이 걸려 있으면 풀릴 때까지 기다림), 주소는 1년(`app.workspaces.alias_hold`) 동안 보류됩니다. 감사 기록은 계약이 정한 대로 떠납니다. 기본은 **은퇴**(retire)라서, 배포의 바닥값(`audit.min`, `audit.by.<종류>.min`)이 걸린 기록(접속기록 등)은 그 바닥값이 지날 때까지 남고 나머지는 함께 지워집니다. 계약이 `--purge-floors`를 말하면 감사 기록도 모두 지워집니다(아래 '조직 탈퇴'). 계정 탈퇴로 구성원이 아무도 남지 않은 워크스페이스는 저절로 닫힙니다. 운영자는 `rove tenant close|restore --tenant <주소> --yes`로 대신 닫고 엽니다.
+- **워크스페이스 닫기**(D29): 소유자는 설정 › 워크스페이스에서 이름을 입력해 닫습니다. 닫으면 소유자 말고는 아무도 들어오지 못하고, 소유자는 복구 기간 안에 복구하거나 모든 데이터를 zip으로 내려받을 수 있습니다. 복구 기간은 그 워크스페이스가 정하고(설정 › 워크스페이스 › 기록 보관), 정하지 않으면 30일(`app.workspaces.restore_within`)입니다. 닫기 화면이 그 기간을 알려 줍니다. 그 뒤에는 모든 데이터와 파일이 지워지고(법적 보존이 걸려 있으면 풀릴 때까지 기다림), 주소는 1년(`app.workspaces.alias_hold`) 동안 보류됩니다. 감사 기록은 계약이 정한 대로 떠납니다. 기본은 **은퇴**(retire)라서, 배포의 바닥값(`audit.min`, `audit.by.<종류>.min`)이 걸린 기록(접속기록 등)은 그 바닥값이 지날 때까지 남고 나머지는 함께 지워집니다. 계약이 `--purge-floors`를 말하면 감사 기록도 모두 지워집니다(아래 '조직 탈퇴'). 계정 탈퇴로 구성원이 아무도 남지 않은 워크스페이스는 저절로 닫힙니다. 운영자는 `rove tenant close|restore --tenant <주소> --yes`로 대신 닫고 엽니다.
 - **지역과 예약**(rove#144): 소유자는 설정 › 워크스페이스 › 지역과 예약에서 세 가지를 정합니다. 비워 두면 배포의 기본값(`app.locale`, `app.no_show_after`)을 따릅니다.
   - **시간대:** 그 워크스페이스의 날짜가 이 시간대를 따릅니다. 화면에 보이는 날짜와 화면에서 입력하는 시각(브라우저가 어느 시간대에 있든), 자산 대장 CSV의 날짜, 알림 문장의 시각, 하루 단위 집계의 날짜 경계, 대량 등록이 읽는 날짜, 새 예약 공간의 기본 시간대가 모두 그렇습니다. `app.locale.timezone`을 비우면 Asia/Seoul입니다.
   - **통화:** 새 구매와 새 작업의 금액이 이 통화로 기록됩니다. 이미 기록된 금액은 기록할 때의 통화 그대로이고, 환산하지 않습니다. 비용이 있는 작업의 통화를 바꾸려면 그 통화로 비용도 함께 적어야 합니다. 금액은 그 통화의 최소 단위의 정수입니다(KRW는 원, USD는 센트). 그래서 화면에서 12.50달러를 넣으면 1250으로 저장됩니다. `app.locale.currency`를 비우면 KRW입니다.
@@ -357,28 +357,27 @@ Kubernetes에 띄우는 참조 배포는 [`deploy/k8s`](deploy/k8s/README.md)입
 
 e2e는 어느 화면이든 정책을 어기면 실패합니다(`ts/e2e/rove.ts`).
 
-### 조직별 이력 보존 (운영자)
+### 조직별 이력 보존
 
-조직마다 이력을 얼마나 뒤까지 보여 주고 얼마나 보관할지는 그 조직의 **계약**이 정합니다(design 8). 접속기록을 얼마나 보관할지와 닫은 워크스페이스를 얼마나 복구할 수 있는지도 계약이 정합니다(rove#144). 계약과 법적 보존(hold)은 운영자의 것이라 셸에서만 씁니다. 조직의 사람은 읽기만 합니다.
+워크스페이스가 이력을 얼마나 보관할지는 **워크스페이스가 정합니다**(design 8, D36). 소유자가 설정 › 워크스페이스 › 기록 보관에서 정합니다. 접속기록을 얼마나 보관할지와 닫은 뒤 얼마나 복구할 수 있는지도 같은 자리에서 정합니다(rove#144). 보관하는 기록은 모두 보입니다. 조회 기간을 따로 두지 않습니다.
+
+- **이력**: 비우면 영원히 보관합니다.
+- **접속기록**: 비우면 배포의 `audit.by.access`를 따릅니다. 배포의 바닥값(`audit.by.access.min`)보다 짧게는 정할 수 없습니다.
+- **닫은 뒤 복구 기간**: 비우면 배포의 `app.workspaces.restore_within`을 따릅니다.
+- **줄인 기간은 유예가 지난 뒤에 적용됩니다**(`app.retention.grace`, 기본 30일). 그때까지는 그 전 기간을 지키므로, 그 안에 되돌리면 아무것도 지워지지 않습니다. 저장하기 전에 화면이 언제부터 무엇이 몇 건 지워지는지 보여 줍니다(`TenantService.Preview`).
+
+운영자의 몫은 **계약**과 법적 보존(hold)입니다. 셸에서만 쓰고, 조직의 사람은 읽기만 합니다. 계약은 파기할 때 감사 기록을 어떻게 할지만 정합니다(아래 '조직 탈퇴').
 
 ```sh
-# 내년 1월부터: 1년치를 보여 주고 2년치를 보관
-go run ./cmd/rove contract set --tenant rove --name free --view 365 --keep 730 --effective 2027-01-01
-# 줄어드는 보관 기간은 유예(--grace, 일)가 지나야 적용됩니다. 보기 기간은 바로 줄어듭니다
-go run ./cmd/rove contract set --tenant rove --name trial --view 90 --keep 180 --grace 30
-# 접속기록은 1년, 닫은 뒤 복구는 90일 (0은 배포의 것)
-go run ./cmd/rove contract set --tenant rove --name enterprise --access-keep 365 --restore 90
-# 파기할 때 감사 기록을 모두 지움: 배포의 바닥값이 걸린 것까지 (아래 '조직 탈퇴')
-go run ./cmd/rove contract set --tenant rove --name abroad --purge-floors
-go run ./cmd/rove contract show --tenant rove   # 계약들과 지금 적용되는 기간, 걸린 hold
+# 파기할 때 감사 기록을 모두 지움: 배포의 바닥값이 걸린 것까지
+go run ./cmd/rove contract set --tenant rove --name abroad --purge-floors --effective 2027-01-01
+go run ./cmd/rove contract show --tenant rove   # 계약들, 워크스페이스가 정한 기간이 지금 어떻게 되는지, 걸린 hold
 
 go run ./cmd/rove hold place --tenant rove --why "사건 2026-1"   # 이력을 아무것도 지우지 않음
 go run ./cmd/rove hold lift <hold-id>
 ```
 
-보기 기간은 바로 적용됩니다: 자산 이력, 시점 조회·비교, 작업 기록, 감사 기록, 끝난 예약·지급·작업·실사·재고 내역이 그 기간 안의 것만 답합니다. 아직 끝나지 않은 것(돌려받지 않은 대여 등)은 아무리 오래되어도 보입니다.
-
-**지우는 일은 기본으로 꺼져 있습니다.** 고지·내보내기·유예·백업 정책이 정해지기 전에는 파괴적인 동작을 켜지 않는다는 원칙(design 1장) 때문입니다. 계약이 없는 조직은 `app.retention.view`·`keep` 을 따르고, 그것도 없으면 전부 보여 주고 전부 보관합니다.
+**지우는 일은 기본으로 꺼져 있습니다.** 고지·내보내기·유예·백업 정책이 정해지기 전에는 파괴적인 동작을 켜지 않는다는 원칙(design 1장) 때문입니다. 꺼져 있어도 기간은 읽힙니다. 설정 화면과 `plan`이 무엇이 지워질지 말해 줍니다.
 
 ```sh
 go run ./cmd/rove retention plan                 # 지금 지우면 무엇이 몇 건 사라지는지 (아무것도 바꾸지 않음)
@@ -386,7 +385,9 @@ go run ./cmd/rove retention plan --tenant rove   # 한 조직만
 go run ./cmd/rove retention run                  # 실제로 지움 — app.retention.apply 가 켜져 있을 때만
 ```
 
-`plan` 은 삭제를 트랜잭션 안에서 실제로 해 보고 되돌리므로, 말하는 숫자가 `run` 이 지우는 숫자와 같습니다. `app.retention.apply: true` 이면 `serve` 가 `app.retention.every`(기본 1시간)마다 같은 일을 하고, 감사 기록의 이력 종류도 같은 기간으로 지웁니다. 지운 뒤에는 무엇을 몇 건, 어느 날짜 이전 것을 지웠는지만 적은 기록(`retention.expired` 작업 기록)이 남습니다. 지워지는 것은 보관 기간이 시작되기 전에 **끝난** 이력입니다: 끝났거나 정정된 위치·담당·관계 기록, 그 뒤에 바뀐 속성 값, 아무 기록도 가리키지 않는 작업 기록, 끝난 예약·다 돌려받은 지급·닫힌 실사·끝난 작업, 재고 이동. 기간이 시작될 때의 상태, 아직 끝나지 않은 것, 등록(취득) 기록과 폐기·불용·분실 상태는 남습니다. hold가 걸린 조직은 아무것도 지우지 않습니다.
+`plan` 은 삭제를 트랜잭션 안에서 실제로 해 보고 되돌리므로, 말하는 숫자가 `run` 이 지우는 숫자와 같습니다. 설정 화면의 미리 보기는 같은 조건으로 세기만 하므로 행을 잠그지 않습니다. `app.retention.apply: true` 이면 `serve` 가 `app.retention.every`(기본 1시간)마다 같은 일을 하고, 감사 기록의 이력 종류도 같은 기간으로 지웁니다. 지운 뒤에는 무엇을 몇 건, 어느 날짜 이전 것을 지웠는지만 적은 기록(`retention.expired` 작업 기록)이 남습니다. 지워지는 것은 보관 기간이 시작되기 전에 **끝난** 이력입니다: 끝났거나 정정된 위치·담당·관계 기록, 그 뒤에 바뀐 속성 값, 아무 기록도 가리키지 않는 작업 기록, 끝난 예약·다 돌려받은 지급·닫힌 실사·끝난 작업, 재고 이동. 기간이 시작될 때의 상태, 아직 끝나지 않은 것, 등록(취득) 기록과 폐기·불용·분실 상태는 남습니다. hold가 걸린 조직은 아무것도 지우지 않습니다.
+
+이 버전으로 올리면 마이그레이션이 계약에 있던 보관·접속기록·복구 기간을 워크스페이스로 한 번 옮깁니다. 효력 중인 계약의 값을 옮기고, 그 전 계약의 값은 유예가 지킬 그 전 값으로 옮깁니다. 앞으로 효력이 생길 계약의 그 값은 옮기지 않습니다. 옮긴 뒤 한 번 해야 할 일은 `docs/runbook/trail-integrity.md`에 있습니다.
 
 ### 운영자 진입점 (rove-admin)
 
@@ -400,13 +401,12 @@ ROVE_ADMIN_KEYS='{"alice": "env:ALICE_KEY"}' go run ./cmd/rove-admin serve
 # 운영자의 컴퓨터에서: 진입점 주소와 자기 키 (--url, --key로 줘도 됨)
 export ROVE_ADMIN_URL=http://127.0.0.1:8081 ROVE_ADMIN_KEY=env:ALICE_KEY
 go run ./cmd/rove-admin workspace ls --q acme                     # 주소·이름의 일부로 찾기 (--closed: 닫힌 것만)
-go run ./cmd/rove-admin workspace show acme                       # 구성원, 계약, hold
+go run ./cmd/rove-admin workspace show acme                       # 구성원, 워크스페이스가 정한 보관 기간, 계약, hold
 go run ./cmd/rove-admin workspace close --reason "요청" --yes acme # 닫기 (소유자는 복구 기간 안에 복구할 수 있음)
 go run ./cmd/rove-admin workspace restore --yes acme
 go run ./cmd/rove-admin workspace owner --member kim --yes acme    # 구성원을 소유자로 지정
 go run ./cmd/rove-admin workspace alias --to acme-kr --yes acme    # 주소 바꾸기 (이전 주소는 보류되고 새 주소로 넘김)
-go run ./cmd/rove-admin contract set --view 365 --keep 730 --yes acme
-go run ./cmd/rove-admin contract set --access-keep 365 --restore 90 --purge-floors --yes acme   # 셸의 `rove contract set`과 같은 항목
+go run ./cmd/rove-admin contract set --name abroad --purge-floors --yes acme   # 셸의 `rove contract set`과 같은 항목
 go run ./cmd/rove-admin hold place --why "사건 번호" --yes acme; go run ./cmd/rove-admin hold lift --yes <ID>
 ```
 
@@ -430,7 +430,7 @@ go run ./cmd/rove tenant purge --tenant rove --yes             # 감사 기록�
 - **바닥값**(`audit.min`, `audit.by.<종류>.min`)은 배포가 법 때문에 지켜야 하는 최소 보관 기간입니다. 예를 들어 개인정보 보호법은 처리자에게 접속기록을 누구의 정보였든 1년 보관하게 하므로, `deploy/`의 설정은 `audit.by.access.min: {profile: pipa}`입니다.
 - **retire**는 바닥값이 아직 걸린 감사 기록을 DB와 보관소에 그대로 두고, 나머지는 지금 지웁니다. 남긴 기록은 보존 패스가 바닥값이 지나는 대로 지우고, 마지막 바닥값이 지나면 남은 것과 그 조직의 키까지 지웁니다. 출력의 `kept until …`이 무엇을 언제까지 남기는지입니다.
 - **purge**는 바닥값이 걸린 것까지 모두 지금 지웁니다. 그 조직이 바닥값의 법이 아닌 다른 법이나 계약 아래에 있어 모두 지워야 할 때 씁니다.
-- **기본은 retire입니다.** 닫힌 워크스페이스를 파기하는 sweep은 파기하는 순간 효력이 있는 계약을 따릅니다. 계약이 `--purge-floors`를 말하지 않으면(계약이 없을 때도) retire입니다. 줄어드는 보관 기간처럼, purge로 바꾸는 계약은 앞 계약의 유예(`--grace`)가 지난 뒤에 적용됩니다. 손으로 하는 `retire`와 `purge`는 이름대로 하고, 계약이 다른 쪽을 말하면 미리 보기에서 알려 줍니다.
+- **기본은 retire입니다.** 닫힌 워크스페이스를 파기하는 sweep은 파기하는 순간 효력이 있는 계약을 따릅니다. 계약이 `--purge-floors`를 말하지 않으면(계약이 없을 때도) retire입니다. 줄어드는 보관 기간처럼, purge로 바꾸는 계약은 앞 계약이 retire였다면 배포의 유예(`app.retention.grace`)가 지난 뒤에 적용됩니다. 손으로 하는 `retire`와 `purge`는 이름대로 하고, 계약이 다른 쪽을 말하면 미리 보기에서 알려 줍니다.
 - **retire는 보관소가 있어야 합니다.** 남기는 기록과 그 조직이 떠났다는 서명된 기록을 보관소에 두기 때문입니다. 바닥값이 있는데 `audit.archive`가 없으면 아무것도 지우기 전에 거부합니다. 그런 배포에서 sweep은 그 워크스페이스를 닫힌 채로 두고 경고합니다(법적 보존이 걸린 것처럼). 보관소를 두면 다음 sweep이 retire하고, 바닥값을 포기해도 되면 `rove tenant purge --yes`나 `--purge-floors` 계약으로 지웁니다. 바닥값이 없는 배포(`rove.yaml`의 기본)에서 retire는 남길 것이 없어 purge와 같습니다.
 - retire가 지운 행은 지웠다는 기록(`rove.workspace.retire`)으로 감사 기록에 남습니다. 바닥값이 걸린 종류의 것만 남고 나머지는 함께 지워지므로, `trail rows`가 그 행들을 `missing`으로 찾지 않습니다.
 - retire한 워크스페이스에는 나중에 법적 보존을 걸 수 없습니다. hold는 지금 있는 워크스페이스에 거는 것이고, 워크스페이스의 hold 기록도 함께 지워지기 때문입니다(rove#153). 파기 뒤에 보존 요청이 오면 남은 기록을 암호화된 파일로 꺼내 별도 매체에 보관합니다: [보존 요청 대응](docs/runbook/preserve.md). `rove tenant retired`가 무엇이 언제까지 남는지 보여 줍니다.
@@ -504,8 +504,8 @@ go run ./cmd/rove access reviews --tenant acme
 ```
 
 - **보존:** 감사 기록의 보존 장치를 그대로 씁니다. `deploy/`의 설정은 `audit.by.access: {profile: pipa-sensitive}`(DB에 90일, 보관소까지 2년)입니다. 법무 검토가 다른 기간을 정하면 그 값을 적습니다.
-  - **조직마다:** 1년·2년을 가르는 기준(정보주체 수, 고유식별정보·민감정보)은 조직마다 다르므로, 계약이 그 조직의 기간을 정합니다(`rove contract set --access-keep 365`, rove#144). 계약이 말하지 않으면 배포의 기간입니다.
-  - **바닥값:** 계약이 배포의 바닥값(`audit.by.access.min`, `deploy/`는 `{profile: pipa}`로 1년)보다 짧으면 바닥값으로 올라갑니다. 기간을 줄이는 계약은 이력처럼 유예(`--grace`)가 지난 뒤에, 그리고 `app.retention.apply`가 켜져 있을 때만 적용됩니다. hold가 걸린 조직은 아무것도 지우지 않습니다.
+  - **조직마다:** 1년·2년을 가르는 기준(정보주체 수, 고유식별정보·민감정보)은 조직마다 다르므로, 워크스페이스가 자기 기간을 정합니다(설정 › 워크스페이스 › 기록 보관, rove#144, D36). 정하지 않으면 배포의 기간입니다.
+  - **바닥값:** 배포의 바닥값(`audit.by.access.min`, `deploy/`는 `{profile: pipa}`로 1년)보다 짧게는 정할 수 없습니다. 기간을 줄이면 이력처럼 유예(`app.retention.grace`)가 지난 뒤에, 그리고 `app.retention.apply`가 켜져 있을 때만 적용됩니다. hold가 걸린 조직은 아무것도 지우지 않습니다.
 - **내보내기:** 워크스페이스 내보내기에 그 워크스페이스의 접속기록이 함께 담깁니다(`trail/access.jsonl`).
 
 ### 감사 기록 보관소 확인 (운영자)

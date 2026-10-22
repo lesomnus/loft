@@ -16,7 +16,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file rove/payday/tenant_svc.g.proto.
  */
 export const file_rove_payday_tenant_svc_g: GenFile = /*@__PURE__*/
-  fileDesc("Ch5yb3ZlL3BheWRheS90ZW5hbnRfc3ZjLmcucHJvdG8SBHJvdmUiygMKEFRlbmFudEFkZFJlcXVlc3QSCgoCaWQYASABKAwSFAoFYWxpYXMYBCABKAlCBaoBAggCEhMKBG5hbWUYBSABKAlCBaoBAggCEhMKBGRlc2MYBiABKAlCBaoBAggCEjIKBmxhYmVscxgHIAMoCzIiLnJvdmUuVGVuYW50QWRkUmVxdWVzdC5MYWJlbHNFbnRyeRIwCgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi8KC2RhdGVfY2xvc2VkGAggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIYCgljbG9zZWRfYnkYCSABKAlCBaoBAggCEhsKDGNsb3NlX3JlYXNvbhgKIAEoCUIFqgECCAISMAoMZGF0ZV9kZXN0cm95GAsgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIQCgh0aW1lem9uZRgMIAEoCRIQCghjdXJyZW5jeRgQIAEoCRIXCg9ub19zaG93X21pbnV0ZXMYESABKAUaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASJUChBUZW5hbnRHZXRSZXF1ZXN0EhwKA3JlZhgBIAEoCzIPLnJvdmUuVGVuYW50UmVmEiIKBnNlbGVjdBgCIAEoCzISLnJvdmUuVGVuYW50U2VsZWN0IjEKCVRlbmFudFJlZhIMCgJpZBgBIAEoDEgAEg8KBWFsaWFzGAQgASgJSABCBQoDa2V5IpMCCgxUZW5hbnRTZWxlY3QSCwoDYWxsGAEgASgIEg0KBWFsaWFzGAQgASgIEgwKBG5hbWUYBSABKAgSDAoEZGVzYxgGIAEoCBIOCgZsYWJlbHMYByABKAgSFAoMZGF0ZV91cGRhdGVkGA0gASgIEhQKDGRhdGVfY3JlYXRlZBgPIAEoCBITCgtkYXRlX2Nsb3NlZBgIIAEoCBIRCgljbG9zZWRfYnkYCSABKAgSFAoMY2xvc2VfcmVhc29uGAogASgIEhQKDGRhdGVfZGVzdHJveRgLIAEoCBIQCgh0aW1lem9uZRgMIAEoCBIQCghjdXJyZW5jeRgQIAEoCBIXCg9ub19zaG93X21pbnV0ZXMYESABKAgijgQKElRlbmFudFBhdGNoUmVxdWVzdBIcCgNyZWYYASABKAsyDy5yb3ZlLlRlbmFudFJlZhINCgVhbGlhcxgIIAEoCRIMCgRuYW1lGAogASgJEgwKBGRlc2MYDCABKAkSNAoGbGFiZWxzGA4gAygLMiQucm92ZS5UZW5hbnRQYXRjaFJlcXVlc3QuTGFiZWxzRW50cnkSMAoMZGF0ZV91cGRhdGVkGBogASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIaChJkYXRlX3VwZGF0ZWRfZm9yY2UYGyABKAgSLwoLZGF0ZV9jbG9zZWQYECABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhgKEGRhdGVfY2xvc2VkX251bGwYESABKAgSEQoJY2xvc2VkX2J5GBIgASgJEhQKDGNsb3NlX3JlYXNvbhgUIAEoCRIwCgxkYXRlX2Rlc3Ryb3kYFiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhkKEWRhdGVfZGVzdHJveV9udWxsGBcgASgIEhAKCHRpbWV6b25lGBggASgJEhAKCGN1cnJlbmN5GCAgASgJEhcKD25vX3Nob3dfbWludXRlcxgiIAEoBRotCgtMYWJlbHNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIk8KElRlbmFudEFwcGx5UmVxdWVzdBIcCgNyZWYYASABKAsyDy5yb3ZlLlRlbmFudFJlZhIbCgVwYXRjaBgCIAEoCzIMLnBhdGNoLlBhdGNoIiUKE1RlbmFudEVyYXNlUmVzcG9uc2USDgoGZXJhc2VkGAEgASgIInsKEVRlbmFudExpc3RSZXF1ZXN0EiMKB2ZpbHRlcnMYASADKAsyEi5yb3ZlLlRlbmFudEZpbHRlchITCgRzaXplGAIgASgFQgWqAQIIAhIUCgVhZnRlchgDIAEoCUIFqgECCAISFgoHcmV2ZXJzZRgEIAEoCEIFqgECCAIiRgoSVGVuYW50TGlzdFJlc3BvbnNlEhsKBWl0ZW1zGAEgAygLMgwucm92ZS5UZW5hbnQSEwoEbmV4dBgCIAEoCUIFqgECCAIiLAoMVGVuYW50RmlsdGVyEhwKA3JlZhgBIAEoCzIPLnJvdmUuVGVuYW50UmVmImEKElRlbmFudENsb3NlUmVxdWVzdBIcCgNyZWYYASABKAsyDy5yb3ZlLlRlbmFudFJlZhIWCgdjb25maXJtGAIgASgJQgWqAQIIAhIVCgZyZWFzb24YAyABKAlCBaoBAggCIjQKFFRlbmFudFJlc3RvcmVSZXF1ZXN0EhwKA3JlZhgBIAEoCzIPLnJvdmUuVGVuYW50UmVmInMKFlRlbmFudENvbmZpZ3VyZVJlcXVlc3QSHAoDcmVmGAEgASgLMg8ucm92ZS5UZW5hbnRSZWYSEAoIdGltZXpvbmUYAiABKAkSEAoIY3VycmVuY3kYAyABKAkSFwoPbm9fc2hvd19taW51dGVzGAQgASgFMtoDCg1UZW5hbnRTZXJ2aWNlEisKA0FkZBIWLnJvdmUuVGVuYW50QWRkUmVxdWVzdBoMLnJvdmUuVGVuYW50EisKA0dldBIWLnJvdmUuVGVuYW50R2V0UmVxdWVzdBoMLnJvdmUuVGVuYW50Ei8KBVBhdGNoEhgucm92ZS5UZW5hbnRQYXRjaFJlcXVlc3QaDC5yb3ZlLlRlbmFudBIvCgVBcHBseRIYLnJvdmUuVGVuYW50QXBwbHlSZXF1ZXN0Ggwucm92ZS5UZW5hbnQSMwoFRXJhc2USDy5yb3ZlLlRlbmFudFJlZhoZLnJvdmUuVGVuYW50RXJhc2VSZXNwb25zZRI5CgRMaXN0Ehcucm92ZS5UZW5hbnRMaXN0UmVxdWVzdBoYLnJvdmUuVGVuYW50TGlzdFJlc3BvbnNlEi8KBUNsb3NlEhgucm92ZS5UZW5hbnRDbG9zZVJlcXVlc3QaDC5yb3ZlLlRlbmFudBIzCgdSZXN0b3JlEhoucm92ZS5UZW5hbnRSZXN0b3JlUmVxdWVzdBoMLnJvdmUuVGVuYW50EjcKCUNvbmZpZ3VyZRIcLnJvdmUuVGVuYW50Q29uZmlndXJlUmVxdWVzdBoMLnJvdmUuVGVuYW50QhpaGGdpdGh1Yi5jb20vbGVzb21udXMvcm92ZWIIZWRpdGlvbnNw6Ac", [file_google_protobuf_timestamp, file_patch_patch, file_rove_payday_tenant]);
+  fileDesc("Ch5yb3ZlL3BheWRheS90ZW5hbnRfc3ZjLmcucHJvdG8SBHJvdmUiwQUKEFRlbmFudEFkZFJlcXVlc3QSCgoCaWQYASABKAwSFAoFYWxpYXMYBCABKAlCBaoBAggCEhMKBG5hbWUYBSABKAlCBaoBAggCEhMKBGRlc2MYBiABKAlCBaoBAggCEjIKBmxhYmVscxgHIAMoCzIiLnJvdmUuVGVuYW50QWRkUmVxdWVzdC5MYWJlbHNFbnRyeRIwCgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi8KC2RhdGVfY2xvc2VkGAggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIYCgljbG9zZWRfYnkYCSABKAlCBaoBAggCEhsKDGNsb3NlX3JlYXNvbhgKIAEoCUIFqgECCAISMAoMZGF0ZV9kZXN0cm95GAsgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIQCgh0aW1lem9uZRgMIAEoCRIQCghjdXJyZW5jeRgQIAEoCRIXCg9ub19zaG93X21pbnV0ZXMYESABKAUSEQoJa2VlcF9kYXlzGBIgASgNEhgKEGFjY2Vzc19rZWVwX2RheXMYEyABKA0SFAoMcmVzdG9yZV9kYXlzGBQgASgNEhgKEGtlZXBfZGF5c19iZWZvcmUYFSABKA0SNwoTZGF0ZV9rZWVwX3Nob3J0ZW5lZBgWIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASHwoXYWNjZXNzX2tlZXBfZGF5c19iZWZvcmUYFyABKA0SPgoaZGF0ZV9hY2Nlc3Nfa2VlcF9zaG9ydGVuZWQYGCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wGi0KC0xhYmVsc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiVAoQVGVuYW50R2V0UmVxdWVzdBIcCgNyZWYYASABKAsyDy5yb3ZlLlRlbmFudFJlZhIiCgZzZWxlY3QYAiABKAsyEi5yb3ZlLlRlbmFudFNlbGVjdCIxCglUZW5hbnRSZWYSDAoCaWQYASABKAxIABIPCgVhbGlhcxgEIAEoCUgAQgUKA2tleSLSAwoMVGVuYW50U2VsZWN0EgsKA2FsbBgBIAEoCBINCgVhbGlhcxgEIAEoCBIMCgRuYW1lGAUgASgIEgwKBGRlc2MYBiABKAgSDgoGbGFiZWxzGAcgASgIEhQKDGRhdGVfdXBkYXRlZBgNIAEoCBIUCgxkYXRlX2NyZWF0ZWQYDyABKAgSEwoLZGF0ZV9jbG9zZWQYCCABKAgSEQoJY2xvc2VkX2J5GAkgASgIEhQKDGNsb3NlX3JlYXNvbhgKIAEoCBIUCgxkYXRlX2Rlc3Ryb3kYCyABKAgSEAoIdGltZXpvbmUYDCABKAgSEAoIY3VycmVuY3kYECABKAgSFwoPbm9fc2hvd19taW51dGVzGBEgASgIEhEKCWtlZXBfZGF5cxgSIAEoCBIYChBhY2Nlc3Nfa2VlcF9kYXlzGBMgASgIEhQKDHJlc3RvcmVfZGF5cxgUIAEoCBIYChBrZWVwX2RheXNfYmVmb3JlGBUgASgIEhsKE2RhdGVfa2VlcF9zaG9ydGVuZWQYFiABKAgSHwoXYWNjZXNzX2tlZXBfZGF5c19iZWZvcmUYFyABKAgSIgoaZGF0ZV9hY2Nlc3Nfa2VlcF9zaG9ydGVuZWQYGCABKAgi0AYKElRlbmFudFBhdGNoUmVxdWVzdBIcCgNyZWYYASABKAsyDy5yb3ZlLlRlbmFudFJlZhINCgVhbGlhcxgIIAEoCRIMCgRuYW1lGAogASgJEgwKBGRlc2MYDCABKAkSNAoGbGFiZWxzGA4gAygLMiQucm92ZS5UZW5hbnRQYXRjaFJlcXVlc3QuTGFiZWxzRW50cnkSMAoMZGF0ZV91cGRhdGVkGBogASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIaChJkYXRlX3VwZGF0ZWRfZm9yY2UYGyABKAgSLwoLZGF0ZV9jbG9zZWQYECABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhgKEGRhdGVfY2xvc2VkX251bGwYESABKAgSEQoJY2xvc2VkX2J5GBIgASgJEhQKDGNsb3NlX3JlYXNvbhgUIAEoCRIwCgxkYXRlX2Rlc3Ryb3kYFiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhkKEWRhdGVfZGVzdHJveV9udWxsGBcgASgIEhAKCHRpbWV6b25lGBggASgJEhAKCGN1cnJlbmN5GCAgASgJEhcKD25vX3Nob3dfbWludXRlcxgiIAEoBRIRCglrZWVwX2RheXMYJCABKA0SGAoQYWNjZXNzX2tlZXBfZGF5cxgmIAEoDRIUCgxyZXN0b3JlX2RheXMYKCABKA0SGAoQa2VlcF9kYXlzX2JlZm9yZRgqIAEoDRI3ChNkYXRlX2tlZXBfc2hvcnRlbmVkGCwgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIgChhkYXRlX2tlZXBfc2hvcnRlbmVkX251bGwYLSABKAgSHwoXYWNjZXNzX2tlZXBfZGF5c19iZWZvcmUYLiABKA0SPgoaZGF0ZV9hY2Nlc3Nfa2VlcF9zaG9ydGVuZWQYMCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEicKH2RhdGVfYWNjZXNzX2tlZXBfc2hvcnRlbmVkX251bGwYMSABKAgaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASJPChJUZW5hbnRBcHBseVJlcXVlc3QSHAoDcmVmGAEgASgLMg8ucm92ZS5UZW5hbnRSZWYSGwoFcGF0Y2gYAiABKAsyDC5wYXRjaC5QYXRjaCIlChNUZW5hbnRFcmFzZVJlc3BvbnNlEg4KBmVyYXNlZBgBIAEoCCJ7ChFUZW5hbnRMaXN0UmVxdWVzdBIjCgdmaWx0ZXJzGAEgAygLMhIucm92ZS5UZW5hbnRGaWx0ZXISEwoEc2l6ZRgCIAEoBUIFqgECCAISFAoFYWZ0ZXIYAyABKAlCBaoBAggCEhYKB3JldmVyc2UYBCABKAhCBaoBAggCIkYKElRlbmFudExpc3RSZXNwb25zZRIbCgVpdGVtcxgBIAMoCzIMLnJvdmUuVGVuYW50EhMKBG5leHQYAiABKAlCBaoBAggCIiwKDFRlbmFudEZpbHRlchIcCgNyZWYYASABKAsyDy5yb3ZlLlRlbmFudFJlZiJhChJUZW5hbnRDbG9zZVJlcXVlc3QSHAoDcmVmGAEgASgLMg8ucm92ZS5UZW5hbnRSZWYSFgoHY29uZmlybRgCIAEoCUIFqgECCAISFQoGcmVhc29uGAMgASgJQgWqAQIIAiI0ChRUZW5hbnRSZXN0b3JlUmVxdWVzdBIcCgNyZWYYASABKAsyDy5yb3ZlLlRlbmFudFJlZiK2AQoWVGVuYW50Q29uZmlndXJlUmVxdWVzdBIcCgNyZWYYASABKAsyDy5yb3ZlLlRlbmFudFJlZhIQCgh0aW1lem9uZRgCIAEoCRIQCghjdXJyZW5jeRgDIAEoCRIXCg9ub19zaG93X21pbnV0ZXMYBCABKAUSEQoJa2VlcF9kYXlzGAUgASgNEhgKEGFjY2Vzc19rZWVwX2RheXMYBiABKA0SFAoMcmVzdG9yZV9kYXlzGAcgASgNImEKFFRlbmFudFByZXZpZXdSZXF1ZXN0EhwKA3JlZhgBIAEoCzIPLnJvdmUuVGVuYW50UmVmEhEKCWtlZXBfZGF5cxgCIAEoDRIYChBhY2Nlc3Nfa2VlcF9kYXlzGAMgASgNIpEDChVUZW5hbnRQcmV2aWV3UmVzcG9uc2USFAoFYXBwbHkYASABKAhCBaoBAggCEhkKCmdyYWNlX2RheXMYAiABKA1CBaoBAggCEhgKCWtlZXBfZGF5cxgDIAEoDUIFqgECCAISLQoJa2VlcF9mcm9tGAQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBI+CgprZWVwX3Rha2VzGAUgAygLMioucm92ZS5UZW5hbnRQcmV2aWV3UmVzcG9uc2UuS2VlcFRha2VzRW50cnkSHwoQYWNjZXNzX2tlZXBfZGF5cxgGIAEoDUIFqgECCAISNAoQYWNjZXNzX2tlZXBfZnJvbRgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASIAoRYWNjZXNzX2Zsb29yX2RheXMYCCABKA1CBaoBAggCEhMKBGhlbGQYCSABKAhCBaoBAggCGjAKDktlZXBUYWtlc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoDToCOAEyngQKDVRlbmFudFNlcnZpY2USKwoDQWRkEhYucm92ZS5UZW5hbnRBZGRSZXF1ZXN0Ggwucm92ZS5UZW5hbnQSKwoDR2V0EhYucm92ZS5UZW5hbnRHZXRSZXF1ZXN0Ggwucm92ZS5UZW5hbnQSLwoFUGF0Y2gSGC5yb3ZlLlRlbmFudFBhdGNoUmVxdWVzdBoMLnJvdmUuVGVuYW50Ei8KBUFwcGx5Ehgucm92ZS5UZW5hbnRBcHBseVJlcXVlc3QaDC5yb3ZlLlRlbmFudBIzCgVFcmFzZRIPLnJvdmUuVGVuYW50UmVmGhkucm92ZS5UZW5hbnRFcmFzZVJlc3BvbnNlEjkKBExpc3QSFy5yb3ZlLlRlbmFudExpc3RSZXF1ZXN0Ghgucm92ZS5UZW5hbnRMaXN0UmVzcG9uc2USLwoFQ2xvc2USGC5yb3ZlLlRlbmFudENsb3NlUmVxdWVzdBoMLnJvdmUuVGVuYW50EjMKB1Jlc3RvcmUSGi5yb3ZlLlRlbmFudFJlc3RvcmVSZXF1ZXN0Ggwucm92ZS5UZW5hbnQSNwoJQ29uZmlndXJlEhwucm92ZS5UZW5hbnRDb25maWd1cmVSZXF1ZXN0Ggwucm92ZS5UZW5hbnQSQgoHUHJldmlldxIaLnJvdmUuVGVuYW50UHJldmlld1JlcXVlc3QaGy5yb3ZlLlRlbmFudFByZXZpZXdSZXNwb25zZUIaWhhnaXRodWIuY29tL2xlc29tbnVzL3JvdmViCGVkaXRpb25zcOgH", [file_google_protobuf_timestamp, file_patch_patch, file_rove_payday_tenant]);
 
 /**
  * @generated from message rove.TenantAddRequest
@@ -86,6 +86,41 @@ export type TenantAddRequest = Message<"rove.TenantAddRequest"> & {
    * @generated from field: int32 no_show_minutes = 17;
    */
   noShowMinutes: number;
+
+  /**
+   * @generated from field: uint32 keep_days = 18;
+   */
+  keepDays: number;
+
+  /**
+   * @generated from field: uint32 access_keep_days = 19;
+   */
+  accessKeepDays: number;
+
+  /**
+   * @generated from field: uint32 restore_days = 20;
+   */
+  restoreDays: number;
+
+  /**
+   * @generated from field: uint32 keep_days_before = 21;
+   */
+  keepDaysBefore: number;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp date_keep_shortened = 22;
+   */
+  dateKeepShortened?: Timestamp | undefined;
+
+  /**
+   * @generated from field: uint32 access_keep_days_before = 23;
+   */
+  accessKeepDaysBefore: number;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp date_access_keep_shortened = 24;
+   */
+  dateAccessKeepShortened?: Timestamp | undefined;
 };
 
 /**
@@ -219,6 +254,41 @@ export type TenantSelect = Message<"rove.TenantSelect"> & {
    * @generated from field: bool no_show_minutes = 17;
    */
   noShowMinutes: boolean;
+
+  /**
+   * @generated from field: bool keep_days = 18;
+   */
+  keepDays: boolean;
+
+  /**
+   * @generated from field: bool access_keep_days = 19;
+   */
+  accessKeepDays: boolean;
+
+  /**
+   * @generated from field: bool restore_days = 20;
+   */
+  restoreDays: boolean;
+
+  /**
+   * @generated from field: bool keep_days_before = 21;
+   */
+  keepDaysBefore: boolean;
+
+  /**
+   * @generated from field: bool date_keep_shortened = 22;
+   */
+  dateKeepShortened: boolean;
+
+  /**
+   * @generated from field: bool access_keep_days_before = 23;
+   */
+  accessKeepDaysBefore: boolean;
+
+  /**
+   * @generated from field: bool date_access_keep_shortened = 24;
+   */
+  dateAccessKeepShortened: boolean;
 };
 
 /**
@@ -335,6 +405,61 @@ export type TenantPatchRequest = Message<"rove.TenantPatchRequest"> & {
    * @generated from field: int32 no_show_minutes = 34;
    */
   noShowMinutes: number;
+
+  /**
+   * @generated from field: uint32 keep_days = 36;
+   */
+  keepDays: number;
+
+  /**
+   * @generated from field: uint32 access_keep_days = 38;
+   */
+  accessKeepDays: number;
+
+  /**
+   * @generated from field: uint32 restore_days = 40;
+   */
+  restoreDays: number;
+
+  /**
+   * @generated from field: uint32 keep_days_before = 42;
+   */
+  keepDaysBefore: number;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp date_keep_shortened = 44;
+   */
+  dateKeepShortened?: Timestamp | undefined;
+
+  /**
+   * Clear date_keep_shortened instead of writing it.
+   * It takes a field of its own because an unset value already means
+   * "leave it alone", so no value could have meant NULL. It wins
+   * outright: setting both this and date_keep_shortened clears.
+   *
+   * @generated from field: bool date_keep_shortened_null = 45;
+   */
+  dateKeepShortenedNull: boolean;
+
+  /**
+   * @generated from field: uint32 access_keep_days_before = 46;
+   */
+  accessKeepDaysBefore: number;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp date_access_keep_shortened = 48;
+   */
+  dateAccessKeepShortened?: Timestamp | undefined;
+
+  /**
+   * Clear date_access_keep_shortened instead of writing it.
+   * It takes a field of its own because an unset value already means
+   * "leave it alone", so no value could have meant NULL. It wins
+   * outright: setting both this and date_access_keep_shortened clears.
+   *
+   * @generated from field: bool date_access_keep_shortened_null = 49;
+   */
+  dateAccessKeepShortenedNull: boolean;
 };
 
 /**
@@ -558,6 +683,28 @@ export type TenantConfigureRequest = Message<"rove.TenantConfigureRequest"> & {
    * @generated from field: int32 no_show_minutes = 4;
    */
   noShowMinutes: number;
+
+  /**
+   * Days its history is kept; 0 is forever.
+   *
+   * @generated from field: uint32 keep_days = 5;
+   */
+  keepDays: number;
+
+  /**
+   * Days its access record is kept; 0 is the deployment's, and none is below
+   * the deployment's floor.
+   *
+   * @generated from field: uint32 access_keep_days = 6;
+   */
+  accessKeepDays: number;
+
+  /**
+   * Days it may be restored once closed; 0 is the deployment's.
+   *
+   * @generated from field: uint32 restore_days = 7;
+   */
+  restoreDays: number;
 };
 
 /**
@@ -566,6 +713,118 @@ export type TenantConfigureRequest = Message<"rove.TenantConfigureRequest"> & {
  */
 export const TenantConfigureRequestSchema: GenMessage<TenantConfigureRequest> = /*@__PURE__*/
   messageDesc(file_rove_payday_tenant_svc_g, 12);
+
+/**
+ * @generated from message rove.TenantPreviewRequest
+ */
+export type TenantPreviewRequest = Message<"rove.TenantPreviewRequest"> & {
+  /**
+   * @generated from field: rove.TenantRef ref = 1;
+   */
+  ref?: TenantRef | undefined;
+
+  /**
+   * @generated from field: uint32 keep_days = 2;
+   */
+  keepDays: number;
+
+  /**
+   * @generated from field: uint32 access_keep_days = 3;
+   */
+  accessKeepDays: number;
+};
+
+/**
+ * Describes the message rove.TenantPreviewRequest.
+ * Use `create(TenantPreviewRequestSchema)` to create a new message.
+ */
+export const TenantPreviewRequestSchema: GenMessage<TenantPreviewRequest> = /*@__PURE__*/
+  messageDesc(file_rove_payday_tenant_svc_g, 13);
+
+/**
+ * TenantPreviewResponse is how long the workspace would keep its history and
+ * its access record, from when, and what that takes.
+ *
+ * @generated from message rove.TenantPreviewResponse
+ */
+export type TenantPreviewResponse = Message<"rove.TenantPreviewResponse"> & {
+  /**
+   * Whether the deployment destroys anything by these windows at all
+   * (`app.retention.apply`). Off, what is below is what it would destroy
+   * once it does.
+   *
+   * @generated from field: bool apply = 1 [features.field_presence = IMPLICIT];
+   */
+  apply: boolean;
+
+  /**
+   * The grace a window made shorter waits out, in days
+   * (`app.retention.grace`).
+   *
+   * @generated from field: uint32 grace_days = 2 [features.field_presence = IMPLICIT];
+   */
+  graceDays: number;
+
+  /**
+   * How long the history is kept, in days -- 0 is forever -- and from when:
+   * now, or once the grace of a shorter one is over. Until then the longer one
+   * it had holds.
+   *
+   * @generated from field: uint32 keep_days = 3 [features.field_presence = IMPLICIT];
+   */
+  keepDays: number;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp keep_from = 4;
+   */
+  keepFrom?: Timestamp | undefined;
+
+  /**
+   * What that takes of the history as it is now, by kind -- placements,
+   * facts, events, reservations, ... -- as a retention pass would: what was
+   * over before the window, `keep_days` before `keep_from`.
+   *
+   * @generated from field: map<string, uint32> keep_takes = 5;
+   */
+  keepTakes: { [key: string]: number };
+
+  /**
+   * How long the access record is kept, in days -- the deployment's where the
+   * workspace says none, and never below the floor -- and from when. 0 is
+   * forever.
+   *
+   * @generated from field: uint32 access_keep_days = 6 [features.field_presence = IMPLICIT];
+   */
+  accessKeepDays: number;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp access_keep_from = 7;
+   */
+  accessKeepFrom?: Timestamp | undefined;
+
+  /**
+   * The deployment's floor, in days: the least the access record is kept,
+   * whatever the workspace says (`audit.by.access.min`).
+   *
+   * @generated from field: uint32 access_floor_days = 8 [features.field_presence = IMPLICIT];
+   */
+  accessFloorDays: number;
+
+  /**
+   * Whether a legal hold is on: while one is, nothing is destroyed, whatever
+   * the windows say.
+   *
+   * @generated from field: bool held = 9 [features.field_presence = IMPLICIT];
+   */
+  held: boolean;
+};
+
+/**
+ * Describes the message rove.TenantPreviewResponse.
+ * Use `create(TenantPreviewResponseSchema)` to create a new message.
+ */
+export const TenantPreviewResponseSchema: GenMessage<TenantPreviewResponse> = /*@__PURE__*/
+  messageDesc(file_rove_payday_tenant_svc_g, 14);
 
 /**
  * @generated from service rove.TenantService
@@ -656,8 +915,11 @@ export const TenantService: GenService<{
   /**
    * Configure is the workspace's own settings, its owner's to say (#144):
    * where it is -- the zone its dates are told in, the currency a new amount
-   * is priced in -- and how long a room waits for whoever booked it. A field
-   * left out stays as it is; an empty one is the deployment's again.
+   * is priced in -- how long a room waits for whoever booked it, and how long
+   * it keeps its history and its access record and may be restored once
+   * closed (D36). A field left out stays as it is; an empty one is the
+   * deployment's again, or for its history forever. A window made shorter
+   * waits out the deployment's grace before it is the shorter one.
    *
    * @generated from rpc rove.TenantService.Configure
    */
@@ -665,6 +927,18 @@ export const TenantService: GenService<{
     methodKind: "unary";
     input: typeof TenantConfigureRequestSchema;
     output: typeof TenantSchema;
+  },
+  /**
+   * Preview is what a change of how long the workspace keeps its history and
+   * its access record would come to, and when, changing nothing: what its
+   * owner is shown before Configure saves it. A field left out is as it is.
+   *
+   * @generated from rpc rove.TenantService.Preview
+   */
+  preview: {
+    methodKind: "unary";
+    input: typeof TenantPreviewRequestSchema;
+    output: typeof TenantPreviewResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_rove_payday_tenant_svc_g, 0);

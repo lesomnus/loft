@@ -190,18 +190,18 @@ app:
   #   # decides the period).
   #   keep: 26280h
 
-  # What a tenant's history is kept for (design 8). A tenant's own windows are
-  # its contract's -- `rove contract set --tenant acme --view 365 --keep 730`
-  # -- and these are what a tenant with no contract gets. `apply` is the
-  # deployment saying a window may destroy: off, the view window still
-  # applies to what a tenant reads, and nothing is removed.
+  # What a workspace's history is kept for (design 8). How long is the
+  # workspace's own, its owner's to say in its settings (D36); what is here is
+  # the deployment's consent and its grace. `apply` is the deployment saying a
+  # window may destroy: off, the windows are still read and nothing is
+  # removed. `grace` is how long a window a workspace makes shorter waits
+  # before it is the shorter one, 30 days unset.
   #
   # `rove retention plan` says what a pass would take, changing nothing.
   #
   # retention:
   #   apply: false
-  #   view: 8760h
-  #   keep: 17520h
+  #   grace: 720h
   #   every: 1h
 
   # What an account may make (design 9.11). `personal` gives an account in no

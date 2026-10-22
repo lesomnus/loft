@@ -2437,8 +2437,6 @@ type PartyMeResponse struct {
 	xxx_hidden_Party         *Party                 `protobuf:"bytes,2,opt,name=party"`
 	xxx_hidden_Tenant        *Tenant                `protobuf:"bytes,3,opt,name=tenant"`
 	xxx_hidden_Role          string                 `protobuf:"bytes,4,opt,name=role"`
-	xxx_hidden_HistorySince  *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=history_since,json=historySince"`
-	xxx_hidden_HistoryDays   uint32                 `protobuf:"varint,6,opt,name=history_days,json=historyDays"`
 	xxx_hidden_AccountsHere  bool                   `protobuf:"varint,7,opt,name=accounts_here,json=accountsHere"`
 	xxx_hidden_AccountUrl    string                 `protobuf:"bytes,8,opt,name=account_url,json=accountUrl"`
 	xxx_hidden_Timezone      string                 `protobuf:"bytes,9,opt,name=timezone"`
@@ -2502,20 +2500,6 @@ func (x *PartyMeResponse) GetRole() string {
 	return ""
 }
 
-func (x *PartyMeResponse) GetHistorySince() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_HistorySince
-	}
-	return nil
-}
-
-func (x *PartyMeResponse) GetHistoryDays() uint32 {
-	if x != nil {
-		return x.xxx_hidden_HistoryDays
-	}
-	return 0
-}
-
 func (x *PartyMeResponse) GetAccountsHere() bool {
 	if x != nil {
 		return x.xxx_hidden_AccountsHere
@@ -2574,14 +2558,6 @@ func (x *PartyMeResponse) SetRole(v string) {
 	x.xxx_hidden_Role = v
 }
 
-func (x *PartyMeResponse) SetHistorySince(v *timestamppb.Timestamp) {
-	x.xxx_hidden_HistorySince = v
-}
-
-func (x *PartyMeResponse) SetHistoryDays(v uint32) {
-	x.xxx_hidden_HistoryDays = v
-}
-
 func (x *PartyMeResponse) SetAccountsHere(v bool) {
 	x.xxx_hidden_AccountsHere = v
 }
@@ -2627,13 +2603,6 @@ func (x *PartyMeResponse) HasTenant() bool {
 	return x.xxx_hidden_Tenant != nil
 }
 
-func (x *PartyMeResponse) HasHistorySince() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_HistorySince != nil
-}
-
 func (x *PartyMeResponse) ClearHolder() {
 	x.xxx_hidden_Holder = nil
 }
@@ -2646,10 +2615,6 @@ func (x *PartyMeResponse) ClearTenant() {
 	x.xxx_hidden_Tenant = nil
 }
 
-func (x *PartyMeResponse) ClearHistorySince() {
-	x.xxx_hidden_HistorySince = nil
-}
-
 type PartyMeResponse_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
@@ -2657,11 +2622,6 @@ type PartyMeResponse_builder struct {
 	Party  *Party
 	Tenant *Tenant
 	Role   string
-	// Where the tenant's view window begins (design 8.1): the oldest moment
-	// its history answers about. Absent is all of it.
-	HistorySince *timestamppb.Timestamp
-	// How many days back that is, for a person to read. Zero is all of it.
-	HistoryDays uint32
 	// Whether logins and passwords are made and changed here -- the roster in
 	// this process -- or at a roster of its own, by whoever administers the
 	// tenant there (design 9.10).
@@ -2675,8 +2635,8 @@ type PartyMeResponse_builder struct {
 	// the workspace's own, or the deployment's where it says none.
 	Timezone string
 	Currency string
-	// How many days a closed workspace may be restored in (#144): its
-	// contract's, or the deployment's where it says none.
+	// How many days a closed workspace may be restored in (#144): its own, or
+	// the deployment's where it says none.
 	RestoreDays uint32
 	// And how many days its address is then kept from anybody else: the
 	// deployment's `app.workspaces.alias_hold`.
@@ -2691,8 +2651,6 @@ func (b0 PartyMeResponse_builder) Build() *PartyMeResponse {
 	x.xxx_hidden_Party = b.Party
 	x.xxx_hidden_Tenant = b.Tenant
 	x.xxx_hidden_Role = b.Role
-	x.xxx_hidden_HistorySince = b.HistorySince
-	x.xxx_hidden_HistoryDays = b.HistoryDays
 	x.xxx_hidden_AccountsHere = b.AccountsHere
 	x.xxx_hidden_AccountUrl = b.AccountUrl
 	x.xxx_hidden_Timezone = b.Timezone
@@ -6199,14 +6157,12 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12!\n" +
 	"\x05value\x18\x02 \x01(\v2\v.rove.PartyR\x05value\x12\x1d\n" +
 	"\x06action\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06action\"\x10\n" +
-	"\x0ePartyMeRequest\"\xf9\x03\n" +
+	"\x0ePartyMeRequest\"\xb7\x03\n" +
 	"\x0fPartyMeResponse\x12$\n" +
 	"\x06holder\x18\x01 \x01(\v2\f.rove.HolderR\x06holder\x12!\n" +
 	"\x05party\x18\x02 \x01(\v2\v.rove.PartyR\x05party\x12$\n" +
 	"\x06tenant\x18\x03 \x01(\v2\f.rove.TenantR\x06tenant\x12\x19\n" +
-	"\x04role\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04role\x12?\n" +
-	"\rhistory_since\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\fhistorySince\x12(\n" +
-	"\fhistory_days\x18\x06 \x01(\rB\x05\xaa\x01\x02\b\x02R\vhistoryDays\x12*\n" +
+	"\x04role\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04role\x12*\n" +
 	"\raccounts_here\x18\a \x01(\bB\x05\xaa\x01\x02\b\x02R\faccountsHere\x12&\n" +
 	"\vaccount_url\x18\b \x01(\tB\x05\xaa\x01\x02\b\x02R\n" +
 	"accountUrl\x12!\n" +
@@ -6214,7 +6170,7 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\bcurrency\x18\n" +
 	" \x01(\tB\x05\xaa\x01\x02\b\x02R\bcurrency\x12(\n" +
 	"\frestore_days\x18\v \x01(\rB\x05\xaa\x01\x02\b\x02R\vrestoreDays\x12-\n" +
-	"\x0falias_hold_days\x18\f \x01(\rB\x05\xaa\x01\x02\b\x02R\raliasHoldDays\"\xa1\x03\n" +
+	"\x0falias_hold_days\x18\f \x01(\rB\x05\xaa\x01\x02\b\x02R\raliasHoldDaysJ\x04\b\x05\x10\x06J\x04\b\x06\x10\aR\rhistory_sinceR\fhistory_days\"\xa1\x03\n" +
 	"\x12PartyUpdateRequest\x12 \n" +
 	"\x03ref\x18\x01 \x01(\v2\x0e.rove.PartyRefR\x03ref\x12\x19\n" +
 	"\x04name\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04name\x12\x19\n" +
@@ -6467,100 +6423,99 @@ var file_rove_org_svc_g_proto_depIdxs = []int32{
 	52, // 24: rove.PartyMeResponse.holder:type_name -> rove.Holder
 	51, // 25: rove.PartyMeResponse.party:type_name -> rove.Party
 	53, // 26: rove.PartyMeResponse.tenant:type_name -> rove.Tenant
-	47, // 27: rove.PartyMeResponse.history_since:type_name -> google.protobuf.Timestamp
-	2,  // 28: rove.PartyUpdateRequest.ref:type_name -> rove.PartyRef
-	44, // 29: rove.PartyUpdateRequest.labels:type_name -> rove.PartyUpdateRequest.LabelsEntry
-	2,  // 30: rove.PartyInviteRequest.ref:type_name -> rove.PartyRef
-	51, // 31: rove.PartyInviteResponse.party:type_name -> rove.Party
-	52, // 32: rove.PartyInviteResponse.holder:type_name -> rove.Holder
-	2,  // 33: rove.PartySetRoleRequest.ref:type_name -> rove.PartyRef
-	2,  // 34: rove.PartySetPasswordRequest.ref:type_name -> rove.PartyRef
-	2,  // 35: rove.PartyDeactivateRequest.ref:type_name -> rove.PartyRef
-	2,  // 36: rove.PartyPseudonymizeRequest.ref:type_name -> rove.PartyRef
-	51, // 37: rove.PartySearchResponse.items:type_name -> rove.Party
-	45, // 38: rove.InvitationAddRequest.tenant:type_name -> rove.TenantRef
-	46, // 39: rove.InvitationAddRequest.inviter:type_name -> rove.HolderRef
-	2,  // 40: rove.InvitationAddRequest.party:type_name -> rove.PartyRef
-	47, // 41: rove.InvitationAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	47, // 42: rove.InvitationAddRequest.date_expires:type_name -> google.protobuf.Timestamp
-	47, // 43: rove.InvitationAddRequest.date_settled:type_name -> google.protobuf.Timestamp
-	46, // 44: rove.InvitationAddRequest.holder:type_name -> rove.HolderRef
-	28, // 45: rove.InvitationGetRequest.ref:type_name -> rove.InvitationRef
-	29, // 46: rove.InvitationGetRequest.select:type_name -> rove.InvitationSelect
-	48, // 47: rove.InvitationSelect.tenant:type_name -> rove.TenantSelect
-	49, // 48: rove.InvitationSelect.inviter:type_name -> rove.HolderSelect
-	4,  // 49: rove.InvitationSelect.party:type_name -> rove.PartySelect
-	49, // 50: rove.InvitationSelect.holder:type_name -> rove.HolderSelect
-	28, // 51: rove.InvitationPatchRequest.ref:type_name -> rove.InvitationRef
-	2,  // 52: rove.InvitationPatchRequest.party:type_name -> rove.PartyRef
-	47, // 53: rove.InvitationPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	47, // 54: rove.InvitationPatchRequest.date_expires:type_name -> google.protobuf.Timestamp
-	47, // 55: rove.InvitationPatchRequest.date_settled:type_name -> google.protobuf.Timestamp
-	46, // 56: rove.InvitationPatchRequest.holder:type_name -> rove.HolderRef
-	28, // 57: rove.InvitationApplyRequest.ref:type_name -> rove.InvitationRef
-	50, // 58: rove.InvitationApplyRequest.patch:type_name -> patch.Patch
-	35, // 59: rove.InvitationListRequest.filters:type_name -> rove.InvitationFilter
-	54, // 60: rove.InvitationListResponse.items:type_name -> rove.Invitation
-	28, // 61: rove.InvitationFilter.ref:type_name -> rove.InvitationRef
-	45, // 62: rove.InvitationFilter.tenant:type_name -> rove.TenantRef
-	28, // 63: rove.InvitationRevokeRequest.ref:type_name -> rove.InvitationRef
-	28, // 64: rove.InvitationAcceptRequest.ref:type_name -> rove.InvitationRef
-	28, // 65: rove.InvitationDenyRequest.ref:type_name -> rove.InvitationRef
-	0,  // 66: rove.PartyService.Add:input_type -> rove.PartyAddRequest
-	1,  // 67: rove.PartyService.Get:input_type -> rove.PartyGetRequest
-	5,  // 68: rove.PartyService.Patch:input_type -> rove.PartyPatchRequest
-	6,  // 69: rove.PartyService.Apply:input_type -> rove.PartyApplyRequest
-	2,  // 70: rove.PartyService.Erase:input_type -> rove.PartyRef
-	8,  // 71: rove.PartyService.List:input_type -> rove.PartyListRequest
-	11, // 72: rove.PartyService.Watch:input_type -> rove.PartyWatchRequest
-	14, // 73: rove.PartyService.Me:input_type -> rove.PartyMeRequest
-	16, // 74: rove.PartyService.Update:input_type -> rove.PartyUpdateRequest
-	17, // 75: rove.PartyService.Invite:input_type -> rove.PartyInviteRequest
-	19, // 76: rove.PartyService.SetRole:input_type -> rove.PartySetRoleRequest
-	20, // 77: rove.PartyService.SetPassword:input_type -> rove.PartySetPasswordRequest
-	22, // 78: rove.PartyService.Deactivate:input_type -> rove.PartyDeactivateRequest
-	23, // 79: rove.PartyService.Pseudonymize:input_type -> rove.PartyPseudonymizeRequest
-	24, // 80: rove.PartyService.Search:input_type -> rove.PartySearchRequest
-	26, // 81: rove.InvitationService.Add:input_type -> rove.InvitationAddRequest
-	27, // 82: rove.InvitationService.Get:input_type -> rove.InvitationGetRequest
-	30, // 83: rove.InvitationService.Patch:input_type -> rove.InvitationPatchRequest
-	31, // 84: rove.InvitationService.Apply:input_type -> rove.InvitationApplyRequest
-	28, // 85: rove.InvitationService.Erase:input_type -> rove.InvitationRef
-	33, // 86: rove.InvitationService.List:input_type -> rove.InvitationListRequest
-	36, // 87: rove.InvitationService.Revoke:input_type -> rove.InvitationRevokeRequest
-	37, // 88: rove.InvitationService.Claim:input_type -> rove.InvitationClaimRequest
-	38, // 89: rove.InvitationService.Accept:input_type -> rove.InvitationAcceptRequest
-	39, // 90: rove.InvitationService.Deny:input_type -> rove.InvitationDenyRequest
-	51, // 91: rove.PartyService.Add:output_type -> rove.Party
-	51, // 92: rove.PartyService.Get:output_type -> rove.Party
-	51, // 93: rove.PartyService.Patch:output_type -> rove.Party
-	51, // 94: rove.PartyService.Apply:output_type -> rove.Party
-	7,  // 95: rove.PartyService.Erase:output_type -> rove.PartyEraseResponse
-	9,  // 96: rove.PartyService.List:output_type -> rove.PartyListResponse
-	12, // 97: rove.PartyService.Watch:output_type -> rove.PartyWatchResponse
-	15, // 98: rove.PartyService.Me:output_type -> rove.PartyMeResponse
-	51, // 99: rove.PartyService.Update:output_type -> rove.Party
-	18, // 100: rove.PartyService.Invite:output_type -> rove.PartyInviteResponse
-	51, // 101: rove.PartyService.SetRole:output_type -> rove.Party
-	21, // 102: rove.PartyService.SetPassword:output_type -> rove.PartySetPasswordResponse
-	51, // 103: rove.PartyService.Deactivate:output_type -> rove.Party
-	51, // 104: rove.PartyService.Pseudonymize:output_type -> rove.Party
-	25, // 105: rove.PartyService.Search:output_type -> rove.PartySearchResponse
-	54, // 106: rove.InvitationService.Add:output_type -> rove.Invitation
-	54, // 107: rove.InvitationService.Get:output_type -> rove.Invitation
-	54, // 108: rove.InvitationService.Patch:output_type -> rove.Invitation
-	54, // 109: rove.InvitationService.Apply:output_type -> rove.Invitation
-	32, // 110: rove.InvitationService.Erase:output_type -> rove.InvitationEraseResponse
-	34, // 111: rove.InvitationService.List:output_type -> rove.InvitationListResponse
-	54, // 112: rove.InvitationService.Revoke:output_type -> rove.Invitation
-	54, // 113: rove.InvitationService.Claim:output_type -> rove.Invitation
-	54, // 114: rove.InvitationService.Accept:output_type -> rove.Invitation
-	54, // 115: rove.InvitationService.Deny:output_type -> rove.Invitation
-	91, // [91:116] is the sub-list for method output_type
-	66, // [66:91] is the sub-list for method input_type
-	66, // [66:66] is the sub-list for extension type_name
-	66, // [66:66] is the sub-list for extension extendee
-	0,  // [0:66] is the sub-list for field type_name
+	2,  // 27: rove.PartyUpdateRequest.ref:type_name -> rove.PartyRef
+	44, // 28: rove.PartyUpdateRequest.labels:type_name -> rove.PartyUpdateRequest.LabelsEntry
+	2,  // 29: rove.PartyInviteRequest.ref:type_name -> rove.PartyRef
+	51, // 30: rove.PartyInviteResponse.party:type_name -> rove.Party
+	52, // 31: rove.PartyInviteResponse.holder:type_name -> rove.Holder
+	2,  // 32: rove.PartySetRoleRequest.ref:type_name -> rove.PartyRef
+	2,  // 33: rove.PartySetPasswordRequest.ref:type_name -> rove.PartyRef
+	2,  // 34: rove.PartyDeactivateRequest.ref:type_name -> rove.PartyRef
+	2,  // 35: rove.PartyPseudonymizeRequest.ref:type_name -> rove.PartyRef
+	51, // 36: rove.PartySearchResponse.items:type_name -> rove.Party
+	45, // 37: rove.InvitationAddRequest.tenant:type_name -> rove.TenantRef
+	46, // 38: rove.InvitationAddRequest.inviter:type_name -> rove.HolderRef
+	2,  // 39: rove.InvitationAddRequest.party:type_name -> rove.PartyRef
+	47, // 40: rove.InvitationAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	47, // 41: rove.InvitationAddRequest.date_expires:type_name -> google.protobuf.Timestamp
+	47, // 42: rove.InvitationAddRequest.date_settled:type_name -> google.protobuf.Timestamp
+	46, // 43: rove.InvitationAddRequest.holder:type_name -> rove.HolderRef
+	28, // 44: rove.InvitationGetRequest.ref:type_name -> rove.InvitationRef
+	29, // 45: rove.InvitationGetRequest.select:type_name -> rove.InvitationSelect
+	48, // 46: rove.InvitationSelect.tenant:type_name -> rove.TenantSelect
+	49, // 47: rove.InvitationSelect.inviter:type_name -> rove.HolderSelect
+	4,  // 48: rove.InvitationSelect.party:type_name -> rove.PartySelect
+	49, // 49: rove.InvitationSelect.holder:type_name -> rove.HolderSelect
+	28, // 50: rove.InvitationPatchRequest.ref:type_name -> rove.InvitationRef
+	2,  // 51: rove.InvitationPatchRequest.party:type_name -> rove.PartyRef
+	47, // 52: rove.InvitationPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	47, // 53: rove.InvitationPatchRequest.date_expires:type_name -> google.protobuf.Timestamp
+	47, // 54: rove.InvitationPatchRequest.date_settled:type_name -> google.protobuf.Timestamp
+	46, // 55: rove.InvitationPatchRequest.holder:type_name -> rove.HolderRef
+	28, // 56: rove.InvitationApplyRequest.ref:type_name -> rove.InvitationRef
+	50, // 57: rove.InvitationApplyRequest.patch:type_name -> patch.Patch
+	35, // 58: rove.InvitationListRequest.filters:type_name -> rove.InvitationFilter
+	54, // 59: rove.InvitationListResponse.items:type_name -> rove.Invitation
+	28, // 60: rove.InvitationFilter.ref:type_name -> rove.InvitationRef
+	45, // 61: rove.InvitationFilter.tenant:type_name -> rove.TenantRef
+	28, // 62: rove.InvitationRevokeRequest.ref:type_name -> rove.InvitationRef
+	28, // 63: rove.InvitationAcceptRequest.ref:type_name -> rove.InvitationRef
+	28, // 64: rove.InvitationDenyRequest.ref:type_name -> rove.InvitationRef
+	0,  // 65: rove.PartyService.Add:input_type -> rove.PartyAddRequest
+	1,  // 66: rove.PartyService.Get:input_type -> rove.PartyGetRequest
+	5,  // 67: rove.PartyService.Patch:input_type -> rove.PartyPatchRequest
+	6,  // 68: rove.PartyService.Apply:input_type -> rove.PartyApplyRequest
+	2,  // 69: rove.PartyService.Erase:input_type -> rove.PartyRef
+	8,  // 70: rove.PartyService.List:input_type -> rove.PartyListRequest
+	11, // 71: rove.PartyService.Watch:input_type -> rove.PartyWatchRequest
+	14, // 72: rove.PartyService.Me:input_type -> rove.PartyMeRequest
+	16, // 73: rove.PartyService.Update:input_type -> rove.PartyUpdateRequest
+	17, // 74: rove.PartyService.Invite:input_type -> rove.PartyInviteRequest
+	19, // 75: rove.PartyService.SetRole:input_type -> rove.PartySetRoleRequest
+	20, // 76: rove.PartyService.SetPassword:input_type -> rove.PartySetPasswordRequest
+	22, // 77: rove.PartyService.Deactivate:input_type -> rove.PartyDeactivateRequest
+	23, // 78: rove.PartyService.Pseudonymize:input_type -> rove.PartyPseudonymizeRequest
+	24, // 79: rove.PartyService.Search:input_type -> rove.PartySearchRequest
+	26, // 80: rove.InvitationService.Add:input_type -> rove.InvitationAddRequest
+	27, // 81: rove.InvitationService.Get:input_type -> rove.InvitationGetRequest
+	30, // 82: rove.InvitationService.Patch:input_type -> rove.InvitationPatchRequest
+	31, // 83: rove.InvitationService.Apply:input_type -> rove.InvitationApplyRequest
+	28, // 84: rove.InvitationService.Erase:input_type -> rove.InvitationRef
+	33, // 85: rove.InvitationService.List:input_type -> rove.InvitationListRequest
+	36, // 86: rove.InvitationService.Revoke:input_type -> rove.InvitationRevokeRequest
+	37, // 87: rove.InvitationService.Claim:input_type -> rove.InvitationClaimRequest
+	38, // 88: rove.InvitationService.Accept:input_type -> rove.InvitationAcceptRequest
+	39, // 89: rove.InvitationService.Deny:input_type -> rove.InvitationDenyRequest
+	51, // 90: rove.PartyService.Add:output_type -> rove.Party
+	51, // 91: rove.PartyService.Get:output_type -> rove.Party
+	51, // 92: rove.PartyService.Patch:output_type -> rove.Party
+	51, // 93: rove.PartyService.Apply:output_type -> rove.Party
+	7,  // 94: rove.PartyService.Erase:output_type -> rove.PartyEraseResponse
+	9,  // 95: rove.PartyService.List:output_type -> rove.PartyListResponse
+	12, // 96: rove.PartyService.Watch:output_type -> rove.PartyWatchResponse
+	15, // 97: rove.PartyService.Me:output_type -> rove.PartyMeResponse
+	51, // 98: rove.PartyService.Update:output_type -> rove.Party
+	18, // 99: rove.PartyService.Invite:output_type -> rove.PartyInviteResponse
+	51, // 100: rove.PartyService.SetRole:output_type -> rove.Party
+	21, // 101: rove.PartyService.SetPassword:output_type -> rove.PartySetPasswordResponse
+	51, // 102: rove.PartyService.Deactivate:output_type -> rove.Party
+	51, // 103: rove.PartyService.Pseudonymize:output_type -> rove.Party
+	25, // 104: rove.PartyService.Search:output_type -> rove.PartySearchResponse
+	54, // 105: rove.InvitationService.Add:output_type -> rove.Invitation
+	54, // 106: rove.InvitationService.Get:output_type -> rove.Invitation
+	54, // 107: rove.InvitationService.Patch:output_type -> rove.Invitation
+	54, // 108: rove.InvitationService.Apply:output_type -> rove.Invitation
+	32, // 109: rove.InvitationService.Erase:output_type -> rove.InvitationEraseResponse
+	34, // 110: rove.InvitationService.List:output_type -> rove.InvitationListResponse
+	54, // 111: rove.InvitationService.Revoke:output_type -> rove.Invitation
+	54, // 112: rove.InvitationService.Claim:output_type -> rove.Invitation
+	54, // 113: rove.InvitationService.Accept:output_type -> rove.Invitation
+	54, // 114: rove.InvitationService.Deny:output_type -> rove.Invitation
+	90, // [90:115] is the sub-list for method output_type
+	65, // [65:90] is the sub-list for method input_type
+	65, // [65:65] is the sub-list for extension type_name
+	65, // [65:65] is the sub-list for extension extendee
+	0,  // [0:65] is the sub-list for field type_name
 }
 
 func init() { file_rove_org_svc_g_proto_init() }

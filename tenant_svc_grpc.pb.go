@@ -28,6 +28,7 @@ const (
 	TenantService_Close_FullMethodName     = "/rove.TenantService/Close"
 	TenantService_Restore_FullMethodName   = "/rove.TenantService/Restore"
 	TenantService_Configure_FullMethodName = "/rove.TenantService/Configure"
+	TenantService_Preview_FullMethodName   = "/rove.TenantService/Preview"
 )
 
 // TenantServiceClient is the client API for TenantService service.
@@ -54,9 +55,16 @@ type TenantServiceClient interface {
 	Restore(ctx context.Context, in *TenantRestoreRequest, opts ...grpc.CallOption) (*Tenant, error)
 	// Configure is the workspace's own settings, its owner's to say (#144):
 	// where it is -- the zone its dates are told in, the currency a new amount
-	// is priced in -- and how long a room waits for whoever booked it. A field
-	// left out stays as it is; an empty one is the deployment's again.
+	// is priced in -- how long a room waits for whoever booked it, and how long
+	// it keeps its history and its access record and may be restored once
+	// closed (D36). A field left out stays as it is; an empty one is the
+	// deployment's again, or for its history forever. A window made shorter
+	// waits out the deployment's grace before it is the shorter one.
 	Configure(ctx context.Context, in *TenantConfigureRequest, opts ...grpc.CallOption) (*Tenant, error)
+	// Preview is what a change of how long the workspace keeps its history and
+	// its access record would come to, and when, changing nothing: what its
+	// owner is shown before Configure saves it. A field left out is as it is.
+	Preview(ctx context.Context, in *TenantPreviewRequest, opts ...grpc.CallOption) (*TenantPreviewResponse, error)
 }
 
 type tenantServiceClient struct {
@@ -157,6 +165,16 @@ func (c *tenantServiceClient) Configure(ctx context.Context, in *TenantConfigure
 	return out, nil
 }
 
+func (c *tenantServiceClient) Preview(ctx context.Context, in *TenantPreviewRequest, opts ...grpc.CallOption) (*TenantPreviewResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TenantPreviewResponse)
+	err := c.cc.Invoke(ctx, TenantService_Preview_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TenantServiceServer is the server API for TenantService service.
 // All implementations must embed UnimplementedTenantServiceServer
 // for forward compatibility.
@@ -181,9 +199,16 @@ type TenantServiceServer interface {
 	Restore(context.Context, *TenantRestoreRequest) (*Tenant, error)
 	// Configure is the workspace's own settings, its owner's to say (#144):
 	// where it is -- the zone its dates are told in, the currency a new amount
-	// is priced in -- and how long a room waits for whoever booked it. A field
-	// left out stays as it is; an empty one is the deployment's again.
+	// is priced in -- how long a room waits for whoever booked it, and how long
+	// it keeps its history and its access record and may be restored once
+	// closed (D36). A field left out stays as it is; an empty one is the
+	// deployment's again, or for its history forever. A window made shorter
+	// waits out the deployment's grace before it is the shorter one.
 	Configure(context.Context, *TenantConfigureRequest) (*Tenant, error)
+	// Preview is what a change of how long the workspace keeps its history and
+	// its access record would come to, and when, changing nothing: what its
+	// owner is shown before Configure saves it. A field left out is as it is.
+	Preview(context.Context, *TenantPreviewRequest) (*TenantPreviewResponse, error)
 	mustEmbedUnimplementedTenantServiceServer()
 }
 
@@ -220,6 +245,9 @@ func (UnimplementedTenantServiceServer) Restore(context.Context, *TenantRestoreR
 }
 func (UnimplementedTenantServiceServer) Configure(context.Context, *TenantConfigureRequest) (*Tenant, error) {
 	return nil, status.Error(codes.Unimplemented, "method Configure not implemented")
+}
+func (UnimplementedTenantServiceServer) Preview(context.Context, *TenantPreviewRequest) (*TenantPreviewResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Preview not implemented")
 }
 func (UnimplementedTenantServiceServer) mustEmbedUnimplementedTenantServiceServer() {}
 func (UnimplementedTenantServiceServer) testEmbeddedByValue()                       {}
@@ -404,6 +432,24 @@ func _TenantService_Configure_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TenantService_Preview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TenantPreviewRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TenantServiceServer).Preview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TenantService_Preview_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TenantServiceServer).Preview(ctx, req.(*TenantPreviewRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TenantService_ServiceDesc is the grpc.ServiceDesc for TenantService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -446,6 +492,10 @@ var TenantService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Configure",
 			Handler:    _TenantService_Configure_Handler,
+		},
+		{
+			MethodName: "Preview",
+			Handler:    _TenantService_Preview_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -146,4 +146,32 @@ message Tenant {
   // when nobody checked in, in minutes. 0 is the deployment's; negative
   // holds nobody to checking in.
   int32 no_show_minutes = 17 [(orm.field) = {default: ""}];
+  // How long the workspace keeps what it was and did, its owner's to say as
+  // the rest of its settings (design 8, D36): what is kept is what is seen,
+  // and nothing narrows a read to less of it.
+  //
+  // KeepDays is how long its history -- the time rows, the events, the
+  // documents that are over -- is kept, in days, and the trail of the writes
+  // that made it with it. 0 is forever. Only the deployment's switch,
+  // `app.retention.apply`, lets it destroy anything.
+  uint32 keep_days = 18 [(orm.field) = {default: ""}];
+  // AccessKeepDays is how long its access record -- who read, wrote or took
+  // out whose data in it -- is kept, in days (rove#136). 0 is the
+  // deployment's `audit.by.access`, and none is below the deployment's floor,
+  // `audit.by.access.min`: the floor is what the law the deployment is under
+  // asks.
+  uint32 access_keep_days = 19 [(orm.field) = {default: ""}];
+  // RestoreDays is how long it may be restored once closed, in days, before it
+  // is destroyed (D29). 0 is the deployment's `app.workspaces.restore_within`.
+  // Read when it is closed: the date of its destruction then is what its
+  // owner is told.
+  uint32 restore_days = 20 [(orm.field) = {default: ""}];
+  // What KeepDays and AccessKeepDays said before each was last made shorter,
+  // and when. A shorter window waits out the deployment's grace
+  // (`app.retention.grace`) from then, keeping the longer one meanwhile, so a
+  // mistake undone in time has destroyed nothing. Unset is nothing waiting.
+  uint32 keep_days_before = 21 [(orm.field) = {default: ""}];
+  google.protobuf.Timestamp date_keep_shortened = 22 [(orm.field) = {nullable: true}];
+  uint32 access_keep_days_before = 23 [(orm.field) = {default: ""}];
+  google.protobuf.Timestamp date_access_keep_shortened = 24 [(orm.field) = {nullable: true}];
 }

@@ -5,6 +5,8 @@ import type { Bookable } from '../../gen/rove/booking_pb.js'
 import type { AssetType, AttributeDef, ItemModel } from '../../gen/rove/catalog_pb.js'
 import type { TenantDomain } from '../../gen/rove/asset_pb.js'
 import type { Tenant } from '../../gen/rove/payday/tenant_pb.js'
+import type { TenantPreviewResponse } from '../../gen/rove/payday/tenant_svc_pb.js'
+import type { Timestamp } from '@bufbuild/protobuf/wkt'
 import {
 	AccessReviewService,
 	AccessService,
@@ -16,6 +18,7 @@ import {
 	TenantDomainService,
 	TenantService,
 	at,
+	dateOf,
 	daysWord,
 	fmt,
 	fmtWith,
@@ -845,6 +848,116 @@ function PlaceCard(props: { t: Tenant }): ReactNode {
 	)
 }
 
+/** What a retention pass takes, by kind, as a person says it. */
+const takesWord: Record<string, string> = {
+	placements: '위치 기록',
+	links: '관계 기록',
+	stewardships: '담당 기록',
+	facts: '속성 기록',
+	events: '작업 기록',
+	reservations: '끝난 예약',
+	custodies: '돌려받은 지급·대여',
+	counts: '닫힌 실사',
+	work_orders: '끝난 작업',
+	stock_movements: '재고 이동',
+	attachments: '첨부',
+}
+
+/**
+ * How long the workspace keeps its history and its access record, and may be
+ * restored once closed: its owner's to say (D36). What is kept is what is
+ * seen. Before a change is saved the page says what it would take and from
+ * when (`TenantService.Preview`): a shorter window waits out the deployment's
+ * grace, keeping the longer one meanwhile.
+ */
+function KeepCard(props: { t: Tenant }): ReactNode {
+	const act = useAct()
+	const c = useCatalog()
+	const said = (n: number): string => (n > 0 ? String(n) : '')
+	const days = (v: string): number => (v.trim() === '' ? 0 : Number(v))
+	const [keep, setKeep] = useState(said(props.t.keepDays))
+	const [access, setAccess] = useState(said(props.t.accessKeepDays))
+	const [restore, setRestore] = useState(said(props.t.restoreDays))
+	const changed = days(keep) !== props.t.keepDays || days(access) !== props.t.accessKeepDays
+	const now = useRpc(TenantService.method.preview, { ref: ref(props.t.id) })
+	const next = useRpc(TenantService.method.preview, changed ? { ref: ref(props.t.id), keepDays: days(keep), accessKeepDays: days(access) } : null)
+	const save = async (): Promise<void> => {
+		const r = await act(
+			TenantService.method.configure,
+			{ ref: ref(props.t.id), keepDays: days(keep), accessKeepDays: days(access), restoreDays: days(restore) },
+			{ ok: '저장했습니다.' },
+		)
+		if (r !== undefined) location.reload()
+	}
+	const waiting = (from: Timestamp | undefined): boolean => (dateOf(from)?.getTime() ?? 0) > Date.now()
+	return (
+		<Card title="기록 보관">
+			<p className="mute small">
+				보관하는 기록은 모두 보입니다. 기간을 줄이면 배포가 정한 유예 기간이 지난 뒤에 적용되고, 그때까지는 그 전 기간을 지킵니다. 그 안에 되돌리면 아무것도 지워지지 않습니다.
+			</p>
+			<Field label="이력 보관 (일)" hint="자산의 위치·담당·속성의 지난 기록, 끝난 예약·대여·실사·작업, 작업 기록을 이만큼 보관합니다. 비우면 영원히 보관합니다.">
+				<input type="number" min={1} max={36500} value={keep} onChange={(e) => setKeep(e.target.value)} />
+			</Field>
+			<Field label="접속기록 보관 (일)" hint="누가 누구의 정보를 읽고 바꾸고 내려받았는지의 기록입니다. 비우면 배포의 기본값입니다.">
+				<input type="number" min={1} max={36500} value={access} onChange={(e) => setAccess(e.target.value)} />
+			</Field>
+			<Field label="닫은 뒤 복구 기간 (일)" hint={`워크스페이스를 닫은 뒤 이 기간 안에 복구할 수 있고, 지나면 모든 데이터가 지워집니다. 비우면 배포의 기본값입니다. 지금은 ${daysWord(c.me.restoreDays)}입니다.`}>
+				<input type="number" min={1} max={36500} value={restore} onChange={(e) => setRestore(e.target.value)} />
+			</Field>
+			<Load q={now}>
+				{(n) => (
+					<p className="mute small">
+						접속기록은 지금 {n.accessKeepDays > 0 ? `${daysWord(n.accessKeepDays)} 보관합니다` : '영원히 보관합니다'}
+						{n.accessFloorDays > 0 && `. 법이 정한 ${daysWord(n.accessFloorDays)}보다 짧게 둘 수 없습니다`}.
+						{waiting(n.keepFrom) && ` 줄인 이력 보관 기간은 ${fmt(n.keepFrom, 'date')}부터 적용됩니다.`}
+						{waiting(n.accessKeepFrom) && ` 줄인 접속기록 보관 기간은 ${fmt(n.accessKeepFrom, 'date')}부터 적용됩니다.`}
+					</p>
+				)}
+			</Load>
+			{changed && <Load q={next}>{(v) => <Foresee v={v} keep={days(keep) !== props.t.keepDays} access={days(access) !== props.t.accessKeepDays} />}</Load>}
+			<div className="actions">
+				<button className="primary" onClick={() => void save()}>
+					저장
+				</button>
+			</div>
+		</Card>
+	)
+}
+
+/**
+ * What a change of the windows would take, and from when, before it is saved:
+ * of the history, as it is now, what a retention pass takes then; of the
+ * access record, how long it is kept from when.
+ */
+function Foresee(props: { v: TenantPreviewResponse; keep: boolean; access: boolean }): ReactNode {
+	const v = props.v
+	const takes = Object.entries(v.keepTakes).filter(([, n]) => n > 0)
+	return (
+		<div className="note warn" role="status">
+			{props.keep &&
+				(v.keepDays > 0 ? (
+					<p>
+						저장하면 {fmt(v.keepFrom, 'date')}부터 {daysWord(v.keepDays)}보다 오래된 이력이 지워집니다
+						{takes.length > 0
+							? `: ${takes.map(([k, n]) => `${takesWord[k] ?? k} ${n}건`).join(', ')} (지금 있는 이력으로 셈).`
+							: '. 지금 있는 이력 가운데 그때 지워질 것은 없습니다.'}
+					</p>
+				) : (
+					<p>저장하면 이력을 영원히 보관합니다.</p>
+				))}
+			{props.access && (
+				<p>
+					{v.accessKeepDays > 0
+						? `저장하면 ${fmt(v.accessKeepFrom, 'date')}부터 ${daysWord(v.accessKeepDays)}이 지난 접속기록이 지워집니다.`
+						: '저장하면 접속기록을 영원히 보관합니다.'}
+				</p>
+			)}
+			{!v.apply && <p className="mute">이 배포는 아직 보관 기간으로 기록을 지우지 않습니다. 지우게 되면 위와 같이 지워집니다.</p>}
+			{v.held && <p className="mute">법적 보존이 걸려 있어, 풀릴 때까지 아무것도 지우지 않습니다.</p>}
+		</div>
+	)
+}
+
 /** The workspace itself, for its owner: its address, and closing it (D29). */
 function WorkspaceTab(): ReactNode {
 	const act = useAct()
@@ -867,6 +980,7 @@ function WorkspaceTab(): ReactNode {
 						</dl>
 					</Card>
 					<PlaceCard t={v} />
+					<KeepCard t={v} />
 					<Card title="워크스페이스 닫기">
 						<p>
 							닫으면 소유자 말고는 아무도 들어오지 못합니다. 소유자는 {c.me.restoreDays}일 안에 복구하거나 모든 데이터를 내려받을 수 있고, 그 뒤에는 이 워크스페이스의 모든 데이터가 지워집니다. 다만 법이 보관 기간을 정한 기록(접속기록 등)은 계약이 달리 정하지 않았다면 그 기간이 지난 뒤에 지워집니다. 법적 보존이 걸려 있으면 풀릴 때까지 지우지 않습니다. 주소 @{v.alias}는 {daysWord(c.me.aliasHoldDays)} 동안 아무도 쓰지 못하게 보류됩니다.

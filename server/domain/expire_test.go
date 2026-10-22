@@ -59,7 +59,7 @@ func TestAKeepWindowTakesWhatItNoLongerReaches(t *testing.T) {
 
 	x.Zero(e.expire(false).Total(), "a tenant with no contract is kept forever")
 
-	e.contract(180, 180)
+	e.keep(180)
 	before := e.rows()
 
 	plan := e.expire(true)
@@ -118,7 +118,7 @@ func TestAHoldKeepsAllOfIt(t *testing.T) {
 	e := newEnv(t)
 	x := e.x
 	e.aYearOfALaptop()
-	e.contract(30, 180)
+	e.keep(180)
 
 	_, err := e.s.Base.LegalHold().Add(e.owner, app.LegalHoldAddRequest_builder{
 		Tenant: app.TenantRef_builder{Id: e.tenant.Bytes()}.Build(),
@@ -159,7 +159,7 @@ func TestADisposalOutlivesTheWindow(t *testing.T) {
 	set("active")
 	e.now = start
 
-	e.contract(30, 180)
+	e.keep(180)
 	e.expire(false)
 
 	n, err := e.s.Ent.Fact.Query().Where(fact.Key("status"), fact.Value("disposed")).Count(context.Background())

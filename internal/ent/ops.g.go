@@ -57,12 +57,7 @@ func (e *TenantContract) Proto() *rove.TenantContract {
 	}
 	x.SetName(e.Name)
 	x.SetDesc(e.Desc)
-	x.SetViewDays(e.ViewDays)
-	x.SetKeepDays(e.KeepDays)
-	x.SetGraceDays(e.GraceDays)
 	x.SetDateEffective(timestamppb.New(e.DateEffective))
-	x.SetAccessKeepDays(e.AccessKeepDays)
-	x.SetRestoreDays(e.RestoreDays)
 	x.SetPurgeFloors(e.PurgeFloors)
 	if e.DateErased != nil {
 		x.SetDateErased(timestamppb.New(*e.DateErased))

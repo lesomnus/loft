@@ -42,6 +42,7 @@ export const people = {
 	sso: { login: 'eunwoo-jang', name: '장은우' },
 	place: { login: 'hyunwoo-yoon', name: '윤현우' },
 	reviewer: { login: 'naeun-park', name: '박나은' },
+	keeper: { login: 'doyun-jang', name: '장도윤' },
 } as const
 
 /** A name nothing else in the run has. */
