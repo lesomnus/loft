@@ -285,9 +285,11 @@ func (l *Logins) start(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-	taken, err := l.Db.CliLogin.Query().Where(entclilogin.Secret(secret)).Exist(ctx)
+	// Kept as a session's key is ([session.Store.KeptSum]), from the first.
+	kept := l.Store.KeptSum(secret)
+	taken, err := l.Db.CliLogin.Query().Where(entclilogin.Secret(kept)).Exist(ctx)
 	if err == nil && !taken {
-		taken, err = l.Db.Session.Query().Where(entsession.Secret(secret)).Exist(ctx)
+		taken, err = l.Db.Session.Query().Where(entsession.Secret(kept)).Exist(ctx)
 	}
 	if err != nil {
 		fail(w, r, err)
@@ -309,7 +311,7 @@ func (l *Logins) start(w http.ResponseWriter, r *http.Request) {
 	v, err := l.recorded(ctx, Asked, func(db *ent.Client) (*ent.CliLogin, error) {
 		return db.CliLogin.Create().
 			SetId(pdid.New(pd.CliLoginDomain).Uuid()).
-			SetSecret(secret).
+			SetSecret(kept).
 			SetCode(code).
 			SetClient(client).
 			SetOrigin(origin + agentOf(r)).
@@ -356,7 +358,7 @@ func (l *Logins) poll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	v, err := l.Db.CliLogin.Get(ctx, id.Uuid())
-	if ent.IsNotFound(err) || (err == nil && subtle.ConstantTimeCompare(v.Secret, secret) != 1) {
+	if ent.IsNotFound(err) || (err == nil && subtle.ConstantTimeCompare(v.Secret, l.Store.KeptSum(secret)) != 1) {
 		// Nobody else's to ask about, and not told apart from nothing.
 		http.Error(w, "no such sign-in", http.StatusNotFound)
 		return

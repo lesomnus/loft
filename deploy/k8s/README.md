@@ -43,7 +43,7 @@ resources:
    | --- | --- | --- | --- |
    | `rove` | `db-dsn` | Rove의 DB 주소. 예: `postgres://rove:…@db:5432/rove?sslmode=require` | |
    | | `roster-db-dsn` | 내장 roster의 DB 주소. Rove와 다른 데이터베이스입니다 | |
-   | | `signing-key` | 다운로드 링크 서명. 모든 프로세스가 같아야 합니다 | `openssl rand -base64 32` |
+   | | `signing-key` | 다운로드 링크 서명, 그리고 세션의 키를 보관하는 키(루트 README의 "세션의 키"). 모든 프로세스가 같아야 하고, 바꾸면 모두 로그아웃됩니다 | `openssl rand -base64 32` |
    | | `mail-password` | SMTP 비밀번호. 없어도 됩니다 | |
    | `rove-checkpoints` | `checkpoints.pem` | 감사 기록 서명 키. 잃으면 이전 체크포인트를 검증할 수 없으니 **백업에 함께 넣습니다** | `openssl genpkey -algorithm ed25519` |
    | | `digest.key` | 감사 기록이 행마다 남기는 지문(HMAC)의 키. `rove trail rows`가 이것으로 DB에서 직접 바뀐 행을 찾습니다. 잃으면 이전 지문을 검증할 수 없으니 **백업에 함께 넣습니다**. DB 백업과는 따로 둡니다 | `openssl rand -base64 32` |
@@ -155,6 +155,8 @@ curl https://<호스트>/healthz   # ok
 ```
 
 ## 새 버전 올리기
+
+세션을 키의 HMAC으로 보관하는 버전으로 처음 올리면 모두 한 번 다시 로그인합니다(루트 README의 "세션의 키"). 그 밖에 할 일은 없습니다.
 
 1. **빌드.** main에 머지되면 CI의 `image` 작업이 모든 검사가 통과한 뒤 `ghcr.io/lesomnus/rove:edge`로 올립니다. digest는 그 실행의 요약(Summary)에 남습니다. 오버레이에는 `edge`가 아니라 이 digest를 적습니다.
 2. **새로 필요한 것.** 지금 올라가 있는 커밋과 새 커밋 사이에 이 디렉터리가 어떻게 바뀌었는지 봅니다: `git diff <지금 커밋>..<새 커밋> -- deploy/k8s`. 위 표에 Secret의 키가 늘었거나 `config.yaml`이 새 파일을 가리키면, **그 Secret을 먼저 넣고** 설정과 digest는 그다음에 sync합니다. 예를 들어 610c1c7부터는 `rove-checkpoints`에 `digest.key`가 있어야 뜹니다.
