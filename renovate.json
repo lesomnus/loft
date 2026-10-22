@@ -10,6 +10,21 @@
     "* 0-8 * * 1"
   ],
   "prConcurrentLimit": 5,
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "The BuildKit `docker/setup-buildx-action` runs in the image job, named by its version and its digest in `driver-opts`.",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/[^/]+\\.ya?ml$/"
+      ],
+      "matchStrings": [
+        "image=(?<depName>moby/buildkit):(?<currentValue>v[0-9]+\\.[0-9]+\\.[0-9]+)@(?<currentDigest>sha256:[a-f0-9]{64})"
+      ],
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "docker",
+      "autoReplaceStringTemplate": "image={{{depName}}}:{{{newValue}}}@{{{newDigest}}}"
+    }
+  ],
   "packageRules": [
     {
       "description": "roster moves with payday, by hand: rove links the roster generated with the payday it links, so a payday upgrade is `go get` of that roster and then `go tool pd upgrade --payday`.",
