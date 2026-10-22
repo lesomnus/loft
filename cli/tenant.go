@@ -59,7 +59,7 @@ func NewCmdTenant(c *cmd.Config) *xli.Command {
 					}
 					out, _ := flg.Find[string](self, "out")
 					if strings.TrimSpace(out) == "" {
-						out = fmt.Sprintf("%s-%s.zip", t.Alias, time.Now().Format(time.DateOnly))
+						out = fmt.Sprintf("%s-%s.zip", t.Alias, day(time.Now()))
 					}
 
 					// What this says goes where the archive does not: on stdout
@@ -214,7 +214,7 @@ func newCmdTenantLeave(c *cmd.Config, name, brief string, how closing.How) *xli.
 					for _, k := range slices.Sorted(maps.Keys(x.Trail.Kept)) {
 						kept = append(kept, fmt.Sprintf("%s %d", k, x.Trail.Kept[k]))
 					}
-					self.Printf("  kept until %s, for the deployment's floors: %s\n", x.Trail.Until.Format(time.DateOnly), strings.Join(kept, ", "))
+					self.Printf("  kept until %s, for the deployment's floors: %s\n", day(x.Trail.Until), strings.Join(kept, ", "))
 				}
 			}
 			if s.Identity.Embedded() {
@@ -274,11 +274,11 @@ func newCmdTenantRetired(c *cmd.Config) *xli.Command {
 				} else if !ent.IsNotFound(err) {
 					return err
 				}
-				left := "kept until " + v.Until.Format(time.DateOnly)
+				left := "kept until " + day(v.Until)
 				if !now.Before(v.Until) {
-					left = "past its floors since " + v.Until.Format(time.DateOnly) + ": the next pass takes what is left"
+					left = "past its floors since " + day(v.Until) + ": the next pass takes what is left"
 				}
-				self.Printf("%s\t%s\tretired %s\t%s\n", alias, id, v.At.Format(time.DateOnly), left)
+				self.Printf("%s\t%s\tretired %s\t%s\n", alias, id, day(v.At), left)
 			}
 			if len(ids) == 0 {
 				self.Printf("no workspace has retired, or what each kept is gone\n")

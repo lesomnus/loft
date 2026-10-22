@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strings"
 	"testing"
 	"time"
 
@@ -33,6 +34,9 @@ import (
 func TestAWorkspacesTrailIsTakenOutForWhoeverKeepsIt(t *testing.T) {
 	x := require.New(t)
 	ctx := t.Context()
+	// In a zone whose date is not UTC's now, as Seoul's is from midnight to
+	// nine: the dates the commands say are UTC's, whatever the shell's.
+	inZone(t, awayFromUTC(time.Now()))
 
 	c := cmd.Config{}
 	c.Db.Driver, c.Db.Dsn = pdtest.DB(t)
@@ -98,10 +102,12 @@ func TestAWorkspacesTrailIsTakenOutForWhoeverKeepsIt(t *testing.T) {
 
 	// Retired, it is taken out by the address its hold names, until its
 	// floors pass.
+	began := time.Now()
 	run(t, cli.NewCmdTenant(&c), "retire", "--tenant", "acme", "--yes")
+	ended := time.Now()
 	out = run(t, cli.NewCmdTenant(&c), "retired")
 	x.Contains(out, "@acme")
-	x.Contains(out, "kept until "+time.Now().Add(365*24*time.Hour).Format(time.DateOnly))
+	x.True(saysDay(out, "kept until ", began.Add(365*24*time.Hour), ended.Add(365*24*time.Hour)), "not UTC's day, a year from now: %s", out)
 
 	gone := filepath.Join(dir, "acme-retired.trail")
 	out = run(t, cli.NewCmdTrail(&c), "export", "--tenant", "@acme", "--why", "case 2026-4, after it left", "--to", pub, "--out", gone)
@@ -117,4 +123,33 @@ func TestAWorkspacesTrailIsTakenOutForWhoeverKeepsIt(t *testing.T) {
 
 	err = cli.NewCmdTrail(&c).Run(ctx, []string{"export", "--tenant", "nobody-here", "--why", "a case", "--to", pub, "--out", filepath.Join(dir, "x")})
 	x.ErrorContains(err, "no workspace is @nobody-here")
+}
+
+// inZone has the process's local zone be `l` for the rest of the test: what a
+// shell's TZ says, which the process reads once as it starts. No test in this
+// package runs beside another.
+func inZone(t *testing.T, l *time.Location) {
+	t.Helper()
+
+	was := time.Local
+	time.Local = l
+	t.Cleanup(func() { time.Local = was })
+}
+
+// saysDay answers whether `out` says `prefix` and then the day, in UTC, of a
+// moment between `from` and `to`: either one's, for when UTC's midnight came
+// between the two.
+func saysDay(out, prefix string, from, to time.Time) bool {
+	return strings.Contains(out, prefix+from.UTC().Format(time.DateOnly)) || strings.Contains(out, prefix+to.UTC().Format(time.DateOnly))
+}
+
+// awayFromUTC is a zone whose date is not UTC's at `now`, nor for hours after:
+// fourteen hours ahead of it from ten in the morning UTC, and twelve behind
+// before then.
+func awayFromUTC(now time.Time) *time.Location {
+	if now.UTC().Hour() >= 10 {
+		return time.FixedZone("UTC+14", 14*60*60)
+	}
+
+	return time.FixedZone("UTC-12", -12*60*60)
 }

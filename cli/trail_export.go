@@ -164,7 +164,7 @@ func newCmdTrailExport(c *cmd.Config) *xli.Command {
 				}
 			}
 			if r := v.Retired; r != nil {
-				fmt.Fprintf(say, "  retired %s; what it kept is kept until %s\n", r.At.Format(time.DateOnly), r.Until.Format(time.DateOnly))
+				fmt.Fprintf(say, "  retired %s; what it kept is kept until %s\n", day(r.At), day(r.Until))
 			}
 			fmt.Fprintf(say, "  %d people in the access record, as a download, for %q\n", len(people), why)
 
@@ -237,7 +237,7 @@ func newCmdTrailVerifyExport(c *cmd.Config) *xli.Command {
 					cp.K, cp.Digest, cp.At.Format(time.RFC3339), covered, len(v.Chunks), len(cp.Witnessed))
 			}
 			if r := v.Retired; r != nil {
-				self.Printf("  retired %s, kept until %s\n", r.At.Format(time.DateOnly), r.Until.Format(time.DateOnly))
+				self.Printf("  retired %s, kept until %s\n", day(r.At), day(r.Until))
 			}
 
 			return next(ctx)
