@@ -735,7 +735,9 @@ func (s *Server) serveHttp(ctx context.Context, c Config, g *grpc.Server) (func(
 	// an ordinary route cannot collide with one.
 	s.Routes(h.ServeMux, c)
 
-	front, err := Front(c, h)
+	// And all of it behind what the host a request came to decides: a
+	// workspace's own domain serves that workspace alone (rove#155).
+	front, err := Front(c, s.Hosts(c).Handler(h))
 	if err != nil {
 		return nil, err
 	}
