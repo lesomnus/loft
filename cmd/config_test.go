@@ -80,3 +80,38 @@ func TestADeploymentIsToldWhereItIs(t *testing.T) {
 	c.App.PublicUrl = "https://rove.example.com"
 	require.NoError(t, c.Replicas())
 }
+
+// TestTheRosterInThisProcessIsSaidInProduction is the predicate `serve`
+// warns by: roster in this process (`auth.roster.addr` empty) on the
+// PostgreSQL driver, or behind an address that is not this machine's, is a
+// deployment that looks like production, and says which it was. A checkout
+// does not, and neither does anything with roster apart.
+func TestTheRosterInThisProcessIsSaidInProduction(t *testing.T) {
+	for _, v := range []struct {
+		name   string
+		driver string
+		public string
+		addr   string
+		want   []string
+	}{
+		{name: "a checkout", driver: "sqlite3"},
+		{name: "a checkout told its address", driver: "sqlite3", public: "http://localhost:8080"},
+		{name: "a name under localhost", driver: "sqlite3", public: "https://rove.localhost"},
+		{name: "a loopback address", driver: "sqlite3", public: "http://127.0.0.1:8080"},
+		{name: "the loopback of v6", driver: "sqlite3", public: "http://[::1]:8080"},
+		{name: "PostgreSQL", driver: "pgx", want: []string{"db.driver: pgx"}},
+		{name: "a name people open", driver: "sqlite3", public: "https://assets.example.com",
+			want: []string{"app.public_url: https://assets.example.com"}},
+		{name: "both", driver: "pgx", public: "https://assets.example.com",
+			want: []string{"db.driver: pgx", "app.public_url: https://assets.example.com"}},
+		{name: "a roster apart", driver: "pgx", public: "https://assets.example.com", addr: "roster.example.com:443"},
+	} {
+		t.Run(v.name, func(t *testing.T) {
+			c := cmd.Config{}
+			c.Db.Driver = v.driver
+			c.App.PublicUrl = v.public
+			c.Auth.Roster.Addr = v.addr
+			require.Equal(t, v.want, c.EmbeddedInProduction())
+		})
+	}
+}

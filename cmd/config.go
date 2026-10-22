@@ -10,6 +10,7 @@ package cmd
 
 import (
 	"fmt"
+	"net"
 	"net/url"
 	"path/filepath"
 	"strings"
@@ -163,6 +164,47 @@ func (c Config) Replicas() error {
 	}
 
 	return nil
+}
+
+// EmbeddedInProduction says why this deployment looks like production while
+// it runs roster in this process (`auth.roster.addr` empty): the PostgreSQL
+// driver, which is what a deployment runs (design 9.4), or an address people
+// open that is not this machine's. Nothing when roster is apart, or when
+// neither is said.
+//
+// The roster in this process is there to make one server simple (design
+// 9.10, the CE): it answers this process alone, keeps people and passwords
+// beside Rove's own data, and is reached by no other app. A deployment beyond
+// that -- SaaS, a dedicated one, several replicas -- runs roster apart. So
+// `serve` says so when it starts, with these as the reasons, and starts all the
+// same: a single server on PostgreSQL behind its own name is a deployment the
+// embedded roster is for, and that is the operator's to say.
+func (c Config) EmbeddedInProduction() []string {
+	if !c.Auth.Roster.Embedded() {
+		return nil
+	}
+
+	var why []string
+	if d := strings.ToLower(c.Db.Driver); d == "pgx" || d == "postgres" {
+		why = append(why, "db.driver: "+c.Db.Driver)
+	}
+	if u, err := url.Parse(c.App.PublicUrl); err == nil && u.Hostname() != "" && !local(u.Hostname()) {
+		why = append(why, "app.public_url: "+c.App.PublicUrl)
+	}
+
+	return why
+}
+
+// local answers whether a host is this machine: `localhost` or a name under
+// it, or a loopback address.
+func local(host string) bool {
+	host = strings.ToLower(strings.TrimSuffix(host, "."))
+	if host == "localhost" || strings.HasSuffix(host, ".localhost") {
+		return true
+	}
+	ip := net.ParseIP(host)
+
+	return ip != nil && ip.IsLoopback()
 }
 
 // AppConfig is rove's own part of the configuration.
