@@ -355,8 +355,8 @@ Write through the servers. Where a write cannot be one -- a claim on a
 condition, a restore -- put it on the trail as the act it is, in the same
 transaction: `pd.Record` with `Deps.Audit`, as the mailer and `tenant import`
 do. A kind no server writes says in its schema how its writes reach the trail
-(`payday.entity`'s `trail`): `recorded`, and each write is recorded -- a consent,
-a terminal's sign-in, an alias hold -- or `off: {why: ...}`, and it is not
+(`payday.entity`'s `trail`): `recorded`, and each write is recorded -- a
+terminal's sign-in, an alias hold -- or `off: {why: ...}`, and it is not
 checked -- a session, the tree lock. `pd gen` refuses one that says neither.
 Whether a kind has RPCs is a separate question, about its API. An UPDATE that
 changes nothing, to take a row's lock, is fine.
