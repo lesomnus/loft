@@ -176,23 +176,41 @@ func (_u *ConsentUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Account(); ok {
 		_spec.SetField(consent.FieldAccount, field.TypeUuid, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(consent.FieldAccount); ok {
+		_spec.SetField(consent.FieldAccount, field.TypeUuid, e)
+	}
 	if value, ok := _u.mutation.Document(); ok {
 		_spec.SetField(consent.FieldDocument, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(consent.FieldDocument); ok {
+		_spec.SetField(consent.FieldDocument, field.TypeString, e)
 	}
 	if value, ok := _u.mutation.Version(); ok {
 		_spec.SetField(consent.FieldVersion, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(consent.FieldVersion); ok {
+		_spec.SetField(consent.FieldVersion, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.GetClient(); ok {
 		_spec.SetField(consent.FieldClient, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(consent.FieldClient); ok {
+		_spec.SetField(consent.FieldClient, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.DateLeft(); ok {
 		_spec.SetField(consent.FieldDateLeft, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(consent.FieldDateLeft); ok {
+		_spec.SetField(consent.FieldDateLeft, field.TypeTime, e)
 	}
 	if _u.mutation.DateLeftCleared() {
 		_spec.ClearField(consent.FieldDateLeft, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(consent.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(consent.FieldDateErased); ok {
+		_spec.SetField(consent.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(consent.FieldDateErased, field.TypeTime)
@@ -398,23 +416,41 @@ func (_u *ConsentUpdateOne) sqlSave(ctx context.Context) (_node *Consent, err er
 	if value, ok := _u.mutation.Account(); ok {
 		_spec.SetField(consent.FieldAccount, field.TypeUuid, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(consent.FieldAccount); ok {
+		_spec.SetField(consent.FieldAccount, field.TypeUuid, e)
+	}
 	if value, ok := _u.mutation.Document(); ok {
 		_spec.SetField(consent.FieldDocument, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(consent.FieldDocument); ok {
+		_spec.SetField(consent.FieldDocument, field.TypeString, e)
 	}
 	if value, ok := _u.mutation.Version(); ok {
 		_spec.SetField(consent.FieldVersion, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(consent.FieldVersion); ok {
+		_spec.SetField(consent.FieldVersion, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.GetClient(); ok {
 		_spec.SetField(consent.FieldClient, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(consent.FieldClient); ok {
+		_spec.SetField(consent.FieldClient, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.DateLeft(); ok {
 		_spec.SetField(consent.FieldDateLeft, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(consent.FieldDateLeft); ok {
+		_spec.SetField(consent.FieldDateLeft, field.TypeTime, e)
 	}
 	if _u.mutation.DateLeftCleared() {
 		_spec.ClearField(consent.FieldDateLeft, field.TypeTime)
 	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(consent.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(consent.FieldDateErased); ok {
+		_spec.SetField(consent.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(consent.FieldDateErased, field.TypeTime)

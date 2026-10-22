@@ -30,7 +30,8 @@ func (SearchStale) Fields() []ent.Field {
 
 func (SearchStale) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("date_created"),
+		index.Fields("date_created").
+			StorageKey("searchstale_date_created"),
 	}
 }
 

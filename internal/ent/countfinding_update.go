@@ -270,8 +270,14 @@ func (_u *CountFindingUpdate) sqlSave(ctx context.Context) (_node int, err error
 	if value, ok := _u.mutation.Desc(); ok {
 		_spec.SetField(countfinding.FieldDesc, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(countfinding.FieldDesc); ok {
+		_spec.SetField(countfinding.FieldDesc, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.LabelId(); ok {
 		_spec.SetField(countfinding.FieldLabelId, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(countfinding.FieldLabelId); ok {
+		_spec.SetField(countfinding.FieldLabelId, field.TypeUuid, e)
 	}
 	if _u.mutation.LabelIdCleared() {
 		_spec.ClearField(countfinding.FieldLabelId, field.TypeUuid)
@@ -279,8 +285,14 @@ func (_u *CountFindingUpdate) sqlSave(ctx context.Context) (_node int, err error
 	if value, ok := _u.mutation.Kind(); ok {
 		_spec.SetField(countfinding.FieldKind, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(countfinding.FieldKind); ok {
+		_spec.SetField(countfinding.FieldKind, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.ObservedParentId(); ok {
 		_spec.SetField(countfinding.FieldObservedParentId, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(countfinding.FieldObservedParentId); ok {
+		_spec.SetField(countfinding.FieldObservedParentId, field.TypeUuid, e)
 	}
 	if _u.mutation.ObservedParentIdCleared() {
 		_spec.ClearField(countfinding.FieldObservedParentId, field.TypeUuid)
@@ -288,11 +300,17 @@ func (_u *CountFindingUpdate) sqlSave(ctx context.Context) (_node int, err error
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(countfinding.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(countfinding.FieldDateUpdated); ok {
+		_spec.SetField(countfinding.FieldDateUpdated, field.TypeTime, e)
+	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(countfinding.FieldDateCreated, field.TypeTime)
 	}
 	if value, ok := _u.mutation.ExpectedParentId(); ok {
 		_spec.SetField(countfinding.FieldExpectedParentId, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(countfinding.FieldExpectedParentId); ok {
+		_spec.SetField(countfinding.FieldExpectedParentId, field.TypeUuid, e)
 	}
 	if _u.mutation.ExpectedParentIdCleared() {
 		_spec.ClearField(countfinding.FieldExpectedParentId, field.TypeUuid)
@@ -300,11 +318,17 @@ func (_u *CountFindingUpdate) sqlSave(ctx context.Context) (_node int, err error
 	if value, ok := _u.mutation.SeenAt(); ok {
 		_spec.SetField(countfinding.FieldSeenAt, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(countfinding.FieldSeenAt); ok {
+		_spec.SetField(countfinding.FieldSeenAt, field.TypeTime, e)
+	}
 	if _u.mutation.SeenAtCleared() {
 		_spec.ClearField(countfinding.FieldSeenAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.RecordedBy(); ok {
 		_spec.SetField(countfinding.FieldRecordedBy, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(countfinding.FieldRecordedBy); ok {
+		_spec.SetField(countfinding.FieldRecordedBy, field.TypeUuid, e)
 	}
 	if _u.mutation.RecordedByCleared() {
 		_spec.ClearField(countfinding.FieldRecordedBy, field.TypeUuid)
@@ -312,8 +336,14 @@ func (_u *CountFindingUpdate) sqlSave(ctx context.Context) (_node int, err error
 	if value, ok := _u.mutation.Resolution(); ok {
 		_spec.SetField(countfinding.FieldResolution, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(countfinding.FieldResolution); ok {
+		_spec.SetField(countfinding.FieldResolution, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.ResolvedAt(); ok {
 		_spec.SetField(countfinding.FieldResolvedAt, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(countfinding.FieldResolvedAt); ok {
+		_spec.SetField(countfinding.FieldResolvedAt, field.TypeTime, e)
 	}
 	if _u.mutation.ResolvedAtCleared() {
 		_spec.ClearField(countfinding.FieldResolvedAt, field.TypeTime)
@@ -610,8 +640,14 @@ func (_u *CountFindingUpdateOne) sqlSave(ctx context.Context) (_node *CountFindi
 	if value, ok := _u.mutation.Desc(); ok {
 		_spec.SetField(countfinding.FieldDesc, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(countfinding.FieldDesc); ok {
+		_spec.SetField(countfinding.FieldDesc, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.LabelId(); ok {
 		_spec.SetField(countfinding.FieldLabelId, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(countfinding.FieldLabelId); ok {
+		_spec.SetField(countfinding.FieldLabelId, field.TypeUuid, e)
 	}
 	if _u.mutation.LabelIdCleared() {
 		_spec.ClearField(countfinding.FieldLabelId, field.TypeUuid)
@@ -619,8 +655,14 @@ func (_u *CountFindingUpdateOne) sqlSave(ctx context.Context) (_node *CountFindi
 	if value, ok := _u.mutation.Kind(); ok {
 		_spec.SetField(countfinding.FieldKind, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(countfinding.FieldKind); ok {
+		_spec.SetField(countfinding.FieldKind, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.ObservedParentId(); ok {
 		_spec.SetField(countfinding.FieldObservedParentId, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(countfinding.FieldObservedParentId); ok {
+		_spec.SetField(countfinding.FieldObservedParentId, field.TypeUuid, e)
 	}
 	if _u.mutation.ObservedParentIdCleared() {
 		_spec.ClearField(countfinding.FieldObservedParentId, field.TypeUuid)
@@ -628,11 +670,17 @@ func (_u *CountFindingUpdateOne) sqlSave(ctx context.Context) (_node *CountFindi
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(countfinding.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(countfinding.FieldDateUpdated); ok {
+		_spec.SetField(countfinding.FieldDateUpdated, field.TypeTime, e)
+	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(countfinding.FieldDateCreated, field.TypeTime)
 	}
 	if value, ok := _u.mutation.ExpectedParentId(); ok {
 		_spec.SetField(countfinding.FieldExpectedParentId, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(countfinding.FieldExpectedParentId); ok {
+		_spec.SetField(countfinding.FieldExpectedParentId, field.TypeUuid, e)
 	}
 	if _u.mutation.ExpectedParentIdCleared() {
 		_spec.ClearField(countfinding.FieldExpectedParentId, field.TypeUuid)
@@ -640,11 +688,17 @@ func (_u *CountFindingUpdateOne) sqlSave(ctx context.Context) (_node *CountFindi
 	if value, ok := _u.mutation.SeenAt(); ok {
 		_spec.SetField(countfinding.FieldSeenAt, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(countfinding.FieldSeenAt); ok {
+		_spec.SetField(countfinding.FieldSeenAt, field.TypeTime, e)
+	}
 	if _u.mutation.SeenAtCleared() {
 		_spec.ClearField(countfinding.FieldSeenAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.RecordedBy(); ok {
 		_spec.SetField(countfinding.FieldRecordedBy, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(countfinding.FieldRecordedBy); ok {
+		_spec.SetField(countfinding.FieldRecordedBy, field.TypeUuid, e)
 	}
 	if _u.mutation.RecordedByCleared() {
 		_spec.ClearField(countfinding.FieldRecordedBy, field.TypeUuid)
@@ -652,8 +706,14 @@ func (_u *CountFindingUpdateOne) sqlSave(ctx context.Context) (_node *CountFindi
 	if value, ok := _u.mutation.Resolution(); ok {
 		_spec.SetField(countfinding.FieldResolution, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(countfinding.FieldResolution); ok {
+		_spec.SetField(countfinding.FieldResolution, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.ResolvedAt(); ok {
 		_spec.SetField(countfinding.FieldResolvedAt, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(countfinding.FieldResolvedAt); ok {
+		_spec.SetField(countfinding.FieldResolvedAt, field.TypeTime, e)
 	}
 	if _u.mutation.ResolvedAtCleared() {
 		_spec.ClearField(countfinding.FieldResolvedAt, field.TypeTime)

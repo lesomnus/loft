@@ -2,11 +2,7 @@ package cli_test
 
 import (
 	"bytes"
-	"crypto/ed25519"
-	"crypto/rand"
-	"crypto/x509"
 	"encoding/base64"
-	"encoding/pem"
 	"io"
 	"os"
 	"testing"
@@ -24,14 +20,16 @@ import (
 	"github.com/lesomnus/rove/server/pd"
 )
 
-// TestRowsFromBeforeTheKeyAreAcceptedOnce is the one step a deployment that
-// signs its checkpoints takes on the payday that signs the manifest's rows too
-// (lesomnus/payday#58, rove#58). A row nobody signed looks the same whether it
-// was written before rows were signed or had its signature taken off, so with
-// a key each one is a finding until somebody who has looked runs `rove trail
-// accept`, once. After that `verify` is clean, and what a pass writes from then
-// on is signed as it goes.
-func TestRowsFromBeforeTheKeyAreAcceptedOnce(t *testing.T) {
+// TestRowsNobodySignedAreAcceptedOnce is the one step a deployment takes whose
+// archive's account has rows nobody signed: written by a build from before
+// rows were signed (lesomnus/payday#58, rove#58), or by one that kept the
+// archive without a key at all (payday#115) -- which is not a state this build
+// can make, since it keeps no archive without one. A row nobody signed looks the
+// same whether it was written so or had its signature taken off, which is how
+// this makes one, and each is a finding until somebody who has looked runs
+// `rove trail accept`, once. After that `verify` is clean, and what a pass
+// writes from then on is signed as it goes.
+func TestRowsNobodySignedAreAcceptedOnce(t *testing.T) {
 	x := require.New(t)
 	ctx := t.Context()
 
@@ -42,26 +40,29 @@ func TestRowsFromBeforeTheKeyAreAcceptedOnce(t *testing.T) {
 	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
 	c.Audit.Archive = t.TempDir()
 	c.Audit.Retain = time.Nanosecond
+	c.Audit.Checkpoints.Key = pdtest.Key(t)
 	run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner-pass-1234")
 
-	// A pass of the policy, as the sweep in `serve` runs it.
-	pass := func() {
+	// The deployment as `serve` builds it: a pass, as the sweep runs one, and
+	// the database by hand.
+	with := func(fn func(s *cmd.Server)) {
 		s, err := cmd.Build(ctx, c)
 		x.NoError(err)
 		defer s.Close()
-		s.Trail.Pass(ctx, pd.TrailStore(s.Ent))
+		fn(s)
 	}
+	pass := func() { with(func(s *cmd.Server) { s.Trail.Pass(ctx, pd.TrailStore(s.Ent)) }) }
 	trail := func(args ...string) error { return cli.NewCmdTrail(&c).Run(ctx, args) }
 
-	// Written while the deployment had no key.
 	pass()
 	x.NoError(trail("verify"))
 
-	_, priv, err := ed25519.GenerateKey(rand.Reader)
-	x.NoError(err)
-	der, err := x509.MarshalPKCS8PrivateKey(priv)
-	x.NoError(err)
-	c.Audit.Checkpoints.Key = string(pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: der}))
+	// The rows as a build that did not sign them left them.
+	with(func(s *cmd.Server) {
+		n, err := s.Ent.Archived.Update().SetSignature([]byte{}).SetSignedBy([]byte{}).Save(ctx)
+		x.NoError(err)
+		x.NotZero(n, "the account has no rows, so this proves nothing")
+	})
 
 	x.ErrorContains(trail("verify"), "findings", "rows nobody signed were taken for signed ones")
 	x.ErrorContains(trail("accept"), "--why")
@@ -84,11 +85,7 @@ func TestADatabaseRestoredFromABackupIsAcceptedOnce(t *testing.T) {
 	x := require.New(t)
 	ctx := t.Context()
 
-	_, priv, err := ed25519.GenerateKey(rand.Reader)
-	x.NoError(err)
-	der, err := x509.MarshalPKCS8PrivateKey(priv)
-	x.NoError(err)
-
+	var err error
 	c := cmd.Config{}
 	c.Db.Driver, c.Db.Dsn = pdtest.DB(t)
 	c.Watch.Broker = "memory"
@@ -96,7 +93,7 @@ func TestADatabaseRestoredFromABackupIsAcceptedOnce(t *testing.T) {
 	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
 	c.Audit.Archive = t.TempDir()
 	c.Audit.Retain = time.Nanosecond
-	c.Audit.Checkpoints.Key = string(pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: der}))
+	c.Audit.Checkpoints.Key = pdtest.Key(t)
 	run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner-pass-1234")
 
 	// The deployment as `serve` builds it, for what is done here and not at
@@ -208,7 +205,7 @@ func TestTheLiveRowsAreCheckedAgainstTheTrail(t *testing.T) {
 	x.NoError(s.Ent.Holder.UpdateOneId(owner.Id).SetRole("member").Exec(ctx))
 	s.Close()
 
-	x.ErrorContains(trail("rows"), "1 rows differ")
+	x.ErrorContains(trail("rows"), "1 findings")
 
 	// Somebody who has looked accepts it as it is: an act on the trail, which
 	// says why (payday#108).
@@ -223,7 +220,7 @@ func TestTheLiveRowsAreCheckedAgainstTheTrail(t *testing.T) {
 	_, err = s.Ent.Audit.Delete().Where(entaudit.ObjectId(owner.Id)).Exec(ctx)
 	x.NoError(err)
 	s.Close()
-	x.ErrorContains(trail("rows"), "1 are not on it")
+	x.ErrorContains(trail("rows"), "1 findings")
 	out := runErr(t, cli.NewCmdTrail(&c), "rows")
 	x.Contains(out, "not-on-trail by kind: Holder 1", "named as this app names it")
 	x.Contains(out, "not-on-trail Holder ")

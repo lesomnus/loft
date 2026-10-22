@@ -231,8 +231,14 @@ func (_u *PurchaseLineUpdate) sqlSave(ctx context.Context) (_node int, err error
 	if value, ok := _u.mutation.Desc(); ok {
 		_spec.SetField(purchaseline.FieldDesc, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(purchaseline.FieldDesc); ok {
+		_spec.SetField(purchaseline.FieldDesc, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Quantity(); ok {
 		_spec.SetField(purchaseline.FieldQuantity, field.TypeInt64, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(purchaseline.FieldQuantity); ok {
+		_spec.SetField(purchaseline.FieldQuantity, field.TypeInt64, e)
 	}
 	if value, ok := _u.mutation.AddedQuantity(); ok {
 		_spec.AddField(purchaseline.FieldQuantity, field.TypeInt64, value)
@@ -240,11 +246,17 @@ func (_u *PurchaseLineUpdate) sqlSave(ctx context.Context) (_node int, err error
 	if value, ok := _u.mutation.UnitCost(); ok {
 		_spec.SetField(purchaseline.FieldUnitCost, field.TypeInt64, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(purchaseline.FieldUnitCost); ok {
+		_spec.SetField(purchaseline.FieldUnitCost, field.TypeInt64, e)
+	}
 	if value, ok := _u.mutation.AddedUnitCost(); ok {
 		_spec.AddField(purchaseline.FieldUnitCost, field.TypeInt64, value)
 	}
 	if value, ok := _u.mutation.ReceivedQuantity(); ok {
 		_spec.SetField(purchaseline.FieldReceivedQuantity, field.TypeInt64, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(purchaseline.FieldReceivedQuantity); ok {
+		_spec.SetField(purchaseline.FieldReceivedQuantity, field.TypeInt64, e)
 	}
 	if value, ok := _u.mutation.AddedReceivedQuantity(); ok {
 		_spec.AddField(purchaseline.FieldReceivedQuantity, field.TypeInt64, value)
@@ -252,11 +264,17 @@ func (_u *PurchaseLineUpdate) sqlSave(ctx context.Context) (_node int, err error
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(purchaseline.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(purchaseline.FieldDateUpdated); ok {
+		_spec.SetField(purchaseline.FieldDateUpdated, field.TypeTime, e)
+	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(purchaseline.FieldDateCreated, field.TypeTime)
 	}
 	if value, ok := _u.mutation.ReceiveAs(); ok {
 		_spec.SetField(purchaseline.FieldReceiveAs, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(purchaseline.FieldReceiveAs); ok {
+		_spec.SetField(purchaseline.FieldReceiveAs, field.TypeString, e)
 	}
 	if _u.mutation.ModelCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -539,8 +557,14 @@ func (_u *PurchaseLineUpdateOne) sqlSave(ctx context.Context) (_node *PurchaseLi
 	if value, ok := _u.mutation.Desc(); ok {
 		_spec.SetField(purchaseline.FieldDesc, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(purchaseline.FieldDesc); ok {
+		_spec.SetField(purchaseline.FieldDesc, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Quantity(); ok {
 		_spec.SetField(purchaseline.FieldQuantity, field.TypeInt64, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(purchaseline.FieldQuantity); ok {
+		_spec.SetField(purchaseline.FieldQuantity, field.TypeInt64, e)
 	}
 	if value, ok := _u.mutation.AddedQuantity(); ok {
 		_spec.AddField(purchaseline.FieldQuantity, field.TypeInt64, value)
@@ -548,11 +572,17 @@ func (_u *PurchaseLineUpdateOne) sqlSave(ctx context.Context) (_node *PurchaseLi
 	if value, ok := _u.mutation.UnitCost(); ok {
 		_spec.SetField(purchaseline.FieldUnitCost, field.TypeInt64, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(purchaseline.FieldUnitCost); ok {
+		_spec.SetField(purchaseline.FieldUnitCost, field.TypeInt64, e)
+	}
 	if value, ok := _u.mutation.AddedUnitCost(); ok {
 		_spec.AddField(purchaseline.FieldUnitCost, field.TypeInt64, value)
 	}
 	if value, ok := _u.mutation.ReceivedQuantity(); ok {
 		_spec.SetField(purchaseline.FieldReceivedQuantity, field.TypeInt64, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(purchaseline.FieldReceivedQuantity); ok {
+		_spec.SetField(purchaseline.FieldReceivedQuantity, field.TypeInt64, e)
 	}
 	if value, ok := _u.mutation.AddedReceivedQuantity(); ok {
 		_spec.AddField(purchaseline.FieldReceivedQuantity, field.TypeInt64, value)
@@ -560,11 +590,17 @@ func (_u *PurchaseLineUpdateOne) sqlSave(ctx context.Context) (_node *PurchaseLi
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(purchaseline.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(purchaseline.FieldDateUpdated); ok {
+		_spec.SetField(purchaseline.FieldDateUpdated, field.TypeTime, e)
+	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(purchaseline.FieldDateCreated, field.TypeTime)
 	}
 	if value, ok := _u.mutation.ReceiveAs(); ok {
 		_spec.SetField(purchaseline.FieldReceiveAs, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(purchaseline.FieldReceiveAs); ok {
+		_spec.SetField(purchaseline.FieldReceiveAs, field.TypeString, e)
 	}
 	if _u.mutation.ModelCleared() {
 		edge := &sqlgraph.EdgeSpec{

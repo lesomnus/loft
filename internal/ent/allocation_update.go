@@ -231,8 +231,14 @@ func (_u *AllocationUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 	if value, ok := _u.mutation.Kind(); ok {
 		_spec.SetField(allocation.FieldKind, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(allocation.FieldKind); ok {
+		_spec.SetField(allocation.FieldKind, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.RefId(); ok {
 		_spec.SetField(allocation.FieldRefId, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(allocation.FieldRefId); ok {
+		_spec.SetField(allocation.FieldRefId, field.TypeUuid, e)
 	}
 	if _u.mutation.RefIdCleared() {
 		_spec.ClearField(allocation.FieldRefId, field.TypeUuid)
@@ -240,11 +246,17 @@ func (_u *AllocationUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 	if value, ok := _u.mutation.BeginsAt(); ok {
 		_spec.SetField(allocation.FieldBeginsAt, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(allocation.FieldBeginsAt); ok {
+		_spec.SetField(allocation.FieldBeginsAt, field.TypeTime, e)
+	}
 	if _u.mutation.BeginsAtCleared() {
 		_spec.ClearField(allocation.FieldBeginsAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.EndsAt(); ok {
 		_spec.SetField(allocation.FieldEndsAt, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(allocation.FieldEndsAt); ok {
+		_spec.SetField(allocation.FieldEndsAt, field.TypeTime, e)
 	}
 	if _u.mutation.EndsAtCleared() {
 		_spec.ClearField(allocation.FieldEndsAt, field.TypeTime)
@@ -252,17 +264,29 @@ func (_u *AllocationUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(allocation.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(allocation.FieldDateUpdated); ok {
+		_spec.SetField(allocation.FieldDateUpdated, field.TypeTime, e)
+	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(allocation.FieldDateCreated, field.TypeTime)
 	}
 	if value, ok := _u.mutation.Blocking(); ok {
 		_spec.SetField(allocation.FieldBlocking, field.TypeBool, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(allocation.FieldBlocking); ok {
+		_spec.SetField(allocation.FieldBlocking, field.TypeBool, e)
+	}
 	if value, ok := _u.mutation.Exclusive(); ok {
 		_spec.SetField(allocation.FieldExclusive, field.TypeBool, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(allocation.FieldExclusive); ok {
+		_spec.SetField(allocation.FieldExclusive, field.TypeBool, e)
+	}
 	if value, ok := _u.mutation.Units(); ok {
 		_spec.SetField(allocation.FieldUnits, field.TypeUint32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(allocation.FieldUnits); ok {
+		_spec.SetField(allocation.FieldUnits, field.TypeUint32, e)
 	}
 	if value, ok := _u.mutation.AddedUnits(); ok {
 		_spec.AddField(allocation.FieldUnits, field.TypeUint32, value)
@@ -520,8 +544,14 @@ func (_u *AllocationUpdateOne) sqlSave(ctx context.Context) (_node *Allocation, 
 	if value, ok := _u.mutation.Kind(); ok {
 		_spec.SetField(allocation.FieldKind, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(allocation.FieldKind); ok {
+		_spec.SetField(allocation.FieldKind, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.RefId(); ok {
 		_spec.SetField(allocation.FieldRefId, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(allocation.FieldRefId); ok {
+		_spec.SetField(allocation.FieldRefId, field.TypeUuid, e)
 	}
 	if _u.mutation.RefIdCleared() {
 		_spec.ClearField(allocation.FieldRefId, field.TypeUuid)
@@ -529,11 +559,17 @@ func (_u *AllocationUpdateOne) sqlSave(ctx context.Context) (_node *Allocation, 
 	if value, ok := _u.mutation.BeginsAt(); ok {
 		_spec.SetField(allocation.FieldBeginsAt, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(allocation.FieldBeginsAt); ok {
+		_spec.SetField(allocation.FieldBeginsAt, field.TypeTime, e)
+	}
 	if _u.mutation.BeginsAtCleared() {
 		_spec.ClearField(allocation.FieldBeginsAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.EndsAt(); ok {
 		_spec.SetField(allocation.FieldEndsAt, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(allocation.FieldEndsAt); ok {
+		_spec.SetField(allocation.FieldEndsAt, field.TypeTime, e)
 	}
 	if _u.mutation.EndsAtCleared() {
 		_spec.ClearField(allocation.FieldEndsAt, field.TypeTime)
@@ -541,17 +577,29 @@ func (_u *AllocationUpdateOne) sqlSave(ctx context.Context) (_node *Allocation, 
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(allocation.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(allocation.FieldDateUpdated); ok {
+		_spec.SetField(allocation.FieldDateUpdated, field.TypeTime, e)
+	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(allocation.FieldDateCreated, field.TypeTime)
 	}
 	if value, ok := _u.mutation.Blocking(); ok {
 		_spec.SetField(allocation.FieldBlocking, field.TypeBool, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(allocation.FieldBlocking); ok {
+		_spec.SetField(allocation.FieldBlocking, field.TypeBool, e)
+	}
 	if value, ok := _u.mutation.Exclusive(); ok {
 		_spec.SetField(allocation.FieldExclusive, field.TypeBool, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(allocation.FieldExclusive); ok {
+		_spec.SetField(allocation.FieldExclusive, field.TypeBool, e)
+	}
 	if value, ok := _u.mutation.Units(); ok {
 		_spec.SetField(allocation.FieldUnits, field.TypeUint32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(allocation.FieldUnits); ok {
+		_spec.SetField(allocation.FieldUnits, field.TypeUint32, e)
 	}
 	if value, ok := _u.mutation.AddedUnits(); ok {
 		_spec.AddField(allocation.FieldUnits, field.TypeUint32, value)

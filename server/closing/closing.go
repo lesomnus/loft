@@ -159,7 +159,7 @@ func (c Closing) Rename(ctx context.Context, from, to string, reuse bool) error 
 		if !reuse {
 			return fmt.Errorf("@%s is held until %s (%s); --reuse takes it anyway", to, h.DateUntil.Format(time.DateOnly), h.Reason)
 		}
-		if err := c.Db.AliasHold.UpdateOneId(h.Id).SetDateErased(c.now()).SetDateUpdated(c.now()).Exec(ctx); err != nil {
+		if err := c.release(ctx, h.Id); err != nil {
 			return err
 		}
 		log.From(ctx).WarnContext(ctx, "closing: a held address was taken early", "alias", to, "held", h.Reason)
@@ -220,8 +220,35 @@ func (c Closing) hold(ctx context.Context, alias, reason, to string, tenant pdid
 	return tx.Commit()
 }
 
-// Held is the act a held address is on the trail as.
-const Held = "rove.alias.hold"
+// release erases a hold before its time, and puts it on the trail as the act
+// it is in the same transaction: written past the servers, an erase nobody
+// recorded is a row the trail says is other than it is (payday#115).
+func (c Closing) release(ctx context.Context, id uuid.UUID) error {
+	tx, err := c.Db.Tx(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := tx.AliasHold.UpdateOneId(id).SetDateErased(c.now()).SetDateUpdated(c.now()).Exec(ctx); err != nil {
+		return err
+	}
+	var cs audit.Contents
+	if c.Deps != nil {
+		cs = c.Deps.Audit
+	}
+	if _, err := pd.Record(ctx, tx.Client(), cs, Reused, []pdid.Id{pdid.Id(id)}); err != nil {
+		return err
+	}
+	return tx.Commit()
+}
+
+// Held is the act a held address is on the trail as, and Reused the hold
+// erased early, for an operator who took the address anyway.
+const (
+	Held   = "rove.alias.hold"
+	Reused = "rove.alias.reuse"
+)
 
 // OnlyHere is the accounts of a workspace's members that are members of no
 // other workspace.

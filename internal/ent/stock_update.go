@@ -212,8 +212,14 @@ func (_u *StockUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(stock.FieldName, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(stock.FieldName); ok {
+		_spec.SetField(stock.FieldName, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Labels(); ok {
 		_spec.SetField(stock.FieldLabels, field.TypeJson, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(stock.FieldLabels); ok {
+		_spec.SetField(stock.FieldLabels, field.TypeJson, e)
 	}
 	if _u.mutation.LabelsCleared() {
 		_spec.ClearField(stock.FieldLabels, field.TypeJson)
@@ -221,11 +227,17 @@ func (_u *StockUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Quantity(); ok {
 		_spec.SetField(stock.FieldQuantity, field.TypeInt64, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(stock.FieldQuantity); ok {
+		_spec.SetField(stock.FieldQuantity, field.TypeInt64, e)
+	}
 	if value, ok := _u.mutation.AddedQuantity(); ok {
 		_spec.AddField(stock.FieldQuantity, field.TypeInt64, value)
 	}
 	if value, ok := _u.mutation.Threshold(); ok {
 		_spec.SetField(stock.FieldThreshold, field.TypeInt64, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(stock.FieldThreshold); ok {
+		_spec.SetField(stock.FieldThreshold, field.TypeInt64, e)
 	}
 	if value, ok := _u.mutation.AddedThreshold(); ok {
 		_spec.AddField(stock.FieldThreshold, field.TypeInt64, value)
@@ -233,11 +245,20 @@ func (_u *StockUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Unit(); ok {
 		_spec.SetField(stock.FieldUnit, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(stock.FieldUnit); ok {
+		_spec.SetField(stock.FieldUnit, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(stock.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(stock.FieldDateUpdated); ok {
+		_spec.SetField(stock.FieldDateUpdated, field.TypeTime, e)
+	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(stock.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(stock.FieldDateErased); ok {
+		_spec.SetField(stock.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(stock.FieldDateErased, field.TypeTime)
@@ -480,8 +501,14 @@ func (_u *StockUpdateOne) sqlSave(ctx context.Context) (_node *Stock, err error)
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(stock.FieldName, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(stock.FieldName); ok {
+		_spec.SetField(stock.FieldName, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Labels(); ok {
 		_spec.SetField(stock.FieldLabels, field.TypeJson, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(stock.FieldLabels); ok {
+		_spec.SetField(stock.FieldLabels, field.TypeJson, e)
 	}
 	if _u.mutation.LabelsCleared() {
 		_spec.ClearField(stock.FieldLabels, field.TypeJson)
@@ -489,11 +516,17 @@ func (_u *StockUpdateOne) sqlSave(ctx context.Context) (_node *Stock, err error)
 	if value, ok := _u.mutation.Quantity(); ok {
 		_spec.SetField(stock.FieldQuantity, field.TypeInt64, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(stock.FieldQuantity); ok {
+		_spec.SetField(stock.FieldQuantity, field.TypeInt64, e)
+	}
 	if value, ok := _u.mutation.AddedQuantity(); ok {
 		_spec.AddField(stock.FieldQuantity, field.TypeInt64, value)
 	}
 	if value, ok := _u.mutation.Threshold(); ok {
 		_spec.SetField(stock.FieldThreshold, field.TypeInt64, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(stock.FieldThreshold); ok {
+		_spec.SetField(stock.FieldThreshold, field.TypeInt64, e)
 	}
 	if value, ok := _u.mutation.AddedThreshold(); ok {
 		_spec.AddField(stock.FieldThreshold, field.TypeInt64, value)
@@ -501,11 +534,20 @@ func (_u *StockUpdateOne) sqlSave(ctx context.Context) (_node *Stock, err error)
 	if value, ok := _u.mutation.Unit(); ok {
 		_spec.SetField(stock.FieldUnit, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(stock.FieldUnit); ok {
+		_spec.SetField(stock.FieldUnit, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(stock.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(stock.FieldDateUpdated); ok {
+		_spec.SetField(stock.FieldDateUpdated, field.TypeTime, e)
+	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(stock.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(stock.FieldDateErased); ok {
+		_spec.SetField(stock.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(stock.FieldDateErased, field.TypeTime)

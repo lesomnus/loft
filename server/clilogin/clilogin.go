@@ -40,6 +40,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"log/slog"
 	"mime"
 	"net/http"
 	"regexp"
@@ -55,6 +56,7 @@ import (
 
 	"github.com/lesomnus/rove/internal/ent"
 	entclilogin "github.com/lesomnus/rove/internal/ent/clilogin"
+	"github.com/lesomnus/rove/internal/ent/predicate"
 	entsession "github.com/lesomnus/rove/internal/ent/session"
 	"github.com/lesomnus/rove/server/account"
 	"github.com/lesomnus/rove/server/clientaddr"
@@ -122,6 +124,11 @@ const (
 	Asked    = "rove.cli-login.ask"
 	Approved = "rove.cli-login.approve"
 	Denied   = "rove.cli-login.deny"
+
+	// Told is the row gone once the terminal had its answer, and Swept one
+	// gone because nobody will ask about it again.
+	Told  = "rove.cli-login.told"
+	Swept = "rove.cli-login.sweep"
 )
 
 // recorded is a write of a sign-in and the act on the trail that says so, in
@@ -141,6 +148,34 @@ func (l *Logins) recorded(ctx context.Context, act string, write func(*ent.Clien
 		return nil, err
 	}
 	return v, tx.Commit()
+}
+
+// removed deletes the sign-ins `where` reads and puts each on the trail as
+// gone, under `act`, in one transaction (payday#115): a row removed past the
+// servers is otherwise a thing the trail says is a row and is not.
+func (l *Logins) removed(ctx context.Context, act string, where ...predicate.CliLogin) (int, error) {
+	tx, err := l.Db.Tx(ctx)
+	if err != nil {
+		return 0, err
+	}
+	defer tx.Rollback()
+
+	ids, err := tx.CliLogin.Query().Where(where...).Ids(ctx)
+	if err != nil || len(ids) == 0 {
+		return 0, err
+	}
+	n, err := tx.CliLogin.Delete().Where(entclilogin.IdIn(ids...)).Exec(ctx)
+	if err != nil {
+		return 0, err
+	}
+	gone := make([]pdid.Id, len(ids))
+	for i, v := range ids {
+		gone[i] = pdid.Id(v)
+	}
+	if _, err := pd.RecordErased(ctx, tx.Client(), l.Audit, act, gone); err != nil {
+		return 0, err
+	}
+	return n, tx.Commit()
 }
 
 // Mount puts the routes on a mux.
@@ -337,7 +372,7 @@ func (l *Logins) poll(w http.ResponseWriter, r *http.Request) {
 	}
 	if state != pending {
 		// Told once: the row is the question, and it has been answered.
-		if err := l.Db.CliLogin.DeleteOneId(v.Id).Exec(ctx); err != nil && !ent.IsNotFound(err) {
+		if _, err := l.removed(ctx, Told, entclilogin.Id(v.Id)); err != nil {
 			fail(w, r, err)
 			return
 		}
@@ -448,9 +483,9 @@ func (l *Logins) waiting(w http.ResponseWriter, r *http.Request, code string) (*
 }
 
 // Sweep deletes logins nobody will ask about again: answered or expired, and
-// a while past it.
+// a while past it -- each on the trail as gone.
 func (l *Logins) Sweep(ctx context.Context) error {
-	_, err := l.Db.CliLogin.Delete().Where(entclilogin.DateExpiresLT(l.now().Add(-time.Hour))).Exec(ctx)
+	_, err := l.removed(ctx, Swept, entclilogin.DateExpiresLT(l.now().Add(-time.Hour)))
 	return err
 }
 
@@ -534,7 +569,7 @@ func reply(w http.ResponseWriter, code int, v any) {
 }
 
 func fail(w http.ResponseWriter, r *http.Request, err error) {
-	log.From(r.Context()).ErrorContext(r.Context(), "cli: a sign-in failed", "err", err.Error())
+	log.From(r.Context()).ErrorContext(r.Context(), "cli: a sign-in failed", slog.Any("err", err))
 	http.Error(w, "cannot just now", http.StatusServiceUnavailable)
 }
 

@@ -90,6 +90,9 @@ func (_u *SignInFailureUpdate) sqlSave(ctx context.Context) (_node int, err erro
 	if value, ok := _u.mutation.Subject(); ok {
 		_spec.SetField(signinfailure.FieldSubject, field.TypeBytes, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(signinfailure.FieldSubject); ok {
+		_spec.SetField(signinfailure.FieldSubject, field.TypeBytes, e)
+	}
 	if _u.mutation.SubjectCleared() {
 		_spec.ClearField(signinfailure.FieldSubject, field.TypeBytes)
 	}
@@ -209,6 +212,9 @@ func (_u *SignInFailureUpdateOne) sqlSave(ctx context.Context) (_node *SignInFai
 	}
 	if value, ok := _u.mutation.Subject(); ok {
 		_spec.SetField(signinfailure.FieldSubject, field.TypeBytes, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(signinfailure.FieldSubject); ok {
+		_spec.SetField(signinfailure.FieldSubject, field.TypeBytes, e)
 	}
 	if _u.mutation.SubjectCleared() {
 		_spec.ClearField(signinfailure.FieldSubject, field.TypeBytes)

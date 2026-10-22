@@ -107,8 +107,14 @@ func (_u *SearchStaleUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if value, ok := _u.mutation.Kind(); ok {
 		_spec.SetField(searchstale.FieldKind, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(searchstale.FieldKind); ok {
+		_spec.SetField(searchstale.FieldKind, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Key(); ok {
 		_spec.SetField(searchstale.FieldKey, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(searchstale.FieldKey); ok {
+		_spec.SetField(searchstale.FieldKey, field.TypeUuid, e)
 	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(searchstale.FieldDateCreated, field.TypeTime)
@@ -243,8 +249,14 @@ func (_u *SearchStaleUpdateOne) sqlSave(ctx context.Context) (_node *SearchStale
 	if value, ok := _u.mutation.Kind(); ok {
 		_spec.SetField(searchstale.FieldKind, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(searchstale.FieldKind); ok {
+		_spec.SetField(searchstale.FieldKind, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Key(); ok {
 		_spec.SetField(searchstale.FieldKey, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(searchstale.FieldKey); ok {
+		_spec.SetField(searchstale.FieldKey, field.TypeUuid, e)
 	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(searchstale.FieldDateCreated, field.TypeTime)

@@ -99,7 +99,7 @@ func openEmbedded(ctx context.Context, cfg Config, stateDir string, log *slog.Lo
 	// housekeeping.
 	go func() {
 		if err := g.Serve(e.lis); err != nil && !errors.Is(err, grpc.ErrServerStopped) {
-			log.Error("identity: the embedded roster stopped", "err", err.Error())
+			log.Error("identity: the embedded roster stopped", slog.Any("err", err))
 		}
 	}()
 
@@ -425,7 +425,13 @@ func (s *Store) ForgetPerson(ctx context.Context, holder pdid.Id) error {
 	if err != nil {
 		return err
 	}
-	_, err = forget.Forget(ctx, s.em.rs.Ent, holder, p)
+	// What roster's trail keeps of each kind, for the removals a forgetting
+	// puts on it as the act it is (roster's `forget.Forget`, payday#115).
+	cs, err := s.em.cfg.Audit.Contents()
+	if err != nil {
+		return err
+	}
+	_, err = forget.Forget(ctx, s.em.rs.Ent, holder, p, cs)
 	s.Recheck(holder)
 
 	return err

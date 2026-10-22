@@ -292,8 +292,14 @@ func (_u *InvitationUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 	if value, ok := _u.mutation.Email(); ok {
 		_spec.SetField(invitation.FieldEmail, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(invitation.FieldEmail); ok {
+		_spec.SetField(invitation.FieldEmail, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Account(); ok {
 		_spec.SetField(invitation.FieldAccount, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(invitation.FieldAccount); ok {
+		_spec.SetField(invitation.FieldAccount, field.TypeUuid, e)
 	}
 	if _u.mutation.AccountCleared() {
 		_spec.ClearField(invitation.FieldAccount, field.TypeUuid)
@@ -301,8 +307,14 @@ func (_u *InvitationUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(invitation.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(invitation.FieldDateUpdated); ok {
+		_spec.SetField(invitation.FieldDateUpdated, field.TypeTime, e)
+	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(invitation.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(invitation.FieldDateErased); ok {
+		_spec.SetField(invitation.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(invitation.FieldDateErased, field.TypeTime)
@@ -313,8 +325,14 @@ func (_u *InvitationUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 	if value, ok := _u.mutation.State(); ok {
 		_spec.SetField(invitation.FieldState, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(invitation.FieldState); ok {
+		_spec.SetField(invitation.FieldState, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.DateExpires(); ok {
 		_spec.SetField(invitation.FieldDateExpires, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(invitation.FieldDateExpires); ok {
+		_spec.SetField(invitation.FieldDateExpires, field.TypeTime, e)
 	}
 	if _u.mutation.DateExpiresCleared() {
 		_spec.ClearField(invitation.FieldDateExpires, field.TypeTime)
@@ -322,11 +340,17 @@ func (_u *InvitationUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 	if value, ok := _u.mutation.DateSettled(); ok {
 		_spec.SetField(invitation.FieldDateSettled, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(invitation.FieldDateSettled); ok {
+		_spec.SetField(invitation.FieldDateSettled, field.TypeTime, e)
+	}
 	if _u.mutation.DateSettledCleared() {
 		_spec.ClearField(invitation.FieldDateSettled, field.TypeTime)
 	}
 	if value, ok := _u.mutation.Claim(); ok {
 		_spec.SetField(invitation.FieldClaim, field.TypeBytes, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(invitation.FieldClaim); ok {
+		_spec.SetField(invitation.FieldClaim, field.TypeBytes, e)
 	}
 	if _u.mutation.ClaimCleared() {
 		_spec.ClearField(invitation.FieldClaim, field.TypeBytes)
@@ -701,8 +725,14 @@ func (_u *InvitationUpdateOne) sqlSave(ctx context.Context) (_node *Invitation, 
 	if value, ok := _u.mutation.Email(); ok {
 		_spec.SetField(invitation.FieldEmail, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(invitation.FieldEmail); ok {
+		_spec.SetField(invitation.FieldEmail, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Account(); ok {
 		_spec.SetField(invitation.FieldAccount, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(invitation.FieldAccount); ok {
+		_spec.SetField(invitation.FieldAccount, field.TypeUuid, e)
 	}
 	if _u.mutation.AccountCleared() {
 		_spec.ClearField(invitation.FieldAccount, field.TypeUuid)
@@ -710,8 +740,14 @@ func (_u *InvitationUpdateOne) sqlSave(ctx context.Context) (_node *Invitation, 
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(invitation.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(invitation.FieldDateUpdated); ok {
+		_spec.SetField(invitation.FieldDateUpdated, field.TypeTime, e)
+	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(invitation.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(invitation.FieldDateErased); ok {
+		_spec.SetField(invitation.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(invitation.FieldDateErased, field.TypeTime)
@@ -722,8 +758,14 @@ func (_u *InvitationUpdateOne) sqlSave(ctx context.Context) (_node *Invitation, 
 	if value, ok := _u.mutation.State(); ok {
 		_spec.SetField(invitation.FieldState, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(invitation.FieldState); ok {
+		_spec.SetField(invitation.FieldState, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.DateExpires(); ok {
 		_spec.SetField(invitation.FieldDateExpires, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(invitation.FieldDateExpires); ok {
+		_spec.SetField(invitation.FieldDateExpires, field.TypeTime, e)
 	}
 	if _u.mutation.DateExpiresCleared() {
 		_spec.ClearField(invitation.FieldDateExpires, field.TypeTime)
@@ -731,11 +773,17 @@ func (_u *InvitationUpdateOne) sqlSave(ctx context.Context) (_node *Invitation, 
 	if value, ok := _u.mutation.DateSettled(); ok {
 		_spec.SetField(invitation.FieldDateSettled, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(invitation.FieldDateSettled); ok {
+		_spec.SetField(invitation.FieldDateSettled, field.TypeTime, e)
+	}
 	if _u.mutation.DateSettledCleared() {
 		_spec.ClearField(invitation.FieldDateSettled, field.TypeTime)
 	}
 	if value, ok := _u.mutation.Claim(); ok {
 		_spec.SetField(invitation.FieldClaim, field.TypeBytes, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(invitation.FieldClaim); ok {
+		_spec.SetField(invitation.FieldClaim, field.TypeBytes, e)
 	}
 	if _u.mutation.ClaimCleared() {
 		_spec.ClearField(invitation.FieldClaim, field.TypeBytes)

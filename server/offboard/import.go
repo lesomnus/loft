@@ -192,7 +192,8 @@ func (d Deployment) Import(ctx context.Context, r io.ReaderAt, size int64, o Imp
 		return out, fmt.Errorf("%w: %s (@%s) is here; a restore is into a deployment that does not have it", ErrNotNew, out.Tenant, t.GetAlias())
 	}
 
-	out.Alias, out.Released, err = d.address(ctx, db, out.Tenant, t.GetAlias(), o)
+	var releasedHolds []pdid.Id
+	out.Alias, out.Released, releasedHolds, err = d.address(ctx, db, out.Tenant, t.GetAlias(), o)
 	if err != nil {
 		return out, err
 	}
@@ -211,8 +212,9 @@ func (d Deployment) Import(ctx context.Context, r io.ReaderAt, size int64, o Imp
 		return out, fmt.Errorf("tenant: %w", err)
 	}
 
-	// Every row put back, for the trail to say so.
-	restored := []pdid.Id{out.Tenant}
+	// Every row put back, for the trail to say so -- and the holds on its
+	// address the restore took back, erased past the servers here.
+	restored := append([]pdid.Id{out.Tenant}, releasedHolds...)
 	for _, p := range plans {
 		n, err := d.restore(ctx, db, z, p, tid, &out, &restored)
 		if err != nil {
@@ -313,8 +315,8 @@ func (d Deployment) Import(ctx context.Context, r io.ReaderAt, size int64, o Imp
 
 // address is where a restored workspace is: the export's address when it may
 // be had here, and the one asked for or one made up when it may not -- and the
-// holds on it that were taken back.
-func (d Deployment) address(ctx context.Context, db *ent.Client, tenant pdid.Id, exported string, o ImportOptions) (string, []string, error) {
+// holds on it that were taken back, by why each was placed and by identifier.
+func (d Deployment) address(ctx context.Context, db *ent.Client, tenant pdid.Id, exported string, o ImportOptions) (string, []string, []pdid.Id, error) {
 	want := strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(o.Alias), "@"))
 	asked := want != ""
 	if !asked {
@@ -325,7 +327,7 @@ func (d Deployment) address(ctx context.Context, db *ent.Client, tenant pdid.Id,
 	if d.Aliases != nil {
 		if err := d.Aliases.Valid(want); err != nil {
 			if asked {
-				return "", nil, err
+				return "", nil, nil, err
 			}
 			// Not one this deployment gives: reserved here, say.
 			ok = false
@@ -334,21 +336,21 @@ func (d Deployment) address(ctx context.Context, db *ent.Client, tenant pdid.Id,
 	if ok {
 		taken, err := db.Tenant.Query().Where(enttenant.Alias(want)).Exist(ctx)
 		if err != nil {
-			return "", nil, err
+			return "", nil, nil, err
 		}
 		if taken {
 			if asked {
-				return "", nil, fmt.Errorf("@%s is another workspace's", want)
+				return "", nil, nil, fmt.Errorf("@%s is another workspace's", want)
 			}
 			ok = false
 		}
 	}
 	if !ok {
 		if d.Aliases == nil {
-			return "", nil, fmt.Errorf("@%s is another workspace's here; restore it at another (--alias)", want)
+			return "", nil, nil, fmt.Errorf("@%s is another workspace's here; restore it at another (--alias)", want)
 		}
 		v, err := d.Aliases.Make(ctx)
-		return v, nil, err
+		return v, nil, nil, err
 	}
 
 	now := d.now()
@@ -356,21 +358,23 @@ func (d Deployment) address(ctx context.Context, db *ent.Client, tenant pdid.Id,
 		Where(aliashold.Held(want), aliashold.DateUntilGT(now), aliashold.DateErasedIsNil()).
 		All(ctx)
 	if err != nil {
-		return "", nil, err
+		return "", nil, nil, err
 	}
 	for _, h := range holds {
 		if pdid.Id(h.Tenant) != tenant && !o.Reuse {
-			return "", nil, fmt.Errorf("@%s is held until %s (%s); --reuse takes it anyway, and --alias restores it at another", want, h.DateUntil.Format(time.DateOnly), h.Reason)
+			return "", nil, nil, fmt.Errorf("@%s is held until %s (%s); --reuse takes it anyway, and --alias restores it at another", want, h.DateUntil.Format(time.DateOnly), h.Reason)
 		}
 	}
 	released := []string{}
+	ids := []pdid.Id{}
 	for _, h := range holds {
 		if err := db.AliasHold.UpdateOneId(h.Id).SetDateErased(now).SetDateUpdated(now).Exec(ctx); err != nil {
-			return "", nil, err
+			return "", nil, nil, err
 		}
 		released = append(released, h.Reason)
+		ids = append(ids, pdid.Id(h.Id))
 	}
-	return want, released, nil
+	return want, released, ids, nil
 }
 
 // restore writes back every row of one table the export has, as it was.

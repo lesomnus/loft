@@ -20,6 +20,7 @@ import (
 	"crypto/subtle"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"maps"
 	"mime"
 	"net/http"
@@ -523,6 +524,6 @@ func fail(w http.ResponseWriter, r *http.Request, err error) {
 			return
 		}
 	}
-	log.From(r.Context()).ErrorContext(r.Context(), "admin", "operator", Who(r.Context()), "err", err.Error())
+	log.From(r.Context()).ErrorContext(r.Context(), "admin", "operator", Who(r.Context()), slog.Any("err", err))
 	http.Error(w, "something went wrong", http.StatusInternalServerError)
 }

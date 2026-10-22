@@ -138,11 +138,20 @@ func (_u *LegalHoldUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(legalhold.FieldName, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(legalhold.FieldName); ok {
+		_spec.SetField(legalhold.FieldName, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Desc(); ok {
 		_spec.SetField(legalhold.FieldDesc, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(legalhold.FieldDesc); ok {
+		_spec.SetField(legalhold.FieldDesc, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.DateLifted(); ok {
 		_spec.SetField(legalhold.FieldDateLifted, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(legalhold.FieldDateLifted); ok {
+		_spec.SetField(legalhold.FieldDateLifted, field.TypeTime, e)
 	}
 	if _u.mutation.DateLiftedCleared() {
 		_spec.ClearField(legalhold.FieldDateLifted, field.TypeTime)
@@ -311,11 +320,20 @@ func (_u *LegalHoldUpdateOne) sqlSave(ctx context.Context) (_node *LegalHold, er
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(legalhold.FieldName, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(legalhold.FieldName); ok {
+		_spec.SetField(legalhold.FieldName, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Desc(); ok {
 		_spec.SetField(legalhold.FieldDesc, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(legalhold.FieldDesc); ok {
+		_spec.SetField(legalhold.FieldDesc, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.DateLifted(); ok {
 		_spec.SetField(legalhold.FieldDateLifted, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(legalhold.FieldDateLifted); ok {
+		_spec.SetField(legalhold.FieldDateLifted, field.TypeTime, e)
 	}
 	if _u.mutation.DateLiftedCleared() {
 		_spec.ClearField(legalhold.FieldDateLifted, field.TypeTime)

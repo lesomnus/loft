@@ -57,7 +57,7 @@ func (x Indexer) Interceptor() grpc.UnaryServerInterceptor {
 		at, cancel := context.WithTimeout(context.WithoutCancel(ctx), 2*time.Second)
 		defer cancel()
 		if err := x.writeNow(at, w.keys); err != nil {
-			log.From(ctx).WarnContext(ctx, "search: what a call wrote waits for the loop", slog.String("method", info.FullMethod), slog.String("error", err.Error()))
+			log.From(ctx).WarnContext(ctx, "search: what a call wrote waits for the loop", slog.String("method", info.FullMethod), slog.Any("err", err))
 		}
 		return res, nil
 	}

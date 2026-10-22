@@ -36,10 +36,15 @@ import (
 // trail about it -- in the database, or in the archive once it has left
 // (payday#102, #108). A row somebody changed in the database past the servers
 // is one that differs, and a row somebody added there is one nothing on the
-// trail is about. It changes nothing either, and fails on either. `rows
-// --accept` is an operator who has looked at each and decided the rows are
-// right -- a migration rewrote them, they were put back before a restore said
-// so -- and puts them on the trail as that act, with the why logged.
+// trail is about. A line whose digest is not its own is forged, one with no
+// digest or under a key it was not given is a finding too, and a row the trail
+// says is there and is not is missing (payday#115). It changes nothing either,
+// fails on any of them, and says which keys it was not given and which kinds it
+// did not read. `rows --accept` is an operator who has looked at each and
+// decided the rows are right -- a migration rewrote them, they were put back
+// before a restore said so -- and puts them on the trail as that act, gone ones
+// as gone, with the why logged. A forged line and a key not given are not
+// accepted.
 func NewCmdTrail(c *cmd.Config) *xli.Command {
 	return &xli.Command{
 		Name:  "trail",
@@ -156,14 +161,22 @@ func rows(ctx context.Context, self *xli.Command, c *cmd.Config, accept bool, wh
 		return err
 	}
 
-	self.Printf("%d rows read: %d match, %d differ, %d not on the trail, %d with no digest, %d under a key not given; %d checked against the archive\n",
-		v.Read, v.Matches, len(v.Differs), len(v.NotOnTrail), v.NoDigest, v.KeyNotHeld, v.Archived)
+	self.Printf("%d rows read: %d match, %d differ, %d forged, %d with no digest, %d not on the trail, %d under a key not given, %d missing; "+
+		"%d from before digests began, %d under a key let go; %d checked against the archive\n",
+		v.Read, v.Matches, len(v.Differs), len(v.Forged), len(v.NoDigest), len(v.NotOnTrail), len(v.KeyNotHeld), len(v.Missing),
+		v.BeforeDigests, v.Retired, v.Archived)
+	// Each finding a line, by what it is, then its kind and the row: what a
+	// schedule greps and an operator looks up (payday#115).
 	for _, f := range []struct {
 		what string
 		ids  []pdid.Id
 	}{
 		{"differs", v.Differs},
+		{"forged", v.Forged},
+		{"no-digest", v.NoDigest},
 		{"not-on-trail", v.NotOnTrail},
+		{"key-not-held", v.KeyNotHeld},
+		{"missing", v.Missing},
 	} {
 		if len(f.ids) == 0 {
 			continue
@@ -173,19 +186,43 @@ func rows(ctx context.Context, self *xli.Command, c *cmd.Config, accept bool, wh
 			self.Printf("  %s %s %s\n", f.what, kindOf(id.Domain()), id)
 		}
 	}
+	// And the keys those under a key not given were made under, for
+	// `audit.digest.previous` or, once somebody has decided they are gone,
+	// `retired`.
+	for _, k := range v.Unheld {
+		self.Printf("  unheld-key %s\n", k)
+	}
+	// What was not looked at, every time, so that a check that found nothing
+	// says what it did not read.
+	for _, k := range v.Skipped {
+		self.Printf("  not checked: %s, kept off the trail: %s\n", k.Kind, k.Why)
+	}
 	if v.Ok() {
 		return nil
 	}
+
+	findings := len(v.Differs) + len(v.Forged) + len(v.NoDigest) + len(v.NotOnTrail) + len(v.KeyNotHeld) + len(v.Missing)
 	if !accept {
-		return fmt.Errorf("%d rows differ from what the trail recorded and %d are not on it: look at each, and `rove trail rows --accept --why ...` once they are right", len(v.Differs), len(v.NotOnTrail))
+		return fmt.Errorf("%d findings: look at each, and `rove trail rows --accept --why ...` once the rows are right", findings)
+	}
+	// A line whose digest is not its own, and one under a key not given, are
+	// nothing an acceptance can make right: the one is somebody's writing,
+	// and the other is a check that could not read it.
+	if n := len(v.Forged) + len(v.KeyNotHeld); n > 0 {
+		return fmt.Errorf("%d lines whose digest is not their own or is under a key not given: those are not accepted -- "+
+			"look at the line of the trail, or give the key in audit.digest.previous or retired", n)
 	}
 
-	n, err := pd.Record(ctx, s.Ent, cs, AcceptedRows, slices.Concat(v.Differs, v.NotOnTrail))
+	there, err := pd.Record(ctx, s.Ent, cs, AcceptedRows, slices.Concat(v.Differs, v.NoDigest, v.NotOnTrail))
 	if err != nil {
 		return fmt.Errorf("accept: %w", err)
 	}
-	log.From(ctx).InfoContext(ctx, "trail: rows accepted as they are", "why", why, "rows", n)
-	self.Printf("accepted %d rows; the trail says they are what they are now\n", n)
+	gone, err := pd.RecordErased(ctx, s.Ent, cs, AcceptedRows, v.Missing)
+	if err != nil {
+		return fmt.Errorf("accept: %w", err)
+	}
+	log.From(ctx).InfoContext(ctx, "trail: rows accepted as they are", "why", why, "rows", there, "gone", gone)
+	self.Printf("accepted %d rows and %d gone; the trail says they are what they are now\n", there, gone)
 
 	return nil
 }

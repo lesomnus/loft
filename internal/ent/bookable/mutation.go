@@ -41,6 +41,7 @@ type Mutation struct {
 	addschedule_version *int64
 	enabled             *bool
 	clearedFields       map[string]struct{}
+	exprs               map[string]sql.Querier
 	tenant              *uuid.UUID
 	clearedtenant       bool
 	asset               *uuid.UUID
@@ -65,6 +66,7 @@ func (m *Mutation) Predicates() []predicate.Bookable {
 // SetTimezone sets the "timezone" field.
 func (m *Mutation) SetTimezone(s string) {
 	m.timezone = &s
+	delete(m.exprs, FieldTimezone)
 }
 
 // Timezone returns the value of the "timezone" field in the mutation.
@@ -79,11 +81,14 @@ func (m *Mutation) Timezone() (r string, exists bool) {
 // ResetTimezone resets all changes to the "timezone" field.
 func (m *Mutation) ResetTimezone() {
 	m.timezone = nil
+	delete(m.exprs, FieldTimezone)
 }
 
 // SetHours sets the "hours" field.
 func (m *Mutation) SetHours(rh *rove.OpeningHours) {
 	m.hours = &rh
+	delete(m.clearedFields, FieldHours)
+	delete(m.exprs, FieldHours)
 }
 
 // Hours returns the value of the "hours" field in the mutation.
@@ -98,6 +103,7 @@ func (m *Mutation) Hours() (r *rove.OpeningHours, exists bool) {
 // ClearHours clears the value of the "hours" field.
 func (m *Mutation) ClearHours() {
 	m.hours = nil
+	delete(m.exprs, FieldHours)
 	m.clearedFields[FieldHours] = struct{}{}
 }
 
@@ -111,12 +117,14 @@ func (m *Mutation) HoursCleared() bool {
 func (m *Mutation) ResetHours() {
 	m.hours = nil
 	delete(m.clearedFields, FieldHours)
+	delete(m.exprs, FieldHours)
 }
 
 // SetBufferBefore sets the "buffer_before" field.
 func (m *Mutation) SetBufferBefore(i int32) {
 	m.buffer_before = &i
 	m.addbuffer_before = nil
+	delete(m.exprs, FieldBufferBefore)
 }
 
 // BufferBefore returns the value of the "buffer_before" field in the mutation.
@@ -150,12 +158,14 @@ func (m *Mutation) AddedBufferBefore() (r int32, exists bool) {
 func (m *Mutation) ResetBufferBefore() {
 	m.buffer_before = nil
 	m.addbuffer_before = nil
+	delete(m.exprs, FieldBufferBefore)
 }
 
 // SetBufferAfter sets the "buffer_after" field.
 func (m *Mutation) SetBufferAfter(i int32) {
 	m.buffer_after = &i
 	m.addbuffer_after = nil
+	delete(m.exprs, FieldBufferAfter)
 }
 
 // BufferAfter returns the value of the "buffer_after" field in the mutation.
@@ -189,11 +199,13 @@ func (m *Mutation) AddedBufferAfter() (r int32, exists bool) {
 func (m *Mutation) ResetBufferAfter() {
 	m.buffer_after = nil
 	m.addbuffer_after = nil
+	delete(m.exprs, FieldBufferAfter)
 }
 
 // SetDateUpdated sets the "date_updated" field.
 func (m *Mutation) SetDateUpdated(t time.Time) {
 	m.date_updated = &t
+	delete(m.exprs, FieldDateUpdated)
 }
 
 // DateUpdated returns the value of the "date_updated" field in the mutation.
@@ -208,11 +220,14 @@ func (m *Mutation) DateUpdated() (r time.Time, exists bool) {
 // ResetDateUpdated resets all changes to the "date_updated" field.
 func (m *Mutation) ResetDateUpdated() {
 	m.date_updated = nil
+	delete(m.exprs, FieldDateUpdated)
 }
 
 // SetDateErased sets the "date_erased" field.
 func (m *Mutation) SetDateErased(t time.Time) {
 	m.date_erased = &t
+	delete(m.clearedFields, FieldDateErased)
+	delete(m.exprs, FieldDateErased)
 }
 
 // DateErased returns the value of the "date_erased" field in the mutation.
@@ -227,6 +242,7 @@ func (m *Mutation) DateErased() (r time.Time, exists bool) {
 // ClearDateErased clears the value of the "date_erased" field.
 func (m *Mutation) ClearDateErased() {
 	m.date_erased = nil
+	delete(m.exprs, FieldDateErased)
 	m.clearedFields[FieldDateErased] = struct{}{}
 }
 
@@ -240,11 +256,13 @@ func (m *Mutation) DateErasedCleared() bool {
 func (m *Mutation) ResetDateErased() {
 	m.date_erased = nil
 	delete(m.clearedFields, FieldDateErased)
+	delete(m.exprs, FieldDateErased)
 }
 
 // SetDateCreated sets the "date_created" field.
 func (m *Mutation) SetDateCreated(t time.Time) {
 	m.date_created = &t
+	delete(m.clearedFields, FieldDateCreated)
 }
 
 // DateCreated returns the value of the "date_created" field in the mutation.
@@ -277,6 +295,7 @@ func (m *Mutation) ResetDateCreated() {
 // SetApproval sets the "approval" field.
 func (m *Mutation) SetApproval(b bool) {
 	m.approval = &b
+	delete(m.exprs, FieldApproval)
 }
 
 // Approval returns the value of the "approval" field in the mutation.
@@ -291,12 +310,14 @@ func (m *Mutation) Approval() (r bool, exists bool) {
 // ResetApproval resets all changes to the "approval" field.
 func (m *Mutation) ResetApproval() {
 	m.approval = nil
+	delete(m.exprs, FieldApproval)
 }
 
 // SetMinMinutes sets the "min_minutes" field.
 func (m *Mutation) SetMinMinutes(i int32) {
 	m.min_minutes = &i
 	m.addmin_minutes = nil
+	delete(m.exprs, FieldMinMinutes)
 }
 
 // MinMinutes returns the value of the "min_minutes" field in the mutation.
@@ -330,12 +351,14 @@ func (m *Mutation) AddedMinMinutes() (r int32, exists bool) {
 func (m *Mutation) ResetMinMinutes() {
 	m.min_minutes = nil
 	m.addmin_minutes = nil
+	delete(m.exprs, FieldMinMinutes)
 }
 
 // SetMaxMinutes sets the "max_minutes" field.
 func (m *Mutation) SetMaxMinutes(i int32) {
 	m.max_minutes = &i
 	m.addmax_minutes = nil
+	delete(m.exprs, FieldMaxMinutes)
 }
 
 // MaxMinutes returns the value of the "max_minutes" field in the mutation.
@@ -369,12 +392,14 @@ func (m *Mutation) AddedMaxMinutes() (r int32, exists bool) {
 func (m *Mutation) ResetMaxMinutes() {
 	m.max_minutes = nil
 	m.addmax_minutes = nil
+	delete(m.exprs, FieldMaxMinutes)
 }
 
 // SetHorizonDays sets the "horizon_days" field.
 func (m *Mutation) SetHorizonDays(i int32) {
 	m.horizon_days = &i
 	m.addhorizon_days = nil
+	delete(m.exprs, FieldHorizonDays)
 }
 
 // HorizonDays returns the value of the "horizon_days" field in the mutation.
@@ -408,12 +433,14 @@ func (m *Mutation) AddedHorizonDays() (r int32, exists bool) {
 func (m *Mutation) ResetHorizonDays() {
 	m.horizon_days = nil
 	m.addhorizon_days = nil
+	delete(m.exprs, FieldHorizonDays)
 }
 
 // SetUnits sets the "units" field.
 func (m *Mutation) SetUnits(u uint32) {
 	m.units = &u
 	m.addunits = nil
+	delete(m.exprs, FieldUnits)
 }
 
 // Units returns the value of the "units" field in the mutation.
@@ -447,11 +474,13 @@ func (m *Mutation) AddedUnits() (r int32, exists bool) {
 func (m *Mutation) ResetUnits() {
 	m.units = nil
 	m.addunits = nil
+	delete(m.exprs, FieldUnits)
 }
 
 // SetExclusiveGroup sets the "exclusive_group" field.
 func (m *Mutation) SetExclusiveGroup(s string) {
 	m.exclusive_group = &s
+	delete(m.exprs, FieldExclusiveGroup)
 }
 
 // ExclusiveGroup returns the value of the "exclusive_group" field in the mutation.
@@ -466,12 +495,14 @@ func (m *Mutation) ExclusiveGroup() (r string, exists bool) {
 // ResetExclusiveGroup resets all changes to the "exclusive_group" field.
 func (m *Mutation) ResetExclusiveGroup() {
 	m.exclusive_group = nil
+	delete(m.exprs, FieldExclusiveGroup)
 }
 
 // SetScheduleVersion sets the "schedule_version" field.
 func (m *Mutation) SetScheduleVersion(u uint64) {
 	m.schedule_version = &u
 	m.addschedule_version = nil
+	delete(m.exprs, FieldScheduleVersion)
 }
 
 // ScheduleVersion returns the value of the "schedule_version" field in the mutation.
@@ -505,11 +536,13 @@ func (m *Mutation) AddedScheduleVersion() (r int64, exists bool) {
 func (m *Mutation) ResetScheduleVersion() {
 	m.schedule_version = nil
 	m.addschedule_version = nil
+	delete(m.exprs, FieldScheduleVersion)
 }
 
 // SetEnabled sets the "enabled" field.
 func (m *Mutation) SetEnabled(b bool) {
 	m.enabled = &b
+	delete(m.exprs, FieldEnabled)
 }
 
 // Enabled returns the value of the "enabled" field in the mutation.
@@ -524,6 +557,7 @@ func (m *Mutation) Enabled() (r bool, exists bool) {
 // ResetEnabled resets all changes to the "enabled" field.
 func (m *Mutation) ResetEnabled() {
 	m.enabled = nil
+	delete(m.exprs, FieldEnabled)
 }
 
 // SetTenantId sets the "tenant_id" field.
@@ -653,49 +687,49 @@ func (m *Mutation) Type() string {
 // AddedFields().
 func (m *Mutation) Fields() []string {
 	fields := make([]string, 0, 17)
-	if m.timezone != nil {
+	if m.timezone != nil || m.exprs[FieldTimezone] != nil {
 		fields = append(fields, FieldTimezone)
 	}
-	if m.hours != nil {
+	if m.hours != nil || m.exprs[FieldHours] != nil {
 		fields = append(fields, FieldHours)
 	}
-	if m.buffer_before != nil {
+	if m.buffer_before != nil || m.exprs[FieldBufferBefore] != nil {
 		fields = append(fields, FieldBufferBefore)
 	}
-	if m.buffer_after != nil {
+	if m.buffer_after != nil || m.exprs[FieldBufferAfter] != nil {
 		fields = append(fields, FieldBufferAfter)
 	}
-	if m.date_updated != nil {
+	if m.date_updated != nil || m.exprs[FieldDateUpdated] != nil {
 		fields = append(fields, FieldDateUpdated)
 	}
-	if m.date_erased != nil {
+	if m.date_erased != nil || m.exprs[FieldDateErased] != nil {
 		fields = append(fields, FieldDateErased)
 	}
 	if m.date_created != nil {
 		fields = append(fields, FieldDateCreated)
 	}
-	if m.approval != nil {
+	if m.approval != nil || m.exprs[FieldApproval] != nil {
 		fields = append(fields, FieldApproval)
 	}
-	if m.min_minutes != nil {
+	if m.min_minutes != nil || m.exprs[FieldMinMinutes] != nil {
 		fields = append(fields, FieldMinMinutes)
 	}
-	if m.max_minutes != nil {
+	if m.max_minutes != nil || m.exprs[FieldMaxMinutes] != nil {
 		fields = append(fields, FieldMaxMinutes)
 	}
-	if m.horizon_days != nil {
+	if m.horizon_days != nil || m.exprs[FieldHorizonDays] != nil {
 		fields = append(fields, FieldHorizonDays)
 	}
-	if m.units != nil {
+	if m.units != nil || m.exprs[FieldUnits] != nil {
 		fields = append(fields, FieldUnits)
 	}
-	if m.exclusive_group != nil {
+	if m.exclusive_group != nil || m.exprs[FieldExclusiveGroup] != nil {
 		fields = append(fields, FieldExclusiveGroup)
 	}
-	if m.schedule_version != nil {
+	if m.schedule_version != nil || m.exprs[FieldScheduleVersion] != nil {
 		fields = append(fields, FieldScheduleVersion)
 	}
-	if m.enabled != nil {
+	if m.enabled != nil || m.exprs[FieldEnabled] != nil {
 		fields = append(fields, FieldEnabled)
 	}
 	if m.tenant != nil {
@@ -710,7 +744,13 @@ func (m *Mutation) Fields() []string {
 // Field returns the value of a field with the given name. The second boolean
 // return value indicates that this field was not set, or was not defined in the
 // schema.
+//
+// A field assigned an expression with SetFieldExpr returns that expression, a
+// sql.Querier, since the value it stands for is the database's to compute.
 func (m *Mutation) Field(name string) (ent.Value, bool) {
+	if e, ok := m.exprs[name]; ok {
+		return e, true
+	}
 	switch name {
 	case FieldTimezone:
 		return m.Timezone()
@@ -760,11 +800,17 @@ func (m *Mutation) OldField(ctx context.Context, name string) (ent.Value, error)
 // SetField sets the value of a field with the given name. It returns an error if
 // the field is not defined in the schema, or if the type mismatched the field
 // type.
+//
+// A sql.Querier that is not of the field's type is handed to SetFieldExpr, so
+// that what Field returns for a field can be set back on it.
 func (m *Mutation) SetField(name string, value ent.Value) error {
 	switch name {
 	case FieldTimezone:
 		v, ok := value.(string)
 		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetTimezone(v)
@@ -772,6 +818,9 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 	case FieldHours:
 		v, ok := value.(*rove.OpeningHours)
 		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetHours(v)
@@ -779,6 +828,9 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 	case FieldBufferBefore:
 		v, ok := value.(int32)
 		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetBufferBefore(v)
@@ -786,6 +838,9 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 	case FieldBufferAfter:
 		v, ok := value.(int32)
 		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetBufferAfter(v)
@@ -793,6 +848,9 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 	case FieldDateUpdated:
 		v, ok := value.(time.Time)
 		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDateUpdated(v)
@@ -800,6 +858,9 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 	case FieldDateErased:
 		v, ok := value.(time.Time)
 		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDateErased(v)
@@ -807,6 +868,9 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 	case FieldDateCreated:
 		v, ok := value.(time.Time)
 		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDateCreated(v)
@@ -814,6 +878,9 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 	case FieldApproval:
 		v, ok := value.(bool)
 		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetApproval(v)
@@ -821,6 +888,9 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 	case FieldMinMinutes:
 		v, ok := value.(int32)
 		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetMinMinutes(v)
@@ -828,6 +898,9 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 	case FieldMaxMinutes:
 		v, ok := value.(int32)
 		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetMaxMinutes(v)
@@ -835,6 +908,9 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 	case FieldHorizonDays:
 		v, ok := value.(int32)
 		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetHorizonDays(v)
@@ -842,6 +918,9 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 	case FieldUnits:
 		v, ok := value.(uint32)
 		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUnits(v)
@@ -849,6 +928,9 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 	case FieldExclusiveGroup:
 		v, ok := value.(string)
 		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetExclusiveGroup(v)
@@ -856,6 +938,9 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 	case FieldScheduleVersion:
 		v, ok := value.(uint64)
 		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetScheduleVersion(v)
@@ -863,6 +948,9 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 	case FieldEnabled:
 		v, ok := value.(bool)
 		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetEnabled(v)
@@ -870,6 +958,9 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 	case FieldTenantId:
 		v, ok := value.(uuid.UUID)
 		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetTenantId(v)
@@ -877,12 +968,133 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 	case FieldAssetId:
 		v, ok := value.(uuid.UUID)
 		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetAssetId(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Bookable field %s", name)
+}
+
+// SetFieldExpr assigns the field with the given name a SQL expression, which
+// the database evaluates as the UPDATE writes the row. It replaces any value
+// the field was set, added, appended or cleared with, as setting it again
+// would, and so the column is assigned once.
+//
+// The field is listed by Fields and Field returns the expression, so a hook
+// sees it as it sees any other. What it does not have is a value: a field
+// with a validator is refused, since there is nothing for the validator to
+// check, and so is one that only a create could write. A create refuses a
+// mutation holding an expression at all.
+func (m *Mutation) SetFieldExpr(name string, expr sql.Querier) error {
+	if expr == nil {
+		return fmt.Errorf("no expression for field %s", name)
+	}
+	if m.op.Is(ent.OpCreate) {
+		return fmt.Errorf("field %s cannot be assigned an expression: a create writes values, and an expression is written only by an update", name)
+	}
+	switch name {
+	case FieldTimezone:
+		m.ResetTimezone()
+	case FieldHours:
+		m.ResetHours()
+	case FieldBufferBefore:
+		m.ResetBufferBefore()
+	case FieldBufferAfter:
+		m.ResetBufferAfter()
+	case FieldDateUpdated:
+		m.ResetDateUpdated()
+	case FieldDateErased:
+		m.ResetDateErased()
+	case FieldDateCreated:
+		return fmt.Errorf("field %s cannot be assigned an expression: it is immutable, and an expression is written only by an update", name)
+	case FieldApproval:
+		m.ResetApproval()
+	case FieldMinMinutes:
+		m.ResetMinMinutes()
+	case FieldMaxMinutes:
+		m.ResetMaxMinutes()
+	case FieldHorizonDays:
+		m.ResetHorizonDays()
+	case FieldUnits:
+		m.ResetUnits()
+	case FieldExclusiveGroup:
+		m.ResetExclusiveGroup()
+	case FieldScheduleVersion:
+		m.ResetScheduleVersion()
+	case FieldEnabled:
+		m.ResetEnabled()
+	case FieldTenantId:
+		return fmt.Errorf("field %s cannot be assigned an expression: it holds an edge, which is set through the edge", name)
+	case FieldAssetId:
+		return fmt.Errorf("field %s cannot be assigned an expression: it holds an edge, which is set through the edge", name)
+	default:
+		return fmt.Errorf("unknown Bookable field %s", name)
+	}
+	if m.exprs == nil {
+		m.exprs = make(map[string]sql.Querier)
+	}
+	m.exprs[name] = expr
+	return nil
+}
+
+// FieldExpr returns the expression the field with the given name was assigned
+// by SetFieldExpr. The second return value reports whether it was.
+func (m *Mutation) FieldExpr(name string) (sql.Querier, bool) {
+	e, ok := m.exprs[name]
+	return e, ok
+}
+
+// ExprFields returns the fields that were assigned an expression by
+// SetFieldExpr.
+func (m *Mutation) ExprFields() []string {
+	var fields []string
+	if _, ok := m.exprs[FieldTimezone]; ok {
+		fields = append(fields, FieldTimezone)
+	}
+	if _, ok := m.exprs[FieldHours]; ok {
+		fields = append(fields, FieldHours)
+	}
+	if _, ok := m.exprs[FieldBufferBefore]; ok {
+		fields = append(fields, FieldBufferBefore)
+	}
+	if _, ok := m.exprs[FieldBufferAfter]; ok {
+		fields = append(fields, FieldBufferAfter)
+	}
+	if _, ok := m.exprs[FieldDateUpdated]; ok {
+		fields = append(fields, FieldDateUpdated)
+	}
+	if _, ok := m.exprs[FieldDateErased]; ok {
+		fields = append(fields, FieldDateErased)
+	}
+	if _, ok := m.exprs[FieldApproval]; ok {
+		fields = append(fields, FieldApproval)
+	}
+	if _, ok := m.exprs[FieldMinMinutes]; ok {
+		fields = append(fields, FieldMinMinutes)
+	}
+	if _, ok := m.exprs[FieldMaxMinutes]; ok {
+		fields = append(fields, FieldMaxMinutes)
+	}
+	if _, ok := m.exprs[FieldHorizonDays]; ok {
+		fields = append(fields, FieldHorizonDays)
+	}
+	if _, ok := m.exprs[FieldUnits]; ok {
+		fields = append(fields, FieldUnits)
+	}
+	if _, ok := m.exprs[FieldExclusiveGroup]; ok {
+		fields = append(fields, FieldExclusiveGroup)
+	}
+	if _, ok := m.exprs[FieldScheduleVersion]; ok {
+		fields = append(fields, FieldScheduleVersion)
+	}
+	if _, ok := m.exprs[FieldEnabled]; ok {
+		fields = append(fields, FieldEnabled)
+	}
+	return fields
 }
 
 // AddedFields returns all numeric fields that were incremented/decremented during

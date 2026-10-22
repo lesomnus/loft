@@ -230,6 +230,7 @@ func (s CustodyServiceServer) Add(ctx context.Context, req *rove.CustodyAddReque
 		q.Stored(&stored)
 	}
 
+	tx.Writing()
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -535,6 +536,7 @@ func (s CustodyServiceServer) apply(ctx context.Context, ref *rove.CustodyRef, d
 		if !plan.WritesTo(13) {
 			q.SetDateUpdated(st.now())
 		}
+		tx.Writing()
 		if n, err := q.Save(ctx); err != nil {
 			if err, ok := err.(*ent.ConstraintError); ok {
 				if sqlgraph.IsUniqueConstraintError(err) {
@@ -626,6 +628,7 @@ func (s CustodyServiceServer) Erase(ctx context.Context, req *rove.CustodyRef) (
 		p = custody.And(p, custody.IdEQ(v.Id))
 	}
 
+	tx.Writing()
 	u := st.Db.Custody.Update().Where(p)
 	u.SetDateErased(st.now())
 	u.SetDateUpdated(st.now())
@@ -909,6 +912,7 @@ func (s CustodyLineServiceServer) Add(ctx context.Context, req *rove.CustodyLine
 		q.Stored(&stored)
 	}
 
+	tx.Writing()
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -1211,6 +1215,7 @@ func (s CustodyLineServiceServer) apply(ctx context.Context, ref *rove.CustodyLi
 		if !plan.WritesTo(13) {
 			q.SetDateUpdated(st.now())
 		}
+		tx.Writing()
 		if n, err := q.Save(ctx); err != nil {
 			if err, ok := err.(*ent.ConstraintError); ok {
 				if sqlgraph.IsUniqueConstraintError(err) {
@@ -1302,6 +1307,7 @@ func (s CustodyLineServiceServer) Erase(ctx context.Context, req *rove.CustodyLi
 		p = custodyline.And(p, custodyline.IdEQ(v.Id))
 	}
 
+	tx.Writing()
 	n, err := st.Db.CustodyLine.Delete().Where(p).Exec(ctx)
 	if err != nil {
 		return nil, err

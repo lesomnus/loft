@@ -204,8 +204,14 @@ func (_u *SessionUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Account(); ok {
 		_spec.SetField(session.FieldAccount, field.TypeUuid, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(session.FieldAccount); ok {
+		_spec.SetField(session.FieldAccount, field.TypeUuid, e)
+	}
 	if value, ok := _u.mutation.Secret(); ok {
 		_spec.SetField(session.FieldSecret, field.TypeBytes, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(session.FieldSecret); ok {
+		_spec.SetField(session.FieldSecret, field.TypeBytes, e)
 	}
 	if _u.mutation.SecretCleared() {
 		_spec.ClearField(session.FieldSecret, field.TypeBytes)
@@ -213,11 +219,17 @@ func (_u *SessionUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Grant(); ok {
 		_spec.SetField(session.FieldGrant, field.TypeBytes, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(session.FieldGrant); ok {
+		_spec.SetField(session.FieldGrant, field.TypeBytes, e)
+	}
 	if _u.mutation.GrantCleared() {
 		_spec.ClearField(session.FieldGrant, field.TypeBytes)
 	}
 	if value, ok := _u.mutation.DateExpires(); ok {
 		_spec.SetField(session.FieldDateExpires, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(session.FieldDateExpires); ok {
+		_spec.SetField(session.FieldDateExpires, field.TypeTime, e)
 	}
 	if _u.mutation.DateExpiresCleared() {
 		_spec.ClearField(session.FieldDateExpires, field.TypeTime)
@@ -225,11 +237,17 @@ func (_u *SessionUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.DateIdle(); ok {
 		_spec.SetField(session.FieldDateIdle, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(session.FieldDateIdle); ok {
+		_spec.SetField(session.FieldDateIdle, field.TypeTime, e)
+	}
 	if _u.mutation.DateIdleCleared() {
 		_spec.ClearField(session.FieldDateIdle, field.TypeTime)
 	}
 	if value, ok := _u.mutation.Held(); ok {
 		_spec.SetField(session.FieldHeld, field.TypeBytes, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(session.FieldHeld); ok {
+		_spec.SetField(session.FieldHeld, field.TypeBytes, e)
 	}
 	if _u.mutation.HeldCleared() {
 		_spec.ClearField(session.FieldHeld, field.TypeBytes)
@@ -237,8 +255,14 @@ func (_u *SessionUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(session.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(session.FieldDateUpdated); ok {
+		_spec.SetField(session.FieldDateUpdated, field.TypeTime, e)
+	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(session.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(session.FieldDateErased); ok {
+		_spec.SetField(session.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(session.FieldDateErased, field.TypeTime)
@@ -472,8 +496,14 @@ func (_u *SessionUpdateOne) sqlSave(ctx context.Context) (_node *Session, err er
 	if value, ok := _u.mutation.Account(); ok {
 		_spec.SetField(session.FieldAccount, field.TypeUuid, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(session.FieldAccount); ok {
+		_spec.SetField(session.FieldAccount, field.TypeUuid, e)
+	}
 	if value, ok := _u.mutation.Secret(); ok {
 		_spec.SetField(session.FieldSecret, field.TypeBytes, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(session.FieldSecret); ok {
+		_spec.SetField(session.FieldSecret, field.TypeBytes, e)
 	}
 	if _u.mutation.SecretCleared() {
 		_spec.ClearField(session.FieldSecret, field.TypeBytes)
@@ -481,11 +511,17 @@ func (_u *SessionUpdateOne) sqlSave(ctx context.Context) (_node *Session, err er
 	if value, ok := _u.mutation.Grant(); ok {
 		_spec.SetField(session.FieldGrant, field.TypeBytes, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(session.FieldGrant); ok {
+		_spec.SetField(session.FieldGrant, field.TypeBytes, e)
+	}
 	if _u.mutation.GrantCleared() {
 		_spec.ClearField(session.FieldGrant, field.TypeBytes)
 	}
 	if value, ok := _u.mutation.DateExpires(); ok {
 		_spec.SetField(session.FieldDateExpires, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(session.FieldDateExpires); ok {
+		_spec.SetField(session.FieldDateExpires, field.TypeTime, e)
 	}
 	if _u.mutation.DateExpiresCleared() {
 		_spec.ClearField(session.FieldDateExpires, field.TypeTime)
@@ -493,11 +529,17 @@ func (_u *SessionUpdateOne) sqlSave(ctx context.Context) (_node *Session, err er
 	if value, ok := _u.mutation.DateIdle(); ok {
 		_spec.SetField(session.FieldDateIdle, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(session.FieldDateIdle); ok {
+		_spec.SetField(session.FieldDateIdle, field.TypeTime, e)
+	}
 	if _u.mutation.DateIdleCleared() {
 		_spec.ClearField(session.FieldDateIdle, field.TypeTime)
 	}
 	if value, ok := _u.mutation.Held(); ok {
 		_spec.SetField(session.FieldHeld, field.TypeBytes, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(session.FieldHeld); ok {
+		_spec.SetField(session.FieldHeld, field.TypeBytes, e)
 	}
 	if _u.mutation.HeldCleared() {
 		_spec.ClearField(session.FieldHeld, field.TypeBytes)
@@ -505,8 +547,14 @@ func (_u *SessionUpdateOne) sqlSave(ctx context.Context) (_node *Session, err er
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(session.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(session.FieldDateUpdated); ok {
+		_spec.SetField(session.FieldDateUpdated, field.TypeTime, e)
+	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(session.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(session.FieldDateErased); ok {
+		_spec.SetField(session.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(session.FieldDateErased, field.TypeTime)

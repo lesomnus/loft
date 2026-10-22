@@ -95,7 +95,7 @@ func (x Indexer) Spin(ctx context.Context) error {
 			return nil
 		case err != nil:
 			if down == 0 || down == time.Minute {
-				log.From(ctx).WarnContext(ctx, "search: the index is not kept current; what changed waits", slog.String("error", err.Error()))
+				log.From(ctx).WarnContext(ctx, "search: the index is not kept current; what changed waits", slog.Any("err", err))
 			}
 			down = min(max(2*down, time.Second), time.Minute)
 			wait = down

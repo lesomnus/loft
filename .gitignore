@@ -10,3 +10,7 @@ playwright-report/
 # A deployment's own, never committed (deploy/compose/README.md).
 deploy/compose/.env
 deploy/compose/secrets/
+
+# A key the trail's archive is signed with, which `rove init` writes beside an
+# archive that names none. A key that signs is never committed.
+*-checkpoints.pem

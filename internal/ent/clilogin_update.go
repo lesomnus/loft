@@ -254,20 +254,35 @@ func (_u *CliLoginUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Secret(); ok {
 		_spec.SetField(clilogin.FieldSecret, field.TypeBytes, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(clilogin.FieldSecret); ok {
+		_spec.SetField(clilogin.FieldSecret, field.TypeBytes, e)
+	}
 	if _u.mutation.SecretCleared() {
 		_spec.ClearField(clilogin.FieldSecret, field.TypeBytes)
 	}
 	if value, ok := _u.mutation.Code(); ok {
 		_spec.SetField(clilogin.FieldCode, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(clilogin.FieldCode); ok {
+		_spec.SetField(clilogin.FieldCode, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.GetClient(); ok {
 		_spec.SetField(clilogin.FieldClient, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(clilogin.FieldClient); ok {
+		_spec.SetField(clilogin.FieldClient, field.TypeString, e)
 	}
 	if value, ok := _u.mutation.Origin(); ok {
 		_spec.SetField(clilogin.FieldOrigin, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(clilogin.FieldOrigin); ok {
+		_spec.SetField(clilogin.FieldOrigin, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Address(); ok {
 		_spec.SetField(clilogin.FieldAddress, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(clilogin.FieldAddress); ok {
+		_spec.SetField(clilogin.FieldAddress, field.TypeString, e)
 	}
 	if _u.mutation.AddressCleared() {
 		_spec.ClearField(clilogin.FieldAddress, field.TypeString)
@@ -275,11 +290,17 @@ func (_u *CliLoginUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Account(); ok {
 		_spec.SetField(clilogin.FieldAccount, field.TypeUuid, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(clilogin.FieldAccount); ok {
+		_spec.SetField(clilogin.FieldAccount, field.TypeUuid, e)
+	}
 	if _u.mutation.AccountCleared() {
 		_spec.ClearField(clilogin.FieldAccount, field.TypeUuid)
 	}
 	if value, ok := _u.mutation.Grant(); ok {
 		_spec.SetField(clilogin.FieldGrant, field.TypeBytes, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(clilogin.FieldGrant); ok {
+		_spec.SetField(clilogin.FieldGrant, field.TypeBytes, e)
 	}
 	if _u.mutation.GrantCleared() {
 		_spec.ClearField(clilogin.FieldGrant, field.TypeBytes)
@@ -287,8 +308,14 @@ func (_u *CliLoginUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.State(); ok {
 		_spec.SetField(clilogin.FieldState, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(clilogin.FieldState); ok {
+		_spec.SetField(clilogin.FieldState, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.DateExpires(); ok {
 		_spec.SetField(clilogin.FieldDateExpires, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(clilogin.FieldDateExpires); ok {
+		_spec.SetField(clilogin.FieldDateExpires, field.TypeTime, e)
 	}
 	if _u.mutation.DateExpiresCleared() {
 		_spec.ClearField(clilogin.FieldDateExpires, field.TypeTime)
@@ -296,8 +323,14 @@ func (_u *CliLoginUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(clilogin.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(clilogin.FieldDateUpdated); ok {
+		_spec.SetField(clilogin.FieldDateUpdated, field.TypeTime, e)
+	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(clilogin.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(clilogin.FieldDateErased); ok {
+		_spec.SetField(clilogin.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(clilogin.FieldDateErased, field.TypeTime)
@@ -581,20 +614,35 @@ func (_u *CliLoginUpdateOne) sqlSave(ctx context.Context) (_node *CliLogin, err 
 	if value, ok := _u.mutation.Secret(); ok {
 		_spec.SetField(clilogin.FieldSecret, field.TypeBytes, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(clilogin.FieldSecret); ok {
+		_spec.SetField(clilogin.FieldSecret, field.TypeBytes, e)
+	}
 	if _u.mutation.SecretCleared() {
 		_spec.ClearField(clilogin.FieldSecret, field.TypeBytes)
 	}
 	if value, ok := _u.mutation.Code(); ok {
 		_spec.SetField(clilogin.FieldCode, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(clilogin.FieldCode); ok {
+		_spec.SetField(clilogin.FieldCode, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.GetClient(); ok {
 		_spec.SetField(clilogin.FieldClient, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(clilogin.FieldClient); ok {
+		_spec.SetField(clilogin.FieldClient, field.TypeString, e)
 	}
 	if value, ok := _u.mutation.Origin(); ok {
 		_spec.SetField(clilogin.FieldOrigin, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(clilogin.FieldOrigin); ok {
+		_spec.SetField(clilogin.FieldOrigin, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Address(); ok {
 		_spec.SetField(clilogin.FieldAddress, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(clilogin.FieldAddress); ok {
+		_spec.SetField(clilogin.FieldAddress, field.TypeString, e)
 	}
 	if _u.mutation.AddressCleared() {
 		_spec.ClearField(clilogin.FieldAddress, field.TypeString)
@@ -602,11 +650,17 @@ func (_u *CliLoginUpdateOne) sqlSave(ctx context.Context) (_node *CliLogin, err 
 	if value, ok := _u.mutation.Account(); ok {
 		_spec.SetField(clilogin.FieldAccount, field.TypeUuid, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(clilogin.FieldAccount); ok {
+		_spec.SetField(clilogin.FieldAccount, field.TypeUuid, e)
+	}
 	if _u.mutation.AccountCleared() {
 		_spec.ClearField(clilogin.FieldAccount, field.TypeUuid)
 	}
 	if value, ok := _u.mutation.Grant(); ok {
 		_spec.SetField(clilogin.FieldGrant, field.TypeBytes, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(clilogin.FieldGrant); ok {
+		_spec.SetField(clilogin.FieldGrant, field.TypeBytes, e)
 	}
 	if _u.mutation.GrantCleared() {
 		_spec.ClearField(clilogin.FieldGrant, field.TypeBytes)
@@ -614,8 +668,14 @@ func (_u *CliLoginUpdateOne) sqlSave(ctx context.Context) (_node *CliLogin, err 
 	if value, ok := _u.mutation.State(); ok {
 		_spec.SetField(clilogin.FieldState, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(clilogin.FieldState); ok {
+		_spec.SetField(clilogin.FieldState, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.DateExpires(); ok {
 		_spec.SetField(clilogin.FieldDateExpires, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(clilogin.FieldDateExpires); ok {
+		_spec.SetField(clilogin.FieldDateExpires, field.TypeTime, e)
 	}
 	if _u.mutation.DateExpiresCleared() {
 		_spec.ClearField(clilogin.FieldDateExpires, field.TypeTime)
@@ -623,8 +683,14 @@ func (_u *CliLoginUpdateOne) sqlSave(ctx context.Context) (_node *CliLogin, err 
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(clilogin.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(clilogin.FieldDateUpdated); ok {
+		_spec.SetField(clilogin.FieldDateUpdated, field.TypeTime, e)
+	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(clilogin.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(clilogin.FieldDateErased); ok {
+		_spec.SetField(clilogin.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(clilogin.FieldDateErased, field.TypeTime)

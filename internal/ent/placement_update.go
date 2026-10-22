@@ -275,11 +275,20 @@ func (_u *PlacementUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Mode(); ok {
 		_spec.SetField(placement.FieldMode, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(placement.FieldMode); ok {
+		_spec.SetField(placement.FieldMode, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Slot(); ok {
 		_spec.SetField(placement.FieldSlot, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(placement.FieldSlot); ok {
+		_spec.SetField(placement.FieldSlot, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.UFrom(); ok {
 		_spec.SetField(placement.FieldUFrom, field.TypeInt32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(placement.FieldUFrom); ok {
+		_spec.SetField(placement.FieldUFrom, field.TypeInt32, e)
 	}
 	if value, ok := _u.mutation.AddedUFrom(); ok {
 		_spec.AddField(placement.FieldUFrom, field.TypeInt32, value)
@@ -287,11 +296,17 @@ func (_u *PlacementUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(placement.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(placement.FieldDateUpdated); ok {
+		_spec.SetField(placement.FieldDateUpdated, field.TypeTime, e)
+	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(placement.FieldDateCreated, field.TypeTime)
 	}
 	if value, ok := _u.mutation.UTo(); ok {
 		_spec.SetField(placement.FieldUTo, field.TypeInt32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(placement.FieldUTo); ok {
+		_spec.SetField(placement.FieldUTo, field.TypeInt32, e)
 	}
 	if value, ok := _u.mutation.AddedUTo(); ok {
 		_spec.AddField(placement.FieldUTo, field.TypeInt32, value)
@@ -299,11 +314,17 @@ func (_u *PlacementUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.ValidFrom(); ok {
 		_spec.SetField(placement.FieldValidFrom, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(placement.FieldValidFrom); ok {
+		_spec.SetField(placement.FieldValidFrom, field.TypeTime, e)
+	}
 	if _u.mutation.ValidFromCleared() {
 		_spec.ClearField(placement.FieldValidFrom, field.TypeTime)
 	}
 	if value, ok := _u.mutation.ValidTo(); ok {
 		_spec.SetField(placement.FieldValidTo, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(placement.FieldValidTo); ok {
+		_spec.SetField(placement.FieldValidTo, field.TypeTime, e)
 	}
 	if _u.mutation.ValidToCleared() {
 		_spec.ClearField(placement.FieldValidTo, field.TypeTime)
@@ -311,14 +332,23 @@ func (_u *PlacementUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.EventId(); ok {
 		_spec.SetField(placement.FieldEventId, field.TypeUuid, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(placement.FieldEventId); ok {
+		_spec.SetField(placement.FieldEventId, field.TypeUuid, e)
+	}
 	if value, ok := _u.mutation.SupersededAt(); ok {
 		_spec.SetField(placement.FieldSupersededAt, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(placement.FieldSupersededAt); ok {
+		_spec.SetField(placement.FieldSupersededAt, field.TypeTime, e)
 	}
 	if _u.mutation.SupersededAtCleared() {
 		_spec.ClearField(placement.FieldSupersededAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.SupersededBy(); ok {
 		_spec.SetField(placement.FieldSupersededBy, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(placement.FieldSupersededBy); ok {
+		_spec.SetField(placement.FieldSupersededBy, field.TypeUuid, e)
 	}
 	if _u.mutation.SupersededByCleared() {
 		_spec.ClearField(placement.FieldSupersededBy, field.TypeUuid)
@@ -620,11 +650,20 @@ func (_u *PlacementUpdateOne) sqlSave(ctx context.Context) (_node *Placement, er
 	if value, ok := _u.mutation.Mode(); ok {
 		_spec.SetField(placement.FieldMode, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(placement.FieldMode); ok {
+		_spec.SetField(placement.FieldMode, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Slot(); ok {
 		_spec.SetField(placement.FieldSlot, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(placement.FieldSlot); ok {
+		_spec.SetField(placement.FieldSlot, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.UFrom(); ok {
 		_spec.SetField(placement.FieldUFrom, field.TypeInt32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(placement.FieldUFrom); ok {
+		_spec.SetField(placement.FieldUFrom, field.TypeInt32, e)
 	}
 	if value, ok := _u.mutation.AddedUFrom(); ok {
 		_spec.AddField(placement.FieldUFrom, field.TypeInt32, value)
@@ -632,11 +671,17 @@ func (_u *PlacementUpdateOne) sqlSave(ctx context.Context) (_node *Placement, er
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(placement.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(placement.FieldDateUpdated); ok {
+		_spec.SetField(placement.FieldDateUpdated, field.TypeTime, e)
+	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(placement.FieldDateCreated, field.TypeTime)
 	}
 	if value, ok := _u.mutation.UTo(); ok {
 		_spec.SetField(placement.FieldUTo, field.TypeInt32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(placement.FieldUTo); ok {
+		_spec.SetField(placement.FieldUTo, field.TypeInt32, e)
 	}
 	if value, ok := _u.mutation.AddedUTo(); ok {
 		_spec.AddField(placement.FieldUTo, field.TypeInt32, value)
@@ -644,11 +689,17 @@ func (_u *PlacementUpdateOne) sqlSave(ctx context.Context) (_node *Placement, er
 	if value, ok := _u.mutation.ValidFrom(); ok {
 		_spec.SetField(placement.FieldValidFrom, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(placement.FieldValidFrom); ok {
+		_spec.SetField(placement.FieldValidFrom, field.TypeTime, e)
+	}
 	if _u.mutation.ValidFromCleared() {
 		_spec.ClearField(placement.FieldValidFrom, field.TypeTime)
 	}
 	if value, ok := _u.mutation.ValidTo(); ok {
 		_spec.SetField(placement.FieldValidTo, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(placement.FieldValidTo); ok {
+		_spec.SetField(placement.FieldValidTo, field.TypeTime, e)
 	}
 	if _u.mutation.ValidToCleared() {
 		_spec.ClearField(placement.FieldValidTo, field.TypeTime)
@@ -656,14 +707,23 @@ func (_u *PlacementUpdateOne) sqlSave(ctx context.Context) (_node *Placement, er
 	if value, ok := _u.mutation.EventId(); ok {
 		_spec.SetField(placement.FieldEventId, field.TypeUuid, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(placement.FieldEventId); ok {
+		_spec.SetField(placement.FieldEventId, field.TypeUuid, e)
+	}
 	if value, ok := _u.mutation.SupersededAt(); ok {
 		_spec.SetField(placement.FieldSupersededAt, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(placement.FieldSupersededAt); ok {
+		_spec.SetField(placement.FieldSupersededAt, field.TypeTime, e)
 	}
 	if _u.mutation.SupersededAtCleared() {
 		_spec.ClearField(placement.FieldSupersededAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.SupersededBy(); ok {
 		_spec.SetField(placement.FieldSupersededBy, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(placement.FieldSupersededBy); ok {
+		_spec.SetField(placement.FieldSupersededBy, field.TypeUuid, e)
 	}
 	if _u.mutation.SupersededByCleared() {
 		_spec.ClearField(placement.FieldSupersededBy, field.TypeUuid)

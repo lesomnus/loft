@@ -191,6 +191,7 @@ func (s AssetTypeServiceServer) Add(ctx context.Context, req *rove.AssetTypeAddR
 		q.Stored(&stored)
 	}
 
+	tx.Writing()
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -481,6 +482,7 @@ func (s AssetTypeServiceServer) apply(ctx context.Context, ref *rove.AssetTypeRe
 		if !plan.WritesTo(13) {
 			q.SetDateUpdated(st.now())
 		}
+		tx.Writing()
 		if n, err := q.Save(ctx); err != nil {
 			if err, ok := err.(*ent.ConstraintError); ok {
 				if sqlgraph.IsUniqueConstraintError(err) {
@@ -572,6 +574,7 @@ func (s AssetTypeServiceServer) Erase(ctx context.Context, req *rove.AssetTypeRe
 		p = assettype.And(p, assettype.IdEQ(v.Id))
 	}
 
+	tx.Writing()
 	u := st.Db.AssetType.Update().Where(p)
 	u.SetDateErased(st.now())
 	u.SetDateUpdated(st.now())
@@ -811,6 +814,7 @@ func (s ItemModelServiceServer) Add(ctx context.Context, req *rove.ItemModelAddR
 		q.Stored(&stored)
 	}
 
+	tx.Writing()
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -1114,6 +1118,7 @@ func (s ItemModelServiceServer) apply(ctx context.Context, ref *rove.ItemModelRe
 		if !plan.WritesTo(13) {
 			q.SetDateUpdated(st.now())
 		}
+		tx.Writing()
 		if n, err := q.Save(ctx); err != nil {
 			if err, ok := err.(*ent.ConstraintError); ok {
 				if sqlgraph.IsUniqueConstraintError(err) {
@@ -1205,6 +1210,7 @@ func (s ItemModelServiceServer) Erase(ctx context.Context, req *rove.ItemModelRe
 		p = itemmodel.And(p, itemmodel.IdEQ(v.Id))
 	}
 
+	tx.Writing()
 	u := st.Db.ItemModel.Update().Where(p)
 	u.SetDateErased(st.now())
 	u.SetDateUpdated(st.now())

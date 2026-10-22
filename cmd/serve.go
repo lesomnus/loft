@@ -23,6 +23,7 @@ import (
 	"github.com/lesomnus/payday/access"
 	"github.com/lesomnus/payday/auth"
 	"github.com/lesomnus/payday/auth/authsession"
+	"github.com/lesomnus/payday/config"
 	"github.com/lesomnus/payday/gate"
 	"github.com/lesomnus/payday/grpcx"
 	"github.com/lesomnus/payday/pdid"
@@ -219,7 +220,7 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	// the servers that do the writing, since every RPC that changes anything
 	// has to report itself from inside the transaction that changes it. The
 	// wall is a predicate and a predicate belongs in the WHERE.
-	b, err := c.Watch.Build(c.Db)
+	b, err := c.Watch.Build(ctx, c.Db)
 	if err != nil {
 		db.Close()
 		return nil, err
@@ -487,6 +488,22 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		return nil, err
 	}
 
+	// And the turns a pass takes with whatever erases from the trail -- a
+	// person pseudonymized, a workspace destroyed -- on the deployment's lease
+	// (`trail.Policy.Lease`, payday#115), so that neither undoes the other: a
+	// pass writing back into the archive what an erasure had just taken out.
+	// Its own, and not the one the loops are run under: a loop's lease is which
+	// process runs it, and the trail's turn is a lock any process takes for a
+	// moment. A process that runs no loops (`none`) has nothing to take turns
+	// on, and its policy says so where it is logged.
+	if c.Spin.Lease != "" && c.Spin.Lease != config.LeaseNone {
+		if p.Lease, err = c.Spin.Build(ctx, c.Db); err != nil {
+			db.Close()
+
+			return nil, err
+		}
+	}
+
 	// And per tenant, from its contract: the kinds that are history, whose
 	// trail lasts as long as the history does, and the access record (#144);
 	// a legal hold holds all of it. Asked when the deployment said a window
@@ -620,7 +637,7 @@ func (s *Server) Grpc(ctx context.Context, c Config, opts ...grpc.ServerOption) 
 	chain := grpcx.Serving(ctx, grpcx.WithDeadline(c.Server.CallTimeout())).
 		WithUnary(auth.InterceptorUnary(h, Resolver(s.Ungated, s.Ent, s.Consents), auth.PublicDefault)).
 		WithStream(auth.InterceptorStream(h, Resolver(s.Ungated, s.Ent, s.Consents), auth.PublicDefault)).
-		WithUnary(grpcx.LimitUnary(c.Server.Limiter(), LimitKey())).
+		WithUnary(grpcx.LimitUnary(c.Server.Limiter(), LimitKey(), pd.Cost)).
 		With(s.accessed().Interceptor()).
 		With(gate.Interceptor(s.Policy)).
 		With(s.Watch.Interceptor())
@@ -654,7 +671,7 @@ func (s *Server) Grpc(ctx context.Context, c Config, opts ...grpc.ServerOption) 
 		// A deployment that closed nothing, limits nothing and has no policy.
 		// It is a real thing to be and it is also what a guard nobody filled in
 		// looks like, so the batch is not served rather than served open.
-		log.From(ctx).WarnContext(ctx, "no batch", slog.String("why", err.Error()))
+		log.From(ctx).WarnContext(ctx, "no batch", slog.Any("err", err))
 	}
 
 	return g, nil
@@ -732,7 +749,7 @@ func (s *Server) serveHttp(ctx context.Context, c Config, g *grpc.Server) (func(
 	srv := httpServer(ctx, front)
 	go func() {
 		if err := srv.Serve(l); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			log.From(ctx).ErrorContext(ctx, "http", slog.String("err", err.Error()))
+			log.From(ctx).ErrorContext(ctx, "http", slog.Any("err", err))
 		}
 	}()
 
@@ -889,7 +906,7 @@ const notBuilt = `<!doctype html><meta charset="utf-8"><title>Rove</title>
 func spinEvery(name string, d time.Duration, f func(ctx context.Context) error) spin.Spinner {
 	return spin.Called(name, spin.Every(d, func(ctx context.Context) error {
 		if err := f(ctx); err != nil {
-			log.From(ctx).WarnContext(ctx, "tidy", slog.String("error", err.Error()))
+			log.From(ctx).WarnContext(ctx, "tidy", slog.Any("err", err))
 		}
 		return nil
 	}))

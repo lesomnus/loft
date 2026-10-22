@@ -23,6 +23,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"mime"
 	"net/http"
 	"strings"
@@ -171,7 +172,7 @@ func (s Store) Get(ctx context.Context, key string) (authsession.Session, error)
 		case errors.Is(err, identity.ErrRefused):
 			// Over: what roster says of them since it began ends it here too.
 			if _, err := s.Db.Session.Delete().Where(session.Id(v.Id)).Exec(ctx); err != nil {
-				log.From(ctx).WarnContext(ctx, "session: ending one roster refused", "err", err.Error())
+				log.From(ctx).WarnContext(ctx, "session: ending one roster refused", slog.Any("err", err))
 			}
 			return authsession.Session{}, authsession.ErrNoSession
 		case err != nil:
@@ -338,7 +339,7 @@ func SignIn(sessions *authsession.Sessions, people People, db *ent.Client, arriv
 		who := Subject(clientaddr.Of(r), in.Login)
 		switch ok, err := failures.Ok(ctx, who); {
 		case err != nil:
-			log.From(ctx).WarnContext(ctx, "session: a sign-in whose failures could not be counted", "err", err.Error())
+			log.From(ctx).WarnContext(ctx, "session: a sign-in whose failures could not be counted", slog.Any("err", err))
 			http.Error(w, "cannot sign in just now", http.StatusServiceUnavailable)
 			return
 		case !ok:
@@ -350,24 +351,24 @@ func SignIn(sessions *authsession.Sessions, people People, db *ent.Client, arriv
 		switch {
 		case errors.Is(err, errNo):
 			if err := failures.Fail(ctx, who); err != nil {
-				log.From(ctx).WarnContext(ctx, "session: a failure that could not be counted", "err", err.Error())
+				log.From(ctx).WarnContext(ctx, "session: a failure that could not be counted", slog.Any("err", err))
 			}
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
 		case err != nil:
-			log.From(ctx).WarnContext(ctx, "session: a sign-in nobody could check", "err", err.Error())
+			log.From(ctx).WarnContext(ctx, "session: a sign-in nobody could check", slog.Any("err", err))
 			http.Error(w, "cannot sign in just now", http.StatusServiceUnavailable)
 			return
 		}
 		if err := failures.Forget(ctx, who); err != nil {
-			log.From(ctx).WarnContext(ctx, "session: failures that could not be forgotten", "err", err.Error())
+			log.From(ctx).WarnContext(ctx, "session: failures that could not be forgotten", slog.Any("err", err))
 		}
 
 		// A workspace that could not be made is not a sign-in refused: the
 		// account is who it is, and is told it is in no workspace.
 		if arrive != nil {
 			if err := arrive(ctx, p); err != nil {
-				log.From(ctx).ErrorContext(ctx, "session: an account arrived and was not given what it is given", "err", err.Error())
+				log.From(ctx).ErrorContext(ctx, "session: an account arrived and was not given what it is given", slog.Any("err", err))
 			}
 		}
 

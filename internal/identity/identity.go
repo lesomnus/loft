@@ -442,7 +442,7 @@ func (s *Store) serves(ctx context.Context, tenant string) (bool, error) {
 		if !known {
 			return false, err
 		}
-		s.log.WarnContext(ctx, "identity: roster did not say which tenants nominated this key; the last answer stands", "err", err.Error())
+		s.log.WarnContext(ctx, "identity: roster did not say which tenants nominated this key; the last answer stands", slog.Any("err", err))
 
 		return ok, nil
 	}
@@ -942,12 +942,12 @@ func (s *Store) Follow(ctx context.Context, on func(ctx context.Context, v Stand
 				"Rove's role at roster wants /roster.SyncService/Watch, which `roster role patch` adds "+
 				"and installing again does not (README). "+
 				"Until then a session ends at its next call rather than when roster ends it, "+
-				"and an erased account is not heard leaving", "err", err.Error())
+				"and an erased account is not heard leaving", slog.Any("err", err))
 			pause = s.refused
 		case codes.Unimplemented:
 			s.log.ErrorContext(ctx, "roster: this roster publishes no changes (its watch.broker), so there is no stream to hold. "+
 				"A session ends at its next call rather than when roster ends it, "+
-				"and an erased account is not heard leaving", "err", err.Error())
+				"and an erased account is not heard leaving", slog.Any("err", err))
 			pause = s.refused
 		default:
 			s.log.WarnContext(ctx, "roster: the sync stream ended; opening it again", "in", wait.String(), "err", fmt.Sprint(err))
@@ -982,14 +982,14 @@ func (s *Store) follow(ctx context.Context, on func(ctx context.Context, v Stand
 		}
 		st, err := standingOf(ev)
 		if err != nil {
-			s.log.WarnContext(ctx, "roster: a sync event about nobody this reads", "err", err.Error())
+			s.log.WarnContext(ctx, "roster: a sync event about nobody this reads", slog.Any("err", err))
 			continue
 		}
 		s.Recheck(st.Holder)
 		if err := on(ctx, st); err != nil {
 			// Said and not fatal: the next call the account makes asks
 			// roster anyway, and the next event about it is the whole truth.
-			s.log.WarnContext(ctx, "roster: a sync event was not carried out here", "holder", st.Holder.String(), "err", err.Error())
+			s.log.WarnContext(ctx, "roster: a sync event was not carried out here", "holder", st.Holder.String(), slog.Any("err", err))
 		}
 	}
 }

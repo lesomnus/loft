@@ -7,6 +7,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
+	"log/slog"
 	netmail "net/mail"
 	"slices"
 	"strings"
@@ -221,7 +222,7 @@ func (s domainInvitation) Add(ctx context.Context, req *app.InvitationAddRequest
 	// that is still there, and still in the inbox of an account roster holds
 	// the address of. It is said, and sent again by inviting again.
 	if err := s.deps.mailInvitation(ctx, out, code, inviter, workspace, zone); err != nil {
-		log.From(ctx).WarnContext(ctx, "invitation: the mail did not go", "invitation", idOf(out.GetId()).String(), "err", err.Error())
+		log.From(ctx).WarnContext(ctx, "invitation: the mail did not go", "invitation", idOf(out.GetId()).String(), slog.Any("err", err))
 	}
 	return withoutCode(out), nil
 }

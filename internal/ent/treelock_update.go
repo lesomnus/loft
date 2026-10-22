@@ -125,11 +125,17 @@ func (_u *TreeLockUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Version(); ok {
 		_spec.SetField(treelock.FieldVersion, field.TypeUint64, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(treelock.FieldVersion); ok {
+		_spec.SetField(treelock.FieldVersion, field.TypeUint64, e)
+	}
 	if value, ok := _u.mutation.AddedVersion(); ok {
 		_spec.AddField(treelock.FieldVersion, field.TypeUint64, value)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(treelock.FieldDateUpdated, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(treelock.FieldDateUpdated); ok {
+		_spec.SetField(treelock.FieldDateUpdated, field.TypeTime, e)
 	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(treelock.FieldDateCreated, field.TypeTime)
@@ -282,11 +288,17 @@ func (_u *TreeLockUpdateOne) sqlSave(ctx context.Context) (_node *TreeLock, err 
 	if value, ok := _u.mutation.Version(); ok {
 		_spec.SetField(treelock.FieldVersion, field.TypeUint64, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(treelock.FieldVersion); ok {
+		_spec.SetField(treelock.FieldVersion, field.TypeUint64, e)
+	}
 	if value, ok := _u.mutation.AddedVersion(); ok {
 		_spec.AddField(treelock.FieldVersion, field.TypeUint64, value)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(treelock.FieldDateUpdated, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(treelock.FieldDateUpdated); ok {
+		_spec.SetField(treelock.FieldDateUpdated, field.TypeTime, e)
 	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(treelock.FieldDateCreated, field.TypeTime)

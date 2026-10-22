@@ -43,8 +43,10 @@ func NewCmdServe(c *cmd.Config) *xli.Command {
 			// them may -- named, for the reason the broker is: the default
 			// would be right for one replica and silently wrong for two
 			// (payday#54). Before anything is built, so that a deployment that
-			// named none hears it at once.
-			lease, err := c.Spin.Build(c.Db)
+			// named none hears it at once. Built on this command's context,
+			// after `Telemetry`, so that what it says later -- a hold lost with
+			// its connection -- is in this process's log (payday#123).
+			lease, err := c.Spin.Build(ctx, c.Db)
 			if err != nil {
 				return err
 			}

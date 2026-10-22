@@ -245,6 +245,7 @@ func (s PlacementServiceServer) Add(ctx context.Context, req *rove.PlacementAddR
 		q.Stored(&stored)
 	}
 
+	tx.Writing()
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -289,7 +290,9 @@ const PlacementAddManyMax = 1000
 const placementAddManyRows = 500
 
 // AddMany adds every item as Add would add it, in one transaction: all of
-// the rows or none of them. The rows come back in the order of the items.
+// the rows or none of them -- in a transaction this joined, by that one's
+// commit being refused when this fails partway. The rows come back in the
+// order of the items, each recorded as soon as its statement holds.
 //
 // An item that cannot be a row is refused naming the item, before anything
 // is written. A refusal by the database is the whole statement's, and does
@@ -327,9 +330,11 @@ func (s PlacementServiceServer) AddMany(ctx context.Context, req *rove.Placement
 		qs[i], dss[i] = q, ds
 	}
 
-	us := make([]*ent.Placement, 0, len(qs))
+	tx.Writing()
+	out := make([]*rove.Placement, 0, len(qs))
 	for lo := 0; lo < len(qs); lo += placementAddManyRows {
-		vs, err := st.Db.Placement.CreateBulk(qs[lo:min(lo+placementAddManyRows, len(qs))]...).Save(ctx)
+		hi := min(lo+placementAddManyRows, len(qs))
+		vs, err := st.Db.Placement.CreateBulk(qs[lo:hi]...).Save(ctx)
 		if err != nil {
 			if err, ok := err.(*ent.ConstraintError); ok {
 				if sqlgraph.IsUniqueConstraintError(err) {
@@ -341,27 +346,26 @@ func (s PlacementServiceServer) AddMany(ctx context.Context, req *rove.Placement
 			}
 			return nil, err
 		}
-		us = append(us, vs...)
-	}
 
-	out := make([]*rove.Placement, len(us))
-	for i, u := range us {
-		v := u.Proto()
-		for _, d := range dss[i] {
-			d(v)
-		}
-		out[i] = v
+		for j, u := range vs {
+			i := lo + j
+			v := u.Proto()
+			for _, d := range dss[i] {
+				d(v)
+			}
+			out = append(out, v)
 
-		var value *rove.Placement
-		if stored[i] != nil {
-			value = s.image(stored[i].Proto())
-		}
-		if err := record(ctx, s.Rec, st.Db, Change{
-			By:    rove.PlacementService_AddMany_FullMethodName,
-			Key:   u.Id,
-			Value: value,
-		}); err != nil {
-			return nil, err
+			var value *rove.Placement
+			if stored[i] != nil {
+				value = s.image(stored[i].Proto())
+			}
+			if err := record(ctx, s.Rec, st.Db, Change{
+				By:    rove.PlacementService_AddMany_FullMethodName,
+				Key:   u.Id,
+				Value: value,
+			}); err != nil {
+				return nil, err
+			}
 		}
 	}
 	if err := tx.Commit(); err != nil {
@@ -420,7 +424,17 @@ func (s placementAddRuled) AddMany(ctx context.Context, req *rove.PlacementAddMa
 		}
 		rs[i] = r
 	}
-	return s.PlacementServiceServer.AddMany(ctx, rove.PlacementAddManyRequest_builder{Items: rs}.Build())
+	out := &rove.PlacementAddManyRequest{}
+	req.ProtoReflect().Range(func(fd protoreflect.FieldDescriptor, v protoreflect.Value) bool {
+		if fd.Name() != "items" {
+			out.ProtoReflect().Set(fd, v)
+		}
+		return true
+	})
+	out.ProtoReflect().SetUnknown(req.ProtoReflect().GetUnknown())
+	out.SetItems(rs)
+
+	return s.PlacementServiceServer.AddMany(ctx, out)
 }
 
 func (s PlacementServiceServer) Get(ctx context.Context, req *rove.PlacementGetRequest) (*rove.Placement, error) {
@@ -661,6 +675,7 @@ func (s PlacementServiceServer) apply(ctx context.Context, ref *rove.PlacementRe
 		if !plan.WritesTo(13) {
 			q.SetDateUpdated(st.now())
 		}
+		tx.Writing()
 		if n, err := q.Save(ctx); err != nil {
 			if err, ok := err.(*ent.ConstraintError); ok {
 				if sqlgraph.IsUniqueConstraintError(err) {
@@ -752,6 +767,7 @@ func (s PlacementServiceServer) Erase(ctx context.Context, req *rove.PlacementRe
 		p = placement.And(p, placement.IdEQ(v.Id))
 	}
 
+	tx.Writing()
 	n, err := st.Db.Placement.Delete().Where(p).Exec(ctx)
 	if err != nil {
 		return nil, err
@@ -1004,6 +1020,7 @@ func (s LinkServiceServer) Add(ctx context.Context, req *rove.LinkAddRequest) (*
 		q.Stored(&stored)
 	}
 
+	tx.Writing()
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -1306,6 +1323,7 @@ func (s LinkServiceServer) apply(ctx context.Context, ref *rove.LinkRef, doc *pa
 		if !plan.WritesTo(13) {
 			q.SetDateUpdated(st.now())
 		}
+		tx.Writing()
 		if n, err := q.Save(ctx); err != nil {
 			if err, ok := err.(*ent.ConstraintError); ok {
 				if sqlgraph.IsUniqueConstraintError(err) {
@@ -1397,6 +1415,7 @@ func (s LinkServiceServer) Erase(ctx context.Context, req *rove.LinkRef) (*rove.
 		p = link.And(p, link.IdEQ(v.Id))
 	}
 
+	tx.Writing()
 	n, err := st.Db.Link.Delete().Where(p).Exec(ctx)
 	if err != nil {
 		return nil, err
@@ -1645,6 +1664,7 @@ func (s StewardshipServiceServer) Add(ctx context.Context, req *rove.Stewardship
 		q.Stored(&stored)
 	}
 
+	tx.Writing()
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -1941,6 +1961,7 @@ func (s StewardshipServiceServer) apply(ctx context.Context, ref *rove.Stewardsh
 		if !plan.WritesTo(13) {
 			q.SetDateUpdated(st.now())
 		}
+		tx.Writing()
 		if n, err := q.Save(ctx); err != nil {
 			if err, ok := err.(*ent.ConstraintError); ok {
 				if sqlgraph.IsUniqueConstraintError(err) {
@@ -2032,6 +2053,7 @@ func (s StewardshipServiceServer) Erase(ctx context.Context, req *rove.Stewardsh
 		p = stewardship.And(p, stewardship.IdEQ(v.Id))
 	}
 
+	tx.Writing()
 	n, err := st.Db.Stewardship.Delete().Where(p).Exec(ctx)
 	if err != nil {
 		return nil, err
@@ -2257,6 +2279,7 @@ func (s FactServiceServer) Add(ctx context.Context, req *rove.FactAddRequest) (*
 		q.Stored(&stored)
 	}
 
+	tx.Writing()
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -2301,7 +2324,9 @@ const FactAddManyMax = 1000
 const factAddManyRows = 500
 
 // AddMany adds every item as Add would add it, in one transaction: all of
-// the rows or none of them. The rows come back in the order of the items.
+// the rows or none of them -- in a transaction this joined, by that one's
+// commit being refused when this fails partway. The rows come back in the
+// order of the items, each recorded as soon as its statement holds.
 //
 // An item that cannot be a row is refused naming the item, before anything
 // is written. A refusal by the database is the whole statement's, and does
@@ -2339,9 +2364,11 @@ func (s FactServiceServer) AddMany(ctx context.Context, req *rove.FactAddManyReq
 		qs[i], dss[i] = q, ds
 	}
 
-	us := make([]*ent.Fact, 0, len(qs))
+	tx.Writing()
+	out := make([]*rove.Fact, 0, len(qs))
 	for lo := 0; lo < len(qs); lo += factAddManyRows {
-		vs, err := st.Db.Fact.CreateBulk(qs[lo:min(lo+factAddManyRows, len(qs))]...).Save(ctx)
+		hi := min(lo+factAddManyRows, len(qs))
+		vs, err := st.Db.Fact.CreateBulk(qs[lo:hi]...).Save(ctx)
 		if err != nil {
 			if err, ok := err.(*ent.ConstraintError); ok {
 				if sqlgraph.IsUniqueConstraintError(err) {
@@ -2353,27 +2380,26 @@ func (s FactServiceServer) AddMany(ctx context.Context, req *rove.FactAddManyReq
 			}
 			return nil, err
 		}
-		us = append(us, vs...)
-	}
 
-	out := make([]*rove.Fact, len(us))
-	for i, u := range us {
-		v := u.Proto()
-		for _, d := range dss[i] {
-			d(v)
-		}
-		out[i] = v
+		for j, u := range vs {
+			i := lo + j
+			v := u.Proto()
+			for _, d := range dss[i] {
+				d(v)
+			}
+			out = append(out, v)
 
-		var value *rove.Fact
-		if stored[i] != nil {
-			value = s.image(stored[i].Proto())
-		}
-		if err := record(ctx, s.Rec, st.Db, Change{
-			By:    rove.FactService_AddMany_FullMethodName,
-			Key:   u.Id,
-			Value: value,
-		}); err != nil {
-			return nil, err
+			var value *rove.Fact
+			if stored[i] != nil {
+				value = s.image(stored[i].Proto())
+			}
+			if err := record(ctx, s.Rec, st.Db, Change{
+				By:    rove.FactService_AddMany_FullMethodName,
+				Key:   u.Id,
+				Value: value,
+			}); err != nil {
+				return nil, err
+			}
 		}
 	}
 	if err := tx.Commit(); err != nil {
@@ -2432,7 +2458,17 @@ func (s factAddRuled) AddMany(ctx context.Context, req *rove.FactAddManyRequest)
 		}
 		rs[i] = r
 	}
-	return s.FactServiceServer.AddMany(ctx, rove.FactAddManyRequest_builder{Items: rs}.Build())
+	out := &rove.FactAddManyRequest{}
+	req.ProtoReflect().Range(func(fd protoreflect.FieldDescriptor, v protoreflect.Value) bool {
+		if fd.Name() != "items" {
+			out.ProtoReflect().Set(fd, v)
+		}
+		return true
+	})
+	out.ProtoReflect().SetUnknown(req.ProtoReflect().GetUnknown())
+	out.SetItems(rs)
+
+	return s.FactServiceServer.AddMany(ctx, out)
 }
 
 func (s FactServiceServer) Get(ctx context.Context, req *rove.FactGetRequest) (*rove.Fact, error) {
@@ -2661,6 +2697,7 @@ func (s FactServiceServer) apply(ctx context.Context, ref *rove.FactRef, doc *pa
 		if !plan.WritesTo(13) {
 			q.SetDateUpdated(st.now())
 		}
+		tx.Writing()
 		if n, err := q.Save(ctx); err != nil {
 			if err, ok := err.(*ent.ConstraintError); ok {
 				if sqlgraph.IsUniqueConstraintError(err) {
@@ -2752,6 +2789,7 @@ func (s FactServiceServer) Erase(ctx context.Context, req *rove.FactRef) (*rove.
 		p = fact.And(p, fact.IdEQ(v.Id))
 	}
 
+	tx.Writing()
 	n, err := st.Db.Fact.Delete().Where(p).Exec(ctx)
 	if err != nil {
 		return nil, err
@@ -2967,6 +3005,7 @@ func (s EventServiceServer) Add(ctx context.Context, req *rove.EventAddRequest) 
 		q.Stored(&stored)
 	}
 
+	tx.Writing()
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -3011,7 +3050,9 @@ const EventAddManyMax = 1000
 const eventAddManyRows = 500
 
 // AddMany adds every item as Add would add it, in one transaction: all of
-// the rows or none of them. The rows come back in the order of the items.
+// the rows or none of them -- in a transaction this joined, by that one's
+// commit being refused when this fails partway. The rows come back in the
+// order of the items, each recorded as soon as its statement holds.
 //
 // An item that cannot be a row is refused naming the item, before anything
 // is written. A refusal by the database is the whole statement's, and does
@@ -3049,9 +3090,11 @@ func (s EventServiceServer) AddMany(ctx context.Context, req *rove.EventAddManyR
 		qs[i], dss[i] = q, ds
 	}
 
-	us := make([]*ent.Event, 0, len(qs))
+	tx.Writing()
+	out := make([]*rove.Event, 0, len(qs))
 	for lo := 0; lo < len(qs); lo += eventAddManyRows {
-		vs, err := st.Db.Event.CreateBulk(qs[lo:min(lo+eventAddManyRows, len(qs))]...).Save(ctx)
+		hi := min(lo+eventAddManyRows, len(qs))
+		vs, err := st.Db.Event.CreateBulk(qs[lo:hi]...).Save(ctx)
 		if err != nil {
 			if err, ok := err.(*ent.ConstraintError); ok {
 				if sqlgraph.IsUniqueConstraintError(err) {
@@ -3063,27 +3106,26 @@ func (s EventServiceServer) AddMany(ctx context.Context, req *rove.EventAddManyR
 			}
 			return nil, err
 		}
-		us = append(us, vs...)
-	}
 
-	out := make([]*rove.Event, len(us))
-	for i, u := range us {
-		v := u.Proto()
-		for _, d := range dss[i] {
-			d(v)
-		}
-		out[i] = v
+		for j, u := range vs {
+			i := lo + j
+			v := u.Proto()
+			for _, d := range dss[i] {
+				d(v)
+			}
+			out = append(out, v)
 
-		var value *rove.Event
-		if stored[i] != nil {
-			value = s.image(stored[i].Proto())
-		}
-		if err := record(ctx, s.Rec, st.Db, Change{
-			By:    rove.EventService_AddMany_FullMethodName,
-			Key:   u.Id,
-			Value: value,
-		}); err != nil {
-			return nil, err
+			var value *rove.Event
+			if stored[i] != nil {
+				value = s.image(stored[i].Proto())
+			}
+			if err := record(ctx, s.Rec, st.Db, Change{
+				By:    rove.EventService_AddMany_FullMethodName,
+				Key:   u.Id,
+				Value: value,
+			}); err != nil {
+				return nil, err
+			}
 		}
 	}
 	if err := tx.Commit(); err != nil {
@@ -3142,7 +3184,17 @@ func (s eventAddRuled) AddMany(ctx context.Context, req *rove.EventAddManyReques
 		}
 		rs[i] = r
 	}
-	return s.EventServiceServer.AddMany(ctx, rove.EventAddManyRequest_builder{Items: rs}.Build())
+	out := &rove.EventAddManyRequest{}
+	req.ProtoReflect().Range(func(fd protoreflect.FieldDescriptor, v protoreflect.Value) bool {
+		if fd.Name() != "items" {
+			out.ProtoReflect().Set(fd, v)
+		}
+		return true
+	})
+	out.ProtoReflect().SetUnknown(req.ProtoReflect().GetUnknown())
+	out.SetItems(rs)
+
+	return s.EventServiceServer.AddMany(ctx, out)
 }
 
 func (s EventServiceServer) Get(ctx context.Context, req *rove.EventGetRequest) (*rove.Event, error) {
@@ -3371,6 +3423,7 @@ func (s EventServiceServer) apply(ctx context.Context, ref *rove.EventRef, doc *
 		if !plan.WritesTo(13) {
 			q.SetDateUpdated(st.now())
 		}
+		tx.Writing()
 		if n, err := q.Save(ctx); err != nil {
 			if err, ok := err.(*ent.ConstraintError); ok {
 				if sqlgraph.IsUniqueConstraintError(err) {
@@ -3462,6 +3515,7 @@ func (s EventServiceServer) Erase(ctx context.Context, req *rove.EventRef) (*rov
 		p = event.And(p, event.IdEQ(v.Id))
 	}
 
+	tx.Writing()
 	n, err := st.Db.Event.Delete().Where(p).Exec(ctx)
 	if err != nil {
 		return nil, err

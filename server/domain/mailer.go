@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"strings"
 	"time"
 
@@ -81,7 +82,7 @@ func (m Mailer) Pass(ctx context.Context) error {
 		}
 		if err := m.one(ctx, db, n); err != nil {
 			log.From(ctx).WarnContext(ctx, "mail: a notification was not sent; it is tried again",
-				"notification", pdid.Id(n.Id).String(), "err", err.Error())
+				"notification", pdid.Id(n.Id).String(), slog.Any("err", err))
 		}
 	}
 	return nil
@@ -129,7 +130,7 @@ func (m Mailer) one(ctx context.Context, db *ent.Client, n *ent.Notification) er
 	if err := m.Deps.Mail.Send(ctx, m.message(h, n, to)); err != nil {
 		if n.MailTries+1 >= mailTries {
 			log.From(ctx).ErrorContext(ctx, "mail: a notification was given up on after every try",
-				"notification", pdid.Id(n.Id).String(), "tries", n.MailTries+1, "err", err.Error())
+				"notification", pdid.Id(n.Id).String(), "tries", n.MailTries+1, slog.Any("err", err))
 			return m.drop(ctx, db, n)
 		}
 		return err

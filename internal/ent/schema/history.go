@@ -72,9 +72,12 @@ func (Placement) Edges() []ent.Edge {
 
 func (Placement) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("tenant_id", "date_created", "id"),
-		index.Fields("child_id", "valid_from"),
-		index.Fields("parent_id", "valid_from"),
+		index.Fields("tenant_id", "date_created", "id").
+			StorageKey("placement_page"),
+		index.Fields("child_id", "valid_from").
+			StorageKey("placement_child"),
+		index.Fields("parent_id", "valid_from").
+			StorageKey("placement_parent"),
 	}
 }
 
@@ -144,9 +147,12 @@ func (Link) Edges() []ent.Edge {
 
 func (Link) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("tenant_id", "date_created", "id"),
-		index.Fields("source_id", "valid_from"),
-		index.Fields("target_id", "valid_from"),
+		index.Fields("tenant_id", "date_created", "id").
+			StorageKey("link_page"),
+		index.Fields("source_id", "valid_from").
+			StorageKey("link_source"),
+		index.Fields("target_id", "valid_from").
+			StorageKey("link_target"),
 	}
 }
 
@@ -213,9 +219,12 @@ func (Stewardship) Edges() []ent.Edge {
 
 func (Stewardship) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("tenant_id", "date_created", "id"),
-		index.Fields("asset_id", "valid_from"),
-		index.Fields("party_id", "valid_from"),
+		index.Fields("tenant_id", "date_created", "id").
+			StorageKey("stewardship_page"),
+		index.Fields("asset_id", "valid_from").
+			StorageKey("stewardship_asset"),
+		index.Fields("party_id", "valid_from").
+			StorageKey("stewardship_party"),
 	}
 }
 
@@ -274,8 +283,10 @@ func (Fact) Edges() []ent.Edge {
 
 func (Fact) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("tenant_id", "date_created", "id"),
-		index.Fields("asset_id", "key", "valid_from"),
+		index.Fields("tenant_id", "date_created", "id").
+			StorageKey("fact_page"),
+		index.Fields("asset_id", "key", "valid_from").
+			StorageKey("fact_asset"),
 	}
 }
 
@@ -332,9 +343,12 @@ func (Event) Edges() []ent.Edge {
 
 func (Event) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("tenant_id", "date_created", "id"),
-		index.Fields("subject_id", "occurred_at"),
-		index.Fields("cause_id"),
+		index.Fields("tenant_id", "date_created", "id").
+			StorageKey("event_page"),
+		index.Fields("subject_id", "occurred_at").
+			StorageKey("event_subject"),
+		index.Fields("cause_id").
+			StorageKey("event_cause"),
 	}
 }
 

@@ -233,11 +233,20 @@ func (_u *AssetTypeUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(assettype.FieldName, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(assettype.FieldName); ok {
+		_spec.SetField(assettype.FieldName, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Desc(); ok {
 		_spec.SetField(assettype.FieldDesc, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(assettype.FieldDesc); ok {
+		_spec.SetField(assettype.FieldDesc, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Labels(); ok {
 		_spec.SetField(assettype.FieldLabels, field.TypeJson, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(assettype.FieldLabels); ok {
+		_spec.SetField(assettype.FieldLabels, field.TypeJson, e)
 	}
 	if _u.mutation.LabelsCleared() {
 		_spec.ClearField(assettype.FieldLabels, field.TypeJson)
@@ -245,11 +254,17 @@ func (_u *AssetTypeUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.ParentId(); ok {
 		_spec.SetField(assettype.FieldParentId, field.TypeUuid, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(assettype.FieldParentId); ok {
+		_spec.SetField(assettype.FieldParentId, field.TypeUuid, e)
+	}
 	if _u.mutation.ParentIdCleared() {
 		_spec.ClearField(assettype.FieldParentId, field.TypeUuid)
 	}
 	if value, ok := _u.mutation.Kind(); ok {
 		_spec.SetField(assettype.FieldKind, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(assettype.FieldKind); ok {
+		_spec.SetField(assettype.FieldKind, field.TypeString, e)
 	}
 	if value, ok := _u.mutation.Spec(); ok {
 		vv, err := assettype.ValueScanner.Spec.Value(value)
@@ -261,11 +276,17 @@ func (_u *AssetTypeUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		}
 		_spec.SetField(assettype.FieldSpec, field.TypeJson, vv)
 	}
+	if e, ok := _u.mutation.FieldExpr(assettype.FieldSpec); ok {
+		_spec.SetField(assettype.FieldSpec, field.TypeJson, e)
+	}
 	if _u.mutation.SpecCleared() {
 		_spec.ClearField(assettype.FieldSpec, field.TypeJson)
 	}
 	if value, ok := _u.mutation.SchemaVersion(); ok {
 		_spec.SetField(assettype.FieldSchemaVersion, field.TypeUint32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(assettype.FieldSchemaVersion); ok {
+		_spec.SetField(assettype.FieldSchemaVersion, field.TypeUint32, e)
 	}
 	if value, ok := _u.mutation.AddedSchemaVersion(); ok {
 		_spec.AddField(assettype.FieldSchemaVersion, field.TypeUint32, value)
@@ -273,8 +294,14 @@ func (_u *AssetTypeUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(assettype.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(assettype.FieldDateUpdated); ok {
+		_spec.SetField(assettype.FieldDateUpdated, field.TypeTime, e)
+	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(assettype.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(assettype.FieldDateErased); ok {
+		_spec.SetField(assettype.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(assettype.FieldDateErased, field.TypeTime)
@@ -536,11 +563,20 @@ func (_u *AssetTypeUpdateOne) sqlSave(ctx context.Context) (_node *AssetType, er
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(assettype.FieldName, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(assettype.FieldName); ok {
+		_spec.SetField(assettype.FieldName, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Desc(); ok {
 		_spec.SetField(assettype.FieldDesc, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(assettype.FieldDesc); ok {
+		_spec.SetField(assettype.FieldDesc, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Labels(); ok {
 		_spec.SetField(assettype.FieldLabels, field.TypeJson, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(assettype.FieldLabels); ok {
+		_spec.SetField(assettype.FieldLabels, field.TypeJson, e)
 	}
 	if _u.mutation.LabelsCleared() {
 		_spec.ClearField(assettype.FieldLabels, field.TypeJson)
@@ -548,11 +584,17 @@ func (_u *AssetTypeUpdateOne) sqlSave(ctx context.Context) (_node *AssetType, er
 	if value, ok := _u.mutation.ParentId(); ok {
 		_spec.SetField(assettype.FieldParentId, field.TypeUuid, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(assettype.FieldParentId); ok {
+		_spec.SetField(assettype.FieldParentId, field.TypeUuid, e)
+	}
 	if _u.mutation.ParentIdCleared() {
 		_spec.ClearField(assettype.FieldParentId, field.TypeUuid)
 	}
 	if value, ok := _u.mutation.Kind(); ok {
 		_spec.SetField(assettype.FieldKind, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(assettype.FieldKind); ok {
+		_spec.SetField(assettype.FieldKind, field.TypeString, e)
 	}
 	if value, ok := _u.mutation.Spec(); ok {
 		vv, err := assettype.ValueScanner.Spec.Value(value)
@@ -564,11 +606,17 @@ func (_u *AssetTypeUpdateOne) sqlSave(ctx context.Context) (_node *AssetType, er
 		}
 		_spec.SetField(assettype.FieldSpec, field.TypeJson, vv)
 	}
+	if e, ok := _u.mutation.FieldExpr(assettype.FieldSpec); ok {
+		_spec.SetField(assettype.FieldSpec, field.TypeJson, e)
+	}
 	if _u.mutation.SpecCleared() {
 		_spec.ClearField(assettype.FieldSpec, field.TypeJson)
 	}
 	if value, ok := _u.mutation.SchemaVersion(); ok {
 		_spec.SetField(assettype.FieldSchemaVersion, field.TypeUint32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(assettype.FieldSchemaVersion); ok {
+		_spec.SetField(assettype.FieldSchemaVersion, field.TypeUint32, e)
 	}
 	if value, ok := _u.mutation.AddedSchemaVersion(); ok {
 		_spec.AddField(assettype.FieldSchemaVersion, field.TypeUint32, value)
@@ -576,8 +624,14 @@ func (_u *AssetTypeUpdateOne) sqlSave(ctx context.Context) (_node *AssetType, er
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(assettype.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(assettype.FieldDateUpdated); ok {
+		_spec.SetField(assettype.FieldDateUpdated, field.TypeTime, e)
+	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(assettype.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(assettype.FieldDateErased); ok {
+		_spec.SetField(assettype.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(assettype.FieldDateErased, field.TypeTime)

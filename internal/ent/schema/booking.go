@@ -67,8 +67,10 @@ func (Bookable) Edges() []ent.Edge {
 
 func (Bookable) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("tenant_id", "date_created", "id"),
+		index.Fields("tenant_id", "date_created", "id").
+			StorageKey("bookable_page"),
 		index.Fields("asset_id").
+			StorageKey("bookable_asset").
 			Unique().
 			Annotations(entsql.IndexWhere("date_erased IS NULL")),
 	}
@@ -143,8 +145,10 @@ func (Reservation) Edges() []ent.Edge {
 
 func (Reservation) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("tenant_id", "date_created", "id"),
-		index.Fields("party_id", "begins_at"),
+		index.Fields("tenant_id", "date_created", "id").
+			StorageKey("reservation_page"),
+		index.Fields("party_id", "begins_at").
+			StorageKey("reservation_party"),
 	}
 }
 
@@ -202,8 +206,10 @@ func (ReservationItem) Edges() []ent.Edge {
 
 func (ReservationItem) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("tenant_id", "date_created", "id"),
-		index.Fields("reservation_id"),
+		index.Fields("tenant_id", "date_created", "id").
+			StorageKey("reservationitem_page"),
+		index.Fields("reservation_id").
+			StorageKey("reservationitem_reservation"),
 	}
 }
 
@@ -261,9 +267,12 @@ func (Allocation) Edges() []ent.Edge {
 
 func (Allocation) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("tenant_id", "date_created", "id"),
-		index.Fields("resource_id", "begins_at"),
-		index.Fields("ref_id"),
+		index.Fields("tenant_id", "date_created", "id").
+			StorageKey("allocation_page"),
+		index.Fields("resource_id", "begins_at").
+			StorageKey("allocation_resource"),
+		index.Fields("ref_id").
+			StorageKey("allocation_ref"),
 	}
 }
 

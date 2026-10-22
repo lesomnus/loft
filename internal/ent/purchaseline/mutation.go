@@ -28,6 +28,7 @@ type Mutation struct {
 	date_created         *time.Time
 	receive_as           *string
 	clearedFields        map[string]struct{}
+	exprs                map[string]sql.Querier
 	tenant               *uuid.UUID
 	clearedtenant        bool
 	purchase             *uuid.UUID
@@ -54,6 +55,7 @@ func (m *Mutation) Predicates() []predicate.PurchaseLine {
 // SetDesc sets the "desc" field.
 func (m *Mutation) SetDesc(s string) {
 	m.desc = &s
+	delete(m.exprs, FieldDesc)
 }
 
 // Desc returns the value of the "desc" field in the mutation.
@@ -68,12 +70,14 @@ func (m *Mutation) Desc() (r string, exists bool) {
 // ResetDesc resets all changes to the "desc" field.
 func (m *Mutation) ResetDesc() {
 	m.desc = nil
+	delete(m.exprs, FieldDesc)
 }
 
 // SetQuantity sets the "quantity" field.
 func (m *Mutation) SetQuantity(i int64) {
 	m.quantity = &i
 	m.addquantity = nil
+	delete(m.exprs, FieldQuantity)
 }
 
 // Quantity returns the value of the "quantity" field in the mutation.
@@ -107,12 +111,14 @@ func (m *Mutation) AddedQuantity() (r int64, exists bool) {
 func (m *Mutation) ResetQuantity() {
 	m.quantity = nil
 	m.addquantity = nil
+	delete(m.exprs, FieldQuantity)
 }
 
 // SetUnitCost sets the "unit_cost" field.
 func (m *Mutation) SetUnitCost(i int64) {
 	m.unit_cost = &i
 	m.addunit_cost = nil
+	delete(m.exprs, FieldUnitCost)
 }
 
 // UnitCost returns the value of the "unit_cost" field in the mutation.
@@ -146,12 +152,14 @@ func (m *Mutation) AddedUnitCost() (r int64, exists bool) {
 func (m *Mutation) ResetUnitCost() {
 	m.unit_cost = nil
 	m.addunit_cost = nil
+	delete(m.exprs, FieldUnitCost)
 }
 
 // SetReceivedQuantity sets the "received_quantity" field.
 func (m *Mutation) SetReceivedQuantity(i int64) {
 	m.received_quantity = &i
 	m.addreceived_quantity = nil
+	delete(m.exprs, FieldReceivedQuantity)
 }
 
 // ReceivedQuantity returns the value of the "received_quantity" field in the mutation.
@@ -185,11 +193,13 @@ func (m *Mutation) AddedReceivedQuantity() (r int64, exists bool) {
 func (m *Mutation) ResetReceivedQuantity() {
 	m.received_quantity = nil
 	m.addreceived_quantity = nil
+	delete(m.exprs, FieldReceivedQuantity)
 }
 
 // SetDateUpdated sets the "date_updated" field.
 func (m *Mutation) SetDateUpdated(t time.Time) {
 	m.date_updated = &t
+	delete(m.exprs, FieldDateUpdated)
 }
 
 // DateUpdated returns the value of the "date_updated" field in the mutation.
@@ -204,11 +214,13 @@ func (m *Mutation) DateUpdated() (r time.Time, exists bool) {
 // ResetDateUpdated resets all changes to the "date_updated" field.
 func (m *Mutation) ResetDateUpdated() {
 	m.date_updated = nil
+	delete(m.exprs, FieldDateUpdated)
 }
 
 // SetDateCreated sets the "date_created" field.
 func (m *Mutation) SetDateCreated(t time.Time) {
 	m.date_created = &t
+	delete(m.clearedFields, FieldDateCreated)
 }
 
 // DateCreated returns the value of the "date_created" field in the mutation.
@@ -241,6 +253,7 @@ func (m *Mutation) ResetDateCreated() {
 // SetReceiveAs sets the "receive_as" field.
 func (m *Mutation) SetReceiveAs(s string) {
 	m.receive_as = &s
+	delete(m.exprs, FieldReceiveAs)
 }
 
 // ReceiveAs returns the value of the "receive_as" field in the mutation.
@@ -255,6 +268,7 @@ func (m *Mutation) ReceiveAs() (r string, exists bool) {
 // ResetReceiveAs resets all changes to the "receive_as" field.
 func (m *Mutation) ResetReceiveAs() {
 	m.receive_as = nil
+	delete(m.exprs, FieldReceiveAs)
 }
 
 // SetTenantId sets the "tenant_id" field.
@@ -298,6 +312,7 @@ func (m *Mutation) ResetPurchaseId() {
 // SetModelId sets the "model_id" field.
 func (m *Mutation) SetModelId(u uuid.UUID) {
 	m.model = &u
+	delete(m.clearedFields, FieldModelId)
 }
 
 // ModelId returns the value of the "model_id" field in the mutation.
@@ -443,25 +458,25 @@ func (m *Mutation) Type() string {
 // AddedFields().
 func (m *Mutation) Fields() []string {
 	fields := make([]string, 0, 10)
-	if m.desc != nil {
+	if m.desc != nil || m.exprs[FieldDesc] != nil {
 		fields = append(fields, FieldDesc)
 	}
-	if m.quantity != nil {
+	if m.quantity != nil || m.exprs[FieldQuantity] != nil {
 		fields = append(fields, FieldQuantity)
 	}
-	if m.unit_cost != nil {
+	if m.unit_cost != nil || m.exprs[FieldUnitCost] != nil {
 		fields = append(fields, FieldUnitCost)
 	}
-	if m.received_quantity != nil {
+	if m.received_quantity != nil || m.exprs[FieldReceivedQuantity] != nil {
 		fields = append(fields, FieldReceivedQuantity)
 	}
-	if m.date_updated != nil {
+	if m.date_updated != nil || m.exprs[FieldDateUpdated] != nil {
 		fields = append(fields, FieldDateUpdated)
 	}
 	if m.date_created != nil {
 		fields = append(fields, FieldDateCreated)
 	}
-	if m.receive_as != nil {
+	if m.receive_as != nil || m.exprs[FieldReceiveAs] != nil {
 		fields = append(fields, FieldReceiveAs)
 	}
 	if m.tenant != nil {
@@ -479,7 +494,13 @@ func (m *Mutation) Fields() []string {
 // Field returns the value of a field with the given name. The second boolean
 // return value indicates that this field was not set, or was not defined in the
 // schema.
+//
+// A field assigned an expression with SetFieldExpr returns that expression, a
+// sql.Querier, since the value it stands for is the database's to compute.
 func (m *Mutation) Field(name string) (ent.Value, bool) {
+	if e, ok := m.exprs[name]; ok {
+		return e, true
+	}
 	switch name {
 	case FieldDesc:
 		return m.Desc()
@@ -515,11 +536,17 @@ func (m *Mutation) OldField(ctx context.Context, name string) (ent.Value, error)
 // SetField sets the value of a field with the given name. It returns an error if
 // the field is not defined in the schema, or if the type mismatched the field
 // type.
+//
+// A sql.Querier that is not of the field's type is handed to SetFieldExpr, so
+// that what Field returns for a field can be set back on it.
 func (m *Mutation) SetField(name string, value ent.Value) error {
 	switch name {
 	case FieldDesc:
 		v, ok := value.(string)
 		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDesc(v)
@@ -527,6 +554,9 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 	case FieldQuantity:
 		v, ok := value.(int64)
 		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetQuantity(v)
@@ -534,6 +564,9 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 	case FieldUnitCost:
 		v, ok := value.(int64)
 		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUnitCost(v)
@@ -541,6 +574,9 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 	case FieldReceivedQuantity:
 		v, ok := value.(int64)
 		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetReceivedQuantity(v)
@@ -548,6 +584,9 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 	case FieldDateUpdated:
 		v, ok := value.(time.Time)
 		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDateUpdated(v)
@@ -555,6 +594,9 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 	case FieldDateCreated:
 		v, ok := value.(time.Time)
 		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDateCreated(v)
@@ -562,6 +604,9 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 	case FieldReceiveAs:
 		v, ok := value.(string)
 		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetReceiveAs(v)
@@ -569,6 +614,9 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 	case FieldTenantId:
 		v, ok := value.(uuid.UUID)
 		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetTenantId(v)
@@ -576,6 +624,9 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 	case FieldPurchaseId:
 		v, ok := value.(uuid.UUID)
 		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetPurchaseId(v)
@@ -583,12 +634,95 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 	case FieldModelId:
 		v, ok := value.(uuid.UUID)
 		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetModelId(v)
 		return nil
 	}
 	return fmt.Errorf("unknown PurchaseLine field %s", name)
+}
+
+// SetFieldExpr assigns the field with the given name a SQL expression, which
+// the database evaluates as the UPDATE writes the row. It replaces any value
+// the field was set, added, appended or cleared with, as setting it again
+// would, and so the column is assigned once.
+//
+// The field is listed by Fields and Field returns the expression, so a hook
+// sees it as it sees any other. What it does not have is a value: a field
+// with a validator is refused, since there is nothing for the validator to
+// check, and so is one that only a create could write. A create refuses a
+// mutation holding an expression at all.
+func (m *Mutation) SetFieldExpr(name string, expr sql.Querier) error {
+	if expr == nil {
+		return fmt.Errorf("no expression for field %s", name)
+	}
+	if m.op.Is(ent.OpCreate) {
+		return fmt.Errorf("field %s cannot be assigned an expression: a create writes values, and an expression is written only by an update", name)
+	}
+	switch name {
+	case FieldDesc:
+		m.ResetDesc()
+	case FieldQuantity:
+		m.ResetQuantity()
+	case FieldUnitCost:
+		m.ResetUnitCost()
+	case FieldReceivedQuantity:
+		m.ResetReceivedQuantity()
+	case FieldDateUpdated:
+		m.ResetDateUpdated()
+	case FieldDateCreated:
+		return fmt.Errorf("field %s cannot be assigned an expression: it is immutable, and an expression is written only by an update", name)
+	case FieldReceiveAs:
+		m.ResetReceiveAs()
+	case FieldTenantId:
+		return fmt.Errorf("field %s cannot be assigned an expression: it holds an edge, which is set through the edge", name)
+	case FieldPurchaseId:
+		return fmt.Errorf("field %s cannot be assigned an expression: it holds an edge, which is set through the edge", name)
+	case FieldModelId:
+		return fmt.Errorf("field %s cannot be assigned an expression: it holds an edge, which is set through the edge", name)
+	default:
+		return fmt.Errorf("unknown PurchaseLine field %s", name)
+	}
+	if m.exprs == nil {
+		m.exprs = make(map[string]sql.Querier)
+	}
+	m.exprs[name] = expr
+	return nil
+}
+
+// FieldExpr returns the expression the field with the given name was assigned
+// by SetFieldExpr. The second return value reports whether it was.
+func (m *Mutation) FieldExpr(name string) (sql.Querier, bool) {
+	e, ok := m.exprs[name]
+	return e, ok
+}
+
+// ExprFields returns the fields that were assigned an expression by
+// SetFieldExpr.
+func (m *Mutation) ExprFields() []string {
+	var fields []string
+	if _, ok := m.exprs[FieldDesc]; ok {
+		fields = append(fields, FieldDesc)
+	}
+	if _, ok := m.exprs[FieldQuantity]; ok {
+		fields = append(fields, FieldQuantity)
+	}
+	if _, ok := m.exprs[FieldUnitCost]; ok {
+		fields = append(fields, FieldUnitCost)
+	}
+	if _, ok := m.exprs[FieldReceivedQuantity]; ok {
+		fields = append(fields, FieldReceivedQuantity)
+	}
+	if _, ok := m.exprs[FieldDateUpdated]; ok {
+		fields = append(fields, FieldDateUpdated)
+	}
+	if _, ok := m.exprs[FieldReceiveAs]; ok {
+		fields = append(fields, FieldReceiveAs)
+	}
+	return fields
 }
 
 // AddedFields returns all numeric fields that were incremented/decremented during

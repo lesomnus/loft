@@ -34,9 +34,11 @@ import (
 	"github.com/lesomnus/xli/mode"
 
 	"github.com/lesomnus/payday/pdcmd"
+	"github.com/lesomnus/payday/rename"
 
 	"github.com/lesomnus/rove/cmd"
 	entmigrate "github.com/lesomnus/rove/internal/ent/migrate"
+	"github.com/lesomnus/rove/server/pd"
 )
 
 // Cmd is this app's own command line: what payday and xli supply, plus
@@ -165,18 +167,24 @@ func runs(ctx context.Context, self *xli.Command, these []*xli.Command) bool {
 // It is here and not on `cmd.Server` because this is the call that links the
 // migration engine, and `cmd` is what an app's sandbox imports. A sandbox does
 // not migrate: there is no database there that outlives the page.
+//
+// The indexes an earlier build stored under the names of their columns are
+// moved to the names the schema declares first (payday#132): a migration finds
+// an index by its name, and one it does not find it makes again, from every
+// row, beside the old one -- which it leaves, since it drops no index. On
+// PostgreSQL that is a rename, which builds nothing; SQLite renames no index,
+// so the old one is dropped and `Create` makes the new one. It replaces the list
+// of replaced indexes this dropped by hand after #122, whose every deployment
+// has migrated past that build.
 func Migrate(ctx context.Context, s *cmd.Server) error {
 	if err := dropOldSessions(ctx, s); err != nil {
 		return err
 	}
-	if err := entmigrate.NewSchema(s.Drv).Create(ctx); err != nil {
+	if err := rename.Indexes(ctx, s.Db, s.Dialect, pd.IndexRenames); err != nil {
 		return err
 	}
-	// After: the index that replaces each is there by now.
-	for _, v := range Replaced {
-		if _, err := s.Db.ExecContext(ctx, "DROP INDEX IF EXISTS "+v); err != nil {
-			return fmt.Errorf("%s, an index this build replaced: %w", v, err)
-		}
+	if err := entmigrate.NewSchema(s.Drv).Create(ctx); err != nil {
+		return err
 	}
 	if s.Dialect != "postgres" {
 		return nil
@@ -185,59 +193,6 @@ func Migrate(ctx context.Context, s *cmd.Server) error {
 		return fmt.Errorf("postgres extras: %w", err)
 	}
 	return nil
-}
-
-// Replaced are the indexes an earlier build made and this one does not. The
-// migration makes what the schema declares and drops nothing, so an index whose
-// columns changed would stay beside the one that replaced it -- written on every
-// insert and read by nothing. Each is dropped once its replacement is made.
-//
-// #122: every list index begins with the tenant now, and an index that declared
-// an edge before a field is in that order rather than with the edge last.
-var Replaced = []string{
-	"allocation_begins_at_resource_id",
-	"allocation_date_created_id",
-	"asset_date_created_id",
-	"assettype_date_created_id",
-	"attachment_date_created_id",
-	"bookable_date_created_id",
-	"countfinding_date_created_id",
-	"countfinding_kind_count_id",
-	"custody_date_created_id",
-	"custody_issued_at_party_id",
-	"custodyline_date_created_id",
-	"event_date_created_id",
-	"fact_date_created_id",
-	"fact_key_valid_from_asset_id",
-	"inventorycount_date_created_id",
-	"invitation_date_created_id",
-	"itemmodel_date_created_id",
-	"label_date_created_id",
-	"link_date_created_id",
-	"link_valid_from_source_id",
-	"link_valid_from_target_id",
-	"notification_date_created_holder_id",
-	"notification_date_created_id",
-	"party_date_created_id",
-	"placement_date_created_id",
-	"placement_valid_from_child_id",
-	"placement_valid_from_parent_id",
-	"purchase_date_created_id",
-	"purchaseline_date_created_id",
-	"reservation_begins_at_party_id",
-	"reservation_date_created_id",
-	"reservationitem_date_created_id",
-	"stewardship_date_created_id",
-	"stewardship_valid_from_asset_id",
-	"stewardship_valid_from_party_id",
-	"stock_date_created_id",
-	"stockmovement_date_created_id",
-	"stockmovement_occurred_at_stock_id",
-	"tenantcontract_date_effective_tenant_id",
-	"tenantdomain_date_created_id",
-	"usagesnapshot_date_created_id",
-	"usagesnapshot_day_tenant_id",
-	"workorder_date_created_id",
 }
 
 // dropOldSessions takes out a session table from before a session was an

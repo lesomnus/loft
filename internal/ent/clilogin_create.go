@@ -177,13 +177,18 @@ func (_c *CliLoginCreate) ExecX(ctx context.Context) {
 // defaults sets the default values of the builder before save.
 func (_c *CliLoginCreate) defaults() {
 	if _, ok := _c.mutation.Address(); !ok {
-		v := clilogin.DefaultAddress
-		_c.mutation.SetAddress(v)
+		if _, ok := _c.mutation.FieldExpr(clilogin.FieldAddress); !ok {
+			v := clilogin.DefaultAddress
+			_c.mutation.SetAddress(v)
+		}
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *CliLoginCreate) check() error {
+	if fs := _c.mutation.ExprFields(); len(fs) > 0 {
+		return &ValidationError{Name: fs[0], err: fmt.Errorf(`ent: field "CliLogin.%s" was assigned an expression, which only an update writes`, fs[0])}
+	}
 	if _, ok := _c.mutation.Code(); !ok {
 		return &ValidationError{Name: "code", err: errors.New(`ent: missing required field "CliLogin.code"`)}
 	}

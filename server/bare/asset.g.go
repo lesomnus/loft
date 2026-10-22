@@ -281,6 +281,7 @@ func (s AssetServiceServer) Add(ctx context.Context, req *rove.AssetAddRequest) 
 		q.Stored(&stored)
 	}
 
+	tx.Writing()
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -325,7 +326,9 @@ const AssetAddManyMax = 1000
 const assetAddManyRows = 500
 
 // AddMany adds every item as Add would add it, in one transaction: all of
-// the rows or none of them. The rows come back in the order of the items.
+// the rows or none of them -- in a transaction this joined, by that one's
+// commit being refused when this fails partway. The rows come back in the
+// order of the items, each recorded as soon as its statement holds.
 //
 // An item that cannot be a row is refused naming the item, before anything
 // is written. A refusal by the database is the whole statement's, and does
@@ -363,9 +366,11 @@ func (s AssetServiceServer) AddMany(ctx context.Context, req *rove.AssetAddManyR
 		qs[i], dss[i] = q, ds
 	}
 
-	us := make([]*ent.Asset, 0, len(qs))
+	tx.Writing()
+	out := make([]*rove.Asset, 0, len(qs))
 	for lo := 0; lo < len(qs); lo += assetAddManyRows {
-		vs, err := st.Db.Asset.CreateBulk(qs[lo:min(lo+assetAddManyRows, len(qs))]...).Save(ctx)
+		hi := min(lo+assetAddManyRows, len(qs))
+		vs, err := st.Db.Asset.CreateBulk(qs[lo:hi]...).Save(ctx)
 		if err != nil {
 			if err, ok := err.(*ent.ConstraintError); ok {
 				if sqlgraph.IsUniqueConstraintError(err) {
@@ -377,27 +382,26 @@ func (s AssetServiceServer) AddMany(ctx context.Context, req *rove.AssetAddManyR
 			}
 			return nil, err
 		}
-		us = append(us, vs...)
-	}
 
-	out := make([]*rove.Asset, len(us))
-	for i, u := range us {
-		v := u.Proto()
-		for _, d := range dss[i] {
-			d(v)
-		}
-		out[i] = v
+		for j, u := range vs {
+			i := lo + j
+			v := u.Proto()
+			for _, d := range dss[i] {
+				d(v)
+			}
+			out = append(out, v)
 
-		var value *rove.Asset
-		if stored[i] != nil {
-			value = s.image(stored[i].Proto())
-		}
-		if err := record(ctx, s.Rec, st.Db, Change{
-			By:    rove.AssetService_AddMany_FullMethodName,
-			Key:   u.Id,
-			Value: value,
-		}); err != nil {
-			return nil, err
+			var value *rove.Asset
+			if stored[i] != nil {
+				value = s.image(stored[i].Proto())
+			}
+			if err := record(ctx, s.Rec, st.Db, Change{
+				By:    rove.AssetService_AddMany_FullMethodName,
+				Key:   u.Id,
+				Value: value,
+			}); err != nil {
+				return nil, err
+			}
 		}
 	}
 	if err := tx.Commit(); err != nil {
@@ -456,7 +460,17 @@ func (s assetAddRuled) AddMany(ctx context.Context, req *rove.AssetAddManyReques
 		}
 		rs[i] = r
 	}
-	return s.AssetServiceServer.AddMany(ctx, rove.AssetAddManyRequest_builder{Items: rs}.Build())
+	out := &rove.AssetAddManyRequest{}
+	req.ProtoReflect().Range(func(fd protoreflect.FieldDescriptor, v protoreflect.Value) bool {
+		if fd.Name() != "items" {
+			out.ProtoReflect().Set(fd, v)
+		}
+		return true
+	})
+	out.ProtoReflect().SetUnknown(req.ProtoReflect().GetUnknown())
+	out.SetItems(rs)
+
+	return s.AssetServiceServer.AddMany(ctx, out)
 }
 
 func (s AssetServiceServer) Get(ctx context.Context, req *rove.AssetGetRequest) (*rove.Asset, error) {
@@ -746,6 +760,7 @@ func (s AssetServiceServer) apply(ctx context.Context, ref *rove.AssetRef, doc *
 		if !plan.WritesTo(13) {
 			q.SetDateUpdated(st.now())
 		}
+		tx.Writing()
 		if n, err := q.Save(ctx); err != nil {
 			if err, ok := err.(*ent.ConstraintError); ok {
 				if sqlgraph.IsUniqueConstraintError(err) {
@@ -837,6 +852,7 @@ func (s AssetServiceServer) Erase(ctx context.Context, req *rove.AssetRef) (*rov
 		p = asset.And(p, asset.IdEQ(v.Id))
 	}
 
+	tx.Writing()
 	u := st.Db.Asset.Update().Where(p)
 	u.SetDateErased(st.now())
 	u.SetDateUpdated(st.now())
@@ -1115,6 +1131,7 @@ func (s TenantDomainServiceServer) Add(ctx context.Context, req *rove.TenantDoma
 		q.Stored(&stored)
 	}
 
+	tx.Writing()
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -1402,6 +1419,7 @@ func (s TenantDomainServiceServer) apply(ctx context.Context, ref *rove.TenantDo
 		if !plan.WritesTo(13) {
 			q.SetDateUpdated(st.now())
 		}
+		tx.Writing()
 		if n, err := q.Save(ctx); err != nil {
 			if err, ok := err.(*ent.ConstraintError); ok {
 				if sqlgraph.IsUniqueConstraintError(err) {
@@ -1493,6 +1511,7 @@ func (s TenantDomainServiceServer) Erase(ctx context.Context, req *rove.TenantDo
 		p = tenantdomain.And(p, tenantdomain.IdEQ(v.Id))
 	}
 
+	tx.Writing()
 	u := st.Db.TenantDomain.Update().Where(p)
 	u.SetDateErased(st.now())
 	u.SetDateUpdated(st.now())
@@ -1742,6 +1761,7 @@ func (s LabelServiceServer) Add(ctx context.Context, req *rove.LabelAddRequest) 
 		q.Stored(&stored)
 	}
 
+	tx.Writing()
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -2045,6 +2065,7 @@ func (s LabelServiceServer) apply(ctx context.Context, ref *rove.LabelRef, doc *
 		if !plan.WritesTo(13) {
 			q.SetDateUpdated(st.now())
 		}
+		tx.Writing()
 		if n, err := q.Save(ctx); err != nil {
 			if err, ok := err.(*ent.ConstraintError); ok {
 				if sqlgraph.IsUniqueConstraintError(err) {
@@ -2136,6 +2157,7 @@ func (s LabelServiceServer) Erase(ctx context.Context, req *rove.LabelRef) (*rov
 		p = label.And(p, label.IdEQ(v.Id))
 	}
 
+	tx.Writing()
 	u := st.Db.Label.Update().Where(p)
 	u.SetDateErased(st.now())
 	u.SetDateUpdated(st.now())
@@ -2357,6 +2379,7 @@ func (s AttachmentServiceServer) Add(ctx context.Context, req *rove.AttachmentAd
 		q.Stored(&stored)
 	}
 
+	tx.Writing()
 	u, err := q.Save(ctx)
 	if err != nil {
 		if err, ok := err.(*ent.ConstraintError); ok {
@@ -2644,6 +2667,7 @@ func (s AttachmentServiceServer) apply(ctx context.Context, ref *rove.Attachment
 		if !plan.WritesTo(13) {
 			q.SetDateUpdated(st.now())
 		}
+		tx.Writing()
 		if n, err := q.Save(ctx); err != nil {
 			if err, ok := err.(*ent.ConstraintError); ok {
 				if sqlgraph.IsUniqueConstraintError(err) {
@@ -2735,6 +2759,7 @@ func (s AttachmentServiceServer) Erase(ctx context.Context, req *rove.Attachment
 		p = attachment.And(p, attachment.IdEQ(v.Id))
 	}
 
+	tx.Writing()
 	u := st.Db.Attachment.Update().Where(p)
 	u.SetDateErased(st.now())
 	u.SetDateUpdated(st.now())

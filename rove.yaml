@@ -240,7 +240,11 @@ app:
 # `rove trail verify` checks the two. `checkpoints:` is where every pass leaves
 # what the archive held: on a disk that refuses deletion, and signed with a key
 # mounted as a secret -- or given as the PEM document itself, through
-# ROVE_AUDIT_CHECKPOINTS_KEY.
+# ROVE_AUDIT_CHECKPOINTS_KEY. An archive is refused without `key:` (payday#115):
+# there is no account of one that nothing signs, and no key everybody knows to
+# fall back on. `rove init` writes one of this deployment's own beside an
+# archive that names none, for trying it out; `openssl genpkey -algorithm
+# ed25519` makes a deployment's own.
 #
 # audit:
 #   profile: pipa

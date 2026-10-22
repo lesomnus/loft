@@ -214,23 +214,44 @@ func (_u *TenantDomainUpdate) sqlSave(ctx context.Context) (_node int, err error
 	if value, ok := _u.mutation.Host(); ok {
 		_spec.SetField(tenantdomain.FieldHost, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(tenantdomain.FieldHost); ok {
+		_spec.SetField(tenantdomain.FieldHost, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Purpose(); ok {
 		_spec.SetField(tenantdomain.FieldPurpose, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenantdomain.FieldPurpose); ok {
+		_spec.SetField(tenantdomain.FieldPurpose, field.TypeString, e)
 	}
 	if value, ok := _u.mutation.State(); ok {
 		_spec.SetField(tenantdomain.FieldState, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(tenantdomain.FieldState); ok {
+		_spec.SetField(tenantdomain.FieldState, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Token(); ok {
 		_spec.SetField(tenantdomain.FieldToken, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenantdomain.FieldToken); ok {
+		_spec.SetField(tenantdomain.FieldToken, field.TypeString, e)
 	}
 	if value, ok := _u.mutation.Source(); ok {
 		_spec.SetField(tenantdomain.FieldSource, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(tenantdomain.FieldSource); ok {
+		_spec.SetField(tenantdomain.FieldSource, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(tenantdomain.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(tenantdomain.FieldDateUpdated); ok {
+		_spec.SetField(tenantdomain.FieldDateUpdated, field.TypeTime, e)
+	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(tenantdomain.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenantdomain.FieldDateErased); ok {
+		_spec.SetField(tenantdomain.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(tenantdomain.FieldDateErased, field.TypeTime)
@@ -240,6 +261,9 @@ func (_u *TenantDomainUpdate) sqlSave(ctx context.Context) (_node int, err error
 	}
 	if value, ok := _u.mutation.VerifiedAt(); ok {
 		_spec.SetField(tenantdomain.FieldVerifiedAt, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenantdomain.FieldVerifiedAt); ok {
+		_spec.SetField(tenantdomain.FieldVerifiedAt, field.TypeTime, e)
 	}
 	if _u.mutation.VerifiedAtCleared() {
 		_spec.ClearField(tenantdomain.FieldVerifiedAt, field.TypeTime)
@@ -481,23 +505,44 @@ func (_u *TenantDomainUpdateOne) sqlSave(ctx context.Context) (_node *TenantDoma
 	if value, ok := _u.mutation.Host(); ok {
 		_spec.SetField(tenantdomain.FieldHost, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(tenantdomain.FieldHost); ok {
+		_spec.SetField(tenantdomain.FieldHost, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Purpose(); ok {
 		_spec.SetField(tenantdomain.FieldPurpose, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenantdomain.FieldPurpose); ok {
+		_spec.SetField(tenantdomain.FieldPurpose, field.TypeString, e)
 	}
 	if value, ok := _u.mutation.State(); ok {
 		_spec.SetField(tenantdomain.FieldState, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(tenantdomain.FieldState); ok {
+		_spec.SetField(tenantdomain.FieldState, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.Token(); ok {
 		_spec.SetField(tenantdomain.FieldToken, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenantdomain.FieldToken); ok {
+		_spec.SetField(tenantdomain.FieldToken, field.TypeString, e)
 	}
 	if value, ok := _u.mutation.Source(); ok {
 		_spec.SetField(tenantdomain.FieldSource, field.TypeString, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(tenantdomain.FieldSource); ok {
+		_spec.SetField(tenantdomain.FieldSource, field.TypeString, e)
+	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(tenantdomain.FieldDateUpdated, field.TypeTime, value)
 	}
+	if e, ok := _u.mutation.FieldExpr(tenantdomain.FieldDateUpdated); ok {
+		_spec.SetField(tenantdomain.FieldDateUpdated, field.TypeTime, e)
+	}
 	if value, ok := _u.mutation.DateErased(); ok {
 		_spec.SetField(tenantdomain.FieldDateErased, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenantdomain.FieldDateErased); ok {
+		_spec.SetField(tenantdomain.FieldDateErased, field.TypeTime, e)
 	}
 	if _u.mutation.DateErasedCleared() {
 		_spec.ClearField(tenantdomain.FieldDateErased, field.TypeTime)
@@ -507,6 +552,9 @@ func (_u *TenantDomainUpdateOne) sqlSave(ctx context.Context) (_node *TenantDoma
 	}
 	if value, ok := _u.mutation.VerifiedAt(); ok {
 		_spec.SetField(tenantdomain.FieldVerifiedAt, field.TypeTime, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(tenantdomain.FieldVerifiedAt); ok {
+		_spec.SetField(tenantdomain.FieldVerifiedAt, field.TypeTime, e)
 	}
 	if _u.mutation.VerifiedAtCleared() {
 		_spec.ClearField(tenantdomain.FieldVerifiedAt, field.TypeTime)

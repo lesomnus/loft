@@ -64,8 +64,10 @@ func (Notification) Edges() []ent.Edge {
 
 func (Notification) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("tenant_id", "date_created", "id"),
-		index.Fields("holder_id", "date_created"),
+		index.Fields("tenant_id", "date_created", "id").
+			StorageKey("notification_page"),
+		index.Fields("holder_id", "date_created").
+			StorageKey("notification_holder"),
 	}
 }
 
@@ -108,8 +110,10 @@ func (UsageSnapshot) Edges() []ent.Edge {
 
 func (UsageSnapshot) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("tenant_id", "date_created", "id"),
+		index.Fields("tenant_id", "date_created", "id").
+			StorageKey("usagesnapshot_page"),
 		index.Fields("tenant_id", "day").
+			StorageKey("usagesnapshot_day").
 			Unique(),
 	}
 }
@@ -165,7 +169,8 @@ func (TenantContract) Edges() []ent.Edge {
 
 func (TenantContract) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("tenant_id", "date_effective", "id"),
+		index.Fields("tenant_id", "date_effective", "id").
+			StorageKey("tenantcontract_effective"),
 	}
 }
 
@@ -209,7 +214,8 @@ func (LegalHold) Edges() []ent.Edge {
 
 func (LegalHold) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("tenant_id", "date_created", "id"),
+		index.Fields("tenant_id", "date_created", "id").
+			StorageKey("legalhold_page"),
 	}
 }
 
@@ -269,7 +275,8 @@ func (AccessReview) Edges() []ent.Edge {
 
 func (AccessReview) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("tenant_id", "date_created", "id"),
+		index.Fields("tenant_id", "date_created", "id").
+			StorageKey("accessreview_page"),
 	}
 }
 
