@@ -3,6 +3,7 @@ package cmd_test
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"testing"
 	"time"
 
@@ -16,6 +17,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	app "github.com/lesomnus/rove"
+	"github.com/lesomnus/rove/cmd"
 	"github.com/lesomnus/rove/internal/ent"
 	entaudit "github.com/lesomnus/rove/internal/ent/audit"
 	"github.com/lesomnus/rove/internal/ent/holder"
@@ -29,7 +31,13 @@ import (
 // undone -- here, the first half of a batch whose second half is refused --
 // leaves nothing to mail, where the same operation on its own is mailed.
 func TestAnOperationUndoneMailsNothing(t *testing.T) {
-	w := newWorld(t)
+	// With a digest key from the first write, since a check of the rows finds
+	// a line written without one (payday#115): what is asked of it below is
+	// about the mailer's writes, not a deployment given a key late.
+	key := bytes.Repeat([]byte{7}, 32)
+	w := newWorldWith(t, func(c *cmd.Config) {
+		c.Audit.Digest.Key = "base64:" + base64.StdEncoding.EncodeToString(key)
+	})
 	x := w.x
 	ctx := context.Background()
 	box := &mailbox{}
@@ -89,9 +97,8 @@ func TestAnOperationUndoneMailsNothing(t *testing.T) {
 	// The mailer's own writes are recorded acts, with a digest, so that a
 	// check of the rows finds the notification as the mailer left it
 	// (payday#108).
-	d, err := audit.NewDigest(bytes.Repeat([]byte{7}, 32))
+	d, err := audit.NewDigest(key)
 	x.NoError(err)
-	w.s.Deps.Audit = audit.Contents{Digest: d}
 
 	_, err = app.NewReservationServiceClient(w.conn).Add(kim, reserve(tomorrow.Add(2*time.Hour)))
 	x.NoError(err)
