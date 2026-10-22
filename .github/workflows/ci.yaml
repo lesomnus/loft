@@ -276,6 +276,21 @@ jobs:
           curl -sf -H "authorization: Bearer $(cat secrets/admin_key)" \
             http://127.0.0.1:8081/admin/workspaces | grep -q '"alias":"acme"'
           docker run --rm rove:ci version
+      - name: the trail's newest checkpoint, as its witness heard it
+        run: |
+          # Every start runs a pass, which ends in a checkpoint the witnesses
+          # hear (payday#115): `store:` on a volume of its own, which a named
+          # volume gives the image's user only because the image made the
+          # directory. A witness that cannot hear stops nothing, so this is
+          # where it would be seen.
+          for i in $(seq 1 30); do
+            if out="$(docker compose run --rm rove --config /etc/rove/rove.yaml trail verify 2>&1)"; then
+              case "${out}" in *"heard by store:/var/lib/rove/witness: checkpoint "*) exit 0 ;; esac
+            fi
+            sleep 2
+          done
+          echo "${out}"
+          exit 1
       - name: a search the engine answers
         run: |
           rpc() {

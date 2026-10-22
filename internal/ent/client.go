@@ -43,6 +43,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/purchaseline"
 	"github.com/lesomnus/rove/internal/ent/reservation"
 	"github.com/lesomnus/rove/internal/ent/reservationitem"
+	"github.com/lesomnus/rove/internal/ent/rowseal"
 	"github.com/lesomnus/rove/internal/ent/searchstale"
 	"github.com/lesomnus/rove/internal/ent/session"
 	"github.com/lesomnus/rove/internal/ent/signinfailure"
@@ -128,6 +129,8 @@ type Client struct {
 	Reservation *ReservationClient
 	// ReservationItem is the client for interacting with the ReservationItem builders.
 	ReservationItem *ReservationItemClient
+	// RowSeal is the client for interacting with the RowSeal builders.
+	RowSeal *RowSealClient
 	// SearchStale is the client for interacting with the SearchStale builders.
 	SearchStale *SearchStaleClient
 	// Session is the client for interacting with the Session builders.
@@ -194,6 +197,7 @@ func (c *Client) init() {
 	c.PurchaseLine = NewPurchaseLineClient(c.config)
 	c.Reservation = NewReservationClient(c.config)
 	c.ReservationItem = NewReservationItemClient(c.config)
+	c.RowSeal = NewRowSealClient(c.config)
 	c.SearchStale = NewSearchStaleClient(c.config)
 	c.Session = NewSessionClient(c.config)
 	c.SignInFailure = NewSignInFailureClient(c.config)
@@ -330,6 +334,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		PurchaseLine:    NewPurchaseLineClient(cfg),
 		Reservation:     NewReservationClient(cfg),
 		ReservationItem: NewReservationItemClient(cfg),
+		RowSeal:         NewRowSealClient(cfg),
 		SearchStale:     NewSearchStaleClient(cfg),
 		Session:         NewSessionClient(cfg),
 		SignInFailure:   NewSignInFailureClient(cfg),
@@ -393,6 +398,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		PurchaseLine:    NewPurchaseLineClient(cfg),
 		Reservation:     NewReservationClient(cfg),
 		ReservationItem: NewReservationItemClient(cfg),
+		RowSeal:         NewRowSealClient(cfg),
 		SearchStale:     NewSearchStaleClient(cfg),
 		Session:         NewSessionClient(cfg),
 		SignInFailure:   NewSignInFailureClient(cfg),
@@ -485,9 +491,9 @@ func (c *Client) Use(hooks ...Hook) {
 		c.CountFinding, c.Custody, c.CustodyLine, c.Event, c.Fact, c.Holder,
 		c.InventoryCount, c.Invitation, c.ItemModel, c.Label, c.LegalHold, c.Link,
 		c.Notification, c.Outbox, c.Party, c.Placement, c.Purchase, c.PurchaseLine,
-		c.Reservation, c.ReservationItem, c.SearchStale, c.Session, c.SignInFailure,
-		c.Stewardship, c.Stock, c.StockMovement, c.Tenant, c.TenantContract,
-		c.TenantDomain, c.TreeLock, c.UsageSnapshot, c.WorkOrder,
+		c.Reservation, c.ReservationItem, c.RowSeal, c.SearchStale, c.Session,
+		c.SignInFailure, c.Stewardship, c.Stock, c.StockMovement, c.Tenant,
+		c.TenantContract, c.TenantDomain, c.TreeLock, c.UsageSnapshot, c.WorkOrder,
 	} {
 		n.Use(hooks...)
 	}
@@ -502,9 +508,9 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 		c.CountFinding, c.Custody, c.CustodyLine, c.Event, c.Fact, c.Holder,
 		c.InventoryCount, c.Invitation, c.ItemModel, c.Label, c.LegalHold, c.Link,
 		c.Notification, c.Outbox, c.Party, c.Placement, c.Purchase, c.PurchaseLine,
-		c.Reservation, c.ReservationItem, c.SearchStale, c.Session, c.SignInFailure,
-		c.Stewardship, c.Stock, c.StockMovement, c.Tenant, c.TenantContract,
-		c.TenantDomain, c.TreeLock, c.UsageSnapshot, c.WorkOrder,
+		c.Reservation, c.ReservationItem, c.RowSeal, c.SearchStale, c.Session,
+		c.SignInFailure, c.Stewardship, c.Stock, c.StockMovement, c.Tenant,
+		c.TenantContract, c.TenantDomain, c.TreeLock, c.UsageSnapshot, c.WorkOrder,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -577,6 +583,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Reservation.mutate(ctx, m)
 	case *ReservationItemMutation:
 		return c.ReservationItem.mutate(ctx, m)
+	case *RowSealMutation:
+		return c.RowSeal.mutate(ctx, m)
 	case *SearchStaleMutation:
 		return c.SearchStale.mutate(ctx, m)
 	case *SessionMutation:
@@ -5758,6 +5766,139 @@ func (c *ReservationItemClient) mutate(ctx context.Context, m *ReservationItemMu
 	}
 }
 
+// RowSealClient is a client for the RowSeal schema.
+type RowSealClient struct {
+	config
+}
+
+// NewRowSealClient returns a client for the RowSeal from the given config.
+func NewRowSealClient(c config) *RowSealClient {
+	return &RowSealClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `rowseal.Hooks(f(g(h())))`.
+func (c *RowSealClient) Use(hooks ...Hook) {
+	c.hooks.RowSeal = append(c.hooks.RowSeal, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `rowseal.Intercept(f(g(h())))`.
+func (c *RowSealClient) Intercept(interceptors ...Interceptor) {
+	c.inters.RowSeal = append(c.inters.RowSeal, interceptors...)
+}
+
+// Create returns a builder for creating a RowSeal entity.
+func (c *RowSealClient) Create() *RowSealCreate {
+	mutation := newRowSealMutation(c.config, OpCreate)
+	return &RowSealCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of RowSeal entities.
+func (c *RowSealClient) CreateBulk(builders ...*RowSealCreate) *RowSealCreateBulk {
+	return &RowSealCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *RowSealClient) MapCreateBulk(slice any, setFunc func(*RowSealCreate, int)) *RowSealCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &RowSealCreateBulk{err: fmt.Errorf("calling to RowSealClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*RowSealCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &RowSealCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for RowSeal.
+func (c *RowSealClient) Update() *RowSealUpdate {
+	mutation := newRowSealMutation(c.config, OpUpdate)
+	return &RowSealUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *RowSealClient) UpdateOne(_m *RowSeal) *RowSealUpdateOne {
+	mutation := newRowSealMutation(c.config, OpUpdateOne, withRowSeal(_m))
+	return &RowSealUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneId returns an update builder for the given id.
+func (c *RowSealClient) UpdateOneId(id uuid.UUID) *RowSealUpdateOne {
+	mutation := newRowSealMutation(c.config, OpUpdateOne, withRowSealId(id))
+	return &RowSealUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for RowSeal.
+func (c *RowSealClient) Delete() *RowSealDelete {
+	mutation := newRowSealMutation(c.config, OpDelete)
+	return &RowSealDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *RowSealClient) DeleteOne(_m *RowSeal) *RowSealDeleteOne {
+	return c.DeleteOneId(_m.Id)
+}
+
+// DeleteOneId returns a builder for deleting the given entity by its id.
+func (c *RowSealClient) DeleteOneId(id uuid.UUID) *RowSealDeleteOne {
+	builder := c.Delete().Where(rowseal.Id(id))
+	builder.mutation.id = &id
+	builder.mutation.SetOp(OpDeleteOne)
+	return &RowSealDeleteOne{builder}
+}
+
+// Query returns a query builder for RowSeal.
+func (c *RowSealClient) Query() *RowSealQuery {
+	return &RowSealQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeRowSeal},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a RowSeal entity by its id.
+func (c *RowSealClient) Get(ctx context.Context, id uuid.UUID) (*RowSeal, error) {
+	return c.Query().Where(rowseal.Id(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *RowSealClient) GetX(ctx context.Context, id uuid.UUID) *RowSeal {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *RowSealClient) Hooks() []Hook {
+	return c.hooks.RowSeal
+}
+
+// Interceptors returns the client interceptors.
+func (c *RowSealClient) Interceptors() []Interceptor {
+	return c.inters.RowSeal
+}
+
+func (c *RowSealClient) mutate(ctx context.Context, m *RowSealMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&RowSealCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&RowSealUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&RowSealUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&RowSealDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown RowSeal mutation op: %q", m.Op())
+	}
+}
+
 // SearchStaleClient is a client for the SearchStale schema.
 type SearchStaleClient struct {
 	config
@@ -7601,7 +7742,7 @@ type (
 		Attachment, Audit, Bookable, CliLogin, Consent, CountFinding, Custody,
 		CustodyLine, Event, Fact, Holder, InventoryCount, Invitation, ItemModel, Label,
 		LegalHold, Link, Notification, Outbox, Party, Placement, Purchase,
-		PurchaseLine, Reservation, ReservationItem, SearchStale, Session,
+		PurchaseLine, Reservation, ReservationItem, RowSeal, SearchStale, Session,
 		SignInFailure, Stewardship, Stock, StockMovement, Tenant, TenantContract,
 		TenantDomain, TreeLock, UsageSnapshot, WorkOrder []ent.Hook
 	}
@@ -7610,7 +7751,7 @@ type (
 		Attachment, Audit, Bookable, CliLogin, Consent, CountFinding, Custody,
 		CustodyLine, Event, Fact, Holder, InventoryCount, Invitation, ItemModel, Label,
 		LegalHold, Link, Notification, Outbox, Party, Placement, Purchase,
-		PurchaseLine, Reservation, ReservationItem, SearchStale, Session,
+		PurchaseLine, Reservation, ReservationItem, RowSeal, SearchStale, Session,
 		SignInFailure, Stewardship, Stock, StockMovement, Tenant, TenantContract,
 		TenantDomain, TreeLock, UsageSnapshot, WorkOrder []ent.Interceptor
 	}

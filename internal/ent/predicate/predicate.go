@@ -135,6 +135,9 @@ type Reservation func(*sql.Selector)
 // ReservationItem is the predicate function for reservationitem builders.
 type ReservationItem func(*sql.Selector)
 
+// RowSeal is the predicate function for rowseal builders.
+type RowSeal func(*sql.Selector)
+
 // SearchStale is the predicate function for searchstale builders.
 type SearchStale func(*sql.Selector)
 

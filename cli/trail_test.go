@@ -14,9 +14,12 @@ import (
 	"time"
 
 	"github.com/lesomnus/flob"
+	payaudit "github.com/lesomnus/payday/audit"
+	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/pdtest"
 	pdtrail "github.com/lesomnus/payday/trail"
 	"github.com/lesomnus/xli"
+	entsql "github.com/protobuf-orm/ent/dialect/sql"
 	"github.com/stretchr/testify/require"
 
 	"github.com/lesomnus/rove/cli"
@@ -24,6 +27,8 @@ import (
 	"github.com/lesomnus/rove/internal/ent"
 	entaudit "github.com/lesomnus/rove/internal/ent/audit"
 	"github.com/lesomnus/rove/internal/ent/holder"
+	"github.com/lesomnus/rove/internal/ent/rowseal"
+	"github.com/lesomnus/rove/server/bare"
 	"github.com/lesomnus/rove/server/pd"
 )
 
@@ -325,6 +330,115 @@ func TestAFullCheckIsAcceptedAsAFullOne(t *testing.T) {
 	out, err = printed(t, cli.NewCmdTrail(&c), "verify")
 	x.NoError(err)
 	x.Contains(out, ": the chunk's bytes, looked at (altered 1)", "verify does not say what was accepted")
+}
+
+// TestRowsFromBeforeSealsAreSealedByAnAcceptance is the one acceptance an
+// operator runs after the upgrade that brought seals (payday#115,
+// docs/runbook/trail-integrity.md). A holder whose newest write sealed nothing
+// -- made here by writing its newest line's digest as a build before seals
+// would have, and taking its seal off -- is counted as from before seals, and
+// is no finding. `rows --accept` of that check seals it, though the check found
+// nothing, held to the digest looked at like any acceptance; the next check
+// counts none.
+func TestRowsFromBeforeSealsAreSealedByAnAcceptance(t *testing.T) {
+	x := require.New(t)
+	ctx := t.Context()
+
+	c := cmd.Config{}
+	c.Db.Driver, c.Db.Dsn = pdtest.DB(t)
+	c.Watch.Broker = "memory"
+	c.App.Files = t.TempDir()
+	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
+	c.Audit.Digest.Key = "base64:" + base64.StdEncoding.EncodeToString(bytes.Repeat([]byte{7}, 32))
+	run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner-pass-1234")
+	trail := func(args ...string) error { return cli.NewCmdTrail(&c).Run(ctx, args) }
+
+	var owner *ent.Holder
+	sealed := func() bool {
+		s, err := cmd.Build(ctx, c)
+		x.NoError(err)
+		defer s.Close()
+		ok, err := s.Ent.RowSeal.Query().Where(rowseal.IdEQ(owner.Id)).Exist(ctx)
+		x.NoError(err)
+		return ok
+	}
+
+	// As a build before seals left the owner's row.
+	s, err := cmd.Build(ctx, c)
+	x.NoError(err)
+	cs, err := c.Audit.Contents()
+	x.NoError(err)
+	owner, err = s.Ent.Holder.Query().Where(holder.Role("owner")).Only(ctx)
+	x.NoError(err)
+	newest, err := s.Ent.Audit.Query().Where(entaudit.ObjectId(owner.Id)).Order(entaudit.ByDateCreated(entsql.OrderDesc())).First(ctx)
+	x.NoError(err)
+	q := s.Ent.Holder.Query().Where(holder.IdEQ(owner.Id))
+	bare.HolderSelectInit(q, nil)
+	row, err := q.Only(ctx)
+	x.NoError(err)
+	sum, err := cs.Digest.Of(pdid.Id(owner.Id), row.Proto(), newest.DigestFields, payaudit.Line{Id: newest.Id, Created: newest.DateCreated, Action: newest.Action})
+	x.NoError(err)
+	x.False(payaudit.Sealing(sum))
+	x.NoError(s.Ent.Audit.UpdateOneId(newest.Id).SetDigest(sum).Exec(ctx))
+	x.NoError(s.Ent.RowSeal.DeleteOneId(owner.Id).Exec(ctx))
+	s.Close()
+
+	out, err := printed(t, cli.NewCmdTrail(&c), "rows")
+	x.NoError(err, "a row from before seals was taken for a finding")
+	x.Contains(out, "1 rows from before seals")
+	of := digestOf(t, out)
+
+	x.ErrorContains(trail("rows", "--accept", "--of", nothingLookedAt, "--why", "not what was looked at"), "--of: the check looked at was")
+	x.False(sealed(), "an acceptance of another check sealed it")
+
+	out, err = printed(t, cli.NewCmdTrail(&c), "rows", "--accept", "--of", of, "--why", "written before seals")
+	x.NoError(err)
+	x.Contains(out, "sealed 1 from before seals")
+	x.True(sealed(), "the acceptance sealed nothing")
+
+	out, err = printed(t, cli.NewCmdTrail(&c), "rows")
+	x.NoError(err)
+	x.NotContains(out, "from before seals")
+}
+
+// TestAVerificationSaysWhatEachWitnessHeard: a deployment that names
+// witnesses has every checkpoint heard outside the database and the archive
+// (payday#115) -- `log:` and `store:`, which this binary links -- and `rove
+// trail verify` says what each that answers heard last, beside the digest:
+// nothing yet before the first checkpoint, and then the newest checkpoint's
+// number and what the store keeps it under. A witness that only tells answers
+// nothing, and is not among them.
+func TestAVerificationSaysWhatEachWitnessHeard(t *testing.T) {
+	x := require.New(t)
+	ctx := t.Context()
+
+	c := cmd.Config{}
+	c.Db.Driver, c.Db.Dsn = pdtest.DB(t)
+	c.Watch.Broker = "memory"
+	c.App.Files = t.TempDir()
+	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
+	c.Audit.Archive = t.TempDir()
+	c.Audit.Retain = time.Nanosecond
+	c.Audit.Checkpoints.Key = pdtest.Key(t)
+	c.Audit.Checkpoints.Witnesses = []string{"log:", "store:" + t.TempDir()}
+	run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner-pass-1234")
+
+	out, err := printed(t, cli.NewCmdTrail(&c), "verify")
+	x.NoError(err)
+	x.Contains(out, "heard by "+c.Audit.Checkpoints.Witnesses[1]+": nothing yet\n")
+
+	s, err := cmd.Build(ctx, c)
+	x.NoError(err)
+	s.Trail.Pass(ctx, pd.TrailStore(s.Ent))
+	s.Close()
+
+	out, err = printed(t, cli.NewCmdTrail(&c), "verify")
+	x.NoError(err)
+	m := regexp.MustCompile(`(?m)^heard by (store:\S+): checkpoint ([0-9]+), (sha256:[0-9a-f]{64}), at \S+$`).FindStringSubmatch(out)
+	x.NotNil(m, "verify does not say what the store witness heard:\n%s", out)
+	x.Equal(c.Audit.Checkpoints.Witnesses[1], m[1])
+	x.Contains(out, "checkpoint "+m[2]+" compared", "the witness heard another checkpoint than the newest")
+	x.NotContains(out, "heard by log:", "a witness that only tells answered")
 }
 
 // printed is what a command printed, run the way a shell runs it, and what it

@@ -246,12 +246,23 @@ app:
 # archive that names none, for trying it out; `openssl genpkey -algorithm
 # ed25519` makes a deployment's own.
 #
+# `witnesses:` hear every checkpoint outside the database and the archive
+# (payday#115), so that whoever can write both cannot cut the chain short at
+# its head unseen. This file keeps no archive, so it names none: a witness
+# hears checkpoints, which only an archive has, and one named without an
+# archive is refused where the process comes up -- `log:` alone too. A
+# deployment names them beside its archive: `log:`, which needs no volume and
+# is a witness only with the alerts on it that
+# `docs/runbook/trail-integrity.md` gives, and `store:` on a disk of its own,
+# never the archive's.
+#
 # audit:
 #   profile: pipa
 #   archive: /var/lib/rove/audit
 #   checkpoints:
 #     dir: /mnt/worm/rove/checkpoints
 #     key: /run/secrets/checkpoints.pem
+#     witnesses: ["log:", "store:/mnt/witness/rove"]
 #   by:
 #     holder:
 #       profile: gdpr

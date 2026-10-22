@@ -27,6 +27,10 @@ x-rove: &rove
     - files:/var/lib/rove/files
     - audit:/var/lib/rove/audit
     - checkpoints:/var/lib/rove/checkpoints
+    # What the trail's store witness heard (payday#115): a volume of its own,
+    # since a witness is worth what it is apart from. Best a disk of its own
+    # too, mounted with credentials the database's and the archive's are not.
+    - witness:/var/lib/rove/witness
   secrets:
     - checkpoints.pem
     - digest.key
@@ -117,6 +121,7 @@ volumes:
   files:
   audit:
   checkpoints:
+  witness:
   caddy_data:
   caddy_config:
 

@@ -66,6 +66,7 @@ type Server interface {
 	Archived() ArchivedServiceServer
 	Audit() AuditServiceServer
 	Outbox() OutboxServiceServer
+	RowSeal() RowSealServiceServer
 	SearchStale() SearchStaleServiceServer
 	WorkOrder() WorkOrderServiceServer
 	Purchase() PurchaseServiceServer
@@ -117,6 +118,7 @@ func RegisterServer(g grpc.ServiceRegistrar, s Server) {
 	RegisterArchivedServiceServer(g, s.Archived())
 	RegisterAuditServiceServer(g, s.Audit())
 	RegisterOutboxServiceServer(g, s.Outbox())
+	RegisterRowSealServiceServer(g, s.RowSeal())
 	RegisterSearchStaleServiceServer(g, s.SearchStale())
 	RegisterWorkOrderServiceServer(g, s.WorkOrder())
 	RegisterPurchaseServiceServer(g, s.Purchase())
@@ -164,6 +166,7 @@ type UnimplementedServer struct {
 	ArchivedServer        ArchivedServiceServer
 	AuditServer           AuditServiceServer
 	OutboxServer          OutboxServiceServer
+	RowSealServer         RowSealServiceServer
 	SearchStaleServer     SearchStaleServiceServer
 	WorkOrderServer       WorkOrderServiceServer
 	PurchaseServer        PurchaseServiceServer
@@ -258,8 +261,9 @@ func (UnimplementedServer) Access() AccessServiceServer { return UnimplementedAc
 func (UnimplementedServer) Archived() ArchivedServiceServer {
 	return UnimplementedArchivedServiceServer{}
 }
-func (UnimplementedServer) Audit() AuditServiceServer   { return UnimplementedAuditServiceServer{} }
-func (UnimplementedServer) Outbox() OutboxServiceServer { return UnimplementedOutboxServiceServer{} }
+func (UnimplementedServer) Audit() AuditServiceServer     { return UnimplementedAuditServiceServer{} }
+func (UnimplementedServer) Outbox() OutboxServiceServer   { return UnimplementedOutboxServiceServer{} }
+func (UnimplementedServer) RowSeal() RowSealServiceServer { return UnimplementedRowSealServiceServer{} }
 func (UnimplementedServer) SearchStale() SearchStaleServiceServer {
 	return UnimplementedSearchStaleServiceServer{}
 }
@@ -314,6 +318,7 @@ type StaticServer struct {
 	ArchivedServer        ArchivedServiceServer
 	AuditServer           AuditServiceServer
 	OutboxServer          OutboxServiceServer
+	RowSealServer         RowSealServiceServer
 	SearchStaleServer     SearchStaleServiceServer
 	WorkOrderServer       WorkOrderServiceServer
 	PurchaseServer        PurchaseServiceServer
@@ -360,6 +365,7 @@ func (s StaticServer) Access() AccessServiceServer                   { return s.
 func (s StaticServer) Archived() ArchivedServiceServer               { return s.ArchivedServer }
 func (s StaticServer) Audit() AuditServiceServer                     { return s.AuditServer }
 func (s StaticServer) Outbox() OutboxServiceServer                   { return s.OutboxServer }
+func (s StaticServer) RowSeal() RowSealServiceServer                 { return s.RowSealServer }
 func (s StaticServer) SearchStale() SearchStaleServiceServer         { return s.SearchStaleServer }
 func (s StaticServer) WorkOrder() WorkOrderServiceServer             { return s.WorkOrderServer }
 func (s StaticServer) Purchase() PurchaseServiceServer               { return s.PurchaseServer }
@@ -406,6 +412,7 @@ type Client interface {
 	Archived() ArchivedServiceClient
 	Audit() AuditServiceClient
 	Outbox() OutboxServiceClient
+	RowSeal() RowSealServiceClient
 	SearchStale() SearchStaleServiceClient
 	WorkOrder() WorkOrderServiceClient
 	Purchase() PurchaseServiceClient
@@ -454,6 +461,7 @@ func NewClient(c *grpc.ClientConn) Client {
 		_Archived:        NewArchivedServiceClient(c),
 		_Audit:           NewAuditServiceClient(c),
 		_Outbox:          NewOutboxServiceClient(c),
+		_RowSeal:         NewRowSealServiceClient(c),
 		_SearchStale:     NewSearchStaleServiceClient(c),
 		_WorkOrder:       NewWorkOrderServiceClient(c),
 		_Purchase:        NewPurchaseServiceClient(c),
@@ -502,6 +510,7 @@ type client struct {
 	_Archived        ArchivedServiceClient
 	_Audit           AuditServiceClient
 	_Outbox          OutboxServiceClient
+	_RowSeal         RowSealServiceClient
 	_SearchStale     SearchStaleServiceClient
 	_WorkOrder       WorkOrderServiceClient
 	_Purchase        PurchaseServiceClient
@@ -548,6 +557,7 @@ func (c *client) Access() AccessServiceClient                   { return c._Acce
 func (c *client) Archived() ArchivedServiceClient               { return c._Archived }
 func (c *client) Audit() AuditServiceClient                     { return c._Audit }
 func (c *client) Outbox() OutboxServiceClient                   { return c._Outbox }
+func (c *client) RowSeal() RowSealServiceClient                 { return c._RowSeal }
 func (c *client) SearchStale() SearchStaleServiceClient         { return c._SearchStale }
 func (c *client) WorkOrder() WorkOrderServiceClient             { return c._WorkOrder }
 func (c *client) Purchase() PurchaseServiceClient               { return c._Purchase }

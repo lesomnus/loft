@@ -57,6 +57,16 @@ import (
 // printed, and it is refused when the check now finds anything else. The
 // digest and the why are logged, and not on the trail, as `pd.Record` keeps no
 // reason. A forged line and a key not given are not accepted.
+//
+// A digest covers every field but the ones declared personal, which a line
+// kept for years in the archive must not keep a MAC of; those are covered by
+// the row's seal, kept beside the row in the database alone (payday#115). A
+// row whose newest write sealed nothing -- every row of a kind with a personal
+// field, after the upgrade that brought seals -- is counted as from before
+// seals, no finding, and `rows --accept` seals those too, when they are all a
+// check found: the one acceptance an operator runs after that upgrade
+// (docs/runbook/trail-integrity.md). `verify` says what each witness that
+// answers heard last of the checkpoints (`audit.checkpoints.witnesses`).
 func NewCmdTrail(c *cmd.Config) *xli.Command {
 	return &xli.Command{
 		Name:  "trail",
@@ -156,6 +166,12 @@ func verify(ctx context.Context, self *xli.Command, c *cmd.Config, full bool) er
 	for _, a := range v.Accepted {
 		self.Printf("accepted %s\n", acceptance(a))
 	}
+	// And what each witness that answers heard last, which is what the chain
+	// was just held to (payday#115): a clean run says it too, which is how far
+	// outside the database the newest checkpoint is known.
+	for _, h := range heard(v.Heard) {
+		self.Printf("%s\n", h)
+	}
 
 	if v.Ok() {
 		self.Printf("the archive is what the database says it is\n")
@@ -186,6 +202,13 @@ func acceptance(a trail.Accepted) string {
 	if len(kinds) == 0 {
 		kinds = append(kinds, "nothing")
 	}
+	twice := 0
+	for _, ts := range a.Twice {
+		twice += len(ts)
+	}
+	if twice > 0 {
+		kinds = append(kinds, fmt.Sprintf("heard twice %d", twice))
+	}
 
 	v := fmt.Sprintf("at checkpoint %d, %s, by %s: %s (%s)", a.Checkpoint, a.At.UTC().Format(time.RFC3339), a.By, a.Why, strings.Join(kinds, ", "))
 	if a.Restored != nil {
@@ -193,6 +216,38 @@ func acceptance(a trail.Accepted) string {
 	}
 
 	return v
+}
+
+// heard is what each witness that answered heard last, as `verify` lists it,
+// one line each in the order of their names: the checkpoint's number and
+// digest, when the witness heard it by its own clock, and how many numbers it
+// heard as two statements -- each of which is also a `rewritten` finding until
+// an acceptance takes it in.
+//
+// A witness that only tells (`log:`) answers nothing and is not here -- what
+// it heard is the monitoring's to say -- and neither is one that did not
+// answer this time. `unheard` is the finding when nothing that answers heard
+// the newest.
+func heard(hs map[string]trail.Heard) []string {
+	out := make([]string, 0, len(hs))
+	for _, name := range slices.Sorted(maps.Keys(hs)) {
+		h := hs[name]
+		// One that answered and has heard nothing yet -- named before the
+		// deployment's first checkpoint -- answers the zero statement,
+		// numbered nothing, which the chain is not held to.
+		if h.K == 0 {
+			out = append(out, fmt.Sprintf("heard by %s: nothing yet", name))
+			continue
+		}
+
+		v := fmt.Sprintf("heard by %s: checkpoint %d, %s, at %s", name, h.K, h.Digest, h.At.UTC().Format(time.RFC3339))
+		if n := len(h.Twice); n > 0 {
+			v += fmt.Sprintf("; %d number(s) heard as two statements", n)
+		}
+		out = append(out, v)
+	}
+
+	return out
 }
 
 func rows(ctx context.Context, self *xli.Command, c *cmd.Config, accept bool, of, why string) error {
@@ -223,12 +278,22 @@ func rows(ctx context.Context, self *xli.Command, c *cmd.Config, accept bool, of
 	}
 
 	self.Printf("%d rows read: %d match, %d differ, %d forged, %d with no digest, %d not on the trail, %d under a key not given, %d missing; "+
-		"%d from before digests began, %d under a key let go; %d checked against the archive\n",
+		"%d from before digests began, %d under a key let go; %d forgotten; %d checked against the archive\n",
 		v.Read, v.Matches, len(v.Differs), len(v.Forged), len(v.NoDigest), len(v.NotOnTrail), len(v.KeyNotHeld), len(v.Missing),
-		v.BeforeDigests, v.Retired, v.Archived)
+		v.BeforeDigests, v.Retired, v.Forgotten, v.Archived)
 	// What an acceptance of these findings names (payday#115).
 	digest := v.Digest()
 	self.Printf("digest %s\n", digest)
+	// The rows whose newest write sealed nothing, whose personal fields a
+	// check cannot vouch for (payday#115): no finding, since nothing can be
+	// said of what they were, and counted every run rather than listed --
+	// after the upgrade that brought seals it is every row of a kind with a
+	// personal field. The acceptance that seals them is the one below, of
+	// this digest, which names them.
+	if n := len(v.Unsealed); n > 0 {
+		self.Printf("%d rows from before seals: what is personal in them is vouched for by nothing until "+
+			"`rove trail rows --accept --of %s --why ...` seals them\n", n, digest)
+	}
 	// Each finding a line, by what it is, then its kind and the row: what a
 	// schedule greps and an operator looks up (payday#115).
 	for _, f := range []struct {
@@ -261,7 +326,11 @@ func rows(ctx context.Context, self *xli.Command, c *cmd.Config, accept bool, of
 	for _, k := range v.Skipped {
 		self.Printf("  not checked: %s, kept off the trail: %s\n", k.Kind, k.Why)
 	}
-	if v.Ok() {
+	// Nothing found and nothing to seal is nothing to accept. Rows from
+	// before seals are no finding, so a check that found only them passes --
+	// and is still something `--accept` puts on the trail, which is how they
+	// are sealed.
+	if v.Ok() && (!accept || len(v.Unsealed) == 0) {
 		return nil
 	}
 
@@ -292,8 +361,16 @@ func rows(ctx context.Context, self *xli.Command, c *cmd.Config, accept bool, of
 	if err != nil {
 		return fmt.Errorf("accept: %w", err)
 	}
-	log.From(ctx).InfoContext(ctx, "trail: rows accepted as they are", "of", digest, "why", why, "rows", there, "gone", gone)
-	self.Printf("accepted %d rows and %d gone; the trail says they are what they are now\n", there, gone)
+	// And the rows from before seals, which `pd.Record` seals as it records
+	// them: what the operator looked at was the count and the digest that
+	// names each, and what they are now is what the seal vouches for from
+	// here on.
+	sealed, err := pd.Record(ctx, s.Ent, cs, AcceptedRows, v.Unsealed)
+	if err != nil {
+		return fmt.Errorf("accept: %w", err)
+	}
+	log.From(ctx).InfoContext(ctx, "trail: rows accepted as they are", "of", digest, "why", why, "rows", there, "gone", gone, "sealed", sealed)
+	self.Printf("accepted %d rows and %d gone, and sealed %d from before seals; the trail says they are what they are now\n", there, gone, sealed)
 
 	return nil
 }

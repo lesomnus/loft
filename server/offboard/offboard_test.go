@@ -33,6 +33,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/internal/ent/audit"
 	"github.com/lesomnus/rove/internal/ent/migrate"
+	"github.com/lesomnus/rove/internal/ent/rowseal"
 	"github.com/lesomnus/rove/server/offboard"
 	"github.com/lesomnus/rove/server/pd"
 )
@@ -352,6 +353,54 @@ func TestAnExportIsTheSameReadARowAtATime(t *testing.T) {
 	}
 	slices.Sort(ids)
 	x.Len(slices.Compact(ids), len(own)+len(elsewhere), "a row of the trail twice")
+}
+
+// TestAnExportHoldsNoSeal: a row's seal is a MAC of what a person is, kept in
+// the database alone for exactly as long as the row (payday#115), and an
+// export is a copy of the workspace kept somewhere else, for years -- so it
+// carries none. The manifest says the table is withheld, and no file of the
+// export holds a seal, whatever it is named. A restore seals what it puts back,
+// under the digest key of the deployment it comes back to.
+func TestAnExportHoldsNoSeal(t *testing.T) {
+	key := "base64:" + base64.StdEncoding.EncodeToString(bytes.Repeat([]byte{7}, 32))
+	e, pub := signed(t, func(c *cmd.Config) { c.Audit.Digest.Key = key })
+	x := e.x
+	ctx := context.Background()
+	acme := e.tenant("acme")
+
+	seals, err := e.s.Ent.RowSeal.Query().Where(rowseal.TenantId(acme.id.Uuid())).All(ctx)
+	x.NoError(err)
+	x.NotEmpty(seals, "acme has nothing sealed, so this proves nothing")
+
+	b := e.export(acme.id)
+	m, err := offboard.Verify(bytes.NewReader(b), int64(len(b)), e.s.Offboard(e.c).Trusted())
+	x.NoError(err)
+	x.Contains(m.Withheld, "rowseal")
+	x.Zero(m.Rows["rowseal"])
+
+	z, err := zip.NewReader(bytes.NewReader(b), int64(len(b)))
+	x.NoError(err)
+	for _, f := range z.File {
+		r, err := f.Open()
+		x.NoError(err)
+		body, err := io.ReadAll(r)
+		r.Close()
+		x.NoError(err)
+		for _, v := range seals {
+			x.False(bytes.Contains(body, v.Sum), "%s holds a seal", f.Name)
+			x.NotContains(string(body), base64.StdEncoding.EncodeToString(v.Sum), "%s holds a seal", f.Name)
+		}
+	}
+
+	elsewhere := newEnv(t, func(c *cmd.Config) {
+		c.Audit.Checkpoints.Trust = []string{pub}
+		c.Audit.Digest.Key = key
+	})
+	_, err = elsewhere.restore(b, offboard.ImportOptions{})
+	x.NoError(err)
+	n, err := elsewhere.s.Ent.RowSeal.Query().Where(rowseal.TenantId(acme.id.Uuid())).Count(ctx)
+	x.NoError(err)
+	x.Equal(len(seals), n, "the restore did not seal what it put back")
 }
 
 // TestAnExportReadsTheArchiveThroughItsManifest: what the trail moved out of

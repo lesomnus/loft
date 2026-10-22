@@ -279,6 +279,7 @@ var Withheld = map[string]string{
 	"audit":         "the trail, which is written apart as the tenant may read it",
 	"access":        "the access record, the trail's: written apart with it, as the tenant may read it",
 	"archived":      "the deployment's account of the trail's archive, every tenant's chunks at once",
+	"rowseal":       "the rows' seals: MACs of what people are, kept in this database alone, and made again by a restore",
 	"session":       "who is signed in",
 	"clilogin":      "a terminal waiting to be signed in, which is nobody's yet",
 	"aliashold":     "the deployment's: addresses nobody may take for a while",

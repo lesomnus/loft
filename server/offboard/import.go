@@ -66,6 +66,15 @@ type Restored struct {
 	// destroyed again by the next sweep.
 	Reopened bool
 
+	// Retired says the workspace retired from this deployment (its address
+	// is held `retired`), and Returned how many records of that the trail
+	// lifted taking it back before anything of it was written
+	// (`trail.Policy.Return`, payday#141): none on a dry run, which takes
+	// nothing back, and none once its floors had all passed and the trail
+	// had purged it.
+	Retired  bool
+	Returned int
+
 	Rows map[string]int
 
 	// Files is the stored files put back, and Missing the ones its rows name
@@ -99,19 +108,6 @@ func (x Restored) Total() int {
 // keeps an old export from turning a workspace back.
 var ErrNotNew = errors.New("the deployment has the workspace already")
 
-// ErrRetiredHere is a restore of a workspace that retired from this
-// deployment, under the identifier it had (payday#115).
-//
-// A retirement leaves the trail what the deployment's floors are on and a
-// record that the tenant left, which every pass goes by whatever the app says:
-// a tenant that left keeps nothing of its own. A workspace back under that
-// identifier would be that tenant to the trail -- what it writes taken at the
-// next pass, and the whole of its trail and its key once the last floor has
-// passed. Until the trail can take a tenant back, a restore of one is into
-// another deployment, where it never retired. A purged workspace leaves no
-// such record, and comes back here as it always has.
-var ErrRetiredHere = errors.New("the workspace retired from this deployment, whose trail keeps it as a tenant that left")
-
 // Import restores a workspace from its export into a deployment that does not
 // have it: every row as it was exported, under the identifier it had, so that
 // what pointed at it -- a printed label, a link -- still does (design D34). It
@@ -134,6 +130,20 @@ var ErrRetiredHere = errors.New("the workspace retired from this deployment, who
 // as it is and nothing of what it holds (payday#108). A check of the rows then
 // finds each as the restore left it, rather than as a row nothing on the trail
 // is about -- which is what a row somebody added past the servers looks like.
+// It seals each too (payday#115), since an export carries no seal.
+//
+// # A workspace that retired from here
+//
+// A retirement leaves the trail what the deployment's floors are on and a
+// record that the tenant left, which every pass goes by whatever the app
+// answers: what such a tenant writes goes at the next pass, and its whole
+// trail and its key once the last floor has passed. So a workspace whose
+// address this deployment holds as `retired` is taken back by the trail first
+// (`trail.Policy.Return`, payday#141), before anything of it is written --
+// after which its windows are its contract's again, and what the retirement
+// kept is its own. A dry run takes nothing back, and says it would
+// ([Restored.Retired]). A purge leaves the trail no such record, and a purged
+// workspace needs nothing taken back.
 //
 // Nobody in the workspace does this, and the event it records says so by
 // naming nobody.
@@ -192,6 +202,26 @@ func (d Deployment) Import(ctx context.Context, r io.ReaderAt, size int64, o Imp
 		}
 	}
 
+	// Taken back by the trail first, if it retired from here: outside the
+	// restore's transaction, since it is an act of the trail's that writes
+	// the archive's account and a checkpoint, and before anything of the
+	// workspace is written, which a pass between the two would take.
+	if here, err := d.Ent.Tenant.Query().Where(enttenant.Id(tid)).Exist(ctx); err != nil {
+		return out, err
+	} else if here {
+		return out, fmt.Errorf("%w: %s (@%s) is here; a restore is into a deployment that does not have it", ErrNotNew, out.Tenant, t.GetAlias())
+	}
+	if out.Retired, err = d.Ent.AliasHold.Query().Where(aliashold.Tenant(tid), aliashold.Reason(ReasonRetired)).Exist(ctx); err != nil {
+		return out, err
+	}
+	if out.Retired && !o.Dry {
+		back, err := d.Trail.Return(ctx, pd.TrailStore(d.Ent), out.Tenant)
+		if err != nil {
+			return out, fmt.Errorf("the trail, taking back a workspace that retired from here: %w", err)
+		}
+		out.Returned = back.Records
+	}
+
 	tx, err := d.Ent.Tx(ctx)
 	if err != nil {
 		return out, err
@@ -203,12 +233,6 @@ func (d Deployment) Import(ctx context.Context, r io.ReaderAt, size int64, o Imp
 		return out, err
 	} else if here {
 		return out, fmt.Errorf("%w: %s (@%s) is here; a restore is into a deployment that does not have it", ErrNotNew, out.Tenant, t.GetAlias())
-	}
-	if retired, err := db.AliasHold.Query().Where(aliashold.Tenant(tid), aliashold.Reason(ReasonRetired)).Exist(ctx); err != nil {
-		return out, err
-	} else if retired {
-		return out, fmt.Errorf("%w: %s (@%s) would be taken again by the trail, under the identifier it had; "+
-			"restore it into another deployment -- a restore under a new identifier is not one this build makes", ErrRetiredHere, out.Tenant, t.GetAlias())
 	}
 
 	var releasedHolds []pdid.Id

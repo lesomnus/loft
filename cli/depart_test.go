@@ -1,7 +1,9 @@
 package cli_test
 
 import (
+	"bytes"
 	"context"
+	"encoding/base64"
 	"testing"
 	"time"
 
@@ -20,14 +22,18 @@ import (
 )
 
 // aDeployment is the roster in this process, with acme's owner and kim, and
-// kim's own workspace beta.
-func aDeployment(t *testing.T) cmd.Config {
+// kim's own workspace beta -- configured further by `opts` before anything is
+// written.
+func aDeployment(t *testing.T, opts ...func(*cmd.Config)) cmd.Config {
 	t.Helper()
 	c := cmd.Config{}
 	c.Db.Driver, c.Db.Dsn = pdtest.DB(t)
 	c.Watch.Broker = "memory"
 	c.App.Files = t.TempDir()
 	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
+	for _, opt := range opts {
+		opt(&c)
+	}
 
 	run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234")
 	run(t, cli.NewCmdHolder(&c), "add", "--tenant", "acme", "--login", "kim", "--password", "kim-password")
@@ -115,6 +121,36 @@ func TestAnOperatorDepartsAnAccountAtOnce(t *testing.T) {
 		x.NoError(err)
 		x.Zero(n, "where they were signed in")
 	})
+}
+
+// TestADepartureIsForgottenUnderTheDeploymentsDigestKey: a member departed
+// is pseudonymized, and what the trail kept of them forgotten, under the
+// policy `serve` and every command build from `audit:` -- the one that holds
+// the digest key, which is what lets the forgetting leave a seal that says the
+// person was forgotten in place of each seal it blanks (payday#115). A check of
+// the rows then finds nothing, and counts them as forgotten. Forgotten under a
+// policy with no key, each seal would be taken off, and every row of theirs
+// found as one whose seal somebody took.
+func TestADepartureIsForgottenUnderTheDeploymentsDigestKey(t *testing.T) {
+	x := require.New(t)
+	c := aDeployment(t, func(c *cmd.Config) {
+		c.Audit.Digest.Key = "base64:" + base64.StdEncoding.EncodeToString(bytes.Repeat([]byte{7}, 32))
+	})
+
+	out, err := printed(t, cli.NewCmdTrail(&c), "rows")
+	x.NoError(err)
+	x.Contains(out, "; 0 forgotten;")
+
+	run(t, cli.NewCmdIdentity(&c), "depart", "--member", "@acme/kim", "--yes")
+	on(t, c, func(s *cmd.Server) {
+		for _, h := range membershipsOf(t, s, accountOf(t, s, "owner")) {
+			x.Nil(h.DateErased, "somebody else left")
+		}
+	})
+
+	out, err = printed(t, cli.NewCmdTrail(&c), "rows")
+	x.NoError(err, "a departure left rows a check finds")
+	x.Regexp(`; [1-9][0-9]* forgotten;`, out)
 }
 
 // TestReconcilingFindsWhatTheStreamMissed.

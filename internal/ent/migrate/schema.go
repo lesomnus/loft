@@ -1534,6 +1534,19 @@ var (
 			},
 		},
 	}
+	// RowsealColumns holds the columns for the "rowseal" table.
+	RowsealColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUuid, Unique: true},
+		{Name: "tenant_id", Type: field.TypeUuid},
+		{Name: "sum", Type: field.TypeBytes},
+		{Name: "fields", Type: field.TypeJson, Nullable: true},
+	}
+	// RowsealTable holds the schema information for the "rowseal" table.
+	RowsealTable = &schema.Table{
+		Name:       "rowseal",
+		Columns:    RowsealColumns,
+		PrimaryKey: []*schema.Column{RowsealColumns[0]},
+	}
 	// SearchstaleColumns holds the columns for the "searchstale" table.
 	SearchstaleColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUuid, Unique: true},
@@ -2033,6 +2046,7 @@ var (
 		PurchaselineTable,
 		ReservationTable,
 		ReservationitemTable,
+		RowsealTable,
 		SearchstaleTable,
 		SessionTable,
 		SigninfailureTable,
@@ -2200,6 +2214,9 @@ func init() {
 	ReservationitemTable.ForeignKeys[2].RefTable = AssetTable
 	ReservationitemTable.Annotation = &entsql.Annotation{
 		Table: "reservationitem",
+	}
+	RowsealTable.Annotation = &entsql.Annotation{
+		Table: "rowseal",
 	}
 	SearchstaleTable.Annotation = &entsql.Annotation{
 		Table: "searchstale",
