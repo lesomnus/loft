@@ -35,6 +35,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/link"
 	"github.com/lesomnus/rove/internal/ent/notification"
 	"github.com/lesomnus/rove/internal/ent/outbox"
+	"github.com/lesomnus/rove/internal/ent/owed"
 	"github.com/lesomnus/rove/internal/ent/party"
 	"github.com/lesomnus/rove/internal/ent/placement"
 	"github.com/lesomnus/rove/internal/ent/purchase"
@@ -142,6 +143,7 @@ func checkColumn(t, c string) error {
 			link.Table:            link.ValidColumn,
 			notification.Table:    notification.ValidColumn,
 			outbox.Table:          outbox.ValidColumn,
+			owed.Table:            owed.ValidColumn,
 			party.Table:           party.ValidColumn,
 			placement.Table:       placement.ValidColumn,
 			purchase.Table:        purchase.ValidColumn,

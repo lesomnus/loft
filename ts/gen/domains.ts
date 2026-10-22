@@ -90,6 +90,9 @@ export const NotificationDomain = 36
 /** The domain identifiers of rove.Outbox carry. */
 export const OutboxDomain = 4
 
+/** The domain identifiers of rove.Owed carry. */
+export const OwedDomain = 254
+
 /** The domain identifiers of rove.Party carry. */
 export const PartyDomain = 10
 
@@ -172,6 +175,7 @@ pdid.register("rove.LegalHold", LegalHoldDomain, "legal-hold")
 pdid.register("rove.Link", LinkDomain, "link")
 pdid.register("rove.Notification", NotificationDomain, "notification")
 pdid.register("rove.Outbox", OutboxDomain, "outbox")
+pdid.register("rove.Owed", OwedDomain, "owed")
 pdid.register("rove.Party", PartyDomain, "party")
 pdid.register("rove.Placement", PlacementDomain, "placement")
 pdid.register("rove.Purchase", PurchaseDomain, "purchase")

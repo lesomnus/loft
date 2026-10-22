@@ -67,6 +67,11 @@ import (
 // check found: the one acceptance an operator runs after that upgrade
 // (docs/runbook/trail-integrity.md). `verify` says what each witness that
 // answers heard last of the checkpoints (`audit.checkpoints.witnesses`).
+//
+// `owed` is what the trail's erasures still owe (payday#115): the archive's
+// half of a person forgotten, which is paid once the operation's transaction
+// has committed or by the next pass -- so what stays is what a legal hold
+// keeps, by workspace, or an archive that cannot be written.
 func NewCmdTrail(c *cmd.Config) *xli.Command {
 	return &xli.Command{
 		Name:  "trail",
@@ -97,6 +102,13 @@ func NewCmdTrail(c *cmd.Config) *xli.Command {
 					of, _ := flg.Find[string](self, "of")
 					why, _ := flg.Find[string](self, "why")
 					return rows(ctx, self, c, accept, strings.TrimSpace(of), why)
+				}),
+			},
+			{
+				Name:  "owed",
+				Brief: "what is owed of the trail's erasures and not paid yet: how many, since when, and what a legal hold keeps",
+				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
+					return owed(ctx, self, c)
 				}),
 			},
 			newCmdTrailExport(c),
@@ -192,6 +204,43 @@ func verify(ctx context.Context, self *xli.Command, c *cmd.Config, full bool) er
 	}
 
 	return fmt.Errorf("%d findings: look at each, and `rove trail accept %s --why ...` once the archive is right", len(v.Findings), how)
+}
+
+// owed is what is owed of the trail's erasures and not paid yet (payday#115,
+// `trail.Policy.Owing`). A person forgotten -- 개인정보 삭제, an account leaving
+// -- has the trail's rows about them blanked in the operation's transaction,
+// and the archive's half owed there; it is paid once the transaction has
+// committed, or by the trail's next pass. So what is owed for long is one a
+// legal hold keeps part of, which waits for the hold to lift and is said by
+// workspace, or one that cannot be done: an archive that cannot be written,
+// a chunk whose bytes are not its digest (`rove trail verify`). It changes
+// nothing.
+func owed(ctx context.Context, self *xli.Command, c *cmd.Config) error {
+	s, err := cmd.Build(ctx, *c)
+	if err != nil {
+		return err
+	}
+	defer s.Close()
+
+	o, err := s.Trail.Owing(ctx, pd.TrailStore(s.Ent))
+	if err != nil {
+		return err
+	}
+	if o.Objects == 0 {
+		self.Printf("nothing of the trail's erasures is owed\n")
+		return nil
+	}
+
+	self.Printf("%d erasure(s) owed, the oldest since %s\n", o.Objects, o.Oldest.UTC().Format(time.RFC3339))
+	for _, id := range slices.SortedFunc(maps.Keys(o.Held), func(a, b pdid.Id) int { return strings.Compare(a.String(), b.String()) }) {
+		name := id.String()
+		if t, err := s.Ent.Tenant.Get(ctx, id.Uuid()); err == nil {
+			name = "@" + t.Alias + " (" + name + ")"
+		}
+		self.Printf("  %d kept by a legal hold of %s, until it lifts\n", o.Held[id], name)
+	}
+
+	return nil
 }
 
 // acceptance is one acceptance as `verify` lists it: the checkpoint it ended

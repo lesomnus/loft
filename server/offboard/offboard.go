@@ -104,12 +104,14 @@ func (d Deployment) held(ctx context.Context, tenant pdid.Id) error {
 
 // Trail is the trail's tables: its rows, the manifest of its archive, the
 // access record, which is kept by the same passes as a kind of the trail's
-// (rove#136) and so leaves with a tenant the way the trail does -- and the
-// rows' seals (payday#115), the MACs that cover what a row's digest leaves
-// out, which `PurgeTenant` and `RetireTenant` take with the tenant's trail.
-// Left to the trail rather than deleted with the rows, because the trail takes
-// them first: a purge counting them as its own would count what is gone.
-var Trail = []string{"audit", "archived", "access", "rowseal"}
+// (rove#136) and so leaves with a tenant the way the trail does -- the rows'
+// seals (payday#115), the MACs that cover what a row's digest leaves out,
+// which `PurgeTenant` and `RetireTenant` take with the tenant's trail -- and
+// the erasures it owes (payday#115), the deployment's, of no tenant, which
+// the trail pays and removes. Left to the trail rather than deleted with the
+// rows, because the trail takes them first: a purge counting them as its own
+// would count what is gone.
+var Trail = []string{"audit", "archived", "access", "rowseal", "owed"}
 
 // Shared is the deployment's own tables, which no tenant has rows in: sessions
 // and agreements are an account's, and an account is in no workspace (D27);
