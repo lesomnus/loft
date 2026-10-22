@@ -147,7 +147,8 @@ message TreeLock {
   };
 }
 
-// TenantDomain is a domain a tenant's QR labels are printed with (design 9.9).
+// TenantDomain is a domain of a workspace's (design 9.9): one its whole app
+// is on (`app`), or one its QR labels print with (`label`).
 message TenantDomain {
   bytes id = 1 [(orm.field) = {
     type: TYPE_UUID
@@ -158,9 +159,9 @@ message TenantDomain {
 
   // A lowercase host name, unique across the deployment.
   string host = 8 [(orm.field) = {unique: true}];
-  // label
+  // app | label
   string purpose = 9;
-  // pending | active | legacy | retired
+  // pending | ready | active | legacy | lapsed | retired
   string state = 10;
   // The value the TXT record has to hold.
   string token = 11;
@@ -178,6 +179,22 @@ message TenantDomain {
     (orm.field) = {nullable: true},
     (payday.field) = {stamped: true}
   ];
+
+  // An active custom domain's DNS is asked about again every hour (rove#155):
+  // whether its TXT record still holds `token`, and whether it still points
+  // here. `checked_at` is when it was last asked, and `failures` how many
+  // answers in a row since `failing_since` said no -- one that said nothing,
+  // a timeout, is none. A domain whose DNS said no often enough for long
+  // enough lapses (`server/domain`'s sweep): `lapsed`, since `date_lapsed`,
+  // and active again only once its TXT record verifies again.
+  google.protobuf.Timestamp checked_at = 18 [(orm.field) = {nullable: true}];
+  uint32 failures = 19 [(orm.field) = {default: "0"}];
+  google.protobuf.Timestamp failing_since = 20 [(orm.field) = {nullable: true}];
+  google.protobuf.Timestamp date_lapsed = 17 [(orm.field) = {nullable: true}];
+
+  // For an `app` domain made legacy by another's activation: until when its
+  // pages send a browser on to where the workspace's app is now.
+  google.protobuf.Timestamp redirect_until = 21 [(orm.field) = {nullable: true}];
 
   option (orm.message) = {
     rpc: {crud: true}

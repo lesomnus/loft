@@ -102,6 +102,76 @@ func (_c *TenantDomainCreate) SetNillableVerifiedAt(v *time.Time) *TenantDomainC
 	return _c
 }
 
+// SetCheckedAt sets the "checked_at" field.
+func (_c *TenantDomainCreate) SetCheckedAt(v time.Time) *TenantDomainCreate {
+	_c.mutation.SetCheckedAt(v)
+	return _c
+}
+
+// SetNillableCheckedAt sets the "checked_at" field if the given value is not nil.
+func (_c *TenantDomainCreate) SetNillableCheckedAt(v *time.Time) *TenantDomainCreate {
+	if v != nil {
+		_c.SetCheckedAt(*v)
+	}
+	return _c
+}
+
+// SetFailures sets the "failures" field.
+func (_c *TenantDomainCreate) SetFailures(v uint32) *TenantDomainCreate {
+	_c.mutation.SetFailures(v)
+	return _c
+}
+
+// SetNillableFailures sets the "failures" field if the given value is not nil.
+func (_c *TenantDomainCreate) SetNillableFailures(v *uint32) *TenantDomainCreate {
+	if v != nil {
+		_c.SetFailures(*v)
+	}
+	return _c
+}
+
+// SetFailingSince sets the "failing_since" field.
+func (_c *TenantDomainCreate) SetFailingSince(v time.Time) *TenantDomainCreate {
+	_c.mutation.SetFailingSince(v)
+	return _c
+}
+
+// SetNillableFailingSince sets the "failing_since" field if the given value is not nil.
+func (_c *TenantDomainCreate) SetNillableFailingSince(v *time.Time) *TenantDomainCreate {
+	if v != nil {
+		_c.SetFailingSince(*v)
+	}
+	return _c
+}
+
+// SetDateLapsed sets the "date_lapsed" field.
+func (_c *TenantDomainCreate) SetDateLapsed(v time.Time) *TenantDomainCreate {
+	_c.mutation.SetDateLapsed(v)
+	return _c
+}
+
+// SetNillableDateLapsed sets the "date_lapsed" field if the given value is not nil.
+func (_c *TenantDomainCreate) SetNillableDateLapsed(v *time.Time) *TenantDomainCreate {
+	if v != nil {
+		_c.SetDateLapsed(*v)
+	}
+	return _c
+}
+
+// SetRedirectUntil sets the "redirect_until" field.
+func (_c *TenantDomainCreate) SetRedirectUntil(v time.Time) *TenantDomainCreate {
+	_c.mutation.SetRedirectUntil(v)
+	return _c
+}
+
+// SetNillableRedirectUntil sets the "redirect_until" field if the given value is not nil.
+func (_c *TenantDomainCreate) SetNillableRedirectUntil(v *time.Time) *TenantDomainCreate {
+	if v != nil {
+		_c.SetRedirectUntil(*v)
+	}
+	return _c
+}
+
 // SetTenantId sets the "tenant_id" field.
 func (_c *TenantDomainCreate) SetTenantId(v uuid.UUID) *TenantDomainCreate {
 	_c.mutation.SetTenantId(v)
@@ -126,6 +196,7 @@ func (_c *TenantDomainCreate) Mutation() *TenantDomainMutation {
 
 // Save creates the TenantDomain in the database.
 func (_c *TenantDomainCreate) Save(ctx context.Context) (*TenantDomain, error) {
+	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -148,6 +219,16 @@ func (_c *TenantDomainCreate) Exec(ctx context.Context) error {
 func (_c *TenantDomainCreate) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (_c *TenantDomainCreate) defaults() {
+	if _, ok := _c.mutation.Failures(); !ok {
+		if _, ok := _c.mutation.FieldExpr(tenantdomain.FieldFailures); !ok {
+			v := tenantdomain.DefaultFailures
+			_c.mutation.SetFailures(v)
+		}
 	}
 }
 
@@ -267,6 +348,26 @@ func (_c *TenantDomainCreate) createSpec() (*TenantDomain, *sqlgraph.CreateSpec)
 		_spec.SetField(tenantdomain.FieldVerifiedAt, field.TypeTime, value)
 		_node.VerifiedAt = &value
 	}
+	if value, ok := _c.mutation.CheckedAt(); ok {
+		_spec.SetField(tenantdomain.FieldCheckedAt, field.TypeTime, value)
+		_node.CheckedAt = &value
+	}
+	if value, ok := _c.mutation.Failures(); ok {
+		_spec.SetField(tenantdomain.FieldFailures, field.TypeUint32, value)
+		_node.Failures = value
+	}
+	if value, ok := _c.mutation.FailingSince(); ok {
+		_spec.SetField(tenantdomain.FieldFailingSince, field.TypeTime, value)
+		_node.FailingSince = &value
+	}
+	if value, ok := _c.mutation.DateLapsed(); ok {
+		_spec.SetField(tenantdomain.FieldDateLapsed, field.TypeTime, value)
+		_node.DateLapsed = &value
+	}
+	if value, ok := _c.mutation.RedirectUntil(); ok {
+		_spec.SetField(tenantdomain.FieldRedirectUntil, field.TypeTime, value)
+		_node.RedirectUntil = &value
+	}
 	if nodes := _c.mutation.TenantIds(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -331,6 +432,7 @@ func (_c *TenantDomainCreateBulk) Save(ctx context.Context) ([]*TenantDomain, er
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*TenantDomainMutation)
 				if !ok {

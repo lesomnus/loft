@@ -30,6 +30,16 @@ const (
 	FieldDateCreated = "date_created"
 	// FieldVerifiedAt holds the string denoting the verified_at field in the database.
 	FieldVerifiedAt = "verified_at"
+	// FieldCheckedAt holds the string denoting the checked_at field in the database.
+	FieldCheckedAt = "checked_at"
+	// FieldFailures holds the string denoting the failures field in the database.
+	FieldFailures = "failures"
+	// FieldFailingSince holds the string denoting the failing_since field in the database.
+	FieldFailingSince = "failing_since"
+	// FieldDateLapsed holds the string denoting the date_lapsed field in the database.
+	FieldDateLapsed = "date_lapsed"
+	// FieldRedirectUntil holds the string denoting the redirect_until field in the database.
+	FieldRedirectUntil = "redirect_until"
 	// FieldTenantId holds the string denoting the tenant_id field in the database.
 	FieldTenantId = "tenant_id"
 	// EdgeTenant holds the string denoting the tenant edge name in mutations.
@@ -57,6 +67,11 @@ var Columns = []string{
 	FieldDateErased,
 	FieldDateCreated,
 	FieldVerifiedAt,
+	FieldCheckedAt,
+	FieldFailures,
+	FieldFailingSince,
+	FieldDateLapsed,
+	FieldRedirectUntil,
 	FieldTenantId,
 }
 
@@ -69,6 +84,11 @@ func ValidColumn(column string) bool {
 	}
 	return false
 }
+
+var (
+	// DefaultFailures holds the default value on creation for the "failures" field.
+	DefaultFailures uint32
+)
 
 // OrderOption defines the ordering options for the TenantDomain queries.
 type OrderOption func(*sql.Selector)
@@ -121,6 +141,31 @@ func ByDateCreated(opts ...sql.OrderTermOption) OrderOption {
 // ByVerifiedAt orders the results by the verified_at field.
 func ByVerifiedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldVerifiedAt, opts...).ToFunc()
+}
+
+// ByCheckedAt orders the results by the checked_at field.
+func ByCheckedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCheckedAt, opts...).ToFunc()
+}
+
+// ByFailures orders the results by the failures field.
+func ByFailures(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldFailures, opts...).ToFunc()
+}
+
+// ByFailingSince orders the results by the failing_since field.
+func ByFailingSince(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldFailingSince, opts...).ToFunc()
+}
+
+// ByDateLapsed orders the results by the date_lapsed field.
+func ByDateLapsed(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDateLapsed, opts...).ToFunc()
+}
+
+// ByRedirectUntil orders the results by the redirect_until field.
+func ByRedirectUntil(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRedirectUntil, opts...).ToFunc()
 }
 
 // ByTenantId orders the results by the tenant_id field.

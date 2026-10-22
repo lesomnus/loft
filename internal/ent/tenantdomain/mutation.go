@@ -15,22 +15,28 @@ import (
 
 // Mutation represents an operation that mutates the TenantDomain nodes in the graph.
 type Mutation struct {
-	op            ent.Op
-	typ           string
-	host          *string
-	purpose       *string
-	state         *string
-	token         *string
-	source        *string
-	date_updated  *time.Time
-	date_erased   *time.Time
-	date_created  *time.Time
-	verified_at   *time.Time
-	clearedFields map[string]struct{}
-	exprs         map[string]sql.Querier
-	tenant        *uuid.UUID
-	clearedtenant bool
-	predicates    []predicate.TenantDomain
+	op             ent.Op
+	typ            string
+	host           *string
+	purpose        *string
+	state          *string
+	token          *string
+	source         *string
+	date_updated   *time.Time
+	date_erased    *time.Time
+	date_created   *time.Time
+	verified_at    *time.Time
+	checked_at     *time.Time
+	failures       *uint32
+	addfailures    *int32
+	failing_since  *time.Time
+	date_lapsed    *time.Time
+	redirect_until *time.Time
+	clearedFields  map[string]struct{}
+	exprs          map[string]sql.Querier
+	tenant         *uuid.UUID
+	clearedtenant  bool
+	predicates     []predicate.TenantDomain
 }
 
 // NewMutation creates a new Mutation for the TenantDomain entity.
@@ -278,6 +284,207 @@ func (m *Mutation) ResetVerifiedAt() {
 	delete(m.exprs, FieldVerifiedAt)
 }
 
+// SetCheckedAt sets the "checked_at" field.
+func (m *Mutation) SetCheckedAt(t time.Time) {
+	m.checked_at = &t
+	delete(m.clearedFields, FieldCheckedAt)
+	delete(m.exprs, FieldCheckedAt)
+}
+
+// CheckedAt returns the value of the "checked_at" field in the mutation.
+func (m *Mutation) CheckedAt() (r time.Time, exists bool) {
+	v := m.checked_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearCheckedAt clears the value of the "checked_at" field.
+func (m *Mutation) ClearCheckedAt() {
+	m.checked_at = nil
+	delete(m.exprs, FieldCheckedAt)
+	m.clearedFields[FieldCheckedAt] = struct{}{}
+}
+
+// CheckedAtCleared returns if the "checked_at" field was cleared in this mutation.
+func (m *Mutation) CheckedAtCleared() bool {
+	_, ok := m.clearedFields[FieldCheckedAt]
+	return ok
+}
+
+// ResetCheckedAt resets all changes to the "checked_at" field.
+func (m *Mutation) ResetCheckedAt() {
+	m.checked_at = nil
+	delete(m.clearedFields, FieldCheckedAt)
+	delete(m.exprs, FieldCheckedAt)
+}
+
+// SetFailures sets the "failures" field.
+func (m *Mutation) SetFailures(u uint32) {
+	m.failures = &u
+	m.addfailures = nil
+	delete(m.clearedFields, FieldFailures)
+	delete(m.exprs, FieldFailures)
+}
+
+// Failures returns the value of the "failures" field in the mutation.
+func (m *Mutation) Failures() (r uint32, exists bool) {
+	v := m.failures
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// AddFailures adds u to the "failures" field.
+func (m *Mutation) AddFailures(u int32) {
+	if m.addfailures != nil {
+		*m.addfailures += u
+	} else {
+		m.addfailures = &u
+	}
+}
+
+// AddedFailures returns the value that was added to the "failures" field in this mutation.
+func (m *Mutation) AddedFailures() (r int32, exists bool) {
+	v := m.addfailures
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearFailures clears the value of the "failures" field.
+func (m *Mutation) ClearFailures() {
+	m.failures = nil
+	m.addfailures = nil
+	delete(m.exprs, FieldFailures)
+	m.clearedFields[FieldFailures] = struct{}{}
+}
+
+// FailuresCleared returns if the "failures" field was cleared in this mutation.
+func (m *Mutation) FailuresCleared() bool {
+	_, ok := m.clearedFields[FieldFailures]
+	return ok
+}
+
+// ResetFailures resets all changes to the "failures" field.
+func (m *Mutation) ResetFailures() {
+	m.failures = nil
+	m.addfailures = nil
+	delete(m.clearedFields, FieldFailures)
+	delete(m.exprs, FieldFailures)
+}
+
+// SetFailingSince sets the "failing_since" field.
+func (m *Mutation) SetFailingSince(t time.Time) {
+	m.failing_since = &t
+	delete(m.clearedFields, FieldFailingSince)
+	delete(m.exprs, FieldFailingSince)
+}
+
+// FailingSince returns the value of the "failing_since" field in the mutation.
+func (m *Mutation) FailingSince() (r time.Time, exists bool) {
+	v := m.failing_since
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearFailingSince clears the value of the "failing_since" field.
+func (m *Mutation) ClearFailingSince() {
+	m.failing_since = nil
+	delete(m.exprs, FieldFailingSince)
+	m.clearedFields[FieldFailingSince] = struct{}{}
+}
+
+// FailingSinceCleared returns if the "failing_since" field was cleared in this mutation.
+func (m *Mutation) FailingSinceCleared() bool {
+	_, ok := m.clearedFields[FieldFailingSince]
+	return ok
+}
+
+// ResetFailingSince resets all changes to the "failing_since" field.
+func (m *Mutation) ResetFailingSince() {
+	m.failing_since = nil
+	delete(m.clearedFields, FieldFailingSince)
+	delete(m.exprs, FieldFailingSince)
+}
+
+// SetDateLapsed sets the "date_lapsed" field.
+func (m *Mutation) SetDateLapsed(t time.Time) {
+	m.date_lapsed = &t
+	delete(m.clearedFields, FieldDateLapsed)
+	delete(m.exprs, FieldDateLapsed)
+}
+
+// DateLapsed returns the value of the "date_lapsed" field in the mutation.
+func (m *Mutation) DateLapsed() (r time.Time, exists bool) {
+	v := m.date_lapsed
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearDateLapsed clears the value of the "date_lapsed" field.
+func (m *Mutation) ClearDateLapsed() {
+	m.date_lapsed = nil
+	delete(m.exprs, FieldDateLapsed)
+	m.clearedFields[FieldDateLapsed] = struct{}{}
+}
+
+// DateLapsedCleared returns if the "date_lapsed" field was cleared in this mutation.
+func (m *Mutation) DateLapsedCleared() bool {
+	_, ok := m.clearedFields[FieldDateLapsed]
+	return ok
+}
+
+// ResetDateLapsed resets all changes to the "date_lapsed" field.
+func (m *Mutation) ResetDateLapsed() {
+	m.date_lapsed = nil
+	delete(m.clearedFields, FieldDateLapsed)
+	delete(m.exprs, FieldDateLapsed)
+}
+
+// SetRedirectUntil sets the "redirect_until" field.
+func (m *Mutation) SetRedirectUntil(t time.Time) {
+	m.redirect_until = &t
+	delete(m.clearedFields, FieldRedirectUntil)
+	delete(m.exprs, FieldRedirectUntil)
+}
+
+// RedirectUntil returns the value of the "redirect_until" field in the mutation.
+func (m *Mutation) RedirectUntil() (r time.Time, exists bool) {
+	v := m.redirect_until
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearRedirectUntil clears the value of the "redirect_until" field.
+func (m *Mutation) ClearRedirectUntil() {
+	m.redirect_until = nil
+	delete(m.exprs, FieldRedirectUntil)
+	m.clearedFields[FieldRedirectUntil] = struct{}{}
+}
+
+// RedirectUntilCleared returns if the "redirect_until" field was cleared in this mutation.
+func (m *Mutation) RedirectUntilCleared() bool {
+	_, ok := m.clearedFields[FieldRedirectUntil]
+	return ok
+}
+
+// ResetRedirectUntil resets all changes to the "redirect_until" field.
+func (m *Mutation) ResetRedirectUntil() {
+	m.redirect_until = nil
+	delete(m.clearedFields, FieldRedirectUntil)
+	delete(m.exprs, FieldRedirectUntil)
+}
+
 // SetTenantId sets the "tenant_id" field.
 func (m *Mutation) SetTenantId(u uuid.UUID) {
 	m.tenant = &u
@@ -358,7 +565,7 @@ func (m *Mutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *Mutation) Fields() []string {
-	fields := make([]string, 0, 10)
+	fields := make([]string, 0, 15)
 	if m.host != nil || m.exprs[FieldHost] != nil {
 		fields = append(fields, FieldHost)
 	}
@@ -385,6 +592,21 @@ func (m *Mutation) Fields() []string {
 	}
 	if m.verified_at != nil || m.exprs[FieldVerifiedAt] != nil {
 		fields = append(fields, FieldVerifiedAt)
+	}
+	if m.checked_at != nil || m.exprs[FieldCheckedAt] != nil {
+		fields = append(fields, FieldCheckedAt)
+	}
+	if m.failures != nil || m.exprs[FieldFailures] != nil {
+		fields = append(fields, FieldFailures)
+	}
+	if m.failing_since != nil || m.exprs[FieldFailingSince] != nil {
+		fields = append(fields, FieldFailingSince)
+	}
+	if m.date_lapsed != nil || m.exprs[FieldDateLapsed] != nil {
+		fields = append(fields, FieldDateLapsed)
+	}
+	if m.redirect_until != nil || m.exprs[FieldRedirectUntil] != nil {
+		fields = append(fields, FieldRedirectUntil)
 	}
 	if m.tenant != nil {
 		fields = append(fields, FieldTenantId)
@@ -421,6 +643,16 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.DateCreated()
 	case FieldVerifiedAt:
 		return m.VerifiedAt()
+	case FieldCheckedAt:
+		return m.CheckedAt()
+	case FieldFailures:
+		return m.Failures()
+	case FieldFailingSince:
+		return m.FailingSince()
+	case FieldDateLapsed:
+		return m.DateLapsed()
+	case FieldRedirectUntil:
+		return m.RedirectUntil()
 	case FieldTenantId:
 		return m.TenantId()
 	}
@@ -532,6 +764,56 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetVerifiedAt(v)
 		return nil
+	case FieldCheckedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCheckedAt(v)
+		return nil
+	case FieldFailures:
+		v, ok := value.(uint32)
+		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetFailures(v)
+		return nil
+	case FieldFailingSince:
+		v, ok := value.(time.Time)
+		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetFailingSince(v)
+		return nil
+	case FieldDateLapsed:
+		v, ok := value.(time.Time)
+		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDateLapsed(v)
+		return nil
+	case FieldRedirectUntil:
+		v, ok := value.(time.Time)
+		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRedirectUntil(v)
+		return nil
 	case FieldTenantId:
 		v, ok := value.(uuid.UUID)
 		if !ok {
@@ -582,6 +864,16 @@ func (m *Mutation) SetFieldExpr(name string, expr sql.Querier) error {
 		return fmt.Errorf("field %s cannot be assigned an expression: it is immutable, and an expression is written only by an update", name)
 	case FieldVerifiedAt:
 		m.ResetVerifiedAt()
+	case FieldCheckedAt:
+		m.ResetCheckedAt()
+	case FieldFailures:
+		m.ResetFailures()
+	case FieldFailingSince:
+		m.ResetFailingSince()
+	case FieldDateLapsed:
+		m.ResetDateLapsed()
+	case FieldRedirectUntil:
+		m.ResetRedirectUntil()
 	case FieldTenantId:
 		return fmt.Errorf("field %s cannot be assigned an expression: it holds an edge, which is set through the edge", name)
 	default:
@@ -629,19 +921,42 @@ func (m *Mutation) ExprFields() []string {
 	if _, ok := m.exprs[FieldVerifiedAt]; ok {
 		fields = append(fields, FieldVerifiedAt)
 	}
+	if _, ok := m.exprs[FieldCheckedAt]; ok {
+		fields = append(fields, FieldCheckedAt)
+	}
+	if _, ok := m.exprs[FieldFailures]; ok {
+		fields = append(fields, FieldFailures)
+	}
+	if _, ok := m.exprs[FieldFailingSince]; ok {
+		fields = append(fields, FieldFailingSince)
+	}
+	if _, ok := m.exprs[FieldDateLapsed]; ok {
+		fields = append(fields, FieldDateLapsed)
+	}
+	if _, ok := m.exprs[FieldRedirectUntil]; ok {
+		fields = append(fields, FieldRedirectUntil)
+	}
 	return fields
 }
 
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *Mutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addfailures != nil {
+		fields = append(fields, FieldFailures)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *Mutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case FieldFailures:
+		return m.AddedFailures()
+	}
 	return nil, false
 }
 
@@ -650,6 +965,13 @@ func (m *Mutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *Mutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case FieldFailures:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddFailures(v)
+		return nil
 	}
 	return fmt.Errorf("unknown TenantDomain numeric field %s", name)
 }
@@ -666,6 +988,21 @@ func (m *Mutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(FieldVerifiedAt) {
 		fields = append(fields, FieldVerifiedAt)
+	}
+	if m.FieldCleared(FieldCheckedAt) {
+		fields = append(fields, FieldCheckedAt)
+	}
+	if m.FieldCleared(FieldFailures) {
+		fields = append(fields, FieldFailures)
+	}
+	if m.FieldCleared(FieldFailingSince) {
+		fields = append(fields, FieldFailingSince)
+	}
+	if m.FieldCleared(FieldDateLapsed) {
+		fields = append(fields, FieldDateLapsed)
+	}
+	if m.FieldCleared(FieldRedirectUntil) {
+		fields = append(fields, FieldRedirectUntil)
 	}
 	return fields
 }
@@ -689,6 +1026,21 @@ func (m *Mutation) ClearField(name string) error {
 		return nil
 	case FieldVerifiedAt:
 		m.ClearVerifiedAt()
+		return nil
+	case FieldCheckedAt:
+		m.ClearCheckedAt()
+		return nil
+	case FieldFailures:
+		m.ClearFailures()
+		return nil
+	case FieldFailingSince:
+		m.ClearFailingSince()
+		return nil
+	case FieldDateLapsed:
+		m.ClearDateLapsed()
+		return nil
+	case FieldRedirectUntil:
+		m.ClearRedirectUntil()
 		return nil
 	}
 	return fmt.Errorf("unknown TenantDomain nullable field %s", name)
@@ -724,6 +1076,21 @@ func (m *Mutation) ResetField(name string) error {
 		return nil
 	case FieldVerifiedAt:
 		m.ResetVerifiedAt()
+		return nil
+	case FieldCheckedAt:
+		m.ResetCheckedAt()
+		return nil
+	case FieldFailures:
+		m.ResetFailures()
+		return nil
+	case FieldFailingSince:
+		m.ResetFailingSince()
+		return nil
+	case FieldDateLapsed:
+		m.ResetDateLapsed()
+		return nil
+	case FieldRedirectUntil:
+		m.ResetRedirectUntil()
 		return nil
 	case FieldTenantId:
 		m.ResetTenantId()

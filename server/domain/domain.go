@@ -79,8 +79,18 @@ type Deps struct {
 	RestoreWithin time.Duration
 	AliasHold     time.Duration
 
-	// LookupTXT reads TXT records, for verifying a custom domain.
-	LookupTXT func(ctx context.Context, name string) ([]string, error)
+	// LookupTXT reads TXT records, for verifying a custom domain; and
+	// LookupCNAME and LookupHost what a domain points at, for whether it
+	// points here (`net.Resolver`'s). Nil reads nothing, and a deployment
+	// that cannot read DNS verifies nothing and lapses nothing.
+	LookupTXT   func(ctx context.Context, name string) ([]string, error)
+	LookupCNAME func(ctx context.Context, host string) (string, error)
+	LookupHost  func(ctx context.Context, host string) ([]string, error)
+
+	// DomainRedirect is how long a workspace's app domain that another took
+	// the place of sends its pages on to where the app is now (rove#155);
+	// zero is 90 days.
+	DomainRedirect time.Duration
 
 	// Locale is what a workspace that says nothing of its own is told in: its
 	// zone and its currency (`app.locale`, #144).

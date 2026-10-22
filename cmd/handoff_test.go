@@ -295,9 +295,10 @@ func TestAHandoffGoesToAnActiveAppDomainAlone(t *testing.T) {
 	w.domain(w.tenant, "old.acme.example", "app", "legacy")
 	w.domain(w.tenant, "acme.l.test", "label", "active")
 	w.domain(beta, "next.beta.example", "app", "ready")
+	w.domain(beta, "gone.beta.example", "app", "lapsed")
 
 	tr := w.start(ownHost, "/")
-	for _, host := range []string{"old.acme.example", "acme.l.test", "next.beta.example", serviceHost, "elsewhere.example", ""} {
+	for _, host := range []string{"old.acme.example", "acme.l.test", "next.beta.example", "gone.beta.example", serviceHost, "elsewhere.example", ""} {
 		res := w.give(as, host, &tr)
 		x.Equal(http.StatusBadRequest, res.Code, host)
 		x.Empty(res.Header().Get("Location"), "%q: sent nowhere", host)

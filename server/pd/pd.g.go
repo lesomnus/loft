@@ -27917,6 +27917,11 @@ func ResourceProjector(db *ent.Client, scope bare.Scope, guard batch.Guard) reso
 				{Number: 14, Name: tenantdomain.FieldDateErased, Type: 65, Nullable: true, Key: 0},
 				{Number: 15, Name: tenantdomain.FieldDateCreated, Type: 65, Nullable: false, Key: 0},
 				{Number: 16, Name: tenantdomain.FieldVerifiedAt, Type: 65, Nullable: true, Key: 0},
+				{Number: 18, Name: tenantdomain.FieldCheckedAt, Type: 65, Nullable: true, Key: 0},
+				{Number: 19, Name: tenantdomain.FieldFailures, Type: 13, Nullable: false, Key: 0},
+				{Number: 20, Name: tenantdomain.FieldFailingSince, Type: 65, Nullable: true, Key: 0},
+				{Number: 17, Name: tenantdomain.FieldDateLapsed, Type: 65, Nullable: true, Key: 0},
+				{Number: 21, Name: tenantdomain.FieldRedirectUntil, Type: 65, Nullable: true, Key: 0},
 			}, v)
 			if err != nil {
 				return nil, err

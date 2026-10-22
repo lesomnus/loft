@@ -1890,6 +1890,11 @@ var (
 		{Name: "date_erased", Type: field.TypeTime, Nullable: true},
 		{Name: "date_created", Type: field.TypeTime, Nullable: true},
 		{Name: "verified_at", Type: field.TypeTime, Nullable: true},
+		{Name: "checked_at", Type: field.TypeTime, Nullable: true},
+		{Name: "failures", Type: field.TypeUint32, Nullable: true, Default: 0},
+		{Name: "failing_since", Type: field.TypeTime, Nullable: true},
+		{Name: "date_lapsed", Type: field.TypeTime, Nullable: true},
+		{Name: "redirect_until", Type: field.TypeTime, Nullable: true},
 		{Name: "tenant_id", Type: field.TypeUuid},
 	}
 	// TenantdomainTable holds the schema information for the "tenantdomain" table.
@@ -1900,7 +1905,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "tenantdomain_tenant_tenant",
-				Columns:    []*schema.Column{TenantdomainColumns[10]},
+				Columns:    []*schema.Column{TenantdomainColumns[15]},
 				RefColumns: []*schema.Column{TenantColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -1909,7 +1914,7 @@ var (
 			{
 				Name:    "tenantdomain_page",
 				Unique:  false,
-				Columns: []*schema.Column{TenantdomainColumns[10], TenantdomainColumns[8], TenantdomainColumns[0]},
+				Columns: []*schema.Column{TenantdomainColumns[15], TenantdomainColumns[8], TenantdomainColumns[0]},
 			},
 			{
 				Name:    "tenantdomain_host",

@@ -1108,6 +1108,23 @@ func (st TenantDomainServiceServer) create(ctx context.Context, req *rove.Tenant
 	if req.HasVerifiedAt() {
 		q.SetVerifiedAt(req.GetVerifiedAt().AsTime())
 	}
+	if req.HasCheckedAt() {
+		q.SetCheckedAt(req.GetCheckedAt().AsTime())
+	}
+	if req.HasFailures() {
+		q.SetFailures(req.GetFailures())
+	} else {
+		q.SetFailures(0)
+	}
+	if req.HasFailingSince() {
+		q.SetFailingSince(req.GetFailingSince().AsTime())
+	}
+	if req.HasDateLapsed() {
+		q.SetDateLapsed(req.GetDateLapsed().AsTime())
+	}
+	if req.HasRedirectUntil() {
+		q.SetRedirectUntil(req.GetRedirectUntil().AsTime())
+	}
 	return q, ds, nil
 }
 
@@ -1262,6 +1279,21 @@ func TenantDomainSelectedFields(m *rove.TenantDomainSelect) []string {
 	if m.GetVerifiedAt() {
 		vs = append(vs, tenantdomain.FieldVerifiedAt)
 	}
+	if m.GetCheckedAt() {
+		vs = append(vs, tenantdomain.FieldCheckedAt)
+	}
+	if m.GetFailures() {
+		vs = append(vs, tenantdomain.FieldFailures)
+	}
+	if m.GetFailingSince() {
+		vs = append(vs, tenantdomain.FieldFailingSince)
+	}
+	if m.GetDateLapsed() {
+		vs = append(vs, tenantdomain.FieldDateLapsed)
+	}
+	if m.GetRedirectUntil() {
+		vs = append(vs, tenantdomain.FieldRedirectUntil)
+	}
 
 	return vs
 }
@@ -1331,7 +1363,7 @@ func TenantDomainGetKey(ctx context.Context, db *ent.Client, ref *rove.TenantDom
 var tenantDomainOrmEntity = ormpatch.MustEntityOf(rove.File_rove_asset_proto, "TenantDomain")
 
 var tenantDomainPatchColumns = entpatch.Columns{
-	1: tenantdomain.FieldId, 2: tenantdomain.TenantColumn, 8: tenantdomain.FieldHost, 9: tenantdomain.FieldPurpose, 10: tenantdomain.FieldState, 11: tenantdomain.FieldToken, 12: tenantdomain.FieldSource, 13: tenantdomain.FieldDateUpdated, 14: tenantdomain.FieldDateErased, 15: tenantdomain.FieldDateCreated, 16: tenantdomain.FieldVerifiedAt}
+	1: tenantdomain.FieldId, 2: tenantdomain.TenantColumn, 8: tenantdomain.FieldHost, 9: tenantdomain.FieldPurpose, 10: tenantdomain.FieldState, 11: tenantdomain.FieldToken, 12: tenantdomain.FieldSource, 13: tenantdomain.FieldDateUpdated, 14: tenantdomain.FieldDateErased, 15: tenantdomain.FieldDateCreated, 16: tenantdomain.FieldVerifiedAt, 18: tenantdomain.FieldCheckedAt, 19: tenantdomain.FieldFailures, 20: tenantdomain.FieldFailingSince, 17: tenantdomain.FieldDateLapsed, 21: tenantdomain.FieldRedirectUntil}
 
 func (s TenantDomainServiceServer) Apply(ctx context.Context, req *rove.TenantDomainApplyRequest) (*rove.TenantDomain, error) {
 	if !req.HasPatch() {

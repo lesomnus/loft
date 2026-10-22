@@ -12,7 +12,6 @@ import (
 	"net/url"
 	"path"
 	"regexp"
-	"slices"
 	"strings"
 	"uuid"
 
@@ -118,6 +117,7 @@ const (
 	domainReady   = "ready"
 	domainActive  = "active"
 	domainLegacy  = "legacy"
+	domainLapsed  = "lapsed"
 	domainRetired = "retired"
 )
 
@@ -269,6 +269,9 @@ func (t *Tx) activeDomain() (*ent.TenantDomain, error) {
 	return v, err
 }
 
+// activate makes a domain the tenant's active one. The one active before is
+// legacy, and an `app` one sends its pages on to where the app is now, for
+// [Deps.DomainRedirect] (rove#155); what was printed with it still opens.
 func (t *Tx) activate(id []byte) (*app.TenantDomain, error) {
 	cur, err := t.activeDomain()
 	if err != nil {
@@ -278,22 +281,34 @@ func (t *Tx) activate(id []byte) (*app.TenantDomain, error) {
 		return t.next.TenantDomain().Get(t.ctx, app.TenantDomainGetRequest_builder{Ref: app.TenantDomainRef_builder{Id: id}.Build()}.Build())
 	}
 	if cur != nil {
-		if _, err := t.next.TenantDomain().Patch(t.ctx, app.TenantDomainPatchRequest_builder{
+		legacy := app.TenantDomainPatchRequest_builder{
 			Ref:              app.TenantDomainRef_builder{Id: pdid.Id(cur.Id).Bytes()}.Build(),
 			State:            z.Ptr(domainLegacy),
 			DateUpdatedForce: z.Ptr(true),
-		}.Build()); err != nil {
+		}.Build()
+		if cur.Purpose == purposeApp {
+			legacy.SetRedirectUntil(ts(t.now.Add(t.deps.domainRedirect())))
+		}
+		if _, err := t.next.TenantDomain().Patch(t.ctx, legacy); err != nil {
 			return nil, err
 		}
 	}
+	// In use from now, and asked about again from now.
 	return t.next.TenantDomain().Patch(t.ctx, app.TenantDomainPatchRequest_builder{
-		Ref:              app.TenantDomainRef_builder{Id: id}.Build(),
-		State:            z.Ptr(domainActive),
-		DateUpdatedForce: z.Ptr(true),
+		Ref:               app.TenantDomainRef_builder{Id: id}.Build(),
+		State:             z.Ptr(domainActive),
+		RedirectUntilNull: z.Ptr(true),
+		Failures:          z.Ptr(uint32(0)),
+		FailingSinceNull:  z.Ptr(true),
+		CheckedAt:         ts(t.now),
+		DateUpdatedForce:  z.Ptr(true),
 	}.Build())
 }
 
-// Verify checks a pending custom domain's TXT record.
+// Verify checks a pending or a lapsed custom domain's DNS: its TXT record,
+// and that it points here (rove#155). A pending one is ready once it does, for
+// a person to switch to; a lapsed one is the workspace's active domain again,
+// when the workspace has no other.
 func (s domainTenantDomain) Verify(ctx context.Context, req *app.TenantDomainVerifyRequest) (*app.TenantDomain, error) {
 	var out *app.TenantDomain
 	err := s.tx(ctx, func(t *Tx) error {
@@ -301,41 +316,60 @@ func (s domainTenantDomain) Verify(ctx context.Context, req *app.TenantDomainVer
 		if err != nil {
 			return err
 		}
-		if v.GetState() != domainPending {
+		if v.GetState() != domainPending && v.GetState() != domainLapsed {
 			out = v
 			return nil
 		}
-		ok, err := t.deps.verify(t.ctx, v.GetHost(), v.GetToken())
-		if err != nil {
-			return status.Errorf(codes.Unavailable, "TXT 레코드를 읽을 수 없습니다: %v", err)
+		host := v.GetHost()
+		switch txt, here := t.deps.txt(t.ctx, host, v.GetToken()), t.deps.pointsHere(t.ctx, host); {
+		case txt == heardNo:
+			return failed("_rove-challenge.%s에 TXT 레코드 %s가 없습니다. DNS 반영에 시간이 걸릴 수 있습니다", host, v.GetToken())
+		case here == heardNo:
+			return failed("%s가 %s를 가리키지 않습니다. CNAME을 확인하세요", host, t.deps.LabelTarget)
+		case txt != heardYes || here != heardYes:
+			return status.Error(codes.Unavailable, "지금은 DNS를 읽을 수 없습니다. 잠시 뒤에 다시 확인하세요")
 		}
-		if !ok {
-			return failed("_rove-challenge.%s에 TXT 레코드 %s가 아직 없습니다. DNS 반영에 시간이 걸릴 수 있습니다", v.GetHost(), v.GetToken())
-		}
-		if err := t.begin(nil, "domain.verify", pdid.Nil, t.now, domainWords(v.GetPurpose())+" 확인: "+v.GetHost(), "", nil); err != nil {
-			return err
-		}
-		out, err = t.next.TenantDomain().Patch(t.ctx, app.TenantDomainPatchRequest_builder{
-			Ref:              req.GetRef(),
-			State:            z.Ptr(domainReady),
-			VerifiedAt:       ts(t.now),
-			DateUpdatedForce: z.Ptr(true),
-		}.Build())
+		out, err = t.verified(v.GetId(), v.GetPurpose(), host, v.GetState() == domainLapsed, false)
 		return err
 	})
 	return out, err
 }
 
-// verify answers whether `host` carries `token` in its challenge record.
-func (d *Deps) verify(ctx context.Context, host, token string) (bool, error) {
-	if d.LookupTXT == nil {
-		return false, fmt.Errorf("this deployment cannot read DNS")
+// verified is a domain whose DNS checked out: ready, and -- one the sweep
+// found, or one that lapsed -- the workspace's active domain when it has
+// none. One left ready for a person to switch to tells whoever may, when
+// `tell`.
+func (t *Tx) verified(id []byte, purpose, host string, lapsed, tell bool) (*app.TenantDomain, error) {
+	words := domainWords(purpose) + " 확인: " + host
+	if lapsed {
+		words = domainWords(purpose) + " 다시 확인: " + host
 	}
-	vs, err := d.LookupTXT(ctx, "_rove-challenge."+host)
+	if err := t.begin(nil, "domain.verify", pdid.Nil, t.now, words, "", nil); err != nil {
+		return nil, err
+	}
+	v, err := t.next.TenantDomain().Patch(t.ctx, app.TenantDomainPatchRequest_builder{
+		Ref:              app.TenantDomainRef_builder{Id: id}.Build(),
+		State:            z.Ptr(domainReady),
+		VerifiedAt:       ts(t.now),
+		DateUpdatedForce: z.Ptr(true),
+	}.Build())
+	if err != nil || (!lapsed && !tell) {
+		return v, err
+	}
+	cur, err := t.activeDomain()
 	if err != nil {
-		return false, err
+		return nil, err
 	}
-	return slices.Contains(vs, token), nil
+	if cur == nil {
+		return t.activate(id)
+	}
+	if tell {
+		if err := t.notifyManagers("domain.ready", domainWords(purpose)+" 확인 완료: "+host,
+			"설정에서 활성화하면 새로 인쇄하는 라벨부터 이 주소를 씁니다", idOf(id), "/settings"); err != nil {
+			return nil, err
+		}
+	}
+	return v, nil
 }
 
 // Activate makes a verified domain the tenant's active one: what new labels
@@ -350,6 +384,8 @@ func (s domainTenantDomain) Activate(ctx context.Context, req *app.TenantDomainA
 		}
 		switch v.GetState() {
 		case domainReady, domainLegacy, domainActive:
+		case domainLapsed:
+			return failed("%s의 DNS가 더 이상 이 서비스를 가리키지 않아 사용이 중지되었습니다. 다시 확인한 뒤에 쓸 수 있습니다", v.GetHost())
 		default:
 			return failed("%s은(는) 아직 확인되지 않았습니다. 확인된 도메인만 쓸 수 있습니다", v.GetHost())
 		}

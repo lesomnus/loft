@@ -7026,21 +7026,26 @@ func (b0 AssetReadSheetIssue_builder) Build() *AssetReadSheetIssue {
 }
 
 type TenantDomainAddRequest struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Tenant      *TenantRef             `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Host        string                 `protobuf:"bytes,8,opt,name=host"`
-	xxx_hidden_Purpose     string                 `protobuf:"bytes,9,opt,name=purpose"`
-	xxx_hidden_State       string                 `protobuf:"bytes,10,opt,name=state"`
-	xxx_hidden_Token       string                 `protobuf:"bytes,11,opt,name=token"`
-	xxx_hidden_Source      string                 `protobuf:"bytes,12,opt,name=source"`
-	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_VerifiedAt  *timestamppb.Timestamp `protobuf:"bytes,16,opt,name=verified_at,json=verifiedAt"`
-	xxx_hidden_Sub         *string                `protobuf:"bytes,100,opt,name=sub"`
-	XXX_raceDetectHookData protoimpl.RaceDetectHookData
-	XXX_presence           [1]uint32
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	state                    protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id            []byte                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Tenant        *TenantRef             `protobuf:"bytes,2,opt,name=tenant"`
+	xxx_hidden_Host          string                 `protobuf:"bytes,8,opt,name=host"`
+	xxx_hidden_Purpose       string                 `protobuf:"bytes,9,opt,name=purpose"`
+	xxx_hidden_State         string                 `protobuf:"bytes,10,opt,name=state"`
+	xxx_hidden_Token         string                 `protobuf:"bytes,11,opt,name=token"`
+	xxx_hidden_Source        string                 `protobuf:"bytes,12,opt,name=source"`
+	xxx_hidden_DateCreated   *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
+	xxx_hidden_VerifiedAt    *timestamppb.Timestamp `protobuf:"bytes,16,opt,name=verified_at,json=verifiedAt"`
+	xxx_hidden_CheckedAt     *timestamppb.Timestamp `protobuf:"bytes,18,opt,name=checked_at,json=checkedAt"`
+	xxx_hidden_Failures      uint32                 `protobuf:"varint,19,opt,name=failures"`
+	xxx_hidden_FailingSince  *timestamppb.Timestamp `protobuf:"bytes,20,opt,name=failing_since,json=failingSince"`
+	xxx_hidden_DateLapsed    *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=date_lapsed,json=dateLapsed"`
+	xxx_hidden_RedirectUntil *timestamppb.Timestamp `protobuf:"bytes,21,opt,name=redirect_until,json=redirectUntil"`
+	xxx_hidden_Sub           *string                `protobuf:"bytes,100,opt,name=sub"`
+	XXX_raceDetectHookData   protoimpl.RaceDetectHookData
+	XXX_presence             [1]uint32
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *TenantDomainAddRequest) Reset() {
@@ -7131,6 +7136,41 @@ func (x *TenantDomainAddRequest) GetVerifiedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *TenantDomainAddRequest) GetCheckedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_CheckedAt
+	}
+	return nil
+}
+
+func (x *TenantDomainAddRequest) GetFailures() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Failures
+	}
+	return 0
+}
+
+func (x *TenantDomainAddRequest) GetFailingSince() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_FailingSince
+	}
+	return nil
+}
+
+func (x *TenantDomainAddRequest) GetDateLapsed() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateLapsed
+	}
+	return nil
+}
+
+func (x *TenantDomainAddRequest) GetRedirectUntil() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_RedirectUntil
+	}
+	return nil
+}
+
 func (x *TenantDomainAddRequest) GetSub() string {
 	if x != nil {
 		if x.xxx_hidden_Sub != nil {
@@ -7146,7 +7186,7 @@ func (x *TenantDomainAddRequest) SetId(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_Id = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 15)
 }
 
 func (x *TenantDomainAddRequest) SetTenant(v *TenantRef) {
@@ -7181,9 +7221,30 @@ func (x *TenantDomainAddRequest) SetVerifiedAt(v *timestamppb.Timestamp) {
 	x.xxx_hidden_VerifiedAt = v
 }
 
+func (x *TenantDomainAddRequest) SetCheckedAt(v *timestamppb.Timestamp) {
+	x.xxx_hidden_CheckedAt = v
+}
+
+func (x *TenantDomainAddRequest) SetFailures(v uint32) {
+	x.xxx_hidden_Failures = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 15)
+}
+
+func (x *TenantDomainAddRequest) SetFailingSince(v *timestamppb.Timestamp) {
+	x.xxx_hidden_FailingSince = v
+}
+
+func (x *TenantDomainAddRequest) SetDateLapsed(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateLapsed = v
+}
+
+func (x *TenantDomainAddRequest) SetRedirectUntil(v *timestamppb.Timestamp) {
+	x.xxx_hidden_RedirectUntil = v
+}
+
 func (x *TenantDomainAddRequest) SetSub(v string) {
 	x.xxx_hidden_Sub = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 14, 15)
 }
 
 func (x *TenantDomainAddRequest) HasId() bool {
@@ -7214,11 +7275,46 @@ func (x *TenantDomainAddRequest) HasVerifiedAt() bool {
 	return x.xxx_hidden_VerifiedAt != nil
 }
 
+func (x *TenantDomainAddRequest) HasCheckedAt() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_CheckedAt != nil
+}
+
+func (x *TenantDomainAddRequest) HasFailures() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 10)
+}
+
+func (x *TenantDomainAddRequest) HasFailingSince() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_FailingSince != nil
+}
+
+func (x *TenantDomainAddRequest) HasDateLapsed() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateLapsed != nil
+}
+
+func (x *TenantDomainAddRequest) HasRedirectUntil() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_RedirectUntil != nil
+}
+
 func (x *TenantDomainAddRequest) HasSub() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 9)
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 14)
 }
 
 func (x *TenantDomainAddRequest) ClearId() {
@@ -7238,23 +7334,49 @@ func (x *TenantDomainAddRequest) ClearVerifiedAt() {
 	x.xxx_hidden_VerifiedAt = nil
 }
 
+func (x *TenantDomainAddRequest) ClearCheckedAt() {
+	x.xxx_hidden_CheckedAt = nil
+}
+
+func (x *TenantDomainAddRequest) ClearFailures() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 10)
+	x.xxx_hidden_Failures = 0
+}
+
+func (x *TenantDomainAddRequest) ClearFailingSince() {
+	x.xxx_hidden_FailingSince = nil
+}
+
+func (x *TenantDomainAddRequest) ClearDateLapsed() {
+	x.xxx_hidden_DateLapsed = nil
+}
+
+func (x *TenantDomainAddRequest) ClearRedirectUntil() {
+	x.xxx_hidden_RedirectUntil = nil
+}
+
 func (x *TenantDomainAddRequest) ClearSub() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 9)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 14)
 	x.xxx_hidden_Sub = nil
 }
 
 type TenantDomainAddRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Id          []byte
-	Tenant      *TenantRef
-	Host        string
-	Purpose     string
-	State       string
-	Token       string
-	Source      string
-	DateCreated *timestamppb.Timestamp
-	VerifiedAt  *timestamppb.Timestamp
+	Id            []byte
+	Tenant        *TenantRef
+	Host          string
+	Purpose       string
+	State         string
+	Token         string
+	Source        string
+	DateCreated   *timestamppb.Timestamp
+	VerifiedAt    *timestamppb.Timestamp
+	CheckedAt     *timestamppb.Timestamp
+	Failures      *uint32
+	FailingSince  *timestamppb.Timestamp
+	DateLapsed    *timestamppb.Timestamp
+	RedirectUntil *timestamppb.Timestamp
 	// The label for a default subdomain; the host is made from it.
 	Sub *string
 }
@@ -7264,7 +7386,7 @@ func (b0 TenantDomainAddRequest_builder) Build() *TenantDomainAddRequest {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.Id != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 15)
 		x.xxx_hidden_Id = b.Id
 	}
 	x.xxx_hidden_Tenant = b.Tenant
@@ -7275,8 +7397,16 @@ func (b0 TenantDomainAddRequest_builder) Build() *TenantDomainAddRequest {
 	x.xxx_hidden_Source = b.Source
 	x.xxx_hidden_DateCreated = b.DateCreated
 	x.xxx_hidden_VerifiedAt = b.VerifiedAt
+	x.xxx_hidden_CheckedAt = b.CheckedAt
+	if b.Failures != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 15)
+		x.xxx_hidden_Failures = *b.Failures
+	}
+	x.xxx_hidden_FailingSince = b.FailingSince
+	x.xxx_hidden_DateLapsed = b.DateLapsed
+	x.xxx_hidden_RedirectUntil = b.RedirectUntil
 	if b.Sub != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 14, 15)
 		x.xxx_hidden_Sub = b.Sub
 	}
 	return m0
@@ -7542,22 +7672,27 @@ func (*tenantDomainRef_Id) isTenantDomainRef_Key() {}
 func (*tenantDomainRef_Host) isTenantDomainRef_Key() {}
 
 type TenantDomainSelect struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_All         bool                   `protobuf:"varint,1,opt,name=all"`
-	xxx_hidden_Tenant      *TenantSelect          `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Host        bool                   `protobuf:"varint,8,opt,name=host"`
-	xxx_hidden_Purpose     bool                   `protobuf:"varint,9,opt,name=purpose"`
-	xxx_hidden_State       bool                   `protobuf:"varint,10,opt,name=state"`
-	xxx_hidden_Token       bool                   `protobuf:"varint,11,opt,name=token"`
-	xxx_hidden_Source      bool                   `protobuf:"varint,12,opt,name=source"`
-	xxx_hidden_DateUpdated bool                   `protobuf:"varint,13,opt,name=date_updated,json=dateUpdated"`
-	xxx_hidden_DateErased  bool                   `protobuf:"varint,14,opt,name=date_erased,json=dateErased"`
-	xxx_hidden_DateCreated bool                   `protobuf:"varint,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_VerifiedAt  bool                   `protobuf:"varint,16,opt,name=verified_at,json=verifiedAt"`
-	XXX_raceDetectHookData protoimpl.RaceDetectHookData
-	XXX_presence           [1]uint32
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	state                    protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_All           bool                   `protobuf:"varint,1,opt,name=all"`
+	xxx_hidden_Tenant        *TenantSelect          `protobuf:"bytes,2,opt,name=tenant"`
+	xxx_hidden_Host          bool                   `protobuf:"varint,8,opt,name=host"`
+	xxx_hidden_Purpose       bool                   `protobuf:"varint,9,opt,name=purpose"`
+	xxx_hidden_State         bool                   `protobuf:"varint,10,opt,name=state"`
+	xxx_hidden_Token         bool                   `protobuf:"varint,11,opt,name=token"`
+	xxx_hidden_Source        bool                   `protobuf:"varint,12,opt,name=source"`
+	xxx_hidden_DateUpdated   bool                   `protobuf:"varint,13,opt,name=date_updated,json=dateUpdated"`
+	xxx_hidden_DateErased    bool                   `protobuf:"varint,14,opt,name=date_erased,json=dateErased"`
+	xxx_hidden_DateCreated   bool                   `protobuf:"varint,15,opt,name=date_created,json=dateCreated"`
+	xxx_hidden_VerifiedAt    bool                   `protobuf:"varint,16,opt,name=verified_at,json=verifiedAt"`
+	xxx_hidden_CheckedAt     bool                   `protobuf:"varint,18,opt,name=checked_at,json=checkedAt"`
+	xxx_hidden_Failures      bool                   `protobuf:"varint,19,opt,name=failures"`
+	xxx_hidden_FailingSince  bool                   `protobuf:"varint,20,opt,name=failing_since,json=failingSince"`
+	xxx_hidden_DateLapsed    bool                   `protobuf:"varint,17,opt,name=date_lapsed,json=dateLapsed"`
+	xxx_hidden_RedirectUntil bool                   `protobuf:"varint,21,opt,name=redirect_until,json=redirectUntil"`
+	XXX_raceDetectHookData   protoimpl.RaceDetectHookData
+	XXX_presence             [1]uint32
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *TenantDomainSelect) Reset() {
@@ -7662,9 +7797,44 @@ func (x *TenantDomainSelect) GetVerifiedAt() bool {
 	return false
 }
 
+func (x *TenantDomainSelect) GetCheckedAt() bool {
+	if x != nil {
+		return x.xxx_hidden_CheckedAt
+	}
+	return false
+}
+
+func (x *TenantDomainSelect) GetFailures() bool {
+	if x != nil {
+		return x.xxx_hidden_Failures
+	}
+	return false
+}
+
+func (x *TenantDomainSelect) GetFailingSince() bool {
+	if x != nil {
+		return x.xxx_hidden_FailingSince
+	}
+	return false
+}
+
+func (x *TenantDomainSelect) GetDateLapsed() bool {
+	if x != nil {
+		return x.xxx_hidden_DateLapsed
+	}
+	return false
+}
+
+func (x *TenantDomainSelect) GetRedirectUntil() bool {
+	if x != nil {
+		return x.xxx_hidden_RedirectUntil
+	}
+	return false
+}
+
 func (x *TenantDomainSelect) SetAll(v bool) {
 	x.xxx_hidden_All = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 16)
 }
 
 func (x *TenantDomainSelect) SetTenant(v *TenantSelect) {
@@ -7673,47 +7843,72 @@ func (x *TenantDomainSelect) SetTenant(v *TenantSelect) {
 
 func (x *TenantDomainSelect) SetHost(v bool) {
 	x.xxx_hidden_Host = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 16)
 }
 
 func (x *TenantDomainSelect) SetPurpose(v bool) {
 	x.xxx_hidden_Purpose = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 16)
 }
 
 func (x *TenantDomainSelect) SetState(v bool) {
 	x.xxx_hidden_State = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 16)
 }
 
 func (x *TenantDomainSelect) SetToken(v bool) {
 	x.xxx_hidden_Token = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 16)
 }
 
 func (x *TenantDomainSelect) SetSource(v bool) {
 	x.xxx_hidden_Source = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 16)
 }
 
 func (x *TenantDomainSelect) SetDateUpdated(v bool) {
 	x.xxx_hidden_DateUpdated = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 16)
 }
 
 func (x *TenantDomainSelect) SetDateErased(v bool) {
 	x.xxx_hidden_DateErased = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 16)
 }
 
 func (x *TenantDomainSelect) SetDateCreated(v bool) {
 	x.xxx_hidden_DateCreated = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 16)
 }
 
 func (x *TenantDomainSelect) SetVerifiedAt(v bool) {
 	x.xxx_hidden_VerifiedAt = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 11)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 10, 16)
+}
+
+func (x *TenantDomainSelect) SetCheckedAt(v bool) {
+	x.xxx_hidden_CheckedAt = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 16)
+}
+
+func (x *TenantDomainSelect) SetFailures(v bool) {
+	x.xxx_hidden_Failures = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 12, 16)
+}
+
+func (x *TenantDomainSelect) SetFailingSince(v bool) {
+	x.xxx_hidden_FailingSince = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 13, 16)
+}
+
+func (x *TenantDomainSelect) SetDateLapsed(v bool) {
+	x.xxx_hidden_DateLapsed = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 14, 16)
+}
+
+func (x *TenantDomainSelect) SetRedirectUntil(v bool) {
+	x.xxx_hidden_RedirectUntil = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 15, 16)
 }
 
 func (x *TenantDomainSelect) HasAll() bool {
@@ -7793,6 +7988,41 @@ func (x *TenantDomainSelect) HasVerifiedAt() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 10)
 }
 
+func (x *TenantDomainSelect) HasCheckedAt() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 11)
+}
+
+func (x *TenantDomainSelect) HasFailures() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 12)
+}
+
+func (x *TenantDomainSelect) HasFailingSince() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 13)
+}
+
+func (x *TenantDomainSelect) HasDateLapsed() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 14)
+}
+
+func (x *TenantDomainSelect) HasRedirectUntil() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 15)
+}
+
 func (x *TenantDomainSelect) ClearAll() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
 	x.xxx_hidden_All = false
@@ -7847,20 +8077,50 @@ func (x *TenantDomainSelect) ClearVerifiedAt() {
 	x.xxx_hidden_VerifiedAt = false
 }
 
+func (x *TenantDomainSelect) ClearCheckedAt() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 11)
+	x.xxx_hidden_CheckedAt = false
+}
+
+func (x *TenantDomainSelect) ClearFailures() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 12)
+	x.xxx_hidden_Failures = false
+}
+
+func (x *TenantDomainSelect) ClearFailingSince() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 13)
+	x.xxx_hidden_FailingSince = false
+}
+
+func (x *TenantDomainSelect) ClearDateLapsed() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 14)
+	x.xxx_hidden_DateLapsed = false
+}
+
+func (x *TenantDomainSelect) ClearRedirectUntil() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 15)
+	x.xxx_hidden_RedirectUntil = false
+}
+
 type TenantDomainSelect_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	All         *bool
-	Tenant      *TenantSelect
-	Host        *bool
-	Purpose     *bool
-	State       *bool
-	Token       *bool
-	Source      *bool
-	DateUpdated *bool
-	DateErased  *bool
-	DateCreated *bool
-	VerifiedAt  *bool
+	All           *bool
+	Tenant        *TenantSelect
+	Host          *bool
+	Purpose       *bool
+	State         *bool
+	Token         *bool
+	Source        *bool
+	DateUpdated   *bool
+	DateErased    *bool
+	DateCreated   *bool
+	VerifiedAt    *bool
+	CheckedAt     *bool
+	Failures      *bool
+	FailingSince  *bool
+	DateLapsed    *bool
+	RedirectUntil *bool
 }
 
 func (b0 TenantDomainSelect_builder) Build() *TenantDomainSelect {
@@ -7868,65 +8128,94 @@ func (b0 TenantDomainSelect_builder) Build() *TenantDomainSelect {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.All != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 16)
 		x.xxx_hidden_All = *b.All
 	}
 	x.xxx_hidden_Tenant = b.Tenant
 	if b.Host != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 16)
 		x.xxx_hidden_Host = *b.Host
 	}
 	if b.Purpose != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 16)
 		x.xxx_hidden_Purpose = *b.Purpose
 	}
 	if b.State != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 16)
 		x.xxx_hidden_State = *b.State
 	}
 	if b.Token != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 16)
 		x.xxx_hidden_Token = *b.Token
 	}
 	if b.Source != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 16)
 		x.xxx_hidden_Source = *b.Source
 	}
 	if b.DateUpdated != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 16)
 		x.xxx_hidden_DateUpdated = *b.DateUpdated
 	}
 	if b.DateErased != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 16)
 		x.xxx_hidden_DateErased = *b.DateErased
 	}
 	if b.DateCreated != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 16)
 		x.xxx_hidden_DateCreated = *b.DateCreated
 	}
 	if b.VerifiedAt != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 11)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 10, 16)
 		x.xxx_hidden_VerifiedAt = *b.VerifiedAt
+	}
+	if b.CheckedAt != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 16)
+		x.xxx_hidden_CheckedAt = *b.CheckedAt
+	}
+	if b.Failures != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 12, 16)
+		x.xxx_hidden_Failures = *b.Failures
+	}
+	if b.FailingSince != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 13, 16)
+		x.xxx_hidden_FailingSince = *b.FailingSince
+	}
+	if b.DateLapsed != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 14, 16)
+		x.xxx_hidden_DateLapsed = *b.DateLapsed
+	}
+	if b.RedirectUntil != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 15, 16)
+		x.xxx_hidden_RedirectUntil = *b.RedirectUntil
 	}
 	return m0
 }
 
 type TenantDomainPatchRequest struct {
-	state                       protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Ref              *TenantDomainRef       `protobuf:"bytes,1,opt,name=ref"`
-	xxx_hidden_Host             *string                `protobuf:"bytes,16,opt,name=host"`
-	xxx_hidden_Purpose          *string                `protobuf:"bytes,18,opt,name=purpose"`
-	xxx_hidden_State            *string                `protobuf:"bytes,20,opt,name=state"`
-	xxx_hidden_Token            *string                `protobuf:"bytes,22,opt,name=token"`
-	xxx_hidden_Source           *string                `protobuf:"bytes,24,opt,name=source"`
-	xxx_hidden_DateUpdated      *timestamppb.Timestamp `protobuf:"bytes,26,opt,name=date_updated,json=dateUpdated"`
-	xxx_hidden_DateUpdatedForce bool                   `protobuf:"varint,27,opt,name=date_updated_force,json=dateUpdatedForce"`
-	xxx_hidden_VerifiedAt       *timestamppb.Timestamp `protobuf:"bytes,32,opt,name=verified_at,json=verifiedAt"`
-	xxx_hidden_VerifiedAtNull   bool                   `protobuf:"varint,33,opt,name=verified_at_null,json=verifiedAtNull"`
-	XXX_raceDetectHookData      protoimpl.RaceDetectHookData
-	XXX_presence                [1]uint32
-	unknownFields               protoimpl.UnknownFields
-	sizeCache                   protoimpl.SizeCache
+	state                        protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Ref               *TenantDomainRef       `protobuf:"bytes,1,opt,name=ref"`
+	xxx_hidden_Host              *string                `protobuf:"bytes,16,opt,name=host"`
+	xxx_hidden_Purpose           *string                `protobuf:"bytes,18,opt,name=purpose"`
+	xxx_hidden_State             *string                `protobuf:"bytes,20,opt,name=state"`
+	xxx_hidden_Token             *string                `protobuf:"bytes,22,opt,name=token"`
+	xxx_hidden_Source            *string                `protobuf:"bytes,24,opt,name=source"`
+	xxx_hidden_DateUpdated       *timestamppb.Timestamp `protobuf:"bytes,26,opt,name=date_updated,json=dateUpdated"`
+	xxx_hidden_DateUpdatedForce  bool                   `protobuf:"varint,27,opt,name=date_updated_force,json=dateUpdatedForce"`
+	xxx_hidden_VerifiedAt        *timestamppb.Timestamp `protobuf:"bytes,32,opt,name=verified_at,json=verifiedAt"`
+	xxx_hidden_VerifiedAtNull    bool                   `protobuf:"varint,33,opt,name=verified_at_null,json=verifiedAtNull"`
+	xxx_hidden_CheckedAt         *timestamppb.Timestamp `protobuf:"bytes,36,opt,name=checked_at,json=checkedAt"`
+	xxx_hidden_CheckedAtNull     bool                   `protobuf:"varint,37,opt,name=checked_at_null,json=checkedAtNull"`
+	xxx_hidden_Failures          uint32                 `protobuf:"varint,38,opt,name=failures"`
+	xxx_hidden_FailingSince      *timestamppb.Timestamp `protobuf:"bytes,40,opt,name=failing_since,json=failingSince"`
+	xxx_hidden_FailingSinceNull  bool                   `protobuf:"varint,41,opt,name=failing_since_null,json=failingSinceNull"`
+	xxx_hidden_DateLapsed        *timestamppb.Timestamp `protobuf:"bytes,34,opt,name=date_lapsed,json=dateLapsed"`
+	xxx_hidden_DateLapsedNull    bool                   `protobuf:"varint,35,opt,name=date_lapsed_null,json=dateLapsedNull"`
+	xxx_hidden_RedirectUntil     *timestamppb.Timestamp `protobuf:"bytes,42,opt,name=redirect_until,json=redirectUntil"`
+	xxx_hidden_RedirectUntilNull bool                   `protobuf:"varint,43,opt,name=redirect_until_null,json=redirectUntilNull"`
+	XXX_raceDetectHookData       protoimpl.RaceDetectHookData
+	XXX_presence                 [1]uint32
+	unknownFields                protoimpl.UnknownFields
+	sizeCache                    protoimpl.SizeCache
 }
 
 func (x *TenantDomainPatchRequest) Reset() {
@@ -8039,33 +8328,96 @@ func (x *TenantDomainPatchRequest) GetVerifiedAtNull() bool {
 	return false
 }
 
+func (x *TenantDomainPatchRequest) GetCheckedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_CheckedAt
+	}
+	return nil
+}
+
+func (x *TenantDomainPatchRequest) GetCheckedAtNull() bool {
+	if x != nil {
+		return x.xxx_hidden_CheckedAtNull
+	}
+	return false
+}
+
+func (x *TenantDomainPatchRequest) GetFailures() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Failures
+	}
+	return 0
+}
+
+func (x *TenantDomainPatchRequest) GetFailingSince() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_FailingSince
+	}
+	return nil
+}
+
+func (x *TenantDomainPatchRequest) GetFailingSinceNull() bool {
+	if x != nil {
+		return x.xxx_hidden_FailingSinceNull
+	}
+	return false
+}
+
+func (x *TenantDomainPatchRequest) GetDateLapsed() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateLapsed
+	}
+	return nil
+}
+
+func (x *TenantDomainPatchRequest) GetDateLapsedNull() bool {
+	if x != nil {
+		return x.xxx_hidden_DateLapsedNull
+	}
+	return false
+}
+
+func (x *TenantDomainPatchRequest) GetRedirectUntil() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_RedirectUntil
+	}
+	return nil
+}
+
+func (x *TenantDomainPatchRequest) GetRedirectUntilNull() bool {
+	if x != nil {
+		return x.xxx_hidden_RedirectUntilNull
+	}
+	return false
+}
+
 func (x *TenantDomainPatchRequest) SetRef(v *TenantDomainRef) {
 	x.xxx_hidden_Ref = v
 }
 
 func (x *TenantDomainPatchRequest) SetHost(v string) {
 	x.xxx_hidden_Host = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 19)
 }
 
 func (x *TenantDomainPatchRequest) SetPurpose(v string) {
 	x.xxx_hidden_Purpose = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 19)
 }
 
 func (x *TenantDomainPatchRequest) SetState(v string) {
 	x.xxx_hidden_State = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 19)
 }
 
 func (x *TenantDomainPatchRequest) SetToken(v string) {
 	x.xxx_hidden_Token = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 19)
 }
 
 func (x *TenantDomainPatchRequest) SetSource(v string) {
 	x.xxx_hidden_Source = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 19)
 }
 
 func (x *TenantDomainPatchRequest) SetDateUpdated(v *timestamppb.Timestamp) {
@@ -8074,7 +8426,7 @@ func (x *TenantDomainPatchRequest) SetDateUpdated(v *timestamppb.Timestamp) {
 
 func (x *TenantDomainPatchRequest) SetDateUpdatedForce(v bool) {
 	x.xxx_hidden_DateUpdatedForce = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 19)
 }
 
 func (x *TenantDomainPatchRequest) SetVerifiedAt(v *timestamppb.Timestamp) {
@@ -8083,7 +8435,48 @@ func (x *TenantDomainPatchRequest) SetVerifiedAt(v *timestamppb.Timestamp) {
 
 func (x *TenantDomainPatchRequest) SetVerifiedAtNull(v bool) {
 	x.xxx_hidden_VerifiedAtNull = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 10)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 9, 19)
+}
+
+func (x *TenantDomainPatchRequest) SetCheckedAt(v *timestamppb.Timestamp) {
+	x.xxx_hidden_CheckedAt = v
+}
+
+func (x *TenantDomainPatchRequest) SetCheckedAtNull(v bool) {
+	x.xxx_hidden_CheckedAtNull = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 11, 19)
+}
+
+func (x *TenantDomainPatchRequest) SetFailures(v uint32) {
+	x.xxx_hidden_Failures = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 12, 19)
+}
+
+func (x *TenantDomainPatchRequest) SetFailingSince(v *timestamppb.Timestamp) {
+	x.xxx_hidden_FailingSince = v
+}
+
+func (x *TenantDomainPatchRequest) SetFailingSinceNull(v bool) {
+	x.xxx_hidden_FailingSinceNull = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 14, 19)
+}
+
+func (x *TenantDomainPatchRequest) SetDateLapsed(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateLapsed = v
+}
+
+func (x *TenantDomainPatchRequest) SetDateLapsedNull(v bool) {
+	x.xxx_hidden_DateLapsedNull = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 16, 19)
+}
+
+func (x *TenantDomainPatchRequest) SetRedirectUntil(v *timestamppb.Timestamp) {
+	x.xxx_hidden_RedirectUntil = v
+}
+
+func (x *TenantDomainPatchRequest) SetRedirectUntilNull(v bool) {
+	x.xxx_hidden_RedirectUntilNull = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 18, 19)
 }
 
 func (x *TenantDomainPatchRequest) HasRef() bool {
@@ -8156,6 +8549,69 @@ func (x *TenantDomainPatchRequest) HasVerifiedAtNull() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 9)
 }
 
+func (x *TenantDomainPatchRequest) HasCheckedAt() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_CheckedAt != nil
+}
+
+func (x *TenantDomainPatchRequest) HasCheckedAtNull() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 11)
+}
+
+func (x *TenantDomainPatchRequest) HasFailures() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 12)
+}
+
+func (x *TenantDomainPatchRequest) HasFailingSince() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_FailingSince != nil
+}
+
+func (x *TenantDomainPatchRequest) HasFailingSinceNull() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 14)
+}
+
+func (x *TenantDomainPatchRequest) HasDateLapsed() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateLapsed != nil
+}
+
+func (x *TenantDomainPatchRequest) HasDateLapsedNull() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 16)
+}
+
+func (x *TenantDomainPatchRequest) HasRedirectUntil() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_RedirectUntil != nil
+}
+
+func (x *TenantDomainPatchRequest) HasRedirectUntilNull() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 18)
+}
+
 func (x *TenantDomainPatchRequest) ClearRef() {
 	x.xxx_hidden_Ref = nil
 }
@@ -8203,6 +8659,47 @@ func (x *TenantDomainPatchRequest) ClearVerifiedAtNull() {
 	x.xxx_hidden_VerifiedAtNull = false
 }
 
+func (x *TenantDomainPatchRequest) ClearCheckedAt() {
+	x.xxx_hidden_CheckedAt = nil
+}
+
+func (x *TenantDomainPatchRequest) ClearCheckedAtNull() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 11)
+	x.xxx_hidden_CheckedAtNull = false
+}
+
+func (x *TenantDomainPatchRequest) ClearFailures() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 12)
+	x.xxx_hidden_Failures = 0
+}
+
+func (x *TenantDomainPatchRequest) ClearFailingSince() {
+	x.xxx_hidden_FailingSince = nil
+}
+
+func (x *TenantDomainPatchRequest) ClearFailingSinceNull() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 14)
+	x.xxx_hidden_FailingSinceNull = false
+}
+
+func (x *TenantDomainPatchRequest) ClearDateLapsed() {
+	x.xxx_hidden_DateLapsed = nil
+}
+
+func (x *TenantDomainPatchRequest) ClearDateLapsedNull() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 16)
+	x.xxx_hidden_DateLapsedNull = false
+}
+
+func (x *TenantDomainPatchRequest) ClearRedirectUntil() {
+	x.xxx_hidden_RedirectUntil = nil
+}
+
+func (x *TenantDomainPatchRequest) ClearRedirectUntilNull() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 18)
+	x.xxx_hidden_RedirectUntilNull = false
+}
+
 type TenantDomainPatchRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
@@ -8232,6 +8729,31 @@ type TenantDomainPatchRequest_builder struct {
 	// "leave it alone", so no value could have meant NULL. It wins
 	// outright: setting both this and verified_at clears.
 	VerifiedAtNull *bool
+	CheckedAt      *timestamppb.Timestamp
+	// Clear checked_at instead of writing it.
+	// It takes a field of its own because an unset value already means
+	// "leave it alone", so no value could have meant NULL. It wins
+	// outright: setting both this and checked_at clears.
+	CheckedAtNull *bool
+	Failures      *uint32
+	FailingSince  *timestamppb.Timestamp
+	// Clear failing_since instead of writing it.
+	// It takes a field of its own because an unset value already means
+	// "leave it alone", so no value could have meant NULL. It wins
+	// outright: setting both this and failing_since clears.
+	FailingSinceNull *bool
+	DateLapsed       *timestamppb.Timestamp
+	// Clear date_lapsed instead of writing it.
+	// It takes a field of its own because an unset value already means
+	// "leave it alone", so no value could have meant NULL. It wins
+	// outright: setting both this and date_lapsed clears.
+	DateLapsedNull *bool
+	RedirectUntil  *timestamppb.Timestamp
+	// Clear redirect_until instead of writing it.
+	// It takes a field of its own because an unset value already means
+	// "leave it alone", so no value could have meant NULL. It wins
+	// outright: setting both this and redirect_until clears.
+	RedirectUntilNull *bool
 }
 
 func (b0 TenantDomainPatchRequest_builder) Build() *TenantDomainPatchRequest {
@@ -8240,34 +8762,58 @@ func (b0 TenantDomainPatchRequest_builder) Build() *TenantDomainPatchRequest {
 	_, _ = b, x
 	x.xxx_hidden_Ref = b.Ref
 	if b.Host != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 19)
 		x.xxx_hidden_Host = b.Host
 	}
 	if b.Purpose != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 19)
 		x.xxx_hidden_Purpose = b.Purpose
 	}
 	if b.State != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 19)
 		x.xxx_hidden_State = b.State
 	}
 	if b.Token != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 19)
 		x.xxx_hidden_Token = b.Token
 	}
 	if b.Source != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 19)
 		x.xxx_hidden_Source = b.Source
 	}
 	x.xxx_hidden_DateUpdated = b.DateUpdated
 	if b.DateUpdatedForce != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 19)
 		x.xxx_hidden_DateUpdatedForce = *b.DateUpdatedForce
 	}
 	x.xxx_hidden_VerifiedAt = b.VerifiedAt
 	if b.VerifiedAtNull != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 10)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 9, 19)
 		x.xxx_hidden_VerifiedAtNull = *b.VerifiedAtNull
+	}
+	x.xxx_hidden_CheckedAt = b.CheckedAt
+	if b.CheckedAtNull != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 11, 19)
+		x.xxx_hidden_CheckedAtNull = *b.CheckedAtNull
+	}
+	if b.Failures != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 12, 19)
+		x.xxx_hidden_Failures = *b.Failures
+	}
+	x.xxx_hidden_FailingSince = b.FailingSince
+	if b.FailingSinceNull != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 14, 19)
+		x.xxx_hidden_FailingSinceNull = *b.FailingSinceNull
+	}
+	x.xxx_hidden_DateLapsed = b.DateLapsed
+	if b.DateLapsedNull != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 16, 19)
+		x.xxx_hidden_DateLapsedNull = *b.DateLapsedNull
+	}
+	x.xxx_hidden_RedirectUntil = b.RedirectUntil
+	if b.RedirectUntilNull != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 18, 19)
+		x.xxx_hidden_RedirectUntilNull = *b.RedirectUntilNull
 	}
 	return m0
 }
@@ -14725,7 +15271,7 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x13AssetReadSheetIssue\x12\x19\n" +
 	"\x04line\x18\x01 \x01(\rB\x05\xaa\x01\x02\b\x02R\x04line\x12\x1d\n" +
 	"\x06column\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06column\x12\x1f\n" +
-	"\amessage\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\amessage\"\xf4\x02\n" +
+	"\amessage\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\amessage\"\x8c\x05\n" +
 	"\x16TenantDomainAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\x12\x19\n" +
@@ -14737,7 +15283,14 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x06source\x18\f \x01(\tB\x05\xaa\x01\x02\b\x02R\x06source\x12=\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\x12;\n" +
 	"\vverified_at\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"verifiedAt\x12\x10\n" +
+	"verifiedAt\x129\n" +
+	"\n" +
+	"checked_at\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampR\tcheckedAt\x12\x1a\n" +
+	"\bfailures\x18\x13 \x01(\rR\bfailures\x12?\n" +
+	"\rfailing_since\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampR\ffailingSince\x12;\n" +
+	"\vdate_lapsed\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"dateLapsed\x12A\n" +
+	"\x0eredirect_until\x18\x15 \x01(\v2\x1a.google.protobuf.TimestampR\rredirectUntil\x12\x10\n" +
 	"\x03sub\x18d \x01(\tR\x03sub\"s\n" +
 	"\x16TenantDomainGetRequest\x12'\n" +
 	"\x03ref\x18\x01 \x01(\v2\x15.rove.TenantDomainRefR\x03ref\x120\n" +
@@ -14745,7 +15298,7 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x0fTenantDomainRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02id\x12\x14\n" +
 	"\x04host\x18\b \x01(\tH\x00R\x04hostB\x05\n" +
-	"\x03key\"\xcc\x02\n" +
+	"\x03key\"\xf4\x03\n" +
 	"\x12TenantDomainSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x12.rove.TenantSelectR\x06tenant\x12\x12\n" +
@@ -14760,7 +15313,14 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"dateErased\x12!\n" +
 	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\x12\x1f\n" +
 	"\vverified_at\x18\x10 \x01(\bR\n" +
-	"verifiedAt\"\x89\x03\n" +
+	"verifiedAt\x12\x1d\n" +
+	"\n" +
+	"checked_at\x18\x12 \x01(\bR\tcheckedAt\x12\x1a\n" +
+	"\bfailures\x18\x13 \x01(\bR\bfailures\x12#\n" +
+	"\rfailing_since\x18\x14 \x01(\bR\ffailingSince\x12\x1f\n" +
+	"\vdate_lapsed\x18\x11 \x01(\bR\n" +
+	"dateLapsed\x12%\n" +
+	"\x0eredirect_until\x18\x15 \x01(\bR\rredirectUntil\"\xd1\x06\n" +
 	"\x18TenantDomainPatchRequest\x12'\n" +
 	"\x03ref\x18\x01 \x01(\v2\x15.rove.TenantDomainRefR\x03ref\x12\x12\n" +
 	"\x04host\x18\x10 \x01(\tR\x04host\x12\x18\n" +
@@ -14772,7 +15332,18 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x12date_updated_force\x18\x1b \x01(\bR\x10dateUpdatedForce\x12;\n" +
 	"\vverified_at\x18  \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"verifiedAt\x12(\n" +
-	"\x10verified_at_null\x18! \x01(\bR\x0everifiedAtNull\"g\n" +
+	"\x10verified_at_null\x18! \x01(\bR\x0everifiedAtNull\x129\n" +
+	"\n" +
+	"checked_at\x18$ \x01(\v2\x1a.google.protobuf.TimestampR\tcheckedAt\x12&\n" +
+	"\x0fchecked_at_null\x18% \x01(\bR\rcheckedAtNull\x12\x1a\n" +
+	"\bfailures\x18& \x01(\rR\bfailures\x12?\n" +
+	"\rfailing_since\x18( \x01(\v2\x1a.google.protobuf.TimestampR\ffailingSince\x12,\n" +
+	"\x12failing_since_null\x18) \x01(\bR\x10failingSinceNull\x12;\n" +
+	"\vdate_lapsed\x18\" \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"dateLapsed\x12(\n" +
+	"\x10date_lapsed_null\x18# \x01(\bR\x0edateLapsedNull\x12A\n" +
+	"\x0eredirect_until\x18* \x01(\v2\x1a.google.protobuf.TimestampR\rredirectUntil\x12.\n" +
+	"\x13redirect_until_null\x18+ \x01(\bR\x11redirectUntilNull\"g\n" +
 	"\x18TenantDomainApplyRequest\x12'\n" +
 	"\x03ref\x18\x01 \x01(\v2\x15.rove.TenantDomainRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"3\n" +
@@ -15278,178 +15849,186 @@ var file_rove_asset_svc_g_proto_depIdxs = []int32{
 	107, // 87: rove.TenantDomainAddRequest.tenant:type_name -> rove.TenantRef
 	110, // 88: rove.TenantDomainAddRequest.date_created:type_name -> google.protobuf.Timestamp
 	110, // 89: rove.TenantDomainAddRequest.verified_at:type_name -> google.protobuf.Timestamp
-	44,  // 90: rove.TenantDomainGetRequest.ref:type_name -> rove.TenantDomainRef
-	45,  // 91: rove.TenantDomainGetRequest.select:type_name -> rove.TenantDomainSelect
-	113, // 92: rove.TenantDomainSelect.tenant:type_name -> rove.TenantSelect
-	44,  // 93: rove.TenantDomainPatchRequest.ref:type_name -> rove.TenantDomainRef
-	110, // 94: rove.TenantDomainPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	110, // 95: rove.TenantDomainPatchRequest.verified_at:type_name -> google.protobuf.Timestamp
-	44,  // 96: rove.TenantDomainApplyRequest.ref:type_name -> rove.TenantDomainRef
-	117, // 97: rove.TenantDomainApplyRequest.patch:type_name -> patch.Patch
-	51,  // 98: rove.TenantDomainListRequest.filters:type_name -> rove.TenantDomainFilter
-	118, // 99: rove.TenantDomainListResponse.items:type_name -> rove.TenantDomain
-	44,  // 100: rove.TenantDomainFilter.ref:type_name -> rove.TenantDomainRef
-	51,  // 101: rove.TenantDomainWatchRequest.filters:type_name -> rove.TenantDomainFilter
-	54,  // 102: rove.TenantDomainWatchResponse.items:type_name -> rove.TenantDomainWatchItem
-	118, // 103: rove.TenantDomainWatchItem.value:type_name -> rove.TenantDomain
-	44,  // 104: rove.TenantDomainVerifyRequest.ref:type_name -> rove.TenantDomainRef
-	44,  // 105: rove.TenantDomainActivateRequest.ref:type_name -> rove.TenantDomainRef
-	44,  // 106: rove.TenantDomainRetireRequest.ref:type_name -> rove.TenantDomainRef
-	118, // 107: rove.TenantDomainStatusResponse.active:type_name -> rove.TenantDomain
-	107, // 108: rove.LabelAddRequest.tenant:type_name -> rove.TenantRef
-	44,  // 109: rove.LabelAddRequest.domain:type_name -> rove.TenantDomainRef
-	110, // 110: rove.LabelAddRequest.bound_at:type_name -> google.protobuf.Timestamp
-	110, // 111: rove.LabelAddRequest.printed_at:type_name -> google.protobuf.Timestamp
-	110, // 112: rove.LabelAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	62,  // 113: rove.LabelGetRequest.ref:type_name -> rove.LabelRef
-	63,  // 114: rove.LabelGetRequest.select:type_name -> rove.LabelSelect
-	113, // 115: rove.LabelSelect.tenant:type_name -> rove.TenantSelect
-	45,  // 116: rove.LabelSelect.domain:type_name -> rove.TenantDomainSelect
-	62,  // 117: rove.LabelPatchRequest.ref:type_name -> rove.LabelRef
-	44,  // 118: rove.LabelPatchRequest.domain:type_name -> rove.TenantDomainRef
-	110, // 119: rove.LabelPatchRequest.bound_at:type_name -> google.protobuf.Timestamp
-	110, // 120: rove.LabelPatchRequest.printed_at:type_name -> google.protobuf.Timestamp
-	110, // 121: rove.LabelPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	62,  // 122: rove.LabelApplyRequest.ref:type_name -> rove.LabelRef
-	117, // 123: rove.LabelApplyRequest.patch:type_name -> patch.Patch
-	69,  // 124: rove.LabelListRequest.filters:type_name -> rove.LabelFilter
-	119, // 125: rove.LabelListResponse.items:type_name -> rove.Label
-	62,  // 126: rove.LabelFilter.ref:type_name -> rove.LabelRef
-	69,  // 127: rove.LabelWatchRequest.filters:type_name -> rove.LabelFilter
-	72,  // 128: rove.LabelWatchResponse.items:type_name -> rove.LabelWatchItem
-	119, // 129: rove.LabelWatchItem.value:type_name -> rove.Label
-	119, // 130: rove.LabelPrintResponse.labels:type_name -> rove.Label
-	62,  // 131: rove.LabelBindRequest.ref:type_name -> rove.LabelRef
-	1,   // 132: rove.LabelBindRequest.asset:type_name -> rove.AssetRef
-	62,  // 133: rove.LabelUnbindRequest.ref:type_name -> rove.LabelRef
-	119, // 134: rove.LabelResolveResponse.label:type_name -> rove.Label
-	112, // 135: rove.LabelResolveResponse.asset:type_name -> rove.Asset
-	107, // 136: rove.AttachmentAddRequest.tenant:type_name -> rove.TenantRef
-	110, // 137: rove.AttachmentAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	81,  // 138: rove.AttachmentGetRequest.ref:type_name -> rove.AttachmentRef
-	82,  // 139: rove.AttachmentGetRequest.select:type_name -> rove.AttachmentSelect
-	113, // 140: rove.AttachmentSelect.tenant:type_name -> rove.TenantSelect
-	81,  // 141: rove.AttachmentPatchRequest.ref:type_name -> rove.AttachmentRef
-	110, // 142: rove.AttachmentPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	81,  // 143: rove.AttachmentApplyRequest.ref:type_name -> rove.AttachmentRef
-	117, // 144: rove.AttachmentApplyRequest.patch:type_name -> patch.Patch
-	88,  // 145: rove.AttachmentListRequest.filters:type_name -> rove.AttachmentFilter
-	120, // 146: rove.AttachmentListResponse.items:type_name -> rove.Attachment
-	81,  // 147: rove.AttachmentFilter.ref:type_name -> rove.AttachmentRef
-	88,  // 148: rove.AttachmentWatchRequest.filters:type_name -> rove.AttachmentFilter
-	91,  // 149: rove.AttachmentWatchResponse.items:type_name -> rove.AttachmentWatchItem
-	120, // 150: rove.AttachmentWatchItem.value:type_name -> rove.Attachment
-	81,  // 151: rove.AttachmentUrlRequest.ref:type_name -> rove.AttachmentRef
-	110, // 152: rove.AttachmentUrlResponse.expires_at:type_name -> google.protobuf.Timestamp
-	0,   // 153: rove.AssetService.Add:input_type -> rove.AssetAddRequest
-	3,   // 154: rove.AssetService.AddMany:input_type -> rove.AssetAddManyRequest
-	6,   // 155: rove.AssetService.Get:input_type -> rove.AssetGetRequest
-	8,   // 156: rove.AssetService.Patch:input_type -> rove.AssetPatchRequest
-	9,   // 157: rove.AssetService.Apply:input_type -> rove.AssetApplyRequest
-	1,   // 158: rove.AssetService.Erase:input_type -> rove.AssetRef
-	11,  // 159: rove.AssetService.List:input_type -> rove.AssetListRequest
-	14,  // 160: rove.AssetService.Watch:input_type -> rove.AssetWatchRequest
-	17,  // 161: rove.AssetService.Move:input_type -> rove.AssetMoveRequest
-	18,  // 162: rove.AssetService.SetAttributes:input_type -> rove.AssetSetAttributesRequest
-	19,  // 163: rove.AssetService.Assign:input_type -> rove.AssetAssignRequest
-	20,  // 164: rove.AssetService.Relate:input_type -> rove.AssetRelateRequest
-	21,  // 165: rove.AssetService.Correct:input_type -> rove.AssetCorrectRequest
-	22,  // 166: rove.AssetService.Timeline:input_type -> rove.AssetTimelineRequest
-	25,  // 167: rove.AssetService.QueryAt:input_type -> rove.AssetQueryAtRequest
-	28,  // 168: rove.AssetService.Diff:input_type -> rove.AssetDiffRequest
-	31,  // 169: rove.AssetService.Search:input_type -> rove.AssetSearchRequest
-	33,  // 170: rove.AssetService.Report:input_type -> rove.AssetReportRequest
-	36,  // 171: rove.AssetService.Export:input_type -> rove.AssetExportRequest
-	38,  // 172: rove.AssetService.Form:input_type -> rove.AssetFormRequest
-	39,  // 173: rove.AssetService.ReadSheet:input_type -> rove.AssetReadSheetRequest
-	42,  // 174: rove.TenantDomainService.Add:input_type -> rove.TenantDomainAddRequest
-	43,  // 175: rove.TenantDomainService.Get:input_type -> rove.TenantDomainGetRequest
-	46,  // 176: rove.TenantDomainService.Patch:input_type -> rove.TenantDomainPatchRequest
-	47,  // 177: rove.TenantDomainService.Apply:input_type -> rove.TenantDomainApplyRequest
-	44,  // 178: rove.TenantDomainService.Erase:input_type -> rove.TenantDomainRef
-	49,  // 179: rove.TenantDomainService.List:input_type -> rove.TenantDomainListRequest
-	52,  // 180: rove.TenantDomainService.Watch:input_type -> rove.TenantDomainWatchRequest
-	55,  // 181: rove.TenantDomainService.Verify:input_type -> rove.TenantDomainVerifyRequest
-	56,  // 182: rove.TenantDomainService.Activate:input_type -> rove.TenantDomainActivateRequest
-	57,  // 183: rove.TenantDomainService.Retire:input_type -> rove.TenantDomainRetireRequest
-	58,  // 184: rove.TenantDomainService.Status:input_type -> rove.TenantDomainStatusRequest
-	60,  // 185: rove.LabelService.Add:input_type -> rove.LabelAddRequest
-	61,  // 186: rove.LabelService.Get:input_type -> rove.LabelGetRequest
-	64,  // 187: rove.LabelService.Patch:input_type -> rove.LabelPatchRequest
-	65,  // 188: rove.LabelService.Apply:input_type -> rove.LabelApplyRequest
-	62,  // 189: rove.LabelService.Erase:input_type -> rove.LabelRef
-	67,  // 190: rove.LabelService.List:input_type -> rove.LabelListRequest
-	70,  // 191: rove.LabelService.Watch:input_type -> rove.LabelWatchRequest
-	73,  // 192: rove.LabelService.Print:input_type -> rove.LabelPrintRequest
-	75,  // 193: rove.LabelService.Bind:input_type -> rove.LabelBindRequest
-	76,  // 194: rove.LabelService.Unbind:input_type -> rove.LabelUnbindRequest
-	77,  // 195: rove.LabelService.Resolve:input_type -> rove.LabelResolveRequest
-	79,  // 196: rove.AttachmentService.Add:input_type -> rove.AttachmentAddRequest
-	80,  // 197: rove.AttachmentService.Get:input_type -> rove.AttachmentGetRequest
-	83,  // 198: rove.AttachmentService.Patch:input_type -> rove.AttachmentPatchRequest
-	84,  // 199: rove.AttachmentService.Apply:input_type -> rove.AttachmentApplyRequest
-	81,  // 200: rove.AttachmentService.Erase:input_type -> rove.AttachmentRef
-	86,  // 201: rove.AttachmentService.List:input_type -> rove.AttachmentListRequest
-	89,  // 202: rove.AttachmentService.Watch:input_type -> rove.AttachmentWatchRequest
-	92,  // 203: rove.AttachmentService.Upload:input_type -> rove.AttachmentUploadRequest
-	93,  // 204: rove.AttachmentService.Url:input_type -> rove.AttachmentUrlRequest
-	112, // 205: rove.AssetService.Add:output_type -> rove.Asset
-	4,   // 206: rove.AssetService.AddMany:output_type -> rove.AssetAddManyResponse
-	112, // 207: rove.AssetService.Get:output_type -> rove.Asset
-	112, // 208: rove.AssetService.Patch:output_type -> rove.Asset
-	112, // 209: rove.AssetService.Apply:output_type -> rove.Asset
-	10,  // 210: rove.AssetService.Erase:output_type -> rove.AssetEraseResponse
-	12,  // 211: rove.AssetService.List:output_type -> rove.AssetListResponse
-	15,  // 212: rove.AssetService.Watch:output_type -> rove.AssetWatchResponse
-	112, // 213: rove.AssetService.Move:output_type -> rove.Asset
-	112, // 214: rove.AssetService.SetAttributes:output_type -> rove.Asset
-	112, // 215: rove.AssetService.Assign:output_type -> rove.Asset
-	112, // 216: rove.AssetService.Relate:output_type -> rove.Asset
-	112, // 217: rove.AssetService.Correct:output_type -> rove.Asset
-	23,  // 218: rove.AssetService.Timeline:output_type -> rove.AssetTimelineResponse
-	26,  // 219: rove.AssetService.QueryAt:output_type -> rove.AssetQueryAtResponse
-	29,  // 220: rove.AssetService.Diff:output_type -> rove.AssetDiffResponse
-	32,  // 221: rove.AssetService.Search:output_type -> rove.AssetSearchResponse
-	34,  // 222: rove.AssetService.Report:output_type -> rove.AssetReportResponse
-	37,  // 223: rove.AssetService.Export:output_type -> rove.AssetExportResponse
-	37,  // 224: rove.AssetService.Form:output_type -> rove.AssetExportResponse
-	40,  // 225: rove.AssetService.ReadSheet:output_type -> rove.AssetReadSheetResponse
-	118, // 226: rove.TenantDomainService.Add:output_type -> rove.TenantDomain
-	118, // 227: rove.TenantDomainService.Get:output_type -> rove.TenantDomain
-	118, // 228: rove.TenantDomainService.Patch:output_type -> rove.TenantDomain
-	118, // 229: rove.TenantDomainService.Apply:output_type -> rove.TenantDomain
-	48,  // 230: rove.TenantDomainService.Erase:output_type -> rove.TenantDomainEraseResponse
-	50,  // 231: rove.TenantDomainService.List:output_type -> rove.TenantDomainListResponse
-	53,  // 232: rove.TenantDomainService.Watch:output_type -> rove.TenantDomainWatchResponse
-	118, // 233: rove.TenantDomainService.Verify:output_type -> rove.TenantDomain
-	118, // 234: rove.TenantDomainService.Activate:output_type -> rove.TenantDomain
-	118, // 235: rove.TenantDomainService.Retire:output_type -> rove.TenantDomain
-	59,  // 236: rove.TenantDomainService.Status:output_type -> rove.TenantDomainStatusResponse
-	119, // 237: rove.LabelService.Add:output_type -> rove.Label
-	119, // 238: rove.LabelService.Get:output_type -> rove.Label
-	119, // 239: rove.LabelService.Patch:output_type -> rove.Label
-	119, // 240: rove.LabelService.Apply:output_type -> rove.Label
-	66,  // 241: rove.LabelService.Erase:output_type -> rove.LabelEraseResponse
-	68,  // 242: rove.LabelService.List:output_type -> rove.LabelListResponse
-	71,  // 243: rove.LabelService.Watch:output_type -> rove.LabelWatchResponse
-	74,  // 244: rove.LabelService.Print:output_type -> rove.LabelPrintResponse
-	119, // 245: rove.LabelService.Bind:output_type -> rove.Label
-	119, // 246: rove.LabelService.Unbind:output_type -> rove.Label
-	78,  // 247: rove.LabelService.Resolve:output_type -> rove.LabelResolveResponse
-	120, // 248: rove.AttachmentService.Add:output_type -> rove.Attachment
-	120, // 249: rove.AttachmentService.Get:output_type -> rove.Attachment
-	120, // 250: rove.AttachmentService.Patch:output_type -> rove.Attachment
-	120, // 251: rove.AttachmentService.Apply:output_type -> rove.Attachment
-	85,  // 252: rove.AttachmentService.Erase:output_type -> rove.AttachmentEraseResponse
-	87,  // 253: rove.AttachmentService.List:output_type -> rove.AttachmentListResponse
-	90,  // 254: rove.AttachmentService.Watch:output_type -> rove.AttachmentWatchResponse
-	120, // 255: rove.AttachmentService.Upload:output_type -> rove.Attachment
-	94,  // 256: rove.AttachmentService.Url:output_type -> rove.AttachmentUrlResponse
-	205, // [205:257] is the sub-list for method output_type
-	153, // [153:205] is the sub-list for method input_type
-	153, // [153:153] is the sub-list for extension type_name
-	153, // [153:153] is the sub-list for extension extendee
-	0,   // [0:153] is the sub-list for field type_name
+	110, // 90: rove.TenantDomainAddRequest.checked_at:type_name -> google.protobuf.Timestamp
+	110, // 91: rove.TenantDomainAddRequest.failing_since:type_name -> google.protobuf.Timestamp
+	110, // 92: rove.TenantDomainAddRequest.date_lapsed:type_name -> google.protobuf.Timestamp
+	110, // 93: rove.TenantDomainAddRequest.redirect_until:type_name -> google.protobuf.Timestamp
+	44,  // 94: rove.TenantDomainGetRequest.ref:type_name -> rove.TenantDomainRef
+	45,  // 95: rove.TenantDomainGetRequest.select:type_name -> rove.TenantDomainSelect
+	113, // 96: rove.TenantDomainSelect.tenant:type_name -> rove.TenantSelect
+	44,  // 97: rove.TenantDomainPatchRequest.ref:type_name -> rove.TenantDomainRef
+	110, // 98: rove.TenantDomainPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	110, // 99: rove.TenantDomainPatchRequest.verified_at:type_name -> google.protobuf.Timestamp
+	110, // 100: rove.TenantDomainPatchRequest.checked_at:type_name -> google.protobuf.Timestamp
+	110, // 101: rove.TenantDomainPatchRequest.failing_since:type_name -> google.protobuf.Timestamp
+	110, // 102: rove.TenantDomainPatchRequest.date_lapsed:type_name -> google.protobuf.Timestamp
+	110, // 103: rove.TenantDomainPatchRequest.redirect_until:type_name -> google.protobuf.Timestamp
+	44,  // 104: rove.TenantDomainApplyRequest.ref:type_name -> rove.TenantDomainRef
+	117, // 105: rove.TenantDomainApplyRequest.patch:type_name -> patch.Patch
+	51,  // 106: rove.TenantDomainListRequest.filters:type_name -> rove.TenantDomainFilter
+	118, // 107: rove.TenantDomainListResponse.items:type_name -> rove.TenantDomain
+	44,  // 108: rove.TenantDomainFilter.ref:type_name -> rove.TenantDomainRef
+	51,  // 109: rove.TenantDomainWatchRequest.filters:type_name -> rove.TenantDomainFilter
+	54,  // 110: rove.TenantDomainWatchResponse.items:type_name -> rove.TenantDomainWatchItem
+	118, // 111: rove.TenantDomainWatchItem.value:type_name -> rove.TenantDomain
+	44,  // 112: rove.TenantDomainVerifyRequest.ref:type_name -> rove.TenantDomainRef
+	44,  // 113: rove.TenantDomainActivateRequest.ref:type_name -> rove.TenantDomainRef
+	44,  // 114: rove.TenantDomainRetireRequest.ref:type_name -> rove.TenantDomainRef
+	118, // 115: rove.TenantDomainStatusResponse.active:type_name -> rove.TenantDomain
+	107, // 116: rove.LabelAddRequest.tenant:type_name -> rove.TenantRef
+	44,  // 117: rove.LabelAddRequest.domain:type_name -> rove.TenantDomainRef
+	110, // 118: rove.LabelAddRequest.bound_at:type_name -> google.protobuf.Timestamp
+	110, // 119: rove.LabelAddRequest.printed_at:type_name -> google.protobuf.Timestamp
+	110, // 120: rove.LabelAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	62,  // 121: rove.LabelGetRequest.ref:type_name -> rove.LabelRef
+	63,  // 122: rove.LabelGetRequest.select:type_name -> rove.LabelSelect
+	113, // 123: rove.LabelSelect.tenant:type_name -> rove.TenantSelect
+	45,  // 124: rove.LabelSelect.domain:type_name -> rove.TenantDomainSelect
+	62,  // 125: rove.LabelPatchRequest.ref:type_name -> rove.LabelRef
+	44,  // 126: rove.LabelPatchRequest.domain:type_name -> rove.TenantDomainRef
+	110, // 127: rove.LabelPatchRequest.bound_at:type_name -> google.protobuf.Timestamp
+	110, // 128: rove.LabelPatchRequest.printed_at:type_name -> google.protobuf.Timestamp
+	110, // 129: rove.LabelPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	62,  // 130: rove.LabelApplyRequest.ref:type_name -> rove.LabelRef
+	117, // 131: rove.LabelApplyRequest.patch:type_name -> patch.Patch
+	69,  // 132: rove.LabelListRequest.filters:type_name -> rove.LabelFilter
+	119, // 133: rove.LabelListResponse.items:type_name -> rove.Label
+	62,  // 134: rove.LabelFilter.ref:type_name -> rove.LabelRef
+	69,  // 135: rove.LabelWatchRequest.filters:type_name -> rove.LabelFilter
+	72,  // 136: rove.LabelWatchResponse.items:type_name -> rove.LabelWatchItem
+	119, // 137: rove.LabelWatchItem.value:type_name -> rove.Label
+	119, // 138: rove.LabelPrintResponse.labels:type_name -> rove.Label
+	62,  // 139: rove.LabelBindRequest.ref:type_name -> rove.LabelRef
+	1,   // 140: rove.LabelBindRequest.asset:type_name -> rove.AssetRef
+	62,  // 141: rove.LabelUnbindRequest.ref:type_name -> rove.LabelRef
+	119, // 142: rove.LabelResolveResponse.label:type_name -> rove.Label
+	112, // 143: rove.LabelResolveResponse.asset:type_name -> rove.Asset
+	107, // 144: rove.AttachmentAddRequest.tenant:type_name -> rove.TenantRef
+	110, // 145: rove.AttachmentAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	81,  // 146: rove.AttachmentGetRequest.ref:type_name -> rove.AttachmentRef
+	82,  // 147: rove.AttachmentGetRequest.select:type_name -> rove.AttachmentSelect
+	113, // 148: rove.AttachmentSelect.tenant:type_name -> rove.TenantSelect
+	81,  // 149: rove.AttachmentPatchRequest.ref:type_name -> rove.AttachmentRef
+	110, // 150: rove.AttachmentPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	81,  // 151: rove.AttachmentApplyRequest.ref:type_name -> rove.AttachmentRef
+	117, // 152: rove.AttachmentApplyRequest.patch:type_name -> patch.Patch
+	88,  // 153: rove.AttachmentListRequest.filters:type_name -> rove.AttachmentFilter
+	120, // 154: rove.AttachmentListResponse.items:type_name -> rove.Attachment
+	81,  // 155: rove.AttachmentFilter.ref:type_name -> rove.AttachmentRef
+	88,  // 156: rove.AttachmentWatchRequest.filters:type_name -> rove.AttachmentFilter
+	91,  // 157: rove.AttachmentWatchResponse.items:type_name -> rove.AttachmentWatchItem
+	120, // 158: rove.AttachmentWatchItem.value:type_name -> rove.Attachment
+	81,  // 159: rove.AttachmentUrlRequest.ref:type_name -> rove.AttachmentRef
+	110, // 160: rove.AttachmentUrlResponse.expires_at:type_name -> google.protobuf.Timestamp
+	0,   // 161: rove.AssetService.Add:input_type -> rove.AssetAddRequest
+	3,   // 162: rove.AssetService.AddMany:input_type -> rove.AssetAddManyRequest
+	6,   // 163: rove.AssetService.Get:input_type -> rove.AssetGetRequest
+	8,   // 164: rove.AssetService.Patch:input_type -> rove.AssetPatchRequest
+	9,   // 165: rove.AssetService.Apply:input_type -> rove.AssetApplyRequest
+	1,   // 166: rove.AssetService.Erase:input_type -> rove.AssetRef
+	11,  // 167: rove.AssetService.List:input_type -> rove.AssetListRequest
+	14,  // 168: rove.AssetService.Watch:input_type -> rove.AssetWatchRequest
+	17,  // 169: rove.AssetService.Move:input_type -> rove.AssetMoveRequest
+	18,  // 170: rove.AssetService.SetAttributes:input_type -> rove.AssetSetAttributesRequest
+	19,  // 171: rove.AssetService.Assign:input_type -> rove.AssetAssignRequest
+	20,  // 172: rove.AssetService.Relate:input_type -> rove.AssetRelateRequest
+	21,  // 173: rove.AssetService.Correct:input_type -> rove.AssetCorrectRequest
+	22,  // 174: rove.AssetService.Timeline:input_type -> rove.AssetTimelineRequest
+	25,  // 175: rove.AssetService.QueryAt:input_type -> rove.AssetQueryAtRequest
+	28,  // 176: rove.AssetService.Diff:input_type -> rove.AssetDiffRequest
+	31,  // 177: rove.AssetService.Search:input_type -> rove.AssetSearchRequest
+	33,  // 178: rove.AssetService.Report:input_type -> rove.AssetReportRequest
+	36,  // 179: rove.AssetService.Export:input_type -> rove.AssetExportRequest
+	38,  // 180: rove.AssetService.Form:input_type -> rove.AssetFormRequest
+	39,  // 181: rove.AssetService.ReadSheet:input_type -> rove.AssetReadSheetRequest
+	42,  // 182: rove.TenantDomainService.Add:input_type -> rove.TenantDomainAddRequest
+	43,  // 183: rove.TenantDomainService.Get:input_type -> rove.TenantDomainGetRequest
+	46,  // 184: rove.TenantDomainService.Patch:input_type -> rove.TenantDomainPatchRequest
+	47,  // 185: rove.TenantDomainService.Apply:input_type -> rove.TenantDomainApplyRequest
+	44,  // 186: rove.TenantDomainService.Erase:input_type -> rove.TenantDomainRef
+	49,  // 187: rove.TenantDomainService.List:input_type -> rove.TenantDomainListRequest
+	52,  // 188: rove.TenantDomainService.Watch:input_type -> rove.TenantDomainWatchRequest
+	55,  // 189: rove.TenantDomainService.Verify:input_type -> rove.TenantDomainVerifyRequest
+	56,  // 190: rove.TenantDomainService.Activate:input_type -> rove.TenantDomainActivateRequest
+	57,  // 191: rove.TenantDomainService.Retire:input_type -> rove.TenantDomainRetireRequest
+	58,  // 192: rove.TenantDomainService.Status:input_type -> rove.TenantDomainStatusRequest
+	60,  // 193: rove.LabelService.Add:input_type -> rove.LabelAddRequest
+	61,  // 194: rove.LabelService.Get:input_type -> rove.LabelGetRequest
+	64,  // 195: rove.LabelService.Patch:input_type -> rove.LabelPatchRequest
+	65,  // 196: rove.LabelService.Apply:input_type -> rove.LabelApplyRequest
+	62,  // 197: rove.LabelService.Erase:input_type -> rove.LabelRef
+	67,  // 198: rove.LabelService.List:input_type -> rove.LabelListRequest
+	70,  // 199: rove.LabelService.Watch:input_type -> rove.LabelWatchRequest
+	73,  // 200: rove.LabelService.Print:input_type -> rove.LabelPrintRequest
+	75,  // 201: rove.LabelService.Bind:input_type -> rove.LabelBindRequest
+	76,  // 202: rove.LabelService.Unbind:input_type -> rove.LabelUnbindRequest
+	77,  // 203: rove.LabelService.Resolve:input_type -> rove.LabelResolveRequest
+	79,  // 204: rove.AttachmentService.Add:input_type -> rove.AttachmentAddRequest
+	80,  // 205: rove.AttachmentService.Get:input_type -> rove.AttachmentGetRequest
+	83,  // 206: rove.AttachmentService.Patch:input_type -> rove.AttachmentPatchRequest
+	84,  // 207: rove.AttachmentService.Apply:input_type -> rove.AttachmentApplyRequest
+	81,  // 208: rove.AttachmentService.Erase:input_type -> rove.AttachmentRef
+	86,  // 209: rove.AttachmentService.List:input_type -> rove.AttachmentListRequest
+	89,  // 210: rove.AttachmentService.Watch:input_type -> rove.AttachmentWatchRequest
+	92,  // 211: rove.AttachmentService.Upload:input_type -> rove.AttachmentUploadRequest
+	93,  // 212: rove.AttachmentService.Url:input_type -> rove.AttachmentUrlRequest
+	112, // 213: rove.AssetService.Add:output_type -> rove.Asset
+	4,   // 214: rove.AssetService.AddMany:output_type -> rove.AssetAddManyResponse
+	112, // 215: rove.AssetService.Get:output_type -> rove.Asset
+	112, // 216: rove.AssetService.Patch:output_type -> rove.Asset
+	112, // 217: rove.AssetService.Apply:output_type -> rove.Asset
+	10,  // 218: rove.AssetService.Erase:output_type -> rove.AssetEraseResponse
+	12,  // 219: rove.AssetService.List:output_type -> rove.AssetListResponse
+	15,  // 220: rove.AssetService.Watch:output_type -> rove.AssetWatchResponse
+	112, // 221: rove.AssetService.Move:output_type -> rove.Asset
+	112, // 222: rove.AssetService.SetAttributes:output_type -> rove.Asset
+	112, // 223: rove.AssetService.Assign:output_type -> rove.Asset
+	112, // 224: rove.AssetService.Relate:output_type -> rove.Asset
+	112, // 225: rove.AssetService.Correct:output_type -> rove.Asset
+	23,  // 226: rove.AssetService.Timeline:output_type -> rove.AssetTimelineResponse
+	26,  // 227: rove.AssetService.QueryAt:output_type -> rove.AssetQueryAtResponse
+	29,  // 228: rove.AssetService.Diff:output_type -> rove.AssetDiffResponse
+	32,  // 229: rove.AssetService.Search:output_type -> rove.AssetSearchResponse
+	34,  // 230: rove.AssetService.Report:output_type -> rove.AssetReportResponse
+	37,  // 231: rove.AssetService.Export:output_type -> rove.AssetExportResponse
+	37,  // 232: rove.AssetService.Form:output_type -> rove.AssetExportResponse
+	40,  // 233: rove.AssetService.ReadSheet:output_type -> rove.AssetReadSheetResponse
+	118, // 234: rove.TenantDomainService.Add:output_type -> rove.TenantDomain
+	118, // 235: rove.TenantDomainService.Get:output_type -> rove.TenantDomain
+	118, // 236: rove.TenantDomainService.Patch:output_type -> rove.TenantDomain
+	118, // 237: rove.TenantDomainService.Apply:output_type -> rove.TenantDomain
+	48,  // 238: rove.TenantDomainService.Erase:output_type -> rove.TenantDomainEraseResponse
+	50,  // 239: rove.TenantDomainService.List:output_type -> rove.TenantDomainListResponse
+	53,  // 240: rove.TenantDomainService.Watch:output_type -> rove.TenantDomainWatchResponse
+	118, // 241: rove.TenantDomainService.Verify:output_type -> rove.TenantDomain
+	118, // 242: rove.TenantDomainService.Activate:output_type -> rove.TenantDomain
+	118, // 243: rove.TenantDomainService.Retire:output_type -> rove.TenantDomain
+	59,  // 244: rove.TenantDomainService.Status:output_type -> rove.TenantDomainStatusResponse
+	119, // 245: rove.LabelService.Add:output_type -> rove.Label
+	119, // 246: rove.LabelService.Get:output_type -> rove.Label
+	119, // 247: rove.LabelService.Patch:output_type -> rove.Label
+	119, // 248: rove.LabelService.Apply:output_type -> rove.Label
+	66,  // 249: rove.LabelService.Erase:output_type -> rove.LabelEraseResponse
+	68,  // 250: rove.LabelService.List:output_type -> rove.LabelListResponse
+	71,  // 251: rove.LabelService.Watch:output_type -> rove.LabelWatchResponse
+	74,  // 252: rove.LabelService.Print:output_type -> rove.LabelPrintResponse
+	119, // 253: rove.LabelService.Bind:output_type -> rove.Label
+	119, // 254: rove.LabelService.Unbind:output_type -> rove.Label
+	78,  // 255: rove.LabelService.Resolve:output_type -> rove.LabelResolveResponse
+	120, // 256: rove.AttachmentService.Add:output_type -> rove.Attachment
+	120, // 257: rove.AttachmentService.Get:output_type -> rove.Attachment
+	120, // 258: rove.AttachmentService.Patch:output_type -> rove.Attachment
+	120, // 259: rove.AttachmentService.Apply:output_type -> rove.Attachment
+	85,  // 260: rove.AttachmentService.Erase:output_type -> rove.AttachmentEraseResponse
+	87,  // 261: rove.AttachmentService.List:output_type -> rove.AttachmentListResponse
+	90,  // 262: rove.AttachmentService.Watch:output_type -> rove.AttachmentWatchResponse
+	120, // 263: rove.AttachmentService.Upload:output_type -> rove.Attachment
+	94,  // 264: rove.AttachmentService.Url:output_type -> rove.AttachmentUrlResponse
+	213, // [213:265] is the sub-list for method output_type
+	161, // [161:213] is the sub-list for method input_type
+	161, // [161:161] is the sub-list for extension type_name
+	161, // [161:161] is the sub-list for extension extendee
+	0,   // [0:161] is the sub-list for field type_name
 }
 
 func init() { file_rove_asset_svc_g_proto_init() }

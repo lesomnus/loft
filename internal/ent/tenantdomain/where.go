@@ -101,6 +101,31 @@ func VerifiedAt(v time.Time) predicate.TenantDomain {
 	return predicate.TenantDomain(sql.FieldEQ(FieldVerifiedAt, v))
 }
 
+// CheckedAt applies equality check predicate on the "checked_at" field. It's identical to CheckedAtEQ.
+func CheckedAt(v time.Time) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldEQ(FieldCheckedAt, v))
+}
+
+// Failures applies equality check predicate on the "failures" field. It's identical to FailuresEQ.
+func Failures(v uint32) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldEQ(FieldFailures, v))
+}
+
+// FailingSince applies equality check predicate on the "failing_since" field. It's identical to FailingSinceEQ.
+func FailingSince(v time.Time) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldEQ(FieldFailingSince, v))
+}
+
+// DateLapsed applies equality check predicate on the "date_lapsed" field. It's identical to DateLapsedEQ.
+func DateLapsed(v time.Time) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldEQ(FieldDateLapsed, v))
+}
+
+// RedirectUntil applies equality check predicate on the "redirect_until" field. It's identical to RedirectUntilEQ.
+func RedirectUntil(v time.Time) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldEQ(FieldRedirectUntil, v))
+}
+
 // TenantId applies equality check predicate on the "tenant_id" field. It's identical to TenantIdEQ.
 func TenantId(v uuid.UUID) predicate.TenantDomain {
 	return predicate.TenantDomain(sql.FieldEQ(FieldTenantId, v))
@@ -619,6 +644,256 @@ func VerifiedAtIsNil() predicate.TenantDomain {
 // VerifiedAtNotNil applies the NotNil predicate on the "verified_at" field.
 func VerifiedAtNotNil() predicate.TenantDomain {
 	return predicate.TenantDomain(sql.FieldNotNull(FieldVerifiedAt))
+}
+
+// CheckedAtEQ applies the EQ predicate on the "checked_at" field.
+func CheckedAtEQ(v time.Time) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldEQ(FieldCheckedAt, v))
+}
+
+// CheckedAtNEQ applies the NEQ predicate on the "checked_at" field.
+func CheckedAtNEQ(v time.Time) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldNEQ(FieldCheckedAt, v))
+}
+
+// CheckedAtIn applies the In predicate on the "checked_at" field.
+func CheckedAtIn(vs ...time.Time) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldIn(FieldCheckedAt, vs...))
+}
+
+// CheckedAtNotIn applies the NotIn predicate on the "checked_at" field.
+func CheckedAtNotIn(vs ...time.Time) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldNotIn(FieldCheckedAt, vs...))
+}
+
+// CheckedAtGT applies the GT predicate on the "checked_at" field.
+func CheckedAtGT(v time.Time) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldGT(FieldCheckedAt, v))
+}
+
+// CheckedAtGTE applies the GTE predicate on the "checked_at" field.
+func CheckedAtGTE(v time.Time) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldGTE(FieldCheckedAt, v))
+}
+
+// CheckedAtLT applies the LT predicate on the "checked_at" field.
+func CheckedAtLT(v time.Time) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldLT(FieldCheckedAt, v))
+}
+
+// CheckedAtLTE applies the LTE predicate on the "checked_at" field.
+func CheckedAtLTE(v time.Time) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldLTE(FieldCheckedAt, v))
+}
+
+// CheckedAtIsNil applies the IsNil predicate on the "checked_at" field.
+func CheckedAtIsNil() predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldIsNull(FieldCheckedAt))
+}
+
+// CheckedAtNotNil applies the NotNil predicate on the "checked_at" field.
+func CheckedAtNotNil() predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldNotNull(FieldCheckedAt))
+}
+
+// FailuresEQ applies the EQ predicate on the "failures" field.
+func FailuresEQ(v uint32) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldEQ(FieldFailures, v))
+}
+
+// FailuresNEQ applies the NEQ predicate on the "failures" field.
+func FailuresNEQ(v uint32) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldNEQ(FieldFailures, v))
+}
+
+// FailuresIn applies the In predicate on the "failures" field.
+func FailuresIn(vs ...uint32) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldIn(FieldFailures, vs...))
+}
+
+// FailuresNotIn applies the NotIn predicate on the "failures" field.
+func FailuresNotIn(vs ...uint32) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldNotIn(FieldFailures, vs...))
+}
+
+// FailuresGT applies the GT predicate on the "failures" field.
+func FailuresGT(v uint32) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldGT(FieldFailures, v))
+}
+
+// FailuresGTE applies the GTE predicate on the "failures" field.
+func FailuresGTE(v uint32) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldGTE(FieldFailures, v))
+}
+
+// FailuresLT applies the LT predicate on the "failures" field.
+func FailuresLT(v uint32) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldLT(FieldFailures, v))
+}
+
+// FailuresLTE applies the LTE predicate on the "failures" field.
+func FailuresLTE(v uint32) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldLTE(FieldFailures, v))
+}
+
+// FailuresIsNil applies the IsNil predicate on the "failures" field.
+func FailuresIsNil() predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldIsNull(FieldFailures))
+}
+
+// FailuresNotNil applies the NotNil predicate on the "failures" field.
+func FailuresNotNil() predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldNotNull(FieldFailures))
+}
+
+// FailingSinceEQ applies the EQ predicate on the "failing_since" field.
+func FailingSinceEQ(v time.Time) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldEQ(FieldFailingSince, v))
+}
+
+// FailingSinceNEQ applies the NEQ predicate on the "failing_since" field.
+func FailingSinceNEQ(v time.Time) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldNEQ(FieldFailingSince, v))
+}
+
+// FailingSinceIn applies the In predicate on the "failing_since" field.
+func FailingSinceIn(vs ...time.Time) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldIn(FieldFailingSince, vs...))
+}
+
+// FailingSinceNotIn applies the NotIn predicate on the "failing_since" field.
+func FailingSinceNotIn(vs ...time.Time) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldNotIn(FieldFailingSince, vs...))
+}
+
+// FailingSinceGT applies the GT predicate on the "failing_since" field.
+func FailingSinceGT(v time.Time) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldGT(FieldFailingSince, v))
+}
+
+// FailingSinceGTE applies the GTE predicate on the "failing_since" field.
+func FailingSinceGTE(v time.Time) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldGTE(FieldFailingSince, v))
+}
+
+// FailingSinceLT applies the LT predicate on the "failing_since" field.
+func FailingSinceLT(v time.Time) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldLT(FieldFailingSince, v))
+}
+
+// FailingSinceLTE applies the LTE predicate on the "failing_since" field.
+func FailingSinceLTE(v time.Time) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldLTE(FieldFailingSince, v))
+}
+
+// FailingSinceIsNil applies the IsNil predicate on the "failing_since" field.
+func FailingSinceIsNil() predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldIsNull(FieldFailingSince))
+}
+
+// FailingSinceNotNil applies the NotNil predicate on the "failing_since" field.
+func FailingSinceNotNil() predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldNotNull(FieldFailingSince))
+}
+
+// DateLapsedEQ applies the EQ predicate on the "date_lapsed" field.
+func DateLapsedEQ(v time.Time) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldEQ(FieldDateLapsed, v))
+}
+
+// DateLapsedNEQ applies the NEQ predicate on the "date_lapsed" field.
+func DateLapsedNEQ(v time.Time) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldNEQ(FieldDateLapsed, v))
+}
+
+// DateLapsedIn applies the In predicate on the "date_lapsed" field.
+func DateLapsedIn(vs ...time.Time) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldIn(FieldDateLapsed, vs...))
+}
+
+// DateLapsedNotIn applies the NotIn predicate on the "date_lapsed" field.
+func DateLapsedNotIn(vs ...time.Time) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldNotIn(FieldDateLapsed, vs...))
+}
+
+// DateLapsedGT applies the GT predicate on the "date_lapsed" field.
+func DateLapsedGT(v time.Time) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldGT(FieldDateLapsed, v))
+}
+
+// DateLapsedGTE applies the GTE predicate on the "date_lapsed" field.
+func DateLapsedGTE(v time.Time) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldGTE(FieldDateLapsed, v))
+}
+
+// DateLapsedLT applies the LT predicate on the "date_lapsed" field.
+func DateLapsedLT(v time.Time) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldLT(FieldDateLapsed, v))
+}
+
+// DateLapsedLTE applies the LTE predicate on the "date_lapsed" field.
+func DateLapsedLTE(v time.Time) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldLTE(FieldDateLapsed, v))
+}
+
+// DateLapsedIsNil applies the IsNil predicate on the "date_lapsed" field.
+func DateLapsedIsNil() predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldIsNull(FieldDateLapsed))
+}
+
+// DateLapsedNotNil applies the NotNil predicate on the "date_lapsed" field.
+func DateLapsedNotNil() predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldNotNull(FieldDateLapsed))
+}
+
+// RedirectUntilEQ applies the EQ predicate on the "redirect_until" field.
+func RedirectUntilEQ(v time.Time) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldEQ(FieldRedirectUntil, v))
+}
+
+// RedirectUntilNEQ applies the NEQ predicate on the "redirect_until" field.
+func RedirectUntilNEQ(v time.Time) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldNEQ(FieldRedirectUntil, v))
+}
+
+// RedirectUntilIn applies the In predicate on the "redirect_until" field.
+func RedirectUntilIn(vs ...time.Time) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldIn(FieldRedirectUntil, vs...))
+}
+
+// RedirectUntilNotIn applies the NotIn predicate on the "redirect_until" field.
+func RedirectUntilNotIn(vs ...time.Time) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldNotIn(FieldRedirectUntil, vs...))
+}
+
+// RedirectUntilGT applies the GT predicate on the "redirect_until" field.
+func RedirectUntilGT(v time.Time) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldGT(FieldRedirectUntil, v))
+}
+
+// RedirectUntilGTE applies the GTE predicate on the "redirect_until" field.
+func RedirectUntilGTE(v time.Time) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldGTE(FieldRedirectUntil, v))
+}
+
+// RedirectUntilLT applies the LT predicate on the "redirect_until" field.
+func RedirectUntilLT(v time.Time) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldLT(FieldRedirectUntil, v))
+}
+
+// RedirectUntilLTE applies the LTE predicate on the "redirect_until" field.
+func RedirectUntilLTE(v time.Time) predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldLTE(FieldRedirectUntil, v))
+}
+
+// RedirectUntilIsNil applies the IsNil predicate on the "redirect_until" field.
+func RedirectUntilIsNil() predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldIsNull(FieldRedirectUntil))
+}
+
+// RedirectUntilNotNil applies the NotNil predicate on the "redirect_until" field.
+func RedirectUntilNotNil() predicate.TenantDomain {
+	return predicate.TenantDomain(sql.FieldNotNull(FieldRedirectUntil))
 }
 
 // TenantIdEQ applies the EQ predicate on the "tenant_id" field.

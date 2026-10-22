@@ -423,7 +423,7 @@ function Labels(): ReactNode {
 						}
 					</Load>
 					<p className="mute small">
-						인쇄한 라벨은 그 주소를 계속 씁니다. 도메인을 바꾸면 이전 도메인은 '이전 주소'로 남아 기존 라벨도 계속 열립니다. 중지하면 그 주소로 인쇄된 라벨이 더 이상 열리지 않습니다.
+						인쇄한 라벨은 그 주소를 계속 씁니다. 도메인을 바꾸면 이전 도메인은 '이전 주소'로 남아 기존 라벨도 계속 열리고, 이전 앱 도메인은 한동안 새 도메인으로 페이지를 보냅니다. 중지하면 그 주소로 인쇄된 라벨이 더 이상 열리지 않습니다.
 					</p>
 					{adding && <NewDomain suffix={s.defaultSuffix} onClose={() => setAdding(false)} />}
 				</Card>
@@ -442,7 +442,17 @@ function DomainRow(props: { d: TenantDomain; target: string; admin: boolean; act
 					{' '}
 					{d.source === 'default' ? '기본 주소' : '자체 도메인'} · {d.purpose === 'app' ? '앱과 라벨' : '라벨'}
 				</span>
-				{d.state === 'pending' && (
+				{d.state === 'lapsed' && (
+					<div className="small bad">
+						DNS가 {fmt(d.failingSince)}부터 이 서비스를 가리키지 않거나 TXT 레코드가 없어 사용을 멈췄습니다. 링크와 로그인은 서비스 주소로 돌아갔습니다.
+					</div>
+				)}
+				{d.state === 'active' && d.failures > 0 && (
+					<div className="small bad">
+						DNS 확인이 {fmt(d.failingSince)}부터 {d.failures}번 연속 실패했습니다. 여섯 번 연속 실패하면 사용을 멈춥니다.
+					</div>
+				)}
+				{(d.state === 'pending' || d.state === 'lapsed') && (
 					<div className="small">
 						DNS에 TXT 레코드 <code>_rove-challenge.{d.host}</code> = <code>{d.token}</code>
 						{props.target !== '' && (
@@ -451,13 +461,17 @@ function DomainRow(props: { d: TenantDomain; target: string; admin: boolean; act
 								와 CNAME <code>{d.host}</code> → <code>{props.target}</code>
 							</>
 						)}{' '}
-						를 추가하세요. 몇 분마다 자동으로 확인합니다.
+						를 추가하세요. 몇 분마다 자동으로 확인합니다. 확인된 뒤에도 레코드를 지우지 마세요. 쓰는 동안 한 시간마다 다시 확인합니다.
 					</div>
 				)}
 			</span>
 			{props.admin && (
 				<span className="inline">
-					{d.state === 'pending' && <button className="small" onClick={() => void props.act(TenantDomainService.method.verify, { ref: ref(d.id) }, { ok: '확인되었습니다.' })}>지금 확인</button>}
+					{(d.state === 'pending' || d.state === 'lapsed') && (
+						<button className="small" onClick={() => void props.act(TenantDomainService.method.verify, { ref: ref(d.id) }, { ok: '확인되었습니다.' })}>
+							지금 확인
+						</button>
+					)}
 					{['ready', 'legacy'].includes(d.state) && (
 						<button
 							className="small primary"

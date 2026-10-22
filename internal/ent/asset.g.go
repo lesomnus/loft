@@ -106,6 +106,19 @@ func (e *TenantDomain) Proto() *rove.TenantDomain {
 	if e.VerifiedAt != nil {
 		x.SetVerifiedAt(timestamppb.New(*e.VerifiedAt))
 	}
+	if e.CheckedAt != nil {
+		x.SetCheckedAt(timestamppb.New(*e.CheckedAt))
+	}
+	x.SetFailures(e.Failures)
+	if e.FailingSince != nil {
+		x.SetFailingSince(timestamppb.New(*e.FailingSince))
+	}
+	if e.DateLapsed != nil {
+		x.SetDateLapsed(timestamppb.New(*e.DateLapsed))
+	}
+	if e.RedirectUntil != nil {
+		x.SetRedirectUntil(timestamppb.New(*e.RedirectUntil))
+	}
 	return x
 }
 func (e *Label) Proto() *rove.Label {
