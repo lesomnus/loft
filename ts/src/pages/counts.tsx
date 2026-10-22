@@ -5,6 +5,7 @@ import type { CountFinding, InventoryCount } from '../../gen/rove/count_pb.js'
 import { CountFindingService, InventoryCountService, fmt, idBytes, idStr, op, ref, ts } from '../api.js'
 import { useCatalog } from '../catalog.js'
 import { SpaceSelect, useAssets } from '../pickers.js'
+import { sent, wait, waiting } from '../offline.js'
 import { Live, useAct, useRpc } from '../rpc.js'
 import { Badge, Card, Confirm, Empty, Field, FormModal, Load, OrderSelect, PageHead, Select, Stat, useToast, type Order } from '../ui.js'
 import { countWord, findingWord, resolutionWord } from '../words.js'
@@ -97,17 +98,23 @@ function CountRead(props: { id: string }): ReactNode {
 	return <Load q={v}>{(x) => <CountView c={x} />}</Load>
 }
 
-/** Scans made while offline, sent when the connection is back. */
-const QUEUE = 'rove.count.queue'
+/**
+ * Scans that could not be sent -- made offline, or refused on the way -- which
+ * wait to be sent as whoever made them (`offline.ts`'s `wait`), once the
+ * connection is back or they ask.
+ */
+const SCAN = 'count.scan'
 
 type Queued = { count: string; code: string; at: string; seenAt: string; op: string }
 
-function readQueue(): Queued[] {
-	try {
-		return JSON.parse(localStorage.getItem(QUEUE) ?? '[]') as Queued[]
-	} catch {
-		return []
+/** A scan kept to send later, saying so -- or saying it could not be kept. */
+function keep(q: Queued, toast: (text: string, tone: 'info' | 'bad') => void, said: string, tone: 'info' | 'bad'): boolean {
+	if (wait(SCAN, q)) {
+		toast(said, tone)
+		return true
 	}
+	toast('보내지 못했고, 이 브라우저에 저장해 둘 수도 없습니다. 다시 스캔하세요.', 'bad')
+	return false
 }
 
 function CountView(props: { c: InventoryCount }): ReactNode {
@@ -121,7 +128,7 @@ function CountView(props: { c: InventoryCount }): ReactNode {
 	const [at, setAt] = useState('')
 	const [camera, setCamera] = useState(false)
 	const [filter, setFilter] = useState('')
-	const [queued, setQueued] = useState(readQueue().filter((q) => q.count === idStr(x.id)).length)
+	const [queued, setQueued] = useState(waiting<Queued>(SCAN).filter((q) => q.count === idStr(x.id)).length)
 	const open = x.status === 'open'
 	const input = useRef<HTMLInputElement>(null)
 
@@ -141,17 +148,13 @@ function CountView(props: { c: InventoryCount }): ReactNode {
 	}
 
 	const flush = async () => {
-		const all = readQueue()
-		const left: Queued[] = []
-		for (const q of all) {
-			if (q.count !== idStr(x.id)) {
-				left.push(q)
-				continue
-			}
-			if (!(await send(q))) left.push(q)
+		const went: Queued[] = []
+		for (const q of waiting<Queued>(SCAN)) {
+			if (q.count !== idStr(x.id)) continue
+			if (await send(q)) went.push(q)
 		}
-		localStorage.setItem(QUEUE, JSON.stringify(left))
-		setQueued(left.filter((q) => q.count === idStr(x.id)).length)
+		sent(SCAN, went)
+		setQueued(waiting<Queued>(SCAN).filter((q) => q.count === idStr(x.id)).length)
 	}
 
 	useEffect(() => {
@@ -165,20 +168,14 @@ function CountView(props: { c: InventoryCount }): ReactNode {
 		if (text === '') return
 		const q: Queued = { count: idStr(x.id), code: text, at, seenAt: new Date().toISOString(), op: idStr(op()) }
 		if (!navigator.onLine) {
-			localStorage.setItem(QUEUE, JSON.stringify([...readQueue(), q]))
-			setQueued((n) => n + 1)
-			toast('오프라인: 저장해 두었다가 연결되면 보냅니다.', 'info')
+			if (keep(q, toast, '오프라인: 저장해 두었다가 연결되면 보냅니다.', 'info')) setQueued((n) => n + 1)
 			setCode('')
 			input.current?.focus()
 			return
 		}
 		const ok = await send(q)
 		if (ok) toast(`확인: ${text}`)
-		else {
-			localStorage.setItem(QUEUE, JSON.stringify([...readQueue(), q]))
-			setQueued((n) => n + 1)
-			toast('보내지 못해 저장해 두었습니다.', 'bad')
-		}
+		else if (keep(q, toast, '보내지 못해 저장해 두었습니다.', 'bad')) setQueued((n) => n + 1)
 		setCode('')
 		input.current?.focus()
 	}

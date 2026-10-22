@@ -1,10 +1,10 @@
 /**
  * The services, and the small conversions every page needs.
  *
- * A page reads through `useQuery` and writes through `useAct` (see `act.tsx`),
- * both of which go through payday's queries so a row drawn in six places is
- * one row. `raw` is for what wants the answer and none of that: signing in,
- * a download, an upload.
+ * A page reads through `useRpc` and writes through `useAct` (`rpc.tsx`), over
+ * the one transport here: every call says the workspace it is about, and whose
+ * the page is (`callAs`). What is not an RPC -- signing in, the account, a
+ * download, an upload -- is a `fetch` of its own.
  *
  * @module
  */
@@ -14,6 +14,7 @@ import { timestampDate, timestampFromDate, type Timestamp, TimestampSchema } fro
 import { Code, ConnectError, createClient, type Interceptor } from '@connectrpc/connect'
 import { createConnectTransport } from '@connectrpc/connect-web'
 import { from, newId, parse } from '@lesomnus/payday/pdid'
+import { IDENTITY_HEADER } from '@lesomnus/payday/query'
 
 import { EventDomain } from '../gen/domains.js'
 import { unreachable } from './offline.js'
@@ -80,8 +81,32 @@ const inWorkspace: Interceptor = (next) => async (req) => {
 	return next(req)
 }
 
+/**
+ * Whose the page's calls are: the name of what it keeps for the account it was
+ * drawn for, as `GET /account` said it (`Account.identity`), and empty while it
+ * is drawn for nobody.
+ *
+ * Every call says it (`payday-identity`), and the server serves a call that
+ * does only as a session of that name. The cookie is the browser's, whoever
+ * signed in last in any tab, so a page left behind by somebody else's sign-in
+ * is refused, rather than reading their answers into what it keeps for the
+ * first person or sending what it kept for them as the second; it then asks
+ * again who is signed in (`main.tsx`).
+ */
+let caller = ''
+
+/** callAs says whose the page's calls are from now on; see {@link caller}. */
+export function callAs(identity: string): void {
+	caller = identity
+}
+
+const asCaller: Interceptor = (next) => async (req) => {
+	if (caller !== '') req.header.set(IDENTITY_HEADER, caller)
+	return next(req)
+}
+
 /** The app answers on the page's own origin: served by it, or through Vite's proxy. */
-export const transport = createConnectTransport({ baseUrl: location.origin, interceptors: [inWorkspace] })
+export const transport = createConnectTransport({ baseUrl: location.origin, interceptors: [inWorkspace, asCaller] })
 
 /** A workspace an account is in, as `GET /account` answers it. */
 export interface Workspace {
@@ -120,6 +145,12 @@ export interface Account {
 	pinned?: string
 	/** The service's address, said where `pinned` is: where the account's other workspaces are. */
 	service?: string
+	/**
+	 * What the session asking lets its caller see, as a name: what the page
+	 * keeps its answers and its unsent writes for, and says on every call
+	 * (`callAs`). Another sign-in of the same person is the same name.
+	 */
+	identity: string
 }
 
 /** One document an account agrees to, at the version in force. */

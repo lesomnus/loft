@@ -6,14 +6,19 @@
  * An answer is somebody's, in some workspace, so it is kept **for one account
  * in one workspace** -- under the account's identifier and the workspace's, as
  * `GET /account` names them -- and never served to another: what this browser
- * kept for others is dropped the moment it is known whose turn it is, and
- * everything is dropped when the account signs out or is found signed out.
- * A worker could not keep it that way, since it sees neither.
+ * kept for others is dropped the moment it is known whose turn it is
+ * ({@link keepOnly}), and every tab's is dropped when the account signs out
+ * ({@link forget}). The page says on every call whose it is (`callAs`), so a
+ * page left behind by somebody else's sign-in is refused rather than answered
+ * as them, and never keeps their answers as the first person's.
  *
  * Offline the app is for reading. A read that cannot reach the server answers
  * what it answered last and the page says that is what it is (`<Offline>`); a
  * write is refused with the reason (`useAct`), except a count's scans, which
- * wait in a queue of their own (`pages/counts.tsx`).
+ * wait to be sent ({@link wait}) -- as the account and in the workspace they
+ * were made in, and as nobody else. A session that ends by itself is not a
+ * sign-out: the page lets go ({@link letGo}), and what was waiting goes once
+ * the same person signs in again, as payday's store keeps its writes.
  *
  * @module
  */
@@ -112,12 +117,17 @@ export async function recall(key: string): Promise<Uint8Array | undefined> {
 
 /**
  * keepOnly drops what was kept for anybody but this account, in any workspace
- * but these, and anything older than is worth keeping.
+ * but these -- what they were answered and what they could not send -- and
+ * any answer older than is worth keeping. Asked once the account is known,
+ * and not waited on: a browser somebody else signs in at keeps nothing of
+ * the person before.
  */
 export async function keepOnly(account: string, workspaces: string[]): Promise<void> {
+	const mine = workspaces.map((w) => `${account}/${w}/`)
+	putWaiting(allWaiting().filter((w) => mine.includes(w.scope)))
+	removeKey(unscoped)
 	const d = await db()
 	if (d === undefined) return
-	const mine = workspaces.map((w) => `${account}/${w}/`)
 	const old = Date.now() - keepFor
 	try {
 		const tx = d.transaction(READS, 'readwrite')
@@ -135,8 +145,28 @@ export async function keepOnly(account: string, workspaces: string[]): Promise<v
 	}
 }
 
-/** forget drops everything this browser kept, for every account. */
+/**
+ * forget drops everything this browser kept, for every account: what a
+ * sign-out does, in the tab that signs out, for every tab of this address.
+ * What was waiting to be sent goes with it.
+ */
 export async function forget(): Promise<void> {
+	removeKey(WAITING)
+	removeKey(unscoped)
+	await letGo()
+}
+
+/**
+ * letGo is what the page does when it finds its caller signed out short of a
+ * sign-out -- a session that ended by itself, or one ended somewhere it cannot
+ * tell from that, as a workspace's own domain ends this address's: it keeps and
+ * serves nothing more as them, and drops what they were answered and who this
+ * browser was signed in as, which a sign-in reads again. What they made and
+ * could not send is not read again, and waits for them ({@link wait}): it goes
+ * once they sign in again, and with the rest of theirs when somebody else
+ * does ({@link keepOnly}).
+ */
+export async function letGo(): Promise<void> {
 	scope = ''
 	const d = await db()
 	if (d === undefined) return
@@ -148,6 +178,77 @@ export async function forget(): Promise<void> {
 	} catch {
 		// Nothing more can be done from here.
 	}
+}
+
+/** Where writes wait to be sent, in this browser: see {@link wait}. */
+const WAITING = 'rove.waiting'
+
+/**
+ * Where a count's scans waited before a write waited for its caller: nobody's
+ * now, so dropped rather than sent as whoever signs in next.
+ */
+const unscoped = 'rove.count.queue'
+
+type Waiting = { scope: string; kind: string; v: unknown }
+
+function allWaiting(): Waiting[] {
+	try {
+		const v = JSON.parse(localStorage.getItem(WAITING) ?? '[]') as unknown
+		return Array.isArray(v) ? (v as Waiting[]) : []
+	} catch {
+		return []
+	}
+}
+
+function putWaiting(vs: Waiting[]): boolean {
+	try {
+		if (vs.length === 0) localStorage.removeItem(WAITING)
+		else localStorage.setItem(WAITING, JSON.stringify(vs))
+		return true
+	} catch {
+		// Full, or turned off: what was to wait is not kept, which `wait` says.
+		return false
+	}
+}
+
+function removeKey(k: string): void {
+	try {
+		localStorage.removeItem(k)
+	} catch {
+		// Turned off: nothing was kept there.
+	}
+}
+
+/**
+ * wait keeps a write of `kind` to be sent once it can be, as the account and
+ * in the workspace this is: false when the page is nobody's, or the browser
+ * keeps nothing, and it is not kept.
+ */
+export function wait<T>(kind: string, v: T): boolean {
+	const s = scope
+	if (s === '') return false
+	return putWaiting([...allWaiting(), { scope: s, kind, v }])
+}
+
+/**
+ * waiting is the writes of `kind` waiting to be sent that were made as the
+ * account and in the workspace this is -- and nobody else's, which is never
+ * sent as them.
+ */
+export function waiting<T>(kind: string): T[] {
+	const s = scope
+	if (s === '') return []
+	return allWaiting()
+		.filter((w) => w.scope === s && w.kind === kind)
+		.map((w) => w.v as T)
+}
+
+/** sent drops writes of `kind` that went, of those {@link waiting} answered. */
+export function sent<T>(kind: string, vs: T[]): void {
+	const s = scope
+	if (s === '' || vs.length === 0) return
+	const gone = new Set(vs.map((v) => JSON.stringify(v)))
+	putWaiting(allWaiting().filter((w) => w.scope !== s || w.kind !== kind || !gone.has(JSON.stringify(w.v))))
 }
 
 /**
