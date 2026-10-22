@@ -217,7 +217,18 @@ func printDetail(self *xli.Command, v admin.Detail) {
 		self.Printf("  member\t@%s\t%s\t%s%s\n", m.Alias, m.Role, m.Name, leaving)
 	}
 	for _, c := range v.Contracts {
-		self.Printf("  contract\t%s\t%s\tview %d keep %d grace %d (days; 0 is all)\n", c.Effective.Local().Format(time.DateOnly), c.Name, c.ViewDays, c.KeepDays, c.GraceDays)
+		then := "retire"
+		if c.PurgeFloors {
+			then = "purge"
+		}
+		desc := ""
+		if c.Desc != "" {
+			desc = "\t" + c.Desc
+		}
+		self.Printf("  contract\t%s\t%s\tview %s keep %s grace %d access %s restore %s, then %s%s\n",
+			c.Effective.Local().Format(time.DateOnly), c.Name,
+			days(c.ViewDays, "all"), days(c.KeepDays, "forever"), c.GraceDays,
+			days(c.AccessKeepDays, "the deployment's"), days(c.RestoreDays, "the deployment's"), then, desc)
 	}
 	for _, h := range v.Holds {
 		lifted := "held"
@@ -226,6 +237,15 @@ func printDetail(self *xli.Command, v admin.Detail) {
 		}
 		self.Printf("  hold\t%s\t%s\t%s\n", h.Id, h.Why, lifted)
 	}
+}
+
+// days is a contract's count of days as `show` says it, and what 0 means in
+// words.
+func days(n uint32, zero string) string {
+	if n == 0 {
+		return zero
+	}
+	return fmt.Sprintf("%dd", n)
 }
 
 func alias(self *xli.Command) string {
@@ -346,9 +366,13 @@ func newCmdContract() *xli.Command {
 				Brief: "write a workspace's next contract, in force from --effective",
 				Flags: flg.Flags{
 					&flg.String{Name: "name", Brief: "the plan, as people call it"},
+					&flg.String{Name: "desc", Brief: "more about it: an agreement's terms, a ticket"},
 					&flg.Uint32{Name: "view", Brief: "how far back it may look, in days; 0 is all of it"},
 					&flg.Uint32{Name: "keep", Brief: "how long its history is kept, in days; 0 is forever"},
 					&flg.Uint32{Name: "grace", Brief: "how long a shorter keep waits before it applies, in days"},
+					&flg.Uint32{Name: "access-keep", Brief: "how long the access record is kept, in days; 0 is the deployment's (audit.by.access), and none goes below its floor"},
+					&flg.Uint32{Name: "restore", Brief: "how long the workspace may be restored once closed, in days; 0 is the deployment's (app.workspaces.restore_within)"},
+					&flg.Switch{Name: "purge-floors", Brief: "when it is destroyed, take its whole trail, what the deployment's floors are on too; without this it retires, keeping that until the floors pass"},
 					&flg.String{Name: "effective", Brief: "from when, as 2006-01-02 or RFC 3339; now by default"},
 					&flg.Switch{Name: "yes", Brief: "do it"},
 				},
@@ -362,13 +386,16 @@ func newCmdContract() *xli.Command {
 						return err
 					}
 					body := map[string]any{}
-					if v, _ := flg.Find[string](self, "name"); v != "" {
-						body["name"] = v
+					for _, k := range []string{"name", "desc"} {
+						if v, _ := flg.Find[string](self, k); v != "" {
+							body[k] = v
+						}
 					}
-					for _, k := range []string{"view", "keep", "grace"} {
+					for k, field := range map[string]string{"view": "view_days", "keep": "keep_days", "grace": "grace_days", "access-keep": "access_keep_days", "restore": "restore_days"} {
 						v, _ := flg.Find[uint32](self, k)
-						body[k+"_days"] = v
+						body[field] = v
 					}
+					body["purge_floors"], _ = flg.Find[bool](self, "purge-floors")
 					if v, _ := flg.Find[string](self, "effective"); strings.TrimSpace(v) != "" {
 						t, err := instant(v)
 						if err != nil {

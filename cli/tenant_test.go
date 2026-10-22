@@ -123,9 +123,10 @@ func TestAnOperatorRetiresAWorkspace(t *testing.T) {
 	x.Contains(out, "its contract retires it", "a purge against its contract says nothing")
 	x.NotContains(out, "kept until")
 
-	out = run(t, cli.NewCmdContract(&c), "set", "--tenant", "beta", "--name", "abroad", "--purge-floors")
+	out = run(t, cli.NewCmdContract(&c), "set", "--tenant", "beta", "--name", "abroad", "--desc", "under another law", "--purge-floors")
 	x.Contains(out, "destroyed: purged")
-	x.Contains(run(t, cli.NewCmdContract(&c), "show", "--tenant", "beta"), "then purge")
+	out = run(t, cli.NewCmdContract(&c), "show", "--tenant", "beta")
+	x.Contains(out, "then purge  under another law")
 	out = run(t, cli.NewCmdTenant(&c), "retire", "--tenant", "beta")
 	x.Contains(out, "its contract purges it", "a retirement against its contract says nothing")
 
