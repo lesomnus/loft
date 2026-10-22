@@ -15,7 +15,7 @@
 		"@bufbuild/protobuf": "^2.12.1",
 		"@connectrpc/connect": "^2.1.2",
 		"@connectrpc/connect-web": "^2.1.2",
-		"@lesomnus/payday": "^0.1.1",
+		"@lesomnus/payday": "^0.1.2",
 		"jsqr": "^1.4.0",
 		"qrcode": "^1.5.4",
 		"react": "^19.2.0",

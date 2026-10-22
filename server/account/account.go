@@ -69,6 +69,14 @@ type Account struct {
 	// Service is the service's address, said where Pinned is: where the
 	// account's other workspaces are opened from (`/?workspaces` there).
 	Service string `json:"service,omitempty"`
+	// Identity is what the session asking lets its caller see, named as
+	// `authsession.IdentityOf` names it: what the page keeps what it was
+	// answered and what it has not sent yet for, and says on every call it
+	// makes (`payday-identity`). A call saying it is served only as a
+	// session of that name (`authsession.Sessions.Handler`), so a page left
+	// behind by somebody else's sign-in in this browser is refused, rather
+	// than served as them.
+	Identity string `json:"identity"`
 }
 
 // Workspace is one an account is in.
@@ -222,7 +230,7 @@ func (a Routes) Mount(mux *http.ServeMux) {
 		http.Error(w, "only the workspace's owner takes its data out", http.StatusForbidden)
 	})
 	mux.HandleFunc("GET /account", func(w http.ResponseWriter, r *http.Request) {
-		p, g, ok := Reading(w, r, sessions, people)
+		p, s, ok := reading(w, r, sessions, people)
 		if !ok {
 			return
 		}
@@ -236,9 +244,10 @@ func (a Routes) Mount(mux *http.ServeMux) {
 			fail(w, r, err)
 			return
 		}
-		if !g.AnyAction() {
-			v.Allow = g.Actions()
+		if !s.Grant.AnyAction() {
+			v.Allow = s.Grant.Actions()
 		}
+		v.Identity = authsession.IdentityOf(s)
 		answer(w, http.StatusOK, v)
 	})
 	mux.HandleFunc("POST /account/workspaces", func(w http.ResponseWriter, r *http.Request) {

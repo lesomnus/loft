@@ -661,6 +661,11 @@ CREATE TRIGGER asset_parent_same_tenant BEFORE INSERT OR UPDATE OF parent_id, te
   - 운영자는 `rove access ls|reviews`로 배포 전체를 본다. 이름 없이 ID만 보여 준다.
 - 저장 데이터와 전송 구간을 암호화하고, 백업·복구를 정기적으로 테스트하고, 플러그인을 격리한다.
 - 공용 기기(현장 태블릿)에서는 클라이언트 복제본(IndexedDB)의 보관 기간을 줄이고 로그아웃할 때 지운다.
+- **화면이 보관하는 것은 그 호출자의 것이다**(payday의 "a page's store is its caller's", `ts/src/offline.ts`). 화면은 payday의 스토어를 쓰지 않지만 같은 규칙을 지킨다.
+  - 본 내용과 보내지 못한 쓰기(실사 스캔)는 계정과 워크스페이스별로 보관한다. 모든 호출은 `GET /account`가 준 세션의 이름(`identity`, `authsession.IdentityOf`)을 `payday-identity`에 싣고, 서버(`authsession.Sessions.Handler`)는 그 이름의 세션으로만 처리한다. 쿠키는 브라우저의 것이라 어느 탭이든 마지막에 로그인한 사람의 것이다. 이름을 싣지 않으면 남겨진 화면이 다음 사람의 답을 앞 사람의 것으로 보관하고, 앞 사람의 스캔을 다음 사람으로 보낸다.
+  - 세션 때문에 거절되면(`Unauthenticated`) 누가 로그인했는지 다시 묻는다. 같은 사람이면 다른 이유의 거절이니 그대로 둔다. 다른 사람이거나 아무도 없으면 놓고 다시 시작한다.
+  - 지우는 것은 로그아웃뿐이다. 로그아웃한 탭이 이 브라우저의 것을 지우고, `BroadcastChannel`로 같은 주소의 다른 탭에 알린다. 저절로 끝난 세션은 로그아웃이 아니다. 보내지 못한 쓰기는 같은 사람이 돌아오면 보낸다. 본 내용은 지운다. 워크스페이스 도메인의 로그아웃이 끝낸 서비스 주소의 세션은 그 주소의 화면에서 저절로 끝난 세션과 구별되지 않기 때문이다. 본 내용은 다시 로그인하면 다시 읽는다.
+  - 다른 사람이 로그인하면 앞 사람의 것은 본 내용도 보내지 못한 쓰기도 지운다(`keepOnly`, payday의 `deleteOtherDisks`에 해당).
 
 ### 9.8 API 경계 예시
 

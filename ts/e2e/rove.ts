@@ -44,6 +44,11 @@ export const people = {
 	reviewer: { login: 'naeun-park', name: '박나은' },
 	keeper: { login: 'doyun-jang', name: '장도윤' },
 	domains: { login: 'jimin-lim', name: '임지민' },
+	keeps: { login: 'sunwoo-lee', name: '이선우' },
+	keepsNext: { login: 'eunwoo-park', name: '박은우' },
+	waits: { login: 'jia-choi', name: '최지아' },
+	leftBehind: { login: 'hyunwoo-jung', name: '정현우' },
+	signsInNext: { login: 'doyun-kang', name: '강도윤' },
 } as const
 
 /** A name nothing else in the run has. */

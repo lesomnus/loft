@@ -89,13 +89,19 @@ export async function read<I extends DescMessage, O extends DescMessage>(
 	}
 }
 
-type Epoch = { epoch: number; bump: () => void; onSignedOut: () => void }
-const EpochCtx = createContext<Epoch>({ epoch: 0, bump: () => {}, onSignedOut: () => {} })
+type Epoch = { epoch: number; bump: () => void; onRefused: () => void }
+const EpochCtx = createContext<Epoch>({ epoch: 0, bump: () => {}, onRefused: () => {} })
 
-export function Rpc(props: { children: ReactNode; onSignedOut: () => void }): ReactNode {
+/**
+ * Rpc is where the reads and writes below it are made. `onRefused` is what a
+ * call refused for its session (`Unauthenticated`) does: ask again who is
+ * signed in (`main.tsx`), since that may be a session that ended or one that
+ * is somebody else's now.
+ */
+export function Rpc(props: { children: ReactNode; onRefused: () => void }): ReactNode {
 	const [epoch, setEpoch] = useState(0)
 	const bump = useCallback(() => setEpoch((v) => v + 1), [])
-	const v = useMemo(() => ({ epoch, bump, onSignedOut: props.onSignedOut }), [epoch, bump, props.onSignedOut])
+	const v = useMemo(() => ({ epoch, bump, onRefused: props.onRefused }), [epoch, bump, props.onRefused])
 
 	// Back online, whatever is on screen is what was last seen; it is read again.
 	const offline = useOffline()
@@ -152,7 +158,7 @@ export function useRpc<I extends DescMessage, O extends DescMessage>(
 	input: MessageInitShape<I> | null,
 	opts: { poll?: number } = {},
 ): Read<MessageShape<O>> {
-	const { epoch, onSignedOut } = useEpoch()
+	const { epoch, onRefused } = useEpoch()
 	const live = useContext(LiveCtx)
 	const key = input === null ? null : keyOfCall(method, input)
 	const [nonce, setNonce] = useState(0)
@@ -174,13 +180,13 @@ export function useRpc<I extends DescMessage, O extends DescMessage>(
 			},
 			(error) => {
 				if (ctl.signal.aborted) return
-				if (isUnauthenticated(error)) onSignedOut()
+				if (isUnauthenticated(error)) onRefused()
 				if (isConsentOwed(error)) location.reload()
 				setAt((v) => ({ key, state: 'error', data: v.key === key ? v.data : undefined, error }))
 			},
 		)
 		return () => ctl.abort()
-	}, [key, epoch, nonce, live, method, onSignedOut])
+	}, [key, epoch, nonce, live, method, onRefused])
 
 	useEffect(() => {
 		if (opts.poll === undefined || key === null) return
@@ -221,11 +227,11 @@ export const offlineWrite = '오프라인이라 저장하지 않았습니다. �
  * Offline it is refused, since what is on screen is only what was last seen:
  * at once when the browser knows it has no network, and when the call finds
  * none otherwise. Nothing is kept to be sent later; the one write that is, a
- * count's scan, keeps its own queue.
+ * count's scan, waits as its caller's (`offline.ts`'s `wait`).
  */
 export function useAct(): Act {
 	const toast = useToast()
-	const { bump, onSignedOut } = useEpoch()
+	const { bump, onRefused } = useEpoch()
 	return useCallback(
 		async (method, input, opts = {}) => {
 			if (!navigator.onLine) {
@@ -245,13 +251,13 @@ export function useAct(): Act {
 					if (!opts.quiet) toast(offlineWrite, 'bad')
 					return undefined
 				}
-				if (isUnauthenticated(err)) onSignedOut()
+				if (isUnauthenticated(err)) onRefused()
 				if (isConsentOwed(err)) location.reload()
 				if (!opts.quiet) toast(errorText(err), 'bad')
 				return undefined
 			}
 		},
-		[toast, bump, onSignedOut],
+		[toast, bump, onRefused],
 	) as Act
 }
 

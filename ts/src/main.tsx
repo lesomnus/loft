@@ -20,11 +20,12 @@
  * @module
  */
 
-import { StrictMode, useCallback, useEffect, useState, type ReactNode } from 'react'
+import { StrictMode, useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
 
 import '../gen/domains.js'
 import {
+	callAs,
 	handingOff,
 	handOff,
 	labelWorkspace,
@@ -43,7 +44,7 @@ import {
 } from './api.js'
 import { App } from './app.js'
 import { Mark } from './marks.js'
-import { forget, keepAs, keepOnly, keepTheApp, lastSeen, seen, setOffline, unreachable } from './offline.js'
+import { forget, keepAs, keepOnly, keepTheApp, lastSeen, letGo, seen, setOffline, unreachable } from './offline.js'
 import { Rpc } from './rpc.js'
 import { Spinner, Toasts, useToast } from './ui.js'
 import { Inbox } from './invitations.js'
@@ -195,6 +196,13 @@ async function scannedIn(): Promise<Workspace | undefined> {
 	}
 }
 
+/**
+ * Where a sign-out in one tab is said to every other tab of this address: each
+ * lets go of what it holds and asks again who is signed in. What this browser
+ * kept was forgotten by the tab that signed out (`forget`), for all of them.
+ */
+const signedOut: BroadcastChannel | undefined = typeof BroadcastChannel === 'undefined' ? undefined : new BroadcastChannel('rove/signed-out')
+
 type State =
 	| { at: 'checking' }
 	| { at: 'out'; ways: Ways }
@@ -211,6 +219,9 @@ function Boot(): ReactNode {
 	const [state, setState] = useState<State>({ at: 'checking' })
 	const [ways, setWays] = useState<Ways>({ sso: false, providers: [], password: true })
 	const [n, setN] = useState(0)
+	// Whose the page is drawn for: the name `GET /account` gave the session it
+	// was drawn as, which every call says (`callAs`). Empty for nobody.
+	const drawn = useRef('')
 
 	const check = useCallback(async () => {
 		setState({ at: 'checking' })
@@ -233,8 +244,12 @@ function Boot(): ReactNode {
 			}
 			setWays(w)
 			if (a === 'out') {
-				// Signed out, here or anywhere else: nothing of theirs stays.
-				void forget()
+				// Signed out, or the session ended: the page is nobody's, and
+				// keeps and serves nothing as anybody. What they made and could
+				// not send waits for them, as a sign-out would not (`letGo`).
+				drawn.current = ''
+				callAs('')
+				void letGo()
 				// On a workspace's own domain, off to be signed in at the
 				// service's -- unless the last round trip came back refused,
 				// which a button tries again.
@@ -242,6 +257,8 @@ function Boot(): ReactNode {
 				setState({ at: 'out', ways: w })
 				return
 			}
+			drawn.current = a.identity ?? ''
+			callAs(drawn.current)
 			if (fresh) {
 				// Kept for this account and the workspaces it is in now, and
 				// for nobody and nowhere else.
@@ -313,35 +330,80 @@ function Boot(): ReactNode {
 		void check()
 	}, [check, n])
 
-	const out = useCallback(() => {
-		void forget()
-		if (ways.handoff === true && handOff()) return
-		setState({ at: 'out', ways })
-	}, [ways])
+	// Starting again as whoever is signed in now, holding nothing for the
+	// one the page was drawn for.
+	const again = useCallback(() => {
+		drawn.current = ''
+		callAs('')
+		keepAs('', '')
+		setN((v) => v + 1)
+	}, [])
+
+	// A call refused for its session (`Unauthenticated`) asks again who is
+	// signed in. Still this page's caller, and it was refused for something
+	// else: starting the page again would only lose what is on it. Anybody
+	// else, or nobody -- a session that ended, or somebody else's sign-in in
+	// another tab -- and the page starts again as whoever that is: the sign-in,
+	// with what the first person could not send waiting for them, or the other
+	// person's page, which keeps nothing of the first's (`keepOnly`).
+	const asking = useRef(false)
+	const lost = useCallback(() => {
+		if (asking.current || drawn.current === '') return
+		asking.current = true
+		const was = drawn.current
+		signedIn()
+			.then((a) => {
+				if (a === 'out' || a.identity !== was) again()
+			})
+			.catch(() => {
+				// Not answered: the next call that is refused asks again.
+			})
+			.finally(() => {
+				asking.current = false
+			})
+	}, [again])
+
+	// Another tab signed out.
+	useEffect(() => {
+		if (signedOut === undefined) return
+		signedOut.addEventListener('message', again)
+		return () => signedOut.removeEventListener('message', again)
+	}, [again])
+
 	const signOut = useCallback(async () => {
 		if (!navigator.onLine) {
 			toast('오프라인에서는 로그아웃할 수 없습니다. 연결되면 다시 해 보세요.', 'bad')
 			return
 		}
-		// What this browser kept of theirs goes first, whatever comes next.
+		// What this browser kept of theirs goes first, whatever comes next,
+		// and every other tab lets go of what it holds (`signedOut`) once the
+		// session is over -- or on the way to where it ends.
+		const was = drawn.current
+		drawn.current = ''
+		callAs('')
 		await forget()
 		if (ways.handoff === true) {
 			// This host's session and the sign-in it was handed from, and on
 			// to wherever that one ends.
+			signedOut?.postMessage(was)
 			signOutThroughHandoff()
 			return
 		}
 		if (ways.sso) {
 			// To the issuer and back, which ends the page with it.
+			signedOut?.postMessage(was)
 			signOutThroughIssuer()
 			return
 		}
 		try {
 			await fetch('/session', { method: 'DELETE' })
 		} catch {
+			drawn.current = was
+			callAs(was)
 			toast('서버에 연결할 수 없어 로그아웃하지 못했습니다. 연결되면 다시 해 보세요.', 'bad')
 			return
 		}
+		signedOut?.postMessage(was)
 		setState({ at: 'out', ways })
 	}, [ways, toast])
 
@@ -377,7 +439,7 @@ function Boot(): ReactNode {
 			return <Closed account={state.account} ws={state.ws} onSignOut={signOut} />
 		case 'in':
 			return (
-				<Rpc onSignedOut={out}>
+				<Rpc onRefused={lost}>
 					<App account={state.account} onSignOut={signOut} />
 				</Rpc>
 			)
