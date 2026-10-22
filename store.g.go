@@ -35,7 +35,6 @@ type Server interface {
 	Invitation() InvitationServiceServer
 	CliLogin() CliLoginServiceServer
 	AliasHold() AliasHoldServiceServer
-	Consent() ConsentServiceServer
 	SignInFailure() SignInFailureServiceServer
 	Handoff() HandoffServiceServer
 	Asset() AssetServiceServer
@@ -88,7 +87,6 @@ func RegisterServer(g grpc.ServiceRegistrar, s Server) {
 	RegisterInvitationServiceServer(g, s.Invitation())
 	RegisterCliLoginServiceServer(g, s.CliLogin())
 	RegisterAliasHoldServiceServer(g, s.AliasHold())
-	RegisterConsentServiceServer(g, s.Consent())
 	RegisterSignInFailureServiceServer(g, s.SignInFailure())
 	RegisterHandoffServiceServer(g, s.Handoff())
 	RegisterAssetServiceServer(g, s.Asset())
@@ -137,7 +135,6 @@ type UnimplementedServer struct {
 	InvitationServer      InvitationServiceServer
 	CliLoginServer        CliLoginServiceServer
 	AliasHoldServer       AliasHoldServiceServer
-	ConsentServer         ConsentServiceServer
 	SignInFailureServer   SignInFailureServiceServer
 	HandoffServer         HandoffServiceServer
 	AssetServer           AssetServiceServer
@@ -195,7 +192,6 @@ func (UnimplementedServer) CliLogin() CliLoginServiceServer {
 func (UnimplementedServer) AliasHold() AliasHoldServiceServer {
 	return UnimplementedAliasHoldServiceServer{}
 }
-func (UnimplementedServer) Consent() ConsentServiceServer { return UnimplementedConsentServiceServer{} }
 func (UnimplementedServer) SignInFailure() SignInFailureServiceServer {
 	return UnimplementedSignInFailureServiceServer{}
 }
@@ -289,7 +285,6 @@ type StaticServer struct {
 	InvitationServer      InvitationServiceServer
 	CliLoginServer        CliLoginServiceServer
 	AliasHoldServer       AliasHoldServiceServer
-	ConsentServer         ConsentServiceServer
 	SignInFailureServer   SignInFailureServiceServer
 	HandoffServer         HandoffServiceServer
 	AssetServer           AssetServiceServer
@@ -337,7 +332,6 @@ func (s StaticServer) Session() SessionServiceServer                 { return s.
 func (s StaticServer) Invitation() InvitationServiceServer           { return s.InvitationServer }
 func (s StaticServer) CliLogin() CliLoginServiceServer               { return s.CliLoginServer }
 func (s StaticServer) AliasHold() AliasHoldServiceServer             { return s.AliasHoldServer }
-func (s StaticServer) Consent() ConsentServiceServer                 { return s.ConsentServer }
 func (s StaticServer) SignInFailure() SignInFailureServiceServer     { return s.SignInFailureServer }
 func (s StaticServer) Handoff() HandoffServiceServer                 { return s.HandoffServer }
 func (s StaticServer) Asset() AssetServiceServer                     { return s.AssetServer }
@@ -385,7 +379,6 @@ type Client interface {
 	Invitation() InvitationServiceClient
 	CliLogin() CliLoginServiceClient
 	AliasHold() AliasHoldServiceClient
-	Consent() ConsentServiceClient
 	SignInFailure() SignInFailureServiceClient
 	Handoff() HandoffServiceClient
 	Asset() AssetServiceClient
@@ -435,7 +428,6 @@ func NewClient(c *grpc.ClientConn) Client {
 		_Invitation:      NewInvitationServiceClient(c),
 		_CliLogin:        NewCliLoginServiceClient(c),
 		_AliasHold:       NewAliasHoldServiceClient(c),
-		_Consent:         NewConsentServiceClient(c),
 		_SignInFailure:   NewSignInFailureServiceClient(c),
 		_Handoff:         NewHandoffServiceClient(c),
 		_Asset:           NewAssetServiceClient(c),
@@ -485,7 +477,6 @@ type client struct {
 	_Invitation      InvitationServiceClient
 	_CliLogin        CliLoginServiceClient
 	_AliasHold       AliasHoldServiceClient
-	_Consent         ConsentServiceClient
 	_SignInFailure   SignInFailureServiceClient
 	_Handoff         HandoffServiceClient
 	_Asset           AssetServiceClient
@@ -533,7 +524,6 @@ func (c *client) Session() SessionServiceClient                 { return c._Sess
 func (c *client) Invitation() InvitationServiceClient           { return c._Invitation }
 func (c *client) CliLogin() CliLoginServiceClient               { return c._CliLogin }
 func (c *client) AliasHold() AliasHoldServiceClient             { return c._AliasHold }
-func (c *client) Consent() ConsentServiceClient                 { return c._Consent }
 func (c *client) SignInFailure() SignInFailureServiceClient     { return c._SignInFailure }
 func (c *client) Handoff() HandoffServiceClient                 { return c._Handoff }
 func (c *client) Asset() AssetServiceClient                     { return c._Asset }

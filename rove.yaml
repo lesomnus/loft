@@ -74,6 +74,12 @@ spin:
 # to delete their account where the directory offers that (roster's
 # `TenantConfig.leave`). Only a roster of its own has one.
 #
+# What an account agreed to of `app.consent` is kept in roster's consent
+# ledger (D37), past the account as proof, and destroyed once roster's
+# `consent.keep` is over. `consent_keep` is that window for the roster in
+# this process; a roster of its own says it in its own configuration. Unset
+# keeps them for good (rove#35: until legal review decides the period).
+#
 # auth:
 #   roster:
 #     addr: roster.example.com:443
@@ -86,6 +92,7 @@ spin:
 #     db:
 #       driver: pgx
 #       dsn: postgres://rove:rove@localhost:5432/roster
+#     consent_keep: 26280h
 #
 # `sso` signs people in through roster's issuer -- its Hydra, in front of the
 # directory -- and draws a button per connection of the directory there (D28).
@@ -181,14 +188,12 @@ app:
   sweep: 1m
   # What an account agrees to before it uses anything here (design 9.11):
   # each document at the version in force, read at its url. A new version is
-  # agreed to again. None, the default, asks nothing.
+  # agreed to again. None, the default, asks nothing. That an account agreed,
+  # and for how long that is kept once it is gone, is roster's (D37): see
+  # `auth.roster.consent_keep` above.
   # consent:
   #   terms: { version: "2026-10-01", url: https://rove.example/terms }
   #   privacy: { version: "2026-10-01", url: https://rove.example/privacy }
-  #   # How long an account's agreements are kept after it left; past it they
-  #   # are destroyed. Unset keeps them for good (rove#35: until legal review
-  #   # decides the period).
-  #   keep: 26280h
 
   # What a workspace's history is kept for (design 8). How long is the
   # workspace's own, its owner's to say in its settings (D36); what is here is

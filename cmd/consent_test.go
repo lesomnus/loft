@@ -3,11 +3,11 @@ package cmd_test
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/lesomnus/payday/pdid"
 	"github.com/stretchr/testify/require"
@@ -17,8 +17,6 @@ import (
 
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent"
-	entconsent "github.com/lesomnus/rove/internal/ent/consent"
 	"github.com/lesomnus/rove/internal/ent/holder"
 	"github.com/lesomnus/rove/internal/identity"
 	"github.com/lesomnus/rove/server/account"
@@ -40,8 +38,8 @@ func consentWorld(t *testing.T) *world {
 // TestNothingIsServedBeforeTheAccountAgrees: a deployment that asks for its
 // terms and its privacy policy to be agreed to serves an account nothing until
 // it has -- every call refused, a new workspace refused, though its own data
-// it still takes out -- and then records each at its version, and asks again
-// when one changes (design 9.11).
+// it still takes out -- and then records each at its version in roster's
+// ledger (D37), and asks again when one changes (design 9.11).
 func TestNothingIsServedBeforeTheAccountAgrees(t *testing.T) {
 	w := consentWorld(t)
 	x := w.x
@@ -74,9 +72,9 @@ func TestNothingIsServedBeforeTheAccountAgrees(t *testing.T) {
 	// agreement; nothing is recorded of either.
 	x.Equal(http.StatusConflict, w.post(w.owner, "/account/consents", `{"agree":{"terms":"2026-10-01"}}`).Code)
 	x.Equal(http.StatusConflict, w.post(w.owner, "/account/consents", `{"agree":{"terms":"2026-09-01","privacy":"2026-10-01"}}`).Code)
-	n, err := w.s.Ent.Consent.Query().Count(ctx)
+	vs, err := w.s.Identity.Agreements(ctx, owner)
 	x.NoError(err)
-	x.Zero(n)
+	x.Empty(vs, "something was recorded of an agreement that was none")
 	_, err = parties.Me(w.owner, &app.PartyMeRequest{})
 	x.Equal(codes.FailedPrecondition, status.Code(err))
 
@@ -84,17 +82,17 @@ func TestNothingIsServedBeforeTheAccountAgrees(t *testing.T) {
 	_, err = parties.Me(w.owner, &app.PartyMeRequest{})
 	x.NoError(err, "served, once it agreed")
 	x.Equal(http.StatusNoContent, w.post(w.owner, "/account/consents", `{"agree":{"terms":"2026-10-01","privacy":"2026-10-01"}}`).Code)
-	rows, err := w.s.Ent.Consent.Query().Where(entconsent.Account(owner.Uuid())).All(ctx)
+	vs, err = w.s.Identity.Agreements(ctx, owner)
 	x.NoError(err)
-	x.Len(rows, 2, "agreed to once, each")
-	for _, r := range rows {
-		x.Equal("2026-10-01", r.Version)
-		x.Equal("web", r.Client)
+	x.Len(vs, 2, "agreed to once, each")
+	for _, v := range vs {
+		x.Equal("2026-10-01", v.Version)
+		x.Equal("web", v.Client)
 	}
 
 	// A new version is agreed to again, and nothing is served until it is:
 	// the documents change at a restart, which is a new [consent.Consents].
-	*w.s.Consents = consent.Consents{Db: w.s.Ent, Documents: []consent.Document{
+	*w.s.Consents = consent.Consents{Ledger: w.s.Identity, Documents: []consent.Document{
 		{Name: "terms", Title: "이용약관", Version: "2027-01-01", Url: terms.Url},
 		{Name: "privacy", Title: "개인정보 처리방침", Version: privacy.Version, Url: privacy.Url},
 	}}
@@ -167,66 +165,68 @@ func TestADocumentWithNowhereToReadItIsNotAsked(t *testing.T) {
 	x.Empty(docs, "asking nothing is the default")
 }
 
-// TestAnAccountThatLeftKeepsWhatItAgreedToForTheWindow (rove#35): leaving
-// says so on what an account agreed to, which still counts; the agreements
-// stay for good while `app.consent.keep` says nothing, and once it says how
-// long, an account's go that long after it left -- and nobody else's.
-func TestAnAccountThatLeftKeepsWhatItAgreedToForTheWindow(t *testing.T) {
+// TestWhatAnAccountAgreedToOutlivesItsLeaving: an agreement is roster's
+// (D37), so an account leaving this deployment leaves it where it is -- roster
+// keeps it past the account as proof, for as long as its `consent.keep` says
+// -- and an account that comes back has agreed to what it agreed to.
+func TestWhatAnAccountAgreedToOutlivesItsLeaving(t *testing.T) {
 	w := consentWorld(t)
 	x := w.x
 	ctx := context.Background()
 
-	now := time.Now()
-	w.s.Consents.Now = func() time.Time { return now }
-	t.Cleanup(func() { w.s.Consents.Now = nil })
-
-	agreed := map[string]string{"terms": terms.Version, "privacy": privacy.Version}
-	person := func(login string) identity.Person {
-		p, err := w.s.Identity.AddPerson(ctx, login, login, pdid.Nil)
-		x.NoError(err)
-		x.NoError(w.s.Consents.Agree(ctx, p.Id, agreed, "web"))
-		w.here(p, "member")
-		return p
-	}
-	rows := func(p identity.Person) []*ent.Consent {
-		vs, err := w.s.Ent.Consent.Query().Where(entconsent.Account(p.Id.Uuid())).All(ctx)
-		x.NoError(err)
-		return vs
-	}
-	kim, lee, park := person("kim"), person("lee"), person("park")
-
-	// kim leaves now, and lee eleven months on.
-	_, err := w.s.Lifecycle.Depart(ctx, kim.Id)
+	kim, err := w.s.Identity.AddPerson(ctx, "kim", "kim", pdid.Nil)
 	x.NoError(err)
-	for _, v := range rows(kim) {
-		x.NotNil(v.DateLeft, "leaving did not say so on what it agreed to")
-	}
-	ok, err := w.s.Consents.Settled(ctx, kim.Id)
-	x.NoError(err)
-	x.True(ok, "what it agreed to stopped counting as it left")
-
-	n, err := w.s.Consents.Sweep(ctx, 0)
-	x.NoError(err)
-	x.Zero(n, "app.consent.keep says nothing, and agreements went")
-
-	now = now.Add(335 * 24 * time.Hour)
-	_, err = w.s.Lifecycle.Depart(ctx, lee.Id)
+	x.NoError(w.s.Consents.Agree(ctx, kim.Id, map[string]string{"terms": terms.Version, "privacy": privacy.Version}, "web"))
+	w.here(kim, "member")
+	_, err = w.s.Lifecycle.Depart(ctx, kim.Id)
 	x.NoError(err)
 
-	// A year after kim left, kept for ninety days.
-	now = now.Add(30 * 24 * time.Hour)
-	n, err = w.s.Consents.Sweep(ctx, 90*24*time.Hour)
+	// Asked of roster again, and not of what this process heard before.
+	again := &consent.Consents{Ledger: w.s.Identity, Documents: w.s.Consents.Documents}
+	ok, err := again.Settled(ctx, kim.Id)
 	x.NoError(err)
-	x.Equal(2, n, "kim's two")
-	x.Empty(rows(kim))
-	x.Len(rows(lee), 2, "lee left thirty days ago")
-	x.Len(rows(park), 2, "park is here")
-	for _, v := range rows(park) {
-		x.Nil(v.DateLeft)
-	}
+	x.True(ok, "what it agreed to went as it left")
+	vs, err := again.Of(ctx, kim.Id)
+	x.NoError(err)
+	x.Len(vs, 2)
+}
 
-	// And kim, were it to come back, is asked again.
-	owed, err := w.s.Consents.Owed(ctx, kim.Id)
+// failing is roster's ledger answering everything with err.
+type failing struct{ err error }
+
+func (l failing) Owed(context.Context, pdid.Id, []identity.Document) ([]identity.Document, error) {
+	return nil, l.err
+}
+
+func (l failing) Agree(context.Context, pdid.Id, []identity.Document, string) error { return l.err }
+
+func (l failing) Agreements(context.Context, pdid.Id) ([]identity.Agreement, error) {
+	return nil, l.err
+}
+
+// TestAnAgreementRosterCannotBeAskedAboutIsARefusal: an account whose
+// agreement roster cannot be asked about is not known to owe nothing, and is
+// served nothing until roster can say -- Unavailable, which a client comes
+// back after, and not the refusal that sends a page to agree, nor anything
+// roster said. And one roster does not have is no credential at all.
+func TestAnAgreementRosterCannotBeAskedAboutIsARefusal(t *testing.T) {
+	w := consentWorld(t)
+	x := w.x
+	parties := app.NewPartyServiceClient(w.conn)
+	x.Equal(http.StatusNoContent, w.post(w.owner, "/account/consents", `{"agree":{"terms":"2026-10-01","privacy":"2026-10-01"}}`).Code)
+	_, err := parties.Me(w.owner, &app.PartyMeRequest{})
 	x.NoError(err)
-	x.Len(owed, 2)
+	docs := w.s.Consents.Documents
+
+	// The documents as they were, and a roster that cannot be asked.
+	*w.s.Consents = consent.Consents{Ledger: failing{fmt.Errorf("%w: roster: connection refused", identity.ErrUnreachable)}, Documents: docs}
+	_, err = parties.Me(w.owner, &app.PartyMeRequest{})
+	x.Equal(codes.Unavailable, status.Code(err))
+	x.NotContains(status.Convert(err).Message(), "connection refused", "what roster said is not the caller's to read")
+	x.Equal(http.StatusServiceUnavailable, w.page(w.owner, http.MethodGet, "/account").Code)
+	x.Equal(http.StatusServiceUnavailable, w.post(w.owner, "/account/consents", `{"agree":{"terms":"2026-10-01","privacy":"2026-10-01"}}`).Code)
+
+	*w.s.Consents = consent.Consents{Ledger: failing{fmt.Errorf("%w: roster has no such account", identity.ErrNoPerson)}, Documents: docs}
+	_, err = parties.Me(w.owner, &app.PartyMeRequest{})
+	x.Equal(codes.Unauthenticated, status.Code(err), "an account roster does not have is signed in again")
 }

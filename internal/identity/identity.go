@@ -90,6 +90,14 @@ type Config struct {
 	// the directory offers it (roster's `TenantConfig.leave`), deletes their
 	// account (`#leave`). It is an external roster's; empty draws no link.
 	AccountUrl string `yaml:"account_url"`
+
+	// ConsentKeep is how long the roster in this process keeps what an account
+	// agreed to (`app.consent`) once the account was erased -- its consent
+	// ledger's `consent.keep` -- and then destroys it. Unset keeps it for good,
+	// roster's default, until the period is decided with legal review
+	// (rove#35). It is the embedded roster's: a roster of its own says it in
+	// its own configuration.
+	ConsentKeep time.Duration `yaml:"consent_keep"`
 }
 
 // DefaultDirectory is the directory of the roster in this process when the
@@ -116,12 +124,18 @@ const RosterAdministrator = rostercore.Administers
 // AgentMethods is what that holder may call: checking a password, reading a
 // person and their tenant, the addresses somebody checked for them -- which is
 // whose an invitation is (`Store.Addresses`) -- the stream of what stopped
-// being good about somebody (`Store.Follow`), and, for a tenant key, whose key
-// it is. It is the `--role` an external roster installs Rove with:
+// being good about somebody (`Store.Follow`), the ledger of what an account
+// agreed to of this deployment's documents (`Store.Owed`, `Store.Agree`,
+// `Store.Agreements`), and, for a tenant key, whose key it is. It is the
+// `--role` an external roster installs Rove with:
 //
 //	roster app install --tenant acme --role /roster.VouchService/Verify,\
 //	  /roster.HolderService/Get,/roster.TenantService/Get,/roster.MeService/Get,\
-//	  /roster.EmailService/List,/roster.EmailService/Get,/roster.SyncService/Watch rove
+//	  /roster.EmailService/List,/roster.EmailService/Get,/roster.SyncService/Watch,\
+//	  /roster.ConsentService/Agree,/roster.ConsentService/Settled,/roster.ConsentService/List rove
+//
+// Not `ConsentService/Withdraw`: every document Rove asks for is required,
+// and leaving one is leaving the deployment, which is the account's erase.
 //
 // An installation older than the list has its role widened to it. Installing
 // again does not: it leaves a role the tenant has as the tenant has it
@@ -129,8 +143,10 @@ const RosterAdministrator = rostercore.Administers
 //
 //	roster role patch @acme/rove-app '{"methods": [...], "date_updated_force": true}'
 //
-// Until it is, an account sees only the invitations it holds a link for, and a
-// session learns what roster says of its account only when it next asks.
+// Until it is, an account sees only the invitations it holds a link for, a
+// session learns what roster says of its account only when it next asks, and
+// on a deployment that asks for its documents to be agreed to (`app.consent`)
+// every account is refused, since whether it agreed cannot be told.
 //
 // People are made, given passwords and suspended at roster, by whoever
 // administers the tenant there; on the embedded roster Rove does those through
@@ -143,6 +159,9 @@ var AgentMethods = []string{
 	"/roster.EmailService/List",
 	"/roster.EmailService/Get",
 	"/roster.SyncService/Watch",
+	"/roster.ConsentService/Agree",
+	"/roster.ConsentService/Settled",
+	"/roster.ConsentService/List",
 }
 
 // The prefixes a key is read by, the way roster reads them.
@@ -273,6 +292,11 @@ func Open(ctx context.Context, cfg Config, stateDir string, log *slog.Logger) (*
 		return s, nil
 	}
 
+	if cfg.ConsentKeep != 0 {
+		// Refused rather than ignored: a window nothing here applies would
+		// read as one that is kept.
+		return nil, errors.New("auth.roster.consent_keep is the roster in this process's: a roster of its own destroys consents as its own `consent.keep` says")
+	}
 	if cfg.Key == "" {
 		return nil, errors.New("auth.roster.key: an external roster is reached with a key -- " + prefixDeploymentKey + " or " + prefixTenantKey)
 	}
@@ -856,9 +880,9 @@ func (s *Store) StandingOf(ctx context.Context, account pdid.Id) (Standing, erro
 // reaches a session already open.
 const HeldTtl = 30 * time.Second
 
-// heldRetry is how long a roster that could not be asked is not asked again,
+// HeldRetry is how long a roster that could not be asked is not asked again,
 // so that one that is down is not asked once per call.
-const heldRetry = 5 * time.Second
+const HeldRetry = 5 * time.Second
 
 type held struct {
 	st  Standing
@@ -877,7 +901,7 @@ func (s *Store) Held(ctx context.Context, holder pdid.Id, began time.Time) error
 	s.hmu.Unlock()
 	// Somebody roster does not have is an answer, and kept as long as one.
 	known := v.err == nil || errors.Is(v.err, ErrNoPerson)
-	fresh := ok && (known && now.Sub(v.at) < HeldTtl || !known && now.Sub(v.at) < heldRetry)
+	fresh := ok && (known && now.Sub(v.at) < HeldTtl || !known && now.Sub(v.at) < HeldRetry)
 	if !fresh {
 		st, err := s.StandingOf(ctx, holder)
 		v = held{st: st, err: err, at: now}

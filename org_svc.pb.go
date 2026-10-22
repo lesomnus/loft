@@ -6333,8 +6333,7 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\x06Accept\x12\x1d.rove.InvitationAcceptRequest\x1a\x10.rove.Invitation\x125\n" +
 	"\x04Deny\x12\x1b.rove.InvitationDenyRequest\x1a\x10.rove.Invitation2\x11\n" +
 	"\x0fCliLoginService2\x12\n" +
-	"\x10AliasHoldService2\x10\n" +
-	"\x0eConsentService2\x16\n" +
+	"\x10AliasHoldService2\x16\n" +
 	"\x14SignInFailureService2\x10\n" +
 	"\x0eHandoffServiceB\x1aZ\x18github.com/lesomnus/roveb\beditionsp\xe8\a"
 
@@ -6544,7 +6543,7 @@ func file_rove_org_svc_g_proto_init() {
 			NumEnums:      0,
 			NumMessages:   45,
 			NumExtensions: 0,
-			NumServices:   8,
+			NumServices:   7,
 		},
 		GoTypes:           file_rove_org_svc_g_proto_goTypes,
 		DependencyIndexes: file_rove_org_svc_g_proto_depIdxs,

@@ -304,46 +304,6 @@ func (AliasHold) Annotations() []schema.Annotation {
 	}
 }
 
-type Consent struct {
-	ent.Schema
-}
-
-func (Consent) Fields() []ent.Field {
-	return []ent.Field{
-		field.Uuid("id").
-			Unique().
-			Immutable(),
-		field.Uuid("account"),
-		field.String("document"),
-		field.String("version"),
-		field.String("client"),
-		field.Time("date_left").
-			Nillable().
-			Optional(),
-		field.Time("date_erased").
-			Nillable().
-			Optional(),
-		field.Time("date_created").
-			Immutable().
-			Optional(),
-	}
-}
-
-func (Consent) Indexes() []ent.Index {
-	return []ent.Index{
-		index.Fields("account", "document", "version").
-			StorageKey("consent_agreed").
-			Unique().
-			Annotations(entsql.IndexWhere("date_erased IS NULL")),
-	}
-}
-
-func (Consent) Annotations() []schema.Annotation {
-	return []schema.Annotation{
-		entsql.Annotation{Table: "consent"},
-	}
-}
-
 type SignInFailure struct {
 	ent.Schema
 }

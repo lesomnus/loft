@@ -7,7 +7,7 @@
 | 항목 | 결과 | 어디서 지키나 |
 | --- | --- | --- |
 | `auth.Plain`을 아무도 닿는 곳에 두지 않는다 | 문제없음 | 공개 서버는 세션 쿠키로 읽습니다(`cmd.Build`가 `Server.Auth`를 채움). Plain은 내장 roster를 프로세스 안에서(bufconn) 부를 때만 씁니다(`internal/identity`) |
-| 벽 밖(`global: {}`)의 엔티티 목록을 읽는다 | 8개, 모두 RPC로 열려 있지 않음 | Session, CliLogin, AliasHold, Consent, SignInFailure, SearchStale, Outbox, Archived. 권한 표에 이들의 RPC가 하나도 없고, 생기면 `TestNothingBeyondTheWallIsInTheTable`(새로)이 실패합니다 |
+| 벽 밖(`global: {}`)의 엔티티 목록을 읽는다 | 7개, 모두 RPC로 열려 있지 않음 | Session, CliLogin, AliasHold, SignInFailure, SearchStale, Outbox, Archived(Consent는 roster의 동의 원장으로 가며 지웠습니다, D37). 권한 표에 이들의 RPC가 하나도 없고, 생기면 `TestNothingBeyondTheWallIsInTheTable`(새로)이 실패합니다 |
 | 서빙하는 서버는 벽이 있는 것이고, 벽 없는 것은 서빙하지 않는다 | 문제없음 | `app.RegisterServer(g, s.Walled)`, batch도 `s.Walled`(`cmd/serve.go`) |
 | `gate.Interceptor`가 `auth.Interceptor` 뒤에 있다 | 문제없음 | `Server.Grpc`의 순서: auth → 호출 제한 → gate → watch → 닫힌 워크스페이스 |
 | 정책이 gate와 batch의 Guard 둘 다에 간다 | 문제없음 | `gate.Interceptor(s.Policy)`, `c.Server.Guard(s.Policy)`. 서빙되는 스택이 표대로인지는 `TestEveryMethodIsAsTheTableSaysForEveryRole`이 봅니다 |

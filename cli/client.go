@@ -619,9 +619,8 @@ func NewCmdApi() *xli.Command {
 	}
 
 	// What the server keeps for itself and serves to nobody: a person's
-	// session, a terminal waiting, the tree's lock, an address held, an
-	// agreement (`rove consent` is the agreement).
-	for _, internal := range []string{"session", "cli-login", "tree-lock", "alias-hold", "consent"} {
+	// session, a terminal waiting, the tree's lock, an address held.
+	for _, internal := range []string{"session", "cli-login", "tree-lock", "alias-hold"} {
 		if t.Command(internal) != nil {
 			if err := t.Drop(internal); err != nil {
 				panic(err)

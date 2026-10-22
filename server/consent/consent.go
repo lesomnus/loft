@@ -1,11 +1,18 @@
 // Package consent is what an account agrees to before it uses this deployment
-// -- its terms of use and its privacy policy, each at a version -- and the
-// record that it did (design 9.11).
+// -- its terms of use and its privacy policy, each at a version -- and asking
+// roster whether it did (design 9.11, D37).
+//
+// Which documents are in force is this deployment's to say and stays here
+// (`app.consent`). What each account did about them is roster's: its consent
+// ledger (`ConsentService`, roster's `docs/apps.md`) keeps every agreement as
+// a row of its own that nothing changes, past the account for as long as its
+// `consent.keep` says, and destroys them then. Rove keeps none of it -- a copy
+// here would be one more record of the same acts to disagree with roster's,
+// and one more to destroy.
 //
 // It is the account's and not a workspace's: an account agrees once, for every
-// workspace it is or will be in, and agrees again when a document changes
-// version. Every agreement is a row of its own and none is ever changed, so
-// what an account agreed to, and when, is there to show afterwards.
+// workspace it is or will be in -- the ledger's scope for the whole deployment
+// -- and agrees again when a document changes version.
 //
 // A deployment that names no document asks nothing: a team running its own
 // Rove has no terms to put in front of itself.
@@ -18,13 +25,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/lesomnus/payday/audit"
-	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/pdid"
 
-	"github.com/lesomnus/rove/internal/ent"
-	entconsent "github.com/lesomnus/rove/internal/ent/consent"
-	"github.com/lesomnus/rove/server/pd"
+	"github.com/lesomnus/rove/internal/identity"
 )
 
 // Document is one thing an account agrees to.
@@ -48,23 +51,37 @@ type Agreement struct {
 	Client string `json:"client,omitempty"`
 }
 
-// Consents is the documents in force, and the agreements to them.
-type Consents struct {
-	Db        *ent.Client
-	Documents []Document
-	Now       func() time.Time
+// Ledger is roster's record of what accounts agreed to: [identity.Store].
+type Ledger interface {
+	Owed(ctx context.Context, account pdid.Id, docs []identity.Document) ([]identity.Document, error)
+	Agree(ctx context.Context, account pdid.Id, docs []identity.Document, client string) error
+	Agreements(ctx context.Context, account pdid.Id) ([]identity.Agreement, error)
+}
 
-	// Audit is what the trail keeps, as the recorder is given it: every
-	// agreement, and every mark of one's account leaving, is put on the trail
-	// as the act it is (payday#108, `trail: {recorded: {}}` on Consent), so a
-	// check of the rows finds an agreement nobody made through here.
-	Audit audit.Contents
+// Consents is the documents in force, and roster's ledger of the agreements
+// to them.
+type Consents struct {
+	Ledger    Ledger
+	Documents []Document
+
+	// Now is the clock, for the tests.
+	Now func() time.Time
 
 	mu sync.Mutex
-	// settled is the accounts known to owe nothing. Owing nothing lasts
-	// until the documents change, which is a restart, so it is kept; owing
-	// is asked again every time, since it ends wherever the account agrees.
-	settled map[pdid.Id]bool
+	// settled is when each account was last heard to owe nothing, believed
+	// for [identity.HeldTtl] as what roster says of the account itself is.
+	// Owing is not kept: it ends wherever the account agrees, in another
+	// process of this deployment too, so it is asked again every time.
+	settled map[pdid.Id]time.Time
+	// failed is the last time roster could not be asked about an account,
+	// and why: it is not asked again for [identity.HeldRetry], so that a
+	// roster that is down is not asked once per call.
+	failed map[pdid.Id]failure
+}
+
+type failure struct {
+	err error
+	at  time.Time
 }
 
 // ErrOwed is an agreement that leaves something owed: every document an
@@ -85,52 +102,79 @@ func (c *Consents) now() time.Time {
 // Asks says whether this deployment asks anything of an account.
 func (c *Consents) Asks() bool { return c != nil && len(c.Documents) > 0 }
 
-// Owed is the documents an account has not agreed to at the version in force.
+// Owed is the documents an account has not agreed to at the version in force,
+// as roster says now.
 func (c *Consents) Owed(ctx context.Context, account pdid.Id) ([]Document, error) {
 	out := []Document{}
 	if !c.Asks() {
 		return out, nil
 	}
+	asked := make([]identity.Document, 0, len(c.Documents))
 	for _, d := range c.Documents {
-		ok, err := c.Db.Consent.Query().Where(
-			entconsent.Account(account.Uuid()),
-			entconsent.Document(d.Name),
-			entconsent.Version(d.Version),
-			entconsent.DateErasedIsNil(),
-		).Exist(ctx)
-		if err != nil {
-			return nil, err
-		}
-		if !ok {
-			out = append(out, d)
+		asked = append(asked, identity.Document{Name: d.Name, Version: d.Version})
+	}
+	owed, err := c.Ledger.Owed(ctx, account, asked)
+	if err != nil {
+		c.heard(account, false, err)
+		return nil, err
+	}
+	for _, d := range c.Documents {
+		for _, v := range owed {
+			if v.Name == d.Name && v.Version == d.Version {
+				out = append(out, d)
+				break
+			}
 		}
 	}
+	c.heard(account, len(out) == 0, nil)
 	return out, nil
 }
 
+// heard keeps what roster said of an account: whether it owes nothing, or
+// that it could not be asked.
+func (c *Consents) heard(account pdid.Id, settled bool, err error) {
+	now := c.now()
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if c.settled == nil {
+		c.settled, c.failed = map[pdid.Id]time.Time{}, map[pdid.Id]failure{}
+	}
+	switch {
+	case err != nil:
+		c.failed[account] = failure{err: err, at: now}
+	case settled:
+		c.settled[account] = now
+		delete(c.failed, account)
+	default:
+		delete(c.settled, account)
+		delete(c.failed, account)
+	}
+}
+
 // Settled says whether an account owes nothing: what every call a session
-// makes is held to.
+// makes is held to. A roster that could not be asked is an error, and so a
+// refusal: what it would have said is not known.
 func (c *Consents) Settled(ctx context.Context, account pdid.Id) (bool, error) {
 	if !c.Asks() {
 		return true, nil
 	}
+	now := c.now()
 	c.mu.Lock()
-	ok := c.settled[account]
+	at, ok := c.settled[account]
+	f, failed := c.failed[account]
 	c.mu.Unlock()
-	if ok {
+	switch {
+	case ok && now.Sub(at) < identity.HeldTtl:
 		return true, nil
+	case failed && now.Sub(f.at) < identity.HeldRetry:
+		return false, f.err
 	}
+
 	owed, err := c.Owed(ctx, account)
-	if err != nil || len(owed) > 0 {
+	if err != nil {
 		return false, err
 	}
-	c.mu.Lock()
-	if c.settled == nil {
-		c.settled = map[pdid.Id]bool{}
-	}
-	c.settled[account] = true
-	c.mu.Unlock()
-	return true, nil
+	return len(owed) == 0, nil
 }
 
 // Agree records an account agreeing to what it owes, each document named with
@@ -154,148 +198,32 @@ func (c *Consents) Agree(ctx context.Context, account pdid.Id, agreed map[string
 		return nil
 	}
 
-	now := c.now()
-	tx, err := c.Db.Tx(ctx)
-	if err != nil {
-		return err
-	}
-	made := make([]pdid.Id, 0, len(owed))
+	docs := make([]identity.Document, 0, len(owed))
 	for _, d := range owed {
-		id := pdid.New(pd.ConsentDomain)
-		if err := tx.Consent.Create().
-			SetId(id.Uuid()).
-			SetAccount(account.Uuid()).
-			SetDocument(d.Name).
-			SetVersion(d.Version).
-			SetClient(client).
-			SetDateCreated(now).
-			Exec(ctx); err != nil {
-			_ = tx.Rollback()
-			if ent.IsConstraintError(err) {
-				// Agreed to at the same moment somewhere else: agreed.
-				if owed, err := c.Owed(ctx, account); err == nil && len(owed) == 0 {
-					return nil
-				}
-			}
-			return err
-		}
-		made = append(made, id)
+		docs = append(docs, identity.Document{Name: d.Name, Version: d.Version})
 	}
-	// The account's own act, by the account.
-	as := frame.Into(ctx, frame.New(account, pdid.Nil, frame.Grant{}))
-	if _, err := pd.Record(as, tx.Client(), c.Audit, Agreed, made); err != nil {
-		_ = tx.Rollback()
+	if err := c.Ledger.Agree(ctx, account, docs, client); err != nil {
 		return err
 	}
-	return tx.Commit()
+	c.heard(account, true, nil)
+	return nil
 }
 
-// The acts an agreement is on the trail as.
-const (
-	Agreed    = "rove.consent.agree"
-	Gone      = "rove.consent.left"
-	Destroyed = "rove.consent.destroy"
-)
-
 // Of is what an account agreed to, newest first.
+//
+// Nothing, on a deployment that asks nothing: one that names no document asks
+// nothing of roster's ledger either, and is served by a role without it.
 func (c *Consents) Of(ctx context.Context, account pdid.Id) ([]Agreement, error) {
-	vs, err := c.Db.Consent.Query().
-		Where(entconsent.Account(account.Uuid()), entconsent.DateErasedIsNil()).
-		Order(ent.Desc(entconsent.FieldDateCreated)).
-		All(ctx)
+	out := []Agreement{}
+	if !c.Asks() {
+		return out, nil
+	}
+	vs, err := c.Ledger.Agreements(ctx, account)
 	if err != nil {
 		return nil, err
 	}
-	out := make([]Agreement, 0, len(vs))
 	for _, v := range vs {
-		out = append(out, Agreement{Document: v.Document, Version: v.Version, At: v.DateCreated, Client: v.Client})
+		out = append(out, Agreement{Document: v.Document, Version: v.Version, At: v.At, Client: v.Client})
 	}
 	return out, nil
-}
-
-// Left records that an account left this deployment, now, on every agreement
-// it made that does not say so already: what [Consents.Sweep] counts the
-// window from. They still count -- an account that comes back agreed to what
-// it agreed to -- and its next sign-in asks nothing it answered.
-func (c *Consents) Left(ctx context.Context, account pdid.Id) error {
-	tx, err := c.Db.Tx(ctx)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	ids, err := tx.Consent.Query().
-		Where(entconsent.Account(account.Uuid()), entconsent.DateLeftIsNil(), entconsent.DateErasedIsNil()).
-		Ids(ctx)
-	if err != nil || len(ids) == 0 {
-		return err
-	}
-	if _, err := tx.Consent.Update().
-		Where(entconsent.IdIn(ids...)).
-		SetDateLeft(c.now()).
-		Save(ctx); err != nil {
-		return err
-	}
-
-	// The deployment's mark, which is what it is: nobody asked.
-	marked := make([]pdid.Id, len(ids))
-	for i, v := range ids {
-		marked[i] = pdid.Id(v)
-	}
-	if _, err := pd.Record(ctx, tx.Client(), c.Audit, Gone, marked); err != nil {
-		return err
-	}
-	return tx.Commit()
-}
-
-// Sweep destroys the agreements of accounts that left more than `keep` ago,
-// and answers how many. Zero keeps them for good, and destroys nothing.
-//
-// Destroyed rather than erased: an agreement is kept to show afterwards that
-// it was made, and past the window there is nothing it is kept for. The trail
-// keeps that each act happened -- the agreement, the leaving, and this, the
-// deployment's destruction of it, in the same transaction -- as who, when, of
-// which row and a keyed digest of it, for this one a digest that says it went,
-// and nothing of what was agreed to. It keeps them for as long as its own
-// window for the kind keeps any row (`audit.by.consent`, or the deployment's),
-// as it keeps every act's actor.
-func (c *Consents) Sweep(ctx context.Context, keep time.Duration) (int, error) {
-	if keep <= 0 {
-		return 0, nil
-	}
-	tx, err := c.Db.Tx(ctx)
-	if err != nil {
-		return 0, err
-	}
-	defer tx.Rollback()
-
-	ids, err := tx.Consent.Query().
-		Where(entconsent.DateLeftNotNil(), entconsent.DateLeftLT(c.now().Add(-keep))).
-		Ids(ctx)
-	if err != nil || len(ids) == 0 {
-		return 0, err
-	}
-	n, err := tx.Consent.Delete().Where(entconsent.IdIn(ids...)).Exec(ctx)
-	if err != nil {
-		return 0, err
-	}
-	// Once they are rows no more: what the trail keeps is a digest that says
-	// each went (payday#115). One that said it was there, kept while it was,
-	// is a row the trail says is there and is not.
-	gone := make([]pdid.Id, len(ids))
-	for i, v := range ids {
-		gone[i] = pdid.Id(v)
-	}
-	if _, err := pd.RecordErased(ctx, tx.Client(), c.Audit, Destroyed, gone); err != nil {
-		return 0, err
-	}
-	if err := tx.Commit(); err != nil {
-		return 0, err
-	}
-
-	// Whoever owed nothing because of them owes them again.
-	c.mu.Lock()
-	c.settled = nil
-	c.mu.Unlock()
-	return n, nil
 }

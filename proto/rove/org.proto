@@ -427,66 +427,10 @@ message AliasHold {
   };
 }
 
-// Consent is an account agreeing to one of what this deployment asks of it --
-// its terms of use, its privacy policy -- at one version, then (design 9.11).
-// A new version is agreed to again, as a row of its own, and none is changed:
-// what an account agreed to and when is what these rows are kept for.
-//
-// The deployment's (`global`), and an account's rather than a workspace's: it
-// agrees once for every workspace it is in. Written only by `server/consent`,
-// and the policy opens no RPC of it; each write is on the trail as its act, so
-// an agreement nobody made through there is found (payday#108).
-message Consent {
-  bytes id = 1 [(orm.field) = {
-    type: TYPE_UUID
-    key: true
-    default: ""
-  }];
-
-  // The account that agreed: roster's, as a session names it (D27).
-  bytes account = 8 [(orm.field) = {type: TYPE_UUID}];
-
-  // What it agreed to -- `terms` or `privacy` -- and the version of it in
-  // force then (`app.consent`).
-  string document = 9;
-  string version = 10;
-
-  // Where it agreed: `web` or `cli`.
-  string client = 11;
-
-  // When the account left this deployment ([lifecycle.Lifecycle.Depart]):
-  // the agreement is kept from then for `app.consent.keep`, and forever when
-  // that says nothing (rove#35). It still counts while it is kept -- an
-  // account that comes back agreed to what it agreed to. Null while the
-  // account is here.
-  google.protobuf.Timestamp date_left = 12 [(orm.field) = {nullable: true}];
-
-  google.protobuf.Timestamp date_erased = 14 [(orm.field) = {erased: {}}];
-  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
-    immutable: true
-    default: ""
-  }];
-
-  option (orm.message) = {
-    indexes: [
-      {
-        name: "agreed"
-        refs: [
-          {name: "account", number: 8},
-          {name: "document", number: 9},
-          {name: "version", number: 10}
-        ]
-        unique: true
-      }
-    ]
-  };
-  option (payday.entity) = {
-    domain: 44
-    global: {}
-    trail: {recorded: {}}
-  };
-}
-
+// Domain 44 was `Consent`, an account's agreement to one of the deployment's
+// documents, until roster's ledger kept them (`ConsentService`, D37). It is not
+// for another entity: an identifier in the trail of a deployment from before
+// says what it named.
 
 // SignInFailure is one wrong answer at the sign-in form, counted against the
 // address it came from and the name it was for (`server/session`): ten in

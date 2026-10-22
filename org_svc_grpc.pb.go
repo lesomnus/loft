@@ -1360,66 +1360,6 @@ var AliasHoldService_ServiceDesc = grpc.ServiceDesc{
 	Metadata:    "rove/org_svc.g.proto",
 }
 
-// ConsentServiceClient is the client API for ConsentService service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type ConsentServiceClient interface {
-}
-
-type consentServiceClient struct {
-	cc grpc.ClientConnInterface
-}
-
-func NewConsentServiceClient(cc grpc.ClientConnInterface) ConsentServiceClient {
-	return &consentServiceClient{cc}
-}
-
-// ConsentServiceServer is the server API for ConsentService service.
-// All implementations must embed UnimplementedConsentServiceServer
-// for forward compatibility.
-type ConsentServiceServer interface {
-	mustEmbedUnimplementedConsentServiceServer()
-}
-
-// UnimplementedConsentServiceServer must be embedded to have
-// forward compatible implementations.
-//
-// NOTE: this should be embedded by value instead of pointer to avoid a nil
-// pointer dereference when methods are called.
-type UnimplementedConsentServiceServer struct{}
-
-func (UnimplementedConsentServiceServer) mustEmbedUnimplementedConsentServiceServer() {}
-func (UnimplementedConsentServiceServer) testEmbeddedByValue()                        {}
-
-// UnsafeConsentServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to ConsentServiceServer will
-// result in compilation errors.
-type UnsafeConsentServiceServer interface {
-	mustEmbedUnimplementedConsentServiceServer()
-}
-
-func RegisterConsentServiceServer(s grpc.ServiceRegistrar, srv ConsentServiceServer) {
-	// If the following call panics, it indicates UnimplementedConsentServiceServer was
-	// embedded by pointer and is nil.  This will cause panics if an
-	// unimplemented method is ever invoked, so we test this at initialization
-	// time to prevent it from happening at runtime later due to I/O.
-	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
-		t.testEmbeddedByValue()
-	}
-	s.RegisterService(&ConsentService_ServiceDesc, srv)
-}
-
-// ConsentService_ServiceDesc is the grpc.ServiceDesc for ConsentService service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var ConsentService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.ConsentService",
-	HandlerType: (*ConsentServiceServer)(nil),
-	Methods:     []grpc.MethodDesc{},
-	Streams:     []grpc.StreamDesc{},
-	Metadata:    "rove/org_svc.g.proto",
-}
-
 // SignInFailureServiceClient is the client API for SignInFailureService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.

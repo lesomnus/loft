@@ -508,33 +508,6 @@ var (
 			},
 		},
 	}
-	// ConsentColumns holds the columns for the "consent" table.
-	ConsentColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeUuid, Unique: true},
-		{Name: "account", Type: field.TypeUuid},
-		{Name: "document", Type: field.TypeString},
-		{Name: "version", Type: field.TypeString},
-		{Name: "client", Type: field.TypeString},
-		{Name: "date_left", Type: field.TypeTime, Nullable: true},
-		{Name: "date_erased", Type: field.TypeTime, Nullable: true},
-		{Name: "date_created", Type: field.TypeTime, Nullable: true},
-	}
-	// ConsentTable holds the schema information for the "consent" table.
-	ConsentTable = &schema.Table{
-		Name:       "consent",
-		Columns:    ConsentColumns,
-		PrimaryKey: []*schema.Column{ConsentColumns[0]},
-		Indexes: []*schema.Index{
-			{
-				Name:    "consent_agreed",
-				Unique:  true,
-				Columns: []*schema.Column{ConsentColumns[1], ConsentColumns[2], ConsentColumns[3]},
-				Annotation: &entsql.IndexAnnotation{
-					Where: "date_erased IS NULL",
-				},
-			},
-		},
-	}
 	// CountfindingColumns holds the columns for the "countfinding" table.
 	CountfindingColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUuid, Unique: true},
@@ -2049,7 +2022,6 @@ var (
 		AuditTable,
 		BookableTable,
 		CliloginTable,
-		ConsentTable,
 		CountfindingTable,
 		CustodyTable,
 		CustodylineTable,
@@ -2132,9 +2104,6 @@ func init() {
 	}
 	CliloginTable.Annotation = &entsql.Annotation{
 		Table: "clilogin",
-	}
-	ConsentTable.Annotation = &entsql.Annotation{
-		Table: "consent",
 	}
 	CountfindingTable.ForeignKeys[0].RefTable = TenantTable
 	CountfindingTable.ForeignKeys[1].RefTable = InventorycountTable

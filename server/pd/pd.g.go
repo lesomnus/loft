@@ -48,7 +48,6 @@ import (
 	audit "github.com/lesomnus/rove/internal/ent/audit"
 	bookable "github.com/lesomnus/rove/internal/ent/bookable"
 	clilogin "github.com/lesomnus/rove/internal/ent/clilogin"
-	consent "github.com/lesomnus/rove/internal/ent/consent"
 	countfinding "github.com/lesomnus/rove/internal/ent/countfinding"
 	custody "github.com/lesomnus/rove/internal/ent/custody"
 	custodyline "github.com/lesomnus/rove/internal/ent/custodyline"
@@ -143,7 +142,6 @@ const (
 	AuditDomain           pdid.Domain = 3   // "audit"
 	BookableDomain        pdid.Domain = 25  // "bookable"
 	CliLoginDomain        pdid.Domain = 42  // "cli-login"
-	ConsentDomain         pdid.Domain = 44  // "consent"
 	CountFindingDomain    pdid.Domain = 32  // "count-finding"
 	CustodyDomain         pdid.Domain = 21  // "custody"
 	CustodyLineDomain     pdid.Domain = 22  // "custody-line"
@@ -192,7 +190,6 @@ func init() {
 	pdid.Register("rove.Audit", AuditDomain, "audit")
 	pdid.Register("rove.Bookable", BookableDomain, "bookable")
 	pdid.Register("rove.CliLogin", CliLoginDomain, "cli-login")
-	pdid.Register("rove.Consent", ConsentDomain, "consent")
 	pdid.Register("rove.CountFinding", CountFindingDomain, "count-finding")
 	pdid.Register("rove.Custody", CustodyDomain, "custody")
 	pdid.Register("rove.CustodyLine", CustodyLineDomain, "custody-line")
@@ -245,7 +242,6 @@ var Domains = map[string]pdid.Domain{
 	"rove.Audit":           AuditDomain,
 	"rove.Bookable":        BookableDomain,
 	"rove.CliLogin":        CliLoginDomain,
-	"rove.Consent":         ConsentDomain,
 	"rove.CountFinding":    CountFindingDomain,
 	"rove.Custody":         CustodyDomain,
 	"rove.CustodyLine":     CustodyLineDomain,
@@ -311,7 +307,6 @@ var IndexRenames = []rename.Index{
 	{Table: "bookable", From: "bookable_tenant_id_date_created_id", To: "bookable_page"},
 	{Table: "bookable", From: "bookable_asset_id", To: "bookable_asset"},
 	{Table: "clilogin", From: "clilogin_address_date_created", To: "clilogin_address"},
-	{Table: "consent", From: "consent_account_document_version", To: "consent_agreed"},
 	{Table: "countfinding", From: "countfinding_tenant_id_date_created_id", To: "countfinding_page"},
 	{Table: "countfinding", From: "countfinding_count_id_kind", To: "countfinding_count"},
 	{Table: "custody", From: "custody_tenant_id_date_created_id", To: "custody_page"},
@@ -501,11 +496,6 @@ func (wall) BookableScope(ctx context.Context) (predicate.Bookable, error) {
 
 // CliLoginScope: declared `global`, so it is not behind the wall at all.
 func (wall) CliLoginScope(ctx context.Context) (predicate.CliLogin, error) {
-	return nil, nil
-}
-
-// ConsentScope: declared `global`, so it is not behind the wall at all.
-func (wall) ConsentScope(ctx context.Context) (predicate.Consent, error) {
 	return nil, nil
 }
 
@@ -17031,8 +17021,6 @@ func described(key pdid.Id) (protoreflect.MessageDescriptor, []protoreflect.Fiel
 		return describedBookable.md, describedBookable.secret, describedBookable.personal
 	case CliLoginDomain:
 		return describedCliLogin.md, describedCliLogin.secret, describedCliLogin.personal
-	case ConsentDomain:
-		return describedConsent.md, describedConsent.secret, describedConsent.personal
 	case CountFindingDomain:
 		return describedCountFinding.md, describedCountFinding.secret, describedCountFinding.personal
 	case CustodyDomain:
@@ -17158,9 +17146,6 @@ var (
 		[]protoreflect.FieldNumber{})
 	describedCliLogin = describe((*rove.CliLogin)(nil),
 		[]protoreflect.FieldNumber{8},
-		[]protoreflect.FieldNumber{})
-	describedConsent = describe((*rove.Consent)(nil),
-		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
 	describedCountFinding = describe((*rove.CountFinding)(nil),
 		[]protoreflect.FieldNumber{},
@@ -18301,8 +18286,6 @@ func left(ctx context.Context, s bare.Server, key pdid.Id, image proto.Message) 
 		vs, err = rowsBookable(ctx, s.Db, bookable.IdEQ(uuid.UUID(key)))
 	case CliLoginDomain:
 		vs, err = rowsCliLogin(ctx, s.Db, clilogin.IdEQ(uuid.UUID(key)))
-	case ConsentDomain:
-		vs, err = rowsConsent(ctx, s.Db, consent.IdEQ(uuid.UUID(key)))
 	case CountFindingDomain:
 		vs, err = rowsCountFinding(ctx, s.Db, countfinding.IdEQ(uuid.UUID(key)))
 	case CustodyDomain:
@@ -18757,9 +18740,6 @@ func Digests(ctx context.Context, db *ent.Client, d *audit1.Digest, p trail.Poli
 	if err := audit1.CheckKind(ctx, d, checkedCliLogin(db), archived, &out); err != nil {
 		return out, fmt.Errorf("cli-login: %w", err)
 	}
-	if err := audit1.CheckKind(ctx, d, checkedConsent(db), archived, &out); err != nil {
-		return out, fmt.Errorf("consent: %w", err)
-	}
 	if err := audit1.CheckKind(ctx, d, checkedCountFinding(db), archived, &out); err != nil {
 		return out, fmt.Errorf("count-finding: %w", err)
 	}
@@ -19197,52 +19177,6 @@ func checkedCliLogin(db *ent.Client) audit1.Kind {
 			var out map[pdid.Id]*audit1.Recorded
 			err := snapshot(ctx, db, func(ctx context.Context, db *ent.Client) error {
 				rows, err := rowsCliLogin(ctx, db, clilogin.IdIn(uuids(ids)...))
-				if err != nil {
-					return err
-				}
-
-				out, err = goneOf(ctx, db, ids, rows)
-				return err
-			})
-
-			return out, err
-		},
-	}
-}
-
-// checkedConsent is what a check of the rows reads of the consent kind.
-func checkedConsent(db *ent.Client) audit1.Kind {
-	read := func(ctx context.Context, ps ...predicate.Consent) (audit1.Page, error) {
-		var out audit1.Page
-		err := snapshot(ctx, db, func(ctx context.Context, db *ent.Client) error {
-			rows, err := rowsConsent(ctx, db, ps...)
-			if err != nil {
-				return err
-			}
-
-			recorded, err := newestDigests(ctx, db, objects(rows))
-			out = audit1.Page{Rows: rows, Recorded: recorded}
-			return err
-		})
-
-		return out, err
-	}
-
-	return audit1.Kind{
-		Domain: ConsentDomain,
-		After: func(ctx context.Context, after pdid.Id) (audit1.Page, error) {
-			return read(ctx, consent.IdGT(uuid.UUID(after)))
-		},
-		Of: func(ctx context.Context, ids []pdid.Id) (audit1.Page, error) {
-			return read(ctx, consent.IdIn(uuids(ids)...))
-		},
-		Trail: func(ctx context.Context, yield func([]pdid.Id) error) error {
-			return trailObjects(ctx, db, ConsentDomain, yield)
-		},
-		Gone: func(ctx context.Context, ids []pdid.Id) (map[pdid.Id]*audit1.Recorded, error) {
-			var out map[pdid.Id]*audit1.Recorded
-			err := snapshot(ctx, db, func(ctx context.Context, db *ent.Client) error {
-				rows, err := rowsConsent(ctx, db, consent.IdIn(uuids(ids)...))
 				if err != nil {
 					return err
 				}
@@ -20634,25 +20568,6 @@ func rowsCliLogin(ctx context.Context, db *ent.Client, ps ...predicate.CliLogin)
 	return out, nil
 }
 
-// rowsConsent is the rows `ps` says of the consent kind -- every row there is,
-// live or erased softly -- at most a page of them in identifier order, each as
-// a Get reads it.
-func rowsConsent(ctx context.Context, db *ent.Client, ps ...predicate.Consent) ([]audit1.Live, error) {
-	q := db.Consent.Query().Where(ps...)
-
-	vs, err := q.Order(consent.ById()).Limit(audit1.RowsPage).All(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	out := make([]audit1.Live, len(vs))
-	for i, v := range vs {
-		out[i] = audit1.Live{Object: pdid.Id(v.Id), Row: v.Proto()}
-	}
-
-	return out, nil
-}
-
 // rowsCountFinding is the rows `ps` says of the count-finding kind -- every row there is,
 // live or erased softly -- at most a page of them in identifier order, each as
 // a Get reads it.
@@ -21504,8 +21419,6 @@ func record(ctx context.Context, db *ent.Client, content audit1.Contents, action
 				rows, err = rowsBookable(ctx, db, bookable.IdIn(uuids(page)...))
 			case CliLoginDomain:
 				rows, err = rowsCliLogin(ctx, db, clilogin.IdIn(uuids(page)...))
-			case ConsentDomain:
-				rows, err = rowsConsent(ctx, db, consent.IdIn(uuids(page)...))
 			case CountFindingDomain:
 				rows, err = rowsCountFinding(ctx, db, countfinding.IdIn(uuids(page)...))
 			case CustodyDomain:
@@ -21688,8 +21601,6 @@ func (s trailStore) Carry(ctx context.Context, digest *audit1.Digest, d pdid.Dom
 			rows, err = rowsBookable(ctx, s.db, bookable.IdIn(uuids(ids)...))
 		case CliLoginDomain:
 			rows, err = rowsCliLogin(ctx, s.db, clilogin.IdIn(uuids(ids)...))
-		case ConsentDomain:
-			rows, err = rowsConsent(ctx, s.db, consent.IdIn(uuids(ids)...))
 		case CountFindingDomain:
 			rows, err = rowsCountFinding(ctx, s.db, countfinding.IdIn(uuids(ids)...))
 		case CustodyDomain:
@@ -26664,7 +26575,6 @@ func Resources(s rove.Server, drv dialect.Driver, guard batch.Guard, w *watch.Wa
 		&rove.Audit{},
 		&rove.Bookable{},
 		&rove.CliLogin{},
-		&rove.Consent{},
 		&rove.CountFinding{},
 		&rove.Custody{},
 		&rove.CustodyLine{},
