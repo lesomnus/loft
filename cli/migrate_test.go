@@ -312,3 +312,70 @@ func TestTheContractsTermsMoveOntoTheWorkspace(t *testing.T) {
 	}.Build())
 	x.NoError(err)
 }
+
+// TestTheContractsTermsMoveFromABuildLongBefore (D36): on SQLite, a contract
+// table from a build long before this one -- before `purge_floors`, with its
+// index under the name of its columns, its dates in nanoseconds -- is made
+// again by the schema's migration, and what is made again has the columns the
+// schema declares and no others. Its terms were set aside before, and are on
+// the workspace after; and nothing of them is left behind.
+func TestTheContractsTermsMoveFromABuildLongBefore(t *testing.T) {
+	x := require.New(t)
+	ctx := t.Context()
+
+	c := cmd.Config{}
+	c.Db.Driver = "sqlite3"
+	c.Db.Dsn = "file:" + filepath.Join(t.TempDir(), "rove.db") + "?_pragma=foreign_keys(1)&_pragma=busy_timeout(10000)"
+	c.Watch.Broker = "memory"
+	c.App.Files = t.TempDir()
+	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = "sqlite3", "file:"+filepath.Join(t.TempDir(), "roster.db")
+	run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234")
+
+	s, err := cmd.Build(ctx, c)
+	x.NoError(err)
+	defer s.Close()
+	exec := func(q string, args ...any) {
+		_, err := s.Db.ExecContext(ctx, q, args...)
+		x.NoError(err, q)
+	}
+
+	// The table as staging's build (a11e37d) made it, and a contract in it as
+	// that build wrote one: in force since yesterday, its dates in
+	// nanoseconds, keeping its history two years.
+	var tenantId string
+	x.NoError(s.Db.QueryRowContext(ctx, "SELECT id FROM tenant WHERE alias = 'acme'").Scan(&tenantId))
+	exec("DROP TABLE tenantcontract")
+	exec("CREATE TABLE `tenantcontract` (`id` uuid NOT NULL, `name` text NOT NULL, `desc` text NOT NULL, `view_days` integer NOT NULL, " +
+		"`keep_days` integer NOT NULL, `grace_days` integer NOT NULL, `date_effective` datetime NULL, `access_keep_days` integer NULL DEFAULT (0), " +
+		"`restore_days` integer NULL DEFAULT (0), `date_erased` datetime NULL, `date_created` datetime NULL, `tenant_id` uuid NOT NULL, " +
+		"PRIMARY KEY (`id`), CONSTRAINT `tenantcontract_tenant_tenant` FOREIGN KEY (`tenant_id`) REFERENCES `tenant` (`id`) ON DELETE NO ACTION)")
+	exec("CREATE INDEX `tenantcontract_tenant_id_date_effective_id` ON `tenantcontract` (`tenant_id`, `date_effective`, `id`)")
+	effective := time.Now().Add(-24 * time.Hour)
+	id := pdid.New(pd.TenantContractDomain)
+	exec("INSERT INTO tenantcontract (id, name, desc, view_days, keep_days, grace_days, date_effective, access_keep_days, restore_days, date_created, tenant_id) "+
+		"VALUES (?, 'before', '', 365, 730, 0, ?, 400, 90, ?, ?)", id.String(), effective.UnixNano(), effective.UnixNano(), tenantId)
+	var stored string
+	x.NoError(s.Db.QueryRowContext(ctx, "SELECT typeof(date_effective) FROM tenantcontract").Scan(&stored))
+	x.Equal("integer", stored)
+
+	x.NoError(cli.Migrate(ctx, s))
+
+	tn, err := s.Ent.Tenant.Query().Where(tenant.Alias("acme")).Only(ctx)
+	x.NoError(err)
+	x.EqualValues(730, tn.KeepDays, "the contract's keep, lost with the table made again")
+	x.EqualValues(400, tn.AccessKeepDays)
+	x.EqualValues(90, tn.RestoreDays)
+	v, err := s.Ent.TenantContract.Get(ctx, id.Uuid())
+	x.NoError(err, "the contract, as the app reads it")
+	x.WithinDuration(effective, v.DateEffective, time.Microsecond)
+
+	for _, q := range []string{
+		"SELECT count(*) FROM pragma_table_info('tenantcontract') WHERE name IN ('view_days', 'keep_days', 'grace_days', 'access_keep_days', 'restore_days')",
+		"SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name = 'rove_contract_terms'",
+	} {
+		n := 0
+		x.NoError(s.Db.QueryRowContext(ctx, q).Scan(&n))
+		x.Zero(n, q)
+	}
+	x.NoError(cli.Migrate(ctx, s), "a second time")
+}
