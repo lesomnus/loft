@@ -244,9 +244,19 @@ every call into a closed workspace but its owner's `Get` and `Restore`, and the
 owner can take its data out (`GET /account/workspaces/{alias}/export`). Once
 its restore window is over -- its contract's `restore_days`, or
 `app.workspaces.restore_within` -- and nothing holds it, `server/closing`
-destroys it and holds its address (`AliasHold`). Addresses are made up
-(`tenancy.Aliases`) and nobody but an operator moves one (`rove tenant
-alias`); the domain layer refuses an alias in `TenantService.Patch`.
+destroys it and holds its address (`AliasHold`, whose reason says how it
+went). Destroying retires it unless the contract in force then says
+`purge_floors` (payday#115): what the deployment's floors (`audit.min`,
+`audit.by.<kind>.min`) are on stays in the trail until each has passed, and
+the rest goes now; a purge takes that too. `rove tenant retire|purge` are the
+same destruction by an operator's hand (`closing.Destroy`). With floors and no
+archive a retirement is refused before anything is taken
+(`offboard.ErrNoArchive`), and the sweep leaves the workspace closed. A
+retired workspace imported back under its identifiers is first taken back
+from the trail (`Policy.Return`, in `rove tenant import`), or the trail would
+take what it writes. Addresses are made up (`tenancy.Aliases`) and nobody but
+an operator moves one (`rove tenant alias`); the domain layer refuses an alias
+in `TenantService.Patch`.
 
 ## Where a workspace is
 
