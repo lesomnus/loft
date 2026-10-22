@@ -108,6 +108,11 @@ export interface Account {
 	manage?: string
 	/** What it has to agree to before it uses anything here (design 9.11). */
 	owes?: ConsentDocument[]
+	/**
+	 * The workspace this address serves alone, when it is a workspace's own
+	 * domain (rove#155): nothing of the account's beside it is offered here.
+	 */
+	pinned?: string
 }
 
 /** One document an account agrees to, at the version in force. */

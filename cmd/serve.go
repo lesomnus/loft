@@ -835,7 +835,7 @@ func Front(c Config, h http.Handler) (http.Handler, error) {
 		return nil, fmt.Errorf("app.csp: %w", err)
 	}
 
-	return guarded(proxies.Handler(h), c.App.Public().Scheme == "https", mode, csp.Policy(c.Auth.Sso.Issuer)), nil
+	return guarded(proxies.Handler(h), c.App.Public().Scheme == "https", mode, csp.Policy(c.Auth.Sso.Issuer, c.App.App(), c.App.Public().String())), nil
 }
 
 // depsOf is what the domain layer is told by the configuration.

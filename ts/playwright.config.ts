@@ -10,7 +10,8 @@ import { defineConfig, devices } from '@playwright/test'
 // Three of them, since one asks for agreement to terms (`app.consent`) and the
 // others must not -- every sign-in there begins with it -- and one signs people
 // in through an issuer (`auth.sso`), the test's own (e2e/issuer.sh), which the
-// others have no reason to ask.
+// others have no reason to ask. A workspace's own domain is the first server
+// under another name, which its project's browser resolves there.
 const port = Number(process.env.E2E_PORT ?? 18510)
 const app = `http://127.0.0.1:${port}`
 const consent = `http://127.0.0.1:${port + 10}`
@@ -50,7 +51,14 @@ export default defineConfig({
 		screenshot: 'only-on-failure',
 	},
 	projects: [
-		{ name: 'app', testIgnore: /(consent|sso)\.spec\.ts/, use: { baseURL: app } },
+		{ name: 'app', testIgnore: /(consent|sso|domains)\.spec\.ts/, use: { baseURL: app } },
+		// A workspace's own domain (rove#155): any `*.test` the browser asks for
+		// is the same server, as a workspace's DNS would make it.
+		{
+			name: 'domains',
+			testMatch: /domains\.spec\.ts/,
+			use: { baseURL: app, launchOptions: { args: ['--host-resolver-rules=MAP *.test 127.0.0.1'] } },
+		},
 		{ name: 'consent', testMatch: /consent\.spec\.ts/, use: { baseURL: consent } },
 		{ name: 'sso', testMatch: /sso\.spec\.ts/, use: { baseURL: sso }, metadata: { issuer } },
 	],

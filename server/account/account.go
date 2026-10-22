@@ -61,6 +61,11 @@ type Account struct {
 	// Allow is the methods the session asking is narrowed to (`rove login
 	// --allow`, D33); absent is all that the account may do.
 	Allow []string `json:"allow,omitempty"`
+	// Pinned is the workspace a workspace's own domain serves alone, by its
+	// alias, when that is where the account was asked about (rove#155): the
+	// page there offers nothing of the account's beside it -- making a
+	// workspace, the invitations -- which is the service's.
+	Pinned string `json:"pinned,omitempty"`
 }
 
 // Workspace is one an account is in.
@@ -457,6 +462,9 @@ func (a Routes) accountOf(r *http.Request, ws tenancy.Workspaces, p identity.Per
 		return Account{}, err
 	}
 	out := Account{Id: p.Id.String(), Login: p.Alias, Name: p.Name, Workspaces: []Workspace{}}
+	if pin, ok := apphost.From(r.Context()); ok {
+		out.Pinned = pin.Alias
+	}
 	for _, m := range pinned(r, ms) {
 		out.Workspaces = append(out.Workspaces, a.workspaceOf(m))
 		if m.Role == "owner" {

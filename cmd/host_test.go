@@ -162,9 +162,12 @@ func TestAWorkspacesDomainServesItAlone(t *testing.T) {
 	x.NoError(json.Unmarshal(acct.Body.Bytes(), &a))
 	x.Len(a.Workspaces, 1, "the account's other workspaces are nothing this address tells")
 	x.Equal("acme", a.Workspaces[0].Alias)
+	x.Equal("acme", a.Pinned, "and it says whose address this is, for the page to offer nothing of the account's beside it")
 	acct = w.at(as, service, http.MethodGet, "/account", "")
+	a = account.Account{}
 	x.NoError(json.Unmarshal(acct.Body.Bytes(), &a))
 	x.Len(a.Workspaces, 2)
+	x.Empty(a.Pinned)
 
 	// What an account does across its workspaces is the service's: the
 	// invitations addressed to it, from whichever workspace.

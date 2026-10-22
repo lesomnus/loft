@@ -5,9 +5,12 @@
 // The policy is what the built page loads and nothing else: its own scripts,
 // styles, fonts and service worker; images of its own, the QR codes it draws
 // as `data:` and what it makes as `blob:`; the API at its own address; and
-// forms that go nowhere but here and the issuer people sign out through,
-// whose page a sign-out lands on (`server/sso`). A script somebody gets into a
-// page is then one no browser runs, once the policy is enforced.
+// forms that go nowhere but here, the service's own address, and the issuer
+// people sign out through -- a sign-out is a form whose answer sends the
+// browser on, from a workspace's own domain to the service's (rove#155) and
+// from either to the issuer's page (`server/sso`), and a browser holds where
+// a form's redirect goes to the policy too. A script somebody gets into a page
+// is then one no browser runs, once the policy is enforced.
 //
 // Report-only first: a page held to a policy that stops something it needs is
 // a page that stops working, and what it needs is found by watching what the
@@ -56,13 +59,22 @@ func Parse(v string) (Mode, error) {
 const Path = "/csp-report"
 
 // Policy is the policy, for a deployment whose people sign in through
-// `issuer` (empty is none). It frames nothing in -- `frame-ancestors`, which
-// is enforced on its own whatever the mode, since that has been so since
-// rove#30.
-func Policy(issuer string) string {
+// `issuer` (empty is none) and whose own address is `service` -- where its
+// page is, and where it answers. It frames nothing in -- `frame-ancestors`,
+// which is enforced on its own whatever the mode, since that has been so
+// since rove#30.
+func Policy(issuer string, service ...string) string {
 	forms := "'self'"
-	if u, err := url.Parse(issuer); err == nil && u.Scheme != "" && u.Host != "" {
-		forms += " " + u.Scheme + "://" + u.Host
+	seen := map[string]bool{}
+	for _, v := range append(service, issuer) {
+		u, err := url.Parse(v)
+		if err != nil || u.Scheme == "" || u.Host == "" {
+			continue
+		}
+		if o := u.Scheme + "://" + u.Host; !seen[o] {
+			seen[o] = true
+			forms += " " + o
+		}
 	}
 
 	return strings.Join([]string{
