@@ -150,6 +150,7 @@ func (s domainTenantDomain) Add(ctx context.Context, req *app.TenantDomainAddReq
 	var out *app.TenantDomain
 	err := s.tx(ctx, func(t *Tx) error {
 		row := app.TenantDomainAddRequest_builder{
+			Id:      pdid.New(pd.TenantDomainDomain).Bytes(),
 			Tenant:  t.tenantRef(),
 			Purpose: purposeLabel,
 			Token:   token(),

@@ -22,6 +22,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/party"
 	"github.com/lesomnus/rove/internal/ent/session"
 	"github.com/lesomnus/rove/internal/identity"
+	"github.com/lesomnus/rove/server/pd"
 )
 
 // The kinds of party and the roles a holder acts with.
@@ -548,6 +549,9 @@ func (s domainAssetType) Add(ctx context.Context, req *app.AssetTypeAddRequest) 
 			}
 		}
 		row.SetSchemaVersion(1)
+		if !row.HasId() {
+			row.SetId(pdid.New(pd.AssetTypeDomain).Bytes())
+		}
 		if err := t.begin(nil, "type.add", pdid.Nil, t.now, "유형 추가: "+row.GetName(), "", nil); err != nil {
 			return err
 		}
@@ -671,6 +675,9 @@ func (s domainItemModel) Add(ctx context.Context, req *app.ItemModelAddRequest) 
 			if strings.TrimSpace(sl.GetName()) == "" {
 				return invalid(fmt.Sprintf("spec.slots[%d].name", i), "이름을 입력하세요")
 			}
+		}
+		if !row.HasId() {
+			row.SetId(pdid.New(pd.ItemModelDomain).Bytes())
 		}
 		if err := t.begin(nil, "model.add", pdid.Nil, t.now, "모델 추가: "+strings.TrimSpace(row.GetMaker()+" "+row.GetName()), "", nil); err != nil {
 			return err

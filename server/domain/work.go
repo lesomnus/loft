@@ -17,6 +17,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/allocation"
 	"github.com/lesomnus/rove/internal/ent/purchaseline"
 	"github.com/lesomnus/rove/internal/ent/stock"
+	"github.com/lesomnus/rove/server/pd"
 )
 
 var (
@@ -71,10 +72,12 @@ func (s domainWorkOrder) Add(ctx context.Context, req *app.WorkOrderAddRequest) 
 		if req.HasBeginsAt() && req.HasEndsAt() && !req.GetEndsAt().AsTime().After(req.GetBeginsAt().AsTime()) {
 			return invalid("ends_at", "끝은 시작보다 뒤여야 합니다")
 		}
+		wid := pdid.New(pd.WorkOrderDomain)
 		if err := t.begin(nil, "work.open", aid, t.now, fmt.Sprintf("작업 열림: %s (%s)", req.GetName(), a.GetTag()), "", map[string]string{"kind": kind}); err != nil {
 			return err
 		}
 		row := app.WorkOrderAddRequest_builder{
+			Id:        wid.Bytes(),
 			Tenant:    t.tenantRef(),
 			Name:      strings.TrimSpace(req.GetName()),
 			Desc:      req.GetDesc(),
@@ -354,10 +357,12 @@ func (s domainPurchase) Add(ctx context.Context, req *app.PurchaseAddRequest) (*
 		if name == "" {
 			name = "구매 " + t.now.In(t.zone()).Format("2006-01-02")
 		}
+		pid := pdid.New(pd.PurchaseDomain)
 		if err := t.begin(nil, "purchase.add", pdid.Nil, t.now, "구매 등록: "+name, "", map[string]string{"total": fmt.Sprint(total), "currency": currency}); err != nil {
 			return err
 		}
 		row := app.PurchaseAddRequest_builder{
+			Id:        pid.Bytes(),
 			Tenant:    t.tenantRef(),
 			Name:      name,
 			Desc:      req.GetDesc(),
