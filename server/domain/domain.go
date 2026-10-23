@@ -9,7 +9,10 @@
 //
 // Reads that a generated List cannot express -- a subtree at a moment, a
 // timeline, a search -- go to ent directly, and every one of them is narrowed
-// to the caller's tenant by hand; [Tx.tenant] is the value they all use.
+// to the caller's tenant by hand; [Tx.tenant] is the value they all use. What
+// an asset was and what was done are payday's past (payday#151), read through
+// its `past` package, which narrows each read to the tenants the caller's
+// frame may see.
 package domain
 
 import (

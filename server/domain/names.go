@@ -209,11 +209,14 @@ func (n *namer) ofModel(ctx context.Context, id uuid.UUID) called {
 	return called{found: true, name: strings.TrimSpace(m.Maker + " " + m.Name)}
 }
 
-// An event names the people it is about by identifier, in its payload, and
-// its sentence by a mark for each; the words are read with the event, so that
-// one about somebody forgotten reads with the pseudonym they were left with,
-// and one about somebody renamed with the name they have now (design 8.2). An
-// event written before it did names them in its words, and reads as written.
+// An event from before Rove's events kept a message (payday#151) kept the
+// sentence it was written with instead, `desc`, and named the people it was
+// about by identifier in its `payload`, its sentence by a mark for each; the
+// words are read with the event, so that one about somebody forgotten reads
+// with the pseudonym they were left with, and one about somebody renamed with
+// the name they have now (design 8.2). One written before marks named them in
+// its words, and reads as written. Every event since is said from its message
+// (`say.go`), and names people the same way.
 //
 // What it says of a thing -- a tag, a type, a reservation -- is what the thing
 // was called then, and stays.
