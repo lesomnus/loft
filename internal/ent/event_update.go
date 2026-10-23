@@ -14,6 +14,7 @@ import (
 	"github.com/protobuf-orm/ent/dialect/sql"
 	"github.com/protobuf-orm/ent/dialect/sql/sqlgraph"
 	"github.com/protobuf-orm/ent/schema/field"
+	"google.golang.org/protobuf/types/known/anypb"
 )
 
 // EventUpdate is the builder for updating Event entities.
@@ -27,20 +28,6 @@ type EventUpdate struct {
 // Where appends a list predicates to the EventUpdate builder.
 func (_u *EventUpdate) Where(ps ...predicate.Event) *EventUpdate {
 	_u.mutation.Where(ps...)
-	return _u
-}
-
-// SetDesc sets the "desc" field.
-func (_u *EventUpdate) SetDesc(v string) *EventUpdate {
-	_u.mutation.SetDesc(v)
-	return _u
-}
-
-// SetNillableDesc sets the "desc" field if the given value is not nil.
-func (_u *EventUpdate) SetNillableDesc(v *string) *EventUpdate {
-	if v != nil {
-		_u.SetDesc(*v)
-	}
 	return _u
 }
 
@@ -158,20 +145,6 @@ func (_u *EventUpdate) ClearTraceId() *EventUpdate {
 	return _u
 }
 
-// SetPayload sets the "payload" field.
-func (_u *EventUpdate) SetPayload(v string) *EventUpdate {
-	_u.mutation.SetPayload(v)
-	return _u
-}
-
-// SetNillablePayload sets the "payload" field if the given value is not nil.
-func (_u *EventUpdate) SetNillablePayload(v *string) *EventUpdate {
-	if v != nil {
-		_u.SetPayload(*v)
-	}
-	return _u
-}
-
 // SetCauseId sets the "cause_id" field.
 func (_u *EventUpdate) SetCauseId(v uuid.UUID) *EventUpdate {
 	_u.mutation.SetCauseId(v)
@@ -189,6 +162,46 @@ func (_u *EventUpdate) SetNillableCauseId(v *uuid.UUID) *EventUpdate {
 // ClearCauseId clears the value of the "cause_id" field.
 func (_u *EventUpdate) ClearCauseId() *EventUpdate {
 	_u.mutation.ClearCauseId()
+	return _u
+}
+
+// SetValue sets the "value" field.
+func (_u *EventUpdate) SetValue(v *anypb.Any) *EventUpdate {
+	_u.mutation.SetValue(v)
+	return _u
+}
+
+// ClearValue clears the value of the "value" field.
+func (_u *EventUpdate) ClearValue() *EventUpdate {
+	_u.mutation.ClearValue()
+	return _u
+}
+
+// SetDesc sets the "desc" field.
+func (_u *EventUpdate) SetDesc(v string) *EventUpdate {
+	_u.mutation.SetDesc(v)
+	return _u
+}
+
+// SetNillableDesc sets the "desc" field if the given value is not nil.
+func (_u *EventUpdate) SetNillableDesc(v *string) *EventUpdate {
+	if v != nil {
+		_u.SetDesc(*v)
+	}
+	return _u
+}
+
+// SetPayload sets the "payload" field.
+func (_u *EventUpdate) SetPayload(v string) *EventUpdate {
+	_u.mutation.SetPayload(v)
+	return _u
+}
+
+// SetNillablePayload sets the "payload" field if the given value is not nil.
+func (_u *EventUpdate) SetNillablePayload(v *string) *EventUpdate {
+	if v != nil {
+		_u.SetPayload(*v)
+	}
 	return _u
 }
 
@@ -250,12 +263,6 @@ func (_u *EventUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			}
 		}
 	}
-	if value, ok := _u.mutation.Desc(); ok {
-		_spec.SetField(event.FieldDesc, field.TypeString, value)
-	}
-	if e, ok := _u.mutation.FieldExpr(event.FieldDesc); ok {
-		_spec.SetField(event.FieldDesc, field.TypeString, e)
-	}
 	if value, ok := _u.mutation.Kind(); ok {
 		_spec.SetField(event.FieldKind, field.TypeString, value)
 	}
@@ -313,12 +320,6 @@ func (_u *EventUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if _u.mutation.TraceIdCleared() {
 		_spec.ClearField(event.FieldTraceId, field.TypeBytes)
 	}
-	if value, ok := _u.mutation.Payload(); ok {
-		_spec.SetField(event.FieldPayload, field.TypeString, value)
-	}
-	if e, ok := _u.mutation.FieldExpr(event.FieldPayload); ok {
-		_spec.SetField(event.FieldPayload, field.TypeString, e)
-	}
 	if value, ok := _u.mutation.CauseId(); ok {
 		_spec.SetField(event.FieldCauseId, field.TypeUuid, value)
 	}
@@ -327,6 +328,34 @@ func (_u *EventUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.CauseIdCleared() {
 		_spec.ClearField(event.FieldCauseId, field.TypeUuid)
+	}
+	if value, ok := _u.mutation.Value(); ok {
+		vv, err := event.ValueScanner.Value.Value(value)
+		if err != nil {
+			return 0, err
+		}
+		if vv, err = field.JsonValue(vv); err != nil {
+			return 0, err
+		}
+		_spec.SetField(event.FieldValue, field.TypeJson, vv)
+	}
+	if e, ok := _u.mutation.FieldExpr(event.FieldValue); ok {
+		_spec.SetField(event.FieldValue, field.TypeJson, e)
+	}
+	if _u.mutation.ValueCleared() {
+		_spec.ClearField(event.FieldValue, field.TypeJson)
+	}
+	if value, ok := _u.mutation.Desc(); ok {
+		_spec.SetField(event.FieldDesc, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(event.FieldDesc); ok {
+		_spec.SetField(event.FieldDesc, field.TypeString, e)
+	}
+	if value, ok := _u.mutation.Payload(); ok {
+		_spec.SetField(event.FieldPayload, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(event.FieldPayload); ok {
+		_spec.SetField(event.FieldPayload, field.TypeString, e)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
@@ -348,20 +377,6 @@ type EventUpdateOne struct {
 	hooks     []Hook
 	mutation  *EventMutation
 	modifiers []func(*sql.UpdateBuilder)
-}
-
-// SetDesc sets the "desc" field.
-func (_u *EventUpdateOne) SetDesc(v string) *EventUpdateOne {
-	_u.mutation.SetDesc(v)
-	return _u
-}
-
-// SetNillableDesc sets the "desc" field if the given value is not nil.
-func (_u *EventUpdateOne) SetNillableDesc(v *string) *EventUpdateOne {
-	if v != nil {
-		_u.SetDesc(*v)
-	}
-	return _u
 }
 
 // SetKind sets the "kind" field.
@@ -478,20 +493,6 @@ func (_u *EventUpdateOne) ClearTraceId() *EventUpdateOne {
 	return _u
 }
 
-// SetPayload sets the "payload" field.
-func (_u *EventUpdateOne) SetPayload(v string) *EventUpdateOne {
-	_u.mutation.SetPayload(v)
-	return _u
-}
-
-// SetNillablePayload sets the "payload" field if the given value is not nil.
-func (_u *EventUpdateOne) SetNillablePayload(v *string) *EventUpdateOne {
-	if v != nil {
-		_u.SetPayload(*v)
-	}
-	return _u
-}
-
 // SetCauseId sets the "cause_id" field.
 func (_u *EventUpdateOne) SetCauseId(v uuid.UUID) *EventUpdateOne {
 	_u.mutation.SetCauseId(v)
@@ -509,6 +510,46 @@ func (_u *EventUpdateOne) SetNillableCauseId(v *uuid.UUID) *EventUpdateOne {
 // ClearCauseId clears the value of the "cause_id" field.
 func (_u *EventUpdateOne) ClearCauseId() *EventUpdateOne {
 	_u.mutation.ClearCauseId()
+	return _u
+}
+
+// SetValue sets the "value" field.
+func (_u *EventUpdateOne) SetValue(v *anypb.Any) *EventUpdateOne {
+	_u.mutation.SetValue(v)
+	return _u
+}
+
+// ClearValue clears the value of the "value" field.
+func (_u *EventUpdateOne) ClearValue() *EventUpdateOne {
+	_u.mutation.ClearValue()
+	return _u
+}
+
+// SetDesc sets the "desc" field.
+func (_u *EventUpdateOne) SetDesc(v string) *EventUpdateOne {
+	_u.mutation.SetDesc(v)
+	return _u
+}
+
+// SetNillableDesc sets the "desc" field if the given value is not nil.
+func (_u *EventUpdateOne) SetNillableDesc(v *string) *EventUpdateOne {
+	if v != nil {
+		_u.SetDesc(*v)
+	}
+	return _u
+}
+
+// SetPayload sets the "payload" field.
+func (_u *EventUpdateOne) SetPayload(v string) *EventUpdateOne {
+	_u.mutation.SetPayload(v)
+	return _u
+}
+
+// SetNillablePayload sets the "payload" field if the given value is not nil.
+func (_u *EventUpdateOne) SetNillablePayload(v *string) *EventUpdateOne {
+	if v != nil {
+		_u.SetPayload(*v)
+	}
 	return _u
 }
 
@@ -600,12 +641,6 @@ func (_u *EventUpdateOne) sqlSave(ctx context.Context) (_node *Event, err error)
 			}
 		}
 	}
-	if value, ok := _u.mutation.Desc(); ok {
-		_spec.SetField(event.FieldDesc, field.TypeString, value)
-	}
-	if e, ok := _u.mutation.FieldExpr(event.FieldDesc); ok {
-		_spec.SetField(event.FieldDesc, field.TypeString, e)
-	}
 	if value, ok := _u.mutation.Kind(); ok {
 		_spec.SetField(event.FieldKind, field.TypeString, value)
 	}
@@ -663,12 +698,6 @@ func (_u *EventUpdateOne) sqlSave(ctx context.Context) (_node *Event, err error)
 	if _u.mutation.TraceIdCleared() {
 		_spec.ClearField(event.FieldTraceId, field.TypeBytes)
 	}
-	if value, ok := _u.mutation.Payload(); ok {
-		_spec.SetField(event.FieldPayload, field.TypeString, value)
-	}
-	if e, ok := _u.mutation.FieldExpr(event.FieldPayload); ok {
-		_spec.SetField(event.FieldPayload, field.TypeString, e)
-	}
 	if value, ok := _u.mutation.CauseId(); ok {
 		_spec.SetField(event.FieldCauseId, field.TypeUuid, value)
 	}
@@ -677,6 +706,34 @@ func (_u *EventUpdateOne) sqlSave(ctx context.Context) (_node *Event, err error)
 	}
 	if _u.mutation.CauseIdCleared() {
 		_spec.ClearField(event.FieldCauseId, field.TypeUuid)
+	}
+	if value, ok := _u.mutation.Value(); ok {
+		vv, err := event.ValueScanner.Value.Value(value)
+		if err != nil {
+			return nil, err
+		}
+		if vv, err = field.JsonValue(vv); err != nil {
+			return nil, err
+		}
+		_spec.SetField(event.FieldValue, field.TypeJson, vv)
+	}
+	if e, ok := _u.mutation.FieldExpr(event.FieldValue); ok {
+		_spec.SetField(event.FieldValue, field.TypeJson, e)
+	}
+	if _u.mutation.ValueCleared() {
+		_spec.ClearField(event.FieldValue, field.TypeJson)
+	}
+	if value, ok := _u.mutation.Desc(); ok {
+		_spec.SetField(event.FieldDesc, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(event.FieldDesc); ok {
+		_spec.SetField(event.FieldDesc, field.TypeString, e)
+	}
+	if value, ok := _u.mutation.Payload(); ok {
+		_spec.SetField(event.FieldPayload, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(event.FieldPayload); ok {
+		_spec.SetField(event.FieldPayload, field.TypeString, e)
 	}
 	_spec.AddModifiers(_u.modifiers...)
 	_node = &Event{config: _u.config}

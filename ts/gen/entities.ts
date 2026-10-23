@@ -23,8 +23,10 @@ import { AssetTypeSchema, ItemModelSchema } from './rove/catalog_pb.js'
 import { AuditSchema } from './rove/payday/audit_pb.js'
 import { CountFindingSchema, InventoryCountSchema } from './rove/count_pb.js'
 import { CustodySchema, CustodyLineSchema } from './rove/custody_pb.js'
-import { EventSchema, FactSchema, LinkSchema, PlacementSchema, StewardshipSchema } from './rove/history_pb.js'
+import { EventSchema } from './rove/payday/event_pb.js'
+import { FactSchema } from './rove/payday/fact_pb.js'
 import { HolderSchema } from './rove/payday/holder_pb.js'
+import { LinkSchema, PlacementSchema, StewardshipSchema } from './rove/history_pb.js'
 import { OutboxSchema } from './rove/payday/outbox_pb.js'
 import { OwedSchema } from './rove/payday/owed_pb.js'
 import { PurchaseSchema, PurchaseLineSchema, WorkOrderSchema } from './rove/work_pb.js'
@@ -42,8 +44,10 @@ import { AssetTypeService, ItemModelService } from './rove/catalog_svc_pb.js'
 import { AuditService } from './rove/payday/audit_svc_pb.js'
 import { CountFindingService, InventoryCountService } from './rove/count_svc_pb.js'
 import { CustodyService, CustodyLineService } from './rove/custody_svc_pb.js'
-import { EventService, FactService, LinkService, PlacementService, StewardshipService } from './rove/history_svc_pb.js'
+import { EventService } from './rove/payday/event_svc_pb.js'
+import { FactService } from './rove/payday/fact_svc_pb.js'
 import { HolderService } from './rove/payday/holder_svc_pb.js'
+import { LinkService, PlacementService, StewardshipService } from './rove/history_svc_pb.js'
 import { OutboxService } from './rove/payday/outbox_svc_pb.js'
 import { OwedService } from './rove/payday/owed_svc_pb.js'
 import { PurchaseService, PurchaseLineService, WorkOrderService } from './rove/work_svc_pb.js'
@@ -231,9 +235,9 @@ export const Fact = {
 	schema: FactSchema,
 	domain: 16,
 	version: "dateUpdated",
-	refs: [{ field: "tenant", to: "rove.Tenant" }, { field: "asset", to: "rove.Asset" }],
+	refs: [{ field: "tenant", to: "rove.Tenant" }],
 	key: "id",
-	ids: ["id", "eventId", "supersededBy"],
+	ids: ["id", "subjectId", "eventId", "supersededBy"],
 	service: FactService,
 } as const satisfies EntityDesc
 

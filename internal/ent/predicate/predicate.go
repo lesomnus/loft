@@ -73,6 +73,17 @@ type CustodyLine func(*sql.Selector)
 // Event is the predicate function for event builders.
 type Event func(*sql.Selector)
 
+// EventOrErr calls the predicate only if the error is not nit.
+func EventOrErr(p Event, err error) Event {
+	return func(s *sql.Selector) {
+		if err != nil {
+			s.AddError(err)
+			return
+		}
+		p(s)
+	}
+}
+
 // Fact is the predicate function for fact builders.
 type Fact func(*sql.Selector)
 

@@ -301,12 +301,12 @@ func (_q *EventQuery) WithTenant(opts ...func(*TenantQuery)) *EventQuery {
 // Example:
 //
 //	var v []struct {
-//		Desc string `json:"desc,omitempty"`
+//		Kind string `json:"kind,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Event.Query().
-//		GroupBy(event.FieldDesc).
+//		GroupBy(event.FieldKind).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *EventQuery) GroupBy(field string, fields ...string) *EventGroupBy {
@@ -324,11 +324,11 @@ func (_q *EventQuery) GroupBy(field string, fields ...string) *EventGroupBy {
 // Example:
 //
 //	var v []struct {
-//		Desc string `json:"desc,omitempty"`
+//		Kind string `json:"kind,omitempty"`
 //	}
 //
 //	client.Event.Query().
-//		Select(event.FieldDesc).
+//		Select(event.FieldKind).
 //		Scan(ctx, &v)
 func (_q *EventQuery) Select(fields ...string) *EventSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

@@ -94,7 +94,11 @@ message StockMovement {
     default: ""
   }];
 
-  bytes event_id = 16 [(orm.field) = {type: TYPE_UUID}];
+  // The event that moved it, which stays while this does.
+  bytes event_id = 16 [
+    (orm.field) = {type: TYPE_UUID},
+    (payday.field) = {event: true}
+  ];
   int64 balance = 17;
 
   option (orm.message) = {

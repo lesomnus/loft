@@ -14,6 +14,7 @@ import (
 	"github.com/protobuf-orm/ent/dialect/sql"
 	"github.com/protobuf-orm/ent/dialect/sql/sqlgraph"
 	"github.com/protobuf-orm/ent/schema/field"
+	"google.golang.org/protobuf/types/known/anypb"
 )
 
 // EventCreate is the builder for creating a Event entity.
@@ -22,12 +23,6 @@ type EventCreate struct {
 	mutation *EventMutation
 	hooks    []Hook
 	stored   **Event
-}
-
-// SetDesc sets the "desc" field.
-func (_c *EventCreate) SetDesc(v string) *EventCreate {
-	_c.mutation.SetDesc(v)
-	return _c
 }
 
 // SetKind sets the "kind" field.
@@ -110,12 +105,6 @@ func (_c *EventCreate) SetTraceId(v []byte) *EventCreate {
 	return _c
 }
 
-// SetPayload sets the "payload" field.
-func (_c *EventCreate) SetPayload(v string) *EventCreate {
-	_c.mutation.SetPayload(v)
-	return _c
-}
-
 // SetCauseId sets the "cause_id" field.
 func (_c *EventCreate) SetCauseId(v uuid.UUID) *EventCreate {
 	_c.mutation.SetCauseId(v)
@@ -127,6 +116,24 @@ func (_c *EventCreate) SetNillableCauseId(v *uuid.UUID) *EventCreate {
 	if v != nil {
 		_c.SetCauseId(*v)
 	}
+	return _c
+}
+
+// SetValue sets the "value" field.
+func (_c *EventCreate) SetValue(v *anypb.Any) *EventCreate {
+	_c.mutation.SetValue(v)
+	return _c
+}
+
+// SetDesc sets the "desc" field.
+func (_c *EventCreate) SetDesc(v string) *EventCreate {
+	_c.mutation.SetDesc(v)
+	return _c
+}
+
+// SetPayload sets the "payload" field.
+func (_c *EventCreate) SetPayload(v string) *EventCreate {
+	_c.mutation.SetPayload(v)
 	return _c
 }
 
@@ -184,9 +191,6 @@ func (_c *EventCreate) check() error {
 	if fs := _c.mutation.ExprFields(); len(fs) > 0 {
 		return &ValidationError{Name: fs[0], err: fmt.Errorf(`ent: field "Event.%s" was assigned an expression, which only an update writes`, fs[0])}
 	}
-	if _, ok := _c.mutation.Desc(); !ok {
-		return &ValidationError{Name: "desc", err: errors.New(`ent: missing required field "Event.desc"`)}
-	}
 	if _, ok := _c.mutation.Kind(); !ok {
 		return &ValidationError{Name: "kind", err: errors.New(`ent: missing required field "Event.kind"`)}
 	}
@@ -195,6 +199,9 @@ func (_c *EventCreate) check() error {
 	}
 	if _, ok := _c.mutation.DateUpdated(); !ok {
 		return &ValidationError{Name: "date_updated", err: errors.New(`ent: missing required field "Event.date_updated"`)}
+	}
+	if _, ok := _c.mutation.Desc(); !ok {
+		return &ValidationError{Name: "desc", err: errors.New(`ent: missing required field "Event.desc"`)}
 	}
 	if _, ok := _c.mutation.Payload(); !ok {
 		return &ValidationError{Name: "payload", err: errors.New(`ent: missing required field "Event.payload"`)}
@@ -212,7 +219,10 @@ func (_c *EventCreate) sqlSave(ctx context.Context) (*Event, error) {
 	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := _c.createSpec()
+	_node, _spec, err := _c.createSpec()
+	if err != nil {
+		return nil, err
+	}
 	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
@@ -235,7 +245,7 @@ func (_c *EventCreate) sqlSave(ctx context.Context) (*Event, error) {
 	return _node, nil
 }
 
-func (_c *EventCreate) createSpec() (*Event, *sqlgraph.CreateSpec) {
+func (_c *EventCreate) createSpec() (*Event, *sqlgraph.CreateSpec, error) {
 	var (
 		_node = &Event{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(event.Table, sqlgraph.NewFieldSpec(event.FieldId, field.TypeUuid))
@@ -255,10 +265,6 @@ func (_c *EventCreate) createSpec() (*Event, *sqlgraph.CreateSpec) {
 	if id, ok := _c.mutation.Id(); ok {
 		_node.Id = id
 		_spec.Id.Value = &id
-	}
-	if value, ok := _c.mutation.Desc(); ok {
-		_spec.SetField(event.FieldDesc, field.TypeString, value)
-		_node.Desc = value
 	}
 	if value, ok := _c.mutation.Kind(); ok {
 		_spec.SetField(event.FieldKind, field.TypeString, value)
@@ -292,13 +298,28 @@ func (_c *EventCreate) createSpec() (*Event, *sqlgraph.CreateSpec) {
 		_spec.SetField(event.FieldTraceId, field.TypeBytes, value)
 		_node.TraceId = value
 	}
-	if value, ok := _c.mutation.Payload(); ok {
-		_spec.SetField(event.FieldPayload, field.TypeString, value)
-		_node.Payload = value
-	}
 	if value, ok := _c.mutation.CauseId(); ok {
 		_spec.SetField(event.FieldCauseId, field.TypeUuid, value)
 		_node.CauseId = &value
+	}
+	if value, ok := _c.mutation.Value(); ok {
+		vv, err := event.ValueScanner.Value.Value(value)
+		if err != nil {
+			return nil, nil, err
+		}
+		if vv, err = field.JsonValue(vv); err != nil {
+			return nil, nil, err
+		}
+		_spec.SetField(event.FieldValue, field.TypeJson, vv)
+		_node.Value = value
+	}
+	if value, ok := _c.mutation.Desc(); ok {
+		_spec.SetField(event.FieldDesc, field.TypeString, value)
+		_node.Desc = value
+	}
+	if value, ok := _c.mutation.Payload(); ok {
+		_spec.SetField(event.FieldPayload, field.TypeString, value)
+		_node.Payload = value
 	}
 	if nodes := _c.mutation.TenantIds(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -317,7 +338,7 @@ func (_c *EventCreate) createSpec() (*Event, *sqlgraph.CreateSpec) {
 		_node.TenantId = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	return _node, _spec
+	return _node, _spec, nil
 }
 
 // Stored has Save read the Event back, into `v`, as the database stored
@@ -374,7 +395,10 @@ func (_c *EventCreateBulk) Save(ctx context.Context) ([]*Event, error) {
 				}
 				builder.mutation = mutation
 				var err error
-				nodes[i], specs[i] = builder.createSpec()
+				nodes[i], specs[i], err = builder.createSpec()
+				if err != nil {
+					return nil, err
+				}
 				if i < len(mutators)-1 {
 					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {

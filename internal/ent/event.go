@@ -12,6 +12,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/tenant"
 	"github.com/protobuf-orm/ent"
 	"github.com/protobuf-orm/ent/dialect/sql"
+	"google.golang.org/protobuf/types/known/anypb"
 )
 
 // Event is the model entity for the Event schema.
@@ -19,8 +20,6 @@ type Event struct {
 	config `json:"-"`
 	// Id of the ent.
 	Id uuid.UUID `json:"id,omitempty"`
-	// Desc holds the value of the "desc" field.
-	Desc string `json:"desc,omitempty"`
 	// Kind holds the value of the "kind" field.
 	Kind string `json:"kind,omitempty"`
 	// ActorId holds the value of the "actor_id" field.
@@ -37,10 +36,14 @@ type Event struct {
 	DateCreated time.Time `json:"date_created,omitempty"`
 	// TraceId holds the value of the "trace_id" field.
 	TraceId []byte `json:"trace_id,omitempty"`
-	// Payload holds the value of the "payload" field.
-	Payload string `json:"payload,omitempty"`
 	// CauseId holds the value of the "cause_id" field.
 	CauseId *uuid.UUID `json:"cause_id,omitempty"`
+	// Value holds the value of the "value" field.
+	Value *anypb.Any `json:"value,omitempty"`
+	// Desc holds the value of the "desc" field.
+	Desc string `json:"desc,omitempty"`
+	// Payload holds the value of the "payload" field.
+	Payload string `json:"payload,omitempty"`
 	// TenantId holds the value of the "tenant_id" field.
 	TenantId uuid.UUID `json:"tenant_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -76,7 +79,7 @@ func (*Event) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case event.FieldTraceId:
 			values[i] = new([]byte)
-		case event.FieldDesc, event.FieldKind, event.FieldReason, event.FieldPayload:
+		case event.FieldKind, event.FieldReason, event.FieldDesc, event.FieldPayload:
 			values[i] = new(sql.NullString)
 		case event.FieldOccurredAt, event.FieldDateUpdated, event.FieldDateCreated:
 			values[i] = new(sql.NullTime)
@@ -84,6 +87,8 @@ func (*Event) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.Null[uuid.UUID])
 		case event.FieldId, event.FieldTenantId:
 			values[i] = new(uuid.UUID)
+		case event.FieldValue:
+			values[i] = event.ValueScanner.Value.ScanValue()
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -104,12 +109,6 @@ func (_m *Event) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
 				_m.Id = *value
-			}
-		case event.FieldDesc:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field desc", values[i])
-			} else if value.Valid {
-				_m.Desc = value.String
 			}
 		case event.FieldKind:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -161,18 +160,30 @@ func (_m *Event) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				_m.TraceId = *value
 			}
-		case event.FieldPayload:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field payload", values[i])
-			} else if value.Valid {
-				_m.Payload = value.String
-			}
 		case event.FieldCauseId:
 			if value, ok := values[i].(*sql.Null[uuid.UUID]); !ok {
 				return fmt.Errorf("unexpected type %T for field cause_id", values[i])
 			} else if value.Valid {
 				_m.CauseId = new(uuid.UUID)
 				*_m.CauseId = value.V
+			}
+		case event.FieldValue:
+			if value, err := event.ValueScanner.Value.FromValue(values[i]); err != nil {
+				return err
+			} else {
+				_m.Value = value
+			}
+		case event.FieldDesc:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field desc", values[i])
+			} else if value.Valid {
+				_m.Desc = value.String
+			}
+		case event.FieldPayload:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field payload", values[i])
+			} else if value.Valid {
+				_m.Payload = value.String
 			}
 		case event.FieldTenantId:
 			if value, ok := values[i].(*uuid.UUID); !ok {
@@ -187,9 +198,9 @@ func (_m *Event) assignValues(columns []string, values []any) error {
 	return nil
 }
 
-// Value returns the ent.Value that was dynamically selected and assigned to the Event.
+// GetValue returns the ent.Value that was dynamically selected and assigned to the Event.
 // This includes values selected through modifiers, order, etc.
-func (_m *Event) Value(name string) (ent.Value, error) {
+func (_m *Event) GetValue(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
 }
 
@@ -221,9 +232,6 @@ func (_m *Event) String() string {
 	var builder strings.Builder
 	builder.WriteString("Event(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.Id))
-	builder.WriteString("desc=")
-	builder.WriteString(_m.Desc)
-	builder.WriteString(", ")
 	builder.WriteString("kind=")
 	builder.WriteString(_m.Kind)
 	builder.WriteString(", ")
@@ -252,13 +260,19 @@ func (_m *Event) String() string {
 	builder.WriteString("trace_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.TraceId))
 	builder.WriteString(", ")
-	builder.WriteString("payload=")
-	builder.WriteString(_m.Payload)
-	builder.WriteString(", ")
 	if v := _m.CauseId; v != nil {
 		builder.WriteString("cause_id=")
 		builder.WriteString(fmt.Sprintf("%v", *v))
 	}
+	builder.WriteString(", ")
+	builder.WriteString("value=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Value))
+	builder.WriteString(", ")
+	builder.WriteString("desc=")
+	builder.WriteString(_m.Desc)
+	builder.WriteString(", ")
+	builder.WriteString("payload=")
+	builder.WriteString(_m.Payload)
 	builder.WriteString(", ")
 	builder.WriteString("tenant_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.TenantId))

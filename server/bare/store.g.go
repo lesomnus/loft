@@ -433,8 +433,6 @@ type Scope interface {
 	PlacementScope(ctx context.Context) (predicate.Placement, error)
 	LinkScope(ctx context.Context) (predicate.Link, error)
 	StewardshipScope(ctx context.Context) (predicate.Stewardship, error)
-	FactScope(ctx context.Context) (predicate.Fact, error)
-	EventScope(ctx context.Context) (predicate.Event, error)
 	NotificationScope(ctx context.Context) (predicate.Notification, error)
 	TenantContractScope(ctx context.Context) (predicate.TenantContract, error)
 	LegalHoldScope(ctx context.Context) (predicate.LegalHold, error)
@@ -442,6 +440,8 @@ type Scope interface {
 	AccessScope(ctx context.Context) (predicate.Access, error)
 	ArchivedScope(ctx context.Context) (predicate.Archived, error)
 	AuditScope(ctx context.Context) (predicate.Audit, error)
+	EventScope(ctx context.Context) (predicate.Event, error)
+	FactScope(ctx context.Context) (predicate.Fact, error)
 	OutboxScope(ctx context.Context) (predicate.Outbox, error)
 	OwedScope(ctx context.Context) (predicate.Owed, error)
 	RowSealScope(ctx context.Context) (predicate.RowSeal, error)
@@ -550,12 +550,6 @@ func (Unscoped) LinkScope(_ context.Context) (predicate.Link, error) {
 func (Unscoped) StewardshipScope(_ context.Context) (predicate.Stewardship, error) {
 	return nil, nil
 }
-func (Unscoped) FactScope(_ context.Context) (predicate.Fact, error) {
-	return nil, nil
-}
-func (Unscoped) EventScope(_ context.Context) (predicate.Event, error) {
-	return nil, nil
-}
 func (Unscoped) NotificationScope(_ context.Context) (predicate.Notification, error) {
 	return nil, nil
 }
@@ -575,6 +569,12 @@ func (Unscoped) ArchivedScope(_ context.Context) (predicate.Archived, error) {
 	return nil, nil
 }
 func (Unscoped) AuditScope(_ context.Context) (predicate.Audit, error) {
+	return nil, nil
+}
+func (Unscoped) EventScope(_ context.Context) (predicate.Event, error) {
+	return nil, nil
+}
+func (Unscoped) FactScope(_ context.Context) (predicate.Fact, error) {
 	return nil, nil
 }
 func (Unscoped) OutboxScope(_ context.Context) (predicate.Outbox, error) {
@@ -1198,46 +1198,6 @@ func (ss Scopes) StewardshipScope(ctx context.Context) (predicate.Stewardship, e
 	return stewardship.And(ps...), nil
 }
 
-func (ss Scopes) FactScope(ctx context.Context) (predicate.Fact, error) {
-	ps := make([]predicate.Fact, 0, len(ss))
-	for _, s := range ss {
-		p, err := s.FactScope(ctx)
-		if err != nil {
-			return nil, err
-		}
-		if p == nil {
-			continue
-		}
-
-		ps = append(ps, p)
-	}
-	if len(ps) == 0 {
-		return nil, nil
-	}
-
-	return fact.And(ps...), nil
-}
-
-func (ss Scopes) EventScope(ctx context.Context) (predicate.Event, error) {
-	ps := make([]predicate.Event, 0, len(ss))
-	for _, s := range ss {
-		p, err := s.EventScope(ctx)
-		if err != nil {
-			return nil, err
-		}
-		if p == nil {
-			continue
-		}
-
-		ps = append(ps, p)
-	}
-	if len(ps) == 0 {
-		return nil, nil
-	}
-
-	return event.And(ps...), nil
-}
-
 func (ss Scopes) NotificationScope(ctx context.Context) (predicate.Notification, error) {
 	ps := make([]predicate.Notification, 0, len(ss))
 	for _, s := range ss {
@@ -1376,6 +1336,46 @@ func (ss Scopes) AuditScope(ctx context.Context) (predicate.Audit, error) {
 	}
 
 	return audit.And(ps...), nil
+}
+
+func (ss Scopes) EventScope(ctx context.Context) (predicate.Event, error) {
+	ps := make([]predicate.Event, 0, len(ss))
+	for _, s := range ss {
+		p, err := s.EventScope(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if p == nil {
+			continue
+		}
+
+		ps = append(ps, p)
+	}
+	if len(ps) == 0 {
+		return nil, nil
+	}
+
+	return event.And(ps...), nil
+}
+
+func (ss Scopes) FactScope(ctx context.Context) (predicate.Fact, error) {
+	ps := make([]predicate.Fact, 0, len(ss))
+	for _, s := range ss {
+		p, err := s.FactScope(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if p == nil {
+			continue
+		}
+
+		ps = append(ps, p)
+	}
+	if len(ps) == 0 {
+		return nil, nil
+	}
+
+	return fact.And(ps...), nil
 }
 
 func (ss Scopes) OutboxScope(ctx context.Context) (predicate.Outbox, error) {
@@ -1752,8 +1752,6 @@ func (s Server) Link() rove.LinkServiceServer { return LinkServiceServer{Store: 
 func (s Server) Stewardship() rove.StewardshipServiceServer {
 	return StewardshipServiceServer{Store: s.Store}
 }
-func (s Server) Fact() rove.FactServiceServer   { return FactServiceServer{Store: s.Store} }
-func (s Server) Event() rove.EventServiceServer { return EventServiceServer{Store: s.Store} }
 func (s Server) Notification() rove.NotificationServiceServer {
 	return NotificationServiceServer{Store: s.Store}
 }
@@ -1769,6 +1767,8 @@ func (s Server) AccessReview() rove.AccessReviewServiceServer {
 func (s Server) Access() rove.AccessServiceServer     { return AccessServiceServer{Store: s.Store} }
 func (s Server) Archived() rove.ArchivedServiceServer { return ArchivedServiceServer{Store: s.Store} }
 func (s Server) Audit() rove.AuditServiceServer       { return AuditServiceServer{Store: s.Store} }
+func (s Server) Event() rove.EventServiceServer       { return EventServiceServer{Store: s.Store} }
+func (s Server) Fact() rove.FactServiceServer         { return FactServiceServer{Store: s.Store} }
 func (s Server) Outbox() rove.OutboxServiceServer     { return OutboxServiceServer{Store: s.Store} }
 func (s Server) Owed() rove.OwedServiceServer         { return OwedServiceServer{Store: s.Store} }
 func (s Server) RowSeal() rove.RowSealServiceServer   { return RowSealServiceServer{Store: s.Store} }

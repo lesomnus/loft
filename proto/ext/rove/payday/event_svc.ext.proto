@@ -3,13 +3,14 @@ edition = "2023";
 package rove;
 
 import "google/protobuf/timestamp.proto";
-import "rove/history.proto";
+import "rove/payday/event.proto";
 
 option go_package = "github.com/lesomnus/rove";
 
 service EventService {
   // Recent answers the newest events first, which a generated List -- oldest
-  // first, so that a cursor is stable -- does not.
+  // first, so that a cursor is stable -- does not. Each says what happened in
+  // `desc`, a sentence made of it as it is read (`server/domain/say.go`).
   rpc Recent(EventRecentRequest) returns (EventRecentResponse);
 }
 

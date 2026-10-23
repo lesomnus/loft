@@ -5,6 +5,8 @@ package event
 import (
 	"github.com/protobuf-orm/ent/dialect/sql"
 	"github.com/protobuf-orm/ent/dialect/sql/sqlgraph"
+	"github.com/protobuf-orm/ent/schema/field"
+	"google.golang.org/protobuf/types/known/anypb"
 )
 
 const (
@@ -12,8 +14,6 @@ const (
 	Label = "event"
 	// FieldId holds the string denoting the id field in the database.
 	FieldId = "id"
-	// FieldDesc holds the string denoting the desc field in the database.
-	FieldDesc = "desc"
 	// FieldKind holds the string denoting the kind field in the database.
 	FieldKind = "kind"
 	// FieldActorId holds the string denoting the actor_id field in the database.
@@ -30,10 +30,14 @@ const (
 	FieldDateCreated = "date_created"
 	// FieldTraceId holds the string denoting the trace_id field in the database.
 	FieldTraceId = "trace_id"
-	// FieldPayload holds the string denoting the payload field in the database.
-	FieldPayload = "payload"
 	// FieldCauseId holds the string denoting the cause_id field in the database.
 	FieldCauseId = "cause_id"
+	// FieldValue holds the string denoting the value field in the database.
+	FieldValue = "value"
+	// FieldDesc holds the string denoting the desc field in the database.
+	FieldDesc = "desc"
+	// FieldPayload holds the string denoting the payload field in the database.
+	FieldPayload = "payload"
 	// FieldTenantId holds the string denoting the tenant_id field in the database.
 	FieldTenantId = "tenant_id"
 	// EdgeTenant holds the string denoting the tenant edge name in mutations.
@@ -52,7 +56,6 @@ const (
 // Columns holds all SQL columns for event fields.
 var Columns = []string{
 	FieldId,
-	FieldDesc,
 	FieldKind,
 	FieldActorId,
 	FieldOccurredAt,
@@ -61,8 +64,10 @@ var Columns = []string{
 	FieldDateUpdated,
 	FieldDateCreated,
 	FieldTraceId,
-	FieldPayload,
 	FieldCauseId,
+	FieldValue,
+	FieldDesc,
+	FieldPayload,
 	FieldTenantId,
 }
 
@@ -76,17 +81,19 @@ func ValidColumn(column string) bool {
 	return false
 }
 
+var (
+	// ValueScanner of all Event fields.
+	ValueScanner struct {
+		Value field.TypeValueScanner[*anypb.Any]
+	}
+)
+
 // OrderOption defines the ordering options for the Event queries.
 type OrderOption func(*sql.Selector)
 
 // ById orders the results by the id field.
 func ById(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldId, opts...).ToFunc()
-}
-
-// ByDesc orders the results by the desc field.
-func ByDesc(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDesc, opts...).ToFunc()
 }
 
 // ByKind orders the results by the kind field.
@@ -124,14 +131,19 @@ func ByDateCreated(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDateCreated, opts...).ToFunc()
 }
 
-// ByPayload orders the results by the payload field.
-func ByPayload(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldPayload, opts...).ToFunc()
-}
-
 // ByCauseId orders the results by the cause_id field.
 func ByCauseId(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCauseId, opts...).ToFunc()
+}
+
+// ByDesc orders the results by the desc field.
+func ByDesc(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDesc, opts...).ToFunc()
+}
+
+// ByPayload orders the results by the payload field.
+func ByPayload(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPayload, opts...).ToFunc()
 }
 
 // ByTenantId orders the results by the tenant_id field.
