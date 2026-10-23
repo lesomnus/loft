@@ -45,7 +45,11 @@ func (s domainCount) Add(ctx context.Context, req *app.InventoryCountAddRequest)
 			name = fmt.Sprintf("%s 실사 %s", sp.GetName(), t.now.In(t.zone()).Format("2006-01-02"))
 		}
 		id := pdid.New(pd.InventoryCountDomain)
-		if err := t.begin(nil, "count.start", idOf(sp.GetId()), t.now, "실사 시작: "+name, "", nil); err != nil {
+		if err := t.begin(nil, "count.start", idOf(sp.GetId()), t.now, "", app.CountStartedOrClosed_builder{
+			Count: id.Bytes(),
+			Name:  name,
+			Scope: sp.GetId(),
+		}.Build()); err != nil {
 			return err
 		}
 		out, err = t.next.InventoryCount().Add(t.ctx, app.InventoryCountAddRequest_builder{
@@ -128,7 +132,18 @@ func (s domainCount) Scan(ctx context.Context, req *app.InventoryCountScanReques
 			return invalid("code", "스캔한 코드를 보내 주세요")
 		}
 
-		if err := t.begin(req.GetOp(), "count.scan", aid, seen, "실사 스캔", req.GetNote(), nil); err != nil {
+		scanned := app.CountScanned_builder{
+			Count: c.GetId(),
+			Space: where.Bytes(),
+			Code:  strings.TrimSpace(req.GetCode()),
+		}.Build()
+		if !aid.IsZero() {
+			scanned.SetAsset(aid.Bytes())
+		}
+		if !label.IsZero() {
+			scanned.SetLabel(label.Bytes())
+		}
+		if err := t.begin(req.GetOp(), "count.scan", aid, seen, req.GetNote(), scanned); err != nil {
 			return err
 		}
 		if err := t.findingsChanged(c); err != nil {
@@ -281,20 +296,25 @@ func (s domainCount) Reconcile(ctx context.Context, req *app.InventoryCountRecon
 			}
 		}
 
-		begun := false
+		var missing []*ent.Asset
 		for _, a := range expected {
-			if found[a.Id] {
-				continue
+			if !found[a.Id] {
+				missing = append(missing, a)
 			}
-			if !begun {
-				if err := t.begin(nil, "count.reconcile", pdid.Nil, t.now, "실사 대조", "", nil); err != nil {
-					return err
-				}
-				if err := t.findingsChanged(c); err != nil {
-					return err
-				}
-				begun = true
-			}
+		}
+		if len(missing) == 0 {
+			return nil
+		}
+		if err := t.begin(nil, "count.reconcile", pdid.Nil, t.now, "", app.CountReconciled_builder{
+			Count:   c.GetId(),
+			Missing: uint32(len(missing)),
+		}.Build()); err != nil {
+			return err
+		}
+		if err := t.findingsChanged(c); err != nil {
+			return err
+		}
+		for _, a := range missing {
 			row := app.CountFindingAddRequest_builder{
 				Tenant:     t.tenantRef(),
 				Count:      app.InventoryCountRef_builder{Id: c.GetId()}.Build(),
@@ -334,7 +354,15 @@ func (s domainCount) Resolve(ctx context.Context, req *app.InventoryCountResolve
 		aid := idOf(f.GetAsset().GetId())
 		// Before what it calls: the move or the loss it records is part of
 		// this, and says so (design D34).
-		if err := t.begin(nil, "count.resolve", aid, t.now, "실사 결과 처리: "+res, req.GetReason(), nil); err != nil {
+		resolved := app.CountResolved_builder{
+			Count:      f.GetCount().GetId(),
+			Finding:    f.GetId(),
+			Resolution: res,
+		}.Build()
+		if !aid.IsZero() {
+			resolved.SetAsset(aid.Bytes())
+		}
+		if err := t.begin(nil, "count.resolve", aid, t.now, req.GetReason(), resolved); err != nil {
 			return err
 		}
 		layer := t.layer()
@@ -347,7 +375,7 @@ func (s domainCount) Resolve(ctx context.Context, req *app.InventoryCountResolve
 				Ref:    app.AssetRef_builder{Id: aid.Bytes()}.Build(),
 				To:     app.AssetRef_builder{Id: f.GetObservedParentId()}.Build(),
 				At:     f.GetSeenAt(),
-				Reason: or(req.GetReason(), "실사에서 발견된 위치"),
+				Reason: req.GetReason(),
 			}.Build()); err != nil {
 				return err
 			}
@@ -358,7 +386,7 @@ func (s domainCount) Resolve(ctx context.Context, req *app.InventoryCountResolve
 			if _, err := layer.Asset().SetAttributes(t.ctx, app.AssetSetAttributesRequest_builder{
 				Ref:    app.AssetRef_builder{Id: aid.Bytes()}.Build(),
 				Set:    map[string]string{"status": "lost"},
-				Reason: or(req.GetReason(), "실사에서 찾지 못함"),
+				Reason: req.GetReason(),
 			}.Build()); err != nil {
 				return err
 			}
@@ -392,7 +420,11 @@ func (s domainCount) Close(ctx context.Context, req *app.InventoryCountCloseRequ
 			out = c
 			return nil
 		}
-		if err := t.begin(nil, "count.close", idOf(c.GetScope().GetId()), t.now, "실사 종료: "+c.GetName(), "", nil); err != nil {
+		if err := t.begin(nil, "count.close", idOf(c.GetScope().GetId()), t.now, "", app.CountStartedOrClosed_builder{
+			Count: c.GetId(),
+			Name:  c.GetName(),
+			Scope: c.GetScope().GetId(),
+		}.Build()); err != nil {
 			return err
 		}
 		out, err = t.next.InventoryCount().Patch(t.ctx, app.InventoryCountPatchRequest_builder{

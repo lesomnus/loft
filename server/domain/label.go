@@ -177,7 +177,12 @@ func (s domainTenantDomain) Add(ctx context.Context, req *app.TenantDomainAddReq
 			row.SetState(domainPending)
 		}
 
-		if err := t.begin(nil, "domain.add", pdid.Nil, t.now, domainWords(row.GetPurpose())+" 등록: "+row.GetHost(), "", nil); err != nil {
+		if err := t.begin(nil, "domain.add", pdid.Nil, t.now, "", app.TenantDomainAdded_builder{
+			Domain:  row.GetId(),
+			Host:    row.GetHost(),
+			Purpose: row.GetPurpose(),
+			Source:  row.GetSource(),
+		}.Build()); err != nil {
 			return err
 		}
 		v, err := t.next.TenantDomain().Add(t.ctx, row)
@@ -341,11 +346,12 @@ func (s domainTenantDomain) Verify(ctx context.Context, req *app.TenantDomainVer
 // none. One left ready for a person to switch to tells whoever may, when
 // `tell`.
 func (t *Tx) verified(id []byte, purpose, host string, lapsed, tell bool) (*app.TenantDomain, error) {
-	words := domainWords(purpose) + " 확인: " + host
-	if lapsed {
-		words = domainWords(purpose) + " 다시 확인: " + host
-	}
-	if err := t.begin(nil, "domain.verify", pdid.Nil, t.now, words, "", nil); err != nil {
+	if err := t.begin(nil, "domain.verify", pdid.Nil, t.now, "", app.TenantDomainVerified_builder{
+		Domain:  id,
+		Host:    host,
+		Purpose: purpose,
+		Again:   lapsed,
+	}.Build()); err != nil {
 		return nil, err
 	}
 	v, err := t.next.TenantDomain().Patch(t.ctx, app.TenantDomainPatchRequest_builder{
@@ -390,7 +396,11 @@ func (s domainTenantDomain) Activate(ctx context.Context, req *app.TenantDomainA
 		default:
 			return failed("%s은(는) 아직 확인되지 않았습니다. 확인된 도메인만 쓸 수 있습니다", v.GetHost())
 		}
-		if err := t.begin(nil, "domain.activate", pdid.Nil, t.now, domainWords(v.GetPurpose())+" 활성화: "+v.GetHost(), "", nil); err != nil {
+		if err := t.begin(nil, "domain.activate", pdid.Nil, t.now, "", app.TenantDomainActivated_builder{
+			Domain:  v.GetId(),
+			Host:    v.GetHost(),
+			Purpose: v.GetPurpose(),
+		}.Build()); err != nil {
 			return err
 		}
 		out, err = t.activate(v.GetId())
@@ -415,7 +425,13 @@ func (s domainTenantDomain) Retire(ctx context.Context, req *app.TenantDomainRet
 		if n > 0 && !req.GetForce() {
 			return failed("%s로 인쇄된 라벨 %d장이 더 이상 열리지 않게 됩니다. 그래도 중지하려면 강제로 중지하세요", v.GetHost(), n)
 		}
-		if err := t.begin(nil, "domain.retire", pdid.Nil, t.now, domainWords(v.GetPurpose())+" 은퇴: "+v.GetHost(), "", nil); err != nil {
+		if err := t.begin(nil, "domain.retire", pdid.Nil, t.now, "", app.TenantDomainRetired_builder{
+			Domain:  v.GetId(),
+			Host:    v.GetHost(),
+			Purpose: v.GetPurpose(),
+			Force:   req.GetForce(),
+			Labels:  uint32(n),
+		}.Build()); err != nil {
 			return err
 		}
 		out, err = t.next.TenantDomain().Patch(t.ctx, app.TenantDomainPatchRequest_builder{
@@ -488,7 +504,11 @@ func (s domainLabel) Print(ctx context.Context, req *app.LabelPrintRequest) (*ap
 			batch = t.now.In(t.zone()).Format("2006-01-02 15:04")
 		}
 
-		if err := t.begin(nil, "label.print", pdid.Nil, t.now, fmt.Sprintf("라벨 인쇄: %s", batch), "", map[string]string{"count": fmt.Sprint(max(n, len(ids)))}); err != nil {
+		if err := t.begin(nil, "label.print", pdid.Nil, t.now, "", app.LabelsPrinted_builder{
+			Batch:  batch,
+			Count:  uint32(max(n, len(ids))),
+			Assets: ids,
+		}.Build()); err != nil {
 			return err
 		}
 
@@ -564,7 +584,11 @@ func (s domainLabel) Bind(ctx context.Context, req *app.LabelBindRequest) (*app.
 			}
 			return failed("다른 자산에 붙은 라벨입니다. 먼저 떼세요")
 		}
-		if err := t.begin(req.GetOp(), "label.bind", id, t.now, fmt.Sprintf("%s 라벨 부착", a.GetTag()), "", nil); err != nil {
+		if err := t.begin(req.GetOp(), "label.bind", id, t.now, "", app.LabelBound_builder{
+			Label: l.GetId(),
+			Asset: id.Bytes(),
+			Tag:   a.GetTag(),
+		}.Build()); err != nil {
 			return err
 		}
 		out, err = t.next.Label().Patch(t.ctx, app.LabelPatchRequest_builder{
@@ -594,7 +618,11 @@ func (s domainLabel) Unbind(ctx context.Context, req *app.LabelUnbindRequest) (*
 		if req.GetVoid() {
 			state = "void"
 		}
-		if err := t.begin(nil, "label.unbind", idOf(l.GetSubjectId()), t.now, "라벨 떼어냄", "", map[string]string{"state": state}); err != nil {
+		if err := t.begin(nil, "label.unbind", idOf(l.GetSubjectId()), t.now, "", app.LabelUnbound_builder{
+			Label: l.GetId(),
+			Asset: l.GetSubjectId(),
+			Void:  req.GetVoid(),
+		}.Build()); err != nil {
 			return err
 		}
 		out, err = t.next.Label().Patch(t.ctx, app.LabelPatchRequest_builder{
@@ -751,7 +779,13 @@ func (s domainAttachment) Upload(ctx context.Context, req *app.AttachmentUploadR
 		if ct == "" {
 			ct = "application/octet-stream"
 		}
-		if err := t.begin(nil, "attachment.add", subject, t.now, "파일 첨부: "+name, "", nil); err != nil {
+		if err := t.begin(nil, "attachment.add", subject, t.now, "", app.AttachmentAdded_builder{
+			Attachment:  id.Bytes(),
+			Subject:     subject.Bytes(),
+			Name:        name,
+			ContentType: ct,
+			Size:        uint64(len(data)),
+		}.Build()); err != nil {
 			return err
 		}
 		v, err := t.next.Attachment().Add(t.ctx, app.AttachmentAddRequest_builder{

@@ -2,7 +2,6 @@ package domain
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	app "github.com/lesomnus/rove"
@@ -91,7 +90,7 @@ func (t *Tx) keeping(keep, access *uint32) (retention.Setting, retention.Setting
 
 // keepPatch writes into `patch` the windows a Configure says, and into
 // `said` what they came to for its event: a shorter one, from when it is.
-func (t *Tx) keepPatch(req *app.TenantConfigureRequest, patch *app.TenantPatchRequest, said map[string]string) error {
+func (t *Tx) keepPatch(req *app.TenantConfigureRequest, patch *app.TenantPatchRequest, said *app.WorkspaceConfigured) error {
 	keep, access := days(req.HasKeepDays(), req.GetKeepDays()), days(req.HasAccessKeepDays(), req.GetAccessKeepDays())
 	if keep != nil || access != nil {
 		k, a, err := t.keeping(keep, access)
@@ -108,9 +107,9 @@ func (t *Tx) keepPatch(req *app.TenantConfigureRequest, patch *app.TenantPatchRe
 			} else {
 				patch.SetDateKeepShortenedNull(true)
 			}
-			said["keep_days"] = fmt.Sprint(k.Days)
+			said.SetKeepDays(k.Days)
 			if u := k.Until(t.now, d.Wait(), retention.Days); !u.IsZero() {
-				said["keep_from"] = u.UTC().Format(time.RFC3339)
+				said.SetKeepFrom(ts(u))
 			}
 		}
 		if access != nil {
@@ -121,15 +120,15 @@ func (t *Tx) keepPatch(req *app.TenantConfigureRequest, patch *app.TenantPatchRe
 			} else {
 				patch.SetDateAccessKeepShortenedNull(true)
 			}
-			said["access_keep_days"] = fmt.Sprint(a.Days)
+			said.SetAccessKeepDays(a.Days)
 			if u := a.Until(t.now, d.Wait(), d.AccessDays); !u.IsZero() {
-				said["access_keep_from"] = u.UTC().Format(time.RFC3339)
+				said.SetAccessKeepFrom(ts(u))
 			}
 		}
 	}
 	if req.HasRestoreDays() {
 		patch.SetRestoreDays(req.GetRestoreDays())
-		said["restore_days"] = fmt.Sprint(req.GetRestoreDays())
+		said.SetRestoreDays(req.GetRestoreDays())
 	}
 
 	return nil

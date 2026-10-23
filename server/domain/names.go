@@ -37,6 +37,10 @@ type namer struct {
 	// something is named and by the name it signs in with, and a type and a
 	// model by theirs.
 	assets, parties, holders, members, kinds, models map[uuid.UUID]called
+
+	// legacies is what each row from before Rove's events kept a message
+	// said, by the row: its sentence and what it named ([Sentences]).
+	legacies map[uuid.UUID]legacyRow
 }
 
 var _ past.Names = (*namer)(nil)
@@ -130,6 +134,15 @@ func (n *namer) actor(id *uuid.UUID) string {
 		return "시스템"
 	}
 	return n.show(n.look(n.t.ctx, &n.holders, *id, n.ofHolder))
+}
+
+// actorOf is [namer.actor] of an identifier, nobody's for none.
+func (n *namer) actorOf(id pdid.Id) string {
+	if id.IsZero() {
+		return n.actor(nil)
+	}
+	u := id.Uuid()
+	return n.actor(&u)
 }
 
 // member is a membership by its own name: the one it signs in with.

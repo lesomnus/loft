@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"slices"
-	"time"
 	"uuid"
 
 	"github.com/lesomnus/payday/pdid"
@@ -65,8 +64,26 @@ func (s domainCustody) Add(ctx context.Context, req *app.CustodyAddRequest) (*ap
 		if req.HasDueAt() && !req.GetDueAt().AsTime().After(t.now) {
 			return invalid("due_at", "반납 기한은 지금 이후여야 합니다")
 		}
-		said := map[string]string{"issue": "지급", "loan": "대여"}[kind] + ": {party}"
-		if err := t.begin(req.GetOp(), "custody.issue", id, t.now, said, req.GetDesc(), map[string]string{"lines": fmt.Sprint(len(req.GetLines())), "party": idOf(p.GetId()).String()}); err != nil {
+		// What was handed over, to whom; each asset an event of its own
+		// below, which says the same of it. Why is the hand-over's memo, in
+		// the words of whoever made it.
+		said := func(asset []byte) *app.CustodyIssued {
+			v := app.CustodyIssued_builder{
+				Custody:     id.Bytes(),
+				Party:       p.GetId(),
+				Kind:        kind,
+				Reservation: req.GetReservationId(),
+				Asset:       asset,
+			}.Build()
+			if asset == nil {
+				v.SetLines(uint32(len(req.GetLines())))
+			}
+			if req.HasDueAt() {
+				v.SetDue(req.GetDueAt())
+			}
+			return v
+		}
+		if err := t.begin(req.GetOp(), "custody.issue", id, t.now, req.GetDesc(), said(nil)); err != nil {
 			return err
 		}
 
@@ -144,7 +161,7 @@ func (s domainCustody) Add(ctx context.Context, req *app.CustodyAddRequest) (*ap
 				// What the hand-over did to this asset is an event of its own,
 				// the hand-over its cause: the asset's history says it was
 				// handed over, and to whom (design D34).
-				if err := t.child("custody.issue", aid, t.now, said, req.GetDesc(), map[string]string{"party": idOf(p.GetId()).String(), "custody": id.String()}, func() error {
+				if err := t.child("custody.issue", aid, t.now, req.GetDesc(), said(aid.Bytes()), func() error {
 					if _, err := t.steward(aid.Uuid(), "custodian", t.now, &steward{party: uuidOf(p.GetId())}, nil); err != nil {
 						return err
 					}
@@ -216,7 +233,7 @@ func (s domainCustody) Acknowledge(ctx context.Context, req *app.CustodyAcknowle
 				return status.Error(codes.PermissionDenied, "받은 사람만 인수 확인을 할 수 있습니다")
 			}
 		}
-		if err := t.begin(nil, "custody.acknowledge", idOf(c.GetId()), t.now, "인수 확인", "", nil); err != nil {
+		if err := t.begin(nil, "custody.acknowledge", idOf(c.GetId()), t.now, "", app.CustodyAcknowledged_builder{Custody: c.GetId()}.Build()); err != nil {
 			return err
 		}
 		out, err = t.next.Custody().Patch(t.ctx, app.CustodyPatchRequest_builder{
@@ -269,7 +286,14 @@ func (s domainCustody) Return(ctx context.Context, req *app.CustodyReturnRequest
 				return err
 			}
 		}
-		if err := t.begin(req.GetOp(), "custody.return", cid, at, "반납", "", nil); err != nil {
+		returned := func(asset []byte) *app.CustodyReturned {
+			v := app.CustodyReturned_builder{Custody: cid.Bytes(), Asset: asset}.Build()
+			if to != nil {
+				v.SetTo(to.GetId())
+			}
+			return v
+		}
+		if err := t.begin(req.GetOp(), "custody.return", cid, at, "", returned(nil)); err != nil {
 			return err
 		}
 
@@ -311,7 +335,7 @@ func (s domainCustody) Return(ctx context.Context, req *app.CustodyReturnRequest
 				a := l.AssetId
 				// What the return did to this asset is an event of its own, the
 				// return its cause (design D34).
-				if err := t.child("custody.return", pdid.Id(a), at, "반납", "", map[string]string{"custody": cid.String()}, func() error {
+				if err := t.child("custody.return", pdid.Id(a), at, "", returned(pdid.Id(a).Bytes()), func() error {
 					if _, err := t.steward(a, "custodian", at, nil, nil); err != nil {
 						return err
 					}
@@ -412,7 +436,7 @@ func (s domainCustody) Extend(ctx context.Context, req *app.CustodyExtendRequest
 		if !req.HasDueAt() || !req.GetDueAt().AsTime().After(t.now) {
 			return invalid("due_at", "반납 기한은 지금 이후여야 합니다")
 		}
-		if err := t.begin(nil, "custody.extend", idOf(c.GetId()), t.now, "반납 기한 연장: "+req.GetDueAt().AsTime().In(t.zone()).Format(time.DateOnly), "", nil); err != nil {
+		if err := t.begin(nil, "custody.extend", idOf(c.GetId()), t.now, "", app.CustodyExtended_builder{Custody: c.GetId(), Due: req.GetDueAt()}.Build()); err != nil {
 			return err
 		}
 		out, err = t.next.Custody().Patch(t.ctx, app.CustodyPatchRequest_builder{

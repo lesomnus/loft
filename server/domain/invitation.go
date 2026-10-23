@@ -199,7 +199,11 @@ func (s domainInvitation) Add(ctx context.Context, req *app.InvitationAddRequest
 
 		code = secret()
 		id := pdid.New(pd.InvitationDomain)
-		if err := t.begin(nil, "invitation.add", id, t.now, "초대 ("+roleWords[role]+")", "", map[string]string{"role": role}); err != nil {
+		said := app.InvitationAdded_builder{Invitation: id.Bytes(), Role: role}.Build()
+		if party != nil {
+			said.SetParty(party.GetId())
+		}
+		if err := t.begin(nil, "invitation.add", id, t.now, "", said); err != nil {
 			return err
 		}
 		out, err = t.next.Invitation().Add(t.ctx, app.InvitationAddRequest_builder{
@@ -239,7 +243,7 @@ func (s domainInvitation) Revoke(ctx context.Context, req *app.InvitationRevokeR
 		if v.GetState() != invitePending {
 			return failed("이미 답했거나 취소된 초대입니다")
 		}
-		if err := t.begin(nil, "invitation.revoke", idOf(v.GetId()), t.now, "초대 취소", "", nil); err != nil {
+		if err := t.begin(nil, "invitation.revoke", idOf(v.GetId()), t.now, "", app.InvitationChanged_builder{Invitation: v.GetId()}.Build()); err != nil {
 			return err
 		}
 		out, err = t.next.Invitation().Patch(t.ctx, app.InvitationPatchRequest_builder{
@@ -349,7 +353,7 @@ func (s domainInvitation) Claim(ctx context.Context, req *app.InvitationClaimReq
 	}
 
 	err = s.answer(ctx, v, pdid.Nil, func(t *Tx) error {
-		if err := t.begin(nil, "invitation.claim", pdid.Id(v.Id), t.now, "초대 링크로 받음", "", nil); err != nil {
+		if err := t.begin(nil, "invitation.claim", pdid.Id(v.Id), t.now, "", app.InvitationChanged_builder{Invitation: pdid.Id(v.Id).Bytes()}.Build()); err != nil {
 			return err
 		}
 		_, err := t.next.Invitation().Patch(t.ctx, app.InvitationPatchRequest_builder{
@@ -396,7 +400,11 @@ func (s domainInvitation) Accept(ctx context.Context, req *app.InvitationAcceptR
 			return failed("이미 이 워크스페이스의 구성원입니다")
 		}
 
-		if err := t.begin(nil, "invitation.accept", pdid.Id(v.Id), t.now, "초대 수락 ("+roleWords[v.Role]+")", "", map[string]string{"role": v.Role}); err != nil {
+		if err := t.begin(nil, "invitation.accept", pdid.Id(v.Id), t.now, "", app.InvitationAccepted_builder{
+			Invitation: pdid.Id(v.Id).Bytes(),
+			Role:       v.Role,
+			Holder:     hid.Bytes(),
+		}.Build()); err != nil {
 			return err
 		}
 		alias, err := freeAlias(t, v.TenantId, who.Alias)
@@ -478,7 +486,7 @@ func (s domainInvitation) Deny(ctx context.Context, req *app.InvitationDenyReque
 		return nil, err
 	}
 	err = s.answer(ctx, v, pdid.Nil, func(t *Tx) error {
-		if err := t.begin(nil, "invitation.deny", pdid.Id(v.Id), t.now, "초대 거절", "", nil); err != nil {
+		if err := t.begin(nil, "invitation.deny", pdid.Id(v.Id), t.now, "", app.InvitationChanged_builder{Invitation: pdid.Id(v.Id).Bytes()}.Build()); err != nil {
 			return err
 		}
 		_, err := t.next.Invitation().Patch(t.ctx, app.InvitationPatchRequest_builder{

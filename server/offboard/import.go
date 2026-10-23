@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
-	"maps"
 	"reflect"
 	"slices"
 	"strings"
@@ -22,6 +21,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/reflect/protoregistry"
+	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	app "github.com/lesomnus/rove"
@@ -280,36 +280,39 @@ func (d Deployment) Import(ctx context.Context, r io.ReaderAt, size int64, o Imp
 		}
 	}
 
-	now := d.now()
-	desc := fmt.Sprintf("워크스페이스 복구 (운영자): %s 내보내기에서", m.ExportedAt.Format(time.DateOnly))
-	payload := map[string]string{
-		"exported_at": m.ExportedAt.UTC().Format(time.RFC3339),
-		"manifest":    out.Manifest,
-		"signed_by":   out.Key,
-		"rows":        fmt.Sprint(out.Total()),
-		"files":       fmt.Sprint(m.Files),
-		"asked":       out.Asked,
-		"released":    strings.Join(out.Released, ","),
-		"unlinked":    fmt.Sprint(len(out.Unlinked)),
+	// The restore's event, beneath the servers as the rows it put back are,
+	// and on the trail with them: what the past's own `Begin` would have
+	// written, and cannot, in a workspace with nobody in it to have done it
+	// (payday#151). Its message is what it holds; it keeps no sentence.
+	now := d.now().UTC().Truncate(time.Microsecond)
+	left := map[string]uint32{}
+	for k, n := range out.Left {
+		left[k] = uint32(n)
 	}
-	if out.Reopened {
-		payload["reopened"] = "true"
-	}
-	if len(out.Left) > 0 {
-		left := []string{}
-		for _, k := range slices.Sorted(maps.Keys(out.Left)) {
-			left = append(left, fmt.Sprintf("%s:%d", k, out.Left[k]))
-		}
-		payload["left"] = strings.Join(left, ",")
+	value, err := anypb.New(app.WorkspaceImported_builder{
+		ExportedAt: timestamppb.New(m.ExportedAt),
+		Manifest:   out.Manifest,
+		SignedBy:   out.Key,
+		Rows:       uint32(out.Total()),
+		Files:      uint32(m.Files),
+		Asked:      out.Asked,
+		Released:   out.Released,
+		Unlinked:   uint32(len(out.Unlinked)),
+		Reopened:   out.Reopened,
+		Left:       left,
+	}.Build())
+	if err != nil {
+		return out, fmt.Errorf("the restore's event: %w", err)
 	}
 	event := pdid.New(pd.EventDomain)
 	if err := db.Event.Create().
 		SetId(event.Uuid()).
 		SetTenantId(tid).
 		SetKind("workspace.import").
-		SetDesc(desc).
+		SetValue(value).
+		SetDesc("").
 		SetReason("").
-		SetPayload(encode(payload)).
+		SetPayload("").
 		SetOccurredAt(now).
 		SetDateCreated(now).
 		SetDateUpdated(now).
@@ -529,19 +532,6 @@ var adjusts = map[string]func(ctx context.Context, d Deployment, v protoreflect.
 		}
 		return nil
 	},
-}
-
-// encode is a payload as the domain layer writes one: a `key=value` line for
-// each key that has a value, in the order of the keys.
-func encode(m map[string]string) string {
-	b := strings.Builder{}
-	for _, k := range slices.Sorted(maps.Keys(m)) {
-		if m[k] == "" {
-			continue
-		}
-		b.WriteString(k + "=" + m[k] + "\n")
-	}
-	return strings.TrimSuffix(b.String(), "\n")
 }
 
 func keyOf(b []byte) (uuid.UUID, error) {

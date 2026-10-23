@@ -13,6 +13,7 @@ import (
 	"github.com/lesomnus/payday/spin"
 	"github.com/lesomnus/z"
 	"github.com/protobuf-orm/ent/dialect"
+	"google.golang.org/protobuf/proto"
 
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/internal/ent"
@@ -104,7 +105,7 @@ func (w Sweeper) Pass(ctx context.Context) error {
 // ([Tx.lockReservations]): a check-in, a confirm or a pickup that went first is
 // not undone by a sweep that read the reservation before it. It answers whether
 // it did.
-func (t *Tx) closeReservation(r *ent.Reservation, to, kind, desc string) (bool, error) {
+func (t *Tx) closeReservation(r *ent.Reservation, to, kind string, said proto.Message) (bool, error) {
 	id := pdid.Id(r.Id)
 	if err := t.lockReservations(id); err != nil {
 		return false, err
@@ -116,7 +117,7 @@ func (t *Tx) closeReservation(r *ent.Reservation, to, kind, desc string) (bool, 
 	if now.Status != r.Status {
 		return false, nil
 	}
-	if err := t.begin(nil, kind, id, t.now, desc+": "+r.Name, "", nil); err != nil {
+	if err := t.begin(nil, kind, id, t.now, "", said); err != nil {
 		return false, err
 	}
 	if err := t.lockAllocations(id); err != nil {
@@ -145,7 +146,11 @@ func sweepHolds(t *Tx) error {
 		return err
 	}
 	for _, r := range rs {
-		if _, err := t.closeReservation(r, resExpired, "reservation.expire", "홀드 만료"); err != nil {
+		if _, err := t.closeReservation(r, resExpired, "reservation.expire", app.ReservationReleased_builder{
+			Reservation: pdid.Id(r.Id).Bytes(),
+			Name:        r.Name,
+			From:        resHeld,
+		}.Build()); err != nil {
 			return err
 		}
 	}
@@ -165,7 +170,11 @@ func sweepRequests(t *Tx) error {
 		return err
 	}
 	for _, r := range rs {
-		closed, err := t.closeReservation(r, resExpired, "reservation.expire", "승인 대기 만료")
+		closed, err := t.closeReservation(r, resExpired, "reservation.expire", app.ReservationReleased_builder{
+			Reservation: pdid.Id(r.Id).Bytes(),
+			Name:        r.Name,
+			From:        resRequested,
+		}.Build())
 		if err != nil {
 			return err
 		}
@@ -225,7 +234,10 @@ func sweepNoShows(t *Tx) error {
 			// due back.
 			continue
 		}
-		closed, err := t.closeReservation(r, resNoShow, "reservation.no_show", "노쇼")
+		closed, err := t.closeReservation(r, resNoShow, "reservation.no_show", app.ReservationReleased_builder{
+			Reservation: pdid.Id(r.Id).Bytes(),
+			Name:        r.Name,
+		}.Build())
 		if err != nil {
 			return err
 		}
@@ -268,7 +280,11 @@ func sweepFinished(t *Tx) error {
 		if !spaces {
 			continue
 		}
-		if _, err := t.closeReservation(r, resCompleted, "reservation.complete", "예약 종료"); err != nil {
+		if _, err := t.closeReservation(r, resCompleted, "reservation.complete", app.ReservationDecided_builder{
+			Reservation: pdid.Id(r.Id).Bytes(),
+			Name:        r.Name,
+			Ended:       true,
+		}.Build()); err != nil {
 			return err
 		}
 	}
@@ -481,8 +497,15 @@ func (t *Tx) recheckDomains() error {
 // again: the sweep asks for a week, and a person may at any time (`Verify`).
 func (t *Tx) lapse(d *ent.TenantDomain, failures uint32, since time.Time) error {
 	words := domainWords(d.Purpose)
-	if err := t.begin(nil, "domain.lapse", pdid.Nil, t.now, words+" 사용 중지: "+d.Host,
-		"DNS가 "+t.when(since)+"부터 이 서비스를 가리키지 않거나 TXT 레코드가 없습니다", nil); err != nil {
+	// Why is the deployment's to say, and is what the event holds: no
+	// person's words, which a reason is (payday#151).
+	if err := t.begin(nil, "domain.lapse", pdid.Nil, t.now, "", app.TenantDomainLapsed_builder{
+		Domain:       pdid.Id(d.Id).Bytes(),
+		Host:         d.Host,
+		Purpose:      d.Purpose,
+		FailingSince: ts(since),
+		Failures:     failures,
+	}.Build()); err != nil {
 		return err
 	}
 	if _, err := t.next.TenantDomain().Patch(t.ctx, app.TenantDomainPatchRequest_builder{

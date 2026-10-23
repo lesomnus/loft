@@ -47,12 +47,23 @@ func (s domainEvent) Recent(ctx context.Context, req *app.EventRecentRequest) (*
 	if err != nil {
 		return nil, err
 	}
+	// Each said as it is read (payday#151): a row from before by the words
+	// it was written with, read here with it.
 	out := &app.EventRecentResponse{}
 	names := namer{t: t}
 	for _, v := range vs {
+		if v.Value == nil {
+			names.knows(v.Id, v.Desc, v.Payload)
+		}
+	}
+	r := t.reading(&names)
+	for _, v := range vs {
 		e := v.Proto()
-		e.SetDesc(names.say(v.Desc, v.Payload))
+		e.SetDesc(r.Say(said(v)))
 		out.SetItems(append(out.GetItems(), e))
+	}
+	if err := r.Err(); err != nil {
+		return nil, err
 	}
 	return out, nil
 }

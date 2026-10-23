@@ -67,7 +67,7 @@ func (s domainParty) Add(ctx context.Context, req *app.PartyAddRequest) (*app.Pa
 			return err
 		}
 		out = v
-		return t.begin(nil, "party.add", pdid.Nil, t.now, "추가: {party}", "", map[string]string{"party": idOf(v.GetId()).String()})
+		return t.begin(nil, "party.add", pdid.Nil, t.now, "", app.PartySaved_builder{Party: v.GetId(), Kind: v.GetKind()}.Build())
 	})
 	return out, err
 }
@@ -164,7 +164,7 @@ func (s domainParty) Update(ctx context.Context, req *app.PartyUpdateRequest) (*
 		if len(req.GetLabels()) > 0 {
 			patch.SetLabels(req.GetLabels())
 		}
-		if err := t.begin(nil, "party.update", pdid.Nil, t.now, "수정: {party}", "", map[string]string{"party": idOf(p.GetId()).String()}); err != nil {
+		if err := t.begin(nil, "party.update", pdid.Nil, t.now, "", app.PartySaved_builder{Party: p.GetId()}.Build()); err != nil {
 			return err
 		}
 		out, err = t.next.Party().Patch(t.ctx, patch)
@@ -236,9 +236,11 @@ func (s domainParty) Invite(ctx context.Context, req *app.PartyInviteRequest) (*
 		if err != nil {
 			return err
 		}
-		if err := t.begin(nil, "party.invite", pdid.Nil, t.now, "로그인 발급: {party} ({alias})", "", map[string]string{
-			"role": role, "party": idOf(p.GetId()).String(), "holder": idOf(h.GetId()).String(),
-		}); err != nil {
+		if err := t.begin(nil, "party.invite", pdid.Nil, t.now, "", app.PartyInvited_builder{
+			Party:  p.GetId(),
+			Holder: h.GetId(),
+			Role:   role,
+		}.Build()); err != nil {
 			return err
 		}
 		v, err := t.next.Party().Patch(t.ctx, app.PartyPatchRequest_builder{
@@ -300,9 +302,11 @@ func (s domainParty) SetRole(ctx context.Context, req *app.PartySetRoleRequest) 
 				return failed("마지막 소유자입니다. 먼저 다른 사람을 소유자로 정하세요")
 			}
 		}
-		if err := t.begin(nil, "party.role", pdid.Nil, t.now, "역할 변경: {party} → "+req.GetRole(), "", map[string]string{
-			"role": req.GetRole(), "party": idOf(p.GetId()).String(), "holder": h.String(),
-		}); err != nil {
+		if err := t.begin(nil, "party.role", pdid.Nil, t.now, "", app.PartyRoleSet_builder{
+			Holder: h.Bytes(),
+			Party:  p.GetId(),
+			Role:   req.GetRole(),
+		}.Build()); err != nil {
 			return err
 		}
 		if _, err := t.next.Holder().Patch(t.ctx, app.HolderPatchRequest_builder{
@@ -334,11 +338,13 @@ func (s domainParty) SetPassword(ctx context.Context, req *app.PartySetPasswordR
 	err = s.tx(ctx, func(t *Tx) error {
 		target := t.actor
 		own := true
+		var whose []byte
 		if req.HasRef() {
 			p, err := t.next.Party().Get(t.ctx, app.PartyGetRequest_builder{Ref: req.GetRef()}.Build())
 			if err != nil {
 				return err
 			}
+			whose = p.GetId()
 			if h := idOf(p.GetHolder().GetId()); !h.IsZero() && h != t.actor {
 				target, own = h, false
 			}
@@ -382,7 +388,11 @@ func (s domainParty) SetPassword(ctx context.Context, req *app.PartySetPasswordR
 				return failed("다른 워크스페이스에도 있는 계정이라 여기서 비밀번호를 바꿀 수 없습니다")
 			}
 		}
-		if err := t.begin(nil, "party.password", pdid.Nil, t.now, "비밀번호 변경", "", nil); err != nil {
+		if err := t.begin(nil, "party.password", pdid.Nil, t.now, "", app.PartyPasswordSet_builder{
+			Party:  whose,
+			Holder: target.Bytes(),
+			Own:    own,
+		}.Build()); err != nil {
 			return err
 		}
 		if err := people.SetPassword(t.ctx, account, req.GetPassword()); err != nil {
@@ -425,9 +435,10 @@ func (s domainParty) Deactivate(ctx context.Context, req *app.PartyDeactivateReq
 		if h == t.actor {
 			return failed("자기 로그인은 중지할 수 없습니다")
 		}
-		if err := t.begin(nil, "party.deactivate", pdid.Nil, t.now, "로그인 비활성화: {party}", "", map[string]string{
-			"party": idOf(p.GetId()).String(), "holder": h.String(),
-		}); err != nil {
+		if err := t.begin(nil, "party.deactivate", pdid.Nil, t.now, "", app.PartyDeactivated_builder{
+			Party:  p.GetId(),
+			Holder: h.Bytes(),
+		}.Build()); err != nil {
 			return err
 		}
 		// The record's link to the membership goes below, and with it the
@@ -481,11 +492,7 @@ func (s domainParty) Pseudonymize(ctx context.Context, req *app.PartyPseudonymiz
 
 		// What a hold kept of the trail in the database; what it keeps in
 		// the archive is learnt after the commit, and stays owed.
-		payload := map[string]string{}
-		if held > 0 {
-			payload["held"] = fmt.Sprint(held)
-		}
-		return t.begin(nil, "party.pseudonymize", pdid.Nil, t.now, "개인정보 삭제", "", payload)
+		return t.begin(nil, "party.pseudonymize", pdid.Nil, t.now, "", app.PartyPseudonymized_builder{Held: uint32(held)}.Build())
 	})
 	return out, err
 }
@@ -552,7 +559,11 @@ func (s domainAssetType) Add(ctx context.Context, req *app.AssetTypeAddRequest) 
 		if !row.HasId() {
 			row.SetId(pdid.New(pd.AssetTypeDomain).Bytes())
 		}
-		if err := t.begin(nil, "type.add", pdid.Nil, t.now, "유형 추가: "+row.GetName(), "", nil); err != nil {
+		if err := t.begin(nil, "type.add", pdid.Nil, t.now, "", app.AssetTypeSaved_builder{
+			Type: row.GetId(),
+			Name: row.GetName(),
+			Kind: row.GetKind(),
+		}.Build()); err != nil {
 			return err
 		}
 		v, err := t.next.AssetType().Add(t.ctx, row)
@@ -637,7 +648,7 @@ func (s domainAssetType) Update(ctx context.Context, req *app.AssetTypeUpdateReq
 				patch.SetSchemaVersion(v.GetSchemaVersion() + 1)
 			}
 		}
-		if err := t.begin(nil, "type.update", pdid.Nil, t.now, "유형 수정: "+v.GetName(), "", nil); err != nil {
+		if err := t.begin(nil, "type.update", pdid.Nil, t.now, "", app.AssetTypeSaved_builder{Type: v.GetId(), Name: v.GetName()}.Build()); err != nil {
 			return err
 		}
 		out, err = t.next.AssetType().Patch(t.ctx, patch)
@@ -679,7 +690,11 @@ func (s domainItemModel) Add(ctx context.Context, req *app.ItemModelAddRequest) 
 		if !row.HasId() {
 			row.SetId(pdid.New(pd.ItemModelDomain).Bytes())
 		}
-		if err := t.begin(nil, "model.add", pdid.Nil, t.now, "모델 추가: "+strings.TrimSpace(row.GetMaker()+" "+row.GetName()), "", nil); err != nil {
+		if err := t.begin(nil, "model.add", pdid.Nil, t.now, "", app.ItemModelSaved_builder{
+			Model: row.GetId(),
+			Name:  row.GetName(),
+			Maker: row.GetMaker(),
+		}.Build()); err != nil {
 			return err
 		}
 		v, err := t.next.ItemModel().Add(t.ctx, row)
@@ -717,7 +732,7 @@ func (s domainItemModel) Update(ctx context.Context, req *app.ItemModelUpdateReq
 		if req.HasSpec() {
 			patch.SetSpec(req.GetSpec())
 		}
-		if err := t.begin(nil, "model.update", pdid.Nil, t.now, "모델 수정: "+v.GetName(), "", nil); err != nil {
+		if err := t.begin(nil, "model.update", pdid.Nil, t.now, "", app.ItemModelSaved_builder{Model: v.GetId(), Name: v.GetName()}.Build()); err != nil {
 			return err
 		}
 		out, err = t.next.ItemModel().Patch(t.ctx, patch)

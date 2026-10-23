@@ -17,7 +17,6 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"strings"
 	"time"
 	"uuid"
 
@@ -25,12 +24,14 @@ import (
 	"github.com/lesomnus/payday/audit"
 	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/gate"
+	"github.com/lesomnus/payday/past"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/protobuf-orm/ent/dialect"
 	"github.com/protobuf-orm/protoc-gen-orm-ent/runtime/enttx"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	app "github.com/lesomnus/rove"
@@ -249,7 +250,11 @@ func (s Domain) WithDriver(drv dialect.Driver) (app.Server, error) {
 
 // Tx is one operation in progress.
 type Tx struct {
-	ctx  context.Context
+	ctx context.Context
+	// base is the context the transaction began with: what each event it
+	// begins is begun on ([Tx.begin]), so that a second is part of what the
+	// transaction is part of, as the first is, and not of the first.
+	base context.Context
 	next app.Server
 	db   *ent.Client
 	deps *Deps
@@ -265,13 +270,20 @@ type Tx struct {
 	// and has taken its moment again since ([Tx.holds]).
 	locked bool
 
-	// The event every row written by this operation points at.
-	ev pdid.Id
+	// past is where the operation's event and the facts it writes are
+	// recorded, on its transaction, and what a read of either asks
+	// (payday#151): payday's past, told the time by this operation's clock,
+	// so that its event, its facts and its time rows are of one moment.
+	// Made when a read first asks, for a read outside a transaction
+	// ([Tx.store]).
+	past past.Store
 
-	// cause is the event of the operation this one is part of, when another
-	// operation in the same transaction called it ([Tx.layer]): this one's
-	// event is then a child of that one's (design D34).
-	cause pdid.Id
+	// op is the operation once it has begun ([Tx.begin]): what every row it
+	// writes points at ([Tx.ev]), and what writes its facts. An operation
+	// another one in the same transaction calls is part of that one -- its
+	// event's cause is the caller's (design D34) -- which payday's past reads
+	// off the context the caller began with.
+	op *past.Op
 
 	// win is the tenant's history windows, once something asked.
 	win *retention.Window
@@ -302,22 +314,6 @@ type shared struct {
 
 type sharedKey struct{}
 
-// causeKey is the event of the operation in progress, on the context it calls
-// the operations it is made of with.
-type causeKey struct{}
-
-// causeOf is the event of the operation that called this one, when it is one
-// in the same transaction -- `drv` being one already in it. An operation that
-// begins a transaction of its own is nobody's part, whatever context it was
-// handed: as [sharedOf] says, what the caller did may yet be rolled back.
-func causeOf(ctx context.Context, drv dialect.Driver) pdid.Id {
-	if in, ok := drv.(dialect.InTxDriver); !ok || !in.InTx() {
-		return pdid.Nil
-	}
-	v, _ := ctx.Value(causeKey{}).(pdid.Id)
-	return v
-}
-
 // sharedOf is the transaction's [shared], made by the outermost operation and
 // found on the context by every operation it calls -- `drv` being one already
 // in that transaction. An operation that begins a transaction of its own,
@@ -334,8 +330,10 @@ func sharedOf(ctx context.Context, drv dialect.Driver) (context.Context, *shared
 	return context.WithValue(ctx, sharedKey{}, v), v
 }
 
-// errDone is an operation that already happened: its op was seen before.
-var errDone = errors.New("domain: this operation already happened")
+// errDone is an operation that already happened: its op was seen before. The
+// past's own ([past.ErrDone]), which [Tx.begin] answers as it is, so that a
+// copy refused there and one refused by [Tx.done] read alike.
+var errDone = past.ErrDone
 
 // tx runs `f` as one transaction, for the caller in `ctx`.
 func (s Domain) tx(ctx context.Context, f func(t *Tx) error) error {
@@ -356,15 +354,36 @@ func (s Domain) read(ctx context.Context) (*Tx, error) {
 
 	return &Tx{
 		ctx:    ctx,
+		base:   ctx,
 		next:   s.Next(),
 		db:     ent.NewClient(ent.Driver(s.drv)),
 		deps:   s.deps,
 		drv:    s.drv,
 		actor:  fr.Actor,
 		tenant: fr.Tenant,
-		now:    s.deps.now(),
+		now:    moment(s.deps.now()),
 	}, nil
 }
+
+// store is the past the operation reads: its transaction's, or -- for a read
+// outside one -- the past on the driver this layer was built with, made the
+// first time it is asked.
+func (t *Tx) store() (past.Store, error) {
+	if t.past != nil {
+		return t.past, nil
+	}
+	st, err := pd.Past(t.next, t.drv, t.audit())
+	if err != nil {
+		return nil, err
+	}
+	t.past = past.WithClock(st, func() time.Time { return t.now })
+	return t.past, nil
+}
+
+// moment is a time as the database keeps it, and as payday's past writes one
+// down: in UTC, to the microsecond. An operation's own moment is one, so that
+// what it writes and what it reads back are the same instant.
+func moment(v time.Time) time.Time { return v.UTC().Truncate(time.Microsecond) }
 
 // run is a transaction for an actor in a tenant, over `server`. A deployment's
 // own work passes pdid.Nil as the actor and an ungated server.
@@ -383,20 +402,24 @@ func (d *Deps) run(ctx context.Context, server app.Server, drv dialect.Driver, a
 		return err
 	}
 
-	cause := causeOf(ctx, drv)
 	ctx, sh := sharedOf(ctx, drv)
+	st, err := pd.Past(next, tdrv, d.Audit)
+	if err != nil {
+		return err
+	}
 	t := &Tx{
 		ctx:    ctx,
+		base:   ctx,
 		next:   next,
 		db:     ent.NewClient(ent.Driver(tdrv)),
 		deps:   d,
 		drv:    tdrv,
 		actor:  actor,
 		tenant: tenant,
-		now:    d.now(),
-		cause:  cause,
+		now:    moment(d.now()),
 		shared: sh,
 	}
+	t.past = past.WithClock(st, func() time.Time { return t.now })
 	if err := f(t); err != nil {
 		if errors.Is(err, errDone) {
 			return errDone
@@ -422,7 +445,15 @@ func (d *Deps) run(ctx context.Context, server app.Server, drv dialect.Driver, a
 
 // System runs `f` as the deployment's own work in a tenant: an expired hold,
 // an overdue loan. `server` is the ungated stack.
+//
+// The context is framed as nobody's work in the tenant, unless it is framed in
+// that tenant already -- an invitation's answer is, as the membership it
+// makes: the past reads who did an operation, and where, off the frame
+// (payday#151), and an operator's command or a sweep comes with none.
 func (d *Deps) System(ctx context.Context, server app.Server, drv dialect.Driver, tenant pdid.Id, f func(t *Tx) error) error {
+	if fr, err := gate.Actor(ctx); err != nil || fr.Tenant != tenant {
+		ctx = frame.Into(ctx, frame.New(pdid.Nil, tenant, frame.Grant{}).WithScope(frame.Only(tenant)))
+	}
 	return d.run(ctx, server, drv, pdid.Nil, tenant, f)
 }
 
@@ -442,7 +473,7 @@ func (t *Tx) at(v *timestamppb.Timestamp, field string) (time.Time, error) {
 		return t.now, nil
 	}
 
-	at := v.AsTime()
+	at := moment(v.AsTime())
 	if at.After(t.now.Add(5 * time.Minute)) {
 		return time.Time{}, invalid(field, "미래 시각은 기록할 수 없습니다. 이미 일어난 일을 기록합니다")
 	}
@@ -516,9 +547,19 @@ func (t *Tx) seen(op pdid.Id) error {
 	return nil
 }
 
-// begin records the event this operation is, and answers errDone when `op`
-// names one that already happened.
-func (t *Tx) begin(op []byte, kind string, subject pdid.Id, at time.Time, desc, reason string, payload map[string]string) error {
+// begin records the event this operation is (payday#151): of `kind`, holding
+// `v` -- its kind's message (`rove/past.proto`) -- about `subject`, happened
+// at `at`, for `reason`: the words of whoever asked, and nothing Rove says
+// itself. It answers errDone when `op` names one that already happened.
+//
+// Who did it and in which tenant are the caller's frame, which the past reads
+// for itself; and when the transaction is part of an operation that called
+// this one ([Tx.layer]), the event is part of that. One transaction that
+// records more than one -- a sweep, an account leaving that hands its
+// workspace on -- records each beside the others, none part of another. What
+// the operation writes from then on points at the last ([Tx.ev]), and its
+// facts are its own.
+func (t *Tx) begin(op []byte, kind string, subject pdid.Id, at time.Time, reason string, v proto.Message) error {
 	var id pdid.Id
 	if len(op) > 0 {
 		v, err := pdid.From(op)
@@ -528,71 +569,38 @@ func (t *Tx) begin(op []byte, kind string, subject pdid.Id, at time.Time, desc, 
 		if v.Domain() != pd.EventDomain {
 			return invalid("op", "작업 식별자가 올바르지 않습니다")
 		}
-		if err := t.claim(v); err != nil {
-			return err
-		}
-
 		id = v
 	}
 
-	req := app.EventAddRequest_builder{
-		Tenant:     t.tenantRef(),
-		Kind:       kind,
-		OccurredAt: timestamppb.New(at),
-		Reason:     reason,
-		Desc:       desc,
-		Payload:    encode(payload),
-	}.Build()
-	if !id.IsZero() {
-		req.SetId(id.Bytes())
-	}
-	if !t.actor.IsZero() {
-		req.SetActorId(t.actor.Bytes())
-	}
-	if !subject.IsZero() {
-		req.SetSubjectId(subject.Bytes())
-	}
-	if !t.cause.IsZero() {
-		req.SetCauseId(t.cause.Bytes())
-	}
-
-	v, err := t.next.Event().Add(t.ctx, req)
+	ctx, o, err := past.Begin(t.base, t.past, past.Event{Id: id, Kind: kind, Subject: subject, At: at, Reason: reason, Value: v})
 	if err != nil {
 		return err
 	}
-
-	if t.ev, err = pdid.From(v.GetId()); err != nil {
-		return err
-	}
-	// What this operation calls is part of it.
-	t.ctx = context.WithValue(t.ctx, causeKey{}, t.ev)
+	t.ctx, t.op = ctx, o
 	return nil
 }
 
+// ev is the event every row this operation writes points at: its own, or the
+// child's it is writing for ([Tx.child]). Nothing before it began.
+func (t *Tx) ev() pdid.Id {
+	if t.op == nil {
+		return pdid.Nil
+	}
+	return t.op.Id()
+}
+
 // child records what this operation did to one of the many things it is over,
-// as an event of that thing's own: `subject` its subject and this operation's
-// event its cause (design D34). The rows `f` writes point at it, so that the
-// thing's history holds what happened to it, and the operation's event says
-// what the operation was.
+// as an event of that thing's own -- of `kind`, holding `v` -- `subject` its
+// subject and this operation's event its cause (design D34). The rows `f`
+// writes point at it, and the facts it writes are its, so that the thing's
+// history holds what happened to it, and the operation's event says what the
+// operation was.
 //
 // It is for what an operation writes itself. One it calls through [Tx.layer]
 // records its own event, which is a child of this one's already.
-func (t *Tx) child(kind string, subject pdid.Id, at time.Time, desc, reason string, payload map[string]string, f func() error) error {
-	parent := t.ev
-	req := app.EventAddRequest_builder{
-		Tenant:     t.tenantRef(),
-		Kind:       kind,
-		OccurredAt: timestamppb.New(at),
-		Reason:     reason,
-		Desc:       desc,
-		Payload:    encode(payload),
-		SubjectId:  subject.Bytes(),
-		CauseId:    parent.Bytes(),
-	}.Build()
-	if !t.actor.IsZero() {
-		req.SetActorId(t.actor.Bytes())
-	}
-	v, err := t.next.Event().Add(t.ctx, req)
+func (t *Tx) child(kind string, subject pdid.Id, at time.Time, reason string, v proto.Message, f func() error) error {
+	parent := t.op
+	c, err := parent.Child(t.ctx, past.Event{Kind: kind, Subject: subject, At: at, Reason: reason, Value: v})
 	if err != nil {
 		return err
 	}
@@ -600,12 +608,8 @@ func (t *Tx) child(kind string, subject pdid.Id, at time.Time, desc, reason stri
 		return nil
 	}
 
-	id, err := pdid.From(v.GetId())
-	if err != nil {
-		return err
-	}
-	t.ev = id
-	defer func() { t.ev = parent }()
+	t.op = c
+	defer func() { t.op = parent }()
 	return f()
 }
 
@@ -660,7 +664,7 @@ func (t *Tx) lockTree() error {
 func (t *Tx) holds() {
 	if !t.locked {
 		t.locked = true
-		t.now = t.deps.now()
+		t.now = moment(t.deps.now())
 	}
 }
 
@@ -712,26 +716,6 @@ func minutes(n int32) string {
 // failed is a refusal because of the state things are in.
 func failed(format string, args ...any) error {
 	return status.Errorf(codes.FailedPrecondition, format, args...)
-}
-
-// encode writes a payload as `k=v` lines, sorted, for a person reading it.
-func encode(m map[string]string) string {
-	if len(m) == 0 {
-		return ""
-	}
-
-	ks := sortedKeys(m)
-	b := strings.Builder{}
-	for _, k := range ks {
-		if m[k] == "" {
-			continue
-		}
-		b.WriteString(k)
-		b.WriteString("=")
-		b.WriteString(m[k])
-		b.WriteString("\n")
-	}
-	return strings.TrimSuffix(b.String(), "\n")
 }
 
 // idOf reads an identifier out of bytes, and the zero one out of nothing.

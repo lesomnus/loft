@@ -10,6 +10,7 @@ import (
 	"time"
 	"uuid"
 
+	"github.com/lesomnus/payday/past"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/z"
 	"github.com/protobuf-orm/ent/dialect/sql"
@@ -93,7 +94,11 @@ func (s domainBookable) Add(ctx context.Context, req *app.BookableAddRequest) (*
 		if !row.HasId() {
 			row.SetId(pdid.New(pd.BookableDomain).Bytes())
 		}
-		if err := t.begin(nil, "bookable.add", idOf(a.GetId()), t.now, a.GetTag()+" 예약 가능", "", nil); err != nil {
+		if err := t.begin(nil, "bookable.add", idOf(a.GetId()), t.now, "", app.BookableSaved_builder{
+			Bookable: row.GetId(),
+			Asset:    a.GetId(),
+			Tag:      a.GetTag(),
+		}.Build()); err != nil {
 			return err
 		}
 		out, err = t.next.Bookable().Add(t.ctx, row)
@@ -141,7 +146,10 @@ func (s domainBookable) Update(ctx context.Context, req *app.BookableUpdateReque
 		if u := req.GetUnits(); u > 0 {
 			patch.SetUnits(u)
 		}
-		if err := t.begin(nil, "bookable.update", idOf(v.GetAsset().GetId()), t.now, "예약 정책 변경", "", nil); err != nil {
+		if err := t.begin(nil, "bookable.update", idOf(v.GetAsset().GetId()), t.now, "", app.BookableSaved_builder{
+			Bookable: v.GetId(),
+			Asset:    v.GetAsset().GetId(),
+		}.Build()); err != nil {
 			return err
 		}
 		out, err = t.next.Bookable().Patch(t.ctx, patch)
@@ -544,17 +552,29 @@ func (s domainReservation) Add(ctx context.Context, req *app.ReservationAddReque
 		// it did to that thing is that thing's to show (design D34). The
 		// first thing was the subject of the only event there was, and the
 		// others had none.
-		said := fmt.Sprintf("예약: %s %s", wants[0].r.asset.Name, begins.Format("01-02 15:04"))
-		if err := t.begin(req.GetOp(), "reservation.add", id, t.now, said, req.GetReason(),
-			map[string]string{"state": state, "for": pdid.Id(who.Id).String(), "occurrences": strconv.Itoa(len(occs))}); err != nil {
+		said := func(r *resource) *app.ReservationAdded {
+			return app.ReservationAdded_builder{
+				Reservation: id.Bytes(),
+				Party:       pdid.Id(who.Id).Bytes(),
+				Status:      state,
+				Occurrences: uint32(len(occs)),
+				BeginsAt:    ts(begins),
+				EndsAt:      ts(ends),
+				AssetName:   r.asset.Name,
+				Override:    override,
+			}.Build()
+		}
+		if err := t.begin(req.GetOp(), "reservation.add", id, t.now, req.GetReason(), said(wants[0].r)); err != nil {
 			return err
 		}
-		for _, w := range wants {
-			if err := t.child("reservation.add", pdid.Id(w.r.asset.Id), t.now,
-				fmt.Sprintf("예약: %s %s", w.r.asset.Name, begins.Format("01-02 15:04")), req.GetReason(),
-				map[string]string{"state": state, "for": pdid.Id(who.Id).String(), "reservation": id.String()}, nil); err != nil {
-				return err
-			}
+		kids := make([]past.Child, len(wants))
+		for i, w := range wants {
+			v := said(w.r)
+			v.SetAsset(pdid.Id(w.r.asset.Id).Bytes())
+			kids[i] = past.Child{Event: past.Event{Kind: "reservation.add", Subject: pdid.Id(w.r.asset.Id), Reason: req.GetReason(), Value: v}}
+		}
+		if _, err := t.op.Batch(t.ctx, kids); err != nil {
+			return err
 		}
 
 		var series []byte
@@ -766,8 +786,12 @@ func (s domainReservation) decide(ctx context.Context, req *app.ReservationDecid
 					return err
 				}
 			}
-			if t.ev.IsZero() {
-				if err := t.begin(nil, kind, idOf(r.GetId()), t.now, fmt.Sprintf("예약 %s: %s", to, r.GetName()), req.GetReason(), nil); err != nil {
+			if t.op == nil {
+				if err := t.begin(nil, kind, idOf(r.GetId()), t.now, req.GetReason(), app.ReservationDecided_builder{
+					Reservation: r.GetId(),
+					Name:        r.GetName(),
+					Series:      req.GetSeries(),
+				}.Build()); err != nil {
 					return err
 				}
 			}
@@ -928,7 +952,11 @@ func (s domainReservation) decideTo(ctx context.Context, req *app.ReservationDec
 		if err := check(t, r); err != nil {
 			return err
 		}
-		if err := t.begin(nil, kind, idOf(r.GetId()), t.now, "예약 확정: "+r.GetName(), req.GetReason(), nil); err != nil {
+		if err := t.begin(nil, kind, idOf(r.GetId()), t.now, req.GetReason(), app.ReservationConfirmed_builder{
+			Reservation: r.GetId(),
+			Name:        r.GetName(),
+			Status:      *to,
+		}.Build()); err != nil {
 			return err
 		}
 		patch := app.ReservationPatchRequest_builder{

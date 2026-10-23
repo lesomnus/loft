@@ -11,11 +11,13 @@ import (
 	"time"
 	"uuid"
 
+	"github.com/lesomnus/payday/past"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/z"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/reflect/protoreflect"
 
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/internal/ent"
@@ -189,8 +191,12 @@ func (s domainAsset) Add(ctx context.Context, req *app.AssetAddRequest) (*app.As
 			row.SetSlot("")
 		}
 
-		if err := t.begin(req.GetOp(), "asset.add", id, since,
-			fmt.Sprintf("%s 등록", tag), req.GetReason(), map[string]string{"name": row.GetName(), "kind": row.GetKind()}); err != nil {
+		if err := t.begin(req.GetOp(), "asset.add", id, since, req.GetReason(), app.AssetAdded_builder{
+			Asset: id.Bytes(),
+			Tag:   tag,
+			Name:  row.GetName(),
+			Kind:  row.GetKind(),
+		}.Build()); err != nil {
 			return err
 		}
 
@@ -199,28 +205,9 @@ func (s domainAsset) Add(ctx context.Context, req *app.AssetAddRequest) (*app.As
 			return err
 		}
 
-		facts := map[string]string{
-			"name":      a.GetName(),
-			"status":    a.GetStatus(),
-			"condition": a.GetCondition(),
-			"tag":       a.GetTag(),
-		}
-		if v := a.GetSerial(); v != "" {
-			facts["serial"] = v
-		}
-		if v := a.GetDesc(); v != "" {
-			facts["desc"] = v
-		}
-		if req.HasType() {
-			facts["type"] = idOf(a.GetType().GetId()).String()
-		}
-		if req.HasModel() {
-			facts["model"] = idOf(a.GetModel().GetId()).String()
-		}
-		for k, v := range a.GetAttributes() {
-			facts["attr."+k] = v
-		}
-		if err := t.addFirstFacts(id.Uuid(), facts, since); err != nil {
+		// What it starts as, from when it was: each of its fields that is a
+		// fact of it, in one statement (payday#84).
+		if err := t.op.Set(t.ctx, past.Fact{Subject: id, From: since, Values: past.Changes(nil, assetFacts(a))}); err != nil {
 			return err
 		}
 
@@ -300,7 +287,7 @@ func (s domainAsset) Erase(ctx context.Context, ref *app.AssetRef) (*app.AssetEr
 			return failed("안에 자산이 %d개 있습니다. 먼저 옮기세요", inside)
 		}
 
-		if err := t.begin(nil, "asset.void", id, t.now, fmt.Sprintf("%s 등록 취소", a.GetTag()), "", nil); err != nil {
+		if err := t.begin(nil, "asset.void", id, t.now, "", app.AssetVoided_builder{Asset: id.Bytes(), Tag: a.GetTag()}.Build()); err != nil {
 			return err
 		}
 
@@ -331,13 +318,17 @@ func (s domainAsset) Erase(ctx context.Context, ref *app.AssetRef) (*app.AssetEr
 				return err
 			}
 		}
-		fs, err := t.db.Fact.Query().Where(fact.TenantId(t.tenant.Uuid()), fact.AssetId(id.Uuid()), fact.SupersededAtIsNil()).Ids(t.ctx)
+		// What it was said to be, never: every fact of it that stands,
+		// superseded by nothing.
+		sts, err := past.Facts(t.ctx, t.past, past.FactQuery{Subjects: []pdid.Id{id}})
 		if err != nil {
 			return err
 		}
-		for _, v := range fs {
-			if err := t.supersedeFact(v); err != nil {
-				return err
+		for _, st := range sts {
+			for _, r := range st.Rows {
+				if err := t.op.Retract(t.ctx, r.Id); err != nil {
+					return err
+				}
 			}
 		}
 		if p := idOf(a.GetParentId()); !p.IsZero() {
@@ -407,13 +398,16 @@ func (s domainAsset) Move(ctx context.Context, req *app.AssetMoveRequest) (*app.
 			return err
 		}
 
-		desc := fmt.Sprintf("%s 꺼냄", a.GetTag())
+		moved := app.AssetMoved_builder{Asset: id.Bytes(), Tag: a.GetTag()}.Build()
 		if to != nil {
-			desc = fmt.Sprintf("%s → %s", a.GetTag(), to.GetTag())
+			moved.SetTo(to.GetId())
+			moved.SetToTag(to.GetTag())
+			moved.SetMode(v.mode)
+			moved.SetSlot(v.slot)
+			moved.SetUFrom(v.uFrom)
+			moved.SetUTo(v.uTo)
 		}
-		if err := t.begin(req.GetOp(), "asset.move", id, at, desc, req.GetReason(), map[string]string{
-			"to": or(to.GetTag(), "-"), "mode": req.GetMode(), "slot": req.GetSlot(),
-		}); err != nil {
+		if err := t.begin(req.GetOp(), "asset.move", id, at, req.GetReason(), moved); err != nil {
 			return err
 		}
 		if err := t.writePlacements(id.Uuid(), old, tl); err != nil {
@@ -603,7 +597,7 @@ func (t *Tx) writePlacements(child uuid.UUID, old, tl timeline[place]) error {
 			UFrom:     s.state.uFrom,
 			UTo:       s.state.uTo,
 			ValidFrom: ts(s.from),
-			EventId:   t.ev.Bytes(),
+			EventId:   t.ev().Bytes(),
 			// Known from the moment the rows it replaces stopped being known,
 			// and not from whenever the write reads the clock; see
 			// [Tx.supersedePlacement].
@@ -623,7 +617,7 @@ func (t *Tx) supersedePlacement(id uuid.UUID) error {
 	_, err := t.next.Placement().Patch(t.ctx, app.PlacementPatchRequest_builder{
 		Ref:              app.PlacementRef_builder{Id: pdid.Id(id).Bytes()}.Build(),
 		SupersededAt:     ts(t.now),
-		SupersededBy:     t.ev.Bytes(),
+		SupersededBy:     t.ev().Bytes(),
 		DateUpdatedForce: z.Ptr(true),
 	}.Build())
 	return err
@@ -633,7 +627,7 @@ func (t *Tx) supersedeStewardship(id uuid.UUID) error {
 	_, err := t.next.Stewardship().Patch(t.ctx, app.StewardshipPatchRequest_builder{
 		Ref:              app.StewardshipRef_builder{Id: pdid.Id(id).Bytes()}.Build(),
 		SupersededAt:     ts(t.now),
-		SupersededBy:     t.ev.Bytes(),
+		SupersededBy:     t.ev().Bytes(),
 		DateUpdatedForce: z.Ptr(true),
 	}.Build())
 	return err
@@ -643,17 +637,7 @@ func (t *Tx) supersedeLink(id uuid.UUID) error {
 	_, err := t.next.Link().Patch(t.ctx, app.LinkPatchRequest_builder{
 		Ref:              app.LinkRef_builder{Id: pdid.Id(id).Bytes()}.Build(),
 		SupersededAt:     ts(t.now),
-		SupersededBy:     t.ev.Bytes(),
-		DateUpdatedForce: z.Ptr(true),
-	}.Build())
-	return err
-}
-
-func (t *Tx) supersedeFact(id uuid.UUID) error {
-	_, err := t.next.Fact().Patch(t.ctx, app.FactPatchRequest_builder{
-		Ref:              app.FactRef_builder{Id: pdid.Id(id).Bytes()}.Build(),
-		SupersededAt:     ts(t.now),
-		SupersededBy:     t.ev.Bytes(),
+		SupersededBy:     t.ev().Bytes(),
 		DateUpdatedForce: z.Ptr(true),
 	}.Build())
 	return err
@@ -724,97 +708,56 @@ func (t *Tx) bump(container uuid.UUID) error {
 	return err
 }
 
-// addFact records that `key` is `value` from `at` on, superseding a fact
-// recorded for the same key at the same moment.
+// addFact records that `key` is `value` from `at` on -- or, `cleared`, has
+// none -- as this operation's fact of the asset (payday#151), which supersedes
+// a fact recorded for the same field at the same moment.
 func (t *Tx) addFact(id uuid.UUID, key, value string, cleared bool, at time.Time) error {
-	same, err := t.db.Fact.Query().Where(
-		fact.TenantId(t.tenant.Uuid()),
-		fact.AssetId(id),
-		fact.Key(key),
-		fact.ValidFrom(at),
-		fact.SupersededAtIsNil(),
-	).Ids(t.ctx)
+	v := &value
+	if cleared {
+		v = nil
+	}
+	f, err := valueOf(key, v)
 	if err != nil {
 		return err
 	}
-	for _, v := range same {
-		if err := t.supersedeFact(v); err != nil {
-			return err
-		}
-	}
-
-	return t.writeFact(id, key, value, cleared, at)
+	return t.op.Set(t.ctx, past.Fact{Subject: pdid.Id(id), From: at, Values: []past.Value{f}})
 }
 
-// addFirstFacts is [Tx.addFact] of every key of `facts` for an asset this
-// operation made: nothing was recorded of it before, so there is nothing to
-// supersede or to ask about.
-//
-// One AddMany, in the order of the keys: an asset is made with a fact for each
-// of what it is, and they are one statement rather than one each
-// (payday#84). Each is still the row an Add of it would have been, asked what
-// an Add is.
-func (t *Tx) addFirstFacts(id uuid.UUID, facts map[string]string, at time.Time) error {
-	items := make([]*app.FactAddRequest, 0, len(facts))
-	for _, k := range sortedKeys(facts) {
-		items = append(items, t.factOf(id, k, facts[k], false, at))
-	}
-
-	_, err := t.next.Fact().AddMany(t.ctx, app.FactAddManyRequest_builder{Items: items}.Build())
-	return err
-}
-
-func (t *Tx) writeFact(id uuid.UUID, key, value string, cleared bool, at time.Time) error {
-	_, err := t.next.Fact().Add(t.ctx, t.factOf(id, key, value, cleared, at))
-	return err
-}
-
-// factOf is the request a fact of this operation is written with.
-func (t *Tx) factOf(id uuid.UUID, key, value string, cleared bool, at time.Time) *app.FactAddRequest {
-	return app.FactAddRequest_builder{
-		Tenant:    t.tenantRef(),
-		Asset:     assetRef(id),
-		Key:       key,
-		Value:     value,
-		Cleared:   cleared,
-		ValidFrom: ts(at),
-		EventId:   t.ev.Bytes(),
-		// Known from the moment of the operation, as what it supersedes stops
-		// being; see [Tx.writePlacements].
-		DateCreated: ts(t.now),
-	}.Build()
-}
-
-// factsAt answers every key's value at `at`, by what was recorded by `known`
-// (or by now when it is nil).
+// factsAt answers each asset's facts at `at`, by the keys Rove says them
+// under, by what was recorded by `known` (or by now when it is nil): what
+// payday's past says each was then (`past.StateAt`), as the text each was
+// said in. An asset nothing is known of then is not in it.
 func (t *Tx) factsAt(ids []uuid.UUID, at time.Time, known *time.Time) (map[uuid.UUID]map[string]string, error) {
-	q := t.db.Fact.Query().Where(
-		fact.TenantId(t.tenant.Uuid()),
-		fact.AssetIdIn(ids...),
-		fact.ValidFromLTE(at),
-	)
-	if known == nil {
-		q = q.Where(fact.SupersededAtIsNil())
-	} else {
-		q = q.Where(fact.DateCreatedLTE(*known), fact.Or(fact.SupersededAtIsNil(), fact.SupersededAtGT(*known)))
+	st, err := t.store()
+	if err != nil {
+		return nil, err
 	}
-	rs, err := q.Order(fact.ByValidFrom(), fact.ByDateCreated()).All(t.ctx)
+	subjects := make([]pdid.Id, len(ids))
+	for i, v := range ids {
+		subjects[i] = pdid.Id(v)
+	}
+	states, err := past.StateAt(t.ctx, st, subjects, at, known)
 	if err != nil {
 		return nil, err
 	}
 
 	out := map[uuid.UUID]map[string]string{}
-	for _, r := range rs {
-		m, ok := out[r.AssetId]
-		if !ok {
-			m = map[string]string{}
-			out[r.AssetId] = m
+	for id, v := range states {
+		m := map[string]string{}
+		for slot, r := range v.Values {
+			k, ok := KeyOf(slot)
+			if !ok || r.Withheld() {
+				continue
+			}
+			text, err := textOf(slot, r.Value)
+			if err != nil {
+				return nil, fmt.Errorf("fact %s: %w", r.Id, err)
+			}
+			m[k] = text
 		}
-		if r.Cleared {
-			delete(m, r.Key)
-			continue
+		if len(m) > 0 {
+			out[id.Uuid()] = m
 		}
-		m[r.Key] = r.Value
 	}
 	return out, nil
 }
@@ -899,7 +842,16 @@ func (s domainAsset) SetAttributes(ctx context.Context, req *app.AssetSetAttribu
 			return err
 		}
 
-		if err := t.begin(req.GetOp(), "asset.set", id, at, fmt.Sprintf("%s 속성 변경", a.GetTag()), req.GetReason(), stringsOf(changes)); err != nil {
+		said := app.AssetAttributesSet_builder{Asset: id.Bytes(), Tag: a.GetTag()}.Build()
+		for _, k := range sortedKeys(changes) {
+			key, _ := factKey(k)
+			if changes[k] == nil {
+				said.SetCleared(append(said.GetCleared(), key))
+			} else {
+				said.SetSet(append(said.GetSet(), key))
+			}
+		}
+		if err := t.begin(req.GetOp(), "asset.set", id, at, req.GetReason(), said); err != nil {
 			return err
 		}
 		for _, k := range sortedKeys(changes) {
@@ -935,18 +887,6 @@ func factKey(k string) (string, error) {
 		return "attr." + k, nil
 	}
 	return "", invalid("set", "%q는 자산의 항목이 아닙니다", k)
-}
-
-func stringsOf(m map[string]*string) map[string]string {
-	out := map[string]string{}
-	for k, v := range m {
-		if v == nil {
-			out[k] = "(지움)"
-			continue
-		}
-		out[k] = *v
-	}
-	return out
 }
 
 func idFromString(v string) pdid.Id {
@@ -1047,18 +987,18 @@ func (s domainAsset) Assign(ctx context.Context, req *app.AssetAssignRequest) (*
 		}
 
 		var v *steward
-		who, whom := "-", "-"
+		said := app.AssetAssigned_builder{Asset: id.Bytes(), Tag: a.GetTag(), Role: role}.Build()
 		if req.HasParty() {
 			p, err := t.next.Party().Get(t.ctx, app.PartyGetRequest_builder{Ref: req.GetParty()}.Build())
 			if err != nil {
 				return err
 			}
 			v = &steward{party: uuidOf(p.GetId())}
-			who, whom = "{party}", idOf(p.GetId()).String()
+			said.SetParty(p.GetId())
 		}
 
 		changed, err := t.steward(id.Uuid(), role, at, v, func() error {
-			return t.begin(req.GetOp(), "asset.assign", id, at, fmt.Sprintf("%s %s: %s", a.GetTag(), role, who), req.GetReason(), map[string]string{"role": role, "party": whom})
+			return t.begin(req.GetOp(), "asset.assign", id, at, req.GetReason(), said)
 		})
 		if err != nil {
 			return err
@@ -1098,7 +1038,7 @@ func (t *Tx) steward(id uuid.UUID, role string, at time.Time, v *steward, begin 
 	if !changed {
 		return false, nil
 	}
-	if t.ev.IsZero() {
+	if t.op == nil {
 		if err := begin(); err != nil {
 			return false, err
 		}
@@ -1120,7 +1060,7 @@ func (t *Tx) writeStewards(id uuid.UUID, role string, old, tl timeline[steward])
 			Party:     app.PartyRef_builder{Id: pdid.Id(s.state.party).Bytes()}.Build(),
 			Role:      role,
 			ValidFrom: ts(s.from),
-			EventId:   t.ev.Bytes(),
+			EventId:   t.ev().Bytes(),
 			// See [Tx.writePlacements].
 			DateCreated: ts(t.now),
 		}.Build()
@@ -1196,11 +1136,15 @@ func (s domainAsset) Relate(ctx context.Context, req *app.AssetRelateRequest) (*
 			return nil
 		}
 
-		verb := "연결"
-		if req.GetEnd() {
-			verb = "연결 끝"
-		}
-		if err := t.begin(req.GetOp(), "asset.relate", id, at, fmt.Sprintf("%s %s %s (%s)", a.GetTag(), verb, b.GetTag(), kind), req.GetReason(), map[string]string{"target": b.GetTag(), "kind": kind}); err != nil {
+		if err := t.begin(req.GetOp(), "asset.relate", id, at, req.GetReason(), app.AssetRelated_builder{
+			Asset:     id.Bytes(),
+			Tag:       a.GetTag(),
+			Target:    target.Bytes(),
+			TargetTag: b.GetTag(),
+			Relation:  kind,
+			End:       req.GetEnd(),
+			Required:  v != nil && v.required,
+		}.Build()); err != nil {
 			return err
 		}
 		if err := t.writeLinks(id.Uuid(), target.Uuid(), kind, old, tl); err != nil {
@@ -1246,7 +1190,7 @@ func (t *Tx) writeLinks(source, target uuid.UUID, kind string, old, tl timeline[
 			Kind:      kind,
 			Required:  s.state.required,
 			ValidFrom: ts(s.from),
-			EventId:   t.ev.Bytes(),
+			EventId:   t.ev().Bytes(),
 			// See [Tx.writePlacements].
 			DateCreated: ts(t.now),
 		}.Build()
@@ -1290,8 +1234,21 @@ func (s domainAsset) Correct(ctx context.Context, req *app.AssetCorrectRequest) 
 			return err
 		}
 		row := uuidOf(req.GetRowId())
-		begin := func(what string) error {
-			return t.begin(req.GetOp(), "asset.correct", id, t.now, fmt.Sprintf("%s %s 정정", a.GetTag(), what), req.GetReason(), map[string]string{"row": pdid.Id(row).String()})
+		// What it corrects: the row, and -- of a stewardship and a fact,
+		// whose rows are of more than one sort -- which.
+		begin := func(role, key string) error {
+			said := app.AssetCorrected_builder{
+				Asset:   id.Bytes(),
+				Tag:     a.GetTag(),
+				Row:     pdid.Id(row).Bytes(),
+				Role:    role,
+				Key:     key,
+				Retract: req.GetRetract(),
+			}.Build()
+			if !req.GetRetract() {
+				said.SetValidFrom(ts(when))
+			}
+			return t.begin(req.GetOp(), "asset.correct", id, t.now, req.GetReason(), said)
 		}
 
 		switch pdid.Id(row).Domain() {
@@ -1310,7 +1267,7 @@ func (s domainAsset) Correct(ctx context.Context, req *app.AssetCorrectRequest) 
 			if err := t.checkPlacements(id.Uuid(), tl, old, false); err != nil {
 				return err
 			}
-			if err := begin("배치"); err != nil {
+			if err := begin("", ""); err != nil {
 				return err
 			}
 			if err := t.writePlacements(id.Uuid(), old, tl); err != nil {
@@ -1332,7 +1289,7 @@ func (s domainAsset) Correct(ctx context.Context, req *app.AssetCorrectRequest) 
 			if !req.GetRetract() {
 				tl, _ = tl.set(when, &gone.state)
 			}
-			if err := begin(r.Role); err != nil {
+			if err := begin(r.Role, ""); err != nil {
 				return err
 			}
 			if err := t.writeStewards(id.Uuid(), r.Role, old, tl); err != nil {
@@ -1352,7 +1309,7 @@ func (s domainAsset) Correct(ctx context.Context, req *app.AssetCorrectRequest) 
 			if !req.GetRetract() {
 				tl, _ = tl.set(when, &gone.state)
 			}
-			if err := begin("관계"); err != nil {
+			if err := begin("", ""); err != nil {
 				return err
 			}
 			if err := t.writeLinks(id.Uuid(), r.TargetId, r.Kind, old, tl); err != nil {
@@ -1360,20 +1317,23 @@ func (s domainAsset) Correct(ctx context.Context, req *app.AssetCorrectRequest) 
 			}
 
 		case pd.FactDomain:
-			r, err := t.db.Fact.Query().Where(fact.Id(row), fact.TenantId(t.tenant.Uuid()), fact.AssetId(id.Uuid()), fact.SupersededAtIsNil()).Only(t.ctx)
+			r, err := t.db.Fact.Query().Where(fact.Id(row), fact.TenantId(t.tenant.Uuid()), fact.SubjectId(id.Uuid()), fact.SupersededAtIsNil()).Only(t.ctx)
 			if err != nil {
 				return status.Error(codes.NotFound, "이 자산의 현재 항목 기록이 아닙니다")
 			}
-			if err := begin(r.Key); err != nil {
+			key, _ := KeyOf(past.Slot{Field: protoreflect.FieldNumber(r.FieldNumber), Key: r.Key})
+			if err := begin("", key); err != nil {
 				return err
 			}
-			if err := t.supersedeFact(row); err != nil {
-				return err
+			// Superseded, and -- unless it never held -- said again from
+			// when it did, as this correction's (payday#151).
+			if req.GetRetract() {
+				err = t.op.Retract(t.ctx, pdid.Id(row))
+			} else {
+				err = t.op.Correct(t.ctx, pdid.Id(row), when)
 			}
-			if !req.GetRetract() {
-				if err := t.addFact(id.Uuid(), r.Key, r.Value, r.Cleared, when); err != nil {
-					return err
-				}
+			if err != nil {
+				return err
 			}
 			out, err = t.sync(id.Uuid())
 			return err

@@ -5,11 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"slices"
-	"strconv"
 	"strings"
 	"time"
 	"uuid"
 
+	"github.com/lesomnus/payday/past"
 	"github.com/lesomnus/payday/pderr"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/z"
@@ -618,11 +618,10 @@ func (in *intake) refusal() error {
 func (t *Tx) register(req *app.AssetAddManyRequest, in *intake) (*app.AssetAddManyResponse, error) {
 	op := req.GetOp()
 	n := len(in.rows)
-	if err := t.begin(op, "asset.add_many", pdid.Nil, t.now,
-		fmt.Sprintf("대량 등록: %d개", n), req.GetReason(), map[string]string{"count": strconv.Itoa(n)}); err != nil {
+	if err := t.begin(op, "asset.add_many", pdid.Nil, t.now, req.GetReason(), app.AssetsAdded_builder{Count: uint32(n)}.Build()); err != nil {
 		return nil, err
 	}
-	parent := t.ev
+	parent := t.op
 
 	// The types and models it makes, first: the assets point at them. Each
 	// is made as its own Add makes it, recording its own event, a child of
@@ -647,13 +646,13 @@ func (t *Tx) register(req *app.AssetAddManyRequest, in *intake) (*app.AssetAddMa
 	}
 
 	rows := make([]*app.AssetAddRequest, 0, n)
-	events := make([]*app.EventAddRequest, 0, n)
-	facts := []*app.FactAddRequest{}
 	places := []*app.PlacementAddRequest{}
 	containers := []uuid.UUID{}
 	for i, r := range in.rows {
 		item := r.item
-		ev := made(op, pd.EventDomain, i+1)
+		// Each asset's own event, named after the operation's as the
+		// asset is (`made`).
+		ev := parent.Made(pd.EventDomain, i+1)
 
 		row := app.AssetAddRequest_builder{
 			Tenant:     t.tenantRef(),
@@ -684,46 +683,6 @@ func (t *Tx) register(req *app.AssetAddManyRequest, in *intake) (*app.AssetAddMa
 		}
 		rows = append(rows, row)
 
-		child := app.EventAddRequest_builder{
-			Tenant:     t.tenantRef(),
-			Id:         ev.Bytes(),
-			Kind:       "asset.add",
-			OccurredAt: ts(r.since),
-			Reason:     req.GetReason(),
-			Desc:       fmt.Sprintf("%s 등록", r.tag),
-			Payload:    encode(map[string]string{"name": r.name, "kind": r.kind}),
-			SubjectId:  r.id.Bytes(),
-			CauseId:    parent.Bytes(),
-		}.Build()
-		if !t.actor.IsZero() {
-			child.SetActorId(t.actor.Bytes())
-		}
-		events = append(events, child)
-
-		// What Add starts an asset with, from the same moment, and told by
-		// the asset's own event rather than the operation's.
-		first := map[string]string{"name": r.name, "status": r.status, "condition": r.condition, "tag": r.tag}
-		if v := row.GetSerial(); v != "" {
-			first["serial"] = v
-		}
-		if v := row.GetDesc(); v != "" {
-			first["desc"] = v
-		}
-		if r.typ != nil {
-			first["type"] = pdid.Id(r.typ.id).String()
-		}
-		if r.model != nil {
-			first["model"] = pdid.Id(r.model.id).String()
-		}
-		for k, v := range row.GetAttributes() {
-			first["attr."+k] = v
-		}
-		for _, k := range sortedKeys(first) {
-			f := t.factOf(r.id.Uuid(), k, first[k], false, r.since)
-			f.SetEventId(ev.Bytes())
-			facts = append(facts, f)
-		}
-
 		if r.to != nil {
 			parentId := uuidOf(r.to.GetId())
 			places = append(places, app.PlacementAddRequest_builder{
@@ -742,13 +701,11 @@ func (t *Tx) register(req *app.AssetAddManyRequest, in *intake) (*app.AssetAddMa
 		}
 	}
 
-	// Events first, then the assets they are about, and then what points at
-	// the assets: the order a single Add writes in.
-	for lo := 0; lo < len(events); lo += bare.EventAddManyMax {
-		if _, err := t.next.Event().AddMany(t.ctx, app.EventAddManyRequest_builder{Items: events[lo:min(lo+bare.EventAddManyMax, len(events))]}.Build()); err != nil {
-			return nil, err
-		}
-	}
+	// The assets first, and then what is about them: each one's event, a
+	// child of the operation's, with the facts it starts with from when it
+	// was -- what Add starts one with, told by the asset's own event (D34) --
+	// and then where it is. The past holds a fact to a subject there is a row
+	// of, so the assets are there before it is asked.
 	out := make([]*app.Asset, 0, n)
 	for lo := 0; lo < len(rows); lo += bare.AssetAddManyMax {
 		vs, err := t.next.Asset().AddMany(t.ctx, app.AssetAddManyRequest_builder{Items: rows[lo:min(lo+bare.AssetAddManyMax, len(rows))]}.Build())
@@ -757,10 +714,30 @@ func (t *Tx) register(req *app.AssetAddManyRequest, in *intake) (*app.AssetAddMa
 		}
 		out = append(out, vs.GetItems()...)
 	}
-	for lo := 0; lo < len(facts); lo += bare.FactAddManyMax {
-		if _, err := t.next.Fact().AddMany(t.ctx, app.FactAddManyRequest_builder{Items: facts[lo:min(lo+bare.FactAddManyMax, len(facts))]}.Build()); err != nil {
-			return nil, err
+	answered := map[uuid.UUID]*app.Asset{}
+	for _, v := range out {
+		answered[uuidOf(v.GetId())] = v
+	}
+	kids := make([]past.Child, n)
+	for i, r := range in.rows {
+		a, ok := answered[r.id.Uuid()]
+		if !ok {
+			return nil, status.Errorf(codes.Internal, "domain: %s was added and not answered", r.tag)
 		}
+		kids[i] = past.Child{
+			Event: past.Event{
+				Id:      parent.Made(pd.EventDomain, i+1),
+				Kind:    "asset.add",
+				Subject: r.id,
+				At:      r.since,
+				Reason:  req.GetReason(),
+				Value:   app.AssetAdded_builder{Asset: r.id.Bytes(), Tag: r.tag, Name: r.name, Kind: r.kind}.Build(),
+			},
+			Facts: []past.Fact{{Subject: r.id, From: r.since, Values: past.Changes(nil, assetFacts(a))}},
+		}
+	}
+	if _, err := parent.Batch(t.ctx, kids); err != nil {
+		return nil, err
 	}
 	for lo := 0; lo < len(places); lo += bare.PlacementAddManyMax {
 		if _, err := t.next.Placement().AddMany(t.ctx, app.PlacementAddManyRequest_builder{Items: places[lo:min(lo+bare.PlacementAddManyMax, len(places))]}.Build()); err != nil {
@@ -777,7 +754,7 @@ func (t *Tx) register(req *app.AssetAddManyRequest, in *intake) (*app.AssetAddMa
 
 	res := in.answer()
 	res.SetItems(out)
-	res.SetEventId(parent.Bytes())
+	res.SetEventId(parent.Id().Bytes())
 	return res, nil
 }
 

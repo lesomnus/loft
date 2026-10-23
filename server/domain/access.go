@@ -311,12 +311,15 @@ func (s domainAccessReview) Add(ctx context.Context, req *app.AccessReviewAddReq
 		}
 
 		desc := strings.TrimSpace(req.GetDesc())
-		period := fmt.Sprintf("%s – %s", from.In(t.zone()).Format("2006-01-02"), to.Add(-time.Nanosecond).In(t.zone()).Format("2006-01-02"))
 		id := pdid.New(pd.AccessReviewDomain)
-		if err := t.begin(nil, "access.review", pdid.Nil, t.now,
-			fmt.Sprintf("접속기록 점검: %s, 호출 %d건 (내려받기 %d건, 거부 %d건)", period, calls, downloads, refused), desc,
-			map[string]string{"from": from.UTC().Format(time.RFC3339), "to": to.UTC().Format(time.RFC3339)},
-		); err != nil {
+		if err := t.begin(nil, "access.review", pdid.Nil, t.now, desc, app.AccessReviewed_builder{
+			Review:    id.Bytes(),
+			From:      ts(from),
+			To:        ts(to),
+			Calls:     calls,
+			Downloads: downloads,
+			Refused:   refused,
+		}.Build()); err != nil {
 			return err
 		}
 		out, err = t.next.AccessReview().Add(t.ctx, app.AccessReviewAddRequest_builder{
