@@ -8,12 +8,13 @@ import (
 	"time"
 
 	"github.com/lesomnus/payday/pdid"
-	"google.golang.org/protobuf/types/known/timestamppb"
+	"google.golang.org/protobuf/encoding/protojson"
 
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/internal/ent/holder"
 	"github.com/lesomnus/rove/internal/ent/party"
+	"github.com/lesomnus/rove/server/pd"
 )
 
 func (e *env) events() map[string]string {
@@ -126,12 +127,15 @@ func TestTheHistoryNamesPeopleAsTheyAreNow(t *testing.T) {
 	rows, err := e.s.Ent.Event.Query().All(ctx)
 	x.NoError(err)
 	x.True(slices.ContainsFunc(rows, func(r *ent.Event) bool {
-		return r.Kind == "reservation.add" && strings.Contains(r.Payload, "for="+idOf(kim.GetId()).String())
+		return r.Kind == "reservation.add" && r.CauseId == nil && sameId(value[*app.ReservationAdded](e, r).GetParty(), kim.GetId())
 	}), "a reservation keeps who it is for by identifier")
 	for _, r := range rows {
+		x.NotNil(r.Value, "%s keeps no message", r.Kind)
+		x.Empty(r.Desc, "%s keeps a sentence", r.Kind)
+		x.Empty(r.Payload, "%s keeps a payload", r.Kind)
+		held := protojson.Format(r.Value)
 		for _, said := range []string{name, "김 대리", alias, lee.GetName()} {
-			x.NotContains(r.Desc, said, "an event row named them: %s", r.Kind)
-			x.NotContains(r.Payload, said, "an event row named them: %s", r.Kind)
+			x.NotContains(held, said, "an event row named them: %s", r.Kind)
 		}
 	}
 }
@@ -147,16 +151,24 @@ func TestAnEventWrittenWithNamesReadsAsWritten(t *testing.T) {
 	ctx := context.Background()
 
 	laptop := e.item("노트북", "NB-1", nil, 24*time.Hour)
+	// As one from before Rove's events were payday's past was written: no
+	// message, its sentence and what it named beside it. Beneath the
+	// servers, which write the past's rows only as the past says them.
 	add := func(kind, desc, payload string, subject []byte) {
-		_, err := e.s.Base.Event().Add(ctx, app.EventAddRequest_builder{
-			Tenant:     app.TenantRef_builder{Id: e.tenant.Bytes()}.Build(),
-			Kind:       kind,
-			Desc:       desc,
-			Payload:    payload,
-			OccurredAt: timestamppb.New(e.now),
-			SubjectId:  subject,
-		}.Build())
-		x.NoError(err)
+		q := e.s.Ent.Event.Create().
+			SetId(pdid.New(pd.EventDomain).Uuid()).
+			SetTenantId(e.tenant.Uuid()).
+			SetKind(kind).
+			SetDesc(desc).
+			SetPayload(payload).
+			SetReason("").
+			SetOccurredAt(e.now).
+			SetDateCreated(e.now).
+			SetDateUpdated(e.now)
+		if subject != nil {
+			q.SetSubjectId(idUUID(subject))
+		}
+		x.NoError(q.Exec(ctx))
 	}
 	add("party.role", "역할 변경: Kim → admin", "", nil)
 	add("party.update", "수정: {party}", "party=Kim", nil)

@@ -77,7 +77,7 @@ func TestWhatAnOperationCallsIsItsChild(t *testing.T) {
 		x.NotNil(mine, "%s has no event of its own", a.GetTag())
 		x.Equal("asset.add", mine.Kind, "the kind a registration of one is")
 
-		fs, err := e.s.Ent.Fact.Query().Where(fact.AssetId(id)).All(context.Background())
+		fs, err := e.s.Ent.Fact.Query().Where(fact.SubjectId(id)).All(context.Background())
 		x.NoError(err)
 		x.NotEmpty(fs)
 		for _, f := range fs {

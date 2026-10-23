@@ -15,6 +15,7 @@ import (
 
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/internal/ent"
+	"github.com/lesomnus/rove/server/domain"
 	"github.com/lesomnus/rove/server/pd"
 )
 
@@ -79,9 +80,14 @@ func TestAThousandThingsAtAMomentAnswerInASecond(t *testing.T) {
 			c.SetParentId(*parent).SetPlacementMode("located")
 		}
 		assets = append(assets, c)
+		// Each as payday's past keeps it: the asset's field, and its
+		// value's canonical JSON (payday#151).
 		for k, v := range map[string]string{"name": tag, "status": "active", "condition": "good", "tag": tag} {
-			facts = append(facts, e.s.Ent.Fact.Create().SetId(pdid.New(pd.FactDomain).Uuid()).SetTenantId(tenant).SetAssetId(id).
-				SetKey(k).SetValue(v).SetCleared(false).SetValidFrom(since).SetEventId(ev).SetDateUpdated(since).SetDateCreated(since))
+			field, key, value, err := domain.LegacyFact(k, v, false)
+			x.NoError(err)
+			facts = append(facts, e.s.Ent.Fact.Create().SetId(pdid.New(pd.FactDomain).Uuid()).SetTenantId(tenant).SetSubjectId(id).
+				SetDomain(uint32(pd.AssetDomain)).SetFieldNumber(uint32(field)).SetKey(key).SetValue(value).
+				SetValidFrom(since).SetEventId(ev).SetDateUpdated(since).SetDateCreated(since))
 		}
 		return id
 	}

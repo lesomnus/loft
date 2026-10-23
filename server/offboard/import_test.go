@@ -11,6 +11,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"io"
 	"math"
 	"slices"
@@ -18,6 +19,7 @@ import (
 	"time"
 
 	"github.com/lesomnus/payday/frame"
+	"github.com/lesomnus/payday/past"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/trail"
 	"github.com/lesomnus/z"
@@ -26,6 +28,7 @@ import (
 
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/cmd"
+	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/internal/ent/aliashold"
 	"github.com/lesomnus/rove/internal/ent/event"
 	"github.com/lesomnus/rove/internal/ent/holder"
@@ -72,6 +75,15 @@ func (e *env) rows(t pdid.Id) map[string][]string {
 		slices.Sort(out[k])
 	}
 	return out
+}
+
+// imported is what a restore's event holds (payday#151).
+func imported(t *testing.T, ev *ent.Event) *app.WorkspaceImported {
+	t.Helper()
+	require.NotNil(t, ev.Value, "the restore's event holds no message")
+	v := &app.WorkspaceImported{}
+	require.NoError(t, ev.Value.UnmarshalTo(v))
+	return v
 }
 
 func (e *env) tenantRow(t pdid.Id) *app.Tenant {
@@ -128,8 +140,10 @@ func TestARestoreIsTheWorkspaceAsItWasExported(t *testing.T) {
 	ev, err := e.s.Ent.Event.Query().Where(event.TenantId(acme.id.Uuid()), event.Kind("workspace.import")).Only(ctx)
 	x.NoError(err)
 	x.Nil(ev.ActorId, "somebody in the workspace did it")
-	x.Contains(ev.Desc, "워크스페이스 복구")
-	x.Contains(ev.Payload, "rows=")
+	said := imported(t, ev)
+	x.Positive(said.GetRows())
+	x.Equal(fmt.Sprintf("워크스페이스 복구 (운영자): %s 내보내기에서", said.GetExportedAt().AsTime().Format(time.DateOnly)),
+		domain.Sentences.Read(ctx, nil, "ko", time.UTC).Say(past.EventRow{Id: pdid.Id(ev.Id), Kind: ev.Kind, Value: ev.Value}))
 
 	// It names the export it came from, which holds the trail it does not
 	// put back: by its manifest, and by the key that signed it.
@@ -143,8 +157,8 @@ func TestARestoreIsTheWorkspaceAsItWasExported(t *testing.T) {
 	der, err := x509.MarshalPKIXPublicKey(e.s.Offboard(e.c).Trusted()[0])
 	x.NoError(err)
 	ms, ks := sha256.Sum256(mb), sha256.Sum256(der)
-	x.Contains(ev.Payload, "manifest=sha256:"+hex.EncodeToString(ms[:]))
-	x.Contains(ev.Payload, "signed_by=sha256:"+hex.EncodeToString(ks[:]))
+	x.Equal("sha256:"+hex.EncodeToString(ms[:]), said.GetManifest())
+	x.Equal("sha256:"+hex.EncodeToString(ks[:]), said.GetSignedBy())
 	x.Equal("sha256:"+hex.EncodeToString(ms[:]), got.Manifest)
 
 	// And it is a workspace: its owner reads its register through the wall.
@@ -261,7 +275,7 @@ func TestARestoreLeavesBehindWhatThisBuildDropped(t *testing.T) {
 
 	ev, err := e.s.Ent.Event.Query().Where(event.TenantId(acme.id.Uuid()), event.Kind("workspace.import")).Only(ctx)
 	x.NoError(err)
-	x.Contains(ev.Payload, "left=usagesnapshot:2")
+	x.Equal(map[string]uint32{"usagesnapshot": 2}, imported(t, ev).GetLeft())
 }
 
 // TestARestoreTakesOnlyWhatTheDeploymentWrote: an export with no signature,
@@ -432,7 +446,7 @@ func TestAClosedWorkspaceIsRestoredOpen(t *testing.T) {
 
 	ev, err := e.s.Ent.Event.Query().Where(event.TenantId(acme.id.Uuid()), event.Kind("workspace.import")).Only(ctx)
 	x.NoError(err)
-	x.Contains(ev.Payload, "reopened=true")
+	x.True(imported(t, ev).GetReopened())
 }
 
 // TestAMemberIsRestoredWithTheAccountThisRosterHas: a member keeps an account
@@ -485,7 +499,7 @@ func TestAMemberIsRestoredWithTheAccountThisRosterHas(t *testing.T) {
 
 		ev, err := e.s.Ent.Event.Query().Where(event.TenantId(acme.id.Uuid()), event.Kind("workspace.import")).Only(ctx)
 		x.NoError(err)
-		x.Contains(ev.Payload, "unlinked=1")
+		x.Equal(uint32(1), imported(t, ev).GetUnlinked())
 	})
 }
 

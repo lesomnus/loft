@@ -71,7 +71,8 @@ func TestABulkRegistrationIsOneOperation(t *testing.T) {
 	parent := ops[0]
 	x.Nil(parent.CauseId)
 	x.Equal(idUUID(op), parent.Id, "the operation's event is its op")
-	x.Equal("대량 등록: 3개", parent.Desc)
+	x.Equal("대량 등록: 3개", e.say(parent))
+	x.Equal(uint32(3), value[*app.AssetsAdded](e, parent).GetCount())
 	x.Equal("10월 입고", parent.Reason)
 
 	kids, err := e.s.Ent.Event.Query().Where(event.CauseId(parent.Id)).All(context.Background())
@@ -88,8 +89,9 @@ func TestABulkRegistrationIsOneOperation(t *testing.T) {
 		for _, k := range kids {
 			if k.SubjectId != nil && *k.SubjectId == id {
 				x.Empty(mine, "two events of %s's own", a.GetTag())
-				mine = k.Desc
-				fs, err := e.s.Ent.Fact.Query().Where(fact.AssetId(id)).All(context.Background())
+				mine = e.say(k)
+				x.Equal(a.GetTag(), value[*app.AssetAdded](e, k).GetTag())
+				fs, err := e.s.Ent.Fact.Query().Where(fact.SubjectId(id)).All(context.Background())
 				x.NoError(err)
 				x.NotEmpty(fs)
 				for _, f := range fs {
