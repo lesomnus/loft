@@ -17,6 +17,7 @@ import { from, newId, parse } from '@lesomnus/payday/pdid'
 import { IDENTITY_HEADER } from '@lesomnus/payday/query'
 
 import { EventDomain } from '../gen/domains.js'
+import { events } from '../gen/events.js'
 import { unreachable } from './offline.js'
 
 import { AllocationService, BookableService, ReservationService } from '../gen/rove/booking_svc_pb.js'
@@ -105,8 +106,20 @@ const asCaller: Interceptor = (next) => async (req) => {
 	return next(req)
 }
 
-/** The app answers on the page's own origin: served by it, or through Vite's proxy. */
-export const transport = createConnectTransport({ baseUrl: location.origin, interceptors: [inWorkspace, asCaller] })
+/**
+ * The app answers on the page's own origin: served by it, or through Vite's
+ * proxy.
+ *
+ * It reads with the messages payday's events hold (`gen/events.ts`): an event
+ * keeps its value as an `Any`, which JSON names by its type and protobuf-es
+ * reads only with that type registered, so without them a list of events with
+ * a value in one fails whole. Empty while Rove declares no past of payday's.
+ */
+export const transport = createConnectTransport({
+	baseUrl: location.origin,
+	interceptors: [inWorkspace, asCaller],
+	jsonOptions: { registry: events },
+})
 
 /** A workspace an account is in, as `GET /account` answers it. */
 export interface Workspace {
