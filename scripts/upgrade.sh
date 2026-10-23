@@ -18,6 +18,10 @@
 # one the trail's rows are digested with, and the one the trail is signed
 # with, which signs an export too.
 #
+# A migration says what it rewrote, as the move of an asset's facts into
+# payday's past does (payday#151), and what it put on the trail of it: the
+# same rows, every one. A second has nothing to rewrite.
+#
 #   scripts/upgrade.sh BEFORE NOW
 set -eu
 
@@ -67,11 +71,28 @@ check() {
 		run "$log" "$before" contract set --tenant acme --name before
 	fi
 	run "$log" "$now" migrate
-	# And once more: nothing is left that the first did not do.
-	if ! "$now" migrate 2>&1 | grep -q "in this build's shape"; then
-		echo "upgrade: $1: a second migration still had something to do" >&2
+	moved=$(sed -n "s/^the assets' facts moved into payday's past: \([0-9]*\) rewritten, \([0-9]*\) put on the trail\$/\1 \2/p" "$log")
+	if [ -n "$moved" ] && [ "${moved% *}" != "${moved#* }" ]; then
+		echo "upgrade: $1: the migration rewrote ${moved% *} facts and put ${moved#* } of them on the trail" >&2
 		exit 1
 	fi
+	# And once more: nothing is left that the first did not do.
+	if ! again=$("$now" migrate 2>&1); then
+		echo "upgrade: $1: a second migration failed" >&2
+		echo "$again" | tail -n 20 >&2
+		exit 1
+	fi
+	case $again in
+	*"moved into payday's past"*)
+		echo "upgrade: $1: a second migration rewrote facts again" >&2
+		exit 1
+		;;
+	*"in this build's shape"*) ;;
+	*)
+		echo "upgrade: $1: a second migration still had something to do" >&2
+		exit 1
+		;;
+	esac
 	run "$log" "$now" contract show --tenant acme
 	if ! grep -q "history: kept $keep" "$log"; then
 		echo "upgrade: $1: the workspace does not keep its history for $keep, as its contract said" >&2
@@ -84,7 +105,7 @@ check() {
 	run "$log" "$now" retention plan --tenant acme
 	run "$log" "$now" tenant export --tenant acme --out "$dir/$1.zip"
 	run "$log" "$now" tenant verify --file "$dir/$1.zip"
-	echo "upgrade: $1: what the build before made is in this build's shape, and what the trail says of it"
+	echo "upgrade: $1: what the build before made is in this build's shape, and what the trail says of it${moved:+ (${moved% *} facts moved into payday's past)}"
 }
 
 mkdir -p "$dir/sqlite"

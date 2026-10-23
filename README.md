@@ -331,6 +331,14 @@ PostgreSQL이면 서버를 여러 대 띄울 수 있습니다. 상태는 데이�
 
 운영에서는 서버가 테이블을 직접 바꾸지 않습니다(`db.migrate: false`). 새 빌드를 띄우기 전에 `rove migrate`로 테이블을 맞추고, 모양이 다르면 `serve`는 시작하지 않습니다.
 
+**작업 기록과 자산의 사실을 payday의 과거로 옮기는 버전(payday#151)은 되돌릴 수 없습니다.** 그 `rove migrate`는 Rove 자신의 Fact 표를 payday의 모양으로 한 번 옮기고(`the assets' facts moved into payday's past: N rewritten, N put on the trail`), 그 전 빌드는 새 표를 읽지 못합니다.
+
+- 올리기 전에 DB를 백업합니다(`pg_dump`, [백업과 복구](docs/runbook/restore.md)). 이 버전을 넘는 `rollout undo`는 하지 않습니다. 되돌리려면 백업에서 되살립니다.
+- 옮긴 행을 감사 기록에 남기므로 마이그레이션에 다이제스트 키가 필요합니다(`audit.digest.key`). Kubernetes의 `migrate` 컨테이너는 `digest.key`만 마운트합니다. 옮길 사실이 없는 DB는 키를 읽지 않습니다.
+- 과거가 쓸 수 없는 사실(자산의 필드가 아닌 키, ID로 읽히지 않는 유형·모델, UTF-8이 아닌 글)이 있으면 종류별 건수와 함께 멈추고 아무것도 옮기지 않습니다. 옆에 둔 표(`rove_fact_aside`)를 고친 뒤 다시 실행하면 이어서 옮깁니다.
+- 올린 뒤 `rove trail rows`는 그 전에 쓴 작업 기록을 `N rows from before seals`로 셉니다. 작업 기록의 사유(`reason`)가 이제 개인정보로 선언되어 봉인되기 때문입니다. 살펴본 뒤 `rows --accept --of <다이제스트> --why "사유가 개인정보가 되기 전의 작업 기록 (payday#151)"`을 한 번 실행합니다.
+- 새 작업 기록은 문장을 갖지 않고 종류의 메시지를 갖습니다. 문장은 읽을 때 만들고, 그 전 기록은 쓴 문장 그대로 읽힙니다. 유형과 모델의 사실은 소문자 정규 ID로 읽힙니다.
+
 **운영자 명령이 말하는 날짜는 UTC입니다.** `rove`의 운영자 명령(`tenant`, `contract`, `retention`, `trail`, `access` 등)과 `rove-admin`이 말하는 날짜와 시각은 셸의 시간대와 상관없이 UTC입니다. `--effective 2027-01-01`처럼 주는 날짜도 UTC의 그날입니다. 워크스페이스의 사람이 앱에서 읽는 날짜는 그 워크스페이스의 시간대를 따릅니다(#144).
 
 Kubernetes에 띄우는 참조 배포는 [`deploy/k8s`](deploy/k8s/README.md)입니다. 무엇을 백업하고 어떤 순서로 되살리는지는 [백업과 복구](docs/runbook/restore.md)에 있습니다.
@@ -584,7 +592,7 @@ go run ./cmd/rove trail verify                                                 #
 - 감사 기록에서 뺀 종류는 매번 `not checked:` 줄로 무엇을 읽지 않았는지 알려 줍니다.
 - 다른 키로 검사하거나 키 없이 쓰던 배포를 검사하면, 통과하지 않고 모든 행을 찾아냅니다. 키를 둔 때(`audit.digest.since`)와 버린 키(`audit.digest.retired`)를 적으면 그 행들은 찾지 않고 셉니다.
 - Rove가 서버를 거치지 않고 일부러 쓰거나 지우는 행은 그 일을 한 행위로 감사 기록에 남깁니다. 그래서 찾을 것이 아닙니다.
-  - 쓰는 것: 워크스페이스 복구(`tenant import`)가 되살린 행과 그때 되찾은 주소 보류, 알림 메일 발송, 운영자가 앞당겨 푼 주소 보류, 개인정보 삭제가 바꾼 구성원의 이름
+  - 쓰는 것: 워크스페이스 복구(`tenant import`)가 되살린 행과 그때 되찾은 주소 보류, 알림 메일 발송, 운영자가 앞당겨 푼 주소 보류, 개인정보 삭제가 바꾼 구성원의 이름, 마이그레이션이 payday의 과거로 옮긴 자산의 사실(`rove.migrate.facts`)
   - 지우는 것(`pd.RecordErased`): 보존 기간이 지난 이력, 터미널 로그인
   - 워크스페이스 파기: purge는 그 워크스페이스의 감사 기록도 함께 파기하므로 남길 것이 없습니다. retire는 지운 행마다 지웠다는 기록(`rove.workspace.retire`)을 남기고, 바닥값이 걸린 종류의 것만 그 감사 기록과 함께 남습니다.
 - 서버가 쓰지 않는 종류는 스키마에 둘 중 하나를 적습니다. 적지 않으면 생성(`pd gen`)이 거부합니다.
