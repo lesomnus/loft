@@ -153,8 +153,8 @@ jobs:
       - name: this build, the one it comes after, and the oldest a deployment runs
         env:
           BEFORE: ${{ github.event.pull_request.base.sha || github.event.before }}
-          # Staging's (rove#99), a11e37d.
-          OLDEST: a11e37de920a67c5e36da74382173941dc6c303a
+          # Staging's (rove#99), 6fda549.
+          OLDEST: 6fda549dd01dcc1d30b76373b4c38589c01681ee
         run: |
           go build -o "${RUNNER_TEMP}/rove-now" ./cmd/rove
           git worktree add --detach "${RUNNER_TEMP}/before" "${BEFORE}"
