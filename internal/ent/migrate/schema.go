@@ -1151,6 +1151,16 @@ var (
 				Unique:  false,
 				Columns: []*schema.Column{LinkColumns[13], LinkColumns[6]},
 			},
+			{
+				Name:    "link_event",
+				Unique:  false,
+				Columns: []*schema.Column{LinkColumns[8]},
+			},
+			{
+				Name:    "link_superseded",
+				Unique:  false,
+				Columns: []*schema.Column{LinkColumns[10]},
+			},
 		},
 	}
 	// NotificationColumns holds the columns for the "notification" table.
@@ -1357,6 +1367,16 @@ var (
 				Name:    "placement_parent",
 				Unique:  false,
 				Columns: []*schema.Column{PlacementColumns[14], PlacementColumns[7]},
+			},
+			{
+				Name:    "placement_event",
+				Unique:  false,
+				Columns: []*schema.Column{PlacementColumns[9]},
+			},
+			{
+				Name:    "placement_superseded",
+				Unique:  false,
+				Columns: []*schema.Column{PlacementColumns[11]},
 			},
 		},
 	}
@@ -1708,6 +1728,16 @@ var (
 				Unique:  false,
 				Columns: []*schema.Column{StewardshipColumns[11], StewardshipColumns[4]},
 			},
+			{
+				Name:    "stewardship_event",
+				Unique:  false,
+				Columns: []*schema.Column{StewardshipColumns[6]},
+			},
+			{
+				Name:    "stewardship_superseded",
+				Unique:  false,
+				Columns: []*schema.Column{StewardshipColumns[8]},
+			},
 		},
 	}
 	// StockColumns holds the columns for the "stock" table.
@@ -1806,6 +1836,11 @@ var (
 				Name:    "stockmovement_stock",
 				Unique:  false,
 				Columns: []*schema.Column{StockmovementColumns[10], StockmovementColumns[4]},
+			},
+			{
+				Name:    "stockmovement_event",
+				Unique:  false,
+				Columns: []*schema.Column{StockmovementColumns[7]},
 			},
 		},
 	}

@@ -116,7 +116,16 @@ func (t *Tx) lockStocks(ids ...uuid.UUID) error {
 
 // moveStock changes a stock by `delta` and writes the movement, refusing to go
 // below zero and telling the managers when it falls to its threshold.
+//
+// It is part of an operation that has begun, whose event the movement points
+// at: every one that moves stock records its own first, saying what it was --
+// a receipt, a hand-over, a transfer -- and a movement outside one is a
+// mistake here, refused before anything is written.
 func (t *Tx) moveStock(st *app.Stock, delta int64, reason string, ref pdid.Id, at time.Time) error {
+	if t.ev.IsZero() {
+		return status.Errorf(codes.Internal, "domain: stock moved (%s) outside an operation, which records no event for it", reason)
+	}
+
 	// The row's lock before its quantity is read, so that two changes at once
 	// land one after the other, each from what the last left, rather than both
 	// from the same quantity and the second writing over the first. A plain
@@ -142,11 +151,6 @@ func (t *Tx) moveStock(st *app.Stock, delta int64, reason string, ref pdid.Id, a
 		DateUpdatedForce: z.Ptr(true),
 	}.Build()); err != nil {
 		return err
-	}
-	if t.ev.IsZero() {
-		if err := t.begin(nil, "stock."+reason, pdid.Nil, at, fmt.Sprintf("재고 %s: %s %+d", reason, cur.Name, delta), "", nil); err != nil {
-			return err
-		}
 	}
 	req := app.StockMovementAddRequest_builder{
 		Tenant:     t.tenantRef(),

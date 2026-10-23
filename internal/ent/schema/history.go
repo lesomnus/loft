@@ -78,6 +78,10 @@ func (Placement) Indexes() []ent.Index {
 			StorageKey("placement_child"),
 		index.Fields("parent_id", "valid_from").
 			StorageKey("placement_parent"),
+		index.Fields("event_id").
+			StorageKey("placement_event"),
+		index.Fields("superseded_by").
+			StorageKey("placement_superseded"),
 	}
 }
 
@@ -153,6 +157,10 @@ func (Link) Indexes() []ent.Index {
 			StorageKey("link_source"),
 		index.Fields("target_id", "valid_from").
 			StorageKey("link_target"),
+		index.Fields("event_id").
+			StorageKey("link_event"),
+		index.Fields("superseded_by").
+			StorageKey("link_superseded"),
 	}
 }
 
@@ -225,6 +233,10 @@ func (Stewardship) Indexes() []ent.Index {
 			StorageKey("stewardship_asset"),
 		index.Fields("party_id", "valid_from").
 			StorageKey("stewardship_party"),
+		index.Fields("event_id").
+			StorageKey("stewardship_event"),
+		index.Fields("superseded_by").
+			StorageKey("stewardship_superseded"),
 	}
 }
 

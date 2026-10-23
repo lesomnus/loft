@@ -16,9 +16,12 @@ import (
 // (`serve`). The roster in this process brings its own database along as it
 // opens.
 //
-// It opens the databases and nothing else (`cmd.Open`): no files, no trail,
-// no key. So it runs where a server could not -- before a pod serves, with
-// none of the volumes it will serve from mounted (deploy/k8s).
+// It opens the databases and nothing else (`cmd.Open`): no files and no trail,
+// and the key the trail's rows are digested with only when a step has rows to
+// put on the trail (`cmd.Server.Contents`), which a database nothing has
+// written to never has. So it runs where a server could not -- before a pod
+// serves, with none of the volumes it will serve from mounted and that key
+// alone beside it (deploy/k8s).
 func NewCmdMigrate(c *cmd.Config) *xli.Command {
 	return &xli.Command{
 		Name:  "migrate",

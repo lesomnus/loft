@@ -107,6 +107,13 @@ message StockMovement {
       {
         name: "stock"
         refs: [{name: "stock", number: 8}, {name: "occurred_at", number: 12}]
+      },
+      // The movements an event wrote. An expiry asks of each event it would
+      // take whether a movement that stays names it (design 8.2), and
+      // without this reads the table to say no.
+      {
+        name: "event"
+        refs: [{name: "event_id", number: 16}]
       }
     ]
   };

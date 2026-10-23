@@ -90,6 +90,9 @@ func (s domainBookable) Add(ctx context.Context, req *app.BookableAddRequest) (*
 			row.SetUnits(uint32(max(n, 1)))
 		}
 		row.SetEnabled(true)
+		if !row.HasId() {
+			row.SetId(pdid.New(pd.BookableDomain).Bytes())
+		}
 		if err := t.begin(nil, "bookable.add", idOf(a.GetId()), t.now, a.GetTag()+" 예약 가능", "", nil); err != nil {
 			return err
 		}

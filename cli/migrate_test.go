@@ -1,6 +1,8 @@
 package cli_test
 
 import (
+	"crypto/rand"
+	"encoding/base64"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -57,8 +59,11 @@ func TestADeploymentMigratesBeforeItServes(t *testing.T) {
 
 // TestAMigrationOpensOnlyTheDatabases: `rove migrate` brings the tables along
 // where no file, archive or key a server needs is to be had -- which is where
-// it runs in Kubernetes, before a pod serves and with none of its volumes
-// mounted (deploy/k8s).
+// it runs in Kubernetes, before a pod serves, with none of its volumes mounted
+// and the digest's key alone beside it (deploy/k8s). That key too it reads
+// only when a migration has rows to put on the trail ([cmd.Server.Contents]),
+// and a database nothing has written to has none: so a fresh one migrates
+// with a key that is not there, where a server could not start.
 func TestAMigrationOpensOnlyTheDatabases(t *testing.T) {
 	x := require.New(t)
 	ctx := t.Context()
@@ -68,24 +73,97 @@ func TestAMigrationOpensOnlyTheDatabases(t *testing.T) {
 	c.Watch.Broker = "memory"
 	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
 
-	// Neither is anything a server could start on: its files beneath a file,
-	// and a key to sign the trail with that is not there.
+	// Each of them is what a server cannot start without: somewhere to keep
+	// its files, the key it signs the trail with, and the key it digests the
+	// trail's rows with. None of them is to be had here.
 	blocked := filepath.Join(t.TempDir(), "blocked")
 	x.NoError(os.WriteFile(blocked, nil, 0o600))
-	c.App.Files = filepath.Join(blocked, "files")
-	c.Audit.Checkpoints.Key = filepath.Join(t.TempDir(), "absent.pem")
-	_, err := cmd.Build(ctx, c)
-	x.Error(err, "a server with nowhere to keep files and no key")
+	none := map[string]func(c *cmd.Config){
+		"its files":    func(c *cmd.Config) { c.App.Files = filepath.Join(blocked, "files") },
+		"the trail's":  func(c *cmd.Config) { c.Audit.Checkpoints.Key = filepath.Join(t.TempDir(), "absent.pem") },
+		"the digest's": func(c *cmd.Config) { c.Audit.Digest.Key = filepath.Join(t.TempDir(), "absent.key") },
+	}
+	for what, without := range none {
+		c := c
+		c.App.Files = t.TempDir()
+		without(&c)
+		_, err := cmd.Build(ctx, c)
+		x.Error(err, "a server without %s", what)
+	}
+	for _, without := range none {
+		without(&c)
+	}
 
 	x.Contains(run(t, cli.NewCmdMigrate(&c)), "this build's shape")
 
 	// And what it made is the shape a server checks for.
 	c.App.Files = t.TempDir()
 	c.Audit.Checkpoints.Key = ""
+	c.Audit.Digest.Key = ""
 	s, err := cmd.Build(ctx, c)
 	x.NoError(err)
 	defer s.Close()
 	x.NoError(entschema.Check(ctx, s.Db, s.Dialect, entmigrate.Tables))
+}
+
+// TestAMigrationReadsTheDigestsKeyWhenItIsAsked: a row a migration rewrites
+// beneath the servers is put on the trail as the act it is (`pd.Record`),
+// digested with the deployment's key -- which `rove migrate` reads when a step
+// first asks for it, and not before ([cmd.Server.Contents]). A key that
+// cannot be read is said then, which stops the step that asked; a deployment
+// that names no key records with no digest; and what was read once is what
+// every step is told. A server read it before it built, and is told the same.
+func TestAMigrationReadsTheDigestsKeyWhenItIsAsked(t *testing.T) {
+	x := require.New(t)
+	ctx := t.Context()
+
+	c := cmd.Config{}
+	c.Db.Driver, c.Db.Dsn = pdtest.DB(t)
+	c.Watch.Broker = "memory"
+	c.App.Files = t.TempDir()
+	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
+	opened := func(key string) *cmd.Server {
+		c := c
+		c.Audit.Digest.Key = key
+		s, err := cmd.Open(ctx, c)
+		x.NoError(err, "opened with %q, which it does not read", key)
+		return s
+	}
+
+	s := opened(filepath.Join(t.TempDir(), "absent.key"))
+	_, err := s.Contents()
+	x.ErrorContains(err, "absent.key")
+	s.Close()
+
+	s = opened("")
+	cs, err := s.Contents()
+	x.NoError(err)
+	x.Nil(cs.Digest, "no key, and no digest")
+	s.Close()
+
+	key := filepath.Join(t.TempDir(), "digest.key")
+	b := make([]byte, 32)
+	_, err = rand.Read(b)
+	x.NoError(err)
+	x.NoError(os.WriteFile(key, []byte(base64.StdEncoding.EncodeToString(b)+"\n"), 0o600))
+	s = opened(key)
+	cs, err = s.Contents()
+	x.NoError(err)
+	x.NotNil(cs.Digest)
+	x.NoError(os.Rename(key, key+".gone"))
+	again, err := s.Contents()
+	x.NoError(err, "read once")
+	x.Equal(cs.Digest.Fingerprint(), again.Digest.Fingerprint())
+	s.Close()
+
+	x.NoError(os.Rename(key+".gone", key))
+	c.Audit.Digest.Key = key
+	built, err := cmd.Build(ctx, c)
+	x.NoError(err)
+	defer built.Close()
+	cs, err = built.Contents()
+	x.NoError(err)
+	x.Equal(again.Digest.Fingerprint(), cs.Digest.Fingerprint())
 }
 
 // TestAnIndexAnEarlierBuildMadeIsMovedToItsName: an index an earlier build

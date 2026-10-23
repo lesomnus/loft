@@ -44,10 +44,12 @@ func (s domainCount) Add(ctx context.Context, req *app.InventoryCountAddRequest)
 		if name == "" {
 			name = fmt.Sprintf("%s 실사 %s", sp.GetName(), t.now.In(t.zone()).Format("2006-01-02"))
 		}
+		id := pdid.New(pd.InventoryCountDomain)
 		if err := t.begin(nil, "count.start", idOf(sp.GetId()), t.now, "실사 시작: "+name, "", nil); err != nil {
 			return err
 		}
 		out, err = t.next.InventoryCount().Add(t.ctx, app.InventoryCountAddRequest_builder{
+			Id:          id.Bytes(),
 			Tenant:      t.tenantRef(),
 			Name:        name,
 			Desc:        req.GetDesc(),

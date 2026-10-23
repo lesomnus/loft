@@ -9,6 +9,15 @@
 # schema adds; only one with rows in it says whether the column can be added
 # to it. A column with no default cannot be, and the migration stops there.
 #
+# And what was made is still what the deployment says it is, once migrated:
+# every row is what the trail's digest of it says (`trail rows`) -- so a
+# migration that rewrites rows beneath the servers has put each on the trail
+# as it went -- its windows are read (`retention plan`), and a workspace's
+# export is taken and checked as this deployment's (`tenant export`, `tenant
+# verify`). Both builds are given the keys a deployment's processes have: the
+# one the trail's rows are digested with, and the one the trail is signed
+# with, which signs an export too.
+#
 #   scripts/upgrade.sh BEFORE NOW
 set -eu
 
@@ -25,6 +34,10 @@ export ROVE_WATCH_BROKER=memory
 export ROVE_SPIN_LEASE=local
 export ROVE_APP_SIGNING_KEY=rove-upgrade-signing-key-not-a-secret
 export ROVE_APP_FILES="$dir/files"
+openssl rand -base64 32 >"$dir/digest.key"
+openssl genpkey -algorithm ed25519 -out "$dir/checkpoints.pem"
+export ROVE_AUDIT_DIGEST_KEY="$dir/digest.key"
+export ROVE_AUDIT_CHECKPOINTS_KEY="$dir/checkpoints.pem"
 
 # run LOG BIN ARGS...: BIN with ARGS, its output in LOG, and the end of it
 # said when it fails.
@@ -65,7 +78,13 @@ check() {
 		tail -n 20 "$log" >&2
 		exit 1
 	fi
-	echo "upgrade: $1: what the build before made is in this build's shape"
+	# Every row what the trail says it is: written through the servers by the
+	# build before, and rewritten by the migration on the trail or not at all.
+	run "$log" "$now" trail rows
+	run "$log" "$now" retention plan --tenant acme
+	run "$log" "$now" tenant export --tenant acme --out "$dir/$1.zip"
+	run "$log" "$now" tenant verify --file "$dir/$1.zip"
+	echo "upgrade: $1: what the build before made is in this build's shape, and what the trail says of it"
 }
 
 mkdir -p "$dir/sqlite"

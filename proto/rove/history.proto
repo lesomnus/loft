@@ -72,6 +72,18 @@ message Placement {
       {
         name: "parent"
         refs: [{name: "parent", number: 9}, {name: "valid_from", number: 17}]
+      },
+      // The rows an event wrote, and the ones it superseded. An expiry asks
+      // of each event it would take whether a row that stays names it
+      // (design 8.2) -- by `superseded_by` too once payday keeps the past
+      // (payday#151) -- and without these reads the table to say no.
+      {
+        name: "event"
+        refs: [{name: "event_id", number: 19}]
+      },
+      {
+        name: "superseded"
+        refs: [{name: "superseded_by", number: 21}]
       }
     ]
   };
@@ -139,6 +151,18 @@ message Link {
       {
         name: "target"
         refs: [{name: "target", number: 9}, {name: "valid_from", number: 17}]
+      },
+      // The rows an event wrote, and the ones it superseded. An expiry asks
+      // of each event it would take whether a row that stays names it
+      // (design 8.2) -- by `superseded_by` too once payday keeps the past
+      // (payday#151) -- and without these reads the table to say no.
+      {
+        name: "event"
+        refs: [{name: "event_id", number: 19}]
+      },
+      {
+        name: "superseded"
+        refs: [{name: "superseded_by", number: 21}]
       }
     ]
   };
@@ -202,6 +226,18 @@ message Stewardship {
       {
         name: "party"
         refs: [{name: "party", number: 9}, {name: "valid_from", number: 17}]
+      },
+      // The rows an event wrote, and the ones it superseded. An expiry asks
+      // of each event it would take whether a row that stays names it
+      // (design 8.2) -- by `superseded_by` too once payday keeps the past
+      // (payday#151) -- and without these reads the table to say no.
+      {
+        name: "event"
+        refs: [{name: "event_id", number: 19}]
+      },
+      {
+        name: "superseded"
+        refs: [{name: "superseded_by", number: 21}]
       }
     ]
   };

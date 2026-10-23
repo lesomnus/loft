@@ -128,8 +128,12 @@ spec:
         seccompProfile: { type: RuntimeDefault }
 
       # The tables brought into this build's shape, before anything serves.
-      # Only the databases: `rove migrate` opens no file, trail or key, so
-      # none of the volumes are mounted here.
+      # Only the databases: `rove migrate` opens no file and no trail, so none
+      # of the volumes are mounted here. And the key the trail's rows are
+      # digested with, alone: a row a migration rewrites beneath the servers
+      # is put on the trail with it, and the key is read only then -- a
+      # database with nothing of the kind to rewrite migrates without reading
+      # it.
       initContainers:
         - name: migrate
           image: ghcr.io/lesomnus/rove
@@ -156,6 +160,7 @@ spec:
             capabilities: { drop: ["ALL"] }
           volumeMounts:
             - { name: config, mountPath: /etc/rove, readOnly: true }
+            - { name: digest, mountPath: /run/secrets/rove, readOnly: true }
             - { name: search, mountPath: /run/secrets/rove-search, readOnly: true }
             - { name: tmp, mountPath: /tmp }
 
@@ -261,9 +266,14 @@ spec:
           persistentVolumeClaim: { claimName: rove-audit }
         - name: checkpoints
           persistentVolumeClaim: { claimName: rove-checkpoints }
-        # The key the trail is signed with, `checkpoints.pem`.
+        # The key the trail is signed with, `checkpoints.pem`, and the one its
+        # rows are digested with, `digest.key`.
         - name: keys
           secret: { secretName: rove-checkpoints, defaultMode: 288 } # 0440: the pod's group reads it
+        # The digest's key alone, where `config.yaml` names it, for the
+        # migration: it signs nothing, so it is not handed the trail's key.
+        - name: digest
+          secret: { secretName: rove-checkpoints, items: [{ key: digest.key, path: digest.key }], defaultMode: 288 }
         # A file per operator, named as `admin.keys` names them.
         - name: operators
           secret: { secretName: rove-admin, defaultMode: 288 }
