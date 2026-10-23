@@ -1616,7 +1616,7 @@ var File_rove_history_proto protoreflect.FileDescriptor
 
 const file_rove_history_proto_rawDesc = "" +
 	"\n" +
-	"\x12rove/history.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x10rove/asset.proto\x1a\x0erove/org.proto\x1a\x18rove/payday/tenant.proto\"\xab\a\n" +
+	"\x12rove/history.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x10rove/asset.proto\x1a\x0erove/org.proto\x1a\x18rove/payday/tenant.proto\"\xe3\a\n" +
 	"\tPlacement\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12)\n" +
@@ -1634,7 +1634,7 @@ const file_rove_history_proto_rawDesc = "" +
 	"\bvalid_to\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\avalidTo\x12!\n" +
 	"\bevent_id\x18\x13 \x01(\fB\x06\xea\x82\x16\x02\x10@R\aeventId\x12M\n" +
 	"\rsuperseded_at\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampB\f\xea\x82\x16\x028\x01\xaa\xc1\x16\x02\x10\x01R\fsupersededAt\x12-\n" +
-	"\rsuperseded_by\x18\x15 \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\fsupersededBy:\xf2\x01\xca\xfc\x15\x81\x01\x12\a\x10\x01\x82\x01\x02\x12\x00\x1a,\x12\x04page\x1a\n" +
+	"\rsuperseded_by\x18\x15 \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\fsupersededBy:\xaa\x02\xca\xfc\x15\xb9\x01\x12\a\x10\x01\x82\x01\x02\x12\x00\x1a,\x12\x04page\x1a\n" +
 	"\n" +
 	"\x06tenant\x10\x02\x1a\x10\n" +
 	"\fdate_created\x10\x0f\x1a\x06\n" +
@@ -1645,7 +1645,10 @@ const file_rove_history_proto_rawDesc = "" +
 	"\n" +
 	"\x06parent\x10\t\x1a\x0e\n" +
 	"\n" +
-	"valid_from\x10\x11\x8a\xbb\x16h\b\r29\n" +
+	"valid_from\x10\x11\x1a\x15\x12\x05event\x1a\f\n" +
+	"\bevent_id\x10\x13\x1a\x1f\x12\n" +
+	"superseded\x1a\x11\n" +
+	"\rsuperseded_by\x10\x15\x8a\xbb\x16h\b\r29\n" +
 	"\x10\n" +
 	"\x0e\n" +
 	"\fdate_created\n" +
@@ -1656,7 +1659,7 @@ const file_rove_history_proto_rawDesc = "" +
 	"\x05child\x1a\b\n" +
 	"\x06parent d(\xe8\aB\x02\n" +
 	"\x00\"%\n" +
-	"\x06tenant\"\fchild.tenant\"\rparent.tenant\"\xf7\a\n" +
+	"\x06tenant\"\fchild.tenant\"\rparent.tenant\"\xb0\b\n" +
 	"\x04Link\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12.\n" +
@@ -1676,7 +1679,7 @@ const file_rove_history_proto_rawDesc = "" +
 	"\rsuperseded_by\x18\x15 \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\fsupersededBy\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\xf8\x01\xca\xfc\x15~\x12\x02\x10\x01\x1a,\x12\x04page\x1a\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\xb1\x02\xca\xfc\x15\xb6\x01\x12\x02\x10\x01\x1a,\x12\x04page\x1a\n" +
 	"\n" +
 	"\x06tenant\x10\x02\x1a\x10\n" +
 	"\fdate_created\x10\x0f\x1a\x06\n" +
@@ -1688,7 +1691,10 @@ const file_rove_history_proto_rawDesc = "" +
 	"\n" +
 	"\x06target\x10\t\x1a\x0e\n" +
 	"\n" +
-	"valid_from\x10\x11\x8a\xbb\x16r\b\x0e2B\n" +
+	"valid_from\x10\x11\x1a\x15\x12\x05event\x1a\f\n" +
+	"\bevent_id\x10\x13\x1a\x1f\x12\n" +
+	"superseded\x1a\x11\n" +
+	"\rsuperseded_by\x10\x15\x8a\xbb\x16r\b\x0e2B\n" +
 	"\x10\n" +
 	"\x0e\n" +
 	"\fdate_created\n" +
@@ -1700,7 +1706,7 @@ const file_rove_history_proto_rawDesc = "" +
 	"\x06target\x1a\x06\n" +
 	"\x04kind d(\xe8\aB\x02\n" +
 	"\x00\"&\n" +
-	"\x06tenant\"\rsource.tenant\"\rtarget.tenant\"\xeb\x06\n" +
+	"\x06tenant\"\rsource.tenant\"\rtarget.tenant\"\xa4\a\n" +
 	"\vStewardship\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12)\n" +
@@ -1715,7 +1721,7 @@ const file_rove_history_proto_rawDesc = "" +
 	"\bvalid_to\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\avalidTo\x12!\n" +
 	"\bevent_id\x18\x13 \x01(\fB\x06\xea\x82\x16\x02\x10@R\aeventId\x12M\n" +
 	"\rsuperseded_at\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampB\f\xea\x82\x16\x028\x01\xaa\xc1\x16\x02\x10\x01R\fsupersededAt\x12-\n" +
-	"\rsuperseded_by\x18\x15 \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\fsupersededBy:\xf0\x01\xca\xfc\x15z\x12\x02\x10\x01\x1a,\x12\x04page\x1a\n" +
+	"\rsuperseded_by\x18\x15 \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\fsupersededBy:\xa9\x02\xca\xfc\x15\xb2\x01\x12\x02\x10\x01\x1a,\x12\x04page\x1a\n" +
 	"\n" +
 	"\x06tenant\x10\x02\x1a\x10\n" +
 	"\fdate_created\x10\x0f\x1a\x06\n" +
@@ -1725,7 +1731,10 @@ const file_rove_history_proto_rawDesc = "" +
 	"valid_from\x10\x11\x1a\"\x12\x05party\x1a\t\n" +
 	"\x05party\x10\t\x1a\x0e\n" +
 	"\n" +
-	"valid_from\x10\x11\x8a\xbb\x16n\b\x0f2@\n" +
+	"valid_from\x10\x11\x1a\x15\x12\x05event\x1a\f\n" +
+	"\bevent_id\x10\x13\x1a\x1f\x12\n" +
+	"superseded\x1a\x11\n" +
+	"\rsuperseded_by\x10\x15\x8a\xbb\x16n\b\x0f2@\n" +
 	"\x10\n" +
 	"\x0e\n" +
 	"\fdate_created\n" +

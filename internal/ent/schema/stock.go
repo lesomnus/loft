@@ -128,6 +128,8 @@ func (StockMovement) Indexes() []ent.Index {
 			StorageKey("stockmovement_page"),
 		index.Fields("stock_id", "occurred_at").
 			StorageKey("stockmovement_stock"),
+		index.Fields("event_id").
+			StorageKey("stockmovement_event"),
 	}
 }
 
