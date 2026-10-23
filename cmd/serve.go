@@ -14,6 +14,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/lesomnus/otx/log"
@@ -22,6 +23,7 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/lesomnus/payday/access"
+	"github.com/lesomnus/payday/audit"
 	"github.com/lesomnus/payday/auth"
 	"github.com/lesomnus/payday/auth/authsession"
 	"github.com/lesomnus/payday/config"
@@ -104,6 +106,16 @@ type Server struct {
 	// them: what an erasure, an export and a purge go by.
 	Trail trail.Policy
 
+	// Contents is what the trail keeps of each kind's writes, the digest's
+	// key with it (`audit.content`, `audit.digest.key`): what a row written
+	// beneath the servers on purpose is put on the trail with, as the act it
+	// is (`pd.Record`). [Build] has read it, and builds nothing without it.
+	// [Open] reads it the first time it is asked and not before, so that a
+	// migration with no row to put on the trail opens no key: the key that
+	// cannot be read is said then, and stops the migration that needed it,
+	// and none configured records the rows with no digest.
+	Contents func() (audit.Contents, error)
+
 	// Identity is roster, beside this process or inside it: who people are,
 	// and the password they sign in with (design 9.10).
 	Identity *identity.Store
@@ -180,11 +192,13 @@ type Server struct {
 
 // Open opens what holds a deployment's state and nothing that serves it: the
 // database, and the roster in this process, which brings its own database
-// along as it opens. No files, no trail, no key.
+// along as it opens. No files, no trail, and no key until one is asked for
+// ([Server.Contents]).
 //
 // It is what `rove migrate` stands on, which runs where none of those are to
 // be had. In Kubernetes that is before a pod serves, while the volumes it will
-// serve from may still be held by the one before it (deploy/k8s).
+// serve from may still be held by the one before it (deploy/k8s), with the
+// digest's key alone beside it.
 func Open(ctx context.Context, c Config) (*Server, error) {
 	db, dialect, err := c.Db.Open(ctx)
 	if err != nil {
@@ -197,7 +211,10 @@ func Open(ctx context.Context, c Config) (*Server, error) {
 	}
 	drv := entsql.OpenDB(dialect, db)
 
-	return &Server{Db: db, Ent: ent.NewClient(ent.Driver(drv)), Drv: drv, Dialect: dialect, Deps: &domain.Deps{}, Identity: people}, nil
+	return &Server{
+		Db: db, Ent: ent.NewClient(ent.Driver(drv)), Drv: drv, Dialect: dialect, Deps: &domain.Deps{}, Identity: people,
+		Contents: sync.OnceValues(c.Audit.Contents),
+	}, nil
 }
 
 // Build opens the database and stacks the servers.
@@ -342,6 +359,7 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	deps.Base = base
 
 	s := &Server{Db: db, Ent: client, Drv: drv, Dialect: dialect, Watch: w, Walled: stacked, Ungated: ungated, Base: base, Deps: deps, Identity: people, Search: engine}
+	s.Contents = func() (audit.Contents, error) { return content, nil }
 	deps.Finder = engine
 
 	// Who is calling is a session cookie, held on every call to what roster

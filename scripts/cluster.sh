@@ -8,8 +8,9 @@
 # What it says, each a thing only a cluster can:
 #
 #   - the manifests are admitted under `restricted` Pod Security, and the pod
-#     comes up: the migration in its init container with no volume mounted,
-#     then the server and the operator's entry point beside it;
+#     comes up: the migration in its init container with none of the volumes
+#     mounted and the digest's key alone beside it, then the server and the
+#     operator's entry point beside it;
 #   - a person signs in through the ingress, and the answer carries the
 #     headers and the policy (`app.csp`);
 #   - the operator's entry point answers a key over `kubectl port-forward`,
