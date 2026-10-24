@@ -12,16 +12,20 @@ const (
 	Label = "fact"
 	// FieldId holds the string denoting the id field in the database.
 	FieldId = "id"
+	// FieldSubjectId holds the string denoting the subject_id field in the database.
+	FieldSubjectId = "subject_id"
 	// FieldKey holds the string denoting the key field in the database.
 	FieldKey = "key"
 	// FieldValue holds the string denoting the value field in the database.
 	FieldValue = "value"
-	// FieldCleared holds the string denoting the cleared field in the database.
-	FieldCleared = "cleared"
+	// FieldFieldNumber holds the string denoting the field_number field in the database.
+	FieldFieldNumber = "field_number"
 	// FieldDateUpdated holds the string denoting the date_updated field in the database.
 	FieldDateUpdated = "date_updated"
 	// FieldDateCreated holds the string denoting the date_created field in the database.
 	FieldDateCreated = "date_created"
+	// FieldDomain holds the string denoting the domain field in the database.
+	FieldDomain = "domain"
 	// FieldValidFrom holds the string denoting the valid_from field in the database.
 	FieldValidFrom = "valid_from"
 	// FieldEventId holds the string denoting the event_id field in the database.
@@ -32,12 +36,8 @@ const (
 	FieldSupersededBy = "superseded_by"
 	// FieldTenantId holds the string denoting the tenant_id field in the database.
 	FieldTenantId = "tenant_id"
-	// FieldAssetId holds the string denoting the asset_id field in the database.
-	FieldAssetId = "asset_id"
 	// EdgeTenant holds the string denoting the tenant edge name in mutations.
 	EdgeTenant = "tenant"
-	// EdgeAsset holds the string denoting the asset edge name in mutations.
-	EdgeAsset = "asset"
 	// Table holds the table name of the fact in the database.
 	Table = "fact"
 	// TenantTable is the table that holds the tenant relation/edge.
@@ -47,29 +47,23 @@ const (
 	TenantInverseTable = "tenant"
 	// TenantColumn is the table column denoting the tenant relation/edge.
 	TenantColumn = "tenant_id"
-	// AssetTable is the table that holds the asset relation/edge.
-	AssetTable = "fact"
-	// AssetInverseTable is the table name for the Asset entity.
-	// It exists in this package in order to avoid circular dependency with the "asset" package.
-	AssetInverseTable = "asset"
-	// AssetColumn is the table column denoting the asset relation/edge.
-	AssetColumn = "asset_id"
 )
 
 // Columns holds all SQL columns for fact fields.
 var Columns = []string{
 	FieldId,
+	FieldSubjectId,
 	FieldKey,
 	FieldValue,
-	FieldCleared,
+	FieldFieldNumber,
 	FieldDateUpdated,
 	FieldDateCreated,
+	FieldDomain,
 	FieldValidFrom,
 	FieldEventId,
 	FieldSupersededAt,
 	FieldSupersededBy,
 	FieldTenantId,
-	FieldAssetId,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -82,12 +76,24 @@ func ValidColumn(column string) bool {
 	return false
 }
 
+var (
+	// DefaultFieldNumber holds the default value on creation for the "field_number" field.
+	DefaultFieldNumber uint32
+	// DefaultDomain holds the default value on creation for the "domain" field.
+	DefaultDomain uint32
+)
+
 // OrderOption defines the ordering options for the Fact queries.
 type OrderOption func(*sql.Selector)
 
 // ById orders the results by the id field.
 func ById(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldId, opts...).ToFunc()
+}
+
+// BySubjectId orders the results by the subject_id field.
+func BySubjectId(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSubjectId, opts...).ToFunc()
 }
 
 // ByKey orders the results by the key field.
@@ -100,9 +106,9 @@ func ByValue(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldValue, opts...).ToFunc()
 }
 
-// ByCleared orders the results by the cleared field.
-func ByCleared(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCleared, opts...).ToFunc()
+// ByFieldNumber orders the results by the field_number field.
+func ByFieldNumber(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldFieldNumber, opts...).ToFunc()
 }
 
 // ByDateUpdated orders the results by the date_updated field.
@@ -113,6 +119,11 @@ func ByDateUpdated(opts ...sql.OrderTermOption) OrderOption {
 // ByDateCreated orders the results by the date_created field.
 func ByDateCreated(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDateCreated, opts...).ToFunc()
+}
+
+// ByDomain orders the results by the domain field.
+func ByDomain(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDomain, opts...).ToFunc()
 }
 
 // ByValidFrom orders the results by the valid_from field.
@@ -140,22 +151,10 @@ func ByTenantId(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTenantId, opts...).ToFunc()
 }
 
-// ByAssetId orders the results by the asset_id field.
-func ByAssetId(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldAssetId, opts...).ToFunc()
-}
-
 // ByTenantField orders the results by tenant field.
 func ByTenantField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newTenantStep(), sql.OrderByField(field, opts...))
-	}
-}
-
-// ByAssetField orders the results by asset field.
-func ByAssetField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newAssetStep(), sql.OrderByField(field, opts...))
 	}
 }
 func newTenantStep() *sqlgraph.Step {
@@ -163,12 +162,5 @@ func newTenantStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldId),
 		sqlgraph.To(TenantInverseTable, FieldId),
 		sqlgraph.Edge(sqlgraph.M2O, false, TenantTable, TenantColumn),
-	)
-}
-func newAssetStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldId),
-		sqlgraph.To(AssetInverseTable, FieldId),
-		sqlgraph.Edge(sqlgraph.M2O, false, AssetTable, AssetColumn),
 	)
 }

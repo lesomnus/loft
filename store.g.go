@@ -55,8 +55,6 @@ type Server interface {
 	Placement() PlacementServiceServer
 	Link() LinkServiceServer
 	Stewardship() StewardshipServiceServer
-	Fact() FactServiceServer
-	Event() EventServiceServer
 	Notification() NotificationServiceServer
 	TenantContract() TenantContractServiceServer
 	LegalHold() LegalHoldServiceServer
@@ -64,6 +62,8 @@ type Server interface {
 	Access() AccessServiceServer
 	Archived() ArchivedServiceServer
 	Audit() AuditServiceServer
+	Event() EventServiceServer
+	Fact() FactServiceServer
 	Outbox() OutboxServiceServer
 	Owed() OwedServiceServer
 	RowSeal() RowSealServiceServer
@@ -107,8 +107,6 @@ func RegisterServer(g grpc.ServiceRegistrar, s Server) {
 	RegisterPlacementServiceServer(g, s.Placement())
 	RegisterLinkServiceServer(g, s.Link())
 	RegisterStewardshipServiceServer(g, s.Stewardship())
-	RegisterFactServiceServer(g, s.Fact())
-	RegisterEventServiceServer(g, s.Event())
 	RegisterNotificationServiceServer(g, s.Notification())
 	RegisterTenantContractServiceServer(g, s.TenantContract())
 	RegisterLegalHoldServiceServer(g, s.LegalHold())
@@ -116,6 +114,8 @@ func RegisterServer(g grpc.ServiceRegistrar, s Server) {
 	RegisterAccessServiceServer(g, s.Access())
 	RegisterArchivedServiceServer(g, s.Archived())
 	RegisterAuditServiceServer(g, s.Audit())
+	RegisterEventServiceServer(g, s.Event())
+	RegisterFactServiceServer(g, s.Fact())
 	RegisterOutboxServiceServer(g, s.Outbox())
 	RegisterOwedServiceServer(g, s.Owed())
 	RegisterRowSealServiceServer(g, s.RowSeal())
@@ -155,8 +155,6 @@ type UnimplementedServer struct {
 	PlacementServer       PlacementServiceServer
 	LinkServer            LinkServiceServer
 	StewardshipServer     StewardshipServiceServer
-	FactServer            FactServiceServer
-	EventServer           EventServiceServer
 	NotificationServer    NotificationServiceServer
 	TenantContractServer  TenantContractServiceServer
 	LegalHoldServer       LegalHoldServiceServer
@@ -164,6 +162,8 @@ type UnimplementedServer struct {
 	AccessServer          AccessServiceServer
 	ArchivedServer        ArchivedServiceServer
 	AuditServer           AuditServiceServer
+	EventServer           EventServiceServer
+	FactServer            FactServiceServer
 	OutboxServer          OutboxServiceServer
 	OwedServer            OwedServiceServer
 	RowSealServer         RowSealServiceServer
@@ -240,8 +240,6 @@ func (UnimplementedServer) Link() LinkServiceServer { return UnimplementedLinkSe
 func (UnimplementedServer) Stewardship() StewardshipServiceServer {
 	return UnimplementedStewardshipServiceServer{}
 }
-func (UnimplementedServer) Fact() FactServiceServer   { return UnimplementedFactServiceServer{} }
-func (UnimplementedServer) Event() EventServiceServer { return UnimplementedEventServiceServer{} }
 func (UnimplementedServer) Notification() NotificationServiceServer {
 	return UnimplementedNotificationServiceServer{}
 }
@@ -259,6 +257,8 @@ func (UnimplementedServer) Archived() ArchivedServiceServer {
 	return UnimplementedArchivedServiceServer{}
 }
 func (UnimplementedServer) Audit() AuditServiceServer     { return UnimplementedAuditServiceServer{} }
+func (UnimplementedServer) Event() EventServiceServer     { return UnimplementedEventServiceServer{} }
+func (UnimplementedServer) Fact() FactServiceServer       { return UnimplementedFactServiceServer{} }
 func (UnimplementedServer) Outbox() OutboxServiceServer   { return UnimplementedOutboxServiceServer{} }
 func (UnimplementedServer) Owed() OwedServiceServer       { return UnimplementedOwedServiceServer{} }
 func (UnimplementedServer) RowSeal() RowSealServiceServer { return UnimplementedRowSealServiceServer{} }
@@ -305,8 +305,6 @@ type StaticServer struct {
 	PlacementServer       PlacementServiceServer
 	LinkServer            LinkServiceServer
 	StewardshipServer     StewardshipServiceServer
-	FactServer            FactServiceServer
-	EventServer           EventServiceServer
 	NotificationServer    NotificationServiceServer
 	TenantContractServer  TenantContractServiceServer
 	LegalHoldServer       LegalHoldServiceServer
@@ -314,6 +312,8 @@ type StaticServer struct {
 	AccessServer          AccessServiceServer
 	ArchivedServer        ArchivedServiceServer
 	AuditServer           AuditServiceServer
+	EventServer           EventServiceServer
+	FactServer            FactServiceServer
 	OutboxServer          OutboxServiceServer
 	OwedServer            OwedServiceServer
 	RowSealServer         RowSealServiceServer
@@ -352,8 +352,6 @@ func (s StaticServer) CustodyLine() CustodyLineServiceServer         { return s.
 func (s StaticServer) Placement() PlacementServiceServer             { return s.PlacementServer }
 func (s StaticServer) Link() LinkServiceServer                       { return s.LinkServer }
 func (s StaticServer) Stewardship() StewardshipServiceServer         { return s.StewardshipServer }
-func (s StaticServer) Fact() FactServiceServer                       { return s.FactServer }
-func (s StaticServer) Event() EventServiceServer                     { return s.EventServer }
 func (s StaticServer) Notification() NotificationServiceServer       { return s.NotificationServer }
 func (s StaticServer) TenantContract() TenantContractServiceServer   { return s.TenantContractServer }
 func (s StaticServer) LegalHold() LegalHoldServiceServer             { return s.LegalHoldServer }
@@ -361,6 +359,8 @@ func (s StaticServer) AccessReview() AccessReviewServiceServer       { return s.
 func (s StaticServer) Access() AccessServiceServer                   { return s.AccessServer }
 func (s StaticServer) Archived() ArchivedServiceServer               { return s.ArchivedServer }
 func (s StaticServer) Audit() AuditServiceServer                     { return s.AuditServer }
+func (s StaticServer) Event() EventServiceServer                     { return s.EventServer }
+func (s StaticServer) Fact() FactServiceServer                       { return s.FactServer }
 func (s StaticServer) Outbox() OutboxServiceServer                   { return s.OutboxServer }
 func (s StaticServer) Owed() OwedServiceServer                       { return s.OwedServer }
 func (s StaticServer) RowSeal() RowSealServiceServer                 { return s.RowSealServer }
@@ -399,8 +399,6 @@ type Client interface {
 	Placement() PlacementServiceClient
 	Link() LinkServiceClient
 	Stewardship() StewardshipServiceClient
-	Fact() FactServiceClient
-	Event() EventServiceClient
 	Notification() NotificationServiceClient
 	TenantContract() TenantContractServiceClient
 	LegalHold() LegalHoldServiceClient
@@ -408,6 +406,8 @@ type Client interface {
 	Access() AccessServiceClient
 	Archived() ArchivedServiceClient
 	Audit() AuditServiceClient
+	Event() EventServiceClient
+	Fact() FactServiceClient
 	Outbox() OutboxServiceClient
 	Owed() OwedServiceClient
 	RowSeal() RowSealServiceClient
@@ -448,8 +448,6 @@ func NewClient(c *grpc.ClientConn) Client {
 		_Placement:       NewPlacementServiceClient(c),
 		_Link:            NewLinkServiceClient(c),
 		_Stewardship:     NewStewardshipServiceClient(c),
-		_Fact:            NewFactServiceClient(c),
-		_Event:           NewEventServiceClient(c),
 		_Notification:    NewNotificationServiceClient(c),
 		_TenantContract:  NewTenantContractServiceClient(c),
 		_LegalHold:       NewLegalHoldServiceClient(c),
@@ -457,6 +455,8 @@ func NewClient(c *grpc.ClientConn) Client {
 		_Access:          NewAccessServiceClient(c),
 		_Archived:        NewArchivedServiceClient(c),
 		_Audit:           NewAuditServiceClient(c),
+		_Event:           NewEventServiceClient(c),
+		_Fact:            NewFactServiceClient(c),
 		_Outbox:          NewOutboxServiceClient(c),
 		_Owed:            NewOwedServiceClient(c),
 		_RowSeal:         NewRowSealServiceClient(c),
@@ -497,8 +497,6 @@ type client struct {
 	_Placement       PlacementServiceClient
 	_Link            LinkServiceClient
 	_Stewardship     StewardshipServiceClient
-	_Fact            FactServiceClient
-	_Event           EventServiceClient
 	_Notification    NotificationServiceClient
 	_TenantContract  TenantContractServiceClient
 	_LegalHold       LegalHoldServiceClient
@@ -506,6 +504,8 @@ type client struct {
 	_Access          AccessServiceClient
 	_Archived        ArchivedServiceClient
 	_Audit           AuditServiceClient
+	_Event           EventServiceClient
+	_Fact            FactServiceClient
 	_Outbox          OutboxServiceClient
 	_Owed            OwedServiceClient
 	_RowSeal         RowSealServiceClient
@@ -544,8 +544,6 @@ func (c *client) CustodyLine() CustodyLineServiceClient         { return c._Cust
 func (c *client) Placement() PlacementServiceClient             { return c._Placement }
 func (c *client) Link() LinkServiceClient                       { return c._Link }
 func (c *client) Stewardship() StewardshipServiceClient         { return c._Stewardship }
-func (c *client) Fact() FactServiceClient                       { return c._Fact }
-func (c *client) Event() EventServiceClient                     { return c._Event }
 func (c *client) Notification() NotificationServiceClient       { return c._Notification }
 func (c *client) TenantContract() TenantContractServiceClient   { return c._TenantContract }
 func (c *client) LegalHold() LegalHoldServiceClient             { return c._LegalHold }
@@ -553,6 +551,8 @@ func (c *client) AccessReview() AccessReviewServiceClient       { return c._Acce
 func (c *client) Access() AccessServiceClient                   { return c._Access }
 func (c *client) Archived() ArchivedServiceClient               { return c._Archived }
 func (c *client) Audit() AuditServiceClient                     { return c._Audit }
+func (c *client) Event() EventServiceClient                     { return c._Event }
+func (c *client) Fact() FactServiceClient                       { return c._Fact }
 func (c *client) Outbox() OutboxServiceClient                   { return c._Outbox }
 func (c *client) Owed() OwedServiceClient                       { return c._Owed }
 func (c *client) RowSeal() RowSealServiceClient                 { return c._RowSeal }

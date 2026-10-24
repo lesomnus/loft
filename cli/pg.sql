@@ -78,11 +78,13 @@ BEGIN
 END
 $$;
 
--- A key of a thing has one value at a moment, among the values known now.
--- Not deferred, since an index cannot be: the domain layer supersedes what was
--- recorded for the same moment before it writes the new value
--- (`Tx.addFact`), and so is never in between.
-CREATE UNIQUE INDEX IF NOT EXISTS fact_once ON fact (asset_id, key, valid_from)
+-- A field of a thing -- an entry of a map, of one -- has one value at a moment,
+-- among the values known now. Not deferred, since an index cannot be: payday's
+-- past supersedes what was recorded for the same moment before it writes the
+-- new value (`past.Op.Set`, payday#151), and so is never in between. Made on
+-- payday's Fact, which the migration made in place of Rove's own table of
+-- facts, and the index on that with it (`cli/facts.go`).
+CREATE UNIQUE INDEX IF NOT EXISTS fact_once ON fact (subject_id, field_number, key, valid_from)
 	WHERE superseded_at IS NULL;
 
 -- An account is in a workspace once: one holder of it per tenant, among the

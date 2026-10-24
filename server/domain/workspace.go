@@ -2,7 +2,6 @@ package domain
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	"time"
 
@@ -11,6 +10,7 @@ import (
 	"github.com/protobuf-orm/ent/dialect"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
 
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/internal/ent"
@@ -97,29 +97,29 @@ func (s domainTenant) Configure(ctx context.Context, req *app.TenantConfigureReq
 		}
 
 		patch := app.TenantPatchRequest_builder{Ref: t.tenantRef(), DateUpdatedForce: z.Ptr(true)}.Build()
-		said := map[string]string{}
+		said := &app.WorkspaceConfigured{}
 		if req.HasTimezone() {
 			patch.SetTimezone(req.GetTimezone())
-			said["timezone"] = req.GetTimezone()
+			said.SetTimezone(req.GetTimezone())
 		}
 		if req.HasCurrency() {
 			patch.SetCurrency(req.GetCurrency())
-			said["currency"] = req.GetCurrency()
+			said.SetCurrency(req.GetCurrency())
 		}
 		if req.HasNoShowMinutes() {
 			patch.SetNoShowMinutes(req.GetNoShowMinutes())
-			said["no_show_minutes"] = fmt.Sprint(req.GetNoShowMinutes())
+			said.SetNoShowMinutes(req.GetNoShowMinutes())
 		}
 		if err := t.keepPatch(req, patch, said); err != nil {
 			return err
 		}
-		if len(said) == 0 {
+		if proto.Size(said) == 0 {
 			v, err := t.next.Tenant().Get(t.ctx, app.TenantGetRequest_builder{Ref: t.tenantRef()}.Build())
 			out = v
 			return err
 		}
 
-		if err := t.begin(nil, "workspace.configure", pdid.Nil, t.now, "워크스페이스 설정 변경", "", said); err != nil {
+		if err := t.begin(nil, "workspace.configure", pdid.Nil, t.now, "", said); err != nil {
 			return err
 		}
 		v, err := t.next.Tenant().Patch(t.ctx, patch)
@@ -158,7 +158,7 @@ func (s domainTenant) Restore(ctx context.Context, req *app.TenantRestoreRequest
 			return err
 		}
 		var err error
-		out, err = t.restoreWorkspace()
+		out, err = t.restoreWorkspace(ClosedByOwner)
 		return err
 	})
 	return out, err
@@ -181,7 +181,7 @@ func (d *Deps) RestoreWorkspace(ctx context.Context, server app.Server, drv dial
 	var out *app.Tenant
 	err := d.System(ctx, server, drv, tenant, func(t *Tx) error {
 		var err error
-		out, err = t.restoreWorkspace()
+		out, err = t.restoreWorkspace(ClosedByOperator)
 		return err
 	})
 	return out, err
@@ -208,9 +208,11 @@ func (d *Deps) NameOwner(ctx context.Context, server app.Server, drv dialect.Dri
 		case h.Account == nil:
 			return failed("계정이 없는 구성원은 소유자가 될 수 없습니다")
 		}
-		if err := t.begin(nil, "party.role", pdid.Nil, t.now, "소유자 지정: {holder} → owner (운영자)", "", map[string]string{
-			"role": "owner", "holder": member.String(),
-		}); err != nil {
+		if err := t.begin(nil, "party.role", pdid.Nil, t.now, "", app.PartyRoleSet_builder{
+			Holder: member.Bytes(),
+			Role:   "owner",
+			By:     "operator",
+		}.Build()); err != nil {
 			return err
 		}
 		_, err = t.next.Holder().Patch(t.ctx, app.HolderPatchRequest_builder{
@@ -279,14 +281,13 @@ func (t *Tx) closeWorkspace(by, reason string) (*app.Tenant, error) {
 		return nil, failed("이미 닫힌 워크스페이스입니다")
 	}
 	destroy := t.now.Add(t.restoreWithin())
-	desc := "워크스페이스 닫기"
-	switch by {
-	case ClosedByOperator:
-		desc += " (운영자)"
-	case ClosedByDeployment:
-		desc += " (남은 구성원 없음)"
+	// Why is the words of whoever closed it. The deployment's own are what
+	// the event says, that nobody was left (payday#151): no person's.
+	why := reason
+	if by == ClosedByDeployment {
+		why = ""
 	}
-	if err := t.begin(nil, "workspace.close", pdid.Nil, t.now, desc, reason, map[string]string{"by": by, "destroy": destroy.UTC().Format(time.RFC3339)}); err != nil {
+	if err := t.begin(nil, "workspace.close", pdid.Nil, t.now, why, app.WorkspaceClosed_builder{By: by, Destroy: ts(destroy)}.Build()); err != nil {
 		return nil, err
 	}
 	return t.next.Tenant().Patch(t.ctx, app.TenantPatchRequest_builder{
@@ -299,7 +300,7 @@ func (t *Tx) closeWorkspace(by, reason string) (*app.Tenant, error) {
 	}.Build())
 }
 
-func (t *Tx) restoreWorkspace() (*app.Tenant, error) {
+func (t *Tx) restoreWorkspace(by string) (*app.Tenant, error) {
 	cur, err := t.next.Tenant().Get(t.ctx, app.TenantGetRequest_builder{Ref: t.tenantRef()}.Build())
 	if err != nil {
 		return nil, err
@@ -310,7 +311,7 @@ func (t *Tx) restoreWorkspace() (*app.Tenant, error) {
 	if cur.HasDateDestroy() && !t.now.Before(cur.GetDateDestroy().AsTime()) {
 		return nil, failed("복구 기간이 지났습니다")
 	}
-	if err := t.begin(nil, "workspace.restore", pdid.Nil, t.now, "워크스페이스 복구", "", nil); err != nil {
+	if err := t.begin(nil, "workspace.restore", pdid.Nil, t.now, "", app.WorkspaceRestored_builder{By: by}.Build()); err != nil {
 		return nil, err
 	}
 	return t.next.Tenant().Patch(t.ctx, app.TenantPatchRequest_builder{

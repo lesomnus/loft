@@ -11,13 +11,13 @@ import (
 	"github.com/lesomnus/rove/internal/ent/predicate"
 	"github.com/protobuf-orm/ent"
 	"github.com/protobuf-orm/ent/dialect/sql"
+	"google.golang.org/protobuf/types/known/anypb"
 )
 
 // Mutation represents an operation that mutates the Event nodes in the graph.
 type Mutation struct {
 	op            ent.Op
 	typ           string
-	desc          *string
 	kind          *string
 	actor_id      *uuid.UUID
 	occurred_at   *time.Time
@@ -26,8 +26,10 @@ type Mutation struct {
 	date_updated  *time.Time
 	date_created  *time.Time
 	trace_id      *[]byte
-	payload       *string
 	cause_id      *uuid.UUID
+	value         **anypb.Any
+	desc          *string
+	payload       *string
 	clearedFields map[string]struct{}
 	exprs         map[string]sql.Querier
 	tenant        *uuid.UUID
@@ -47,27 +49,6 @@ func NewMutation(op ent.Op) *Mutation {
 // Predicates returns the list of predicates set on the mutation.
 func (m *Mutation) Predicates() []predicate.Event {
 	return m.predicates
-}
-
-// SetDesc sets the "desc" field.
-func (m *Mutation) SetDesc(s string) {
-	m.desc = &s
-	delete(m.exprs, FieldDesc)
-}
-
-// Desc returns the value of the "desc" field in the mutation.
-func (m *Mutation) Desc() (r string, exists bool) {
-	v := m.desc
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ResetDesc resets all changes to the "desc" field.
-func (m *Mutation) ResetDesc() {
-	m.desc = nil
-	delete(m.exprs, FieldDesc)
 }
 
 // SetKind sets the "kind" field.
@@ -310,27 +291,6 @@ func (m *Mutation) ResetTraceId() {
 	delete(m.exprs, FieldTraceId)
 }
 
-// SetPayload sets the "payload" field.
-func (m *Mutation) SetPayload(s string) {
-	m.payload = &s
-	delete(m.exprs, FieldPayload)
-}
-
-// Payload returns the value of the "payload" field in the mutation.
-func (m *Mutation) Payload() (r string, exists bool) {
-	v := m.payload
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ResetPayload resets all changes to the "payload" field.
-func (m *Mutation) ResetPayload() {
-	m.payload = nil
-	delete(m.exprs, FieldPayload)
-}
-
 // SetCauseId sets the "cause_id" field.
 func (m *Mutation) SetCauseId(u uuid.UUID) {
 	m.cause_id = &u
@@ -365,6 +325,84 @@ func (m *Mutation) ResetCauseId() {
 	m.cause_id = nil
 	delete(m.clearedFields, FieldCauseId)
 	delete(m.exprs, FieldCauseId)
+}
+
+// SetValue sets the "value" field.
+func (m *Mutation) SetValue(a *anypb.Any) {
+	m.value = &a
+	delete(m.clearedFields, FieldValue)
+	delete(m.exprs, FieldValue)
+}
+
+// Value returns the value of the "value" field in the mutation.
+func (m *Mutation) Value() (r *anypb.Any, exists bool) {
+	v := m.value
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearValue clears the value of the "value" field.
+func (m *Mutation) ClearValue() {
+	m.value = nil
+	delete(m.exprs, FieldValue)
+	m.clearedFields[FieldValue] = struct{}{}
+}
+
+// ValueCleared returns if the "value" field was cleared in this mutation.
+func (m *Mutation) ValueCleared() bool {
+	_, ok := m.clearedFields[FieldValue]
+	return ok
+}
+
+// ResetValue resets all changes to the "value" field.
+func (m *Mutation) ResetValue() {
+	m.value = nil
+	delete(m.clearedFields, FieldValue)
+	delete(m.exprs, FieldValue)
+}
+
+// SetDesc sets the "desc" field.
+func (m *Mutation) SetDesc(s string) {
+	m.desc = &s
+	delete(m.exprs, FieldDesc)
+}
+
+// Desc returns the value of the "desc" field in the mutation.
+func (m *Mutation) Desc() (r string, exists bool) {
+	v := m.desc
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetDesc resets all changes to the "desc" field.
+func (m *Mutation) ResetDesc() {
+	m.desc = nil
+	delete(m.exprs, FieldDesc)
+}
+
+// SetPayload sets the "payload" field.
+func (m *Mutation) SetPayload(s string) {
+	m.payload = &s
+	delete(m.exprs, FieldPayload)
+}
+
+// Payload returns the value of the "payload" field in the mutation.
+func (m *Mutation) Payload() (r string, exists bool) {
+	v := m.payload
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetPayload resets all changes to the "payload" field.
+func (m *Mutation) ResetPayload() {
+	m.payload = nil
+	delete(m.exprs, FieldPayload)
 }
 
 // SetTenantId sets the "tenant_id" field.
@@ -447,10 +485,7 @@ func (m *Mutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *Mutation) Fields() []string {
-	fields := make([]string, 0, 12)
-	if m.desc != nil || m.exprs[FieldDesc] != nil {
-		fields = append(fields, FieldDesc)
-	}
+	fields := make([]string, 0, 13)
 	if m.kind != nil || m.exprs[FieldKind] != nil {
 		fields = append(fields, FieldKind)
 	}
@@ -475,11 +510,17 @@ func (m *Mutation) Fields() []string {
 	if m.trace_id != nil || m.exprs[FieldTraceId] != nil {
 		fields = append(fields, FieldTraceId)
 	}
-	if m.payload != nil || m.exprs[FieldPayload] != nil {
-		fields = append(fields, FieldPayload)
-	}
 	if m.cause_id != nil || m.exprs[FieldCauseId] != nil {
 		fields = append(fields, FieldCauseId)
+	}
+	if m.value != nil || m.exprs[FieldValue] != nil {
+		fields = append(fields, FieldValue)
+	}
+	if m.desc != nil || m.exprs[FieldDesc] != nil {
+		fields = append(fields, FieldDesc)
+	}
+	if m.payload != nil || m.exprs[FieldPayload] != nil {
+		fields = append(fields, FieldPayload)
 	}
 	if m.tenant != nil {
 		fields = append(fields, FieldTenantId)
@@ -498,8 +539,6 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return e, true
 	}
 	switch name {
-	case FieldDesc:
-		return m.Desc()
 	case FieldKind:
 		return m.Kind()
 	case FieldActorId:
@@ -516,10 +555,14 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.DateCreated()
 	case FieldTraceId:
 		return m.TraceId()
-	case FieldPayload:
-		return m.Payload()
 	case FieldCauseId:
 		return m.CauseId()
+	case FieldValue:
+		return m.Value()
+	case FieldDesc:
+		return m.Desc()
+	case FieldPayload:
+		return m.Payload()
 	case FieldTenantId:
 		return m.TenantId()
 	}
@@ -541,16 +584,6 @@ func (m *Mutation) OldField(ctx context.Context, name string) (ent.Value, error)
 // that what Field returns for a field can be set back on it.
 func (m *Mutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case FieldDesc:
-		v, ok := value.(string)
-		if !ok {
-			if e, ok := value.(sql.Querier); ok {
-				return m.SetFieldExpr(name, e)
-			}
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetDesc(v)
-		return nil
 	case FieldKind:
 		v, ok := value.(string)
 		if !ok {
@@ -631,16 +664,6 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetTraceId(v)
 		return nil
-	case FieldPayload:
-		v, ok := value.(string)
-		if !ok {
-			if e, ok := value.(sql.Querier); ok {
-				return m.SetFieldExpr(name, e)
-			}
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetPayload(v)
-		return nil
 	case FieldCauseId:
 		v, ok := value.(uuid.UUID)
 		if !ok {
@@ -650,6 +673,36 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCauseId(v)
+		return nil
+	case FieldValue:
+		v, ok := value.(*anypb.Any)
+		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetValue(v)
+		return nil
+	case FieldDesc:
+		v, ok := value.(string)
+		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDesc(v)
+		return nil
+	case FieldPayload:
+		v, ok := value.(string)
+		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPayload(v)
 		return nil
 	case FieldTenantId:
 		v, ok := value.(uuid.UUID)
@@ -683,8 +736,6 @@ func (m *Mutation) SetFieldExpr(name string, expr sql.Querier) error {
 		return fmt.Errorf("field %s cannot be assigned an expression: a create writes values, and an expression is written only by an update", name)
 	}
 	switch name {
-	case FieldDesc:
-		m.ResetDesc()
 	case FieldKind:
 		m.ResetKind()
 	case FieldActorId:
@@ -701,10 +752,14 @@ func (m *Mutation) SetFieldExpr(name string, expr sql.Querier) error {
 		return fmt.Errorf("field %s cannot be assigned an expression: it is immutable, and an expression is written only by an update", name)
 	case FieldTraceId:
 		m.ResetTraceId()
-	case FieldPayload:
-		m.ResetPayload()
 	case FieldCauseId:
 		m.ResetCauseId()
+	case FieldValue:
+		m.ResetValue()
+	case FieldDesc:
+		m.ResetDesc()
+	case FieldPayload:
+		m.ResetPayload()
 	case FieldTenantId:
 		return fmt.Errorf("field %s cannot be assigned an expression: it holds an edge, which is set through the edge", name)
 	default:
@@ -728,9 +783,6 @@ func (m *Mutation) FieldExpr(name string) (sql.Querier, bool) {
 // SetFieldExpr.
 func (m *Mutation) ExprFields() []string {
 	var fields []string
-	if _, ok := m.exprs[FieldDesc]; ok {
-		fields = append(fields, FieldDesc)
-	}
 	if _, ok := m.exprs[FieldKind]; ok {
 		fields = append(fields, FieldKind)
 	}
@@ -752,11 +804,17 @@ func (m *Mutation) ExprFields() []string {
 	if _, ok := m.exprs[FieldTraceId]; ok {
 		fields = append(fields, FieldTraceId)
 	}
-	if _, ok := m.exprs[FieldPayload]; ok {
-		fields = append(fields, FieldPayload)
-	}
 	if _, ok := m.exprs[FieldCauseId]; ok {
 		fields = append(fields, FieldCauseId)
+	}
+	if _, ok := m.exprs[FieldValue]; ok {
+		fields = append(fields, FieldValue)
+	}
+	if _, ok := m.exprs[FieldDesc]; ok {
+		fields = append(fields, FieldDesc)
+	}
+	if _, ok := m.exprs[FieldPayload]; ok {
+		fields = append(fields, FieldPayload)
 	}
 	return fields
 }
@@ -805,6 +863,9 @@ func (m *Mutation) ClearedFields() []string {
 	if m.FieldCleared(FieldCauseId) {
 		fields = append(fields, FieldCauseId)
 	}
+	if m.FieldCleared(FieldValue) {
+		fields = append(fields, FieldValue)
+	}
 	return fields
 }
 
@@ -837,6 +898,9 @@ func (m *Mutation) ClearField(name string) error {
 	case FieldCauseId:
 		m.ClearCauseId()
 		return nil
+	case FieldValue:
+		m.ClearValue()
+		return nil
 	}
 	return fmt.Errorf("unknown Event nullable field %s", name)
 }
@@ -845,9 +909,6 @@ func (m *Mutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *Mutation) ResetField(name string) error {
 	switch name {
-	case FieldDesc:
-		m.ResetDesc()
-		return nil
 	case FieldKind:
 		m.ResetKind()
 		return nil
@@ -872,11 +933,17 @@ func (m *Mutation) ResetField(name string) error {
 	case FieldTraceId:
 		m.ResetTraceId()
 		return nil
-	case FieldPayload:
-		m.ResetPayload()
-		return nil
 	case FieldCauseId:
 		m.ResetCauseId()
+		return nil
+	case FieldValue:
+		m.ResetValue()
+		return nil
+	case FieldDesc:
+		m.ResetDesc()
+		return nil
+	case FieldPayload:
+		m.ResetPayload()
 		return nil
 	case FieldTenantId:
 		m.ResetTenantId()

@@ -128,7 +128,7 @@ func TestAHoldKeepsWhatTheTrailSaidOfAPerson(t *testing.T) {
 	x.GreaterOrEqual(full, before, "a hold is on what the trail said")
 	ev, err := e.s.Ent.Event.Query().Where(event.Kind("party.pseudonymize")).Only(context.Background())
 	x.NoError(err)
-	x.Contains(ev.Payload, "held")
+	x.Positive(value[*app.PartyPseudonymized](e, ev).GetHeld())
 }
 
 // TestAPersonWhoseLoginWasStoppedFirstIsForgottenToo (rove#25, decided in

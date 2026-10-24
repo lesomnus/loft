@@ -683,7 +683,6 @@ var (
 	// EventColumns holds the columns for the "event" table.
 	EventColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUuid, Unique: true},
-		{Name: "desc", Type: field.TypeString},
 		{Name: "kind", Type: field.TypeString},
 		{Name: "actor_id", Type: field.TypeUuid, Nullable: true},
 		{Name: "occurred_at", Type: field.TypeTime, Nullable: true},
@@ -692,8 +691,10 @@ var (
 		{Name: "date_updated", Type: field.TypeTime},
 		{Name: "date_created", Type: field.TypeTime, Nullable: true},
 		{Name: "trace_id", Type: field.TypeBytes, Nullable: true},
-		{Name: "payload", Type: field.TypeString},
 		{Name: "cause_id", Type: field.TypeUuid, Nullable: true},
+		{Name: "value", Type: field.TypeJson, Nullable: true},
+		{Name: "desc", Type: field.TypeString},
+		{Name: "payload", Type: field.TypeString},
 		{Name: "tenant_id", Type: field.TypeUuid},
 	}
 	// EventTable holds the schema information for the "event" table.
@@ -704,7 +705,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "event_tenant_tenant",
-				Columns:    []*schema.Column{EventColumns[12]},
+				Columns:    []*schema.Column{EventColumns[13]},
 				RefColumns: []*schema.Column{TenantColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -713,34 +714,35 @@ var (
 			{
 				Name:    "event_page",
 				Unique:  false,
-				Columns: []*schema.Column{EventColumns[12], EventColumns[8], EventColumns[0]},
+				Columns: []*schema.Column{EventColumns[13], EventColumns[7], EventColumns[0]},
 			},
 			{
 				Name:    "event_subject",
 				Unique:  false,
-				Columns: []*schema.Column{EventColumns[6], EventColumns[4]},
+				Columns: []*schema.Column{EventColumns[5], EventColumns[3]},
 			},
 			{
 				Name:    "event_cause",
 				Unique:  false,
-				Columns: []*schema.Column{EventColumns[11]},
+				Columns: []*schema.Column{EventColumns[9]},
 			},
 		},
 	}
 	// FactColumns holds the columns for the "fact" table.
 	FactColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUuid, Unique: true},
+		{Name: "subject_id", Type: field.TypeUuid},
 		{Name: "key", Type: field.TypeString},
 		{Name: "value", Type: field.TypeString},
-		{Name: "cleared", Type: field.TypeBool},
+		{Name: "field_number", Type: field.TypeUint32, Nullable: true, Default: 0},
 		{Name: "date_updated", Type: field.TypeTime},
 		{Name: "date_created", Type: field.TypeTime, Nullable: true},
+		{Name: "domain", Type: field.TypeUint32, Nullable: true, Default: 0},
 		{Name: "valid_from", Type: field.TypeTime, Nullable: true},
 		{Name: "event_id", Type: field.TypeUuid},
 		{Name: "superseded_at", Type: field.TypeTime, Nullable: true},
 		{Name: "superseded_by", Type: field.TypeUuid, Nullable: true},
 		{Name: "tenant_id", Type: field.TypeUuid},
-		{Name: "asset_id", Type: field.TypeUuid},
 	}
 	// FactTable holds the schema information for the "fact" table.
 	FactTable = &schema.Table{
@@ -750,14 +752,8 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "fact_tenant_tenant",
-				Columns:    []*schema.Column{FactColumns[10]},
+				Columns:    []*schema.Column{FactColumns[12]},
 				RefColumns: []*schema.Column{TenantColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-			{
-				Symbol:     "fact_asset_asset",
-				Columns:    []*schema.Column{FactColumns[11]},
-				RefColumns: []*schema.Column{AssetColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 		},
@@ -765,12 +761,27 @@ var (
 			{
 				Name:    "fact_page",
 				Unique:  false,
-				Columns: []*schema.Column{FactColumns[10], FactColumns[5], FactColumns[0]},
+				Columns: []*schema.Column{FactColumns[12], FactColumns[6], FactColumns[0]},
 			},
 			{
-				Name:    "fact_asset",
+				Name:    "fact_subject",
 				Unique:  false,
-				Columns: []*schema.Column{FactColumns[11], FactColumns[1], FactColumns[6]},
+				Columns: []*schema.Column{FactColumns[1], FactColumns[4], FactColumns[2], FactColumns[8]},
+			},
+			{
+				Name:    "fact_field",
+				Unique:  false,
+				Columns: []*schema.Column{FactColumns[12], FactColumns[7], FactColumns[4], FactColumns[2], FactColumns[8]},
+			},
+			{
+				Name:    "fact_event",
+				Unique:  false,
+				Columns: []*schema.Column{FactColumns[9]},
+			},
+			{
+				Name:    "fact_superseded",
+				Unique:  false,
+				Columns: []*schema.Column{FactColumns[11]},
 			},
 		},
 	}
@@ -2168,7 +2179,6 @@ func init() {
 		Table: "event",
 	}
 	FactTable.ForeignKeys[0].RefTable = TenantTable
-	FactTable.ForeignKeys[1].RefTable = AssetTable
 	FactTable.Annotation = &entsql.Annotation{
 		Table: "fact",
 	}

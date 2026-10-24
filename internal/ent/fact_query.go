@@ -8,7 +8,6 @@ import (
 	"math"
 	"uuid"
 
-	"github.com/lesomnus/rove/internal/ent/asset"
 	"github.com/lesomnus/rove/internal/ent/fact"
 	"github.com/lesomnus/rove/internal/ent/predicate"
 	"github.com/lesomnus/rove/internal/ent/tenant"
@@ -26,7 +25,6 @@ type FactQuery struct {
 	inters     []Interceptor
 	predicates []predicate.Fact
 	withTenant *TenantQuery
-	withAsset  *AssetQuery
 	modifiers  []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -79,28 +77,6 @@ func (_q *FactQuery) QueryTenant() *TenantQuery {
 			sqlgraph.From(fact.Table, fact.FieldId, selector),
 			sqlgraph.To(tenant.Table, tenant.FieldId),
 			sqlgraph.Edge(sqlgraph.M2O, false, fact.TenantTable, fact.TenantColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryAsset chains the current query on the "asset" edge.
-func (_q *FactQuery) QueryAsset() *AssetQuery {
-	query := (&AssetClient{config: _q.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := _q.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := _q.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(fact.Table, fact.FieldId, selector),
-			sqlgraph.To(asset.Table, asset.FieldId),
-			sqlgraph.Edge(sqlgraph.M2O, false, fact.AssetTable, fact.AssetColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -301,7 +277,6 @@ func (_q *FactQuery) Clone() *FactQuery {
 		inters:     append([]Interceptor{}, _q.inters...),
 		predicates: append([]predicate.Fact{}, _q.predicates...),
 		withTenant: _q.withTenant.Clone(),
-		withAsset:  _q.withAsset.Clone(),
 		// clone intermediate query.
 		sql:       _q.sql.Clone(),
 		path:      _q.path,
@@ -320,29 +295,18 @@ func (_q *FactQuery) WithTenant(opts ...func(*TenantQuery)) *FactQuery {
 	return _q
 }
 
-// WithAsset tells the query-builder to eager-load the nodes that are connected to
-// the "asset" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *FactQuery) WithAsset(opts ...func(*AssetQuery)) *FactQuery {
-	query := (&AssetClient{config: _q.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	_q.withAsset = query
-	return _q
-}
-
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
 //
 // Example:
 //
 //	var v []struct {
-//		Key string `json:"key,omitempty"`
+//		SubjectId uuid.UUID `json:"subject_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Fact.Query().
-//		GroupBy(fact.FieldKey).
+//		GroupBy(fact.FieldSubjectId).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *FactQuery) GroupBy(field string, fields ...string) *FactGroupBy {
@@ -360,11 +324,11 @@ func (_q *FactQuery) GroupBy(field string, fields ...string) *FactGroupBy {
 // Example:
 //
 //	var v []struct {
-//		Key string `json:"key,omitempty"`
+//		SubjectId uuid.UUID `json:"subject_id,omitempty"`
 //	}
 //
 //	client.Fact.Query().
-//		Select(fact.FieldKey).
+//		Select(fact.FieldSubjectId).
 //		Scan(ctx, &v)
 func (_q *FactQuery) Select(fields ...string) *FactSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
@@ -409,9 +373,8 @@ func (_q *FactQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Fact, e
 	var (
 		nodes       = []*Fact{}
 		_spec       = _q.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [1]bool{
 			_q.withTenant != nil,
-			_q.withAsset != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -441,12 +404,6 @@ func (_q *FactQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Fact, e
 			return nil, err
 		}
 	}
-	if query := _q.withAsset; query != nil {
-		if err := _q.loadAsset(ctx, query, nodes, nil,
-			func(n *Fact, e *Asset) { n.Edges.Asset = e }); err != nil {
-			return nil, err
-		}
-	}
 	return nodes, nil
 }
 
@@ -472,35 +429,6 @@ func (_q *FactQuery) loadTenant(ctx context.Context, query *TenantQuery, nodes [
 		nodes, ok := nodeids[n.Id]
 		if !ok {
 			return fmt.Errorf(`unexpected foreign-key "tenant_id" returned %v`, n.Id)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
-func (_q *FactQuery) loadAsset(ctx context.Context, query *AssetQuery, nodes []*Fact, init func(*Fact), assign func(*Fact, *Asset)) error {
-	ids := make([]uuid.UUID, 0, len(nodes))
-	nodeids := make(map[uuid.UUID][]*Fact)
-	for i := range nodes {
-		fk := nodes[i].AssetId
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(asset.IdIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.Id]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "asset_id" returned %v`, n.Id)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -539,9 +467,6 @@ func (_q *FactQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if _q.withTenant != nil {
 			_spec.Node.AddColumnOnce(fact.FieldTenantId)
-		}
-		if _q.withAsset != nil {
-			_spec.Node.AddColumnOnce(fact.FieldAssetId)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

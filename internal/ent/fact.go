@@ -8,7 +8,6 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/lesomnus/rove/internal/ent/asset"
 	"github.com/lesomnus/rove/internal/ent/fact"
 	"github.com/lesomnus/rove/internal/ent/tenant"
 	"github.com/protobuf-orm/ent"
@@ -20,16 +19,20 @@ type Fact struct {
 	config `json:"-"`
 	// Id of the ent.
 	Id uuid.UUID `json:"id,omitempty"`
+	// SubjectId holds the value of the "subject_id" field.
+	SubjectId uuid.UUID `json:"subject_id,omitempty"`
 	// Key holds the value of the "key" field.
 	Key string `json:"key,omitempty"`
 	// Value holds the value of the "value" field.
 	Value string `json:"value,omitempty"`
-	// Cleared holds the value of the "cleared" field.
-	Cleared bool `json:"cleared,omitempty"`
+	// FieldNumber holds the value of the "field_number" field.
+	FieldNumber uint32 `json:"field_number,omitempty"`
 	// DateUpdated holds the value of the "date_updated" field.
 	DateUpdated time.Time `json:"date_updated,omitempty"`
 	// DateCreated holds the value of the "date_created" field.
 	DateCreated time.Time `json:"date_created,omitempty"`
+	// Domain holds the value of the "domain" field.
+	Domain uint32 `json:"domain,omitempty"`
 	// ValidFrom holds the value of the "valid_from" field.
 	ValidFrom time.Time `json:"valid_from,omitempty"`
 	// EventId holds the value of the "event_id" field.
@@ -40,8 +43,6 @@ type Fact struct {
 	SupersededBy *uuid.UUID `json:"superseded_by,omitempty"`
 	// TenantId holds the value of the "tenant_id" field.
 	TenantId uuid.UUID `json:"tenant_id,omitempty"`
-	// AssetId holds the value of the "asset_id" field.
-	AssetId uuid.UUID `json:"asset_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the FactQuery when eager-loading is set.
 	Edges        FactEdges `json:"edges"`
@@ -52,11 +53,9 @@ type Fact struct {
 type FactEdges struct {
 	// Tenant holds the value of the tenant edge.
 	Tenant *Tenant `json:"tenant,omitempty"`
-	// Asset holds the value of the asset edge.
-	Asset *Asset `json:"asset,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [1]bool
 }
 
 // TenantOrErr returns the Tenant value or an error if the edge
@@ -70,31 +69,20 @@ func (e FactEdges) TenantOrErr() (*Tenant, error) {
 	return nil, &NotLoadedError{edge: "tenant"}
 }
 
-// AssetOrErr returns the Asset value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e FactEdges) AssetOrErr() (*Asset, error) {
-	if e.Asset != nil {
-		return e.Asset, nil
-	} else if e.loadedTypes[1] {
-		return nil, &NotFoundError{label: asset.Label}
-	}
-	return nil, &NotLoadedError{edge: "asset"}
-}
-
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Fact) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case fact.FieldCleared:
-			values[i] = new(sql.NullBool)
+		case fact.FieldFieldNumber, fact.FieldDomain:
+			values[i] = new(sql.NullInt64)
 		case fact.FieldKey, fact.FieldValue:
 			values[i] = new(sql.NullString)
 		case fact.FieldDateUpdated, fact.FieldDateCreated, fact.FieldValidFrom, fact.FieldSupersededAt:
 			values[i] = new(sql.NullTime)
 		case fact.FieldSupersededBy:
 			values[i] = new(sql.Null[uuid.UUID])
-		case fact.FieldId, fact.FieldEventId, fact.FieldTenantId, fact.FieldAssetId:
+		case fact.FieldId, fact.FieldSubjectId, fact.FieldEventId, fact.FieldTenantId:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -117,6 +105,12 @@ func (_m *Fact) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				_m.Id = *value
 			}
+		case fact.FieldSubjectId:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field subject_id", values[i])
+			} else if value != nil {
+				_m.SubjectId = *value
+			}
 		case fact.FieldKey:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field key", values[i])
@@ -129,11 +123,11 @@ func (_m *Fact) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Value = value.String
 			}
-		case fact.FieldCleared:
-			if value, ok := values[i].(*sql.NullBool); !ok {
-				return fmt.Errorf("unexpected type %T for field cleared", values[i])
+		case fact.FieldFieldNumber:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field field_number", values[i])
 			} else if value.Valid {
-				_m.Cleared = value.Bool
+				_m.FieldNumber = uint32(value.Int64)
 			}
 		case fact.FieldDateUpdated:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -146,6 +140,12 @@ func (_m *Fact) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field date_created", values[i])
 			} else if value.Valid {
 				_m.DateCreated = value.Time
+			}
+		case fact.FieldDomain:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field domain", values[i])
+			} else if value.Valid {
+				_m.Domain = uint32(value.Int64)
 			}
 		case fact.FieldValidFrom:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -179,12 +179,6 @@ func (_m *Fact) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				_m.TenantId = *value
 			}
-		case fact.FieldAssetId:
-			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field asset_id", values[i])
-			} else if value != nil {
-				_m.AssetId = *value
-			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -201,11 +195,6 @@ func (_m *Fact) GetValue(name string) (ent.Value, error) {
 // QueryTenant queries the "tenant" edge of the Fact entity.
 func (_m *Fact) QueryTenant() *TenantQuery {
 	return NewFactClient(_m.config).QueryTenant(_m)
-}
-
-// QueryAsset queries the "asset" edge of the Fact entity.
-func (_m *Fact) QueryAsset() *AssetQuery {
-	return NewFactClient(_m.config).QueryAsset(_m)
 }
 
 // Update returns a builder for updating this Fact.
@@ -231,20 +220,26 @@ func (_m *Fact) String() string {
 	var builder strings.Builder
 	builder.WriteString("Fact(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.Id))
+	builder.WriteString("subject_id=")
+	builder.WriteString(fmt.Sprintf("%v", _m.SubjectId))
+	builder.WriteString(", ")
 	builder.WriteString("key=")
 	builder.WriteString(_m.Key)
 	builder.WriteString(", ")
 	builder.WriteString("value=")
 	builder.WriteString(_m.Value)
 	builder.WriteString(", ")
-	builder.WriteString("cleared=")
-	builder.WriteString(fmt.Sprintf("%v", _m.Cleared))
+	builder.WriteString("field_number=")
+	builder.WriteString(fmt.Sprintf("%v", _m.FieldNumber))
 	builder.WriteString(", ")
 	builder.WriteString("date_updated=")
 	builder.WriteString(_m.DateUpdated.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("date_created=")
 	builder.WriteString(_m.DateCreated.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("domain=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Domain))
 	builder.WriteString(", ")
 	builder.WriteString("valid_from=")
 	builder.WriteString(_m.ValidFrom.Format(time.ANSIC))
@@ -264,9 +259,6 @@ func (_m *Fact) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("tenant_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.TenantId))
-	builder.WriteString(", ")
-	builder.WriteString("asset_id=")
-	builder.WriteString(fmt.Sprintf("%v", _m.AssetId))
 	builder.WriteByte(')')
 	return builder.String()
 }

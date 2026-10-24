@@ -547,8 +547,9 @@ type StockMovement_builder struct {
 	OccurredAt  *timestamppb.Timestamp
 	DateUpdated *timestamppb.Timestamp
 	DateCreated *timestamppb.Timestamp
-	EventId     []byte
-	Balance     int64
+	// The event that moved it, which stays while this does.
+	EventId []byte
+	Balance int64
 }
 
 func (b0 StockMovement_builder) Build() *StockMovement {
@@ -607,7 +608,7 @@ const file_rove_stock_proto_rawDesc = "" +
 	"\x03ref\x1a\a\n" +
 	"\x05model\x1a\a\n" +
 	"\x05space d(\xf4\x03:\x00\"$\n" +
-	"\x06tenant\"\fmodel.tenant\"\fspace.tenant\"\xbf\x05\n" +
+	"\x06tenant\"\fmodel.tenant\"\fspace.tenant\"\xc5\x05\n" +
 	"\rStockMovement\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12)\n" +
@@ -619,8 +620,8 @@ const file_rove_stock_proto_rawDesc = "" +
 	"\voccurred_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\n" +
 	"occurredAt\x12F\n" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12H\n" +
-	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12!\n" +
-	"\bevent_id\x18\x10 \x01(\fB\x06\xea\x82\x16\x02\x10@R\aeventId\x12\x18\n" +
+	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12'\n" +
+	"\bevent_id\x18\x10 \x01(\fB\f\xea\x82\x16\x02\x10@\xaa\xc1\x16\x02(\x01R\aeventId\x12\x18\n" +
 	"\abalance\x18\x11 \x01(\x03R\abalance:\xd3\x01\xca\xfc\x15n\x12\x02\x10\x01\x1a,\x12\x04page\x1a\n" +
 	"\n" +
 	"\x06tenant\x10\x02\x1a\x10\n" +

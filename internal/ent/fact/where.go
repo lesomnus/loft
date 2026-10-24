@@ -56,6 +56,11 @@ func IdLTE(id uuid.UUID) predicate.Fact {
 	return predicate.Fact(sql.FieldLTE(FieldId, id))
 }
 
+// SubjectId applies equality check predicate on the "subject_id" field. It's identical to SubjectIdEQ.
+func SubjectId(v uuid.UUID) predicate.Fact {
+	return predicate.Fact(sql.FieldEQ(FieldSubjectId, v))
+}
+
 // Key applies equality check predicate on the "key" field. It's identical to KeyEQ.
 func Key(v string) predicate.Fact {
 	return predicate.Fact(sql.FieldEQ(FieldKey, v))
@@ -66,9 +71,9 @@ func Value(v string) predicate.Fact {
 	return predicate.Fact(sql.FieldEQ(FieldValue, v))
 }
 
-// Cleared applies equality check predicate on the "cleared" field. It's identical to ClearedEQ.
-func Cleared(v bool) predicate.Fact {
-	return predicate.Fact(sql.FieldEQ(FieldCleared, v))
+// FieldNumber applies equality check predicate on the "field_number" field. It's identical to FieldNumberEQ.
+func FieldNumber(v uint32) predicate.Fact {
+	return predicate.Fact(sql.FieldEQ(FieldFieldNumber, v))
 }
 
 // DateUpdated applies equality check predicate on the "date_updated" field. It's identical to DateUpdatedEQ.
@@ -79,6 +84,11 @@ func DateUpdated(v time.Time) predicate.Fact {
 // DateCreated applies equality check predicate on the "date_created" field. It's identical to DateCreatedEQ.
 func DateCreated(v time.Time) predicate.Fact {
 	return predicate.Fact(sql.FieldEQ(FieldDateCreated, v))
+}
+
+// Domain applies equality check predicate on the "domain" field. It's identical to DomainEQ.
+func Domain(v uint32) predicate.Fact {
+	return predicate.Fact(sql.FieldEQ(FieldDomain, v))
 }
 
 // ValidFrom applies equality check predicate on the "valid_from" field. It's identical to ValidFromEQ.
@@ -106,9 +116,44 @@ func TenantId(v uuid.UUID) predicate.Fact {
 	return predicate.Fact(sql.FieldEQ(FieldTenantId, v))
 }
 
-// AssetId applies equality check predicate on the "asset_id" field. It's identical to AssetIdEQ.
-func AssetId(v uuid.UUID) predicate.Fact {
-	return predicate.Fact(sql.FieldEQ(FieldAssetId, v))
+// SubjectIdEQ applies the EQ predicate on the "subject_id" field.
+func SubjectIdEQ(v uuid.UUID) predicate.Fact {
+	return predicate.Fact(sql.FieldEQ(FieldSubjectId, v))
+}
+
+// SubjectIdNEQ applies the NEQ predicate on the "subject_id" field.
+func SubjectIdNEQ(v uuid.UUID) predicate.Fact {
+	return predicate.Fact(sql.FieldNEQ(FieldSubjectId, v))
+}
+
+// SubjectIdIn applies the In predicate on the "subject_id" field.
+func SubjectIdIn(vs ...uuid.UUID) predicate.Fact {
+	return predicate.Fact(sql.FieldIn(FieldSubjectId, vs...))
+}
+
+// SubjectIdNotIn applies the NotIn predicate on the "subject_id" field.
+func SubjectIdNotIn(vs ...uuid.UUID) predicate.Fact {
+	return predicate.Fact(sql.FieldNotIn(FieldSubjectId, vs...))
+}
+
+// SubjectIdGT applies the GT predicate on the "subject_id" field.
+func SubjectIdGT(v uuid.UUID) predicate.Fact {
+	return predicate.Fact(sql.FieldGT(FieldSubjectId, v))
+}
+
+// SubjectIdGTE applies the GTE predicate on the "subject_id" field.
+func SubjectIdGTE(v uuid.UUID) predicate.Fact {
+	return predicate.Fact(sql.FieldGTE(FieldSubjectId, v))
+}
+
+// SubjectIdLT applies the LT predicate on the "subject_id" field.
+func SubjectIdLT(v uuid.UUID) predicate.Fact {
+	return predicate.Fact(sql.FieldLT(FieldSubjectId, v))
+}
+
+// SubjectIdLTE applies the LTE predicate on the "subject_id" field.
+func SubjectIdLTE(v uuid.UUID) predicate.Fact {
+	return predicate.Fact(sql.FieldLTE(FieldSubjectId, v))
 }
 
 // KeyEQ applies the EQ predicate on the "key" field.
@@ -241,14 +286,54 @@ func ValueContainsFold(v string) predicate.Fact {
 	return predicate.Fact(sql.FieldContainsFold(FieldValue, v))
 }
 
-// ClearedEQ applies the EQ predicate on the "cleared" field.
-func ClearedEQ(v bool) predicate.Fact {
-	return predicate.Fact(sql.FieldEQ(FieldCleared, v))
+// FieldNumberEQ applies the EQ predicate on the "field_number" field.
+func FieldNumberEQ(v uint32) predicate.Fact {
+	return predicate.Fact(sql.FieldEQ(FieldFieldNumber, v))
 }
 
-// ClearedNEQ applies the NEQ predicate on the "cleared" field.
-func ClearedNEQ(v bool) predicate.Fact {
-	return predicate.Fact(sql.FieldNEQ(FieldCleared, v))
+// FieldNumberNEQ applies the NEQ predicate on the "field_number" field.
+func FieldNumberNEQ(v uint32) predicate.Fact {
+	return predicate.Fact(sql.FieldNEQ(FieldFieldNumber, v))
+}
+
+// FieldNumberIn applies the In predicate on the "field_number" field.
+func FieldNumberIn(vs ...uint32) predicate.Fact {
+	return predicate.Fact(sql.FieldIn(FieldFieldNumber, vs...))
+}
+
+// FieldNumberNotIn applies the NotIn predicate on the "field_number" field.
+func FieldNumberNotIn(vs ...uint32) predicate.Fact {
+	return predicate.Fact(sql.FieldNotIn(FieldFieldNumber, vs...))
+}
+
+// FieldNumberGT applies the GT predicate on the "field_number" field.
+func FieldNumberGT(v uint32) predicate.Fact {
+	return predicate.Fact(sql.FieldGT(FieldFieldNumber, v))
+}
+
+// FieldNumberGTE applies the GTE predicate on the "field_number" field.
+func FieldNumberGTE(v uint32) predicate.Fact {
+	return predicate.Fact(sql.FieldGTE(FieldFieldNumber, v))
+}
+
+// FieldNumberLT applies the LT predicate on the "field_number" field.
+func FieldNumberLT(v uint32) predicate.Fact {
+	return predicate.Fact(sql.FieldLT(FieldFieldNumber, v))
+}
+
+// FieldNumberLTE applies the LTE predicate on the "field_number" field.
+func FieldNumberLTE(v uint32) predicate.Fact {
+	return predicate.Fact(sql.FieldLTE(FieldFieldNumber, v))
+}
+
+// FieldNumberIsNil applies the IsNil predicate on the "field_number" field.
+func FieldNumberIsNil() predicate.Fact {
+	return predicate.Fact(sql.FieldIsNull(FieldFieldNumber))
+}
+
+// FieldNumberNotNil applies the NotNil predicate on the "field_number" field.
+func FieldNumberNotNil() predicate.Fact {
+	return predicate.Fact(sql.FieldNotNull(FieldFieldNumber))
 }
 
 // DateUpdatedEQ applies the EQ predicate on the "date_updated" field.
@@ -339,6 +424,56 @@ func DateCreatedIsNil() predicate.Fact {
 // DateCreatedNotNil applies the NotNil predicate on the "date_created" field.
 func DateCreatedNotNil() predicate.Fact {
 	return predicate.Fact(sql.FieldNotNull(FieldDateCreated))
+}
+
+// DomainEQ applies the EQ predicate on the "domain" field.
+func DomainEQ(v uint32) predicate.Fact {
+	return predicate.Fact(sql.FieldEQ(FieldDomain, v))
+}
+
+// DomainNEQ applies the NEQ predicate on the "domain" field.
+func DomainNEQ(v uint32) predicate.Fact {
+	return predicate.Fact(sql.FieldNEQ(FieldDomain, v))
+}
+
+// DomainIn applies the In predicate on the "domain" field.
+func DomainIn(vs ...uint32) predicate.Fact {
+	return predicate.Fact(sql.FieldIn(FieldDomain, vs...))
+}
+
+// DomainNotIn applies the NotIn predicate on the "domain" field.
+func DomainNotIn(vs ...uint32) predicate.Fact {
+	return predicate.Fact(sql.FieldNotIn(FieldDomain, vs...))
+}
+
+// DomainGT applies the GT predicate on the "domain" field.
+func DomainGT(v uint32) predicate.Fact {
+	return predicate.Fact(sql.FieldGT(FieldDomain, v))
+}
+
+// DomainGTE applies the GTE predicate on the "domain" field.
+func DomainGTE(v uint32) predicate.Fact {
+	return predicate.Fact(sql.FieldGTE(FieldDomain, v))
+}
+
+// DomainLT applies the LT predicate on the "domain" field.
+func DomainLT(v uint32) predicate.Fact {
+	return predicate.Fact(sql.FieldLT(FieldDomain, v))
+}
+
+// DomainLTE applies the LTE predicate on the "domain" field.
+func DomainLTE(v uint32) predicate.Fact {
+	return predicate.Fact(sql.FieldLTE(FieldDomain, v))
+}
+
+// DomainIsNil applies the IsNil predicate on the "domain" field.
+func DomainIsNil() predicate.Fact {
+	return predicate.Fact(sql.FieldIsNull(FieldDomain))
+}
+
+// DomainNotNil applies the NotNil predicate on the "domain" field.
+func DomainNotNil() predicate.Fact {
+	return predicate.Fact(sql.FieldNotNull(FieldDomain))
 }
 
 // ValidFromEQ applies the EQ predicate on the "valid_from" field.
@@ -551,26 +686,6 @@ func TenantIdNotIn(vs ...uuid.UUID) predicate.Fact {
 	return predicate.Fact(sql.FieldNotIn(FieldTenantId, vs...))
 }
 
-// AssetIdEQ applies the EQ predicate on the "asset_id" field.
-func AssetIdEQ(v uuid.UUID) predicate.Fact {
-	return predicate.Fact(sql.FieldEQ(FieldAssetId, v))
-}
-
-// AssetIdNEQ applies the NEQ predicate on the "asset_id" field.
-func AssetIdNEQ(v uuid.UUID) predicate.Fact {
-	return predicate.Fact(sql.FieldNEQ(FieldAssetId, v))
-}
-
-// AssetIdIn applies the In predicate on the "asset_id" field.
-func AssetIdIn(vs ...uuid.UUID) predicate.Fact {
-	return predicate.Fact(sql.FieldIn(FieldAssetId, vs...))
-}
-
-// AssetIdNotIn applies the NotIn predicate on the "asset_id" field.
-func AssetIdNotIn(vs ...uuid.UUID) predicate.Fact {
-	return predicate.Fact(sql.FieldNotIn(FieldAssetId, vs...))
-}
-
 // HasTenant applies the HasEdge predicate on the "tenant" edge.
 func HasTenant() predicate.Fact {
 	return predicate.Fact(func(s *sql.Selector) {
@@ -586,29 +701,6 @@ func HasTenant() predicate.Fact {
 func HasTenantWith(preds ...predicate.Tenant) predicate.Fact {
 	return predicate.Fact(func(s *sql.Selector) {
 		step := newTenantStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasAsset applies the HasEdge predicate on the "asset" edge.
-func HasAsset() predicate.Fact {
-	return predicate.Fact(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldId),
-			sqlgraph.Edge(sqlgraph.M2O, false, AssetTable, AssetColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasAssetWith applies the HasEdge predicate on the "asset" edge with a given conditions (other predicates).
-func HasAssetWith(preds ...predicate.Asset) predicate.Fact {
-	return predicate.Fact(func(s *sql.Selector) {
-		step := newAssetStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

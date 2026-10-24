@@ -130,3 +130,59 @@ func LegacyFact(key, value string, cleared bool) (field protoreflect.FieldNumber
 	}
 	return s.Field, s.Key, j, nil
 }
+
+// valueOf is a fact Rove says under `key` -- `value`, or cleared for nil -- as
+// the value of the asset's field payday's past writes it as: an attribute an
+// entry of the map, gone when it is cleared, and a type or a model the edge to
+// the row the identifier names.
+func valueOf(key string, value *string) (past.Value, error) {
+	s, err := SlotOf(key)
+	if err != nil {
+		return past.Value{}, err
+	}
+	fd := assetDesc.Fields().ByNumber(s.Field)
+	switch {
+	case fd.IsMap():
+		k := protoreflect.ValueOfString(s.Key).MapKey()
+		if value == nil {
+			return past.Entry(fd, k, protoreflect.Value{}), nil
+		}
+		return past.Entry(fd, k, protoreflect.ValueOfString(*value)), nil
+	case value == nil:
+		return past.Cleared(fd), nil
+	case fd.Message() != nil:
+		id, err := pdid.Parse(*value)
+		if err != nil {
+			return past.Value{}, fmt.Errorf("fact %q: %q is not an identifier: %w", key, *value, err)
+		}
+		row := (&app.Asset{}).ProtoReflect().NewField(fd).Message()
+		row.Set(row.Descriptor().Fields().ByName("id"), protoreflect.ValueOfBytes(id.Bytes()))
+		return past.To(fd, protoreflect.ValueOfMessage(row)), nil
+	}
+	return past.To(fd, protoreflect.ValueOfString(*value)), nil
+}
+
+// textOf is a fact of an asset's field as Rove reads it, the text it was said
+// in: a string as it is, an edge as the identifier of the row it names, and
+// nothing for one cleared.
+func textOf(s past.Slot, value string) (string, error) {
+	fd := assetDesc.Fields().ByNumber(s.Field)
+	if fd == nil {
+		return "", fmt.Errorf("field %d is no field of an asset", s.Field)
+	}
+	if fd.IsMap() {
+		fd = fd.MapValue()
+	}
+	v, err := past.Decode(fd, value)
+	if err != nil || !v.IsValid() {
+		return "", err
+	}
+	if md := fd.Message(); md != nil {
+		id, err := pdid.From(v.Message().Get(md.Fields().ByName("id")).Bytes())
+		if err != nil {
+			return "", err
+		}
+		return id.String(), nil
+	}
+	return v.String(), nil
+}

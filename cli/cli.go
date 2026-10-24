@@ -188,31 +188,56 @@ func runs(ctx context.Context, self *xli.Command, these []*xli.Command) bool {
 // of replaced indexes this dropped by hand after #122, whose every deployment
 // has migrated past that build.
 func Migrate(ctx context.Context, s *cmd.Server) error {
-	if err := dropOldSessions(ctx, s); err != nil {
-		return err
-	}
-	if err := dropGone(ctx, s); err != nil {
-		return err
-	}
-	if err := rename.Indexes(ctx, s.Db, s.Dialect, pd.IndexRenames); err != nil {
-		return err
-	}
-	if err := stashTerms(ctx, s); err != nil {
-		return err
-	}
-	if err := entmigrate.NewSchema(s.Drv).Create(ctx); err != nil {
-		return err
-	}
-	if err := moveTerms(ctx, s); err != nil {
-		return err
-	}
-	if s.Dialect != "postgres" {
+	_, err := migrate(ctx, s)
+	return err
+}
+
+// Migrated is what a migration did that is more than the schema's shape:
+// rows it rewrote, and how many of them it put on the trail.
+type Migrated struct {
+	// Facts is the assets' facts moved into payday's past (payday#151), and
+	// Recorded the lines the trail was given of them.
+	Facts, Recorded int
+}
+
+// migrate is [Migrate], answering what it rewrote.
+func migrate(ctx context.Context, s *cmd.Server) (Migrated, error) {
+	out := Migrated{}
+	err := func() error {
+		if err := dropOldSessions(ctx, s); err != nil {
+			return err
+		}
+		if err := dropGone(ctx, s); err != nil {
+			return err
+		}
+		if err := rename.Indexes(ctx, s.Db, s.Dialect, pd.IndexRenames); err != nil {
+			return err
+		}
+		if err := stashTerms(ctx, s); err != nil {
+			return err
+		}
+		if err := stashFacts(ctx, s); err != nil {
+			return err
+		}
+		if err := entmigrate.NewSchema(s.Drv).Create(ctx); err != nil {
+			return err
+		}
+		if err := moveTerms(ctx, s); err != nil {
+			return err
+		}
+		var err error
+		if out.Facts, out.Recorded, err = moveFacts(ctx, s); err != nil {
+			return err
+		}
+		if s.Dialect != "postgres" {
+			return nil
+		}
+		if _, err := s.Db.ExecContext(ctx, pgExtras); err != nil {
+			return fmt.Errorf("postgres extras: %w", err)
+		}
 		return nil
-	}
-	if _, err := s.Db.ExecContext(ctx, pgExtras); err != nil {
-		return fmt.Errorf("postgres extras: %w", err)
-	}
-	return nil
+	}()
+	return out, err
 }
 
 // dropOldSessions takes out a session table from before a session was an

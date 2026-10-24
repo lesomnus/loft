@@ -1027,596 +1027,11 @@ func (b0 Stewardship_builder) Build() *Stewardship {
 	return m0
 }
 
-// Fact is one attribute of an asset from a moment on: "from valid_from, key is
-// value" (design 3.3, D5).
-type Fact struct {
-	state                   protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id           []byte                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Tenant       *Tenant                `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Asset        *Asset                 `protobuf:"bytes,8,opt,name=asset"`
-	xxx_hidden_Key          string                 `protobuf:"bytes,9,opt,name=key"`
-	xxx_hidden_Value        string                 `protobuf:"bytes,10,opt,name=value"`
-	xxx_hidden_Cleared      bool                   `protobuf:"varint,11,opt,name=cleared"`
-	xxx_hidden_DateUpdated  *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
-	xxx_hidden_DateCreated  *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_ValidFrom    *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=valid_from,json=validFrom"`
-	xxx_hidden_EventId      []byte                 `protobuf:"bytes,19,opt,name=event_id,json=eventId"`
-	xxx_hidden_SupersededAt *timestamppb.Timestamp `protobuf:"bytes,20,opt,name=superseded_at,json=supersededAt"`
-	xxx_hidden_SupersededBy []byte                 `protobuf:"bytes,21,opt,name=superseded_by,json=supersededBy"`
-	unknownFields           protoimpl.UnknownFields
-	sizeCache               protoimpl.SizeCache
-}
-
-func (x *Fact) Reset() {
-	*x = Fact{}
-	mi := &file_rove_history_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Fact) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Fact) ProtoMessage() {}
-
-func (x *Fact) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *Fact) GetId() []byte {
-	if x != nil {
-		return x.xxx_hidden_Id
-	}
-	return nil
-}
-
-func (x *Fact) GetTenant() *Tenant {
-	if x != nil {
-		return x.xxx_hidden_Tenant
-	}
-	return nil
-}
-
-func (x *Fact) GetAsset() *Asset {
-	if x != nil {
-		return x.xxx_hidden_Asset
-	}
-	return nil
-}
-
-func (x *Fact) GetKey() string {
-	if x != nil {
-		return x.xxx_hidden_Key
-	}
-	return ""
-}
-
-func (x *Fact) GetValue() string {
-	if x != nil {
-		return x.xxx_hidden_Value
-	}
-	return ""
-}
-
-func (x *Fact) GetCleared() bool {
-	if x != nil {
-		return x.xxx_hidden_Cleared
-	}
-	return false
-}
-
-func (x *Fact) GetDateUpdated() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DateUpdated
-	}
-	return nil
-}
-
-func (x *Fact) GetDateCreated() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DateCreated
-	}
-	return nil
-}
-
-func (x *Fact) GetValidFrom() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_ValidFrom
-	}
-	return nil
-}
-
-func (x *Fact) GetEventId() []byte {
-	if x != nil {
-		return x.xxx_hidden_EventId
-	}
-	return nil
-}
-
-func (x *Fact) GetSupersededAt() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_SupersededAt
-	}
-	return nil
-}
-
-func (x *Fact) GetSupersededBy() []byte {
-	if x != nil {
-		return x.xxx_hidden_SupersededBy
-	}
-	return nil
-}
-
-func (x *Fact) SetId(v []byte) {
-	if v == nil {
-		v = []byte{}
-	}
-	x.xxx_hidden_Id = v
-}
-
-func (x *Fact) SetTenant(v *Tenant) {
-	x.xxx_hidden_Tenant = v
-}
-
-func (x *Fact) SetAsset(v *Asset) {
-	x.xxx_hidden_Asset = v
-}
-
-func (x *Fact) SetKey(v string) {
-	x.xxx_hidden_Key = v
-}
-
-func (x *Fact) SetValue(v string) {
-	x.xxx_hidden_Value = v
-}
-
-func (x *Fact) SetCleared(v bool) {
-	x.xxx_hidden_Cleared = v
-}
-
-func (x *Fact) SetDateUpdated(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DateUpdated = v
-}
-
-func (x *Fact) SetDateCreated(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DateCreated = v
-}
-
-func (x *Fact) SetValidFrom(v *timestamppb.Timestamp) {
-	x.xxx_hidden_ValidFrom = v
-}
-
-func (x *Fact) SetEventId(v []byte) {
-	if v == nil {
-		v = []byte{}
-	}
-	x.xxx_hidden_EventId = v
-}
-
-func (x *Fact) SetSupersededAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_SupersededAt = v
-}
-
-func (x *Fact) SetSupersededBy(v []byte) {
-	if v == nil {
-		v = []byte{}
-	}
-	x.xxx_hidden_SupersededBy = v
-}
-
-func (x *Fact) HasTenant() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Tenant != nil
-}
-
-func (x *Fact) HasAsset() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Asset != nil
-}
-
-func (x *Fact) HasDateUpdated() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DateUpdated != nil
-}
-
-func (x *Fact) HasDateCreated() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DateCreated != nil
-}
-
-func (x *Fact) HasValidFrom() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_ValidFrom != nil
-}
-
-func (x *Fact) HasSupersededAt() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_SupersededAt != nil
-}
-
-func (x *Fact) ClearTenant() {
-	x.xxx_hidden_Tenant = nil
-}
-
-func (x *Fact) ClearAsset() {
-	x.xxx_hidden_Asset = nil
-}
-
-func (x *Fact) ClearDateUpdated() {
-	x.xxx_hidden_DateUpdated = nil
-}
-
-func (x *Fact) ClearDateCreated() {
-	x.xxx_hidden_DateCreated = nil
-}
-
-func (x *Fact) ClearValidFrom() {
-	x.xxx_hidden_ValidFrom = nil
-}
-
-func (x *Fact) ClearSupersededAt() {
-	x.xxx_hidden_SupersededAt = nil
-}
-
-type Fact_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Id     []byte
-	Tenant *Tenant
-	Asset  *Asset
-	// status | condition | name | type | model | tag | serial | attr.<key> ...
-	Key string
-	// The value as text; empty with `cleared` means the key stopped having one.
-	Value        string
-	Cleared      bool
-	DateUpdated  *timestamppb.Timestamp
-	DateCreated  *timestamppb.Timestamp
-	ValidFrom    *timestamppb.Timestamp
-	EventId      []byte
-	SupersededAt *timestamppb.Timestamp
-	SupersededBy []byte
-}
-
-func (b0 Fact_builder) Build() *Fact {
-	m0 := &Fact{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Id = b.Id
-	x.xxx_hidden_Tenant = b.Tenant
-	x.xxx_hidden_Asset = b.Asset
-	x.xxx_hidden_Key = b.Key
-	x.xxx_hidden_Value = b.Value
-	x.xxx_hidden_Cleared = b.Cleared
-	x.xxx_hidden_DateUpdated = b.DateUpdated
-	x.xxx_hidden_DateCreated = b.DateCreated
-	x.xxx_hidden_ValidFrom = b.ValidFrom
-	x.xxx_hidden_EventId = b.EventId
-	x.xxx_hidden_SupersededAt = b.SupersededAt
-	x.xxx_hidden_SupersededBy = b.SupersededBy
-	return m0
-}
-
-// Event is one domain operation: what was done, by whom, when it happened and
-// why. Time rows point at the event that wrote them.
-type Event struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
-	xxx_hidden_Tenant      *Tenant                `protobuf:"bytes,2,opt,name=tenant"`
-	xxx_hidden_Desc        string                 `protobuf:"bytes,6,opt,name=desc"`
-	xxx_hidden_Kind        string                 `protobuf:"bytes,8,opt,name=kind"`
-	xxx_hidden_ActorId     []byte                 `protobuf:"bytes,9,opt,name=actor_id,json=actorId"`
-	xxx_hidden_OccurredAt  *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=occurred_at,json=occurredAt"`
-	xxx_hidden_Reason      string                 `protobuf:"bytes,11,opt,name=reason"`
-	xxx_hidden_SubjectId   []byte                 `protobuf:"bytes,12,opt,name=subject_id,json=subjectId"`
-	xxx_hidden_DateUpdated *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
-	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
-	xxx_hidden_TraceId     []byte                 `protobuf:"bytes,16,opt,name=trace_id,json=traceId"`
-	xxx_hidden_Payload     string                 `protobuf:"bytes,17,opt,name=payload"`
-	xxx_hidden_CauseId     []byte                 `protobuf:"bytes,18,opt,name=cause_id,json=causeId"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
-}
-
-func (x *Event) Reset() {
-	*x = Event{}
-	mi := &file_rove_history_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Event) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Event) ProtoMessage() {}
-
-func (x *Event) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *Event) GetId() []byte {
-	if x != nil {
-		return x.xxx_hidden_Id
-	}
-	return nil
-}
-
-func (x *Event) GetTenant() *Tenant {
-	if x != nil {
-		return x.xxx_hidden_Tenant
-	}
-	return nil
-}
-
-func (x *Event) GetDesc() string {
-	if x != nil {
-		return x.xxx_hidden_Desc
-	}
-	return ""
-}
-
-func (x *Event) GetKind() string {
-	if x != nil {
-		return x.xxx_hidden_Kind
-	}
-	return ""
-}
-
-func (x *Event) GetActorId() []byte {
-	if x != nil {
-		return x.xxx_hidden_ActorId
-	}
-	return nil
-}
-
-func (x *Event) GetOccurredAt() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_OccurredAt
-	}
-	return nil
-}
-
-func (x *Event) GetReason() string {
-	if x != nil {
-		return x.xxx_hidden_Reason
-	}
-	return ""
-}
-
-func (x *Event) GetSubjectId() []byte {
-	if x != nil {
-		return x.xxx_hidden_SubjectId
-	}
-	return nil
-}
-
-func (x *Event) GetDateUpdated() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DateUpdated
-	}
-	return nil
-}
-
-func (x *Event) GetDateCreated() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_DateCreated
-	}
-	return nil
-}
-
-func (x *Event) GetTraceId() []byte {
-	if x != nil {
-		return x.xxx_hidden_TraceId
-	}
-	return nil
-}
-
-func (x *Event) GetPayload() string {
-	if x != nil {
-		return x.xxx_hidden_Payload
-	}
-	return ""
-}
-
-func (x *Event) GetCauseId() []byte {
-	if x != nil {
-		return x.xxx_hidden_CauseId
-	}
-	return nil
-}
-
-func (x *Event) SetId(v []byte) {
-	if v == nil {
-		v = []byte{}
-	}
-	x.xxx_hidden_Id = v
-}
-
-func (x *Event) SetTenant(v *Tenant) {
-	x.xxx_hidden_Tenant = v
-}
-
-func (x *Event) SetDesc(v string) {
-	x.xxx_hidden_Desc = v
-}
-
-func (x *Event) SetKind(v string) {
-	x.xxx_hidden_Kind = v
-}
-
-func (x *Event) SetActorId(v []byte) {
-	if v == nil {
-		v = []byte{}
-	}
-	x.xxx_hidden_ActorId = v
-}
-
-func (x *Event) SetOccurredAt(v *timestamppb.Timestamp) {
-	x.xxx_hidden_OccurredAt = v
-}
-
-func (x *Event) SetReason(v string) {
-	x.xxx_hidden_Reason = v
-}
-
-func (x *Event) SetSubjectId(v []byte) {
-	if v == nil {
-		v = []byte{}
-	}
-	x.xxx_hidden_SubjectId = v
-}
-
-func (x *Event) SetDateUpdated(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DateUpdated = v
-}
-
-func (x *Event) SetDateCreated(v *timestamppb.Timestamp) {
-	x.xxx_hidden_DateCreated = v
-}
-
-func (x *Event) SetTraceId(v []byte) {
-	if v == nil {
-		v = []byte{}
-	}
-	x.xxx_hidden_TraceId = v
-}
-
-func (x *Event) SetPayload(v string) {
-	x.xxx_hidden_Payload = v
-}
-
-func (x *Event) SetCauseId(v []byte) {
-	if v == nil {
-		v = []byte{}
-	}
-	x.xxx_hidden_CauseId = v
-}
-
-func (x *Event) HasTenant() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Tenant != nil
-}
-
-func (x *Event) HasOccurredAt() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_OccurredAt != nil
-}
-
-func (x *Event) HasDateUpdated() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DateUpdated != nil
-}
-
-func (x *Event) HasDateCreated() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_DateCreated != nil
-}
-
-func (x *Event) ClearTenant() {
-	x.xxx_hidden_Tenant = nil
-}
-
-func (x *Event) ClearOccurredAt() {
-	x.xxx_hidden_OccurredAt = nil
-}
-
-func (x *Event) ClearDateUpdated() {
-	x.xxx_hidden_DateUpdated = nil
-}
-
-func (x *Event) ClearDateCreated() {
-	x.xxx_hidden_DateCreated = nil
-}
-
-type Event_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	Id     []byte
-	Tenant *Tenant
-	// A short sentence for a person to read.
-	Desc string
-	// asset.add | asset.move | custody.issue | reservation.approve | ...
-	Kind string
-	// The holder that asked, or empty for the deployment's own work.
-	ActorId    []byte
-	OccurredAt *timestamppb.Timestamp
-	Reason     string
-	// The primary thing this was about, so a timeline can find it.
-	SubjectId   []byte
-	DateUpdated *timestamppb.Timestamp
-	DateCreated *timestamppb.Timestamp
-	TraceId     []byte
-	// What the operation said, as JSON, for a person reading the history.
-	Payload string
-	// The operation this is part of. An operation over many things records an
-	// event of its own and, for each thing it changed, a child: what it did to
-	// that one, with that one as the subject and this naming the operation's
-	// event (design D34). Empty on an operation's own event.
-	CauseId []byte
-}
-
-func (b0 Event_builder) Build() *Event {
-	m0 := &Event{}
-	b, x := &b0, m0
-	_, _ = b, x
-	x.xxx_hidden_Id = b.Id
-	x.xxx_hidden_Tenant = b.Tenant
-	x.xxx_hidden_Desc = b.Desc
-	x.xxx_hidden_Kind = b.Kind
-	x.xxx_hidden_ActorId = b.ActorId
-	x.xxx_hidden_OccurredAt = b.OccurredAt
-	x.xxx_hidden_Reason = b.Reason
-	x.xxx_hidden_SubjectId = b.SubjectId
-	x.xxx_hidden_DateUpdated = b.DateUpdated
-	x.xxx_hidden_DateCreated = b.DateCreated
-	x.xxx_hidden_TraceId = b.TraceId
-	x.xxx_hidden_Payload = b.Payload
-	x.xxx_hidden_CauseId = b.CauseId
-	return m0
-}
-
 var File_rove_history_proto protoreflect.FileDescriptor
 
 const file_rove_history_proto_rawDesc = "" +
 	"\n" +
-	"\x12rove/history.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x10rove/asset.proto\x1a\x0erove/org.proto\x1a\x18rove/payday/tenant.proto\"\xe3\a\n" +
+	"\x12rove/history.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x10rove/asset.proto\x1a\x0erove/org.proto\x1a\x18rove/payday/tenant.proto\"\xef\a\n" +
 	"\tPlacement\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12)\n" +
@@ -1631,10 +1046,10 @@ const file_rove_history_proto_rawDesc = "" +
 	"\x04u_to\x18\x10 \x01(\x05R\x03uTo\x12B\n" +
 	"\n" +
 	"valid_from\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\tvalidFrom\x12=\n" +
-	"\bvalid_to\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\avalidTo\x12!\n" +
-	"\bevent_id\x18\x13 \x01(\fB\x06\xea\x82\x16\x02\x10@R\aeventId\x12M\n" +
-	"\rsuperseded_at\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampB\f\xea\x82\x16\x028\x01\xaa\xc1\x16\x02\x10\x01R\fsupersededAt\x12-\n" +
-	"\rsuperseded_by\x18\x15 \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\fsupersededBy:\xaa\x02\xca\xfc\x15\xb9\x01\x12\a\x10\x01\x82\x01\x02\x12\x00\x1a,\x12\x04page\x1a\n" +
+	"\bvalid_to\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\avalidTo\x12'\n" +
+	"\bevent_id\x18\x13 \x01(\fB\f\xea\x82\x16\x02\x10@\xaa\xc1\x16\x02(\x01R\aeventId\x12M\n" +
+	"\rsuperseded_at\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampB\f\xea\x82\x16\x028\x01\xaa\xc1\x16\x02\x10\x01R\fsupersededAt\x123\n" +
+	"\rsuperseded_by\x18\x15 \x01(\fB\x0e\xea\x82\x16\x04\x10@8\x01\xaa\xc1\x16\x02(\x01R\fsupersededBy:\xaa\x02\xca\xfc\x15\xb9\x01\x12\a\x10\x01\x82\x01\x02\x12\x00\x1a,\x12\x04page\x1a\n" +
 	"\n" +
 	"\x06tenant\x10\x02\x1a\x10\n" +
 	"\fdate_created\x10\x0f\x1a\x06\n" +
@@ -1659,7 +1074,7 @@ const file_rove_history_proto_rawDesc = "" +
 	"\x05child\x1a\b\n" +
 	"\x06parent d(\xe8\aB\x02\n" +
 	"\x00\"%\n" +
-	"\x06tenant\"\fchild.tenant\"\rparent.tenant\"\xb0\b\n" +
+	"\x06tenant\"\fchild.tenant\"\rparent.tenant\"\xbc\b\n" +
 	"\x04Link\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12.\n" +
@@ -1673,10 +1088,10 @@ const file_rove_history_proto_rawDesc = "" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12B\n" +
 	"\n" +
 	"valid_from\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\tvalidFrom\x12=\n" +
-	"\bvalid_to\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\avalidTo\x12!\n" +
-	"\bevent_id\x18\x13 \x01(\fB\x06\xea\x82\x16\x02\x10@R\aeventId\x12M\n" +
-	"\rsuperseded_at\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampB\f\xea\x82\x16\x028\x01\xaa\xc1\x16\x02\x10\x01R\fsupersededAt\x12-\n" +
-	"\rsuperseded_by\x18\x15 \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\fsupersededBy\x1a9\n" +
+	"\bvalid_to\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\avalidTo\x12'\n" +
+	"\bevent_id\x18\x13 \x01(\fB\f\xea\x82\x16\x02\x10@\xaa\xc1\x16\x02(\x01R\aeventId\x12M\n" +
+	"\rsuperseded_at\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampB\f\xea\x82\x16\x028\x01\xaa\xc1\x16\x02\x10\x01R\fsupersededAt\x123\n" +
+	"\rsuperseded_by\x18\x15 \x01(\fB\x0e\xea\x82\x16\x04\x10@8\x01\xaa\xc1\x16\x02(\x01R\fsupersededBy\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\xb1\x02\xca\xfc\x15\xb6\x01\x12\x02\x10\x01\x1a,\x12\x04page\x1a\n" +
@@ -1706,7 +1121,7 @@ const file_rove_history_proto_rawDesc = "" +
 	"\x06target\x1a\x06\n" +
 	"\x04kind d(\xe8\aB\x02\n" +
 	"\x00\"&\n" +
-	"\x06tenant\"\rsource.tenant\"\rtarget.tenant\"\xa4\a\n" +
+	"\x06tenant\"\rsource.tenant\"\rtarget.tenant\"\xb0\a\n" +
 	"\vStewardship\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12)\n" +
@@ -1718,10 +1133,10 @@ const file_rove_history_proto_rawDesc = "" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12B\n" +
 	"\n" +
 	"valid_from\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\tvalidFrom\x12=\n" +
-	"\bvalid_to\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\avalidTo\x12!\n" +
-	"\bevent_id\x18\x13 \x01(\fB\x06\xea\x82\x16\x02\x10@R\aeventId\x12M\n" +
-	"\rsuperseded_at\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampB\f\xea\x82\x16\x028\x01\xaa\xc1\x16\x02\x10\x01R\fsupersededAt\x12-\n" +
-	"\rsuperseded_by\x18\x15 \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\fsupersededBy:\xa9\x02\xca\xfc\x15\xb2\x01\x12\x02\x10\x01\x1a,\x12\x04page\x1a\n" +
+	"\bvalid_to\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\avalidTo\x12'\n" +
+	"\bevent_id\x18\x13 \x01(\fB\f\xea\x82\x16\x02\x10@\xaa\xc1\x16\x02(\x01R\aeventId\x12M\n" +
+	"\rsuperseded_at\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampB\f\xea\x82\x16\x028\x01\xaa\xc1\x16\x02\x10\x01R\fsupersededAt\x123\n" +
+	"\rsuperseded_by\x18\x15 \x01(\fB\x0e\xea\x82\x16\x04\x10@8\x01\xaa\xc1\x16\x02(\x01R\fsupersededBy:\xa9\x02\xca\xfc\x15\xb2\x01\x12\x02\x10\x01\x1a,\x12\x04page\x1a\n" +
 	"\n" +
 	"\x06tenant\x10\x02\x1a\x10\n" +
 	"\fdate_created\x10\x0f\x1a\x06\n" +
@@ -1746,137 +1161,50 @@ const file_rove_history_proto_rawDesc = "" +
 	"\x05party\x1a\x06\n" +
 	"\x04role d(\xe8\aB\x02\n" +
 	"\x00\"$\n" +
-	"\x06tenant\"\fasset.tenant\"\fparty.tenant\"\xfa\x05\n" +
-	"\x04Fact\x12\x1b\n" +
-	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12)\n" +
-	"\x05asset\x18\b \x01(\v2\v.rove.AssetB\x06\xf2\x82\x16\x02@\x01R\x05asset\x12\x10\n" +
-	"\x03key\x18\t \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\n" +
-	" \x01(\tR\x05value\x12\x18\n" +
-	"\acleared\x18\v \x01(\bR\acleared\x12F\n" +
-	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12H\n" +
-	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12B\n" +
-	"\n" +
-	"valid_from\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\tvalidFrom\x12!\n" +
-	"\bevent_id\x18\x13 \x01(\fB\x06\xea\x82\x16\x02\x10@R\aeventId\x12M\n" +
-	"\rsuperseded_at\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampB\f\xea\x82\x16\x028\x01\xaa\xc1\x16\x02\x10\x01R\fsupersededAt\x12-\n" +
-	"\rsuperseded_by\x18\x15 \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\fsupersededBy:\xc2\x01\xca\xfc\x15d\x12\a\x10\x01\x82\x01\x02\x12\x00\x1a,\x12\x04page\x1a\n" +
-	"\n" +
-	"\x06tenant\x10\x02\x1a\x10\n" +
-	"\fdate_created\x10\x0f\x1a\x06\n" +
-	"\x02id\x10\x01\x1a+\x12\x05asset\x1a\t\n" +
-	"\x05asset\x10\b\x1a\a\n" +
-	"\x03key\x10\t\x1a\x0e\n" +
-	"\n" +
-	"valid_from\x10\x11\x8a\xbb\x16V\b\x1026\n" +
-	"\x10\n" +
-	"\x0e\n" +
-	"\fdate_created\n" +
-	"\x06\n" +
-	"\x04\n" +
-	"\x02id\x1a\x05\n" +
-	"\x03ref\x1a\a\n" +
-	"\x05asset\x1a\x05\n" +
-	"\x03key d(\xe8\aB\x02\n" +
-	"\x00\"\x16\n" +
-	"\x06tenant\"\fasset.tenant\"\x80\x06\n" +
-	"\x05Event\x12\x1b\n" +
-	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x12\n" +
-	"\x04desc\x18\x06 \x01(\tR\x04desc\x12\x12\n" +
-	"\x04kind\x18\b \x01(\tR\x04kind\x12#\n" +
-	"\bactor_id\x18\t \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\aactorId\x12D\n" +
-	"\voccurred_at\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\n" +
-	"occurredAt\x12\x16\n" +
-	"\x06reason\x18\v \x01(\tR\x06reason\x12'\n" +
-	"\n" +
-	"subject_id\x18\f \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\tsubjectId\x12F\n" +
-	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12H\n" +
-	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12\"\n" +
-	"\btrace_id\x18\x10 \x01(\fB\a\xea\x82\x16\x03\x82\x01\x00R\atraceId\x12\x18\n" +
-	"\apayload\x18\x11 \x01(\tR\apayload\x12#\n" +
-	"\bcause_id\x18\x12 \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\acauseId:\xe2\x01\xca\xfc\x15z\x12\a\x10\x01\x82\x01\x02\x12\x00\x1a,\x12\x04page\x1a\n" +
-	"\n" +
-	"\x06tenant\x10\x02\x1a\x10\n" +
-	"\fdate_created\x10\x0f\x1a\x06\n" +
-	"\x02id\x10\x01\x1a*\x12\asubject\x1a\x0e\n" +
-	"\n" +
-	"subject_id\x10\f\x1a\x0f\n" +
-	"\voccurred_at\x10\n" +
-	"\x1a\x15\x12\x05cause\x1a\f\n" +
-	"\bcause_id\x10\x12\x8a\xbb\x16`\b\x112X\n" +
-	"\x12\n" +
-	"\x0e\n" +
-	"\fdate_created\x10\x01\n" +
-	"\b\n" +
-	"\x04\n" +
-	"\x02id\x10\x01\x1a\x05\n" +
-	"\x03ref\x1a\f\n" +
-	"\n" +
-	"subject_id\x1a\x06\n" +
-	"\x04kind\x1a\n" +
-	"\n" +
-	"\bactor_id\x1a\n" +
-	"\n" +
-	"\bcause_id 2(\xf4\x03B\x02\n" +
-	"\x00B\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"\x06tenant\"\fasset.tenant\"\fparty.tenantB\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
-var file_rove_history_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_rove_history_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_rove_history_proto_goTypes = []any{
 	(*Placement)(nil),             // 0: rove.Placement
 	(*Link)(nil),                  // 1: rove.Link
 	(*Stewardship)(nil),           // 2: rove.Stewardship
-	(*Fact)(nil),                  // 3: rove.Fact
-	(*Event)(nil),                 // 4: rove.Event
-	nil,                           // 5: rove.Link.LabelsEntry
-	(*Tenant)(nil),                // 6: rove.Tenant
-	(*Asset)(nil),                 // 7: rove.Asset
-	(*timestamppb.Timestamp)(nil), // 8: google.protobuf.Timestamp
-	(*Party)(nil),                 // 9: rove.Party
+	nil,                           // 3: rove.Link.LabelsEntry
+	(*Tenant)(nil),                // 4: rove.Tenant
+	(*Asset)(nil),                 // 5: rove.Asset
+	(*timestamppb.Timestamp)(nil), // 6: google.protobuf.Timestamp
+	(*Party)(nil),                 // 7: rove.Party
 }
 var file_rove_history_proto_depIdxs = []int32{
-	6,  // 0: rove.Placement.tenant:type_name -> rove.Tenant
-	7,  // 1: rove.Placement.child:type_name -> rove.Asset
-	7,  // 2: rove.Placement.parent:type_name -> rove.Asset
-	8,  // 3: rove.Placement.date_updated:type_name -> google.protobuf.Timestamp
-	8,  // 4: rove.Placement.date_created:type_name -> google.protobuf.Timestamp
-	8,  // 5: rove.Placement.valid_from:type_name -> google.protobuf.Timestamp
-	8,  // 6: rove.Placement.valid_to:type_name -> google.protobuf.Timestamp
-	8,  // 7: rove.Placement.superseded_at:type_name -> google.protobuf.Timestamp
-	6,  // 8: rove.Link.tenant:type_name -> rove.Tenant
-	5,  // 9: rove.Link.labels:type_name -> rove.Link.LabelsEntry
-	7,  // 10: rove.Link.source:type_name -> rove.Asset
-	7,  // 11: rove.Link.target:type_name -> rove.Asset
-	8,  // 12: rove.Link.date_updated:type_name -> google.protobuf.Timestamp
-	8,  // 13: rove.Link.date_created:type_name -> google.protobuf.Timestamp
-	8,  // 14: rove.Link.valid_from:type_name -> google.protobuf.Timestamp
-	8,  // 15: rove.Link.valid_to:type_name -> google.protobuf.Timestamp
-	8,  // 16: rove.Link.superseded_at:type_name -> google.protobuf.Timestamp
-	6,  // 17: rove.Stewardship.tenant:type_name -> rove.Tenant
-	7,  // 18: rove.Stewardship.asset:type_name -> rove.Asset
-	9,  // 19: rove.Stewardship.party:type_name -> rove.Party
-	8,  // 20: rove.Stewardship.date_updated:type_name -> google.protobuf.Timestamp
-	8,  // 21: rove.Stewardship.date_created:type_name -> google.protobuf.Timestamp
-	8,  // 22: rove.Stewardship.valid_from:type_name -> google.protobuf.Timestamp
-	8,  // 23: rove.Stewardship.valid_to:type_name -> google.protobuf.Timestamp
-	8,  // 24: rove.Stewardship.superseded_at:type_name -> google.protobuf.Timestamp
-	6,  // 25: rove.Fact.tenant:type_name -> rove.Tenant
-	7,  // 26: rove.Fact.asset:type_name -> rove.Asset
-	8,  // 27: rove.Fact.date_updated:type_name -> google.protobuf.Timestamp
-	8,  // 28: rove.Fact.date_created:type_name -> google.protobuf.Timestamp
-	8,  // 29: rove.Fact.valid_from:type_name -> google.protobuf.Timestamp
-	8,  // 30: rove.Fact.superseded_at:type_name -> google.protobuf.Timestamp
-	6,  // 31: rove.Event.tenant:type_name -> rove.Tenant
-	8,  // 32: rove.Event.occurred_at:type_name -> google.protobuf.Timestamp
-	8,  // 33: rove.Event.date_updated:type_name -> google.protobuf.Timestamp
-	8,  // 34: rove.Event.date_created:type_name -> google.protobuf.Timestamp
-	35, // [35:35] is the sub-list for method output_type
-	35, // [35:35] is the sub-list for method input_type
-	35, // [35:35] is the sub-list for extension type_name
-	35, // [35:35] is the sub-list for extension extendee
-	0,  // [0:35] is the sub-list for field type_name
+	4,  // 0: rove.Placement.tenant:type_name -> rove.Tenant
+	5,  // 1: rove.Placement.child:type_name -> rove.Asset
+	5,  // 2: rove.Placement.parent:type_name -> rove.Asset
+	6,  // 3: rove.Placement.date_updated:type_name -> google.protobuf.Timestamp
+	6,  // 4: rove.Placement.date_created:type_name -> google.protobuf.Timestamp
+	6,  // 5: rove.Placement.valid_from:type_name -> google.protobuf.Timestamp
+	6,  // 6: rove.Placement.valid_to:type_name -> google.protobuf.Timestamp
+	6,  // 7: rove.Placement.superseded_at:type_name -> google.protobuf.Timestamp
+	4,  // 8: rove.Link.tenant:type_name -> rove.Tenant
+	3,  // 9: rove.Link.labels:type_name -> rove.Link.LabelsEntry
+	5,  // 10: rove.Link.source:type_name -> rove.Asset
+	5,  // 11: rove.Link.target:type_name -> rove.Asset
+	6,  // 12: rove.Link.date_updated:type_name -> google.protobuf.Timestamp
+	6,  // 13: rove.Link.date_created:type_name -> google.protobuf.Timestamp
+	6,  // 14: rove.Link.valid_from:type_name -> google.protobuf.Timestamp
+	6,  // 15: rove.Link.valid_to:type_name -> google.protobuf.Timestamp
+	6,  // 16: rove.Link.superseded_at:type_name -> google.protobuf.Timestamp
+	4,  // 17: rove.Stewardship.tenant:type_name -> rove.Tenant
+	5,  // 18: rove.Stewardship.asset:type_name -> rove.Asset
+	7,  // 19: rove.Stewardship.party:type_name -> rove.Party
+	6,  // 20: rove.Stewardship.date_updated:type_name -> google.protobuf.Timestamp
+	6,  // 21: rove.Stewardship.date_created:type_name -> google.protobuf.Timestamp
+	6,  // 22: rove.Stewardship.valid_from:type_name -> google.protobuf.Timestamp
+	6,  // 23: rove.Stewardship.valid_to:type_name -> google.protobuf.Timestamp
+	6,  // 24: rove.Stewardship.superseded_at:type_name -> google.protobuf.Timestamp
+	25, // [25:25] is the sub-list for method output_type
+	25, // [25:25] is the sub-list for method input_type
+	25, // [25:25] is the sub-list for extension type_name
+	25, // [25:25] is the sub-list for extension extendee
+	0,  // [0:25] is the sub-list for field type_name
 }
 
 func init() { file_rove_history_proto_init() }
@@ -1893,7 +1221,7 @@ func file_rove_history_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_history_proto_rawDesc), len(file_rove_history_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

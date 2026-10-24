@@ -1,0 +1,18 @@
+edition = "2023";
+
+package payday;
+
+// What Rove adds to payday's Event: the two columns its own events had, which
+// a row from before Rove's past was payday's keeps (payday#151). `desc` is the
+// sentence it was written with and `payload` what it named, as `k=v` lines;
+// such a row holds no `value`, and is said with them when it is read
+// (`server/domain/say.go`). Nothing writes either any more. Every event since
+// keeps a message instead, and is said from it, in the reader's words.
+//
+// Neither is personal (payday#151): a sentence names people by a mark --
+// `{party}`, `{holder}` -- and the payload by identifier, never by a name
+// (design 8.2).
+message Event {
+  string desc = 6 [(payday.field) = {personal: false}];
+  string payload = 17 [(payday.field) = {personal: false}];
+}

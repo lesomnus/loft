@@ -402,15 +402,17 @@ func TestTheTreeHoldsUnderTheDomainLayer(t *testing.T) {
 	refused(relate(host), "link_once")
 	x.NoError(relate(rack), "to another thing")
 
-	// The name the asset was registered with is a fact from its first day.
+	// The name the asset was registered with is a fact from its first day:
+	// its field 5, as payday's past keeps it (payday#151).
 	name := func(superseded bool) error {
 		q := e.s.Ent.Fact.Create().
 			SetId(pdid.New(pd.FactDomain).Uuid()).
 			SetTenantId(e.tenant.Uuid()).
-			SetAssetId(idUUID(dimm.GetId())).
-			SetKey("name").
-			SetValue("다른 이름").
-			SetCleared(false).
+			SetSubjectId(idUUID(dimm.GetId())).
+			SetDomain(uint32(pd.AssetDomain)).
+			SetFieldNumber(5).
+			SetKey("").
+			SetValue(`"다른 이름"`).
 			SetValidFrom(e.now.Add(-30 * day)).
 			SetEventId(newOpUUID()).
 			SetDateUpdated(e.now)

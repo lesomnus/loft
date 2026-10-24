@@ -2,7 +2,6 @@ package domain
 
 import (
 	"context"
-	"fmt"
 	"uuid"
 
 	"github.com/lesomnus/payday/pdid"
@@ -109,14 +108,10 @@ func (t *Tx) depart(member pdid.Id) (Departure, error) {
 		return out, err
 	}
 
-	payload := map[string]string{}
-	if out.Held > 0 {
-		payload["held"] = fmt.Sprint(out.Held)
-	}
-	if out.Ownerless {
-		payload["ownerless"] = "true"
-	}
-	return out, t.begin(nil, "account.depart", pdid.Nil, t.now, "계정 탈퇴: 개인정보 삭제", "", payload)
+	return out, t.begin(nil, "account.depart", pdid.Nil, t.now, "", app.AccountDeparted_builder{
+		Held:      uint32(out.Held),
+		Ownerless: out.Ownerless,
+	}.Build())
 }
 
 // pseudonymize forgets a person here: the record keeps its identifier, so the
@@ -314,9 +309,11 @@ func (t *Tx) succeed(h *ent.Holder) (pdid.Id, bool, error) {
 		}
 
 		id := pdid.Id(next.Id)
-		if err := t.begin(nil, "party.role", pdid.Nil, t.now, "소유자 승계: {holder} → owner (마지막 소유자의 계정 탈퇴)", "", map[string]string{
-			"role": "owner", "holder": id.String(),
-		}); err != nil {
+		if err := t.begin(nil, "party.role", pdid.Nil, t.now, "", app.PartyRoleSet_builder{
+			Holder: id.Bytes(),
+			Role:   "owner",
+			By:     "succession",
+		}.Build()); err != nil {
 			return pdid.Nil, false, err
 		}
 		if _, err := t.next.Holder().Patch(t.ctx, app.HolderPatchRequest_builder{

@@ -32,8 +32,12 @@ func NewCmdMigrate(c *cmd.Config) *xli.Command {
 				return err
 			}
 			defer s.Close()
-			if err := Migrate(ctx, s); err != nil {
+			v, err := migrate(ctx, s)
+			if err != nil {
 				return err
+			}
+			if v.Facts > 0 {
+				self.Printf("the assets' facts moved into payday's past: %d rewritten, %d put on the trail\n", v.Facts, v.Recorded)
 			}
 			self.Printf("the database is in this build's shape\n")
 			return nil

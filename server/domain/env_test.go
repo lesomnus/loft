@@ -71,9 +71,34 @@ func newEnvWith(t *testing.T, with func(c *cmd.Config)) *env {
 	e := &env{t: t, x: x, s: s, cfg: c, now: time.Now().Truncate(time.Second)}
 	s.Deps.Now = func() time.Time { return e.now }
 	s.Deps.LookupTXT = nil
+	// Whatever a test did, each event it recorded holds its kind's message,
+	// and of it only what its kind uses.
+	t.Cleanup(e.heldToKinds)
 
 	e.tenant, e.owner = e.newTenant("acme")
 	return e
+}
+
+// heldToKinds holds every event of the deployment to what payday's past
+// writes (payday#151): the message its kind declares, which reads as one,
+// holding only what the kind uses of it (`domain.Beyond`) -- or, for a row a
+// test wrote as one from before, none and the sentence it was written with.
+func (e *env) heldToKinds() {
+	e.t.Helper()
+	vs, err := e.s.Ent.Event.Query().All(context.Background())
+	e.x.NoError(err)
+	for _, v := range vs {
+		if v.Value == nil {
+			e.x.NotEmpty(v.Desc, "%s %s holds no message, and is no row from before", v.Kind, pdid.Id(v.Id))
+			continue
+		}
+		typ, ok := pd.EventKinds[v.Kind]
+		e.x.True(ok, "%s is a kind nothing declares", v.Kind)
+		e.x.Equal(typ.Descriptor().FullName(), v.Value.MessageName(), "%s holds another kind's message", v.Kind)
+		m := typ.New().Interface()
+		e.x.NoError(v.Value.UnmarshalTo(m), v.Kind)
+		e.x.Empty(domain.Beyond(v.Kind, m), "%s %s holds what its kind does not use", v.Kind, pdid.Id(v.Id))
+	}
 }
 
 // newTenant puts up a workspace and its owner the way `rove init` does -- the

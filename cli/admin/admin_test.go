@@ -14,7 +14,9 @@ import (
 	"github.com/lesomnus/payday/pdtest"
 	"github.com/lesomnus/xli"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/encoding/protojson"
 
+	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/cli"
 	admincli "github.com/lesomnus/rove/cli/admin"
 	"github.com/lesomnus/rove/cmd"
@@ -146,8 +148,15 @@ func TestAnOperatorWorksFromOutsideTheBox(t *testing.T) {
 	ev, err := d.s.Ent.Event.Query().Where(event.TenantId(tn.Id), event.Kind("party.role")).Only(ctx)
 	x.NoError(err)
 	x.Nil(ev.ActorId, "the deployment's own work, and nobody's in the workspace")
-	x.Equal("소유자 지정: {holder} → owner (운영자)", ev.Desc, "a person by a mark, and never by name")
-	x.Contains(ev.Payload, pdid.Id(kim.Id).String())
+	// Who by identifier, and never by name: the sentence names them when it
+	// is read (payday#151).
+	x.NotNil(ev.Value)
+	said := &app.PartyRoleSet{}
+	x.NoError(ev.Value.UnmarshalTo(said))
+	x.Equal("operator", said.GetBy())
+	x.Equal("owner", said.GetRole())
+	x.Equal(pdid.Id(kim.Id).Bytes(), said.GetHolder())
+	x.NotContains(protojson.Format(ev.Value), kim.Name)
 }
 
 // TestAnOperatorWritesEveryTermOfAContract: `contract set` at the entry point

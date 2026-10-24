@@ -74,7 +74,14 @@ func (s domainStock) Add(ctx context.Context, req *app.StockAddRequest) (*app.St
 		if row.GetUnit() == "" {
 			row.SetUnit("개")
 		}
-		if err := t.begin(req.GetOp(), "stock.add", pdid.Nil, t.now, fmt.Sprintf("재고 시작: %s @ %s", row.GetName(), sp.GetName()), "", nil); err != nil {
+		if err := t.begin(req.GetOp(), "stock.add", pdid.Nil, t.now, "", app.StockAdded_builder{
+			Stock:     id,
+			Name:      row.GetName(),
+			Model:     m.GetId(),
+			Space:     spid.Bytes(),
+			SpaceName: sp.GetName(),
+			Quantity:  req.GetQuantity(),
+		}.Build()); err != nil {
 			return err
 		}
 		v, err := t.next.Stock().Add(t.ctx, row)
@@ -122,7 +129,7 @@ func (t *Tx) lockStocks(ids ...uuid.UUID) error {
 // a receipt, a hand-over, a transfer -- and a movement outside one is a
 // mistake here, refused before anything is written.
 func (t *Tx) moveStock(st *app.Stock, delta int64, reason string, ref pdid.Id, at time.Time) error {
-	if t.ev.IsZero() {
+	if t.op == nil {
 		return status.Errorf(codes.Internal, "domain: stock moved (%s) outside an operation, which records no event for it", reason)
 	}
 
@@ -158,7 +165,7 @@ func (t *Tx) moveStock(st *app.Stock, delta int64, reason string, ref pdid.Id, a
 		Delta:      delta,
 		Reason:     reason,
 		OccurredAt: ts(at),
-		EventId:    t.ev.Bytes(),
+		EventId:    t.ev().Bytes(),
 		Balance:    next,
 	}.Build()
 	if !ref.IsZero() {
@@ -197,7 +204,7 @@ func (s domainStock) change(ctx context.Context, req *app.StockChangeRequest, re
 		if sign != 0 {
 			q *= sign
 		}
-		if err := t.begin(req.GetOp(), "stock."+reason, pdid.Nil, at, fmt.Sprintf("재고 %s: %s %+d", reason, st.GetName(), q), req.GetReason(), nil); err != nil {
+		if err := t.begin(req.GetOp(), "stock."+reason, pdid.Nil, at, req.GetReason(), app.StockChanged_builder{Stock: st.GetId(), Name: st.GetName(), Delta: q}.Build()); err != nil {
 			return err
 		}
 		if err := t.moveStock(st, q, reason, pdid.Nil, at); err != nil {
@@ -252,7 +259,13 @@ func (s domainStock) Transfer(ctx context.Context, req *app.StockTransferRequest
 		if sp.GetKind() != "space" {
 			return invalid("to", "재고는 공간에 보관합니다")
 		}
-		if err := t.begin(req.GetOp(), "stock.transfer", pdid.Nil, at, fmt.Sprintf("재고 이동: %s %d → %s", st.GetName(), q, sp.GetName()), req.GetReason(), nil); err != nil {
+		if err := t.begin(req.GetOp(), "stock.transfer", pdid.Nil, at, req.GetReason(), app.StockTransferred_builder{
+			Stock:       st.GetId(),
+			Name:        st.GetName(),
+			Quantity:    q,
+			ToSpace:     spid.Bytes(),
+			ToSpaceName: sp.GetName(),
+		}.Build()); err != nil {
 			return err
 		}
 
@@ -324,7 +337,11 @@ func (s domainStock) Convert(ctx context.Context, req *app.StockConvertRequest) 
 		if err != nil {
 			return err
 		}
-		if err := t.begin(req.GetOp(), "stock.convert", pdid.Nil, t.now, fmt.Sprintf("재고 → 자산: %s %d개", st.GetName(), q), "", nil); err != nil {
+		if err := t.begin(req.GetOp(), "stock.convert", pdid.Nil, t.now, "", app.StockConverted_builder{
+			Stock:    st.GetId(),
+			Name:     st.GetName(),
+			Quantity: q,
+		}.Build()); err != nil {
 			return err
 		}
 		if err := t.moveStock(st, -q, "convert", pdid.Nil, t.now); err != nil {

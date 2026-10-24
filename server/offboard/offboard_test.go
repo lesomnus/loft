@@ -32,6 +32,7 @@ import (
 	"github.com/lesomnus/rove/cmd"
 	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/internal/ent/audit"
+	"github.com/lesomnus/rove/internal/ent/event"
 	"github.com/lesomnus/rove/internal/ent/migrate"
 	"github.com/lesomnus/rove/internal/ent/rowseal"
 	"github.com/lesomnus/rove/server/offboard"
@@ -401,9 +402,15 @@ func TestAnExportHoldsNoSeal(t *testing.T) {
 	})
 	_, err = elsewhere.restore(b, offboard.ImportOptions{})
 	x.NoError(err)
-	n, err := elsewhere.s.Ent.RowSeal.Query().Where(rowseal.TenantId(acme.id.Uuid())).Count(ctx)
+	// What it put back, sealed; and the restore's own event beside it, which
+	// is of a kind with a field of somebody's -- why, its reason -- and is
+	// sealed as any such row is (payday#151).
+	ev, err := elsewhere.s.Ent.Event.Query().Where(event.TenantId(acme.id.Uuid()), event.Kind("workspace.import")).Only(ctx)
+	x.NoError(err)
+	n, err := elsewhere.s.Ent.RowSeal.Query().Where(rowseal.TenantId(acme.id.Uuid()), rowseal.IdNEQ(ev.Id)).Count(ctx)
 	x.NoError(err)
 	x.Equal(len(seals), n, "the restore did not seal what it put back")
+	x.True(elsewhere.s.Ent.RowSeal.Query().Where(rowseal.Id(ev.Id)).ExistX(ctx), "the restore's own event is not sealed")
 }
 
 // TestAnExportReadsTheArchiveThroughItsManifest: what the trail moved out of

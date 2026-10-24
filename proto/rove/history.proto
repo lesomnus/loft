@@ -16,6 +16,11 @@ option go_package = "github.com/lesomnus/rove";
 // superseded: `superseded_at` and `superseded_by` are set once, by the domain
 // layer, when a correction or a later fact replaces the row. `date_created` is
 // when the system learned it; `valid_from`/`valid_to` are when it was true.
+//
+// An asset's facts and the events every row here points at are payday's past
+// (payday#151, `rove/past.proto`): its Event and Fact, written by its `past`
+// package alone. Each column here that names an event says so, which is what
+// keeps the event while the row stays.
 
 // Placement is a child asset physically inside a parent asset.
 message Placement {
@@ -43,15 +48,21 @@ message Placement {
   int32 u_to = 16;
   google.protobuf.Timestamp valid_from = 17 [(orm.field) = {default: ""}];
   google.protobuf.Timestamp valid_to = 18 [(orm.field) = {nullable: true}];
-  bytes event_id = 19 [(orm.field) = {type: TYPE_UUID}];
+  bytes event_id = 19 [
+    (orm.field) = {type: TYPE_UUID},
+    (payday.field) = {event: true}
+  ];
   google.protobuf.Timestamp superseded_at = 20 [
     (orm.field) = {nullable: true},
     (payday.field) = {stamped: true}
   ];
-  bytes superseded_by = 21 [(orm.field) = {
-    type: TYPE_UUID
-    nullable: true
-  }];
+  bytes superseded_by = 21 [
+    (orm.field) = {
+      type: TYPE_UUID
+      nullable: true
+    },
+    (payday.field) = {event: true}
+  ];
 
   option (orm.message) = {
     // AddMany as well: bulk registration places each asset it makes, a few
@@ -74,9 +85,9 @@ message Placement {
         refs: [{name: "parent", number: 9}, {name: "valid_from", number: 17}]
       },
       // The rows an event wrote, and the ones it superseded. An expiry asks
-      // of each event it would take whether a row that stays names it
-      // (design 8.2) -- by `superseded_by` too once payday keeps the past
-      // (payday#151) -- and without these reads the table to say no.
+      // of each event it would take whether a row that stays names it, by
+      // either column (design 8.2, payday#151), and without these reads the
+      // table to say no.
       {
         name: "event"
         refs: [{name: "event_id", number: 19}]
@@ -127,15 +138,21 @@ message Link {
 
   google.protobuf.Timestamp valid_from = 17 [(orm.field) = {default: ""}];
   google.protobuf.Timestamp valid_to = 18 [(orm.field) = {nullable: true}];
-  bytes event_id = 19 [(orm.field) = {type: TYPE_UUID}];
+  bytes event_id = 19 [
+    (orm.field) = {type: TYPE_UUID},
+    (payday.field) = {event: true}
+  ];
   google.protobuf.Timestamp superseded_at = 20 [
     (orm.field) = {nullable: true},
     (payday.field) = {stamped: true}
   ];
-  bytes superseded_by = 21 [(orm.field) = {
-    type: TYPE_UUID
-    nullable: true
-  }];
+  bytes superseded_by = 21 [
+    (orm.field) = {
+      type: TYPE_UUID
+      nullable: true
+    },
+    (payday.field) = {event: true}
+  ];
 
   option (orm.message) = {
     rpc: {crud: true}
@@ -153,9 +170,9 @@ message Link {
         refs: [{name: "target", number: 9}, {name: "valid_from", number: 17}]
       },
       // The rows an event wrote, and the ones it superseded. An expiry asks
-      // of each event it would take whether a row that stays names it
-      // (design 8.2) -- by `superseded_by` too once payday keeps the past
-      // (payday#151) -- and without these reads the table to say no.
+      // of each event it would take whether a row that stays names it, by
+      // either column (design 8.2, payday#151), and without these reads the
+      // table to say no.
       {
         name: "event"
         refs: [{name: "event_id", number: 19}]
@@ -202,15 +219,21 @@ message Stewardship {
 
   google.protobuf.Timestamp valid_from = 17 [(orm.field) = {default: ""}];
   google.protobuf.Timestamp valid_to = 18 [(orm.field) = {nullable: true}];
-  bytes event_id = 19 [(orm.field) = {type: TYPE_UUID}];
+  bytes event_id = 19 [
+    (orm.field) = {type: TYPE_UUID},
+    (payday.field) = {event: true}
+  ];
   google.protobuf.Timestamp superseded_at = 20 [
     (orm.field) = {nullable: true},
     (payday.field) = {stamped: true}
   ];
-  bytes superseded_by = 21 [(orm.field) = {
-    type: TYPE_UUID
-    nullable: true
-  }];
+  bytes superseded_by = 21 [
+    (orm.field) = {
+      type: TYPE_UUID
+      nullable: true
+    },
+    (payday.field) = {event: true}
+  ];
 
   option (orm.message) = {
     rpc: {crud: true}
@@ -228,9 +251,9 @@ message Stewardship {
         refs: [{name: "party", number: 9}, {name: "valid_from", number: 17}]
       },
       // The rows an event wrote, and the ones it superseded. An expiry asks
-      // of each event it would take whether a row that stays names it
-      // (design 8.2) -- by `superseded_by` too once payday keeps the past
-      // (payday#151) -- and without these reads the table to say no.
+      // of each event it would take whether a row that stays names it, by
+      // either column (design 8.2, payday#151), and without these reads the
+      // table to say no.
       {
         name: "event"
         refs: [{name: "event_id", number: 19}]
@@ -250,153 +273,6 @@ message Stewardship {
       by: [{name: "ref"}, {name: "asset"}, {name: "party"}, {name: "role"}]
       size: 100
       max: 1000
-    }
-  };
-}
-
-// Fact is one attribute of an asset from a moment on: "from valid_from, key is
-// value" (design 3.3, D5).
-message Fact {
-  bytes id = 1 [(orm.field) = {
-    type: TYPE_UUID
-    key: true
-    default: ""
-  }];
-  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
-
-  Asset asset = 8 [(orm.edge) = {immutable: true}];
-  // status | condition | name | type | model | tag | serial | attr.<key> ...
-  string key = 9;
-  // The value as text; empty with `cleared` means the key stopped having one.
-  string value = 10;
-  bool cleared = 11;
-
-  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
-  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
-    immutable: true
-    default: ""
-  }];
-
-  google.protobuf.Timestamp valid_from = 17 [(orm.field) = {default: ""}];
-  bytes event_id = 19 [(orm.field) = {type: TYPE_UUID}];
-  google.protobuf.Timestamp superseded_at = 20 [
-    (orm.field) = {nullable: true},
-    (payday.field) = {stamped: true}
-  ];
-  bytes superseded_by = 21 [(orm.field) = {
-    type: TYPE_UUID
-    nullable: true
-  }];
-
-  option (orm.message) = {
-    // AddMany as well: an asset is made with a fact for each of what it is --
-    // its name, status, type, every attribute -- and they are one statement
-    // rather than one each (payday#84).
-    rpc: {
-      crud: true
-      add: {many: {}}
-    }
-    indexes: [
-      {
-        name: "page"
-        refs: [{name: "tenant", number: 2}, {name: "date_created", number: 15}, {name: "id", number: 1}]
-      },
-      {
-        name: "asset"
-        refs: [{name: "asset", number: 8}, {name: "key", number: 9}, {name: "valid_from", number: 17}]
-      }
-    ]
-  };
-  option (payday.entity) = {
-    domain: 16
-    erase: {hard: {}}
-    tenanted: {via: "tenant", agrees: ["asset.tenant"]}
-    list: {
-      order: [{field: {name: "date_created"}}, {field: {name: "id"}}]
-      by: [{name: "ref"}, {name: "asset"}, {name: "key"}]
-      size: 100
-      max: 1000
-    }
-  };
-}
-
-// Event is one domain operation: what was done, by whom, when it happened and
-// why. Time rows point at the event that wrote them.
-message Event {
-  bytes id = 1 [(orm.field) = {
-    type: TYPE_UUID
-    key: true
-    default: ""
-  }];
-  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
-
-  // A short sentence for a person to read.
-  string desc = 6;
-
-  // asset.add | asset.move | custody.issue | reservation.approve | ...
-  string kind = 8;
-  // The holder that asked, or empty for the deployment's own work.
-  bytes actor_id = 9 [(orm.field) = {
-    type: TYPE_UUID
-    nullable: true
-  }];
-  google.protobuf.Timestamp occurred_at = 10 [(orm.field) = {default: ""}];
-  string reason = 11;
-  // The primary thing this was about, so a timeline can find it.
-  bytes subject_id = 12 [(orm.field) = {
-    type: TYPE_UUID
-    nullable: true
-  }];
-
-  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
-  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
-    immutable: true
-    default: ""
-  }];
-
-  bytes trace_id = 16 [(orm.field) = {default: ""}];
-  // What the operation said, as JSON, for a person reading the history.
-  string payload = 17;
-  // The operation this is part of. An operation over many things records an
-  // event of its own and, for each thing it changed, a child: what it did to
-  // that one, with that one as the subject and this naming the operation's
-  // event (design D34). Empty on an operation's own event.
-  bytes cause_id = 18 [(orm.field) = {
-    type: TYPE_UUID
-    nullable: true
-  }];
-
-  option (orm.message) = {
-    // AddMany as well: an operation over many things writes its children -- one
-    // event for each thing it changed -- a few hundred to a statement rather than
-    // one each, as bulk registration does (design 9.13).
-    rpc: {
-      crud: true
-      add: {many: {}}
-    }
-    indexes: [
-      {
-        name: "page"
-        refs: [{name: "tenant", number: 2}, {name: "date_created", number: 15}, {name: "id", number: 1}]
-      },
-      {
-        name: "subject"
-        refs: [{name: "subject_id", number: 12}, {name: "occurred_at", number: 10}]
-      },
-      {
-        name: "cause"
-        refs: [{name: "cause_id", number: 18}]
-      }
-    ]
-  };
-  option (payday.entity) = {
-    domain: 17
-    erase: {hard: {}}
-    list: {
-      order: [{field: {name: "date_created"}, desc: true}, {field: {name: "id"}, desc: true}]
-      by: [{name: "ref"}, {name: "subject_id"}, {name: "kind"}, {name: "actor_id"}, {name: "cause_id"}]
-      size: 50
-      max: 500
     }
   };
 }

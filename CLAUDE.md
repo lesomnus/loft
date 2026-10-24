@@ -338,10 +338,47 @@ writes. A new RPC is closed until it is added there.
 `server/domain` sits **above** the gate, completes the generated verbs
 (`Asset.Add`, `Reservation.Add`, ...) and adds the rest. An operation is one
 transaction (`Domain.tx`), records an `Event`, and writes the time rows with the
-state they describe. An Event never copies a person's name: its sentence marks
-them (`{party}`, `{holder}`, `{alias}`) and its payload carries the identifier
-(`party=`, `holder=`), and the history names them as they are when it is read
-(`namer.say`, design 8.2). A person forgotten (`Tx.forget`) has the trail's
+state they describe.
+
+Events and an asset's facts are **payday's past** (payday#151): its `past`
+package writes them, and nothing else may -- the Audit layer refuses an
+Event or a Fact written by hand, through every stack. `Tx.begin` is
+`past.Begin` with the operation's kind and its kind's message
+(`proto/rove/past.proto`), a fact is `t.op.Set` (or `addFact`, by the keys
+Rove says them under), and what an asset was at a moment is
+`past.StateAt` (`Tx.factsAt`).
+
+**A kind has a message of its own**, named for what happened (`asset.move`
+an `AssetMoved`), **unless it holds substantially what another kind of its
+domain holds**: the same fields, or one's and a field or two more when the
+two are one change -- a variant of it (`stock.receive`, `.consume` and
+`.adjust` hold one `StockChanged`) or the thing written again (`type.add`
+and `.update` one `AssetTypeSaved`). Then they share a message named for
+the change they share, which lists beside it the fields each kind uses; a
+kind leaves the rest empty. A kind that undoes another, or is another change
+holding much the same, keeps its own. **Every field is its domain's**: the
+head of `past.proto` has each domain's table, and a message takes its
+fields from it under the same name and number, of the same type, with the
+same meaning -- a new field takes the table's next number and goes in the
+table. `pd gen` refuses a name with two numbers in a domain, and
+`server/domain/uses_test.go` holds every message to its table, every table
+field to a message, and every event a test records to what its kind uses.
+
+An event keeps **no sentence**: it is said when it is read
+(`server/domain/say.go`, `Sentences`, a sentence for each kind with
+`past.SayKind`), in the workspace's zone, its people named as they are
+called then (`who`, by identifier) -- so a message holds a person by
+identifier only, and never anything of theirs. A new kind is a message (or
+a kind of a shared one) and a sentence in `say.go`
+(`TestEveryKindIsSaidInKorean`); it, a field, or a message **ships one
+release before anything writes it**, so that the build before can read its
+rows. `proto/rove/payday/past.lock` only grows: a message, a field, a JSON
+name or a kind removed or changed, or a kind moved to another message, is a
+row that no longer reads, and `pd gen` refuses it. `reason` is a person's
+words, and personal; what Rove says itself goes in the message and its
+sentence. A row from before keeps `desc` and `payload`, and is said by them
+(`namer.say`, design 8.2).
+A person forgotten (`Tx.forget`) has the trail's
 rows blanked in the operation's transaction and the archive's half owed there
 (payday#133); the operation that began the transaction pays it after its
 commit (`Deps.Pay`), the trail's next pass pays what that could not, and `rove

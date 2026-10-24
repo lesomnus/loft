@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"google.golang.org/protobuf/encoding/protojson"
+
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/internal/ent/event"
 	"github.com/lesomnus/rove/internal/ent/fact"
@@ -92,7 +94,7 @@ func TestAKeepWindowTakesWhatItNoLongerReaches(t *testing.T) {
 	var n int
 
 	// The value it had stopped having, and the event that set it, are gone.
-	n, err = e.s.Ent.Fact.Query().Where(fact.Key("status"), fact.Value("in_repair")).Count(context.Background())
+	n, err = e.s.Ent.Fact.Query().Where(fact.FieldNumber(statusField), fact.Value(`"in_repair"`)).Count(context.Background())
 	x.NoError(err)
 	x.Zero(n)
 
@@ -104,8 +106,10 @@ func TestAKeepWindowTakesWhatItNoLongerReaches(t *testing.T) {
 	// The receipt says how many, and nothing they said.
 	r, err := e.s.Ent.Event.Query().Where(event.Kind("retention.expired")).Only(context.Background())
 	x.NoError(err)
-	x.Contains(r.Payload, "placements")
-	x.NotContains(r.Payload, "in_repair")
+	x.Positive(value[*app.RetentionExpired](e, r).GetPlacements())
+	held, err := protojson.Marshal(r.Value)
+	x.NoError(err)
+	x.NotContains(string(held), "in_repair")
 
 	x.Zero(e.expire(false).Total(), "what a pass has taken is not there to take again")
 	n, err = e.s.Ent.Event.Query().Where(event.Kind("retention.expired")).Count(context.Background())
@@ -162,10 +166,10 @@ func TestADisposalOutlivesTheWindow(t *testing.T) {
 	e.keep(180)
 	e.expire(false)
 
-	n, err := e.s.Ent.Fact.Query().Where(fact.Key("status"), fact.Value("disposed")).Count(context.Background())
+	n, err := e.s.Ent.Fact.Query().Where(fact.FieldNumber(statusField), fact.Value(`"disposed"`)).Count(context.Background())
 	x.NoError(err)
 	x.Equal(1, n, "the disposal went")
-	n, err = e.s.Ent.Fact.Query().Where(fact.Key("status"), fact.Value("in_repair")).Count(context.Background())
+	n, err = e.s.Ent.Fact.Query().Where(fact.FieldNumber(statusField), fact.Value(`"in_repair"`)).Count(context.Background())
 	x.NoError(err)
 	x.Zero(n)
 	n, err = e.s.Ent.Event.Query().Where(event.Kind("asset.add")).Count(context.Background())

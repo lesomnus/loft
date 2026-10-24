@@ -9,7 +9,6 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/lesomnus/rove/internal/ent/asset"
 	"github.com/lesomnus/rove/internal/ent/fact"
 	"github.com/lesomnus/rove/internal/ent/tenant"
 	"github.com/protobuf-orm/ent/dialect/sql"
@@ -25,6 +24,12 @@ type FactCreate struct {
 	stored   **Fact
 }
 
+// SetSubjectId sets the "subject_id" field.
+func (_c *FactCreate) SetSubjectId(v uuid.UUID) *FactCreate {
+	_c.mutation.SetSubjectId(v)
+	return _c
+}
+
 // SetKey sets the "key" field.
 func (_c *FactCreate) SetKey(v string) *FactCreate {
 	_c.mutation.SetKey(v)
@@ -37,9 +42,17 @@ func (_c *FactCreate) SetValue(v string) *FactCreate {
 	return _c
 }
 
-// SetCleared sets the "cleared" field.
-func (_c *FactCreate) SetCleared(v bool) *FactCreate {
-	_c.mutation.SetCleared(v)
+// SetFieldNumber sets the "field_number" field.
+func (_c *FactCreate) SetFieldNumber(v uint32) *FactCreate {
+	_c.mutation.SetFieldNumber(v)
+	return _c
+}
+
+// SetNillableFieldNumber sets the "field_number" field if the given value is not nil.
+func (_c *FactCreate) SetNillableFieldNumber(v *uint32) *FactCreate {
+	if v != nil {
+		_c.SetFieldNumber(*v)
+	}
 	return _c
 }
 
@@ -59,6 +72,20 @@ func (_c *FactCreate) SetDateCreated(v time.Time) *FactCreate {
 func (_c *FactCreate) SetNillableDateCreated(v *time.Time) *FactCreate {
 	if v != nil {
 		_c.SetDateCreated(*v)
+	}
+	return _c
+}
+
+// SetDomain sets the "domain" field.
+func (_c *FactCreate) SetDomain(v uint32) *FactCreate {
+	_c.mutation.SetDomain(v)
+	return _c
+}
+
+// SetNillableDomain sets the "domain" field if the given value is not nil.
+func (_c *FactCreate) SetNillableDomain(v *uint32) *FactCreate {
+	if v != nil {
+		_c.SetDomain(*v)
 	}
 	return _c
 }
@@ -117,12 +144,6 @@ func (_c *FactCreate) SetTenantId(v uuid.UUID) *FactCreate {
 	return _c
 }
 
-// SetAssetId sets the "asset_id" field.
-func (_c *FactCreate) SetAssetId(v uuid.UUID) *FactCreate {
-	_c.mutation.SetAssetId(v)
-	return _c
-}
-
 // SetId sets the "id" field.
 func (_c *FactCreate) SetId(v uuid.UUID) *FactCreate {
 	_c.mutation.SetId(v)
@@ -134,11 +155,6 @@ func (_c *FactCreate) SetTenant(v *Tenant) *FactCreate {
 	return _c.SetTenantId(v.Id)
 }
 
-// SetAsset sets the "asset" edge to the Asset entity.
-func (_c *FactCreate) SetAsset(v *Asset) *FactCreate {
-	return _c.SetAssetId(v.Id)
-}
-
 // Mutation returns the FactMutation object of the builder.
 func (_c *FactCreate) Mutation() *FactMutation {
 	return _c.mutation
@@ -146,6 +162,7 @@ func (_c *FactCreate) Mutation() *FactMutation {
 
 // Save creates the Fact in the database.
 func (_c *FactCreate) Save(ctx context.Context) (*Fact, error) {
+	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -171,19 +188,35 @@ func (_c *FactCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_c *FactCreate) defaults() {
+	if _, ok := _c.mutation.FieldNumber(); !ok {
+		if _, ok := _c.mutation.FieldExpr(fact.FieldFieldNumber); !ok {
+			v := fact.DefaultFieldNumber
+			_c.mutation.SetFieldNumber(v)
+		}
+	}
+	if _, ok := _c.mutation.Domain(); !ok {
+		if _, ok := _c.mutation.FieldExpr(fact.FieldDomain); !ok {
+			v := fact.DefaultDomain
+			_c.mutation.SetDomain(v)
+		}
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (_c *FactCreate) check() error {
 	if fs := _c.mutation.ExprFields(); len(fs) > 0 {
 		return &ValidationError{Name: fs[0], err: fmt.Errorf(`ent: field "Fact.%s" was assigned an expression, which only an update writes`, fs[0])}
+	}
+	if _, ok := _c.mutation.SubjectId(); !ok {
+		return &ValidationError{Name: "subject_id", err: errors.New(`ent: missing required field "Fact.subject_id"`)}
 	}
 	if _, ok := _c.mutation.Key(); !ok {
 		return &ValidationError{Name: "key", err: errors.New(`ent: missing required field "Fact.key"`)}
 	}
 	if _, ok := _c.mutation.Value(); !ok {
 		return &ValidationError{Name: "value", err: errors.New(`ent: missing required field "Fact.value"`)}
-	}
-	if _, ok := _c.mutation.Cleared(); !ok {
-		return &ValidationError{Name: "cleared", err: errors.New(`ent: missing required field "Fact.cleared"`)}
 	}
 	if _, ok := _c.mutation.DateUpdated(); !ok {
 		return &ValidationError{Name: "date_updated", err: errors.New(`ent: missing required field "Fact.date_updated"`)}
@@ -194,14 +227,8 @@ func (_c *FactCreate) check() error {
 	if _, ok := _c.mutation.TenantId(); !ok {
 		return &ValidationError{Name: "tenant_id", err: errors.New(`ent: missing required field "Fact.tenant_id"`)}
 	}
-	if _, ok := _c.mutation.AssetId(); !ok {
-		return &ValidationError{Name: "asset_id", err: errors.New(`ent: missing required field "Fact.asset_id"`)}
-	}
 	if len(_c.mutation.TenantIds()) == 0 {
 		return &ValidationError{Name: "tenant", err: errors.New(`ent: missing required edge "Fact.tenant"`)}
-	}
-	if len(_c.mutation.AssetIds()) == 0 {
-		return &ValidationError{Name: "asset", err: errors.New(`ent: missing required edge "Fact.asset"`)}
 	}
 	return nil
 }
@@ -254,6 +281,10 @@ func (_c *FactCreate) createSpec() (*Fact, *sqlgraph.CreateSpec) {
 		_node.Id = id
 		_spec.Id.Value = &id
 	}
+	if value, ok := _c.mutation.SubjectId(); ok {
+		_spec.SetField(fact.FieldSubjectId, field.TypeUuid, value)
+		_node.SubjectId = value
+	}
 	if value, ok := _c.mutation.Key(); ok {
 		_spec.SetField(fact.FieldKey, field.TypeString, value)
 		_node.Key = value
@@ -262,9 +293,9 @@ func (_c *FactCreate) createSpec() (*Fact, *sqlgraph.CreateSpec) {
 		_spec.SetField(fact.FieldValue, field.TypeString, value)
 		_node.Value = value
 	}
-	if value, ok := _c.mutation.Cleared(); ok {
-		_spec.SetField(fact.FieldCleared, field.TypeBool, value)
-		_node.Cleared = value
+	if value, ok := _c.mutation.FieldNumber(); ok {
+		_spec.SetField(fact.FieldFieldNumber, field.TypeUint32, value)
+		_node.FieldNumber = value
 	}
 	if value, ok := _c.mutation.DateUpdated(); ok {
 		_spec.SetField(fact.FieldDateUpdated, field.TypeTime, value)
@@ -273,6 +304,10 @@ func (_c *FactCreate) createSpec() (*Fact, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.DateCreated(); ok {
 		_spec.SetField(fact.FieldDateCreated, field.TypeTime, value)
 		_node.DateCreated = value
+	}
+	if value, ok := _c.mutation.Domain(); ok {
+		_spec.SetField(fact.FieldDomain, field.TypeUint32, value)
+		_node.Domain = value
 	}
 	if value, ok := _c.mutation.ValidFrom(); ok {
 		_spec.SetField(fact.FieldValidFrom, field.TypeTime, value)
@@ -305,23 +340,6 @@ func (_c *FactCreate) createSpec() (*Fact, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.TenantId = nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := _c.mutation.AssetIds(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   fact.AssetTable,
-			Columns: []string{fact.AssetColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IdSpec: sqlgraph.NewFieldSpec(asset.FieldId, field.TypeUuid),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.AssetId = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -371,6 +389,7 @@ func (_c *FactCreateBulk) Save(ctx context.Context) ([]*Fact, error) {
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*FactMutation)
 				if !ok {

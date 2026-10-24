@@ -30,6 +30,20 @@ func (_u *FactUpdate) Where(ps ...predicate.Fact) *FactUpdate {
 	return _u
 }
 
+// SetSubjectId sets the "subject_id" field.
+func (_u *FactUpdate) SetSubjectId(v uuid.UUID) *FactUpdate {
+	_u.mutation.SetSubjectId(v)
+	return _u
+}
+
+// SetNillableSubjectId sets the "subject_id" field if the given value is not nil.
+func (_u *FactUpdate) SetNillableSubjectId(v *uuid.UUID) *FactUpdate {
+	if v != nil {
+		_u.SetSubjectId(*v)
+	}
+	return _u
+}
+
 // SetKey sets the "key" field.
 func (_u *FactUpdate) SetKey(v string) *FactUpdate {
 	_u.mutation.SetKey(v)
@@ -58,17 +72,30 @@ func (_u *FactUpdate) SetNillableValue(v *string) *FactUpdate {
 	return _u
 }
 
-// SetCleared sets the "cleared" field.
-func (_u *FactUpdate) SetCleared(v bool) *FactUpdate {
-	_u.mutation.SetCleared(v)
+// SetFieldNumber sets the "field_number" field.
+func (_u *FactUpdate) SetFieldNumber(v uint32) *FactUpdate {
+	_u.mutation.ResetFieldNumber()
+	_u.mutation.SetFieldNumber(v)
 	return _u
 }
 
-// SetNillableCleared sets the "cleared" field if the given value is not nil.
-func (_u *FactUpdate) SetNillableCleared(v *bool) *FactUpdate {
+// SetNillableFieldNumber sets the "field_number" field if the given value is not nil.
+func (_u *FactUpdate) SetNillableFieldNumber(v *uint32) *FactUpdate {
 	if v != nil {
-		_u.SetCleared(*v)
+		_u.SetFieldNumber(*v)
 	}
+	return _u
+}
+
+// AddFieldNumber adds value to the "field_number" field.
+func (_u *FactUpdate) AddFieldNumber(v int32) *FactUpdate {
+	_u.mutation.AddFieldNumber(v)
+	return _u
+}
+
+// ClearFieldNumber clears the value of the "field_number" field.
+func (_u *FactUpdate) ClearFieldNumber() *FactUpdate {
+	_u.mutation.ClearFieldNumber()
 	return _u
 }
 
@@ -83,6 +110,33 @@ func (_u *FactUpdate) SetNillableDateUpdated(v *time.Time) *FactUpdate {
 	if v != nil {
 		_u.SetDateUpdated(*v)
 	}
+	return _u
+}
+
+// SetDomain sets the "domain" field.
+func (_u *FactUpdate) SetDomain(v uint32) *FactUpdate {
+	_u.mutation.ResetDomain()
+	_u.mutation.SetDomain(v)
+	return _u
+}
+
+// SetNillableDomain sets the "domain" field if the given value is not nil.
+func (_u *FactUpdate) SetNillableDomain(v *uint32) *FactUpdate {
+	if v != nil {
+		_u.SetDomain(*v)
+	}
+	return _u
+}
+
+// AddDomain adds value to the "domain" field.
+func (_u *FactUpdate) AddDomain(v int32) *FactUpdate {
+	_u.mutation.AddDomain(v)
+	return _u
+}
+
+// ClearDomain clears the value of the "domain" field.
+func (_u *FactUpdate) ClearDomain() *FactUpdate {
+	_u.mutation.ClearDomain()
 	return _u
 }
 
@@ -197,9 +251,6 @@ func (_u *FactUpdate) check() error {
 	if _u.mutation.TenantCleared() && len(_u.mutation.TenantIds()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Fact.tenant"`)
 	}
-	if _u.mutation.AssetCleared() && len(_u.mutation.AssetIds()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Fact.asset"`)
-	}
 	return nil
 }
 
@@ -221,6 +272,12 @@ func (_u *FactUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			}
 		}
 	}
+	if value, ok := _u.mutation.SubjectId(); ok {
+		_spec.SetField(fact.FieldSubjectId, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(fact.FieldSubjectId); ok {
+		_spec.SetField(fact.FieldSubjectId, field.TypeUuid, e)
+	}
 	if value, ok := _u.mutation.Key(); ok {
 		_spec.SetField(fact.FieldKey, field.TypeString, value)
 	}
@@ -233,11 +290,17 @@ func (_u *FactUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if e, ok := _u.mutation.FieldExpr(fact.FieldValue); ok {
 		_spec.SetField(fact.FieldValue, field.TypeString, e)
 	}
-	if value, ok := _u.mutation.Cleared(); ok {
-		_spec.SetField(fact.FieldCleared, field.TypeBool, value)
+	if value, ok := _u.mutation.FieldNumber(); ok {
+		_spec.SetField(fact.FieldFieldNumber, field.TypeUint32, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(fact.FieldCleared); ok {
-		_spec.SetField(fact.FieldCleared, field.TypeBool, e)
+	if e, ok := _u.mutation.FieldExpr(fact.FieldFieldNumber); ok {
+		_spec.SetField(fact.FieldFieldNumber, field.TypeUint32, e)
+	}
+	if value, ok := _u.mutation.AddedFieldNumber(); ok {
+		_spec.AddField(fact.FieldFieldNumber, field.TypeUint32, value)
+	}
+	if _u.mutation.FieldNumberCleared() {
+		_spec.ClearField(fact.FieldFieldNumber, field.TypeUint32)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(fact.FieldDateUpdated, field.TypeTime, value)
@@ -247,6 +310,18 @@ func (_u *FactUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(fact.FieldDateCreated, field.TypeTime)
+	}
+	if value, ok := _u.mutation.Domain(); ok {
+		_spec.SetField(fact.FieldDomain, field.TypeUint32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(fact.FieldDomain); ok {
+		_spec.SetField(fact.FieldDomain, field.TypeUint32, e)
+	}
+	if value, ok := _u.mutation.AddedDomain(); ok {
+		_spec.AddField(fact.FieldDomain, field.TypeUint32, value)
+	}
+	if _u.mutation.DomainCleared() {
+		_spec.ClearField(fact.FieldDomain, field.TypeUint32)
 	}
 	if value, ok := _u.mutation.ValidFrom(); ok {
 		_spec.SetField(fact.FieldValidFrom, field.TypeTime, value)
@@ -303,6 +378,20 @@ type FactUpdateOne struct {
 	modifiers []func(*sql.UpdateBuilder)
 }
 
+// SetSubjectId sets the "subject_id" field.
+func (_u *FactUpdateOne) SetSubjectId(v uuid.UUID) *FactUpdateOne {
+	_u.mutation.SetSubjectId(v)
+	return _u
+}
+
+// SetNillableSubjectId sets the "subject_id" field if the given value is not nil.
+func (_u *FactUpdateOne) SetNillableSubjectId(v *uuid.UUID) *FactUpdateOne {
+	if v != nil {
+		_u.SetSubjectId(*v)
+	}
+	return _u
+}
+
 // SetKey sets the "key" field.
 func (_u *FactUpdateOne) SetKey(v string) *FactUpdateOne {
 	_u.mutation.SetKey(v)
@@ -331,17 +420,30 @@ func (_u *FactUpdateOne) SetNillableValue(v *string) *FactUpdateOne {
 	return _u
 }
 
-// SetCleared sets the "cleared" field.
-func (_u *FactUpdateOne) SetCleared(v bool) *FactUpdateOne {
-	_u.mutation.SetCleared(v)
+// SetFieldNumber sets the "field_number" field.
+func (_u *FactUpdateOne) SetFieldNumber(v uint32) *FactUpdateOne {
+	_u.mutation.ResetFieldNumber()
+	_u.mutation.SetFieldNumber(v)
 	return _u
 }
 
-// SetNillableCleared sets the "cleared" field if the given value is not nil.
-func (_u *FactUpdateOne) SetNillableCleared(v *bool) *FactUpdateOne {
+// SetNillableFieldNumber sets the "field_number" field if the given value is not nil.
+func (_u *FactUpdateOne) SetNillableFieldNumber(v *uint32) *FactUpdateOne {
 	if v != nil {
-		_u.SetCleared(*v)
+		_u.SetFieldNumber(*v)
 	}
+	return _u
+}
+
+// AddFieldNumber adds value to the "field_number" field.
+func (_u *FactUpdateOne) AddFieldNumber(v int32) *FactUpdateOne {
+	_u.mutation.AddFieldNumber(v)
+	return _u
+}
+
+// ClearFieldNumber clears the value of the "field_number" field.
+func (_u *FactUpdateOne) ClearFieldNumber() *FactUpdateOne {
+	_u.mutation.ClearFieldNumber()
 	return _u
 }
 
@@ -356,6 +458,33 @@ func (_u *FactUpdateOne) SetNillableDateUpdated(v *time.Time) *FactUpdateOne {
 	if v != nil {
 		_u.SetDateUpdated(*v)
 	}
+	return _u
+}
+
+// SetDomain sets the "domain" field.
+func (_u *FactUpdateOne) SetDomain(v uint32) *FactUpdateOne {
+	_u.mutation.ResetDomain()
+	_u.mutation.SetDomain(v)
+	return _u
+}
+
+// SetNillableDomain sets the "domain" field if the given value is not nil.
+func (_u *FactUpdateOne) SetNillableDomain(v *uint32) *FactUpdateOne {
+	if v != nil {
+		_u.SetDomain(*v)
+	}
+	return _u
+}
+
+// AddDomain adds value to the "domain" field.
+func (_u *FactUpdateOne) AddDomain(v int32) *FactUpdateOne {
+	_u.mutation.AddDomain(v)
+	return _u
+}
+
+// ClearDomain clears the value of the "domain" field.
+func (_u *FactUpdateOne) ClearDomain() *FactUpdateOne {
+	_u.mutation.ClearDomain()
 	return _u
 }
 
@@ -483,9 +612,6 @@ func (_u *FactUpdateOne) check() error {
 	if _u.mutation.TenantCleared() && len(_u.mutation.TenantIds()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "Fact.tenant"`)
 	}
-	if _u.mutation.AssetCleared() && len(_u.mutation.AssetIds()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "Fact.asset"`)
-	}
 	return nil
 }
 
@@ -524,6 +650,12 @@ func (_u *FactUpdateOne) sqlSave(ctx context.Context) (_node *Fact, err error) {
 			}
 		}
 	}
+	if value, ok := _u.mutation.SubjectId(); ok {
+		_spec.SetField(fact.FieldSubjectId, field.TypeUuid, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(fact.FieldSubjectId); ok {
+		_spec.SetField(fact.FieldSubjectId, field.TypeUuid, e)
+	}
 	if value, ok := _u.mutation.Key(); ok {
 		_spec.SetField(fact.FieldKey, field.TypeString, value)
 	}
@@ -536,11 +668,17 @@ func (_u *FactUpdateOne) sqlSave(ctx context.Context) (_node *Fact, err error) {
 	if e, ok := _u.mutation.FieldExpr(fact.FieldValue); ok {
 		_spec.SetField(fact.FieldValue, field.TypeString, e)
 	}
-	if value, ok := _u.mutation.Cleared(); ok {
-		_spec.SetField(fact.FieldCleared, field.TypeBool, value)
+	if value, ok := _u.mutation.FieldNumber(); ok {
+		_spec.SetField(fact.FieldFieldNumber, field.TypeUint32, value)
 	}
-	if e, ok := _u.mutation.FieldExpr(fact.FieldCleared); ok {
-		_spec.SetField(fact.FieldCleared, field.TypeBool, e)
+	if e, ok := _u.mutation.FieldExpr(fact.FieldFieldNumber); ok {
+		_spec.SetField(fact.FieldFieldNumber, field.TypeUint32, e)
+	}
+	if value, ok := _u.mutation.AddedFieldNumber(); ok {
+		_spec.AddField(fact.FieldFieldNumber, field.TypeUint32, value)
+	}
+	if _u.mutation.FieldNumberCleared() {
+		_spec.ClearField(fact.FieldFieldNumber, field.TypeUint32)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(fact.FieldDateUpdated, field.TypeTime, value)
@@ -550,6 +688,18 @@ func (_u *FactUpdateOne) sqlSave(ctx context.Context) (_node *Fact, err error) {
 	}
 	if _u.mutation.DateCreatedCleared() {
 		_spec.ClearField(fact.FieldDateCreated, field.TypeTime)
+	}
+	if value, ok := _u.mutation.Domain(); ok {
+		_spec.SetField(fact.FieldDomain, field.TypeUint32, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(fact.FieldDomain); ok {
+		_spec.SetField(fact.FieldDomain, field.TypeUint32, e)
+	}
+	if value, ok := _u.mutation.AddedDomain(); ok {
+		_spec.AddField(fact.FieldDomain, field.TypeUint32, value)
+	}
+	if _u.mutation.DomainCleared() {
+		_spec.ClearField(fact.FieldDomain, field.TypeUint32)
 	}
 	if value, ok := _u.mutation.ValidFrom(); ok {
 		_spec.SetField(fact.FieldValidFrom, field.TypeTime, value)

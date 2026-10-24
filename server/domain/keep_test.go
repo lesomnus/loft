@@ -54,7 +54,7 @@ func TestAWorkspaceSaysHowLongItKeepsItsHistory(t *testing.T) {
 	x.Zero(window().Keep, "made shorter, and the grace has not run")
 	evs := e.eventsOf("workspace.configure")
 	x.Len(evs, 1)
-	x.Contains(evs[0].Payload, "keep_from="+e.now.Add(grace).UTC().Format(time.RFC3339), "its event says from when")
+	x.Equal(e.now.Add(grace).UTC(), value[*app.WorkspaceConfigured](e, evs[0]).GetKeepFrom().AsTime(), "its event says from when")
 
 	// Said again within the grace, a window still shorter than what is held
 	// is held to it until the grace of the last.

@@ -10,6 +10,7 @@ import (
 	"time"
 	"uuid"
 
+	"github.com/lesomnus/payday/past"
 	"github.com/lesomnus/payday/pdid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -19,8 +20,6 @@ import (
 	"github.com/lesomnus/rove/internal/ent/allocation"
 	"github.com/lesomnus/rove/internal/ent/asset"
 	"github.com/lesomnus/rove/internal/ent/custody"
-	"github.com/lesomnus/rove/internal/ent/event"
-	"github.com/lesomnus/rove/internal/ent/fact"
 	"github.com/lesomnus/rove/internal/ent/link"
 	"github.com/lesomnus/rove/internal/ent/placement"
 	"github.com/lesomnus/rove/internal/ent/predicate"
@@ -72,14 +71,16 @@ func (v visible) link() []predicate.Link {
 	}
 }
 
-func (v visible) fact() []predicate.Fact {
+// past is which facts a read of payday's past takes, as [visible] takes the
+// time rows: as known at a moment, every one ever written, or as known now.
+func (v visible) past() past.Known {
 	switch {
 	case v.known != nil:
-		return []predicate.Fact{fact.DateCreatedLTE(*v.known), fact.Or(fact.SupersededAtIsNil(), fact.SupersededAtGT(*v.known))}
+		return past.Known{At: v.known}
 	case v.all:
-		return nil
+		return past.Known{All: true}
 	default:
-		return []predicate.Fact{fact.SupersededAtIsNil()}
+		return past.Known{}
 	}
 }
 
@@ -166,96 +167,137 @@ func (s domainAsset) Timeline(ctx context.Context, req *app.AssetTimelineRequest
 		entries = append(entries, e)
 	}
 
-	fs, err := t.db.Fact.Query().Where(append(vis.fact(), fact.TenantId(tid), fact.AssetId(a))...).All(ctx)
+	// Its facts, from payday's past: each field it held, from when, by the
+	// key Rove says it under (payday#151).
+	st, err := t.store()
 	if err != nil {
 		return nil, err
 	}
-	for _, r := range fs {
-		e := entry("fact", r.Id, r.ValidFrom, nil, r.DateCreated, r.SupersededAt, r.EventId)
-		v := r.Value
-		switch {
-		case r.Cleared:
-			v = "(지움)"
-		case r.Key == "type":
-			v = names.kind(uuidOf(idFromString(r.Value).Bytes()))
-		case r.Key == "model":
-			v = names.model(uuidOf(idFromString(r.Value).Bytes()))
-		case r.Key == "status":
-			v = or(statusSay[v], v)
-		case r.Key == "condition":
-			v = or(conditionSay[v], v)
+	sts, err := past.Facts(ctx, st, past.FactQuery{Subjects: []pdid.Id{id}, Known: vis.past()})
+	if err != nil {
+		return nil, err
+	}
+	for _, s := range sts {
+		for _, r := range s.Rows {
+			key, ok := KeyOf(r.Slot())
+			if !ok {
+				continue
+			}
+			text, err := textOf(r.Slot(), r.Value)
+			if err != nil {
+				return nil, fmt.Errorf("fact %s: %w", r.Id, err)
+			}
+			e := entry("fact", r.Id.Uuid(), r.From, nil, r.Recorded, r.Superseded, r.Event.Uuid())
+			v := text
+			switch {
+			case r.Value == past.Null:
+				v = "(지움)"
+			case key == "type":
+				v = names.kind(uuidOf(idFromString(text).Bytes()))
+			case key == "model":
+				v = names.model(uuidOf(idFromString(text).Bytes()))
+			case key == "status":
+				v = or(statusSay[v], v)
+			case key == "condition":
+				v = or(conditionSay[v], v)
+			}
+			name := factName(key)
+			if l, ok := labels[key]; ok {
+				name = l
+			}
+			e.SetSummary(fmt.Sprintf("%s = %s", name, v))
+			e.SetDetail(map[string]string{"key": key, "value": text})
+			entries = append(entries, e)
 		}
-		name := factName(r.Key)
-		if l, ok := labels[r.Key]; ok {
-			name = l
-		}
-		e.SetSummary(fmt.Sprintf("%s = %s", name, v))
-		e.SetDetail(map[string]string{"key": r.Key, "value": r.Value})
-		entries = append(entries, e)
 	}
 
 	// The events: what was done, by whom and why, including what wrote no
-	// time row -- an acknowledgement, a label bound, a count.
-	evs, err := t.db.Event.Query().Where(event.TenantId(tid), event.SubjectId(a)).All(ctx)
+	// time row -- an acknowledgement, a label bound, a count. Read from the
+	// past, which puts each read with a reason on the access record: why is
+	// somebody's words (payday#151).
+	evs, err := past.Events(ctx, st, past.EventQuery{Subjects: []pdid.Id{id}})
 	if err != nil {
 		return nil, err
 	}
-	byId := map[uuid.UUID]*ent.Event{}
+	byId := map[uuid.UUID]past.EventRow{}
 	for _, v := range evs {
-		byId[v.Id] = v
+		byId[v.Id.Uuid()] = v
 	}
 	// Events time rows point at but that name another subject.
+	var others []pdid.Id
 	for _, e := range entries {
 		k := uuidOf(e.GetEventId())
 		if _, ok := byId[k]; ok || k == (uuid.UUID{}) {
 			continue
 		}
-		v, err := t.db.Event.Query().Where(event.Id(k), event.TenantId(tid)).Only(ctx)
-		if err == nil {
-			byId[k] = v
+		others = append(others, pdid.Id(k))
+	}
+	// And what each was part of, when it was what an operation over many
+	// things did to this one: the operation, in its own words (design D34).
+	more, err := t.events(st, others)
+	if err != nil {
+		return nil, err
+	}
+	for _, v := range more {
+		byId[v.Id.Uuid()] = v
+	}
+	var causes []pdid.Id
+	for _, v := range byId {
+		if _, ok := byId[v.Cause.Uuid()]; !ok && !v.Cause.IsZero() {
+			causes = append(causes, v.Cause)
 		}
 	}
-	// What an event was part of, when it was what an operation over many
-	// things did to this one: the operation, in its own words (design D34).
-	causes := map[uuid.UUID]string{}
-	cause := func(v *ent.Event) string {
-		if v.CauseId == nil {
+	more, err = t.events(st, causes)
+	if err != nil {
+		return nil, err
+	}
+	causeOf := map[uuid.UUID]past.EventRow{}
+	for _, v := range more {
+		causeOf[v.Id.Uuid()] = v
+	}
+	if err := names.before(byId, causeOf); err != nil {
+		return nil, err
+	}
+
+	r := t.reading(&names)
+	cause := func(v past.EventRow) string {
+		if v.Cause.IsZero() {
 			return ""
 		}
-		k := *v.CauseId
-		if s, ok := causes[k]; ok {
-			return s
+		if c, ok := byId[v.Cause.Uuid()]; ok {
+			return r.Say(c)
 		}
-		s := ""
-		if c, err := t.db.Event.Query().Where(event.Id(k), event.TenantId(tid)).Only(ctx); err == nil {
-			s = names.say(c.Desc, c.Payload)
+		if c, ok := causeOf[v.Cause.Uuid()]; ok {
+			return r.Say(c)
 		}
-		causes[k] = s
-		return s
+		return ""
 	}
 	for _, e := range entries {
 		if v, ok := byId[uuidOf(e.GetEventId())]; ok {
 			e.SetEventKind(v.Kind)
 			e.SetReason(v.Reason)
-			e.SetActor(names.actor(v.ActorId))
+			e.SetActor(names.actorOf(v.Actor))
 			e.SetCause(cause(v))
 		}
 	}
 	for _, v := range evs {
-		e := entry("event", v.Id, v.OccurredAt, nil, v.DateCreated, nil, v.Id)
-		e.SetSummary(names.say(v.Desc, v.Payload))
+		e := entry("event", v.Id.Uuid(), v.At, nil, v.Recorded, nil, v.Id.Uuid())
+		e.SetSummary(r.Say(v))
 		e.SetEventKind(v.Kind)
 		e.SetReason(v.Reason)
-		e.SetActor(names.actor(v.ActorId))
+		e.SetActor(names.actorOf(v.Actor))
 		// Not when it says what the operation did: a hand-over's child says
 		// "지급" of the asset as the hand-over says it of the person.
 		if c := cause(v); c != e.GetSummary() {
 			e.SetCause(c)
 		}
-		if v.Payload != "" {
-			e.SetDetail(decode(v.Payload))
+		if l, ok := names.legacies[v.Id.Uuid()]; ok && l.payload != "" {
+			e.SetDetail(decode(l.payload))
 		}
 		entries = append(entries, e)
+	}
+	if err := r.Err(); err != nil {
+		return nil, err
 	}
 
 	sort.SliceStable(entries, func(i, j int) bool {
@@ -270,6 +312,14 @@ func (s domainAsset) Timeline(ctx context.Context, req *app.AssetTimelineRequest
 	}
 
 	return app.AssetTimelineResponse_builder{Entries: entries}.Build(), nil
+}
+
+// events reads the events `ids` names from the past, and nothing for none.
+func (t *Tx) events(st past.Store, ids []pdid.Id) ([]past.EventRow, error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
+	return past.Events(t.ctx, st, past.EventQuery{Ids: ids})
 }
 
 func entry(kind string, id uuid.UUID, from time.Time, to *time.Time, recorded time.Time, superseded *time.Time, ev uuid.UUID) *app.TimelineEntry {

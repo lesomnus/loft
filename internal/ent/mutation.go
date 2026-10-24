@@ -57,6 +57,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/treelock"
 	"github.com/lesomnus/rove/internal/ent/workorder"
 	"github.com/protobuf-orm/ent"
+	"google.golang.org/protobuf/types/known/anypb"
 )
 
 const (
@@ -5288,23 +5289,6 @@ func (m *EventMutation) Ids(ctx context.Context) ([]uuid.UUID, error) {
 	}
 }
 
-// OldDesc returns the old "desc" field's value of the Event entity.
-// If the Event object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *EventMutation) OldDesc(ctx context.Context) (v string, err error) {
-	if !m.Op().Is(OpUpdateOne) {
-		return v, errors.New("OldDesc is only allowed on UpdateOne operations")
-	}
-	if _, exists := m.Id(); !exists || m.oldValue == nil {
-		return v, errors.New("OldDesc requires an Id field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDesc: %w", err)
-	}
-	return oldValue.Desc, nil
-}
-
 // OldKind returns the old "kind" field's value of the Event entity.
 // If the Event object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
@@ -5441,23 +5425,6 @@ func (m *EventMutation) OldTraceId(ctx context.Context) (v []byte, err error) {
 	return oldValue.TraceId, nil
 }
 
-// OldPayload returns the old "payload" field's value of the Event entity.
-// If the Event object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *EventMutation) OldPayload(ctx context.Context) (v string, err error) {
-	if !m.Op().Is(OpUpdateOne) {
-		return v, errors.New("OldPayload is only allowed on UpdateOne operations")
-	}
-	if _, exists := m.Id(); !exists || m.oldValue == nil {
-		return v, errors.New("OldPayload requires an Id field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldPayload: %w", err)
-	}
-	return oldValue.Payload, nil
-}
-
 // OldCauseId returns the old "cause_id" field's value of the Event entity.
 // If the Event object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
@@ -5473,6 +5440,57 @@ func (m *EventMutation) OldCauseId(ctx context.Context) (v *uuid.UUID, err error
 		return v, fmt.Errorf("querying old value for OldCauseId: %w", err)
 	}
 	return oldValue.CauseId, nil
+}
+
+// OldValue returns the old "value" field's value of the Event entity.
+// If the Event object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EventMutation) OldValue(ctx context.Context) (v *anypb.Any, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldValue is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldValue requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldValue: %w", err)
+	}
+	return oldValue.Value, nil
+}
+
+// OldDesc returns the old "desc" field's value of the Event entity.
+// If the Event object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EventMutation) OldDesc(ctx context.Context) (v string, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldDesc is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldDesc requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDesc: %w", err)
+	}
+	return oldValue.Desc, nil
+}
+
+// OldPayload returns the old "payload" field's value of the Event entity.
+// If the Event object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EventMutation) OldPayload(ctx context.Context) (v string, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldPayload is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldPayload requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPayload: %w", err)
+	}
+	return oldValue.Payload, nil
 }
 
 // OldTenantId returns the old "tenant_id" field's value of the Event entity.
@@ -5497,8 +5515,6 @@ func (m *EventMutation) OldTenantId(ctx context.Context) (v uuid.UUID, err error
 // database failed.
 func (m *EventMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case event.FieldDesc:
-		return m.OldDesc(ctx)
 	case event.FieldKind:
 		return m.OldKind(ctx)
 	case event.FieldActorId:
@@ -5515,10 +5531,14 @@ func (m *EventMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldDateCreated(ctx)
 	case event.FieldTraceId:
 		return m.OldTraceId(ctx)
-	case event.FieldPayload:
-		return m.OldPayload(ctx)
 	case event.FieldCauseId:
 		return m.OldCauseId(ctx)
+	case event.FieldValue:
+		return m.OldValue(ctx)
+	case event.FieldDesc:
+		return m.OldDesc(ctx)
+	case event.FieldPayload:
+		return m.OldPayload(ctx)
 	case event.FieldTenantId:
 		return m.OldTenantId(ctx)
 	}
@@ -5636,6 +5656,23 @@ func (m *FactMutation) Ids(ctx context.Context) ([]uuid.UUID, error) {
 	}
 }
 
+// OldSubjectId returns the old "subject_id" field's value of the Fact entity.
+// If the Fact object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *FactMutation) OldSubjectId(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldSubjectId is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldSubjectId requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSubjectId: %w", err)
+	}
+	return oldValue.SubjectId, nil
+}
+
 // OldKey returns the old "key" field's value of the Fact entity.
 // If the Fact object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
@@ -5670,21 +5707,21 @@ func (m *FactMutation) OldValue(ctx context.Context) (v string, err error) {
 	return oldValue.Value, nil
 }
 
-// OldCleared returns the old "cleared" field's value of the Fact entity.
+// OldFieldNumber returns the old "field_number" field's value of the Fact entity.
 // If the Fact object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *FactMutation) OldCleared(ctx context.Context) (v bool, err error) {
+func (m *FactMutation) OldFieldNumber(ctx context.Context) (v uint32, err error) {
 	if !m.Op().Is(OpUpdateOne) {
-		return v, errors.New("OldCleared is only allowed on UpdateOne operations")
+		return v, errors.New("OldFieldNumber is only allowed on UpdateOne operations")
 	}
 	if _, exists := m.Id(); !exists || m.oldValue == nil {
-		return v, errors.New("OldCleared requires an Id field in the mutation")
+		return v, errors.New("OldFieldNumber requires an Id field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCleared: %w", err)
+		return v, fmt.Errorf("querying old value for OldFieldNumber: %w", err)
 	}
-	return oldValue.Cleared, nil
+	return oldValue.FieldNumber, nil
 }
 
 // OldDateUpdated returns the old "date_updated" field's value of the Fact entity.
@@ -5719,6 +5756,23 @@ func (m *FactMutation) OldDateCreated(ctx context.Context) (v time.Time, err err
 		return v, fmt.Errorf("querying old value for OldDateCreated: %w", err)
 	}
 	return oldValue.DateCreated, nil
+}
+
+// OldDomain returns the old "domain" field's value of the Fact entity.
+// If the Fact object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *FactMutation) OldDomain(ctx context.Context) (v uint32, err error) {
+	if !m.Op().Is(OpUpdateOne) {
+		return v, errors.New("OldDomain is only allowed on UpdateOne operations")
+	}
+	if _, exists := m.Id(); !exists || m.oldValue == nil {
+		return v, errors.New("OldDomain requires an Id field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDomain: %w", err)
+	}
+	return oldValue.Domain, nil
 }
 
 // OldValidFrom returns the old "valid_from" field's value of the Fact entity.
@@ -5806,38 +5860,25 @@ func (m *FactMutation) OldTenantId(ctx context.Context) (v uuid.UUID, err error)
 	return oldValue.TenantId, nil
 }
 
-// OldAssetId returns the old "asset_id" field's value of the Fact entity.
-// If the Fact object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *FactMutation) OldAssetId(ctx context.Context) (v uuid.UUID, err error) {
-	if !m.Op().Is(OpUpdateOne) {
-		return v, errors.New("OldAssetId is only allowed on UpdateOne operations")
-	}
-	if _, exists := m.Id(); !exists || m.oldValue == nil {
-		return v, errors.New("OldAssetId requires an Id field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldAssetId: %w", err)
-	}
-	return oldValue.AssetId, nil
-}
-
 // OldField returns the old value of the field from the database. An error is
 // returned if the mutation operation is not UpdateOne, or the query to the
 // database failed.
 func (m *FactMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
+	case fact.FieldSubjectId:
+		return m.OldSubjectId(ctx)
 	case fact.FieldKey:
 		return m.OldKey(ctx)
 	case fact.FieldValue:
 		return m.OldValue(ctx)
-	case fact.FieldCleared:
-		return m.OldCleared(ctx)
+	case fact.FieldFieldNumber:
+		return m.OldFieldNumber(ctx)
 	case fact.FieldDateUpdated:
 		return m.OldDateUpdated(ctx)
 	case fact.FieldDateCreated:
 		return m.OldDateCreated(ctx)
+	case fact.FieldDomain:
+		return m.OldDomain(ctx)
 	case fact.FieldValidFrom:
 		return m.OldValidFrom(ctx)
 	case fact.FieldEventId:
@@ -5848,8 +5889,6 @@ func (m *FactMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldSupersededBy(ctx)
 	case fact.FieldTenantId:
 		return m.OldTenantId(ctx)
-	case fact.FieldAssetId:
-		return m.OldAssetId(ctx)
 	}
 	return nil, fmt.Errorf("unknown Fact field %s", name)
 }

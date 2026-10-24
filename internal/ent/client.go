@@ -3085,22 +3085,6 @@ func (c *FactClient) QueryTenant(_m *Fact) *TenantQuery {
 	return query
 }
 
-// QueryAsset queries the asset edge of a Fact.
-func (c *FactClient) QueryAsset(_m *Fact) *AssetQuery {
-	query := (&AssetClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.Id
-		step := sqlgraph.NewStep(
-			sqlgraph.From(fact.Table, fact.FieldId, id),
-			sqlgraph.To(asset.Table, asset.FieldId),
-			sqlgraph.Edge(sqlgraph.M2O, false, fact.AssetTable, fact.AssetColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // Hooks returns the client hooks.
 func (c *FactClient) Hooks() []Hook {
 	return c.hooks.Fact

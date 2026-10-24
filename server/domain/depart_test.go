@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/lesomnus/payday/pdid"
+	"google.golang.org/protobuf/encoding/protojson"
 
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/internal/ent"
@@ -214,8 +215,9 @@ func TestTheLastOwnerLeavingHandsTheWorkspaceOn(t *testing.T) {
 
 		ev, err := e.s.Ent.Event.Query().Where(event.Kind("party.role")).Only(ctx)
 		x.NoError(err)
-		x.Contains(ev.Desc, "소유자 승계")
-		x.NotContains(ev.Desc, early.GetName(), "the event keeps who by identifier")
+		x.Contains(e.say(ev), "소유자 승계")
+		x.Equal("succession", value[*app.PartyRoleSet](e, ev).GetBy())
+		x.NotContains(protojson.Format(ev.Value), early.GetName(), "the event keeps who by identifier")
 		x.Equal("소유자 승계: "+early.GetName()+" → owner (마지막 소유자의 계정 탈퇴)", e.events()["party.role"])
 	})
 
@@ -268,7 +270,7 @@ func TestTheLastOwnerLeavingHandsTheWorkspaceOn(t *testing.T) {
 		x.Equal("auditor", e.roleOf(idOf(auditor.GetHolder().GetId())))
 		ev, err := e.s.Ent.Event.Query().Where(event.Kind("account.depart")).Only(ctx)
 		x.NoError(err)
-		x.Contains(ev.Payload, "ownerless")
+		x.True(value[*app.AccountDeparted](e, ev).GetOwnerless())
 	})
 
 	t.Run("a member leaving is not an owner leaving", func(t *testing.T) {

@@ -71,7 +71,14 @@ func (c *perConn) most() int {
 // measured here on the same path without the sheet's own lookups.
 //
 // It is a ceiling with room in it rather than the number, so that a statement
-// an asset really needs is a decision to raise it and not a test to fix.
+// an asset really needs is a decision to raise it and not a test to fix. It
+// was raised once so, from 13, by payday's past (payday#151): an operation's
+// event checks that its subject is of the operation's tenant, and its facts
+// check theirs again and read what stands at their moment before they write
+// -- three reads a registration of one, 11.2 statements an asset made 14.2.
+// A conversion registers each asset as an Add of its own; registering them
+// as bulk registration does, the children of one operation in a statement a
+// page (`past.Op.Batch`), would make those reads one a page.
 //
 // PostgreSQL only: it counts what pgx is asked, and that is the round trip.
 func TestAnAssetMadeInBulkIsAFewStatements(t *testing.T) {
@@ -109,5 +116,5 @@ func TestAnAssetMadeInBulkIsAFewStatements(t *testing.T) {
 
 	per := float64(c.most()) / n
 	t.Logf("%.1f statements an asset", per)
-	x.LessOrEqual(per, 13.0, "an asset made is %.1f statements; it was 11.2 when this was written (an imported row was 13.8, and 149 before #103)", per)
+	x.LessOrEqual(per, 16.0, "an asset made is %.1f statements; it was 14.2 once payday kept the past, 11.2 when this was written (an imported row was 13.8, and 149 before #103)", per)
 }

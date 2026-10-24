@@ -15,24 +15,26 @@ import (
 
 // Mutation represents an operation that mutates the Fact nodes in the graph.
 type Mutation struct {
-	op            ent.Op
-	typ           string
-	key           *string
-	value         *string
-	cleared       *bool
-	date_updated  *time.Time
-	date_created  *time.Time
-	valid_from    *time.Time
-	event_id      *uuid.UUID
-	superseded_at *time.Time
-	superseded_by *uuid.UUID
-	clearedFields map[string]struct{}
-	exprs         map[string]sql.Querier
-	tenant        *uuid.UUID
-	clearedtenant bool
-	asset         *uuid.UUID
-	clearedasset  bool
-	predicates    []predicate.Fact
+	op              ent.Op
+	typ             string
+	subject_id      *uuid.UUID
+	key             *string
+	value           *string
+	field_number    *uint32
+	addfield_number *int32
+	date_updated    *time.Time
+	date_created    *time.Time
+	domain          *uint32
+	adddomain       *int32
+	valid_from      *time.Time
+	event_id        *uuid.UUID
+	superseded_at   *time.Time
+	superseded_by   *uuid.UUID
+	clearedFields   map[string]struct{}
+	exprs           map[string]sql.Querier
+	tenant          *uuid.UUID
+	clearedtenant   bool
+	predicates      []predicate.Fact
 }
 
 // NewMutation creates a new Mutation for the Fact entity.
@@ -47,6 +49,27 @@ func NewMutation(op ent.Op) *Mutation {
 // Predicates returns the list of predicates set on the mutation.
 func (m *Mutation) Predicates() []predicate.Fact {
 	return m.predicates
+}
+
+// SetSubjectId sets the "subject_id" field.
+func (m *Mutation) SetSubjectId(u uuid.UUID) {
+	m.subject_id = &u
+	delete(m.exprs, FieldSubjectId)
+}
+
+// SubjectId returns the value of the "subject_id" field in the mutation.
+func (m *Mutation) SubjectId() (r uuid.UUID, exists bool) {
+	v := m.subject_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetSubjectId resets all changes to the "subject_id" field.
+func (m *Mutation) ResetSubjectId() {
+	m.subject_id = nil
+	delete(m.exprs, FieldSubjectId)
 }
 
 // SetKey sets the "key" field.
@@ -91,25 +114,61 @@ func (m *Mutation) ResetValue() {
 	delete(m.exprs, FieldValue)
 }
 
-// SetCleared sets the "cleared" field.
-func (m *Mutation) SetCleared(b bool) {
-	m.cleared = &b
-	delete(m.exprs, FieldCleared)
+// SetFieldNumber sets the "field_number" field.
+func (m *Mutation) SetFieldNumber(u uint32) {
+	m.field_number = &u
+	m.addfield_number = nil
+	delete(m.clearedFields, FieldFieldNumber)
+	delete(m.exprs, FieldFieldNumber)
 }
 
-// Cleared returns the value of the "cleared" field in the mutation.
-func (m *Mutation) Cleared() (r bool, exists bool) {
-	v := m.cleared
+// FieldNumber returns the value of the "field_number" field in the mutation.
+func (m *Mutation) FieldNumber() (r uint32, exists bool) {
+	v := m.field_number
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ResetCleared resets all changes to the "cleared" field.
-func (m *Mutation) ResetCleared() {
-	m.cleared = nil
-	delete(m.exprs, FieldCleared)
+// AddFieldNumber adds u to the "field_number" field.
+func (m *Mutation) AddFieldNumber(u int32) {
+	if m.addfield_number != nil {
+		*m.addfield_number += u
+	} else {
+		m.addfield_number = &u
+	}
+}
+
+// AddedFieldNumber returns the value that was added to the "field_number" field in this mutation.
+func (m *Mutation) AddedFieldNumber() (r int32, exists bool) {
+	v := m.addfield_number
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearFieldNumber clears the value of the "field_number" field.
+func (m *Mutation) ClearFieldNumber() {
+	m.field_number = nil
+	m.addfield_number = nil
+	delete(m.exprs, FieldFieldNumber)
+	m.clearedFields[FieldFieldNumber] = struct{}{}
+}
+
+// FieldNumberCleared returns if the "field_number" field was cleared in this mutation.
+func (m *Mutation) FieldNumberCleared() bool {
+	_, ok := m.clearedFields[FieldFieldNumber]
+	return ok
+}
+
+// ResetFieldNumber resets all changes to the "field_number" field.
+func (m *Mutation) ResetFieldNumber() {
+	m.field_number = nil
+	m.addfield_number = nil
+	delete(m.clearedFields, FieldFieldNumber)
+	delete(m.exprs, FieldFieldNumber)
 }
 
 // SetDateUpdated sets the "date_updated" field.
@@ -164,6 +223,63 @@ func (m *Mutation) DateCreatedCleared() bool {
 func (m *Mutation) ResetDateCreated() {
 	m.date_created = nil
 	delete(m.clearedFields, FieldDateCreated)
+}
+
+// SetDomain sets the "domain" field.
+func (m *Mutation) SetDomain(u uint32) {
+	m.domain = &u
+	m.adddomain = nil
+	delete(m.clearedFields, FieldDomain)
+	delete(m.exprs, FieldDomain)
+}
+
+// Domain returns the value of the "domain" field in the mutation.
+func (m *Mutation) Domain() (r uint32, exists bool) {
+	v := m.domain
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// AddDomain adds u to the "domain" field.
+func (m *Mutation) AddDomain(u int32) {
+	if m.adddomain != nil {
+		*m.adddomain += u
+	} else {
+		m.adddomain = &u
+	}
+}
+
+// AddedDomain returns the value that was added to the "domain" field in this mutation.
+func (m *Mutation) AddedDomain() (r int32, exists bool) {
+	v := m.adddomain
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearDomain clears the value of the "domain" field.
+func (m *Mutation) ClearDomain() {
+	m.domain = nil
+	m.adddomain = nil
+	delete(m.exprs, FieldDomain)
+	m.clearedFields[FieldDomain] = struct{}{}
+}
+
+// DomainCleared returns if the "domain" field was cleared in this mutation.
+func (m *Mutation) DomainCleared() bool {
+	_, ok := m.clearedFields[FieldDomain]
+	return ok
+}
+
+// ResetDomain resets all changes to the "domain" field.
+func (m *Mutation) ResetDomain() {
+	m.domain = nil
+	m.adddomain = nil
+	delete(m.clearedFields, FieldDomain)
+	delete(m.exprs, FieldDomain)
 }
 
 // SetValidFrom sets the "valid_from" field.
@@ -314,25 +430,6 @@ func (m *Mutation) ResetTenantId() {
 	m.tenant = nil
 }
 
-// SetAssetId sets the "asset_id" field.
-func (m *Mutation) SetAssetId(u uuid.UUID) {
-	m.asset = &u
-}
-
-// AssetId returns the value of the "asset_id" field in the mutation.
-func (m *Mutation) AssetId() (r uuid.UUID, exists bool) {
-	v := m.asset
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ResetAssetId resets all changes to the "asset_id" field.
-func (m *Mutation) ResetAssetId() {
-	m.asset = nil
-}
-
 // ClearTenant clears the "tenant" edge to the Tenant entity.
 func (m *Mutation) ClearTenant() {
 	m.clearedtenant = true
@@ -358,33 +455,6 @@ func (m *Mutation) TenantIds() (ids []uuid.UUID) {
 func (m *Mutation) ResetTenant() {
 	m.tenant = nil
 	m.clearedtenant = false
-}
-
-// ClearAsset clears the "asset" edge to the Asset entity.
-func (m *Mutation) ClearAsset() {
-	m.clearedasset = true
-	m.clearedFields[FieldAssetId] = struct{}{}
-}
-
-// AssetCleared reports if the "asset" edge to the Asset entity was cleared.
-func (m *Mutation) AssetCleared() bool {
-	return m.clearedasset
-}
-
-// AssetIds returns the "asset" edge Ids in the mutation.
-// Note that Ids always returns len(Ids) <= 1 for unique edges, and you should use
-// AssetId instead. It exists only for internal usage by the builders.
-func (m *Mutation) AssetIds() (ids []uuid.UUID) {
-	if id := m.asset; id != nil {
-		ids = append(ids, *id)
-	}
-	return
-}
-
-// ResetAsset resets all changes to the "asset" edge.
-func (m *Mutation) ResetAsset() {
-	m.asset = nil
-	m.clearedasset = false
 }
 
 // Where appends a list predicates to the Mutation builder.
@@ -421,21 +491,27 @@ func (m *Mutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *Mutation) Fields() []string {
-	fields := make([]string, 0, 11)
+	fields := make([]string, 0, 12)
+	if m.subject_id != nil || m.exprs[FieldSubjectId] != nil {
+		fields = append(fields, FieldSubjectId)
+	}
 	if m.key != nil || m.exprs[FieldKey] != nil {
 		fields = append(fields, FieldKey)
 	}
 	if m.value != nil || m.exprs[FieldValue] != nil {
 		fields = append(fields, FieldValue)
 	}
-	if m.cleared != nil || m.exprs[FieldCleared] != nil {
-		fields = append(fields, FieldCleared)
+	if m.field_number != nil || m.exprs[FieldFieldNumber] != nil {
+		fields = append(fields, FieldFieldNumber)
 	}
 	if m.date_updated != nil || m.exprs[FieldDateUpdated] != nil {
 		fields = append(fields, FieldDateUpdated)
 	}
 	if m.date_created != nil {
 		fields = append(fields, FieldDateCreated)
+	}
+	if m.domain != nil || m.exprs[FieldDomain] != nil {
+		fields = append(fields, FieldDomain)
 	}
 	if m.valid_from != nil || m.exprs[FieldValidFrom] != nil {
 		fields = append(fields, FieldValidFrom)
@@ -452,9 +528,6 @@ func (m *Mutation) Fields() []string {
 	if m.tenant != nil {
 		fields = append(fields, FieldTenantId)
 	}
-	if m.asset != nil {
-		fields = append(fields, FieldAssetId)
-	}
 	return fields
 }
 
@@ -469,16 +542,20 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return e, true
 	}
 	switch name {
+	case FieldSubjectId:
+		return m.SubjectId()
 	case FieldKey:
 		return m.Key()
 	case FieldValue:
 		return m.Value()
-	case FieldCleared:
-		return m.Cleared()
+	case FieldFieldNumber:
+		return m.FieldNumber()
 	case FieldDateUpdated:
 		return m.DateUpdated()
 	case FieldDateCreated:
 		return m.DateCreated()
+	case FieldDomain:
+		return m.Domain()
 	case FieldValidFrom:
 		return m.ValidFrom()
 	case FieldEventId:
@@ -489,8 +566,6 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 		return m.SupersededBy()
 	case FieldTenantId:
 		return m.TenantId()
-	case FieldAssetId:
-		return m.AssetId()
 	}
 	return nil, false
 }
@@ -510,6 +585,16 @@ func (m *Mutation) OldField(ctx context.Context, name string) (ent.Value, error)
 // that what Field returns for a field can be set back on it.
 func (m *Mutation) SetField(name string, value ent.Value) error {
 	switch name {
+	case FieldSubjectId:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSubjectId(v)
+		return nil
 	case FieldKey:
 		v, ok := value.(string)
 		if !ok {
@@ -530,15 +615,15 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetValue(v)
 		return nil
-	case FieldCleared:
-		v, ok := value.(bool)
+	case FieldFieldNumber:
+		v, ok := value.(uint32)
 		if !ok {
 			if e, ok := value.(sql.Querier); ok {
 				return m.SetFieldExpr(name, e)
 			}
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetCleared(v)
+		m.SetFieldNumber(v)
 		return nil
 	case FieldDateUpdated:
 		v, ok := value.(time.Time)
@@ -559,6 +644,16 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetDateCreated(v)
+		return nil
+	case FieldDomain:
+		v, ok := value.(uint32)
+		if !ok {
+			if e, ok := value.(sql.Querier); ok {
+				return m.SetFieldExpr(name, e)
+			}
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDomain(v)
 		return nil
 	case FieldValidFrom:
 		v, ok := value.(time.Time)
@@ -610,16 +705,6 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetTenantId(v)
 		return nil
-	case FieldAssetId:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			if e, ok := value.(sql.Querier); ok {
-				return m.SetFieldExpr(name, e)
-			}
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetAssetId(v)
-		return nil
 	}
 	return fmt.Errorf("unknown Fact field %s", name)
 }
@@ -642,16 +727,20 @@ func (m *Mutation) SetFieldExpr(name string, expr sql.Querier) error {
 		return fmt.Errorf("field %s cannot be assigned an expression: a create writes values, and an expression is written only by an update", name)
 	}
 	switch name {
+	case FieldSubjectId:
+		m.ResetSubjectId()
 	case FieldKey:
 		m.ResetKey()
 	case FieldValue:
 		m.ResetValue()
-	case FieldCleared:
-		m.ResetCleared()
+	case FieldFieldNumber:
+		m.ResetFieldNumber()
 	case FieldDateUpdated:
 		m.ResetDateUpdated()
 	case FieldDateCreated:
 		return fmt.Errorf("field %s cannot be assigned an expression: it is immutable, and an expression is written only by an update", name)
+	case FieldDomain:
+		m.ResetDomain()
 	case FieldValidFrom:
 		m.ResetValidFrom()
 	case FieldEventId:
@@ -661,8 +750,6 @@ func (m *Mutation) SetFieldExpr(name string, expr sql.Querier) error {
 	case FieldSupersededBy:
 		m.ResetSupersededBy()
 	case FieldTenantId:
-		return fmt.Errorf("field %s cannot be assigned an expression: it holds an edge, which is set through the edge", name)
-	case FieldAssetId:
 		return fmt.Errorf("field %s cannot be assigned an expression: it holds an edge, which is set through the edge", name)
 	default:
 		return fmt.Errorf("unknown Fact field %s", name)
@@ -685,17 +772,23 @@ func (m *Mutation) FieldExpr(name string) (sql.Querier, bool) {
 // SetFieldExpr.
 func (m *Mutation) ExprFields() []string {
 	var fields []string
+	if _, ok := m.exprs[FieldSubjectId]; ok {
+		fields = append(fields, FieldSubjectId)
+	}
 	if _, ok := m.exprs[FieldKey]; ok {
 		fields = append(fields, FieldKey)
 	}
 	if _, ok := m.exprs[FieldValue]; ok {
 		fields = append(fields, FieldValue)
 	}
-	if _, ok := m.exprs[FieldCleared]; ok {
-		fields = append(fields, FieldCleared)
+	if _, ok := m.exprs[FieldFieldNumber]; ok {
+		fields = append(fields, FieldFieldNumber)
 	}
 	if _, ok := m.exprs[FieldDateUpdated]; ok {
 		fields = append(fields, FieldDateUpdated)
+	}
+	if _, ok := m.exprs[FieldDomain]; ok {
+		fields = append(fields, FieldDomain)
 	}
 	if _, ok := m.exprs[FieldValidFrom]; ok {
 		fields = append(fields, FieldValidFrom)
@@ -715,13 +808,26 @@ func (m *Mutation) ExprFields() []string {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *Mutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addfield_number != nil {
+		fields = append(fields, FieldFieldNumber)
+	}
+	if m.adddomain != nil {
+		fields = append(fields, FieldDomain)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *Mutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case FieldFieldNumber:
+		return m.AddedFieldNumber()
+	case FieldDomain:
+		return m.AddedDomain()
+	}
 	return nil, false
 }
 
@@ -730,6 +836,20 @@ func (m *Mutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *Mutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case FieldFieldNumber:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddFieldNumber(v)
+		return nil
+	case FieldDomain:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDomain(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Fact numeric field %s", name)
 }
@@ -738,8 +858,14 @@ func (m *Mutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *Mutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(FieldFieldNumber) {
+		fields = append(fields, FieldFieldNumber)
+	}
 	if m.FieldCleared(FieldDateCreated) {
 		fields = append(fields, FieldDateCreated)
+	}
+	if m.FieldCleared(FieldDomain) {
+		fields = append(fields, FieldDomain)
 	}
 	if m.FieldCleared(FieldValidFrom) {
 		fields = append(fields, FieldValidFrom)
@@ -764,8 +890,14 @@ func (m *Mutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *Mutation) ClearField(name string) error {
 	switch name {
+	case FieldFieldNumber:
+		m.ClearFieldNumber()
+		return nil
 	case FieldDateCreated:
 		m.ClearDateCreated()
+		return nil
+	case FieldDomain:
+		m.ClearDomain()
 		return nil
 	case FieldValidFrom:
 		m.ClearValidFrom()
@@ -784,20 +916,26 @@ func (m *Mutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *Mutation) ResetField(name string) error {
 	switch name {
+	case FieldSubjectId:
+		m.ResetSubjectId()
+		return nil
 	case FieldKey:
 		m.ResetKey()
 		return nil
 	case FieldValue:
 		m.ResetValue()
 		return nil
-	case FieldCleared:
-		m.ResetCleared()
+	case FieldFieldNumber:
+		m.ResetFieldNumber()
 		return nil
 	case FieldDateUpdated:
 		m.ResetDateUpdated()
 		return nil
 	case FieldDateCreated:
 		m.ResetDateCreated()
+		return nil
+	case FieldDomain:
+		m.ResetDomain()
 		return nil
 	case FieldValidFrom:
 		m.ResetValidFrom()
@@ -814,21 +952,15 @@ func (m *Mutation) ResetField(name string) error {
 	case FieldTenantId:
 		m.ResetTenantId()
 		return nil
-	case FieldAssetId:
-		m.ResetAssetId()
-		return nil
 	}
 	return fmt.Errorf("unknown Fact field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *Mutation) AddedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 1)
 	if m.tenant != nil {
 		edges = append(edges, EdgeTenant)
-	}
-	if m.asset != nil {
-		edges = append(edges, EdgeAsset)
 	}
 	return edges
 }
@@ -841,17 +973,13 @@ func (m *Mutation) AddedIds(name string) []ent.Value {
 		if id := m.tenant; id != nil {
 			return []ent.Value{*id}
 		}
-	case EdgeAsset:
-		if id := m.asset; id != nil {
-			return []ent.Value{*id}
-		}
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *Mutation) RemovedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 1)
 	return edges
 }
 
@@ -863,12 +991,9 @@ func (m *Mutation) RemovedIds(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *Mutation) ClearedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 1)
 	if m.clearedtenant {
 		edges = append(edges, EdgeTenant)
-	}
-	if m.clearedasset {
-		edges = append(edges, EdgeAsset)
 	}
 	return edges
 }
@@ -879,8 +1004,6 @@ func (m *Mutation) EdgeCleared(name string) bool {
 	switch name {
 	case EdgeTenant:
 		return m.clearedtenant
-	case EdgeAsset:
-		return m.clearedasset
 	}
 	return false
 }
@@ -892,9 +1015,6 @@ func (m *Mutation) ClearEdge(name string) error {
 	case EdgeTenant:
 		m.ClearTenant()
 		return nil
-	case EdgeAsset:
-		m.ClearAsset()
-		return nil
 	}
 	return fmt.Errorf("unknown Fact unique edge %s", name)
 }
@@ -905,9 +1025,6 @@ func (m *Mutation) ResetEdge(name string) error {
 	switch name {
 	case EdgeTenant:
 		m.ResetTenant()
-		return nil
-	case EdgeAsset:
-		m.ResetAsset()
 		return nil
 	}
 	return fmt.Errorf("unknown Fact edge %s", name)

@@ -73,7 +73,14 @@ func (s domainWorkOrder) Add(ctx context.Context, req *app.WorkOrderAddRequest) 
 			return invalid("ends_at", "끝은 시작보다 뒤여야 합니다")
 		}
 		wid := pdid.New(pd.WorkOrderDomain)
-		if err := t.begin(nil, "work.open", aid, t.now, fmt.Sprintf("작업 열림: %s (%s)", req.GetName(), a.GetTag()), "", map[string]string{"kind": kind}); err != nil {
+		if err := t.begin(nil, "work.open", aid, t.now, "", app.WorkOrderSaved_builder{
+			WorkOrder: wid.Bytes(),
+			Asset:     aid.Bytes(),
+			Tag:       a.GetTag(),
+			Name:      strings.TrimSpace(req.GetName()),
+			Kind:      kind,
+			Status:    status,
+		}.Build()); err != nil {
 			return err
 		}
 		row := app.WorkOrderAddRequest_builder{
@@ -203,7 +210,12 @@ func (s domainWorkOrder) Update(ctx context.Context, req *app.WorkOrderUpdateReq
 			}
 			patch.SetCurrency(v)
 		}
-		if err := t.begin(nil, "work.update", idOf(w.GetAsset().GetId()), t.now, "작업 수정: "+w.GetName(), "", nil); err != nil {
+		if err := t.begin(nil, "work.update", idOf(w.GetAsset().GetId()), t.now, "", app.WorkOrderSaved_builder{
+			WorkOrder: w.GetId(),
+			Asset:     w.GetAsset().GetId(),
+			Name:      w.GetName(),
+			Status:    req.GetStatus(),
+		}.Build()); err != nil {
 			return err
 		}
 		if out, err = t.next.WorkOrder().Patch(t.ctx, patch); err != nil {
@@ -211,9 +223,8 @@ func (s domainWorkOrder) Update(ctx context.Context, req *app.WorkOrderUpdateReq
 		}
 		if req.GetStatus() == "in_progress" && w.GetKind() == "repair" {
 			if _, err := t.layer().Asset().SetAttributes(t.ctx, app.AssetSetAttributesRequest_builder{
-				Ref:    app.AssetRef_builder{Id: w.GetAsset().GetId()}.Build(),
-				Set:    map[string]string{"status": "in_repair"},
-				Reason: "수리 시작: " + w.GetName(),
+				Ref: app.AssetRef_builder{Id: w.GetAsset().GetId()}.Build(),
+				Set: map[string]string{"status": "in_repair"},
 			}.Build()); err != nil {
 				return err
 			}
@@ -248,7 +259,16 @@ func (s domainWorkOrder) finish(ctx context.Context, req *app.WorkOrderCompleteR
 		if err != nil {
 			return err
 		}
-		if err := t.begin(nil, "work."+state, aid, t.now, fmt.Sprintf("작업 %s: %s", map[string]string{"done": "완료", "cancelled": "취소"}[state], w.GetName()), req.GetReason(), nil); err != nil {
+		said := app.WorkOrderFinished_builder{WorkOrder: w.GetId(), Asset: aid.Bytes(), Name: w.GetName()}.Build()
+		if state == "done" {
+			cost := w.GetCost()
+			if req.GetCost() != 0 {
+				cost = req.GetCost()
+			}
+			said.SetCost(cost)
+			said.SetCurrency(w.GetCurrency())
+		}
+		if err := t.begin(nil, "work."+state, aid, t.now, req.GetReason(), said); err != nil {
 			return err
 		}
 		patch := app.WorkOrderPatchRequest_builder{Ref: req.GetRef(), Status: z.Ptr(state), DateUpdatedForce: z.Ptr(true)}.Build()
@@ -276,7 +296,7 @@ func (s domainWorkOrder) finish(ctx context.Context, req *app.WorkOrderCompleteR
 			if _, err := t.layer().Asset().SetAttributes(t.ctx, app.AssetSetAttributesRequest_builder{
 				Ref:    app.AssetRef_builder{Id: aid.Bytes()}.Build(),
 				Set:    set,
-				Reason: "작업 " + state + ": " + w.GetName(),
+				Reason: req.GetReason(),
 			}.Build()); err != nil {
 				return err
 			}
@@ -358,7 +378,17 @@ func (s domainPurchase) Add(ctx context.Context, req *app.PurchaseAddRequest) (*
 			name = "구매 " + t.now.In(t.zone()).Format("2006-01-02")
 		}
 		pid := pdid.New(pd.PurchaseDomain)
-		if err := t.begin(nil, "purchase.add", pdid.Nil, t.now, "구매 등록: "+name, "", map[string]string{"total": fmt.Sprint(total), "currency": currency}); err != nil {
+		said := app.PurchaseAdded_builder{
+			Purchase: pid.Bytes(),
+			Name:     name,
+			Total:    total,
+			Currency: currency,
+			Lines:    uint32(len(req.GetLines())),
+		}.Build()
+		if req.HasVendor() {
+			said.SetVendor(req.GetVendor().GetId())
+		}
+		if err := t.begin(nil, "purchase.add", pdid.Nil, t.now, "", said); err != nil {
 			return err
 		}
 		row := app.PurchaseAddRequest_builder{
@@ -430,7 +460,11 @@ func (s domainPurchase) Receive(ctx context.Context, req *app.PurchaseReceiveReq
 		if err != nil {
 			return err
 		}
-		if err := t.begin(nil, "purchase.receive", pdid.Nil, at, "입고: "+p.GetName(), "", nil); err != nil {
+		if err := t.begin(nil, "purchase.receive", pdid.Nil, at, "", app.PurchaseReceived_builder{
+			Purchase: p.GetId(),
+			Name:     p.GetName(),
+			Into:     intoId.Bytes(),
+		}.Build()); err != nil {
 			return err
 		}
 
@@ -480,7 +514,6 @@ func (s domainPurchase) Receive(ctx context.Context, req *app.PurchaseReceiveReq
 						To:         app.AssetRef_builder{Id: intoId.Bytes()}.Build(),
 						AcquiredAt: ts(at),
 						Since:      ts(at),
-						Reason:     z.Ptr("입고: " + p.GetName()),
 						Attributes: map[string]string{},
 					}.Build()
 					if m != nil {
