@@ -188,6 +188,9 @@ func TestEveryKindIsSaidAsItWasWritten(t *testing.T) {
 		}.Build(), "접속기록 점검: 2026-10-01 – 2026-10-31, 호출 12건 (내려받기 1건, 거부 2건)"},
 		{"retention.expired", app.RetentionExpired_builder{Before: timestamppb.New(time.Date(2026, 4, 27, 15, 0, 0, 0, time.UTC)), Placements: 2, Facts: 3, Events: 1, Reservations: 1}.Build(),
 			"보존 기간이 지난 이력 7건 삭제 (2026년 4월 28일 이전)"},
+
+		// A kind since events kept a message, written with none before it.
+		{"event.redact", app.EventRedacted_builder{Event: pdid.New(pd.EventDomain).Bytes()}.Build(), "작업 기록의 사유 삭제"},
 	} {
 		v := row(c.kind, c.v)
 		x.Equal(c.want, r.Say(v), c.kind)

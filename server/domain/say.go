@@ -335,6 +335,12 @@ func sentences() *past.Sentences {
 		return fmt.Sprintf("보존 기간이 지난 이력 %d건 삭제 (%s 이전)", total, m.GetBefore().AsTime().In(r.Zone()).Format("2006년 1월 2일"))
 	})
 
+	// An event's reason taken out (payday#151's Redact): what was taken out
+	// is the redacted event's reason, and the request it answers this one's.
+	past.SayKind(s, "event.redact", "ko", func(r *past.Reading, ev past.EventRow, m *app.EventRedacted) string {
+		return "작업 기록의 사유 삭제"
+	})
+
 	// A row from before Rove's events were the past's: the sentence it was
 	// written with, and the people it marks named as they are now.
 	s.Legacy(func(r *past.Reading, ev past.EventRow) string {
