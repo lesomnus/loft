@@ -13,6 +13,7 @@ import (
 	"github.com/lesomnus/payday/pderr"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/z"
+	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
@@ -615,16 +616,79 @@ func (in *intake) refusal() error {
 	return pderr.Invalid(vs...)
 }
 
-// register writes what `in` checked: the operation's event, the types and
-// models it makes, and then the assets, their events, facts and placements,
-// each table a few hundred rows to a statement.
+// refusalAs is what `in` found, of rows an operation made up itself -- the
+// units of a stock converted, what a purchase received -- as a refusal of the
+// request that operation was asked with: each said once, however many of the
+// rows it is about, under the field of that request it is a matter of (`as`,
+// by a row's field, and the request as a whole for one `as` does not name);
+// and the tags other assets have already as what came of the prefix the
+// request gave.
+func (in *intake) refusalAs(as map[string]string) error {
+	type said struct{ field, why string }
+	vs := []said{}
+	taken := []string{}
+	for _, v := range in.issues {
+		if v.GetField() == "tag" {
+			taken = append(taken, in.rows[v.GetItem()].tag)
+			continue
+		}
+		w := said{as[v.GetField()], v.GetMessage()}
+		if !slices.Contains(vs, w) {
+			vs = append(vs, w)
+		}
+	}
+	if len(taken) > 0 {
+		tags := strings.Join(taken[:min(len(taken), 3)], ", ")
+		if n := len(taken) - 3; n > 0 {
+			tags += fmt.Sprintf(" 외 %d개", n)
+		}
+		vs = append(vs, said{as["tag"], fmt.Sprintf("태그 %s는 이미 있는 자산의 것입니다. 태그 앞부분을 바꾸세요", tags)})
+	}
+
+	whys := make([]string, len(vs))
+	fs := make([]*errdetails.BadRequest_FieldViolation, len(vs))
+	for i, v := range vs {
+		whys[i] = v.why
+		fs[i] = &errdetails.BadRequest_FieldViolation{Field: v.field, Description: v.why}
+	}
+	st := status.New(codes.InvalidArgument, strings.Join(whys, " "))
+	if d, err := st.WithDetails(&errdetails.BadRequest{FieldViolations: fs}); err == nil {
+		return d.Err()
+	}
+	return st.Err()
+}
+
+// register writes what `in` checked: the operation's event, and then what it
+// makes ([Tx.makeAssets]).
 func (t *Tx) register(req *app.AssetAddManyRequest, in *intake) (*app.AssetAddManyResponse, error) {
-	op := req.GetOp()
-	n := len(in.rows)
-	if err := t.begin(op, "asset.add_many", pdid.Nil, t.now, req.GetReason(), app.AssetsAdded_builder{Count: uint32(n)}.Build()); err != nil {
+	if err := t.begin(req.GetOp(), "asset.add_many", pdid.Nil, t.now, req.GetReason(), app.AssetsAdded_builder{Count: uint32(len(in.rows))}.Build()); err != nil {
 		return nil, err
 	}
+	out, err := t.makeAssets(in, req.GetReason())
+	if err != nil {
+		return nil, err
+	}
+
+	res := in.answer()
+	res.SetItems(out)
+	res.SetEventId(t.op.Id().Bytes())
+	return res, nil
+}
+
+// makeAssets writes what `in` checked as what the operation that has begun
+// makes, each asset a child of it -- a bulk registration's, a stock
+// converted, a purchase received: the types and models it makes, and then
+// the assets, their events, facts and placements, each table a few hundred
+// rows to a statement, and each container's watchers told once. Each asset's
+// event is the "등록" its Add would have written, for `reason`, the
+// operation's own. It answers the assets as they were made, in the order of
+// the rows.
+func (t *Tx) makeAssets(in *intake, reason string) ([]*app.Asset, error) {
+	n := len(in.rows)
 	parent := t.op
+	if parent == nil {
+		return nil, status.Errorf(codes.Internal, "domain: assets made outside an operation, which records no event for them")
+	}
 
 	// The types and models it makes, first: the assets point at them. Each
 	// is made as its own Add makes it, recording its own event, a child of
@@ -733,7 +797,7 @@ func (t *Tx) register(req *app.AssetAddManyRequest, in *intake) (*app.AssetAddMa
 				Kind:    "asset.add",
 				Subject: r.id,
 				At:      r.since,
-				Reason:  req.GetReason(),
+				Reason:  reason,
 				Value:   app.AssetAdded_builder{Asset: r.id.Bytes(), Tag: r.tag, Name: r.name, Kind: r.kind}.Build(),
 			},
 			Facts: []past.Fact{{Subject: r.id, From: r.since, Values: past.Changes(nil, assetFacts(a))}},
@@ -754,11 +818,7 @@ func (t *Tx) register(req *app.AssetAddManyRequest, in *intake) (*app.AssetAddMa
 			return nil, err
 		}
 	}
-
-	res := in.answer()
-	res.SetItems(out)
-	res.SetEventId(parent.Id().Bytes())
-	return res, nil
+	return out, nil
 }
 
 // registered is what an operation made, answered to a copy of it sent again:

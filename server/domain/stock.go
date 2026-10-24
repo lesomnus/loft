@@ -319,6 +319,10 @@ func (s domainStock) Transfer(ctx context.Context, req *app.StockTransferRequest
 
 // Convert takes units out of a stock and registers each as an asset of its
 // own, in the stock's space: a monitor that turned out to be worth tracking.
+//
+// It is one operation, and makes what it makes as a bulk registration does
+// ([Tx.makeAssets]): each asset's registration a child of it, all of them a
+// few hundred rows to a statement, rather than each by an Add of its own.
 func (s domainStock) Convert(ctx context.Context, req *app.StockConvertRequest) (*app.StockConvertResponse, error) {
 	var out *app.StockConvertResponse
 	err := s.tx(ctx, func(t *Tx) error {
@@ -329,6 +333,11 @@ func (s domainStock) Convert(ctx context.Context, req *app.StockConvertRequest) 
 		if q <= 0 || q > 200 {
 			return invalid("quantity", "한 번에 1~200개까지 전환합니다")
 		}
+		// What it makes is put in the stock's space, a change to the tree:
+		// its lock before the moment ([Tx.lockTree]).
+		if err := t.lockTree(); err != nil {
+			return err
+		}
 		st, err := t.next.Stock().Get(t.ctx, app.StockGetRequest_builder{Ref: req.GetRef()}.Build())
 		if err != nil {
 			return err
@@ -337,24 +346,13 @@ func (s domainStock) Convert(ctx context.Context, req *app.StockConvertRequest) 
 		if err != nil {
 			return err
 		}
-		if err := t.begin(req.GetOp(), "stock.convert", pdid.Nil, t.now, "", app.StockConverted_builder{
-			Stock:    st.GetId(),
-			Name:     st.GetName(),
-			Quantity: q,
-		}.Build()); err != nil {
-			return err
-		}
-		if err := t.moveStock(st, -q, "convert", pdid.Nil, t.now); err != nil {
-			return err
-		}
 
-		out = app.StockConvertResponse_builder{}.Build()
-		layer := t.layer()
-		for i := range q {
+		// Each unit an asset of the stock's model, in its space, checked as
+		// bulk registration checks what it makes. Named after the
+		// conversion (`made`), for a copy of it sent again to answer with.
+		items := make([]*app.AssetAddRequest, q)
+		for i := range items {
 			add := app.AssetAddRequest_builder{
-				// Named after the conversion, for a copy of it sent again to
-				// answer with.
-				Id:    made(req.GetOp(), pd.AssetDomain, int(i)).Bytes(),
 				Name:  m.GetName(),
 				Kind:  "item",
 				Model: app.ItemModelRef_builder{Id: m.GetId()}.Build(),
@@ -366,14 +364,34 @@ func (s domainStock) Convert(ctx context.Context, req *app.StockConvertRequest) 
 			if p := strings.TrimSpace(req.GetTagPrefix()); p != "" {
 				add.SetTag(fmt.Sprintf("%s-%03d", p, i+1))
 			}
-			a, err := layer.Asset().Add(t.ctx, add)
-			if err != nil {
-				return err
-			}
-			out.SetAssets(append(out.GetAssets(), a))
+			items[i] = add
 		}
+		in, err := t.intake(items, req.GetOp())
+		if err != nil {
+			return err
+		}
+		if len(in.issues) > 0 {
+			// The stock's model, type and space are what the request names.
+			return in.refusalAs(map[string]string{"tag": "tag_prefix", "type": "ref", "model": "ref", "attributes": "ref", "to": "ref"})
+		}
+
+		if err := t.begin(req.GetOp(), "stock.convert", pdid.Nil, t.now, "", app.StockConverted_builder{
+			Stock:    st.GetId(),
+			Name:     st.GetName(),
+			Quantity: q,
+		}.Build()); err != nil {
+			return err
+		}
+		if err := t.moveStock(st, -q, "convert", pdid.Nil, t.now); err != nil {
+			return err
+		}
+		assets, err := t.makeAssets(in, "")
+		if err != nil {
+			return err
+		}
+
 		st, err = t.next.Stock().Get(t.ctx, app.StockGetRequest_builder{Ref: req.GetRef()}.Build())
-		out.SetStock(st)
+		out = app.StockConvertResponse_builder{Stock: st, Assets: assets}.Build()
 		return err
 	})
 	if err == errDone {
