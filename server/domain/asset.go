@@ -155,6 +155,9 @@ func (s domainAsset) Add(ctx context.Context, req *app.AssetAddRequest) (*app.As
 			return invalid("name", "이름을 입력하세요")
 		}
 		row.SetName(strings.TrimSpace(row.GetName()))
+		if err := attributeKeys("attributes", row.GetAttributes()); err != nil {
+			return err
+		}
 		if err := checkAttributes(spec, row.GetAttributes(), true); err != nil {
 			return err
 		}
@@ -883,10 +886,35 @@ func factKey(k string) (string, error) {
 	if strings.HasPrefix(k, "attr.") && len(k) > len("attr.") {
 		return k, nil
 	}
-	if k != "" && !strings.ContainsAny(k, " .") {
+	if isAttributeKey(k) {
 		return "attr." + k, nil
 	}
-	return "", invalid("set", "%q는 자산의 항목이 아닙니다", k)
+	return "", notAnItem("set", k)
+}
+
+// isAttributeKey says an attribute of an asset can be keyed by `k`: by
+// something, with neither a space nor a dot in it -- a space makes two words
+// of it, and a dot two parts of the key of its fact, `attr.` and it. Every
+// attribute an asset is given is held to it, by SetAttributes ([factKey]), by
+// Add and by bulk registration ([attributeKeys]); and so are the keys a
+// type's spec defines (checkSpec) and a sheet's attribute columns (`속성.키`).
+func isAttributeKey(k string) bool { return k != "" && !strings.ContainsAny(k, " .") }
+
+// attributeKeys refuses attributes an asset is given under a key no attribute
+// can have ([isAttributeKey]), on `field`, in the words SetAttributes refuses
+// a field it does not know with: the first such key, in order.
+func attributeKeys(field string, attrs map[string]string) error {
+	for _, k := range sortedKeys(attrs) {
+		if !isAttributeKey(k) {
+			return notAnItem(field, k)
+		}
+	}
+	return nil
+}
+
+// notAnItem is the refusal of `k`, which is no item of an asset.
+func notAnItem(field, k string) error {
+	return invalid(field, "%q는 자산의 항목이 아닙니다", k)
 }
 
 func idFromString(v string) pdid.Id {

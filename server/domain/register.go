@@ -239,6 +239,9 @@ func (t *Tx) intake(items []*app.AssetAddRequest, op []byte) (*intake, error) {
 			in.issue(i, "condition", "컨디션이 올바르지 않습니다 (%s)", strings.Join(Conditions, ", "))
 		}
 
+		if err := attributeKeys("attributes", item.GetAttributes()); err != nil {
+			in.issue(i, "attributes", "%s", messageOf(err))
+		}
 		if r.typ != nil {
 			switch {
 			case r.typ.refused != "":
