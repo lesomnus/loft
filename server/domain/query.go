@@ -260,6 +260,10 @@ func (s domainAsset) Timeline(ctx context.Context, req *app.AssetTimelineRequest
 	}
 
 	r := t.reading(&names)
+	held := details{n: &names}
+	if err := held.read(evs); err != nil {
+		return nil, err
+	}
 	cause := func(v past.EventRow) string {
 		if v.Cause.IsZero() {
 			return ""
@@ -291,8 +295,14 @@ func (s domainAsset) Timeline(ctx context.Context, req *app.AssetTimelineRequest
 		if c := cause(v); c != e.GetSummary() {
 			e.SetCause(c)
 		}
+		// What it held: a row from before by its payload, one since by
+		// its message, with the names a person reads.
 		if l, ok := names.legacies[v.Id.Uuid()]; ok && l.payload != "" {
 			e.SetDetail(decode(l.payload))
+		} else if d, err := held.of(v); err != nil {
+			return nil, err
+		} else if len(d) > 0 {
+			e.SetDetail(d)
 		}
 		entries = append(entries, e)
 	}
