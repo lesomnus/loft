@@ -30,6 +30,15 @@ var (
 	purchaseSay    = map[string]string{"ordered": "주문", "received": "입고 완료", "cancelled": "취소"}
 	statusSay      = map[string]string{"ordered": "주문", "active": "사용중", "in_repair": "수리중", "lost": "분실", "retired": "불용", "disposed": "폐기"}
 	conditionSay   = map[string]string{"good": "양호", "damaged": "손상", "broken": "고장"}
+
+	// And what the history says (`say.go`, the timeline's rows) in the words
+	// the page says them in (`ts/src/words.ts`): a stewardship's role, a
+	// stock's movement and how a count's finding was settled; and a relation,
+	// as the form that makes one names it (`pages/asset.tsx`).
+	stewardSay    = map[string]string{"owner": "소유", "manager": "관리 담당", "custodian": "보유"}
+	movementSay   = map[string]string{"receive": "입고", "consume": "사용", "adjust": "조정", "issue": "지급", "return": "반납", "transfer_in": "이동 입고", "transfer_out": "이동 출고", "convert": "자산 전환"}
+	resolutionSay = map[string]string{"open": "미처리", "ok": "정상", "moved": "위치 반영", "lost": "분실 처리", "ignored": "무시"}
+	relationSay   = map[string]string{"member_of": "구성품 / 소속", "connected_to": "연결됨"}
 )
 
 // errDry is how a dry run ends: everything was done, and is rolled back.
