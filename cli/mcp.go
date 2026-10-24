@@ -820,6 +820,11 @@ type mcpEntry struct {
 	Why        string `json:"why,omitempty"`
 	Part       string `json:"part_of,omitempty" jsonschema:"the operation over many things this was part of, in its own words"`
 	Superseded string `json:"superseded,omitempty" jsonschema:"when a correction replaced it"`
+	// What the history's own entry holds (`TimelineEntry.detail`), which is
+	// made of what the server reads it with: an event's message, each person
+	// in it by the name they are called by and never anything else of
+	// theirs, and a time row's own columns.
+	Detail map[string]string `json:"detail,omitempty" jsonschema:"what it held, field by field: of an event, what its operation held, a thing or a person by the name a person reads it by and a moment in the workspace's zone; of a time row, its own fields -- a placement's mode and slot, a stewardship's role, a fact's key and value"`
 }
 
 type mcpHistory struct {
@@ -870,6 +875,7 @@ func (t mcpTools) assetHistory(ctx context.Context, _ *mcp.CallToolRequest, in m
 			Why:        e.GetReason(),
 			Part:       e.GetCause(),
 			Superseded: stamp(e.GetSupersededAt()),
+			Detail:     e.GetDetail(),
 		})
 	}
 	return nil, out, nil
