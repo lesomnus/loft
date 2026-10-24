@@ -577,7 +577,7 @@ func checkSpec(spec *app.TypeSpec) error {
 	seen := map[string]bool{}
 	for i, a := range spec.GetAttributes() {
 		k := a.GetKey()
-		if k == "" || strings.ContainsAny(k, " .") {
+		if !isAttributeKey(k) {
 			return invalid(fmt.Sprintf("spec.attributes[%d].key", i), "속성 키는 띄어쓰기나 점 없이 씁니다")
 		}
 		if seen[k] {
