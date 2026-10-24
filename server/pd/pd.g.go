@@ -316,6 +316,7 @@ var EventKinds = map[string]protoreflect.MessageType{
 	"domain.lapse":         (*rove.TenantDomainLapsed)(nil).ProtoReflect().Type(),
 	"domain.retire":        (*rove.TenantDomainRetired)(nil).ProtoReflect().Type(),
 	"domain.verify":        (*rove.TenantDomainVerified)(nil).ProtoReflect().Type(),
+	"event.redact":         (*rove.EventRedacted)(nil).ProtoReflect().Type(),
 	"invitation.accept":    (*rove.InvitationAccepted)(nil).ProtoReflect().Type(),
 	"invitation.add":       (*rove.InvitationAdded)(nil).ProtoReflect().Type(),
 	"invitation.claim":     (*rove.InvitationChanged)(nil).ProtoReflect().Type(),
