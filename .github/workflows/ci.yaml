@@ -45,6 +45,18 @@ jobs:
             go-${{ runner.os }}-
       - name: generated code matches the schema
         run: go tool pd gen --check .
+      # pd doctor holds the Node the page is built with to payday's floor:
+      # the one the `ui` job builds the page with, rather than whichever the
+      # runner's image has.
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      # What would go wrong before it does (a layer that cannot join a
+      # transaction, a column that names an event and does not say so, ...).
+      # pd doctor fails only what stops a generation and passes its advice,
+      # so scripts/doctor.sh fails whatever it says that is not known there.
+      - name: what pd doctor says, but what is known
+        run: scripts/doctor.sh
       - name: vet
         run: go vet ./...
       - name: test on SQLite
