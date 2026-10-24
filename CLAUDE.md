@@ -21,7 +21,12 @@ exits 0.
 
 ```sh
 go tool pd doctor .       # what would go wrong, before it does
+scripts/doctor.sh         # what CI runs: fails on what it says that is not known there
 ```
+
+Doctor fails only what would stop a generation, and passes its advice;
+`scripts/doctor.sh` keeps the advice read already, each by its first line
+with what it is, and fails on the rest. Fix what it says, or add it there.
 
 ## Upgrading payday
 

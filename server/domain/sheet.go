@@ -162,7 +162,7 @@ func (s domainAsset) ReadSheet(ctx context.Context, req *app.AssetReadSheetReque
 				placeholder[i] = true
 				continue
 			}
-			if a == "" || strings.ContainsAny(a, " .") {
+			if !isAttributeKey(a) {
 				say(0, h, "속성 열은 '속성.' 다음에 띄어쓰기나 점 없는 키를 적습니다")
 				continue
 			}

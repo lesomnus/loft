@@ -435,13 +435,13 @@ func (s domainPurchase) Add(ctx context.Context, req *app.PurchaseAddRequest) (*
 }
 
 // Receive turns what arrived into assets or stock in a space.
+//
+// It is one operation, and the assets it makes it makes as a bulk
+// registration does ([Tx.makeAssets]): each one's registration a child of
+// it, all of them a few hundred rows to a statement.
 func (s domainPurchase) Receive(ctx context.Context, req *app.PurchaseReceiveRequest) (*app.PurchaseReceiveResponse, error) {
 	var out *app.PurchaseReceiveResponse
 	err := s.tx(ctx, func(t *Tx) error {
-		at, err := t.at(req.GetAt(), "at")
-		if err != nil {
-			return err
-		}
 		p, err := t.next.Purchase().Get(t.ctx, app.PurchaseGetRequest_builder{Ref: req.GetRef()}.Build())
 		if err != nil {
 			return err
@@ -460,17 +460,15 @@ func (s domainPurchase) Receive(ctx context.Context, req *app.PurchaseReceiveReq
 		if err != nil {
 			return err
 		}
-		if err := t.begin(nil, "purchase.receive", pdid.Nil, at, "", app.PurchaseReceived_builder{
-			Purchase: p.GetId(),
-			Name:     p.GetName(),
-			Into:     intoId.Bytes(),
-		}.Build()); err != nil {
-			return err
-		}
 
-		out = &app.PurchaseReceiveResponse{}
-		layer := t.layer()
-		n := 0
+		// What is left to arrive of each line, and what it is.
+		type arrival struct {
+			line  *ent.PurchaseLine
+			left  int64
+			model *app.ItemModel
+		}
+		arrived := []arrival{}
+		units := false
 		for _, l := range lines {
 			left := l.Quantity - l.ReceivedQuantity
 			if left <= 0 {
@@ -482,8 +480,73 @@ func (s domainPurchase) Receive(ctx context.Context, req *app.PurchaseReceiveReq
 					return err
 				}
 			}
-			switch l.ReceiveAs {
-			case "stock":
+			arrived = append(arrived, arrival{l, left, m})
+			units = units || l.ReceiveAs != "stock"
+		}
+		// Assets are put in the space, a change to the tree: its lock
+		// before the moment ([Tx.lockTree]).
+		if units {
+			if err := t.lockTree(); err != nil {
+				return err
+			}
+		}
+		at, err := t.at(req.GetAt(), "at")
+		if err != nil {
+			return err
+		}
+
+		// Each unit of a line received as assets an asset of its own, checked
+		// as bulk registration checks what it makes.
+		items := []*app.AssetAddRequest{}
+		for _, a := range arrived {
+			if a.line.ReceiveAs == "stock" {
+				continue
+			}
+			for range a.left {
+				add := app.AssetAddRequest_builder{
+					Name:       or(a.model.GetName(), or(a.line.Desc, "구매 자산")),
+					Kind:       "item",
+					To:         app.AssetRef_builder{Id: intoId.Bytes()}.Build(),
+					AcquiredAt: ts(at),
+					Since:      ts(at),
+					Attributes: map[string]string{},
+				}.Build()
+				if a.model != nil {
+					add.SetModel(app.ItemModelRef_builder{Id: a.model.GetId()}.Build())
+					if ty := a.model.GetType().GetId(); len(ty) > 0 {
+						add.SetType(app.AssetTypeRef_builder{Id: ty}.Build())
+					}
+				}
+				if pre := strings.TrimSpace(req.GetTagPrefix()); pre != "" {
+					add.SetTag(fmt.Sprintf("%s-%03d", pre, len(items)+1))
+				}
+				items = append(items, add)
+			}
+		}
+		var in *intake
+		if len(items) > 0 {
+			if in, err = t.intake(items, nil); err != nil {
+				return err
+			}
+			if len(in.issues) > 0 {
+				// A line's model and type are the purchase's; where they
+				// go is `into`.
+				return in.refusalAs(map[string]string{"tag": "tag_prefix", "type": "ref", "model": "ref", "attributes": "ref", "to": "into", "since": "at", "acquired_at": "at"})
+			}
+		}
+
+		if err := t.begin(nil, "purchase.receive", pdid.Nil, at, "", app.PurchaseReceived_builder{
+			Purchase: p.GetId(),
+			Name:     p.GetName(),
+			Into:     intoId.Bytes(),
+		}.Build()); err != nil {
+			return err
+		}
+
+		out = &app.PurchaseReceiveResponse{}
+		for _, a := range arrived {
+			l, m := a.line, a.model
+			if l.ReceiveAs == "stock" {
 				st, err := t.db.Stock.Query().Where(stock.TenantId(t.tenant.Uuid()), stock.ModelId(l.ModelId), stock.SpaceId(intoId.Uuid()), stock.DateErasedIsNil()).Only(t.ctx)
 				var v *app.Stock
 				switch {
@@ -501,36 +564,10 @@ func (s domainPurchase) Receive(ctx context.Context, req *app.PurchaseReceiveReq
 				if err != nil {
 					return err
 				}
-				if err := t.moveStock(v, left, "receive", idOf(p.GetId()), at); err != nil {
+				if err := t.moveStock(v, a.left, "receive", idOf(p.GetId()), at); err != nil {
 					return err
 				}
-				out.SetStocked(out.GetStocked() + uint32(left))
-			default:
-				for range left {
-					n++
-					add := app.AssetAddRequest_builder{
-						Name:       or(m.GetName(), or(l.Desc, "구매 자산")),
-						Kind:       "item",
-						To:         app.AssetRef_builder{Id: intoId.Bytes()}.Build(),
-						AcquiredAt: ts(at),
-						Since:      ts(at),
-						Attributes: map[string]string{},
-					}.Build()
-					if m != nil {
-						add.SetModel(app.ItemModelRef_builder{Id: m.GetId()}.Build())
-						if ty := m.GetType().GetId(); len(ty) > 0 {
-							add.SetType(app.AssetTypeRef_builder{Id: ty}.Build())
-						}
-					}
-					if pre := strings.TrimSpace(req.GetTagPrefix()); pre != "" {
-						add.SetTag(fmt.Sprintf("%s-%03d", pre, n))
-					}
-					a, err := layer.Asset().Add(t.ctx, add)
-					if err != nil {
-						return err
-					}
-					out.SetAssets(append(out.GetAssets(), a))
-				}
+				out.SetStocked(out.GetStocked() + uint32(a.left))
 			}
 			if _, err := t.next.PurchaseLine().Patch(t.ctx, app.PurchaseLinePatchRequest_builder{
 				Ref:              app.PurchaseLineRef_builder{Id: pdid.Id(l.Id).Bytes()}.Build(),
@@ -539,6 +576,13 @@ func (s domainPurchase) Receive(ctx context.Context, req *app.PurchaseReceiveReq
 			}.Build()); err != nil {
 				return err
 			}
+		}
+		if in != nil {
+			assets, err := t.makeAssets(in, "")
+			if err != nil {
+				return err
+			}
+			out.SetAssets(assets)
 		}
 		v, err := t.next.Purchase().Patch(t.ctx, app.PurchasePatchRequest_builder{
 			Ref:              req.GetRef(),

@@ -6266,6 +6266,70 @@ func (b0 RetentionExpired_builder) Build() *RetentionExpired {
 	return m0
 }
 
+// EventRedacted is an event's reason taken out (`event.redact`, payday#151's
+// Redact), for a person whose request to erase what it said of them points at
+// it: which event, and nothing of what it said. The request it answers is its
+// own reason, by the reference the workspace keeps it under.
+type EventRedacted struct {
+	state            protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Event []byte                 `protobuf:"bytes,1,opt,name=event"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *EventRedacted) Reset() {
+	*x = EventRedacted{}
+	mi := &file_rove_past_proto_msgTypes[56]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EventRedacted) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EventRedacted) ProtoMessage() {}
+
+func (x *EventRedacted) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_past_proto_msgTypes[56]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *EventRedacted) GetEvent() []byte {
+	if x != nil {
+		return x.xxx_hidden_Event
+	}
+	return nil
+}
+
+func (x *EventRedacted) SetEvent(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Event = v
+}
+
+type EventRedacted_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Event []byte
+}
+
+func (b0 EventRedacted_builder) Build() *EventRedacted {
+	m0 := &EventRedacted{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Event = b.Event
+	return m0
+}
+
 var File_rove_past_proto protoreflect.FileDescriptor
 
 const file_rove_past_proto_rawDesc = "" +
@@ -6664,10 +6728,13 @@ const file_rove_past_proto_rawDesc = "" +
 	"workOrders\x12'\n" +
 	"\x0fstock_movements\x18\v \x01(\rR\x0estockMovements\x12 \n" +
 	"\vattachments\x18\f \x01(\rR\vattachments:\x17\x92\xbb\x16\x13\n" +
-	"\x11retention.expiredB)\xca\xc7\x16\x06\n" +
+	"\x11retention.expired\"9\n" +
+	"\rEventRedacted\x12\x14\n" +
+	"\x05event\x18\x01 \x01(\fR\x05event:\x12\x92\xbb\x16\x0e\n" +
+	"\fevent.redactB)\xca\xc7\x16\x06\n" +
 	"\x04\b\x11\x10\x10Z\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
-var file_rove_past_proto_msgTypes = make([]protoimpl.MessageInfo, 57)
+var file_rove_past_proto_msgTypes = make([]protoimpl.MessageInfo, 58)
 var file_rove_past_proto_goTypes = []any{
 	(*AssetAdded)(nil),            // 0: rove.AssetAdded
 	(*AssetsAdded)(nil),           // 1: rove.AssetsAdded
@@ -6725,24 +6792,25 @@ var file_rove_past_proto_goTypes = []any{
 	(*AccountDeparted)(nil),       // 53: rove.AccountDeparted
 	(*AttachmentAdded)(nil),       // 54: rove.AttachmentAdded
 	(*RetentionExpired)(nil),      // 55: rove.RetentionExpired
-	nil,                           // 56: rove.WorkspaceImported.LeftEntry
-	(*timestamppb.Timestamp)(nil), // 57: google.protobuf.Timestamp
+	(*EventRedacted)(nil),         // 56: rove.EventRedacted
+	nil,                           // 57: rove.WorkspaceImported.LeftEntry
+	(*timestamppb.Timestamp)(nil), // 58: google.protobuf.Timestamp
 }
 var file_rove_past_proto_depIdxs = []int32{
-	57, // 0: rove.AssetCorrected.valid_from:type_name -> google.protobuf.Timestamp
-	57, // 1: rove.CustodyIssued.due:type_name -> google.protobuf.Timestamp
-	57, // 2: rove.CustodyExtended.due:type_name -> google.protobuf.Timestamp
-	57, // 3: rove.ReservationAdded.begins_at:type_name -> google.protobuf.Timestamp
-	57, // 4: rove.ReservationAdded.ends_at:type_name -> google.protobuf.Timestamp
-	57, // 5: rove.TenantDomainLapsed.failing_since:type_name -> google.protobuf.Timestamp
-	57, // 6: rove.WorkspaceClosed.destroy:type_name -> google.protobuf.Timestamp
-	57, // 7: rove.WorkspaceConfigured.keep_from:type_name -> google.protobuf.Timestamp
-	57, // 8: rove.WorkspaceConfigured.access_keep_from:type_name -> google.protobuf.Timestamp
-	57, // 9: rove.WorkspaceImported.exported_at:type_name -> google.protobuf.Timestamp
-	56, // 10: rove.WorkspaceImported.left:type_name -> rove.WorkspaceImported.LeftEntry
-	57, // 11: rove.AccessReviewed.from:type_name -> google.protobuf.Timestamp
-	57, // 12: rove.AccessReviewed.to:type_name -> google.protobuf.Timestamp
-	57, // 13: rove.RetentionExpired.before:type_name -> google.protobuf.Timestamp
+	58, // 0: rove.AssetCorrected.valid_from:type_name -> google.protobuf.Timestamp
+	58, // 1: rove.CustodyIssued.due:type_name -> google.protobuf.Timestamp
+	58, // 2: rove.CustodyExtended.due:type_name -> google.protobuf.Timestamp
+	58, // 3: rove.ReservationAdded.begins_at:type_name -> google.protobuf.Timestamp
+	58, // 4: rove.ReservationAdded.ends_at:type_name -> google.protobuf.Timestamp
+	58, // 5: rove.TenantDomainLapsed.failing_since:type_name -> google.protobuf.Timestamp
+	58, // 6: rove.WorkspaceClosed.destroy:type_name -> google.protobuf.Timestamp
+	58, // 7: rove.WorkspaceConfigured.keep_from:type_name -> google.protobuf.Timestamp
+	58, // 8: rove.WorkspaceConfigured.access_keep_from:type_name -> google.protobuf.Timestamp
+	58, // 9: rove.WorkspaceImported.exported_at:type_name -> google.protobuf.Timestamp
+	57, // 10: rove.WorkspaceImported.left:type_name -> rove.WorkspaceImported.LeftEntry
+	58, // 11: rove.AccessReviewed.from:type_name -> google.protobuf.Timestamp
+	58, // 12: rove.AccessReviewed.to:type_name -> google.protobuf.Timestamp
+	58, // 13: rove.RetentionExpired.before:type_name -> google.protobuf.Timestamp
 	14, // [14:14] is the sub-list for method output_type
 	14, // [14:14] is the sub-list for method input_type
 	14, // [14:14] is the sub-list for extension type_name
@@ -6761,7 +6829,7 @@ func file_rove_past_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_past_proto_rawDesc), len(file_rove_past_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   57,
+			NumMessages:   58,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

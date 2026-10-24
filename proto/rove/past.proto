@@ -285,6 +285,10 @@ option (payday.app) = {
 //   10  work_orders    uint32
 //   11  stock_movements uint32
 //   12  attachments    uint32
+//
+// event.* holds, by number:
+//
+//    1  event          bytes                      -- the event whose reason was taken out
 
 // AssetAdded is an asset registered (`asset.add`): by itself, from a stock
 // converted, from a purchase received, or as one of many, each an
@@ -1019,4 +1023,14 @@ message RetentionExpired {
   uint32 work_orders = 10;
   uint32 stock_movements = 11;
   uint32 attachments = 12;
+}
+
+// EventRedacted is an event's reason taken out (`event.redact`, payday#151's
+// Redact), for a person whose request to erase what it said of them points at
+// it: which event, and nothing of what it said. The request it answers is its
+// own reason, by the reference the workspace keeps it under.
+message EventRedacted {
+  option (payday.event) = {kinds: "event.redact"};
+
+  bytes event = 1;
 }

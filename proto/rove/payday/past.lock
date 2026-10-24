@@ -27,6 +27,7 @@
     "domain.lapse": "rove.TenantDomainLapsed",
     "domain.retire": "rove.TenantDomainRetired",
     "domain.verify": "rove.TenantDomainVerified",
+    "event.redact": "rove.EventRedacted",
     "invitation.accept": "rove.InvitationAccepted",
     "invitation.add": "rove.InvitationAdded",
     "invitation.claim": "rove.InvitationChanged",
@@ -452,6 +453,12 @@
       },
       "8": {
         "json": "to",
+        "kind": "bytes"
+      }
+    },
+    "rove.EventRedacted": {
+      "1": {
+        "json": "event",
         "kind": "bytes"
       }
     },

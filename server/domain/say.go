@@ -27,9 +27,12 @@ import (
 // A thing is said as the message holds it -- an asset by the tag it had, a
 // reservation by the name it had -- and a person by identifier, named when it
 // is read ([who]). The words are the ones each event was written with before
-// it kept a message, so that what a page shows reads the same across the two;
-// a reservation's time is the one change, said in the workspace's zone where
-// it was UTC.
+// it kept a message, so that what a page shows reads the same across the two,
+// but for two things. A value of Rove's own -- a role, a relation, a stock's
+// movement, how a finding was settled, what was done to a reservation -- is
+// said in the word the page says it in (`io.go`), where it was written as its
+// code; and a reservation's time is said in the workspace's zone, where it was
+// UTC. A row from before reads as it was written.
 
 // Sentences is what Rove says of its events.
 var Sentences = sentences()
@@ -59,24 +62,30 @@ func sentences() *past.Sentences {
 		if len(m.GetParty()) > 0 {
 			whom = who(r, m.GetParty())
 		}
-		return fmt.Sprintf("%s %s: %s", m.GetTag(), m.GetRole(), whom)
+		return fmt.Sprintf("%s %s: %s", m.GetTag(), or(stewardSay[m.GetRole()], m.GetRole()), whom)
 	})
 	past.SayKind(s, "asset.relate", "ko", func(r *past.Reading, ev past.EventRow, m *app.AssetRelated) string {
 		verb := "연결"
 		if m.GetEnd() {
 			verb = "연결 끝"
 		}
-		return fmt.Sprintf("%s %s %s (%s)", m.GetTag(), verb, m.GetTargetTag(), m.GetRelation())
+		return fmt.Sprintf("%s %s %s (%s)", m.GetTag(), verb, m.GetTargetTag(), or(relationSay[m.GetRelation()], m.GetRelation()))
 	})
+	// A fact by what the asset's field is called, and an attribute by the
+	// label the asset's type gives it now ([attribute]).
 	past.SayKind(s, "asset.correct", "ko", func(r *past.Reading, ev past.EventRow, m *app.AssetCorrected) string {
-		what := m.GetKey()
+		what := factName(m.GetKey())
 		switch idOf(m.GetRow()).Domain() {
 		case pd.PlacementDomain:
 			what = "배치"
 		case pd.LinkDomain:
 			what = "관계"
 		case pd.StewardshipDomain:
-			what = m.GetRole()
+			what = or(stewardSay[m.GetRole()], m.GetRole())
+		default:
+			if k, ok := strings.CutPrefix(m.GetKey(), attrPrefix); ok {
+				what = attribute(r, m.GetAsset(), k)
+			}
 		}
 		return fmt.Sprintf("%s %s 정정", m.GetTag(), what)
 	})
@@ -91,7 +100,8 @@ func sentences() *past.Sentences {
 	// A change by `delta`, in the word of the movement it records.
 	for _, k := range []string{"stock.receive", "stock.consume", "stock.adjust"} {
 		past.SayKind(s, k, "ko", func(r *past.Reading, ev past.EventRow, m *app.StockChanged) string {
-			return fmt.Sprintf("재고 %s: %s %+d", strings.TrimPrefix(k, "stock."), m.GetName(), m.GetDelta())
+			move := strings.TrimPrefix(k, "stock.")
+			return fmt.Sprintf("재고 %s: %s %+d", or(movementSay[move], move), m.GetName(), m.GetDelta())
 		})
 	}
 	past.SayKind(s, "stock.transfer", "ko", func(r *past.Reading, ev past.EventRow, m *app.StockTransferred) string {
@@ -130,7 +140,7 @@ func sentences() *past.Sentences {
 		return "실사 대조"
 	})
 	past.SayKind(s, "count.resolve", "ko", func(r *past.Reading, ev past.EventRow, m *app.CountResolved) string {
-		return "실사 결과 처리: " + m.GetResolution()
+		return "실사 결과 처리: " + or(resolutionSay[m.GetResolution()], m.GetResolution())
 	})
 	past.SayKind(s, "count.close", "ko", func(r *past.Reading, ev past.EventRow, m *app.CountDelimited) string {
 		return "실사 종료: " + m.GetName()
@@ -149,22 +159,24 @@ func sentences() *past.Sentences {
 	past.SayKind(s, "reservation.confirm", "ko", func(r *past.Reading, ev past.EventRow, m *app.ReservationConfirmed) string {
 		return "예약 확정: " + m.GetName()
 	})
-	// A decision, by the state it moved the reservation to.
-	for k, to := range map[string]string{
-		"reservation.approve": resConfirmed,
-		"reservation.reject":  resRejected,
-		"reservation.cancel":  resCancelled,
-		"reservation.checkin": resInUse,
+	// A decision, by what was done, as the page's button for it names it --
+	// an approval is not said as the state it moved the reservation to,
+	// "확정", which is what a hold confirmed says.
+	for k, did := range map[string]string{
+		"reservation.approve": "승인",
+		"reservation.reject":  "거절",
+		"reservation.cancel":  "취소",
+		"reservation.checkin": "체크인",
 	} {
 		past.SayKind(s, k, "ko", func(r *past.Reading, ev past.EventRow, m *app.ReservationDecided) string {
-			return "예약 " + to + ": " + m.GetName()
+			return "예약 " + did + ": " + m.GetName()
 		})
 	}
 	past.SayKind(s, "reservation.complete", "ko", func(r *past.Reading, ev past.EventRow, m *app.ReservationDecided) string {
 		if m.GetEnded() {
 			return "예약 종료: " + m.GetName()
 		}
-		return "예약 " + resCompleted + ": " + m.GetName()
+		return "예약 " + reservationSay[resCompleted] + ": " + m.GetName()
 	})
 	past.SayKind(s, "reservation.expire", "ko", func(r *past.Reading, ev past.EventRow, m *app.ReservationReleased) string {
 		if m.GetFrom() == resRequested {
@@ -224,11 +236,11 @@ func sentences() *past.Sentences {
 	past.SayKind(s, "party.role", "ko", func(r *past.Reading, ev past.EventRow, m *app.PartyRoleSet) string {
 		switch m.GetBy() {
 		case "succession":
-			return fmt.Sprintf("소유자 승계: %s → owner (마지막 소유자의 계정 탈퇴)", who(r, m.GetHolder()))
+			return fmt.Sprintf("소유자 승계: %s (마지막 소유자의 계정 탈퇴)", who(r, m.GetHolder()))
 		case "operator":
-			return fmt.Sprintf("소유자 지정: %s → owner (운영자)", who(r, m.GetHolder()))
+			return fmt.Sprintf("소유자 지정: %s (운영자)", who(r, m.GetHolder()))
 		}
-		return fmt.Sprintf("역할 변경: %s → %s", who(r, m.GetParty()), m.GetRole())
+		return fmt.Sprintf("역할 변경: %s → %s", who(r, m.GetParty()), or(roleWords[m.GetRole()], m.GetRole()))
 	})
 	past.SayKind(s, "party.password", "ko", func(r *past.Reading, ev past.EventRow, m *app.PartyPasswordSet) string {
 		return "비밀번호 변경"
@@ -323,6 +335,12 @@ func sentences() *past.Sentences {
 		return fmt.Sprintf("보존 기간이 지난 이력 %d건 삭제 (%s 이전)", total, m.GetBefore().AsTime().In(r.Zone()).Format("2006년 1월 2일"))
 	})
 
+	// An event's reason taken out (payday#151's Redact): what was taken out
+	// is the redacted event's reason, and the request it answers this one's.
+	past.SayKind(s, "event.redact", "ko", func(r *past.Reading, ev past.EventRow, m *app.EventRedacted) string {
+		return "작업 기록의 사유 삭제"
+	})
+
 	// A row from before Rove's events were the past's: the sentence it was
 	// written with, and the people it marks named as they are now.
 	s.Legacy(func(r *past.Reading, ev past.EventRow) string {
@@ -366,6 +384,24 @@ func alias(r *past.Reading, b []byte) string {
 		return "?"
 	}
 	return n.member(id.Uuid())
+}
+
+// attribute is an asset's attribute `key` as a sentence says it: by the label
+// the asset's type gives it now, which the namer the reading is for reads
+// ([namer.attribute]), and by the key where the type gives it none -- the
+// workspace's own word for it, never Rove's code.
+func attribute(r *past.Reading, asset []byte, key string) string {
+	n := namerOf(r.Context())
+	id := idOf(asset)
+	if n == nil || id.IsZero() {
+		return key
+	}
+	v, err := n.attribute(r.Context(), id.Uuid(), key)
+	if err != nil {
+		r.Fail(err)
+		return key
+	}
+	return v
 }
 
 // namerKey is the namer of the answer being said, on the context its reading

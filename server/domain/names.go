@@ -38,6 +38,10 @@ type namer struct {
 	// model by theirs.
 	assets, parties, holders, members, kinds, models map[uuid.UUID]called
 
+	// labels is what each asset's type calls its attributes, by the asset:
+	// what a sentence that names one of them says ([namer.attribute]).
+	labels map[uuid.UUID]map[string]string
+
 	// legacies is what each row from before Rove's events kept a message
 	// said, by the row: its sentence and what it named ([Sentences]).
 	legacies map[uuid.UUID]legacyRow
@@ -207,6 +211,64 @@ func (n *namer) ofModel(ctx context.Context, id uuid.UUID) called {
 		return missing(err)
 	}
 	return called{found: true, name: strings.TrimSpace(m.Maker + " " + m.Name)}
+}
+
+// attribute is what the type of the asset `id` calls its attribute `key` now:
+// its label, or the key where the type gives it none, as a type gives an
+// asset its attributes ([specOf]) -- its own first, then what it inherits.
+// An asset with no type, and one the tenant does not have, names none. Each
+// asset's are read once, off the rows of the caller's tenant: a type is
+// nobody's.
+func (n *namer) attribute(ctx context.Context, id uuid.UUID, key string) (string, error) {
+	labels, ok := n.labels[id]
+	if !ok {
+		var err error
+		if labels, err = n.ofLabels(ctx, id); err != nil {
+			return key, err
+		}
+		if n.labels == nil {
+			n.labels = map[uuid.UUID]map[string]string{}
+		}
+		n.labels[id] = labels
+	}
+	if v := labels[key]; v != "" {
+		return v, nil
+	}
+	return key, nil
+}
+
+func (n *namer) ofLabels(ctx context.Context, id uuid.UUID) (map[string]string, error) {
+	out := map[string]string{}
+	a, err := n.t.db.Asset.Query().Where(asset.Id(id), asset.TenantId(n.t.tenant.Uuid())).Select(asset.FieldTypeId).Only(ctx)
+	if ent.IsNotFound(err) {
+		return out, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	ty := a.TypeId
+	for range 16 {
+		if ty == (uuid.UUID{}) {
+			break
+		}
+		v, err := n.t.db.AssetType.Query().Where(assettype.Id(ty), assettype.TenantId(n.t.tenant.Uuid())).Only(ctx)
+		if ent.IsNotFound(err) {
+			break
+		}
+		if err != nil {
+			return nil, err
+		}
+		for _, d := range v.Spec.GetAttributes() {
+			if _, ok := out[d.GetKey()]; !ok {
+				out[d.GetKey()] = d.GetLabel()
+			}
+		}
+		if v.ParentId == nil {
+			break
+		}
+		ty = *v.ParentId
+	}
+	return out, nil
 }
 
 // An event from before Rove's events kept a message (payday#151) kept the

@@ -85,16 +85,16 @@ func TestTheHistoryNamesPeopleAsTheyAreNow(t *testing.T) {
 	x.Equal(map[string]string{
 		"party.add":     "추가: " + name,
 		"party.invite":  "로그인 발급: " + name + " (" + alias + ")",
-		"party.role":    "역할 변경: " + name + " → manager",
-		"asset.assign":  "NB-1 owner: " + name,
+		"party.role":    "역할 변경: " + name + " → 매니저",
+		"asset.assign":  "NB-1 소유: " + name,
 		"custody.issue": "지급: " + name,
 	}, pick(e.events(), "party.add", "party.invite", "party.role", "asset.assign", "custody.issue"))
-	x.Equal("NB-1 owner: "+name, summaryOf(e.timeline(laptop, false), "asset.assign"))
+	x.Equal("NB-1 소유: "+name, summaryOf(e.timeline(laptop, false), "asset.assign"))
 
 	// Renamed, they are called what they are called now.
 	_, err = e.app().Party().Update(e.owner, app.PartyUpdateRequest_builder{Ref: ref[app.PartyRef](kim.GetId()), Name: "김 대리"}.Build())
 	x.NoError(err)
-	x.Equal("역할 변경: 김 대리 → manager", e.events()["party.role"])
+	x.Equal("역할 변경: 김 대리 → 매니저", e.events()["party.role"])
 
 	// A login ended is still theirs to read about.
 	_, lee := e.person("member")
@@ -112,12 +112,12 @@ func TestTheHistoryNamesPeopleAsTheyAreNow(t *testing.T) {
 	got := e.events()
 	x.Equal(map[string]string{
 		"party.update":  "수정: " + pseudonym,
-		"party.role":    "역할 변경: " + pseudonym + " → manager",
-		"asset.assign":  "NB-1 owner: " + pseudonym,
+		"party.role":    "역할 변경: " + pseudonym + " → 매니저",
+		"asset.assign":  "NB-1 소유: " + pseudonym,
 		"custody.issue": "지급: " + pseudonym,
 	}, pick(got, "party.update", "party.role", "asset.assign", "custody.issue"))
 	x.True(strings.HasPrefix(got["party.deactivate"], "로그인 비활성화: 익명 "), got["party.deactivate"])
-	x.Equal("NB-1 owner: "+pseudonym, summaryOf(e.timeline(laptop, false), "asset.assign"))
+	x.Equal("NB-1 소유: "+pseudonym, summaryOf(e.timeline(laptop, false), "asset.assign"))
 	for _, said := range e.said("party.add", "party.invite") {
 		x.NotContains(said, name)
 		x.NotContains(said, alias)

@@ -143,7 +143,7 @@ func (s domainAsset) Timeline(ctx context.Context, req *app.AssetTimelineRequest
 		e := entry("stewardship", r.Id, r.ValidFrom, r.ValidTo, r.DateCreated, r.SupersededAt, r.EventId)
 		e.SetOtherId(pdid.Id(r.PartyId).Bytes())
 		e.SetOtherName(names.party(r.PartyId))
-		e.SetSummary(fmt.Sprintf("%s: %s", roleName(r.Role), names.party(r.PartyId)))
+		e.SetSummary(fmt.Sprintf("%s: %s", or(stewardSay[r.Role], r.Role), names.party(r.PartyId)))
 		e.SetDetail(map[string]string{"role": r.Role})
 		entries = append(entries, e)
 	}
@@ -162,7 +162,7 @@ func (s domainAsset) Timeline(ctx context.Context, req *app.AssetTimelineRequest
 		e := entry("link", r.Id, r.ValidFrom, r.ValidTo, r.DateCreated, r.SupersededAt, r.EventId)
 		e.SetOtherId(pdid.Id(other).Bytes())
 		e.SetOtherName(names.asset(other))
-		e.SetSummary(fmt.Sprintf("%s %s (%s)", dir, names.asset(other), r.Kind))
+		e.SetSummary(fmt.Sprintf("%s %s (%s)", dir, names.asset(other), or(relationSay[r.Kind], r.Kind)))
 		e.SetDetail(map[string]string{"kind": r.Kind, "required": fmt.Sprint(r.Required)})
 		entries = append(entries, e)
 	}
@@ -362,10 +362,6 @@ func decode(v string) map[string]string {
 
 func modeName(v string) string {
 	return map[string]string{"located": "놓임", "installed": "장착", "part": "구성품"}[v]
-}
-
-func roleName(v string) string {
-	return map[string]string{"owner": "소유", "manager": "관리", "custodian": "보유"}[v]
 }
 
 func factName(k string) string {

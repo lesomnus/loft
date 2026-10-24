@@ -39,6 +39,13 @@ func (c *perConn) count(on bool) {
 	c.on = on
 }
 
+// reset forgets what was counted, for a count of its own.
+func (c *perConn) reset() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	clear(c.n)
+}
+
 // most is what the busiest connection sent, which is the operation's: it is
 // one transaction, and so one connection.
 func (c *perConn) most() int {
@@ -53,7 +60,9 @@ func (c *perConn) most() int {
 
 // TestAnAssetMadeInBulkIsAFewStatements holds what #103 bought, on the
 // operation that makes assets many at a time: a stock's units turned into
-// assets, each one the registration an Add makes. An imported row sent 149
+// assets, each one's registration a child of the conversion, written as bulk
+// registration writes what it makes (`Tx.makeAssets`, and
+// [TestAnAssetRegisteredInBulkIsAFewStatements]). An imported row sent 149
 // statements, one round trip each, so a sheet of 5,000 took two minutes;
 // nearly all of what went was the layers under this one asking again what
 // they had already asked, or saying one row at a time what could be said
@@ -67,18 +76,20 @@ func (c *perConn) most() int {
 // (payday#84). Any of them coming back would be a registration taking half as
 // long again, or twice as long, and nothing else would say so.
 //
-// It was measured on the sheet import until that went (design D34), and is
-// measured here on the same path without the sheet's own lookups.
+// It was measured on the sheet import until that went (design D34), and then
+// here, on a conversion that registered each asset as an Add of its own: 11.2
+// statements an asset, and 14.2 once payday kept the past (payday#151), whose
+// event of each checked that its subject was of the operation's tenant and
+// whose facts checked theirs again and read what stood at their moment before
+// they wrote -- three reads a registration of one. Registered as bulk
+// registration registers them, the children of one operation a page at a time
+// (`past.Op.Batch`), those reads are one a page, and the rest of what an Add
+// asked of each -- its tag, its place, its answer -- one for all of them: 2.4.
 //
 // It is a ceiling with room in it rather than the number, so that a statement
-// an asset really needs is a decision to raise it and not a test to fix. It
-// was raised once so, from 13, by payday's past (payday#151): an operation's
-// event checks that its subject is of the operation's tenant, and its facts
-// check theirs again and read what stands at their moment before they write
-// -- three reads a registration of one, 11.2 statements an asset made 14.2.
-// A conversion registers each asset as an Add of its own; registering them
-// as bulk registration does, the children of one operation in a statement a
-// page (`past.Op.Batch`), would make those reads one a page.
+// an asset really needs is a decision to raise it and not a test to fix -- the
+// intake's ceiling, since it is the intake's writer. It was 13, and then 16,
+// while an asset was an Add.
 //
 // PostgreSQL only: it counts what pgx is asked, and that is the round trip.
 func TestAnAssetMadeInBulkIsAFewStatements(t *testing.T) {
@@ -116,5 +127,82 @@ func TestAnAssetMadeInBulkIsAFewStatements(t *testing.T) {
 
 	per := float64(c.most()) / n
 	t.Logf("%.1f statements an asset", per)
-	x.LessOrEqual(per, 16.0, "an asset made is %.1f statements; it was 14.2 once payday kept the past, 11.2 when this was written (an imported row was 13.8, and 149 before #103)", per)
+	x.LessOrEqual(per, 3.0, "an asset made is %.1f statements; it was 2.4 once a conversion wrote its assets as bulk registration does, 14.2 while it made each by an Add and payday kept the past, 11.2 when this was written (an imported row was 13.8, and 149 before #103)", per)
+}
+
+// TestAnAssetAddedByItselfIsAFewStatements holds what one asset registered by
+// itself costs -- an Add, as the page's form, `rove api` and an assistant make
+// one -- bare, and with a place, a type and a model: 13 statements and 27 when
+// this was written. [TestAnAssetMadeInBulkIsAFewStatements] held it, on a
+// conversion that made each asset by an Add, until a conversion made them as
+// bulk registration does (#190). Each statement is a round trip somebody
+// waits on, and nothing else would say one had come back: a read #103 took
+// out of a registration, or another that payday's past asks of an operation
+// (payday#151).
+//
+// Ceilings with room in them, as that test's is: a statement an Add really
+// needs is a decision to raise one, and not a test to fix.
+//
+// PostgreSQL only: it counts what pgx is asked, and that is the round trip.
+func TestAnAssetAddedByItselfIsAFewStatements(t *testing.T) {
+	if os.Getenv("PDTEST_POSTGRES") == "" {
+		t.Skip("counts what pgx is asked: set PDTEST_POSTGRES")
+	}
+
+	c := &perConn{n: map[*pgx.Conn]int{}}
+	e := newEnvWith(t, func(cfg *cmd.Config) {
+		v, err := pgx.ParseConfig(cfg.Db.Dsn)
+		if err != nil {
+			t.Fatal(err)
+		}
+		v.Tracer = c
+
+		name := stdlib.RegisterConnConfig(v)
+		t.Cleanup(func() { stdlib.UnregisterConnConfig(name) })
+		cfg.Db.Dsn = name
+	})
+	x := e.x
+
+	room := e.space("창고", nil)
+	ty, err := e.app().AssetType().Add(e.owner, app.AssetTypeAddRequest_builder{Name: "모니터", Kind: "item"}.Build())
+	x.NoError(err)
+	m, err := e.app().ItemModel().Add(e.owner, app.ItemModelAddRequest_builder{
+		Name:  "U2723QE",
+		Maker: "Dell",
+		Type:  ref[app.AssetTypeRef](ty.GetId()),
+	}.Build())
+	x.NoError(err)
+
+	bare := func() *app.AssetAddRequest {
+		return app.AssetAddRequest_builder{Name: "모니터"}.Build()
+	}
+	placed := func() *app.AssetAddRequest {
+		return app.AssetAddRequest_builder{
+			Name:  "모니터",
+			To:    assetRef(room),
+			Type:  ref[app.AssetTypeRef](ty.GetId()),
+			Model: ref[app.ItemModelRef](m.GetId()),
+		}.Build()
+	}
+	add := func(req *app.AssetAddRequest) int {
+		c.reset()
+		c.count(true)
+		_, err := e.app().Asset().Add(e.owner, req)
+		c.count(false)
+		x.NoError(err)
+		return c.most()
+	}
+
+	// One of each first: what the first of a kind costs is not what every
+	// one costs.
+	add(bare())
+	add(placed())
+
+	n := add(bare())
+	t.Logf("%d statements, bare", n)
+	x.LessOrEqual(n, 15, "an asset added bare is %d statements; it was 13 when this was written", n)
+
+	n = add(placed())
+	t.Logf("%d statements, with a place, a type and a model", n)
+	x.LessOrEqual(n, 31, "an asset added with a place, a type and a model is %d statements; it was 27 when this was written", n)
 }
