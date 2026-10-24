@@ -86,7 +86,7 @@ func Cmd(c *cmd.Config) *xli.Command {
 	// The operator's half: each stands the stack up, does one thing and exits,
 	// and is observed as the deployment is (`observed`).
 	first, migrate, contract, hold, retention, tenant, holder, identity, trail, search := NewCmdInit(c), NewCmdMigrate(c), NewCmdContract(c), NewCmdHold(c), NewCmdRetention(c), NewCmdTenant(c), NewCmdHolder(c), NewCmdIdentity(c), NewCmdTrail(c), NewCmdSearch(c)
-	access := NewCmdAccess(c)
+	access, event := NewCmdAccess(c), NewCmdEvent(c)
 
 	return &xli.Command{
 		Name:  cmd.Name,
@@ -107,6 +107,7 @@ func Cmd(c *cmd.Config) *xli.Command {
 			holder,
 			identity,
 			trail,
+			event,
 			access,
 			search,
 			login,
@@ -123,7 +124,7 @@ func Cmd(c *cmd.Config) *xli.Command {
 
 		Handler: xli.Chain(
 			cfg.Load(l, version, login, logout, whoami, use, ws, api, scan, register, agree, assist),
-			observed(c, first, migrate, contract, hold, retention, tenant, holder, identity, trail, access, search),
+			observed(c, first, migrate, contract, hold, retention, tenant, holder, identity, trail, event, access, search),
 			xli.RequireSubcommand(),
 		),
 	}
