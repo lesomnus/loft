@@ -39,6 +39,13 @@ func (c *perConn) count(on bool) {
 	c.on = on
 }
 
+// reset forgets what was counted, for a count of its own.
+func (c *perConn) reset() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	clear(c.n)
+}
+
 // most is what the busiest connection sent, which is the operation's: it is
 // one transaction, and so one connection.
 func (c *perConn) most() int {
@@ -121,4 +128,81 @@ func TestAnAssetMadeInBulkIsAFewStatements(t *testing.T) {
 	per := float64(c.most()) / n
 	t.Logf("%.1f statements an asset", per)
 	x.LessOrEqual(per, 3.0, "an asset made is %.1f statements; it was 2.4 once a conversion wrote its assets as bulk registration does, 14.2 while it made each by an Add and payday kept the past, 11.2 when this was written (an imported row was 13.8, and 149 before #103)", per)
+}
+
+// TestAnAssetAddedByItselfIsAFewStatements holds what one asset registered by
+// itself costs -- an Add, as the page's form, `rove api` and an assistant make
+// one -- bare, and with a place, a type and a model: 13 statements and 27 when
+// this was written. [TestAnAssetMadeInBulkIsAFewStatements] held it, on a
+// conversion that made each asset by an Add, until a conversion made them as
+// bulk registration does (#190). Each statement is a round trip somebody
+// waits on, and nothing else would say one had come back: a read #103 took
+// out of a registration, or another that payday's past asks of an operation
+// (payday#151).
+//
+// Ceilings with room in them, as that test's is: a statement an Add really
+// needs is a decision to raise one, and not a test to fix.
+//
+// PostgreSQL only: it counts what pgx is asked, and that is the round trip.
+func TestAnAssetAddedByItselfIsAFewStatements(t *testing.T) {
+	if os.Getenv("PDTEST_POSTGRES") == "" {
+		t.Skip("counts what pgx is asked: set PDTEST_POSTGRES")
+	}
+
+	c := &perConn{n: map[*pgx.Conn]int{}}
+	e := newEnvWith(t, func(cfg *cmd.Config) {
+		v, err := pgx.ParseConfig(cfg.Db.Dsn)
+		if err != nil {
+			t.Fatal(err)
+		}
+		v.Tracer = c
+
+		name := stdlib.RegisterConnConfig(v)
+		t.Cleanup(func() { stdlib.UnregisterConnConfig(name) })
+		cfg.Db.Dsn = name
+	})
+	x := e.x
+
+	room := e.space("창고", nil)
+	ty, err := e.app().AssetType().Add(e.owner, app.AssetTypeAddRequest_builder{Name: "모니터", Kind: "item"}.Build())
+	x.NoError(err)
+	m, err := e.app().ItemModel().Add(e.owner, app.ItemModelAddRequest_builder{
+		Name:  "U2723QE",
+		Maker: "Dell",
+		Type:  ref[app.AssetTypeRef](ty.GetId()),
+	}.Build())
+	x.NoError(err)
+
+	bare := func() *app.AssetAddRequest {
+		return app.AssetAddRequest_builder{Name: "모니터"}.Build()
+	}
+	placed := func() *app.AssetAddRequest {
+		return app.AssetAddRequest_builder{
+			Name:  "모니터",
+			To:    assetRef(room),
+			Type:  ref[app.AssetTypeRef](ty.GetId()),
+			Model: ref[app.ItemModelRef](m.GetId()),
+		}.Build()
+	}
+	add := func(req *app.AssetAddRequest) int {
+		c.reset()
+		c.count(true)
+		_, err := e.app().Asset().Add(e.owner, req)
+		c.count(false)
+		x.NoError(err)
+		return c.most()
+	}
+
+	// One of each first: what the first of a kind costs is not what every
+	// one costs.
+	add(bare())
+	add(placed())
+
+	n := add(bare())
+	t.Logf("%d statements, bare", n)
+	x.LessOrEqual(n, 15, "an asset added bare is %d statements; it was 13 when this was written", n)
+
+	n = add(placed())
+	t.Logf("%d statements, with a place, a type and a model", n)
+	x.LessOrEqual(n, 31, "an asset added with a place, a type and a model is %d statements; it was 27 when this was written", n)
 }
