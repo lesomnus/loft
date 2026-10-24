@@ -13,11 +13,11 @@
     "attachment.add": "rove.AttachmentAdded",
     "bookable.add": "rove.BookableSaved",
     "bookable.update": "rove.BookableSaved",
-    "count.close": "rove.CountStartedOrClosed",
+    "count.close": "rove.CountDelimited",
     "count.reconcile": "rove.CountReconciled",
     "count.resolve": "rove.CountResolved",
     "count.scan": "rove.CountScanned",
-    "count.start": "rove.CountStartedOrClosed",
+    "count.start": "rove.CountDelimited",
     "custody.acknowledge": "rove.CustodyAcknowledged",
     "custody.extend": "rove.CustodyExtended",
     "custody.issue": "rove.CustodyIssued",
@@ -329,6 +329,20 @@
         "kind": "string"
       }
     },
+    "rove.CountDelimited": {
+      "1": {
+        "json": "count",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "name",
+        "kind": "string"
+      },
+      "3": {
+        "json": "scope",
+        "kind": "bytes"
+      }
+    },
     "rove.CountReconciled": {
       "1": {
         "json": "count",
@@ -377,20 +391,6 @@
       "10": {
         "json": "code",
         "kind": "string"
-      }
-    },
-    "rove.CountStartedOrClosed": {
-      "1": {
-        "json": "count",
-        "kind": "bytes"
-      },
-      "2": {
-        "json": "name",
-        "kind": "string"
-      },
-      "3": {
-        "json": "scope",
-        "kind": "bytes"
       }
     },
     "rove.CustodyAcknowledged": {

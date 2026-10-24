@@ -1801,12 +1801,12 @@ func (b0 CustodyReturned_builder) Build() *CustodyReturned {
 	return m0
 }
 
-// CountStartedOrClosed is a count of what is under a space begun, and one
-// ended. The two hold the same.
+// CountDelimited is a count of what is under a space begun, or one ended: the
+// two ends of a count, which hold the same.
 //
 //	count.start  count, name, scope
 //	count.close  count, name, scope
-type CountStartedOrClosed struct {
+type CountDelimited struct {
 	state            protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Count []byte                 `protobuf:"bytes,1,opt,name=count"`
 	xxx_hidden_Name  string                 `protobuf:"bytes,2,opt,name=name"`
@@ -1815,20 +1815,20 @@ type CountStartedOrClosed struct {
 	sizeCache        protoimpl.SizeCache
 }
 
-func (x *CountStartedOrClosed) Reset() {
-	*x = CountStartedOrClosed{}
+func (x *CountDelimited) Reset() {
+	*x = CountDelimited{}
 	mi := &file_rove_past_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *CountStartedOrClosed) String() string {
+func (x *CountDelimited) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*CountStartedOrClosed) ProtoMessage() {}
+func (*CountDelimited) ProtoMessage() {}
 
-func (x *CountStartedOrClosed) ProtoReflect() protoreflect.Message {
+func (x *CountDelimited) ProtoReflect() protoreflect.Message {
 	mi := &file_rove_past_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1840,46 +1840,46 @@ func (x *CountStartedOrClosed) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *CountStartedOrClosed) GetCount() []byte {
+func (x *CountDelimited) GetCount() []byte {
 	if x != nil {
 		return x.xxx_hidden_Count
 	}
 	return nil
 }
 
-func (x *CountStartedOrClosed) GetName() string {
+func (x *CountDelimited) GetName() string {
 	if x != nil {
 		return x.xxx_hidden_Name
 	}
 	return ""
 }
 
-func (x *CountStartedOrClosed) GetScope() []byte {
+func (x *CountDelimited) GetScope() []byte {
 	if x != nil {
 		return x.xxx_hidden_Scope
 	}
 	return nil
 }
 
-func (x *CountStartedOrClosed) SetCount(v []byte) {
+func (x *CountDelimited) SetCount(v []byte) {
 	if v == nil {
 		v = []byte{}
 	}
 	x.xxx_hidden_Count = v
 }
 
-func (x *CountStartedOrClosed) SetName(v string) {
+func (x *CountDelimited) SetName(v string) {
 	x.xxx_hidden_Name = v
 }
 
-func (x *CountStartedOrClosed) SetScope(v []byte) {
+func (x *CountDelimited) SetScope(v []byte) {
 	if v == nil {
 		v = []byte{}
 	}
 	x.xxx_hidden_Scope = v
 }
 
-type CountStartedOrClosed_builder struct {
+type CountDelimited_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	Count []byte
@@ -1887,8 +1887,8 @@ type CountStartedOrClosed_builder struct {
 	Scope []byte
 }
 
-func (b0 CountStartedOrClosed_builder) Build() *CountStartedOrClosed {
-	m0 := &CountStartedOrClosed{}
+func (b0 CountDelimited_builder) Build() *CountDelimited {
+	m0 := &CountDelimited{}
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Count = b.Count
@@ -6380,8 +6380,8 @@ const file_rove_past_proto_rawDesc = "" +
 	"\acustody\x18\x01 \x01(\fR\acustody\x12\x14\n" +
 	"\x05asset\x18\a \x01(\fR\x05asset\x12\x0e\n" +
 	"\x02to\x18\b \x01(\fR\x02to:\x14\x92\xbb\x16\x10\n" +
-	"\x0ecustody.return\"v\n" +
-	"\x14CountStartedOrClosed\x12\x14\n" +
+	"\x0ecustody.return\"p\n" +
+	"\x0eCountDelimited\x12\x14\n" +
 	"\x05count\x18\x01 \x01(\fR\x05count\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
 	"\x05scope\x18\x03 \x01(\fR\x05scope:\x1e\x92\xbb\x16\x1a\n" +
@@ -6685,7 +6685,7 @@ var file_rove_past_proto_goTypes = []any{
 	(*CustodyAcknowledged)(nil),   // 13: rove.CustodyAcknowledged
 	(*CustodyExtended)(nil),       // 14: rove.CustodyExtended
 	(*CustodyReturned)(nil),       // 15: rove.CustodyReturned
-	(*CountStartedOrClosed)(nil),  // 16: rove.CountStartedOrClosed
+	(*CountDelimited)(nil),        // 16: rove.CountDelimited
 	(*CountScanned)(nil),          // 17: rove.CountScanned
 	(*CountReconciled)(nil),       // 18: rove.CountReconciled
 	(*CountResolved)(nil),         // 19: rove.CountResolved

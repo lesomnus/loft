@@ -99,11 +99,11 @@ func TestEveryKindIsSaidAsItWasWritten(t *testing.T) {
 		{"custody.extend", app.CustodyExtended_builder{Due: timestamppb.New(time.Date(2026, 10, 24, 20, 0, 0, 0, time.UTC))}.Build(), "반납 기한 연장: 2026-10-25"},
 		{"custody.return", app.CustodyReturned_builder{Asset: asset.Bytes()}.Build(), "반납"},
 
-		{"count.start", app.CountStartedOrClosed_builder{Name: "본관 실사 2026-10-24"}.Build(), "실사 시작: 본관 실사 2026-10-24"},
+		{"count.start", app.CountDelimited_builder{Name: "본관 실사 2026-10-24"}.Build(), "실사 시작: 본관 실사 2026-10-24"},
 		{"count.scan", app.CountScanned_builder{Asset: asset.Bytes(), Code: "X"}.Build(), "실사 스캔"},
 		{"count.reconcile", app.CountReconciled_builder{Missing: 4}.Build(), "실사 대조"},
 		{"count.resolve", app.CountResolved_builder{Resolution: "moved"}.Build(), "실사 결과 처리: moved"},
-		{"count.close", app.CountStartedOrClosed_builder{Name: "본관 실사"}.Build(), "실사 종료: 본관 실사"},
+		{"count.close", app.CountDelimited_builder{Name: "본관 실사"}.Build(), "실사 종료: 본관 실사"},
 
 		{"bookable.add", app.BookableSaved_builder{Asset: asset.Bytes(), Tag: "S-00002"}.Build(), "S-00002 예약 가능"},
 		{"bookable.update", app.BookableSaved_builder{Asset: asset.Bytes()}.Build(), "예약 정책 변경"},

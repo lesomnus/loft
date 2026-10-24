@@ -478,12 +478,12 @@ message CustodyReturned {
   bytes to = 8;
 }
 
-// CountStartedOrClosed is a count of what is under a space begun, and one
-// ended. The two hold the same.
+// CountDelimited is a count of what is under a space begun, or one ended: the
+// two ends of a count, which hold the same.
 //
 //   count.start  count, name, scope
 //   count.close  count, name, scope
-message CountStartedOrClosed {
+message CountDelimited {
   option (payday.event) = {
     kinds: [
       "count.start",

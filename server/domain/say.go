@@ -120,7 +120,7 @@ func sentences() *past.Sentences {
 	})
 
 	// count.go
-	past.SayKind(s, "count.start", "ko", func(r *past.Reading, ev past.EventRow, m *app.CountStartedOrClosed) string {
+	past.SayKind(s, "count.start", "ko", func(r *past.Reading, ev past.EventRow, m *app.CountDelimited) string {
 		return "실사 시작: " + m.GetName()
 	})
 	past.SayKind(s, "count.scan", "ko", func(r *past.Reading, ev past.EventRow, m *app.CountScanned) string {
@@ -132,7 +132,7 @@ func sentences() *past.Sentences {
 	past.SayKind(s, "count.resolve", "ko", func(r *past.Reading, ev past.EventRow, m *app.CountResolved) string {
 		return "실사 결과 처리: " + m.GetResolution()
 	})
-	past.SayKind(s, "count.close", "ko", func(r *past.Reading, ev past.EventRow, m *app.CountStartedOrClosed) string {
+	past.SayKind(s, "count.close", "ko", func(r *past.Reading, ev past.EventRow, m *app.CountDelimited) string {
 		return "실사 종료: " + m.GetName()
 	})
 

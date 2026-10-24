@@ -45,7 +45,7 @@ func (s domainCount) Add(ctx context.Context, req *app.InventoryCountAddRequest)
 			name = fmt.Sprintf("%s 실사 %s", sp.GetName(), t.now.In(t.zone()).Format("2006-01-02"))
 		}
 		id := pdid.New(pd.InventoryCountDomain)
-		if err := t.begin(nil, "count.start", idOf(sp.GetId()), t.now, "", app.CountStartedOrClosed_builder{
+		if err := t.begin(nil, "count.start", idOf(sp.GetId()), t.now, "", app.CountDelimited_builder{
 			Count: id.Bytes(),
 			Name:  name,
 			Scope: sp.GetId(),
@@ -420,7 +420,7 @@ func (s domainCount) Close(ctx context.Context, req *app.InventoryCountCloseRequ
 			out = c
 			return nil
 		}
-		if err := t.begin(nil, "count.close", idOf(c.GetScope().GetId()), t.now, "", app.CountStartedOrClosed_builder{
+		if err := t.begin(nil, "count.close", idOf(c.GetScope().GetId()), t.now, "", app.CountDelimited_builder{
 			Count: c.GetId(),
 			Name:  c.GetName(),
 			Scope: c.GetScope().GetId(),
