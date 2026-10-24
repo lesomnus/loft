@@ -218,7 +218,7 @@ func TestTheLastOwnerLeavingHandsTheWorkspaceOn(t *testing.T) {
 		x.Contains(e.say(ev), "소유자 승계")
 		x.Equal("succession", value[*app.PartyRoleSet](e, ev).GetBy())
 		x.NotContains(protojson.Format(ev.Value), early.GetName(), "the event keeps who by identifier")
-		x.Equal("소유자 승계: "+early.GetName()+" → owner (마지막 소유자의 계정 탈퇴)", e.events()["party.role"])
+		x.Equal("소유자 승계: "+early.GetName()+" (마지막 소유자의 계정 탈퇴)", e.events()["party.role"])
 	})
 
 	t.Run("an admin over a manager who joined before", func(t *testing.T) {
