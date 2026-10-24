@@ -125,6 +125,19 @@ func TestAnEventsDetailIsWhatItHeld(t *testing.T) {
 	x.Equal("김 대리", detailOf(es, "asset.assign")["party"])
 	x.Equal("김 대리", detailOf(es, "custody.issue")["party"])
 
+	// An event another one names is called by what it says, as the
+	// operation an event was part of is: the move a reason was taken out of.
+	moves, err := e.app().Event().Recent(e.owner, app.EventRecentRequest_builder{Size: 10, Kind: "asset.move"}.Build())
+	x.NoError(err)
+	x.Len(moves.GetItems(), 1)
+	moved, err := pdid.From(moves.GetItems()[0].GetId())
+	x.NoError(err)
+	_, err = domain.RedactionAsTheActWill(e.owner, e.app(), moved, "삭제 요청 2026-17")
+	x.NoError(err)
+	es = e.timeline(laptop, false)
+	x.Equal("NB-1 → "+e.get(store).GetTag(), summaryOf(es, "asset.move"))
+	x.Equal(map[string]string{"event": summaryOf(es, "asset.move")}, detailOf(es, "event.redact"))
+
 	// Nothing of a person's but the name they are called by.
 	for _, en := range append(es, v.GetEntries()...) {
 		for k, s := range en.GetDetail() {

@@ -37,13 +37,20 @@ import (
 // call that shows it, as a sentence names them ([who]); an asset by its tag
 // and name, a type and a model by theirs. Any other row with a name of its
 // own -- a reservation, a work order, a count -- is called by it, read off a
-// row of the caller's tenant as the namer reads one, and a row nothing names
-// -- gone, or of a kind with no name, a hand-over -- is said as its
-// identifier. A message holds people by identifier alone (design 8.2), so
-// nothing of theirs but the name they are called by is ever read into one:
-// not an address, not a number.
+// row of the caller's tenant as the namer reads one; an event of the answer
+// by what it says, as the operation an event was part of is
+// (`TimelineEntry.cause`); and a row nothing names -- gone, or of a kind with
+// no name, a hand-over -- is said as its identifier. A message holds people
+// by identifier alone (design 8.2), so nothing of theirs but the name they
+// are called by is ever read into one: not an address, not a number.
 type details struct {
 	n *namer
+
+	// events is the answer's events, by identifier, and say what it says of
+	// one: what an event that names another -- a reason taken out of it,
+	// `event.redact` -- calls it.
+	events map[uuid.UUID]past.EventRow
+	say    func(past.EventRow) string
 
 	// held is each event's message, read once.
 	held map[pdid.Id]proto.Message
@@ -294,6 +301,12 @@ func (d *details) called(b []byte) (string, error) {
 	}
 	if id.IsZero() {
 		return "", nil
+	}
+
+	if ev, ok := d.events[id.Uuid()]; ok && d.say != nil && id.Domain() == pd.EventDomain {
+		if v := d.say(ev); v != "" {
+			return v, nil
+		}
 	}
 
 	ctx := d.n.t.ctx

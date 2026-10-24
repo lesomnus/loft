@@ -260,7 +260,7 @@ func (s domainAsset) Timeline(ctx context.Context, req *app.AssetTimelineRequest
 	}
 
 	r := t.reading(&names)
-	held := details{n: &names}
+	held := details{n: &names, events: byId, say: r.Say}
 	if err := held.read(evs); err != nil {
 		return nil, err
 	}
