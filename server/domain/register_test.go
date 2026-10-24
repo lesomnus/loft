@@ -384,8 +384,9 @@ func TestALongNumberExcelWroteShortIsSaid(t *testing.T) {
 
 // TestAnAssetRegisteredInBulkIsAFewStatements is [TestAnAssetMadeInBulkIsAFewStatements]
 // for the intake: the assets, events, facts and placements a few hundred rows
-// to a statement, where the conversion writes each asset as an Add of its
-// own. A ceiling with room in it, as that one is.
+// to a statement, by the writer a conversion and a purchase received make
+// their assets with too (`Tx.makeAssets`). A ceiling with room in it, as that
+// one is.
 func TestAnAssetRegisteredInBulkIsAFewStatements(t *testing.T) {
 	if os.Getenv("PDTEST_POSTGRES") == "" {
 		t.Skip("counts what pgx is asked: set PDTEST_POSTGRES")
@@ -426,5 +427,5 @@ func TestAnAssetRegisteredInBulkIsAFewStatements(t *testing.T) {
 
 	per := float64(c.most()) / n
 	t.Logf("%.2f statements an asset", per)
-	x.LessOrEqual(per, 3.0, "an asset registered in bulk is %.2f statements; it was 2.1 when this was written (the conversion, an Add an asset, is 11.2)", per)
+	x.LessOrEqual(per, 3.0, "an asset registered in bulk is %.2f statements; it was 2.1 when this was written (a conversion, by the same writer, is 2.4; an Add an asset, it was 11.2, and 14.2 once payday kept the past)", per)
 }
