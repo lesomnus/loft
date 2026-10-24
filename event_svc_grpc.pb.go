@@ -24,6 +24,7 @@ const (
 	EventService_Get_FullMethodName     = "/rove.EventService/Get"
 	EventService_List_FullMethodName    = "/rove.EventService/List"
 	EventService_Recent_FullMethodName  = "/rove.EventService/Recent"
+	EventService_Redact_FullMethodName  = "/rove.EventService/Redact"
 )
 
 // EventServiceClient is the client API for EventService service.
@@ -42,6 +43,14 @@ type EventServiceClient interface {
 	// first, so that a cursor is stable -- does not. Each says what happened in
 	// `desc`, a sentence made of it as it is read (`server/domain/say.go`).
 	Recent(ctx context.Context, in *EventRecentRequest, opts ...grpc.CallOption) (*EventRecentResponse, error)
+	// Redact takes the reason out of an event, for a person whose request to
+	// erase what it says of them points at it (payday#151): the reason is
+	// blanked, which the trail records as the act it is, and the act is an
+	// event of its own, `event.redact`, whose reason is the request's
+	// reference. It answers the event as it is now. No role is given it yet
+	// (`server/policy`): who may is the workspace's to say, and the
+	// deployment's operator does it with `rove event redact`.
+	Redact(ctx context.Context, in *EventRedactRequest, opts ...grpc.CallOption) (*Event, error)
 }
 
 type eventServiceClient struct {
@@ -102,6 +111,16 @@ func (c *eventServiceClient) Recent(ctx context.Context, in *EventRecentRequest,
 	return out, nil
 }
 
+func (c *eventServiceClient) Redact(ctx context.Context, in *EventRedactRequest, opts ...grpc.CallOption) (*Event, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Event)
+	err := c.cc.Invoke(ctx, EventService_Redact_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // EventServiceServer is the server API for EventService service.
 // All implementations must embed UnimplementedEventServiceServer
 // for forward compatibility.
@@ -118,6 +137,14 @@ type EventServiceServer interface {
 	// first, so that a cursor is stable -- does not. Each says what happened in
 	// `desc`, a sentence made of it as it is read (`server/domain/say.go`).
 	Recent(context.Context, *EventRecentRequest) (*EventRecentResponse, error)
+	// Redact takes the reason out of an event, for a person whose request to
+	// erase what it says of them points at it (payday#151): the reason is
+	// blanked, which the trail records as the act it is, and the act is an
+	// event of its own, `event.redact`, whose reason is the request's
+	// reference. It answers the event as it is now. No role is given it yet
+	// (`server/policy`): who may is the workspace's to say, and the
+	// deployment's operator does it with `rove event redact`.
+	Redact(context.Context, *EventRedactRequest) (*Event, error)
 	mustEmbedUnimplementedEventServiceServer()
 }
 
@@ -142,6 +169,9 @@ func (UnimplementedEventServiceServer) List(context.Context, *EventListRequest) 
 }
 func (UnimplementedEventServiceServer) Recent(context.Context, *EventRecentRequest) (*EventRecentResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Recent not implemented")
+}
+func (UnimplementedEventServiceServer) Redact(context.Context, *EventRedactRequest) (*Event, error) {
+	return nil, status.Error(codes.Unimplemented, "method Redact not implemented")
 }
 func (UnimplementedEventServiceServer) mustEmbedUnimplementedEventServiceServer() {}
 func (UnimplementedEventServiceServer) testEmbeddedByValue()                      {}
@@ -254,6 +284,24 @@ func _EventService_Recent_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _EventService_Redact_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EventRedactRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EventServiceServer).Redact(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: EventService_Redact_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EventServiceServer).Redact(ctx, req.(*EventRedactRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // EventService_ServiceDesc is the grpc.ServiceDesc for EventService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -280,6 +328,10 @@ var EventService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Recent",
 			Handler:    _EventService_Recent_Handler,
+		},
+		{
+			MethodName: "Redact",
+			Handler:    _EventService_Redact_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -12,6 +12,23 @@ service EventService {
   // first, so that a cursor is stable -- does not. Each says what happened in
   // `desc`, a sentence made of it as it is read (`server/domain/say.go`).
   rpc Recent(EventRecentRequest) returns (EventRecentResponse);
+
+  // Redact takes the reason out of an event, for a person whose request to
+  // erase what it says of them points at it (payday#151): the reason is
+  // blanked, which the trail records as the act it is, and the act is an
+  // event of its own, `event.redact`, whose reason is the request's
+  // reference. It answers the event as it is now. No role is given it yet
+  // (`server/policy`): who may is the workspace's to say, and the
+  // deployment's operator does it with `rove event redact`.
+  rpc Redact(EventRedactRequest) returns (Event);
+}
+
+message EventRedactRequest {
+  EventRef ref = 1;
+  // The erasure request this answers, by its reference: required, and kept as
+  // the act's own reason -- personal, as every reason is, so the trail holds
+  // that it was written and never what it says.
+  string reason = 2 [features.field_presence = IMPLICIT];
 }
 
 message EventRecentRequest {
