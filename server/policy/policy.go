@@ -2,7 +2,9 @@
 //
 // It is a table, and what is not in it is refused. A method added to the schema
 // is closed until somebody decides who may call it, which is the direction a
-// mistake should fall in.
+// mistake should fall in. One kept from every role on purpose, until that is
+// decided, is in it as closed: refused as the rest are, and said so where a
+// review reads the table.
 //
 // It is also what seals the rows only the domain layer writes. The history
 // rows, the events, the allocations and the rest have generated Add, Patch and
@@ -84,6 +86,16 @@ func oversee(service string, methods ...string) {
 	}
 }
 
+// closed is a method that is served and that no role is given yet: refused to
+// everybody, the owner included, as a method the table does not name is --
+// and said so in the table a review reads, so that giving it to a role is
+// this line made an allow.
+func closed(service string, methods ...string) {
+	for _, m := range methods {
+		Table["/rove."+service+"/"+m] = rule{min: Nobody}
+	}
+}
+
 var reads = []string{"Get", "List", "Watch"}
 
 func init() {
@@ -128,6 +140,11 @@ func init() {
 	oversee("AccessService", "Review")
 	oversee("AccessReviewService", "Add", "Get", "List")
 	allow(Read, "EventService", "Recent")
+	// Taking an event's reason out, for a person whose request to erase what
+	// it says of them points at it (payday#151's Redact): who may is the
+	// owner's to decide, and until then nobody here may. The deployment's
+	// operator does it, on the workspace's word, with `rove event redact`.
+	closed("EventService", "Redact")
 	oversee("HolderService", reads...)
 
 	allow(Read, "AssetService", "Timeline", "QueryAt", "Diff", "Search", "Report")
@@ -242,6 +259,11 @@ func (Policy) May(ctx context.Context, c gate.Call) error {
 		}
 		return status.Errorf(codes.PermissionDenied, "직접 호출할 수 없는 작업입니다 (%s)", c.Action)
 	}
+	if r.min == Nobody {
+		// A closed method ([closed]): before any role is weighed, since every
+		// role is at least nobody.
+		return status.Errorf(codes.PermissionDenied, "아직 어느 역할에도 주지 않은 작업입니다 (%s)", c.Action)
+	}
 	role := Role(c)
 	lv := levelOf(c)
 	if lv >= r.min && lv > Nobody {
@@ -249,9 +271,6 @@ func (Policy) May(ctx context.Context, c gate.Call) error {
 	}
 	if r.auditor && role == "auditor" {
 		return nil
-	}
-	if r.min == Nobody {
-		return status.Errorf(codes.PermissionDenied, "직접 호출할 수 없는 작업입니다 (%s)", c.Action)
 	}
 	return status.Errorf(codes.PermissionDenied, "%s 역할로는 할 수 없는 작업입니다 (%s)", or(roleWord[role], "알 수 없는"), c.Action)
 }
