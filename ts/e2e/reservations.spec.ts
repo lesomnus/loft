@@ -152,7 +152,7 @@ test('what is disposed of, or found lost by a count, is offered out of its kit, 
 	const offer = (form: Locator) => field(form, '속한 키트·그룹').getByRole('checkbox', { name: new RegExp(`^${tag.kit} .*에서 빼기`) })
 
 	// The tripod is disposed of, and taken out of the kit in the same
-	// change, as its history says.
+	// change, which the booking let go of it for -- as its history says.
 	await page.goto(`${workspace}/assets/${idOf(tripod.id)}`)
 	await page.getByRole('button', { name: '정보·상태 변경' }).click()
 	const set = page.getByRole('dialog')
@@ -162,7 +162,9 @@ test('what is disposed of, or found lost by a count, is offered out of its kit, 
 	await field(set, '사유').fill('e2e: 파손')
 	await set.getByRole('button', { name: '저장', exact: true }).click()
 	await said(page, '바꿨습니다.')
-	await expect(page.getByRole('listitem').filter({ hasText: `${tag.tripod} 연결 끝 ${tag.kit}` })).toContainText(`${tag.tripod} 속성 변경`)
+	const history = page.getByRole('listitem')
+	await expect(history.filter({ hasText: `${tag.tripod} 연결 끝 ${tag.kit}` }).filter({ hasText: `${tag.tripod} 속성 변경` })).toBeVisible()
+	await expect(history.filter({ hasText: '예약에서 빠짐' }).filter({ hasText: shoot })).toBeVisible()
 
 	// The lens the count never saw is lost, and out of the kit as well.
 	await page.goto(`${workspace}/counts/${idOf(count.id)}`)

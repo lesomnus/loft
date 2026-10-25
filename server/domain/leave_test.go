@@ -110,6 +110,15 @@ func TestWhatGoesOutOfUseLeavesWhatItIsIn(t *testing.T) {
 			for _, of := range []*app.Asset{kit, pool} {
 				x.Contains([]uuid.UUID{ends[0].Id, ends[1].Id}, e.membership(camera, of)[0].EventId, "the row is the relation's")
 			}
+			// And what the kit's booking let go of, the end of the kit's
+			// relation's doing (design D39).
+			gone := []string{}
+			for _, v := range ends {
+				for _, k := range e.causedBy(v) {
+					gone = append(gone, k.Kind)
+				}
+			}
+			x.Equal([]string{"reservation.let_go", "reservation.let_go"}, gone, "the booking's, and the camera's")
 			parts := 0
 			for _, en := range e.timeline(camera, false) {
 				if en.GetKind() == "event" && en.GetEventKind() == "asset.relate" && en.GetCause() != "" {
