@@ -187,6 +187,27 @@ func sentences() *past.Sentences {
 	past.SayKind(s, "reservation.no_show", "ko", func(r *past.Reading, ev past.EventRow, m *app.ReservationReleased) string {
 		return "노쇼: " + m.GetName()
 	})
+	// What a reservation holds of a thing it needs, as it follows what the
+	// thing can give -- a member of its kit, or a pool's units -- taken,
+	// waited for, taken once free, or let go of. Said alike in the
+	// reservation's history and the thing's, so by both: the thing, by how
+	// many of it where it is counted, and the reservation by its name and
+	// when it begins, which tells one of a series from the next.
+	for k, did := range map[string]string{
+		"reservation.take":    "예약에 잡힘",
+		"reservation.wait":    "예약 대기",
+		"reservation.resolve": "예약 확보",
+		"reservation.let_go":  "예약에서 빠짐",
+	} {
+		past.SayKind(s, k, "ko", func(r *past.Reading, ev past.EventRow, m *app.ReservationAllocationChanged) string {
+			what := m.GetAssetName()
+			if n := m.GetUnits(); n > 0 {
+				what = fmt.Sprintf("%s %d개", what, n)
+			}
+			when := m.GetBeginsAt().AsTime().In(r.Zone()).Format("01-02 15:04")
+			return fmt.Sprintf("%s: %s (%s)", did, what, strings.TrimSpace(m.GetName()+" "+when))
+		})
+	}
 
 	// label.go and spin.go
 	past.SayKind(s, "domain.add", "ko", func(r *past.Reading, ev past.EventRow, m *app.TenantDomainAdded) string {
