@@ -202,3 +202,26 @@ export function weekdayAt(days: number, hour: number): string {
 	const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' }).format(d)
 	return `${day}T${String(hour).padStart(2, '0')}:00`
 }
+
+/** What the server answered a call, as JSON: `id` the row's, in base64. */
+export type Reply = { id: string } & Record<string, unknown>
+
+/**
+ * A call of the server's, made as the page makes one, as whoever `page` is
+ * signed in as: for what a test needs to be there before it does what a
+ * person does -- a kit, what it is made of, booked -- where another test goes
+ * through those forms already. It fails with what the server said.
+ */
+export async function rpc(page: Page, method: string, req: object): Promise<Reply> {
+	const res = await page.request.post(`/rove.${method}`, {
+		headers: { 'connect-protocol-version': '1', 'rove-workspace': workspace.slice(2) },
+		data: req,
+	})
+	expect(res.status(), `${method}: ${await res.text()}`).toBe(200)
+	return (await res.json()) as Reply
+}
+
+/** `weekdayAt` as a moment a call takes: in Korea, as RFC 3339 writes it. */
+export function momentAt(days: number, hour: number): string {
+	return `${weekdayAt(days, hour)}:00+09:00`
+}

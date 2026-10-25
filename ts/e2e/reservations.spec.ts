@@ -1,4 +1,4 @@
-import { card, choose, expect, field, people, said, signIn, test, unique, weekdayAt, workspace } from './rove.js'
+import { card, choose, expect, field, momentAt, owner, people, rpc, said, signIn, test, unique, weekdayAt, workspace } from './rove.js'
 
 test('a booking of a room that needs approval waits for a manager, who approves it', async ({ page, as }) => {
 	const title = unique('e2e 분기 회의')
@@ -88,4 +88,40 @@ test('a kit booking waits for a member the kit is given that is booked elsewhere
 	await expect(shooting).not.toContainText('구성품 충돌')
 	await shooting.click()
 	await expect(page.getByRole('dialog').getByRole('note', { name: '구성품 충돌' })).toHaveCount(0)
+})
+
+test('a kit is picked up with the members its booking holds, and without one it waits for', async ({ page, as }) => {
+	const shoot = unique('e2e 수령')
+	const n = Math.random().toString(36).slice(2, 7).toUpperCase()
+	const tag = { kit: `EK-${n}`, camera: `EC-${n}`, light: `EL-${n}` }
+
+	// A kit of its own with a camera in it, and a light that is booked on its
+	// own for the time the kit is, which the kit is given after. Made through
+	// the server: the forms that make them are the other tests'.
+	const admin = await as(owner.login, owner.password)
+	const kit = await rpc(admin, 'AssetService/Add', { name: unique('e2e 수령 키트'), kind: 'kit', tag: tag.kit })
+	const camera = await rpc(admin, 'AssetService/Add', { name: 'e2e 수령 카메라', kind: 'item', tag: tag.camera })
+	const light = await rpc(admin, 'AssetService/Add', { name: 'e2e 수령 조명', kind: 'item', tag: tag.light })
+	await rpc(admin, 'BookableService/Add', { asset: { id: kit.id } })
+	await rpc(admin, 'BookableService/Add', { asset: { id: light.id } })
+	await rpc(admin, 'AssetService/Relate', { ref: { id: camera.id }, target: { id: kit.id }, kind: 'member_of', required: true })
+
+	await signIn(page, people.approver.login)
+	const [from, to] = [momentAt(42, 9), momentAt(42, 12)]
+	await rpc(page, 'ReservationService/Add', { name: shoot, items: [{ resource: { id: kit.id } }], beginsAt: from, endsAt: to })
+	await rpc(page, 'ReservationService/Add', { name: unique('e2e 조명'), items: [{ resource: { id: light.id } }], beginsAt: from, endsAt: to })
+	await rpc(admin, 'AssetService/Relate', { ref: { id: light.id }, target: { id: kit.id }, kind: 'member_of', required: true })
+
+	// Its pickup hands out the camera the booking holds, and says the light
+	// is held elsewhere rather than putting it in.
+	await page.goto(`${workspace}/reservations?tab=mine`)
+	await page.getByRole('row').filter({ hasText: shoot }).click()
+	await page.getByRole('dialog').getByRole('button', { name: '수령 처리 (대여)' }).click()
+	const pickup = page.getByRole('dialog')
+	const out = pickup.getByRole('list', { name: '건넬 자산' })
+	await expect(out.getByRole('listitem')).toHaveCount(1)
+	await expect(out).toContainText(tag.camera)
+	const waits = pickup.getByRole('note', { name: '구성품 충돌' })
+	await expect(waits).toContainText(tag.light)
+	await expect(waits).toContainText('건넬 자산에 넣지 않았습니다')
 })
