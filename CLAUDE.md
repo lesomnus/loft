@@ -391,6 +391,13 @@ trail owed` says what is left. Read `server/domain/domain.go` first. Its tests
 (`go test ./server/domain`) go through the whole stack; set `PDTEST_POSTGRES` to
 run them on PostgreSQL.
 
+**An event's reason is taken out** when a person's request to erase what it
+says of them points at it (`past.Redact`, `server/domain/redact.go`): the act
+is an `event.redact` whose reason is the request's reference, the trail's
+`payday.past.redact`, and the access record of what it read. No role is given
+`EventService.Redact` yet (`closed` in `server/policy`: the owner decides who);
+the operator does it with `rove event redact`, on the workspace's word.
+
 **A write through ent is not on the trail**, and `rove trail rows` then finds
 the row -- a write past the servers is what it is there to find (payday#108).
 Write through the servers. Where a write cannot be one -- a claim on a
