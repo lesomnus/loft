@@ -17,7 +17,8 @@ export const statusWord: Record<string, string> = {
 
 /**
  * The statuses an asset is out of use in (`domain.OutOfUse`): what it is a
- * member of, it may leave as it goes out of use.
+ * member of, it may leave as it goes out of use, and nothing in them is
+ * handed over.
  */
 export const outOfUse: readonly string[] = ['lost', 'retired', 'disposed']
 

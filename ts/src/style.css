@@ -717,11 +717,11 @@ ul.bars .num {
 .note.warn {
 	background: var(--warn-soft);
 }
-.note ul.waiting {
+.note ul {
 	margin: 6px 0;
 	padding-left: 18px;
 }
-.note ul.waiting + p {
+.note ul + p {
 	margin-bottom: 0;
 }
 ul.rows > li > .note {
