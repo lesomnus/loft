@@ -1346,6 +1346,15 @@ export type TimelineEntry = Message<"rove.TimelineEntry"> & {
   summary: string;
 
   /**
+   * What it holds, field by field: a placement's mode, slot and rack
+   * positions (`u`), a stewardship's role, a link's kind and whether it is
+   * required, a fact's key and value. An event's is what its message held,
+   * under the names its domain's table gives the fields (`rove/past.proto`):
+   * a row it names as the row is called now -- a person by their name, and
+   * nothing else of theirs -- or as its identifier where nothing names it,
+   * and a moment in the workspace's zone, as RFC 3339 writes one. A row from
+   * before Rove's past was payday's is what its `payload` said.
+   *
    * @generated from field: map<string, string> detail = 8;
    */
   detail: { [key: string]: string };

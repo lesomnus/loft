@@ -16,7 +16,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file rove/payday/event_svc.g.proto.
  */
 export const file_rove_payday_event_svc_g: GenFile = /*@__PURE__*/
-  fileDesc("Ch1yb3ZlL3BheWRheS9ldmVudF9zdmMuZy5wcm90bxIEcm92ZSLpAgoPRXZlbnRBZGRSZXF1ZXN0EgoKAmlkGAEgASgMEh8KBnRlbmFudBgCIAEoCzIPLnJvdmUuVGVuYW50UmVmEhMKBGtpbmQYCCABKAlCBaoBAggCEhAKCGFjdG9yX2lkGAkgASgMEi8KC29jY3VycmVkX2F0GAogASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIVCgZyZWFzb24YCyABKAlCBaoBAggCEhIKCnN1YmplY3RfaWQYDCABKAwSMAoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIQCgh0cmFjZV9pZBgQIAEoDBIQCghjYXVzZV9pZBgSIAEoDBIjCgV2YWx1ZRgTIAEoCzIULmdvb2dsZS5wcm90b2J1Zi5BbnkSEwoEZGVzYxgGIAEoCUIFqgECCAISFgoHcGF5bG9hZBgRIAEoCUIFqgECCAIiOwoTRXZlbnRBZGRNYW55UmVxdWVzdBIkCgVpdGVtcxgBIAMoCzIVLnJvdmUuRXZlbnRBZGRSZXF1ZXN0IjIKFEV2ZW50QWRkTWFueVJlc3BvbnNlEhoKBWl0ZW1zGAEgAygLMgsucm92ZS5FdmVudCJRCg9FdmVudEdldFJlcXVlc3QSGwoDcmVmGAEgASgLMg4ucm92ZS5FdmVudFJlZhIhCgZzZWxlY3QYAiABKAsyES5yb3ZlLkV2ZW50U2VsZWN0Ih8KCEV2ZW50UmVmEgwKAmlkGAEgASgMSABCBQoDa2V5IpUCCgtFdmVudFNlbGVjdBILCgNhbGwYASABKAgSIgoGdGVuYW50GAIgASgLMhIucm92ZS5UZW5hbnRTZWxlY3QSDAoEa2luZBgIIAEoCBIQCghhY3Rvcl9pZBgJIAEoCBITCgtvY2N1cnJlZF9hdBgKIAEoCBIOCgZyZWFzb24YCyABKAgSEgoKc3ViamVjdF9pZBgMIAEoCBIUCgxkYXRlX3VwZGF0ZWQYDSABKAgSFAoMZGF0ZV9jcmVhdGVkGA8gASgIEhAKCHRyYWNlX2lkGBAgASgIEhAKCGNhdXNlX2lkGBIgASgIEg0KBXZhbHVlGBMgASgIEgwKBGRlc2MYBiABKAgSDwoHcGF5bG9hZBgRIAEoCCJ5ChBFdmVudExpc3RSZXF1ZXN0EiIKB2ZpbHRlcnMYASADKAsyES5yb3ZlLkV2ZW50RmlsdGVyEhMKBHNpemUYAiABKAVCBaoBAggCEhQKBWFmdGVyGAMgASgJQgWqAQIIAhIWCgdyZXZlcnNlGAQgASgIQgWqAQIIAiJEChFFdmVudExpc3RSZXNwb25zZRIaCgVpdGVtcxgBIAMoCzILLnJvdmUuRXZlbnQSEwoEbmV4dBgCIAEoCUIFqgECCAIicAoLRXZlbnRGaWx0ZXISGwoDcmVmGAEgASgLMg4ucm92ZS5FdmVudFJlZhISCgpzdWJqZWN0X2lkGAIgASgMEgwKBGtpbmQYAyABKAkSEAoIYWN0b3JfaWQYBCABKAwSEAoIY2F1c2VfaWQYBSABKAwigwEKEkV2ZW50UmVjZW50UmVxdWVzdBITCgRzaXplGAEgASgNQgWqAQIIAhITCgRraW5kGAIgASgJQgWqAQIIAhIqCgZiZWZvcmUYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhcKCGNoaWxkcmVuGAQgASgIQgWqAQIIAiIxChNFdmVudFJlY2VudFJlc3BvbnNlEhoKBWl0ZW1zGAEgAygLMgsucm92ZS5FdmVudCJIChJFdmVudFJlZGFjdFJlcXVlc3QSGwoDcmVmGAEgASgLMg4ucm92ZS5FdmVudFJlZhIVCgZyZWFzb24YAiABKAlCBaoBAggCMs8CCgxFdmVudFNlcnZpY2USKQoDQWRkEhUucm92ZS5FdmVudEFkZFJlcXVlc3QaCy5yb3ZlLkV2ZW50EkAKB0FkZE1hbnkSGS5yb3ZlLkV2ZW50QWRkTWFueVJlcXVlc3QaGi5yb3ZlLkV2ZW50QWRkTWFueVJlc3BvbnNlEikKA0dldBIVLnJvdmUuRXZlbnRHZXRSZXF1ZXN0Ggsucm92ZS5FdmVudBI3CgRMaXN0EhYucm92ZS5FdmVudExpc3RSZXF1ZXN0Ghcucm92ZS5FdmVudExpc3RSZXNwb25zZRI9CgZSZWNlbnQSGC5yb3ZlLkV2ZW50UmVjZW50UmVxdWVzdBoZLnJvdmUuRXZlbnRSZWNlbnRSZXNwb25zZRIvCgZSZWRhY3QSGC5yb3ZlLkV2ZW50UmVkYWN0UmVxdWVzdBoLLnJvdmUuRXZlbnRCGloYZ2l0aHViLmNvbS9sZXNvbW51cy9yb3ZlYghlZGl0aW9uc3DoBw", [file_google_protobuf_any, file_google_protobuf_timestamp, file_rove_payday_event, file_rove_payday_tenant_svc_g]);
+  fileDesc("Ch1yb3ZlL3BheWRheS9ldmVudF9zdmMuZy5wcm90bxIEcm92ZSLpAgoPRXZlbnRBZGRSZXF1ZXN0EgoKAmlkGAEgASgMEh8KBnRlbmFudBgCIAEoCzIPLnJvdmUuVGVuYW50UmVmEhMKBGtpbmQYCCABKAlCBaoBAggCEhAKCGFjdG9yX2lkGAkgASgMEi8KC29jY3VycmVkX2F0GAogASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIVCgZyZWFzb24YCyABKAlCBaoBAggCEhIKCnN1YmplY3RfaWQYDCABKAwSMAoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIQCgh0cmFjZV9pZBgQIAEoDBIQCghjYXVzZV9pZBgSIAEoDBIjCgV2YWx1ZRgTIAEoCzIULmdvb2dsZS5wcm90b2J1Zi5BbnkSEwoEZGVzYxgGIAEoCUIFqgECCAISFgoHcGF5bG9hZBgRIAEoCUIFqgECCAIiOwoTRXZlbnRBZGRNYW55UmVxdWVzdBIkCgVpdGVtcxgBIAMoCzIVLnJvdmUuRXZlbnRBZGRSZXF1ZXN0IjIKFEV2ZW50QWRkTWFueVJlc3BvbnNlEhoKBWl0ZW1zGAEgAygLMgsucm92ZS5FdmVudCJRCg9FdmVudEdldFJlcXVlc3QSGwoDcmVmGAEgASgLMg4ucm92ZS5FdmVudFJlZhIhCgZzZWxlY3QYAiABKAsyES5yb3ZlLkV2ZW50U2VsZWN0Ih8KCEV2ZW50UmVmEgwKAmlkGAEgASgMSABCBQoDa2V5IpUCCgtFdmVudFNlbGVjdBILCgNhbGwYASABKAgSIgoGdGVuYW50GAIgASgLMhIucm92ZS5UZW5hbnRTZWxlY3QSDAoEa2luZBgIIAEoCBIQCghhY3Rvcl9pZBgJIAEoCBITCgtvY2N1cnJlZF9hdBgKIAEoCBIOCgZyZWFzb24YCyABKAgSEgoKc3ViamVjdF9pZBgMIAEoCBIUCgxkYXRlX3VwZGF0ZWQYDSABKAgSFAoMZGF0ZV9jcmVhdGVkGA8gASgIEhAKCHRyYWNlX2lkGBAgASgIEhAKCGNhdXNlX2lkGBIgASgIEg0KBXZhbHVlGBMgASgIEgwKBGRlc2MYBiABKAgSDwoHcGF5bG9hZBgRIAEoCCJ5ChBFdmVudExpc3RSZXF1ZXN0EiIKB2ZpbHRlcnMYASADKAsyES5yb3ZlLkV2ZW50RmlsdGVyEhMKBHNpemUYAiABKAVCBaoBAggCEhQKBWFmdGVyGAMgASgJQgWqAQIIAhIWCgdyZXZlcnNlGAQgASgIQgWqAQIIAiJEChFFdmVudExpc3RSZXNwb25zZRIaCgVpdGVtcxgBIAMoCzILLnJvdmUuRXZlbnQSEwoEbmV4dBgCIAEoCUIFqgECCAIicAoLRXZlbnRGaWx0ZXISGwoDcmVmGAEgASgLMg4ucm92ZS5FdmVudFJlZhISCgpzdWJqZWN0X2lkGAIgASgMEgwKBGtpbmQYAyABKAkSEAoIYWN0b3JfaWQYBCABKAwSEAoIY2F1c2VfaWQYBSABKAwiewoSRXZlbnRSZWNlbnRSZXF1ZXN0EhMKBHNpemUYASABKA1CBaoBAggCEhMKBGtpbmQYAiABKAlCBaoBAggCEhcKCGNoaWxkcmVuGAQgASgIQgWqAQIIAhIUCgVhZnRlchgFIAEoCUIFqgECCAJKBAgDEARSBmJlZm9yZSJGChNFdmVudFJlY2VudFJlc3BvbnNlEhoKBWl0ZW1zGAEgAygLMgsucm92ZS5FdmVudBITCgRuZXh0GAIgASgJQgWqAQIIAiJIChJFdmVudFJlZGFjdFJlcXVlc3QSGwoDcmVmGAEgASgLMg4ucm92ZS5FdmVudFJlZhIVCgZyZWFzb24YAiABKAlCBaoBAggCMs8CCgxFdmVudFNlcnZpY2USKQoDQWRkEhUucm92ZS5FdmVudEFkZFJlcXVlc3QaCy5yb3ZlLkV2ZW50EkAKB0FkZE1hbnkSGS5yb3ZlLkV2ZW50QWRkTWFueVJlcXVlc3QaGi5yb3ZlLkV2ZW50QWRkTWFueVJlc3BvbnNlEikKA0dldBIVLnJvdmUuRXZlbnRHZXRSZXF1ZXN0Ggsucm92ZS5FdmVudBI3CgRMaXN0EhYucm92ZS5FdmVudExpc3RSZXF1ZXN0Ghcucm92ZS5FdmVudExpc3RSZXNwb25zZRI9CgZSZWNlbnQSGC5yb3ZlLkV2ZW50UmVjZW50UmVxdWVzdBoZLnJvdmUuRXZlbnRSZWNlbnRSZXNwb25zZRIvCgZSZWRhY3QSGC5yb3ZlLkV2ZW50UmVkYWN0UmVxdWVzdBoLLnJvdmUuRXZlbnRCGloYZ2l0aHViLmNvbS9sZXNvbW51cy9yb3ZlYghlZGl0aW9uc3DoBw", [file_google_protobuf_any, file_google_protobuf_timestamp, file_rove_payday_event, file_rove_payday_tenant_svc_g]);
 
 /**
  * @generated from message rove.EventAddRequest
@@ -389,19 +389,19 @@ export type EventRecentRequest = Message<"rove.EventRecentRequest"> & {
   kind: string;
 
   /**
-   * Only events recorded before this, for the next page.
-   *
-   * @generated from field: google.protobuf.Timestamp before = 3;
-   */
-  before?: Timestamp | undefined;
-
-  /**
    * Also what an operation over many things did to each of them, which the
    * feed otherwise leaves under the operation (design D34).
    *
    * @generated from field: bool children = 4 [features.field_presence = IMPLICIT];
    */
   children: boolean;
+
+  /**
+   * Where the page before ended (`next`), for the page after it.
+   *
+   * @generated from field: string after = 5 [features.field_presence = IMPLICIT];
+   */
+  after: string;
 };
 
 /**
@@ -419,6 +419,13 @@ export type EventRecentResponse = Message<"rove.EventRecentResponse"> & {
    * @generated from field: repeated rove.Event items = 1;
    */
   items: Event[];
+
+  /**
+   * What to send as `after` for the page after this one; empty is none.
+   *
+   * @generated from field: string next = 2 [features.field_presence = IMPLICIT];
+   */
+  next: string;
 };
 
 /**
@@ -499,9 +506,9 @@ export const EventService: GenService<{
     output: typeof EventListResponseSchema;
   },
   /**
-   * Recent answers the newest events first, which a generated List -- oldest
-   * first, so that a cursor is stable -- does not. Each says what happened in
-   * `desc`, a sentence made of it as it is read (`server/domain/say.go`).
+   * Recent answers the newest events first, a page at a time, each saying
+   * what happened in `desc`: a sentence made of it as it is read
+   * (`server/domain/say.go`), which a generated List does not make.
    *
    * @generated from rpc rove.EventService.Recent
    */

@@ -33,3 +33,59 @@ test('a booking of a room that needs approval waits for a manager, who approves 
 	await page.reload()
 	await expect(mine).toContainText('확정')
 })
+
+test('a kit booking waits for a member the kit is given that is booked elsewhere, says so wherever it is acted on, and takes it once it is free', async ({ page }) => {
+	const talk = unique('e2e 발표')
+	const shoot = unique('e2e 촬영')
+	await signIn(page, people.approver.login)
+
+	// The projector for a morning five weeks out, and the demo's camera kit
+	// for all of it. Nothing else books either.
+	const book = async (what: string, title: string, from: number, to: number) => {
+		await page.goto(`${workspace}/reservations`)
+		await page.getByRole('button', { name: '+ 예약' }).click()
+		const form = page.getByRole('dialog')
+		await choose(field(form, '무엇을'), what)
+		await field(form, '제목').fill(title)
+		await field(form, '시작').fill(weekdayAt(35, from))
+		await field(form, '끝').fill(weekdayAt(35, to))
+		await form.getByRole('button', { name: '예약', exact: true }).click()
+		await expect(form).toHaveCount(0)
+	}
+	await book('빔프로젝터 1', talk, 10, 12)
+	await book('촬영 키트', shoot, 9, 13)
+
+	// And then the kit needs the projector: the change is made, and the
+	// projector is not taken from the booking that has it.
+	await page.goto(`${workspace}/assets`)
+	await page.getByPlaceholder('이름, 태그, 시리얼, 모델, 사용자', { exact: true }).fill('PJ-001')
+	await page.getByRole('link', { name: '빔프로젝터 1', exact: true }).click()
+	await page.getByRole('button', { name: '키트·그룹 연결' }).click()
+	const relate = page.getByRole('dialog')
+	const target = field(relate, '대상')
+	await target.getByRole('searchbox').fill('KT-001')
+	await target.getByRole('button', { name: /KT-001/ }).click()
+	await relate.getByRole('button', { name: '저장', exact: true }).click()
+	await said(page, '연결했습니다.')
+
+	// The kit's booking says so in the list, opened, and at its pickup.
+	await page.goto(`${workspace}/reservations?tab=mine`)
+	const shooting = page.getByRole('row').filter({ hasText: shoot })
+	await expect(shooting).toContainText('구성품 충돌')
+	await shooting.click()
+	const waits = page.getByRole('dialog').getByRole('note', { name: '구성품 충돌' })
+	await expect(waits).toContainText('PJ-001')
+	await expect(waits).toContainText(talk)
+	await page.getByRole('dialog').getByRole('button', { name: '수령 처리 (대여)' }).click()
+	await expect(page.getByRole('dialog').getByRole('note', { name: '구성품 충돌' })).toContainText('PJ-001')
+	await page.getByRole('dialog').getByRole('button', { name: '취소', exact: true }).click()
+	await expect(page.getByRole('dialog')).toHaveCount(0)
+
+	// Once the projector is let go, the kit's booking has it.
+	await page.getByRole('row').filter({ hasText: talk }).click()
+	await page.getByRole('dialog').getByRole('button', { name: '취소', exact: true }).click()
+	await said(page, '취소했습니다.')
+	await expect(shooting).not.toContainText('구성품 충돌')
+	await shooting.click()
+	await expect(page.getByRole('dialog').getByRole('note', { name: '구성품 충돌' })).toHaveCount(0)
+})

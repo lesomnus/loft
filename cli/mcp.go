@@ -820,6 +820,11 @@ type mcpEntry struct {
 	Why        string `json:"why,omitempty"`
 	Part       string `json:"part_of,omitempty" jsonschema:"the operation over many things this was part of, in its own words"`
 	Superseded string `json:"superseded,omitempty" jsonschema:"when a correction replaced it"`
+	// What the history's own entry holds (`TimelineEntry.detail`), which is
+	// made of what the server reads it with: an event's message, each person
+	// in it by the name they are called by and never anything else of
+	// theirs, and a time row's own columns.
+	Detail map[string]string `json:"detail,omitempty" jsonschema:"what it held, field by field: of an event, what its operation held, a thing or a person by the name a person reads it by and a moment in the workspace's zone; of a time row, its own fields -- a placement's mode and slot, a stewardship's role, a fact's key and value"`
 }
 
 type mcpHistory struct {
@@ -870,6 +875,7 @@ func (t mcpTools) assetHistory(ctx context.Context, _ *mcp.CallToolRequest, in m
 			Why:        e.GetReason(),
 			Part:       e.GetCause(),
 			Superseded: stamp(e.GetSupersededAt()),
+			Detail:     e.GetDetail(),
 		})
 	}
 	return nil, out, nil
@@ -942,7 +948,7 @@ func (t mcpTools) assetAt(ctx context.Context, _ *mcp.CallToolRequest, in mcpAtI
 type mcpEventsIn struct {
 	Kind   string `json:"kind,omitempty" jsonschema:"only operations whose kind starts with this: asset., custody., reservation."`
 	Limit  int    `json:"limit,omitempty" jsonschema:"how many: 30 if left out, 200 at most"`
-	Before string `json:"before,omitempty" jsonschema:"only what was recorded before this moment, for the next page: the last answer's oldest 'recorded'"`
+	Cursor string `json:"cursor,omitempty" jsonschema:"where to carry on from: the last answer's next"`
 }
 
 type mcpEvent struct {
@@ -957,6 +963,7 @@ type mcpEvent struct {
 
 type mcpEvents struct {
 	Items []mcpEvent `json:"items"`
+	Next  string     `json:"next,omitempty" jsonschema:"the cursor for the next page; absent when this was the last"`
 }
 
 func (t mcpTools) recentEvents(ctx context.Context, _ *mcp.CallToolRequest, in mcpEventsIn) (*mcp.CallToolResult, mcpEvents, error) {
@@ -969,18 +976,15 @@ func (t mcpTools) recentEvents(ctx context.Context, _ *mcp.CallToolRequest, in m
 	if n <= 0 {
 		n = 30
 	}
-	req := app.EventRecentRequest_builder{Size: uint32(min(n, 200)), Kind: in.Kind}.Build()
-	if in.Before != "" {
-		b, err := at("before", in.Before)
-		if err != nil {
-			return nil, out, err
-		}
-		req.SetBefore(timestamppb.New(b))
-	}
-	v, err := app.NewEventServiceClient(c.conn).Recent(ctx, req)
+	v, err := app.NewEventServiceClient(c.conn).Recent(ctx, app.EventRecentRequest_builder{
+		Size:  uint32(min(n, 200)),
+		Kind:  in.Kind,
+		After: in.Cursor,
+	}.Build())
 	if err != nil {
 		return nil, out, failed(err)
 	}
+	out.Next = v.GetNext()
 	actors := []pdid.Id{}
 	for _, e := range v.GetItems() {
 		actors = append(actors, pid(e.GetActorId()))
@@ -1178,14 +1182,15 @@ type mcpReservationsIn struct {
 }
 
 type mcpReservation struct {
-	Id     string   `json:"id"`
-	Name   string   `json:"name,omitempty" jsonschema:"what it is for"`
-	Status string   `json:"status" jsonschema:"held, requested, confirmed, in_use, completed, cancelled, rejected, expired or no_show"`
-	Begins string   `json:"begins"`
-	Ends   string   `json:"ends"`
-	For    string   `json:"for,omitempty" jsonschema:"who it is for"`
-	Assets []mcpRef `json:"assets" jsonschema:"what is reserved"`
-	Series bool     `json:"series,omitempty" jsonschema:"one of a repeating series"`
+	Id       string   `json:"id"`
+	Name     string   `json:"name,omitempty" jsonschema:"what it is for"`
+	Status   string   `json:"status" jsonschema:"held, requested, confirmed, in_use, completed, cancelled, rejected, expired or no_show"`
+	Begins   string   `json:"begins"`
+	Ends     string   `json:"ends"`
+	For      string   `json:"for,omitempty" jsonschema:"who it is for"`
+	Assets   []mcpRef `json:"assets" jsonschema:"what is reserved"`
+	Series   bool     `json:"series,omitempty" jsonschema:"one of a repeating series"`
+	WaitsFor []mcpRef `json:"waits_for,omitempty" jsonschema:"members of a reserved kit it should take with it and does not hold, since something else holds them then: given to the kit after it was booked. It takes each once it is free"`
 }
 
 type mcpReservations struct {
@@ -1252,6 +1257,9 @@ func (t mcpTools) reservations(ctx context.Context, _ *mcp.CallToolRequest, in m
 				ref.Name = a.GetName()
 			}
 			item.Assets = append(item.Assets, ref)
+		}
+		for _, w := range e.GetConflicts() {
+			item.WaitsFor = append(item.WaitsFor, mcpRef{Id: idString(w.GetResourceId()), Name: strings.TrimSpace(w.GetResourceTag() + " " + w.GetResourceName())})
 		}
 		out.Items = append(out.Items, item)
 	}

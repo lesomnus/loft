@@ -246,6 +246,31 @@ func TestAnAssistantReadsTheWorkspaceAsItsPerson(t *testing.T) {
 		x.Equal("custody.issue", v.Items[0].Operation)
 		x.Contains(v.Items[0].What, "김민수", "the sentence names who it was about")
 		x.NotEmpty(v.Items[0].Who)
+
+		// A page at a time, each from where the last one ended.
+		type page struct {
+			Items []struct {
+				Recorded  string `json:"recorded"`
+				Operation string `json:"operation"`
+				What      string `json:"what"`
+			} `json:"items"`
+			Next string `json:"next"`
+		}
+		var all page
+		a.call("recent_events", map[string]any{"limit": 200}, &all)
+		x.Empty(all.Next, "all of it in one answer")
+		x.Greater(len(all.Items), 4)
+		got, args := page{}, map[string]any{"limit": 2}
+		for range len(all.Items) {
+			var p page
+			a.call("recent_events", args, &p)
+			got.Items = append(got.Items, p.Items...)
+			if p.Next == "" {
+				break
+			}
+			args = map[string]any{"limit": 2, "cursor": p.Next}
+		}
+		x.Equal(all.Items, got.Items, "read two at a time, it is what one read is")
 	}
 
 	// Hand-overs.
@@ -326,6 +351,71 @@ func TestAnAssistantReadsTheWorkspaceAsItsPerson(t *testing.T) {
 		x.Contains(a.refused("asset_at", map[string]any{"asset": "B-1", "at": "yesterday"}), "RFC 3339")
 		x.Contains(a.refused("search_assets", map[string]any{"custodian": "김민수"}), "not an id")
 	}
+}
+
+// TestAnAssistantReadsWhatAnEventHeld: an asset's history answers what each
+// entry held (`detail`): of an event, its message field by field -- a thing
+// and a person by the name a person reads them by, a moment on the
+// workspace's wall -- and of a time row, its own fields. Nothing of a
+// person's but their name: never their address or their number, which would
+// go to the assistant's provider.
+func TestAnAssistantReadsWhatAnEventHeld(t *testing.T) {
+	s := serve(t)
+	x := s.x
+	s.signIn("owner", "owner1234")
+
+	room := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "3층 창고", "kind": "space", "tag": "R-3"}`))
+	laptop := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "개발용 노트북", "kind": "item", "tag": "NB-1", "to": {"id": "`+room+`"}}`))
+	kim := made(t, run(t, cli.NewCmdApi(), "party", "add", "-o", "json", `{"name": "김민수", "kind": "person", "email": "minsu@example.com", "phone": "010-1234-5678"}`))
+	due := time.Now().Add(72 * time.Hour).UTC().Truncate(time.Second)
+	loan := made(t, run(t, cli.NewCmdApi(), "custody", "add", "-o", "json", `{"party": {"id": "`+kim+`"}, "dueAt": "`+due.Format(time.RFC3339)+`", "lines": [{"asset": {"id": "`+laptop+`"}}]}`))
+
+	a := s.assistant()
+	var v struct {
+		Entries []struct {
+			Kind      string            `json:"kind"`
+			Operation string            `json:"operation"`
+			Detail    map[string]string `json:"detail"`
+		} `json:"entries"`
+	}
+	a.call("asset_history", map[string]any{"asset": "NB-1"}, &v)
+	held := map[string]map[string]string{}
+	rows := map[string]map[string]string{}
+	for _, e := range v.Entries {
+		if e.Kind == "event" {
+			held[e.Operation] = e.Detail
+		} else {
+			rows[e.Kind] = e.Detail
+		}
+	}
+
+	x.Equal(map[string]string{"asset": "NB-1 개발용 노트북", "tag": "NB-1", "name": "개발용 노트북", "kind": "item"}, held["asset.add"])
+	lent := held["custody.issue"]
+	x.Equal("김민수", lent["party"], "whom it was handed to, by name")
+	x.Equal("loan", lent["kind"])
+	x.Equal("NB-1 개발용 노트북", lent["asset"])
+	// A hand-over has no name of its own: its id, which the tools take.
+	x.Equal(pid(t, loan), pid(t, lent["custody"]))
+	at, err := time.Parse(time.RFC3339, lent["due"])
+	x.NoError(err, lent["due"])
+	x.True(due.Equal(at), "%s, the moment it is due", lent["due"])
+	x.Equal("located", rows["placement"]["mode"])
+	x.Equal("custodian", rows["stewardship"]["role"])
+
+	b, err := json.Marshal(v)
+	x.NoError(err)
+	x.NotContains(string(b), "minsu@example.com")
+	x.NotContains(string(b), "010-1234-5678")
+}
+
+// pid is an id a tool or the terminal said, read.
+func pid(t *testing.T, v string) pdid.Id {
+	t.Helper()
+	id, err := pdid.Parse(v)
+	if err != nil {
+		t.Fatalf("%q: %v", v, err)
+	}
+	return id
 }
 
 // TestAnAssistantSeesWhatItsPersonMay: the wall, as the page has it -- one

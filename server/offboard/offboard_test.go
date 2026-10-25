@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"bufio"
 	"bytes"
+	"cmp"
 	"compress/gzip"
 	"context"
 	"crypto"
@@ -26,6 +27,7 @@ import (
 	"github.com/protobuf-orm/ent/dialect/sql"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/proto"
 
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/cli"
@@ -357,6 +359,125 @@ func TestAnExportIsTheSameReadARowAtATime(t *testing.T) {
 	}
 	slices.Sort(ids)
 	x.Len(slices.Compact(ids), len(own)+len(elsewhere), "a row of the trail twice")
+}
+
+// TestAnExportReadsAnInstantOnce: an operation over many things makes them at
+// one instant -- the assets of a bulk registration, a batch of labels, the
+// trail's lines of them -- and an export reads each page from the row the page
+// before ended at. With its pages ending inside such an instant, every row of
+// it is exported once, in the order the database keeps them in: when it was
+// made, then its key. Of a table, of the trail and of the access record.
+func TestAnExportReadsAnInstantOnce(t *testing.T) {
+	e := newEnv(t)
+	x := e.x
+	ctx := context.Background()
+	acme := e.tenant("acme")
+	tid := acme.id.Uuid()
+
+	// Twelve rows of each after everything acme has: ten at one instant and
+	// two a second later. Read three at a time, two pages at least end inside
+	// the ten, wherever the first page began.
+	at := time.Now().UTC().Add(time.Hour).Truncate(time.Second)
+	v, err := e.s.Ent.Audit.Query().Where(audit.TenantId(tid)).First(ctx)
+	x.NoError(err)
+	type row struct {
+		at time.Time
+		id uuid.UUID
+	}
+	made := map[string][]row{}
+	for i := range 12 {
+		when := at
+		if i >= 10 {
+			when = at.Add(time.Second)
+		}
+		// Keys in no order of their making, so that the order is the keys'.
+		ids := []uuid.UUID{uuid.NewV4(), uuid.NewV4(), uuid.NewV4()}
+		x.NoError(e.s.Ent.Label.Create().
+			SetId(ids[0]).
+			SetTenantId(tid).
+			SetState("new").
+			SetBatch("b1").
+			SetDateUpdated(when).
+			SetDateCreated(when).
+			Exec(ctx))
+		x.NoError(e.s.Ent.Audit.Create().
+			SetId(ids[1]).
+			SetTenantId(tid).
+			SetActorId(v.ActorId).
+			SetActorTenantId(tid).
+			SetTraceId(v.TraceId).
+			SetAction(v.Action).
+			SetObjectId(v.ObjectId).
+			SetPatch(v.Patch).
+			SetValue(v.Value).
+			SetFields(v.Fields).
+			SetDomain(v.Domain).
+			SetDateCreated(when).
+			Exec(ctx))
+		x.NoError(e.s.Ent.Access.Create().
+			SetId(ids[2]).
+			SetTenantId(tid).
+			SetActorId(v.ActorId).
+			SetActorTenantId(tid).
+			SetTraceId(v.TraceId).
+			SetAction(app.LabelService_List_FullMethodName).
+			SetKind("read").
+			SetResult("ok").
+			SetValue([]byte{}).
+			SetSubjectCount(0).
+			SetDateCreated(when).
+			Exec(ctx))
+		for j, name := range []string{"rows/label.jsonl", "trail/database.jsonl", "trail/access.jsonl"} {
+			made[name] = append(made[name], row{when, ids[j]})
+		}
+	}
+
+	// The keys of a file's rows, in its order.
+	type keyed interface {
+		proto.Message
+		GetId() []byte
+	}
+	kinds := map[string]func() keyed{
+		"rows/label.jsonl":     func() keyed { return &app.Label{} },
+		"trail/database.jsonl": func() keyed { return &app.Audit{} },
+		"trail/access.jsonl":   func() keyed { return &app.Access{} },
+	}
+	keys := func(b []byte, name string) []uuid.UUID {
+		z, err := zip.NewReader(bytes.NewReader(b), int64(len(b)))
+		x.NoError(err)
+		f, err := z.Open(name)
+		x.NoError(err, name)
+		defer f.Close()
+		out := []uuid.UUID{}
+		s := bufio.NewScanner(f)
+		for s.Scan() {
+			v := kinds[name]()
+			x.NoError(protojson.Unmarshal(s.Bytes(), v))
+			out = append(out, uuid.UUID(v.GetId()))
+		}
+		x.NoError(s.Err())
+		return out
+	}
+
+	whole := e.export(acme.id)
+	offboard.SetPage(t, 3)
+	paged := e.export(acme.id)
+	for name, rows := range made {
+		got := keys(paged, name)
+		x.Equal(keys(whole, name), got, "%s: read three at a time, it is what one read is", name)
+		seen := slices.Clone(got)
+		slices.SortFunc(seen, uuid.UUID.Compare)
+		x.Len(slices.Compact(seen), len(got), "%s: a row twice", name)
+
+		slices.SortFunc(rows, func(a, b row) int { return cmp.Or(a.at.Compare(b.at), a.id.Compare(b.id)) })
+		want := []uuid.UUID{}
+		for _, r := range rows {
+			want = append(want, r.id)
+		}
+		i := slices.Index(got, want[0])
+		x.GreaterOrEqual(i, 0, "%s: the instant's first row", name)
+		x.Equal(want, got[i:min(i+len(want), len(got))], "%s: the instant's rows, each once and by its key", name)
+	}
 }
 
 // TestAnExportHoldsNoSeal: a row's seal is a MAC of what a person is, kept in

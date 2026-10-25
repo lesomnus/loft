@@ -312,14 +312,23 @@ func (s domainAsset) Erase(ctx context.Context, ref *app.AssetRef) (*app.AssetEr
 				return err
 			}
 		}
-		ls, err := t.db.Link.Query().Where(link.TenantId(t.tenant.Uuid()), link.Or(link.SourceId(id.Uuid()), link.TargetId(id.Uuid())), link.SupersededAtIsNil()).Ids(t.ctx)
+		ls, err := t.db.Link.Query().Where(link.TenantId(t.tenant.Uuid()), link.Or(link.SourceId(id.Uuid()), link.TargetId(id.Uuid())), link.SupersededAtIsNil()).All(t.ctx)
 		if err != nil {
 			return err
 		}
-		for _, v := range ls {
-			if err := t.supersedeLink(v); err != nil {
+		// Every kit it was in, and itself if it is one: what each is made
+		// of changed, and so what its bookings take.
+		kits := []uuid.UUID{id.Uuid()}
+		for _, l := range ls {
+			if err := t.supersedeLink(l.Id); err != nil {
 				return err
 			}
+			if l.Kind == "member_of" && l.SourceId == id.Uuid() {
+				kits = append(kits, l.TargetId)
+			}
+		}
+		if err := t.recheckKits(kits...); err != nil {
+			return err
 		}
 		// What it was said to be, never: every fact of it that stands,
 		// superseded by nothing.
@@ -1181,6 +1190,12 @@ func (s domainAsset) Relate(ctx context.Context, req *app.AssetRelateRequest) (*
 		if err := t.bump(target.Uuid()); err != nil {
 			return err
 		}
+		if kind == "member_of" {
+			// What the kit is made of is what its bookings take.
+			if err := t.recheckKits(target.Uuid()); err != nil {
+				return err
+			}
+		}
 
 		out, _, err = t.get(assetRef(id.Uuid()), "ref")
 		return err
@@ -1342,6 +1357,11 @@ func (s domainAsset) Correct(ctx context.Context, req *app.AssetCorrectRequest) 
 			}
 			if err := t.writeLinks(id.Uuid(), r.TargetId, r.Kind, old, tl); err != nil {
 				return err
+			}
+			if r.Kind == "member_of" {
+				if err := t.recheckKits(r.TargetId); err != nil {
+					return err
+				}
 			}
 
 		case pd.FactDomain:

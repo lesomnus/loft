@@ -13,6 +13,7 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/lesomnus/payday/spin"
+	"github.com/lesomnus/payday/valid"
 
 	"github.com/lesomnus/rove/cmd"
 	entmigrate "github.com/lesomnus/rove/internal/ent/migrate"
@@ -102,6 +103,14 @@ func NewCmdServe(c *cmd.Config) *xli.Command {
 				}
 			} else if err := entschema.Check(ctx, s.Db, s.Dialect, entmigrate.Tables); err != nil {
 				return err
+			} else if err := valid.Indexes(ctx, s.Db, s.Dialect, entmigrate.Tables); err != nil {
+				// An index PostgreSQL left invalid is said, and served over:
+				// the check above finds it by its name. It costs every write
+				// and the reads that wanted it, which is a thing to fix and
+				// not a reason to stop serving -- refused here, the next
+				// restart would be an outage until somebody had built it
+				// again. `rove migrate` is what refuses it (payday#176).
+				log.From(ctx).WarnContext(ctx, "db: serving over an index PostgreSQL left invalid", slog.Any("err", err))
 			}
 			if left, err := fromBeforeRoster(ctx, s); err != nil {
 				return err

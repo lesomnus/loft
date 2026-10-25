@@ -273,8 +273,12 @@ function Extend(props: { c: Custody; onClose: () => void }): ReactNode {
 	)
 }
 
-/** Handing things over: assets one by one, and quantities out of stock. */
-export function NewCustody(props: { assets: Asset[]; party?: string; reservation?: Uint8Array; onClose: () => void }): ReactNode {
+/**
+ * Handing things over: assets one by one, and quantities out of stock. `note`
+ * is what the one handing them over is to know first -- of a pickup, what the
+ * reservation does not hold.
+ */
+export function NewCustody(props: { assets: Asset[]; party?: string; reservation?: Uint8Array; note?: ReactNode; onClose: () => void }): ReactNode {
 	const act = useAct()
 	const go = useNavigate()
 	const [party, setParty] = useState(props.party ?? '')
@@ -317,6 +321,7 @@ export function NewCustody(props: { assets: Asset[]; party?: string; reservation
 				go(`/custody/${idStr(v.id)}`)
 			}}
 		>
+			{props.note !== undefined && <div className="wide">{props.note}</div>}
 			<Field label="받는 사람 *">
 				<PartySelect value={party} onChange={setParty} kinds={['person', 'team']} required />
 			</Field>

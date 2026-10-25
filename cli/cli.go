@@ -43,6 +43,7 @@ import (
 	"github.com/lesomnus/payday/pdcmd"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/rename"
+	"github.com/lesomnus/payday/valid"
 
 	"github.com/lesomnus/rove/cmd"
 	"github.com/lesomnus/rove/internal/ent"
@@ -188,6 +189,13 @@ func runs(ctx context.Context, self *xli.Command, these []*xli.Command) bool {
 // so the old one is dropped and `Create` makes the new one. It replaces the list
 // of replaced indexes this dropped by hand after #122, whose every deployment
 // has migrated past that build.
+//
+// And then an index this build declares that PostgreSQL left invalid is
+// refused, before anything else is changed (payday#176). Found by its name,
+// it would be taken for made: an operator who built `audit_by_time` ahead of
+// the migration, `CONCURRENTLY` as README says to, and had the build
+// cancelled, was told the database was in this build's shape while the index
+// served no read. The refusal names it and says what to run to make it again.
 func Migrate(ctx context.Context, s *cmd.Server) error {
 	_, err := migrate(ctx, s)
 	return err
@@ -212,6 +220,9 @@ func migrate(ctx context.Context, s *cmd.Server) (Migrated, error) {
 			return err
 		}
 		if err := rename.Indexes(ctx, s.Db, s.Dialect, pd.IndexRenames); err != nil {
+			return err
+		}
+		if err := valid.Indexes(ctx, s.Db, s.Dialect, entmigrate.Tables); err != nil {
 			return err
 		}
 		if err := stashTerms(ctx, s); err != nil {

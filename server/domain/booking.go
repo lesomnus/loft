@@ -200,6 +200,9 @@ func (t *Tx) lockBookables(rs []*resource) error {
 			return err
 		}
 		r.book.ScheduleVersion = v.GetScheduleVersion()
+		if t.shared != nil {
+			t.shared.schedules[r.book.AssetId] = true
+		}
 	}
 	return nil
 }
@@ -457,42 +460,45 @@ func (s domainReservation) Add(ctx context.Context, req *app.ReservationAddReque
 			units uint32
 			item  bool
 		}
-		wants := []want{}
-		for i, it := range req.GetItems() {
-			_, id, err := t.get(it.GetResource(), fmt.Sprintf("items[%d].resource", i))
-			if err != nil {
-				return err
-			}
-			r, err := t.resourceOf(id.Uuid())
-			if err != nil {
-				return err
-			}
-			units := max(it.GetUnits(), 1)
-			if units > r.book.Units {
-				return invalid(fmt.Sprintf("items[%d].units", i), "%s은(는) %d개뿐입니다", r.asset.Name, r.book.Units)
-			}
-			wants = append(wants, want{r, units, true})
-			if r.asset.Kind == "kit" {
-				ms, err := t.db.Link.Query().Where(link.TenantId(t.tenant.Uuid()), link.TargetId(r.asset.Id), link.Kind("member_of"), link.Required(true), link.SupersededAtIsNil(), link.ValidToIsNil()).All(t.ctx)
+		wanted := func() ([]want, error) {
+			wants := []want{}
+			for i, it := range req.GetItems() {
+				_, id, err := t.get(it.GetResource(), fmt.Sprintf("items[%d].resource", i))
 				if err != nil {
-					return err
+					return nil, err
+				}
+				r, err := t.resourceOf(id.Uuid())
+				if err != nil {
+					return nil, err
+				}
+				units := max(it.GetUnits(), 1)
+				if units > r.book.Units {
+					return nil, invalid(fmt.Sprintf("items[%d].units", i), "%s은(는) %d개뿐입니다", r.asset.Name, r.book.Units)
+				}
+				wants = append(wants, want{r, units, true})
+				if r.asset.Kind != "kit" {
+					continue
+				}
+				ms, err := t.kitMembers(r.asset.Id)
+				if err != nil {
+					return nil, err
 				}
 				for _, m := range ms {
-					mr, err := t.resourceOf(m.SourceId)
+					// A member nobody made reservable is still taken with the
+					// kit, by an allocation of its own.
+					mr, err := t.member(m, r.book.Timezone)
 					if err != nil {
-						// A member nobody made reservable is still taken with
-						// the kit, by an allocation of its own.
-						a, aerr := t.db.Asset.Query().Where(asset.Id(m.SourceId)).Only(t.ctx)
-						if aerr != nil {
-							return err
-						}
-						mr = &resource{asset: a, book: &ent.Bookable{AssetId: a.Id, Units: 1, Timezone: r.book.Timezone}}
+						return nil, err
 					}
 					wants = append(wants, want{mr, 1, false})
 				}
 			}
+			return wants, nil
 		}
-
+		wants, err := wanted()
+		if err != nil {
+			return err
+		}
 		rs := []*resource{}
 		for _, w := range wants {
 			if w.r.book.Id != (uuid.UUID{}) {
@@ -501,6 +507,22 @@ func (s domainReservation) Add(ctx context.Context, req *app.ReservationAddReque
 		}
 		if err := t.lockBookables(rs); err != nil {
 			return err
+		}
+		// And what a kit is made of, read again now that its schedule is
+		// held: a change to it holds that before it rechecks what the kit
+		// is booked for ([Tx.recheckKits]), so what is read now is what the
+		// kit is until this is booked. Read only before, a change that
+		// landed in between was missed by both: this booked the kit as it
+		// was, and the change rechecked the kit's bookings before this one.
+		// A member given to it then has a schedule this does not hold, and
+		// the booking is asked for again.
+		if wants, err = wanted(); err != nil {
+			return err
+		}
+		for _, w := range wants {
+			if !t.holding(w.r) {
+				return status.Error(codes.Aborted, "키트의 구성이 방금 바뀌었습니다. 다시 예약하세요")
+			}
 		}
 
 		// The occurrences: one, or as many as the rule says.
@@ -885,11 +907,13 @@ func (t *Tx) lockAllocations(rid pdid.Id) error {
 
 // settleAllocations makes a reservation's allocations agree with its state:
 // a state that takes no time frees it, and finishing early frees the rest.
+// What it frees goes to whatever waits for it then ([Tx.heal]).
 func (t *Tx) settleAllocations(rid pdid.Id, state string) error {
 	as, err := t.db.Allocation.Query().Where(allocation.TenantId(t.tenant.Uuid()), allocation.RefId(rid.Uuid())).All(t.ctx)
 	if err != nil {
 		return err
 	}
+	freed := []*ent.Allocation{}
 	for _, a := range as {
 		patch := app.AllocationPatchRequest_builder{
 			Ref:              app.AllocationRef_builder{Id: pdid.Id(a.Id).Bytes()}.Build(),
@@ -899,6 +923,7 @@ func (t *Tx) settleAllocations(rid pdid.Id, state string) error {
 		if !blocks(state) && a.Blocking {
 			patch.SetBlocking(false)
 			changed = true
+			freed = append(freed, a)
 		}
 		if state == resCompleted && a.EndsAt.After(t.now) && a.BeginsAt.Before(t.now) {
 			patch.SetEndsAt(ts(t.now))
@@ -910,7 +935,7 @@ func (t *Tx) settleAllocations(rid pdid.Id, state string) error {
 			}
 		}
 	}
-	return nil
+	return t.heal(freed)
 }
 
 // Confirm turns a hold into what it was held for, before it expires.
@@ -1093,7 +1118,14 @@ func (s domainReservation) Calendar(ctx context.Context, req *app.ReservationCal
 		}
 		q = q.Where(reservation.Or(reservation.PartyId(me.Id), reservation.RequestedBy(t.actor.Uuid())))
 	}
+	if vs := req.GetStatuses(); len(vs) > 0 {
+		q = q.Where(reservation.StatusIn(vs...))
+	}
 	rs, err := q.Order(reservation.ByBeginsAt()).Limit(1000).All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	waiting, err := t.waitingOf(rs)
 	if err != nil {
 		return nil, err
 	}
@@ -1113,7 +1145,7 @@ func (s domainReservation) Calendar(ctx context.Context, req *app.ReservationCal
 		for _, it := range items {
 			ids = append(ids, pdid.Id(it.ResourceId).Bytes())
 		}
-		entries = append(entries, app.CalendarEntry_builder{Reservation: v, ResourceIds: ids, PartyName: names.party(r.PartyId)}.Build())
+		entries = append(entries, app.CalendarEntry_builder{Reservation: v, ResourceIds: ids, PartyName: names.party(r.PartyId), Conflicts: waiting[r.Id]}.Build())
 	}
 	return app.ReservationCalendarResponse_builder{Entries: entries}.Build(), nil
 }
@@ -1151,25 +1183,16 @@ func (s domainBookable) Availability(ctx context.Context, req *app.BookableAvail
 			return nil, err
 		}
 		for _, a := range as {
-			label := a.Kind
+			var r *ent.Reservation
 			if a.RefId != nil {
-				if r, err := t.db.Reservation.Query().Where(reservation.Id(*a.RefId)).Only(ctx); err == nil {
-					label = r.Name
-				}
+				r, _ = t.db.Reservation.Query().Where(reservation.Id(*a.RefId), reservation.TenantId(t.tenant.Uuid())).Only(ctx)
 			}
-			v := app.BusySpan_builder{
-				ResourceId: id.Bytes(),
-				BeginsAt:   ts(a.BeginsAt),
-				EndsAt:     ts(a.EndsAt),
-				Kind:       a.Kind,
-				Units:      a.Units,
-				Blocking:   a.Blocking,
-				Label:      label,
-			}.Build()
-			if a.RefId != nil {
-				v.SetRefId(pdid.Id(*a.RefId).Bytes())
+			if a.Kind == allocWaiting && (r == nil || !waits(r.Status) || !r.EndsAt.After(t.now)) {
+				// What a reservation fulfilled or over waited for, and no
+				// longer does.
+				continue
 			}
-			busy = append(busy, v)
+			busy = append(busy, t.busy(a, r))
 		}
 
 		// Closed hours, a day at a time.
