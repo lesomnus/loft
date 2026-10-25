@@ -323,6 +323,7 @@ type mcpAssetPlan struct {
 	Target   string `json:"target,omitempty" jsonschema:"relate: the other asset, by id or tag"`
 	Relation string `json:"relation,omitempty" jsonschema:"relate: member_of (a part of a kit or a group) or connected_to"`
 	End      bool   `json:"end,omitempty" jsonschema:"relate: end the relation rather than begin it"`
+	Required bool   `json:"required,omitempty" jsonschema:"relate, member_of a kit: a required member, which every booking of the kit takes with it; an optional one, which they leave, if left out. A member already is made what this says, which the summary names"`
 
 	Row       string `json:"row,omitempty" jsonschema:"correct: the history row that is wrong, as asset_history's row"`
 	Retract   bool   `json:"retract,omitempty" jsonschema:"correct: it never happened"`
@@ -586,10 +587,20 @@ func (c *mcpCall) leaving(a *app.Asset, status string, leave bool, take func(lea
 }
 
 // membership is a kit or a group an asset is a member of now, as its history
-// says it: the open `member_of` row it is the source of.
+// says it: the open `member_of` row it is the source of, and whether it is a
+// required member, which a kit's bookings take with it.
 type membership struct {
-	id   []byte
-	name string
+	id       []byte
+	name     string
+	required bool
+}
+
+// memberAs is what a kit's member is, as a person reads it.
+func memberAs(required bool) string {
+	if required {
+		return "필수 구성품"
+	}
+	return "선택 구성품"
 }
 
 // memberships answers what `a` is a member of now, newest first.
@@ -604,7 +615,7 @@ func (c *mcpCall) memberships(a *app.Asset) ([]membership, error) {
 		if e.GetKind() != "link" || e.HasSupersededAt() || e.HasValidTo() || d["kind"] != "member_of" || d["side"] != "source" {
 			continue
 		}
-		out = append(out, membership{id: e.GetOtherId(), name: e.GetOtherName()})
+		out = append(out, membership{id: e.GetOtherId(), name: e.GetOtherName(), required: d["required"] == "true"})
 	}
 	return out, nil
 }
@@ -672,7 +683,26 @@ func (c *mcpCall) assetRelate(in mcpAssetPlan) (*plan, error) {
 	default:
 		return nil, errors.New("relation: member_of or connected_to")
 	}
-	req := app.AssetRelateRequest_builder{Ref: app.AssetById(a.GetId()), Target: app.AssetById(b.GetId()), Kind: in.Relation, End: in.End, Reason: in.Reason, Op: op()}.Build()
+	// A kit's member is required, and every booking of the kit takes it, or
+	// optional, and they leave it: the sentence says which it is made, and
+	// that a member already is made the other.
+	as := ""
+	switch {
+	case in.Relation == "member_of" && !in.End && b.GetKind() == "kit":
+		ms, err := c.memberships(a)
+		if err != nil {
+			return nil, err
+		}
+		as = fmt.Sprintf(" (%s)", memberAs(in.Required))
+		for _, m := range ms {
+			if pid(m.id) == pid(b.GetId()) && m.required != in.Required {
+				verb, as = memberAs(in.Required)+"으로 바꾸기: %s → %s", ""
+			}
+		}
+	case in.Required:
+		return nil, errors.New("required: only of a member given to a kit, which its bookings take with it")
+	}
+	req := app.AssetRelateRequest_builder{Ref: app.AssetById(a.GetId()), Target: app.AssetById(b.GetId()), Kind: in.Relation, Required: in.Required, End: in.End, Reason: in.Reason, Op: op()}.Build()
 	at, when, err := moment("at", in.At)
 	if err != nil {
 		return nil, err
@@ -680,7 +710,7 @@ func (c *mcpCall) assetRelate(in mcpAssetPlan) (*plan, error) {
 	if at != nil {
 		req.SetAt(at)
 	}
-	summary := fmt.Sprintf(verb, label, other) + clause(", %s부터", when) + clause(" — %s", in.Reason)
+	summary := fmt.Sprintf(verb, label, other) + as + clause(", %s부터", when) + clause(" — %s", in.Reason)
 	return &plan{
 		method:  app.AssetService_Relate_FullMethodName,
 		summary: summary,
