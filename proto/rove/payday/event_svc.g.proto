@@ -17,9 +17,9 @@ service EventService {
   rpc Get(EventGetRequest) returns (Event);
   // List reads Events a page at a time.
   rpc List(EventListRequest) returns (EventListResponse);
-  // Recent answers the newest events first, which a generated List -- oldest
-  // first, so that a cursor is stable -- does not. Each says what happened in
-  // `desc`, a sentence made of it as it is read (`server/domain/say.go`).
+  // Recent answers the newest events first, a page at a time, each saying
+  // what happened in `desc`: a sentence made of it as it is read
+  // (`server/domain/say.go`), which a generated List does not make.
   rpc Recent(EventRecentRequest) returns (EventRecentResponse);
 }
 
@@ -123,13 +123,20 @@ message EventRecentRequest {
   uint32 size = 1 [features.field_presence = IMPLICIT];
   // Only events whose kind starts with this: "asset.", "custody.".
   string kind = 2 [features.field_presence = IMPLICIT];
-  // Only events recorded before this, for the next page.
-  google.protobuf.Timestamp before = 3;
+  // Was `before`, a time to read on from: an operation over many things
+  // records them all at one instant, and a page that ended inside one went on
+  // past the rest of it.
+  reserved 3;
+  reserved before;
   // Also what an operation over many things did to each of them, which the
   // feed otherwise leaves under the operation (design D34).
   bool children = 4 [features.field_presence = IMPLICIT];
+  // Where the page before ended (`next`), for the page after it.
+  string after = 5 [features.field_presence = IMPLICIT];
 }
 
 message EventRecentResponse {
   repeated Event items = 1;
+  // What to send as `after` for the page after this one; empty is none.
+  string next = 2 [features.field_presence = IMPLICIT];
 }

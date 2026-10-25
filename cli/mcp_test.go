@@ -246,6 +246,31 @@ func TestAnAssistantReadsTheWorkspaceAsItsPerson(t *testing.T) {
 		x.Equal("custody.issue", v.Items[0].Operation)
 		x.Contains(v.Items[0].What, "김민수", "the sentence names who it was about")
 		x.NotEmpty(v.Items[0].Who)
+
+		// A page at a time, each from where the last one ended.
+		type page struct {
+			Items []struct {
+				Recorded  string `json:"recorded"`
+				Operation string `json:"operation"`
+				What      string `json:"what"`
+			} `json:"items"`
+			Next string `json:"next"`
+		}
+		var all page
+		a.call("recent_events", map[string]any{"limit": 200}, &all)
+		x.Empty(all.Next, "all of it in one answer")
+		x.Greater(len(all.Items), 4)
+		got, args := page{}, map[string]any{"limit": 2}
+		for range len(all.Items) {
+			var p page
+			a.call("recent_events", args, &p)
+			got.Items = append(got.Items, p.Items...)
+			if p.Next == "" {
+				break
+			}
+			args = map[string]any{"limit": 2, "cursor": p.Next}
+		}
+		x.Equal(all.Items, got.Items, "read two at a time, it is what one read is")
 	}
 
 	// Hand-overs.

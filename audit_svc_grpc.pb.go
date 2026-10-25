@@ -45,7 +45,7 @@ type AuditServiceClient interface {
 	// List reads Audits a page at a time.
 	List(ctx context.Context, in *AuditListRequest, opts ...grpc.CallOption) (*AuditListResponse, error)
 	// Recent answers the newest trail rows first, for a person reading what
-	// happened lately.
+	// happened lately, a page at a time.
 	Recent(ctx context.Context, in *AuditRecentRequest, opts ...grpc.CallOption) (*AuditRecentResponse, error)
 }
 
@@ -144,7 +144,7 @@ type AuditServiceServer interface {
 	// List reads Audits a page at a time.
 	List(context.Context, *AuditListRequest) (*AuditListResponse, error)
 	// Recent answers the newest trail rows first, for a person reading what
-	// happened lately.
+	// happened lately, a page at a time.
 	Recent(context.Context, *AuditRecentRequest) (*AuditRecentResponse, error)
 	mustEmbedUnimplementedAuditServiceServer()
 }

@@ -522,26 +522,45 @@ function NewDomain(props: { suffix: string; onClose: () => void }): ReactNode {
 	)
 }
 
+/**
+ * Back and on through a list read a page at a time: `pages` is where each page
+ * read so far began, the first at the start, and `next` is where the one after
+ * the last begins, empty at the end. Neither is pressed while a page is on its
+ * way, when what is drawn is still the page before.
+ */
+function Pager(props: { pages: string[]; next: string; busy: boolean; onChange: (pages: string[]) => void }): ReactNode {
+	const { pages, next, busy, onChange } = props
+	return (
+		<div className="inline">
+			{pages.length > 1 && <button disabled={busy} onClick={() => onChange(pages.slice(0, -1))}>‹ 앞 페이지</button>}
+			{next !== '' && <button disabled={busy} onClick={() => onChange([...pages, next])}>다음 페이지 ›</button>}
+		</div>
+	)
+}
+
 function Events(): ReactNode {
-	const list = useRpc(EventService.method.recent, { size: 200 })
+	// Where each page begins, the first at the start.
+	const [pages, setPages] = useState<string[]>([''])
+	const list = useRpc(EventService.method.recent, { size: 200, after: pages[pages.length - 1] ?? '' })
 	return (
 		<Card title="최근 작업 기록" actions={<span className="mute small">무엇을 왜 했는지 — 자산 이력의 원천</span>}>
 			<Load q={list}>
-				{(d) =>
-					d.items.length === 0 ? (
-						<Empty />
-					) : (
-						<table className="table compact">
-							<thead>
-								<tr>
-									<th>언제</th>
-									<th>무엇</th>
-									<th>내용</th>
-									<th>사유</th>
-								</tr>
-							</thead>
-							<tbody>
-								{d.items.map((e) => (
+				{(d) => (
+					<>
+						{d.items.length === 0 ? (
+							<Empty />
+						) : (
+							<table className="table compact">
+								<thead>
+									<tr>
+										<th>언제</th>
+										<th>무엇</th>
+										<th>내용</th>
+										<th>사유</th>
+									</tr>
+								</thead>
+								<tbody>
+									{d.items.map((e) => (
 										<tr key={idStr(e.id)}>
 											<td>{fmt(e.occurredAt)}</td>
 											<td>
@@ -551,10 +570,12 @@ function Events(): ReactNode {
 											<td className="mute">{e.reason}</td>
 										</tr>
 									))}
-							</tbody>
-						</table>
-					)
-				}
+								</tbody>
+							</table>
+						)}
+						<Pager pages={pages} next={d.next} busy={list.state === 'pending'} onChange={setPages} />
+					</>
+				)}
 			</Load>
 		</Card>
 	)
@@ -562,36 +583,41 @@ function Events(): ReactNode {
 
 function Audit(): ReactNode {
 	const c = useCatalog()
-	const list = useRpc(AuditService.method.recent, { size: 200 })
+	// Where each page begins, the first at the start.
+	const [pages, setPages] = useState<string[]>([''])
+	const list = useRpc(AuditService.method.recent, { size: 200, after: pages[pages.length - 1] ?? '' })
 	return (
 		<Card title="감사 기록" actions={<span className="mute small">모든 변경이 누가, 무엇을 바꿨는지 자동으로 남습니다</span>}>
 			<Load q={list}>
-				{(d) =>
-					d.items.length === 0 ? (
-						<Empty />
-					) : (
-						<table className="table compact">
-							<thead>
-								<tr>
-									<th>언제</th>
-									<th>누가</th>
-									<th>동작</th>
-								</tr>
-							</thead>
-							<tbody>
-								{d.items.map((a) => (
+				{(d) => (
+					<>
+						{d.items.length === 0 ? (
+							<Empty />
+						) : (
+							<table className="table compact">
+								<thead>
+									<tr>
+										<th>언제</th>
+										<th>누가</th>
+										<th>동작</th>
+									</tr>
+								</thead>
+								<tbody>
+									{d.items.map((a) => (
 										<tr key={idStr(a.id)}>
 											<td>{fmt(a.dateCreated)}</td>
-											<td>{c.parties.find((p) => idStr(p.holder?.id) === idStr(a.actorId))?.name ?? (a.actorId.every((b) => b === 0) ? '시스템' : idStr(a.actorId).slice(0, 8))}</td>
+											<td>{a.actorId.every((b) => b === 0) ? '시스템' : (c.parties.find((p) => p.holder !== undefined && idStr(p.holder.id) === idStr(a.actorId))?.name ?? idStr(a.actorId).slice(0, 8))}</td>
 											<td>
 												<code>{a.action.replace('/rove.', '')}</code>
 											</td>
 										</tr>
 									))}
-							</tbody>
-						</table>
-					)
-				}
+								</tbody>
+							</table>
+						)}
+						<Pager pages={pages} next={d.next} busy={list.state === 'pending'} onChange={setPages} />
+					</>
+				)}
 			</Load>
 		</Card>
 	)
@@ -728,10 +754,7 @@ function Access(): ReactNode {
 									</table>
 								</div>
 							)}
-							<div className="inline">
-								{pages.length > 1 && <button onClick={() => setPages(pages.slice(0, -1))}>‹ 앞 페이지</button>}
-								{d.next !== '' && <button onClick={() => setPages([...pages, d.next])}>다음 페이지 ›</button>}
-							</div>
+							<Pager pages={pages} next={d.next} busy={q.state === 'pending'} onChange={setPages} />
 						</>
 					)}
 				</Load>
