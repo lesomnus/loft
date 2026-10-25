@@ -529,11 +529,13 @@ func (s domainReservation) Add(ctx context.Context, req *app.ReservationAddReque
 					return nil, err
 				}
 				units := max(it.GetUnits(), 1)
-				n, p, err := t.capacity(r)
+				n, _, err := t.capacity(r)
 				if err != nil {
 					return nil, err
 				}
-				if p != nil && n == 0 {
+				if n == 0 {
+					// A pool none of whose members is in use, or whose last
+					// one left it.
 					return nil, failed("%s에는 지금 예약할 수 있는 것이 없습니다", r.asset.Name)
 				}
 				if units > n {

@@ -760,3 +760,56 @@ func TestWhatTheSweepGaveAPoolsBookingIsAnOperationOfItsOwn(t *testing.T) {
 	x.Equal(op.Id, *kid.CauseId)
 	x.EqualValues(1, value[*app.ReservationAllocationChanged](e, kid).GetUnits())
 }
+
+// TestASweepThatFindsNothingToTakeHoldsNothing: what waits and has nothing
+// to take is read, and nothing is held for it -- a pool's bookings may wait
+// for days, and a pass a minute that held what each waits for wrote its
+// schedule every minute.
+func TestASweepThatFindsNothingToTakeHoldsNothing(t *testing.T) {
+	e := newEnv(t)
+	x := e.x
+	one := e.item("카메라 1", "CM-1", nil, day)
+	two := e.item("카메라 2", "CM-2", nil, day)
+	cameras := e.pool("카메라", one, two)
+	kim, _ := e.person("member")
+	_, err := e.take(kim, cameras, 1, e.tomorrow(9, 0), e.tomorrow(12, 0))
+	x.NoError(err)
+	later, err := e.take(kim, cameras, 1, e.tomorrow(9, 0), e.tomorrow(12, 0))
+	x.NoError(err)
+	e.status(two, "disposed")
+	x.False(e.holds(later, cameras))
+
+	at := e.bookableOf(cameras).GetScheduleVersion()
+	e.sweep()
+	x.False(e.holds(later, cameras))
+	x.Equal(at, e.bookableOf(cameras).GetScheduleVersion(), "nothing held")
+}
+
+// TestWhatAKitLetsGoOfIsItsPoolsToGiveAtOnce: a member a kit's booking lets
+// go of is one more for its pool to give then, and the pool's booking that
+// waited takes it in the change that let it go.
+func TestWhatAKitLetsGoOfIsItsPoolsToGiveAtOnce(t *testing.T) {
+	e := newEnv(t)
+	x := e.x
+	m := e.item("카메라 1", "CM-1", nil, day)
+	n := e.item("카메라 2", "CM-2", nil, day)
+	cameras := e.pool("카메라", m, n)
+	kit := e.kit("촬영 키트", m)
+	kim, _ := e.person("member")
+
+	at, until := e.tomorrow(9, 0), e.tomorrow(12, 0)
+	_, err := e.reserve(kim, kit, at, until, nil)
+	x.NoError(err)
+	first, err := e.take(kim, cameras, 1, at, until)
+	x.NoError(err, "the other camera")
+	o := e.item("카메라 3", "CM-3", nil, day)
+	e.relate(o, cameras, false)
+	later, err := e.take(kim, cameras, 1, at, until)
+	x.NoError(err, "the one given it")
+	e.status(o, "disposed")
+	x.True(e.holds(first, cameras))
+	x.False(e.holds(later, cameras), "the kit has one, and the first booking the other")
+
+	e.unrelate(m, kit)
+	x.True(e.holds(later, cameras), "let go of by the kit, and the pool's to give")
+}

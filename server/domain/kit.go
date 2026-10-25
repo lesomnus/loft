@@ -337,22 +337,20 @@ func (t *Tx) reservableKits(ids []uuid.UUID) (map[uuid.UUID]*ent.Bookable, error
 }
 
 // kitHolds is every schedule [Tx.recheckKits] holds of these kits, by the
-// asset ([kitPlan.schedules]), and those of the pools their members are units
-// of, which taking a member is held to ([Tx.poolsShort]).
+// asset ([kitPlan.schedules]), and those of the pools what it holds are units
+// of: taking a member is held to them ([Tx.poolsShort]), and what it lets go
+// of is theirs to give then ([Tx.heal]).
 func (t *Tx) kitHolds(kits map[uuid.UUID]*ent.Bookable) ([]uuid.UUID, error) {
 	before, err := t.planKits(kits)
 	if err != nil {
 		return nil, err
 	}
-	members := []uuid.UUID{}
-	for _, ms := range before.members {
-		members = append(members, ms...)
-	}
-	pools, err := t.poolSchedules(members)
+	hold := before.schedules()
+	pools, err := t.poolSchedules(hold)
 	if err != nil {
 		return nil, err
 	}
-	return append(before.schedules(), pools...), nil
+	return append(hold, pools...), nil
 }
 
 // recheckKits brings the reservations of these kits in step with what each
@@ -744,19 +742,36 @@ func sweepKits(t *Tx) error {
 		return err
 	}
 
-	// Each reservation held, then each member's schedule: the order every
-	// operation that takes both takes them in ([Tx.lockReservations]).
-	rids := make([]pdid.Id, 0, len(rs))
-	for _, r := range rs {
-		rids = append(rids, pdid.Id(r))
-	}
+	// What looks free now, read before anything is held: a pass that finds
+	// nothing to take holds nothing and writes nothing, however long what
+	// waits waits -- a pool's reservations may wait for days. What looks free
+	// is read again once it is held, before it is taken ([Tx.take]).
 	members := []uuid.UUID{}
 	ids := []uuid.UUID{}
+	refs = refs[:0]
 	for _, w := range ws {
-		if slices.Contains(rs, *w.RefId) {
+		if !slices.Contains(rs, *w.RefId) {
+			continue
+		}
+		free, err := t.free(w)
+		if err != nil {
+			return err
+		}
+		if free {
 			members = append(members, w.ResourceId)
 			ids = append(ids, w.Id)
+			refs = append(refs, *w.RefId)
 		}
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+
+	// Each reservation held, then each member's schedule: the order every
+	// operation that takes both takes them in ([Tx.lockReservations]).
+	rids := make([]pdid.Id, 0, len(refs))
+	for _, r := range refs {
+		rids = append(rids, pdid.Id(r))
 	}
 	if err := t.lockReservations(rids...); err != nil {
 		return err
@@ -784,6 +799,25 @@ func sweepKits(t *Tx) error {
 		}
 	}
 	return nil
+}
+
+// free says whether what `w` waits for looks free now, from now on: nothing
+// else holds the member then, or the pool has as many to give then. Read as
+// it is, holding nothing.
+func (t *Tx) free(w *ent.Allocation) (bool, error) {
+	m, err := t.member(w.ResourceId, "")
+	if err != nil {
+		return false, nil
+	}
+	from := w.BeginsAt
+	if from.Before(t.now) {
+		from = t.now
+	}
+	if !w.EndsAt.After(from) {
+		return false, nil
+	}
+	cs, err := t.conflicts(m, from, w.EndsAt, max(w.Units, 1), []uuid.UUID{*w.RefId})
+	return len(cs) == 0, err
 }
 
 // kitWait is a member a reservation of a kit waits for, as it is told.
