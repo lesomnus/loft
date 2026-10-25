@@ -18,7 +18,8 @@ export const statusWord: Record<string, string> = {
 /**
  * The statuses an asset is out of use in (`domain.OutOfUse`): what it is a
  * member of, it may leave as it goes out of use, and nothing in them is
- * handed over.
+ * handed over -- which a reservation that still takes one says
+ * (`CalendarEntry.outOfUse`).
  */
 export const outOfUse: readonly string[] = ['lost', 'retired', 'disposed']
 
@@ -166,12 +167,14 @@ export function tone(v: string): 'ok' | 'warn' | 'bad' | 'mute' | 'info' {
 }
 
 /**
- * What a reservation waits for, as a badge says it: a member a kit it booked
- * should take with it, or some of a pool it booked that has fewer to give
- * then (design 4).
+ * What is wrong with a reservation still to be fulfilled, as a badge says it,
+ * or nothing (design 4): what it waits for -- a member a kit it booked should
+ * take with it, or some of a pool it booked that has fewer to give then --
+ * and an item it takes that is out of use, which its pickup does not hand
+ * over (D42).
  */
-export function waitWord(conflicts: { units: number }[]): string {
-	const member = conflicts.some((c) => c.units === 0)
-	const pool = conflicts.some((c) => c.units > 0)
-	return [member ? '구성품 충돌' : '', pool ? '수량 부족' : ''].filter((v) => v !== '').join(' · ')
+export function markWord(e: { conflicts: { units: number }[]; outOfUse: unknown[] }): string {
+	const member = e.conflicts.some((c) => c.units === 0)
+	const pool = e.conflicts.some((c) => c.units > 0)
+	return [member ? '구성품 충돌' : '', pool ? '수량 부족' : '', e.outOfUse.length > 0 ? '건넬 수 없는 자산' : ''].filter((v) => v !== '').join(' · ')
 }

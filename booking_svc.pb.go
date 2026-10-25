@@ -6374,6 +6374,7 @@ type CalendarEntry struct {
 	xxx_hidden_ResourceIds [][]byte                `protobuf:"bytes,2,rep,name=resource_ids,json=resourceIds"`
 	xxx_hidden_PartyName   string                  `protobuf:"bytes,3,opt,name=party_name,json=partyName"`
 	xxx_hidden_Conflicts   *[]*ReservationConflict `protobuf:"bytes,4,rep,name=conflicts"`
+	xxx_hidden_OutOfUse    *[]*ReservationOutOfUse `protobuf:"bytes,5,rep,name=out_of_use,json=outOfUse"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
 }
@@ -6433,6 +6434,15 @@ func (x *CalendarEntry) GetConflicts() []*ReservationConflict {
 	return nil
 }
 
+func (x *CalendarEntry) GetOutOfUse() []*ReservationOutOfUse {
+	if x != nil {
+		if x.xxx_hidden_OutOfUse != nil {
+			return *x.xxx_hidden_OutOfUse
+		}
+	}
+	return nil
+}
+
 func (x *CalendarEntry) SetReservation(v *Reservation) {
 	x.xxx_hidden_Reservation = v
 }
@@ -6447,6 +6457,10 @@ func (x *CalendarEntry) SetPartyName(v string) {
 
 func (x *CalendarEntry) SetConflicts(v []*ReservationConflict) {
 	x.xxx_hidden_Conflicts = &v
+}
+
+func (x *CalendarEntry) SetOutOfUse(v []*ReservationOutOfUse) {
+	x.xxx_hidden_OutOfUse = &v
 }
 
 func (x *CalendarEntry) HasReservation() bool {
@@ -6470,6 +6484,10 @@ type CalendarEntry_builder struct {
 	// kit it should take with it that something else holds then, and what it
 	// booked of a pool that has fewer to give then (design 4).
 	Conflicts []*ReservationConflict
+	// What it takes that is out of use while it is still to be fulfilled: an
+	// item it booked, or a member of a kit it booked that was kept in the kit
+	// as it went (design 4, D42). Nothing hands it over.
+	OutOfUse []*ReservationOutOfUse
 }
 
 func (b0 CalendarEntry_builder) Build() *CalendarEntry {
@@ -6480,6 +6498,7 @@ func (b0 CalendarEntry_builder) Build() *CalendarEntry {
 	x.xxx_hidden_ResourceIds = b.ResourceIds
 	x.xxx_hidden_PartyName = b.PartyName
 	x.xxx_hidden_Conflicts = &b.Conflicts
+	x.xxx_hidden_OutOfUse = &b.OutOfUse
 	return m0
 }
 
@@ -6679,6 +6698,115 @@ func (b0 ReservationConflict_builder) Build() *ReservationConflict {
 	return m0
 }
 
+// ReservationOutOfUse is an item a reservation takes -- one it booked, or a
+// member a kit it booked takes with it, held or waited for -- that is lost,
+// retired or disposed: a pickup does not hand it over, and it is said until
+// it is in use again or taken off its kit. A pool's members are none of it:
+// what a pool gives is the ones in use, and one fewer is a pool's conflict.
+type ReservationOutOfUse struct {
+	state                   protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_ResourceId   []byte                 `protobuf:"bytes,1,opt,name=resource_id,json=resourceId"`
+	xxx_hidden_ResourceTag  string                 `protobuf:"bytes,2,opt,name=resource_tag,json=resourceTag"`
+	xxx_hidden_ResourceName string                 `protobuf:"bytes,3,opt,name=resource_name,json=resourceName"`
+	xxx_hidden_Status       string                 `protobuf:"bytes,4,opt,name=status"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
+}
+
+func (x *ReservationOutOfUse) Reset() {
+	*x = ReservationOutOfUse{}
+	mi := &file_rove_booking_svc_g_proto_msgTypes[37]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReservationOutOfUse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReservationOutOfUse) ProtoMessage() {}
+
+func (x *ReservationOutOfUse) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_booking_svc_g_proto_msgTypes[37]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *ReservationOutOfUse) GetResourceId() []byte {
+	if x != nil {
+		return x.xxx_hidden_ResourceId
+	}
+	return nil
+}
+
+func (x *ReservationOutOfUse) GetResourceTag() string {
+	if x != nil {
+		return x.xxx_hidden_ResourceTag
+	}
+	return ""
+}
+
+func (x *ReservationOutOfUse) GetResourceName() string {
+	if x != nil {
+		return x.xxx_hidden_ResourceName
+	}
+	return ""
+}
+
+func (x *ReservationOutOfUse) GetStatus() string {
+	if x != nil {
+		return x.xxx_hidden_Status
+	}
+	return ""
+}
+
+func (x *ReservationOutOfUse) SetResourceId(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_ResourceId = v
+}
+
+func (x *ReservationOutOfUse) SetResourceTag(v string) {
+	x.xxx_hidden_ResourceTag = v
+}
+
+func (x *ReservationOutOfUse) SetResourceName(v string) {
+	x.xxx_hidden_ResourceName = v
+}
+
+func (x *ReservationOutOfUse) SetStatus(v string) {
+	x.xxx_hidden_Status = v
+}
+
+type ReservationOutOfUse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// The item, by what it is tagged and called.
+	ResourceId   []byte
+	ResourceTag  string
+	ResourceName string
+	// lost | retired | disposed
+	Status string
+}
+
+func (b0 ReservationOutOfUse_builder) Build() *ReservationOutOfUse {
+	m0 := &ReservationOutOfUse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_ResourceId = b.ResourceId
+	x.xxx_hidden_ResourceTag = b.ResourceTag
+	x.xxx_hidden_ResourceName = b.ResourceName
+	x.xxx_hidden_Status = b.Status
+	return m0
+}
+
 type ReservationItemAddRequest struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
@@ -6696,7 +6824,7 @@ type ReservationItemAddRequest struct {
 
 func (x *ReservationItemAddRequest) Reset() {
 	*x = ReservationItemAddRequest{}
-	mi := &file_rove_booking_svc_g_proto_msgTypes[37]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6708,7 +6836,7 @@ func (x *ReservationItemAddRequest) String() string {
 func (*ReservationItemAddRequest) ProtoMessage() {}
 
 func (x *ReservationItemAddRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_booking_svc_g_proto_msgTypes[37]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6914,7 +7042,7 @@ type ReservationItemGetRequest struct {
 
 func (x *ReservationItemGetRequest) Reset() {
 	*x = ReservationItemGetRequest{}
-	mi := &file_rove_booking_svc_g_proto_msgTypes[38]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6926,7 +7054,7 @@ func (x *ReservationItemGetRequest) String() string {
 func (*ReservationItemGetRequest) ProtoMessage() {}
 
 func (x *ReservationItemGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_booking_svc_g_proto_msgTypes[38]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7006,7 +7134,7 @@ type ReservationItemRef struct {
 
 func (x *ReservationItemRef) Reset() {
 	*x = ReservationItemRef{}
-	mi := &file_rove_booking_svc_g_proto_msgTypes[39]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7018,7 +7146,7 @@ func (x *ReservationItemRef) String() string {
 func (*ReservationItemRef) ProtoMessage() {}
 
 func (x *ReservationItemRef) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_booking_svc_g_proto_msgTypes[39]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7106,7 +7234,7 @@ func (b0 ReservationItemRef_builder) Build() *ReservationItemRef {
 type case_ReservationItemRef_Key protoreflect.FieldNumber
 
 func (x case_ReservationItemRef_Key) String() string {
-	md := file_rove_booking_svc_g_proto_msgTypes[39].Descriptor()
+	md := file_rove_booking_svc_g_proto_msgTypes[40].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -7141,7 +7269,7 @@ type ReservationItemSelect struct {
 
 func (x *ReservationItemSelect) Reset() {
 	*x = ReservationItemSelect{}
-	mi := &file_rove_booking_svc_g_proto_msgTypes[40]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7153,7 +7281,7 @@ func (x *ReservationItemSelect) String() string {
 func (*ReservationItemSelect) ProtoMessage() {}
 
 func (x *ReservationItemSelect) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_booking_svc_g_proto_msgTypes[40]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7409,7 +7537,7 @@ type ReservationItemPatchRequest struct {
 
 func (x *ReservationItemPatchRequest) Reset() {
 	*x = ReservationItemPatchRequest{}
-	mi := &file_rove_booking_svc_g_proto_msgTypes[41]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7421,7 +7549,7 @@ func (x *ReservationItemPatchRequest) String() string {
 func (*ReservationItemPatchRequest) ProtoMessage() {}
 
 func (x *ReservationItemPatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_booking_svc_g_proto_msgTypes[41]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7637,7 +7765,7 @@ type ReservationItemApplyRequest struct {
 
 func (x *ReservationItemApplyRequest) Reset() {
 	*x = ReservationItemApplyRequest{}
-	mi := &file_rove_booking_svc_g_proto_msgTypes[42]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7649,7 +7777,7 @@ func (x *ReservationItemApplyRequest) String() string {
 func (*ReservationItemApplyRequest) ProtoMessage() {}
 
 func (x *ReservationItemApplyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_booking_svc_g_proto_msgTypes[42]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7731,7 +7859,7 @@ type ReservationItemEraseResponse struct {
 
 func (x *ReservationItemEraseResponse) Reset() {
 	*x = ReservationItemEraseResponse{}
-	mi := &file_rove_booking_svc_g_proto_msgTypes[43]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7743,7 +7871,7 @@ func (x *ReservationItemEraseResponse) String() string {
 func (*ReservationItemEraseResponse) ProtoMessage() {}
 
 func (x *ReservationItemEraseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_booking_svc_g_proto_msgTypes[43]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7812,7 +7940,7 @@ type ReservationItemListRequest struct {
 
 func (x *ReservationItemListRequest) Reset() {
 	*x = ReservationItemListRequest{}
-	mi := &file_rove_booking_svc_g_proto_msgTypes[44]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7824,7 +7952,7 @@ func (x *ReservationItemListRequest) String() string {
 func (*ReservationItemListRequest) ProtoMessage() {}
 
 func (x *ReservationItemListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_booking_svc_g_proto_msgTypes[44]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7924,7 +8052,7 @@ type ReservationItemListResponse struct {
 
 func (x *ReservationItemListResponse) Reset() {
 	*x = ReservationItemListResponse{}
-	mi := &file_rove_booking_svc_g_proto_msgTypes[45]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7936,7 +8064,7 @@ func (x *ReservationItemListResponse) String() string {
 func (*ReservationItemListResponse) ProtoMessage() {}
 
 func (x *ReservationItemListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_booking_svc_g_proto_msgTypes[45]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8005,7 +8133,7 @@ type ReservationItemFilter struct {
 
 func (x *ReservationItemFilter) Reset() {
 	*x = ReservationItemFilter{}
-	mi := &file_rove_booking_svc_g_proto_msgTypes[46]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8017,7 +8145,7 @@ func (x *ReservationItemFilter) String() string {
 func (*ReservationItemFilter) ProtoMessage() {}
 
 func (x *ReservationItemFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_booking_svc_g_proto_msgTypes[46]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8133,7 +8261,7 @@ type AllocationAddRequest struct {
 
 func (x *AllocationAddRequest) Reset() {
 	*x = AllocationAddRequest{}
-	mi := &file_rove_booking_svc_g_proto_msgTypes[47]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8145,7 +8273,7 @@ func (x *AllocationAddRequest) String() string {
 func (*AllocationAddRequest) ProtoMessage() {}
 
 func (x *AllocationAddRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_booking_svc_g_proto_msgTypes[47]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8414,7 +8542,7 @@ type AllocationGetRequest struct {
 
 func (x *AllocationGetRequest) Reset() {
 	*x = AllocationGetRequest{}
-	mi := &file_rove_booking_svc_g_proto_msgTypes[48]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8426,7 +8554,7 @@ func (x *AllocationGetRequest) String() string {
 func (*AllocationGetRequest) ProtoMessage() {}
 
 func (x *AllocationGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_booking_svc_g_proto_msgTypes[48]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8506,7 +8634,7 @@ type AllocationRef struct {
 
 func (x *AllocationRef) Reset() {
 	*x = AllocationRef{}
-	mi := &file_rove_booking_svc_g_proto_msgTypes[49]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8518,7 +8646,7 @@ func (x *AllocationRef) String() string {
 func (*AllocationRef) ProtoMessage() {}
 
 func (x *AllocationRef) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_booking_svc_g_proto_msgTypes[49]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8606,7 +8734,7 @@ func (b0 AllocationRef_builder) Build() *AllocationRef {
 type case_AllocationRef_Key protoreflect.FieldNumber
 
 func (x case_AllocationRef_Key) String() string {
-	md := file_rove_booking_svc_g_proto_msgTypes[49].Descriptor()
+	md := file_rove_booking_svc_g_proto_msgTypes[50].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -8645,7 +8773,7 @@ type AllocationSelect struct {
 
 func (x *AllocationSelect) Reset() {
 	*x = AllocationSelect{}
-	mi := &file_rove_booking_svc_g_proto_msgTypes[50]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8657,7 +8785,7 @@ func (x *AllocationSelect) String() string {
 func (*AllocationSelect) ProtoMessage() {}
 
 func (x *AllocationSelect) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_booking_svc_g_proto_msgTypes[50]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9039,7 +9167,7 @@ type AllocationPatchRequest struct {
 
 func (x *AllocationPatchRequest) Reset() {
 	*x = AllocationPatchRequest{}
-	mi := &file_rove_booking_svc_g_proto_msgTypes[51]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9051,7 +9179,7 @@ func (x *AllocationPatchRequest) String() string {
 func (*AllocationPatchRequest) ProtoMessage() {}
 
 func (x *AllocationPatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_booking_svc_g_proto_msgTypes[51]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9405,7 +9533,7 @@ type AllocationApplyRequest struct {
 
 func (x *AllocationApplyRequest) Reset() {
 	*x = AllocationApplyRequest{}
-	mi := &file_rove_booking_svc_g_proto_msgTypes[52]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9417,7 +9545,7 @@ func (x *AllocationApplyRequest) String() string {
 func (*AllocationApplyRequest) ProtoMessage() {}
 
 func (x *AllocationApplyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_booking_svc_g_proto_msgTypes[52]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9499,7 +9627,7 @@ type AllocationEraseResponse struct {
 
 func (x *AllocationEraseResponse) Reset() {
 	*x = AllocationEraseResponse{}
-	mi := &file_rove_booking_svc_g_proto_msgTypes[53]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9511,7 +9639,7 @@ func (x *AllocationEraseResponse) String() string {
 func (*AllocationEraseResponse) ProtoMessage() {}
 
 func (x *AllocationEraseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_booking_svc_g_proto_msgTypes[53]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9580,7 +9708,7 @@ type AllocationListRequest struct {
 
 func (x *AllocationListRequest) Reset() {
 	*x = AllocationListRequest{}
-	mi := &file_rove_booking_svc_g_proto_msgTypes[54]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9592,7 +9720,7 @@ func (x *AllocationListRequest) String() string {
 func (*AllocationListRequest) ProtoMessage() {}
 
 func (x *AllocationListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_booking_svc_g_proto_msgTypes[54]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9692,7 +9820,7 @@ type AllocationListResponse struct {
 
 func (x *AllocationListResponse) Reset() {
 	*x = AllocationListResponse{}
-	mi := &file_rove_booking_svc_g_proto_msgTypes[55]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9704,7 +9832,7 @@ func (x *AllocationListResponse) String() string {
 func (*AllocationListResponse) ProtoMessage() {}
 
 func (x *AllocationListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_booking_svc_g_proto_msgTypes[55]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9776,7 +9904,7 @@ type AllocationFilter struct {
 
 func (x *AllocationFilter) Reset() {
 	*x = AllocationFilter{}
-	mi := &file_rove_booking_svc_g_proto_msgTypes[56]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[57]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9788,7 +9916,7 @@ func (x *AllocationFilter) String() string {
 func (*AllocationFilter) ProtoMessage() {}
 
 func (x *AllocationFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_booking_svc_g_proto_msgTypes[56]
+	mi := &file_rove_booking_svc_g_proto_msgTypes[57]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10178,13 +10306,15 @@ const file_rove_booking_svc_g_proto_rawDesc = "" +
 	"\x04mine\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\x04mine\x12\x1a\n" +
 	"\bstatuses\x18\x05 \x03(\tR\bstatuses\"L\n" +
 	"\x1bReservationCalendarResponse\x12-\n" +
-	"\aentries\x18\x01 \x03(\v2\x13.rove.CalendarEntryR\aentries\"\xc6\x01\n" +
+	"\aentries\x18\x01 \x03(\v2\x13.rove.CalendarEntryR\aentries\"\xff\x01\n" +
 	"\rCalendarEntry\x123\n" +
 	"\vreservation\x18\x01 \x01(\v2\x11.rove.ReservationR\vreservation\x12!\n" +
 	"\fresource_ids\x18\x02 \x03(\fR\vresourceIds\x12$\n" +
 	"\n" +
 	"party_name\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\tpartyName\x127\n" +
-	"\tconflicts\x18\x04 \x03(\v2\x19.rove.ReservationConflictR\tconflicts\"\xec\x02\n" +
+	"\tconflicts\x18\x04 \x03(\v2\x19.rove.ReservationConflictR\tconflicts\x127\n" +
+	"\n" +
+	"out_of_use\x18\x05 \x03(\v2\x19.rove.ReservationOutOfUseR\boutOfUse\"\xec\x02\n" +
 	"\x13ReservationConflict\x12&\n" +
 	"\vresource_id\x18\x01 \x01(\fB\x05\xaa\x01\x02\b\x02R\n" +
 	"resourceId\x12(\n" +
@@ -10194,7 +10324,13 @@ const file_rove_booking_svc_g_proto_rawDesc = "" +
 	"\aends_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x06endsAt\x12'\n" +
 	"\aheld_by\x18\x06 \x03(\v2\x0e.rove.BusySpanR\x06heldBy\x12\x1b\n" +
 	"\x05units\x18\a \x01(\rB\x05\xaa\x01\x02\b\x02R\x05units\x12#\n" +
-	"\tavailable\x18\b \x01(\rB\x05\xaa\x01\x02\b\x02R\tavailable\"\xb5\x02\n" +
+	"\tavailable\x18\b \x01(\rB\x05\xaa\x01\x02\b\x02R\tavailable\"\xb2\x01\n" +
+	"\x13ReservationOutOfUse\x12&\n" +
+	"\vresource_id\x18\x01 \x01(\fB\x05\xaa\x01\x02\b\x02R\n" +
+	"resourceId\x12(\n" +
+	"\fresource_tag\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\vresourceTag\x12*\n" +
+	"\rresource_name\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\fresourceName\x12\x1d\n" +
+	"\x06status\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06status\"\xb5\x02\n" +
 	"\x19ReservationItemAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\x126\n" +
@@ -10350,7 +10486,7 @@ const file_rove_booking_svc_g_proto_rawDesc = "" +
 	"\x05Erase\x12\x13.rove.AllocationRef\x1a\x1d.rove.AllocationEraseResponse\x12A\n" +
 	"\x04List\x12\x1b.rove.AllocationListRequest\x1a\x1c.rove.AllocationListResponseB\x1aZ\x18github.com/lesomnus/roveb\beditionsp\xe8\a"
 
-var file_rove_booking_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 57)
+var file_rove_booking_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 58)
 var file_rove_booking_svc_g_proto_goTypes = []any{
 	(*BookableAddRequest)(nil),           // 0: rove.BookableAddRequest
 	(*BookableGetRequest)(nil),           // 1: rove.BookableGetRequest
@@ -10389,221 +10525,223 @@ var file_rove_booking_svc_g_proto_goTypes = []any{
 	(*ReservationCalendarResponse)(nil),  // 34: rove.ReservationCalendarResponse
 	(*CalendarEntry)(nil),                // 35: rove.CalendarEntry
 	(*ReservationConflict)(nil),          // 36: rove.ReservationConflict
-	(*ReservationItemAddRequest)(nil),    // 37: rove.ReservationItemAddRequest
-	(*ReservationItemGetRequest)(nil),    // 38: rove.ReservationItemGetRequest
-	(*ReservationItemRef)(nil),           // 39: rove.ReservationItemRef
-	(*ReservationItemSelect)(nil),        // 40: rove.ReservationItemSelect
-	(*ReservationItemPatchRequest)(nil),  // 41: rove.ReservationItemPatchRequest
-	(*ReservationItemApplyRequest)(nil),  // 42: rove.ReservationItemApplyRequest
-	(*ReservationItemEraseResponse)(nil), // 43: rove.ReservationItemEraseResponse
-	(*ReservationItemListRequest)(nil),   // 44: rove.ReservationItemListRequest
-	(*ReservationItemListResponse)(nil),  // 45: rove.ReservationItemListResponse
-	(*ReservationItemFilter)(nil),        // 46: rove.ReservationItemFilter
-	(*AllocationAddRequest)(nil),         // 47: rove.AllocationAddRequest
-	(*AllocationGetRequest)(nil),         // 48: rove.AllocationGetRequest
-	(*AllocationRef)(nil),                // 49: rove.AllocationRef
-	(*AllocationSelect)(nil),             // 50: rove.AllocationSelect
-	(*AllocationPatchRequest)(nil),       // 51: rove.AllocationPatchRequest
-	(*AllocationApplyRequest)(nil),       // 52: rove.AllocationApplyRequest
-	(*AllocationEraseResponse)(nil),      // 53: rove.AllocationEraseResponse
-	(*AllocationListRequest)(nil),        // 54: rove.AllocationListRequest
-	(*AllocationListResponse)(nil),       // 55: rove.AllocationListResponse
-	(*AllocationFilter)(nil),             // 56: rove.AllocationFilter
-	(*TenantRef)(nil),                    // 57: rove.TenantRef
-	(*AssetRef)(nil),                     // 58: rove.AssetRef
-	(*OpeningHours)(nil),                 // 59: rove.OpeningHours
-	(*timestamppb.Timestamp)(nil),        // 60: google.protobuf.Timestamp
-	(*TenantSelect)(nil),                 // 61: rove.TenantSelect
-	(*AssetSelect)(nil),                  // 62: rove.AssetSelect
-	(*patchpb.Patch)(nil),                // 63: patch.Patch
-	(*Bookable)(nil),                     // 64: rove.Bookable
-	(*PartyRef)(nil),                     // 65: rove.PartyRef
-	(*PartySelect)(nil),                  // 66: rove.PartySelect
-	(*Reservation)(nil),                  // 67: rove.Reservation
-	(*ReservationItem)(nil),              // 68: rove.ReservationItem
-	(*Allocation)(nil),                   // 69: rove.Allocation
+	(*ReservationOutOfUse)(nil),          // 37: rove.ReservationOutOfUse
+	(*ReservationItemAddRequest)(nil),    // 38: rove.ReservationItemAddRequest
+	(*ReservationItemGetRequest)(nil),    // 39: rove.ReservationItemGetRequest
+	(*ReservationItemRef)(nil),           // 40: rove.ReservationItemRef
+	(*ReservationItemSelect)(nil),        // 41: rove.ReservationItemSelect
+	(*ReservationItemPatchRequest)(nil),  // 42: rove.ReservationItemPatchRequest
+	(*ReservationItemApplyRequest)(nil),  // 43: rove.ReservationItemApplyRequest
+	(*ReservationItemEraseResponse)(nil), // 44: rove.ReservationItemEraseResponse
+	(*ReservationItemListRequest)(nil),   // 45: rove.ReservationItemListRequest
+	(*ReservationItemListResponse)(nil),  // 46: rove.ReservationItemListResponse
+	(*ReservationItemFilter)(nil),        // 47: rove.ReservationItemFilter
+	(*AllocationAddRequest)(nil),         // 48: rove.AllocationAddRequest
+	(*AllocationGetRequest)(nil),         // 49: rove.AllocationGetRequest
+	(*AllocationRef)(nil),                // 50: rove.AllocationRef
+	(*AllocationSelect)(nil),             // 51: rove.AllocationSelect
+	(*AllocationPatchRequest)(nil),       // 52: rove.AllocationPatchRequest
+	(*AllocationApplyRequest)(nil),       // 53: rove.AllocationApplyRequest
+	(*AllocationEraseResponse)(nil),      // 54: rove.AllocationEraseResponse
+	(*AllocationListRequest)(nil),        // 55: rove.AllocationListRequest
+	(*AllocationListResponse)(nil),       // 56: rove.AllocationListResponse
+	(*AllocationFilter)(nil),             // 57: rove.AllocationFilter
+	(*TenantRef)(nil),                    // 58: rove.TenantRef
+	(*AssetRef)(nil),                     // 59: rove.AssetRef
+	(*OpeningHours)(nil),                 // 60: rove.OpeningHours
+	(*timestamppb.Timestamp)(nil),        // 61: google.protobuf.Timestamp
+	(*TenantSelect)(nil),                 // 62: rove.TenantSelect
+	(*AssetSelect)(nil),                  // 63: rove.AssetSelect
+	(*patchpb.Patch)(nil),                // 64: patch.Patch
+	(*Bookable)(nil),                     // 65: rove.Bookable
+	(*PartyRef)(nil),                     // 66: rove.PartyRef
+	(*PartySelect)(nil),                  // 67: rove.PartySelect
+	(*Reservation)(nil),                  // 68: rove.Reservation
+	(*ReservationItem)(nil),              // 69: rove.ReservationItem
+	(*Allocation)(nil),                   // 70: rove.Allocation
 }
 var file_rove_booking_svc_g_proto_depIdxs = []int32{
-	57,  // 0: rove.BookableAddRequest.tenant:type_name -> rove.TenantRef
-	58,  // 1: rove.BookableAddRequest.asset:type_name -> rove.AssetRef
-	59,  // 2: rove.BookableAddRequest.hours:type_name -> rove.OpeningHours
-	60,  // 3: rove.BookableAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	58,  // 0: rove.BookableAddRequest.tenant:type_name -> rove.TenantRef
+	59,  // 1: rove.BookableAddRequest.asset:type_name -> rove.AssetRef
+	60,  // 2: rove.BookableAddRequest.hours:type_name -> rove.OpeningHours
+	61,  // 3: rove.BookableAddRequest.date_created:type_name -> google.protobuf.Timestamp
 	2,   // 4: rove.BookableGetRequest.ref:type_name -> rove.BookableRef
 	4,   // 5: rove.BookableGetRequest.select:type_name -> rove.BookableSelect
 	3,   // 6: rove.BookableRef.asset:type_name -> rove.BookableRefByAsset
-	58,  // 7: rove.BookableRefByAsset.asset:type_name -> rove.AssetRef
-	61,  // 8: rove.BookableSelect.tenant:type_name -> rove.TenantSelect
-	62,  // 9: rove.BookableSelect.asset:type_name -> rove.AssetSelect
+	59,  // 7: rove.BookableRefByAsset.asset:type_name -> rove.AssetRef
+	62,  // 8: rove.BookableSelect.tenant:type_name -> rove.TenantSelect
+	63,  // 9: rove.BookableSelect.asset:type_name -> rove.AssetSelect
 	2,   // 10: rove.BookablePatchRequest.ref:type_name -> rove.BookableRef
-	59,  // 11: rove.BookablePatchRequest.hours:type_name -> rove.OpeningHours
-	60,  // 12: rove.BookablePatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	60,  // 11: rove.BookablePatchRequest.hours:type_name -> rove.OpeningHours
+	61,  // 12: rove.BookablePatchRequest.date_updated:type_name -> google.protobuf.Timestamp
 	2,   // 13: rove.BookableApplyRequest.ref:type_name -> rove.BookableRef
-	63,  // 14: rove.BookableApplyRequest.patch:type_name -> patch.Patch
+	64,  // 14: rove.BookableApplyRequest.patch:type_name -> patch.Patch
 	10,  // 15: rove.BookableListRequest.filters:type_name -> rove.BookableFilter
-	64,  // 16: rove.BookableListResponse.items:type_name -> rove.Bookable
+	65,  // 16: rove.BookableListResponse.items:type_name -> rove.Bookable
 	2,   // 17: rove.BookableFilter.ref:type_name -> rove.BookableRef
-	58,  // 18: rove.BookableFilter.asset:type_name -> rove.AssetRef
+	59,  // 18: rove.BookableFilter.asset:type_name -> rove.AssetRef
 	10,  // 19: rove.BookableWatchRequest.filters:type_name -> rove.BookableFilter
 	13,  // 20: rove.BookableWatchResponse.items:type_name -> rove.BookableWatchItem
-	64,  // 21: rove.BookableWatchItem.value:type_name -> rove.Bookable
+	65,  // 21: rove.BookableWatchItem.value:type_name -> rove.Bookable
 	2,   // 22: rove.BookableUpdateRequest.ref:type_name -> rove.BookableRef
-	59,  // 23: rove.BookableUpdateRequest.hours:type_name -> rove.OpeningHours
-	58,  // 24: rove.BookableAvailabilityRequest.resources:type_name -> rove.AssetRef
-	60,  // 25: rove.BookableAvailabilityRequest.from:type_name -> google.protobuf.Timestamp
-	60,  // 26: rove.BookableAvailabilityRequest.to:type_name -> google.protobuf.Timestamp
+	60,  // 23: rove.BookableUpdateRequest.hours:type_name -> rove.OpeningHours
+	59,  // 24: rove.BookableAvailabilityRequest.resources:type_name -> rove.AssetRef
+	61,  // 25: rove.BookableAvailabilityRequest.from:type_name -> google.protobuf.Timestamp
+	61,  // 26: rove.BookableAvailabilityRequest.to:type_name -> google.protobuf.Timestamp
 	17,  // 27: rove.BookableAvailabilityResponse.busy:type_name -> rove.BusySpan
-	60,  // 28: rove.BusySpan.begins_at:type_name -> google.protobuf.Timestamp
-	60,  // 29: rove.BusySpan.ends_at:type_name -> google.protobuf.Timestamp
-	57,  // 30: rove.ReservationAddRequest.tenant:type_name -> rove.TenantRef
-	65,  // 31: rove.ReservationAddRequest.party:type_name -> rove.PartyRef
-	60,  // 32: rove.ReservationAddRequest.begins_at:type_name -> google.protobuf.Timestamp
-	60,  // 33: rove.ReservationAddRequest.ends_at:type_name -> google.protobuf.Timestamp
-	60,  // 34: rove.ReservationAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	60,  // 35: rove.ReservationAddRequest.expires_at:type_name -> google.protobuf.Timestamp
-	60,  // 36: rove.ReservationAddRequest.checked_in_at:type_name -> google.protobuf.Timestamp
+	61,  // 28: rove.BusySpan.begins_at:type_name -> google.protobuf.Timestamp
+	61,  // 29: rove.BusySpan.ends_at:type_name -> google.protobuf.Timestamp
+	58,  // 30: rove.ReservationAddRequest.tenant:type_name -> rove.TenantRef
+	66,  // 31: rove.ReservationAddRequest.party:type_name -> rove.PartyRef
+	61,  // 32: rove.ReservationAddRequest.begins_at:type_name -> google.protobuf.Timestamp
+	61,  // 33: rove.ReservationAddRequest.ends_at:type_name -> google.protobuf.Timestamp
+	61,  // 34: rove.ReservationAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	61,  // 35: rove.ReservationAddRequest.expires_at:type_name -> google.protobuf.Timestamp
+	61,  // 36: rove.ReservationAddRequest.checked_in_at:type_name -> google.protobuf.Timestamp
 	19,  // 37: rove.ReservationAddRequest.items:type_name -> rove.ReservationItemSpec
-	58,  // 38: rove.ReservationItemSpec.resource:type_name -> rove.AssetRef
+	59,  // 38: rove.ReservationItemSpec.resource:type_name -> rove.AssetRef
 	21,  // 39: rove.ReservationGetRequest.ref:type_name -> rove.ReservationRef
 	22,  // 40: rove.ReservationGetRequest.select:type_name -> rove.ReservationSelect
-	61,  // 41: rove.ReservationSelect.tenant:type_name -> rove.TenantSelect
-	66,  // 42: rove.ReservationSelect.party:type_name -> rove.PartySelect
+	62,  // 41: rove.ReservationSelect.tenant:type_name -> rove.TenantSelect
+	67,  // 42: rove.ReservationSelect.party:type_name -> rove.PartySelect
 	21,  // 43: rove.ReservationPatchRequest.ref:type_name -> rove.ReservationRef
-	60,  // 44: rove.ReservationPatchRequest.begins_at:type_name -> google.protobuf.Timestamp
-	60,  // 45: rove.ReservationPatchRequest.ends_at:type_name -> google.protobuf.Timestamp
-	60,  // 46: rove.ReservationPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	60,  // 47: rove.ReservationPatchRequest.expires_at:type_name -> google.protobuf.Timestamp
-	60,  // 48: rove.ReservationPatchRequest.checked_in_at:type_name -> google.protobuf.Timestamp
+	61,  // 44: rove.ReservationPatchRequest.begins_at:type_name -> google.protobuf.Timestamp
+	61,  // 45: rove.ReservationPatchRequest.ends_at:type_name -> google.protobuf.Timestamp
+	61,  // 46: rove.ReservationPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	61,  // 47: rove.ReservationPatchRequest.expires_at:type_name -> google.protobuf.Timestamp
+	61,  // 48: rove.ReservationPatchRequest.checked_in_at:type_name -> google.protobuf.Timestamp
 	21,  // 49: rove.ReservationApplyRequest.ref:type_name -> rove.ReservationRef
-	63,  // 50: rove.ReservationApplyRequest.patch:type_name -> patch.Patch
+	64,  // 50: rove.ReservationApplyRequest.patch:type_name -> patch.Patch
 	28,  // 51: rove.ReservationListRequest.filters:type_name -> rove.ReservationFilter
-	67,  // 52: rove.ReservationListResponse.items:type_name -> rove.Reservation
+	68,  // 52: rove.ReservationListResponse.items:type_name -> rove.Reservation
 	21,  // 53: rove.ReservationFilter.ref:type_name -> rove.ReservationRef
-	65,  // 54: rove.ReservationFilter.party:type_name -> rove.PartyRef
+	66,  // 54: rove.ReservationFilter.party:type_name -> rove.PartyRef
 	28,  // 55: rove.ReservationWatchRequest.filters:type_name -> rove.ReservationFilter
 	31,  // 56: rove.ReservationWatchResponse.items:type_name -> rove.ReservationWatchItem
-	67,  // 57: rove.ReservationWatchItem.value:type_name -> rove.Reservation
+	68,  // 57: rove.ReservationWatchItem.value:type_name -> rove.Reservation
 	21,  // 58: rove.ReservationDecideRequest.ref:type_name -> rove.ReservationRef
-	58,  // 59: rove.ReservationCalendarRequest.resources:type_name -> rove.AssetRef
-	60,  // 60: rove.ReservationCalendarRequest.from:type_name -> google.protobuf.Timestamp
-	60,  // 61: rove.ReservationCalendarRequest.to:type_name -> google.protobuf.Timestamp
+	59,  // 59: rove.ReservationCalendarRequest.resources:type_name -> rove.AssetRef
+	61,  // 60: rove.ReservationCalendarRequest.from:type_name -> google.protobuf.Timestamp
+	61,  // 61: rove.ReservationCalendarRequest.to:type_name -> google.protobuf.Timestamp
 	35,  // 62: rove.ReservationCalendarResponse.entries:type_name -> rove.CalendarEntry
-	67,  // 63: rove.CalendarEntry.reservation:type_name -> rove.Reservation
+	68,  // 63: rove.CalendarEntry.reservation:type_name -> rove.Reservation
 	36,  // 64: rove.CalendarEntry.conflicts:type_name -> rove.ReservationConflict
-	60,  // 65: rove.ReservationConflict.begins_at:type_name -> google.protobuf.Timestamp
-	60,  // 66: rove.ReservationConflict.ends_at:type_name -> google.protobuf.Timestamp
-	17,  // 67: rove.ReservationConflict.held_by:type_name -> rove.BusySpan
-	57,  // 68: rove.ReservationItemAddRequest.tenant:type_name -> rove.TenantRef
-	21,  // 69: rove.ReservationItemAddRequest.reservation:type_name -> rove.ReservationRef
-	58,  // 70: rove.ReservationItemAddRequest.resource:type_name -> rove.AssetRef
-	60,  // 71: rove.ReservationItemAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	39,  // 72: rove.ReservationItemGetRequest.ref:type_name -> rove.ReservationItemRef
-	40,  // 73: rove.ReservationItemGetRequest.select:type_name -> rove.ReservationItemSelect
-	61,  // 74: rove.ReservationItemSelect.tenant:type_name -> rove.TenantSelect
-	22,  // 75: rove.ReservationItemSelect.reservation:type_name -> rove.ReservationSelect
-	62,  // 76: rove.ReservationItemSelect.resource:type_name -> rove.AssetSelect
-	39,  // 77: rove.ReservationItemPatchRequest.ref:type_name -> rove.ReservationItemRef
-	60,  // 78: rove.ReservationItemPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	39,  // 79: rove.ReservationItemApplyRequest.ref:type_name -> rove.ReservationItemRef
-	63,  // 80: rove.ReservationItemApplyRequest.patch:type_name -> patch.Patch
-	46,  // 81: rove.ReservationItemListRequest.filters:type_name -> rove.ReservationItemFilter
-	68,  // 82: rove.ReservationItemListResponse.items:type_name -> rove.ReservationItem
-	39,  // 83: rove.ReservationItemFilter.ref:type_name -> rove.ReservationItemRef
-	21,  // 84: rove.ReservationItemFilter.reservation:type_name -> rove.ReservationRef
-	58,  // 85: rove.ReservationItemFilter.resource:type_name -> rove.AssetRef
-	57,  // 86: rove.AllocationAddRequest.tenant:type_name -> rove.TenantRef
-	58,  // 87: rove.AllocationAddRequest.resource:type_name -> rove.AssetRef
-	60,  // 88: rove.AllocationAddRequest.begins_at:type_name -> google.protobuf.Timestamp
-	60,  // 89: rove.AllocationAddRequest.ends_at:type_name -> google.protobuf.Timestamp
-	60,  // 90: rove.AllocationAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	49,  // 91: rove.AllocationGetRequest.ref:type_name -> rove.AllocationRef
-	50,  // 92: rove.AllocationGetRequest.select:type_name -> rove.AllocationSelect
-	61,  // 93: rove.AllocationSelect.tenant:type_name -> rove.TenantSelect
-	62,  // 94: rove.AllocationSelect.resource:type_name -> rove.AssetSelect
-	49,  // 95: rove.AllocationPatchRequest.ref:type_name -> rove.AllocationRef
-	60,  // 96: rove.AllocationPatchRequest.begins_at:type_name -> google.protobuf.Timestamp
-	60,  // 97: rove.AllocationPatchRequest.ends_at:type_name -> google.protobuf.Timestamp
-	60,  // 98: rove.AllocationPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	49,  // 99: rove.AllocationApplyRequest.ref:type_name -> rove.AllocationRef
-	63,  // 100: rove.AllocationApplyRequest.patch:type_name -> patch.Patch
-	56,  // 101: rove.AllocationListRequest.filters:type_name -> rove.AllocationFilter
-	69,  // 102: rove.AllocationListResponse.items:type_name -> rove.Allocation
-	49,  // 103: rove.AllocationFilter.ref:type_name -> rove.AllocationRef
-	58,  // 104: rove.AllocationFilter.resource:type_name -> rove.AssetRef
-	0,   // 105: rove.BookableService.Add:input_type -> rove.BookableAddRequest
-	1,   // 106: rove.BookableService.Get:input_type -> rove.BookableGetRequest
-	5,   // 107: rove.BookableService.Patch:input_type -> rove.BookablePatchRequest
-	6,   // 108: rove.BookableService.Apply:input_type -> rove.BookableApplyRequest
-	2,   // 109: rove.BookableService.Erase:input_type -> rove.BookableRef
-	8,   // 110: rove.BookableService.List:input_type -> rove.BookableListRequest
-	11,  // 111: rove.BookableService.Watch:input_type -> rove.BookableWatchRequest
-	14,  // 112: rove.BookableService.Update:input_type -> rove.BookableUpdateRequest
-	15,  // 113: rove.BookableService.Availability:input_type -> rove.BookableAvailabilityRequest
-	18,  // 114: rove.ReservationService.Add:input_type -> rove.ReservationAddRequest
-	20,  // 115: rove.ReservationService.Get:input_type -> rove.ReservationGetRequest
-	23,  // 116: rove.ReservationService.Patch:input_type -> rove.ReservationPatchRequest
-	24,  // 117: rove.ReservationService.Apply:input_type -> rove.ReservationApplyRequest
-	21,  // 118: rove.ReservationService.Erase:input_type -> rove.ReservationRef
-	26,  // 119: rove.ReservationService.List:input_type -> rove.ReservationListRequest
-	29,  // 120: rove.ReservationService.Watch:input_type -> rove.ReservationWatchRequest
-	32,  // 121: rove.ReservationService.Confirm:input_type -> rove.ReservationDecideRequest
-	32,  // 122: rove.ReservationService.Approve:input_type -> rove.ReservationDecideRequest
-	32,  // 123: rove.ReservationService.Reject:input_type -> rove.ReservationDecideRequest
-	32,  // 124: rove.ReservationService.Cancel:input_type -> rove.ReservationDecideRequest
-	32,  // 125: rove.ReservationService.CheckIn:input_type -> rove.ReservationDecideRequest
-	32,  // 126: rove.ReservationService.Complete:input_type -> rove.ReservationDecideRequest
-	33,  // 127: rove.ReservationService.Calendar:input_type -> rove.ReservationCalendarRequest
-	37,  // 128: rove.ReservationItemService.Add:input_type -> rove.ReservationItemAddRequest
-	38,  // 129: rove.ReservationItemService.Get:input_type -> rove.ReservationItemGetRequest
-	41,  // 130: rove.ReservationItemService.Patch:input_type -> rove.ReservationItemPatchRequest
-	42,  // 131: rove.ReservationItemService.Apply:input_type -> rove.ReservationItemApplyRequest
-	39,  // 132: rove.ReservationItemService.Erase:input_type -> rove.ReservationItemRef
-	44,  // 133: rove.ReservationItemService.List:input_type -> rove.ReservationItemListRequest
-	47,  // 134: rove.AllocationService.Add:input_type -> rove.AllocationAddRequest
-	48,  // 135: rove.AllocationService.Get:input_type -> rove.AllocationGetRequest
-	51,  // 136: rove.AllocationService.Patch:input_type -> rove.AllocationPatchRequest
-	52,  // 137: rove.AllocationService.Apply:input_type -> rove.AllocationApplyRequest
-	49,  // 138: rove.AllocationService.Erase:input_type -> rove.AllocationRef
-	54,  // 139: rove.AllocationService.List:input_type -> rove.AllocationListRequest
-	64,  // 140: rove.BookableService.Add:output_type -> rove.Bookable
-	64,  // 141: rove.BookableService.Get:output_type -> rove.Bookable
-	64,  // 142: rove.BookableService.Patch:output_type -> rove.Bookable
-	64,  // 143: rove.BookableService.Apply:output_type -> rove.Bookable
-	7,   // 144: rove.BookableService.Erase:output_type -> rove.BookableEraseResponse
-	9,   // 145: rove.BookableService.List:output_type -> rove.BookableListResponse
-	12,  // 146: rove.BookableService.Watch:output_type -> rove.BookableWatchResponse
-	64,  // 147: rove.BookableService.Update:output_type -> rove.Bookable
-	16,  // 148: rove.BookableService.Availability:output_type -> rove.BookableAvailabilityResponse
-	67,  // 149: rove.ReservationService.Add:output_type -> rove.Reservation
-	67,  // 150: rove.ReservationService.Get:output_type -> rove.Reservation
-	67,  // 151: rove.ReservationService.Patch:output_type -> rove.Reservation
-	67,  // 152: rove.ReservationService.Apply:output_type -> rove.Reservation
-	25,  // 153: rove.ReservationService.Erase:output_type -> rove.ReservationEraseResponse
-	27,  // 154: rove.ReservationService.List:output_type -> rove.ReservationListResponse
-	30,  // 155: rove.ReservationService.Watch:output_type -> rove.ReservationWatchResponse
-	67,  // 156: rove.ReservationService.Confirm:output_type -> rove.Reservation
-	67,  // 157: rove.ReservationService.Approve:output_type -> rove.Reservation
-	67,  // 158: rove.ReservationService.Reject:output_type -> rove.Reservation
-	67,  // 159: rove.ReservationService.Cancel:output_type -> rove.Reservation
-	67,  // 160: rove.ReservationService.CheckIn:output_type -> rove.Reservation
-	67,  // 161: rove.ReservationService.Complete:output_type -> rove.Reservation
-	34,  // 162: rove.ReservationService.Calendar:output_type -> rove.ReservationCalendarResponse
-	68,  // 163: rove.ReservationItemService.Add:output_type -> rove.ReservationItem
-	68,  // 164: rove.ReservationItemService.Get:output_type -> rove.ReservationItem
-	68,  // 165: rove.ReservationItemService.Patch:output_type -> rove.ReservationItem
-	68,  // 166: rove.ReservationItemService.Apply:output_type -> rove.ReservationItem
-	43,  // 167: rove.ReservationItemService.Erase:output_type -> rove.ReservationItemEraseResponse
-	45,  // 168: rove.ReservationItemService.List:output_type -> rove.ReservationItemListResponse
-	69,  // 169: rove.AllocationService.Add:output_type -> rove.Allocation
-	69,  // 170: rove.AllocationService.Get:output_type -> rove.Allocation
-	69,  // 171: rove.AllocationService.Patch:output_type -> rove.Allocation
-	69,  // 172: rove.AllocationService.Apply:output_type -> rove.Allocation
-	53,  // 173: rove.AllocationService.Erase:output_type -> rove.AllocationEraseResponse
-	55,  // 174: rove.AllocationService.List:output_type -> rove.AllocationListResponse
-	140, // [140:175] is the sub-list for method output_type
-	105, // [105:140] is the sub-list for method input_type
-	105, // [105:105] is the sub-list for extension type_name
-	105, // [105:105] is the sub-list for extension extendee
-	0,   // [0:105] is the sub-list for field type_name
+	37,  // 65: rove.CalendarEntry.out_of_use:type_name -> rove.ReservationOutOfUse
+	61,  // 66: rove.ReservationConflict.begins_at:type_name -> google.protobuf.Timestamp
+	61,  // 67: rove.ReservationConflict.ends_at:type_name -> google.protobuf.Timestamp
+	17,  // 68: rove.ReservationConflict.held_by:type_name -> rove.BusySpan
+	58,  // 69: rove.ReservationItemAddRequest.tenant:type_name -> rove.TenantRef
+	21,  // 70: rove.ReservationItemAddRequest.reservation:type_name -> rove.ReservationRef
+	59,  // 71: rove.ReservationItemAddRequest.resource:type_name -> rove.AssetRef
+	61,  // 72: rove.ReservationItemAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	40,  // 73: rove.ReservationItemGetRequest.ref:type_name -> rove.ReservationItemRef
+	41,  // 74: rove.ReservationItemGetRequest.select:type_name -> rove.ReservationItemSelect
+	62,  // 75: rove.ReservationItemSelect.tenant:type_name -> rove.TenantSelect
+	22,  // 76: rove.ReservationItemSelect.reservation:type_name -> rove.ReservationSelect
+	63,  // 77: rove.ReservationItemSelect.resource:type_name -> rove.AssetSelect
+	40,  // 78: rove.ReservationItemPatchRequest.ref:type_name -> rove.ReservationItemRef
+	61,  // 79: rove.ReservationItemPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	40,  // 80: rove.ReservationItemApplyRequest.ref:type_name -> rove.ReservationItemRef
+	64,  // 81: rove.ReservationItemApplyRequest.patch:type_name -> patch.Patch
+	47,  // 82: rove.ReservationItemListRequest.filters:type_name -> rove.ReservationItemFilter
+	69,  // 83: rove.ReservationItemListResponse.items:type_name -> rove.ReservationItem
+	40,  // 84: rove.ReservationItemFilter.ref:type_name -> rove.ReservationItemRef
+	21,  // 85: rove.ReservationItemFilter.reservation:type_name -> rove.ReservationRef
+	59,  // 86: rove.ReservationItemFilter.resource:type_name -> rove.AssetRef
+	58,  // 87: rove.AllocationAddRequest.tenant:type_name -> rove.TenantRef
+	59,  // 88: rove.AllocationAddRequest.resource:type_name -> rove.AssetRef
+	61,  // 89: rove.AllocationAddRequest.begins_at:type_name -> google.protobuf.Timestamp
+	61,  // 90: rove.AllocationAddRequest.ends_at:type_name -> google.protobuf.Timestamp
+	61,  // 91: rove.AllocationAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	50,  // 92: rove.AllocationGetRequest.ref:type_name -> rove.AllocationRef
+	51,  // 93: rove.AllocationGetRequest.select:type_name -> rove.AllocationSelect
+	62,  // 94: rove.AllocationSelect.tenant:type_name -> rove.TenantSelect
+	63,  // 95: rove.AllocationSelect.resource:type_name -> rove.AssetSelect
+	50,  // 96: rove.AllocationPatchRequest.ref:type_name -> rove.AllocationRef
+	61,  // 97: rove.AllocationPatchRequest.begins_at:type_name -> google.protobuf.Timestamp
+	61,  // 98: rove.AllocationPatchRequest.ends_at:type_name -> google.protobuf.Timestamp
+	61,  // 99: rove.AllocationPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	50,  // 100: rove.AllocationApplyRequest.ref:type_name -> rove.AllocationRef
+	64,  // 101: rove.AllocationApplyRequest.patch:type_name -> patch.Patch
+	57,  // 102: rove.AllocationListRequest.filters:type_name -> rove.AllocationFilter
+	70,  // 103: rove.AllocationListResponse.items:type_name -> rove.Allocation
+	50,  // 104: rove.AllocationFilter.ref:type_name -> rove.AllocationRef
+	59,  // 105: rove.AllocationFilter.resource:type_name -> rove.AssetRef
+	0,   // 106: rove.BookableService.Add:input_type -> rove.BookableAddRequest
+	1,   // 107: rove.BookableService.Get:input_type -> rove.BookableGetRequest
+	5,   // 108: rove.BookableService.Patch:input_type -> rove.BookablePatchRequest
+	6,   // 109: rove.BookableService.Apply:input_type -> rove.BookableApplyRequest
+	2,   // 110: rove.BookableService.Erase:input_type -> rove.BookableRef
+	8,   // 111: rove.BookableService.List:input_type -> rove.BookableListRequest
+	11,  // 112: rove.BookableService.Watch:input_type -> rove.BookableWatchRequest
+	14,  // 113: rove.BookableService.Update:input_type -> rove.BookableUpdateRequest
+	15,  // 114: rove.BookableService.Availability:input_type -> rove.BookableAvailabilityRequest
+	18,  // 115: rove.ReservationService.Add:input_type -> rove.ReservationAddRequest
+	20,  // 116: rove.ReservationService.Get:input_type -> rove.ReservationGetRequest
+	23,  // 117: rove.ReservationService.Patch:input_type -> rove.ReservationPatchRequest
+	24,  // 118: rove.ReservationService.Apply:input_type -> rove.ReservationApplyRequest
+	21,  // 119: rove.ReservationService.Erase:input_type -> rove.ReservationRef
+	26,  // 120: rove.ReservationService.List:input_type -> rove.ReservationListRequest
+	29,  // 121: rove.ReservationService.Watch:input_type -> rove.ReservationWatchRequest
+	32,  // 122: rove.ReservationService.Confirm:input_type -> rove.ReservationDecideRequest
+	32,  // 123: rove.ReservationService.Approve:input_type -> rove.ReservationDecideRequest
+	32,  // 124: rove.ReservationService.Reject:input_type -> rove.ReservationDecideRequest
+	32,  // 125: rove.ReservationService.Cancel:input_type -> rove.ReservationDecideRequest
+	32,  // 126: rove.ReservationService.CheckIn:input_type -> rove.ReservationDecideRequest
+	32,  // 127: rove.ReservationService.Complete:input_type -> rove.ReservationDecideRequest
+	33,  // 128: rove.ReservationService.Calendar:input_type -> rove.ReservationCalendarRequest
+	38,  // 129: rove.ReservationItemService.Add:input_type -> rove.ReservationItemAddRequest
+	39,  // 130: rove.ReservationItemService.Get:input_type -> rove.ReservationItemGetRequest
+	42,  // 131: rove.ReservationItemService.Patch:input_type -> rove.ReservationItemPatchRequest
+	43,  // 132: rove.ReservationItemService.Apply:input_type -> rove.ReservationItemApplyRequest
+	40,  // 133: rove.ReservationItemService.Erase:input_type -> rove.ReservationItemRef
+	45,  // 134: rove.ReservationItemService.List:input_type -> rove.ReservationItemListRequest
+	48,  // 135: rove.AllocationService.Add:input_type -> rove.AllocationAddRequest
+	49,  // 136: rove.AllocationService.Get:input_type -> rove.AllocationGetRequest
+	52,  // 137: rove.AllocationService.Patch:input_type -> rove.AllocationPatchRequest
+	53,  // 138: rove.AllocationService.Apply:input_type -> rove.AllocationApplyRequest
+	50,  // 139: rove.AllocationService.Erase:input_type -> rove.AllocationRef
+	55,  // 140: rove.AllocationService.List:input_type -> rove.AllocationListRequest
+	65,  // 141: rove.BookableService.Add:output_type -> rove.Bookable
+	65,  // 142: rove.BookableService.Get:output_type -> rove.Bookable
+	65,  // 143: rove.BookableService.Patch:output_type -> rove.Bookable
+	65,  // 144: rove.BookableService.Apply:output_type -> rove.Bookable
+	7,   // 145: rove.BookableService.Erase:output_type -> rove.BookableEraseResponse
+	9,   // 146: rove.BookableService.List:output_type -> rove.BookableListResponse
+	12,  // 147: rove.BookableService.Watch:output_type -> rove.BookableWatchResponse
+	65,  // 148: rove.BookableService.Update:output_type -> rove.Bookable
+	16,  // 149: rove.BookableService.Availability:output_type -> rove.BookableAvailabilityResponse
+	68,  // 150: rove.ReservationService.Add:output_type -> rove.Reservation
+	68,  // 151: rove.ReservationService.Get:output_type -> rove.Reservation
+	68,  // 152: rove.ReservationService.Patch:output_type -> rove.Reservation
+	68,  // 153: rove.ReservationService.Apply:output_type -> rove.Reservation
+	25,  // 154: rove.ReservationService.Erase:output_type -> rove.ReservationEraseResponse
+	27,  // 155: rove.ReservationService.List:output_type -> rove.ReservationListResponse
+	30,  // 156: rove.ReservationService.Watch:output_type -> rove.ReservationWatchResponse
+	68,  // 157: rove.ReservationService.Confirm:output_type -> rove.Reservation
+	68,  // 158: rove.ReservationService.Approve:output_type -> rove.Reservation
+	68,  // 159: rove.ReservationService.Reject:output_type -> rove.Reservation
+	68,  // 160: rove.ReservationService.Cancel:output_type -> rove.Reservation
+	68,  // 161: rove.ReservationService.CheckIn:output_type -> rove.Reservation
+	68,  // 162: rove.ReservationService.Complete:output_type -> rove.Reservation
+	34,  // 163: rove.ReservationService.Calendar:output_type -> rove.ReservationCalendarResponse
+	69,  // 164: rove.ReservationItemService.Add:output_type -> rove.ReservationItem
+	69,  // 165: rove.ReservationItemService.Get:output_type -> rove.ReservationItem
+	69,  // 166: rove.ReservationItemService.Patch:output_type -> rove.ReservationItem
+	69,  // 167: rove.ReservationItemService.Apply:output_type -> rove.ReservationItem
+	44,  // 168: rove.ReservationItemService.Erase:output_type -> rove.ReservationItemEraseResponse
+	46,  // 169: rove.ReservationItemService.List:output_type -> rove.ReservationItemListResponse
+	70,  // 170: rove.AllocationService.Add:output_type -> rove.Allocation
+	70,  // 171: rove.AllocationService.Get:output_type -> rove.Allocation
+	70,  // 172: rove.AllocationService.Patch:output_type -> rove.Allocation
+	70,  // 173: rove.AllocationService.Apply:output_type -> rove.Allocation
+	54,  // 174: rove.AllocationService.Erase:output_type -> rove.AllocationEraseResponse
+	56,  // 175: rove.AllocationService.List:output_type -> rove.AllocationListResponse
+	141, // [141:176] is the sub-list for method output_type
+	106, // [106:141] is the sub-list for method input_type
+	106, // [106:106] is the sub-list for extension type_name
+	106, // [106:106] is the sub-list for extension extendee
+	0,   // [0:106] is the sub-list for field type_name
 }
 
 func init() { file_rove_booking_svc_g_proto_init() }
@@ -10622,10 +10760,10 @@ func file_rove_booking_svc_g_proto_init() {
 	file_rove_booking_svc_g_proto_msgTypes[21].OneofWrappers = []any{
 		(*reservationRef_Id)(nil),
 	}
-	file_rove_booking_svc_g_proto_msgTypes[39].OneofWrappers = []any{
+	file_rove_booking_svc_g_proto_msgTypes[40].OneofWrappers = []any{
 		(*reservationItemRef_Id)(nil),
 	}
-	file_rove_booking_svc_g_proto_msgTypes[49].OneofWrappers = []any{
+	file_rove_booking_svc_g_proto_msgTypes[50].OneofWrappers = []any{
 		(*allocationRef_Id)(nil),
 	}
 	type x struct{}
@@ -10634,7 +10772,7 @@ func file_rove_booking_svc_g_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_booking_svc_g_proto_rawDesc), len(file_rove_booking_svc_g_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   57,
+			NumMessages:   58,
 			NumExtensions: 0,
 			NumServices:   4,
 		},

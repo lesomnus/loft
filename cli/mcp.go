@@ -1191,6 +1191,7 @@ type mcpReservation struct {
 	Assets   []mcpRef `json:"assets" jsonschema:"what is reserved"`
 	Series   bool     `json:"series,omitempty" jsonschema:"one of a repeating series"`
 	WaitsFor []mcpRef `json:"waits_for,omitempty" jsonschema:"what it does not hold: members of a reserved kit it should take with it, since something else holds them then (given to the kit after it was booked), and a reserved pool (a group) that has fewer usable members then than the reservations made before it hold, its name saying how many it booked and how many are free then. It takes each once there is room"`
+	OutOfUse []mcpRef `json:"out_of_use,omitempty" jsonschema:"items it takes that are out of use, which its pickup does not hand over: one it booked, or a member of a reserved kit that was kept in the kit as it went, its name saying its status (lost, retired or disposed). Said no more once it is in use again or taken off the kit"`
 }
 
 type mcpReservations struct {
@@ -1264,6 +1265,10 @@ func (t mcpTools) reservations(ctx context.Context, _ *mcp.CallToolRequest, in m
 				name = fmt.Sprintf("%s (%d booked, %d free then)", name, n, w.GetAvailable())
 			}
 			item.WaitsFor = append(item.WaitsFor, mcpRef{Id: idString(w.GetResourceId()), Name: name})
+		}
+		for _, g := range e.GetOutOfUse() {
+			name := strings.TrimSpace(g.GetResourceTag() + " " + g.GetResourceName())
+			item.OutOfUse = append(item.OutOfUse, mcpRef{Id: idString(g.GetResourceId()), Name: fmt.Sprintf("%s (%s)", name, g.GetStatus())})
 		}
 		out.Items = append(out.Items, item)
 	}

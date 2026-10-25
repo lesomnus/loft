@@ -33,6 +33,7 @@ import {
 	conditionWord,
 	kindWord,
 	labelWord,
+	markWord,
 	modeWord,
 	outOfUse,
 	reservationWord,
@@ -440,6 +441,7 @@ function Bookings(props: { a: Asset }): ReactNode {
 									<span>
 										<span className="mute">{e.partyName} </span>
 										<Badge v={e.reservation?.status ?? ''} words={reservationWord} />
+										{markWord(e) !== '' && <span className="badge warn">{markWord(e)}</span>}
 									</span>
 								</li>
 							))}

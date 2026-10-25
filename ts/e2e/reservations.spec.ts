@@ -197,7 +197,7 @@ test('a pool books as many as its members in use, and the booking made last wait
 	await expect(waiting).not.toContainText('수량 부족')
 })
 
-test('what is disposed of, or found lost by a count, is offered out of its kit, and the kit is picked up without it', async ({ page, as }) => {
+test('what is disposed of, or found lost by a count, is offered out of its kit; what is kept in it is said of its booking, whose booker is told; and the kit is picked up without them', async ({ page, as }) => {
 	const shoot = unique('e2e 처분')
 	const n = Math.random().toString(36).slice(2, 7).toUpperCase()
 	const tag = { kit: `EK-${n}`, camera: `EC-${n}`, lens: `EL-${n}`, tripod: `ET-${n}`, battery: `EB-${n}`, room: `ES-${n}` }
@@ -245,20 +245,34 @@ test('what is disposed of, or found lost by a count, is offered out of its kit, 
 	await resolve.getByRole('button', { name: '처리', exact: true }).click()
 	await said(page, '처리했습니다.')
 
-	// The battery is retired and kept in the kit, its box unticked: the
-	// booking still holds it.
-	await page.goto(`${workspace}/assets/${idOf(battery.id)}`)
-	await page.getByRole('button', { name: '정보·상태 변경' }).click()
-	const retire = page.getByRole('dialog')
+	// The battery is retired by the owner, at a desk of their own, and kept
+	// in the kit, its box unticked: the booking still holds it.
+	await admin.goto(`${workspace}/assets/${idOf(battery.id)}`)
+	await admin.getByRole('button', { name: '정보·상태 변경' }).click()
+	const retire = admin.getByRole('dialog')
 	await choose(field(retire, '상태'), '불용')
 	await offer(retire).uncheck()
 	await retire.getByRole('button', { name: '저장', exact: true }).click()
-	await said(page, '바꿨습니다.')
+	await said(admin, '바꿨습니다.')
+
+	// Whose booking it is hears of it before anybody comes for it: told so,
+	// and the booking marked where it is listed and said in its dialog.
+	await page.goto(`${workspace}/notifications`)
+	const notice = page.getByRole('listitem').filter({ hasText: shoot })
+	await expect(notice).toContainText(`예약 자산 불용: ${shoot}`)
+	await expect(notice).toContainText(`${tag.battery} e2e 처분 배터리은(는) 불용 상태라 수령할 때 건네지 않습니다`)
+	await page.goto(`${workspace}/reservations?tab=mine`)
+	const booked = page.getByRole('row').filter({ hasText: shoot })
+	await expect(booked).toContainText('건넬 수 없는 자산')
+	await booked.click()
+	const marked = page.getByRole('dialog').getByRole('note', { name: '건넬 수 없는 자산' })
+	await expect(marked).toContainText(`${tag.battery} e2e 처분 배터리: 불용`)
+	await expect(marked).toContainText('수령할 때 건네지 않습니다')
+	await expect(marked).not.toContainText(tag.tripod)
+	await expect(marked).not.toContainText(tag.lens)
 
 	// What the booking hands out now is the camera alone; the battery it
 	// holds is out of use, which nothing hands over, and is said instead.
-	await page.goto(`${workspace}/reservations?tab=mine`)
-	await page.getByRole('row').filter({ hasText: shoot }).click()
 	await page.getByRole('dialog').getByRole('button', { name: '수령 처리 (대여)' }).click()
 	const pickup = page.getByRole('dialog')
 	const out = pickup.getByRole('list', { name: '건넬 자산' })

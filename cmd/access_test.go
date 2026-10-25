@@ -25,6 +25,7 @@ import (
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/internal/ent"
 	entaccess "github.com/lesomnus/rove/internal/ent/access"
+	"github.com/lesomnus/rove/internal/ent/notification"
 )
 
 // person is somebody of the world's workspace who signs in nowhere: a person
@@ -109,6 +110,60 @@ func TestWhoReadWhoseDataIsRecorded(t *testing.T) {
 		x.Len(rs, 1)
 		x.Contains(rs[0].Subjects, park.GetId(), "the history read her name out, and did not say so")
 	})
+}
+
+// TestANoticeOfABookingIsOnTheRecord: what a booking takes that goes out of
+// use is told to whoever the booking is for (design 4, D42), in a notice whose
+// words are personal data (`Notification.desc`), as every notice's are: the
+// change that wrote it is on the record as having written it, and the person
+// it is for as having read it.
+func TestANoticeOfABookingIsOnTheRecord(t *testing.T) {
+	w := newWorld(t)
+	x := w.x
+	ctx := context.Background()
+	assets := app.NewAssetServiceClient(w.conn)
+	camera, err := assets.Add(w.owner, app.AssetAddRequest_builder{Name: "카메라", Tag: "CM-1"}.Build())
+	x.NoError(err)
+	_, err = app.NewBookableServiceClient(w.conn).Add(w.owner, app.BookableAddRequest_builder{Asset: app.AssetRef_builder{Id: camera.GetId()}.Build()}.Build())
+	x.NoError(err)
+	kh := w.holder("kim", "member")
+	_, err = w.s.Base.Party().Add(ctx, app.PartyAddRequest_builder{
+		Tenant: app.TenantRef_builder{Id: w.tenant.GetId()}.Build(),
+		Name:   "김민수", Kind: "person",
+		Holder: app.HolderRef_builder{Id: kh.GetId()}.Build(),
+	}.Build())
+	x.NoError(err)
+	kim := w.signIn(kh)
+	at := time.Now().Add(24 * time.Hour).Truncate(time.Hour)
+	_, err = app.NewReservationServiceClient(w.conn).Add(kim, app.ReservationAddRequest_builder{
+		Name:     "인터뷰",
+		BeginsAt: timestamppb.New(at),
+		EndsAt:   timestamppb.New(at.Add(time.Hour)),
+		Items:    []*app.ReservationItemSpec{app.ReservationItemSpec_builder{Resource: app.AssetRef_builder{Id: camera.GetId()}.Build()}.Build()},
+	}.Build())
+	x.NoError(err)
+
+	_, err = assets.SetAttributes(w.owner, app.AssetSetAttributesRequest_builder{
+		Ref: app.AssetRef_builder{Id: camera.GetId()}.Build(),
+		Set: map[string]string{"status": "retired"},
+	}.Build())
+	x.NoError(err)
+	told, err := w.s.Ent.Notification.Query().Where(notification.Kind("reservation.out_of_use")).All(ctx)
+	x.NoError(err)
+	x.Len(told, 1, "to whoever it is for, and nobody runs the bookings but the owner, who did it")
+	notice := pdid.Id(told[0].Id).Bytes()
+
+	rs := w.accessed(t, app.AssetService_SetAttributes_FullMethodName)
+	x.Len(rs, 1)
+	x.Equal("write", rs[0].Kind)
+	x.Contains(rs[0].Subjects, notice)
+
+	_, err = app.NewNotificationServiceClient(w.conn).Inbox(kim, &app.NotificationInboxRequest{})
+	x.NoError(err)
+	rs = w.accessed(t, app.NotificationService_Inbox_FullMethodName)
+	x.Len(rs, 1)
+	x.Equal("read", rs[0].Kind)
+	x.Contains(rs[0].Subjects, notice)
 }
 
 // TestADownloadOfPeopleSaysWhatItIsFor: the register's export names its
