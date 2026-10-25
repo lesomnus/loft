@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"slices"
 	"sort"
 	"strings"
 	"sync"
@@ -20,6 +21,7 @@ import (
 	"github.com/lesomnus/payday/pdid"
 
 	app "github.com/lesomnus/rove"
+	"github.com/lesomnus/rove/server/domain"
 	"github.com/lesomnus/rove/server/pd"
 )
 
@@ -313,6 +315,7 @@ type mcpAssetPlan struct {
 
 	Set   map[string]string `json:"set,omitempty" jsonschema:"set: name, desc, status, condition, serial, tag, type (an id), model (an id), or an attribute's key, each to a value"`
 	Clear []string          `json:"clear,omitempty" jsonschema:"set: attribute keys to clear"`
+	Leave bool              `json:"leave_kits,omitempty" jsonschema:"set, with a status of lost, retired or disposed: take it out of every kit and group it is a member of as well, which the summary names, and the kits' bookings let it go; the summary of a plan without it names what it stays a member of"`
 
 	Role  string `json:"role,omitempty" jsonschema:"assign: owner, manager or custodian"`
 	Party string `json:"party,omitempty" jsonschema:"assign: who takes the role, an id find_people answers with; left out ends the role"`
@@ -531,7 +534,14 @@ func (c *mcpCall) assetSet(in mcpAssetPlan) (*plan, error) {
 	if at != nil {
 		req.SetAt(at)
 	}
-	summary := fmt.Sprintf("속성 변경: %s: %s%s%s", label, strings.Join(changes, ", "), clause(", %s부터", when), clause(" — %s", in.Reason))
+	stays, err := c.leaving(a, in.Set["status"], in.Leave, func(leave []*app.AssetRef, names string) {
+		req.SetLeave(leave)
+		changes = append(changes, names+"에서 빼기")
+	})
+	if err != nil {
+		return nil, err
+	}
+	summary := fmt.Sprintf("속성 변경: %s: %s%s%s%s", label, strings.Join(changes, ", "), clause(", %s부터", when), stays, clause(" — %s", in.Reason))
 	return &plan{
 		method:  app.AssetService_SetAttributes_FullMethodName,
 		summary: summary,
@@ -543,6 +553,60 @@ func (c *mcpCall) assetSet(in mcpAssetPlan) (*plan, error) {
 			return refOf(v.GetId(), v.GetName()), nil
 		},
 	}, nil
+}
+
+// leaving is what going out of use does to what `a` is a member of
+// (AssetSetAttributesRequest.leave), as a plan says it: with `leave`, it
+// leaves each kit and group it is a member of now, named, which `take` puts
+// in the request and the sentence; and without, the sentence's clause of what
+// it stays a member of -- whose bookings still take it -- so that the person
+// is told before they say yes, and the assistant may ask to take it out.
+func (c *mcpCall) leaving(a *app.Asset, status string, leave bool, take func(leave []*app.AssetRef, names string)) (string, error) {
+	if !slices.Contains(domain.OutOfUse, status) {
+		if leave {
+			return "", errors.New("leave_kits: only as it goes out of use, with a status of lost, retired or disposed")
+		}
+		return "", nil
+	}
+	ms, err := c.memberships(a)
+	if err != nil || len(ms) == 0 {
+		return "", err
+	}
+	names := []string{}
+	refs := []*app.AssetRef{}
+	for _, m := range ms {
+		names = append(names, m.name)
+		refs = append(refs, app.AssetById(m.id))
+	}
+	if leave {
+		take(refs, strings.Join(names, ", "))
+		return "", nil
+	}
+	return fmt.Sprintf(" (%s의 구성품으로 남음)", strings.Join(names, ", ")), nil
+}
+
+// membership is a kit or a group an asset is a member of now, as its history
+// says it: the open `member_of` row it is the source of.
+type membership struct {
+	id   []byte
+	name string
+}
+
+// memberships answers what `a` is a member of now, newest first.
+func (c *mcpCall) memberships(a *app.Asset) ([]membership, error) {
+	v, err := app.NewAssetServiceClient(c.conn).Timeline(c.ctx, app.AssetTimelineRequest_builder{Ref: app.AssetById(a.GetId())}.Build())
+	if err != nil {
+		return nil, failed(err)
+	}
+	out := []membership{}
+	for _, e := range v.GetEntries() {
+		d := e.GetDetail()
+		if e.GetKind() != "link" || e.HasSupersededAt() || e.HasValidTo() || d["kind"] != "member_of" || d["side"] != "source" {
+			continue
+		}
+		out = append(out, membership{id: e.GetOtherId(), name: e.GetOtherName()})
+	}
+	return out, nil
 }
 
 func (c *mcpCall) assetAssign(in mcpAssetPlan) (*plan, error) {

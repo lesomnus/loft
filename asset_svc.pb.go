@@ -4167,6 +4167,7 @@ type AssetSetAttributesRequest struct {
 	xxx_hidden_At     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=at"`
 	xxx_hidden_Reason string                 `protobuf:"bytes,5,opt,name=reason"`
 	xxx_hidden_Op     []byte                 `protobuf:"bytes,6,opt,name=op"`
+	xxx_hidden_Leave  *[]*AssetRef           `protobuf:"bytes,7,rep,name=leave"`
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -4238,6 +4239,15 @@ func (x *AssetSetAttributesRequest) GetOp() []byte {
 	return nil
 }
 
+func (x *AssetSetAttributesRequest) GetLeave() []*AssetRef {
+	if x != nil {
+		if x.xxx_hidden_Leave != nil {
+			return *x.xxx_hidden_Leave
+		}
+	}
+	return nil
+}
+
 func (x *AssetSetAttributesRequest) SetRef(v *AssetRef) {
 	x.xxx_hidden_Ref = v
 }
@@ -4263,6 +4273,10 @@ func (x *AssetSetAttributesRequest) SetOp(v []byte) {
 		v = []byte{}
 	}
 	x.xxx_hidden_Op = v
+}
+
+func (x *AssetSetAttributesRequest) SetLeave(v []*AssetRef) {
+	x.xxx_hidden_Leave = &v
 }
 
 func (x *AssetSetAttributesRequest) HasRef() bool {
@@ -4298,6 +4312,13 @@ type AssetSetAttributesRequest_builder struct {
 	At     *timestamppb.Timestamp
 	Reason string
 	Op     []byte
+	// The kits and groups it leaves as it goes out of use -- with `status` set
+	// to lost, retired or disposed, and refused otherwise. Its membership of
+	// each ends in this operation, as a relation of its own this one is the
+	// cause of (design D34), from `at`, or from now when it was made a member
+	// after that; and the bookings of a kit let it go (design 4). One it is no
+	// member of now is passed over.
+	Leave []*AssetRef
 }
 
 func (b0 AssetSetAttributesRequest_builder) Build() *AssetSetAttributesRequest {
@@ -4310,6 +4331,7 @@ func (b0 AssetSetAttributesRequest_builder) Build() *AssetSetAttributesRequest {
 	x.xxx_hidden_At = b.At
 	x.xxx_hidden_Reason = b.Reason
 	x.xxx_hidden_Op = b.Op
+	x.xxx_hidden_Leave = &b.Leave
 	return m0
 }
 
@@ -5288,13 +5310,15 @@ type TimelineEntry_builder struct {
 	// What it says, for a person.
 	Summary string
 	// What it holds, field by field: a placement's mode, slot and rack
-	// positions (`u`), a stewardship's role, a link's kind and whether it is
-	// required, a fact's key and value. An event's is what its message held,
-	// under the names its domain's table gives the fields (`rove/past.proto`):
-	// a row it names as the row is called now -- a person by their name, and
-	// nothing else of theirs -- or as its identifier where nothing names it,
-	// and a moment in the workspace's zone, as RFC 3339 writes one. A row from
-	// before Rove's past was payday's is what its `payload` said.
+	// positions (`u`), a stewardship's role, a link's kind, whether it is
+	// required and which end of it the asset is (`side`: `source`, the member
+	// or the one connected, or `target`), a fact's key and value. An event's
+	// is what its message held, under the names its domain's table gives the
+	// fields (`rove/past.proto`): a row it names as the row is called now -- a
+	// person by their name, and nothing else of theirs -- or as its identifier
+	// where nothing names it, and a moment in the workspace's zone, as RFC 3339
+	// writes one. A row from before Rove's past was payday's is what its
+	// `payload` said.
 	Detail    map[string]string
 	EventId   []byte
 	EventKind string
@@ -15122,14 +15146,15 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x04u_to\x18\x06 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x03uTo\x12*\n" +
 	"\x02at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\x02at\x12\x1d\n" +
 	"\x06reason\x18\b \x01(\tB\x05\xaa\x01\x02\b\x02R\x06reason\x12\x15\n" +
-	"\x02op\x18\t \x01(\fB\x05\xaa\x01\x02\b\x02R\x02op\"\xa9\x02\n" +
+	"\x02op\x18\t \x01(\fB\x05\xaa\x01\x02\b\x02R\x02op\"\xcf\x02\n" +
 	"\x19AssetSetAttributesRequest\x12 \n" +
 	"\x03ref\x18\x01 \x01(\v2\x0e.rove.AssetRefR\x03ref\x12:\n" +
 	"\x03set\x18\x02 \x03(\v2(.rove.AssetSetAttributesRequest.SetEntryR\x03set\x12\x14\n" +
 	"\x05clear\x18\x03 \x03(\tR\x05clear\x12*\n" +
 	"\x02at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x02at\x12\x1d\n" +
 	"\x06reason\x18\x05 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06reason\x12\x15\n" +
-	"\x02op\x18\x06 \x01(\fB\x05\xaa\x01\x02\b\x02R\x02op\x1a6\n" +
+	"\x02op\x18\x06 \x01(\fB\x05\xaa\x01\x02\b\x02R\x02op\x12$\n" +
+	"\x05leave\x18\a \x03(\v2\x0e.rove.AssetRefR\x05leave\x1a6\n" +
 	"\bSetEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd9\x01\n" +
@@ -15817,226 +15842,227 @@ var file_rove_asset_svc_g_proto_depIdxs = []int32{
 	1,   // 47: rove.AssetSetAttributesRequest.ref:type_name -> rove.AssetRef
 	101, // 48: rove.AssetSetAttributesRequest.set:type_name -> rove.AssetSetAttributesRequest.SetEntry
 	110, // 49: rove.AssetSetAttributesRequest.at:type_name -> google.protobuf.Timestamp
-	1,   // 50: rove.AssetAssignRequest.ref:type_name -> rove.AssetRef
-	111, // 51: rove.AssetAssignRequest.party:type_name -> rove.PartyRef
-	110, // 52: rove.AssetAssignRequest.at:type_name -> google.protobuf.Timestamp
-	1,   // 53: rove.AssetRelateRequest.ref:type_name -> rove.AssetRef
-	1,   // 54: rove.AssetRelateRequest.target:type_name -> rove.AssetRef
-	110, // 55: rove.AssetRelateRequest.at:type_name -> google.protobuf.Timestamp
-	1,   // 56: rove.AssetCorrectRequest.ref:type_name -> rove.AssetRef
-	110, // 57: rove.AssetCorrectRequest.valid_from:type_name -> google.protobuf.Timestamp
-	1,   // 58: rove.AssetTimelineRequest.ref:type_name -> rove.AssetRef
-	110, // 59: rove.AssetTimelineRequest.known:type_name -> google.protobuf.Timestamp
-	24,  // 60: rove.AssetTimelineResponse.entries:type_name -> rove.TimelineEntry
-	110, // 61: rove.TimelineEntry.valid_from:type_name -> google.protobuf.Timestamp
-	110, // 62: rove.TimelineEntry.valid_to:type_name -> google.protobuf.Timestamp
-	110, // 63: rove.TimelineEntry.recorded_at:type_name -> google.protobuf.Timestamp
-	110, // 64: rove.TimelineEntry.superseded_at:type_name -> google.protobuf.Timestamp
-	102, // 65: rove.TimelineEntry.detail:type_name -> rove.TimelineEntry.DetailEntry
-	1,   // 66: rove.AssetQueryAtRequest.root:type_name -> rove.AssetRef
-	110, // 67: rove.AssetQueryAtRequest.at:type_name -> google.protobuf.Timestamp
-	110, // 68: rove.AssetQueryAtRequest.known:type_name -> google.protobuf.Timestamp
-	27,  // 69: rove.AssetQueryAtResponse.items:type_name -> rove.AssetState
-	103, // 70: rove.AssetState.facts:type_name -> rove.AssetState.FactsEntry
-	104, // 71: rove.AssetState.stewards:type_name -> rove.AssetState.StewardsEntry
-	105, // 72: rove.AssetState.steward_names:type_name -> rove.AssetState.StewardNamesEntry
-	1,   // 73: rove.AssetDiffRequest.root:type_name -> rove.AssetRef
-	110, // 74: rove.AssetDiffRequest.from:type_name -> google.protobuf.Timestamp
-	110, // 75: rove.AssetDiffRequest.to:type_name -> google.protobuf.Timestamp
-	30,  // 76: rove.AssetDiffResponse.changes:type_name -> rove.AssetChange
-	108, // 77: rove.AssetSearchRequest.type:type_name -> rove.AssetTypeRef
-	1,   // 78: rove.AssetSearchRequest.within:type_name -> rove.AssetRef
-	111, // 79: rove.AssetSearchRequest.custodian:type_name -> rove.PartyRef
-	112, // 80: rove.AssetSearchResponse.items:type_name -> rove.Asset
-	110, // 81: rove.AssetReportRequest.from:type_name -> google.protobuf.Timestamp
-	110, // 82: rove.AssetReportRequest.to:type_name -> google.protobuf.Timestamp
-	35,  // 83: rove.AssetReportResponse.rows:type_name -> rove.ReportRow
-	106, // 84: rove.ReportRow.detail:type_name -> rove.ReportRow.DetailEntry
-	0,   // 85: rove.AssetReadSheetResponse.items:type_name -> rove.AssetAddRequest
-	41,  // 86: rove.AssetReadSheetResponse.issues:type_name -> rove.AssetReadSheetIssue
-	107, // 87: rove.TenantDomainAddRequest.tenant:type_name -> rove.TenantRef
-	110, // 88: rove.TenantDomainAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	110, // 89: rove.TenantDomainAddRequest.verified_at:type_name -> google.protobuf.Timestamp
-	110, // 90: rove.TenantDomainAddRequest.checked_at:type_name -> google.protobuf.Timestamp
-	110, // 91: rove.TenantDomainAddRequest.failing_since:type_name -> google.protobuf.Timestamp
-	110, // 92: rove.TenantDomainAddRequest.date_lapsed:type_name -> google.protobuf.Timestamp
-	110, // 93: rove.TenantDomainAddRequest.redirect_until:type_name -> google.protobuf.Timestamp
-	44,  // 94: rove.TenantDomainGetRequest.ref:type_name -> rove.TenantDomainRef
-	45,  // 95: rove.TenantDomainGetRequest.select:type_name -> rove.TenantDomainSelect
-	113, // 96: rove.TenantDomainSelect.tenant:type_name -> rove.TenantSelect
-	44,  // 97: rove.TenantDomainPatchRequest.ref:type_name -> rove.TenantDomainRef
-	110, // 98: rove.TenantDomainPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	110, // 99: rove.TenantDomainPatchRequest.verified_at:type_name -> google.protobuf.Timestamp
-	110, // 100: rove.TenantDomainPatchRequest.checked_at:type_name -> google.protobuf.Timestamp
-	110, // 101: rove.TenantDomainPatchRequest.failing_since:type_name -> google.protobuf.Timestamp
-	110, // 102: rove.TenantDomainPatchRequest.date_lapsed:type_name -> google.protobuf.Timestamp
-	110, // 103: rove.TenantDomainPatchRequest.redirect_until:type_name -> google.protobuf.Timestamp
-	44,  // 104: rove.TenantDomainApplyRequest.ref:type_name -> rove.TenantDomainRef
-	117, // 105: rove.TenantDomainApplyRequest.patch:type_name -> patch.Patch
-	51,  // 106: rove.TenantDomainListRequest.filters:type_name -> rove.TenantDomainFilter
-	118, // 107: rove.TenantDomainListResponse.items:type_name -> rove.TenantDomain
-	44,  // 108: rove.TenantDomainFilter.ref:type_name -> rove.TenantDomainRef
-	51,  // 109: rove.TenantDomainWatchRequest.filters:type_name -> rove.TenantDomainFilter
-	54,  // 110: rove.TenantDomainWatchResponse.items:type_name -> rove.TenantDomainWatchItem
-	118, // 111: rove.TenantDomainWatchItem.value:type_name -> rove.TenantDomain
-	44,  // 112: rove.TenantDomainVerifyRequest.ref:type_name -> rove.TenantDomainRef
-	44,  // 113: rove.TenantDomainActivateRequest.ref:type_name -> rove.TenantDomainRef
-	44,  // 114: rove.TenantDomainRetireRequest.ref:type_name -> rove.TenantDomainRef
-	118, // 115: rove.TenantDomainStatusResponse.active:type_name -> rove.TenantDomain
-	107, // 116: rove.LabelAddRequest.tenant:type_name -> rove.TenantRef
-	44,  // 117: rove.LabelAddRequest.domain:type_name -> rove.TenantDomainRef
-	110, // 118: rove.LabelAddRequest.bound_at:type_name -> google.protobuf.Timestamp
-	110, // 119: rove.LabelAddRequest.printed_at:type_name -> google.protobuf.Timestamp
-	110, // 120: rove.LabelAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	62,  // 121: rove.LabelGetRequest.ref:type_name -> rove.LabelRef
-	63,  // 122: rove.LabelGetRequest.select:type_name -> rove.LabelSelect
-	113, // 123: rove.LabelSelect.tenant:type_name -> rove.TenantSelect
-	45,  // 124: rove.LabelSelect.domain:type_name -> rove.TenantDomainSelect
-	62,  // 125: rove.LabelPatchRequest.ref:type_name -> rove.LabelRef
-	44,  // 126: rove.LabelPatchRequest.domain:type_name -> rove.TenantDomainRef
-	110, // 127: rove.LabelPatchRequest.bound_at:type_name -> google.protobuf.Timestamp
-	110, // 128: rove.LabelPatchRequest.printed_at:type_name -> google.protobuf.Timestamp
-	110, // 129: rove.LabelPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	62,  // 130: rove.LabelApplyRequest.ref:type_name -> rove.LabelRef
-	117, // 131: rove.LabelApplyRequest.patch:type_name -> patch.Patch
-	69,  // 132: rove.LabelListRequest.filters:type_name -> rove.LabelFilter
-	119, // 133: rove.LabelListResponse.items:type_name -> rove.Label
-	62,  // 134: rove.LabelFilter.ref:type_name -> rove.LabelRef
-	69,  // 135: rove.LabelWatchRequest.filters:type_name -> rove.LabelFilter
-	72,  // 136: rove.LabelWatchResponse.items:type_name -> rove.LabelWatchItem
-	119, // 137: rove.LabelWatchItem.value:type_name -> rove.Label
-	119, // 138: rove.LabelPrintResponse.labels:type_name -> rove.Label
-	62,  // 139: rove.LabelBindRequest.ref:type_name -> rove.LabelRef
-	1,   // 140: rove.LabelBindRequest.asset:type_name -> rove.AssetRef
-	62,  // 141: rove.LabelUnbindRequest.ref:type_name -> rove.LabelRef
-	119, // 142: rove.LabelResolveResponse.label:type_name -> rove.Label
-	112, // 143: rove.LabelResolveResponse.asset:type_name -> rove.Asset
-	107, // 144: rove.AttachmentAddRequest.tenant:type_name -> rove.TenantRef
-	110, // 145: rove.AttachmentAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	81,  // 146: rove.AttachmentGetRequest.ref:type_name -> rove.AttachmentRef
-	82,  // 147: rove.AttachmentGetRequest.select:type_name -> rove.AttachmentSelect
-	113, // 148: rove.AttachmentSelect.tenant:type_name -> rove.TenantSelect
-	81,  // 149: rove.AttachmentPatchRequest.ref:type_name -> rove.AttachmentRef
-	110, // 150: rove.AttachmentPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	81,  // 151: rove.AttachmentApplyRequest.ref:type_name -> rove.AttachmentRef
-	117, // 152: rove.AttachmentApplyRequest.patch:type_name -> patch.Patch
-	88,  // 153: rove.AttachmentListRequest.filters:type_name -> rove.AttachmentFilter
-	120, // 154: rove.AttachmentListResponse.items:type_name -> rove.Attachment
-	81,  // 155: rove.AttachmentFilter.ref:type_name -> rove.AttachmentRef
-	88,  // 156: rove.AttachmentWatchRequest.filters:type_name -> rove.AttachmentFilter
-	91,  // 157: rove.AttachmentWatchResponse.items:type_name -> rove.AttachmentWatchItem
-	120, // 158: rove.AttachmentWatchItem.value:type_name -> rove.Attachment
-	81,  // 159: rove.AttachmentUrlRequest.ref:type_name -> rove.AttachmentRef
-	110, // 160: rove.AttachmentUrlResponse.expires_at:type_name -> google.protobuf.Timestamp
-	0,   // 161: rove.AssetService.Add:input_type -> rove.AssetAddRequest
-	3,   // 162: rove.AssetService.AddMany:input_type -> rove.AssetAddManyRequest
-	6,   // 163: rove.AssetService.Get:input_type -> rove.AssetGetRequest
-	8,   // 164: rove.AssetService.Patch:input_type -> rove.AssetPatchRequest
-	9,   // 165: rove.AssetService.Apply:input_type -> rove.AssetApplyRequest
-	1,   // 166: rove.AssetService.Erase:input_type -> rove.AssetRef
-	11,  // 167: rove.AssetService.List:input_type -> rove.AssetListRequest
-	14,  // 168: rove.AssetService.Watch:input_type -> rove.AssetWatchRequest
-	17,  // 169: rove.AssetService.Move:input_type -> rove.AssetMoveRequest
-	18,  // 170: rove.AssetService.SetAttributes:input_type -> rove.AssetSetAttributesRequest
-	19,  // 171: rove.AssetService.Assign:input_type -> rove.AssetAssignRequest
-	20,  // 172: rove.AssetService.Relate:input_type -> rove.AssetRelateRequest
-	21,  // 173: rove.AssetService.Correct:input_type -> rove.AssetCorrectRequest
-	22,  // 174: rove.AssetService.Timeline:input_type -> rove.AssetTimelineRequest
-	25,  // 175: rove.AssetService.QueryAt:input_type -> rove.AssetQueryAtRequest
-	28,  // 176: rove.AssetService.Diff:input_type -> rove.AssetDiffRequest
-	31,  // 177: rove.AssetService.Search:input_type -> rove.AssetSearchRequest
-	33,  // 178: rove.AssetService.Report:input_type -> rove.AssetReportRequest
-	36,  // 179: rove.AssetService.Export:input_type -> rove.AssetExportRequest
-	38,  // 180: rove.AssetService.Form:input_type -> rove.AssetFormRequest
-	39,  // 181: rove.AssetService.ReadSheet:input_type -> rove.AssetReadSheetRequest
-	42,  // 182: rove.TenantDomainService.Add:input_type -> rove.TenantDomainAddRequest
-	43,  // 183: rove.TenantDomainService.Get:input_type -> rove.TenantDomainGetRequest
-	46,  // 184: rove.TenantDomainService.Patch:input_type -> rove.TenantDomainPatchRequest
-	47,  // 185: rove.TenantDomainService.Apply:input_type -> rove.TenantDomainApplyRequest
-	44,  // 186: rove.TenantDomainService.Erase:input_type -> rove.TenantDomainRef
-	49,  // 187: rove.TenantDomainService.List:input_type -> rove.TenantDomainListRequest
-	52,  // 188: rove.TenantDomainService.Watch:input_type -> rove.TenantDomainWatchRequest
-	55,  // 189: rove.TenantDomainService.Verify:input_type -> rove.TenantDomainVerifyRequest
-	56,  // 190: rove.TenantDomainService.Activate:input_type -> rove.TenantDomainActivateRequest
-	57,  // 191: rove.TenantDomainService.Retire:input_type -> rove.TenantDomainRetireRequest
-	58,  // 192: rove.TenantDomainService.Status:input_type -> rove.TenantDomainStatusRequest
-	60,  // 193: rove.LabelService.Add:input_type -> rove.LabelAddRequest
-	61,  // 194: rove.LabelService.Get:input_type -> rove.LabelGetRequest
-	64,  // 195: rove.LabelService.Patch:input_type -> rove.LabelPatchRequest
-	65,  // 196: rove.LabelService.Apply:input_type -> rove.LabelApplyRequest
-	62,  // 197: rove.LabelService.Erase:input_type -> rove.LabelRef
-	67,  // 198: rove.LabelService.List:input_type -> rove.LabelListRequest
-	70,  // 199: rove.LabelService.Watch:input_type -> rove.LabelWatchRequest
-	73,  // 200: rove.LabelService.Print:input_type -> rove.LabelPrintRequest
-	75,  // 201: rove.LabelService.Bind:input_type -> rove.LabelBindRequest
-	76,  // 202: rove.LabelService.Unbind:input_type -> rove.LabelUnbindRequest
-	77,  // 203: rove.LabelService.Resolve:input_type -> rove.LabelResolveRequest
-	79,  // 204: rove.AttachmentService.Add:input_type -> rove.AttachmentAddRequest
-	80,  // 205: rove.AttachmentService.Get:input_type -> rove.AttachmentGetRequest
-	83,  // 206: rove.AttachmentService.Patch:input_type -> rove.AttachmentPatchRequest
-	84,  // 207: rove.AttachmentService.Apply:input_type -> rove.AttachmentApplyRequest
-	81,  // 208: rove.AttachmentService.Erase:input_type -> rove.AttachmentRef
-	86,  // 209: rove.AttachmentService.List:input_type -> rove.AttachmentListRequest
-	89,  // 210: rove.AttachmentService.Watch:input_type -> rove.AttachmentWatchRequest
-	92,  // 211: rove.AttachmentService.Upload:input_type -> rove.AttachmentUploadRequest
-	93,  // 212: rove.AttachmentService.Url:input_type -> rove.AttachmentUrlRequest
-	112, // 213: rove.AssetService.Add:output_type -> rove.Asset
-	4,   // 214: rove.AssetService.AddMany:output_type -> rove.AssetAddManyResponse
-	112, // 215: rove.AssetService.Get:output_type -> rove.Asset
-	112, // 216: rove.AssetService.Patch:output_type -> rove.Asset
-	112, // 217: rove.AssetService.Apply:output_type -> rove.Asset
-	10,  // 218: rove.AssetService.Erase:output_type -> rove.AssetEraseResponse
-	12,  // 219: rove.AssetService.List:output_type -> rove.AssetListResponse
-	15,  // 220: rove.AssetService.Watch:output_type -> rove.AssetWatchResponse
-	112, // 221: rove.AssetService.Move:output_type -> rove.Asset
-	112, // 222: rove.AssetService.SetAttributes:output_type -> rove.Asset
-	112, // 223: rove.AssetService.Assign:output_type -> rove.Asset
-	112, // 224: rove.AssetService.Relate:output_type -> rove.Asset
-	112, // 225: rove.AssetService.Correct:output_type -> rove.Asset
-	23,  // 226: rove.AssetService.Timeline:output_type -> rove.AssetTimelineResponse
-	26,  // 227: rove.AssetService.QueryAt:output_type -> rove.AssetQueryAtResponse
-	29,  // 228: rove.AssetService.Diff:output_type -> rove.AssetDiffResponse
-	32,  // 229: rove.AssetService.Search:output_type -> rove.AssetSearchResponse
-	34,  // 230: rove.AssetService.Report:output_type -> rove.AssetReportResponse
-	37,  // 231: rove.AssetService.Export:output_type -> rove.AssetExportResponse
-	37,  // 232: rove.AssetService.Form:output_type -> rove.AssetExportResponse
-	40,  // 233: rove.AssetService.ReadSheet:output_type -> rove.AssetReadSheetResponse
-	118, // 234: rove.TenantDomainService.Add:output_type -> rove.TenantDomain
-	118, // 235: rove.TenantDomainService.Get:output_type -> rove.TenantDomain
-	118, // 236: rove.TenantDomainService.Patch:output_type -> rove.TenantDomain
-	118, // 237: rove.TenantDomainService.Apply:output_type -> rove.TenantDomain
-	48,  // 238: rove.TenantDomainService.Erase:output_type -> rove.TenantDomainEraseResponse
-	50,  // 239: rove.TenantDomainService.List:output_type -> rove.TenantDomainListResponse
-	53,  // 240: rove.TenantDomainService.Watch:output_type -> rove.TenantDomainWatchResponse
-	118, // 241: rove.TenantDomainService.Verify:output_type -> rove.TenantDomain
-	118, // 242: rove.TenantDomainService.Activate:output_type -> rove.TenantDomain
-	118, // 243: rove.TenantDomainService.Retire:output_type -> rove.TenantDomain
-	59,  // 244: rove.TenantDomainService.Status:output_type -> rove.TenantDomainStatusResponse
-	119, // 245: rove.LabelService.Add:output_type -> rove.Label
-	119, // 246: rove.LabelService.Get:output_type -> rove.Label
-	119, // 247: rove.LabelService.Patch:output_type -> rove.Label
-	119, // 248: rove.LabelService.Apply:output_type -> rove.Label
-	66,  // 249: rove.LabelService.Erase:output_type -> rove.LabelEraseResponse
-	68,  // 250: rove.LabelService.List:output_type -> rove.LabelListResponse
-	71,  // 251: rove.LabelService.Watch:output_type -> rove.LabelWatchResponse
-	74,  // 252: rove.LabelService.Print:output_type -> rove.LabelPrintResponse
-	119, // 253: rove.LabelService.Bind:output_type -> rove.Label
-	119, // 254: rove.LabelService.Unbind:output_type -> rove.Label
-	78,  // 255: rove.LabelService.Resolve:output_type -> rove.LabelResolveResponse
-	120, // 256: rove.AttachmentService.Add:output_type -> rove.Attachment
-	120, // 257: rove.AttachmentService.Get:output_type -> rove.Attachment
-	120, // 258: rove.AttachmentService.Patch:output_type -> rove.Attachment
-	120, // 259: rove.AttachmentService.Apply:output_type -> rove.Attachment
-	85,  // 260: rove.AttachmentService.Erase:output_type -> rove.AttachmentEraseResponse
-	87,  // 261: rove.AttachmentService.List:output_type -> rove.AttachmentListResponse
-	90,  // 262: rove.AttachmentService.Watch:output_type -> rove.AttachmentWatchResponse
-	120, // 263: rove.AttachmentService.Upload:output_type -> rove.Attachment
-	94,  // 264: rove.AttachmentService.Url:output_type -> rove.AttachmentUrlResponse
-	213, // [213:265] is the sub-list for method output_type
-	161, // [161:213] is the sub-list for method input_type
-	161, // [161:161] is the sub-list for extension type_name
-	161, // [161:161] is the sub-list for extension extendee
-	0,   // [0:161] is the sub-list for field type_name
+	1,   // 50: rove.AssetSetAttributesRequest.leave:type_name -> rove.AssetRef
+	1,   // 51: rove.AssetAssignRequest.ref:type_name -> rove.AssetRef
+	111, // 52: rove.AssetAssignRequest.party:type_name -> rove.PartyRef
+	110, // 53: rove.AssetAssignRequest.at:type_name -> google.protobuf.Timestamp
+	1,   // 54: rove.AssetRelateRequest.ref:type_name -> rove.AssetRef
+	1,   // 55: rove.AssetRelateRequest.target:type_name -> rove.AssetRef
+	110, // 56: rove.AssetRelateRequest.at:type_name -> google.protobuf.Timestamp
+	1,   // 57: rove.AssetCorrectRequest.ref:type_name -> rove.AssetRef
+	110, // 58: rove.AssetCorrectRequest.valid_from:type_name -> google.protobuf.Timestamp
+	1,   // 59: rove.AssetTimelineRequest.ref:type_name -> rove.AssetRef
+	110, // 60: rove.AssetTimelineRequest.known:type_name -> google.protobuf.Timestamp
+	24,  // 61: rove.AssetTimelineResponse.entries:type_name -> rove.TimelineEntry
+	110, // 62: rove.TimelineEntry.valid_from:type_name -> google.protobuf.Timestamp
+	110, // 63: rove.TimelineEntry.valid_to:type_name -> google.protobuf.Timestamp
+	110, // 64: rove.TimelineEntry.recorded_at:type_name -> google.protobuf.Timestamp
+	110, // 65: rove.TimelineEntry.superseded_at:type_name -> google.protobuf.Timestamp
+	102, // 66: rove.TimelineEntry.detail:type_name -> rove.TimelineEntry.DetailEntry
+	1,   // 67: rove.AssetQueryAtRequest.root:type_name -> rove.AssetRef
+	110, // 68: rove.AssetQueryAtRequest.at:type_name -> google.protobuf.Timestamp
+	110, // 69: rove.AssetQueryAtRequest.known:type_name -> google.protobuf.Timestamp
+	27,  // 70: rove.AssetQueryAtResponse.items:type_name -> rove.AssetState
+	103, // 71: rove.AssetState.facts:type_name -> rove.AssetState.FactsEntry
+	104, // 72: rove.AssetState.stewards:type_name -> rove.AssetState.StewardsEntry
+	105, // 73: rove.AssetState.steward_names:type_name -> rove.AssetState.StewardNamesEntry
+	1,   // 74: rove.AssetDiffRequest.root:type_name -> rove.AssetRef
+	110, // 75: rove.AssetDiffRequest.from:type_name -> google.protobuf.Timestamp
+	110, // 76: rove.AssetDiffRequest.to:type_name -> google.protobuf.Timestamp
+	30,  // 77: rove.AssetDiffResponse.changes:type_name -> rove.AssetChange
+	108, // 78: rove.AssetSearchRequest.type:type_name -> rove.AssetTypeRef
+	1,   // 79: rove.AssetSearchRequest.within:type_name -> rove.AssetRef
+	111, // 80: rove.AssetSearchRequest.custodian:type_name -> rove.PartyRef
+	112, // 81: rove.AssetSearchResponse.items:type_name -> rove.Asset
+	110, // 82: rove.AssetReportRequest.from:type_name -> google.protobuf.Timestamp
+	110, // 83: rove.AssetReportRequest.to:type_name -> google.protobuf.Timestamp
+	35,  // 84: rove.AssetReportResponse.rows:type_name -> rove.ReportRow
+	106, // 85: rove.ReportRow.detail:type_name -> rove.ReportRow.DetailEntry
+	0,   // 86: rove.AssetReadSheetResponse.items:type_name -> rove.AssetAddRequest
+	41,  // 87: rove.AssetReadSheetResponse.issues:type_name -> rove.AssetReadSheetIssue
+	107, // 88: rove.TenantDomainAddRequest.tenant:type_name -> rove.TenantRef
+	110, // 89: rove.TenantDomainAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	110, // 90: rove.TenantDomainAddRequest.verified_at:type_name -> google.protobuf.Timestamp
+	110, // 91: rove.TenantDomainAddRequest.checked_at:type_name -> google.protobuf.Timestamp
+	110, // 92: rove.TenantDomainAddRequest.failing_since:type_name -> google.protobuf.Timestamp
+	110, // 93: rove.TenantDomainAddRequest.date_lapsed:type_name -> google.protobuf.Timestamp
+	110, // 94: rove.TenantDomainAddRequest.redirect_until:type_name -> google.protobuf.Timestamp
+	44,  // 95: rove.TenantDomainGetRequest.ref:type_name -> rove.TenantDomainRef
+	45,  // 96: rove.TenantDomainGetRequest.select:type_name -> rove.TenantDomainSelect
+	113, // 97: rove.TenantDomainSelect.tenant:type_name -> rove.TenantSelect
+	44,  // 98: rove.TenantDomainPatchRequest.ref:type_name -> rove.TenantDomainRef
+	110, // 99: rove.TenantDomainPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	110, // 100: rove.TenantDomainPatchRequest.verified_at:type_name -> google.protobuf.Timestamp
+	110, // 101: rove.TenantDomainPatchRequest.checked_at:type_name -> google.protobuf.Timestamp
+	110, // 102: rove.TenantDomainPatchRequest.failing_since:type_name -> google.protobuf.Timestamp
+	110, // 103: rove.TenantDomainPatchRequest.date_lapsed:type_name -> google.protobuf.Timestamp
+	110, // 104: rove.TenantDomainPatchRequest.redirect_until:type_name -> google.protobuf.Timestamp
+	44,  // 105: rove.TenantDomainApplyRequest.ref:type_name -> rove.TenantDomainRef
+	117, // 106: rove.TenantDomainApplyRequest.patch:type_name -> patch.Patch
+	51,  // 107: rove.TenantDomainListRequest.filters:type_name -> rove.TenantDomainFilter
+	118, // 108: rove.TenantDomainListResponse.items:type_name -> rove.TenantDomain
+	44,  // 109: rove.TenantDomainFilter.ref:type_name -> rove.TenantDomainRef
+	51,  // 110: rove.TenantDomainWatchRequest.filters:type_name -> rove.TenantDomainFilter
+	54,  // 111: rove.TenantDomainWatchResponse.items:type_name -> rove.TenantDomainWatchItem
+	118, // 112: rove.TenantDomainWatchItem.value:type_name -> rove.TenantDomain
+	44,  // 113: rove.TenantDomainVerifyRequest.ref:type_name -> rove.TenantDomainRef
+	44,  // 114: rove.TenantDomainActivateRequest.ref:type_name -> rove.TenantDomainRef
+	44,  // 115: rove.TenantDomainRetireRequest.ref:type_name -> rove.TenantDomainRef
+	118, // 116: rove.TenantDomainStatusResponse.active:type_name -> rove.TenantDomain
+	107, // 117: rove.LabelAddRequest.tenant:type_name -> rove.TenantRef
+	44,  // 118: rove.LabelAddRequest.domain:type_name -> rove.TenantDomainRef
+	110, // 119: rove.LabelAddRequest.bound_at:type_name -> google.protobuf.Timestamp
+	110, // 120: rove.LabelAddRequest.printed_at:type_name -> google.protobuf.Timestamp
+	110, // 121: rove.LabelAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	62,  // 122: rove.LabelGetRequest.ref:type_name -> rove.LabelRef
+	63,  // 123: rove.LabelGetRequest.select:type_name -> rove.LabelSelect
+	113, // 124: rove.LabelSelect.tenant:type_name -> rove.TenantSelect
+	45,  // 125: rove.LabelSelect.domain:type_name -> rove.TenantDomainSelect
+	62,  // 126: rove.LabelPatchRequest.ref:type_name -> rove.LabelRef
+	44,  // 127: rove.LabelPatchRequest.domain:type_name -> rove.TenantDomainRef
+	110, // 128: rove.LabelPatchRequest.bound_at:type_name -> google.protobuf.Timestamp
+	110, // 129: rove.LabelPatchRequest.printed_at:type_name -> google.protobuf.Timestamp
+	110, // 130: rove.LabelPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	62,  // 131: rove.LabelApplyRequest.ref:type_name -> rove.LabelRef
+	117, // 132: rove.LabelApplyRequest.patch:type_name -> patch.Patch
+	69,  // 133: rove.LabelListRequest.filters:type_name -> rove.LabelFilter
+	119, // 134: rove.LabelListResponse.items:type_name -> rove.Label
+	62,  // 135: rove.LabelFilter.ref:type_name -> rove.LabelRef
+	69,  // 136: rove.LabelWatchRequest.filters:type_name -> rove.LabelFilter
+	72,  // 137: rove.LabelWatchResponse.items:type_name -> rove.LabelWatchItem
+	119, // 138: rove.LabelWatchItem.value:type_name -> rove.Label
+	119, // 139: rove.LabelPrintResponse.labels:type_name -> rove.Label
+	62,  // 140: rove.LabelBindRequest.ref:type_name -> rove.LabelRef
+	1,   // 141: rove.LabelBindRequest.asset:type_name -> rove.AssetRef
+	62,  // 142: rove.LabelUnbindRequest.ref:type_name -> rove.LabelRef
+	119, // 143: rove.LabelResolveResponse.label:type_name -> rove.Label
+	112, // 144: rove.LabelResolveResponse.asset:type_name -> rove.Asset
+	107, // 145: rove.AttachmentAddRequest.tenant:type_name -> rove.TenantRef
+	110, // 146: rove.AttachmentAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	81,  // 147: rove.AttachmentGetRequest.ref:type_name -> rove.AttachmentRef
+	82,  // 148: rove.AttachmentGetRequest.select:type_name -> rove.AttachmentSelect
+	113, // 149: rove.AttachmentSelect.tenant:type_name -> rove.TenantSelect
+	81,  // 150: rove.AttachmentPatchRequest.ref:type_name -> rove.AttachmentRef
+	110, // 151: rove.AttachmentPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	81,  // 152: rove.AttachmentApplyRequest.ref:type_name -> rove.AttachmentRef
+	117, // 153: rove.AttachmentApplyRequest.patch:type_name -> patch.Patch
+	88,  // 154: rove.AttachmentListRequest.filters:type_name -> rove.AttachmentFilter
+	120, // 155: rove.AttachmentListResponse.items:type_name -> rove.Attachment
+	81,  // 156: rove.AttachmentFilter.ref:type_name -> rove.AttachmentRef
+	88,  // 157: rove.AttachmentWatchRequest.filters:type_name -> rove.AttachmentFilter
+	91,  // 158: rove.AttachmentWatchResponse.items:type_name -> rove.AttachmentWatchItem
+	120, // 159: rove.AttachmentWatchItem.value:type_name -> rove.Attachment
+	81,  // 160: rove.AttachmentUrlRequest.ref:type_name -> rove.AttachmentRef
+	110, // 161: rove.AttachmentUrlResponse.expires_at:type_name -> google.protobuf.Timestamp
+	0,   // 162: rove.AssetService.Add:input_type -> rove.AssetAddRequest
+	3,   // 163: rove.AssetService.AddMany:input_type -> rove.AssetAddManyRequest
+	6,   // 164: rove.AssetService.Get:input_type -> rove.AssetGetRequest
+	8,   // 165: rove.AssetService.Patch:input_type -> rove.AssetPatchRequest
+	9,   // 166: rove.AssetService.Apply:input_type -> rove.AssetApplyRequest
+	1,   // 167: rove.AssetService.Erase:input_type -> rove.AssetRef
+	11,  // 168: rove.AssetService.List:input_type -> rove.AssetListRequest
+	14,  // 169: rove.AssetService.Watch:input_type -> rove.AssetWatchRequest
+	17,  // 170: rove.AssetService.Move:input_type -> rove.AssetMoveRequest
+	18,  // 171: rove.AssetService.SetAttributes:input_type -> rove.AssetSetAttributesRequest
+	19,  // 172: rove.AssetService.Assign:input_type -> rove.AssetAssignRequest
+	20,  // 173: rove.AssetService.Relate:input_type -> rove.AssetRelateRequest
+	21,  // 174: rove.AssetService.Correct:input_type -> rove.AssetCorrectRequest
+	22,  // 175: rove.AssetService.Timeline:input_type -> rove.AssetTimelineRequest
+	25,  // 176: rove.AssetService.QueryAt:input_type -> rove.AssetQueryAtRequest
+	28,  // 177: rove.AssetService.Diff:input_type -> rove.AssetDiffRequest
+	31,  // 178: rove.AssetService.Search:input_type -> rove.AssetSearchRequest
+	33,  // 179: rove.AssetService.Report:input_type -> rove.AssetReportRequest
+	36,  // 180: rove.AssetService.Export:input_type -> rove.AssetExportRequest
+	38,  // 181: rove.AssetService.Form:input_type -> rove.AssetFormRequest
+	39,  // 182: rove.AssetService.ReadSheet:input_type -> rove.AssetReadSheetRequest
+	42,  // 183: rove.TenantDomainService.Add:input_type -> rove.TenantDomainAddRequest
+	43,  // 184: rove.TenantDomainService.Get:input_type -> rove.TenantDomainGetRequest
+	46,  // 185: rove.TenantDomainService.Patch:input_type -> rove.TenantDomainPatchRequest
+	47,  // 186: rove.TenantDomainService.Apply:input_type -> rove.TenantDomainApplyRequest
+	44,  // 187: rove.TenantDomainService.Erase:input_type -> rove.TenantDomainRef
+	49,  // 188: rove.TenantDomainService.List:input_type -> rove.TenantDomainListRequest
+	52,  // 189: rove.TenantDomainService.Watch:input_type -> rove.TenantDomainWatchRequest
+	55,  // 190: rove.TenantDomainService.Verify:input_type -> rove.TenantDomainVerifyRequest
+	56,  // 191: rove.TenantDomainService.Activate:input_type -> rove.TenantDomainActivateRequest
+	57,  // 192: rove.TenantDomainService.Retire:input_type -> rove.TenantDomainRetireRequest
+	58,  // 193: rove.TenantDomainService.Status:input_type -> rove.TenantDomainStatusRequest
+	60,  // 194: rove.LabelService.Add:input_type -> rove.LabelAddRequest
+	61,  // 195: rove.LabelService.Get:input_type -> rove.LabelGetRequest
+	64,  // 196: rove.LabelService.Patch:input_type -> rove.LabelPatchRequest
+	65,  // 197: rove.LabelService.Apply:input_type -> rove.LabelApplyRequest
+	62,  // 198: rove.LabelService.Erase:input_type -> rove.LabelRef
+	67,  // 199: rove.LabelService.List:input_type -> rove.LabelListRequest
+	70,  // 200: rove.LabelService.Watch:input_type -> rove.LabelWatchRequest
+	73,  // 201: rove.LabelService.Print:input_type -> rove.LabelPrintRequest
+	75,  // 202: rove.LabelService.Bind:input_type -> rove.LabelBindRequest
+	76,  // 203: rove.LabelService.Unbind:input_type -> rove.LabelUnbindRequest
+	77,  // 204: rove.LabelService.Resolve:input_type -> rove.LabelResolveRequest
+	79,  // 205: rove.AttachmentService.Add:input_type -> rove.AttachmentAddRequest
+	80,  // 206: rove.AttachmentService.Get:input_type -> rove.AttachmentGetRequest
+	83,  // 207: rove.AttachmentService.Patch:input_type -> rove.AttachmentPatchRequest
+	84,  // 208: rove.AttachmentService.Apply:input_type -> rove.AttachmentApplyRequest
+	81,  // 209: rove.AttachmentService.Erase:input_type -> rove.AttachmentRef
+	86,  // 210: rove.AttachmentService.List:input_type -> rove.AttachmentListRequest
+	89,  // 211: rove.AttachmentService.Watch:input_type -> rove.AttachmentWatchRequest
+	92,  // 212: rove.AttachmentService.Upload:input_type -> rove.AttachmentUploadRequest
+	93,  // 213: rove.AttachmentService.Url:input_type -> rove.AttachmentUrlRequest
+	112, // 214: rove.AssetService.Add:output_type -> rove.Asset
+	4,   // 215: rove.AssetService.AddMany:output_type -> rove.AssetAddManyResponse
+	112, // 216: rove.AssetService.Get:output_type -> rove.Asset
+	112, // 217: rove.AssetService.Patch:output_type -> rove.Asset
+	112, // 218: rove.AssetService.Apply:output_type -> rove.Asset
+	10,  // 219: rove.AssetService.Erase:output_type -> rove.AssetEraseResponse
+	12,  // 220: rove.AssetService.List:output_type -> rove.AssetListResponse
+	15,  // 221: rove.AssetService.Watch:output_type -> rove.AssetWatchResponse
+	112, // 222: rove.AssetService.Move:output_type -> rove.Asset
+	112, // 223: rove.AssetService.SetAttributes:output_type -> rove.Asset
+	112, // 224: rove.AssetService.Assign:output_type -> rove.Asset
+	112, // 225: rove.AssetService.Relate:output_type -> rove.Asset
+	112, // 226: rove.AssetService.Correct:output_type -> rove.Asset
+	23,  // 227: rove.AssetService.Timeline:output_type -> rove.AssetTimelineResponse
+	26,  // 228: rove.AssetService.QueryAt:output_type -> rove.AssetQueryAtResponse
+	29,  // 229: rove.AssetService.Diff:output_type -> rove.AssetDiffResponse
+	32,  // 230: rove.AssetService.Search:output_type -> rove.AssetSearchResponse
+	34,  // 231: rove.AssetService.Report:output_type -> rove.AssetReportResponse
+	37,  // 232: rove.AssetService.Export:output_type -> rove.AssetExportResponse
+	37,  // 233: rove.AssetService.Form:output_type -> rove.AssetExportResponse
+	40,  // 234: rove.AssetService.ReadSheet:output_type -> rove.AssetReadSheetResponse
+	118, // 235: rove.TenantDomainService.Add:output_type -> rove.TenantDomain
+	118, // 236: rove.TenantDomainService.Get:output_type -> rove.TenantDomain
+	118, // 237: rove.TenantDomainService.Patch:output_type -> rove.TenantDomain
+	118, // 238: rove.TenantDomainService.Apply:output_type -> rove.TenantDomain
+	48,  // 239: rove.TenantDomainService.Erase:output_type -> rove.TenantDomainEraseResponse
+	50,  // 240: rove.TenantDomainService.List:output_type -> rove.TenantDomainListResponse
+	53,  // 241: rove.TenantDomainService.Watch:output_type -> rove.TenantDomainWatchResponse
+	118, // 242: rove.TenantDomainService.Verify:output_type -> rove.TenantDomain
+	118, // 243: rove.TenantDomainService.Activate:output_type -> rove.TenantDomain
+	118, // 244: rove.TenantDomainService.Retire:output_type -> rove.TenantDomain
+	59,  // 245: rove.TenantDomainService.Status:output_type -> rove.TenantDomainStatusResponse
+	119, // 246: rove.LabelService.Add:output_type -> rove.Label
+	119, // 247: rove.LabelService.Get:output_type -> rove.Label
+	119, // 248: rove.LabelService.Patch:output_type -> rove.Label
+	119, // 249: rove.LabelService.Apply:output_type -> rove.Label
+	66,  // 250: rove.LabelService.Erase:output_type -> rove.LabelEraseResponse
+	68,  // 251: rove.LabelService.List:output_type -> rove.LabelListResponse
+	71,  // 252: rove.LabelService.Watch:output_type -> rove.LabelWatchResponse
+	74,  // 253: rove.LabelService.Print:output_type -> rove.LabelPrintResponse
+	119, // 254: rove.LabelService.Bind:output_type -> rove.Label
+	119, // 255: rove.LabelService.Unbind:output_type -> rove.Label
+	78,  // 256: rove.LabelService.Resolve:output_type -> rove.LabelResolveResponse
+	120, // 257: rove.AttachmentService.Add:output_type -> rove.Attachment
+	120, // 258: rove.AttachmentService.Get:output_type -> rove.Attachment
+	120, // 259: rove.AttachmentService.Patch:output_type -> rove.Attachment
+	120, // 260: rove.AttachmentService.Apply:output_type -> rove.Attachment
+	85,  // 261: rove.AttachmentService.Erase:output_type -> rove.AttachmentEraseResponse
+	87,  // 262: rove.AttachmentService.List:output_type -> rove.AttachmentListResponse
+	90,  // 263: rove.AttachmentService.Watch:output_type -> rove.AttachmentWatchResponse
+	120, // 264: rove.AttachmentService.Upload:output_type -> rove.Attachment
+	94,  // 265: rove.AttachmentService.Url:output_type -> rove.AttachmentUrlResponse
+	214, // [214:266] is the sub-list for method output_type
+	162, // [162:214] is the sub-list for method input_type
+	162, // [162:162] is the sub-list for extension type_name
+	162, // [162:162] is the sub-list for extension extendee
+	0,   // [0:162] is the sub-list for field type_name
 }
 
 func init() { file_rove_asset_svc_g_proto_init() }

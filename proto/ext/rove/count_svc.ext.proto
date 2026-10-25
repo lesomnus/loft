@@ -48,6 +48,9 @@ message InventoryCountResolveRequest {
   // moved | lost | ignored
   string resolution = 2 [features.field_presence = IMPLICIT];
   string reason = 3 [features.field_presence = IMPLICIT];
+  // With `lost`: the kits and groups the asset leaves as it is lost, as
+  // AssetSetAttributesRequest.leave says.
+  repeated AssetRef leave = 4;
 }
 
 message InventoryCountCloseRequest {

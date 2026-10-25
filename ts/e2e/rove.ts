@@ -221,6 +221,12 @@ export async function rpc(page: Page, method: string, req: object): Promise<Repl
 	return (await res.json()) as Reply
 }
 
+/** An identifier a call answered, in base64, as a page's address writes it. */
+export function idOf(b64: string): string {
+	const h = Buffer.from(b64, 'base64').toString('hex')
+	return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`
+}
+
 /** `weekdayAt` as a moment a call takes: in Korea, as RFC 3339 writes it. */
 export function momentAt(days: number, hour: number): string {
 	return `${weekdayAt(days, hour)}:00+09:00`
