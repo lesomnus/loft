@@ -315,6 +315,44 @@ func (t *Tx) planKits(kits map[uuid.UUID]*ent.Bookable) (kitPlan, error) {
 	return p, nil
 }
 
+// reservableKits answers the kits of these that may be reserved, by the
+// asset: the ones that can have reservations.
+func (t *Tx) reservableKits(ids []uuid.UUID) (map[uuid.UUID]*ent.Bookable, error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
+	ks, err := t.db.Asset.Query().Where(asset.TenantId(t.tenant.Uuid()), asset.IdIn(ids...), asset.Kind("kit")).Ids(t.ctx)
+	if err != nil || len(ks) == 0 {
+		return nil, err
+	}
+	bs, err := t.db.Bookable.Query().Where(bookable.TenantId(t.tenant.Uuid()), bookable.AssetIdIn(ks...)).All(t.ctx)
+	if err != nil {
+		return nil, err
+	}
+	kits := map[uuid.UUID]*ent.Bookable{}
+	for _, b := range bs {
+		kits[b.AssetId] = b
+	}
+	return kits, nil
+}
+
+// kitHolds is every schedule [Tx.recheckKits] holds of these kits, by the
+// asset ([kitPlan.schedules]), and those of the pools what it holds are units
+// of: taking a member is held to them ([Tx.poolsShort]), and what it lets go
+// of is theirs to give then ([Tx.heal]).
+func (t *Tx) kitHolds(kits map[uuid.UUID]*ent.Bookable) ([]uuid.UUID, error) {
+	before, err := t.planKits(kits)
+	if err != nil {
+		return nil, err
+	}
+	hold := before.schedules()
+	pools, err := t.poolSchedules(hold)
+	if err != nil {
+		return nil, err
+	}
+	return append(hold, pools...), nil
+}
+
 // recheckKits brings the reservations of these kits in step with what each
 // is made of now, in the transaction that changed it (design 4): each one
 // still to be fulfilled takes a member its kit was given since it was made,
@@ -326,35 +364,23 @@ func (t *Tx) planKits(kits map[uuid.UUID]*ent.Bookable) (kitPlan, error) {
 // (domainReservation.Add): a booking that went first is read here, and one
 // that goes after reads the kit as this left it. And it holds the schedule of
 // every member of the kit and of what it lets go of, which a booking of the
-// member holds as it looks at what the member is booked for -- all of them at
-// once, in the one order everything takes schedules in, since a booking that
-// went first while this waited needs any of them. It takes no reservation's
-// row: every change of a reservation that lets its time go holds the
-// schedule of what it booked first, its kit's among them
+// member holds as it looks at what the member is booked for, and those of the
+// pools the members are units of, which taking one is held to (pool.go) --
+// all of them at once, in the one order everything takes schedules in, since
+// a booking that went first while this waited needs any of them. It takes no
+// reservation's row: every change of a reservation that lets its time go
+// holds the schedule of what it booked first, its kit's among them
 // ([Tx.lockAllocations]).
 func (t *Tx) recheckKits(ids ...uuid.UUID) error {
-	if len(ids) == 0 {
-		return nil
-	}
-	ks, err := t.db.Asset.Query().Where(asset.TenantId(t.tenant.Uuid()), asset.IdIn(ids...), asset.Kind("kit")).Ids(t.ctx)
-	if err != nil || len(ks) == 0 {
+	kits, err := t.reservableKits(ids)
+	if err != nil || len(kits) == 0 {
 		return err
 	}
-	bs, err := t.db.Bookable.Query().Where(bookable.TenantId(t.tenant.Uuid()), bookable.AssetIdIn(ks...)).All(t.ctx)
-	if err != nil || len(bs) == 0 {
-		// Never reservable, so never reserved.
-		return err
-	}
-	kits := map[uuid.UUID]*ent.Bookable{}
-	for _, b := range bs {
-		kits[b.AssetId] = b
-	}
-
-	before, err := t.planKits(kits)
+	hold, err := t.kitHolds(kits)
 	if err != nil {
 		return err
 	}
-	if err := t.lockSchedules(before.schedules()); err != nil {
+	if err := t.lockSchedules(hold); err != nil {
 		return err
 	}
 	// Read again, now that nothing changes it.
@@ -393,17 +419,21 @@ func (t *Tx) recheckKits(ids ...uuid.UUID) error {
 				Exclusive: m.book.Units <= 1,
 				Units:     1,
 			}.Build()
+			pooled, err := t.holdsPools(m)
+			if err != nil {
+				return err
+			}
 			kind := "reservation.take"
 			switch {
 			case s.override:
 				row.SetKind("override")
 				row.SetBlocking(false)
-			case !t.holding(m):
+			case !t.holding(m) || !pooled:
 				// A member the kit was given by another change while this
-				// waited, which that change took for the bookings it saw:
-				// what it is booked for is not this transaction's to know for
-				// good, so this one waits, and the sweep takes it once it is
-				// free.
+				// waited, which that change took for the bookings it saw --
+				// or one a pool was given meanwhile: what it is booked for is
+				// not this transaction's to know for good, so this one waits,
+				// and the sweep takes it once it is free.
 				row.SetKind(allocWaiting)
 				row.SetBlocking(false)
 				kind = "reservation.wait"
@@ -529,17 +559,20 @@ func (t *Tx) settled(c allocChange) error {
 
 // take makes the allocation a reservation waits for a member with its own,
 // once nothing else holds the member then: what the reservation would have
-// taken had the member been free when its kit was given it. It answers
-// whether it did, and tells whoever the reservation is for.
+// taken had the member been free when its kit was given it. Of a pool, what
+// the reservation booked of it, once the pool has as many to give then
+// (pool.go). It answers whether it did, and tells whoever the reservation is
+// for.
 //
 // That it did is a `reservation.resolve` of the reservation's and of the
 // member's: children of the operation that let the member go, or -- `own`,
 // the sweep's -- an operation of its own ([Tx.changed]).
 //
 // The caller holds what keeps the two from changing under it: the member's
-// schedule, which a booking of the member holds as it looks; and what a
-// reservation holds as it lets its time go -- its row, or the schedule of
-// anything it booked ([Tx.lockAllocations]).
+// schedule, which a booking of the member holds as it looks, and those of the
+// pools it is one of the units of ([Tx.holdsPools]); and what a reservation
+// holds as it lets its time go -- its row, or the schedule of anything it
+// booked ([Tx.lockAllocations]).
 func (t *Tx) take(w *ent.Allocation, own bool) (bool, error) {
 	if w.RefId == nil {
 		return false, nil
@@ -570,12 +603,16 @@ func (t *Tx) take(w *ent.Allocation, own bool) (bool, error) {
 	if err != nil || len(cs) > 0 {
 		return false, err
 	}
+	n, p, err := t.capacity(m)
+	if err != nil {
+		return false, err
+	}
 	if _, err := t.next.Allocation().Patch(t.ctx, app.AllocationPatchRequest_builder{
 		Ref:              app.AllocationRef_builder{Id: pdid.Id(w.Id).Bytes()}.Build(),
 		Kind:             z.Ptr("reservation"),
 		BeginsAt:         ts(from),
 		Blocking:         z.Ptr(true),
-		Exclusive:        z.Ptr(m.book.Units <= 1),
+		Exclusive:        z.Ptr(p == nil && n <= 1),
 		DateUpdatedForce: z.Ptr(true),
 	}.Build()); err != nil {
 		if status.Code(err) == codes.NotFound {
@@ -585,6 +622,14 @@ func (t *Tx) take(w *ent.Allocation, own bool) (bool, error) {
 		return false, err
 	}
 	took := allocChange{kind: "reservation.resolve", r: r, thing: m.asset}
+	counted, err := t.booked(r.Id, m.asset.Id)
+	if err != nil {
+		return false, err
+	}
+	if counted {
+		// Some of what it booked, of a pool: by how many.
+		took.units = max(w.Units, 1)
+	}
 	if own {
 		err = t.settled(took)
 	} else {
@@ -593,6 +638,10 @@ func (t *Tx) take(w *ent.Allocation, own bool) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	if counted {
+		return true, t.notifyParty(r.PartyId, "reservation.resolved", "예약 수량 확보: "+r.Name,
+			fmt.Sprintf("기다리던 %s %d개를 이 예약에 잡았습니다", tagged(m.asset), took.units), pdid.Id(r.Id), "/reservations?tab=mine")
+	}
 	return true, t.notifyParty(r.PartyId, "reservation.resolved", "예약 구성품 확보: "+r.Name,
 		fmt.Sprintf("기다리던 %s이(가) 비어 이 예약에 잡았습니다", tagged(m.asset)), pdid.Id(r.Id), "/reservations?tab=mine")
 }
@@ -600,33 +649,64 @@ func (t *Tx) take(w *ent.Allocation, own bool) (bool, error) {
 // heal gives what these allocations let go of to whatever waits for it then,
 // the one that has waited longest first ([Tx.take]): of the things whose
 // schedule this transaction holds, which keeps a booking from taking them
-// meanwhile. What waits for a thing whose schedule this does not hold -- a
-// member nobody may reserve on its own -- is the sweep's to take
-// ([sweepKits]).
+// meanwhile -- and the schedules of the pools a thing is one of the units of,
+// which it is held to. A thing let go of is one more for each pool it is one
+// of the units of to give then, which goes the same way to what waits for the
+// pool, when this holds the pool's schedule. What waits for a thing whose
+// schedule this does not hold -- a member nobody may reserve on its own -- is
+// the sweep's to take ([sweepKits]).
 func (t *Tx) heal(freed []*ent.Allocation) error {
 	for _, a := range freed {
-		if t.shared == nil || !t.shared.schedules[a.ResourceId] {
-			continue
+		if t.shared == nil {
+			return nil
 		}
-		ws, err := t.db.Allocation.Query().Where(
-			allocation.TenantId(t.tenant.Uuid()),
-			allocation.ResourceId(a.ResourceId),
-			allocation.Kind(allocWaiting),
-			allocation.BeginsAtLT(a.EndsAt),
-			allocation.EndsAtGT(a.BeginsAt),
-			allocation.EndsAtGT(t.now),
-		).Order(allocation.ByDateCreated(), allocation.ById()).All(t.ctx)
+		ok := t.shared.schedules[a.ResourceId]
+		if m, err := t.member(a.ResourceId, ""); ok && err == nil {
+			if ok, err = t.holdsPools(m); err != nil {
+				return err
+			}
+		}
+		if ok {
+			if err := t.takeWaiting(a.ResourceId, a); err != nil {
+				return err
+			}
+		}
+		ps, err := t.poolsOf([]uuid.UUID{a.ResourceId})
 		if err != nil {
 			return err
 		}
-		for _, w := range ws {
-			if w.RefId != nil && a.RefId != nil && *w.RefId == *a.RefId {
-				continue
+		for _, p := range ps[a.ResourceId] {
+			if t.holding(p) {
+				if err := t.takeWaiting(p.asset.Id, a); err != nil {
+					return err
+				}
 			}
-			// Part of what let it go.
-			if _, err := t.take(w, false); err != nil {
-				return err
-			}
+		}
+	}
+	return nil
+}
+
+// takeWaiting takes, for whatever waits for `resource` during what `a` let go
+// of, what is free now, the one that has waited longest first ([Tx.take]).
+func (t *Tx) takeWaiting(resource uuid.UUID, a *ent.Allocation) error {
+	ws, err := t.db.Allocation.Query().Where(
+		allocation.TenantId(t.tenant.Uuid()),
+		allocation.ResourceId(resource),
+		allocation.Kind(allocWaiting),
+		allocation.BeginsAtLT(a.EndsAt),
+		allocation.EndsAtGT(a.BeginsAt),
+		allocation.EndsAtGT(t.now),
+	).Order(allocation.ByDateCreated(), allocation.ById()).All(t.ctx)
+	if err != nil {
+		return err
+	}
+	for _, w := range ws {
+		if w.RefId != nil && a.RefId != nil && *w.RefId == *a.RefId {
+			continue
+		}
+		// Part of what let it go.
+		if _, err := t.take(w, false); err != nil {
+			return err
 		}
 	}
 	return nil
@@ -635,7 +715,9 @@ func (t *Tx) heal(freed []*ent.Allocation) error {
 // sweepKits takes, for the reservations that wait for a member of their kit,
 // what is free now: what let it go took it already when it held the member's
 // schedule, and this takes the rest -- a member nobody may reserve on its own,
-// maintenance that finished early or moved.
+// maintenance that finished early or moved. And for the ones that wait for
+// some of a pool, what the pool has to give again that nothing gave them: a
+// unit of it that a booking of its own let go of (pool.go).
 func sweepKits(t *Tx) error {
 	ws, err := t.db.Allocation.Query().Where(
 		allocation.TenantId(t.tenant.Uuid()),
@@ -660,24 +742,46 @@ func sweepKits(t *Tx) error {
 		return err
 	}
 
-	// Each reservation held, then each member's schedule: the order every
-	// operation that takes both takes them in ([Tx.lockReservations]).
-	rids := make([]pdid.Id, 0, len(rs))
-	for _, r := range rs {
-		rids = append(rids, pdid.Id(r))
-	}
+	// What looks free now, read before anything is held: a pass that finds
+	// nothing to take holds nothing and writes nothing, however long what
+	// waits waits -- a pool's reservations may wait for days. What looks free
+	// is read again once it is held, before it is taken ([Tx.take]).
 	members := []uuid.UUID{}
 	ids := []uuid.UUID{}
+	refs = refs[:0]
 	for _, w := range ws {
-		if slices.Contains(rs, *w.RefId) {
+		if !slices.Contains(rs, *w.RefId) {
+			continue
+		}
+		free, err := t.free(w)
+		if err != nil {
+			return err
+		}
+		if free {
 			members = append(members, w.ResourceId)
 			ids = append(ids, w.Id)
+			refs = append(refs, *w.RefId)
 		}
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+
+	// Each reservation held, then each member's schedule: the order every
+	// operation that takes both takes them in ([Tx.lockReservations]).
+	rids := make([]pdid.Id, 0, len(refs))
+	for _, r := range refs {
+		rids = append(rids, pdid.Id(r))
 	}
 	if err := t.lockReservations(rids...); err != nil {
 		return err
 	}
-	if err := t.lockSchedules(members); err != nil {
+	// With the pools they are units of, which taking one is held to.
+	pools, err := t.poolSchedules(members)
+	if err != nil {
+		return err
+	}
+	if err := t.lockSchedules(append(members, pools...)); err != nil {
 		return err
 	}
 
@@ -695,6 +799,25 @@ func sweepKits(t *Tx) error {
 		}
 	}
 	return nil
+}
+
+// free says whether what `w` waits for looks free now, from now on: nothing
+// else holds the member then, or the pool has as many to give then. Read as
+// it is, holding nothing.
+func (t *Tx) free(w *ent.Allocation) (bool, error) {
+	m, err := t.member(w.ResourceId, "")
+	if err != nil {
+		return false, nil
+	}
+	from := w.BeginsAt
+	if from.Before(t.now) {
+		from = t.now
+	}
+	if !w.EndsAt.After(from) {
+		return false, nil
+	}
+	cs, err := t.conflicts(m, from, w.EndsAt, max(w.Units, 1), []uuid.UUID{*w.RefId})
+	return len(cs) == 0, err
 }
 
 // kitWait is a member a reservation of a kit waits for, as it is told.
@@ -829,6 +952,20 @@ func (t *Tx) waitingOf(rs []*ent.Reservation) (map[uuid.UUID][]*app.ReservationC
 			for _, c := range cs {
 				v.SetHeldBy(append(v.GetHeldBy(), t.busy(c, nil)))
 			}
+		}
+		// Some of what it booked, of a pool: how many it waits for and
+		// could have then.
+		counted, err := t.booked(*w.RefId, m.asset.Id)
+		if err != nil {
+			return nil, err
+		}
+		if counted {
+			n, err := t.available(w, from, m)
+			if err != nil {
+				return nil, err
+			}
+			v.SetUnits(max(w.Units, 1))
+			v.SetAvailable(n)
 		}
 		out[*w.RefId] = append(out[*w.RefId], v)
 	}

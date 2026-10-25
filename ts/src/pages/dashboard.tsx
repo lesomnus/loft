@@ -6,7 +6,7 @@ import { useCatalog } from '../catalog.js'
 import { AssetLink } from '../pickers.js'
 import { useRpc } from '../rpc.js'
 import { Badge, Card, Empty, Load, PageHead, Stat } from '../ui.js'
-import { kindWord, reservationWord, statusWord } from '../words.js'
+import { kindWord, reservationWord, statusWord, waitWord } from '../words.js'
 
 export function Dashboard(): ReactNode {
 	const c = useCatalog()
@@ -81,7 +81,7 @@ export function Dashboard(): ReactNode {
 										<li key={idStr(e.reservation?.id)}>
 											<span>
 												{fmt(e.reservation?.beginsAt)} · {e.reservation?.name}
-												{e.conflicts.length > 0 && <span className="warn"> · 구성품 충돌</span>}
+												{e.conflicts.length > 0 && <span className="warn"> · {waitWord(e.conflicts)}</span>}
 											</span>
 											<Badge v={e.reservation?.status ?? ''} words={reservationWord} />
 										</li>

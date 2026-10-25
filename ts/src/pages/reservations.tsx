@@ -9,7 +9,7 @@ import { useCatalog } from '../catalog.js'
 import { PartySelect, useAssets, useAssetsRead } from '../pickers.js'
 import { Live, useAct, useRpc } from '../rpc.js'
 import { Badge, Card, Empty, Field, FormModal, Load, Modal, PageHead, Select, Tabs } from '../ui.js'
-import { kindWord, reservationWord } from '../words.js'
+import { kindWord, reservationWord, waitWord } from '../words.js'
 import { NewCustody } from './custody.js'
 
 const H0 = 7
@@ -65,6 +65,7 @@ function Calendar(): ReactNode {
 	const cal = useRpc(ReservationService.method.calendar, { resources: resources.map(ref), from: ts(start), to: ts(end) }, { poll: 60_000 })
 	const busy = useRpc(BookableService.method.availability, resource === '' ? null : { resources: [ref(idBytes(resource))], from: ts(start), to: ts(end) })
 	const names = useResourceNames()
+	const kinds = useResourceKinds()
 
 	const days = Array.from({ length: 7 }, (_, i) => shift(start, i))
 	const hours = Array.from({ length: H1 - H0 }, (_, i) => H0 + i)
@@ -143,7 +144,7 @@ function Calendar(): ReactNode {
 										const p = pos(dateOf(b.beginsAt) ?? d, dateOf(b.endsAt) ?? d, d)
 										return p === undefined ? null : (
 											<div key={`b${i}`} className={`busy ${b.kind}`} style={p} title={b.label}>
-												{b.kind === 'maintenance' ? '정비' : b.kind === 'closed' ? '운영 시간 외' : b.kind === 'waiting' ? `구성품 대기: ${b.label}` : b.label}
+												{b.kind === 'maintenance' ? '정비' : b.kind === 'closed' ? '운영 시간 외' : b.kind === 'waiting' ? `${kinds.get(resource) === 'group' ? '수량 대기' : '구성품 대기'}: ${b.label}` : b.label}
 											</div>
 										)
 									})}
@@ -169,7 +170,7 @@ function Calendar(): ReactNode {
 											</span>
 											{resource === '' && <span>{e.resourceIds.map((x) => names.get(idStr(x)) ?? '').join(', ')}</span>}
 											<span>{e.partyName}</span>
-											{e.conflicts.length > 0 && <span className="warn">구성품 충돌</span>}
+											{e.conflicts.length > 0 && <span className="warn">{waitWord(e.conflicts)}</span>}
 										</div>
 									)
 								})}
@@ -195,6 +196,13 @@ function useResourceNames(): Map<string, string> {
 		for (const a of assets.values()) m.set(idStr(a.id), `${a.name}${a.kind !== 'space' ? ` (${kindWord[a.kind]})` : ''}`)
 		return m
 	}, [assets])
+}
+
+/** The kinds of the reservable assets: what waits for a group waits for some of a pool. */
+function useResourceKinds(): Map<string, string> {
+	const c = useCatalog()
+	const assets = useAssets(c.bookables.map((b) => b.asset?.id))
+	return useMemo(() => new Map([...assets.values()].map((a) => [idStr(a.id), a.kind])), [assets])
 }
 
 const repeatOptions = [
@@ -420,31 +428,59 @@ function NewCustodyForPickup(props: { r: Reservation; assets: Asset[]; conflicts
 }
 
 /**
- * What a reservation waits for: the members its kit was given after it was
- * made that something else holds then (design 4). It takes each once it is
- * free, and a member it does not hold is not handed out with the kit. `more`
- * is what the place it is said in does about it.
+ * What a reservation waits for (design 4): the members its kit was given
+ * after it was made that something else holds then, and what it booked of a
+ * pool that has fewer to give then than the reservations made before it
+ * hold. It takes each once there is room, and a member it does not hold is not
+ * handed out with the kit. `more` is what the place it is said in does about
+ * a kit's member.
  */
 function Waiting(props: { conflicts: ReservationConflict[]; more?: string }): ReactNode {
-	if (props.conflicts.length === 0) return null
+	const members = props.conflicts.filter((c) => c.units === 0)
+	const pools = props.conflicts.filter((c) => c.units > 0)
 	return (
-		<div className="note warn" role="note" aria-label="구성품 충돌">
-			<strong>구성품 충돌</strong>
-			<ul className="waiting">
-				{props.conflicts.map((c) => (
-					<li key={`${idStr(c.resourceId)}-${fmt(c.beginsAt)}`}>
-						{c.resourceTag} {c.resourceName} ({fmt(c.beginsAt)} – {fmt(c.endsAt, 'time')}):{' '}
-						{c.heldBy.length === 0 ? '지금은 비어 있어 곧 이 예약에 잡힙니다.' : `${c.heldBy.map(heldBy).join(', ')}이(가) 잡고 있습니다.`}
-					</li>
-				))}
-			</ul>
-			<p className="small">키트에 나중에 더해진 구성품입니다. 비면 이 예약이 잡습니다.</p>
-			{props.more !== undefined && <p className="small">{props.more}</p>}
-		</div>
+		<>
+			{members.length > 0 && (
+				<div className="note warn" role="note" aria-label="구성품 충돌">
+					<strong>구성품 충돌</strong>
+					<ul className="waiting">
+						{members.map((c) => (
+							<li key={`${idStr(c.resourceId)}-${fmt(c.beginsAt)}`}>
+								{c.resourceTag} {c.resourceName} ({fmt(c.beginsAt)} – {fmt(c.endsAt, 'time')}):{' '}
+								{c.heldBy.length === 0 ? '지금은 비어 있어 곧 이 예약에 잡힙니다.' : `${heldByAll(c.heldBy)}이(가) 잡고 있습니다.`}
+							</li>
+						))}
+					</ul>
+					<p className="small">키트에 나중에 더해진 구성품입니다. 비면 이 예약이 잡습니다.</p>
+					{props.more !== undefined && <p className="small">{props.more}</p>}
+				</div>
+			)}
+			{pools.length > 0 && (
+				<div className="note warn" role="note" aria-label="수량 부족">
+					<strong>수량 부족</strong>
+					<ul className="waiting">
+						{pools.map((c) => (
+							<li key={`${idStr(c.resourceId)}-${fmt(c.beginsAt)}`}>
+								{c.resourceTag} {c.resourceName} ({fmt(c.beginsAt)} – {fmt(c.endsAt, 'time')}): {c.units}개 가운데{' '}
+								{c.available === 0 ? '남은 것이 없습니다.' : `${c.available}개만 남아 있습니다.`}
+								{c.heldBy.length > 0 && ` ${heldByAll(c.heldBy)}이(가) 잡고 있습니다.`}
+							</li>
+						))}
+					</ul>
+					<p className="small">풀에서 쓸 수 있는 것이 줄었습니다. 다시 생기면 먼저 기다린 예약부터 잡습니다.</p>
+				</div>
+			)}
+		</>
 	)
 }
 
-/** What holds a member a reservation waits for, as a person says it. */
+/** What holds what a reservation waits for, as a person says it: the first few. */
+function heldByAll(bs: BusySpan[]): string {
+	const said = [...new Set(bs.map(heldBy))]
+	return said.length > 3 ? `${said.slice(0, 3).join(', ')} 외 ${said.length - 3}건` : said.join(', ')
+}
+
+/** What holds a member a reservation waits for, or some of a pool, as a person says it. */
 function heldBy(b: BusySpan): string {
 	return b.kind === 'maintenance' ? '정비' : `'${b.label}' 예약`
 }
@@ -485,7 +521,7 @@ function List(props: { mine?: boolean }): ReactNode {
 											<td>{e.partyName || c.party(e.reservation?.party?.id)?.name}</td>
 											<td>
 												<Badge v={e.reservation?.status ?? ''} words={reservationWord} />
-												{e.conflicts.length > 0 && <span className="badge warn">구성품 충돌</span>}
+												{e.conflicts.length > 0 && <span className="badge warn">{waitWord(e.conflicts)}</span>}
 											</td>
 										</tr>
 									))}

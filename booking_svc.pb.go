@@ -6467,7 +6467,8 @@ type CalendarEntry_builder struct {
 	ResourceIds [][]byte
 	PartyName   string
 	// What it waits for while it is still to be fulfilled: the members of a
-	// kit it should take with it that something else holds then (design 4).
+	// kit it should take with it that something else holds then, and what it
+	// booked of a pool that has fewer to give then (design 4).
 	Conflicts []*ReservationConflict
 }
 
@@ -6482,10 +6483,12 @@ func (b0 CalendarEntry_builder) Build() *CalendarEntry {
 	return m0
 }
 
-// ReservationConflict is a member of a kit that a reservation of the kit
-// should take with it and does not hold: the kit was given it after the
-// reservation was made, and something else held it then. The reservation
-// takes it once it is free.
+// ReservationConflict is what a reservation booked, or should take with what
+// it booked, and does not hold: a member of a kit, which the kit was given
+// after the reservation was made and something else held then; or some of a
+// pool, which had fewer to give since -- a member taken off it or out of use,
+// one whose own time was taken -- than the reservations made before it hold.
+// The reservation takes it once there is room.
 type ReservationConflict struct {
 	state                   protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_ResourceId   []byte                 `protobuf:"bytes,1,opt,name=resource_id,json=resourceId"`
@@ -6494,6 +6497,8 @@ type ReservationConflict struct {
 	xxx_hidden_BeginsAt     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=begins_at,json=beginsAt"`
 	xxx_hidden_EndsAt       *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=ends_at,json=endsAt"`
 	xxx_hidden_HeldBy       *[]*BusySpan           `protobuf:"bytes,6,rep,name=held_by,json=heldBy"`
+	xxx_hidden_Units        uint32                 `protobuf:"varint,7,opt,name=units"`
+	xxx_hidden_Available    uint32                 `protobuf:"varint,8,opt,name=available"`
 	unknownFields           protoimpl.UnknownFields
 	sizeCache               protoimpl.SizeCache
 }
@@ -6567,6 +6572,20 @@ func (x *ReservationConflict) GetHeldBy() []*BusySpan {
 	return nil
 }
 
+func (x *ReservationConflict) GetUnits() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Units
+	}
+	return 0
+}
+
+func (x *ReservationConflict) GetAvailable() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Available
+	}
+	return 0
+}
+
 func (x *ReservationConflict) SetResourceId(v []byte) {
 	if v == nil {
 		v = []byte{}
@@ -6594,6 +6613,14 @@ func (x *ReservationConflict) SetHeldBy(v []*BusySpan) {
 	x.xxx_hidden_HeldBy = &v
 }
 
+func (x *ReservationConflict) SetUnits(v uint32) {
+	x.xxx_hidden_Units = v
+}
+
+func (x *ReservationConflict) SetAvailable(v uint32) {
+	x.xxx_hidden_Available = v
+}
+
 func (x *ReservationConflict) HasBeginsAt() bool {
 	if x == nil {
 		return false
@@ -6619,7 +6646,7 @@ func (x *ReservationConflict) ClearEndsAt() {
 type ReservationConflict_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	// The member, by what it is tagged and called.
+	// The member, or the pool, by what it is tagged and called.
 	ResourceId   []byte
 	ResourceTag  string
 	ResourceName string
@@ -6627,8 +6654,14 @@ type ReservationConflict_builder struct {
 	BeginsAt *timestamppb.Timestamp
 	EndsAt   *timestamppb.Timestamp
 	// What holds it then -- another reservation, maintenance -- as a calendar
-	// shows it. None once nothing does, and it is taken shortly.
+	// shows it: of a pool, its reservations and what takes its members' own
+	// time. None once nothing does, and it is taken shortly.
 	HeldBy []*BusySpan
+	// Of a pool: how many of it the reservation waits for, and how many of
+	// them it could have at the busiest moment of that time. Both zero for a
+	// member of a kit, which is one.
+	Units     uint32
+	Available uint32
 }
 
 func (b0 ReservationConflict_builder) Build() *ReservationConflict {
@@ -6641,6 +6674,8 @@ func (b0 ReservationConflict_builder) Build() *ReservationConflict {
 	x.xxx_hidden_BeginsAt = b.BeginsAt
 	x.xxx_hidden_EndsAt = b.EndsAt
 	x.xxx_hidden_HeldBy = &b.HeldBy
+	x.xxx_hidden_Units = b.Units
+	x.xxx_hidden_Available = b.Available
 	return m0
 }
 
@@ -10149,7 +10184,7 @@ const file_rove_booking_svc_g_proto_rawDesc = "" +
 	"\fresource_ids\x18\x02 \x03(\fR\vresourceIds\x12$\n" +
 	"\n" +
 	"party_name\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\tpartyName\x127\n" +
-	"\tconflicts\x18\x04 \x03(\v2\x19.rove.ReservationConflictR\tconflicts\"\xaa\x02\n" +
+	"\tconflicts\x18\x04 \x03(\v2\x19.rove.ReservationConflictR\tconflicts\"\xec\x02\n" +
 	"\x13ReservationConflict\x12&\n" +
 	"\vresource_id\x18\x01 \x01(\fB\x05\xaa\x01\x02\b\x02R\n" +
 	"resourceId\x12(\n" +
@@ -10157,7 +10192,9 @@ const file_rove_booking_svc_g_proto_rawDesc = "" +
 	"\rresource_name\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\fresourceName\x127\n" +
 	"\tbegins_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\bbeginsAt\x123\n" +
 	"\aends_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x06endsAt\x12'\n" +
-	"\aheld_by\x18\x06 \x03(\v2\x0e.rove.BusySpanR\x06heldBy\"\xb5\x02\n" +
+	"\aheld_by\x18\x06 \x03(\v2\x0e.rove.BusySpanR\x06heldBy\x12\x1b\n" +
+	"\x05units\x18\a \x01(\rB\x05\xaa\x01\x02\b\x02R\x05units\x12#\n" +
+	"\tavailable\x18\b \x01(\rB\x05\xaa\x01\x02\b\x02R\tavailable\"\xb5\x02\n" +
 	"\x19ReservationItemAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\x126\n" +
