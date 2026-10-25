@@ -18,12 +18,13 @@ import (
 // the ones somebody has to act on soon, or would want to hear about away from
 // the screen (2026-10-12). Everything else is told in the app only.
 var Mailed = map[string]bool{
-	"reservation.requested": true, // to whoever approves
-	"reservation.decided":   true, // to whoever asked
-	"custody.overdue":       true, // to who has it, and who manages it
-	"work.due":              true, // maintenance coming due, to who manages it
-	"domain.lapsed":         true, // a workspace's domain taken out of use, to who runs it
-	"reservation.conflict":  true, // a kit's member, or a pool's units, its reservation waits for, to who runs it and whose it is
+	"reservation.requested":  true, // to whoever approves
+	"reservation.decided":    true, // to whoever asked
+	"custody.overdue":        true, // to who has it, and who manages it
+	"work.due":               true, // maintenance coming due, to who manages it
+	"domain.lapsed":          true, // a workspace's domain taken out of use, to who runs it
+	"reservation.conflict":   true, // a kit's member, or a pool's units, its reservation waits for, to who runs it and whose it is
+	"reservation.out_of_use": true, // an item a reservation takes is out of use, to who runs it and whose it is
 }
 
 // notify leaves a message for one holder, queued for mail as well when it is

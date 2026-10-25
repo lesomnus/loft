@@ -44,7 +44,8 @@ var (
 
 // OutOfUse is the statuses an asset is out of use in: lost until it is found,
 // and for good. What it is a member of, it may leave as it goes out of use
-// (AssetSetAttributesRequest.leave), and nothing in them is handed over.
+// (AssetSetAttributesRequest.leave), and nothing in them is handed over --
+// which a reservation that still takes one says (outofuse.go).
 var OutOfUse = []string{"lost", "retired", "disposed"}
 
 type domainAsset struct {
@@ -931,12 +932,17 @@ func (s domainAsset) SetAttributes(ctx context.Context, req *app.AssetSetAttribu
 		if err := t.leave(id, at, req.GetLeave(), req.GetReason()); err != nil {
 			return err
 		}
-		if status {
-			// Whether it is one of its pools' units: lost, retired or
-			// disposed, it is not, and received, it is.
-			return t.recheckPoolsOf(id.Uuid())
+		if !status {
+			return nil
 		}
-		return nil
+		// Whether it is one of its pools' units: lost, retired or disposed,
+		// it is not, and received, it is.
+		if err := t.recheckPoolsOf(id.Uuid()); err != nil {
+			return err
+		}
+		// And whether the reservations that still take it may be handed it,
+		// which whoever has to act on it is told (D42).
+		return t.outOfUseChanged(id.Uuid(), a.GetStatus())
 	})
 	return s.settle(ctx, req.GetRef(), out, err)
 }
@@ -1505,11 +1511,15 @@ func (s domainAsset) Correct(ctx context.Context, req *app.AssetCorrectRequest) 
 			if out, err = t.sync(id.Uuid()); err != nil {
 				return err
 			}
-			if key == "status" {
-				// Whether it is one of its pools' units.
-				return t.recheckPoolsOf(id.Uuid())
+			if key != "status" {
+				return nil
 			}
-			return nil
+			// Whether it is one of its pools' units, and whether the
+			// reservations that take it may be handed it.
+			if err := t.recheckPoolsOf(id.Uuid()); err != nil {
+				return err
+			}
+			return t.outOfUseChanged(id.Uuid(), a.GetStatus())
 
 		default:
 			return invalid("row_id", "정정할 수 있는 기록이 아닙니다")

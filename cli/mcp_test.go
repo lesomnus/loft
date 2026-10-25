@@ -740,6 +740,45 @@ func TestAnAssistantTakesWhatGoesOutOfUseOutOfItsKits(t *testing.T) {
 	x.False(inKit("LN-1"))
 }
 
+// TestAnAssistantSaysWhatABookingTakesIsOutOfUse: a booking says the items it
+// takes that are out of use -- here a member kept in its kit as it went --
+// which its pickup does not hand over, by name and status, and says it no
+// more once the item is in use again (design 4, D42).
+func TestAnAssistantSaysWhatABookingTakesIsOutOfUse(t *testing.T) {
+	s := serve(t)
+	x := s.x
+	s.signIn("owner", "owner1234")
+	kit := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "촬영 키트", "kind": "kit", "tag": "K-1"}`))
+	run(t, cli.NewCmdApi(), "bookable", "add", "-o", "json", `{"asset": {"id": "`+kit+`"}, "enabled": true}`)
+	battery := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "배터리", "kind": "item", "tag": "BT-1"}`))
+	run(t, cli.NewCmdApi(), "asset", "relate", battery, `{"target": {"id": "`+kit+`"}, "kind": "member_of", "required": true}`)
+	a := s.assistant()
+
+	now := time.Now()
+	begins := time.Date(now.Year(), now.Month(), now.Day()+1, 14, 0, 0, 0, time.Local)
+	ends := begins.Add(time.Hour)
+	a.applied(a.plan("plan_reservation", map[string]any{"action": "reserve", "assets": []string{"K-1"}, "begins": begins.Format(time.RFC3339), "ends": ends.Format(time.RFC3339), "name": "제품 촬영"}))
+	a.applied(a.plan("plan_asset", map[string]any{"action": "set", "asset": "BT-1", "set": map[string]any{"status": "retired"}}))
+	span := map[string]any{"assets": []string{"K-1"}, "from": begins.Add(-time.Minute).Format(time.RFC3339), "to": ends.Format(time.RFC3339)}
+	type booking struct {
+		Items []struct {
+			Name     string `json:"name"`
+			OutOfUse []ref  `json:"out_of_use"`
+		} `json:"items"`
+	}
+	var cal booking
+	a.call("reservations", span, &cal)
+	x.Len(cal.Items, 1)
+	x.Equal("제품 촬영", cal.Items[0].Name)
+	x.Equal([]ref{{battery, "BT-1 배터리 (retired)"}}, cal.Items[0].OutOfUse)
+
+	a.applied(a.plan("plan_asset", map[string]any{"action": "set", "asset": "BT-1", "set": map[string]any{"status": "active"}}))
+	var again booking
+	a.call("reservations", span, &again)
+	x.Len(again.Items, 1)
+	x.Empty(again.Items[0].OutOfUse)
+}
+
 // TestAnAssistantSaysWhetherAKitTakesAMember: a plan that gives a kit a
 // member says whether it is a required one, which every booking of the kit
 // takes with it, or an optional one; and of a member the kit has already, that

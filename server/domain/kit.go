@@ -642,8 +642,12 @@ func (t *Tx) take(w *ent.Allocation, own bool) (bool, error) {
 		return true, t.notifyParty(r.PartyId, "reservation.resolved", "예약 수량 확보: "+r.Name,
 			fmt.Sprintf("기다리던 %s %d개를 이 예약에 잡았습니다", tagged(m.asset), took.units), pdid.Id(r.Id), "/reservations?tab=mine")
 	}
-	return true, t.notifyParty(r.PartyId, "reservation.resolved", "예약 구성품 확보: "+r.Name,
-		fmt.Sprintf("기다리던 %s이(가) 비어 이 예약에 잡았습니다", tagged(m.asset)), pdid.Id(r.Id), "/reservations?tab=mine")
+	said := fmt.Sprintf("기다리던 %s이(가) 비어 이 예약에 잡았습니다", tagged(m.asset))
+	if m.asset.Kind == "item" && slices.Contains(OutOfUse, m.asset.Status) {
+		// Taken, and no more to be handed over than before (outofuse.go).
+		said += fmt.Sprintf(". 다만 %s 상태라 수령할 때 건네지 않습니다", or(statusSay[m.asset.Status], m.asset.Status))
+	}
+	return true, t.notifyParty(r.PartyId, "reservation.resolved", "예약 구성품 확보: "+r.Name, said, pdid.Id(r.Id), "/reservations?tab=mine")
 }
 
 // heal gives what these allocations let go of to whatever waits for it then,

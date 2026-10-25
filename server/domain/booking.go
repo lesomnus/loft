@@ -1245,6 +1245,10 @@ func (s domainReservation) Calendar(ctx context.Context, req *app.ReservationCal
 	if err != nil {
 		return nil, err
 	}
+	gone, err := t.outOfUseOf(rs)
+	if err != nil {
+		return nil, err
+	}
 
 	names := namer{t: t}
 	entries := []*app.CalendarEntry{}
@@ -1261,7 +1265,7 @@ func (s domainReservation) Calendar(ctx context.Context, req *app.ReservationCal
 		for _, it := range items {
 			ids = append(ids, pdid.Id(it.ResourceId).Bytes())
 		}
-		entries = append(entries, app.CalendarEntry_builder{Reservation: v, ResourceIds: ids, PartyName: names.party(r.PartyId), Conflicts: waiting[r.Id]}.Build())
+		entries = append(entries, app.CalendarEntry_builder{Reservation: v, ResourceIds: ids, PartyName: names.party(r.PartyId), Conflicts: waiting[r.Id], OutOfUse: gone[r.Id]}.Build())
 	}
 	return app.ReservationCalendarResponse_builder{Entries: entries}.Build(), nil
 }
