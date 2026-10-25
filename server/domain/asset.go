@@ -44,7 +44,7 @@ var (
 
 // OutOfUse is the statuses an asset is out of use in: lost until it is found,
 // and for good. What it is a member of, it may leave as it goes out of use
-// (AssetSetAttributesRequest.leave).
+// (AssetSetAttributesRequest.leave), and nothing in them is handed over.
 var OutOfUse = []string{"lost", "retired", "disposed"}
 
 type domainAsset struct {

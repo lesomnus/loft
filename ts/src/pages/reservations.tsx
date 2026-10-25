@@ -9,7 +9,7 @@ import { useCatalog } from '../catalog.js'
 import { PartySelect, useAssets, useAssetsRead } from '../pickers.js'
 import { Live, useAct, useRpc } from '../rpc.js'
 import { Badge, Card, Empty, Field, FormModal, Load, Modal, PageHead, Select, Tabs } from '../ui.js'
-import { kindWord, reservationWord } from '../words.js'
+import { kindWord, outOfUse, reservationWord, statusWord } from '../words.js'
 import { NewCustody } from './custody.js'
 
 const H0 = 7
@@ -373,7 +373,8 @@ function ReservationDialog(props: { r: Reservation; resources: Uint8Array[]; con
 /**
  * Equipment is picked up as a loan due back when the reservation ends: what
  * it holds is handed out, a kit's members with it, and what it waits for is
- * said there too -- a kit's member it does not hold does not go out with it.
+ * said there too -- a kit's member it does not hold does not go out with it,
+ * and neither does one it holds that is out of use.
  */
 function PickUp(props: { r: Reservation; resources: Uint8Array[]; conflicts: ReservationConflict[]; onClose: () => void }): ReactNode {
 	const held = useRpc(AllocationService.method.list, { filters: [{ refId: props.r.id }], size: 200 })
@@ -407,13 +408,51 @@ function holds(booked: Uint8Array[], allocations: Allocation[]): Uint8Array[] {
 	return out
 }
 
+/**
+ * What a reservation holds that is out of use -- lost, retired or disposed --
+ * which no hand-over takes: a member kept in its kit as it went (design 4,
+ * D40), which the kit's bookings take until it is taken off the kit, or what
+ * was booked itself.
+ */
+function OutOfUse(props: { assets: Asset[] }): ReactNode {
+	if (props.assets.length === 0) return null
+	return (
+		<div className="note warn" role="note" aria-label="건넬 수 없는 자산">
+			<strong>건넬 수 없는 자산</strong>
+			<ul>
+				{props.assets.map((a) => (
+					<li key={idStr(a.id)}>
+						{a.tag} {a.name}: {statusWord[a.status] ?? a.status}
+					</li>
+				))}
+			</ul>
+			<p className="small">분실·불용·폐기 상태라 건넬 자산에 넣지 않았습니다. 키트의 구성품으로 남아 있으면 그 키트의 예약이 계속 잡습니다.</p>
+		</div>
+	)
+}
+
+/**
+ * A pickup's hand-over: to whom it is for, a loan due back when it ends, of
+ * what it holds that may be handed over. What is out of use is not, and it is
+ * said beside what the reservation waits for.
+ */
 function NewCustodyForPickup(props: { r: Reservation; assets: Asset[]; conflicts: ReservationConflict[]; onClose: () => void }): ReactNode {
+	const items = props.assets.filter((a) => a.kind === 'item')
+	const gone = items.filter((a) => outOfUse.includes(a.status))
 	return (
 		<NewCustody
-			assets={props.assets.filter((a) => a.kind === 'item')}
+			assets={items.filter((a) => !outOfUse.includes(a.status))}
 			party={idStr(props.r.party?.id)}
 			reservation={props.r.id}
-			note={props.conflicts.length > 0 ? <Waiting conflicts={props.conflicts} more="이 예약이 잡지 못한 구성품은 건넬 자산에 넣지 않았습니다." /> : undefined}
+			due={dateOf(props.r.endsAt)}
+			note={
+				props.conflicts.length > 0 || gone.length > 0 ? (
+					<>
+						<Waiting conflicts={props.conflicts} more="이 예약이 잡지 못한 구성품은 건넬 자산에 넣지 않았습니다." />
+						<OutOfUse assets={gone} />
+					</>
+				) : undefined
+			}
 			onClose={props.onClose}
 		/>
 	)

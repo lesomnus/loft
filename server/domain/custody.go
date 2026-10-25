@@ -147,7 +147,7 @@ func (s domainCustody) Add(ctx context.Context, req *app.CustodyAddRequest) (*ap
 				if err != nil {
 					return err
 				}
-				if slices.Contains([]string{"disposed", "lost", "retired"}, a.GetStatus()) {
+				if slices.Contains(OutOfUse, a.GetStatus()) {
 					return failed("%s은(는) %s 상태입니다", a.GetTag(), or(statusSay[a.GetStatus()], a.GetStatus()))
 				}
 				if a.GetKind() == "space" || a.GetKind() == "group" {

@@ -92,7 +92,7 @@ test('a kit booking waits for a member the kit is given that is booked elsewhere
 	await expect(page.getByRole('dialog').getByRole('note', { name: '구성품 충돌' })).toHaveCount(0)
 })
 
-test('a kit is picked up with the members its booking holds, and without one it waits for', async ({ page, as }) => {
+test('a kit is picked up with the members its booking holds, and without one it waits for, as a loan due back when the booking ends', async ({ page, as }) => {
 	const shoot = unique('e2e 수령')
 	const n = Math.random().toString(36).slice(2, 7).toUpperCase()
 	const tag = { kit: `EK-${n}`, camera: `EC-${n}`, light: `EL-${n}` }
@@ -126,14 +126,21 @@ test('a kit is picked up with the members its booking holds, and without one it 
 	const waits = pickup.getByRole('note', { name: '구성품 충돌' })
 	await expect(waits).toContainText(tag.light)
 	await expect(waits).toContainText('건넬 자산에 넣지 않았습니다')
+
+	// What it hands out is lent until the booking ends, as its button says.
+	await expect(field(pickup, '구분')).toHaveValue('loan')
+	await expect(field(pickup, '반납 기한')).toHaveValue(to.slice(0, 16))
+	await pickup.getByRole('button', { name: '건네기', exact: true }).click()
+	await said(page, '건넸습니다. 받은 사람에게 인수 확인 알림이 갑니다.')
+	await expect(page.getByRole('heading', { level: 1 })).toHaveText(`대여: ${people.approver.name}`)
 })
 
 test('what is disposed of, or found lost by a count, is offered out of its kit, and the kit is picked up without it', async ({ page, as }) => {
 	const shoot = unique('e2e 처분')
 	const n = Math.random().toString(36).slice(2, 7).toUpperCase()
-	const tag = { kit: `EK-${n}`, camera: `EC-${n}`, lens: `EL-${n}`, tripod: `ET-${n}`, room: `ES-${n}` }
+	const tag = { kit: `EK-${n}`, camera: `EC-${n}`, lens: `EL-${n}`, tripod: `ET-${n}`, battery: `EB-${n}`, room: `ES-${n}` }
 
-	// A kit of its own of three, the lens kept in a room of its own, which a
+	// A kit of its own of four, the lens kept in a room of its own, which a
 	// count has just found it missing from; and the kit booked.
 	const admin = await as(owner.login, owner.password)
 	const room = await rpc(admin, 'AssetService/Add', { name: unique('e2e 장비실'), kind: 'space', tag: tag.room })
@@ -141,7 +148,8 @@ test('what is disposed of, or found lost by a count, is offered out of its kit, 
 	const camera = await rpc(admin, 'AssetService/Add', { name: 'e2e 처분 카메라', kind: 'item', tag: tag.camera })
 	const lens = await rpc(admin, 'AssetService/Add', { name: 'e2e 처분 렌즈', kind: 'item', tag: tag.lens, to: { id: room.id } })
 	const tripod = await rpc(admin, 'AssetService/Add', { name: 'e2e 처분 삼각대', kind: 'item', tag: tag.tripod })
-	for (const m of [camera, lens, tripod]) {
+	const battery = await rpc(admin, 'AssetService/Add', { name: 'e2e 처분 배터리', kind: 'item', tag: tag.battery })
+	for (const m of [camera, lens, tripod, battery]) {
 		await rpc(admin, 'AssetService/Relate', { ref: { id: m.id }, target: { id: kit.id }, kind: 'member_of', required: true })
 	}
 	await rpc(admin, 'BookableService/Add', { asset: { id: kit.id } })
@@ -175,11 +183,29 @@ test('what is disposed of, or found lost by a count, is offered out of its kit, 
 	await resolve.getByRole('button', { name: '처리', exact: true }).click()
 	await said(page, '처리했습니다.')
 
-	// What the booking hands out now is the camera alone.
+	// The battery is retired and kept in the kit, its box unticked: the
+	// booking still holds it.
+	await page.goto(`${workspace}/assets/${idOf(battery.id)}`)
+	await page.getByRole('button', { name: '정보·상태 변경' }).click()
+	const retire = page.getByRole('dialog')
+	await choose(field(retire, '상태'), '불용')
+	await offer(retire).uncheck()
+	await retire.getByRole('button', { name: '저장', exact: true }).click()
+	await said(page, '바꿨습니다.')
+
+	// What the booking hands out now is the camera alone; the battery it
+	// holds is out of use, which nothing hands over, and is said instead.
 	await page.goto(`${workspace}/reservations?tab=mine`)
 	await page.getByRole('row').filter({ hasText: shoot }).click()
 	await page.getByRole('dialog').getByRole('button', { name: '수령 처리 (대여)' }).click()
-	const out = page.getByRole('dialog').getByRole('list', { name: '건넬 자산' })
+	const pickup = page.getByRole('dialog')
+	const out = pickup.getByRole('list', { name: '건넬 자산' })
 	await expect(out.getByRole('listitem')).toHaveCount(1)
 	await expect(out).toContainText(tag.camera)
+	const gone = pickup.getByRole('note', { name: '건넬 수 없는 자산' })
+	await expect(gone).toContainText(`${tag.battery} e2e 처분 배터리: 불용`)
+	await expect(gone).toContainText('건넬 자산에 넣지 않았습니다')
+	await expect(gone).not.toContainText(tag.tripod)
+	await pickup.getByRole('button', { name: '건네기', exact: true }).click()
+	await said(page, '건넸습니다. 받은 사람에게 인수 확인 알림이 갑니다.')
 })

@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
 import type { Asset } from '../../gen/rove/asset_pb.js'
 import type { Custody, CustodyLine } from '../../gen/rove/custody_pb.js'
-import { AssetService, CustodyLineService, CustodyService, StockService, dateOf, fmt, fromInput, idBytes, idStr, op, ref, sameId, ts } from '../api.js'
+import { AssetService, CustodyLineService, CustodyService, StockService, dateOf, fmt, fromInput, idBytes, idStr, localInput, op, ref, sameId, ts } from '../api.js'
 import { useCatalog } from '../catalog.js'
 import { AssetLink, AssetPicker, PartySelect, SpaceSelect } from '../pickers.js'
 import { useAct, useRpc } from '../rpc.js'
@@ -276,14 +276,15 @@ function Extend(props: { c: Custody; onClose: () => void }): ReactNode {
 /**
  * Handing things over: assets one by one, and quantities out of stock. `note`
  * is what the one handing them over is to know first -- of a pickup, what the
- * reservation does not hold.
+ * reservation does not hold, or holds and may not hand over. `due` makes it a
+ * loan due back then, as a pickup is: when its reservation ends.
  */
-export function NewCustody(props: { assets: Asset[]; party?: string; reservation?: Uint8Array; note?: ReactNode; onClose: () => void }): ReactNode {
+export function NewCustody(props: { assets: Asset[]; party?: string; reservation?: Uint8Array; due?: Date; note?: ReactNode; onClose: () => void }): ReactNode {
 	const act = useAct()
 	const go = useNavigate()
 	const [party, setParty] = useState(props.party ?? '')
-	const [kind, setKind] = useState('issue')
-	const [due, setDue] = useState('')
+	const [kind, setKind] = useState(props.due === undefined ? 'issue' : 'loan')
+	const [due, setDue] = useState(localInput(props.due))
 	const [assets, setAssets] = useState<Asset[]>(props.assets)
 	const [next, setNext] = useState<Asset>()
 	const [stock, setStock] = useState('')
