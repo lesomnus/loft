@@ -6484,9 +6484,10 @@ type CalendarEntry_builder struct {
 	// kit it should take with it that something else holds then, and what it
 	// booked of a pool that has fewer to give then (design 4).
 	Conflicts []*ReservationConflict
-	// What it takes that is out of use while it is still to be fulfilled: an
-	// item it booked, or a member of a kit it booked that was kept in the kit
-	// as it went (design 4, D42). Nothing hands it over.
+	// What it takes that is out of use while it is still to be fulfilled:
+	// what it booked, whatever it is, or an item a kit it booked takes with it,
+	// kept in the kit as it went (design 4, D42, D43). Nothing hands it over,
+	// and what it booked is not approved, confirmed or fulfilled.
 	OutOfUse []*ReservationOutOfUse
 }
 
@@ -6698,17 +6699,21 @@ func (b0 ReservationConflict_builder) Build() *ReservationConflict {
 	return m0
 }
 
-// ReservationOutOfUse is an item a reservation takes -- one it booked, or a
-// member a kit it booked takes with it, held or waited for -- that is lost,
-// retired or disposed: a pickup does not hand it over, and it is said until
-// it is in use again or taken off its kit. A pool's members are none of it:
-// what a pool gives is the ones in use, and one fewer is a pool's conflict.
+// ReservationOutOfUse is what a reservation takes that is lost, retired or
+// disposed, and is said until it is in use again or taken off its kit: what
+// it booked itself, of any kind -- which it is then neither approved nor
+// confirmed with, a space of which is not checked into and a kit or a group
+// not picked up, and an item of which its pickup does not hand over -- or an
+// item a kit it booked takes with it, held or waited for, which its pickup
+// does not hand over (D42, D43). A pool's members are none of it: what a pool
+// gives is the ones in use, and one fewer is a pool's conflict.
 type ReservationOutOfUse struct {
 	state                   protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_ResourceId   []byte                 `protobuf:"bytes,1,opt,name=resource_id,json=resourceId"`
 	xxx_hidden_ResourceTag  string                 `protobuf:"bytes,2,opt,name=resource_tag,json=resourceTag"`
 	xxx_hidden_ResourceName string                 `protobuf:"bytes,3,opt,name=resource_name,json=resourceName"`
 	xxx_hidden_Status       string                 `protobuf:"bytes,4,opt,name=status"`
+	xxx_hidden_ResourceKind string                 `protobuf:"bytes,5,opt,name=resource_kind,json=resourceKind"`
 	unknownFields           protoimpl.UnknownFields
 	sizeCache               protoimpl.SizeCache
 }
@@ -6766,6 +6771,13 @@ func (x *ReservationOutOfUse) GetStatus() string {
 	return ""
 }
 
+func (x *ReservationOutOfUse) GetResourceKind() string {
+	if x != nil {
+		return x.xxx_hidden_ResourceKind
+	}
+	return ""
+}
+
 func (x *ReservationOutOfUse) SetResourceId(v []byte) {
 	if v == nil {
 		v = []byte{}
@@ -6785,15 +6797,21 @@ func (x *ReservationOutOfUse) SetStatus(v string) {
 	x.xxx_hidden_Status = v
 }
 
+func (x *ReservationOutOfUse) SetResourceKind(v string) {
+	x.xxx_hidden_ResourceKind = v
+}
+
 type ReservationOutOfUse_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	// The item, by what it is tagged and called.
+	// What it is, by what it is tagged and called.
 	ResourceId   []byte
 	ResourceTag  string
 	ResourceName string
 	// lost | retired | disposed
 	Status string
+	// item | space | kit | group
+	ResourceKind string
 }
 
 func (b0 ReservationOutOfUse_builder) Build() *ReservationOutOfUse {
@@ -6804,6 +6822,7 @@ func (b0 ReservationOutOfUse_builder) Build() *ReservationOutOfUse {
 	x.xxx_hidden_ResourceTag = b.ResourceTag
 	x.xxx_hidden_ResourceName = b.ResourceName
 	x.xxx_hidden_Status = b.Status
+	x.xxx_hidden_ResourceKind = b.ResourceKind
 	return m0
 }
 
@@ -10324,13 +10343,14 @@ const file_rove_booking_svc_g_proto_rawDesc = "" +
 	"\aends_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x06endsAt\x12'\n" +
 	"\aheld_by\x18\x06 \x03(\v2\x0e.rove.BusySpanR\x06heldBy\x12\x1b\n" +
 	"\x05units\x18\a \x01(\rB\x05\xaa\x01\x02\b\x02R\x05units\x12#\n" +
-	"\tavailable\x18\b \x01(\rB\x05\xaa\x01\x02\b\x02R\tavailable\"\xb2\x01\n" +
+	"\tavailable\x18\b \x01(\rB\x05\xaa\x01\x02\b\x02R\tavailable\"\xde\x01\n" +
 	"\x13ReservationOutOfUse\x12&\n" +
 	"\vresource_id\x18\x01 \x01(\fB\x05\xaa\x01\x02\b\x02R\n" +
 	"resourceId\x12(\n" +
 	"\fresource_tag\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\vresourceTag\x12*\n" +
 	"\rresource_name\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\fresourceName\x12\x1d\n" +
-	"\x06status\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06status\"\xb5\x02\n" +
+	"\x06status\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06status\x12*\n" +
+	"\rresource_kind\x18\x05 \x01(\tB\x05\xaa\x01\x02\b\x02R\fresourceKind\"\xb5\x02\n" +
 	"\x19ReservationItemAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\x126\n" +

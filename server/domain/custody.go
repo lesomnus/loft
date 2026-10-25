@@ -12,6 +12,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	app "github.com/lesomnus/rove"
+	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/internal/ent/custodyline"
 	"github.com/lesomnus/rove/internal/ent/reservation"
 	"github.com/lesomnus/rove/server/pd"
@@ -118,6 +119,21 @@ func (s domainCustody) Add(ctx context.Context, req *app.CustodyAddRequest) (*ap
 			}
 			if r.GetStatus() != resConfirmed {
 				return failed("예약이 %s 상태입니다. 확정된 예약만 수령할 수 있습니다", or(reservationSay[r.GetStatus()], r.GetStatus()))
+			}
+			// Nor through what it booked that is out of use and is handed
+			// over as what it is made of -- a kit, a group -- or is no
+			// hand-over's (D43), read as what it booked is held
+			// ([Tx.unusable]). An item out of use is left out of what is
+			// handed over, a line at a time, below.
+			if err := t.lockAllocations(rid); err != nil {
+				return err
+			}
+			gone, err := t.unusable(rid.Uuid())
+			if err != nil {
+				return err
+			}
+			if gone = slices.DeleteFunc(gone, func(a *ent.Asset) bool { return a.Kind == "item" }); len(gone) > 0 {
+				return failed("예약한 것 가운데 쓸 수 없는 것이 있어 수령할 수 없습니다: %s", outOfUseNamed(gone))
 			}
 			if _, err := t.next.Reservation().Patch(t.ctx, app.ReservationPatchRequest_builder{
 				Ref:              app.ReservationRef_builder{Id: r.GetId()}.Build(),
