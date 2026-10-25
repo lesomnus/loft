@@ -740,6 +740,73 @@ func TestAnAssistantTakesWhatGoesOutOfUseOutOfItsKits(t *testing.T) {
 	x.False(inKit("LN-1"))
 }
 
+// TestAnAssistantSaysWhetherAKitTakesAMember: a plan that gives a kit a
+// member says whether it is a required one, which every booking of the kit
+// takes with it, or an optional one; and of a member the kit has already, that
+// it is made the other -- which a plan that said nothing of it did, unsaid.
+func TestAnAssistantSaysWhetherAKitTakesAMember(t *testing.T) {
+	s := serve(t)
+	x := s.x
+	s.signIn("owner", "owner1234")
+	for _, v := range []string{
+		`{"name": "촬영 키트", "kind": "kit", "tag": "K-1"}`,
+		`{"name": "카메라 풀", "kind": "group", "tag": "G-1"}`,
+		`{"name": "카메라", "kind": "item", "tag": "CM-1"}`,
+		`{"name": "렌즈", "kind": "item", "tag": "LN-1"}`,
+	} {
+		made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", v))
+	}
+	a := s.assistant()
+	// What the history says of the asset's membership now: whether it is
+	// required, or "" when it is a member of nothing.
+	required := func(tag string) string {
+		var hist struct {
+			Entries []struct {
+				Kind   string            `json:"kind"`
+				Until  string            `json:"until"`
+				Detail map[string]string `json:"detail"`
+			} `json:"entries"`
+		}
+		a.call("asset_history", map[string]any{"asset": tag}, &hist)
+		for _, e := range hist.Entries {
+			if e.Kind == "link" && e.Until == "" && e.Detail["side"] == "source" {
+				return e.Detail["required"]
+			}
+		}
+		return ""
+	}
+
+	p := a.plan("plan_asset", map[string]any{"action": "relate", "asset": "CM-1", "target": "K-1", "relation": "member_of", "required": true})
+	x.Equal("구성에 넣기: CM-1 카메라 → K-1 촬영 키트 (필수 구성품)", p.Summary)
+	x.Empty(required("CM-1"), "a plan changes nothing")
+	a.apply(p)
+	x.Equal("true", required("CM-1"))
+	p = a.plan("plan_asset", map[string]any{"action": "relate", "asset": "LN-1", "target": "K-1", "relation": "member_of"})
+	x.Equal("구성에 넣기: LN-1 렌즈 → K-1 촬영 키트 (선택 구성품)", p.Summary)
+	a.apply(p)
+	x.Equal("false", required("LN-1"))
+
+	// A member it has already is made what the plan says, and the plan says
+	// that is a change.
+	p = a.plan("plan_asset", map[string]any{"action": "relate", "asset": "CM-1", "target": "K-1", "relation": "member_of", "reason": "예비가 있음"})
+	x.Equal("선택 구성품으로 바꾸기: CM-1 카메라 → K-1 촬영 키트 — 예비가 있음", p.Summary)
+	a.apply(p)
+	x.Equal("false", required("CM-1"))
+	p = a.plan("plan_asset", map[string]any{"action": "relate", "asset": "LN-1", "target": "K-1", "relation": "member_of", "required": true})
+	x.Equal("필수 구성품으로 바꾸기: LN-1 렌즈 → K-1 촬영 키트", p.Summary)
+	a.apply(p)
+	x.Equal("true", required("LN-1"))
+
+	// Nothing but a kit's member is either.
+	for _, v := range []map[string]any{
+		{"action": "relate", "asset": "CM-1", "target": "G-1", "relation": "member_of", "required": true},
+		{"action": "relate", "asset": "CM-1", "target": "K-1", "relation": "member_of", "end": true, "required": true},
+		{"action": "relate", "asset": "CM-1", "target": "LN-1", "relation": "connected_to", "required": true},
+	} {
+		x.Contains(a.refused("plan_asset", v), "required: only of a member given to a kit")
+	}
+}
+
 // applied carries a plan out and answers what else apply said.
 func (a *assistant) applied(p planned) []string {
 	a.s.t.Helper()
