@@ -60,6 +60,7 @@
 /rove.EventService/Get	read
 /rove.EventService/List	read
 /rove.EventService/Recent	read
+/rove.EventService/Redact	nobody
 /rove.HolderService/Get	admin +auditor
 /rove.HolderService/List	admin +auditor
 /rove.HolderService/Watch	admin +auditor

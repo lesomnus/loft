@@ -16,7 +16,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file rove/payday/event_svc.g.proto.
  */
 export const file_rove_payday_event_svc_g: GenFile = /*@__PURE__*/
-  fileDesc("Ch1yb3ZlL3BheWRheS9ldmVudF9zdmMuZy5wcm90bxIEcm92ZSLpAgoPRXZlbnRBZGRSZXF1ZXN0EgoKAmlkGAEgASgMEh8KBnRlbmFudBgCIAEoCzIPLnJvdmUuVGVuYW50UmVmEhMKBGtpbmQYCCABKAlCBaoBAggCEhAKCGFjdG9yX2lkGAkgASgMEi8KC29jY3VycmVkX2F0GAogASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIVCgZyZWFzb24YCyABKAlCBaoBAggCEhIKCnN1YmplY3RfaWQYDCABKAwSMAoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIQCgh0cmFjZV9pZBgQIAEoDBIQCghjYXVzZV9pZBgSIAEoDBIjCgV2YWx1ZRgTIAEoCzIULmdvb2dsZS5wcm90b2J1Zi5BbnkSEwoEZGVzYxgGIAEoCUIFqgECCAISFgoHcGF5bG9hZBgRIAEoCUIFqgECCAIiOwoTRXZlbnRBZGRNYW55UmVxdWVzdBIkCgVpdGVtcxgBIAMoCzIVLnJvdmUuRXZlbnRBZGRSZXF1ZXN0IjIKFEV2ZW50QWRkTWFueVJlc3BvbnNlEhoKBWl0ZW1zGAEgAygLMgsucm92ZS5FdmVudCJRCg9FdmVudEdldFJlcXVlc3QSGwoDcmVmGAEgASgLMg4ucm92ZS5FdmVudFJlZhIhCgZzZWxlY3QYAiABKAsyES5yb3ZlLkV2ZW50U2VsZWN0Ih8KCEV2ZW50UmVmEgwKAmlkGAEgASgMSABCBQoDa2V5IpUCCgtFdmVudFNlbGVjdBILCgNhbGwYASABKAgSIgoGdGVuYW50GAIgASgLMhIucm92ZS5UZW5hbnRTZWxlY3QSDAoEa2luZBgIIAEoCBIQCghhY3Rvcl9pZBgJIAEoCBITCgtvY2N1cnJlZF9hdBgKIAEoCBIOCgZyZWFzb24YCyABKAgSEgoKc3ViamVjdF9pZBgMIAEoCBIUCgxkYXRlX3VwZGF0ZWQYDSABKAgSFAoMZGF0ZV9jcmVhdGVkGA8gASgIEhAKCHRyYWNlX2lkGBAgASgIEhAKCGNhdXNlX2lkGBIgASgIEg0KBXZhbHVlGBMgASgIEgwKBGRlc2MYBiABKAgSDwoHcGF5bG9hZBgRIAEoCCJ5ChBFdmVudExpc3RSZXF1ZXN0EiIKB2ZpbHRlcnMYASADKAsyES5yb3ZlLkV2ZW50RmlsdGVyEhMKBHNpemUYAiABKAVCBaoBAggCEhQKBWFmdGVyGAMgASgJQgWqAQIIAhIWCgdyZXZlcnNlGAQgASgIQgWqAQIIAiJEChFFdmVudExpc3RSZXNwb25zZRIaCgVpdGVtcxgBIAMoCzILLnJvdmUuRXZlbnQSEwoEbmV4dBgCIAEoCUIFqgECCAIicAoLRXZlbnRGaWx0ZXISGwoDcmVmGAEgASgLMg4ucm92ZS5FdmVudFJlZhISCgpzdWJqZWN0X2lkGAIgASgMEgwKBGtpbmQYAyABKAkSEAoIYWN0b3JfaWQYBCABKAwSEAoIY2F1c2VfaWQYBSABKAwiewoSRXZlbnRSZWNlbnRSZXF1ZXN0EhMKBHNpemUYASABKA1CBaoBAggCEhMKBGtpbmQYAiABKAlCBaoBAggCEhcKCGNoaWxkcmVuGAQgASgIQgWqAQIIAhIUCgVhZnRlchgFIAEoCUIFqgECCAJKBAgDEARSBmJlZm9yZSJGChNFdmVudFJlY2VudFJlc3BvbnNlEhoKBWl0ZW1zGAEgAygLMgsucm92ZS5FdmVudBITCgRuZXh0GAIgASgJQgWqAQIIAjKeAgoMRXZlbnRTZXJ2aWNlEikKA0FkZBIVLnJvdmUuRXZlbnRBZGRSZXF1ZXN0Ggsucm92ZS5FdmVudBJACgdBZGRNYW55Ehkucm92ZS5FdmVudEFkZE1hbnlSZXF1ZXN0Ghoucm92ZS5FdmVudEFkZE1hbnlSZXNwb25zZRIpCgNHZXQSFS5yb3ZlLkV2ZW50R2V0UmVxdWVzdBoLLnJvdmUuRXZlbnQSNwoETGlzdBIWLnJvdmUuRXZlbnRMaXN0UmVxdWVzdBoXLnJvdmUuRXZlbnRMaXN0UmVzcG9uc2USPQoGUmVjZW50Ehgucm92ZS5FdmVudFJlY2VudFJlcXVlc3QaGS5yb3ZlLkV2ZW50UmVjZW50UmVzcG9uc2VCGloYZ2l0aHViLmNvbS9sZXNvbW51cy9yb3ZlYghlZGl0aW9uc3DoBw", [file_google_protobuf_any, file_google_protobuf_timestamp, file_rove_payday_event, file_rove_payday_tenant_svc_g]);
+  fileDesc("Ch1yb3ZlL3BheWRheS9ldmVudF9zdmMuZy5wcm90bxIEcm92ZSLpAgoPRXZlbnRBZGRSZXF1ZXN0EgoKAmlkGAEgASgMEh8KBnRlbmFudBgCIAEoCzIPLnJvdmUuVGVuYW50UmVmEhMKBGtpbmQYCCABKAlCBaoBAggCEhAKCGFjdG9yX2lkGAkgASgMEi8KC29jY3VycmVkX2F0GAogASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIVCgZyZWFzb24YCyABKAlCBaoBAggCEhIKCnN1YmplY3RfaWQYDCABKAwSMAoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIQCgh0cmFjZV9pZBgQIAEoDBIQCghjYXVzZV9pZBgSIAEoDBIjCgV2YWx1ZRgTIAEoCzIULmdvb2dsZS5wcm90b2J1Zi5BbnkSEwoEZGVzYxgGIAEoCUIFqgECCAISFgoHcGF5bG9hZBgRIAEoCUIFqgECCAIiOwoTRXZlbnRBZGRNYW55UmVxdWVzdBIkCgVpdGVtcxgBIAMoCzIVLnJvdmUuRXZlbnRBZGRSZXF1ZXN0IjIKFEV2ZW50QWRkTWFueVJlc3BvbnNlEhoKBWl0ZW1zGAEgAygLMgsucm92ZS5FdmVudCJRCg9FdmVudEdldFJlcXVlc3QSGwoDcmVmGAEgASgLMg4ucm92ZS5FdmVudFJlZhIhCgZzZWxlY3QYAiABKAsyES5yb3ZlLkV2ZW50U2VsZWN0Ih8KCEV2ZW50UmVmEgwKAmlkGAEgASgMSABCBQoDa2V5IpUCCgtFdmVudFNlbGVjdBILCgNhbGwYASABKAgSIgoGdGVuYW50GAIgASgLMhIucm92ZS5UZW5hbnRTZWxlY3QSDAoEa2luZBgIIAEoCBIQCghhY3Rvcl9pZBgJIAEoCBITCgtvY2N1cnJlZF9hdBgKIAEoCBIOCgZyZWFzb24YCyABKAgSEgoKc3ViamVjdF9pZBgMIAEoCBIUCgxkYXRlX3VwZGF0ZWQYDSABKAgSFAoMZGF0ZV9jcmVhdGVkGA8gASgIEhAKCHRyYWNlX2lkGBAgASgIEhAKCGNhdXNlX2lkGBIgASgIEg0KBXZhbHVlGBMgASgIEgwKBGRlc2MYBiABKAgSDwoHcGF5bG9hZBgRIAEoCCJ5ChBFdmVudExpc3RSZXF1ZXN0EiIKB2ZpbHRlcnMYASADKAsyES5yb3ZlLkV2ZW50RmlsdGVyEhMKBHNpemUYAiABKAVCBaoBAggCEhQKBWFmdGVyGAMgASgJQgWqAQIIAhIWCgdyZXZlcnNlGAQgASgIQgWqAQIIAiJEChFFdmVudExpc3RSZXNwb25zZRIaCgVpdGVtcxgBIAMoCzILLnJvdmUuRXZlbnQSEwoEbmV4dBgCIAEoCUIFqgECCAIicAoLRXZlbnRGaWx0ZXISGwoDcmVmGAEgASgLMg4ucm92ZS5FdmVudFJlZhISCgpzdWJqZWN0X2lkGAIgASgMEgwKBGtpbmQYAyABKAkSEAoIYWN0b3JfaWQYBCABKAwSEAoIY2F1c2VfaWQYBSABKAwiewoSRXZlbnRSZWNlbnRSZXF1ZXN0EhMKBHNpemUYASABKA1CBaoBAggCEhMKBGtpbmQYAiABKAlCBaoBAggCEhcKCGNoaWxkcmVuGAQgASgIQgWqAQIIAhIUCgVhZnRlchgFIAEoCUIFqgECCAJKBAgDEARSBmJlZm9yZSJGChNFdmVudFJlY2VudFJlc3BvbnNlEhoKBWl0ZW1zGAEgAygLMgsucm92ZS5FdmVudBITCgRuZXh0GAIgASgJQgWqAQIIAiJIChJFdmVudFJlZGFjdFJlcXVlc3QSGwoDcmVmGAEgASgLMg4ucm92ZS5FdmVudFJlZhIVCgZyZWFzb24YAiABKAlCBaoBAggCMs8CCgxFdmVudFNlcnZpY2USKQoDQWRkEhUucm92ZS5FdmVudEFkZFJlcXVlc3QaCy5yb3ZlLkV2ZW50EkAKB0FkZE1hbnkSGS5yb3ZlLkV2ZW50QWRkTWFueVJlcXVlc3QaGi5yb3ZlLkV2ZW50QWRkTWFueVJlc3BvbnNlEikKA0dldBIVLnJvdmUuRXZlbnRHZXRSZXF1ZXN0Ggsucm92ZS5FdmVudBI3CgRMaXN0EhYucm92ZS5FdmVudExpc3RSZXF1ZXN0Ghcucm92ZS5FdmVudExpc3RSZXNwb25zZRI9CgZSZWNlbnQSGC5yb3ZlLkV2ZW50UmVjZW50UmVxdWVzdBoZLnJvdmUuRXZlbnRSZWNlbnRSZXNwb25zZRIvCgZSZWRhY3QSGC5yb3ZlLkV2ZW50UmVkYWN0UmVxdWVzdBoLLnJvdmUuRXZlbnRCGloYZ2l0aHViLmNvbS9sZXNvbW51cy9yb3ZlYghlZGl0aW9uc3DoBw", [file_google_protobuf_any, file_google_protobuf_timestamp, file_rove_payday_event, file_rove_payday_tenant_svc_g]);
 
 /**
  * @generated from message rove.EventAddRequest
@@ -436,6 +436,32 @@ export const EventRecentResponseSchema: GenMessage<EventRecentResponse> = /*@__P
   messageDesc(file_rove_payday_event_svc_g, 10);
 
 /**
+ * @generated from message rove.EventRedactRequest
+ */
+export type EventRedactRequest = Message<"rove.EventRedactRequest"> & {
+  /**
+   * @generated from field: rove.EventRef ref = 1;
+   */
+  ref?: EventRef | undefined;
+
+  /**
+   * The erasure request this answers, by its reference: required, and kept as
+   * the act's own reason -- personal, as every reason is, so the trail holds
+   * that it was written and never what it says.
+   *
+   * @generated from field: string reason = 2 [features.field_presence = IMPLICIT];
+   */
+  reason: string;
+};
+
+/**
+ * Describes the message rove.EventRedactRequest.
+ * Use `create(EventRedactRequestSchema)` to create a new message.
+ */
+export const EventRedactRequestSchema: GenMessage<EventRedactRequest> = /*@__PURE__*/
+  messageDesc(file_rove_payday_event_svc_g, 11);
+
+/**
  * @generated from service rove.EventService
  */
 export const EventService: GenService<{
@@ -490,6 +516,22 @@ export const EventService: GenService<{
     methodKind: "unary";
     input: typeof EventRecentRequestSchema;
     output: typeof EventRecentResponseSchema;
+  },
+  /**
+   * Redact takes the reason out of an event, for a person whose request to
+   * erase what it says of them points at it (payday#151): the reason is
+   * blanked, which the trail records as the act it is, and the act is an
+   * event of its own, `event.redact`, whose reason is the request's
+   * reference. It answers the event as it is now. No role is given it yet
+   * (`server/policy`): who may is the workspace's to say, and the
+   * deployment's operator does it with `rove event redact`.
+   *
+   * @generated from rpc rove.EventService.Redact
+   */
+  redact: {
+    methodKind: "unary";
+    input: typeof EventRedactRequestSchema;
+    output: typeof EventSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_rove_payday_event_svc_g, 0);
