@@ -345,7 +345,7 @@ export function NewCustody(props: { assets: Asset[]; party?: string; reservation
 				/>
 			</Field>
 			{assets.length > 0 && (
-				<ul className="rows wide">
+				<ul className="rows wide" aria-label="건넬 자산">
 					{assets.map((a) => (
 						<li key={idStr(a.id)}>
 							<span>

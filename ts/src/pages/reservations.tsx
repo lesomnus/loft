@@ -1,11 +1,12 @@
 import { useMemo, useState, type ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
+import type { Asset } from '../../gen/rove/asset_pb.js'
 import type { BusySpan, CalendarEntry, ReservationConflict } from '../../gen/rove/booking_svc_pb.js'
-import type { Reservation } from '../../gen/rove/booking_pb.js'
-import { AssetService, BookableService, ReservationService, at, dateInput, dateOf, fmt, fmtWith, fromInput, idBytes, idStr, localInput, minute, op, ref, sameId, shift, ts, wall } from '../api.js'
+import type { Allocation, Reservation } from '../../gen/rove/booking_pb.js'
+import { AllocationService, BookableService, ReservationService, at, dateInput, dateOf, fmt, fmtWith, fromInput, idBytes, idStr, localInput, minute, op, ref, sameId, shift, ts, wall } from '../api.js'
 import { useCatalog } from '../catalog.js'
-import { PartySelect, useAssets } from '../pickers.js'
+import { PartySelect, useAssets, useAssetsRead } from '../pickers.js'
 import { Live, useAct, useRpc } from '../rpc.js'
 import { Badge, Card, Empty, Field, FormModal, Load, Modal, PageHead, Select, Tabs } from '../ui.js'
 import { kindWord, reservationWord } from '../words.js'
@@ -370,25 +371,49 @@ function ReservationDialog(props: { r: Reservation; resources: Uint8Array[]; con
 }
 
 /**
- * Equipment is picked up as a loan due back when the reservation ends, and
- * what it waits for is said there too: a kit's member it does not hold does
- * not go out with it.
+ * Equipment is picked up as a loan due back when the reservation ends: what
+ * it holds is handed out, a kit's members with it, and what it waits for is
+ * said there too -- a kit's member it does not hold does not go out with it.
  */
 function PickUp(props: { r: Reservation; resources: Uint8Array[]; conflicts: ReservationConflict[]; onClose: () => void }): ReactNode {
-	const assets = useRpc(AssetService.method.list, { filters: props.resources.map((id) => ({ ref: ref(id) })), size: 50 })
-	if (assets.data === undefined) return null
+	const held = useRpc(AllocationService.method.list, { filters: [{ refId: props.r.id }], size: 200 })
+	const ids = useMemo(() => (held.data === undefined ? undefined : holds(props.resources, held.data.items)), [held.data, props.resources])
+	const assets = useAssetsRead(ids ?? [])
+	if (ids === undefined || assets === undefined) return null
 	return (
-		<NewCustodyForPickup r={props.r} assets={assets.data.items} conflicts={props.conflicts} onClose={props.onClose} />
+		<NewCustodyForPickup
+			r={props.r}
+			assets={ids.map((id) => assets.get(idStr(id))).filter((a): a is Asset => a !== undefined)}
+			conflicts={props.conflicts}
+			onClose={props.onClose}
+		/>
 	)
 }
 
-function NewCustodyForPickup(props: { r: Reservation; assets: import('../../gen/rove/asset_pb.js').Asset[]; conflicts: ReservationConflict[]; onClose: () => void }): ReactNode {
+/**
+ * What a reservation holds, in order: what it booked, and then the members
+ * its kits took with it -- an allocation of each (design 4) -- but for what
+ * it waits for, a member its kit was given that something else holds then,
+ * which is not its own until it is free.
+ */
+function holds(booked: Uint8Array[], allocations: Allocation[]): Uint8Array[] {
+	const out: Uint8Array[] = []
+	const seen = new Set<string>()
+	for (const id of [...booked, ...allocations.filter((a) => a.kind !== 'waiting').map((a) => a.resource?.id)]) {
+		if (id === undefined || seen.has(idStr(id))) continue
+		seen.add(idStr(id))
+		out.push(id)
+	}
+	return out
+}
+
+function NewCustodyForPickup(props: { r: Reservation; assets: Asset[]; conflicts: ReservationConflict[]; onClose: () => void }): ReactNode {
 	return (
 		<NewCustody
 			assets={props.assets.filter((a) => a.kind === 'item')}
 			party={idStr(props.r.party?.id)}
 			reservation={props.r.id}
-			note={props.conflicts.length > 0 ? <Waiting conflicts={props.conflicts} /> : undefined}
+			note={props.conflicts.length > 0 ? <Waiting conflicts={props.conflicts} more="이 예약이 잡지 못한 구성품은 건넬 자산에 넣지 않았습니다." /> : undefined}
 			onClose={props.onClose}
 		/>
 	)
@@ -397,9 +422,10 @@ function NewCustodyForPickup(props: { r: Reservation; assets: import('../../gen/
 /**
  * What a reservation waits for: the members its kit was given after it was
  * made that something else holds then (design 4). It takes each once it is
- * free, and a member it does not hold is not handed out with the kit.
+ * free, and a member it does not hold is not handed out with the kit. `more`
+ * is what the place it is said in does about it.
  */
-function Waiting(props: { conflicts: ReservationConflict[] }): ReactNode {
+function Waiting(props: { conflicts: ReservationConflict[]; more?: string }): ReactNode {
 	if (props.conflicts.length === 0) return null
 	return (
 		<div className="note warn" role="note" aria-label="구성품 충돌">
@@ -413,6 +439,7 @@ function Waiting(props: { conflicts: ReservationConflict[] }): ReactNode {
 				))}
 			</ul>
 			<p className="small">키트에 나중에 더해진 구성품입니다. 비면 이 예약이 잡습니다.</p>
+			{props.more !== undefined && <p className="small">{props.more}</p>}
 		</div>
 	)
 }
