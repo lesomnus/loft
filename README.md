@@ -349,8 +349,19 @@ PostgreSQL이면 서버를 여러 대 띄울 수 있습니다. 상태는 데이�
   CREATE INDEX CONCURRENTLY IF NOT EXISTS access_by_time ON access (date_created, id);
   ```
 
-- `CONCURRENTLY`가 도중에 실패하면 그 이름의 인덱스가 쓸 수 없는(`INVALID`) 채로 남습니다. 다시 실행해도 `IF NOT EXISTS`가 그것을 건너뛰고, 마이그레이션도 그대로 둡니다. 그래서 만든 뒤 `\d audit`와 `\d access`에서 `INVALID`가 없는지 봅니다. 있으면 `DROP INDEX CONCURRENTLY audit_by_time;`처럼 지우고 다시 만듭니다.
-- 내장 roster의 DB(`auth.roster.db`)에도 같은 이름의 인덱스 둘이 생깁니다. 내장 roster는 열 때마다 자기 DB를 마이그레이션하므로, 그 기록도 크다면 같은 두 문장을 그 DB에서도 먼저 실행합니다.
+- `CONCURRENTLY`가 도중에 실패하면 그 이름의 인덱스가 쓸 수 없는(`INVALID`) 채로 남습니다. 쓰기마다 갱신되지만 어떤 읽기도 그 인덱스를 쓰지 않습니다. 다시 실행해도 `IF NOT EXISTS`가 그것을 건너뜁니다. **`rove migrate`는 스키마가 선언한 인덱스가 이렇게 남아 있으면 테이블을 맞추기 전에 멈춥니다(payday#176).** 멈추면서 인덱스와 표의 이름, 실행할 문장을 알려 줍니다. 그 문장을 트랜잭션 밖에서 한 문장씩 실행하고 `rove migrate`를 다시 실행합니다. 짓고 있는 인덱스도 끝날 때까지는 `INVALID`이므로, 짓는 중이면 끝난 뒤에 실행합니다.
+
+  ```sql
+  -- audit_by_time, on audit
+  DROP INDEX CONCURRENTLY public.audit_by_time;
+  CREATE INDEX CONCURRENTLY audit_by_time ON public.audit USING btree (date_created, id);
+  ```
+
+  - 만든 뒤 `\d audit`와 `\d access`에 `INVALID`가 없는지 먼저 보면 올리는 도중에 멈추지 않습니다.
+  - 마이그레이션이 직접 다시 만들지 않는 것은, 그러려면 쓰기를 막은 채 짓거나(미리 만든 이유가 없어집니다) 실패한 빌드만큼 오래 걸리고 같은 이유로 또 실패할 수 있는 빌드를 서버가 뜨기 전 단계에서 다시 돌려야 하기 때문입니다.
+  - `rove serve`(`db.migrate: false`)는 이런 인덱스를 경고로 남기고(`db: serving over an index PostgreSQL left invalid`) 그대로 뜹니다. 느려질 뿐인 인덱스 때문에 재시작이 장애가 되지 않게 하려는 것입니다.
+  - 스키마가 선언하지 않은 인덱스(직접 만든 인덱스, `REINDEX CONCURRENTLY`가 남긴 `_ccnew`)는 멈추지 않고 경고만 남깁니다. `_ccnew`는 지우기만 합니다.
+- 내장 roster의 DB(`auth.roster.db`)에도 같은 이름의 인덱스 둘이 생깁니다. 내장 roster는 열 때마다 자기 DB를 마이그레이션하므로, 그 기록도 크다면 같은 두 문장을 그 DB에서도 먼저 실행합니다. 그 DB의 인덱스가 `INVALID`로 남으면 `rove migrate`와 `rove serve`가 모두 `embedded roster:`로 시작하는 같은 안내와 함께 멈춥니다. 안내의 문장은 그 DB에서 실행합니다.
 
 **운영자 명령이 말하는 날짜는 UTC입니다.** `rove`의 운영자 명령(`tenant`, `contract`, `retention`, `trail`, `access` 등)과 `rove-admin`이 말하는 날짜와 시각은 셸의 시간대와 상관없이 UTC입니다. `--effective 2027-01-01`처럼 주는 날짜도 UTC의 그날입니다. 워크스페이스의 사람이 앱에서 읽는 날짜는 그 워크스페이스의 시간대를 따릅니다(#144).
 
