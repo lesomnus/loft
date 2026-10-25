@@ -44,6 +44,7 @@ func TestEveryKindIsSaidAsItWasWritten(t *testing.T) {
 	nobody := pdid.New(pd.PartyDomain)
 	asset, other := pdid.New(pd.AssetDomain), pdid.New(pd.AssetDomain)
 	stock := pdid.New(pd.StockDomain)
+	booking := pdid.New(pd.ReservationDomain)
 	seoul, err := time.LoadLocation("Asia/Seoul")
 	x.NoError(err)
 	// 10:30 in Seoul.
@@ -131,6 +132,16 @@ func TestEveryKindIsSaidAsItWasWritten(t *testing.T) {
 		{"reservation.expire", app.ReservationReleased_builder{Name: "주간 회의", From: "held"}.Build(), "홀드 만료: 주간 회의"},
 		{"reservation.expire", app.ReservationReleased_builder{Name: "주간 회의", From: "requested"}.Build(), "승인 대기 만료: 주간 회의"},
 		{"reservation.no_show", app.ReservationReleased_builder{Name: "주간 회의"}.Build(), "노쇼: 주간 회의"},
+		// Kinds since events kept a message, written with none before them:
+		// a member of a kit, which is one thing, and a pool, by how many.
+		{"reservation.take", app.ReservationAllocationChanged_builder{Reservation: booking.Bytes(), Name: "제품 촬영", BeginsAt: timestamppb.New(at), Asset: asset.Bytes(), AssetName: "삼각대"}.Build(), "예약에 잡힘: 삼각대 (제품 촬영 10-24 10:30)"},
+		{"reservation.take", app.ReservationAllocationChanged_builder{Reservation: booking.Bytes(), Name: "행사", BeginsAt: timestamppb.New(at), Asset: asset.Bytes(), AssetName: "삼각대", Override: true}.Build(), "예약에 잡힘: 삼각대 (행사 10-24 10:30)"},
+		{"reservation.wait", app.ReservationAllocationChanged_builder{Reservation: booking.Bytes(), Name: "제품 촬영", BeginsAt: timestamppb.New(at), Asset: asset.Bytes(), AssetName: "삼각대"}.Build(), "예약 대기: 삼각대 (제품 촬영 10-24 10:30)"},
+		{"reservation.wait", app.ReservationAllocationChanged_builder{Reservation: booking.Bytes(), Name: "촬영", BeginsAt: timestamppb.New(at), Asset: other.Bytes(), AssetName: "Canon R5", Units: 2}.Build(), "예약 대기: Canon R5 2개 (촬영 10-24 10:30)"},
+		{"reservation.resolve", app.ReservationAllocationChanged_builder{Reservation: booking.Bytes(), Name: "제품 촬영", BeginsAt: timestamppb.New(at), Asset: asset.Bytes(), AssetName: "삼각대"}.Build(), "예약 확보: 삼각대 (제품 촬영 10-24 10:30)"},
+		{"reservation.resolve", app.ReservationAllocationChanged_builder{Reservation: booking.Bytes(), Name: "촬영", BeginsAt: timestamppb.New(at), Asset: other.Bytes(), AssetName: "Canon R5", Units: 1}.Build(), "예약 확보: Canon R5 1개 (촬영 10-24 10:30)"},
+		{"reservation.let_go", app.ReservationAllocationChanged_builder{Reservation: booking.Bytes(), Name: "제품 촬영", BeginsAt: timestamppb.New(at), Asset: asset.Bytes(), AssetName: "삼각대"}.Build(), "예약에서 빠짐: 삼각대 (제품 촬영 10-24 10:30)"},
+		{"reservation.let_go", app.ReservationAllocationChanged_builder{Reservation: booking.Bytes(), Name: "촬영", BeginsAt: timestamppb.New(at), Asset: other.Bytes(), AssetName: "Canon R5", Units: 2}.Build(), "예약에서 빠짐: Canon R5 2개 (촬영 10-24 10:30)"},
 
 		{"domain.add", app.TenantDomainAdded_builder{Host: "assets.acme.example", Purpose: "app", Source: "custom"}.Build(), "워크스페이스 도메인 등록: assets.acme.example"},
 		{"domain.add", app.TenantDomainAdded_builder{Host: "acme.l.test", Purpose: "label", Source: "default"}.Build(), "라벨 도메인 등록: acme.l.test"},

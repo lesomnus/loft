@@ -204,13 +204,27 @@ function ParentLink(props: { id: Uint8Array }): ReactNode {
 
 /**
  * Assets by identifier, read in groups of eight -- the most filters one list
- * takes, and they are or-ed.
+ * takes, and they are or-ed. While another set is read, what was read of the
+ * last is drawn.
  */
 export function useAssets(ids: (Uint8Array | undefined)[]): Map<string, Asset> {
+	return useAssetsOf(ids).last
+}
+
+/**
+ * The assets {@link useAssets} reads, and undefined until those of these
+ * identifiers are: for what is made once with all of them, as a form is
+ * filled in with them.
+ */
+export function useAssetsRead(ids: (Uint8Array | undefined)[]): Map<string, Asset> | undefined {
+	return useAssetsOf(ids).read
+}
+
+function useAssetsOf(ids: (Uint8Array | undefined)[]): { last: Map<string, Asset>; read: Map<string, Asset> | undefined } {
 	const { epoch } = useEpoch()
 	const live = useLive()
 	const key = [...new Set(ids.map(idStr).filter((v) => v !== ''))].sort().join(',')
-	const [m, setM] = useState(new Map<string, Asset>())
+	const [m, setM] = useState({ key: undefined as string | undefined, m: new Map<string, Asset>() })
 	useEffect(() => {
 		let live = true
 		const vs = key === '' ? [] : key.split(',')
@@ -223,7 +237,7 @@ export function useAssets(ids: (Uint8Array | undefined)[]): Map<string, Asset> {
 				if (!live) return
 				const n = new Map<string, Asset>()
 				for (const r of rs) for (const a of r.items) n.set(idStr(a.id), a)
-				setM(n)
+				setM({ key, m: n })
 			},
 			() => {},
 		)
@@ -231,5 +245,5 @@ export function useAssets(ids: (Uint8Array | undefined)[]): Map<string, Asset> {
 			live = false
 		}
 	}, [key, epoch, live])
-	return m
+	return { last: m.m, read: m.key === key ? m.m : undefined }
 }

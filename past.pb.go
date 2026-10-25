@@ -2807,6 +2807,185 @@ func (b0 ReservationReleased_builder) Build() *ReservationReleased {
 	return m0
 }
 
+// ReservationAllocationChanged is what a reservation holds of one thing it
+// needs, as the reservation follows what that thing can give (design 4, D38,
+// D39): of a kit it booked, the kit's members, as the kit is given them and
+// they are taken off it; of a pool, its units, as the pool's usable members
+// come and go. What it is to have it takes -- as the rest of the reservation
+// took what it booked, over what was booked already where that was -- or,
+// while something else holds it then, waits for; what it waited for it takes
+// once it is free, the reservation that waited longest first; and what it is
+// to have no longer it lets go of. One change, by which way it went, as a
+// stock's movements are. A pool's are by how many of it (`units`); a kit's
+// member is one thing, and says none.
+//
+// Each is an event of the reservation's and one of the thing's, holding the
+// same, whose cause is the operation that did it: the change to the kit or
+// the pool, or whatever let the thing go. A wait the sweep settles is an
+// operation of its own, the reservation's, and the thing's is its child.
+//
+//	reservation.take     reservation, name, begins_at, asset, asset_name, override, units
+//	reservation.wait     reservation, name, begins_at, asset, asset_name, units
+//	reservation.resolve  reservation, name, begins_at, asset, asset_name, units
+//	reservation.let_go   reservation, name, begins_at, asset, asset_name, units
+type ReservationAllocationChanged struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Reservation []byte                 `protobuf:"bytes,1,opt,name=reservation"`
+	xxx_hidden_Name        string                 `protobuf:"bytes,2,opt,name=name"`
+	xxx_hidden_BeginsAt    *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=begins_at,json=beginsAt"`
+	xxx_hidden_Asset       []byte                 `protobuf:"bytes,9,opt,name=asset"`
+	xxx_hidden_AssetName   string                 `protobuf:"bytes,10,opt,name=asset_name,json=assetName"`
+	xxx_hidden_Override    bool                   `protobuf:"varint,11,opt,name=override"`
+	xxx_hidden_Units       uint32                 `protobuf:"varint,14,opt,name=units"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *ReservationAllocationChanged) Reset() {
+	*x = ReservationAllocationChanged{}
+	mi := &file_rove_past_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReservationAllocationChanged) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReservationAllocationChanged) ProtoMessage() {}
+
+func (x *ReservationAllocationChanged) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_past_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *ReservationAllocationChanged) GetReservation() []byte {
+	if x != nil {
+		return x.xxx_hidden_Reservation
+	}
+	return nil
+}
+
+func (x *ReservationAllocationChanged) GetName() string {
+	if x != nil {
+		return x.xxx_hidden_Name
+	}
+	return ""
+}
+
+func (x *ReservationAllocationChanged) GetBeginsAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_BeginsAt
+	}
+	return nil
+}
+
+func (x *ReservationAllocationChanged) GetAsset() []byte {
+	if x != nil {
+		return x.xxx_hidden_Asset
+	}
+	return nil
+}
+
+func (x *ReservationAllocationChanged) GetAssetName() string {
+	if x != nil {
+		return x.xxx_hidden_AssetName
+	}
+	return ""
+}
+
+func (x *ReservationAllocationChanged) GetOverride() bool {
+	if x != nil {
+		return x.xxx_hidden_Override
+	}
+	return false
+}
+
+func (x *ReservationAllocationChanged) GetUnits() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Units
+	}
+	return 0
+}
+
+func (x *ReservationAllocationChanged) SetReservation(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Reservation = v
+}
+
+func (x *ReservationAllocationChanged) SetName(v string) {
+	x.xxx_hidden_Name = v
+}
+
+func (x *ReservationAllocationChanged) SetBeginsAt(v *timestamppb.Timestamp) {
+	x.xxx_hidden_BeginsAt = v
+}
+
+func (x *ReservationAllocationChanged) SetAsset(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Asset = v
+}
+
+func (x *ReservationAllocationChanged) SetAssetName(v string) {
+	x.xxx_hidden_AssetName = v
+}
+
+func (x *ReservationAllocationChanged) SetOverride(v bool) {
+	x.xxx_hidden_Override = v
+}
+
+func (x *ReservationAllocationChanged) SetUnits(v uint32) {
+	x.xxx_hidden_Units = v
+}
+
+func (x *ReservationAllocationChanged) HasBeginsAt() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_BeginsAt != nil
+}
+
+func (x *ReservationAllocationChanged) ClearBeginsAt() {
+	x.xxx_hidden_BeginsAt = nil
+}
+
+type ReservationAllocationChanged_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Reservation []byte
+	Name        string
+	BeginsAt    *timestamppb.Timestamp
+	Asset       []byte
+	AssetName   string
+	Override    bool
+	Units       uint32
+}
+
+func (b0 ReservationAllocationChanged_builder) Build() *ReservationAllocationChanged {
+	m0 := &ReservationAllocationChanged{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Reservation = b.Reservation
+	x.xxx_hidden_Name = b.Name
+	x.xxx_hidden_BeginsAt = b.BeginsAt
+	x.xxx_hidden_Asset = b.Asset
+	x.xxx_hidden_AssetName = b.AssetName
+	x.xxx_hidden_Override = b.Override
+	x.xxx_hidden_Units = b.Units
+	return m0
+}
+
 // TenantDomainAdded is a domain of the workspace's registered (`domain.add`):
 // its own, or a default subdomain of the deployment's.
 type TenantDomainAdded struct {
@@ -2821,7 +3000,7 @@ type TenantDomainAdded struct {
 
 func (x *TenantDomainAdded) Reset() {
 	*x = TenantDomainAdded{}
-	mi := &file_rove_past_proto_msgTypes[25]
+	mi := &file_rove_past_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2833,7 +3012,7 @@ func (x *TenantDomainAdded) String() string {
 func (*TenantDomainAdded) ProtoMessage() {}
 
 func (x *TenantDomainAdded) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[25]
+	mi := &file_rove_past_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2925,7 +3104,7 @@ type TenantDomainVerified struct {
 
 func (x *TenantDomainVerified) Reset() {
 	*x = TenantDomainVerified{}
-	mi := &file_rove_past_proto_msgTypes[26]
+	mi := &file_rove_past_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2937,7 +3116,7 @@ func (x *TenantDomainVerified) String() string {
 func (*TenantDomainVerified) ProtoMessage() {}
 
 func (x *TenantDomainVerified) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[26]
+	mi := &file_rove_past_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3028,7 +3207,7 @@ type TenantDomainActivated struct {
 
 func (x *TenantDomainActivated) Reset() {
 	*x = TenantDomainActivated{}
-	mi := &file_rove_past_proto_msgTypes[27]
+	mi := &file_rove_past_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3040,7 +3219,7 @@ func (x *TenantDomainActivated) String() string {
 func (*TenantDomainActivated) ProtoMessage() {}
 
 func (x *TenantDomainActivated) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[27]
+	mi := &file_rove_past_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3120,7 +3299,7 @@ type TenantDomainRetired struct {
 
 func (x *TenantDomainRetired) Reset() {
 	*x = TenantDomainRetired{}
-	mi := &file_rove_past_proto_msgTypes[28]
+	mi := &file_rove_past_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3132,7 +3311,7 @@ func (x *TenantDomainRetired) String() string {
 func (*TenantDomainRetired) ProtoMessage() {}
 
 func (x *TenantDomainRetired) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[28]
+	mi := &file_rove_past_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3239,7 +3418,7 @@ type TenantDomainLapsed struct {
 
 func (x *TenantDomainLapsed) Reset() {
 	*x = TenantDomainLapsed{}
-	mi := &file_rove_past_proto_msgTypes[29]
+	mi := &file_rove_past_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3251,7 +3430,7 @@ func (x *TenantDomainLapsed) String() string {
 func (*TenantDomainLapsed) ProtoMessage() {}
 
 func (x *TenantDomainLapsed) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[29]
+	mi := &file_rove_past_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3366,7 +3545,7 @@ type InvitationAdded struct {
 
 func (x *InvitationAdded) Reset() {
 	*x = InvitationAdded{}
-	mi := &file_rove_past_proto_msgTypes[30]
+	mi := &file_rove_past_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3378,7 +3557,7 @@ func (x *InvitationAdded) String() string {
 func (*InvitationAdded) ProtoMessage() {}
 
 func (x *InvitationAdded) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[30]
+	mi := &file_rove_past_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3459,7 +3638,7 @@ type InvitationAccepted struct {
 
 func (x *InvitationAccepted) Reset() {
 	*x = InvitationAccepted{}
-	mi := &file_rove_past_proto_msgTypes[31]
+	mi := &file_rove_past_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3471,7 +3650,7 @@ func (x *InvitationAccepted) String() string {
 func (*InvitationAccepted) ProtoMessage() {}
 
 func (x *InvitationAccepted) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[31]
+	mi := &file_rove_past_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3555,7 +3734,7 @@ type InvitationChanged struct {
 
 func (x *InvitationChanged) Reset() {
 	*x = InvitationChanged{}
-	mi := &file_rove_past_proto_msgTypes[32]
+	mi := &file_rove_past_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3567,7 +3746,7 @@ func (x *InvitationChanged) String() string {
 func (*InvitationChanged) ProtoMessage() {}
 
 func (x *InvitationChanged) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[32]
+	mi := &file_rove_past_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3619,7 +3798,7 @@ type LabelsPrinted struct {
 
 func (x *LabelsPrinted) Reset() {
 	*x = LabelsPrinted{}
-	mi := &file_rove_past_proto_msgTypes[33]
+	mi := &file_rove_past_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3631,7 +3810,7 @@ func (x *LabelsPrinted) String() string {
 func (*LabelsPrinted) ProtoMessage() {}
 
 func (x *LabelsPrinted) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[33]
+	mi := &file_rove_past_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3705,7 +3884,7 @@ type LabelBound struct {
 
 func (x *LabelBound) Reset() {
 	*x = LabelBound{}
-	mi := &file_rove_past_proto_msgTypes[34]
+	mi := &file_rove_past_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3717,7 +3896,7 @@ func (x *LabelBound) String() string {
 func (*LabelBound) ProtoMessage() {}
 
 func (x *LabelBound) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[34]
+	mi := &file_rove_past_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3798,7 +3977,7 @@ type LabelUnbound struct {
 
 func (x *LabelUnbound) Reset() {
 	*x = LabelUnbound{}
-	mi := &file_rove_past_proto_msgTypes[35]
+	mi := &file_rove_past_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3810,7 +3989,7 @@ func (x *LabelUnbound) String() string {
 func (*LabelUnbound) ProtoMessage() {}
 
 func (x *LabelUnbound) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[35]
+	mi := &file_rove_past_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3894,7 +4073,7 @@ type ItemModelSaved struct {
 
 func (x *ItemModelSaved) Reset() {
 	*x = ItemModelSaved{}
-	mi := &file_rove_past_proto_msgTypes[36]
+	mi := &file_rove_past_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3906,7 +4085,7 @@ func (x *ItemModelSaved) String() string {
 func (*ItemModelSaved) ProtoMessage() {}
 
 func (x *ItemModelSaved) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[36]
+	mi := &file_rove_past_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3987,7 +4166,7 @@ type AssetTypeSaved struct {
 
 func (x *AssetTypeSaved) Reset() {
 	*x = AssetTypeSaved{}
-	mi := &file_rove_past_proto_msgTypes[37]
+	mi := &file_rove_past_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3999,7 +4178,7 @@ func (x *AssetTypeSaved) String() string {
 func (*AssetTypeSaved) ProtoMessage() {}
 
 func (x *AssetTypeSaved) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[37]
+	mi := &file_rove_past_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4080,7 +4259,7 @@ type PartySaved struct {
 
 func (x *PartySaved) Reset() {
 	*x = PartySaved{}
-	mi := &file_rove_past_proto_msgTypes[38]
+	mi := &file_rove_past_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4092,7 +4271,7 @@ func (x *PartySaved) String() string {
 func (*PartySaved) ProtoMessage() {}
 
 func (x *PartySaved) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[38]
+	mi := &file_rove_past_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4157,7 +4336,7 @@ type PartyInvited struct {
 
 func (x *PartyInvited) Reset() {
 	*x = PartyInvited{}
-	mi := &file_rove_past_proto_msgTypes[39]
+	mi := &file_rove_past_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4169,7 +4348,7 @@ func (x *PartyInvited) String() string {
 func (*PartyInvited) ProtoMessage() {}
 
 func (x *PartyInvited) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[39]
+	mi := &file_rove_past_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4251,7 +4430,7 @@ type PartyRoleSet struct {
 
 func (x *PartyRoleSet) Reset() {
 	*x = PartyRoleSet{}
-	mi := &file_rove_past_proto_msgTypes[40]
+	mi := &file_rove_past_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4263,7 +4442,7 @@ func (x *PartyRoleSet) String() string {
 func (*PartyRoleSet) ProtoMessage() {}
 
 func (x *PartyRoleSet) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[40]
+	mi := &file_rove_past_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4357,7 +4536,7 @@ type PartyPasswordSet struct {
 
 func (x *PartyPasswordSet) Reset() {
 	*x = PartyPasswordSet{}
-	mi := &file_rove_past_proto_msgTypes[41]
+	mi := &file_rove_past_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4369,7 +4548,7 @@ func (x *PartyPasswordSet) String() string {
 func (*PartyPasswordSet) ProtoMessage() {}
 
 func (x *PartyPasswordSet) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[41]
+	mi := &file_rove_past_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4449,7 +4628,7 @@ type PartyDeactivated struct {
 
 func (x *PartyDeactivated) Reset() {
 	*x = PartyDeactivated{}
-	mi := &file_rove_past_proto_msgTypes[42]
+	mi := &file_rove_past_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4461,7 +4640,7 @@ func (x *PartyDeactivated) String() string {
 func (*PartyDeactivated) ProtoMessage() {}
 
 func (x *PartyDeactivated) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[42]
+	mi := &file_rove_past_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4527,7 +4706,7 @@ type PartyPseudonymized struct {
 
 func (x *PartyPseudonymized) Reset() {
 	*x = PartyPseudonymized{}
-	mi := &file_rove_past_proto_msgTypes[43]
+	mi := &file_rove_past_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4539,7 +4718,7 @@ func (x *PartyPseudonymized) String() string {
 func (*PartyPseudonymized) ProtoMessage() {}
 
 func (x *PartyPseudonymized) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[43]
+	mi := &file_rove_past_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4591,7 +4770,7 @@ type PurchaseAdded struct {
 
 func (x *PurchaseAdded) Reset() {
 	*x = PurchaseAdded{}
-	mi := &file_rove_past_proto_msgTypes[44]
+	mi := &file_rove_past_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4603,7 +4782,7 @@ func (x *PurchaseAdded) String() string {
 func (*PurchaseAdded) ProtoMessage() {}
 
 func (x *PurchaseAdded) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[44]
+	mi := &file_rove_past_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4724,7 +4903,7 @@ type PurchaseReceived struct {
 
 func (x *PurchaseReceived) Reset() {
 	*x = PurchaseReceived{}
-	mi := &file_rove_past_proto_msgTypes[45]
+	mi := &file_rove_past_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4736,7 +4915,7 @@ func (x *PurchaseReceived) String() string {
 func (*PurchaseReceived) ProtoMessage() {}
 
 func (x *PurchaseReceived) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[45]
+	mi := &file_rove_past_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4824,7 +5003,7 @@ type WorkOrderSaved struct {
 
 func (x *WorkOrderSaved) Reset() {
 	*x = WorkOrderSaved{}
-	mi := &file_rove_past_proto_msgTypes[46]
+	mi := &file_rove_past_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4836,7 +5015,7 @@ func (x *WorkOrderSaved) String() string {
 func (*WorkOrderSaved) ProtoMessage() {}
 
 func (x *WorkOrderSaved) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[46]
+	mi := &file_rove_past_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4961,7 +5140,7 @@ type WorkOrderFinished struct {
 
 func (x *WorkOrderFinished) Reset() {
 	*x = WorkOrderFinished{}
-	mi := &file_rove_past_proto_msgTypes[47]
+	mi := &file_rove_past_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4973,7 +5152,7 @@ func (x *WorkOrderFinished) String() string {
 func (*WorkOrderFinished) ProtoMessage() {}
 
 func (x *WorkOrderFinished) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[47]
+	mi := &file_rove_past_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5080,7 +5259,7 @@ type WorkspaceClosed struct {
 
 func (x *WorkspaceClosed) Reset() {
 	*x = WorkspaceClosed{}
-	mi := &file_rove_past_proto_msgTypes[48]
+	mi := &file_rove_past_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5092,7 +5271,7 @@ func (x *WorkspaceClosed) String() string {
 func (*WorkspaceClosed) ProtoMessage() {}
 
 func (x *WorkspaceClosed) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[48]
+	mi := &file_rove_past_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5163,7 +5342,7 @@ type WorkspaceRestored struct {
 
 func (x *WorkspaceRestored) Reset() {
 	*x = WorkspaceRestored{}
-	mi := &file_rove_past_proto_msgTypes[49]
+	mi := &file_rove_past_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5175,7 +5354,7 @@ func (x *WorkspaceRestored) String() string {
 func (*WorkspaceRestored) ProtoMessage() {}
 
 func (x *WorkspaceRestored) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[49]
+	mi := &file_rove_past_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5232,7 +5411,7 @@ type WorkspaceConfigured struct {
 
 func (x *WorkspaceConfigured) Reset() {
 	*x = WorkspaceConfigured{}
-	mi := &file_rove_past_proto_msgTypes[50]
+	mi := &file_rove_past_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5244,7 +5423,7 @@ func (x *WorkspaceConfigured) String() string {
 func (*WorkspaceConfigured) ProtoMessage() {}
 
 func (x *WorkspaceConfigured) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[50]
+	mi := &file_rove_past_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5516,7 +5695,7 @@ type WorkspaceImported struct {
 
 func (x *WorkspaceImported) Reset() {
 	*x = WorkspaceImported{}
-	mi := &file_rove_past_proto_msgTypes[51]
+	mi := &file_rove_past_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5528,7 +5707,7 @@ func (x *WorkspaceImported) String() string {
 func (*WorkspaceImported) ProtoMessage() {}
 
 func (x *WorkspaceImported) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[51]
+	mi := &file_rove_past_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5708,7 +5887,7 @@ type AccessReviewed struct {
 
 func (x *AccessReviewed) Reset() {
 	*x = AccessReviewed{}
-	mi := &file_rove_past_proto_msgTypes[52]
+	mi := &file_rove_past_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5720,7 +5899,7 @@ func (x *AccessReviewed) String() string {
 func (*AccessReviewed) ProtoMessage() {}
 
 func (x *AccessReviewed) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[52]
+	mi := &file_rove_past_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5859,7 +6038,7 @@ type AccountDeparted struct {
 
 func (x *AccountDeparted) Reset() {
 	*x = AccountDeparted{}
-	mi := &file_rove_past_proto_msgTypes[53]
+	mi := &file_rove_past_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5871,7 +6050,7 @@ func (x *AccountDeparted) String() string {
 func (*AccountDeparted) ProtoMessage() {}
 
 func (x *AccountDeparted) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[53]
+	mi := &file_rove_past_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5935,7 +6114,7 @@ type AttachmentAdded struct {
 
 func (x *AttachmentAdded) Reset() {
 	*x = AttachmentAdded{}
-	mi := &file_rove_past_proto_msgTypes[54]
+	mi := &file_rove_past_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5947,7 +6126,7 @@ func (x *AttachmentAdded) String() string {
 func (*AttachmentAdded) ProtoMessage() {}
 
 func (x *AttachmentAdded) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[54]
+	mi := &file_rove_past_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6064,7 +6243,7 @@ type RetentionExpired struct {
 
 func (x *RetentionExpired) Reset() {
 	*x = RetentionExpired{}
-	mi := &file_rove_past_proto_msgTypes[55]
+	mi := &file_rove_past_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6076,7 +6255,7 @@ func (x *RetentionExpired) String() string {
 func (*RetentionExpired) ProtoMessage() {}
 
 func (x *RetentionExpired) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[55]
+	mi := &file_rove_past_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6279,7 +6458,7 @@ type EventRedacted struct {
 
 func (x *EventRedacted) Reset() {
 	*x = EventRedacted{}
-	mi := &file_rove_past_proto_msgTypes[56]
+	mi := &file_rove_past_proto_msgTypes[57]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6291,7 +6470,7 @@ func (x *EventRedacted) String() string {
 func (*EventRedacted) ProtoMessage() {}
 
 func (x *EventRedacted) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[56]
+	mi := &file_rove_past_proto_msgTypes[57]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6511,7 +6690,21 @@ const file_rove_past_proto_rawDesc = "" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +
 	"\x04from\x18\r \x01(\tR\x04from:-\x92\xbb\x16)\n" +
 	"\x12reservation.expire\n" +
-	"\x13reservation.no_show\"\x83\x01\n" +
+	"\x13reservation.no_show\"\xc7\x02\n" +
+	"\x1cReservationAllocationChanged\x12 \n" +
+	"\vreservation\x18\x01 \x01(\fR\vreservation\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x127\n" +
+	"\tbegins_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\bbeginsAt\x12\x14\n" +
+	"\x05asset\x18\t \x01(\fR\x05asset\x12\x1d\n" +
+	"\n" +
+	"asset_name\x18\n" +
+	" \x01(\tR\tassetName\x12\x1a\n" +
+	"\boverride\x18\v \x01(\bR\boverride\x12\x14\n" +
+	"\x05units\x18\x0e \x01(\rR\x05units:Q\x92\xbb\x16M\n" +
+	"\x10reservation.take\n" +
+	"\x10reservation.wait\n" +
+	"\x13reservation.resolve\n" +
+	"\x12reservation.let_go\"\x83\x01\n" +
 	"\x11TenantDomainAdded\x12\x16\n" +
 	"\x06domain\x18\x01 \x01(\fR\x06domain\x12\x12\n" +
 	"\x04host\x18\x02 \x01(\tR\x04host\x12\x18\n" +
@@ -6734,88 +6927,90 @@ const file_rove_past_proto_rawDesc = "" +
 	"\fevent.redactB)\xca\xc7\x16\x06\n" +
 	"\x04\b\x11\x10\x10Z\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
-var file_rove_past_proto_msgTypes = make([]protoimpl.MessageInfo, 58)
+var file_rove_past_proto_msgTypes = make([]protoimpl.MessageInfo, 59)
 var file_rove_past_proto_goTypes = []any{
-	(*AssetAdded)(nil),            // 0: rove.AssetAdded
-	(*AssetsAdded)(nil),           // 1: rove.AssetsAdded
-	(*AssetMoved)(nil),            // 2: rove.AssetMoved
-	(*AssetAttributesSet)(nil),    // 3: rove.AssetAttributesSet
-	(*AssetAssigned)(nil),         // 4: rove.AssetAssigned
-	(*AssetRelated)(nil),          // 5: rove.AssetRelated
-	(*AssetCorrected)(nil),        // 6: rove.AssetCorrected
-	(*AssetVoided)(nil),           // 7: rove.AssetVoided
-	(*StockAdded)(nil),            // 8: rove.StockAdded
-	(*StockChanged)(nil),          // 9: rove.StockChanged
-	(*StockTransferred)(nil),      // 10: rove.StockTransferred
-	(*StockConverted)(nil),        // 11: rove.StockConverted
-	(*CustodyIssued)(nil),         // 12: rove.CustodyIssued
-	(*CustodyAcknowledged)(nil),   // 13: rove.CustodyAcknowledged
-	(*CustodyExtended)(nil),       // 14: rove.CustodyExtended
-	(*CustodyReturned)(nil),       // 15: rove.CustodyReturned
-	(*CountDelimited)(nil),        // 16: rove.CountDelimited
-	(*CountScanned)(nil),          // 17: rove.CountScanned
-	(*CountReconciled)(nil),       // 18: rove.CountReconciled
-	(*CountResolved)(nil),         // 19: rove.CountResolved
-	(*BookableSaved)(nil),         // 20: rove.BookableSaved
-	(*ReservationAdded)(nil),      // 21: rove.ReservationAdded
-	(*ReservationConfirmed)(nil),  // 22: rove.ReservationConfirmed
-	(*ReservationDecided)(nil),    // 23: rove.ReservationDecided
-	(*ReservationReleased)(nil),   // 24: rove.ReservationReleased
-	(*TenantDomainAdded)(nil),     // 25: rove.TenantDomainAdded
-	(*TenantDomainVerified)(nil),  // 26: rove.TenantDomainVerified
-	(*TenantDomainActivated)(nil), // 27: rove.TenantDomainActivated
-	(*TenantDomainRetired)(nil),   // 28: rove.TenantDomainRetired
-	(*TenantDomainLapsed)(nil),    // 29: rove.TenantDomainLapsed
-	(*InvitationAdded)(nil),       // 30: rove.InvitationAdded
-	(*InvitationAccepted)(nil),    // 31: rove.InvitationAccepted
-	(*InvitationChanged)(nil),     // 32: rove.InvitationChanged
-	(*LabelsPrinted)(nil),         // 33: rove.LabelsPrinted
-	(*LabelBound)(nil),            // 34: rove.LabelBound
-	(*LabelUnbound)(nil),          // 35: rove.LabelUnbound
-	(*ItemModelSaved)(nil),        // 36: rove.ItemModelSaved
-	(*AssetTypeSaved)(nil),        // 37: rove.AssetTypeSaved
-	(*PartySaved)(nil),            // 38: rove.PartySaved
-	(*PartyInvited)(nil),          // 39: rove.PartyInvited
-	(*PartyRoleSet)(nil),          // 40: rove.PartyRoleSet
-	(*PartyPasswordSet)(nil),      // 41: rove.PartyPasswordSet
-	(*PartyDeactivated)(nil),      // 42: rove.PartyDeactivated
-	(*PartyPseudonymized)(nil),    // 43: rove.PartyPseudonymized
-	(*PurchaseAdded)(nil),         // 44: rove.PurchaseAdded
-	(*PurchaseReceived)(nil),      // 45: rove.PurchaseReceived
-	(*WorkOrderSaved)(nil),        // 46: rove.WorkOrderSaved
-	(*WorkOrderFinished)(nil),     // 47: rove.WorkOrderFinished
-	(*WorkspaceClosed)(nil),       // 48: rove.WorkspaceClosed
-	(*WorkspaceRestored)(nil),     // 49: rove.WorkspaceRestored
-	(*WorkspaceConfigured)(nil),   // 50: rove.WorkspaceConfigured
-	(*WorkspaceImported)(nil),     // 51: rove.WorkspaceImported
-	(*AccessReviewed)(nil),        // 52: rove.AccessReviewed
-	(*AccountDeparted)(nil),       // 53: rove.AccountDeparted
-	(*AttachmentAdded)(nil),       // 54: rove.AttachmentAdded
-	(*RetentionExpired)(nil),      // 55: rove.RetentionExpired
-	(*EventRedacted)(nil),         // 56: rove.EventRedacted
-	nil,                           // 57: rove.WorkspaceImported.LeftEntry
-	(*timestamppb.Timestamp)(nil), // 58: google.protobuf.Timestamp
+	(*AssetAdded)(nil),                   // 0: rove.AssetAdded
+	(*AssetsAdded)(nil),                  // 1: rove.AssetsAdded
+	(*AssetMoved)(nil),                   // 2: rove.AssetMoved
+	(*AssetAttributesSet)(nil),           // 3: rove.AssetAttributesSet
+	(*AssetAssigned)(nil),                // 4: rove.AssetAssigned
+	(*AssetRelated)(nil),                 // 5: rove.AssetRelated
+	(*AssetCorrected)(nil),               // 6: rove.AssetCorrected
+	(*AssetVoided)(nil),                  // 7: rove.AssetVoided
+	(*StockAdded)(nil),                   // 8: rove.StockAdded
+	(*StockChanged)(nil),                 // 9: rove.StockChanged
+	(*StockTransferred)(nil),             // 10: rove.StockTransferred
+	(*StockConverted)(nil),               // 11: rove.StockConverted
+	(*CustodyIssued)(nil),                // 12: rove.CustodyIssued
+	(*CustodyAcknowledged)(nil),          // 13: rove.CustodyAcknowledged
+	(*CustodyExtended)(nil),              // 14: rove.CustodyExtended
+	(*CustodyReturned)(nil),              // 15: rove.CustodyReturned
+	(*CountDelimited)(nil),               // 16: rove.CountDelimited
+	(*CountScanned)(nil),                 // 17: rove.CountScanned
+	(*CountReconciled)(nil),              // 18: rove.CountReconciled
+	(*CountResolved)(nil),                // 19: rove.CountResolved
+	(*BookableSaved)(nil),                // 20: rove.BookableSaved
+	(*ReservationAdded)(nil),             // 21: rove.ReservationAdded
+	(*ReservationConfirmed)(nil),         // 22: rove.ReservationConfirmed
+	(*ReservationDecided)(nil),           // 23: rove.ReservationDecided
+	(*ReservationReleased)(nil),          // 24: rove.ReservationReleased
+	(*ReservationAllocationChanged)(nil), // 25: rove.ReservationAllocationChanged
+	(*TenantDomainAdded)(nil),            // 26: rove.TenantDomainAdded
+	(*TenantDomainVerified)(nil),         // 27: rove.TenantDomainVerified
+	(*TenantDomainActivated)(nil),        // 28: rove.TenantDomainActivated
+	(*TenantDomainRetired)(nil),          // 29: rove.TenantDomainRetired
+	(*TenantDomainLapsed)(nil),           // 30: rove.TenantDomainLapsed
+	(*InvitationAdded)(nil),              // 31: rove.InvitationAdded
+	(*InvitationAccepted)(nil),           // 32: rove.InvitationAccepted
+	(*InvitationChanged)(nil),            // 33: rove.InvitationChanged
+	(*LabelsPrinted)(nil),                // 34: rove.LabelsPrinted
+	(*LabelBound)(nil),                   // 35: rove.LabelBound
+	(*LabelUnbound)(nil),                 // 36: rove.LabelUnbound
+	(*ItemModelSaved)(nil),               // 37: rove.ItemModelSaved
+	(*AssetTypeSaved)(nil),               // 38: rove.AssetTypeSaved
+	(*PartySaved)(nil),                   // 39: rove.PartySaved
+	(*PartyInvited)(nil),                 // 40: rove.PartyInvited
+	(*PartyRoleSet)(nil),                 // 41: rove.PartyRoleSet
+	(*PartyPasswordSet)(nil),             // 42: rove.PartyPasswordSet
+	(*PartyDeactivated)(nil),             // 43: rove.PartyDeactivated
+	(*PartyPseudonymized)(nil),           // 44: rove.PartyPseudonymized
+	(*PurchaseAdded)(nil),                // 45: rove.PurchaseAdded
+	(*PurchaseReceived)(nil),             // 46: rove.PurchaseReceived
+	(*WorkOrderSaved)(nil),               // 47: rove.WorkOrderSaved
+	(*WorkOrderFinished)(nil),            // 48: rove.WorkOrderFinished
+	(*WorkspaceClosed)(nil),              // 49: rove.WorkspaceClosed
+	(*WorkspaceRestored)(nil),            // 50: rove.WorkspaceRestored
+	(*WorkspaceConfigured)(nil),          // 51: rove.WorkspaceConfigured
+	(*WorkspaceImported)(nil),            // 52: rove.WorkspaceImported
+	(*AccessReviewed)(nil),               // 53: rove.AccessReviewed
+	(*AccountDeparted)(nil),              // 54: rove.AccountDeparted
+	(*AttachmentAdded)(nil),              // 55: rove.AttachmentAdded
+	(*RetentionExpired)(nil),             // 56: rove.RetentionExpired
+	(*EventRedacted)(nil),                // 57: rove.EventRedacted
+	nil,                                  // 58: rove.WorkspaceImported.LeftEntry
+	(*timestamppb.Timestamp)(nil),        // 59: google.protobuf.Timestamp
 }
 var file_rove_past_proto_depIdxs = []int32{
-	58, // 0: rove.AssetCorrected.valid_from:type_name -> google.protobuf.Timestamp
-	58, // 1: rove.CustodyIssued.due:type_name -> google.protobuf.Timestamp
-	58, // 2: rove.CustodyExtended.due:type_name -> google.protobuf.Timestamp
-	58, // 3: rove.ReservationAdded.begins_at:type_name -> google.protobuf.Timestamp
-	58, // 4: rove.ReservationAdded.ends_at:type_name -> google.protobuf.Timestamp
-	58, // 5: rove.TenantDomainLapsed.failing_since:type_name -> google.protobuf.Timestamp
-	58, // 6: rove.WorkspaceClosed.destroy:type_name -> google.protobuf.Timestamp
-	58, // 7: rove.WorkspaceConfigured.keep_from:type_name -> google.protobuf.Timestamp
-	58, // 8: rove.WorkspaceConfigured.access_keep_from:type_name -> google.protobuf.Timestamp
-	58, // 9: rove.WorkspaceImported.exported_at:type_name -> google.protobuf.Timestamp
-	57, // 10: rove.WorkspaceImported.left:type_name -> rove.WorkspaceImported.LeftEntry
-	58, // 11: rove.AccessReviewed.from:type_name -> google.protobuf.Timestamp
-	58, // 12: rove.AccessReviewed.to:type_name -> google.protobuf.Timestamp
-	58, // 13: rove.RetentionExpired.before:type_name -> google.protobuf.Timestamp
-	14, // [14:14] is the sub-list for method output_type
-	14, // [14:14] is the sub-list for method input_type
-	14, // [14:14] is the sub-list for extension type_name
-	14, // [14:14] is the sub-list for extension extendee
-	0,  // [0:14] is the sub-list for field type_name
+	59, // 0: rove.AssetCorrected.valid_from:type_name -> google.protobuf.Timestamp
+	59, // 1: rove.CustodyIssued.due:type_name -> google.protobuf.Timestamp
+	59, // 2: rove.CustodyExtended.due:type_name -> google.protobuf.Timestamp
+	59, // 3: rove.ReservationAdded.begins_at:type_name -> google.protobuf.Timestamp
+	59, // 4: rove.ReservationAdded.ends_at:type_name -> google.protobuf.Timestamp
+	59, // 5: rove.ReservationAllocationChanged.begins_at:type_name -> google.protobuf.Timestamp
+	59, // 6: rove.TenantDomainLapsed.failing_since:type_name -> google.protobuf.Timestamp
+	59, // 7: rove.WorkspaceClosed.destroy:type_name -> google.protobuf.Timestamp
+	59, // 8: rove.WorkspaceConfigured.keep_from:type_name -> google.protobuf.Timestamp
+	59, // 9: rove.WorkspaceConfigured.access_keep_from:type_name -> google.protobuf.Timestamp
+	59, // 10: rove.WorkspaceImported.exported_at:type_name -> google.protobuf.Timestamp
+	58, // 11: rove.WorkspaceImported.left:type_name -> rove.WorkspaceImported.LeftEntry
+	59, // 12: rove.AccessReviewed.from:type_name -> google.protobuf.Timestamp
+	59, // 13: rove.AccessReviewed.to:type_name -> google.protobuf.Timestamp
+	59, // 14: rove.RetentionExpired.before:type_name -> google.protobuf.Timestamp
+	15, // [15:15] is the sub-list for method output_type
+	15, // [15:15] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_rove_past_proto_init() }
@@ -6829,7 +7024,7 @@ func file_rove_past_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_past_proto_rawDesc), len(file_rove_past_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   58,
+			NumMessages:   59,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
