@@ -157,3 +157,14 @@ export function tone(v: string): 'ok' | 'warn' | 'bad' | 'mute' | 'info' {
 			return 'mute'
 	}
 }
+
+/**
+ * What a reservation waits for, as a badge says it: a member a kit it booked
+ * should take with it, or some of a pool it booked that has fewer to give
+ * then (design 4).
+ */
+export function waitWord(conflicts: { units: number }[]): string {
+	const member = conflicts.some((c) => c.units === 0)
+	const pool = conflicts.some((c) => c.units > 0)
+	return [member ? '구성품 충돌' : '', pool ? '수량 부족' : ''].filter((v) => v !== '').join(' · ')
+}

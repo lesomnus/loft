@@ -125,3 +125,65 @@ test('a kit is picked up with the members its booking holds, and without one it 
 	await expect(waits).toContainText(tag.light)
 	await expect(waits).toContainText('건넬 자산에 넣지 않았습니다')
 })
+
+test('a pool books as many as its members in use, and the booking made last waits once one is disposed of, until it has one again', async ({ page }) => {
+	const n = Math.random().toString(36).slice(2, 7).toUpperCase()
+	const tag = { pool: `EP-${n}`, one: `EQ-${n}`, two: `ER-${n}`, three: `ES-${n}` }
+	const name = unique('e2e 카메라 풀')
+	const [first, later] = [unique('e2e 풀 촬영'), unique('e2e 풀 인터뷰')]
+
+	// A group of two cameras of its own, made through the server: the forms
+	// that make and relate them are the other tests'.
+	await signIn(page, owner.login, owner.password)
+	const pool = await rpc(page, 'AssetService/Add', { name, kind: 'group', tag: tag.pool })
+	for (const t of [tag.one, tag.two]) {
+		const camera = await rpc(page, 'AssetService/Add', { name: `e2e 풀 카메라 ${t}`, kind: 'item', tag: t })
+		await rpc(page, 'AssetService/Relate', { ref: { id: camera.id }, target: { id: pool.id }, kind: 'member_of' })
+	}
+
+	// Made reservable from its page, as a pool of what is in it.
+	await page.goto(`${workspace}/assets`)
+	await page.getByPlaceholder('이름, 태그, 시리얼, 모델, 사용자', { exact: true }).fill(tag.pool)
+	await page.getByRole('link', { name, exact: true }).click()
+	await page.getByRole('button', { name: '예약 가능하게' }).click()
+	const make = page.getByRole('dialog')
+	await expect(make).toContainText('그룹은 풀입니다')
+	await make.getByRole('button', { name: '저장', exact: true }).click()
+	await said(page, '이제 예약할 수 있습니다.')
+
+	// Both of them booked for one morning six weeks out, one after the other.
+	const [from, to] = [momentAt(43, 9), momentAt(43, 12)]
+	for (const title of [first, later]) {
+		await rpc(page, 'ReservationService/Add', { name: title, items: [{ resource: { id: pool.id } }], beginsAt: from, endsAt: to })
+	}
+
+	// One of the cameras disposed of: the pool has one, and the booking made
+	// last waits -- in the list, and opened.
+	await page.goto(`${workspace}/assets`)
+	await page.getByPlaceholder('이름, 태그, 시리얼, 모델, 사용자', { exact: true }).fill(tag.two)
+	await page.getByRole('link', { name: `e2e 풀 카메라 ${tag.two}`, exact: true }).click()
+	await page.getByRole('button', { name: '정보·상태 변경' }).click()
+	const set = page.getByRole('dialog')
+	await choose(field(set, '상태'), '폐기')
+	await set.getByRole('button', { name: '저장', exact: true }).click()
+	await said(page, '바꿨습니다.')
+
+	await page.goto(`${workspace}/reservations?tab=mine`)
+	const waiting = page.getByRole('row').filter({ hasText: later })
+	await expect(waiting).toContainText('수량 부족')
+	await expect(page.getByRole('row').filter({ hasText: first })).not.toContainText('수량 부족')
+	await waiting.click()
+	const short = page.getByRole('dialog').getByRole('note', { name: '수량 부족' })
+	await expect(short).toContainText(tag.pool)
+	await expect(short).toContainText('남은 것이 없습니다')
+	await expect(short).toContainText(first)
+	await page.getByRole('dialog').getByRole('button', { name: '닫기' }).click()
+	await expect(page.getByRole('dialog')).toHaveCount(0)
+
+	// Given another camera, the pool has two again, and the booking that
+	// waited has one.
+	const three = await rpc(page, 'AssetService/Add', { name: `e2e 풀 카메라 ${tag.three}`, kind: 'item', tag: tag.three })
+	await rpc(page, 'AssetService/Relate', { ref: { id: three.id }, target: { id: pool.id }, kind: 'member_of' })
+	await page.reload()
+	await expect(waiting).not.toContainText('수량 부족')
+})

@@ -106,6 +106,8 @@ export type Bookable = Message<"rove.Bookable"> & {
 
   /**
    * 1 for an exclusive resource; more for a pool of interchangeable units.
+   * A group with members has as many as are in use (design 4), which the
+   * domain keeps here and nobody sets.
    *
    * @generated from field: uint32 units = 20;
    */
@@ -372,7 +374,8 @@ export type Allocation = Message<"rove.Allocation"> & {
 
   /**
    * reservation | maintenance | override | waiting: a member of a kit a
-   * reservation of the kit waits for, which blocks nothing until it is taken.
+   * reservation of the kit waits for, or some of a pool, which blocks
+   * nothing until it is taken.
    *
    * @generated from field: string kind = 9;
    */

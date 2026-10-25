@@ -162,7 +162,7 @@ function AssetView(props: { a: Asset }): ReactNode {
 							<button className="small" onClick={() => setDialog('relate')}>
 								키트·그룹 연결
 							</button>
-							{c.can('admin') && bookable === undefined && a.kind !== 'group' && (
+							{c.can('admin') && bookable === undefined && (
 								<button className="small" onClick={() => setDialog('bookable')}>
 									예약 가능하게
 								</button>
@@ -840,6 +840,9 @@ function MakeBookable(props: { a: Asset; onClose: () => void }): ReactNode {
 			<Field label="정리 시간 (분)">
 				<input type="number" min={0} value={after} onChange={(e) => setAfter(e.target.value)} />
 			</Field>
+			{props.a.kind === 'group' && (
+				<p className="wide mute small">그룹은 풀입니다. 구성원 가운데 쓸 수 있는 것(주문·분실·불용·폐기가 아닌 것)의 수만큼 예약을 받고, 구성원이 바뀌면 그 수를 따릅니다.</p>
+			)}
 			<p className="wide mute small">세부 운영 시간과 배타 그룹은 설정 › 예약 자원에서 바꿀 수 있습니다.</p>
 		</FormModal>
 	)
