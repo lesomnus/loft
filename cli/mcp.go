@@ -1190,7 +1190,7 @@ type mcpReservation struct {
 	For      string   `json:"for,omitempty" jsonschema:"who it is for"`
 	Assets   []mcpRef `json:"assets" jsonschema:"what is reserved"`
 	Series   bool     `json:"series,omitempty" jsonschema:"one of a repeating series"`
-	WaitsFor []mcpRef `json:"waits_for,omitempty" jsonschema:"members of a reserved kit it should take with it and does not hold, since something else holds them then: given to the kit after it was booked. It takes each once it is free"`
+	WaitsFor []mcpRef `json:"waits_for,omitempty" jsonschema:"what it does not hold: members of a reserved kit it should take with it, since something else holds them then (given to the kit after it was booked), and a reserved pool (a group) that has fewer usable members then than the reservations made before it hold, its name saying how many it booked and how many are free then. It takes each once there is room"`
 }
 
 type mcpReservations struct {
@@ -1259,7 +1259,11 @@ func (t mcpTools) reservations(ctx context.Context, _ *mcp.CallToolRequest, in m
 			item.Assets = append(item.Assets, ref)
 		}
 		for _, w := range e.GetConflicts() {
-			item.WaitsFor = append(item.WaitsFor, mcpRef{Id: idString(w.GetResourceId()), Name: strings.TrimSpace(w.GetResourceTag() + " " + w.GetResourceName())})
+			name := strings.TrimSpace(w.GetResourceTag() + " " + w.GetResourceName())
+			if n := w.GetUnits(); n > 0 {
+				name = fmt.Sprintf("%s (%d booked, %d free then)", name, n, w.GetAvailable())
+			}
+			item.WaitsFor = append(item.WaitsFor, mcpRef{Id: idString(w.GetResourceId()), Name: name})
 		}
 		out.Items = append(out.Items, item)
 	}

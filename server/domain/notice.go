@@ -23,7 +23,7 @@ var Mailed = map[string]bool{
 	"custody.overdue":       true, // to who has it, and who manages it
 	"work.due":              true, // maintenance coming due, to who manages it
 	"domain.lapsed":         true, // a workspace's domain taken out of use, to who runs it
-	"reservation.conflict":  true, // a kit's member its reservation waits for, to who runs it and whose it is
+	"reservation.conflict":  true, // a kit's member, or a pool's units, its reservation waits for, to who runs it and whose it is
 }
 
 // notify leaves a message for one holder, queued for mail as well when it is
