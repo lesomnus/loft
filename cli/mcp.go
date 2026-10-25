@@ -1184,14 +1184,15 @@ type mcpReservationsIn struct {
 }
 
 type mcpReservation struct {
-	Id     string   `json:"id"`
-	Name   string   `json:"name,omitempty" jsonschema:"what it is for"`
-	Status string   `json:"status" jsonschema:"held, requested, confirmed, in_use, completed, cancelled, rejected, expired or no_show"`
-	Begins string   `json:"begins"`
-	Ends   string   `json:"ends"`
-	For    string   `json:"for,omitempty" jsonschema:"who it is for"`
-	Assets []mcpRef `json:"assets" jsonschema:"what is reserved"`
-	Series bool     `json:"series,omitempty" jsonschema:"one of a repeating series"`
+	Id       string   `json:"id"`
+	Name     string   `json:"name,omitempty" jsonschema:"what it is for"`
+	Status   string   `json:"status" jsonschema:"held, requested, confirmed, in_use, completed, cancelled, rejected, expired or no_show"`
+	Begins   string   `json:"begins"`
+	Ends     string   `json:"ends"`
+	For      string   `json:"for,omitempty" jsonschema:"who it is for"`
+	Assets   []mcpRef `json:"assets" jsonschema:"what is reserved"`
+	Series   bool     `json:"series,omitempty" jsonschema:"one of a repeating series"`
+	WaitsFor []mcpRef `json:"waits_for,omitempty" jsonschema:"members of a reserved kit it should take with it and does not hold, since something else holds them then: given to the kit after it was booked. It takes each once it is free"`
 }
 
 type mcpReservations struct {
@@ -1258,6 +1259,9 @@ func (t mcpTools) reservations(ctx context.Context, _ *mcp.CallToolRequest, in m
 				ref.Name = a.GetName()
 			}
 			item.Assets = append(item.Assets, ref)
+		}
+		for _, w := range e.GetConflicts() {
+			item.WaitsFor = append(item.WaitsFor, mcpRef{Id: idString(w.GetResourceId()), Name: strings.TrimSpace(w.GetResourceTag() + " " + w.GetResourceName())})
 		}
 		out.Items = append(out.Items, item)
 	}
