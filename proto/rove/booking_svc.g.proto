@@ -332,7 +332,7 @@ message BusySpan {
   bytes resource_id = 1 [features.field_presence = IMPLICIT];
   google.protobuf.Timestamp begins_at = 2;
   google.protobuf.Timestamp ends_at = 3;
-  // reservation | maintenance | override | closed
+  // reservation | maintenance | override | waiting | closed
   string kind = 4 [features.field_presence = IMPLICIT];
   bytes ref_id = 5 [features.field_presence = IMPLICIT];
   uint32 units = 6 [features.field_presence = IMPLICIT];
@@ -576,6 +576,8 @@ message ReservationCalendarRequest {
   google.protobuf.Timestamp to = 3;
   // Only the caller's own.
   bool mine = 4 [features.field_presence = IMPLICIT];
+  // Only the ones in these states: `requested` is what waits for a manager.
+  repeated string statuses = 5;
 }
 
 message ReservationCalendarResponse {
@@ -586,6 +588,26 @@ message CalendarEntry {
   Reservation reservation = 1;
   repeated bytes resource_ids = 2;
   string party_name = 3 [features.field_presence = IMPLICIT];
+  // What it waits for while it is still to be fulfilled: the members of a
+  // kit it should take with it that something else holds then (design 4).
+  repeated ReservationConflict conflicts = 4;
+}
+
+// ReservationConflict is a member of a kit that a reservation of the kit
+// should take with it and does not hold: the kit was given it after the
+// reservation was made, and something else held it then. The reservation
+// takes it once it is free.
+message ReservationConflict {
+  // The member, by what it is tagged and called.
+  bytes resource_id = 1 [features.field_presence = IMPLICIT];
+  string resource_tag = 2 [features.field_presence = IMPLICIT];
+  string resource_name = 3 [features.field_presence = IMPLICIT];
+  // The time the reservation would take it for.
+  google.protobuf.Timestamp begins_at = 4;
+  google.protobuf.Timestamp ends_at = 5;
+  // What holds it then -- another reservation, maintenance -- as a calendar
+  // shows it. None once nothing does, and it is taken shortly.
+  repeated BusySpan held_by = 6;
 }
 
 message ReservationItemAddRequest {

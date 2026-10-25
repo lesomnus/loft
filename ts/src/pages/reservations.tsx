@@ -1,7 +1,7 @@
 import { useMemo, useState, type ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import type { CalendarEntry } from '../../gen/rove/booking_svc_pb.js'
+import type { BusySpan, CalendarEntry, ReservationConflict } from '../../gen/rove/booking_svc_pb.js'
 import type { Reservation } from '../../gen/rove/booking_pb.js'
 import { AssetService, BookableService, ReservationService, at, dateInput, dateOf, fmt, fmtWith, fromInput, idBytes, idStr, localInput, minute, op, ref, sameId, shift, ts, wall } from '../api.js'
 import { useCatalog } from '../catalog.js'
@@ -142,7 +142,7 @@ function Calendar(): ReactNode {
 										const p = pos(dateOf(b.beginsAt) ?? d, dateOf(b.endsAt) ?? d, d)
 										return p === undefined ? null : (
 											<div key={`b${i}`} className={`busy ${b.kind}`} style={p} title={b.label}>
-												{b.kind === 'maintenance' ? '정비' : b.kind === 'closed' ? '운영 시간 외' : b.label}
+												{b.kind === 'maintenance' ? '정비' : b.kind === 'closed' ? '운영 시간 외' : b.kind === 'waiting' ? `구성품 대기: ${b.label}` : b.label}
 											</div>
 										)
 									})}
@@ -155,7 +155,7 @@ function Calendar(): ReactNode {
 									return (
 										<div
 											key={`${idStr(r.id)}`}
-											className={`event ${r.status} ${mine ? 'mine' : ''}`}
+											className={`event ${r.status} ${mine ? 'mine' : ''} ${e.conflicts.length > 0 ? 'conflict' : ''}`}
 											style={p}
 											onClick={(ev) => {
 												ev.stopPropagation()
@@ -168,6 +168,7 @@ function Calendar(): ReactNode {
 											</span>
 											{resource === '' && <span>{e.resourceIds.map((x) => names.get(idStr(x)) ?? '').join(', ')}</span>}
 											<span>{e.partyName}</span>
+											{e.conflicts.length > 0 && <span className="warn">구성품 충돌</span>}
 										</div>
 									)
 								})}
@@ -178,7 +179,7 @@ function Calendar(): ReactNode {
 			)}
 			{draft !== undefined && <NewReservation draft={draft} onClose={() => setDraft(undefined)} />}
 			{open !== undefined && open.reservation !== undefined && (
-				<ReservationDialog r={open.reservation} resources={open.resourceIds} onClose={() => setOpen(undefined)} />
+				<ReservationDialog r={open.reservation} resources={open.resourceIds} conflicts={open.conflicts} onClose={() => setOpen(undefined)} />
 			)}
 		</>
 	)
@@ -298,7 +299,7 @@ function NewReservation(props: { draft: { from: Date; to: Date; resource: string
 	)
 }
 
-function ReservationDialog(props: { r: Reservation; resources: Uint8Array[]; onClose: () => void }): ReactNode {
+function ReservationDialog(props: { r: Reservation; resources: Uint8Array[]; conflicts: ReservationConflict[]; onClose: () => void }): ReactNode {
 	const c = useCatalog()
 	const act = useAct()
 	const names = useResourceNames()
@@ -315,7 +316,7 @@ function ReservationDialog(props: { r: Reservation; resources: Uint8Array[]; onC
 	const isSpace = props.resources.every((x) => c.space(x) !== undefined)
 
 	if (pickup) {
-		return <PickUp r={r} resources={props.resources} onClose={props.onClose} />
+		return <PickUp r={r} resources={props.resources} conflicts={props.conflicts} onClose={props.onClose} />
 	}
 	return (
 		<Modal title={r.name} onClose={props.onClose}>
@@ -327,6 +328,7 @@ function ReservationDialog(props: { r: Reservation; resources: Uint8Array[]; onC
 			</p>
 			{r.rrule !== '' && <p className="mute small">반복: {r.rrule}</p>}
 			{r.status === 'held' && r.expiresAt !== undefined && <p className="warn small">{fmt(r.expiresAt, 'time')}까지 확정하지 않으면 풀립니다.</p>}
+			<Waiting conflicts={props.conflicts} />
 			<footer className="modal-actions">
 				{r.status === 'held' && (mine || mgr) && <button className="primary" onClick={() => void decide(ReservationService.method.confirm, '확정했습니다.')}>확정</button>}
 				{r.status === 'requested' && mgr && (
@@ -367,24 +369,57 @@ function ReservationDialog(props: { r: Reservation; resources: Uint8Array[]; onC
 	)
 }
 
-/** Equipment is picked up as a loan due back when the reservation ends. */
-function PickUp(props: { r: Reservation; resources: Uint8Array[]; onClose: () => void }): ReactNode {
+/**
+ * Equipment is picked up as a loan due back when the reservation ends, and
+ * what it waits for is said there too: a kit's member it does not hold does
+ * not go out with it.
+ */
+function PickUp(props: { r: Reservation; resources: Uint8Array[]; conflicts: ReservationConflict[]; onClose: () => void }): ReactNode {
 	const assets = useRpc(AssetService.method.list, { filters: props.resources.map((id) => ({ ref: ref(id) })), size: 50 })
 	if (assets.data === undefined) return null
 	return (
-		<NewCustodyForPickup r={props.r} assets={assets.data.items} onClose={props.onClose} />
+		<NewCustodyForPickup r={props.r} assets={assets.data.items} conflicts={props.conflicts} onClose={props.onClose} />
 	)
 }
 
-function NewCustodyForPickup(props: { r: Reservation; assets: import('../../gen/rove/asset_pb.js').Asset[]; onClose: () => void }): ReactNode {
+function NewCustodyForPickup(props: { r: Reservation; assets: import('../../gen/rove/asset_pb.js').Asset[]; conflicts: ReservationConflict[]; onClose: () => void }): ReactNode {
 	return (
 		<NewCustody
 			assets={props.assets.filter((a) => a.kind === 'item')}
 			party={idStr(props.r.party?.id)}
 			reservation={props.r.id}
+			note={props.conflicts.length > 0 ? <Waiting conflicts={props.conflicts} /> : undefined}
 			onClose={props.onClose}
 		/>
 	)
+}
+
+/**
+ * What a reservation waits for: the members its kit was given after it was
+ * made that something else holds then (design 4). It takes each once it is
+ * free, and a member it does not hold is not handed out with the kit.
+ */
+function Waiting(props: { conflicts: ReservationConflict[] }): ReactNode {
+	if (props.conflicts.length === 0) return null
+	return (
+		<div className="note warn" role="note" aria-label="구성품 충돌">
+			<strong>구성품 충돌</strong>
+			<ul className="waiting">
+				{props.conflicts.map((c) => (
+					<li key={`${idStr(c.resourceId)}-${fmt(c.beginsAt)}`}>
+						{c.resourceTag} {c.resourceName} ({fmt(c.beginsAt)} – {fmt(c.endsAt, 'time')}):{' '}
+						{c.heldBy.length === 0 ? '지금은 비어 있어 곧 이 예약에 잡힙니다.' : `${c.heldBy.map(heldBy).join(', ')}이(가) 잡고 있습니다.`}
+					</li>
+				))}
+			</ul>
+			<p className="small">키트에 나중에 더해진 구성품입니다. 비면 이 예약이 잡습니다.</p>
+		</div>
+	)
+}
+
+/** What holds a member a reservation waits for, as a person says it. */
+function heldBy(b: BusySpan): string {
+	return b.kind === 'maintenance' ? '정비' : `'${b.label}' 예약`
 }
 
 function List(props: { mine?: boolean }): ReactNode {
@@ -423,6 +458,7 @@ function List(props: { mine?: boolean }): ReactNode {
 											<td>{e.partyName || c.party(e.reservation?.party?.id)?.name}</td>
 											<td>
 												<Badge v={e.reservation?.status ?? ''} words={reservationWord} />
+												{e.conflicts.length > 0 && <span className="badge warn">구성품 충돌</span>}
 											</td>
 										</tr>
 									))}
@@ -433,37 +469,49 @@ function List(props: { mine?: boolean }): ReactNode {
 				}
 			</Load>
 			{open !== undefined && open.reservation !== undefined && (
-				<ReservationDialog r={open.reservation} resources={open.resourceIds} onClose={() => setOpen(undefined)} />
+				<ReservationDialog r={open.reservation} resources={open.resourceIds} conflicts={open.conflicts} onClose={() => setOpen(undefined)} />
 			)}
 		</Card>
 	)
 }
 
+/**
+ * Every request a manager has to decide, and what each waits for. The sweep
+ * lets go of a request once it has begun, so they are all from now on -- as
+ * far ahead as anything may be booked.
+ */
 function Approvals(): ReactNode {
 	const c = useCatalog()
 	const act = useAct()
-	const list = useRpc(ReservationService.method.list, { filters: [{ status: 'requested' }], size: 200 })
+	const from = new Date(minute().getTime() - day)
+	const to = new Date(minute().getTime() + 3650 * day)
+	const list = useRpc(ReservationService.method.calendar, { statuses: ['requested'], from: ts(from), to: ts(to) })
 	return (
 		<Card title="승인 대기">
 			<Load q={list}>
 				{(d) =>
-					d.items.length === 0 ? (
+					d.entries.length === 0 ? (
 						<Empty>대기 중인 요청이 없습니다.</Empty>
 					) : (
 						<ul className="rows">
-							{d.items.map((r) => (
-								<li key={idStr(r.id)}>
-									<span>
-										{fmt(r.beginsAt)} – {fmt(r.endsAt, 'time')} · <strong>{r.name}</strong> · {c.party(r.party?.id)?.name}
-									</span>
-									<span className="inline">
-										<button onClick={() => void act(ReservationService.method.reject, { ref: ref(r.id) }, { ok: '거절했습니다.' })}>거절</button>
-										<button className="primary" onClick={() => void act(ReservationService.method.approve, { ref: ref(r.id) }, { ok: '승인했습니다.' })}>
-											승인
-										</button>
-									</span>
-								</li>
-							))}
+							{d.entries.map((e) => {
+								const r = e.reservation
+								if (r === undefined) return null
+								return (
+									<li key={idStr(r.id)}>
+										<span>
+											{fmt(r.beginsAt)} – {fmt(r.endsAt, 'time')} · <strong>{r.name}</strong> · {e.partyName || c.party(r.party?.id)?.name}
+										</span>
+										<span className="inline">
+											<button onClick={() => void act(ReservationService.method.reject, { ref: ref(r.id) }, { ok: '거절했습니다.' })}>거절</button>
+											<button className="primary" onClick={() => void act(ReservationService.method.approve, { ref: ref(r.id) }, { ok: '승인했습니다.' })}>
+												승인
+											</button>
+										</span>
+										<Waiting conflicts={e.conflicts} />
+									</li>
+								)
+							})}
 						</ul>
 					)
 				}

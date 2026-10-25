@@ -1411,7 +1411,8 @@ type Allocation_builder struct {
 	Id       []byte
 	Tenant   *Tenant
 	Resource *Asset
-	// reservation | maintenance | override
+	// reservation | maintenance | override | waiting: a member of a kit a
+	// reservation of the kit waits for, which blocks nothing until it is taken.
 	Kind        string
 	RefId       []byte
 	BeginsAt    *timestamppb.Timestamp
