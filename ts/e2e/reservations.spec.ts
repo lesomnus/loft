@@ -1,4 +1,6 @@
-import { card, choose, expect, field, momentAt, owner, people, rpc, said, signIn, test, unique, weekdayAt, workspace } from './rove.js'
+import type { Locator } from '@playwright/test'
+
+import { card, choose, expect, field, idOf, momentAt, owner, people, rpc, said, signIn, test, unique, weekdayAt, workspace } from './rove.js'
 
 test('a booking of a room that needs approval waits for a manager, who approves it', async ({ page, as }) => {
 	const title = unique('e2e 분기 회의')
@@ -186,4 +188,60 @@ test('a pool books as many as its members in use, and the booking made last wait
 	await rpc(page, 'AssetService/Relate', { ref: { id: three.id }, target: { id: pool.id }, kind: 'member_of' })
 	await page.reload()
 	await expect(waiting).not.toContainText('수량 부족')
+})
+
+test('what is disposed of, or found lost by a count, is offered out of its kit, and the kit is picked up without it', async ({ page, as }) => {
+	const shoot = unique('e2e 처분')
+	const n = Math.random().toString(36).slice(2, 7).toUpperCase()
+	const tag = { kit: `EK-${n}`, camera: `EC-${n}`, lens: `EL-${n}`, tripod: `ET-${n}`, room: `ES-${n}` }
+
+	// A kit of its own of three, the lens kept in a room of its own, which a
+	// count has just found it missing from; and the kit booked.
+	const admin = await as(owner.login, owner.password)
+	const room = await rpc(admin, 'AssetService/Add', { name: unique('e2e 장비실'), kind: 'space', tag: tag.room })
+	const kit = await rpc(admin, 'AssetService/Add', { name: unique('e2e 처분 키트'), kind: 'kit', tag: tag.kit })
+	const camera = await rpc(admin, 'AssetService/Add', { name: 'e2e 처분 카메라', kind: 'item', tag: tag.camera })
+	const lens = await rpc(admin, 'AssetService/Add', { name: 'e2e 처분 렌즈', kind: 'item', tag: tag.lens, to: { id: room.id } })
+	const tripod = await rpc(admin, 'AssetService/Add', { name: 'e2e 처분 삼각대', kind: 'item', tag: tag.tripod })
+	for (const m of [camera, lens, tripod]) {
+		await rpc(admin, 'AssetService/Relate', { ref: { id: m.id }, target: { id: kit.id }, kind: 'member_of', required: true })
+	}
+	await rpc(admin, 'BookableService/Add', { asset: { id: kit.id } })
+	const count = await rpc(admin, 'InventoryCountService/Add', { name: unique('e2e 장비실 실사'), scope: { id: room.id } })
+	await rpc(admin, 'InventoryCountService/Reconcile', { ref: { id: count.id } })
+	await signIn(page, people.approver.login)
+	await rpc(page, 'ReservationService/Add', { name: shoot, items: [{ resource: { id: kit.id } }], beginsAt: momentAt(49, 9), endsAt: momentAt(49, 12) })
+	const offer = (form: Locator) => field(form, '속한 키트·그룹').getByRole('checkbox', { name: new RegExp(`^${tag.kit} .*에서 빼기`) })
+
+	// The tripod is disposed of, and taken out of the kit in the same
+	// change, which the booking let go of it for -- as its history says.
+	await page.goto(`${workspace}/assets/${idOf(tripod.id)}`)
+	await page.getByRole('button', { name: '정보·상태 변경' }).click()
+	const set = page.getByRole('dialog')
+	await expect(offer(set)).toHaveCount(0)
+	await choose(field(set, '상태'), '폐기')
+	await expect(offer(set)).toBeChecked()
+	await field(set, '사유').fill('e2e: 파손')
+	await set.getByRole('button', { name: '저장', exact: true }).click()
+	await said(page, '바꿨습니다.')
+	const history = page.getByRole('listitem')
+	await expect(history.filter({ hasText: `${tag.tripod} 연결 끝 ${tag.kit}` }).filter({ hasText: `${tag.tripod} 속성 변경` })).toBeVisible()
+	await expect(history.filter({ hasText: '예약에서 빠짐' }).filter({ hasText: shoot })).toBeVisible()
+
+	// The lens the count never saw is lost, and out of the kit as well.
+	await page.goto(`${workspace}/counts/${idOf(count.id)}`)
+	await card(page, '결과').getByRole('listitem').filter({ hasText: tag.lens }).getByRole('button', { name: '처리', exact: true }).click()
+	const resolve = page.getByRole('dialog')
+	await expect(field(resolve, '처리')).toHaveValue('lost')
+	await expect(offer(resolve)).toBeChecked()
+	await resolve.getByRole('button', { name: '처리', exact: true }).click()
+	await said(page, '처리했습니다.')
+
+	// What the booking hands out now is the camera alone.
+	await page.goto(`${workspace}/reservations?tab=mine`)
+	await page.getByRole('row').filter({ hasText: shoot }).click()
+	await page.getByRole('dialog').getByRole('button', { name: '수령 처리 (대여)' }).click()
+	const out = page.getByRole('dialog').getByRole('list', { name: '건넬 자산' })
+	await expect(out.getByRole('listitem')).toHaveCount(1)
+	await expect(out).toContainText(tag.camera)
 })

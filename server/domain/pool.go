@@ -713,6 +713,60 @@ func (t *Tx) booked(r, thing uuid.UUID) (bool, error) {
 	).Exist(t.ctx)
 }
 
+// holdLeaving holds what an asset's leaving these kits and groups and the
+// recheck of the pools it stays in hold, before either does anything, in the
+// one order: the rows of what it leaves, which each relation it ends writes,
+// and then every schedule the rechecks hold -- of the kits it leaves
+// ([Tx.kitHolds]), and of the pools it leaves and stays in ([Tx.poolHolds]).
+// One relation ended after another, each holding its own, would write a row
+// after the schedules the one before held, and the pools' recheck take some
+// after both.
+func (t *Tx) holdLeaving(id pdid.Id, refs []*app.AssetRef) error {
+	targets := []uuid.UUID{}
+	for _, ref := range refs {
+		_, v, err := t.get(ref, "leave")
+		if err != nil {
+			// What leaving it says is wrong with it ([Tx.leave]).
+			continue
+		}
+		targets = append(targets, v.Uuid())
+	}
+	slices.SortFunc(targets, func(a, b uuid.UUID) int { return a.Compare(b) })
+	targets = slices.Compact(targets)
+	for _, v := range targets {
+		if err := t.holdRow(v); err != nil {
+			return err
+		}
+	}
+	kits, err := t.reservableKits(targets)
+	if err != nil {
+		return err
+	}
+	hold, err := t.kitHolds(kits)
+	if err != nil {
+		return err
+	}
+	in, err := t.db.Link.Query().Where(
+		link.TenantId(t.tenant.Uuid()),
+		link.SourceId(id.Uuid()),
+		link.Kind("member_of"),
+		link.SupersededAtIsNil(),
+		link.ValidToIsNil(),
+	).All(t.ctx)
+	if err != nil {
+		return err
+	}
+	groups := slices.Clone(targets)
+	for _, l := range in {
+		groups = append(groups, l.TargetId)
+	}
+	_, also, err := t.poolHolds(groups, []uuid.UUID{id.Uuid()})
+	if err != nil {
+		return err
+	}
+	return t.lockSchedules(append(hold, also...))
+}
+
 // holdRow takes the row of an asset that this transaction changes later and
 // holds schedules before it does: written as it is, which takes the row's
 // lock, so that the row is held before the schedules, as every other change

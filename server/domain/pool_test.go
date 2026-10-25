@@ -214,6 +214,40 @@ func TestAMemberOutOfUseMakesThePoolsLatestBookingWait(t *testing.T) {
 	}
 }
 
+// TestAMemberDisposedOfAndTakenOffAPoolInOneChange: what goes out of use and
+// leaves its pool and its kit in the same change (design 4, 처분) is one fewer
+// for the pool to give, as either alone is, and the kit's booking lets it go.
+func TestAMemberDisposedOfAndTakenOffAPoolInOneChange(t *testing.T) {
+	e := newEnv(t)
+	x := e.x
+	one := e.item("빔프로젝터 1", "PJ-1", nil, day)
+	two := e.item("빔프로젝터 2", "PJ-2", nil, day)
+	projectors := e.pool("빔프로젝터", one, two)
+	cable := e.item("케이블", "CB-1", nil, day)
+	kit := e.kit("발표 키트", cable)
+	e.relate(two, kit, true)
+	kim, _ := e.person("member")
+
+	first, err := e.take(kim, projectors, 1, e.tomorrow(9, 0), e.tomorrow(12, 0))
+	x.NoError(err)
+	later, err := e.take(kim, projectors, 1, e.tomorrow(9, 0), e.tomorrow(12, 0))
+	x.NoError(err)
+	talk, err := e.reserve(kim, kit, e.tomorrow(13, 0), e.tomorrow(14, 0), nil)
+	x.NoError(err)
+	x.NotNil(e.allocation(talk, two))
+
+	_, err = e.app().Asset().SetAttributes(e.owner, app.AssetSetAttributesRequest_builder{
+		Ref:   assetRef(two),
+		Set:   map[string]string{"status": "disposed"},
+		Leave: []*app.AssetRef{assetRef(projectors), assetRef(kit)},
+	}.Build())
+	x.NoError(err)
+	x.EqualValues(1, e.units(projectors))
+	x.True(e.holds(first, projectors))
+	x.False(e.holds(later, projectors))
+	x.Nil(e.allocation(talk, two), "let go of by the kit's booking")
+}
+
 // TestAMemberTakenOffAPoolMakesItsLatestBookingWait: every way a member stops
 // being one of a pool's -- the relation ended, said never to have held, or the
 // member voided -- is one fewer to give.
@@ -582,7 +616,7 @@ func TestTheUnitsOfAPoolAreKeptOnItsRow(t *testing.T) {
 // arrive together land one after the other, whichever goes first: the pool
 // is never booked for more than it has.
 func TestABookingOfAPoolAndAChangeToItAtOnceAgree(t *testing.T) {
-	for _, how := range []string{"end", "disposed"} {
+	for _, how := range []string{"end", "disposed", "leave"} {
 		t.Run(how, func(t *testing.T) {
 			e := newEnv(t)
 			e.postgresOnly()
@@ -604,8 +638,13 @@ func TestABookingOfAPoolAndAChangeToItAtOnceAgree(t *testing.T) {
 					return err
 				}
 				change := func() error {
-					if how == "end" {
+					switch how {
+					case "end":
 						_, err := e.app().Asset().Relate(e.owner, app.AssetRelateRequest_builder{Ref: assetRef(two), Target: assetRef(projectors), Kind: "member_of", End: true}.Build())
+						return err
+					case "leave":
+						// Disposed of, and out of the pool in the same change.
+						_, err := e.app().Asset().SetAttributes(e.owner, app.AssetSetAttributesRequest_builder{Ref: assetRef(two), Set: map[string]string{"status": "disposed"}, Leave: []*app.AssetRef{assetRef(projectors)}}.Build())
 						return err
 					}
 					_, err := e.app().Asset().SetAttributes(e.owner, app.AssetSetAttributesRequest_builder{Ref: assetRef(two), Set: map[string]string{"status": how}}.Build())

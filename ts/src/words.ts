@@ -15,6 +15,12 @@ export const statusWord: Record<string, string> = {
 	disposed: '폐기',
 }
 
+/**
+ * The statuses an asset is out of use in (`domain.OutOfUse`): what it is a
+ * member of, it may leave as it goes out of use.
+ */
+export const outOfUse: readonly string[] = ['lost', 'retired', 'disposed']
+
 export const conditionWord: Record<string, string> = { good: '양호', damaged: '손상', broken: '고장' }
 
 export const modeWord: Record<string, string> = { located: '놓임', installed: '장착', part: '구성품' }

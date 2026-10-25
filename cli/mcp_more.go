@@ -611,6 +611,7 @@ type mcpCountPlan struct {
 
 	Resolution string `json:"resolution,omitempty" jsonschema:"resolve: moved (to where it was seen), lost, or ignored"`
 	Reason     string `json:"reason,omitempty" jsonschema:"resolve: why"`
+	Leave      bool   `json:"leave_kits,omitempty" jsonschema:"resolve, lost: take the asset out of every kit and group it is a member of as well, which the summary names, and the kits' bookings let it go; the summary of a plan without it names what it stays a member of"`
 }
 
 func (t mcpTools) planCount(ctx context.Context, _ *mcp.CallToolRequest, in mcpCountPlan) (*mcp.CallToolResult, mcpPlanned, error) {
@@ -674,15 +675,28 @@ func (c *mcpCall) countPlan(in mcpCountPlan) (*plan, error) {
 			return nil, errors.New("resolution: moved, lost or ignored")
 		}
 		what := "?"
+		var lost *app.Asset
 		if a := pid(f.GetAsset().GetId()); !a.IsZero() {
-			if _, label, err := c.asset("finding.asset", a.String()); err == nil {
-				what = label
+			if v, label, err := c.asset("finding.asset", a.String()); err == nil {
+				what, lost = label, v
 			}
 		}
 		req := app.InventoryCountResolveRequest_builder{Ref: app.CountFindingById(id.Bytes()), Resolution: in.Resolution, Reason: in.Reason}.Build()
+		stays := ""
+		switch {
+		case in.Resolution == "lost" && lost != nil:
+			if stays, err = c.leaving(lost, "lost", in.Leave, func(leave []*app.AssetRef, names string) {
+				req.SetLeave(leave)
+				w += ", " + names + "에서 빼기"
+			}); err != nil {
+				return nil, err
+			}
+		case in.Leave:
+			return nil, errors.New("leave_kits: only with resolution lost, of a finding of an asset")
+		}
 		return &plan{
 			method:  app.InventoryCountService_Resolve_FullMethodName,
-			summary: fmt.Sprintf("실사 처리: %s: %s%s", what, w, clause(" — %s", in.Reason)),
+			summary: fmt.Sprintf("실사 처리: %s: %s%s%s", what, w, stays, clause(" — %s", in.Reason)),
 			run: func(ctx context.Context, conn grpc.ClientConnInterface) (*mcpRef, error) {
 				_, err := app.NewInventoryCountServiceClient(conn).Resolve(ctx, req)
 				return refOf(f.GetId(), what), err

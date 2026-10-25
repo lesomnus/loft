@@ -9,6 +9,7 @@ import { sent, wait, waiting } from '../offline.js'
 import { Live, useAct, useRpc } from '../rpc.js'
 import { Badge, Card, Confirm, Empty, Field, FormModal, Load, OrderSelect, PageHead, Select, Stat, useToast, type Order } from '../ui.js'
 import { countWord, findingWord, resolutionWord } from '../words.js'
+import { Leave, leaving, useMemberships } from './asset.js'
 import { Camera } from './scan.js'
 
 export function Counts(): ReactNode {
@@ -306,12 +307,21 @@ function Resolve(props: { f: CountFinding; onClose: () => void }): ReactNode {
 	const f = props.f
 	const [res, setRes] = useState(f.kind === 'misplaced' ? 'moved' : f.kind === 'missing' ? 'lost' : 'ignored')
 	const [reason, setReason] = useState('')
+	// Lost, it is offered to leave what it is a member of, as it is wherever
+	// it goes out of use.
+	const members = useMemberships(f.asset?.id)
+	const [kept, setKept] = useState<string[]>([])
+	const goes = res === 'lost'
 	return (
 		<FormModal
 			title="실사 결과 처리"
 			submit="처리"
 			onClose={props.onClose}
-			onSubmit={async () => (await act(InventoryCountService.method.resolve, { ref: ref(f.id), resolution: res, reason }, { ok: '처리했습니다.' })) !== undefined}
+			onSubmit={async () => {
+				if (goes && f.asset !== undefined && members === undefined) return false
+				const leave = goes ? leaving(members ?? [], kept) : []
+				return (await act(InventoryCountService.method.resolve, { ref: ref(f.id), resolution: res, reason, leave }, { ok: '처리했습니다.' })) !== undefined
+			}}
 		>
 			<Field label="처리">
 				<Select
@@ -324,6 +334,7 @@ function Resolve(props: { f: CountFinding; onClose: () => void }): ReactNode {
 					]}
 				/>
 			</Field>
+			{goes && <Leave members={members} kept={kept} onChange={setKept} />}
 			<Field label="사유" wide>
 				<input value={reason} onChange={(e) => setReason(e.target.value)} />
 			</Field>

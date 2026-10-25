@@ -42,6 +42,11 @@ var (
 	LinkKinds    = []string{"member_of", "connected_to"}
 )
 
+// OutOfUse is the statuses an asset is out of use in: lost until it is found,
+// and for good. What it is a member of, it may leave as it goes out of use
+// (AssetSetAttributesRequest.leave).
+var OutOfUse = []string{"lost", "retired", "disposed"}
+
 type domainAsset struct {
 	Domain
 	app.AssetServiceServer
@@ -815,6 +820,9 @@ func (s domainAsset) SetAttributes(ctx context.Context, req *app.AssetSetAttribu
 		if err != nil {
 			return err
 		}
+		if len(req.GetLeave()) > 0 && !slices.Contains(OutOfUse, strings.TrimSpace(req.GetSet()["status"])) {
+			return invalid("leave", "키트·그룹에서 빼는 것은 상태를 분실·불용·폐기로 바꿀 때 함께 합니다. 따로 빼려면 관계를 끊으세요")
+		}
 
 		changes := map[string]*string{}
 		for k, v := range req.GetSet() {
@@ -912,7 +920,18 @@ func (s domainAsset) SetAttributes(ctx context.Context, req *app.AssetSetAttribu
 		if out, err = t.sync(id.Uuid()); err != nil {
 			return err
 		}
-		if _, ok := changes["status"]; ok {
+		// What its leaving its kits and groups and what its status does to
+		// its pools hold, at once ([Tx.holdLeaving]).
+		_, status := changes["status"]
+		if status || len(req.GetLeave()) > 0 {
+			if err := t.holdLeaving(id, req.GetLeave()); err != nil {
+				return err
+			}
+		}
+		if err := t.leave(id, at, req.GetLeave(), req.GetReason()); err != nil {
+			return err
+		}
+		if status {
 			// Whether it is one of its pools' units: lost, retired or
 			// disposed, it is not, and received, it is.
 			return t.recheckPoolsOf(id.Uuid())
@@ -1241,6 +1260,63 @@ func (s domainAsset) Relate(ctx context.Context, req *app.AssetRelateRequest) (*
 		return err
 	})
 	return s.settle(ctx, req.GetRef(), out, err)
+}
+
+// leave ends the memberships of `id` of these kits and groups as it goes out
+// of use from `at` (AssetSetAttributesRequest.leave): each a relation of its
+// own, called through the layer, so that it is part of this operation (design
+// D34) and the bookings of a kit let it go as they do on any change of what
+// the kit is made of (design 4).
+//
+// What ends is the membership open now, which is what a kit's bookings
+// follow: from when it went out of use, or now when it was made a member
+// after that -- the record said so until now, and no row of it is said not to
+// have held -- and as it begins when that is yet to come. One it does not hold
+// now is passed over, since what offered it may have read it before a change
+// that ended it.
+func (t *Tx) leave(id pdid.Id, at time.Time, refs []*app.AssetRef, reason string) error {
+	for i, ref := range refs {
+		field := fmt.Sprintf("leave[%d]", i)
+		b, target, err := t.get(ref, field)
+		if err != nil {
+			return err
+		}
+		if b.GetKind() != "kit" && b.GetKind() != "group" {
+			return invalid(field, "%s은(는) 키트나 그룹이 아닙니다", b.GetTag())
+		}
+		l, err := t.db.Link.Query().Where(
+			link.TenantId(t.tenant.Uuid()),
+			link.SourceId(id.Uuid()),
+			link.TargetId(target.Uuid()),
+			link.Kind("member_of"),
+			link.SupersededAtIsNil(),
+			link.ValidToIsNil(),
+		).First(t.ctx)
+		if ent.IsNotFound(err) {
+			continue
+		}
+		if err != nil {
+			return err
+		}
+		end := at
+		if l.ValidFrom.After(end) {
+			end = t.now
+		}
+		if l.ValidFrom.After(end) {
+			end = l.ValidFrom
+		}
+		if _, err := t.layer().Asset().Relate(t.ctx, app.AssetRelateRequest_builder{
+			Ref:    assetRef(id.Uuid()),
+			Target: assetRef(target.Uuid()),
+			Kind:   "member_of",
+			End:    true,
+			At:     ts(end),
+			Reason: reason,
+		}.Build()); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (t *Tx) links(source, target uuid.UUID, kind string) (timeline[linked], error) {

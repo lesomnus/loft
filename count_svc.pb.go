@@ -2585,6 +2585,7 @@ type InventoryCountResolveRequest struct {
 	xxx_hidden_Ref        *CountFindingRef       `protobuf:"bytes,1,opt,name=ref"`
 	xxx_hidden_Resolution string                 `protobuf:"bytes,2,opt,name=resolution"`
 	xxx_hidden_Reason     string                 `protobuf:"bytes,3,opt,name=reason"`
+	xxx_hidden_Leave      *[]*AssetRef           `protobuf:"bytes,4,rep,name=leave"`
 	unknownFields         protoimpl.UnknownFields
 	sizeCache             protoimpl.SizeCache
 }
@@ -2635,6 +2636,15 @@ func (x *InventoryCountResolveRequest) GetReason() string {
 	return ""
 }
 
+func (x *InventoryCountResolveRequest) GetLeave() []*AssetRef {
+	if x != nil {
+		if x.xxx_hidden_Leave != nil {
+			return *x.xxx_hidden_Leave
+		}
+	}
+	return nil
+}
+
 func (x *InventoryCountResolveRequest) SetRef(v *CountFindingRef) {
 	x.xxx_hidden_Ref = v
 }
@@ -2645,6 +2655,10 @@ func (x *InventoryCountResolveRequest) SetResolution(v string) {
 
 func (x *InventoryCountResolveRequest) SetReason(v string) {
 	x.xxx_hidden_Reason = v
+}
+
+func (x *InventoryCountResolveRequest) SetLeave(v []*AssetRef) {
+	x.xxx_hidden_Leave = &v
 }
 
 func (x *InventoryCountResolveRequest) HasRef() bool {
@@ -2665,6 +2679,9 @@ type InventoryCountResolveRequest_builder struct {
 	// moved | lost | ignored
 	Resolution string
 	Reason     string
+	// With `lost`: the kits and groups the asset leaves as it is lost, as
+	// AssetSetAttributesRequest.leave says.
+	Leave []*AssetRef
 }
 
 func (b0 InventoryCountResolveRequest_builder) Build() *InventoryCountResolveRequest {
@@ -2674,6 +2691,7 @@ func (b0 InventoryCountResolveRequest_builder) Build() *InventoryCountResolveReq
 	x.xxx_hidden_Ref = b.Ref
 	x.xxx_hidden_Resolution = b.Resolution
 	x.xxx_hidden_Reason = b.Reason
+	x.xxx_hidden_Leave = &b.Leave
 	return m0
 }
 
@@ -5369,13 +5387,14 @@ const file_rove_count_svc_g_proto_rawDesc = "" +
 	"\amissing\x18\x01 \x01(\rB\x05\xaa\x01\x02\b\x02R\amissing\x12\x19\n" +
 	"\x04seen\x18\x02 \x01(\rB\x05\xaa\x01\x02\b\x02R\x04seen\x12#\n" +
 	"\tmisplaced\x18\x03 \x01(\rB\x05\xaa\x01\x02\b\x02R\tmisplaced\x12\x1f\n" +
-	"\aunknown\x18\x04 \x01(\rB\x05\xaa\x01\x02\b\x02R\aunknown\"\x8d\x01\n" +
+	"\aunknown\x18\x04 \x01(\rB\x05\xaa\x01\x02\b\x02R\aunknown\"\xb3\x01\n" +
 	"\x1cInventoryCountResolveRequest\x12'\n" +
 	"\x03ref\x18\x01 \x01(\v2\x15.rove.CountFindingRefR\x03ref\x12%\n" +
 	"\n" +
 	"resolution\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\n" +
 	"resolution\x12\x1d\n" +
-	"\x06reason\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06reason\"*\n" +
+	"\x06reason\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06reason\x12$\n" +
+	"\x05leave\x18\x04 \x03(\v2\x0e.rove.AssetRefR\x05leave\"*\n" +
 	"\x0fCountFindingRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
 	"\x03key\"G\n" +
@@ -5569,73 +5588,74 @@ var file_rove_count_svc_g_proto_depIdxs = []int32{
 	33, // 25: rove.InventoryCountScanRequest.seen_at:type_name -> google.protobuf.Timestamp
 	2,  // 26: rove.InventoryCountReconcileRequest.ref:type_name -> rove.InventoryCountRef
 	17, // 27: rove.InventoryCountResolveRequest.ref:type_name -> rove.CountFindingRef
-	2,  // 28: rove.InventoryCountCloseRequest.ref:type_name -> rove.InventoryCountRef
-	31, // 29: rove.CountFindingAddRequest.tenant:type_name -> rove.TenantRef
-	2,  // 30: rove.CountFindingAddRequest.count:type_name -> rove.InventoryCountRef
-	32, // 31: rove.CountFindingAddRequest.asset:type_name -> rove.AssetRef
-	33, // 32: rove.CountFindingAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	33, // 33: rove.CountFindingAddRequest.seen_at:type_name -> google.protobuf.Timestamp
-	33, // 34: rove.CountFindingAddRequest.resolved_at:type_name -> google.protobuf.Timestamp
-	17, // 35: rove.CountFindingGetRequest.ref:type_name -> rove.CountFindingRef
-	21, // 36: rove.CountFindingGetRequest.select:type_name -> rove.CountFindingSelect
-	34, // 37: rove.CountFindingSelect.tenant:type_name -> rove.TenantSelect
-	3,  // 38: rove.CountFindingSelect.count:type_name -> rove.InventoryCountSelect
-	35, // 39: rove.CountFindingSelect.asset:type_name -> rove.AssetSelect
-	17, // 40: rove.CountFindingPatchRequest.ref:type_name -> rove.CountFindingRef
-	33, // 41: rove.CountFindingPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	33, // 42: rove.CountFindingPatchRequest.seen_at:type_name -> google.protobuf.Timestamp
-	33, // 43: rove.CountFindingPatchRequest.resolved_at:type_name -> google.protobuf.Timestamp
-	17, // 44: rove.CountFindingApplyRequest.ref:type_name -> rove.CountFindingRef
-	36, // 45: rove.CountFindingApplyRequest.patch:type_name -> patch.Patch
-	27, // 46: rove.CountFindingListRequest.filters:type_name -> rove.CountFindingFilter
-	38, // 47: rove.CountFindingListResponse.items:type_name -> rove.CountFinding
-	17, // 48: rove.CountFindingFilter.ref:type_name -> rove.CountFindingRef
-	2,  // 49: rove.CountFindingFilter.count:type_name -> rove.InventoryCountRef
-	32, // 50: rove.CountFindingFilter.asset:type_name -> rove.AssetRef
-	27, // 51: rove.CountFindingWatchRequest.filters:type_name -> rove.CountFindingFilter
-	30, // 52: rove.CountFindingWatchResponse.items:type_name -> rove.CountFindingWatchItem
-	38, // 53: rove.CountFindingWatchItem.value:type_name -> rove.CountFinding
-	0,  // 54: rove.InventoryCountService.Add:input_type -> rove.InventoryCountAddRequest
-	1,  // 55: rove.InventoryCountService.Get:input_type -> rove.InventoryCountGetRequest
-	4,  // 56: rove.InventoryCountService.Patch:input_type -> rove.InventoryCountPatchRequest
-	5,  // 57: rove.InventoryCountService.Apply:input_type -> rove.InventoryCountApplyRequest
-	2,  // 58: rove.InventoryCountService.Erase:input_type -> rove.InventoryCountRef
-	7,  // 59: rove.InventoryCountService.List:input_type -> rove.InventoryCountListRequest
-	10, // 60: rove.InventoryCountService.Watch:input_type -> rove.InventoryCountWatchRequest
-	13, // 61: rove.InventoryCountService.Scan:input_type -> rove.InventoryCountScanRequest
-	14, // 62: rove.InventoryCountService.Reconcile:input_type -> rove.InventoryCountReconcileRequest
-	16, // 63: rove.InventoryCountService.Resolve:input_type -> rove.InventoryCountResolveRequest
-	18, // 64: rove.InventoryCountService.Close:input_type -> rove.InventoryCountCloseRequest
-	19, // 65: rove.CountFindingService.Add:input_type -> rove.CountFindingAddRequest
-	20, // 66: rove.CountFindingService.Get:input_type -> rove.CountFindingGetRequest
-	22, // 67: rove.CountFindingService.Patch:input_type -> rove.CountFindingPatchRequest
-	23, // 68: rove.CountFindingService.Apply:input_type -> rove.CountFindingApplyRequest
-	17, // 69: rove.CountFindingService.Erase:input_type -> rove.CountFindingRef
-	25, // 70: rove.CountFindingService.List:input_type -> rove.CountFindingListRequest
-	28, // 71: rove.CountFindingService.Watch:input_type -> rove.CountFindingWatchRequest
-	37, // 72: rove.InventoryCountService.Add:output_type -> rove.InventoryCount
-	37, // 73: rove.InventoryCountService.Get:output_type -> rove.InventoryCount
-	37, // 74: rove.InventoryCountService.Patch:output_type -> rove.InventoryCount
-	37, // 75: rove.InventoryCountService.Apply:output_type -> rove.InventoryCount
-	6,  // 76: rove.InventoryCountService.Erase:output_type -> rove.InventoryCountEraseResponse
-	8,  // 77: rove.InventoryCountService.List:output_type -> rove.InventoryCountListResponse
-	11, // 78: rove.InventoryCountService.Watch:output_type -> rove.InventoryCountWatchResponse
-	38, // 79: rove.InventoryCountService.Scan:output_type -> rove.CountFinding
-	15, // 80: rove.InventoryCountService.Reconcile:output_type -> rove.InventoryCountReconcileResponse
-	38, // 81: rove.InventoryCountService.Resolve:output_type -> rove.CountFinding
-	37, // 82: rove.InventoryCountService.Close:output_type -> rove.InventoryCount
-	38, // 83: rove.CountFindingService.Add:output_type -> rove.CountFinding
-	38, // 84: rove.CountFindingService.Get:output_type -> rove.CountFinding
-	38, // 85: rove.CountFindingService.Patch:output_type -> rove.CountFinding
-	38, // 86: rove.CountFindingService.Apply:output_type -> rove.CountFinding
-	24, // 87: rove.CountFindingService.Erase:output_type -> rove.CountFindingEraseResponse
-	26, // 88: rove.CountFindingService.List:output_type -> rove.CountFindingListResponse
-	29, // 89: rove.CountFindingService.Watch:output_type -> rove.CountFindingWatchResponse
-	72, // [72:90] is the sub-list for method output_type
-	54, // [54:72] is the sub-list for method input_type
-	54, // [54:54] is the sub-list for extension type_name
-	54, // [54:54] is the sub-list for extension extendee
-	0,  // [0:54] is the sub-list for field type_name
+	32, // 28: rove.InventoryCountResolveRequest.leave:type_name -> rove.AssetRef
+	2,  // 29: rove.InventoryCountCloseRequest.ref:type_name -> rove.InventoryCountRef
+	31, // 30: rove.CountFindingAddRequest.tenant:type_name -> rove.TenantRef
+	2,  // 31: rove.CountFindingAddRequest.count:type_name -> rove.InventoryCountRef
+	32, // 32: rove.CountFindingAddRequest.asset:type_name -> rove.AssetRef
+	33, // 33: rove.CountFindingAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	33, // 34: rove.CountFindingAddRequest.seen_at:type_name -> google.protobuf.Timestamp
+	33, // 35: rove.CountFindingAddRequest.resolved_at:type_name -> google.protobuf.Timestamp
+	17, // 36: rove.CountFindingGetRequest.ref:type_name -> rove.CountFindingRef
+	21, // 37: rove.CountFindingGetRequest.select:type_name -> rove.CountFindingSelect
+	34, // 38: rove.CountFindingSelect.tenant:type_name -> rove.TenantSelect
+	3,  // 39: rove.CountFindingSelect.count:type_name -> rove.InventoryCountSelect
+	35, // 40: rove.CountFindingSelect.asset:type_name -> rove.AssetSelect
+	17, // 41: rove.CountFindingPatchRequest.ref:type_name -> rove.CountFindingRef
+	33, // 42: rove.CountFindingPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	33, // 43: rove.CountFindingPatchRequest.seen_at:type_name -> google.protobuf.Timestamp
+	33, // 44: rove.CountFindingPatchRequest.resolved_at:type_name -> google.protobuf.Timestamp
+	17, // 45: rove.CountFindingApplyRequest.ref:type_name -> rove.CountFindingRef
+	36, // 46: rove.CountFindingApplyRequest.patch:type_name -> patch.Patch
+	27, // 47: rove.CountFindingListRequest.filters:type_name -> rove.CountFindingFilter
+	38, // 48: rove.CountFindingListResponse.items:type_name -> rove.CountFinding
+	17, // 49: rove.CountFindingFilter.ref:type_name -> rove.CountFindingRef
+	2,  // 50: rove.CountFindingFilter.count:type_name -> rove.InventoryCountRef
+	32, // 51: rove.CountFindingFilter.asset:type_name -> rove.AssetRef
+	27, // 52: rove.CountFindingWatchRequest.filters:type_name -> rove.CountFindingFilter
+	30, // 53: rove.CountFindingWatchResponse.items:type_name -> rove.CountFindingWatchItem
+	38, // 54: rove.CountFindingWatchItem.value:type_name -> rove.CountFinding
+	0,  // 55: rove.InventoryCountService.Add:input_type -> rove.InventoryCountAddRequest
+	1,  // 56: rove.InventoryCountService.Get:input_type -> rove.InventoryCountGetRequest
+	4,  // 57: rove.InventoryCountService.Patch:input_type -> rove.InventoryCountPatchRequest
+	5,  // 58: rove.InventoryCountService.Apply:input_type -> rove.InventoryCountApplyRequest
+	2,  // 59: rove.InventoryCountService.Erase:input_type -> rove.InventoryCountRef
+	7,  // 60: rove.InventoryCountService.List:input_type -> rove.InventoryCountListRequest
+	10, // 61: rove.InventoryCountService.Watch:input_type -> rove.InventoryCountWatchRequest
+	13, // 62: rove.InventoryCountService.Scan:input_type -> rove.InventoryCountScanRequest
+	14, // 63: rove.InventoryCountService.Reconcile:input_type -> rove.InventoryCountReconcileRequest
+	16, // 64: rove.InventoryCountService.Resolve:input_type -> rove.InventoryCountResolveRequest
+	18, // 65: rove.InventoryCountService.Close:input_type -> rove.InventoryCountCloseRequest
+	19, // 66: rove.CountFindingService.Add:input_type -> rove.CountFindingAddRequest
+	20, // 67: rove.CountFindingService.Get:input_type -> rove.CountFindingGetRequest
+	22, // 68: rove.CountFindingService.Patch:input_type -> rove.CountFindingPatchRequest
+	23, // 69: rove.CountFindingService.Apply:input_type -> rove.CountFindingApplyRequest
+	17, // 70: rove.CountFindingService.Erase:input_type -> rove.CountFindingRef
+	25, // 71: rove.CountFindingService.List:input_type -> rove.CountFindingListRequest
+	28, // 72: rove.CountFindingService.Watch:input_type -> rove.CountFindingWatchRequest
+	37, // 73: rove.InventoryCountService.Add:output_type -> rove.InventoryCount
+	37, // 74: rove.InventoryCountService.Get:output_type -> rove.InventoryCount
+	37, // 75: rove.InventoryCountService.Patch:output_type -> rove.InventoryCount
+	37, // 76: rove.InventoryCountService.Apply:output_type -> rove.InventoryCount
+	6,  // 77: rove.InventoryCountService.Erase:output_type -> rove.InventoryCountEraseResponse
+	8,  // 78: rove.InventoryCountService.List:output_type -> rove.InventoryCountListResponse
+	11, // 79: rove.InventoryCountService.Watch:output_type -> rove.InventoryCountWatchResponse
+	38, // 80: rove.InventoryCountService.Scan:output_type -> rove.CountFinding
+	15, // 81: rove.InventoryCountService.Reconcile:output_type -> rove.InventoryCountReconcileResponse
+	38, // 82: rove.InventoryCountService.Resolve:output_type -> rove.CountFinding
+	37, // 83: rove.InventoryCountService.Close:output_type -> rove.InventoryCount
+	38, // 84: rove.CountFindingService.Add:output_type -> rove.CountFinding
+	38, // 85: rove.CountFindingService.Get:output_type -> rove.CountFinding
+	38, // 86: rove.CountFindingService.Patch:output_type -> rove.CountFinding
+	38, // 87: rove.CountFindingService.Apply:output_type -> rove.CountFinding
+	24, // 88: rove.CountFindingService.Erase:output_type -> rove.CountFindingEraseResponse
+	26, // 89: rove.CountFindingService.List:output_type -> rove.CountFindingListResponse
+	29, // 90: rove.CountFindingService.Watch:output_type -> rove.CountFindingWatchResponse
+	73, // [73:91] is the sub-list for method output_type
+	55, // [55:73] is the sub-list for method input_type
+	55, // [55:55] is the sub-list for extension type_name
+	55, // [55:55] is the sub-list for extension extendee
+	0,  // [0:55] is the sub-list for field type_name
 }
 
 func init() { file_rove_count_svc_g_proto_init() }
