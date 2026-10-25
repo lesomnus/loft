@@ -2,13 +2,17 @@ package domain_test
 
 import (
 	"context"
+	"fmt"
+	"slices"
 	"testing"
 	"time"
+	"uuid"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	app "github.com/lesomnus/rove"
+	"github.com/lesomnus/rove/internal/ent"
 )
 
 // What a pool can give is its members in use, less the ones whose own time is
@@ -681,4 +685,78 @@ func TestABookingOfAPoolsUnitAndAChangeToItsPoolAtOnceAgree(t *testing.T) {
 		x.NotNil(e.allocation(mine, two), "round %d", round)
 		more()
 	}
+}
+
+// TestWhatAPoolDidToItsBookingsIsOnTheHistoryOfEach: a booking a pool made
+// wait, and the one it gave what it waited for, is an event of the booking's
+// and one of the pool's, by how many of it, under the change that did it --
+// and, for what the sweep settles, an operation of the sweep's own (design
+// D39).
+func TestWhatAPoolDidToItsBookingsIsOnTheHistoryOfEach(t *testing.T) {
+	e := newEnv(t)
+	x := e.x
+	one := e.item("빔프로젝터 1", "PJ-1", nil, day)
+	two := e.item("빔프로젝터 2", "PJ-2", nil, day)
+	projectors := e.pool("빔프로젝터", one, two)
+	kim, _ := e.person("member")
+	lee, _ := e.person("member")
+
+	_, err := e.take(kim, projectors, 1, e.tomorrow(9, 0), e.tomorrow(12, 0))
+	x.NoError(err)
+	class, err := e.reserve(lee, projectors, e.tomorrow(10, 0), e.tomorrow(11, 0), func(r *app.ReservationAddRequest) { r.SetName("교육") })
+	x.NoError(err)
+
+	e.status(two, "disposed")
+	set := e.about("asset.set")[idUUID(two.GetId())]
+	x.NotNil(set)
+	waits := e.about("reservation.wait")
+	x.ElementsMatch([]uuid.UUID{idUUID(class.GetId()), idUUID(projectors.GetId())}, subjects(waits), "the booking, and the pool")
+	for _, v := range waits {
+		x.NotNil(v.CauseId)
+		x.Equal(set.Id, *v.CauseId, "part of what disposed of it")
+	}
+	w := value[*app.ReservationAllocationChanged](e, waits[idUUID(projectors.GetId())])
+	x.Equal(class.GetId(), w.GetReservation())
+	x.Equal(projectors.GetId(), w.GetAsset())
+	x.EqualValues(1, w.GetUnits(), "a pool's, by how many")
+	said := fmt.Sprintf("예약 대기: 빔프로젝터 1개 (교육 %s)", begins(class))
+	x.Contains(e.history(class), said)
+	x.Equal([]string{said}, summaries(e.happened(projectors, "reservation.wait")))
+
+	e.status(two, "active")
+	back := e.eventsOf("asset.set")
+	resolves := e.about("reservation.resolve")
+	x.ElementsMatch([]uuid.UUID{idUUID(class.GetId()), idUUID(projectors.GetId())}, subjects(resolves))
+	for _, v := range resolves {
+		x.NotNil(v.CauseId)
+		x.True(slices.ContainsFunc(back, func(s *ent.Event) bool { return s.Id == *v.CauseId && s.Id != set.Id }), "part of what had it back")
+	}
+	x.Contains(e.history(class), fmt.Sprintf("예약 확보: 빔프로젝터 1개 (교육 %s)", begins(class)))
+}
+
+// TestWhatTheSweepGaveAPoolsBookingIsAnOperationOfItsOwn: a wait nothing that
+// let go of the pool settled is settled by the sweep, as the deployment's own
+// work: the booking's event is the operation, and the pool's its child.
+func TestWhatTheSweepGaveAPoolsBookingIsAnOperationOfItsOwn(t *testing.T) {
+	e := newEnv(t)
+	x := e.x
+	one := e.item("카메라 1", "CM-1", nil, day)
+	cameras := e.pool("카메라", one)
+	kim, _ := e.person("member")
+	r, err := e.take(kim, cameras, 1, e.tomorrow(9, 0), e.tomorrow(12, 0))
+	x.NoError(err)
+	e.unrelate(one, cameras)
+	x.False(e.holds(r, cameras))
+	_, err = e.app().Bookable().Update(e.owner, app.BookableUpdateRequest_builder{Ref: ref[app.BookableRef](e.bookableOf(cameras).GetId()), Units: 1, Enabled: true}.Build())
+	x.NoError(err)
+
+	e.sweep()
+	x.True(e.holds(r, cameras))
+	resolves := e.about("reservation.resolve")
+	op, kid := resolves[idUUID(r.GetId())], resolves[idUUID(cameras.GetId())]
+	x.NotNil(op)
+	x.NotNil(kid)
+	x.Nil(op.CauseId, "the sweep's own")
+	x.Equal(op.Id, *kid.CauseId)
+	x.EqualValues(1, value[*app.ReservationAllocationChanged](e, kid).GetUnits())
 }

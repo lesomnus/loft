@@ -17,6 +17,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/bookable"
 	"github.com/lesomnus/rove/internal/ent/link"
 	"github.com/lesomnus/rove/internal/ent/reservation"
+	"github.com/lesomnus/rove/internal/ent/reservationitem"
 )
 
 // A pool is a group made reservable: things any one of which does as well as
@@ -36,7 +37,9 @@ import (
 // that blocks nothing ([allocWaiting]), as a kit's reservation waits for a
 // member (kit.go); whoever has to settle it is told, and the reservation shows
 // it wherever it is acted on. Once there is room again, the ones that have
-// waited longest take it first ([Tx.take]).
+// waited longest take it first ([Tx.take]). What each of them did to what a
+// reservation holds of the pool is on the history of both, the reservation
+// and the pool, by how many of it, as a kit's is ([Tx.changed], design D39).
 //
 // And a thing that is one of a pool's units is the pool's to spare: booked on
 // its own, or with a kit, while the pool has as many of its units promised as
@@ -547,6 +550,9 @@ func (t *Tx) rebook(pr *resource) ([]poolWait, error) {
 	})
 	kept := taken(fixed, held)
 	short := []poolWait{}
+	// What it did to each, an event of the reservation's and one of the
+	// pool's, children of the change, written at once ([Tx.changed]).
+	did := []allocChange{}
 	for _, a := range flex {
 		from := a.BeginsAt
 		if from.Before(t.now) {
@@ -572,12 +578,16 @@ func (t *Tx) rebook(pr *resource) ([]poolWait, error) {
 			return nil, err
 		}
 		short = append(short, poolWait{r: r, pool: pr, units: a.Units, from: from})
+		did = append(did, allocChange{kind: "reservation.wait", r: r, thing: pr.asset, units: max(a.Units, 1)})
+	}
+	if err := t.changed(did...); err != nil {
+		return nil, err
 	}
 
 	// And then what waits takes what there is room for, the one that has
 	// waited longest first.
 	for _, w := range waiting {
-		if _, err := t.take(w); err != nil {
+		if _, err := t.take(w, false); err != nil {
 			return nil, err
 		}
 	}
@@ -659,12 +669,17 @@ func (t *Tx) recheckPoolsOf(ids ...uuid.UUID) error {
 	return t.recheckPools(groups, nil)
 }
 
-// available is how many of pool `m` the reservation that waits by `w` could
-// have at the busiest moment of [from, w's end): its units, less what
-// everything else takes of them then.
-func (t *Tx) available(w *ent.Allocation, from time.Time, m *resource, p *pool) (uint32, error) {
+// available is how many of `m` the reservation that waits by `w` could have
+// at the busiest moment of [from, w's end): what it has to give -- a pool's
+// units, less its members whose own time is taken then -- less what
+// everything else takes of it then.
+func (t *Tx) available(w *ent.Allocation, from time.Time, m *resource) (uint32, error) {
 	if !w.EndsAt.After(from) {
 		return 0, nil
+	}
+	units, p, err := t.capacity(m)
+	if err != nil {
+		return 0, err
 	}
 	except := []uuid.UUID{}
 	if w.RefId != nil {
@@ -674,15 +689,28 @@ func (t *Tx) available(w *ent.Allocation, from time.Time, m *resource, p *pool) 
 	if err != nil {
 		return 0, err
 	}
-	held, err := t.heldOf(p.units, from, w.EndsAt, except)
-	if err != nil {
-		return 0, err
+	var held []*ent.Allocation
+	if p != nil {
+		if held, err = t.heldOf(p.units, from, w.EndsAt, except); err != nil {
+			return 0, err
+		}
 	}
-	busy, units := peak(taken(own, held), from, w.EndsAt), uint32(len(p.units))
+	busy := peak(taken(own, held), from, w.EndsAt)
 	if busy >= units {
 		return 0, nil
 	}
 	return units - busy, nil
+}
+
+// booked says whether reservation `r` booked `thing` itself, rather than took
+// it with what it booked: what it waits for of it is some of a pool's, by how
+// many, and not a member of a kit's.
+func (t *Tx) booked(r, thing uuid.UUID) (bool, error) {
+	return t.db.ReservationItem.Query().Where(
+		reservationitem.TenantId(t.tenant.Uuid()),
+		reservationitem.ReservationId(r),
+		reservationitem.ResourceId(thing),
+	).Exist(t.ctx)
 }
 
 // holdRow takes the row of an asset that this transaction changes later and
