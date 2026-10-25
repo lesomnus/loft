@@ -88,7 +88,7 @@ func TestWhatGoesOutOfUseLeavesWhatItIsIn(t *testing.T) {
 			x.Nil(e.allocation(r, camera), "the kit's booking let it go")
 			x.NotNil(e.allocation(r, lens), "and nothing else")
 			_, err = e.reserve(e.owner, camera, e.tomorrow(10, 0), e.tomorrow(11, 0), nil)
-			x.NoError(err, "nothing of the kit's holds it")
+			x.Equal(codes.FailedPrecondition, codeOf(err), "refused as out of use (D43), and not as something of the kit's holding it: %v", err)
 
 			// On the record as what it was: the status, and each membership's
 			// end a relation of the camera's own, part of it.

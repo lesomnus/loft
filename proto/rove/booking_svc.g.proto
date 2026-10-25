@@ -592,9 +592,10 @@ message CalendarEntry {
   // kit it should take with it that something else holds then, and what it
   // booked of a pool that has fewer to give then (design 4).
   repeated ReservationConflict conflicts = 4;
-  // What it takes that is out of use while it is still to be fulfilled: an
-  // item it booked, or a member of a kit it booked that was kept in the kit
-  // as it went (design 4, D42). Nothing hands it over.
+  // What it takes that is out of use while it is still to be fulfilled:
+  // what it booked, whatever it is, or an item a kit it booked takes with it,
+  // kept in the kit as it went (design 4, D42, D43). Nothing hands it over,
+  // and what it booked is not approved, confirmed or fulfilled.
   repeated ReservationOutOfUse out_of_use = 5;
 }
 
@@ -623,18 +624,23 @@ message ReservationConflict {
   uint32 available = 8 [features.field_presence = IMPLICIT];
 }
 
-// ReservationOutOfUse is an item a reservation takes -- one it booked, or a
-// member a kit it booked takes with it, held or waited for -- that is lost,
-// retired or disposed: a pickup does not hand it over, and it is said until
-// it is in use again or taken off its kit. A pool's members are none of it:
-// what a pool gives is the ones in use, and one fewer is a pool's conflict.
+// ReservationOutOfUse is what a reservation takes that is lost, retired or
+// disposed, and is said until it is in use again or taken off its kit: what
+// it booked itself, of any kind -- which it is then neither approved nor
+// confirmed with, a space of which is not checked into and a kit or a group
+// not picked up, and an item of which its pickup does not hand over -- or an
+// item a kit it booked takes with it, held or waited for, which its pickup
+// does not hand over (D42, D43). A pool's members are none of it: what a pool
+// gives is the ones in use, and one fewer is a pool's conflict.
 message ReservationOutOfUse {
-  // The item, by what it is tagged and called.
+  // What it is, by what it is tagged and called.
   bytes resource_id = 1 [features.field_presence = IMPLICIT];
   string resource_tag = 2 [features.field_presence = IMPLICIT];
   string resource_name = 3 [features.field_presence = IMPLICIT];
   // lost | retired | disposed
   string status = 4 [features.field_presence = IMPLICIT];
+  // item | space | kit | group
+  string resource_kind = 5 [features.field_presence = IMPLICIT];
 }
 
 message ReservationItemAddRequest {

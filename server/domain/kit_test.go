@@ -484,30 +484,26 @@ func TestABookingAndAChangeToItsKitAtOnceAgree(t *testing.T) {
 // `first` waits at a lock, and then `second` too, and then let go.
 func (e *env) inTurn(what *app.Asset, first, second func() error) (error, error) {
 	e.t.Helper()
-	ctx := context.Background()
 	bs, err := e.app().Bookable().List(e.owner, app.BookableListRequest_builder{
 		Filters: []*app.BookableFilter{app.BookableFilter_builder{Asset: assetRef(what)}.Build()},
 	}.Build())
 	e.x.NoError(err)
 	e.x.Len(bs.GetItems(), 1)
 
-	tx, err := e.s.Ent.Tx(ctx)
-	e.x.NoError(err)
+	o := e.holdFromOutside("UPDATE bookable SET date_updated = $1 WHERE id = $2", time.Now(), idUUID(bs.GetItems()[0].GetId()))
 	held := true
 	release := func() {
 		if held {
 			held = false
-			e.x.NoError(tx.Rollback())
+			e.x.NoError(o.tx.Rollback())
 		}
 	}
 	defer release()
-	e.x.NoError(tx.Bookable.UpdateOneId(idUUID(bs.GetItems()[0].GetId())).SetDateUpdated(time.Now()).Exec(ctx))
 
 	waiting := func(n int) {
 		deadline := time.Now().Add(10 * time.Second)
 		for {
-			var got int
-			e.x.NoError(e.s.Db.QueryRowContext(ctx, `SELECT count(*) FROM pg_stat_activity WHERE datname = current_database() AND wait_event_type = 'Lock'`).Scan(&got))
+			got := e.behind(o)
 			if got >= n {
 				return
 			}

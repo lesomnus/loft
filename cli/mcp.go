@@ -179,6 +179,7 @@ func newMcp(ws string, log *slog.Logger) *mcp.Server {
 	mcp.AddTool(s, &mcp.Tool{
 		Name: "plan_reservation",
 		Description: "Plan a reservation, which changes nothing: reserve rooms or equipment for a span of time, or confirm, approve, reject, cancel, check in or complete one. " +
+			"What is out of use -- lost, retired or disposed -- is not reserved anew, and one reserved of it before is not confirmed, approved or checked into: such a plan is refused, naming it. " +
 			"Answers the summary to show the person, and the token apply takes once they agree.",
 		InputSchema: mcpSchema[mcpReservationPlan](map[string][]any{
 			"action": {"reserve", "confirm", "approve", "reject", "cancel", "check_in", "complete"},
@@ -1191,7 +1192,7 @@ type mcpReservation struct {
 	Assets   []mcpRef `json:"assets" jsonschema:"what is reserved"`
 	Series   bool     `json:"series,omitempty" jsonschema:"one of a repeating series"`
 	WaitsFor []mcpRef `json:"waits_for,omitempty" jsonschema:"what it does not hold: members of a reserved kit it should take with it, since something else holds them then (given to the kit after it was booked), and a reserved pool (a group) that has fewer usable members then than the reservations made before it hold, its name saying how many it booked and how many are free then. It takes each once there is room"`
-	OutOfUse []mcpRef `json:"out_of_use,omitempty" jsonschema:"items it takes that are out of use, which its pickup does not hand over: one it booked, or a member of a reserved kit that was kept in the kit as it went, its name saying its status (lost, retired or disposed). Said no more once it is in use again or taken off the kit"`
+	OutOfUse []mcpRef `json:"out_of_use,omitempty" jsonschema:"what it takes that is out of use, its name saying its status (lost, retired or disposed): what it booked, whatever it is -- which it is then neither approved nor confirmed with, a room of which is not checked into and a kit or a group not picked up, and an item of which its pickup does not hand over -- or an item a reserved kit takes with it, kept in the kit as it went, which its pickup does not hand over. Said no more once it is in use again or taken off the kit"`
 }
 
 type mcpReservations struct {

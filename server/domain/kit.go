@@ -588,7 +588,9 @@ func (t *Tx) take(w *ent.Allocation, own bool) (bool, error) {
 		return false, nil
 	}
 	m, err := t.member(w.ResourceId, "")
-	if err != nil {
+	if err != nil || poolOutOfUse(m.asset) {
+		// Not there to take, or a pool out of use itself, which gives none of
+		// it until it is in use again (pool.go).
 		return false, nil
 	}
 	// From now on: what it took before now, it did not.
@@ -810,7 +812,7 @@ func sweepKits(t *Tx) error {
 // it is, holding nothing.
 func (t *Tx) free(w *ent.Allocation) (bool, error) {
 	m, err := t.member(w.ResourceId, "")
-	if err != nil {
+	if err != nil || poolOutOfUse(m.asset) {
 		return false, nil
 	}
 	from := w.BeginsAt
@@ -937,6 +939,16 @@ func (t *Tx) waitingOf(rs []*ent.Reservation) (map[uuid.UUID][]*app.ReservationC
 		if err != nil {
 			continue
 		}
+		// Some of what it booked, of a pool: how many it waits for and
+		// could have then -- unless the pool is out of use itself, which
+		// is what is said of it instead ([Tx.outOfUseOf], D43).
+		counted, err := t.booked(*w.RefId, m.asset.Id)
+		if err != nil {
+			return nil, err
+		}
+		if counted && poolOutOfUse(m.asset) {
+			continue
+		}
 		from := w.BeginsAt
 		if from.Before(t.now) {
 			from = t.now
@@ -956,12 +968,6 @@ func (t *Tx) waitingOf(rs []*ent.Reservation) (map[uuid.UUID][]*app.ReservationC
 			for _, c := range cs {
 				v.SetHeldBy(append(v.GetHeldBy(), t.busy(c, nil)))
 			}
-		}
-		// Some of what it booked, of a pool: how many it waits for and
-		// could have then.
-		counted, err := t.booked(*w.RefId, m.asset.Id)
-		if err != nil {
-			return nil, err
 		}
 		if counted {
 			n, err := t.available(w, from, m)

@@ -120,7 +120,7 @@ function AssetView(props: { a: Asset }): ReactNode {
 							<button onClick={() => setDialog('custody')}>지급·대여</button>
 						)}
 						<button onClick={() => setDialog('work')}>{mgr ? '작업 등록' : '고장 신고'}</button>
-						{bookable !== undefined && (
+						{bookable !== undefined && !outOfUse.includes(a.status) && (
 							<button className="primary" onClick={() => go(`/reservations?resource=${idStr(a.id)}`)}>
 								예약
 							</button>

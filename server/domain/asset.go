@@ -45,7 +45,8 @@ var (
 // OutOfUse is the statuses an asset is out of use in: lost until it is found,
 // and for good. What it is a member of, it may leave as it goes out of use
 // (AssetSetAttributesRequest.leave), and nothing in them is handed over --
-// which a reservation that still takes one says (outofuse.go).
+// which a reservation that still takes one says -- and nothing of them is
+// booked anew, whatever it is (outofuse.go).
 var OutOfUse = []string{"lost", "retired", "disposed"}
 
 type domainAsset struct {
@@ -922,7 +923,7 @@ func (s domainAsset) SetAttributes(ctx context.Context, req *app.AssetSetAttribu
 			return err
 		}
 		// What its leaving its kits and groups and what its status does to
-		// its pools hold, at once ([Tx.holdLeaving]).
+		// its pools and to what books it hold, at once ([Tx.holdLeaving]).
 		_, status := changes["status"]
 		if status || len(req.GetLeave()) > 0 {
 			if err := t.holdLeaving(id, req.GetLeave()); err != nil {
@@ -1515,7 +1516,11 @@ func (s domainAsset) Correct(ctx context.Context, req *app.AssetCorrectRequest) 
 				return nil
 			}
 			// Whether it is one of its pools' units, and whether the
-			// reservations that take it may be handed it.
+			// reservations that take it may be handed it -- or may book it
+			// at all (D43): what both hold, at once ([Tx.holdLeaving]).
+			if err := t.holdLeaving(id, nil); err != nil {
+				return err
+			}
 			if err := t.recheckPoolsOf(id.Uuid()); err != nil {
 				return err
 			}

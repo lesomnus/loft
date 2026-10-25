@@ -1053,6 +1053,15 @@ var decisions = map[string]struct {
 	"complete": {"이용 완료", app.ReservationService_Complete_FullMethodName, app.ReservationServiceClient.Complete},
 }
 
+// outOfUseRefused is what the server will not do to a reservation that
+// booked what is out of use (D43), as a plan says it: the rest -- rejecting
+// it, cancelling it, ending it -- it does.
+var outOfUseRefused = map[string]string{
+	"confirm":  "confirm the hold; cancel it instead",
+	"approve":  "approve it; reject or cancel it instead",
+	"check_in": "check it in",
+}
+
 func (t mcpTools) planReservation(ctx context.Context, _ *mcp.CallToolRequest, in mcpReservationPlan) (*mcp.CallToolResult, mcpPlanned, error) {
 	c, err := t.call(ctx)
 	if err != nil {
@@ -1094,13 +1103,23 @@ func (c *mcpCall) reserve(in mcpReservationPlan) (*plan, error) {
 	}
 	req := app.ReservationAddRequest_builder{Name: in.Name, BeginsAt: timestamppb.New(begins), EndsAt: timestamppb.New(ends), Op: op()}.Build()
 	what := []string{}
+	gone := []string{}
 	for _, v := range in.Assets {
 		a, label, err := c.asset("assets", v)
 		if err != nil {
 			return nil, err
 		}
+		if slices.Contains(domain.OutOfUse, a.GetStatus()) {
+			gone = append(gone, fmt.Sprintf("%s (%s)", label, a.GetStatus()))
+			continue
+		}
 		req.SetItems(append(req.GetItems(), app.ReservationItemSpec_builder{Resource: app.AssetById(a.GetId())}.Build()))
 		what = append(what, label)
+	}
+	if len(gone) > 0 {
+		// What the server refuses, said before it is put to the person
+		// (D33, D43).
+		return nil, fmt.Errorf("assets: what is out of use is not booked anew, and the server would refuse it: %s", strings.Join(gone, ", "))
 	}
 	whom := ""
 	if in.For != "" {
@@ -1156,10 +1175,22 @@ func (c *mcpCall) decide(in mcpReservationPlan) (*plan, error) {
 		return nil, failed(err)
 	}
 	what := []string{}
+	gone := []string{}
 	for _, it := range items.GetItems() {
-		if _, label, err := c.asset("resource", idString(it.GetResource().GetId())); err == nil {
-			what = append(what, label)
+		a, label, err := c.asset("resource", idString(it.GetResource().GetId()))
+		if err != nil {
+			continue
 		}
+		what = append(what, label)
+		if slices.Contains(domain.OutOfUse, a.GetStatus()) {
+			gone = append(gone, fmt.Sprintf("%s (%s)", label, a.GetStatus()))
+		}
+	}
+	if refused, ok := outOfUseRefused[in.Action]; ok && len(gone) > 0 {
+		// Saying yes to it is booking it, and checking into it is using it,
+		// which the server refuses of what is out of use (D43): said before
+		// it is put to the person (D33).
+		return nil, fmt.Errorf("reservation: what it booked is out of use, %s, and the server would not %s", strings.Join(gone, ", "), refused)
 	}
 	d := decisions[in.Action]
 	req := app.ReservationDecideRequest_builder{Ref: app.ReservationById(id.Bytes()), Reason: in.Reason, Series: in.Series}.Build()

@@ -779,6 +779,69 @@ func TestAnAssistantSaysWhatABookingTakesIsOutOfUse(t *testing.T) {
 	x.Empty(again.Items[0].OutOfUse)
 }
 
+// TestAnAssistantIsToldWhatIsOutOfUseIsNotBooked: a plan to reserve what is
+// out of use is refused, naming each of it with its status, before the
+// person is asked -- the server would refuse it (D33, D43) -- and so is one
+// to approve, confirm or check into a reservation of what went out of use
+// since; one to reject it is planned. The reservation says what it booked
+// is out of use, a room as well.
+func TestAnAssistantIsToldWhatIsOutOfUseIsNotBooked(t *testing.T) {
+	s := serve(t)
+	x := s.x
+	s.signIn("owner", "owner1234")
+	room := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "회의실", "kind": "space", "tag": "R-1"}`))
+	run(t, cli.NewCmdApi(), "bookable", "add", "-o", "json", `{"asset": {"id": "`+room+`"}, "enabled": true, "approval": true}`)
+	battery := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "배터리", "kind": "item", "tag": "BT-1"}`))
+	run(t, cli.NewCmdApi(), "bookable", "add", "-o", "json", `{"asset": {"id": "`+battery+`"}, "enabled": true}`)
+	a := s.assistant()
+
+	now := time.Now()
+	begins := time.Date(now.Year(), now.Month(), now.Day()+1, 14, 0, 0, 0, time.Local)
+	ends := begins.Add(time.Hour)
+	reserve := func(assets ...string) map[string]any {
+		return map[string]any{"action": "reserve", "assets": assets, "begins": begins.Format(time.RFC3339), "ends": ends.Format(time.RFC3339), "name": "주간 회의"}
+	}
+	a.applied(a.plan("plan_reservation", reserve("R-1")))
+	a.applied(a.plan("plan_reservation", reserve("BT-1")))
+	type booking struct {
+		Items []struct {
+			Id       string `json:"id"`
+			Status   string `json:"status"`
+			Assets   []ref  `json:"assets"`
+			OutOfUse []ref  `json:"out_of_use"`
+		} `json:"items"`
+	}
+	var cal booking
+	a.call("reservations", map[string]any{"from": begins.Add(-time.Minute).Format(time.RFC3339), "to": ends.Format(time.RFC3339)}, &cal)
+	x.Len(cal.Items, 2)
+	of, was := map[string]string{}, map[string]string{}
+	for _, v := range cal.Items {
+		of[v.Assets[0].Id], was[v.Assets[0].Id] = v.Id, v.Status
+	}
+	x.Equal(map[string]string{room: "requested", battery: "confirmed"}, was)
+
+	a.applied(a.plan("plan_asset", map[string]any{"action": "set", "asset": "R-1", "set": map[string]any{"status": "retired"}}))
+	a.applied(a.plan("plan_asset", map[string]any{"action": "set", "asset": "BT-1", "set": map[string]any{"status": "lost"}}))
+
+	x.Contains(a.refused("plan_reservation", reserve("BT-1", "R-1")), "not booked anew, and the server would refuse it: BT-1 배터리 (lost), R-1 회의실 (retired)")
+	refused := a.refused("plan_reservation", map[string]any{"action": "approve", "reservation": of[room]})
+	x.Contains(refused, "R-1 회의실 (retired)")
+	x.Contains(refused, "would not approve it; reject or cancel it instead")
+	x.Contains(a.refused("plan_reservation", map[string]any{"action": "check_in", "reservation": of[battery]}), "BT-1 배터리 (lost), and the server would not check it in")
+	a.applied(a.plan("plan_reservation", map[string]any{"action": "reject", "reservation": of[room], "reason": "회의실 불용"}))
+
+	var again booking
+	a.call("reservations", map[string]any{"from": begins.Add(-time.Minute).Format(time.RFC3339), "to": ends.Format(time.RFC3339)}, &again)
+	for _, v := range again.Items {
+		if v.Id == of[battery] {
+			x.Equal([]ref{{battery, "BT-1 배터리 (lost)"}}, v.OutOfUse)
+		} else {
+			x.Equal("rejected", v.Status)
+			x.Empty(v.OutOfUse, "over, and said no more")
+		}
+	}
+}
+
 // TestAnAssistantSaysWhetherAKitTakesAMember: a plan that gives a kit a
 // member says whether it is a required one, which every booking of the kit
 // takes with it, or an optional one; and of a member the kit has already, that

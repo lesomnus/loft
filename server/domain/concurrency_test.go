@@ -2,6 +2,7 @@ package domain_test
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"slices"
 	"sync"
@@ -47,6 +48,44 @@ func (e *env) postgresOnly() {
 	if e.s.Dialect != "postgres" {
 		e.t.Skip("PostgreSQL only; set PDTEST_POSTGRES")
 	}
+}
+
+// outside is a transaction of a test's own that holds a row from outside the
+// deployment while what the test runs comes to wait for it.
+type outside struct {
+	tx  *sql.Tx
+	pid int
+}
+
+// holdFromOutside writes a row as it is, by `query`, in a transaction of its
+// own, which holds the row until it is let go.
+func (e *env) holdFromOutside(query string, args ...any) *outside {
+	e.t.Helper()
+	ctx := context.Background()
+	tx, err := e.s.Db.BeginTx(ctx, nil)
+	e.x.NoError(err)
+	_, err = tx.ExecContext(ctx, query, args...)
+	e.x.NoError(err)
+	o := &outside{tx: tx}
+	e.x.NoError(tx.QueryRowContext(ctx, "SELECT pg_backend_pid()").Scan(&o.pid))
+	return o
+}
+
+// behind is how many connections wait at a lock `o` holds, or behind one
+// that waits at it: what the test runs, and nothing of another test's, which
+// share the database -- each in a schema of its own -- and whose own waits
+// said a test's had begun before they had.
+func (e *env) behind(o *outside) int {
+	e.t.Helper()
+	var n int
+	e.x.NoError(e.s.Db.QueryRowContext(context.Background(), `
+		WITH RECURSIVE behind(pid) AS (
+			SELECT pid FROM pg_stat_activity WHERE $1 = ANY(pg_blocking_pids(pid))
+			UNION
+			SELECT a.pid FROM pg_stat_activity a JOIN behind b ON b.pid = ANY(pg_blocking_pids(a.pid))
+		)
+		SELECT count(*) FROM behind`, o.pid).Scan(&n))
+	return n
 }
 
 // parentOf is where an asset is now, by its row.

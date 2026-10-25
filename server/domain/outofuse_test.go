@@ -273,8 +273,9 @@ func TestWhatABookingWaitsForThatGoesOutOfUseIsSaid(t *testing.T) {
 
 // TestWhatNoBookingIsToBeHandedIsNotSaid: a pool's members are none of what
 // its bookings take -- one out of use is one fewer of the pool, which its
-// conflict says -- and nor is anything of a booking that went out or is over,
-// or a space, which is checked into and not handed over.
+// conflict says -- and nor is anything of a booking that went out or is over.
+// (What a booking booked itself is said whatever it is, a space as well:
+// unusable_test.go.)
 func TestWhatNoBookingIsToBeHandedIsNotSaid(t *testing.T) {
 	e := newEnv(t)
 	x := e.x
@@ -283,8 +284,6 @@ func TestWhatNoBookingIsToBeHandedIsNotSaid(t *testing.T) {
 	projectors := e.pool("빔프로젝터", one, two)
 	camera := e.item("카메라", "CM-1", nil, day)
 	kit := e.kit("촬영 키트", camera)
-	room := e.space("회의실", nil)
-	e.bookable(room, nil)
 	kim, party := e.person("member")
 
 	both, err := e.take(kim, projectors, 2, e.tomorrow(9, 0), e.tomorrow(12, 0))
@@ -298,16 +297,12 @@ func TestWhatNoBookingIsToBeHandedIsNotSaid(t *testing.T) {
 		Lines:         []*app.CustodyLineSpec{app.CustodyLineSpec_builder{Asset: assetRef(camera)}.Build()},
 	}.Build())
 	x.NoError(err)
-	meeting, err := e.reserve(kim, room, e.tomorrow(13, 0), e.tomorrow(14, 0), nil)
-	x.NoError(err)
 
 	e.status(two, "lost")
 	e.status(camera, "lost")
-	e.status(room, "retired")
 	x.Empty(e.gone(both))
 	x.Len(e.entry(both).GetConflicts(), 1, "the pool has one fewer")
 	x.Empty(e.gone(out), "out as it was handed")
-	x.Empty(e.gone(meeting))
 	x.Empty(e.notices(kim, "reservation.out_of_use"))
 	x.True(slices.Contains(e.told(kim), "reservation.conflict"))
 }

@@ -449,11 +449,14 @@ func TestAPoolsUnitIsThePoolsToSpare(t *testing.T) {
 	_, err = e.reserve(kim, kit, e.tomorrow(13, 30), e.tomorrow(14, 30), nil)
 	x.Equal(codes.Aborted, codeOf(err), "the pool has the other")
 
-	// One out of use is nobody's unit: booked on its own, it takes nothing of
-	// the pool.
-	e.status(one, "lost")
-	_, err = e.reserve(kim, one, e.tomorrow(10, 0), e.tomorrow(11, 0), nil)
+	// One out of use is nobody's unit: taken with a kit, it takes nothing of
+	// the pool -- and it is booked on its own no more at all (D43).
+	e.status(two, "lost")
+	_, err = e.reserve(kim, kit, e.tomorrow(10, 0), e.tomorrow(11, 0), nil)
 	x.NoError(err)
+	e.status(one, "lost")
+	_, err = e.reserve(kim, one, e.tomorrow(15, 0), e.tomorrow(16, 0), nil)
+	x.Equal(codes.FailedPrecondition, codeOf(err), "%v", err)
 }
 
 // TestAKitWaitsForAPoolsUnitThePoolCannotSpare: a kit given a member the pool

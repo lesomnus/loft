@@ -1,6 +1,6 @@
 import type { Locator } from '@playwright/test'
 
-import { card, choose, expect, field, idOf, momentAt, owner, people, rpc, said, signIn, test, unique, weekdayAt, workspace } from './rove.js'
+import { card, choose, expect, field, idOf, momentAt, owner, people, refusal, refused, rpc, said, signIn, test, unique, weekdayAt, workspace } from './rove.js'
 
 test('a booking of a room that needs approval waits for a manager, who approves it', async ({ page, as }) => {
 	const title = unique('e2e 분기 회의')
@@ -284,4 +284,88 @@ test('what is disposed of, or found lost by a count, is offered out of its kit; 
 	await expect(gone).not.toContainText(tag.tripod)
 	await pickup.getByRole('button', { name: '건네기', exact: true }).click()
 	await said(page, '건넸습니다. 받은 사람에게 인수 확인 알림이 갑니다.')
+})
+
+test('what is out of use is not booked anew: the booking form says so of a retired item, and booking it is refused, naming it and its status', async ({ page, as }) => {
+	const n = Math.random().toString(36).slice(2, 7).toUpperCase()
+	const tag = `EU-${n}`
+	const name = unique('e2e 불용 카메라')
+
+	// A camera of its own, made reservable and then retired through the
+	// server: the forms that do those are the other tests'.
+	const admin = await as(owner.login, owner.password)
+	const camera = await rpc(admin, 'AssetService/Add', { name, kind: 'item', tag })
+	await rpc(admin, 'BookableService/Add', { asset: { id: camera.id } })
+	await rpc(admin, 'AssetService/SetAttributes', { ref: { id: camera.id }, set: { status: 'retired' } })
+
+	await signIn(page, people.booker.login)
+	await page.goto(`${workspace}/reservations`)
+	await page.getByRole('button', { name: '+ 예약' }).click()
+	const book = page.getByRole('dialog')
+	await choose(field(book, '무엇을'), `${name} (물품) · 불용`)
+	await expect(book.getByRole('note', { name: '쓸 수 없는 자산' })).toHaveText('불용 상태라 새로 예약할 수 없습니다.')
+	await field(book, '제목').fill(unique('e2e 불용 촬영'))
+	await field(book, '시작').fill(weekdayAt(56, 10))
+	await field(book, '끝').fill(weekdayAt(56, 11))
+	await book.getByRole('button', { name: '예약', exact: true }).click()
+	await refused(page, `쓸 수 없는 것은 새로 예약할 수 없습니다: ${tag} ${name}(불용)`)
+	await expect(book).toBeVisible()
+})
+
+test('a room that goes out of use: its booking says so and its booker is told, it is not checked into, and it is not booked anew', async ({ page, as }) => {
+	const n = Math.random().toString(36).slice(2, 7).toUpperCase()
+	const tag = `EV-${n}`
+	const name = unique('e2e 불용 회의실')
+	const talk = unique('e2e 불용 회의')
+
+	// A room of its own, booked from a few minutes on: it may be checked
+	// into now.
+	const admin = await as(owner.login, owner.password)
+	const room = await rpc(admin, 'AssetService/Add', { name, kind: 'space', tag })
+	await rpc(admin, 'BookableService/Add', { asset: { id: room.id } })
+	await signIn(page, people.booker.login)
+	const from = new Date(Date.now() + 5 * 60_000)
+	const to = new Date(from.getTime() + 60 * 60_000)
+	const r = await rpc(page, 'ReservationService/Add', { name: talk, items: [{ resource: { id: room.id } }], beginsAt: from.toISOString(), endsAt: to.toISOString() })
+	await page.goto(`${workspace}/reservations?tab=mine`)
+	const booked = page.getByRole('row').filter({ hasText: talk })
+	await booked.click()
+	await expect(page.getByRole('dialog').getByRole('button', { name: '체크인' })).toBeVisible()
+	await page.getByRole('dialog').getByRole('button', { name: '닫기' }).click()
+
+	// The owner retires it, at a desk of their own.
+	await admin.goto(`${workspace}/assets/${idOf(room.id)}`)
+	await admin.getByRole('button', { name: '정보·상태 변경' }).click()
+	const retire = admin.getByRole('dialog')
+	await choose(field(retire, '상태'), '불용')
+	await retire.getByRole('button', { name: '저장', exact: true }).click()
+	await said(admin, '바꿨습니다.')
+
+	// Whose booking it is is told, and the booking is marked where it is
+	// listed and said in its dialog, which offers no check-in -- nor does the
+	// server check it in.
+	await page.goto(`${workspace}/notifications`)
+	const notice = page.getByRole('listitem').filter({ hasText: talk })
+	await expect(notice).toContainText(`예약 공간 불용: ${talk}`)
+	await expect(notice).toContainText(`${tag} ${name}은(는) 불용 상태라 체크인할 수 없습니다`)
+	await page.goto(`${workspace}/reservations?tab=mine`)
+	await expect(booked).toContainText('쓸 수 없는 공간')
+	await booked.click()
+	const open = page.getByRole('dialog')
+	const marked = open.getByRole('note', { name: '쓸 수 없는 공간' })
+	await expect(marked).toContainText(`${tag} ${name}: 불용`)
+	await expect(marked).toContainText('체크인할 수 없습니다')
+	await expect(open.getByRole('button', { name: '체크인' })).toHaveCount(0)
+	await open.getByRole('button', { name: '닫기' }).click()
+	expect(await refusal(page, 'ReservationService/CheckIn', { ref: { id: r.id } })).toContain(`체크인할 수 없습니다: ${tag} ${name}(불용)`)
+
+	// And it is not booked anew.
+	await page.goto(`${workspace}/reservations`)
+	await page.getByRole('button', { name: '+ 예약' }).click()
+	const book = page.getByRole('dialog')
+	await choose(field(book, '무엇을'), `${name} · 불용`)
+	await field(book, '시작').fill(weekdayAt(57, 10))
+	await field(book, '끝').fill(weekdayAt(57, 11))
+	await book.getByRole('button', { name: '예약', exact: true }).click()
+	await refused(page, `쓸 수 없는 것은 새로 예약할 수 없습니다: ${tag} ${name}(불용)`)
 })

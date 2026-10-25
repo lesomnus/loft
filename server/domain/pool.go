@@ -60,6 +60,14 @@ func usable(status string) bool {
 	return true
 }
 
+// poolOutOfUse says whether `a` is a group that is out of use itself: one
+// whose reservations are said to take what is out of use ([Tx.outOfUseOf]),
+// and so are not counted short of it as well, whatever its members are --
+// nor take any of it they wait for -- until it is in use again (D43).
+func poolOutOfUse(a *ent.Asset) bool {
+	return a != nil && a.Kind == "group" && slices.Contains(OutOfUse, a.Status)
+}
+
 // pool is what a group is made of, as the units it is booked by.
 type pool struct {
 	// members is everything in it now, and units the ones of them that count,
@@ -482,6 +490,12 @@ func (t *Tx) rebook(pr *resource) ([]poolWait, error) {
 		}
 		pr.book.Units = units
 	}
+	if poolOutOfUse(pr.asset) {
+		// Out of use itself, its reservations are said to be, and are not
+		// counted short as well (D43): none of them begins to wait, or takes
+		// what it waits for, until it is in use again -- which rechecks it.
+		return nil, nil
+	}
 
 	// What it is booked for from now on, and what of it waits.
 	as, err := t.db.Allocation.Query().Where(
@@ -713,14 +727,18 @@ func (t *Tx) booked(r, thing uuid.UUID) (bool, error) {
 	).Exist(t.ctx)
 }
 
-// holdLeaving holds what an asset's leaving these kits and groups and the
-// recheck of the pools it stays in hold, before either does anything, in the
-// one order: the rows of what it leaves, which each relation it ends writes,
-// and then every schedule the rechecks hold -- of the kits it leaves
-// ([Tx.kitHolds]), and of the pools it leaves and stays in ([Tx.poolHolds]).
-// One relation ended after another, each holding its own, would write a row
-// after the schedules the one before held, and the pools' recheck take some
-// after both.
+// holdLeaving holds what a change of an asset's status, its leaving these
+// kits and groups, and the recheck of the pools it stays in hold, before any
+// of them does anything, in the one order: the rows of what it leaves, which
+// each relation it ends writes, and then every schedule the rechecks hold --
+// of the kits it leaves ([Tx.kitHolds]), and of the pools it leaves and stays
+// in, or is ([Tx.poolHolds]) -- and what a booking of it holds
+// ([Tx.schedulesOf]): its own, which a booking of it holds before it reads
+// its status for good (domainReservation.Add), and those of the kits that
+// take it. One relation ended after another, each holding its own, would
+// write a row after the schedules the one before held, and the pools' recheck
+// take some after both; and a booking of it at the same moment would read it
+// in use and not be told it went out of use (D43).
 func (t *Tx) holdLeaving(id pdid.Id, refs []*app.AssetRef) error {
 	targets := []uuid.UUID{}
 	for _, ref := range refs {
@@ -756,7 +774,7 @@ func (t *Tx) holdLeaving(id pdid.Id, refs []*app.AssetRef) error {
 	if err != nil {
 		return err
 	}
-	groups := slices.Clone(targets)
+	groups := append(slices.Clone(targets), id.Uuid())
 	for _, l := range in {
 		groups = append(groups, l.TargetId)
 	}
@@ -764,7 +782,11 @@ func (t *Tx) holdLeaving(id pdid.Id, refs []*app.AssetRef) error {
 	if err != nil {
 		return err
 	}
-	return t.lockSchedules(append(hold, also...))
+	own, err := t.schedulesOf([]uuid.UUID{id.Uuid()})
+	if err != nil {
+		return err
+	}
+	return t.lockSchedules(slices.Concat(hold, also, own))
 }
 
 // holdRow takes the row of an asset that this transaction changes later and

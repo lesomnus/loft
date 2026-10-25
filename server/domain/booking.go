@@ -519,6 +519,11 @@ func (s domainReservation) Add(ctx context.Context, req *app.ReservationAddReque
 		}
 		wanted := func() ([]want, error) {
 			wants := []want{}
+			// What is out of use is not booked anew, whatever it is: an item,
+			// a space, a kit, a group (2026-10-26, D43), all of what is asked
+			// for said at once. A kit whose member is out of use is booked,
+			// and says so (D42).
+			gone := []*ent.Asset{}
 			for i, it := range req.GetItems() {
 				_, id, err := t.get(it.GetResource(), fmt.Sprintf("items[%d].resource", i))
 				if err != nil {
@@ -527,6 +532,10 @@ func (s domainReservation) Add(ctx context.Context, req *app.ReservationAddReque
 				r, err := t.resourceOf(id.Uuid())
 				if err != nil {
 					return nil, err
+				}
+				if slices.Contains(OutOfUse, r.asset.Status) {
+					gone = append(gone, r.asset)
+					continue
 				}
 				units := max(it.GetUnits(), 1)
 				n, _, err := t.capacity(r)
@@ -558,6 +567,9 @@ func (s domainReservation) Add(ctx context.Context, req *app.ReservationAddReque
 					}
 					wants = append(wants, want{mr, 1, false})
 				}
+			}
+			if len(gone) > 0 {
+				return nil, failed("쓸 수 없는 것은 새로 예약할 수 없습니다: %s", outOfUseNamed(gone))
 			}
 			return wants, nil
 		}
@@ -592,7 +604,10 @@ func (s domainReservation) Add(ctx context.Context, req *app.ReservationAddReque
 		// landed in between was missed by both: this booked the kit as it
 		// was, and the change rechecked the kit's bookings before this one.
 		// A member given to it then has a schedule this does not hold, and
-		// the booking is asked for again.
+		// the booking is asked for again. So too whether what it books is
+		// out of use: a change of its status holds its schedule before it
+		// tells who books it ([Tx.holdLeaving]), so a booking at the same
+		// moment is refused here, or is there to be told.
 		if wants, err = wanted(); err != nil {
 			return err
 		}
@@ -925,6 +940,9 @@ func (s domainReservation) decide(ctx context.Context, req *app.ReservationDecid
 			if err := t.lockAllocations(idOf(r.GetId())); err != nil {
 				return err
 			}
+			if err := t.outOfUseRefuses(r, to); err != nil {
+				return err
+			}
 			patch := app.ReservationPatchRequest_builder{
 				Ref:              app.ReservationRef_builder{Id: r.GetId()}.Build(),
 				Status:           z.Ptr(to),
@@ -1021,6 +1039,24 @@ func (t *Tx) lockAllocations(rid pdid.Id) error {
 	return t.lockBookables(rs)
 }
 
+// outOfUseRefuses refuses moving `r` to `to` while what it booked is out of
+// use, where that books it or fulfils it (D43): an approval, which says yes
+// to booking it, and a check-in. Rejecting it, cancelling it and ending it
+// are not refused. The caller holds what it booked ([Tx.lockAllocations]).
+func (t *Tx) outOfUseRefuses(r *app.Reservation, to string) error {
+	if to != resConfirmed && to != resInUse {
+		return nil
+	}
+	gone, err := t.unusable(uuidOf(r.GetId()))
+	if err != nil || len(gone) == 0 {
+		return err
+	}
+	if to == resInUse {
+		return failed("예약한 것 가운데 쓸 수 없는 것이 있어 체크인할 수 없습니다: %s", outOfUseNamed(gone))
+	}
+	return failed("예약한 것 가운데 쓸 수 없는 것이 있어 승인할 수 없습니다: %s. 거절하거나 취소하세요", outOfUseNamed(gone))
+}
+
 // settleAllocations makes a reservation's allocations agree with its state:
 // a state that takes no time frees it, and finishing early frees the rest.
 // What it frees goes to whatever waits for it then ([Tx.heal]).
@@ -1060,6 +1096,19 @@ func (s domainReservation) Confirm(ctx context.Context, req *app.ReservationDeci
 	return s.decideTo(ctx, req, "reservation.confirm", []string{resHeld}, &to, func(t *Tx, r *app.Reservation) error {
 		if r.HasExpiresAt() && r.GetExpiresAt().AsTime().Before(t.now) {
 			return failed("임시로 잡아 둔 시간이 지났습니다. 다시 예약하세요")
+		}
+		// Confirming a hold is booking what it held, which what is out of
+		// use is not (D43): read as what it holds is held, as an approval
+		// reads it ([Tx.outOfUseRefuses]).
+		if err := t.lockAllocations(idOf(r.GetId())); err != nil {
+			return err
+		}
+		gone, err := t.unusable(uuidOf(r.GetId()))
+		if err != nil {
+			return err
+		}
+		if len(gone) > 0 {
+			return failed("잡아 둔 것 가운데 쓸 수 없는 것이 있어 확정할 수 없습니다: %s. 취소하세요", outOfUseNamed(gone))
 		}
 		to = resConfirmed
 		needs, err := t.needsApproval(idOf(r.GetId()))
