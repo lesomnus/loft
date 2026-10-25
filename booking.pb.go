@@ -362,6 +362,8 @@ type Bookable_builder struct {
 	// How far ahead it may be reserved, in days. Zero is no limit.
 	HorizonDays int32
 	// 1 for an exclusive resource; more for a pool of interchangeable units.
+	// A group with members has as many as are in use (design 4), which the
+	// domain keeps here and nobody sets.
 	Units uint32
 	// Spaces in one group exclude each other: booking the hall blocks the rooms.
 	ExclusiveGroup  string
@@ -1412,7 +1414,8 @@ type Allocation_builder struct {
 	Tenant   *Tenant
 	Resource *Asset
 	// reservation | maintenance | override | waiting: a member of a kit a
-	// reservation of the kit waits for, which blocks nothing until it is taken.
+	// reservation of the kit waits for, or some of a pool, which blocks
+	// nothing until it is taken.
 	Kind        string
 	RefId       []byte
 	BeginsAt    *timestamppb.Timestamp

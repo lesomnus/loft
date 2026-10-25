@@ -24,7 +24,6 @@ import (
 	"github.com/lesomnus/rove/internal/ent/asset"
 	"github.com/lesomnus/rove/internal/ent/bookable"
 	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/ent/link"
 	"github.com/lesomnus/rove/internal/ent/party"
 	"github.com/lesomnus/rove/internal/ent/reservation"
 	"github.com/lesomnus/rove/internal/ent/reservationitem"
@@ -79,16 +78,19 @@ func (s domainBookable) Add(ctx context.Context, req *app.BookableAddRequest) (*
 		if _, err := time.LoadLocation(row.GetTimezone()); err != nil {
 			return invalid("timezone", "시간대가 올바르지 않습니다 (예: Asia/Seoul)")
 		}
-		if row.GetUnits() == 0 {
-			row.SetUnits(1)
+		// A pool of interchangeable things: as many as are in it and in use
+		// (pool.go). Anything else has as many as it is said to.
+		p, err := t.poolFor(&resource{asset: &ent.Asset{Id: uuidOf(a.GetId()), Kind: a.GetKind()}})
+		if err != nil {
+			return err
 		}
-		if a.GetKind() == "group" && row.GetUnits() == 1 {
-			// A pool of interchangeable units: as many as are in it.
-			n, err := t.db.Link.Query().Where(link.TenantId(t.tenant.Uuid()), link.TargetId(uuidOf(a.GetId())), link.Kind("member_of"), link.SupersededAtIsNil(), link.ValidToIsNil()).Count(t.ctx)
-			if err != nil {
-				return err
+		if p != nil {
+			if u := row.GetUnits(); u != 0 && u != uint32(len(p.units)) {
+				return poolUnits(len(p.units))
 			}
-			row.SetUnits(uint32(max(n, 1)))
+			row.SetUnits(uint32(len(p.units)))
+		} else if row.GetUnits() == 0 {
+			row.SetUnits(1)
 		}
 		row.SetEnabled(true)
 		if !row.HasId() {
@@ -143,19 +145,54 @@ func (s domainBookable) Update(ctx context.Context, req *app.BookableUpdateReque
 			}
 			patch.SetHours(req.GetHours())
 		}
-		if u := req.GetUnits(); u > 0 {
-			patch.SetUnits(u)
-		}
 		if err := t.begin(nil, "bookable.update", idOf(v.GetAsset().GetId()), t.now, "", app.BookableSaved_builder{
 			Bookable: v.GetId(),
 			Asset:    v.GetAsset().GetId(),
 		}.Build()); err != nil {
 			return err
 		}
-		out, err = t.next.Bookable().Patch(t.ctx, patch)
+		// Written first, which holds its schedule: what a pool is made of is
+		// read as nothing changes it ([Tx.recheckPools]).
+		if out, err = t.next.Bookable().Patch(t.ctx, patch); err != nil {
+			return err
+		}
+		a, err := t.db.Asset.Query().Where(asset.Id(uuidOf(v.GetAsset().GetId())), asset.TenantId(t.tenant.Uuid())).Only(t.ctx)
+		if err != nil {
+			return err
+		}
+		p, err := t.poolFor(&resource{asset: a})
+		if err != nil {
+			return err
+		}
+		u := req.GetUnits()
+		switch {
+		case p != nil:
+			// A pool's are its members': said again as it is, a number is
+			// fine, and kept as they are.
+			if u != 0 && u != uint32(len(p.units)) {
+				return poolUnits(len(p.units))
+			}
+			u = uint32(len(p.units))
+			if u == out.GetUnits() {
+				return nil
+			}
+		case u == 0 || u == out.GetUnits():
+			return nil
+		}
+		out, err = t.next.Bookable().Patch(t.ctx, app.BookablePatchRequest_builder{
+			Ref:              req.GetRef(),
+			Units:            z.Ptr(u),
+			DateUpdatedForce: z.Ptr(true),
+		}.Build())
 		return err
 	})
 	return out, err
+}
+
+// poolUnits is the refusal of a number of units for a pool: it has as many as
+// it has members in use, which is what changes it.
+func poolUnits(n int) error {
+	return invalid("units", "그룹의 수량은 그 구성원 가운데 쓸 수 있는 것의 수입니다(지금 %d개). 바꾸려면 구성원을 더하거나 빼세요", n)
 }
 
 // resource is a bookable asset as a reservation sees it.
@@ -215,7 +252,9 @@ func window(b *ent.Bookable, begins, ends time.Time) (time.Time, time.Time) {
 
 // conflicts answers the blocking allocations that keep `r` from being taken
 // for [from, to) by `units` more: on the resource itself, or on a space of
-// the same exclusive group above or below it.
+// the same exclusive group above or below it; of a pool, what takes its
+// members as well; and of one of a pool's units, what keeps the pool from
+// sparing it ([Tx.poolsShort]).
 func (t *Tx) conflicts(r *resource, from, to time.Time, units uint32, except []uuid.UUID) ([]*ent.Allocation, error) {
 	ids := []uuid.UUID{r.asset.Id}
 	if g := r.book.ExclusiveGroup; g != "" {
@@ -241,16 +280,30 @@ func (t *Tx) conflicts(r *resource, from, to time.Time, units uint32, except []u
 		return nil, err
 	}
 
-	if r.book.Units > 1 {
-		// A pool: what matters is how many are taken at the busiest moment.
+	capacity, p, err := t.capacity(r)
+	if err != nil {
+		return nil, err
+	}
+	if p != nil || capacity > 1 {
+		// A pool: what matters is how many are taken at the busiest moment --
+		// of a pool of members, the ones whose own time is taken then too.
 		own := []*ent.Allocation{}
 		for _, a := range as {
 			if a.ResourceId == r.asset.Id {
 				own = append(own, a)
 			}
 		}
-		if peak(own, from, to)+units > r.book.Units {
-			return own, nil
+		used := own
+		if p != nil {
+			held, err := t.heldOf(p.units, from, to, except)
+			if err != nil {
+				return nil, err
+			}
+			used = slices.Concat(own, held)
+			own = taken(own, held)
+		}
+		if peak(own, from, to)+units > capacity {
+			return used, nil
 		}
 		others := []*ent.Allocation{}
 		for _, a := range as {
@@ -258,9 +311,13 @@ func (t *Tx) conflicts(r *resource, from, to time.Time, units uint32, except []u
 				others = append(others, a)
 			}
 		}
-		return others, nil
+		if len(others) > 0 {
+			return others, nil
+		}
+	} else if len(as) > 0 {
+		return as, nil
 	}
-	return as, nil
+	return t.poolsShort(r, from, to, except)
 }
 
 // peak answers the most units taken at any one moment of [from, to).
@@ -472,8 +529,15 @@ func (s domainReservation) Add(ctx context.Context, req *app.ReservationAddReque
 					return nil, err
 				}
 				units := max(it.GetUnits(), 1)
-				if units > r.book.Units {
-					return nil, invalid(fmt.Sprintf("items[%d].units", i), "%s은(는) %d개뿐입니다", r.asset.Name, r.book.Units)
+				n, p, err := t.capacity(r)
+				if err != nil {
+					return nil, err
+				}
+				if p != nil && n == 0 {
+					return nil, failed("%s에는 지금 예약할 수 있는 것이 없습니다", r.asset.Name)
+				}
+				if units > n {
+					return nil, invalid(fmt.Sprintf("items[%d].units", i), "%s은(는) %d개뿐입니다", r.asset.Name, n)
 				}
 				wants = append(wants, want{r, units, true})
 				if r.asset.Kind != "kit" {
@@ -500,10 +564,21 @@ func (s domainReservation) Add(ctx context.Context, req *app.ReservationAddReque
 			return err
 		}
 		rs := []*resource{}
+		things := []uuid.UUID{}
 		for _, w := range wants {
 			if w.r.book.Id != (uuid.UUID{}) {
 				rs = append(rs, w.r)
 			}
+			things = append(things, w.r.asset.Id)
+		}
+		// And the pools whose units any of it is, which it is held to
+		// ([Tx.poolsShort]): in the same step, in the one order.
+		pools, err := t.poolsOf(things)
+		if err != nil {
+			return err
+		}
+		for _, ps := range pools {
+			rs = append(rs, ps...)
 		}
 		if err := t.lockBookables(rs); err != nil {
 			return err
@@ -523,6 +598,34 @@ func (s domainReservation) Add(ctx context.Context, req *app.ReservationAddReque
 			if !t.holding(w.r) {
 				return status.Error(codes.Aborted, "키트의 구성이 방금 바뀌었습니다. 다시 예약하세요")
 			}
+		}
+		// So too the pools: a change to what one is made of holds what a
+		// booking of the thing it is given holds before it rechecks the pool
+		// ([Tx.recheckPools]), and a pool the thing was given meanwhile is
+		// one this does not hold.
+		things = things[:0]
+		for _, w := range wants {
+			things = append(things, w.r.asset.Id)
+		}
+		if pools, err = t.poolsOf(things); err != nil {
+			return err
+		}
+		for _, ps := range pools {
+			for _, p := range ps {
+				if !t.holding(p) {
+					return status.Error(codes.Aborted, "풀의 구성이 방금 바뀌었습니다. 다시 예약하세요")
+				}
+			}
+		}
+		// A pool's allocations are none of them exclusive: how many of its
+		// units are taken is kept here, which the database cannot say.
+		exclusive := map[uuid.UUID]bool{}
+		for _, w := range wants {
+			n, p, err := t.capacity(w.r)
+			if err != nil {
+				return err
+			}
+			exclusive[w.r.asset.Id] = p == nil && n <= 1
 		}
 
 		// The occurrences: one, or as many as the rule says.
@@ -663,7 +766,7 @@ func (s domainReservation) Add(ctx context.Context, req *app.ReservationAddReque
 					BeginsAt:  ts(from),
 					EndsAt:    ts(to),
 					Blocking:  !override,
-					Exclusive: w.r.book.Units <= 1,
+					Exclusive: exclusive[w.r.asset.Id],
 					Units:     w.units,
 				}.Build()); err != nil {
 					return err
@@ -888,19 +991,30 @@ func (t *Tx) lockReservations(ids ...pdid.Id) error {
 	return nil
 }
 
-// lockAllocations takes the locks of the resources a reservation holds.
+// lockAllocations takes the locks of the resources a reservation holds, and of
+// the pools they are units of: what it lets go of is theirs to give then too
+// ([Tx.heal]).
 func (t *Tx) lockAllocations(rid pdid.Id) error {
 	as, err := t.db.Allocation.Query().Where(allocation.TenantId(t.tenant.Uuid()), allocation.RefId(rid.Uuid())).All(t.ctx)
 	if err != nil {
 		return err
 	}
 	rs := []*resource{}
+	ids := []uuid.UUID{}
 	for _, a := range as {
+		ids = append(ids, a.ResourceId)
 		b, err := t.db.Bookable.Query().Where(bookable.TenantId(t.tenant.Uuid()), bookable.AssetId(a.ResourceId)).Only(t.ctx)
 		if err != nil {
 			continue
 		}
 		rs = append(rs, &resource{book: b})
+	}
+	pools, err := t.poolsOf(ids)
+	if err != nil {
+		return err
+	}
+	for _, ps := range pools {
+		rs = append(rs, ps...)
 	}
 	return t.lockBookables(rs)
 }

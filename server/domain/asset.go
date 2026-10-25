@@ -289,9 +289,21 @@ func (s domainAsset) Erase(ctx context.Context, ref *app.AssetRef) (*app.AssetEr
 		if inside > 0 {
 			return failed("안에 자산이 %d개 있습니다. 먼저 옮기세요", inside)
 		}
+		// Its row, which this erases last, held first: a change of its
+		// status holds it before the pools it is in ([Tx.recheckPoolsOf]),
+		// which this holds before the row otherwise.
+		if err := t.holdRow(id.Uuid()); err != nil {
+			return err
+		}
 
 		if err := t.begin(nil, "asset.void", id, t.now, "", app.AssetVoided_builder{Asset: id.Bytes(), Tag: a.GetTag()}.Build()); err != nil {
 			return err
+		}
+		// And where it was told, before any schedule is held, for the same.
+		if p := idOf(a.GetParentId()); !p.IsZero() {
+			if err := t.bump(p.Uuid()); err != nil {
+				return err
+			}
 		}
 
 		ps, err := t.db.Placement.Query().Where(placement.TenantId(t.tenant.Uuid()), placement.ChildId(id.Uuid()), placement.SupersededAtIsNil()).Ids(t.ctx)
@@ -317,17 +329,39 @@ func (s domainAsset) Erase(ctx context.Context, ref *app.AssetRef) (*app.AssetEr
 			return err
 		}
 		// Every kit it was in, and itself if it is one: what each is made
-		// of changed, and so what its bookings take.
-		kits := []uuid.UUID{id.Uuid()}
+		// of changed, and so what its bookings take. And every pool it was
+		// one of the units of, which has one fewer to give.
+		kits, pools := []uuid.UUID{id.Uuid()}, []uuid.UUID{}
 		for _, l := range ls {
 			if err := t.supersedeLink(l.Id); err != nil {
 				return err
 			}
 			if l.Kind == "member_of" && l.SourceId == id.Uuid() {
 				kits = append(kits, l.TargetId)
+				pools = append(pools, l.TargetId)
 			}
 		}
+		// What both hold, at once: one after the other, the second would
+		// take some after the first's, out of the one order.
+		reservable, err := t.reservableKits(kits)
+		if err != nil {
+			return err
+		}
+		hold, err := t.kitHolds(reservable)
+		if err != nil {
+			return err
+		}
+		_, also, err := t.poolHolds(pools, []uuid.UUID{id.Uuid()})
+		if err != nil {
+			return err
+		}
+		if err := t.lockSchedules(append(hold, also...)); err != nil {
+			return err
+		}
 		if err := t.recheckKits(kits...); err != nil {
+			return err
+		}
+		if err := t.recheckPools(pools, []uuid.UUID{id.Uuid()}); err != nil {
 			return err
 		}
 		// What it was said to be, never: every fact of it that stands,
@@ -341,11 +375,6 @@ func (s domainAsset) Erase(ctx context.Context, ref *app.AssetRef) (*app.AssetEr
 				if err := t.op.Retract(t.ctx, r.Id); err != nil {
 					return err
 				}
-			}
-		}
-		if p := idOf(a.GetParentId()); !p.IsZero() {
-			if err := t.bump(p.Uuid()); err != nil {
-				return err
 			}
 		}
 
@@ -880,8 +909,15 @@ func (s domainAsset) SetAttributes(ctx context.Context, req *app.AssetSetAttribu
 			}
 		}
 
-		out, err = t.sync(id.Uuid())
-		return err
+		if out, err = t.sync(id.Uuid()); err != nil {
+			return err
+		}
+		if _, ok := changes["status"]; ok {
+			// Whether it is one of its pools' units: lost, retired or
+			// disposed, it is not, and received, it is.
+			return t.recheckPoolsOf(id.Uuid())
+		}
+		return nil
 	})
 	return s.settle(ctx, req.GetRef(), out, err)
 }
@@ -1191,8 +1227,12 @@ func (s domainAsset) Relate(ctx context.Context, req *app.AssetRelateRequest) (*
 			return err
 		}
 		if kind == "member_of" {
-			// What the kit is made of is what its bookings take.
+			// What the kit is made of is what its bookings take, and what a
+			// pool is made of is what it has to give.
 			if err := t.recheckKits(target.Uuid()); err != nil {
+				return err
+			}
+			if err := t.recheckPools([]uuid.UUID{target.Uuid()}, []uuid.UUID{id.Uuid()}); err != nil {
 				return err
 			}
 		}
@@ -1362,6 +1402,9 @@ func (s domainAsset) Correct(ctx context.Context, req *app.AssetCorrectRequest) 
 				if err := t.recheckKits(r.TargetId); err != nil {
 					return err
 				}
+				if err := t.recheckPools([]uuid.UUID{r.TargetId}, []uuid.UUID{id.Uuid()}); err != nil {
+					return err
+				}
 			}
 
 		case pd.FactDomain:
@@ -1383,8 +1426,14 @@ func (s domainAsset) Correct(ctx context.Context, req *app.AssetCorrectRequest) 
 			if err != nil {
 				return err
 			}
-			out, err = t.sync(id.Uuid())
-			return err
+			if out, err = t.sync(id.Uuid()); err != nil {
+				return err
+			}
+			if key == "status" {
+				// Whether it is one of its pools' units.
+				return t.recheckPoolsOf(id.Uuid())
+			}
+			return nil
 
 		default:
 			return invalid("row_id", "정정할 수 있는 기록이 아닙니다")

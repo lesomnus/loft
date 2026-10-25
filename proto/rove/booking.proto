@@ -43,6 +43,8 @@ message Bookable {
   // How far ahead it may be reserved, in days. Zero is no limit.
   int32 horizon_days = 19;
   // 1 for an exclusive resource; more for a pool of interchangeable units.
+  // A group with members has as many as are in use (design 4), which the
+  // domain keeps here and nobody sets.
   uint32 units = 20;
   // Spaces in one group exclude each other: booking the hall blocks the rooms.
   string exclusive_group = 21;
@@ -221,7 +223,8 @@ message Allocation {
 
   Asset resource = 8 [(orm.edge) = {immutable: true}];
   // reservation | maintenance | override | waiting: a member of a kit a
-  // reservation of the kit waits for, which blocks nothing until it is taken.
+  // reservation of the kit waits for, or some of a pool, which blocks
+  // nothing until it is taken.
   string kind = 9;
   bytes ref_id = 10 [(orm.field) = {
     type: TYPE_UUID
