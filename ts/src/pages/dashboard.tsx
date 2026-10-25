@@ -81,6 +81,7 @@ export function Dashboard(): ReactNode {
 										<li key={idStr(e.reservation?.id)}>
 											<span>
 												{fmt(e.reservation?.beginsAt)} · {e.reservation?.name}
+												{e.conflicts.length > 0 && <span className="warn"> · 구성품 충돌</span>}
 											</span>
 											<Badge v={e.reservation?.status ?? ''} words={reservationWord} />
 										</li>

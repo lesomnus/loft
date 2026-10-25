@@ -313,6 +313,11 @@ type shared struct {
 	// operation that began the transaction, once it has committed
 	// ([Deps.Pay]).
 	forgot []pdid.Id
+
+	// schedules is the assets whose schedule this transaction holds, by the
+	// asset ([Tx.lockBookables]): what nothing else books meanwhile, and so
+	// what it may give to a reservation waiting for it ([Tx.heal]).
+	schedules map[uuid.UUID]bool
 }
 
 type sharedKey struct{}
@@ -329,7 +334,7 @@ func sharedOf(ctx context.Context, drv dialect.Driver) (context.Context, *shared
 			return ctx, v
 		}
 	}
-	v := &shared{bumped: map[uuid.UUID]bool{}}
+	v := &shared{bumped: map[uuid.UUID]bool{}, schedules: map[uuid.UUID]bool{}}
 	return context.WithValue(ctx, sharedKey{}, v), v
 }
 

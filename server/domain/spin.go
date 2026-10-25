@@ -67,6 +67,7 @@ var sweeps = []sweep{
 	{"requests", sweepRequests},
 	{"no-shows", sweepNoShows},
 	{"finished", sweepFinished},
+	{"kits", sweepKits},
 	{"loans", sweepLoans},
 	{"work", sweepWork},
 	{"domains", sweepDomains},

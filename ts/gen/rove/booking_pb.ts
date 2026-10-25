@@ -371,7 +371,8 @@ export type Allocation = Message<"rove.Allocation"> & {
   resource?: Asset | undefined;
 
   /**
-   * reservation | maintenance | override
+   * reservation | maintenance | override | waiting: a member of a kit a
+   * reservation of the kit waits for, which blocks nothing until it is taken.
    *
    * @generated from field: string kind = 9;
    */
