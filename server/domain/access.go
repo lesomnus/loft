@@ -3,16 +3,12 @@ package domain
 import (
 	"bytes"
 	"context"
-	"encoding/base64"
-	"fmt"
-	"strconv"
 	"strings"
 	"time"
 	"uuid"
 
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/pdpb"
-	"github.com/protobuf-orm/ent/dialect/sql"
 	"google.golang.org/protobuf/proto"
 
 	app "github.com/lesomnus/rove"
@@ -139,7 +135,7 @@ func (s domainAccess) Review(ctx context.Context, req *app.AccessReviewRequest) 
 			}
 			// A page, and another after it if any row is left.
 			if i < len(vs)-1 || len(vs) == size {
-				out.SetNext(afterFor(v))
+				out.SetNext(afterFor(v.DateCreated, v.Id))
 			}
 			return out, nil
 		}
@@ -148,17 +144,6 @@ func (s domainAccess) Review(ctx context.Context, req *app.AccessReviewRequest) 
 		}
 		last := vs[len(vs)-1]
 		cursor = []predicate.Access{before(last.DateCreated, last.Id)}
-	}
-}
-
-// before is the rows a list newest first reads after the row at `at`, `id`:
-// `(date_created, id) < (a, b)`, the pair compared once, which an index starts
-// its read at. The OR it means is a filter, behind which every page was read
-// from the newest row of the stretch down to where the one before had ended
-// (payday#154).
-func before(at time.Time, id uuid.UUID) predicate.Access {
-	return func(s *sql.Selector) {
-		s.Where(sql.CompositeLT([]string{s.C(entaccess.FieldDateCreated), s.C(entaccess.FieldId)}, at, id))
 	}
 }
 
@@ -240,32 +225,6 @@ func kindOf(d pdid.Domain) string {
 		return v
 	}
 	return d.String()
-}
-
-// afterFor is where a page that ends at `v` ends, for the next to begin
-// after: its time and its identifier, which together are one row.
-func afterFor(v *ent.Access) string {
-	return base64.RawURLEncoding.EncodeToString(fmt.Appendf(nil, "%d~%s", v.DateCreated.UnixNano(), v.Id))
-}
-
-func afterOf(v string) (time.Time, uuid.UUID, error) {
-	b, err := base64.RawURLEncoding.DecodeString(v)
-	if err != nil {
-		return time.Time{}, uuid.UUID{}, err
-	}
-	at, id, ok := strings.Cut(string(b), "~")
-	if !ok {
-		return time.Time{}, uuid.UUID{}, fmt.Errorf("no row")
-	}
-	ns, err := strconv.ParseInt(at, 10, 64)
-	if err != nil {
-		return time.Time{}, uuid.UUID{}, err
-	}
-	u, err := uuid.Parse(id)
-	if err != nil {
-		return time.Time{}, uuid.UUID{}, err
-	}
-	return time.Unix(0, ns), u, nil
 }
 
 func (s Domain) AccessReview() app.AccessReviewServiceServer {

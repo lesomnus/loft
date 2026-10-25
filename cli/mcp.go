@@ -948,7 +948,7 @@ func (t mcpTools) assetAt(ctx context.Context, _ *mcp.CallToolRequest, in mcpAtI
 type mcpEventsIn struct {
 	Kind   string `json:"kind,omitempty" jsonschema:"only operations whose kind starts with this: asset., custody., reservation."`
 	Limit  int    `json:"limit,omitempty" jsonschema:"how many: 30 if left out, 200 at most"`
-	Before string `json:"before,omitempty" jsonschema:"only what was recorded before this moment, for the next page: the last answer's oldest 'recorded'"`
+	Cursor string `json:"cursor,omitempty" jsonschema:"where to carry on from: the last answer's next"`
 }
 
 type mcpEvent struct {
@@ -963,6 +963,7 @@ type mcpEvent struct {
 
 type mcpEvents struct {
 	Items []mcpEvent `json:"items"`
+	Next  string     `json:"next,omitempty" jsonschema:"the cursor for the next page; absent when this was the last"`
 }
 
 func (t mcpTools) recentEvents(ctx context.Context, _ *mcp.CallToolRequest, in mcpEventsIn) (*mcp.CallToolResult, mcpEvents, error) {
@@ -975,18 +976,15 @@ func (t mcpTools) recentEvents(ctx context.Context, _ *mcp.CallToolRequest, in m
 	if n <= 0 {
 		n = 30
 	}
-	req := app.EventRecentRequest_builder{Size: uint32(min(n, 200)), Kind: in.Kind}.Build()
-	if in.Before != "" {
-		b, err := at("before", in.Before)
-		if err != nil {
-			return nil, out, err
-		}
-		req.SetBefore(timestamppb.New(b))
-	}
-	v, err := app.NewEventServiceClient(c.conn).Recent(ctx, req)
+	v, err := app.NewEventServiceClient(c.conn).Recent(ctx, app.EventRecentRequest_builder{
+		Size:  uint32(min(n, 200)),
+		Kind:  in.Kind,
+		After: in.Cursor,
+	}.Build())
 	if err != nil {
 		return nil, out, failed(err)
 	}
+	out.Next = v.GetNext()
 	actors := []pdid.Id{}
 	for _, e := range v.GetItems() {
 		actors = append(actors, pid(e.GetActorId()))
