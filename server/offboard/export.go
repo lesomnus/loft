@@ -120,16 +120,23 @@ type mark struct {
 	id uuid.UUID
 }
 
-// after narrows a table to the rows after `last`, and to all of them for nil.
-// The bound on the time alone is what lets an index begin at `last` rather
-// than read from its first row every page.
+// after narrows a table to the rows after `last`, and to all of them for nil:
+// `(date_created, id) > (a, b)`, the pair compared once. An index starts its
+// read at a row value -- at the row itself on a table's page index, which ends
+// in the pair, and at `last`'s instant on the trail's and the access record's,
+// which end in the time.
+//
+// It was `date_created >= a AND (date_created > a OR id > b)`, the same rows,
+// whose OR is a filter: every page of a table read the rows of `last`'s
+// instant again from the first of them, and an operation over many things --
+// a bulk registration, a batch of labels -- makes them all at one instant
+// (payday#154 took the shape out of the trail store).
 func after(last *mark) func(*sql.Selector) {
 	return func(s *sql.Selector) {
 		if last == nil {
 			return
 		}
-		at, id := s.C("date_created"), s.C("id")
-		s.Where(sql.And(sql.GTE(at, last.at), sql.Or(sql.GT(at, last.at), sql.GT(id, last.id))))
+		s.Where(sql.CompositeGT([]string{s.C("date_created"), s.C("id")}, last.at, last.id))
 	}
 }
 

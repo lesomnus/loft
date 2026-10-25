@@ -11,6 +11,7 @@ import (
 	"github.com/lesomnus/payday/pdpb"
 	"github.com/lesomnus/xli"
 	"github.com/lesomnus/xli/flg"
+	"github.com/protobuf-orm/ent/dialect/sql"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/lesomnus/rove/cmd"
@@ -170,11 +171,14 @@ func accessList(ctx context.Context, self *xli.Command, c *cmd.Config) error {
 		if len(vs) < 500 {
 			break
 		}
+		// After the last row, as the pair compared once: an index starts
+		// the read at it, where the OR it means is a filter, and every batch
+		// was read from the newest row down to where the last one ended
+		// (payday#154).
 		last := vs[len(vs)-1]
-		cursor = []predicate.Access{entaccess.Or(
-			entaccess.DateCreatedLT(last.DateCreated),
-			entaccess.And(entaccess.DateCreatedEQ(last.DateCreated), entaccess.IdLT(last.Id)),
-		)}
+		cursor = []predicate.Access{func(s *sql.Selector) {
+			s.Where(sql.CompositeLT([]string{s.C(entaccess.FieldDateCreated), s.C(entaccess.FieldId)}, last.DateCreated, last.Id))
+		}}
 	}
 	if shown == 0 {
 		self.Printf("nothing in %s – %s\n", from.UTC().Format(time.RFC3339), to.UTC().Format(time.RFC3339))
