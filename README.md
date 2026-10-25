@@ -339,6 +339,19 @@ PostgreSQL이면 서버를 여러 대 띄울 수 있습니다. 상태는 데이�
 - 올린 뒤 `rove trail rows`는 그 전에 쓴 작업 기록을 `N rows from before seals`로 셉니다. 작업 기록의 사유(`reason`)가 이제 개인정보로 선언되어 봉인되기 때문입니다. 살펴본 뒤 `rows --accept --of <다이제스트> --why "사유가 개인정보가 되기 전의 작업 기록 (payday#151)"`을 한 번 실행합니다.
 - 새 작업 기록은 문장을 갖지 않고 종류의 메시지를 갖습니다. 문장은 읽을 때 만들고, 그 전 기록은 쓴 문장 그대로 읽힙니다. 유형과 모델의 사실은 소문자 정규 ID로 읽힙니다.
 
+**감사 기록과 접속기록을 시간으로 읽는 인덱스가 생기는 버전(payday#157)에서는 `rove migrate`가 인덱스 둘을 만듭니다.** `audit_by_time`과 `access_by_time`이고, 둘 다 `(date_created, id)`입니다. 워크스페이스나 종류로 좁히지 않고 배포 전체의 기록을 읽을 때 이 인덱스를 씁니다.
+
+- 행이 있는 표에 인덱스를 만드는 동안 PostgreSQL은 그 표에 쓰기를 막습니다. payday가 잰 것으로는 감사 기록 100만 행에 7–9초, 접속기록 30만 행에 1–3초가 걸립니다. `Recreate`로 올리는 배포([`deploy/k8s`](deploy/k8s/README.md))는 마이그레이션하는 동안 어차피 서비스가 내려가 있으므로 따로 할 일이 없습니다.
+- 그만큼 쓰기를 멈출 수 없는 큰 배포는 올리기 전에 같은 이름으로 미리 만들어 둡니다. 마이그레이션은 만들어 둔 인덱스를 그대로 둡니다. `CONCURRENTLY`는 트랜잭션 밖에서 한 문장씩 실행합니다.
+
+  ```sql
+  CREATE INDEX CONCURRENTLY IF NOT EXISTS audit_by_time ON audit (date_created, id);
+  CREATE INDEX CONCURRENTLY IF NOT EXISTS access_by_time ON access (date_created, id);
+  ```
+
+- `CONCURRENTLY`가 도중에 실패하면 그 이름의 인덱스가 쓸 수 없는(`INVALID`) 채로 남습니다. 다시 실행해도 `IF NOT EXISTS`가 그것을 건너뛰고, 마이그레이션도 그대로 둡니다. 그래서 만든 뒤 `\d audit`와 `\d access`에서 `INVALID`가 없는지 봅니다. 있으면 `DROP INDEX CONCURRENTLY audit_by_time;`처럼 지우고 다시 만듭니다.
+- 내장 roster의 DB(`auth.roster.db`)에도 같은 이름의 인덱스 둘이 생깁니다. 내장 roster는 열 때마다 자기 DB를 마이그레이션하므로, 그 기록도 크다면 같은 두 문장을 그 DB에서도 먼저 실행합니다.
+
 **운영자 명령이 말하는 날짜는 UTC입니다.** `rove`의 운영자 명령(`tenant`, `contract`, `retention`, `trail`, `access` 등)과 `rove-admin`이 말하는 날짜와 시각은 셸의 시간대와 상관없이 UTC입니다. `--effective 2027-01-01`처럼 주는 날짜도 UTC의 그날입니다. 워크스페이스의 사람이 앱에서 읽는 날짜는 그 워크스페이스의 시간대를 따릅니다(#144).
 
 Kubernetes에 띄우는 참조 배포는 [`deploy/k8s`](deploy/k8s/README.md)입니다. 무엇을 백업하고 어떤 순서로 되살리는지는 [백업과 복구](docs/runbook/restore.md)에 있습니다.
