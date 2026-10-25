@@ -1758,6 +1758,91 @@ func (b0 EventRecentResponse_builder) Build() *EventRecentResponse {
 	return m0
 }
 
+type EventRedactRequest struct {
+	state             protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Ref    *EventRef              `protobuf:"bytes,1,opt,name=ref"`
+	xxx_hidden_Reason string                 `protobuf:"bytes,2,opt,name=reason"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *EventRedactRequest) Reset() {
+	*x = EventRedactRequest{}
+	mi := &file_rove_payday_event_svc_g_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EventRedactRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EventRedactRequest) ProtoMessage() {}
+
+func (x *EventRedactRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_payday_event_svc_g_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *EventRedactRequest) GetRef() *EventRef {
+	if x != nil {
+		return x.xxx_hidden_Ref
+	}
+	return nil
+}
+
+func (x *EventRedactRequest) GetReason() string {
+	if x != nil {
+		return x.xxx_hidden_Reason
+	}
+	return ""
+}
+
+func (x *EventRedactRequest) SetRef(v *EventRef) {
+	x.xxx_hidden_Ref = v
+}
+
+func (x *EventRedactRequest) SetReason(v string) {
+	x.xxx_hidden_Reason = v
+}
+
+func (x *EventRedactRequest) HasRef() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Ref != nil
+}
+
+func (x *EventRedactRequest) ClearRef() {
+	x.xxx_hidden_Ref = nil
+}
+
+type EventRedactRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Ref *EventRef
+	// The erasure request this answers, by its reference: required, and kept as
+	// the act's own reason -- personal, as every reason is, so the trail holds
+	// that it was written and never what it says.
+	Reason string
+}
+
+func (b0 EventRedactRequest_builder) Build() *EventRedactRequest {
+	m0 := &EventRedactRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Ref = b.Ref
+	x.xxx_hidden_Reason = b.Reason
+	return m0
+}
+
 var File_rove_payday_event_svc_g_proto protoreflect.FileDescriptor
 
 const file_rove_payday_event_svc_g_proto_rawDesc = "" +
@@ -1830,15 +1915,19 @@ const file_rove_payday_event_svc_g_proto_rawDesc = "" +
 	"\x05after\x18\x05 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05afterJ\x04\b\x03\x10\x04R\x06before\"S\n" +
 	"\x13EventRecentResponse\x12!\n" +
 	"\x05items\x18\x01 \x03(\v2\v.rove.EventR\x05items\x12\x19\n" +
-	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next2\x9e\x02\n" +
+	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"U\n" +
+	"\x12EventRedactRequest\x12 \n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.rove.EventRefR\x03ref\x12\x1d\n" +
+	"\x06reason\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06reason2\xcf\x02\n" +
 	"\fEventService\x12)\n" +
 	"\x03Add\x12\x15.rove.EventAddRequest\x1a\v.rove.Event\x12@\n" +
 	"\aAddMany\x12\x19.rove.EventAddManyRequest\x1a\x1a.rove.EventAddManyResponse\x12)\n" +
 	"\x03Get\x12\x15.rove.EventGetRequest\x1a\v.rove.Event\x127\n" +
 	"\x04List\x12\x16.rove.EventListRequest\x1a\x17.rove.EventListResponse\x12=\n" +
-	"\x06Recent\x12\x18.rove.EventRecentRequest\x1a\x19.rove.EventRecentResponseB\x1aZ\x18github.com/lesomnus/roveb\beditionsp\xe8\a"
+	"\x06Recent\x12\x18.rove.EventRecentRequest\x1a\x19.rove.EventRecentResponse\x12/\n" +
+	"\x06Redact\x12\x18.rove.EventRedactRequest\x1a\v.rove.EventB\x1aZ\x18github.com/lesomnus/roveb\beditionsp\xe8\a"
 
-var file_rove_payday_event_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_rove_payday_event_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_rove_payday_event_svc_g_proto_goTypes = []any{
 	(*EventAddRequest)(nil),       // 0: rove.EventAddRequest
 	(*EventAddManyRequest)(nil),   // 1: rove.EventAddManyRequest
@@ -1851,41 +1940,45 @@ var file_rove_payday_event_svc_g_proto_goTypes = []any{
 	(*EventFilter)(nil),           // 8: rove.EventFilter
 	(*EventRecentRequest)(nil),    // 9: rove.EventRecentRequest
 	(*EventRecentResponse)(nil),   // 10: rove.EventRecentResponse
-	(*TenantRef)(nil),             // 11: rove.TenantRef
-	(*timestamppb.Timestamp)(nil), // 12: google.protobuf.Timestamp
-	(*anypb.Any)(nil),             // 13: google.protobuf.Any
-	(*Event)(nil),                 // 14: rove.Event
-	(*TenantSelect)(nil),          // 15: rove.TenantSelect
+	(*EventRedactRequest)(nil),    // 11: rove.EventRedactRequest
+	(*TenantRef)(nil),             // 12: rove.TenantRef
+	(*timestamppb.Timestamp)(nil), // 13: google.protobuf.Timestamp
+	(*anypb.Any)(nil),             // 14: google.protobuf.Any
+	(*Event)(nil),                 // 15: rove.Event
+	(*TenantSelect)(nil),          // 16: rove.TenantSelect
 }
 var file_rove_payday_event_svc_g_proto_depIdxs = []int32{
-	11, // 0: rove.EventAddRequest.tenant:type_name -> rove.TenantRef
-	12, // 1: rove.EventAddRequest.occurred_at:type_name -> google.protobuf.Timestamp
-	12, // 2: rove.EventAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	13, // 3: rove.EventAddRequest.value:type_name -> google.protobuf.Any
+	12, // 0: rove.EventAddRequest.tenant:type_name -> rove.TenantRef
+	13, // 1: rove.EventAddRequest.occurred_at:type_name -> google.protobuf.Timestamp
+	13, // 2: rove.EventAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	14, // 3: rove.EventAddRequest.value:type_name -> google.protobuf.Any
 	0,  // 4: rove.EventAddManyRequest.items:type_name -> rove.EventAddRequest
-	14, // 5: rove.EventAddManyResponse.items:type_name -> rove.Event
+	15, // 5: rove.EventAddManyResponse.items:type_name -> rove.Event
 	4,  // 6: rove.EventGetRequest.ref:type_name -> rove.EventRef
 	5,  // 7: rove.EventGetRequest.select:type_name -> rove.EventSelect
-	15, // 8: rove.EventSelect.tenant:type_name -> rove.TenantSelect
+	16, // 8: rove.EventSelect.tenant:type_name -> rove.TenantSelect
 	8,  // 9: rove.EventListRequest.filters:type_name -> rove.EventFilter
-	14, // 10: rove.EventListResponse.items:type_name -> rove.Event
+	15, // 10: rove.EventListResponse.items:type_name -> rove.Event
 	4,  // 11: rove.EventFilter.ref:type_name -> rove.EventRef
-	14, // 12: rove.EventRecentResponse.items:type_name -> rove.Event
-	0,  // 13: rove.EventService.Add:input_type -> rove.EventAddRequest
-	1,  // 14: rove.EventService.AddMany:input_type -> rove.EventAddManyRequest
-	3,  // 15: rove.EventService.Get:input_type -> rove.EventGetRequest
-	6,  // 16: rove.EventService.List:input_type -> rove.EventListRequest
-	9,  // 17: rove.EventService.Recent:input_type -> rove.EventRecentRequest
-	14, // 18: rove.EventService.Add:output_type -> rove.Event
-	2,  // 19: rove.EventService.AddMany:output_type -> rove.EventAddManyResponse
-	14, // 20: rove.EventService.Get:output_type -> rove.Event
-	7,  // 21: rove.EventService.List:output_type -> rove.EventListResponse
-	10, // 22: rove.EventService.Recent:output_type -> rove.EventRecentResponse
-	18, // [18:23] is the sub-list for method output_type
-	13, // [13:18] is the sub-list for method input_type
-	13, // [13:13] is the sub-list for extension type_name
-	13, // [13:13] is the sub-list for extension extendee
-	0,  // [0:13] is the sub-list for field type_name
+	15, // 12: rove.EventRecentResponse.items:type_name -> rove.Event
+	4,  // 13: rove.EventRedactRequest.ref:type_name -> rove.EventRef
+	0,  // 14: rove.EventService.Add:input_type -> rove.EventAddRequest
+	1,  // 15: rove.EventService.AddMany:input_type -> rove.EventAddManyRequest
+	3,  // 16: rove.EventService.Get:input_type -> rove.EventGetRequest
+	6,  // 17: rove.EventService.List:input_type -> rove.EventListRequest
+	9,  // 18: rove.EventService.Recent:input_type -> rove.EventRecentRequest
+	11, // 19: rove.EventService.Redact:input_type -> rove.EventRedactRequest
+	15, // 20: rove.EventService.Add:output_type -> rove.Event
+	2,  // 21: rove.EventService.AddMany:output_type -> rove.EventAddManyResponse
+	15, // 22: rove.EventService.Get:output_type -> rove.Event
+	7,  // 23: rove.EventService.List:output_type -> rove.EventListResponse
+	10, // 24: rove.EventService.Recent:output_type -> rove.EventRecentResponse
+	15, // 25: rove.EventService.Redact:output_type -> rove.Event
+	20, // [20:26] is the sub-list for method output_type
+	14, // [14:20] is the sub-list for method input_type
+	14, // [14:14] is the sub-list for extension type_name
+	14, // [14:14] is the sub-list for extension extendee
+	0,  // [0:14] is the sub-list for field type_name
 }
 
 func init() { file_rove_payday_event_svc_g_proto_init() }
@@ -1904,7 +1997,7 @@ func file_rove_payday_event_svc_g_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_payday_event_svc_g_proto_rawDesc), len(file_rove_payday_event_svc_g_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   11,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
