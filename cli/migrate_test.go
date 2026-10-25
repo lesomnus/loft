@@ -2,6 +2,7 @@ package cli_test
 
 import (
 	"crypto/rand"
+	"database/sql"
 	"encoding/base64"
 	"fmt"
 	"os"
@@ -14,6 +15,7 @@ import (
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/pdtest"
 	"github.com/lesomnus/payday/rename"
+	"github.com/lesomnus/payday/valid"
 	entschema "github.com/protobuf-orm/ent/dialect/sql/schema"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -228,6 +230,119 @@ func TestAnIndexAnEarlierBuildMadeIsMovedToItsName(t *testing.T) {
 	x.NoError(cli.Migrate(ctx, s))
 	x.False(has(page.From), "the old name stayed beside the new one")
 	x.True(has(page.To))
+}
+
+// TestAnIndexWhoseBuildDidNotFinishIsRefused (payday#176): README tells the
+// operator of a big deployment to build `audit_by_time` and `access_by_time`
+// ahead of the migration, `CONCURRENTLY`, in Rove's database and in the
+// embedded roster's. A build that does not finish is left in the catalog,
+// invalid -- kept up by every write and read by nothing -- and a migration
+// found it by its name and said the database was in this build's shape.
+// `rove migrate` refuses it now, in either database, naming it and what to run;
+// and what it says to run makes it.
+func TestAnIndexWhoseBuildDidNotFinishIsRefused(t *testing.T) {
+	x := require.New(t)
+	ctx := t.Context()
+
+	c := cmd.Config{}
+	c.Db.Driver, c.Db.Dsn = pdtest.DB(t)
+	c.Watch.Broker = "memory"
+	c.App.Files = t.TempDir()
+	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
+	x.Contains(run(t, cli.NewCmdMigrate(&c)), "this build's shape")
+	if c.Db.Driver != "pgx" {
+		t.Skipf("only PostgreSQL keeps an index a build did not finish; set %s", pdtest.Postgres)
+	}
+
+	for _, at := range []struct {
+		name, driver, dsn string
+		// says is what the refusal is prefixed with, which is how the
+		// operator knows which database to run it in.
+		says string
+	}{
+		{"rove's", c.Db.Driver, c.Db.Dsn, ""},
+		{"the embedded roster's", c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn, "embedded roster: "},
+	} {
+		t.Run(at.name, func(t *testing.T) {
+			x := require.New(t)
+			db, err := sql.Open(at.driver, at.dsn)
+			x.NoError(err)
+			defer db.Close()
+
+			// As a build of it is left that a write on the table held up past
+			// the session's timeout; and the same statement again, which finds
+			// it there and skips it.
+			build := "CREATE INDEX CONCURRENTLY IF NOT EXISTS audit_by_time ON audit (date_created, id)"
+			execOn(t, db, "DROP INDEX audit_by_time")
+			cancelled(t, db, "audit", build)
+			execOn(t, db, build)
+			x.False(isValidIndex(t, db, "audit_by_time"))
+
+			err = cli.NewCmdMigrate(&c).Run(ctx, nil)
+			x.ErrorIs(err, valid.ErrInvalid)
+			x.True(strings.HasPrefix(err.Error(), at.says+valid.ErrInvalid.Error()), err.Error())
+			x.ErrorContains(err, "audit_by_time, on audit")
+
+			// What it says to run, as it says to: a statement at a time,
+			// outside a transaction.
+			statements := []string{}
+			for _, line := range strings.Split(err.Error(), "\n") {
+				if line = strings.TrimSpace(line); strings.HasSuffix(line, ";") && !strings.HasPrefix(line, "--") {
+					statements = append(statements, line)
+				}
+			}
+			x.Len(statements, 2)
+			execOn(t, db, statements...)
+			x.True(isValidIndex(t, db, "audit_by_time"))
+			x.Contains(run(t, cli.NewCmdMigrate(&c)), "this build's shape")
+		})
+	}
+}
+
+// cancelled runs `q`, a build `CONCURRENTLY` on `table`, as a timeout leaves
+// one: a write is open on the table, the build waits for it to end before it
+// reads a row, and the session's `statement_timeout` runs out first.
+func cancelled(t *testing.T, db *sql.DB, table string, q string) {
+	t.Helper()
+	x := require.New(t)
+	ctx := t.Context()
+
+	tx, err := db.BeginTx(ctx, nil)
+	x.NoError(err)
+	defer tx.Rollback()
+	_, err = tx.ExecContext(ctx, "LOCK TABLE "+table+" IN ROW EXCLUSIVE MODE")
+	x.NoError(err)
+
+	conn, err := db.Conn(ctx)
+	x.NoError(err)
+	defer conn.Close()
+	_, err = conn.ExecContext(ctx, "SET statement_timeout = '200ms'")
+	x.NoError(err)
+	_, err = conn.ExecContext(ctx, q)
+	x.ErrorContains(err, "statement timeout")
+	_, err = conn.ExecContext(ctx, "RESET statement_timeout")
+	x.NoError(err)
+}
+
+// isValidIndex says PostgreSQL holds an index called `name` and uses it.
+func isValidIndex(t *testing.T, db *sql.DB, name string) bool {
+	t.Helper()
+
+	ok := false
+	require.NoError(t, db.QueryRowContext(t.Context(), `SELECT i.indisvalid FROM pg_index i
+		JOIN pg_class c ON c.oid = i.indexrelid JOIN pg_namespace n ON n.oid = c.relnamespace
+		WHERE n.nspname = current_schema() AND c.relname = $1`, name).Scan(&ok))
+
+	return ok
+}
+
+func execOn(t *testing.T, db *sql.DB, qs ...string) {
+	t.Helper()
+
+	for _, q := range qs {
+		_, err := db.ExecContext(t.Context(), q)
+		require.NoError(t, err, q)
+	}
 }
 
 // TestATableAnEarlierBuildHadIsDropped: a table this build no longer has
