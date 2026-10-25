@@ -23540,6 +23540,11 @@ func (s interceptEvent) Recent(ctx context.Context, req *rove.EventRecentRequest
 		rove.EventService_Recent_FullMethodName, req, s.EventServiceServer.Recent)
 }
 
+func (s interceptEvent) Redact(ctx context.Context, req *rove.EventRedactRequest) (*rove.Event, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.EventServiceServer,
+		rove.EventService_Redact_FullMethodName, req, s.EventServiceServer.Redact)
+}
+
 func (s Intercept) Fact() rove.FactServiceServer {
 	return interceptFact{s, s.Next().Fact()}
 }
@@ -26719,6 +26724,8 @@ func unpack(op *pdpb.Op) (proto.Message, error) {
 		v = &rove.EventListRequest{}
 	case rove.EventService_Recent_FullMethodName:
 		v = &rove.EventRecentRequest{}
+	case rove.EventService_Redact_FullMethodName:
+		v = &rove.EventRedactRequest{}
 	case rove.FactService_Add_FullMethodName:
 		v = &rove.FactAddRequest{}
 	case rove.FactService_AddMany_FullMethodName:
@@ -27273,6 +27280,8 @@ func dispatch(ctx context.Context, s rove.Server, m string, v proto.Message) (*a
 		res, err = s.Event().List(ctx, v.(*rove.EventListRequest))
 	case rove.EventService_Recent_FullMethodName:
 		res, err = s.Event().Recent(ctx, v.(*rove.EventRecentRequest))
+	case rove.EventService_Redact_FullMethodName:
+		res, err = s.Event().Redact(ctx, v.(*rove.EventRedactRequest))
 	case rove.FactService_Add_FullMethodName:
 		res, err = s.Fact().Add(ctx, v.(*rove.FactAddRequest))
 	case rove.FactService_AddMany_FullMethodName:
