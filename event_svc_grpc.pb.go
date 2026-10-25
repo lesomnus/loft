@@ -38,9 +38,9 @@ type EventServiceClient interface {
 	Get(ctx context.Context, in *EventGetRequest, opts ...grpc.CallOption) (*Event, error)
 	// List reads Events a page at a time.
 	List(ctx context.Context, in *EventListRequest, opts ...grpc.CallOption) (*EventListResponse, error)
-	// Recent answers the newest events first, which a generated List -- oldest
-	// first, so that a cursor is stable -- does not. Each says what happened in
-	// `desc`, a sentence made of it as it is read (`server/domain/say.go`).
+	// Recent answers the newest events first, a page at a time, each saying
+	// what happened in `desc`: a sentence made of it as it is read
+	// (`server/domain/say.go`), which a generated List does not make.
 	Recent(ctx context.Context, in *EventRecentRequest, opts ...grpc.CallOption) (*EventRecentResponse, error)
 }
 
@@ -114,9 +114,9 @@ type EventServiceServer interface {
 	Get(context.Context, *EventGetRequest) (*Event, error)
 	// List reads Events a page at a time.
 	List(context.Context, *EventListRequest) (*EventListResponse, error)
-	// Recent answers the newest events first, which a generated List -- oldest
-	// first, so that a cursor is stable -- does not. Each says what happened in
-	// `desc`, a sentence made of it as it is read (`server/domain/say.go`).
+	// Recent answers the newest events first, a page at a time, each saying
+	// what happened in `desc`: a sentence made of it as it is read
+	// (`server/domain/say.go`), which a generated List does not make.
 	Recent(context.Context, *EventRecentRequest) (*EventRecentResponse, error)
 	mustEmbedUnimplementedEventServiceServer()
 }

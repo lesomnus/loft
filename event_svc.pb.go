@@ -1585,8 +1585,8 @@ type EventRecentRequest struct {
 	state               protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Size     uint32                 `protobuf:"varint,1,opt,name=size"`
 	xxx_hidden_Kind     string                 `protobuf:"bytes,2,opt,name=kind"`
-	xxx_hidden_Before   *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=before"`
 	xxx_hidden_Children bool                   `protobuf:"varint,4,opt,name=children"`
+	xxx_hidden_After    string                 `protobuf:"bytes,5,opt,name=after"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -1630,18 +1630,18 @@ func (x *EventRecentRequest) GetKind() string {
 	return ""
 }
 
-func (x *EventRecentRequest) GetBefore() *timestamppb.Timestamp {
-	if x != nil {
-		return x.xxx_hidden_Before
-	}
-	return nil
-}
-
 func (x *EventRecentRequest) GetChildren() bool {
 	if x != nil {
 		return x.xxx_hidden_Children
 	}
 	return false
+}
+
+func (x *EventRecentRequest) GetAfter() string {
+	if x != nil {
+		return x.xxx_hidden_After
+	}
+	return ""
 }
 
 func (x *EventRecentRequest) SetSize(v uint32) {
@@ -1652,23 +1652,12 @@ func (x *EventRecentRequest) SetKind(v string) {
 	x.xxx_hidden_Kind = v
 }
 
-func (x *EventRecentRequest) SetBefore(v *timestamppb.Timestamp) {
-	x.xxx_hidden_Before = v
-}
-
 func (x *EventRecentRequest) SetChildren(v bool) {
 	x.xxx_hidden_Children = v
 }
 
-func (x *EventRecentRequest) HasBefore() bool {
-	if x == nil {
-		return false
-	}
-	return x.xxx_hidden_Before != nil
-}
-
-func (x *EventRecentRequest) ClearBefore() {
-	x.xxx_hidden_Before = nil
+func (x *EventRecentRequest) SetAfter(v string) {
+	x.xxx_hidden_After = v
 }
 
 type EventRecentRequest_builder struct {
@@ -1677,11 +1666,11 @@ type EventRecentRequest_builder struct {
 	Size uint32
 	// Only events whose kind starts with this: "asset.", "custody.".
 	Kind string
-	// Only events recorded before this, for the next page.
-	Before *timestamppb.Timestamp
 	// Also what an operation over many things did to each of them, which the
 	// feed otherwise leaves under the operation (design D34).
 	Children bool
+	// Where the page before ended (`next`), for the page after it.
+	After string
 }
 
 func (b0 EventRecentRequest_builder) Build() *EventRecentRequest {
@@ -1690,14 +1679,15 @@ func (b0 EventRecentRequest_builder) Build() *EventRecentRequest {
 	_, _ = b, x
 	x.xxx_hidden_Size = b.Size
 	x.xxx_hidden_Kind = b.Kind
-	x.xxx_hidden_Before = b.Before
 	x.xxx_hidden_Children = b.Children
+	x.xxx_hidden_After = b.After
 	return m0
 }
 
 type EventRecentResponse struct {
 	state            protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Items *[]*Event              `protobuf:"bytes,1,rep,name=items"`
+	xxx_hidden_Next  string                 `protobuf:"bytes,2,opt,name=next"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -1736,14 +1726,27 @@ func (x *EventRecentResponse) GetItems() []*Event {
 	return nil
 }
 
+func (x *EventRecentResponse) GetNext() string {
+	if x != nil {
+		return x.xxx_hidden_Next
+	}
+	return ""
+}
+
 func (x *EventRecentResponse) SetItems(v []*Event) {
 	x.xxx_hidden_Items = &v
+}
+
+func (x *EventRecentResponse) SetNext(v string) {
+	x.xxx_hidden_Next = v
 }
 
 type EventRecentResponse_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	Items []*Event
+	// What to send as `after` for the page after this one; empty is none.
+	Next string
 }
 
 func (b0 EventRecentResponse_builder) Build() *EventRecentResponse {
@@ -1751,6 +1754,7 @@ func (b0 EventRecentResponse_builder) Build() *EventRecentResponse {
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Items = &b.Items
+	x.xxx_hidden_Next = b.Next
 	return m0
 }
 
@@ -1818,14 +1822,15 @@ const file_rove_payday_event_svc_g_proto_rawDesc = "" +
 	"subject_id\x18\x02 \x01(\fR\tsubjectId\x12\x12\n" +
 	"\x04kind\x18\x03 \x01(\tR\x04kind\x12\x19\n" +
 	"\bactor_id\x18\x04 \x01(\fR\aactorId\x12\x19\n" +
-	"\bcause_id\x18\x05 \x01(\fR\acauseId\"\xa1\x01\n" +
+	"\bcause_id\x18\x05 \x01(\fR\acauseId\"\x98\x01\n" +
 	"\x12EventRecentRequest\x12\x19\n" +
 	"\x04size\x18\x01 \x01(\rB\x05\xaa\x01\x02\b\x02R\x04size\x12\x19\n" +
-	"\x04kind\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\x122\n" +
-	"\x06before\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x06before\x12!\n" +
-	"\bchildren\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\bchildren\"8\n" +
+	"\x04kind\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\x12!\n" +
+	"\bchildren\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\bchildren\x12\x1b\n" +
+	"\x05after\x18\x05 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05afterJ\x04\b\x03\x10\x04R\x06before\"S\n" +
 	"\x13EventRecentResponse\x12!\n" +
-	"\x05items\x18\x01 \x03(\v2\v.rove.EventR\x05items2\x9e\x02\n" +
+	"\x05items\x18\x01 \x03(\v2\v.rove.EventR\x05items\x12\x19\n" +
+	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next2\x9e\x02\n" +
 	"\fEventService\x12)\n" +
 	"\x03Add\x12\x15.rove.EventAddRequest\x1a\v.rove.Event\x12@\n" +
 	"\aAddMany\x12\x19.rove.EventAddManyRequest\x1a\x1a.rove.EventAddManyResponse\x12)\n" +
@@ -1865,23 +1870,22 @@ var file_rove_payday_event_svc_g_proto_depIdxs = []int32{
 	8,  // 9: rove.EventListRequest.filters:type_name -> rove.EventFilter
 	14, // 10: rove.EventListResponse.items:type_name -> rove.Event
 	4,  // 11: rove.EventFilter.ref:type_name -> rove.EventRef
-	12, // 12: rove.EventRecentRequest.before:type_name -> google.protobuf.Timestamp
-	14, // 13: rove.EventRecentResponse.items:type_name -> rove.Event
-	0,  // 14: rove.EventService.Add:input_type -> rove.EventAddRequest
-	1,  // 15: rove.EventService.AddMany:input_type -> rove.EventAddManyRequest
-	3,  // 16: rove.EventService.Get:input_type -> rove.EventGetRequest
-	6,  // 17: rove.EventService.List:input_type -> rove.EventListRequest
-	9,  // 18: rove.EventService.Recent:input_type -> rove.EventRecentRequest
-	14, // 19: rove.EventService.Add:output_type -> rove.Event
-	2,  // 20: rove.EventService.AddMany:output_type -> rove.EventAddManyResponse
-	14, // 21: rove.EventService.Get:output_type -> rove.Event
-	7,  // 22: rove.EventService.List:output_type -> rove.EventListResponse
-	10, // 23: rove.EventService.Recent:output_type -> rove.EventRecentResponse
-	19, // [19:24] is the sub-list for method output_type
-	14, // [14:19] is the sub-list for method input_type
-	14, // [14:14] is the sub-list for extension type_name
-	14, // [14:14] is the sub-list for extension extendee
-	0,  // [0:14] is the sub-list for field type_name
+	14, // 12: rove.EventRecentResponse.items:type_name -> rove.Event
+	0,  // 13: rove.EventService.Add:input_type -> rove.EventAddRequest
+	1,  // 14: rove.EventService.AddMany:input_type -> rove.EventAddManyRequest
+	3,  // 15: rove.EventService.Get:input_type -> rove.EventGetRequest
+	6,  // 16: rove.EventService.List:input_type -> rove.EventListRequest
+	9,  // 17: rove.EventService.Recent:input_type -> rove.EventRecentRequest
+	14, // 18: rove.EventService.Add:output_type -> rove.Event
+	2,  // 19: rove.EventService.AddMany:output_type -> rove.EventAddManyResponse
+	14, // 20: rove.EventService.Get:output_type -> rove.Event
+	7,  // 21: rove.EventService.List:output_type -> rove.EventListResponse
+	10, // 22: rove.EventService.Recent:output_type -> rove.EventRecentResponse
+	18, // [18:23] is the sub-list for method output_type
+	13, // [13:18] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_rove_payday_event_svc_g_proto_init() }
