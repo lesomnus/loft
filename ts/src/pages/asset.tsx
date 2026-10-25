@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 
 import type { Asset } from '../../gen/rove/asset_pb.js'
@@ -34,6 +34,7 @@ import {
 	kindWord,
 	labelWord,
 	modeWord,
+	outOfUse,
 	reservationWord,
 	statusWord,
 	workKindWord,
@@ -661,12 +662,17 @@ function SetAttrs(props: { a: Asset; onClose: () => void }): ReactNode {
 	const [attrs, setAttrs] = useState<Record<string, string>>({ ...a.attributes })
 	const [at, setAt] = useState('')
 	const [reason, setReason] = useState('')
+	const members = useMemberships(a.id)
+	const [kept, setKept] = useState<string[]>([])
+	// Going out of use, it is offered to leave what it is a member of.
+	const goes = status !== a.status && outOfUse.includes(status)
 	return (
 		<FormModal
 			title="정보·상태 변경"
 			wide
 			onClose={props.onClose}
 			onSubmit={async () => {
+				if (goes && members === undefined) return false
 				const set: Record<string, string> = {}
 				const clear: string[] = []
 				if (name !== a.name) set['name'] = name
@@ -681,10 +687,11 @@ function SetAttrs(props: { a: Asset; onClose: () => void }): ReactNode {
 					else set[`attr.${k}`] = v
 				}
 				if (Object.keys(set).length === 0 && clear.length === 0) return
+				const leave = goes ? leaving(members ?? [], kept) : []
 				return (
 					(await act(
 						AssetService.method.setAttributes,
-						{ ref: ref(a.id), set, clear, at: at === '' ? undefined : ts(fromInput(at)), reason },
+						{ ref: ref(a.id), set, clear, at: at === '' ? undefined : ts(fromInput(at)), reason, leave },
 						{ ok: '바꿨습니다.' },
 					)) !== undefined
 				)
@@ -699,6 +706,7 @@ function SetAttrs(props: { a: Asset; onClose: () => void }): ReactNode {
 			<Field label="상태">
 				<Select value={status} onChange={setStatus} options={Object.entries(statusWord).map(([value, label]) => ({ value, label }))} />
 			</Field>
+			{goes && <Leave members={members} kept={kept} onChange={setKept} />}
 			<Field label="컨디션">
 				<Select value={condition} onChange={setCondition} options={Object.entries(conditionWord).map(([value, label]) => ({ value, label }))} />
 			</Field>
@@ -717,6 +725,59 @@ function SetAttrs(props: { a: Asset; onClose: () => void }): ReactNode {
 			</Field>
 		</FormModal>
 	)
+}
+
+/** A kit or a group an asset is a member of now, as its history says it. */
+export type Membership = { id: Uint8Array; name: string; required: boolean }
+
+/**
+ * What an asset is a member of now -- the open `member_of` rows of its
+ * history it is the source of -- and undefined until that is read: what it
+ * may leave as it goes out of use (AssetSetAttributesRequest.leave).
+ */
+export function useMemberships(id: Uint8Array | undefined): Membership[] | undefined {
+	const t = useRpc(AssetService.method.timeline, id === undefined ? null : { ref: ref(id) })
+	return useMemo(
+		() =>
+			t.data?.entries
+				.filter((e) => e.kind === 'link' && e.supersededAt === undefined && e.validTo === undefined && e.detail['kind'] === 'member_of' && e.detail['side'] === 'source')
+				.map((e) => ({ id: e.otherId, name: e.otherName, required: e.detail['required'] === 'true' })),
+		[t.data],
+	)
+}
+
+/**
+ * The offer to leave what an asset is a member of as it goes out of use: a box
+ * for each, ticked, but for the ones `kept`. Going out of use changes nothing
+ * a kit is made of, and a kit's bookings take a member they need until it is
+ * taken off (design 4).
+ */
+export function Leave(props: { members: Membership[] | undefined; kept: string[]; onChange: (kept: string[]) => void }): ReactNode {
+	if (props.members === undefined || props.members.length === 0) return null
+	return (
+		<Field label="속한 키트·그룹" wide group hint="분실·불용·폐기여도 구성에서는 빠지지 않습니다. 빼면 그 키트의 예약이 더는 이 자산을 잡지 않습니다">
+			<div className="boxes">
+				{props.members.map((m) => {
+					const k = idStr(m.id)
+					return (
+						<label key={k} className="check">
+							<input
+								type="checkbox"
+								checked={!props.kept.includes(k)}
+								onChange={(e) => props.onChange(e.target.checked ? props.kept.filter((v) => v !== k) : [...props.kept, k])}
+							/>{' '}
+							{m.name}에서 빼기{m.required ? ' (필수 구성품)' : ''}
+						</label>
+					)
+				})}
+			</div>
+		</Field>
+	)
+}
+
+/** What of `members` is left, as a request names it: all but the ones `kept`. */
+export function leaving(members: Membership[], kept: string[]): ReturnType<typeof ref>[] {
+	return members.filter((m) => !kept.includes(idStr(m.id))).map((m) => ref(m.id))
 }
 
 function Assign(props: { a: Asset; onClose: () => void }): ReactNode {

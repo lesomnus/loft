@@ -672,6 +672,74 @@ func TestAnAssistantChangesTheRegisterOnceThePersonSaysYes(t *testing.T) {
 	x.Contains(a.refused("plan_asset", map[string]any{"action": "move", "asset": "NB-1", "to": "R-4"}), "may not call /rove.AssetService/Move")
 }
 
+// TestAnAssistantTakesWhatGoesOutOfUseOutOfItsKits: a plan that puts an
+// asset out of use says what it stays a member of, so that the person is told
+// before they say yes; and asked to, it takes the asset out of each, named --
+// as it is when a count's finding is settled as lost.
+func TestAnAssistantTakesWhatGoesOutOfUseOutOfItsKits(t *testing.T) {
+	s := serve(t)
+	x := s.x
+	s.signIn("owner", "owner1234")
+	room := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "장비실", "kind": "space", "tag": "S-1"}`))
+	kit := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "촬영 키트", "kind": "kit", "tag": "K-1"}`))
+	for _, v := range []string{`{"name": "카메라", "kind": "item", "tag": "CM-1"}`, `{"name": "렌즈", "kind": "item", "tag": "LN-1", "to": {"id": "` + room + `"}}`} {
+		member := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", v))
+		run(t, cli.NewCmdApi(), "asset", "relate", member, `{"target": {"id": "`+kit+`"}, "kind": "member_of", "required": true}`)
+	}
+	a := s.assistant()
+	inKit := func(tag string) bool {
+		var hist struct {
+			Entries []struct {
+				Kind   string            `json:"kind"`
+				Until  string            `json:"until"`
+				Detail map[string]string `json:"detail"`
+			} `json:"entries"`
+		}
+		a.call("asset_history", map[string]any{"asset": tag}, &hist)
+		for _, e := range hist.Entries {
+			if e.Kind == "link" && e.Until == "" && e.Detail["side"] == "source" {
+				return true
+			}
+		}
+		return false
+	}
+
+	p := a.plan("plan_asset", map[string]any{"action": "set", "asset": "CM-1", "set": map[string]any{"status": "disposed"}})
+	x.Equal("속성 변경: CM-1 카메라: 상태 → 폐기 (K-1 촬영 키트의 구성품으로 남음)", p.Summary)
+	p = a.plan("plan_asset", map[string]any{"action": "set", "asset": "CM-1", "set": map[string]any{"status": "disposed"}, "leave_kits": true, "reason": "파손"})
+	x.Equal("속성 변경: CM-1 카메라: 상태 → 폐기, K-1 촬영 키트에서 빼기 — 파손", p.Summary)
+	x.True(inKit("CM-1"), "a plan changes nothing")
+	a.apply(p)
+	x.False(inKit("CM-1"))
+	x.Contains(a.refused("plan_asset", map[string]any{"action": "set", "asset": "LN-1", "set": map[string]any{"condition": "damaged"}, "leave_kits": true}), "leave_kits")
+
+	// A count that never saw the lens, settled as lost, and out of the kit.
+	p = a.plan("plan_count", map[string]any{"action": "start", "name": "10월 실사", "scope": "S-1"})
+	a.apply(p)
+	var counts struct {
+		Items []struct {
+			Id       string `json:"id"`
+			Findings []struct {
+				Id   string `json:"id"`
+				Kind string `json:"kind"`
+			} `json:"findings"`
+		} `json:"items"`
+	}
+	a.call("list_counts", map[string]any{"status": "open"}, &counts)
+	x.Len(counts.Items, 1)
+	a.applied(a.plan("plan_count", map[string]any{"action": "reconcile", "count": counts.Items[0].Id}))
+	a.call("list_counts", map[string]any{"count": counts.Items[0].Id}, &counts)
+	x.Len(counts.Items[0].Findings, 1)
+	missing := counts.Items[0].Findings[0].Id
+	p = a.plan("plan_count", map[string]any{"action": "resolve", "finding": missing, "resolution": "lost"})
+	x.Equal("실사 처리: LN-1 렌즈: 분실 처리 (K-1 촬영 키트의 구성품으로 남음)", p.Summary)
+	x.Contains(a.refused("plan_count", map[string]any{"action": "resolve", "finding": missing, "resolution": "ignored", "leave_kits": true}), "leave_kits")
+	p = a.plan("plan_count", map[string]any{"action": "resolve", "finding": missing, "resolution": "lost", "leave_kits": true})
+	x.Equal("실사 처리: LN-1 렌즈: 분실 처리, K-1 촬영 키트에서 빼기", p.Summary)
+	a.apply(p)
+	x.False(inKit("LN-1"))
+}
+
 // applied carries a plan out and answers what else apply said.
 func (a *assistant) applied(p planned) []string {
 	a.s.t.Helper()

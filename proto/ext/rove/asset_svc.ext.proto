@@ -137,6 +137,13 @@ message AssetSetAttributesRequest {
   google.protobuf.Timestamp at = 4;
   string reason = 5 [features.field_presence = IMPLICIT];
   bytes op = 6 [features.field_presence = IMPLICIT];
+  // The kits and groups it leaves as it goes out of use -- with `status` set
+  // to lost, retired or disposed, and refused otherwise. Its membership of
+  // each ends in this operation, as a relation of its own this one is the
+  // cause of (design D34), from `at`, or from now when it was made a member
+  // after that; and the bookings of a kit let it go (design 4). One it is no
+  // member of now is passed over.
+  repeated AssetRef leave = 7;
 }
 
 message AssetAssignRequest {
@@ -199,13 +206,15 @@ message TimelineEntry {
   // What it says, for a person.
   string summary = 7 [features.field_presence = IMPLICIT];
   // What it holds, field by field: a placement's mode, slot and rack
-  // positions (`u`), a stewardship's role, a link's kind and whether it is
-  // required, a fact's key and value. An event's is what its message held,
-  // under the names its domain's table gives the fields (`rove/past.proto`):
-  // a row it names as the row is called now -- a person by their name, and
-  // nothing else of theirs -- or as its identifier where nothing names it,
-  // and a moment in the workspace's zone, as RFC 3339 writes one. A row from
-  // before Rove's past was payday's is what its `payload` said.
+  // positions (`u`), a stewardship's role, a link's kind, whether it is
+  // required and which end of it the asset is (`side`: `source`, the member
+  // or the one connected, or `target`), a fact's key and value. An event's
+  // is what its message held, under the names its domain's table gives the
+  // fields (`rove/past.proto`): a row it names as the row is called now -- a
+  // person by their name, and nothing else of theirs -- or as its identifier
+  // where nothing names it, and a moment in the workspace's zone, as RFC 3339
+  // writes one. A row from before Rove's past was payday's is what its
+  // `payload` said.
   map<string, string> detail = 8;
   bytes event_id = 9 [features.field_presence = IMPLICIT];
   string event_kind = 10 [features.field_presence = IMPLICIT];

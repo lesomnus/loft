@@ -154,16 +154,16 @@ func (s domainAsset) Timeline(ctx context.Context, req *app.AssetTimelineRequest
 	}
 	for _, r := range ls {
 		other := r.TargetId
-		dir := "→"
+		dir, side := "→", "source"
 		if r.TargetId == a {
 			other = r.SourceId
-			dir = "←"
+			dir, side = "←", "target"
 		}
 		e := entry("link", r.Id, r.ValidFrom, r.ValidTo, r.DateCreated, r.SupersededAt, r.EventId)
 		e.SetOtherId(pdid.Id(other).Bytes())
 		e.SetOtherName(names.asset(other))
 		e.SetSummary(fmt.Sprintf("%s %s (%s)", dir, names.asset(other), or(relationSay[r.Kind], r.Kind)))
-		e.SetDetail(map[string]string{"kind": r.Kind, "required": fmt.Sprint(r.Required)})
+		e.SetDetail(map[string]string{"kind": r.Kind, "required": fmt.Sprint(r.Required), "side": side})
 		entries = append(entries, e)
 	}
 

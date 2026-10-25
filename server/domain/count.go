@@ -351,6 +351,9 @@ func (s domainCount) Resolve(ctx context.Context, req *app.InventoryCountResolve
 		if !slices.Contains([]string{"moved", "lost", "ignored"}, res) {
 			return invalid("resolution", "처리는 위치 반영, 분실, 무시 가운데 하나입니다")
 		}
+		if len(req.GetLeave()) > 0 && res != "lost" {
+			return invalid("leave", "키트·그룹에서 빼는 것은 분실 처리할 때 함께 합니다")
+		}
 		aid := idOf(f.GetAsset().GetId())
 		// Before what it calls: the move or the loss it records is part of
 		// this, and says so (design D34).
@@ -387,6 +390,7 @@ func (s domainCount) Resolve(ctx context.Context, req *app.InventoryCountResolve
 				Ref:    app.AssetRef_builder{Id: aid.Bytes()}.Build(),
 				Set:    map[string]string{"status": "lost"},
 				Reason: req.GetReason(),
+				Leave:  req.GetLeave(),
 			}.Build()); err != nil {
 				return err
 			}
