@@ -281,7 +281,7 @@ function Bookables(): ReactNode {
 								</span>
 								<span className="mute small">
 									{b.approval && '승인 필요 · '}
-									{b.units > 1 && `${b.units}개 · `}
+									{(b.units > 1 || a?.kind === 'group') && `${b.units}개 · `}
 									{b.hours !== undefined ? `${b.hours.ranges.map((r) => weekdays[r.weekday]).join('')} ${Math.floor((b.hours.ranges[0]?.fromMinute ?? 0) / 60)}–${Math.floor((b.hours.ranges[0]?.toMinute ?? 0) / 60)}시` : '언제나'}
 									{b.exclusiveGroup !== '' && ` · 그룹 ${b.exclusiveGroup}`}
 								</span>
@@ -290,12 +290,18 @@ function Bookables(): ReactNode {
 					})}
 				</ul>
 			)}
-			{open !== undefined && <BookableForm b={open} onClose={() => setOpen(undefined)} />}
+			{open !== undefined && <BookableForm b={open} pool={assets.get(idStr(open.asset?.id))?.kind === 'group'} onClose={() => setOpen(undefined)} />}
 		</Card>
 	)
 }
 
-function BookableForm(props: { b: Bookable; onClose: () => void }): ReactNode {
+/**
+ * A reservable asset's rules. A group's units are what its members say --
+ * as many as are in use -- which is what changes them, so the form sends a
+ * number only when somebody changed it: a group nothing is a member of has
+ * the units it is given.
+ */
+function BookableForm(props: { b: Bookable; pool: boolean; onClose: () => void }): ReactNode {
 	const act = useAct()
 	const b = props.b
 	const r0 = b.hours?.ranges[0]
@@ -331,7 +337,7 @@ function BookableForm(props: { b: Bookable; onClose: () => void }): ReactNode {
 						bufferAfter: Number(after),
 						horizonDays: Number(horizon),
 						exclusiveGroup: group,
-						units: Number(units),
+						units: units === String(b.units) ? 0 : Number(units),
 					},
 					{ ok: '바꿨습니다.' },
 				)) !== undefined
@@ -374,8 +380,8 @@ function BookableForm(props: { b: Bookable; onClose: () => void }): ReactNode {
 			<Field label="며칠 앞까지">
 				<input type="number" min={0} value={horizon} onChange={(e) => setHorizon(e.target.value)} />
 			</Field>
-			<Field label="수량" hint="풀(그룹)일 때">
-				<input type="number" min={1} value={units} onChange={(e) => setUnits(e.target.value)} />
+			<Field label="수량" hint={props.pool ? '그룹은 구성원 가운데 쓸 수 있는 것의 수를 따릅니다. 구성원이 없을 때만 적은 수입니다' : '여러 개를 한 자산으로 등록했을 때'}>
+				<input type="number" min={0} value={units} onChange={(e) => setUnits(e.target.value)} />
 			</Field>
 			<Field label="배타 그룹">
 				<input value={group} onChange={(e) => setGroup(e.target.value)} />

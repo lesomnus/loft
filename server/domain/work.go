@@ -112,6 +112,10 @@ func (s domainWorkOrder) Add(ctx context.Context, req *app.WorkOrderAddRequest) 
 		if err := t.block(w); err != nil {
 			return err
 		}
+		// Time it takes of a thing is time its pools cannot give it out.
+		if err := t.recheckPoolsOf(aid.Uuid()); err != nil {
+			return err
+		}
 		if !mgr {
 			if err := t.notifyManagers("work.reported", "고장 신고: "+a.GetTag()+" "+a.GetName(), w.GetName(), idOf(w.GetId()), "/work"); err != nil {
 				return err
@@ -229,7 +233,10 @@ func (s domainWorkOrder) Update(ctx context.Context, req *app.WorkOrderUpdateReq
 				return err
 			}
 		}
-		return t.block(out)
+		if err := t.block(out); err != nil {
+			return err
+		}
+		return t.recheckPoolsOf(uuidOf(w.GetAsset().GetId()))
 	})
 	return out, err
 }
@@ -327,7 +334,9 @@ func (s domainWorkOrder) finish(ctx context.Context, req *app.WorkOrderCompleteR
 				return err
 			}
 		}
-		return nil
+		// What its pools can give it out for now, after whatever its status
+		// says: the row first, and then the pools' schedules.
+		return t.recheckPoolsOf(aid.Uuid())
 	})
 	return out, err
 }

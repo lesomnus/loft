@@ -589,16 +589,19 @@ message CalendarEntry {
   repeated bytes resource_ids = 2;
   string party_name = 3 [features.field_presence = IMPLICIT];
   // What it waits for while it is still to be fulfilled: the members of a
-  // kit it should take with it that something else holds then (design 4).
+  // kit it should take with it that something else holds then, and what it
+  // booked of a pool that has fewer to give then (design 4).
   repeated ReservationConflict conflicts = 4;
 }
 
-// ReservationConflict is a member of a kit that a reservation of the kit
-// should take with it and does not hold: the kit was given it after the
-// reservation was made, and something else held it then. The reservation
-// takes it once it is free.
+// ReservationConflict is what a reservation booked, or should take with what
+// it booked, and does not hold: a member of a kit, which the kit was given
+// after the reservation was made and something else held then; or some of a
+// pool, which had fewer to give since -- a member taken off it or out of use,
+// one whose own time was taken -- than the reservations made before it hold.
+// The reservation takes it once there is room.
 message ReservationConflict {
-  // The member, by what it is tagged and called.
+  // The member, or the pool, by what it is tagged and called.
   bytes resource_id = 1 [features.field_presence = IMPLICIT];
   string resource_tag = 2 [features.field_presence = IMPLICIT];
   string resource_name = 3 [features.field_presence = IMPLICIT];
@@ -606,8 +609,14 @@ message ReservationConflict {
   google.protobuf.Timestamp begins_at = 4;
   google.protobuf.Timestamp ends_at = 5;
   // What holds it then -- another reservation, maintenance -- as a calendar
-  // shows it. None once nothing does, and it is taken shortly.
+  // shows it: of a pool, its reservations and what takes its members' own
+  // time. None once nothing does, and it is taken shortly.
   repeated BusySpan held_by = 6;
+  // Of a pool: how many of it the reservation waits for, and how many of
+  // them it could have at the busiest moment of that time. Both zero for a
+  // member of a kit, which is one.
+  uint32 units = 7 [features.field_presence = IMPLICIT];
+  uint32 available = 8 [features.field_presence = IMPLICIT];
 }
 
 message ReservationItemAddRequest {
