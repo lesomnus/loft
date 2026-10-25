@@ -188,6 +188,19 @@ export async function said(page: Page, text: string): Promise<void> {
 }
 
 /**
+ * Waits for the page to say, in a toast, that the server refused what was
+ * asked -- an error whose words have `text` in them -- and fails with what it
+ * said instead.
+ */
+export async function refused(page: Page, text: string): Promise<void> {
+	const fresh = page.locator('.toasts > .toast:not([data-said])')
+	const bad = fresh.and(page.locator('.bad')).filter({ hasText: text }).first()
+	await expect(bad.or(fresh).first()).toBeVisible()
+	if (!(await bad.isVisible())) throw new Error(`the page said "${await fresh.first().innerText()}" where a refusal of "${text}" was expected`)
+	await bad.evaluate((el) => el.setAttribute('data-said', ''), undefined, { timeout: 1000 }).catch(() => {})
+}
+
+/**
  * A `datetime-local` value `days` from today, at `hour` o'clock in Korea --
  * where the browser is (`timezoneId`) and where the opening hours are kept --
  * on the first weekday from then.
@@ -219,6 +232,19 @@ export async function rpc(page: Page, method: string, req: object): Promise<Repl
 	})
 	expect(res.status(), `${method}: ${await res.text()}`).toBe(200)
 	return (await res.json()) as Reply
+}
+
+/**
+ * What the server said refusing a call made as {@link rpc} makes one: for
+ * what a test holds the server to beside a page that does not offer it.
+ */
+export async function refusal(page: Page, method: string, req: object): Promise<string> {
+	const res = await page.request.post(`/rove.${method}`, {
+		headers: { 'connect-protocol-version': '1', 'rove-workspace': workspace.slice(2) },
+		data: req,
+	})
+	expect(res.status(), `${method} was not refused`).not.toBe(200)
+	return ((await res.json()) as { message?: string }).message ?? ''
 }
 
 /** An identifier a call answered, in base64, as a page's address writes it. */

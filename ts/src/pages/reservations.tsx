@@ -229,6 +229,14 @@ function NewReservation(props: { draft: { from: Date; to: Date; resource: string
 	const [reason, setReason] = useState('')
 	const [key] = useState(op)
 	const b = c.bookable(resource === '' ? undefined : idBytes(resource))
+	// What is out of use is not booked anew (D43): said of it where it is
+	// picked, and once it is, before the server refuses it.
+	const assets = useAssets(c.bookables.map((x) => x.asset?.id))
+	const gone = (id: string) => {
+		const a = assets.get(id)
+		return a !== undefined && outOfUse.includes(a.status) ? a.status : undefined
+	}
+	const chosen = gone(resource)
 
 	return (
 		<FormModal
@@ -263,9 +271,20 @@ function NewReservation(props: { draft: { from: Date; to: Date; resource: string
 					onChange={setResource}
 					empty="선택"
 					required
-					options={c.bookables.filter((x) => x.enabled).map((x) => ({ value: idStr(x.asset?.id), label: names.get(idStr(x.asset?.id)) ?? '…' }))}
+					options={c.bookables
+						.filter((x) => x.enabled)
+						.map((x) => {
+							const id = idStr(x.asset?.id)
+							const status = gone(id)
+							return { value: id, label: `${names.get(id) ?? '…'}${status !== undefined ? ` · ${statusWord[status] ?? status}` : ''}` }
+						})}
 				/>
 			</Field>
+			{chosen !== undefined && (
+				<p className="wide warn small" role="note" aria-label="쓸 수 없는 자산">
+					{statusWord[chosen] ?? chosen} 상태라 새로 예약할 수 없습니다.
+				</p>
+			)}
 			<Field label="제목">
 				<input value={name} onChange={(e) => setName(e.target.value)} placeholder="예: 주간 회의" />
 			</Field>
@@ -311,6 +330,8 @@ function NewReservation(props: { draft: { from: Date; to: Date; resource: string
 /**
  * A reservation, and what may be done with it: with what it waits for, and
  * what it takes that is out of use (D42), said before anybody comes for it.
+ * What it booked itself that is out of use, it is neither said yes to nor
+ * used through (D43), and is not offered to be.
  */
 function ReservationDialog(props: { r: Reservation; resources: Uint8Array[]; conflicts: ReservationConflict[]; outOfUse: ReservationOutOfUse[]; onClose: () => void }): ReactNode {
 	const c = useCatalog()
@@ -327,6 +348,11 @@ function ReservationDialog(props: { r: Reservation; resources: Uint8Array[]; con
 	const now = Date.now()
 	const begins = dateOf(r.beginsAt)?.getTime() ?? 0
 	const isSpace = props.resources.every((x) => c.space(x) !== undefined)
+	const gone = props.outOfUse.map(outOfUseItem)
+	const unusable = booked(gone, props.resources)
+	// An item out of use is left out of a pickup, which goes on without it;
+	// a kit or a group out of use is not picked up.
+	const pickable = !unusable.some((v) => v.kind !== 'item')
 
 	if (pickup) {
 		return <PickUp r={r} resources={props.resources} conflicts={props.conflicts} onClose={props.onClose} />
@@ -342,23 +368,30 @@ function ReservationDialog(props: { r: Reservation; resources: Uint8Array[]; con
 			{r.rrule !== '' && <p className="mute small">반복: {r.rrule}</p>}
 			{r.status === 'held' && r.expiresAt !== undefined && <p className="warn small">{fmt(r.expiresAt, 'time')}까지 확정하지 않으면 풀립니다.</p>}
 			<Waiting conflicts={props.conflicts} />
-			<OutOfUse items={props.outOfUse.map(outOfUseItem)} more="분실·불용·폐기 상태라 수령할 때 건네지 않습니다." />
+			<OutOfUse items={gone} more="분실·불용·폐기 상태라 수령할 때 건네지 않습니다." />
+			<Unusable status={r.status} items={unusable} />
 			<footer className="modal-actions">
-				{r.status === 'held' && (mine || mgr) && <button className="primary" onClick={() => void decide(ReservationService.method.confirm, '확정했습니다.')}>확정</button>}
+				{r.status === 'held' && (mine || mgr) && unusable.length === 0 && (
+					<button className="primary" onClick={() => void decide(ReservationService.method.confirm, '확정했습니다.')}>
+						확정
+					</button>
+				)}
 				{r.status === 'requested' && mgr && (
 					<>
 						<button onClick={() => void decide(ReservationService.method.reject, '거절했습니다.')}>거절</button>
-						<button className="primary" onClick={() => void decide(ReservationService.method.approve, '승인했습니다.')}>
-							승인
-						</button>
+						{unusable.length === 0 && (
+							<button className="primary" onClick={() => void decide(ReservationService.method.approve, '승인했습니다.')}>
+								승인
+							</button>
+						)}
 					</>
 				)}
-				{r.status === 'confirmed' && isSpace && (mine || mgr) && now >= begins - 30 * 60_000 && (
+				{r.status === 'confirmed' && isSpace && (mine || mgr) && now >= begins - 30 * 60_000 && unusable.length === 0 && (
 					<button className="primary" onClick={() => void decide(ReservationService.method.checkIn, '체크인했습니다.')}>
 						체크인
 					</button>
 				)}
-				{r.status === 'confirmed' && !isSpace && mgr && (
+				{r.status === 'confirmed' && !isSpace && mgr && pickable && (
 					<button className="primary" onClick={() => setPickup(true)}>
 						수령 처리 (대여)
 					</button>
@@ -421,36 +454,72 @@ function waitsFor(allocations: Allocation[]): Uint8Array[] {
 	return allocations.filter((a) => a.kind === 'waiting').flatMap((a) => (a.resource?.id === undefined ? [] : [a.resource.id]))
 }
 
-/** An item the note of what is out of use names. */
-type OutOfUseItem = { id: Uint8Array; tag: string; name: string; status: string }
+/** What the note of what is out of use names. */
+type OutOfUseItem = { id: Uint8Array; tag: string; name: string; status: string; kind: string }
 
 /** What the server says a reservation takes that is out of use, as the note names it. */
 function outOfUseItem(v: ReservationOutOfUse): OutOfUseItem {
-	return { id: v.resourceId, tag: v.resourceTag, name: v.resourceName, status: v.status }
+	return { id: v.resourceId, tag: v.resourceTag, name: v.resourceName, status: v.status, kind: v.resourceKind }
+}
+
+/** What of these a reservation booked itself, of the resources it booked. */
+function booked(items: OutOfUseItem[], resources: Uint8Array[]): OutOfUseItem[] {
+	return items.filter((v) => resources.some((x) => sameId(x, v.id)))
 }
 
 /**
- * What a reservation takes that is out of use -- lost, retired or disposed --
- * which no hand-over takes (D42): a member kept in its kit as it went (design
- * 4, D40), which the kit's bookings take until it is taken off the kit, or
- * what was booked itself. `more` is what the place it is said in does about
- * it.
+ * What a reservation takes that is out of use -- lost, retired or disposed
+ * (D42, D43). A space it booked is not checked into. Anything else no
+ * hand-over takes: what was booked itself, or a member kept in its kit as it
+ * went (design 4, D40), which the kit's bookings take until it is taken off
+ * the kit. `more` is what the place it is said in does about what is handed
+ * over.
  */
 function OutOfUse(props: { items: OutOfUseItem[]; more: string }): ReactNode {
-	if (props.items.length === 0) return null
-	return (
-		<div className="note warn" role="note" aria-label="건넬 수 없는 자산">
-			<strong>건넬 수 없는 자산</strong>
-			<ul>
-				{props.items.map((a) => (
-					<li key={idStr(a.id)}>
-						{a.tag} {a.name}: {statusWord[a.status] ?? a.status}
-					</li>
-				))}
-			</ul>
-			<p className="small">{props.more} 키트의 구성품으로 남아 있으면 그 키트의 예약이 계속 잡습니다.</p>
-		</div>
+	const spaces = props.items.filter((a) => a.kind === 'space')
+	const things = props.items.filter((a) => a.kind !== 'space')
+	const list = (vs: OutOfUseItem[]) => (
+		<ul>
+			{vs.map((a) => (
+				<li key={idStr(a.id)}>
+					{a.tag} {a.name}: {statusWord[a.status] ?? a.status}
+				</li>
+			))}
+		</ul>
 	)
+	return (
+		<>
+			{things.length > 0 && (
+				<div className="note warn" role="note" aria-label="건넬 수 없는 자산">
+					<strong>건넬 수 없는 자산</strong>
+					{list(things)}
+					<p className="small">{props.more} 키트의 구성품으로 남아 있으면 그 키트의 예약이 계속 잡습니다.</p>
+				</div>
+			)}
+			{spaces.length > 0 && (
+				<div className="note warn" role="note" aria-label="쓸 수 없는 공간">
+					<strong>쓸 수 없는 공간</strong>
+					{list(spaces)}
+					<p className="small">분실·불용·폐기 상태라 체크인할 수 없습니다. 다시 쓸 수 있게 되면 체크인할 수 있습니다.</p>
+				</div>
+			)}
+		</>
+	)
+}
+
+/**
+ * What a reservation in `status` is not while what it booked is out of use
+ * (D43): approved, or confirmed from a hold -- saying yes to it is booking it
+ * -- nor a kit or a group of it picked up. That a space is not checked into
+ * is its note's to say, and an item is left out of a pickup that goes on.
+ */
+function Unusable(props: { status: string; items: OutOfUseItem[] }): ReactNode {
+	if (props.items.length === 0) return null
+	let say = ''
+	if (props.status === 'held') say = '예약한 것이 쓸 수 없는 상태라 확정할 수 없습니다. 취소하세요.'
+	else if (props.status === 'requested') say = '예약한 것이 쓸 수 없는 상태라 승인할 수 없습니다. 거절하거나 취소하세요.'
+	else if (props.status === 'confirmed' && props.items.some((v) => v.kind === 'kit' || v.kind === 'group')) say = '예약한 것이 쓸 수 없는 상태라 수령할 수 없습니다.'
+	return say === '' ? null : <p className="warn small">{say}</p>
 }
 
 /**
@@ -614,6 +683,9 @@ function Approvals(): ReactNode {
 							{d.entries.map((e) => {
 								const r = e.reservation
 								if (r === undefined) return null
+								const gone = e.outOfUse.map(outOfUseItem)
+								// What it booked that is out of use, which it is not approved with (D43).
+								const unusable = booked(gone, e.resourceIds)
 								return (
 									<li key={idStr(r.id)}>
 										<span>
@@ -621,12 +693,15 @@ function Approvals(): ReactNode {
 										</span>
 										<span className="inline">
 											<button onClick={() => void act(ReservationService.method.reject, { ref: ref(r.id) }, { ok: '거절했습니다.' })}>거절</button>
-											<button className="primary" onClick={() => void act(ReservationService.method.approve, { ref: ref(r.id) }, { ok: '승인했습니다.' })}>
-												승인
-											</button>
+											{unusable.length === 0 && (
+												<button className="primary" onClick={() => void act(ReservationService.method.approve, { ref: ref(r.id) }, { ok: '승인했습니다.' })}>
+													승인
+												</button>
+											)}
 										</span>
 										<Waiting conflicts={e.conflicts} />
-										<OutOfUse items={e.outOfUse.map(outOfUseItem)} more="분실·불용·폐기 상태라 수령할 때 건네지 않습니다." />
+										<OutOfUse items={gone} more="분실·불용·폐기 상태라 수령할 때 건네지 않습니다." />
+										<Unusable status={r.status} items={unusable} />
 									</li>
 								)
 							})}
