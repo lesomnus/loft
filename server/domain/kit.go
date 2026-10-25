@@ -7,6 +7,7 @@ import (
 	"time"
 	"uuid"
 
+	"github.com/lesomnus/payday/past"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/z"
 	"google.golang.org/grpc/codes"
@@ -37,6 +38,10 @@ import (
 // the reservation shows it wherever it is acted on. It takes the member once
 // nothing holds it any more ([Tx.take]): in the transaction that let it go,
 // when that held the member's schedule, and in the sweep otherwise.
+//
+// What each of them did to what a reservation holds is on the history of
+// both, the reservation and the member, as events of their own ([Tx.changed],
+// design D39).
 
 // allocWaiting is the allocation of a reservation that waits for a member of
 // its kit: one the kit was given after the reservation was made, which
@@ -359,6 +364,10 @@ func (t *Tx) recheckKits(ids ...uuid.UUID) error {
 	}
 
 	told := []kitWait{}
+	// What it did to each reservation, an event of the reservation's and
+	// one of the member's, all of them children of the change, written at
+	// once.
+	did := []allocChange{}
 	for _, s := range p.steps {
 		for _, k := range s.take {
 			m, err := t.member(k[0], kits[k[1]].Timezone)
@@ -384,6 +393,7 @@ func (t *Tx) recheckKits(ids ...uuid.UUID) error {
 				Exclusive: m.book.Units <= 1,
 				Units:     1,
 			}.Build()
+			kind := "reservation.take"
 			switch {
 			case s.override:
 				row.SetKind("override")
@@ -396,6 +406,7 @@ func (t *Tx) recheckKits(ids ...uuid.UUID) error {
 				// free.
 				row.SetKind(allocWaiting)
 				row.SetBlocking(false)
+				kind = "reservation.wait"
 			default:
 				cs, err := t.conflicts(m, from, to, 1, []uuid.UUID{s.r.Id})
 				if err != nil {
@@ -404,12 +415,14 @@ func (t *Tx) recheckKits(ids ...uuid.UUID) error {
 				if len(cs) > 0 {
 					row.SetKind(allocWaiting)
 					row.SetBlocking(false)
+					kind = "reservation.wait"
 					told = append(told, kitWait{r: s.r, kit: k[1], member: m, from: from})
 				}
 			}
 			if _, err := t.next.Allocation().Add(t.ctx, row); err != nil {
 				return err
 			}
+			did = append(did, allocChange{kind: kind, r: s.r, thing: m.asset, override: s.override})
 		}
 		freed := []*ent.Allocation{}
 		for _, a := range s.release {
@@ -419,6 +432,12 @@ func (t *Tx) recheckKits(ids ...uuid.UUID) error {
 			if a.Blocking {
 				freed = append(freed, a)
 			}
+			// What it let go of, a member voided as well.
+			m, err := t.member(a.ResourceId, "")
+			if err != nil {
+				return err
+			}
+			did = append(did, allocChange{kind: "reservation.let_go", r: s.r, thing: m.asset})
 		}
 		// What another kit's reservation waited for, which this one held.
 		if err := t.heal(freed); err != nil {
@@ -429,12 +448,83 @@ func (t *Tx) recheckKits(ids ...uuid.UUID) error {
 			if err != nil || !t.holding(m) {
 				continue
 			}
-			if _, err := t.take(w); err != nil {
+			if _, err := t.take(w, false); err != nil {
 				return err
 			}
 		}
 	}
+	if err := t.changed(did...); err != nil {
+		return err
+	}
 	return t.tellWaiting(told)
+}
+
+// allocChange is what an operation did to what a reservation holds of one
+// thing it needs: of `kind`, a `reservation.take`, `.wait`, `.resolve` or
+// `.let_go` (`rove/past.proto`) -- a member of its kit, which is one thing;
+// or a pool's, by how many of it.
+type allocChange struct {
+	kind     string
+	r        *ent.Reservation
+	thing    *ent.Asset
+	override bool
+	units    uint32
+}
+
+// said is what the change's events hold: the reservation and the thing, as
+// each was called then.
+func (c allocChange) said() *app.ReservationAllocationChanged {
+	return app.ReservationAllocationChanged_builder{
+		Reservation: pdid.Id(c.r.Id).Bytes(),
+		Name:        c.r.Name,
+		BeginsAt:    ts(c.r.BeginsAt),
+		Asset:       pdid.Id(c.thing.Id).Bytes(),
+		AssetName:   c.thing.Name,
+		Override:    c.override,
+		Units:       c.units,
+	}.Build()
+}
+
+// changed records each of these as an event of the reservation's and one of
+// the thing's, the two holding the same, children of the operation in progress
+// -- whose cause it is -- a page of them to a statement (design D34, D39). So
+// the reservation's history and the thing's each hold what happened to it,
+// and the operation's own says what the operation was.
+//
+// With none in progress, each is an operation of its own ([Tx.settled]).
+func (t *Tx) changed(cs ...allocChange) error {
+	if len(cs) == 0 {
+		return nil
+	}
+	if t.op == nil {
+		for _, c := range cs {
+			if err := t.settled(c); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+	kids := make([]past.Child, 0, 2*len(cs))
+	for _, c := range cs {
+		v := c.said()
+		kids = append(kids,
+			past.Child{Event: past.Event{Kind: c.kind, Subject: pdid.Id(c.r.Id), At: t.now, Value: v}},
+			past.Child{Event: past.Event{Kind: c.kind, Subject: pdid.Id(c.thing.Id), At: t.now, Value: v}},
+		)
+	}
+	_, err := t.op.Batch(t.ctx, kids)
+	return err
+}
+
+// settled records `c` as an operation of its own, part of no other: the
+// reservation's event, whose child the thing's is -- a wait the sweep settles,
+// which is the deployment's own work, as each reservation it lets go of is.
+func (t *Tx) settled(c allocChange) error {
+	v := c.said()
+	if err := t.begin(nil, c.kind, pdid.Id(c.r.Id), t.now, "", v); err != nil {
+		return err
+	}
+	return t.child(c.kind, pdid.Id(c.thing.Id), t.now, "", v, nil)
 }
 
 // take makes the allocation a reservation waits for a member with its own,
@@ -442,11 +532,15 @@ func (t *Tx) recheckKits(ids ...uuid.UUID) error {
 // taken had the member been free when its kit was given it. It answers
 // whether it did, and tells whoever the reservation is for.
 //
+// That it did is a `reservation.resolve` of the reservation's and of the
+// member's: children of the operation that let the member go, or -- `own`,
+// the sweep's -- an operation of its own ([Tx.changed]).
+//
 // The caller holds what keeps the two from changing under it: the member's
 // schedule, which a booking of the member holds as it looks; and what a
 // reservation holds as it lets its time go -- its row, or the schedule of
 // anything it booked ([Tx.lockAllocations]).
-func (t *Tx) take(w *ent.Allocation) (bool, error) {
+func (t *Tx) take(w *ent.Allocation, own bool) (bool, error) {
 	if w.RefId == nil {
 		return false, nil
 	}
@@ -490,6 +584,15 @@ func (t *Tx) take(w *ent.Allocation) (bool, error) {
 		}
 		return false, err
 	}
+	took := allocChange{kind: "reservation.resolve", r: r, thing: m.asset}
+	if own {
+		err = t.settled(took)
+	} else {
+		err = t.changed(took)
+	}
+	if err != nil {
+		return false, err
+	}
 	return true, t.notifyParty(r.PartyId, "reservation.resolved", "예약 구성품 확보: "+r.Name,
 		fmt.Sprintf("기다리던 %s이(가) 비어 이 예약에 잡았습니다", tagged(m.asset)), pdid.Id(r.Id), "/reservations?tab=mine")
 }
@@ -520,7 +623,8 @@ func (t *Tx) heal(freed []*ent.Allocation) error {
 			if w.RefId != nil && a.RefId != nil && *w.RefId == *a.RefId {
 				continue
 			}
-			if _, err := t.take(w); err != nil {
+			// Part of what let it go.
+			if _, err := t.take(w, false); err != nil {
 				return err
 			}
 		}
@@ -583,8 +687,10 @@ func sweepKits(t *Tx) error {
 	if err != nil {
 		return err
 	}
+	// Each an operation of its own, the deployment's, as each reservation
+	// the sweeps let go of is: part of nothing else that happened.
 	for _, w := range ws {
-		if _, err := t.take(w); err != nil {
+		if _, err := t.take(w, true); err != nil {
 			return err
 		}
 	}

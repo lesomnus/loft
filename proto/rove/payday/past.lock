@@ -54,8 +54,12 @@
     "reservation.complete": "rove.ReservationDecided",
     "reservation.confirm": "rove.ReservationConfirmed",
     "reservation.expire": "rove.ReservationReleased",
+    "reservation.let_go": "rove.ReservationAllocationChanged",
     "reservation.no_show": "rove.ReservationReleased",
     "reservation.reject": "rove.ReservationDecided",
+    "reservation.resolve": "rove.ReservationAllocationChanged",
+    "reservation.take": "rove.ReservationAllocationChanged",
+    "reservation.wait": "rove.ReservationAllocationChanged",
     "retention.expired": "rove.RetentionExpired",
     "stock.add": "rove.StockAdded",
     "stock.adjust": "rove.StockChanged",
@@ -703,6 +707,37 @@
       "11": {
         "json": "override",
         "kind": "bool"
+      }
+    },
+    "rove.ReservationAllocationChanged": {
+      "1": {
+        "json": "reservation",
+        "kind": "bytes"
+      },
+      "2": {
+        "json": "name",
+        "kind": "string"
+      },
+      "7": {
+        "json": "beginsAt",
+        "kind": "message",
+        "type": "google.protobuf.Timestamp"
+      },
+      "9": {
+        "json": "asset",
+        "kind": "bytes"
+      },
+      "10": {
+        "json": "assetName",
+        "kind": "string"
+      },
+      "11": {
+        "json": "override",
+        "kind": "bool"
+      },
+      "14": {
+        "json": "units",
+        "kind": "uint32"
       }
     },
     "rove.ReservationConfirmed": {

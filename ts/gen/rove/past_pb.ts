@@ -14,7 +14,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file rove/past.proto.
  */
 export const file_rove_past: GenFile = /*@__PURE__*/
-  fileDesc("Cg9yb3ZlL3Bhc3QucHJvdG8SBHJvdmUiVQoKQXNzZXRBZGRlZBINCgVhc3NldBgBIAEoDBILCgN0YWcYAiABKAkSDAoEbmFtZRgFIAEoCRIMCgRraW5kGAYgASgJOg+SuxYLCglhc3NldC5hZGQiMgoLQXNzZXRzQWRkZWQSDQoFY291bnQYByABKA06FJK7FhAKDmFzc2V0LmFkZF9tYW55IpABCgpBc3NldE1vdmVkEg0KBWFzc2V0GAEgASgMEgsKA3RhZxgCIAEoCRIKCgJ0bxgOIAEoDBIOCgZ0b190YWcYDyABKAkSDAoEbW9kZRgQIAEoCRIMCgRzbG90GBEgASgJEg4KBnVfZnJvbRgSIAEoBRIMCgR1X3RvGBMgASgFOhCSuxYMCgphc3NldC5tb3ZlIl8KEkFzc2V0QXR0cmlidXRlc1NldBINCgVhc3NldBgBIAEoDBILCgN0YWcYAiABKAkSCwoDc2V0GAwgAygJEg8KB2NsZWFyZWQYDSADKAk6D5K7FgsKCWFzc2V0LnNldCJcCg1Bc3NldEFzc2lnbmVkEg0KBWFzc2V0GAEgASgMEgsKA3RhZxgCIAEoCRIMCgRyb2xlGAMgASgJEg0KBXBhcnR5GAQgASgMOhKSuxYOCgxhc3NldC5hc3NpZ24ikwEKDEFzc2V0UmVsYXRlZBINCgVhc3NldBgBIAEoDBILCgN0YWcYAiABKAkSDgoGdGFyZ2V0GBQgASgMEhIKCnRhcmdldF90YWcYFSABKAkSEAoIcmVsYXRpb24YFiABKAkSCwoDZW5kGBcgASgIEhAKCHJlcXVpcmVkGBggASgIOhKSuxYOCgxhc3NldC5yZWxhdGUiqgEKDkFzc2V0Q29ycmVjdGVkEg0KBWFzc2V0GAEgASgMEgsKA3RhZxgCIAEoCRIMCgRyb2xlGAMgASgJEgsKA3JvdxgIIAEoDBILCgNrZXkYCSABKAkSDwoHcmV0cmFjdBgKIAEoCBIuCgp2YWxpZF9mcm9tGAsgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcDoTkrsWDwoNYXNzZXQuY29ycmVjdCI7CgtBc3NldFZvaWRlZBINCgVhc3NldBgBIAEoDBILCgN0YWcYAiABKAk6EJK7FgwKCmFzc2V0LnZvaWQifgoKU3RvY2tBZGRlZBINCgVzdG9jaxgBIAEoDBIMCgRuYW1lGAIgASgJEhAKCHF1YW50aXR5GAQgASgDEg0KBW1vZGVsGAUgASgMEg0KBXNwYWNlGAYgASgMEhIKCnNwYWNlX25hbWUYByABKAk6D5K7FgsKCXN0b2NrLmFkZCJsCgxTdG9ja0NoYW5nZWQSDQoFc3RvY2sYASABKAwSDAoEbmFtZRgCIAEoCRINCgVkZWx0YRgDIAEoAzowkrsWLAoNc3RvY2sucmVjZWl2ZQoNc3RvY2suY29uc3VtZQoMc3RvY2suYWRqdXN0IoABChBTdG9ja1RyYW5zZmVycmVkEg0KBXN0b2NrGAEgASgMEgwKBG5hbWUYAiABKAkSEAoIcXVhbnRpdHkYBCABKAMSEAoIdG9fc3BhY2UYCCABKAwSFQoNdG9fc3BhY2VfbmFtZRgJIAEoCToUkrsWEAoOc3RvY2sudHJhbnNmZXIiVAoOU3RvY2tDb252ZXJ0ZWQSDQoFc3RvY2sYASABKAwSDAoEbmFtZRgCIAEoCRIQCghxdWFudGl0eRgEIAEoAzoTkrsWDwoNc3RvY2suY29udmVydCKuAQoNQ3VzdG9keUlzc3VlZBIPCgdjdXN0b2R5GAEgASgMEg0KBXBhcnR5GAIgASgMEicKA2R1ZRgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASDAoEa2luZBgEIAEoCRINCgVsaW5lcxgFIAEoDRITCgtyZXNlcnZhdGlvbhgGIAEoDBINCgVhc3NldBgHIAEoDDoTkrsWDwoNY3VzdG9keS5pc3N1ZSJBChNDdXN0b2R5QWNrbm93bGVkZ2VkEg8KB2N1c3RvZHkYASABKAw6GZK7FhUKE2N1c3RvZHkuYWNrbm93bGVkZ2UiYQoPQ3VzdG9keUV4dGVuZGVkEg8KB2N1c3RvZHkYASABKAwSJwoDZHVlGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcDoUkrsWEAoOY3VzdG9keS5leHRlbmQiUwoPQ3VzdG9keVJldHVybmVkEg8KB2N1c3RvZHkYASABKAwSDQoFYXNzZXQYByABKAwSCgoCdG8YCCABKAw6FJK7FhAKDmN1c3RvZHkucmV0dXJuIlwKDkNvdW50RGVsaW1pdGVkEg0KBWNvdW50GAEgASgMEgwKBG5hbWUYAiABKAkSDQoFc2NvcGUYAyABKAw6HpK7FhoKC2NvdW50LnN0YXJ0Cgtjb3VudC5jbG9zZSJqCgxDb3VudFNjYW5uZWQSDQoFY291bnQYASABKAwSDQoFYXNzZXQYBiABKAwSDQoFbGFiZWwYCCABKAwSDQoFc3BhY2UYCSABKAwSDAoEY29kZRgKIAEoCToQkrsWDAoKY291bnQuc2NhbiJICg9Db3VudFJlY29uY2lsZWQSDQoFY291bnQYASABKAwSDwoHbWlzc2luZxgEIAEoDToVkrsWEQoPY291bnQucmVjb25jaWxlImcKDUNvdW50UmVzb2x2ZWQSDQoFY291bnQYASABKAwSDwoHZmluZGluZxgFIAEoDBINCgVhc3NldBgGIAEoDBISCgpyZXNvbHV0aW9uGAcgASgJOhOSuxYPCg1jb3VudC5yZXNvbHZlImIKDUJvb2thYmxlU2F2ZWQSEAoIYm9va2FibGUYASABKAwSDQoFYXNzZXQYAiABKAwSCwoDdGFnGAMgASgJOiOSuxYfCgxib29rYWJsZS5hZGQKD2Jvb2thYmxlLnVwZGF0ZSKDAgoQUmVzZXJ2YXRpb25BZGRlZBITCgtyZXNlcnZhdGlvbhgBIAEoDBIOCgZzdGF0dXMYBCABKAkSDQoFcGFydHkYBSABKAwSEwoLb2NjdXJyZW5jZXMYBiABKA0SLQoJYmVnaW5zX2F0GAcgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIrCgdlbmRzX2F0GAggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBINCgVhc3NldBgJIAEoDBISCgphc3NldF9uYW1lGAogASgJEhAKCG92ZXJyaWRlGAsgASgIOhWSuxYRCg9yZXNlcnZhdGlvbi5hZGQiZAoUUmVzZXJ2YXRpb25Db25maXJtZWQSEwoLcmVzZXJ2YXRpb24YASABKAwSDAoEbmFtZRgCIAEoCRIOCgZzdGF0dXMYBCABKAk6GZK7FhUKE3Jlc2VydmF0aW9uLmNvbmZpcm0ixAEKElJlc2VydmF0aW9uRGVjaWRlZBITCgtyZXNlcnZhdGlvbhgBIAEoDBIMCgRuYW1lGAIgASgJEg4KBnNlcmllcxgDIAEoCBINCgVlbmRlZBgMIAEoCDpskrsWaAoTcmVzZXJ2YXRpb24uYXBwcm92ZQoScmVzZXJ2YXRpb24ucmVqZWN0ChJyZXNlcnZhdGlvbi5jYW5jZWwKE3Jlc2VydmF0aW9uLmNoZWNraW4KFHJlc2VydmF0aW9uLmNvbXBsZXRlInUKE1Jlc2VydmF0aW9uUmVsZWFzZWQSEwoLcmVzZXJ2YXRpb24YASABKAwSDAoEbmFtZRgCIAEoCRIMCgRmcm9tGA0gASgJOi2SuxYpChJyZXNlcnZhdGlvbi5leHBpcmUKE3Jlc2VydmF0aW9uLm5vX3Nob3ciZAoRVGVuYW50RG9tYWluQWRkZWQSDgoGZG9tYWluGAEgASgMEgwKBGhvc3QYAiABKAkSDwoHcHVycG9zZRgDIAEoCRIOCgZzb3VyY2UYBCABKAk6EJK7FgwKCmRvbWFpbi5hZGQiaQoUVGVuYW50RG9tYWluVmVyaWZpZWQSDgoGZG9tYWluGAEgASgMEgwKBGhvc3QYAiABKAkSDwoHcHVycG9zZRgDIAEoCRINCgVhZ2FpbhgJIAEoCDoTkrsWDwoNZG9tYWluLnZlcmlmeSJdChVUZW5hbnREb21haW5BY3RpdmF0ZWQSDgoGZG9tYWluGAEgASgMEgwKBGhvc3QYAiABKAkSDwoHcHVycG9zZRgDIAEoCToVkrsWEQoPZG9tYWluLmFjdGl2YXRlIngKE1RlbmFudERvbWFpblJldGlyZWQSDgoGZG9tYWluGAEgASgMEgwKBGhvc3QYAiABKAkSDwoHcHVycG9zZRgDIAEoCRINCgVmb3JjZRgHIAEoCBIOCgZsYWJlbHMYCCABKA06E5K7Fg8KDWRvbWFpbi5yZXRpcmUinAEKElRlbmFudERvbWFpbkxhcHNlZBIOCgZkb21haW4YASABKAwSDAoEaG9zdBgCIAEoCRIPCgdwdXJwb3NlGAMgASgJEjEKDWZhaWxpbmdfc2luY2UYBSABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhAKCGZhaWx1cmVzGAYgASgNOhKSuxYOCgxkb21haW4ubGFwc2UiWAoPSW52aXRhdGlvbkFkZGVkEhIKCmludml0YXRpb24YASABKAwSDAoEcm9sZRgCIAEoCRINCgVwYXJ0eRgDIAEoDDoUkrsWEAoOaW52aXRhdGlvbi5hZGQiXwoSSW52aXRhdGlvbkFjY2VwdGVkEhIKCmludml0YXRpb24YASABKAwSDAoEcm9sZRgCIAEoCRIOCgZob2xkZXIYBCABKAw6F5K7FhMKEWludml0YXRpb24uYWNjZXB0ImMKEUludml0YXRpb25DaGFuZ2VkEhIKCmludml0YXRpb24YASABKAw6OpK7FjYKEGludml0YXRpb24uY2xhaW0KD2ludml0YXRpb24uZGVueQoRaW52aXRhdGlvbi5yZXZva2UiUAoNTGFiZWxzUHJpbnRlZBINCgViYXRjaBgFIAEoCRINCgVjb3VudBgGIAEoDRIOCgZhc3NldHMYByADKAw6EZK7Fg0KC2xhYmVsLnByaW50IkkKCkxhYmVsQm91bmQSDQoFbGFiZWwYASABKAwSDQoFYXNzZXQYAiABKAwSCwoDdGFnGAMgASgJOhCSuxYMCgpsYWJlbC5iaW5kIk4KDExhYmVsVW5ib3VuZBINCgVsYWJlbBgBIAEoDBINCgVhc3NldBgCIAEoDBIMCgR2b2lkGAQgASgIOhKSuxYOCgxsYWJlbC51bmJpbmQiWwoOSXRlbU1vZGVsU2F2ZWQSDQoFbW9kZWwYASABKAwSDAoEbmFtZRgCIAEoCRINCgVtYWtlchgDIAEoCTodkrsWGQoJbW9kZWwuYWRkCgxtb2RlbC51cGRhdGUiVwoOQXNzZXRUeXBlU2F2ZWQSDAoEdHlwZRgBIAEoDBIMCgRuYW1lGAIgASgJEgwKBGtpbmQYAyABKAk6G5K7FhcKCHR5cGUuYWRkCgt0eXBlLnVwZGF0ZSJICgpQYXJ0eVNhdmVkEg0KBXBhcnR5GAEgASgMEgwKBGtpbmQYAyABKAk6HZK7FhkKCXBhcnR5LmFkZAoMcGFydHkudXBkYXRlIk8KDFBhcnR5SW52aXRlZBINCgVwYXJ0eRgBIAEoDBIOCgZob2xkZXIYAiABKAwSDAoEcm9sZRgEIAEoCToSkrsWDgoMcGFydHkuaW52aXRlIlkKDFBhcnR5Um9sZVNldBINCgVwYXJ0eRgBIAEoDBIOCgZob2xkZXIYAiABKAwSDAoEcm9sZRgEIAEoCRIKCgJieRgGIAEoCToQkrsWDAoKcGFydHkucm9sZSJUChBQYXJ0eVBhc3N3b3JkU2V0Eg0KBXBhcnR5GAEgASgMEg4KBmhvbGRlchgCIAEoDBILCgNvd24YBSABKAg6FJK7FhAKDnBhcnR5LnBhc3N3b3JkIkkKEFBhcnR5RGVhY3RpdmF0ZWQSDQoFcGFydHkYASABKAwSDgoGaG9sZGVyGAIgASgMOhaSuxYSChBwYXJ0eS5kZWFjdGl2YXRlIjwKElBhcnR5UHNldWRvbnltaXplZBIMCgRoZWxkGAcgASgNOhiSuxYUChJwYXJ0eS5wc2V1ZG9ueW1pemUigwEKDVB1cmNoYXNlQWRkZWQSEAoIcHVyY2hhc2UYASABKAwSDAoEbmFtZRgCIAEoCRINCgV0b3RhbBgDIAEoAxIQCghjdXJyZW5jeRgEIAEoCRINCgVsaW5lcxgFIAEoDRIOCgZ2ZW5kb3IYBiABKAw6EpK7Fg4KDHB1cmNoYXNlLmFkZCJYChBQdXJjaGFzZVJlY2VpdmVkEhAKCHB1cmNoYXNlGAEgASgMEgwKBG5hbWUYAiABKAkSDAoEaW50bxgHIAEoDDoWkrsWEgoQcHVyY2hhc2UucmVjZWl2ZSKKAQoOV29ya09yZGVyU2F2ZWQSEgoKd29ya19vcmRlchgBIAEoDBINCgVhc3NldBgCIAEoDBIMCgRuYW1lGAMgASgJEgsKA3RhZxgEIAEoCRIMCgRraW5kGAUgASgJEg4KBnN0YXR1cxgGIAEoCTockrsWGAoJd29yay5vcGVuCgt3b3JrLnVwZGF0ZSKFAQoRV29ya09yZGVyRmluaXNoZWQSEgoKd29ya19vcmRlchgBIAEoDBINCgVhc3NldBgCIAEoDBIMCgRuYW1lGAMgASgJEgwKBGNvc3QYByABKAMSEAoIY3VycmVuY3kYCCABKAk6H5K7FhsKCXdvcmsuZG9uZQoOd29yay5jYW5jZWxsZWQiYQoPV29ya3NwYWNlQ2xvc2VkEgoKAmJ5GAEgASgJEisKB2Rlc3Ryb3kYAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wOhWSuxYRCg93b3Jrc3BhY2UuY2xvc2UiOAoRV29ya3NwYWNlUmVzdG9yZWQSCgoCYnkYASABKAk6F5K7FhMKEXdvcmtzcGFjZS5yZXN0b3JlIr8CChNXb3Jrc3BhY2VDb25maWd1cmVkEhcKCHRpbWV6b25lGAMgASgJQgWqAQIIARIXCghjdXJyZW5jeRgEIAEoCUIFqgECCAESHgoPbm9fc2hvd19taW51dGVzGAUgASgFQgWqAQIIARIYCglrZWVwX2RheXMYBiABKA1CBaoBAggBEi0KCWtlZXBfZnJvbRgHIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASHwoQYWNjZXNzX2tlZXBfZGF5cxgIIAEoDUIFqgECCAESNAoQYWNjZXNzX2tlZXBfZnJvbRgJIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGwoMcmVzdG9yZV9kYXlzGAogASgNQgWqAQIIAToZkrsWFQoTd29ya3NwYWNlLmNvbmZpZ3VyZSLBAgoRV29ya3NwYWNlSW1wb3J0ZWQSLwoLZXhwb3J0ZWRfYXQYCyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhAKCG1hbmlmZXN0GAwgASgJEhEKCXNpZ25lZF9ieRgNIAEoCRIMCgRyb3dzGA4gASgNEg0KBWZpbGVzGA8gASgNEg0KBWFza2VkGBAgASgJEhAKCHJlbGVhc2VkGBEgAygJEhAKCHVubGlua2VkGBIgASgNEhAKCHJlb3BlbmVkGBMgASgIEi8KBGxlZnQYFCADKAsyIS5yb3ZlLldvcmtzcGFjZUltcG9ydGVkLkxlZnRFbnRyeRorCglMZWZ0RW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgNOgI4AToWkrsWEgoQd29ya3NwYWNlLmltcG9ydCK6AQoOQWNjZXNzUmV2aWV3ZWQSDgoGcmV2aWV3GAEgASgMEigKBGZyb20YAiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiYKAnRvGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBINCgVjYWxscxgEIAEoDRIRCglkb3dubG9hZHMYBSABKA0SDwoHcmVmdXNlZBgGIAEoDToTkrsWDwoNYWNjZXNzLnJldmlldyJICg9BY2NvdW50RGVwYXJ0ZWQSDAoEaGVsZBgBIAEoDRIRCglvd25lcmxlc3MYAiABKAg6FJK7FhAKDmFjY291bnQuZGVwYXJ0In4KD0F0dGFjaG1lbnRBZGRlZBISCgphdHRhY2htZW50GAEgASgMEg8KB3N1YmplY3QYAiABKAwSDAoEbmFtZRgDIAEoCRIUCgxjb250ZW50X3R5cGUYBCABKAkSDAoEc2l6ZRgFIAEoBDoUkrsWEAoOYXR0YWNobWVudC5hZGQiqwIKEFJldGVudGlvbkV4cGlyZWQSKgoGYmVmb3JlGAEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBISCgpwbGFjZW1lbnRzGAIgASgNEg0KBWxpbmtzGAMgASgNEhQKDHN0ZXdhcmRzaGlwcxgEIAEoDRINCgVmYWN0cxgFIAEoDRIOCgZldmVudHMYBiABKA0SFAoMcmVzZXJ2YXRpb25zGAcgASgNEhEKCWN1c3RvZGllcxgIIAEoDRIOCgZjb3VudHMYCSABKA0SEwoLd29ya19vcmRlcnMYCiABKA0SFwoPc3RvY2tfbW92ZW1lbnRzGAsgASgNEhMKC2F0dGFjaG1lbnRzGAwgASgNOheSuxYTChFyZXRlbnRpb24uZXhwaXJlZCIyCg1FdmVudFJlZGFjdGVkEg0KBWV2ZW50GAEgASgMOhKSuxYOCgxldmVudC5yZWRhY3RCKVoYZ2l0aHViLmNvbS9sZXNvbW51cy9yb3ZlkgMCCALKxxYGCgQIERAQYghlZGl0aW9uc3DoBw", [file_google_protobuf_timestamp, file_payday]);
+  fileDesc("Cg9yb3ZlL3Bhc3QucHJvdG8SBHJvdmUiVQoKQXNzZXRBZGRlZBINCgVhc3NldBgBIAEoDBILCgN0YWcYAiABKAkSDAoEbmFtZRgFIAEoCRIMCgRraW5kGAYgASgJOg+SuxYLCglhc3NldC5hZGQiMgoLQXNzZXRzQWRkZWQSDQoFY291bnQYByABKA06FJK7FhAKDmFzc2V0LmFkZF9tYW55IpABCgpBc3NldE1vdmVkEg0KBWFzc2V0GAEgASgMEgsKA3RhZxgCIAEoCRIKCgJ0bxgOIAEoDBIOCgZ0b190YWcYDyABKAkSDAoEbW9kZRgQIAEoCRIMCgRzbG90GBEgASgJEg4KBnVfZnJvbRgSIAEoBRIMCgR1X3RvGBMgASgFOhCSuxYMCgphc3NldC5tb3ZlIl8KEkFzc2V0QXR0cmlidXRlc1NldBINCgVhc3NldBgBIAEoDBILCgN0YWcYAiABKAkSCwoDc2V0GAwgAygJEg8KB2NsZWFyZWQYDSADKAk6D5K7FgsKCWFzc2V0LnNldCJcCg1Bc3NldEFzc2lnbmVkEg0KBWFzc2V0GAEgASgMEgsKA3RhZxgCIAEoCRIMCgRyb2xlGAMgASgJEg0KBXBhcnR5GAQgASgMOhKSuxYOCgxhc3NldC5hc3NpZ24ikwEKDEFzc2V0UmVsYXRlZBINCgVhc3NldBgBIAEoDBILCgN0YWcYAiABKAkSDgoGdGFyZ2V0GBQgASgMEhIKCnRhcmdldF90YWcYFSABKAkSEAoIcmVsYXRpb24YFiABKAkSCwoDZW5kGBcgASgIEhAKCHJlcXVpcmVkGBggASgIOhKSuxYOCgxhc3NldC5yZWxhdGUiqgEKDkFzc2V0Q29ycmVjdGVkEg0KBWFzc2V0GAEgASgMEgsKA3RhZxgCIAEoCRIMCgRyb2xlGAMgASgJEgsKA3JvdxgIIAEoDBILCgNrZXkYCSABKAkSDwoHcmV0cmFjdBgKIAEoCBIuCgp2YWxpZF9mcm9tGAsgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcDoTkrsWDwoNYXNzZXQuY29ycmVjdCI7CgtBc3NldFZvaWRlZBINCgVhc3NldBgBIAEoDBILCgN0YWcYAiABKAk6EJK7FgwKCmFzc2V0LnZvaWQifgoKU3RvY2tBZGRlZBINCgVzdG9jaxgBIAEoDBIMCgRuYW1lGAIgASgJEhAKCHF1YW50aXR5GAQgASgDEg0KBW1vZGVsGAUgASgMEg0KBXNwYWNlGAYgASgMEhIKCnNwYWNlX25hbWUYByABKAk6D5K7FgsKCXN0b2NrLmFkZCJsCgxTdG9ja0NoYW5nZWQSDQoFc3RvY2sYASABKAwSDAoEbmFtZRgCIAEoCRINCgVkZWx0YRgDIAEoAzowkrsWLAoNc3RvY2sucmVjZWl2ZQoNc3RvY2suY29uc3VtZQoMc3RvY2suYWRqdXN0IoABChBTdG9ja1RyYW5zZmVycmVkEg0KBXN0b2NrGAEgASgMEgwKBG5hbWUYAiABKAkSEAoIcXVhbnRpdHkYBCABKAMSEAoIdG9fc3BhY2UYCCABKAwSFQoNdG9fc3BhY2VfbmFtZRgJIAEoCToUkrsWEAoOc3RvY2sudHJhbnNmZXIiVAoOU3RvY2tDb252ZXJ0ZWQSDQoFc3RvY2sYASABKAwSDAoEbmFtZRgCIAEoCRIQCghxdWFudGl0eRgEIAEoAzoTkrsWDwoNc3RvY2suY29udmVydCKuAQoNQ3VzdG9keUlzc3VlZBIPCgdjdXN0b2R5GAEgASgMEg0KBXBhcnR5GAIgASgMEicKA2R1ZRgDIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASDAoEa2luZBgEIAEoCRINCgVsaW5lcxgFIAEoDRITCgtyZXNlcnZhdGlvbhgGIAEoDBINCgVhc3NldBgHIAEoDDoTkrsWDwoNY3VzdG9keS5pc3N1ZSJBChNDdXN0b2R5QWNrbm93bGVkZ2VkEg8KB2N1c3RvZHkYASABKAw6GZK7FhUKE2N1c3RvZHkuYWNrbm93bGVkZ2UiYQoPQ3VzdG9keUV4dGVuZGVkEg8KB2N1c3RvZHkYASABKAwSJwoDZHVlGAMgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcDoUkrsWEAoOY3VzdG9keS5leHRlbmQiUwoPQ3VzdG9keVJldHVybmVkEg8KB2N1c3RvZHkYASABKAwSDQoFYXNzZXQYByABKAwSCgoCdG8YCCABKAw6FJK7FhAKDmN1c3RvZHkucmV0dXJuIlwKDkNvdW50RGVsaW1pdGVkEg0KBWNvdW50GAEgASgMEgwKBG5hbWUYAiABKAkSDQoFc2NvcGUYAyABKAw6HpK7FhoKC2NvdW50LnN0YXJ0Cgtjb3VudC5jbG9zZSJqCgxDb3VudFNjYW5uZWQSDQoFY291bnQYASABKAwSDQoFYXNzZXQYBiABKAwSDQoFbGFiZWwYCCABKAwSDQoFc3BhY2UYCSABKAwSDAoEY29kZRgKIAEoCToQkrsWDAoKY291bnQuc2NhbiJICg9Db3VudFJlY29uY2lsZWQSDQoFY291bnQYASABKAwSDwoHbWlzc2luZxgEIAEoDToVkrsWEQoPY291bnQucmVjb25jaWxlImcKDUNvdW50UmVzb2x2ZWQSDQoFY291bnQYASABKAwSDwoHZmluZGluZxgFIAEoDBINCgVhc3NldBgGIAEoDBISCgpyZXNvbHV0aW9uGAcgASgJOhOSuxYPCg1jb3VudC5yZXNvbHZlImIKDUJvb2thYmxlU2F2ZWQSEAoIYm9va2FibGUYASABKAwSDQoFYXNzZXQYAiABKAwSCwoDdGFnGAMgASgJOiOSuxYfCgxib29rYWJsZS5hZGQKD2Jvb2thYmxlLnVwZGF0ZSKDAgoQUmVzZXJ2YXRpb25BZGRlZBITCgtyZXNlcnZhdGlvbhgBIAEoDBIOCgZzdGF0dXMYBCABKAkSDQoFcGFydHkYBSABKAwSEwoLb2NjdXJyZW5jZXMYBiABKA0SLQoJYmVnaW5zX2F0GAcgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIrCgdlbmRzX2F0GAggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBINCgVhc3NldBgJIAEoDBISCgphc3NldF9uYW1lGAogASgJEhAKCG92ZXJyaWRlGAsgASgIOhWSuxYRCg9yZXNlcnZhdGlvbi5hZGQiZAoUUmVzZXJ2YXRpb25Db25maXJtZWQSEwoLcmVzZXJ2YXRpb24YASABKAwSDAoEbmFtZRgCIAEoCRIOCgZzdGF0dXMYBCABKAk6GZK7FhUKE3Jlc2VydmF0aW9uLmNvbmZpcm0ixAEKElJlc2VydmF0aW9uRGVjaWRlZBITCgtyZXNlcnZhdGlvbhgBIAEoDBIMCgRuYW1lGAIgASgJEg4KBnNlcmllcxgDIAEoCBINCgVlbmRlZBgMIAEoCDpskrsWaAoTcmVzZXJ2YXRpb24uYXBwcm92ZQoScmVzZXJ2YXRpb24ucmVqZWN0ChJyZXNlcnZhdGlvbi5jYW5jZWwKE3Jlc2VydmF0aW9uLmNoZWNraW4KFHJlc2VydmF0aW9uLmNvbXBsZXRlInUKE1Jlc2VydmF0aW9uUmVsZWFzZWQSEwoLcmVzZXJ2YXRpb24YASABKAwSDAoEbmFtZRgCIAEoCRIMCgRmcm9tGA0gASgJOi2SuxYpChJyZXNlcnZhdGlvbi5leHBpcmUKE3Jlc2VydmF0aW9uLm5vX3Nob3cihwIKHFJlc2VydmF0aW9uQWxsb2NhdGlvbkNoYW5nZWQSEwoLcmVzZXJ2YXRpb24YASABKAwSDAoEbmFtZRgCIAEoCRItCgliZWdpbnNfYXQYByABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg0KBWFzc2V0GAkgASgMEhIKCmFzc2V0X25hbWUYCiABKAkSEAoIb3ZlcnJpZGUYCyABKAgSDQoFdW5pdHMYDiABKA06UZK7Fk0KEHJlc2VydmF0aW9uLnRha2UKEHJlc2VydmF0aW9uLndhaXQKE3Jlc2VydmF0aW9uLnJlc29sdmUKEnJlc2VydmF0aW9uLmxldF9nbyJkChFUZW5hbnREb21haW5BZGRlZBIOCgZkb21haW4YASABKAwSDAoEaG9zdBgCIAEoCRIPCgdwdXJwb3NlGAMgASgJEg4KBnNvdXJjZRgEIAEoCToQkrsWDAoKZG9tYWluLmFkZCJpChRUZW5hbnREb21haW5WZXJpZmllZBIOCgZkb21haW4YASABKAwSDAoEaG9zdBgCIAEoCRIPCgdwdXJwb3NlGAMgASgJEg0KBWFnYWluGAkgASgIOhOSuxYPCg1kb21haW4udmVyaWZ5Il0KFVRlbmFudERvbWFpbkFjdGl2YXRlZBIOCgZkb21haW4YASABKAwSDAoEaG9zdBgCIAEoCRIPCgdwdXJwb3NlGAMgASgJOhWSuxYRCg9kb21haW4uYWN0aXZhdGUieAoTVGVuYW50RG9tYWluUmV0aXJlZBIOCgZkb21haW4YASABKAwSDAoEaG9zdBgCIAEoCRIPCgdwdXJwb3NlGAMgASgJEg0KBWZvcmNlGAcgASgIEg4KBmxhYmVscxgIIAEoDToTkrsWDwoNZG9tYWluLnJldGlyZSKcAQoSVGVuYW50RG9tYWluTGFwc2VkEg4KBmRvbWFpbhgBIAEoDBIMCgRob3N0GAIgASgJEg8KB3B1cnBvc2UYAyABKAkSMQoNZmFpbGluZ19zaW5jZRgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEAoIZmFpbHVyZXMYBiABKA06EpK7Fg4KDGRvbWFpbi5sYXBzZSJYCg9JbnZpdGF0aW9uQWRkZWQSEgoKaW52aXRhdGlvbhgBIAEoDBIMCgRyb2xlGAIgASgJEg0KBXBhcnR5GAMgASgMOhSSuxYQCg5pbnZpdGF0aW9uLmFkZCJfChJJbnZpdGF0aW9uQWNjZXB0ZWQSEgoKaW52aXRhdGlvbhgBIAEoDBIMCgRyb2xlGAIgASgJEg4KBmhvbGRlchgEIAEoDDoXkrsWEwoRaW52aXRhdGlvbi5hY2NlcHQiYwoRSW52aXRhdGlvbkNoYW5nZWQSEgoKaW52aXRhdGlvbhgBIAEoDDo6krsWNgoQaW52aXRhdGlvbi5jbGFpbQoPaW52aXRhdGlvbi5kZW55ChFpbnZpdGF0aW9uLnJldm9rZSJQCg1MYWJlbHNQcmludGVkEg0KBWJhdGNoGAUgASgJEg0KBWNvdW50GAYgASgNEg4KBmFzc2V0cxgHIAMoDDoRkrsWDQoLbGFiZWwucHJpbnQiSQoKTGFiZWxCb3VuZBINCgVsYWJlbBgBIAEoDBINCgVhc3NldBgCIAEoDBILCgN0YWcYAyABKAk6EJK7FgwKCmxhYmVsLmJpbmQiTgoMTGFiZWxVbmJvdW5kEg0KBWxhYmVsGAEgASgMEg0KBWFzc2V0GAIgASgMEgwKBHZvaWQYBCABKAg6EpK7Fg4KDGxhYmVsLnVuYmluZCJbCg5JdGVtTW9kZWxTYXZlZBINCgVtb2RlbBgBIAEoDBIMCgRuYW1lGAIgASgJEg0KBW1ha2VyGAMgASgJOh2SuxYZCgltb2RlbC5hZGQKDG1vZGVsLnVwZGF0ZSJXCg5Bc3NldFR5cGVTYXZlZBIMCgR0eXBlGAEgASgMEgwKBG5hbWUYAiABKAkSDAoEa2luZBgDIAEoCTobkrsWFwoIdHlwZS5hZGQKC3R5cGUudXBkYXRlIkgKClBhcnR5U2F2ZWQSDQoFcGFydHkYASABKAwSDAoEa2luZBgDIAEoCTodkrsWGQoJcGFydHkuYWRkCgxwYXJ0eS51cGRhdGUiTwoMUGFydHlJbnZpdGVkEg0KBXBhcnR5GAEgASgMEg4KBmhvbGRlchgCIAEoDBIMCgRyb2xlGAQgASgJOhKSuxYOCgxwYXJ0eS5pbnZpdGUiWQoMUGFydHlSb2xlU2V0Eg0KBXBhcnR5GAEgASgMEg4KBmhvbGRlchgCIAEoDBIMCgRyb2xlGAQgASgJEgoKAmJ5GAYgASgJOhCSuxYMCgpwYXJ0eS5yb2xlIlQKEFBhcnR5UGFzc3dvcmRTZXQSDQoFcGFydHkYASABKAwSDgoGaG9sZGVyGAIgASgMEgsKA293bhgFIAEoCDoUkrsWEAoOcGFydHkucGFzc3dvcmQiSQoQUGFydHlEZWFjdGl2YXRlZBINCgVwYXJ0eRgBIAEoDBIOCgZob2xkZXIYAiABKAw6FpK7FhIKEHBhcnR5LmRlYWN0aXZhdGUiPAoSUGFydHlQc2V1ZG9ueW1pemVkEgwKBGhlbGQYByABKA06GJK7FhQKEnBhcnR5LnBzZXVkb255bWl6ZSKDAQoNUHVyY2hhc2VBZGRlZBIQCghwdXJjaGFzZRgBIAEoDBIMCgRuYW1lGAIgASgJEg0KBXRvdGFsGAMgASgDEhAKCGN1cnJlbmN5GAQgASgJEg0KBWxpbmVzGAUgASgNEg4KBnZlbmRvchgGIAEoDDoSkrsWDgoMcHVyY2hhc2UuYWRkIlgKEFB1cmNoYXNlUmVjZWl2ZWQSEAoIcHVyY2hhc2UYASABKAwSDAoEbmFtZRgCIAEoCRIMCgRpbnRvGAcgASgMOhaSuxYSChBwdXJjaGFzZS5yZWNlaXZlIooBCg5Xb3JrT3JkZXJTYXZlZBISCgp3b3JrX29yZGVyGAEgASgMEg0KBWFzc2V0GAIgASgMEgwKBG5hbWUYAyABKAkSCwoDdGFnGAQgASgJEgwKBGtpbmQYBSABKAkSDgoGc3RhdHVzGAYgASgJOhySuxYYCgl3b3JrLm9wZW4KC3dvcmsudXBkYXRlIoUBChFXb3JrT3JkZXJGaW5pc2hlZBISCgp3b3JrX29yZGVyGAEgASgMEg0KBWFzc2V0GAIgASgMEgwKBG5hbWUYAyABKAkSDAoEY29zdBgHIAEoAxIQCghjdXJyZW5jeRgIIAEoCTofkrsWGwoJd29yay5kb25lCg53b3JrLmNhbmNlbGxlZCJhCg9Xb3Jrc3BhY2VDbG9zZWQSCgoCYnkYASABKAkSKwoHZGVzdHJveRgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXA6FZK7FhEKD3dvcmtzcGFjZS5jbG9zZSI4ChFXb3Jrc3BhY2VSZXN0b3JlZBIKCgJieRgBIAEoCToXkrsWEwoRd29ya3NwYWNlLnJlc3RvcmUivwIKE1dvcmtzcGFjZUNvbmZpZ3VyZWQSFwoIdGltZXpvbmUYAyABKAlCBaoBAggBEhcKCGN1cnJlbmN5GAQgASgJQgWqAQIIARIeCg9ub19zaG93X21pbnV0ZXMYBSABKAVCBaoBAggBEhgKCWtlZXBfZGF5cxgGIAEoDUIFqgECCAESLQoJa2VlcF9mcm9tGAcgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIfChBhY2Nlc3Nfa2VlcF9kYXlzGAggASgNQgWqAQIIARI0ChBhY2Nlc3Nfa2VlcF9mcm9tGAkgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIbCgxyZXN0b3JlX2RheXMYCiABKA1CBaoBAggBOhmSuxYVChN3b3Jrc3BhY2UuY29uZmlndXJlIsECChFXb3Jrc3BhY2VJbXBvcnRlZBIvCgtleHBvcnRlZF9hdBgLIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASEAoIbWFuaWZlc3QYDCABKAkSEQoJc2lnbmVkX2J5GA0gASgJEgwKBHJvd3MYDiABKA0SDQoFZmlsZXMYDyABKA0SDQoFYXNrZWQYECABKAkSEAoIcmVsZWFzZWQYESADKAkSEAoIdW5saW5rZWQYEiABKA0SEAoIcmVvcGVuZWQYEyABKAgSLwoEbGVmdBgUIAMoCzIhLnJvdmUuV29ya3NwYWNlSW1wb3J0ZWQuTGVmdEVudHJ5GisKCUxlZnRFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKA06AjgBOhaSuxYSChB3b3Jrc3BhY2UuaW1wb3J0IroBCg5BY2Nlc3NSZXZpZXdlZBIOCgZyZXZpZXcYASABKAwSKAoEZnJvbRgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASJgoCdG8YAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEg0KBWNhbGxzGAQgASgNEhEKCWRvd25sb2FkcxgFIAEoDRIPCgdyZWZ1c2VkGAYgASgNOhOSuxYPCg1hY2Nlc3MucmV2aWV3IkgKD0FjY291bnREZXBhcnRlZBIMCgRoZWxkGAEgASgNEhEKCW93bmVybGVzcxgCIAEoCDoUkrsWEAoOYWNjb3VudC5kZXBhcnQifgoPQXR0YWNobWVudEFkZGVkEhIKCmF0dGFjaG1lbnQYASABKAwSDwoHc3ViamVjdBgCIAEoDBIMCgRuYW1lGAMgASgJEhQKDGNvbnRlbnRfdHlwZRgEIAEoCRIMCgRzaXplGAUgASgEOhSSuxYQCg5hdHRhY2htZW50LmFkZCKrAgoQUmV0ZW50aW9uRXhwaXJlZBIqCgZiZWZvcmUYASABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhIKCnBsYWNlbWVudHMYAiABKA0SDQoFbGlua3MYAyABKA0SFAoMc3Rld2FyZHNoaXBzGAQgASgNEg0KBWZhY3RzGAUgASgNEg4KBmV2ZW50cxgGIAEoDRIUCgxyZXNlcnZhdGlvbnMYByABKA0SEQoJY3VzdG9kaWVzGAggASgNEg4KBmNvdW50cxgJIAEoDRITCgt3b3JrX29yZGVycxgKIAEoDRIXCg9zdG9ja19tb3ZlbWVudHMYCyABKA0SEwoLYXR0YWNobWVudHMYDCABKA06F5K7FhMKEXJldGVudGlvbi5leHBpcmVkIjIKDUV2ZW50UmVkYWN0ZWQSDQoFZXZlbnQYASABKAw6EpK7Fg4KDGV2ZW50LnJlZGFjdEIpWhhnaXRodWIuY29tL2xlc29tbnVzL3JvdmWSAwIIAsrHFgYKBAgREBBiCGVkaXRpb25zcOgH", [file_google_protobuf_timestamp, file_payday]);
 
 /**
  * AssetAdded is an asset registered (`asset.add`): by itself, from a stock
@@ -935,6 +935,75 @@ export const ReservationReleasedSchema: GenMessage<ReservationReleased> = /*@__P
   messageDesc(file_rove_past, 24);
 
 /**
+ * ReservationAllocationChanged is what a reservation holds of one thing it
+ * needs, as the reservation follows what that thing can give (design 4, D38,
+ * D39): of a kit it booked, the kit's members, as the kit is given them and
+ * they are taken off it; of a pool, its units, as the pool's usable members
+ * come and go. What it is to have it takes -- as the rest of the reservation
+ * took what it booked, over what was booked already where that was -- or,
+ * while something else holds it then, waits for; what it waited for it takes
+ * once it is free, the reservation that waited longest first; and what it is
+ * to have no longer it lets go of. One change, by which way it went, as a
+ * stock's movements are. A pool's are by how many of it (`units`); a kit's
+ * member is one thing, and says none.
+ *
+ * Each is an event of the reservation's and one of the thing's, holding the
+ * same, whose cause is the operation that did it: the change to the kit or
+ * the pool, or whatever let the thing go. A wait the sweep settles is an
+ * operation of its own, the reservation's, and the thing's is its child.
+ *
+ *   reservation.take     reservation, name, begins_at, asset, asset_name, override, units
+ *   reservation.wait     reservation, name, begins_at, asset, asset_name, units
+ *   reservation.resolve  reservation, name, begins_at, asset, asset_name, units
+ *   reservation.let_go   reservation, name, begins_at, asset, asset_name, units
+ *
+ * @generated from message rove.ReservationAllocationChanged
+ */
+export type ReservationAllocationChanged = Message<"rove.ReservationAllocationChanged"> & {
+  /**
+   * @generated from field: bytes reservation = 1;
+   */
+  reservation: Uint8Array;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp begins_at = 7;
+   */
+  beginsAt?: Timestamp | undefined;
+
+  /**
+   * @generated from field: bytes asset = 9;
+   */
+  asset: Uint8Array;
+
+  /**
+   * @generated from field: string asset_name = 10;
+   */
+  assetName: string;
+
+  /**
+   * @generated from field: bool override = 11;
+   */
+  override: boolean;
+
+  /**
+   * @generated from field: uint32 units = 14;
+   */
+  units: number;
+};
+
+/**
+ * Describes the message rove.ReservationAllocationChanged.
+ * Use `create(ReservationAllocationChangedSchema)` to create a new message.
+ */
+export const ReservationAllocationChangedSchema: GenMessage<ReservationAllocationChanged> = /*@__PURE__*/
+  messageDesc(file_rove_past, 25);
+
+/**
  * TenantDomainAdded is a domain of the workspace's registered (`domain.add`):
  * its own, or a default subdomain of the deployment's.
  *
@@ -967,7 +1036,7 @@ export type TenantDomainAdded = Message<"rove.TenantDomainAdded"> & {
  * Use `create(TenantDomainAddedSchema)` to create a new message.
  */
 export const TenantDomainAddedSchema: GenMessage<TenantDomainAdded> = /*@__PURE__*/
-  messageDesc(file_rove_past, 25);
+  messageDesc(file_rove_past, 26);
 
 /**
  * TenantDomainVerified is a domain whose DNS checked out (`domain.verify`),
@@ -1002,7 +1071,7 @@ export type TenantDomainVerified = Message<"rove.TenantDomainVerified"> & {
  * Use `create(TenantDomainVerifiedSchema)` to create a new message.
  */
 export const TenantDomainVerifiedSchema: GenMessage<TenantDomainVerified> = /*@__PURE__*/
-  messageDesc(file_rove_past, 26);
+  messageDesc(file_rove_past, 27);
 
 /**
  * TenantDomainActivated is a domain made the one the workspace is on and its
@@ -1032,7 +1101,7 @@ export type TenantDomainActivated = Message<"rove.TenantDomainActivated"> & {
  * Use `create(TenantDomainActivatedSchema)` to create a new message.
  */
 export const TenantDomainActivatedSchema: GenMessage<TenantDomainActivated> = /*@__PURE__*/
-  messageDesc(file_rove_past, 27);
+  messageDesc(file_rove_past, 28);
 
 /**
  * TenantDomainRetired is a domain stopped (`domain.retire`): `labels` is how
@@ -1072,7 +1141,7 @@ export type TenantDomainRetired = Message<"rove.TenantDomainRetired"> & {
  * Use `create(TenantDomainRetiredSchema)` to create a new message.
  */
 export const TenantDomainRetiredSchema: GenMessage<TenantDomainRetired> = /*@__PURE__*/
-  messageDesc(file_rove_past, 28);
+  messageDesc(file_rove_past, 29);
 
 /**
  * TenantDomainLapsed is the active domain taken out of use by the deployment
@@ -1113,7 +1182,7 @@ export type TenantDomainLapsed = Message<"rove.TenantDomainLapsed"> & {
  * Use `create(TenantDomainLapsedSchema)` to create a new message.
  */
 export const TenantDomainLapsedSchema: GenMessage<TenantDomainLapsed> = /*@__PURE__*/
-  messageDesc(file_rove_past, 29);
+  messageDesc(file_rove_past, 30);
 
 /**
  * InvitationAdded is somebody invited to the workspace (`invitation.add`), as
@@ -1143,7 +1212,7 @@ export type InvitationAdded = Message<"rove.InvitationAdded"> & {
  * Use `create(InvitationAddedSchema)` to create a new message.
  */
 export const InvitationAddedSchema: GenMessage<InvitationAdded> = /*@__PURE__*/
-  messageDesc(file_rove_past, 30);
+  messageDesc(file_rove_past, 31);
 
 /**
  * InvitationAccepted is an invitation said yes to (`invitation.accept`): the
@@ -1173,7 +1242,7 @@ export type InvitationAccepted = Message<"rove.InvitationAccepted"> & {
  * Use `create(InvitationAcceptedSchema)` to create a new message.
  */
 export const InvitationAcceptedSchema: GenMessage<InvitationAccepted> = /*@__PURE__*/
-  messageDesc(file_rove_past, 31);
+  messageDesc(file_rove_past, 32);
 
 /**
  * InvitationChanged is an invitation moved on with nothing to say but which
@@ -1198,7 +1267,7 @@ export type InvitationChanged = Message<"rove.InvitationChanged"> & {
  * Use `create(InvitationChangedSchema)` to create a new message.
  */
 export const InvitationChangedSchema: GenMessage<InvitationChanged> = /*@__PURE__*/
-  messageDesc(file_rove_past, 32);
+  messageDesc(file_rove_past, 33);
 
 /**
  * LabelsPrinted is labels made (`label.print`): blank, or one for each of
@@ -1228,7 +1297,7 @@ export type LabelsPrinted = Message<"rove.LabelsPrinted"> & {
  * Use `create(LabelsPrintedSchema)` to create a new message.
  */
 export const LabelsPrintedSchema: GenMessage<LabelsPrinted> = /*@__PURE__*/
-  messageDesc(file_rove_past, 33);
+  messageDesc(file_rove_past, 34);
 
 /**
  * LabelBound is a label stuck on an asset (`label.bind`).
@@ -1257,7 +1326,7 @@ export type LabelBound = Message<"rove.LabelBound"> & {
  * Use `create(LabelBoundSchema)` to create a new message.
  */
 export const LabelBoundSchema: GenMessage<LabelBound> = /*@__PURE__*/
-  messageDesc(file_rove_past, 34);
+  messageDesc(file_rove_past, 35);
 
 /**
  * LabelUnbound is a label taken off what it was on (`label.unbind`), and
@@ -1287,7 +1356,7 @@ export type LabelUnbound = Message<"rove.LabelUnbound"> & {
  * Use `create(LabelUnboundSchema)` to create a new message.
  */
 export const LabelUnboundSchema: GenMessage<LabelUnbound> = /*@__PURE__*/
-  messageDesc(file_rove_past, 35);
+  messageDesc(file_rove_past, 36);
 
 /**
  * ItemModelSaved is a maker's model kept, and changed: the one written, as
@@ -1320,7 +1389,7 @@ export type ItemModelSaved = Message<"rove.ItemModelSaved"> & {
  * Use `create(ItemModelSavedSchema)` to create a new message.
  */
 export const ItemModelSavedSchema: GenMessage<ItemModelSaved> = /*@__PURE__*/
-  messageDesc(file_rove_past, 36);
+  messageDesc(file_rove_past, 37);
 
 /**
  * AssetTypeSaved is a type of asset made, and changed: the one written, as
@@ -1353,7 +1422,7 @@ export type AssetTypeSaved = Message<"rove.AssetTypeSaved"> & {
  * Use `create(AssetTypeSavedSchema)` to create a new message.
  */
 export const AssetTypeSavedSchema: GenMessage<AssetTypeSaved> = /*@__PURE__*/
-  messageDesc(file_rove_past, 37);
+  messageDesc(file_rove_past, 38);
 
 /**
  * PartySaved is a person, a team, an organization or a vendor kept, and its
@@ -1382,7 +1451,7 @@ export type PartySaved = Message<"rove.PartySaved"> & {
  * Use `create(PartySavedSchema)` to create a new message.
  */
 export const PartySavedSchema: GenMessage<PartySaved> = /*@__PURE__*/
-  messageDesc(file_rove_past, 38);
+  messageDesc(file_rove_past, 39);
 
 /**
  * PartyInvited is a person given a login (`party.invite`): a membership of
@@ -1412,7 +1481,7 @@ export type PartyInvited = Message<"rove.PartyInvited"> & {
  * Use `create(PartyInvitedSchema)` to create a new message.
  */
 export const PartyInvitedSchema: GenMessage<PartyInvited> = /*@__PURE__*/
-  messageDesc(file_rove_past, 39);
+  messageDesc(file_rove_past, 40);
 
 /**
  * PartyRoleSet is what a member may do, changed (`party.role`): by somebody
@@ -1447,7 +1516,7 @@ export type PartyRoleSet = Message<"rove.PartyRoleSet"> & {
  * Use `create(PartyRoleSetSchema)` to create a new message.
  */
 export const PartyRoleSetSchema: GenMessage<PartyRoleSet> = /*@__PURE__*/
-  messageDesc(file_rove_past, 40);
+  messageDesc(file_rove_past, 41);
 
 /**
  * PartyPasswordSet is a password changed (`party.password`): the member's
@@ -1477,7 +1546,7 @@ export type PartyPasswordSet = Message<"rove.PartyPasswordSet"> & {
  * Use `create(PartyPasswordSetSchema)` to create a new message.
  */
 export const PartyPasswordSetSchema: GenMessage<PartyPasswordSet> = /*@__PURE__*/
-  messageDesc(file_rove_past, 41);
+  messageDesc(file_rove_past, 42);
 
 /**
  * PartyDeactivated is a login ended, the person and their history kept
@@ -1502,7 +1571,7 @@ export type PartyDeactivated = Message<"rove.PartyDeactivated"> & {
  * Use `create(PartyDeactivatedSchema)` to create a new message.
  */
 export const PartyDeactivatedSchema: GenMessage<PartyDeactivated> = /*@__PURE__*/
-  messageDesc(file_rove_past, 42);
+  messageDesc(file_rove_past, 43);
 
 /**
  * PartyPseudonymized is a person forgotten in the workspace
@@ -1522,7 +1591,7 @@ export type PartyPseudonymized = Message<"rove.PartyPseudonymized"> & {
  * Use `create(PartyPseudonymizedSchema)` to create a new message.
  */
 export const PartyPseudonymizedSchema: GenMessage<PartyPseudonymized> = /*@__PURE__*/
-  messageDesc(file_rove_past, 43);
+  messageDesc(file_rove_past, 44);
 
 /**
  * PurchaseAdded is a purchase recorded with what was bought in it
@@ -1567,7 +1636,7 @@ export type PurchaseAdded = Message<"rove.PurchaseAdded"> & {
  * Use `create(PurchaseAddedSchema)` to create a new message.
  */
 export const PurchaseAddedSchema: GenMessage<PurchaseAdded> = /*@__PURE__*/
-  messageDesc(file_rove_past, 44);
+  messageDesc(file_rove_past, 45);
 
 /**
  * PurchaseReceived is what arrived of a purchase taken in, into a space
@@ -1598,7 +1667,7 @@ export type PurchaseReceived = Message<"rove.PurchaseReceived"> & {
  * Use `create(PurchaseReceivedSchema)` to create a new message.
  */
 export const PurchaseReceivedSchema: GenMessage<PurchaseReceived> = /*@__PURE__*/
-  messageDesc(file_rove_past, 45);
+  messageDesc(file_rove_past, 46);
 
 /**
  * WorkOrderSaved is work on an asset opened, and changed: the one written, as
@@ -1647,7 +1716,7 @@ export type WorkOrderSaved = Message<"rove.WorkOrderSaved"> & {
  * Use `create(WorkOrderSavedSchema)` to create a new message.
  */
 export const WorkOrderSavedSchema: GenMessage<WorkOrderSaved> = /*@__PURE__*/
-  messageDesc(file_rove_past, 46);
+  messageDesc(file_rove_past, 47);
 
 /**
  * WorkOrderFinished is a work order finished: completed, and what it cost; or
@@ -1690,7 +1759,7 @@ export type WorkOrderFinished = Message<"rove.WorkOrderFinished"> & {
  * Use `create(WorkOrderFinishedSchema)` to create a new message.
  */
 export const WorkOrderFinishedSchema: GenMessage<WorkOrderFinished> = /*@__PURE__*/
-  messageDesc(file_rove_past, 47);
+  messageDesc(file_rove_past, 48);
 
 /**
  * WorkspaceClosed is the workspace closed (`workspace.close`, D29) `by` its
@@ -1716,7 +1785,7 @@ export type WorkspaceClosed = Message<"rove.WorkspaceClosed"> & {
  * Use `create(WorkspaceClosedSchema)` to create a new message.
  */
 export const WorkspaceClosedSchema: GenMessage<WorkspaceClosed> = /*@__PURE__*/
-  messageDesc(file_rove_past, 48);
+  messageDesc(file_rove_past, 49);
 
 /**
  * WorkspaceRestored is a closed workspace opened again
@@ -1736,7 +1805,7 @@ export type WorkspaceRestored = Message<"rove.WorkspaceRestored"> & {
  * Use `create(WorkspaceRestoredSchema)` to create a new message.
  */
 export const WorkspaceRestoredSchema: GenMessage<WorkspaceRestored> = /*@__PURE__*/
-  messageDesc(file_rove_past, 49);
+  messageDesc(file_rove_past, 50);
 
 /**
  * WorkspaceConfigured is what the workspace's owner said of its own settings
@@ -1792,7 +1861,7 @@ export type WorkspaceConfigured = Message<"rove.WorkspaceConfigured"> & {
  * Use `create(WorkspaceConfiguredSchema)` to create a new message.
  */
 export const WorkspaceConfiguredSchema: GenMessage<WorkspaceConfigured> = /*@__PURE__*/
-  messageDesc(file_rove_past, 50);
+  messageDesc(file_rove_past, 51);
 
 /**
  * WorkspaceImported is a workspace put back from an export by an operator
@@ -1858,7 +1927,7 @@ export type WorkspaceImported = Message<"rove.WorkspaceImported"> & {
  * Use `create(WorkspaceImportedSchema)` to create a new message.
  */
 export const WorkspaceImportedSchema: GenMessage<WorkspaceImported> = /*@__PURE__*/
-  messageDesc(file_rove_past, 51);
+  messageDesc(file_rove_past, 52);
 
 /**
  * AccessReviewed is a stretch of the workspace's access record looked over
@@ -1903,7 +1972,7 @@ export type AccessReviewed = Message<"rove.AccessReviewed"> & {
  * Use `create(AccessReviewedSchema)` to create a new message.
  */
 export const AccessReviewedSchema: GenMessage<AccessReviewed> = /*@__PURE__*/
-  messageDesc(file_rove_past, 52);
+  messageDesc(file_rove_past, 53);
 
 /**
  * AccountDeparted is an account leaving the workspace (`account.depart`):
@@ -1929,7 +1998,7 @@ export type AccountDeparted = Message<"rove.AccountDeparted"> & {
  * Use `create(AccountDepartedSchema)` to create a new message.
  */
 export const AccountDepartedSchema: GenMessage<AccountDeparted> = /*@__PURE__*/
-  messageDesc(file_rove_past, 53);
+  messageDesc(file_rove_past, 54);
 
 /**
  * AttachmentAdded is a file kept for something (`attachment.add`): an asset,
@@ -1969,7 +2038,7 @@ export type AttachmentAdded = Message<"rove.AttachmentAdded"> & {
  * Use `create(AttachmentAddedSchema)` to create a new message.
  */
 export const AttachmentAddedSchema: GenMessage<AttachmentAdded> = /*@__PURE__*/
-  messageDesc(file_rove_past, 54);
+  messageDesc(file_rove_past, 55);
 
 /**
  * RetentionExpired is what the workspace's keep window no longer reached,
@@ -2045,7 +2114,7 @@ export type RetentionExpired = Message<"rove.RetentionExpired"> & {
  * Use `create(RetentionExpiredSchema)` to create a new message.
  */
 export const RetentionExpiredSchema: GenMessage<RetentionExpired> = /*@__PURE__*/
-  messageDesc(file_rove_past, 55);
+  messageDesc(file_rove_past, 56);
 
 /**
  * EventRedacted is an event's reason taken out (`event.redact`, payday#151's
@@ -2067,5 +2136,5 @@ export type EventRedacted = Message<"rove.EventRedacted"> & {
  * Use `create(EventRedactedSchema)` to create a new message.
  */
 export const EventRedactedSchema: GenMessage<EventRedacted> = /*@__PURE__*/
-  messageDesc(file_rove_past, 56);
+  messageDesc(file_rove_past, 57);
 

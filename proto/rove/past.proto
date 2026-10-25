@@ -148,11 +148,12 @@ option (payday.app) = {
 //    6  occurrences    uint32                     -- how many times it takes place
 //    7  begins_at      google.protobuf.Timestamp  -- when it begins
 //    8  ends_at        google.protobuf.Timestamp  -- when it ends
-//    9  asset          bytes                      -- what it takes: the one thing an event of its own is about
-//   10  asset_name     string                     -- what that was called then; of the reservation's own event, the first thing it takes
+//    9  asset          bytes                      -- what it takes: the one thing an event of its own is about; or a member of its kit, or a pool, it takes, waits for or lets go of
+//   10  asset_name     string                     -- what that was called then; of the reservation's own reservation.add, the first thing it takes
 //   11  override       bool                       -- taken over what was booked already, by a manager
 //   12  ended          bool                       -- completed by the deployment, its time over, and by nobody who asked
 //   13  from           string                     -- what it was when it expired: held | requested
+//   14  units          uint32                     -- how many of a pool it takes, waits for or lets go of
 //
 // domain.* holds, by number:
 //
@@ -623,6 +624,46 @@ message ReservationReleased {
   bytes reservation = 1;
   string name = 2;
   string from = 13;
+}
+
+// ReservationAllocationChanged is what a reservation holds of one thing it
+// needs, as the reservation follows what that thing can give (design 4, D38,
+// D39): of a kit it booked, the kit's members, as the kit is given them and
+// they are taken off it; of a pool, its units, as the pool's usable members
+// come and go. What it is to have it takes -- as the rest of the reservation
+// took what it booked, over what was booked already where that was -- or,
+// while something else holds it then, waits for; what it waited for it takes
+// once it is free, the reservation that waited longest first; and what it is
+// to have no longer it lets go of. One change, by which way it went, as a
+// stock's movements are. A pool's are by how many of it (`units`); a kit's
+// member is one thing, and says none.
+//
+// Each is an event of the reservation's and one of the thing's, holding the
+// same, whose cause is the operation that did it: the change to the kit or
+// the pool, or whatever let the thing go. A wait the sweep settles is an
+// operation of its own, the reservation's, and the thing's is its child.
+//
+//   reservation.take     reservation, name, begins_at, asset, asset_name, override, units
+//   reservation.wait     reservation, name, begins_at, asset, asset_name, units
+//   reservation.resolve  reservation, name, begins_at, asset, asset_name, units
+//   reservation.let_go   reservation, name, begins_at, asset, asset_name, units
+message ReservationAllocationChanged {
+  option (payday.event) = {
+    kinds: [
+      "reservation.take",
+      "reservation.wait",
+      "reservation.resolve",
+      "reservation.let_go"
+    ]
+  };
+
+  bytes reservation = 1;
+  string name = 2;
+  google.protobuf.Timestamp begins_at = 7;
+  bytes asset = 9;
+  string asset_name = 10;
+  bool override = 11;
+  uint32 units = 14;
 }
 
 // TenantDomainAdded is a domain of the workspace's registered (`domain.add`):
