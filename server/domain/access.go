@@ -12,6 +12,7 @@ import (
 
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/pdpb"
+	"github.com/protobuf-orm/ent/dialect/sql"
 	"google.golang.org/protobuf/proto"
 
 	app "github.com/lesomnus/rove"
@@ -150,12 +151,15 @@ func (s domainAccess) Review(ctx context.Context, req *app.AccessReviewRequest) 
 	}
 }
 
-// before is the rows a list newest first reads after the row at `at`, `id`.
+// before is the rows a list newest first reads after the row at `at`, `id`:
+// `(date_created, id) < (a, b)`, the pair compared once, which an index starts
+// its read at. The OR it means is a filter, behind which every page was read
+// from the newest row of the stretch down to where the one before had ended
+// (payday#154).
 func before(at time.Time, id uuid.UUID) predicate.Access {
-	return entaccess.Or(
-		entaccess.DateCreatedLT(at),
-		entaccess.And(entaccess.DateCreatedEQ(at), entaccess.IdLT(id)),
-	)
+	return func(s *sql.Selector) {
+		s.Where(sql.CompositeLT([]string{s.C(entaccess.FieldDateCreated), s.C(entaccess.FieldId)}, at, id))
+	}
 }
 
 // carried is whether a call carried the data of the person `id` names.
