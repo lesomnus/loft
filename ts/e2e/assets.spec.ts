@@ -55,8 +55,13 @@ test('the register is exported as a CSV to read', async ({ page }, info) => {
 	const file = info.outputPath('assets.csv')
 	await got.saveAs(file)
 	const lines = (await readFile(file)).toString('utf8').split('\n')
-	expect(lines[0]).toMatch(/^\ufeff태그,이름,종류,.*,위치태그,/)
+	expect(lines[0]).toMatch(/^\ufeff태그,이름,종류,.*,위치태그,사용자,/)
 	expect(lines.length).toBeGreaterThan(2)
+
+	// Who has each, by name and never by how they are reached: the demo
+	// issued her a laptop and a monitor.
+	expect(lines.filter((l) => l.includes(`,${people.exports.name},`)).length).toBeGreaterThan(0)
+	expect(lines.join('\n')).not.toContain('@example.com')
 
 	// And nothing reads one back: the sheet import is gone (design D34).
 	await expect(page.getByRole('button', { name: '가져오기', exact: true })).toHaveCount(0)

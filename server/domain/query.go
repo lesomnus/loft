@@ -2,6 +2,7 @@ package domain
 
 import (
 	"context"
+	stdsql "database/sql"
 	"fmt"
 	"maps"
 	"slices"
@@ -744,7 +745,10 @@ func (t *Tx) descendants(root uuid.UUID) ([]uuid.UUID, error) {
 	return out, nil
 }
 
-// Report answers the numbers a dashboard shows.
+// Report answers the numbers a dashboard shows. What it counts the database
+// counts, as the reports' (design 9.14): the summary and what is out read
+// about as many rows as they answer, however many assets and hand-overs
+// there are.
 func (s domainAsset) Report(ctx context.Context, req *app.AssetReportRequest) (*app.AssetReportResponse, error) {
 	t, err := s.read(ctx)
 	if err != nil {
@@ -758,15 +762,28 @@ func (s domainAsset) Report(ctx context.Context, req *app.AssetReportRequest) (*
 
 	switch req.GetKind() {
 	case "", "summary":
-		as, err := t.db.Asset.Query().Where(asset.TenantId(tid), asset.DateErasedIsNil()).All(ctx)
-		if err != nil {
+		// A row for each kind, status and type there is -- every kind, and
+		// none of what was erased -- which each count adds up.
+		b := t.q()
+		b.S(`SELECT "kind", "status", "type_id", COUNT(*) AS "n" FROM "asset" WHERE "tenant_id" = `).Arg(tid).
+			S(` AND "date_erased" IS NULL GROUP BY "kind", "status", "type_id"`)
+		var ns []struct {
+			Kind   string                 `sql:"kind"`
+			Status string                 `sql:"status"`
+			Type   stdsql.Null[uuid.UUID] `sql:"type_id"`
+			N      int64                  `sql:"n"`
+		}
+		if err := t.rows(b, &ns); err != nil {
 			return nil, err
 		}
-		byKind, byStatus, byType := map[string]int{}, map[string]int{}, map[uuid.UUID]int{}
-		for _, a := range as {
-			byKind[a.Kind]++
-			byStatus[a.Status]++
-			byType[a.TypeId]++
+		byKind, byStatus, byType := map[string]int64{}, map[string]int64{}, map[uuid.UUID]map[string]uint32{}
+		for _, v := range ns {
+			byKind[v.Kind] += v.N
+			byStatus[v.Status] += v.N
+			if byType[v.Type.V] == nil {
+				byType[v.Type.V] = map[string]uint32{}
+			}
+			byType[v.Type.V][v.Status] += uint32(v.N)
 		}
 		for _, k := range sortedKeys(byKind) {
 			row("kind", k, k, float64(byKind[k]), nil)
@@ -774,25 +791,29 @@ func (s domainAsset) Report(ctx context.Context, req *app.AssetReportRequest) (*
 		for _, k := range sortedKeys(byStatus) {
 			row("status", k, k, float64(byStatus[k]), nil)
 		}
-		names := namer{t: t}
-		for k, n := range byType {
-			label := "(유형 없음)"
-			if k != (uuid.UUID{}) {
-				label = names.kind(k)
-			}
-			row("type", pdid.Id(k).String(), label, float64(n), nil)
-		}
-		open, err := t.db.Custody.Query().Where(custody.TenantId(tid), custody.Status("open"), custody.DateErasedIsNil()).All(ctx)
+		// Each type as the census names it and in its order: by name, and
+		// what has none last.
+		types, err := t.byType(byType)
 		if err != nil {
 			return nil, err
 		}
-		overdue := 0
-		for _, c := range open {
-			if c.DueAt != nil && c.DueAt.Before(t.now) {
-				overdue++
+		for _, r := range types {
+			k := pdid.Nil
+			if id := r.GetId(); len(id) == len(k) {
+				k = pdid.Id(id)
 			}
+			row("type", k.String(), r.GetName(), float64(r.GetTotal()), nil)
 		}
-		row("custody", "open", "지급·대여 중", float64(len(open)), nil)
+		open := t.db.Custody.Query().Where(custody.TenantId(tid), custody.Status("open"), custody.DateErasedIsNil())
+		out, err := open.Clone().Count(ctx)
+		if err != nil {
+			return nil, err
+		}
+		overdue, err := open.Where(custody.DueAtLT(t.now)).Count(ctx)
+		if err != nil {
+			return nil, err
+		}
+		row("custody", "open", "지급·대여 중", float64(out), nil)
 		row("custody", "overdue", "반납 기한 지남", float64(overdue), nil)
 		wo, err := t.db.WorkOrder.Query().Where(workorder.TenantId(tid), workorder.StatusIn("open", "scheduled", "in_progress"), workorder.DateErasedIsNil()).Count(ctx)
 		if err != nil {
@@ -801,20 +822,41 @@ func (s domainAsset) Report(ctx context.Context, req *app.AssetReportRequest) (*
 		row("work", "open", "진행 중 작업", float64(wo), nil)
 
 	case "custody":
-		open, err := t.db.Custody.Query().Where(custody.TenantId(tid), custody.Status("open"), custody.DateErasedIsNil()).All(ctx)
+		// What is late, the longest late first, and how many each who has
+		// something has: the one read off the open hand-overs' index, the
+		// other counted by the database, and the people named a few hundred
+		// to a statement.
+		open := t.db.Custody.Query().Where(custody.TenantId(tid), custody.Status("open"), custody.DateErasedIsNil())
+		late, err := open.Where(custody.DueAtLT(t.now)).
+			Order(custody.ByDueAt(), custody.ById()).
+			Select(custody.FieldId, custody.FieldPartyId, custody.FieldDueAt).
+			All(ctx)
 		if err != nil {
 			return nil, err
 		}
-		names := namer{t: t}
-		byParty := map[uuid.UUID]int{}
-		for _, c := range open {
-			byParty[c.PartyId]++
-			if c.DueAt != nil && c.DueAt.Before(t.now) {
-				row("overdue", pdid.Id(c.Id).String(), names.party(c.PartyId), t.now.Sub(*c.DueAt).Hours()/24, map[string]string{"due": c.DueAt.In(t.zone()).Format(time.DateOnly)})
-			}
+		b := t.q()
+		b.S(`SELECT "party_id" AS "party", COUNT(*) AS "n" FROM "custody" WHERE "tenant_id" = `).Arg(tid).
+			S(` AND "status" = 'open' AND "date_erased" IS NULL GROUP BY "party_id" ORDER BY "party_id"`)
+		var held []struct {
+			Party stdsql.Null[uuid.UUID] `sql:"party"`
+			N     int64                  `sql:"n"`
 		}
-		for k, n := range byParty {
-			row("party", pdid.Id(k).String(), names.party(k), float64(n), nil)
+		if err := t.rows(b, &held); err != nil {
+			return nil, err
+		}
+		names := namer{t: t}
+		people := make([]uuid.UUID, 0, len(held))
+		for _, h := range held {
+			people = append(people, h.Party.V)
+		}
+		if err := names.readParties(people); err != nil {
+			return nil, err
+		}
+		for _, c := range late {
+			row("overdue", pdid.Id(c.Id).String(), names.party(c.PartyId), t.now.Sub(*c.DueAt).Hours()/24, map[string]string{"due": c.DueAt.In(t.zone()).Format(time.DateOnly)})
+		}
+		for _, h := range held {
+			row("party", pdid.Id(h.Party.V).String(), names.party(h.Party.V), float64(h.N), nil)
 		}
 
 	case "utilization":
