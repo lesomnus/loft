@@ -403,6 +403,7 @@ var IndexRenames = []rename.Index{
 	{Table: "countfinding", From: "countfinding_count_id_kind", To: "countfinding_count"},
 	{Table: "custody", From: "custody_tenant_id_date_created_id", To: "custody_page"},
 	{Table: "custody", From: "custody_party_id_issued_at", To: "custody_party"},
+	{Table: "custody", From: "custody_reservation_id", To: "custody_reservation"},
 	{Table: "custodyline", From: "custodyline_tenant_id_date_created_id", To: "custodyline_page"},
 	{Table: "custodyline", From: "custodyline_custody_id", To: "custodyline_custody"},
 	{Table: "custodyline", From: "custodyline_asset_id", To: "custodyline_asset"},
@@ -22757,6 +22758,11 @@ func (s interceptReservation) Calendar(ctx context.Context, req *rove.Reservatio
 		rove.ReservationService_Calendar_FullMethodName, req, s.ReservationServiceServer.Calendar)
 }
 
+func (s interceptReservation) Timeline(ctx context.Context, req *rove.ReservationTimelineRequest) (*rove.ReservationTimelineResponse, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.ReservationServiceServer,
+		rove.ReservationService_Timeline_FullMethodName, req, s.ReservationServiceServer.Timeline)
+}
+
 func (s Intercept) ReservationItem() rove.ReservationItemServiceServer {
 	return interceptReservationItem{s, s.Next().ReservationItem()}
 }
@@ -26506,6 +26512,8 @@ func unpack(op *pdpb.Op) (proto.Message, error) {
 		v = &rove.ReservationDecideRequest{}
 	case rove.ReservationService_Calendar_FullMethodName:
 		v = &rove.ReservationCalendarRequest{}
+	case rove.ReservationService_Timeline_FullMethodName:
+		v = &rove.ReservationTimelineRequest{}
 	case rove.ReservationItemService_Add_FullMethodName:
 		v = &rove.ReservationItemAddRequest{}
 	case rove.ReservationItemService_Get_FullMethodName:
@@ -27062,6 +27070,8 @@ func dispatch(ctx context.Context, s rove.Server, m string, v proto.Message) (*a
 		res, err = s.Reservation().Complete(ctx, v.(*rove.ReservationDecideRequest))
 	case rove.ReservationService_Calendar_FullMethodName:
 		res, err = s.Reservation().Calendar(ctx, v.(*rove.ReservationCalendarRequest))
+	case rove.ReservationService_Timeline_FullMethodName:
+		res, err = s.Reservation().Timeline(ctx, v.(*rove.ReservationTimelineRequest))
 	case rove.ReservationItemService_Add_FullMethodName:
 		res, err = s.ReservationItem().Add(ctx, v.(*rove.ReservationItemAddRequest))
 	case rove.ReservationItemService_Get_FullMethodName:

@@ -276,12 +276,23 @@ func (s domainAsset) Timeline(ctx context.Context, req *app.AssetTimelineRequest
 		}
 		return ""
 	}
+	// And the operation's event, by which what it wrote is one: of a cause
+	// that was read.
+	causeId := func(v past.EventRow) []byte {
+		_, a := byId[v.Cause.Uuid()]
+		_, b := causeOf[v.Cause.Uuid()]
+		if v.Cause.IsZero() || !(a || b) {
+			return nil
+		}
+		return v.Cause.Bytes()
+	}
 	for _, e := range entries {
 		if v, ok := byId[uuidOf(e.GetEventId())]; ok {
 			e.SetEventKind(v.Kind)
 			e.SetReason(v.Reason)
 			e.SetActor(names.actorOf(v.Actor))
 			e.SetCause(cause(v))
+			e.SetCauseId(causeId(v))
 		}
 	}
 	for _, v := range evs {
@@ -295,6 +306,7 @@ func (s domainAsset) Timeline(ctx context.Context, req *app.AssetTimelineRequest
 		if c := cause(v); c != e.GetSummary() {
 			e.SetCause(c)
 		}
+		e.SetCauseId(causeId(v))
 		// What it held: a row from before by its payload, one since by
 		// its message, with the names a person reads.
 		if l, ok := names.legacies[v.Id.Uuid()]; ok && l.payload != "" {

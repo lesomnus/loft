@@ -623,6 +623,11 @@ var (
 				Unique:  false,
 				Columns: []*schema.Column{CustodyColumns[15], CustodyColumns[4]},
 			},
+			{
+				Name:    "custody_reservation",
+				Unique:  false,
+				Columns: []*schema.Column{CustodyColumns[11]},
+			},
 		},
 	}
 	// CustodylineColumns holds the columns for the "custodyline" table.
