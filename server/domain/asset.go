@@ -339,8 +339,8 @@ func (s domainAsset) Erase(ctx context.Context, ref *app.AssetRef) (*app.AssetEr
 		// Every kit it was in, and itself if it is one: what each is made
 		// of changed, and so what its bookings take. And every pool it was
 		// one of the units of, which has one fewer to give. And, of a group,
-		// what was in it, which the pools it shares them with need not leave
-		// it any more (D44, D47).
+		// what was in it: what the other pools it is in had to spare for this
+		// one is theirs to give again (D44, D47).
 		kits, pools, left := []uuid.UUID{id.Uuid()}, []uuid.UUID{}, []uuid.UUID{}
 		for _, l := range ls {
 			if err := t.supersedeLink(l.Id); err != nil {
