@@ -127,6 +127,7 @@
 /rove.ReservationService/Confirm	member
 /rove.ReservationService/Get	read
 /rove.ReservationService/List	read
+/rove.ReservationService/Pickup	manager
 /rove.ReservationService/Reject	manager
 /rove.ReservationService/Watch	read
 /rove.StockMovementService/Get	read

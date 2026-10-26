@@ -184,6 +184,9 @@ func init() {
 	// Their own; somebody else's is a manager's, which the domain layer checks.
 	allow(Member, "ReservationService", "Add", "Confirm", "Cancel", "CheckIn", "Complete")
 	allow(Manager, "ReservationService", "Approve", "Reject")
+	// What a pickup is to hand out of a pool, read by whoever hands it out:
+	// CustodyService.Add's.
+	allow(Manager, "ReservationService", "Pickup")
 
 	allow(Manager, "CustodyService", "Add", "Return", "Extend")
 	// The receiver's, which the domain layer checks.

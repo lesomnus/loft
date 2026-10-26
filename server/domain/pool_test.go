@@ -494,8 +494,9 @@ func TestAKitWaitsForAPoolsUnitThePoolCannotSpare(t *testing.T) {
 }
 
 // TestAReservationInUseIsNotMoved: what was handed out, or checked into, is
-// out; a pool with fewer to give makes the ones still to be fulfilled wait,
-// made before it or not.
+// out -- of a pool, the unit handed out, which is the reservation's own from
+// its pickup (D46); a pool with fewer to give makes the ones still to be
+// fulfilled wait, made before it or not.
 func TestAReservationInUseIsNotMoved(t *testing.T) {
 	e := newEnv(t)
 	x := e.x
@@ -517,7 +518,7 @@ func TestAReservationInUseIsNotMoved(t *testing.T) {
 	x.NoError(err)
 
 	e.status(two, "disposed")
-	x.True(e.holds(out, projectors), "it is out")
+	x.True(e.holds(out, one), "it is out")
 	x.False(e.holds(booked, projectors), "made first, and still to be picked up")
 }
 

@@ -1023,17 +1023,20 @@ func (t *Tx) lockReservations(ids ...pdid.Id) error {
 
 // lockAllocations takes the locks of the resources a reservation holds, and of
 // the pools around them ([Tx.circle]): what it lets go of is theirs to give
-// then too ([Tx.heal]).
-func (t *Tx) lockAllocations(rid pdid.Id) error {
+// then too ([Tx.heal]). And of `also`, what its pickup hands out, which the
+// pickup makes its own ([Tx.handOver]).
+func (t *Tx) lockAllocations(rid pdid.Id, also ...uuid.UUID) error {
 	as, err := t.db.Allocation.Query().Where(allocation.TenantId(t.tenant.Uuid()), allocation.RefId(rid.Uuid())).All(t.ctx)
 	if err != nil {
 		return err
 	}
-	rs := []*resource{}
-	ids := []uuid.UUID{}
+	ids := slices.Clone(also)
 	for _, a := range as {
 		ids = append(ids, a.ResourceId)
-		b, err := t.db.Bookable.Query().Where(bookable.TenantId(t.tenant.Uuid()), bookable.AssetId(a.ResourceId)).Only(t.ctx)
+	}
+	rs := []*resource{}
+	for _, id := range ids {
+		b, err := t.db.Bookable.Query().Where(bookable.TenantId(t.tenant.Uuid()), bookable.AssetId(id)).Only(t.ctx)
 		if err != nil {
 			continue
 		}

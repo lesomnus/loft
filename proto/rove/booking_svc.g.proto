@@ -74,6 +74,11 @@ service ReservationService {
   rpc Complete(ReservationDecideRequest) returns (Reservation);
   // Calendar answers reservations touching a span, for one resource or all.
   rpc Calendar(ReservationCalendarRequest) returns (ReservationCalendarResponse);
+  // Pickup answers what the pickup of a reservation is to hand out of each
+  // pool it booked: as many of the pool's units as it holds, free until it
+  // ends, and the others that may be handed out instead (design 4, D46). It
+  // changes nothing: CustodyService.Add is the pickup.
+  rpc Pickup(ReservationPickupRequest) returns (ReservationPickupResponse);
 }
 
 service ReservationItemService {
@@ -643,13 +648,38 @@ message ReservationOutOfUse {
   string resource_kind = 5 [features.field_presence = IMPLICIT];
 }
 
+message ReservationPickupRequest {
+  ReservationRef ref = 1;
+}
+
+message ReservationPickupResponse {
+  repeated PoolPickup pools = 1;
+}
+
+// PoolPickup is what a pickup of a reservation hands out of a pool it booked:
+// the pool's units, each of which is the reservation's from the pickup until
+// it ends, in place of one of the pool's it holds.
+message PoolPickup {
+  // The pool, and how many of it the reservation holds: none while it waits
+  // for what it booked.
+  bytes pool_id = 1 [features.field_presence = IMPLICIT];
+  uint32 units = 2 [features.field_presence = IMPLICIT];
+  // The units it is to be handed, as many as it holds and as there are free
+  // until it ends, in the order a person reads them -- by their tags -- and
+  // the rest of the ones free until then, any of which may be handed out
+  // instead: not out of use, not with anybody, and not taken then by
+  // anything else, nor needed by the pools around it to keep what they
+  // promised (D44).
+  repeated bytes offered = 3;
+  repeated bytes others = 4;
+}
+
 message ReservationItemAddRequest {
   bytes id = 1;
   TenantRef tenant = 2;
   ReservationRef reservation = 8;
   AssetRef resource = 9;
   uint32 units = 10 [features.field_presence = IMPLICIT];
-  bytes assigned_id = 11;
   google.protobuf.Timestamp date_created = 15;
 }
 
@@ -670,7 +700,6 @@ message ReservationItemSelect {
   ReservationSelect reservation = 8;
   AssetSelect resource = 9;
   bool units = 10;
-  bool assigned_id = 11;
   bool date_updated = 13;
   bool date_created = 15;
 }
@@ -678,12 +707,6 @@ message ReservationItemSelect {
 message ReservationItemPatchRequest {
   ReservationItemRef ref = 1;
   uint32 units = 20;
-  bytes assigned_id = 22;
-  // Clear assigned_id instead of writing it.
-  // It takes a field of its own because an unset value already means
-  // "leave it alone", so no value could have meant NULL. It wins
-  // outright: setting both this and assigned_id clears.
-  bool assigned_id_null = 23;
   // The version this update requires the stored date_updated to be.
   // It is a precondition, not a write: the update applies only if the row
   // still holds this value, and the server stamps the new version itself.

@@ -61,11 +61,6 @@ func Units(v uint32) predicate.ReservationItem {
 	return predicate.ReservationItem(sql.FieldEQ(FieldUnits, v))
 }
 
-// AssignedId applies equality check predicate on the "assigned_id" field. It's identical to AssignedIdEQ.
-func AssignedId(v uuid.UUID) predicate.ReservationItem {
-	return predicate.ReservationItem(sql.FieldEQ(FieldAssignedId, v))
-}
-
 // DateUpdated applies equality check predicate on the "date_updated" field. It's identical to DateUpdatedEQ.
 func DateUpdated(v time.Time) predicate.ReservationItem {
 	return predicate.ReservationItem(sql.FieldEQ(FieldDateUpdated, v))
@@ -129,56 +124,6 @@ func UnitsLT(v uint32) predicate.ReservationItem {
 // UnitsLTE applies the LTE predicate on the "units" field.
 func UnitsLTE(v uint32) predicate.ReservationItem {
 	return predicate.ReservationItem(sql.FieldLTE(FieldUnits, v))
-}
-
-// AssignedIdEQ applies the EQ predicate on the "assigned_id" field.
-func AssignedIdEQ(v uuid.UUID) predicate.ReservationItem {
-	return predicate.ReservationItem(sql.FieldEQ(FieldAssignedId, v))
-}
-
-// AssignedIdNEQ applies the NEQ predicate on the "assigned_id" field.
-func AssignedIdNEQ(v uuid.UUID) predicate.ReservationItem {
-	return predicate.ReservationItem(sql.FieldNEQ(FieldAssignedId, v))
-}
-
-// AssignedIdIn applies the In predicate on the "assigned_id" field.
-func AssignedIdIn(vs ...uuid.UUID) predicate.ReservationItem {
-	return predicate.ReservationItem(sql.FieldIn(FieldAssignedId, vs...))
-}
-
-// AssignedIdNotIn applies the NotIn predicate on the "assigned_id" field.
-func AssignedIdNotIn(vs ...uuid.UUID) predicate.ReservationItem {
-	return predicate.ReservationItem(sql.FieldNotIn(FieldAssignedId, vs...))
-}
-
-// AssignedIdGT applies the GT predicate on the "assigned_id" field.
-func AssignedIdGT(v uuid.UUID) predicate.ReservationItem {
-	return predicate.ReservationItem(sql.FieldGT(FieldAssignedId, v))
-}
-
-// AssignedIdGTE applies the GTE predicate on the "assigned_id" field.
-func AssignedIdGTE(v uuid.UUID) predicate.ReservationItem {
-	return predicate.ReservationItem(sql.FieldGTE(FieldAssignedId, v))
-}
-
-// AssignedIdLT applies the LT predicate on the "assigned_id" field.
-func AssignedIdLT(v uuid.UUID) predicate.ReservationItem {
-	return predicate.ReservationItem(sql.FieldLT(FieldAssignedId, v))
-}
-
-// AssignedIdLTE applies the LTE predicate on the "assigned_id" field.
-func AssignedIdLTE(v uuid.UUID) predicate.ReservationItem {
-	return predicate.ReservationItem(sql.FieldLTE(FieldAssignedId, v))
-}
-
-// AssignedIdIsNil applies the IsNil predicate on the "assigned_id" field.
-func AssignedIdIsNil() predicate.ReservationItem {
-	return predicate.ReservationItem(sql.FieldIsNull(FieldAssignedId))
-}
-
-// AssignedIdNotNil applies the NotNil predicate on the "assigned_id" field.
-func AssignedIdNotNil() predicate.ReservationItem {
-	return predicate.ReservationItem(sql.FieldNotNull(FieldAssignedId))
 }
 
 // DateUpdatedEQ applies the EQ predicate on the "date_updated" field.

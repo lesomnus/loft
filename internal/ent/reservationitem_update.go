@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"time"
-	"uuid"
 
 	"github.com/lesomnus/rove/internal/ent/predicate"
 	"github.com/lesomnus/rove/internal/ent/reservationitem"
@@ -48,26 +47,6 @@ func (_u *ReservationItemUpdate) SetNillableUnits(v *uint32) *ReservationItemUpd
 // AddUnits adds value to the "units" field.
 func (_u *ReservationItemUpdate) AddUnits(v int32) *ReservationItemUpdate {
 	_u.mutation.AddUnits(v)
-	return _u
-}
-
-// SetAssignedId sets the "assigned_id" field.
-func (_u *ReservationItemUpdate) SetAssignedId(v uuid.UUID) *ReservationItemUpdate {
-	_u.mutation.SetAssignedId(v)
-	return _u
-}
-
-// SetNillableAssignedId sets the "assigned_id" field if the given value is not nil.
-func (_u *ReservationItemUpdate) SetNillableAssignedId(v *uuid.UUID) *ReservationItemUpdate {
-	if v != nil {
-		_u.SetAssignedId(*v)
-	}
-	return _u
-}
-
-// ClearAssignedId clears the value of the "assigned_id" field.
-func (_u *ReservationItemUpdate) ClearAssignedId() *ReservationItemUpdate {
-	_u.mutation.ClearAssignedId()
 	return _u
 }
 
@@ -158,15 +137,6 @@ func (_u *ReservationItemUpdate) sqlSave(ctx context.Context) (_node int, err er
 	if value, ok := _u.mutation.AddedUnits(); ok {
 		_spec.AddField(reservationitem.FieldUnits, field.TypeUint32, value)
 	}
-	if value, ok := _u.mutation.AssignedId(); ok {
-		_spec.SetField(reservationitem.FieldAssignedId, field.TypeUuid, value)
-	}
-	if e, ok := _u.mutation.FieldExpr(reservationitem.FieldAssignedId); ok {
-		_spec.SetField(reservationitem.FieldAssignedId, field.TypeUuid, e)
-	}
-	if _u.mutation.AssignedIdCleared() {
-		_spec.ClearField(reservationitem.FieldAssignedId, field.TypeUuid)
-	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(reservationitem.FieldDateUpdated, field.TypeTime, value)
 	}
@@ -216,26 +186,6 @@ func (_u *ReservationItemUpdateOne) SetNillableUnits(v *uint32) *ReservationItem
 // AddUnits adds value to the "units" field.
 func (_u *ReservationItemUpdateOne) AddUnits(v int32) *ReservationItemUpdateOne {
 	_u.mutation.AddUnits(v)
-	return _u
-}
-
-// SetAssignedId sets the "assigned_id" field.
-func (_u *ReservationItemUpdateOne) SetAssignedId(v uuid.UUID) *ReservationItemUpdateOne {
-	_u.mutation.SetAssignedId(v)
-	return _u
-}
-
-// SetNillableAssignedId sets the "assigned_id" field if the given value is not nil.
-func (_u *ReservationItemUpdateOne) SetNillableAssignedId(v *uuid.UUID) *ReservationItemUpdateOne {
-	if v != nil {
-		_u.SetAssignedId(*v)
-	}
-	return _u
-}
-
-// ClearAssignedId clears the value of the "assigned_id" field.
-func (_u *ReservationItemUpdateOne) ClearAssignedId() *ReservationItemUpdateOne {
-	_u.mutation.ClearAssignedId()
 	return _u
 }
 
@@ -355,15 +305,6 @@ func (_u *ReservationItemUpdateOne) sqlSave(ctx context.Context) (_node *Reserva
 	}
 	if value, ok := _u.mutation.AddedUnits(); ok {
 		_spec.AddField(reservationitem.FieldUnits, field.TypeUint32, value)
-	}
-	if value, ok := _u.mutation.AssignedId(); ok {
-		_spec.SetField(reservationitem.FieldAssignedId, field.TypeUuid, value)
-	}
-	if e, ok := _u.mutation.FieldExpr(reservationitem.FieldAssignedId); ok {
-		_spec.SetField(reservationitem.FieldAssignedId, field.TypeUuid, e)
-	}
-	if _u.mutation.AssignedIdCleared() {
-		_spec.ClearField(reservationitem.FieldAssignedId, field.TypeUuid)
 	}
 	if value, ok := _u.mutation.DateUpdated(); ok {
 		_spec.SetField(reservationitem.FieldDateUpdated, field.TypeTime, value)
