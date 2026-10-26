@@ -443,6 +443,9 @@ func (s *Store) at(ctx context.Context, at string) context.Context {
 //
 // An answer that is out of date widens nothing: roster finds the nomination
 // again on every call that names the tenant, and refuses one that has ended.
+//
+// A call that ends while roster is being asked has not asked it: nothing is
+// kept of it, and the next call asks.
 func (s *Store) serves(ctx context.Context, tenant string) (bool, error) {
 	s.tmu.Lock()
 	defer s.tmu.Unlock()
@@ -461,7 +464,12 @@ func (s *Store) serves(ctx context.Context, tenant string) (bool, error) {
 
 		return ok, nil
 	}
-	if err := s.nominations(ctx, now); err != nil {
+	err := s.nominations(ctx, now)
+	if err != nil && ctx.Err() != nil {
+		return false, fmt.Errorf("the call ended before roster answered: %w", ctx.Err())
+	}
+	s.asked = now
+	if err != nil {
 		s.servedErr = err
 		if !known {
 			return false, err
@@ -483,7 +491,6 @@ func (s *Store) serves(ctx context.Context, tenant string) (bool, error) {
 // as itself. A nomination names its tenant by identifier, and the alias is
 // asked in that tenant, as the holder it nominated.
 func (s *Store) nominations(ctx context.Context, now time.Time) error {
-	s.asked = now
 	as := auth.BearerProvider(s.key).Provide(ctx)
 	var ids []pdid.Id
 	after := ""
@@ -894,6 +901,11 @@ type held struct {
 // roster says of the account it names: ErrRefused when they were suspended,
 // erased or signed out everywhere since -- or are not there at all -- and
 // ErrUnreachable when roster could not be asked, which is a refusal too.
+//
+// A call that ends while roster is being asked -- its page was left half
+// loaded, or it ran out of its own time -- is told so, and nothing is kept of
+// it: that is the caller's doing and not roster's. Kept as roster's, it was a
+// refusal of every call the account made for [HeldRetry].
 func (s *Store) Held(ctx context.Context, holder pdid.Id, began time.Time) error {
 	now := s.now()
 	s.hmu.Lock()
@@ -904,6 +916,9 @@ func (s *Store) Held(ctx context.Context, holder pdid.Id, began time.Time) error
 	fresh := ok && (known && now.Sub(v.at) < HeldTtl || !known && now.Sub(v.at) < HeldRetry)
 	if !fresh {
 		st, err := s.StandingOf(ctx, holder)
+		if err != nil && ctx.Err() != nil {
+			return fmt.Errorf("the call ended before roster answered: %w", ctx.Err())
+		}
 		v = held{st: st, err: err, at: now}
 		s.hmu.Lock()
 		s.held[holder] = v

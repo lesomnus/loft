@@ -75,7 +75,9 @@ type Consents struct {
 	settled map[pdid.Id]time.Time
 	// failed is the last time roster could not be asked about an account,
 	// and why: it is not asked again for [identity.HeldRetry], so that a
-	// roster that is down is not asked once per call.
+	// roster that is down is not asked once per call. A call that ended while
+	// roster was being asked is not one: that was the caller's doing, and
+	// the account's next call asks.
 	failed map[pdid.Id]failure
 }
 
@@ -115,7 +117,9 @@ func (c *Consents) Owed(ctx context.Context, account pdid.Id) ([]Document, error
 	}
 	owed, err := c.Ledger.Owed(ctx, account, asked)
 	if err != nil {
-		c.heard(account, false, err)
+		if ctx.Err() == nil {
+			c.heard(account, false, err)
+		}
 		return nil, err
 	}
 	for _, d := range c.Documents {
