@@ -949,7 +949,9 @@ export type CustodyOutstandingRow = Message<"rove.CustodyOutstandingRow"> & {
   kind: string;
 
   /**
-   * Who has it, by the name they have now.
+   * Who has it, by the name they have now; and, where another goes by it,
+   * with what tells them apart -- the team they are in, their 사번, or their
+   * identifier -- as every list of people does (D50, D54).
    *
    * @generated from field: bytes party_id = 4 [features.field_presence = IMPLICIT];
    */
@@ -1560,8 +1562,9 @@ export const CustodyService: GenService<{
    * Outstanding is what is out now (대여 현황, design 9.14): a row each thing
    * handed over and not back -- who has it, since when, until when and how
    * late -- a page at a time, and how much is out in all. It names who has
-   * each, as they are called now, and is a read of them on the access record
-   * (rove#136); and nobody's address or number.
+   * each, as they are called now and told apart from whoever else goes by
+   * their name, and is a read of them on the access record -- of a team it
+   * tells them apart by, too (rove#136, D54); and nobody's address or number.
    *
    * @generated from rpc rove.CustodyService.Outstanding
    */

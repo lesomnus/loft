@@ -136,7 +136,7 @@ function Contents(props: { id: string }): ReactNode {
 										<span>
 											<span className="mute small">
 												{a.kind !== 'item' && `${kindWord[a.kind]} · `}
-												{a.custodian !== undefined && `${c.party(a.custodian.id)?.name ?? ''} · `}
+												{a.custodian !== undefined && `${c.called(a.custodian.id)} · `}
 											</span>
 											<Badge v={a.status} words={statusWord} />
 										</span>
