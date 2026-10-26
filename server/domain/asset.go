@@ -22,6 +22,7 @@ import (
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/internal/ent/asset"
+	"github.com/lesomnus/rove/internal/ent/bookable"
 	"github.com/lesomnus/rove/internal/ent/fact"
 	"github.com/lesomnus/rove/internal/ent/link"
 	"github.com/lesomnus/rove/internal/ent/placement"
@@ -379,8 +380,19 @@ func (s domainAsset) Erase(ctx context.Context, ref *app.AssetRef) (*app.AssetEr
 		}
 		// And what booked it itself is told it is no more: out of use to
 		// it for good, which it is neither approved nor fulfilled through,
-		// and -- a pool -- not counted short of either (D47).
+		// and -- a pool -- not counted short of either (D47). What made it
+		// reservable goes with it: nothing books what never was, and a
+		// page that shows what is to book does not ask for it.
 		if err := t.voidedOf(id.Uuid()); err != nil {
+			return err
+		}
+		b, err := t.db.Bookable.Query().Where(bookable.TenantId(t.tenant.Uuid()), bookable.AssetId(id.Uuid()), bookable.DateErasedIsNil()).Only(t.ctx)
+		switch {
+		case err == nil:
+			if _, err := t.next.Bookable().Erase(t.ctx, app.BookableRef_builder{Id: pdid.Id(b.Id).Bytes()}.Build()); err != nil {
+				return err
+			}
+		case !ent.IsNotFound(err):
 			return err
 		}
 		// What it was said to be, never: every fact of it that stands,

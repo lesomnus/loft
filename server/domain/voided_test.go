@@ -1,10 +1,12 @@
 package domain_test
 
 import (
+	"slices"
 	"testing"
 	"time"
 
 	"google.golang.org/grpc/codes"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	app "github.com/lesomnus/rove"
 )
@@ -64,6 +66,27 @@ func TestAVoidedPoolsBookingsAreMarkedAndTold(t *testing.T) {
 	_, err = e.pickup(booked, me, one)
 	x.Equal(codes.FailedPrecondition, codeOf(err), "%v", err)
 	x.Equal("confirmed", e.statusOf(booked))
+
+	// What made it reservable went with it: it is not listed to book, and a
+	// calendar of all there is to book asks nothing of it.
+	bs, err := e.app().Bookable().List(e.owner, app.BookableListRequest_builder{Size: 500}.Build())
+	x.NoError(err)
+	all := []*app.AssetRef{}
+	for _, b := range bs.GetItems() {
+		x.False(sameId(b.GetAsset().GetId(), cameras.GetId()))
+		all = append(all, ref[app.AssetRef](b.GetAsset().GetId()))
+	}
+	_, err = e.app().Reservation().Calendar(e.owner, app.ReservationCalendarRequest_builder{Resources: all}.Build())
+	x.NoError(err)
+	// And one that asks for it all the same, having read what there was to
+	// book before, is shown its bookings with the rest.
+	cal, err := e.app().Reservation().Calendar(e.owner, app.ReservationCalendarRequest_builder{
+		Resources: append(all, assetRef(cameras)),
+		From:      timestamppb.New(at.Add(-time.Minute)),
+		To:        timestamppb.New(until),
+	}.Build())
+	x.NoError(err)
+	x.True(slices.ContainsFunc(cal.GetEntries(), func(v *app.CalendarEntry) bool { return sameId(v.GetReservation().GetId(), booked.GetId()) }))
 
 	// What was in it is its own again, and the sweep takes nothing for it.
 	_, err = e.reserve(kim, one, at, until, nil)
