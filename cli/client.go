@@ -31,7 +31,9 @@ import (
 
 	"github.com/lesomnus/payday/access"
 	"github.com/lesomnus/payday/pdcmd"
+	"github.com/lesomnus/z"
 
+	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/cmd"
 	"github.com/lesomnus/rove/server/clilogin"
 )
@@ -462,11 +464,12 @@ func NewCmdUse() *xli.Command {
 // NewCmdWorkspace is `rove workspace`: what an account has outside any one
 // workspace -- the ones it is in, a new one, and everything one it owns has --
 // which is HTTP beside the RPCs (`server/account`), asked before there is a
-// workspace to be a member of.
+// workspace to be a member of. And what one it owns is called, which is the
+// workspace's own RPC (D58), here beside making one.
 func NewCmdWorkspace() *xli.Command {
 	return &xli.Command{
 		Name:  "workspace",
-		Brief: "the workspaces this account is in, a new one, and one's data",
+		Brief: "the workspaces this account is in, a new one, what one is called, and one's data",
 		Commands: xli.Commands{
 			{
 				Name:  "ls",
@@ -496,6 +499,62 @@ func NewCmdWorkspace() *xli.Command {
 						return err
 					}
 					self.Printf("@%s\t%s\n", made.Alias, made.Name)
+					return next(ctx)
+				}),
+			},
+			{
+				Name:  "rename",
+				Brief: "what a workspace this account owns is called, or none of its own and it is called after its owner",
+				Flags: flg.Flags{&flg.Switch{Name: "clear", Brief: "no name of its own: it is called after its owner"}},
+				Args: arg.Args{
+					&arg.String{Name: "WORKSPACE", Brief: "by alias"},
+					&arg.String{Name: "NAME", Brief: "what it is called; its history keeps it as it is, so no person's name", Optional: true},
+				},
+				Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
+					c, err := loadClient()
+					if err != nil {
+						return err
+					}
+					if !c.signedIn() {
+						return errNoLogin
+					}
+					ws, _ := arg.Get[string](self, "WORKSPACE")
+					ws = strings.TrimPrefix(strings.TrimSpace(ws), "@")
+					name, _ := arg.Get[string](self, "NAME")
+					name = strings.TrimSpace(name)
+					none, _ := flg.Find[bool](self, "clear")
+					switch {
+					case ws == "":
+						return errors.New("WORKSPACE: which one (`rove whoami` lists them)")
+					case none && name != "":
+						return errors.New("NAME or --clear, not both")
+					case !none && name == "":
+						return errors.New("NAME: what it is called; --clear for none of its own")
+					}
+					// Said as the page says it: its owner's Configure, with its
+					// event (D58).
+					if _, err := app.NewTenantServiceClient(c.conn(ws)).Configure(ctx, app.TenantConfigureRequest_builder{
+						Ref:  app.TenantRef_builder{Alias: z.Ptr(ws)}.Build(),
+						Name: z.Ptr(name),
+					}.Build()); err != nil {
+						return err
+					}
+					// And what it is called now, as the account is told it:
+					// after its owner, for none of its own.
+					var me struct {
+						Workspaces []struct {
+							Alias string `json:"alias"`
+							Name  string `json:"name"`
+						} `json:"workspaces"`
+					}
+					if _, err := c.do(ctx, http.MethodGet, "/account", nil, &me); err != nil {
+						return err
+					}
+					for _, w := range me.Workspaces {
+						if w.Alias == ws {
+							self.Printf("@%s\t%s\n", w.Alias, w.Name)
+						}
+					}
 					return next(ctx)
 				}),
 			},

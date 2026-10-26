@@ -209,6 +209,29 @@ func TestATerminalSignsInByBeingApproved(t *testing.T) {
 	x.ErrorContains(err, "not signed in")
 }
 
+// TestATerminalNamesAWorkspaceItsAccountOwns (D58): what a workspace is called,
+// said from the terminal as its settings say it -- and none of its own, and it
+// is called after its owner (D57). Its owner's alone.
+func TestATerminalNamesAWorkspaceItsAccountOwns(t *testing.T) {
+	s := serve(t)
+	x := s.x
+	ctx := context.Background()
+	s.signIn("owner", "owner1234")
+
+	out := run(t, cli.NewCmdWorkspace(), "rename", "@acme", "연구실 장비")
+	x.Equal("@acme\t연구실 장비\n", out)
+	out = run(t, cli.NewCmdWorkspace(), "ls")
+	x.Contains(out, "@acme\towner\t연구실 장비")
+	out = run(t, cli.NewCmdWorkspace(), "rename", "--clear", "acme")
+	x.Equal("@acme\t관리자의 워크스페이스\n", out, "called after its owner, whom `rove init` calls so")
+
+	x.ErrorContains(cli.NewCmdWorkspace().Run(ctx, []string{"rename", "acme"}), "--clear")
+	x.ErrorContains(cli.NewCmdWorkspace().Run(ctx, []string{"rename", "--clear", "acme", "연구실"}), "not both")
+
+	s.signIn("kim", "kim-password")
+	x.ErrorContains(cli.NewCmdWorkspace().Run(ctx, []string{"rename", "acme", "김의 장비"}), "PermissionDenied")
+}
+
 // TestATerminalIsHeldToWhatItsAccountMay: the policy the page is held to,
 // and nothing wider.
 func TestATerminalIsHeldToWhatItsAccountMay(t *testing.T) {

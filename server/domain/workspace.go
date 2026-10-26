@@ -47,11 +47,14 @@ func (s Domain) Tenant() app.TenantServiceServer { return domainTenant{s, s.Next
 
 // Patch is a workspace's own settings, less what is not its owner's to write:
 // its address, which nobody chose and only an operator moves (`rove tenant
-// alias`), and whether it is closed, which Close and Restore say. Its zone,
-// currency and check-in rule are its own (#144), and are held to what can be
-// told in; and how long it keeps its history (D36), which a grace holds a
-// shorter window to: all of them Configure's.
+// alias`), and whether it is closed, which Close and Restore say. Its name
+// (D58), its zone, currency and check-in rule are its own (#144), and are held
+// to what can be told in; and how long it keeps its history (D36), which a
+// grace holds a shorter window to: all of them Configure's, with its event.
 func (s domainTenant) Patch(ctx context.Context, req *app.TenantPatchRequest) (*app.Tenant, error) {
+	if req.HasName() {
+		return nil, invalid("name", "워크스페이스 이름은 TenantService.Configure로 정합니다")
+	}
 	if req.HasTimezone() || req.HasCurrency() || req.HasNoShowMinutes() {
 		return nil, invalid("timezone", "시간대, 통화와 노쇼 해제는 TenantService.Configure로 정합니다")
 	}
@@ -69,12 +72,20 @@ func (s domainTenant) Patch(ctx context.Context, req *app.TenantPatchRequest) (*
 	return s.TenantServiceServer.Patch(ctx, req)
 }
 
-// Configure is the workspace's own settings, its owner's to say (#144): its
-// zone, its currency, how long a room waits for whoever booked it, and how
-// long it keeps its history and its access record and may be restored once
-// closed (D36). One operation, with an event that says what it came to -- a
-// window made shorter, from when it is.
+// Configure is the workspace's own settings, its owner's to say (#144): what
+// it is called (D58), its zone, its currency, how long a room waits for
+// whoever booked it, and how long it keeps its history and its access record
+// and may be restored once closed (D36). One operation, with an event that
+// says what it came to -- a window made shorter, from when it is.
+//
+// Its name is the workspace's and nobody's (payday#180): the trail and the
+// event keep it as the value it became. None is a name too, and the
+// workspace is then called after its owner where it is read (D57).
 func (s domainTenant) Configure(ctx context.Context, req *app.TenantConfigureRequest) (*app.Tenant, error) {
+	name := strings.TrimSpace(req.GetName())
+	if req.HasName() && !tenancy.Fits(name) {
+		return nil, invalid("name", "워크스페이스 이름은 한 줄로, %d자까지 씁니다", tenancy.MaxName)
+	}
 	if req.HasTimezone() {
 		if err := checkZone(req.GetTimezone()); err != nil {
 			return nil, invalid("timezone", "시간대가 올바르지 않습니다 (예: Asia/Seoul)")
@@ -100,6 +111,10 @@ func (s domainTenant) Configure(ctx context.Context, req *app.TenantConfigureReq
 
 		patch := app.TenantPatchRequest_builder{Ref: t.tenantRef(), DateUpdatedForce: z.Ptr(true)}.Build()
 		said := &app.WorkspaceConfigured{}
+		if req.HasName() {
+			patch.SetName(name)
+			said.SetName(name)
+		}
 		if req.HasTimezone() {
 			patch.SetTimezone(req.GetTimezone())
 			said.SetTimezone(req.GetTimezone())

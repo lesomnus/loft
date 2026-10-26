@@ -2895,6 +2895,7 @@ type TenantConfigureRequest struct {
 	xxx_hidden_KeepDays       uint32                 `protobuf:"varint,5,opt,name=keep_days,json=keepDays"`
 	xxx_hidden_AccessKeepDays uint32                 `protobuf:"varint,6,opt,name=access_keep_days,json=accessKeepDays"`
 	xxx_hidden_RestoreDays    uint32                 `protobuf:"varint,7,opt,name=restore_days,json=restoreDays"`
+	xxx_hidden_Name           *string                `protobuf:"bytes,8,opt,name=name"`
 	XXX_raceDetectHookData    protoimpl.RaceDetectHookData
 	XXX_presence              [1]uint32
 	unknownFields             protoimpl.UnknownFields
@@ -2981,38 +2982,53 @@ func (x *TenantConfigureRequest) GetRestoreDays() uint32 {
 	return 0
 }
 
+func (x *TenantConfigureRequest) GetName() string {
+	if x != nil {
+		if x.xxx_hidden_Name != nil {
+			return *x.xxx_hidden_Name
+		}
+		return ""
+	}
+	return ""
+}
+
 func (x *TenantConfigureRequest) SetRef(v *TenantRef) {
 	x.xxx_hidden_Ref = v
 }
 
 func (x *TenantConfigureRequest) SetTimezone(v string) {
 	x.xxx_hidden_Timezone = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 7)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 8)
 }
 
 func (x *TenantConfigureRequest) SetCurrency(v string) {
 	x.xxx_hidden_Currency = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 7)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 8)
 }
 
 func (x *TenantConfigureRequest) SetNoShowMinutes(v int32) {
 	x.xxx_hidden_NoShowMinutes = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 7)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 8)
 }
 
 func (x *TenantConfigureRequest) SetKeepDays(v uint32) {
 	x.xxx_hidden_KeepDays = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 7)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 8)
 }
 
 func (x *TenantConfigureRequest) SetAccessKeepDays(v uint32) {
 	x.xxx_hidden_AccessKeepDays = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 7)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 8)
 }
 
 func (x *TenantConfigureRequest) SetRestoreDays(v uint32) {
 	x.xxx_hidden_RestoreDays = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 7)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 6, 8)
+}
+
+func (x *TenantConfigureRequest) SetName(v string) {
+	x.xxx_hidden_Name = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 8)
 }
 
 func (x *TenantConfigureRequest) HasRef() bool {
@@ -3064,6 +3080,13 @@ func (x *TenantConfigureRequest) HasRestoreDays() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 6)
 }
 
+func (x *TenantConfigureRequest) HasName() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 7)
+}
+
 func (x *TenantConfigureRequest) ClearRef() {
 	x.xxx_hidden_Ref = nil
 }
@@ -3098,6 +3121,11 @@ func (x *TenantConfigureRequest) ClearRestoreDays() {
 	x.xxx_hidden_RestoreDays = 0
 }
 
+func (x *TenantConfigureRequest) ClearName() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 7)
+	x.xxx_hidden_Name = nil
+}
+
 type TenantConfigureRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
@@ -3115,6 +3143,11 @@ type TenantConfigureRequest_builder struct {
 	AccessKeepDays *uint32
 	// Days it may be restored once closed; 0 is the deployment's.
 	RestoreDays *uint32
+	// What it is called, one line of up to 80 characters: the workspace's, and
+	// nobody's (payday#180), which the trail and its history keep as they keep
+	// any thing's name -- so no person's. Empty is none of its own, and it is
+	// called after its owner (D57).
+	Name *string
 }
 
 func (b0 TenantConfigureRequest_builder) Build() *TenantConfigureRequest {
@@ -3123,28 +3156,32 @@ func (b0 TenantConfigureRequest_builder) Build() *TenantConfigureRequest {
 	_, _ = b, x
 	x.xxx_hidden_Ref = b.Ref
 	if b.Timezone != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 7)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 8)
 		x.xxx_hidden_Timezone = b.Timezone
 	}
 	if b.Currency != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 7)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 8)
 		x.xxx_hidden_Currency = b.Currency
 	}
 	if b.NoShowMinutes != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 7)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 8)
 		x.xxx_hidden_NoShowMinutes = *b.NoShowMinutes
 	}
 	if b.KeepDays != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 7)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 8)
 		x.xxx_hidden_KeepDays = *b.KeepDays
 	}
 	if b.AccessKeepDays != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 7)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 8)
 		x.xxx_hidden_AccessKeepDays = *b.AccessKeepDays
 	}
 	if b.RestoreDays != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 7)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 6, 8)
 		x.xxx_hidden_RestoreDays = *b.RestoreDays
+	}
+	if b.Name != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 8)
+		x.xxx_hidden_Name = b.Name
 	}
 	return m0
 }
@@ -3603,7 +3640,7 @@ const file_rove_payday_tenant_svc_g_proto_rawDesc = "" +
 	"\aconfirm\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\aconfirm\x12\x1d\n" +
 	"\x06reason\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06reason\"9\n" +
 	"\x14TenantRestoreRequest\x12!\n" +
-	"\x03ref\x18\x01 \x01(\v2\x0f.rove.TenantRefR\x03ref\"\x85\x02\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0f.rove.TenantRefR\x03ref\"\x99\x02\n" +
 	"\x16TenantConfigureRequest\x12!\n" +
 	"\x03ref\x18\x01 \x01(\v2\x0f.rove.TenantRefR\x03ref\x12\x1a\n" +
 	"\btimezone\x18\x02 \x01(\tR\btimezone\x12\x1a\n" +
@@ -3611,7 +3648,8 @@ const file_rove_payday_tenant_svc_g_proto_rawDesc = "" +
 	"\x0fno_show_minutes\x18\x04 \x01(\x05R\rnoShowMinutes\x12\x1b\n" +
 	"\tkeep_days\x18\x05 \x01(\rR\bkeepDays\x12(\n" +
 	"\x10access_keep_days\x18\x06 \x01(\rR\x0eaccessKeepDays\x12!\n" +
-	"\frestore_days\x18\a \x01(\rR\vrestoreDays\"\x80\x01\n" +
+	"\frestore_days\x18\a \x01(\rR\vrestoreDays\x12\x12\n" +
+	"\x04name\x18\b \x01(\tR\x04name\"\x80\x01\n" +
 	"\x14TenantPreviewRequest\x12!\n" +
 	"\x03ref\x18\x01 \x01(\v2\x0f.rove.TenantRefR\x03ref\x12\x1b\n" +
 	"\tkeep_days\x18\x02 \x01(\rR\bkeepDays\x12(\n" +

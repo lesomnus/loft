@@ -529,6 +529,7 @@ func TestAnAccountInNoWorkspaceIsGivenOne(t *testing.T) {
 	res = ask(http.MethodPost, "/account/workspaces", `{"name":"하나 더"}`)
 	x.Equal(http.StatusPaymentRequired, res.Code, "one more than an account owns for nothing")
 	x.Equal(http.StatusBadRequest, ask(http.MethodPost, "/account/workspaces", `{"name":""}`).Code)
+	x.Equal(http.StatusBadRequest, ask(http.MethodPost, "/account/workspaces", `{"name":"팀\nBcc: x@example.com"}`).Code, "more than the one line a mail's subject is")
 
 	res = ask(http.MethodGet, "/account", "")
 	x.NoError(json.Unmarshal(res.Body.Bytes(), &got))

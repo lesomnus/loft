@@ -13,6 +13,62 @@ import (
 	app "github.com/lesomnus/rove"
 )
 
+// TestAWorkspaceIsCalledWhatItsOwnerSays (D58): what a workspace is called is
+// its own, its owner's to say through Configure with its event, and to take
+// back -- and then it is called after its owner again (D57). Not the general
+// write's, which has no event.
+func TestAWorkspaceIsCalledWhatItsOwnerSays(t *testing.T) {
+	e := newEnv(t)
+	x := e.x
+	ws := app.TenantRef_builder{Id: e.tenant.Bytes()}.Build()
+	name := func(v string) (*app.Tenant, error) {
+		return e.app().Tenant().Configure(e.owner, app.TenantConfigureRequest_builder{Ref: ws, Name: z.Ptr(v)}.Build())
+	}
+	called := func() string {
+		me, err := e.app().Party().Me(e.owner, &app.PartyMeRequest{})
+		x.NoError(err)
+		return me.GetWorkspaceName()
+	}
+	x.Equal("acme", called())
+
+	_, err := name(strings.Repeat("가", 81))
+	x.Equal(codes.InvalidArgument, codeOf(err), "longer than a workspace is made with")
+	_, err = name("연구실\r\nBcc: x@example.com")
+	x.Equal(codes.InvalidArgument, codeOf(err), "more than the one line a mail's subject is")
+	_, err = e.app().Tenant().Patch(e.owner, app.TenantPatchRequest_builder{Ref: ws, Name: z.Ptr("연구실"), DateUpdatedForce: z.Ptr(true)}.Build())
+	x.Equal(codes.InvalidArgument, codeOf(err), "said past Configure, and its event")
+
+	v, err := name("  연구실 장비  ")
+	x.NoError(err)
+	x.Equal("연구실 장비", v.GetName(), "as it was said, less the spaces around it")
+	x.Equal("연구실 장비", called())
+
+	v, err = name("")
+	x.NoError(err)
+	x.Empty(v.GetName())
+	x.Equal("Owner of acme의 워크스페이스", called(), "none of its own: called after its owner again")
+
+	// Configured otherwise, it is called as it was.
+	_, err = e.app().Tenant().Configure(e.owner, app.TenantConfigureRequest_builder{Ref: ws, Currency: z.Ptr("USD")}.Build())
+	x.NoError(err)
+	x.Equal("Owner of acme의 워크스페이스", called())
+
+	type said struct {
+		named          bool
+		name, sentence string
+	}
+	got := []said{}
+	for _, ev := range e.eventsOf("workspace.configure") {
+		m := value[*app.WorkspaceConfigured](e, ev)
+		got = append(got, said{m.HasName(), m.GetName(), e.say(ev)})
+	}
+	x.ElementsMatch([]said{
+		{true, "연구실 장비", "워크스페이스 이름 변경: 연구실 장비"},
+		{true, "", "워크스페이스 이름 지움 (소유자의 이름으로 부름)"},
+		{false, "", "워크스페이스 설정 변경"},
+	}, got)
+}
+
 // TestAWorkspaceSaysWhereItIs (#144): the zone its dates are told in, the
 // currency a new amount is priced in, and how long a room waits for whoever
 // booked it are its own, its owner's to say -- and the deployment's while it
