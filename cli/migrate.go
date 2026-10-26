@@ -39,6 +39,9 @@ func NewCmdMigrate(c *cmd.Config) *xli.Command {
 			if v.Facts > 0 {
 				self.Printf("the assets' facts moved into payday's past: %d rewritten, %d put on the trail\n", v.Facts, v.Recorded)
 			}
+			if v.Held > 0 {
+				self.Printf("what is out holds its time: %d things, held from when they were handed over\n", v.Held)
+			}
 			self.Printf("the database is in this build's shape\n")
 			return nil
 		}),
