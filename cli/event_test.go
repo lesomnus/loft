@@ -2,9 +2,11 @@ package cli_test
 
 import (
 	"bytes"
+	"context"
 	"encoding/base64"
 	"slices"
 	"testing"
+	"time"
 
 	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/pdid"
@@ -12,6 +14,7 @@ import (
 	"github.com/lesomnus/payday/pdtest"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/cli"
@@ -19,7 +22,10 @@ import (
 	entaccess "github.com/lesomnus/rove/internal/ent/access"
 	"github.com/lesomnus/rove/internal/ent/event"
 	"github.com/lesomnus/rove/internal/ent/holder"
+	"github.com/lesomnus/rove/internal/ent/notification"
 	enttenant "github.com/lesomnus/rove/internal/ent/tenant"
+	"github.com/lesomnus/rove/server/domain"
+	"github.com/lesomnus/rove/server/mail"
 	"github.com/lesomnus/rove/server/pd"
 )
 
@@ -207,5 +213,121 @@ func TestAnOperatorIsToldWhereElseAnOperationSaysItAndTakesItOutThereToo(t *test
 	// Asked of another of them, there is nothing left.
 	out = run(t, cli.NewCmdEvent(&c), "redact", "--tenant", "acme", "--event", said[2].String(), "--why", "삭제 요청 2026-26", "--yes")
 	x.Contains(out, "it has no reason")
+	x.NoError(cli.NewCmdTrail(&c).Run(ctx, []string{"rows"}))
+}
+
+// posted is a mail server that keeps what it was sent.
+type posted struct{ sent []mail.Message }
+
+func (p *posted) Send(_ context.Context, v mail.Message) error {
+	p.sent = append(p.sent, v)
+	return nil
+}
+
+// TestAnOperatorIsToldOfTheNoticesThatSayItAndTakesItOutOfThem: a rejection's
+// reason is the words of the notice whoever asked for the reservation was
+// told in, and was mailed (design D51). Before `--yes` the operator is told
+// how many notices say it and of which kinds, and how many went by mail --
+// which is not taken back -- and nothing of what they say; with it, the
+// words are taken out of the notice, which is on the access record as the
+// operator's write, and every row is as the trail says.
+func TestAnOperatorIsToldOfTheNoticesThatSayItAndTakesItOutOfThem(t *testing.T) {
+	x := require.New(t)
+	ctx := t.Context()
+
+	c := cmd.Config{}
+	c.Db.Driver, c.Db.Dsn = pdtest.DB(t)
+	c.Watch.Broker = "memory"
+	c.App.Files = t.TempDir()
+	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
+	c.Audit.Digest.Key = "base64:" + base64.StdEncoding.EncodeToString(bytes.Repeat([]byte{7}, 32))
+	run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner-pass-1234")
+
+	const words = "박지민 씨 개인 사정으로 반려 (010-2345-6789)"
+	var rejected, told pdid.Id
+	on(t, c, func(s *cmd.Server) {
+		tn, err := s.Ent.Tenant.Query().Where(enttenant.Alias("acme")).Only(ctx)
+		x.NoError(err)
+		h, err := s.Ent.Holder.Query().Where(holder.TenantId(tn.Id), holder.Alias("owner")).Only(ctx)
+		x.NoError(err)
+		owner := frame.Into(ctx, frame.New(pdid.Id(h.Id), pdid.Id(tn.Id), frame.Whole()).WithScope(frame.Only(pdid.Id(tn.Id))))
+		hall, err := s.Walled.Asset().Add(owner, app.AssetAddRequest_builder{Name: "강당", Kind: "space"}.Build())
+		x.NoError(err)
+		_, err = s.Walled.Bookable().Add(owner, app.BookableAddRequest_builder{Asset: app.AssetById(hall.GetId()), Approval: true}.Build())
+		x.NoError(err)
+		p, err := s.Walled.Party().Add(owner, app.PartyAddRequest_builder{Name: "김철수", Kind: "person", Email: "kim@acme.example"}.Build())
+		x.NoError(err)
+		_, err = s.Walled.Party().Invite(owner, app.PartyInviteRequest_builder{Ref: app.PartyRef_builder{Id: p.GetId()}.Build(), Alias: "kim", Role: "member", Password: "kim-password-1234"}.Build())
+		x.NoError(err)
+		at := time.Now().Add(24 * time.Hour).Truncate(time.Hour)
+		r, err := s.Walled.Reservation().Add(owner, app.ReservationAddRequest_builder{
+			Name:     "인터뷰",
+			Party:    app.PartyRef_builder{Id: p.GetId()}.Build(),
+			BeginsAt: timestamppb.New(at),
+			EndsAt:   timestamppb.New(at.Add(time.Hour)),
+			Items:    []*app.ReservationItemSpec{app.ReservationItemSpec_builder{Resource: app.AssetById(hall.GetId())}.Build()},
+		}.Build())
+		x.NoError(err)
+		x.Equal("requested", r.GetStatus())
+
+		// Rejected, and mailed to whoever it was for.
+		box := &posted{}
+		s.Deps.Mail = box
+		s.Deps.Links.App = "https://rove.example"
+		_, err = s.Walled.Reservation().Reject(owner, app.ReservationDecideRequest_builder{Ref: app.ReservationRef_builder{Id: r.GetId()}.Build(), Reason: words}.Build())
+		x.NoError(err)
+		x.NoError(domain.Mailer{Drv: s.Drv, Deps: s.Deps}.Pass(ctx))
+		x.Len(box.sent, 1)
+		x.Contains(box.sent[0].Body, words)
+
+		rid, err := pdid.From(r.GetId())
+		x.NoError(err)
+		v, err := s.Ent.Event.Query().Where(event.Kind("reservation.reject"), event.SubjectId(rid.Uuid())).Only(ctx)
+		x.NoError(err)
+		rejected = pdid.Id(v.Id)
+		n, err := s.Ent.Notification.Query().Where(notification.Kind("reservation.decided"), notification.SubjectId(rid.Uuid())).Only(ctx)
+		x.NoError(err)
+		x.NotNil(n.DateMailed)
+		told = pdid.Id(n.Id)
+	})
+	says := func() string {
+		var v string
+		on(t, c, func(s *cmd.Server) {
+			n, err := s.Ent.Notification.Get(ctx, told.Uuid())
+			x.NoError(err)
+			v = n.Desc
+		})
+		return v
+	}
+
+	out := run(t, cli.NewCmdEvent(&c), "redact", "--tenant", "acme", "--event", rejected.String(), "--why", "삭제 요청 2026-32")
+	x.Contains(out, "1 notice(s) say the same as their words")
+	x.Contains(out, "reservation.decided ×1")
+	x.Contains(out, "1 of them went by mail before this, which is not taken back")
+	x.Contains(out, "would take its reason out")
+	x.NotContains(out, "박지민")
+	x.Equal(words, says(), "nothing was done")
+
+	out = run(t, cli.NewCmdEvent(&c), "redact", "--tenant", "acme", "--event", rejected.String(), "--why", "삭제 요청 2026-32", "--by", "ops@desk", "--yes")
+	x.Contains(out, "took the reason out of event "+rejected.String())
+	x.Contains(out, "and out of the 1 notice(s) that said the same as their words")
+	x.Empty(says())
+
+	on(t, c, func(s *cmd.Server) {
+		rs, err := s.Ent.Access.Query().Where(entaccess.Action("rove event redact"), entaccess.KindEQ("write")).All(ctx)
+		x.NoError(err)
+		var wrote []pdid.Id
+		for _, r := range rs {
+			for _, v := range r.Subjects {
+				wrote = append(wrote, pdid.Id(v))
+			}
+		}
+		x.Contains(wrote, told, "the notice, as the operator's write")
+		all, err := s.Ent.Access.Query().All(ctx)
+		x.NoError(err)
+		for _, r := range all {
+			x.NotContains(string(r.Value), "박지민", r.Action)
+		}
+	})
 	x.NoError(cli.NewCmdTrail(&c).Run(ctx, []string{"rows"}))
 }
