@@ -253,8 +253,9 @@ func window(b *ent.Bookable, begins, ends time.Time) (time.Time, time.Time) {
 // conflicts answers the blocking allocations that keep `r` from being taken
 // for [from, to) by `units` more: on the resource itself, or on a space of
 // the same exclusive group above or below it; of a pool, what takes its
-// members as well; and of one of a pool's units, what keeps the pool from
-// sparing it ([Tx.poolsShort]).
+// members as well, and what the pools around it are booked for (D44); and of
+// one of a pool's units, what keeps the pools around it from sparing it
+// ([Tx.poolsShort]).
 func (t *Tx) conflicts(r *resource, from, to time.Time, units uint32, except []uuid.UUID) ([]*ent.Allocation, error) {
 	ids := []uuid.UUID{r.asset.Id}
 	if g := r.book.ExclusiveGroup; g != "" {
@@ -286,24 +287,29 @@ func (t *Tx) conflicts(r *resource, from, to time.Time, units uint32, except []u
 	}
 	if p != nil || capacity > 1 {
 		// A pool: what matters is how many are taken at the busiest moment --
-		// of a pool of members, the ones whose own time is taken then too.
+		// of a pool of members, the ones whose own time is taken then too,
+		// and whatever the pools it shares a member with take of it.
 		own := []*ent.Allocation{}
 		for _, a := range as {
 			if a.ResourceId == r.asset.Id {
 				own = append(own, a)
 			}
 		}
-		used := own
 		if p != nil {
-			held, err := t.heldOf(p.units, from, to, except)
+			around, err := t.poolsAround(r)
 			if err != nil {
 				return nil, err
 			}
-			used = slices.Concat(own, held)
-			own = taken(own, held)
-		}
-		if peak(own, from, to)+units > capacity {
-			return used, nil
+			l, err := t.ledgerOf(around, from, to, except)
+			if err != nil {
+				return nil, err
+			}
+			more := &ent.Allocation{ResourceId: r.asset.Id, BeginsAt: from, EndsAt: to, Units: units}
+			if l.short(append(slices.Clone(l.own), more), l.held, from, to) {
+				return slices.Concat(l.own, l.held), nil
+			}
+		} else if peak(own, from, to)+units > capacity {
+			return own, nil
 		}
 		others := []*ent.Allocation{}
 		for _, a := range as {
@@ -585,15 +591,14 @@ func (s domainReservation) Add(ctx context.Context, req *app.ReservationAddReque
 			}
 			things = append(things, w.r.asset.Id)
 		}
-		// And the pools whose units any of it is, which it is held to
-		// ([Tx.poolsShort]): in the same step, in the one order.
-		pools, err := t.poolsOf(things)
+		// And the pools around any of it -- the pools it is, and whose units
+		// any of it is, and the pools those share a unit with -- which it is
+		// held to ([Tx.poolsShort], D44): in the same step, in the one order.
+		pools, err := t.circle(things)
 		if err != nil {
 			return err
 		}
-		for _, ps := range pools {
-			rs = append(rs, ps...)
-		}
+		rs = append(rs, pools...)
 		if err := t.lockBookables(rs); err != nil {
 			return err
 		}
@@ -617,21 +622,19 @@ func (s domainReservation) Add(ctx context.Context, req *app.ReservationAddReque
 			}
 		}
 		// So too the pools: a change to what one is made of holds what a
-		// booking of the thing it is given holds before it rechecks the pool
-		// ([Tx.recheckPools]), and a pool the thing was given meanwhile is
+		// booking of the thing it is given holds before it rechecks the
+		// pools around it ([Tx.recheckPools]), and a pool around it since is
 		// one this does not hold.
 		things = things[:0]
 		for _, w := range wants {
 			things = append(things, w.r.asset.Id)
 		}
-		if pools, err = t.poolsOf(things); err != nil {
+		if pools, err = t.circle(things); err != nil {
 			return err
 		}
-		for _, ps := range pools {
-			for _, p := range ps {
-				if !t.holding(p) {
-					return status.Error(codes.Aborted, "풀의 구성이 방금 바뀌었습니다. 다시 예약하세요")
-				}
+		for _, p := range pools {
+			if !t.holding(p) {
+				return status.Error(codes.Aborted, "풀의 구성이 방금 바뀌었습니다. 다시 예약하세요")
 			}
 		}
 		// A pool's allocations are none of them exclusive: how many of its
@@ -666,15 +669,6 @@ func (s domainReservation) Add(ctx context.Context, req *app.ReservationAddReque
 			for _, o := range occs {
 				if w.item && !open(w.r.book, o[0], o[1]) && !override {
 					return failed("%s은(는) 그 시간에 운영하지 않습니다 (%s)", w.r.asset.Name, t.when(o[0]))
-				}
-				from, to := window(w.r.book, o[0], o[1])
-				cs, err := t.conflicts(w.r, from, to, w.units, nil)
-				if err != nil {
-					return err
-				}
-				if len(cs) > 0 && !override {
-					return status.Errorf(codes.Aborted, "%s은(는) %s에 이미 예약되어 있습니다. 다른 시간을 고르세요",
-						w.r.asset.Name, t.when(o[0]))
 				}
 			}
 		}
@@ -786,6 +780,22 @@ func (s domainReservation) Add(ctx context.Context, req *app.ReservationAddReque
 					}
 				}
 				from, to := window(w.r.book, o[0], o[1])
+				// Checked as it is written, against what is booked and what
+				// this has written of itself before it: a pool and another
+				// it shares a unit with, a pool and its unit, a kit and a
+				// pool of its member's, booked together, are one booking of
+				// what they share (D44) -- and so are two occurrences that
+				// overlap.
+				if !override {
+					cs, err := t.conflicts(w.r, from, to, w.units, nil)
+					if err != nil {
+						return err
+					}
+					if len(cs) > 0 {
+						return status.Errorf(codes.Aborted, "%s은(는) %s에 이미 예약되어 있습니다. 다른 시간을 고르세요",
+							w.r.asset.Name, t.when(o[0]))
+					}
+				}
 				kind := "reservation"
 				if override {
 					kind = "override"
@@ -1037,8 +1047,8 @@ func (t *Tx) lockReservations(ids ...pdid.Id) error {
 }
 
 // lockAllocations takes the locks of the resources a reservation holds, and of
-// the pools they are units of: what it lets go of is theirs to give then too
-// ([Tx.heal]).
+// the pools around them ([Tx.circle]): what it lets go of is theirs to give
+// then too ([Tx.heal]).
 func (t *Tx) lockAllocations(rid pdid.Id) error {
 	as, err := t.db.Allocation.Query().Where(allocation.TenantId(t.tenant.Uuid()), allocation.RefId(rid.Uuid())).All(t.ctx)
 	if err != nil {
@@ -1054,14 +1064,11 @@ func (t *Tx) lockAllocations(rid pdid.Id) error {
 		}
 		rs = append(rs, &resource{book: b})
 	}
-	pools, err := t.poolsOf(ids)
+	pools, err := t.circle(ids)
 	if err != nil {
 		return err
 	}
-	for _, ps := range pools {
-		rs = append(rs, ps...)
-	}
-	return t.lockBookables(rs)
+	return t.lockBookables(append(rs, pools...))
 }
 
 // outOfUseRefuses refuses moving `r` to `to` while what it booked is out of

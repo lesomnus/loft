@@ -45,6 +45,11 @@ import (
 // its own, or with a kit, while the pool has as many of its units promised as
 // it can give without it, it is refused -- the pool's reservations came first
 // ([Tx.poolsShort]).
+//
+// A thing that is a member of two pools is one unit to one of them at a time,
+// so none of this is of one pool alone: each count is of the pools around it
+// ([Tx.circle], ledger.go), which all give what they are booked for at once or
+// do not (D44).
 
 // usable says whether a member in `status` is one of its pool's units: there
 // to be handed out, or to be once its maintenance is over. One being repaired
@@ -147,51 +152,15 @@ func (t *Tx) heldOf(ids []uuid.UUID, from, to time.Time, except []uuid.UUID) ([]
 	return q.All(t.ctx)
 }
 
-// taken is what these allocations take of a pool at each moment, as [peak]
-// counts it: its own by the units each takes, and its members' own as one of
-// its units for each member, however many of its own a member has then.
-func taken(own, held []*ent.Allocation) []*ent.Allocation {
-	out := slices.Clone(own)
-	by := map[uuid.UUID][]*ent.Allocation{}
-	ids := []uuid.UUID{}
-	for _, a := range held {
-		if _, ok := by[a.ResourceId]; !ok {
-			ids = append(ids, a.ResourceId)
+// near answers the ones of these that touch [from, to).
+func near(as []*ent.Allocation, from, to time.Time) []*ent.Allocation {
+	out := []*ent.Allocation{}
+	for _, a := range as {
+		if a.BeginsAt.Before(to) && a.EndsAt.After(from) {
+			out = append(out, a)
 		}
-		by[a.ResourceId] = append(by[a.ResourceId], a)
-	}
-	for _, id := range ids {
-		as := slices.Clone(by[id])
-		slices.SortFunc(as, func(a, b *ent.Allocation) int { return a.BeginsAt.Compare(b.BeginsAt) })
-		cur := &ent.Allocation{ResourceId: id, BeginsAt: as[0].BeginsAt, EndsAt: as[0].EndsAt, Units: 1}
-		for _, a := range as[1:] {
-			if !a.BeginsAt.After(cur.EndsAt) {
-				if a.EndsAt.After(cur.EndsAt) {
-					cur.EndsAt = a.EndsAt
-				}
-				continue
-			}
-			out = append(out, cur)
-			cur = &ent.Allocation{ResourceId: id, BeginsAt: a.BeginsAt, EndsAt: a.EndsAt, Units: 1}
-		}
-		out = append(out, cur)
 	}
 	return out
-}
-
-// fits says whether `a` fits from `from` on beside what `kept` takes of a pool
-// of `units`.
-func fits(kept []*ent.Allocation, a *ent.Allocation, from time.Time, units uint32) bool {
-	if !a.EndsAt.After(from) {
-		return true
-	}
-	near := []*ent.Allocation{a}
-	for _, k := range kept {
-		if k.BeginsAt.Before(a.EndsAt) && k.EndsAt.After(from) {
-			near = append(near, k)
-		}
-	}
-	return peak(near, from, a.EndsAt) <= units
 }
 
 // poolsOf answers, for each of these things, the reservable pools it is one
@@ -255,56 +224,48 @@ func (t *Tx) poolsOf(ids []uuid.UUID) (map[uuid.UUID][]*resource, error) {
 }
 
 // poolsShort answers what keeps `r` from being taken for [from, to) as one of
-// the units of a pool it is in: where the pool has as many promised then as it
-// can give without it, what holds them -- its reservations, and its members'
-// own time. The reservations in `except` are none of it.
+// the units of a pool it is in: where the pools around it cannot give all
+// they have promised then without it, what holds them -- their reservations,
+// and their members' own time. The reservations in `except` are none of it.
 //
-// The caller holds the schedule of every pool `r` is one of the units of
-// ([Tx.holdsPools]), as a booking of the pool does as it looks.
+// The caller holds the schedule of every pool around `r` ([Tx.holdsPools]),
+// as a booking of any of them does as it looks.
 func (t *Tx) poolsShort(r *resource, from, to time.Time, except []uuid.UUID) ([]*ent.Allocation, error) {
 	if r.asset == nil || !usable(r.asset.Status) {
 		return nil, nil
 	}
 	ps, err := t.poolsOf([]uuid.UUID{r.asset.Id})
+	if err != nil || len(ps[r.asset.Id]) == 0 {
+		return nil, err
+	}
+	around, err := t.circle([]uuid.UUID{r.asset.Id})
 	if err != nil {
 		return nil, err
 	}
-	for _, pr := range ps[r.asset.Id] {
-		p, err := t.poolOf(pr.asset.Id)
-		if err != nil {
-			return nil, err
-		}
-		if p == nil {
-			continue
-		}
-		own, err := t.heldOf([]uuid.UUID{pr.asset.Id}, from, to, except)
-		if err != nil {
-			return nil, err
-		}
-		others := slices.DeleteFunc(slices.Clone(p.units), func(v uuid.UUID) bool { return v == r.asset.Id })
-		held, err := t.heldOf(others, from, to, except)
-		if err != nil {
-			return nil, err
-		}
-		if peak(taken(own, held), from, to)+1 > uint32(len(p.units)) {
-			return append(own, held...), nil
-		}
+	l, err := t.ledgerOf(around, from, to, except)
+	if err != nil {
+		return nil, err
+	}
+	// It, taken then: one fewer to give, of whichever of them.
+	it := &ent.Allocation{ResourceId: r.asset.Id, BeginsAt: from, EndsAt: to, Units: 1}
+	if l.short(l.own, append(slices.Clone(l.held), it), from, to) {
+		return slices.Concat(l.own, l.held), nil
 	}
 	return nil, nil
 }
 
 // holdsPools says whether this transaction holds the schedule of every pool
-// `r` is one of the units of, which a booking of `r` is held to
+// around `r` ([Tx.circle]), which a booking of `r` is held to
 // ([Tx.poolsShort]).
 func (t *Tx) holdsPools(r *resource) (bool, error) {
 	if r.asset == nil {
 		return true, nil
 	}
-	ps, err := t.poolsOf([]uuid.UUID{r.asset.Id})
+	around, err := t.circle([]uuid.UUID{r.asset.Id})
 	if err != nil {
 		return false, err
 	}
-	for _, p := range ps[r.asset.Id] {
+	for _, p := range around {
 		if !t.holding(p) {
 			return false, nil
 		}
@@ -312,21 +273,19 @@ func (t *Tx) holdsPools(r *resource) (bool, error) {
 	return true, nil
 }
 
-// poolSchedules answers the pools these things are units of, by the asset:
-// what a booking that takes any of them holds besides their own schedules.
+// poolSchedules answers the pools around these things ([Tx.circle]), by the
+// asset: what a booking that takes any of them holds besides their own
+// schedules.
 func (t *Tx) poolSchedules(ids []uuid.UUID) ([]uuid.UUID, error) {
-	ps, err := t.poolsOf(ids)
+	around, err := t.circle(ids)
 	if err != nil {
 		return nil, err
 	}
-	out := []uuid.UUID{}
-	for _, rs := range ps {
-		for _, r := range rs {
-			out = append(out, r.asset.Id)
-		}
+	out := make([]uuid.UUID, 0, len(around))
+	for _, r := range around {
+		out = append(out, r.asset.Id)
 	}
-	slices.SortFunc(out, func(a, b uuid.UUID) int { return a.Compare(b) })
-	return slices.Compact(out), nil
+	return out, nil
 }
 
 // schedulesOf answers what a booking that takes any of these things holds as
@@ -374,18 +333,20 @@ type poolWait struct {
 
 // recheckPools brings the reservations of these groups, the reservable ones,
 // in step with what each can give now, in the transaction that changed it
-// (design 4): its units are what its members say ([Tx.poolOf]), kept on its
-// row as well; where a reservation still to be fulfilled no longer fits
-// beside the ones made before it and what cannot wait, it waits for what it
-// booked, from now on; and the reservations that wait take what there is
-// room for, the one that has waited longest first. `changed` is the things
-// whose membership of them this transaction changed.
+// (design 4) -- and of every pool around them ([Tx.circle]), and around the
+// pools `changed` are units of, since a unit one of them has or lacks is one
+// another may have instead (D44). Each pool's units are what its members say
+// ([Tx.poolOf]), kept on its row as well; where a reservation still to be
+// fulfilled no longer fits beside the ones made before it and what cannot
+// wait, it waits for what it booked, from now on; and the reservations that
+// wait take what there is room for, the one that has waited longest first.
+// `changed` is the things whose membership of them this transaction changed.
 //
-// It holds each pool's schedule before it reads what the pool is booked for
-// and what its members' own time is taken by, which every booking of the pool
-// holds before it looks, and every booking of one of its units as well
+// It holds the pools' schedules before it reads what they are booked for and
+// what their members' own time is taken by, which every booking of any of them
+// holds before it looks, and every booking of one of their units as well
 // ([Tx.poolsShort]): a booking that went first is read here, and one that goes
-// after reads the pool as this left it. And for a thing given to a pool, it
+// after reads the pools as this left them. And for a thing given to a pool, it
 // holds what a booking of the thing holds ([Tx.schedulesOf]): a booking of it
 // that looked before the thing was the pool's is waited for, and what it
 // booked is seen. All at once, in the one order everything takes schedules in.
@@ -400,49 +361,52 @@ func (t *Tx) recheckPools(groups []uuid.UUID, changed []uuid.UUID) error {
 	if err := t.lockSchedules(hold); err != nil {
 		return err
 	}
-
-	short := []poolWait{}
-	for _, g := range pools {
-		// Read again, now that nothing changes it.
-		a, err := t.db.Asset.Query().Where(asset.Id(g), asset.TenantId(t.tenant.Uuid())).Only(t.ctx)
-		if err != nil {
-			return err
-		}
-		b, err := t.db.Bookable.Query().Where(bookable.TenantId(t.tenant.Uuid()), bookable.AssetId(g), bookable.DateErasedIsNil()).Only(t.ctx)
-		if err != nil {
-			return err
-		}
-		ws, err := t.rebook(&resource{asset: a, book: b})
-		if err != nil {
-			return err
-		}
-		short = append(short, ws...)
+	// Read again, now that nothing changes them.
+	around, err := t.circle(pools)
+	if err != nil {
+		return err
+	}
+	short, err := t.rebook(around)
+	if err != nil {
+		return err
 	}
 	return t.tellShort(short)
 }
 
-// poolHolds answers the reservable groups of these, by the asset, and every
-// schedule [Tx.recheckPools] holds to recheck them: theirs, and what a
-// booking of a thing in `changed` holds ([Tx.schedulesOf]).
+// poolHolds answers the pools [Tx.recheckPools] rechecks for these groups and
+// the things in `changed`, by the asset -- the reservable ones of the groups,
+// the ones the things are members of, and the pools around them -- and every
+// schedule it holds to recheck them: theirs, and what a booking of a thing in
+// `changed` holds ([Tx.schedulesOf]).
 func (t *Tx) poolHolds(groups, changed []uuid.UUID) ([]uuid.UUID, []uuid.UUID, error) {
-	if len(groups) == 0 {
+	seeds := slices.Clone(groups)
+	if len(changed) > 0 {
+		ls, err := t.db.Link.Query().Where(
+			link.TenantId(t.tenant.Uuid()),
+			link.SourceIdIn(changed...),
+			link.Kind("member_of"),
+			link.SupersededAtIsNil(),
+			link.ValidToIsNil(),
+		).All(t.ctx)
+		if err != nil {
+			return nil, nil, err
+		}
+		for _, l := range ls {
+			seeds = append(seeds, l.TargetId)
+		}
+	}
+	if len(seeds) == 0 {
 		return nil, nil, nil
 	}
-	gs, err := t.db.Asset.Query().Where(asset.TenantId(t.tenant.Uuid()), asset.IdIn(groups...), asset.Kind("group"), asset.DateErasedIsNil()).Ids(t.ctx)
-	if err != nil || len(gs) == 0 {
-		return nil, nil, err
-	}
-	bs, err := t.db.Bookable.Query().Where(bookable.TenantId(t.tenant.Uuid()), bookable.AssetIdIn(gs...), bookable.DateErasedIsNil()).All(t.ctx)
-	if err != nil || len(bs) == 0 {
+	around, err := t.circle(seeds)
+	if err != nil || len(around) == 0 {
 		// Never reservable, so never reserved.
 		return nil, nil, err
 	}
-	pools := []uuid.UUID{}
-	for _, b := range bs {
-		pools = append(pools, b.AssetId)
+	pools := make([]uuid.UUID, 0, len(around))
+	for _, r := range around {
+		pools = append(pools, r.asset.Id)
 	}
-	slices.SortFunc(pools, func(a, b uuid.UUID) int { return a.Compare(b) })
-	pools = slices.Compact(pools)
 	also, err := t.schedulesOf(changed)
 	if err != nil {
 		return nil, nil, err
@@ -450,57 +414,70 @@ func (t *Tx) poolHolds(groups, changed []uuid.UUID) ([]uuid.UUID, []uuid.UUID, e
 	return pools, append(slices.Clone(pools), also...), nil
 }
 
-// rebook is [Tx.recheckPools] of one pool, whose schedule it holds. It answers
-// the reservations it made wait.
-func (t *Tx) rebook(pr *resource) ([]poolWait, error) {
+// rebook is [Tx.recheckPools] of the pools around something, the ones of
+// which this holds the schedules: the rest -- around it since by a change this
+// did not wait for, which holds these as well -- are only read, as what the
+// others fit beside. It answers the reservations it made wait.
+func (t *Tx) rebook(pools []*resource) ([]poolWait, error) {
 	tid := t.tenant.Uuid()
-	p, err := t.poolOf(pr.asset.Id)
-	if err != nil {
-		return nil, err
-	}
-	units := pr.book.Units
-	if p != nil {
-		units = uint32(len(p.units))
-	} else {
-		// Nothing is a member of it now. A group whose last member left it
-		// in this operation has none to give -- what it had were its members
-		// -- until it is given members again, or units by hand; any other has
-		// what was set, as it had.
-		left, err := t.db.Link.Query().Where(
-			link.TenantId(tid),
-			link.TargetId(pr.asset.Id),
-			link.Kind("member_of"),
-			link.ValidToIsNil(),
-			link.SupersededAtGTE(t.now),
-		).Exist(t.ctx)
+	l := &ledger{units: map[uuid.UUID][]uuid.UUID{}, set: map[uuid.UUID]uint32{}}
+	of := map[uuid.UUID]*resource{}
+	ids, members := []uuid.UUID{}, []uuid.UUID{}
+	for _, pr := range pools {
+		mine := t.holding(pr)
+		p, err := t.poolOf(pr.asset.Id)
 		if err != nil {
 			return nil, err
 		}
-		if left {
-			units = 0
+		units := pr.book.Units
+		if p != nil {
+			units = uint32(len(p.units))
+		} else {
+			// Nothing is a member of it now. A group whose last member left
+			// it in this operation has none to give -- what it had were its
+			// members -- until it is given members again, or units by hand;
+			// any other has what was set, as it had.
+			left, err := t.db.Link.Query().Where(
+				link.TenantId(tid),
+				link.TargetId(pr.asset.Id),
+				link.Kind("member_of"),
+				link.ValidToIsNil(),
+				link.SupersededAtGTE(t.now),
+			).Exist(t.ctx)
+			if err != nil {
+				return nil, err
+			}
+			if left {
+				units = 0
+			}
 		}
-	}
-	if units != pr.book.Units {
-		if _, err := t.next.Bookable().Patch(t.ctx, app.BookablePatchRequest_builder{
-			Ref:              app.BookableRef_builder{Id: pdid.Id(pr.book.Id).Bytes()}.Build(),
-			Units:            z.Ptr(units),
-			DateUpdatedForce: z.Ptr(true),
-		}.Build()); err != nil {
-			return nil, err
+		if mine && units != pr.book.Units {
+			if _, err := t.next.Bookable().Patch(t.ctx, app.BookablePatchRequest_builder{
+				Ref:              app.BookableRef_builder{Id: pdid.Id(pr.book.Id).Bytes()}.Build(),
+				Units:            z.Ptr(units),
+				DateUpdatedForce: z.Ptr(true),
+			}.Build()); err != nil {
+				return nil, err
+			}
+			pr.book.Units = units
 		}
-		pr.book.Units = units
+		of[pr.asset.Id] = pr
+		ids = append(ids, pr.asset.Id)
+		if p == nil {
+			l.set[pr.asset.Id] = units
+			continue
+		}
+		l.units[pr.asset.Id] = p.units
+		members = append(members, p.units...)
 	}
-	if poolOutOfUse(pr.asset) {
-		// Out of use itself, its reservations are said to be, and are not
-		// counted short as well (D43): none of them begins to wait, or takes
-		// what it waits for, until it is in use again -- which rechecks it.
+	if len(ids) == 0 {
 		return nil, nil
 	}
 
-	// What it is booked for from now on, and what of it waits.
+	// What they are booked for from now on, and what of it waits.
 	as, err := t.db.Allocation.Query().Where(
 		allocation.TenantId(tid),
-		allocation.ResourceId(pr.asset.Id),
+		allocation.ResourceIdIn(ids...),
 		allocation.EndsAtGT(t.now),
 		allocation.Or(allocation.Blocking(true), allocation.Kind(allocWaiting)),
 	).Order(allocation.ByDateCreated(), allocation.ById()).All(t.ctx)
@@ -521,22 +498,27 @@ func (t *Tx) rebook(pr *resource) ([]poolWait, error) {
 	if err != nil {
 		return nil, err
 	}
-	of := map[uuid.UUID]*ent.Reservation{}
+	res := map[uuid.UUID]*ent.Reservation{}
 	for _, r := range rs {
-		of[r.Id] = r
+		res[r.Id] = r
 	}
-	// What may wait: what a reservation still to be fulfilled holds of it.
-	// The rest -- one in use, maintenance of the group itself -- stays as it
-	// is, and is what the others fit beside.
+	// What may wait: what a reservation still to be fulfilled holds of a pool
+	// this holds. The rest -- one in use, maintenance of a group itself, what
+	// a pool out of use itself is booked for (D43), what another pool is --
+	// stays as it is, and is what the others fit beside.
 	fixed, flex, waiting := []*ent.Allocation{}, []*ent.Allocation{}, []*ent.Allocation{}
 	for _, a := range as {
 		var r *ent.Reservation
 		if a.RefId != nil {
-			r = of[*a.RefId]
+			r = res[*a.RefId]
 		}
-		pending := r != nil && waits(r.Status) && r.EndsAt.After(t.now) && r.DateErased == nil
+		pr := of[a.ResourceId]
+		pending := r != nil && waits(r.Status) && r.EndsAt.After(t.now) && r.DateErased == nil &&
+			t.holding(pr) && !poolOutOfUse(pr.asset)
 		switch {
 		case a.Kind == allocWaiting:
+			// Out of use itself, what a pool's reservations wait for they
+			// do not take, until it is in use again -- which rechecks it.
 			if pending {
 				waiting = append(waiting, a)
 			}
@@ -546,23 +528,22 @@ func (t *Tx) rebook(pr *resource) ([]poolWait, error) {
 			fixed = append(fixed, a)
 		}
 	}
-	var held []*ent.Allocation
-	if p != nil {
-		if held, err = t.heldOf(p.units, t.now, until, nil); err != nil {
-			return nil, err
-		}
+	slices.SortFunc(members, func(a, b uuid.UUID) int { return a.Compare(b) })
+	held, err := t.heldOf(slices.Compact(members), t.now, until, nil)
+	if err != nil {
+		return nil, err
 	}
 
 	// Each keeps its time while it fits beside the ones made before it, in
-	// the order they were made; the ones made last wait.
+	// the order they were made, of whichever pool; the ones made last wait.
 	slices.SortStableFunc(flex, func(a, b *ent.Allocation) int {
-		ra, rb := of[*a.RefId], of[*b.RefId]
+		ra, rb := res[*a.RefId], res[*b.RefId]
 		if c := ra.DateCreated.Compare(rb.DateCreated); c != 0 {
 			return c
 		}
 		return ra.Id.Compare(rb.Id)
 	})
-	kept := taken(fixed, held)
+	kept := fixed
 	short := []poolWait{}
 	// What it did to each, an event of the reservation's and one of the
 	// pool's, children of the change, written at once ([Tx.changed]).
@@ -572,11 +553,11 @@ func (t *Tx) rebook(pr *resource) ([]poolWait, error) {
 		if from.Before(t.now) {
 			from = t.now
 		}
-		if fits(kept, a, from, units) {
+		if !a.EndsAt.After(from) || !l.short(append(near(kept, from, a.EndsAt), a), near(held, from, a.EndsAt), from, a.EndsAt) {
 			kept = append(kept, a)
 			continue
 		}
-		r := of[*a.RefId]
+		r, pr := res[*a.RefId], of[a.ResourceId]
 		if _, err := t.next.Allocation().Erase(t.ctx, app.AllocationRef_builder{Id: pdid.Id(a.Id).Bytes()}.Build()); err != nil {
 			return nil, err
 		}
@@ -599,7 +580,7 @@ func (t *Tx) rebook(pr *resource) ([]poolWait, error) {
 	}
 
 	// And then what waits takes what there is room for, the one that has
-	// waited longest first.
+	// waited longest first, of whichever pool.
 	for _, w := range waiting {
 		if _, err := t.take(w, false); err != nil {
 			return nil, err
@@ -686,34 +667,25 @@ func (t *Tx) recheckPoolsOf(ids ...uuid.UUID) error {
 // available is how many of `m` the reservation that waits by `w` could have
 // at the busiest moment of [from, w's end): what it has to give -- a pool's
 // units, less its members whose own time is taken then -- less what
-// everything else takes of it then.
+// everything else takes of it then, the pools around it given what they are
+// booked for first (D44).
 func (t *Tx) available(w *ent.Allocation, from time.Time, m *resource) (uint32, error) {
 	if !w.EndsAt.After(from) {
 		return 0, nil
-	}
-	units, p, err := t.capacity(m)
-	if err != nil {
-		return 0, err
 	}
 	except := []uuid.UUID{}
 	if w.RefId != nil {
 		except = append(except, *w.RefId)
 	}
-	own, err := t.heldOf([]uuid.UUID{m.asset.Id}, from, w.EndsAt, except)
+	around, err := t.poolsAround(m)
 	if err != nil {
 		return 0, err
 	}
-	var held []*ent.Allocation
-	if p != nil {
-		if held, err = t.heldOf(p.units, from, w.EndsAt, except); err != nil {
-			return 0, err
-		}
+	l, err := t.ledgerOf(around, from, w.EndsAt, except)
+	if err != nil {
+		return 0, err
 	}
-	busy := peak(taken(own, held), from, w.EndsAt)
-	if busy >= units {
-		return 0, nil
-	}
-	return units - busy, nil
+	return l.spare(m.asset.Id, l.own, l.held, from, w.EndsAt), nil
 }
 
 // booked says whether reservation `r` booked `thing` itself, rather than took
