@@ -181,9 +181,7 @@ function Calendar(): ReactNode {
 				</div>
 			)}
 			{draft !== undefined && <NewReservation draft={draft} onClose={() => setDraft(undefined)} />}
-			{open !== undefined && open.reservation !== undefined && (
-				<ReservationDialog r={open.reservation} resources={open.resourceIds} conflicts={open.conflicts} outOfUse={open.outOfUse} onClose={() => setOpen(undefined)} />
-			)}
+			{open !== undefined && <EntryDialog e={open} onClose={() => setOpen(undefined)} />}
 		</>
 	)
 }
@@ -326,6 +324,18 @@ function NewReservation(props: { draft: { from: Date; to: Date; resource: string
 			)}
 		</FormModal>
 	)
+}
+
+/**
+ * A reservation as the calendar answers it, opened: the one dialog it is
+ * opened in wherever it is listed -- the calendar, my reservations, the whole
+ * list, the requests waiting for a manager, the dashboard, and the bookings of
+ * an asset (D45).
+ */
+export function EntryDialog(props: { e: CalendarEntry; onClose: () => void }): ReactNode {
+	const r = props.e.reservation
+	if (r === undefined) return null
+	return <ReservationDialog r={r} resources={props.e.resourceIds} conflicts={props.e.conflicts} outOfUse={props.e.outOfUse} onClose={props.onClose} />
 }
 
 /**
@@ -677,9 +687,7 @@ function List(props: { mine?: boolean }): ReactNode {
 					)
 				}
 			</Load>
-			{open !== undefined && open.reservation !== undefined && (
-				<ReservationDialog r={open.reservation} resources={open.resourceIds} conflicts={open.conflicts} outOfUse={open.outOfUse} onClose={() => setOpen(undefined)} />
-			)}
+			{open !== undefined && <EntryDialog e={open} onClose={() => setOpen(undefined)} />}
 		</Card>
 	)
 }
@@ -738,9 +746,7 @@ function Approvals(): ReactNode {
 					)
 				}
 			</Load>
-			{open !== undefined && open.reservation !== undefined && (
-				<ReservationDialog r={open.reservation} resources={open.resourceIds} conflicts={open.conflicts} outOfUse={open.outOfUse} onClose={() => setOpen(undefined)} />
-			)}
+			{open !== undefined && <EntryDialog e={open} onClose={() => setOpen(undefined)} />}
 		</Card>
 	)
 }

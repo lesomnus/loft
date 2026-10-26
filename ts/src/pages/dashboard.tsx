@@ -1,12 +1,14 @@
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
+import type { CalendarEntry } from '../../gen/rove/booking_svc_pb.js'
 import { AssetService, CustodyService, NotificationService, ReservationService, ago, fmt, idStr, minute, ref, ts } from '../api.js'
 import { useCatalog } from '../catalog.js'
 import { AssetLink } from '../pickers.js'
 import { useRpc } from '../rpc.js'
 import { Badge, Card, Empty, Load, PageHead, Stat } from '../ui.js'
 import { kindWord, markWord, reservationWord, statusWord } from '../words.js'
+import { EntryDialog } from './reservations.js'
 
 export function Dashboard(): ReactNode {
 	const c = useCatalog()
@@ -20,10 +22,14 @@ export function Dashboard(): ReactNode {
 	const now = minute()
 	const week = new Date(now.getTime() + 7 * 86400_000)
 	const cal = useRpc(ReservationService.method.calendar, { from: ts(now), to: ts(week), mine: true })
+	// The requests a manager decides, as the approvals tab reads them: the
+	// sweep lets go of one once it has begun, so all of them are from now on.
 	const pending = useRpc(
-		ReservationService.method.list,
-		c.can('manager') ? { filters: [{ status: 'requested' }], size: 50 } : null,
+		ReservationService.method.calendar,
+		c.can('manager') ? { statuses: ['requested'], from: ts(new Date(now.getTime() - 86400_000)), to: ts(new Date(now.getTime() + 3650 * 86400_000)) } : null,
 	)
+	// A reservation listed here opens as it does wherever it is listed (D45).
+	const [open, setOpen] = useState<CalendarEntry>()
 	const inbox = useRpc(NotificationService.method.inbox, { size: 6 }, { poll: 60_000 })
 	const overdue = useRpc(AssetService.method.report, c.can('manager') ? { kind: 'custody' } : null)
 	const openCustody = useRpc(CustodyService.method.list, c.me.party === undefined ? null : { filters: [{ party: ref(c.me.party.id) }], size: 50 })
@@ -80,7 +86,10 @@ export function Dashboard(): ReactNode {
 									{d.entries.slice(0, 8).map((e) => (
 										<li key={idStr(e.reservation?.id)}>
 											<span>
-												{fmt(e.reservation?.beginsAt)} · {e.reservation?.name}
+												{fmt(e.reservation?.beginsAt)} ·{' '}
+												<button className="link" onClick={() => setOpen(e)}>
+													{e.reservation?.name}
+												</button>
 												{markWord(e) !== '' && <span className="warn"> · {markWord(e)}</span>}
 											</span>
 											<Badge v={e.reservation?.status ?? ''} words={reservationWord} />
@@ -96,16 +105,19 @@ export function Dashboard(): ReactNode {
 					<Card title="승인 대기 예약" actions={<Link to="/reservations?tab=approve">처리</Link>}>
 						<Load q={pending}>
 							{(d) =>
-								d.items.length === 0 ? (
+								d.entries.length === 0 ? (
 									<Empty>대기 중인 요청이 없습니다.</Empty>
 								) : (
 									<ul className="rows">
-										{d.items.map((r) => (
-											<li key={idStr(r.id)}>
+										{d.entries.map((e) => (
+											<li key={idStr(e.reservation?.id)}>
 												<span>
-													{fmt(r.beginsAt)} · {r.name}
+													{fmt(e.reservation?.beginsAt)} ·{' '}
+													<button className="link" onClick={() => setOpen(e)}>
+														{e.reservation?.name}
+													</button>
 												</span>
-												<span className="mute">{c.party(r.party?.id)?.name}</span>
+												<span className="mute">{e.partyName || c.party(e.reservation?.party?.id)?.name}</span>
 											</li>
 										))}
 									</ul>
@@ -209,6 +221,7 @@ export function Dashboard(): ReactNode {
 					</p>
 				</Card>
 			</div>
+			{open !== undefined && <EntryDialog e={open} onClose={() => setOpen(undefined)} />}
 		</>
 	)
 }
