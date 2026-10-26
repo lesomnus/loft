@@ -1348,7 +1348,16 @@ func (s domainReservation) Calendar(ctx context.Context, req *app.ReservationCal
 		return nil, err
 	}
 
+	// Who each is for, as a list of people names them (D54): told apart from
+	// whoever goes by their name.
 	names := namer{t: t}
+	booked := make([]uuid.UUID, 0, len(rs))
+	for _, r := range rs {
+		booked = append(booked, r.PartyId)
+	}
+	if err := names.readApart(booked); err != nil {
+		return nil, err
+	}
 	entries := []*app.CalendarEntry{}
 	for _, r := range rs {
 		v, err := t.next.Reservation().Get(ctx, app.ReservationGetRequest_builder{Ref: app.ReservationRef_builder{Id: pdid.Id(r.Id).Bytes()}.Build()}.Build())
@@ -1363,7 +1372,7 @@ func (s domainReservation) Calendar(ctx context.Context, req *app.ReservationCal
 		for _, it := range items {
 			ids = append(ids, pdid.Id(it.ResourceId).Bytes())
 		}
-		entries = append(entries, app.CalendarEntry_builder{Reservation: v, ResourceIds: ids, PartyName: names.party(r.PartyId), Conflicts: waiting[r.Id], OutOfUse: gone[r.Id]}.Build())
+		entries = append(entries, app.CalendarEntry_builder{Reservation: v, ResourceIds: ids, PartyName: names.apart(r.PartyId), Conflicts: waiting[r.Id], OutOfUse: gone[r.Id]}.Build())
 	}
 	return app.ReservationCalendarResponse_builder{Entries: entries}.Build(), nil
 }

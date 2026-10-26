@@ -2,6 +2,9 @@ package domain_test
 
 import (
 	"encoding/csv"
+	"fmt"
+	"maps"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -271,6 +274,113 @@ func TestTheDashboardCountsWhatThereIs(t *testing.T) {
 	x.InDelta(2, late[0].GetValue(), 1e-9, "days since it was due")
 	x.Equal(soon.In(seoul).Format(time.DateOnly), late[0].GetDetail()["due"])
 	x.Equal(map[string]float64{kim.GetName(): 1, lee.GetName(): 1}, held, "how much each has out")
+}
+
+// TestAListOfPeopleTellsTwoOfANameApart (D54): every answer that lists
+// people -- what is out and its CSV, the dashboard's card of what is late and
+// of how much each has, and who each booking is for -- names them as the
+// register does (D50): by name, and two of a name by the team one is in;
+// then, in a team of that name too, by 사번; and where neither tells them
+// apart, by identifier. Never by how they are reached.
+func TestAListOfPeopleTellsTwoOfANameApart(t *testing.T) {
+	e := newEnv(t)
+	x := e.x
+	n := 0
+	party := func(name, kind string, in *app.Party, code string) *app.Party {
+		n++
+		req := app.PartyAddRequest_builder{Name: name, Kind: kind, Code: code, Email: fmt.Sprintf("p%d@acme.example", n)}.Build()
+		if in != nil {
+			req.SetParentId(in.GetId())
+		}
+		v, err := e.app().Party().Add(e.owner, req)
+		x.NoError(err)
+		return v
+	}
+	dev, sales := party("개발팀", "team", nil, ""), party("영업팀", "team", nil, "")
+	store := e.space("창고", nil)
+	room := e.space("회의실", nil)
+	e.bookable(room, nil)
+	soon := e.now.Add(time.Hour)
+
+	// Each lent a laptop until an hour from now, and the room booked for
+	// each tomorrow, an hour apart.
+	want := map[string]string{}
+	for i, v := range []struct {
+		name string
+		in   *app.Party
+		code string
+		says string
+	}{
+		{"이서연", dev, "", "이서연"},
+		{"김민준", sales, "", "김민준 · 영업팀"},
+		{"김민준", dev, "1001", "김민준 · 개발팀 · 1001"},
+		{"김민준", dev, "", ""},
+	} {
+		p := party(v.name, "person", v.in, v.code)
+		if v.says == "" {
+			// Nothing of theirs but who they are tells them apart.
+			v.says = "김민준 · 개발팀 · " + idOf(p.GetId()).String()
+		}
+		tag := fmt.Sprintf("NB-%d", i+1)
+		_, err := e.app().Custody().Add(e.owner, app.CustodyAddRequest_builder{
+			Party: ref[app.PartyRef](p.GetId()),
+			DueAt: timestamppb.New(soon),
+			Lines: []*app.CustodyLineSpec{app.CustodyLineSpec_builder{Asset: assetRef(e.item("노트북", tag, store, 0))}.Build()},
+		}.Build())
+		x.NoError(err)
+		from := e.tomorrow(9+i, 0)
+		_, err = e.reserve(e.owner, room, from, from.Add(30*time.Minute), func(r *app.ReservationAddRequest) {
+			r.SetName(tag)
+			r.SetParty(ref[app.PartyRef](p.GetId()))
+		})
+		x.NoError(err)
+		want[tag] = v.says
+	}
+	says := slices.Sorted(maps.Values(want))
+
+	// What is out, and its CSV.
+	v, err := e.app().Custody().Outstanding(e.owner, &app.CustodyOutstandingRequest{})
+	x.NoError(err)
+	got := map[string]string{}
+	for _, r := range v.GetRows() {
+		got[r.GetAssetTag()] = r.GetPartyName()
+	}
+	x.Equal(want, got)
+	f, err := e.app().Custody().ExportOutstanding(e.owner, &app.CustodyOutstandingRequest{})
+	x.NoError(err)
+	_, rows := written(t, f)
+	x.Equal(says, slices.Sorted(maps.Keys(rows)), "the first column, who has it")
+	x.NotContains(string(f.GetData()), "acme.example", "nobody's address")
+
+	// Who each booking is for.
+	cal, err := e.app().Reservation().Calendar(e.owner, app.ReservationCalendarRequest_builder{
+		From: timestamppb.New(e.now),
+		To:   timestamppb.New(e.now.Add(72 * time.Hour)),
+	}.Build())
+	x.NoError(err)
+	got = map[string]string{}
+	for _, c := range cal.GetEntries() {
+		got[c.GetReservation().GetName()] = c.GetPartyName()
+	}
+	x.Equal(want, got)
+
+	// The dashboard's card, once they are late: who has each, and how much
+	// each has.
+	e.now = soon.Add(time.Minute)
+	card, err := e.app().Asset().Report(e.owner, app.AssetReportRequest_builder{Kind: "custody"}.Build())
+	x.NoError(err)
+	late, held := []string{}, []string{}
+	for _, r := range card.GetRows() {
+		switch r.GetGroup() {
+		case "overdue":
+			late = append(late, r.GetLabel())
+		case "party":
+			held = append(held, r.GetLabel())
+			x.EqualValues(1, r.GetValue())
+		}
+	}
+	x.ElementsMatch(says, late)
+	x.ElementsMatch(says, held)
 }
 
 // TestWhatIsOutSaysWhoHasItAndHowLate: a row each thing handed over and not

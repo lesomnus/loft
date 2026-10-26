@@ -575,7 +575,7 @@ func (s domainCustody) ExportOutstanding(ctx context.Context, req *app.CustodyOu
 // outstanding is the lines of the open hand-overs that are not all back: a
 // page of them as the request asks, or -- `all` -- every one; how many there
 // are as it asks; and how much is out, whatever it asks. Each row names who
-// has it, and so shows them ([namer.party]).
+// has it, as a list of people does, and so shows them ([namer.apart]).
 func (t *Tx) outstanding(req *app.CustodyOutstandingRequest, all bool) (*app.CustodyOutstandingResponse, error) {
 	kind := req.GetKind()
 	if kind != "" && kind != "issue" && kind != "loan" {
@@ -680,7 +680,7 @@ func (t *Tx) outstanding(req *app.CustodyOutstandingRequest, all bool) (*app.Cus
 			stocks = append(stocks, l.Stock.V)
 		}
 	}
-	if err := names.readParties(parties); err != nil {
+	if err := names.readApart(parties); err != nil {
 		return nil, err
 	}
 	as, err := t.assetsNamed(assets)
@@ -708,8 +708,10 @@ func (t *Tx) outstanding(req *app.CustodyOutstandingRequest, all bool) (*app.Cus
 			LineId:    pdid.Id(l.Line.V).Bytes(),
 			Kind:      l.Kind,
 			PartyId:   pdid.Id(l.Party.V).Bytes(),
-			// Who has it, as they are called now: a read of them.
-			PartyName:    names.party(l.Party.V),
+			// Who has it, as they are called now and told apart from whoever
+			// goes by their name: a read of them, and of a team that tells
+			// them apart.
+			PartyName:    names.apart(l.Party.V),
 			Quantity:     l.Out,
 			Acknowledged: l.Ack.Valid,
 		}.Build()

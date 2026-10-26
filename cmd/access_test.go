@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"bytes"
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -289,7 +290,8 @@ func TestADownloadOfPeopleSaysWhatItIsFor(t *testing.T) {
 
 // TestWhatIsOutIsAReadOfWhoHasIt (design 9.14): the report of what is out
 // says who has each by name, which no `personal` declaration of its answer can
-// see, so it says it showed them; its CSV is a download of them, refused
+// see, so it says it showed them -- and two of a name by the team one is in,
+// which it says it showed too (D54); its CSV is a download of them, refused
 // without what it is for. A member is refused both, and an auditor reads
 // them. The other reports name nobody: they leave no row, and their CSVs ask
 // for no reason.
@@ -297,23 +299,41 @@ func TestWhatIsOutIsAReadOfWhoHasIt(t *testing.T) {
 	w := newWorld(t)
 	x := w.x
 	park := w.person("박지민", "park@acme.example")
-	laptop, err := app.NewAssetServiceClient(w.conn).Add(w.owner, app.AssetAddRequest_builder{Name: "노트북", Tag: "NB-1"}.Build())
-	x.NoError(err)
-	custody := app.NewCustodyServiceClient(w.conn)
-	_, err = custody.Add(w.owner, app.CustodyAddRequest_builder{
-		Party: app.PartyRef_builder{Id: park.GetId()}.Build(),
-		Lines: []*app.CustodyLineSpec{app.CustodyLineSpec_builder{Asset: app.AssetRef_builder{Id: laptop.GetId()}.Build()}.Build()},
+	design, err := w.s.Base.Party().Add(context.Background(), app.PartyAddRequest_builder{
+		Tenant: app.TenantRef_builder{Id: w.tenant.GetId()}.Build(),
+		Name:   "디자인팀", Kind: "team",
 	}.Build())
 	x.NoError(err)
+	namesake, err := w.s.Base.Party().Add(context.Background(), app.PartyAddRequest_builder{
+		Tenant: app.TenantRef_builder{Id: w.tenant.GetId()}.Build(),
+		Name:   "박지민", Kind: "person", Email: "jimin@acme.example", ParentId: design.GetId(),
+	}.Build())
+	x.NoError(err)
+	custody := app.NewCustodyServiceClient(w.conn)
+	for i, p := range []*app.Party{park, namesake} {
+		laptop, err := app.NewAssetServiceClient(w.conn).Add(w.owner, app.AssetAddRequest_builder{Name: "노트북", Tag: fmt.Sprintf("NB-%d", i+1)}.Build())
+		x.NoError(err)
+		_, err = custody.Add(w.owner, app.CustodyAddRequest_builder{
+			Party: app.PartyRef_builder{Id: p.GetId()}.Build(),
+			Lines: []*app.CustodyLineSpec{app.CustodyLineSpec_builder{Asset: app.AssetRef_builder{Id: laptop.GetId()}.Build()}.Build()},
+		}.Build())
+		x.NoError(err)
+	}
 
 	v, err := custody.Outstanding(w.owner, &app.CustodyOutstandingRequest{})
 	x.NoError(err)
-	x.Len(v.GetRows(), 1)
-	x.Equal("박지민", v.GetRows()[0].GetPartyName())
+	x.Len(v.GetRows(), 2)
+	named := []string{}
+	for _, r := range v.GetRows() {
+		named = append(named, r.GetPartyName())
+	}
+	x.ElementsMatch([]string{"박지민", "박지민 · 디자인팀"}, named)
 	rs := w.accessed(t, app.CustodyService_Outstanding_FullMethodName)
 	x.Len(rs, 1)
 	x.Equal("read", rs[0].Kind)
 	x.Contains(rs[0].Subjects, park.GetId(), "the report named her, and did not say so")
+	x.Contains(rs[0].Subjects, namesake.GetId())
+	x.Contains(rs[0].Subjects, design.GetId(), "the team's name, said to tell the two apart")
 
 	member := w.signIn(w.holder("kim", "member"))
 	_, err = custody.Outstanding(member, &app.CustodyOutstandingRequest{})
@@ -327,14 +347,17 @@ func TestWhatIsOutIsAReadOfWhoHasIt(t *testing.T) {
 	why := metadata.AppendToOutgoingContext(w.owner, access.ReasonKey, "10월 대여 점검")
 	f, err := custody.ExportOutstanding(why, &app.CustodyOutstandingRequest{})
 	x.NoError(err)
-	x.Contains(string(f.GetData()), "박지민")
-	x.NotContains(string(f.GetData()), "park@acme.example", "nobody's address")
+	x.Contains(string(f.GetData()), "\n박지민,")
+	x.Contains(string(f.GetData()), "\n박지민 · 디자인팀,")
+	x.NotContains(string(f.GetData()), "acme.example", "nobody's address")
 	// Written before it answered: read with nothing flushed.
 	rs, err = w.s.Ent.Access.Query().Where(entaccess.KindEQ("download"), entaccess.ActionEQ(app.CustodyService_ExportOutstanding_FullMethodName)).All(context.Background())
 	x.NoError(err)
 	x.Len(rs, 1)
 	x.Equal("10월 대여 점검", detailOf(t, rs[0]).GetReason())
 	x.Contains(rs[0].Subjects, park.GetId())
+	x.Contains(rs[0].Subjects, namesake.GetId())
+	x.Contains(rs[0].Subjects, design.GetId(), "the file names the team, to tell the two apart")
 
 	// The census names nobody, and its file is nobody's.
 	_, err = app.NewAssetServiceClient(w.conn).Census(w.owner, &app.AssetCensusRequest{})

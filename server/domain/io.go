@@ -74,14 +74,15 @@ func (s domainAsset) Export(ctx context.Context, req *app.AssetExportRequest) (*
 	if err != nil {
 		return nil, err
 	}
-	people := namer{t: t}
-	if err := people.readApart(); err != nil {
-		return nil, err
-	}
-
 	byId := map[uuid.UUID]*ent.Asset{}
+	custodians := []uuid.UUID{}
 	for _, a := range as {
 		byId[a.Id] = a
+		custodians = append(custodians, a.CustodianId)
+	}
+	people := namer{t: t}
+	if err := people.readApart(custodians); err != nil {
+		return nil, err
 	}
 	typeName := map[uuid.UUID]string{}
 	for _, v := range types {
@@ -148,7 +149,7 @@ func (s domainAsset) Export(ctx context.Context, req *app.AssetExportRequest) (*
 		// so the download is of them (rove#136).
 		custodian := ""
 		if a.CustodianId != (uuid.UUID{}) {
-			custodian = people.party(a.CustodianId)
+			custodian = people.apart(a.CustodianId)
 		}
 		row := []string{
 			a.Tag, a.Name, or(kindSay[a.Kind], a.Kind), typeName[a.TypeId], mName, maker, a.Serial,

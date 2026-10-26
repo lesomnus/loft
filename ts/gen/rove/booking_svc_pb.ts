@@ -1756,6 +1756,9 @@ export type CalendarEntry = Message<"rove.CalendarEntry"> & {
   resourceIds: Uint8Array[];
 
   /**
+   * Who it is for, by the name they have now; and, where another goes by
+   * it, with what tells them apart, as every list of people does (D54).
+   *
    * @generated from field: string party_name = 3 [features.field_presence = IMPLICIT];
    */
   partyName: string;
