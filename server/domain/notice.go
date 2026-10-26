@@ -28,6 +28,18 @@ var Mailed = map[string]bool{
 	"reservation.out":        true, // a thing a reservation takes is out with somebody over its time, to who runs it and whose it is
 }
 
+// ToldWhy is the kinds of notification whose words are a person's -- the
+// reason of the event they tell of -- by the kind of that event: whoever
+// asked for a reservation is told it was decided, and why. Each is written
+// beside its event, in its transaction, about the event's subject; and that
+// is how taking the reason out finds it ([Told], design D51), since nothing
+// else links the two. A notice that says anybody's words is of a kind here,
+// and the domain's tests hold every notice they write to it.
+var ToldWhy = map[string]string{
+	"reservation.approve": "reservation.decided",
+	"reservation.reject":  "reservation.decided",
+}
+
 // notify leaves a message for one holder, queued for mail as well when it is
 // of a kind that goes by mail and this deployment sends any. Queued and not
 // sent: the row is written in the operation's transaction, so an operation

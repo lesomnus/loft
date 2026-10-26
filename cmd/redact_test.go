@@ -5,6 +5,7 @@ import (
 	"slices"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/lesomnus/payday/gate"
 	"github.com/lesomnus/payday/past"
@@ -12,11 +13,13 @@ import (
 	"github.com/lesomnus/payday/pdtest"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/internal/ent"
 	entaccess "github.com/lesomnus/rove/internal/ent/access"
 	"github.com/lesomnus/rove/internal/ent/event"
+	"github.com/lesomnus/rove/internal/ent/notification"
 	"github.com/lesomnus/rove/server/policy"
 )
 
@@ -241,6 +244,100 @@ func TestWhatTheDoorTakesOutOfAnOperationIsOnTheRecordAsTheFirstIs(t *testing.T)
 		for _, s := range []string{string(r.Value), dv.GetReason(), string(dv.GetRequest())} {
 			x.NotContains(s, "박지민", r.Action)
 			x.NotContains(s, "2026-25", r.Action)
+		}
+	}
+	got := w.check(t, d)
+	x.True(got.Ok(), "%+v", got)
+}
+
+// TestWhatTheDoorTakesOutOfANoticeIsOnTheRecordAsWritten: a rejection's
+// reason is told to whoever asked for the reservation, as the words of their
+// notice (design D51), and the door takes it out of the notice too. The
+// notice is on the call's access record as written -- by identifier, and
+// with none of anybody's words in any row -- and on the trail as the call's
+// write, by the administrator who made it; and every row is as the trail
+// says.
+func TestWhatTheDoorTakesOutOfANoticeIsOnTheRecordAsWritten(t *testing.T) {
+	w, d := digestWorld(t, nil)
+	x := w.x
+	ctx := context.Background()
+	h := w.holder("adm", "admin")
+	admin := w.signIn(h)
+	hid, err := pdid.From(h.GetId())
+	x.NoError(err)
+
+	hall, err := app.NewAssetServiceClient(w.conn).Add(w.owner, app.AssetAddRequest_builder{Name: "강당", Kind: "space"}.Build())
+	x.NoError(err)
+	_, err = app.NewBookableServiceClient(w.conn).Add(w.owner, app.BookableAddRequest_builder{Asset: app.AssetRef_builder{Id: hall.GetId()}.Build(), Approval: true}.Build())
+	x.NoError(err)
+	kh := w.holder("kim", "member")
+	_, err = w.s.Base.Party().Add(ctx, app.PartyAddRequest_builder{
+		Tenant: app.TenantRef_builder{Id: w.tenant.GetId()}.Build(),
+		Name:   "김민수", Kind: "person",
+		Holder: app.HolderRef_builder{Id: kh.GetId()}.Build(),
+	}.Build())
+	x.NoError(err)
+	at := time.Now().Add(24 * time.Hour).Truncate(time.Hour)
+	reservations := app.NewReservationServiceClient(w.conn)
+	r, err := reservations.Add(w.signIn(kh), app.ReservationAddRequest_builder{
+		Name:     "인터뷰",
+		BeginsAt: timestamppb.New(at),
+		EndsAt:   timestamppb.New(at.Add(time.Hour)),
+		Items:    []*app.ReservationItemSpec{app.ReservationItemSpec_builder{Resource: app.AssetRef_builder{Id: hall.GetId()}.Build()}.Build()},
+	}.Build())
+	x.NoError(err)
+	_, err = reservations.Reject(admin, app.ReservationDecideRequest_builder{Ref: app.ReservationRef_builder{Id: r.GetId()}.Build(), Reason: erased}.Build())
+	x.NoError(err)
+	rid, err := pdid.From(r.GetId())
+	x.NoError(err)
+	rejected, err := w.s.Ent.Event.Query().Where(event.Kind("reservation.reject"), event.SubjectId(rid.Uuid())).Only(ctx)
+	x.NoError(err)
+	told, err := w.s.Ent.Notification.Query().Where(notification.Kind("reservation.decided"), notification.SubjectId(rid.Uuid())).Only(ctx)
+	x.NoError(err)
+	x.Equal(erased, told.Desc)
+
+	w.s.Policy = redactOpened{policy.Policy{}}
+	g, err := w.s.Grpc(ctx, w.c)
+	x.NoError(err)
+	events := app.NewEventServiceClient(pdtest.Serve(t, g))
+	_, err = events.Redact(admin, redactOf(pdid.Id(rejected.Id), "삭제 요청 2026-31"))
+	x.NoError(err)
+	now, err := w.s.Ent.Notification.Get(ctx, told.Id)
+	x.NoError(err)
+	x.Empty(now.Desc)
+
+	rs := w.accessed(t, app.EventService_Redact_FullMethodName)
+	by := map[string][]pdid.Id{}
+	for _, r := range rs {
+		if r.Result != "ok" {
+			continue
+		}
+		for _, s := range r.Subjects {
+			by[r.Kind] = append(by[r.Kind], pdid.Id(s))
+		}
+	}
+	x.Contains(by["read"], pdid.Id(rejected.Id), "what it read: the reason it took out")
+	x.Contains(by["write"], pdid.Id(told.Id), "what it wrote: the notice")
+	x.NotContains(by["read"], pdid.Id(told.Id), "which nobody read")
+	all, err := w.s.Ent.Access.Query().All(ctx)
+	x.NoError(err)
+	for _, r := range all {
+		dv := detailOf(t, r)
+		for _, s := range []string{string(r.Value), dv.GetReason(), string(dv.GetRequest())} {
+			x.NotContains(s, "박지민", r.Action)
+			x.NotContains(s, "2026-31", r.Action)
+		}
+	}
+
+	acts := w.acts(t, pdid.Id(told.Id))
+	last := acts[len(acts)-1]
+	x.Equal(app.EventService_Redact_FullMethodName, last.Action, "the act's write")
+	x.Equal(hid.Uuid(), last.ActorId, "the administrator's")
+	lines, err := w.s.Ent.Audit.Query().All(ctx)
+	x.NoError(err)
+	for _, l := range lines {
+		for _, b := range [][]byte{l.Patch, l.Value} {
+			x.False(strings.Contains(string(b), "박지민") || strings.Contains(string(b), "2026-31"), "%s %s", l.Action, pdid.Id(l.ObjectId))
 		}
 	}
 	got := w.check(t, d)
