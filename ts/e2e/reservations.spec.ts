@@ -97,6 +97,72 @@ test('a booking says in its history who booked it, who approved it and why, and 
 	expect(await refusal(other, 'ReservationService/Timeline', { ref: { id: booked.id } })).toContain('다른 사람의 예약 이력은 볼 수 없습니다')
 })
 
+test('a booking opens in its dialog wherever it is listed: from the dashboard, where a manager approves the request, and from the page of what it books', async ({ page, as }) => {
+	const title = unique('e2e 어디서나 촬영')
+	const n = Math.random().toString(36).slice(2, 7).toUpperCase()
+	const name = unique('e2e 어디서나 카메라')
+
+	// A camera of its own that asks a manager first, booked for the next
+	// weekday by a member who books nothing else: made through the server,
+	// since the forms that do those are the other tests'.
+	const admin = await as(owner.login, owner.password)
+	const camera = await rpc(admin, 'AssetService/Add', { name, kind: 'item', tag: `EO-${n}` })
+	await rpc(admin, 'BookableService/Add', { asset: { id: camera.id }, approval: true })
+	await signIn(page, people.opener.login)
+	const from = momentAt(1, 10)
+	await rpc(page, 'ReservationService/Add', { name: title, items: [{ resource: { id: camera.id } }], beginsAt: from, endsAt: momentAt(1, 12) })
+	const booking = `예약: ${name} ${from.slice(5, 10)} 10:00`
+
+	// What its dialog says of it, read and closed: its name, where it is, and
+	// what happened to it, newest first.
+	const read = async (p: typeof page, status: string, history: string[]) => {
+		const dialog = p.getByRole('dialog')
+		await expect(dialog.getByRole('heading', { name: title })).toBeVisible()
+		await expect(dialog).toContainText(status)
+		const lines = dialog.getByRole('list', { name: '이력' }).getByRole('listitem')
+		await expect(lines).toHaveCount(history.length)
+		for (const [i, line] of history.entries()) await expect(lines.nth(i)).toContainText(line)
+		await dialog.getByRole('button', { name: '닫기' }).click()
+		await expect(dialog).toHaveCount(0)
+	}
+
+	// Its booker opens it from the dashboard's week.
+	await page.goto(`${workspace}/`)
+	await card(page, '이번 주 내 예약').getByRole('button', { name: title }).click()
+	await read(page, '승인 대기', [booking])
+
+	// And from the page of what it books.
+	await page.goto(`${workspace}/assets/${idOf(camera.id)}`)
+	await page.getByRole('tab', { name: '예약', exact: true }).click()
+	await card(page, '다가오는 예약 (60일)').getByRole('button', { name: title }).click()
+	await read(page, '승인 대기', [booking])
+
+	// A manager opens the request from the dashboard, reads who asked for
+	// what, and approves it there.
+	const manager = await as(people.approver.login)
+	await manager.goto(`${workspace}/`)
+	const waiting = card(manager, '승인 대기 예약')
+	await waiting.getByRole('button', { name: title }).click()
+	const asked = manager.getByRole('dialog')
+	await expect(asked.getByRole('heading', { name: title })).toBeVisible()
+	const lines = asked.getByRole('list', { name: '이력' }).getByRole('listitem')
+	await expect(lines).toHaveCount(1)
+	await expect(lines).toContainText(booking)
+	await expect(lines).toContainText(people.opener.name)
+	await asked.getByRole('button', { name: '승인', exact: true }).click()
+	await said(manager, '승인했습니다.')
+	await expect(asked).toHaveCount(0)
+	await expect(waiting.getByRole('button', { name: title })).toHaveCount(0)
+
+	// Its booker finds it approved where it is listed, and its history says
+	// by whom.
+	await page.goto(`${workspace}/`)
+	const week = card(page, '이번 주 내 예약').getByRole('listitem').filter({ hasText: title })
+	await expect(week).toContainText('확정')
+	await week.getByRole('button', { name: title }).click()
+	await read(page, '확정', [`예약 승인: ${title}`, booking])
+})
+
 test('a kit booking waits for a member the kit is given that is booked elsewhere, says so wherever it is acted on, and takes it once it is free', async ({ page }) => {
 	const talk = unique('e2e 발표')
 	const shoot = unique('e2e 촬영')

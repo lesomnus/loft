@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 
 import type { Asset } from '../../gen/rove/asset_pb.js'
 import type { TimelineEntry } from '../../gen/rove/asset_svc_pb.js'
+import type { CalendarEntry } from '../../gen/rove/booking_svc_pb.js'
 import {
 	AssetService,
 	AttachmentService,
@@ -44,6 +45,7 @@ import {
 import { plugins } from '../plugins.js'
 import { AttrFields } from './assets.js'
 import { NewCustody } from './custody.js'
+import { EntryDialog } from './reservations.js'
 import { NewWorkOrder } from './work.js'
 
 export function AssetPage(): ReactNode {
@@ -418,8 +420,10 @@ function Inside(props: { a: Asset }): ReactNode {
 	)
 }
 
+/** What books the asset in the next sixty days, each opening as it does wherever it is listed (D45). */
 function Bookings(props: { a: Asset }): ReactNode {
 	const now = minute()
+	const [open, setOpen] = useState<CalendarEntry>()
 	const cal = useRpc(ReservationService.method.calendar, {
 		resources: [ref(props.a.id)],
 		from: ts(now),
@@ -436,7 +440,10 @@ function Bookings(props: { a: Asset }): ReactNode {
 							{d.entries.map((e) => (
 								<li key={idStr(e.reservation?.id)}>
 									<span>
-										{fmt(e.reservation?.beginsAt)} – {fmt(e.reservation?.endsAt, 'time')} · {e.reservation?.name}
+										{fmt(e.reservation?.beginsAt)} – {fmt(e.reservation?.endsAt, 'time')} ·{' '}
+										<button className="link" onClick={() => setOpen(e)}>
+											{e.reservation?.name}
+										</button>
 									</span>
 									<span>
 										<span className="mute">{e.partyName} </span>
@@ -449,6 +456,7 @@ function Bookings(props: { a: Asset }): ReactNode {
 					)
 				}
 			</Load>
+			{open !== undefined && <EntryDialog e={open} onClose={() => setOpen(undefined)} />}
 		</Card>
 	)
 }
