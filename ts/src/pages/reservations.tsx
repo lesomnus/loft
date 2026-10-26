@@ -10,7 +10,7 @@ import { useCatalog } from '../catalog.js'
 import { PartySelect, useAssets, useAssetsRead } from '../pickers.js'
 import { Live, useAct, useRpc } from '../rpc.js'
 import { Badge, Card, Empty, Field, FormModal, Load, Modal, PageHead, Select, Tabs } from '../ui.js'
-import { kindWord, markWord, outOfUse, reservationWord, statusWord } from '../words.js'
+import { goneWord, kindWord, markWord, outOfUse, reservationWord, statusWord } from '../words.js'
 import { NewCustody } from './custody.js'
 
 const H0 = 7
@@ -379,7 +379,7 @@ function ReservationDialog(props: { r: Reservation; resources: Uint8Array[]; con
 			{r.rrule !== '' && <p className="mute small">반복: {r.rrule}</p>}
 			{r.status === 'held' && r.expiresAt !== undefined && <p className="warn small">{fmt(r.expiresAt, 'time')}까지 확정하지 않으면 풀립니다.</p>}
 			<Waiting conflicts={props.conflicts} />
-			<OutOfUse items={gone} more="분실·불용·폐기 상태라 수령할 때 건네지 않습니다." />
+			<OutOfUse items={gone} more="분실·불용·폐기되었거나 삭제되어 수령할 때 건네지 않습니다." />
 			<Unusable status={r.status} items={unusable} />
 			{(mine || mgr || c.role === 'auditor') && <History r={r} />}
 			<footer className="modal-actions">
@@ -491,20 +491,21 @@ function booked(items: OutOfUseItem[], resources: Uint8Array[]): OutOfUseItem[] 
 
 /**
  * What a reservation takes that is out of use -- lost, retired or disposed
- * (D42, D43). A space it booked is not checked into. Anything else no
- * hand-over takes: what was booked itself, or a member kept in its kit as it
- * went (design 4, D40), which the kit's bookings take until it is taken off
- * the kit. `more` is what the place it is said in does about what is handed
- * over.
+ * (D42, D43), or deleted as registered by mistake, for good (D48). A space it
+ * booked is not checked into. Anything else no hand-over takes: what was
+ * booked itself, or a member kept in its kit as it went (design 4, D40),
+ * which the kit's bookings take until it is taken off the kit. `more` is what
+ * the place it is said in does about what is handed over.
  */
 function OutOfUse(props: { items: OutOfUseItem[]; more: string }): ReactNode {
 	const spaces = props.items.filter((a) => a.kind === 'space')
 	const things = props.items.filter((a) => a.kind !== 'space')
+	const deleted = (vs: OutOfUseItem[]) => vs.some((a) => a.status === 'voided')
 	const list = (vs: OutOfUseItem[]) => (
 		<ul>
 			{vs.map((a) => (
 				<li key={idStr(a.id)}>
-					{a.tag} {a.name}: {statusWord[a.status] ?? a.status}
+					{a.tag} {a.name}: {goneWord[a.status] ?? a.status}
 				</li>
 			))}
 		</ul>
@@ -516,13 +517,18 @@ function OutOfUse(props: { items: OutOfUseItem[]; more: string }): ReactNode {
 					<strong>건넬 수 없는 자산</strong>
 					{list(things)}
 					<p className="small">{props.more} 키트의 구성품으로 남아 있으면 그 키트의 예약이 계속 잡습니다.</p>
+					{deleted(things) && <p className="small">삭제한 것은 다시 쓸 수 없습니다. 예약을 취소하고 다른 것으로 다시 예약하세요.</p>}
 				</div>
 			)}
 			{spaces.length > 0 && (
 				<div className="note warn" role="note" aria-label="쓸 수 없는 공간">
 					<strong>쓸 수 없는 공간</strong>
 					{list(spaces)}
-					<p className="small">분실·불용·폐기 상태라 체크인할 수 없습니다. 다시 쓸 수 있게 되면 체크인할 수 있습니다.</p>
+					{deleted(spaces) ? (
+						<p className="small">삭제한 공간이라 체크인할 수 없습니다. 예약을 취소하고 다른 곳으로 다시 예약하세요.</p>
+					) : (
+						<p className="small">분실·불용·폐기 상태라 체크인할 수 없습니다. 다시 쓸 수 있게 되면 체크인할 수 있습니다.</p>
+					)}
 				</div>
 			)}
 		</>
@@ -737,7 +743,7 @@ function Approvals(): ReactNode {
 											)}
 										</span>
 										<Waiting conflicts={e.conflicts} />
-										<OutOfUse items={gone} more="분실·불용·폐기 상태라 수령할 때 건네지 않습니다." />
+										<OutOfUse items={gone} more="분실·불용·폐기되었거나 삭제되어 수령할 때 건네지 않습니다." />
 										<Unusable status={r.status} items={unusable} />
 									</li>
 								)

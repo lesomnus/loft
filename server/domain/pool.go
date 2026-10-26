@@ -68,9 +68,10 @@ func usable(status string) bool {
 // poolOutOfUse says whether `a` is a group that is out of use itself: one
 // whose reservations are said to take what is out of use ([Tx.outOfUseOf]),
 // and so are not counted short of it as well, whatever its members are --
-// nor take any of it they wait for -- until it is in use again (D43).
+// nor take any of it they wait for -- until it is in use again (D43). One
+// voided is, for good (D48).
 func poolOutOfUse(a *ent.Asset) bool {
-	return a != nil && a.Kind == "group" && slices.Contains(OutOfUse, a.Status)
+	return a != nil && a.Kind == "group" && (slices.Contains(OutOfUse, a.Status) || a.DateErased != nil)
 }
 
 // pool is what a group is made of, as the units it is booked by.

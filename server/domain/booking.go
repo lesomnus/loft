@@ -1049,7 +1049,8 @@ func (t *Tx) lockReservations(ids ...pdid.Id) error {
 // lockAllocations takes the locks of the resources a reservation holds, and of
 // the pools around them ([Tx.circle]): what it lets go of is theirs to give
 // then too ([Tx.heal]). And of `also`, what its pickup hands out, which the
-// pickup makes its own ([Tx.handOver]).
+// pickup makes its own ([Tx.handOver]). Not of one deleted with its asset,
+// which nothing books any more (D48).
 func (t *Tx) lockAllocations(rid pdid.Id, also ...uuid.UUID) error {
 	as, err := t.db.Allocation.Query().Where(allocation.TenantId(t.tenant.Uuid()), allocation.RefId(rid.Uuid())).All(t.ctx)
 	if err != nil {
@@ -1061,7 +1062,7 @@ func (t *Tx) lockAllocations(rid pdid.Id, also ...uuid.UUID) error {
 	}
 	rs := []*resource{}
 	for _, id := range ids {
-		b, err := t.db.Bookable.Query().Where(bookable.TenantId(t.tenant.Uuid()), bookable.AssetId(id)).Only(t.ctx)
+		b, err := t.db.Bookable.Query().Where(bookable.TenantId(t.tenant.Uuid()), bookable.AssetId(id), bookable.DateErasedIsNil()).Only(t.ctx)
 		if err != nil {
 			continue
 		}
@@ -1296,6 +1297,19 @@ func (s domainReservation) Calendar(ctx context.Context, req *app.ReservationCal
 		ids := []uuid.UUID{}
 		for i, r := range req.GetResources() {
 			_, id, err := t.get(r, fmt.Sprintf("resources[%d]", i))
+			if status.Code(err) == codes.NotFound && len(r.GetId()) > 0 {
+				// One deleted since what asks read what there is to book,
+				// whose bookings are still there to show (D48): asked for
+				// with the rest, it does not keep them from being shown.
+				gone, gerr := t.db.Asset.Query().Where(asset.Id(uuidOf(r.GetId())), asset.TenantId(t.tenant.Uuid()), asset.DateErasedNotNil()).Exist(ctx)
+				if gerr != nil {
+					return nil, gerr
+				}
+				if gone {
+					ids = append(ids, uuidOf(r.GetId()))
+					continue
+				}
+			}
 			if err != nil {
 				return nil, err
 			}

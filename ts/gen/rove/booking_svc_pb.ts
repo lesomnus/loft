@@ -1889,7 +1889,9 @@ export type ReservationOutOfUse = Message<"rove.ReservationOutOfUse"> & {
   resourceName: string;
 
   /**
-   * lost | retired | disposed
+   * lost | retired | disposed; or voided, what it booked itself having been
+   * deleted as registered by mistake, which is out of use to it for good
+   * (D48).
    *
    * @generated from field: string status = 4 [features.field_presence = IMPLICIT];
    */

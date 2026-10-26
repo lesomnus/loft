@@ -22,6 +22,7 @@ import (
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/internal/ent/asset"
+	"github.com/lesomnus/rove/internal/ent/bookable"
 	"github.com/lesomnus/rove/internal/ent/fact"
 	"github.com/lesomnus/rove/internal/ent/link"
 	"github.com/lesomnus/rove/internal/ent/placement"
@@ -337,8 +338,10 @@ func (s domainAsset) Erase(ctx context.Context, ref *app.AssetRef) (*app.AssetEr
 		}
 		// Every kit it was in, and itself if it is one: what each is made
 		// of changed, and so what its bookings take. And every pool it was
-		// one of the units of, which has one fewer to give.
-		kits, pools := []uuid.UUID{id.Uuid()}, []uuid.UUID{}
+		// one of the units of, which has one fewer to give. And, of a group,
+		// what was in it: what the other pools it is in had to spare for this
+		// one is theirs to give again (D44, D48).
+		kits, pools, left := []uuid.UUID{id.Uuid()}, []uuid.UUID{}, []uuid.UUID{}
 		for _, l := range ls {
 			if err := t.supersedeLink(l.Id); err != nil {
 				return err
@@ -347,7 +350,11 @@ func (s domainAsset) Erase(ctx context.Context, ref *app.AssetRef) (*app.AssetEr
 				kits = append(kits, l.TargetId)
 				pools = append(pools, l.TargetId)
 			}
+			if l.Kind == "member_of" && l.TargetId == id.Uuid() {
+				left = append(left, l.SourceId)
+			}
 		}
+		changed := append([]uuid.UUID{id.Uuid()}, left...)
 		// What both hold, at once: one after the other, the second would
 		// take some after the first's, out of the one order.
 		reservable, err := t.reservableKits(kits)
@@ -358,7 +365,7 @@ func (s domainAsset) Erase(ctx context.Context, ref *app.AssetRef) (*app.AssetEr
 		if err != nil {
 			return err
 		}
-		_, also, err := t.poolHolds(pools, []uuid.UUID{id.Uuid()})
+		_, also, err := t.poolHolds(pools, changed)
 		if err != nil {
 			return err
 		}
@@ -368,7 +375,24 @@ func (s domainAsset) Erase(ctx context.Context, ref *app.AssetRef) (*app.AssetEr
 		if err := t.recheckKits(kits...); err != nil {
 			return err
 		}
-		if err := t.recheckPools(pools, []uuid.UUID{id.Uuid()}); err != nil {
+		if err := t.recheckPools(pools, changed); err != nil {
+			return err
+		}
+		// And what booked it itself is told it is no more: out of use to
+		// it for good, which it is neither approved nor fulfilled through,
+		// and -- a pool -- not counted short of either (D48). What made it
+		// reservable goes with it: nothing books what never was, and a
+		// page that shows what is to book does not ask for it.
+		if err := t.voidedOf(id.Uuid()); err != nil {
+			return err
+		}
+		b, err := t.db.Bookable.Query().Where(bookable.TenantId(t.tenant.Uuid()), bookable.AssetId(id.Uuid()), bookable.DateErasedIsNil()).Only(t.ctx)
+		switch {
+		case err == nil:
+			if _, err := t.next.Bookable().Erase(t.ctx, app.BookableRef_builder{Id: pdid.Id(b.Id).Bytes()}.Build()); err != nil {
+				return err
+			}
+		case !ent.IsNotFound(err):
 			return err
 		}
 		// What it was said to be, never: every fact of it that stands,

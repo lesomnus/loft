@@ -863,6 +863,42 @@ func TestAnAssistantIsToldWhatIsOutOfUseIsNotBooked(t *testing.T) {
 	}
 }
 
+// TestAnAssistantIsToldWhatWasDeletedIsOutOfUse: a reservation of what was
+// deleted as registered by mistake says so, as "voided", and a plan to
+// approve it is refused, naming what it booked as the reservation says it --
+// it can no longer be read -- before the person is asked (D33, D48); one to
+// reject it is planned.
+func TestAnAssistantIsToldWhatWasDeletedIsOutOfUse(t *testing.T) {
+	s := serve(t)
+	x := s.x
+	s.signIn("owner", "owner1234")
+	pool := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "카메라 풀", "kind": "group", "tag": "G-1"}`))
+	camera := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "카메라", "kind": "item", "tag": "CM-1"}`))
+	run(t, cli.NewCmdApi(), "asset", "relate", camera, `{"target": {"id": "`+pool+`"}, "kind": "member_of"}`)
+	run(t, cli.NewCmdApi(), "bookable", "add", "-o", "json", `{"asset": {"id": "`+pool+`"}, "enabled": true, "approval": true}`)
+	a := s.assistant()
+
+	now := time.Now()
+	begins := time.Date(now.Year(), now.Month(), now.Day()+1, 14, 0, 0, 0, time.Local)
+	ends := begins.Add(time.Hour)
+	a.applied(a.plan("plan_reservation", map[string]any{"action": "reserve", "assets": []string{"G-1"}, "begins": begins.Format(time.RFC3339), "ends": ends.Format(time.RFC3339), "name": "촬영"}))
+	a.apply(a.plan("plan_asset", map[string]any{"action": "erase", "asset": "G-1"}))
+
+	var cal struct {
+		Items []struct {
+			Id       string `json:"id"`
+			OutOfUse []ref  `json:"out_of_use"`
+		} `json:"items"`
+	}
+	a.call("reservations", map[string]any{"from": begins.Add(-time.Minute).Format(time.RFC3339), "to": ends.Format(time.RFC3339)}, &cal)
+	x.Len(cal.Items, 1)
+	x.Equal([]ref{{pool, "G-1 카메라 풀 (voided)"}}, cal.Items[0].OutOfUse)
+	refused := a.refused("plan_reservation", map[string]any{"action": "approve", "reservation": cal.Items[0].Id})
+	x.Contains(refused, "G-1 카메라 풀 (voided)")
+	x.Contains(refused, "would not approve it; reject or cancel it instead")
+	a.applied(a.plan("plan_reservation", map[string]any{"action": "reject", "reservation": cal.Items[0].Id, "reason": "등록 취소"}))
+}
+
 // TestAnAssistantSaysWhetherAKitTakesAMember: a plan that gives a kit a
 // member says whether it is a required one, which every booking of the kit
 // takes with it, or an optional one; and of a member the kit has already, that

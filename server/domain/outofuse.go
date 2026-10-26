@@ -14,6 +14,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/internal/ent/allocation"
 	"github.com/lesomnus/rove/internal/ent/asset"
+	"github.com/lesomnus/rove/internal/ent/predicate"
 	"github.com/lesomnus/rove/internal/ent/reservation"
 	"github.com/lesomnus/rove/internal/ent/reservationitem"
 )
@@ -43,11 +44,38 @@ import (
 // units, which it has one fewer of, said by the pool's conflict (pool.go);
 // and a pool out of use itself is said to be, and not counted short as well.
 
+// voided is what is said of a thing erased as registered by mistake, as its
+// status would be: out of use to whatever booked it, for good (2026-10-26,
+// D48). No asset is in it; it is what [goneAs] says of one erased.
+const voided = "voided"
+
+// goneAs is what `a` is said to be, out of use: its status, or [voided].
+func goneAs(a *ent.Asset) string {
+	if a.DateErased != nil {
+		return voided
+	}
+	return a.Status
+}
+
+// goneSay is what `a` is said to be out of use as, in words: "불용", "삭제".
+func goneSay(a *ent.Asset) string {
+	if a.DateErased != nil {
+		return "삭제"
+	}
+	return or(statusSay[a.Status], a.Status)
+}
+
+// gone is what a reservation takes that is out of use: lost, retired or
+// disposed, or erased as registered by mistake (D48).
+func gone() predicate.Asset {
+	return asset.Or(asset.And(asset.StatusIn(OutOfUse...), asset.DateErasedIsNil()), asset.DateErasedNotNil())
+}
+
 // outOfUseOf answers what each of these reservations takes that is out of use,
 // of the ones still to be fulfilled ([waits]) and not over, by their tags:
 // what it booked itself, whatever it is, and the items its kits take with it
 // -- an allocation of each, held or waited for -- that are lost, retired or
-// disposed.
+// disposed; and what it booked that was voided since (D48).
 func (t *Tx) outOfUseOf(rs []*ent.Reservation) (map[uuid.UUID][]*app.ReservationOutOfUse, error) {
 	ids := []uuid.UUID{}
 	for _, r := range rs {
@@ -92,17 +120,16 @@ func (t *Tx) outOfUseOf(rs []*ent.Reservation) (map[uuid.UUID][]*app.Reservation
 	for _, k := range takes {
 		things = append(things, k[1])
 	}
-	gone, err := t.db.Asset.Query().Where(
+	vs, err := t.db.Asset.Query().Where(
 		asset.TenantId(tid),
 		asset.IdIn(things...),
-		asset.StatusIn(OutOfUse...),
-		asset.DateErasedIsNil(),
+		gone(),
 	).All(t.ctx)
-	if err != nil || len(gone) == 0 {
+	if err != nil || len(vs) == 0 {
 		return nil, err
 	}
 	of := map[uuid.UUID]*ent.Asset{}
-	for _, a := range gone {
+	for _, a := range vs {
 		of[a.Id] = a
 	}
 
@@ -112,7 +139,7 @@ func (t *Tx) outOfUseOf(rs []*ent.Reservation) (map[uuid.UUID][]*app.Reservation
 		v, ok := of[k[1]]
 		// Of what its kits take with it, the items, which a pickup hands
 		// over.
-		if !ok || seen[k] || (v.Kind != "item" && !booked[k]) {
+		if !ok || seen[k] || ((v.Kind != "item" || v.DateErased != nil) && !booked[k]) {
 			continue
 		}
 		seen[k] = true
@@ -120,7 +147,7 @@ func (t *Tx) outOfUseOf(rs []*ent.Reservation) (map[uuid.UUID][]*app.Reservation
 			ResourceId:   pdid.Id(v.Id).Bytes(),
 			ResourceTag:  v.Tag,
 			ResourceName: v.Name,
-			Status:       v.Status,
+			Status:       goneAs(v),
 			ResourceKind: v.Kind,
 		}.Build())
 	}
@@ -134,10 +161,10 @@ func (t *Tx) outOfUseOf(rs []*ent.Reservation) (map[uuid.UUID][]*app.Reservation
 
 // unusable answers what reservation `rid` booked itself that is out of use
 // now, by tag: what it is neither approved nor confirmed with, nor fulfilled
-// through (D43). Read as what booked it is held -- the schedules of what it
-// booked ([Tx.lockAllocations]), which a change of their status holds before
-// it tells who booked them ([Tx.holdLeaving]) -- what is read is what that
-// change left, or what it is yet to see.
+// through (D43) -- voided too (D48). Read as what booked it is held -- the
+// schedules of what it booked ([Tx.lockAllocations]), which a change of
+// their status holds before it tells who booked them ([Tx.holdLeaving]) --
+// what is read is what that change left, or what it is yet to see.
 func (t *Tx) unusable(rid uuid.UUID) ([]*ent.Asset, error) {
 	tid := t.tenant.Uuid()
 	items, err := t.db.ReservationItem.Query().Where(
@@ -154,8 +181,7 @@ func (t *Tx) unusable(rid uuid.UUID) ([]*ent.Asset, error) {
 	as, err := t.db.Asset.Query().Where(
 		asset.TenantId(tid),
 		asset.IdIn(ids...),
-		asset.StatusIn(OutOfUse...),
-		asset.DateErasedIsNil(),
+		gone(),
 	).All(t.ctx)
 	if err != nil {
 		return nil, err
@@ -165,11 +191,12 @@ func (t *Tx) unusable(rid uuid.UUID) ([]*ent.Asset, error) {
 }
 
 // outOfUseNamed is what is out of use as a refusal names it: each by its tag
-// and name, with its status -- "BT-1 배터리(불용), R-1 회의실(폐기)".
+// and name, with its status -- "BT-1 배터리(불용), R-1 회의실(폐기)", or
+// "G-1 카메라 풀(삭제)" of one voided.
 func outOfUseNamed(as []*ent.Asset) string {
 	names := make([]string, 0, len(as))
 	for _, a := range as {
-		names = append(names, fmt.Sprintf("%s(%s)", tagged(a), or(statusSay[a.Status], a.Status)))
+		names = append(names, fmt.Sprintf("%s(%s)", tagged(a), goneSay(a)))
 	}
 	return strings.Join(names, ", ")
 }
@@ -303,6 +330,46 @@ func (t *Tx) tellOutOfUse(a *ent.Asset, rs []*ent.Reservation) error {
 			body = fmt.Sprintf("%s 예약의 %s은(는) %s 상태라 %s. 다시 쓸 수 있게 되면 알려 드립니다.", t.when(first.BeginsAt), tagged(a), say, k.cannot)
 		}
 		return t.notifyParty(first.PartyId, "reservation.out_of_use", fmt.Sprintf("예약 %s %s: %s", k.noun, say, title), body,
+			pdid.Id(first.Id), "/reservations?tab=mine")
+	})
+}
+
+// voidedOf tells whoever has to act on it that `id`, which this operation
+// voids, was booked by reservations still to be fulfilled: the ones that
+// booked it itself, which it is out of use to for good -- a kit or a pool it
+// was a member of let it go as it left them (D48). Called once what it was
+// in let it go, and before it is erased.
+func (t *Tx) voidedOf(id uuid.UUID) error {
+	a, err := t.db.Asset.Query().Where(asset.Id(id), asset.TenantId(t.tenant.Uuid())).Only(t.ctx)
+	if err != nil {
+		return err
+	}
+	rs, err := t.takenBy(id)
+	if err != nil {
+		return err
+	}
+	if rs, err = t.bookedOf(rs, id); err != nil || len(rs) == 0 {
+		return err
+	}
+	return t.tellVoided(a, rs)
+}
+
+// tellVoided tells who has to act on it that `a`, which these reservations
+// booked, is voided -- erased as registered by mistake -- and is out of use
+// to them for good (D48): whoever runs the reservations, once, and whoever
+// each is for, once for theirs, by mail as well ([Mailed]), as of what goes
+// out of use ([Tx.tellOutOfUse]). Nothing brings it back, so nobody is told
+// it will be, and whoever each is for is told to book something else.
+func (t *Tx) tellVoided(a *ent.Asset, rs []*ent.Reservation) error {
+	k := keepsOf(a)
+	if err := t.notifyManagers("reservation.out_of_use", fmt.Sprintf("예약된 %s 삭제: %s", k.noun, tagged(a)),
+		fmt.Sprintf("%s은(는) 삭제되어 그것의 예약 %d건은 %s. 예약은 취소하기 전까지 남습니다.", tagged(a), len(rs), k.cannot),
+		pdid.Id(a.Id), "/reservations?tab=all"); err != nil {
+		return err
+	}
+	return eachParty(rs, func(first *ent.Reservation, title string) error {
+		return t.notifyParty(first.PartyId, "reservation.out_of_use", fmt.Sprintf("예약 %s 삭제: %s", k.noun, title),
+			fmt.Sprintf("%s 예약의 %s은(는) 삭제되어 %s. 취소하고 다른 것으로 다시 예약하세요.", t.when(first.BeginsAt), tagged(a), k.cannot),
 			pdid.Id(first.Id), "/reservations?tab=mine")
 	})
 }

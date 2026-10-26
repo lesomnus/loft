@@ -525,3 +525,48 @@ test('a room that goes out of use: its booking says so and its booker is told, i
 	await book.getByRole('button', { name: '예약', exact: true }).click()
 	await refused(page, `쓸 수 없는 것은 새로 예약할 수 없습니다: ${tag} ${name}(불용)`)
 })
+
+test('a group deleted as registered by mistake: its booking says so and its booker is told, and it is not picked up', async ({ page, as }) => {
+	const n = Math.random().toString(36).slice(2, 7).toUpperCase()
+	const tag = { pool: `EW-${n}`, camera: `EX-${n}` }
+	const name = unique('e2e 삭제 풀')
+	const shoot = unique('e2e 삭제 촬영')
+
+	// A group of a camera of its own, made reservable, and booked by
+	// somebody: made through the server, as the forms are the other tests'.
+	const admin = await as(owner.login, owner.password)
+	const pool = await rpc(admin, 'AssetService/Add', { name, kind: 'group', tag: tag.pool })
+	const camera = await rpc(admin, 'AssetService/Add', { name: 'e2e 삭제 풀 카메라', kind: 'item', tag: tag.camera })
+	await rpc(admin, 'AssetService/Relate', { ref: { id: camera.id }, target: { id: pool.id }, kind: 'member_of' })
+	await rpc(admin, 'BookableService/Add', { asset: { id: pool.id } })
+	await signIn(page, people.booker.login)
+	const [from, to] = [momentAt(44, 9), momentAt(44, 12)]
+	const r = await rpc(page, 'ReservationService/Add', { name: shoot, items: [{ resource: { id: pool.id } }], beginsAt: from, endsAt: to })
+
+	// The owner deletes the group from its page, at a desk of their own.
+	await admin.goto(`${workspace}/assets/${idOf(pool.id)}`)
+	await admin.getByRole('button', { name: '삭제', exact: true }).click()
+	await admin.getByRole('dialog').getByRole('button', { name: '삭제', exact: true }).click()
+	await said(admin, '삭제했습니다.')
+
+	// Whose booking it is is told, and the booking is marked where it is
+	// listed and said in its dialog -- out of use for good, and not short of
+	// cameras -- and it is not picked up.
+	await page.goto(`${workspace}/notifications`)
+	const notice = page.getByRole('listitem').filter({ hasText: shoot })
+	await expect(notice).toContainText(`예약 자산 삭제: ${shoot}`)
+	await expect(notice).toContainText(`${tag.pool} ${name}은(는) 삭제되어 수령할 수 없습니다`)
+	await page.goto(`${workspace}/reservations?tab=mine`)
+	const booked = page.getByRole('row').filter({ hasText: shoot })
+	await expect(booked).toContainText('건넬 수 없는 자산')
+	await expect(booked).not.toContainText('수량 부족')
+	await booked.click()
+	const marked = page.getByRole('dialog').getByRole('note', { name: '건넬 수 없는 자산' })
+	await expect(marked).toContainText(`${tag.pool} ${name}: 삭제`)
+	await expect(marked).toContainText('다른 것으로 다시 예약하세요')
+	await page.getByRole('dialog').getByRole('button', { name: '닫기' }).click()
+	const person = await rpc(admin, 'PartyService/Me', {})
+	expect(
+		await refusal(admin, 'CustodyService/Add', { party: { id: (person.party as { id: string }).id }, kind: 'loan', dueAt: to, reservationId: r.id, lines: [{ asset: { id: camera.id } }] }),
+	).toContain(`수령할 수 없습니다: ${tag.pool} ${name}(삭제)`)
+})

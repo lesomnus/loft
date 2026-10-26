@@ -113,12 +113,13 @@ func (t *Tx) holding(r *resource) bool {
 }
 
 // lockSchedules holds the schedules of these assets, the ones that have one,
-// in the order every booking takes them in ([Tx.lockBookables]).
+// in the order every booking takes them in ([Tx.lockBookables]). One deleted
+// with its asset nothing books any more (D48), and is not held.
 func (t *Tx) lockSchedules(ids []uuid.UUID) error {
 	if len(ids) == 0 {
 		return nil
 	}
-	bs, err := t.db.Bookable.Query().Where(bookable.TenantId(t.tenant.Uuid()), bookable.AssetIdIn(ids...)).All(t.ctx)
+	bs, err := t.db.Bookable.Query().Where(bookable.TenantId(t.tenant.Uuid()), bookable.AssetIdIn(ids...), bookable.DateErasedIsNil()).All(t.ctx)
 	if err != nil {
 		return err
 	}
