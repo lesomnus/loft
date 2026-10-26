@@ -625,6 +625,25 @@ func TestAnAssistantChangesTheRegisterOnceThePersonSaysYes(t *testing.T) {
 	a.apply(p)
 	a.call("reservations", map[string]any{"assets": []string{"R-4"}, "from": begins.Add(-time.Minute).Format(time.RFC3339), "to": ends.Format(time.RFC3339)}, &cal)
 	x.Equal("cancelled", cal.Items[0].Status)
+	// And what happened to it, newest first, by whom and why.
+	var happened struct {
+		Reservation ref `json:"reservation"`
+		Entries     []struct {
+			What      string `json:"what"`
+			Operation string `json:"operation"`
+			Who       string `json:"who"`
+			Why       string `json:"why"`
+		} `json:"entries"`
+	}
+	a.call("reservation_history", map[string]any{"reservation": cal.Items[0].Id}, &happened)
+	x.Equal(ref{cal.Items[0].Id, "주간 회의"}, happened.Reservation)
+	x.Len(happened.Entries, 2)
+	x.Equal("reservation.cancel", happened.Entries[0].Operation)
+	x.Equal("예약 취소: 주간 회의", happened.Entries[0].What)
+	x.Equal("일정 변경", happened.Entries[0].Why)
+	x.Equal("관리자", happened.Entries[0].Who, "the person, by name")
+	x.Equal("reservation.add", happened.Entries[1].Operation)
+	x.True(strings.HasPrefix(happened.Entries[1].What, "예약: 4층 회의실 "), happened.Entries[1].What)
 
 	// Two applies of one plan at once: one does it, and the other is told.
 	p = a.plan("plan_asset", map[string]any{"action": "add", "name": "동시에 넣은 모니터", "tag": "MN-2"})
@@ -665,6 +684,8 @@ func TestAnAssistantChangesTheRegisterOnceThePersonSaysYes(t *testing.T) {
 	s.signIn("kim", "kim-password")
 	p = a.plan("plan_asset", map[string]any{"action": "move", "asset": "NB-1", "to": "R-4"})
 	x.Contains(a.refused("apply", map[string]any{"token": p.Token, "summary": p.Summary}), "PermissionDenied")
+	// Nor read the history of somebody else's reservation.
+	x.Contains(a.refused("reservation_history", map[string]any{"reservation": cal.Items[0].Id}), "PermissionDenied")
 
 	// A terminal narrowed to reading is told so before anything is put to
 	// the person.
