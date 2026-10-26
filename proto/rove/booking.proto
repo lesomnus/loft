@@ -99,8 +99,14 @@ message Reservation {
   }];
   Tenant tenant = 2 [(orm.edge) = {immutable: true}];
 
-  string name = 5;
-  string desc = 6;
+  // What the booking is called, which the calendar shows and its events keep
+  // as what it was called then (design 8.2): a document's name, and nobody's
+  // words.
+  string name = 5 [(payday.field) = {personal: false}];
+  // The note of whoever booked it, in their words: personal (payday#92), so
+  // the trail records that it was written and never what it said (design
+  // D56).
+  string desc = 6 [(payday.field) = {personal: true}];
 
   // Who it is for.
   Party party = 8 [(orm.edge) = {immutable: true}];
@@ -110,7 +116,7 @@ message Reservation {
     nullable: true
   }];
   // held | requested | confirmed | in_use | completed | cancelled | rejected | expired | no_show
-  string status = 10;
+  string status = 10 [(payday.field) = {personal: false}];
   google.protobuf.Timestamp begins_at = 11 [(orm.field) = {default: ""}];
   google.protobuf.Timestamp ends_at = 12 [(orm.field) = {default: ""}];
 
@@ -123,7 +129,7 @@ message Reservation {
 
   google.protobuf.Timestamp expires_at = 16 [(orm.field) = {nullable: true}];
   // An RFC 5545 rule, for the first of a series.
-  string rrule = 17;
+  string rrule = 17 [(payday.field) = {personal: false}];
   bytes series_id = 18 [(orm.field) = {
     type: TYPE_UUID
     nullable: true

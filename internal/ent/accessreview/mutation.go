@@ -28,6 +28,7 @@ type Mutation struct {
 	refused         *uint32
 	addrefused      *int32
 	clearedFields   map[string]struct{}
+	exprs           map[string]sql.Querier
 	tenant          *uuid.UUID
 	clearedtenant   bool
 	reviewer        *uuid.UUID
@@ -52,6 +53,7 @@ func (m *Mutation) Predicates() []predicate.AccessReview {
 // SetDesc sets the "desc" field.
 func (m *Mutation) SetDesc(s string) {
 	m.desc = &s
+	delete(m.exprs, FieldDesc)
 }
 
 // Desc returns the value of the "desc" field in the mutation.
@@ -66,6 +68,7 @@ func (m *Mutation) Desc() (r string, exists bool) {
 // ResetDesc resets all changes to the "desc" field.
 func (m *Mutation) ResetDesc() {
 	m.desc = nil
+	delete(m.exprs, FieldDesc)
 }
 
 // SetPeriodFrom sets the "period_from" field.
@@ -411,7 +414,7 @@ func (m *Mutation) Type() string {
 // AddedFields().
 func (m *Mutation) Fields() []string {
 	fields := make([]string, 0, 9)
-	if m.desc != nil {
+	if m.desc != nil || m.exprs[FieldDesc] != nil {
 		fields = append(fields, FieldDesc)
 	}
 	if m.period_from != nil {
@@ -448,6 +451,9 @@ func (m *Mutation) Fields() []string {
 // A field assigned an expression with SetFieldExpr returns that expression, a
 // sql.Querier, since the value it stands for is the database's to compute.
 func (m *Mutation) Field(name string) (ent.Value, bool) {
+	if e, ok := m.exprs[name]; ok {
+		return e, true
+	}
 	switch name {
 	case FieldDesc:
 		return m.Desc()
@@ -599,7 +605,7 @@ func (m *Mutation) SetFieldExpr(name string, expr sql.Querier) error {
 	}
 	switch name {
 	case FieldDesc:
-		return fmt.Errorf("field %s cannot be assigned an expression: it is immutable, and an expression is written only by an update", name)
+		m.ResetDesc()
 	case FieldPeriodFrom:
 		return fmt.Errorf("field %s cannot be assigned an expression: it is immutable, and an expression is written only by an update", name)
 	case FieldPeriodTo:
@@ -619,18 +625,28 @@ func (m *Mutation) SetFieldExpr(name string, expr sql.Querier) error {
 	default:
 		return fmt.Errorf("unknown AccessReview field %s", name)
 	}
+	if m.exprs == nil {
+		m.exprs = make(map[string]sql.Querier)
+	}
+	m.exprs[name] = expr
+	return nil
 }
 
 // FieldExpr returns the expression the field with the given name was assigned
 // by SetFieldExpr. The second return value reports whether it was.
 func (m *Mutation) FieldExpr(name string) (sql.Querier, bool) {
-	return nil, false
+	e, ok := m.exprs[name]
+	return e, ok
 }
 
 // ExprFields returns the fields that were assigned an expression by
 // SetFieldExpr.
 func (m *Mutation) ExprFields() []string {
-	return nil
+	var fields []string
+	if _, ok := m.exprs[FieldDesc]; ok {
+		fields = append(fields, FieldDesc)
+	}
+	return fields
 }
 
 // AddedFields returns all numeric fields that were incremented/decremented during

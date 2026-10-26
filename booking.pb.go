@@ -894,8 +894,14 @@ type Reservation_builder struct {
 
 	Id     []byte
 	Tenant *Tenant
-	Name   string
-	Desc   string
+	// What the booking is called, which the calendar shows and its events keep
+	// as what it was called then (design 8.2): a document's name, and nobody's
+	// words.
+	Name string
+	// The note of whoever booked it, in their words: personal (payday#92), so
+	// the trail records that it was written and never what it said (design
+	// D56).
+	Desc string
 	// Who it is for.
 	Party *Party
 	// The holder that asked.
@@ -1482,16 +1488,16 @@ const file_rove_booking_proto_rawDesc = "" +
 	"\aweekday\x18\x01 \x01(\x05R\aweekday\x12\x1f\n" +
 	"\vfrom_minute\x18\x02 \x01(\x05R\n" +
 	"fromMinute\x12\x1b\n" +
-	"\tto_minute\x18\x03 \x01(\x05R\btoMinute\"\xa2\b\n" +
+	"\tto_minute\x18\x03 \x01(\x05R\btoMinute\"\xc2\b\n" +
 	"\vReservation\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x12\n" +
-	"\x04name\x18\x05 \x01(\tR\x04name\x12\x12\n" +
-	"\x04desc\x18\x06 \x01(\tR\x04desc\x12)\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
+	"\x04name\x18\x05 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x04name\x12\x1a\n" +
+	"\x04desc\x18\x06 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\x04desc\x12)\n" +
 	"\x05party\x18\b \x01(\v2\v.rove.PartyB\x06\xf2\x82\x16\x02@\x01R\x05party\x12+\n" +
-	"\frequested_by\x18\t \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\vrequestedBy\x12\x16\n" +
+	"\frequested_by\x18\t \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\vrequestedBy\x12\x1e\n" +
 	"\x06status\x18\n" +
-	" \x01(\tR\x06status\x12@\n" +
+	" \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x06status\x12@\n" +
 	"\tbegins_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\bbeginsAt\x12<\n" +
 	"\aends_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\x06endsAt\x12F\n" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12D\n" +
@@ -1499,8 +1505,8 @@ const file_rove_booking_proto_rawDesc = "" +
 	"dateErased\x12H\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12A\n" +
 	"\n" +
-	"expires_at\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\texpiresAt\x12\x14\n" +
-	"\x05rrule\x18\x11 \x01(\tR\x05rrule\x12%\n" +
+	"expires_at\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\texpiresAt\x12\x1c\n" +
+	"\x05rrule\x18\x11 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x05rrule\x12%\n" +
 	"\tseries_id\x18\x12 \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\bseriesId\x12'\n" +
 	"\n" +
 	"decided_by\x18\x13 \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\tdecidedBy\x12F\n" +

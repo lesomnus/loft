@@ -311,8 +311,13 @@ type InventoryCount_builder struct {
 
 	Id     []byte
 	Tenant *Tenant
-	Name   string
-	Desc   string
+	// What the count is called, which its events keep as what it was called
+	// then (design 8.2): a document's name, and nobody's words.
+	Name string
+	// The note of whoever started it, in their words: personal (payday#92), so
+	// the trail records that it was written and never what it said (design
+	// D56).
+	Desc string
 	// The space the count covers, and everything under it.
 	Scope *Asset
 	// open | closed
@@ -658,8 +663,12 @@ func (x *CountFinding) ClearResolvedAt() {
 type CountFinding_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Id      []byte
-	Tenant  *Tenant
+	Id     []byte
+	Tenant *Tenant
+	// The note of the scan that found it, in the words of whoever scanned:
+	// what `count.scan` says as its reason, and so personal as every reason is
+	// (payday#92). Taking that reason out takes it out of here too (design
+	// D56).
 	Desc    string
 	Count   *InventoryCount
 	Asset   *Asset
@@ -704,14 +713,14 @@ var File_rove_count_proto protoreflect.FileDescriptor
 
 const file_rove_count_proto_rawDesc = "" +
 	"\n" +
-	"\x10rove/count.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x10rove/asset.proto\x1a\x18rove/payday/tenant.proto\"\xb2\x06\n" +
+	"\x10rove/count.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x10rove/asset.proto\x1a\x18rove/payday/tenant.proto\"\xca\x06\n" +
 	"\x0eInventoryCount\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x12\n" +
-	"\x04name\x18\x05 \x01(\tR\x04name\x12\x12\n" +
-	"\x04desc\x18\x06 \x01(\tR\x04desc\x12)\n" +
-	"\x05scope\x18\b \x01(\v2\v.rove.AssetB\x06\xf2\x82\x16\x02@\x01R\x05scope\x12\x16\n" +
-	"\x06status\x18\t \x01(\tR\x06status\x12B\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
+	"\x04name\x18\x05 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x04name\x12\x1a\n" +
+	"\x04desc\x18\x06 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\x04desc\x12)\n" +
+	"\x05scope\x18\b \x01(\v2\v.rove.AssetB\x06\xf2\x82\x16\x02@\x01R\x05scope\x12\x1e\n" +
+	"\x06status\x18\t \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x06status\x12B\n" +
 	"\n" +
 	"started_at\x18\n" +
 	" \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\tstartedAt\x12?\n" +
@@ -737,25 +746,25 @@ const file_rove_count_proto_rawDesc = "" +
 	"\x03ref\x1a\a\n" +
 	"\x05scope\x1a\b\n" +
 	"\x06status 2(\xc8\x01:\x00\"\x16\n" +
-	"\x06tenant\"\fscope.tenant\"\xb1\a\n" +
+	"\x06tenant\"\fscope.tenant\"\xc9\a\n" +
 	"\fCountFinding\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x12\n" +
-	"\x04desc\x18\x06 \x01(\tR\x04desc\x122\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
+	"\x04desc\x18\x06 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\x04desc\x122\n" +
 	"\x05count\x18\b \x01(\v2\x14.rove.InventoryCountB\x06\xf2\x82\x16\x02@\x01R\x05count\x12+\n" +
 	"\x05asset\x18\t \x01(\v2\v.rove.AssetB\b\xf2\x82\x16\x048\x01@\x01R\x05asset\x12#\n" +
 	"\blabel_id\x18\n" +
-	" \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\alabelId\x12\x12\n" +
-	"\x04kind\x18\v \x01(\tR\x04kind\x126\n" +
+	" \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\alabelId\x12\x1a\n" +
+	"\x04kind\x18\v \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x04kind\x126\n" +
 	"\x12observed_parent_id\x18\f \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\x10observedParentId\x12F\n" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12H\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x126\n" +
 	"\x12expected_parent_id\x18\x10 \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\x10expectedParentId\x12<\n" +
 	"\aseen_at\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\x06seenAt\x12)\n" +
 	"\vrecorded_by\x18\x12 \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\n" +
-	"recordedBy\x12\x1e\n" +
+	"recordedBy\x12&\n" +
 	"\n" +
-	"resolution\x18\x13 \x01(\tR\n" +
+	"resolution\x18\x13 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\n" +
 	"resolution\x12C\n" +
 	"\vresolved_at\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\n" +
 	"resolvedAt:\xd7\x01\xca\xfc\x15P\x12\x02\x10\x01\x1a,\x12\x04page\x1a\n" +

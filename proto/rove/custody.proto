@@ -24,13 +24,18 @@ message Custody {
   }];
   Tenant tenant = 2 [(orm.edge) = {immutable: true}];
 
-  string desc = 6;
+  // The hand-over's memo, in the words of whoever made it -- what the
+  // hand-over was for, and often who it was for -- which `custody.issue` says
+  // as its reason: personal, as every reason is (payday#92), so the trail
+  // records that it was written and never what it said. Taking that reason
+  // out takes it out of here too (design D56).
+  string desc = 6 [(payday.field) = {personal: true}];
 
   Party party = 8 [(orm.edge) = {immutable: true}];
   // issue | loan
-  string kind = 9;
+  string kind = 9 [(payday.field) = {personal: false}];
   // open | returned | cancelled
-  string status = 10;
+  string status = 10 [(payday.field) = {personal: false}];
   google.protobuf.Timestamp issued_at = 11 [(orm.field) = {default: ""}];
   google.protobuf.Timestamp due_at = 12 [(orm.field) = {nullable: true}];
 

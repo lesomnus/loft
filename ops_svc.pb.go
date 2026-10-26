@@ -5799,10 +5799,13 @@ func (b0 AccessReviewSelect_builder) Build() *AccessReviewSelect {
 }
 
 type AccessReviewPatchRequest struct {
-	state          protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Ref *AccessReviewRef       `protobuf:"bytes,1,opt,name=ref"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Ref         *AccessReviewRef       `protobuf:"bytes,1,opt,name=ref"`
+	xxx_hidden_Desc        *string                `protobuf:"bytes,12,opt,name=desc"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *AccessReviewPatchRequest) Reset() {
@@ -5837,8 +5840,23 @@ func (x *AccessReviewPatchRequest) GetRef() *AccessReviewRef {
 	return nil
 }
 
+func (x *AccessReviewPatchRequest) GetDesc() string {
+	if x != nil {
+		if x.xxx_hidden_Desc != nil {
+			return *x.xxx_hidden_Desc
+		}
+		return ""
+	}
+	return ""
+}
+
 func (x *AccessReviewPatchRequest) SetRef(v *AccessReviewRef) {
 	x.xxx_hidden_Ref = v
+}
+
+func (x *AccessReviewPatchRequest) SetDesc(v string) {
+	x.xxx_hidden_Desc = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 2)
 }
 
 func (x *AccessReviewPatchRequest) HasRef() bool {
@@ -5848,14 +5866,27 @@ func (x *AccessReviewPatchRequest) HasRef() bool {
 	return x.xxx_hidden_Ref != nil
 }
 
+func (x *AccessReviewPatchRequest) HasDesc() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
+}
+
 func (x *AccessReviewPatchRequest) ClearRef() {
 	x.xxx_hidden_Ref = nil
+}
+
+func (x *AccessReviewPatchRequest) ClearDesc() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	x.xxx_hidden_Desc = nil
 }
 
 type AccessReviewPatchRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Ref *AccessReviewRef
+	Ref  *AccessReviewRef
+	Desc *string
 }
 
 func (b0 AccessReviewPatchRequest_builder) Build() *AccessReviewPatchRequest {
@@ -5863,6 +5894,10 @@ func (b0 AccessReviewPatchRequest_builder) Build() *AccessReviewPatchRequest {
 	b, x := &b0, m0
 	_, _ = b, x
 	x.xxx_hidden_Ref = b.Ref
+	if b.Desc != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 2)
+		x.xxx_hidden_Desc = b.Desc
+	}
 	return m0
 }
 
@@ -6498,9 +6533,10 @@ const file_rove_ops_svc_g_proto_rawDesc = "" +
 	"\x05calls\x18\v \x01(\bR\x05calls\x12\x1c\n" +
 	"\tdownloads\x18\f \x01(\bR\tdownloads\x12!\n" +
 	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\x12\x18\n" +
-	"\arefused\x18\x10 \x01(\bR\arefused\"C\n" +
+	"\arefused\x18\x10 \x01(\bR\arefused\"W\n" +
 	"\x18AccessReviewPatchRequest\x12'\n" +
-	"\x03ref\x18\x01 \x01(\v2\x15.rove.AccessReviewRefR\x03ref\"g\n" +
+	"\x03ref\x18\x01 \x01(\v2\x15.rove.AccessReviewRefR\x03ref\x12\x12\n" +
+	"\x04desc\x18\f \x01(\tR\x04desc\"g\n" +
 	"\x18AccessReviewApplyRequest\x12'\n" +
 	"\x03ref\x18\x01 \x01(\v2\x15.rove.AccessReviewRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"3\n" +
