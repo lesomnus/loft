@@ -49,6 +49,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent"
 	entmigrate "github.com/lesomnus/rove/internal/ent/migrate"
 	"github.com/lesomnus/rove/internal/ent/tenantcontract"
+	"github.com/lesomnus/rove/server/domain"
 	"github.com/lesomnus/rove/server/offboard"
 	"github.com/lesomnus/rove/server/pd"
 )
@@ -207,6 +208,10 @@ type Migrated struct {
 	// Facts is the assets' facts moved into payday's past (payday#151), and
 	// Recorded the lines the trail was given of them.
 	Facts, Recorded int
+
+	// Held is the things out whose hand-over took their time (D53), which a
+	// build from before did not.
+	Held int
 }
 
 // migrate is [Migrate], answering what it rewrote.
@@ -241,15 +246,45 @@ func migrate(ctx context.Context, s *cmd.Server) (Migrated, error) {
 		if out.Facts, out.Recorded, err = moveFacts(ctx, s); err != nil {
 			return err
 		}
-		if s.Dialect != "postgres" {
-			return nil
+		if s.Dialect == "postgres" {
+			if _, err := s.Db.ExecContext(ctx, pgExtras); err != nil {
+				return fmt.Errorf("postgres extras: %w", err)
+			}
 		}
-		if _, err := s.Db.ExecContext(ctx, pgExtras); err != nil {
-			return fmt.Errorf("postgres extras: %w", err)
-		}
-		return nil
+		// Once the database is in this build's shape: what this build's
+		// servers write it is written in.
+		out.Held, err = holdOut(ctx, s)
+		return err
 	}()
 	return out, err
+}
+
+// holdOut makes the hold of everything out that its hand-over holds none of
+// the time of (D53) -- what a build from before a hand-over held it handed
+// over -- from when it was handed over, in each workspace as the
+// deployment's own work: through the servers, so that each write is on the
+// trail as any is, and with what holding it does. What was booked over it
+// says so and is told, and a pool's latest reservations wait
+// ([domain.Deps.HoldOut]). A database with nothing of the kind opens nothing
+// for it: no servers, and no key.
+func holdOut(ctx context.Context, s *cmd.Server) (int, error) {
+	ts, err := domain.Unheld(ctx, s.Ent)
+	if err != nil || len(ts) == 0 {
+		return 0, err
+	}
+	own, err := s.Own()
+	if err != nil {
+		return 0, err
+	}
+	n := 0
+	for _, t := range ts {
+		k, err := s.Deps.HoldOut(ctx, own, s.Drv, t)
+		if err != nil {
+			return n, fmt.Errorf("what is out in tenant %s: %w", t, err)
+		}
+		n += k
+	}
+	return n, nil
 }
 
 // dropOldSessions takes out a session table from before a session was an

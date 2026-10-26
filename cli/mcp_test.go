@@ -800,6 +800,54 @@ func TestAnAssistantSaysWhatABookingTakesIsOutOfUse(t *testing.T) {
 	x.Empty(again.Items[0].OutOfUse)
 }
 
+// TestAnAssistantSaysWhatABookingTakesIsOut: a booking says what it takes
+// that somebody has out over its time -- lent at the desk after it was booked
+// -- by name, and until when, and says it no more once it is back (design 4,
+// D53).
+func TestAnAssistantSaysWhatABookingTakesIsOut(t *testing.T) {
+	s := serve(t)
+	x := s.x
+	s.signIn("owner", "owner1234")
+	camera := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "카메라", "kind": "item", "tag": "CM-1"}`))
+	run(t, cli.NewCmdApi(), "bookable", "add", "-o", "json", `{"asset": {"id": "`+camera+`"}, "enabled": true}`)
+	kim := made(t, run(t, cli.NewCmdApi(), "party", "add", "-o", "json", `{"name": "김민준", "kind": "person"}`))
+	a := s.assistant()
+
+	now := time.Now()
+	begins := time.Date(now.Year(), now.Month(), now.Day()+1, 14, 0, 0, 0, time.Local)
+	ends := begins.Add(2 * time.Hour)
+	a.applied(a.plan("plan_reservation", map[string]any{"action": "reserve", "assets": []string{"CM-1"}, "begins": begins.Format(time.RFC3339), "ends": ends.Format(time.RFC3339), "name": "제품 촬영"}))
+	due := begins.Add(time.Hour)
+	a.applied(a.plan("plan_custody", map[string]any{"action": "issue", "party": kim, "assets": []string{"CM-1"}, "kind": "loan", "due": due.Format(time.RFC3339)}))
+	span := map[string]any{"assets": []string{"CM-1"}, "from": begins.Add(-time.Minute).Format(time.RFC3339), "to": ends.Format(time.RFC3339)}
+	type booking struct {
+		Items []struct {
+			Name string `json:"name"`
+			Out  []ref  `json:"out"`
+		} `json:"items"`
+	}
+	var cal booking
+	a.call("reservations", span, &cal)
+	x.Len(cal.Items, 1)
+	x.Len(cal.Items[0].Out, 1)
+	x.Equal(camera, cal.Items[0].Out[0].Id)
+	x.Contains(cal.Items[0].Out[0].Name, "CM-1 카메라 (lent until ")
+	x.NotContains(cal.Items[0].Out[0].Name, "김민준", "nobody is said who has it")
+
+	var lent struct {
+		Items []struct {
+			Id string `json:"id"`
+		} `json:"items"`
+	}
+	a.call("list_custody", nil, &lent)
+	x.Len(lent.Items, 1)
+	a.applied(a.plan("plan_custody", map[string]any{"action": "return", "custody": lent.Items[0].Id}))
+	var again booking
+	a.call("reservations", span, &again)
+	x.Len(again.Items, 1)
+	x.Empty(again.Items[0].Out)
+}
+
 // TestAnAssistantIsToldWhatIsOutOfUseIsNotBooked: a plan to reserve what is
 // out of use is refused, naming each of it with its status, before the
 // person is asked -- the server would refuse it (D33, D43) -- and so is one

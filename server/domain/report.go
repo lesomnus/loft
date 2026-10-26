@@ -764,7 +764,7 @@ func (s domainBookable) ExportUsage(ctx context.Context, req *app.BookableUsageR
 	if err != nil {
 		return nil, err
 	}
-	rows := [][]string{{"태그", "이름", "종류", "수량", "예약", "이용", "노쇼", "예약 시간", "이용 시간", "이용률(%)"}}
+	rows := [][]string{{"태그", "이름", "종류", "수량", "예약", "이용", "노쇼", "예약 시간", "이용 시간", "이용률(%)", "예약 없이 나감", "예약 없이 나간 시간"}}
 	for _, r := range v.GetRows() {
 		share := ""
 		if r.GetBookedMinutes() > 0 {
@@ -774,6 +774,7 @@ func (s domainBookable) ExportUsage(ctx context.Context, req *app.BookableUsageR
 			r.GetTag(), r.GetName(), or(kindSay[r.GetKind()], r.GetKind()), number(r.GetUnits()),
 			number(r.GetReservations()), number(r.GetUsed()), number(r.GetNoShows()),
 			hours(r.GetBookedMinutes()), hours(r.GetUsedMinutes()), share,
+			number(r.GetHandedOut()), hours(r.GetHandedOutMinutes()),
 		})
 	}
 	return writeCSV("rove-bookings-"+t.span(v.GetFrom().AsTime(), v.GetTo().AsTime()), rows)
@@ -854,8 +855,34 @@ func (t *Tx) usage(req *app.BookableUsageRequest) (*app.BookableUsageResponse, e
 		return nil, err
 	}
 
+	// And what was handed over with no reservation -- a loan or an issue at
+	// the desk, whose time it held as a booking's (D53) -- of each hand-over
+	// of a thing that began in the period, whole as a reservation is: from
+	// the hand-over to the thing's return, and to now while it is out.
+	h := t.q()
+	h.S(`SELECT l."asset_id" AS "resource_id", COUNT(*) AS "handed",` +
+		` SUM(` + t.greatest() + `(0.0, COALESCE(` + sec(`l."returned_at"`) + `, `).Arg(now).S(`) - ` + sec(`l."out_at"`) + `)) AS "out_for"` +
+		` FROM "custodyline" l JOIN "custody" c ON c."id" = l."custody_id"` +
+		` WHERE c."tenant_id" = `).Arg(tid).
+		S(` AND c."reservation_id" IS NULL AND c."date_erased" IS NULL AND l."asset_id" IS NOT NULL` +
+			` AND c."issued_at" >= `).Arg(from).S(` AND c."issued_at" < `).Arg(to).
+		S(` GROUP BY l."asset_id"`)
+	var hs []struct {
+		Resource stdsql.Null[uuid.UUID] `sql:"resource_id"`
+		Handed   int64                  `sql:"handed"`
+		OutFor   float64                `sql:"out_for"`
+	}
+	if err := t.rows(h, &hs); err != nil {
+		return nil, err
+	}
+	handed := map[uuid.UUID]int{}
+	for i, v := range hs {
+		handed[v.Resource.V] = i
+	}
+
 	// Every resource that may be booked, and every one booked that may no
-	// longer be.
+	// longer be. What was handed over that may not be booked is no row of
+	// this: it is the report of what is out's.
 	bs, err := t.db.Bookable.Query().
 		Where(bookable.TenantId(tid), bookable.DateErasedIsNil()).
 		Select(bookable.FieldAssetId, bookable.FieldUnits).
@@ -900,6 +927,13 @@ func (t *Tx) usage(req *app.BookableUsageRequest) (*app.BookableUsageResponse, e
 			r.SetNoShows(uint32(v.NoShows))
 			r.SetBookedMinutes(minutes(v.Booked))
 			r.SetUsedMinutes(minutes(v.UsedFor))
+		}
+		if i, ok := handed[k]; ok {
+			// All of it is what was out: of one asset that stands for many,
+			// every one of them, as its hand-over held it.
+			v := hs[i]
+			r.SetHandedOut(uint32(v.Handed))
+			r.SetHandedOutMinutes(minutes(v.OutFor * float64(r.GetUnits())))
 		}
 		rows = append(rows, r)
 	}

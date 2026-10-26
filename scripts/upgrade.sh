@@ -20,7 +20,10 @@
 #
 # A migration says what it rewrote, as the move of an asset's facts into
 # payday's past does (payday#151), and what it put on the trail of it: the
-# same rows, every one. A second has nothing to rewrite.
+# same rows, every one. And what it held of what is out, which a build from
+# before a hand-over held its things' time left holding none of it (D53):
+# through the servers, so that `trail rows` finds each row as it was written.
+# A second has nothing to rewrite, and nothing to hold.
 #
 #   scripts/upgrade.sh BEFORE NOW
 set -eu
@@ -82,9 +85,14 @@ check() {
 		echo "$again" | tail -n 20 >&2
 		exit 1
 	fi
+	held=$(sed -n "s/^what is out holds its time: \([0-9]*\) things.*\$/\1/p" "$log")
 	case $again in
 	*"moved into payday's past"*)
 		echo "upgrade: $1: a second migration rewrote facts again" >&2
+		exit 1
+		;;
+	*"holds its time"*)
+		echo "upgrade: $1: a second migration held what is out again" >&2
 		exit 1
 		;;
 	*"in this build's shape"*) ;;
@@ -105,7 +113,7 @@ check() {
 	run "$log" "$now" retention plan --tenant acme
 	run "$log" "$now" tenant export --tenant acme --out "$dir/$1.zip"
 	run "$log" "$now" tenant verify --file "$dir/$1.zip"
-	echo "upgrade: $1: what the build before made is in this build's shape, and what the trail says of it${moved:+ (${moved% *} facts moved into payday's past)}"
+	echo "upgrade: $1: what the build before made is in this build's shape, and what the trail says of it${moved:+ (${moved% *} facts moved into payday's past)}${held:+ (${held} things out held their time)}"
 }
 
 mkdir -p "$dir/sqlite"

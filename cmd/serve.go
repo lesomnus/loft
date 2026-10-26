@@ -188,6 +188,28 @@ type Server struct {
 	// It is a slice rather than a method because a server with nothing to run
 	// should write nothing at all; see `payday/spin`.
 	Spin []any
+
+	// own is [Server.Own]'s, of a server [Open] opened.
+	own func() (app.Server, error)
+}
+
+// Own is the servers the deployment does its own work through, without the
+// domain layer: [Server.Base] of a server [Build] built; and of one [Open]
+// opened, the same over its database, made the first time it is asked -- for
+// a step of a migration that writes as the deployment does, through the
+// servers, so that each write is on the trail as any is (what is out, held
+// once, D53). It reads the trail's key then, and not before. Nothing is told
+// of what it writes as it is written: no process serves while a deployment
+// migrates (README, "새 버전"). Nor does what it tells go by mail: a migration
+// sends nothing, and what it says is in the app.
+func (s *Server) Own() (app.Server, error) {
+	if s.own == nil {
+		if s.Base == nil {
+			return nil, errors.New("cmd: a server neither built nor opened has no servers of its own")
+		}
+		return s.Base, nil
+	}
+	return s.own()
 }
 
 // Open opens what holds a deployment's state and nothing that serves it: the
@@ -211,10 +233,43 @@ func Open(ctx context.Context, c Config) (*Server, error) {
 	}
 	drv := entsql.OpenDB(dialect, db)
 
-	return &Server{
-		Db: db, Ent: ent.NewClient(ent.Driver(drv)), Drv: drv, Dialect: dialect, Deps: &domain.Deps{}, Identity: people,
+	// What the domain layer is told of the deployment that opens nothing: a
+	// workspace that says nothing of where it is is told in the
+	// deployment's zone.
+	locale := domain.Locale{Timezone: c.App.Locale.Timezone, Currency: c.App.Locale.Currency}
+	if err := locale.Check(); err != nil {
+		people.Close()
+		db.Close()
+		return nil, fmt.Errorf("app.locale.%w", err)
+	}
+	s := &Server{
+		Db: db, Ent: ent.NewClient(ent.Driver(drv)), Drv: drv, Dialect: dialect, Identity: people,
+		Deps:     &domain.Deps{Locale: locale, NoShowAfter: c.App.NoShowAfter, Links: c.App.Links()},
 		Contents: sync.OnceValues(c.Audit.Contents),
-	}, nil
+	}
+	s.own = sync.OnceValues(func() (app.Server, error) {
+		content, err := s.Contents()
+		if err != nil {
+			return nil, err
+		}
+		s.Deps.Audit = content
+		// The recorders [Build] tells every write to, but the publish to the
+		// ones watching: the trail, the access record, the search engine's
+		// stale documents where there is one, and the outbox where it is kept.
+		rec := bare.Recorders{pd.Recorder(content), pd.AccessRecorder()}
+		if c.App.Search.Opensearch.On() {
+			rec = append(rec, opensearch.Recorder())
+		}
+		if c.Watch.Outbox {
+			rec = append(rec, pd.OutboxRecorder())
+		}
+		sink, err := pd.NewSink(s.Ent, bare.WithMinter(pd.Minter()), bare.WithRecorder(rec), bare.WithClock(s.Deps.Clock))
+		if err != nil {
+			return nil, err
+		}
+		return app.Build(sink, pd.AuditBuild(), pd.SecretBuild())
+	})
+	return s, nil
 }
 
 // Build opens the database and stacks the servers.
