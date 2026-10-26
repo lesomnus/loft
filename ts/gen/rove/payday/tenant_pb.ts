@@ -15,7 +15,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file rove/payday/tenant.proto.
  */
 export const file_rove_payday_tenant: GenFile = /*@__PURE__*/
-  fileDesc("Chhyb3ZlL3BheWRheS90ZW5hbnQucHJvdG8SBHJvdmUiygcKBlRlbmFudBIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASFQoFYWxpYXMYBCABKAlCBuqCFgIwARIMCgRuYW1lGAUgASgJEgwKBGRlc2MYBiABKAkSKAoGbGFiZWxzGAcgAygLMhgucm92ZS5UZW5hbnQuTGFiZWxzRW50cnkSOQoMZGF0ZV91cGRhdGVkGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4oBABI7CgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgnqghYFQAGCAQASNwoLZGF0ZV9jbG9zZWQYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESGQoJY2xvc2VkX2J5GAkgASgJQgaqwRYCGAASHAoMY2xvc2VfcmVhc29uGAogASgJQgaqwRYCGAESOAoMZGF0ZV9kZXN0cm95GAsgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIG6oIWAjgBEh8KCHRpbWV6b25lGAwgASgJQg3qghYDggEAqsEWAhgAEh8KCGN1cnJlbmN5GBAgASgJQg3qghYDggEAqsEWAhgAEiAKD25vX3Nob3dfbWludXRlcxgRIAEoBUIH6oIWA4IBABIaCglrZWVwX2RheXMYEiABKA1CB+qCFgOCAQASIQoQYWNjZXNzX2tlZXBfZGF5cxgTIAEoDUIH6oIWA4IBABIdCgxyZXN0b3JlX2RheXMYFCABKA1CB+qCFgOCAQASIQoQa2VlcF9kYXlzX2JlZm9yZRgVIAEoDUIH6oIWA4IBABI/ChNkYXRlX2tlZXBfc2hvcnRlbmVkGBYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIG6oIWAjgBEigKF2FjY2Vzc19rZWVwX2RheXNfYmVmb3JlGBcgASgNQgfqghYDggEAEkYKGmRhdGVfYWNjZXNzX2tlZXBfc2hvcnRlbmVkGBggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIG6oIWAjgBGi0KC0xhYmVsc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAE6X8r8FSYSAhABGiASBHBhZ2UaEAoMZGF0ZV9jcmVhdGVkEA8aBgoCaWQQAYq7FjEIATIlChAKDgoMZGF0ZV9jcmVhdGVkCgYKBAoCaWQaBQoDcmVmIBQoZEICCgBIARoAQh9aGGdpdGh1Yi5jb20vbGVzb21udXMvcm92ZZIDAggCYghlZGl0aW9uc3DoBw", [file_google_protobuf_timestamp, file_orm, file_payday]);
+  fileDesc("Chhyb3ZlL3BheWRheS90ZW5hbnQucHJvdG8SBHJvdmUi6AcKBlRlbmFudBIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASGwoFYWxpYXMYBCABKAlCDOqCFgIwAarBFgIYABIUCgRuYW1lGAUgASgJQgaqwRYCGAASFAoEZGVzYxgGIAEoCUIGqsEWAhgAEjAKBmxhYmVscxgHIAMoCzIYLnJvdmUuVGVuYW50LkxhYmVsc0VudHJ5QgaqwRYCGAASOQoMZGF0ZV91cGRhdGVkGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4oBABI7CgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgnqghYFQAGCAQASNwoLZGF0ZV9jbG9zZWQYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESGQoJY2xvc2VkX2J5GAkgASgJQgaqwRYCGAASHAoMY2xvc2VfcmVhc29uGAogASgJQgaqwRYCGAESOAoMZGF0ZV9kZXN0cm95GAsgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIG6oIWAjgBEh8KCHRpbWV6b25lGAwgASgJQg3qghYDggEAqsEWAhgAEh8KCGN1cnJlbmN5GBAgASgJQg3qghYDggEAqsEWAhgAEiAKD25vX3Nob3dfbWludXRlcxgRIAEoBUIH6oIWA4IBABIaCglrZWVwX2RheXMYEiABKA1CB+qCFgOCAQASIQoQYWNjZXNzX2tlZXBfZGF5cxgTIAEoDUIH6oIWA4IBABIdCgxyZXN0b3JlX2RheXMYFCABKA1CB+qCFgOCAQASIQoQa2VlcF9kYXlzX2JlZm9yZRgVIAEoDUIH6oIWA4IBABI/ChNkYXRlX2tlZXBfc2hvcnRlbmVkGBYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIG6oIWAjgBEigKF2FjY2Vzc19rZWVwX2RheXNfYmVmb3JlGBcgASgNQgfqghYDggEAEkYKGmRhdGVfYWNjZXNzX2tlZXBfc2hvcnRlbmVkGBggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIG6oIWAjgBGi0KC0xhYmVsc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAE6X8r8FSYSAhABGiASBHBhZ2UaEAoMZGF0ZV9jcmVhdGVkEA8aBgoCaWQQAYq7FjEIATIlChAKDgoMZGF0ZV9jcmVhdGVkCgYKBAoCaWQaBQoDcmVmIBQoZEICCgBIARoAQh9aGGdpdGh1Yi5jb20vbGVzb21udXMvcm92ZZIDAggCYghlZGl0aW9uc3DoBw", [file_google_protobuf_timestamp, file_orm, file_payday]);
 
 /**
  * Tenant is the wall an app is divided by.
@@ -42,6 +42,21 @@ export type Tenant = Message<"rove.Tenant"> & {
   /**
    * Alias is what a person writes this tenant as, and it is unique across the
    * deployment: `@acme/arm-01` says which tenant before it says which row.
+   *
+   * It and the three after it are **not personal** (#92, #105): a tenant is an
+   * organisation, and what it is called, what is said of it and what is
+   * labelled on it are its own, which the trail keeps -- who renamed which
+   * tenant to what is the record. Said rather than left unsaid because an app
+   * whose overlay declares a field of its tenant personal -- why one was
+   * closed, in somebody's words -- has made it an entity that holds people,
+   * and `pd doctor` asks about each field of free text on it, these too, which
+   * no overlay may declare.
+   *
+   * So an app writes nobody into them. One that would name a tenant after a
+   * person -- the one somebody is given when they sign up -- leaves the name
+   * empty and says it where it is read, after whoever has the tenant now: a
+   * name written here is on the trail as a value, where nothing that forgets
+   * the person reaches it.
    *
    * @generated from field: string alias = 4;
    */

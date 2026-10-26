@@ -16,8 +16,9 @@ import (
 //
 // A workspace is called by its own name, which whoever made it chose -- the
 // account that made it, or an operator (`rove init`) -- and which is nobody's:
-// the name of a thing, which the trail keeps as a value as it keeps any
-// thing's (design 8.2). The workspace an account is given when it arrives
+// the name of a thing, which payday's Tenant declares about no one
+// (payday#180) and the trail keeps as a value, as it keeps any thing's
+// (design 8.2). The workspace an account is given when it arrives
 // ([Workspaces.Arrive]) has none. What it would be called is a person's name,
 // and written there it would be a person in a field about no one -- on the
 // trail as a value, where nothing that forgets them reaches it. So it is said
