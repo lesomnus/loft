@@ -24,14 +24,6 @@ dir=${1:-.}
 # row of them added in the database past the servers. Each says why it is off
 # in its schema (`proto/rove/org.proto`). Whether a way in should be recorded
 # instead, as doctor suggests, is open; these are known, not decided.
-#
-# And since a workspace keeps why it was closed as personal (`close_reason`,
-# design D56): payday's own fields of its Tenant, 4 to 7, which an overlay may
-# not declare -- `pd gen` refuses one that changes a number of payday's --
-# and which payday's Tenant leaves undeclared. Which they are is payday's to
-# say. Rove writes nobody into them (D57): the workspace an account is given
-# when it arrives has no name, and is called after its owner where it is read
-# (`server/tenancy`). Known, until payday says they are about no one.
 known=(
 	# A code a browser carries to a workspace's domain, good once for a minute.
 	"rove.Handoff is kept off the trail and holds a secret (secret, state), so nothing finds one of its rows added past the servers"
@@ -39,8 +31,6 @@ known=(
 	"rove.Session is kept off the trail and holds a secret (secret, held), so nothing finds one of its rows added past the servers"
 	# The sign-ins an address got wrong, kept for hours to slow the next.
 	"rove.SignInFailure is kept off the trail and holds a secret (subject), so nothing finds one of its rows added past the servers"
-	# payday's Tenant's alias, name, desc and labels, which only payday declares.
-	"rove.Tenant holds people and says nothing of alias, name, desc, labels"
 )
 
 # What it says goes to stdout and what stops it to stderr, which is left to

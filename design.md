@@ -609,7 +609,7 @@ byte·초는 `numeric`으로 곱한다. bigint로는 31일 달 기준 테넌트�
   | `TenantContract.name·desc`, `LegalHold.name·desc` | 운영자가 쓰는 배포의 기록. 계약의 이름과 조건, 법적 보존의 사건 | 아님. 운영자가 고객 조직과의 계약과 법적 의무를 적은 것이다. 법적 보존은 그 자체가 증거라 무엇 때문이었는지 trail에 남아야 하고, 삭제 요청보다 앞선다(위). 사건은 사람 이름보다 사건 번호로 적는다 |
   | `Party`, `Holder`, `Invitation.email`, `Notification.name·desc`, `Event.reason` | 이미 personal | 그대로 |
   | 초대, 동의 | 초대에는 자유 텍스트가 없고 주소는 personal이다. 동의는 roster의 원장으로 옮겼다(D37) | 해당 없음 |
-  | `Tenant.alias·name·desc·labels` | payday의 Tenant 필드(4~7). 워크스페이스의 주소, 이름, 설명, 라벨이다. 처음 들어온 계정에 만드는 워크스페이스에는 이름을 쓰지 않고, 읽을 때 소유자의 이름으로 부른다(D57, 9.11절) | 아님. 워크스페이스가 무엇이라 불리는지와 무엇인지다. 선언은 payday가 한다. overlay는 payday의 필드를 선언할 수 없으므로, 그때까지 `pd doctor`가 묻는 것을 `scripts/doctor.sh`가 알려진 것으로 둔다 |
+  | `Tenant.alias·name·desc·labels` | payday의 Tenant 필드(4~7). 워크스페이스의 주소, 이름, 설명, 라벨이다. 처음 들어온 계정에 만드는 워크스페이스에는 이름을 쓰지 않고, 읽을 때 소유자의 이름으로 부른다(D57, 9.11절) | 아님. 워크스페이스가 무엇이라 불리는지와 무엇인지다. overlay는 payday의 필드를 선언할 수 없어, payday가 `personal: false`로 선언한다(payday#180). 그 전에는 `pd doctor`가 묻는 것을 `scripts/doctor.sh`가 알려진 것으로 두었다 |
 
   - **이 판 전에 trail에 남은 값은 비우지 않는다.** 선언 전에 쓴 행의 trail 줄은 그 값을 그대로 갖는다. 마이그레이션으로 비우지 않은 이유는 셋이다.
     1. 운영 배포가 없고, 스테이징의 데이터는 버려도 되는 시험 데이터다. 그런 값은 스테이징과 개발 DB에만 있다.
