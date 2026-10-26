@@ -196,7 +196,7 @@ test('a kit is picked up with the members its booking holds, and without one it 
 	await expect(page.getByRole('heading', { level: 1 })).toHaveText(`대여: ${people.approver.name}`)
 })
 
-test('a pool books as many as its members in use, and the booking made last waits once one is disposed of, until it has one again', async ({ page }) => {
+test('a pool books as many as its members in use, the booking made last waits once one is disposed of until it has one again, and each is picked up as a camera of its own', async ({ page }) => {
 	const n = Math.random().toString(36).slice(2, 7).toUpperCase()
 	const tag = { pool: `EP-${n}`, one: `EQ-${n}`, two: `ER-${n}`, three: `ES-${n}` }
 	const name = unique('e2e 카메라 풀')
@@ -256,6 +256,35 @@ test('a pool books as many as its members in use, and the booking made last wait
 	await rpc(page, 'AssetService/Relate', { ref: { id: three.id }, target: { id: pool.id }, kind: 'member_of' })
 	await page.reload()
 	await expect(waiting).not.toContainText('수량 부족')
+
+	// The first booking picked up: it is offered the first of the cameras
+	// there are, by tag, and the other may be ticked instead (D46).
+	await page.getByRole('row').filter({ hasText: first }).click()
+	await page.getByRole('dialog').getByRole('button', { name: '수령 처리 (대여)' }).click()
+	const pickup = page.getByRole('dialog')
+	const out = pickup.getByRole('list', { name: '건넬 자산' })
+	await expect(out.getByRole('listitem')).toHaveCount(1)
+	await expect(out).toContainText(tag.one)
+	const units = pickup.getByRole('group', { name: `${name}에서 1개` })
+	await expect(units.getByRole('checkbox')).toHaveCount(2)
+	await expect(units.getByRole('checkbox', { name: tag.one })).toBeChecked()
+	await units.getByRole('checkbox', { name: tag.one }).uncheck()
+	await units.getByRole('checkbox', { name: tag.three }).check()
+	await expect(out.getByRole('listitem')).toHaveCount(1)
+	await expect(out).toContainText(tag.three)
+	await pickup.getByRole('button', { name: '건네기', exact: true }).click()
+	await said(page, '건넸습니다. 받은 사람에게 인수 확인 알림이 갑니다.')
+	await expect(page.getByRole('heading', { level: 1 })).toHaveText(/^대여: /)
+
+	// The camera handed out is that booking's until it ends: the other's
+	// pickup is offered the one left, and not that one.
+	await page.goto(`${workspace}/reservations?tab=mine`)
+	await page.getByRole('row').filter({ hasText: later }).click()
+	await page.getByRole('dialog').getByRole('button', { name: '수령 처리 (대여)' }).click()
+	const next = page.getByRole('dialog')
+	await expect(next.getByRole('list', { name: '건넬 자산' })).toContainText(tag.one)
+	await expect(next.getByRole('group', { name: `${name}에서 1개` }).getByRole('checkbox')).toHaveCount(1)
+	await expect(next.getByRole('list', { name: '건넬 자산' })).not.toContainText(tag.three)
 })
 
 test('what is disposed of, or found lost by a count, is offered out of its kit; what is kept in it is said of its booking, whose booker is told; and the kit is picked up without them', async ({ page, as }) => {

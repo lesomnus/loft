@@ -11323,23 +11323,6 @@ func (m *ReservationItemMutation) OldUnits(ctx context.Context) (v uint32, err e
 	return oldValue.Units, nil
 }
 
-// OldAssignedId returns the old "assigned_id" field's value of the ReservationItem entity.
-// If the ReservationItem object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ReservationItemMutation) OldAssignedId(ctx context.Context) (v *uuid.UUID, err error) {
-	if !m.Op().Is(OpUpdateOne) {
-		return v, errors.New("OldAssignedId is only allowed on UpdateOne operations")
-	}
-	if _, exists := m.Id(); !exists || m.oldValue == nil {
-		return v, errors.New("OldAssignedId requires an Id field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldAssignedId: %w", err)
-	}
-	return oldValue.AssignedId, nil
-}
-
 // OldDateUpdated returns the old "date_updated" field's value of the ReservationItem entity.
 // If the ReservationItem object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
@@ -11432,8 +11415,6 @@ func (m *ReservationItemMutation) OldField(ctx context.Context, name string) (en
 	switch name {
 	case reservationitem.FieldUnits:
 		return m.OldUnits(ctx)
-	case reservationitem.FieldAssignedId:
-		return m.OldAssignedId(ctx)
 	case reservationitem.FieldDateUpdated:
 		return m.OldDateUpdated(ctx)
 	case reservationitem.FieldDateCreated:

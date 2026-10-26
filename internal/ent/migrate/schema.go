@@ -1558,7 +1558,6 @@ var (
 	ReservationitemColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUuid, Unique: true},
 		{Name: "units", Type: field.TypeUint32},
-		{Name: "assigned_id", Type: field.TypeUuid, Nullable: true},
 		{Name: "date_updated", Type: field.TypeTime},
 		{Name: "date_created", Type: field.TypeTime, Nullable: true},
 		{Name: "tenant_id", Type: field.TypeUuid},
@@ -1573,19 +1572,19 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "reservationitem_tenant_tenant",
-				Columns:    []*schema.Column{ReservationitemColumns[5]},
+				Columns:    []*schema.Column{ReservationitemColumns[4]},
 				RefColumns: []*schema.Column{TenantColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "reservationitem_reservation_reservation",
-				Columns:    []*schema.Column{ReservationitemColumns[6]},
+				Columns:    []*schema.Column{ReservationitemColumns[5]},
 				RefColumns: []*schema.Column{ReservationColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "reservationitem_asset_resource",
-				Columns:    []*schema.Column{ReservationitemColumns[7]},
+				Columns:    []*schema.Column{ReservationitemColumns[6]},
 				RefColumns: []*schema.Column{AssetColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -1594,12 +1593,12 @@ var (
 			{
 				Name:    "reservationitem_page",
 				Unique:  false,
-				Columns: []*schema.Column{ReservationitemColumns[5], ReservationitemColumns[4], ReservationitemColumns[0]},
+				Columns: []*schema.Column{ReservationitemColumns[4], ReservationitemColumns[3], ReservationitemColumns[0]},
 			},
 			{
 				Name:    "reservationitem_reservation",
 				Unique:  false,
-				Columns: []*schema.Column{ReservationitemColumns[6]},
+				Columns: []*schema.Column{ReservationitemColumns[5]},
 			},
 		},
 	}

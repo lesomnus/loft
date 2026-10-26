@@ -32,20 +32,6 @@ func (_c *ReservationItemCreate) SetUnits(v uint32) *ReservationItemCreate {
 	return _c
 }
 
-// SetAssignedId sets the "assigned_id" field.
-func (_c *ReservationItemCreate) SetAssignedId(v uuid.UUID) *ReservationItemCreate {
-	_c.mutation.SetAssignedId(v)
-	return _c
-}
-
-// SetNillableAssignedId sets the "assigned_id" field if the given value is not nil.
-func (_c *ReservationItemCreate) SetNillableAssignedId(v *uuid.UUID) *ReservationItemCreate {
-	if v != nil {
-		_c.SetAssignedId(*v)
-	}
-	return _c
-}
-
 // SetDateUpdated sets the "date_updated" field.
 func (_c *ReservationItemCreate) SetDateUpdated(v time.Time) *ReservationItemCreate {
 	_c.mutation.SetDateUpdated(v)
@@ -220,10 +206,6 @@ func (_c *ReservationItemCreate) createSpec() (*ReservationItem, *sqlgraph.Creat
 	if value, ok := _c.mutation.Units(); ok {
 		_spec.SetField(reservationitem.FieldUnits, field.TypeUint32, value)
 		_node.Units = value
-	}
-	if value, ok := _c.mutation.AssignedId(); ok {
-		_spec.SetField(reservationitem.FieldAssignedId, field.TypeUuid, value)
-		_node.AssignedId = &value
 	}
 	if value, ok := _c.mutation.DateUpdated(); ok {
 		_spec.SetField(reservationitem.FieldDateUpdated, field.TypeTime, value)

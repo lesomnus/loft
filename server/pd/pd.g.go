@@ -22763,6 +22763,11 @@ func (s interceptReservation) Timeline(ctx context.Context, req *rove.Reservatio
 		rove.ReservationService_Timeline_FullMethodName, req, s.ReservationServiceServer.Timeline)
 }
 
+func (s interceptReservation) Pickup(ctx context.Context, req *rove.ReservationPickupRequest) (*rove.ReservationPickupResponse, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.ReservationServiceServer,
+		rove.ReservationService_Pickup_FullMethodName, req, s.ReservationServiceServer.Pickup)
+}
+
 func (s Intercept) ReservationItem() rove.ReservationItemServiceServer {
 	return interceptReservationItem{s, s.Next().ReservationItem()}
 }
@@ -26514,6 +26519,8 @@ func unpack(op *pdpb.Op) (proto.Message, error) {
 		v = &rove.ReservationCalendarRequest{}
 	case rove.ReservationService_Timeline_FullMethodName:
 		v = &rove.ReservationTimelineRequest{}
+	case rove.ReservationService_Pickup_FullMethodName:
+		v = &rove.ReservationPickupRequest{}
 	case rove.ReservationItemService_Add_FullMethodName:
 		v = &rove.ReservationItemAddRequest{}
 	case rove.ReservationItemService_Get_FullMethodName:
@@ -27072,6 +27079,8 @@ func dispatch(ctx context.Context, s rove.Server, m string, v proto.Message) (*a
 		res, err = s.Reservation().Calendar(ctx, v.(*rove.ReservationCalendarRequest))
 	case rove.ReservationService_Timeline_FullMethodName:
 		res, err = s.Reservation().Timeline(ctx, v.(*rove.ReservationTimelineRequest))
+	case rove.ReservationService_Pickup_FullMethodName:
+		res, err = s.Reservation().Pickup(ctx, v.(*rove.ReservationPickupRequest))
 	case rove.ReservationItemService_Add_FullMethodName:
 		res, err = s.ReservationItem().Add(ctx, v.(*rove.ReservationItemAddRequest))
 	case rove.ReservationItemService_Get_FullMethodName:

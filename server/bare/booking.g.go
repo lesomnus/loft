@@ -1514,13 +1514,6 @@ func (st ReservationItemServiceServer) create(ctx context.Context, req *rove.Res
 		})
 	}
 	q.SetUnits(req.GetUnits())
-	if req.HasAssignedId() {
-		if v, err := entuuid.FromBytes(req.GetAssignedId()); err != nil {
-			return nil, nil, status.Errorf(codes.InvalidArgument, "assigned_id: %s", err)
-		} else {
-			q.SetAssignedId(v)
-		}
-	}
 	q.SetDateUpdated(st.now())
 	if req.HasDateCreated() {
 		q.SetDateCreated(req.GetDateCreated().AsTime())
@@ -1657,9 +1650,6 @@ func ReservationItemSelectedFields(m *rove.ReservationItemSelect) []string {
 	if m.GetUnits() {
 		vs = append(vs, reservationitem.FieldUnits)
 	}
-	if m.GetAssignedId() {
-		vs = append(vs, reservationitem.FieldAssignedId)
-	}
 	if m.GetDateUpdated() {
 		vs = append(vs, reservationitem.FieldDateUpdated)
 	}
@@ -1747,7 +1737,7 @@ func ReservationItemGetKey(ctx context.Context, db *ent.Client, ref *rove.Reserv
 var reservationItemOrmEntity = ormpatch.MustEntityOf(rove.File_rove_booking_proto, "ReservationItem")
 
 var reservationItemPatchColumns = entpatch.Columns{
-	1: reservationitem.FieldId, 2: reservationitem.TenantColumn, 8: reservationitem.ReservationColumn, 9: reservationitem.ResourceColumn, 10: reservationitem.FieldUnits, 11: reservationitem.FieldAssignedId, 13: reservationitem.FieldDateUpdated, 15: reservationitem.FieldDateCreated}
+	1: reservationitem.FieldId, 2: reservationitem.TenantColumn, 8: reservationitem.ReservationColumn, 9: reservationitem.ResourceColumn, 10: reservationitem.FieldUnits, 13: reservationitem.FieldDateUpdated, 15: reservationitem.FieldDateCreated}
 
 func (s ReservationItemServiceServer) Apply(ctx context.Context, req *rove.ReservationItemApplyRequest) (*rove.ReservationItem, error) {
 	if !req.HasPatch() {

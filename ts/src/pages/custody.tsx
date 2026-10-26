@@ -274,12 +274,27 @@ function Extend(props: { c: Custody; onClose: () => void }): ReactNode {
 }
 
 /**
+ * What a hand-over may pick among: of a pickup, a pool's units free for the
+ * reservation, as many as it holds put in to begin with (D46).
+ */
+export type Choice = { label: string; hint?: string; assets: Asset[] }
+
+/**
  * Handing things over: assets one by one, and quantities out of stock. `note`
  * is what the one handing them over is to know first -- of a pickup, what the
  * reservation does not hold, or holds and may not hand over. `due` makes it a
- * loan due back then, as a pickup is: when its reservation ends.
+ * loan due back then, as a pickup is: when its reservation ends. `choices` is
+ * what may be picked instead of what it begins with, by ticking.
  */
-export function NewCustody(props: { assets: Asset[]; party?: string; reservation?: Uint8Array; due?: Date; note?: ReactNode; onClose: () => void }): ReactNode {
+export function NewCustody(props: {
+	assets: Asset[]
+	party?: string
+	reservation?: Uint8Array
+	due?: Date
+	note?: ReactNode
+	choices?: Choice[]
+	onClose: () => void
+}): ReactNode {
 	const act = useAct()
 	const go = useNavigate()
 	const [party, setParty] = useState(props.party ?? '')
@@ -323,6 +338,22 @@ export function NewCustody(props: { assets: Asset[]; party?: string; reservation
 			}}
 		>
 			{props.note !== undefined && <div className="wide">{props.note}</div>}
+			{(props.choices ?? []).map((c) => (
+				<Field key={c.label} label={c.label} hint={c.hint} wide group>
+					<div className="boxes">
+						{c.assets.map((a) => (
+							<label key={idStr(a.id)} className="check">
+								<input
+									type="checkbox"
+									checked={assets.some((x) => sameId(x.id, a.id))}
+									onChange={(e) => setAssets(e.target.checked ? [...assets, a] : assets.filter((x) => !sameId(x.id, a.id)))}
+								/>{' '}
+								<code>{a.tag}</code> {a.name}
+							</label>
+						))}
+					</div>
+				</Field>
+			))}
 			<Field label="받는 사람 *">
 				<PartySelect value={party} onChange={setParty} kinds={['person', 'team']} required />
 			</Field>

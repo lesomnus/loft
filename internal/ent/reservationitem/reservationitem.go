@@ -14,8 +14,6 @@ const (
 	FieldId = "id"
 	// FieldUnits holds the string denoting the units field in the database.
 	FieldUnits = "units"
-	// FieldAssignedId holds the string denoting the assigned_id field in the database.
-	FieldAssignedId = "assigned_id"
 	// FieldDateUpdated holds the string denoting the date_updated field in the database.
 	FieldDateUpdated = "date_updated"
 	// FieldDateCreated holds the string denoting the date_created field in the database.
@@ -61,7 +59,6 @@ const (
 var Columns = []string{
 	FieldId,
 	FieldUnits,
-	FieldAssignedId,
 	FieldDateUpdated,
 	FieldDateCreated,
 	FieldTenantId,
@@ -90,11 +87,6 @@ func ById(opts ...sql.OrderTermOption) OrderOption {
 // ByUnits orders the results by the units field.
 func ByUnits(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUnits, opts...).ToFunc()
-}
-
-// ByAssignedId orders the results by the assigned_id field.
-func ByAssignedId(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldAssignedId, opts...).ToFunc()
 }
 
 // ByDateUpdated orders the results by the date_updated field.
