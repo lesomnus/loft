@@ -366,6 +366,16 @@ func newCmdTenantImport(c *cmd.Config) *xli.Command {
 			}
 			if !yes {
 				self.Printf("(nothing was put back: `--yes` does it)\n")
+				return nil
+			}
+			// What an export from a build before a hand-over held its things
+			// had out, which holds their time now as anything out does (D53).
+			held, err := s.Deps.HoldOut(ctx, s.Base, s.Drv, x.Tenant)
+			if err != nil {
+				return fmt.Errorf("what @%s has out: %w", x.Alias, err)
+			}
+			if held > 0 {
+				self.Printf("  what it has out holds its time: %d things, held from when they were handed over\n", held)
 			}
 			return nil
 		}),

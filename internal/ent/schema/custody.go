@@ -81,6 +81,8 @@ func (Custody) Indexes() []ent.Index {
 			StorageKey("custody_open"),
 		index.Fields("reservation_id").
 			StorageKey("custody_reservation"),
+		index.Fields("tenant_id", "issued_at").
+			StorageKey("custody_issued"),
 	}
 }
 

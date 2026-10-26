@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
 import type { Asset } from '../../gen/rove/asset_pb.js'
 import type { Custody, CustodyLine } from '../../gen/rove/custody_pb.js'
-import { AssetService, CustodyLineService, CustodyService, StockService, dateOf, fmt, fromInput, idBytes, idStr, localInput, op, ref, sameId, ts } from '../api.js'
+import { AssetService, BookableService, CustodyLineService, CustodyService, StockService, dateOf, fmt, fromInput, idBytes, idStr, localInput, minute, op, ref, sameId, ts } from '../api.js'
 import { useCatalog } from '../catalog.js'
 import { AssetLink, AssetPicker, PartySelect, SpaceSelect } from '../pickers.js'
 import { useAct, useRpc } from '../rpc.js'
@@ -391,6 +391,7 @@ export function NewCustody(props: {
 					))}
 				</ul>
 			)}
+			<Booked assets={assets} due={kind === 'loan' && due !== '' ? fromInput(due) : undefined} reservation={props.reservation} />
 			<Field label="재고에서">
 				<Select
 					value={stock}
@@ -439,5 +440,44 @@ export function NewCustody(props: {
 				<Link to="/scan">스캔</Link>으로도 자산을 찾을 수 있습니다.
 			</p>
 		</FormModal>
+	)
+}
+
+/** The longest a calendar of what is taken is read over at once. */
+const quarter = 91 * 86400_000
+
+/**
+ * What is booked of what is about to be handed over over the time it would be
+ * out (D53): until a loan is due back, and the buffer after it; of an issue,
+ * which is out until it is returned, the next three months. It is handed out
+ * all the same, and each of those reservations keeps its time, says it is
+ * out, and is told -- whoever booked it, and whoever runs the reservations.
+ * Of a pickup, its own reservation is none of it.
+ */
+function Booked(props: { assets: Asset[]; due: Date | undefined; reservation?: Uint8Array }): ReactNode {
+	const c = useCatalog()
+	const from = minute()
+	const buffer = Math.max(0, ...props.assets.map((a) => c.bookable(a.id)?.bufferAfter ?? 0))
+	const to = props.due === undefined ? new Date(from.getTime() + quarter) : new Date(Math.min(props.due.getTime() + buffer * 60_000, from.getTime() + quarter))
+	const ids = props.assets.map((a) => a.id)
+	const busy = useRpc(BookableService.method.availability, ids.length === 0 || to <= from ? null : { resources: ids.map(ref), from: ts(from), to: ts(to) })
+	const booked = (busy.data?.busy ?? []).filter((b) => (b.kind === 'reservation' || b.kind === 'override') && (props.reservation === undefined || !sameId(b.refId, props.reservation)))
+	if (booked.length === 0) return null
+	const named = (id: Uint8Array) => {
+		const a = props.assets.find((x) => sameId(x.id, id))
+		return a === undefined ? '' : `${a.tag} ${a.name}`
+	}
+	return (
+		<div className="note warn wide" role="note" aria-label="겹치는 예약">
+			<strong>겹치는 예약</strong>
+			<ul>
+				{booked.map((b) => (
+					<li key={`${idStr(b.resourceId)}-${idStr(b.refId)}`}>
+						{`${named(b.resourceId)}: '${b.label}' ${fmt(b.beginsAt)} – ${fmt(b.endsAt, 'time')}`}
+					</li>
+				))}
+			</ul>
+			<p className="small">건네도 그 예약은 시간을 그대로 잡고 나가 있는 자산으로 보이며, 예약한 사람과 관리자에게 알립니다. 돌아오기 전에는 그 예약의 수령 때 건넬 수 없습니다.</p>
+		</div>
 	)
 }

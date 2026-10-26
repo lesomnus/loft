@@ -25,6 +25,7 @@ var Mailed = map[string]bool{
 	"domain.lapsed":          true, // a workspace's domain taken out of use, to who runs it
 	"reservation.conflict":   true, // a kit's member, or a pool's units, its reservation waits for, to who runs it and whose it is
 	"reservation.out_of_use": true, // an item a reservation takes is out of use, to who runs it and whose it is
+	"reservation.out":        true, // a thing a reservation takes is out with somebody over its time, to who runs it and whose it is
 }
 
 // ToldWhy is the kinds of notification whose words are a person's -- the

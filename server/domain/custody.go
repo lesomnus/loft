@@ -101,15 +101,28 @@ func (s domainCustody) Add(ctx context.Context, req *app.CustodyAddRequest) (*ap
 		if req.HasDueAt() {
 			row.SetDueAt(req.GetDueAt())
 		}
-		var picked *ent.Reservation
+		// What it hands over, whose time it holds from now on (hold.go).
 		things := []uuid.UUID{}
+		for i, l := range req.GetLines() {
+			if !l.HasAsset() {
+				continue
+			}
+			_, aid, err := t.get(l.GetAsset(), fmt.Sprintf("lines[%d].asset", i))
+			if err != nil {
+				return err
+			}
+			things = append(things, aid.Uuid())
+		}
+		var picked *ent.Reservation
+		var rid pdid.Id
+		also := []uuid.UUID{}
 		if len(req.GetReservationId()) > 0 {
 			// A pickup fulfils a reservation: it is in use from now, and what
 			// it held is now held by this custody instead. Held first and read
 			// after ([Tx.lockReservations]): a no-show sweep at the same moment
 			// is one or the other, and not a custody against a no-show.
-			rid, err := pdid.From(req.GetReservationId())
-			if err != nil {
+			var err error
+			if rid, err = pdid.From(req.GetReservationId()); err != nil {
 				return invalid("reservation_id", "예약 식별자가 올바르지 않습니다")
 			}
 			if err := t.lockReservations(rid); err != nil {
@@ -122,6 +135,23 @@ func (s domainCustody) Add(ctx context.Context, req *app.CustodyAddRequest) (*ap
 			if r.GetStatus() != resConfirmed {
 				return failed("예약이 %s 상태입니다. 확정된 예약만 수령할 수 있습니다", or(reservationSay[r.GetStatus()], r.GetStatus()))
 			}
+			if also, err = t.allocated(rid); err != nil {
+				return err
+			}
+		}
+		// What it hands over, and what goes out with it, and what a booking
+		// of any of it holds -- with what the reservation it fulfils holds --
+		// held before anything of them is read: a booking of any of it at the
+		// same moment is one this hand-over sees, or one that sees what this
+		// holds (hold.go).
+		held, err := t.heldWith(things)
+		if err != nil {
+			return err
+		}
+		if err := t.holdThings(held, also); err != nil {
+			return err
+		}
+		if !rid.IsZero() {
 			// Nor through what it booked that is out of use and is handed
 			// over as what it is made of -- a kit, a group -- or is no
 			// hand-over's (D43), read as what it booked is held
@@ -129,19 +159,6 @@ func (s domainCustody) Add(ctx context.Context, req *app.CustodyAddRequest) (*ap
 			// handed over, a line at a time, below. And what it hands out
 			// held with it: of a pool it booked, what it hands out is its
 			// own from now on ([Tx.handOver]).
-			for i, l := range req.GetLines() {
-				if !l.HasAsset() {
-					continue
-				}
-				_, aid, err := t.get(l.GetAsset(), fmt.Sprintf("lines[%d].asset", i))
-				if err != nil {
-					return err
-				}
-				things = append(things, aid.Uuid())
-			}
-			if err := t.lockAllocations(rid, things...); err != nil {
-				return err
-			}
 			gone, err := t.unusable(rid.Uuid())
 			if err != nil {
 				return err
@@ -153,7 +170,7 @@ func (s domainCustody) Add(ctx context.Context, req *app.CustodyAddRequest) (*ap
 				return err
 			}
 			if _, err := t.next.Reservation().Patch(t.ctx, app.ReservationPatchRequest_builder{
-				Ref:              app.ReservationRef_builder{Id: r.GetId()}.Build(),
+				Ref:              app.ReservationRef_builder{Id: rid.Bytes()}.Build(),
 				Status:           z.Ptr(resInUse),
 				CheckedInAt:      ts(t.now),
 				DateUpdatedForce: z.Ptr(true),
@@ -239,6 +256,18 @@ func (s domainCustody) Add(ctx context.Context, req *app.CustodyAddRequest) (*ap
 				return err
 			}
 		}
+		// And what it hands out is out from now on, which takes its time
+		// until it is due back, or back (D53): what was booked of it then
+		// says so, and a pool it is one of has one fewer to give. After the
+		// pickup has made what it hands out its own, which this is then of
+		// too.
+		k, err := t.custodyOf(id.Uuid())
+		if err != nil {
+			return err
+		}
+		if err := t.hold(k, things, t.now); err != nil {
+			return err
+		}
 
 		if err := t.notifyParty(uuidOf(p.GetId()), "custody.issued", "인수 확인 요청",
 			fmt.Sprintf("%d건을 받으셨다면 인수 확인을 눌러 주세요", len(req.GetLines())), id, "/custody"); err != nil {
@@ -319,6 +348,40 @@ func (s domainCustody) Return(ctx context.Context, req *app.CustodyReturnRequest
 		want := map[string]*app.CustodyReturnLine{}
 		for _, l := range req.GetLines() {
 			want[string(l.GetLine().GetId())] = l
+		}
+		// What comes back of the assets out, and what stays out.
+		back, still := []uuid.UUID{}, []uuid.UUID{}
+		for _, l := range lines {
+			if l.AssetId == (uuid.UUID{}) || l.Quantity-l.ReturnedQuantity <= 0 {
+				continue
+			}
+			if _, ok := want[string(pdid.Id(l.Id).Bytes())]; len(want) > 0 && !ok {
+				still = append(still, l.AssetId)
+				continue
+			}
+			back = append(back, l.AssetId)
+		}
+		// The reservation it fulfilled first, whose row everything that
+		// changes it takes before its schedules (rove#35); and then what
+		// comes back, and what a booking of any of it holds, at once, with
+		// what the reservation holds: what this lets go of of their time is
+		// theirs to give to what waits for it ([Tx.letGo], [Tx.heal]).
+		var also []uuid.UUID
+		if len(c.GetReservationId()) > 0 {
+			rid := idOf(c.GetReservationId())
+			if err := t.lockReservations(rid); err != nil {
+				return err
+			}
+			if also, err = t.allocated(rid); err != nil {
+				return err
+			}
+		}
+		gone, err := t.heldWith(back)
+		if err != nil {
+			return err
+		}
+		if err := t.holdThings(gone, also); err != nil {
+			return err
 		}
 
 		var to *app.Asset
@@ -431,22 +494,26 @@ func (s domainCustody) Return(ctx context.Context, req *app.CustodyReturnRequest
 		if out, err = t.next.Custody().Patch(t.ctx, patch); err != nil {
 			return err
 		}
+		// What came back is out no more: what its hand-over held of the rest
+		// of its time is let go of, for whatever waits for it (D53).
+		k, err := t.custodyOf(cid.Uuid())
+		if err != nil {
+			return err
+		}
+		if err := t.letGo(k, back, still, at); err != nil {
+			return err
+		}
 		if open > 0 || len(c.GetReservationId()) == 0 {
 			return nil
 		}
 
 		// Everything is back, so the reservation it fulfilled is over and
-		// whatever time it still held is free -- if it is still in use once
-		// this holds it ([Tx.lockReservations]).
-		if err := t.lockReservations(idOf(c.GetReservationId())); err != nil {
-			return err
-		}
+		// whatever time it still held is free -- if it is still in use, as
+		// it is read once this holds it (above, [Tx.lockReservations]),
+		// with what it holds.
 		r, err := t.db.Reservation.Query().Where(reservation.Id(uuidOf(c.GetReservationId())), reservation.TenantId(t.tenant.Uuid())).Only(t.ctx)
 		if err != nil || r.Status != resInUse {
 			return nil
-		}
-		if err := t.lockAllocations(pdid.Id(r.Id)); err != nil {
-			return err
 		}
 		if _, err := t.next.Reservation().Patch(t.ctx, app.ReservationPatchRequest_builder{
 			Ref:              app.ReservationRef_builder{Id: pdid.Id(r.Id).Bytes()}.Build(),
@@ -463,10 +530,18 @@ func (s domainCustody) Return(ctx context.Context, req *app.CustodyReturnRequest
 	return out, err
 }
 
-// Extend moves a loan's due date.
+// Extend moves a loan's due date -- and with it the time what it lent holds
+// (D53): later takes more of what was booked of it, and sooner lets go of the
+// rest. An issue so made a loan holds until it is due.
 func (s domainCustody) Extend(ctx context.Context, req *app.CustodyExtendRequest) (*app.Custody, error) {
 	var out *app.Custody
 	err := s.tx(ctx, func(t *Tx) error {
+		// The tree's lock first, as a hand-over and a return take it, and
+		// the moment after it ([Tx.lockTree]): what is out is read as
+		// nothing else changes it.
+		if err := t.lockTree(); err != nil {
+			return err
+		}
 		c, err := t.next.Custody().Get(t.ctx, app.CustodyGetRequest_builder{Ref: req.GetRef()}.Build())
 		if err != nil {
 			return err
@@ -477,7 +552,21 @@ func (s domainCustody) Extend(ctx context.Context, req *app.CustodyExtendRequest
 		if !req.HasDueAt() || !req.GetDueAt().AsTime().After(t.now) {
 			return invalid("due_at", "반납 기한은 지금 이후여야 합니다")
 		}
-		if err := t.begin(nil, "custody.extend", idOf(c.GetId()), t.now, "", app.CustodyExtended_builder{Custody: c.GetId(), Due: req.GetDueAt()}.Build()); err != nil {
+		// What it holds the time of, and what a booking of any of it holds,
+		// before it moves (hold.go).
+		cid := idOf(c.GetId())
+		hs, err := t.holdsOf(cid.Uuid())
+		if err != nil {
+			return err
+		}
+		things := make([]uuid.UUID, 0, len(hs))
+		for _, h := range hs {
+			things = append(things, h.ResourceId)
+		}
+		if err := t.holdThings(things, nil); err != nil {
+			return err
+		}
+		if err := t.begin(nil, "custody.extend", cid, t.now, "", app.CustodyExtended_builder{Custody: c.GetId(), Due: req.GetDueAt()}.Build()); err != nil {
 			return err
 		}
 		out, err = t.next.Custody().Patch(t.ctx, app.CustodyPatchRequest_builder{
@@ -487,7 +576,14 @@ func (s domainCustody) Extend(ctx context.Context, req *app.CustodyExtendRequest
 			OverdueNoticed:   z.Ptr(false),
 			DateUpdatedForce: z.Ptr(true),
 		}.Build())
-		return err
+		if err != nil {
+			return err
+		}
+		k, err := t.custodyOf(cid.Uuid())
+		if err != nil {
+			return err
+		}
+		return t.rehold(k)
 	})
 	return out, err
 }

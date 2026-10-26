@@ -409,6 +409,7 @@ var IndexRenames = []rename.Index{
 	{Table: "custody", From: "custody_party_id_issued_at", To: "custody_party"},
 	{Table: "custody", From: "custody_tenant_id_status_due_at", To: "custody_open"},
 	{Table: "custody", From: "custody_reservation_id", To: "custody_reservation"},
+	{Table: "custody", From: "custody_tenant_id_issued_at", To: "custody_issued"},
 	{Table: "custodyline", From: "custodyline_tenant_id_date_created_id", To: "custodyline_page"},
 	{Table: "custodyline", From: "custodyline_custody_id", To: "custodyline_custody"},
 	{Table: "custodyline", From: "custodyline_asset_id", To: "custodyline_asset"},
