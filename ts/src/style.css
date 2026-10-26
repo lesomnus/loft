@@ -1052,6 +1052,34 @@ ol.timeline li.placement .icon {
 ol.timeline li.stewardship .icon {
 	color: var(--ok);
 }
+/* A reservation's history, in its dialog (D45): narrower, and what one
+   operation did to it under the operation. */
+.history {
+	margin-top: 14px;
+}
+.history h3 {
+	font-size: 13.5px;
+	margin-bottom: 2px;
+}
+ol.timeline.compact li {
+	grid-template-columns: 150px 1fr;
+	grid-template-areas: 'when what' 'when who';
+	padding: 6px 0;
+}
+ol.timeline.compact > li:last-child {
+	border-bottom: 0;
+}
+ol.timeline ul.parts {
+	list-style: none;
+	margin: 4px 0 0;
+	padding-left: 10px;
+	border-left: 2px solid var(--line);
+}
+ol.timeline ul.parts li {
+	display: block;
+	padding: 1px 0;
+	border-bottom: 0;
+}
 
 /* spaces */
 ul.tree,
@@ -1558,6 +1586,10 @@ ul.consent > li > a {
 	.inbox li {
 		flex-direction: column;
 		align-items: stretch;
+	}
+	ol.timeline.compact li {
+		grid-template-columns: 1fr;
+		grid-template-areas: 'when' 'what' 'who';
 	}
 }
 

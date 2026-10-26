@@ -725,7 +725,7 @@ var File_rove_custody_proto protoreflect.FileDescriptor
 
 const file_rove_custody_proto_rawDesc = "" +
 	"\n" +
-	"\x12rove/custody.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x10rove/asset.proto\x1a\x0erove/org.proto\x1a\x10rove/stock.proto\x1a\x18rove/payday/tenant.proto\"\x82\b\n" +
+	"\x12rove/custody.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x10rove/asset.proto\x1a\x0erove/org.proto\x1a\x10rove/stock.proto\x1a\x18rove/payday/tenant.proto\"\xa5\b\n" +
 	"\aCustody\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x12\n" +
@@ -745,13 +745,14 @@ const file_rove_custody_proto_rawDesc = "" +
 	"returnedAt\x12/\n" +
 	"\x0ereservation_id\x18\x12 \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\rreservationId\x12%\n" +
 	"\tissued_by\x18\x13 \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\bissuedBy\x12'\n" +
-	"\x0foverdue_noticed\x18\x14 \x01(\bR\x0eoverdueNoticed:\xd2\x01\xca\xfc\x15U\x12\x02\x10\x01\x1a,\x12\x04page\x1a\n" +
+	"\x0foverdue_noticed\x18\x14 \x01(\bR\x0eoverdueNoticed:\xf5\x01\xca\xfc\x15x\x12\x02\x10\x01\x1a,\x12\x04page\x1a\n" +
 	"\n" +
 	"\x06tenant\x10\x02\x1a\x10\n" +
 	"\fdate_created\x10\x0f\x1a\x06\n" +
 	"\x02id\x10\x01\x1a!\x12\x05party\x1a\t\n" +
 	"\x05party\x10\b\x1a\r\n" +
-	"\tissued_at\x10\v\x8a\xbb\x16u\b\x152W\n" +
+	"\tissued_at\x10\v\x1a!\x12\vreservation\x1a\x12\n" +
+	"\x0ereservation_id\x10\x12\x8a\xbb\x16u\b\x152W\n" +
 	"\x12\n" +
 	"\x0e\n" +
 	"\fdate_created\x10\x01\n" +

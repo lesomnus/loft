@@ -479,6 +479,7 @@ const (
 	ReservationService_CheckIn_FullMethodName  = "/rove.ReservationService/CheckIn"
 	ReservationService_Complete_FullMethodName = "/rove.ReservationService/Complete"
 	ReservationService_Calendar_FullMethodName = "/rove.ReservationService/Calendar"
+	ReservationService_Timeline_FullMethodName = "/rove.ReservationService/Timeline"
 	ReservationService_Pickup_FullMethodName   = "/rove.ReservationService/Pickup"
 )
 
@@ -519,6 +520,12 @@ type ReservationServiceClient interface {
 	Complete(ctx context.Context, in *ReservationDecideRequest, opts ...grpc.CallOption) (*Reservation, error)
 	// Calendar answers reservations touching a span, for one resource or all.
 	Calendar(ctx context.Context, in *ReservationCalendarRequest, opts ...grpc.CallOption) (*ReservationCalendarResponse, error)
+	// Timeline answers a reservation's history, newest first: what was done
+	// with it -- booked, decided, checked into, let go of -- and what it took
+	// and let go of as what it booked changed, with the hand-overs that
+	// fulfilled it, its pickup and its return. A member reads their own, and
+	// whoever runs or audits the register anybody's (D45).
+	Timeline(ctx context.Context, in *ReservationTimelineRequest, opts ...grpc.CallOption) (*ReservationTimelineResponse, error)
 	// Pickup answers what the pickup of a reservation is to hand out of each
 	// pool it booked: as many of the pool's units as it holds, free until it
 	// ends, and the others that may be handed out instead (design 4, D46). It
@@ -683,6 +690,16 @@ func (c *reservationServiceClient) Calendar(ctx context.Context, in *Reservation
 	return out, nil
 }
 
+func (c *reservationServiceClient) Timeline(ctx context.Context, in *ReservationTimelineRequest, opts ...grpc.CallOption) (*ReservationTimelineResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ReservationTimelineResponse)
+	err := c.cc.Invoke(ctx, ReservationService_Timeline_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *reservationServiceClient) Pickup(ctx context.Context, in *ReservationPickupRequest, opts ...grpc.CallOption) (*ReservationPickupResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ReservationPickupResponse)
@@ -730,6 +747,12 @@ type ReservationServiceServer interface {
 	Complete(context.Context, *ReservationDecideRequest) (*Reservation, error)
 	// Calendar answers reservations touching a span, for one resource or all.
 	Calendar(context.Context, *ReservationCalendarRequest) (*ReservationCalendarResponse, error)
+	// Timeline answers a reservation's history, newest first: what was done
+	// with it -- booked, decided, checked into, let go of -- and what it took
+	// and let go of as what it booked changed, with the hand-overs that
+	// fulfilled it, its pickup and its return. A member reads their own, and
+	// whoever runs or audits the register anybody's (D45).
+	Timeline(context.Context, *ReservationTimelineRequest) (*ReservationTimelineResponse, error)
 	// Pickup answers what the pickup of a reservation is to hand out of each
 	// pool it booked: as many of the pool's units as it holds, free until it
 	// ends, and the others that may be handed out instead (design 4, D46). It
@@ -786,6 +809,9 @@ func (UnimplementedReservationServiceServer) Complete(context.Context, *Reservat
 }
 func (UnimplementedReservationServiceServer) Calendar(context.Context, *ReservationCalendarRequest) (*ReservationCalendarResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Calendar not implemented")
+}
+func (UnimplementedReservationServiceServer) Timeline(context.Context, *ReservationTimelineRequest) (*ReservationTimelineResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Timeline not implemented")
 }
 func (UnimplementedReservationServiceServer) Pickup(context.Context, *ReservationPickupRequest) (*ReservationPickupResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Pickup not implemented")
@@ -1056,6 +1082,24 @@ func _ReservationService_Calendar_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ReservationService_Timeline_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReservationTimelineRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReservationServiceServer).Timeline(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ReservationService_Timeline_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReservationServiceServer).Timeline(ctx, req.(*ReservationTimelineRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ReservationService_Pickup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ReservationPickupRequest)
 	if err := dec(in); err != nil {
@@ -1132,6 +1176,10 @@ var ReservationService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Calendar",
 			Handler:    _ReservationService_Calendar_Handler,
+		},
+		{
+			MethodName: "Timeline",
+			Handler:    _ReservationService_Timeline_Handler,
 		},
 		{
 			MethodName: "Pickup",

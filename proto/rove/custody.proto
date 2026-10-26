@@ -66,6 +66,11 @@ message Custody {
       {
         name: "party"
         refs: [{name: "party", number: 8}, {name: "issued_at", number: 11}]
+      },
+      // What fulfilled a reservation, which its history reads (D45).
+      {
+        name: "reservation"
+        refs: [{name: "reservation_id", number: 18}]
       }
     ]
   };
