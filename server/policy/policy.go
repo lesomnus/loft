@@ -216,7 +216,7 @@ func init() {
 
 	allow(Read, "NotificationService", "Inbox", "MarkRead", "SetMail")
 
-	// The reports (design 9.14, D44) and their CSVs: what the people who run
+	// The reports (design 9.14, D47) and their CSVs: what the people who run
 	// the register read of it, and an auditor -- and no member, since one of
 	// them is who has what of everybody's. The one that names people is a
 	// download besides (`cmd.Downloads`), which says what it is for.
