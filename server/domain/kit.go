@@ -655,17 +655,20 @@ func (t *Tx) take(w *ent.Allocation, own bool) (bool, error) {
 // heal gives what these allocations let go of to whatever waits for it then,
 // the one that has waited longest first ([Tx.take]): of the things whose
 // schedule this transaction holds, which keeps a booking from taking them
-// meanwhile -- and the schedules of the pools a thing is one of the units of,
+// meanwhile -- and the schedules of the pools around a thing ([Tx.circle]),
 // which it is held to. A thing let go of is one more for each pool it is one
-// of the units of to give then, which goes the same way to what waits for the
-// pool, when this holds the pool's schedule. What waits for a thing whose
-// schedule this does not hold -- a member nobody may reserve on its own -- is
-// the sweep's to take ([sweepKits]).
+// of the units of to give then, and a pool's own let go of more of it to give
+// -- which, of a unit some pools share, may be another of them's to have
+// (D44) -- and that goes the same way to what waits for the pools around it
+// whose schedules this holds. What waits for a thing whose schedule this does
+// not hold -- a member nobody may reserve on its own -- is the sweep's to take
+// ([sweepKits]).
 func (t *Tx) heal(freed []*ent.Allocation) error {
 	for _, a := range freed {
 		if t.shared == nil {
 			return nil
 		}
+		at := []uuid.UUID{}
 		ok := t.shared.schedules[a.ResourceId]
 		if m, err := t.member(a.ResourceId, ""); ok && err == nil {
 			if ok, err = t.holdsPools(m); err != nil {
@@ -673,31 +676,34 @@ func (t *Tx) heal(freed []*ent.Allocation) error {
 			}
 		}
 		if ok {
-			if err := t.takeWaiting(a.ResourceId, a); err != nil {
-				return err
-			}
+			at = append(at, a.ResourceId)
 		}
-		ps, err := t.poolsOf([]uuid.UUID{a.ResourceId})
+		around, err := t.circle([]uuid.UUID{a.ResourceId})
 		if err != nil {
 			return err
 		}
-		for _, p := range ps[a.ResourceId] {
-			if t.holding(p) {
-				if err := t.takeWaiting(p.asset.Id, a); err != nil {
-					return err
-				}
+		for _, p := range around {
+			if p.asset.Id != a.ResourceId && t.holding(p) {
+				at = append(at, p.asset.Id)
 			}
+		}
+		if err := t.takeWaiting(at, a); err != nil {
+			return err
 		}
 	}
 	return nil
 }
 
-// takeWaiting takes, for whatever waits for `resource` during what `a` let go
-// of, what is free now, the one that has waited longest first ([Tx.take]).
-func (t *Tx) takeWaiting(resource uuid.UUID, a *ent.Allocation) error {
+// takeWaiting takes, for whatever waits for these resources during what `a`
+// let go of, what is free now, the one that has waited longest first
+// ([Tx.take]).
+func (t *Tx) takeWaiting(resources []uuid.UUID, a *ent.Allocation) error {
+	if len(resources) == 0 {
+		return nil
+	}
 	ws, err := t.db.Allocation.Query().Where(
 		allocation.TenantId(t.tenant.Uuid()),
-		allocation.ResourceId(resource),
+		allocation.ResourceIdIn(resources...),
 		allocation.Kind(allocWaiting),
 		allocation.BeginsAtLT(a.EndsAt),
 		allocation.EndsAtGT(a.BeginsAt),
