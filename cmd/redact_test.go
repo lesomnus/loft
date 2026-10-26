@@ -159,3 +159,90 @@ func TestTheDoorOnceOpenedKeepsNoReasonAndRecordsWhatItRead(t *testing.T) {
 	x.True(got.Ok(), "%+v", got)
 	x.False(slices.ContainsFunc(lines, func(l *ent.Audit) bool { return l.Action == past.RedactAction && pdid.Id(l.ObjectId) != id }))
 }
+
+// TestWhatTheDoorTakesOutOfAnOperationIsOnTheRecordAsTheFirstIs: a hand-over's
+// memo is copied into what it did to each thing it handed over (design D49),
+// and the door takes it out of all of them at once. Each is on the access
+// record as read, each event of the act as written -- its own, and one for
+// each of the rest -- by identifier, and none of anybody's words in it; each
+// is on the trail as taken out; and every row is as the trail says it is.
+func TestWhatTheDoorTakesOutOfAnOperationIsOnTheRecordAsTheFirstIs(t *testing.T) {
+	w, d := digestWorld(t, nil)
+	x := w.x
+	ctx := context.Background()
+	admin := w.signIn(w.holder("adm", "admin"))
+
+	assets := app.NewAssetServiceClient(w.conn)
+	var lines []*app.CustodyLineSpec
+	for _, name := range []string{"노트북", "모니터"} {
+		a, err := assets.Add(w.owner, app.AssetAddRequest_builder{Name: name}.Build())
+		x.NoError(err)
+		lines = append(lines, app.CustodyLineSpec_builder{Asset: app.AssetById(a.GetId())}.Build())
+	}
+	kim := w.person("김철수", "kim@example.com")
+	c, err := app.NewCustodyServiceClient(w.conn).Add(w.owner, app.CustodyAddRequest_builder{
+		Party: app.PartyRef_builder{Id: kim.GetId()}.Build(),
+		Desc:  erased,
+		Lines: lines,
+	}.Build())
+	x.NoError(err)
+	cid, err := pdid.From(c.GetId())
+	x.NoError(err)
+	own, err := w.s.Ent.Event.Query().Where(event.Kind("custody.issue"), event.SubjectId(cid.Uuid())).Only(ctx)
+	x.NoError(err)
+	parts, err := w.s.Ent.Event.Query().Where(event.CauseId(own.Id)).All(ctx)
+	x.NoError(err)
+	x.Len(parts, 2)
+	said := []pdid.Id{pdid.Id(own.Id)}
+	for _, p := range parts {
+		x.Equal(erased, p.Reason)
+		said = append(said, pdid.Id(p.Id))
+	}
+
+	w.s.Policy = redactOpened{policy.Policy{}}
+	g, err := w.s.Grpc(ctx, w.c)
+	x.NoError(err)
+	events := app.NewEventServiceClient(pdtest.Serve(t, g))
+	// Asked of one of the things, which is the hand-over's word as well.
+	v, err := events.Redact(admin, redactOf(pdid.Id(parts[0].Id), "삭제 요청 2026-25"))
+	x.NoError(err)
+	x.Empty(v.GetReason())
+	acts, err := w.s.Ent.Event.Query().Where(event.Kind("event.redact")).All(ctx)
+	x.NoError(err)
+	x.Len(acts, 3, "its own, and one for each of the rest")
+	for _, id := range said {
+		e, err := w.s.Ent.Event.Get(ctx, id.Uuid())
+		x.NoError(err)
+		x.Empty(e.Reason)
+		last := w.acts(t, id)
+		x.Equal(past.RedactAction, last[len(last)-1].Action, "each on the trail as taken out")
+	}
+
+	rs := w.accessed(t, app.EventService_Redact_FullMethodName)
+	by := map[string][]pdid.Id{}
+	for _, r := range rs {
+		if r.Result != "ok" {
+			continue
+		}
+		for _, s := range r.Subjects {
+			by[r.Kind] = append(by[r.Kind], pdid.Id(s))
+		}
+	}
+	for _, id := range said {
+		x.Contains(by["read"], id, "what it read: each that said it")
+	}
+	for _, a := range acts {
+		x.Contains(by["write"], pdid.Id(a.Id), "what it wrote: each event of the act")
+	}
+	all, err := w.s.Ent.Access.Query().All(ctx)
+	x.NoError(err)
+	for _, r := range all {
+		dv := detailOf(t, r)
+		for _, s := range []string{string(r.Value), dv.GetReason(), string(dv.GetRequest())} {
+			x.NotContains(s, "박지민", r.Action)
+			x.NotContains(s, "2026-25", r.Action)
+		}
+	}
+	got := w.check(t, d)
+	x.True(got.Ok(), "%+v", got)
+}

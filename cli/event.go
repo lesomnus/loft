@@ -4,7 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"maps"
+	"slices"
+	"strings"
 	"time"
+	"uuid"
 
 	"github.com/lesomnus/payday/access"
 	"github.com/lesomnus/payday/frame"
@@ -17,6 +21,7 @@ import (
 	"github.com/lesomnus/rove/cmd"
 	"github.com/lesomnus/rove/internal/ent"
 	entevent "github.com/lesomnus/rove/internal/ent/event"
+	"github.com/lesomnus/rove/server/domain"
 	"github.com/lesomnus/rove/server/pd"
 )
 
@@ -49,6 +54,11 @@ func NewCmdEvent(c *cmd.Config) *xli.Command {
 // interceptor writes of a call -- what it read, and what it wrote at its
 // commit -- with the operator where a call's address would be, and neither
 // reason in it: the one taken out, nor the request's reference.
+//
+// The words are taken out of every event of the operation the event is part
+// of that says them -- its parts copy its reason (design D49) -- and before
+// `--yes` it says how many those are, and of which kinds, having read none of
+// what they say ([domain.Copies]).
 func newCmdEventRedact(c *cmd.Config) *xli.Command {
 	return &xli.Command{
 		Name:  "redact",
@@ -117,6 +127,19 @@ func newCmdEventRedact(c *cmd.Config) *xli.Command {
 				self.Printf("it has no reason: there is nothing to take out\n")
 				return next(ctx)
 			}
+			// And where else its operation says the same, found without
+			// reading what it says (design D49).
+			copies, err := domain.Copies(ctx, s.Ent, tenant, id)
+			if err != nil {
+				return err
+			}
+			if len(copies) > 0 {
+				kinds, err := kindsOf(ctx, s.Ent, copies)
+				if err != nil {
+					return err
+				}
+				self.Printf("the operation it is part of says the same in %d other events, which it is taken out of too: %s\n", len(copies), kinds)
+			}
 			if !yes {
 				self.Printf("would take its reason out, and record that as an event of @%s's own\n", t.Alias)
 				self.Printf("(nothing was done: `--yes` does it. It cannot be undone)\n")
@@ -134,11 +157,11 @@ func newCmdEventRedact(c *cmd.Config) *xli.Command {
 				Writer:   s.Access,
 			}
 			req := app.EventRedactRequest_builder{Ref: app.EventRef_builder{Id: id.Bytes()}.Build(), Reason: why}.Build()
-			var act pdid.Id
+			var done domain.Redacted
 			_, err = rec.Unary()(as, req, &grpc.UnaryServerInfo{FullMethod: redactAction}, func(ctx context.Context, _ any) (any, error) {
-				v, a, err := s.Deps.RedactEvent(ctx, s.Base, s.Drv, tenant, id, why)
-				act = a
-				return v, err
+				v, err := s.Deps.RedactEvent(ctx, s.Base, s.Drv, tenant, id, why)
+				done = v
+				return v.Event, err
 			})
 			if ferr := s.Access.Flush(ctx); ferr != nil {
 				return errors.Join(err, fmt.Errorf("the access record of what it read: %w", ferr))
@@ -147,10 +170,37 @@ func newCmdEventRedact(c *cmd.Config) *xli.Command {
 				return err
 			}
 
-			self.Printf("took the reason out of event %s of @%s; the act is event %s\n", id, t.Alias, act)
+			self.Printf("took the reason out of event %s of @%s; the act is event %s\n", id, t.Alias, done.Act)
+			if n := len(done.Copies); n > 0 {
+				self.Printf("and out of the %d other events of its operation that said the same, each with an event of the act's\n", n)
+			}
 			return next(ctx)
 		}),
 	}
+}
+
+// kindsOf is what kinds of event `ids` are, and how many of each, as an
+// operator reads it: "custody.issue ×2, reservation.add ×1".
+func kindsOf(ctx context.Context, db *ent.Client, ids []pdid.Id) (string, error) {
+	n := map[string]int{}
+	for page := range slices.Chunk(ids, 500) {
+		us := make([]uuid.UUID, len(page))
+		for i, v := range page {
+			us[i] = v.Uuid()
+		}
+		vs, err := db.Event.Query().Where(entevent.IdIn(us...)).Select(entevent.FieldKind).Strings(ctx)
+		if err != nil {
+			return "", err
+		}
+		for _, v := range vs {
+			n[v]++
+		}
+	}
+	said := make([]string, 0, len(n))
+	for _, k := range slices.Sorted(maps.Keys(n)) {
+		said = append(said, fmt.Sprintf("%s ×%d", k, n[k]))
+	}
+	return strings.Join(said, ", "), nil
 }
 
 // instantOf is a moment as an operator's command says one: in UTC, whatever
