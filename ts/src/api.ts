@@ -385,6 +385,11 @@ export const raw = {
 	asset: createClient(AssetService, transport),
 	attachment: createClient(AttachmentService, transport),
 	label: createClient(LabelService, transport),
+	// What the reports' files are asked of (pages/reports.tsx).
+	custody: createClient(CustodyService, transport),
+	bookable: createClient(BookableService, transport),
+	count: createClient(InventoryCountService, transport),
+	stock: createClient(StockService, transport),
 }
 
 /** An identifier as a page writes it in a URL. */

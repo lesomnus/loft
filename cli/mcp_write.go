@@ -1158,7 +1158,7 @@ func (c *mcpCall) reserve(in mcpReservationPlan) (*plan, error) {
 }
 
 // voided names what `r` booked of `ids` that was deleted, as the calendar
-// says it is out of use to it: "G-1 카메라 풀 (voided)" (D47).
+// says it is out of use to it: "G-1 카메라 풀 (voided)" (D48).
 func (c *mcpCall) voided(r *app.Reservation, ids [][]byte) ([]string, error) {
 	v, err := app.NewReservationServiceClient(c.conn).Calendar(c.ctx, app.ReservationCalendarRequest_builder{
 		From: timestamppb.New(r.GetBeginsAt().AsTime().Add(-time.Minute)),
@@ -1214,7 +1214,7 @@ func (c *mcpCall) decide(in mcpReservationPlan) (*plan, error) {
 	}
 	if _, ok := outOfUseRefused[in.Action]; ok && len(unread) > 0 {
 		// What is no longer there to read was deleted as registered by
-		// mistake: out of use to what booked it, for good (D47), and named
+		// mistake: out of use to what booked it, for good (D48), and named
 		// as the reservation's calendar entry names it.
 		vs, err := c.voided(r, unread)
 		if err != nil {

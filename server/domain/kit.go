@@ -114,7 +114,7 @@ func (t *Tx) holding(r *resource) bool {
 
 // lockSchedules holds the schedules of these assets, the ones that have one,
 // in the order every booking takes them in ([Tx.lockBookables]). One deleted
-// with its asset nothing books any more (D47), and is not held.
+// with its asset nothing books any more (D48), and is not held.
 func (t *Tx) lockSchedules(ids []uuid.UUID) error {
 	if len(ids) == 0 {
 		return nil

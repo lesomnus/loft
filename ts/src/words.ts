@@ -26,7 +26,7 @@ export const outOfUse: readonly string[] = ['lost', 'retired', 'disposed']
 /**
  * What a reservation says it takes that is out of use is, in words
  * (`ReservationOutOfUse.status`): a status of [outOfUse], or `voided` --
- * deleted as registered by mistake, out of use to it for good (D47).
+ * deleted as registered by mistake, out of use to it for good (D48).
  */
 export const goneWord: Record<string, string> = { ...statusWord, voided: '삭제' }
 

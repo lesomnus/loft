@@ -340,7 +340,7 @@ func (s domainAsset) Erase(ctx context.Context, ref *app.AssetRef) (*app.AssetEr
 		// of changed, and so what its bookings take. And every pool it was
 		// one of the units of, which has one fewer to give. And, of a group,
 		// what was in it: what the other pools it is in had to spare for this
-		// one is theirs to give again (D44, D47).
+		// one is theirs to give again (D44, D48).
 		kits, pools, left := []uuid.UUID{id.Uuid()}, []uuid.UUID{}, []uuid.UUID{}
 		for _, l := range ls {
 			if err := t.supersedeLink(l.Id); err != nil {
@@ -380,7 +380,7 @@ func (s domainAsset) Erase(ctx context.Context, ref *app.AssetRef) (*app.AssetEr
 		}
 		// And what booked it itself is told it is no more: out of use to
 		// it for good, which it is neither approved nor fulfilled through,
-		// and -- a pool -- not counted short of either (D47). What made it
+		// and -- a pool -- not counted short of either (D48). What made it
 		// reservable goes with it: nothing books what never was, and a
 		// page that shows what is to book does not ask for it.
 		if err := t.voidedOf(id.Uuid()); err != nil {

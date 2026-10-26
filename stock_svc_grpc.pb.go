@@ -19,18 +19,20 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	StockService_Add_FullMethodName      = "/rove.StockService/Add"
-	StockService_Get_FullMethodName      = "/rove.StockService/Get"
-	StockService_Patch_FullMethodName    = "/rove.StockService/Patch"
-	StockService_Apply_FullMethodName    = "/rove.StockService/Apply"
-	StockService_Erase_FullMethodName    = "/rove.StockService/Erase"
-	StockService_List_FullMethodName     = "/rove.StockService/List"
-	StockService_Watch_FullMethodName    = "/rove.StockService/Watch"
-	StockService_Receive_FullMethodName  = "/rove.StockService/Receive"
-	StockService_Consume_FullMethodName  = "/rove.StockService/Consume"
-	StockService_Adjust_FullMethodName   = "/rove.StockService/Adjust"
-	StockService_Transfer_FullMethodName = "/rove.StockService/Transfer"
-	StockService_Convert_FullMethodName  = "/rove.StockService/Convert"
+	StockService_Add_FullMethodName        = "/rove.StockService/Add"
+	StockService_Get_FullMethodName        = "/rove.StockService/Get"
+	StockService_Patch_FullMethodName      = "/rove.StockService/Patch"
+	StockService_Apply_FullMethodName      = "/rove.StockService/Apply"
+	StockService_Erase_FullMethodName      = "/rove.StockService/Erase"
+	StockService_List_FullMethodName       = "/rove.StockService/List"
+	StockService_Watch_FullMethodName      = "/rove.StockService/Watch"
+	StockService_Receive_FullMethodName    = "/rove.StockService/Receive"
+	StockService_Consume_FullMethodName    = "/rove.StockService/Consume"
+	StockService_Adjust_FullMethodName     = "/rove.StockService/Adjust"
+	StockService_Transfer_FullMethodName   = "/rove.StockService/Transfer"
+	StockService_Convert_FullMethodName    = "/rove.StockService/Convert"
+	StockService_Flow_FullMethodName       = "/rove.StockService/Flow"
+	StockService_ExportFlow_FullMethodName = "/rove.StockService/ExportFlow"
 )
 
 // StockServiceClient is the client API for StockService service.
@@ -69,6 +71,13 @@ type StockServiceClient interface {
 	Transfer(ctx context.Context, in *StockTransferRequest, opts ...grpc.CallOption) (*Stock, error)
 	// Convert takes units out of a stock and makes them assets of their own.
 	Convert(ctx context.Context, in *StockConvertRequest, opts ...grpc.CallOption) (*StockConvertResponse, error)
+	// Flow is each stock over a period (재고 소모, design 9.14): how many it had
+	// when the period began, what came in and what went out by what moved it,
+	// and how many it had when the period ended. It names nobody.
+	Flow(ctx context.Context, in *StockFlowRequest, opts ...grpc.CallOption) (*StockFlowResponse, error)
+	// ExportFlow writes it as a CSV, which names nobody and so is no download
+	// of anybody (rove#136).
+	ExportFlow(ctx context.Context, in *StockFlowRequest, opts ...grpc.CallOption) (*AssetExportResponse, error)
 }
 
 type stockServiceClient struct {
@@ -208,6 +217,26 @@ func (c *stockServiceClient) Convert(ctx context.Context, in *StockConvertReques
 	return out, nil
 }
 
+func (c *stockServiceClient) Flow(ctx context.Context, in *StockFlowRequest, opts ...grpc.CallOption) (*StockFlowResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(StockFlowResponse)
+	err := c.cc.Invoke(ctx, StockService_Flow_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *stockServiceClient) ExportFlow(ctx context.Context, in *StockFlowRequest, opts ...grpc.CallOption) (*AssetExportResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AssetExportResponse)
+	err := c.cc.Invoke(ctx, StockService_ExportFlow_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // StockServiceServer is the server API for StockService service.
 // All implementations must embed UnimplementedStockServiceServer
 // for forward compatibility.
@@ -244,6 +273,13 @@ type StockServiceServer interface {
 	Transfer(context.Context, *StockTransferRequest) (*Stock, error)
 	// Convert takes units out of a stock and makes them assets of their own.
 	Convert(context.Context, *StockConvertRequest) (*StockConvertResponse, error)
+	// Flow is each stock over a period (재고 소모, design 9.14): how many it had
+	// when the period began, what came in and what went out by what moved it,
+	// and how many it had when the period ended. It names nobody.
+	Flow(context.Context, *StockFlowRequest) (*StockFlowResponse, error)
+	// ExportFlow writes it as a CSV, which names nobody and so is no download
+	// of anybody (rove#136).
+	ExportFlow(context.Context, *StockFlowRequest) (*AssetExportResponse, error)
 	mustEmbedUnimplementedStockServiceServer()
 }
 
@@ -289,6 +325,12 @@ func (UnimplementedStockServiceServer) Transfer(context.Context, *StockTransferR
 }
 func (UnimplementedStockServiceServer) Convert(context.Context, *StockConvertRequest) (*StockConvertResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Convert not implemented")
+}
+func (UnimplementedStockServiceServer) Flow(context.Context, *StockFlowRequest) (*StockFlowResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Flow not implemented")
+}
+func (UnimplementedStockServiceServer) ExportFlow(context.Context, *StockFlowRequest) (*AssetExportResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ExportFlow not implemented")
 }
 func (UnimplementedStockServiceServer) mustEmbedUnimplementedStockServiceServer() {}
 func (UnimplementedStockServiceServer) testEmbeddedByValue()                      {}
@@ -520,6 +562,42 @@ func _StockService_Convert_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _StockService_Flow_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StockFlowRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StockServiceServer).Flow(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: StockService_Flow_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StockServiceServer).Flow(ctx, req.(*StockFlowRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _StockService_ExportFlow_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StockFlowRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StockServiceServer).ExportFlow(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: StockService_ExportFlow_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StockServiceServer).ExportFlow(ctx, req.(*StockFlowRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // StockService_ServiceDesc is the grpc.ServiceDesc for StockService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -570,6 +648,14 @@ var StockService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Convert",
 			Handler:    _StockService_Convert_Handler,
+		},
+		{
+			MethodName: "Flow",
+			Handler:    _StockService_Flow_Handler,
+		},
+		{
+			MethodName: "ExportFlow",
+			Handler:    _StockService_ExportFlow_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

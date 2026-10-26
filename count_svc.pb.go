@@ -2889,6 +2889,501 @@ func (b0 InventoryCountCloseRequest_builder) Build() *InventoryCountCloseRequest
 	return m0
 }
 
+type InventoryCountResultsRequest struct {
+	state           protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_From *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=from"`
+	xxx_hidden_To   *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=to"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *InventoryCountResultsRequest) Reset() {
+	*x = InventoryCountResultsRequest{}
+	mi := &file_rove_count_svc_g_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InventoryCountResultsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InventoryCountResultsRequest) ProtoMessage() {}
+
+func (x *InventoryCountResultsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_count_svc_g_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *InventoryCountResultsRequest) GetFrom() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_From
+	}
+	return nil
+}
+
+func (x *InventoryCountResultsRequest) GetTo() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_To
+	}
+	return nil
+}
+
+func (x *InventoryCountResultsRequest) SetFrom(v *timestamppb.Timestamp) {
+	x.xxx_hidden_From = v
+}
+
+func (x *InventoryCountResultsRequest) SetTo(v *timestamppb.Timestamp) {
+	x.xxx_hidden_To = v
+}
+
+func (x *InventoryCountResultsRequest) HasFrom() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_From != nil
+}
+
+func (x *InventoryCountResultsRequest) HasTo() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_To != nil
+}
+
+func (x *InventoryCountResultsRequest) ClearFrom() {
+	x.xxx_hidden_From = nil
+}
+
+func (x *InventoryCountResultsRequest) ClearTo() {
+	x.xxx_hidden_To = nil
+}
+
+type InventoryCountResultsRequest_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// The counts begun from `from` and before `to`, a year at most. Unsaid, the
+	// last year of the workspace's days, today among them.
+	From *timestamppb.Timestamp
+	To   *timestamppb.Timestamp
+}
+
+func (b0 InventoryCountResultsRequest_builder) Build() *InventoryCountResultsRequest {
+	m0 := &InventoryCountResultsRequest{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_From = b.From
+	x.xxx_hidden_To = b.To
+	return m0
+}
+
+type InventoryCountResultsResponse struct {
+	state           protoimpl.MessageState   `protogen:"opaque.v1"`
+	xxx_hidden_Rows *[]*InventoryCountResult `protobuf:"bytes,1,rep,name=rows"`
+	xxx_hidden_From *timestamppb.Timestamp   `protobuf:"bytes,2,opt,name=from"`
+	xxx_hidden_To   *timestamppb.Timestamp   `protobuf:"bytes,3,opt,name=to"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *InventoryCountResultsResponse) Reset() {
+	*x = InventoryCountResultsResponse{}
+	mi := &file_rove_count_svc_g_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InventoryCountResultsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InventoryCountResultsResponse) ProtoMessage() {}
+
+func (x *InventoryCountResultsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_count_svc_g_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *InventoryCountResultsResponse) GetRows() []*InventoryCountResult {
+	if x != nil {
+		if x.xxx_hidden_Rows != nil {
+			return *x.xxx_hidden_Rows
+		}
+	}
+	return nil
+}
+
+func (x *InventoryCountResultsResponse) GetFrom() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_From
+	}
+	return nil
+}
+
+func (x *InventoryCountResultsResponse) GetTo() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_To
+	}
+	return nil
+}
+
+func (x *InventoryCountResultsResponse) SetRows(v []*InventoryCountResult) {
+	x.xxx_hidden_Rows = &v
+}
+
+func (x *InventoryCountResultsResponse) SetFrom(v *timestamppb.Timestamp) {
+	x.xxx_hidden_From = v
+}
+
+func (x *InventoryCountResultsResponse) SetTo(v *timestamppb.Timestamp) {
+	x.xxx_hidden_To = v
+}
+
+func (x *InventoryCountResultsResponse) HasFrom() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_From != nil
+}
+
+func (x *InventoryCountResultsResponse) HasTo() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_To != nil
+}
+
+func (x *InventoryCountResultsResponse) ClearFrom() {
+	x.xxx_hidden_From = nil
+}
+
+func (x *InventoryCountResultsResponse) ClearTo() {
+	x.xxx_hidden_To = nil
+}
+
+type InventoryCountResultsResponse_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	// The newest first.
+	Rows []*InventoryCountResult
+	// The period it read.
+	From *timestamppb.Timestamp
+	To   *timestamppb.Timestamp
+}
+
+func (b0 InventoryCountResultsResponse_builder) Build() *InventoryCountResultsResponse {
+	m0 := &InventoryCountResultsResponse{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Rows = &b.Rows
+	x.xxx_hidden_From = b.From
+	x.xxx_hidden_To = b.To
+	return m0
+}
+
+// InventoryCountResult is what one count found, by kind, and how what it
+// found amiss was settled.
+type InventoryCountResult struct {
+	state                protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_CountId   []byte                 `protobuf:"bytes,1,opt,name=count_id,json=countId"`
+	xxx_hidden_Name      string                 `protobuf:"bytes,2,opt,name=name"`
+	xxx_hidden_ScopeId   []byte                 `protobuf:"bytes,3,opt,name=scope_id,json=scopeId"`
+	xxx_hidden_ScopeName string                 `protobuf:"bytes,4,opt,name=scope_name,json=scopeName"`
+	xxx_hidden_Status    string                 `protobuf:"bytes,5,opt,name=status"`
+	xxx_hidden_StartedAt *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=started_at,json=startedAt"`
+	xxx_hidden_ClosedAt  *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=closed_at,json=closedAt"`
+	xxx_hidden_Seen      uint32                 `protobuf:"varint,8,opt,name=seen"`
+	xxx_hidden_Misplaced uint32                 `protobuf:"varint,9,opt,name=misplaced"`
+	xxx_hidden_Missing   uint32                 `protobuf:"varint,10,opt,name=missing"`
+	xxx_hidden_Unknown   uint32                 `protobuf:"varint,11,opt,name=unknown"`
+	xxx_hidden_Moved     uint32                 `protobuf:"varint,12,opt,name=moved"`
+	xxx_hidden_Lost      uint32                 `protobuf:"varint,13,opt,name=lost"`
+	xxx_hidden_Ignored   uint32                 `protobuf:"varint,14,opt,name=ignored"`
+	xxx_hidden_Unsettled uint32                 `protobuf:"varint,15,opt,name=unsettled"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
+}
+
+func (x *InventoryCountResult) Reset() {
+	*x = InventoryCountResult{}
+	mi := &file_rove_count_svc_g_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InventoryCountResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InventoryCountResult) ProtoMessage() {}
+
+func (x *InventoryCountResult) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_count_svc_g_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *InventoryCountResult) GetCountId() []byte {
+	if x != nil {
+		return x.xxx_hidden_CountId
+	}
+	return nil
+}
+
+func (x *InventoryCountResult) GetName() string {
+	if x != nil {
+		return x.xxx_hidden_Name
+	}
+	return ""
+}
+
+func (x *InventoryCountResult) GetScopeId() []byte {
+	if x != nil {
+		return x.xxx_hidden_ScopeId
+	}
+	return nil
+}
+
+func (x *InventoryCountResult) GetScopeName() string {
+	if x != nil {
+		return x.xxx_hidden_ScopeName
+	}
+	return ""
+}
+
+func (x *InventoryCountResult) GetStatus() string {
+	if x != nil {
+		return x.xxx_hidden_Status
+	}
+	return ""
+}
+
+func (x *InventoryCountResult) GetStartedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_StartedAt
+	}
+	return nil
+}
+
+func (x *InventoryCountResult) GetClosedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_ClosedAt
+	}
+	return nil
+}
+
+func (x *InventoryCountResult) GetSeen() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Seen
+	}
+	return 0
+}
+
+func (x *InventoryCountResult) GetMisplaced() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Misplaced
+	}
+	return 0
+}
+
+func (x *InventoryCountResult) GetMissing() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Missing
+	}
+	return 0
+}
+
+func (x *InventoryCountResult) GetUnknown() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Unknown
+	}
+	return 0
+}
+
+func (x *InventoryCountResult) GetMoved() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Moved
+	}
+	return 0
+}
+
+func (x *InventoryCountResult) GetLost() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Lost
+	}
+	return 0
+}
+
+func (x *InventoryCountResult) GetIgnored() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Ignored
+	}
+	return 0
+}
+
+func (x *InventoryCountResult) GetUnsettled() uint32 {
+	if x != nil {
+		return x.xxx_hidden_Unsettled
+	}
+	return 0
+}
+
+func (x *InventoryCountResult) SetCountId(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_CountId = v
+}
+
+func (x *InventoryCountResult) SetName(v string) {
+	x.xxx_hidden_Name = v
+}
+
+func (x *InventoryCountResult) SetScopeId(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_ScopeId = v
+}
+
+func (x *InventoryCountResult) SetScopeName(v string) {
+	x.xxx_hidden_ScopeName = v
+}
+
+func (x *InventoryCountResult) SetStatus(v string) {
+	x.xxx_hidden_Status = v
+}
+
+func (x *InventoryCountResult) SetStartedAt(v *timestamppb.Timestamp) {
+	x.xxx_hidden_StartedAt = v
+}
+
+func (x *InventoryCountResult) SetClosedAt(v *timestamppb.Timestamp) {
+	x.xxx_hidden_ClosedAt = v
+}
+
+func (x *InventoryCountResult) SetSeen(v uint32) {
+	x.xxx_hidden_Seen = v
+}
+
+func (x *InventoryCountResult) SetMisplaced(v uint32) {
+	x.xxx_hidden_Misplaced = v
+}
+
+func (x *InventoryCountResult) SetMissing(v uint32) {
+	x.xxx_hidden_Missing = v
+}
+
+func (x *InventoryCountResult) SetUnknown(v uint32) {
+	x.xxx_hidden_Unknown = v
+}
+
+func (x *InventoryCountResult) SetMoved(v uint32) {
+	x.xxx_hidden_Moved = v
+}
+
+func (x *InventoryCountResult) SetLost(v uint32) {
+	x.xxx_hidden_Lost = v
+}
+
+func (x *InventoryCountResult) SetIgnored(v uint32) {
+	x.xxx_hidden_Ignored = v
+}
+
+func (x *InventoryCountResult) SetUnsettled(v uint32) {
+	x.xxx_hidden_Unsettled = v
+}
+
+func (x *InventoryCountResult) HasStartedAt() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_StartedAt != nil
+}
+
+func (x *InventoryCountResult) HasClosedAt() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_ClosedAt != nil
+}
+
+func (x *InventoryCountResult) ClearStartedAt() {
+	x.xxx_hidden_StartedAt = nil
+}
+
+func (x *InventoryCountResult) ClearClosedAt() {
+	x.xxx_hidden_ClosedAt = nil
+}
+
+type InventoryCountResult_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	CountId []byte
+	Name    string
+	// The space it covered, as it is called now.
+	ScopeId   []byte
+	ScopeName string
+	// open | closed
+	Status    string
+	StartedAt *timestamppb.Timestamp
+	ClosedAt  *timestamppb.Timestamp
+	// What it found: where it should be, somewhere else, never seen, and
+	// scanned but not registered. The last three are the differences.
+	Seen      uint32
+	Misplaced uint32
+	Missing   uint32
+	Unknown   uint32
+	// How the differences were settled: moved to where they were seen,
+	// reported lost -- the losses -- or ignored; and those not settled yet.
+	Moved     uint32
+	Lost      uint32
+	Ignored   uint32
+	Unsettled uint32
+}
+
+func (b0 InventoryCountResult_builder) Build() *InventoryCountResult {
+	m0 := &InventoryCountResult{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_CountId = b.CountId
+	x.xxx_hidden_Name = b.Name
+	x.xxx_hidden_ScopeId = b.ScopeId
+	x.xxx_hidden_ScopeName = b.ScopeName
+	x.xxx_hidden_Status = b.Status
+	x.xxx_hidden_StartedAt = b.StartedAt
+	x.xxx_hidden_ClosedAt = b.ClosedAt
+	x.xxx_hidden_Seen = b.Seen
+	x.xxx_hidden_Misplaced = b.Misplaced
+	x.xxx_hidden_Missing = b.Missing
+	x.xxx_hidden_Unknown = b.Unknown
+	x.xxx_hidden_Moved = b.Moved
+	x.xxx_hidden_Lost = b.Lost
+	x.xxx_hidden_Ignored = b.Ignored
+	x.xxx_hidden_Unsettled = b.Unsettled
+	return m0
+}
+
 type CountFindingAddRequest struct {
 	state                       protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Id               []byte                 `protobuf:"bytes,1,opt,name=id"`
@@ -2913,7 +3408,7 @@ type CountFindingAddRequest struct {
 
 func (x *CountFindingAddRequest) Reset() {
 	*x = CountFindingAddRequest{}
-	mi := &file_rove_count_svc_g_proto_msgTypes[19]
+	mi := &file_rove_count_svc_g_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2925,7 +3420,7 @@ func (x *CountFindingAddRequest) String() string {
 func (*CountFindingAddRequest) ProtoMessage() {}
 
 func (x *CountFindingAddRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_count_svc_g_proto_msgTypes[19]
+	mi := &file_rove_count_svc_g_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3301,7 +3796,7 @@ type CountFindingGetRequest struct {
 
 func (x *CountFindingGetRequest) Reset() {
 	*x = CountFindingGetRequest{}
-	mi := &file_rove_count_svc_g_proto_msgTypes[20]
+	mi := &file_rove_count_svc_g_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3313,7 +3808,7 @@ func (x *CountFindingGetRequest) String() string {
 func (*CountFindingGetRequest) ProtoMessage() {}
 
 func (x *CountFindingGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_count_svc_g_proto_msgTypes[20]
+	mi := &file_rove_count_svc_g_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3409,7 +3904,7 @@ type CountFindingSelect struct {
 
 func (x *CountFindingSelect) Reset() {
 	*x = CountFindingSelect{}
-	mi := &file_rove_count_svc_g_proto_msgTypes[21]
+	mi := &file_rove_count_svc_g_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3421,7 +3916,7 @@ func (x *CountFindingSelect) String() string {
 func (*CountFindingSelect) ProtoMessage() {}
 
 func (x *CountFindingSelect) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_count_svc_g_proto_msgTypes[21]
+	mi := &file_rove_count_svc_g_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3891,7 +4386,7 @@ type CountFindingPatchRequest struct {
 
 func (x *CountFindingPatchRequest) Reset() {
 	*x = CountFindingPatchRequest{}
-	mi := &file_rove_count_svc_g_proto_msgTypes[22]
+	mi := &file_rove_count_svc_g_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3903,7 +4398,7 @@ func (x *CountFindingPatchRequest) String() string {
 func (*CountFindingPatchRequest) ProtoMessage() {}
 
 func (x *CountFindingPatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_count_svc_g_proto_msgTypes[22]
+	mi := &file_rove_count_svc_g_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4462,7 +4957,7 @@ type CountFindingApplyRequest struct {
 
 func (x *CountFindingApplyRequest) Reset() {
 	*x = CountFindingApplyRequest{}
-	mi := &file_rove_count_svc_g_proto_msgTypes[23]
+	mi := &file_rove_count_svc_g_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4474,7 +4969,7 @@ func (x *CountFindingApplyRequest) String() string {
 func (*CountFindingApplyRequest) ProtoMessage() {}
 
 func (x *CountFindingApplyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_count_svc_g_proto_msgTypes[23]
+	mi := &file_rove_count_svc_g_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4556,7 +5051,7 @@ type CountFindingEraseResponse struct {
 
 func (x *CountFindingEraseResponse) Reset() {
 	*x = CountFindingEraseResponse{}
-	mi := &file_rove_count_svc_g_proto_msgTypes[24]
+	mi := &file_rove_count_svc_g_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4568,7 +5063,7 @@ func (x *CountFindingEraseResponse) String() string {
 func (*CountFindingEraseResponse) ProtoMessage() {}
 
 func (x *CountFindingEraseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_count_svc_g_proto_msgTypes[24]
+	mi := &file_rove_count_svc_g_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4637,7 +5132,7 @@ type CountFindingListRequest struct {
 
 func (x *CountFindingListRequest) Reset() {
 	*x = CountFindingListRequest{}
-	mi := &file_rove_count_svc_g_proto_msgTypes[25]
+	mi := &file_rove_count_svc_g_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4649,7 +5144,7 @@ func (x *CountFindingListRequest) String() string {
 func (*CountFindingListRequest) ProtoMessage() {}
 
 func (x *CountFindingListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_count_svc_g_proto_msgTypes[25]
+	mi := &file_rove_count_svc_g_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4749,7 +5244,7 @@ type CountFindingListResponse struct {
 
 func (x *CountFindingListResponse) Reset() {
 	*x = CountFindingListResponse{}
-	mi := &file_rove_count_svc_g_proto_msgTypes[26]
+	mi := &file_rove_count_svc_g_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4761,7 +5256,7 @@ func (x *CountFindingListResponse) String() string {
 func (*CountFindingListResponse) ProtoMessage() {}
 
 func (x *CountFindingListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_count_svc_g_proto_msgTypes[26]
+	mi := &file_rove_count_svc_g_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4834,7 +5329,7 @@ type CountFindingFilter struct {
 
 func (x *CountFindingFilter) Reset() {
 	*x = CountFindingFilter{}
-	mi := &file_rove_count_svc_g_proto_msgTypes[27]
+	mi := &file_rove_count_svc_g_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4846,7 +5341,7 @@ func (x *CountFindingFilter) String() string {
 func (*CountFindingFilter) ProtoMessage() {}
 
 func (x *CountFindingFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_count_svc_g_proto_msgTypes[27]
+	mi := &file_rove_count_svc_g_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5015,7 +5510,7 @@ type CountFindingWatchRequest struct {
 
 func (x *CountFindingWatchRequest) Reset() {
 	*x = CountFindingWatchRequest{}
-	mi := &file_rove_count_svc_g_proto_msgTypes[28]
+	mi := &file_rove_count_svc_g_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5027,7 +5522,7 @@ func (x *CountFindingWatchRequest) String() string {
 func (*CountFindingWatchRequest) ProtoMessage() {}
 
 func (x *CountFindingWatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_count_svc_g_proto_msgTypes[28]
+	mi := &file_rove_count_svc_g_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5099,7 +5594,7 @@ type CountFindingWatchResponse struct {
 
 func (x *CountFindingWatchResponse) Reset() {
 	*x = CountFindingWatchResponse{}
-	mi := &file_rove_count_svc_g_proto_msgTypes[29]
+	mi := &file_rove_count_svc_g_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5111,7 +5606,7 @@ func (x *CountFindingWatchResponse) String() string {
 func (*CountFindingWatchResponse) ProtoMessage() {}
 
 func (x *CountFindingWatchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_count_svc_g_proto_msgTypes[29]
+	mi := &file_rove_count_svc_g_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5163,7 +5658,7 @@ type CountFindingWatchItem struct {
 
 func (x *CountFindingWatchItem) Reset() {
 	*x = CountFindingWatchItem{}
-	mi := &file_rove_count_svc_g_proto_msgTypes[30]
+	mi := &file_rove_count_svc_g_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5175,7 +5670,7 @@ func (x *CountFindingWatchItem) String() string {
 func (*CountFindingWatchItem) ProtoMessage() {}
 
 func (x *CountFindingWatchItem) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_count_svc_g_proto_msgTypes[30]
+	mi := &file_rove_count_svc_g_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5399,7 +5894,33 @@ const file_rove_count_svc_g_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
 	"\x03key\"G\n" +
 	"\x1aInventoryCountCloseRequest\x12)\n" +
-	"\x03ref\x18\x01 \x01(\v2\x17.rove.InventoryCountRefR\x03ref\"\xcc\x04\n" +
+	"\x03ref\x18\x01 \x01(\v2\x17.rove.InventoryCountRefR\x03ref\"z\n" +
+	"\x1cInventoryCountResultsRequest\x12.\n" +
+	"\x04from\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
+	"\x02to\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\"\xab\x01\n" +
+	"\x1dInventoryCountResultsResponse\x12.\n" +
+	"\x04rows\x18\x01 \x03(\v2\x1a.rove.InventoryCountResultR\x04rows\x12.\n" +
+	"\x04from\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
+	"\x02to\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\"\xae\x04\n" +
+	"\x14InventoryCountResult\x12 \n" +
+	"\bcount_id\x18\x01 \x01(\fB\x05\xaa\x01\x02\b\x02R\acountId\x12\x19\n" +
+	"\x04name\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04name\x12 \n" +
+	"\bscope_id\x18\x03 \x01(\fB\x05\xaa\x01\x02\b\x02R\ascopeId\x12$\n" +
+	"\n" +
+	"scope_name\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\tscopeName\x12\x1d\n" +
+	"\x06status\x18\x05 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06status\x129\n" +
+	"\n" +
+	"started_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tstartedAt\x127\n" +
+	"\tclosed_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\bclosedAt\x12\x19\n" +
+	"\x04seen\x18\b \x01(\rB\x05\xaa\x01\x02\b\x02R\x04seen\x12#\n" +
+	"\tmisplaced\x18\t \x01(\rB\x05\xaa\x01\x02\b\x02R\tmisplaced\x12\x1f\n" +
+	"\amissing\x18\n" +
+	" \x01(\rB\x05\xaa\x01\x02\b\x02R\amissing\x12\x1f\n" +
+	"\aunknown\x18\v \x01(\rB\x05\xaa\x01\x02\b\x02R\aunknown\x12\x1b\n" +
+	"\x05moved\x18\f \x01(\rB\x05\xaa\x01\x02\b\x02R\x05moved\x12\x19\n" +
+	"\x04lost\x18\r \x01(\rB\x05\xaa\x01\x02\b\x02R\x04lost\x12\x1f\n" +
+	"\aignored\x18\x0e \x01(\rB\x05\xaa\x01\x02\b\x02R\aignored\x12#\n" +
+	"\tunsettled\x18\x0f \x01(\rB\x05\xaa\x01\x02\b\x02R\tunsettled\"\xcc\x04\n" +
 	"\x16CountFindingAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\x12\x19\n" +
@@ -5495,7 +6016,7 @@ const file_rove_count_svc_g_proto_rawDesc = "" +
 	"\x15CountFindingWatchItem\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12(\n" +
 	"\x05value\x18\x02 \x01(\v2\x12.rove.CountFindingR\x05value\x12\x1d\n" +
-	"\x06action\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06action2\x8e\x06\n" +
+	"\x06action\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06action2\xb2\a\n" +
 	"\x15InventoryCountService\x12;\n" +
 	"\x03Add\x12\x1e.rove.InventoryCountAddRequest\x1a\x14.rove.InventoryCount\x12;\n" +
 	"\x03Get\x12\x1e.rove.InventoryCountGetRequest\x1a\x14.rove.InventoryCount\x12?\n" +
@@ -5507,7 +6028,9 @@ const file_rove_count_svc_g_proto_rawDesc = "" +
 	"\x04Scan\x12\x1f.rove.InventoryCountScanRequest\x1a\x12.rove.CountFinding\x12X\n" +
 	"\tReconcile\x12$.rove.InventoryCountReconcileRequest\x1a%.rove.InventoryCountReconcileResponse\x12A\n" +
 	"\aResolve\x12\".rove.InventoryCountResolveRequest\x1a\x12.rove.CountFinding\x12?\n" +
-	"\x05Close\x12 .rove.InventoryCountCloseRequest\x1a\x14.rove.InventoryCount2\xd5\x03\n" +
+	"\x05Close\x12 .rove.InventoryCountCloseRequest\x1a\x14.rove.InventoryCount\x12R\n" +
+	"\aResults\x12\".rove.InventoryCountResultsRequest\x1a#.rove.InventoryCountResultsResponse\x12N\n" +
+	"\rExportResults\x12\".rove.InventoryCountResultsRequest\x1a\x19.rove.AssetExportResponse2\xd5\x03\n" +
 	"\x13CountFindingService\x127\n" +
 	"\x03Add\x12\x1c.rove.CountFindingAddRequest\x1a\x12.rove.CountFinding\x127\n" +
 	"\x03Get\x12\x1c.rove.CountFindingGetRequest\x1a\x12.rove.CountFinding\x12;\n" +
@@ -5517,7 +6040,7 @@ const file_rove_count_svc_g_proto_rawDesc = "" +
 	"\x04List\x12\x1d.rove.CountFindingListRequest\x1a\x1e.rove.CountFindingListResponse\x12J\n" +
 	"\x05Watch\x12\x1e.rove.CountFindingWatchRequest\x1a\x1f.rove.CountFindingWatchResponse0\x01B\x1aZ\x18github.com/lesomnus/roveb\beditionsp\xe8\a"
 
-var file_rove_count_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 31)
+var file_rove_count_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 34)
 var file_rove_count_svc_g_proto_goTypes = []any{
 	(*InventoryCountAddRequest)(nil),        // 0: rove.InventoryCountAddRequest
 	(*InventoryCountGetRequest)(nil),        // 1: rove.InventoryCountGetRequest
@@ -5538,124 +6061,139 @@ var file_rove_count_svc_g_proto_goTypes = []any{
 	(*InventoryCountResolveRequest)(nil),    // 16: rove.InventoryCountResolveRequest
 	(*CountFindingRef)(nil),                 // 17: rove.CountFindingRef
 	(*InventoryCountCloseRequest)(nil),      // 18: rove.InventoryCountCloseRequest
-	(*CountFindingAddRequest)(nil),          // 19: rove.CountFindingAddRequest
-	(*CountFindingGetRequest)(nil),          // 20: rove.CountFindingGetRequest
-	(*CountFindingSelect)(nil),              // 21: rove.CountFindingSelect
-	(*CountFindingPatchRequest)(nil),        // 22: rove.CountFindingPatchRequest
-	(*CountFindingApplyRequest)(nil),        // 23: rove.CountFindingApplyRequest
-	(*CountFindingEraseResponse)(nil),       // 24: rove.CountFindingEraseResponse
-	(*CountFindingListRequest)(nil),         // 25: rove.CountFindingListRequest
-	(*CountFindingListResponse)(nil),        // 26: rove.CountFindingListResponse
-	(*CountFindingFilter)(nil),              // 27: rove.CountFindingFilter
-	(*CountFindingWatchRequest)(nil),        // 28: rove.CountFindingWatchRequest
-	(*CountFindingWatchResponse)(nil),       // 29: rove.CountFindingWatchResponse
-	(*CountFindingWatchItem)(nil),           // 30: rove.CountFindingWatchItem
-	(*TenantRef)(nil),                       // 31: rove.TenantRef
-	(*AssetRef)(nil),                        // 32: rove.AssetRef
-	(*timestamppb.Timestamp)(nil),           // 33: google.protobuf.Timestamp
-	(*TenantSelect)(nil),                    // 34: rove.TenantSelect
-	(*AssetSelect)(nil),                     // 35: rove.AssetSelect
-	(*patchpb.Patch)(nil),                   // 36: patch.Patch
-	(*InventoryCount)(nil),                  // 37: rove.InventoryCount
-	(*CountFinding)(nil),                    // 38: rove.CountFinding
+	(*InventoryCountResultsRequest)(nil),    // 19: rove.InventoryCountResultsRequest
+	(*InventoryCountResultsResponse)(nil),   // 20: rove.InventoryCountResultsResponse
+	(*InventoryCountResult)(nil),            // 21: rove.InventoryCountResult
+	(*CountFindingAddRequest)(nil),          // 22: rove.CountFindingAddRequest
+	(*CountFindingGetRequest)(nil),          // 23: rove.CountFindingGetRequest
+	(*CountFindingSelect)(nil),              // 24: rove.CountFindingSelect
+	(*CountFindingPatchRequest)(nil),        // 25: rove.CountFindingPatchRequest
+	(*CountFindingApplyRequest)(nil),        // 26: rove.CountFindingApplyRequest
+	(*CountFindingEraseResponse)(nil),       // 27: rove.CountFindingEraseResponse
+	(*CountFindingListRequest)(nil),         // 28: rove.CountFindingListRequest
+	(*CountFindingListResponse)(nil),        // 29: rove.CountFindingListResponse
+	(*CountFindingFilter)(nil),              // 30: rove.CountFindingFilter
+	(*CountFindingWatchRequest)(nil),        // 31: rove.CountFindingWatchRequest
+	(*CountFindingWatchResponse)(nil),       // 32: rove.CountFindingWatchResponse
+	(*CountFindingWatchItem)(nil),           // 33: rove.CountFindingWatchItem
+	(*TenantRef)(nil),                       // 34: rove.TenantRef
+	(*AssetRef)(nil),                        // 35: rove.AssetRef
+	(*timestamppb.Timestamp)(nil),           // 36: google.protobuf.Timestamp
+	(*TenantSelect)(nil),                    // 37: rove.TenantSelect
+	(*AssetSelect)(nil),                     // 38: rove.AssetSelect
+	(*patchpb.Patch)(nil),                   // 39: patch.Patch
+	(*InventoryCount)(nil),                  // 40: rove.InventoryCount
+	(*CountFinding)(nil),                    // 41: rove.CountFinding
+	(*AssetExportResponse)(nil),             // 42: rove.AssetExportResponse
 }
 var file_rove_count_svc_g_proto_depIdxs = []int32{
-	31, // 0: rove.InventoryCountAddRequest.tenant:type_name -> rove.TenantRef
-	32, // 1: rove.InventoryCountAddRequest.scope:type_name -> rove.AssetRef
-	33, // 2: rove.InventoryCountAddRequest.started_at:type_name -> google.protobuf.Timestamp
-	33, // 3: rove.InventoryCountAddRequest.closed_at:type_name -> google.protobuf.Timestamp
-	33, // 4: rove.InventoryCountAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	34, // 0: rove.InventoryCountAddRequest.tenant:type_name -> rove.TenantRef
+	35, // 1: rove.InventoryCountAddRequest.scope:type_name -> rove.AssetRef
+	36, // 2: rove.InventoryCountAddRequest.started_at:type_name -> google.protobuf.Timestamp
+	36, // 3: rove.InventoryCountAddRequest.closed_at:type_name -> google.protobuf.Timestamp
+	36, // 4: rove.InventoryCountAddRequest.date_created:type_name -> google.protobuf.Timestamp
 	2,  // 5: rove.InventoryCountGetRequest.ref:type_name -> rove.InventoryCountRef
 	3,  // 6: rove.InventoryCountGetRequest.select:type_name -> rove.InventoryCountSelect
-	34, // 7: rove.InventoryCountSelect.tenant:type_name -> rove.TenantSelect
-	35, // 8: rove.InventoryCountSelect.scope:type_name -> rove.AssetSelect
+	37, // 7: rove.InventoryCountSelect.tenant:type_name -> rove.TenantSelect
+	38, // 8: rove.InventoryCountSelect.scope:type_name -> rove.AssetSelect
 	2,  // 9: rove.InventoryCountPatchRequest.ref:type_name -> rove.InventoryCountRef
-	33, // 10: rove.InventoryCountPatchRequest.started_at:type_name -> google.protobuf.Timestamp
-	33, // 11: rove.InventoryCountPatchRequest.closed_at:type_name -> google.protobuf.Timestamp
-	33, // 12: rove.InventoryCountPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	36, // 10: rove.InventoryCountPatchRequest.started_at:type_name -> google.protobuf.Timestamp
+	36, // 11: rove.InventoryCountPatchRequest.closed_at:type_name -> google.protobuf.Timestamp
+	36, // 12: rove.InventoryCountPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
 	2,  // 13: rove.InventoryCountApplyRequest.ref:type_name -> rove.InventoryCountRef
-	36, // 14: rove.InventoryCountApplyRequest.patch:type_name -> patch.Patch
+	39, // 14: rove.InventoryCountApplyRequest.patch:type_name -> patch.Patch
 	9,  // 15: rove.InventoryCountListRequest.filters:type_name -> rove.InventoryCountFilter
-	37, // 16: rove.InventoryCountListResponse.items:type_name -> rove.InventoryCount
+	40, // 16: rove.InventoryCountListResponse.items:type_name -> rove.InventoryCount
 	2,  // 17: rove.InventoryCountFilter.ref:type_name -> rove.InventoryCountRef
-	32, // 18: rove.InventoryCountFilter.scope:type_name -> rove.AssetRef
+	35, // 18: rove.InventoryCountFilter.scope:type_name -> rove.AssetRef
 	9,  // 19: rove.InventoryCountWatchRequest.filters:type_name -> rove.InventoryCountFilter
 	12, // 20: rove.InventoryCountWatchResponse.items:type_name -> rove.InventoryCountWatchItem
-	37, // 21: rove.InventoryCountWatchItem.value:type_name -> rove.InventoryCount
+	40, // 21: rove.InventoryCountWatchItem.value:type_name -> rove.InventoryCount
 	2,  // 22: rove.InventoryCountScanRequest.ref:type_name -> rove.InventoryCountRef
-	32, // 23: rove.InventoryCountScanRequest.asset:type_name -> rove.AssetRef
-	32, // 24: rove.InventoryCountScanRequest.at:type_name -> rove.AssetRef
-	33, // 25: rove.InventoryCountScanRequest.seen_at:type_name -> google.protobuf.Timestamp
+	35, // 23: rove.InventoryCountScanRequest.asset:type_name -> rove.AssetRef
+	35, // 24: rove.InventoryCountScanRequest.at:type_name -> rove.AssetRef
+	36, // 25: rove.InventoryCountScanRequest.seen_at:type_name -> google.protobuf.Timestamp
 	2,  // 26: rove.InventoryCountReconcileRequest.ref:type_name -> rove.InventoryCountRef
 	17, // 27: rove.InventoryCountResolveRequest.ref:type_name -> rove.CountFindingRef
-	32, // 28: rove.InventoryCountResolveRequest.leave:type_name -> rove.AssetRef
+	35, // 28: rove.InventoryCountResolveRequest.leave:type_name -> rove.AssetRef
 	2,  // 29: rove.InventoryCountCloseRequest.ref:type_name -> rove.InventoryCountRef
-	31, // 30: rove.CountFindingAddRequest.tenant:type_name -> rove.TenantRef
-	2,  // 31: rove.CountFindingAddRequest.count:type_name -> rove.InventoryCountRef
-	32, // 32: rove.CountFindingAddRequest.asset:type_name -> rove.AssetRef
-	33, // 33: rove.CountFindingAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	33, // 34: rove.CountFindingAddRequest.seen_at:type_name -> google.protobuf.Timestamp
-	33, // 35: rove.CountFindingAddRequest.resolved_at:type_name -> google.protobuf.Timestamp
-	17, // 36: rove.CountFindingGetRequest.ref:type_name -> rove.CountFindingRef
-	21, // 37: rove.CountFindingGetRequest.select:type_name -> rove.CountFindingSelect
-	34, // 38: rove.CountFindingSelect.tenant:type_name -> rove.TenantSelect
-	3,  // 39: rove.CountFindingSelect.count:type_name -> rove.InventoryCountSelect
-	35, // 40: rove.CountFindingSelect.asset:type_name -> rove.AssetSelect
-	17, // 41: rove.CountFindingPatchRequest.ref:type_name -> rove.CountFindingRef
-	33, // 42: rove.CountFindingPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	33, // 43: rove.CountFindingPatchRequest.seen_at:type_name -> google.protobuf.Timestamp
-	33, // 44: rove.CountFindingPatchRequest.resolved_at:type_name -> google.protobuf.Timestamp
-	17, // 45: rove.CountFindingApplyRequest.ref:type_name -> rove.CountFindingRef
-	36, // 46: rove.CountFindingApplyRequest.patch:type_name -> patch.Patch
-	27, // 47: rove.CountFindingListRequest.filters:type_name -> rove.CountFindingFilter
-	38, // 48: rove.CountFindingListResponse.items:type_name -> rove.CountFinding
-	17, // 49: rove.CountFindingFilter.ref:type_name -> rove.CountFindingRef
-	2,  // 50: rove.CountFindingFilter.count:type_name -> rove.InventoryCountRef
-	32, // 51: rove.CountFindingFilter.asset:type_name -> rove.AssetRef
-	27, // 52: rove.CountFindingWatchRequest.filters:type_name -> rove.CountFindingFilter
-	30, // 53: rove.CountFindingWatchResponse.items:type_name -> rove.CountFindingWatchItem
-	38, // 54: rove.CountFindingWatchItem.value:type_name -> rove.CountFinding
-	0,  // 55: rove.InventoryCountService.Add:input_type -> rove.InventoryCountAddRequest
-	1,  // 56: rove.InventoryCountService.Get:input_type -> rove.InventoryCountGetRequest
-	4,  // 57: rove.InventoryCountService.Patch:input_type -> rove.InventoryCountPatchRequest
-	5,  // 58: rove.InventoryCountService.Apply:input_type -> rove.InventoryCountApplyRequest
-	2,  // 59: rove.InventoryCountService.Erase:input_type -> rove.InventoryCountRef
-	7,  // 60: rove.InventoryCountService.List:input_type -> rove.InventoryCountListRequest
-	10, // 61: rove.InventoryCountService.Watch:input_type -> rove.InventoryCountWatchRequest
-	13, // 62: rove.InventoryCountService.Scan:input_type -> rove.InventoryCountScanRequest
-	14, // 63: rove.InventoryCountService.Reconcile:input_type -> rove.InventoryCountReconcileRequest
-	16, // 64: rove.InventoryCountService.Resolve:input_type -> rove.InventoryCountResolveRequest
-	18, // 65: rove.InventoryCountService.Close:input_type -> rove.InventoryCountCloseRequest
-	19, // 66: rove.CountFindingService.Add:input_type -> rove.CountFindingAddRequest
-	20, // 67: rove.CountFindingService.Get:input_type -> rove.CountFindingGetRequest
-	22, // 68: rove.CountFindingService.Patch:input_type -> rove.CountFindingPatchRequest
-	23, // 69: rove.CountFindingService.Apply:input_type -> rove.CountFindingApplyRequest
-	17, // 70: rove.CountFindingService.Erase:input_type -> rove.CountFindingRef
-	25, // 71: rove.CountFindingService.List:input_type -> rove.CountFindingListRequest
-	28, // 72: rove.CountFindingService.Watch:input_type -> rove.CountFindingWatchRequest
-	37, // 73: rove.InventoryCountService.Add:output_type -> rove.InventoryCount
-	37, // 74: rove.InventoryCountService.Get:output_type -> rove.InventoryCount
-	37, // 75: rove.InventoryCountService.Patch:output_type -> rove.InventoryCount
-	37, // 76: rove.InventoryCountService.Apply:output_type -> rove.InventoryCount
-	6,  // 77: rove.InventoryCountService.Erase:output_type -> rove.InventoryCountEraseResponse
-	8,  // 78: rove.InventoryCountService.List:output_type -> rove.InventoryCountListResponse
-	11, // 79: rove.InventoryCountService.Watch:output_type -> rove.InventoryCountWatchResponse
-	38, // 80: rove.InventoryCountService.Scan:output_type -> rove.CountFinding
-	15, // 81: rove.InventoryCountService.Reconcile:output_type -> rove.InventoryCountReconcileResponse
-	38, // 82: rove.InventoryCountService.Resolve:output_type -> rove.CountFinding
-	37, // 83: rove.InventoryCountService.Close:output_type -> rove.InventoryCount
-	38, // 84: rove.CountFindingService.Add:output_type -> rove.CountFinding
-	38, // 85: rove.CountFindingService.Get:output_type -> rove.CountFinding
-	38, // 86: rove.CountFindingService.Patch:output_type -> rove.CountFinding
-	38, // 87: rove.CountFindingService.Apply:output_type -> rove.CountFinding
-	24, // 88: rove.CountFindingService.Erase:output_type -> rove.CountFindingEraseResponse
-	26, // 89: rove.CountFindingService.List:output_type -> rove.CountFindingListResponse
-	29, // 90: rove.CountFindingService.Watch:output_type -> rove.CountFindingWatchResponse
-	73, // [73:91] is the sub-list for method output_type
-	55, // [55:73] is the sub-list for method input_type
-	55, // [55:55] is the sub-list for extension type_name
-	55, // [55:55] is the sub-list for extension extendee
-	0,  // [0:55] is the sub-list for field type_name
+	36, // 30: rove.InventoryCountResultsRequest.from:type_name -> google.protobuf.Timestamp
+	36, // 31: rove.InventoryCountResultsRequest.to:type_name -> google.protobuf.Timestamp
+	21, // 32: rove.InventoryCountResultsResponse.rows:type_name -> rove.InventoryCountResult
+	36, // 33: rove.InventoryCountResultsResponse.from:type_name -> google.protobuf.Timestamp
+	36, // 34: rove.InventoryCountResultsResponse.to:type_name -> google.protobuf.Timestamp
+	36, // 35: rove.InventoryCountResult.started_at:type_name -> google.protobuf.Timestamp
+	36, // 36: rove.InventoryCountResult.closed_at:type_name -> google.protobuf.Timestamp
+	34, // 37: rove.CountFindingAddRequest.tenant:type_name -> rove.TenantRef
+	2,  // 38: rove.CountFindingAddRequest.count:type_name -> rove.InventoryCountRef
+	35, // 39: rove.CountFindingAddRequest.asset:type_name -> rove.AssetRef
+	36, // 40: rove.CountFindingAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	36, // 41: rove.CountFindingAddRequest.seen_at:type_name -> google.protobuf.Timestamp
+	36, // 42: rove.CountFindingAddRequest.resolved_at:type_name -> google.protobuf.Timestamp
+	17, // 43: rove.CountFindingGetRequest.ref:type_name -> rove.CountFindingRef
+	24, // 44: rove.CountFindingGetRequest.select:type_name -> rove.CountFindingSelect
+	37, // 45: rove.CountFindingSelect.tenant:type_name -> rove.TenantSelect
+	3,  // 46: rove.CountFindingSelect.count:type_name -> rove.InventoryCountSelect
+	38, // 47: rove.CountFindingSelect.asset:type_name -> rove.AssetSelect
+	17, // 48: rove.CountFindingPatchRequest.ref:type_name -> rove.CountFindingRef
+	36, // 49: rove.CountFindingPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	36, // 50: rove.CountFindingPatchRequest.seen_at:type_name -> google.protobuf.Timestamp
+	36, // 51: rove.CountFindingPatchRequest.resolved_at:type_name -> google.protobuf.Timestamp
+	17, // 52: rove.CountFindingApplyRequest.ref:type_name -> rove.CountFindingRef
+	39, // 53: rove.CountFindingApplyRequest.patch:type_name -> patch.Patch
+	30, // 54: rove.CountFindingListRequest.filters:type_name -> rove.CountFindingFilter
+	41, // 55: rove.CountFindingListResponse.items:type_name -> rove.CountFinding
+	17, // 56: rove.CountFindingFilter.ref:type_name -> rove.CountFindingRef
+	2,  // 57: rove.CountFindingFilter.count:type_name -> rove.InventoryCountRef
+	35, // 58: rove.CountFindingFilter.asset:type_name -> rove.AssetRef
+	30, // 59: rove.CountFindingWatchRequest.filters:type_name -> rove.CountFindingFilter
+	33, // 60: rove.CountFindingWatchResponse.items:type_name -> rove.CountFindingWatchItem
+	41, // 61: rove.CountFindingWatchItem.value:type_name -> rove.CountFinding
+	0,  // 62: rove.InventoryCountService.Add:input_type -> rove.InventoryCountAddRequest
+	1,  // 63: rove.InventoryCountService.Get:input_type -> rove.InventoryCountGetRequest
+	4,  // 64: rove.InventoryCountService.Patch:input_type -> rove.InventoryCountPatchRequest
+	5,  // 65: rove.InventoryCountService.Apply:input_type -> rove.InventoryCountApplyRequest
+	2,  // 66: rove.InventoryCountService.Erase:input_type -> rove.InventoryCountRef
+	7,  // 67: rove.InventoryCountService.List:input_type -> rove.InventoryCountListRequest
+	10, // 68: rove.InventoryCountService.Watch:input_type -> rove.InventoryCountWatchRequest
+	13, // 69: rove.InventoryCountService.Scan:input_type -> rove.InventoryCountScanRequest
+	14, // 70: rove.InventoryCountService.Reconcile:input_type -> rove.InventoryCountReconcileRequest
+	16, // 71: rove.InventoryCountService.Resolve:input_type -> rove.InventoryCountResolveRequest
+	18, // 72: rove.InventoryCountService.Close:input_type -> rove.InventoryCountCloseRequest
+	19, // 73: rove.InventoryCountService.Results:input_type -> rove.InventoryCountResultsRequest
+	19, // 74: rove.InventoryCountService.ExportResults:input_type -> rove.InventoryCountResultsRequest
+	22, // 75: rove.CountFindingService.Add:input_type -> rove.CountFindingAddRequest
+	23, // 76: rove.CountFindingService.Get:input_type -> rove.CountFindingGetRequest
+	25, // 77: rove.CountFindingService.Patch:input_type -> rove.CountFindingPatchRequest
+	26, // 78: rove.CountFindingService.Apply:input_type -> rove.CountFindingApplyRequest
+	17, // 79: rove.CountFindingService.Erase:input_type -> rove.CountFindingRef
+	28, // 80: rove.CountFindingService.List:input_type -> rove.CountFindingListRequest
+	31, // 81: rove.CountFindingService.Watch:input_type -> rove.CountFindingWatchRequest
+	40, // 82: rove.InventoryCountService.Add:output_type -> rove.InventoryCount
+	40, // 83: rove.InventoryCountService.Get:output_type -> rove.InventoryCount
+	40, // 84: rove.InventoryCountService.Patch:output_type -> rove.InventoryCount
+	40, // 85: rove.InventoryCountService.Apply:output_type -> rove.InventoryCount
+	6,  // 86: rove.InventoryCountService.Erase:output_type -> rove.InventoryCountEraseResponse
+	8,  // 87: rove.InventoryCountService.List:output_type -> rove.InventoryCountListResponse
+	11, // 88: rove.InventoryCountService.Watch:output_type -> rove.InventoryCountWatchResponse
+	41, // 89: rove.InventoryCountService.Scan:output_type -> rove.CountFinding
+	15, // 90: rove.InventoryCountService.Reconcile:output_type -> rove.InventoryCountReconcileResponse
+	41, // 91: rove.InventoryCountService.Resolve:output_type -> rove.CountFinding
+	40, // 92: rove.InventoryCountService.Close:output_type -> rove.InventoryCount
+	20, // 93: rove.InventoryCountService.Results:output_type -> rove.InventoryCountResultsResponse
+	42, // 94: rove.InventoryCountService.ExportResults:output_type -> rove.AssetExportResponse
+	41, // 95: rove.CountFindingService.Add:output_type -> rove.CountFinding
+	41, // 96: rove.CountFindingService.Get:output_type -> rove.CountFinding
+	41, // 97: rove.CountFindingService.Patch:output_type -> rove.CountFinding
+	41, // 98: rove.CountFindingService.Apply:output_type -> rove.CountFinding
+	27, // 99: rove.CountFindingService.Erase:output_type -> rove.CountFindingEraseResponse
+	29, // 100: rove.CountFindingService.List:output_type -> rove.CountFindingListResponse
+	32, // 101: rove.CountFindingService.Watch:output_type -> rove.CountFindingWatchResponse
+	82, // [82:102] is the sub-list for method output_type
+	62, // [62:82] is the sub-list for method input_type
+	62, // [62:62] is the sub-list for extension type_name
+	62, // [62:62] is the sub-list for extension extendee
+	0,  // [0:62] is the sub-list for field type_name
 }
 
 func init() { file_rove_count_svc_g_proto_init() }
@@ -5678,7 +6216,7 @@ func file_rove_count_svc_g_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_count_svc_g_proto_rawDesc), len(file_rove_count_svc_g_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   31,
+			NumMessages:   34,
 			NumExtensions: 0,
 			NumServices:   2,
 		},

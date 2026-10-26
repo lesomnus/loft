@@ -46,7 +46,7 @@ import (
 
 // voided is what is said of a thing erased as registered by mistake, as its
 // status would be: out of use to whatever booked it, for good (2026-10-26,
-// D47). No asset is in it; it is what [goneAs] says of one erased.
+// D48). No asset is in it; it is what [goneAs] says of one erased.
 const voided = "voided"
 
 // goneAs is what `a` is said to be, out of use: its status, or [voided].
@@ -66,7 +66,7 @@ func goneSay(a *ent.Asset) string {
 }
 
 // gone is what a reservation takes that is out of use: lost, retired or
-// disposed, or erased as registered by mistake (D47).
+// disposed, or erased as registered by mistake (D48).
 func gone() predicate.Asset {
 	return asset.Or(asset.And(asset.StatusIn(OutOfUse...), asset.DateErasedIsNil()), asset.DateErasedNotNil())
 }
@@ -75,7 +75,7 @@ func gone() predicate.Asset {
 // of the ones still to be fulfilled ([waits]) and not over, by their tags:
 // what it booked itself, whatever it is, and the items its kits take with it
 // -- an allocation of each, held or waited for -- that are lost, retired or
-// disposed; and what it booked that was voided since (D47).
+// disposed; and what it booked that was voided since (D48).
 func (t *Tx) outOfUseOf(rs []*ent.Reservation) (map[uuid.UUID][]*app.ReservationOutOfUse, error) {
 	ids := []uuid.UUID{}
 	for _, r := range rs {
@@ -161,7 +161,7 @@ func (t *Tx) outOfUseOf(rs []*ent.Reservation) (map[uuid.UUID][]*app.Reservation
 
 // unusable answers what reservation `rid` booked itself that is out of use
 // now, by tag: what it is neither approved nor confirmed with, nor fulfilled
-// through (D43) -- voided too (D47). Read as what booked it is held -- the
+// through (D43) -- voided too (D48). Read as what booked it is held -- the
 // schedules of what it booked ([Tx.lockAllocations]), which a change of
 // their status holds before it tells who booked them ([Tx.holdLeaving]) --
 // what is read is what that change left, or what it is yet to see.
@@ -337,7 +337,7 @@ func (t *Tx) tellOutOfUse(a *ent.Asset, rs []*ent.Reservation) error {
 // voidedOf tells whoever has to act on it that `id`, which this operation
 // voids, was booked by reservations still to be fulfilled: the ones that
 // booked it itself, which it is out of use to for good -- a kit or a pool it
-// was a member of let it go as it left them (D47). Called once what it was
+// was a member of let it go as it left them (D48). Called once what it was
 // in let it go, and before it is erased.
 func (t *Tx) voidedOf(id uuid.UUID) error {
 	a, err := t.db.Asset.Query().Where(asset.Id(id), asset.TenantId(t.tenant.Uuid())).Only(t.ctx)
@@ -356,7 +356,7 @@ func (t *Tx) voidedOf(id uuid.UUID) error {
 
 // tellVoided tells who has to act on it that `a`, which these reservations
 // booked, is voided -- erased as registered by mistake -- and is out of use
-// to them for good (D47): whoever runs the reservations, once, and whoever
+// to them for good (D48): whoever runs the reservations, once, and whoever
 // each is for, once for theirs, by mail as well ([Mailed]), as of what goes
 // out of use ([Tx.tellOutOfUse]). Nothing brings it back, so nobody is told
 // it will be, and whoever each is for is told to book something else.

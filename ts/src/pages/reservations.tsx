@@ -481,7 +481,7 @@ function booked(items: OutOfUseItem[], resources: Uint8Array[]): OutOfUseItem[] 
 
 /**
  * What a reservation takes that is out of use -- lost, retired or disposed
- * (D42, D43), or deleted as registered by mistake, for good (D47). A space it
+ * (D42, D43), or deleted as registered by mistake, for good (D48). A space it
  * booked is not checked into. Anything else no hand-over takes: what was
  * booked itself, or a member kept in its kit as it went (design 4, D40),
  * which the kit's bookings take until it is taken off the kit. `more` is what

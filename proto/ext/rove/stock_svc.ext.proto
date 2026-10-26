@@ -18,6 +18,60 @@ service StockService {
   rpc Transfer(StockTransferRequest) returns (Stock);
   // Convert takes units out of a stock and makes them assets of their own.
   rpc Convert(StockConvertRequest) returns (StockConvertResponse);
+
+  // Flow is each stock over a period (재고 소모, design 9.14): how many it had
+  // when the period began, what came in and what went out by what moved it,
+  // and how many it had when the period ended. It names nobody.
+  rpc Flow(StockFlowRequest) returns (StockFlowResponse);
+  // ExportFlow writes it as a CSV, which names nobody and so is no download
+  // of anybody (rove#136).
+  rpc ExportFlow(StockFlowRequest) returns (AssetExportResponse);
+}
+
+message StockFlowRequest {
+  // The period, from `from` and before `to`, a year at most. Unsaid, the last
+  // thirty of the workspace's days, today among them.
+  google.protobuf.Timestamp from = 1;
+  google.protobuf.Timestamp to = 2;
+}
+
+message StockFlowResponse {
+  // Every stock, by name and then by where it is kept.
+  repeated StockFlowRow rows = 1;
+  // The period it read.
+  google.protobuf.Timestamp from = 2;
+  google.protobuf.Timestamp to = 3;
+}
+
+// StockFlowRow is one stock over a period, in its own unit: what it had at
+// each end of the period, and what moved it in between, each a count of
+// units however it moved.
+message StockFlowRow {
+  bytes stock_id = 1 [features.field_presence = IMPLICIT];
+  string name = 2 [features.field_presence = IMPLICIT];
+  string unit = 3 [features.field_presence = IMPLICIT];
+  // Where it is kept, as it is called now.
+  bytes space_id = 4 [features.field_presence = IMPLICIT];
+  string space_name = 5 [features.field_presence = IMPLICIT];
+  // How many it had when the period began, and when it ended.
+  int64 opening = 6 [features.field_presence = IMPLICIT];
+  int64 closing = 7 [features.field_presence = IMPLICIT];
+  // What came in: received, given back from a hand-over, moved in from
+  // another space, and counted up.
+  int64 received = 8 [features.field_presence = IMPLICIT];
+  int64 returned = 9 [features.field_presence = IMPLICIT];
+  int64 transferred_in = 10 [features.field_presence = IMPLICIT];
+  int64 adjusted_up = 11 [features.field_presence = IMPLICIT];
+  // What went out: used, handed over, moved to another space, made assets
+  // of, and counted down.
+  int64 consumed = 12 [features.field_presence = IMPLICIT];
+  int64 issued = 13 [features.field_presence = IMPLICIT];
+  int64 transferred_out = 14 [features.field_presence = IMPLICIT];
+  int64 converted = 15 [features.field_presence = IMPLICIT];
+  int64 adjusted_down = 16 [features.field_presence = IMPLICIT];
+  // All that came in, and all that went out.
+  int64 came_in = 17 [features.field_presence = IMPLICIT];
+  int64 went_out = 18 [features.field_presence = IMPLICIT];
 }
 
 message StockAddRequest {

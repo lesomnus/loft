@@ -69,7 +69,7 @@ func usable(status string) bool {
 // whose reservations are said to take what is out of use ([Tx.outOfUseOf]),
 // and so are not counted short of it as well, whatever its members are --
 // nor take any of it they wait for -- until it is in use again (D43). One
-// voided is, for good (D47).
+// voided is, for good (D48).
 func poolOutOfUse(a *ent.Asset) bool {
 	return a != nil && a.Kind == "group" && (slices.Contains(OutOfUse, a.Status) || a.DateErased != nil)
 }

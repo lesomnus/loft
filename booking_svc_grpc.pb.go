@@ -28,6 +28,8 @@ const (
 	BookableService_Watch_FullMethodName        = "/rove.BookableService/Watch"
 	BookableService_Update_FullMethodName       = "/rove.BookableService/Update"
 	BookableService_Availability_FullMethodName = "/rove.BookableService/Availability"
+	BookableService_Usage_FullMethodName        = "/rove.BookableService/Usage"
+	BookableService_ExportUsage_FullMethodName  = "/rove.BookableService/ExportUsage"
 )
 
 // BookableServiceClient is the client API for BookableService service.
@@ -61,6 +63,15 @@ type BookableServiceClient interface {
 	Update(ctx context.Context, in *BookableUpdateRequest, opts ...grpc.CallOption) (*Bookable, error)
 	// Availability answers when resources are taken between two moments.
 	Availability(ctx context.Context, in *BookableAvailabilityRequest, opts ...grpc.CallOption) (*BookableAvailabilityResponse, error)
+	// Usage is each bookable resource over a period (예약 이용률, design 9.14):
+	// the reservations that began in it and were promised their time, the
+	// hours they booked against the hours they were used -- from the check-in
+	// or the pickup to the return or the finish -- and the ones nobody came
+	// for. It names nobody.
+	Usage(ctx context.Context, in *BookableUsageRequest, opts ...grpc.CallOption) (*BookableUsageResponse, error)
+	// ExportUsage writes it as a CSV, which names nobody and so is no download
+	// of anybody (rove#136).
+	ExportUsage(ctx context.Context, in *BookableUsageRequest, opts ...grpc.CallOption) (*AssetExportResponse, error)
 }
 
 type bookableServiceClient struct {
@@ -170,6 +181,26 @@ func (c *bookableServiceClient) Availability(ctx context.Context, in *BookableAv
 	return out, nil
 }
 
+func (c *bookableServiceClient) Usage(ctx context.Context, in *BookableUsageRequest, opts ...grpc.CallOption) (*BookableUsageResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BookableUsageResponse)
+	err := c.cc.Invoke(ctx, BookableService_Usage_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *bookableServiceClient) ExportUsage(ctx context.Context, in *BookableUsageRequest, opts ...grpc.CallOption) (*AssetExportResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AssetExportResponse)
+	err := c.cc.Invoke(ctx, BookableService_ExportUsage_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BookableServiceServer is the server API for BookableService service.
 // All implementations must embed UnimplementedBookableServiceServer
 // for forward compatibility.
@@ -201,6 +232,15 @@ type BookableServiceServer interface {
 	Update(context.Context, *BookableUpdateRequest) (*Bookable, error)
 	// Availability answers when resources are taken between two moments.
 	Availability(context.Context, *BookableAvailabilityRequest) (*BookableAvailabilityResponse, error)
+	// Usage is each bookable resource over a period (예약 이용률, design 9.14):
+	// the reservations that began in it and were promised their time, the
+	// hours they booked against the hours they were used -- from the check-in
+	// or the pickup to the return or the finish -- and the ones nobody came
+	// for. It names nobody.
+	Usage(context.Context, *BookableUsageRequest) (*BookableUsageResponse, error)
+	// ExportUsage writes it as a CSV, which names nobody and so is no download
+	// of anybody (rove#136).
+	ExportUsage(context.Context, *BookableUsageRequest) (*AssetExportResponse, error)
 	mustEmbedUnimplementedBookableServiceServer()
 }
 
@@ -237,6 +277,12 @@ func (UnimplementedBookableServiceServer) Update(context.Context, *BookableUpdat
 }
 func (UnimplementedBookableServiceServer) Availability(context.Context, *BookableAvailabilityRequest) (*BookableAvailabilityResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Availability not implemented")
+}
+func (UnimplementedBookableServiceServer) Usage(context.Context, *BookableUsageRequest) (*BookableUsageResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Usage not implemented")
+}
+func (UnimplementedBookableServiceServer) ExportUsage(context.Context, *BookableUsageRequest) (*AssetExportResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ExportUsage not implemented")
 }
 func (UnimplementedBookableServiceServer) mustEmbedUnimplementedBookableServiceServer() {}
 func (UnimplementedBookableServiceServer) testEmbeddedByValue()                         {}
@@ -414,6 +460,42 @@ func _BookableService_Availability_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BookableService_Usage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BookableUsageRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BookableServiceServer).Usage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BookableService_Usage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BookableServiceServer).Usage(ctx, req.(*BookableUsageRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BookableService_ExportUsage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BookableUsageRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BookableServiceServer).ExportUsage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BookableService_ExportUsage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BookableServiceServer).ExportUsage(ctx, req.(*BookableUsageRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BookableService_ServiceDesc is the grpc.ServiceDesc for BookableService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -452,6 +534,14 @@ var BookableService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Availability",
 			Handler:    _BookableService_Availability_Handler,
+		},
+		{
+			MethodName: "Usage",
+			Handler:    _BookableService_Usage_Handler,
+		},
+		{
+			MethodName: "ExportUsage",
+			Handler:    _BookableService_ExportUsage_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

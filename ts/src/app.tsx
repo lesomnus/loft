@@ -20,6 +20,7 @@ import { Notifications } from './pages/notifications.js'
 import { People } from './pages/people.js'
 import { Purchases } from './pages/purchases.js'
 import { Register } from './pages/register.js'
+import { Reports } from './pages/reports.js'
 import { Reservations } from './pages/reservations.js'
 import { Scan } from './pages/scan.js'
 import { Settings } from './pages/settings.js'
@@ -30,7 +31,9 @@ import { Offline, useRpc } from './rpc.js'
 import { roleWord } from './words.js'
 import { Switcher } from './workspaces.js'
 
-const nav: { to: string; label: string; icon: string; min?: 'manager' | 'admin' }[] = [
+// `auditor` lets an auditor see one below `min`, as the role table lets one
+// read what it exists for (`server/policy`).
+const nav: { to: string; label: string; icon: string; min?: 'manager' | 'admin'; auditor?: boolean }[] = [
 	{ to: '/', label: '대시보드', icon: '◎' },
 	{ to: '/assets', label: '자산', icon: '▦' },
 	{ to: '/spaces', label: '공간', icon: '⌂' },
@@ -40,6 +43,7 @@ const nav: { to: string; label: string; icon: string; min?: 'manager' | 'admin' 
 	{ to: '/counts', label: '실사', icon: '✓' },
 	{ to: '/work', label: '작업', icon: '⚒' },
 	{ to: '/purchases', label: '구매', icon: '¤', min: 'manager' },
+	{ to: '/reports', label: '리포트', icon: '▥', min: 'manager', auditor: true },
 	{ to: '/people', label: '사람', icon: '☺' },
 	{ to: '/settings', label: '설정', icon: '⚙' },
 ]
@@ -75,7 +79,7 @@ function Frame(props: { account: Account; onSignOut: () => void; children: React
 				</div>
 				<nav>
 					{nav
-						.filter((n) => n.min === undefined || c.can(n.min))
+						.filter((n) => n.min === undefined || c.can(n.min) || (n.auditor === true && c.role === 'auditor'))
 						.map((n) => (
 							<NavLink key={n.to} to={n.to} end={n.to === '/'}>
 								<span className="icon">{n.icon}</span>
@@ -145,6 +149,7 @@ export function App(props: { account: Account; onSignOut: () => void }): ReactNo
 									<Route path="/counts/:id" element={<CountPage />} />
 									<Route path="/work" element={<Work />} />
 									<Route path="/purchases" element={<Purchases />} />
+									<Route path="/reports" element={<Reports />} />
 									<Route path="/people" element={<People />} />
 									<Route path="/settings" element={<Settings />} />
 									<Route path="/scan" element={<Scan />} />

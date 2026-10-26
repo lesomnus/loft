@@ -12,7 +12,7 @@ import (
 )
 
 // What is voided -- erased as registered by mistake -- is out of use to every
-// reservation that booked it, for good (2026-10-26, D47): each says so and
+// reservation that booked it, for good (2026-10-26, D48): each says so and
 // is told, is neither approved, confirmed nor fulfilled through it, and is
 // not let go of -- as of what goes out of use (D43). A pool voided is out of
 // use itself, so nothing of it is counted short, and what was in it is the

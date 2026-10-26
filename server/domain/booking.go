@@ -1050,7 +1050,7 @@ func (t *Tx) lockReservations(ids ...pdid.Id) error {
 // the pools around them ([Tx.circle]): what it lets go of is theirs to give
 // then too ([Tx.heal]). And of `also`, what its pickup hands out, which the
 // pickup makes its own ([Tx.handOver]). Not of one deleted with its asset,
-// which nothing books any more (D47).
+// which nothing books any more (D48).
 func (t *Tx) lockAllocations(rid pdid.Id, also ...uuid.UUID) error {
 	as, err := t.db.Allocation.Query().Where(allocation.TenantId(t.tenant.Uuid()), allocation.RefId(rid.Uuid())).All(t.ctx)
 	if err != nil {
@@ -1299,7 +1299,7 @@ func (s domainReservation) Calendar(ctx context.Context, req *app.ReservationCal
 			_, id, err := t.get(r, fmt.Sprintf("resources[%d]", i))
 			if status.Code(err) == codes.NotFound && len(r.GetId()) > 0 {
 				// One deleted since what asks read what there is to book,
-				// whose bookings are still there to show (D47): asked for
+				// whose bookings are still there to show (D48): asked for
 				// with the rest, it does not keep them from being shown.
 				gone, gerr := t.db.Asset.Query().Where(asset.Id(uuidOf(r.GetId())), asset.TenantId(t.tenant.Uuid()), asset.DateErasedNotNil()).Exist(ctx)
 				if gerr != nil {
