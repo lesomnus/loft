@@ -39,6 +39,12 @@ var (
 	movementSay   = map[string]string{"receive": "입고", "consume": "사용", "adjust": "조정", "issue": "지급", "return": "반납", "transfer_in": "이동 입고", "transfer_out": "이동 출고", "convert": "자산 전환"}
 	resolutionSay = map[string]string{"open": "미처리", "ok": "정상", "moved": "위치 반영", "lost": "분실 처리", "ignored": "무시"}
 	relationSay   = map[string]string{"member_of": "구성품 / 소속", "connected_to": "연결됨"}
+
+	// And what the reports write (design 9.14): what a hand-over is, what a
+	// count found and where a count is.
+	custodyKindSay = map[string]string{"issue": "지급", "loan": "대여"}
+	findingSay     = map[string]string{"seen": "확인", "misplaced": "위치 다름", "missing": "미발견", "unknown": "미등록"}
+	countSay       = map[string]string{"open": "진행 중", "closed": "종료"}
 )
 
 // errDry is how a dry run ends: everything was done, and is rolled back.

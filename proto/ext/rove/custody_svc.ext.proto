@@ -28,6 +28,17 @@ service CustodyService {
   // Return takes back some or all of what was handed over.
   rpc Return(CustodyReturnRequest) returns (Custody);
   rpc Extend(CustodyExtendRequest) returns (Custody);
+
+  // Outstanding is what is out now (대여 현황, design 9.14): a row each thing
+  // handed over and not back -- who has it, since when, until when and how
+  // late -- a page at a time, and how much is out in all. It names who has
+  // each, as they are called now, and is a read of them on the access record
+  // (rove#136); and nobody's address or number.
+  rpc Outstanding(CustodyOutstandingRequest) returns (CustodyOutstandingResponse);
+  // ExportOutstanding writes every row of it as a CSV, whatever the page: a
+  // download of the people it names, which says what it is for in
+  // `payday-reason-bin`, and is refused without (rove#136).
+  rpc ExportOutstanding(CustodyOutstandingRequest) returns (AssetExportResponse);
 }
 
 message CustodyAcknowledgeRequest {
@@ -53,4 +64,63 @@ message CustodyReturnLine {
 message CustodyExtendRequest {
   CustodyRef ref = 1;
   google.protobuf.Timestamp due_at = 2;
+}
+
+message CustodyOutstandingRequest {
+  // Only what is past its due date.
+  bool overdue = 1 [features.field_presence = IMPLICIT];
+  // issue | loan; empty is both.
+  string kind = 2 [features.field_presence = IMPLICIT];
+  // A page of the rows: how many -- 50 when unsaid, and 500 at most -- and how
+  // many come before it.
+  uint32 size = 3 [features.field_presence = IMPLICIT];
+  uint32 offset = 4 [features.field_presence = IMPLICIT];
+}
+
+message CustodyOutstandingResponse {
+  // The most overdue first, then what is due soonest, then what was handed
+  // over for keeps, the longest held first.
+  repeated CustodyOutstandingRow rows = 1;
+  // How many rows there are as the request asked, on every page.
+  uint32 total = 2 [features.field_presence = IMPLICIT];
+  // All that is out, whatever the request asked: the hand-overs open, those
+  // of them past their due date, who has something, the assets out, and the
+  // lines of stock -- each in its own unit, so they are counted and not
+  // added up.
+  uint32 custodies = 3 [features.field_presence = IMPLICIT];
+  uint32 overdue = 4 [features.field_presence = IMPLICIT];
+  uint32 people = 5 [features.field_presence = IMPLICIT];
+  uint32 assets = 6 [features.field_presence = IMPLICIT];
+  uint32 stocks = 7 [features.field_presence = IMPLICIT];
+  // When it was read, which what is overdue is overdue at.
+  google.protobuf.Timestamp at = 8;
+}
+
+// CustodyOutstandingRow is one line of a hand-over still out: an asset, or
+// what of a stock has not come back.
+message CustodyOutstandingRow {
+  bytes custody_id = 1 [features.field_presence = IMPLICIT];
+  bytes line_id = 2 [features.field_presence = IMPLICIT];
+  // issue | loan
+  string kind = 3 [features.field_presence = IMPLICIT];
+  // Who has it, by the name they have now.
+  bytes party_id = 4 [features.field_presence = IMPLICIT];
+  string party_name = 5 [features.field_presence = IMPLICIT];
+  // What it is: an asset, by its tag and name; or a stock, by its name, how
+  // many of it are still out, and in what.
+  bytes asset_id = 6 [features.field_presence = IMPLICIT];
+  string asset_tag = 7 [features.field_presence = IMPLICIT];
+  string asset_name = 8 [features.field_presence = IMPLICIT];
+  bytes stock_id = 9 [features.field_presence = IMPLICIT];
+  string stock_name = 10 [features.field_presence = IMPLICIT];
+  int64 quantity = 11 [features.field_presence = IMPLICIT];
+  string unit = 12 [features.field_presence = IMPLICIT];
+  google.protobuf.Timestamp issued_at = 13;
+  google.protobuf.Timestamp due_at = 14;
+  // Past its due date, and by how many of the workspace's days: one due
+  // yesterday is a day late, and one due earlier today none, late as it is.
+  bool overdue = 15 [features.field_presence = IMPLICIT];
+  uint32 overdue_days = 16 [features.field_presence = IMPLICIT];
+  // Whether whoever has it said they do.
+  bool acknowledged = 17 [features.field_presence = IMPLICIT];
 }

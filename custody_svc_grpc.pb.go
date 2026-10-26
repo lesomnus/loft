@@ -19,16 +19,18 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	CustodyService_Add_FullMethodName         = "/rove.CustodyService/Add"
-	CustodyService_Get_FullMethodName         = "/rove.CustodyService/Get"
-	CustodyService_Patch_FullMethodName       = "/rove.CustodyService/Patch"
-	CustodyService_Apply_FullMethodName       = "/rove.CustodyService/Apply"
-	CustodyService_Erase_FullMethodName       = "/rove.CustodyService/Erase"
-	CustodyService_List_FullMethodName        = "/rove.CustodyService/List"
-	CustodyService_Watch_FullMethodName       = "/rove.CustodyService/Watch"
-	CustodyService_Acknowledge_FullMethodName = "/rove.CustodyService/Acknowledge"
-	CustodyService_Return_FullMethodName      = "/rove.CustodyService/Return"
-	CustodyService_Extend_FullMethodName      = "/rove.CustodyService/Extend"
+	CustodyService_Add_FullMethodName               = "/rove.CustodyService/Add"
+	CustodyService_Get_FullMethodName               = "/rove.CustodyService/Get"
+	CustodyService_Patch_FullMethodName             = "/rove.CustodyService/Patch"
+	CustodyService_Apply_FullMethodName             = "/rove.CustodyService/Apply"
+	CustodyService_Erase_FullMethodName             = "/rove.CustodyService/Erase"
+	CustodyService_List_FullMethodName              = "/rove.CustodyService/List"
+	CustodyService_Watch_FullMethodName             = "/rove.CustodyService/Watch"
+	CustodyService_Acknowledge_FullMethodName       = "/rove.CustodyService/Acknowledge"
+	CustodyService_Return_FullMethodName            = "/rove.CustodyService/Return"
+	CustodyService_Extend_FullMethodName            = "/rove.CustodyService/Extend"
+	CustodyService_Outstanding_FullMethodName       = "/rove.CustodyService/Outstanding"
+	CustodyService_ExportOutstanding_FullMethodName = "/rove.CustodyService/ExportOutstanding"
 )
 
 // CustodyServiceClient is the client API for CustodyService service.
@@ -64,6 +66,16 @@ type CustodyServiceClient interface {
 	// Return takes back some or all of what was handed over.
 	Return(ctx context.Context, in *CustodyReturnRequest, opts ...grpc.CallOption) (*Custody, error)
 	Extend(ctx context.Context, in *CustodyExtendRequest, opts ...grpc.CallOption) (*Custody, error)
+	// Outstanding is what is out now (대여 현황, design 9.14): a row each thing
+	// handed over and not back -- who has it, since when, until when and how
+	// late -- a page at a time, and how much is out in all. It names who has
+	// each, as they are called now, and is a read of them on the access record
+	// (rove#136); and nobody's address or number.
+	Outstanding(ctx context.Context, in *CustodyOutstandingRequest, opts ...grpc.CallOption) (*CustodyOutstandingResponse, error)
+	// ExportOutstanding writes every row of it as a CSV, whatever the page: a
+	// download of the people it names, which says what it is for in
+	// `payday-reason-bin`, and is refused without (rove#136).
+	ExportOutstanding(ctx context.Context, in *CustodyOutstandingRequest, opts ...grpc.CallOption) (*AssetExportResponse, error)
 }
 
 type custodyServiceClient struct {
@@ -183,6 +195,26 @@ func (c *custodyServiceClient) Extend(ctx context.Context, in *CustodyExtendRequ
 	return out, nil
 }
 
+func (c *custodyServiceClient) Outstanding(ctx context.Context, in *CustodyOutstandingRequest, opts ...grpc.CallOption) (*CustodyOutstandingResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CustodyOutstandingResponse)
+	err := c.cc.Invoke(ctx, CustodyService_Outstanding_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *custodyServiceClient) ExportOutstanding(ctx context.Context, in *CustodyOutstandingRequest, opts ...grpc.CallOption) (*AssetExportResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AssetExportResponse)
+	err := c.cc.Invoke(ctx, CustodyService_ExportOutstanding_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CustodyServiceServer is the server API for CustodyService service.
 // All implementations must embed UnimplementedCustodyServiceServer
 // for forward compatibility.
@@ -216,6 +248,16 @@ type CustodyServiceServer interface {
 	// Return takes back some or all of what was handed over.
 	Return(context.Context, *CustodyReturnRequest) (*Custody, error)
 	Extend(context.Context, *CustodyExtendRequest) (*Custody, error)
+	// Outstanding is what is out now (대여 현황, design 9.14): a row each thing
+	// handed over and not back -- who has it, since when, until when and how
+	// late -- a page at a time, and how much is out in all. It names who has
+	// each, as they are called now, and is a read of them on the access record
+	// (rove#136); and nobody's address or number.
+	Outstanding(context.Context, *CustodyOutstandingRequest) (*CustodyOutstandingResponse, error)
+	// ExportOutstanding writes every row of it as a CSV, whatever the page: a
+	// download of the people it names, which says what it is for in
+	// `payday-reason-bin`, and is refused without (rove#136).
+	ExportOutstanding(context.Context, *CustodyOutstandingRequest) (*AssetExportResponse, error)
 	mustEmbedUnimplementedCustodyServiceServer()
 }
 
@@ -255,6 +297,12 @@ func (UnimplementedCustodyServiceServer) Return(context.Context, *CustodyReturnR
 }
 func (UnimplementedCustodyServiceServer) Extend(context.Context, *CustodyExtendRequest) (*Custody, error) {
 	return nil, status.Error(codes.Unimplemented, "method Extend not implemented")
+}
+func (UnimplementedCustodyServiceServer) Outstanding(context.Context, *CustodyOutstandingRequest) (*CustodyOutstandingResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Outstanding not implemented")
+}
+func (UnimplementedCustodyServiceServer) ExportOutstanding(context.Context, *CustodyOutstandingRequest) (*AssetExportResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ExportOutstanding not implemented")
 }
 func (UnimplementedCustodyServiceServer) mustEmbedUnimplementedCustodyServiceServer() {}
 func (UnimplementedCustodyServiceServer) testEmbeddedByValue()                        {}
@@ -450,6 +498,42 @@ func _CustodyService_Extend_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CustodyService_Outstanding_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CustodyOutstandingRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CustodyServiceServer).Outstanding(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CustodyService_Outstanding_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CustodyServiceServer).Outstanding(ctx, req.(*CustodyOutstandingRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CustodyService_ExportOutstanding_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CustodyOutstandingRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CustodyServiceServer).ExportOutstanding(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CustodyService_ExportOutstanding_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CustodyServiceServer).ExportOutstanding(ctx, req.(*CustodyOutstandingRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CustodyService_ServiceDesc is the grpc.ServiceDesc for CustodyService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -492,6 +576,14 @@ var CustodyService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Extend",
 			Handler:    _CustodyService_Extend_Handler,
+		},
+		{
+			MethodName: "Outstanding",
+			Handler:    _CustodyService_Outstanding_Handler,
+		},
+		{
+			MethodName: "ExportOutstanding",
+			Handler:    _CustodyService_ExportOutstanding_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

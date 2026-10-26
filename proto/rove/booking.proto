@@ -144,6 +144,13 @@ message Reservation {
       {
         name: "party"
         refs: [{name: "party", number: 8}, {name: "begins_at", number: 11}]
+      },
+      // A workspace's reservations that begin in a period: what the report
+      // of how what may be booked was used reads (design 9.14), a period of
+      // them rather than all it ever had.
+      {
+        name: "begins"
+        refs: [{name: "tenant", number: 2}, {name: "begins_at", number: 11}]
       }
     ]
   };

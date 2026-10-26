@@ -40,6 +40,8 @@ const (
 	AssetService_Export_FullMethodName        = "/rove.AssetService/Export"
 	AssetService_Form_FullMethodName          = "/rove.AssetService/Form"
 	AssetService_ReadSheet_FullMethodName     = "/rove.AssetService/ReadSheet"
+	AssetService_Census_FullMethodName        = "/rove.AssetService/Census"
+	AssetService_ExportCensus_FullMethodName  = "/rove.AssetService/ExportCensus"
 )
 
 // AssetServiceClient is the client API for AssetService service.
@@ -114,6 +116,14 @@ type AssetServiceClient interface {
 	// one person uploads is read in the process every workspace is served by,
 	// and a workbook takes a library as large as Excel to read (design 9.13).
 	ReadSheet(ctx context.Context, in *AssetReadSheetRequest, opts ...grpc.CallOption) (*AssetReadSheetResponse, error)
+	// Census is the register as it is now, counted (자산 현황, design 9.14): a
+	// row each type, or each space, of how many there are in each status. The
+	// database counts, so a workspace of a hundred thousand assets is read as
+	// the few hundred rows it comes to. It names nobody.
+	Census(ctx context.Context, in *AssetCensusRequest, opts ...grpc.CallOption) (*AssetCensusResponse, error)
+	// ExportCensus writes the census as a CSV, which names nobody and so is no
+	// download of anybody (rove#136).
+	ExportCensus(ctx context.Context, in *AssetCensusRequest, opts ...grpc.CallOption) (*AssetExportResponse, error)
 }
 
 type assetServiceClient struct {
@@ -343,6 +353,26 @@ func (c *assetServiceClient) ReadSheet(ctx context.Context, in *AssetReadSheetRe
 	return out, nil
 }
 
+func (c *assetServiceClient) Census(ctx context.Context, in *AssetCensusRequest, opts ...grpc.CallOption) (*AssetCensusResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AssetCensusResponse)
+	err := c.cc.Invoke(ctx, AssetService_Census_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *assetServiceClient) ExportCensus(ctx context.Context, in *AssetCensusRequest, opts ...grpc.CallOption) (*AssetExportResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AssetExportResponse)
+	err := c.cc.Invoke(ctx, AssetService_ExportCensus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AssetServiceServer is the server API for AssetService service.
 // All implementations must embed UnimplementedAssetServiceServer
 // for forward compatibility.
@@ -415,6 +445,14 @@ type AssetServiceServer interface {
 	// one person uploads is read in the process every workspace is served by,
 	// and a workbook takes a library as large as Excel to read (design 9.13).
 	ReadSheet(context.Context, *AssetReadSheetRequest) (*AssetReadSheetResponse, error)
+	// Census is the register as it is now, counted (자산 현황, design 9.14): a
+	// row each type, or each space, of how many there are in each status. The
+	// database counts, so a workspace of a hundred thousand assets is read as
+	// the few hundred rows it comes to. It names nobody.
+	Census(context.Context, *AssetCensusRequest) (*AssetCensusResponse, error)
+	// ExportCensus writes the census as a CSV, which names nobody and so is no
+	// download of anybody (rove#136).
+	ExportCensus(context.Context, *AssetCensusRequest) (*AssetExportResponse, error)
 	mustEmbedUnimplementedAssetServiceServer()
 }
 
@@ -487,6 +525,12 @@ func (UnimplementedAssetServiceServer) Form(context.Context, *AssetFormRequest) 
 }
 func (UnimplementedAssetServiceServer) ReadSheet(context.Context, *AssetReadSheetRequest) (*AssetReadSheetResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ReadSheet not implemented")
+}
+func (UnimplementedAssetServiceServer) Census(context.Context, *AssetCensusRequest) (*AssetCensusResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Census not implemented")
+}
+func (UnimplementedAssetServiceServer) ExportCensus(context.Context, *AssetCensusRequest) (*AssetExportResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ExportCensus not implemented")
 }
 func (UnimplementedAssetServiceServer) mustEmbedUnimplementedAssetServiceServer() {}
 func (UnimplementedAssetServiceServer) testEmbeddedByValue()                      {}
@@ -880,6 +924,42 @@ func _AssetService_ReadSheet_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AssetService_Census_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AssetCensusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AssetServiceServer).Census(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AssetService_Census_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AssetServiceServer).Census(ctx, req.(*AssetCensusRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AssetService_ExportCensus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AssetCensusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AssetServiceServer).ExportCensus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AssetService_ExportCensus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AssetServiceServer).ExportCensus(ctx, req.(*AssetCensusRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AssetService_ServiceDesc is the grpc.ServiceDesc for AssetService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -966,6 +1046,14 @@ var AssetService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ReadSheet",
 			Handler:    _AssetService_ReadSheet_Handler,
+		},
+		{
+			MethodName: "Census",
+			Handler:    _AssetService_Census_Handler,
+		},
+		{
+			MethodName: "ExportCensus",
+			Handler:    _AssetService_ExportCensus_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

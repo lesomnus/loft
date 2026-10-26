@@ -149,6 +149,8 @@ func (Reservation) Indexes() []ent.Index {
 			StorageKey("reservation_page"),
 		index.Fields("party_id", "begins_at").
 			StorageKey("reservation_party"),
+		index.Fields("tenant_id", "begins_at").
+			StorageKey("reservation_begins"),
 	}
 }
 

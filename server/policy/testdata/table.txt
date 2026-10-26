@@ -8,10 +8,12 @@
 /rove.AssetService/Add	manager
 /rove.AssetService/AddMany	manager
 /rove.AssetService/Assign	manager
+/rove.AssetService/Census	manager +auditor
 /rove.AssetService/Correct	manager
 /rove.AssetService/Diff	read
 /rove.AssetService/Erase	manager
 /rove.AssetService/Export	manager
+/rove.AssetService/ExportCensus	manager +auditor
 /rove.AssetService/Form	manager
 /rove.AssetService/Get	read
 /rove.AssetService/List	read
@@ -41,9 +43,11 @@
 /rove.AuditService/Recent	admin +auditor
 /rove.BookableService/Add	admin
 /rove.BookableService/Availability	read
+/rove.BookableService/ExportUsage	manager +auditor
 /rove.BookableService/Get	read
 /rove.BookableService/List	read
 /rove.BookableService/Update	admin
+/rove.BookableService/Usage	manager +auditor
 /rove.BookableService/Watch	read
 /rove.CountFindingService/Get	read
 /rove.CountFindingService/List	read
@@ -52,9 +56,11 @@
 /rove.CustodyLineService/List	read
 /rove.CustodyService/Acknowledge	member
 /rove.CustodyService/Add	manager
+/rove.CustodyService/ExportOutstanding	manager +auditor
 /rove.CustodyService/Extend	manager
 /rove.CustodyService/Get	read
 /rove.CustodyService/List	read
+/rove.CustodyService/Outstanding	manager +auditor
 /rove.CustodyService/Return	manager
 /rove.CustodyService/Watch	read
 /rove.EventService/Get	read
@@ -66,10 +72,12 @@
 /rove.HolderService/Watch	admin +auditor
 /rove.InventoryCountService/Add	manager
 /rove.InventoryCountService/Close	manager
+/rove.InventoryCountService/ExportResults	manager +auditor
 /rove.InventoryCountService/Get	read
 /rove.InventoryCountService/List	read
 /rove.InventoryCountService/Reconcile	manager
 /rove.InventoryCountService/Resolve	manager
+/rove.InventoryCountService/Results	manager +auditor
 /rove.InventoryCountService/Scan	member
 /rove.InventoryCountService/Watch	read
 /rove.InvitationService/Accept	account
@@ -135,6 +143,8 @@
 /rove.StockService/Adjust	manager
 /rove.StockService/Consume	member
 /rove.StockService/Convert	manager
+/rove.StockService/ExportFlow	manager +auditor
+/rove.StockService/Flow	manager +auditor
 /rove.StockService/Get	read
 /rove.StockService/List	read
 /rove.StockService/Receive	manager

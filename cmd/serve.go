@@ -814,6 +814,9 @@ func httpServer(ctx context.Context, h http.Handler) *http.Server {
 // export is one too, and is HTTP (`server/account`).
 var Downloads = []string{
 	app.AssetService_Export_FullMethodName,
+	// Who has what is out, by name (design 9.14). The other reports' CSVs
+	// name nobody, and are no download of anybody.
+	app.CustodyService_ExportOutstanding_FullMethodName,
 }
 
 // accessed is what the access record's interceptor is told of this app: whose

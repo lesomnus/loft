@@ -86,6 +86,14 @@ func oversee(service string, methods ...string) {
 	}
 }
 
+// report is a method the people who run the register read, and an auditor
+// (design 9.14): a manager and up, and an auditor below that.
+func report(service string, methods ...string) {
+	for _, m := range methods {
+		Table["/rove."+service+"/"+m] = rule{min: Manager, auditor: true}
+	}
+}
+
 // closed is a method that is served and that no role is given yet: refused to
 // everybody, the owner included, as a method the table does not name is --
 // and said so in the table a review reads, so that giving it to a role is
@@ -204,6 +212,16 @@ func init() {
 	allow(Manager, "PurchaseService", "Add", "Receive")
 
 	allow(Read, "NotificationService", "Inbox", "MarkRead", "SetMail")
+
+	// The reports (design 9.14, D44) and their CSVs: what the people who run
+	// the register read of it, and an auditor -- and no member, since one of
+	// them is who has what of everybody's. The one that names people is a
+	// download besides (`cmd.Downloads`), which says what it is for.
+	report("AssetService", "Census", "ExportCensus")
+	report("CustodyService", "Outstanding", "ExportOutstanding")
+	report("BookableService", "Usage", "ExportUsage")
+	report("InventoryCountService", "Results", "ExportResults")
+	report("StockService", "Flow", "ExportFlow")
 
 	// Inviting into the workspace is its administrators', up to their own
 	// role, which the domain layer checks. The answer is the account's it is

@@ -19,17 +19,19 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	InventoryCountService_Add_FullMethodName       = "/rove.InventoryCountService/Add"
-	InventoryCountService_Get_FullMethodName       = "/rove.InventoryCountService/Get"
-	InventoryCountService_Patch_FullMethodName     = "/rove.InventoryCountService/Patch"
-	InventoryCountService_Apply_FullMethodName     = "/rove.InventoryCountService/Apply"
-	InventoryCountService_Erase_FullMethodName     = "/rove.InventoryCountService/Erase"
-	InventoryCountService_List_FullMethodName      = "/rove.InventoryCountService/List"
-	InventoryCountService_Watch_FullMethodName     = "/rove.InventoryCountService/Watch"
-	InventoryCountService_Scan_FullMethodName      = "/rove.InventoryCountService/Scan"
-	InventoryCountService_Reconcile_FullMethodName = "/rove.InventoryCountService/Reconcile"
-	InventoryCountService_Resolve_FullMethodName   = "/rove.InventoryCountService/Resolve"
-	InventoryCountService_Close_FullMethodName     = "/rove.InventoryCountService/Close"
+	InventoryCountService_Add_FullMethodName           = "/rove.InventoryCountService/Add"
+	InventoryCountService_Get_FullMethodName           = "/rove.InventoryCountService/Get"
+	InventoryCountService_Patch_FullMethodName         = "/rove.InventoryCountService/Patch"
+	InventoryCountService_Apply_FullMethodName         = "/rove.InventoryCountService/Apply"
+	InventoryCountService_Erase_FullMethodName         = "/rove.InventoryCountService/Erase"
+	InventoryCountService_List_FullMethodName          = "/rove.InventoryCountService/List"
+	InventoryCountService_Watch_FullMethodName         = "/rove.InventoryCountService/Watch"
+	InventoryCountService_Scan_FullMethodName          = "/rove.InventoryCountService/Scan"
+	InventoryCountService_Reconcile_FullMethodName     = "/rove.InventoryCountService/Reconcile"
+	InventoryCountService_Resolve_FullMethodName       = "/rove.InventoryCountService/Resolve"
+	InventoryCountService_Close_FullMethodName         = "/rove.InventoryCountService/Close"
+	InventoryCountService_Results_FullMethodName       = "/rove.InventoryCountService/Results"
+	InventoryCountService_ExportResults_FullMethodName = "/rove.InventoryCountService/ExportResults"
 )
 
 // InventoryCountServiceClient is the client API for InventoryCountService service.
@@ -69,6 +71,14 @@ type InventoryCountServiceClient interface {
 	// lost, or ignore it.
 	Resolve(ctx context.Context, in *InventoryCountResolveRequest, opts ...grpc.CallOption) (*CountFinding, error)
 	Close(ctx context.Context, in *InventoryCountCloseRequest, opts ...grpc.CallOption) (*InventoryCount, error)
+	// Results is each count begun in a period (실사 결과, design 9.14), by what
+	// it found -- what was where it should be, and the differences: misplaced,
+	// missing, unknown -- and how they were settled, the losses among them. It
+	// names nobody.
+	Results(ctx context.Context, in *InventoryCountResultsRequest, opts ...grpc.CallOption) (*InventoryCountResultsResponse, error)
+	// ExportResults writes it as a CSV, which names nobody and so is no
+	// download of anybody (rove#136).
+	ExportResults(ctx context.Context, in *InventoryCountResultsRequest, opts ...grpc.CallOption) (*AssetExportResponse, error)
 }
 
 type inventoryCountServiceClient struct {
@@ -198,6 +208,26 @@ func (c *inventoryCountServiceClient) Close(ctx context.Context, in *InventoryCo
 	return out, nil
 }
 
+func (c *inventoryCountServiceClient) Results(ctx context.Context, in *InventoryCountResultsRequest, opts ...grpc.CallOption) (*InventoryCountResultsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(InventoryCountResultsResponse)
+	err := c.cc.Invoke(ctx, InventoryCountService_Results_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *inventoryCountServiceClient) ExportResults(ctx context.Context, in *InventoryCountResultsRequest, opts ...grpc.CallOption) (*AssetExportResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AssetExportResponse)
+	err := c.cc.Invoke(ctx, InventoryCountService_ExportResults_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // InventoryCountServiceServer is the server API for InventoryCountService service.
 // All implementations must embed UnimplementedInventoryCountServiceServer
 // for forward compatibility.
@@ -235,6 +265,14 @@ type InventoryCountServiceServer interface {
 	// lost, or ignore it.
 	Resolve(context.Context, *InventoryCountResolveRequest) (*CountFinding, error)
 	Close(context.Context, *InventoryCountCloseRequest) (*InventoryCount, error)
+	// Results is each count begun in a period (실사 결과, design 9.14), by what
+	// it found -- what was where it should be, and the differences: misplaced,
+	// missing, unknown -- and how they were settled, the losses among them. It
+	// names nobody.
+	Results(context.Context, *InventoryCountResultsRequest) (*InventoryCountResultsResponse, error)
+	// ExportResults writes it as a CSV, which names nobody and so is no
+	// download of anybody (rove#136).
+	ExportResults(context.Context, *InventoryCountResultsRequest) (*AssetExportResponse, error)
 	mustEmbedUnimplementedInventoryCountServiceServer()
 }
 
@@ -277,6 +315,12 @@ func (UnimplementedInventoryCountServiceServer) Resolve(context.Context, *Invent
 }
 func (UnimplementedInventoryCountServiceServer) Close(context.Context, *InventoryCountCloseRequest) (*InventoryCount, error) {
 	return nil, status.Error(codes.Unimplemented, "method Close not implemented")
+}
+func (UnimplementedInventoryCountServiceServer) Results(context.Context, *InventoryCountResultsRequest) (*InventoryCountResultsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Results not implemented")
+}
+func (UnimplementedInventoryCountServiceServer) ExportResults(context.Context, *InventoryCountResultsRequest) (*AssetExportResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ExportResults not implemented")
 }
 func (UnimplementedInventoryCountServiceServer) mustEmbedUnimplementedInventoryCountServiceServer() {}
 func (UnimplementedInventoryCountServiceServer) testEmbeddedByValue()                               {}
@@ -490,6 +534,42 @@ func _InventoryCountService_Close_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _InventoryCountService_Results_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(InventoryCountResultsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InventoryCountServiceServer).Results(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: InventoryCountService_Results_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InventoryCountServiceServer).Results(ctx, req.(*InventoryCountResultsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _InventoryCountService_ExportResults_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(InventoryCountResultsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InventoryCountServiceServer).ExportResults(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: InventoryCountService_ExportResults_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InventoryCountServiceServer).ExportResults(ctx, req.(*InventoryCountResultsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // InventoryCountService_ServiceDesc is the grpc.ServiceDesc for InventoryCountService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -536,6 +616,14 @@ var InventoryCountService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Close",
 			Handler:    _InventoryCountService_Close_Handler,
+		},
+		{
+			MethodName: "Results",
+			Handler:    _InventoryCountService_Results_Handler,
+		},
+		{
+			MethodName: "ExportResults",
+			Handler:    _InventoryCountService_ExportResults_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

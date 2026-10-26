@@ -8,7 +8,7 @@ import type { Timestamp } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
 import type { Patch } from "../patch/patch_pb.js";
 import { file_patch_patch } from "../patch/patch_pb.js";
-import type { AssetRef, AssetSelect } from "./asset_svc_pb.js";
+import type { AssetExportResponseSchema, AssetRef, AssetSelect } from "./asset_svc_pb.js";
 import { file_rove_asset_svc_g } from "./asset_svc_pb.js";
 import type { Custody, CustodyLine, CustodyLineSchema, CustodySchema } from "./custody_pb.js";
 import { file_rove_custody } from "./custody_pb.js";
@@ -24,7 +24,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file rove/custody_svc.g.proto.
  */
 export const file_rove_custody_svc_g: GenFile = /*@__PURE__*/
-  fileDesc("Chhyb3ZlL2N1c3RvZHlfc3ZjLmcucHJvdG8SBHJvdmUikAQKEUN1c3RvZHlBZGRSZXF1ZXN0EgoKAmlkGAEgASgMEh8KBnRlbmFudBgCIAEoCzIPLnJvdmUuVGVuYW50UmVmEhMKBGRlc2MYBiABKAlCBaoBAggCEh0KBXBhcnR5GAggASgLMg4ucm92ZS5QYXJ0eVJlZhITCgRraW5kGAkgASgJQgWqAQIIAhIVCgZzdGF0dXMYCiABKAlCBaoBAggCEi0KCWlzc3VlZF9hdBgLIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASKgoGZHVlX2F0GAwgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIwCgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjMKD2Fja25vd2xlZGdlZF9hdBgQIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLwoLcmV0dXJuZWRfYXQYESABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhYKDnJlc2VydmF0aW9uX2lkGBIgASgMEhEKCWlzc3VlZF9ieRgTIAEoDBIeCg9vdmVyZHVlX25vdGljZWQYFCABKAhCBaoBAggCEiQKBWxpbmVzGGQgAygLMhUucm92ZS5DdXN0b2R5TGluZVNwZWMSCgoCb3AYZSABKAwiggEKD0N1c3RvZHlMaW5lU3BlYxIdCgVhc3NldBgBIAEoCzIOLnJvdmUuQXNzZXRSZWYSHQoFc3RvY2sYAiABKAsyDi5yb3ZlLlN0b2NrUmVmEhcKCHF1YW50aXR5GAMgASgDQgWqAQIIAhIYCgljb25kaXRpb24YBCABKAlCBaoBAggCIlcKEUN1c3RvZHlHZXRSZXF1ZXN0Eh0KA3JlZhgBIAEoCzIQLnJvdmUuQ3VzdG9keVJlZhIjCgZzZWxlY3QYAiABKAsyEy5yb3ZlLkN1c3RvZHlTZWxlY3QiIQoKQ3VzdG9keVJlZhIMCgJpZBgBIAEoDEgAQgUKA2tleSLkAgoNQ3VzdG9keVNlbGVjdBILCgNhbGwYASABKAgSIgoGdGVuYW50GAIgASgLMhIucm92ZS5UZW5hbnRTZWxlY3QSDAoEZGVzYxgGIAEoCBIgCgVwYXJ0eRgIIAEoCzIRLnJvdmUuUGFydHlTZWxlY3QSDAoEa2luZBgJIAEoCBIOCgZzdGF0dXMYCiABKAgSEQoJaXNzdWVkX2F0GAsgASgIEg4KBmR1ZV9hdBgMIAEoCBIUCgxkYXRlX3VwZGF0ZWQYDSABKAgSEwoLZGF0ZV9lcmFzZWQYDiABKAgSFAoMZGF0ZV9jcmVhdGVkGA8gASgIEhcKD2Fja25vd2xlZGdlZF9hdBgQIAEoCBITCgtyZXR1cm5lZF9hdBgRIAEoCBIWCg5yZXNlcnZhdGlvbl9pZBgSIAEoCBIRCglpc3N1ZWRfYnkYEyABKAgSFwoPb3ZlcmR1ZV9ub3RpY2VkGBQgASgIIrUEChNDdXN0b2R5UGF0Y2hSZXF1ZXN0Eh0KA3JlZhgBIAEoCzIQLnJvdmUuQ3VzdG9keVJlZhIMCgRkZXNjGAwgASgJEgwKBGtpbmQYEiABKAkSDgoGc3RhdHVzGBQgASgJEi0KCWlzc3VlZF9hdBgWIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASKgoGZHVlX2F0GBggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBITCgtkdWVfYXRfbnVsbBgZIAEoCBIwCgxkYXRlX3VwZGF0ZWQYGiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhoKEmRhdGVfdXBkYXRlZF9mb3JjZRgbIAEoCBIzCg9hY2tub3dsZWRnZWRfYXQYICABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhwKFGFja25vd2xlZGdlZF9hdF9udWxsGCEgASgIEi8KC3JldHVybmVkX2F0GCIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIYChByZXR1cm5lZF9hdF9udWxsGCMgASgIEhYKDnJlc2VydmF0aW9uX2lkGCQgASgMEhsKE3Jlc2VydmF0aW9uX2lkX251bGwYJSABKAgSEQoJaXNzdWVkX2J5GCYgASgMEhYKDmlzc3VlZF9ieV9udWxsGCcgASgIEhcKD292ZXJkdWVfbm90aWNlZBgoIAEoCCJRChNDdXN0b2R5QXBwbHlSZXF1ZXN0Eh0KA3JlZhgBIAEoCzIQLnJvdmUuQ3VzdG9keVJlZhIbCgVwYXRjaBgCIAEoCzIMLnBhdGNoLlBhdGNoIiYKFEN1c3RvZHlFcmFzZVJlc3BvbnNlEg4KBmVyYXNlZBgBIAEoCCJ9ChJDdXN0b2R5TGlzdFJlcXVlc3QSJAoHZmlsdGVycxgBIAMoCzITLnJvdmUuQ3VzdG9keUZpbHRlchITCgRzaXplGAIgASgFQgWqAQIIAhIUCgVhZnRlchgDIAEoCUIFqgECCAISFgoHcmV2ZXJzZRgEIAEoCEIFqgECCAIiSAoTQ3VzdG9keUxpc3RSZXNwb25zZRIcCgVpdGVtcxgBIAMoCzINLnJvdmUuQ3VzdG9keRITCgRuZXh0GAIgASgJQgWqAQIIAiKDAQoNQ3VzdG9keUZpbHRlchIdCgNyZWYYASABKAsyEC5yb3ZlLkN1c3RvZHlSZWYSHQoFcGFydHkYAiABKAsyDi5yb3ZlLlBhcnR5UmVmEg4KBnN0YXR1cxgDIAEoCRIMCgRraW5kGAQgASgJEhYKDnJlc2VydmF0aW9uX2lkGAUgASgMIlkKE0N1c3RvZHlXYXRjaFJlcXVlc3QSJAoHZmlsdGVycxgBIAMoCzITLnJvdmUuQ3VzdG9keUZpbHRlchIcCg1za2lwX3NuYXBzaG90GAIgASgIQgWqAQIIAiI9ChRDdXN0b2R5V2F0Y2hSZXNwb25zZRIlCgVpdGVtcxgBIAMoCzIWLnJvdmUuQ3VzdG9keVdhdGNoSXRlbSJTChBDdXN0b2R5V2F0Y2hJdGVtEgoKAmlkGAEgASgMEhwKBXZhbHVlGAIgASgLMg0ucm92ZS5DdXN0b2R5EhUKBmFjdGlvbhgDIAEoCUIFqgECCAIiOgoZQ3VzdG9keUFja25vd2xlZGdlUmVxdWVzdBIdCgNyZWYYASABKAsyEC5yb3ZlLkN1c3RvZHlSZWYitAEKFEN1c3RvZHlSZXR1cm5SZXF1ZXN0Eh0KA3JlZhgBIAEoCzIQLnJvdmUuQ3VzdG9keVJlZhImCgVsaW5lcxgCIAMoCzIXLnJvdmUuQ3VzdG9keVJldHVybkxpbmUSJgoCYXQYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhoKAnRvGAQgASgLMg4ucm92ZS5Bc3NldFJlZhIRCgJvcBgFIAEoDEIFqgECCAIiagoRQ3VzdG9keVJldHVybkxpbmUSIgoEbGluZRgBIAEoCzIULnJvdmUuQ3VzdG9keUxpbmVSZWYSFwoIcXVhbnRpdHkYAiABKANCBaoBAggCEhgKCWNvbmRpdGlvbhgDIAEoCUIFqgECCAIiJQoOQ3VzdG9keUxpbmVSZWYSDAoCaWQYASABKAxIAEIFCgNrZXkiYQoUQ3VzdG9keUV4dGVuZFJlcXVlc3QSHQoDcmVmGAEgASgLMhAucm92ZS5DdXN0b2R5UmVmEioKBmR1ZV9hdBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiqgMKFUN1c3RvZHlMaW5lQWRkUmVxdWVzdBIKCgJpZBgBIAEoDBIfCgZ0ZW5hbnQYAiABKAsyDy5yb3ZlLlRlbmFudFJlZhIhCgdjdXN0b2R5GAggASgLMhAucm92ZS5DdXN0b2R5UmVmEh0KBWFzc2V0GAkgASgLMg4ucm92ZS5Bc3NldFJlZhIdCgVzdG9jaxgKIAEoCzIOLnJvdmUuU3RvY2tSZWYSFwoIcXVhbnRpdHkYCyABKANCBaoBAggCEiAKEXJldHVybmVkX3F1YW50aXR5GAwgASgDQgWqAQIIAhIwCgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEioKBm91dF9hdBgQIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLwoLcmV0dXJuZWRfYXQYESABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhwKDWNvbmRpdGlvbl9vdXQYEiABKAlCBaoBAggCEhsKDGNvbmRpdGlvbl9pbhgTIAEoCUIFqgECCAIiYwoVQ3VzdG9keUxpbmVHZXRSZXF1ZXN0EiEKA3JlZhgBIAEoCzIULnJvdmUuQ3VzdG9keUxpbmVSZWYSJwoGc2VsZWN0GAIgASgLMhcucm92ZS5DdXN0b2R5TGluZVNlbGVjdCLZAgoRQ3VzdG9keUxpbmVTZWxlY3QSCwoDYWxsGAEgASgIEiIKBnRlbmFudBgCIAEoCzISLnJvdmUuVGVuYW50U2VsZWN0EiQKB2N1c3RvZHkYCCABKAsyEy5yb3ZlLkN1c3RvZHlTZWxlY3QSIAoFYXNzZXQYCSABKAsyES5yb3ZlLkFzc2V0U2VsZWN0EiAKBXN0b2NrGAogASgLMhEucm92ZS5TdG9ja1NlbGVjdBIQCghxdWFudGl0eRgLIAEoCBIZChFyZXR1cm5lZF9xdWFudGl0eRgMIAEoCBIUCgxkYXRlX3VwZGF0ZWQYDSABKAgSFAoMZGF0ZV9jcmVhdGVkGA8gASgIEg4KBm91dF9hdBgQIAEoCBITCgtyZXR1cm5lZF9hdBgRIAEoCBIVCg1jb25kaXRpb25fb3V0GBIgASgIEhQKDGNvbmRpdGlvbl9pbhgTIAEoCCLbAgoXQ3VzdG9keUxpbmVQYXRjaFJlcXVlc3QSIQoDcmVmGAEgASgLMhQucm92ZS5DdXN0b2R5TGluZVJlZhIQCghxdWFudGl0eRgWIAEoAxIZChFyZXR1cm5lZF9xdWFudGl0eRgYIAEoAxIwCgxkYXRlX3VwZGF0ZWQYGiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhoKEmRhdGVfdXBkYXRlZF9mb3JjZRgbIAEoCBIqCgZvdXRfYXQYICABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEi8KC3JldHVybmVkX2F0GCIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIYChByZXR1cm5lZF9hdF9udWxsGCMgASgIEhUKDWNvbmRpdGlvbl9vdXQYJCABKAkSFAoMY29uZGl0aW9uX2luGCYgASgJIlkKF0N1c3RvZHlMaW5lQXBwbHlSZXF1ZXN0EiEKA3JlZhgBIAEoCzIULnJvdmUuQ3VzdG9keUxpbmVSZWYSGwoFcGF0Y2gYAiABKAsyDC5wYXRjaC5QYXRjaCIqChhDdXN0b2R5TGluZUVyYXNlUmVzcG9uc2USDgoGZXJhc2VkGAEgASgIIoUBChZDdXN0b2R5TGluZUxpc3RSZXF1ZXN0EigKB2ZpbHRlcnMYASADKAsyFy5yb3ZlLkN1c3RvZHlMaW5lRmlsdGVyEhMKBHNpemUYAiABKAVCBaoBAggCEhQKBWFmdGVyGAMgASgJQgWqAQIIAhIWCgdyZXZlcnNlGAQgASgIQgWqAQIIAiJQChdDdXN0b2R5TGluZUxpc3RSZXNwb25zZRIgCgVpdGVtcxgBIAMoCzIRLnJvdmUuQ3VzdG9keUxpbmUSEwoEbmV4dBgCIAEoCUIFqgECCAIilwEKEUN1c3RvZHlMaW5lRmlsdGVyEiEKA3JlZhgBIAEoCzIULnJvdmUuQ3VzdG9keUxpbmVSZWYSIQoHY3VzdG9keRgCIAEoCzIQLnJvdmUuQ3VzdG9keVJlZhIdCgVhc3NldBgDIAEoCzIOLnJvdmUuQXNzZXRSZWYSHQoFc3RvY2sYBCABKAsyDi5yb3ZlLlN0b2NrUmVmMrMECg5DdXN0b2R5U2VydmljZRItCgNBZGQSFy5yb3ZlLkN1c3RvZHlBZGRSZXF1ZXN0Gg0ucm92ZS5DdXN0b2R5Ei0KA0dldBIXLnJvdmUuQ3VzdG9keUdldFJlcXVlc3QaDS5yb3ZlLkN1c3RvZHkSMQoFUGF0Y2gSGS5yb3ZlLkN1c3RvZHlQYXRjaFJlcXVlc3QaDS5yb3ZlLkN1c3RvZHkSMQoFQXBwbHkSGS5yb3ZlLkN1c3RvZHlBcHBseVJlcXVlc3QaDS5yb3ZlLkN1c3RvZHkSNQoFRXJhc2USEC5yb3ZlLkN1c3RvZHlSZWYaGi5yb3ZlLkN1c3RvZHlFcmFzZVJlc3BvbnNlEjsKBExpc3QSGC5yb3ZlLkN1c3RvZHlMaXN0UmVxdWVzdBoZLnJvdmUuQ3VzdG9keUxpc3RSZXNwb25zZRJACgVXYXRjaBIZLnJvdmUuQ3VzdG9keVdhdGNoUmVxdWVzdBoaLnJvdmUuQ3VzdG9keVdhdGNoUmVzcG9uc2UwARI9CgtBY2tub3dsZWRnZRIfLnJvdmUuQ3VzdG9keUFja25vd2xlZGdlUmVxdWVzdBoNLnJvdmUuQ3VzdG9keRIzCgZSZXR1cm4SGi5yb3ZlLkN1c3RvZHlSZXR1cm5SZXF1ZXN0Gg0ucm92ZS5DdXN0b2R5EjMKBkV4dGVuZBIaLnJvdmUuQ3VzdG9keUV4dGVuZFJlcXVlc3QaDS5yb3ZlLkN1c3RvZHky/AIKEkN1c3RvZHlMaW5lU2VydmljZRI1CgNBZGQSGy5yb3ZlLkN1c3RvZHlMaW5lQWRkUmVxdWVzdBoRLnJvdmUuQ3VzdG9keUxpbmUSNQoDR2V0Ehsucm92ZS5DdXN0b2R5TGluZUdldFJlcXVlc3QaES5yb3ZlLkN1c3RvZHlMaW5lEjkKBVBhdGNoEh0ucm92ZS5DdXN0b2R5TGluZVBhdGNoUmVxdWVzdBoRLnJvdmUuQ3VzdG9keUxpbmUSOQoFQXBwbHkSHS5yb3ZlLkN1c3RvZHlMaW5lQXBwbHlSZXF1ZXN0GhEucm92ZS5DdXN0b2R5TGluZRI9CgVFcmFzZRIULnJvdmUuQ3VzdG9keUxpbmVSZWYaHi5yb3ZlLkN1c3RvZHlMaW5lRXJhc2VSZXNwb25zZRJDCgRMaXN0Ehwucm92ZS5DdXN0b2R5TGluZUxpc3RSZXF1ZXN0Gh0ucm92ZS5DdXN0b2R5TGluZUxpc3RSZXNwb25zZUIaWhhnaXRodWIuY29tL2xlc29tbnVzL3JvdmViCGVkaXRpb25zcOgH", [file_google_protobuf_timestamp, file_patch_patch, file_rove_asset_svc_g, file_rove_custody, file_rove_org_svc_g, file_rove_payday_tenant_svc_g, file_rove_stock_svc_g]);
+  fileDesc("Chhyb3ZlL2N1c3RvZHlfc3ZjLmcucHJvdG8SBHJvdmUikAQKEUN1c3RvZHlBZGRSZXF1ZXN0EgoKAmlkGAEgASgMEh8KBnRlbmFudBgCIAEoCzIPLnJvdmUuVGVuYW50UmVmEhMKBGRlc2MYBiABKAlCBaoBAggCEh0KBXBhcnR5GAggASgLMg4ucm92ZS5QYXJ0eVJlZhITCgRraW5kGAkgASgJQgWqAQIIAhIVCgZzdGF0dXMYCiABKAlCBaoBAggCEi0KCWlzc3VlZF9hdBgLIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASKgoGZHVlX2F0GAwgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIwCgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjMKD2Fja25vd2xlZGdlZF9hdBgQIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLwoLcmV0dXJuZWRfYXQYESABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhYKDnJlc2VydmF0aW9uX2lkGBIgASgMEhEKCWlzc3VlZF9ieRgTIAEoDBIeCg9vdmVyZHVlX25vdGljZWQYFCABKAhCBaoBAggCEiQKBWxpbmVzGGQgAygLMhUucm92ZS5DdXN0b2R5TGluZVNwZWMSCgoCb3AYZSABKAwiggEKD0N1c3RvZHlMaW5lU3BlYxIdCgVhc3NldBgBIAEoCzIOLnJvdmUuQXNzZXRSZWYSHQoFc3RvY2sYAiABKAsyDi5yb3ZlLlN0b2NrUmVmEhcKCHF1YW50aXR5GAMgASgDQgWqAQIIAhIYCgljb25kaXRpb24YBCABKAlCBaoBAggCIlcKEUN1c3RvZHlHZXRSZXF1ZXN0Eh0KA3JlZhgBIAEoCzIQLnJvdmUuQ3VzdG9keVJlZhIjCgZzZWxlY3QYAiABKAsyEy5yb3ZlLkN1c3RvZHlTZWxlY3QiIQoKQ3VzdG9keVJlZhIMCgJpZBgBIAEoDEgAQgUKA2tleSLkAgoNQ3VzdG9keVNlbGVjdBILCgNhbGwYASABKAgSIgoGdGVuYW50GAIgASgLMhIucm92ZS5UZW5hbnRTZWxlY3QSDAoEZGVzYxgGIAEoCBIgCgVwYXJ0eRgIIAEoCzIRLnJvdmUuUGFydHlTZWxlY3QSDAoEa2luZBgJIAEoCBIOCgZzdGF0dXMYCiABKAgSEQoJaXNzdWVkX2F0GAsgASgIEg4KBmR1ZV9hdBgMIAEoCBIUCgxkYXRlX3VwZGF0ZWQYDSABKAgSEwoLZGF0ZV9lcmFzZWQYDiABKAgSFAoMZGF0ZV9jcmVhdGVkGA8gASgIEhcKD2Fja25vd2xlZGdlZF9hdBgQIAEoCBITCgtyZXR1cm5lZF9hdBgRIAEoCBIWCg5yZXNlcnZhdGlvbl9pZBgSIAEoCBIRCglpc3N1ZWRfYnkYEyABKAgSFwoPb3ZlcmR1ZV9ub3RpY2VkGBQgASgIIrUEChNDdXN0b2R5UGF0Y2hSZXF1ZXN0Eh0KA3JlZhgBIAEoCzIQLnJvdmUuQ3VzdG9keVJlZhIMCgRkZXNjGAwgASgJEgwKBGtpbmQYEiABKAkSDgoGc3RhdHVzGBQgASgJEi0KCWlzc3VlZF9hdBgWIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASKgoGZHVlX2F0GBggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBITCgtkdWVfYXRfbnVsbBgZIAEoCBIwCgxkYXRlX3VwZGF0ZWQYGiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhoKEmRhdGVfdXBkYXRlZF9mb3JjZRgbIAEoCBIzCg9hY2tub3dsZWRnZWRfYXQYICABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhwKFGFja25vd2xlZGdlZF9hdF9udWxsGCEgASgIEi8KC3JldHVybmVkX2F0GCIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIYChByZXR1cm5lZF9hdF9udWxsGCMgASgIEhYKDnJlc2VydmF0aW9uX2lkGCQgASgMEhsKE3Jlc2VydmF0aW9uX2lkX251bGwYJSABKAgSEQoJaXNzdWVkX2J5GCYgASgMEhYKDmlzc3VlZF9ieV9udWxsGCcgASgIEhcKD292ZXJkdWVfbm90aWNlZBgoIAEoCCJRChNDdXN0b2R5QXBwbHlSZXF1ZXN0Eh0KA3JlZhgBIAEoCzIQLnJvdmUuQ3VzdG9keVJlZhIbCgVwYXRjaBgCIAEoCzIMLnBhdGNoLlBhdGNoIiYKFEN1c3RvZHlFcmFzZVJlc3BvbnNlEg4KBmVyYXNlZBgBIAEoCCJ9ChJDdXN0b2R5TGlzdFJlcXVlc3QSJAoHZmlsdGVycxgBIAMoCzITLnJvdmUuQ3VzdG9keUZpbHRlchITCgRzaXplGAIgASgFQgWqAQIIAhIUCgVhZnRlchgDIAEoCUIFqgECCAISFgoHcmV2ZXJzZRgEIAEoCEIFqgECCAIiSAoTQ3VzdG9keUxpc3RSZXNwb25zZRIcCgVpdGVtcxgBIAMoCzINLnJvdmUuQ3VzdG9keRITCgRuZXh0GAIgASgJQgWqAQIIAiKDAQoNQ3VzdG9keUZpbHRlchIdCgNyZWYYASABKAsyEC5yb3ZlLkN1c3RvZHlSZWYSHQoFcGFydHkYAiABKAsyDi5yb3ZlLlBhcnR5UmVmEg4KBnN0YXR1cxgDIAEoCRIMCgRraW5kGAQgASgJEhYKDnJlc2VydmF0aW9uX2lkGAUgASgMIlkKE0N1c3RvZHlXYXRjaFJlcXVlc3QSJAoHZmlsdGVycxgBIAMoCzITLnJvdmUuQ3VzdG9keUZpbHRlchIcCg1za2lwX3NuYXBzaG90GAIgASgIQgWqAQIIAiI9ChRDdXN0b2R5V2F0Y2hSZXNwb25zZRIlCgVpdGVtcxgBIAMoCzIWLnJvdmUuQ3VzdG9keVdhdGNoSXRlbSJTChBDdXN0b2R5V2F0Y2hJdGVtEgoKAmlkGAEgASgMEhwKBXZhbHVlGAIgASgLMg0ucm92ZS5DdXN0b2R5EhUKBmFjdGlvbhgDIAEoCUIFqgECCAIiOgoZQ3VzdG9keUFja25vd2xlZGdlUmVxdWVzdBIdCgNyZWYYASABKAsyEC5yb3ZlLkN1c3RvZHlSZWYitAEKFEN1c3RvZHlSZXR1cm5SZXF1ZXN0Eh0KA3JlZhgBIAEoCzIQLnJvdmUuQ3VzdG9keVJlZhImCgVsaW5lcxgCIAMoCzIXLnJvdmUuQ3VzdG9keVJldHVybkxpbmUSJgoCYXQYAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhoKAnRvGAQgASgLMg4ucm92ZS5Bc3NldFJlZhIRCgJvcBgFIAEoDEIFqgECCAIiagoRQ3VzdG9keVJldHVybkxpbmUSIgoEbGluZRgBIAEoCzIULnJvdmUuQ3VzdG9keUxpbmVSZWYSFwoIcXVhbnRpdHkYAiABKANCBaoBAggCEhgKCWNvbmRpdGlvbhgDIAEoCUIFqgECCAIiJQoOQ3VzdG9keUxpbmVSZWYSDAoCaWQYASABKAxIAEIFCgNrZXkiYQoUQ3VzdG9keUV4dGVuZFJlcXVlc3QSHQoDcmVmGAEgASgLMhAucm92ZS5DdXN0b2R5UmVmEioKBmR1ZV9hdBgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAidAoZQ3VzdG9keU91dHN0YW5kaW5nUmVxdWVzdBIWCgdvdmVyZHVlGAEgASgIQgWqAQIIAhITCgRraW5kGAIgASgJQgWqAQIIAhITCgRzaXplGAMgASgNQgWqAQIIAhIVCgZvZmZzZXQYBCABKA1CBaoBAggCIvwBChpDdXN0b2R5T3V0c3RhbmRpbmdSZXNwb25zZRIpCgRyb3dzGAEgAygLMhsucm92ZS5DdXN0b2R5T3V0c3RhbmRpbmdSb3cSFAoFdG90YWwYAiABKA1CBaoBAggCEhgKCWN1c3RvZGllcxgDIAEoDUIFqgECCAISFgoHb3ZlcmR1ZRgEIAEoDUIFqgECCAISFQoGcGVvcGxlGAUgASgNQgWqAQIIAhIVCgZhc3NldHMYBiABKA1CBaoBAggCEhUKBnN0b2NrcxgHIAEoDUIFqgECCAISJgoCYXQYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIvADChVDdXN0b2R5T3V0c3RhbmRpbmdSb3cSGQoKY3VzdG9keV9pZBgBIAEoDEIFqgECCAISFgoHbGluZV9pZBgCIAEoDEIFqgECCAISEwoEa2luZBgDIAEoCUIFqgECCAISFwoIcGFydHlfaWQYBCABKAxCBaoBAggCEhkKCnBhcnR5X25hbWUYBSABKAlCBaoBAggCEhcKCGFzc2V0X2lkGAYgASgMQgWqAQIIAhIYCglhc3NldF90YWcYByABKAlCBaoBAggCEhkKCmFzc2V0X25hbWUYCCABKAlCBaoBAggCEhcKCHN0b2NrX2lkGAkgASgMQgWqAQIIAhIZCgpzdG9ja19uYW1lGAogASgJQgWqAQIIAhIXCghxdWFudGl0eRgLIAEoA0IFqgECCAISEwoEdW5pdBgMIAEoCUIFqgECCAISLQoJaXNzdWVkX2F0GA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIqCgZkdWVfYXQYDiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhYKB292ZXJkdWUYDyABKAhCBaoBAggCEhsKDG92ZXJkdWVfZGF5cxgQIAEoDUIFqgECCAISGwoMYWNrbm93bGVkZ2VkGBEgASgIQgWqAQIIAiKqAwoVQ3VzdG9keUxpbmVBZGRSZXF1ZXN0EgoKAmlkGAEgASgMEh8KBnRlbmFudBgCIAEoCzIPLnJvdmUuVGVuYW50UmVmEiEKB2N1c3RvZHkYCCABKAsyEC5yb3ZlLkN1c3RvZHlSZWYSHQoFYXNzZXQYCSABKAsyDi5yb3ZlLkFzc2V0UmVmEh0KBXN0b2NrGAogASgLMg4ucm92ZS5TdG9ja1JlZhIXCghxdWFudGl0eRgLIAEoA0IFqgECCAISIAoRcmV0dXJuZWRfcXVhbnRpdHkYDCABKANCBaoBAggCEjAKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASKgoGb3V0X2F0GBAgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIvCgtyZXR1cm5lZF9hdBgRIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASHAoNY29uZGl0aW9uX291dBgSIAEoCUIFqgECCAISGwoMY29uZGl0aW9uX2luGBMgASgJQgWqAQIIAiJjChVDdXN0b2R5TGluZUdldFJlcXVlc3QSIQoDcmVmGAEgASgLMhQucm92ZS5DdXN0b2R5TGluZVJlZhInCgZzZWxlY3QYAiABKAsyFy5yb3ZlLkN1c3RvZHlMaW5lU2VsZWN0ItkCChFDdXN0b2R5TGluZVNlbGVjdBILCgNhbGwYASABKAgSIgoGdGVuYW50GAIgASgLMhIucm92ZS5UZW5hbnRTZWxlY3QSJAoHY3VzdG9keRgIIAEoCzITLnJvdmUuQ3VzdG9keVNlbGVjdBIgCgVhc3NldBgJIAEoCzIRLnJvdmUuQXNzZXRTZWxlY3QSIAoFc3RvY2sYCiABKAsyES5yb3ZlLlN0b2NrU2VsZWN0EhAKCHF1YW50aXR5GAsgASgIEhkKEXJldHVybmVkX3F1YW50aXR5GAwgASgIEhQKDGRhdGVfdXBkYXRlZBgNIAEoCBIUCgxkYXRlX2NyZWF0ZWQYDyABKAgSDgoGb3V0X2F0GBAgASgIEhMKC3JldHVybmVkX2F0GBEgASgIEhUKDWNvbmRpdGlvbl9vdXQYEiABKAgSFAoMY29uZGl0aW9uX2luGBMgASgIItsCChdDdXN0b2R5TGluZVBhdGNoUmVxdWVzdBIhCgNyZWYYASABKAsyFC5yb3ZlLkN1c3RvZHlMaW5lUmVmEhAKCHF1YW50aXR5GBYgASgDEhkKEXJldHVybmVkX3F1YW50aXR5GBggASgDEjAKDGRhdGVfdXBkYXRlZBgaIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGgoSZGF0ZV91cGRhdGVkX2ZvcmNlGBsgASgIEioKBm91dF9hdBggIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLwoLcmV0dXJuZWRfYXQYIiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhgKEHJldHVybmVkX2F0X251bGwYIyABKAgSFQoNY29uZGl0aW9uX291dBgkIAEoCRIUCgxjb25kaXRpb25faW4YJiABKAkiWQoXQ3VzdG9keUxpbmVBcHBseVJlcXVlc3QSIQoDcmVmGAEgASgLMhQucm92ZS5DdXN0b2R5TGluZVJlZhIbCgVwYXRjaBgCIAEoCzIMLnBhdGNoLlBhdGNoIioKGEN1c3RvZHlMaW5lRXJhc2VSZXNwb25zZRIOCgZlcmFzZWQYASABKAgihQEKFkN1c3RvZHlMaW5lTGlzdFJlcXVlc3QSKAoHZmlsdGVycxgBIAMoCzIXLnJvdmUuQ3VzdG9keUxpbmVGaWx0ZXISEwoEc2l6ZRgCIAEoBUIFqgECCAISFAoFYWZ0ZXIYAyABKAlCBaoBAggCEhYKB3JldmVyc2UYBCABKAhCBaoBAggCIlAKF0N1c3RvZHlMaW5lTGlzdFJlc3BvbnNlEiAKBWl0ZW1zGAEgAygLMhEucm92ZS5DdXN0b2R5TGluZRITCgRuZXh0GAIgASgJQgWqAQIIAiKXAQoRQ3VzdG9keUxpbmVGaWx0ZXISIQoDcmVmGAEgASgLMhQucm92ZS5DdXN0b2R5TGluZVJlZhIhCgdjdXN0b2R5GAIgASgLMhAucm92ZS5DdXN0b2R5UmVmEh0KBWFzc2V0GAMgASgLMg4ucm92ZS5Bc3NldFJlZhIdCgVzdG9jaxgEIAEoCzIOLnJvdmUuU3RvY2tSZWYy1gUKDkN1c3RvZHlTZXJ2aWNlEi0KA0FkZBIXLnJvdmUuQ3VzdG9keUFkZFJlcXVlc3QaDS5yb3ZlLkN1c3RvZHkSLQoDR2V0Ehcucm92ZS5DdXN0b2R5R2V0UmVxdWVzdBoNLnJvdmUuQ3VzdG9keRIxCgVQYXRjaBIZLnJvdmUuQ3VzdG9keVBhdGNoUmVxdWVzdBoNLnJvdmUuQ3VzdG9keRIxCgVBcHBseRIZLnJvdmUuQ3VzdG9keUFwcGx5UmVxdWVzdBoNLnJvdmUuQ3VzdG9keRI1CgVFcmFzZRIQLnJvdmUuQ3VzdG9keVJlZhoaLnJvdmUuQ3VzdG9keUVyYXNlUmVzcG9uc2USOwoETGlzdBIYLnJvdmUuQ3VzdG9keUxpc3RSZXF1ZXN0Ghkucm92ZS5DdXN0b2R5TGlzdFJlc3BvbnNlEkAKBVdhdGNoEhkucm92ZS5DdXN0b2R5V2F0Y2hSZXF1ZXN0Ghoucm92ZS5DdXN0b2R5V2F0Y2hSZXNwb25zZTABEj0KC0Fja25vd2xlZGdlEh8ucm92ZS5DdXN0b2R5QWNrbm93bGVkZ2VSZXF1ZXN0Gg0ucm92ZS5DdXN0b2R5EjMKBlJldHVybhIaLnJvdmUuQ3VzdG9keVJldHVyblJlcXVlc3QaDS5yb3ZlLkN1c3RvZHkSMwoGRXh0ZW5kEhoucm92ZS5DdXN0b2R5RXh0ZW5kUmVxdWVzdBoNLnJvdmUuQ3VzdG9keRJQCgtPdXRzdGFuZGluZxIfLnJvdmUuQ3VzdG9keU91dHN0YW5kaW5nUmVxdWVzdBogLnJvdmUuQ3VzdG9keU91dHN0YW5kaW5nUmVzcG9uc2USTwoRRXhwb3J0T3V0c3RhbmRpbmcSHy5yb3ZlLkN1c3RvZHlPdXRzdGFuZGluZ1JlcXVlc3QaGS5yb3ZlLkFzc2V0RXhwb3J0UmVzcG9uc2Uy/AIKEkN1c3RvZHlMaW5lU2VydmljZRI1CgNBZGQSGy5yb3ZlLkN1c3RvZHlMaW5lQWRkUmVxdWVzdBoRLnJvdmUuQ3VzdG9keUxpbmUSNQoDR2V0Ehsucm92ZS5DdXN0b2R5TGluZUdldFJlcXVlc3QaES5yb3ZlLkN1c3RvZHlMaW5lEjkKBVBhdGNoEh0ucm92ZS5DdXN0b2R5TGluZVBhdGNoUmVxdWVzdBoRLnJvdmUuQ3VzdG9keUxpbmUSOQoFQXBwbHkSHS5yb3ZlLkN1c3RvZHlMaW5lQXBwbHlSZXF1ZXN0GhEucm92ZS5DdXN0b2R5TGluZRI9CgVFcmFzZRIULnJvdmUuQ3VzdG9keUxpbmVSZWYaHi5yb3ZlLkN1c3RvZHlMaW5lRXJhc2VSZXNwb25zZRJDCgRMaXN0Ehwucm92ZS5DdXN0b2R5TGluZUxpc3RSZXF1ZXN0Gh0ucm92ZS5DdXN0b2R5TGluZUxpc3RSZXNwb25zZUIaWhhnaXRodWIuY29tL2xlc29tbnVzL3JvdmViCGVkaXRpb25zcOgH", [file_google_protobuf_timestamp, file_patch_patch, file_rove_asset_svc_g, file_rove_custody, file_rove_org_svc_g, file_rove_payday_tenant_svc_g, file_rove_stock_svc_g]);
 
 /**
  * @generated from message rove.CustodyAddRequest
@@ -822,6 +822,221 @@ export const CustodyExtendRequestSchema: GenMessage<CustodyExtendRequest> = /*@_
   messageDesc(file_rove_custody_svc_g, 18);
 
 /**
+ * @generated from message rove.CustodyOutstandingRequest
+ */
+export type CustodyOutstandingRequest = Message<"rove.CustodyOutstandingRequest"> & {
+  /**
+   * Only what is past its due date.
+   *
+   * @generated from field: bool overdue = 1 [features.field_presence = IMPLICIT];
+   */
+  overdue: boolean;
+
+  /**
+   * issue | loan; empty is both.
+   *
+   * @generated from field: string kind = 2 [features.field_presence = IMPLICIT];
+   */
+  kind: string;
+
+  /**
+   * A page of the rows: how many -- 50 when unsaid, and 500 at most -- and how
+   * many come before it.
+   *
+   * @generated from field: uint32 size = 3 [features.field_presence = IMPLICIT];
+   */
+  size: number;
+
+  /**
+   * @generated from field: uint32 offset = 4 [features.field_presence = IMPLICIT];
+   */
+  offset: number;
+};
+
+/**
+ * Describes the message rove.CustodyOutstandingRequest.
+ * Use `create(CustodyOutstandingRequestSchema)` to create a new message.
+ */
+export const CustodyOutstandingRequestSchema: GenMessage<CustodyOutstandingRequest> = /*@__PURE__*/
+  messageDesc(file_rove_custody_svc_g, 19);
+
+/**
+ * @generated from message rove.CustodyOutstandingResponse
+ */
+export type CustodyOutstandingResponse = Message<"rove.CustodyOutstandingResponse"> & {
+  /**
+   * The most overdue first, then what is due soonest, then what was handed
+   * over for keeps, the longest held first.
+   *
+   * @generated from field: repeated rove.CustodyOutstandingRow rows = 1;
+   */
+  rows: CustodyOutstandingRow[];
+
+  /**
+   * How many rows there are as the request asked, on every page.
+   *
+   * @generated from field: uint32 total = 2 [features.field_presence = IMPLICIT];
+   */
+  total: number;
+
+  /**
+   * All that is out, whatever the request asked: the hand-overs open, those
+   * of them past their due date, who has something, the assets out, and the
+   * lines of stock -- each in its own unit, so they are counted and not
+   * added up.
+   *
+   * @generated from field: uint32 custodies = 3 [features.field_presence = IMPLICIT];
+   */
+  custodies: number;
+
+  /**
+   * @generated from field: uint32 overdue = 4 [features.field_presence = IMPLICIT];
+   */
+  overdue: number;
+
+  /**
+   * @generated from field: uint32 people = 5 [features.field_presence = IMPLICIT];
+   */
+  people: number;
+
+  /**
+   * @generated from field: uint32 assets = 6 [features.field_presence = IMPLICIT];
+   */
+  assets: number;
+
+  /**
+   * @generated from field: uint32 stocks = 7 [features.field_presence = IMPLICIT];
+   */
+  stocks: number;
+
+  /**
+   * When it was read, which what is overdue is overdue at.
+   *
+   * @generated from field: google.protobuf.Timestamp at = 8;
+   */
+  at?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message rove.CustodyOutstandingResponse.
+ * Use `create(CustodyOutstandingResponseSchema)` to create a new message.
+ */
+export const CustodyOutstandingResponseSchema: GenMessage<CustodyOutstandingResponse> = /*@__PURE__*/
+  messageDesc(file_rove_custody_svc_g, 20);
+
+/**
+ * CustodyOutstandingRow is one line of a hand-over still out: an asset, or
+ * what of a stock has not come back.
+ *
+ * @generated from message rove.CustodyOutstandingRow
+ */
+export type CustodyOutstandingRow = Message<"rove.CustodyOutstandingRow"> & {
+  /**
+   * @generated from field: bytes custody_id = 1 [features.field_presence = IMPLICIT];
+   */
+  custodyId: Uint8Array;
+
+  /**
+   * @generated from field: bytes line_id = 2 [features.field_presence = IMPLICIT];
+   */
+  lineId: Uint8Array;
+
+  /**
+   * issue | loan
+   *
+   * @generated from field: string kind = 3 [features.field_presence = IMPLICIT];
+   */
+  kind: string;
+
+  /**
+   * Who has it, by the name they have now.
+   *
+   * @generated from field: bytes party_id = 4 [features.field_presence = IMPLICIT];
+   */
+  partyId: Uint8Array;
+
+  /**
+   * @generated from field: string party_name = 5 [features.field_presence = IMPLICIT];
+   */
+  partyName: string;
+
+  /**
+   * What it is: an asset, by its tag and name; or a stock, by its name, how
+   * many of it are still out, and in what.
+   *
+   * @generated from field: bytes asset_id = 6 [features.field_presence = IMPLICIT];
+   */
+  assetId: Uint8Array;
+
+  /**
+   * @generated from field: string asset_tag = 7 [features.field_presence = IMPLICIT];
+   */
+  assetTag: string;
+
+  /**
+   * @generated from field: string asset_name = 8 [features.field_presence = IMPLICIT];
+   */
+  assetName: string;
+
+  /**
+   * @generated from field: bytes stock_id = 9 [features.field_presence = IMPLICIT];
+   */
+  stockId: Uint8Array;
+
+  /**
+   * @generated from field: string stock_name = 10 [features.field_presence = IMPLICIT];
+   */
+  stockName: string;
+
+  /**
+   * @generated from field: int64 quantity = 11 [features.field_presence = IMPLICIT];
+   */
+  quantity: bigint;
+
+  /**
+   * @generated from field: string unit = 12 [features.field_presence = IMPLICIT];
+   */
+  unit: string;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp issued_at = 13;
+   */
+  issuedAt?: Timestamp | undefined;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp due_at = 14;
+   */
+  dueAt?: Timestamp | undefined;
+
+  /**
+   * Past its due date, and by how many of the workspace's days: one due
+   * yesterday is a day late, and one due earlier today none, late as it is.
+   *
+   * @generated from field: bool overdue = 15 [features.field_presence = IMPLICIT];
+   */
+  overdue: boolean;
+
+  /**
+   * @generated from field: uint32 overdue_days = 16 [features.field_presence = IMPLICIT];
+   */
+  overdueDays: number;
+
+  /**
+   * Whether whoever has it said they do.
+   *
+   * @generated from field: bool acknowledged = 17 [features.field_presence = IMPLICIT];
+   */
+  acknowledged: boolean;
+};
+
+/**
+ * Describes the message rove.CustodyOutstandingRow.
+ * Use `create(CustodyOutstandingRowSchema)` to create a new message.
+ */
+export const CustodyOutstandingRowSchema: GenMessage<CustodyOutstandingRow> = /*@__PURE__*/
+  messageDesc(file_rove_custody_svc_g, 21);
+
+/**
  * @generated from message rove.CustodyLineAddRequest
  */
 export type CustodyLineAddRequest = Message<"rove.CustodyLineAddRequest"> & {
@@ -891,7 +1106,7 @@ export type CustodyLineAddRequest = Message<"rove.CustodyLineAddRequest"> & {
  * Use `create(CustodyLineAddRequestSchema)` to create a new message.
  */
 export const CustodyLineAddRequestSchema: GenMessage<CustodyLineAddRequest> = /*@__PURE__*/
-  messageDesc(file_rove_custody_svc_g, 19);
+  messageDesc(file_rove_custody_svc_g, 22);
 
 /**
  * @generated from message rove.CustodyLineGetRequest
@@ -913,7 +1128,7 @@ export type CustodyLineGetRequest = Message<"rove.CustodyLineGetRequest"> & {
  * Use `create(CustodyLineGetRequestSchema)` to create a new message.
  */
 export const CustodyLineGetRequestSchema: GenMessage<CustodyLineGetRequest> = /*@__PURE__*/
-  messageDesc(file_rove_custody_svc_g, 20);
+  messageDesc(file_rove_custody_svc_g, 23);
 
 /**
  * @generated from message rove.CustodyLineSelect
@@ -990,7 +1205,7 @@ export type CustodyLineSelect = Message<"rove.CustodyLineSelect"> & {
  * Use `create(CustodyLineSelectSchema)` to create a new message.
  */
 export const CustodyLineSelectSchema: GenMessage<CustodyLineSelect> = /*@__PURE__*/
-  messageDesc(file_rove_custody_svc_g, 21);
+  messageDesc(file_rove_custody_svc_g, 24);
 
 /**
  * @generated from message rove.CustodyLinePatchRequest
@@ -1071,7 +1286,7 @@ export type CustodyLinePatchRequest = Message<"rove.CustodyLinePatchRequest"> & 
  * Use `create(CustodyLinePatchRequestSchema)` to create a new message.
  */
 export const CustodyLinePatchRequestSchema: GenMessage<CustodyLinePatchRequest> = /*@__PURE__*/
-  messageDesc(file_rove_custody_svc_g, 22);
+  messageDesc(file_rove_custody_svc_g, 25);
 
 /**
  * @generated from message rove.CustodyLineApplyRequest
@@ -1093,7 +1308,7 @@ export type CustodyLineApplyRequest = Message<"rove.CustodyLineApplyRequest"> & 
  * Use `create(CustodyLineApplyRequestSchema)` to create a new message.
  */
 export const CustodyLineApplyRequestSchema: GenMessage<CustodyLineApplyRequest> = /*@__PURE__*/
-  messageDesc(file_rove_custody_svc_g, 23);
+  messageDesc(file_rove_custody_svc_g, 26);
 
 /**
  * @generated from message rove.CustodyLineEraseResponse
@@ -1116,7 +1331,7 @@ export type CustodyLineEraseResponse = Message<"rove.CustodyLineEraseResponse"> 
  * Use `create(CustodyLineEraseResponseSchema)` to create a new message.
  */
 export const CustodyLineEraseResponseSchema: GenMessage<CustodyLineEraseResponse> = /*@__PURE__*/
-  messageDesc(file_rove_custody_svc_g, 24);
+  messageDesc(file_rove_custody_svc_g, 27);
 
 /**
  * @generated from message rove.CustodyLineListRequest
@@ -1165,7 +1380,7 @@ export type CustodyLineListRequest = Message<"rove.CustodyLineListRequest"> & {
  * Use `create(CustodyLineListRequestSchema)` to create a new message.
  */
 export const CustodyLineListRequestSchema: GenMessage<CustodyLineListRequest> = /*@__PURE__*/
-  messageDesc(file_rove_custody_svc_g, 25);
+  messageDesc(file_rove_custody_svc_g, 28);
 
 /**
  * @generated from message rove.CustodyLineListResponse
@@ -1195,7 +1410,7 @@ export type CustodyLineListResponse = Message<"rove.CustodyLineListResponse"> & 
  * Use `create(CustodyLineListResponseSchema)` to create a new message.
  */
 export const CustodyLineListResponseSchema: GenMessage<CustodyLineListResponse> = /*@__PURE__*/
-  messageDesc(file_rove_custody_svc_g, 26);
+  messageDesc(file_rove_custody_svc_g, 29);
 
 /**
  * @generated from message rove.CustodyLineFilter
@@ -1227,7 +1442,7 @@ export type CustodyLineFilter = Message<"rove.CustodyLineFilter"> & {
  * Use `create(CustodyLineFilterSchema)` to create a new message.
  */
 export const CustodyLineFilterSchema: GenMessage<CustodyLineFilter> = /*@__PURE__*/
-  messageDesc(file_rove_custody_svc_g, 27);
+  messageDesc(file_rove_custody_svc_g, 30);
 
 /**
  * @generated from service rove.CustodyService
@@ -1340,6 +1555,32 @@ export const CustodyService: GenService<{
     methodKind: "unary";
     input: typeof CustodyExtendRequestSchema;
     output: typeof CustodySchema;
+  },
+  /**
+   * Outstanding is what is out now (대여 현황, design 9.14): a row each thing
+   * handed over and not back -- who has it, since when, until when and how
+   * late -- a page at a time, and how much is out in all. It names who has
+   * each, as they are called now, and is a read of them on the access record
+   * (rove#136); and nobody's address or number.
+   *
+   * @generated from rpc rove.CustodyService.Outstanding
+   */
+  outstanding: {
+    methodKind: "unary";
+    input: typeof CustodyOutstandingRequestSchema;
+    output: typeof CustodyOutstandingResponseSchema;
+  },
+  /**
+   * ExportOutstanding writes every row of it as a CSV, whatever the page: a
+   * download of the people it names, which says what it is for in
+   * `payday-reason-bin`, and is refused without (rove#136).
+   *
+   * @generated from rpc rove.CustodyService.ExportOutstanding
+   */
+  exportOutstanding: {
+    methodKind: "unary";
+    input: typeof CustodyOutstandingRequestSchema;
+    output: typeof AssetExportResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_rove_custody_svc_g, 0);

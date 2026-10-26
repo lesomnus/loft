@@ -43,6 +43,14 @@ service InventoryCountService {
   // lost, or ignore it.
   rpc Resolve(InventoryCountResolveRequest) returns (CountFinding);
   rpc Close(InventoryCountCloseRequest) returns (InventoryCount);
+  // Results is each count begun in a period (실사 결과, design 9.14), by what
+  // it found -- what was where it should be, and the differences: misplaced,
+  // missing, unknown -- and how they were settled, the losses among them. It
+  // names nobody.
+  rpc Results(InventoryCountResultsRequest) returns (InventoryCountResultsResponse);
+  // ExportResults writes it as a CSV, which names nobody and so is no
+  // download of anybody (rove#136).
+  rpc ExportResults(InventoryCountResultsRequest) returns (AssetExportResponse);
 }
 
 service CountFindingService {
@@ -296,6 +304,47 @@ message CountFindingRef {
 
 message InventoryCountCloseRequest {
   InventoryCountRef ref = 1;
+}
+
+message InventoryCountResultsRequest {
+  // The counts begun from `from` and before `to`, a year at most. Unsaid, the
+  // last year of the workspace's days, today among them.
+  google.protobuf.Timestamp from = 1;
+  google.protobuf.Timestamp to = 2;
+}
+
+message InventoryCountResultsResponse {
+  // The newest first.
+  repeated InventoryCountResult rows = 1;
+  // The period it read.
+  google.protobuf.Timestamp from = 2;
+  google.protobuf.Timestamp to = 3;
+}
+
+// InventoryCountResult is what one count found, by kind, and how what it
+// found amiss was settled.
+message InventoryCountResult {
+  bytes count_id = 1 [features.field_presence = IMPLICIT];
+  string name = 2 [features.field_presence = IMPLICIT];
+  // The space it covered, as it is called now.
+  bytes scope_id = 3 [features.field_presence = IMPLICIT];
+  string scope_name = 4 [features.field_presence = IMPLICIT];
+  // open | closed
+  string status = 5 [features.field_presence = IMPLICIT];
+  google.protobuf.Timestamp started_at = 6;
+  google.protobuf.Timestamp closed_at = 7;
+  // What it found: where it should be, somewhere else, never seen, and
+  // scanned but not registered. The last three are the differences.
+  uint32 seen = 8 [features.field_presence = IMPLICIT];
+  uint32 misplaced = 9 [features.field_presence = IMPLICIT];
+  uint32 missing = 10 [features.field_presence = IMPLICIT];
+  uint32 unknown = 11 [features.field_presence = IMPLICIT];
+  // How the differences were settled: moved to where they were seen,
+  // reported lost -- the losses -- or ignored; and those not settled yet.
+  uint32 moved = 12 [features.field_presence = IMPLICIT];
+  uint32 lost = 13 [features.field_presence = IMPLICIT];
+  uint32 ignored = 14 [features.field_presence = IMPLICIT];
+  uint32 unsettled = 15 [features.field_presence = IMPLICIT];
 }
 
 message CountFindingAddRequest {
