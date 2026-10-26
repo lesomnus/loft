@@ -12,6 +12,7 @@ import (
 	"slices"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -520,6 +521,108 @@ func TestTheSameIdentityOnEitherRoster(t *testing.T) {
 			} else {
 				x.ErrorIs(err, ErrExternal)
 			}
+		})
+	}
+}
+
+// cutting is roster as a store asks it, over a connection of its own: one that
+// counts every asking, answers none while roster is `down`, and ends the call
+// that asks -- as a page left half loaded ends it, or as it runs out of its
+// own time -- at the asking `cut` names.
+type cutting struct {
+	asked atomic.Int32
+	down  atomic.Bool
+	cut   atomic.Pointer[cut]
+}
+
+// cut is where the next call that asks roster ends, and how: at an asking of
+// `method`, or at its first for "".
+type cut struct {
+	method string
+	end    func()
+}
+
+func cutBy(t *testing.T, s *Store) *cutting {
+	t.Helper()
+	c := &cutting{}
+	opts := []grpc.DialOption{
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(func(ctx context.Context, method string, req, res any, cc *grpc.ClientConn, invoke grpc.UnaryInvoker, opts ...grpc.CallOption) error {
+			c.asked.Add(1)
+			if v := c.cut.Load(); v != nil && (v.method == "" || v.method == method) && c.cut.CompareAndSwap(v, nil) {
+				v.end()
+			}
+			if c.down.Load() {
+				return status.Error(codes.Unavailable, "connection refused")
+			}
+			return invoke(ctx, method, req, res, cc, opts...)
+		}),
+	}
+	target := s.cfg.Addr
+	if s.em != nil {
+		target = "passthrough:///roster"
+		opts = append(opts, grpc.WithContextDialer(func(ctx context.Context, _ string) (net.Conn, error) { return s.em.lis.DialContext(ctx) }))
+	}
+	conn, err := grpc.NewClient(target, opts...)
+	require.NoError(t, err)
+	require.NoError(t, s.conn.Close())
+	// Closed with the store.
+	s.conn = conn
+
+	return c
+}
+
+// TestACallThatEndsWhileRosterIsAskedSaysNothingOfRoster: a call that ends
+// while roster is being asked about its account -- its page was left half
+// loaded, or it ran out of its own time -- is not roster failing to answer,
+// and the account's next call is served at once. Kept as roster's failing, it
+// refused every call the account made for HeldRetry: two tests of rove#233's
+// e2e that had nothing to do with each other failed on it. So whatever the
+// call was cut short asking -- the directory, the tenants a deployment key
+// serves, or the account -- and on either roster.
+//
+// A roster that cannot be asked is still a refusal, and is still not asked
+// again for HeldRetry.
+func TestACallThatEndsWhileRosterIsAskedSaysNothingOfRoster(t *testing.T) {
+	for _, r := range bothRosters(t) {
+		t.Run(r.name, func(t *testing.T) {
+			x := require.New(t)
+			ctx := t.Context()
+			s := r.s
+			now := time.Now()
+			s.now = func() time.Time { return now }
+			began := time.Now().Add(time.Second)
+			c := cutBy(t, s)
+
+			// Left half loaded: at the first thing it asks roster, whatever
+			// that is, and at asking about the account.
+			for _, at := range []string{"", rstr.HolderService_Get_FullMethodName} {
+				s.Recheck(r.account)
+				cctx, leave := context.WithCancel(ctx)
+				c.cut.Store(&cut{method: at, end: leave})
+				x.ErrorIs(s.Held(cctx, r.account, began), context.Canceled, "cut short at %q", at)
+				x.Nil(c.cut.Load(), "it ended asking roster")
+				x.NoError(s.Held(ctx, r.account, began), "the next call, cut short at %q", at)
+			}
+
+			// Out of its own time.
+			s.Recheck(r.account)
+			cctx, cancel := context.WithTimeout(ctx, 100*time.Millisecond)
+			defer cancel()
+			c.cut.Store(&cut{method: rstr.HolderService_Get_FullMethodName, end: func() { <-cctx.Done() }})
+			x.ErrorIs(s.Held(cctx, r.account, began), context.DeadlineExceeded)
+			x.NoError(s.Held(ctx, r.account, began), "the next call, after one that ran out of time")
+
+			// Roster's own failing is a refusal, and kept as one.
+			s.Recheck(r.account)
+			c.down.Store(true)
+			x.ErrorIs(s.Held(ctx, r.account, began), ErrUnreachable)
+			c.down.Store(false)
+			asked := c.asked.Load()
+			x.ErrorIs(s.Held(ctx, r.account, began), ErrUnreachable, "within HeldRetry, as it was")
+			x.Equal(asked, c.asked.Load(), "roster asked again within HeldRetry")
+			now = now.Add(HeldRetry)
+			x.NoError(s.Held(ctx, r.account, began), "and asked again once it is over")
 		})
 	}
 }

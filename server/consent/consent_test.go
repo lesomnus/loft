@@ -3,6 +3,7 @@ package consent_test
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sync"
 	"testing"
 	"time"
@@ -15,7 +16,8 @@ import (
 )
 
 // ledger is roster's, as these tests have it: what each account agreed to,
-// how often it was asked, and an error to answer everything with when set.
+// how often it was asked, and an error to answer everything with when set. A
+// call that ended is not answered, as roster's over the wire is not.
 type ledger struct {
 	mu     sync.Mutex
 	agreed map[pdid.Id]map[identity.Document]string
@@ -24,10 +26,13 @@ type ledger struct {
 	sent   [][]identity.Document
 }
 
-func (l *ledger) Owed(_ context.Context, account pdid.Id, docs []identity.Document) ([]identity.Document, error) {
+func (l *ledger) Owed(ctx context.Context, account pdid.Id, docs []identity.Document) ([]identity.Document, error) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	l.asked++
+	if err := ctx.Err(); err != nil {
+		return nil, fmt.Errorf("%w: %v", identity.ErrUnreachable, err)
+	}
 	if l.err != nil {
 		return nil, l.err
 	}
@@ -168,6 +173,36 @@ func TestARosterThatCannotBeAskedIsARefusal(t *testing.T) {
 	ok, err = c.Settled(ctx, kim)
 	x.NoError(err)
 	x.True(ok, "asked again once HeldRetry is over")
+}
+
+// TestACallThatEndsWhileRosterIsAskedIsNotRostersFailing: a call that ends
+// while roster's ledger is asked about its account -- its page was left half
+// loaded, or it ran out of its own time -- is not roster failing to answer.
+// Nothing is kept of it, and the account's next call asks again, and is
+// served: kept as roster's failing, it refused every call the account made
+// for [identity.HeldRetry].
+func TestACallThatEndsWhileRosterIsAskedIsNotRostersFailing(t *testing.T) {
+	x := require.New(t)
+	ctx := t.Context()
+	l := &ledger{}
+	c, _ := asking(l)
+
+	left, leave := context.WithCancel(ctx)
+	leave()
+	late, cancel := context.WithDeadline(ctx, time.Now())
+	defer cancel()
+	for _, ended := range []context.Context{left, late} {
+		kim := pdid.New(2)
+		x.NoError(l.Agree(ctx, kim, []identity.Document{{Name: "terms", Version: "2026-10-01"}, {Name: "privacy", Version: "2026-10-01"}}, "web"))
+
+		asked := l.times()
+		_, err := c.Settled(ended, kim)
+		x.Error(err)
+		ok, err := c.Settled(ctx, kim)
+		x.NoError(err, "the next call, after one that ended: %v", ended.Err())
+		x.True(ok)
+		x.Equal(asked+2, l.times(), "asked again at the next call")
+	}
 }
 
 // TestAnAgreementIsToEveryDocumentOwedAtTheVersionInForce: every document an
