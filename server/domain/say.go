@@ -125,6 +125,12 @@ func sentences() *past.Sentences {
 	past.SayKind(s, "custody.extend", "ko", func(r *past.Reading, ev past.EventRow, m *app.CustodyExtended) string {
 		return "반납 기한 연장: " + m.GetDue().AsTime().In(r.Zone()).Format(time.DateOnly)
 	})
+	// A loan the sweep found late, by the due it missed, to the minute: the
+	// moment it was found so is the event's own. Said alike of the loan and
+	// of each thing still out.
+	past.SayKind(s, "custody.overdue", "ko", func(r *past.Reading, ev past.EventRow, m *app.CustodyOverdue) string {
+		return "반납 기한 지남: " + r.Time(m.GetDue().AsTime())
+	})
 	past.SayKind(s, "custody.return", "ko", func(r *past.Reading, ev past.EventRow, m *app.CustodyReturned) string {
 		return "반납"
 	})

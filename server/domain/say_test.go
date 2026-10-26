@@ -108,6 +108,10 @@ func TestEveryKindIsSaidAsItWasWritten(t *testing.T) {
 		{"custody.acknowledge", app.CustodyAcknowledged_builder{}.Build(), "인수 확인"},
 		// 05:00 in Seoul, on the 25th.
 		{"custody.extend", app.CustodyExtended_builder{Due: timestamppb.New(time.Date(2026, 10, 24, 20, 0, 0, 0, time.UTC))}.Build(), "반납 기한 연장: 2026-10-25"},
+		// A kind since events kept a message, written with none before it:
+		// the loan's own, and an asset's of it, by the due it missed.
+		{"custody.overdue", app.CustodyOverdue_builder{Due: timestamppb.New(time.Date(2026, 10, 24, 20, 0, 0, 0, time.UTC))}.Build(), "반납 기한 지남: 2026-10-25 05:00"},
+		{"custody.overdue", app.CustodyOverdue_builder{Due: timestamppb.New(at), Asset: asset.Bytes()}.Build(), "반납 기한 지남: 2026-10-24 10:30"},
 		{"custody.return", app.CustodyReturned_builder{Asset: asset.Bytes()}.Build(), "반납"},
 
 		{"count.start", app.CountDelimited_builder{Name: "본관 실사 2026-10-24"}.Build(), "실사 시작: 본관 실사 2026-10-24"},
