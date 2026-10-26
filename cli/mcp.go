@@ -136,9 +136,15 @@ func newMcp(ws string, log *slog.Logger) *mcp.Server {
 	}, t.listCustody)
 	mcp.AddTool(s, &mcp.Tool{
 		Name:        "reservations",
-		Description: "Reservations touching a span of time, for some assets or all: who, what, when, and in what state.",
+		Description: "Reservations touching a span of time, for some assets or all: who, what, when, and in what state. What happened to one is reservation_history's.",
 		Annotations: read,
 	}, t.reservations)
+	mcp.AddTool(s, &mcp.Tool{
+		Name: "reservation_history",
+		Description: "What happened to one reservation, newest first: who booked it, who approved, rejected or cancelled it and why, when it was checked into, picked up and returned, and what it took or let go of as a kit or a pool it booked changed -- each with who did it, and the operation it was part of. " +
+			"Of a person's own reservations to a member, and of anybody's to whoever runs the register or audits it.",
+		Annotations: read,
+	}, t.reservationHistory)
 	mcp.AddTool(s, &mcp.Tool{
 		Name: "find_people",
 		Description: "Find people, teams, organizations and vendors by a name or part of it, a code, or the team one is in -- or list them, of a kind, with no query. " +
@@ -1283,6 +1289,75 @@ func (t mcpTools) reservations(ctx context.Context, _ *mcp.CallToolRequest, in m
 			item.OutOfUse = append(item.OutOfUse, mcpRef{Id: idString(g.GetResourceId()), Name: fmt.Sprintf("%s (%s)", name, g.GetStatus())})
 		}
 		out.Items = append(out.Items, item)
+	}
+	return nil, out, nil
+}
+
+type mcpReservationHistoryIn struct {
+	Reservation string `json:"reservation" jsonschema:"the reservation: an id reservations answers with"`
+	Limit       int    `json:"limit,omitempty" jsonschema:"how many entries, the newest: 30 if left out, 200 at most"`
+}
+
+type mcpHappened struct {
+	When      string `json:"when" jsonschema:"when it happened"`
+	What      string `json:"what"`
+	Operation string `json:"operation" jsonschema:"its kind: reservation.add, reservation.approve, custody.issue (its pickup), custody.return, reservation.take, ..."`
+	Who       string `json:"who" jsonschema:"who did it; the deployment's own work says so"`
+	Why       string `json:"why,omitempty"`
+	Part      string `json:"part_of,omitempty" jsonschema:"the operation over many things this was part of -- a change to a kit it booked, the booking or cancelling of the series it is one of -- in its own words, where it says more than this does"`
+	// What the history's own entry holds (`TimelineEntry.detail`), as
+	// asset_history answers it.
+	Detail map[string]string `json:"detail,omitempty" jsonschema:"what its operation held, field by field: a thing or a person by the name a person reads it by, and a moment in the workspace's zone"`
+}
+
+type mcpReservationHistory struct {
+	Reservation mcpRef        `json:"reservation"`
+	Entries     []mcpHappened `json:"entries"`
+}
+
+// reservationHistory is a reservation's history (D45): its events and those
+// of the hand-overs that fulfilled it, as the reservation's dialog shows
+// them, each with who did it and the operation it was part of. One tool of
+// its own, as asset_history is beside get_asset, rather than more of every
+// answer of `reservations`: one more call for each reservation a span holds,
+// and an answer that goes to the assistant's provider with all of it.
+func (t mcpTools) reservationHistory(ctx context.Context, _ *mcp.CallToolRequest, in mcpReservationHistoryIn) (*mcp.CallToolResult, mcpReservationHistory, error) {
+	out := mcpReservationHistory{Entries: []mcpHappened{}}
+	c, err := t.call(ctx)
+	if err != nil {
+		return nil, out, err
+	}
+	id, err := idOf("reservation", in.Reservation)
+	if err != nil {
+		return nil, out, err
+	}
+	which := app.ReservationRef_builder{Id: id.Bytes()}.Build()
+	r, err := app.NewReservationServiceClient(c.conn).Get(ctx, app.ReservationGetRequest_builder{Ref: which}.Build())
+	if err != nil {
+		return nil, out, failed(err)
+	}
+	v, err := app.NewReservationServiceClient(c.conn).Timeline(ctx, app.ReservationTimelineRequest_builder{Ref: which}.Build())
+	if err != nil {
+		return nil, out, failed(err)
+	}
+	n := in.Limit
+	if n <= 0 {
+		n = 30
+	}
+	out.Reservation = mcpRef{Id: idString(r.GetId()), Name: r.GetName()}
+	for _, e := range v.GetEntries() {
+		if len(out.Entries) == min(n, 200) {
+			break
+		}
+		out.Entries = append(out.Entries, mcpHappened{
+			When:      stamp(e.GetValidFrom()),
+			What:      e.GetSummary(),
+			Operation: e.GetEventKind(),
+			Who:       e.GetActor(),
+			Why:       e.GetReason(),
+			Part:      e.GetCause(),
+			Detail:    e.GetDetail(),
+		})
 	}
 	return nil, out, nil
 }

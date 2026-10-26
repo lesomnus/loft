@@ -25,6 +25,7 @@ import (
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/internal/ent"
 	entaccess "github.com/lesomnus/rove/internal/ent/access"
+	"github.com/lesomnus/rove/internal/ent/event"
 	"github.com/lesomnus/rove/internal/ent/notification"
 )
 
@@ -110,6 +111,52 @@ func TestWhoReadWhoseDataIsRecorded(t *testing.T) {
 		x.Len(rs, 1)
 		x.Contains(rs[0].Subjects, park.GetId(), "the history read her name out, and did not say so")
 	})
+}
+
+// TestAReservationsHistoryIsOnTheRecord: a reservation's history (D45) names
+// whoever did something with it and says why, which no `personal` field of
+// its answer carries: the call that reads it says it showed them, and the
+// decision whose reason it read out.
+func TestAReservationsHistoryIsOnTheRecord(t *testing.T) {
+	w := newWorld(t)
+	x := w.x
+	ctx := context.Background()
+	camera, err := app.NewAssetServiceClient(w.conn).Add(w.owner, app.AssetAddRequest_builder{Name: "카메라", Tag: "CM-1"}.Build())
+	x.NoError(err)
+	_, err = app.NewBookableServiceClient(w.conn).Add(w.owner, app.BookableAddRequest_builder{Asset: app.AssetRef_builder{Id: camera.GetId()}.Build(), Approval: true}.Build())
+	x.NoError(err)
+	kh := w.holder("kim", "member")
+	kp, err := w.s.Base.Party().Add(ctx, app.PartyAddRequest_builder{
+		Tenant: app.TenantRef_builder{Id: w.tenant.GetId()}.Build(),
+		Name:   "김민수", Kind: "person",
+		Holder: app.HolderRef_builder{Id: kh.GetId()}.Build(),
+	}.Build())
+	x.NoError(err)
+	kim := w.signIn(kh)
+	reservations := app.NewReservationServiceClient(w.conn)
+	at := time.Now().Add(24 * time.Hour).Truncate(time.Hour)
+	r, err := reservations.Add(kim, app.ReservationAddRequest_builder{
+		Name:     "인터뷰",
+		BeginsAt: timestamppb.New(at),
+		EndsAt:   timestamppb.New(at.Add(time.Hour)),
+		Items:    []*app.ReservationItemSpec{app.ReservationItemSpec_builder{Resource: app.AssetRef_builder{Id: camera.GetId()}.Build()}.Build()},
+	}.Build())
+	x.NoError(err)
+	_, err = reservations.Approve(w.owner, app.ReservationDecideRequest_builder{Ref: app.ReservationRef_builder{Id: r.GetId()}.Build(), Reason: "일정 확인"}.Build())
+	x.NoError(err)
+	approved, err := w.s.Ent.Event.Query().Where(event.Kind("reservation.approve")).Only(ctx)
+	x.NoError(err)
+
+	h, err := reservations.Timeline(kim, app.ReservationTimelineRequest_builder{Ref: app.ReservationRef_builder{Id: r.GetId()}.Build()}.Build())
+	x.NoError(err)
+	x.Len(h.GetEntries(), 2)
+	x.Equal("김민수", h.GetEntries()[1].GetActor())
+
+	rs := w.accessed(t, app.ReservationService_Timeline_FullMethodName)
+	x.Len(rs, 1)
+	x.Equal("read", rs[0].Kind)
+	x.Contains(rs[0].Subjects, kp.GetId(), "who booked it, by name")
+	x.Contains(rs[0].Subjects, pdid.Id(approved.Id).Bytes(), "the decision, whose reason it showed")
 }
 
 // TestANoticeOfABookingIsOnTheRecord: what a booking takes that goes out of

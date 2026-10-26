@@ -234,6 +234,9 @@ message TimelineEntry {
   // The operation this was part of, for a person, when it was one over many
   // things: what the event that wrote this was caused by (design D34).
   string cause = 15 [features.field_presence = IMPLICIT];
+  // That operation's event: what the entries one operation wrote share,
+  // also where `cause` is left empty for saying no more than the entry does.
+  bytes cause_id = 16 [features.field_presence = IMPLICIT];
 }
 
 message AssetQueryAtRequest {

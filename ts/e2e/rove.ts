@@ -28,6 +28,7 @@ export const people = {
 	issued: { login: 'yejun-park', name: '박예준' },
 	booker: { login: 'jiwoo-jung', name: '정지우' },
 	approver: { login: 'jia-kim', name: '김지아' },
+	historian: { login: 'jimin-cho', name: '조지민' },
 	counts: { login: 'gunwoo-lee', name: '이건우' },
 	workspaces: { login: 'yejun-kang', name: '강예준' },
 	reporter: { login: 'yujun-park', name: '박유준' },
