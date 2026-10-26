@@ -155,6 +155,12 @@ func (e *env) toldAsDeclared() {
 func (e *env) keptAsDeclared() {
 	e.t.Helper()
 	ctx := context.Background()
+	// Nothing to keep when no event says a reason, as most tests' do not.
+	said, err := e.s.Ent.Event.Query().Where(event.ReasonNEQ("")).Exist(ctx)
+	e.x.NoError(err)
+	if !said {
+		return
+	}
 	drv := e.s.Ent.Driver()
 	skip := map[pdid.Domain]bool{
 		pd.EventDomain: true, pd.FactDomain: true, pd.NotificationDomain: true,
