@@ -130,3 +130,82 @@ func TestAnOperatorTakesAnEventsReasonOut(t *testing.T) {
 	// And every row is as the trail says: the event's, made again of it.
 	x.NoError(cli.NewCmdTrail(&c).Run(ctx, []string{"rows"}))
 }
+
+// TestAnOperatorIsToldWhereElseAnOperationSaysItAndTakesItOutThereToo: what a
+// hand-over's memo says, each thing it handed over copies (design D49). Before
+// `--yes` the operator is told how many events of the operation say the same,
+// and of which kinds, and nothing of what they say; with it, the words are
+// taken out of all of them.
+func TestAnOperatorIsToldWhereElseAnOperationSaysItAndTakesItOutThereToo(t *testing.T) {
+	x := require.New(t)
+	ctx := t.Context()
+
+	c := cmd.Config{}
+	c.Db.Driver, c.Db.Dsn = pdtest.DB(t)
+	c.Watch.Broker = "memory"
+	c.App.Files = t.TempDir()
+	c.Auth.Roster.Db.Driver, c.Auth.Roster.Db.Dsn = pdtest.DB(t)
+	c.Audit.Digest.Key = "base64:" + base64.StdEncoding.EncodeToString(bytes.Repeat([]byte{7}, 32))
+	run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner-pass-1234")
+
+	const words = "박지민 씨 개인 사정으로 지급 (010-2345-6789)"
+	var said []pdid.Id
+	on(t, c, func(s *cmd.Server) {
+		tn, err := s.Ent.Tenant.Query().Where(enttenant.Alias("acme")).Only(ctx)
+		x.NoError(err)
+		h, err := s.Ent.Holder.Query().Where(holder.TenantId(tn.Id), holder.Alias("owner")).Only(ctx)
+		x.NoError(err)
+		owner := frame.Into(ctx, frame.New(pdid.Id(h.Id), pdid.Id(tn.Id), frame.Whole()).WithScope(frame.Only(pdid.Id(tn.Id))))
+		var lines []*app.CustodyLineSpec
+		for _, name := range []string{"노트북", "모니터"} {
+			a, err := s.Walled.Asset().Add(owner, app.AssetAddRequest_builder{Name: name}.Build())
+			x.NoError(err)
+			lines = append(lines, app.CustodyLineSpec_builder{Asset: app.AssetById(a.GetId())}.Build())
+		}
+		p, err := s.Walled.Party().Add(owner, app.PartyAddRequest_builder{Name: "김철수", Kind: "person"}.Build())
+		x.NoError(err)
+		cu, err := s.Walled.Custody().Add(owner, app.CustodyAddRequest_builder{Party: app.PartyRef_builder{Id: p.GetId()}.Build(), Desc: words, Lines: lines}.Build())
+		x.NoError(err)
+		cid, err := pdid.From(cu.GetId())
+		x.NoError(err)
+		own, err := s.Ent.Event.Query().Where(event.Kind("custody.issue"), event.SubjectId(cid.Uuid())).Only(ctx)
+		x.NoError(err)
+		said = append(said, pdid.Id(own.Id))
+		parts, err := s.Ent.Event.Query().Where(event.CauseId(own.Id)).All(ctx)
+		x.NoError(err)
+		for _, v := range parts {
+			said = append(said, pdid.Id(v.Id))
+		}
+	})
+	x.Len(said, 3)
+	left := func() int {
+		n := 0
+		on(t, c, func(s *cmd.Server) {
+			for _, id := range said {
+				e, err := s.Ent.Event.Get(ctx, id.Uuid())
+				x.NoError(err)
+				if e.Reason != "" {
+					n++
+				}
+			}
+		})
+		return n
+	}
+
+	out := run(t, cli.NewCmdEvent(&c), "redact", "--tenant", "acme", "--event", said[0].String(), "--why", "삭제 요청 2026-26")
+	x.Contains(out, "says the same in 2 other events")
+	x.Contains(out, "custody.issue ×2")
+	x.Contains(out, "would take its reason out")
+	x.NotContains(out, "박지민")
+	x.Equal(3, left(), "nothing was done")
+
+	out = run(t, cli.NewCmdEvent(&c), "redact", "--tenant", "acme", "--event", said[0].String(), "--why", "삭제 요청 2026-26", "--by", "ops@desk", "--yes")
+	x.Contains(out, "took the reason out of event "+said[0].String())
+	x.Contains(out, "and out of the 2 other events of its operation")
+	x.Zero(left())
+
+	// Asked of another of them, there is nothing left.
+	out = run(t, cli.NewCmdEvent(&c), "redact", "--tenant", "acme", "--event", said[2].String(), "--why", "삭제 요청 2026-26", "--yes")
+	x.Contains(out, "it has no reason")
+	x.NoError(cli.NewCmdTrail(&c).Run(ctx, []string{"rows"}))
+}
