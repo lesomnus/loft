@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/csv"
+	"fmt"
 	"strings"
 	"testing"
 	"time"
@@ -251,14 +252,22 @@ func TestCount(t *testing.T) {
 }
 
 // TestExportWritesTheRegister: the register as a CSV to read -- a row an
-// asset, in the words a person reads, and where it is as a path beside the tag
-// of what holds it. Nothing reads one back (design D34).
+// asset, in the words a person reads, where it is as a path beside the tag of
+// what holds it, and who has it by name, never by their address. Nothing
+// reads one back (design D34).
 func TestExportWritesTheRegister(t *testing.T) {
 	e := newEnv(t)
 	x := e.x
 	hq := e.space("본사", nil)
 	floor := e.space("3층", hq)
-	e.item("노트북", "NB-100", floor, day)
+	nb := e.item("노트북", "NB-100", floor, day)
+	_, kim := e.person("member")
+	_, err := e.app().Custody().Add(e.owner, app.CustodyAddRequest_builder{
+		Party: ref[app.PartyRef](kim.GetId()),
+		Lines: []*app.CustodyLineSpec{app.CustodyLineSpec_builder{Asset: assetRef(nb)}.Build()},
+	}.Build())
+	x.NoError(err)
+	x.NotEmpty(kim.GetEmail())
 
 	header := []string{"태그", "이름", "종류", "유형", "모델", "제조사", "시리얼", "상태", "컨디션", "위치", "위치태그", "사용자", "취득일", "설명"}
 	find := func(rows [][]string) []string {
@@ -284,6 +293,82 @@ func TestExportWritesTheRegister(t *testing.T) {
 	x.Equal("사용중", row[7])
 	x.Equal("본사/3층", row[9], "where it is, as a path")
 	x.Equal(floor.GetTag(), row[10], "and the tag of what holds it")
+	x.Equal(kim.GetName(), row[11], "who has it, by name")
+	x.NotContains(string(out.GetData()), kim.GetEmail(), "and never how they are reached")
+}
+
+// TestTheRegisterTellsPeopleOfOneNameApart: who has each asset is said by
+// name, and where another goes by the same name, by what the page tells them
+// apart by -- the team they are in; their 사번 where another of the name is in
+// a team of that name too; and their identifier where neither tells them
+// apart -- never by how they are reached.
+func TestTheRegisterTellsPeopleOfOneNameApart(t *testing.T) {
+	e := newEnv(t)
+	x := e.x
+	n := 0
+	party := func(name, kind string, in *app.Party, code string) *app.Party {
+		n++
+		req := app.PartyAddRequest_builder{Name: name, Kind: kind, Code: code, Email: fmt.Sprintf("p%d@acme.example", n)}.Build()
+		if in != nil {
+			req.SetParentId(in.GetId())
+		}
+		v, err := e.app().Party().Add(e.owner, req)
+		x.NoError(err)
+		return v
+	}
+	store := e.space("창고", nil)
+	held := 0
+	holds := func(p *app.Party) string {
+		held++
+		tag := fmt.Sprintf("NB-%d", held)
+		a := e.item("노트북", tag, store, day)
+		_, err := e.app().Custody().Add(e.owner, app.CustodyAddRequest_builder{
+			Party: ref[app.PartyRef](p.GetId()),
+			Lines: []*app.CustodyLineSpec{app.CustodyLineSpec_builder{Asset: assetRef(a)}.Build()},
+		}.Build())
+		x.NoError(err)
+		return tag
+	}
+
+	dev, sales := party("개발팀", "team", nil, ""), party("영업팀", "team", nil, "")
+	// Another 개발팀, of another organization.
+	other := party("개발팀", "team", party("자회사", "org", nil, ""), "")
+	want := map[string]string{}
+	for _, v := range []struct {
+		name string
+		in   *app.Party
+		code string
+		says string
+	}{
+		{"이서연", dev, "", "이서연"},
+		{"김민준", sales, "", "김민준 · 영업팀"},
+		{"김민준", dev, "1001", "김민준 · 개발팀 · 1001"},
+		{"김민준", dev, "", ""},
+		{"김민준", other, "1002", "김민준 · 개발팀 · 1002"},
+		{"박지훈", nil, "", "박지훈"},
+		{"박지훈", dev, "", "박지훈 · 개발팀"},
+	} {
+		p := party(v.name, "person", v.in, v.code)
+		if v.says == "" {
+			// Nothing of theirs but who they are tells them apart.
+			v.says = "김민준 · 개발팀 · " + idOf(p.GetId()).String()
+		}
+		want[holds(p)] = v.says
+	}
+
+	out, err := e.app().Asset().Export(e.owner, app.AssetExportRequest_builder{}.Build())
+	x.NoError(err)
+	rows, err := csv.NewReader(bytes.NewReader(bytes.TrimPrefix(out.GetData(), []byte("\ufeff")))).ReadAll()
+	x.NoError(err)
+	x.Equal("사용자", rows[0][11])
+	got := map[string]string{}
+	for _, r := range rows[1:] {
+		if _, ok := want[r[0]]; ok {
+			got[r[0]] = r[11]
+		}
+	}
+	x.Equal(want, got)
+	x.NotContains(string(out.GetData()), "acme.example", "nobody's address")
 }
 
 func TestLabels(t *testing.T) {
