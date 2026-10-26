@@ -16,6 +16,7 @@ import (
 	"github.com/lesomnus/payday/past"
 	"github.com/lesomnus/payday/pdid"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/internal/ent"
@@ -785,4 +786,260 @@ func TestWordsTakenOutOfANoticeAreNotMailed(t *testing.T) {
 	sent, err := e.s.Ent.Notification.Query().Where(notification.Kind("reservation.decided"), notification.DateMailedNotNil()).Count(ctx)
 	x.NoError(err)
 	x.Equal(2, sent)
+}
+
+// offTheTrail asserts that no line of the trail holds `words`: not the row a
+// write left, nor what it set.
+func (e *env) offTheTrail(words string) {
+	e.t.Helper()
+	all, err := e.s.Ent.Audit.Query().All(context.Background())
+	e.x.NoError(err)
+	for _, l := range all {
+		for _, b := range [][]byte{l.Patch, l.Value} {
+			e.x.NotContains(string(b), words, "%s %s", l.Action, pdid.Id(l.ObjectId))
+		}
+	}
+}
+
+// lastLine is the newest line of the trail about `id`.
+func (e *env) lastLine(id uuid.UUID) *ent.Audit {
+	e.t.Helper()
+	v, err := e.s.Ent.Audit.Query().Where(entaudit.ObjectId(id)).Order(ent.Desc(entaudit.FieldDateCreated), ent.Desc(entaudit.FieldId)).First(context.Background())
+	e.x.NoError(err)
+	return v
+}
+
+// TestAReasonIsTakenOutOfTheHandOverWhoseMemoItIs: a hand-over's memo is the
+// reason its event says, in the words of whoever made it -- each thing it
+// handed over says it too (D49) -- and the hand-over keeps it as its own,
+// declared personal as the reason is, so the trail never held it. Asked of
+// one thing's event, the words are taken out of the hand-over as well, in the
+// one act and through the servers, and the rest of it is as it was. Another
+// hand-over in the same words, which nobody asked of, keeps them.
+func TestAReasonIsTakenOutOfTheHandOverWhoseMemoItIs(t *testing.T) {
+	e := newEnv(t)
+	x := e.x
+	ctx := context.Background()
+	_, kim := e.person("member")
+	room := e.space("창고", nil)
+	handOver := func(things ...*app.Asset) *app.Custody {
+		lines := []*app.CustodyLineSpec{}
+		for _, a := range things {
+			lines = append(lines, app.CustodyLineSpec_builder{Asset: assetRef(a)}.Build())
+		}
+		c, err := e.app().Custody().Add(e.owner, app.CustodyAddRequest_builder{
+			Party: ref[app.PartyRef](kim.GetId()),
+			Desc:  asked,
+			DueAt: e.in(7 * day),
+			Lines: lines,
+		}.Build())
+		x.NoError(err)
+		return c
+	}
+	memo := func(c *app.Custody) *app.Custody {
+		v, err := e.app().Custody().Get(e.owner, app.CustodyGetRequest_builder{Ref: ref[app.CustodyRef](c.GetId())}.Build())
+		x.NoError(err)
+		return v
+	}
+	c := handOver(e.item("노트북", "NB-1", room, day), e.item("모니터", "MN-1", room, day))
+	same := handOver(e.item("휴대폰", "PH-1", room, day))
+	x.Equal(asked, c.GetDesc(), "its memo")
+	e.offTheTrail("박지민")
+
+	issue, err := e.s.Ent.Event.Query().Where(event.Kind("custody.issue"), event.SubjectId(idUUID(c.GetId()))).Only(ctx)
+	x.NoError(err)
+	x.Equal(asked, issue.Reason, "the memo is why it was made")
+	kids := e.causedBy(issue)
+	x.Len(kids, 2)
+	of := pdid.Id(kids[0].Id)
+	copies, err := domain.Copies(ctx, e.s.Ent, e.tenant, of)
+	x.NoError(err)
+	found, err := domain.Kept(ctx, e.s.Ent, e.tenant, of, copies)
+	x.NoError(err)
+	x.Equal([]pdid.Id{pdid.Id(idUUID(c.GetId()))}, found, "found before anything is done")
+
+	// Asked of what one thing's history says.
+	e.now = e.now.Add(time.Minute)
+	_, err = e.redact(e.owner, of, "삭제 요청 2026-31")
+	x.NoError(err)
+	for _, v := range append([]*ent.Event{issue}, kids...) {
+		x.Empty(e.kept(pdid.Id(v.Id)).Reason)
+	}
+	now := memo(c)
+	x.Empty(now.GetDesc(), "taken out of the memo")
+	x.Equal(c.GetKind(), now.GetKind(), "and the rest of it as it was")
+	x.Equal(c.GetStatus(), now.GetStatus())
+	x.Equal(c.GetParty().GetId(), now.GetParty().GetId())
+	x.True(c.GetDueAt().AsTime().Equal(now.GetDueAt().AsTime()))
+	x.True(c.GetIssuedAt().AsTime().Equal(now.GetIssuedAt().AsTime()))
+	x.Equal(asked, memo(same).GetDesc(), "another hand-over's, which nobody asked of")
+
+	// The act wrote it, as the owner who did it -- over the wire the line
+	// names the call (`cmd`'s test) -- and the trail holds none of it.
+	owner, err := e.s.Ent.Holder.Query().Where(holder.Alias("owner"), holder.TenantId(e.tenant.Uuid())).Only(ctx)
+	x.NoError(err)
+	last := e.lastLine(idUUID(c.GetId()))
+	x.Equal(app.CustodyService_Patch_FullMethodName, last.Action)
+	x.Equal(owner.Id, last.ActorId)
+	x.NotEqual(app.CustodyService_Patch_FullMethodName, e.lastLine(idUUID(same.GetId())).Action, "nothing written of the other")
+	e.offTheTrail("박지민")
+}
+
+// TestAReasonIsTakenOutOfTheWorkspaceItClosed: why a workspace was closed is
+// the reason its closing says, in the words of whoever closed it, and the
+// workspace keeps it as its own while it is closed by that closing, declared
+// personal as the reason is. Closed, restored and closed again in the same
+// words, the workspace says why the last closing was: asked of the first,
+// nothing is taken out of it, and asked of the last -- here by the operator,
+// on the workspace's word -- the words go from it too, and the rest of the
+// closing stays.
+func TestAReasonIsTakenOutOfTheWorkspaceItClosed(t *testing.T) {
+	e := newEnv(t)
+	x := e.x
+	ctx := context.Background()
+	ws := app.TenantRef_builder{Id: e.tenant.Bytes()}.Build()
+	cur, err := e.app().Tenant().Get(e.owner, app.TenantGetRequest_builder{Ref: ws}.Build())
+	x.NoError(err)
+	closing := func() *ent.Event {
+		e.now = e.now.Add(time.Minute)
+		_, err := e.app().Tenant().Close(e.owner, app.TenantCloseRequest_builder{Ref: ws, Confirm: cur.GetName(), Reason: asked}.Build())
+		x.NoError(err)
+		vs := e.eventsOf("workspace.close")
+		return slices.MaxFunc(vs, func(a, b *ent.Event) int { return a.DateCreated.Compare(b.DateCreated) })
+	}
+	first := closing()
+	e.now = e.now.Add(time.Minute)
+	_, err = e.app().Tenant().Restore(e.owner, app.TenantRestoreRequest_builder{Ref: ws}.Build())
+	x.NoError(err)
+	second := closing()
+	x.NotEqual(first.Id, second.Id)
+	was, err := e.s.Ent.Tenant.Get(ctx, e.tenant.Uuid())
+	x.NoError(err)
+	x.Equal(asked, was.CloseReason)
+	x.Equal(asked, second.Reason, "why it was closed")
+	e.offTheTrail("박지민")
+
+	e.now = e.now.Add(time.Minute)
+	v, err := e.s.Deps.RedactEvent(ctx, e.s.Base, e.s.Drv, e.tenant, pdid.Id(first.Id), "삭제 요청 2026-32")
+	x.NoError(err)
+	x.Empty(v.Rows, "the first closing is not what it is closed by")
+	row, err := e.s.Ent.Tenant.Get(ctx, e.tenant.Uuid())
+	x.NoError(err)
+	x.Equal(asked, row.CloseReason, "the last closing's words, which nobody asked of")
+
+	v, err = e.s.Deps.RedactEvent(ctx, e.s.Base, e.s.Drv, e.tenant, pdid.Id(second.Id), "삭제 요청 2026-33")
+	x.NoError(err)
+	x.Equal([]pdid.Id{e.tenant}, v.Rows)
+	x.Empty(e.kept(pdid.Id(second.Id)).Reason)
+	row, err = e.s.Ent.Tenant.Get(ctx, e.tenant.Uuid())
+	x.NoError(err)
+	x.Empty(row.CloseReason, "taken out of the workspace")
+	x.Equal(was.ClosedBy, row.ClosedBy, "and the rest of the closing as it was")
+	x.Equal(was.DateClosed, row.DateClosed)
+	x.Equal(was.DateDestroy, row.DateDestroy)
+	x.Equal(was.Name, row.Name)
+
+	last := e.lastLine(e.tenant.Uuid())
+	x.Equal(app.TenantService_Patch_FullMethodName, last.Action)
+	x.Equal(uuid.UUID{}, last.ActorId, "the deployment's own work, as the act is")
+	e.offTheTrail("박지민")
+}
+
+// TestAReasonIsTakenOutOfTheFindingItsScanLeft: a scan's note is the reason
+// its event says, and the finding it left keeps it as its own, declared
+// personal as the reason is. A thing has one finding in a count, the first
+// scan's: another scan of it says where it was seen last, and asked of that
+// one, nothing is taken out of the finding; asked of the first, the words go
+// from it too. What a scan found no thing for is a finding of its own.
+func TestAReasonIsTakenOutOfTheFindingItsScanLeft(t *testing.T) {
+	e := newEnv(t)
+	x := e.x
+	ctx := context.Background()
+	room := e.space("창고", nil)
+	e.item("노트북", "NB-1", room, day)
+	c, err := e.app().InventoryCount().Add(e.owner, app.InventoryCountAddRequest_builder{Scope: assetRef(room)}.Build())
+	x.NoError(err)
+	scan := func(code, note string) (*app.CountFinding, pdid.Id) {
+		e.now = e.now.Add(time.Minute)
+		op := newOp()
+		v, err := e.app().InventoryCount().Scan(e.owner, app.InventoryCountScanRequest_builder{Ref: ref[app.InventoryCountRef](c.GetId()), Code: code, Note: note, Op: op}.Build())
+		x.NoError(err)
+		return v, pdid.Id(idUUID(op))
+	}
+	finding := func(f *app.CountFinding) *ent.CountFinding {
+		v, err := e.s.Ent.CountFinding.Get(ctx, idUUID(f.GetId()))
+		x.NoError(err)
+		return v
+	}
+
+	seen, first := scan("NB-1", asked)
+	again, later := scan("NB-1", "책상 위")
+	x.Equal(seen.GetId(), again.GetId(), "one finding of a thing")
+	unknown, stray := scan("no-such-thing", asked)
+	x.Equal("unknown", unknown.GetKind())
+	x.Equal(asked, finding(seen).Desc, "the first scan's note")
+	x.Equal(asked, finding(unknown).Desc)
+	e.offTheTrail("박지민")
+
+	e.now = e.now.Add(time.Minute)
+	v, err := e.s.Deps.RedactEvent(ctx, e.s.Base, e.s.Drv, e.tenant, later, "삭제 요청 2026-34")
+	x.NoError(err)
+	x.Empty(v.Rows, "the finding keeps the first scan's words, and not the later one's")
+	x.Equal(asked, finding(seen).Desc)
+
+	v, err = e.s.Deps.RedactEvent(ctx, e.s.Base, e.s.Drv, e.tenant, first, "삭제 요청 2026-35")
+	x.NoError(err)
+	x.Equal([]pdid.Id{pdid.Id(idUUID(seen.GetId()))}, v.Rows)
+	now := finding(seen)
+	x.Empty(now.Desc, "taken out of the finding")
+	x.Equal("seen", now.Kind, "and the rest of it as it was")
+	x.Equal(asked, finding(unknown).Desc, "another scan's, which nobody asked of")
+
+	v, err = e.s.Deps.RedactEvent(ctx, e.s.Base, e.s.Drv, e.tenant, stray, "삭제 요청 2026-36")
+	x.NoError(err)
+	x.Equal([]pdid.Id{pdid.Id(idUUID(unknown.GetId()))}, v.Rows)
+	x.Empty(finding(unknown).Desc)
+	x.Equal(app.CountFindingService_Patch_FullMethodName, e.lastLine(idUUID(unknown.GetId())).Action)
+	e.offTheTrail("박지민")
+}
+
+// TestAReasonIsTakenOutOfTheReviewThatFoundIt: what a reviewer found is the
+// reason the review's event says, in their words -- often whose calls they
+// looked into -- and the review keeps it as its own, declared personal as the
+// reason is. Asked of the review's event, the words go from the review too:
+// the one write a review takes, through the servers. What else it says --
+// the stretch, who, what it held -- is as it was.
+func TestAReasonIsTakenOutOfTheReviewThatFoundIt(t *testing.T) {
+	e := newEnv(t)
+	x := e.x
+	ctx := context.Background()
+	month := e.now.Add(-30 * day)
+	r, err := e.app().AccessReview().Add(e.owner, app.AccessReviewAddRequest_builder{
+		PeriodFrom: timestamppb.New(month),
+		PeriodTo:   timestamppb.New(month.Add(28 * day)),
+		Desc:       asked,
+	}.Build())
+	x.NoError(err)
+	x.Equal(asked, r.GetDesc())
+	e.offTheTrail("박지민")
+	reviewed := e.eventsOf("access.review")
+	x.Len(reviewed, 1)
+	x.Equal(asked, reviewed[0].Reason, "what they found")
+	found, err := domain.Kept(ctx, e.s.Ent, e.tenant, pdid.Id(reviewed[0].Id), nil)
+	x.NoError(err)
+	x.Equal([]pdid.Id{pdid.Id(idUUID(r.GetId()))}, found, "found before anything is done")
+
+	e.now = e.now.Add(time.Minute)
+	_, err = e.redact(e.owner, pdid.Id(reviewed[0].Id), "삭제 요청 2026-37")
+	x.NoError(err)
+	now, err := e.app().AccessReview().Get(e.owner, app.AccessReviewGetRequest_builder{Ref: ref[app.AccessReviewRef](r.GetId())}.Build())
+	x.NoError(err)
+	x.Empty(now.GetDesc(), "taken out of the review")
+	x.True(r.GetPeriodFrom().AsTime().Equal(now.GetPeriodFrom().AsTime()), "and the rest of it as it was")
+	x.True(r.GetPeriodTo().AsTime().Equal(now.GetPeriodTo().AsTime()))
+	x.Equal(r.GetReviewer().GetId(), now.GetReviewer().GetId())
+	x.Equal(r.GetCalls(), now.GetCalls())
+	x.Equal(r.GetDownloads(), now.GetDownloads())
+	x.Equal(app.AccessReviewService_Patch_FullMethodName, e.lastLine(idUUID(r.GetId())).Action)
+	e.offTheTrail("박지민")
 }

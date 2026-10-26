@@ -3,6 +3,7 @@ package domain
 import (
 	"context"
 	"encoding/binary"
+	"fmt"
 	"maps"
 	"slices"
 	"strings"
@@ -15,12 +16,17 @@ import (
 	"github.com/protobuf-orm/ent/dialect/sql"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/reflect/protoreflect"
 
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/internal/ent"
+	"github.com/lesomnus/rove/internal/ent/accessreview"
+	"github.com/lesomnus/rove/internal/ent/countfinding"
+	"github.com/lesomnus/rove/internal/ent/custody"
 	"github.com/lesomnus/rove/internal/ent/event"
 	"github.com/lesomnus/rove/internal/ent/notification"
 	"github.com/lesomnus/rove/internal/ent/predicate"
+	enttenant "github.com/lesomnus/rove/internal/ent/tenant"
 	"github.com/lesomnus/rove/server/pd"
 )
 
@@ -52,6 +58,15 @@ import (
 // mail before was sent where nothing Rove does reaches, and says it there
 // still (design D51).
 //
+// Nor in notices alone. Some rows keep the reason of the event that wrote
+// them as their own words -- what a hand-over was for is its memo, a scan's
+// note is the finding it left, what a reviewer found is their review, why a
+// workspace was closed is the workspace's -- each declared personal, as the
+// reason is, so that the trail never held them. They are taken out of the
+// row the event wrote ([KeptWhy]), found as the notices are, the database
+// comparing the row's words with the event's ([Kept]), and written through
+// the servers the same way (design D56).
+//
 // It is an operation like any other here, with an event of its own --
 // `event.redact`, its subject the redacted event's, so that the redaction is
 // in the history it was taken out of -- whose reason is the request's
@@ -65,17 +80,19 @@ import (
 // Redacted is what taking a reason out did: the event it was asked of, as it
 // is now; the act's own event; the other events of the operation the first
 // is part of that it took the same words out of, each the subject of a child
-// of the act's; and the notices it took them out of.
+// of the act's; the notices it took them out of; and the rows that kept them
+// as their own.
 type Redacted struct {
 	Event   *app.Event
 	Act     pdid.Id
 	Copies  []pdid.Id
 	Notices []pdid.Id
+	Rows    []pdid.Id
 }
 
 // Redact takes the reason out of the event `ref` names, and out of every
-// event of its operation and every notice that says the same, for the
-// request `reason` refers to, and answers the event as it is now.
+// event of its operation and every notice and row that says the same, for
+// the request `reason` refers to, and answers the event as it is now.
 func (s domainEvent) Redact(ctx context.Context, req *app.EventRedactRequest) (*app.Event, error) {
 	var out Redacted
 	err := s.tx(ctx, func(t *Tx) error {
@@ -103,7 +120,7 @@ func (d *Deps) RedactEvent(ctx context.Context, server app.Server, drv dialect.D
 // access record of the call, as every read of a reason is -- and every other
 // event of its operation that says the same, read the same way; its own
 // event recorded, with a child for each of the others; and the reason taken
-// out of all of them, and out of every notice that says it.
+// out of all of them, and out of every notice and row that says it.
 func (t *Tx) redact(ref *app.EventRef, reason string) (Redacted, error) {
 	why := strings.TrimSpace(reason)
 	if why == "" {
@@ -166,9 +183,13 @@ func (t *Tx) redact(ref *app.EventRef, reason string) (Redacted, error) {
 	for i, v := range others {
 		copies[i] = v.Id
 	}
-	// And the notices that say it, while the events still do: their words
-	// are compared with the event's.
+	// And the notices and the rows that say it, while the events still do:
+	// their words are compared with the event's.
 	notices, err := Told(t.ctx, t.db, t.tenant, id, copies)
+	if err != nil {
+		return Redacted{}, err
+	}
+	rows, err := Kept(t.ctx, t.db, t.tenant, id, copies)
 	if err != nil {
 		return Redacted{}, err
 	}
@@ -201,12 +222,54 @@ func (t *Tx) redact(ref *app.EventRef, reason string) (Redacted, error) {
 			return Redacted{}, err
 		}
 	}
+	// And each row, the same way.
+	for _, r := range rows {
+		if err := t.unsay(r); err != nil {
+			return Redacted{}, err
+		}
+	}
 
 	out, err := t.next.Event().Get(t.ctx, app.EventGetRequest_builder{Ref: app.EventRef_builder{Id: id.Bytes()}.Build()}.Build())
 	if err != nil {
 		return Redacted{}, err
 	}
-	return Redacted{Event: out, Act: t.ev(), Copies: copies, Notices: notices}, nil
+	return Redacted{Event: out, Act: t.ev(), Copies: copies, Notices: notices, Rows: rows}, nil
+}
+
+// unsay takes the words out of the row `id`, which kept an event's reason as
+// its own ([KeptWhy]): the one field, through the servers, and the rest of
+// the row as it was. A review is written nowhere else (`AccessReview.desc`).
+func (t *Tx) unsay(id pdid.Id) error {
+	ref := id.Bytes()
+	var err error
+	switch id.Domain() {
+	case pd.CustodyDomain:
+		_, err = t.next.Custody().Patch(t.ctx, app.CustodyPatchRequest_builder{
+			Ref:              app.CustodyRef_builder{Id: ref}.Build(),
+			Desc:             z.Ptr(""),
+			DateUpdatedForce: z.Ptr(true),
+		}.Build())
+	case pd.CountFindingDomain:
+		_, err = t.next.CountFinding().Patch(t.ctx, app.CountFindingPatchRequest_builder{
+			Ref:              app.CountFindingRef_builder{Id: ref}.Build(),
+			Desc:             z.Ptr(""),
+			DateUpdatedForce: z.Ptr(true),
+		}.Build())
+	case pd.AccessReviewDomain:
+		_, err = t.next.AccessReview().Patch(t.ctx, app.AccessReviewPatchRequest_builder{
+			Ref:  app.AccessReviewRef_builder{Id: ref}.Build(),
+			Desc: z.Ptr(""),
+		}.Build())
+	case pd.TenantDomain:
+		_, err = t.next.Tenant().Patch(t.ctx, app.TenantPatchRequest_builder{
+			Ref:              app.TenantRef_builder{Id: ref}.Build(),
+			CloseReason:      z.Ptr(""),
+			DateUpdatedForce: z.Ptr(true),
+		}.Build())
+	default:
+		err = fmt.Errorf("%s is of no kind that keeps a reason", id)
+	}
+	return err
 }
 
 // Copies is every other event of the operation the event `id` is part of that
@@ -326,6 +389,188 @@ func Told(ctx context.Context, db *ent.Client, tenant, id pdid.Id, copies []pdid
 		}
 	}
 	return out, nil
+}
+
+// KeptWhy is the fields of the rows an operation writes that keep its
+// event's reason as their own words, by the kind of that event, each by its
+// full name: what a hand-over was for, which is its memo; what a scan noted,
+// which is the finding it left; what a reviewer found; why a workspace was
+// closed. Each is declared personal, as the reason is, so that the trail
+// holds neither (design D56); and this is how taking the reason out finds
+// the row ([Kept]), since nothing links the two but what the row is to the
+// event. A row whose words are somebody's reason is of a kind here, and the
+// domain's tests hold every row they write to it.
+var KeptWhy = map[string]protoreflect.FullName{
+	"access.review":   "rove.AccessReview.desc",
+	"count.scan":      "rove.CountFinding.desc",
+	"custody.issue":   "rove.Custody.desc",
+	"workspace.close": "rove.Tenant.close_reason",
+}
+
+// Kept is every row of the tenant `tenant` whose words are what the event
+// `id` says as its reason -- written by it, or by one of `copies`, the other
+// events of its operation that say the same ([Copies]): what taking the
+// reason out takes it out of as well. Which row an event wrote is what the
+// row is to it ([keeping]), and whether the row's words are the event's reason
+// the database asks of them where both are kept: no one's words are read to
+// find them, and an operator may be told how many before anything is done
+// (`rove event redact`).
+func Kept(ctx context.Context, db *ent.Client, tenant, id pdid.Id, copies []pdid.Id) ([]pdid.Id, error) {
+	var out []pdid.Id
+	for page := range slices.Chunk(append([]pdid.Id{id}, copies...), 500) {
+		us := make([]uuid.UUID, len(page))
+		for i, v := range page {
+			us[i] = v.Uuid()
+		}
+		// What each of them is, and what it is about and holds: all that is
+		// read of them. A message names people and things by identifier
+		// only, and holds nobody's words (payday#151).
+		vs, err := db.Event.Query().
+			Where(event.TenantId(tenant.Uuid()), event.IdIn(us...), event.KindIn(slices.Collect(maps.Keys(KeptWhy))...)).
+			Select(event.FieldId, event.FieldKind, event.FieldSubjectId, event.FieldActorId, event.FieldOccurredAt, event.FieldValue).
+			Order(event.ByDateCreated(), event.ById()).
+			All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, v := range vs {
+			rows, err := keeping(ctx, db, tenant, v)
+			if err != nil {
+				return nil, err
+			}
+			out = append(out, rows...)
+		}
+	}
+	return out, nil
+}
+
+// keeping is the row the event `v` of the tenant `tenant` wrote that keeps
+// its reason as its own words, if one still does ([Kept]).
+func keeping(ctx context.Context, db *ent.Client, tenant pdid.Id, v *ent.Event) ([]pdid.Id, error) {
+	id := pdid.Id(v.Id)
+	var us []uuid.UUID
+	var err error
+	switch v.Kind {
+	case "custody.issue":
+		// The hand-over it made is its subject. Each thing it handed over is
+		// the subject of a part of it, which made no hand-over.
+		if v.SubjectId == nil || pdid.Id(*v.SubjectId).Domain() != pd.CustodyDomain {
+			return nil, nil
+		}
+		us, err = db.Custody.Query().
+			Where(custody.TenantId(tenant.Uuid()), custody.Id(*v.SubjectId), predicate.Custody(says(tenant, id, custody.FieldDesc))).
+			Ids(ctx)
+
+	case "access.review":
+		// The review its message names.
+		m := &app.AccessReviewed{}
+		if err := v.Value.UnmarshalTo(m); err != nil {
+			return nil, err
+		}
+		us, err = db.AccessReview.Query().
+			Where(accessreview.TenantId(tenant.Uuid()), accessreview.Id(uuidOf(m.GetReview())), predicate.AccessReview(says(tenant, id, accessreview.FieldDesc))).
+			Ids(ctx)
+
+	case "workspace.close":
+		// The workspace, while this is what it is closed by: one restored
+		// and closed again says why the last closing was, and one restored
+		// says nothing.
+		last, err := db.Event.Query().
+			Where(event.TenantId(tenant.Uuid()), event.Kind(v.Kind)).
+			Order(event.ByDateCreated(sql.OrderDesc()), event.ById(sql.OrderDesc())).
+			FirstId(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if last != v.Id {
+			return nil, nil
+		}
+		us, err = db.Tenant.Query().
+			Where(enttenant.Id(tenant.Uuid()), predicate.Tenant(says(tenant, id, enttenant.FieldCloseReason))).
+			Ids(ctx)
+
+	case "count.scan":
+		// The finding it left in the count it scanned in, in its words.
+		m := &app.CountScanned{}
+		if err := v.Value.UnmarshalTo(m); err != nil {
+			return nil, err
+		}
+		count := uuidOf(m.GetCount())
+		in := []predicate.CountFinding{
+			countfinding.TenantId(tenant.Uuid()),
+			countfinding.CountId(count),
+			predicate.CountFinding(says(tenant, id, countfinding.FieldDesc)),
+		}
+		if v.SubjectId == nil {
+			// What it found no thing for -- a label bound to none, a code of
+			// nothing here -- is a finding of its own, which nothing scans
+			// again: of the label it read or none, by whoever scanned, seen
+			// when it says.
+			if l := idOf(m.GetLabel()); l.IsZero() {
+				in = append(in, countfinding.LabelIdIsNil())
+			} else {
+				in = append(in, countfinding.LabelId(l.Uuid()))
+			}
+			in = append(in, countfinding.AssetIdIsNil())
+			if v.ActorId != nil {
+				in = append(in, countfinding.RecordedBy(*v.ActorId))
+			}
+			fs, err := db.CountFinding.Query().Where(in...).Select(countfinding.FieldId, countfinding.FieldSeenAt).All(ctx)
+			if err != nil {
+				return nil, err
+			}
+			for _, f := range fs {
+				if f.SeenAt.Equal(v.OccurredAt) {
+					us = append(us, f.Id)
+				}
+			}
+			break
+		}
+		// A thing has one finding in a count, which the scan that first
+		// found it left in its words; another scan of it says where it was
+		// seen last, and nothing else.
+		first, err := firstScan(ctx, db, tenant, count, *v.SubjectId)
+		if err != nil {
+			return nil, err
+		}
+		if first != v.Id {
+			return nil, nil
+		}
+		us, err = db.CountFinding.Query().Where(append(in, countfinding.AssetId(*v.SubjectId))...).Ids(ctx)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	out := make([]pdid.Id, len(us))
+	for i, u := range us {
+		out[i] = pdid.Id(u)
+	}
+	return out, nil
+}
+
+// firstScan is the scan that first found the thing `asset` in the count
+// `count` of the tenant `tenant`: the earliest recorded of its scans there,
+// which made its finding. None is the zero identifier.
+func firstScan(ctx context.Context, db *ent.Client, tenant pdid.Id, count, asset uuid.UUID) (uuid.UUID, error) {
+	vs, err := db.Event.Query().
+		Where(event.TenantId(tenant.Uuid()), event.Kind("count.scan"), event.SubjectId(asset)).
+		Select(event.FieldId, event.FieldValue).
+		Order(event.ByDateCreated(), event.ById()).
+		All(ctx)
+	if err != nil {
+		return uuid.UUID{}, err
+	}
+	for _, v := range vs {
+		m := &app.CountScanned{}
+		if err := v.Value.UnmarshalTo(m); err != nil {
+			return uuid.UUID{}, err
+		}
+		if uuidOf(m.GetCount()) == count {
+			return v.Id, nil
+		}
+	}
+	return uuid.UUID{}, nil
 }
 
 // saying is an event whose reason is the one the event `id` of the tenant
