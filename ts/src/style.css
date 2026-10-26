@@ -1215,6 +1215,11 @@ ul.state-tree .space {
 	border: 1px dashed var(--warn);
 	color: var(--ink-2);
 }
+.week .busy.custody {
+	background: var(--info-soft);
+	border-left: 3px solid var(--info);
+	color: var(--ink-2);
+}
 
 /* scanning */
 .scanbar {

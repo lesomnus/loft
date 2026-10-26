@@ -332,14 +332,22 @@ function Bookings(): ReactNode {
 	return (
 		<Card title="예약 이용률" actions={<button onClick={() => void save(() => raw.bookable.exportUsage(span(days)))}>CSV 내려받기</button>}>
 			<p className="mute small">
-				기간 안에 시작한 예약 가운데 시간을 약속받은 것(확정·이용 중·완료·노쇼)을 셉니다. 이용 시간은 체크인이나 수령부터 반납이나 끝낸 때까지입니다. 풀은 수량만큼 곱합니다.
+				기간 안에 시작한 예약 가운데 시간을 약속받은 것(확정·이용 중·완료·노쇼)을 셉니다. 이용 시간은 체크인이나 수령부터 반납이나 끝낸 때까지입니다. 풀은 수량만큼 곱합니다. 예약 없이 나감은 같은 기간에 예약 없이 지급·대여한 것과 건넨 때부터 반납까지(나가 있으면 지금까지)의 시간이고, 예약의 숫자에는 넣지 않습니다.
 			</p>
 			<Period value={days} onChange={setDays} />
 			<Load q={q}>
 				{(d) => {
 					const sum = d.rows.reduce(
-						(a, r) => ({ reservations: a.reservations + r.reservations, used: a.used + r.used, noShows: a.noShows + r.noShows, booked: a.booked + r.bookedMinutes, usedFor: a.usedFor + r.usedMinutes }),
-						{ reservations: 0, used: 0, noShows: 0, booked: 0n, usedFor: 0n },
+						(a, r) => ({
+							reservations: a.reservations + r.reservations,
+							used: a.used + r.used,
+							noShows: a.noShows + r.noShows,
+							booked: a.booked + r.bookedMinutes,
+							usedFor: a.usedFor + r.usedMinutes,
+							handed: a.handed + r.handedOut,
+							handedFor: a.handedFor + r.handedOutMinutes,
+						}),
+						{ reservations: 0, used: 0, noShows: 0, booked: 0n, usedFor: 0n, handed: 0, handedFor: 0n },
 					)
 					return d.rows.length === 0 ? (
 						<Empty>예약할 수 있는 자원이 없습니다.</Empty>
@@ -358,6 +366,8 @@ function Bookings(): ReactNode {
 											<th className="num">예약 시간</th>
 											<th className="num">이용 시간</th>
 											<th className="num">이용률</th>
+											<th className="num">예약 없이 나감</th>
+											<th className="num">그 시간</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -374,6 +384,8 @@ function Bookings(): ReactNode {
 												<td className="num">{hours(r.bookedMinutes)}</td>
 												<td className="num">{hours(r.usedMinutes)}</td>
 												<td className="num">{share(r.usedMinutes, r.bookedMinutes)}</td>
+												<td className="num">{n(r.handedOut)}</td>
+												<td className="num">{hours(r.handedOutMinutes)}</td>
 											</tr>
 										))}
 										<tr>
@@ -387,6 +399,8 @@ function Bookings(): ReactNode {
 											<td className="num">{hours(sum.booked)}</td>
 											<td className="num">{hours(sum.usedFor)}</td>
 											<td className="num">{share(sum.usedFor, sum.booked)}</td>
+											<td className="num">{n(sum.handed)}</td>
+											<td className="num">{hours(sum.handedFor)}</td>
 										</tr>
 									</tbody>
 								</table>
