@@ -36,6 +36,67 @@ test('a booking of a room that needs approval waits for a manager, who approves 
 	await expect(mine).toContainText('확정')
 })
 
+test('a booking says in its history who booked it, who approved it and why, and that it was picked up, to its booker and to a manager, wherever they open it, and to nobody else', async ({ page, as }) => {
+	const title = unique('e2e 이력 촬영')
+	const n = Math.random().toString(36).slice(2, 7).toUpperCase()
+	const name = unique('e2e 이력 카메라')
+
+	// A camera of its own that asks a manager first, booked by a member: made
+	// through the server, as what is done with it below is, since the forms
+	// that do those are the other tests'.
+	const admin = await as(owner.login, owner.password)
+	const camera = await rpc(admin, 'AssetService/Add', { name, kind: 'item', tag: `EH-${n}` })
+	await rpc(admin, 'BookableService/Add', { asset: { id: camera.id }, approval: true })
+	await signIn(page, people.historian.login)
+	const [from, to] = [momentAt(44, 9), momentAt(44, 12)]
+	const booked = await rpc(page, 'ReservationService/Add', { name: title, items: [{ resource: { id: camera.id } }], beginsAt: from, endsAt: to })
+	const booking = `예약: ${name} ${from.slice(5, 10)} 09:00`
+
+	// A manager opens the request where it waits for them, and reads who
+	// booked what for when.
+	const manager = await as(people.approver.login)
+	await manager.goto(`${workspace}/reservations?tab=approve`)
+	await card(manager, '승인 대기').getByRole('listitem').filter({ hasText: title }).getByRole('button', { name: title }).click()
+	const asked = manager.getByRole('dialog').getByRole('list', { name: '이력' }).getByRole('listitem')
+	await expect(asked).toHaveCount(1)
+	await expect(asked).toContainText(booking)
+	await expect(asked).toContainText(people.historian.name)
+	await manager.getByRole('dialog').getByRole('button', { name: '닫기' }).click()
+
+	// It is approved, with a reason, and picked up.
+	await rpc(manager, 'ReservationService/Approve', { ref: { id: booked.id }, reason: 'e2e 승인 사유' })
+	const party = (booked.party as { id: string }).id
+	await rpc(manager, 'CustodyService/Add', { party: { id: party }, dueAt: to, reservationId: booked.id, lines: [{ asset: { id: camera.id } }] })
+
+	// Its booker opens it, and reads what happened to it, newest first, by
+	// whom: the pickup, the approval and why, and the booking.
+	const read = async (p: typeof page) => {
+		const dialog = p.getByRole('dialog')
+		const lines = dialog.getByRole('list', { name: '이력' }).getByRole('listitem')
+		await expect(lines).toHaveCount(3)
+		await expect(lines.nth(0)).toContainText(`대여: ${people.historian.name}`)
+		await expect(lines.nth(0)).toContainText(people.approver.name)
+		await expect(lines.nth(1)).toContainText(`예약 승인: ${title} — e2e 승인 사유`)
+		await expect(lines.nth(1)).toContainText(people.approver.name)
+		await expect(lines.nth(2)).toContainText(booking)
+		await expect(lines.nth(2)).toContainText(people.historian.name)
+		await dialog.getByRole('button', { name: '닫기' }).click()
+		await expect(dialog).toHaveCount(0)
+	}
+	await page.goto(`${workspace}/reservations?tab=mine`)
+	await page.getByRole('row').filter({ hasText: title }).click()
+	await read(page)
+
+	// And so does a manager, from the whole list.
+	await manager.goto(`${workspace}/reservations?tab=all`)
+	await manager.getByRole('row').filter({ hasText: title }).click()
+	await read(manager)
+
+	// Nobody else is told it.
+	const other = await as(people.booker.login)
+	expect(await refusal(other, 'ReservationService/Timeline', { ref: { id: booked.id } })).toContain('다른 사람의 예약 이력은 볼 수 없습니다')
+})
+
 test('a kit booking waits for a member the kit is given that is booked elsewhere, says so wherever it is acted on, and takes it once it is free', async ({ page }) => {
 	const talk = unique('e2e 발표')
 	const shoot = unique('e2e 촬영')
