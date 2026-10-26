@@ -1001,6 +1001,9 @@ func (s domainReservation) decide(ctx context.Context, req *app.ReservationDecid
 				out = v
 			}
 			if to == resConfirmed || to == resRejected {
+				// Told why in the decision's own words, about what its event
+				// is about: which is how taking the reason out finds the
+				// notice as well ([ToldWhy]).
 				if err := t.notifyParty(uuidOf(r.GetParty().GetId()), "reservation.decided",
 					fmt.Sprintf("예약 %s: %s", map[string]string{resConfirmed: "승인", resRejected: "거절"}[to], r.GetName()),
 					req.GetReason(), idOf(r.GetId()), "/reservations"); err != nil {

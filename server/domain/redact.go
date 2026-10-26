@@ -3,12 +3,14 @@ package domain
 import (
 	"context"
 	"encoding/binary"
+	"maps"
 	"slices"
 	"strings"
 	"uuid"
 
 	"github.com/lesomnus/payday/past"
 	"github.com/lesomnus/payday/pdid"
+	"github.com/lesomnus/z"
 	"github.com/protobuf-orm/ent/dialect"
 	"github.com/protobuf-orm/ent/dialect/sql"
 	"google.golang.org/grpc/codes"
@@ -17,6 +19,7 @@ import (
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/internal/ent/event"
+	"github.com/lesomnus/rove/internal/ent/notification"
 	"github.com/lesomnus/rove/internal/ent/predicate"
 	"github.com/lesomnus/rove/server/pd"
 )
@@ -39,6 +42,16 @@ import (
 // two reasons where they are kept, so that no one's words are read to find
 // them ([Copies]).
 //
+// Nor are they in events alone. A notice may say them as its own words --
+// whoever asked for a reservation is told why it was decided -- and so they
+// are taken out of every notice that says what one of those events said,
+// which nothing links to it but what it is about and the kind it was told in
+// ([ToldWhy]): found as the copies are, the database comparing its words
+// with the event's ([Told]), and written through the servers, so that the
+// trail and the access record say the act wrote it. A notice that went by
+// mail before was sent where nothing Rove does reaches, and says it there
+// still (design D51).
+//
 // It is an operation like any other here, with an event of its own --
 // `event.redact`, its subject the redacted event's, so that the redaction is
 // in the history it was taken out of -- whose reason is the request's
@@ -50,18 +63,19 @@ import (
 // workspace that keeps the event ([Deps.RedactEvent]).
 
 // Redacted is what taking a reason out did: the event it was asked of, as it
-// is now; the act's own event; and the other events of the operation the
-// first is part of that it took the same words out of, each the subject of a
-// child of the act's.
+// is now; the act's own event; the other events of the operation the first
+// is part of that it took the same words out of, each the subject of a child
+// of the act's; and the notices it took them out of.
 type Redacted struct {
-	Event  *app.Event
-	Act    pdid.Id
-	Copies []pdid.Id
+	Event   *app.Event
+	Act     pdid.Id
+	Copies  []pdid.Id
+	Notices []pdid.Id
 }
 
 // Redact takes the reason out of the event `ref` names, and out of every
-// event of its operation that says the same, for the request `reason` refers
-// to, and answers the event as it is now.
+// event of its operation and every notice that says the same, for the
+// request `reason` refers to, and answers the event as it is now.
 func (s domainEvent) Redact(ctx context.Context, req *app.EventRedactRequest) (*app.Event, error) {
 	var out Redacted
 	err := s.tx(ctx, func(t *Tx) error {
@@ -89,7 +103,7 @@ func (d *Deps) RedactEvent(ctx context.Context, server app.Server, drv dialect.D
 // access record of the call, as every read of a reason is -- and every other
 // event of its operation that says the same, read the same way; its own
 // event recorded, with a child for each of the others; and the reason taken
-// out of all of them.
+// out of all of them, and out of every notice that says it.
 func (t *Tx) redact(ref *app.EventRef, reason string) (Redacted, error) {
 	why := strings.TrimSpace(reason)
 	if why == "" {
@@ -148,15 +162,23 @@ func (t *Tx) redact(ref *app.EventRef, reason string) (Redacted, error) {
 			}
 		}
 	}
+	copies := make([]pdid.Id, len(others))
+	for i, v := range others {
+		copies[i] = v.Id
+	}
+	// And the notices that say it, while the events still do: their words
+	// are compared with the event's.
+	notices, err := Told(t.ctx, t.db, t.tenant, id, copies)
+	if err != nil {
+		return Redacted{}, err
+	}
 
 	if err := t.begin(nil, "event.redact", ev.Subject, t.now, why, app.EventRedacted_builder{Event: id.Bytes()}.Build()); err != nil {
 		return Redacted{}, err
 	}
-	copies := make([]pdid.Id, len(others))
 	if len(others) > 0 {
 		kids := make([]past.Child, len(others))
 		for i, v := range others {
-			copies[i] = v.Id
 			kids[i] = past.Child{Event: past.Event{Kind: "event.redact", Subject: v.Subject, Reason: why, Value: app.EventRedacted_builder{Event: v.Id.Bytes()}.Build()}}
 		}
 		if _, err := t.op.Batch(t.ctx, kids); err != nil {
@@ -168,12 +190,23 @@ func (t *Tx) redact(ref *app.EventRef, reason string) (Redacted, error) {
 			return Redacted{}, err
 		}
 	}
+	// Each notice is the act's write, through the servers: on the trail as
+	// the act wrote it, and on the access record as written.
+	for _, n := range notices {
+		if _, err := t.next.Notification().Patch(t.ctx, app.NotificationPatchRequest_builder{
+			Ref:              app.NotificationRef_builder{Id: n.Bytes()}.Build(),
+			Desc:             z.Ptr(""),
+			DateUpdatedForce: z.Ptr(true),
+		}.Build()); err != nil {
+			return Redacted{}, err
+		}
+	}
 
 	out, err := t.next.Event().Get(t.ctx, app.EventGetRequest_builder{Ref: app.EventRef_builder{Id: id.Bytes()}.Build()}.Build())
 	if err != nil {
 		return Redacted{}, err
 	}
-	return Redacted{Event: out, Act: t.ev(), Copies: copies}, nil
+	return Redacted{Event: out, Act: t.ev(), Copies: copies, Notices: notices}, nil
 }
 
 // Copies is every other event of the operation the event `id` is part of that
@@ -243,9 +276,68 @@ func operationOf(ctx context.Context, db *ent.Client, tenant, id pdid.Id) (pdid.
 	return id, nil
 }
 
+// Told is every notice of the tenant `tenant` whose words are what the event
+// `id` says as its reason -- told of it, or of one of `copies`, the other
+// events of its operation that say the same ([Copies]): what taking the
+// reason out takes it out of as well. Nothing links a notice to the event it
+// tells of but what they are about and the kind it was told in ([ToldWhy]),
+// so that is how they are found, and by whether the notice's words are the
+// event's reason, which the database asks of them where both are kept: no
+// one's words are read to find them, and an operator may be told how many
+// before anything is done (`rove event redact`).
+func Told(ctx context.Context, db *ent.Client, tenant, id pdid.Id, copies []pdid.Id) ([]pdid.Id, error) {
+	// What each of them is about, by the kind of notice told of it: all
+	// that is read of them.
+	about := map[string]map[uuid.UUID]bool{}
+	for page := range slices.Chunk(append([]pdid.Id{id}, copies...), 500) {
+		us := make([]uuid.UUID, len(page))
+		for i, v := range page {
+			us[i] = v.Uuid()
+		}
+		vs, err := db.Event.Query().
+			Where(event.TenantId(tenant.Uuid()), event.IdIn(us...), event.KindIn(slices.Collect(maps.Keys(ToldWhy))...), event.SubjectIdNotNil()).
+			Select(event.FieldKind, event.FieldSubjectId).
+			All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, v := range vs {
+			k := ToldWhy[v.Kind]
+			if about[k] == nil {
+				about[k] = map[uuid.UUID]bool{}
+			}
+			about[k][*v.SubjectId] = true
+		}
+	}
+
+	var out []pdid.Id
+	for _, k := range slices.Sorted(maps.Keys(about)) {
+		for page := range slices.Chunk(slices.Collect(maps.Keys(about[k])), 500) {
+			vs, err := db.Notification.Query().
+				Where(notification.TenantId(tenant.Uuid()), notification.Kind(k), notification.SubjectIdIn(page...), predicate.Notification(says(tenant, id, notification.FieldDesc))).
+				Order(notification.ByDateCreated(), notification.ById()).
+				Ids(ctx)
+			if err != nil {
+				return nil, err
+			}
+			for _, v := range vs {
+				out = append(out, pdid.Id(v))
+			}
+		}
+	}
+	return out, nil
+}
+
 // saying is an event whose reason is the one the event `id` of the tenant
 // `tenant` has, and not none: compared by the database, where both are kept.
 func saying(tenant, id pdid.Id) predicate.Event {
+	return predicate.Event(says(tenant, id, event.FieldReason))
+}
+
+// says is a row whose `column` holds the reason the event `id` of the tenant
+// `tenant` has, and not nothing: compared by the database, which reads both
+// where they are kept and answers neither.
+func says(tenant, id pdid.Id, column string) func(*sql.Selector) {
 	return func(s *sql.Selector) {
 		b := sql.Dialect(s.Dialect())
 		said := b.Table(event.Table).As("said")
@@ -253,6 +345,6 @@ func saying(tenant, id pdid.Id) predicate.Event {
 			sql.EQ(said.C(event.FieldId), id.Uuid()),
 			sql.EQ(said.C(event.FieldTenantId), tenant.Uuid()),
 		))
-		s.Where(sql.And(sql.NEQ(s.C(event.FieldReason), ""), sql.In(s.C(event.FieldReason), of)))
+		s.Where(sql.And(sql.NEQ(s.C(column), ""), sql.In(s.C(column), of)))
 	}
 }
