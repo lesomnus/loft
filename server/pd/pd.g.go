@@ -17176,7 +17176,7 @@ var (
 		[]protoreflect.FieldNumber{})
 	describedAccessReview = describe((*rove.AccessReview)(nil),
 		[]protoreflect.FieldNumber{},
-		[]protoreflect.FieldNumber{})
+		[]protoreflect.FieldNumber{6})
 	describedAliasHold = describe((*rove.AliasHold)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
@@ -17206,10 +17206,10 @@ var (
 		[]protoreflect.FieldNumber{})
 	describedCountFinding = describe((*rove.CountFinding)(nil),
 		[]protoreflect.FieldNumber{},
-		[]protoreflect.FieldNumber{})
+		[]protoreflect.FieldNumber{6})
 	describedCustody = describe((*rove.Custody)(nil),
 		[]protoreflect.FieldNumber{},
-		[]protoreflect.FieldNumber{})
+		[]protoreflect.FieldNumber{6})
 	describedCustodyLine = describe((*rove.CustodyLine)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
@@ -17227,7 +17227,7 @@ var (
 		[]protoreflect.FieldNumber{4, 5, 6, 7})
 	describedInventoryCount = describe((*rove.InventoryCount)(nil),
 		[]protoreflect.FieldNumber{},
-		[]protoreflect.FieldNumber{})
+		[]protoreflect.FieldNumber{6})
 	describedInvitation = describe((*rove.Invitation)(nil),
 		[]protoreflect.FieldNumber{20},
 		[]protoreflect.FieldNumber{9})
@@ -17260,13 +17260,13 @@ var (
 		[]protoreflect.FieldNumber{})
 	describedPurchase = describe((*rove.Purchase)(nil),
 		[]protoreflect.FieldNumber{},
-		[]protoreflect.FieldNumber{})
+		[]protoreflect.FieldNumber{6})
 	describedPurchaseLine = describe((*rove.PurchaseLine)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
 	describedReservation = describe((*rove.Reservation)(nil),
 		[]protoreflect.FieldNumber{},
-		[]protoreflect.FieldNumber{})
+		[]protoreflect.FieldNumber{6})
 	describedReservationItem = describe((*rove.ReservationItem)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
@@ -17296,7 +17296,7 @@ var (
 		[]protoreflect.FieldNumber{})
 	describedTenant = describe((*rove.Tenant)(nil),
 		[]protoreflect.FieldNumber{},
-		[]protoreflect.FieldNumber{})
+		[]protoreflect.FieldNumber{10})
 	describedTenantContract = describe((*rove.TenantContract)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
@@ -17308,7 +17308,7 @@ var (
 		[]protoreflect.FieldNumber{})
 	describedWorkOrder = describe((*rove.WorkOrder)(nil),
 		[]protoreflect.FieldNumber{},
-		[]protoreflect.FieldNumber{})
+		[]protoreflect.FieldNumber{6})
 )
 
 // hidden is `p` without the entries the schema said are never answered with,
@@ -17416,6 +17416,11 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		b := []byte{}
 		if keep {
 			kept := row
+			kept = proto.Clone(row).(*rove.AccessReview)
+			_, secret, personal := described(key)
+			audit.Clear(kept, secret)
+			audit.Clear(kept, personal)
+
 			v, err := proto.Marshal(kept)
 			if err != nil {
 				return uuid.Nil(), nil, err
@@ -17601,6 +17606,11 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		b := []byte{}
 		if keep {
 			kept := row
+			kept = proto.Clone(row).(*rove.CountFinding)
+			_, secret, personal := described(key)
+			audit.Clear(kept, secret)
+			audit.Clear(kept, personal)
+
 			v, err := proto.Marshal(kept)
 			if err != nil {
 				return uuid.Nil(), nil, err
@@ -17628,6 +17638,11 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		b := []byte{}
 		if keep {
 			kept := row
+			kept = proto.Clone(row).(*rove.Custody)
+			_, secret, personal := described(key)
+			audit.Clear(kept, secret)
+			audit.Clear(kept, personal)
+
 			v, err := proto.Marshal(kept)
 			if err != nil {
 				return uuid.Nil(), nil, err
@@ -17773,6 +17788,11 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		b := []byte{}
 		if keep {
 			kept := row
+			kept = proto.Clone(row).(*rove.InventoryCount)
+			_, secret, personal := described(key)
+			audit.Clear(kept, secret)
+			audit.Clear(kept, personal)
+
 			v, err := proto.Marshal(kept)
 			if err != nil {
 				return uuid.Nil(), nil, err
@@ -18031,6 +18051,11 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		b := []byte{}
 		if keep {
 			kept := row
+			kept = proto.Clone(row).(*rove.Purchase)
+			_, secret, personal := described(key)
+			audit.Clear(kept, secret)
+			audit.Clear(kept, personal)
+
 			v, err := proto.Marshal(kept)
 			if err != nil {
 				return uuid.Nil(), nil, err
@@ -18085,6 +18110,11 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		b := []byte{}
 		if keep {
 			kept := row
+			kept = proto.Clone(row).(*rove.Reservation)
+			_, secret, personal := described(key)
+			audit.Clear(kept, secret)
+			audit.Clear(kept, personal)
+
 			v, err := proto.Marshal(kept)
 			if err != nil {
 				return uuid.Nil(), nil, err
@@ -18220,6 +18250,11 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		b := []byte{}
 		if keep {
 			kept := row
+			kept = proto.Clone(row).(*rove.Tenant)
+			_, secret, personal := described(key)
+			audit.Clear(kept, secret)
+			audit.Clear(kept, personal)
+
 			v, err := proto.Marshal(kept)
 			if err != nil {
 				return uuid.Nil(), nil, err
@@ -18297,6 +18332,11 @@ func subject(ctx context.Context, s bare.Server, key pdid.Id, image proto.Messag
 		b := []byte{}
 		if keep {
 			kept := row
+			kept = proto.Clone(row).(*rove.WorkOrder)
+			_, secret, personal := described(key)
+			audit.Clear(kept, secret)
+			audit.Clear(kept, personal)
+
 			v, err := proto.Marshal(kept)
 			if err != nil {
 				return uuid.Nil(), nil, err
@@ -18559,7 +18599,7 @@ func (v *keptTrail) write(ctx context.Context) error {
 // row's seal covers (payday#115).
 func isSealed(key pdid.Id) bool {
 	switch key.Domain() {
-	case EventDomain, HolderDomain, InvitationDomain, NotificationDomain, PartyDomain:
+	case AccessReviewDomain, CountFindingDomain, CustodyDomain, EventDomain, HolderDomain, InventoryCountDomain, InvitationDomain, NotificationDomain, PartyDomain, PurchaseDomain, ReservationDomain, TenantDomain, WorkOrderDomain:
 		return true
 	}
 
@@ -18901,7 +18941,12 @@ func checkedAccessReview(db *ent.Client) audit.Kind {
 			}
 
 			recorded, err := newestDigests(ctx, db, objects(rows))
-			out = audit.Page{Rows: rows, Recorded: recorded}
+			if err != nil {
+				return err
+			}
+
+			seals, err := sealsOf(ctx, db, objects(rows))
+			out = audit.Page{Rows: rows, Recorded: recorded, Seals: seals}
 			return err
 		})
 
@@ -18910,6 +18955,7 @@ func checkedAccessReview(db *ent.Client) audit.Kind {
 
 	return audit.Kind{
 		Domain: AccessReviewDomain,
+		Sealed: true,
 		After: func(ctx context.Context, after pdid.Id) (audit.Page, error) {
 			return read(ctx, entAccessReview.IdGT(uuid.UUID(after)))
 		},
@@ -19269,7 +19315,12 @@ func checkedCountFinding(db *ent.Client) audit.Kind {
 			}
 
 			recorded, err := newestDigests(ctx, db, objects(rows))
-			out = audit.Page{Rows: rows, Recorded: recorded}
+			if err != nil {
+				return err
+			}
+
+			seals, err := sealsOf(ctx, db, objects(rows))
+			out = audit.Page{Rows: rows, Recorded: recorded, Seals: seals}
 			return err
 		})
 
@@ -19278,6 +19329,7 @@ func checkedCountFinding(db *ent.Client) audit.Kind {
 
 	return audit.Kind{
 		Domain: CountFindingDomain,
+		Sealed: true,
 		After: func(ctx context.Context, after pdid.Id) (audit.Page, error) {
 			return read(ctx, entCountFinding.IdGT(uuid.UUID(after)))
 		},
@@ -19315,7 +19367,12 @@ func checkedCustody(db *ent.Client) audit.Kind {
 			}
 
 			recorded, err := newestDigests(ctx, db, objects(rows))
-			out = audit.Page{Rows: rows, Recorded: recorded}
+			if err != nil {
+				return err
+			}
+
+			seals, err := sealsOf(ctx, db, objects(rows))
+			out = audit.Page{Rows: rows, Recorded: recorded, Seals: seals}
 			return err
 		})
 
@@ -19324,6 +19381,7 @@ func checkedCustody(db *ent.Client) audit.Kind {
 
 	return audit.Kind{
 		Domain: CustodyDomain,
+		Sealed: true,
 		After: func(ctx context.Context, after pdid.Id) (audit.Page, error) {
 			return read(ctx, entCustody.IdGT(uuid.UUID(after)))
 		},
@@ -19557,7 +19615,12 @@ func checkedInventoryCount(db *ent.Client) audit.Kind {
 			}
 
 			recorded, err := newestDigests(ctx, db, objects(rows))
-			out = audit.Page{Rows: rows, Recorded: recorded}
+			if err != nil {
+				return err
+			}
+
+			seals, err := sealsOf(ctx, db, objects(rows))
+			out = audit.Page{Rows: rows, Recorded: recorded, Seals: seals}
 			return err
 		})
 
@@ -19566,6 +19629,7 @@ func checkedInventoryCount(db *ent.Client) audit.Kind {
 
 	return audit.Kind{
 		Domain: InventoryCountDomain,
+		Sealed: true,
 		After: func(ctx context.Context, after pdid.Id) (audit.Page, error) {
 			return read(ctx, entInventoryCount.IdGT(uuid.UUID(after)))
 		},
@@ -19989,7 +20053,12 @@ func checkedPurchase(db *ent.Client) audit.Kind {
 			}
 
 			recorded, err := newestDigests(ctx, db, objects(rows))
-			out = audit.Page{Rows: rows, Recorded: recorded}
+			if err != nil {
+				return err
+			}
+
+			seals, err := sealsOf(ctx, db, objects(rows))
+			out = audit.Page{Rows: rows, Recorded: recorded, Seals: seals}
 			return err
 		})
 
@@ -19998,6 +20067,7 @@ func checkedPurchase(db *ent.Client) audit.Kind {
 
 	return audit.Kind{
 		Domain: PurchaseDomain,
+		Sealed: true,
 		After: func(ctx context.Context, after pdid.Id) (audit.Page, error) {
 			return read(ctx, entPurchase.IdGT(uuid.UUID(after)))
 		},
@@ -20081,7 +20151,12 @@ func checkedReservation(db *ent.Client) audit.Kind {
 			}
 
 			recorded, err := newestDigests(ctx, db, objects(rows))
-			out = audit.Page{Rows: rows, Recorded: recorded}
+			if err != nil {
+				return err
+			}
+
+			seals, err := sealsOf(ctx, db, objects(rows))
+			out = audit.Page{Rows: rows, Recorded: recorded, Seals: seals}
 			return err
 		})
 
@@ -20090,6 +20165,7 @@ func checkedReservation(db *ent.Client) audit.Kind {
 
 	return audit.Kind{
 		Domain: ReservationDomain,
+		Sealed: true,
 		After: func(ctx context.Context, after pdid.Id) (audit.Page, error) {
 			return read(ctx, entReservation.IdGT(uuid.UUID(after)))
 		},
@@ -20311,7 +20387,12 @@ func checkedTenant(db *ent.Client) audit.Kind {
 			}
 
 			recorded, err := newestDigests(ctx, db, objects(rows))
-			out = audit.Page{Rows: rows, Recorded: recorded}
+			if err != nil {
+				return err
+			}
+
+			seals, err := sealsOf(ctx, db, objects(rows))
+			out = audit.Page{Rows: rows, Recorded: recorded, Seals: seals}
 			return err
 		})
 
@@ -20320,6 +20401,7 @@ func checkedTenant(db *ent.Client) audit.Kind {
 
 	return audit.Kind{
 		Domain: TenantDomain,
+		Sealed: true,
 		After: func(ctx context.Context, after pdid.Id) (audit.Page, error) {
 			return read(ctx, entTenant.IdGT(uuid.UUID(after)))
 		},
@@ -20449,7 +20531,12 @@ func checkedWorkOrder(db *ent.Client) audit.Kind {
 			}
 
 			recorded, err := newestDigests(ctx, db, objects(rows))
-			out = audit.Page{Rows: rows, Recorded: recorded}
+			if err != nil {
+				return err
+			}
+
+			seals, err := sealsOf(ctx, db, objects(rows))
+			out = audit.Page{Rows: rows, Recorded: recorded, Seals: seals}
 			return err
 		})
 
@@ -20458,6 +20545,7 @@ func checkedWorkOrder(db *ent.Client) audit.Kind {
 
 	return audit.Kind{
 		Domain: WorkOrderDomain,
+		Sealed: true,
 		After: func(ctx context.Context, after pdid.Id) (audit.Page, error) {
 			return read(ctx, entWorkOrder.IdGT(uuid.UUID(after)))
 		},
@@ -25726,6 +25814,51 @@ var (
 
 func init() {
 	{
+		md := (&rove.AccessReview{}).ProtoReflect().Descriptor()
+		fs := md.Fields()
+		personals[md.FullName()] = personal{
+			key: fs.ByNumber(1),
+			fields: []protoreflect.FieldDescriptor{
+				fs.ByNumber(6),
+			},
+			tenant: func(m protoreflect.Message) pdid.Id {
+				return accessKeyOf(m.Get(fs.ByName("tenant")).Message())
+			},
+		}
+		r := (&rove.AccessReviewRef{}).ProtoReflect().Descriptor()
+		refs[r.FullName()] = r.Fields().ByName("id")
+	}
+	{
+		md := (&rove.CountFinding{}).ProtoReflect().Descriptor()
+		fs := md.Fields()
+		personals[md.FullName()] = personal{
+			key: fs.ByNumber(1),
+			fields: []protoreflect.FieldDescriptor{
+				fs.ByNumber(6),
+			},
+			tenant: func(m protoreflect.Message) pdid.Id {
+				return accessKeyOf(m.Get(fs.ByName("tenant")).Message())
+			},
+		}
+		r := (&rove.CountFindingRef{}).ProtoReflect().Descriptor()
+		refs[r.FullName()] = r.Fields().ByName("id")
+	}
+	{
+		md := (&rove.Custody{}).ProtoReflect().Descriptor()
+		fs := md.Fields()
+		personals[md.FullName()] = personal{
+			key: fs.ByNumber(1),
+			fields: []protoreflect.FieldDescriptor{
+				fs.ByNumber(6),
+			},
+			tenant: func(m protoreflect.Message) pdid.Id {
+				return accessKeyOf(m.Get(fs.ByName("tenant")).Message())
+			},
+		}
+		r := (&rove.CustodyRef{}).ProtoReflect().Descriptor()
+		refs[r.FullName()] = r.Fields().ByName("id")
+	}
+	{
 		md := (&rove.Event{}).ProtoReflect().Descriptor()
 		fs := md.Fields()
 		personals[md.FullName()] = personal{
@@ -25756,6 +25889,21 @@ func init() {
 			},
 		}
 		r := (&rove.HolderRef{}).ProtoReflect().Descriptor()
+		refs[r.FullName()] = r.Fields().ByName("id")
+	}
+	{
+		md := (&rove.InventoryCount{}).ProtoReflect().Descriptor()
+		fs := md.Fields()
+		personals[md.FullName()] = personal{
+			key: fs.ByNumber(1),
+			fields: []protoreflect.FieldDescriptor{
+				fs.ByNumber(6),
+			},
+			tenant: func(m protoreflect.Message) pdid.Id {
+				return accessKeyOf(m.Get(fs.ByName("tenant")).Message())
+			},
+		}
+		r := (&rove.InventoryCountRef{}).ProtoReflect().Descriptor()
 		refs[r.FullName()] = r.Fields().ByName("id")
 	}
 	{
@@ -25807,6 +25955,63 @@ func init() {
 			},
 		}
 		r := (&rove.PartyRef{}).ProtoReflect().Descriptor()
+		refs[r.FullName()] = r.Fields().ByName("id")
+	}
+	{
+		md := (&rove.Purchase{}).ProtoReflect().Descriptor()
+		fs := md.Fields()
+		personals[md.FullName()] = personal{
+			key: fs.ByNumber(1),
+			fields: []protoreflect.FieldDescriptor{
+				fs.ByNumber(6),
+			},
+			tenant: func(m protoreflect.Message) pdid.Id {
+				return accessKeyOf(m.Get(fs.ByName("tenant")).Message())
+			},
+		}
+		r := (&rove.PurchaseRef{}).ProtoReflect().Descriptor()
+		refs[r.FullName()] = r.Fields().ByName("id")
+	}
+	{
+		md := (&rove.Reservation{}).ProtoReflect().Descriptor()
+		fs := md.Fields()
+		personals[md.FullName()] = personal{
+			key: fs.ByNumber(1),
+			fields: []protoreflect.FieldDescriptor{
+				fs.ByNumber(6),
+			},
+			tenant: func(m protoreflect.Message) pdid.Id {
+				return accessKeyOf(m.Get(fs.ByName("tenant")).Message())
+			},
+		}
+		r := (&rove.ReservationRef{}).ProtoReflect().Descriptor()
+		refs[r.FullName()] = r.Fields().ByName("id")
+	}
+	{
+		md := (&rove.Tenant{}).ProtoReflect().Descriptor()
+		fs := md.Fields()
+		personals[md.FullName()] = personal{
+			key: fs.ByNumber(1),
+			fields: []protoreflect.FieldDescriptor{
+				fs.ByNumber(10),
+			},
+		}
+		r := (&rove.TenantRef{}).ProtoReflect().Descriptor()
+		refs[r.FullName()] = r.Fields().ByName("id")
+	}
+	{
+		md := (&rove.WorkOrder{}).ProtoReflect().Descriptor()
+		fs := md.Fields()
+		personals[md.FullName()] = personal{
+			key: fs.ByNumber(1),
+			fields: []protoreflect.FieldDescriptor{
+				fs.ByNumber(6),
+			},
+			tenant: func(m protoreflect.Message) pdid.Id {
+				return accessKeyOf(m.Get(fs.ByName("tenant")).Message())
+			},
+		}
+		r := (&rove.WorkOrderRef{}).ProtoReflect().Descriptor()
 		refs[r.FullName()] = r.Fields().ByName("id")
 	}
 }
@@ -26053,11 +26258,23 @@ type accessKept struct{ call *access.Call }
 // data left and erased, which are what say whose it was.
 func (accessRecorder) Snapshots(method string) bare.SnapshotOptions {
 	switch method {
-	case rove.EventService_Add_FullMethodName,
+	case rove.AccessReviewService_Add_FullMethodName,
+		rove.AccessReviewService_Patch_FullMethodName,
+		rove.AccessReviewService_Apply_FullMethodName,
+		rove.CountFindingService_Add_FullMethodName,
+		rove.CountFindingService_Patch_FullMethodName,
+		rove.CountFindingService_Apply_FullMethodName,
+		rove.CustodyService_Add_FullMethodName,
+		rove.CustodyService_Patch_FullMethodName,
+		rove.CustodyService_Apply_FullMethodName,
+		rove.EventService_Add_FullMethodName,
 		rove.EventService_AddMany_FullMethodName,
 		rove.HolderService_Add_FullMethodName,
 		rove.HolderService_Patch_FullMethodName,
 		rove.HolderService_Apply_FullMethodName,
+		rove.InventoryCountService_Add_FullMethodName,
+		rove.InventoryCountService_Patch_FullMethodName,
+		rove.InventoryCountService_Apply_FullMethodName,
 		rove.InvitationService_Add_FullMethodName,
 		rove.InvitationService_Patch_FullMethodName,
 		rove.InvitationService_Apply_FullMethodName,
@@ -26066,12 +26283,32 @@ func (accessRecorder) Snapshots(method string) bare.SnapshotOptions {
 		rove.NotificationService_Apply_FullMethodName,
 		rove.PartyService_Add_FullMethodName,
 		rove.PartyService_Patch_FullMethodName,
-		rove.PartyService_Apply_FullMethodName:
+		rove.PartyService_Apply_FullMethodName,
+		rove.PurchaseService_Add_FullMethodName,
+		rove.PurchaseService_Patch_FullMethodName,
+		rove.PurchaseService_Apply_FullMethodName,
+		rove.ReservationService_Add_FullMethodName,
+		rove.ReservationService_Patch_FullMethodName,
+		rove.ReservationService_Apply_FullMethodName,
+		rove.TenantService_Add_FullMethodName,
+		rove.TenantService_Patch_FullMethodName,
+		rove.TenantService_Apply_FullMethodName,
+		rove.WorkOrderService_Add_FullMethodName,
+		rove.WorkOrderService_Patch_FullMethodName,
+		rove.WorkOrderService_Apply_FullMethodName:
 		return bare.SnapshotOptions{Value: true}
-	case rove.HolderService_Erase_FullMethodName,
+	case rove.AccessReviewService_Erase_FullMethodName,
+		rove.CountFindingService_Erase_FullMethodName,
+		rove.CustodyService_Erase_FullMethodName,
+		rove.HolderService_Erase_FullMethodName,
+		rove.InventoryCountService_Erase_FullMethodName,
 		rove.InvitationService_Erase_FullMethodName,
 		rove.NotificationService_Erase_FullMethodName,
-		rove.PartyService_Erase_FullMethodName:
+		rove.PartyService_Erase_FullMethodName,
+		rove.PurchaseService_Erase_FullMethodName,
+		rove.ReservationService_Erase_FullMethodName,
+		rove.TenantService_Erase_FullMethodName,
+		rove.WorkOrderService_Erase_FullMethodName:
 		return bare.SnapshotOptions{Previous: true}
 	}
 

@@ -138,10 +138,12 @@ func TestAnOperatorTakesAnEventsReasonOut(t *testing.T) {
 }
 
 // TestAnOperatorIsToldWhereElseAnOperationSaysItAndTakesItOutThereToo: what a
-// hand-over's memo says, each thing it handed over copies (design D49). Before
-// `--yes` the operator is told how many events of the operation say the same,
-// and of which kinds, and nothing of what they say; with it, the words are
-// taken out of all of them.
+// hand-over's memo says, each thing it handed over copies (design D49), and
+// the hand-over keeps as its own words (D56). Before `--yes` the operator is
+// told how many events of the operation say the same, and how many rows keep
+// it, and of which kinds, and nothing of what they say; with it, the words
+// are taken out of all of them, the hand-over's memo on the access record as
+// the operator's write.
 func TestAnOperatorIsToldWhereElseAnOperationSaysItAndTakesItOutThereToo(t *testing.T) {
 	x := require.New(t)
 	ctx := t.Context()
@@ -156,6 +158,7 @@ func TestAnOperatorIsToldWhereElseAnOperationSaysItAndTakesItOutThereToo(t *test
 
 	const words = "박지민 씨 개인 사정으로 지급 (010-2345-6789)"
 	var said []pdid.Id
+	var handed pdid.Id
 	on(t, c, func(s *cmd.Server) {
 		tn, err := s.Ent.Tenant.Query().Where(enttenant.Alias("acme")).Only(ctx)
 		x.NoError(err)
@@ -174,6 +177,7 @@ func TestAnOperatorIsToldWhereElseAnOperationSaysItAndTakesItOutThereToo(t *test
 		x.NoError(err)
 		cid, err := pdid.From(cu.GetId())
 		x.NoError(err)
+		handed = cid
 		own, err := s.Ent.Event.Query().Where(event.Kind("custody.issue"), event.SubjectId(cid.Uuid())).Only(ctx)
 		x.NoError(err)
 		said = append(said, pdid.Id(own.Id))
@@ -197,18 +201,43 @@ func TestAnOperatorIsToldWhereElseAnOperationSaysItAndTakesItOutThereToo(t *test
 		})
 		return n
 	}
+	memo := func() string {
+		var v string
+		on(t, c, func(s *cmd.Server) {
+			cu, err := s.Ent.Custody.Get(ctx, handed.Uuid())
+			x.NoError(err)
+			v = cu.Desc
+		})
+		return v
+	}
 
 	out := run(t, cli.NewCmdEvent(&c), "redact", "--tenant", "acme", "--event", said[0].String(), "--why", "삭제 요청 2026-26")
 	x.Contains(out, "says the same in 2 other events")
 	x.Contains(out, "custody.issue ×2")
+	x.Contains(out, "1 row(s) keep the same as their own words")
+	x.Contains(out, "Custody ×1")
 	x.Contains(out, "would take its reason out")
 	x.NotContains(out, "박지민")
 	x.Equal(3, left(), "nothing was done")
+	x.Equal(words, memo())
 
 	out = run(t, cli.NewCmdEvent(&c), "redact", "--tenant", "acme", "--event", said[0].String(), "--why", "삭제 요청 2026-26", "--by", "ops@desk", "--yes")
 	x.Contains(out, "took the reason out of event "+said[0].String())
 	x.Contains(out, "and out of the 2 other events of its operation")
+	x.Contains(out, "and out of the 1 row(s) that kept the same as their own words")
 	x.Zero(left())
+	x.Empty(memo(), "taken out of the hand-over's memo")
+	on(t, c, func(s *cmd.Server) {
+		rs, err := s.Ent.Access.Query().Where(entaccess.Action("rove event redact"), entaccess.KindEQ("write")).All(ctx)
+		x.NoError(err)
+		var wrote []pdid.Id
+		for _, r := range rs {
+			for _, v := range r.Subjects {
+				wrote = append(wrote, pdid.Id(v))
+			}
+		}
+		x.Contains(wrote, handed, "the hand-over, as the operator's write")
+	})
 
 	// Asked of another of them, there is nothing left.
 	out = run(t, cli.NewCmdEvent(&c), "redact", "--tenant", "acme", "--event", said[2].String(), "--why", "삭제 요청 2026-26", "--yes")

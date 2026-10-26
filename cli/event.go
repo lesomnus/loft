@@ -57,10 +57,11 @@ func NewCmdEvent(c *cmd.Config) *xli.Command {
 // reason in it: the one taken out, nor the request's reference.
 //
 // The words are taken out of every event of the operation the event is part
-// of that says them -- its parts copy its reason (design D49) -- and of every
-// notice that says them as its own (D51), and before `--yes` it says how many
-// those are, and of which kinds, having read none of what they say
-// ([domain.Copies], [domain.Told]).
+// of that says them -- its parts copy its reason (design D49) -- of every
+// notice that says them as its own (D51), and of every row that keeps them as
+// its own (D56), and before `--yes` it says how many those are, and of which
+// kinds, having read none of what they say ([domain.Copies], [domain.Told],
+// [domain.Kept]).
 func newCmdEventRedact(c *cmd.Config) *xli.Command {
 	return &xli.Command{
 		Name:  "redact",
@@ -160,6 +161,13 @@ func newCmdEventRedact(c *cmd.Config) *xli.Command {
 					self.Printf("%d of them went by mail before this, which is not taken back\n", sent)
 				}
 			}
+			kept, err := domain.Kept(ctx, s.Ent, tenant, id, copies)
+			if err != nil {
+				return err
+			}
+			if len(kept) > 0 {
+				self.Printf("%d row(s) keep the same as their own words, which it is taken out of too: %s\n", len(kept), rowKindsOf(kept))
+			}
 			if !yes {
 				self.Printf("would take its reason out, and record that as an event of @%s's own\n", t.Alias)
 				self.Printf("(nothing was done: `--yes` does it. It cannot be undone)\n")
@@ -197,6 +205,9 @@ func newCmdEventRedact(c *cmd.Config) *xli.Command {
 			if n := len(done.Notices); n > 0 {
 				self.Printf("and out of the %d notice(s) that said the same as their words; one that went by mail before is not taken back\n", n)
 			}
+			if n := len(done.Rows); n > 0 {
+				self.Printf("and out of the %d row(s) that kept the same as their own words\n", n)
+			}
 			return next(ctx)
 		}),
 	}
@@ -215,6 +226,19 @@ func noticeKindsOf(ctx context.Context, db *ent.Client, ids []pdid.Id) (string, 
 	return tally(ids, func(us []uuid.UUID) ([]string, error) {
 		return db.Notification.Query().Where(entnotification.IdIn(us...)).Select(entnotification.FieldKind).Strings(ctx)
 	})
+}
+
+// rowKindsOf is [kindsOf] of rows of any kind, by the name the schema gives
+// each: "Custody ×1".
+func rowKindsOf(ids []pdid.Id) string {
+	said, _ := tally(ids, func(us []uuid.UUID) ([]string, error) {
+		out := make([]string, len(us))
+		for i, u := range us {
+			out[i] = kindOf(pdid.Id(u).Domain())
+		}
+		return out, nil
+	})
+	return said
 }
 
 // mailed is how many of the notices `ids` went by mail.

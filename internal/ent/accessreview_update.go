@@ -28,6 +28,20 @@ func (_u *AccessReviewUpdate) Where(ps ...predicate.AccessReview) *AccessReviewU
 	return _u
 }
 
+// SetDesc sets the "desc" field.
+func (_u *AccessReviewUpdate) SetDesc(v string) *AccessReviewUpdate {
+	_u.mutation.SetDesc(v)
+	return _u
+}
+
+// SetNillableDesc sets the "desc" field if the given value is not nil.
+func (_u *AccessReviewUpdate) SetNillableDesc(v *string) *AccessReviewUpdate {
+	if v != nil {
+		_u.SetDesc(*v)
+	}
+	return _u
+}
+
 // Mutation returns the AccessReviewMutation object of the builder.
 func (_u *AccessReviewUpdate) Mutation() *AccessReviewMutation {
 	return _u.mutation
@@ -89,6 +103,12 @@ func (_u *AccessReviewUpdate) sqlSave(ctx context.Context) (_node int, err error
 			}
 		}
 	}
+	if value, ok := _u.mutation.Desc(); ok {
+		_spec.SetField(accessreview.FieldDesc, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(accessreview.FieldDesc); ok {
+		_spec.SetField(accessreview.FieldDesc, field.TypeString, e)
+	}
 	if _u.mutation.PeriodFromCleared() {
 		_spec.ClearField(accessreview.FieldPeriodFrom, field.TypeTime)
 	}
@@ -118,6 +138,20 @@ type AccessReviewUpdateOne struct {
 	hooks     []Hook
 	mutation  *AccessReviewMutation
 	modifiers []func(*sql.UpdateBuilder)
+}
+
+// SetDesc sets the "desc" field.
+func (_u *AccessReviewUpdateOne) SetDesc(v string) *AccessReviewUpdateOne {
+	_u.mutation.SetDesc(v)
+	return _u
+}
+
+// SetNillableDesc sets the "desc" field if the given value is not nil.
+func (_u *AccessReviewUpdateOne) SetNillableDesc(v *string) *AccessReviewUpdateOne {
+	if v != nil {
+		_u.SetDesc(*v)
+	}
+	return _u
 }
 
 // Mutation returns the AccessReviewMutation object of the builder.
@@ -210,6 +244,12 @@ func (_u *AccessReviewUpdateOne) sqlSave(ctx context.Context) (_node *AccessRevi
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.Desc(); ok {
+		_spec.SetField(accessreview.FieldDesc, field.TypeString, value)
+	}
+	if e, ok := _u.mutation.FieldExpr(accessreview.FieldDesc); ok {
+		_spec.SetField(accessreview.FieldDesc, field.TypeString, e)
 	}
 	if _u.mutation.PeriodFromCleared() {
 		_spec.ClearField(accessreview.FieldPeriodFrom, field.TypeTime)

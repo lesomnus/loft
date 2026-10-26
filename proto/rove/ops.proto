@@ -221,8 +221,9 @@ message LegalHold {
 // workspace shows it did.
 //
 // The domain's Add writes it, which says who and counts what the stretch
-// held. Nothing changes one after, and none is erased: a review is the
-// evidence of itself, and goes with its workspace.
+// held. Nothing changes one after but a person's words taken out of what it
+// found (`desc`), and none is erased: a review is the evidence of itself, and
+// goes with its workspace.
 message AccessReview {
   bytes id = 1 [(orm.field) = {
     type: TYPE_UUID
@@ -232,8 +233,12 @@ message AccessReview {
 
   Tenant tenant = 2 [(orm.edge) = {immutable: true}];
 
-  // What the reviewer found, in their words.
-  string desc = 6 [(orm.field) = {immutable: true}];
+  // What the reviewer found, in their words -- often whose calls they looked
+  // into: what `access.review` says as its reason, and so personal as every
+  // reason is (payday#92). Written once, and emptied when that reason is
+  // taken out (design D56), which is the one write it takes and why it is
+  // not immutable; no role is given the RPC that would write it otherwise.
+  string desc = 6 [(payday.field) = {personal: true}];
 
   // The stretch of the record it covers, from `period_from` and before
   // `period_to`: a month, as the page reviews it.

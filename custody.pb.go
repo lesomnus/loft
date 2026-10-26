@@ -362,8 +362,13 @@ type Custody_builder struct {
 
 	Id     []byte
 	Tenant *Tenant
-	Desc   string
-	Party  *Party
+	// The hand-over's memo, in the words of whoever made it -- what the
+	// hand-over was for, and often who it was for -- which `custody.issue` says
+	// as its reason: personal, as every reason is (payday#92), so the trail
+	// records that it was written and never what it said. Taking that reason
+	// out takes it out of here too (design D56).
+	Desc  string
+	Party *Party
 	// issue | loan
 	Kind string
 	// open | returned | cancelled
@@ -725,15 +730,15 @@ var File_rove_custody_proto protoreflect.FileDescriptor
 
 const file_rove_custody_proto_rawDesc = "" +
 	"\n" +
-	"\x12rove/custody.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x10rove/asset.proto\x1a\x0erove/org.proto\x1a\x10rove/stock.proto\x1a\x18rove/payday/tenant.proto\"\xf7\b\n" +
+	"\x12rove/custody.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x10rove/asset.proto\x1a\x0erove/org.proto\x1a\x10rove/stock.proto\x1a\x18rove/payday/tenant.proto\"\x8f\t\n" +
 	"\aCustody\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x12\n" +
-	"\x04desc\x18\x06 \x01(\tR\x04desc\x12)\n" +
-	"\x05party\x18\b \x01(\v2\v.rove.PartyB\x06\xf2\x82\x16\x02@\x01R\x05party\x12\x12\n" +
-	"\x04kind\x18\t \x01(\tR\x04kind\x12\x16\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
+	"\x04desc\x18\x06 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\x04desc\x12)\n" +
+	"\x05party\x18\b \x01(\v2\v.rove.PartyB\x06\xf2\x82\x16\x02@\x01R\x05party\x12\x1a\n" +
+	"\x04kind\x18\t \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x04kind\x12\x1e\n" +
 	"\x06status\x18\n" +
-	" \x01(\tR\x06status\x12@\n" +
+	" \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x06status\x12@\n" +
 	"\tissued_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\bissuedAt\x129\n" +
 	"\x06due_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\x05dueAt\x12F\n" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12D\n" +

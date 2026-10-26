@@ -343,3 +343,95 @@ func TestWhatTheDoorTakesOutOfANoticeIsOnTheRecordAsWritten(t *testing.T) {
 	got := w.check(t, d)
 	x.True(got.Ok(), "%+v", got)
 }
+
+// TestWhatTheDoorTakesOutOfAHandOverIsOnTheRecordAsWritten: a hand-over's
+// memo is the reason its event says and the hand-over's own words, declared
+// personal (design D56): whoever reads it is on the access record as having
+// read it, and the trail never held it. Taken out through the door, the
+// words go from the memo too: on the call's access record as a write of the
+// hand-over, by identifier and with none of anybody's words in any row, and
+// on the trail as the call's write, by the administrator who made it; and
+// every row is as the trail says, sealed by the write that left it.
+func TestWhatTheDoorTakesOutOfAHandOverIsOnTheRecordAsWritten(t *testing.T) {
+	w, d := digestWorld(t, nil)
+	x := w.x
+	ctx := context.Background()
+	h := w.holder("adm", "admin")
+	admin := w.signIn(h)
+	hid, err := pdid.From(h.GetId())
+	x.NoError(err)
+
+	park := w.person("박지민", "park@acme.example")
+	laptop, err := app.NewAssetServiceClient(w.conn).Add(w.owner, app.AssetAddRequest_builder{Name: "노트북", Tag: "NB-1"}.Build())
+	x.NoError(err)
+	custody := app.NewCustodyServiceClient(w.conn)
+	c, err := custody.Add(w.owner, app.CustodyAddRequest_builder{
+		Party: app.PartyRef_builder{Id: park.GetId()}.Build(),
+		Desc:  erased,
+		Lines: []*app.CustodyLineSpec{app.CustodyLineSpec_builder{Asset: app.AssetRef_builder{Id: laptop.GetId()}.Build()}.Build()},
+	}.Build())
+	x.NoError(err)
+	cid, err := pdid.From(c.GetId())
+	x.NoError(err)
+
+	// A member's list of what was handed over reads the memo, and says so.
+	member := w.signIn(w.holder("kim", "member"))
+	l, err := custody.List(member, &app.CustodyListRequest{})
+	x.NoError(err)
+	x.Len(l.GetItems(), 1)
+	x.Equal(erased, l.GetItems()[0].GetDesc())
+	rs := w.accessed(t, app.CustodyService_List_FullMethodName)
+	x.Len(rs, 1)
+	x.Equal("read", rs[0].Kind)
+	x.Contains(rs[0].Subjects, c.GetId())
+
+	issue, err := w.s.Ent.Event.Query().Where(event.Kind("custody.issue"), event.SubjectId(cid.Uuid())).Only(ctx)
+	x.NoError(err)
+	w.s.Policy = redactOpened{policy.Policy{}}
+	g, err := w.s.Grpc(ctx, w.c)
+	x.NoError(err)
+	events := app.NewEventServiceClient(pdtest.Serve(t, g))
+	_, err = events.Redact(admin, redactOf(pdid.Id(issue.Id), "삭제 요청 2026-38"))
+	x.NoError(err)
+	now, err := w.s.Ent.Custody.Get(ctx, cid.Uuid())
+	x.NoError(err)
+	x.Empty(now.Desc)
+
+	rs = w.accessed(t, app.EventService_Redact_FullMethodName)
+	by := map[string][]pdid.Id{}
+	for _, r := range rs {
+		if r.Result != "ok" {
+			continue
+		}
+		for _, s := range r.Subjects {
+			by[r.Kind] = append(by[r.Kind], pdid.Id(s))
+		}
+	}
+	x.Contains(by["read"], pdid.Id(issue.Id), "what it read: the reason it took out")
+	x.Contains(by["write"], cid, "what it wrote: the hand-over")
+	x.NotContains(by["read"], cid, "whose memo nobody read")
+	all, err := w.s.Ent.Access.Query().All(ctx)
+	x.NoError(err)
+	for _, r := range all {
+		dv := detailOf(t, r)
+		for _, s := range []string{string(r.Value), dv.GetReason(), string(dv.GetRequest())} {
+			x.NotContains(s, "010-2345-6789", r.Action)
+			x.NotContains(s, "2026-38", r.Action)
+		}
+	}
+
+	acts := w.acts(t, cid)
+	last := acts[len(acts)-1]
+	x.Equal(app.EventService_Redact_FullMethodName, last.Action, "the act's write")
+	x.Equal(hid.Uuid(), last.ActorId, "the administrator's")
+	lines, err := w.s.Ent.Audit.Query().All(ctx)
+	x.NoError(err)
+	for _, l := range lines {
+		for _, b := range [][]byte{l.Patch, l.Value} {
+			x.False(strings.Contains(string(b), "010-2345-6789") || strings.Contains(string(b), "2026-38"), "%s %s", l.Action, pdid.Id(l.ObjectId))
+		}
+	}
+	got := w.check(t, d)
+	x.True(got.Ok(), "%+v", got)
+	x.Empty(got.Unsealed, "every row sealed by the write that left it")
+}

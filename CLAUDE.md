@@ -318,7 +318,9 @@ table's and the domain's, at apply; a narrowed sign-in is told at the plan. A
 tool
 answers with the names a person reads beside the ids other tools take, and
 never a person's email or phone: what it answers goes to the assistant's
-provider. Its tests run the command over pipes with the SDK's client
+provider. A person's words -- a reason, a memo -- it answers as the page shows
+them, read through the same RPCs, and so on the access record as the person's
+read (D56). Its tests run the command over pipes with the SDK's client
 (`cli/mcp_test.go`).
 
 ## Background work
@@ -397,13 +399,16 @@ is an `event.redact` whose reason is the request's reference, the trail's
 `payday.past.redact`, and the access record of what it read. Not out of the
 event named alone: out of every event of its operation that says the same --
 a part copies its operation's reason, and the act has a child for each (D49,
-`domain.Copies`) -- and out of every notice told in those words
-(`reservation.decided`; D51, `domain.ToldWhy`, `domain.Told`), patched through
-the servers so that the trail and the access record say the act wrote it.
-Both are found by the database comparing the words where they are kept, never
-by reading them; mail already sent stays said. A notice whose words are
-somebody's is of a kind in `ToldWhy`, or every domain test that writes one
-fails at its end. No role is given `EventService.Redact` yet (`closed` in
+`domain.Copies`) -- out of every notice told in those words
+(`reservation.decided`; D51, `domain.ToldWhy`, `domain.Told`), and out of
+every row that keeps them as its own (a hand-over's memo, a scan's note, a
+review's findings, why a workspace was closed; D56, `domain.KeptWhy`,
+`domain.Kept`), patched through the servers so that the trail and the access
+record say the act wrote it. All are found by the database comparing the
+words where they are kept, never by reading them; mail already sent stays
+said. A notice whose words are somebody's is of a kind in `ToldWhy`, and a
+row's field that keeps a reason is in `KeptWhy` and declared personal, or
+every domain test that writes one fails at its end. No role is given `EventService.Redact` yet (`closed` in
 `server/policy`: the owner decides who); the operator does it with `rove
 event redact`, on the workspace's word.
 
@@ -423,7 +428,10 @@ changes nothing, to take a row's lock, is fine.
 
 Every call that carries somebody's personal data is a row of payday's access
 record (rove#136, payday#111), read off what the schema declares `personal`:
-a new RPC is recorded without a line. What no declaration sees -- a name
+a new RPC is recorded without a line. A person's own words are personal as a
+reason is -- a memo, a note, what a review found -- and what a thing or a
+document is called is not (design 8.2, D56): a field of free text a person
+writes says which, and `pd doctor` asks of each on a kind that holds people. What no declaration sees -- a name
 `namer.say` reads into a sentence, a column of a CSV, a name put in a mail --
 says `access.Saw` in the call that shows it. A download, which hands people's
 data out to be kept elsewhere, is in `cmd.Downloads` (the workspace's export is

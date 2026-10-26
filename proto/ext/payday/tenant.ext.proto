@@ -14,10 +14,13 @@ message Tenant {
   // When it was closed. Null is open.
   google.protobuf.Timestamp date_closed = 8 [(orm.field) = {nullable: true}];
 
-  // Who closed it -- `owner`, `operator`, or `deployment` when nobody was
-  // left in it -- and why, in their words.
-  string closed_by = 9;
-  string close_reason = 10;
+  // Who closed it: `owner`, `operator`, or `deployment` when nobody was left
+  // in it.
+  string closed_by = 9 [(payday.field) = {personal: false}];
+  // Why, in the words of whoever closed it: what `workspace.close` says as
+  // its reason, and so personal as every reason is (payday#92). Taking that
+  // reason out takes it out of here too (design D56).
+  string close_reason = 10 [(payday.field) = {personal: true}];
 
   // When a workspace still closed and held by nothing is destroyed: when it
   // was closed and the restore window (`app.workspaces.restore_within`), or
@@ -33,12 +36,12 @@ message Tenant {
   // Timezone is where a date said without a zone is: a file's dates, the time
   // in a notification, the date a sheet's cell means -- an IANA name, such as
   // Asia/Seoul. Stored times are UTC whatever it says.
-  string timezone = 12 [(orm.field) = {default: ""}];
+  string timezone = 12 [(orm.field) = {default: ""}, (payday.field) = {personal: false}];
 
   // Currency is what a new purchase or work order is priced in when it says
   // nothing, ISO 4217, such as KRW. An amount keeps the currency it was
   // written in.
-  string currency = 16 [(orm.field) = {default: ""}];
+  string currency = 16 [(orm.field) = {default: ""}, (payday.field) = {personal: false}];
 
   // NoShowMinutes is how long after a room's reservation begins it is freed
   // when nobody checked in, in minutes. 0 is the deployment's; negative

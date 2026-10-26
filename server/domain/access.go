@@ -212,12 +212,23 @@ func entryOf(n *namer, v *ent.Access, first []byte) *app.AccessEntry {
 
 // subjectKinds are the kinds whose rows hold somebody's data (`personal`), by
 // the names their schema gives them: the registry's own names are not one
-// per number where the trail's kinds share theirs.
+// per number where the trail's kinds share theirs. A person and a membership,
+// an invitation's address and a notice's words; an event's reason; and the
+// rows that keep somebody's own words, a memo or a note (design D56).
 var subjectKinds = map[pdid.Domain]string{
-	pd.PartyDomain:        "party",
-	pd.HolderDomain:       "holder",
-	pd.InvitationDomain:   "invitation",
-	pd.NotificationDomain: "notification",
+	pd.PartyDomain:          "party",
+	pd.HolderDomain:         "holder",
+	pd.InvitationDomain:     "invitation",
+	pd.NotificationDomain:   "notification",
+	pd.EventDomain:          "event",
+	pd.CustodyDomain:        "custody",
+	pd.ReservationDomain:    "reservation",
+	pd.WorkOrderDomain:      "work-order",
+	pd.PurchaseDomain:       "purchase",
+	pd.InventoryCountDomain: "inventory-count",
+	pd.CountFindingDomain:   "count-finding",
+	pd.AccessReviewDomain:   "access-review",
+	pd.TenantDomain:         "tenant",
 }
 
 func kindOf(d pdid.Domain) string {
