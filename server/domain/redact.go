@@ -475,11 +475,11 @@ func keeping(ctx context.Context, db *ent.Client, tenant pdid.Id, v *ent.Event) 
 		// The workspace, while this is what it is closed by: one restored
 		// and closed again says why the last closing was, and one restored
 		// says nothing.
-		last, err := db.Event.Query().
+		var last uuid.UUID
+		if last, err = db.Event.Query().
 			Where(event.TenantId(tenant.Uuid()), event.Kind(v.Kind)).
 			Order(event.ByDateCreated(sql.OrderDesc()), event.ById(sql.OrderDesc())).
-			FirstId(ctx)
-		if err != nil {
+			FirstId(ctx); err != nil {
 			return nil, err
 		}
 		if last != v.Id {
@@ -529,8 +529,8 @@ func keeping(ctx context.Context, db *ent.Client, tenant pdid.Id, v *ent.Event) 
 		// A thing has one finding in a count, which the scan that first
 		// found it left in its words; another scan of it says where it was
 		// seen last, and nothing else.
-		first, err := firstScan(ctx, db, tenant, count, *v.SubjectId)
-		if err != nil {
+		var first uuid.UUID
+		if first, err = firstScan(ctx, db, tenant, count, *v.SubjectId); err != nil {
 			return nil, err
 		}
 		if first != v.Id {
