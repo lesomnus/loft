@@ -51,6 +51,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/stewardship"
 	"github.com/lesomnus/rove/internal/ent/stock"
 	"github.com/lesomnus/rove/internal/ent/stockmovement"
+	"github.com/lesomnus/rove/internal/ent/tagcounter"
 	"github.com/lesomnus/rove/internal/ent/tenant"
 	"github.com/lesomnus/rove/internal/ent/tenantcontract"
 	"github.com/lesomnus/rove/internal/ent/tenantdomain"
@@ -145,6 +146,8 @@ type Client struct {
 	Stock *StockClient
 	// StockMovement is the client for interacting with the StockMovement builders.
 	StockMovement *StockMovementClient
+	// TagCounter is the client for interacting with the TagCounter builders.
+	TagCounter *TagCounterClient
 	// Tenant is the client for interacting with the Tenant builders.
 	Tenant *TenantClient
 	// TenantContract is the client for interacting with the TenantContract builders.
@@ -205,6 +208,7 @@ func (c *Client) init() {
 	c.Stewardship = NewStewardshipClient(c.config)
 	c.Stock = NewStockClient(c.config)
 	c.StockMovement = NewStockMovementClient(c.config)
+	c.TagCounter = NewTagCounterClient(c.config)
 	c.Tenant = NewTenantClient(c.config)
 	c.TenantContract = NewTenantContractClient(c.config)
 	c.TenantDomain = NewTenantDomainClient(c.config)
@@ -342,6 +346,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Stewardship:     NewStewardshipClient(cfg),
 		Stock:           NewStockClient(cfg),
 		StockMovement:   NewStockMovementClient(cfg),
+		TagCounter:      NewTagCounterClient(cfg),
 		Tenant:          NewTenantClient(cfg),
 		TenantContract:  NewTenantContractClient(cfg),
 		TenantDomain:    NewTenantDomainClient(cfg),
@@ -406,6 +411,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Stewardship:     NewStewardshipClient(cfg),
 		Stock:           NewStockClient(cfg),
 		StockMovement:   NewStockMovementClient(cfg),
+		TagCounter:      NewTagCounterClient(cfg),
 		Tenant:          NewTenantClient(cfg),
 		TenantContract:  NewTenantContractClient(cfg),
 		TenantDomain:    NewTenantDomainClient(cfg),
@@ -492,8 +498,9 @@ func (c *Client) Use(hooks ...Hook) {
 		c.InventoryCount, c.Invitation, c.ItemModel, c.Label, c.LegalHold, c.Link,
 		c.Notification, c.Outbox, c.Owed, c.Party, c.Placement, c.Purchase,
 		c.PurchaseLine, c.Reservation, c.ReservationItem, c.RowSeal, c.SearchStale,
-		c.Session, c.SignInFailure, c.Stewardship, c.Stock, c.StockMovement, c.Tenant,
-		c.TenantContract, c.TenantDomain, c.TreeLock, c.WorkOrder,
+		c.Session, c.SignInFailure, c.Stewardship, c.Stock, c.StockMovement,
+		c.TagCounter, c.Tenant, c.TenantContract, c.TenantDomain, c.TreeLock,
+		c.WorkOrder,
 	} {
 		n.Use(hooks...)
 	}
@@ -509,8 +516,9 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 		c.InventoryCount, c.Invitation, c.ItemModel, c.Label, c.LegalHold, c.Link,
 		c.Notification, c.Outbox, c.Owed, c.Party, c.Placement, c.Purchase,
 		c.PurchaseLine, c.Reservation, c.ReservationItem, c.RowSeal, c.SearchStale,
-		c.Session, c.SignInFailure, c.Stewardship, c.Stock, c.StockMovement, c.Tenant,
-		c.TenantContract, c.TenantDomain, c.TreeLock, c.WorkOrder,
+		c.Session, c.SignInFailure, c.Stewardship, c.Stock, c.StockMovement,
+		c.TagCounter, c.Tenant, c.TenantContract, c.TenantDomain, c.TreeLock,
+		c.WorkOrder,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -599,6 +607,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Stock.mutate(ctx, m)
 	case *StockMovementMutation:
 		return c.StockMovement.mutate(ctx, m)
+	case *TagCounterMutation:
+		return c.TagCounter.mutate(ctx, m)
 	case *TenantMutation:
 		return c.Tenant.mutate(ctx, m)
 	case *TenantContractMutation:
@@ -6942,6 +6952,155 @@ func (c *StockMovementClient) mutate(ctx context.Context, m *StockMovementMutati
 	}
 }
 
+// TagCounterClient is a client for the TagCounter schema.
+type TagCounterClient struct {
+	config
+}
+
+// NewTagCounterClient returns a client for the TagCounter from the given config.
+func NewTagCounterClient(c config) *TagCounterClient {
+	return &TagCounterClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `tagcounter.Hooks(f(g(h())))`.
+func (c *TagCounterClient) Use(hooks ...Hook) {
+	c.hooks.TagCounter = append(c.hooks.TagCounter, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `tagcounter.Intercept(f(g(h())))`.
+func (c *TagCounterClient) Intercept(interceptors ...Interceptor) {
+	c.inters.TagCounter = append(c.inters.TagCounter, interceptors...)
+}
+
+// Create returns a builder for creating a TagCounter entity.
+func (c *TagCounterClient) Create() *TagCounterCreate {
+	mutation := newTagCounterMutation(c.config, OpCreate)
+	return &TagCounterCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of TagCounter entities.
+func (c *TagCounterClient) CreateBulk(builders ...*TagCounterCreate) *TagCounterCreateBulk {
+	return &TagCounterCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *TagCounterClient) MapCreateBulk(slice any, setFunc func(*TagCounterCreate, int)) *TagCounterCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &TagCounterCreateBulk{err: fmt.Errorf("calling to TagCounterClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*TagCounterCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &TagCounterCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for TagCounter.
+func (c *TagCounterClient) Update() *TagCounterUpdate {
+	mutation := newTagCounterMutation(c.config, OpUpdate)
+	return &TagCounterUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *TagCounterClient) UpdateOne(_m *TagCounter) *TagCounterUpdateOne {
+	mutation := newTagCounterMutation(c.config, OpUpdateOne, withTagCounter(_m))
+	return &TagCounterUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneId returns an update builder for the given id.
+func (c *TagCounterClient) UpdateOneId(id uuid.UUID) *TagCounterUpdateOne {
+	mutation := newTagCounterMutation(c.config, OpUpdateOne, withTagCounterId(id))
+	return &TagCounterUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for TagCounter.
+func (c *TagCounterClient) Delete() *TagCounterDelete {
+	mutation := newTagCounterMutation(c.config, OpDelete)
+	return &TagCounterDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *TagCounterClient) DeleteOne(_m *TagCounter) *TagCounterDeleteOne {
+	return c.DeleteOneId(_m.Id)
+}
+
+// DeleteOneId returns a builder for deleting the given entity by its id.
+func (c *TagCounterClient) DeleteOneId(id uuid.UUID) *TagCounterDeleteOne {
+	builder := c.Delete().Where(tagcounter.Id(id))
+	builder.mutation.id = &id
+	builder.mutation.SetOp(OpDeleteOne)
+	return &TagCounterDeleteOne{builder}
+}
+
+// Query returns a query builder for TagCounter.
+func (c *TagCounterClient) Query() *TagCounterQuery {
+	return &TagCounterQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeTagCounter},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a TagCounter entity by its id.
+func (c *TagCounterClient) Get(ctx context.Context, id uuid.UUID) (*TagCounter, error) {
+	return c.Query().Where(tagcounter.Id(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *TagCounterClient) GetX(ctx context.Context, id uuid.UUID) *TagCounter {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryTenant queries the tenant edge of a TagCounter.
+func (c *TagCounterClient) QueryTenant(_m *TagCounter) *TenantQuery {
+	query := (&TenantClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.Id
+		step := sqlgraph.NewStep(
+			sqlgraph.From(tagcounter.Table, tagcounter.FieldId, id),
+			sqlgraph.To(tenant.Table, tenant.FieldId),
+			sqlgraph.Edge(sqlgraph.M2O, false, tagcounter.TenantTable, tagcounter.TenantColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *TagCounterClient) Hooks() []Hook {
+	return c.hooks.TagCounter
+}
+
+// Interceptors returns the client interceptors.
+func (c *TagCounterClient) Interceptors() []Interceptor {
+	return c.inters.TagCounter
+}
+
+func (c *TagCounterClient) mutate(ctx context.Context, m *TagCounterMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&TagCounterCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&TagCounterUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&TagCounterUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&TagCounterDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown TagCounter mutation op: %q", m.Op())
+	}
+}
+
 // TenantClient is a client for the Tenant schema.
 type TenantClient struct {
 	config
@@ -7711,8 +7870,8 @@ type (
 		Event, Fact, Handoff, Holder, InventoryCount, Invitation, ItemModel, Label,
 		LegalHold, Link, Notification, Outbox, Owed, Party, Placement, Purchase,
 		PurchaseLine, Reservation, ReservationItem, RowSeal, SearchStale, Session,
-		SignInFailure, Stewardship, Stock, StockMovement, Tenant, TenantContract,
-		TenantDomain, TreeLock, WorkOrder []ent.Hook
+		SignInFailure, Stewardship, Stock, StockMovement, TagCounter, Tenant,
+		TenantContract, TenantDomain, TreeLock, WorkOrder []ent.Hook
 	}
 	inters struct {
 		Access, AccessReview, AliasHold, Allocation, Archived, Asset, AssetType,
@@ -7720,7 +7879,7 @@ type (
 		Event, Fact, Handoff, Holder, InventoryCount, Invitation, ItemModel, Label,
 		LegalHold, Link, Notification, Outbox, Owed, Party, Placement, Purchase,
 		PurchaseLine, Reservation, ReservationItem, RowSeal, SearchStale, Session,
-		SignInFailure, Stewardship, Stock, StockMovement, Tenant, TenantContract,
-		TenantDomain, TreeLock, WorkOrder []ent.Interceptor
+		SignInFailure, Stewardship, Stock, StockMovement, TagCounter, Tenant,
+		TenantContract, TenantDomain, TreeLock, WorkOrder []ent.Interceptor
 	}
 )

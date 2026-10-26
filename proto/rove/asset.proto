@@ -147,6 +147,49 @@ message TreeLock {
   };
 }
 
+// TagCounter is the last number made up for a workspace's tags of a prefix:
+// what an asset nobody gave a tag is numbered after -- `A` an item, `S` a
+// space, `K` a kit, `G` a group (D52). An operation that makes up a tag holds
+// the row until it ends, and so does one that writes a tag of the shape a
+// made-up one has, such as "A-00007": two in one workspace at once number one
+// after the other, and the second sees what the first wrote.
+message TagCounter {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  // What the tags it numbers begin with, before the dash.
+  string prefix = 8;
+  // The last number it gave. The next one is the first after it that no live
+  // asset has: a tag somebody wrote themselves is passed over, never given
+  // again.
+  uint64 last = 9;
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  option (orm.message) = {
+    indexes: [
+      {
+        name: "prefix"
+        refs: [{name: "tenant", number: 2}, {name: "prefix", number: 8}]
+        unique: true
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 49
+    erase: {hard: {}}
+    trail: {off: {why: "the last number made up for a tag, and the lock that numbering takes: bookkeeping, as the tree lock is; the tag itself is on the trail with the asset it was given to"}}
+  };
+}
+
 // TenantDomain is a domain of a workspace's (design 9.9): one its whole app
 // is on (`app`), or one its QR labels print with (`label`).
 message TenantDomain {

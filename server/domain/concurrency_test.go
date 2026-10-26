@@ -5,14 +5,17 @@ import (
 	"database/sql"
 	"fmt"
 	"slices"
+	"strings"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/lesomnus/payday/pdid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	app "github.com/lesomnus/rove"
+	"github.com/lesomnus/rove/internal/ent/asset"
 	"github.com/lesomnus/rove/internal/ent/event"
 	"github.com/lesomnus/rove/internal/ent/placement"
 	"github.com/lesomnus/rove/internal/ent/stockmovement"
@@ -457,4 +460,163 @@ func TestOneSlotTakesOneInstallAtOnce(t *testing.T) {
 		}
 		x.Equal(1, landed, "%s: one part in one place", try.name)
 	}
+}
+
+// TestThingsNobodyTaggedAddedAtOnceAreEachNumberedOnce: assets nobody gave a
+// tag, added to one workspace at the same moment -- one at a time, some of
+// them somewhere, beside two bulk registrations of a hundred and fifty each --
+// are each given a tag of their own, numbered one after another, and nobody is
+// refused for one (D52). Each counted the workspace's tags for itself, they
+// found the same number free, and all but one of them were refused on the
+// tag's index: "Asset already exists".
+func TestThingsNobodyTaggedAddedAtOnceAreEachNumberedOnce(t *testing.T) {
+	e := newEnv(t)
+	e.postgresOnly()
+	x := e.x
+	room := e.space("창고", e.space("본사", nil))
+
+	const adds, bulks, rows = 24, 2, 150
+	kinds := []string{"item", "item", "space", "kit", "group"}
+	errs := together(adds+bulks, func(i int) error {
+		if i < bulks {
+			items := make([]*app.AssetAddRequest, rows)
+			for j := range items {
+				items[j] = app.AssetAddRequest_builder{Name: fmt.Sprintf("모니터 %d-%d", i, j), Kind: kinds[j%len(kinds)]}.Build()
+			}
+			_, err := e.app().Asset().AddMany(e.owner, app.AssetAddManyRequest_builder{Items: items, Op: newOp()}.Build())
+			return err
+		}
+		req := app.AssetAddRequest_builder{Name: fmt.Sprintf("의자 %d", i), Kind: kinds[i%len(kinds)]}.Build()
+		if i%2 == 0 {
+			req.SetTo(assetRef(room))
+		}
+		_, err := e.app().Asset().Add(e.owner, req)
+		return err
+	})
+	for i, err := range errs {
+		x.NoError(err, "%d", i)
+	}
+
+	tags, err := e.s.Ent.Asset.Query().Where(asset.TenantId(e.tenant.Uuid()), asset.DateErasedIsNil()).Select(asset.FieldTag).Strings(context.Background())
+	x.NoError(err)
+	x.Len(tags, 2+adds+bulks*rows)
+	byPrefix := map[string][]string{}
+	for _, v := range tags {
+		p, _, _ := strings.Cut(v, "-")
+		byPrefix[p] = append(byPrefix[p], v)
+	}
+	x.Len(byPrefix, 4)
+	for p, vs := range byPrefix {
+		slices.Sort(vs)
+		want := make([]string, len(vs))
+		for i := range want {
+			want[i] = fmt.Sprintf("%s-%05d", p, i+1)
+		}
+		x.Equal(want, vs, "%s: one after another, each once", p)
+	}
+}
+
+// TestTheFirstChangesToATreeAtOnceAllLand: the first changes to a workspace's
+// tree, made at the same moment -- things put in places, in a workspace that
+// has only had places added -- all land, one after another. Each made the
+// tree's lock, which nothing had needed before, and all but one of them were
+// refused on its index (`treelock_tenant`).
+func TestTheFirstChangesToATreeAtOnceAllLand(t *testing.T) {
+	e := newEnv(t)
+	e.postgresOnly()
+	x := e.x
+	rooms := []*app.Asset{}
+	for i := range 8 {
+		rooms = append(rooms, e.space(fmt.Sprintf("방 %d", i), nil))
+	}
+
+	errs := together(len(rooms), func(i int) error {
+		_, err := e.app().Asset().Add(e.owner, app.AssetAddRequest_builder{Name: fmt.Sprintf("의자 %d", i), Tag: fmt.Sprintf("CH-%d", i), To: assetRef(rooms[i])}.Build())
+		return err
+	})
+	for i, err := range errs {
+		x.NoError(err, "%d", i)
+	}
+	locks, err := e.s.Ent.TreeLock.Query().All(context.Background())
+	x.NoError(err)
+	x.Len(locks, 1, "one lock, which every change of the tree takes")
+	x.EqualValues(len(rooms), locks[0].Version, "taken once by each")
+}
+
+// TestATagSomebodyWritesIsPassedOverWhileItIsWritten: a tag somebody wrote of
+// the shape a made-up one has -- the very number the counter would make up
+// next -- written and not yet committed while something nobody tagged is
+// added: that one waits for it, and is given the number after it (D52). Not
+// waiting, it was given the same number, waited at the tag's index instead,
+// and was refused once the other committed.
+func TestATagSomebodyWritesIsPassedOverWhileItIsWritten(t *testing.T) {
+	e := newEnv(t)
+	e.postgresOnly()
+	x := e.x
+	room := e.space("창고", nil)
+	x.Equal("A-00001", e.item("의자", "", nil, day).GetTag())
+
+	// turn holds the room from outside, so that `write` -- which puts
+	// something in it -- waits there with its tag written, then adds something
+	// nobody tagged while it waits, and lets go once that waits too.
+	turn := func(write func() error, add func() (*app.Asset, error)) (wrote error, made *app.Asset, err error) {
+		o := e.holdFromOutside("UPDATE asset SET date_updated = $1 WHERE id = $2", time.Now(), idUUID(room.GetId()))
+		held := true
+		release := func() {
+			if held {
+				held = false
+				x.NoError(o.tx.Rollback())
+			}
+		}
+		defer release()
+		waiting := func(n int) {
+			deadline := time.Now().Add(10 * time.Second)
+			for e.behind(o) < n {
+				if time.Now().After(deadline) {
+					release()
+					x.FailNow("never waited at a lock", "for %d", n)
+				}
+				time.Sleep(10 * time.Millisecond)
+			}
+		}
+
+		writing := make(chan error, 1)
+		go func() { writing <- write() }()
+		waiting(1)
+		type added struct {
+			v   *app.Asset
+			err error
+		}
+		adding := make(chan added, 1)
+		go func() {
+			v, err := add()
+			adding <- added{v, err}
+		}()
+		waiting(2)
+		release()
+		got := <-adding
+		return <-writing, got.v, got.err
+	}
+	untagged := func() (*app.Asset, error) {
+		return e.app().Asset().Add(e.owner, app.AssetAddRequest_builder{Name: "모니터"}.Build())
+	}
+
+	wrote, v, err := turn(func() error {
+		_, err := e.app().Asset().Add(e.owner, app.AssetAddRequest_builder{Name: "노트북", Tag: "A-00002", To: assetRef(room)}.Build())
+		return err
+	}, untagged)
+	x.NoError(wrote)
+	x.NoError(err)
+	x.Equal("A-00003", v.GetTag())
+
+	// And written by a bulk registration.
+	wrote, v, err = turn(func() error {
+		_, err := e.app().Asset().AddMany(e.owner, app.AssetAddManyRequest_builder{Items: []*app.AssetAddRequest{
+			app.AssetAddRequest_builder{Name: "노트북", Tag: "A-00004", To: assetRef(room)}.Build(),
+		}}.Build())
+		return err
+	}, untagged)
+	x.NoError(wrote)
+	x.NoError(err)
+	x.Equal("A-00005", v.GetTag())
 }

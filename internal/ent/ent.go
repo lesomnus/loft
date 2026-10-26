@@ -49,6 +49,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent/stewardship"
 	"github.com/lesomnus/rove/internal/ent/stock"
 	"github.com/lesomnus/rove/internal/ent/stockmovement"
+	"github.com/lesomnus/rove/internal/ent/tagcounter"
 	"github.com/lesomnus/rove/internal/ent/tenant"
 	"github.com/lesomnus/rove/internal/ent/tenantcontract"
 	"github.com/lesomnus/rove/internal/ent/tenantdomain"
@@ -157,6 +158,7 @@ func checkColumn(t, c string) error {
 			stewardship.Table:     stewardship.ValidColumn,
 			stock.Table:           stock.ValidColumn,
 			stockmovement.Table:   stockmovement.ValidColumn,
+			tagcounter.Table:      tagcounter.ValidColumn,
 			tenant.Table:          tenant.ValidColumn,
 			tenantcontract.Table:  tenantcontract.ValidColumn,
 			tenantdomain.Table:    tenantdomain.ValidColumn,

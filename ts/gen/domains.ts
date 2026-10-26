@@ -132,6 +132,9 @@ export const StockDomain = 29
 /** The domain identifiers of rove.StockMovement carry. */
 export const StockMovementDomain = 30
 
+/** The domain identifiers of rove.TagCounter carry. */
+export const TagCounterDomain = 49
+
 /** The domain identifiers of rove.Tenant carry. */
 export const TenantDomain = 1
 
@@ -189,6 +192,7 @@ pdid.register("rove.SignInFailure", SignInFailureDomain, "sign-in-failure")
 pdid.register("rove.Stewardship", StewardshipDomain, "stewardship")
 pdid.register("rove.Stock", StockDomain, "stock")
 pdid.register("rove.StockMovement", StockMovementDomain, "stock-movement")
+pdid.register("rove.TagCounter", TagCounterDomain, "tag-counter")
 pdid.register("rove.Tenant", TenantDomain, "tenant")
 pdid.register("rove.TenantContract", TenantContractDomain, "tenant-contract")
 pdid.register("rove.TenantDomain", TenantDomainDomain, "tenant-domain")
