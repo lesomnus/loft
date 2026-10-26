@@ -23,6 +23,13 @@ export const statusWord: Record<string, string> = {
  */
 export const outOfUse: readonly string[] = ['lost', 'retired', 'disposed']
 
+/**
+ * What a reservation says it takes that is out of use is, in words
+ * (`ReservationOutOfUse.status`): a status of [outOfUse], or `voided` --
+ * deleted as registered by mistake, out of use to it for good (D47).
+ */
+export const goneWord: Record<string, string> = { ...statusWord, voided: '삭제' }
+
 export const conditionWord: Record<string, string> = { good: '양호', damaged: '손상', broken: '고장' }
 
 export const modeWord: Record<string, string> = { located: '놓임', installed: '장착', part: '구성품' }

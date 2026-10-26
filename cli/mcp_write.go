@@ -1157,6 +1157,30 @@ func (c *mcpCall) reserve(in mcpReservationPlan) (*plan, error) {
 	}, nil
 }
 
+// voided names what `r` booked of `ids` that was deleted, as the calendar
+// says it is out of use to it: "G-1 카메라 풀 (voided)" (D47).
+func (c *mcpCall) voided(r *app.Reservation, ids [][]byte) ([]string, error) {
+	v, err := app.NewReservationServiceClient(c.conn).Calendar(c.ctx, app.ReservationCalendarRequest_builder{
+		From: timestamppb.New(r.GetBeginsAt().AsTime().Add(-time.Minute)),
+		To:   timestamppb.New(r.GetEndsAt().AsTime().Add(time.Minute)),
+	}.Build())
+	if err != nil {
+		return nil, failed(err)
+	}
+	out := []string{}
+	for _, e := range v.GetEntries() {
+		if string(e.GetReservation().GetId()) != string(r.GetId()) {
+			continue
+		}
+		for _, g := range e.GetOutOfUse() {
+			if g.GetStatus() == "voided" && slices.ContainsFunc(ids, func(id []byte) bool { return string(id) == string(g.GetResourceId()) }) {
+				out = append(out, fmt.Sprintf("%s (%s)", strings.TrimSpace(g.GetResourceTag()+" "+g.GetResourceName()), g.GetStatus()))
+			}
+		}
+	}
+	return out, nil
+}
+
 // decide plans one of what is done to a reservation that is there.
 func (c *mcpCall) decide(in mcpReservationPlan) (*plan, error) {
 	id, err := idOf("reservation", in.Reservation)
@@ -1176,15 +1200,27 @@ func (c *mcpCall) decide(in mcpReservationPlan) (*plan, error) {
 	}
 	what := []string{}
 	gone := []string{}
+	unread := [][]byte{}
 	for _, it := range items.GetItems() {
 		a, label, err := c.asset("resource", idString(it.GetResource().GetId()))
 		if err != nil {
+			unread = append(unread, it.GetResource().GetId())
 			continue
 		}
 		what = append(what, label)
 		if slices.Contains(domain.OutOfUse, a.GetStatus()) {
 			gone = append(gone, fmt.Sprintf("%s (%s)", label, a.GetStatus()))
 		}
+	}
+	if _, ok := outOfUseRefused[in.Action]; ok && len(unread) > 0 {
+		// What is no longer there to read was deleted as registered by
+		// mistake: out of use to what booked it, for good (D47), and named
+		// as the reservation's calendar entry names it.
+		vs, err := c.voided(r, unread)
+		if err != nil {
+			return nil, err
+		}
+		gone = append(gone, vs...)
 	}
 	if refused, ok := outOfUseRefused[in.Action]; ok && len(gone) > 0 {
 		// Saying yes to it is booking it, and checking into it is using it,

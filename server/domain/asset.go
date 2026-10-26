@@ -337,8 +337,10 @@ func (s domainAsset) Erase(ctx context.Context, ref *app.AssetRef) (*app.AssetEr
 		}
 		// Every kit it was in, and itself if it is one: what each is made
 		// of changed, and so what its bookings take. And every pool it was
-		// one of the units of, which has one fewer to give.
-		kits, pools := []uuid.UUID{id.Uuid()}, []uuid.UUID{}
+		// one of the units of, which has one fewer to give. And, of a group,
+		// what was in it, which the pools it shares them with need not leave
+		// it any more (D44, D47).
+		kits, pools, left := []uuid.UUID{id.Uuid()}, []uuid.UUID{}, []uuid.UUID{}
 		for _, l := range ls {
 			if err := t.supersedeLink(l.Id); err != nil {
 				return err
@@ -347,7 +349,11 @@ func (s domainAsset) Erase(ctx context.Context, ref *app.AssetRef) (*app.AssetEr
 				kits = append(kits, l.TargetId)
 				pools = append(pools, l.TargetId)
 			}
+			if l.Kind == "member_of" && l.TargetId == id.Uuid() {
+				left = append(left, l.SourceId)
+			}
 		}
+		changed := append([]uuid.UUID{id.Uuid()}, left...)
 		// What both hold, at once: one after the other, the second would
 		// take some after the first's, out of the one order.
 		reservable, err := t.reservableKits(kits)
@@ -358,7 +364,7 @@ func (s domainAsset) Erase(ctx context.Context, ref *app.AssetRef) (*app.AssetEr
 		if err != nil {
 			return err
 		}
-		_, also, err := t.poolHolds(pools, []uuid.UUID{id.Uuid()})
+		_, also, err := t.poolHolds(pools, changed)
 		if err != nil {
 			return err
 		}
@@ -368,7 +374,13 @@ func (s domainAsset) Erase(ctx context.Context, ref *app.AssetRef) (*app.AssetEr
 		if err := t.recheckKits(kits...); err != nil {
 			return err
 		}
-		if err := t.recheckPools(pools, []uuid.UUID{id.Uuid()}); err != nil {
+		if err := t.recheckPools(pools, changed); err != nil {
+			return err
+		}
+		// And what booked it itself is told it is no more: out of use to
+		// it for good, which it is neither approved nor fulfilled through,
+		// and -- a pool -- not counted short of either (D47).
+		if err := t.voidedOf(id.Uuid()); err != nil {
 			return err
 		}
 		// What it was said to be, never: every fact of it that stands,

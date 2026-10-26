@@ -642,7 +642,9 @@ message ReservationOutOfUse {
   bytes resource_id = 1 [features.field_presence = IMPLICIT];
   string resource_tag = 2 [features.field_presence = IMPLICIT];
   string resource_name = 3 [features.field_presence = IMPLICIT];
-  // lost | retired | disposed
+  // lost | retired | disposed; or voided, what it booked itself having been
+  // deleted as registered by mistake, which is out of use to it for good
+  // (D47).
   string status = 4 [features.field_presence = IMPLICIT];
   // item | space | kit | group
   string resource_kind = 5 [features.field_presence = IMPLICIT];
