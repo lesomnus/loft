@@ -16,6 +16,7 @@ import (
 	label "github.com/lesomnus/rove/internal/ent/label"
 	party "github.com/lesomnus/rove/internal/ent/party"
 	predicate "github.com/lesomnus/rove/internal/ent/predicate"
+	tagcounter "github.com/lesomnus/rove/internal/ent/tagcounter"
 	tenantdomain "github.com/lesomnus/rove/internal/ent/tenantdomain"
 	treelock "github.com/lesomnus/rove/internal/ent/treelock"
 	ent1 "github.com/protobuf-orm/ent"
@@ -974,6 +975,61 @@ func TreeLockNarrow(ctx context.Context, scope Scope, p predicate.TreeLock) (pre
 // narrow is [TreeLockNarrow] with this server's own scope.
 func (s TreeLockServiceServer) narrow(ctx context.Context, p predicate.TreeLock) (predicate.TreeLock, error) {
 	return TreeLockNarrow(ctx, s.Scope, p)
+}
+
+type TagCounterServiceServer struct {
+	Store
+
+	rove.UnimplementedTagCounterServiceServer
+}
+
+// NewTagCounterServiceServer answers with a server that runs its queries with `db`.
+//
+// It takes the options of [Server] so that what is built here can be told
+// where to report its writes and what it may see. Built without them, it
+// reports nowhere and sees everything.
+func NewTagCounterServiceServer(db *ent.Client, opts ...Option) rove.TagCounterServiceServer {
+	s := Server{Store: Store{Db: db}}
+	for _, opt := range opts {
+		opt(&s)
+	}
+	return TagCounterServiceServer{Store: s.Store}
+}
+
+// TagCounterNarrow answers with `p` and everything else that narrows a
+// read of a TagCounter, which is whatever `scope` says.
+//
+// Every read this package makes goes through it, and a read written by
+// hand should too -- a List is the one read nothing generates, and so the
+// one that would otherwise answer with rows nobody should be given.
+func TagCounterNarrow(ctx context.Context, scope Scope, p predicate.TagCounter) (predicate.TagCounter, error) {
+	ps := make([]predicate.TagCounter, 0, 2)
+	if p != nil {
+		ps = append(ps, p)
+	}
+	if scope != nil {
+		q, err := scope.TagCounterScope(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if q != nil {
+			ps = append(ps, q)
+		}
+	}
+
+	switch len(ps) {
+	case 0:
+		return nil, nil
+	case 1:
+		return ps[0], nil
+	default:
+		return tagcounter.And(ps...), nil
+	}
+}
+
+// narrow is [TagCounterNarrow] with this server's own scope.
+func (s TagCounterServiceServer) narrow(ctx context.Context, p predicate.TagCounter) (predicate.TagCounter, error) {
+	return TagCounterNarrow(ctx, s.Scope, p)
 }
 
 type TenantDomainServiceServer struct {

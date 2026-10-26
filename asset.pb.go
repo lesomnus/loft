@@ -658,6 +658,179 @@ func (b0 TreeLock_builder) Build() *TreeLock {
 	return m0
 }
 
+// TagCounter is the last number made up for a workspace's tags of a prefix:
+// what an asset nobody gave a tag is numbered after -- `A` an item, `S` a
+// space, `K` a kit, `G` a group (D52). An operation that makes up a tag holds
+// the row until it ends, and so does one that writes a tag of the shape a
+// made-up one has, such as "A-00007": two in one workspace at once number one
+// after the other, and the second sees what the first wrote.
+type TagCounter struct {
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
+	xxx_hidden_Tenant      *Tenant                `protobuf:"bytes,2,opt,name=tenant"`
+	xxx_hidden_Prefix      string                 `protobuf:"bytes,8,opt,name=prefix"`
+	xxx_hidden_Last        uint64                 `protobuf:"varint,9,opt,name=last"`
+	xxx_hidden_DateUpdated *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
+	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *TagCounter) Reset() {
+	*x = TagCounter{}
+	mi := &file_rove_asset_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TagCounter) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TagCounter) ProtoMessage() {}
+
+func (x *TagCounter) ProtoReflect() protoreflect.Message {
+	mi := &file_rove_asset_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *TagCounter) GetId() []byte {
+	if x != nil {
+		return x.xxx_hidden_Id
+	}
+	return nil
+}
+
+func (x *TagCounter) GetTenant() *Tenant {
+	if x != nil {
+		return x.xxx_hidden_Tenant
+	}
+	return nil
+}
+
+func (x *TagCounter) GetPrefix() string {
+	if x != nil {
+		return x.xxx_hidden_Prefix
+	}
+	return ""
+}
+
+func (x *TagCounter) GetLast() uint64 {
+	if x != nil {
+		return x.xxx_hidden_Last
+	}
+	return 0
+}
+
+func (x *TagCounter) GetDateUpdated() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateUpdated
+	}
+	return nil
+}
+
+func (x *TagCounter) GetDateCreated() *timestamppb.Timestamp {
+	if x != nil {
+		return x.xxx_hidden_DateCreated
+	}
+	return nil
+}
+
+func (x *TagCounter) SetId(v []byte) {
+	if v == nil {
+		v = []byte{}
+	}
+	x.xxx_hidden_Id = v
+}
+
+func (x *TagCounter) SetTenant(v *Tenant) {
+	x.xxx_hidden_Tenant = v
+}
+
+func (x *TagCounter) SetPrefix(v string) {
+	x.xxx_hidden_Prefix = v
+}
+
+func (x *TagCounter) SetLast(v uint64) {
+	x.xxx_hidden_Last = v
+}
+
+func (x *TagCounter) SetDateUpdated(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateUpdated = v
+}
+
+func (x *TagCounter) SetDateCreated(v *timestamppb.Timestamp) {
+	x.xxx_hidden_DateCreated = v
+}
+
+func (x *TagCounter) HasTenant() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_Tenant != nil
+}
+
+func (x *TagCounter) HasDateUpdated() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateUpdated != nil
+}
+
+func (x *TagCounter) HasDateCreated() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_DateCreated != nil
+}
+
+func (x *TagCounter) ClearTenant() {
+	x.xxx_hidden_Tenant = nil
+}
+
+func (x *TagCounter) ClearDateUpdated() {
+	x.xxx_hidden_DateUpdated = nil
+}
+
+func (x *TagCounter) ClearDateCreated() {
+	x.xxx_hidden_DateCreated = nil
+}
+
+type TagCounter_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	Id     []byte
+	Tenant *Tenant
+	// What the tags it numbers begin with, before the dash.
+	Prefix string
+	// The last number it gave. The next one is the first after it that no live
+	// asset has: a tag somebody wrote themselves is passed over, never given
+	// again.
+	Last        uint64
+	DateUpdated *timestamppb.Timestamp
+	DateCreated *timestamppb.Timestamp
+}
+
+func (b0 TagCounter_builder) Build() *TagCounter {
+	m0 := &TagCounter{}
+	b, x := &b0, m0
+	_, _ = b, x
+	x.xxx_hidden_Id = b.Id
+	x.xxx_hidden_Tenant = b.Tenant
+	x.xxx_hidden_Prefix = b.Prefix
+	x.xxx_hidden_Last = b.Last
+	x.xxx_hidden_DateUpdated = b.DateUpdated
+	x.xxx_hidden_DateCreated = b.DateCreated
+	return m0
+}
+
 // TenantDomain is a domain of a workspace's (design 9.9): one its whole app
 // is on (`app`), or one its QR labels print with (`label`).
 type TenantDomain struct {
@@ -684,7 +857,7 @@ type TenantDomain struct {
 
 func (x *TenantDomain) Reset() {
 	*x = TenantDomain{}
-	mi := &file_rove_asset_proto_msgTypes[2]
+	mi := &file_rove_asset_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -696,7 +869,7 @@ func (x *TenantDomain) String() string {
 func (*TenantDomain) ProtoMessage() {}
 
 func (x *TenantDomain) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_proto_msgTypes[2]
+	mi := &file_rove_asset_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1065,7 +1238,7 @@ type Label struct {
 
 func (x *Label) Reset() {
 	*x = Label{}
-	mi := &file_rove_asset_proto_msgTypes[3]
+	mi := &file_rove_asset_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1077,7 +1250,7 @@ func (x *Label) String() string {
 func (*Label) ProtoMessage() {}
 
 func (x *Label) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_proto_msgTypes[3]
+	mi := &file_rove_asset_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1366,7 +1539,7 @@ type Attachment struct {
 
 func (x *Attachment) Reset() {
 	*x = Attachment{}
-	mi := &file_rove_asset_proto_msgTypes[4]
+	mi := &file_rove_asset_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1378,7 +1551,7 @@ func (x *Attachment) String() string {
 func (*Attachment) ProtoMessage() {}
 
 func (x *Attachment) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_proto_msgTypes[4]
+	mi := &file_rove_asset_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1674,7 +1847,21 @@ const file_rove_asset_proto_rawDesc = "" +
 	"\n" +
 	"\x06tenant\x10\x020\x01\x8a\xbb\x16g\b\fB\x02\n" +
 	"\x00R_\x12]\n" +
-	"[the lock every change of the placement tree takes, and its version: bookkeeping, not a fact\"\xb3\a\n" +
+	"[the lock every change of the placement tree takes, and its version: bookkeeping, not a fact\"\xf9\x03\n" +
+	"\n" +
+	"TagCounter\x12\x1b\n" +
+	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x16\n" +
+	"\x06prefix\x18\b \x01(\tR\x06prefix\x12\x12\n" +
+	"\x04last\x18\t \x01(\x04R\x04last\x12F\n" +
+	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12H\n" +
+	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:\xe1\x01\xca\xfc\x15$\x1a\"\x12\x06prefix\x1a\n" +
+	"\n" +
+	"\x06tenant\x10\x02\x1a\n" +
+	"\n" +
+	"\x06prefix\x10\b0\x01\x8a\xbb\x16\xb4\x01\b1B\x02\n" +
+	"\x00R\xab\x01\x12\xa8\x01\n" +
+	"\xa5\x01the last number made up for a tag, and the lock that numbering takes: bookkeeping, as the tree lock is; the tag itself is on the trail with the asset it was given to\"\xb3\a\n" +
 	"\fTenantDomain\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
@@ -1778,61 +1965,65 @@ const file_rove_asset_proto_rawDesc = "" +
 	"\n" +
 	"subject_id 2(\xc8\x01:\x00B\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
-var file_rove_asset_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_rove_asset_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_rove_asset_proto_goTypes = []any{
 	(*Asset)(nil),                 // 0: rove.Asset
 	(*TreeLock)(nil),              // 1: rove.TreeLock
-	(*TenantDomain)(nil),          // 2: rove.TenantDomain
-	(*Label)(nil),                 // 3: rove.Label
-	(*Attachment)(nil),            // 4: rove.Attachment
-	nil,                           // 5: rove.Asset.LabelsEntry
-	nil,                           // 6: rove.Asset.AttributesEntry
-	(*Tenant)(nil),                // 7: rove.Tenant
-	(*AssetType)(nil),             // 8: rove.AssetType
-	(*ItemModel)(nil),             // 9: rove.ItemModel
-	(*timestamppb.Timestamp)(nil), // 10: google.protobuf.Timestamp
-	(*Party)(nil),                 // 11: rove.Party
+	(*TagCounter)(nil),            // 2: rove.TagCounter
+	(*TenantDomain)(nil),          // 3: rove.TenantDomain
+	(*Label)(nil),                 // 4: rove.Label
+	(*Attachment)(nil),            // 5: rove.Attachment
+	nil,                           // 6: rove.Asset.LabelsEntry
+	nil,                           // 7: rove.Asset.AttributesEntry
+	(*Tenant)(nil),                // 8: rove.Tenant
+	(*AssetType)(nil),             // 9: rove.AssetType
+	(*ItemModel)(nil),             // 10: rove.ItemModel
+	(*timestamppb.Timestamp)(nil), // 11: google.protobuf.Timestamp
+	(*Party)(nil),                 // 12: rove.Party
 }
 var file_rove_asset_proto_depIdxs = []int32{
-	7,  // 0: rove.Asset.tenant:type_name -> rove.Tenant
-	5,  // 1: rove.Asset.labels:type_name -> rove.Asset.LabelsEntry
-	8,  // 2: rove.Asset.type:type_name -> rove.AssetType
-	9,  // 3: rove.Asset.model:type_name -> rove.ItemModel
-	10, // 4: rove.Asset.date_updated:type_name -> google.protobuf.Timestamp
-	10, // 5: rove.Asset.date_erased:type_name -> google.protobuf.Timestamp
-	10, // 6: rove.Asset.date_created:type_name -> google.protobuf.Timestamp
-	11, // 7: rove.Asset.custodian:type_name -> rove.Party
-	6,  // 8: rove.Asset.attributes:type_name -> rove.Asset.AttributesEntry
-	10, // 9: rove.Asset.acquired_at:type_name -> google.protobuf.Timestamp
-	10, // 10: rove.Asset.disposed_at:type_name -> google.protobuf.Timestamp
-	7,  // 11: rove.TreeLock.tenant:type_name -> rove.Tenant
-	10, // 12: rove.TreeLock.date_updated:type_name -> google.protobuf.Timestamp
-	10, // 13: rove.TreeLock.date_created:type_name -> google.protobuf.Timestamp
-	7,  // 14: rove.TenantDomain.tenant:type_name -> rove.Tenant
-	10, // 15: rove.TenantDomain.date_updated:type_name -> google.protobuf.Timestamp
-	10, // 16: rove.TenantDomain.date_erased:type_name -> google.protobuf.Timestamp
-	10, // 17: rove.TenantDomain.date_created:type_name -> google.protobuf.Timestamp
-	10, // 18: rove.TenantDomain.verified_at:type_name -> google.protobuf.Timestamp
-	10, // 19: rove.TenantDomain.checked_at:type_name -> google.protobuf.Timestamp
-	10, // 20: rove.TenantDomain.failing_since:type_name -> google.protobuf.Timestamp
-	10, // 21: rove.TenantDomain.date_lapsed:type_name -> google.protobuf.Timestamp
-	10, // 22: rove.TenantDomain.redirect_until:type_name -> google.protobuf.Timestamp
-	7,  // 23: rove.Label.tenant:type_name -> rove.Tenant
-	2,  // 24: rove.Label.domain:type_name -> rove.TenantDomain
-	10, // 25: rove.Label.bound_at:type_name -> google.protobuf.Timestamp
-	10, // 26: rove.Label.printed_at:type_name -> google.protobuf.Timestamp
-	10, // 27: rove.Label.date_updated:type_name -> google.protobuf.Timestamp
-	10, // 28: rove.Label.date_erased:type_name -> google.protobuf.Timestamp
-	10, // 29: rove.Label.date_created:type_name -> google.protobuf.Timestamp
-	7,  // 30: rove.Attachment.tenant:type_name -> rove.Tenant
-	10, // 31: rove.Attachment.date_updated:type_name -> google.protobuf.Timestamp
-	10, // 32: rove.Attachment.date_erased:type_name -> google.protobuf.Timestamp
-	10, // 33: rove.Attachment.date_created:type_name -> google.protobuf.Timestamp
-	34, // [34:34] is the sub-list for method output_type
-	34, // [34:34] is the sub-list for method input_type
-	34, // [34:34] is the sub-list for extension type_name
-	34, // [34:34] is the sub-list for extension extendee
-	0,  // [0:34] is the sub-list for field type_name
+	8,  // 0: rove.Asset.tenant:type_name -> rove.Tenant
+	6,  // 1: rove.Asset.labels:type_name -> rove.Asset.LabelsEntry
+	9,  // 2: rove.Asset.type:type_name -> rove.AssetType
+	10, // 3: rove.Asset.model:type_name -> rove.ItemModel
+	11, // 4: rove.Asset.date_updated:type_name -> google.protobuf.Timestamp
+	11, // 5: rove.Asset.date_erased:type_name -> google.protobuf.Timestamp
+	11, // 6: rove.Asset.date_created:type_name -> google.protobuf.Timestamp
+	12, // 7: rove.Asset.custodian:type_name -> rove.Party
+	7,  // 8: rove.Asset.attributes:type_name -> rove.Asset.AttributesEntry
+	11, // 9: rove.Asset.acquired_at:type_name -> google.protobuf.Timestamp
+	11, // 10: rove.Asset.disposed_at:type_name -> google.protobuf.Timestamp
+	8,  // 11: rove.TreeLock.tenant:type_name -> rove.Tenant
+	11, // 12: rove.TreeLock.date_updated:type_name -> google.protobuf.Timestamp
+	11, // 13: rove.TreeLock.date_created:type_name -> google.protobuf.Timestamp
+	8,  // 14: rove.TagCounter.tenant:type_name -> rove.Tenant
+	11, // 15: rove.TagCounter.date_updated:type_name -> google.protobuf.Timestamp
+	11, // 16: rove.TagCounter.date_created:type_name -> google.protobuf.Timestamp
+	8,  // 17: rove.TenantDomain.tenant:type_name -> rove.Tenant
+	11, // 18: rove.TenantDomain.date_updated:type_name -> google.protobuf.Timestamp
+	11, // 19: rove.TenantDomain.date_erased:type_name -> google.protobuf.Timestamp
+	11, // 20: rove.TenantDomain.date_created:type_name -> google.protobuf.Timestamp
+	11, // 21: rove.TenantDomain.verified_at:type_name -> google.protobuf.Timestamp
+	11, // 22: rove.TenantDomain.checked_at:type_name -> google.protobuf.Timestamp
+	11, // 23: rove.TenantDomain.failing_since:type_name -> google.protobuf.Timestamp
+	11, // 24: rove.TenantDomain.date_lapsed:type_name -> google.protobuf.Timestamp
+	11, // 25: rove.TenantDomain.redirect_until:type_name -> google.protobuf.Timestamp
+	8,  // 26: rove.Label.tenant:type_name -> rove.Tenant
+	3,  // 27: rove.Label.domain:type_name -> rove.TenantDomain
+	11, // 28: rove.Label.bound_at:type_name -> google.protobuf.Timestamp
+	11, // 29: rove.Label.printed_at:type_name -> google.protobuf.Timestamp
+	11, // 30: rove.Label.date_updated:type_name -> google.protobuf.Timestamp
+	11, // 31: rove.Label.date_erased:type_name -> google.protobuf.Timestamp
+	11, // 32: rove.Label.date_created:type_name -> google.protobuf.Timestamp
+	8,  // 33: rove.Attachment.tenant:type_name -> rove.Tenant
+	11, // 34: rove.Attachment.date_updated:type_name -> google.protobuf.Timestamp
+	11, // 35: rove.Attachment.date_erased:type_name -> google.protobuf.Timestamp
+	11, // 36: rove.Attachment.date_created:type_name -> google.protobuf.Timestamp
+	37, // [37:37] is the sub-list for method output_type
+	37, // [37:37] is the sub-list for method input_type
+	37, // [37:37] is the sub-list for extension type_name
+	37, // [37:37] is the sub-list for extension extendee
+	0,  // [0:37] is the sub-list for field type_name
 }
 
 func init() { file_rove_asset_proto_init() }
@@ -1849,7 +2040,7 @@ func file_rove_asset_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_asset_proto_rawDesc), len(file_rove_asset_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

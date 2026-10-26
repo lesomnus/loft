@@ -30,6 +30,7 @@ import (
 	"github.com/lesomnus/payday/past"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/protobuf-orm/ent/dialect"
+	"github.com/protobuf-orm/ent/dialect/sql"
 	"github.com/protobuf-orm/protoc-gen-orm-ent/runtime/enttx"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
@@ -648,21 +649,42 @@ func (t *Tx) lockTree() error {
 	if n == 0 {
 		// The first change in a tenant. Through ent, as every write of it
 		// is: the lock is bookkeeping, and no server writes it, so it is no
-		// row of the trail either (payday#108).
+		// row of the trail either (payday#108). Two first changes at once
+		// make one, and the second then holds it as it would have held one
+		// that was there.
 		now := t.deps.now()
-		if err := t.db.TreeLock.Create().
-			SetId(pdid.New(pd.TreeLockDomain).Uuid()).
-			SetTenantId(t.tenant.Uuid()).
-			SetVersion(1).
-			SetDateCreated(now).
-			SetDateUpdated(now).
-			Exec(t.ctx); err != nil {
+		if err := t.insertOnce(treelock.Table, []string{treelock.FieldTenantId},
+			[]string{treelock.FieldId, treelock.FieldTenantId, treelock.FieldVersion, treelock.FieldDateCreated, treelock.FieldDateUpdated},
+			pdid.New(pd.TreeLockDomain).Uuid(), t.tenant.Uuid(), 0, now, now,
+		); err != nil {
+			return err
+		}
+		if _, err := t.db.TreeLock.Update().
+			Where(treelock.TenantId(t.tenant.Uuid())).
+			AddVersion(1).
+			Save(t.ctx); err != nil {
 			return err
 		}
 	}
 
 	t.holds()
 	return nil
+}
+
+// insertOnce writes a row of bookkeeping -- a lock, a counter -- that the
+// first operation in a tenant to need it makes, unless the row `unique` names
+// is there already. One that another transaction is writing meanwhile is
+// waited for and left as it is: the statement is one that says so, which
+// ent's own Create cannot, and without it the second of two first operations
+// at once was refused on the row's index.
+func (t *Tx) insertOnce(table string, unique, columns []string, values ...any) error {
+	q, args := sql.Dialect(t.drv.Dialect()).
+		Insert(table).
+		Columns(columns...).
+		Values(values...).
+		OnConflict(sql.ConflictColumns(unique...), sql.DoNothing()).
+		Query()
+	return t.drv.Exec(t.ctx, q, args, nil)
 }
 
 // holds takes the operation's moment again the first time it holds a lock it

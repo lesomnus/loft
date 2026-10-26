@@ -39,6 +39,7 @@ type Server interface {
 	Handoff() HandoffServiceServer
 	Asset() AssetServiceServer
 	TreeLock() TreeLockServiceServer
+	TagCounter() TagCounterServiceServer
 	TenantDomain() TenantDomainServiceServer
 	Label() LabelServiceServer
 	Attachment() AttachmentServiceServer
@@ -91,6 +92,7 @@ func RegisterServer(g grpc.ServiceRegistrar, s Server) {
 	RegisterHandoffServiceServer(g, s.Handoff())
 	RegisterAssetServiceServer(g, s.Asset())
 	RegisterTreeLockServiceServer(g, s.TreeLock())
+	RegisterTagCounterServiceServer(g, s.TagCounter())
 	RegisterTenantDomainServiceServer(g, s.TenantDomain())
 	RegisterLabelServiceServer(g, s.Label())
 	RegisterAttachmentServiceServer(g, s.Attachment())
@@ -139,6 +141,7 @@ type UnimplementedServer struct {
 	HandoffServer         HandoffServiceServer
 	AssetServer           AssetServiceServer
 	TreeLockServer        TreeLockServiceServer
+	TagCounterServer      TagCounterServiceServer
 	TenantDomainServer    TenantDomainServiceServer
 	LabelServer           LabelServiceServer
 	AttachmentServer      AttachmentServiceServer
@@ -199,6 +202,9 @@ func (UnimplementedServer) Handoff() HandoffServiceServer { return Unimplemented
 func (UnimplementedServer) Asset() AssetServiceServer     { return UnimplementedAssetServiceServer{} }
 func (UnimplementedServer) TreeLock() TreeLockServiceServer {
 	return UnimplementedTreeLockServiceServer{}
+}
+func (UnimplementedServer) TagCounter() TagCounterServiceServer {
+	return UnimplementedTagCounterServiceServer{}
 }
 func (UnimplementedServer) TenantDomain() TenantDomainServiceServer {
 	return UnimplementedTenantDomainServiceServer{}
@@ -289,6 +295,7 @@ type StaticServer struct {
 	HandoffServer         HandoffServiceServer
 	AssetServer           AssetServiceServer
 	TreeLockServer        TreeLockServiceServer
+	TagCounterServer      TagCounterServiceServer
 	TenantDomainServer    TenantDomainServiceServer
 	LabelServer           LabelServiceServer
 	AttachmentServer      AttachmentServiceServer
@@ -336,6 +343,7 @@ func (s StaticServer) SignInFailure() SignInFailureServiceServer     { return s.
 func (s StaticServer) Handoff() HandoffServiceServer                 { return s.HandoffServer }
 func (s StaticServer) Asset() AssetServiceServer                     { return s.AssetServer }
 func (s StaticServer) TreeLock() TreeLockServiceServer               { return s.TreeLockServer }
+func (s StaticServer) TagCounter() TagCounterServiceServer           { return s.TagCounterServer }
 func (s StaticServer) TenantDomain() TenantDomainServiceServer       { return s.TenantDomainServer }
 func (s StaticServer) Label() LabelServiceServer                     { return s.LabelServer }
 func (s StaticServer) Attachment() AttachmentServiceServer           { return s.AttachmentServer }
@@ -383,6 +391,7 @@ type Client interface {
 	Handoff() HandoffServiceClient
 	Asset() AssetServiceClient
 	TreeLock() TreeLockServiceClient
+	TagCounter() TagCounterServiceClient
 	TenantDomain() TenantDomainServiceClient
 	Label() LabelServiceClient
 	Attachment() AttachmentServiceClient
@@ -432,6 +441,7 @@ func NewClient(c *grpc.ClientConn) Client {
 		_Handoff:         NewHandoffServiceClient(c),
 		_Asset:           NewAssetServiceClient(c),
 		_TreeLock:        NewTreeLockServiceClient(c),
+		_TagCounter:      NewTagCounterServiceClient(c),
 		_TenantDomain:    NewTenantDomainServiceClient(c),
 		_Label:           NewLabelServiceClient(c),
 		_Attachment:      NewAttachmentServiceClient(c),
@@ -481,6 +491,7 @@ type client struct {
 	_Handoff         HandoffServiceClient
 	_Asset           AssetServiceClient
 	_TreeLock        TreeLockServiceClient
+	_TagCounter      TagCounterServiceClient
 	_TenantDomain    TenantDomainServiceClient
 	_Label           LabelServiceClient
 	_Attachment      AttachmentServiceClient
@@ -528,6 +539,7 @@ func (c *client) SignInFailure() SignInFailureServiceClient     { return c._Sign
 func (c *client) Handoff() HandoffServiceClient                 { return c._Handoff }
 func (c *client) Asset() AssetServiceClient                     { return c._Asset }
 func (c *client) TreeLock() TreeLockServiceClient               { return c._TreeLock }
+func (c *client) TagCounter() TagCounterServiceClient           { return c._TagCounter }
 func (c *client) TenantDomain() TenantDomainServiceClient       { return c._TenantDomain }
 func (c *client) Label() LabelServiceClient                     { return c._Label }
 func (c *client) Attachment() AttachmentServiceClient           { return c._Attachment }

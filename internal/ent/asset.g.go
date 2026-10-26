@@ -83,6 +83,22 @@ func (e *TreeLock) Proto() *rove.TreeLock {
 	x.SetDateCreated(timestamppb.New(e.DateCreated))
 	return x
 }
+func (e *TagCounter) Proto() *rove.TagCounter {
+	x := &rove.TagCounter{}
+	x.SetId(e.Id[:])
+	if v := e.Edges.Tenant; v != nil {
+		x.SetTenant(v.Proto())
+	} else if v := e.TenantId; v != *new(uuid.UUID) {
+		r := &rove.Tenant{}
+		r.SetId(v[:])
+		x.SetTenant(r)
+	}
+	x.SetPrefix(e.Prefix)
+	x.SetLast(e.Last)
+	x.SetDateUpdated(timestamppb.New(e.DateUpdated))
+	x.SetDateCreated(timestamppb.New(e.DateCreated))
+	return x
+}
 func (e *TenantDomain) Proto() *rove.TenantDomain {
 	x := &rove.TenantDomain{}
 	x.SetId(e.Id[:])

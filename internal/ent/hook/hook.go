@@ -489,6 +489,18 @@ func (f StockMovementFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Valu
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.StockMovementMutation", m)
 }
 
+// The TagCounterFunc type is an adapter to allow the use of ordinary
+// function as TagCounter mutator.
+type TagCounterFunc func(context.Context, *ent.TagCounterMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TagCounterFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.TagCounterMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TagCounterMutation", m)
+}
+
 // The TenantFunc type is an adapter to allow the use of ordinary
 // function as Tenant mutator.
 type TenantFunc func(context.Context, *ent.TenantMutation) (ent.Value, error)
