@@ -472,6 +472,19 @@ message CustodyExtended {
   google.protobuf.Timestamp due = 3;
 }
 
+// CustodyOverdue is a loan found past its due with some of what it lent not
+// back (`custody.overdue`): the deployment's own work, at the moment it was
+// found so, once for each due the loan misses. Each asset still out is an
+// event of its own, whose cause this is and which holds the asset; the
+// loan's own holds no asset.
+message CustodyOverdue {
+  option (payday.event) = {kinds: "custody.overdue"};
+
+  bytes custody = 1;
+  google.protobuf.Timestamp due = 3;
+  bytes asset = 7;
+}
+
 // CustodyReturned is some or all of what was handed over taken back
 // (`custody.return`), into `to` when it says. Each asset taken back is an
 // event of its own, whose cause this is and which holds the asset.

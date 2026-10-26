@@ -21,6 +21,7 @@
     "custody.acknowledge": "rove.CustodyAcknowledged",
     "custody.extend": "rove.CustodyExtended",
     "custody.issue": "rove.CustodyIssued",
+    "custody.overdue": "rove.CustodyOverdue",
     "custody.return": "rove.CustodyReturned",
     "domain.activate": "rove.TenantDomainActivated",
     "domain.add": "rove.TenantDomainAdded",
@@ -440,6 +441,21 @@
       "6": {
         "json": "reservation",
         "kind": "bytes"
+      },
+      "7": {
+        "json": "asset",
+        "kind": "bytes"
+      }
+    },
+    "rove.CustodyOverdue": {
+      "1": {
+        "json": "custody",
+        "kind": "bytes"
+      },
+      "3": {
+        "json": "due",
+        "kind": "message",
+        "type": "google.protobuf.Timestamp"
       },
       "7": {
         "json": "asset",
