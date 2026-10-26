@@ -757,8 +757,9 @@ func (b0 LegalHold_builder) Build() *LegalHold {
 // workspace shows it did.
 //
 // The domain's Add writes it, which says who and counts what the stretch
-// held. Nothing changes one after, and none is erased: a review is the
-// evidence of itself, and goes with its workspace.
+// held. Nothing changes one after but a person's words taken out of what it
+// found (`desc`), and none is erased: a review is the evidence of itself, and
+// goes with its workspace.
 type AccessReview struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Id          []byte                 `protobuf:"bytes,1,opt,name=id"`
@@ -973,7 +974,11 @@ type AccessReview_builder struct {
 
 	Id     []byte
 	Tenant *Tenant
-	// What the reviewer found, in their words.
+	// What the reviewer found, in their words -- often whose calls they looked
+	// into: what `access.review` says as its reason, and so personal as every
+	// reason is (payday#92). Written once, and emptied when that reason is
+	// taken out (design D56), which is the one write it takes and why it is
+	// not immutable; no role is given the RPC that would write it otherwise.
 	Desc string
 	// The stretch of the record it covers, from `period_from` and before
 	// `period_to`: a month, as the page reviews it.
@@ -1095,7 +1100,7 @@ const file_rove_ops_proto_rawDesc = "" +
 	"\fAccessReview\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
-	"\x04desc\x18\x06 \x01(\tB\x06\xea\x82\x16\x02@\x01R\x04desc\x12F\n" +
+	"\x04desc\x18\x06 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\x04desc\x12F\n" +
 	"\vperiod_from\x18\b \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\n" +
 	"periodFrom\x12B\n" +
 	"\tperiod_to\x18\t \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\bperiodTo\x120\n" +

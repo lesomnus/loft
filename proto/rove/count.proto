@@ -20,13 +20,18 @@ message InventoryCount {
   }];
   Tenant tenant = 2 [(orm.edge) = {immutable: true}];
 
-  string name = 5;
-  string desc = 6;
+  // What the count is called, which its events keep as what it was called
+  // then (design 8.2): a document's name, and nobody's words.
+  string name = 5 [(payday.field) = {personal: false}];
+  // The note of whoever started it, in their words: personal (payday#92), so
+  // the trail records that it was written and never what it said (design
+  // D56).
+  string desc = 6 [(payday.field) = {personal: true}];
 
   // The space the count covers, and everything under it.
   Asset scope = 8 [(orm.edge) = {immutable: true}];
   // open | closed
-  string status = 9;
+  string status = 9 [(payday.field) = {personal: false}];
   google.protobuf.Timestamp started_at = 10 [(orm.field) = {default: ""}];
   google.protobuf.Timestamp closed_at = 11 [(orm.field) = {nullable: true}];
   bytes started_by = 12 [(orm.field) = {
@@ -78,7 +83,11 @@ message CountFinding {
   }];
   Tenant tenant = 2 [(orm.edge) = {immutable: true}];
 
-  string desc = 6;
+  // The note of the scan that found it, in the words of whoever scanned:
+  // what `count.scan` says as its reason, and so personal as every reason is
+  // (payday#92). Taking that reason out takes it out of here too (design
+  // D56).
+  string desc = 6 [(payday.field) = {personal: true}];
 
   InventoryCount count = 8 [(orm.edge) = {immutable: true}];
   Asset asset = 9 [(orm.edge) = {
@@ -90,7 +99,7 @@ message CountFinding {
     nullable: true
   }];
   // seen | misplaced | missing | unknown
-  string kind = 11;
+  string kind = 11 [(payday.field) = {personal: false}];
   bytes observed_parent_id = 12 [(orm.field) = {
     type: TYPE_UUID
     nullable: true
@@ -113,7 +122,7 @@ message CountFinding {
     nullable: true
   }];
   // open | moved | lost | ignored
-  string resolution = 19;
+  string resolution = 19 [(payday.field) = {personal: false}];
   google.protobuf.Timestamp resolved_at = 20 [(orm.field) = {nullable: true}];
 
   option (orm.message) = {

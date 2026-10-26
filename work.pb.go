@@ -379,9 +379,14 @@ type WorkOrder_builder struct {
 
 	Id     []byte
 	Tenant *Tenant
-	Name   string
-	Desc   string
-	Asset  *Asset
+	// What the work is, which its events keep as what it was called then
+	// (design 8.2): a document's name, and nobody's words.
+	Name string
+	// What was found and done, in the words of whoever reported or ran it -- a
+	// breakdown, how it happened, to whom: personal (payday#92), so the trail
+	// records that it was written and never what it said (design D56).
+	Desc  string
+	Asset *Asset
 	// repair | inspection | maintenance | rma
 	Kind string
 	// open | scheduled | in_progress | done | cancelled
@@ -710,11 +715,17 @@ func (x *Purchase) ClearDateCreated() {
 type Purchase_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Id        []byte
-	Tenant    *Tenant
-	Name      string
-	Desc      string
-	Vendor    *Party
+	Id     []byte
+	Tenant *Tenant
+	// What the purchase is called, which its events keep (design 8.2): a
+	// document's name, and nobody's words.
+	Name string
+	// The note of whoever made it, in their words -- what it was for, and often
+	// for whom: personal (payday#92), so the trail records that it was written
+	// and never what it said (design D56).
+	Desc   string
+	Vendor *Party
+	// The vendor's order's number.
 	Reference string
 	// ordered | received | cancelled
 	Status      string
@@ -1014,16 +1025,16 @@ var File_rove_work_proto protoreflect.FileDescriptor
 
 const file_rove_work_proto_rawDesc = "" +
 	"\n" +
-	"\x0frove/work.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x10rove/asset.proto\x1a\x12rove/catalog.proto\x1a\x0erove/org.proto\x1a\x18rove/payday/tenant.proto\"\xc8\a\n" +
+	"\x0frove/work.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x10rove/asset.proto\x1a\x12rove/catalog.proto\x1a\x0erove/org.proto\x1a\x18rove/payday/tenant.proto\"\xf0\a\n" +
 	"\tWorkOrder\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x12\n" +
-	"\x04name\x18\x05 \x01(\tR\x04name\x12\x12\n" +
-	"\x04desc\x18\x06 \x01(\tR\x04desc\x12)\n" +
-	"\x05asset\x18\b \x01(\v2\v.rove.AssetB\x06\xf2\x82\x16\x02@\x01R\x05asset\x12\x12\n" +
-	"\x04kind\x18\t \x01(\tR\x04kind\x12\x16\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
+	"\x04name\x18\x05 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x04name\x12\x1a\n" +
+	"\x04desc\x18\x06 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\x04desc\x12)\n" +
+	"\x05asset\x18\b \x01(\v2\v.rove.AssetB\x06\xf2\x82\x16\x02@\x01R\x05asset\x12\x1a\n" +
+	"\x04kind\x18\t \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x04kind\x12\x1e\n" +
 	"\x06status\x18\n" +
-	" \x01(\tR\x06status\x12?\n" +
+	" \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x06status\x12?\n" +
 	"\tbegins_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\bbeginsAt\x12;\n" +
 	"\aends_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\x06endsAt\x12F\n" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12D\n" +
@@ -1031,8 +1042,8 @@ const file_rove_work_proto_rawDesc = "" +
 	"dateErased\x12H\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12+\n" +
 	"\x06vendor\x18\x10 \x01(\v2\v.rove.PartyB\x06\xf2\x82\x16\x028\x01R\x06vendor\x12\x12\n" +
-	"\x04cost\x18\x11 \x01(\x03R\x04cost\x12\x1a\n" +
-	"\bcurrency\x18\x12 \x01(\tR\bcurrency\x12E\n" +
+	"\x04cost\x18\x11 \x01(\x03R\x04cost\x12\"\n" +
+	"\bcurrency\x18\x12 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\bcurrency\x12E\n" +
 	"\fcompleted_at\x18\x13 \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\vcompletedAt\x12\x1a\n" +
 	"\bblocking\x18\x14 \x01(\bR\bblocking\x12\x1d\n" +
 	"\n" +
@@ -1053,16 +1064,16 @@ const file_rove_work_proto_rawDesc = "" +
 	"\x06status\x1a\x06\n" +
 	"\x04kind\x1a\b\n" +
 	"\x06vendor d(\xf4\x03:\x00\"\x16\n" +
-	"\x06tenant\"\fasset.tenant\"\xf3\x05\n" +
+	"\x06tenant\"\fasset.tenant\"\x9b\x06\n" +
 	"\bPurchase\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x12\n" +
-	"\x04name\x18\x05 \x01(\tR\x04name\x12\x12\n" +
-	"\x04desc\x18\x06 \x01(\tR\x04desc\x12+\n" +
-	"\x06vendor\x18\b \x01(\v2\v.rove.PartyB\x06\xf2\x82\x16\x028\x01R\x06vendor\x12\x1c\n" +
-	"\treference\x18\t \x01(\tR\treference\x12\x16\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
+	"\x04name\x18\x05 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x04name\x12\x1a\n" +
+	"\x04desc\x18\x06 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\x04desc\x12+\n" +
+	"\x06vendor\x18\b \x01(\v2\v.rove.PartyB\x06\xf2\x82\x16\x028\x01R\x06vendor\x12$\n" +
+	"\treference\x18\t \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\treference\x12\x1e\n" +
 	"\x06status\x18\n" +
-	" \x01(\tR\x06status\x12B\n" +
+	" \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x06status\x12B\n" +
 	"\n" +
 	"ordered_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x82\x01\x00R\torderedAt\x12C\n" +
 	"\vreceived_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\n" +
@@ -1070,8 +1081,8 @@ const file_rove_work_proto_rawDesc = "" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12D\n" +
 	"\vdate_erased\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x92\x01\x00R\n" +
 	"dateErased\x12H\n" +
-	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12\x1a\n" +
-	"\bcurrency\x18\x10 \x01(\tR\bcurrency\x12\x14\n" +
+	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12\"\n" +
+	"\bcurrency\x18\x10 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\bcurrency\x12\x14\n" +
 	"\x05total\x18\x11 \x01(\x03R\x05total:~\xca\xfc\x152\x12\x02\x10\x01\x1a,\x12\x04page\x1a\n" +
 	"\n" +
 	"\x06tenant\x10\x02\x1a\x10\n" +

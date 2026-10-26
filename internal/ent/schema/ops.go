@@ -181,8 +181,7 @@ func (AccessReview) Fields() []ent.Field {
 		field.Uuid("id").
 			Unique().
 			Immutable(),
-		field.String("desc").
-			Immutable(),
+		field.String("desc"),
 		field.Time("period_from").
 			Immutable().
 			Optional(),

@@ -5,17 +5,25 @@ import (
 	"errors"
 	"fmt"
 	"slices"
+	"strings"
 	"testing"
 	"time"
 	"uuid"
 
 	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/pdid"
+	"github.com/lesomnus/payday/pdpb"
 	"github.com/lesomnus/payday/pdtest"
 	"github.com/lesomnus/z"
+	"github.com/protobuf-orm/ent/dialect/sql"
+	"github.com/protobuf-orm/ent/dialect/sql/schema"
+	"github.com/protobuf-orm/ent/schema/field"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/reflect/protoreflect"
+	"google.golang.org/protobuf/reflect/protoregistry"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	app "github.com/lesomnus/rove"
@@ -23,6 +31,7 @@ import (
 	"github.com/lesomnus/rove/cmd"
 	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/internal/ent/event"
+	"github.com/lesomnus/rove/internal/ent/migrate"
 	"github.com/lesomnus/rove/internal/ent/notification"
 	"github.com/lesomnus/rove/internal/identity"
 	"github.com/lesomnus/rove/server/domain"
@@ -76,10 +85,11 @@ func newEnvWith(t *testing.T, with func(c *cmd.Config)) *env {
 	s.Deps.Now = func() time.Time { return e.now }
 	s.Deps.LookupTXT = nil
 	// Whatever a test did, each event it recorded holds its kind's message,
-	// and of it only what its kind uses; and each notice it wrote that says
-	// somebody's words is one taking them out finds.
+	// and of it only what its kind uses; and each notice and row it wrote
+	// that says somebody's words is one taking them out finds.
 	t.Cleanup(e.heldToKinds)
 	t.Cleanup(e.toldAsDeclared)
+	t.Cleanup(e.keptAsDeclared)
 
 	e.tenant, e.owner = e.newTenant("acme")
 	return e
@@ -127,6 +137,161 @@ func (e *env) toldAsDeclared() {
 			return domain.ToldWhy[v.Kind] == n.Kind && v.SubjectId != nil && n.SubjectId != nil && *v.SubjectId == *n.SubjectId
 		}), "a %s notice says what %s %s says as its reason, and domain.ToldWhy does not pair them: taking the words out would leave them in it", n.Kind, vs[0].Kind, pdid.Id(vs[0].Id))
 	}
+}
+
+// keptAsDeclared holds every row of the deployment whose words are what an
+// event of its workspace about it says as its reason -- an event of the row,
+// naming it, or of something it points at -- to [domain.KeptWhy]: written by
+// such an event, of a kind that gives the field those words are in. And the
+// field is declared personal, as the reason it keeps is. That is how the
+// words are found in it when they are taken out (design D56); a row of any
+// other field would keep them, and a field nobody declared would have put
+// them on the trail.
+//
+// It reads every field of free text of every kind a workspace has rows of,
+// off the schema, so that a row a later change makes keep a reason is held to
+// this as well. The notices are [env.toldAsDeclared]'s; the trail's and the
+// past's own are no rows of this.
+func (e *env) keptAsDeclared() {
+	e.t.Helper()
+	ctx := context.Background()
+	// Nothing to keep when no event says a reason, as most tests' do not.
+	said, err := e.s.Ent.Event.Query().Where(event.ReasonNEQ("")).Exist(ctx)
+	e.x.NoError(err)
+	if !said {
+		return
+	}
+	drv := e.s.Ent.Driver()
+	skip := map[pdid.Domain]bool{
+		pd.EventDomain: true, pd.FactDomain: true, pd.NotificationDomain: true,
+		pd.AuditDomain: true, pd.ArchivedDomain: true, pd.AccessDomain: true,
+		pd.OutboxDomain: true, pd.OwedDomain: true, pd.RowSealDomain: true,
+	}
+	for name, d := range pd.Domains {
+		if skip[d] {
+			continue
+		}
+		found, err := protoregistry.GlobalFiles.FindDescriptorByName(protoreflect.FullName(name))
+		e.x.NoError(err, name)
+		md := found.(protoreflect.MessageDescriptor)
+		i := slices.IndexFunc(migrate.Tables, func(t *schema.Table) bool { return t.Name == strings.ToLower(string(md.Name())) })
+		e.x.GreaterOrEqual(i, 0, "%s has no table", name)
+		table := migrate.Tables[i]
+		of := func(name string, typ field.Type) bool {
+			return slices.ContainsFunc(table.Columns, func(c *schema.Column) bool { return c.Name == name && c.Type == typ })
+		}
+		// Whose a row is: a workspace's own row is its, and a row of the
+		// deployment's is nobody's here.
+		whose := "tenant_id"
+		if d == pd.TenantDomain {
+			whose = "id"
+		} else if !of(whose, field.TypeUuid) {
+			continue
+		}
+		// What a row points at, besides whose it is.
+		refs := []string{}
+		for _, c := range table.Columns {
+			if c.Type == field.TypeUuid && c.Name != "id" && c.Name != whose {
+				refs = append(refs, c.Name)
+			}
+		}
+
+		fs := md.Fields()
+		for j := range fs.Len() {
+			f := fs.Get(j)
+			if f.Kind() != protoreflect.StringKind || f.IsList() || f.IsMap() || !of(string(f.Name()), field.TypeString) {
+				continue
+			}
+			col := string(f.Name())
+			b := sql.Dialect(drv.Dialect())
+			said := b.Table("event").As("said")
+			q, args := b.Select(append([]string{"id", whose, col}, refs...)...).From(sql.Table(table.Name)).
+				Where(sql.And(
+					sql.NEQ(col, ""),
+					sql.In(col, b.Select(said.C("reason")).From(said).Where(sql.ColumnsEQ(said.C("tenant_id"), sql.Table(table.Name).C(whose)))),
+				)).
+				Query()
+			rows := &sql.Rows{}
+			e.x.NoError(drv.Query(ctx, q, args, rows), "%s.%s", table.Name, col)
+			type kept struct {
+				id, tenant uuid.UUID
+				words      string
+				points     []uuid.UUID
+			}
+			var vs []kept
+			for rows.Next() {
+				var v kept
+				var words string
+				ps := make([]sql.Null[uuid.UUID], len(refs))
+				dst := []any{&v.id, &v.tenant, &words}
+				for k := range ps {
+					dst = append(dst, &ps[k])
+				}
+				e.x.NoError(rows.Scan(dst...), "%s.%s", table.Name, col)
+				v.words = words
+				for _, p := range ps {
+					if p.Valid {
+						v.points = append(v.points, p.V)
+					}
+				}
+				vs = append(vs, v)
+			}
+			e.x.NoError(rows.Err())
+			e.x.NoError(rows.Close())
+
+			for _, v := range vs {
+				evs, err := e.s.Ent.Event.Query().Where(event.TenantId(v.tenant), event.Reason(v.words)).All(ctx)
+				e.x.NoError(err)
+				about := slices.DeleteFunc(evs, func(ev *ent.Event) bool { return !aboutRow(ev, d, v.id, v.points) })
+				if len(about) == 0 {
+					continue
+				}
+				e.x.True(slices.ContainsFunc(about, func(ev *ent.Event) bool { return domain.KeptWhy[ev.Kind] == f.FullName() }),
+					"%s %s says what %s %s says as its reason, and domain.KeptWhy does not pair them: taking the words out would leave them in it", f.FullName(), pdid.Id(v.id), about[0].Kind, pdid.Id(about[0].Id))
+				opts, _ := proto.GetExtension(f.Options(), pdpb.E_Field).(*pdpb.Field)
+				e.x.True(opts.GetPersonal(), "%s keeps what %s says as its reason, and is not declared personal: the trail keeps it", f.FullName(), about[0].Kind)
+			}
+		}
+	}
+}
+
+// aboutRow is whether the event `ev` is about the row `id`, of the domain
+// `d`, which points at `points`: the row is the workspace it is of, or its
+// subject or something its message names is the row or what it points at.
+func aboutRow(ev *ent.Event, d pdid.Domain, id uuid.UUID, points []uuid.UUID) bool {
+	if d == pd.TenantDomain {
+		return ev.TenantId == id
+	}
+	near := append([]uuid.UUID{id}, points...)
+	if ev.SubjectId != nil && slices.Contains(near, *ev.SubjectId) {
+		return true
+	}
+	if ev.Value == nil {
+		return false
+	}
+	m, err := ev.Value.UnmarshalNew()
+	if err != nil {
+		return false
+	}
+	named := false
+	var walk func(m protoreflect.Message)
+	walk = func(m protoreflect.Message) {
+		m.Range(func(f protoreflect.FieldDescriptor, v protoreflect.Value) bool {
+			switch {
+			case f.Kind() == protoreflect.BytesKind && f.IsList():
+				for k := range v.List().Len() {
+					named = named || slices.Contains(near, uuid.UUID(v.List().Get(k).Bytes()))
+				}
+			case f.Kind() == protoreflect.BytesKind && len(v.Bytes()) == 16:
+				named = named || slices.Contains(near, uuid.UUID(v.Bytes()))
+			case f.Kind() == protoreflect.MessageKind && !f.IsList() && !f.IsMap():
+				walk(v.Message())
+			}
+			return !named
+		})
+	}
+	walk(m.ProtoReflect())
+	return named
 }
 
 // newTenant puts up a workspace and its owner the way `rove init` does -- the

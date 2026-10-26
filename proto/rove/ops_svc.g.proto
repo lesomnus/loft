@@ -472,6 +472,7 @@ message AccessReviewSelect {
 
 message AccessReviewPatchRequest {
   AccessReviewRef ref = 1;
+  string desc = 12;
 }
 
 message AccessReviewApplyRequest {

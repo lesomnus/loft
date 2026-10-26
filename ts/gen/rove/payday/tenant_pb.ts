@@ -15,7 +15,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file rove/payday/tenant.proto.
  */
 export const file_rove_payday_tenant: GenFile = /*@__PURE__*/
-  fileDesc("Chhyb3ZlL3BheWRheS90ZW5hbnQucHJvdG8SBHJvdmUirgcKBlRlbmFudBIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASFQoFYWxpYXMYBCABKAlCBuqCFgIwARIMCgRuYW1lGAUgASgJEgwKBGRlc2MYBiABKAkSKAoGbGFiZWxzGAcgAygLMhgucm92ZS5UZW5hbnQuTGFiZWxzRW50cnkSOQoMZGF0ZV91cGRhdGVkGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4oBABI7CgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgnqghYFQAGCAQASNwoLZGF0ZV9jbG9zZWQYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESEQoJY2xvc2VkX2J5GAkgASgJEhQKDGNsb3NlX3JlYXNvbhgKIAEoCRI4CgxkYXRlX2Rlc3Ryb3kYCyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESGQoIdGltZXpvbmUYDCABKAlCB+qCFgOCAQASGQoIY3VycmVuY3kYECABKAlCB+qCFgOCAQASIAoPbm9fc2hvd19taW51dGVzGBEgASgFQgfqghYDggEAEhoKCWtlZXBfZGF5cxgSIAEoDUIH6oIWA4IBABIhChBhY2Nlc3Nfa2VlcF9kYXlzGBMgASgNQgfqghYDggEAEh0KDHJlc3RvcmVfZGF5cxgUIAEoDUIH6oIWA4IBABIhChBrZWVwX2RheXNfYmVmb3JlGBUgASgNQgfqghYDggEAEj8KE2RhdGVfa2VlcF9zaG9ydGVuZWQYFiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESKAoXYWNjZXNzX2tlZXBfZGF5c19iZWZvcmUYFyABKA1CB+qCFgOCAQASRgoaZGF0ZV9hY2Nlc3Nfa2VlcF9zaG9ydGVuZWQYGCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAEaLQoLTGFiZWxzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ATpfyvwVJhICEAEaIBIEcGFnZRoQCgxkYXRlX2NyZWF0ZWQQDxoGCgJpZBABirsWMQgBMiUKEAoOCgxkYXRlX2NyZWF0ZWQKBgoECgJpZBoFCgNyZWYgFChkQgIKAEgBGgBCH1oYZ2l0aHViLmNvbS9sZXNvbW51cy9yb3ZlkgMCCAJiCGVkaXRpb25zcOgH", [file_google_protobuf_timestamp, file_orm, file_payday]);
+  fileDesc("Chhyb3ZlL3BheWRheS90ZW5hbnQucHJvdG8SBHJvdmUiygcKBlRlbmFudBIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASFQoFYWxpYXMYBCABKAlCBuqCFgIwARIMCgRuYW1lGAUgASgJEgwKBGRlc2MYBiABKAkSKAoGbGFiZWxzGAcgAygLMhgucm92ZS5UZW5hbnQuTGFiZWxzRW50cnkSOQoMZGF0ZV91cGRhdGVkGA0gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIH6oIWA4oBABI7CgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgnqghYFQAGCAQASNwoLZGF0ZV9jbG9zZWQYCCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wQgbqghYCOAESGQoJY2xvc2VkX2J5GAkgASgJQgaqwRYCGAASHAoMY2xvc2VfcmVhc29uGAogASgJQgaqwRYCGAESOAoMZGF0ZV9kZXN0cm95GAsgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIG6oIWAjgBEh8KCHRpbWV6b25lGAwgASgJQg3qghYDggEAqsEWAhgAEh8KCGN1cnJlbmN5GBAgASgJQg3qghYDggEAqsEWAhgAEiAKD25vX3Nob3dfbWludXRlcxgRIAEoBUIH6oIWA4IBABIaCglrZWVwX2RheXMYEiABKA1CB+qCFgOCAQASIQoQYWNjZXNzX2tlZXBfZGF5cxgTIAEoDUIH6oIWA4IBABIdCgxyZXN0b3JlX2RheXMYFCABKA1CB+qCFgOCAQASIQoQa2VlcF9kYXlzX2JlZm9yZRgVIAEoDUIH6oIWA4IBABI/ChNkYXRlX2tlZXBfc2hvcnRlbmVkGBYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIG6oIWAjgBEigKF2FjY2Vzc19rZWVwX2RheXNfYmVmb3JlGBcgASgNQgfqghYDggEAEkYKGmRhdGVfYWNjZXNzX2tlZXBfc2hvcnRlbmVkGBggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIG6oIWAjgBGi0KC0xhYmVsc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAE6X8r8FSYSAhABGiASBHBhZ2UaEAoMZGF0ZV9jcmVhdGVkEA8aBgoCaWQQAYq7FjEIATIlChAKDgoMZGF0ZV9jcmVhdGVkCgYKBAoCaWQaBQoDcmVmIBQoZEICCgBIARoAQh9aGGdpdGh1Yi5jb20vbGVzb21udXMvcm92ZZIDAggCYghlZGl0aW9uc3DoBw", [file_google_protobuf_timestamp, file_orm, file_payday]);
 
 /**
  * Tenant is the wall an app is divided by.
@@ -88,14 +88,18 @@ export type Tenant = Message<"rove.Tenant"> & {
   dateClosed?: Timestamp | undefined;
 
   /**
-   * Who closed it -- `owner`, `operator`, or `deployment` when nobody was
-   * left in it -- and why, in their words.
+   * Who closed it: `owner`, `operator`, or `deployment` when nobody was left
+   * in it.
    *
    * @generated from field: string closed_by = 9;
    */
   closedBy: string;
 
   /**
+   * Why, in the words of whoever closed it: what `workspace.close` says as
+   * its reason, and so personal as every reason is (payday#92). Taking that
+   * reason out takes it out of here too (design D56).
+   *
    * @generated from field: string close_reason = 10;
    */
   closeReason: string;

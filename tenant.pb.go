@@ -408,9 +408,12 @@ type Tenant_builder struct {
 	DateCreated *timestamppb.Timestamp
 	// When it was closed. Null is open.
 	DateClosed *timestamppb.Timestamp
-	// Who closed it -- `owner`, `operator`, or `deployment` when nobody was
-	// left in it -- and why, in their words.
-	ClosedBy    string
+	// Who closed it: `owner`, `operator`, or `deployment` when nobody was left
+	// in it.
+	ClosedBy string
+	// Why, in the words of whoever closed it: what `workspace.close` says as
+	// its reason, and so personal as every reason is (payday#92). Taking that
+	// reason out takes it out of here too (design D56).
 	CloseReason string
 	// When a workspace still closed and held by nothing is destroyed: when it
 	// was closed and the restore window (`app.workspaces.restore_within`), or
@@ -496,7 +499,7 @@ var File_rove_payday_tenant_proto protoreflect.FileDescriptor
 
 const file_rove_payday_tenant_proto_rawDesc = "" +
 	"\n" +
-	"\x18rove/payday/tenant.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\"\xbf\t\n" +
+	"\x18rove/payday/tenant.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\"\xdb\t\n" +
 	"\x06Tenant\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12\x1c\n" +
 	"\x05alias\x18\x04 \x01(\tB\x06\xea\x82\x16\x020\x01R\x05alias\x12\x12\n" +
@@ -506,13 +509,13 @@ const file_rove_payday_tenant_proto_rawDesc = "" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12H\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated\x12C\n" +
 	"\vdate_closed\x18\b \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\n" +
-	"dateClosed\x12\x1b\n" +
-	"\tclosed_by\x18\t \x01(\tR\bclosedBy\x12!\n" +
+	"dateClosed\x12#\n" +
+	"\tclosed_by\x18\t \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\bclosedBy\x12)\n" +
 	"\fclose_reason\x18\n" +
-	" \x01(\tR\vcloseReason\x12E\n" +
-	"\fdate_destroy\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\vdateDestroy\x12#\n" +
-	"\btimezone\x18\f \x01(\tB\a\xea\x82\x16\x03\x82\x01\x00R\btimezone\x12#\n" +
-	"\bcurrency\x18\x10 \x01(\tB\a\xea\x82\x16\x03\x82\x01\x00R\bcurrency\x12/\n" +
+	" \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\vcloseReason\x12E\n" +
+	"\fdate_destroy\x18\v \x01(\v2\x1a.google.protobuf.TimestampB\x06\xea\x82\x16\x028\x01R\vdateDestroy\x12)\n" +
+	"\btimezone\x18\f \x01(\tB\r\xea\x82\x16\x03\x82\x01\x00\xaa\xc1\x16\x02\x18\x00R\btimezone\x12)\n" +
+	"\bcurrency\x18\x10 \x01(\tB\r\xea\x82\x16\x03\x82\x01\x00\xaa\xc1\x16\x02\x18\x00R\bcurrency\x12/\n" +
 	"\x0fno_show_minutes\x18\x11 \x01(\x05B\a\xea\x82\x16\x03\x82\x01\x00R\rnoShowMinutes\x12$\n" +
 	"\tkeep_days\x18\x12 \x01(\rB\a\xea\x82\x16\x03\x82\x01\x00R\bkeepDays\x121\n" +
 	"\x10access_keep_days\x18\x13 \x01(\rB\a\xea\x82\x16\x03\x82\x01\x00R\x0eaccessKeepDays\x12*\n" +
