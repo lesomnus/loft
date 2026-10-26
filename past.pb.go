@@ -5499,7 +5499,8 @@ func (b0 WorkspaceRestored_builder) Build() *WorkspaceRestored {
 
 // WorkspaceConfigured is what the workspace's owner said of its own settings
 // (`workspace.configure`, #144, D36): only what was said, and of a window made
-// shorter, from when it is.
+// shorter, from when it is. Its name too: what it is called, which is nobody's
+// (payday#180), or none -- and then it is called after its owner (D57).
 type WorkspaceConfigured struct {
 	state                     protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Timezone       *string                `protobuf:"bytes,3,opt,name=timezone"`
@@ -5510,6 +5511,7 @@ type WorkspaceConfigured struct {
 	xxx_hidden_AccessKeepDays uint32                 `protobuf:"varint,8,opt,name=access_keep_days,json=accessKeepDays"`
 	xxx_hidden_AccessKeepFrom *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=access_keep_from,json=accessKeepFrom"`
 	xxx_hidden_RestoreDays    uint32                 `protobuf:"varint,10,opt,name=restore_days,json=restoreDays"`
+	xxx_hidden_Name           *string                `protobuf:"bytes,21,opt,name=name"`
 	XXX_raceDetectHookData    protoimpl.RaceDetectHookData
 	XXX_presence              [1]uint32
 	unknownFields             protoimpl.UnknownFields
@@ -5603,24 +5605,34 @@ func (x *WorkspaceConfigured) GetRestoreDays() uint32 {
 	return 0
 }
 
+func (x *WorkspaceConfigured) GetName() string {
+	if x != nil {
+		if x.xxx_hidden_Name != nil {
+			return *x.xxx_hidden_Name
+		}
+		return ""
+	}
+	return ""
+}
+
 func (x *WorkspaceConfigured) SetTimezone(v string) {
 	x.xxx_hidden_Timezone = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 8)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 9)
 }
 
 func (x *WorkspaceConfigured) SetCurrency(v string) {
 	x.xxx_hidden_Currency = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 8)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 9)
 }
 
 func (x *WorkspaceConfigured) SetNoShowMinutes(v int32) {
 	x.xxx_hidden_NoShowMinutes = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 8)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 9)
 }
 
 func (x *WorkspaceConfigured) SetKeepDays(v uint32) {
 	x.xxx_hidden_KeepDays = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 8)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 9)
 }
 
 func (x *WorkspaceConfigured) SetKeepFrom(v *timestamppb.Timestamp) {
@@ -5629,7 +5641,7 @@ func (x *WorkspaceConfigured) SetKeepFrom(v *timestamppb.Timestamp) {
 
 func (x *WorkspaceConfigured) SetAccessKeepDays(v uint32) {
 	x.xxx_hidden_AccessKeepDays = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 8)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 9)
 }
 
 func (x *WorkspaceConfigured) SetAccessKeepFrom(v *timestamppb.Timestamp) {
@@ -5638,7 +5650,12 @@ func (x *WorkspaceConfigured) SetAccessKeepFrom(v *timestamppb.Timestamp) {
 
 func (x *WorkspaceConfigured) SetRestoreDays(v uint32) {
 	x.xxx_hidden_RestoreDays = v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 8)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 7, 9)
+}
+
+func (x *WorkspaceConfigured) SetName(v string) {
+	x.xxx_hidden_Name = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 8, 9)
 }
 
 func (x *WorkspaceConfigured) HasTimezone() bool {
@@ -5697,6 +5714,13 @@ func (x *WorkspaceConfigured) HasRestoreDays() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 7)
 }
 
+func (x *WorkspaceConfigured) HasName() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 8)
+}
+
 func (x *WorkspaceConfigured) ClearTimezone() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
 	x.xxx_hidden_Timezone = nil
@@ -5735,6 +5759,11 @@ func (x *WorkspaceConfigured) ClearRestoreDays() {
 	x.xxx_hidden_RestoreDays = 0
 }
 
+func (x *WorkspaceConfigured) ClearName() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 8)
+	x.xxx_hidden_Name = nil
+}
+
 type WorkspaceConfigured_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
@@ -5746,6 +5775,7 @@ type WorkspaceConfigured_builder struct {
 	AccessKeepDays *uint32
 	AccessKeepFrom *timestamppb.Timestamp
 	RestoreDays    *uint32
+	Name           *string
 }
 
 func (b0 WorkspaceConfigured_builder) Build() *WorkspaceConfigured {
@@ -5753,30 +5783,34 @@ func (b0 WorkspaceConfigured_builder) Build() *WorkspaceConfigured {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.Timezone != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 8)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 9)
 		x.xxx_hidden_Timezone = b.Timezone
 	}
 	if b.Currency != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 8)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 9)
 		x.xxx_hidden_Currency = b.Currency
 	}
 	if b.NoShowMinutes != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 8)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 9)
 		x.xxx_hidden_NoShowMinutes = *b.NoShowMinutes
 	}
 	if b.KeepDays != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 8)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 9)
 		x.xxx_hidden_KeepDays = *b.KeepDays
 	}
 	x.xxx_hidden_KeepFrom = b.KeepFrom
 	if b.AccessKeepDays != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 8)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 9)
 		x.xxx_hidden_AccessKeepDays = *b.AccessKeepDays
 	}
 	x.xxx_hidden_AccessKeepFrom = b.AccessKeepFrom
 	if b.RestoreDays != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 8)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 7, 9)
 		x.xxx_hidden_RestoreDays = *b.RestoreDays
+	}
+	if b.Name != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 8, 9)
+		x.xxx_hidden_Name = b.Name
 	}
 	return m0
 }
@@ -6967,7 +7001,7 @@ const file_rove_past_proto_rawDesc = "" +
 	"\x0fworkspace.close\"<\n" +
 	"\x11WorkspaceRestored\x12\x0e\n" +
 	"\x02by\x18\x01 \x01(\tR\x02by:\x17\x92\xbb\x16\x13\n" +
-	"\x11workspace.restore\"\xa3\x03\n" +
+	"\x11workspace.restore\"\xbe\x03\n" +
 	"\x13WorkspaceConfigured\x12!\n" +
 	"\btimezone\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x01R\btimezone\x12!\n" +
 	"\bcurrency\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x01R\bcurrency\x12-\n" +
@@ -6977,7 +7011,8 @@ const file_rove_past_proto_rawDesc = "" +
 	"\x10access_keep_days\x18\b \x01(\rB\x05\xaa\x01\x02\b\x01R\x0eaccessKeepDays\x12D\n" +
 	"\x10access_keep_from\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\x0eaccessKeepFrom\x12(\n" +
 	"\frestore_days\x18\n" +
-	" \x01(\rB\x05\xaa\x01\x02\b\x01R\vrestoreDays:\x19\x92\xbb\x16\x15\n" +
+	" \x01(\rB\x05\xaa\x01\x02\b\x01R\vrestoreDays\x12\x19\n" +
+	"\x04name\x18\x15 \x01(\tB\x05\xaa\x01\x02\b\x01R\x04name:\x19\x92\xbb\x16\x15\n" +
 	"\x13workspace.configure\"\xa5\x03\n" +
 	"\x11WorkspaceImported\x12;\n" +
 	"\vexported_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\n" +

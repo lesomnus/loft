@@ -249,6 +249,7 @@ option (payday.app) = {
 //   18  unlinked       uint32                     -- how many rows were put back unlinked from what this deployment has
 //   19  reopened       bool                       -- it was put back open
 //   20  left           map<string, uint32>        -- what of each kind was left as this deployment had it
+//   21  name           string                     -- what it is called from then on; empty for no name of its own, and then after its owner
 //
 // access.* holds, by number:
 //
@@ -992,7 +993,8 @@ message WorkspaceRestored {
 
 // WorkspaceConfigured is what the workspace's owner said of its own settings
 // (`workspace.configure`, #144, D36): only what was said, and of a window made
-// shorter, from when it is.
+// shorter, from when it is. Its name too: what it is called, which is nobody's
+// (payday#180), or none -- and then it is called after its owner (D57).
 message WorkspaceConfigured {
   option (payday.event) = {kinds: "workspace.configure"};
 
@@ -1004,6 +1006,7 @@ message WorkspaceConfigured {
   uint32 access_keep_days = 8 [features.field_presence = EXPLICIT];
   google.protobuf.Timestamp access_keep_from = 9;
   uint32 restore_days = 10 [features.field_presence = EXPLICIT];
+  string name = 21 [features.field_presence = EXPLICIT];
 }
 
 // WorkspaceImported is a workspace put back from an export by an operator
