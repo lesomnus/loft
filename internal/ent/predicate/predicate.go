@@ -170,6 +170,9 @@ type Stock func(*sql.Selector)
 // StockMovement is the predicate function for stockmovement builders.
 type StockMovement func(*sql.Selector)
 
+// TagCounter is the predicate function for tagcounter builders.
+type TagCounter func(*sql.Selector)
+
 // Tenant is the predicate function for tenant builders.
 type Tenant func(*sql.Selector)
 

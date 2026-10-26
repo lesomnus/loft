@@ -50,6 +50,7 @@ import (
 	stewardship "github.com/lesomnus/rove/internal/ent/stewardship"
 	stock "github.com/lesomnus/rove/internal/ent/stock"
 	stockmovement "github.com/lesomnus/rove/internal/ent/stockmovement"
+	tagcounter "github.com/lesomnus/rove/internal/ent/tagcounter"
 	tenant "github.com/lesomnus/rove/internal/ent/tenant"
 	tenantcontract "github.com/lesomnus/rove/internal/ent/tenantcontract"
 	tenantdomain "github.com/lesomnus/rove/internal/ent/tenantdomain"
@@ -417,6 +418,7 @@ type Scope interface {
 	HandoffScope(ctx context.Context) (predicate.Handoff, error)
 	AssetScope(ctx context.Context) (predicate.Asset, error)
 	TreeLockScope(ctx context.Context) (predicate.TreeLock, error)
+	TagCounterScope(ctx context.Context) (predicate.TagCounter, error)
 	TenantDomainScope(ctx context.Context) (predicate.TenantDomain, error)
 	LabelScope(ctx context.Context) (predicate.Label, error)
 	AttachmentScope(ctx context.Context) (predicate.Attachment, error)
@@ -500,6 +502,9 @@ func (Unscoped) AssetScope(_ context.Context) (predicate.Asset, error) {
 	return nil, nil
 }
 func (Unscoped) TreeLockScope(_ context.Context) (predicate.TreeLock, error) {
+	return nil, nil
+}
+func (Unscoped) TagCounterScope(_ context.Context) (predicate.TagCounter, error) {
 	return nil, nil
 }
 func (Unscoped) TenantDomainScope(_ context.Context) (predicate.TenantDomain, error) {
@@ -876,6 +881,26 @@ func (ss Scopes) TreeLockScope(ctx context.Context) (predicate.TreeLock, error) 
 	}
 
 	return treelock.And(ps...), nil
+}
+
+func (ss Scopes) TagCounterScope(ctx context.Context) (predicate.TagCounter, error) {
+	ps := make([]predicate.TagCounter, 0, len(ss))
+	for _, s := range ss {
+		p, err := s.TagCounterScope(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if p == nil {
+			continue
+		}
+
+		ps = append(ps, p)
+	}
+	if len(ps) == 0 {
+		return nil, nil
+	}
+
+	return tagcounter.And(ps...), nil
 }
 
 func (ss Scopes) TenantDomainScope(ctx context.Context) (predicate.TenantDomain, error) {
@@ -1714,6 +1739,9 @@ func (s Server) SignInFailure() rove.SignInFailureServiceServer {
 func (s Server) Handoff() rove.HandoffServiceServer   { return HandoffServiceServer{Store: s.Store} }
 func (s Server) Asset() rove.AssetServiceServer       { return AssetServiceServer{Store: s.Store} }
 func (s Server) TreeLock() rove.TreeLockServiceServer { return TreeLockServiceServer{Store: s.Store} }
+func (s Server) TagCounter() rove.TagCounterServiceServer {
+	return TagCounterServiceServer{Store: s.Store}
+}
 func (s Server) TenantDomain() rove.TenantDomainServiceServer {
 	return TenantDomainServiceServer{Store: s.Store}
 }

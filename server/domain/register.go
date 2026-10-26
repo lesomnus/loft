@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"maps"
 	"slices"
 	"strings"
 	"time"
@@ -74,6 +75,9 @@ func (s domainAsset) AddMany(ctx context.Context, req *app.AssetAddManyRequest) 
 		if err != nil {
 			return nil, err
 		}
+		if err := in.giveTags(t, false); err != nil {
+			return nil, err
+		}
 		return in.answer(), nil
 	}
 
@@ -112,6 +116,9 @@ func (s domainAsset) AddMany(ctx context.Context, req *app.AssetAddManyRequest) 
 type intake struct {
 	rows   []*intakeRow
 	issues []*app.AssetAddManyIssue
+
+	// given is the tags the rows give, by the first row giving each.
+	given map[string]int
 
 	// What the rows name, each looked up once: by `id:` or `name:`.
 	types  map[string]*pick
@@ -170,9 +177,12 @@ func (in *intake) issue(i int, field, format string, args ...any) {
 	}.Build())
 }
 
-// intake reads and checks `items`, writing nothing.
+// intake reads and checks `items`, writing nothing. The tags it makes up for
+// the rows that give none are made up when they are written, or by a dry run
+// that says what they would be ([intake.giveTags]).
 func (t *Tx) intake(items []*app.AssetAddRequest, op []byte) (*intake, error) {
 	in := &intake{
+		given:  map[string]int{},
 		types:  map[string]*pick{},
 		models: map[string]*pick{},
 		places: map[string]*app.Asset{},
@@ -181,7 +191,7 @@ func (t *Tx) intake(items []*app.AssetAddRequest, op []byte) (*intake, error) {
 		return nil, err
 	}
 
-	given := map[string]int{}
+	given := in.given
 	for i, item := range items {
 		r := &intakeRow{item: item}
 		in.rows = append(in.rows, r)
@@ -304,9 +314,6 @@ func (t *Tx) intake(items []*app.AssetAddRequest, op []byte) (*intake, error) {
 		return nil, err
 	}
 	if err := in.checkSlots(t); err != nil {
-		return nil, err
-	}
-	if err := in.giveTags(t, given); err != nil {
 		return nil, err
 	}
 
@@ -516,24 +523,38 @@ func (in *intake) checkSlots(t *Tx) error {
 	return nil
 }
 
-// giveTags makes up a tag for each row that has none, as Add does -- a letter
-// for its kind and the next number the tenant has not used -- asking for them
-// a kind at a time rather than a row at a time.
-func (in *intake) giveTags(t *Tx, given map[string]int) error {
+// giveTags makes up a tag for each row that has none, as Add does
+// ([Tx.makeUpTags]), a prefix at a time rather than a row at a time. Written
+// (`hold`), the rows' counters are held first -- those of the tags given that
+// a counter could have made up as well ([Tx.writesTags]) -- a statement each,
+// however many rows there are; a dry run holds nothing, and says what would be
+// made up now.
+func (in *intake) giveTags(t *Tx, hold bool) error {
 	wants := map[string][]*intakeRow{}
-	kinds := []string{}
 	for _, r := range in.rows {
 		if r.tag != "" {
 			continue
 		}
-		if _, ok := wants[r.kind]; !ok {
-			kinds = append(kinds, r.kind)
-		}
-		wants[r.kind] = append(wants[r.kind], r)
+		p := tagPrefix(r.kind)
+		wants[p] = append(wants[p], r)
 	}
-	for _, kind := range kinds {
-		rows := wants[kind]
-		tags, err := t.nextTags(kind, len(rows), given)
+
+	held := map[string]*ent.TagCounter{}
+	if hold {
+		ps := slices.Collect(maps.Keys(wants))
+		for tag := range in.given {
+			if p, ok := madeUpPrefix(tag); ok {
+				ps = append(ps, p)
+			}
+		}
+		var err error
+		if held, err = t.holdTags(ps...); err != nil {
+			return err
+		}
+	}
+	for _, p := range slices.Sorted(maps.Keys(wants)) {
+		rows := wants[p]
+		tags, err := t.makeUpTags(p, held[p], len(rows), in.given)
 		if err != nil {
 			return err
 		}
@@ -542,42 +563,6 @@ func (in *intake) giveTags(t *Tx, given map[string]int) error {
 		}
 	}
 	return nil
-}
-
-// nextTags is [Tx.nextTag] for `n` assets at once: the numbers after the
-// tenant's count of the prefix that neither a live asset nor `taken` holds.
-func (t *Tx) nextTags(kind string, n int, taken map[string]int) ([]string, error) {
-	prefix := or(map[string]string{"item": "A", "space": "S", "kit": "K", "group": "G"}[kind], "A")
-	count, err := t.db.Asset.Query().Where(asset.TenantId(t.tenant.Uuid()), asset.TagHasPrefix(prefix+"-")).Count(t.ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	out := make([]string, 0, n)
-	next := count + 1
-	for len(out) < n {
-		want := make([]string, 0, n-len(out))
-		for len(want) < n-len(out) {
-			tag := fmt.Sprintf("%s-%05d", prefix, next)
-			next++
-			if _, ok := taken[tag]; !ok {
-				want = append(want, tag)
-			}
-		}
-		here, err := t.db.Asset.Query().
-			Where(asset.TenantId(t.tenant.Uuid()), asset.TagIn(want...), asset.DateErasedIsNil()).
-			Select(asset.FieldTag).
-			Strings(t.ctx)
-		if err != nil {
-			return nil, err
-		}
-		for _, tag := range want {
-			if !slices.Contains(here, tag) {
-				out = append(out, tag)
-			}
-		}
-	}
-	return out, nil
 }
 
 // answer is what a dry run says.
@@ -688,6 +673,12 @@ func (t *Tx) makeAssets(in *intake, reason string) ([]*app.Asset, error) {
 	parent := t.op
 	if parent == nil {
 		return nil, status.Errorf(codes.Internal, "domain: assets made outside an operation, which records no event for them")
+	}
+
+	// The tags nobody gave, made up as they are written: their counters held
+	// until the operation ends, so that nothing else makes up the same ones.
+	if err := in.giveTags(t, true); err != nil {
+		return nil, err
 	}
 
 	// The types and models it makes, first: the assets point at them. Each

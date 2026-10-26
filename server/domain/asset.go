@@ -172,9 +172,12 @@ func (s domainAsset) Add(ctx context.Context, req *app.AssetAddRequest) (*app.As
 
 		tag := strings.TrimSpace(row.GetTag())
 		if tag == "" {
-			if tag, err = t.nextTag(row.GetKind()); err != nil {
-				return err
-			}
+			tag, err = t.nextTag(row.GetKind())
+		} else {
+			err = t.writesTags(tag)
+		}
+		if err != nil {
+			return err
 		}
 		row.SetTag(tag)
 
@@ -243,26 +246,6 @@ func (s domainAsset) Add(ctx context.Context, req *app.AssetAddRequest) (*app.As
 		return s.AssetServiceServer.Get(ctx, app.AssetGetRequest_builder{Ref: app.AssetRef_builder{Id: named}.Build(), Select: allAsset}.Build())
 	}
 	return out, err
-}
-
-// nextTag makes up a tag for an asset nobody gave one: a letter for its kind
-// and the next number the tenant has not used.
-func (t *Tx) nextTag(kind string) (string, error) {
-	prefix := map[string]string{"item": "A", "space": "S", "kit": "K", "group": "G"}[kind]
-	n, err := t.db.Asset.Query().Where(asset.TenantId(t.tenant.Uuid()), asset.TagHasPrefix(prefix+"-")).Count(t.ctx)
-	if err != nil {
-		return "", err
-	}
-	for i := n + 1; ; i++ {
-		tag := fmt.Sprintf("%s-%05d", prefix, i)
-		taken, err := t.db.Asset.Query().Where(asset.TenantId(t.tenant.Uuid()), asset.Tag(tag), asset.DateErasedIsNil()).Exist(t.ctx)
-		if err != nil {
-			return "", err
-		}
-		if !taken {
-			return tag, nil
-		}
-	}
 }
 
 // canHold says whether `parent` may physically hold an asset of `kind`: a
@@ -1054,6 +1037,9 @@ func (t *Tx) sync(id uuid.UUID) (*app.Asset, error) {
 		req.SetSerial(v)
 	}
 	if v := f["tag"]; v != "" && v != cur.Tag {
+		if err := t.writesTags(v); err != nil {
+			return nil, err
+		}
 		req.SetTag(v)
 	}
 	if v, ok := f["type"]; ok {

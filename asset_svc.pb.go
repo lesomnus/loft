@@ -16045,7 +16045,8 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\tReadSheet\x12\x1b.rove.AssetReadSheetRequest\x1a\x1c.rove.AssetReadSheetResponse\x12=\n" +
 	"\x06Census\x12\x18.rove.AssetCensusRequest\x1a\x19.rove.AssetCensusResponse\x12C\n" +
 	"\fExportCensus\x12\x18.rove.AssetCensusRequest\x1a\x19.rove.AssetExportResponse2\x11\n" +
-	"\x0fTreeLockService2\xe3\x05\n" +
+	"\x0fTreeLockService2\x13\n" +
+	"\x11TagCounterService2\xe3\x05\n" +
 	"\x13TenantDomainService\x127\n" +
 	"\x03Add\x12\x1c.rove.TenantDomainAddRequest\x1a\x12.rove.TenantDomain\x127\n" +
 	"\x03Get\x12\x1c.rove.TenantDomainGetRequest\x1a\x12.rove.TenantDomain\x12;\n" +
@@ -16523,7 +16524,7 @@ func file_rove_asset_svc_g_proto_init() {
 			NumEnums:      0,
 			NumMessages:   111,
 			NumExtensions: 0,
-			NumServices:   5,
+			NumServices:   6,
 		},
 		GoTypes:           file_rove_asset_svc_g_proto_goTypes,
 		DependencyIndexes: file_rove_asset_svc_g_proto_depIdxs,

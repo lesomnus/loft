@@ -92,6 +92,8 @@ type Tx struct {
 	Stock *StockClient
 	// StockMovement is the client for interacting with the StockMovement builders.
 	StockMovement *StockMovementClient
+	// TagCounter is the client for interacting with the TagCounter builders.
+	TagCounter *TagCounterClient
 	// Tenant is the client for interacting with the Tenant builders.
 	Tenant *TenantClient
 	// TenantContract is the client for interacting with the TenantContract builders.
@@ -273,6 +275,7 @@ func (tx *Tx) init() {
 	tx.Stewardship = NewStewardshipClient(tx.config)
 	tx.Stock = NewStockClient(tx.config)
 	tx.StockMovement = NewStockMovementClient(tx.config)
+	tx.TagCounter = NewTagCounterClient(tx.config)
 	tx.Tenant = NewTenantClient(tx.config)
 	tx.TenantContract = NewTenantContractClient(tx.config)
 	tx.TenantDomain = NewTenantDomainClient(tx.config)

@@ -143,6 +143,50 @@ func (TreeLock) Annotations() []schema.Annotation {
 	}
 }
 
+type TagCounter struct {
+	ent.Schema
+}
+
+func (TagCounter) Fields() []ent.Field {
+	return []ent.Field{
+		field.Uuid("id").
+			Unique().
+			Immutable(),
+		field.String("prefix"),
+		field.Uint64("last"),
+		field.Time("date_updated"),
+		field.Time("date_created").
+			Immutable().
+			Optional(),
+		field.Uuid("tenant_id").
+			Immutable(),
+	}
+}
+
+func (TagCounter) Edges() []ent.Edge {
+	return []ent.Edge{
+		edge.To("tenant", Tenant.Type).
+			Unique().
+			Field("tenant_id").
+			Required().
+			Immutable(),
+	}
+}
+
+func (TagCounter) Indexes() []ent.Index {
+	return []ent.Index{
+		index.Fields("tenant_id", "prefix").
+			StorageKey("tagcounter_prefix").
+			Unique(),
+	}
+}
+
+func (TagCounter) Annotations() []schema.Annotation {
+	return []schema.Annotation{
+		entsql.Annotation{Table: "tagcounter"},
+	}
+}
+
 type TenantDomain struct {
 	ent.Schema
 }

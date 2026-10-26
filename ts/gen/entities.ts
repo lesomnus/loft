@@ -18,7 +18,7 @@ import { AccessReviewSchema, LegalHoldSchema, NotificationSchema, TenantContract
 import { AliasHoldSchema, CliLoginSchema, HandoffSchema, InvitationSchema, PartySchema, SessionSchema, SignInFailureSchema } from './rove/org_pb.js'
 import { AllocationSchema, BookableSchema, ReservationSchema, ReservationItemSchema } from './rove/booking_pb.js'
 import { ArchivedSchema } from './rove/payday/archived_pb.js'
-import { AssetSchema, AttachmentSchema, LabelSchema, TenantDomainSchema, TreeLockSchema } from './rove/asset_pb.js'
+import { AssetSchema, AttachmentSchema, LabelSchema, TagCounterSchema, TenantDomainSchema, TreeLockSchema } from './rove/asset_pb.js'
 import { AssetTypeSchema, ItemModelSchema } from './rove/catalog_pb.js'
 import { AuditSchema } from './rove/payday/audit_pb.js'
 import { CountFindingSchema, InventoryCountSchema } from './rove/count_pb.js'
@@ -39,7 +39,7 @@ import { AccessReviewService, LegalHoldService, NotificationService, TenantContr
 import { AliasHoldService, CliLoginService, HandoffService, InvitationService, PartyService, SessionService, SignInFailureService } from './rove/org_svc_pb.js'
 import { AllocationService, BookableService, ReservationService, ReservationItemService } from './rove/booking_svc_pb.js'
 import { ArchivedService } from './rove/payday/archived_svc_pb.js'
-import { AssetService, AttachmentService, LabelService, TenantDomainService, TreeLockService } from './rove/asset_svc_pb.js'
+import { AssetService, AttachmentService, LabelService, TagCounterService, TenantDomainService, TreeLockService } from './rove/asset_svc_pb.js'
 import { AssetTypeService, ItemModelService } from './rove/catalog_svc_pb.js'
 import { AuditService } from './rove/payday/audit_svc_pb.js'
 import { CountFindingService, InventoryCountService } from './rove/count_svc_pb.js'
@@ -520,6 +520,18 @@ export const StockMovement = {
 	service: StockMovementService,
 } as const satisfies EntityDesc
 
+/** rove.TagCounter, as the store holds it. */
+export const TagCounter = {
+	typeName: "rove.TagCounter",
+	schema: TagCounterSchema,
+	domain: 49,
+	version: "dateUpdated",
+	refs: [{ field: "tenant", to: "rove.Tenant" }],
+	key: "id",
+	ids: ["id"],
+	service: TagCounterService,
+} as const satisfies EntityDesc
+
 /** rove.Tenant, as the store holds it. */
 export const Tenant = {
 	typeName: "rove.Tenant",
@@ -580,5 +592,5 @@ export const WorkOrder = {
 } as const satisfies EntityDesc
 
 /** Every entity of this app, which is what a store is opened over. */
-export const entities = [Access, AccessReview, AliasHold, Allocation, Archived, Asset, AssetType, Attachment, Audit, Bookable, CliLogin, CountFinding, Custody, CustodyLine, Event, Fact, Handoff, Holder, InventoryCount, Invitation, ItemModel, Label, LegalHold, Link, Notification, Outbox, Owed, Party, Placement, Purchase, PurchaseLine, Reservation, ReservationItem, RowSeal, SearchStale, Session, SignInFailure, Stewardship, Stock, StockMovement, Tenant, TenantContract, TenantDomain, TreeLock, WorkOrder] as const
+export const entities = [Access, AccessReview, AliasHold, Allocation, Archived, Asset, AssetType, Attachment, Audit, Bookable, CliLogin, CountFinding, Custody, CustodyLine, Event, Fact, Handoff, Holder, InventoryCount, Invitation, ItemModel, Label, LegalHold, Link, Notification, Outbox, Owed, Party, Placement, Purchase, PurchaseLine, Reservation, ReservationItem, RowSeal, SearchStale, Session, SignInFailure, Stewardship, Stock, StockMovement, TagCounter, Tenant, TenantContract, TenantDomain, TreeLock, WorkOrder] as const
 
