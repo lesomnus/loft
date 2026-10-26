@@ -39,6 +39,10 @@ type namer struct {
 	// model by theirs.
 	assets, parties, holders, members, kinds, models map[uuid.UUID]called
 
+	// listed is each person record as a list of people names it, told apart
+	// from whoever else goes by its name ([namer.readApart]).
+	listed map[uuid.UUID]called
+
 	// labels is what each asset's type calls its attributes, by the asset:
 	// what a sentence that names one of them says ([namer.attribute]).
 	labels map[uuid.UUID]map[string]string
@@ -126,74 +130,94 @@ func (n *namer) whose(id uuid.UUID) []access.Subject {
 	return []access.Subject{{Id: pdid.Id(id), Tenant: n.t.tenant}}
 }
 
-// readParties reads at once the person records an answer names many of -- a
-// report of who has what -- so that saying each ([namer.party]) reads none of
-// them again: the same rows, off the caller's tenant, as each read by itself
-// would be, a few hundred to a statement.
-func (n *namer) readParties(ids []uuid.UUID) error {
-	if n.parties == nil {
-		n.parties = map[uuid.UUID]called{}
+// readApart reads at once the person records an answer lists -- who has what
+// is out, who a booking is for, who has each asset of the register -- so that
+// naming each in it ([namer.apart]) reads none of them again, a few hundred
+// to a statement. A list names each by its name, and, where another record
+// of the workspace goes by the same name, with what tells them apart and is
+// never how either is reached (D50, D54). That is what the page tells them
+// apart by where it lists them (`PartySelect`, the people screen): the team
+// the record is in; then, where another of the name is in a team of that
+// name too, its 사번 (`code`); and, where neither tells them apart, its
+// identifier. A team's name is as personal as a person's, so saying it shows
+// the team too.
+//
+// What it reads is the records it is asked for, every other that goes by one
+// of their names -- whoever a reader might take one of them for -- and the
+// teams of the records that share a name.
+func (n *namer) readApart(ids []uuid.UUID) error {
+	if n.listed == nil {
+		n.listed = map[uuid.UUID]called{}
 	}
+	tid := n.t.tenant.Uuid()
 	need := []uuid.UUID{}
-	for _, id := range ids {
-		if _, ok := n.parties[id]; ok || id == (uuid.UUID{}) {
+	for _, id := range slices.Compact(sortedIds(ids)) {
+		if _, ok := n.listed[id]; ok {
 			continue
 		}
 		// None, unless it is read below.
-		n.parties[id] = called{}
+		n.listed[id] = called{}
 		need = append(need, id)
 	}
+	names := []string{}
 	for some := range slices.Chunk(need, 500) {
 		ps, err := n.t.db.Party.Query().
-			Where(party.TenantId(n.t.tenant.Uuid()), party.IdIn(some...)).
+			Where(party.TenantId(tid), party.IdIn(some...)).
 			Select(party.FieldId, party.FieldName).
 			All(n.t.ctx)
 		if err != nil {
 			return err
 		}
 		for _, p := range ps {
-			n.parties[p.Id] = called{found: true, name: p.Name, saw: n.whose(p.Id)}
+			names = append(names, p.Name)
 		}
 	}
-	return nil
-}
-
-// readApart reads every person record of the workspace at once, for a file
-// that names many of them and is kept wherever it is taken -- the register --
-// and calls each as [namer.party] then says it: by its name, and, where
-// another record goes by the same name, with what tells them apart and is
-// never how either is reached. That is what the page tells them apart by
-// where it lists them (`PartySelect`, the people screen): the team the record
-// is in; then, where another of the name is in a team of that name too, its
-// 사번 (`code`); and, where neither tells them apart, its identifier. A
-// team's name is as personal as a person's, so saying it shows the team too.
-func (n *namer) readApart() error {
-	ps, err := n.t.db.Party.Query().
-		Where(party.TenantId(n.t.tenant.Uuid())).
-		Select(party.FieldId, party.FieldName, party.FieldParentId, party.FieldCode).
-		All(n.t.ctx)
-	if err != nil {
-		return err
-	}
-	if n.parties == nil {
-		n.parties = map[uuid.UUID]called{}
-	}
-	byId := make(map[uuid.UUID]*ent.Party, len(ps))
+	slices.Sort(names)
 	byName := map[string][]*ent.Party{}
-	for _, p := range ps {
-		byId[p.Id] = p
-		byName[p.Name] = append(byName[p.Name], p)
+	for some := range slices.Chunk(slices.Compact(names), 500) {
+		ps, err := n.t.db.Party.Query().
+			Where(party.TenantId(tid), party.NameIn(some...)).
+			Select(party.FieldId, party.FieldName, party.FieldParentId, party.FieldCode).
+			All(n.t.ctx)
+		if err != nil {
+			return err
+		}
+		for _, p := range ps {
+			byName[p.Name] = append(byName[p.Name], p)
+		}
 	}
+
 	// The team a record is in, by a name: none for one in no team, or in one
-	// that is not there or has none.
+	// that is not there or has none. Only a record that shares its name is
+	// told apart by its team, so only theirs are read.
+	ups := []uuid.UUID{}
+	for _, same := range byName {
+		for _, p := range same {
+			if len(same) > 1 && p.ParentId != nil {
+				ups = append(ups, *p.ParentId)
+			}
+		}
+	}
+	teams := map[uuid.UUID]*ent.Party{}
+	for some := range slices.Chunk(slices.Compact(sortedIds(ups)), 500) {
+		ps, err := n.t.db.Party.Query().
+			Where(party.TenantId(tid), party.IdIn(some...)).
+			Select(party.FieldId, party.FieldName).
+			All(n.t.ctx)
+		if err != nil {
+			return err
+		}
+		for _, p := range ps {
+			if p.Name != "" {
+				teams[p.Id] = p
+			}
+		}
+	}
 	team := func(p *ent.Party) *ent.Party {
 		if p.ParentId == nil {
 			return nil
 		}
-		if v := byId[*p.ParentId]; v != nil && v.Name != "" {
-			return v
-		}
-		return nil
+		return teams[*p.ParentId]
 	}
 	teamName := func(p *ent.Party) string {
 		if v := team(p); v != nil {
@@ -201,6 +225,10 @@ func (n *namer) readApart() error {
 		}
 		return ""
 	}
+
+	// Every record read is called as the list calls it: a namesake read to
+	// tell the others apart is told apart from them as well, by the same
+	// records.
 	for _, same := range byName {
 		for _, p := range same {
 			v := called{found: true, name: p.Name, saw: n.whose(p.Id)}
@@ -229,10 +257,22 @@ func (n *namer) readApart() error {
 				}
 				v.name = strings.Join(words, " · ")
 			}
-			n.parties[p.Id] = v
+			n.listed[p.Id] = v
 		}
 	}
 	return nil
+}
+
+// apart is the person record `id` as a list of people names it
+// ([namer.readApart]): read by itself, with whoever goes by its name, when
+// the answer did not read it with the rest.
+func (n *namer) apart(id uuid.UUID) string {
+	if _, ok := n.listed[id]; !ok {
+		if err := n.readApart([]uuid.UUID{id}); err != nil {
+			n.listed[id] = called{err: err}
+		}
+	}
+	return n.show(n.listed[id])
 }
 
 func (n *namer) asset(id uuid.UUID) string { return n.show(n.look(n.t.ctx, &n.assets, id, n.ofAsset)) }

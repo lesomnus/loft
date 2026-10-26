@@ -207,7 +207,7 @@ function WorkDialog(props: { w: WorkOrder; onClose: () => void }): ReactNode {
 						['일정', w.beginsAt !== undefined ? `${fmt(w.beginsAt)}${w.endsAt !== undefined ? ` – ${fmt(w.endsAt)}` : ''}` : '-'],
 						['예약 막음', w.blocking ? '예' : '아니오'],
 						['반복', w.everyDays > 0 ? `${w.everyDays}일마다` : '-'],
-						['업체', c.party(w.vendor?.id)?.name ?? '-'],
+						['업체', c.called(w.vendor?.id) || '-'],
 						['비용', w.cost > 0n ? money(w.cost, w.currency) : '-'],
 						['완료', fmt(w.completedAt)],
 						['접수', fmt(w.dateCreated)],

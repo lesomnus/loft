@@ -314,6 +314,7 @@ var EventKinds = map[string]protoreflect.MessageType{
 	"custody.acknowledge":  (*rove.CustodyAcknowledged)(nil).ProtoReflect().Type(),
 	"custody.extend":       (*rove.CustodyExtended)(nil).ProtoReflect().Type(),
 	"custody.issue":        (*rove.CustodyIssued)(nil).ProtoReflect().Type(),
+	"custody.overdue":      (*rove.CustodyOverdue)(nil).ProtoReflect().Type(),
 	"custody.return":       (*rove.CustodyReturned)(nil).ProtoReflect().Type(),
 	"domain.activate":      (*rove.TenantDomainActivated)(nil).ProtoReflect().Type(),
 	"domain.add":           (*rove.TenantDomainAdded)(nil).ProtoReflect().Type(),
