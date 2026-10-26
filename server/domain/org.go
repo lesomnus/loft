@@ -9,6 +9,7 @@ import (
 	"time"
 	"uuid"
 
+	"github.com/lesomnus/payday/access"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/slug"
 	"github.com/lesomnus/z"
@@ -99,6 +100,12 @@ func (s domainParty) Me(ctx context.Context, _ *app.PartyMeRequest) (*app.PartyM
 	if err != nil {
 		return nil, err
 	}
+	// What it is called, which for one with no name of its own is after its
+	// owner (D57): their name, shown.
+	called, err := t.workspaceName()
+	if err != nil {
+		return nil, err
+	}
 	out := app.PartyMeResponse_builder{
 		Holder:        h,
 		Tenant:        tn,
@@ -108,7 +115,9 @@ func (s domainParty) Me(ctx context.Context, _ *app.PartyMeRequest) (*app.PartyM
 		Currency:      t.settings().currency,
 		RestoreDays:   uint32(t.restoreWithin() / (24 * time.Hour)),
 		AliasHoldDays: uint32(s.deps.aliasHold() / (24 * time.Hour)),
+		WorkspaceName: called.Said,
 	}.Build()
+	access.Saw(ctx, called.Saw...)
 	if s.deps.People != nil {
 		out.SetAccountUrl(s.deps.People.AccountPage())
 	}

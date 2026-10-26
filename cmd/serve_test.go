@@ -488,7 +488,8 @@ func TestAnAccountInNoWorkspaceIsGivenOne(t *testing.T) {
 	me, err := app.NewPartyServiceClient(w.conn).Me(md, &app.PartyMeRequest{})
 	x.NoError(err, "the workspace it was given")
 	x.Equal("owner", me.GetRole())
-	x.Equal("박의 워크스페이스", me.GetTenant().GetName())
+	x.Empty(me.GetTenant().GetName(), "a workspace named after its person (D57)")
+	x.Equal("박의 워크스페이스", me.GetWorkspaceName())
 	types, err := app.NewAssetTypeServiceClient(w.conn).List(md, app.AssetTypeListRequest_builder{}.Build())
 	x.NoError(err)
 	x.NotEmpty(types.GetItems(), "a workspace that does not start with what a register starts with")
@@ -517,6 +518,7 @@ func TestAnAccountInNoWorkspaceIsGivenOne(t *testing.T) {
 	x.Equal("park", got.Login)
 	x.Len(got.Workspaces, 1)
 	x.Equal(me.GetTenant().GetAlias(), got.Workspaces[0].Alias)
+	x.Equal("박의 워크스페이스", got.Workspaces[0].Name)
 	x.Equal(1, got.Owns)
 	x.Equal(cmd.DefaultOwned, *got.May)
 

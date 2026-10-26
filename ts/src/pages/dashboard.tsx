@@ -42,7 +42,7 @@ export function Dashboard(): ReactNode {
 
 	return (
 		<>
-			<PageHead title={`안녕하세요, ${c.me.party?.name ?? c.me.holder?.alias ?? ''}님`} sub={c.me.tenant?.name} />
+			<PageHead title={`안녕하세요, ${c.me.party?.name ?? c.me.holder?.alias ?? ''}님`} sub={c.me.workspaceName} />
 			<div className="stats">
 				<Stat label="물품" value={v('kind', 'item')} onClick={() => go('/assets?kind=item')} />
 				<Stat label="공간" value={v('kind', 'space')} onClick={() => go('/spaces')} />

@@ -58,7 +58,7 @@ export function Me(): ReactNode {
 							['이메일', p?.email || '-'],
 							['소속', c.called(p?.parentId) || '-'],
 							['역할', roleWord[c.role] ?? c.role],
-							['조직', c.me.tenant?.name || c.me.tenant?.alias || '-'],
+							['조직', c.me.workspaceName || '-'],
 						]}
 					/>
 				</Card>

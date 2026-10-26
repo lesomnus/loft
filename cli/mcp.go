@@ -675,7 +675,7 @@ func (t mcpTools) whoami(ctx context.Context, _ *mcp.CallToolRequest, _ mcpWhoam
 		}
 	}
 	if out.Workspace == nil {
-		out.Workspace = &mcpWorkspace{Alias: me.GetTenant().GetAlias(), Name: me.GetTenant().GetName(), Role: me.GetRole()}
+		out.Workspace = &mcpWorkspace{Alias: me.GetTenant().GetAlias(), Name: me.GetWorkspaceName(), Role: me.GetRole()}
 	}
 	if p := me.GetParty(); len(p.GetId()) > 0 {
 		out.Person = &mcpRef{Id: idString(p.GetId()), Name: p.GetName()}

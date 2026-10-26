@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/lesomnus/payday/access"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/z"
 	"github.com/protobuf-orm/ent/dialect"
@@ -15,6 +16,7 @@ import (
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/internal/ent/holder"
+	"github.com/lesomnus/rove/server/tenancy"
 )
 
 // A workspace closing (D29, design 8.4).
@@ -130,19 +132,21 @@ func (s domainTenant) Configure(ctx context.Context, req *app.TenantConfigureReq
 }
 
 // Close is the owner closing their workspace. They type its name, which is
-// what keeps a click from doing it.
+// what keeps a click from doing it: what it is called, as the page shows it
+// (D57), so that one with no name of its own takes typing as well.
 func (s domainTenant) Close(ctx context.Context, req *app.TenantCloseRequest) (*app.Tenant, error) {
 	var out *app.Tenant
 	err := s.tx(ctx, func(t *Tx) error {
 		if err := t.mine(req.GetRef()); err != nil {
 			return err
 		}
-		cur, err := t.next.Tenant().Get(t.ctx, app.TenantGetRequest_builder{Ref: t.tenantRef()}.Build())
+		called, err := t.workspaceName()
 		if err != nil {
 			return err
 		}
-		if strings.TrimSpace(req.GetConfirm()) != strings.TrimSpace(cur.GetName()) {
-			return invalid("confirm", "닫으려면 워크스페이스 이름(%s)을 그대로 입력하세요", cur.GetName())
+		if strings.TrimSpace(req.GetConfirm()) != strings.TrimSpace(called.Said) {
+			access.Saw(t.ctx, called.Saw...)
+			return invalid("confirm", "닫으려면 워크스페이스 이름(%s)을 그대로 입력하세요", called.Said)
 		}
 		out, err = t.closeWorkspace(ClosedByOwner, strings.TrimSpace(req.GetReason()))
 		return err
@@ -250,6 +254,17 @@ func (d *Deps) aliasHold() time.Duration {
 		return 365 * 24 * time.Hour
 	}
 	return d.AliasHold
+}
+
+// workspaceName is what this workspace is called where it is read (D57): its
+// own name, or after its owner, with whose data saying it shows.
+func (t *Tx) workspaceName() (tenancy.Name, error) {
+	v, err := t.db.Tenant.Get(t.ctx, t.tenant.Uuid())
+	if err != nil {
+		return tenancy.Name{}, err
+	}
+
+	return tenancy.NameOf(t.ctx, t.db, v)
 }
 
 // mine refuses a reference to any workspace but the caller's own.

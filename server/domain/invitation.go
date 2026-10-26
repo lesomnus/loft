@@ -34,6 +34,7 @@ import (
 	"github.com/lesomnus/rove/server/mail"
 	"github.com/lesomnus/rove/server/pd"
 	"github.com/lesomnus/rove/server/policy"
+	"github.com/lesomnus/rove/server/tenancy"
 )
 
 // The invitations of a workspace (design 9.11).
@@ -189,11 +190,14 @@ func (s domainInvitation) Add(ctx context.Context, req *app.InvitationAddRequest
 			}
 		}
 
-		ws, err := t.db.Tenant.Get(t.ctx, t.tenant.Uuid())
+		// What the mail calls the workspace: what it is called, which for one
+		// with no name of its own is after its owner (D57), put in a mail.
+		called, err := t.workspaceName()
 		if err != nil {
 			return err
 		}
-		workspace = or(ws.Name, ws.Alias)
+		workspace = called.Said
+		access.Saw(t.ctx, called.Saw...)
 		inviter = nameOf(t.ctx, t.db, me)
 		zone = t.zone()
 
@@ -323,9 +327,13 @@ func (s domainInvitation) List(ctx context.Context, req *app.InvitationListReque
 	}
 
 	names := inviterNames(ctx, db, rows)
+	called, err := workspaceNames(ctx, db, rows)
+	if err != nil {
+		return nil, err
+	}
 	out := app.InvitationListResponse_builder{}.Build()
 	for _, v := range rows {
-		out.SetItems(append(out.GetItems(), protoOf(v, now, names)))
+		out.SetItems(append(out.GetItems(), protoOf(v, now, names, called)))
 	}
 	return out, nil
 }
@@ -577,12 +585,18 @@ func (s domainInvitation) mine(ctx context.Context, db *ent.Client, id uuid.UUID
 	if err != nil {
 		return nil, err
 	}
-	return protoOf(v, now, inviterNames(ctx, db, []*ent.Invitation{v})), nil
+	rows := []*ent.Invitation{v}
+	called, err := workspaceNames(ctx, db, rows)
+	if err != nil {
+		return nil, err
+	}
+	return protoOf(v, now, inviterNames(ctx, db, rows), called), nil
 }
 
-// protoOf is an invitation as either side reads it: the workspace by its name
-// and alias, who invited by their name, and never the code its mail carried.
-func protoOf(v *ent.Invitation, now time.Time, names map[uuid.UUID]string) *app.Invitation {
+// protoOf is an invitation as either side reads it: the workspace by what it
+// is called and its alias, who invited by their name, and never the code its
+// mail carried.
+func protoOf(v *ent.Invitation, now time.Time, names map[uuid.UUID]string, called map[uuid.UUID]tenancy.Name) *app.Invitation {
 	b := app.Invitation_builder{
 		Id:          pdid.Id(v.Id).Bytes(),
 		Email:       v.Email,
@@ -595,7 +609,7 @@ func protoOf(v *ent.Invitation, now time.Time, names map[uuid.UUID]string) *app.
 	}
 	t := app.Tenant_builder{Id: pdid.Id(v.TenantId).Bytes()}
 	if w := v.Edges.Tenant; w != nil {
-		t.Alias, t.Name = w.Alias, w.Name
+		t.Alias, t.Name = w.Alias, called[w.Id].Said
 	}
 	b.Tenant = t.Build()
 	h := app.Holder_builder{Id: pdid.Id(v.InviterId).Bytes(), Name: names[v.InviterId]}
@@ -675,6 +689,26 @@ func inviterNames(ctx context.Context, db *ent.Client, rows []*ent.Invitation) m
 		}
 	}
 	return out
+}
+
+// workspaceNames is what the workspaces these were sent from are called, for
+// the ones read with them: each its own name, or after its owner (D57), whose
+// name the call shows.
+func workspaceNames(ctx context.Context, db *ent.Client, rows []*ent.Invitation) (map[uuid.UUID]tenancy.Name, error) {
+	ts := []*ent.Tenant{}
+	for _, v := range rows {
+		if v.Edges.Tenant != nil {
+			ts = append(ts, v.Edges.Tenant)
+		}
+	}
+	out, err := tenancy.Names(ctx, db, ts...)
+	if err != nil {
+		return nil, err
+	}
+	for _, v := range out {
+		access.Saw(ctx, v.Saw...)
+	}
+	return out, nil
 }
 
 // workspaceOf is the workspace a reference names, by identifier or alias.
@@ -771,7 +805,7 @@ func (d *Deps) mailInvitation(ctx context.Context, v *app.Invitation, code, invi
 	link := d.Links.Home(apphost.Page) + "/invitations?code=" + code
 	role := roleWords[v.GetRole()]
 	until := v.GetDateExpires().AsTime().In(zone).Format("2006년 1월 2일")
-	body := fmt.Sprintf(`%s님이 Rove의 %s 워크스페이스에 %s%s 초대했습니다.
+	body := fmt.Sprintf(`%s님이 Rove의 %s에 %s%s 초대했습니다.
 
 아래 링크를 열고 로그인하면 초대함에서 수락하거나 거절할 수 있습니다.
 Rove 계정이 아직 없다면 같은 화면에서 Google, Microsoft, GitHub 계정으로 가입할 수 있습니다.
@@ -779,13 +813,23 @@ Rove 계정이 아직 없다면 같은 화면에서 Google, Microsoft, GitHub �
 %s
 
 이 초대는 %s까지 유효합니다. 모르는 초대라면 이 메일을 무시해 주세요.
-`, inviter, workspace, role, ro(role), link, until)
+`, inviter, workspaceWords(workspace), role, ro(role), link, until)
 
 	return d.Mail.Send(ctx, mail.Message{
 		To:      v.GetEmail(),
 		Subject: fmt.Sprintf("%s님이 Rove의 %s에 초대했습니다", inviter, workspace),
 		Body:    body,
 	})
+}
+
+// workspaceWords is a workspace as a sentence names it, by what it is called:
+// "연구실 워크스페이스", and one called after its owner (D57) as it is --
+// "김민준의 워크스페이스" -- rather than with the word twice.
+func workspaceWords(name string) string {
+	if strings.HasSuffix(name, "워크스페이스") {
+		return name
+	}
+	return name + " 워크스페이스"
 }
 
 // ro is the particle a word takes for "as": 으로 after a final consonant other

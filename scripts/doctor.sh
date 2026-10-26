@@ -29,8 +29,9 @@ dir=${1:-.}
 # design D56): payday's own fields of its Tenant, 4 to 7, which an overlay may
 # not declare -- `pd gen` refuses one that changes a number of payday's --
 # and which payday's Tenant leaves undeclared. Which they are is payday's to
-# say; a workspace made for an account that arrives is named after its person
-# (`server/tenancy`). Known, not decided.
+# say. Rove writes nobody into them (D57): the workspace an account is given
+# when it arrives has no name, and is called after its owner where it is read
+# (`server/tenancy`). Known, until payday says they are about no one.
 known=(
 	# A code a browser carries to a workspace's domain, good once for a minute.
 	"rove.Handoff is kept off the trail and holds a secret (secret, state), so nothing finds one of its rows added past the servers"

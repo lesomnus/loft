@@ -83,8 +83,10 @@ type Account struct {
 type Workspace struct {
 	Id    string `json:"id"`
 	Alias string `json:"alias"`
-	Name  string `json:"name"`
-	Role  string `json:"role"`
+	// Name is what it is called: its own name, or, for one that has none,
+	// after its owner (D57).
+	Name string `json:"name"`
+	Role string `json:"role"`
 	// Closed is when it was closed and Destroy when it goes, for one that is
 	// closed (D29), and AliasHoldDays how many days its address is then kept
 	// from anybody else (`app.workspaces.alias_hold`).
@@ -105,8 +107,35 @@ type Exporter func(ctx context.Context, workspace pdid.Id, w io.Writer) error
 type LabelFinder func(ctx context.Context, code string) (workspace pdid.Id, ok bool, err error)
 
 // exportAction is what a workspace's export is called in the access record:
-// the route, since it is no RPC.
-const exportAction = "GET /account/workspaces/{alias}/export"
+// the route, since it is no RPC; and accountAction and labelAction what the
+// account and a label's workspace are.
+const (
+	exportAction  = "GET /account/workspaces/{alias}/export"
+	accountAction = "GET /account"
+	labelAction   = "GET /account/labels/{code}"
+)
+
+// saw puts on the access record whose personal data an answer showed in what
+// it called the workspaces `ms` -- the owner one with no name of its own is
+// called after (D57) -- by the account's membership of each, from where the
+// request came. A read, so queued, as an RPC's read is; with no record wired,
+// nothing.
+func (a Routes) saw(r *http.Request, action string, ms ...tenancy.Membership) {
+	if a.Access == nil {
+		return
+	}
+
+	ctx := r.Context()
+	d := pdpb.AccessDetail_builder{Address: clientaddr.Of(r)}.Build()
+	now := time.Now()
+	for _, m := range ms {
+		if len(m.Saw) == 0 {
+			continue
+		}
+		as := frame.Into(ctx, frame.New(m.Holder, m.Workspace, frame.Whole()))
+		a.Access.Queue(access.Records(as, action, access.Read, "ok", m.Saw, d, now)...)
+	}
+}
 
 // exported writes the row of the access record a workspace's export is: by
 // the owner's membership, of everybody its data holds, from where the request
@@ -234,7 +263,7 @@ func (a Routes) Mount(mux *http.ServeMux) {
 		if !ok {
 			return
 		}
-		v, err := a.accountOf(r, ws, p)
+		v, ms, err := a.accountOf(r, ws, p)
 		if err != nil {
 			fail(w, r, err)
 			return
@@ -248,6 +277,7 @@ func (a Routes) Mount(mux *http.ServeMux) {
 			v.Allow = s.Grant.Actions()
 		}
 		v.Identity = authsession.IdentityOf(s)
+		a.saw(r, accountAction, ms...)
 		answer(w, http.StatusOK, v)
 	})
 	mux.HandleFunc("POST /account/workspaces", func(w http.ResponseWriter, r *http.Request) {
@@ -327,6 +357,7 @@ func (a Routes) Mount(mux *http.ServeMux) {
 					fail(w, r, err)
 					return
 				}
+				a.saw(r, labelAction, m)
 				answer(w, http.StatusOK, v)
 				return
 			}
@@ -488,19 +519,22 @@ func reading(w http.ResponseWriter, r *http.Request, sessions *authsession.Sessi
 	return p, v, true
 }
 
-func (a Routes) accountOf(r *http.Request, ws tenancy.Workspaces, p identity.Person) (Account, error) {
+// accountOf is what `GET /account` answers of `p`, and the memberships it
+// says.
+func (a Routes) accountOf(r *http.Request, ws tenancy.Workspaces, p identity.Person) (Account, []tenancy.Membership, error) {
 	ms, err := ws.Of(r.Context(), p.Id)
 	if err != nil {
-		return Account{}, err
+		return Account{}, nil, err
 	}
 	out := Account{Id: p.Id.String(), Login: p.Alias, Name: p.Name, Workspaces: []Workspace{}}
 	if pin, ok := apphost.From(r.Context()); ok {
 		out.Pinned, out.Service = pin.Alias, a.Service
 	}
-	for _, m := range pinned(r, ms) {
+	ms = pinned(r, ms)
+	for _, m := range ms {
 		v, err := a.workspaceOf(r.Context(), m)
 		if err != nil {
-			return Account{}, err
+			return Account{}, nil, err
 		}
 		out.Workspaces = append(out.Workspaces, v)
 		if m.Role == "owner" {
@@ -511,7 +545,7 @@ func (a Routes) accountOf(r *http.Request, ws tenancy.Workspaces, p identity.Per
 		out.May = &ws.Owned
 	}
 
-	return out, nil
+	return out, ms, nil
 }
 
 // pinned is the memberships a request may see: on a workspace's own domain

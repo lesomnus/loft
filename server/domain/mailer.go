@@ -21,6 +21,7 @@ import (
 	"github.com/lesomnus/rove/server/apphost"
 	"github.com/lesomnus/rove/server/mail"
 	"github.com/lesomnus/rove/server/pd"
+	"github.com/lesomnus/rove/server/tenancy"
 )
 
 // Mailer sends by mail what the notifications of the mailed kinds say
@@ -139,7 +140,17 @@ func (m Mailer) one(ctx context.Context, db *ent.Client, n *ent.Notification) er
 	if err != nil {
 		return err
 	}
-	if err := m.Deps.Mail.Send(ctx, m.message(h, says, at, to)); err != nil {
+	// What the workspace is called, as its pages call it (D57): after its
+	// owner, for one with no name of its own.
+	workspace := ""
+	if t := h.Edges.Tenant; t != nil {
+		called, err := tenancy.NameOf(ctx, db, t)
+		if err != nil {
+			return err
+		}
+		workspace = called.Said
+	}
+	if err := m.Deps.Mail.Send(ctx, m.message(h, says, at, to, workspace)); err != nil {
 		if n.MailTries+1 >= mailTries {
 			log.From(ctx).ErrorContext(ctx, "mail: a notification was given up on after every try",
 				"notification", pdid.Id(n.Id).String(), "tries", n.MailTries+1, slog.Any("err", err))
@@ -218,11 +229,12 @@ func (m Mailer) addressOf(ctx context.Context, db *ent.Client, h *ent.Holder) (s
 }
 
 // message is what a notification says, as a mail: its title, its words, and
-// the link that opens what it is about, on `at`: where its workspace is.
-func (m Mailer) message(h *ent.Holder, n *ent.Notification, at, to string) mail.Message {
-	workspace, alias := "", ""
+// the link that opens what it is about, on `at`: where its workspace is,
+// which it is called `workspace`.
+func (m Mailer) message(h *ent.Holder, n *ent.Notification, at, to, workspace string) mail.Message {
+	alias := ""
 	if t := h.Edges.Tenant; t != nil {
-		workspace, alias = t.Name, t.Alias
+		alias = t.Alias
 	}
 	link := at
 	if alias != "" {
@@ -236,8 +248,8 @@ func (m Mailer) message(h *ent.Holder, n *ent.Notification, at, to string) mail.
 	}
 	body += fmt.Sprintf(`%s
 
-Rove의 %s 워크스페이스에서 온 알림입니다. 메일로 받지 않으려면 Rove의 내 정보에서 끌 수 있습니다. 알림은 앱에서 계속 받습니다.
-`, link, workspace)
+Rove의 %s에서 온 알림입니다. 메일로 받지 않으려면 Rove의 내 정보에서 끌 수 있습니다. 알림은 앱에서 계속 받습니다.
+`, link, workspaceWords(workspace))
 
 	return mail.Message{To: to, Subject: "[Rove] " + n.Name, Body: body}
 }
