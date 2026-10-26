@@ -308,8 +308,10 @@ func (t *Tx) letGo(c *ent.Custody, back, out []uuid.UUID, at time.Time) error {
 // else has them: the reservations still to be fulfilled that took some of it
 // keep it, and whoever has to act on them is told ([Tx.tellOut]); and the
 // pools the things are units of have one fewer to give then, which their
-// latest reservations wait for (D41) -- the hand-over their cause, when it is
-// an operation of somebody's.
+// latest reservations wait for (D41) -- the operation that took it their
+// cause: a hand-over, a due moved later, the loan found late (D55). Where
+// none is in progress, as when a migration holds what was out, each wait is
+// an operation of its own ([Tx.changed]).
 func (t *Tx) taken(c *ent.Custody, ss []outSpan) error {
 	if len(ss) == 0 {
 		return nil

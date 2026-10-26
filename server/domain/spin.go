@@ -9,6 +9,7 @@ import (
 
 	"github.com/lesomnus/otx/log"
 	"github.com/lesomnus/payday/frame"
+	"github.com/lesomnus/payday/past"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/spin"
 	"github.com/lesomnus/z"
@@ -19,6 +20,7 @@ import (
 	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/internal/ent/asset"
 	"github.com/lesomnus/rove/internal/ent/custody"
+	"github.com/lesomnus/rove/internal/ent/custodyline"
 	"github.com/lesomnus/rove/internal/ent/notification"
 	"github.com/lesomnus/rove/internal/ent/party"
 	"github.com/lesomnus/rove/internal/ent/reservation"
@@ -305,7 +307,8 @@ func (t *Tx) noticed(kind string, subject uuid.UUID) (bool, error) {
 // sweepLoans reminds whoever holds a loan the day before it is due, and tells
 // them and the managers once it is late. And a loan late holds what it lent
 // until it is back (D53): what was booked of it after its due says so, and is
-// told ([Tx.rehold]).
+// told ([Tx.rehold]). Found late is an operation of its own, each loan's
+// ([Tx.overdue], D55), which what holding it so does is part of.
 func sweepLoans(t *Tx) error {
 	late, err := t.db.Custody.Query().Where(
 		custody.TenantId(t.tenant.Uuid()),
@@ -345,6 +348,9 @@ func sweepLoans(t *Tx) error {
 		}
 		if c.Status != "open" || c.OverdueNoticed || c.DueAt == nil || !c.DueAt.Before(t.now) {
 			continue
+		}
+		if err := t.overdue(c); err != nil {
+			return err
 		}
 		if err := t.rehold(c); err != nil {
 			return err
@@ -398,6 +404,39 @@ func sweepLoans(t *Tx) error {
 		}
 	}
 	return nil
+}
+
+// overdue records that `c` was found past its due with some of what it lent
+// not back (D55): the loan's event, at the moment it was found so -- what it
+// holds says the due it missed -- and one of each asset of it still out,
+// whose cause it is, so that the loan's history and each thing's say when it
+// was late. Nobody is in either: whose loan it is is the loan's to say. What
+// finding it late does after this is part of it: a reservation that waits
+// for what it holds waits under it ([Tx.changed]).
+func (t *Tx) overdue(c *ent.Custody) error {
+	said := func(asset []byte) *app.CustodyOverdue {
+		return app.CustodyOverdue_builder{Custody: pdid.Id(c.Id).Bytes(), Due: ts(*c.DueAt), Asset: asset}.Build()
+	}
+	if err := t.begin(nil, "custody.overdue", pdid.Id(c.Id), t.now, "", said(nil)); err != nil {
+		return err
+	}
+	ls, err := t.db.CustodyLine.Query().Where(
+		custodyline.TenantId(t.tenant.Uuid()),
+		custodyline.CustodyId(c.Id),
+	).Order(custodyline.ById()).All(t.ctx)
+	if err != nil {
+		return err
+	}
+	kids := []past.Child{}
+	for _, l := range ls {
+		if l.AssetId == (uuid.UUID{}) || l.Quantity-l.ReturnedQuantity <= 0 {
+			continue
+		}
+		a := pdid.Id(l.AssetId)
+		kids = append(kids, past.Child{Event: past.Event{Kind: "custody.overdue", Subject: a, At: t.now, Value: said(a.Bytes())}})
+	}
+	_, err = t.op.Batch(t.ctx, kids)
+	return err
 }
 
 func (t *Tx) partyName(id uuid.UUID) string {
