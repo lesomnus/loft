@@ -12,7 +12,10 @@ import (
 
 	"github.com/lesomnus/payday/pdid"
 
+	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/cli"
+	entaccess "github.com/lesomnus/rove/internal/ent/access"
+	"github.com/lesomnus/rove/internal/ent/holder"
 )
 
 // assistant is an MCP client speaking to `rove mcp` the way Claude Code
@@ -406,6 +409,54 @@ func TestAnAssistantReadsWhatAnEventHeld(t *testing.T) {
 	x.NoError(err)
 	x.NotContains(string(b), "minsu@example.com")
 	x.NotContains(string(b), "010-1234-5678")
+}
+
+// TestAnAssistantReadsAMemoAsThePersonReadsIt: a hand-over's memo is the
+// words of whoever made it, personal as a reason is (design D56), and a tool
+// answers it as the page shows it -- through the same RPC, so the read is on
+// the access record as the person's who signed in, of the hand-over, and the
+// deployment does not know there is an assistant. Nothing of the person it
+// was handed to but their name: never their address or their number.
+func TestAnAssistantReadsAMemoAsThePersonReadsIt(t *testing.T) {
+	s := serve(t)
+	x := s.x
+	ctx := context.Background()
+	s.signIn("owner", "owner1234")
+
+	const memo = "출장용, 박지민 씨 요청"
+	laptop := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "개발용 노트북", "kind": "item", "tag": "NB-1"}`))
+	kim := made(t, run(t, cli.NewCmdApi(), "party", "add", "-o", "json", `{"name": "김민수", "kind": "person", "email": "minsu@example.com", "phone": "010-1234-5678"}`))
+	handed := made(t, run(t, cli.NewCmdApi(), "custody", "add", "-o", "json", `{"party": {"id": "`+kim+`"}, "desc": "`+memo+`", "lines": [{"asset": {"id": "`+laptop+`"}}]}`))
+	x.NoError(s.s.Access.Flush(ctx))
+	before, err := s.s.Ent.Access.Query().Where(entaccess.ActionEQ(app.CustodyService_List_FullMethodName)).Count(ctx)
+	x.NoError(err)
+
+	a := s.assistant()
+	var v struct {
+		Items []struct {
+			Id   string `json:"id"`
+			Desc string `json:"desc"`
+		} `json:"items"`
+	}
+	a.call("list_custody", nil, &v)
+	x.Len(v.Items, 1)
+	x.Equal(pid(t, handed), pid(t, v.Items[0].Id))
+	x.Equal(memo, v.Items[0].Desc, "as the page shows it")
+	b, err := json.Marshal(v)
+	x.NoError(err)
+	x.NotContains(string(b), "minsu@example.com")
+	x.NotContains(string(b), "010-1234-5678")
+
+	x.NoError(s.s.Access.Flush(ctx))
+	rs, err := s.s.Ent.Access.Query().Where(entaccess.ActionEQ(app.CustodyService_List_FullMethodName)).All(ctx)
+	x.NoError(err)
+	x.Len(rs, before+1, "the assistant's read, as any read")
+	got := rs[len(rs)-1]
+	x.Equal("read", got.Kind)
+	x.Contains(got.Subjects, pid(t, handed).Bytes(), "of the hand-over whose memo it said")
+	owner, err := s.s.Ent.Holder.Query().Where(holder.Alias("owner")).Only(ctx)
+	x.NoError(err)
+	x.Equal(owner.Id, got.ActorId, "as the person signed in")
 }
 
 // pid is an id a tool or the terminal said, read.

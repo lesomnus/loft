@@ -632,6 +632,26 @@ function Audit(): ReactNode {
 const accessWord: Record<string, string> = { read: '조회', write: '수정', download: '내려받기' }
 
 /**
+ * What a row the record names holds of somebody, by its kind, for one that is
+ * no person or membership -- those are named: an invitation's address, a
+ * notice's words, an event's reason, and the memos and notes that are
+ * somebody's own words (design D56).
+ */
+const subjectWord: Record<string, string> = {
+	invitation: '초대 주소',
+	notification: '알림',
+	event: '작업 기록의 사유',
+	custody: '지급·대여 메모',
+	reservation: '예약 메모',
+	'work-order': '작업 설명',
+	purchase: '구매 메모',
+	'inventory-count': '실사 메모',
+	'count-finding': '실사 발견 메모',
+	'access-review': '점검 결과',
+	tenant: '닫은 사유',
+}
+
+/**
  * The workspace's access record, a month at a time, as its administrators
  * review it (rove#136): who read, wrote or took out whose data, from where,
  * and what a download was for -- and that they looked it over. PIPA's safety
@@ -737,7 +757,7 @@ function Access(): ReactNode {
 										</thead>
 										<tbody>
 											{d.items.map((e) => {
-												const named = e.subjects.map((s) => s.name || s.kind).join(', ')
+												const named = e.subjects.map((s) => s.name || subjectWord[s.kind] || s.kind).join(', ')
 												const rest = e.subjectCount - e.subjects.length
 												return (
 													<tr key={idStr(e.id)}>
@@ -748,7 +768,7 @@ function Access(): ReactNode {
 														</td>
 														<td>
 															{named}
-															{rest > 0 ? ` 외 ${rest}명` : ''}
+															{rest > 0 ? ` 외 ${rest}건` : ''}
 														</td>
 														<td>{e.address || '-'}</td>
 														<td>{e.result === 'ok' ? '성공' : `거부 (${e.result})`}</td>
