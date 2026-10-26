@@ -458,12 +458,21 @@ jobs:
   # `init --demo` (ts/playwright.config.ts, ts/e2e/serve.sh) -- on SQLite, and
   # on the PostgreSQL a deployment runs, the `go` job's; and on SQLite
   # searching with OpenSearch (D31), beside the run that does not.
+  #
+  # The tests run in Playwright's own image, which has the browser and every
+  # package of the system it needs, as README runs them on a desk that has
+  # neither. The job used to install those packages itself, with apt
+  # (`playwright install --with-deps`): 20 MB of fonts from the runner's
+  # Ubuntu mirror, which took 18 seconds on most runs and more than ten
+  # minutes on 18 of 321 (2026-10-24 to 26), at 28 kB/s -- and 15 of those
+  # ran out of the job's fifteen minutes in it.
   e2e:
     name: e2e (${{ matrix.db }}${{ matrix.search && format(', {0}', matrix.search) || '' }})
-    # `--with-deps` installs what Chromium needs from the image's own packages,
-    # which Playwright knows for Ubuntu 26.04 from 1.61 on.
     runs-on: ubuntu-26.04
-    timeout-minutes: 15
+    # A run takes about three minutes: one or so until the tests start and
+    # two of tests, and up to two more when rove is built from cold. Ten is
+    # a run that is stuck, not a slow one.
+    timeout-minutes: 10
     strategy:
       # Each database is an answer of its own, and one failing says nothing
       # about the other.
@@ -479,6 +488,19 @@ jobs:
         working-directory: ts
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # The image of the Playwright that ts/package-lock.json installs, so
+      # that its browser is the one that version drives and a bump of it in
+      # ts/package.json moves the image too: nothing here names a version.
+      # And of the Ubuntu the runner is, so that what is built here runs in it.
+      # Pulled in the background while the page and rove are built, as the
+      # databases below come up.
+      - name: Playwright's image
+        working-directory: .
+        run: |
+          version="$(jq -er '.packages["node_modules/playwright-core"].version' ts/package-lock.json)"
+          image="mcr.microsoft.com/playwright:v${version}-$(. /etc/os-release && echo "${VERSION_CODENAME}")"
+          echo "PLAYWRIGHT_IMAGE=${image}" >> "${GITHUB_ENV}"
+          docker pull -q "${image}" > "${RUNNER_TEMP}/playwright-pull.log" 2>&1 &
       # Started first and left to come up in the background, as PostgreSQL
       # is below: the image builds and the node starts while the page and
       # rove are built (scripts/opensearch.sh).
@@ -527,8 +549,10 @@ jobs:
         run: |
           go build -o "$RUNNER_TEMP/rove" ./cmd/rove
           go build -o "$RUNNER_TEMP/oidctest" ./internal/oidctest/cmd/oidctest
-      - name: Chromium
-        run: npx playwright install --with-deps chromium
+      # The pull the first step started: done by now, or joined here, or --
+      # had it failed -- tried again, and its error said.
+      - name: Playwright's image is here
+        run: docker pull -q "${PLAYWRIGHT_IMAGE}"
       - name: PostgreSQL is up
         if: matrix.db == 'postgres'
         run: |
@@ -538,12 +562,24 @@ jobs:
         if: matrix.search == 'opensearch'
         working-directory: .
         run: scripts/opensearch.sh ready 'e2e-*' | grep '^E2E_' >> "${GITHUB_ENV}"
+      # In Playwright's image, on the runner's network, where the databases,
+      # the search and the servers the tests stand up are all on 127.0.0.1;
+      # with the checkout and the binaries built above at the paths they have
+      # here; and as the runner's user, so that what the servers and the
+      # report leave in test-results/ is the runner's to upload. `--init`
+      # and `--ipc=host` are what Playwright's guide asks of a container
+      # running Chromium.
       - name: browser tests
         env:
           E2E_ROVE: ${{ runner.temp }}/rove
           E2E_ISSUER: ${{ runner.temp }}/oidctest
           E2E_POSTGRES: ${{ matrix.db == 'postgres' && 'postgres://rove:rove@127.0.0.1:5432/rove?sslmode=disable' || '' }}
-        run: npx playwright test
+        run: |
+          docker run --rm --init --ipc=host --network=host \
+            --user "$(id -u):$(id -g)" -e HOME=/tmp \
+            -v "${GITHUB_WORKSPACE}:${GITHUB_WORKSPACE}" -v "${RUNNER_TEMP}:${RUNNER_TEMP}" -w "${PWD}" \
+            -e CI -e E2E_ROVE -e E2E_ISSUER -e E2E_POSTGRES -e E2E_OPENSEARCH -e E2E_OPENSEARCH_CA \
+            "${PLAYWRIGHT_IMAGE}" npx playwright test
       # What a failure leaves: the report, with each failed test's trace and
       # screenshot, and each server's database and log (test-results/rove-*).
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
