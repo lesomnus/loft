@@ -394,9 +394,18 @@ run them on PostgreSQL.
 **An event's reason is taken out** when a person's request to erase what it
 says of them points at it (`past.Redact`, `server/domain/redact.go`): the act
 is an `event.redact` whose reason is the request's reference, the trail's
-`payday.past.redact`, and the access record of what it read. No role is given
-`EventService.Redact` yet (`closed` in `server/policy`: the owner decides who);
-the operator does it with `rove event redact`, on the workspace's word.
+`payday.past.redact`, and the access record of what it read. Not out of the
+event named alone: out of every event of its operation that says the same --
+a part copies its operation's reason, and the act has a child for each (D49,
+`domain.Copies`) -- and out of every notice told in those words
+(`reservation.decided`; D51, `domain.ToldWhy`, `domain.Told`), patched through
+the servers so that the trail and the access record say the act wrote it.
+Both are found by the database comparing the words where they are kept, never
+by reading them; mail already sent stays said. A notice whose words are
+somebody's is of a kind in `ToldWhy`, or every domain test that writes one
+fails at its end. No role is given `EventService.Redact` yet (`closed` in
+`server/policy`: the owner decides who); the operator does it with `rove
+event redact`, on the workspace's word.
 
 **A write through ent is not on the trail**, and `rove trail rows` then finds
 the row -- a write past the servers is what it is there to find (payday#108).
