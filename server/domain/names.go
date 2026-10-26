@@ -158,6 +158,83 @@ func (n *namer) readParties(ids []uuid.UUID) error {
 	return nil
 }
 
+// readApart reads every person record of the workspace at once, for a file
+// that names many of them and is kept wherever it is taken -- the register --
+// and calls each as [namer.party] then says it: by its name, and, where
+// another record goes by the same name, with what tells them apart and is
+// never how either is reached. That is what the page tells them apart by
+// where it lists them (`PartySelect`, the people screen): the team the record
+// is in; then, where another of the name is in a team of that name too, its
+// 사번 (`code`); and, where neither tells them apart, its identifier. A
+// team's name is as personal as a person's, so saying it shows the team too.
+func (n *namer) readApart() error {
+	ps, err := n.t.db.Party.Query().
+		Where(party.TenantId(n.t.tenant.Uuid())).
+		Select(party.FieldId, party.FieldName, party.FieldParentId, party.FieldCode).
+		All(n.t.ctx)
+	if err != nil {
+		return err
+	}
+	if n.parties == nil {
+		n.parties = map[uuid.UUID]called{}
+	}
+	byId := make(map[uuid.UUID]*ent.Party, len(ps))
+	byName := map[string][]*ent.Party{}
+	for _, p := range ps {
+		byId[p.Id] = p
+		byName[p.Name] = append(byName[p.Name], p)
+	}
+	// The team a record is in, by a name: none for one in no team, or in one
+	// that is not there or has none.
+	team := func(p *ent.Party) *ent.Party {
+		if p.ParentId == nil {
+			return nil
+		}
+		if v := byId[*p.ParentId]; v != nil && v.Name != "" {
+			return v
+		}
+		return nil
+	}
+	teamName := func(p *ent.Party) string {
+		if v := team(p); v != nil {
+			return v.Name
+		}
+		return ""
+	}
+	for _, same := range byName {
+		for _, p := range same {
+			v := called{found: true, name: p.Name, saw: n.whose(p.Id)}
+			if len(same) > 1 {
+				words := []string{p.Name}
+				if tm := team(p); tm != nil {
+					words = append(words, tm.Name)
+					v.saw = append(v.saw, n.whose(tm.Id)...)
+				}
+				alike, coded := 0, 0
+				for _, q := range same {
+					if teamName(q) == teamName(p) {
+						alike++
+						if q.Code == p.Code {
+							coded++
+						}
+					}
+				}
+				switch {
+				case alike == 1:
+					// The team tells them apart.
+				case p.Code != "" && coded == 1:
+					words = append(words, p.Code)
+				default:
+					words = append(words, pdid.Id(p.Id).String())
+				}
+				v.name = strings.Join(words, " · ")
+			}
+			n.parties[p.Id] = v
+		}
+	}
+	return nil
+}
+
 func (n *namer) asset(id uuid.UUID) string { return n.show(n.look(n.t.ctx, &n.assets, id, n.ofAsset)) }
 func (n *namer) party(id uuid.UUID) string { return n.show(n.look(n.t.ctx, &n.parties, id, n.ofParty)) }
 func (n *namer) kind(id uuid.UUID) string  { return n.show(n.look(n.t.ctx, &n.kinds, id, n.ofKind)) }
