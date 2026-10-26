@@ -127,12 +127,19 @@ func (m Mailer) one(ctx context.Context, db *ent.Client, n *ent.Notification) er
 	if err != nil || !claimed {
 		return err
 	}
+	// And sent as it says now, which may be less than the pass read: words
+	// taken out of it since -- a reason a person asked to have erased
+	// (`EventService.Redact`, design D51) -- are not mailed.
+	says, err := db.Notification.Get(ctx, n.Id)
+	if err != nil {
+		return err
+	}
 
 	at, err := m.Deps.Links.Of(ctx, db, pdid.Id(h.TenantId), apphost.Page)
 	if err != nil {
 		return err
 	}
-	if err := m.Deps.Mail.Send(ctx, m.message(h, n, at, to)); err != nil {
+	if err := m.Deps.Mail.Send(ctx, m.message(h, says, at, to)); err != nil {
 		if n.MailTries+1 >= mailTries {
 			log.From(ctx).ErrorContext(ctx, "mail: a notification was given up on after every try",
 				"notification", pdid.Id(n.Id).String(), "tries", n.MailTries+1, slog.Any("err", err))

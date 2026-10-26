@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
 	"testing"
 	"time"
 	"uuid"
@@ -20,6 +21,9 @@ import (
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/cli"
 	"github.com/lesomnus/rove/cmd"
+	"github.com/lesomnus/rove/internal/ent"
+	"github.com/lesomnus/rove/internal/ent/event"
+	"github.com/lesomnus/rove/internal/ent/notification"
 	"github.com/lesomnus/rove/internal/identity"
 	"github.com/lesomnus/rove/server/domain"
 	"github.com/lesomnus/rove/server/pd"
@@ -72,8 +76,10 @@ func newEnvWith(t *testing.T, with func(c *cmd.Config)) *env {
 	s.Deps.Now = func() time.Time { return e.now }
 	s.Deps.LookupTXT = nil
 	// Whatever a test did, each event it recorded holds its kind's message,
-	// and of it only what its kind uses.
+	// and of it only what its kind uses; and each notice it wrote that says
+	// somebody's words is one taking them out finds.
 	t.Cleanup(e.heldToKinds)
+	t.Cleanup(e.toldAsDeclared)
 
 	e.tenant, e.owner = e.newTenant("acme")
 	return e
@@ -98,6 +104,28 @@ func (e *env) heldToKinds() {
 		m := typ.New().Interface()
 		e.x.NoError(v.Value.UnmarshalTo(m), v.Kind)
 		e.x.Empty(domain.Beyond(v.Kind, m), "%s %s holds what its kind does not use", v.Kind, pdid.Id(v.Id))
+	}
+}
+
+// toldAsDeclared holds every notice of the deployment whose words are what an
+// event of its workspace says as its reason to [domain.ToldWhy]: told of such
+// an event, of a kind it gives that event's, about what the event is about.
+// That is how the words are found in it when they are taken out (design D51),
+// and a notice of any other kind would keep them.
+func (e *env) toldAsDeclared() {
+	e.t.Helper()
+	ctx := context.Background()
+	ns, err := e.s.Ent.Notification.Query().Where(notification.DescNEQ("")).All(ctx)
+	e.x.NoError(err)
+	for _, n := range ns {
+		vs, err := e.s.Ent.Event.Query().Where(event.TenantId(n.TenantId), event.Reason(n.Desc)).All(ctx)
+		e.x.NoError(err)
+		if len(vs) == 0 {
+			continue
+		}
+		e.x.True(slices.ContainsFunc(vs, func(v *ent.Event) bool {
+			return domain.ToldWhy[v.Kind] == n.Kind && v.SubjectId != nil && n.SubjectId != nil && *v.SubjectId == *n.SubjectId
+		}), "a %s notice says what %s %s says as its reason, and domain.ToldWhy does not pair them: taking the words out would leave them in it", n.Kind, vs[0].Kind, pdid.Id(vs[0].Id))
 	}
 }
 
