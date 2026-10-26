@@ -21,6 +21,7 @@ import (
 	"github.com/lesomnus/rove/cmd"
 	"github.com/lesomnus/rove/internal/ent"
 	entevent "github.com/lesomnus/rove/internal/ent/event"
+	entnotification "github.com/lesomnus/rove/internal/ent/notification"
 	"github.com/lesomnus/rove/server/domain"
 	"github.com/lesomnus/rove/server/pd"
 )
@@ -56,9 +57,10 @@ func NewCmdEvent(c *cmd.Config) *xli.Command {
 // reason in it: the one taken out, nor the request's reference.
 //
 // The words are taken out of every event of the operation the event is part
-// of that says them -- its parts copy its reason (design D49) -- and before
-// `--yes` it says how many those are, and of which kinds, having read none of
-// what they say ([domain.Copies]).
+// of that says them -- its parts copy its reason (design D49) -- and of every
+// notice that says them as its own (D51), and before `--yes` it says how many
+// those are, and of which kinds, having read none of what they say
+// ([domain.Copies], [domain.Told]).
 func newCmdEventRedact(c *cmd.Config) *xli.Command {
 	return &xli.Command{
 		Name:  "redact",
@@ -140,6 +142,24 @@ func newCmdEventRedact(c *cmd.Config) *xli.Command {
 				}
 				self.Printf("the operation it is part of says the same in %d other events, which it is taken out of too: %s\n", len(copies), kinds)
 			}
+			told, err := domain.Told(ctx, s.Ent, tenant, id, copies)
+			if err != nil {
+				return err
+			}
+			if len(told) > 0 {
+				kinds, err := noticeKindsOf(ctx, s.Ent, told)
+				if err != nil {
+					return err
+				}
+				self.Printf("%d notice(s) say the same as their words, which it is taken out of too: %s\n", len(told), kinds)
+				sent, err := mailed(ctx, s.Ent, told)
+				if err != nil {
+					return err
+				}
+				if sent > 0 {
+					self.Printf("%d of them went by mail before this, which is not taken back\n", sent)
+				}
+			}
 			if !yes {
 				self.Printf("would take its reason out, and record that as an event of @%s's own\n", t.Alias)
 				self.Printf("(nothing was done: `--yes` does it. It cannot be undone)\n")
@@ -174,6 +194,9 @@ func newCmdEventRedact(c *cmd.Config) *xli.Command {
 			if n := len(done.Copies); n > 0 {
 				self.Printf("and out of the %d other events of its operation that said the same, each with an event of the act's\n", n)
 			}
+			if n := len(done.Notices); n > 0 {
+				self.Printf("and out of the %d notice(s) that said the same as their words; one that went by mail before is not taken back\n", n)
+			}
 			return next(ctx)
 		}),
 	}
@@ -182,13 +205,45 @@ func newCmdEventRedact(c *cmd.Config) *xli.Command {
 // kindsOf is what kinds of event `ids` are, and how many of each, as an
 // operator reads it: "custody.issue ×2, reservation.add ×1".
 func kindsOf(ctx context.Context, db *ent.Client, ids []pdid.Id) (string, error) {
+	return tally(ids, func(us []uuid.UUID) ([]string, error) {
+		return db.Event.Query().Where(entevent.IdIn(us...)).Select(entevent.FieldKind).Strings(ctx)
+	})
+}
+
+// noticeKindsOf is [kindsOf] of notices: "reservation.decided ×3".
+func noticeKindsOf(ctx context.Context, db *ent.Client, ids []pdid.Id) (string, error) {
+	return tally(ids, func(us []uuid.UUID) ([]string, error) {
+		return db.Notification.Query().Where(entnotification.IdIn(us...)).Select(entnotification.FieldKind).Strings(ctx)
+	})
+}
+
+// mailed is how many of the notices `ids` went by mail.
+func mailed(ctx context.Context, db *ent.Client, ids []pdid.Id) (int, error) {
+	n := 0
+	for page := range slices.Chunk(ids, 500) {
+		us := make([]uuid.UUID, len(page))
+		for i, v := range page {
+			us[i] = v.Uuid()
+		}
+		k, err := db.Notification.Query().Where(entnotification.IdIn(us...), entnotification.DateMailedNotNil()).Count(ctx)
+		if err != nil {
+			return 0, err
+		}
+		n += k
+	}
+	return n, nil
+}
+
+// tally is how many of `ids` are of each kind, which `kinds` answers of each
+// page of them.
+func tally(ids []pdid.Id, kinds func([]uuid.UUID) ([]string, error)) (string, error) {
 	n := map[string]int{}
 	for page := range slices.Chunk(ids, 500) {
 		us := make([]uuid.UUID, len(page))
 		for i, v := range page {
 			us[i] = v.Uuid()
 		}
-		vs, err := db.Event.Query().Where(entevent.IdIn(us...)).Select(entevent.FieldKind).Strings(ctx)
+		vs, err := kinds(us)
 		if err != nil {
 			return "", err
 		}

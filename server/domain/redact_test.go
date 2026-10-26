@@ -8,6 +8,7 @@ import (
 	"io"
 	"maps"
 	"slices"
+	"strings"
 	"testing"
 	"time"
 	"uuid"
@@ -20,6 +21,10 @@ import (
 	"github.com/lesomnus/rove/internal/ent"
 	entaudit "github.com/lesomnus/rove/internal/ent/audit"
 	"github.com/lesomnus/rove/internal/ent/event"
+	"github.com/lesomnus/rove/internal/ent/holder"
+	"github.com/lesomnus/rove/internal/ent/notification"
+	"github.com/lesomnus/rove/server/domain"
+	"github.com/lesomnus/rove/server/mail"
 	"github.com/lesomnus/rove/server/pd"
 )
 
@@ -570,4 +575,214 @@ func TestAReasonTakenOutTwiceAtOnceIsTakenOutOnce(t *testing.T) {
 	for _, v := range named {
 		x.Empty(e.kept(v).Reason)
 	}
+}
+
+// TestAReasonIsTakenOutOfTheNoticesThatToldIt: whoever asked for a
+// reservation is told it was decided, and why -- in the decision's words, in
+// a notice of their own (`reservation.decided`, design D51). Taking the words
+// out of the decision takes them out of the notice, in the same act and
+// through the servers: the notice's trail says the act wrote it, its inbox
+// says what was decided and no longer why, and the rest of it is as it was.
+// A series decided at once told each time it takes place, and asked of one of
+// them, the words are taken out of every notice. A notice of another
+// decision is as it was, whatever it says.
+func TestAReasonIsTakenOutOfTheNoticesThatToldIt(t *testing.T) {
+	e := newEnv(t)
+	x := e.x
+	ctx := context.Background()
+	hall := e.space("강당", nil)
+	e.bookable(hall, func(r *app.BookableAddRequest) { r.SetApproval(true); r.SetHorizonDays(120) })
+	kim, _ := e.person("member")
+	boss, _ := e.person("manager")
+	request := func(at int, edit func(*app.ReservationAddRequest)) *app.Reservation {
+		r, err := e.reserve(kim, hall, e.tomorrow(at, 0), e.tomorrow(at+1, 0), edit)
+		x.NoError(err)
+		x.Equal("requested", r.GetStatus())
+		return r
+	}
+	reject := func(r *app.Reservation, why string, series bool) {
+		_, err := e.app().Reservation().Reject(boss, app.ReservationDecideRequest_builder{Ref: ref[app.ReservationRef](r.GetId()), Reason: why, Series: series}.Build())
+		x.NoError(err)
+	}
+	told := func(r *app.Reservation) *ent.Notification {
+		v, err := e.s.Ent.Notification.Query().Where(notification.Kind("reservation.decided"), notification.SubjectId(idUUID(r.GetId()))).Only(ctx)
+		x.NoError(err)
+		return v
+	}
+	trail := func(n *ent.Notification) []*ent.Audit {
+		lines, err := e.s.Ent.Audit.Query().Where(entaudit.ObjectId(n.Id)).Order(ent.Asc(entaudit.FieldDateCreated), ent.Asc(entaudit.FieldId)).All(ctx)
+		x.NoError(err)
+		return lines
+	}
+
+	// Rejected for what a person asked to have erased; and two more, one in
+	// the same words and one in others, which nobody asked of.
+	r, same, apart := request(9, nil), request(11, nil), request(13, nil)
+	reject(r, asked, false)
+	reject(same, asked, false)
+	reject(apart, "강당 공사", false)
+	was := told(r)
+	x.Equal(asked, was.Desc, "told why, in the decision's words")
+	rejected, err := e.s.Ent.Event.Query().Where(event.Kind("reservation.reject"), event.SubjectId(idUUID(r.GetId()))).Only(ctx)
+	x.NoError(err)
+
+	e.now = e.now.Add(time.Minute)
+	_, err = e.redact(e.owner, pdid.Id(rejected.Id), "삭제 요청 2026-27")
+	x.NoError(err)
+	x.Empty(e.kept(pdid.Id(rejected.Id)).Reason)
+	now := told(r)
+	x.Empty(now.Desc, "taken out of the notice")
+	x.Equal(was.Name, now.Name, "and the rest of it as it was")
+	x.Equal(was.Kind, now.Kind)
+	x.Equal(was.HolderId, now.HolderId)
+	x.Equal(was.Link, now.Link)
+	x.Equal(was.ReadAt, now.ReadAt)
+	x.Equal(was.Mail, now.Mail)
+	x.Equal(asked, told(same).Desc, "another decision's, which nobody asked of")
+	x.Equal("강당 공사", told(apart).Desc)
+
+	inbox, err := e.app().Notification().Inbox(kim, &app.NotificationInboxRequest{})
+	x.NoError(err)
+	i := slices.IndexFunc(inbox.GetItems(), func(v *app.Notification) bool { return idUUID(v.GetId()) == was.Id })
+	x.GreaterOrEqual(i, 0)
+	x.Equal(was.Name, inbox.GetItems()[i].GetName(), "what was decided")
+	x.Empty(inbox.GetItems()[i].GetDesc(), "and not why")
+
+	// The act wrote it, as the owner who did it -- over the wire the line
+	// names the call (`cmd`'s test) -- and the trail holds none of anybody's
+	// words.
+	owner, err := e.s.Ent.Holder.Query().Where(holder.Alias("owner"), holder.TenantId(e.tenant.Uuid())).Only(ctx)
+	x.NoError(err)
+	lines := trail(now)
+	last := lines[len(lines)-1]
+	x.Equal(app.NotificationService_Patch_FullMethodName, last.Action)
+	x.Equal(owner.Id, last.ActorId)
+	x.Len(trail(told(same)), len(trail(told(apart))), "nothing written of the others")
+	all, err := e.s.Ent.Audit.Query().All(ctx)
+	x.NoError(err)
+	for _, l := range all {
+		for _, b := range [][]byte{l.Patch, l.Value} {
+			x.NotContains(string(b), "박지민", "%s %s", l.Action, pdid.Id(l.ObjectId))
+		}
+	}
+
+	// A series, rejected at once: each time it takes place was told. Asked
+	// of the third, every notice of it is taken out -- here by the
+	// operator, whose act says which.
+	const words = "이수민 씨 병가로 반려 (010-9876-5432)"
+	weekly := request(15, func(r *app.ReservationAddRequest) { r.SetRepeat("FREQ=WEEKLY;COUNT=3") })
+	reject(weekly, words, true)
+	list, err := e.app().Reservation().List(e.owner, app.ReservationListRequest_builder{
+		Filters: []*app.ReservationFilter{app.ReservationFilter_builder{SeriesId: weekly.GetSeriesId()}.Build()},
+	}.Build())
+	x.NoError(err)
+	times := list.GetItems()
+	x.Len(times, 3)
+	var notices []pdid.Id
+	for _, v := range times {
+		n := told(v)
+		x.Equal(words, n.Desc, "each time it takes place was told why")
+		notices = append(notices, pdid.Id(n.Id))
+	}
+	third := slices.MaxFunc(times, func(a, b *app.Reservation) int { return a.GetBeginsAt().AsTime().Compare(b.GetBeginsAt().AsTime()) })
+	of, err := e.s.Ent.Event.Query().Where(event.Kind("reservation.reject"), event.SubjectId(idUUID(third.GetId()))).Only(ctx)
+	x.NoError(err)
+	x.NotNil(of.CauseId, "a part of the decision")
+	copies, err := domain.Copies(ctx, e.s.Ent, e.tenant, pdid.Id(of.Id))
+	x.NoError(err)
+	found, err := domain.Told(ctx, e.s.Ent, e.tenant, pdid.Id(of.Id), copies)
+	x.NoError(err)
+	x.ElementsMatch(notices, found, "found before anything is done")
+
+	v, err := e.s.Deps.RedactEvent(ctx, e.s.Base, e.s.Drv, e.tenant, pdid.Id(of.Id), "삭제 요청 2026-28")
+	x.NoError(err)
+	x.Len(v.Copies, 2)
+	x.ElementsMatch(notices, v.Notices)
+	for _, v := range times {
+		n := told(v)
+		x.Empty(n.Desc)
+		lines := trail(n)
+		x.Equal(app.NotificationService_Patch_FullMethodName, lines[len(lines)-1].Action)
+		x.Equal(uuid.UUID{}, lines[len(lines)-1].ActorId, "the deployment's own work, as the act is")
+	}
+	x.Equal(asked, told(same).Desc, "as it was")
+}
+
+// meanwhile is a mail server that does `then` with each mail it was sent,
+// once it has it: what happens while the mailer's pass is sending.
+type meanwhile struct {
+	*mailbox
+	then func(mail.Message)
+}
+
+func (m meanwhile) Send(ctx context.Context, v mail.Message) error {
+	if err := m.mailbox.Send(ctx, v); err != nil {
+		return err
+	}
+	m.then(v)
+	return nil
+}
+
+// TestWordsTakenOutOfANoticeAreNotMailed: a decision's notice goes by mail as
+// well, after the operation and not inside it -- so the words can be taken
+// out of it before it goes, and it goes without them: even when the mailer's
+// pass had read it already, and was sending what was before it. What went by
+// mail before they were taken out is not taken back (design D51).
+func TestWordsTakenOutOfANoticeAreNotMailed(t *testing.T) {
+	e := newEnv(t)
+	x := e.x
+	ctx := context.Background()
+	box := e.mailing()
+	hall := e.space("강당", nil)
+	e.bookable(hall, func(r *app.BookableAddRequest) { r.SetApproval(true) })
+	kim, kimP := e.person("member")
+	const before, after = "박지민 씨 개인 사정 (먼저)", "박지민 씨 개인 사정 (나중)"
+	rejected := map[string]pdid.Id{}
+	for i, name := range []string{"첫 회의", "둘째 회의"} {
+		r, err := e.reserve(kim, hall, e.tomorrow(9+2*i, 0), e.tomorrow(10+2*i, 0), func(r *app.ReservationAddRequest) { r.SetName(name) })
+		x.NoError(err)
+		e.now = e.now.Add(time.Minute)
+		_, err = e.app().Reservation().Reject(e.owner, app.ReservationDecideRequest_builder{Ref: ref[app.ReservationRef](r.GetId()), Reason: []string{before, after}[i]}.Build())
+		x.NoError(err)
+		v, err := e.s.Ent.Event.Query().Where(event.Kind("reservation.reject"), event.SubjectId(idUUID(r.GetId()))).Only(ctx)
+		x.NoError(err)
+		rejected[name] = pdid.Id(v.Id)
+	}
+
+	// The first is sent, and while the pass sends it, the second's words are
+	// taken out; the pass read both before it sent either.
+	took := false
+	e.s.Deps.Mail = meanwhile{box, func(v mail.Message) {
+		if v.To == kimP.GetEmail() && strings.Contains(v.Subject, "첫 회의") {
+			_, err := e.redact(e.owner, rejected["둘째 회의"], "삭제 요청 2026-29")
+			x.NoError(err)
+			took = true
+		}
+	}}
+	e.mail()
+	x.True(took)
+	got := box.to(kimP.GetEmail())
+	x.Len(got, 2)
+	for _, v := range got {
+		switch {
+		case strings.Contains(v.Subject, "첫 회의"):
+			x.Contains(v.Body, before, "sent before anybody asked")
+		case strings.Contains(v.Subject, "둘째 회의"):
+			x.NotContains(v.Body, "박지민", "sent as it says now")
+			x.Contains(v.Body, "https://rove.example/@acme/reservations", "and still what it is about")
+		default:
+			x.Fail("a mail of neither", v.Subject)
+		}
+	}
+
+	// Taken out of the first now, which went by mail before: the notice says
+	// it no more, and what was mailed is not Rove's to take back.
+	_, err := e.redact(e.owner, rejected["첫 회의"], "삭제 요청 2026-30")
+	x.NoError(err)
+	n, err := e.s.Ent.Notification.Query().Where(notification.Kind("reservation.decided"), notification.DescNEQ("")).Count(ctx)
+	x.NoError(err)
+	x.Zero(n)
+	sent, err := e.s.Ent.Notification.Query().Where(notification.Kind("reservation.decided"), notification.DateMailedNotNil()).Count(ctx)
+	x.NoError(err)
+	x.Equal(2, sent)
 }
