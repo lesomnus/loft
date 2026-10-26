@@ -791,6 +791,11 @@ func (s domainReservation) Add(ctx context.Context, req *app.ReservationAddReque
 					if err != nil {
 						return err
 					}
+					if h := heldOut(cs, w.r.asset.Id); h != nil {
+						// Out with somebody then, which a person is told
+						// until when (D53).
+						return t.outRefusal(w.r.asset, h)
+					}
 					if len(cs) > 0 {
 						return status.Errorf(codes.Aborted, "%s은(는) %s에 이미 예약되어 있습니다. 다른 시간을 고르세요",
 							w.r.asset.Name, t.when(o[0]))
@@ -1347,6 +1352,10 @@ func (s domainReservation) Calendar(ctx context.Context, req *app.ReservationCal
 	if err != nil {
 		return nil, err
 	}
+	out, err := t.outOf(rs)
+	if err != nil {
+		return nil, err
+	}
 
 	names := namer{t: t}
 	entries := []*app.CalendarEntry{}
@@ -1363,7 +1372,7 @@ func (s domainReservation) Calendar(ctx context.Context, req *app.ReservationCal
 		for _, it := range items {
 			ids = append(ids, pdid.Id(it.ResourceId).Bytes())
 		}
-		entries = append(entries, app.CalendarEntry_builder{Reservation: v, ResourceIds: ids, PartyName: names.party(r.PartyId), Conflicts: waiting[r.Id], OutOfUse: gone[r.Id]}.Build())
+		entries = append(entries, app.CalendarEntry_builder{Reservation: v, ResourceIds: ids, PartyName: names.party(r.PartyId), Conflicts: waiting[r.Id], OutOfUse: gone[r.Id], Out: out[r.Id]}.Build())
 	}
 	return app.ReservationCalendarResponse_builder{Entries: entries}.Build(), nil
 }

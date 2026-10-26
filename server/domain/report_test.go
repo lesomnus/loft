@@ -370,8 +370,8 @@ func TestUsageIsTheTimeBookedAgainstTheTimeUsed(t *testing.T) {
 		x.NoError(err)
 		x.Equal("rove-bookings-20261001-20261031.csv", f.GetName())
 		head, rows := written(t, f)
-		x.Equal([]string{"태그", "이름", "종류", "수량", "예약", "이용", "노쇼", "예약 시간", "이용 시간", "이용률(%)"}, head)
-		x.Equal([]string{"CM-1", "카메라", "물품", "1", "2", "2", "0", "9.0", "12.3", "137"}, rows["CM-1"])
+		x.Equal([]string{"태그", "이름", "종류", "수량", "예약", "이용", "노쇼", "예약 시간", "이용 시간", "이용률(%)", "예약 없이 나감", "예약 없이 나간 시간"}, head)
+		x.Equal([]string{"CM-1", "카메라", "물품", "1", "2", "2", "0", "9.0", "12.3", "137", "0", "0.0"}, rows["CM-1"], "picked up, and handed over with no reservation never")
 	})
 }
 

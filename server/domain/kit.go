@@ -994,7 +994,11 @@ func (t *Tx) waitingOf(rs []*ent.Reservation) (map[uuid.UUID][]*app.ReservationC
 // has it.
 func (t *Tx) busy(a *ent.Allocation, r *ent.Reservation) *app.BusySpan {
 	label := a.Kind
-	if r == nil && a.RefId != nil {
+	switch {
+	case a.Kind == allocCustody:
+		// What a hand-over holds, by what it is: it names nobody (D53).
+		label = t.outLabel(a)
+	case r == nil && a.RefId != nil:
 		r, _ = t.db.Reservation.Query().Where(reservation.Id(*a.RefId), reservation.TenantId(t.tenant.Uuid())).Only(t.ctx)
 	}
 	if r != nil {

@@ -344,8 +344,9 @@ export const ReservationItemSchema: GenMessage<ReservationItem> = /*@__PURE__*/
 
 /**
  * Allocation is a span of time a resource is taken: by a reservation, a hold,
- * maintenance or an override. Every conflict check is a check on these rows,
- * and on PostgreSQL an exclusion constraint backs it (design 4, 9.4).
+ * maintenance, an override, or a hand-over of it. Every conflict check is a
+ * check on these rows, and on PostgreSQL an exclusion constraint backs it
+ * (design 4, 9.4).
  *
  * @generated from message rove.Allocation
  */
@@ -368,7 +369,10 @@ export type Allocation = Message<"rove.Allocation"> & {
   /**
    * reservation | maintenance | override | waiting: a member of a kit a
    * reservation of the kit waits for, or some of a pool, which blocks
-   * nothing until it is taken.
+   * nothing until it is taken | custody: what somebody has out, from its
+   * hand-over until it is due back or is back, `ref_id` the hand-over's,
+   * which blocks and is not exclusive -- it lies over what was booked before
+   * it, which keeps its time (D53).
    *
    * @generated from field: string kind = 9;
    */

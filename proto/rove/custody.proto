@@ -81,6 +81,14 @@ message Custody {
       {
         name: "reservation"
         refs: [{name: "reservation_id", number: 18}]
+      },
+      // A workspace's hand-overs made in a period: what the report of how
+      // what may be booked was used reads of what was handed over with no
+      // reservation (design 9.14, D53), a period of them rather than all it
+      // ever made.
+      {
+        name: "issued"
+        refs: [{name: "tenant", number: 2}, {name: "issued_at", number: 11}]
       }
     ]
   };
