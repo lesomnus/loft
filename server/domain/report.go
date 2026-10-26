@@ -281,7 +281,7 @@ func (t *Tx) census(req *app.AssetCensusRequest) (*app.AssetCensusResponse, erro
 		k := uuid.UUID{}
 		if v.Key.Valid {
 			k = v.Key.V
-			h := keeper{found: v.Holder.Valid, space: v.Holder.String == "space"}
+			h := keeper{space: v.Holder.String == "space"}
 			if v.Up.Valid {
 				h.up = &v.Up.V
 			}
@@ -310,11 +310,11 @@ func (t *Tx) census(req *app.AssetCensusRequest) (*app.AssetCensusResponse, erro
 }
 
 // keeper is what holds something counted, as the census by location reads it
-// beside the count: whether it was found, whether it is a space, and what it
-// is in.
+// beside the count: whether it is a space, and what it is in -- nothing for
+// one it did not find, which is not the tenant's, or gone.
 type keeper struct {
-	found, space bool
-	up           *uuid.UUID
+	space bool
+	up    *uuid.UUID
 }
 
 func censusRow(id uuid.UUID, statuses map[string]uint32) *app.AssetCensusRow {
@@ -793,7 +793,7 @@ func (s domainBookable) ExportUsage(ctx context.Context, req *app.BookableUsageR
 //   - checked in, from the check-in to its finish: the moment it was
 //     completed, when that was before its end -- which is where finishing
 //     early ends what it holds ([Tx.settleAllocations]) -- and its end
-//     otherwise, or now while it is in use;
+//     otherwise, or now while it is in use and has not ended;
 //   - completed with neither, as a room is where nobody is held to checking
 //     in, from its beginning to its finish.
 //
