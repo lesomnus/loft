@@ -19,7 +19,6 @@ type Mutation struct {
 	typ                string
 	units              *uint32
 	addunits           *int32
-	assigned_id        *uuid.UUID
 	date_updated       *time.Time
 	date_created       *time.Time
 	clearedFields      map[string]struct{}
@@ -86,42 +85,6 @@ func (m *Mutation) ResetUnits() {
 	m.units = nil
 	m.addunits = nil
 	delete(m.exprs, FieldUnits)
-}
-
-// SetAssignedId sets the "assigned_id" field.
-func (m *Mutation) SetAssignedId(u uuid.UUID) {
-	m.assigned_id = &u
-	delete(m.clearedFields, FieldAssignedId)
-	delete(m.exprs, FieldAssignedId)
-}
-
-// AssignedId returns the value of the "assigned_id" field in the mutation.
-func (m *Mutation) AssignedId() (r uuid.UUID, exists bool) {
-	v := m.assigned_id
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ClearAssignedId clears the value of the "assigned_id" field.
-func (m *Mutation) ClearAssignedId() {
-	m.assigned_id = nil
-	delete(m.exprs, FieldAssignedId)
-	m.clearedFields[FieldAssignedId] = struct{}{}
-}
-
-// AssignedIdCleared returns if the "assigned_id" field was cleared in this mutation.
-func (m *Mutation) AssignedIdCleared() bool {
-	_, ok := m.clearedFields[FieldAssignedId]
-	return ok
-}
-
-// ResetAssignedId resets all changes to the "assigned_id" field.
-func (m *Mutation) ResetAssignedId() {
-	m.assigned_id = nil
-	delete(m.clearedFields, FieldAssignedId)
-	delete(m.exprs, FieldAssignedId)
 }
 
 // SetDateUpdated sets the "date_updated" field.
@@ -350,12 +313,9 @@ func (m *Mutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *Mutation) Fields() []string {
-	fields := make([]string, 0, 7)
+	fields := make([]string, 0, 6)
 	if m.units != nil || m.exprs[FieldUnits] != nil {
 		fields = append(fields, FieldUnits)
-	}
-	if m.assigned_id != nil || m.exprs[FieldAssignedId] != nil {
-		fields = append(fields, FieldAssignedId)
 	}
 	if m.date_updated != nil || m.exprs[FieldDateUpdated] != nil {
 		fields = append(fields, FieldDateUpdated)
@@ -388,8 +348,6 @@ func (m *Mutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case FieldUnits:
 		return m.Units()
-	case FieldAssignedId:
-		return m.AssignedId()
 	case FieldDateUpdated:
 		return m.DateUpdated()
 	case FieldDateCreated:
@@ -428,16 +386,6 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUnits(v)
-		return nil
-	case FieldAssignedId:
-		v, ok := value.(uuid.UUID)
-		if !ok {
-			if e, ok := value.(sql.Querier); ok {
-				return m.SetFieldExpr(name, e)
-			}
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetAssignedId(v)
 		return nil
 	case FieldDateUpdated:
 		v, ok := value.(time.Time)
@@ -513,8 +461,6 @@ func (m *Mutation) SetFieldExpr(name string, expr sql.Querier) error {
 	switch name {
 	case FieldUnits:
 		m.ResetUnits()
-	case FieldAssignedId:
-		m.ResetAssignedId()
 	case FieldDateUpdated:
 		m.ResetDateUpdated()
 	case FieldDateCreated:
@@ -548,9 +494,6 @@ func (m *Mutation) ExprFields() []string {
 	var fields []string
 	if _, ok := m.exprs[FieldUnits]; ok {
 		fields = append(fields, FieldUnits)
-	}
-	if _, ok := m.exprs[FieldAssignedId]; ok {
-		fields = append(fields, FieldAssignedId)
 	}
 	if _, ok := m.exprs[FieldDateUpdated]; ok {
 		fields = append(fields, FieldDateUpdated)
@@ -599,9 +542,6 @@ func (m *Mutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *Mutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(FieldAssignedId) {
-		fields = append(fields, FieldAssignedId)
-	}
 	if m.FieldCleared(FieldDateCreated) {
 		fields = append(fields, FieldDateCreated)
 	}
@@ -619,9 +559,6 @@ func (m *Mutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *Mutation) ClearField(name string) error {
 	switch name {
-	case FieldAssignedId:
-		m.ClearAssignedId()
-		return nil
 	case FieldDateCreated:
 		m.ClearDateCreated()
 		return nil
@@ -635,9 +572,6 @@ func (m *Mutation) ResetField(name string) error {
 	switch name {
 	case FieldUnits:
 		m.ResetUnits()
-		return nil
-	case FieldAssignedId:
-		m.ResetAssignedId()
 		return nil
 	case FieldDateUpdated:
 		m.ResetDateUpdated()

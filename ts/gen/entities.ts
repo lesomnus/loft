@@ -437,7 +437,7 @@ export const ReservationItem = {
 	version: "dateUpdated",
 	refs: [{ field: "tenant", to: "rove.Tenant" }, { field: "reservation", to: "rove.Reservation" }, { field: "resource", to: "rove.Asset" }],
 	key: "id",
-	ids: ["id", "assignedId"],
+	ids: ["id"],
 	service: ReservationItemService,
 } as const satisfies EntityDesc
 

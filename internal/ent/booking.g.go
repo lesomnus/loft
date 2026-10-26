@@ -117,9 +117,6 @@ func (e *ReservationItem) Proto() *rove.ReservationItem {
 		x.SetResource(r)
 	}
 	x.SetUnits(e.Units)
-	if e.AssignedId != nil {
-		x.SetAssignedId(e.AssignedId[:])
-	}
 	x.SetDateUpdated(timestamppb.New(e.DateUpdated))
 	x.SetDateCreated(timestamppb.New(e.DateCreated))
 	return x

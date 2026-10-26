@@ -422,17 +422,27 @@ function ReservationDialog(props: { r: Reservation; resources: Uint8Array[]; con
  * Equipment is picked up as a loan due back when the reservation ends: what
  * it holds is handed out, a kit's members with it, and what it waits for is
  * said there too -- a kit's member it does not hold does not go out with it,
- * and neither does one it takes that is out of use, held or waited for.
+ * and neither does one it takes that is out of use, held or waited for. Of a
+ * pool, as many of its units as it holds, free until it ends, are put in, and
+ * any of the others free then may be picked instead (D46).
  */
 function PickUp(props: { r: Reservation; resources: Uint8Array[]; conflicts: ReservationConflict[]; onClose: () => void }): ReactNode {
 	const held = useRpc(AllocationService.method.list, { filters: [{ refId: props.r.id }], size: 200 })
+	const offer = useRpc(ReservationService.method.pickup, { ref: ref(props.r.id) })
 	const ids = useMemo(() => (held.data === undefined ? undefined : holds(props.resources, held.data.items)), [held.data, props.resources])
 	const waited = useMemo(() => (held.data === undefined ? [] : waitsFor(held.data.items)), [held.data])
-	const assets = useAssetsRead([...(ids ?? []), ...waited])
-	if (ids === undefined || assets === undefined) return null
+	// What it is offered of its pools, or nothing when that could not be read.
+	const pools = offer.state === 'error' ? [] : offer.data?.pools
+	const units = useMemo(() => (pools ?? []).flatMap((p) => [p.poolId, ...p.offered, ...p.others]), [pools])
+	const assets = useAssetsRead([...(ids ?? []), ...waited, ...units])
+	if (ids === undefined || pools === undefined || assets === undefined) return null
 	const of = (vs: Uint8Array[]) => vs.map((id) => assets.get(idStr(id))).filter((a): a is Asset => a !== undefined)
-	return <NewCustodyForPickup r={props.r} assets={of(ids)} waited={of(waited)} conflicts={props.conflicts} onClose={props.onClose} />
+	const offered = pools.map((p) => ({ pool: assets.get(idStr(p.poolId)), units: p.units, offered: of(p.offered), others: of(p.others) }))
+	return <NewCustodyForPickup r={props.r} assets={of(ids)} waited={of(waited)} pools={offered} conflicts={props.conflicts} onClose={props.onClose} />
 }
+
+/** What a pickup is offered of a pool it booked: as many as it holds, and the rest free until it ends. */
+type PoolOffer = { pool: Asset | undefined; units: number; offered: Asset[]; others: Asset[] }
 
 /**
  * What a reservation holds, in order: what it booked, and then the members
@@ -528,21 +538,31 @@ function Unusable(props: { status: string; items: OutOfUseItem[] }): ReactNode {
  * A pickup's hand-over: to whom it is for, a loan due back when it ends, of
  * what it holds that may be handed over. What it takes that is out of use is
  * not, whether it holds it or waits for it, and it is said beside what the
- * reservation waits for.
+ * reservation waits for. Of a pool, the units it is offered, with a box for
+ * each unit it may be handed instead (D46).
  */
-function NewCustodyForPickup(props: { r: Reservation; assets: Asset[]; waited: Asset[]; conflicts: ReservationConflict[]; onClose: () => void }): ReactNode {
+function NewCustodyForPickup(props: { r: Reservation; assets: Asset[]; waited: Asset[]; pools: PoolOffer[]; conflicts: ReservationConflict[]; onClose: () => void }): ReactNode {
 	const items = props.assets.filter((a) => a.kind === 'item')
 	const gone = [...items, ...props.waited.filter((a) => a.kind === 'item')].filter((a) => outOfUse.includes(a.status))
+	const pools = props.pools.filter((p) => p.pool !== undefined && p.offered.length + p.others.length > 0)
 	return (
 		<NewCustody
-			assets={items.filter((a) => !outOfUse.includes(a.status))}
+			assets={[...items.filter((a) => !outOfUse.includes(a.status)), ...pools.flatMap((p) => p.offered)]}
+			choices={pools.map((p) => ({
+				label: `${p.pool?.name ?? ''}에서 ${p.units}개`,
+				hint:
+					p.offered.length < p.units
+						? `지금 건넬 수 있는 것은 ${p.offered.length}개입니다. 나머지는 누가 가지고 있거나 그때 다른 예약·정비가 잡고 있습니다`
+						: '다른 것으로 바꾸려면 상자를 고르세요. 고른 것은 이 예약이 끝날 때까지 이 예약의 것입니다',
+				assets: [...p.offered, ...p.others],
+			}))}
 			party={idStr(props.r.party?.id)}
 			reservation={props.r.id}
 			due={dateOf(props.r.endsAt)}
 			note={
 				props.conflicts.length > 0 || gone.length > 0 ? (
 					<>
-						<Waiting conflicts={props.conflicts} more="이 예약이 잡지 못한 구성품은 건넬 자산에 넣지 않았습니다." />
+						<Waiting conflicts={props.conflicts} more="이 예약이 잡지 못한 구성품은 건넬 자산에 넣지 않았습니다." short="이 예약이 잡지 못한 수량은 건넬 자산에 넣지 않았습니다." />
 						<OutOfUse items={gone} more="분실·불용·폐기 상태라 건넬 자산에 넣지 않았습니다." />
 					</>
 				) : undefined
@@ -558,9 +578,9 @@ function NewCustodyForPickup(props: { r: Reservation; assets: Asset[]; waited: A
  * pool that has fewer to give then than the reservations made before it
  * hold. It takes each once there is room, and a member it does not hold is not
  * handed out with the kit. `more` is what the place it is said in does about
- * a kit's member.
+ * a kit's member, and `short` about what it waits for of a pool.
  */
-function Waiting(props: { conflicts: ReservationConflict[]; more?: string }): ReactNode {
+function Waiting(props: { conflicts: ReservationConflict[]; more?: string; short?: string }): ReactNode {
 	const members = props.conflicts.filter((c) => c.units === 0)
 	const pools = props.conflicts.filter((c) => c.units > 0)
 	return (
@@ -593,6 +613,7 @@ function Waiting(props: { conflicts: ReservationConflict[]; more?: string }): Re
 						))}
 					</ul>
 					<p className="small">풀에서 쓸 수 있는 것이 줄었습니다. 다시 생기면 먼저 기다린 예약부터 잡습니다.</p>
+					{props.short !== undefined && <p className="small">{props.short}</p>}
 				</div>
 			)}
 		</>

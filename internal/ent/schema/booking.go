@@ -170,9 +170,6 @@ func (ReservationItem) Fields() []ent.Field {
 			Unique().
 			Immutable(),
 		field.Uint32("units"),
-		field.Uuid("assigned_id").
-			Nillable().
-			Optional(),
 		field.Time("date_updated"),
 		field.Time("date_created").
 			Immutable().

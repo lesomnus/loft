@@ -179,11 +179,11 @@ message ReservationItem {
   Reservation reservation = 8 [(orm.edge) = {immutable: true}];
   Asset resource = 9 [(orm.edge) = {immutable: true}];
   uint32 units = 10;
-  // For a pool: the unit given out, once it is.
-  bytes assigned_id = 11 [(orm.field) = {
-    type: TYPE_UUID
-    nullable: true
-  }];
+  // Was the unit of a pool given out, which nothing wrote: what a pickup
+  // gives out of a pool is each unit's own allocation for the reservation,
+  // as many as it gives (design 4, D46).
+  reserved 11;
+  reserved assigned_id;
 
   google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
   google.protobuf.Timestamp date_created = 15 [(orm.field) = {

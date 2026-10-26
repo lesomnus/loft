@@ -101,6 +101,8 @@ func (s domainCustody) Add(ctx context.Context, req *app.CustodyAddRequest) (*ap
 		if req.HasDueAt() {
 			row.SetDueAt(req.GetDueAt())
 		}
+		var picked *ent.Reservation
+		things := []uuid.UUID{}
 		if len(req.GetReservationId()) > 0 {
 			// A pickup fulfils a reservation: it is in use from now, and what
 			// it held is now held by this custody instead. Held first and read
@@ -124,8 +126,20 @@ func (s domainCustody) Add(ctx context.Context, req *app.CustodyAddRequest) (*ap
 			// over as what it is made of -- a kit, a group -- or is no
 			// hand-over's (D43), read as what it booked is held
 			// ([Tx.unusable]). An item out of use is left out of what is
-			// handed over, a line at a time, below.
-			if err := t.lockAllocations(rid); err != nil {
+			// handed over, a line at a time, below. And what it hands out
+			// held with it: of a pool it booked, what it hands out is its
+			// own from now on ([Tx.handOver]).
+			for i, l := range req.GetLines() {
+				if !l.HasAsset() {
+					continue
+				}
+				_, aid, err := t.get(l.GetAsset(), fmt.Sprintf("lines[%d].asset", i))
+				if err != nil {
+					return err
+				}
+				things = append(things, aid.Uuid())
+			}
+			if err := t.lockAllocations(rid, things...); err != nil {
 				return err
 			}
 			gone, err := t.unusable(rid.Uuid())
@@ -134,6 +148,9 @@ func (s domainCustody) Add(ctx context.Context, req *app.CustodyAddRequest) (*ap
 			}
 			if gone = slices.DeleteFunc(gone, func(a *ent.Asset) bool { return a.Kind == "item" }); len(gone) > 0 {
 				return failed("예약한 것 가운데 쓸 수 없는 것이 있어 수령할 수 없습니다: %s", outOfUseNamed(gone))
+			}
+			if picked, err = t.db.Reservation.Query().Where(reservation.Id(rid.Uuid()), reservation.TenantId(t.tenant.Uuid())).Only(t.ctx); err != nil {
+				return err
 			}
 			if _, err := t.next.Reservation().Patch(t.ctx, app.ReservationPatchRequest_builder{
 				Ref:              app.ReservationRef_builder{Id: r.GetId()}.Build(),
@@ -211,6 +228,14 @@ func (s domainCustody) Add(ctx context.Context, req *app.CustodyAddRequest) (*ap
 				return invalid(fmt.Sprintf("lines[%d]", i), "품목은 자산이나 재고입니다")
 			}
 			if _, err := t.next.CustodyLine().Add(t.ctx, line); err != nil {
+				return err
+			}
+		}
+		// What it hands out of a pool the reservation booked is the
+		// reservation's own from now on, in place of what it held of the
+		// pool (design 4, D46).
+		if picked != nil {
+			if err := t.handOver(picked, things); err != nil {
 				return err
 			}
 		}

@@ -947,7 +947,6 @@ type ReservationItem struct {
 	xxx_hidden_Reservation *Reservation           `protobuf:"bytes,8,opt,name=reservation"`
 	xxx_hidden_Resource    *Asset                 `protobuf:"bytes,9,opt,name=resource"`
 	xxx_hidden_Units       uint32                 `protobuf:"varint,10,opt,name=units"`
-	xxx_hidden_AssignedId  []byte                 `protobuf:"bytes,11,opt,name=assigned_id,json=assignedId"`
 	xxx_hidden_DateUpdated *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=date_updated,json=dateUpdated"`
 	xxx_hidden_DateCreated *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=date_created,json=dateCreated"`
 	unknownFields          protoimpl.UnknownFields
@@ -1014,13 +1013,6 @@ func (x *ReservationItem) GetUnits() uint32 {
 	return 0
 }
 
-func (x *ReservationItem) GetAssignedId() []byte {
-	if x != nil {
-		return x.xxx_hidden_AssignedId
-	}
-	return nil
-}
-
 func (x *ReservationItem) GetDateUpdated() *timestamppb.Timestamp {
 	if x != nil {
 		return x.xxx_hidden_DateUpdated
@@ -1056,13 +1048,6 @@ func (x *ReservationItem) SetResource(v *Asset) {
 
 func (x *ReservationItem) SetUnits(v uint32) {
 	x.xxx_hidden_Units = v
-}
-
-func (x *ReservationItem) SetAssignedId(v []byte) {
-	if v == nil {
-		v = []byte{}
-	}
-	x.xxx_hidden_AssignedId = v
 }
 
 func (x *ReservationItem) SetDateUpdated(v *timestamppb.Timestamp) {
@@ -1136,8 +1121,6 @@ type ReservationItem_builder struct {
 	Reservation *Reservation
 	Resource    *Asset
 	Units       uint32
-	// For a pool: the unit given out, once it is.
-	AssignedId  []byte
 	DateUpdated *timestamppb.Timestamp
 	DateCreated *timestamppb.Timestamp
 }
@@ -1151,7 +1134,6 @@ func (b0 ReservationItem_builder) Build() *ReservationItem {
 	x.xxx_hidden_Reservation = b.Reservation
 	x.xxx_hidden_Resource = b.Resource
 	x.xxx_hidden_Units = b.Units
-	x.xxx_hidden_AssignedId = b.AssignedId
 	x.xxx_hidden_DateUpdated = b.DateUpdated
 	x.xxx_hidden_DateCreated = b.DateCreated
 	return m0
@@ -1538,16 +1520,14 @@ const file_rove_booking_proto_rawDesc = "" +
 	"\x05party\x1a\b\n" +
 	"\x06status\x1a\v\n" +
 	"\tseries_id d(\xf4\x03:\x00\"\x16\n" +
-	"\x06tenant\"\fparty.tenant\"\xf2\x04\n" +
+	"\x06tenant\"\fparty.tenant\"\xda\x04\n" +
 	"\x0fReservationItem\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12;\n" +
 	"\vreservation\x18\b \x01(\v2\x11.rove.ReservationB\x06\xf2\x82\x16\x02@\x01R\vreservation\x12/\n" +
 	"\bresource\x18\t \x01(\v2\v.rove.AssetB\x06\xf2\x82\x16\x02@\x01R\bresource\x12\x14\n" +
 	"\x05units\x18\n" +
-	" \x01(\rR\x05units\x12)\n" +
-	"\vassigned_id\x18\v \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\n" +
-	"assignedId\x12F\n" +
+	" \x01(\rR\x05units\x12F\n" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12H\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:\xd2\x01\xca\xfc\x15R\x12\x02\x10\x01\x1a,\x12\x04page\x1a\n" +
 	"\n" +
@@ -1566,7 +1546,7 @@ const file_rove_booking_proto_rawDesc = "" +
 	"\n" +
 	"\bresource d(\xf4\x03B\x02\n" +
 	"\x00\"-\n" +
-	"\x06tenant\"\x12reservation.tenant\"\x0fresource.tenant\"\x80\x06\n" +
+	"\x06tenant\"\x12reservation.tenant\"\x0fresource.tenantJ\x04\b\v\x10\fR\vassigned_id\"\x80\x06\n" +
 	"\n" +
 	"Allocation\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +

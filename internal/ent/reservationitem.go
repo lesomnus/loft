@@ -23,8 +23,6 @@ type ReservationItem struct {
 	Id uuid.UUID `json:"id,omitempty"`
 	// Units holds the value of the "units" field.
 	Units uint32 `json:"units,omitempty"`
-	// AssignedId holds the value of the "assigned_id" field.
-	AssignedId *uuid.UUID `json:"assigned_id,omitempty"`
 	// DateUpdated holds the value of the "date_updated" field.
 	DateUpdated time.Time `json:"date_updated,omitempty"`
 	// DateCreated holds the value of the "date_created" field.
@@ -96,8 +94,6 @@ func (*ReservationItem) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case reservationitem.FieldDateUpdated, reservationitem.FieldDateCreated:
 			values[i] = new(sql.NullTime)
-		case reservationitem.FieldAssignedId:
-			values[i] = new(sql.Null[uuid.UUID])
 		case reservationitem.FieldId, reservationitem.FieldTenantId, reservationitem.FieldReservationId, reservationitem.FieldResourceId:
 			values[i] = new(uuid.UUID)
 		default:
@@ -126,13 +122,6 @@ func (_m *ReservationItem) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field units", values[i])
 			} else if value.Valid {
 				_m.Units = uint32(value.Int64)
-			}
-		case reservationitem.FieldAssignedId:
-			if value, ok := values[i].(*sql.Null[uuid.UUID]); !ok {
-				return fmt.Errorf("unexpected type %T for field assigned_id", values[i])
-			} else if value.Valid {
-				_m.AssignedId = new(uuid.UUID)
-				*_m.AssignedId = value.V
 			}
 		case reservationitem.FieldDateUpdated:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -217,11 +206,6 @@ func (_m *ReservationItem) String() string {
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.Id))
 	builder.WriteString("units=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Units))
-	builder.WriteString(", ")
-	if v := _m.AssignedId; v != nil {
-		builder.WriteString("assigned_id=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
-	}
 	builder.WriteString(", ")
 	builder.WriteString("date_updated=")
 	builder.WriteString(_m.DateUpdated.Format(time.ANSIC))

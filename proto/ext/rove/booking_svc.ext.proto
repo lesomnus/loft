@@ -134,6 +134,11 @@ service ReservationService {
   // fulfilled it, its pickup and its return. A member reads their own, and
   // whoever runs or audits the register anybody's (D45).
   rpc Timeline(ReservationTimelineRequest) returns (ReservationTimelineResponse);
+  // Pickup answers what the pickup of a reservation is to hand out of each
+  // pool it booked: as many of the pool's units as it holds, free until it
+  // ends, and the others that may be handed out instead (design 4, D46). It
+  // changes nothing: CustodyService.Add is the pickup.
+  rpc Pickup(ReservationPickupRequest) returns (ReservationPickupResponse);
 }
 
 message ReservationTimelineRequest {
@@ -147,6 +152,32 @@ message ReservationTimelineResponse {
   // of booked or cancelled -- names that operation (`cause_id`), and says it
   // where the operation says more than the entry does (`cause`, design D34).
   repeated TimelineEntry entries = 1;
+}
+
+message ReservationPickupRequest {
+  ReservationRef ref = 1;
+}
+
+message ReservationPickupResponse {
+  repeated PoolPickup pools = 1;
+}
+
+// PoolPickup is what a pickup of a reservation hands out of a pool it booked:
+// the pool's units, each of which is the reservation's from the pickup until
+// it ends, in place of one of the pool's it holds.
+message PoolPickup {
+  // The pool, and how many of it the reservation holds: none while it waits
+  // for what it booked.
+  bytes pool_id = 1 [features.field_presence = IMPLICIT];
+  uint32 units = 2 [features.field_presence = IMPLICIT];
+  // The units it is to be handed, as many as it holds and as there are free
+  // until it ends, in the order a person reads them -- by their tags -- and
+  // the rest of the ones free until then, any of which may be handed out
+  // instead: not out of use, not with anybody, and not taken then by
+  // anything else, nor needed by the pools around it to keep what they
+  // promised (D44).
+  repeated bytes offered = 3;
+  repeated bytes others = 4;
 }
 
 message ReservationDecideRequest {
