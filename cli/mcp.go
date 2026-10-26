@@ -71,7 +71,7 @@ const mcpInstructions = `Rove is the register of a workspace's tangible assets: 
 - Names are mostly Korean. search_assets understands Korean words: a compound by its last word, a word with a particle on it, a letter wrong.
 - An asset is an item, a space (a room, a shelf, a rack), a kit or a group, and is inside another: "where" is the chain of what it is in, the outermost first.
 - Tools take the ids other tools answer with. An asset may also be named by its tag.
-- Times are RFC 3339; a date alone is midnight in this machine's zone.
+- Times are RFC 3339; a date alone is midnight in this machine's zone, but for a report's period it is the workspace's day.
 - The read tools read, as the person signed in. To change the register, a plan_* tool answers what would happen, in names, with a token: show the person that summary, and only once they say yes, call apply with the token and the summary word for word. A plan changes nothing; a plan never applied does nothing.
 - What may be done is the person's role's to say, and a terminal signed in with rove login --allow is held to what it allows.`
 
@@ -212,6 +212,17 @@ func newMcp(ws string, log *slog.Logger) *mcp.Server {
 		InputSchema: mcpSchema[mcpPurchasesIn](map[string][]any{"status": {"ordered", "received", "cancelled"}}),
 		Annotations: read,
 	}, t.listPurchases)
+	mcp.AddTool(s, &mcp.Tool{
+		Name: "report",
+		Description: "The reports the people who run the register read, added up by the deployment: how many assets there are, by type or by space, in each status; what is out now, who has it and how late; how each resource that may be booked was used over a period -- the hours booked and used, and the no-shows; what each inventory count found and what was lost; and what came in and went out of each stock over a period. " +
+			"Names a person reads beside the ids other tools take, and nobody's address or number. A manager's, an administrator's and an auditor's.",
+		InputSchema: mcpSchema[mcpReportIn](map[string][]any{
+			"report": {"assets", "loans", "bookings", "counts", "stock"},
+			"by":     {"type", "location"},
+			"kind":   {"item", "kit", "group", "space", "issue", "loan"},
+		}),
+		Annotations: read,
+	}, t.report)
 	mcp.AddTool(s, &mcp.Tool{
 		Name: "plan_stock",
 		Description: "Plan a change to supplies kept by quantity, which changes nothing: register a stock, receive more, consume some, adjust it to what was counted, move some to another space, or make some of it assets of their own. " +
