@@ -464,8 +464,8 @@ jobs:
   # neither. The job used to install those packages itself, with apt
   # (`playwright install --with-deps`): 20 MB of fonts from the runner's
   # Ubuntu mirror, which took 18 seconds on most runs and more than ten
-  # minutes on one in twenty, at 28 kB/s -- twelve of 310 jobs ran out of
-  # their fifteen minutes in it (2026-10-24 to 26).
+  # minutes on 18 of 321 (2026-10-24 to 26), at 28 kB/s -- and 15 of those
+  # ran out of the job's fifteen minutes in it.
   e2e:
     name: e2e (${{ matrix.db }}${{ matrix.search && format(', {0}', matrix.search) || '' }})
     runs-on: ubuntu-26.04
