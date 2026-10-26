@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises'
 
-import { expect, field, momentAt, owner, people, rpc, signIn, test, unique, workspace, type Reply } from './rove.js'
+import { card, expect, field, momentAt, owner, people, rpc, signIn, test, unique, workspace, type Reply } from './rove.js'
 import type { Locator, Page } from '@playwright/test'
 
 // The reports (design 9.14): one screen, a table each and its CSV. What each
@@ -76,6 +76,55 @@ test("what is out: a loan of its own, who has it, and its CSV, which says what i
 	const lines = (await readFile(file)).toString('utf8').split('\n')
 	expect(lines[0]).toBe('\ufeff받은 사람,구분,태그,이름,수량,단위,건넨 날,반납 기한,연체(일),인수 확인')
 	expect(lines.some((l) => l.startsWith(`${who},대여,`) && l.includes(what))).toBe(true)
+})
+
+test('what is late: two of a name, told apart by their teams wherever it is listed, and late today', async ({ page }, info) => {
+	await signIn(page, owner.login, owner.password)
+	const name = unique('e2e 동명이인')
+	const teams = [unique('e2e 대여팀'), unique('e2e 대여팀')]
+	// Due in a moment, and waited out: nothing is lent till a time gone by.
+	const due = new Date(Date.now() + 4_000)
+	for (const team of teams) {
+		const t = await rpc(page, 'PartyService/Add', { name: team, kind: 'team' })
+		const p = await rpc(page, 'PartyService/Add', { name, kind: 'person', parentId: t.id })
+		const a = await rpc(page, 'AssetService/Add', { name: unique('e2e 동명이인 노트북'), kind: 'item' })
+		await rpc(page, 'CustodyService/Add', { party: { id: p.id }, kind: 'loan', dueAt: due.toISOString(), lines: [{ asset: { id: a.id } }] })
+	}
+	const told = teams.map((t) => `${name} · ${t}`)
+	await expect.poll(() => Date.now(), { timeout: 10_000 }).toBeGreaterThan(due.getTime() + 500)
+	// How late, in the workspace's days (D54): due earlier today is late and
+	// no day late -- a day, had Seoul's midnight come since.
+	const day = (d: Date): string => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' }).format(d)
+	const today = day(due) === day(new Date())
+
+	await report(page, '대여 현황')
+	await page.getByLabel('기한').selectOption({ label: '반납 기한 지난 것만' })
+	const table = page.getByRole('table', { name: '나가 있는 것' })
+	for (const who of told) {
+		await expect(await cell(table, who, '연체')).toHaveText(today ? '오늘' : '1일')
+	}
+	await page.getByRole('button', { name: 'CSV 내려받기' }).click()
+	await field(page, '내려받는 이유').fill('e2e: 연체 점검')
+	const download = page.waitForEvent('download')
+	await page.getByRole('button', { name: '내려받기', exact: true }).click()
+	const file = info.outputPath('late.csv')
+	await (await download).saveAs(file)
+	const lines = (await readFile(file)).toString('utf8').split('\n')
+	for (const who of told) {
+		expect(lines.filter((l) => l.startsWith(`${who},대여,`))).toHaveLength(1)
+	}
+
+	// The dashboard's card of what is late says it as the report does, and
+	// so does the list it leads to.
+	await page.goto(`${workspace}/`)
+	const late = card(page, '연체된 대여')
+	for (const who of told) {
+		await expect(late.getByRole('listitem').filter({ hasText: who })).toContainText(today ? '오늘 지남' : '1일 지남')
+	}
+	await late.getByRole('link', { name: '전체' }).click()
+	for (const who of told) {
+		await expect(page.getByRole('row').filter({ hasText: who })).toContainText('연체')
+	}
 })
 
 test('how what may be booked was used: a booking of its own, picked up and returned', async ({ page }) => {

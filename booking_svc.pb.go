@@ -6931,7 +6931,9 @@ type CalendarEntry_builder struct {
 
 	Reservation *Reservation
 	ResourceIds [][]byte
-	PartyName   string
+	// Who it is for, by the name they have now; and, where another goes by
+	// it, with what tells them apart, as every list of people does (D54).
+	PartyName string
 	// What it waits for while it is still to be fulfilled: the members of a
 	// kit it should take with it that something else holds then, and what it
 	// booked of a pool that has fewer to give then (design 4).

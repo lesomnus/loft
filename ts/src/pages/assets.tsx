@@ -158,7 +158,7 @@ export function Assets(): ReactNode {
 													<td onClick={(e) => e.stopPropagation()}>
 														<Where a={a} />
 													</td>
-													<td>{c.party(a.custodian?.id)?.name ?? ''}</td>
+													<td>{c.called(a.custodian?.id)}</td>
 												</tr>
 											)
 										})}

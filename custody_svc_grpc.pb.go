@@ -69,8 +69,9 @@ type CustodyServiceClient interface {
 	// Outstanding is what is out now (대여 현황, design 9.14): a row each thing
 	// handed over and not back -- who has it, since when, until when and how
 	// late -- a page at a time, and how much is out in all. It names who has
-	// each, as they are called now, and is a read of them on the access record
-	// (rove#136); and nobody's address or number.
+	// each, as they are called now and told apart from whoever else goes by
+	// their name, and is a read of them on the access record -- of a team it
+	// tells them apart by, too (rove#136, D54); and nobody's address or number.
 	Outstanding(ctx context.Context, in *CustodyOutstandingRequest, opts ...grpc.CallOption) (*CustodyOutstandingResponse, error)
 	// ExportOutstanding writes every row of it as a CSV, whatever the page: a
 	// download of the people it names, which says what it is for in
@@ -251,8 +252,9 @@ type CustodyServiceServer interface {
 	// Outstanding is what is out now (대여 현황, design 9.14): a row each thing
 	// handed over and not back -- who has it, since when, until when and how
 	// late -- a page at a time, and how much is out in all. It names who has
-	// each, as they are called now, and is a read of them on the access record
-	// (rove#136); and nobody's address or number.
+	// each, as they are called now and told apart from whoever else goes by
+	// their name, and is a read of them on the access record -- of a team it
+	// tells them apart by, too (rove#136, D54); and nobody's address or number.
 	Outstanding(context.Context, *CustodyOutstandingRequest) (*CustodyOutstandingResponse, error)
 	// ExportOutstanding writes every row of it as a CSV, whatever the page: a
 	// download of the people it names, which says what it is for in

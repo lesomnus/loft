@@ -3839,7 +3839,9 @@ type CustodyOutstandingRow_builder struct {
 	LineId    []byte
 	// issue | loan
 	Kind string
-	// Who has it, by the name they have now.
+	// Who has it, by the name they have now; and, where another goes by it,
+	// with what tells them apart -- the team they are in, their 사번, or their
+	// identifier -- as every list of people does (D50, D54).
 	PartyId   []byte
 	PartyName string
 	// What it is: an asset, by its tag and name; or a stock, by its name, how

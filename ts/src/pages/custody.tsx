@@ -73,7 +73,7 @@ export function Custodies(): ReactNode {
 										const late = x.status === 'open' && (dateOf(x.dueAt)?.getTime() ?? Infinity) < now
 										return (
 											<tr key={idStr(x.id)} className="link" onClick={() => go(`/custody/${idStr(x.id)}`)}>
-												<td>{c.party(x.party?.id)?.name ?? '-'}</td>
+												<td>{c.called(x.party?.id) || '-'}</td>
 												<td>{custodyKindWord[x.kind] ?? x.kind}</td>
 												<td>{fmt(x.issuedAt, 'date')}</td>
 												<td className={late ? 'bad' : ''}>{x.dueAt !== undefined ? fmt(x.dueAt) : '-'}</td>
@@ -114,7 +114,7 @@ function CustodyView(props: { c: Custody }): ReactNode {
 	return (
 		<>
 			<PageHead
-				title={`${custodyKindWord[x.kind] ?? x.kind}: ${c.party(x.party?.id)?.name ?? ''}`}
+				title={`${custodyKindWord[x.kind] ?? x.kind}: ${c.called(x.party?.id)}`}
 				sub={<Badge v={late ? 'missing' : x.status} words={late ? { missing: '연체' } : custodyWord} />}
 				actions={
 					<>
@@ -138,7 +138,7 @@ function CustodyView(props: { c: Custody }): ReactNode {
 				<Card title="내용">
 					<Kv
 						items={[
-							['받은 사람', c.party(x.party?.id)?.name ?? '-'],
+							['받은 사람', c.called(x.party?.id) || '-'],
 							['건넨 날', fmt(x.issuedAt)],
 							['반납 기한', x.dueAt !== undefined ? fmt(x.dueAt) : '없음 (지급)'],
 							['인수 확인', x.acknowledgedAt !== undefined ? fmt(x.acknowledgedAt) : '대기'],

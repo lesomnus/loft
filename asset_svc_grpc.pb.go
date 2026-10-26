@@ -97,6 +97,12 @@ type AssetServiceClient interface {
 	QueryAt(ctx context.Context, in *AssetQueryAtRequest, opts ...grpc.CallOption) (*AssetQueryAtResponse, error)
 	Diff(ctx context.Context, in *AssetDiffRequest, opts ...grpc.CallOption) (*AssetDiffResponse, error)
 	Search(ctx context.Context, in *AssetSearchRequest, opts ...grpc.CallOption) (*AssetSearchResponse, error)
+	// Report answers the numbers the dashboard shows, by `kind`. Of `custody`,
+	// a row each hand-over that is late, the longest late first -- by who has
+	// it, told apart from whoever else goes by their name as every list of
+	// people is, and by how many of the workspace's days late, as what is out
+	// says it (Outstanding, D54) -- and a row each who has something, of how
+	// many hand-overs they have.
 	Report(ctx context.Context, in *AssetReportRequest, opts ...grpc.CallOption) (*AssetReportResponse, error)
 	// Export writes the register as a CSV, to read. Nothing reads one back: a
 	// restore is of the workspace's own export, and a sheet that edited the
@@ -426,6 +432,12 @@ type AssetServiceServer interface {
 	QueryAt(context.Context, *AssetQueryAtRequest) (*AssetQueryAtResponse, error)
 	Diff(context.Context, *AssetDiffRequest) (*AssetDiffResponse, error)
 	Search(context.Context, *AssetSearchRequest) (*AssetSearchResponse, error)
+	// Report answers the numbers the dashboard shows, by `kind`. Of `custody`,
+	// a row each hand-over that is late, the longest late first -- by who has
+	// it, told apart from whoever else goes by their name as every list of
+	// people is, and by how many of the workspace's days late, as what is out
+	// says it (Outstanding, D54) -- and a row each who has something, of how
+	// many hand-overs they have.
 	Report(context.Context, *AssetReportRequest) (*AssetReportResponse, error)
 	// Export writes the register as a CSV, to read. Nothing reads one back: a
 	// restore is of the workspace's own export, and a sheet that edited the
