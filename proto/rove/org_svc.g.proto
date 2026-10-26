@@ -316,6 +316,12 @@ message PartyMeResponse {
   // And how many days its address is then kept from anybody else: the
   // deployment's `app.workspaces.alias_hold`.
   uint32 alias_hold_days = 12 [features.field_presence = IMPLICIT];
+
+  // What the workspace is called, as the server tells it (D57): its own name,
+  // or, for one that has none -- the workspace an account is given when it
+  // arrives -- "<이름>의 워크스페이스" after its first owner, named as they are
+  // called now. `tenant.name` is what the row holds, and holds nobody's name.
+  string workspace_name = 13 [features.field_presence = IMPLICIT];
 }
 
 message PartyUpdateRequest {

@@ -125,6 +125,7 @@ export const transport = createConnectTransport({
 export interface Workspace {
 	id: string
 	alias: string
+	/** What it is called: its own name, or after its owner for one that has none (D57). */
 	name: string
 	role: string
 	/** When it was closed, and when it goes unless restored (D29). */

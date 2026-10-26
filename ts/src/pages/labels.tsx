@@ -101,7 +101,7 @@ export function LabelSheet(): ReactNode {
 								<strong>{a?.tag ?? ''}</strong>
 								<span>{a?.name ?? '미부착 라벨'}</span>
 								<small>
-									{labelCodeText(l.code)} {c.me.tenant?.name || c.me.tenant?.alias}
+									{labelCodeText(l.code)} {c.me.workspaceName}
 								</small>
 							</div>
 						</div>

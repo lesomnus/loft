@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/lesomnus/payday/access"
 	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/z"
@@ -52,9 +53,13 @@ type Workspaces struct {
 type Membership struct {
 	Workspace pdid.Id
 	Alias     string
-	Name      string
-	Holder    pdid.Id
-	Role      string
+	// Name is what the workspace is called ([Names]), and Saw whose personal
+	// data saying it shows: the owner one with no name of its own is called
+	// after, which whatever shows it puts on the access record.
+	Name   string
+	Saw    []access.Subject
+	Holder pdid.Id
+	Role   string
 
 	// Closed is when the workspace was closed, and Destroy when it goes if
 	// it is not restored (D29); nil for one that is open.
@@ -63,13 +68,23 @@ type Membership struct {
 
 func (w Workspaces) db() *ent.Client { return ent.NewClient(ent.Driver(w.Drv)) }
 
-// Of is every workspace an account is in, in the order it came to be in them.
+// Of is every workspace an account is in, in the order it came to be in them,
+// each by what it is called.
 func (w Workspaces) Of(ctx context.Context, account pdid.Id) ([]Membership, error) {
-	hs, err := w.db().Holder.Query().
+	db := w.db()
+	hs, err := db.Holder.Query().
 		Where(holder.Account(account.Uuid()), holder.DateErasedIsNil()).
 		WithTenant().
 		Order(ent.Asc(holder.FieldDateCreated), ent.Asc(holder.FieldId)).
 		All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	ts := make([]*ent.Tenant, 0, len(hs))
+	for _, h := range hs {
+		ts = append(ts, h.Edges.Tenant)
+	}
+	names, err := Names(ctx, db, ts...)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +94,8 @@ func (w Workspaces) Of(ctx context.Context, account pdid.Id) ([]Membership, erro
 		out = append(out, Membership{
 			Workspace: pdid.Id(t.Id),
 			Alias:     t.Alias,
-			Name:      t.Name,
+			Name:      names[t.Id].Said,
+			Saw:       names[t.Id].Saw,
 			Holder:    pdid.Id(h.Id),
 			Role:      h.Role,
 			Closed:    t.DateClosed,
@@ -92,6 +108,11 @@ func (w Workspaces) Of(ctx context.Context, account pdid.Id) ([]Membership, erro
 
 // Arrive is what an account signing in is given: a workspace of its own when
 // it is in none and the deployment gives one, which is what signing up is.
+//
+// It has no name of its own (D57). Named after the person it is for, it would
+// hold their name where nothing declares one -- on the trail as a value, and
+// kept there when they are forgotten -- so it is called after its owner where
+// it is read ([Names]).
 func (w Workspaces) Arrive(ctx context.Context, p identity.Person) error {
 	if !w.Personal {
 		return nil
@@ -100,19 +121,15 @@ func (w Workspaces) Arrive(ctx context.Context, p identity.Person) error {
 	if err != nil || in {
 		return err
 	}
-	name := p.Name
-	if name == "" {
-		name = p.Alias
-	}
-	_, err = w.Create(ctx, p, name+"의 워크스페이스")
+	_, err = w.Create(ctx, p, "")
 
 	return err
 }
 
-// Create makes a workspace an account owns, with a name it chose and an alias
-// nobody chose -- changing it is a thing of its own (design 9.11) -- and what
-// an asset register starts with. One transaction, so a workspace half made is
-// not left to trip over.
+// Create makes a workspace an account owns, with a name it chose, or none to
+// be called after its owner ([Names]), and an alias nobody chose -- changing
+// it is a thing of its own (design 9.11) -- and what an asset register starts
+// with. One transaction, so a workspace half made is not left to trip over.
 func (w Workspaces) Create(ctx context.Context, owner identity.Person, name string) (Membership, error) {
 	if w.Owned >= 0 {
 		// A closed workspace is on its way out, and is not one more it has.
@@ -210,5 +227,11 @@ func (w Workspaces) create(ctx context.Context, owner identity.Person, name, ali
 		return Membership{}, err
 	}
 
-	return Membership{Workspace: tid, Alias: alias, Name: name, Holder: hid, Role: "owner"}, nil
+	// Called as it will be read, now that its owner is there to be called
+	// after.
+	n, err := NameOf(ctx, w.db(), &ent.Tenant{Id: tid.Uuid(), Alias: alias, Name: name})
+	if err != nil {
+		return Membership{}, err
+	}
+	return Membership{Workspace: tid, Alias: alias, Name: n.Said, Saw: n.Saw, Holder: hid, Role: "owner"}, nil
 }

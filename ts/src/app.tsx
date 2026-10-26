@@ -75,7 +75,7 @@ function Frame(props: { account: Account; onSignOut: () => void; children: React
 					</div>
 				</div>
 				<div onClick={(e) => e.stopPropagation()}>
-					<Switcher account={props.account} current={c.me.tenant?.name || c.me.tenant?.alias || workspace} />
+					<Switcher account={props.account} current={c.me.workspaceName || workspace} />
 				</div>
 				<nav>
 					{nav

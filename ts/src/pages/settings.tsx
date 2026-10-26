@@ -1021,7 +1021,10 @@ function Foresee(props: { v: TenantPreviewResponse; keep: boolean; access: boole
 	)
 }
 
-/** The workspace itself, for its owner: its address, and closing it (D29). */
+/**
+ * The workspace itself, for its owner: what it is called -- after its owner,
+ * for one with no name of its own (D57) -- its address, and closing it (D29).
+ */
 function WorkspaceTab(): ReactNode {
 	const act = useAct()
 	const c = useCatalog()
@@ -1035,7 +1038,7 @@ function WorkspaceTab(): ReactNode {
 					<Card title="워크스페이스">
 						<dl className="kv">
 							<dt>이름</dt>
-							<dd>{v.name}</dd>
+							<dd>{c.me.workspaceName}</dd>
 							<dt>주소</dt>
 							<dd>
 								@{v.alias} <span className="mute small">— 바꿔야 한다면 운영자에게 요청하세요</span>
@@ -1048,7 +1051,7 @@ function WorkspaceTab(): ReactNode {
 						<p>
 							닫으면 소유자 말고는 아무도 들어오지 못합니다. 소유자는 {c.me.restoreDays}일 안에 복구하거나 모든 데이터를 내려받을 수 있고, 그 뒤에는 이 워크스페이스의 모든 데이터가 지워집니다. 다만 법이 보관 기간을 정한 기록(접속기록 등)은 계약이 달리 정하지 않았다면 그 기간이 지난 뒤에 지워집니다. 법적 보존이 걸려 있으면 풀릴 때까지 지우지 않습니다. 주소 @{v.alias}는 {daysWord(c.me.aliasHoldDays)} 동안 아무도 쓰지 못하게 보류됩니다.
 						</p>
-						<Field label={`확인을 위해 워크스페이스 이름(${v.name})을 그대로 입력하세요`}>
+						<Field label={`확인을 위해 워크스페이스 이름(${c.me.workspaceName})을 그대로 입력하세요`}>
 							<input value={confirm} onChange={(e) => setConfirm(e.target.value)} />
 						</Field>
 						<Field label="닫는 이유 (선택)">
@@ -1057,7 +1060,7 @@ function WorkspaceTab(): ReactNode {
 						<div className="actions">
 							<button
 								className="danger"
-								disabled={confirm.trim() !== v.name.trim()}
+								disabled={confirm.trim() !== c.me.workspaceName.trim()}
 								onClick={() =>
 									void act(TenantService.method.close, { ref: ref(v.id), confirm, reason }, { ok: '닫았습니다.' }).then((r) => {
 										if (r !== undefined) location.reload()

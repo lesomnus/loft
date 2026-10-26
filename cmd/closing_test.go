@@ -75,6 +75,15 @@ func (w *world) tenantRow() *app.Tenant {
 	return v
 }
 
+// called is what the world's workspace is called, as its owner is told it
+// and types it to close it: the world's has no name of its own, and is called
+// after its owner (D57).
+func (w *world) called() string {
+	me, err := app.NewPartyServiceClient(w.conn).Me(w.owner, &app.PartyMeRequest{})
+	w.x.NoError(err)
+	return me.GetWorkspaceName()
+}
+
 // TestAWorkspaceIsClosedByItsOwnerAndRestored.
 //
 // Closing destroys nothing and shuts everybody out -- its owner too, but for
@@ -89,11 +98,13 @@ func TestAWorkspaceIsClosedByItsOwnerAndRestored(t *testing.T) {
 	_, err := assets.Add(w.owner, app.AssetAddRequest_builder{Name: "노트북"}.Build())
 	x.NoError(err)
 
-	_, err = tenants.Close(kim, app.TenantCloseRequest_builder{Ref: ref, Confirm: w.tenant.GetName()}.Build())
+	_, err = tenants.Close(kim, app.TenantCloseRequest_builder{Ref: ref, Confirm: w.called()}.Build())
 	x.Equal(codes.PermissionDenied, status.Code(err), "an admin does not close the owner's workspace")
 	_, err = tenants.Close(w.owner, app.TenantCloseRequest_builder{Ref: ref, Confirm: "something else"}.Build())
 	x.Equal(codes.InvalidArgument, status.Code(err), "closed by typing its name")
-	v, err := tenants.Close(w.owner, app.TenantCloseRequest_builder{Ref: ref, Confirm: w.tenant.GetName(), Reason: "그만 씁니다"}.Build())
+	_, err = tenants.Close(w.owner, app.TenantCloseRequest_builder{Ref: ref}.Build())
+	x.Equal(codes.InvalidArgument, status.Code(err), "one with no name of its own by typing what it is called, and not nothing")
+	v, err := tenants.Close(w.owner, app.TenantCloseRequest_builder{Ref: ref, Confirm: w.called(), Reason: "그만 씁니다"}.Build())
 	x.NoError(err)
 	x.True(v.HasDateClosed())
 	x.Equal("owner", v.GetClosedBy())
@@ -146,7 +157,7 @@ func TestAClosedWorkspaceIsDestroyedOnceItsWindowIsOver(t *testing.T) {
 	x.NoError(err)
 	tenants := app.NewTenantServiceClient(w.conn)
 	ref := app.TenantRef_builder{Id: w.tenant.GetId()}.Build()
-	_, err = tenants.Close(w.owner, app.TenantCloseRequest_builder{Ref: ref, Confirm: w.tenant.GetName()}.Build())
+	_, err = tenants.Close(w.owner, app.TenantCloseRequest_builder{Ref: ref, Confirm: w.called()}.Build())
 	x.NoError(err)
 
 	past := func() {
@@ -203,7 +214,7 @@ func TestAClosedWorkspaceThatCannotRetireWaits(t *testing.T) {
 	x.NoError(err)
 	tenants := app.NewTenantServiceClient(w.conn)
 	ref := app.TenantRef_builder{Id: w.tenant.GetId()}.Build()
-	_, err = tenants.Close(w.owner, app.TenantCloseRequest_builder{Ref: ref, Confirm: w.tenant.GetName()}.Build())
+	_, err = tenants.Close(w.owner, app.TenantCloseRequest_builder{Ref: ref, Confirm: w.called()}.Build())
 	x.NoError(err)
 	x.NoError(w.s.Ent.Tenant.UpdateOneId(id.Uuid()).SetDateDestroy(time.Now().Add(-time.Minute)).Exec(ctx))
 

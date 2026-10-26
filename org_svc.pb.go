@@ -2443,6 +2443,7 @@ type PartyMeResponse struct {
 	xxx_hidden_Currency      string                 `protobuf:"bytes,10,opt,name=currency"`
 	xxx_hidden_RestoreDays   uint32                 `protobuf:"varint,11,opt,name=restore_days,json=restoreDays"`
 	xxx_hidden_AliasHoldDays uint32                 `protobuf:"varint,12,opt,name=alias_hold_days,json=aliasHoldDays"`
+	xxx_hidden_WorkspaceName string                 `protobuf:"bytes,13,opt,name=workspace_name,json=workspaceName"`
 	unknownFields            protoimpl.UnknownFields
 	sizeCache                protoimpl.SizeCache
 }
@@ -2542,6 +2543,13 @@ func (x *PartyMeResponse) GetAliasHoldDays() uint32 {
 	return 0
 }
 
+func (x *PartyMeResponse) GetWorkspaceName() string {
+	if x != nil {
+		return x.xxx_hidden_WorkspaceName
+	}
+	return ""
+}
+
 func (x *PartyMeResponse) SetHolder(v *Holder) {
 	x.xxx_hidden_Holder = v
 }
@@ -2580,6 +2588,10 @@ func (x *PartyMeResponse) SetRestoreDays(v uint32) {
 
 func (x *PartyMeResponse) SetAliasHoldDays(v uint32) {
 	x.xxx_hidden_AliasHoldDays = v
+}
+
+func (x *PartyMeResponse) SetWorkspaceName(v string) {
+	x.xxx_hidden_WorkspaceName = v
 }
 
 func (x *PartyMeResponse) HasHolder() bool {
@@ -2641,6 +2653,11 @@ type PartyMeResponse_builder struct {
 	// And how many days its address is then kept from anybody else: the
 	// deployment's `app.workspaces.alias_hold`.
 	AliasHoldDays uint32
+	// What the workspace is called, as the server tells it (D57): its own name,
+	// or, for one that has none -- the workspace an account is given when it
+	// arrives -- "<이름>의 워크스페이스" after its first owner, named as they are
+	// called now. `tenant.name` is what the row holds, and holds nobody's name.
+	WorkspaceName string
 }
 
 func (b0 PartyMeResponse_builder) Build() *PartyMeResponse {
@@ -2657,6 +2674,7 @@ func (b0 PartyMeResponse_builder) Build() *PartyMeResponse {
 	x.xxx_hidden_Currency = b.Currency
 	x.xxx_hidden_RestoreDays = b.RestoreDays
 	x.xxx_hidden_AliasHoldDays = b.AliasHoldDays
+	x.xxx_hidden_WorkspaceName = b.WorkspaceName
 	return m0
 }
 
@@ -6157,7 +6175,7 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12!\n" +
 	"\x05value\x18\x02 \x01(\v2\v.rove.PartyR\x05value\x12\x1d\n" +
 	"\x06action\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06action\"\x10\n" +
-	"\x0ePartyMeRequest\"\xb7\x03\n" +
+	"\x0ePartyMeRequest\"\xe5\x03\n" +
 	"\x0fPartyMeResponse\x12$\n" +
 	"\x06holder\x18\x01 \x01(\v2\f.rove.HolderR\x06holder\x12!\n" +
 	"\x05party\x18\x02 \x01(\v2\v.rove.PartyR\x05party\x12$\n" +
@@ -6170,7 +6188,8 @@ const file_rove_org_svc_g_proto_rawDesc = "" +
 	"\bcurrency\x18\n" +
 	" \x01(\tB\x05\xaa\x01\x02\b\x02R\bcurrency\x12(\n" +
 	"\frestore_days\x18\v \x01(\rB\x05\xaa\x01\x02\b\x02R\vrestoreDays\x12-\n" +
-	"\x0falias_hold_days\x18\f \x01(\rB\x05\xaa\x01\x02\b\x02R\raliasHoldDaysJ\x04\b\x05\x10\x06J\x04\b\x06\x10\aR\rhistory_sinceR\fhistory_days\"\xa1\x03\n" +
+	"\x0falias_hold_days\x18\f \x01(\rB\x05\xaa\x01\x02\b\x02R\raliasHoldDays\x12,\n" +
+	"\x0eworkspace_name\x18\r \x01(\tB\x05\xaa\x01\x02\b\x02R\rworkspaceNameJ\x04\b\x05\x10\x06J\x04\b\x06\x10\aR\rhistory_sinceR\fhistory_days\"\xa1\x03\n" +
 	"\x12PartyUpdateRequest\x12 \n" +
 	"\x03ref\x18\x01 \x01(\v2\x0e.rove.PartyRefR\x03ref\x12\x19\n" +
 	"\x04name\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04name\x12\x19\n" +
