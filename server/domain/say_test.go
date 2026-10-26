@@ -122,6 +122,10 @@ func TestEveryKindIsSaidAsItWasWritten(t *testing.T) {
 		// The one sentence said otherwise than it was written: in the
 		// workspace's zone, where it was "10-24 01:30".
 		{"reservation.add", app.ReservationAdded_builder{Party: kim.Bytes(), Status: "confirmed", BeginsAt: timestamppb.New(at), AssetName: "회의실"}.Build(), "예약: 회의실 10-24 10:30"},
+		// A series by how often it takes place; each time it does, which is
+		// a reservation of its own, by when that is.
+		{"reservation.add", app.ReservationAdded_builder{Party: kim.Bytes(), Status: "confirmed", Occurrences: 4, BeginsAt: timestamppb.New(at), AssetName: "회의실"}.Build(), "반복 예약: 회의실 10-24 10:30부터 4회"},
+		{"reservation.add", app.ReservationAdded_builder{Party: kim.Bytes(), Status: "confirmed", Occurrences: 1, BeginsAt: timestamppb.New(at.AddDate(0, 0, 7)), AssetName: "회의실"}.Build(), "예약: 회의실 10-31 10:30"},
 		{"reservation.confirm", app.ReservationConfirmed_builder{Name: "주간 회의", Status: "requested"}.Build(), "예약 확정: 주간 회의"},
 		{"reservation.approve", app.ReservationDecided_builder{Name: "주간 회의"}.Build(), "예약 승인: 주간 회의"},
 		{"reservation.reject", app.ReservationDecided_builder{Name: "주간 회의"}.Build(), "예약 거절: 주간 회의"},

@@ -2,6 +2,7 @@ import { useMemo, useState, type ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import type { Asset } from '../../gen/rove/asset_pb.js'
+import type { TimelineEntry } from '../../gen/rove/asset_svc_pb.js'
 import type { BusySpan, CalendarEntry, ReservationConflict, ReservationOutOfUse } from '../../gen/rove/booking_svc_pb.js'
 import type { Allocation, Reservation } from '../../gen/rove/booking_pb.js'
 import { AllocationService, BookableService, ReservationService, at, dateInput, dateOf, fmt, fmtWith, fromInput, idBytes, idStr, localInput, minute, op, ref, sameId, shift, ts, wall } from '../api.js'
@@ -370,6 +371,7 @@ function ReservationDialog(props: { r: Reservation; resources: Uint8Array[]; con
 			<Waiting conflicts={props.conflicts} />
 			<OutOfUse items={gone} more="분실·불용·폐기 상태라 수령할 때 건네지 않습니다." />
 			<Unusable status={r.status} items={unusable} />
+			{(mine || mgr || c.role === 'auditor') && <History r={r} />}
 			<footer className="modal-actions">
 				{r.status === 'held' && (mine || mgr) && unusable.length === 0 && (
 					<button className="primary" onClick={() => void decide(ReservationService.method.confirm, '확정했습니다.')}>
@@ -685,11 +687,13 @@ function List(props: { mine?: boolean }): ReactNode {
 /**
  * Every request a manager has to decide, and what each waits for. The sweep
  * lets go of a request once it has begun, so they are all from now on -- as
- * far ahead as anything may be booked.
+ * far ahead as anything may be booked. Each opens as its dialog does
+ * elsewhere, with its history (D45).
  */
 function Approvals(): ReactNode {
 	const c = useCatalog()
 	const act = useAct()
+	const [open, setOpen] = useState<CalendarEntry>()
 	const from = new Date(minute().getTime() - day)
 	const to = new Date(minute().getTime() + 3650 * day)
 	const list = useRpc(ReservationService.method.calendar, { statuses: ['requested'], from: ts(from), to: ts(to) })
@@ -710,7 +714,11 @@ function Approvals(): ReactNode {
 								return (
 									<li key={idStr(r.id)}>
 										<span>
-											{fmt(r.beginsAt)} – {fmt(r.endsAt, 'time')} · <strong>{r.name}</strong> · {e.partyName || c.party(r.party?.id)?.name}
+											{fmt(r.beginsAt)} – {fmt(r.endsAt, 'time')} ·{' '}
+											<button className="link" onClick={() => setOpen(e)}>
+												<strong>{r.name}</strong>
+											</button>{' '}
+											· {e.partyName || c.party(r.party?.id)?.name}
 										</span>
 										<span className="inline">
 											<button onClick={() => void act(ReservationService.method.reject, { ref: ref(r.id) }, { ok: '거절했습니다.' })}>거절</button>
@@ -730,6 +738,84 @@ function Approvals(): ReactNode {
 					)
 				}
 			</Load>
+			{open !== undefined && open.reservation !== undefined && (
+				<ReservationDialog r={open.reservation} resources={open.resourceIds} conflicts={open.conflicts} outOfUse={open.outOfUse} onClose={() => setOpen(undefined)} />
+			)}
 		</Card>
 	)
+}
+
+/**
+ * What happened to a reservation, newest first (D45): who booked it, decided
+ * on it, checked into it, picked it up and brought it back, and why -- each
+ * line as the server says it, its people as they are called now -- and what
+ * a change to a kit or a pool it booked did to it, under that change. Its own
+ * to a member, and anybody's to who runs or audits the register; nobody else
+ * is offered it, and the server says no to them.
+ */
+function History(props: { r: Reservation }): ReactNode {
+	const h = useRpc(ReservationService.method.timeline, { ref: ref(props.r.id) })
+	return (
+		<section className="history">
+			<h3>이력</h3>
+			<Load q={h}>
+				{(d) =>
+					d.entries.length === 0 ? (
+						<Empty>남은 기록이 없습니다.</Empty>
+					) : (
+						<ol className="timeline compact" aria-label="이력">
+							{underCauses(d.entries).map((g) => {
+								const first = g.entries[0]
+								return (
+									<li key={idStr(first.rowId)}>
+										<span className="when">{fmt(first.validFrom)}</span>
+										<span className="what">
+											{g.cause === '' ? <Said e={first} /> : g.cause}
+											{g.cause !== '' && (
+												<ul className="parts">
+													{g.entries.map((e) => (
+														<li key={idStr(e.rowId)}>
+															<Said e={e} />
+														</li>
+													))}
+												</ul>
+											)}
+										</span>
+										<span className="who mute small">{first.actor}</span>
+									</li>
+								)
+							})}
+						</ol>
+					)
+				}
+			</Load>
+		</section>
+	)
+}
+
+/** What an entry of a history says, and why, in the words of whoever asked. */
+function Said(props: { e: TimelineEntry }): ReactNode {
+	return (
+		<>
+			{props.e.summary}
+			{props.e.reason !== '' && <span className="reason"> — {props.e.reason}</span>}
+		</>
+	)
+}
+
+/**
+ * A history's entries, each by itself but for what one operation over many
+ * things did, one after another, which goes under the operation: a change to
+ * a kit, by what it says. An entry the operation says no more than -- a series
+ * cancelled from one of it on, of each -- is by itself.
+ */
+function underCauses(es: TimelineEntry[]): { cause: string; entries: TimelineEntry[] }[] {
+	const out: { cause: string; id: string; entries: TimelineEntry[] }[] = []
+	for (const e of es) {
+		const id = e.cause === '' ? '' : idStr(e.causeId)
+		const last = out[out.length - 1]
+		if (id !== '' && last !== undefined && last.id === id) last.entries.push(e)
+		else out.push({ cause: e.cause, id, entries: [e] })
+	}
+	return out
 }
