@@ -469,7 +469,10 @@ jobs:
   e2e:
     name: e2e (${{ matrix.db }}${{ matrix.search && format(', {0}', matrix.search) || '' }})
     runs-on: ubuntu-26.04
-    timeout-minutes: 15
+    # A run takes about three minutes: one or so until the tests start and
+    # two of tests, and up to two more when rove is built from cold. Ten is
+    # a run that is stuck, not a slow one.
+    timeout-minutes: 10
     strategy:
       # Each database is an answer of its own, and one failing says nothing
       # about the other.
