@@ -84,6 +84,8 @@ func lastDays(n int) func(time.Time) time.Time {
 
 // daysLate is how many of the workspace's days `due` is behind now: one due
 // yesterday is a day late, and one due earlier today none, late as it is.
+// It is how late anything is said to be, wherever it is said: what is out,
+// and the dashboard's card of what is late (D54).
 func (t *Tx) daysLate(due time.Time) uint32 {
 	z := t.zone()
 	a, b := due.In(z), t.now.In(z)

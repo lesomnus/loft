@@ -271,9 +271,79 @@ func TestTheDashboardCountsWhatThereIs(t *testing.T) {
 	x.Len(late, 1)
 	x.Equal(idOf(lent.GetId()).String(), late[0].GetKey())
 	x.Equal(kim.GetName(), late[0].GetLabel(), "who has it, by name")
-	x.InDelta(2, late[0].GetValue(), 1e-9, "days since it was due")
+	x.EqualValues(2, late[0].GetValue(), "how many of the workspace's days since it was due")
 	x.Equal(soon.In(seoul).Format(time.DateOnly), late[0].GetDetail()["due"])
 	x.Equal(map[string]float64{kim.GetName(): 1, lee.GetName(): 1}, held, "how much each has out")
+}
+
+// TestHowLateIsTheSameWhereverItIsSaid (D54): the dashboard's card of what is
+// late counts the days as the report of what is out does -- the workspace's
+// days, in its zone, here Seoul's: one due yesterday is a day late, and one
+// due earlier today none, late as it is -- whatever UTC's days or the hours
+// since would say.
+func TestHowLateIsTheSameWhereverItIsSaid(t *testing.T) {
+	e := newEnv(t)
+	x := e.x
+	seoul := e.zoned("Asia/Seoul")
+	at := func(d, h, m int) time.Time { return time.Date(2026, 10, d, h, m, 0, 0, seoul) }
+
+	e.now = at(19, 9, 0)
+	store := e.space("창고", nil)
+	_, kim := e.person("member")
+	lend := func(tag string, due time.Time) string {
+		v, err := e.app().Custody().Add(e.owner, app.CustodyAddRequest_builder{
+			Party: ref[app.PartyRef](kim.GetId()),
+			DueAt: timestamppb.New(due),
+			Lines: []*app.CustodyLineSpec{app.CustodyLineSpec_builder{Asset: assetRef(e.item("노트북", tag, store, 0))}.Build()},
+		}.Build())
+		x.NoError(err)
+		return idOf(v.GetId()).String()
+	}
+	// Half past eleven at night on the 20th, and half past midnight on the
+	// 21st: an hour apart, a day apart on Seoul's wall.
+	night, midnight := lend("NB-1", at(20, 23, 30)), lend("NB-2", at(21, 0, 30))
+
+	// How late each is on the card, by the hand-over, which the report says
+	// too.
+	late := func() map[string]float64 {
+		t.Helper()
+		card, report := map[string]float64{}, map[string]uint32{}
+		v, err := e.app().Asset().Report(e.owner, app.AssetReportRequest_builder{Kind: "custody"}.Build())
+		x.NoError(err)
+		for _, r := range v.GetRows() {
+			if r.GetGroup() == "overdue" {
+				card[r.GetKey()] = r.GetValue()
+			}
+		}
+		out, err := e.app().Custody().Outstanding(e.owner, app.CustodyOutstandingRequest_builder{Overdue: true}.Build())
+		x.NoError(err)
+		for _, r := range out.GetRows() {
+			x.True(r.GetOverdue())
+			report[idOf(r.GetCustodyId()).String()] = r.GetOverdueDays()
+		}
+		x.Len(report, len(card), "late on the one and not on the other")
+		for k, n := range report {
+			x.EqualValues(n, card[k], "the card and the report differ")
+		}
+		return card
+	}
+
+	// Ten past midnight on the 21st in Seoul, still the 20th in UTC: the loan
+	// due before midnight is a day late, which UTC's days would call none.
+	e.now = at(21, 0, 10)
+	x.Equal(e.now.UTC().Day(), at(20, 23, 30).UTC().Day(), "due on the same day in UTC")
+	x.Equal(map[string]float64{night: 1}, late())
+
+	// Eleven at night on the 21st: the loan due at half past midnight is
+	// late, and no day late -- the hours since, twenty-two and a half, would
+	// round up to one, and so would UTC's days.
+	e.now = at(21, 23, 0)
+	x.Equal(1, e.now.UTC().Day()-at(21, 0, 30).UTC().Day(), "a day apart in UTC")
+	x.Equal(map[string]float64{night: 1, midnight: 0}, late())
+
+	// Half past midnight on the 22nd: a day late, and two.
+	e.now = at(22, 0, 30)
+	x.Equal(map[string]float64{night: 2, midnight: 1}, late())
 }
 
 // TestAListOfPeopleTellsTwoOfANameApart (D54): every answer that lists

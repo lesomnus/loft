@@ -31,6 +31,9 @@ export function Dashboard(): ReactNode {
 	// A reservation listed here opens as it does wherever it is listed (D45).
 	const [open, setOpen] = useState<CalendarEntry>()
 	const inbox = useRpc(NotificationService.method.inbox, { size: 6 }, { poll: 60_000 })
+	// What is late, by who has it as a list tells people apart and by how
+	// many of the workspace's days, as the report of what is out says both
+	// (D54): due earlier today is late, and no day late yet.
 	const overdue = useRpc(AssetService.method.report, c.can('manager') ? { kind: 'custody' } : null)
 	const openCustody = useRpc(CustodyService.method.list, c.me.party === undefined ? null : { filters: [{ party: ref(c.me.party.id) }], size: 50 })
 
@@ -139,7 +142,7 @@ export function Dashboard(): ReactNode {
 										{rows.map((r) => (
 											<li key={r.key}>
 												<Link to={`/custody/${r.key}`}>{r.label}</Link>
-												<span className="bad">{Math.ceil(r.value)}일 지남</span>
+												<span className="bad">{r.value > 0 ? `${r.value}일 지남` : '오늘 지남'}</span>
 											</li>
 										))}
 									</ul>

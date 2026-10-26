@@ -4287,6 +4287,13 @@ export const AssetService: GenService<{
     output: typeof AssetSearchResponseSchema;
   },
   /**
+   * Report answers the numbers the dashboard shows, by `kind`. Of `custody`,
+   * a row each hand-over that is late, the longest late first -- by who has
+   * it, told apart from whoever else goes by their name as every list of
+   * people is, and by how many of the workspace's days late, as what is out
+   * says it (Outstanding, D54) -- and a row each who has something, of how
+   * many hand-overs they have.
+   *
    * @generated from rpc rove.AssetService.Report
    */
   report: {

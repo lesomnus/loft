@@ -825,7 +825,8 @@ func (s domainAsset) Report(ctx context.Context, req *app.AssetReportRequest) (*
 		// What is late, the longest late first, and how many each who has
 		// something has: the one read off the open hand-overs' index, the
 		// other counted by the database, and the people named as a list of
-		// people names them, a few hundred to a statement.
+		// people names them, a few hundred to a statement. How late is in
+		// the workspace's days, as what is out says it (D54).
 		open := t.db.Custody.Query().Where(custody.TenantId(tid), custody.Status("open"), custody.DateErasedIsNil())
 		late, err := open.Where(custody.DueAtLT(t.now)).
 			Order(custody.ByDueAt(), custody.ById()).
@@ -853,7 +854,7 @@ func (s domainAsset) Report(ctx context.Context, req *app.AssetReportRequest) (*
 			return nil, err
 		}
 		for _, c := range late {
-			row("overdue", pdid.Id(c.Id).String(), names.apart(c.PartyId), t.now.Sub(*c.DueAt).Hours()/24, map[string]string{"due": c.DueAt.In(t.zone()).Format(time.DateOnly)})
+			row("overdue", pdid.Id(c.Id).String(), names.apart(c.PartyId), float64(t.daysLate(*c.DueAt)), map[string]string{"due": c.DueAt.In(t.zone()).Format(time.DateOnly)})
 		}
 		for _, h := range held {
 			row("party", pdid.Id(h.Party.V).String(), names.apart(h.Party.V), float64(h.N), nil)
