@@ -12,6 +12,7 @@ import (
 	"github.com/lesomnus/payday/auth/authsession"
 	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/pdid"
+	"github.com/lesomnus/z"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -164,4 +165,69 @@ func TestAWorkspaceGivenOnArrivalIsCalledAfterItsOwner(t *testing.T) {
 	x.Contains(status.Convert(err).Message(), "박서준의 워크스페이스")
 	_, err = tenants.Close(there, app.TenantCloseRequest_builder{Ref: ref, Confirm: "박서준의 워크스페이스"}.Build())
 	x.NoError(err)
+}
+
+// TestAWorkspaceIsRenamedByItsOwnerAlone is D58 over the wire: the owner of the
+// workspace an account was given names it, and it is called so wherever it is
+// read -- showing nobody -- and takes the name back, and it is called after
+// its owner again (D57). An administrator of it may not: what it is called is
+// its owner's to say, as all of TenantService's writes are. And the general
+// write stays closed.
+func TestAWorkspaceIsRenamedByItsOwnerAlone(t *testing.T) {
+	web := t.TempDir()
+	require.NoError(t, os.WriteFile(filepath.Join(web, "index.html"), []byte("<html></html>"), 0o644))
+	w := newWorldWith(t, func(c *cmd.Config) { c.App.Web = web })
+	x := w.x
+	ctx := context.Background()
+	as := func(p identity.Person) context.Context {
+		_, c, err := w.s.Sessions.Mint(ctx, authsession.Session{Id: p.Id.String(), Grant: frame.Whole()})
+		x.NoError(err)
+		return metadata.AppendToOutgoingContext(ctx, "cookie", c.Name+"="+c.Value)
+	}
+	parties := app.NewPartyServiceClient(w.conn)
+	tenants := app.NewTenantServiceClient(w.conn)
+	called := func(as context.Context) (string, string) {
+		me, err := parties.Me(as, &app.PartyMeRequest{})
+		x.NoError(err)
+		res := w.page(as, http.MethodGet, "/account")
+		x.Equal(http.StatusOK, res.Code)
+		var acc account.Account
+		x.NoError(json.Unmarshal(res.Body.Bytes(), &acc))
+		x.Len(acc.Workspaces, 1)
+		return me.GetWorkspaceName(), acc.Workspaces[0].Name
+	}
+
+	park, err := w.s.Identity.AddPerson(ctx, "park", "박지민", pdid.Nil)
+	x.NoError(err)
+	x.NoError(w.s.Workspaces(w.c).Arrive(ctx, park))
+	asPark := as(park)
+	me, err := parties.Me(asPark, &app.PartyMeRequest{})
+	x.NoError(err)
+	ref := app.TenantRef_builder{Id: me.GetTenant().GetId()}.Build()
+	kim, err := w.s.Identity.AddPerson(ctx, "kim", "김", pdid.Nil)
+	x.NoError(err)
+	w.member(me.GetTenant(), kim, "admin")
+	asKim := as(kim)
+
+	_, err = tenants.Configure(asKim, app.TenantConfigureRequest_builder{Ref: ref, Name: z.Ptr("김의 장비")}.Build())
+	x.Equal(codes.PermissionDenied, status.Code(err), "named by an administrator")
+	_, err = tenants.Patch(asPark, app.TenantPatchRequest_builder{Ref: ref, Name: z.Ptr("연구실 장비"), DateUpdatedForce: z.Ptr(true)}.Build())
+	x.Equal(codes.Unimplemented, status.Code(err), "named by the general write")
+
+	v, err := tenants.Configure(asPark, app.TenantConfigureRequest_builder{Ref: ref, Name: z.Ptr("연구실 장비")}.Build())
+	x.NoError(err)
+	x.Equal("연구실 장비", v.GetName())
+	for _, who := range []context.Context{asPark, asKim} {
+		inside, outside := called(who)
+		x.Equal("연구실 장비", inside)
+		x.Equal("연구실 장비", outside)
+	}
+	x.Empty(w.accessed(t, "GET /account"), "its own name shows nobody")
+
+	_, err = tenants.Configure(asPark, app.TenantConfigureRequest_builder{Ref: ref, Name: z.Ptr("")}.Build())
+	x.NoError(err)
+	inside, outside := called(asKim)
+	x.Equal("박지민의 워크스페이스", inside)
+	x.Equal("박지민의 워크스페이스", outside)
+	x.Len(w.accessed(t, "GET /account"), 1, "called after its owner again, which shows them")
 }

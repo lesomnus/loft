@@ -39,7 +39,7 @@ func TestAWorkspaceSaysHowLongItKeepsItsHistory(t *testing.T) {
 	x.Equal(codes.InvalidArgument, codeOf(err), "said past Configure, its grace and its event")
 	_, err = e.app().Tenant().Patch(e.owner, app.TenantPatchRequest_builder{Ref: ws, DateKeepShortenedNull: z.Ptr(true), DateUpdatedForce: z.Ptr(true)}.Build())
 	x.Equal(codes.InvalidArgument, codeOf(err), "a grace ended past Configure")
-	_, err = e.app().Tenant().Patch(e.owner, app.TenantPatchRequest_builder{Ref: ws, Name: z.Ptr("acme"), DateUpdatedForce: z.Ptr(true)}.Build())
+	_, err = e.app().Tenant().Patch(e.owner, app.TenantPatchRequest_builder{Ref: ws, Desc: z.Ptr("acme"), DateUpdatedForce: z.Ptr(true)}.Build())
 	x.NoError(err, "what is the workspace's to patch")
 	_, err = configure(app.TenantConfigureRequest_builder{AccessKeepDays: z.Ptr(uint32(364))}.Build())
 	x.Equal(codes.InvalidArgument, codeOf(err), "an access record kept less than the law asks")

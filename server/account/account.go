@@ -20,7 +20,6 @@ import (
 	"os"
 	"strings"
 	"time"
-	"unicode/utf8"
 
 	"github.com/lesomnus/otx/log"
 	"github.com/lesomnus/payday/access"
@@ -298,8 +297,8 @@ func (a Routes) Mount(mux *http.ServeMux) {
 			return
 		}
 		name := strings.TrimSpace(in.Name)
-		if name == "" || utf8.RuneCountInString(name) > 80 {
-			http.Error(w, "이름은 1~80자로 씁니다", http.StatusBadRequest)
+		if name == "" || !tenancy.Fits(name) {
+			http.Error(w, fmt.Sprintf("이름은 한 줄로, 1~%d자로 씁니다", tenancy.MaxName), http.StatusBadRequest)
 			return
 		}
 		if ok, err := a.Consent.Settled(r.Context(), p.Id); err != nil {

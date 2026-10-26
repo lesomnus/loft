@@ -4,6 +4,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import type { Bookable } from '../../gen/rove/booking_pb.js'
 import type { AssetType, AttributeDef, ItemModel } from '../../gen/rove/catalog_pb.js'
 import type { TenantDomain } from '../../gen/rove/asset_pb.js'
+import type { Party } from '../../gen/rove/org_pb.js'
 import type { Tenant } from '../../gen/rove/payday/tenant_pb.js'
 import type { TenantPreviewResponse } from '../../gen/rove/payday/tenant_svc_pb.js'
 import type { Timestamp } from '@bufbuild/protobuf/wkt'
@@ -1022,8 +1023,73 @@ function Foresee(props: { v: TenantPreviewResponse; keep: boolean; access: boole
 }
 
 /**
- * The workspace itself, for its owner: what it is called -- after its owner,
- * for one with no name of its own (D57) -- its address, and closing it (D29).
+ * The people of the workspace whose names are in `name`. What a workspace is
+ * called is nobody's (payday#180): the trail and the history keep it as it is,
+ * past anything that forgets a person named in it.
+ */
+function peopleIn(name: string, parties: Party[]): string[] {
+	const found = new Set<string>()
+	for (const p of parties) {
+		const n = p.name.trim()
+		// A name of one character is in too many words to say anything.
+		if (p.kind === 'person' && [...n].length > 1 && name.includes(n)) found.add(n)
+	}
+	return [...found]
+}
+
+/**
+ * What the workspace is called, its owner's to say (D58): a name of its own,
+ * or none -- and then it is called after its owner (D57). The name is kept as
+ * it is wherever its changes are, so the card asks for no person's, and says
+ * so of one with somebody of the workspace in it; its address is an
+ * operator's to move.
+ */
+function NameCard(props: { t: Tenant }): ReactNode {
+	const act = useAct()
+	const c = useCatalog()
+	const [name, setName] = useState(props.t.name)
+	const said = name.trim()
+	const people = peopleIn(said, c.parties)
+	const save = async (): Promise<void> => {
+		const r = await act(TenantService.method.configure, { ref: ref(props.t.id), name: said }, { ok: '저장했습니다.' })
+		// Whatever says what it is called -- the switcher first -- says it
+		// from the page's first draw.
+		if (r !== undefined) location.reload()
+	}
+	return (
+		<Card title="워크스페이스">
+			<Field
+				label="이름"
+				hint="구성원의 화면, 초대와 알림 메일이 이 이름으로 부릅니다. 비워 두면 소유자의 이름으로 부릅니다. 이름은 누구의 정보도 아니어서 작업 기록에 그대로 남으니, 사람의 이름은 넣지 마세요."
+			>
+				<input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} placeholder="예: 연구지원팀 장비" />
+			</Field>
+			{people.length > 0 && (
+				<p className="note warn" role="status">
+					이름에 이 워크스페이스에 있는 사람의 이름({people.join(', ')})이 들어 있습니다. 워크스페이스 이름은 작업 기록에 그대로 남아, 그 사람의 정보를 지워도 지워지지 않습니다. 소유자의 이름으로 부르려면 비워 두세요.
+				</p>
+			)}
+			<dl className="kv">
+				<dt>지금 부르는 이름</dt>
+				<dd>{c.me.workspaceName}</dd>
+				<dt>주소</dt>
+				<dd>
+					@{props.t.alias} <span className="mute small">— 바꿔야 한다면 운영자에게 요청하세요</span>
+				</dd>
+			</dl>
+			<div className="actions">
+				<button className="primary" disabled={said === props.t.name} onClick={() => void save()}>
+					저장
+				</button>
+			</div>
+		</Card>
+	)
+}
+
+/**
+ * The workspace itself, for its owner: what it is called (D58) -- after its
+ * owner, for one with no name of its own (D57) -- where it is, how long it
+ * keeps its history, and closing it (D29).
  */
 function WorkspaceTab(): ReactNode {
 	const act = useAct()
@@ -1035,16 +1101,7 @@ function WorkspaceTab(): ReactNode {
 		<Load q={t}>
 			{(v) => (
 				<>
-					<Card title="워크스페이스">
-						<dl className="kv">
-							<dt>이름</dt>
-							<dd>{c.me.workspaceName}</dd>
-							<dt>주소</dt>
-							<dd>
-								@{v.alias} <span className="mute small">— 바꿔야 한다면 운영자에게 요청하세요</span>
-							</dd>
-						</dl>
-					</Card>
+					<NameCard t={v} />
 					<PlaceCard t={v} />
 					<KeepCard t={v} />
 					<Card title="워크스페이스 닫기">

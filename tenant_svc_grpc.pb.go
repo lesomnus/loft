@@ -54,12 +54,14 @@ type TenantServiceClient interface {
 	// Restore opens a closed workspace again, while its restore window lasts.
 	Restore(ctx context.Context, in *TenantRestoreRequest, opts ...grpc.CallOption) (*Tenant, error)
 	// Configure is the workspace's own settings, its owner's to say (#144):
-	// where it is -- the zone its dates are told in, the currency a new amount
-	// is priced in -- how long a room waits for whoever booked it, and how long
-	// it keeps its history and its access record and may be restored once
-	// closed (D36). A field left out stays as it is; an empty one is the
-	// deployment's again, or for its history forever. A window made shorter
-	// waits out the deployment's grace before it is the shorter one.
+	// what it is called (D58), where it is -- the zone its dates are told in,
+	// the currency a new amount is priced in -- how long a room waits for
+	// whoever booked it, and how long it keeps its history and its access
+	// record and may be restored once closed (D36). A field left out stays as
+	// it is; an empty one is the deployment's again, or for its history
+	// forever, or for its name none -- and it is called after its owner (D57).
+	// A window made shorter waits out the deployment's grace before it is the
+	// shorter one.
 	Configure(ctx context.Context, in *TenantConfigureRequest, opts ...grpc.CallOption) (*Tenant, error)
 	// Preview is what a change of how long the workspace keeps its history and
 	// its access record would come to, and when, changing nothing: what its
@@ -198,12 +200,14 @@ type TenantServiceServer interface {
 	// Restore opens a closed workspace again, while its restore window lasts.
 	Restore(context.Context, *TenantRestoreRequest) (*Tenant, error)
 	// Configure is the workspace's own settings, its owner's to say (#144):
-	// where it is -- the zone its dates are told in, the currency a new amount
-	// is priced in -- how long a room waits for whoever booked it, and how long
-	// it keeps its history and its access record and may be restored once
-	// closed (D36). A field left out stays as it is; an empty one is the
-	// deployment's again, or for its history forever. A window made shorter
-	// waits out the deployment's grace before it is the shorter one.
+	// what it is called (D58), where it is -- the zone its dates are told in,
+	// the currency a new amount is priced in -- how long a room waits for
+	// whoever booked it, and how long it keeps its history and its access
+	// record and may be restored once closed (D36). A field left out stays as
+	// it is; an empty one is the deployment's again, or for its history
+	// forever, or for its name none -- and it is called after its owner (D57).
+	// A window made shorter waits out the deployment's grace before it is the
+	// shorter one.
 	Configure(context.Context, *TenantConfigureRequest) (*Tenant, error)
 	// Preview is what a change of how long the workspace keeps its history and
 	// its access record would come to, and when, changing nothing: what its

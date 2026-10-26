@@ -2,6 +2,9 @@ package tenancy
 
 import (
 	"context"
+	"strings"
+	"unicode"
+	"unicode/utf8"
 	"uuid"
 
 	"github.com/lesomnus/payday/access"
@@ -27,6 +30,16 @@ import (
 // membership, or the membership's own name. It is the name they go by now: a
 // person renamed renames it, a workspace handed on is called after whoever
 // has it, and one with no name and no owner is called by its address.
+
+// MaxName is how long a workspace's own name may be, in characters.
+const MaxName = 80
+
+// Fits says whether `v` may be what a workspace is called: one line -- it is
+// the subject of the mails that name it -- of up to [MaxName] characters.
+// Empty fits, and is none of its own.
+func Fits(v string) bool {
+	return utf8.RuneCountInString(v) <= MaxName && !strings.ContainsFunc(v, unicode.IsControl)
+}
 
 // Name is what a workspace is called where it is read, and whose personal data
 // saying it shows.

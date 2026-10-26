@@ -27,12 +27,14 @@ service TenantService {
   // Restore opens a closed workspace again, while its restore window lasts.
   rpc Restore(TenantRestoreRequest) returns (Tenant);
   // Configure is the workspace's own settings, its owner's to say (#144):
-  // where it is -- the zone its dates are told in, the currency a new amount
-  // is priced in -- how long a room waits for whoever booked it, and how long
-  // it keeps its history and its access record and may be restored once
-  // closed (D36). A field left out stays as it is; an empty one is the
-  // deployment's again, or for its history forever. A window made shorter
-  // waits out the deployment's grace before it is the shorter one.
+  // what it is called (D58), where it is -- the zone its dates are told in,
+  // the currency a new amount is priced in -- how long a room waits for
+  // whoever booked it, and how long it keeps its history and its access
+  // record and may be restored once closed (D36). A field left out stays as
+  // it is; an empty one is the deployment's again, or for its history
+  // forever, or for its name none -- and it is called after its owner (D57).
+  // A window made shorter waits out the deployment's grace before it is the
+  // shorter one.
   rpc Configure(TenantConfigureRequest) returns (Tenant);
   // Preview is what a change of how long the workspace keeps its history and
   // its access record would come to, and when, changing nothing: what its
@@ -234,6 +236,11 @@ message TenantConfigureRequest {
   uint32 access_keep_days = 6;
   // Days it may be restored once closed; 0 is the deployment's.
   uint32 restore_days = 7;
+  // What it is called, one line of up to 80 characters: the workspace's, and
+  // nobody's (payday#180), which the trail and its history keep as they keep
+  // any thing's name -- so no person's. Empty is none of its own, and it is
+  // called after its owner (D57).
+  string name = 8;
 }
 
 message TenantPreviewRequest {
