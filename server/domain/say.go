@@ -300,7 +300,22 @@ func sentences() *past.Sentences {
 		return "계정 탈퇴: 개인정보 삭제"
 	})
 	past.SayKind(s, "workspace.configure", "ko", func(r *past.Reading, ev past.EventRow, m *app.WorkspaceConfigured) string {
-		return "워크스페이스 설정 변경"
+		if !m.HasName() {
+			return "워크스페이스 설정 변경"
+		}
+		// Its name, said alone as the page says it, or beside the rest. None
+		// is called after its owner (D57), whose name is not said here.
+		alone := !m.HasTimezone() && !m.HasCurrency() && !m.HasNoShowMinutes() &&
+			!m.HasKeepDays() && !m.HasAccessKeepDays() && !m.HasRestoreDays()
+		switch {
+		case alone && m.GetName() == "":
+			return "워크스페이스 이름 지움 (소유자의 이름으로 부름)"
+		case alone:
+			return "워크스페이스 이름 변경: " + m.GetName()
+		case m.GetName() == "":
+			return "워크스페이스 설정 변경 (이름 지움)"
+		}
+		return "워크스페이스 설정 변경 (이름: " + m.GetName() + ")"
 	})
 	past.SayKind(s, "workspace.close", "ko", func(r *past.Reading, ev past.EventRow, m *app.WorkspaceClosed) string {
 		switch m.GetBy() {

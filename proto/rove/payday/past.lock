@@ -1117,6 +1117,10 @@
       "10": {
         "json": "restoreDays",
         "kind": "uint32"
+      },
+      "21": {
+        "json": "name",
+        "kind": "string"
       }
     },
     "rove.WorkspaceImported": {
