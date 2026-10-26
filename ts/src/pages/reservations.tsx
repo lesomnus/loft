@@ -1,16 +1,16 @@
 import { useMemo, useState, type ReactNode } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 
 import type { Asset } from '../../gen/rove/asset_pb.js'
 import type { TimelineEntry } from '../../gen/rove/asset_svc_pb.js'
-import type { BusySpan, CalendarEntry, ReservationConflict, ReservationOutOfUse } from '../../gen/rove/booking_svc_pb.js'
+import type { BusySpan, CalendarEntry, ReservationConflict, ReservationOut, ReservationOutOfUse } from '../../gen/rove/booking_svc_pb.js'
 import type { Allocation, Reservation } from '../../gen/rove/booking_pb.js'
 import { AllocationService, BookableService, ReservationService, at, dateInput, dateOf, fmt, fmtWith, fromInput, idBytes, idStr, localInput, minute, op, ref, sameId, shift, ts, wall } from '../api.js'
 import { useCatalog } from '../catalog.js'
 import { PartySelect, useAssets, useAssetsRead } from '../pickers.js'
 import { Live, useAct, useRpc } from '../rpc.js'
 import { Badge, Card, Empty, Field, FormModal, Load, Modal, PageHead, Select, Tabs } from '../ui.js'
-import { goneWord, kindWord, markWord, outOfUse, reservationWord, statusWord } from '../words.js'
+import { endless, goneWord, kindWord, markWord, outOfUse, reservationWord, statusWord } from '../words.js'
 import { NewCustody } from './custody.js'
 
 const H0 = 7
@@ -145,7 +145,7 @@ function Calendar(): ReactNode {
 										const p = pos(dateOf(b.beginsAt) ?? d, dateOf(b.endsAt) ?? d, d)
 										return p === undefined ? null : (
 											<div key={`b${i}`} className={`busy ${b.kind}`} style={p} title={b.label}>
-												{b.kind === 'maintenance' ? '정비' : b.kind === 'closed' ? '운영 시간 외' : b.kind === 'waiting' ? `${kinds.get(resource) === 'group' ? '수량 대기' : '구성품 대기'}: ${b.label}` : b.label}
+												{b.kind === 'maintenance' ? '정비' : b.kind === 'closed' ? '운영 시간 외' : b.kind === 'waiting' ? `${kinds.get(resource) === 'group' ? '수량 대기' : '구성품 대기'}: ${b.label}` : b.kind === 'custody' ? `${b.label}${endless(dateOf(b.endsAt)) ? ' · 반납 전까지' : ''}` : b.label}
 											</div>
 										)
 									})}
@@ -335,16 +335,24 @@ function NewReservation(props: { draft: { from: Date; to: Date; resource: string
 export function EntryDialog(props: { e: CalendarEntry; onClose: () => void }): ReactNode {
 	const r = props.e.reservation
 	if (r === undefined) return null
-	return <ReservationDialog r={r} resources={props.e.resourceIds} conflicts={props.e.conflicts} outOfUse={props.e.outOfUse} onClose={props.onClose} />
+	return <ReservationDialog r={r} resources={props.e.resourceIds} conflicts={props.e.conflicts} outOfUse={props.e.outOfUse} out={props.e.out} onClose={props.onClose} />
 }
 
 /**
- * A reservation, and what may be done with it: with what it waits for, and
- * what it takes that is out of use (D42), said before anybody comes for it.
- * What it booked itself that is out of use, it is neither said yes to nor
- * used through (D43), and is not offered to be.
+ * A reservation, and what may be done with it: with what it waits for, what
+ * it takes that is out of use (D42), and what it takes that somebody has out
+ * over its time (D53), said before anybody comes for it. What it booked
+ * itself that is out of use, it is neither said yes to nor used through
+ * (D43), and is not offered to be.
  */
-function ReservationDialog(props: { r: Reservation; resources: Uint8Array[]; conflicts: ReservationConflict[]; outOfUse: ReservationOutOfUse[]; onClose: () => void }): ReactNode {
+function ReservationDialog(props: {
+	r: Reservation
+	resources: Uint8Array[]
+	conflicts: ReservationConflict[]
+	outOfUse: ReservationOutOfUse[]
+	out: ReservationOut[]
+	onClose: () => void
+}): ReactNode {
 	const c = useCatalog()
 	const act = useAct()
 	const names = useResourceNames()
@@ -366,7 +374,7 @@ function ReservationDialog(props: { r: Reservation; resources: Uint8Array[]; con
 	const pickable = !unusable.some((v) => v.kind !== 'item')
 
 	if (pickup) {
-		return <PickUp r={r} resources={props.resources} conflicts={props.conflicts} onClose={props.onClose} />
+		return <PickUp r={r} resources={props.resources} conflicts={props.conflicts} out={props.out} onClose={props.onClose} />
 	}
 	return (
 		<Modal title={r.name} onClose={props.onClose}>
@@ -380,6 +388,7 @@ function ReservationDialog(props: { r: Reservation; resources: Uint8Array[]; con
 			{r.status === 'held' && r.expiresAt !== undefined && <p className="warn small">{fmt(r.expiresAt, 'time')}까지 확정하지 않으면 풀립니다.</p>}
 			<Waiting conflicts={props.conflicts} />
 			<OutOfUse items={gone} more="분실·불용·폐기되었거나 삭제되어 수령할 때 건네지 않습니다." />
+			<Out items={props.out} />
 			<Unusable status={r.status} items={unusable} />
 			{(mine || mgr || c.role === 'auditor') && <History r={r} />}
 			<footer className="modal-actions">
@@ -436,7 +445,7 @@ function ReservationDialog(props: { r: Reservation; resources: Uint8Array[]; con
  * pool, as many of its units as it holds, free until it ends, are put in, and
  * any of the others free then may be picked instead (D46).
  */
-function PickUp(props: { r: Reservation; resources: Uint8Array[]; conflicts: ReservationConflict[]; onClose: () => void }): ReactNode {
+function PickUp(props: { r: Reservation; resources: Uint8Array[]; conflicts: ReservationConflict[]; out: ReservationOut[]; onClose: () => void }): ReactNode {
 	const held = useRpc(AllocationService.method.list, { filters: [{ refId: props.r.id }], size: 200 })
 	const offer = useRpc(ReservationService.method.pickup, { ref: ref(props.r.id) })
 	const ids = useMemo(() => (held.data === undefined ? undefined : holds(props.resources, held.data.items)), [held.data, props.resources])
@@ -448,7 +457,7 @@ function PickUp(props: { r: Reservation; resources: Uint8Array[]; conflicts: Res
 	if (ids === undefined || pools === undefined || assets === undefined) return null
 	const of = (vs: Uint8Array[]) => vs.map((id) => assets.get(idStr(id))).filter((a): a is Asset => a !== undefined)
 	const offered = pools.map((p) => ({ pool: assets.get(idStr(p.poolId)), units: p.units, offered: of(p.offered), others: of(p.others) }))
-	return <NewCustodyForPickup r={props.r} assets={of(ids)} waited={of(waited)} pools={offered} conflicts={props.conflicts} onClose={props.onClose} />
+	return <NewCustodyForPickup r={props.r} assets={of(ids)} waited={of(waited)} pools={offered} conflicts={props.conflicts} out={props.out} onClose={props.onClose} />
 }
 
 /** What a pickup is offered of a pool it booked: as many as it holds, and the rest free until it ends. */
@@ -554,16 +563,26 @@ function Unusable(props: { status: string; items: OutOfUseItem[] }): ReactNode {
  * A pickup's hand-over: to whom it is for, a loan due back when it ends, of
  * what it holds that may be handed over. What it takes that is out of use is
  * not, whether it holds it or waits for it, and it is said beside what the
- * reservation waits for. Of a pool, the units it is offered, with a box for
- * each unit it may be handed instead (D46).
+ * reservation waits for; nor what somebody has out (D53), which is said too.
+ * Of a pool, the units it is offered, with a box for each unit it may be
+ * handed instead (D46).
  */
-function NewCustodyForPickup(props: { r: Reservation; assets: Asset[]; waited: Asset[]; pools: PoolOffer[]; conflicts: ReservationConflict[]; onClose: () => void }): ReactNode {
+function NewCustodyForPickup(props: {
+	r: Reservation
+	assets: Asset[]
+	waited: Asset[]
+	pools: PoolOffer[]
+	conflicts: ReservationConflict[]
+	out: ReservationOut[]
+	onClose: () => void
+}): ReactNode {
 	const items = props.assets.filter((a) => a.kind === 'item')
 	const gone = [...items, ...props.waited.filter((a) => a.kind === 'item')].filter((a) => outOfUse.includes(a.status))
 	const pools = props.pools.filter((p) => p.pool !== undefined && p.offered.length + p.others.length > 0)
+	const away = (a: Asset) => a.custodian !== undefined
 	return (
 		<NewCustody
-			assets={[...items.filter((a) => !outOfUse.includes(a.status)), ...pools.flatMap((p) => p.offered)]}
+			assets={[...items.filter((a) => !outOfUse.includes(a.status) && !away(a)), ...pools.flatMap((p) => p.offered)]}
 			choices={pools.map((p) => ({
 				label: `${p.pool?.name ?? ''}에서 ${p.units}개`,
 				hint:
@@ -576,10 +595,11 @@ function NewCustodyForPickup(props: { r: Reservation; assets: Asset[]; waited: A
 			reservation={props.r.id}
 			due={dateOf(props.r.endsAt)}
 			note={
-				props.conflicts.length > 0 || gone.length > 0 ? (
+				props.conflicts.length > 0 || gone.length > 0 || props.out.length > 0 ? (
 					<>
 						<Waiting conflicts={props.conflicts} more="이 예약이 잡지 못한 구성품은 건넬 자산에 넣지 않았습니다." short="이 예약이 잡지 못한 수량은 건넬 자산에 넣지 않았습니다." />
 						<OutOfUse items={gone} more="분실·불용·폐기 상태라 건넬 자산에 넣지 않았습니다." />
+						<Out items={props.out} more="누가 가지고 있는 것은 건넬 자산에 넣지 않았습니다. 돌아오면 건넬 수 있습니다." />
 					</>
 				) : undefined
 			}
@@ -644,7 +664,42 @@ function heldByAll(bs: BusySpan[]): string {
 
 /** What holds a member a reservation waits for, or some of a pool, as a person says it. */
 function heldBy(b: BusySpan): string {
-	return b.kind === 'maintenance' ? '정비' : `'${b.label}' 예약`
+	if (b.kind === 'maintenance') return '정비'
+	if (b.kind === 'custody') return b.label
+	return `'${b.label}' 예약`
+}
+
+/**
+ * What a reservation takes that somebody has out over its time (D53): lent
+ * until when, or lent and late, or handed over for keeps until it is
+ * returned. The reservation keeps its time, and its pickup does not hand the
+ * thing over until it is back. `more` is what the place it is said in does
+ * about it.
+ */
+function Out(props: { items: ReservationOut[]; more?: string }): ReactNode {
+	const c = useCatalog()
+	if (props.items.length === 0) return null
+	const until = (v: ReservationOut) =>
+		v.overdue ? `반납 기한(${fmt(v.dueAt)})이 지났는데 아직 돌아오지 않았습니다` : v.kind === 'loan' ? `${fmt(v.dueAt)}까지 대여 중입니다` : '지급되어 반납될 때까지 나가 있습니다'
+	return (
+		<div className="note warn" role="note" aria-label="나가 있는 자산">
+			<strong>나가 있는 자산</strong>
+			<ul>
+				{props.items.map((v) => (
+					<li key={idStr(v.resourceId)}>
+						{v.resourceTag} {v.resourceName}: {until(v)}
+						{c.can('manager') && (
+							<>
+								{' '}
+								<Link to={`/custody/${idStr(v.custodyId)}`}>건넨 기록</Link>
+							</>
+						)}
+					</li>
+				))}
+			</ul>
+			<p className="small">{props.more ?? '이 예약의 시간과 겹칩니다. 돌아오기 전에는 수령할 때 건넬 수 없습니다. 예약은 그 시간을 그대로 잡고, 돌아오면 알려 드립니다.'}</p>
+		</div>
+	)
 }
 
 function List(props: { mine?: boolean }): ReactNode {
@@ -744,6 +799,7 @@ function Approvals(): ReactNode {
 										</span>
 										<Waiting conflicts={e.conflicts} />
 										<OutOfUse items={gone} more="분실·불용·폐기되었거나 삭제되어 수령할 때 건네지 않습니다." />
+										<Out items={e.out} />
 										<Unusable status={r.status} items={unusable} />
 									</li>
 								)

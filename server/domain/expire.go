@@ -216,6 +216,11 @@ func (t *Tx) expire(c time.Time, out *Expired) ([]string, error) {
 			return t.db.Reservation.Delete().Where(reservation.IdIn(ids...)).Exec(ctx)
 		}))
 
+	// The time a hand-over held of what it handed over (D53), with it.
+	n(expireRows(t.ctx, &removed, t.db.Allocation.Query().Where(allocation.TenantId(tid), predicate.Allocation(idIn(allocation.FieldRefId, allocation.FieldTenantId, custody.Table, custody.FieldId, custody.FieldTenantId, custodyOver(c)))).Ids,
+		func(ctx context.Context, ids ...uuid.UUID) (int, error) {
+			return t.db.Allocation.Delete().Where(allocation.IdIn(ids...)).Exec(ctx)
+		}))
 	n(expireRows(t.ctx, &removed, t.db.CustodyLine.Query().Where(custodyline.TenantId(tid), custodyline.HasCustodyWith(custodyOver(c))).Ids,
 		func(ctx context.Context, ids ...uuid.UUID) (int, error) {
 			return t.db.CustodyLine.Delete().Where(custodyline.IdIn(ids...)).Exec(ctx)

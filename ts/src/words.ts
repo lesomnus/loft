@@ -177,14 +177,37 @@ export function tone(v: string): 'ok' | 'warn' | 'bad' | 'mute' | 'info' {
  * What is wrong with a reservation still to be fulfilled, as a badge says it,
  * or nothing (design 4): what it waits for -- a member a kit it booked should
  * take with it, or some of a pool it booked that has fewer to give then --
- * and what it takes that is out of use (D42, D43): a space it booked, which
- * is not checked into, and anything else, which its pickup does not hand
- * over.
+ * what it takes that is out of use (D42, D43): a space it booked, which is
+ * not checked into, and anything else, which its pickup does not hand over --
+ * and what it takes that somebody has out over its time (D53), which its
+ * pickup does not hand over until it is back.
  */
-export function markWord(e: { conflicts: { units: number }[]; outOfUse: { resourceKind: string }[] }): string {
+export function markWord(e: { conflicts: { units: number }[]; outOfUse: { resourceKind: string }[]; out: { kind: string; overdue: boolean }[] }): string {
 	const member = e.conflicts.some((c) => c.units === 0)
 	const pool = e.conflicts.some((c) => c.units > 0)
 	const thing = e.outOfUse.some((v) => v.resourceKind !== 'space')
 	const space = e.outOfUse.some((v) => v.resourceKind === 'space')
-	return [member ? '구성품 충돌' : '', pool ? '수량 부족' : '', thing ? '건넬 수 없는 자산' : '', space ? '쓸 수 없는 공간' : ''].filter((v) => v !== '').join(' · ')
+	const lent = e.out.some((v) => v.kind === 'loan' && !v.overdue)
+	const given = e.out.some((v) => v.kind !== 'loan')
+	const late = e.out.some((v) => v.overdue)
+	return [
+		member ? '구성품 충돌' : '',
+		pool ? '수량 부족' : '',
+		thing ? '건넬 수 없는 자산' : '',
+		space ? '쓸 수 없는 공간' : '',
+		lent ? '대여 중' : '',
+		given ? '지급됨' : '',
+		late ? '반납 지연' : '',
+	]
+		.filter((v) => v !== '')
+		.join(' · ')
+}
+
+/**
+ * Whether a moment is the one a hand-over holds what it handed over until
+ * while that is until it is back -- an issue, a loan past its due -- and not
+ * a moment anything is due (D53): the first of 2200.
+ */
+export function endless(at: Date | undefined): boolean {
+	return at !== undefined && at.getUTCFullYear() >= 2200
 }

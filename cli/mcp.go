@@ -1210,6 +1210,7 @@ type mcpReservation struct {
 	Series   bool     `json:"series,omitempty" jsonschema:"one of a repeating series"`
 	WaitsFor []mcpRef `json:"waits_for,omitempty" jsonschema:"what it does not hold: members of a reserved kit it should take with it, since something else holds them then (given to the kit after it was booked), and a reserved pool (a group) that has fewer usable members then than the reservations made before it hold, its name saying how many it booked and how many are free then. It takes each once there is room"`
 	OutOfUse []mcpRef `json:"out_of_use,omitempty" jsonschema:"what it takes that is out of use, its name saying its status (lost, retired or disposed): what it booked, whatever it is -- which it is then neither approved nor confirmed with, a room of which is not checked into and a kit or a group not picked up, and an item of which its pickup does not hand over -- or an item a reserved kit takes with it, kept in the kit as it went, which its pickup does not hand over. Said no more once it is in use again or taken off the kit"`
+	Out      []mcpRef `json:"out,omitempty" jsonschema:"what it takes that somebody has out over some of its time, handed over after it was booked: its name saying how -- lent until a moment, lent and late since it was due, or handed over for keeps until it is returned. It keeps its time, and its pickup does not hand the thing over until it is back. Said no more once it is back, or due back before its time"`
 }
 
 type mcpReservations struct {
@@ -1287,6 +1288,18 @@ func (t mcpTools) reservations(ctx context.Context, _ *mcp.CallToolRequest, in m
 		for _, g := range e.GetOutOfUse() {
 			name := strings.TrimSpace(g.GetResourceTag() + " " + g.GetResourceName())
 			item.OutOfUse = append(item.OutOfUse, mcpRef{Id: idString(g.GetResourceId()), Name: fmt.Sprintf("%s (%s)", name, g.GetStatus())})
+		}
+		for _, o := range e.GetOut() {
+			name := strings.TrimSpace(o.GetResourceTag() + " " + o.GetResourceName())
+			switch {
+			case o.GetOverdue():
+				name = fmt.Sprintf("%s (lent, late since %s)", name, stamp(o.GetDueAt()))
+			case o.GetKind() == "loan":
+				name = fmt.Sprintf("%s (lent until %s)", name, stamp(o.GetDueAt()))
+			default:
+				name = fmt.Sprintf("%s (issued until it is returned)", name)
+			}
+			item.Out = append(item.Out, mcpRef{Id: idString(o.GetResourceId()), Name: name})
 		}
 		out.Items = append(out.Items, item)
 	}

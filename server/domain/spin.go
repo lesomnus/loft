@@ -303,7 +303,9 @@ func (t *Tx) noticed(kind string, subject uuid.UUID) (bool, error) {
 }
 
 // sweepLoans reminds whoever holds a loan the day before it is due, and tells
-// them and the managers once it is late.
+// them and the managers once it is late. And a loan late holds what it lent
+// until it is back (D53): what was booked of it after its due says so, and is
+// told ([Tx.rehold]).
 func sweepLoans(t *Tx) error {
 	late, err := t.db.Custody.Query().Where(
 		custody.TenantId(t.tenant.Uuid()),
@@ -315,10 +317,48 @@ func sweepLoans(t *Tx) error {
 	if err != nil {
 		return err
 	}
+	if len(late) > 0 {
+		// The tree's lock, which a return takes too, and then what a
+		// booking of anything they lent holds, all at once (hold.go).
+		if err := t.lockTree(); err != nil {
+			return err
+		}
+		things := []uuid.UUID{}
+		for _, c := range late {
+			hs, err := t.holdsOf(c.Id)
+			if err != nil {
+				return err
+			}
+			for _, h := range hs {
+				things = append(things, h.ResourceId)
+			}
+		}
+		if err := t.holdThings(things, nil); err != nil {
+			return err
+		}
+	}
 	for _, c := range late {
+		// As it is now that nothing changes it: returned, or given a later
+		// due, meanwhile, it is not late.
+		if c, err = t.custodyOf(c.Id); err != nil {
+			return err
+		}
+		if c.Status != "open" || c.OverdueNoticed || c.DueAt == nil || !c.DueAt.Before(t.now) {
+			continue
+		}
+		if err := t.rehold(c); err != nil {
+			return err
+		}
+		body := fmt.Sprintf("%s에 반납하기로 한 물품이 아직 반납되지 않았습니다", t.when(*c.DueAt))
+		waited, err := t.waitedFor(c)
+		if err != nil {
+			return err
+		}
+		if waited {
+			body += ". 이 물품을 잡은 예약이 기다리고 있습니다"
+		}
 		name := t.partyName(c.PartyId)
-		if err := t.notifyParty(c.PartyId, "custody.overdue", "반납 기한이 지났습니다",
-			fmt.Sprintf("%s에 반납하기로 한 물품이 아직 반납되지 않았습니다", t.when(*c.DueAt)), pdid.Id(c.Id), "/custody"); err != nil {
+		if err := t.notifyParty(c.PartyId, "custody.overdue", "반납 기한이 지났습니다", body, pdid.Id(c.Id), "/custody"); err != nil {
 			return err
 		}
 		if err := t.notifyManagers("custody.overdue", "연체: "+name,
