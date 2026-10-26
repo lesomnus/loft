@@ -215,7 +215,7 @@ function PartyDialog(props: { p: Party; role: string | undefined; onClose: () =>
 			<Kv
 				items={[
 					['구분', partyKindWord[p.kind]],
-					['소속', c.party(p.parentId)?.name ?? '-'],
+					['소속', c.called(p.parentId) || '-'],
 					['이메일', p.email || '-'],
 					['전화', p.phone || '-'],
 					...(p.kind === 'person' ? ([['사번', p.code || '-'], ['역할', p.holder !== undefined ? roleWord[props.role ?? ''] ?? '로그인 있음' : '로그인 없음']] as [ReactNode, ReactNode][]) : []),

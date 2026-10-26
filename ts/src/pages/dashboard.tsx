@@ -120,7 +120,7 @@ export function Dashboard(): ReactNode {
 														{e.reservation?.name}
 													</button>
 												</span>
-												<span className="mute">{e.partyName || c.party(e.reservation?.party?.id)?.name}</span>
+												<span className="mute">{e.partyName || c.called(e.reservation?.party?.id)}</span>
 											</li>
 										))}
 									</ul>

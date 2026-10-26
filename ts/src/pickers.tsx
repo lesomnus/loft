@@ -140,11 +140,14 @@ export function PartySelect(
 		>
 			<option value="">{props.empty ?? '선택'}</option>
 			{vs.map((p) => {
+				// A person with the team they are in, which a choice of people
+				// is read by; and anybody told apart from whoever goes by their
+				// name as a list tells them (D54), which says the team too.
 				const team = c.party(p.parentId)
+				const called = c.called(p.id)
 				return (
 					<option key={idStr(p.id)} value={idStr(p.id)}>
-						{p.name}
-						{team !== undefined && p.kind === 'person' ? ` · ${team.name}` : ''}
+						{called !== p.name || team === undefined || p.kind !== 'person' ? called : `${p.name} · ${team.name}`}
 						{kinds.length > 1 ? ` (${partyKindWord[p.kind]})` : ''}
 					</option>
 				)

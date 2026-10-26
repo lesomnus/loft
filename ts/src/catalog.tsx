@@ -37,6 +37,11 @@ export interface Catalog {
 	type: (id: Uint8Array | undefined) => AssetType | undefined
 	model: (id: Uint8Array | undefined) => ItemModel | undefined
 	party: (id: Uint8Array | undefined) => Party | undefined
+	/**
+	 * A party as a list or a choice names it, told apart from whoever goes by
+	 * its name (D54): empty for one there is none of.
+	 */
+	called: (id: Uint8Array | undefined) => string
 	space: (id: Uint8Array | undefined) => Asset | undefined
 	bookable: (asset: Uint8Array | undefined) => Bookable | undefined
 	/** A space's place in the tree, as names from the top. */
@@ -53,6 +58,39 @@ export function useCatalog(): Catalog {
 
 function byId<T extends { id: Uint8Array }>(vs: T[]): Map<string, T> {
 	return new Map(vs.map((v) => [idStr(v.id), v]))
+}
+
+/**
+ * What each party is called where a list or a choice names it, by the party,
+ * as the server's lists call them (`namer.readApart`, D50, D54): by its name;
+ * and, where another goes by the same name, with what tells them apart and is
+ * never how either is reached -- the team it is in; then, where another of the
+ * name is in a team of that name too, its 사번; and, where neither does, its
+ * identifier.
+ */
+function calledApart(parties: Party[], by: Map<string, Party>): Map<string, string> {
+	const named = new Map<string, Party[]>()
+	for (const p of parties) named.set(p.name, [...(named.get(p.name) ?? []), p])
+	const team = (p: Party): string => by.get(idStr(p.parentId))?.name ?? ''
+	const out = new Map<string, string>()
+	for (const same of named.values()) {
+		for (const p of same) {
+			const words = [p.name]
+			if (same.length > 1) {
+				if (team(p) !== '') words.push(team(p))
+				const alike = same.filter((q) => team(q) === team(p))
+				if (alike.length === 1) {
+					// The team tells them apart.
+				} else if (p.code !== '' && alike.filter((q) => q.code === p.code).length === 1) {
+					words.push(p.code)
+				} else {
+					words.push(idStr(p.id))
+				}
+			}
+			out.set(idStr(p.id), words.join(' · '))
+		}
+	}
+	return out
 }
 
 export function CatalogProvider(props: { children: ReactNode }): ReactNode {
@@ -72,6 +110,7 @@ export function CatalogProvider(props: { children: ReactNode }): ReactNode {
 		const t = byId(types.data?.items ?? [])
 		const m = byId(models.data?.items ?? [])
 		const p = byId(parties.data?.items ?? [])
+		const called = calledApart(parties.data?.items ?? [], p)
 		const s = byId(spaces.data?.items ?? [])
 		const b = new Map((bookables.data?.items ?? []).map((v) => [idStr(v.asset?.id), v]))
 		const role = me.data.role
@@ -96,6 +135,7 @@ export function CatalogProvider(props: { children: ReactNode }): ReactNode {
 			type: (id) => t.get(idStr(id)),
 			model: (id) => m.get(idStr(id)),
 			party: (id) => p.get(idStr(id)),
+			called: (id) => called.get(idStr(id)) ?? '',
 			space: (id) => s.get(idStr(id)),
 			bookable: (id) => b.get(idStr(id)),
 			path,

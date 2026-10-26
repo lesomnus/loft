@@ -139,7 +139,7 @@ function AssetView(props: { a: Asset }): ReactNode {
 							...(a.placementMode !== '' && a.placementMode !== 'located'
 								? ([['배치', `${modeWord[a.placementMode] ?? a.placementMode}${a.slot ? ` · ${a.slot}` : ''}`]] as [ReactNode, ReactNode][])
 								: []),
-							['사용자', a.custodian !== undefined ? c.party(a.custodian.id)?.name ?? '-' : '-'],
+							['사용자', c.called(a.custodian?.id) || '-'],
 							...(a.serial !== '' ? ([['시리얼', <code key="s">{a.serial}</code>]] as [ReactNode, ReactNode][]) : []),
 							['취득일', fmt(a.acquiredAt, 'date')],
 							['등록', fmt(a.dateCreated, 'date')],
@@ -408,7 +408,7 @@ function Inside(props: { a: Asset }): ReactNode {
 										{x.kind !== 'item' && `${kindWord[x.kind]} · `}
 										{modeWord[x.placementMode] ?? ''}
 										{x.slot !== '' && ` · ${x.slot}`}
-										{x.custodian !== undefined && ` · ${c.party(x.custodian.id)?.name ?? ''}`}
+										{x.custodian !== undefined && ` · ${c.called(x.custodian.id)}`}
 									</span>
 								</li>
 							))}

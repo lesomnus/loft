@@ -374,7 +374,7 @@ function ReservationDialog(props: { r: Reservation; resources: Uint8Array[]; con
 				<Badge v={r.status} words={reservationWord} /> {fmt(r.beginsAt)} – {fmt(r.endsAt)}
 			</p>
 			<p>
-				{props.resources.map((x) => names.get(idStr(x)) ?? '').join(', ')} · {c.party(r.party?.id)?.name ?? ''}
+				{props.resources.map((x) => names.get(idStr(x)) ?? '').join(', ')} · {c.called(r.party?.id)}
 			</p>
 			{r.rrule !== '' && <p className="mute small">반복: {r.rrule}</p>}
 			{r.status === 'held' && r.expiresAt !== undefined && <p className="warn small">{fmt(r.expiresAt, 'time')}까지 확정하지 않으면 풀립니다.</p>}
@@ -680,7 +680,7 @@ function List(props: { mine?: boolean }): ReactNode {
 											</td>
 											<td>{e.resourceIds.map((x) => names.get(idStr(x)) ?? '').join(', ')}</td>
 											<td>{e.reservation?.name}</td>
-											<td>{e.partyName || c.party(e.reservation?.party?.id)?.name}</td>
+											<td>{e.partyName || c.called(e.reservation?.party?.id)}</td>
 											<td>
 												<Badge v={e.reservation?.status ?? ''} words={reservationWord} />
 												{markWord(e) !== '' && <span className="badge warn">{markWord(e)}</span>}
@@ -732,7 +732,7 @@ function Approvals(): ReactNode {
 											<button className="link" onClick={() => setOpen(e)}>
 												<strong>{r.name}</strong>
 											</button>{' '}
-											· {e.partyName || c.party(r.party?.id)?.name}
+											· {e.partyName || c.called(r.party?.id)}
 										</span>
 										<span className="inline">
 											<button onClick={() => void act(ReservationService.method.reject, { ref: ref(r.id) }, { ok: '거절했습니다.' })}>거절</button>

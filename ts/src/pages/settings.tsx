@@ -612,7 +612,7 @@ function Audit(): ReactNode {
 									{d.items.map((a) => (
 										<tr key={idStr(a.id)}>
 											<td>{fmt(a.dateCreated)}</td>
-											<td>{a.actorId.every((b) => b === 0) ? '시스템' : (c.parties.find((p) => p.holder !== undefined && idStr(p.holder.id) === idStr(a.actorId))?.name ?? idStr(a.actorId).slice(0, 8))}</td>
+											<td>{a.actorId.every((b) => b === 0) ? '시스템' : c.called(c.parties.find((p) => p.holder !== undefined && idStr(p.holder.id) === idStr(a.actorId))?.id) || idStr(a.actorId).slice(0, 8)}</td>
 											<td>
 												<code>{a.action.replace('/rove.', '')}</code>
 											</td>
@@ -664,7 +664,7 @@ function Access(): ReactNode {
 	})
 	const reviews = useRpc(AccessReviewService.method.list, { size: 24 })
 	const [note, setNote] = useState('')
-	const name = (holder: Uint8Array | undefined): string => c.parties.find((p) => idStr(p.holder?.id) === idStr(holder))?.name ?? '?'
+	const name = (holder: Uint8Array | undefined): string => c.called(c.parties.find((p) => idStr(p.holder?.id) === idStr(holder))?.id) || '?'
 	const label = fmtWith({ year: 'numeric', month: 'long' }, from)
 	const go = (by: number): void => {
 		const w = wall(at(month.y, month.m + by, 1))
@@ -696,14 +696,14 @@ function Access(): ReactNode {
 						value={actor}
 						onChange={narrow(setActor)}
 						empty="모든 구성원"
-						options={c.parties.filter((p) => p.holder !== undefined).map((p) => ({ value: idStr(p.holder?.id), label: p.name }))}
+						options={c.parties.filter((p) => p.holder !== undefined).map((p) => ({ value: idStr(p.holder?.id), label: c.called(p.id) }))}
 					/>
 					<Select
 						aria-label="누구의 정보"
 						value={subject}
 						onChange={narrow(setSubject)}
 						empty="모든 사람"
-						options={c.parties.filter((p) => p.kind === 'person').map((p) => ({ value: idStr(p.id), label: p.name }))}
+						options={c.parties.filter((p) => p.kind === 'person').map((p) => ({ value: idStr(p.id), label: c.called(p.id) }))}
 					/>
 					<Select
 						aria-label="종류"
