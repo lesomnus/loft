@@ -111,7 +111,7 @@ func sentences() *past.Sentences {
 		return fmt.Sprintf("재고 → 자산: %s %d개", m.GetName(), m.GetQuantity())
 	})
 
-	// custody.go
+	// custody.go and spin.go
 	past.SayKind(s, "custody.issue", "ko", func(r *past.Reading, ev past.EventRow, m *app.CustodyIssued) string {
 		verb := "지급"
 		if m.GetKind() == "loan" {
