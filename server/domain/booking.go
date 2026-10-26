@@ -709,11 +709,26 @@ func (s domainReservation) Add(ctx context.Context, req *app.ReservationAddReque
 		if err := t.begin(req.GetOp(), "reservation.add", id, t.now, req.GetReason(), said(wants[0].r)); err != nil {
 			return err
 		}
-		kids := make([]past.Child, len(wants))
+		kids := make([]past.Child, len(wants), len(wants)+len(occs)-1)
 		for i, w := range wants {
 			v := said(w.r)
 			v.SetAsset(pdid.Id(w.r.asset.Id).Bytes())
 			kids[i] = past.Child{Event: past.Event{Kind: "reservation.add", Subject: pdid.Id(w.r.asset.Id), Reason: req.GetReason(), Value: v}}
+		}
+		// And each time a series takes place after the first, which is a
+		// reservation of its own: its history says it was booked, and when it
+		// takes place, as the first's does (D45). Named here, so that its
+		// event is written with the rest.
+		ids := make([]pdid.Id, len(occs))
+		ids[0] = id
+		for i := 1; i < len(occs); i++ {
+			ids[i] = made(req.GetOp(), pd.ReservationDomain, i)
+			v := said(wants[0].r)
+			v.SetReservation(ids[i].Bytes())
+			v.SetOccurrences(1)
+			v.SetBeginsAt(ts(occs[i][0]))
+			v.SetEndsAt(ts(occs[i][1]))
+			kids = append(kids, past.Child{Event: past.Event{Kind: "reservation.add", Subject: ids[i], Reason: req.GetReason(), Value: v}})
 		}
 		if _, err := t.op.Batch(t.ctx, kids); err != nil {
 			return err
@@ -734,8 +749,8 @@ func (s domainReservation) Add(ctx context.Context, req *app.ReservationAddReque
 			if expires != nil {
 				row.SetExpiresAt(ts(*expires))
 			}
+			row.SetId(ids[i].Bytes())
 			if i == 0 {
-				row.SetId(id.Bytes())
 				row.SetRrule(req.GetRepeat())
 			}
 			if series != nil {
@@ -889,11 +904,14 @@ func (s domainReservation) decide(ctx context.Context, req *app.ReservationDecid
 		}
 		ids := []pdid.Id{idOf(r.GetId())}
 		if req.GetSeries() && len(r.GetSeriesId()) > 0 {
+			// In the order they take place: the decision's own event is
+			// about the first it moves, the one it was made on, and says
+			// it is of those from it on (`ReservationDecided.series`).
 			rs, err := t.db.Reservation.Query().Where(
 				reservation.TenantId(t.tenant.Uuid()),
 				reservation.SeriesId(uuidOf(r.GetSeriesId())),
 				reservation.BeginsAtGTE(r.GetBeginsAt().AsTime()),
-			).Ids(t.ctx)
+			).Order(reservation.ByBeginsAt()).Ids(t.ctx)
 			if err != nil {
 				return err
 			}
@@ -928,14 +946,21 @@ func (s domainReservation) decide(ctx context.Context, req *app.ReservationDecid
 					return err
 				}
 			}
+			decided := app.ReservationDecided_builder{
+				Reservation: r.GetId(),
+				Name:        r.GetName(),
+				Series:      req.GetSeries(),
+			}.Build()
 			if t.op == nil {
-				if err := t.begin(nil, kind, idOf(r.GetId()), t.now, req.GetReason(), app.ReservationDecided_builder{
-					Reservation: r.GetId(),
-					Name:        r.GetName(),
-					Series:      req.GetSeries(),
-				}.Build()); err != nil {
-					return err
-				}
+				err = t.begin(nil, kind, idOf(r.GetId()), t.now, req.GetReason(), decided)
+			} else {
+				// One of its series after the first, decided with it: a
+				// reservation of its own, whose history says what was done
+				// to it, under the decision (design D34, D45).
+				err = t.child(kind, idOf(r.GetId()), t.now, req.GetReason(), decided, nil)
+			}
+			if err != nil {
+				return err
 			}
 			if err := t.lockAllocations(idOf(r.GetId())); err != nil {
 				return err
