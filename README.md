@@ -756,16 +756,19 @@ npx playwright test                          # 또는 npm run e2e
 npx playwright show-trace test-results/<실패한 테스트>/trace.zip
 ```
 
-브라우저를 설치하지 않고 Playwright 이미지에서 돌릴 수도 있습니다. 이미지에는 Go가 없으니 미리 빌드한 rove와 발급자를 `E2E_ROVE`, `E2E_ISSUER`로 넘기고, 태그는 `ts/package.json`의 `@playwright/test` 버전과 맞춥니다.
+브라우저를 설치하지 않고 Playwright 이미지에서 돌릴 수도 있습니다. 이미지에는 Go가 없으니 미리 빌드한 rove와 발급자를 `E2E_ROVE`, `E2E_ISSUER`로 넘기고, 태그의 버전은 `ts/package-lock.json`이 설치하는 Playwright에서 읽습니다. 이미지의 브라우저는 그 버전이 다루는 브라우저라서, Playwright를 올리면 이미지도 따라 바뀝니다.
 
 ```sh
 CGO_ENABLED=0 GOOS=linux go build -o /tmp/rove ./cmd/rove
 CGO_ENABLED=0 GOOS=linux go build -o /tmp/oidctest ./internal/oidctest/cmd/oidctest
+v=$(jq -r '.packages["node_modules/playwright-core"].version' ts/package-lock.json)
 docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp \
   -v "$PWD:$PWD" -v /tmp/rove:/tmp/rove -v /tmp/oidctest:/tmp/oidctest \
   -e E2E_ROVE=/tmp/rove -e E2E_ISSUER=/tmp/oidctest -w "$PWD/ts" \
-  mcr.microsoft.com/playwright:v1.63.0-noble npx playwright test
+  "mcr.microsoft.com/playwright:v$v-noble" npx playwright test
 ```
+
+CI도 이렇게 돌립니다(`.github/workflows/ci.yaml`의 `e2e`). 다만 러너와 같은 우분투의 이미지(`-resolute`)여서 rove를 러너에서 빌드한 그대로 넘기고, `--network host`로 러너에 띄운 PostgreSQL과 OpenSearch에 닿습니다.
 
 포트가 겹치면 `E2E_PORT=19510`처럼 옮깁니다(그 포트와 +1, +10, +11, +20, +21, +30을 씁니다).
 
