@@ -91,6 +91,8 @@ service AssetService {
 
 service TreeLockService {}
 
+service TagCounterService {}
+
 service TenantDomainService {
   // Add creates a new TenantDomain
   rpc Add(TenantDomainAddRequest) returns (TenantDomain);

@@ -798,7 +798,7 @@ export type BusySpan = Message<"rove.BusySpan"> & {
   /**
    * reservation | maintenance | override | waiting | custody | closed: of
    * custody, what somebody has out, until it is due back -- `ends_at` the
-   * last moment there is when that is until it is back (D53).
+   * first moment of 2200 when that is until it is back (D53).
    *
    * @generated from field: string kind = 4 [features.field_presence = IMPLICIT];
    */

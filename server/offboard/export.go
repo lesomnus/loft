@@ -292,6 +292,7 @@ var Withheld = map[string]string{
 	"searchstale":   "the deployment's queue of what the search index has yet to hear of",
 	"outbox":        "the deployment's queue of what changed",
 	"treelock":      "the deployment's bookkeeping",
+	"tagcounter":    "the deployment's bookkeeping: the last number made up for each prefix of tag, which a restored workspace counts again from its tags",
 	"legalhold":     "the operator's",
 	"tenant":        "the manifest's",
 }

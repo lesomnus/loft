@@ -1126,6 +1126,66 @@ var TreeLockService_ServiceDesc = grpc.ServiceDesc{
 	Metadata:    "rove/asset_svc.g.proto",
 }
 
+// TagCounterServiceClient is the client API for TagCounterService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type TagCounterServiceClient interface {
+}
+
+type tagCounterServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewTagCounterServiceClient(cc grpc.ClientConnInterface) TagCounterServiceClient {
+	return &tagCounterServiceClient{cc}
+}
+
+// TagCounterServiceServer is the server API for TagCounterService service.
+// All implementations must embed UnimplementedTagCounterServiceServer
+// for forward compatibility.
+type TagCounterServiceServer interface {
+	mustEmbedUnimplementedTagCounterServiceServer()
+}
+
+// UnimplementedTagCounterServiceServer must be embedded to have
+// forward compatible implementations.
+//
+// NOTE: this should be embedded by value instead of pointer to avoid a nil
+// pointer dereference when methods are called.
+type UnimplementedTagCounterServiceServer struct{}
+
+func (UnimplementedTagCounterServiceServer) mustEmbedUnimplementedTagCounterServiceServer() {}
+func (UnimplementedTagCounterServiceServer) testEmbeddedByValue()                           {}
+
+// UnsafeTagCounterServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to TagCounterServiceServer will
+// result in compilation errors.
+type UnsafeTagCounterServiceServer interface {
+	mustEmbedUnimplementedTagCounterServiceServer()
+}
+
+func RegisterTagCounterServiceServer(s grpc.ServiceRegistrar, srv TagCounterServiceServer) {
+	// If the following call panics, it indicates UnimplementedTagCounterServiceServer was
+	// embedded by pointer and is nil.  This will cause panics if an
+	// unimplemented method is ever invoked, so we test this at initialization
+	// time to prevent it from happening at runtime later due to I/O.
+	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
+		t.testEmbeddedByValue()
+	}
+	s.RegisterService(&TagCounterService_ServiceDesc, srv)
+}
+
+// TagCounterService_ServiceDesc is the grpc.ServiceDesc for TagCounterService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var TagCounterService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "rove.TagCounterService",
+	HandlerType: (*TagCounterServiceServer)(nil),
+	Methods:     []grpc.MethodDesc{},
+	Streams:     []grpc.StreamDesc{},
+	Metadata:    "rove/asset_svc.g.proto",
+}
+
 const (
 	TenantDomainService_Add_FullMethodName      = "/rove.TenantDomainService/Add"
 	TenantDomainService_Get_FullMethodName      = "/rove.TenantDomainService/Get"

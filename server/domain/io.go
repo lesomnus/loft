@@ -10,15 +10,11 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/lesomnus/payday/access"
-	"github.com/lesomnus/payday/pdid"
-
 	app "github.com/lesomnus/rove"
 	"github.com/lesomnus/rove/internal/ent"
 	"github.com/lesomnus/rove/internal/ent/asset"
 	"github.com/lesomnus/rove/internal/ent/assettype"
 	"github.com/lesomnus/rove/internal/ent/itemmodel"
-	"github.com/lesomnus/rove/internal/ent/party"
 )
 
 // The Korean words for rove's own values, which export writes and the pages
@@ -51,7 +47,10 @@ var (
 var errDry = errors.New("domain: dry run")
 
 // Export writes the register as a CSV to read: a row an asset, in the words a
-// person reads, and the place as a path beside the tag a machine can.
+// person reads, and the place as a path beside the tag a machine can. Who has
+// each is said by name, and two of a name by what tells them apart
+// ([namer.readApart]), never by how they are reached: the file is a download,
+// kept wherever it is taken (rove#136).
 //
 // Nothing reads one back. A sheet that edited the register by tag made a
 // value people change into what an asset is, so that another workspace's
@@ -75,8 +74,8 @@ func (s domainAsset) Export(ctx context.Context, req *app.AssetExportRequest) (*
 	if err != nil {
 		return nil, err
 	}
-	parties, err := t.db.Party.Query().Where(party.TenantId(t.tenant.Uuid())).All(ctx)
-	if err != nil {
+	people := namer{t: t}
+	if err := people.readApart(); err != nil {
 		return nil, err
 	}
 
@@ -91,10 +90,6 @@ func (s domainAsset) Export(ctx context.Context, req *app.AssetExportRequest) (*
 	model := map[uuid.UUID]*ent.ItemModel{}
 	for _, v := range models {
 		model[v.Id] = v
-	}
-	partyName := map[uuid.UUID]string{}
-	for _, v := range parties {
-		partyName[v.Id] = or(v.Email, v.Name)
 	}
 	path := func(a *ent.Asset) string {
 		names := []string{}
@@ -149,14 +144,16 @@ func (s domainAsset) Export(ctx context.Context, req *app.AssetExportRequest) (*
 			acquired = a.AcquiredAt.In(t.zone()).Format(time.DateOnly)
 		}
 		// A column no `personal` declaration can see: the file carries the
-		// custodian's name, so the download is of them (rove#136).
-		if _, ok := partyName[a.CustodianId]; ok {
-			access.Saw(ctx, access.Subject{Id: pdid.Id(a.CustodianId), Tenant: t.tenant})
+		// custodian's name, and the team's beside it for a name two go by,
+		// so the download is of them (rove#136).
+		custodian := ""
+		if a.CustodianId != (uuid.UUID{}) {
+			custodian = people.party(a.CustodianId)
 		}
 		row := []string{
 			a.Tag, a.Name, or(kindSay[a.Kind], a.Kind), typeName[a.TypeId], mName, maker, a.Serial,
 			or(statusSay[a.Status], a.Status), or(conditionSay[a.Condition], a.Condition),
-			path(a), loc, partyName[a.CustodianId], acquired, a.Desc,
+			path(a), loc, custodian, acquired, a.Desc,
 		}
 		for _, k := range attrs {
 			row = append(row, a.Attributes[k])

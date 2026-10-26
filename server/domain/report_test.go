@@ -157,6 +157,122 @@ func TestTheCensusCountsWhatThereIsByTypeAndBySpace(t *testing.T) {
 	})
 }
 
+// TestTheDashboardCountsWhatThereIs: the numbers the dashboard shows
+// (`AssetService.Report`) -- how many there are of each kind, status and
+// type, what is out and late, and the work under way -- and what is late, by
+// who has it. Every kind is counted here, and what was erased is not.
+func TestTheDashboardCountsWhatThereIs(t *testing.T) {
+	e := newEnv(t)
+	x := e.x
+	seoul := e.zoned("Asia/Seoul")
+	kind := func(name, of string) *app.AssetType {
+		v, err := e.app().AssetType().Add(e.owner, app.AssetTypeAddRequest_builder{Name: name, Kind: of}.Build())
+		x.NoError(err)
+		return v
+	}
+	notebook, room := kind("노트북", "item"), kind("회의실", "space")
+	add := func(name, tag, of string, ty *app.AssetType) *app.Asset {
+		req := app.AssetAddRequest_builder{Name: name, Tag: tag, Kind: of}.Build()
+		if ty != nil {
+			req.SetType(ref[app.AssetTypeRef](ty.GetId()))
+		}
+		v, err := e.app().Asset().Add(e.owner, req)
+		x.NoError(err)
+		return v
+	}
+
+	add("본관", "", "space", nil)
+	add("대회의실", "", "space", room)
+	nb1 := add("노트북 1", "NB-1", "item", notebook)
+	nb2 := add("노트북 2", "NB-2", "item", notebook)
+	nb3 := add("노트북 3", "NB-3", "item", notebook)
+	mn1 := add("모니터 1", "MN-1", "item", nil)
+	chair := add("의자", "CH-1", "item", nil)
+	add("촬영 키트", "KT-1", "kit", nil)
+	e.set(nb2, "in_repair")
+	e.set(chair, "lost")
+	_, err := e.app().Asset().Erase(e.owner, assetRef(add("노트북 4", "NB-4", "item", notebook)))
+	x.NoError(err)
+
+	// NB-1 lent to one until an hour from now, NB-3 issued to another for
+	// keeps, and MN-1 lent and back.
+	_, kim := e.person("member")
+	_, lee := e.person("member")
+	give := func(to *app.Party, a *app.Asset, due *time.Time) *app.Custody {
+		req := app.CustodyAddRequest_builder{
+			Party: ref[app.PartyRef](to.GetId()),
+			Lines: []*app.CustodyLineSpec{app.CustodyLineSpec_builder{Asset: assetRef(a)}.Build()},
+		}.Build()
+		if due != nil {
+			req.SetDueAt(timestamppb.New(*due))
+		}
+		v, err := e.app().Custody().Add(e.owner, req)
+		x.NoError(err)
+		return v
+	}
+	soon := e.now.Add(time.Hour)
+	lent := give(kim, nb1, &soon)
+	give(lee, nb3, nil)
+	back := give(lee, mn1, &soon)
+	_, err = e.app().Custody().Return(e.owner, app.CustodyReturnRequest_builder{Ref: ref[app.CustodyRef](back.GetId())}.Build())
+	x.NoError(err)
+
+	// A repair under way on NB-2, and one done on NB-3.
+	work := func(a *app.Asset, name string) *app.WorkOrder {
+		v, err := e.app().WorkOrder().Add(e.owner, app.WorkOrderAddRequest_builder{Asset: ref[app.AssetRef](a.GetId()), Name: name}.Build())
+		x.NoError(err)
+		return v
+	}
+	work(nb2, "팬 소음")
+	_, err = e.app().WorkOrder().Complete(e.owner, app.WorkOrderCompleteRequest_builder{Ref: ref[app.WorkOrderRef](work(nb3, "키보드 교체").GetId())}.Build())
+	x.NoError(err)
+
+	// Two days on, NB-1 is late.
+	e.now = soon.Add(48 * time.Hour)
+
+	v, err := e.app().Asset().Report(e.owner, app.AssetReportRequest_builder{Kind: "summary"}.Build())
+	x.NoError(err)
+	got, types := map[string]float64{}, []string{}
+	for _, r := range v.GetRows() {
+		k := r.GetGroup() + "/" + r.GetKey()
+		if r.GetGroup() == "type" {
+			k = "type/" + r.GetLabel()
+			types = append(types, r.GetLabel())
+			if r.GetLabel() == "노트북" {
+				x.Equal(idOf(notebook.GetId()).String(), r.GetKey(), "a type by its identifier")
+			}
+		}
+		got[k] = r.GetValue()
+	}
+	x.Equal(map[string]float64{
+		"kind/item": 5, "kind/space": 2, "kind/kit": 1,
+		"status/active": 6, "status/in_repair": 1, "status/lost": 1,
+		"type/노트북": 3, "type/회의실": 1, "type/(유형 없음)": 4,
+		"custody/open": 2, "custody/overdue": 1,
+		"work/open": 1,
+	}, got)
+	x.Equal([]string{"노트북", "회의실", "(유형 없음)"}, types, "as the census says them: by name, and what has none last")
+
+	v, err = e.app().Asset().Report(e.owner, app.AssetReportRequest_builder{Kind: "custody"}.Build())
+	x.NoError(err)
+	late, held := []*app.ReportRow{}, map[string]float64{}
+	for _, r := range v.GetRows() {
+		switch r.GetGroup() {
+		case "overdue":
+			late = append(late, r)
+		case "party":
+			held[r.GetLabel()] = r.GetValue()
+			x.Contains([]string{idOf(kim.GetId()).String(), idOf(lee.GetId()).String()}, r.GetKey())
+		}
+	}
+	x.Len(late, 1)
+	x.Equal(idOf(lent.GetId()).String(), late[0].GetKey())
+	x.Equal(kim.GetName(), late[0].GetLabel(), "who has it, by name")
+	x.InDelta(2, late[0].GetValue(), 1e-9, "days since it was due")
+	x.Equal(soon.In(seoul).Format(time.DateOnly), late[0].GetDetail()["due"])
+	x.Equal(map[string]float64{kim.GetName(): 1, lee.GetName(): 1}, held, "how much each has out")
+}
+
 // TestWhatIsOutSaysWhoHasItAndHowLate: a row each thing handed over and not
 // back, the most overdue first and what is kept last, with who has it by
 // name; how much is out in all, whatever the page; and how late, in the

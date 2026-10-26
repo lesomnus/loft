@@ -80,6 +80,7 @@ import (
 	entStewardship "github.com/lesomnus/rove/internal/ent/stewardship"
 	entStock "github.com/lesomnus/rove/internal/ent/stock"
 	entStockMovement "github.com/lesomnus/rove/internal/ent/stockmovement"
+	entTagCounter "github.com/lesomnus/rove/internal/ent/tagcounter"
 	entTenant "github.com/lesomnus/rove/internal/ent/tenant"
 	entTenantContract "github.com/lesomnus/rove/internal/ent/tenantcontract"
 	entTenantDomain "github.com/lesomnus/rove/internal/ent/tenantdomain"
@@ -173,6 +174,7 @@ const (
 	StewardshipDomain     pdid.Domain = 15  // "stewardship"
 	StockDomain           pdid.Domain = 29  // "stock"
 	StockMovementDomain   pdid.Domain = 30  // "stock-movement"
+	TagCounterDomain      pdid.Domain = 49  // "tag-counter"
 	TenantDomain          pdid.Domain = 1   // "tenant"
 	TenantContractDomain  pdid.Domain = 39  // "tenant-contract"
 	TenantDomainDomain    pdid.Domain = 24  // "tenant-domain"
@@ -221,6 +223,7 @@ func init() {
 	pdid.Register("rove.Stewardship", StewardshipDomain, "stewardship")
 	pdid.Register("rove.Stock", StockDomain, "stock")
 	pdid.Register("rove.StockMovement", StockMovementDomain, "stock-movement")
+	pdid.Register("rove.TagCounter", TagCounterDomain, "tag-counter")
 	pdid.Register("rove.Tenant", TenantDomain, "tenant")
 	pdid.Register("rove.TenantContract", TenantContractDomain, "tenant-contract")
 	pdid.Register("rove.TenantDomain", TenantDomainDomain, "tenant-domain")
@@ -273,6 +276,7 @@ var Domains = map[string]pdid.Domain{
 	"rove.Stewardship":     StewardshipDomain,
 	"rove.Stock":           StockDomain,
 	"rove.StockMovement":   StockMovementDomain,
+	"rove.TagCounter":      TagCounterDomain,
 	"rove.Tenant":          TenantDomain,
 	"rove.TenantContract":  TenantContractDomain,
 	"rove.TenantDomain":    TenantDomainDomain,
@@ -460,6 +464,7 @@ var IndexRenames = []rename.Index{
 	{Table: "stockmovement", From: "stockmovement_tenant_id_date_created_id", To: "stockmovement_page"},
 	{Table: "stockmovement", From: "stockmovement_stock_id_occurred_at", To: "stockmovement_stock"},
 	{Table: "stockmovement", From: "stockmovement_event_id", To: "stockmovement_event"},
+	{Table: "tagcounter", From: "tagcounter_tenant_id_prefix", To: "tagcounter_prefix"},
 	{Table: "tenant", From: "tenant_date_created_id", To: "tenant_page"},
 	{Table: "tenantcontract", From: "tenantcontract_tenant_id_date_effective_id", To: "tenantcontract_effective"},
 	{Table: "tenantdomain", From: "tenantdomain_tenant_id_date_created_id", To: "tenantdomain_page"},
@@ -863,6 +868,16 @@ func (wall) StockMovementScope(ctx context.Context) (predicate.StockMovement, er
 	}
 
 	return entStockMovement.TenantIdIn(vs...), nil
+}
+
+// TagCounterScope: a row belongs to the tenant its "tenant" reaches.
+func (wall) TagCounterScope(ctx context.Context) (predicate.TagCounter, error) {
+	vs, all, err := frame.Narrow(ctx)
+	if all || err != nil {
+		return nil, err
+	}
+
+	return entTagCounter.TenantIdIn(vs...), nil
 }
 
 // TenantScope: a tenant is inside itself, which is what a tenant being a wall comes down to.
@@ -17118,6 +17133,8 @@ func described(key pdid.Id) (protoreflect.MessageDescriptor, []protoreflect.Fiel
 		return describedStock.md, describedStock.secret, describedStock.personal
 	case StockMovementDomain:
 		return describedStockMovement.md, describedStockMovement.secret, describedStockMovement.personal
+	case TagCounterDomain:
+		return describedTagCounter.md, describedTagCounter.secret, describedTagCounter.personal
 	case TenantDomain:
 		return describedTenant.md, describedTenant.secret, describedTenant.personal
 	case TenantContractDomain:
@@ -17271,6 +17288,9 @@ var (
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
 	describedStockMovement = describe((*rove.StockMovement)(nil),
+		[]protoreflect.FieldNumber{},
+		[]protoreflect.FieldNumber{})
+	describedTagCounter = describe((*rove.TagCounter)(nil),
 		[]protoreflect.FieldNumber{},
 		[]protoreflect.FieldNumber{})
 	describedTenant = describe((*rove.Tenant)(nil),
@@ -18382,6 +18402,8 @@ func left(ctx context.Context, s bare.Server, key pdid.Id, image proto.Message) 
 		vs, err = rowsStock(ctx, s.Db, entStock.IdEQ(uuid.UUID(key)))
 	case StockMovementDomain:
 		vs, err = rowsStockMovement(ctx, s.Db, entStockMovement.IdEQ(uuid.UUID(key)))
+	case TagCounterDomain:
+		vs, err = rowsTagCounter(ctx, s.Db, entTagCounter.IdEQ(uuid.UUID(key)))
 	case TenantDomain:
 		vs, err = rowsTenant(ctx, s.Db, entTenant.IdEQ(uuid.UUID(key)))
 	case TenantContractDomain:
@@ -18758,6 +18780,7 @@ func Digests(ctx context.Context, db *ent.Client, d *audit.Digest, p trail.Polic
 		{Kind: "search-stale", Why: "the search index's queue: that a document is to be made again, which the indexer takes within seconds"},
 		{Kind: "session", Why: "a sign-in, whose idle clock moves on every request; who signed in, and from where, is the access record's (rove#136)"},
 		{Kind: "sign-in-failure", Why: "a count of the sign-ins an address got wrong, kept for hours to slow the next; nobody's act"},
+		{Kind: "tag-counter", Why: "the last number made up for a tag, and the lock that numbering takes: bookkeeping, as the tree lock is; the tag itself is on the trail with the asset it was given to"},
 		{Kind: "tree-lock", Why: "the lock every change of the placement tree takes, and its version: bookkeeping, not a fact"},
 	}}
 	if err := audit.CheckKind(ctx, d, checkedAccessReview(db), archived, &out); err != nil {
@@ -21122,6 +21145,25 @@ func rowsStockMovement(ctx context.Context, db *ent.Client, ps ...predicate.Stoc
 	bare.StockMovementSelectInit(q, nil)
 
 	vs, err := q.Order(entStockMovement.ById()).Limit(audit.RowsPage).All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	out := make([]audit.Live, len(vs))
+	for i, v := range vs {
+		out[i] = audit.Live{Object: pdid.Id(v.Id), Row: v.Proto()}
+	}
+
+	return out, nil
+}
+
+// rowsTagCounter is the rows `ps` says of the tag-counter kind -- every row there is,
+// live or erased softly -- at most a page of them in identifier order, each as
+// a Get reads it.
+func rowsTagCounter(ctx context.Context, db *ent.Client, ps ...predicate.TagCounter) ([]audit.Live, error) {
+	q := db.TagCounter.Query().Where(ps...)
+
+	vs, err := q.Order(entTagCounter.ById()).Limit(audit.RowsPage).All(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -27517,6 +27559,7 @@ func Resources(s rove.Server, drv dialect.Driver, guard batch.Guard, w *watch.Wa
 		&rove.Stewardship{},
 		&rove.Stock{},
 		&rove.StockMovement{},
+		&rove.TagCounter{},
 		&rove.Tenant{},
 		&rove.TenantContract{},
 		&rove.TenantDomain{},

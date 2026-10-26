@@ -215,24 +215,38 @@ func TestANoticeOfABookingIsOnTheRecord(t *testing.T) {
 
 // TestADownloadOfPeopleSaysWhatItIsFor: the register's export names its
 // custodians, so it is refused without a reason, and its row -- with the
-// reason, in whatever words -- is written before it answers. The form a bulk
-// registration is written in names nobody, and needs none.
+// reason, in whatever words -- is written before it answers. It names them as
+// they are called, and two of a name by the team one is in, which it names
+// too; never by how they are reached. The form a bulk registration is written
+// in names nobody, and needs none.
 func TestADownloadOfPeopleSaysWhatItIsFor(t *testing.T) {
 	w := newWorld(t)
 	x := w.x
 	park := w.person("박지민", "park@acme.example")
-	assets := app.NewAssetServiceClient(w.conn)
-
-	laptop, err := assets.Add(w.owner, app.AssetAddRequest_builder{Name: "노트북"}.Build())
-	x.NoError(err)
-	// Issued to her, which is what makes her its 사용자 in the register.
-	_, err = app.NewCustodyServiceClient(w.conn).Add(w.owner, app.CustodyAddRequest_builder{
-		Party: app.PartyRef_builder{Id: park.GetId()}.Build(),
-		Lines: []*app.CustodyLineSpec{
-			app.CustodyLineSpec_builder{Asset: app.AssetRef_builder{Id: laptop.GetId()}.Build()}.Build(),
-		},
+	design, err := w.s.Base.Party().Add(context.Background(), app.PartyAddRequest_builder{
+		Tenant: app.TenantRef_builder{Id: w.tenant.GetId()}.Build(),
+		Name:   "디자인팀", Kind: "team",
 	}.Build())
 	x.NoError(err)
+	namesake, err := w.s.Base.Party().Add(context.Background(), app.PartyAddRequest_builder{
+		Tenant: app.TenantRef_builder{Id: w.tenant.GetId()}.Build(),
+		Name:   "박지민", Kind: "person", Email: "jimin@acme.example", ParentId: design.GetId(),
+	}.Build())
+	x.NoError(err)
+	assets := app.NewAssetServiceClient(w.conn)
+
+	// Issued to each, which is what makes them its 사용자 in the register.
+	for _, p := range []*app.Party{park, namesake} {
+		laptop, err := assets.Add(w.owner, app.AssetAddRequest_builder{Name: "노트북"}.Build())
+		x.NoError(err)
+		_, err = app.NewCustodyServiceClient(w.conn).Add(w.owner, app.CustodyAddRequest_builder{
+			Party: app.PartyRef_builder{Id: p.GetId()}.Build(),
+			Lines: []*app.CustodyLineSpec{
+				app.CustodyLineSpec_builder{Asset: app.AssetRef_builder{Id: laptop.GetId()}.Build()}.Build(),
+			},
+		}.Build())
+		x.NoError(err)
+	}
 
 	_, err = assets.Export(w.owner, &app.AssetExportRequest{})
 	x.Equal(codes.InvalidArgument, status.Code(err))
@@ -241,7 +255,9 @@ func TestADownloadOfPeopleSaysWhatItIsFor(t *testing.T) {
 	why := metadata.AppendToOutgoingContext(w.owner, access.ReasonKey, "10월 자산 실사")
 	v, err := assets.Export(why, &app.AssetExportRequest{})
 	x.NoError(err)
-	x.Contains(string(v.GetData()), "park@acme.example")
+	x.Contains(string(v.GetData()), ",박지민,")
+	x.Contains(string(v.GetData()), ",박지민 · 디자인팀,")
+	x.NotContains(string(v.GetData()), "acme.example")
 
 	// Written before it answered: nothing waits.
 	x.Zero(w.s.Access.Pending())
@@ -251,6 +267,8 @@ func TestADownloadOfPeopleSaysWhatItIsFor(t *testing.T) {
 	x.Equal(app.AssetService_Export_FullMethodName, rs[0].Action)
 	x.Equal("10월 자산 실사", detailOf(t, rs[0]).GetReason())
 	x.Contains(rs[0].Subjects, park.GetId(), "the file names her custodian's column, and the row does not")
+	x.Contains(rs[0].Subjects, namesake.GetId())
+	x.Contains(rs[0].Subjects, design.GetId(), "the team's name, said to tell the two apart")
 
 	_, err = assets.Form(w.owner, &app.AssetFormRequest{})
 	x.NoError(err, "the form names nobody")

@@ -1884,6 +1884,36 @@ var (
 			},
 		},
 	}
+	// TagcounterColumns holds the columns for the "tagcounter" table.
+	TagcounterColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUuid, Unique: true},
+		{Name: "prefix", Type: field.TypeString},
+		{Name: "last", Type: field.TypeUint64},
+		{Name: "date_updated", Type: field.TypeTime},
+		{Name: "date_created", Type: field.TypeTime, Nullable: true},
+		{Name: "tenant_id", Type: field.TypeUuid},
+	}
+	// TagcounterTable holds the schema information for the "tagcounter" table.
+	TagcounterTable = &schema.Table{
+		Name:       "tagcounter",
+		Columns:    TagcounterColumns,
+		PrimaryKey: []*schema.Column{TagcounterColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "tagcounter_tenant_tenant",
+				Columns:    []*schema.Column{TagcounterColumns[5]},
+				RefColumns: []*schema.Column{TenantColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "tagcounter_prefix",
+				Unique:  true,
+				Columns: []*schema.Column{TagcounterColumns[5], TagcounterColumns[1]},
+			},
+		},
+	}
 	// TenantColumns holds the columns for the "tenant" table.
 	TenantColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUuid, Unique: true},
@@ -2131,6 +2161,7 @@ var (
 		StewardshipTable,
 		StockTable,
 		StockmovementTable,
+		TagcounterTable,
 		TenantTable,
 		TenantcontractTable,
 		TenantdomainTable,
@@ -2322,6 +2353,10 @@ func init() {
 	StockmovementTable.ForeignKeys[1].RefTable = StockTable
 	StockmovementTable.Annotation = &entsql.Annotation{
 		Table: "stockmovement",
+	}
+	TagcounterTable.ForeignKeys[0].RefTable = TenantTable
+	TagcounterTable.Annotation = &entsql.Annotation{
+		Table: "tagcounter",
 	}
 	TenantTable.Annotation = &entsql.Annotation{
 		Table: "tenant",
