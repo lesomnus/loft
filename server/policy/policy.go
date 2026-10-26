@@ -181,6 +181,9 @@ func init() {
 	allow(Admin, "BookableService", "Add", "Update")
 
 	allow(Read, "ReservationService", "Calendar")
+	// A reservation's history (D45): a member's own, and anybody's to whoever
+	// runs the register or audits it, which the domain layer checks.
+	allow(Read, "ReservationService", "Timeline")
 	// Their own; somebody else's is a manager's, which the domain layer checks.
 	allow(Member, "ReservationService", "Add", "Confirm", "Cancel", "CheckIn", "Complete")
 	allow(Manager, "ReservationService", "Approve", "Reject")

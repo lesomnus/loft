@@ -153,8 +153,14 @@ func sentences() *past.Sentences {
 	past.SayKind(s, "bookable.update", "ko", func(r *past.Reading, ev past.EventRow, m *app.BookableSaved) string {
 		return "예약 정책 변경"
 	})
+	// A series by when it begins and how often it takes place: what each time
+	// it takes place says of itself is when that is (D45).
 	past.SayKind(s, "reservation.add", "ko", func(r *past.Reading, ev past.EventRow, m *app.ReservationAdded) string {
-		return fmt.Sprintf("예약: %s %s", m.GetAssetName(), m.GetBeginsAt().AsTime().In(r.Zone()).Format("01-02 15:04"))
+		when := m.GetBeginsAt().AsTime().In(r.Zone()).Format("01-02 15:04")
+		if n := m.GetOccurrences(); n > 1 {
+			return fmt.Sprintf("반복 예약: %s %s부터 %d회", m.GetAssetName(), when, n)
+		}
+		return fmt.Sprintf("예약: %s %s", m.GetAssetName(), when)
 	})
 	past.SayKind(s, "reservation.confirm", "ko", func(r *past.Reading, ev past.EventRow, m *app.ReservationConfirmed) string {
 		return "예약 확정: " + m.GetName()

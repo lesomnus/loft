@@ -74,6 +74,12 @@ service ReservationService {
   rpc Complete(ReservationDecideRequest) returns (Reservation);
   // Calendar answers reservations touching a span, for one resource or all.
   rpc Calendar(ReservationCalendarRequest) returns (ReservationCalendarResponse);
+  // Timeline answers a reservation's history, newest first: what was done
+  // with it -- booked, decided, checked into, let go of -- and what it took
+  // and let go of as what it booked changed, with the hand-overs that
+  // fulfilled it, its pickup and its return. A member reads their own, and
+  // whoever runs or audits the register anybody's (D45).
+  rpc Timeline(ReservationTimelineRequest) returns (ReservationTimelineResponse);
 }
 
 service ReservationItemService {
@@ -641,6 +647,19 @@ message ReservationOutOfUse {
   string status = 4 [features.field_presence = IMPLICIT];
   // item | space | kit | group
   string resource_kind = 5 [features.field_presence = IMPLICIT];
+}
+
+message ReservationTimelineRequest {
+  ReservationRef ref = 1;
+}
+
+message ReservationTimelineResponse {
+  // Each an event (`kind` is `event`), newest first: the reservation's own,
+  // and those of the hand-overs that fulfilled it. What an operation over
+  // many things did to it -- a change to a kit it booked, a series it is one
+  // of booked or cancelled -- names that operation (`cause_id`), and says it
+  // where the operation says more than the entry does (`cause`, design D34).
+  repeated TimelineEntry entries = 1;
 }
 
 message ReservationItemAddRequest {

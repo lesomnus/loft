@@ -240,7 +240,7 @@ func NewCmdLogin() *xli.Command {
 var reads = []string{
 	"/rove.*/Get", "/rove.*/List", "/rove.*/Watch", "/rove.*/Search", "/rove.*/Recent",
 	"/rove.AssetService/Timeline", "/rove.AssetService/QueryAt", "/rove.AssetService/Diff", "/rove.AssetService/Report",
-	"/rove.ReservationService/Calendar", "/rove.BookableService/Availability",
+	"/rove.ReservationService/Calendar", "/rove.ReservationService/Timeline", "/rove.BookableService/Availability",
 	"/rove.PartyService/Me", "/rove.LabelService/Resolve", "/rove.TenantDomainService/Status",
 	"/rove.AttachmentService/Url", "/rove.NotificationService/Inbox",
 }

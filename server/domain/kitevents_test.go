@@ -18,19 +18,11 @@ import (
 // did it -- the change to the kit, or what let the member go -- and, for what
 // the sweep settles, an operation of the sweep's own.
 
-// history is what the workspace's history says of a reservation, newest
-// first: each event about it, as it is said when it is read.
+// history is what a reservation's history says, newest first: each event of
+// it, as it is said when it is read (D45).
 func (e *env) history(r *app.Reservation) []string {
 	e.t.Helper()
-	v, err := e.app().Event().Recent(e.owner, app.EventRecentRequest_builder{Size: 500, Children: true}.Build())
-	e.x.NoError(err)
-	out := []string{}
-	for _, ev := range v.GetItems() {
-		if sameId(ev.GetSubjectId(), r.GetId()) {
-			out = append(out, ev.GetDesc())
-		}
-	}
-	return out
+	return summaries(e.reservationTimeline(e.owner, r))
 }
 
 // happened is the entries of an asset's history for the events of these
@@ -139,6 +131,7 @@ func TestWhatAChangeToAKitDidToItsBookingsIsOnTheHistoryOfEach(t *testing.T) {
 	}, summaries(got))
 	for _, en := range got {
 		x.Equal(cause, en.GetCause())
+		x.Equal(relate.Id, idUUID(en.GetCauseId()), "and the change's event, which the two share")
 		x.Equal("Owner of acme", en.GetActor())
 		x.Equal("TR-1 삼각대", en.GetDetail()["asset"])
 		if en.GetEventKind() == "reservation.wait" {
