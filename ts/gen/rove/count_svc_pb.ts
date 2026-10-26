@@ -8,7 +8,7 @@ import type { Timestamp } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_timestamp } from "@bufbuild/protobuf/wkt";
 import type { Patch } from "../patch/patch_pb.js";
 import { file_patch_patch } from "../patch/patch_pb.js";
-import type { AssetRef, AssetSelect } from "./asset_svc_pb.js";
+import type { AssetExportResponseSchema, AssetRef, AssetSelect } from "./asset_svc_pb.js";
 import { file_rove_asset_svc_g } from "./asset_svc_pb.js";
 import type { CountFinding, CountFindingSchema, InventoryCount, InventoryCountSchema } from "./count_pb.js";
 import { file_rove_count } from "./count_pb.js";
@@ -20,7 +20,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file rove/count_svc.g.proto.
  */
 export const file_rove_count_svc_g: GenFile = /*@__PURE__*/
-  fileDesc("ChZyb3ZlL2NvdW50X3N2Yy5nLnByb3RvEgRyb3ZlIooDChhJbnZlbnRvcnlDb3VudEFkZFJlcXVlc3QSCgoCaWQYASABKAwSHwoGdGVuYW50GAIgASgLMg8ucm92ZS5UZW5hbnRSZWYSEwoEbmFtZRgFIAEoCUIFqgECCAISEwoEZGVzYxgGIAEoCUIFqgECCAISHQoFc2NvcGUYCCABKAsyDi5yb3ZlLkFzc2V0UmVmEhUKBnN0YXR1cxgJIAEoCUIFqgECCAISLgoKc3RhcnRlZF9hdBgKIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLQoJY2xvc2VkX2F0GAsgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBISCgpzdGFydGVkX2J5GAwgASgMEjAKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGwoMc2VsZl9zZXJ2aWNlGBAgASgIQgWqAQIIAhIfChBmaW5kaW5nc192ZXJzaW9uGBEgASgEQgWqAQIIAiJsChhJbnZlbnRvcnlDb3VudEdldFJlcXVlc3QSJAoDcmVmGAEgASgLMhcucm92ZS5JbnZlbnRvcnlDb3VudFJlZhIqCgZzZWxlY3QYAiABKAsyGi5yb3ZlLkludmVudG9yeUNvdW50U2VsZWN0IigKEUludmVudG9yeUNvdW50UmVmEgwKAmlkGAEgASgMSABCBQoDa2V5IsECChRJbnZlbnRvcnlDb3VudFNlbGVjdBILCgNhbGwYASABKAgSIgoGdGVuYW50GAIgASgLMhIucm92ZS5UZW5hbnRTZWxlY3QSDAoEbmFtZRgFIAEoCBIMCgRkZXNjGAYgASgIEiAKBXNjb3BlGAggASgLMhEucm92ZS5Bc3NldFNlbGVjdBIOCgZzdGF0dXMYCSABKAgSEgoKc3RhcnRlZF9hdBgKIAEoCBIRCgljbG9zZWRfYXQYCyABKAgSEgoKc3RhcnRlZF9ieRgMIAEoCBIUCgxkYXRlX3VwZGF0ZWQYDSABKAgSEwoLZGF0ZV9lcmFzZWQYDiABKAgSFAoMZGF0ZV9jcmVhdGVkGA8gASgIEhQKDHNlbGZfc2VydmljZRgQIAEoCBIYChBmaW5kaW5nc192ZXJzaW9uGBEgASgIIpADChpJbnZlbnRvcnlDb3VudFBhdGNoUmVxdWVzdBIkCgNyZWYYASABKAsyFy5yb3ZlLkludmVudG9yeUNvdW50UmVmEgwKBG5hbWUYCiABKAkSDAoEZGVzYxgMIAEoCRIOCgZzdGF0dXMYEiABKAkSLgoKc3RhcnRlZF9hdBgUIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLQoJY2xvc2VkX2F0GBYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIWCg5jbG9zZWRfYXRfbnVsbBgXIAEoCBISCgpzdGFydGVkX2J5GBggASgMEhcKD3N0YXJ0ZWRfYnlfbnVsbBgZIAEoCBIwCgxkYXRlX3VwZGF0ZWQYGiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhoKEmRhdGVfdXBkYXRlZF9mb3JjZRgbIAEoCBIUCgxzZWxmX3NlcnZpY2UYICABKAgSGAoQZmluZGluZ3NfdmVyc2lvbhgiIAEoBCJfChpJbnZlbnRvcnlDb3VudEFwcGx5UmVxdWVzdBIkCgNyZWYYASABKAsyFy5yb3ZlLkludmVudG9yeUNvdW50UmVmEhsKBXBhdGNoGAIgASgLMgwucGF0Y2guUGF0Y2giLQobSW52ZW50b3J5Q291bnRFcmFzZVJlc3BvbnNlEg4KBmVyYXNlZBgBIAEoCCKLAQoZSW52ZW50b3J5Q291bnRMaXN0UmVxdWVzdBIrCgdmaWx0ZXJzGAEgAygLMhoucm92ZS5JbnZlbnRvcnlDb3VudEZpbHRlchITCgRzaXplGAIgASgFQgWqAQIIAhIUCgVhZnRlchgDIAEoCUIFqgECCAISFgoHcmV2ZXJzZRgEIAEoCEIFqgECCAIiVgoaSW52ZW50b3J5Q291bnRMaXN0UmVzcG9uc2USIwoFaXRlbXMYASADKAsyFC5yb3ZlLkludmVudG9yeUNvdW50EhMKBG5leHQYAiABKAlCBaoBAggCImsKFEludmVudG9yeUNvdW50RmlsdGVyEiQKA3JlZhgBIAEoCzIXLnJvdmUuSW52ZW50b3J5Q291bnRSZWYSHQoFc2NvcGUYAiABKAsyDi5yb3ZlLkFzc2V0UmVmEg4KBnN0YXR1cxgDIAEoCSJnChpJbnZlbnRvcnlDb3VudFdhdGNoUmVxdWVzdBIrCgdmaWx0ZXJzGAEgAygLMhoucm92ZS5JbnZlbnRvcnlDb3VudEZpbHRlchIcCg1za2lwX3NuYXBzaG90GAIgASgIQgWqAQIIAiJLChtJbnZlbnRvcnlDb3VudFdhdGNoUmVzcG9uc2USLAoFaXRlbXMYASADKAsyHS5yb3ZlLkludmVudG9yeUNvdW50V2F0Y2hJdGVtImEKF0ludmVudG9yeUNvdW50V2F0Y2hJdGVtEgoKAmlkGAEgASgMEiMKBXZhbHVlGAIgASgLMhQucm92ZS5JbnZlbnRvcnlDb3VudBIVCgZhY3Rpb24YAyABKAlCBaoBAggCIuYBChlJbnZlbnRvcnlDb3VudFNjYW5SZXF1ZXN0EiQKA3JlZhgBIAEoCzIXLnJvdmUuSW52ZW50b3J5Q291bnRSZWYSEwoEY29kZRgCIAEoCUIFqgECCAISHQoFYXNzZXQYAyABKAsyDi5yb3ZlLkFzc2V0UmVmEhoKAmF0GAQgASgLMg4ucm92ZS5Bc3NldFJlZhIrCgdzZWVuX2F0GAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIRCgJvcBgGIAEoDEIFqgECCAISEwoEbm90ZRgHIAEoCUIFqgECCAIiRgoeSW52ZW50b3J5Q291bnRSZWNvbmNpbGVSZXF1ZXN0EiQKA3JlZhgBIAEoCzIXLnJvdmUuSW52ZW50b3J5Q291bnRSZWYigAEKH0ludmVudG9yeUNvdW50UmVjb25jaWxlUmVzcG9uc2USFgoHbWlzc2luZxgBIAEoDUIFqgECCAISEwoEc2VlbhgCIAEoDUIFqgECCAISGAoJbWlzcGxhY2VkGAMgASgNQgWqAQIIAhIWCgd1bmtub3duGAQgASgNQgWqAQIIAiKTAQocSW52ZW50b3J5Q291bnRSZXNvbHZlUmVxdWVzdBIiCgNyZWYYASABKAsyFS5yb3ZlLkNvdW50RmluZGluZ1JlZhIZCgpyZXNvbHV0aW9uGAIgASgJQgWqAQIIAhIVCgZyZWFzb24YAyABKAlCBaoBAggCEh0KBWxlYXZlGAQgAygLMg4ucm92ZS5Bc3NldFJlZiImCg9Db3VudEZpbmRpbmdSZWYSDAoCaWQYASABKAxIAEIFCgNrZXkiQgoaSW52ZW50b3J5Q291bnRDbG9zZVJlcXVlc3QSJAoDcmVmGAEgASgLMhcucm92ZS5JbnZlbnRvcnlDb3VudFJlZiLAAwoWQ291bnRGaW5kaW5nQWRkUmVxdWVzdBIKCgJpZBgBIAEoDBIfCgZ0ZW5hbnQYAiABKAsyDy5yb3ZlLlRlbmFudFJlZhITCgRkZXNjGAYgASgJQgWqAQIIAhImCgVjb3VudBgIIAEoCzIXLnJvdmUuSW52ZW50b3J5Q291bnRSZWYSHQoFYXNzZXQYCSABKAsyDi5yb3ZlLkFzc2V0UmVmEhAKCGxhYmVsX2lkGAogASgMEhMKBGtpbmQYCyABKAlCBaoBAggCEhoKEm9ic2VydmVkX3BhcmVudF9pZBgMIAEoDBIwCgxkYXRlX2NyZWF0ZWQYDyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhoKEmV4cGVjdGVkX3BhcmVudF9pZBgQIAEoDBIrCgdzZWVuX2F0GBEgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBITCgtyZWNvcmRlZF9ieRgSIAEoDBIZCgpyZXNvbHV0aW9uGBMgASgJQgWqAQIIAhIvCgtyZXNvbHZlZF9hdBgUIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiZgoWQ291bnRGaW5kaW5nR2V0UmVxdWVzdBIiCgNyZWYYASABKAsyFS5yb3ZlLkNvdW50RmluZGluZ1JlZhIoCgZzZWxlY3QYAiABKAsyGC5yb3ZlLkNvdW50RmluZGluZ1NlbGVjdCLzAgoSQ291bnRGaW5kaW5nU2VsZWN0EgsKA2FsbBgBIAEoCBIiCgZ0ZW5hbnQYAiABKAsyEi5yb3ZlLlRlbmFudFNlbGVjdBIMCgRkZXNjGAYgASgIEikKBWNvdW50GAggASgLMhoucm92ZS5JbnZlbnRvcnlDb3VudFNlbGVjdBIgCgVhc3NldBgJIAEoCzIRLnJvdmUuQXNzZXRTZWxlY3QSEAoIbGFiZWxfaWQYCiABKAgSDAoEa2luZBgLIAEoCBIaChJvYnNlcnZlZF9wYXJlbnRfaWQYDCABKAgSFAoMZGF0ZV91cGRhdGVkGA0gASgIEhQKDGRhdGVfY3JlYXRlZBgPIAEoCBIaChJleHBlY3RlZF9wYXJlbnRfaWQYECABKAgSDwoHc2Vlbl9hdBgRIAEoCBITCgtyZWNvcmRlZF9ieRgSIAEoCBISCgpyZXNvbHV0aW9uGBMgASgIEhMKC3Jlc29sdmVkX2F0GBQgASgIIoYEChhDb3VudEZpbmRpbmdQYXRjaFJlcXVlc3QSIgoDcmVmGAEgASgLMhUucm92ZS5Db3VudEZpbmRpbmdSZWYSDAoEZGVzYxgMIAEoCRIQCghsYWJlbF9pZBgUIAEoDBIVCg1sYWJlbF9pZF9udWxsGBUgASgIEgwKBGtpbmQYFiABKAkSGgoSb2JzZXJ2ZWRfcGFyZW50X2lkGBggASgMEh8KF29ic2VydmVkX3BhcmVudF9pZF9udWxsGBkgASgIEjAKDGRhdGVfdXBkYXRlZBgaIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGgoSZGF0ZV91cGRhdGVkX2ZvcmNlGBsgASgIEhoKEmV4cGVjdGVkX3BhcmVudF9pZBggIAEoDBIfChdleHBlY3RlZF9wYXJlbnRfaWRfbnVsbBghIAEoCBIrCgdzZWVuX2F0GCIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBITCgtyZWNvcmRlZF9ieRgkIAEoDBIYChByZWNvcmRlZF9ieV9udWxsGCUgASgIEhIKCnJlc29sdXRpb24YJiABKAkSLwoLcmVzb2x2ZWRfYXQYKCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhgKEHJlc29sdmVkX2F0X251bGwYKSABKAgiWwoYQ291bnRGaW5kaW5nQXBwbHlSZXF1ZXN0EiIKA3JlZhgBIAEoCzIVLnJvdmUuQ291bnRGaW5kaW5nUmVmEhsKBXBhdGNoGAIgASgLMgwucGF0Y2guUGF0Y2giKwoZQ291bnRGaW5kaW5nRXJhc2VSZXNwb25zZRIOCgZlcmFzZWQYASABKAgihwEKF0NvdW50RmluZGluZ0xpc3RSZXF1ZXN0EikKB2ZpbHRlcnMYASADKAsyGC5yb3ZlLkNvdW50RmluZGluZ0ZpbHRlchITCgRzaXplGAIgASgFQgWqAQIIAhIUCgVhZnRlchgDIAEoCUIFqgECCAISFgoHcmV2ZXJzZRgEIAEoCEIFqgECCAIiUgoYQ291bnRGaW5kaW5nTGlzdFJlc3BvbnNlEiEKBWl0ZW1zGAEgAygLMhIucm92ZS5Db3VudEZpbmRpbmcSEwoEbmV4dBgCIAEoCUIFqgECCAIioQEKEkNvdW50RmluZGluZ0ZpbHRlchIiCgNyZWYYASABKAsyFS5yb3ZlLkNvdW50RmluZGluZ1JlZhImCgVjb3VudBgCIAEoCzIXLnJvdmUuSW52ZW50b3J5Q291bnRSZWYSHQoFYXNzZXQYAyABKAsyDi5yb3ZlLkFzc2V0UmVmEgwKBGtpbmQYBCABKAkSEgoKcmVzb2x1dGlvbhgFIAEoCSJjChhDb3VudEZpbmRpbmdXYXRjaFJlcXVlc3QSKQoHZmlsdGVycxgBIAMoCzIYLnJvdmUuQ291bnRGaW5kaW5nRmlsdGVyEhwKDXNraXBfc25hcHNob3QYAiABKAhCBaoBAggCIkcKGUNvdW50RmluZGluZ1dhdGNoUmVzcG9uc2USKgoFaXRlbXMYASADKAsyGy5yb3ZlLkNvdW50RmluZGluZ1dhdGNoSXRlbSJdChVDb3VudEZpbmRpbmdXYXRjaEl0ZW0SCgoCaWQYASABKAwSIQoFdmFsdWUYAiABKAsyEi5yb3ZlLkNvdW50RmluZGluZxIVCgZhY3Rpb24YAyABKAlCBaoBAggCMo4GChVJbnZlbnRvcnlDb3VudFNlcnZpY2USOwoDQWRkEh4ucm92ZS5JbnZlbnRvcnlDb3VudEFkZFJlcXVlc3QaFC5yb3ZlLkludmVudG9yeUNvdW50EjsKA0dldBIeLnJvdmUuSW52ZW50b3J5Q291bnRHZXRSZXF1ZXN0GhQucm92ZS5JbnZlbnRvcnlDb3VudBI/CgVQYXRjaBIgLnJvdmUuSW52ZW50b3J5Q291bnRQYXRjaFJlcXVlc3QaFC5yb3ZlLkludmVudG9yeUNvdW50Ej8KBUFwcGx5EiAucm92ZS5JbnZlbnRvcnlDb3VudEFwcGx5UmVxdWVzdBoULnJvdmUuSW52ZW50b3J5Q291bnQSQwoFRXJhc2USFy5yb3ZlLkludmVudG9yeUNvdW50UmVmGiEucm92ZS5JbnZlbnRvcnlDb3VudEVyYXNlUmVzcG9uc2USSQoETGlzdBIfLnJvdmUuSW52ZW50b3J5Q291bnRMaXN0UmVxdWVzdBogLnJvdmUuSW52ZW50b3J5Q291bnRMaXN0UmVzcG9uc2USTgoFV2F0Y2gSIC5yb3ZlLkludmVudG9yeUNvdW50V2F0Y2hSZXF1ZXN0GiEucm92ZS5JbnZlbnRvcnlDb3VudFdhdGNoUmVzcG9uc2UwARI7CgRTY2FuEh8ucm92ZS5JbnZlbnRvcnlDb3VudFNjYW5SZXF1ZXN0GhIucm92ZS5Db3VudEZpbmRpbmcSWAoJUmVjb25jaWxlEiQucm92ZS5JbnZlbnRvcnlDb3VudFJlY29uY2lsZVJlcXVlc3QaJS5yb3ZlLkludmVudG9yeUNvdW50UmVjb25jaWxlUmVzcG9uc2USQQoHUmVzb2x2ZRIiLnJvdmUuSW52ZW50b3J5Q291bnRSZXNvbHZlUmVxdWVzdBoSLnJvdmUuQ291bnRGaW5kaW5nEj8KBUNsb3NlEiAucm92ZS5JbnZlbnRvcnlDb3VudENsb3NlUmVxdWVzdBoULnJvdmUuSW52ZW50b3J5Q291bnQy1QMKE0NvdW50RmluZGluZ1NlcnZpY2USNwoDQWRkEhwucm92ZS5Db3VudEZpbmRpbmdBZGRSZXF1ZXN0GhIucm92ZS5Db3VudEZpbmRpbmcSNwoDR2V0Ehwucm92ZS5Db3VudEZpbmRpbmdHZXRSZXF1ZXN0GhIucm92ZS5Db3VudEZpbmRpbmcSOwoFUGF0Y2gSHi5yb3ZlLkNvdW50RmluZGluZ1BhdGNoUmVxdWVzdBoSLnJvdmUuQ291bnRGaW5kaW5nEjsKBUFwcGx5Eh4ucm92ZS5Db3VudEZpbmRpbmdBcHBseVJlcXVlc3QaEi5yb3ZlLkNvdW50RmluZGluZxI/CgVFcmFzZRIVLnJvdmUuQ291bnRGaW5kaW5nUmVmGh8ucm92ZS5Db3VudEZpbmRpbmdFcmFzZVJlc3BvbnNlEkUKBExpc3QSHS5yb3ZlLkNvdW50RmluZGluZ0xpc3RSZXF1ZXN0Gh4ucm92ZS5Db3VudEZpbmRpbmdMaXN0UmVzcG9uc2USSgoFV2F0Y2gSHi5yb3ZlLkNvdW50RmluZGluZ1dhdGNoUmVxdWVzdBofLnJvdmUuQ291bnRGaW5kaW5nV2F0Y2hSZXNwb25zZTABQhpaGGdpdGh1Yi5jb20vbGVzb21udXMvcm92ZWIIZWRpdGlvbnNw6Ac", [file_google_protobuf_timestamp, file_patch_patch, file_rove_asset_svc_g, file_rove_count, file_rove_payday_tenant_svc_g]);
+  fileDesc("ChZyb3ZlL2NvdW50X3N2Yy5nLnByb3RvEgRyb3ZlIooDChhJbnZlbnRvcnlDb3VudEFkZFJlcXVlc3QSCgoCaWQYASABKAwSHwoGdGVuYW50GAIgASgLMg8ucm92ZS5UZW5hbnRSZWYSEwoEbmFtZRgFIAEoCUIFqgECCAISEwoEZGVzYxgGIAEoCUIFqgECCAISHQoFc2NvcGUYCCABKAsyDi5yb3ZlLkFzc2V0UmVmEhUKBnN0YXR1cxgJIAEoCUIFqgECCAISLgoKc3RhcnRlZF9hdBgKIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLQoJY2xvc2VkX2F0GAsgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBISCgpzdGFydGVkX2J5GAwgASgMEjAKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGwoMc2VsZl9zZXJ2aWNlGBAgASgIQgWqAQIIAhIfChBmaW5kaW5nc192ZXJzaW9uGBEgASgEQgWqAQIIAiJsChhJbnZlbnRvcnlDb3VudEdldFJlcXVlc3QSJAoDcmVmGAEgASgLMhcucm92ZS5JbnZlbnRvcnlDb3VudFJlZhIqCgZzZWxlY3QYAiABKAsyGi5yb3ZlLkludmVudG9yeUNvdW50U2VsZWN0IigKEUludmVudG9yeUNvdW50UmVmEgwKAmlkGAEgASgMSABCBQoDa2V5IsECChRJbnZlbnRvcnlDb3VudFNlbGVjdBILCgNhbGwYASABKAgSIgoGdGVuYW50GAIgASgLMhIucm92ZS5UZW5hbnRTZWxlY3QSDAoEbmFtZRgFIAEoCBIMCgRkZXNjGAYgASgIEiAKBXNjb3BlGAggASgLMhEucm92ZS5Bc3NldFNlbGVjdBIOCgZzdGF0dXMYCSABKAgSEgoKc3RhcnRlZF9hdBgKIAEoCBIRCgljbG9zZWRfYXQYCyABKAgSEgoKc3RhcnRlZF9ieRgMIAEoCBIUCgxkYXRlX3VwZGF0ZWQYDSABKAgSEwoLZGF0ZV9lcmFzZWQYDiABKAgSFAoMZGF0ZV9jcmVhdGVkGA8gASgIEhQKDHNlbGZfc2VydmljZRgQIAEoCBIYChBmaW5kaW5nc192ZXJzaW9uGBEgASgIIpADChpJbnZlbnRvcnlDb3VudFBhdGNoUmVxdWVzdBIkCgNyZWYYASABKAsyFy5yb3ZlLkludmVudG9yeUNvdW50UmVmEgwKBG5hbWUYCiABKAkSDAoEZGVzYxgMIAEoCRIOCgZzdGF0dXMYEiABKAkSLgoKc3RhcnRlZF9hdBgUIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLQoJY2xvc2VkX2F0GBYgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIWCg5jbG9zZWRfYXRfbnVsbBgXIAEoCBISCgpzdGFydGVkX2J5GBggASgMEhcKD3N0YXJ0ZWRfYnlfbnVsbBgZIAEoCBIwCgxkYXRlX3VwZGF0ZWQYGiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhoKEmRhdGVfdXBkYXRlZF9mb3JjZRgbIAEoCBIUCgxzZWxmX3NlcnZpY2UYICABKAgSGAoQZmluZGluZ3NfdmVyc2lvbhgiIAEoBCJfChpJbnZlbnRvcnlDb3VudEFwcGx5UmVxdWVzdBIkCgNyZWYYASABKAsyFy5yb3ZlLkludmVudG9yeUNvdW50UmVmEhsKBXBhdGNoGAIgASgLMgwucGF0Y2guUGF0Y2giLQobSW52ZW50b3J5Q291bnRFcmFzZVJlc3BvbnNlEg4KBmVyYXNlZBgBIAEoCCKLAQoZSW52ZW50b3J5Q291bnRMaXN0UmVxdWVzdBIrCgdmaWx0ZXJzGAEgAygLMhoucm92ZS5JbnZlbnRvcnlDb3VudEZpbHRlchITCgRzaXplGAIgASgFQgWqAQIIAhIUCgVhZnRlchgDIAEoCUIFqgECCAISFgoHcmV2ZXJzZRgEIAEoCEIFqgECCAIiVgoaSW52ZW50b3J5Q291bnRMaXN0UmVzcG9uc2USIwoFaXRlbXMYASADKAsyFC5yb3ZlLkludmVudG9yeUNvdW50EhMKBG5leHQYAiABKAlCBaoBAggCImsKFEludmVudG9yeUNvdW50RmlsdGVyEiQKA3JlZhgBIAEoCzIXLnJvdmUuSW52ZW50b3J5Q291bnRSZWYSHQoFc2NvcGUYAiABKAsyDi5yb3ZlLkFzc2V0UmVmEg4KBnN0YXR1cxgDIAEoCSJnChpJbnZlbnRvcnlDb3VudFdhdGNoUmVxdWVzdBIrCgdmaWx0ZXJzGAEgAygLMhoucm92ZS5JbnZlbnRvcnlDb3VudEZpbHRlchIcCg1za2lwX3NuYXBzaG90GAIgASgIQgWqAQIIAiJLChtJbnZlbnRvcnlDb3VudFdhdGNoUmVzcG9uc2USLAoFaXRlbXMYASADKAsyHS5yb3ZlLkludmVudG9yeUNvdW50V2F0Y2hJdGVtImEKF0ludmVudG9yeUNvdW50V2F0Y2hJdGVtEgoKAmlkGAEgASgMEiMKBXZhbHVlGAIgASgLMhQucm92ZS5JbnZlbnRvcnlDb3VudBIVCgZhY3Rpb24YAyABKAlCBaoBAggCIuYBChlJbnZlbnRvcnlDb3VudFNjYW5SZXF1ZXN0EiQKA3JlZhgBIAEoCzIXLnJvdmUuSW52ZW50b3J5Q291bnRSZWYSEwoEY29kZRgCIAEoCUIFqgECCAISHQoFYXNzZXQYAyABKAsyDi5yb3ZlLkFzc2V0UmVmEhoKAmF0GAQgASgLMg4ucm92ZS5Bc3NldFJlZhIrCgdzZWVuX2F0GAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIRCgJvcBgGIAEoDEIFqgECCAISEwoEbm90ZRgHIAEoCUIFqgECCAIiRgoeSW52ZW50b3J5Q291bnRSZWNvbmNpbGVSZXF1ZXN0EiQKA3JlZhgBIAEoCzIXLnJvdmUuSW52ZW50b3J5Q291bnRSZWYigAEKH0ludmVudG9yeUNvdW50UmVjb25jaWxlUmVzcG9uc2USFgoHbWlzc2luZxgBIAEoDUIFqgECCAISEwoEc2VlbhgCIAEoDUIFqgECCAISGAoJbWlzcGxhY2VkGAMgASgNQgWqAQIIAhIWCgd1bmtub3duGAQgASgNQgWqAQIIAiKTAQocSW52ZW50b3J5Q291bnRSZXNvbHZlUmVxdWVzdBIiCgNyZWYYASABKAsyFS5yb3ZlLkNvdW50RmluZGluZ1JlZhIZCgpyZXNvbHV0aW9uGAIgASgJQgWqAQIIAhIVCgZyZWFzb24YAyABKAlCBaoBAggCEh0KBWxlYXZlGAQgAygLMg4ucm92ZS5Bc3NldFJlZiImCg9Db3VudEZpbmRpbmdSZWYSDAoCaWQYASABKAxIAEIFCgNrZXkiQgoaSW52ZW50b3J5Q291bnRDbG9zZVJlcXVlc3QSJAoDcmVmGAEgASgLMhcucm92ZS5JbnZlbnRvcnlDb3VudFJlZiJwChxJbnZlbnRvcnlDb3VudFJlc3VsdHNSZXF1ZXN0EigKBGZyb20YASABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEiYKAnRvGAIgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCKbAQodSW52ZW50b3J5Q291bnRSZXN1bHRzUmVzcG9uc2USKAoEcm93cxgBIAMoCzIaLnJvdmUuSW52ZW50b3J5Q291bnRSZXN1bHQSKAoEZnJvbRgCIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASJgoCdG8YAyABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wIqoDChRJbnZlbnRvcnlDb3VudFJlc3VsdBIXCghjb3VudF9pZBgBIAEoDEIFqgECCAISEwoEbmFtZRgCIAEoCUIFqgECCAISFwoIc2NvcGVfaWQYAyABKAxCBaoBAggCEhkKCnNjb3BlX25hbWUYBCABKAlCBaoBAggCEhUKBnN0YXR1cxgFIAEoCUIFqgECCAISLgoKc3RhcnRlZF9hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLQoJY2xvc2VkX2F0GAcgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBITCgRzZWVuGAggASgNQgWqAQIIAhIYCgltaXNwbGFjZWQYCSABKA1CBaoBAggCEhYKB21pc3NpbmcYCiABKA1CBaoBAggCEhYKB3Vua25vd24YCyABKA1CBaoBAggCEhQKBW1vdmVkGAwgASgNQgWqAQIIAhITCgRsb3N0GA0gASgNQgWqAQIIAhIWCgdpZ25vcmVkGA4gASgNQgWqAQIIAhIYCgl1bnNldHRsZWQYDyABKA1CBaoBAggCIsADChZDb3VudEZpbmRpbmdBZGRSZXF1ZXN0EgoKAmlkGAEgASgMEh8KBnRlbmFudBgCIAEoCzIPLnJvdmUuVGVuYW50UmVmEhMKBGRlc2MYBiABKAlCBaoBAggCEiYKBWNvdW50GAggASgLMhcucm92ZS5JbnZlbnRvcnlDb3VudFJlZhIdCgVhc3NldBgJIAEoCzIOLnJvdmUuQXNzZXRSZWYSEAoIbGFiZWxfaWQYCiABKAwSEwoEa2luZBgLIAEoCUIFqgECCAISGgoSb2JzZXJ2ZWRfcGFyZW50X2lkGAwgASgMEjAKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGgoSZXhwZWN0ZWRfcGFyZW50X2lkGBAgASgMEisKB3NlZW5fYXQYESABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhMKC3JlY29yZGVkX2J5GBIgASgMEhkKCnJlc29sdXRpb24YEyABKAlCBaoBAggCEi8KC3Jlc29sdmVkX2F0GBQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCJmChZDb3VudEZpbmRpbmdHZXRSZXF1ZXN0EiIKA3JlZhgBIAEoCzIVLnJvdmUuQ291bnRGaW5kaW5nUmVmEigKBnNlbGVjdBgCIAEoCzIYLnJvdmUuQ291bnRGaW5kaW5nU2VsZWN0IvMCChJDb3VudEZpbmRpbmdTZWxlY3QSCwoDYWxsGAEgASgIEiIKBnRlbmFudBgCIAEoCzISLnJvdmUuVGVuYW50U2VsZWN0EgwKBGRlc2MYBiABKAgSKQoFY291bnQYCCABKAsyGi5yb3ZlLkludmVudG9yeUNvdW50U2VsZWN0EiAKBWFzc2V0GAkgASgLMhEucm92ZS5Bc3NldFNlbGVjdBIQCghsYWJlbF9pZBgKIAEoCBIMCgRraW5kGAsgASgIEhoKEm9ic2VydmVkX3BhcmVudF9pZBgMIAEoCBIUCgxkYXRlX3VwZGF0ZWQYDSABKAgSFAoMZGF0ZV9jcmVhdGVkGA8gASgIEhoKEmV4cGVjdGVkX3BhcmVudF9pZBgQIAEoCBIPCgdzZWVuX2F0GBEgASgIEhMKC3JlY29yZGVkX2J5GBIgASgIEhIKCnJlc29sdXRpb24YEyABKAgSEwoLcmVzb2x2ZWRfYXQYFCABKAgihgQKGENvdW50RmluZGluZ1BhdGNoUmVxdWVzdBIiCgNyZWYYASABKAsyFS5yb3ZlLkNvdW50RmluZGluZ1JlZhIMCgRkZXNjGAwgASgJEhAKCGxhYmVsX2lkGBQgASgMEhUKDWxhYmVsX2lkX251bGwYFSABKAgSDAoEa2luZBgWIAEoCRIaChJvYnNlcnZlZF9wYXJlbnRfaWQYGCABKAwSHwoXb2JzZXJ2ZWRfcGFyZW50X2lkX251bGwYGSABKAgSMAoMZGF0ZV91cGRhdGVkGBogASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIaChJkYXRlX3VwZGF0ZWRfZm9yY2UYGyABKAgSGgoSZXhwZWN0ZWRfcGFyZW50X2lkGCAgASgMEh8KF2V4cGVjdGVkX3BhcmVudF9pZF9udWxsGCEgASgIEisKB3NlZW5fYXQYIiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhMKC3JlY29yZGVkX2J5GCQgASgMEhgKEHJlY29yZGVkX2J5X251bGwYJSABKAgSEgoKcmVzb2x1dGlvbhgmIAEoCRIvCgtyZXNvbHZlZF9hdBgoIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASGAoQcmVzb2x2ZWRfYXRfbnVsbBgpIAEoCCJbChhDb3VudEZpbmRpbmdBcHBseVJlcXVlc3QSIgoDcmVmGAEgASgLMhUucm92ZS5Db3VudEZpbmRpbmdSZWYSGwoFcGF0Y2gYAiABKAsyDC5wYXRjaC5QYXRjaCIrChlDb3VudEZpbmRpbmdFcmFzZVJlc3BvbnNlEg4KBmVyYXNlZBgBIAEoCCKHAQoXQ291bnRGaW5kaW5nTGlzdFJlcXVlc3QSKQoHZmlsdGVycxgBIAMoCzIYLnJvdmUuQ291bnRGaW5kaW5nRmlsdGVyEhMKBHNpemUYAiABKAVCBaoBAggCEhQKBWFmdGVyGAMgASgJQgWqAQIIAhIWCgdyZXZlcnNlGAQgASgIQgWqAQIIAiJSChhDb3VudEZpbmRpbmdMaXN0UmVzcG9uc2USIQoFaXRlbXMYASADKAsyEi5yb3ZlLkNvdW50RmluZGluZxITCgRuZXh0GAIgASgJQgWqAQIIAiKhAQoSQ291bnRGaW5kaW5nRmlsdGVyEiIKA3JlZhgBIAEoCzIVLnJvdmUuQ291bnRGaW5kaW5nUmVmEiYKBWNvdW50GAIgASgLMhcucm92ZS5JbnZlbnRvcnlDb3VudFJlZhIdCgVhc3NldBgDIAEoCzIOLnJvdmUuQXNzZXRSZWYSDAoEa2luZBgEIAEoCRISCgpyZXNvbHV0aW9uGAUgASgJImMKGENvdW50RmluZGluZ1dhdGNoUmVxdWVzdBIpCgdmaWx0ZXJzGAEgAygLMhgucm92ZS5Db3VudEZpbmRpbmdGaWx0ZXISHAoNc2tpcF9zbmFwc2hvdBgCIAEoCEIFqgECCAIiRwoZQ291bnRGaW5kaW5nV2F0Y2hSZXNwb25zZRIqCgVpdGVtcxgBIAMoCzIbLnJvdmUuQ291bnRGaW5kaW5nV2F0Y2hJdGVtIl0KFUNvdW50RmluZGluZ1dhdGNoSXRlbRIKCgJpZBgBIAEoDBIhCgV2YWx1ZRgCIAEoCzISLnJvdmUuQ291bnRGaW5kaW5nEhUKBmFjdGlvbhgDIAEoCUIFqgECCAIysgcKFUludmVudG9yeUNvdW50U2VydmljZRI7CgNBZGQSHi5yb3ZlLkludmVudG9yeUNvdW50QWRkUmVxdWVzdBoULnJvdmUuSW52ZW50b3J5Q291bnQSOwoDR2V0Eh4ucm92ZS5JbnZlbnRvcnlDb3VudEdldFJlcXVlc3QaFC5yb3ZlLkludmVudG9yeUNvdW50Ej8KBVBhdGNoEiAucm92ZS5JbnZlbnRvcnlDb3VudFBhdGNoUmVxdWVzdBoULnJvdmUuSW52ZW50b3J5Q291bnQSPwoFQXBwbHkSIC5yb3ZlLkludmVudG9yeUNvdW50QXBwbHlSZXF1ZXN0GhQucm92ZS5JbnZlbnRvcnlDb3VudBJDCgVFcmFzZRIXLnJvdmUuSW52ZW50b3J5Q291bnRSZWYaIS5yb3ZlLkludmVudG9yeUNvdW50RXJhc2VSZXNwb25zZRJJCgRMaXN0Eh8ucm92ZS5JbnZlbnRvcnlDb3VudExpc3RSZXF1ZXN0GiAucm92ZS5JbnZlbnRvcnlDb3VudExpc3RSZXNwb25zZRJOCgVXYXRjaBIgLnJvdmUuSW52ZW50b3J5Q291bnRXYXRjaFJlcXVlc3QaIS5yb3ZlLkludmVudG9yeUNvdW50V2F0Y2hSZXNwb25zZTABEjsKBFNjYW4SHy5yb3ZlLkludmVudG9yeUNvdW50U2NhblJlcXVlc3QaEi5yb3ZlLkNvdW50RmluZGluZxJYCglSZWNvbmNpbGUSJC5yb3ZlLkludmVudG9yeUNvdW50UmVjb25jaWxlUmVxdWVzdBolLnJvdmUuSW52ZW50b3J5Q291bnRSZWNvbmNpbGVSZXNwb25zZRJBCgdSZXNvbHZlEiIucm92ZS5JbnZlbnRvcnlDb3VudFJlc29sdmVSZXF1ZXN0GhIucm92ZS5Db3VudEZpbmRpbmcSPwoFQ2xvc2USIC5yb3ZlLkludmVudG9yeUNvdW50Q2xvc2VSZXF1ZXN0GhQucm92ZS5JbnZlbnRvcnlDb3VudBJSCgdSZXN1bHRzEiIucm92ZS5JbnZlbnRvcnlDb3VudFJlc3VsdHNSZXF1ZXN0GiMucm92ZS5JbnZlbnRvcnlDb3VudFJlc3VsdHNSZXNwb25zZRJOCg1FeHBvcnRSZXN1bHRzEiIucm92ZS5JbnZlbnRvcnlDb3VudFJlc3VsdHNSZXF1ZXN0Ghkucm92ZS5Bc3NldEV4cG9ydFJlc3BvbnNlMtUDChNDb3VudEZpbmRpbmdTZXJ2aWNlEjcKA0FkZBIcLnJvdmUuQ291bnRGaW5kaW5nQWRkUmVxdWVzdBoSLnJvdmUuQ291bnRGaW5kaW5nEjcKA0dldBIcLnJvdmUuQ291bnRGaW5kaW5nR2V0UmVxdWVzdBoSLnJvdmUuQ291bnRGaW5kaW5nEjsKBVBhdGNoEh4ucm92ZS5Db3VudEZpbmRpbmdQYXRjaFJlcXVlc3QaEi5yb3ZlLkNvdW50RmluZGluZxI7CgVBcHBseRIeLnJvdmUuQ291bnRGaW5kaW5nQXBwbHlSZXF1ZXN0GhIucm92ZS5Db3VudEZpbmRpbmcSPwoFRXJhc2USFS5yb3ZlLkNvdW50RmluZGluZ1JlZhofLnJvdmUuQ291bnRGaW5kaW5nRXJhc2VSZXNwb25zZRJFCgRMaXN0Eh0ucm92ZS5Db3VudEZpbmRpbmdMaXN0UmVxdWVzdBoeLnJvdmUuQ291bnRGaW5kaW5nTGlzdFJlc3BvbnNlEkoKBVdhdGNoEh4ucm92ZS5Db3VudEZpbmRpbmdXYXRjaFJlcXVlc3QaHy5yb3ZlLkNvdW50RmluZGluZ1dhdGNoUmVzcG9uc2UwAUIaWhhnaXRodWIuY29tL2xlc29tbnVzL3JvdmViCGVkaXRpb25zcOgH", [file_google_protobuf_timestamp, file_patch_patch, file_rove_asset_svc_g, file_rove_count, file_rove_payday_tenant_svc_g]);
 
 /**
  * @generated from message rove.InventoryCountAddRequest
@@ -753,6 +753,162 @@ export const InventoryCountCloseRequestSchema: GenMessage<InventoryCountCloseReq
   messageDesc(file_rove_count_svc_g, 18);
 
 /**
+ * @generated from message rove.InventoryCountResultsRequest
+ */
+export type InventoryCountResultsRequest = Message<"rove.InventoryCountResultsRequest"> & {
+  /**
+   * The counts begun from `from` and before `to`, a year at most. Unsaid, the
+   * last year of the workspace's days, today among them.
+   *
+   * @generated from field: google.protobuf.Timestamp from = 1;
+   */
+  from?: Timestamp | undefined;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp to = 2;
+   */
+  to?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message rove.InventoryCountResultsRequest.
+ * Use `create(InventoryCountResultsRequestSchema)` to create a new message.
+ */
+export const InventoryCountResultsRequestSchema: GenMessage<InventoryCountResultsRequest> = /*@__PURE__*/
+  messageDesc(file_rove_count_svc_g, 19);
+
+/**
+ * @generated from message rove.InventoryCountResultsResponse
+ */
+export type InventoryCountResultsResponse = Message<"rove.InventoryCountResultsResponse"> & {
+  /**
+   * The newest first.
+   *
+   * @generated from field: repeated rove.InventoryCountResult rows = 1;
+   */
+  rows: InventoryCountResult[];
+
+  /**
+   * The period it read.
+   *
+   * @generated from field: google.protobuf.Timestamp from = 2;
+   */
+  from?: Timestamp | undefined;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp to = 3;
+   */
+  to?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message rove.InventoryCountResultsResponse.
+ * Use `create(InventoryCountResultsResponseSchema)` to create a new message.
+ */
+export const InventoryCountResultsResponseSchema: GenMessage<InventoryCountResultsResponse> = /*@__PURE__*/
+  messageDesc(file_rove_count_svc_g, 20);
+
+/**
+ * InventoryCountResult is what one count found, by kind, and how what it
+ * found amiss was settled.
+ *
+ * @generated from message rove.InventoryCountResult
+ */
+export type InventoryCountResult = Message<"rove.InventoryCountResult"> & {
+  /**
+   * @generated from field: bytes count_id = 1 [features.field_presence = IMPLICIT];
+   */
+  countId: Uint8Array;
+
+  /**
+   * @generated from field: string name = 2 [features.field_presence = IMPLICIT];
+   */
+  name: string;
+
+  /**
+   * The space it covered, as it is called now.
+   *
+   * @generated from field: bytes scope_id = 3 [features.field_presence = IMPLICIT];
+   */
+  scopeId: Uint8Array;
+
+  /**
+   * @generated from field: string scope_name = 4 [features.field_presence = IMPLICIT];
+   */
+  scopeName: string;
+
+  /**
+   * open | closed
+   *
+   * @generated from field: string status = 5 [features.field_presence = IMPLICIT];
+   */
+  status: string;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp started_at = 6;
+   */
+  startedAt?: Timestamp | undefined;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp closed_at = 7;
+   */
+  closedAt?: Timestamp | undefined;
+
+  /**
+   * What it found: where it should be, somewhere else, never seen, and
+   * scanned but not registered. The last three are the differences.
+   *
+   * @generated from field: uint32 seen = 8 [features.field_presence = IMPLICIT];
+   */
+  seen: number;
+
+  /**
+   * @generated from field: uint32 misplaced = 9 [features.field_presence = IMPLICIT];
+   */
+  misplaced: number;
+
+  /**
+   * @generated from field: uint32 missing = 10 [features.field_presence = IMPLICIT];
+   */
+  missing: number;
+
+  /**
+   * @generated from field: uint32 unknown = 11 [features.field_presence = IMPLICIT];
+   */
+  unknown: number;
+
+  /**
+   * How the differences were settled: moved to where they were seen,
+   * reported lost -- the losses -- or ignored; and those not settled yet.
+   *
+   * @generated from field: uint32 moved = 12 [features.field_presence = IMPLICIT];
+   */
+  moved: number;
+
+  /**
+   * @generated from field: uint32 lost = 13 [features.field_presence = IMPLICIT];
+   */
+  lost: number;
+
+  /**
+   * @generated from field: uint32 ignored = 14 [features.field_presence = IMPLICIT];
+   */
+  ignored: number;
+
+  /**
+   * @generated from field: uint32 unsettled = 15 [features.field_presence = IMPLICIT];
+   */
+  unsettled: number;
+};
+
+/**
+ * Describes the message rove.InventoryCountResult.
+ * Use `create(InventoryCountResultSchema)` to create a new message.
+ */
+export const InventoryCountResultSchema: GenMessage<InventoryCountResult> = /*@__PURE__*/
+  messageDesc(file_rove_count_svc_g, 21);
+
+/**
  * @generated from message rove.CountFindingAddRequest
  */
 export type CountFindingAddRequest = Message<"rove.CountFindingAddRequest"> & {
@@ -832,7 +988,7 @@ export type CountFindingAddRequest = Message<"rove.CountFindingAddRequest"> & {
  * Use `create(CountFindingAddRequestSchema)` to create a new message.
  */
 export const CountFindingAddRequestSchema: GenMessage<CountFindingAddRequest> = /*@__PURE__*/
-  messageDesc(file_rove_count_svc_g, 19);
+  messageDesc(file_rove_count_svc_g, 22);
 
 /**
  * @generated from message rove.CountFindingGetRequest
@@ -854,7 +1010,7 @@ export type CountFindingGetRequest = Message<"rove.CountFindingGetRequest"> & {
  * Use `create(CountFindingGetRequestSchema)` to create a new message.
  */
 export const CountFindingGetRequestSchema: GenMessage<CountFindingGetRequest> = /*@__PURE__*/
-  messageDesc(file_rove_count_svc_g, 20);
+  messageDesc(file_rove_count_svc_g, 23);
 
 /**
  * @generated from message rove.CountFindingSelect
@@ -941,7 +1097,7 @@ export type CountFindingSelect = Message<"rove.CountFindingSelect"> & {
  * Use `create(CountFindingSelectSchema)` to create a new message.
  */
 export const CountFindingSelectSchema: GenMessage<CountFindingSelect> = /*@__PURE__*/
-  messageDesc(file_rove_count_svc_g, 21);
+  messageDesc(file_rove_count_svc_g, 24);
 
 /**
  * @generated from message rove.CountFindingPatchRequest
@@ -1077,7 +1233,7 @@ export type CountFindingPatchRequest = Message<"rove.CountFindingPatchRequest"> 
  * Use `create(CountFindingPatchRequestSchema)` to create a new message.
  */
 export const CountFindingPatchRequestSchema: GenMessage<CountFindingPatchRequest> = /*@__PURE__*/
-  messageDesc(file_rove_count_svc_g, 22);
+  messageDesc(file_rove_count_svc_g, 25);
 
 /**
  * @generated from message rove.CountFindingApplyRequest
@@ -1099,7 +1255,7 @@ export type CountFindingApplyRequest = Message<"rove.CountFindingApplyRequest"> 
  * Use `create(CountFindingApplyRequestSchema)` to create a new message.
  */
 export const CountFindingApplyRequestSchema: GenMessage<CountFindingApplyRequest> = /*@__PURE__*/
-  messageDesc(file_rove_count_svc_g, 23);
+  messageDesc(file_rove_count_svc_g, 26);
 
 /**
  * @generated from message rove.CountFindingEraseResponse
@@ -1122,7 +1278,7 @@ export type CountFindingEraseResponse = Message<"rove.CountFindingEraseResponse"
  * Use `create(CountFindingEraseResponseSchema)` to create a new message.
  */
 export const CountFindingEraseResponseSchema: GenMessage<CountFindingEraseResponse> = /*@__PURE__*/
-  messageDesc(file_rove_count_svc_g, 24);
+  messageDesc(file_rove_count_svc_g, 27);
 
 /**
  * @generated from message rove.CountFindingListRequest
@@ -1171,7 +1327,7 @@ export type CountFindingListRequest = Message<"rove.CountFindingListRequest"> & 
  * Use `create(CountFindingListRequestSchema)` to create a new message.
  */
 export const CountFindingListRequestSchema: GenMessage<CountFindingListRequest> = /*@__PURE__*/
-  messageDesc(file_rove_count_svc_g, 25);
+  messageDesc(file_rove_count_svc_g, 28);
 
 /**
  * @generated from message rove.CountFindingListResponse
@@ -1201,7 +1357,7 @@ export type CountFindingListResponse = Message<"rove.CountFindingListResponse"> 
  * Use `create(CountFindingListResponseSchema)` to create a new message.
  */
 export const CountFindingListResponseSchema: GenMessage<CountFindingListResponse> = /*@__PURE__*/
-  messageDesc(file_rove_count_svc_g, 26);
+  messageDesc(file_rove_count_svc_g, 29);
 
 /**
  * @generated from message rove.CountFindingFilter
@@ -1238,7 +1394,7 @@ export type CountFindingFilter = Message<"rove.CountFindingFilter"> & {
  * Use `create(CountFindingFilterSchema)` to create a new message.
  */
 export const CountFindingFilterSchema: GenMessage<CountFindingFilter> = /*@__PURE__*/
-  messageDesc(file_rove_count_svc_g, 27);
+  messageDesc(file_rove_count_svc_g, 30);
 
 /**
  * @generated from message rove.CountFindingWatchRequest
@@ -1274,7 +1430,7 @@ export type CountFindingWatchRequest = Message<"rove.CountFindingWatchRequest"> 
  * Use `create(CountFindingWatchRequestSchema)` to create a new message.
  */
 export const CountFindingWatchRequestSchema: GenMessage<CountFindingWatchRequest> = /*@__PURE__*/
-  messageDesc(file_rove_count_svc_g, 28);
+  messageDesc(file_rove_count_svc_g, 31);
 
 /**
  * @generated from message rove.CountFindingWatchResponse
@@ -1293,7 +1449,7 @@ export type CountFindingWatchResponse = Message<"rove.CountFindingWatchResponse"
  * Use `create(CountFindingWatchResponseSchema)` to create a new message.
  */
 export const CountFindingWatchResponseSchema: GenMessage<CountFindingWatchResponse> = /*@__PURE__*/
-  messageDesc(file_rove_count_svc_g, 29);
+  messageDesc(file_rove_count_svc_g, 32);
 
 /**
  * @generated from message rove.CountFindingWatchItem
@@ -1340,7 +1496,7 @@ export type CountFindingWatchItem = Message<"rove.CountFindingWatchItem"> & {
  * Use `create(CountFindingWatchItemSchema)` to create a new message.
  */
 export const CountFindingWatchItemSchema: GenMessage<CountFindingWatchItem> = /*@__PURE__*/
-  messageDesc(file_rove_count_svc_g, 30);
+  messageDesc(file_rove_count_svc_g, 33);
 
 /**
  * @generated from service rove.InventoryCountService
@@ -1465,6 +1621,30 @@ export const InventoryCountService: GenService<{
     methodKind: "unary";
     input: typeof InventoryCountCloseRequestSchema;
     output: typeof InventoryCountSchema;
+  },
+  /**
+   * Results is each count begun in a period (실사 결과, design 9.14), by what
+   * it found -- what was where it should be, and the differences: misplaced,
+   * missing, unknown -- and how they were settled, the losses among them. It
+   * names nobody.
+   *
+   * @generated from rpc rove.InventoryCountService.Results
+   */
+  results: {
+    methodKind: "unary";
+    input: typeof InventoryCountResultsRequestSchema;
+    output: typeof InventoryCountResultsResponseSchema;
+  },
+  /**
+   * ExportResults writes it as a CSV, which names nobody and so is no
+   * download of anybody (rove#136).
+   *
+   * @generated from rpc rove.InventoryCountService.ExportResults
+   */
+  exportResults: {
+    methodKind: "unary";
+    input: typeof InventoryCountResultsRequestSchema;
+    output: typeof AssetExportResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_rove_count_svc_g, 0);

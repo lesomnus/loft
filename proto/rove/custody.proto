@@ -67,7 +67,17 @@ message Custody {
         name: "party"
         refs: [{name: "party", number: 8}, {name: "issued_at", number: 11}]
       },
-      // What fulfilled a reservation, which its history reads (D45).
+      // What is out in a workspace, the soonest due first: what the report
+      // of it reads (design 9.14), and the sweep that tells who is late. A
+      // workspace's hand-overs are nearly all back, and without this each read
+      // went through every one of them.
+      {
+        name: "open"
+        refs: [{name: "tenant", number: 2}, {name: "status", number: 10}, {name: "due_at", number: 12}]
+      },
+      // What fulfilled a reservation, which its history reads (D45), and the
+      // report of how what may be booked was used of each reservation it
+      // reads (design 9.14).
       {
         name: "reservation"
         refs: [{name: "reservation_id", number: 18}]

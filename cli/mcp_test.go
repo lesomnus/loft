@@ -1120,3 +1120,86 @@ func TestAnAssistantKeepsTheRestOfTheRegister(t *testing.T) {
 	x.Equal("KRW", priced.Items[0].Currency, "priced in what the workspace said after it was planned")
 	x.EqualValues(24000, priced.Items[0].Total)
 }
+
+// TestAnAssistantReadsTheReports (design 9.14): each report, as the person
+// signed in reads it -- who has what by name, and nobody's address -- and
+// the period of one given in the workspace's days. A member is refused them,
+// as the screen's calls are.
+func TestAnAssistantReadsTheReports(t *testing.T) {
+	s := serve(t)
+	x := s.x
+	s.signIn("owner", "owner1234")
+	room := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "3층 창고", "kind": "space", "tag": "R-3"}`))
+	laptop := made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "개발용 노트북", "kind": "item", "tag": "NB-1", "to": {"id": "`+room+`"}}`))
+	made(t, run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "회의실 의자", "kind": "item", "tag": "CH-1", "to": {"id": "`+room+`"}}`))
+	kim := made(t, run(t, cli.NewCmdApi(), "party", "add", "-o", "json", `{"name": "김민수", "kind": "person", "email": "kim@acme.example"}`))
+	due := time.Now().Add(72 * time.Hour).UTC().Format(time.RFC3339)
+	run(t, cli.NewCmdApi(), "custody", "add", "-o", "json", `{"party": {"id": "`+kim+`"}, "dueAt": "`+due+`", "lines": [{"asset": {"id": "`+laptop+`"}}]}`)
+	model := made(t, run(t, cli.NewCmdApi(), "item-model", "add", "-o", "json", `{"name": "건전지"}`))
+	run(t, cli.NewCmdApi(), "stock", "add", "-o", "json", `{"model": {"id": "`+model+`"}, "space": {"id": "`+room+`"}, "quantity": 12}`)
+
+	a := s.assistant()
+	var v struct {
+		Assets *struct {
+			Rows []struct {
+				Name  string `json:"name"`
+				Total int    `json:"total"`
+			} `json:"rows"`
+			Total struct{ Total int } `json:"total"`
+		} `json:"assets"`
+		Loans *struct {
+			Custodies int `json:"custodies"`
+			Rows      []struct {
+				Who  ref    `json:"who"`
+				What ref    `json:"what"`
+				Kind string `json:"kind"`
+			} `json:"rows"`
+		} `json:"loans"`
+		Stock []struct {
+			Stock  ref   `json:"stock"`
+			CameIn int64 `json:"came_in"`
+		} `json:"stock"`
+		Bookings []any  `json:"bookings"`
+		Counts   []any  `json:"counts"`
+		From     string `json:"from"`
+		To       string `json:"to"`
+	}
+	a.call("report", map[string]any{"report": "assets", "by": "location"}, &v)
+	x.Len(v.Assets.Rows, 1)
+	x.Equal("3층 창고", v.Assets.Rows[0].Name)
+	x.Equal(2, v.Assets.Rows[0].Total)
+	x.Equal(2, v.Assets.Total.Total)
+
+	res, err := a.session.CallTool(context.Background(), &mcp.CallToolParams{Name: "report", Arguments: map[string]any{"report": "loans"}})
+	x.NoError(err)
+	x.False(res.IsError, said(res))
+	b, err := json.Marshal(res.StructuredContent)
+	x.NoError(err)
+	x.NotContains(string(b), "kim@acme.example", "nobody's address")
+	x.NoError(json.Unmarshal(b, &v))
+	x.Equal(1, v.Loans.Custodies)
+	x.Len(v.Loans.Rows, 1)
+	x.Equal("김민수", v.Loans.Rows[0].Who.Name)
+	x.Equal("NB-1 개발용 노트북", v.Loans.Rows[0].What.Name)
+	x.Equal("loan", v.Loans.Rows[0].Kind)
+
+	// A period of the workspace's days: Seoul's, whatever this machine's is.
+	today := time.Now().In(time.FixedZone("KST", 9*3600)).Format(time.DateOnly)
+	a.call("report", map[string]any{"report": "stock", "from": today, "to": today}, &v)
+	x.Len(v.Stock, 1)
+	x.Equal("건전지", v.Stock[0].Stock.Name)
+	x.EqualValues(12, v.Stock[0].CameIn)
+	from, err := time.Parse(time.RFC3339, v.From)
+	x.NoError(err)
+	to, err := time.Parse(time.RFC3339, v.To)
+	x.NoError(err)
+	x.Equal(24*time.Hour, to.Sub(from), "the one day, which the period includes")
+	x.Equal("00:00", from.In(time.FixedZone("KST", 9*3600)).Format("15:04"), "as Seoul's day begins")
+
+	a.call("report", map[string]any{"report": "bookings"}, &v)
+	a.call("report", map[string]any{"report": "counts"}, &v)
+	x.Contains(a.refused("report", map[string]any{"report": "sales"}), "sales")
+
+	s.signIn("kim", "kim-password")
+	x.Contains(a.refused("report", map[string]any{"report": "loans"}), "PermissionDenied")
+}

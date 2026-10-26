@@ -10,7 +10,7 @@ import type { Patch } from "../patch/patch_pb.js";
 import { file_patch_patch } from "../patch/patch_pb.js";
 import type { Asset } from "./asset_pb.js";
 import { file_rove_asset } from "./asset_pb.js";
-import type { AssetRef, AssetSelect } from "./asset_svc_pb.js";
+import type { AssetExportResponseSchema, AssetRef, AssetSelect } from "./asset_svc_pb.js";
 import { file_rove_asset_svc_g } from "./asset_svc_pb.js";
 import type { ItemModelRef, ItemModelSelect } from "./catalog_svc_pb.js";
 import { file_rove_catalog_svc_g } from "./catalog_svc_pb.js";
@@ -24,7 +24,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file rove/stock_svc.g.proto.
  */
 export const file_rove_stock_svc_g: GenFile = /*@__PURE__*/
-  fileDesc("ChZyb3ZlL3N0b2NrX3N2Yy5nLnByb3RvEgRyb3ZlIv0CCg9TdG9ja0FkZFJlcXVlc3QSCgoCaWQYASABKAwSHwoGdGVuYW50GAIgASgLMg8ucm92ZS5UZW5hbnRSZWYSEwoEbmFtZRgFIAEoCUIFqgECCAISMQoGbGFiZWxzGAcgAygLMiEucm92ZS5TdG9ja0FkZFJlcXVlc3QuTGFiZWxzRW50cnkSIQoFbW9kZWwYCCABKAsyEi5yb3ZlLkl0ZW1Nb2RlbFJlZhIdCgVzcGFjZRgJIAEoCzIOLnJvdmUuQXNzZXRSZWYSFwoIcXVhbnRpdHkYCiABKANCBaoBAggCEhgKCXRocmVzaG9sZBgLIAEoA0IFqgECCAISEwoEdW5pdBgMIAEoCUIFqgECCAISMAoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIKCgJvcBhkIAEoDBotCgtMYWJlbHNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIlEKD1N0b2NrR2V0UmVxdWVzdBIbCgNyZWYYASABKAsyDi5yb3ZlLlN0b2NrUmVmEiEKBnNlbGVjdBgCIAEoCzIRLnJvdmUuU3RvY2tTZWxlY3QiHwoIU3RvY2tSZWYSDAoCaWQYASABKAxIAEIFCgNrZXkimAIKC1N0b2NrU2VsZWN0EgsKA2FsbBgBIAEoCBIiCgZ0ZW5hbnQYAiABKAsyEi5yb3ZlLlRlbmFudFNlbGVjdBIMCgRuYW1lGAUgASgIEg4KBmxhYmVscxgHIAEoCBIkCgVtb2RlbBgIIAEoCzIVLnJvdmUuSXRlbU1vZGVsU2VsZWN0EiAKBXNwYWNlGAkgASgLMhEucm92ZS5Bc3NldFNlbGVjdBIQCghxdWFudGl0eRgKIAEoCBIRCgl0aHJlc2hvbGQYCyABKAgSDAoEdW5pdBgMIAEoCBIUCgxkYXRlX3VwZGF0ZWQYDSABKAgSEwoLZGF0ZV9lcmFzZWQYDiABKAgSFAoMZGF0ZV9jcmVhdGVkGA8gASgIIqMCChFTdG9ja1BhdGNoUmVxdWVzdBIbCgNyZWYYASABKAsyDi5yb3ZlLlN0b2NrUmVmEgwKBG5hbWUYCiABKAkSMwoGbGFiZWxzGA4gAygLMiMucm92ZS5TdG9ja1BhdGNoUmVxdWVzdC5MYWJlbHNFbnRyeRIQCghxdWFudGl0eRgUIAEoAxIRCgl0aHJlc2hvbGQYFiABKAMSDAoEdW5pdBgYIAEoCRIwCgxkYXRlX3VwZGF0ZWQYGiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhoKEmRhdGVfdXBkYXRlZF9mb3JjZRgbIAEoCBotCgtMYWJlbHNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIk0KEVN0b2NrQXBwbHlSZXF1ZXN0EhsKA3JlZhgBIAEoCzIOLnJvdmUuU3RvY2tSZWYSGwoFcGF0Y2gYAiABKAsyDC5wYXRjaC5QYXRjaCIkChJTdG9ja0VyYXNlUmVzcG9uc2USDgoGZXJhc2VkGAEgASgIInkKEFN0b2NrTGlzdFJlcXVlc3QSIgoHZmlsdGVycxgBIAMoCzIRLnJvdmUuU3RvY2tGaWx0ZXISEwoEc2l6ZRgCIAEoBUIFqgECCAISFAoFYWZ0ZXIYAyABKAlCBaoBAggCEhYKB3JldmVyc2UYBCABKAhCBaoBAggCIkQKEVN0b2NrTGlzdFJlc3BvbnNlEhoKBWl0ZW1zGAEgAygLMgsucm92ZS5TdG9jaxITCgRuZXh0GAIgASgJQgWqAQIIAiJsCgtTdG9ja0ZpbHRlchIbCgNyZWYYASABKAsyDi5yb3ZlLlN0b2NrUmVmEiEKBW1vZGVsGAIgASgLMhIucm92ZS5JdGVtTW9kZWxSZWYSHQoFc3BhY2UYAyABKAsyDi5yb3ZlLkFzc2V0UmVmIlUKEVN0b2NrV2F0Y2hSZXF1ZXN0EiIKB2ZpbHRlcnMYASADKAsyES5yb3ZlLlN0b2NrRmlsdGVyEhwKDXNraXBfc25hcHNob3QYAiABKAhCBaoBAggCIjkKElN0b2NrV2F0Y2hSZXNwb25zZRIjCgVpdGVtcxgBIAMoCzIULnJvdmUuU3RvY2tXYXRjaEl0ZW0iTwoOU3RvY2tXYXRjaEl0ZW0SCgoCaWQYASABKAwSGgoFdmFsdWUYAiABKAsyCy5yb3ZlLlN0b2NrEhUKBmFjdGlvbhgDIAEoCUIFqgECCAIinAEKElN0b2NrQ2hhbmdlUmVxdWVzdBIbCgNyZWYYASABKAsyDi5yb3ZlLlN0b2NrUmVmEhcKCHF1YW50aXR5GAIgASgDQgWqAQIIAhIVCgZyZWFzb24YAyABKAlCBaoBAggCEiYKAmF0GAQgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIRCgJvcBgFIAEoDEIFqgECCAIiugEKFFN0b2NrVHJhbnNmZXJSZXF1ZXN0EhsKA3JlZhgBIAEoCzIOLnJvdmUuU3RvY2tSZWYSGgoCdG8YAiABKAsyDi5yb3ZlLkFzc2V0UmVmEhcKCHF1YW50aXR5GAMgASgDQgWqAQIIAhIVCgZyZWFzb24YBCABKAlCBaoBAggCEiYKAmF0GAUgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIRCgJvcBgGIAEoDEIFqgECCAIieQoTU3RvY2tDb252ZXJ0UmVxdWVzdBIbCgNyZWYYASABKAsyDi5yb3ZlLlN0b2NrUmVmEhcKCHF1YW50aXR5GAIgASgDQgWqAQIIAhIZCgp0YWdfcHJlZml4GAMgASgJQgWqAQIIAhIRCgJvcBgEIAEoDEIFqgECCAIiTwoUU3RvY2tDb252ZXJ0UmVzcG9uc2USGgoFc3RvY2sYASABKAsyCy5yb3ZlLlN0b2NrEhsKBmFzc2V0cxgCIAMoCzILLnJvdmUuQXNzZXQitgIKF1N0b2NrTW92ZW1lbnRBZGRSZXF1ZXN0EgoKAmlkGAEgASgMEh8KBnRlbmFudBgCIAEoCzIPLnJvdmUuVGVuYW50UmVmEh0KBXN0b2NrGAggASgLMg4ucm92ZS5TdG9ja1JlZhIUCgVkZWx0YRgJIAEoA0IFqgECCAISFQoGcmVhc29uGAogASgJQgWqAQIIAhIOCgZyZWZfaWQYCyABKAwSLwoLb2NjdXJyZWRfYXQYDCABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEjAKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASFwoIZXZlbnRfaWQYECABKAxCBaoBAggCEhYKB2JhbGFuY2UYESABKANCBaoBAggCImkKF1N0b2NrTW92ZW1lbnRHZXRSZXF1ZXN0EiMKA3JlZhgBIAEoCzIWLnJvdmUuU3RvY2tNb3ZlbWVudFJlZhIpCgZzZWxlY3QYAiABKAsyGS5yb3ZlLlN0b2NrTW92ZW1lbnRTZWxlY3QiJwoQU3RvY2tNb3ZlbWVudFJlZhIMCgJpZBgBIAEoDEgAQgUKA2tleSL7AQoTU3RvY2tNb3ZlbWVudFNlbGVjdBILCgNhbGwYASABKAgSIgoGdGVuYW50GAIgASgLMhIucm92ZS5UZW5hbnRTZWxlY3QSIAoFc3RvY2sYCCABKAsyES5yb3ZlLlN0b2NrU2VsZWN0Eg0KBWRlbHRhGAkgASgIEg4KBnJlYXNvbhgKIAEoCBIOCgZyZWZfaWQYCyABKAgSEwoLb2NjdXJyZWRfYXQYDCABKAgSFAoMZGF0ZV91cGRhdGVkGA0gASgIEhQKDGRhdGVfY3JlYXRlZBgPIAEoCBIQCghldmVudF9pZBgQIAEoCBIPCgdiYWxhbmNlGBEgASgIIqYCChlTdG9ja01vdmVtZW50UGF0Y2hSZXF1ZXN0EiMKA3JlZhgBIAEoCzIWLnJvdmUuU3RvY2tNb3ZlbWVudFJlZhINCgVkZWx0YRgSIAEoAxIOCgZyZWFzb24YFCABKAkSDgoGcmVmX2lkGBYgASgMEhMKC3JlZl9pZF9udWxsGBcgASgIEi8KC29jY3VycmVkX2F0GBggASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIwCgxkYXRlX3VwZGF0ZWQYGiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhoKEmRhdGVfdXBkYXRlZF9mb3JjZRgbIAEoCBIQCghldmVudF9pZBggIAEoDBIPCgdiYWxhbmNlGCIgASgDIl0KGVN0b2NrTW92ZW1lbnRBcHBseVJlcXVlc3QSIwoDcmVmGAEgASgLMhYucm92ZS5TdG9ja01vdmVtZW50UmVmEhsKBXBhdGNoGAIgASgLMgwucGF0Y2guUGF0Y2giLAoaU3RvY2tNb3ZlbWVudEVyYXNlUmVzcG9uc2USDgoGZXJhc2VkGAEgASgIIokBChhTdG9ja01vdmVtZW50TGlzdFJlcXVlc3QSKgoHZmlsdGVycxgBIAMoCzIZLnJvdmUuU3RvY2tNb3ZlbWVudEZpbHRlchITCgRzaXplGAIgASgFQgWqAQIIAhIUCgVhZnRlchgDIAEoCUIFqgECCAISFgoHcmV2ZXJzZRgEIAEoCEIFqgECCAIiVAoZU3RvY2tNb3ZlbWVudExpc3RSZXNwb25zZRIiCgVpdGVtcxgBIAMoCzITLnJvdmUuU3RvY2tNb3ZlbWVudBITCgRuZXh0GAIgASgJQgWqAQIIAiJpChNTdG9ja01vdmVtZW50RmlsdGVyEiMKA3JlZhgBIAEoCzIWLnJvdmUuU3RvY2tNb3ZlbWVudFJlZhIdCgVzdG9jaxgCIAEoCzIOLnJvdmUuU3RvY2tSZWYSDgoGcmVhc29uGAMgASgJMvgECgxTdG9ja1NlcnZpY2USKQoDQWRkEhUucm92ZS5TdG9ja0FkZFJlcXVlc3QaCy5yb3ZlLlN0b2NrEikKA0dldBIVLnJvdmUuU3RvY2tHZXRSZXF1ZXN0Ggsucm92ZS5TdG9jaxItCgVQYXRjaBIXLnJvdmUuU3RvY2tQYXRjaFJlcXVlc3QaCy5yb3ZlLlN0b2NrEi0KBUFwcGx5Ehcucm92ZS5TdG9ja0FwcGx5UmVxdWVzdBoLLnJvdmUuU3RvY2sSMQoFRXJhc2USDi5yb3ZlLlN0b2NrUmVmGhgucm92ZS5TdG9ja0VyYXNlUmVzcG9uc2USNwoETGlzdBIWLnJvdmUuU3RvY2tMaXN0UmVxdWVzdBoXLnJvdmUuU3RvY2tMaXN0UmVzcG9uc2USPAoFV2F0Y2gSFy5yb3ZlLlN0b2NrV2F0Y2hSZXF1ZXN0Ghgucm92ZS5TdG9ja1dhdGNoUmVzcG9uc2UwARIwCgdSZWNlaXZlEhgucm92ZS5TdG9ja0NoYW5nZVJlcXVlc3QaCy5yb3ZlLlN0b2NrEjAKB0NvbnN1bWUSGC5yb3ZlLlN0b2NrQ2hhbmdlUmVxdWVzdBoLLnJvdmUuU3RvY2sSLwoGQWRqdXN0Ehgucm92ZS5TdG9ja0NoYW5nZVJlcXVlc3QaCy5yb3ZlLlN0b2NrEjMKCFRyYW5zZmVyEhoucm92ZS5TdG9ja1RyYW5zZmVyUmVxdWVzdBoLLnJvdmUuU3RvY2sSQAoHQ29udmVydBIZLnJvdmUuU3RvY2tDb252ZXJ0UmVxdWVzdBoaLnJvdmUuU3RvY2tDb252ZXJ0UmVzcG9uc2UylgMKFFN0b2NrTW92ZW1lbnRTZXJ2aWNlEjkKA0FkZBIdLnJvdmUuU3RvY2tNb3ZlbWVudEFkZFJlcXVlc3QaEy5yb3ZlLlN0b2NrTW92ZW1lbnQSOQoDR2V0Eh0ucm92ZS5TdG9ja01vdmVtZW50R2V0UmVxdWVzdBoTLnJvdmUuU3RvY2tNb3ZlbWVudBI9CgVQYXRjaBIfLnJvdmUuU3RvY2tNb3ZlbWVudFBhdGNoUmVxdWVzdBoTLnJvdmUuU3RvY2tNb3ZlbWVudBI9CgVBcHBseRIfLnJvdmUuU3RvY2tNb3ZlbWVudEFwcGx5UmVxdWVzdBoTLnJvdmUuU3RvY2tNb3ZlbWVudBJBCgVFcmFzZRIWLnJvdmUuU3RvY2tNb3ZlbWVudFJlZhogLnJvdmUuU3RvY2tNb3ZlbWVudEVyYXNlUmVzcG9uc2USRwoETGlzdBIeLnJvdmUuU3RvY2tNb3ZlbWVudExpc3RSZXF1ZXN0Gh8ucm92ZS5TdG9ja01vdmVtZW50TGlzdFJlc3BvbnNlQhpaGGdpdGh1Yi5jb20vbGVzb21udXMvcm92ZWIIZWRpdGlvbnNw6Ac", [file_google_protobuf_timestamp, file_patch_patch, file_rove_asset, file_rove_asset_svc_g, file_rove_catalog_svc_g, file_rove_payday_tenant_svc_g, file_rove_stock]);
+  fileDesc("ChZyb3ZlL3N0b2NrX3N2Yy5nLnByb3RvEgRyb3ZlIv0CCg9TdG9ja0FkZFJlcXVlc3QSCgoCaWQYASABKAwSHwoGdGVuYW50GAIgASgLMg8ucm92ZS5UZW5hbnRSZWYSEwoEbmFtZRgFIAEoCUIFqgECCAISMQoGbGFiZWxzGAcgAygLMiEucm92ZS5TdG9ja0FkZFJlcXVlc3QuTGFiZWxzRW50cnkSIQoFbW9kZWwYCCABKAsyEi5yb3ZlLkl0ZW1Nb2RlbFJlZhIdCgVzcGFjZRgJIAEoCzIOLnJvdmUuQXNzZXRSZWYSFwoIcXVhbnRpdHkYCiABKANCBaoBAggCEhgKCXRocmVzaG9sZBgLIAEoA0IFqgECCAISEwoEdW5pdBgMIAEoCUIFqgECCAISMAoMZGF0ZV9jcmVhdGVkGA8gASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIKCgJvcBhkIAEoDBotCgtMYWJlbHNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIlEKD1N0b2NrR2V0UmVxdWVzdBIbCgNyZWYYASABKAsyDi5yb3ZlLlN0b2NrUmVmEiEKBnNlbGVjdBgCIAEoCzIRLnJvdmUuU3RvY2tTZWxlY3QiHwoIU3RvY2tSZWYSDAoCaWQYASABKAxIAEIFCgNrZXkimAIKC1N0b2NrU2VsZWN0EgsKA2FsbBgBIAEoCBIiCgZ0ZW5hbnQYAiABKAsyEi5yb3ZlLlRlbmFudFNlbGVjdBIMCgRuYW1lGAUgASgIEg4KBmxhYmVscxgHIAEoCBIkCgVtb2RlbBgIIAEoCzIVLnJvdmUuSXRlbU1vZGVsU2VsZWN0EiAKBXNwYWNlGAkgASgLMhEucm92ZS5Bc3NldFNlbGVjdBIQCghxdWFudGl0eRgKIAEoCBIRCgl0aHJlc2hvbGQYCyABKAgSDAoEdW5pdBgMIAEoCBIUCgxkYXRlX3VwZGF0ZWQYDSABKAgSEwoLZGF0ZV9lcmFzZWQYDiABKAgSFAoMZGF0ZV9jcmVhdGVkGA8gASgIIqMCChFTdG9ja1BhdGNoUmVxdWVzdBIbCgNyZWYYASABKAsyDi5yb3ZlLlN0b2NrUmVmEgwKBG5hbWUYCiABKAkSMwoGbGFiZWxzGA4gAygLMiMucm92ZS5TdG9ja1BhdGNoUmVxdWVzdC5MYWJlbHNFbnRyeRIQCghxdWFudGl0eRgUIAEoAxIRCgl0aHJlc2hvbGQYFiABKAMSDAoEdW5pdBgYIAEoCRIwCgxkYXRlX3VwZGF0ZWQYGiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhoKEmRhdGVfdXBkYXRlZF9mb3JjZRgbIAEoCBotCgtMYWJlbHNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIk0KEVN0b2NrQXBwbHlSZXF1ZXN0EhsKA3JlZhgBIAEoCzIOLnJvdmUuU3RvY2tSZWYSGwoFcGF0Y2gYAiABKAsyDC5wYXRjaC5QYXRjaCIkChJTdG9ja0VyYXNlUmVzcG9uc2USDgoGZXJhc2VkGAEgASgIInkKEFN0b2NrTGlzdFJlcXVlc3QSIgoHZmlsdGVycxgBIAMoCzIRLnJvdmUuU3RvY2tGaWx0ZXISEwoEc2l6ZRgCIAEoBUIFqgECCAISFAoFYWZ0ZXIYAyABKAlCBaoBAggCEhYKB3JldmVyc2UYBCABKAhCBaoBAggCIkQKEVN0b2NrTGlzdFJlc3BvbnNlEhoKBWl0ZW1zGAEgAygLMgsucm92ZS5TdG9jaxITCgRuZXh0GAIgASgJQgWqAQIIAiJsCgtTdG9ja0ZpbHRlchIbCgNyZWYYASABKAsyDi5yb3ZlLlN0b2NrUmVmEiEKBW1vZGVsGAIgASgLMhIucm92ZS5JdGVtTW9kZWxSZWYSHQoFc3BhY2UYAyABKAsyDi5yb3ZlLkFzc2V0UmVmIlUKEVN0b2NrV2F0Y2hSZXF1ZXN0EiIKB2ZpbHRlcnMYASADKAsyES5yb3ZlLlN0b2NrRmlsdGVyEhwKDXNraXBfc25hcHNob3QYAiABKAhCBaoBAggCIjkKElN0b2NrV2F0Y2hSZXNwb25zZRIjCgVpdGVtcxgBIAMoCzIULnJvdmUuU3RvY2tXYXRjaEl0ZW0iTwoOU3RvY2tXYXRjaEl0ZW0SCgoCaWQYASABKAwSGgoFdmFsdWUYAiABKAsyCy5yb3ZlLlN0b2NrEhUKBmFjdGlvbhgDIAEoCUIFqgECCAIinAEKElN0b2NrQ2hhbmdlUmVxdWVzdBIbCgNyZWYYASABKAsyDi5yb3ZlLlN0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YRgJIAEoCBIOCgZyZWFzb24YCiABKAgSDgoGcmVmX2lkGAsgASgIEhMKC29jY3VycmVkX2F0GAwgASgIEhQKDGRhdGVfdXBkYXRlZBgNIAEoCBIUCgxkYXRlX2NyZWF0ZWQYDyABKAgSEAoIZXZlbnRfaWQYECABKAgSDwoHYmFsYW5jZRgRIAEoCCKmAgoZU3RvY2tNb3ZlbWVudFBhdGNoUmVxdWVzdBIjCgNyZWYYASABKAsyFi5yb3ZlLlN0b2NrTW92ZW1lbnRSZWYSDQoFZGVsdGEYEiABKAMSDgoGcmVhc29uGBQgASgJEg4KBnJlZl9pZBgWIAEoDBITCgtyZWZfaWRfbnVsbBgXIAEoCBIvCgtvY2N1cnJlZF9hdBgYIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASMAoMZGF0ZV91cGRhdGVkGBogASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIaChJkYXRlX3VwZGF0ZWRfZm9yY2UYGyABKAgSEAoIZXZlbnRfaWQYICABKAwSDwoHYmFsYW5jZRgiIAEoAyJdChlTdG9ja01vdmVtZW50QXBwbHlSZXF1ZXN0EiMKA3JlZhgBIAEoCzIWLnJvdmUuU3RvY2tNb3ZlbWVudFJlZhIbCgVwYXRjaBgCIAEoCzIMLnBhdGNoLlBhdGNoIiwKGlN0b2NrTW92ZW1lbnRFcmFzZVJlc3BvbnNlEg4KBmVyYXNlZBgBIAEoCCKJAQoYU3RvY2tNb3ZlbWVudExpc3RSZXF1ZXN0EioKB2ZpbHRlcnMYASADKAsyGS5yb3ZlLlN0b2NrTW92ZW1lbnRGaWx0ZXISEwoEc2l6ZRgCIAEoBUIFqgECCAISFAoFYWZ0ZXIYAyABKAlCBaoBAggCEhYKB3JldmVyc2UYBCABKAhCBaoBAggCIlQKGVN0b2NrTW92ZW1lbnRMaXN0UmVzcG9uc2USIgoFaXRlbXMYASADKAsyEy5yb3ZlLlN0b2NrTW92ZW1lbnQSEwoEbmV4dBgCIAEoCUIFqgECCAIiaQoTU3RvY2tNb3ZlbWVudEZpbHRlchIjCgNyZWYYASABKAsyFi5yb3ZlLlN0b2NrTW92ZW1lbnRSZWYSHQoFc3RvY2sYAiABKAsyDi5yb3ZlLlN0b2NrUmVmEg4KBnJlYXNvbhgDIAEoCTLyBQoMU3RvY2tTZXJ2aWNlEikKA0FkZBIVLnJvdmUuU3RvY2tBZGRSZXF1ZXN0Ggsucm92ZS5TdG9jaxIpCgNHZXQSFS5yb3ZlLlN0b2NrR2V0UmVxdWVzdBoLLnJvdmUuU3RvY2sSLQoFUGF0Y2gSFy5yb3ZlLlN0b2NrUGF0Y2hSZXF1ZXN0Ggsucm92ZS5TdG9jaxItCgVBcHBseRIXLnJvdmUuU3RvY2tBcHBseVJlcXVlc3QaCy5yb3ZlLlN0b2NrEjEKBUVyYXNlEg4ucm92ZS5TdG9ja1JlZhoYLnJvdmUuU3RvY2tFcmFzZVJlc3BvbnNlEjcKBExpc3QSFi5yb3ZlLlN0b2NrTGlzdFJlcXVlc3QaFy5yb3ZlLlN0b2NrTGlzdFJlc3BvbnNlEjwKBVdhdGNoEhcucm92ZS5TdG9ja1dhdGNoUmVxdWVzdBoYLnJvdmUuU3RvY2tXYXRjaFJlc3BvbnNlMAESMAoHUmVjZWl2ZRIYLnJvdmUuU3RvY2tDaGFuZ2VSZXF1ZXN0Ggsucm92ZS5TdG9jaxIwCgdDb25zdW1lEhgucm92ZS5TdG9ja0NoYW5nZVJlcXVlc3QaCy5yb3ZlLlN0b2NrEi8KBkFkanVzdBIYLnJvdmUuU3RvY2tDaGFuZ2VSZXF1ZXN0Ggsucm92ZS5TdG9jaxIzCghUcmFuc2ZlchIaLnJvdmUuU3RvY2tUcmFuc2ZlclJlcXVlc3QaCy5yb3ZlLlN0b2NrEkAKB0NvbnZlcnQSGS5yb3ZlLlN0b2NrQ29udmVydFJlcXVlc3QaGi5yb3ZlLlN0b2NrQ29udmVydFJlc3BvbnNlEjcKBEZsb3cSFi5yb3ZlLlN0b2NrRmxvd1JlcXVlc3QaFy5yb3ZlLlN0b2NrRmxvd1Jlc3BvbnNlEj8KCkV4cG9ydEZsb3cSFi5yb3ZlLlN0b2NrRmxvd1JlcXVlc3QaGS5yb3ZlLkFzc2V0RXhwb3J0UmVzcG9uc2UylgMKFFN0b2NrTW92ZW1lbnRTZXJ2aWNlEjkKA0FkZBIdLnJvdmUuU3RvY2tNb3ZlbWVudEFkZFJlcXVlc3QaEy5yb3ZlLlN0b2NrTW92ZW1lbnQSOQoDR2V0Eh0ucm92ZS5TdG9ja01vdmVtZW50R2V0UmVxdWVzdBoTLnJvdmUuU3RvY2tNb3ZlbWVudBI9CgVQYXRjaBIfLnJvdmUuU3RvY2tNb3ZlbWVudFBhdGNoUmVxdWVzdBoTLnJvdmUuU3RvY2tNb3ZlbWVudBI9CgVBcHBseRIfLnJvdmUuU3RvY2tNb3ZlbWVudEFwcGx5UmVxdWVzdBoTLnJvdmUuU3RvY2tNb3ZlbWVudBJBCgVFcmFzZRIWLnJvdmUuU3RvY2tNb3ZlbWVudFJlZhogLnJvdmUuU3RvY2tNb3ZlbWVudEVyYXNlUmVzcG9uc2USRwoETGlzdBIeLnJvdmUuU3RvY2tNb3ZlbWVudExpc3RSZXF1ZXN0Gh8ucm92ZS5TdG9ja01vdmVtZW50TGlzdFJlc3BvbnNlQhpaGGdpdGh1Yi5jb20vbGVzb21udXMvcm92ZWIIZWRpdGlvbnNw6Ac", [file_google_protobuf_timestamp, file_patch_patch, file_rove_asset, file_rove_asset_svc_g, file_rove_catalog_svc_g, file_rove_payday_tenant_svc_g, file_rove_stock]);
 
 /**
  * @generated from message rove.StockAddRequest
@@ -665,6 +665,180 @@ export const StockConvertResponseSchema: GenMessage<StockConvertResponse> = /*@_
   messageDesc(file_rove_stock_svc_g, 16);
 
 /**
+ * @generated from message rove.StockFlowRequest
+ */
+export type StockFlowRequest = Message<"rove.StockFlowRequest"> & {
+  /**
+   * The period, from `from` and before `to`, a year at most. Unsaid, the last
+   * thirty of the workspace's days, today among them.
+   *
+   * @generated from field: google.protobuf.Timestamp from = 1;
+   */
+  from?: Timestamp | undefined;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp to = 2;
+   */
+  to?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message rove.StockFlowRequest.
+ * Use `create(StockFlowRequestSchema)` to create a new message.
+ */
+export const StockFlowRequestSchema: GenMessage<StockFlowRequest> = /*@__PURE__*/
+  messageDesc(file_rove_stock_svc_g, 17);
+
+/**
+ * @generated from message rove.StockFlowResponse
+ */
+export type StockFlowResponse = Message<"rove.StockFlowResponse"> & {
+  /**
+   * Every stock, by name and then by where it is kept.
+   *
+   * @generated from field: repeated rove.StockFlowRow rows = 1;
+   */
+  rows: StockFlowRow[];
+
+  /**
+   * The period it read.
+   *
+   * @generated from field: google.protobuf.Timestamp from = 2;
+   */
+  from?: Timestamp | undefined;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp to = 3;
+   */
+  to?: Timestamp | undefined;
+};
+
+/**
+ * Describes the message rove.StockFlowResponse.
+ * Use `create(StockFlowResponseSchema)` to create a new message.
+ */
+export const StockFlowResponseSchema: GenMessage<StockFlowResponse> = /*@__PURE__*/
+  messageDesc(file_rove_stock_svc_g, 18);
+
+/**
+ * StockFlowRow is one stock over a period, in its own unit: what it had at
+ * each end of the period, and what moved it in between, each a count of
+ * units however it moved.
+ *
+ * @generated from message rove.StockFlowRow
+ */
+export type StockFlowRow = Message<"rove.StockFlowRow"> & {
+  /**
+   * @generated from field: bytes stock_id = 1 [features.field_presence = IMPLICIT];
+   */
+  stockId: Uint8Array;
+
+  /**
+   * @generated from field: string name = 2 [features.field_presence = IMPLICIT];
+   */
+  name: string;
+
+  /**
+   * @generated from field: string unit = 3 [features.field_presence = IMPLICIT];
+   */
+  unit: string;
+
+  /**
+   * Where it is kept, as it is called now.
+   *
+   * @generated from field: bytes space_id = 4 [features.field_presence = IMPLICIT];
+   */
+  spaceId: Uint8Array;
+
+  /**
+   * @generated from field: string space_name = 5 [features.field_presence = IMPLICIT];
+   */
+  spaceName: string;
+
+  /**
+   * How many it had when the period began, and when it ended.
+   *
+   * @generated from field: int64 opening = 6 [features.field_presence = IMPLICIT];
+   */
+  opening: bigint;
+
+  /**
+   * @generated from field: int64 closing = 7 [features.field_presence = IMPLICIT];
+   */
+  closing: bigint;
+
+  /**
+   * What came in: received, given back from a hand-over, moved in from
+   * another space, and counted up.
+   *
+   * @generated from field: int64 received = 8 [features.field_presence = IMPLICIT];
+   */
+  received: bigint;
+
+  /**
+   * @generated from field: int64 returned = 9 [features.field_presence = IMPLICIT];
+   */
+  returned: bigint;
+
+  /**
+   * @generated from field: int64 transferred_in = 10 [features.field_presence = IMPLICIT];
+   */
+  transferredIn: bigint;
+
+  /**
+   * @generated from field: int64 adjusted_up = 11 [features.field_presence = IMPLICIT];
+   */
+  adjustedUp: bigint;
+
+  /**
+   * What went out: used, handed over, moved to another space, made assets
+   * of, and counted down.
+   *
+   * @generated from field: int64 consumed = 12 [features.field_presence = IMPLICIT];
+   */
+  consumed: bigint;
+
+  /**
+   * @generated from field: int64 issued = 13 [features.field_presence = IMPLICIT];
+   */
+  issued: bigint;
+
+  /**
+   * @generated from field: int64 transferred_out = 14 [features.field_presence = IMPLICIT];
+   */
+  transferredOut: bigint;
+
+  /**
+   * @generated from field: int64 converted = 15 [features.field_presence = IMPLICIT];
+   */
+  converted: bigint;
+
+  /**
+   * @generated from field: int64 adjusted_down = 16 [features.field_presence = IMPLICIT];
+   */
+  adjustedDown: bigint;
+
+  /**
+   * All that came in, and all that went out.
+   *
+   * @generated from field: int64 came_in = 17 [features.field_presence = IMPLICIT];
+   */
+  cameIn: bigint;
+
+  /**
+   * @generated from field: int64 went_out = 18 [features.field_presence = IMPLICIT];
+   */
+  wentOut: bigint;
+};
+
+/**
+ * Describes the message rove.StockFlowRow.
+ * Use `create(StockFlowRowSchema)` to create a new message.
+ */
+export const StockFlowRowSchema: GenMessage<StockFlowRow> = /*@__PURE__*/
+  messageDesc(file_rove_stock_svc_g, 19);
+
+/**
  * @generated from message rove.StockMovementAddRequest
  */
 export type StockMovementAddRequest = Message<"rove.StockMovementAddRequest"> & {
@@ -724,7 +898,7 @@ export type StockMovementAddRequest = Message<"rove.StockMovementAddRequest"> & 
  * Use `create(StockMovementAddRequestSchema)` to create a new message.
  */
 export const StockMovementAddRequestSchema: GenMessage<StockMovementAddRequest> = /*@__PURE__*/
-  messageDesc(file_rove_stock_svc_g, 17);
+  messageDesc(file_rove_stock_svc_g, 20);
 
 /**
  * @generated from message rove.StockMovementGetRequest
@@ -746,7 +920,7 @@ export type StockMovementGetRequest = Message<"rove.StockMovementGetRequest"> & 
  * Use `create(StockMovementGetRequestSchema)` to create a new message.
  */
 export const StockMovementGetRequestSchema: GenMessage<StockMovementGetRequest> = /*@__PURE__*/
-  messageDesc(file_rove_stock_svc_g, 18);
+  messageDesc(file_rove_stock_svc_g, 21);
 
 /**
  * @generated from message rove.StockMovementRef
@@ -769,7 +943,7 @@ export type StockMovementRef = Message<"rove.StockMovementRef"> & {
  * Use `create(StockMovementRefSchema)` to create a new message.
  */
 export const StockMovementRefSchema: GenMessage<StockMovementRef> = /*@__PURE__*/
-  messageDesc(file_rove_stock_svc_g, 19);
+  messageDesc(file_rove_stock_svc_g, 22);
 
 /**
  * @generated from message rove.StockMovementSelect
@@ -836,7 +1010,7 @@ export type StockMovementSelect = Message<"rove.StockMovementSelect"> & {
  * Use `create(StockMovementSelectSchema)` to create a new message.
  */
 export const StockMovementSelectSchema: GenMessage<StockMovementSelect> = /*@__PURE__*/
-  messageDesc(file_rove_stock_svc_g, 20);
+  messageDesc(file_rove_stock_svc_g, 23);
 
 /**
  * @generated from message rove.StockMovementPatchRequest
@@ -917,7 +1091,7 @@ export type StockMovementPatchRequest = Message<"rove.StockMovementPatchRequest"
  * Use `create(StockMovementPatchRequestSchema)` to create a new message.
  */
 export const StockMovementPatchRequestSchema: GenMessage<StockMovementPatchRequest> = /*@__PURE__*/
-  messageDesc(file_rove_stock_svc_g, 21);
+  messageDesc(file_rove_stock_svc_g, 24);
 
 /**
  * @generated from message rove.StockMovementApplyRequest
@@ -939,7 +1113,7 @@ export type StockMovementApplyRequest = Message<"rove.StockMovementApplyRequest"
  * Use `create(StockMovementApplyRequestSchema)` to create a new message.
  */
 export const StockMovementApplyRequestSchema: GenMessage<StockMovementApplyRequest> = /*@__PURE__*/
-  messageDesc(file_rove_stock_svc_g, 22);
+  messageDesc(file_rove_stock_svc_g, 25);
 
 /**
  * @generated from message rove.StockMovementEraseResponse
@@ -962,7 +1136,7 @@ export type StockMovementEraseResponse = Message<"rove.StockMovementEraseRespons
  * Use `create(StockMovementEraseResponseSchema)` to create a new message.
  */
 export const StockMovementEraseResponseSchema: GenMessage<StockMovementEraseResponse> = /*@__PURE__*/
-  messageDesc(file_rove_stock_svc_g, 23);
+  messageDesc(file_rove_stock_svc_g, 26);
 
 /**
  * @generated from message rove.StockMovementListRequest
@@ -1011,7 +1185,7 @@ export type StockMovementListRequest = Message<"rove.StockMovementListRequest"> 
  * Use `create(StockMovementListRequestSchema)` to create a new message.
  */
 export const StockMovementListRequestSchema: GenMessage<StockMovementListRequest> = /*@__PURE__*/
-  messageDesc(file_rove_stock_svc_g, 24);
+  messageDesc(file_rove_stock_svc_g, 27);
 
 /**
  * @generated from message rove.StockMovementListResponse
@@ -1041,7 +1215,7 @@ export type StockMovementListResponse = Message<"rove.StockMovementListResponse"
  * Use `create(StockMovementListResponseSchema)` to create a new message.
  */
 export const StockMovementListResponseSchema: GenMessage<StockMovementListResponse> = /*@__PURE__*/
-  messageDesc(file_rove_stock_svc_g, 25);
+  messageDesc(file_rove_stock_svc_g, 28);
 
 /**
  * @generated from message rove.StockMovementFilter
@@ -1068,7 +1242,7 @@ export type StockMovementFilter = Message<"rove.StockMovementFilter"> & {
  * Use `create(StockMovementFilterSchema)` to create a new message.
  */
 export const StockMovementFilterSchema: GenMessage<StockMovementFilter> = /*@__PURE__*/
-  messageDesc(file_rove_stock_svc_g, 26);
+  messageDesc(file_rove_stock_svc_g, 29);
 
 /**
  * @generated from service rove.StockService
@@ -1199,6 +1373,29 @@ export const StockService: GenService<{
     methodKind: "unary";
     input: typeof StockConvertRequestSchema;
     output: typeof StockConvertResponseSchema;
+  },
+  /**
+   * Flow is each stock over a period (재고 소모, design 9.14): how many it had
+   * when the period began, what came in and what went out by what moved it,
+   * and how many it had when the period ended. It names nobody.
+   *
+   * @generated from rpc rove.StockService.Flow
+   */
+  flow: {
+    methodKind: "unary";
+    input: typeof StockFlowRequestSchema;
+    output: typeof StockFlowResponseSchema;
+  },
+  /**
+   * ExportFlow writes it as a CSV, which names nobody and so is no download
+   * of anybody (rove#136).
+   *
+   * @generated from rpc rove.StockService.ExportFlow
+   */
+  exportFlow: {
+    methodKind: "unary";
+    input: typeof StockFlowRequestSchema;
+    output: typeof AssetExportResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_rove_stock_svc_g, 0);

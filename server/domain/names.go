@@ -3,6 +3,7 @@ package domain
 import (
 	"context"
 	"fmt"
+	"slices"
 	"strings"
 	"uuid"
 
@@ -123,6 +124,38 @@ func missing(err error) called {
 // a name read off it is.
 func (n *namer) whose(id uuid.UUID) []access.Subject {
 	return []access.Subject{{Id: pdid.Id(id), Tenant: n.t.tenant}}
+}
+
+// readParties reads at once the person records an answer names many of -- a
+// report of who has what -- so that saying each ([namer.party]) reads none of
+// them again: the same rows, off the caller's tenant, as each read by itself
+// would be, a few hundred to a statement.
+func (n *namer) readParties(ids []uuid.UUID) error {
+	if n.parties == nil {
+		n.parties = map[uuid.UUID]called{}
+	}
+	need := []uuid.UUID{}
+	for _, id := range ids {
+		if _, ok := n.parties[id]; ok || id == (uuid.UUID{}) {
+			continue
+		}
+		// None, unless it is read below.
+		n.parties[id] = called{}
+		need = append(need, id)
+	}
+	for some := range slices.Chunk(need, 500) {
+		ps, err := n.t.db.Party.Query().
+			Where(party.TenantId(n.t.tenant.Uuid()), party.IdIn(some...)).
+			Select(party.FieldId, party.FieldName).
+			All(n.t.ctx)
+		if err != nil {
+			return err
+		}
+		for _, p := range ps {
+			n.parties[p.Id] = called{found: true, name: p.Name, saw: n.whose(p.Id)}
+		}
+	}
+	return nil
 }
 
 func (n *namer) asset(id uuid.UUID) string { return n.show(n.look(n.t.ctx, &n.assets, id, n.ofAsset)) }

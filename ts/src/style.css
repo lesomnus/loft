@@ -694,6 +694,10 @@ ul.bars .num {
 	margin-bottom: 0;
 	border-bottom: none;
 }
+/* A report's period: its days' fields, and the buttons that set them, on one line. */
+.filters.period {
+	align-items: flex-end;
+}
 
 .empty {
 	color: var(--mute);

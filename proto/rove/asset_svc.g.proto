@@ -79,6 +79,14 @@ service AssetService {
   // one person uploads is read in the process every workspace is served by,
   // and a workbook takes a library as large as Excel to read (design 9.13).
   rpc ReadSheet(AssetReadSheetRequest) returns (AssetReadSheetResponse);
+  // Census is the register as it is now, counted (자산 현황, design 9.14): a
+  // row each type, or each space, of how many there are in each status. The
+  // database counts, so a workspace of a hundred thousand assets is read as
+  // the few hundred rows it comes to. It names nobody.
+  rpc Census(AssetCensusRequest) returns (AssetCensusResponse);
+  // ExportCensus writes the census as a CSV, which names nobody and so is no
+  // download of anybody (rove#136).
+  rpc ExportCensus(AssetCensusRequest) returns (AssetExportResponse);
 }
 
 service TreeLockService {}
@@ -714,6 +722,48 @@ message AssetReadSheetIssue {
   uint32 line = 1 [features.field_presence = IMPLICIT];
   string column = 2 [features.field_presence = IMPLICIT];
   string message = 3 [features.field_presence = IMPLICIT];
+}
+
+message AssetCensusRequest {
+  // What a row is: `type`, an asset type; or `location`, the space things
+  // are in -- the nearest one up from whatever holds them, so that a part in
+  // a computer is counted in the computer's room. Empty is type.
+  string by = 1 [features.field_presence = IMPLICIT];
+  // What is counted: item, kit, group or space, one kind at a time, since a
+  // kit's members and a pool's are items of their own. Empty is item.
+  string kind = 2 [features.field_presence = IMPLICIT];
+}
+
+message AssetCensusResponse {
+  // By type, by name, and what has none last; by location, as the tree
+  // reads, outermost first, and what is in no space last.
+  repeated AssetCensusRow rows = 1;
+  // All of them.
+  AssetCensusRow total = 2;
+  // When it was counted.
+  google.protobuf.Timestamp at = 3;
+  // What it counted and by what, as the request said it or as it was taken.
+  string by = 4 [features.field_presence = IMPLICIT];
+  string kind = 5 [features.field_presence = IMPLICIT];
+}
+
+// AssetCensusRow is how many assets of a kind one type has, or one space
+// holds, in each status.
+message AssetCensusRow {
+  // The type's or the space's: empty for what has no type, or is in no space.
+  bytes id = 1 [features.field_presence = IMPLICIT];
+  // As it is called now, and a space by its tag beside.
+  string name = 2 [features.field_presence = IMPLICIT];
+  string tag = 3 [features.field_presence = IMPLICIT];
+  // The spaces a space is in, the outermost first.
+  repeated string path = 4;
+  // How many there are of each status -- ordered, active, in_repair, lost,
+  // retired, disposed -- and none of a status nothing is in.
+  map<string, uint32> statuses = 5;
+  // All of them, whatever their status.
+  uint32 total = 6 [features.field_presence = IMPLICIT];
+  // A space's, with what the spaces in it hold: everything under it.
+  uint32 within = 7 [features.field_presence = IMPLICIT];
 }
 
 message TenantDomainAddRequest {

@@ -269,6 +269,65 @@ func TestADownloadOfPeopleSaysWhatItIsFor(t *testing.T) {
 	x.Equal(1, n, "a batched export was let out")
 }
 
+// TestWhatIsOutIsAReadOfWhoHasIt (design 9.14): the report of what is out
+// says who has each by name, which no `personal` declaration of its answer can
+// see, so it says it showed them; its CSV is a download of them, refused
+// without what it is for. A member is refused both, and an auditor reads
+// them. The other reports name nobody: they leave no row, and their CSVs ask
+// for no reason.
+func TestWhatIsOutIsAReadOfWhoHasIt(t *testing.T) {
+	w := newWorld(t)
+	x := w.x
+	park := w.person("박지민", "park@acme.example")
+	laptop, err := app.NewAssetServiceClient(w.conn).Add(w.owner, app.AssetAddRequest_builder{Name: "노트북", Tag: "NB-1"}.Build())
+	x.NoError(err)
+	custody := app.NewCustodyServiceClient(w.conn)
+	_, err = custody.Add(w.owner, app.CustodyAddRequest_builder{
+		Party: app.PartyRef_builder{Id: park.GetId()}.Build(),
+		Lines: []*app.CustodyLineSpec{app.CustodyLineSpec_builder{Asset: app.AssetRef_builder{Id: laptop.GetId()}.Build()}.Build()},
+	}.Build())
+	x.NoError(err)
+
+	v, err := custody.Outstanding(w.owner, &app.CustodyOutstandingRequest{})
+	x.NoError(err)
+	x.Len(v.GetRows(), 1)
+	x.Equal("박지민", v.GetRows()[0].GetPartyName())
+	rs := w.accessed(t, app.CustodyService_Outstanding_FullMethodName)
+	x.Len(rs, 1)
+	x.Equal("read", rs[0].Kind)
+	x.Contains(rs[0].Subjects, park.GetId(), "the report named her, and did not say so")
+
+	member := w.signIn(w.holder("kim", "member"))
+	_, err = custody.Outstanding(member, &app.CustodyOutstandingRequest{})
+	x.True(refusedByTable(err, app.CustodyService_Outstanding_FullMethodName), "%v", err)
+	_, err = custody.Outstanding(w.signIn(w.holder("lee", "auditor")), &app.CustodyOutstandingRequest{})
+	x.NoError(err, "an auditor reads the reports")
+
+	_, err = custody.ExportOutstanding(w.owner, &app.CustodyOutstandingRequest{})
+	x.Equal(codes.InvalidArgument, status.Code(err))
+	x.Contains(err.Error(), access.ReasonKey)
+	why := metadata.AppendToOutgoingContext(w.owner, access.ReasonKey, "10월 대여 점검")
+	f, err := custody.ExportOutstanding(why, &app.CustodyOutstandingRequest{})
+	x.NoError(err)
+	x.Contains(string(f.GetData()), "박지민")
+	x.NotContains(string(f.GetData()), "park@acme.example", "nobody's address")
+	// Written before it answered: read with nothing flushed.
+	rs, err = w.s.Ent.Access.Query().Where(entaccess.KindEQ("download"), entaccess.ActionEQ(app.CustodyService_ExportOutstanding_FullMethodName)).All(context.Background())
+	x.NoError(err)
+	x.Len(rs, 1)
+	x.Equal("10월 대여 점검", detailOf(t, rs[0]).GetReason())
+	x.Contains(rs[0].Subjects, park.GetId())
+
+	// The census names nobody, and its file is nobody's.
+	_, err = app.NewAssetServiceClient(w.conn).Census(w.owner, &app.AssetCensusRequest{})
+	x.NoError(err)
+	x.Empty(w.accessed(t, app.AssetService_Census_FullMethodName))
+	_, err = app.NewAssetServiceClient(w.conn).ExportCensus(w.owner, &app.AssetCensusRequest{})
+	x.NoError(err, "no download, so no reason")
+	_, err = app.NewStockServiceClient(w.conn).ExportFlow(member, &app.StockFlowRequest{})
+	x.True(refusedByTable(err, app.StockService_ExportFlow_FullMethodName), "%v", err)
+}
+
 // TestAWorkspacesExportSaysWhatItIsFor: everybody's data, out of the
 // deployment, so it is refused without a reason and recorded with one, before
 // the first byte goes.

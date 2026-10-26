@@ -403,6 +403,7 @@ var IndexRenames = []rename.Index{
 	{Table: "countfinding", From: "countfinding_count_id_kind", To: "countfinding_count"},
 	{Table: "custody", From: "custody_tenant_id_date_created_id", To: "custody_page"},
 	{Table: "custody", From: "custody_party_id_issued_at", To: "custody_party"},
+	{Table: "custody", From: "custody_tenant_id_status_due_at", To: "custody_open"},
 	{Table: "custody", From: "custody_reservation_id", To: "custody_reservation"},
 	{Table: "custodyline", From: "custodyline_tenant_id_date_created_id", To: "custodyline_page"},
 	{Table: "custodyline", From: "custodyline_custody_id", To: "custodyline_custody"},
@@ -444,6 +445,7 @@ var IndexRenames = []rename.Index{
 	{Table: "purchaseline", From: "purchaseline_purchase_id", To: "purchaseline_purchase"},
 	{Table: "reservation", From: "reservation_tenant_id_date_created_id", To: "reservation_page"},
 	{Table: "reservation", From: "reservation_party_id_begins_at", To: "reservation_party"},
+	{Table: "reservation", From: "reservation_tenant_id_begins_at", To: "reservation_begins"},
 	{Table: "reservationitem", From: "reservationitem_tenant_id_date_created_id", To: "reservationitem_page"},
 	{Table: "reservationitem", From: "reservationitem_reservation_id", To: "reservationitem_reservation"},
 	{Table: "signinfailure", From: "signinfailure_subject_date_created", To: "signinfailure_subject"},
@@ -22443,6 +22445,16 @@ func (s interceptAsset) ReadSheet(ctx context.Context, req *rove.AssetReadSheetR
 		rove.AssetService_ReadSheet_FullMethodName, req, s.AssetServiceServer.ReadSheet)
 }
 
+func (s interceptAsset) Census(ctx context.Context, req *rove.AssetCensusRequest) (*rove.AssetCensusResponse, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.AssetServiceServer,
+		rove.AssetService_Census_FullMethodName, req, s.AssetServiceServer.Census)
+}
+
+func (s interceptAsset) ExportCensus(ctx context.Context, req *rove.AssetCensusRequest) (*rove.AssetExportResponse, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.AssetServiceServer,
+		rove.AssetService_ExportCensus_FullMethodName, req, s.AssetServiceServer.ExportCensus)
+}
+
 func (s Intercept) TenantDomain() rove.TenantDomainServiceServer {
 	return interceptTenantDomain{s, s.Next().TenantDomain()}
 }
@@ -22679,6 +22691,16 @@ func (s interceptBookable) Availability(ctx context.Context, req *rove.BookableA
 		rove.BookableService_Availability_FullMethodName, req, s.BookableServiceServer.Availability)
 }
 
+func (s interceptBookable) Usage(ctx context.Context, req *rove.BookableUsageRequest) (*rove.BookableUsageResponse, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.BookableServiceServer,
+		rove.BookableService_Usage_FullMethodName, req, s.BookableServiceServer.Usage)
+}
+
+func (s interceptBookable) ExportUsage(ctx context.Context, req *rove.BookableUsageRequest) (*rove.AssetExportResponse, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.BookableServiceServer,
+		rove.BookableService_ExportUsage_FullMethodName, req, s.BookableServiceServer.ExportUsage)
+}
+
 func (s Intercept) Reservation() rove.ReservationServiceServer {
 	return interceptReservation{s, s.Next().Reservation()}
 }
@@ -22910,6 +22932,16 @@ func (s interceptInventoryCount) Close(ctx context.Context, req *rove.InventoryC
 		rove.InventoryCountService_Close_FullMethodName, req, s.InventoryCountServiceServer.Close)
 }
 
+func (s interceptInventoryCount) Results(ctx context.Context, req *rove.InventoryCountResultsRequest) (*rove.InventoryCountResultsResponse, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.InventoryCountServiceServer,
+		rove.InventoryCountService_Results_FullMethodName, req, s.InventoryCountServiceServer.Results)
+}
+
+func (s interceptInventoryCount) ExportResults(ctx context.Context, req *rove.InventoryCountResultsRequest) (*rove.AssetExportResponse, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.InventoryCountServiceServer,
+		rove.InventoryCountService_ExportResults_FullMethodName, req, s.InventoryCountServiceServer.ExportResults)
+}
+
 func (s Intercept) CountFinding() rove.CountFindingServiceServer {
 	return interceptCountFinding{s, s.Next().CountFinding()}
 }
@@ -23023,6 +23055,16 @@ func (s interceptStock) Convert(ctx context.Context, req *rove.StockConvertReque
 		rove.StockService_Convert_FullMethodName, req, s.StockServiceServer.Convert)
 }
 
+func (s interceptStock) Flow(ctx context.Context, req *rove.StockFlowRequest) (*rove.StockFlowResponse, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.StockServiceServer,
+		rove.StockService_Flow_FullMethodName, req, s.StockServiceServer.Flow)
+}
+
+func (s interceptStock) ExportFlow(ctx context.Context, req *rove.StockFlowRequest) (*rove.AssetExportResponse, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.StockServiceServer,
+		rove.StockService_ExportFlow_FullMethodName, req, s.StockServiceServer.ExportFlow)
+}
+
 func (s Intercept) StockMovement() rove.StockMovementServiceServer {
 	return interceptStockMovement{s, s.Next().StockMovement()}
 }
@@ -23119,6 +23161,16 @@ func (s interceptCustody) Return(ctx context.Context, req *rove.CustodyReturnReq
 func (s interceptCustody) Extend(ctx context.Context, req *rove.CustodyExtendRequest) (*rove.Custody, error) {
 	return grpcx.RunUnary(ctx, s.unary, s.CustodyServiceServer,
 		rove.CustodyService_Extend_FullMethodName, req, s.CustodyServiceServer.Extend)
+}
+
+func (s interceptCustody) Outstanding(ctx context.Context, req *rove.CustodyOutstandingRequest) (*rove.CustodyOutstandingResponse, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.CustodyServiceServer,
+		rove.CustodyService_Outstanding_FullMethodName, req, s.CustodyServiceServer.Outstanding)
+}
+
+func (s interceptCustody) ExportOutstanding(ctx context.Context, req *rove.CustodyOutstandingRequest) (*rove.AssetExportResponse, error) {
+	return grpcx.RunUnary(ctx, s.unary, s.CustodyServiceServer,
+		rove.CustodyService_ExportOutstanding_FullMethodName, req, s.CustodyServiceServer.ExportOutstanding)
 }
 
 func (s Intercept) CustodyLine() rove.CustodyLineServiceServer {
@@ -26419,6 +26471,10 @@ func unpack(op *pdpb.Op) (proto.Message, error) {
 		v = &rove.AssetFormRequest{}
 	case rove.AssetService_ReadSheet_FullMethodName:
 		v = &rove.AssetReadSheetRequest{}
+	case rove.AssetService_Census_FullMethodName:
+		v = &rove.AssetCensusRequest{}
+	case rove.AssetService_ExportCensus_FullMethodName:
+		v = &rove.AssetCensusRequest{}
 	case rove.TenantDomainService_Add_FullMethodName:
 		v = &rove.TenantDomainAddRequest{}
 	case rove.TenantDomainService_Get_FullMethodName:
@@ -26491,6 +26547,10 @@ func unpack(op *pdpb.Op) (proto.Message, error) {
 		v = &rove.BookableUpdateRequest{}
 	case rove.BookableService_Availability_FullMethodName:
 		v = &rove.BookableAvailabilityRequest{}
+	case rove.BookableService_Usage_FullMethodName:
+		v = &rove.BookableUsageRequest{}
+	case rove.BookableService_ExportUsage_FullMethodName:
+		v = &rove.BookableUsageRequest{}
 	case rove.ReservationService_Add_FullMethodName:
 		v = &rove.ReservationAddRequest{}
 	case rove.ReservationService_Get_FullMethodName:
@@ -26565,6 +26625,10 @@ func unpack(op *pdpb.Op) (proto.Message, error) {
 		v = &rove.InventoryCountResolveRequest{}
 	case rove.InventoryCountService_Close_FullMethodName:
 		v = &rove.InventoryCountCloseRequest{}
+	case rove.InventoryCountService_Results_FullMethodName:
+		v = &rove.InventoryCountResultsRequest{}
+	case rove.InventoryCountService_ExportResults_FullMethodName:
+		v = &rove.InventoryCountResultsRequest{}
 	case rove.CountFindingService_Add_FullMethodName:
 		v = &rove.CountFindingAddRequest{}
 	case rove.CountFindingService_Get_FullMethodName:
@@ -26599,6 +26663,10 @@ func unpack(op *pdpb.Op) (proto.Message, error) {
 		v = &rove.StockTransferRequest{}
 	case rove.StockService_Convert_FullMethodName:
 		v = &rove.StockConvertRequest{}
+	case rove.StockService_Flow_FullMethodName:
+		v = &rove.StockFlowRequest{}
+	case rove.StockService_ExportFlow_FullMethodName:
+		v = &rove.StockFlowRequest{}
 	case rove.StockMovementService_Add_FullMethodName:
 		v = &rove.StockMovementAddRequest{}
 	case rove.StockMovementService_Get_FullMethodName:
@@ -26629,6 +26697,10 @@ func unpack(op *pdpb.Op) (proto.Message, error) {
 		v = &rove.CustodyReturnRequest{}
 	case rove.CustodyService_Extend_FullMethodName:
 		v = &rove.CustodyExtendRequest{}
+	case rove.CustodyService_Outstanding_FullMethodName:
+		v = &rove.CustodyOutstandingRequest{}
+	case rove.CustodyService_ExportOutstanding_FullMethodName:
+		v = &rove.CustodyOutstandingRequest{}
 	case rove.CustodyLineService_Add_FullMethodName:
 		v = &rove.CustodyLineAddRequest{}
 	case rove.CustodyLineService_Get_FullMethodName:
@@ -26979,6 +27051,10 @@ func dispatch(ctx context.Context, s rove.Server, m string, v proto.Message) (*a
 		res, err = s.Asset().Form(ctx, v.(*rove.AssetFormRequest))
 	case rove.AssetService_ReadSheet_FullMethodName:
 		res, err = s.Asset().ReadSheet(ctx, v.(*rove.AssetReadSheetRequest))
+	case rove.AssetService_Census_FullMethodName:
+		res, err = s.Asset().Census(ctx, v.(*rove.AssetCensusRequest))
+	case rove.AssetService_ExportCensus_FullMethodName:
+		res, err = s.Asset().ExportCensus(ctx, v.(*rove.AssetCensusRequest))
 	case rove.TenantDomainService_Add_FullMethodName:
 		res, err = s.TenantDomain().Add(ctx, v.(*rove.TenantDomainAddRequest))
 	case rove.TenantDomainService_Get_FullMethodName:
@@ -27051,6 +27127,10 @@ func dispatch(ctx context.Context, s rove.Server, m string, v proto.Message) (*a
 		res, err = s.Bookable().Update(ctx, v.(*rove.BookableUpdateRequest))
 	case rove.BookableService_Availability_FullMethodName:
 		res, err = s.Bookable().Availability(ctx, v.(*rove.BookableAvailabilityRequest))
+	case rove.BookableService_Usage_FullMethodName:
+		res, err = s.Bookable().Usage(ctx, v.(*rove.BookableUsageRequest))
+	case rove.BookableService_ExportUsage_FullMethodName:
+		res, err = s.Bookable().ExportUsage(ctx, v.(*rove.BookableUsageRequest))
 	case rove.ReservationService_Add_FullMethodName:
 		res, err = s.Reservation().Add(ctx, v.(*rove.ReservationAddRequest))
 	case rove.ReservationService_Get_FullMethodName:
@@ -27125,6 +27205,10 @@ func dispatch(ctx context.Context, s rove.Server, m string, v proto.Message) (*a
 		res, err = s.InventoryCount().Resolve(ctx, v.(*rove.InventoryCountResolveRequest))
 	case rove.InventoryCountService_Close_FullMethodName:
 		res, err = s.InventoryCount().Close(ctx, v.(*rove.InventoryCountCloseRequest))
+	case rove.InventoryCountService_Results_FullMethodName:
+		res, err = s.InventoryCount().Results(ctx, v.(*rove.InventoryCountResultsRequest))
+	case rove.InventoryCountService_ExportResults_FullMethodName:
+		res, err = s.InventoryCount().ExportResults(ctx, v.(*rove.InventoryCountResultsRequest))
 	case rove.CountFindingService_Add_FullMethodName:
 		res, err = s.CountFinding().Add(ctx, v.(*rove.CountFindingAddRequest))
 	case rove.CountFindingService_Get_FullMethodName:
@@ -27159,6 +27243,10 @@ func dispatch(ctx context.Context, s rove.Server, m string, v proto.Message) (*a
 		res, err = s.Stock().Transfer(ctx, v.(*rove.StockTransferRequest))
 	case rove.StockService_Convert_FullMethodName:
 		res, err = s.Stock().Convert(ctx, v.(*rove.StockConvertRequest))
+	case rove.StockService_Flow_FullMethodName:
+		res, err = s.Stock().Flow(ctx, v.(*rove.StockFlowRequest))
+	case rove.StockService_ExportFlow_FullMethodName:
+		res, err = s.Stock().ExportFlow(ctx, v.(*rove.StockFlowRequest))
 	case rove.StockMovementService_Add_FullMethodName:
 		res, err = s.StockMovement().Add(ctx, v.(*rove.StockMovementAddRequest))
 	case rove.StockMovementService_Get_FullMethodName:
@@ -27189,6 +27277,10 @@ func dispatch(ctx context.Context, s rove.Server, m string, v proto.Message) (*a
 		res, err = s.Custody().Return(ctx, v.(*rove.CustodyReturnRequest))
 	case rove.CustodyService_Extend_FullMethodName:
 		res, err = s.Custody().Extend(ctx, v.(*rove.CustodyExtendRequest))
+	case rove.CustodyService_Outstanding_FullMethodName:
+		res, err = s.Custody().Outstanding(ctx, v.(*rove.CustodyOutstandingRequest))
+	case rove.CustodyService_ExportOutstanding_FullMethodName:
+		res, err = s.Custody().ExportOutstanding(ctx, v.(*rove.CustodyOutstandingRequest))
 	case rove.CustodyLineService_Add_FullMethodName:
 		res, err = s.CustodyLine().Add(ctx, v.(*rove.CustodyLineAddRequest))
 	case rove.CustodyLineService_Get_FullMethodName:
