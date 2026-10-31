@@ -25,6 +25,7 @@ import (
 
 	"github.com/lesomnus/otx/log"
 	"github.com/lesomnus/payday/audit"
+	"github.com/lesomnus/payday/entitle"
 	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/gate"
 	"github.com/lesomnus/payday/past"
@@ -155,6 +156,14 @@ type Deps struct {
 	// as the act it is (payday#108, `pd.Record`). The zero value records the
 	// act and keeps no digest of the row.
 	Audit audit.Contents
+
+	// Entitlements is this deployment's copy of what levyan grants its
+	// workspaces (payday#185, `pd.Entitlements`), on the driver of the
+	// transaction that reads it: what a write that grows a restricted
+	// workspace is held to ([Grows]). Nil is a deployment levyan restricts
+	// nothing of -- one that bills nobody, `app.billing.levyan` unset --
+	// whose copy is not read at all.
+	Entitlements func(dialect.Driver) entitle.Reader
 }
 
 // People is roster, as the people operations reach it: the accounts of this
@@ -319,6 +328,10 @@ type shared struct {
 	// asset ([Tx.lockBookables]): what nothing else books meanwhile, and so
 	// what it may give to a reservation waiting for it ([Tx.heal]).
 	schedules map[uuid.UUID]bool
+
+	// restricted is whether levyan restricts the workspace, once something
+	// asked ([Tx.restricted]).
+	restricted *bool
 }
 
 type sharedKey struct{}
@@ -595,6 +608,13 @@ func (t *Tx) begin(op []byte, kind string, subject pdid.Id, at time.Time, reason
 
 	ctx, o, err := past.Begin(t.base, t.past, past.Event{Id: id, Kind: kind, Subject: subject, At: at, Reason: reason, Value: v})
 	if err != nil {
+		return err
+	}
+	// What grows a workspace levyan restricts is refused (D60), and all of
+	// the transaction with it: once the operation is known to be a new one --
+	// a copy of one that happened before the workspace was restricted answers
+	// with what it did -- and before it writes anything of its own.
+	if err := t.growing(); err != nil {
 		return err
 	}
 	t.ctx, t.op = ctx, o

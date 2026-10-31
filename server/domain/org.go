@@ -192,6 +192,11 @@ func (s domainParty) Invite(ctx context.Context, req *app.PartyInviteRequest) (*
 	var out *app.PartyInviteResponse
 	var made pdid.Id
 	err = s.tx(ctx, func(t *Tx) error {
+		// Before an account is made at roster for it, which a transaction
+		// undone would leave there (D60).
+		if err := t.growing(); err != nil {
+			return err
+		}
 		p, err := t.next.Party().Get(t.ctx, app.PartyGetRequest_builder{Ref: req.GetRef()}.Build())
 		if err != nil {
 			return err
