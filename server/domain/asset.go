@@ -1023,6 +1023,12 @@ func (t *Tx) sync(id uuid.UUID) (*app.Asset, error) {
 		req.SetDesc(v)
 	}
 	if v := f["status"]; v != "" && v != cur.Status {
+		// Back from being disposed of or lost, it is billed again (D60).
+		if !metered(cur.Status) && metered(v) {
+			if err := t.grows(GrowsAssetBack); err != nil {
+				return nil, err
+			}
+		}
 		req.SetStatus(v)
 		if v == "disposed" {
 			req.SetDisposedAt(ts(t.now))

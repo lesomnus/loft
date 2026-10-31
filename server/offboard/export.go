@@ -290,6 +290,8 @@ var Withheld = map[string]string{
 	"signinfailure": "the deployment's: how often an address got a sign-in wrong lately",
 	"handoff":       "a sign-in on its way to a workspace's own domain, good for a minute",
 	"searchstale":   "the deployment's queue of what the search index has yet to hear of",
+	"levyannotice":  "the deployment's: what levyan was told, and is to be told, of who pays for a workspace",
+	"entitlement":   "the copy of what levyan grants it, which levyan says again to a deployment it is restored into",
 	"outbox":        "the deployment's queue of what changed",
 	"treelock":      "the deployment's bookkeeping",
 	"tagcounter":    "the deployment's bookkeeping: the last number made up for each prefix of tag, which a restored workspace counts again from its tags",

@@ -70,6 +70,9 @@ type Custody func(*sql.Selector)
 // CustodyLine is the predicate function for custodyline builders.
 type CustodyLine func(*sql.Selector)
 
+// Entitlement is the predicate function for entitlement builders.
+type Entitlement func(*sql.Selector)
+
 // Event is the predicate function for event builders.
 type Event func(*sql.Selector)
 
@@ -118,6 +121,9 @@ type Label func(*sql.Selector)
 
 // LegalHold is the predicate function for legalhold builders.
 type LegalHold func(*sql.Selector)
+
+// LevyanNotice is the predicate function for levyannotice builders.
+type LevyanNotice func(*sql.Selector)
 
 // Link is the predicate function for link builders.
 type Link func(*sql.Selector)

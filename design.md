@@ -89,7 +89,7 @@ Phase 번호는 10장의 구현 단계와 같다.
 | 현장/자동화 | 모바일 PWA·QR 인쇄 / 오프라인 실사 / RFID·GPS 연동, OS 인벤토리 대조 | 1 / 2 / 3 |
 | 통합/기업 기능 | roster 로그인(SaaS는 Google·Microsoft·GitHub SSO)과 역할 / API 토큰·Webhook, 기업 IdP·SCIM(roster), 사업장 단위 권한, ERP·HR·캘린더 연동, 고급 보고서 | 0 / 3 |
 | 플러그인 | 빌드 시 등록하는 뷰 플러그인 / 도메인 모듈 / 서드파티 | 1 / 나중 / 나중 |
-| SaaS 계측 | Loft가 자기 테이블에서 재서 levyan에 넘긴다(7장, D59) / 사용량 원장·Entitlement·과금(levyan, Loft 밖) | 0 / 3 |
+| SaaS 계측 | Loft가 자기 테이블에서 재서 levyan에 넘긴다(7장, D59). levyan의 권한 사본과 제한, 지불자에 필요한 것을 알림(7.5·7.6절, D60) / 사용량 원장·과금·지불자(levyan, Loft 밖) | 0 / 3 |
 
 **MVP는 Phase 0 + Phase 1**이다. 시간 복원 자산 레지스트리, 공간 계층, QR, 지급·반납까지를 담는다. 공간·장비 예약은 MVP 직후 Phase 2의 첫 기능이다. 차별점인 시점 복원을 먼저 검증하고, 충돌·승인·캘린더처럼 범위가 큰 예약은 그 위에 얹는다.
 
@@ -406,7 +406,7 @@ StockMovement(id, tenant, stock, delta, reason, ref_id?, occurred_at)
 
 ## 7. 과금: Loft가 재고, levyan이 매긴다
 
-**원칙: 청구할 숫자는 Loft가 자기 테이블에서 재서 청구 서비스 levyan에 넘긴다(payday#186, levyan#14, D59).** Loft의 테이블을 Loft 밖에서 읽지 않는다. 밖에서 SQL로 읽으면 청구 쪽이 Loft의 스키마에 묶이고, 열 이름이 바뀌거나 상태가 하나 늘면 아무것도 실패하지 않은 채 틀린 행을 센다. Prometheus·OTel 같은 모니터링 메트릭도 청구 기준이 아니다. 빠지거나 겹쳐도 알 수 없고, 다시 계산할 수 없다. 그래서 무엇을 재는지는 스키마에 선언하고(`proto/loft/meter.proto`), `pd gen`이 생성할 때마다 선언을 엔터티에 맞춰 검사하고 재는 쿼리를 쓴다(`pd.Meters`). Loft는 계량을 위한 행을 쓰지 않는다. 잰 값은 받은 쪽인 levyan의 원장이 갖는다. 하루 한 번 쓰던 `UsageSnapshot`은 지웠다(D35. 도메인 번호 20은 비워 둔다).
+**원칙: 청구할 숫자는 Loft가 자기 테이블에서 재서 청구 서비스 levyan에 넘긴다(payday#186, levyan#14, D59).** Loft의 테이블을 Loft 밖에서 읽지 않는다. 밖에서 SQL로 읽으면 청구 쪽이 Loft의 스키마에 묶이고, 열 이름이 바뀌거나 상태가 하나 늘면 아무것도 실패하지 않은 채 틀린 행을 센다. Prometheus·OTel 같은 모니터링 메트릭도 청구 기준이 아니다. 빠지거나 겹쳐도 알 수 없고, 다시 계산할 수 없다. 그래서 무엇을 재는지는 스키마에 선언하고(`proto/loft/meter.proto`), `pd gen`이 생성할 때마다 선언을 엔터티에 맞춰 검사하고 재는 쿼리를 쓴다(`pd.Meters`). Loft는 계량을 위한 행을 쓰지 않는다. 잰 값은 받은 쪽인 levyan의 원장이 갖는다. 하루 한 번 쓰던 `UsageSnapshot`은 지웠다(D35. 도메인 번호 20은 비워 둔다). 무엇을 할 수 있는지(권한)와 누가 내는지(지불자)도 levyan의 것이다. Loft는 권한의 사본을 두고 쓰기의 트랜잭션 안에서 읽으며(7.5절), 지불자를 정하는 데 필요한 것, 곧 워크스페이스를 누가 만들었고 누가 떠났는지를 levyan에 알린다(7.6절, D60).
 
 ### 7.1 누가 무엇을 하는가
 
@@ -415,12 +415,16 @@ Loft (자기 DB)
   - 미터: 스키마의 선언(proto/loft/meter.proto)과 Go로 쓴 것(retention.Meter)
   - meter.Reader: 시작할 때, 그 뒤로 자정(UTC)마다 워크스페이스를 하나씩 잰다
   - 파기 직전에 그 워크스페이스를 한 번 더 잰다(server/closing)
-      |
-      | levyan.v1.MeteringService/Record, 제품 키(lvk_…)로
-      v
+  - 권한 사본(Entitlement): 쓰기의 트랜잭션 안에서 읽는다(7.5절)
+  - levyan에 알릴 것(LevyanNotice): 바뀐 것과 같은 트랜잭션에 쓴다(7.6절)
+      |                                   ^
+      | MeteringService/Record            | payday.GrantService/Watch, List
+      | WorkspaceService/Arrive, Leave    |   (payday의 entitle.Follower)
+      | 제품 키(lvk_…)로, 연결 하나        |
+      v                                   |
 levyan (자기 DB)
   - 받은 값의 원장: 워크스페이스, 미터, 잰 시각마다 한 행
-  - 가격표, 금액 계산, 기간 닫기, 청구, 권한 부여
+  - 가격표, 금액 계산, 기간 닫기, 청구, 권한 부여, 지불자
 ```
 
 - **재는 것**은 payday의 `meter.Reader`다. `app.billing.levyan`이 levyan을 가리킬 때만 `serve`의 루프(`payday.meter.read`)로 돈다. lease 아래에서 한 프로세스가 돌린다. 닫힌 워크스페이스도 파기될 때까지 잰다. 가리키지 않으면 아무것도 재지 않고, 파기도 재지 않고 한다.
@@ -465,9 +469,87 @@ levyan (자기 DB)
 ### 7.4 이 판에 없는 것
 
 - **흐름**: 전송량이나 호출 수처럼 일어나는 것은 셀 행이 없어 선언하지 않는다. payday 가이드의 약속(단조 증가하는 누적 OTel Sum, 속성 `payday.tenant`, 모니터링이 아닌 청구용 `MeterProvider`)대로 levyan에 OTLP로 보낸다. 어떤 흐름을 셀지 정하면 그때 한다(levyan#14).
-- **생애 사건**(워크스페이스가 생김·소유자가 바뀜·닫힘·파기됨)과 **권한 사본**(payday#185)도 levyan#14의 다음 일이다.
+- **생애 사건 중 닫힘·복구·파기**: levyan에 그것을 받을 RPC가 아직 없다. levyan의 변경이 먼저 더하고, Loft의 다음 판이 7.6절의 알림으로 보낸다. 그때까지 닫힌 워크스페이스는 아래처럼 계속 잰다. levyan이 닫힌 워크스페이스를 청구할지는 levyan 쪽에서 정한다(Claude의 계획은 닫혀 있는 동안 청구하지 않는 것이다). "워크스페이스가 생김"은 7.6절의 `Arrive`가 되었다. "소유자가 바뀜"은 지불자를 바꾸지 않는다. levyan의 지불자는 새 지불자가 받아들여야 바뀌기 때문이다(levyan design 14).
+- **지불자 제안**(`Offer`)과 지금의 지불자(`GetPayer`), 결제 화면과 제한을 알리는 배너는 다음 판(levyan#14의 D)이다.
+- **무료 워크스페이스 규칙**: 지불자마다 무료 워크스페이스 수를 세는 것(대표, levyan#1의 표)은 levyan이 매길 때 한다(levyan design 14). Loft의 `ErrOwnsEnough`(`app.workspaces.owned`)는 징수가 돌 때까지, 곧 결제 화면(D)과 MoR 수집기가 들어올 때까지 지금처럼 배포의 상한으로 둔다. 그 전에 만들기를 열면 지불자의 무료 수를 넘는 워크스페이스를 아무도 청구하지 않으므로 그만큼이 무료가 된다(Claude).
 - **닫힌 워크스페이스**: 리더는 닫힌 워크스페이스도 복구 기간 동안 잰다(`pd.MeterTenants`는 파기되기 전의 모든 워크스페이스다). 그것을 levyan이 청구하는지는 생애 사건 `closed`에서 멈추게 하며, 그 사건과 levyan의 변경이 다음 일이다. 리더가 무엇을 재는지는 바꾸지 않는다(Claude).
 - **저장소가 가진 양**: 첨부를 지워도 파일은 보존 작업이나 파기가 지울 때까지 남으므로(8.3절), 첨부 행의 합(`loft.attachments.bytes`)은 고객에게 보이는 양이고 저장소가 실제로 가진 양과 다르다. 저장소의 목록으로 재는 미터는 S3(loft#45)와 함께 정한다. 어느 쪽으로 청구할지는 계약이 정한다(11장 4).
+
+### 7.5 권한 사본과 제한
+
+levyan은 워크스페이스마다 무엇을 할 수 있는지를 Grant로 준다(levyan design 13). Loft는 그 사본을 자기 DB에 두고, 쓰기를 정할 때 그 쓰기의 트랜잭션 안에서 읽는다(payday#185, payday의 `docs/guide/entitlements.md`). 누가 정했는지를 levyan의 말로 나눠 적는다.
+
+- **대표**: levyan#1의 표. 과금 단위는 워크스페이스이고, 워크스페이스마다 지불자는 한 명이며, 무료 워크스페이스 수는 지불자 기준으로 센다. **제한의 수준**(levyan#1의 열린 질문 3, 11장 3)은 대표가 아직 답하지 않았다.
+- **Claude**: 사본을 payday의 entitlements로 두고 levyan의 `payday.GrantService`를 같은 연결로 따르는 것, `app.billing.levyan`이 없으면 따르지도 읽지도 않는 것. `loft.restricted`가 켜져 있을 때만 제한하고, 없으면 제한하지 않는 것(fail open). 제한된 워크스페이스는 **청구되는 것을 늘리지 못한다**는 것(아래 표). 질문 3에 대표가 답할 때까지 잠정이다. 막는 것을 한 표에 두는 것. 운영자의 명령은 막지 않는 것(2026-10-31, levyan#14를 맡기며).
+- **구현에서 정한 것**: 그 밖에 이 절에 그렇게 적은 것.
+
+**사본.** `proto/loft/meter.proto`의 `(payday.app)`에 `entitlements: {domain: 50}`을 선언했다. `pd gen`이 payday의 `Entitlement`를 `proto/loft/payday/entitlement.proto`로 쓴다. 워크스페이스의 것이고(벽 뒤, 워크스페이스와 함께 지워진다), RPC가 없고, 쓰기마다 trail에 남는다(`recorded`). 도메인 50은 Loft가 한 번도 쓰지 않은 번호다. `pd entity add`처럼 가장 높은 번호의 다음을 골랐다. 비어 있는 11(`Identity`)과 23(`SpaceProfile`)은 계획(plan.md 4장)이 정해 두고 만들지 않은 번호라 쓰지 않았다(구현에서 정한 것). 내보내기에는 넣지 않는다(`offboard.Withheld`). 사본의 원천은 levyan이라, 다른 배포로 가져오면 그 배포가 levyan에서 다시 받는다.
+
+**따르는 것.** `cmd.Build`는 `app.billing.levyan`이 있을 때만 payday의 `entitle.Follower`를 만든다.
+
+- 원천은 levyan의 `payday.GrantService`다(`levyan.Client.Grants`). 미터를 보내는 연결 그대로다. 주소, 제품 키, TLS 규칙이 같고 설정 블록도 하나다. 호출마다 키를 싣는다. 목록 한 쪽에는 호출의 끝(`timeout`)이 있고, 스트림에는 없다. 스트림은 follower가 도는 동안 열려 있기 때문이다.
+- lease 아래에서 한 프로세스가 돈다(`payday.entitle.follow`). 스트림이 `ready`를 보낸 뒤 전체 목록과 맞추고, 그 뒤로는 바뀐 Grant마다 사본에 쓰며, 한 시간마다 다시 맞춘다. 버전이 같거나 낮은 Grant는 아무것도 바꾸지 않는다.
+- 연결은 keepalive를 켠다. 5분마다 묻고 20초 기다린다(`levyan.Keepalive`). 조용한 스트림을 프록시의 idle timeout이 끊지 않게 하려는 것이다. levyan의 `server.keepalive.min_time`은 5분보다 짧아야 한다. 아니면 levyan이 끊는다(`too_many_pings`). 주기는 levyan의 `docs/apps.md`를 따랐다(구현에서 정한 것).
+- **levyan이 닿지 않으면** 사본은 마지막으로 들은 대로 답한다. 스트림은 1초부터 1분까지 늘려 가며 다시 열고, 다시 열면 전체 목록과 맞춘다. 끝(`valid_until`)이 지난 Grant는 더 효력이 없다. levyan은 Grant를 7일 기한으로 주고 반이 남으면 갱신하므로(levyan의 `grants.horizon`), levyan이 멈추면 제한도 짧으면 3.5일, 길면 7일 뒤에 끝나 풀린다. fail open의 결과이고, 그대로 둔다.
+- 새 워크스페이스에는 Grant가 없다. `loft tenant import`는 가져온 뒤 그 워크스페이스의 Grant를 바로 맞춘다(`Follower.Sync`). 이 배포에 없던 워크스페이스라 follower가 그에 대해 들은 것을 버렸기 때문이다(구현에서 정한 것).
+
+**제한.** 쓰기는 `entitle.Has(ctx, pd.Entitlements(drv), "loft.restricted")`로 읽는다. `drv`는 그 쓰기의 트랜잭션이다(`domain.Deps.Entitlements`). 그 키의 Grant가 지금 켜져 있으면 제한된 것이고, 없거나 꺼져 있거나 끝났으면 제한되지 않은 것이다. levyan에 빈틈이 생겨도 모든 워크스페이스가 잠기지 않는다(levyan design 13). 청구하지 않는 배포는 사본을 읽지 않는다.
+
+제한된 워크스페이스가 못 하는 것은 청구되는 것을 늘리는 일이다(`domain.Grows`, Claude). 막는 것은 이 표 하나에 있다. 대표가 질문 3에 답해 읽기 전용으로 넓히면 이 표에 쓰기를 모두 더하면 된다.
+
+| 막는 것 | 키 | 늘어나는 미터 |
+| --- | --- | --- |
+| 자산 등록(모든 종류) | `AssetService.Add` | `loft.assets.active` |
+| 대량 등록 | `AssetService.AddMany` | `loft.assets.active` |
+| 재고를 자산으로 전환 | `StockService.Convert` | `loft.assets.active` |
+| 구매를 자산으로 입고 | 경우 `purchase.receive`(`PurchaseService.Receive` 안에서, 자산으로 받는 줄이 있을 때) | `loft.assets.active` |
+| 분실·폐기한 자산을 다시 쓰는 상태로 | 경우 `asset.status`(`SetAttributes`, 또는 그 사실을 거두는 `Correct`) | `loft.assets.active` |
+| 첨부 올리기 | `AttachmentService.Upload` | `loft.attachments.bytes` |
+| 로그인 발급(사람 기록에 구성원 자격을 줌) | `PartyService.Invite` | `loft.members` |
+| 초대 보내기 | `InvitationService.Add` | `loft.members` |
+| 초대 받아들이기(제한 전에 보낸 것도) | `InvitationService.Accept` | `loft.members` |
+| 이력을 지금 적용 중인 기간보다 오래 보관 | 경우 `workspace.keep_days`(`TenantService.Configure`) | `loft.history.retention_days` |
+
+- **막지 않는 것**: 읽기, 내보내기와 다운로드, 지급·반납, 예약, 이동, 상태·속성 바꾸기(늘어나지 않는 것), 처분·분실·삭제(줄이는 것), 재고 입고와 재고로 받는 구매, 이력을 줄이거나 그대로 두는 것과 늘지 않는 설정, 구성원 자격 끝내기, 닫기와 복구, 그리고 결제에 관한 모든 것. 유예 중에 줄인 기간을 다시 늘리는 것은 적용 중인 기간을 늘리지 않으므로 막지 않는다.
+- **어디서 막는가**: 메서드 키는 작업이 시작될 때, 곧 `Tx.begin`이 그 작업의 Event를 시작한 직후에 막는다. gRPC가 그 호출의 메서드를 아는 모든 문이 여기로 온다. RPC, batch의 작업 하나하나(`batch.AsOp`), Connect로 부르는 화면(HTTP), `loft api`와 `loft register` 같은 터미널, 비서의 `apply`다. 같은 작업 ID로 다시 온 호출은 그 전에 처음 결과로 답하므로, 제한되기 전에 한 작업은 그대로 답한다. 첨부와 로그인 발급은 그보다 먼저, 파일을 보관하거나 roster에 계정을 만들기 전에 막는다. 트랜잭션이 거둬도 그 둘은 남기 때문이다. 경우 키는 도메인 레이어가 늘어나는 것을 보는 곳에서 막는다(구현에서 정한 것).
+- **거절**은 `FailedPrecondition`이다. 화면이 그대로 보일 문장 "이 워크스페이스는 제한되어 자산을 새로 등록할 수 없습니다. 결제를 정리하면 다시 할 수 있습니다"와, 화면이 다른 거절과 구별할 `errdetails.ErrorInfo`(reason `RESTRICTED`, domain `loft`, metadata `entitlement`·`refused`)를 함께 보낸다. 배너는 다음 판(D)이다(구현에서 정한 것).
+- **HTTP**: `server/account`에는 이미 있는 워크스페이스를 늘리는 문이 없다. `POST /account/workspaces`가 만드는 것은 Grant가 없는 새 워크스페이스이고, 내보내기는 읽기다. 화면의 첨부 올리기는 Connect로 부르는 `AttachmentService.Upload`이고, `GET /files/`는 다운로드다.
+- **운영자는 막지 않는다**(Claude). 운영자의 명령은 배포로서 쓰고 RPC를 거치지 않는다. `loft holder add`, `loft init`, `loft tenant import`, sweep 같은 배포 자신의 일이 그렇다. `loft holder add`도 막지 않는다. Claude의 처음 지시는 이것을 막는 목록에 넣었지만, 운영자의 문이고 운영자의 명령은 막지 않는다는 규칙과 맞지 않는다. 화면의 문(`PartyService.Invite`, `InvitationService.Add`, `Accept`)만 막는다(구현에서 정한 것. Claude가 확인해 처음 지시를 대신한다). roster가 따로 있는 배포에서는 `loft holder add`가 어차피 돌지 않는다.
+- **읽기 전용으로 넓힐 때 볼 것**: 도메인 레이어가 감싸지 않는 생성된 Erase 셋(`AssetTypeService`, `ItemModelService`, `AttachmentService`)은 `Tx.begin`을 거치지 않는다. 줄이는 쓰기라 지금의 표와는 상관이 없다.
+
+### 7.6 누가 내는가: levyan에 알리는 것
+
+levyan은 워크스페이스를 그 지불자에게 청구한다. 지불자는 roster 계정이고, 기본은 워크스페이스를 만든 사람이며, 그다음은 받아들인 사람이다(levyan design 14). levyan이 스스로 알 수 없는 것은 Loft의 것이다. 워크스페이스가 생겼고 누가 만들었는지, 어느 계정이 더는 구성원이 아닌지다. 그래서 Loft가 levyan의 `levyan.v1.WorkspaceService`로 알린다. 누가 정했는지를 나눠 적는다.
+
+- **대표**: levyan#1의 표. 워크스페이스마다 지불자는 한 명이고, 무료 워크스페이스 수는 지불자 기준으로 센다.
+- **Claude**: `Arrive`와 `Leave`를 보내는 것. 워크스페이스를 만드는 모든 길과 자격이 끝나는 모든 길. 바뀐 것과 같은 트랜잭션에 쓰고 이름 있는 루프가 보내며, levyan이 멈춰도 Loft의 쓰기가 기다리거나 실패하지 않고, 워크스페이스마다 순서대로 보내는 것. 이미 있는 워크스페이스는 한 번씩, 만든 때와 만든 사람으로 보내고, 만든 사람이 기록되지 않았으면 첫 소유자로 보내는 것. `Offer`는 다음 판(D)이다(2026-10-31, levyan#14를 맡기며).
+- **구현에서 정한 것**: 그 밖에 이 절에 그렇게 적은 것.
+
+**알림**(`LevyanNotice`, 도메인 51, `proto/loft/billing.proto`)은 levyan에 할 말 하나다. `arrive`는 워크스페이스가 `at`에 `account`로 만들어졌다는 것이고, `leave`는 `account`가 그 워크스페이스의 구성원이 아니게 됐다는 것이다. 바뀐 것과 같은 트랜잭션에 쓴다. 그래서 커밋된 변경은 levyan이 듣게 되고, 거둔 변경은 듣지 않는다. 청구하지 않는 배포는 아무것도 쓰지 않는다.
+
+- payday의 Outbox는 watch의 사건을 broker로 보내는 큐이고, 앱이 자기 할 말을 바깥 서비스에 보낼 길은 주지 않는다. 그래서 엔터티를 따로 두었다.
+- 배포의 것이고(`global`), 워크스페이스는 엣지가 아니라 열이다. trail의 행처럼, 알림은 그것이 말하는 워크스페이스의 행보다 오래 남아야 한다(다음 판의 "파기됨"이 그렇다). 파기가 지우는 표에 들지 않고(`offboard.Shared`), 내보내기에도 넣지 않는다.
+- trail에서는 뺀다(`off`). 알림은 바뀐 것, 곧 trail에 이미 있는 워크스페이스의 생성과 구성원 자격의 끝에서 나온 큐이고, levyan이 들은 것은 levyan의 trail이 남긴다.
+- RPC가 없다. 아무도 읽지 않고, 호출자가 쓸 수 있으면 그것을 부를 수 있는 누구나 남에게 청구하게 할 수 있다.
+- **보낸 알림도 남긴다.** 보냈다는 표시(`date_told`)와 거절이면 levyan이 한 말(`refused`)을 적는다. levyan이 무엇을 언제 들었는지의 기록이고, 아래의 첫 알림이 그 워크스페이스를 이미 알렸는지를 묻는 곳이다. 워크스페이스를 만들 때와 자격이 끝날 때만 하나씩 생기므로 작다.
+
+**쓰는 곳.**
+
+- **워크스페이스를 만들 때**(`Arrive`): `tenancy.Workspaces`의 만들기가 쓴다. 로그인할 때 받는 워크스페이스(`Workspaces.Arrive`), `POST /account/workspaces`와 그 밖의 `Workspaces.Create`가 모두 그것이다. `loft init`도 쓴다. 워크스페이스와 소유자 자격, 사람 기록, 알림을 이제 한 트랜잭션으로 쓴다. `--demo`가 만드는 팀과 사람은 그 워크스페이스 안의 것이라 알림은 하나다. `loft tenant import`는 가져온 워크스페이스를 그것이 만들어진 때(`Tenant.date_created`)로, 첫 소유자로 알린다. 내보내기는 누가 만들었는지를 말하지 않기 때문이다. levyan은 이미 아는 워크스페이스의 `Arrive`는 처음 들은 대로 둔다(구현에서 정한 것).
+- **자격이 끝날 때**(`Leave`): 서버가 구성원 자격을 지우면(`HolderService.Erase`) 그 쓰기의 트랜잭션 안에서 쓴다(`levyan.Notices.Recorder`, 검색의 `opensearch.Recorder`와 같은 모양). 관리자의 로그인 중지(`PartyService.Deactivate`)와 개인정보 삭제(`Pseudonymize`), 계정이 배포를 떠나는 것(`domain.Deps.Depart`: roster가 지운 계정이 유예 뒤에, 그리고 `loft identity depart`), 운영자의 손이 모두 그것이다. 계정이 없는 자격은 levyan이 모르는 사람이라 알리지 않는다. 기록기에 둔 것은 자격을 끝내는 새 길이 생겨도 빠뜨리지 않게 하려는 것이다(구현에서 정한 것).
+- **roster가 계정을 지웠다는 표시**(`Holder.date_leaving`)에서는 보내지 않는다(구현에서 정한 것). 표시는 roster에 다시 물은 뒤에만 행동한다는 것이 roster의 규칙이고, Loft도 그렇게 한다(`server/lifecycle`). levyan은 roster의 지워짐을 스스로 듣고 연결을 기간 끝에서 `ERASED`로 끝내며, roster가 계정을 되살리면 다시 잇는다(levyan의 `Payers.Back`). 표시에서 `Leave`를 보내면 연결이 지금 `LEFT`로 끝나는데, `Back`은 `LEFT`를 다시 잇지 않는다. 그러면 되살아난 계정의 워크스페이스가 지불자 없는 워크스페이스가 되어 30일 뒤 제한된다. 그래서 계정이 실제로 떠날 때(`Depart`) 보낸다. Claude의 처음 지시는 표시에서도 보내는 것이었고, 이 이유로 Claude가 확인해 대신한다.
+
+**보내는 것**은 루프 `loft.levyan.notices`다(`levyan.Teller`, lease 아래 한 프로세스, 10초마다).
+
+- 워크스페이스마다 일어난 순서(`at`, 그다음 식별자)대로 보낸다. 하나를 levyan이 받지 않으면 그 워크스페이스의 다음 알림은 기다린다. levyan이 모르는 워크스페이스에 대한 `Leave`는 아무 일도 하지 않으므로, 순서가 바뀌면 떠난 계정이 지불자로 남기 때문이다. 다른 워크스페이스의 알림은 그사이에도 보낸다.
+- **levyan이 닿지 않으면**(`Unavailable`, 시간 초과) 그 판을 멈추고, 10초부터 1분까지 늘려 가며 다시 묻는다. 알림은 그대로 기다리고, Loft의 어떤 쓰기도 levyan을 기다리거나 실패하지 않는다. 그 밖의 실패는 그 워크스페이스만 다음 판으로 미룬다.
+- levyan은 `Arrive`와 `Leave`를 두 번 들어도 한 번으로 둔다("Said again, it changes nothing"). 그래서 failover 언저리에 두 프로세스가 함께 보내거나, 보내고 표시하지 못한 알림을 다시 보내도 된다.
+- levyan이 **거부한** 알림(`InvalidArgument`, `FailedPrecondition`, `NotFound` 같은 것)은 다시 보내도 거부되므로, levyan의 말을 적어 보낸 것으로 표시하고 경고 로그에 남긴다. 거부된 값을 다시 보내지 않는 미터와 같다(구현에서 정한 것).
+- 보낸 알림은 `date_told`를 적고 남긴다.
+
+**이미 있는 워크스페이스**(구현에서 정한 것): 루프가 한 프로세스에서 처음 돌 때, levyan에 `arrive`를 알린 적이 없는 모든 워크스페이스를 알린다(`Teller.Backfill`). 이 배포가 levyan에 알리기 전에 만든 것, 그리고 청구를 끈 동안 만든 것이다. 만든 때는 `Tenant.date_created`이고, 만든 사람은 첫 소유자다. 지금까지 Loft는 누가 워크스페이스를 만들었는지를 따로 남기지 않았기 때문이다(소유자 자격은 만들 때 함께 생기지만, 그 사람이 떠났을 수 있다). 첫 소유자는 이름 없는 워크스페이스를 부를 때의 그 사람이다(D57, `tenancy.FirstOwners`): 지금 있는 소유자 자격 가운데 가장 오래된 것이다. 그 알림은 `origin: backfill`로 남는다. 소유자가 없거나 첫 소유자가 계정이 없는 워크스페이스는 아무도 낼 수 없으므로 경고 로그에 남기고 건너뛴다. 루프가 다시 시작할 때 다시 본다. 닫힌 워크스페이스도 알린다. 파기될 때까지 잰다(7.4절). 알린 워크스페이스는 다시 알리지 않는다.
+
+**`Leave`에는 때가 없다.** levyan은 `Leave`를 들은 때에 지불자의 연결을 끝낸다. 그래서 levyan이 멈춘 동안 떠난 지불자는 levyan이 들을 때까지 청구된다. levyan의 `Leave`에 `Arrive`의 `created`처럼 떠난 때를 받는 필드를 더할지는 levyan에 묻는다(열린 질문).
 
 ## 8. 보존 기간·삭제 정책
 
@@ -1144,7 +1226,7 @@ Loft     테넌트 = 워크스페이스                  acme: kim(owner), lee(m
 
 1. 무엇을 `billable asset`으로 셀지: kind(실물·공간·키트·그룹), 일시 중지·폐기 자산, 수량형 재고의 기준. 지금의 미터(`loft.assets.active`, D59)는 모든 kind를 함께, 처분(`disposed`)·분실(`lost`)을 빼고 센다(Claude). 가격을 정할 때 다시 본다.
 2. 워크스페이스가 정하는 보존 기간의 범위와 배포의 유예 기간(`app.retention.grace`, 지금 기본 30일), 고지와 법적 보존 예외.
-3. 결제 실패·계약 종료·다운그레이드 시 신규 기록 생성, 조회, 보존 및 삭제 정책.
+3. 결제 실패·계약 종료·다운그레이드 시 신규 기록 생성, 조회, 보존 및 삭제 정책. levyan#1의 열린 질문 3(제한의 수준)과 같은 질문이다. 지금의 제한(`loft.restricted`)은 청구되는 것을 늘리는 일만 막는다(Claude, 잠정, 7.5절, D60).
 4. GB vs GiB, 청구 대상 데이터(원본·플러그인), 무료 포함량, 평균/최대 사용량 중 과금 방식.
 5. 예약 세부: 반복 예약을 미리 만들어 둘 범위, no-show 판정 기준, 요청 만료 시간, 외부 캘린더 동기화 방향.
 6. 사업장 단위 권한 모델, 그리고 자산이 사업장 사이를 옮길 때 이력을 어느 범위까지 보여 줄지.
@@ -1220,3 +1302,4 @@ Loft     테넌트 = 워크스페이스                  acme: kim(owner), lee(m
 | D57 | 가입 때 생기는 워크스페이스(`tenancy.Workspaces.Arrive`)에는 이름을 쓰지 않는다. 이름이 없는 워크스페이스는 읽을 때 "<이름>의 워크스페이스"로 부른다. 이름은 가장 먼저 들어온 소유자를 이력이 사람을 부르듯 지금의 이름으로 부른 것이고, 소유자가 없으면 주소로 부른다(`tenancy.Names`). 계정의 화면과 전환·터미널(`GET /account`), 워크스페이스 안의 화면(`PartyService.Me`의 `workspace_name`), 초대함과 초대 메일, 알림 메일, 비서가 그렇게 부르고, 닫을 때 입력하는 이름도 그것이다. 소유자의 이름을 보여 주므로 접속기록에 남고, RPC가 아닌 `GET /account`와 `GET /account/labels/{code}`는 그 계정의 그 워크스페이스 구성원 자격으로 읽기 행을 남긴다. 운영자의 도구는 저장된 이름과 주소를 보인다. 이 판 전에 지은 이름은 마이그레이션으로 비우지 않는다. 초대, 운영자의 워크스페이스 명령, roster의 디렉터리는 personal이 아닌 필드에 사람의 이름을 쓰지 않는다. 터미널 로그인이 보이는 컴퓨터 이름(`CliLogin.client`)은 사람의 이름을 담을 수 있지만, 터미널이 스스로 말하는 것이고 답하거나 만료되면 지우는 행이며 trail에는 다이제스트만 남는다(`pd.Record`). 행에 사람의 이름을 쓰지 않고 읽을 때 부르는 것은 상위 세션의 지시이고, 이름을 비워 두는 것, 누구의 이름으로 어디서 부르는지, 접속기록, 닫을 때의 확인, 마이그레이션을 하지 않는 것은 구현한 에이전트가 정했다(2026-10-26, 9.11절) | 사람의 이름으로 지은 이름을 행에 쓰면, 아무의 것도 아닌 필드(`Tenant.name`)에 사람이 들어가 trail에 값으로 남는다. trail은 아무것도 다시 쓰지 않는 사본이라 그 사람을 잊어도 거기서 지울 수 없고(8.2절), 행의 이름도 그 사람이 이름을 바꾸거나 잊혀도 그대로다. 이름을 비워 두면 행에도 trail에도 사람이 없고, 읽을 때 부르는 이름은 이력의 문장처럼 지금의 이름이다. "내 워크스페이스" 같은 고정된 이름은 초대받은 사람과 구성원에게 틀린 말이고, 주소를 이름으로 쓰면 운영자가 주소로 지은 이름(`loft init`의 기본값)과 구별되지 않는다. 빈 이름은 이름이 없다는 것 말고는 아무 뜻도 없다. 닫을 때 저장된 이름과 비교하면 이름이 없는 워크스페이스는 빈 입력으로 닫힌다. 이름을 비우는 마이그레이션은 trail에 남은 값을 지우지 못하고, 운영 배포가 없으며 스테이징의 데이터는 버려도 된다 |
 | D58 | 워크스페이스의 이름은 소유자가 바꾸고 지운다. `TenantService.Configure`의 `name`으로 하고(앞뒤 공백을 떼고 한 줄로 80자까지, 만들 때와 같음, `tenancy.Fits`. 메일의 제목이 되는 이름이라 줄을 바꾸면 그 워크스페이스의 초대 메일이 나가지 않는다), 그 일은 `workspace.configure`가 `WorkspaceConfigured.name`(workspace 도메인 표의 21번)으로 남긴다. 문장은 "워크스페이스 이름 변경: <이름>"이고, 지우면 "워크스페이스 이름 지움 (소유자의 이름으로 부름)"이며 그때부터 D57처럼 소유자의 이름으로 부른다. 다른 설정과 함께 말하면 "워크스페이스 설정 변경 (이름: …)"이다. 생성된 `Patch`는 이름을 거절한다. 소유자만 하고(권한 표의 `TenantService`), 관리자와 운영자는 하지 않는다. 바꾸는 곳은 설정 › 워크스페이스, `loft workspace rename WORKSPACE NAME|--clear`, `loft api tenant configure`이다. 비서의 계획 도구에는 워크스페이스의 설정이 없어 넣지 않았다. 설정 화면은 이름이 누구의 정보도 아니어서 작업 기록에 그대로 남는다고 말하며 사람의 이름을 넣지 말라고 하고, 입력한 이름에 그 워크스페이스 사람 기록의 이름(두 글자 이상)이 들어 있으면 그 이름을 들어 경고하되 저장은 막지 않는다. 새 필드는 한 판 먼저 선언했다(#236). 구현한 에이전트가 정했다(2026-10-26, 9.11절) | 워크스페이스가 스스로에 대해 말하는 것은 소유자가 `Configure` 하나로 바꾸고 그 일이 작업 기록에 남는다(#144, D36). 이름도 그런 것이다. 워크스페이스의 것이고, 소유자가 말하며, 비우면 정해진 대로(소유자의 이름으로) 부른다. 메서드를 따로 두면 권한 표에 열 것과 이벤트 종류가 하나씩 늘지만, 권한은 같고(`TenantService`의 쓰기는 모두 소유자의 것) 같은 문의 같은 이벤트가 그것을 말할 수 있다. 이름은 구성원의 화면과 초대·알림 메일이 부르는 워크스페이스 자신의 것이라 닫기와 같은 줄에 있다. 관리자가 다루는 도메인(`TenantDomainService`)은 설치의 일이다. 고객의 워크스페이스 이름은 고객이 정하고, 운영자는 주소로 찾는다(D57). 사람의 이름이 든 이름이 늘 틀린 것은 아니어서(교수의 이름을 딴 연구실) 막지 않고 알린다. 사람 기록은 화면이 이미 읽은 목록이라 더 읽는 것이 없고, 한 글자 이름은 너무 많은 낱말에 들어 있어 아무것도 말하지 않는다. 같은 이름을 다시 말해도 남기는 것은 `Configure`의 다른 필드와 같다 |
 | D59 | 청구할 숫자는 Loft가 자기 테이블에서 재서 levyan에 넘긴다(payday#186, levyan#14). 미터는 넷이다. `loft.assets.active`(`{asset}`, 지우지 않았고 상태가 `disposed`·`lost`가 아닌 자산), `loft.attachments.bytes`(`By`, 지우지 않은 첨부의 `size_bytes` 합), `loft.members`(`{member}`, 지우지 않은 구성원 자격), `loft.history.retention_days`(`d`, 적용 중인 이력 보존 기간, 0은 영원히, 줄인 기간은 `app.retention.grace`가 지나 적용되는 날부터)다. 앞의 셋은 스키마의 선언(`proto/loft/meter.proto`)이 `pd.Meters`가 되고, 넷째는 `TenantService.Preview`가 읽는 것을 읽는 Go(`retention.Meter`)다. `app.billing.levyan`이 있을 때만 payday의 `meter.Reader`가 lease 아래에서 시작할 때와 자정(UTC)마다 모든 워크스페이스를 재고, `server/levyan`이 levyan의 API 모듈로 `levyan.v1.MeteringService/Record`를 제품 키와 함께, 호출마다 끝을 두고 부른다. 실패한 호출은 오류라 리더가 그대로 다시 보내고, levyan이 거부한 값은 로그에 남기고 다시 보내지 않는다. 파기(sweep과 `loft tenant retire|purge`)는 무엇이든 지우기 전에 그 워크스페이스를 재서 마지막 측정으로 넘기되, 할 수 있는 만큼만 한다. 재지 못하면 워크스페이스와 까닭을 경고로 남기고 그대로 파기하며, 명령은 그렇다고 한 줄 말하고 성공한다(`closing.Destroyed.Unmeasured`). levyan은 마지막 일일 측정을 보유 시간(`usage.Hold`)까지 매긴다. 닫힌 워크스페이스도 복구 기간 동안 재고, levyan이 그것을 청구하는지는 생애 사건 `closed`가 정하게 한다(다음 일). 흐름 미터, 생애 사건, 권한 사본은 이 판에 없다. 누가 정했는지는 levyan의 말로 나눈다. levyan이라는 별도 서비스, 과금 단위가 워크스페이스인 것, 보유량과 보존 기간으로 매기는 것, 앱 쪽을 payday 확장으로 만드는 것은 대표가 정했다(levyan#1, payday#186). 미터 넷의 키·단위·세는 것과, 파기 전에 재되 재지 못해도 파기하는 것은 Claude가 정했다(2026-10-31, levyan#14를 맡기며. 가격이 정해지지 않아 대표의 결정이 아니고 대표가 바꿀 수 있다). 재지 못하면 파기하지 않는다던 처음 규칙은 Claude가 검토에서 이것으로 바꿨다. 설정의 모양(`insecure`가 아니면 TLS, `tls`, `timeout` 기본 10초), 거부와 모르는 결과를 다루는 법, dry run이 재지 않는 것, 보존 기간 미터가 `app.retention.apply`와 법적 보존을 보지 않고 없는 워크스페이스를 재지 않는 것, `deploy/k8s`가 Secret `loft-levyan-key`를 선택으로 받는 것은 구현에서 정한 것이다(7장) | 밖에서 테이블을 읽으면 청구가 스키마에 묶여 이름 하나가 바뀔 때 조용히 틀린다. 선언은 `pd gen`이 생성할 때마다 스키마에 맞춰 검사한다. 원장은 levyan의 것이라 Loft가 계량의 행을 둘 필요가 없고, 같은 값을 두 번 받아도 한 행이라 다시 보내는 것이 안전하다. 파기한 행은 다시 잴 수 없으므로 파기 전에 재 둔다. 그러나 파기는 기한이 있는 법적 의무(개인정보 보호법의 "지체 없이")이고, 청구 서비스가 멈췄다고 미루면 levyan이 며칠 멈출 때 닫힌 워크스페이스마다 개인정보를 기간을 넘겨 갖게 되고 운영자는 파기하지 못한다. 막아서 얻는 것은 거의 없다. sweep이 파기하는 닫힌 워크스페이스는 쓰기를 받지 않아 마지막 일일 측정이 곧 마지막 상태이고, 운영자가 열린 워크스페이스를 파기할 때의 차이는 많아야 하루이며 levyan의 보유 시간이 덮는다. 조금 틀리게 청구하는 것이 덜한 해이고, 청구의 끝은 생애 사건이 정한다. 평문은 그렇게 쓴 배포만 쓴다. 청구할 수 있는 키를 블록 하나 빠뜨렸다고 평문으로 보내지 않는다. 0은 영원히라 가장 비싼 구간이므로, 없는 워크스페이스를 0으로 재면 지나치게 청구한다 |
+| D60 | levyan의 권한을 사본으로 두고, 지불자를 정하는 데 필요한 것을 levyan에 알린다(levyan#14, payday#185). **사본**: `proto/loft/meter.proto`의 `(payday.app)`에 `entitlements: {domain: 50}`을 두고, `app.billing.levyan`이 있을 때만 payday의 `entitle.Follower`가 levyan의 `payday.GrantService`를 미터와 같은 연결로(주소, 제품 키, TLS가 같고 keepalive 5분) lease 아래에서 따른다. 없으면 따르지도 읽지도 않는다. **제한**: `loft.restricted`가 켜져 있으면 제한되고, 없거나 꺼졌거나 끝났으면 제한되지 않는다. 제한된 워크스페이스는 청구되는 것을 늘리지 못한다. 자산 등록·대량 등록·재고 전환·자산으로 받는 구매 입고·분실과 폐기에서 되살리기, 첨부 올리기, 로그인 발급·초대 보내기·받아들이기, 적용 중인 기간보다 이력을 오래 보관하기다. 나머지(읽기, 내보내기, 지급·반납, 예약, 이동, 처분·삭제, 줄이는 설정, 닫기, 결제)는 그대로다. 막는 것은 표 하나(`domain.Grows`)에 메서드 또는 경우로 있고, 쓰기의 트랜잭션 안에서 `entitle.Has`로 읽어 `FailedPrecondition`과 `ErrorInfo`(`RESTRICTED`)로 거절한다. 메서드는 작업의 Event를 시작한 직후(`Tx.begin`), 경우는 도메인 레이어가 늘어나는 것을 보는 곳에서 막는다. 운영자의 명령은 막지 않는다(`loft holder add` 포함). **알림**: 워크스페이스를 만드는 모든 길(`tenancy.Workspaces`, `POST /account/workspaces`, `loft init`, `loft tenant import`)이 `Arrive`(만든 사람, 만든 때)를, 서버가 구성원 자격을 지우는 모든 쓰기(로그인 중지, 개인정보 삭제, `Deps.Depart`)가 `Leave`를 바뀐 것과 같은 트랜잭션에 `LevyanNotice`(도메인 51, global, trail 밖)로 쓰고, 루프 `loft.levyan.notices`가 워크스페이스마다 일어난 순서대로 `levyan.v1.WorkspaceService`에 말하고 표시한다. levyan이 닿지 않으면 알림이 기다리고 Loft는 아무것도 실패하지 않는다. 거부된 알림은 표시하고 다시 보내지 않는다. 루프가 처음 돌 때, 알린 적 없는 워크스페이스를 한 번씩 그 만든 때와 첫 소유자(D57)로 알린다. roster의 지우기 표시(`date_leaving`)에서는 보내지 않고 실제로 떠날 때 보낸다. `Offer`, 닫힘·복구·파기, 무료 워크스페이스 규칙, 결제 화면은 이 판에 없다. `ErrOwnsEnough`는 징수가 돌 때까지 배포의 상한으로 둔다. 누가 정했는지: 과금 단위와 지불자 한 명, 지불자 기준의 무료 수는 대표(levyan#1). 제한의 수준은 대표의 열린 질문 3이라 정해지지 않았다. 사본과 그 연결, fail open, 청구되는 것을 늘리는 일만 막는 것(잠정), 표 하나, 운영자를 막지 않는 것, `Arrive`·`Leave`와 그 전달 방식, 이미 있는 워크스페이스를 한 번씩 알리는 것, `ErrOwnsEnough`를 두는 것은 Claude가 정했다(2026-10-31, levyan#14를 맡기며). 도메인 번호, 사본을 둔 파일, 막는 곳과 거절의 모양, 첨부와 로그인 발급을 먼저 막는 것, keepalive, 가져오기 뒤의 `Sync`, 알림의 엔터티(남기는 것, trail 밖), `Leave`를 기록기로 쓰는 것, `loft init`의 트랜잭션, 순서와 실패를 다루는 법, 첫 소유자, 표시에서 보내지 않는 것, `loft holder add`를 막지 않는 것은 구현에서 정한 것이다. 뒤의 둘은 Claude의 처음 지시를 Claude가 확인해 대신한다(7.5·7.6절) | levyan의 Grant를 쓰기마다 levyan에 물으면 모든 쓰기가 levyan에 묶이고, 트랜잭션 밖의 캐시는 경합에서 틀린다. 사본을 같은 트랜잭션에서 읽는 것이 빠르고 정확하다(payday#185). Grant가 없다는 것을 막는 것으로 읽으면 levyan의 빈틈 하나가 모든 워크스페이스를 잠근다(levyan design 13). 늘리는 것만 막으면 고객은 지금 가진 것을 쓰고, 꺼내고, 줄이고, 결제할 수 있어 잃는 것이 없다. 막는 것이 한 곳에 있어야 대표가 수준을 정할 때 한 곳을 고친다. 바뀐 것과 같은 트랜잭션에 쓰지 않으면 커밋과 전송 사이에서 잃거나, 거둔 변경을 알린다. levyan은 같은 말을 두 번 들어도 한 번으로 두므로 적어도 한 번이면 충분하다. 순서가 바뀌면 levyan이 모르는 워크스페이스의 `Leave`를 버려 떠난 계정이 지불자로 남는다. 표시는 roster에 다시 물은 뒤에만 행동하고, levyan은 roster의 지움을 스스로 들어 기간 끝에서 끝내고 되살리면 다시 잇는다. 표시에서 `Leave`를 보내면 되살아난 계정의 워크스페이스가 지불자 없이 제한된다. 운영자의 손은 배포의 것이고, 결제와 상관없이 고객을 돕는 문이 남아야 한다. 무료 수를 넘는 워크스페이스는 징수가 돌기 전에는 아무도 청구하지 않는다 |

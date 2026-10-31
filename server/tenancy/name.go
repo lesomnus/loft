@@ -73,20 +73,13 @@ func Names(ctx context.Context, db *ent.Client, ts ...*ent.Tenant) (map[uuid.UUI
 	}
 
 	// Each one's first owner: the one who has been in it longest.
-	hs, err := db.Holder.Query().
-		Where(holder.TenantIdIn(unnamed...), holder.Role("owner"), holder.DateErasedIsNil()).
-		Order(ent.Asc(holder.FieldDateCreated), ent.Asc(holder.FieldId)).
-		All(ctx)
+	first, err := FirstOwners(ctx, db, unnamed...)
 	if err != nil {
 		return nil, err
 	}
-	first := map[uuid.UUID]*ent.Holder{}
 	ids := []uuid.UUID{}
-	for _, h := range hs {
-		if _, ok := first[h.TenantId]; !ok {
-			first[h.TenantId] = h
-			ids = append(ids, h.Id)
-		}
+	for _, h := range first {
+		ids = append(ids, h.Id)
 	}
 	if len(ids) == 0 {
 		return out, nil
@@ -114,6 +107,33 @@ func Names(ctx context.Context, db *ent.Client, ts ...*ent.Tenant) (map[uuid.UUI
 			continue
 		}
 		out[tid] = Name{Said: who + "의 워크스페이스", Saw: []access.Subject{saw}}
+	}
+
+	return out, nil
+}
+
+// FirstOwners is each of `ts`'s first owner, by the workspace: of the
+// memberships in it now whose role is owner, the one that has been in it
+// longest. What a workspace with no name of its own is called after
+// ([Names]), and who levyan is told pays for a workspace made before Loft
+// told it of any, whose maker nothing recorded (`levyan.Teller`). A
+// workspace with no owner now has none.
+func FirstOwners(ctx context.Context, db *ent.Client, ts ...uuid.UUID) (map[uuid.UUID]*ent.Holder, error) {
+	out := map[uuid.UUID]*ent.Holder{}
+	if len(ts) == 0 {
+		return out, nil
+	}
+	hs, err := db.Holder.Query().
+		Where(holder.TenantIdIn(ts...), holder.Role("owner"), holder.DateErasedIsNil()).
+		Order(ent.Asc(holder.FieldDateCreated), ent.Asc(holder.FieldId)).
+		All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	for _, h := range hs {
+		if _, ok := out[h.TenantId]; !ok {
+			out[h.TenantId] = h
+		}
 	}
 
 	return out, nil

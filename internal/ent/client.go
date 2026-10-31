@@ -25,6 +25,7 @@ import (
 	"github.com/lesomnus/loft/internal/ent/countfinding"
 	"github.com/lesomnus/loft/internal/ent/custody"
 	"github.com/lesomnus/loft/internal/ent/custodyline"
+	"github.com/lesomnus/loft/internal/ent/entitlement"
 	"github.com/lesomnus/loft/internal/ent/event"
 	"github.com/lesomnus/loft/internal/ent/fact"
 	"github.com/lesomnus/loft/internal/ent/handoff"
@@ -34,6 +35,7 @@ import (
 	"github.com/lesomnus/loft/internal/ent/itemmodel"
 	"github.com/lesomnus/loft/internal/ent/label"
 	"github.com/lesomnus/loft/internal/ent/legalhold"
+	"github.com/lesomnus/loft/internal/ent/levyannotice"
 	"github.com/lesomnus/loft/internal/ent/link"
 	"github.com/lesomnus/loft/internal/ent/notification"
 	"github.com/lesomnus/loft/internal/ent/outbox"
@@ -94,6 +96,8 @@ type Client struct {
 	Custody *CustodyClient
 	// CustodyLine is the client for interacting with the CustodyLine builders.
 	CustodyLine *CustodyLineClient
+	// Entitlement is the client for interacting with the Entitlement builders.
+	Entitlement *EntitlementClient
 	// Event is the client for interacting with the Event builders.
 	Event *EventClient
 	// Fact is the client for interacting with the Fact builders.
@@ -112,6 +116,8 @@ type Client struct {
 	Label *LabelClient
 	// LegalHold is the client for interacting with the LegalHold builders.
 	LegalHold *LegalHoldClient
+	// LevyanNotice is the client for interacting with the LevyanNotice builders.
+	LevyanNotice *LevyanNoticeClient
 	// Link is the client for interacting with the Link builders.
 	Link *LinkClient
 	// Notification is the client for interacting with the Notification builders.
@@ -182,6 +188,7 @@ func (c *Client) init() {
 	c.CountFinding = NewCountFindingClient(c.config)
 	c.Custody = NewCustodyClient(c.config)
 	c.CustodyLine = NewCustodyLineClient(c.config)
+	c.Entitlement = NewEntitlementClient(c.config)
 	c.Event = NewEventClient(c.config)
 	c.Fact = NewFactClient(c.config)
 	c.Handoff = NewHandoffClient(c.config)
@@ -191,6 +198,7 @@ func (c *Client) init() {
 	c.ItemModel = NewItemModelClient(c.config)
 	c.Label = NewLabelClient(c.config)
 	c.LegalHold = NewLegalHoldClient(c.config)
+	c.LevyanNotice = NewLevyanNoticeClient(c.config)
 	c.Link = NewLinkClient(c.config)
 	c.Notification = NewNotificationClient(c.config)
 	c.Outbox = NewOutboxClient(c.config)
@@ -320,6 +328,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		CountFinding:    NewCountFindingClient(cfg),
 		Custody:         NewCustodyClient(cfg),
 		CustodyLine:     NewCustodyLineClient(cfg),
+		Entitlement:     NewEntitlementClient(cfg),
 		Event:           NewEventClient(cfg),
 		Fact:            NewFactClient(cfg),
 		Handoff:         NewHandoffClient(cfg),
@@ -329,6 +338,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		ItemModel:       NewItemModelClient(cfg),
 		Label:           NewLabelClient(cfg),
 		LegalHold:       NewLegalHoldClient(cfg),
+		LevyanNotice:    NewLevyanNoticeClient(cfg),
 		Link:            NewLinkClient(cfg),
 		Notification:    NewNotificationClient(cfg),
 		Outbox:          NewOutboxClient(cfg),
@@ -385,6 +395,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		CountFinding:    NewCountFindingClient(cfg),
 		Custody:         NewCustodyClient(cfg),
 		CustodyLine:     NewCustodyLineClient(cfg),
+		Entitlement:     NewEntitlementClient(cfg),
 		Event:           NewEventClient(cfg),
 		Fact:            NewFactClient(cfg),
 		Handoff:         NewHandoffClient(cfg),
@@ -394,6 +405,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		ItemModel:       NewItemModelClient(cfg),
 		Label:           NewLabelClient(cfg),
 		LegalHold:       NewLegalHoldClient(cfg),
+		LevyanNotice:    NewLevyanNoticeClient(cfg),
 		Link:            NewLinkClient(cfg),
 		Notification:    NewNotificationClient(cfg),
 		Outbox:          NewOutboxClient(cfg),
@@ -494,13 +506,13 @@ func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.Access, c.AccessReview, c.AliasHold, c.Allocation, c.Archived, c.Asset,
 		c.AssetType, c.Attachment, c.Audit, c.Bookable, c.CliLogin, c.CountFinding,
-		c.Custody, c.CustodyLine, c.Event, c.Fact, c.Handoff, c.Holder,
-		c.InventoryCount, c.Invitation, c.ItemModel, c.Label, c.LegalHold, c.Link,
-		c.Notification, c.Outbox, c.Owed, c.Party, c.Placement, c.Purchase,
-		c.PurchaseLine, c.Reservation, c.ReservationItem, c.RowSeal, c.SearchStale,
-		c.Session, c.SignInFailure, c.Stewardship, c.Stock, c.StockMovement,
-		c.TagCounter, c.Tenant, c.TenantContract, c.TenantDomain, c.TreeLock,
-		c.WorkOrder,
+		c.Custody, c.CustodyLine, c.Entitlement, c.Event, c.Fact, c.Handoff, c.Holder,
+		c.InventoryCount, c.Invitation, c.ItemModel, c.Label, c.LegalHold,
+		c.LevyanNotice, c.Link, c.Notification, c.Outbox, c.Owed, c.Party, c.Placement,
+		c.Purchase, c.PurchaseLine, c.Reservation, c.ReservationItem, c.RowSeal,
+		c.SearchStale, c.Session, c.SignInFailure, c.Stewardship, c.Stock,
+		c.StockMovement, c.TagCounter, c.Tenant, c.TenantContract, c.TenantDomain,
+		c.TreeLock, c.WorkOrder,
 	} {
 		n.Use(hooks...)
 	}
@@ -512,13 +524,13 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.Access, c.AccessReview, c.AliasHold, c.Allocation, c.Archived, c.Asset,
 		c.AssetType, c.Attachment, c.Audit, c.Bookable, c.CliLogin, c.CountFinding,
-		c.Custody, c.CustodyLine, c.Event, c.Fact, c.Handoff, c.Holder,
-		c.InventoryCount, c.Invitation, c.ItemModel, c.Label, c.LegalHold, c.Link,
-		c.Notification, c.Outbox, c.Owed, c.Party, c.Placement, c.Purchase,
-		c.PurchaseLine, c.Reservation, c.ReservationItem, c.RowSeal, c.SearchStale,
-		c.Session, c.SignInFailure, c.Stewardship, c.Stock, c.StockMovement,
-		c.TagCounter, c.Tenant, c.TenantContract, c.TenantDomain, c.TreeLock,
-		c.WorkOrder,
+		c.Custody, c.CustodyLine, c.Entitlement, c.Event, c.Fact, c.Handoff, c.Holder,
+		c.InventoryCount, c.Invitation, c.ItemModel, c.Label, c.LegalHold,
+		c.LevyanNotice, c.Link, c.Notification, c.Outbox, c.Owed, c.Party, c.Placement,
+		c.Purchase, c.PurchaseLine, c.Reservation, c.ReservationItem, c.RowSeal,
+		c.SearchStale, c.Session, c.SignInFailure, c.Stewardship, c.Stock,
+		c.StockMovement, c.TagCounter, c.Tenant, c.TenantContract, c.TenantDomain,
+		c.TreeLock, c.WorkOrder,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -555,6 +567,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Custody.mutate(ctx, m)
 	case *CustodyLineMutation:
 		return c.CustodyLine.mutate(ctx, m)
+	case *EntitlementMutation:
+		return c.Entitlement.mutate(ctx, m)
 	case *EventMutation:
 		return c.Event.mutate(ctx, m)
 	case *FactMutation:
@@ -573,6 +587,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Label.mutate(ctx, m)
 	case *LegalHoldMutation:
 		return c.LegalHold.mutate(ctx, m)
+	case *LevyanNoticeMutation:
+		return c.LevyanNotice.mutate(ctx, m)
 	case *LinkMutation:
 		return c.Link.mutate(ctx, m)
 	case *NotificationMutation:
@@ -2822,6 +2838,155 @@ func (c *CustodyLineClient) mutate(ctx context.Context, m *CustodyLineMutation) 
 	}
 }
 
+// EntitlementClient is a client for the Entitlement schema.
+type EntitlementClient struct {
+	config
+}
+
+// NewEntitlementClient returns a client for the Entitlement from the given config.
+func NewEntitlementClient(c config) *EntitlementClient {
+	return &EntitlementClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `entitlement.Hooks(f(g(h())))`.
+func (c *EntitlementClient) Use(hooks ...Hook) {
+	c.hooks.Entitlement = append(c.hooks.Entitlement, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `entitlement.Intercept(f(g(h())))`.
+func (c *EntitlementClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Entitlement = append(c.inters.Entitlement, interceptors...)
+}
+
+// Create returns a builder for creating a Entitlement entity.
+func (c *EntitlementClient) Create() *EntitlementCreate {
+	mutation := newEntitlementMutation(c.config, OpCreate)
+	return &EntitlementCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Entitlement entities.
+func (c *EntitlementClient) CreateBulk(builders ...*EntitlementCreate) *EntitlementCreateBulk {
+	return &EntitlementCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *EntitlementClient) MapCreateBulk(slice any, setFunc func(*EntitlementCreate, int)) *EntitlementCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &EntitlementCreateBulk{err: fmt.Errorf("calling to EntitlementClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*EntitlementCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &EntitlementCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Entitlement.
+func (c *EntitlementClient) Update() *EntitlementUpdate {
+	mutation := newEntitlementMutation(c.config, OpUpdate)
+	return &EntitlementUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *EntitlementClient) UpdateOne(_m *Entitlement) *EntitlementUpdateOne {
+	mutation := newEntitlementMutation(c.config, OpUpdateOne, withEntitlement(_m))
+	return &EntitlementUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneId returns an update builder for the given id.
+func (c *EntitlementClient) UpdateOneId(id uuid.UUID) *EntitlementUpdateOne {
+	mutation := newEntitlementMutation(c.config, OpUpdateOne, withEntitlementId(id))
+	return &EntitlementUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Entitlement.
+func (c *EntitlementClient) Delete() *EntitlementDelete {
+	mutation := newEntitlementMutation(c.config, OpDelete)
+	return &EntitlementDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *EntitlementClient) DeleteOne(_m *Entitlement) *EntitlementDeleteOne {
+	return c.DeleteOneId(_m.Id)
+}
+
+// DeleteOneId returns a builder for deleting the given entity by its id.
+func (c *EntitlementClient) DeleteOneId(id uuid.UUID) *EntitlementDeleteOne {
+	builder := c.Delete().Where(entitlement.Id(id))
+	builder.mutation.id = &id
+	builder.mutation.SetOp(OpDeleteOne)
+	return &EntitlementDeleteOne{builder}
+}
+
+// Query returns a query builder for Entitlement.
+func (c *EntitlementClient) Query() *EntitlementQuery {
+	return &EntitlementQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeEntitlement},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Entitlement entity by its id.
+func (c *EntitlementClient) Get(ctx context.Context, id uuid.UUID) (*Entitlement, error) {
+	return c.Query().Where(entitlement.Id(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *EntitlementClient) GetX(ctx context.Context, id uuid.UUID) *Entitlement {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryTenant queries the tenant edge of a Entitlement.
+func (c *EntitlementClient) QueryTenant(_m *Entitlement) *TenantQuery {
+	query := (&TenantClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.Id
+		step := sqlgraph.NewStep(
+			sqlgraph.From(entitlement.Table, entitlement.FieldId, id),
+			sqlgraph.To(tenant.Table, tenant.FieldId),
+			sqlgraph.Edge(sqlgraph.M2O, false, entitlement.TenantTable, entitlement.TenantColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *EntitlementClient) Hooks() []Hook {
+	return c.hooks.Entitlement
+}
+
+// Interceptors returns the client interceptors.
+func (c *EntitlementClient) Interceptors() []Interceptor {
+	return c.inters.Entitlement
+}
+
+func (c *EntitlementClient) mutate(ctx context.Context, m *EntitlementMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&EntitlementCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&EntitlementUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&EntitlementUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&EntitlementDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Entitlement mutation op: %q", m.Op())
+	}
+}
+
 // EventClient is a client for the Event schema.
 type EventClient struct {
 	config
@@ -4240,6 +4405,139 @@ func (c *LegalHoldClient) mutate(ctx context.Context, m *LegalHoldMutation) (Val
 		return (&LegalHoldDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown LegalHold mutation op: %q", m.Op())
+	}
+}
+
+// LevyanNoticeClient is a client for the LevyanNotice schema.
+type LevyanNoticeClient struct {
+	config
+}
+
+// NewLevyanNoticeClient returns a client for the LevyanNotice from the given config.
+func NewLevyanNoticeClient(c config) *LevyanNoticeClient {
+	return &LevyanNoticeClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `levyannotice.Hooks(f(g(h())))`.
+func (c *LevyanNoticeClient) Use(hooks ...Hook) {
+	c.hooks.LevyanNotice = append(c.hooks.LevyanNotice, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `levyannotice.Intercept(f(g(h())))`.
+func (c *LevyanNoticeClient) Intercept(interceptors ...Interceptor) {
+	c.inters.LevyanNotice = append(c.inters.LevyanNotice, interceptors...)
+}
+
+// Create returns a builder for creating a LevyanNotice entity.
+func (c *LevyanNoticeClient) Create() *LevyanNoticeCreate {
+	mutation := newLevyanNoticeMutation(c.config, OpCreate)
+	return &LevyanNoticeCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of LevyanNotice entities.
+func (c *LevyanNoticeClient) CreateBulk(builders ...*LevyanNoticeCreate) *LevyanNoticeCreateBulk {
+	return &LevyanNoticeCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *LevyanNoticeClient) MapCreateBulk(slice any, setFunc func(*LevyanNoticeCreate, int)) *LevyanNoticeCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &LevyanNoticeCreateBulk{err: fmt.Errorf("calling to LevyanNoticeClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*LevyanNoticeCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &LevyanNoticeCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for LevyanNotice.
+func (c *LevyanNoticeClient) Update() *LevyanNoticeUpdate {
+	mutation := newLevyanNoticeMutation(c.config, OpUpdate)
+	return &LevyanNoticeUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *LevyanNoticeClient) UpdateOne(_m *LevyanNotice) *LevyanNoticeUpdateOne {
+	mutation := newLevyanNoticeMutation(c.config, OpUpdateOne, withLevyanNotice(_m))
+	return &LevyanNoticeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneId returns an update builder for the given id.
+func (c *LevyanNoticeClient) UpdateOneId(id uuid.UUID) *LevyanNoticeUpdateOne {
+	mutation := newLevyanNoticeMutation(c.config, OpUpdateOne, withLevyanNoticeId(id))
+	return &LevyanNoticeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for LevyanNotice.
+func (c *LevyanNoticeClient) Delete() *LevyanNoticeDelete {
+	mutation := newLevyanNoticeMutation(c.config, OpDelete)
+	return &LevyanNoticeDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *LevyanNoticeClient) DeleteOne(_m *LevyanNotice) *LevyanNoticeDeleteOne {
+	return c.DeleteOneId(_m.Id)
+}
+
+// DeleteOneId returns a builder for deleting the given entity by its id.
+func (c *LevyanNoticeClient) DeleteOneId(id uuid.UUID) *LevyanNoticeDeleteOne {
+	builder := c.Delete().Where(levyannotice.Id(id))
+	builder.mutation.id = &id
+	builder.mutation.SetOp(OpDeleteOne)
+	return &LevyanNoticeDeleteOne{builder}
+}
+
+// Query returns a query builder for LevyanNotice.
+func (c *LevyanNoticeClient) Query() *LevyanNoticeQuery {
+	return &LevyanNoticeQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeLevyanNotice},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a LevyanNotice entity by its id.
+func (c *LevyanNoticeClient) Get(ctx context.Context, id uuid.UUID) (*LevyanNotice, error) {
+	return c.Query().Where(levyannotice.Id(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *LevyanNoticeClient) GetX(ctx context.Context, id uuid.UUID) *LevyanNotice {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *LevyanNoticeClient) Hooks() []Hook {
+	return c.hooks.LevyanNotice
+}
+
+// Interceptors returns the client interceptors.
+func (c *LevyanNoticeClient) Interceptors() []Interceptor {
+	return c.inters.LevyanNotice
+}
+
+func (c *LevyanNoticeClient) mutate(ctx context.Context, m *LevyanNoticeMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&LevyanNoticeCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&LevyanNoticeUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&LevyanNoticeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&LevyanNoticeDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown LevyanNotice mutation op: %q", m.Op())
 	}
 }
 
@@ -7867,19 +8165,21 @@ type (
 	hooks struct {
 		Access, AccessReview, AliasHold, Allocation, Archived, Asset, AssetType,
 		Attachment, Audit, Bookable, CliLogin, CountFinding, Custody, CustodyLine,
-		Event, Fact, Handoff, Holder, InventoryCount, Invitation, ItemModel, Label,
-		LegalHold, Link, Notification, Outbox, Owed, Party, Placement, Purchase,
-		PurchaseLine, Reservation, ReservationItem, RowSeal, SearchStale, Session,
-		SignInFailure, Stewardship, Stock, StockMovement, TagCounter, Tenant,
-		TenantContract, TenantDomain, TreeLock, WorkOrder []ent.Hook
+		Entitlement, Event, Fact, Handoff, Holder, InventoryCount, Invitation,
+		ItemModel, Label, LegalHold, LevyanNotice, Link, Notification, Outbox, Owed,
+		Party, Placement, Purchase, PurchaseLine, Reservation, ReservationItem,
+		RowSeal, SearchStale, Session, SignInFailure, Stewardship, Stock,
+		StockMovement, TagCounter, Tenant, TenantContract, TenantDomain, TreeLock,
+		WorkOrder []ent.Hook
 	}
 	inters struct {
 		Access, AccessReview, AliasHold, Allocation, Archived, Asset, AssetType,
 		Attachment, Audit, Bookable, CliLogin, CountFinding, Custody, CustodyLine,
-		Event, Fact, Handoff, Holder, InventoryCount, Invitation, ItemModel, Label,
-		LegalHold, Link, Notification, Outbox, Owed, Party, Placement, Purchase,
-		PurchaseLine, Reservation, ReservationItem, RowSeal, SearchStale, Session,
-		SignInFailure, Stewardship, Stock, StockMovement, TagCounter, Tenant,
-		TenantContract, TenantDomain, TreeLock, WorkOrder []ent.Interceptor
+		Entitlement, Event, Fact, Handoff, Holder, InventoryCount, Invitation,
+		ItemModel, Label, LegalHold, LevyanNotice, Link, Notification, Outbox, Owed,
+		Party, Placement, Purchase, PurchaseLine, Reservation, ReservationItem,
+		RowSeal, SearchStale, Session, SignInFailure, Stewardship, Stock,
+		StockMovement, TagCounter, Tenant, TenantContract, TenantDomain, TreeLock,
+		WorkOrder []ent.Interceptor
 	}
 )

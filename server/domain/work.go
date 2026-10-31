@@ -493,8 +493,12 @@ func (s domainPurchase) Receive(ctx context.Context, req *app.PurchaseReceiveReq
 			units = units || l.ReceiveAs != "stock"
 		}
 		// Assets are put in the space, a change to the tree: its lock
-		// before the moment ([Tx.lockTree]).
+		// before the moment ([Tx.lockTree]). And registered, which a
+		// restricted workspace may not (D60); into stock, it may.
 		if units {
+			if err := t.grows(GrowsReceivedAssets); err != nil {
+				return err
+			}
 			if err := t.lockTree(); err != nil {
 				return err
 			}

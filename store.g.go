@@ -43,6 +43,7 @@ type Server interface {
 	TenantDomain() TenantDomainServiceServer
 	Label() LabelServiceServer
 	Attachment() AttachmentServiceServer
+	LevyanNotice() LevyanNoticeServiceServer
 	Bookable() BookableServiceServer
 	Reservation() ReservationServiceServer
 	ReservationItem() ReservationItemServiceServer
@@ -63,6 +64,7 @@ type Server interface {
 	Access() AccessServiceServer
 	Archived() ArchivedServiceServer
 	Audit() AuditServiceServer
+	Entitlement() EntitlementServiceServer
 	Event() EventServiceServer
 	Fact() FactServiceServer
 	Outbox() OutboxServiceServer
@@ -96,6 +98,7 @@ func RegisterServer(g grpc.ServiceRegistrar, s Server) {
 	RegisterTenantDomainServiceServer(g, s.TenantDomain())
 	RegisterLabelServiceServer(g, s.Label())
 	RegisterAttachmentServiceServer(g, s.Attachment())
+	RegisterLevyanNoticeServiceServer(g, s.LevyanNotice())
 	RegisterBookableServiceServer(g, s.Bookable())
 	RegisterReservationServiceServer(g, s.Reservation())
 	RegisterReservationItemServiceServer(g, s.ReservationItem())
@@ -116,6 +119,7 @@ func RegisterServer(g grpc.ServiceRegistrar, s Server) {
 	RegisterAccessServiceServer(g, s.Access())
 	RegisterArchivedServiceServer(g, s.Archived())
 	RegisterAuditServiceServer(g, s.Audit())
+	RegisterEntitlementServiceServer(g, s.Entitlement())
 	RegisterEventServiceServer(g, s.Event())
 	RegisterFactServiceServer(g, s.Fact())
 	RegisterOutboxServiceServer(g, s.Outbox())
@@ -145,6 +149,7 @@ type UnimplementedServer struct {
 	TenantDomainServer    TenantDomainServiceServer
 	LabelServer           LabelServiceServer
 	AttachmentServer      AttachmentServiceServer
+	LevyanNoticeServer    LevyanNoticeServiceServer
 	BookableServer        BookableServiceServer
 	ReservationServer     ReservationServiceServer
 	ReservationItemServer ReservationItemServiceServer
@@ -165,6 +170,7 @@ type UnimplementedServer struct {
 	AccessServer          AccessServiceServer
 	ArchivedServer        ArchivedServiceServer
 	AuditServer           AuditServiceServer
+	EntitlementServer     EntitlementServiceServer
 	EventServer           EventServiceServer
 	FactServer            FactServiceServer
 	OutboxServer          OutboxServiceServer
@@ -212,6 +218,9 @@ func (UnimplementedServer) TenantDomain() TenantDomainServiceServer {
 func (UnimplementedServer) Label() LabelServiceServer { return UnimplementedLabelServiceServer{} }
 func (UnimplementedServer) Attachment() AttachmentServiceServer {
 	return UnimplementedAttachmentServiceServer{}
+}
+func (UnimplementedServer) LevyanNotice() LevyanNoticeServiceServer {
+	return UnimplementedLevyanNoticeServiceServer{}
 }
 func (UnimplementedServer) Bookable() BookableServiceServer {
 	return UnimplementedBookableServiceServer{}
@@ -262,7 +271,10 @@ func (UnimplementedServer) Access() AccessServiceServer { return UnimplementedAc
 func (UnimplementedServer) Archived() ArchivedServiceServer {
 	return UnimplementedArchivedServiceServer{}
 }
-func (UnimplementedServer) Audit() AuditServiceServer     { return UnimplementedAuditServiceServer{} }
+func (UnimplementedServer) Audit() AuditServiceServer { return UnimplementedAuditServiceServer{} }
+func (UnimplementedServer) Entitlement() EntitlementServiceServer {
+	return UnimplementedEntitlementServiceServer{}
+}
 func (UnimplementedServer) Event() EventServiceServer     { return UnimplementedEventServiceServer{} }
 func (UnimplementedServer) Fact() FactServiceServer       { return UnimplementedFactServiceServer{} }
 func (UnimplementedServer) Outbox() OutboxServiceServer   { return UnimplementedOutboxServiceServer{} }
@@ -299,6 +311,7 @@ type StaticServer struct {
 	TenantDomainServer    TenantDomainServiceServer
 	LabelServer           LabelServiceServer
 	AttachmentServer      AttachmentServiceServer
+	LevyanNoticeServer    LevyanNoticeServiceServer
 	BookableServer        BookableServiceServer
 	ReservationServer     ReservationServiceServer
 	ReservationItemServer ReservationItemServiceServer
@@ -319,6 +332,7 @@ type StaticServer struct {
 	AccessServer          AccessServiceServer
 	ArchivedServer        ArchivedServiceServer
 	AuditServer           AuditServiceServer
+	EntitlementServer     EntitlementServiceServer
 	EventServer           EventServiceServer
 	FactServer            FactServiceServer
 	OutboxServer          OutboxServiceServer
@@ -347,6 +361,7 @@ func (s StaticServer) TagCounter() TagCounterServiceServer           { return s.
 func (s StaticServer) TenantDomain() TenantDomainServiceServer       { return s.TenantDomainServer }
 func (s StaticServer) Label() LabelServiceServer                     { return s.LabelServer }
 func (s StaticServer) Attachment() AttachmentServiceServer           { return s.AttachmentServer }
+func (s StaticServer) LevyanNotice() LevyanNoticeServiceServer       { return s.LevyanNoticeServer }
 func (s StaticServer) Bookable() BookableServiceServer               { return s.BookableServer }
 func (s StaticServer) Reservation() ReservationServiceServer         { return s.ReservationServer }
 func (s StaticServer) ReservationItem() ReservationItemServiceServer { return s.ReservationItemServer }
@@ -367,6 +382,7 @@ func (s StaticServer) AccessReview() AccessReviewServiceServer       { return s.
 func (s StaticServer) Access() AccessServiceServer                   { return s.AccessServer }
 func (s StaticServer) Archived() ArchivedServiceServer               { return s.ArchivedServer }
 func (s StaticServer) Audit() AuditServiceServer                     { return s.AuditServer }
+func (s StaticServer) Entitlement() EntitlementServiceServer         { return s.EntitlementServer }
 func (s StaticServer) Event() EventServiceServer                     { return s.EventServer }
 func (s StaticServer) Fact() FactServiceServer                       { return s.FactServer }
 func (s StaticServer) Outbox() OutboxServiceServer                   { return s.OutboxServer }
@@ -395,6 +411,7 @@ type Client interface {
 	TenantDomain() TenantDomainServiceClient
 	Label() LabelServiceClient
 	Attachment() AttachmentServiceClient
+	LevyanNotice() LevyanNoticeServiceClient
 	Bookable() BookableServiceClient
 	Reservation() ReservationServiceClient
 	ReservationItem() ReservationItemServiceClient
@@ -415,6 +432,7 @@ type Client interface {
 	Access() AccessServiceClient
 	Archived() ArchivedServiceClient
 	Audit() AuditServiceClient
+	Entitlement() EntitlementServiceClient
 	Event() EventServiceClient
 	Fact() FactServiceClient
 	Outbox() OutboxServiceClient
@@ -445,6 +463,7 @@ func NewClient(c *grpc.ClientConn) Client {
 		_TenantDomain:    NewTenantDomainServiceClient(c),
 		_Label:           NewLabelServiceClient(c),
 		_Attachment:      NewAttachmentServiceClient(c),
+		_LevyanNotice:    NewLevyanNoticeServiceClient(c),
 		_Bookable:        NewBookableServiceClient(c),
 		_Reservation:     NewReservationServiceClient(c),
 		_ReservationItem: NewReservationItemServiceClient(c),
@@ -465,6 +484,7 @@ func NewClient(c *grpc.ClientConn) Client {
 		_Access:          NewAccessServiceClient(c),
 		_Archived:        NewArchivedServiceClient(c),
 		_Audit:           NewAuditServiceClient(c),
+		_Entitlement:     NewEntitlementServiceClient(c),
 		_Event:           NewEventServiceClient(c),
 		_Fact:            NewFactServiceClient(c),
 		_Outbox:          NewOutboxServiceClient(c),
@@ -495,6 +515,7 @@ type client struct {
 	_TenantDomain    TenantDomainServiceClient
 	_Label           LabelServiceClient
 	_Attachment      AttachmentServiceClient
+	_LevyanNotice    LevyanNoticeServiceClient
 	_Bookable        BookableServiceClient
 	_Reservation     ReservationServiceClient
 	_ReservationItem ReservationItemServiceClient
@@ -515,6 +536,7 @@ type client struct {
 	_Access          AccessServiceClient
 	_Archived        ArchivedServiceClient
 	_Audit           AuditServiceClient
+	_Entitlement     EntitlementServiceClient
 	_Event           EventServiceClient
 	_Fact            FactServiceClient
 	_Outbox          OutboxServiceClient
@@ -543,6 +565,7 @@ func (c *client) TagCounter() TagCounterServiceClient           { return c._TagC
 func (c *client) TenantDomain() TenantDomainServiceClient       { return c._TenantDomain }
 func (c *client) Label() LabelServiceClient                     { return c._Label }
 func (c *client) Attachment() AttachmentServiceClient           { return c._Attachment }
+func (c *client) LevyanNotice() LevyanNoticeServiceClient       { return c._LevyanNotice }
 func (c *client) Bookable() BookableServiceClient               { return c._Bookable }
 func (c *client) Reservation() ReservationServiceClient         { return c._Reservation }
 func (c *client) ReservationItem() ReservationItemServiceClient { return c._ReservationItem }
@@ -563,6 +586,7 @@ func (c *client) AccessReview() AccessReviewServiceClient       { return c._Acce
 func (c *client) Access() AccessServiceClient                   { return c._Access }
 func (c *client) Archived() ArchivedServiceClient               { return c._Archived }
 func (c *client) Audit() AuditServiceClient                     { return c._Audit }
+func (c *client) Entitlement() EntitlementServiceClient         { return c._Entitlement }
 func (c *client) Event() EventServiceClient                     { return c._Event }
 func (c *client) Fact() FactServiceClient                       { return c._Fact }
 func (c *client) Outbox() OutboxServiceClient                   { return c._Outbox }

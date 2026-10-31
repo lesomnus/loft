@@ -752,6 +752,11 @@ func (s domainAttachment) Upload(ctx context.Context, req *app.AttachmentUploadR
 		if t.deps.Files == nil {
 			return failed("이 서버는 파일을 보관하지 않습니다")
 		}
+		// Before the file is kept, which the store would keep whatever the
+		// transaction came to (D60).
+		if err := t.growing(); err != nil {
+			return err
+		}
 		data := req.GetData()
 		if len(data) == 0 {
 			return invalid("data", "빈 파일입니다")

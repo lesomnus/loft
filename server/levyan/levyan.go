@@ -1,7 +1,15 @@
 // Package levyan is this deployment's client of levyan, the billing service
-// its workspaces are billed by (levyan#14): what each workspace holds, as
-// payday's meter reader measures it (payday#186), handed to levyan's
-// `levyan.v1.MeteringService` -- the sink of `meter.Reader` (design 7).
+// its workspaces are billed by (levyan#14), over one connection:
+//
+//   - what each workspace holds, as payday's meter reader measures it
+//     (payday#186), handed to levyan's `levyan.v1.MeteringService` -- the
+//     sink of `meter.Reader` (design 7.1);
+//   - what levyan grants each workspace, which payday's follower keeps a copy
+//     of from levyan's `payday.GrantService` (payday#185, design 7.5,
+//     [Client.Grants]);
+//   - who pays for each workspace, told to levyan's `levyan.v1.WorkspaceService`
+//     from a queue written beside the change that tells it ([Notices],
+//     [Teller], design 7.6).
 //
 // It speaks levyan's own API module (`github.com/lesomnus/levyan/api`), which
 // is levyan's promise to the products it bills and holds Loft to nothing of
@@ -30,11 +38,14 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/keepalive"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/lesomnus/payday/auth"
 	"github.com/lesomnus/payday/config"
 	"github.com/lesomnus/payday/meter"
+	"github.com/lesomnus/payday/pdid"
+	"github.com/lesomnus/payday/pdpb"
 )
 
 // Config is levyan, and how it is reached: `app.billing.levyan`.
@@ -80,12 +91,25 @@ const DefaultTimeout = 10 * time.Second
 // KeyPrefix is what every product key levyan issues begins with.
 const KeyPrefix = "lvk_"
 
+// Keepalive is how often the connection to levyan asks whether levyan is
+// still there while a call is open on it, and Answer how long it waits to be
+// told: the grants' stream is open for as long as the follower is, and quiet
+// between changes, which a proxy's idle timeout would otherwise end (levyan's
+// `docs/apps.md`). levyan's `server.keepalive.min_time` is to be shorter than
+// Keepalive, or levyan hangs up on it (`too_many_pings`).
+const (
+	Keepalive = 5 * time.Minute
+	Answer    = 20 * time.Second
+)
+
 // Client is this deployment's connection to levyan.
 type Client struct {
-	conn     *grpc.ClientConn
-	metering levyanv1.MeteringServiceClient
-	key      string
-	timeout  time.Duration
+	conn       *grpc.ClientConn
+	metering   levyanv1.MeteringServiceClient
+	grants     pdpb.GrantServiceClient
+	workspaces levyanv1.WorkspaceServiceClient
+	key        string
+	timeout    time.Duration
 }
 
 var _ meter.Sink = (*Client)(nil)
@@ -114,7 +138,10 @@ func Dial(c Config, resolve func(string) (string, error)) (*Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	conn, err := grpc.NewClient(c.Addr, grpc.WithTransportCredentials(creds))
+	conn, err := grpc.NewClient(c.Addr,
+		grpc.WithTransportCredentials(creds),
+		grpc.WithKeepaliveParams(keepalive.ClientParameters{Time: Keepalive, Timeout: Answer}),
+	)
 	if err != nil {
 		return nil, fmt.Errorf("app.billing.levyan.addr: %w", err)
 	}
@@ -124,7 +151,25 @@ func Dial(c Config, resolve func(string) (string, error)) (*Client, error) {
 		timeout = DefaultTimeout
 	}
 
-	return &Client{conn: conn, metering: levyanv1.NewMeteringServiceClient(conn), key: key, timeout: timeout}, nil
+	return &Client{
+		conn:       conn,
+		metering:   levyanv1.NewMeteringServiceClient(conn),
+		grants:     pdpb.NewGrantServiceClient(conn),
+		workspaces: levyanv1.NewWorkspaceServiceClient(conn),
+		key:        key,
+		timeout:    timeout,
+	}, nil
+}
+
+// keyed is `ctx` carrying the product key, as every call to levyan does.
+func (c *Client) keyed(ctx context.Context) context.Context {
+	return auth.BearerProvider(c.key).Provide(ctx)
+}
+
+// call is `ctx` carrying the product key, and an end of its own: a caller's
+// context -- a loop's -- ends only when the process stops.
+func (c *Client) call(ctx context.Context) (context.Context, context.CancelFunc) {
+	return context.WithTimeout(c.keyed(ctx), c.timeout)
 }
 
 // credentials is what levyan is dialled with: plaintext only when the
@@ -173,7 +218,7 @@ func (c *Client) Send(ctx context.Context, rs []meter.Reading) error {
 
 	// The reader's context ends only when the process stops, so a call is
 	// given an end of its own.
-	call, cancel := context.WithTimeout(auth.BearerProvider(c.key).Provide(ctx), c.timeout)
+	call, cancel := c.call(ctx)
 	defer cancel()
 	res, err := c.metering.Record(call, levyanv1.RecordRequest_builder{Readings: vs}.Build())
 	if err != nil {
@@ -204,6 +249,57 @@ func (c *Client) Send(ctx context.Context, rs []meter.Reading) error {
 	}
 
 	return nil
+}
+
+// Grants is levyan's `payday.GrantService`, which payday's follower keeps
+// this deployment's copy of the grants by (`entitle.Follower`, design 7.5):
+// each call with the product key -- levyan answers the grants of the product
+// the key is, and nothing names it otherwise -- a page of the list with an
+// end of its own, and the stream with none, since it is open for as long as
+// the follower is.
+func (c *Client) Grants() pdpb.GrantServiceClient { return grants{c} }
+
+type grants struct{ c *Client }
+
+func (g grants) Watch(ctx context.Context, in *pdpb.GrantWatchRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[pdpb.GrantWatchResponse], error) {
+	return g.c.grants.Watch(g.c.keyed(ctx), in, opts...)
+}
+
+func (g grants) List(ctx context.Context, in *pdpb.GrantListRequest, opts ...grpc.CallOption) (*pdpb.GrantListResponse, error) {
+	call, cancel := g.c.call(ctx)
+	defer cancel()
+
+	return g.c.grants.List(call, in, opts...)
+}
+
+// Arrive tells levyan that `workspace` was made by `creator` at `created`:
+// who pays for it from then, until somebody else says they will
+// (`levyan.v1.WorkspaceService/Arrive`). levyan takes it once; said again, it
+// changes nothing.
+func (c *Client) Arrive(ctx context.Context, workspace, creator pdid.Id, created time.Time) error {
+	call, cancel := c.call(ctx)
+	defer cancel()
+
+	_, err := c.workspaces.Arrive(call, levyanv1.ArriveRequest_builder{
+		Workspace: workspace.String(),
+		Creator:   creator.String(),
+		Created:   timestamppb.New(created),
+	}.Build())
+	return err
+}
+
+// Leave tells levyan that `account` is no longer in `workspace`: if it paid
+// for it, it pays no longer (`levyan.v1.WorkspaceService/Leave`). Said again,
+// it changes nothing.
+func (c *Client) Leave(ctx context.Context, workspace, account pdid.Id) error {
+	call, cancel := c.call(ctx)
+	defer cancel()
+
+	_, err := c.workspaces.Leave(call, levyanv1.LeaveRequest_builder{
+		Workspace: workspace.String(),
+		Account:   account.String(),
+	}.Build())
+	return err
 }
 
 // Close lets go of the connection; a nil client has none.

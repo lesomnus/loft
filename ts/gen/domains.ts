@@ -54,6 +54,9 @@ export const CustodyDomain = 21
 /** The domain identifiers of loft.CustodyLine carry. */
 export const CustodyLineDomain = 22
 
+/** The domain identifiers of loft.Entitlement carry. */
+export const EntitlementDomain = 50
+
 /** The domain identifiers of loft.Event carry. */
 export const EventDomain = 17
 
@@ -80,6 +83,9 @@ export const LabelDomain = 18
 
 /** The domain identifiers of loft.LegalHold carry. */
 export const LegalHoldDomain = 40
+
+/** The domain identifiers of loft.LevyanNotice carry. */
+export const LevyanNoticeDomain = 51
 
 /** The domain identifiers of loft.Link carry. */
 export const LinkDomain = 14
@@ -166,6 +172,7 @@ pdid.register("loft.CliLogin", CliLoginDomain, "cli-login")
 pdid.register("loft.CountFinding", CountFindingDomain, "count-finding")
 pdid.register("loft.Custody", CustodyDomain, "custody")
 pdid.register("loft.CustodyLine", CustodyLineDomain, "custody-line")
+pdid.register("loft.Entitlement", EntitlementDomain, "entitlement")
 pdid.register("loft.Event", EventDomain, "event")
 pdid.register("loft.Fact", FactDomain, "fact")
 pdid.register("loft.Handoff", HandoffDomain, "handoff")
@@ -175,6 +182,7 @@ pdid.register("loft.Invitation", InvitationDomain, "invitation")
 pdid.register("loft.ItemModel", ItemModelDomain, "item-model")
 pdid.register("loft.Label", LabelDomain, "label")
 pdid.register("loft.LegalHold", LegalHoldDomain, "legal-hold")
+pdid.register("loft.LevyanNotice", LevyanNoticeDomain, "levyan-notice")
 pdid.register("loft.Link", LinkDomain, "link")
 pdid.register("loft.Notification", NotificationDomain, "notification")
 pdid.register("loft.Outbox", OutboxDomain, "outbox")

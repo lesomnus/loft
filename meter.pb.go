@@ -25,7 +25,7 @@ var File_loft_meter_proto protoreflect.FileDescriptor
 
 const file_loft_meter_proto_rawDesc = "" +
 	"\n" +
-	"\x10loft/meter.proto\x12\x04loft\x1a\fpayday.protoB\xca\x01\xca\xc7\x16\xa6\x01\"D\n" +
+	"\x10loft/meter.proto\x12\x04loft\x1a\fpayday.protoB\xce\x01\xca\xc7\x16\xaa\x01\"D\n" +
 	"\x12loft.assets.active\x12\a{asset}\x1a%\n" +
 	"\x05Asset\x12\x1c\n" +
 	"\n" +
@@ -38,7 +38,7 @@ const file_loft_meter_proto_rawDesc = "" +
 	"size_bytes\x10\n" +
 	"\"\"\n" +
 	"\floft.members\x12\b{member}\x1a\b\n" +
-	"\x06HolderZ\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"\x06Holder*\x02\b2Z\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
 var file_loft_meter_proto_goTypes = []any{}
 var file_loft_meter_proto_depIdxs = []int32{

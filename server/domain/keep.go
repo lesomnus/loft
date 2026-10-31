@@ -100,6 +100,17 @@ func (t *Tx) keepPatch(req *app.TenantConfigureRequest, patch *app.TenantPatchRe
 
 		d := t.deps.retention()
 		if keep != nil {
+			// Kept longer than the window in force, it is billed for longer
+			// (D60); made shorter, it waits out the grace as it did.
+			cur, err := t.db.Tenant.Get(t.ctx, t.tenant.Uuid())
+			if err != nil {
+				return err
+			}
+			if retention.Outlasts(k.At(t.now, d.Wait(), retention.Days), retention.KeepOf(cur).At(t.now, d.Wait(), retention.Days)) {
+				if err := t.grows(GrowsKeptLonger); err != nil {
+					return err
+				}
+			}
 			patch.SetKeepDays(k.Days)
 			patch.SetKeepDaysBefore(k.Before)
 			if k.Shortened != nil {

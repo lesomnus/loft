@@ -91,12 +91,15 @@ app:
   #     ca_file: /run/secrets/loft-search/ca.pem
   #     index: loft
 
-  # Billed by levyan (design 7, D59): what each workspace holds, measured
+  # Billed by levyan (design 7, D59, D60): what each workspace holds, measured
   # every midnight UTC and before it is destroyed, and handed to levyan's
-  # MeteringService with the product key in the Secret `loft-levyan-key`
-  # (README.md). In plaintext inside the cluster, as levyan's own reference
-  # deployment serves it, with its NetworkPolicy and this one's between the
-  # two; anything else is TLS (`tls:`). Unset, nothing is measured.
+  # MeteringService; what levyan grants each workspace, followed from its
+  # GrantService into this database; and who made a workspace or left one,
+  # told to its WorkspaceService -- one connection, with the product key in
+  # the Secret `loft-levyan-key` (README.md). In plaintext inside the
+  # cluster, as levyan's own reference deployment serves it, with its
+  # NetworkPolicy and this one's between the two; anything else is TLS
+  # (`tls:`). Unset, nothing is measured, restricted or told.
   # billing:
   #   levyan:
   #     addr: levyan.levyan.svc:50051

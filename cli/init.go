@@ -17,8 +17,12 @@ import (
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/trail"
 
+	"github.com/protobuf-orm/ent/dialect"
+	"github.com/protobuf-orm/protoc-gen-orm-ent/runtime/enttx"
+
 	app "github.com/lesomnus/loft"
 	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent"
 	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
 	"github.com/lesomnus/loft/internal/identity"
 	"github.com/lesomnus/loft/server/tenancy"
@@ -135,29 +139,11 @@ func NewCmdInit(c *cmd.Config) *xli.Command {
 			}
 
 			// And the workspace, which is Loft's, with the account's
-			// membership of it.
-			t, err := s.Base.Tenant().Add(ctx, app.TenantAddRequest_builder{Alias: alias, Name: name}.Build())
+			// membership of it -- and, on a deployment that bills, levyan's
+			// notice that the account made it, which is who pays for it
+			// (design 7.6) -- in one transaction.
+			t, h, err := initWorkspace(ctx, s, alias, name, login, person, email, p)
 			if err != nil {
-				return fmt.Errorf("workspace %q: %w", alias, err)
-			}
-			tenant := app.TenantRef_builder{Id: t.GetId()}.Build()
-			h, err := s.Base.Holder().Add(ctx, app.HolderAddRequest_builder{
-				Tenant:  tenant,
-				Alias:   p.Alias,
-				Name:    person,
-				Role:    z.Ptr("owner"),
-				Account: p.Id.Bytes(),
-			}.Build())
-			if err != nil {
-				return fmt.Errorf("holder %q: %w", login, err)
-			}
-			if _, err := s.Base.Party().Add(ctx, app.PartyAddRequest_builder{
-				Tenant: tenant,
-				Name:   person,
-				Kind:   "person",
-				Email:  email,
-				Holder: app.HolderRef_builder{Id: h.GetId()}.Build(),
-			}.Build()); err != nil {
 				return err
 			}
 
@@ -185,6 +171,58 @@ func NewCmdInit(c *cmd.Config) *xli.Command {
 			return nil
 		}),
 	}
+}
+
+// initWorkspace puts up the workspace `init` makes, its owner's membership and
+// person record, and what levyan is to be told of it: one transaction, so that
+// a workspace there is one levyan hears of.
+func initWorkspace(ctx context.Context, s *cmd.Server, alias, name, login, person, email string, p identity.Person) (*app.Tenant, *app.Holder, error) {
+	tdrv, tx, err := dialect.BeginTx(ctx, s.Drv)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer tx.Rollback()
+	base, err := enttx.Rebind(s.Base, tdrv)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	t, err := base.Tenant().Add(ctx, app.TenantAddRequest_builder{Alias: alias, Name: name}.Build())
+	if err != nil {
+		return nil, nil, fmt.Errorf("workspace %q: %w", alias, err)
+	}
+	tenant := app.TenantRef_builder{Id: t.GetId()}.Build()
+	h, err := base.Holder().Add(ctx, app.HolderAddRequest_builder{
+		Tenant:  tenant,
+		Alias:   p.Alias,
+		Name:    person,
+		Role:    z.Ptr("owner"),
+		Account: p.Id.Bytes(),
+	}.Build())
+	if err != nil {
+		return nil, nil, fmt.Errorf("holder %q: %w", login, err)
+	}
+	if _, err := base.Party().Add(ctx, app.PartyAddRequest_builder{
+		Tenant: tenant,
+		Name:   person,
+		Kind:   "person",
+		Email:  email,
+		Holder: app.HolderRef_builder{Id: h.GetId()}.Build(),
+	}.Build()); err != nil {
+		return nil, nil, err
+	}
+	tid, err := pdid.From(t.GetId())
+	if err != nil {
+		return nil, nil, err
+	}
+	if err := s.Notices.Arrive(ctx, ent.NewClient(ent.Driver(tdrv)), tid, p.Id, t.GetDateCreated().AsTime()); err != nil {
+		return nil, nil, fmt.Errorf("levyan: %w", err)
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, nil, err
+	}
+
+	return t, h, nil
 }
 
 // ownerAccount is the account `init` makes the owner: the one in the directory

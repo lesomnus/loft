@@ -705,6 +705,46 @@ var (
 			},
 		},
 	}
+	// EntitlementColumns holds the columns for the "entitlement" table.
+	EntitlementColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUuid, Unique: true},
+		{Name: "key", Type: field.TypeString},
+		{Name: "value", Type: field.TypeInt32},
+		{Name: "amount", Type: field.TypeInt64},
+		{Name: "grant_id", Type: field.TypeBytes},
+		{Name: "grant_version", Type: field.TypeUint64},
+		{Name: "date_updated", Type: field.TypeTime},
+		{Name: "date_created", Type: field.TypeTime, Nullable: true},
+		{Name: "valid_from", Type: field.TypeTime, Nullable: true},
+		{Name: "valid_until", Type: field.TypeTime, Nullable: true},
+		{Name: "tenant_id", Type: field.TypeUuid},
+	}
+	// EntitlementTable holds the schema information for the "entitlement" table.
+	EntitlementTable = &schema.Table{
+		Name:       "entitlement",
+		Columns:    EntitlementColumns,
+		PrimaryKey: []*schema.Column{EntitlementColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "entitlement_tenant_tenant",
+				Columns:    []*schema.Column{EntitlementColumns[10]},
+				RefColumns: []*schema.Column{TenantColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "entitlement_grant",
+				Unique:  true,
+				Columns: []*schema.Column{EntitlementColumns[4]},
+			},
+			{
+				Name:    "entitlement_key",
+				Unique:  false,
+				Columns: []*schema.Column{EntitlementColumns[10], EntitlementColumns[1]},
+			},
+		},
+	}
 	// EventColumns holds the columns for the "event" table.
 	EventColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUuid, Unique: true},
@@ -1131,6 +1171,36 @@ var (
 				Name:    "legalhold_page",
 				Unique:  false,
 				Columns: []*schema.Column{LegalholdColumns[5], LegalholdColumns[4], LegalholdColumns[0]},
+			},
+		},
+	}
+	// LevyannoticeColumns holds the columns for the "levyannotice" table.
+	LevyannoticeColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUuid, Unique: true},
+		{Name: "kind", Type: field.TypeString},
+		{Name: "workspace", Type: field.TypeUuid},
+		{Name: "account", Type: field.TypeUuid},
+		{Name: "at", Type: field.TypeTime, Nullable: true},
+		{Name: "date_told", Type: field.TypeTime, Nullable: true},
+		{Name: "date_created", Type: field.TypeTime, Nullable: true},
+		{Name: "origin", Type: field.TypeString},
+		{Name: "refused", Type: field.TypeString},
+	}
+	// LevyannoticeTable holds the schema information for the "levyannotice" table.
+	LevyannoticeTable = &schema.Table{
+		Name:       "levyannotice",
+		Columns:    LevyannoticeColumns,
+		PrimaryKey: []*schema.Column{LevyannoticeColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "levyannotice_waiting",
+				Unique:  false,
+				Columns: []*schema.Column{LevyannoticeColumns[5], LevyannoticeColumns[4]},
+			},
+			{
+				Name:    "levyannotice_workspace",
+				Unique:  false,
+				Columns: []*schema.Column{LevyannoticeColumns[2], LevyannoticeColumns[1]},
 			},
 		},
 	}
@@ -2140,6 +2210,7 @@ var (
 		CountfindingTable,
 		CustodyTable,
 		CustodylineTable,
+		EntitlementTable,
 		EventTable,
 		FactTable,
 		HandoffTable,
@@ -2149,6 +2220,7 @@ var (
 		ItemmodelTable,
 		LabelTable,
 		LegalholdTable,
+		LevyannoticeTable,
 		LinkTable,
 		NotificationTable,
 		OutboxTable,
@@ -2239,6 +2311,10 @@ func init() {
 	CustodylineTable.Annotation = &entsql.Annotation{
 		Table: "custodyline",
 	}
+	EntitlementTable.ForeignKeys[0].RefTable = TenantTable
+	EntitlementTable.Annotation = &entsql.Annotation{
+		Table: "entitlement",
+	}
 	EventTable.ForeignKeys[0].RefTable = TenantTable
 	EventTable.Annotation = &entsql.Annotation{
 		Table: "event",
@@ -2279,6 +2355,9 @@ func init() {
 	LegalholdTable.ForeignKeys[0].RefTable = TenantTable
 	LegalholdTable.Annotation = &entsql.Annotation{
 		Table: "legalhold",
+	}
+	LevyannoticeTable.Annotation = &entsql.Annotation{
+		Table: "levyannotice",
 	}
 	LinkTable.ForeignKeys[0].RefTable = TenantTable
 	LinkTable.ForeignKeys[1].RefTable = AssetTable

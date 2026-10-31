@@ -380,8 +380,48 @@ it by its last daily reading (its `usage.Hold`) -- and
 `Destroyed.Unmeasured`, which the command says in a line. A dry run measures
 nothing. A closed workspace is measured through its restore window like any
 other; that levyan stops billing it at its closing is the lifecycle events'
-to say. Flows (bytes sent and the like), a workspace's lifecycle events and
-the entitlements' copy are not built yet.
+to say, which levyan has no RPC for yet (closed, restored, destroyed).
+Flows (bytes sent and the like) are not built yet.
+
+What levyan grants each workspace is copied into this database (payday#185,
+design 7.5, D60): `entitlements: {domain: 50}` in `proto/loft/meter.proto`,
+kept by payday's `entitle.Follower` from levyan's `payday.GrantService` over
+the same connection (`levyan.Client.Grants`, keepalive), under the lease
+(`payday.entitle.follow`), built in `cmd.Build` beside the reader and only
+when `app.billing.levyan` names levyan. The one key read is
+`loft.restricted`: **on restricts, and no grant restricts nothing** -- a gap in
+levyan never locks a workspace (levyan's design 13). A restricted workspace
+may not grow what it is billed for; what that is, is one table,
+`domain.Grows` -- methods, refused as an operation begins (`Tx.begin`, after
+`past.Begin`, so a copy of an operation that happened answers as it did),
+and cases the domain layer sees grow inside a method that does more
+(`domain.GrowsAssetBack`, `GrowsKeptLonger`, `GrowsReceivedAssets`) -- read with
+`entitle.Has` on the write's driver (`domain.Deps.Entitlements`, nil when
+nothing bills) and refused `FailedPrecondition` with an
+`errdetails.ErrorInfo` of reason `RESTRICTED`. That rule is Claude's and
+provisional until the owner answers levyan#1's question 3 (how much a
+restriction restricts); widening it is that table. A method gRPC does not
+name -- an operator's command, a sweep -- is not refused: `loft holder add`
+included, which is the operator's door and not a workspace's. A new RPC that
+adds to a meter goes in the table, or it is a way around the restriction.
+
+Who pays for a workspace is levyan's, and what it cannot know Loft tells it
+(design 7.6): `levyan.v1.WorkspaceService` `Arrive` (made, by whom, when) and
+`Leave` (an account no longer in it), written as a `LevyanNotice` (domain
+51, global, `trail: off`) in the transaction of the change -- by
+`tenancy.Workspaces`' making (sign-in, `POST /account/workspaces`), `loft
+init`, `loft tenant import`, and by `levyan.Notices.Recorder` on every
+`HolderService.Erase` through the servers -- and told by `levyan.Teller`
+(`loft.levyan.notices`, under the lease), a workspace's in the order they
+happened, a levyan that is down holding nothing up. A notice told is kept,
+marked `date_told`. The loop's first pass in a process tells levyan of every
+workspace it never told arrived, by its first owner (`tenancy.FirstOwners`,
+D57's). roster's erase mark (`Holder.date_leaving`) tells nothing: the
+account is told left when it leaves (`Deps.Depart`), since a mark is acted on
+only once roster is asked again, and a `Leave` levyan heard is not undone by
+roster restoring the account. `Offer`, the payer's screens and the
+free-workspace rule are not built yet; `ErrOwnsEnough` stays the
+deployment's cap until collection runs.
 
 ## What may be called
 

@@ -47,6 +47,19 @@ type Workspaces struct {
 
 	// Aliases is how a new workspace's address is made up.
 	Aliases Aliases
+
+	// Told is told of every workspace made, in the transaction that makes
+	// it: who made it and when, which levyan is to hear as who pays for it
+	// (`levyan.Notices`, levyan#14). Nil tells nobody, as a deployment that
+	// bills nobody does.
+	Told Told
+}
+
+// Told is what hears of a workspace made, written in the transaction that
+// makes it -- on `db`, a client of that transaction -- so that a workspace
+// that is there is one it heard of, and one rolled back is not.
+type Told interface {
+	Arrive(ctx context.Context, db *ent.Client, workspace, creator pdid.Id, created time.Time) error
 }
 
 // Membership is a workspace an account is in, and what it does there.
@@ -222,6 +235,13 @@ func (w Workspaces) create(ctx context.Context, owner identity.Person, name, ali
 	as := frame.Into(ctx, frame.New(hid, tid, frame.Whole()).WithScope(frame.Only(tid)).WithRow(h))
 	if err := SetUp(as, ungated); err != nil {
 		return Membership{}, err
+	}
+	// Who made it, and from when: who pays for it, until somebody else says
+	// they will (levyan#14).
+	if w.Told != nil {
+		if err := w.Told.Arrive(ctx, ent.NewClient(ent.Driver(tdrv)), tid, owner.Id, t.GetDateCreated().AsTime()); err != nil {
+			return Membership{}, fmt.Errorf("levyan: %w", err)
+		}
 	}
 	if err := tx.Commit(); err != nil {
 		return Membership{}, err

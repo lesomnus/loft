@@ -27,6 +27,7 @@ import (
 	"github.com/lesomnus/payday/auth"
 	"github.com/lesomnus/payday/auth/authsession"
 	"github.com/lesomnus/payday/config"
+	"github.com/lesomnus/payday/entitle"
 	"github.com/lesomnus/payday/gate"
 	"github.com/lesomnus/payday/grpcx"
 	"github.com/lesomnus/payday/meter"
@@ -147,6 +148,18 @@ type Server struct {
 	// a deployment that bills nobody, which measures nothing.
 	Meters *meter.Reader
 	Levyan *levyan.Client
+
+	// Follower keeps this deployment's copy of what levyan grants each
+	// workspace, from levyan's `payday.GrantService`, under the lease
+	// (payday#185, design 7.5): what a restricted workspace is held to
+	// (`domain.Grows`). Notices is what levyan is to be told of who pays for
+	// a workspace, written beside the change that tells it, and Teller the
+	// loop that tells it (design 7.6). All three are nil for a deployment
+	// that bills nobody, which keeps no copy, restricts nothing and tells
+	// nothing.
+	Follower *entitle.Follower
+	Notices  *levyan.Notices
+	Teller   *levyan.Teller
 
 	// Search is the OpenSearch cluster the index of assets is kept on, and
 	// nil when the configuration names none (D31, `server/opensearch`).
@@ -349,6 +362,14 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		rec = append(rec, opensearch.Recorder())
 		log.From(ctx).InfoContext(ctx, "search: OpenSearch answers, from the indexes of assets, parties and models", "assets", engine.Alias(opensearch.Assets))
 	}
+	// And for a deployment that bills, that levyan is to be told a
+	// membership ended, written with the write that ends it (design 7.6):
+	// whoever paid for the workspace with that account pays no longer.
+	var notices *levyan.Notices
+	if c.App.Billing.Levyan.On() {
+		notices = &levyan.Notices{}
+		rec = append(rec, notices.Recorder())
+	}
 	if c.Watch.Outbox {
 		// Last, so that a queue this could not be written to undoes a write
 		// which the trail and the in-process publish have already agreed to
@@ -366,6 +387,9 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	// What the domain writes beneath the servers is on the trail as its act,
 	// kept as the recorder keeps a write (payday#108).
 	deps.Audit = content
+	if notices != nil {
+		notices.Now = deps.Clock
+	}
 
 	// Who people are is roster's: one of its own, or one in this process on a
 	// database of its own.
@@ -422,7 +446,7 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	// workspace it is not a member of yet: the domain layer's alone.
 	deps.Base = base
 
-	s := &Server{Db: db, Ent: client, Drv: drv, Dialect: dialect, Watch: w, Walled: stacked, Ungated: ungated, Base: base, Deps: deps, Identity: people, Search: engine}
+	s := &Server{Db: db, Ent: client, Drv: drv, Dialect: dialect, Watch: w, Walled: stacked, Ungated: ungated, Base: base, Deps: deps, Identity: people, Search: engine, Notices: notices}
 	s.Contents = func() (audit.Contents, error) { return content, nil }
 	deps.Finder = engine
 
@@ -637,6 +661,27 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		s.Closing.Meters = s.Meters
 		s.Spin = append(s.Spin, s.Meters)
 		log.From(ctx).InfoContext(ctx, "billing: what each workspace holds is measured and handed to levyan", "addr", c.App.Billing.Levyan.Addr)
+
+		// What levyan grants each workspace, copied into this database by
+		// payday's follower over the same connection, under the lease
+		// (`payday.entitle.follow`, design 7.5): read in the transaction of
+		// a write a restricted workspace may not make (`domain.Grows`). A
+		// levyan that cannot be reached leaves the copy as it was -- each
+		// grant until it ends -- and a workspace with none restricted by
+		// nothing.
+		s.Follower = &entitle.Follower{
+			Source: s.Levyan.Grants(),
+			Copy:   pd.EntitlementCopy(drv, content),
+		}
+		s.Spin = append(s.Spin, s.Follower)
+		deps.Entitlements = pd.Entitlements
+
+		// And who pays for each workspace, told from the notices the
+		// changes wrote, a workspace's in the order they happened, under
+		// the lease (design 7.6). The first pass tells levyan of the
+		// workspaces it was never told of.
+		s.Teller = &levyan.Teller{Db: client, Levyan: s.Levyan, Now: deps.Clock}
+		s.Spin = append(s.Spin, spinEvery(levyan.NoticesName, levyan.NoticesEvery, s.Teller.Pass))
 	}
 	// The trail's erasure in the operation's transaction, the archive's half
 	// owed there, and paid once it has committed (payday#115).
@@ -665,7 +710,7 @@ func (s *Server) Close() error {
 
 // Workspaces is how an account comes to be in a workspace of its own.
 func (s *Server) Workspaces(c Config) tenancy.Workspaces {
-	return tenancy.Workspaces{
+	ws := tenancy.Workspaces{
 		Base:     s.Base,
 		Drv:      s.Drv,
 		Ungated:  s.Ungated,
@@ -673,6 +718,11 @@ func (s *Server) Workspaces(c Config) tenancy.Workspaces {
 		Owned:    c.App.Workspaces.OwnedMax(),
 		Aliases:  s.Aliases(c),
 	}
+	// Who made it, for levyan: who pays for it (design 7.6).
+	if s.Notices != nil {
+		ws.Told = s.Notices
+	}
+	return ws
 }
 
 // Arrive is what an account signing in is given: a workspace of its own when it
@@ -712,6 +762,9 @@ func (s *Server) Offboard(c Config) offboard.Deployment {
 		d.Reindex = opensearch.Remember
 	}
 	d.Aliases = s.Aliases(c)
+	// A workspace restored is one levyan is told was made, by its first
+	// owner (design 7.6).
+	d.Notices = s.Notices
 	if s.Identity != nil {
 		d.Known = func(ctx context.Context, account pdid.Id) (bool, error) {
 			_, err := s.Identity.StandingOf(ctx, account)

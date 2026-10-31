@@ -391,6 +391,17 @@ func newCmdTenantImport(c *cmd.Config) *xli.Command {
 			if held > 0 {
 				self.Printf("  what it has out holds its time: %d things, held from when they were handed over\n", held)
 			}
+			// What levyan grants it, copied now rather than at the follower's
+			// next comparison: a workspace this deployment did not have was
+			// given nothing of what levyan says of it (design 7.5). One that
+			// cannot be copied now is copied then, and said so.
+			if s.Follower != nil {
+				if _, err := s.Follower.Sync(ctx, x.Tenant); err != nil {
+					self.Printf("  what levyan grants it is copied at the next comparison, as levyan could not be asked now: %v\n", err)
+				} else {
+					self.Printf("  what levyan grants it is copied\n")
+				}
+			}
 			return nil
 		}),
 	}

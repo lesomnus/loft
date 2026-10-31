@@ -148,7 +148,7 @@ func AccessOf(t *ent.Tenant) Setting {
 // says, or -- while the grace of its shortening runs, and what it said before
 // keeps longer -- that.
 func (s Setting) held(at time.Time, grace time.Duration, days func(uint32) time.Duration) uint32 {
-	if s.Shortened != nil && at.Before(s.Shortened.Add(grace)) && outlasts(days(s.Before), days(s.Days)) {
+	if s.Shortened != nil && at.Before(s.Shortened.Add(grace)) && Outlasts(days(s.Before), days(s.Days)) {
 		return s.Before
 	}
 
@@ -182,16 +182,16 @@ func (s Setting) Set(v uint32, at time.Time, grace time.Duration, days func(uint
 	}
 
 	held := s.held(at, grace, days)
-	if !outlasts(days(held), days(v)) {
+	if !Outlasts(days(held), days(v)) {
 		return Setting{Days: v}
 	}
 
 	return Setting{Days: v, Before: held, Shortened: &at}
 }
 
-// outlasts answers whether window a keeps longer than b, where zero is
+// Outlasts answers whether window a keeps longer than b, where zero is
 // forever.
-func outlasts(a, b time.Duration) bool {
+func Outlasts(a, b time.Duration) bool {
 	switch {
 	case b <= 0:
 		return false

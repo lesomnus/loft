@@ -34,7 +34,7 @@ require (
 	github.com/google/jsonschema-go v0.4.3
 	github.com/jackc/pgx/v5 v5.10.0
 	github.com/lesomnus/flob v0.0.0-20261010120939-21f89e60609e
-	github.com/lesomnus/levyan/api v0.0.0-20261031105126-80e29fdb64d8
+	github.com/lesomnus/levyan/api v0.0.0-20261031115258-ceb52e1d619b
 	github.com/lesomnus/mkot/otlp v0.0.0-20261013182918-46d8b05a79b3
 	github.com/lesomnus/otx v0.0.0-20261017184159-4cba7a26b155
 	github.com/lesomnus/payday v0.0.0-20261031085636-0d342d896262
