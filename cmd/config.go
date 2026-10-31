@@ -24,6 +24,7 @@ import (
 	"github.com/lesomnus/loft/internal/identity"
 	"github.com/lesomnus/loft/server/apphost"
 	"github.com/lesomnus/loft/server/consent"
+	"github.com/lesomnus/loft/server/levyan"
 	"github.com/lesomnus/loft/server/mail"
 	"github.com/lesomnus/loft/server/opensearch"
 	"github.com/lesomnus/loft/server/pd"
@@ -336,6 +337,18 @@ type AppConfig struct {
 
 	// Search is what answers a search (D31, design 9.5).
 	Search SearchConfig `yaml:"search"`
+
+	// Billing is what this deployment's workspaces are billed by (design 7,
+	// D59). Unset bills nobody, and measures nothing.
+	Billing BillingConfig `yaml:"billing"`
+}
+
+// BillingConfig is the billing service a deployment's workspaces are billed
+// by: levyan (levyan#14), which what each workspace holds is measured for
+// and handed to -- every workspace once a day, and each before it is
+// destroyed (`meter.Reader`, `server/closing`).
+type BillingConfig struct {
+	Levyan levyan.Config `yaml:"levyan"`
 }
 
 // SearchConfig is what answers a search: the OpenSearch cluster it names, or

@@ -49,6 +49,7 @@ resources:
    | | `digest.key` | 감사 기록이 행마다 남기는 지문(HMAC)의 키. `loft trail rows`가 이것으로 DB에서 직접 바뀐 행을 찾습니다. 잃으면 이전 지문을 검증할 수 없으니 **백업에 함께 넣습니다**. DB 백업과는 따로 둡니다. init 컨테이너 `migrate`는 이 Secret에서 이 키 하나만 받고, 마이그레이션이 감사 기록에 남길 행이 있을 때만 읽습니다 | `openssl rand -base64 32` |
    | `loft-admin` | 운영자 이름마다 파일 하나(`operator`) | 운영자 키, 32자 이상. 운영자를 더하면 `admin.keys`에도 이름을 더합니다 | `openssl rand -hex 32` |
    | `loft-search` | `password`, `ca.pem` | 검색 클러스터의 Loft 사용자 비밀번호와 그 클러스터의 CA. 검색을 켤 때만 둡니다(아래 9) | |
+   | `loft-levyan-key` | `key` | levyan이 이 배포에 발급한 제품 키(`lvk_…`, `levyan-admin key issue`). 과금을 켤 때만 둡니다(아래 12) | |
 
 3. **설정.** base의 `config.yaml`을 복사해 채우고 바꿔 끼웁니다.
 
@@ -136,6 +137,12 @@ resources:
     - **고객이 할 일:** 설정 › 도메인과 라벨에 도메인을 더하고, 화면에 나오는 레코드 둘을 DNS에 만듭니다. 확인된 뒤에도 지우지 않습니다.
       - CNAME `<도메인>` → `app.labels.target`. CNAME을 둘 수 없는 apex라면 DNS 업체의 ALIAS·CNAME 펼치기로 같은 주소를 가리킵니다.
       - TXT `_loft-challenge.<도메인>` = 토큰.
+12. **과금(선택).** 워크스페이스마다 가진 것(자산 수, 첨부 저장량, 구성원 수, 이력 보존 기간)을 재서 청구 서비스 levyan에 넘깁니다(design 7장, D59). 시작할 때와 자정(UTC)마다 재고, 워크스페이스를 파기하기 직전에 한 번 더 잽니다.
+    - levyan은 이 구성에 들어 있지 않습니다. levyan의 `deploy/k8s`로 따로 띄우고, levyan의 운영자가 제품과 가격표의 미터를 만들고 키를 발급합니다(루트 README의 "과금 (levyan)").
+    - 키를 Secret `loft-levyan-key`의 `key`에 넣습니다. 서버와 운영자 진입점 컨테이너가 `/run/secrets/loft-levyan/`에서 받습니다. 둘 다 같은 서버를 짓기 때문입니다. 마이그레이션은 재지 않으므로 받지 않습니다.
+    - `config.yaml`의 `app.billing` 주석을 풀어 levyan의 주소를 넣습니다. levyan의 참조 배포는 클러스터 안에서 평문 gRPC(50051)이므로 `insecure: true`를 씁니다. 그 밖이면 TLS이고, 사설 CA는 `tls.ca_file`로 줍니다.
+    - levyan의 NetworkPolicy가 Loft의 파드(`app.kubernetes.io/name: loft`, namespace의 이름)만 받도록 좁힙니다(levyan의 `deploy/k8s/README.md` 4). Loft의 NetworkPolicy는 들어오는 것만 막으므로 나가는 길은 열려 있습니다.
+    - 키가 없거나 `lvk_`로 시작하지 않으면 서버가 뜨지 않습니다. levyan이 답하지 않으면 서버는 그대로 돌고, 그 값을 다시 보냅니다. 그동안 복구 기간이 지난 워크스페이스는 마지막 측정 없이 파기되고, 경고 로그에 남습니다(design 7.3).
 
 ## 처음 띄우기
 

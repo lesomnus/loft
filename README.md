@@ -329,6 +329,52 @@ PostgreSQL이면 서버를 여러 대 띄울 수 있습니다. 상태는 데이�
   go run ./cmd/loft search reindex
   ```
 
+### 과금 (levyan)
+
+설정에 levyan이 없으면 아무것도 재지 않습니다. `app.billing.levyan`으로 청구 서비스 [levyan](https://github.com/lesomnus/levyan)을 주면, 워크스페이스마다 가진 것을 재서 levyan에 넘깁니다. 금액은 levyan이 가격표대로 매깁니다(design 7장, D59).
+
+| 미터 | 단위 | 세는 것 |
+| --- | --- | --- |
+| `loft.assets.active` | `{asset}` | 지우지 않은 자산 중 처분(`disposed`)·분실(`lost`)이 아닌 것. 종류를 가리지 않습니다 |
+| `loft.attachments.bytes` | `By` | 지우지 않은 첨부의 크기 합 |
+| `loft.members` | `{member}` | 지우지 않은 구성원 자격 |
+| `loft.history.retention_days` | `d` | 지금 적용 중인 이력 보존 기간의 일수. 0은 영원히입니다. 줄인 기간은 유예(`app.retention.grace`)가 지난 날부터입니다 |
+
+- **언제:** `serve`가 시작할 때 한 번, 그 뒤로 자정(UTC)마다 모든 워크스페이스를 잽니다(루프 `payday.meter.read`, 배포에서 한 프로세스). 닫힌 워크스페이스도 파기될 때까지 잽니다. 파기하기 직전에 한 번 더 재서 마지막 측정으로 넘깁니다. 넘기지 못해도 파기는 합니다(아래 '조직 탈퇴').
+- **설정:**
+
+  ```yaml
+  app:
+    billing:
+      levyan:
+        addr: levyan.levyan.svc:50051            # levyan serve의 gRPC 주소(server.addr)
+        key: file:/run/secrets/loft-levyan/key   # levyan-admin key issue가 준 제품 키(lvk_…). env:NAME, 또는 값 그대로
+        insecure: true                           # 평문. 클러스터 안에서 NetworkPolicy가 그 사이를 막을 때만. 없으면 TLS
+        # tls:                                   # TLS일 때: 사설 CA, 이 배포가 내밀 인증서, 인증서에서 확인할 이름
+        #   ca_file: /run/secrets/loft-levyan/ca.pem
+        #   cert_file: /run/secrets/loft-levyan/tls.crt
+        #   key_file: /run/secrets/loft-levyan/tls.key
+        #   server_name: levyan
+        # timeout: 10s                           # 호출 하나가 기다리는 시간. 기본 10초
+  ```
+
+  환경변수로는 `LOFT_APP_BILLING_LEVYAN_ADDR`, `LOFT_APP_BILLING_LEVYAN_KEY`, `LOFT_APP_BILLING_LEVYAN_INSECURE`, `LOFT_APP_BILLING_LEVYAN_TLS_CA_FILE`처럼 씁니다(`loft config env`).
+  - 키는 로그에도 오류에도 남지 않습니다. 키가 없거나 `lvk_`로 시작하지 않으면 서버가 뜨지 않습니다.
+  - `insecure: true`가 아니면 TLS입니다. 키를 싣는 연결이라, 블록 하나를 빠뜨렸다고 평문으로 보내지 않습니다. `tls.enabled`는 따로 쓰지 않아도 됩니다.
+- **levyan에서 할 일**(levyan의 운영자): 제품을 세우고 키를 발급하고, 가격표에 위의 미터 넷을 **같은 키와 단위로** 더합니다. levyan에서는 미터의 키·단위·종류·집계를 나중에 바꿀 수 없습니다. 집계는 가격을 정할 때 정하고, 아래는 예입니다.
+
+  ```sh
+  levyan-admin product add --name Loft --yes loft
+  levyan-admin key issue --alias loft --yes loft   # 키는 이때 한 번만 나옵니다
+  levyan-admin meter add --unit '{asset}' --kind stock --aggregation time_weighted_average --name '활성 자산' --yes loft loft.assets.active
+  levyan-admin meter add --unit By --kind stock --aggregation time_weighted_average --name '첨부 저장량' --yes loft loft.attachments.bytes
+  levyan-admin meter add --unit '{member}' --kind stock --aggregation max --name '구성원' --yes loft loft.members
+  levyan-admin meter add --unit d --kind stock --aggregation last --unbounded-zero --name '이력 보존 기간' --yes loft loft.history.retention_days
+  ```
+
+- **실패했을 때:** levyan이 답하지 않거나 늦으면(`timeout`) 그 값을 1분 뒤부터 점점 길게, 다음 자정 전까지 그대로 다시 보냅니다. levyan은 같은 값(워크스페이스, 미터, 잰 시각)을 한 번만 남기므로 다시 보내도 됩니다. levyan이 거부한 값(가격표에 없는 미터, 미터의 것이 아닌 단위)은 경고 로그(`levyan: a reading was refused`)에 남기고 다시 보내지 않습니다. 가격표에 미터를 더하면 다음 측정부터 받습니다.
+- 흐름(전송량 같은 것), 워크스페이스의 생애 사건, 권한 사본은 아직 없습니다(levyan#14).
+
 ### 운영에 띄우기 (운영자)
 
 [`deploy/compose`](deploy/compose/README.md)가 한 대의 서버에 띄우는 운영 구성 전체입니다. PostgreSQL, 마이그레이션, `loft serve` 두 대, 운영자 진입점, 인증서를 받는 Caddy가 들어 있습니다. 운영자가 채울 것은 도메인과 비밀값(`.env`, `secrets/`)이고, 이미지는 저장소 루트의 `Dockerfile`로 짓습니다(`docker build -t loft .`).
@@ -512,6 +558,7 @@ go run ./cmd/loft tenant purge --tenant loft --yes             # 감사 기록�
 - **purge**는 바닥값이 걸린 것까지 모두 지금 지웁니다. 그 조직이 바닥값의 법이 아닌 다른 법이나 계약 아래에 있어 모두 지워야 할 때 씁니다.
 - **기본은 retire입니다.** 닫힌 워크스페이스를 파기하는 sweep은 파기하는 순간 효력이 있는 계약을 따릅니다. 계약이 `--purge-floors`를 말하지 않으면(계약이 없을 때도) retire입니다. 줄어드는 보관 기간처럼, purge로 바꾸는 계약은 앞 계약이 retire였다면 배포의 유예(`app.retention.grace`)가 지난 뒤에 적용됩니다. 손으로 하는 `retire`와 `purge`는 이름대로 하고, 계약이 다른 쪽을 말하면 미리 보기에서 알려 줍니다.
 - **retire는 보관소가 있어야 합니다.** 남기는 기록과 그 조직이 떠났다는 서명된 기록을 보관소에 두기 때문입니다. 바닥값이 있는데 `audit.archive`가 없으면 아무것도 지우기 전에 거부합니다. 그런 배포에서 sweep은 그 워크스페이스를 닫힌 채로 두고 경고합니다(법적 보존이 걸린 것처럼). 보관소를 두면 다음 sweep이 retire하고, 바닥값을 포기해도 되면 `loft tenant purge --yes`나 `--purge-floors` 계약으로 지웁니다. 바닥값이 없는 배포(`loft.yaml`의 기본)에서 retire는 남길 것이 없어 purge와 같습니다.
+- **청구하는 배포는 지우기 전에 잽니다**(`app.billing.levyan`, design 7.3). sweep도 `retire`·`purge --yes`도 그 워크스페이스의 미터를 재서 levyan에 마지막 측정으로 넘긴 뒤에 지웁니다. **넘기지 못해도 지웁니다.** 파기는 기한이 있는 법적 의무라 청구 서비스를 기다리지 않습니다. 그때는 경고 로그(`closing: a workspace is destroyed without its final reading`)에 워크스페이스와 까닭이 남고, 명령은 그렇다고 한 줄(`meters: its final reading could not be handed to levyan, ...`) 말하고 성공합니다. levyan은 마지막 일일 측정을 이어서 매깁니다. 기다리는 시간은 호출의 끝(`timeout`, 기본 10초)까지입니다. `--yes` 없는 미리 보기는 재지 않습니다. (처음에는 넘기지 못하면 지우지 않았는데, Claude가 검토에서 이렇게 바꿨습니다.)
 - retire가 지운 행은 지웠다는 기록(`loft.workspace.retire`)으로 감사 기록에 남습니다. 바닥값이 걸린 종류의 것만 남고 나머지는 함께 지워지므로, `trail rows`가 그 행들을 `missing`으로 찾지 않습니다.
 - retire한 워크스페이스에는 나중에 법적 보존을 걸 수 없습니다. hold는 지금 있는 워크스페이스에 거는 것이고, 워크스페이스의 hold 기록도 함께 지워지기 때문입니다(loft#153). 파기 뒤에 보존 요청이 오면 남은 기록을 암호화된 파일로 꺼내 별도 매체에 보관합니다: [보존 요청 대응](docs/runbook/preserve.md). `loft tenant retired`가 무엇이 언제까지 남는지 보여 줍니다.
 

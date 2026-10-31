@@ -91,6 +91,18 @@ app:
   #     ca_file: /run/secrets/loft-search/ca.pem
   #     index: loft
 
+  # Billed by levyan (design 7, D59): what each workspace holds, measured
+  # every midnight UTC and before it is destroyed, and handed to levyan's
+  # MeteringService with the product key in the Secret `loft-levyan-key`
+  # (README.md). In plaintext inside the cluster, as levyan's own reference
+  # deployment serves it, with its NetworkPolicy and this one's between the
+  # two; anything else is TLS (`tls:`). Unset, nothing is measured.
+  # billing:
+  #   levyan:
+  #     addr: levyan.levyan.svc:50051
+  #     key: file:/run/secrets/loft-levyan/key
+  #     insecure: true
+
   # What an account agrees to before it uses anything here, once the
   # documents are published (loft#35).
   # consent:

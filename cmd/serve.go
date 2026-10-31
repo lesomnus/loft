@@ -29,6 +29,7 @@ import (
 	"github.com/lesomnus/payday/config"
 	"github.com/lesomnus/payday/gate"
 	"github.com/lesomnus/payday/grpcx"
+	"github.com/lesomnus/payday/meter"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/pdpb"
 	"github.com/lesomnus/payday/spin"
@@ -48,6 +49,7 @@ import (
 	"github.com/lesomnus/loft/server/consent"
 	"github.com/lesomnus/loft/server/csp"
 	"github.com/lesomnus/loft/server/domain"
+	"github.com/lesomnus/loft/server/levyan"
 	"github.com/lesomnus/loft/server/lifecycle"
 	"github.com/lesomnus/loft/server/mail"
 	"github.com/lesomnus/loft/server/offboard"
@@ -138,6 +140,13 @@ type Server struct {
 	// Closing is what becomes of a closed workspace and of a workspace's
 	// address (D29, `server/closing`).
 	Closing closing.Closing
+
+	// Meters is what each workspace holds, measured every day and before it
+	// is destroyed, and handed to levyan (`app.billing.levyan`, payday#186,
+	// D59); and Levyan the connection the readings go over. Both are nil for
+	// a deployment that bills nobody, which measures nothing.
+	Meters *meter.Reader
+	Levyan *levyan.Client
 
 	// Search is the OpenSearch cluster the index of assets is kept on, and
 	// nil when the configuration names none (D31, `server/opensearch`).
@@ -602,6 +611,33 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		Base: base, Drv: drv, Deps: deps,
 		Aliases: s.Aliases(c), Hold: c.App.Workspaces.Hold(),
 	}
+
+	// What each workspace holds, measured and handed to levyan, which bills
+	// by it (design 7, D59): when the deployment names one, and nothing at
+	// all when it does not. The meters the schema declares
+	// (`proto/loft/meter.proto`) and the one it cannot, how long a workspace
+	// keeps its history by the window in force -- after the trail's policy,
+	// whose grace that is. A loop under the lease measures every workspace at
+	// each midnight UTC and as it starts, and a workspace is measured once
+	// more before it is destroyed, by the sweep or an operator's hand -- as
+	// well as that can be done, since a destruction waits for no billing
+	// service (`closing.Destroy`).
+	if c.App.Billing.Levyan.On() {
+		if s.Levyan, err = levyan.Dial(c.App.Billing.Levyan, identity.ResolveRef); err != nil {
+			people.Close()
+			db.Close()
+
+			return nil, err
+		}
+		s.Meters = &meter.Reader{
+			Tenants: pd.MeterTenants(client),
+			Meters:  append(pd.Meters(client), retention.Meter(client, deps.Retention, deps.Clock)),
+			Sink:    s.Levyan,
+		}
+		s.Closing.Meters = s.Meters
+		s.Spin = append(s.Spin, s.Meters)
+		log.From(ctx).InfoContext(ctx, "billing: what each workspace holds is measured and handed to levyan", "addr", c.App.Billing.Levyan.Addr)
+	}
 	// The trail's erasure in the operation's transaction, the archive's half
 	// owed there, and paid once it has committed (payday#115).
 	deps.Forget = func(ctx context.Context, db *ent.Client, objects []pdid.Id) (int, error) {
@@ -624,7 +660,7 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 
 func (s *Server) Close() error {
 	s.Search.Close()
-	return errors.Join(s.Identity.Close(), s.Db.Close())
+	return errors.Join(s.Levyan.Close(), s.Identity.Close(), s.Db.Close())
 }
 
 // Workspaces is how an account comes to be in a workspace of its own.

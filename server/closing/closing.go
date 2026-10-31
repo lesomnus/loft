@@ -16,6 +16,12 @@
 //
 // A legal hold on a workspace stops the destroying, not the closing: the
 // workspace stays closed, and is destroyed once the hold is lifted.
+//
+// And a workspace this deployment bills is measured before it is destroyed
+// (`app.billing.levyan`, design 7.3): its final reading, handed to levyan
+// while the rows it is measured from are there. As well as that can be done
+// and no more: a reading that cannot be made or handed over is said in the log,
+// and the workspace is destroyed all the same ([Destroyed.Unmeasured]).
 package closing
 
 import (
@@ -27,6 +33,7 @@ import (
 
 	"github.com/lesomnus/otx/log"
 	"github.com/lesomnus/payday/audit"
+	"github.com/lesomnus/payday/meter"
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/trail"
 	"github.com/lesomnus/z"
@@ -61,6 +68,12 @@ type Closing struct {
 	Aliases tenancy.Aliases
 	// Hold is how long an address is kept from anybody else.
 	Hold time.Duration
+
+	// Meters is what a workspace holds, read and handed to levyan before it
+	// is destroyed, as its final reading: the reader the deployment measures
+	// every workspace with (payday#186). Nil, for a deployment that bills
+	// nobody, destroys with nothing measured.
+	Meters *meter.Reader
 }
 
 func (c Closing) now() time.Time {
@@ -74,7 +87,10 @@ func (c Closing) now() time.Time {
 // held by nothing, as their contracts say. One that is held waits, closed, and
 // is looked at again; so does one whose contract retires it in a deployment
 // that keeps floors and no archive to keep them in ([offboard.ErrNoArchive]),
-// which an operator settles -- naming an archive, or purging it.
+// which an operator settles -- naming an archive, or purging it. One whose
+// final reading could not be handed to levyan is destroyed all the same
+// ([Closing.Destroy]): a billing service is never what keeps a workspace past
+// its window.
 func (c Closing) Sweep(ctx context.Context) error {
 	ts, err := c.Db.Tenant.Query().Where(
 		enttenant.DateClosedNotNil(),
@@ -126,6 +142,11 @@ type Destroyed struct {
 	// Forgotten is the accounts of the roster in this process that were here
 	// and in no other workspace, which went with it.
 	Forgotten int
+
+	// Unmeasured is why its final reading was not measured and handed to
+	// levyan before it went, and nil when it was -- or when the deployment
+	// bills nobody, or for a dry run, which measures nothing.
+	Unmeasured error
 }
 
 // Destroy is a workspace taken out of the deployment, its trail as `how`
@@ -135,7 +156,11 @@ type Destroyed struct {
 //
 // A hold on it refuses, [trail.ErrHeld], and so does a retirement this
 // deployment cannot keep, [offboard.ErrNoArchive]: both before anything is
-// done.
+// done. And what it holds is measured and handed to levyan, when this
+// deployment bills ([Closing.Meters]), after those and before anything is
+// taken, as its final reading -- and when that cannot be done it is destroyed
+// all the same, the reason said in the log and in [Destroyed.Unmeasured]. A
+// dry run measures nothing.
 func (c Closing) Destroy(ctx context.Context, t *ent.Tenant, how How, dry bool) (Destroyed, error) {
 	id := pdid.Id(t.Id)
 	plan, err := c.leave(ctx, id, how, true)
@@ -157,11 +182,30 @@ func (c Closing) Destroy(ctx context.Context, t *ent.Tenant, how How, dry bool) 
 		return Destroyed{Purged: plan, Forgotten: len(accounts)}, nil
 	}
 
+	// What it held, measured now and handed to levyan as its final reading,
+	// before anything of it goes: its rows are what it is measured from
+	// (payday#186). As well as that can be done, and no more (Claude, in place
+	// of the rule that a workspace not measured is not destroyed): a
+	// destruction is the law's, with no time to wait for a billing service
+	// that is down, and what a final reading adds to the last daily one is
+	// little -- nothing for a closed workspace, which takes no writes, and at
+	// most a day for one an operator destroys, which levyan carries the last
+	// reading over (`usage.Hold`). A destruction that stopped part of the way
+	// is measured again when it is run again: what is left of the workspace,
+	// which is never more than it held.
+	out := Destroyed{Purged: plan}
+	if c.Meters != nil {
+		if err := c.Meters.Read(ctx, id); err != nil {
+			out.Unmeasured = err
+			log.From(ctx).WarnContext(ctx, "closing: a workspace is destroyed without its final reading: what it held could not be "+
+				"measured and handed to levyan, which bills it by its last daily reading (levyan's usage.Hold)", "workspace", t.Alias, "err", err)
+		}
+	}
+
 	// The address first: held before the workspace is gone, so that no
 	// moment comes when it is free -- and saying how it went, which a restore
 	// of it here reads to have the trail take a retired one back first
 	// (`offboard.Deployment.Import`).
-	out := Destroyed{Purged: plan}
 	reason := offboard.ReasonDestroyed
 	if plan.Retired && c.Offboard.Floored() {
 		reason = offboard.ReasonRetired
