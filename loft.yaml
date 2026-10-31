@@ -217,13 +217,16 @@ app:
   #   personal: true
   #   owned: 3
 
-  # What the workspaces are billed by (design 7, D59): levyan, which what
+  # What the workspaces are billed by (design 7, D59, D60): levyan, which what
   # each holds is measured for and handed to -- every workspace as `serve`
   # starts and at each midnight UTC, and each once more before it is
-  # destroyed. `key` is the product key levyan's operator issued
-  # (`levyan-admin key issue`, lvk_…), as env:NAME, file:PATH or itself, and
-  # is said nowhere. Plaintext only when `insecure` says so; anything else is
-  # TLS, as `tls` says. Unset, nothing is measured.
+  # destroyed -- whose grants are copied here and read by a workspace's writes
+  # (`loft.restricted`), and which is told who made each workspace and who
+  # left one, which is who pays for it. One connection for all of it. `key` is
+  # the product key levyan's operator issued (`levyan-admin key issue`,
+  # lvk_…), as env:NAME, file:PATH or itself, and is said nowhere. Plaintext
+  # only when `insecure` says so; anything else is TLS, as `tls` says. Unset,
+  # nothing is measured, restricted or told.
   #
   # billing:
   #   levyan:

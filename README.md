@@ -331,7 +331,11 @@ PostgreSQL이면 서버를 여러 대 띄울 수 있습니다. 상태는 데이�
 
 ### 과금 (levyan)
 
-설정에 levyan이 없으면 아무것도 재지 않습니다. `app.billing.levyan`으로 청구 서비스 [levyan](https://github.com/lesomnus/levyan)을 주면, 워크스페이스마다 가진 것을 재서 levyan에 넘깁니다. 금액은 levyan이 가격표대로 매깁니다(design 7장, D59).
+설정에 levyan이 없으면 아무것도 재지 않고, 아무것도 제한하지 않으며, levyan에 아무것도 알리지 않습니다. `app.billing.levyan`으로 청구 서비스 [levyan](https://github.com/lesomnus/levyan)을 주면 연결 하나로 세 가지를 합니다(design 7장, D59, D60).
+
+- 워크스페이스마다 가진 것을 재서 levyan에 넘깁니다. 금액은 levyan이 가격표대로 매깁니다(아래 표).
+- levyan이 워크스페이스마다 주는 권한(Grant)을 이 배포의 DB에 사본으로 둡니다. levyan이 `loft.restricted`를 켠 워크스페이스는 제한됩니다(아래 '제한').
+- 워크스페이스를 누가 만들었는지와 어느 계정이 떠났는지를 levyan에 알립니다. levyan은 그것으로 누가 내는지(지불자)를 정합니다(아래 '지불자').
 
 | 미터 | 단위 | 세는 것 |
 | --- | --- | --- |
@@ -373,7 +377,10 @@ PostgreSQL이면 서버를 여러 대 띄울 수 있습니다. 상태는 데이�
   ```
 
 - **실패했을 때:** levyan이 답하지 않거나 늦으면(`timeout`) 그 값을 1분 뒤부터 점점 길게, 다음 자정 전까지 그대로 다시 보냅니다. levyan은 같은 값(워크스페이스, 미터, 잰 시각)을 한 번만 남기므로 다시 보내도 됩니다. levyan이 거부한 값(가격표에 없는 미터, 미터의 것이 아닌 단위)은 경고 로그(`levyan: a reading was refused`)에 남기고 다시 보내지 않습니다. 가격표에 미터를 더하면 다음 측정부터 받습니다.
-- 흐름(전송량 같은 것), 워크스페이스의 생애 사건, 권한 사본은 아직 없습니다(levyan#14).
+- **연결:** 미터, 권한, 지불자 알림이 연결 하나를 씁니다. 권한의 스트림이 늘 열려 있으므로 5분마다 keepalive를 보냅니다. levyan의 `server.keepalive.min_time`은 5분보다 짧아야 합니다(짧지 않으면 levyan이 `too_many_pings`로 끊고, 사본은 다시 연결해 맞춥니다).
+- **제한**(design 7.5): levyan의 Grant를 lease 아래 한 프로세스가 따라 DB에 사본으로 둡니다(루프 `payday.entitle.follow`). `loft.restricted`가 켜진 워크스페이스는 청구되는 것을 늘리지 못합니다. 자산 등록(대량 등록, 재고 전환, 자산으로 받는 구매 입고 포함), 분실·폐기한 자산을 다시 쓰는 상태로 바꾸기, 첨부 올리기, 로그인 발급·초대 보내기·받아들이기, 이력을 지금보다 오래 보관하기입니다. 거절은 `FailedPrecondition`이고 화면에 "이 워크스페이스는 제한되어 …"라고 나옵니다. 보기, 내보내기, 지급·반납, 예약, 이동, 처분·삭제, 닫기, 결제는 그대로입니다. Grant가 없으면 제한하지 않으므로 levyan이 멈춰도 막히는 워크스페이스는 없습니다. 운영자의 명령(`loft holder add` 같은 것)은 막지 않습니다. 이 범위는 잠정입니다(levyan#1의 열린 질문 3).
+- **지불자**(design 7.6): 워크스페이스를 만들 때와 구성원 자격이 끝날 때, 같은 트랜잭션에 levyan에 알릴 것을 남기고(`LevyanNotice`), 루프 `loft.levyan.notices`가 10초마다 levyan의 `WorkspaceService`(`Arrive`, `Leave`)로 보냅니다. 워크스페이스마다 일어난 순서대로입니다. levyan이 멈춰도 Loft의 쓰기는 기다리지도 실패하지도 않고, 알림이 기다렸다가 levyan이 돌아오면 나갑니다. 루프가 처음 돌 때, levyan에 알린 적 없는 워크스페이스를 한 번씩 만든 때와 첫 소유자로 알립니다(levyan을 붙이기 전에 있던 것). 기다리는 알림이 있는데 levyan이 답하지 않으면 경고 로그(`levyan: who pays for a workspace waits to be told`)가 남습니다.
+- 흐름(전송량 같은 것), 워크스페이스의 닫힘·복구·파기, 지불자 제안과 결제 화면은 아직 없습니다(levyan#14).
 
 ### 운영에 띄우기 (운영자)
 
