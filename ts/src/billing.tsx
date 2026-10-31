@@ -7,7 +7,8 @@
  *   invitations are, since what a payer pays with is its own and its calls are
  *   the account's (payday#184). Its billing accounts -- made by naming a
  *   country, and sold through the channel and billed in the currency levyan
- *   says of it -- whether each can be collected, the subscription it is
+ *   says of it; called by a name the payer gives, or by when each was made
+ *   (`accountNames`) -- whether each can be collected, the subscription it is
  *   collected through and how it pays, which only ever says the kind, the
  *   brand and the last four digits; the checkout that starts one, opened on
  *   the page Paddle's checkout opens on (`/billing/checkout`) and asked about
@@ -50,7 +51,7 @@ import {
 	type PaymentGetBillingAccountResponse,
 	type PaymentGetInvoiceResponse,
 } from '../gen/loft/payment_pb.js'
-import { HolderService, PaymentService, dateOf, errorText, fmt, idStr, money, openWorkspace, workspace, type Account } from './api.js'
+import { HolderService, PaymentService, dateOf, errorText, fmt, idStr, money, openWorkspace, wall, workspace, type Account } from './api.js'
 import { useCatalog } from './catalog.js'
 import { call, useAct, useRestricted, useRpc } from './rpc.js'
 import { Badge, Card, Confirm, Empty, Field, FormModal, Kv, Load, Modal, Select, useToast } from './ui.js'
@@ -228,6 +229,39 @@ function methodText(m: { type: string; brand: string; last4: string } | undefine
 	return [methodWord[m.type] ?? m.type, m.brand, m.last4 === '' ? '' : `•••• ${m.last4}`].filter((v) => v !== '').join(' ')
 }
 
+/** A moment to the minute, as the clock on the workspace's wall says it: 10월 31일 14:05. */
+function minuteText(t: Timestamp | undefined): string {
+	const d = dateOf(t)
+	if (d === undefined) return ''
+	const w = wall(d)
+	const p = (n: number) => String(n).padStart(2, '0')
+	return `${w.m + 1}월 ${w.d}일 ${p(w.h)}:${p(w.mi)}`
+}
+
+/**
+ * What each of a payer's billing accounts is called wherever the page lists
+ * or offers one: the name the payer gave it, or else when it was made -- and,
+ * where two would still read the same (one name twice, or two made in one
+ * minute), the end of its identifier after it.
+ */
+function accountNames(accounts: BillingAccount[]): (b: BillingAccount) => string {
+	const own = (b: BillingAccount): string => {
+		const name = b.name.trim()
+		if (name !== '') return name
+		const made = minuteText(b.created)
+		return made === '' ? '결제 계정' : `결제 계정 (${made} 만듦)`
+	}
+	const seen = new Map<string, number>()
+	for (const b of accounts) {
+		const v = own(b)
+		seen.set(v, (seen.get(v) ?? 0) + 1)
+	}
+	return (b) => {
+		const v = own(b)
+		return (seen.get(v) ?? 0) > 1 ? `${v} · #${b.id.slice(-4)}` : v
+	}
+}
+
 /** What a line used, in its unit. */
 function usageText(l: BillingLine): string {
 	const n = Number(l.usage)
@@ -307,6 +341,34 @@ async function paying(): Promise<Paying> {
 	return { accounts: a.billingAccounts, offers: o.offers, links: l.links, invoices: i.invoices, notes: n.creditNotes }
 }
 
+/** What levyan says of one billing account beyond the list, or why it could not be asked. */
+type Detail = { got?: PaymentGetBillingAccountResponse; bad?: string }
+
+/**
+ * What levyan says of each billing account beyond the list -- whether it can
+ * be collected, its subscription and how it pays, its failed charges --
+ * asked of each as the list arrives: for its row, and for the choices of a
+ * billing account, which say how each pays where this knows it
+ * (`accountOptions`). What was said before stays until the answer after it.
+ */
+function useDetails(accounts: BillingAccount[] | undefined): Record<string, Detail> {
+	const [details, setDetails] = useState<Record<string, Detail>>({})
+	useEffect(() => {
+		if (accounts === undefined) return
+		let gone = false
+		for (const b of accounts) {
+			call(PaymentService.method.getBillingAccount, { id: b.id }).then(
+				(got) => !gone && setDetails((v) => ({ ...v, [b.id]: { got } })),
+				(err) => !gone && setDetails((v) => ({ ...v, [b.id]: { got: v[b.id]?.got, bad: errorText(err) } })),
+			)
+		}
+		return () => {
+			gone = true
+		}
+	}, [accounts])
+	return details
+}
+
 /**
  * A checkout the payer comes back from (`/billing?checkout=`): asked about
  * until it is done, which is once Paddle made the subscription -- a moment or
@@ -369,6 +431,8 @@ export function Billing(props: { account: Account; onSignOut: () => void }): Rea
 	const again = useCallback(() => setN((v) => v + 1), [])
 	const back = useCheckoutBack(again)
 	const named = workspaceNames(props.account)
+	const details = useDetails(v?.accounts)
+	const called = accountNames(v?.accounts ?? [])
 
 	useEffect(() => {
 		let gone = false
@@ -451,13 +515,13 @@ export function Billing(props: { account: Account; onSignOut: () => void }): Rea
 							) : (
 								<ul className="billing-accounts">
 									{v.accounts.map((b) => (
-										<AccountRow key={b.id} b={b} n={n} busy={busy} onStart={(b) => void start(b)} />
+										<AccountRow key={b.id} b={b} called={called(b)} detail={details[b.id]} busy={busy} write={write} onStart={(b) => void start(b)} />
 									))}
 								</ul>
 							)}
 						</Card>
-						<Offers offers={v.offers} accounts={v.accounts} named={named} busy={busy} write={write} />
-						<Links links={v.links} accounts={v.accounts} named={named} busy={busy} write={write} />
+						<Offers offers={v.offers} accounts={v.accounts} called={called} details={details} named={named} busy={busy} write={write} />
+						<Links links={v.links} accounts={v.accounts} called={called} details={details} named={named} busy={busy} write={write} />
 						<Invoices invoices={v.invoices} notes={v.notes} accounts={v.accounts} named={named} />
 					</>
 				)}
@@ -485,8 +549,13 @@ export function Billing(props: { account: Account; onSignOut: () => void }): Rea
 	)
 }
 
-/** A billing account made by naming its country: the channel and the currency are levyan's to say of it. */
+/**
+ * A billing account made by naming its country -- the channel and the
+ * currency are levyan's to say of it -- and, if the payer likes, a name of
+ * its own to tell it from the others by.
+ */
 function NewAccount(props: { onClose: () => void; onMade: (b: BillingAccount) => void }): ReactNode {
+	const [name, setName] = useState('')
 	const [country, setCountry] = useState('KR')
 	const toast = useToast()
 	return (
@@ -496,7 +565,7 @@ function NewAccount(props: { onClose: () => void; onMade: (b: BillingAccount) =>
 			onClose={props.onClose}
 			onSubmit={async () => {
 				try {
-					const r = await call(PaymentService.method.createBillingAccount, { country })
+					const r = await call(PaymentService.method.createBillingAccount, { name: name.trim(), country })
 					if (r.billingAccount !== undefined) props.onMade(r.billingAccount)
 					return true
 				} catch (err) {
@@ -505,6 +574,9 @@ function NewAccount(props: { onClose: () => void; onMade: (b: BillingAccount) =>
 				}
 			}}
 		>
+			<Field label="이름" hint="여러 결제 계정을 구분하는 이름입니다. 예: 개인 카드, 회사용">
+				<input value={name} onChange={(e) => setName(e.target.value)} autoFocus />
+			</Field>
 			<Field label="나라" hint="어느 채널로, 어느 통화로 청구할지는 결제 서비스가 나라에 따라 정합니다. 만든 뒤에는 바뀌지 않습니다.">
 				<Select value={country} onChange={setCountry} options={countries.map(([value, name]) => ({ value, label: `${name} (${value})` }))} />
 			</Field>
@@ -512,21 +584,15 @@ function NewAccount(props: { onClose: () => void; onMade: (b: BillingAccount) =>
 	)
 }
 
-/** One billing account: what it is billed through and in, whether it can be collected, and how it pays. */
-function AccountRow(props: { b: BillingAccount; n: number; busy: boolean; onStart: (b: BillingAccount) => void }): ReactNode {
+/**
+ * One billing account, by what it is called (`accountNames`): what it is
+ * billed through and in, whether it can be collected, and how it pays.
+ */
+function AccountRow(props: { b: BillingAccount; called: string; detail: Detail | undefined; busy: boolean; write: Write; onStart: (b: BillingAccount) => void }): ReactNode {
 	const { b } = props
-	const [got, setGot] = useState<PaymentGetBillingAccountResponse>()
-	const [bad, setBad] = useState('')
-	useEffect(() => {
-		let gone = false
-		call(PaymentService.method.getBillingAccount, { id: b.id }).then(
-			(v) => !gone && setGot(v),
-			(err) => !gone && setBad(errorText(err)),
-		)
-		return () => {
-			gone = true
-		}
-	}, [b.id, props.n])
+	const got = props.detail?.got
+	const bad = props.detail?.bad ?? ''
+	const [renaming, setRenaming] = useState(false)
 
 	const s = got?.subscription
 	const state = got?.collection?.state ?? BillingCollectionState.UNSPECIFIED
@@ -548,9 +614,11 @@ function AccountRow(props: { b: BillingAccount; n: number; busy: boolean; onStar
 		}
 	}
 	return (
-		<li aria-label={b.name || `결제 계정 ${b.country} ${b.currency}`}>
+		<li aria-label={props.called}>
 			<div>
-				<strong>{b.name || '결제 계정'}</strong> <span className="mute small">{fmt(b.created, 'date')}에 만듦</span>
+				<strong>{props.called}</strong>
+				{/* One with no name is called by when it was made, which says the day already. */}
+				{b.name.trim() !== '' && <span className="mute small"> {fmt(b.created, 'date')}에 만듦</span>}
 				<Kv items={items} />
 				{got !== undefined && collectionDo[state] !== undefined && <p className="small">{collectionDo[state]}</p>}
 				{(got?.dunning ?? []).map((d) => (
@@ -560,26 +628,73 @@ function AccountRow(props: { b: BillingAccount; n: number; busy: boolean; onStar
 				))}
 				{bad !== '' && <p className="bad small">{bad}</p>}
 			</div>
-			{opens && (
-				<div className="answer">
+			<div className="answer">
+				{opens && (
 					<button className="primary" disabled={props.busy} onClick={() => props.onStart(b)}>
 						결제수단 등록
 					</button>
-				</div>
-			)}
+				)}
+				<button disabled={props.busy} onClick={() => setRenaming(true)}>
+					이름 바꾸기
+				</button>
+			</div>
+			{renaming && <Rename b={b} called={props.called} write={props.write} onClose={() => setRenaming(false)} />}
 		</li>
+	)
+}
+
+/**
+ * A billing account's name said again: what it alone is asked
+ * (`UpdateBillingAccount` with `name` and nothing else), so an empty one
+ * takes the name away, and the account is called by when it was made again.
+ */
+function Rename(props: { b: BillingAccount; called: string; write: Write; onClose: () => void }): ReactNode {
+	const [name, setName] = useState(props.b.name)
+	return (
+		<FormModal
+			title={`${props.called} 이름 바꾸기`}
+			submit="바꾸기"
+			onClose={props.onClose}
+			onSubmit={() => {
+				const said = name.trim()
+				return props.write(
+					() => call(PaymentService.method.updateBillingAccount, { id: props.b.id, name: said }),
+					said === '' ? '이름을 지웠습니다.' : '이름을 바꿨습니다.',
+				)
+			}}
+		>
+			<Field label="이름" hint="여러 결제 계정을 구분하는 이름입니다. 비우면 이름을 지우고, 만든 때로 부릅니다." wide>
+				<input value={name} onChange={(e) => setName(e.target.value)} autoFocus />
+			</Field>
+		</FormModal>
 	)
 }
 
 type Write = (f: () => Promise<unknown>, ok: string) => Promise<boolean>
 
-/** What a list of billing accounts offers a choice of. */
-function accountOptions(accounts: BillingAccount[]): { value: string; label: string }[] {
-	return accounts.map((b) => ({ value: b.id, label: `${b.name || '결제 계정'} · ${countryName(b.country)} · ${b.currency}` }))
+/**
+ * What a list of billing accounts offers a choice of: each by what it is
+ * called (`accountNames`), where it is billed and in what, and how it pays
+ * where the page was told (`useDetails`) -- asked of nobody for this.
+ */
+function accountOptions(accounts: BillingAccount[], called: (b: BillingAccount) => string, details: Record<string, Detail>): { value: string; label: string }[] {
+	return accounts.map((b) => {
+		const m = details[b.id]?.got?.subscription?.method
+		const pays = m === undefined || m.type === '' ? [] : [methodText(m)]
+		return { value: b.id, label: [called(b), countryName(b.country), b.currency, ...pays].join(' · ') }
+	})
 }
 
 /** The offers made to the account to pay for a workspace. */
-function Offers(props: { offers: BillingOffer[]; accounts: BillingAccount[]; named: (id: string) => string; busy: boolean; write: Write }): ReactNode {
+function Offers(props: {
+	offers: BillingOffer[]
+	accounts: BillingAccount[]
+	called: (b: BillingAccount) => string
+	details: Record<string, Detail>
+	named: (id: string) => string
+	busy: boolean
+	write: Write
+}): ReactNode {
 	const [accepting, setAccepting] = useState<BillingOffer>()
 	const [with_, setWith] = useState('')
 	return (
@@ -629,7 +744,7 @@ function Offers(props: { offers: BillingOffer[]; accounts: BillingAccount[]; nam
 					}
 				>
 					<Field label="낼 결제 계정" hint="나중에 정해도 됩니다. 정하기 전까지는 기본 조건으로 매깁니다.">
-						<Select value={with_} onChange={setWith} empty="나중에 정하기" options={accountOptions(props.accounts)} />
+						<Select value={with_} onChange={setWith} empty="나중에 정하기" options={accountOptions(props.accounts, props.called, props.details)} />
 					</Field>
 				</FormModal>
 			)}
@@ -638,7 +753,15 @@ function Offers(props: { offers: BillingOffer[]; accounts: BillingAccount[]; nam
 }
 
 /** The workspaces the account pays for, or will from the end of the period. */
-function Links(props: { links: BillingLink[]; accounts: BillingAccount[]; named: (id: string) => string; busy: boolean; write: Write }): ReactNode {
+function Links(props: {
+	links: BillingLink[]
+	accounts: BillingAccount[]
+	called: (b: BillingAccount) => string
+	details: Record<string, Detail>
+	named: (id: string) => string
+	busy: boolean
+	write: Write
+}): ReactNode {
 	const [using, setUsing] = useState<BillingLink>()
 	const [with_, setWith] = useState('')
 	const account = (id: string) => props.accounts.find((b) => b.id === id)
@@ -656,7 +779,7 @@ function Links(props: { links: BillingLink[]; accounts: BillingAccount[]; named:
 								<div>
 									<strong>{props.named(l.workspace)}</strong>
 									<p className="small">
-										{b === undefined ? '결제 계정을 아직 정하지 않음' : `${b.name || '결제 계정'} · ${b.currency}`} · {fmt(l.start, 'date')}부터
+										{b === undefined ? '결제 계정을 아직 정하지 않음' : `${props.called(b)} · ${b.currency}`} · {fmt(l.start, 'date')}부터
 										{ended ? ` ${fmt(l.end, 'date')}까지 (${endedWord[l.ended] ?? '끝남'})` : ''} · {beganWord[l.began] ?? ''}
 									</p>
 								</div>
@@ -698,7 +821,7 @@ function Links(props: { links: BillingLink[]; accounts: BillingAccount[]; named:
 					}
 				>
 					<Field label="결제 계정">
-						<Select value={with_} onChange={setWith} options={accountOptions(props.accounts)} required />
+						<Select value={with_} onChange={setWith} options={accountOptions(props.accounts, props.called, props.details)} required />
 					</Field>
 				</FormModal>
 			)}
