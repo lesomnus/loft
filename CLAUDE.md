@@ -187,8 +187,9 @@ that membership. Every call is also held to what roster says of the account
 now (`identity.Store.Held`, cached `HeldTtl`); a roster that cannot be asked
 serves no session.
 
-An external roster's sync stream (`identity.Store.Follow`, run from
-`cmd/serve.go`) is handed to `server/lifecycle`, so that roster's word lands
+An external roster's sync stream (roster's `standing` package, roster#210:
+`identity.Store.Accounts().Follower`, run from `cmd/serve.go` in every
+process) is handed to `server/lifecycle`, so that roster's word lands
 when it is said: signed out everywhere ends the sessions that began before it,
 suspended or erased ends them all, and erased marks each of the account's
 memberships `Holder.date_leaving`. roster's `restore` and `forget` write past
@@ -221,10 +222,14 @@ workspace and these are asked before there is one.
 
 **Invitations are the one call served as an account** (D30). The account an
 invitation is addressed to is nobody's member in that workspace yet, so
-`InvitationService.List` (by `account`), `Claim`, `Accept` and `Deny` are
-`cmd.AccountMethods`: the frame has no tenant and an `app.Account` where a
-holder would be, the policy gives such a caller those methods and nothing else
-(`policy.Account`), and `server/domain/invitation.go` says which rows each side
+`InvitationService.Inbox`, `Claim`, `Accept` and `Deny` are marked
+`(payday.method) = {account: {}}` (payday#184): `pd.AccountResolver` serves
+them as the account itself (`frame.OfAccount`, no tenant), payday refuses such
+a frame every other method, the policy gives them to the account alone
+(`policy.Account`, never a membership, and never inside a membership's batch),
+and each declares it reads nothing through the walled servers
+(`pd.AccountReads`). `InvitationService.List` is the workspace's side, for its
+administrators. `server/domain/invitation.go` says which rows each side
 reads -- the account's own, by an address roster holds as checked
 (`identity.Store.Addresses`) or a code its mail carried, and a workspace's own
 for its administrators. An answer is written through `Deps.Base` as the
