@@ -423,9 +423,30 @@ workspace it never told arrived, by its first owner (`tenancy.FirstOwners`,
 D57's). roster's erase mark (`Holder.date_leaving`) tells nothing: the
 account is told left when it leaves (`Deps.Depart`), since a mark is acted on
 only once roster is asked again, and a `Leave` levyan heard is not undone by
-roster restoring the account. `Offer`, the payer's screens and the
-free-workspace rule are not built yet; `ErrOwnsEnough` stays the
-deployment's cap until collection runs.
+roster restoring the account. The free-workspace rule is not built yet;
+`ErrOwnsEnough` stays the deployment's cap until collection runs.
+
+How a workspace is paid for is levyan's, and Loft asks and shows, storing
+nothing of it (design 7.9, D63): `loft.PaymentService` (`proto/loft/payment.proto`,
+`server/payment`), the one service that is no entity's, registered beside
+the stack. A payer's fifteen methods are the account's own (`(payday.method)
+= {account: {}}`, policy `Account`), each declaring it reads nothing
+(`pd.AccountReads` with an empty `pd.Reads`, naming its constant -- the doctor
+reads the call) and relayed to levyan's `PayerService` as the account
+(`levyan.Client.As`: the product key and `levyan-account`). The workspace's
+four -- `GetPayer`, `GetUsage`, `ListStatements` (admin), `Offer` (owner) --
+ask about the caller's workspace alone, as the product. The messages are
+levyan's API's copied number for number (`Billing*`), moved by marshalling,
+and `server/payment`'s test holds every field to levyan's: bump
+`github.com/lesomnus/levyan/api`, run it, and mirror what moved. A checkout
+is opened on the checkout page, never in the app's document (whose policy
+would have to let Paddle in everywhere). The page's account side is
+`/billing` (`ts/src/billing.tsx`), a workspace's is settings › 결제, and the
+banner reads `PartyService.Me`'s `restricted` -- the copy -- for every member,
+`GetPayer` (payerless, `dunning`) for whoever runs it, and for a member who
+pays the account's own calls (`ListLinks`, `GetBillingAccount`). The browser
+tests bill to `internal/levyantest` served by its command
+(`ts/e2e/levyan.sh`), told what to say on its control address.
 
 Paddle's default payment link is `/billing/checkout` (`server/checkout`,
 design 7.7, D61): with `app.billing.checkout` -- Paddle's environment and the
