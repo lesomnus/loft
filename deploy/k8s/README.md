@@ -42,7 +42,7 @@ resources:
    | Secret | 키 | 내용 | 만드는 법 |
    | --- | --- | --- | --- |
    | `loft` | `db-dsn` | Loft의 DB 주소. 예: `postgres://loft:…@db:5432/loft?sslmode=require` | |
-   | | `roster-db-dsn` | 내장 roster의 DB 주소. Loft와 다른 데이터베이스입니다 | |
+   | | `roster-db-dsn` | 내장 roster의 DB 주소. Loft와 다른 데이터베이스입니다. 외부 roster면 두지 않습니다(아래 13) | |
    | | `signing-key` | 다운로드 링크 서명, 그리고 세션의 키를 보관하는 키(루트 README의 "세션의 키"). 모든 프로세스가 같아야 하고, 바꾸면 모두 로그아웃됩니다 | `openssl rand -base64 32` |
    | | `mail-password` | SMTP 비밀번호. 없어도 됩니다 | |
    | `loft-checkpoints` | `checkpoints.pem` | 감사 기록 서명 키. 잃으면 이전 체크포인트를 검증할 수 없으니 **백업에 함께 넣습니다** | `openssl genpkey -algorithm ed25519` |
@@ -50,6 +50,7 @@ resources:
    | `loft-admin` | 운영자 이름마다 파일 하나(`operator`) | 운영자 키, 32자 이상. 운영자를 더하면 `admin.keys`에도 이름을 더합니다 | `openssl rand -hex 32` |
    | `loft-search` | `password`, `ca.pem` | 검색 클러스터의 Loft 사용자 비밀번호와 그 클러스터의 CA. 검색을 켤 때만 둡니다(아래 9) | |
    | `loft-levyan-key` | `key` | levyan이 이 배포에 발급한 제품 키(`lvk_…`, `levyan-admin key issue`). 과금을 켤 때만 둡니다(아래 12) | |
+   | `loft-roster-key` | `key` | Loft가 외부 roster를 부르는 키(`rk_…`나 `rt_…`). roster 운영자가 만듭니다. 외부 roster일 때만 둡니다(아래 13) | |
 
 3. **설정.** base의 `config.yaml`을 복사해 채우고 바꿔 끼웁니다.
 
@@ -89,7 +90,7 @@ resources:
 
      `loft-witness`는 보관소와 다른 스토리지에, DB·보관소와 다른 권한으로 둡니다. 삭제를 거부하는 클래스면 더 좋습니다. 보관소와 같은 디스크의 증인은 증인이 아닙니다. 둘 다에 손댈 수 있는 사람은 둘에서 함께 지웁니다.
 7. **이미지.** 태그가 아니라 digest로 고정합니다: `images: [{name: ghcr.io/lesomnus/loft, digest: sha256:…}]`.
-8. **PostgreSQL.** Loft와 내장 roster의 데이터베이스 두 개가 필요합니다.
+8. **PostgreSQL.** Loft와 내장 roster의 데이터베이스 두 개가 필요합니다. 외부 roster면 Loft의 것 하나이고, roster의 것은 roster의 배포가 씁니다(아래 13).
    - 필요한 확장은 `btree_gist` 하나입니다. 검색은 9의 검색 엔진이 답하고, 없으면 데이터베이스가 인덱스 없이 답합니다.
    - 어디서 돌릴지(operator인지 관리형인지)는 백업과 함께 정합니다(loft#37).
    - LISTEN과 세션 잠금은 트랜잭션 모드 풀러를 거치면 안 됩니다. 풀러를 쓴다면 `watch.dsn`과 `spin.dsn`에 DB로 바로 가는 주소를 줍니다.
@@ -143,11 +144,39 @@ resources:
     - `config.yaml`의 `app.billing` 주석을 풀어 levyan의 주소를 넣습니다. levyan의 참조 배포는 클러스터 안에서 평문 gRPC(50051)이므로 `insecure: true`를 씁니다. 그 밖이면 TLS이고, 사설 CA는 `tls.ca_file`로 줍니다.
     - levyan의 NetworkPolicy가 Loft의 파드(`app.kubernetes.io/name: loft`, namespace의 이름)만 받도록 좁힙니다(levyan의 `deploy/k8s/README.md` 4). Loft의 NetworkPolicy는 들어오는 것만 막으므로 나가는 길은 열려 있습니다.
     - 키가 없거나 `lvk_`로 시작하지 않으면 서버가 뜨지 않습니다. levyan이 답하지 않으면 서버는 그대로 돌고, 그 값을 다시 보냅니다. 그동안 복구 기간이 지난 워크스페이스는 마지막 측정 없이 파기되고, 경고 로그에 남습니다(design 7.3).
+13. **외부 roster(선택).** 계정을 Loft 프로세스 안의 roster가 아니라 따로 도는 roster에 둡니다. 서버를 여러 대 띄우거나, 다른 앱(levyan 등)이 같은 계정을 물어야 하면 이렇게 합니다(루트 README의 "roster를 따로 운영할 때").
+    - **base가 하는 것.** Secret `loft-roster-key`의 `key`를 세 컨테이너(`migrate`, `loft`, `loft-admin`)의 `/run/secrets/loft-roster/`에 붙입니다. 셋 모두 설정의 roster를 열고, 열 때 키를 읽기 때문입니다. 이 Secret도, Secret `loft`의 `roster-db-dsn`도 `optional`입니다. 그래서 외부 roster의 배포는 `roster-db-dsn` 대신 이 Secret을 두면 되고, 오버레이에서 패치할 것이 없습니다.
+    - **설정.** `auth.roster`에서 `db:`와 `consent_keep`을 지우고(내장 roster의 것입니다) 주소, 디렉터리, 키를 적습니다. roster의 참조 배포는 클러스터 안에서 평문 gRPC(Service `roster-data`, 8080)이므로 `insecure: true`를 씁니다. 그 참조 배포에는 NetworkPolicy가 없으니, roster의 오버레이가 Loft의 파드(와 roster를 묻는 다른 앱의 파드)만 그 포트에 닿게 합니다. 그 밖이면 TLS이고, 사설 CA는 `ca_file`로 줍니다.
+
+      ```yaml
+      auth:
+        roster:
+          addr: roster-data.roster.svc:8080
+          insecure: true
+          key: file:/run/secrets/loft-roster/key
+          directory: loft
+      ```
+
+    - **내장 roster에서 옮길 때**는 이 순서로 합니다. 계정과 비밀번호가 내장 roster의 DB에 있으므로, 그 DB가 그대로 외부 roster의 것이 됩니다.
+      1. **같은 데이터베이스.** `roster-db-dsn`이 가리키던 DB를 그대로 씁니다. 옮기거나 복사하지 않습니다. 계정과 비밀번호, 디렉터리(따로 적지 않았다면 `loft`), 내장 roster가 그 안에 만든 홀더 `loft`와 역할 `loft`가 모두 그대로 있습니다.
+      2. **roster의 Deployment.** roster의 참조 배포(roster의 `deploy/`)를 오버레이로 띄우고, 데이터 플레인의 `db:`를 그 DB로 바꿉니다. 컨트롤 플레인의 DB(`control.db`)는 따로 둡니다(참조 배포는 자기 볼륨에). 컨트롤 플레인이 없는 roster는 키를 읽지 않고 부르는 쪽이 말하는 이름을 믿으므로, 빼지 않습니다. roster의 커밋은 지금 Loft가 링크한 것(Loft의 `go.mod`)이거나 그 뒤의 것으로 고릅니다. 내장 roster가 DB를 그 판의 모양으로 마이그레이션해 두었기 때문입니다.
+      3. **키.** 홀더 `@loft/loft`에 디렉터리의 키(`rt_…`)를 만들어 Secret `loft-roster-key`의 `key`에 넣습니다. 허용하는 메서드는 Loft가 roster에 묻는 것 전부입니다(루트 README의 `roster app install`의 `--role`과 같은 목록). 키는 한 번만 출력되므로 바로 Secret에 넣습니다.
+
+         ```sh
+         kubectl -n <roster의 namespace> exec deploy/roster -c roster -- roster --config /config/config.yaml \
+           key add --tenant loft --holder loft --name loft \
+           --allow /roster.VouchService/Verify,/roster.HolderService/Get,/roster.TenantService/Get,/roster.MeService/Get,/roster.EmailService/List,/roster.EmailService/Get,/roster.SyncService/Watch,/roster.ConsentService/Agree,/roster.ConsentService/Settled,/roster.ConsentService/List
+         ```
+
+      4. **설정.** `auth.roster`를 위의 모양으로 바꿔 sync합니다. 새 파드부터 Loft가 그 roster에 묻습니다. `roster-db-dsn`은 Loft가 더 읽지 않으므로 지워도 되고, 되돌릴 때를 위해 두어도 됩니다.
+
+      앞의 것이 없는 채로 설정을 바꾸면 새 파드가 뜨지 않거나(키가 없으면 `auth.roster.key`를 읽지 못합니다), 로그인과 세션이 거부됩니다(roster에 닿지 않으면 503). 되돌릴 때는 roster의 Deployment를 내리고 설정을 내장 roster의 것으로 되돌립니다. 같은 DB이므로 그 사이 roster에서 바꾼 계정과 비밀번호도 그대로입니다.
+    - **역할의 이름.** 내장 roster에서 옮긴 배포의 역할은 내장 roster가 만든 **`loft`**(`@loft/loft`)입니다. `roster app install`로 들인 배포의 역할은 `loft-app`입니다. 내장 roster일 때는 새 판의 Loft가 더 묻는 메서드를 스스로 이 역할에 더했지만, 외부 roster에서는 roster 운영자가 `roster role patch`로 넓힙니다(루트 README의 "roster를 따로 운영할 때"). 디렉터리의 키(`rt_…`)는 허용한 메서드로도 좁혀지므로, 그때 키도 새로 만듭니다.
 
 ## 처음 띄우기
 
 ```sh
-# 1. 데이터베이스 둘. roster의 것은 Loft의 것 옆에 하나 더:
+# 1. 데이터베이스 둘. roster의 것은 Loft의 것 옆에 하나 더(외부 roster면 Loft의 것만, 위 13):
 #      CREATE DATABASE roster OWNER loft;
 # 2. Secret 셋 (위의 표)
 # 3. sync. Argo CD가 아니라면:

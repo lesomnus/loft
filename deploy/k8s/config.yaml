@@ -50,6 +50,20 @@ spin:
   lease: postgres
 
 # The roster in this process, on a database of its own beside Loft's.
+#
+# Or a roster of its own (README.md, 13), in place of `db` and `consent_keep`,
+# which are the roster in this process's: where it is, the directory its
+# accounts are in, and the key Loft calls it with, from the Secret
+# `loft-roster-key` the base mounts. In plaintext inside the cluster, as
+# roster's own reference deployment serves it, behind a NetworkPolicy its
+# overlay writes; anything else is TLS, with `ca_file` for a private CA.
+#
+# auth:
+#   roster:
+#     addr: roster-data.roster.svc:8080
+#     insecure: true
+#     key: file:/run/secrets/loft-roster/key
+#     directory: loft
 auth:
   roster:
     db:
