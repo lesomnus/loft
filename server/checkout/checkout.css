@@ -1,0 +1,47 @@
+/* The page Paddle's default payment link is (`server/checkout`). */
+:root {
+	color-scheme: light dark;
+	--fg: #1f2328;
+	--mute: #59636e;
+	--bg: #f6f8fa;
+	--card: #ffffff;
+	--line: #d1d9e0;
+	--link: #0969da;
+}
+@media (prefers-color-scheme: dark) {
+	:root {
+		--fg: #e6edf3;
+		--mute: #9198a1;
+		--bg: #0d1117;
+		--card: #151b23;
+		--line: #3d444d;
+		--link: #4493f8;
+	}
+}
+body {
+	margin: 0;
+	min-height: 100vh;
+	display: grid;
+	place-items: center;
+	background: var(--bg);
+	color: var(--fg);
+	font: 15px/1.6 system-ui, -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+}
+main {
+	box-sizing: border-box;
+	width: min(28rem, calc(100vw - 2rem));
+	padding: 1.5rem 1.75rem;
+	background: var(--card);
+	border: 1px solid var(--line);
+	border-radius: 12px;
+}
+h1 {
+	margin: 0 0 0.75rem;
+	font-size: 1.25rem;
+}
+p {
+	margin: 0.5rem 0;
+}
+a {
+	color: var(--link);
+}

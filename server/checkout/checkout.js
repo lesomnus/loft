@@ -1,0 +1,46 @@
+// The page Paddle's default payment link is (`server/checkout`): Paddle.js,
+// initialized with this deployment's environment and client-side token, opens
+// the checkout of the transaction the address names (`_ptxn`) by itself, and
+// this says what became of it.
+//
+// The environment and the token are the page's own data attributes, written
+// by the server from `app.billing.checkout`; nothing here is a secret.
+;(function () {
+	'use strict'
+
+	var at = document.getElementById('checkout')
+	var said = document.getElementById('said')
+	if (at === null) return
+
+	function say(text) {
+		if (said !== null) said.textContent = text
+	}
+
+	var paddle = window.Paddle
+	if (paddle === undefined) {
+		// Its script did not load: blocked, or Paddle not there just now.
+		say('결제창을 불러오지 못했습니다. 잠시 뒤에 이 페이지를 다시 여세요.')
+		return
+	}
+
+	if (at.dataset.environment === 'sandbox') paddle.Environment.set('sandbox')
+
+	var done = false
+	paddle.Initialize({
+		token: at.dataset.token,
+		eventCallback: function (e) {
+			switch (e && e.name) {
+				case 'checkout.completed':
+					done = true
+					say('결제를 마쳤습니다.')
+					break
+				case 'checkout.closed':
+					if (!done) say('결제창을 닫았습니다. 결제하려면 받은 결제 링크를 다시 여세요.')
+					break
+				case 'checkout.error':
+					say('결제창을 열 수 없습니다. 받은 결제 링크가 맞는지 확인하세요.')
+					break
+			}
+		},
+	})
+})()
