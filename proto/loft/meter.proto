@@ -58,4 +58,14 @@ option (payday.app) = {
       count: {of: "Holder"}
     }
   ]
+
+  // And what levyan says each workspace may do (payday#185, levyan#14,
+  // design 7.5): a copy of its grants in Loft's own database, kept by
+  // payday's follower from levyan's `payday.GrantService` (`cmd.Build`) and
+  // read in the transaction of the write it decides. The one key read today
+  // is `loft.restricted`, which restricts a workspace while it is on and
+  // nothing while it is not there: a grant missing is a workspace that may
+  // do what it always could (`domain.Grows`). Domain 50, which nothing in
+  // Loft has had: one past the highest, as `pd entity add` gives one.
+  entitlements: {domain: 50}
 };

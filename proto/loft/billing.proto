@@ -1,0 +1,113 @@
+edition = "2023";
+
+package loft;
+
+import "google/protobuf/timestamp.proto";
+import "orm.proto";
+import "payday.proto";
+
+option features.field_presence = IMPLICIT;
+option go_package = "github.com/lesomnus/loft";
+
+// LevyanNotice is something levyan is to be told of a workspace's payers, and
+// whether it was (levyan#14, design 7.6): that a workspace was made and by
+// whom, who pays for it from then -- `levyan.v1.WorkspaceService/Arrive` --
+// and that an account is no longer in one, which pays for it no longer if it
+// did (`Leave`).
+//
+// It is written in the transaction of the change it tells, so that a change
+// that commits is one levyan is told of and one rolled back is not, and told
+// by a loop of its own (`loft.levyan.notices`, `server/levyan`): a workspace's
+// notices in the order they happened, each once levyan has answered the one
+// before it. A levyan that cannot be reached holds nothing up: the notices
+// wait, and are told when it can be. Both calls are levyan's to take twice --
+// said again, they change nothing -- so a notice told twice around a failover
+// is told once.
+//
+// Nothing writes one on a deployment that bills nobody (`app.billing.levyan`
+// unset). A notice levyan answered stays, marked told: the record of what
+// levyan was told and when, and what the loop's first pass asks of a workspace
+// to know whether levyan was ever told it arrived. No RPCs: nobody's to read,
+// and a notice a caller could write is somebody made to pay by whoever could
+// call it.
+message LevyanNotice {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+
+  // What it tells: `arrive`, the workspace made by `account`, who pays for it
+  // from `at`; or `leave`, `account` no longer a member of it from `at`.
+  string kind = 8 [(payday.field) = {personal: false}];
+
+  // The workspace, by its identifier. A column and not an edge, as the
+  // trail's are: a notice outlives the rows of the workspace it is about.
+  bytes workspace = 9 [(orm.field) = {type: TYPE_UUID}];
+
+  // The account at roster: the one that made the workspace, or that left it.
+  // An identifier, and nothing of the person's.
+  bytes account = 10 [(orm.field) = {type: TYPE_UUID}];
+
+  // When it happened: when the workspace was made, or the membership ended.
+  google.protobuf.Timestamp at = 11 [(orm.field) = {default: ""}];
+
+  // When levyan answered it -- took it, or refused it -- and unset while it
+  // waits to be told.
+  google.protobuf.Timestamp date_told = 12 [(orm.field) = {nullable: true}];
+
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  // How it came to be written: `change`, by the change it tells, in its
+  // transaction; or `backfill`, by the loop's first pass, for a workspace
+  // made before this deployment told levyan of any -- whose maker nothing
+  // recorded, so it says its first owner (`tenancy.FirstOwners`).
+  string origin = 16 [(payday.field) = {personal: false}];
+
+  // What levyan said when it refused it, which it would say again, and empty
+  // for one it took: a refused notice is told, and is not told again.
+  string refused = 17 [(payday.field) = {personal: false}];
+
+  option (orm.message) = {
+    indexes: [
+      // What waits, in the order it happened: what the loop reads.
+      {
+        name: "waiting"
+        refs: [
+          {
+            name: "date_told"
+            number: 12
+          },
+          {
+            name: "at"
+            number: 11
+          }
+        ]
+      },
+      // A workspace's own, by what they tell: whether levyan was ever told
+      // it arrived.
+      {
+        name: "workspace"
+        refs: [
+          {
+            name: "workspace"
+            number: 9
+          },
+          {
+            name: "kind"
+            number: 8
+          }
+        ]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 51
+    global: {}
+    erase: {hard: {}}
+    trail: {off: {why: "levyan's queue: what it is to be told of who pays for a workspace, written beside the change that tells it, which the trail has; levyan's own trail keeps what it was told"}}
+  };
+}

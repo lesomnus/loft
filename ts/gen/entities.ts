@@ -23,9 +23,11 @@ import { AssetTypeSchema, ItemModelSchema } from './loft/catalog_pb.js'
 import { AuditSchema } from './loft/payday/audit_pb.js'
 import { CountFindingSchema, InventoryCountSchema } from './loft/count_pb.js'
 import { CustodySchema, CustodyLineSchema } from './loft/custody_pb.js'
+import { EntitlementSchema } from './loft/payday/entitlement_pb.js'
 import { EventSchema } from './loft/payday/event_pb.js'
 import { FactSchema } from './loft/payday/fact_pb.js'
 import { HolderSchema } from './loft/payday/holder_pb.js'
+import { LevyanNoticeSchema } from './loft/billing_pb.js'
 import { LinkSchema, PlacementSchema, StewardshipSchema } from './loft/history_pb.js'
 import { OutboxSchema } from './loft/payday/outbox_pb.js'
 import { OwedSchema } from './loft/payday/owed_pb.js'
@@ -44,9 +46,11 @@ import { AssetTypeService, ItemModelService } from './loft/catalog_svc_pb.js'
 import { AuditService } from './loft/payday/audit_svc_pb.js'
 import { CountFindingService, InventoryCountService } from './loft/count_svc_pb.js'
 import { CustodyService, CustodyLineService } from './loft/custody_svc_pb.js'
+import { EntitlementService } from './loft/payday/entitlement_svc_pb.js'
 import { EventService } from './loft/payday/event_svc_pb.js'
 import { FactService } from './loft/payday/fact_svc_pb.js'
 import { HolderService } from './loft/payday/holder_svc_pb.js'
+import { LevyanNoticeService } from './loft/billing_svc_pb.js'
 import { LinkService, PlacementService, StewardshipService } from './loft/history_svc_pb.js'
 import { OutboxService } from './loft/payday/outbox_svc_pb.js'
 import { OwedService } from './loft/payday/owed_svc_pb.js'
@@ -217,6 +221,18 @@ export const CustodyLine = {
 	service: CustodyLineService,
 } as const satisfies EntityDesc
 
+/** loft.Entitlement, as the store holds it. */
+export const Entitlement = {
+	typeName: "loft.Entitlement",
+	schema: EntitlementSchema,
+	domain: 50,
+	version: "dateUpdated",
+	refs: [{ field: "tenant", to: "loft.Tenant" }],
+	key: "id",
+	ids: ["id"],
+	service: EntitlementService,
+} as const satisfies EntityDesc
+
 /** loft.Event, as the store holds it. */
 export const Event = {
 	typeName: "loft.Event",
@@ -323,6 +339,16 @@ export const LegalHold = {
 	key: "id",
 	ids: ["id"],
 	service: LegalHoldService,
+} as const satisfies EntityDesc
+
+/** loft.LevyanNotice, as the store holds it. */
+export const LevyanNotice = {
+	typeName: "loft.LevyanNotice",
+	schema: LevyanNoticeSchema,
+	domain: 51,
+	key: "id",
+	ids: ["id", "workspace", "account"],
+	service: LevyanNoticeService,
 } as const satisfies EntityDesc
 
 /** loft.Link, as the store holds it. */
@@ -592,5 +618,5 @@ export const WorkOrder = {
 } as const satisfies EntityDesc
 
 /** Every entity of this app, which is what a store is opened over. */
-export const entities = [Access, AccessReview, AliasHold, Allocation, Archived, Asset, AssetType, Attachment, Audit, Bookable, CliLogin, CountFinding, Custody, CustodyLine, Event, Fact, Handoff, Holder, InventoryCount, Invitation, ItemModel, Label, LegalHold, Link, Notification, Outbox, Owed, Party, Placement, Purchase, PurchaseLine, Reservation, ReservationItem, RowSeal, SearchStale, Session, SignInFailure, Stewardship, Stock, StockMovement, TagCounter, Tenant, TenantContract, TenantDomain, TreeLock, WorkOrder] as const
+export const entities = [Access, AccessReview, AliasHold, Allocation, Archived, Asset, AssetType, Attachment, Audit, Bookable, CliLogin, CountFinding, Custody, CustodyLine, Entitlement, Event, Fact, Handoff, Holder, InventoryCount, Invitation, ItemModel, Label, LegalHold, LevyanNotice, Link, Notification, Outbox, Owed, Party, Placement, Purchase, PurchaseLine, Reservation, ReservationItem, RowSeal, SearchStale, Session, SignInFailure, Stewardship, Stock, StockMovement, TagCounter, Tenant, TenantContract, TenantDomain, TreeLock, WorkOrder] as const
 

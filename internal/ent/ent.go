@@ -23,6 +23,7 @@ import (
 	"github.com/lesomnus/loft/internal/ent/countfinding"
 	"github.com/lesomnus/loft/internal/ent/custody"
 	"github.com/lesomnus/loft/internal/ent/custodyline"
+	"github.com/lesomnus/loft/internal/ent/entitlement"
 	"github.com/lesomnus/loft/internal/ent/event"
 	"github.com/lesomnus/loft/internal/ent/fact"
 	"github.com/lesomnus/loft/internal/ent/handoff"
@@ -32,6 +33,7 @@ import (
 	"github.com/lesomnus/loft/internal/ent/itemmodel"
 	"github.com/lesomnus/loft/internal/ent/label"
 	"github.com/lesomnus/loft/internal/ent/legalhold"
+	"github.com/lesomnus/loft/internal/ent/levyannotice"
 	"github.com/lesomnus/loft/internal/ent/link"
 	"github.com/lesomnus/loft/internal/ent/notification"
 	"github.com/lesomnus/loft/internal/ent/outbox"
@@ -132,6 +134,7 @@ func checkColumn(t, c string) error {
 			countfinding.Table:    countfinding.ValidColumn,
 			custody.Table:         custody.ValidColumn,
 			custodyline.Table:     custodyline.ValidColumn,
+			entitlement.Table:     entitlement.ValidColumn,
 			event.Table:           event.ValidColumn,
 			fact.Table:            fact.ValidColumn,
 			handoff.Table:         handoff.ValidColumn,
@@ -141,6 +144,7 @@ func checkColumn(t, c string) error {
 			itemmodel.Table:       itemmodel.ValidColumn,
 			label.Table:           label.ValidColumn,
 			legalhold.Table:       legalhold.ValidColumn,
+			levyannotice.Table:    levyannotice.ValidColumn,
 			link.Table:            link.ValidColumn,
 			notification.Table:    notification.ValidColumn,
 			outbox.Table:          outbox.ValidColumn,

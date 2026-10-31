@@ -40,6 +40,8 @@ type Tx struct {
 	Custody *CustodyClient
 	// CustodyLine is the client for interacting with the CustodyLine builders.
 	CustodyLine *CustodyLineClient
+	// Entitlement is the client for interacting with the Entitlement builders.
+	Entitlement *EntitlementClient
 	// Event is the client for interacting with the Event builders.
 	Event *EventClient
 	// Fact is the client for interacting with the Fact builders.
@@ -58,6 +60,8 @@ type Tx struct {
 	Label *LabelClient
 	// LegalHold is the client for interacting with the LegalHold builders.
 	LegalHold *LegalHoldClient
+	// LevyanNotice is the client for interacting with the LevyanNotice builders.
+	LevyanNotice *LevyanNoticeClient
 	// Link is the client for interacting with the Link builders.
 	Link *LinkClient
 	// Notification is the client for interacting with the Notification builders.
@@ -249,6 +253,7 @@ func (tx *Tx) init() {
 	tx.CountFinding = NewCountFindingClient(tx.config)
 	tx.Custody = NewCustodyClient(tx.config)
 	tx.CustodyLine = NewCustodyLineClient(tx.config)
+	tx.Entitlement = NewEntitlementClient(tx.config)
 	tx.Event = NewEventClient(tx.config)
 	tx.Fact = NewFactClient(tx.config)
 	tx.Handoff = NewHandoffClient(tx.config)
@@ -258,6 +263,7 @@ func (tx *Tx) init() {
 	tx.ItemModel = NewItemModelClient(tx.config)
 	tx.Label = NewLabelClient(tx.config)
 	tx.LegalHold = NewLegalHoldClient(tx.config)
+	tx.LevyanNotice = NewLevyanNoticeClient(tx.config)
 	tx.Link = NewLinkClient(tx.config)
 	tx.Notification = NewNotificationClient(tx.config)
 	tx.Outbox = NewOutboxClient(tx.config)

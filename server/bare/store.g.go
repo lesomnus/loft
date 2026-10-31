@@ -22,6 +22,7 @@ import (
 	countfinding "github.com/lesomnus/loft/internal/ent/countfinding"
 	custody "github.com/lesomnus/loft/internal/ent/custody"
 	custodyline "github.com/lesomnus/loft/internal/ent/custodyline"
+	entitlement "github.com/lesomnus/loft/internal/ent/entitlement"
 	event "github.com/lesomnus/loft/internal/ent/event"
 	fact "github.com/lesomnus/loft/internal/ent/fact"
 	handoff "github.com/lesomnus/loft/internal/ent/handoff"
@@ -31,6 +32,7 @@ import (
 	itemmodel "github.com/lesomnus/loft/internal/ent/itemmodel"
 	label "github.com/lesomnus/loft/internal/ent/label"
 	legalhold "github.com/lesomnus/loft/internal/ent/legalhold"
+	levyannotice "github.com/lesomnus/loft/internal/ent/levyannotice"
 	link "github.com/lesomnus/loft/internal/ent/link"
 	notification "github.com/lesomnus/loft/internal/ent/notification"
 	outbox "github.com/lesomnus/loft/internal/ent/outbox"
@@ -422,6 +424,7 @@ type Scope interface {
 	TenantDomainScope(ctx context.Context) (predicate.TenantDomain, error)
 	LabelScope(ctx context.Context) (predicate.Label, error)
 	AttachmentScope(ctx context.Context) (predicate.Attachment, error)
+	LevyanNoticeScope(ctx context.Context) (predicate.LevyanNotice, error)
 	BookableScope(ctx context.Context) (predicate.Bookable, error)
 	ReservationScope(ctx context.Context) (predicate.Reservation, error)
 	ReservationItemScope(ctx context.Context) (predicate.ReservationItem, error)
@@ -442,6 +445,7 @@ type Scope interface {
 	AccessScope(ctx context.Context) (predicate.Access, error)
 	ArchivedScope(ctx context.Context) (predicate.Archived, error)
 	AuditScope(ctx context.Context) (predicate.Audit, error)
+	EntitlementScope(ctx context.Context) (predicate.Entitlement, error)
 	EventScope(ctx context.Context) (predicate.Event, error)
 	FactScope(ctx context.Context) (predicate.Fact, error)
 	OutboxScope(ctx context.Context) (predicate.Outbox, error)
@@ -516,6 +520,9 @@ func (Unscoped) LabelScope(_ context.Context) (predicate.Label, error) {
 func (Unscoped) AttachmentScope(_ context.Context) (predicate.Attachment, error) {
 	return nil, nil
 }
+func (Unscoped) LevyanNoticeScope(_ context.Context) (predicate.LevyanNotice, error) {
+	return nil, nil
+}
 func (Unscoped) BookableScope(_ context.Context) (predicate.Bookable, error) {
 	return nil, nil
 }
@@ -574,6 +581,9 @@ func (Unscoped) ArchivedScope(_ context.Context) (predicate.Archived, error) {
 	return nil, nil
 }
 func (Unscoped) AuditScope(_ context.Context) (predicate.Audit, error) {
+	return nil, nil
+}
+func (Unscoped) EntitlementScope(_ context.Context) (predicate.Entitlement, error) {
 	return nil, nil
 }
 func (Unscoped) EventScope(_ context.Context) (predicate.Event, error) {
@@ -961,6 +971,26 @@ func (ss Scopes) AttachmentScope(ctx context.Context) (predicate.Attachment, err
 	}
 
 	return attachment.And(ps...), nil
+}
+
+func (ss Scopes) LevyanNoticeScope(ctx context.Context) (predicate.LevyanNotice, error) {
+	ps := make([]predicate.LevyanNotice, 0, len(ss))
+	for _, s := range ss {
+		p, err := s.LevyanNoticeScope(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if p == nil {
+			continue
+		}
+
+		ps = append(ps, p)
+	}
+	if len(ps) == 0 {
+		return nil, nil
+	}
+
+	return levyannotice.And(ps...), nil
 }
 
 func (ss Scopes) BookableScope(ctx context.Context) (predicate.Bookable, error) {
@@ -1363,6 +1393,26 @@ func (ss Scopes) AuditScope(ctx context.Context) (predicate.Audit, error) {
 	return audit.And(ps...), nil
 }
 
+func (ss Scopes) EntitlementScope(ctx context.Context) (predicate.Entitlement, error) {
+	ps := make([]predicate.Entitlement, 0, len(ss))
+	for _, s := range ss {
+		p, err := s.EntitlementScope(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if p == nil {
+			continue
+		}
+
+		ps = append(ps, p)
+	}
+	if len(ps) == 0 {
+		return nil, nil
+	}
+
+	return entitlement.And(ps...), nil
+}
+
 func (ss Scopes) EventScope(ctx context.Context) (predicate.Event, error) {
 	ps := make([]predicate.Event, 0, len(ss))
 	for _, s := range ss {
@@ -1749,6 +1799,9 @@ func (s Server) Label() loft.LabelServiceServer { return LabelServiceServer{Stor
 func (s Server) Attachment() loft.AttachmentServiceServer {
 	return AttachmentServiceServer{Store: s.Store}
 }
+func (s Server) LevyanNotice() loft.LevyanNoticeServiceServer {
+	return LevyanNoticeServiceServer{Store: s.Store}
+}
 func (s Server) Bookable() loft.BookableServiceServer { return BookableServiceServer{Store: s.Store} }
 func (s Server) Reservation() loft.ReservationServiceServer {
 	return ReservationServiceServer{Store: s.Store}
@@ -1795,11 +1848,14 @@ func (s Server) AccessReview() loft.AccessReviewServiceServer {
 func (s Server) Access() loft.AccessServiceServer     { return AccessServiceServer{Store: s.Store} }
 func (s Server) Archived() loft.ArchivedServiceServer { return ArchivedServiceServer{Store: s.Store} }
 func (s Server) Audit() loft.AuditServiceServer       { return AuditServiceServer{Store: s.Store} }
-func (s Server) Event() loft.EventServiceServer       { return EventServiceServer{Store: s.Store} }
-func (s Server) Fact() loft.FactServiceServer         { return FactServiceServer{Store: s.Store} }
-func (s Server) Outbox() loft.OutboxServiceServer     { return OutboxServiceServer{Store: s.Store} }
-func (s Server) Owed() loft.OwedServiceServer         { return OwedServiceServer{Store: s.Store} }
-func (s Server) RowSeal() loft.RowSealServiceServer   { return RowSealServiceServer{Store: s.Store} }
+func (s Server) Entitlement() loft.EntitlementServiceServer {
+	return EntitlementServiceServer{Store: s.Store}
+}
+func (s Server) Event() loft.EventServiceServer     { return EventServiceServer{Store: s.Store} }
+func (s Server) Fact() loft.FactServiceServer       { return FactServiceServer{Store: s.Store} }
+func (s Server) Outbox() loft.OutboxServiceServer   { return OutboxServiceServer{Store: s.Store} }
+func (s Server) Owed() loft.OwedServiceServer       { return OwedServiceServer{Store: s.Store} }
+func (s Server) RowSeal() loft.RowSealServiceServer { return RowSealServiceServer{Store: s.Store} }
 func (s Server) SearchStale() loft.SearchStaleServiceServer {
 	return SearchStaleServiceServer{Store: s.Store}
 }
