@@ -64,6 +64,13 @@ func TestThePageOpensTheCheckoutTheLinkNames(t *testing.T) {
 	_, body = get(t, mux, "/billing/checkout?_ptxn=")
 	x.Contains(body, "여기서 결제할 것이 없습니다", "an empty transaction is none")
 
+	// A checkout this deployment began names its transaction itself, and
+	// sends the payer back to the page it began on.
+	_, body = get(t, mux, "/billing/checkout?transaction=txn_01h2b0qpjc0xt8k5aw6nsdec4p&checkout=01a1926c-1a96-8a44-be02-c41b19c23ac2")
+	x.Contains(body, "결제창을 여는 중입니다")
+	x.Contains(body, `<a href="/billing">결제 화면으로</a>`)
+	x.NotContains(body, "01a1926c", "the checkout is read from the address by the script")
+
 	// The script is the page's own: it sets the sandbox before it
 	// initializes Paddle.js with the token the page carries.
 	res, js := get(t, mux, "/billing/checkout.js")
@@ -73,6 +80,8 @@ func TestThePageOpensTheCheckoutTheLinkNames(t *testing.T) {
 	x.Contains(js, "paddle.Environment.set('sandbox')")
 	x.Contains(js, "token: at.dataset.token")
 	x.Less(strings.Index(js, "Environment.set"), strings.Index(js, "paddle.Initialize("), "the environment first")
+	x.Contains(js, "paddle.Checkout.open({ transactionId: transaction, settings: settings })")
+	x.Contains(js, "settings.successUrl = location.origin + '/billing?checkout=' + encodeURIComponent(checkout)", "the way back is a path here")
 
 	res, _ = get(t, mux, "/billing/checkout.css")
 	x.Equal(http.StatusOK, res.StatusCode)

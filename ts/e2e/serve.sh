@@ -3,15 +3,17 @@
 # built from this checkout, `init --demo` on a SQLite database of its own, and
 # serving the built page (ts/dist) on 127.0.0.1:PORT.
 #
-#   sh e2e/serve.sh PORT [consent | sso ISSUER | billing]
+#   sh e2e/serve.sh PORT [consent | sso ISSUER | billing LEVYAN]
 #
 # Its database, files and log are in test-results/loft-PORT, which Playwright
 # empties before every run and leaves after one, for a failure to be read.
 # `consent` also asks everybody to agree to terms first (`app.consent`),
 # `sso` signs people in through the issuer at ISSUER as well (`auth.sso`):
-# the test's own, which e2e/issuer.sh stands up, and `billing` serves
-# Paddle's default payment link in the sandbox (`app.billing.checkout`), with a
-# client-side token made up -- Paddle.js is the test's own (e2e/paddle.ts).
+# the test's own, which e2e/issuer.sh stands up, and `billing` bills its
+# workspaces to the levyan whose gRPC is on 127.0.0.1:LEVYAN -- the test's
+# own, which e2e/levyan.sh stands up -- and serves Paddle's default payment
+# link in the sandbox (`app.billing.checkout`), with a client-side token made
+# up: Paddle.js is the test's own too (e2e/paddle.ts).
 #
 # E2E_POSTGRES names a PostgreSQL to run on instead -- postgres://…, as one
 # who may make databases there. Each server then has two of its own, Loft's
@@ -33,7 +35,7 @@ set -eu
 port=${1:-}
 case $port in
 '' | *[!0-9]*)
-	echo "usage: sh e2e/serve.sh PORT [consent | sso ISSUER | billing]" >&2
+	echo "usage: sh e2e/serve.sh PORT [consent | sso ISSUER | billing LEVYAN]" >&2
 	exit 2
 	;;
 esac
@@ -113,6 +115,11 @@ sso)
 	export LOFT_AUTH_SSO_PROVIDERS='[{"connection":"google","label":"Google","mark":"google"}]'
 	;;
 billing)
+	# The fake's product key (internal/levyantest), in plaintext on the
+	# loopback.
+	export LOFT_APP_BILLING_LEVYAN_ADDR=127.0.0.1:${3:?"usage: sh e2e/serve.sh PORT billing LEVYAN"}
+	export LOFT_APP_BILLING_LEVYAN_KEY=lvk_levyantest-not-a-key-anybody-issued
+	export LOFT_APP_BILLING_LEVYAN_INSECURE=true
 	export LOFT_APP_BILLING_CHECKOUT_ENVIRONMENT=sandbox
 	export LOFT_APP_BILLING_CHECKOUT_CLIENT_TOKEN=test_000000000000000000000000000
 	;;

@@ -121,6 +121,14 @@ func (s domainParty) Me(ctx context.Context, _ *app.PartyMeRequest) (*app.PartyM
 	if s.deps.People != nil {
 		out.SetAccountUrl(s.deps.People.AccountPage())
 	}
+	// What every member's page says above it while levyan restricts the
+	// workspace (design 7.9): the copy its writes are held to, read as they
+	// read it.
+	restricted, err := t.restricted()
+	if err != nil {
+		return nil, err
+	}
+	out.SetRestricted(restricted)
 	if p, err := t.db.Party.Query().Where(party.TenantId(t.tenant.Uuid()), party.HolderId(t.actor.Uuid()), party.DateErasedIsNil()).First(ctx); err == nil {
 		if v, err := t.next.Party().Get(ctx, app.PartyGetRequest_builder{Ref: app.PartyRef_builder{Id: pdid.Id(p.Id).Bytes()}.Build()}.Build()); err == nil {
 			out.SetParty(v)

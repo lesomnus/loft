@@ -56,6 +56,7 @@ import (
 	"github.com/lesomnus/loft/server/mail"
 	"github.com/lesomnus/loft/server/offboard"
 	"github.com/lesomnus/loft/server/opensearch"
+	"github.com/lesomnus/loft/server/payment"
 	"github.com/lesomnus/loft/server/pd"
 	"github.com/lesomnus/loft/server/policy"
 	"github.com/lesomnus/loft/server/retention"
@@ -161,6 +162,12 @@ type Server struct {
 	Follower *entitle.Follower
 	Notices  *levyan.Notices
 	Teller   *levyan.Teller
+
+	// Payment is how a workspace is paid for, relayed to levyan (design 7.9,
+	// `server/payment`): a payer's own calls as the account, a workspace's as
+	// the product. Served whatever is configured, and answering every method
+	// FailedPrecondition while no levyan is named.
+	Payment payment.Service
 
 	// Search is the OpenSearch cluster the index of assets is kept on, and
 	// nil when the configuration names none (D31, `server/opensearch`).
@@ -698,6 +705,9 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		s.Teller = &levyan.Teller{Db: client, Levyan: s.Levyan, Now: deps.Clock}
 		s.Spin = append(s.Spin, spinEvery(levyan.NoticesName, levyan.NoticesEvery, s.Teller.Pass))
 	}
+	// How a workspace is paid for, relayed (design 7.9): what an offer reads
+	// of the member it asks is read through the walled stack, as the caller.
+	s.Payment = payment.Service{Levyan: s.Levyan, Walled: stacked, Checkout: c.App.Billing.Checkout}
 	// The trail's erasure in the operation's transaction, the archive's half
 	// owed there, and paid once it has committed (payday#115).
 	deps.Forget = func(ctx context.Context, db *ent.Client, objects []pdid.Id) (int, error) {
@@ -844,6 +854,9 @@ func (s *Server) Grpc(ctx context.Context, c Config, opts ...grpc.ServerOption) 
 
 	g := grpc.NewServer(os...)
 	app.RegisterServer(g, s.Walled)
+	// And the one service that is no entity's: how a workspace is paid for,
+	// relayed to levyan (design 7.9), through the same chain.
+	app.RegisterPaymentServiceServer(g, s.Payment)
 
 	// The batch, with the same rules the chain above enforces -- read off the
 	// same configuration rather than written out again, which is the only way
@@ -1173,6 +1186,9 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 			return s.appOf(ctx, links, ws)
 		},
 		Service: links.Home(apphost.Page),
+		// Whether the page offers what an account pays with, and a
+		// workspace's billing (design 7.9).
+		Billing: c.App.Billing.Levyan.On(),
 	}.Mount(mux)
 
 	// Attachments, by the signed links the API answers with.

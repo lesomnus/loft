@@ -28,6 +28,7 @@ import { Spaces } from './pages/spaces.js'
 import { Stocks } from './pages/stock.js'
 import { Work } from './pages/work.js'
 import { Offline, useRpc } from './rpc.js'
+import { BillingBanner } from './billing.js'
 import { roleWord } from './words.js'
 import { Switcher } from './workspaces.js'
 
@@ -117,6 +118,7 @@ function Frame(props: { account: Account; onSignOut: () => void; children: React
 					<Bell />
 				</header>
 				<Offline />
+				<BillingBanner account={props.account} />
 				<main className="content">{props.children}</main>
 			</div>
 		</div>
@@ -151,7 +153,7 @@ export function App(props: { account: Account; onSignOut: () => void }): ReactNo
 									<Route path="/purchases" element={<Purchases />} />
 									<Route path="/reports" element={<Reports />} />
 									<Route path="/people" element={<People />} />
-									<Route path="/settings" element={<Settings />} />
+									<Route path="/settings" element={<Settings account={props.account} />} />
 									<Route path="/scan" element={<Scan />} />
 									<Route path="/scan/:code" element={<Scan />} />
 									<Route path="/notifications" element={<Notifications />} />

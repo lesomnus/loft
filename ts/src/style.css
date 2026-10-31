@@ -1618,3 +1618,38 @@ ul.consent > li > a {
 	margin: 0 0 4px;
 	padding-left: 18px;
 }
+
+/* How a workspace is paid for (billing.tsx, design 7.9). */
+.billing-banner {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 12px;
+	align-items: baseline;
+	padding: 10px 24px;
+	background: var(--bad-soft, #fdecec);
+	color: var(--bad, #b42318);
+	border-bottom: 1px solid var(--line);
+}
+.billing-banner span {
+	color: var(--ink-2);
+	font-size: 13px;
+}
+.billing-banner a {
+	font-size: 13px;
+	font-weight: 600;
+}
+.login > .inbox.billing {
+	width: min(880px, 100%);
+}
+.inbox.billing .card {
+	box-shadow: none;
+}
+.inbox.billing li .kv {
+	margin-top: 6px;
+}
+.card form.inline {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px 12px;
+	align-items: flex-end;
+}

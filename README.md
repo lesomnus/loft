@@ -382,7 +382,18 @@ PostgreSQL이면 서버를 여러 대 띄울 수 있습니다. 상태는 데이�
 - **제한**(design 7.5): levyan의 Grant를 lease 아래 한 프로세스가 따라 DB에 사본으로 둡니다(루프 `payday.entitle.follow`). `loft.restricted`가 켜진 워크스페이스는 청구되는 것을 늘리지 못합니다. 자산 등록(대량 등록, 재고 전환, 자산으로 받는 구매 입고 포함), 분실·폐기한 자산을 다시 쓰는 상태로 바꾸기, 첨부 올리기, 로그인 발급·초대 보내기·받아들이기, 이력을 지금보다 오래 보관하기입니다. 거절은 `FailedPrecondition`이고 화면에 "이 워크스페이스는 제한되어 …"라고 나옵니다. 보기, 내보내기, 지급·반납, 예약, 이동, 처분·삭제, 닫기, 결제는 그대로입니다. Grant가 없으면 제한하지 않으므로 levyan이 멈춰도 막히는 워크스페이스는 없습니다. 운영자의 명령(`loft holder add` 같은 것)은 막지 않습니다. 이 범위는 잠정입니다(levyan#1의 열린 질문 3).
 - **지불자**(design 7.6): 워크스페이스를 만들 때와 구성원 자격이 끝날 때, 같은 트랜잭션에 levyan에 알릴 것을 남기고(`LevyanNotice`), 루프 `loft.levyan.notices`가 10초마다 levyan의 `WorkspaceService`(`Arrive`, `Leave`)로 보냅니다. 워크스페이스마다 일어난 순서대로입니다. levyan이 멈춰도 Loft의 쓰기는 기다리지도 실패하지도 않고, 알림이 기다렸다가 levyan이 돌아오면 나갑니다. 루프가 처음 돌 때, levyan에 알린 적 없는 워크스페이스를 한 번씩 만든 때와 첫 소유자로 알립니다(levyan을 붙이기 전에 있던 것). 기다리는 알림이 있는데 levyan이 답하지 않으면 경고 로그(`levyan: what it is to be told of the workspaces waits`)가 남습니다.
 - **생애 사건**(design 7.8): 워크스페이스를 닫을 때와 되돌릴 때(소유자, 운영자, 구성원이 아무도 남지 않아 배포가 닫는 것 모두) 그 트랜잭션에 levyan에 알릴 것을 남기고, 파기할 때는 마지막 측정을 넘긴 뒤 무엇이든 지우기 전에 남깁니다. 같은 루프가 `WorkspaceService`(`Close`, `Restore`, `Destroy`)로 일어난 시각과 함께 보냅니다. levyan이 그 워크스페이스를 들은 적 없다고 답하면(`NotFound`) `Arrive`를 먼저 보내고 다시 보냅니다. levyan이 거부한 것은 Loft의 잘못이라 경고 로그(`levyan: what became of a workspace was refused, which is a fault of Loft's`)에 남기고 다시 보내지 않습니다. 루프가 처음 돌 때 그 전의 일을 한 번 알립니다. 남아 있는 닫기·되돌리기 이벤트를 오래된 것부터, 기록이 없는 곳은 지금 닫혀 있는 워크스페이스를, 그리고 levyan에 알린 워크스페이스 가운데 파기된 것을 주소 보류의 시각으로 알립니다. 로그 `levyan: what became of the workspaces before it was told of it is to be told it`가 몇 건인지 말합니다.
-- 흐름(전송량 같은 것), 지불자 제안과 결제 화면은 아직 없습니다(levyan#14).
+- 흐름(전송량 같은 것)은 아직 없습니다(levyan#14).
+
+### 결제 화면 (levyan)
+
+누가 무엇을 내는지는 levyan의 것이고, Loft는 levyan에 묻고 보여 줄 뿐 결제에 관한 것을 저장하지 않습니다(design 7.9, D63). `app.billing.levyan`이 있으면 화면에 결제가 나타납니다.
+
+- **계정의 결제 화면**(`/billing`, 워크스페이스 전환기의 "결제"): 결제 계정(나라만 고르면 채널과 통화는 levyan이 정합니다), 결제수단 등록(Paddle의 결제창), 수금 상태와 구독, 받은 제안과 내는 워크스페이스, 청구서와 정정 청구, 결제가 실패한 청구서(연체). 계정 자신의 호출이라 어느 워크스페이스에서도 같습니다. levyan에는 이 배포의 제품 키와 로그인한 roster 계정(`levyan-account`)으로 전합니다. 카드는 levyan이 답하는 종류, 브랜드, 끝 네 자리만 보입니다.
+- **워크스페이스의 설정 › 결제**(관리자 이상): 누가 내는가, 이번 기간 사용량과 예상 금액, 지난 명세서. 소유자는 구성원에게 결제 담당을 제안하고, 제안받은 사람은 자기 결제 화면에서 받아들입니다(이번 기간이 끝난 뒤부터 냅니다).
+- **배너**: 워크스페이스가 제한되면 모든 구성원에게, 결제 담당이 없거나 청구서의 결제가 실패했으면 소유자와 관리자에게 언제부터 제한되는지와 할 일을 말합니다.
+- **결제수단 등록**은 결제 링크 페이지(`/billing/checkout`, 아래)에서 Paddle의 결제창을 열고 결제 화면으로 돌아옵니다. 그래서 `app.billing.checkout`이 있어야 하고, 그 환경(sandbox, live)이 levyan의 MoR 설정의 환경과 같아야 합니다.
+- **터미널**: 모두 RPC라 `loft api payment list-billing-accounts`, `loft api --workspace acme payment get-payer` 같은 명령이 됩니다. 비서(`loft mcp`)의 도구에는 아직 없습니다.
+- **levyan이 거절하면** 그 말을 한국어 앞머리 뒤에 보입니다. 예를 들어 levyan에 roster가 설정되지 않았으면 결제 화면이 "결제 정보를 불러오지 못했습니다. 결제 서비스가 받지 않았습니다: levyan asks roster whether an account is in good standing …"이라고 말합니다. levyan이 닿지 않으면 "결제 서비스에 지금 닿지 않습니다"입니다.
 
 ### 결제 링크 페이지 (Paddle)
 
@@ -823,9 +834,9 @@ cd ts && npm run check                                           # 타입 검사
 
 ### 브라우저 테스트 (Playwright)
 
-`ts/e2e`는 주요 흐름을 빌드된 화면에서 사람처럼 따라갑니다: 로그인(비밀번호, 그리고 roster의 발급자를 거치는 SSO), 자산 등록·검색·이동, CSV 내보내기, 라벨 인쇄와 코드 스캔, 카메라로 라벨 스캔, 지급·인수 확인·반납(부분 반납 포함, 자산 화면에서 시작하는 지급), 구성원이 라벨을 스캔해 하는 인수 확인, 예약 승인, 예약 창의 이력(예약·승인과 사유·수령을 예약한 사람과 매니저가 읽고, 다른 사람은 거절됨), 대시보드와 자산 화면에서 여는 예약 창(대시보드의 승인 대기에서 승인), 키트 구성품 충돌, 키트 수령(예약이 잡은 구성품), 폐기하거나 실사에서 분실 처리한 구성품을 키트에서 빼기, 키트에 남긴 채 불용으로 바꾼 구성품이 예약한 사람의 알림·내 예약·예약 창에 건넬 수 없는 자산으로 보임, 불용인 물품의 예약 거절, 불용이 된 회의실의 예약이 쓸 수 없는 공간으로 보이고 체크인·새 예약을 거절함, 삭제한 그룹의 예약이 건넬 수 없는 자산으로 보이고 알림이 가며 수령을 거절함, 풀 수량 부족(구성원을 폐기하면 나중 예약이 기다림)과 풀 예약의 수령(미리 채운 구성원을 바꿔 건네면 다른 예약에는 남은 것만 채움), 데스크에서 대여한 카메라(대여 창이 겹치는 예약을 보여 주고, 먼저 한 예약은 나가 있는 자산으로 보이며, 그 시간의 새 예약은 거절됨), 실사 스캔, 고장 신고, 구매와 입고, 재고 사용·입고, 워크스페이스 만들기와 전환, 닫기·내려받기·복구, 초대 보내기와 수락·거절, 약관 동의, 리포트 다섯과 그 CSV(같은 이름의 두 사람을 팀으로 가르고 오늘 지난 기한을 '오늘'로 말하는 대여 현황, 대시보드의 연체, 지급·대여 목록), 터미널 로그인 승인.
+`ts/e2e`는 주요 흐름을 빌드된 화면에서 사람처럼 따라갑니다: 로그인(비밀번호, 그리고 roster의 발급자를 거치는 SSO), 자산 등록·검색·이동, CSV 내보내기, 라벨 인쇄와 코드 스캔, 카메라로 라벨 스캔, 지급·인수 확인·반납(부분 반납 포함, 자산 화면에서 시작하는 지급), 구성원이 라벨을 스캔해 하는 인수 확인, 예약 승인, 예약 창의 이력(예약·승인과 사유·수령을 예약한 사람과 매니저가 읽고, 다른 사람은 거절됨), 대시보드와 자산 화면에서 여는 예약 창(대시보드의 승인 대기에서 승인), 키트 구성품 충돌, 키트 수령(예약이 잡은 구성품), 폐기하거나 실사에서 분실 처리한 구성품을 키트에서 빼기, 키트에 남긴 채 불용으로 바꾼 구성품이 예약한 사람의 알림·내 예약·예약 창에 건넬 수 없는 자산으로 보임, 불용인 물품의 예약 거절, 불용이 된 회의실의 예약이 쓸 수 없는 공간으로 보이고 체크인·새 예약을 거절함, 삭제한 그룹의 예약이 건넬 수 없는 자산으로 보이고 알림이 가며 수령을 거절함, 풀 수량 부족(구성원을 폐기하면 나중 예약이 기다림)과 풀 예약의 수령(미리 채운 구성원을 바꿔 건네면 다른 예약에는 남은 것만 채움), 데스크에서 대여한 카메라(대여 창이 겹치는 예약을 보여 주고, 먼저 한 예약은 나가 있는 자산으로 보이며, 그 시간의 새 예약은 거절됨), 실사 스캔, 고장 신고, 구매와 입고, 재고 사용·입고, 워크스페이스 만들기와 전환, 닫기·내려받기·복구, 초대 보내기와 수락·거절, 약관 동의, 리포트 다섯과 그 CSV(같은 이름의 두 사람을 팀으로 가르고 오늘 지난 기한을 '오늘'로 말하는 대여 현황, 대시보드의 연체, 지급·대여 목록), 터미널 로그인 승인, 결제(결제 링크 페이지, 결제 계정 만들기와 결제창, 연체, 결제 담당 제안과 수락, 지불자 없음·연체·제한의 배너, 제한된 워크스페이스의 거절된 쓰기).
 
-서버는 테스트가 띄웁니다. `ts/e2e/serve.sh`가 이 체크아웃의 loft를 빌드해 새 SQLite(아래처럼 주면 PostgreSQL)에 `init --demo`를 하고 `127.0.0.1:18510`에서, 약관 동의를 켠 두 번째 서버는 `18520`에서, SSO를 켠 세 번째 서버는 `18530`에서 띄웁니다. SSO의 발급자는 Go 테스트가 쓰는 `internal/oidctest`이고, `ts/e2e/issuer.sh`가 `internal/oidctest/cmd/oidctest`로 `18540`에서 띄웁니다. 설정은 그 스크립트들의 환경변수와 인자가 전부라서 `data/`, `loft.yaml`, 셸의 `LOFT_*`는 쓰지 않습니다. 서버의 DB와 로그는 `ts/test-results/loft-<포트>/`에 남고, 다음 실행이 지웁니다. 메일 서버를 정하지 않은 서버는 보낼 메일을 로그에 쓰므로, 초대 테스트는 그 로그에서 초대 링크를 읽습니다.
+서버는 테스트가 띄웁니다. `ts/e2e/serve.sh`가 이 체크아웃의 loft를 빌드해 새 SQLite(아래처럼 주면 PostgreSQL)에 `init --demo`를 하고 `127.0.0.1:18510`에서, 약관 동의를 켠 두 번째 서버는 `18520`에서, SSO를 켠 세 번째 서버는 `18530`에서, 과금하는 네 번째 서버는 `18550`에서 띄웁니다. SSO의 발급자는 Go 테스트가 쓰는 `internal/oidctest`이고, `ts/e2e/issuer.sh`가 `internal/oidctest/cmd/oidctest`로 `18540`에서 띄웁니다. 네 번째 서버가 청구하는 levyan도 Go 테스트의 가짜(`internal/levyantest`)이고, `ts/e2e/levyan.sh`가 `internal/levyantest/cmd/levyantest`로 `18560`(gRPC)에서 띄웁니다. 테스트는 `18561`로 그 가짜에게 워크스페이스의 상태(지불자 없음, 제한, 연체)를 말합니다. Paddle.js는 테스트의 가짜(`ts/e2e/paddle.ts`)이고, Paddle에는 아무 요청도 가지 않습니다. 설정은 그 스크립트들의 환경변수와 인자가 전부라서 `data/`, `loft.yaml`, 셸의 `LOFT_*`는 쓰지 않습니다. 서버의 DB와 로그는 `ts/test-results/loft-<포트>/`에 남고, 다음 실행이 지웁니다. 메일 서버를 정하지 않은 서버는 보낼 메일을 로그에 쓰므로, 초대 테스트는 그 로그에서 초대 링크를 읽습니다.
 
 ```sh
 cd ts
@@ -835,21 +846,22 @@ npx playwright test                          # 또는 npm run e2e
 npx playwright show-trace test-results/<실패한 테스트>/trace.zip
 ```
 
-브라우저를 설치하지 않고 Playwright 이미지에서 돌릴 수도 있습니다. 이미지에는 Go가 없으니 미리 빌드한 loft와 발급자를 `E2E_LOFT`, `E2E_ISSUER`로 넘기고, 태그의 버전은 `ts/package-lock.json`이 설치하는 Playwright에서 읽습니다. 이미지의 브라우저는 그 버전이 다루는 브라우저라서, Playwright를 올리면 이미지도 따라 바뀝니다.
+브라우저를 설치하지 않고 Playwright 이미지에서 돌릴 수도 있습니다. 이미지에는 Go가 없으니 미리 빌드한 loft와 발급자와 levyan을 `E2E_LOFT`, `E2E_ISSUER`, `E2E_LEVYAN`으로 넘기고, 태그의 버전은 `ts/package-lock.json`이 설치하는 Playwright에서 읽습니다. 이미지의 브라우저는 그 버전이 다루는 브라우저라서, Playwright를 올리면 이미지도 따라 바뀝니다.
 
 ```sh
 CGO_ENABLED=0 GOOS=linux go build -o /tmp/loft ./cmd/loft
 CGO_ENABLED=0 GOOS=linux go build -o /tmp/oidctest ./internal/oidctest/cmd/oidctest
+CGO_ENABLED=0 GOOS=linux go build -o /tmp/levyantest ./internal/levyantest/cmd/levyantest
 v=$(jq -r '.packages["node_modules/playwright-core"].version' ts/package-lock.json)
 docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp \
-  -v "$PWD:$PWD" -v /tmp/loft:/tmp/loft -v /tmp/oidctest:/tmp/oidctest \
-  -e E2E_LOFT=/tmp/loft -e E2E_ISSUER=/tmp/oidctest -w "$PWD/ts" \
+  -v "$PWD:$PWD" -v /tmp/loft:/tmp/loft -v /tmp/oidctest:/tmp/oidctest -v /tmp/levyantest:/tmp/levyantest \
+  -e E2E_LOFT=/tmp/loft -e E2E_ISSUER=/tmp/oidctest -e E2E_LEVYAN=/tmp/levyantest -w "$PWD/ts" \
   "mcr.microsoft.com/playwright:v$v-noble" npx playwright test
 ```
 
 CI도 이렇게 돌립니다(`.github/workflows/ci.yaml`의 `e2e`). 다만 러너와 같은 우분투의 이미지(`-resolute`)여서 loft를 러너에서 빌드한 그대로 넘기고, `--network host`로 러너에 띄운 PostgreSQL과 OpenSearch에 닿습니다.
 
-포트가 겹치면 `E2E_PORT=19510`처럼 옮깁니다(그 포트와 +1, +10, +11, +20, +21, +30을 씁니다).
+포트가 겹치면 `E2E_PORT=19510`처럼 옮깁니다(그 포트와 +1, +10, +11, +20, +21, +30, +40, +41, +50, +51을 씁니다).
 
 PostgreSQL에서 돌리려면 `E2E_POSTGRES`에 데이터베이스를 만들 수 있는 계정으로 그 서버의 주소를 줍니다. 서버마다 Loft와 roster의 데이터베이스를 하나씩(`e2e_loft_<포트>`, `e2e_roster_<포트>`) 그 서버에 두고, 실행할 때마다 지우고 새로 만듭니다(`ts/e2e/postgres.mjs`). CI는 SQLite와, `go` 잡과 같은 PostgreSQL(공식 `postgres:18`) 둘 다에서 돌립니다.
 

@@ -33,7 +33,7 @@ import {
 import { Code, ConnectError, createClient } from '@connectrpc/connect'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
 
-import { errorText, isConsentOwed, isUnauthenticated, transport } from './api.js'
+import { errorText, isConsentOwed, isRestricted, isUnauthenticated, transport } from './api.js'
 import { recall, remember, setOffline, unreachable, useOffline } from './offline.js'
 import { useToast } from './ui.js'
 
@@ -57,8 +57,42 @@ export async function call<I extends DescMessage, O extends DescMessage>(
 	signal?: AbortSignal,
 	timeoutMs?: number,
 ): Promise<MessageShape<O>> {
-	if (signal === undefined && timeoutMs === undefined) return clientOf(method.parent)[method.localName](input)
-	return clientOf(method.parent)[method.localName](input, { signal, timeoutMs })
+	try {
+		if (signal === undefined && timeoutMs === undefined) return await clientOf(method.parent)[method.localName](input)
+		return await clientOf(method.parent)[method.localName](input, { signal, timeoutMs })
+	} catch (err) {
+		if (isRestricted(err)) restricted.see()
+		throw err
+	}
+}
+
+/**
+ * Whether a call this page made was refused for its workspace being
+ * restricted (`isRestricted`): what the workspace's banner says to everybody,
+ * whoever may read who pays for it, until the page is loaded again.
+ */
+const restricted = (() => {
+	let seen = false
+	const heard = new Set<() => void>()
+	return {
+		see: () => {
+			if (seen) return
+			seen = true
+			for (const f of heard) f()
+		},
+		subscribe: (f: () => void) => {
+			heard.add(f)
+			return () => {
+				heard.delete(f)
+			}
+		},
+		seen: () => seen,
+	}
+})()
+
+/** Whether a call of this page's was refused as its workspace is restricted. */
+export function useRestricted(): boolean {
+	return useSyncExternalStore(restricted.subscribe, restricted.seen)
 }
 
 /**

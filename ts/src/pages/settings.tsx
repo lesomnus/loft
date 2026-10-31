@@ -29,14 +29,16 @@ import {
 	ts,
 	wall,
 	workspace,
+	type Account,
 } from '../api.js'
 import { modelName, useCatalog } from '../catalog.js'
+import { PaymentTab } from '../billing.js'
 import { TypeSelect, useAssets } from '../pickers.js'
 import { useAct, useRpc } from '../rpc.js'
 import { Badge, Card, Confirm, Empty, Field, FormModal, Load, OrderSelect, PageHead, Select, Tabs, type Order } from '../ui.js'
 import { attrTypeWord, domainWord, kindWord } from '../words.js'
 
-export function Settings(): ReactNode {
+export function Settings(props: { account: Account }): ReactNode {
 	const c = useCatalog()
 	const [sp, setSp] = useSearchParams()
 	const tab = sp.get('tab') ?? 'types'
@@ -53,6 +55,9 @@ export function Settings(): ReactNode {
 				]
 			: []),
 		...(c.can('owner') ? [{ key: 'workspace', label: '워크스페이스' }] : []),
+		// Who pays for the workspace, what it used and its statements (design
+		// 7.9): read by the people who run it, on a deployment that bills.
+		...(props.account.billing === true && c.can('admin') ? [{ key: 'billing', label: '결제' }] : []),
 	]
 	return (
 		<>
@@ -66,6 +71,7 @@ export function Settings(): ReactNode {
 			{tab === 'audit' && <Audit />}
 			{tab === 'access' && <Access />}
 			{tab === 'workspace' && <WorkspaceTab />}
+			{tab === 'billing' && props.account.billing === true && c.can('admin') && <PaymentTab account={props.account} />}
 		</>
 	)
 }

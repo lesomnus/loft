@@ -48,6 +48,7 @@ import { forget, keepAs, keepOnly, keepTheApp, lastSeen, letGo, seen, setOffline
 import { Rpc } from './rpc.js'
 import { Spinner, Toasts, useToast } from './ui.js'
 import { Inbox } from './invitations.js'
+import { Billing } from './billing.js'
 import { Terminal } from './terminal.js'
 import { Closed, Elsewhere } from './workspaces.js'
 import { Consent } from './consent.js'
@@ -210,6 +211,7 @@ type State =
 	| { at: 'consent'; account: Account }
 	| { at: 'elsewhere'; account: Account }
 	| { at: 'inbox'; account: Account }
+	| { at: 'billing'; account: Account }
 	| { at: 'terminal'; account: Account }
 	| { at: 'closed'; account: Account; ws: Workspace }
 	| { at: 'in'; account: Account }
@@ -285,6 +287,12 @@ function Boot(): ReactNode {
 			// opened by the link an invitation's mail carries.
 			if (location.pathname === '/invitations') {
 				setState({ at: 'inbox', account: a })
+				return
+			}
+			// What the account pays with and for: about no workspace either,
+			// and where a checkout sends the payer back to (design 7.9).
+			if (location.pathname === '/billing') {
+				setState({ at: 'billing', account: a })
 				return
 			}
 			// A terminal asking to be signed in as the account (`loft login`).
@@ -433,6 +441,8 @@ function Boot(): ReactNode {
 			return <Elsewhere account={state.account} onSignOut={signOut} />
 		case 'inbox':
 			return <Inbox account={state.account} onSignOut={signOut} />
+		case 'billing':
+			return <Billing account={state.account} onSignOut={signOut} />
 		case 'terminal':
 			return <Terminal account={state.account} onSignOut={signOut} />
 		case 'closed':

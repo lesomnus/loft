@@ -343,6 +343,13 @@ message PartyMeResponse {
   // arrives -- "<이름>의 워크스페이스" after its first owner, named as they are
   // called now. `tenant.name` is what the row holds, and holds nobody's name.
   string workspace_name = 13 [features.field_presence = IMPLICIT];
+
+  // Whether levyan restricts the workspace now, as this deployment's copy of
+  // its grants says (`loft.restricted`, design 7.5): what every member's
+  // page says above it -- that what grows what it is billed by is refused
+  // until its billing is settled (design 7.9). Never on a deployment that
+  // bills nobody.
+  bool restricted = 14 [features.field_presence = IMPLICIT];
 }
 
 message PartyUpdateRequest {

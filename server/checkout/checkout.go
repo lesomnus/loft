@@ -14,6 +14,15 @@
 // checkout, which a link Paddle made is enough to open; the page reads and
 // writes nothing here.
 //
+// It is also where a checkout this deployment begins is opened (design 7.9):
+// the account's page of what it pays with sends the payer here with Paddle's
+// transaction and levyan's checkout in the address (`transaction`,
+// `checkout`), and the page opens the transaction itself --
+// `Paddle.Checkout.open({transactionId, settings: {successUrl}})` -- sending
+// the payer back to that page once they finished (`/billing?checkout=`),
+// which asks levyan whether the subscription was made. So Paddle's script
+// runs on this page alone, whoever's checkout it is.
+//
 // What it is told is the deployment's, `app.billing.checkout` ([Config]): the
 // environment and the client-side token, which are public by Paddle's design
 // -- the token is what every browser opening a checkout is given. Unset, there
@@ -115,6 +124,20 @@ func (c *Config) Validate() error {
 		return errors.New("client_token: none, and Paddle.js is initialized with the environment's client-side token")
 	}
 	return nil
+}
+
+// Opens says whether the page opens a checkout begun in `environment`, as
+// levyan names Paddle's in what it answers a checkout with: `sandbox`, or
+// `production` for live. Paddle.js initialized for one environment opens no
+// transaction of the other's.
+func (c Config) Opens(environment string) bool {
+	switch environment {
+	case "sandbox":
+		return c.Environment == Sandbox
+	case "production", "live":
+		return c.Environment == Live
+	}
+	return false
 }
 
 // Check is everything [Config.Validate] and the fields' own say, of a block
@@ -241,6 +264,7 @@ func (c Config) Mount(mux *http.ServeMux) {
 	}
 
 	mux.HandleFunc("GET "+Path, func(w http.ResponseWriter, r *http.Request) {
+		q := r.URL.Query()
 		var b bytes.Buffer
 		if err := page.Execute(&b, struct {
 			Paddle      string
@@ -249,7 +273,8 @@ func (c Config) Mount(mux *http.ServeMux) {
 			Environment Environment
 			Token       string
 			Transaction bool
-		}{Paddle, Script, Style, c.Environment, c.ClientToken.v, r.URL.Query().Get("_ptxn") != ""}); err != nil {
+			Ours        bool
+		}{Paddle, Script, Style, c.Environment, c.ClientToken.v, q.Get("_ptxn") != "" || q.Get("transaction") != "", q.Get("transaction") != ""}); err != nil {
 			http.Error(w, "the page could not be drawn", http.StatusInternalServerError)
 			return
 		}

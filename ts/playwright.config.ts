@@ -10,16 +10,21 @@ import { defineConfig, devices } from '@playwright/test'
 // Four of them, since one asks for agreement to terms (`app.consent`) and the
 // others must not -- every sign-in there begins with it -- one signs people
 // in through an issuer (`auth.sso`), the test's own (e2e/issuer.sh), which the
-// others have no reason to ask, and one serves Paddle's default payment link
-// (`app.billing.checkout`), which no other has. A workspace's own domain is
-// the first server under another name, which its project's browser resolves
-// there.
+// others have no reason to ask, and one bills its workspaces: to a levyan of
+// the test's own (`app.billing.levyan`, e2e/levyan.sh), with Paddle's default
+// payment link (`app.billing.checkout`), which no other has. A workspace's
+// own domain is the first server under another name, which its project's
+// browser resolves there.
 const port = Number(process.env.E2E_PORT ?? 18510)
 const app = `http://127.0.0.1:${port}`
 const consent = `http://127.0.0.1:${port + 10}`
 const sso = `http://127.0.0.1:${port + 20}`
 const issuer = `http://127.0.0.1:${port + 30}`
 const billing = `http://127.0.0.1:${port + 40}`
+// levyan's gRPC, which the billing server reaches, and where a test tells it
+// what to say of a workspace.
+const levyan = port + 50
+const levyanControl = `http://127.0.0.1:${levyan + 1}`
 
 // Playwright stops a web server by killing it (SIGKILL, with no
 // `gracefulShutdown` set), so a server has nothing to clean up on its way out:
@@ -54,7 +59,7 @@ export default defineConfig({
 		screenshot: 'only-on-failure',
 	},
 	projects: [
-		{ name: 'app', testIgnore: /(consent|sso|domains|checkout)\.spec\.ts/, use: { baseURL: app } },
+		{ name: 'app', testIgnore: /(consent|sso|domains|checkout|billing)\.spec\.ts/, use: { baseURL: app } },
 		// A workspace's own domain (loft#155): any `*.test` the browser asks for
 		// is the same server, as a workspace's DNS would make it.
 		{
@@ -64,13 +69,21 @@ export default defineConfig({
 		},
 		{ name: 'consent', testMatch: /consent\.spec\.ts/, use: { baseURL: consent } },
 		{ name: 'sso', testMatch: /sso\.spec\.ts/, use: { baseURL: sso }, metadata: { issuer } },
-		{ name: 'billing', testMatch: /checkout\.spec\.ts/, use: { baseURL: billing } },
+		{ name: 'billing', testMatch: /(checkout|billing)\.spec\.ts/, use: { baseURL: billing }, metadata: { levyan: levyanControl } },
 	],
 	webServer: [
 		server(port),
 		server(port + 10, 'consent'),
 		server(port + 20, 'sso', issuer),
-		server(port + 40, 'billing'),
+		// Before the server that bills to it, which measures every workspace
+		// and tells it who made each as it starts.
+		{
+			command: `sh e2e/levyan.sh ${levyan}`,
+			url: `${levyanControl}/healthz`,
+			timeout: 180_000,
+			reuseExistingServer: false,
+		},
+		server(port + 40, 'billing', String(levyan)),
 		{
 			command: `sh e2e/issuer.sh ${port + 30} ${sso}`,
 			url: `${issuer}/.well-known/openid-configuration`,

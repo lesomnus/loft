@@ -11,6 +11,7 @@
 
 import { create, type DescMessage, type MessageInitShape } from '@bufbuild/protobuf'
 import { timestampDate, timestampFromDate, type Timestamp, TimestampSchema } from '@bufbuild/protobuf/wkt'
+import { BinaryReader, WireType } from '@bufbuild/protobuf/wire'
 import { Code, ConnectError, createClient, type Interceptor } from '@connectrpc/connect'
 import { createConnectTransport } from '@connectrpc/connect-web'
 import { from, newId, parse } from '@lesomnus/payday/pdid'
@@ -34,6 +35,7 @@ import { AccessReviewService, NotificationService } from '../gen/loft/ops_svc_pb
 import { PurchaseLineService, PurchaseService, WorkOrderService } from '../gen/loft/work_svc_pb.js'
 import { StockMovementService, StockService } from '../gen/loft/stock_svc_pb.js'
 import { TenantService } from '../gen/loft/payday/tenant_svc_pb.js'
+import { PaymentService } from '../gen/loft/payment_pb.js'
 
 export {
 	AccessReviewService,
@@ -55,6 +57,7 @@ export {
 	LabelService,
 	NotificationService,
 	PartyService,
+	PaymentService,
 	PurchaseLineService,
 	PurchaseService,
 	ReservationService,
@@ -159,6 +162,12 @@ export interface Account {
 	pinned?: string
 	/** The service's address, said where `pinned` is: where the account's other workspaces are. */
 	service?: string
+	/**
+	 * Whether this deployment's workspaces are billed, by levyan: what the page
+	 * offers the account's payments (`/billing`) and a workspace's for (design
+	 * 7.9).
+	 */
+	billing?: boolean
 	/**
 	 * What the session asking lets its caller see, as a name: what the page
 	 * keeps its answers and its unsent writes for, and says on every call
@@ -624,6 +633,31 @@ export function errorText(err: unknown): string {
 	}
 	if (err instanceof Error) return err.message
 	return String(err)
+}
+
+/**
+ * Whether a call was refused for its workspace being restricted (design 7.5):
+ * `FailedPrecondition` with an `ErrorInfo` of reason `RESTRICTED`, which is
+ * how the server tells it apart from every other refusal.
+ */
+export function isRestricted(err: unknown): boolean {
+	if (!(err instanceof ConnectError) || err.code !== Code.FailedPrecondition) return false
+	return err.details.some((d) => 'type' in d && d.type === 'google.rpc.ErrorInfo' && reasonOf(d.value) === 'RESTRICTED')
+}
+
+/** The reason an `ErrorInfo` says -- its first field -- read as protobuf wrote it. */
+function reasonOf(b: Uint8Array): string | undefined {
+	try {
+		const r = new BinaryReader(b)
+		while (r.pos < r.len) {
+			const [no, wire] = r.tag()
+			if (no === 1 && wire === WireType.LengthDelimited) return r.string()
+			r.skip(wire)
+		}
+	} catch {
+		// Not one.
+	}
+	return undefined
 }
 
 export function isUnauthenticated(err: unknown): boolean {

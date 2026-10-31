@@ -29386,6 +29386,21 @@ var AccountMethods = []string{
 	loft.InvitationService_Claim_FullMethodName,
 	loft.InvitationService_Accept_FullMethodName,
 	loft.InvitationService_Deny_FullMethodName,
+	loft.PaymentService_ListBillingAccounts_FullMethodName,
+	loft.PaymentService_CreateBillingAccount_FullMethodName,
+	loft.PaymentService_UpdateBillingAccount_FullMethodName,
+	loft.PaymentService_GetBillingAccount_FullMethodName,
+	loft.PaymentService_StartCheckout_FullMethodName,
+	loft.PaymentService_CompleteCheckout_FullMethodName,
+	loft.PaymentService_ListOffers_FullMethodName,
+	loft.PaymentService_Accept_FullMethodName,
+	loft.PaymentService_Decline_FullMethodName,
+	loft.PaymentService_ListLinks_FullMethodName,
+	loft.PaymentService_Use_FullMethodName,
+	loft.PaymentService_Stop_FullMethodName,
+	loft.PaymentService_ListInvoices_FullMethodName,
+	loft.PaymentService_GetInvoice_FullMethodName,
+	loft.PaymentService_ListCreditNotes_FullMethodName,
 }
 
 var accountMethods = func() map[string]bool {

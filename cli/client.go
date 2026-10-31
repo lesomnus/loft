@@ -677,6 +677,25 @@ func NewCmdApi() *xli.Command {
 		}
 	}
 
+	// And the one service that is no entity's: how a workspace is paid for,
+	// relayed to levyan (design 7.9) -- `loft api payment get-payer`, the
+	// workspace's, and `loft api payment list-billing-accounts`, the
+	// account's own.
+	pay := app.File_loft_payment_proto.Services().ByName("PaymentService")
+	if err := t.Add("payment", &xli.Command{Brief: "how a workspace is paid for, as levyan says it", Handler: xli.RequireSubcommand()}); err != nil {
+		panic(err)
+	}
+	for i := range pay.Methods().Len() {
+		md := pay.Methods().Get(i)
+		c, err := t.Unary(string(md.FullName()))
+		if err != nil {
+			panic(err)
+		}
+		if err := t.Add("payment/"+kebab(string(md.Name())), c); err != nil {
+			panic(err)
+		}
+	}
+
 	// What the server keeps for itself and serves to nobody: a person's
 	// session, a terminal waiting, the tree's lock, an address held.
 	for _, internal := range []string{"session", "cli-login", "tree-lock", "alias-hold"} {
