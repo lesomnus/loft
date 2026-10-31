@@ -60,6 +60,26 @@ func TestThePolicyIsWhatThePageLoads(t *testing.T) {
 // TestWhatABrowserReportsIsALineInTheLog: either shape a browser sends, with
 // no query of any address in it -- an attachment's carries its signature -- and
 // at most so many lines a minute, the rest counted.
+// TestAPageThatLoadsMoreHasThePolicyAndMore: [csp.With] is the policy every
+// page has, with more sources after what a directive has, and a directive no
+// page has beside the rest; with nothing more it is the policy itself.
+func TestAPageThatLoadsMoreHasThePolicyAndMore(t *testing.T) {
+	x := require.New(t)
+
+	base := csp.Policy("https://id.example.com/oauth2", "https://loft.example.com")
+	x.Equal(base, csp.With(nil, "https://id.example.com/oauth2", "https://loft.example.com"))
+
+	more := csp.With(map[string][]string{
+		"script-src": {"https://cdn.example.com"},
+		"frame-src":  {"https://pay.example.com"},
+	}, "https://id.example.com/oauth2", "https://loft.example.com")
+	x.Contains(more, "script-src 'self' https://cdn.example.com; ")
+	x.Contains(more, "manifest-src 'self'; frame-src https://pay.example.com; object-src 'none'; ")
+	x.Contains(more, "style-src 'self'; ")
+	x.Contains(more, "form-action 'self' https://loft.example.com https://id.example.com; ")
+	x.True(strings.HasSuffix(more, "frame-ancestors 'none'; report-uri /csp-report; report-to csp"))
+}
+
 func TestWhatABrowserReportsIsALineInTheLog(t *testing.T) {
 	x := require.New(t)
 

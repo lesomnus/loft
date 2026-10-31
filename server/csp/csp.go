@@ -12,6 +12,11 @@
 // a form's redirect goes to the policy too. A script somebody gets into a page
 // is then one no browser runs, once the policy is enforced.
 //
+// One page loads more: the one Paddle's checkout opens on
+// (`server/checkout`), whose policy is this one with Paddle's hosts in it
+// ([With]). It is answered with that one alone, and only while a checkout is
+// configured.
+//
 // Report-only first: a page held to a policy that stops something it needs is
 // a page that stops working, and what it needs is found by watching what the
 // browsers say -- the e2e suite fails on anything a page reports
@@ -24,8 +29,10 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"maps"
 	"net/http"
 	"net/url"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -63,7 +70,14 @@ const Path = "/csp-report"
 // page is, and where it answers. It frames nothing in -- `frame-ancestors`,
 // which is enforced on its own whatever the mode, since that has been so
 // since loft#30.
-func Policy(issuer string, service ...string) string {
+func Policy(issuer string, service ...string) string { return With(nil, issuer, service...) }
+
+// With is [Policy] for a page that loads more than the others do -- the one
+// Paddle's checkout opens on (`server/checkout`) -- with `more` of each
+// directive it names: after what every page has of it, or, for a directive no
+// page has, beside the rest before `object-src`. Only that page is answered
+// with it: every other is held to [Policy] whatever is configured.
+func With(more map[string][]string, issuer string, service ...string) string {
 	forms := "'self'"
 	seen := map[string]bool{}
 	for _, v := range append(service, issuer) {
@@ -77,23 +91,41 @@ func Policy(issuer string, service ...string) string {
 		}
 	}
 
-	return strings.Join([]string{
-		"default-src 'self'",
-		"script-src 'self'",
-		"style-src 'self'",
-		"img-src 'self' data: blob:",
-		"font-src 'self'",
-		"connect-src 'self'",
-		"media-src 'self' blob:",
-		"worker-src 'self'",
-		"manifest-src 'self'",
-		"object-src 'none'",
-		"base-uri 'self'",
-		"form-action " + forms,
-		"frame-ancestors 'none'",
-		"report-uri " + Path,
-		"report-to csp",
-	}, "; ")
+	directives := [][2]string{
+		{"default-src", "'self'"},
+		{"script-src", "'self'"},
+		{"style-src", "'self'"},
+		{"img-src", "'self' data: blob:"},
+		{"font-src", "'self'"},
+		{"connect-src", "'self'"},
+		{"media-src", "'self' blob:"},
+		{"worker-src", "'self'"},
+		{"manifest-src", "'self'"},
+		{"object-src", "'none'"},
+		{"base-uri", "'self'"},
+		{"form-action", forms},
+		{"frame-ancestors", "'none'"},
+		{"report-uri", Path},
+		{"report-to", "csp"},
+	}
+	out := make([]string, 0, len(directives)+len(more))
+	for _, d := range directives {
+		if d[0] == "object-src" {
+			// What no page has, in an order a reader can follow.
+			for _, name := range slices.Sorted(maps.Keys(more)) {
+				if !slices.ContainsFunc(directives, func(v [2]string) bool { return v[0] == name }) {
+					out = append(out, name+" "+strings.Join(more[name], " "))
+				}
+			}
+		}
+		v := d[1]
+		if m := more[d[0]]; len(m) > 0 {
+			v += " " + strings.Join(m, " ")
+		}
+		out = append(out, d[0]+" "+v)
+	}
+
+	return strings.Join(out, "; ")
 }
 
 // Headers says the policy on an answer, as `mode` holds a page to it.
