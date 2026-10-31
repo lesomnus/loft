@@ -2,7 +2,6 @@ package cmd_test
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -135,10 +134,13 @@ func TestAWorkspacesDomainServesItAlone(t *testing.T) {
 	x.NoError(json.Unmarshal(res.Body.Bytes(), &me))
 	x.Equal("acme", me.Tenant.Alias)
 	x.Equal(http.StatusOK, w.me(as, own, "acme").Code, "the domain's own, named")
-	x.Equal(http.StatusOK, w.me(as, own, "@"+idOf(t, w.tenant)).Code, "the domain's own, by its identifier")
-	res = w.me(as, own, "beta")
-	x.Equal(http.StatusForbidden, res.Code, "another workspace, on this one's address")
-	x.Contains(res.Body.String(), "serves no other workspace")
+	x.Equal(http.StatusOK, w.me(as, own, "@acme").Code, "the domain's own, named with its @")
+	x.Equal(http.StatusOK, w.me(as, own, idOf(t, w.tenant)).Code, "the domain's own, by its identifier")
+	for _, other := range []string{"beta", "@beta", idOf(t, beta)} {
+		res = w.me(as, own, other)
+		x.Equal(http.StatusForbidden, res.Code, "another workspace, on this one's address: %s", other)
+		x.Contains(res.Body.String(), "serves no other workspace", other)
+	}
 
 	// The service's address: every workspace of the account's, as it was.
 	x.Equal(http.StatusBadRequest, w.me(as, service, "").Code, "two workspaces and none named")
@@ -172,12 +174,14 @@ func TestAWorkspacesDomainServesItAlone(t *testing.T) {
 	x.Empty(a.Service)
 
 	// What an account does across its workspaces is the service's: the
-	// invitations addressed to it, from whichever workspace.
-	mine := `{"filters":[{"account":"` + base64.StdEncoding.EncodeToString(w.accountOf(inAcme).Bytes()) + `"}]}`
-	invitations := func(host string) int {
-		return w.at(as, host, http.MethodPost, "/loft.InvitationService/List", mine, "Content-Type", "application/json", "Connect-Protocol-Version", "1").Code
+	// invitations addressed to it, from whichever workspace -- the account's
+	// own methods, which a call bound to one workspace is not.
+	invitations := func(host string, header ...string) int {
+		h := append([]string{"Content-Type", "application/json", "Connect-Protocol-Version", "1"}, header...)
+		return w.at(as, host, http.MethodPost, "/loft.InvitationService/Inbox", `{}`, h...).Code
 	}
 	x.Equal(http.StatusForbidden, invitations(own), "the account's invitations, on a workspace's address")
+	x.Equal(http.StatusForbidden, invitations(own, cmd.WorkspaceHeader, "acme"), "named as the domain's own, still the account's")
 	x.Equal(http.StatusOK, invitations(service))
 
 	// And the HTTP that names a workspace names this one alone: another's

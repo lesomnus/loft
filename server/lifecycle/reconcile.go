@@ -7,6 +7,7 @@ import (
 
 	"github.com/lesomnus/otx/log"
 	"github.com/lesomnus/payday/pdid"
+	"github.com/lesomnus/roster/standing"
 
 	"github.com/lesomnus/loft/internal/ent"
 	"github.com/lesomnus/loft/internal/ent/holder"
@@ -47,14 +48,17 @@ func (e *NobodyError) Error() string {
 // that they wait the whole grace like anybody else, and unmarks the ones it
 // has again.
 //
-// It is for what roster's stream missed: the stream replays nothing
-// ([identity.Store.Follow]), so an account erased while this deployment was
-// not listening was never marked and would never leave. `loft identity
-// reconcile` is an operator asking for it, and the deployment does it itself
-// every `app.accounts.reconcile` ([Lifecycle.Reconciling]).
+// It is for what roster's stream missed: the stream replays nothing (roster's
+// `standing`), so an account erased while this deployment was not listening
+// was never marked and would never leave. `loft identity reconcile` is an
+// operator asking for it, and the deployment does it itself every
+// `app.accounts.reconcile` ([Lifecycle.Reconciling]).
 //
-// Everything is asked before anything is done, so that a roster which stops
-// answering half way decides nothing: then it answers nil, and the error.
+// The asking is `standing.Accounts.Reconcile`, which decides nothing: every
+// account is asked about before anything is answered, so that a roster which
+// stops answering half way decides nothing -- then this answers nil, and the
+// error -- and what to mark is this deployment's, here. Without `apply` it
+// says what it found, all of it, whatever roster answered.
 func (l Lifecycle) Reconcile(ctx context.Context, apply bool) (*Reconciled, error) {
 	hs, err := l.Db.Holder.Query().
 		Where(holder.DateErasedIsNil(), holder.AccountNotNil()).
@@ -72,26 +76,18 @@ func (l Lifecycle) Reconcile(ctx context.Context, apply bool) (*Reconciled, erro
 		out.Members[a] = append(out.Members[a], h)
 	}
 
-	for _, a := range out.Accounts {
-		st, err := l.People.StandingOf(ctx, a)
-		switch {
-		case errors.Is(err, identity.ErrNoPerson):
-			if !leaving(out.Members[a]) {
-				out.Gone = append(out.Gone, a)
-			}
-		case err != nil:
-			return nil, fmt.Errorf("roster could not be asked about %s, so nothing was decided: %w", a, err)
-		default:
-			out.Found++
-			if st.Erased.IsZero() && leaving(out.Members[a]) {
-				out.Back = append(out.Back, st)
-			}
-		}
+	v, err := l.People.Accounts().Reconcile(ctx, out.Accounts, func(a pdid.Id) bool { return leaving(out.Members[a]) })
+	// Nobody at all is not believed (standing's NobodyError): said, with
+	// where to look, by the deployment that would have marked on it.
+	var nobody *standing.NobodyError
+	if err != nil && !errors.As(err, &nobody) {
+		return nil, err
 	}
+	out.Found, out.Gone, out.Back = v.Found, v.Gone, v.Back
 	if !apply || (len(out.Gone) == 0 && len(out.Back) == 0) {
 		return out, nil
 	}
-	if out.Found == 0 && len(out.Gone) > 0 {
+	if nobody != nil {
 		return out, &NobodyError{Accounts: len(out.Accounts)}
 	}
 

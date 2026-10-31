@@ -5,8 +5,8 @@
 // suspended, erased -- and this deployment holds copies of the decision that
 // they were: sessions, and memberships. Each call a session makes is held to
 // roster already ([identity.Store.Held]); this is what makes it prompt, from
-// roster's own stream ([identity.Store.Follow]), and what an erasure goes on to
-// mean here:
+// roster's own stream (roster's `standing`, its follower in `cmd/serve.go`),
+// and what an erasure goes on to mean here:
 //
 //   - signed out everywhere: the sessions that began before it end;
 //   - suspended or erased: every session of the account ends;
@@ -32,14 +32,14 @@
 // roster's servers, and the stream carries what they publish. So a later
 // event about the account that is not an erasure clears the mark, and the
 // sweep asks roster again before an account leaves -- which is also how a
-// restore is heard.
+// restore is heard. A mark is acted on only after asking roster again, which
+// is roster's rule for every app that marks (`standing.Accounts.Settle`,
+// roster's `docs/relying-app.md`).
 package lifecycle
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"log/slog"
 	"time"
 	"uuid"
 
@@ -135,10 +135,10 @@ func (l Lifecycle) Apply(ctx context.Context, v identity.Standing) error {
 
 // Sweep is one look at the accounts whose memberships are still leaving once
 // the grace is over. roster is asked about each again, since what it did in
-// the meantime is not on the stream: one it still has nobody by leaves every
-// workspace it is in ([Lifecycle.Depart]); one it has again was restored, and
-// stops leaving; and about one roster could not answer, nothing is decided --
-// it is asked next time.
+// the meantime is not on the stream (`standing.Accounts.Settle`): one it still
+// has nobody by leaves every workspace it is in ([Lifecycle.Depart]); one it
+// has again was restored, and stops leaving; and about one roster could not
+// answer, nothing is decided -- it is asked next time.
 func (l Lifecycle) Sweep(ctx context.Context) error {
 	cut := l.now().Add(-l.Grace)
 	hs, err := l.Db.Holder.Query().Where(
@@ -150,32 +150,18 @@ func (l Lifecycle) Sweep(ctx context.Context) error {
 		return err
 	}
 
-	seen := map[pdid.Id]bool{}
-	var errs []error
+	marked := make([]pdid.Id, 0, len(hs))
 	for _, h := range hs {
-		account := pdid.Id(*h.Account)
-		if seen[account] {
-			continue
-		}
-		seen[account] = true
-
-		st, err := l.People.StandingOf(ctx, account)
-		switch {
-		case errors.Is(err, identity.ErrNoPerson):
-			if _, err := l.Depart(ctx, account); err != nil {
-				errs = append(errs, fmt.Errorf("account %s: %w", account, err))
-			}
-		case err != nil:
-			log.From(ctx).WarnContext(ctx, "lifecycle: roster could not say whether an account is still gone; it is asked again next time",
-				"account", account.String(), slog.Any("err", err))
-		case st.Erased.IsZero():
-			// Restored at roster, which is what the grace was for.
-			if err := l.Apply(ctx, st); err != nil {
-				errs = append(errs, fmt.Errorf("account %s: %w", account, err))
-			}
-		}
+		marked = append(marked, pdid.Id(*h.Account))
 	}
-	return errors.Join(errs...)
+	return l.People.Accounts().Settle(ctx, marked,
+		func(ctx context.Context, account pdid.Id) error {
+			_, err := l.Depart(ctx, account)
+			return err
+		},
+		// Restored at roster, which is what the grace was for.
+		l.Apply,
+	)
 }
 
 // Departed is one workspace an account left.

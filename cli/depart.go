@@ -100,9 +100,9 @@ func depart(ctx context.Context, self *xli.Command, c *cmd.Config, member, accou
 // newCmdIdentityReconcile is `loft identity reconcile`: what roster says of
 // every account with a membership here, against what this deployment holds.
 //
-// The stream from roster replays nothing (`identity.Store.Follow`), so an
-// account erased while this was not listening was never marked as leaving and
-// would never leave. This asks about every one, and marks those roster has
+// The stream from roster replays nothing (roster's `standing`), so an account
+// erased while this was not listening was never marked as leaving and would
+// never leave. This asks about every one, and marks those roster has
 // nobody by -- from now, so that they wait the whole grace like anybody else
 // -- and unmarks those it has again. A served deployment does the same by
 // itself every `app.accounts.reconcile` (`lifecycle.Lifecycle.Reconcile`);

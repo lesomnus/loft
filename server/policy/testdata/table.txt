@@ -83,7 +83,8 @@
 /loft.InvitationService/Add	admin
 /loft.InvitationService/Claim	account
 /loft.InvitationService/Deny	account
-/loft.InvitationService/List	account
+/loft.InvitationService/Inbox	account
+/loft.InvitationService/List	admin
 /loft.InvitationService/Revoke	admin
 /loft.ItemModelService/Add	manager
 /loft.ItemModelService/Erase	admin

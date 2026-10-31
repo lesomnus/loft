@@ -470,6 +470,18 @@ func (d *Deps) System(ctx context.Context, server app.Server, drv dialect.Driver
 // others: what it calls joins this transaction and records its own events.
 func (t *Tx) layer() Domain { return New(t.next, t.drv, t.deps) }
 
+// deployment is the deployment's own servers ([Deps.Base], neither the wall
+// nor the gate) on this transaction: for a write a layer above the gate makes
+// that no request may, which account a membership is of (payday#184). What
+// goes through it is checked here first, and is written as the caller, in the
+// caller's workspace.
+func (t *Tx) deployment() (app.Server, error) {
+	if t.deps.Base == nil {
+		return nil, status.Error(codes.Unimplemented, "memberships cannot be made on this deployment")
+	}
+	return enttx.Rebind(t.deps.Base, t.drv)
+}
+
 // tenantRef is the caller's tenant, as a reference.
 func (t *Tx) tenantRef() *app.TenantRef {
 	return app.TenantRef_builder{Id: t.tenant.Bytes()}.Build()

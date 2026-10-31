@@ -511,11 +511,9 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		//
 		// Each process holds a stream of its own: what roster says is also
 		// what each process's own answers about an account are dropped by
-		// (`identity.Store.Recheck`), and what it writes here comes to the
-		// same thing written twice.
-		s.Spin = append(s.Spin, spin.InEveryProcess(spin.Called("loft.roster-stream", spin.Func(func(ctx context.Context) error {
-			return people.Follow(ctx, s.Lifecycle.Apply)
-		}))))
+		// (roster's `standing`, `docs/relying-app.md`), and what it writes
+		// here comes to the same thing written twice.
+		s.Spin = append(s.Spin, spin.InEveryProcess(people.Accounts().Follower("loft.roster-stream", s.Lifecycle.Apply)))
 	}
 	// And the accounts still erased once roster's grace is over, leaving
 	// every workspace they were in.
@@ -719,7 +717,7 @@ func (s *Server) Grpc(ctx context.Context, c Config, opts ...grpc.ServerOption) 
 	chain := grpcx.Serving(ctx, grpcx.WithDeadline(c.Server.CallTimeout())).
 		WithUnary(auth.InterceptorUnary(h, Resolver(s.Ungated, s.Ent, s.Consents), auth.PublicDefault)).
 		WithStream(auth.InterceptorStream(h, Resolver(s.Ungated, s.Ent, s.Consents), auth.PublicDefault)).
-		WithUnary(grpcx.LimitUnary(c.Server.Limiter(), LimitKey(), pd.Cost)).
+		WithUnary(grpcx.LimitUnary(c.Server.Limiter(), gate.ByTenant(), pd.Cost)).
 		With(s.accessed().Interceptor()).
 		With(gate.Interceptor(s.Policy)).
 		With(s.Watch.Interceptor())

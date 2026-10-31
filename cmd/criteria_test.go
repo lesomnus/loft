@@ -38,6 +38,7 @@ import (
 	"github.com/lesomnus/loft/internal/ent/holder"
 	"github.com/lesomnus/loft/internal/ent/migrate"
 	"github.com/lesomnus/loft/server/clilogin"
+	"github.com/lesomnus/loft/server/pd"
 	"github.com/lesomnus/loft/server/policy"
 )
 
@@ -53,7 +54,10 @@ func refusedByTable(err error, method string) bool {
 // TestEveryMethodIsAsTheTableSaysForEveryRole is the role × method table in
 // whole (plan M2): every method the served stack has, called by every role
 // over the wire, is let through exactly when `server/policy` says so -- and
-// what the table does not name is refused to everybody, owner included.
+// what the table does not name is refused to everybody, owner included. A
+// method an account calls as itself (payday#184) is called so whatever the
+// account's role in a workspace, so what the table says of it is what it says
+// of the account.
 func TestEveryMethodIsAsTheTableSaysForEveryRole(t *testing.T) {
 	w := newWorld(t)
 	x := w.x
@@ -147,7 +151,12 @@ func TestEveryMethodIsAsTheTableSaysForEveryRole(t *testing.T) {
 		var wg sync.WaitGroup
 		sem := make(chan struct{}, 16)
 		for _, c := range calls {
-			want := policy.Policy{}.May(ctx, gate.Call{Action: c.full, Row: rows[r]})
+			asked := gate.Call{Action: c.full, Row: rows[r]}
+			if pd.AccountMethod(c.full) {
+				a := w.accountOf(rows[r])
+				asked = gate.Call{Action: c.full, Actor: a, Account: a, AsAccount: true}
+			}
+			want := policy.Policy{}.May(ctx, asked)
 			wg.Add(1)
 			sem <- struct{}{}
 			go func() {

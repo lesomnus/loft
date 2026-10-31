@@ -343,6 +343,12 @@ type Holder_builder struct {
 	// identifier, and what a session names is the account. Null on a holder made
 	// before accounts were, which nobody signs in as until `loft identity
 	// migrate` fills it.
+	//
+	// It is what a call is resolved by (`(payday.app).accounts`, payday#184),
+	// so which account a membership is of is the deployment's to say: the
+	// generated gate refuses it to a request, and what makes a membership --
+	// an invitation accepted, a workspace made, a login given -- writes it
+	// through the servers the deployment holds.
 	Account []byte
 	// When roster erased the account this is a membership of, and so when it
 	// began to leave: it signs in nowhere from then, and roster may still
@@ -390,7 +396,7 @@ var File_loft_payday_holder_proto protoreflect.FileDescriptor
 
 const file_loft_payday_holder_proto_rawDesc = "" +
 	"\n" +
-	"\x18loft/payday/holder.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x18loft/payday/tenant.proto\"\xea\x06\n" +
+	"\x18loft/payday/holder.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x18loft/payday/tenant.proto\"\x91\a\n" +
 	"\x06Holder\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
 	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1c\n" +
@@ -410,14 +416,18 @@ const file_loft_payday_holder_proto_rawDesc = "" +
 	"\x05party\x18\f \x01(\fB\x0e\xea\x82\x16\x04\x10@8\x01\xaa\xc1\x16\x02\x10\x01R\x05party\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\x9c\x01\xca\xfc\x15S\x12\x02\x10\x01\x1a\x1f\x12\x04slug\x1a\t\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\xc3\x01\xca\xfc\x15z\x12\x02\x10\x01\x1a\x1f\x12\x04slug\x1a\t\n" +
 	"\x05alias\x10\x04\x1a\n" +
 	"\n" +
 	"\x06tenant\x10\x020\x01\x1a,\x12\x04page\x1a\n" +
 	"\n" +
 	"\x06tenant\x10\x02\x1a\x10\n" +
 	"\fdate_created\x10\x0f\x1a\x06\n" +
-	"\x02id\x10\x01\x8a\xbb\x16A\b\x0229\n" +
+	"\x02id\x10\x01\x1a%\x12\n" +
+	"by_account\x1a\v\n" +
+	"\aaccount\x10\t\x1a\n" +
+	"\n" +
+	"\x06tenant\x10\x02\x8a\xbb\x16A\b\x0229\n" +
 	"\x10\n" +
 	"\x0e\n" +
 	"\fdate_created\n" +

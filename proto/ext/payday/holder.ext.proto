@@ -18,6 +18,12 @@ message Holder {
   // identifier, and what a session names is the account. Null on a holder made
   // before accounts were, which nobody signs in as until `loft identity
   // migrate` fills it.
+  //
+  // It is what a call is resolved by (`(payday.app).accounts`, payday#184),
+  // so which account a membership is of is the deployment's to say: the
+  // generated gate refuses it to a request, and what makes a membership --
+  // an invitation accepted, a workspace made, a login given -- writes it
+  // through the servers the deployment holds.
   bytes account = 9 [(orm.field) = {
     type: TYPE_UUID
     nullable: true
@@ -50,4 +56,27 @@ message Holder {
     },
     (payday.field) = {stamped: true}
   ];
+
+  // By account, then workspace: every call a session makes is resolved by it
+  // (payday#184), and without one each would read every holder there is.
+  // That an account is in a workspace once, among the holders still here, is
+  // what the schema cannot say: `cli/pg.sql`'s `holder_account_once` does, on
+  // PostgreSQL.
+  option (orm.message) = {
+    indexes: [
+      {
+        name: "by_account"
+        refs: [
+          {
+            name: "account"
+            number: 9
+          },
+          {
+            name: "tenant"
+            number: 2
+          }
+        ]
+      }
+    ]
+  };
 }

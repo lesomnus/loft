@@ -11,7 +11,6 @@ import (
 	"os"
 	"slices"
 	"strings"
-	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -23,7 +22,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/lesomnus/payday/access"
 	"github.com/lesomnus/payday/auth"
@@ -566,8 +564,9 @@ func cutBy(t *testing.T, s *Store) *cutting {
 	conn, err := grpc.NewClient(target, opts...)
 	require.NoError(t, err)
 	require.NoError(t, s.conn.Close())
-	// Closed with the store.
+	// Closed with the store, and what is asked again is asked on it.
 	s.conn = conn
+	require.NoError(t, s.keepAsking())
 
 	return c
 }
@@ -726,56 +725,6 @@ func TestAPasswordAloneIsNoSignInForSomebodyWithASecondFactor(t *testing.T) {
 	x.ErrorIs(err, ErrSecondFactor)
 }
 
-// TestOnlyAnAddressSomebodyCheckedIsAnAccounts: what an invitation is found
-// by. An address on an account that nobody checked -- one a provider passed on
-// from a directory whose administrator typed it -- is not the account's.
-func TestOnlyAnAddressSomebodyCheckedIsAnAccounts(t *testing.T) {
-	t.Run("on the roster in this process", func(t *testing.T) {
-		x := require.New(t)
-		ctx := t.Context()
-		s := embeddedStore(t)
-		_, _, err := s.MakeDirectory(ctx, "owner", "")
-		x.NoError(err)
-
-		kim, err := s.AddPerson(ctx, "kim", "Kim", pdid.Nil)
-		x.NoError(err)
-		x.NoError(s.AddAddress(ctx, kim.Id, " Kim@Acme.Example ", true))
-		x.NoError(s.AddAddress(ctx, kim.Id, "boss@acme.example", false))
-
-		got, err := s.Addresses(ctx, kim.Id)
-		x.NoError(err)
-		x.Equal([]string{"kim@acme.example"}, got)
-	})
-
-	t.Run("on a roster of its own", func(t *testing.T) {
-		x := require.New(t)
-		ctx := t.Context()
-		e := newExternal(t)
-
-		// Checked by somebody, the way roster stamps one; and one that came in
-		// a provider's claims with nothing checked.
-		row, err := e.s.Ungated.Email().Add(ctx, rstr.EmailAddRequest_builder{
-			Holder: rstr.HolderRef_builder{Id: e.kim.Bytes()}.Build(), Address: "kim@acme.example",
-		}.Build())
-		x.NoError(err)
-		_, err = e.s.Ungated.Email().Patch(ctx, rstr.EmailPatchRequest_builder{
-			Ref:          rstr.EmailRef_builder{Id: row.GetId()}.Build(),
-			DateVerified: timestamppb.Now(),
-			DateUpdated:  row.GetDateUpdated(),
-		}.Build())
-		x.NoError(err)
-		_, err = e.s.Ungated.Email().Add(ctx, rstr.EmailAddRequest_builder{
-			Holder: rstr.HolderRef_builder{Id: e.kim.Bytes()}.Build(), Address: "ceo@acme.example",
-		}.Build())
-		x.NoError(err)
-
-		s := e.open(t, e.key, "acme")
-		got, err := s.Addresses(ctx, e.kim)
-		x.NoError(err)
-		x.Equal([]string{"kim@acme.example"}, got)
-	})
-}
-
 // operator is roster's operator over the wire: what publishes to roster's
 // stream is the interceptor on its served stack, and a call made through
 // roster's server in this process writes the row and tells nobody.
@@ -811,7 +760,8 @@ func heard(t *testing.T, got <-chan Standing, who pdid.Id, write func() error, o
 	}
 }
 
-// follow runs [Store.Follow] until the test ends, and is what it handed on.
+// follow runs roster's stream, as the deployment's follower holds it
+// ([Store.Accounts]), until the test ends, and is what it handed on.
 func follow(t *testing.T, s *Store) <-chan Standing {
 	ctx, cancel := context.WithCancel(t.Context())
 	done := make(chan struct{})
@@ -819,7 +769,7 @@ func follow(t *testing.T, s *Store) <-chan Standing {
 	got := make(chan Standing, 64)
 	go func() {
 		defer close(done)
-		s.Follow(ctx, func(_ context.Context, v Standing) error {
+		s.Accounts().Follow(ctx, func(_ context.Context, v Standing) error {
 			select {
 			case got <- v:
 			default:
@@ -832,7 +782,9 @@ func follow(t *testing.T, s *Store) <-chan Standing {
 
 // TestRostersWordArrivesAsItHappens: what roster says of an account comes down
 // its stream as it is said -- signed out everywhere, suspended, erased -- to a
-// deployment with a roster of its own.
+// deployment with a roster of its own, asked as Loft asks it: the deployment
+// key, in the directory it names. What the stream promises beyond that is
+// roster's `standing`'s, and its tests' (`standing/follow_test.go`).
 func TestRostersWordArrivesAsItHappens(t *testing.T) {
 	x := require.New(t)
 	e := newExternal(t)
@@ -868,113 +820,6 @@ func TestRostersWordArrivesAsItHappens(t *testing.T) {
 	x.Equal(e.acme, v.Tenant)
 }
 
-// TestAnErasureIsHeardOfSomebodyNothingElseHappenedTo: most people's erasure is
-// the first thing roster's stream hears of them since this deployment
-// connected -- nothing was written about them before -- and it is heard all the
-// same, with when roster erased them (roster#104). Somebody erased in a tenant
-// this deployment does not serve is not.
-func TestAnErasureIsHeardOfSomebodyNothingElseHappenedTo(t *testing.T) {
-	x := require.New(t)
-	e := newExternal(t)
-
-	// Made before the stream opens, through roster's server in this process,
-	// which publishes nothing: the stream has never read them.
-	add := func(tenant pdid.Id, alias string) pdid.Id {
-		v, err := e.s.Ungated.Holder().Add(t.Context(), rstr.HolderAddRequest_builder{
-			Tenant: rstr.TenantRef_builder{Id: tenant.Bytes()}.Build(), Alias: alias, Name: alias,
-		}.Build())
-		x.NoError(err)
-		id, err := pdid.From(v.GetId())
-		x.NoError(err)
-		return id
-	}
-	quiet := add(e.acme, "quiet")
-	elsewhere := add(e.beta, "elsewhere")
-
-	got := follow(t, e.open(t, e.key, "acme"))
-	op, as := e.overTheWire(t)
-
-	// kim first, for the stream to be known to be open: a write before it is
-	// is heard by nobody, and an erasure is not made twice.
-	heard(t, got, e.kim, func() error {
-		_, err := op.Invalidate(as, rstr.HolderInvalidateRequest_builder{Ref: rstr.HolderRef_builder{Id: e.kim.Bytes()}.Build()}.Build())
-		return err
-	}, func(v Standing) bool { return !v.Invalidated.IsZero() })
-
-	// The one this deployment may not hear of first, so that the other
-	// arriving makes its absence a fact rather than a race.
-	_, err := op.Erase(as, rstr.HolderRef_builder{Id: elsewhere.Bytes()}.Build())
-	x.NoError(err)
-	_, err = op.Erase(as, rstr.HolderRef_builder{Id: quiet.Bytes()}.Build())
-	x.NoError(err)
-
-	deadline := time.After(10 * time.Second)
-	for {
-		select {
-		case v := <-got:
-			x.NotEqual(elsewhere, v.Holder, "an erasure in a tenant this deployment does not serve")
-			if v.Holder != quiet {
-				continue
-			}
-			x.False(v.Erased.IsZero(), "heard, and as an erasure")
-			x.Equal(e.acme, v.Tenant)
-			return
-		case <-deadline:
-			t.Fatal("the erasure of somebody nothing else happened to was not heard")
-		}
-	}
-}
-
-// TestADirectoryClosedShutsOutEveryoneInIt: roster closing the directory this
-// deployment's accounts are in is heard as an event about each of them, with
-// when -- and is no session for any of them -- until roster restores it, which
-// is heard too (roster#105).
-func TestADirectoryClosedShutsOutEveryoneInIt(t *testing.T) {
-	x := require.New(t)
-	e := newExternal(t)
-	s := e.open(t, e.key, "acme")
-	got := follow(t, s)
-	op, as := e.overTheWire(t)
-	tenants := rstr.NewTenantServiceClient(e.wire(t))
-	ref := rstr.TenantRef_builder{Id: e.acme.Bytes()}.Build()
-	kim := rstr.HolderRef_builder{Id: e.kim.Bytes()}.Build()
-	invalidate := func() error {
-		_, err := op.Invalidate(as, rstr.HolderInvalidateRequest_builder{Ref: kim}.Build())
-		return err
-	}
-
-	// kim first, for the stream to be known to be open.
-	heard(t, got, e.kim, invalidate, func(v Standing) bool { return !v.Invalidated.IsZero() })
-	began := time.Now()
-	x.NoError(s.Held(t.Context(), e.kim, began))
-
-	// The stream reads a tenant when it moves, and a tenant it had seen
-	// before closing is a closing it names for everybody in it.
-	was, err := tenants.Get(as, rstr.TenantGetRequest_builder{Ref: ref, Select: rstr.TenantSelect_builder{DateUpdated: z.Ptr(true)}.Build()}.Build())
-	x.NoError(err)
-	_, err = tenants.Update(as, rstr.TenantUpdateRequest_builder{Ref: ref, DateUpdated: was.GetDateUpdated(), Desc: z.Ptr("seen")}.Build())
-	x.NoError(err)
-	closed := false
-	v := heard(t, got, e.kim, func() error {
-		if closed {
-			return nil
-		}
-		_, err := tenants.Close(as, rstr.TenantCloseRequest_builder{Ref: ref}.Build())
-		closed = err == nil
-		return err
-	}, func(v Standing) bool { return !v.Closed.IsZero() })
-	x.Equal(e.acme, v.Tenant)
-	x.True(v.Disabled.IsZero(), "a directory closing is not its people suspended")
-	x.False(v.Good(time.Now()))
-	x.Error(s.Held(t.Context(), e.kim, began), "a session in a closed directory")
-
-	_, err = tenants.Restore(as, rstr.TenantRestoreRequest_builder{Ref: ref}.Build())
-	x.NoError(err)
-	v = heard(t, got, e.kim, invalidate, func(v Standing) bool { return v.Closed.IsZero() })
-	x.True(v.Disabled.IsZero())
-	x.NoError(s.Held(t.Context(), e.kim, time.Now()), "a session again, once it is restored")
-}
-
 // TestAnAccountPageIsAnExternalRostersOwn: the page where somebody manages
 // their own account is roster's, at its front door; the roster in this process
 // has none to name.
@@ -989,59 +834,6 @@ func TestAnAccountPageIsAnExternalRostersOwn(t *testing.T) {
 	drv, dsn := pdtest.DB(t)
 	_, err = Open(t.Context(), Config{Db: config.DbConfig{Driver: drv, Dsn: dsn}, AccountUrl: "https://id.example/"}, t.TempDir(), slog.Default())
 	x.ErrorContains(err, "account_url")
-}
-
-// logs is a log a test reads while it is written.
-type logs struct {
-	mu sync.Mutex
-	b  strings.Builder
-}
-
-func (l *logs) Write(p []byte) (int, error) {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	return l.b.Write(p)
-}
-
-func (l *logs) String() string {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	return l.b.String()
-}
-
-// TestAStreamRosterRefusesIsSaidAndThenHeld: a role installed before Loft held
-// roster's stream -- as every one before this step was -- is refused it. That
-// is said once, with what to do, and doing it is noticed without a restart.
-// What it says to do is what the README says, and this runs it.
-func TestAStreamRosterRefusesIsSaidAndThenHeld(t *testing.T) {
-	x := require.New(t)
-	e := newExternal(t)
-	role := func(methods []string) { e.role(t, methods) }
-	without := []string{}
-	for _, m := range AgentMethods {
-		if m != "/roster.SyncService/Watch" {
-			without = append(without, m)
-		}
-	}
-	role(without)
-
-	l := &logs{}
-	s, err := Open(t.Context(), Config{Addr: e.addr, Insecure: true, Key: e.key, Directory: "acme"}, "", slog.New(slog.NewTextHandler(l, nil)))
-	x.NoError(err)
-	t.Cleanup(func() { s.Close() })
-	s.refused = 300 * time.Millisecond
-	got := follow(t, s)
-
-	x.Eventually(func() bool { return strings.Contains(l.String(), "roster role patch") }, 10*time.Second, 20*time.Millisecond)
-	x.Contains(l.String(), "level=ERROR")
-	x.NotContains(l.String(), "level=WARN", "a refusal is not a stream that dropped")
-
-	role(AgentMethods)
-	op, as := e.overTheWire(t)
-	heard(t, got, e.kim, func() error {
-		_, err := op.Invalidate(as, rstr.HolderInvalidateRequest_builder{Ref: rstr.HolderRef_builder{Id: e.kim.Bytes()}.Build()}.Build())
-		return err
-	}, func(v Standing) bool { return !v.Invalidated.IsZero() })
 }
 
 // TestTheRosterInThisProcessSaysWhereItIs: it believes its callers -- it has no

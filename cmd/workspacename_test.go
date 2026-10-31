@@ -126,14 +126,12 @@ func TestAWorkspaceGivenOnArrivalIsCalledAfterItsOwner(t *testing.T) {
 	x.Len(box.sent, 1)
 	x.Equal("박서준님이 Loft의 박서준의 워크스페이스에 초대했습니다", box.sent[0].Subject)
 	x.Contains(box.sent[0].Body, "박서준님이 Loft의 박서준의 워크스페이스에 구성원으로 초대했습니다.")
-	inbox, err := app.NewInvitationServiceClient(w.conn).List(as(lee), app.InvitationListRequest_builder{
-		Filters: []*app.InvitationFilter{app.InvitationFilter_builder{Account: lee.Id.Bytes()}.Build()},
-	}.Build())
+	inbox, err := app.NewInvitationServiceClient(w.conn).Inbox(as(lee), app.InvitationInboxRequest_builder{}.Build())
 	x.NoError(err)
 	x.Len(inbox.GetItems(), 1)
 	x.Equal("박서준의 워크스페이스", inbox.GetItems()[0].GetTenant().GetName())
 	found = false
-	for _, v := range w.accessed(t, app.InvitationService_List_FullMethodName) {
+	for _, v := range w.accessed(t, app.InvitationService_Inbox_FullMethodName) {
 		if v.TenantId == ws.Uuid() {
 			x.Contains(v.Subjects, me.GetParty().GetId(), "the inbox showed the owner's name")
 			found = true

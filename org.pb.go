@@ -657,10 +657,11 @@ func (b0 Session_builder) Build() *Session {
 // It is the workspace's row: who invited whom, as what, and what became of it
 // are this workspace's history, and leave with it. Two sides read it -- the
 // people who run the workspace, and the account it is addressed to, who is
-// not a member yet and can read nothing here. So `InvitationService.List`,
-// `Claim`, `Accept` and `Deny` are served as the account rather than as a
-// membership (`cmd.AccountMethods`), and which rows each side reads is said by
-// the domain layer, not by the wall (`server/domain/invitation.go`).
+// not a member yet and can read nothing here. So `InvitationService.Inbox`,
+// `Claim`, `Accept` and `Deny` are the account's own methods, served as the
+// account rather than as a membership (payday#184), and which rows each side
+// reads is said by the domain layer, not by the wall
+// (`server/domain/invitation.go`).
 //
 // # Whose it is
 //
@@ -2099,7 +2100,9 @@ const file_loft_org_proto_rawDesc = "" +
 	"\x06secret\x10\b0\x01\x1a \x12\fdate_expires\x1a\x10\n" +
 	"\fdate_expires\x10\x11\x8a\xbb\x16\xcd\x01\b0B\x02\n" +
 	"\x00R\xc2\x01\x12\xbf\x01\n" +
-	"\xbc\x01a code a browser carries from the service's address to a workspace's domain, good once for a minute; the session it becomes is no act either, and who signed in where is the access record's*\x00B\x1fZ\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"\xbc\x01a code a browser carries from the service's address to a workspace's domain, good once for a minute; the session it becomes is no act either, and who signed in where is the access record's*\x00B2\xca\xc7\x16\x0f2\r\n" +
+	"\v\n" +
+	"\aaccount\x10\tZ\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
 var file_loft_org_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_loft_org_proto_goTypes = []any{

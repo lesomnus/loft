@@ -884,6 +884,11 @@ var (
 				Unique:  false,
 				Columns: []*schema.Column{HolderColumns[13], HolderColumns[7], HolderColumns[0]},
 			},
+			{
+				Name:    "holder_by_account",
+				Unique:  false,
+				Columns: []*schema.Column{HolderColumns[9], HolderColumns[13]},
+			},
 		},
 	}
 	// InventorycountColumns holds the columns for the "inventorycount" table.

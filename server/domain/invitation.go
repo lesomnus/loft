@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"bytes"
 	"context"
 	"crypto/rand"
 	"crypto/sha256"
@@ -42,20 +41,23 @@ import (
 // # Two sides, and the wall serves one
 //
 // The people who run a workspace invite into it and see what they sent: that
-// is the workspace's own rows, written as their membership, behind the wall
-// like everything else (`Add`, `Revoke`). The account an invitation is
-// addressed to is nobody's member there. It reads its invitations out of every
-// workspace that sent one, and its answer writes into a workspace it cannot
-// see -- so `List`, `Claim`, `Accept` and `Deny` are served as the account
-// (`cmd.AccountMethods`), and what the wall would have kept is kept here, a
-// rule at a time:
+// is the workspace's own rows, written and read as their membership, behind
+// the wall like everything else (`Add`, `List`, `Revoke`). The account an
+// invitation is addressed to is nobody's member there. It reads its
+// invitations out of every workspace that sent one, and its answer writes into
+// a workspace it cannot see -- so `Inbox`, `Claim`, `Accept` and `Deny` are
+// the account's own (payday#184): served as the account, in no workspace,
+// reading nothing through the walled servers (`pd.AccountReads`, an empty
+// `pd.Reads`), and what the wall would have kept is kept here, a rule at a
+// time:
 //
 //   - an account reads the invitations addressed to it, and nothing else: the
 //     ones it holds, and the ones sent to an address roster holds as checked
 //     for it ([identity.Store.Addresses]) -- never to an address nobody
 //     checked, which any directory's administrator can put on a user of their
 //     own (nOAuth);
-//   - a workspace's own invitations are read by somebody who runs it;
+//   - a workspace's own invitations are read by somebody who runs it, as
+//     their membership of it, and of no other workspace;
 //   - an answer is written in the invitation's workspace as the deployment's
 //     own work ([Deps.System]), and what it makes is what the invitation says.
 //
@@ -265,75 +267,110 @@ func (s domainInvitation) Revoke(ctx context.Context, req *app.InvitationRevokeR
 	return withoutCode(out), nil
 }
 
-// List answers one of two questions, and only one: the invitations a
-// workspace sent (`tenant`), for somebody who runs it, or the invitations
-// addressed to the caller (`account`, which has to be the caller's own).
+// List is the invitations a workspace sent, for somebody who runs it: the
+// caller's own workspace, named (`tenant`), which is the one question it
+// answers. The ones addressed to an account are [domainInvitation.Inbox].
 //
-// It is served as the account, so the wall narrows nothing here; each side's
-// rule is written below, and anything else is refused rather than answered
-// with everything.
+// It is served as the caller's membership, which the policy holds to an
+// administrator's. The rows are read past the wall, for what they are shown
+// with -- who sent each, by name, and the state of one that ran out -- so the
+// wall's rule is written here: the workspace named is the caller's own, and
+// anything else is refused rather than answered with everything.
 func (s domainInvitation) List(ctx context.Context, req *app.InvitationListRequest) (*app.InvitationListResponse, error) {
 	fs := req.GetFilters()
-	if len(fs) != 1 || (fs[0].GetTenant() == nil) == (len(fs[0].GetAccount()) == 0) || fs[0].GetRef() != nil {
-		return nil, invalid("filters", "초대는 워크스페이스(tenant)나 받는 계정(account) 하나로 찾습니다")
+	if len(fs) != 1 || fs[0].GetTenant() == nil || len(fs[0].GetAccount()) > 0 || fs[0].GetRef() != nil {
+		return nil, invalid("filters", "보낸 초대는 워크스페이스(tenant) 하나로 찾습니다. 받은 초대는 초대함(Inbox)에 있습니다")
 	}
 	f := fs[0]
+	fr, err := gate.Actor(ctx)
+	if err != nil {
+		return nil, err
+	}
+	db := ent.NewClient(ent.Driver(s.drv))
+	ws, err := workspaceOf(ctx, db, f.GetTenant())
+	if err != nil {
+		return nil, err
+	}
+	if ws != fr.Tenant.Uuid() {
+		return nil, status.Error(codes.PermissionDenied, "이 워크스페이스의 초대는 관리자가 봅니다")
+	}
+	now := s.deps.now()
+
+	q := db.Invitation.Query().Where(invitation.TenantId(ws), invitation.DateErasedIsNil())
+	if f.HasState() {
+		q = byState(q, f.GetState(), now)
+	}
+	rows, err := q.Order(ent.Desc(invitation.FieldDateCreated)).Limit(sizeOf(int(req.GetSize()))).WithInviter().All(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	items, err := shown(ctx, db, rows, now)
+	if err != nil {
+		return nil, err
+	}
+	return app.InvitationListResponse_builder{Items: items}.Build(), nil
+}
+
+// Inbox is the invitations addressed to the caller's account, from every
+// workspace that sent one ([domainInvitation.addressed]): the ones waiting for
+// an answer, or the ones in `state`.
+//
+// It is the account's own (payday#184), so it reads nothing through the
+// walled servers -- there is no workspace to narrow by -- and what it reads
+// past them is held here to the account's own.
+func (s domainInvitation) Inbox(ctx context.Context, req *app.InvitationInboxRequest) (*app.InvitationInboxResponse, error) {
+	ctx, err := pd.AccountReads(ctx, app.InvitationService_Inbox_FullMethodName, pd.Reads{})
+	if err != nil {
+		return nil, err
+	}
 	me, err := accountOf(ctx)
 	if err != nil {
 		return nil, err
 	}
 	db := ent.NewClient(ent.Driver(s.drv))
 	now := s.deps.now()
-	limit := int(req.GetSize())
-	if limit <= 0 || limit > 200 {
-		limit = 200
+
+	mine, err := s.addressed(ctx, me)
+	if err != nil {
+		return nil, err
+	}
+	state := invitePending
+	if req.HasState() {
+		state = req.GetState()
+	}
+	rows, err := byState(db.Invitation.Query().Where(mine, invitation.DateErasedIsNil()), state, now).
+		Order(ent.Desc(invitation.FieldDateCreated)).Limit(sizeOf(int(req.GetSize()))).WithInviter().WithTenant().All(ctx)
+	if err != nil {
+		return nil, err
 	}
 
-	var rows []*ent.Invitation
-	if f.GetTenant() != nil {
-		// A workspace's own, for somebody who runs it.
-		ws, err := workspaceOf(ctx, db, f.GetTenant())
-		if err != nil {
-			return nil, err
-		}
-		m, err := db.Holder.Query().Where(holder.TenantId(ws), holder.Account(me.Uuid()), holder.DateErasedIsNil()).Only(ctx)
-		if err != nil || policy.Levels[m.Role] < policy.Admin {
-			return nil, status.Error(codes.PermissionDenied, "이 워크스페이스의 초대는 관리자가 봅니다")
-		}
-		q := db.Invitation.Query().Where(invitation.TenantId(ws), invitation.DateErasedIsNil())
-		if f.HasState() {
-			q = byState(q, f.GetState(), now)
-		}
-		if rows, err = q.Order(ent.Desc(invitation.FieldDateCreated)).Limit(limit).WithInviter().All(ctx); err != nil {
-			return nil, err
-		}
-	} else {
-		// The caller's own, from every workspace.
-		if !bytes.Equal(f.GetAccount(), me.Bytes()) {
-			return nil, status.Error(codes.PermissionDenied, "다른 계정의 초대는 볼 수 없습니다")
-		}
-		mine, err := s.addressed(ctx, me)
-		if err != nil {
-			return nil, err
-		}
-		q := db.Invitation.Query().Where(mine, invitation.DateErasedIsNil())
-		state := invitePending
-		if f.HasState() {
-			state = f.GetState()
-		}
-		if rows, err = byState(q, state, now).Order(ent.Desc(invitation.FieldDateCreated)).Limit(limit).WithInviter().WithTenant().All(ctx); err != nil {
-			return nil, err
-		}
+	items, err := shown(ctx, db, rows, now)
+	if err != nil {
+		return nil, err
 	}
+	return app.InvitationInboxResponse_builder{Items: items}.Build(), nil
+}
 
+// sizeOf is how many a list answers with: what it asked for, up to 200, and
+// 200 when it asked for none.
+func sizeOf(v int) int {
+	if v <= 0 || v > 200 {
+		return 200
+	}
+	return v
+}
+
+// shown is invitations as either side reads them ([protoOf]).
+func shown(ctx context.Context, db *ent.Client, rows []*ent.Invitation, now time.Time) ([]*app.Invitation, error) {
 	names := inviterNames(ctx, db, rows)
 	called, err := workspaceNames(ctx, db, rows)
 	if err != nil {
 		return nil, err
 	}
-	out := app.InvitationListResponse_builder{}.Build()
+	out := make([]*app.Invitation, 0, len(rows))
 	for _, v := range rows {
-		out.SetItems(append(out.GetItems(), protoOf(v, now, names, called)))
+		out = append(out, protoOf(v, now, names, called))
 	}
 	return out, nil
 }
@@ -343,6 +380,10 @@ func (s domainInvitation) List(ctx context.Context, req *app.InvitationListReque
 // address roster holds no check of -- a Microsoft account with no `xms_edov` --
 // is reached at all.
 func (s domainInvitation) Claim(ctx context.Context, req *app.InvitationClaimRequest) (*app.Invitation, error) {
+	ctx, err := pd.AccountReads(ctx, app.InvitationService_Claim_FullMethodName, pd.Reads{})
+	if err != nil {
+		return nil, err
+	}
 	me, err := accountOf(ctx)
 	if err != nil {
 		return nil, err
@@ -381,6 +422,10 @@ func (s domainInvitation) Claim(ctx context.Context, req *app.InvitationClaimReq
 // Accept makes the caller a member of the invitation's workspace, as what it
 // says, and the person record it names -- or a new one -- theirs.
 func (s domainInvitation) Accept(ctx context.Context, req *app.InvitationAcceptRequest) (*app.Invitation, error) {
+	ctx, err := pd.AccountReads(ctx, app.InvitationService_Accept_FullMethodName, pd.Reads{})
+	if err != nil {
+		return nil, err
+	}
 	me, err := accountOf(ctx)
 	if err != nil {
 		return nil, err
@@ -483,6 +528,10 @@ func (s domainInvitation) Accept(ctx context.Context, req *app.InvitationAcceptR
 
 // Deny says no. The people who invited see that it was answered so.
 func (s domainInvitation) Deny(ctx context.Context, req *app.InvitationDenyRequest) (*app.Invitation, error) {
+	ctx, err := pd.AccountReads(ctx, app.InvitationService_Deny_FullMethodName, pd.Reads{})
+	if err != nil {
+		return nil, err
+	}
 	me, err := accountOf(ctx)
 	if err != nil {
 		return nil, err
@@ -725,20 +774,13 @@ func workspaceOf(ctx context.Context, db *ent.Client, ref *app.TenantRef) (uuid.
 	return uuid.UUID{}, status.Error(codes.PermissionDenied, "이 워크스페이스의 초대는 관리자가 봅니다")
 }
 
-// accountOf is the account a call is from: the frame's own for a call served
-// as an account, and the membership's account for one served as a member.
+// accountOf is the account a call is from, as its frame says (payday#184):
+// the one making a call as itself, or the one a membership's call came from.
+// A call that names no account -- a credential of a holder's own -- is nobody
+// an invitation is addressed to.
 func accountOf(ctx context.Context) (pdid.Id, error) {
-	fr, err := gate.Actor(ctx)
-	if err != nil {
-		return pdid.Nil, err
-	}
-	switch v := fr.Row.(type) {
-	case *app.Account:
-		return pdid.From(v.GetId())
-	case *app.Holder:
-		if len(v.GetAccount()) > 0 {
-			return pdid.From(v.GetAccount())
-		}
+	if a := frame.Must(ctx).Account; !a.IsZero() {
+		return a, nil
 	}
 	return pdid.Nil, status.Error(codes.PermissionDenied, "계정으로 로그인한 사람만 초대를 받습니다")
 }

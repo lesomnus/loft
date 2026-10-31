@@ -235,7 +235,16 @@ func (s domainParty) Invite(ctx context.Context, req *app.PartyInviteRequest) (*
 			return err
 		}
 
-		h, err := t.next.Holder().Add(t.ctx, app.HolderAddRequest_builder{
+		// Which account the membership is of is not a request's to say
+		// (payday#184), and the gate refuses it to one: it is written
+		// through the deployment's own servers, on this transaction, as the
+		// caller and in the caller's workspace -- the account the one just
+		// made for it.
+		base, err := t.deployment()
+		if err != nil {
+			return err
+		}
+		h, err := base.Holder().Add(t.ctx, app.HolderAddRequest_builder{
 			Tenant:  t.tenantRef(),
 			Alias:   alias,
 			Name:    p.GetName(),

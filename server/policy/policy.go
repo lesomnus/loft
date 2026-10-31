@@ -40,8 +40,10 @@ const (
 	// Nobody is a method no role is given.
 	Nobody Level = iota
 	// Account is anybody signed in, as their account and not as a membership:
-	// the calls an account makes before it is anybody's member, which
-	// `cmd.AccountMethods` lists and the domain layer holds to its own rows.
+	// the calls an account makes before it is anybody's member, which the
+	// schema marks as its own (`pd.AccountMethods`, payday#184) and the domain
+	// layer holds to its own rows. A method of this level is an account's and
+	// nobody else's: a membership is not given it, whatever its role.
 	Account
 	// Read is everybody signed in, auditors included.
 	Read
@@ -234,8 +236,11 @@ func init() {
 	// addressed to, and so is reading it: served as the account, held by the
 	// domain layer to the invitations addressed to it -- and a workspace's own
 	// to somebody who runs that workspace.
-	allow(Admin, "InvitationService", "Add", "Revoke")
-	allow(Account, "InvitationService", "List", "Claim", "Accept", "Deny")
+	// A workspace's invitations are its administrators': sent, read and
+	// taken back as their membership of it. The ones addressed to an account
+	// are that account's own, answered as itself.
+	allow(Admin, "InvitationService", "Add", "List", "Revoke")
+	allow(Account, "InvitationService", "Inbox", "Claim", "Accept", "Deny")
 
 	// A tenant's contract and the legal holds on it are the operator's: `loft
 	// contract` and `loft hold` write them, from a shell, and no role here
@@ -266,9 +271,9 @@ func Role(c gate.Call) string {
 }
 
 // levelOf is how much the caller may do: their membership's role, or no more
-// than an account's for a call served as the account.
+// than an account's for a call an account makes as itself (payday#184).
 func levelOf(c gate.Call) Level {
-	if _, ok := c.Row.(*app.Account); ok {
+	if c.AsAccount {
 		return Account
 	}
 	return Levels[Role(c)]
@@ -290,6 +295,17 @@ func (Policy) May(ctx context.Context, c gate.Call) error {
 	}
 	role := Role(c)
 	lv := levelOf(c)
+	// The account's own methods are called as the account, and nothing else
+	// is: payday refuses such a call every other method before this is asked,
+	// and this refuses a membership the account's own.
+	switch {
+	case r.min == Account && lv == Account:
+		return nil
+	case r.min == Account:
+		return status.Errorf(codes.PermissionDenied, "계정 자신으로 부르는 작업입니다 (%s)", c.Action)
+	case lv == Account:
+		return status.Errorf(codes.PermissionDenied, "워크스페이스의 구성원으로 부르는 작업입니다 (%s)", c.Action)
+	}
 	if lv >= r.min && lv > Nobody {
 		return nil
 	}

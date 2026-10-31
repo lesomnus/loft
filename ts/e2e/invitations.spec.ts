@@ -46,11 +46,19 @@ test('an invitation is sent, received by the link its mail carries, and accepted
 	await expect(yes).toHaveURL(new RegExp(`^${escape(home)}$`))
 	await expect(yes.locator('summary')).toHaveText(name)
 
-	// The other says no, and nothing is left waiting for them.
+	// The other opens theirs and goes back to their workspace first: what
+	// waits for an account is its own to ask, and is counted there.
 	const no = await as(people.declines.login)
 	await no.goto(await mailed(baseURL!, address(people.declines)))
 	const other = no.getByRole('listitem').filter({ hasText: name })
 	await expect(other).toContainText(`${people.inviter.name}님이 매니저로 초대했습니다`)
+	await no.getByRole('button', { name: '워크스페이스로 돌아가기' }).click()
+	await no.locator('summary').click()
+	const inbox = no.getByRole('link', { name: /받은 초대/ })
+	await expect(inbox).toContainText('1')
+
+	// And says no, and nothing is left waiting for them.
+	await inbox.click()
 	await other.getByRole('button', { name: '거절', exact: true }).click()
 	await expect(no.getByText('기다리는 초대가 없습니다.')).toBeVisible()
 
