@@ -165,6 +165,10 @@ func NewCmdTenant(c *cmd.Config) *xli.Command {
 // too, for a workspace under a law or an agreement that asks for it. The
 // sweep does what the workspace's contract says (`purge_floors`); these do
 // what they are called, and say so when the contract says the other.
+//
+// A deployment that bills (`app.billing.levyan`) measures the workspace first
+// and hands what it held to levyan, as the sweep does: a levyan that cannot
+// be told is the command failing with why, and nothing taken.
 func newCmdTenantLeave(c *cmd.Config, name, brief string, how closing.How) *xli.Command {
 	return &xli.Command{
 		Name:  name,
@@ -226,6 +230,13 @@ func newCmdTenantLeave(c *cmd.Config, name, brief string, how closing.How) *xli.
 			}
 			if len(x.Lost) > 0 {
 				self.Printf("  files that could not be removed: %s\n", strings.Join(x.Lost, ", "))
+			}
+			if s.Meters != nil {
+				verb := "was"
+				if !yes {
+					verb = "is"
+				}
+				self.Printf("  meters: what it held %s measured and handed to levyan first; nothing is taken while it cannot be\n", verb)
 			}
 			if !yes {
 				switch {
