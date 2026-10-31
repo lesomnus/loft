@@ -6,7 +6,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/lesomnus/z"
+
 	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cmd"
 	"github.com/lesomnus/loft/internal/identity"
 	"github.com/lesomnus/loft/server/account"
 )
@@ -48,4 +51,41 @@ func TestAnAccountIsToldWhereItIsManaged(t *testing.T) {
 	var got account.Account
 	x.NoError(json.Unmarshal(rec.Body.Bytes(), &got))
 	x.Equal("https://id.example/", got.Manage)
+}
+
+// TestAnAccountIsToldTheDeploymentsZone (design 7.9): what is answered of the
+// account says the deployment's zone -- Asia/Seoul while `app.locale` says
+// none, and the one it says otherwise -- which a page about no workspace, the
+// account's payments first, draws its dates in rather than the browser's. A
+// workspace's own zone is the workspace's pages', and moves none of it.
+func TestAnAccountIsToldTheDeploymentsZone(t *testing.T) {
+	read := func(w *world) account.Account {
+		rec := w.page(w.owner, http.MethodGet, "/account")
+		w.x.Equal(http.StatusOK, rec.Code, rec.Body.String())
+		var got account.Account
+		w.x.NoError(json.Unmarshal(rec.Body.Bytes(), &got))
+		return got
+	}
+
+	w := newWorld(t)
+	x := w.x
+	x.Equal("Asia/Seoul", read(w).Timezone, "the pilot's, while the deployment names none")
+
+	_, err := app.NewTenantServiceClient(w.conn).Configure(w.owner, app.TenantConfigureRequest_builder{
+		Ref:      app.TenantRef_builder{Id: w.tenant.GetId()}.Build(),
+		Timezone: z.Ptr("Europe/Paris"),
+	}.Build())
+	x.NoError(err)
+	me, err := app.NewPartyServiceClient(w.conn).Me(w.owner, &app.PartyMeRequest{})
+	x.NoError(err)
+	x.Equal("Europe/Paris", me.GetTimezone(), "the workspace's pages are on its own wall")
+	x.Equal("Asia/Seoul", read(w).Timezone, "and the account's on the deployment's")
+
+	t.Run("one the deployment names", func(t *testing.T) {
+		w := newWorldWith(t, func(c *cmd.Config) { c.App.Locale.Timezone = "America/Los_Angeles" })
+		w.x.Equal("America/Los_Angeles", read(w).Timezone)
+		me, err := app.NewPartyServiceClient(w.conn).Me(w.owner, &app.PartyMeRequest{})
+		w.x.NoError(err)
+		w.x.Equal("America/Los_Angeles", me.GetTimezone(), "the zone a workspace that says none of its own is told in")
+	})
 }
