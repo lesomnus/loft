@@ -25,7 +25,7 @@ func TestEveryAnswerSaysHowItMayBeUsed(t *testing.T) {
 	policy := csp.Policy("https://id.example.com/oauth2")
 	ask := func(https bool, mode csp.Mode, path string) http.Header {
 		rec := httptest.NewRecorder()
-		guarded(h, https, mode, policy).ServeHTTP(rec, httptest.NewRequest(http.MethodGet, path, nil))
+		guarded(h, https, mode, policy, nil).ServeHTTP(rec, httptest.NewRequest(http.MethodGet, path, nil))
 		x.Equal(http.StatusTeapot, rec.Code, "what answered still answers")
 		return rec.Header()
 	}
