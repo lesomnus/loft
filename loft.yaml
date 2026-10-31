@@ -217,6 +217,22 @@ app:
   #   personal: true
   #   owned: 3
 
+  # What the workspaces are billed by (design 7, D59): levyan, which what
+  # each holds is measured for and handed to -- every workspace as `serve`
+  # starts and at each midnight UTC, and each once more before it is
+  # destroyed. `key` is the product key levyan's operator issued
+  # (`levyan-admin key issue`, lvk_…), as env:NAME, file:PATH or itself, and
+  # is said nowhere. Plaintext only when `insecure` says so; anything else is
+  # TLS, as `tls` says. Unset, nothing is measured.
+  #
+  # billing:
+  #   levyan:
+  #     addr: 127.0.0.1:50051
+  #     key: env:LOFT_LEVYAN_KEY
+  #     insecure: true
+  #     # tls: {ca_file: /etc/loft/levyan-ca.pem}
+  #     # timeout: 10s
+
 # How long the trail keeps a row. Every write this app makes is recorded, and
 # **nothing else applies a window**: with no block here the table is kept whole,
 # forever, and it is the one that grows without anybody writing to it.
