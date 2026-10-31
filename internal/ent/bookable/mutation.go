@@ -8,8 +8,8 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent/predicate"
+	"github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent/predicate"
 	"github.com/protobuf-orm/ent"
 	"github.com/protobuf-orm/ent/dialect/sql"
 )
@@ -19,7 +19,7 @@ type Mutation struct {
 	op                  ent.Op
 	typ                 string
 	timezone            *string
-	hours               **rove.OpeningHours
+	hours               **loft.OpeningHours
 	buffer_before       *int32
 	addbuffer_before    *int32
 	buffer_after        *int32
@@ -85,14 +85,14 @@ func (m *Mutation) ResetTimezone() {
 }
 
 // SetHours sets the "hours" field.
-func (m *Mutation) SetHours(rh *rove.OpeningHours) {
-	m.hours = &rh
+func (m *Mutation) SetHours(lh *loft.OpeningHours) {
+	m.hours = &lh
 	delete(m.clearedFields, FieldHours)
 	delete(m.exprs, FieldHours)
 }
 
 // Hours returns the value of the "hours" field in the mutation.
-func (m *Mutation) Hours() (r *rove.OpeningHours, exists bool) {
+func (m *Mutation) Hours() (r *loft.OpeningHours, exists bool) {
 	v := m.hours
 	if v == nil {
 		return
@@ -816,7 +816,7 @@ func (m *Mutation) SetField(name string, value ent.Value) error {
 		m.SetTimezone(v)
 		return nil
 	case FieldHours:
-		v, ok := value.(*rove.OpeningHours)
+		v, ok := value.(*loft.OpeningHours)
 		if !ok {
 			if e, ok := value.(sql.Querier); ok {
 				return m.SetFieldExpr(name, e)

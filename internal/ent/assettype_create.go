@@ -9,9 +9,9 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent/assettype"
-	"github.com/lesomnus/rove/internal/ent/tenant"
+	"github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent/assettype"
+	"github.com/lesomnus/loft/internal/ent/tenant"
 	"github.com/protobuf-orm/ent/dialect/sql"
 	"github.com/protobuf-orm/ent/dialect/sql/sqlgraph"
 	"github.com/protobuf-orm/ent/schema/field"
@@ -64,7 +64,7 @@ func (_c *AssetTypeCreate) SetKind(v string) *AssetTypeCreate {
 }
 
 // SetSpec sets the "spec" field.
-func (_c *AssetTypeCreate) SetSpec(v *rove.TypeSpec) *AssetTypeCreate {
+func (_c *AssetTypeCreate) SetSpec(v *loft.TypeSpec) *AssetTypeCreate {
 	_c.mutation.SetSpec(v)
 	return _c
 }

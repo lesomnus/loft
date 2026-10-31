@@ -1,5 +1,5 @@
 # Search on OpenSearch with nori (D31), for a deployment that says so: read
-# after compose.yaml, which this adds the cluster to, and tells every rove
+# after compose.yaml, which this adds the cluster to, and tells every loft
 # about it. README.md says how to turn it on:
 #
 #   ./search-init.sh                                          # once
@@ -10,21 +10,21 @@
 # never anything to keep: the servers make the index when there is none.
 
 x-search: &search
-  ROVE_APP_SEARCH_OPENSEARCH_ADDRS: https://opensearch:9200
-  ROVE_APP_SEARCH_OPENSEARCH_USERNAME: rove
-  ROVE_APP_SEARCH_OPENSEARCH_PASSWORD: file:/run/secrets/search_password
-  ROVE_APP_SEARCH_OPENSEARCH_CA_FILE: /run/secrets/search-ca.pem
+  LOFT_APP_SEARCH_OPENSEARCH_ADDRS: https://opensearch:9200
+  LOFT_APP_SEARCH_OPENSEARCH_USERNAME: loft
+  LOFT_APP_SEARCH_OPENSEARCH_PASSWORD: file:/run/secrets/search_password
+  LOFT_APP_SEARCH_OPENSEARCH_CA_FILE: /run/secrets/search-ca.pem
 
 services:
   opensearch:
     build: ../opensearch
-    image: rove-opensearch:local
+    image: loft-opensearch:local
     environment:
       # The demo's users and certificates are not what this runs with: the
       # users and roles are opensearch/ and secrets/, read when the cluster
       # is first made.
       DISABLE_INSTALL_DEMO_CONFIG: "true"
-      OPENSEARCH_JAVA_OPTS: -Xms${ROVE_SEARCH_HEAP:-512m} -Xmx${ROVE_SEARCH_HEAP:-512m}
+      OPENSEARCH_JAVA_OPTS: -Xms${LOFT_SEARCH_HEAP:-512m} -Xmx${LOFT_SEARCH_HEAP:-512m}
     volumes:
       - opensearch:/usr/share/opensearch/data
       - ./opensearch/opensearch.yml:/usr/share/opensearch/config/opensearch.yml:ro
@@ -45,14 +45,14 @@ services:
       interval: 5s
       timeout: 5s
       retries: 60
-    networks: [rove]
+    networks: [loft]
     restart: unless-stopped
 
   migrate:
     environment: *search
     secrets: [search_password, search-ca.pem]
 
-  rove:
+  loft:
     environment: *search
     secrets: [search_password, search-ca.pem]
     depends_on:
@@ -60,7 +60,7 @@ services:
 
   # The operator's changes have to reach the index too: a workspace an
   # operator purges goes from it the way it goes from the database.
-  rove-admin:
+  loft-admin:
     environment: *search
     secrets: [search_password, search-ca.pem]
     depends_on:

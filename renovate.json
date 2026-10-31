@@ -27,7 +27,7 @@
   ],
   "packageRules": [
     {
-      "description": "roster moves with payday, by hand: rove links the roster generated with the payday it links, so a payday upgrade is `go get` of that roster and then `go tool pd upgrade --payday`.",
+      "description": "roster moves with payday, by hand: loft links the roster generated with the payday it links, so a payday upgrade is `go get` of that roster and then `go tool pd upgrade --payday`.",
       "matchManagers": ["gomod"],
       "matchPackageNames": ["github.com/lesomnus/roster", "github.com/lesomnus/roster/**"],
       "enabled": false

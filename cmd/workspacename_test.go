@@ -18,10 +18,10 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/identity"
-	"github.com/lesomnus/rove/server/account"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/identity"
+	"github.com/lesomnus/loft/server/account"
 )
 
 // TestAWorkspaceGivenOnArrivalIsCalledAfterItsOwner is D57: the workspace an
@@ -34,7 +34,7 @@ func TestAWorkspaceGivenOnArrivalIsCalledAfterItsOwner(t *testing.T) {
 	require.NoError(t, os.WriteFile(filepath.Join(web, "index.html"), []byte("<html></html>"), 0o644))
 	w := newWorldWith(t, func(c *cmd.Config) {
 		c.App.Web = web
-		c.App.AppUrl = "https://rove.example"
+		c.App.AppUrl = "https://loft.example"
 	})
 	x := w.x
 	ctx := context.Background()
@@ -124,8 +124,8 @@ func TestAWorkspaceGivenOnArrivalIsCalledAfterItsOwner(t *testing.T) {
 	}.Build())
 	x.NoError(err)
 	x.Len(box.sent, 1)
-	x.Equal("박서준님이 Rove의 박서준의 워크스페이스에 초대했습니다", box.sent[0].Subject)
-	x.Contains(box.sent[0].Body, "박서준님이 Rove의 박서준의 워크스페이스에 구성원으로 초대했습니다.")
+	x.Equal("박서준님이 Loft의 박서준의 워크스페이스에 초대했습니다", box.sent[0].Subject)
+	x.Contains(box.sent[0].Body, "박서준님이 Loft의 박서준의 워크스페이스에 구성원으로 초대했습니다.")
 	inbox, err := app.NewInvitationServiceClient(w.conn).List(as(lee), app.InvitationListRequest_builder{
 		Filters: []*app.InvitationFilter{app.InvitationFilter_builder{Account: lee.Id.Bytes()}.Build()},
 	}.Build())

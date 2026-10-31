@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.12
 // 	protoc        (unknown)
-// source: rove/payday/audit_svc.g.proto
+// source: loft/payday/audit_svc.g.proto
 
-package rove
+package loft
 
 import (
 	patchpb "github.com/lesomnus/protobuf-patch/patchpb"
@@ -47,7 +47,7 @@ type AuditAddRequest struct {
 
 func (x *AuditAddRequest) Reset() {
 	*x = AuditAddRequest{}
-	mi := &file_rove_payday_audit_svc_g_proto_msgTypes[0]
+	mi := &file_loft_payday_audit_svc_g_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -59,7 +59,7 @@ func (x *AuditAddRequest) String() string {
 func (*AuditAddRequest) ProtoMessage() {}
 
 func (x *AuditAddRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_audit_svc_g_proto_msgTypes[0]
+	mi := &file_loft_payday_audit_svc_g_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -392,7 +392,7 @@ type AuditGetRequest struct {
 
 func (x *AuditGetRequest) Reset() {
 	*x = AuditGetRequest{}
-	mi := &file_rove_payday_audit_svc_g_proto_msgTypes[1]
+	mi := &file_loft_payday_audit_svc_g_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -404,7 +404,7 @@ func (x *AuditGetRequest) String() string {
 func (*AuditGetRequest) ProtoMessage() {}
 
 func (x *AuditGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_audit_svc_g_proto_msgTypes[1]
+	mi := &file_loft_payday_audit_svc_g_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -484,7 +484,7 @@ type AuditRef struct {
 
 func (x *AuditRef) Reset() {
 	*x = AuditRef{}
-	mi := &file_rove_payday_audit_svc_g_proto_msgTypes[2]
+	mi := &file_loft_payday_audit_svc_g_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -496,7 +496,7 @@ func (x *AuditRef) String() string {
 func (*AuditRef) ProtoMessage() {}
 
 func (x *AuditRef) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_audit_svc_g_proto_msgTypes[2]
+	mi := &file_loft_payday_audit_svc_g_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -584,7 +584,7 @@ func (b0 AuditRef_builder) Build() *AuditRef {
 type case_AuditRef_Key protoreflect.FieldNumber
 
 func (x case_AuditRef_Key) String() string {
-	md := file_rove_payday_audit_svc_g_proto_msgTypes[2].Descriptor()
+	md := file_loft_payday_audit_svc_g_proto_msgTypes[2].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -626,7 +626,7 @@ type AuditSelect struct {
 
 func (x *AuditSelect) Reset() {
 	*x = AuditSelect{}
-	mi := &file_rove_payday_audit_svc_g_proto_msgTypes[3]
+	mi := &file_loft_payday_audit_svc_g_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -638,7 +638,7 @@ func (x *AuditSelect) String() string {
 func (*AuditSelect) ProtoMessage() {}
 
 func (x *AuditSelect) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_audit_svc_g_proto_msgTypes[3]
+	mi := &file_loft_payday_audit_svc_g_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1121,7 +1121,7 @@ type AuditPatchRequest struct {
 
 func (x *AuditPatchRequest) Reset() {
 	*x = AuditPatchRequest{}
-	mi := &file_rove_payday_audit_svc_g_proto_msgTypes[4]
+	mi := &file_loft_payday_audit_svc_g_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1133,7 +1133,7 @@ func (x *AuditPatchRequest) String() string {
 func (*AuditPatchRequest) ProtoMessage() {}
 
 func (x *AuditPatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_audit_svc_g_proto_msgTypes[4]
+	mi := &file_loft_payday_audit_svc_g_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1598,7 +1598,7 @@ type AuditApplyRequest struct {
 
 func (x *AuditApplyRequest) Reset() {
 	*x = AuditApplyRequest{}
-	mi := &file_rove_payday_audit_svc_g_proto_msgTypes[5]
+	mi := &file_loft_payday_audit_svc_g_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1610,7 +1610,7 @@ func (x *AuditApplyRequest) String() string {
 func (*AuditApplyRequest) ProtoMessage() {}
 
 func (x *AuditApplyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_audit_svc_g_proto_msgTypes[5]
+	mi := &file_loft_payday_audit_svc_g_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1692,7 +1692,7 @@ type AuditEraseResponse struct {
 
 func (x *AuditEraseResponse) Reset() {
 	*x = AuditEraseResponse{}
-	mi := &file_rove_payday_audit_svc_g_proto_msgTypes[6]
+	mi := &file_loft_payday_audit_svc_g_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1704,7 +1704,7 @@ func (x *AuditEraseResponse) String() string {
 func (*AuditEraseResponse) ProtoMessage() {}
 
 func (x *AuditEraseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_audit_svc_g_proto_msgTypes[6]
+	mi := &file_loft_payday_audit_svc_g_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1773,7 +1773,7 @@ type AuditListRequest struct {
 
 func (x *AuditListRequest) Reset() {
 	*x = AuditListRequest{}
-	mi := &file_rove_payday_audit_svc_g_proto_msgTypes[7]
+	mi := &file_loft_payday_audit_svc_g_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1785,7 +1785,7 @@ func (x *AuditListRequest) String() string {
 func (*AuditListRequest) ProtoMessage() {}
 
 func (x *AuditListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_audit_svc_g_proto_msgTypes[7]
+	mi := &file_loft_payday_audit_svc_g_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1885,7 +1885,7 @@ type AuditListResponse struct {
 
 func (x *AuditListResponse) Reset() {
 	*x = AuditListResponse{}
-	mi := &file_rove_payday_audit_svc_g_proto_msgTypes[8]
+	mi := &file_loft_payday_audit_svc_g_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1897,7 +1897,7 @@ func (x *AuditListResponse) String() string {
 func (*AuditListResponse) ProtoMessage() {}
 
 func (x *AuditListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_audit_svc_g_proto_msgTypes[8]
+	mi := &file_loft_payday_audit_svc_g_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1970,7 +1970,7 @@ type AuditFilter struct {
 
 func (x *AuditFilter) Reset() {
 	*x = AuditFilter{}
-	mi := &file_rove_payday_audit_svc_g_proto_msgTypes[9]
+	mi := &file_loft_payday_audit_svc_g_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1982,7 +1982,7 @@ func (x *AuditFilter) String() string {
 func (*AuditFilter) ProtoMessage() {}
 
 func (x *AuditFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_audit_svc_g_proto_msgTypes[9]
+	mi := &file_loft_payday_audit_svc_g_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2175,7 +2175,7 @@ type AuditRecentRequest struct {
 
 func (x *AuditRecentRequest) Reset() {
 	*x = AuditRecentRequest{}
-	mi := &file_rove_payday_audit_svc_g_proto_msgTypes[10]
+	mi := &file_loft_payday_audit_svc_g_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2187,7 +2187,7 @@ func (x *AuditRecentRequest) String() string {
 func (*AuditRecentRequest) ProtoMessage() {}
 
 func (x *AuditRecentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_audit_svc_g_proto_msgTypes[10]
+	mi := &file_loft_payday_audit_svc_g_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2247,7 +2247,7 @@ type AuditRecentResponse struct {
 
 func (x *AuditRecentResponse) Reset() {
 	*x = AuditRecentResponse{}
-	mi := &file_rove_payday_audit_svc_g_proto_msgTypes[11]
+	mi := &file_loft_payday_audit_svc_g_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2259,7 +2259,7 @@ func (x *AuditRecentResponse) String() string {
 func (*AuditRecentResponse) ProtoMessage() {}
 
 func (x *AuditRecentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_audit_svc_g_proto_msgTypes[11]
+	mi := &file_loft_payday_audit_svc_g_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2311,11 +2311,11 @@ func (b0 AuditRecentResponse_builder) Build() *AuditRecentResponse {
 	return m0
 }
 
-var File_rove_payday_audit_svc_g_proto protoreflect.FileDescriptor
+var File_loft_payday_audit_svc_g_proto protoreflect.FileDescriptor
 
-const file_rove_payday_audit_svc_g_proto_rawDesc = "" +
+const file_loft_payday_audit_svc_g_proto_rawDesc = "" +
 	"\n" +
-	"\x1drove/payday/audit_svc.g.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x11patch/patch.proto\x1a\x17rove/payday/audit.proto\"\x95\x04\n" +
+	"\x1dloft/payday/audit_svc.g.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x17loft/payday/audit.proto\x1a\x11patch/patch.proto\"\x95\x04\n" +
 	"\x0fAuditAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12\"\n" +
 	"\ttenant_id\x18\x02 \x01(\fB\x05\xaa\x01\x02\b\x02R\btenantId\x12 \n" +
@@ -2334,8 +2334,8 @@ const file_rove_payday_audit_svc_g_proto_rawDesc = "" +
 	"\x06digest\x18\x15 \x01(\fR\x06digest\x12#\n" +
 	"\rdigest_fields\x18\x16 \x03(\rR\fdigestFields\"^\n" +
 	"\x0fAuditGetRequest\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.rove.AuditRefR\x03ref\x12)\n" +
-	"\x06select\x18\x02 \x01(\v2\x11.rove.AuditSelectR\x06select\"#\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.loft.AuditRefR\x03ref\x12)\n" +
+	"\x06select\x18\x02 \x01(\v2\x11.loft.AuditSelectR\x06select\"#\n" +
 	"\bAuditRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
 	"\x03key\"\xbf\x03\n" +
@@ -2357,7 +2357,7 @@ const file_rove_payday_audit_svc_g_proto_rawDesc = "" +
 	"\x06digest\x18\x15 \x01(\bR\x06digest\x12#\n" +
 	"\rdigest_fields\x18\x16 \x01(\bR\fdigestFields\"\xef\x03\n" +
 	"\x11AuditPatchRequest\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.rove.AuditRefR\x03ref\x12\x1b\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.loft.AuditRefR\x03ref\x12\x1b\n" +
 	"\ttenant_id\x18\x04 \x01(\fR\btenantId\x12\x19\n" +
 	"\bactor_id\x18\x10 \x01(\fR\aactorId\x12\x19\n" +
 	"\btrace_id\x18\x12 \x01(\fR\atraceId\x12\x16\n" +
@@ -2373,17 +2373,17 @@ const file_rove_payday_audit_svc_g_proto_rawDesc = "" +
 	"\x06digest\x18* \x01(\fR\x06digest\x12#\n" +
 	"\rdigest_fields\x18, \x03(\rR\fdigestFields\"Y\n" +
 	"\x11AuditApplyRequest\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.rove.AuditRefR\x03ref\x12\"\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.loft.AuditRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\",\n" +
 	"\x12AuditEraseResponse\x12\x16\n" +
 	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x98\x01\n" +
 	"\x10AuditListRequest\x12+\n" +
-	"\afilters\x18\x01 \x03(\v2\x11.rove.AuditFilterR\afilters\x12\x19\n" +
+	"\afilters\x18\x01 \x03(\v2\x11.loft.AuditFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
 	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
 	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"Q\n" +
 	"\x11AuditListResponse\x12!\n" +
-	"\x05items\x18\x01 \x03(\v2\v.rove.AuditR\x05items\x12\x19\n" +
+	"\x05items\x18\x01 \x03(\v2\v.loft.AuditR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"\xbe\x01\n" +
 	"\vAuditFilter\x12\x1b\n" +
 	"\tobject_id\x18\x01 \x01(\fR\bobjectId\x12\x19\n" +
@@ -2395,59 +2395,59 @@ const file_rove_payday_audit_svc_g_proto_rawDesc = "" +
 	"\x04size\x18\x01 \x01(\rB\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
 	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05afterJ\x04\b\x02\x10\x03R\x06before\"S\n" +
 	"\x13AuditRecentResponse\x12!\n" +
-	"\x05items\x18\x01 \x03(\v2\v.rove.AuditR\x05items\x12\x19\n" +
+	"\x05items\x18\x01 \x03(\v2\v.loft.AuditR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next2\xed\x02\n" +
 	"\fAuditService\x12)\n" +
-	"\x03Add\x12\x15.rove.AuditAddRequest\x1a\v.rove.Audit\x12)\n" +
-	"\x03Get\x12\x15.rove.AuditGetRequest\x1a\v.rove.Audit\x12-\n" +
-	"\x05Patch\x12\x17.rove.AuditPatchRequest\x1a\v.rove.Audit\x12-\n" +
-	"\x05Apply\x12\x17.rove.AuditApplyRequest\x1a\v.rove.Audit\x121\n" +
-	"\x05Erase\x12\x0e.rove.AuditRef\x1a\x18.rove.AuditEraseResponse\x127\n" +
-	"\x04List\x12\x16.rove.AuditListRequest\x1a\x17.rove.AuditListResponse\x12=\n" +
-	"\x06Recent\x12\x18.rove.AuditRecentRequest\x1a\x19.rove.AuditRecentResponseB\x1aZ\x18github.com/lesomnus/roveb\beditionsp\xe8\a"
+	"\x03Add\x12\x15.loft.AuditAddRequest\x1a\v.loft.Audit\x12)\n" +
+	"\x03Get\x12\x15.loft.AuditGetRequest\x1a\v.loft.Audit\x12-\n" +
+	"\x05Patch\x12\x17.loft.AuditPatchRequest\x1a\v.loft.Audit\x12-\n" +
+	"\x05Apply\x12\x17.loft.AuditApplyRequest\x1a\v.loft.Audit\x121\n" +
+	"\x05Erase\x12\x0e.loft.AuditRef\x1a\x18.loft.AuditEraseResponse\x127\n" +
+	"\x04List\x12\x16.loft.AuditListRequest\x1a\x17.loft.AuditListResponse\x12=\n" +
+	"\x06Recent\x12\x18.loft.AuditRecentRequest\x1a\x19.loft.AuditRecentResponseB\x1aZ\x18github.com/lesomnus/loftb\beditionsp\xe8\a"
 
-var file_rove_payday_audit_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
-var file_rove_payday_audit_svc_g_proto_goTypes = []any{
-	(*AuditAddRequest)(nil),       // 0: rove.AuditAddRequest
-	(*AuditGetRequest)(nil),       // 1: rove.AuditGetRequest
-	(*AuditRef)(nil),              // 2: rove.AuditRef
-	(*AuditSelect)(nil),           // 3: rove.AuditSelect
-	(*AuditPatchRequest)(nil),     // 4: rove.AuditPatchRequest
-	(*AuditApplyRequest)(nil),     // 5: rove.AuditApplyRequest
-	(*AuditEraseResponse)(nil),    // 6: rove.AuditEraseResponse
-	(*AuditListRequest)(nil),      // 7: rove.AuditListRequest
-	(*AuditListResponse)(nil),     // 8: rove.AuditListResponse
-	(*AuditFilter)(nil),           // 9: rove.AuditFilter
-	(*AuditRecentRequest)(nil),    // 10: rove.AuditRecentRequest
-	(*AuditRecentResponse)(nil),   // 11: rove.AuditRecentResponse
+var file_loft_payday_audit_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_loft_payday_audit_svc_g_proto_goTypes = []any{
+	(*AuditAddRequest)(nil),       // 0: loft.AuditAddRequest
+	(*AuditGetRequest)(nil),       // 1: loft.AuditGetRequest
+	(*AuditRef)(nil),              // 2: loft.AuditRef
+	(*AuditSelect)(nil),           // 3: loft.AuditSelect
+	(*AuditPatchRequest)(nil),     // 4: loft.AuditPatchRequest
+	(*AuditApplyRequest)(nil),     // 5: loft.AuditApplyRequest
+	(*AuditEraseResponse)(nil),    // 6: loft.AuditEraseResponse
+	(*AuditListRequest)(nil),      // 7: loft.AuditListRequest
+	(*AuditListResponse)(nil),     // 8: loft.AuditListResponse
+	(*AuditFilter)(nil),           // 9: loft.AuditFilter
+	(*AuditRecentRequest)(nil),    // 10: loft.AuditRecentRequest
+	(*AuditRecentResponse)(nil),   // 11: loft.AuditRecentResponse
 	(*timestamppb.Timestamp)(nil), // 12: google.protobuf.Timestamp
 	(*patchpb.Patch)(nil),         // 13: patch.Patch
-	(*Audit)(nil),                 // 14: rove.Audit
+	(*Audit)(nil),                 // 14: loft.Audit
 }
-var file_rove_payday_audit_svc_g_proto_depIdxs = []int32{
-	12, // 0: rove.AuditAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	2,  // 1: rove.AuditGetRequest.ref:type_name -> rove.AuditRef
-	3,  // 2: rove.AuditGetRequest.select:type_name -> rove.AuditSelect
-	2,  // 3: rove.AuditPatchRequest.ref:type_name -> rove.AuditRef
-	2,  // 4: rove.AuditApplyRequest.ref:type_name -> rove.AuditRef
-	13, // 5: rove.AuditApplyRequest.patch:type_name -> patch.Patch
-	9,  // 6: rove.AuditListRequest.filters:type_name -> rove.AuditFilter
-	14, // 7: rove.AuditListResponse.items:type_name -> rove.Audit
-	14, // 8: rove.AuditRecentResponse.items:type_name -> rove.Audit
-	0,  // 9: rove.AuditService.Add:input_type -> rove.AuditAddRequest
-	1,  // 10: rove.AuditService.Get:input_type -> rove.AuditGetRequest
-	4,  // 11: rove.AuditService.Patch:input_type -> rove.AuditPatchRequest
-	5,  // 12: rove.AuditService.Apply:input_type -> rove.AuditApplyRequest
-	2,  // 13: rove.AuditService.Erase:input_type -> rove.AuditRef
-	7,  // 14: rove.AuditService.List:input_type -> rove.AuditListRequest
-	10, // 15: rove.AuditService.Recent:input_type -> rove.AuditRecentRequest
-	14, // 16: rove.AuditService.Add:output_type -> rove.Audit
-	14, // 17: rove.AuditService.Get:output_type -> rove.Audit
-	14, // 18: rove.AuditService.Patch:output_type -> rove.Audit
-	14, // 19: rove.AuditService.Apply:output_type -> rove.Audit
-	6,  // 20: rove.AuditService.Erase:output_type -> rove.AuditEraseResponse
-	8,  // 21: rove.AuditService.List:output_type -> rove.AuditListResponse
-	11, // 22: rove.AuditService.Recent:output_type -> rove.AuditRecentResponse
+var file_loft_payday_audit_svc_g_proto_depIdxs = []int32{
+	12, // 0: loft.AuditAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	2,  // 1: loft.AuditGetRequest.ref:type_name -> loft.AuditRef
+	3,  // 2: loft.AuditGetRequest.select:type_name -> loft.AuditSelect
+	2,  // 3: loft.AuditPatchRequest.ref:type_name -> loft.AuditRef
+	2,  // 4: loft.AuditApplyRequest.ref:type_name -> loft.AuditRef
+	13, // 5: loft.AuditApplyRequest.patch:type_name -> patch.Patch
+	9,  // 6: loft.AuditListRequest.filters:type_name -> loft.AuditFilter
+	14, // 7: loft.AuditListResponse.items:type_name -> loft.Audit
+	14, // 8: loft.AuditRecentResponse.items:type_name -> loft.Audit
+	0,  // 9: loft.AuditService.Add:input_type -> loft.AuditAddRequest
+	1,  // 10: loft.AuditService.Get:input_type -> loft.AuditGetRequest
+	4,  // 11: loft.AuditService.Patch:input_type -> loft.AuditPatchRequest
+	5,  // 12: loft.AuditService.Apply:input_type -> loft.AuditApplyRequest
+	2,  // 13: loft.AuditService.Erase:input_type -> loft.AuditRef
+	7,  // 14: loft.AuditService.List:input_type -> loft.AuditListRequest
+	10, // 15: loft.AuditService.Recent:input_type -> loft.AuditRecentRequest
+	14, // 16: loft.AuditService.Add:output_type -> loft.Audit
+	14, // 17: loft.AuditService.Get:output_type -> loft.Audit
+	14, // 18: loft.AuditService.Patch:output_type -> loft.Audit
+	14, // 19: loft.AuditService.Apply:output_type -> loft.Audit
+	6,  // 20: loft.AuditService.Erase:output_type -> loft.AuditEraseResponse
+	8,  // 21: loft.AuditService.List:output_type -> loft.AuditListResponse
+	11, // 22: loft.AuditService.Recent:output_type -> loft.AuditRecentResponse
 	16, // [16:23] is the sub-list for method output_type
 	9,  // [9:16] is the sub-list for method input_type
 	9,  // [9:9] is the sub-list for extension type_name
@@ -2455,30 +2455,30 @@ var file_rove_payday_audit_svc_g_proto_depIdxs = []int32{
 	0,  // [0:9] is the sub-list for field type_name
 }
 
-func init() { file_rove_payday_audit_svc_g_proto_init() }
-func file_rove_payday_audit_svc_g_proto_init() {
-	if File_rove_payday_audit_svc_g_proto != nil {
+func init() { file_loft_payday_audit_svc_g_proto_init() }
+func file_loft_payday_audit_svc_g_proto_init() {
+	if File_loft_payday_audit_svc_g_proto != nil {
 		return
 	}
-	file_rove_payday_audit_proto_init()
-	file_rove_payday_audit_svc_g_proto_msgTypes[2].OneofWrappers = []any{
+	file_loft_payday_audit_proto_init()
+	file_loft_payday_audit_svc_g_proto_msgTypes[2].OneofWrappers = []any{
 		(*auditRef_Id)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_payday_audit_svc_g_proto_rawDesc), len(file_rove_payday_audit_svc_g_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_payday_audit_svc_g_proto_rawDesc), len(file_loft_payday_audit_svc_g_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_rove_payday_audit_svc_g_proto_goTypes,
-		DependencyIndexes: file_rove_payday_audit_svc_g_proto_depIdxs,
-		MessageInfos:      file_rove_payday_audit_svc_g_proto_msgTypes,
+		GoTypes:           file_loft_payday_audit_svc_g_proto_goTypes,
+		DependencyIndexes: file_loft_payday_audit_svc_g_proto_depIdxs,
+		MessageInfos:      file_loft_payday_audit_svc_g_proto_msgTypes,
 	}.Build()
-	File_rove_payday_audit_svc_g_proto = out.File
-	file_rove_payday_audit_svc_g_proto_goTypes = nil
-	file_rove_payday_audit_svc_g_proto_depIdxs = nil
+	File_loft_payday_audit_svc_g_proto = out.File
+	file_loft_payday_audit_svc_g_proto_goTypes = nil
+	file_loft_payday_audit_svc_g_proto_depIdxs = nil
 }

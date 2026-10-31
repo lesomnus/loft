@@ -14,14 +14,14 @@ import (
 	"github.com/lesomnus/z"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/aliashold"
-	"github.com/lesomnus/rove/internal/ent/audit"
-	"github.com/lesomnus/rove/server/closing"
-	"github.com/lesomnus/rove/server/offboard"
-	"github.com/lesomnus/rove/server/pd"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/aliashold"
+	"github.com/lesomnus/loft/internal/ent/audit"
+	"github.com/lesomnus/loft/server/closing"
+	"github.com/lesomnus/loft/server/offboard"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 // floorOnHolders is a deployment that keeps a floor on a kind of the app's

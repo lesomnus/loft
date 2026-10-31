@@ -1,6 +1,6 @@
 import { useMemo, useState, type ReactNode } from 'react'
 
-import type { Party } from '../../gen/rove/org_pb.js'
+import type { Party } from '../../gen/loft/org_pb.js'
 import { AssetService, HolderService, PartyService, idBytes, idStr, ref } from '../api.js'
 import { useCatalog } from '../catalog.js'
 import { InviteForm, SentInvitations } from '../invitations.js'

@@ -13,8 +13,8 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/server/pd"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 // TestADetailSaysEachKindOfValue: what an event held, as its timeline entry's

@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.2
 // - protoc             (unknown)
-// source: rove/payday/event_svc.g.proto
+// source: loft/payday/event_svc.g.proto
 
-package rove
+package loft
 
 import (
 	context "context"
@@ -19,12 +19,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	EventService_Add_FullMethodName     = "/rove.EventService/Add"
-	EventService_AddMany_FullMethodName = "/rove.EventService/AddMany"
-	EventService_Get_FullMethodName     = "/rove.EventService/Get"
-	EventService_List_FullMethodName    = "/rove.EventService/List"
-	EventService_Recent_FullMethodName  = "/rove.EventService/Recent"
-	EventService_Redact_FullMethodName  = "/rove.EventService/Redact"
+	EventService_Add_FullMethodName     = "/loft.EventService/Add"
+	EventService_AddMany_FullMethodName = "/loft.EventService/AddMany"
+	EventService_Get_FullMethodName     = "/loft.EventService/Get"
+	EventService_List_FullMethodName    = "/loft.EventService/List"
+	EventService_Recent_FullMethodName  = "/loft.EventService/Recent"
+	EventService_Redact_FullMethodName  = "/loft.EventService/Redact"
 )
 
 // EventServiceClient is the client API for EventService service.
@@ -49,7 +49,7 @@ type EventServiceClient interface {
 	// event of its own, `event.redact`, whose reason is the request's
 	// reference. It answers the event as it is now. No role is given it yet
 	// (`server/policy`): who may is the workspace's to say, and the
-	// deployment's operator does it with `rove event redact`.
+	// deployment's operator does it with `loft event redact`.
 	Redact(ctx context.Context, in *EventRedactRequest, opts ...grpc.CallOption) (*Event, error)
 }
 
@@ -143,7 +143,7 @@ type EventServiceServer interface {
 	// event of its own, `event.redact`, whose reason is the request's
 	// reference. It answers the event as it is now. No role is given it yet
 	// (`server/policy`): who may is the workspace's to say, and the
-	// deployment's operator does it with `rove event redact`.
+	// deployment's operator does it with `loft event redact`.
 	Redact(context.Context, *EventRedactRequest) (*Event, error)
 	mustEmbedUnimplementedEventServiceServer()
 }
@@ -306,7 +306,7 @@ func _EventService_Redact_Handler(srv interface{}, ctx context.Context, dec func
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var EventService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.EventService",
+	ServiceName: "loft.EventService",
 	HandlerType: (*EventServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -335,5 +335,5 @@ var EventService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "rove/payday/event_svc.g.proto",
+	Metadata: "loft/payday/event_svc.g.proto",
 }

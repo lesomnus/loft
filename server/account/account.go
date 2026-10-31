@@ -29,11 +29,11 @@ import (
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/pdpb"
 
-	"github.com/lesomnus/rove/internal/identity"
-	"github.com/lesomnus/rove/server/apphost"
-	"github.com/lesomnus/rove/server/clientaddr"
-	"github.com/lesomnus/rove/server/consent"
-	"github.com/lesomnus/rove/server/tenancy"
+	"github.com/lesomnus/loft/internal/identity"
+	"github.com/lesomnus/loft/server/apphost"
+	"github.com/lesomnus/loft/server/clientaddr"
+	"github.com/lesomnus/loft/server/consent"
+	"github.com/lesomnus/loft/server/tenancy"
 )
 
 // People is the account a session names, at roster.
@@ -57,11 +57,11 @@ type Account struct {
 	// Owes is what it has to agree to before it uses anything here, at the
 	// versions in force; absent for nothing (design 9.11).
 	Owes []consent.Document `json:"owes,omitempty"`
-	// Allow is the methods the session asking is narrowed to (`rove login
+	// Allow is the methods the session asking is narrowed to (`loft login
 	// --allow`, D33); absent is all that the account may do.
 	Allow []string `json:"allow,omitempty"`
 	// Pinned is the workspace a workspace's own domain serves alone, by its
-	// alias, when that is where the account was asked about (rove#155): the
+	// alias, when that is where the account was asked about (loft#155): the
 	// page there offers nothing of the account's beside it -- making a
 	// workspace, the invitations -- which is the service's.
 	Pinned string `json:"pinned,omitempty"`
@@ -92,13 +92,13 @@ type Workspace struct {
 	Closed        *time.Time `json:"closed,omitempty"`
 	Destroy       *time.Time `json:"destroy,omitempty"`
 	AliasHoldDays uint32     `json:"alias_hold_days,omitempty"`
-	// Home is where its app is, when that is a domain of its own (rove#155):
+	// Home is where its app is, when that is a domain of its own (loft#155):
 	// the address a page of it begins with there, which the page goes to to
 	// open it. Absent while it is the service's.
 	Home string `json:"home,omitempty"`
 }
 
-// Exporter writes everything a workspace has, as `rove tenant export` does.
+// Exporter writes everything a workspace has, as `loft tenant export` does.
 type Exporter func(ctx context.Context, workspace pdid.Id, w io.Writer) error
 
 // LabelFinder is the workspace a scanned code is in, whichever workspace it
@@ -162,7 +162,7 @@ type Routes struct {
 	Workspaces tenancy.Workspaces
 	Export     Exporter
 	// Access is where a workspace's export is recorded before its first byte
-	// goes (rove#136), and Carried is whose data one carries. An export
+	// goes (loft#136), and Carried is whose data one carries. An export
 	// that cannot be recorded is refused, as one with no reason is.
 	Access  *access.Writer
 	Carried func(ctx context.Context, workspace pdid.Id) ([]access.Subject, error)
@@ -218,7 +218,7 @@ func (a Routes) Mount(mux *http.ServeMux) {
 			}
 			// Everybody's data, out of the deployment: a download, so it says
 			// what it is for, and its row of the access record is written
-			// before anything is read for it (rove#136).
+			// before anything is read for it (loft#136).
 			why := strings.TrimSpace(r.URL.Query().Get("reason"))
 			if why == "" {
 				http.Error(w, "say what the export is for, in ?reason=: it hands everybody's data out, and is recorded", http.StatusBadRequest)
@@ -236,8 +236,8 @@ func (a Routes) Mount(mux *http.ServeMux) {
 			// read in is held while the database is read and not while a
 			// browser takes its time over the download, and one that fails
 			// is an answer that says so rather than a zip that stops part
-			// way (rove#120).
-			f, err := os.CreateTemp("", "rove-export-*.zip")
+			// way (loft#120).
+			f, err := os.CreateTemp("", "loft-export-*.zip")
 			if err != nil {
 				fail(w, r, err)
 				return
@@ -403,7 +403,7 @@ func (a Routes) Mount(mux *http.ServeMux) {
 			return
 		}
 		client := "web"
-		if r.Header.Get("User-Agent") == "rove-cli" {
+		if r.Header.Get("User-Agent") == "loft-cli" {
 			client = "cli"
 		}
 		err := a.Consent.Agree(r.Context(), p.Id, in.Agree, client)
@@ -432,7 +432,7 @@ func (a Routes) Mount(mux *http.ServeMux) {
 // SignedIn is the account the request's session names, or false with the
 // answer written: what every HTTP route beside the RPCs asks first.
 //
-// A session narrowed to some methods (`rove login --allow`, D33) is refused.
+// A session narrowed to some methods (`loft login --allow`, D33) is refused.
 // What is served beside the RPCs is no method a grant names, and what a route
 // here does -- approve another terminal, take a workspace's data out, make
 // one, agree to terms -- is not what a terminal that may do less than its
@@ -450,7 +450,7 @@ func signedIn(w http.ResponseWriter, r *http.Request, sessions *authsession.Sess
 		return identity.Person{}, authsession.Session{}, false
 	}
 	if !v.Grant.IsWhole() {
-		http.Error(w, "this sign-in may only do what `rove login --allow` named, and this is not that: sign in without it", http.StatusForbidden)
+		http.Error(w, "this sign-in may only do what `loft login --allow` named, and this is not that: sign in without it", http.StatusForbidden)
 		return identity.Person{}, authsession.Session{}, false
 	}
 	return p, v, true
@@ -459,7 +459,7 @@ func signedIn(w http.ResponseWriter, r *http.Request, sessions *authsession.Sess
 // Own is [SignedIn] for what an account does as itself -- agree to what the
 // deployment asks, make a workspace -- which is done signed in at the
 // service's address, and never with a session handed to a workspace's own
-// domain (rove#155): that one is the workspace's, and what the account says
+// domain (loft#155): that one is the workspace's, and what the account says
 // of itself is not.
 func Own(w http.ResponseWriter, r *http.Request, sessions *authsession.Sessions, people People) (identity.Person, bool) {
 	p, v, ok := signedIn(w, r, sessions, people)
@@ -498,7 +498,7 @@ func reading(w http.ResponseWriter, r *http.Request, sessions *authsession.Sessi
 		return identity.Person{}, authsession.Session{}, false
 	}
 	// A session handed to a workspace's own domain is that workspace's, on a
-	// host that pins it, and nobody anywhere else (rove#155).
+	// host that pins it, and nobody anywhere else (loft#155).
 	if v.TenantId != "" {
 		if pin, ok := apphost.From(ctx); !ok || pin.Workspace.String() != v.TenantId {
 			http.Error(w, "who is asking?", http.StatusUnauthorized)
@@ -548,7 +548,7 @@ func (a Routes) accountOf(r *http.Request, ws tenancy.Workspaces, p identity.Per
 }
 
 // pinned is the memberships a request may see: on a workspace's own domain
-// the one in that workspace, and nothing of the account's others (rove#155);
+// the one in that workspace, and nothing of the account's others (loft#155);
 // all of them at the service's address.
 func pinned(r *http.Request, ms []tenancy.Membership) []tenancy.Membership {
 	pin, ok := apphost.From(r.Context())

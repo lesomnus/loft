@@ -23,18 +23,18 @@ import (
 	"google.golang.org/grpc/status"
 	"uuid"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/ent/invitation"
-	entparty "github.com/lesomnus/rove/internal/ent/party"
-	"github.com/lesomnus/rove/internal/ent/predicate"
-	enttenant "github.com/lesomnus/rove/internal/ent/tenant"
-	"github.com/lesomnus/rove/server/apphost"
-	"github.com/lesomnus/rove/server/mail"
-	"github.com/lesomnus/rove/server/pd"
-	"github.com/lesomnus/rove/server/policy"
-	"github.com/lesomnus/rove/server/tenancy"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/internal/ent/invitation"
+	entparty "github.com/lesomnus/loft/internal/ent/party"
+	"github.com/lesomnus/loft/internal/ent/predicate"
+	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
+	"github.com/lesomnus/loft/server/apphost"
+	"github.com/lesomnus/loft/server/mail"
+	"github.com/lesomnus/loft/server/pd"
+	"github.com/lesomnus/loft/server/policy"
+	"github.com/lesomnus/loft/server/tenancy"
 )
 
 // The invitations of a workspace (design 9.11).
@@ -660,7 +660,7 @@ func byState(q *ent.InvitationQuery, state string, now time.Time) *ent.Invitatio
 // membership is, or the membership's own name.
 //
 // Either is a name no `personal` declaration sees in what the call answers or
-// sends, so the call says it carried it (rove#136).
+// sends, so the call says it carried it (loft#136).
 func nameOf(ctx context.Context, db *ent.Client, h *ent.Holder) string {
 	if p, err := db.Party.Query().Where(entparty.HolderId(h.Id), entparty.DateErasedIsNil()).First(ctx); err == nil && p.Name != "" {
 		access.Saw(ctx, access.Subject{Id: pdid.Id(p.Id), Tenant: pdid.Id(p.TenantId)})
@@ -805,10 +805,10 @@ func (d *Deps) mailInvitation(ctx context.Context, v *app.Invitation, code, invi
 	link := d.Links.Home(apphost.Page) + "/invitations?code=" + code
 	role := roleWords[v.GetRole()]
 	until := v.GetDateExpires().AsTime().In(zone).Format("2006년 1월 2일")
-	body := fmt.Sprintf(`%s님이 Rove의 %s에 %s%s 초대했습니다.
+	body := fmt.Sprintf(`%s님이 Loft의 %s에 %s%s 초대했습니다.
 
 아래 링크를 열고 로그인하면 초대함에서 수락하거나 거절할 수 있습니다.
-Rove 계정이 아직 없다면 같은 화면에서 Google, Microsoft, GitHub 계정으로 가입할 수 있습니다.
+Loft 계정이 아직 없다면 같은 화면에서 Google, Microsoft, GitHub 계정으로 가입할 수 있습니다.
 
 %s
 
@@ -817,7 +817,7 @@ Rove 계정이 아직 없다면 같은 화면에서 Google, Microsoft, GitHub �
 
 	return d.Mail.Send(ctx, mail.Message{
 		To:      v.GetEmail(),
-		Subject: fmt.Sprintf("%s님이 Rove의 %s에 초대했습니다", inviter, workspace),
+		Subject: fmt.Sprintf("%s님이 Loft의 %s에 초대했습니다", inviter, workspace),
 		Body:    body,
 	})
 }

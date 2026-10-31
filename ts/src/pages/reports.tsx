@@ -14,7 +14,7 @@
 import { useState, type ReactNode } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
-import type { AssetCensusRow } from '../../gen/rove/asset_svc_pb.js'
+import type { AssetCensusRow } from '../../gen/loft/asset_svc_pb.js'
 import type { Timestamp } from '@bufbuild/protobuf/wkt'
 import { AssetService, BookableService, CustodyService, InventoryCountService, StockService, at, dateInput, download, errorText, fmt, fromInput, idStr, raw, shift, ts, wall } from '../api.js'
 import { reasoned, ReasonModal } from '../reason.js'

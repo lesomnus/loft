@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.12
 // 	protoc        (unknown)
-// source: rove/booking.proto
+// source: loft/booking.proto
 
-package rove
+package loft
 
 import (
 	_ "github.com/lesomnus/payday/pdpb"
@@ -53,7 +53,7 @@ type Bookable struct {
 
 func (x *Bookable) Reset() {
 	*x = Bookable{}
-	mi := &file_rove_booking_proto_msgTypes[0]
+	mi := &file_loft_booking_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -65,7 +65,7 @@ func (x *Bookable) String() string {
 func (*Bookable) ProtoMessage() {}
 
 func (x *Bookable) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_booking_proto_msgTypes[0]
+	mi := &file_loft_booking_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -406,7 +406,7 @@ type OpeningHours struct {
 
 func (x *OpeningHours) Reset() {
 	*x = OpeningHours{}
-	mi := &file_rove_booking_proto_msgTypes[1]
+	mi := &file_loft_booking_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -418,7 +418,7 @@ func (x *OpeningHours) String() string {
 func (*OpeningHours) ProtoMessage() {}
 
 func (x *OpeningHours) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_booking_proto_msgTypes[1]
+	mi := &file_loft_booking_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -468,7 +468,7 @@ type OpeningRange struct {
 
 func (x *OpeningRange) Reset() {
 	*x = OpeningRange{}
-	mi := &file_rove_booking_proto_msgTypes[2]
+	mi := &file_loft_booking_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -480,7 +480,7 @@ func (x *OpeningRange) String() string {
 func (*OpeningRange) ProtoMessage() {}
 
 func (x *OpeningRange) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_booking_proto_msgTypes[2]
+	mi := &file_loft_booking_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -568,7 +568,7 @@ type Reservation struct {
 
 func (x *Reservation) Reset() {
 	*x = Reservation{}
-	mi := &file_rove_booking_proto_msgTypes[3]
+	mi := &file_loft_booking_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -580,7 +580,7 @@ func (x *Reservation) String() string {
 func (*Reservation) ProtoMessage() {}
 
 func (x *Reservation) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_booking_proto_msgTypes[3]
+	mi := &file_loft_booking_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -961,7 +961,7 @@ type ReservationItem struct {
 
 func (x *ReservationItem) Reset() {
 	*x = ReservationItem{}
-	mi := &file_rove_booking_proto_msgTypes[4]
+	mi := &file_loft_booking_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -973,7 +973,7 @@ func (x *ReservationItem) String() string {
 func (*ReservationItem) ProtoMessage() {}
 
 func (x *ReservationItem) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_booking_proto_msgTypes[4]
+	mi := &file_loft_booking_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1169,7 +1169,7 @@ type Allocation struct {
 
 func (x *Allocation) Reset() {
 	*x = Allocation{}
-	mi := &file_rove_booking_proto_msgTypes[5]
+	mi := &file_loft_booking_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1181,7 +1181,7 @@ func (x *Allocation) String() string {
 func (*Allocation) ProtoMessage() {}
 
 func (x *Allocation) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_booking_proto_msgTypes[5]
+	mi := &file_loft_booking_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1438,18 +1438,18 @@ func (b0 Allocation_builder) Build() *Allocation {
 	return m0
 }
 
-var File_rove_booking_proto protoreflect.FileDescriptor
+var File_loft_booking_proto protoreflect.FileDescriptor
 
-const file_rove_booking_proto_rawDesc = "" +
+const file_loft_booking_proto_rawDesc = "" +
 	"\n" +
-	"\x12rove/booking.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x10rove/asset.proto\x1a\x0erove/org.proto\x1a\x18rove/payday/tenant.proto\"\xb1\a\n" +
+	"\x12loft/booking.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x10loft/asset.proto\x1a\x0eloft/org.proto\x1a\x18loft/payday/tenant.proto\"\xb1\a\n" +
 	"\bBookable\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12)\n" +
-	"\x05asset\x18\b \x01(\v2\v.rove.AssetB\x06\xf2\x82\x16\x02@\x01R\x05asset\x12\x1a\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12)\n" +
+	"\x05asset\x18\b \x01(\v2\v.loft.AssetB\x06\xf2\x82\x16\x02@\x01R\x05asset\x12\x1a\n" +
 	"\btimezone\x18\t \x01(\tR\btimezone\x120\n" +
 	"\x05hours\x18\n" +
-	" \x01(\v2\x12.rove.OpeningHoursB\x06\xea\x82\x16\x028\x01R\x05hours\x12#\n" +
+	" \x01(\v2\x12.loft.OpeningHoursB\x06\xea\x82\x16\x028\x01R\x05hours\x12#\n" +
 	"\rbuffer_before\x18\v \x01(\x05R\fbufferBefore\x12!\n" +
 	"\fbuffer_after\x18\f \x01(\x05R\vbufferAfter\x12F\n" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12D\n" +
@@ -1483,7 +1483,7 @@ const file_rove_booking_proto_rawDesc = "" +
 	"\aenabled d(\xf4\x03:\x00\"\x16\n" +
 	"\x06tenant\"\fasset.tenant\":\n" +
 	"\fOpeningHours\x12*\n" +
-	"\x06ranges\x18\x01 \x03(\v2\x12.rove.OpeningRangeR\x06ranges\"f\n" +
+	"\x06ranges\x18\x01 \x03(\v2\x12.loft.OpeningRangeR\x06ranges\"f\n" +
 	"\fOpeningRange\x12\x18\n" +
 	"\aweekday\x18\x01 \x01(\x05R\aweekday\x12\x1f\n" +
 	"\vfrom_minute\x18\x02 \x01(\x05R\n" +
@@ -1491,10 +1491,10 @@ const file_rove_booking_proto_rawDesc = "" +
 	"\tto_minute\x18\x03 \x01(\x05R\btoMinute\"\xc2\b\n" +
 	"\vReservation\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
 	"\x04name\x18\x05 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x04name\x12\x1a\n" +
 	"\x04desc\x18\x06 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\x04desc\x12)\n" +
-	"\x05party\x18\b \x01(\v2\v.rove.PartyB\x06\xf2\x82\x16\x02@\x01R\x05party\x12+\n" +
+	"\x05party\x18\b \x01(\v2\v.loft.PartyB\x06\xf2\x82\x16\x02@\x01R\x05party\x12+\n" +
 	"\frequested_by\x18\t \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\vrequestedBy\x12\x1e\n" +
 	"\x06status\x18\n" +
 	" \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x06status\x12@\n" +
@@ -1533,9 +1533,9 @@ const file_rove_booking_proto_rawDesc = "" +
 	"\x06tenant\"\fparty.tenant\"\xda\x04\n" +
 	"\x0fReservationItem\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12;\n" +
-	"\vreservation\x18\b \x01(\v2\x11.rove.ReservationB\x06\xf2\x82\x16\x02@\x01R\vreservation\x12/\n" +
-	"\bresource\x18\t \x01(\v2\v.rove.AssetB\x06\xf2\x82\x16\x02@\x01R\bresource\x12\x14\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12;\n" +
+	"\vreservation\x18\b \x01(\v2\x11.loft.ReservationB\x06\xf2\x82\x16\x02@\x01R\vreservation\x12/\n" +
+	"\bresource\x18\t \x01(\v2\v.loft.AssetB\x06\xf2\x82\x16\x02@\x01R\bresource\x12\x14\n" +
 	"\x05units\x18\n" +
 	" \x01(\rR\x05units\x12F\n" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12H\n" +
@@ -1560,8 +1560,8 @@ const file_rove_booking_proto_rawDesc = "" +
 	"\n" +
 	"Allocation\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12/\n" +
-	"\bresource\x18\b \x01(\v2\v.rove.AssetB\x06\xf2\x82\x16\x02@\x01R\bresource\x12\x12\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12/\n" +
+	"\bresource\x18\b \x01(\v2\v.loft.AssetB\x06\xf2\x82\x16\x02@\x01R\bresource\x12\x12\n" +
 	"\x04kind\x18\t \x01(\tR\x04kind\x12\x1f\n" +
 	"\x06ref_id\x18\n" +
 	" \x01(\fB\b\xea\x82\x16\x04\x10@8\x01R\x05refId\x12@\n" +
@@ -1593,49 +1593,49 @@ const file_rove_booking_proto_rawDesc = "" +
 	"\x06ref_id\x1a\x06\n" +
 	"\x04kind \xc8\x01(\xe8\aB\x02\n" +
 	"\x00\"\x19\n" +
-	"\x06tenant\"\x0fresource.tenantB\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"\x06tenant\"\x0fresource.tenantB\x1fZ\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
-var file_rove_booking_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
-var file_rove_booking_proto_goTypes = []any{
-	(*Bookable)(nil),              // 0: rove.Bookable
-	(*OpeningHours)(nil),          // 1: rove.OpeningHours
-	(*OpeningRange)(nil),          // 2: rove.OpeningRange
-	(*Reservation)(nil),           // 3: rove.Reservation
-	(*ReservationItem)(nil),       // 4: rove.ReservationItem
-	(*Allocation)(nil),            // 5: rove.Allocation
-	(*Tenant)(nil),                // 6: rove.Tenant
-	(*Asset)(nil),                 // 7: rove.Asset
+var file_loft_booking_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_loft_booking_proto_goTypes = []any{
+	(*Bookable)(nil),              // 0: loft.Bookable
+	(*OpeningHours)(nil),          // 1: loft.OpeningHours
+	(*OpeningRange)(nil),          // 2: loft.OpeningRange
+	(*Reservation)(nil),           // 3: loft.Reservation
+	(*ReservationItem)(nil),       // 4: loft.ReservationItem
+	(*Allocation)(nil),            // 5: loft.Allocation
+	(*Tenant)(nil),                // 6: loft.Tenant
+	(*Asset)(nil),                 // 7: loft.Asset
 	(*timestamppb.Timestamp)(nil), // 8: google.protobuf.Timestamp
-	(*Party)(nil),                 // 9: rove.Party
+	(*Party)(nil),                 // 9: loft.Party
 }
-var file_rove_booking_proto_depIdxs = []int32{
-	6,  // 0: rove.Bookable.tenant:type_name -> rove.Tenant
-	7,  // 1: rove.Bookable.asset:type_name -> rove.Asset
-	1,  // 2: rove.Bookable.hours:type_name -> rove.OpeningHours
-	8,  // 3: rove.Bookable.date_updated:type_name -> google.protobuf.Timestamp
-	8,  // 4: rove.Bookable.date_erased:type_name -> google.protobuf.Timestamp
-	8,  // 5: rove.Bookable.date_created:type_name -> google.protobuf.Timestamp
-	2,  // 6: rove.OpeningHours.ranges:type_name -> rove.OpeningRange
-	6,  // 7: rove.Reservation.tenant:type_name -> rove.Tenant
-	9,  // 8: rove.Reservation.party:type_name -> rove.Party
-	8,  // 9: rove.Reservation.begins_at:type_name -> google.protobuf.Timestamp
-	8,  // 10: rove.Reservation.ends_at:type_name -> google.protobuf.Timestamp
-	8,  // 11: rove.Reservation.date_updated:type_name -> google.protobuf.Timestamp
-	8,  // 12: rove.Reservation.date_erased:type_name -> google.protobuf.Timestamp
-	8,  // 13: rove.Reservation.date_created:type_name -> google.protobuf.Timestamp
-	8,  // 14: rove.Reservation.expires_at:type_name -> google.protobuf.Timestamp
-	8,  // 15: rove.Reservation.checked_in_at:type_name -> google.protobuf.Timestamp
-	6,  // 16: rove.ReservationItem.tenant:type_name -> rove.Tenant
-	3,  // 17: rove.ReservationItem.reservation:type_name -> rove.Reservation
-	7,  // 18: rove.ReservationItem.resource:type_name -> rove.Asset
-	8,  // 19: rove.ReservationItem.date_updated:type_name -> google.protobuf.Timestamp
-	8,  // 20: rove.ReservationItem.date_created:type_name -> google.protobuf.Timestamp
-	6,  // 21: rove.Allocation.tenant:type_name -> rove.Tenant
-	7,  // 22: rove.Allocation.resource:type_name -> rove.Asset
-	8,  // 23: rove.Allocation.begins_at:type_name -> google.protobuf.Timestamp
-	8,  // 24: rove.Allocation.ends_at:type_name -> google.protobuf.Timestamp
-	8,  // 25: rove.Allocation.date_updated:type_name -> google.protobuf.Timestamp
-	8,  // 26: rove.Allocation.date_created:type_name -> google.protobuf.Timestamp
+var file_loft_booking_proto_depIdxs = []int32{
+	6,  // 0: loft.Bookable.tenant:type_name -> loft.Tenant
+	7,  // 1: loft.Bookable.asset:type_name -> loft.Asset
+	1,  // 2: loft.Bookable.hours:type_name -> loft.OpeningHours
+	8,  // 3: loft.Bookable.date_updated:type_name -> google.protobuf.Timestamp
+	8,  // 4: loft.Bookable.date_erased:type_name -> google.protobuf.Timestamp
+	8,  // 5: loft.Bookable.date_created:type_name -> google.protobuf.Timestamp
+	2,  // 6: loft.OpeningHours.ranges:type_name -> loft.OpeningRange
+	6,  // 7: loft.Reservation.tenant:type_name -> loft.Tenant
+	9,  // 8: loft.Reservation.party:type_name -> loft.Party
+	8,  // 9: loft.Reservation.begins_at:type_name -> google.protobuf.Timestamp
+	8,  // 10: loft.Reservation.ends_at:type_name -> google.protobuf.Timestamp
+	8,  // 11: loft.Reservation.date_updated:type_name -> google.protobuf.Timestamp
+	8,  // 12: loft.Reservation.date_erased:type_name -> google.protobuf.Timestamp
+	8,  // 13: loft.Reservation.date_created:type_name -> google.protobuf.Timestamp
+	8,  // 14: loft.Reservation.expires_at:type_name -> google.protobuf.Timestamp
+	8,  // 15: loft.Reservation.checked_in_at:type_name -> google.protobuf.Timestamp
+	6,  // 16: loft.ReservationItem.tenant:type_name -> loft.Tenant
+	3,  // 17: loft.ReservationItem.reservation:type_name -> loft.Reservation
+	7,  // 18: loft.ReservationItem.resource:type_name -> loft.Asset
+	8,  // 19: loft.ReservationItem.date_updated:type_name -> google.protobuf.Timestamp
+	8,  // 20: loft.ReservationItem.date_created:type_name -> google.protobuf.Timestamp
+	6,  // 21: loft.Allocation.tenant:type_name -> loft.Tenant
+	7,  // 22: loft.Allocation.resource:type_name -> loft.Asset
+	8,  // 23: loft.Allocation.begins_at:type_name -> google.protobuf.Timestamp
+	8,  // 24: loft.Allocation.ends_at:type_name -> google.protobuf.Timestamp
+	8,  // 25: loft.Allocation.date_updated:type_name -> google.protobuf.Timestamp
+	8,  // 26: loft.Allocation.date_created:type_name -> google.protobuf.Timestamp
 	27, // [27:27] is the sub-list for method output_type
 	27, // [27:27] is the sub-list for method input_type
 	27, // [27:27] is the sub-list for extension type_name
@@ -1643,29 +1643,29 @@ var file_rove_booking_proto_depIdxs = []int32{
 	0,  // [0:27] is the sub-list for field type_name
 }
 
-func init() { file_rove_booking_proto_init() }
-func file_rove_booking_proto_init() {
-	if File_rove_booking_proto != nil {
+func init() { file_loft_booking_proto_init() }
+func file_loft_booking_proto_init() {
+	if File_loft_booking_proto != nil {
 		return
 	}
-	file_rove_asset_proto_init()
-	file_rove_org_proto_init()
-	file_rove_payday_tenant_proto_init()
+	file_loft_asset_proto_init()
+	file_loft_org_proto_init()
+	file_loft_payday_tenant_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_booking_proto_rawDesc), len(file_rove_booking_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_booking_proto_rawDesc), len(file_loft_booking_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_rove_booking_proto_goTypes,
-		DependencyIndexes: file_rove_booking_proto_depIdxs,
-		MessageInfos:      file_rove_booking_proto_msgTypes,
+		GoTypes:           file_loft_booking_proto_goTypes,
+		DependencyIndexes: file_loft_booking_proto_depIdxs,
+		MessageInfos:      file_loft_booking_proto_msgTypes,
 	}.Build()
-	File_rove_booking_proto = out.File
-	file_rove_booking_proto_goTypes = nil
-	file_rove_booking_proto_depIdxs = nil
+	File_loft_booking_proto = out.File
+	file_loft_booking_proto_goTypes = nil
+	file_loft_booking_proto_depIdxs = nil
 }

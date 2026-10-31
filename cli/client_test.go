@@ -19,9 +19,9 @@ import (
 	"github.com/lesomnus/payday/web"
 	"github.com/stretchr/testify/require"
 
-	"github.com/lesomnus/rove/cli"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent/clilogin"
+	"github.com/lesomnus/loft/cli"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent/clilogin"
 )
 
 // served is a deployment a terminal reaches the way a browser does: over the
@@ -63,8 +63,8 @@ func serveWith(t *testing.T, with func(*cmd.Config)) *served {
 	srv := httptest.NewServer(h)
 	t.Cleanup(srv.Close)
 
-	t.Setenv("ROVE_CLIENT_CONFIG", filepath.Join(t.TempDir(), "client.json"))
-	t.Setenv("ROVE_WORKSPACE", "")
+	t.Setenv("LOFT_CLIENT_CONFIG", filepath.Join(t.TempDir(), "client.json"))
+	t.Setenv("LOFT_WORKSPACE", "")
 	return &served{t: t, x: x, s: s, url: srv.URL}
 }
 
@@ -122,7 +122,7 @@ func (s *served) waiting() string {
 	return code
 }
 
-// login runs `rove login` and answers it in a browser as somebody: what
+// login runs `loft login` and answers it in a browser as somebody: what
 // `answer` does with the code it was shown.
 func (s *served) login(answer func(code string), args ...string) error {
 	s.t.Helper()
@@ -143,7 +143,7 @@ func (s *served) login(answer func(code string), args ...string) error {
 }
 
 // signIn is a terminal signed in as somebody, approved in their browser --
-// narrowed to what `allow` names, for `rove login --allow`.
+// narrowed to what `allow` names, for `loft login --allow`.
 func (s *served) signIn(login, password string, allow ...string) {
 	s.t.Helper()
 	cookie := s.browser(login, password)
@@ -154,17 +154,17 @@ func (s *served) signIn(login, password string, allow ...string) {
 	s.x.NoError(s.login(func(code string) {
 		status, body := s.http(http.MethodGet, "/cli/logins?code="+code, cookie, nil)
 		s.x.Equal(http.StatusOK, status, body)
-		s.x.Contains(body, "rove CLI on", "what the page shows of the terminal asking")
+		s.x.Contains(body, "loft CLI on", "what the page shows of the terminal asking")
 		status, body = s.http(http.MethodPost, "/cli/logins/approve", cookie, map[string]string{"code": code})
 		s.x.Equal(http.StatusNoContent, status, body)
 	}, args...))
 }
 
-// terminal is the cookie the terminal signed in last holds, as `rove api`
+// terminal is the cookie the terminal signed in last holds, as `loft api`
 // sends it.
 func (s *served) terminal() string {
 	s.t.Helper()
-	b, err := os.ReadFile(os.Getenv("ROVE_CLIENT_CONFIG"))
+	b, err := os.ReadFile(os.Getenv("LOFT_CLIENT_CONFIG"))
 	s.x.NoError(err)
 	var v struct{ Cookie, Key string }
 	s.x.NoError(json.Unmarshal(b, &v))
@@ -173,7 +173,7 @@ func (s *served) terminal() string {
 
 // TestATerminalSignsInByBeingApproved.
 //
-// `rove login` shows a code; a person signed in at the app approves it; the
+// `loft login` shows a code; a person signed in at the app approves it; the
 // terminal is then that person, through every operation the API has -- the
 // entities' verbs, the domain's operations, any method by name -- and signing
 // out ends it where it lives.
@@ -190,7 +190,7 @@ func TestATerminalSignsInByBeingApproved(t *testing.T) {
 	x.Contains(out, "노트북")
 	out = run(t, cli.NewCmdApi(), "asset", "search", "-o", "json", `{"q": "노트"}`)
 	x.Contains(out, "NB-1", "a domain operation, beside the verbs")
-	out = run(t, cli.NewCmdApi(), "call", "rove.AssetService.Search", `{"q": "NB"}`)
+	out = run(t, cli.NewCmdApi(), "call", "loft.AssetService.Search", `{"q": "NB"}`)
 	x.Contains(out, "노트북", "any method by name")
 	out = run(t, cli.NewCmdApi(), "--workspace", "acme", "party", "me", "-o", "json")
 	x.Contains(out, "owner", "naming the workspace")
@@ -223,7 +223,7 @@ func TestATerminalNamesAWorkspaceItsAccountOwns(t *testing.T) {
 	out = run(t, cli.NewCmdWorkspace(), "ls")
 	x.Contains(out, "@acme\towner\t연구실 장비")
 	out = run(t, cli.NewCmdWorkspace(), "rename", "--clear", "acme")
-	x.Equal("@acme\t관리자의 워크스페이스\n", out, "called after its owner, whom `rove init` calls so")
+	x.Equal("@acme\t관리자의 워크스페이스\n", out, "called after its owner, whom `loft init` calls so")
 
 	x.ErrorContains(cli.NewCmdWorkspace().Run(ctx, []string{"rename", "acme"}), "--clear")
 	x.ErrorContains(cli.NewCmdWorkspace().Run(ctx, []string{"rename", "--clear", "acme", "연구실"}), "not both")
@@ -257,13 +257,13 @@ func TestATerminalMayBeNarrowed(t *testing.T) {
 	x.NoError(s.login(func(code string) {
 		status, body := s.http(http.MethodGet, "/cli/logins?code="+code, browser, nil)
 		x.Equal(http.StatusOK, status, body)
-		x.Contains(body, `"allow":["/rove.*/Get","/rove.*/List"`, "the page shows what it asks for: %s", body)
+		x.Contains(body, `"allow":["/loft.*/Get","/loft.*/List"`, "the page shows what it asks for: %s", body)
 		status, body = s.http(http.MethodPost, "/cli/logins/approve", browser, map[string]string{"code": code})
 		x.Equal(http.StatusNoContent, status, body)
 	}, "--allow", "read"))
 
 	out := run(t, cli.NewCmdWhoami())
-	x.Contains(out, "allowed only: /rove.*/Get, /rove.*/List")
+	x.Contains(out, "allowed only: /loft.*/Get, /loft.*/List")
 	out = run(t, cli.NewCmdApi(), "asset", "ls", "-o", "json")
 	x.NotContains(out, "error", "a read")
 	err := cli.NewCmdApi().Run(context.Background(), []string{"asset", "add", `{"name": "x"}`})
@@ -289,12 +289,12 @@ func TestATerminalMayBeNarrowed(t *testing.T) {
 	x.ErrorContains(other, "turned away")
 
 	// A pattern of one service is that service.
-	s.signIn("owner", "owner1234", "/rove.AssetService/*")
+	s.signIn("owner", "owner1234", "/loft.AssetService/*")
 	run(t, cli.NewCmdApi(), "asset", "add", "-o", "json", `{"name": "노트북", "tag": "NB-1"}`)
 	err = cli.NewCmdApi().Run(context.Background(), []string{"party", "add", `{"name": "김민수"}`})
 	x.ErrorContains(err, "this credential is not for that")
 
-	status, body = s.http(http.MethodPost, "/cli/logins", "", map[string]any{"secret": strings.Repeat("D", 43), "allow": []string{"rove.AssetService"}})
+	status, body = s.http(http.MethodPost, "/cli/logins", "", map[string]any{"secret": strings.Repeat("D", 43), "allow": []string{"loft.AssetService"}})
 	x.Equal(http.StatusBadRequest, status, "a pattern that is not one: %s", body)
 }
 

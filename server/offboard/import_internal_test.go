@@ -8,7 +8,7 @@ import (
 	"github.com/protobuf-orm/ent/dialect/sql/schema"
 	"github.com/stretchr/testify/require"
 
-	"github.com/lesomnus/rove/internal/ent/migrate"
+	"github.com/lesomnus/loft/internal/ent/migrate"
 )
 
 // TestEveryExportedTableIsRestoredWhole: every field of every row an export

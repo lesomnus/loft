@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react'
 
-import type { Stock } from '../../gen/rove/stock_pb.js'
+import type { Stock } from '../../gen/loft/stock_pb.js'
 import { StockMovementService, StockService, fmt, idBytes, idStr, op, ref } from '../api.js'
 import { modelName, useCatalog } from '../catalog.js'
 import { ModelSelect, SpaceSelect } from '../pickers.js'

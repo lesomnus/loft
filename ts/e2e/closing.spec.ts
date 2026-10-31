@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises'
 
-import { expect, field, people, said, signIn, test, unique } from './rove.js'
+import { expect, field, people, said, signIn, test, unique } from './loft.js'
 import { unzip } from './zip.js'
 
 // A workspace's end (D29): its owner closes it, which destroys nothing; while

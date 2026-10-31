@@ -1,0 +1,204 @@
+edition = "2023";
+package loft;
+
+import "google/protobuf/timestamp.proto";
+import "orm.proto";
+import "payday.proto";
+
+option features.field_presence = IMPLICIT;
+option go_package = "github.com/lesomnus/loft";
+
+// Tenant is the wall an app is divided by.
+//
+// It is payday's rather than each app's because everything that reads a request
+// reads it: the wall narrows every query by it, the trail stamps it, a rate
+// limit counts against it. An app that declared its own would be an app in
+// which none of those could be written once.
+//
+// **Fields 1, 2, 4..7 and 13..15 are payday's, and 3 is not**: it is left for
+// the app's set edge, and payday will not spend it. An app adds its own in
+// 8..12 and from 16, in a `tenant.ext.proto` beside this; `pd gen` refuses an
+// overlay that touches a number here, since the merge would take it silently
+// and `alias` would quietly become whatever the overlay said.
+message Tenant {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+  // Alias is what a person writes this tenant as, and it is unique across the
+  // deployment: `@acme/arm-01` says which tenant before it says which row.
+  //
+  // It and the three after it are **not personal** (#92, #105): a tenant is an
+  // organisation, and what it is called, what is said of it and what is
+  // labelled on it are its own, which the trail keeps -- who renamed which
+  // tenant to what is the record. Said rather than left unsaid because an app
+  // whose overlay declares a field of its tenant personal -- why one was
+  // closed, in somebody's words -- has made it an entity that holds people,
+  // and `pd doctor` asks about each field of free text on it, these too, which
+  // no overlay may declare.
+  //
+  // So an app writes nobody into them. One that would name a tenant after a
+  // person -- the one somebody is given when they sign up -- leaves the name
+  // empty and says it where it is read, after whoever has the tenant now: a
+  // name written here is on the trail as a value, where nothing that forgets
+  // the person reaches it.
+  string alias = 4 [
+    (orm.field) = {unique: true},
+    (payday.field) = {personal: false}
+  ];
+  string name = 5 [(payday.field) = {personal: false}];
+  string desc = 6 [(payday.field) = {personal: false}];
+  map<string, string> labels = 7 [(payday.field) = {personal: false}];
+  // DateUpdated is stamped by the server on every write and refused to a patch
+  // document, so it is a version and not a field.
+  //
+  // What needs it is a client holding a copy: a `Watch` sends state rather than
+  // deltas, so two answers about one row have to be orderable or a late one
+  // overwrites an early one that was newer. It is here rather than added when
+  // that is built because adding it later is every app's migration.
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {
+    version: {}
+  }];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+  // A tenant is **not** erased softly, and a Holder is. The difference is the
+  // trail: every row of it names the Holder that acted, so a deleted Holder
+  // would leave the trail saying who while nobody could find out who. Nothing
+  // names a tenant that way, so there is nothing for its row to outlive.
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      // The order its list reads in. Small next to anything a tenant holds,
+      // and still the table a deployment of many customers grows: without it
+      // every page of them is the whole table, sorted.
+      {
+        name: "page"
+        refs: [
+          {
+            name: "date_created"
+            number: 15
+          },
+          {
+            name: "id"
+            number: 1
+          }
+        ]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    // payday's own, so that generation finds it whatever an app called the
+    // proto package. An app never writes this; see `Own` in entity.proto.
+    own: OWN_TENANT
+
+    domain: 1
+
+    tenant: {}
+
+    // A tenant is not erased softly, for the reason above -- and in practice
+    // it is barely erased at all: every tenanted row holds a foreign key to
+    // one, so a tenant with anything in it cannot go, and the gate does not
+    // serve the RPC.
+    erase: {
+      hard: {}
+    }
+
+    // A tenant can be listed, and the wall is what makes that safe rather than
+    // alarming.
+    //
+    // `Tenant` **is** the wall, so a list of them is narrowed to the tenants
+    // the caller's scope already covers: an ordinary person sees the one they
+    // are in, and a caller whose grant covers everything -- a deployment
+    // administering its customers from a port with no wall -- sees them all.
+    // Neither is a new right; both are the scope that was already there,
+    // enumerated.
+    //
+    // It was absent rather than declined. Nothing wrote down a reason, `Holder`
+    // has had one all along, and the asymmetry showed up the first time
+    // somebody built a console: an operator could open a tenant they already
+    // knew the name of and could not find out which ones there were.
+    list: {
+      order: [
+        {
+          field: {name: "date_created"}
+        },
+        {
+          field: {name: "id"}
+        }
+      ]
+      by: [
+        {name: "ref"}
+      ]
+      size: 20
+      max: 100
+    }
+  };
+  // When it was closed. Null is open.
+  google.protobuf.Timestamp date_closed = 8 [(orm.field) = {nullable: true}];
+  // Who closed it: `owner`, `operator`, or `deployment` when nobody was left
+  // in it.
+  string closed_by = 9 [(payday.field) = {personal: false}];
+  // Why, in the words of whoever closed it: what `workspace.close` says as
+  // its reason, and so personal as every reason is (payday#92). Taking that
+  // reason out takes it out of here too (design D56).
+  string close_reason = 10 [(payday.field) = {personal: true}];
+  // When a workspace still closed and held by nothing is destroyed: when it
+  // was closed and the restore window (`app.workspaces.restore_within`), or
+  // whatever an operator made it since.
+  google.protobuf.Timestamp date_destroy = 11 [(orm.field) = {nullable: true}];
+  // The workspace's own settings (#144): what differs from one organization to
+  // the next where it operates, and is its owner's to say. Empty is the
+  // deployment's `app.locale`, or `app.no_show_after` -- and is what the
+  // database fills a workspace that was there before them with, which is
+  // why each says a default.
+  //
+  // Timezone is where a date said without a zone is: a file's dates, the time
+  // in a notification, the date a sheet's cell means -- an IANA name, such as
+  // Asia/Seoul. Stored times are UTC whatever it says.
+  string timezone = 12 [
+    (orm.field) = {default: ""},
+    (payday.field) = {personal: false}
+  ];
+  // Currency is what a new purchase or work order is priced in when it says
+  // nothing, ISO 4217, such as KRW. An amount keeps the currency it was
+  // written in.
+  string currency = 16 [
+    (orm.field) = {default: ""},
+    (payday.field) = {personal: false}
+  ];
+  // NoShowMinutes is how long after a room's reservation begins it is freed
+  // when nobody checked in, in minutes. 0 is the deployment's; negative
+  // holds nobody to checking in.
+  int32 no_show_minutes = 17 [(orm.field) = {default: ""}];
+  // How long the workspace keeps what it was and did, its owner's to say as
+  // the rest of its settings (design 8, D36): what is kept is what is seen,
+  // and nothing narrows a read to less of it.
+  //
+  // KeepDays is how long its history -- the time rows, the events, the
+  // documents that are over -- is kept, in days, and the trail of the writes
+  // that made it with it. 0 is forever. Only the deployment's switch,
+  // `app.retention.apply`, lets it destroy anything.
+  uint32 keep_days = 18 [(orm.field) = {default: ""}];
+  // AccessKeepDays is how long its access record -- who read, wrote or took
+  // out whose data in it -- is kept, in days (loft#136). 0 is the
+  // deployment's `audit.by.access`, and none is below the deployment's floor,
+  // `audit.by.access.min`: the floor is what the law the deployment is under
+  // asks.
+  uint32 access_keep_days = 19 [(orm.field) = {default: ""}];
+  // RestoreDays is how long it may be restored once closed, in days, before it
+  // is destroyed (D29). 0 is the deployment's `app.workspaces.restore_within`.
+  // Read when it is closed: the date of its destruction then is what its
+  // owner is told.
+  uint32 restore_days = 20 [(orm.field) = {default: ""}];
+  // What KeepDays and AccessKeepDays said before each was last made shorter,
+  // and when. A shorter window waits out the deployment's grace
+  // (`app.retention.grace`) from then, keeping the longer one meanwhile, so a
+  // mistake undone in time has destroyed nothing. Unset is nothing waiting.
+  uint32 keep_days_before = 21 [(orm.field) = {default: ""}];
+  google.protobuf.Timestamp date_keep_shortened = 22 [(orm.field) = {nullable: true}];
+  uint32 access_keep_days_before = 23 [(orm.field) = {default: ""}];
+  google.protobuf.Timestamp date_access_keep_shortened = 24 [(orm.field) = {nullable: true}];
+}

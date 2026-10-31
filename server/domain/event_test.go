@@ -10,11 +10,11 @@ import (
 	"github.com/lesomnus/payday/pdid"
 	"google.golang.org/protobuf/encoding/protojson"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/ent/party"
-	"github.com/lesomnus/rove/server/pd"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/internal/ent/party"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 func (e *env) events() map[string]string {
@@ -151,7 +151,7 @@ func TestAnEventWrittenWithNamesReadsAsWritten(t *testing.T) {
 	ctx := context.Background()
 
 	laptop := e.item("노트북", "NB-1", nil, 24*time.Hour)
-	// As one from before Rove's events were payday's past was written: no
+	// As one from before Loft's events were payday's past was written: no
 	// message, its sentence and what it named beside it. Beneath the
 	// servers, which write the past's rows only as the past says them.
 	add := func(kind, desc, payload string, subject []byte) {

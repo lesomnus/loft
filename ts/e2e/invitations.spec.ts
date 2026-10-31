@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises'
 
-import { choose, escape, expect, field, people, said, signIn, test, unique } from './rove.js'
+import { choose, escape, expect, field, people, said, signIn, test, unique } from './loft.js'
 
 // Invitations (D30): the people who run a workspace invite an address into it;
 // the mail carries the way in; the account that opens it says yes or no, and
@@ -74,10 +74,10 @@ function address(p: { login: string }): string {
  * The link the last invitation mailed to `to` carries. The server names no
  * mail server, so it writes each mail to its log instead (server/mail), and
  * the log is where a test reads its mail: `e2e/serve.sh` keeps it in
- * test-results/rove-PORT.
+ * test-results/loft-PORT.
  */
 async function mailed(baseURL: string, to: string): Promise<string> {
-	const log = `test-results/rove-${new URL(baseURL).port}/rove.log`
+	const log = `test-results/loft-${new URL(baseURL).port}/loft.log`
 	let link: string | undefined
 	await expect
 		.poll(

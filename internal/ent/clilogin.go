@@ -8,7 +8,7 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/lesomnus/rove/internal/ent/clilogin"
+	"github.com/lesomnus/loft/internal/ent/clilogin"
 	"github.com/protobuf-orm/ent"
 	"github.com/protobuf-orm/ent/dialect/sql"
 )

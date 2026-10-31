@@ -36,29 +36,29 @@ import (
 	"github.com/lesomnus/payday/watch"
 	"github.com/lesomnus/payday/web"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/identity"
-	"github.com/lesomnus/rove/server/account"
-	"github.com/lesomnus/rove/server/apphost"
-	"github.com/lesomnus/rove/server/bare"
-	"github.com/lesomnus/rove/server/clientaddr"
-	"github.com/lesomnus/rove/server/clilogin"
-	"github.com/lesomnus/rove/server/closing"
-	"github.com/lesomnus/rove/server/consent"
-	"github.com/lesomnus/rove/server/csp"
-	"github.com/lesomnus/rove/server/domain"
-	"github.com/lesomnus/rove/server/lifecycle"
-	"github.com/lesomnus/rove/server/mail"
-	"github.com/lesomnus/rove/server/offboard"
-	"github.com/lesomnus/rove/server/opensearch"
-	"github.com/lesomnus/rove/server/pd"
-	"github.com/lesomnus/rove/server/policy"
-	"github.com/lesomnus/rove/server/retention"
-	"github.com/lesomnus/rove/server/session"
-	"github.com/lesomnus/rove/server/sso"
-	"github.com/lesomnus/rove/server/storage"
-	"github.com/lesomnus/rove/server/tenancy"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/identity"
+	"github.com/lesomnus/loft/server/account"
+	"github.com/lesomnus/loft/server/apphost"
+	"github.com/lesomnus/loft/server/bare"
+	"github.com/lesomnus/loft/server/clientaddr"
+	"github.com/lesomnus/loft/server/clilogin"
+	"github.com/lesomnus/loft/server/closing"
+	"github.com/lesomnus/loft/server/consent"
+	"github.com/lesomnus/loft/server/csp"
+	"github.com/lesomnus/loft/server/domain"
+	"github.com/lesomnus/loft/server/lifecycle"
+	"github.com/lesomnus/loft/server/mail"
+	"github.com/lesomnus/loft/server/offboard"
+	"github.com/lesomnus/loft/server/opensearch"
+	"github.com/lesomnus/loft/server/pd"
+	"github.com/lesomnus/loft/server/policy"
+	"github.com/lesomnus/loft/server/retention"
+	"github.com/lesomnus/loft/server/session"
+	"github.com/lesomnus/loft/server/sso"
+	"github.com/lesomnus/loft/server/storage"
+	"github.com/lesomnus/loft/server/tenancy"
 )
 
 // Server is a built app: the database it runs on and the two stacks it answers
@@ -128,11 +128,11 @@ type Server struct {
 	Lifecycle lifecycle.Lifecycle
 
 	// Logins is a terminal signed in by somebody approving it in a browser
-	// (`rove login`, `server/clilogin`).
+	// (`loft login`, `server/clilogin`).
 	Logins *clilogin.Logins
 
 	// Handoff is signing in on a workspace's own domain: done at the
-	// service's address, and handed there (rove#155, `server/session`).
+	// service's address, and handed there (loft#155, `server/session`).
 	Handoff session.Handoff
 
 	// Closing is what becomes of a closed workspace and of a workspace's
@@ -178,7 +178,7 @@ type Server struct {
 	// putting a rule in here that says some row is special.
 	Policy gate.Policy
 
-	// Access is the access record's writer (payday#111, rove#136): what a
+	// Access is the access record's writer (payday#111, loft#136): what a
 	// read's row waits in to be written with the others of its second, and
 	// what writes a download's before it is answered. Its loop is in
 	// [Server.Spin], each process's own.
@@ -217,7 +217,7 @@ func (s *Server) Own() (app.Server, error) {
 // along as it opens. No files, no trail, and no key until one is asked for
 // ([Server.Contents]).
 //
-// It is what `rove migrate` stands on, which runs where none of those are to
+// It is what `loft migrate` stands on, which runs where none of those are to
 // be had. In Kubernetes that is before a pod serves, while the volumes it will
 // serve from may still be held by the one before it (deploy/k8s), with the
 // digest's key alone beside it.
@@ -323,7 +323,7 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		db.Close()
 		return nil, err
 	}
-	// The access record's after the publish (rove#136): what it writes at the
+	// The access record's after the publish (loft#136): what it writes at the
 	// commit is of the people the call's writes wrote, so it is told of each
 	// and writes once, in the same transaction.
 	rec := bare.Recorders{pd.Recorder(content), pd.WatchRecorder(w), pd.AccessRecorder()}
@@ -475,11 +475,11 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		Links: c.App.Links(),
 	}
 
-	// Who read or wrote whose personal data (rove#136). A read's row is
+	// Who read or wrote whose personal data (loft#136). A read's row is
 	// written a second later with the others, by a loop each process runs for
 	// itself and that writes what it holds once more as the process stops.
 	s.Access = &access.Writer{Sink: pd.AccessSink(client)}
-	s.Spin = append(s.Spin, spin.Called("rove.access", s.Access))
+	s.Spin = append(s.Spin, spin.Called("loft.access", s.Access))
 
 	// What happens because time passed: holds that ran out, rooms nobody came
 	// to, loans that are late.
@@ -488,20 +488,20 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		// What the notifications worth a mailbox say, sent after the
 		// operation that made them (`app.mail`; nothing without a server).
 		domain.Mailer{Drv: drv, Deps: deps},
-		spinEvery("rove.sessions", time.Hour, store.Sweep),
-		spinEvery("rove.sign-in-failures", session.Window, session.Failures{Db: client}.Sweep),
-		spinEvery("rove.cli-logins", time.Hour, s.Logins.Sweep),
+		spinEvery("loft.sessions", time.Hour, store.Sweep),
+		spinEvery("loft.sign-in-failures", session.Window, session.Failures{Db: client}.Sweep),
+		spinEvery("loft.cli-logins", time.Hour, s.Logins.Sweep),
 		// Codes nobody brought back, every minute they would have been good
 		// for: a table of them is never more than a minute's.
-		spinEvery("rove.handoffs", session.CodeTtl, store.SweepHandoffs),
+		spinEvery("loft.handoffs", session.CodeTtl, store.SweepHandoffs),
 		// Closed workspaces whose window is over, destroyed unless held.
 		// Read when it runs: s.Closing is put together after the trail.
-		spinEvery("rove.closing", or(c.App.Workspaces.Every, time.Hour), func(ctx context.Context) error { return s.Closing.Sweep(ctx) }),
+		spinEvery("loft.closing", or(c.App.Workspaces.Every, time.Hour), func(ctx context.Context) error { return s.Closing.Sweep(ctx) }),
 	)
 	// The roster in this process's own housekeeping, loop by loop as roster
 	// names them (`roster.*`); nothing, for one of its own. Each takes the
 	// lease its name says, and its access record's writer runs in every
-	// process as rove's does.
+	// process as loft's does.
 	s.Spin = append(s.Spin, people.Spinners()...)
 	if !people.Embedded() {
 		// What roster says of an account as it says it: sessions that end
@@ -513,17 +513,17 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 		// what each process's own answers about an account are dropped by
 		// (`identity.Store.Recheck`), and what it writes here comes to the
 		// same thing written twice.
-		s.Spin = append(s.Spin, spin.InEveryProcess(spin.Called("rove.roster-stream", spin.Func(func(ctx context.Context) error {
+		s.Spin = append(s.Spin, spin.InEveryProcess(spin.Called("loft.roster-stream", spin.Func(func(ctx context.Context) error {
 			return people.Follow(ctx, s.Lifecycle.Apply)
 		}))))
 	}
 	// And the accounts still erased once roster's grace is over, leaving
 	// every workspace they were in.
-	s.Spin = append(s.Spin, spinEvery("rove.departures", c.App.Accounts.Interval(), s.Lifecycle.Sweep))
+	s.Spin = append(s.Spin, spinEvery("loft.departures", c.App.Accounts.Interval(), s.Lifecycle.Sweep))
 	// And every account asked about again, for an erasure the stream did not
 	// carry because this was not listening (design 9.10).
 	if d := c.App.Accounts.ReconcileEvery(); d > 0 {
-		s.Spin = append(s.Spin, spinEvery("rove.reconcile", d, s.Lifecycle.Reconciling))
+		s.Spin = append(s.Spin, spinEvery("loft.reconcile", d, s.Lifecycle.Reconciling))
 	}
 
 	// What the keep windows no longer reach, taken out of the history (design
@@ -819,7 +819,7 @@ func (s *Server) serveHttp(ctx context.Context, c Config, g *grpc.Server) (func(
 	s.Routes(h.ServeMux, c)
 
 	// And all of it behind what the host a request came to decides: a
-	// workspace's own domain serves that workspace alone (rove#155).
+	// workspace's own domain serves that workspace alone (loft#155).
 	front, err := Front(c, s.Hosts(c).Handler(h))
 	if err != nil {
 		return nil, err
@@ -844,7 +844,7 @@ func (s *Server) serveHttp(ctx context.Context, c Config, g *grpc.Server) (func(
 
 // httpServer is the HTTP listener's server. A client that takes its time over
 // its headers holds a connection for nothing, and so does one that keeps a
-// connection open between requests and never sends the next (rove#40); a
+// connection open between requests and never sends the next (loft#40); a
 // stream, once asked for, may take as long as it likes.
 //
 // And every request runs on ctx, which carries this process's telemetry and
@@ -863,7 +863,7 @@ func httpServer(ctx context.Context, h http.Handler) *http.Server {
 }
 
 // Downloads are the RPCs that hand people's data out to be kept somewhere else
-// (rove#136): each says what it is for, in `payday-reason-bin`, or is refused,
+// (loft#136): each says what it is for, in `payday-reason-bin`, or is refused,
 // and its row of the access record is written before it is answered. Each is
 // called by itself, and refused as an operation of a batch. The workspace's
 // export is one too, and is HTTP (`server/account`).
@@ -977,7 +977,7 @@ func or[T comparable](v, otherwise T) T {
 	return v
 }
 
-const notBuilt = `<!doctype html><meta charset="utf-8"><title>Rove</title>
+const notBuilt = `<!doctype html><meta charset="utf-8"><title>Loft</title>
 <body style="font-family:sans-serif;max-width:40em;margin:4em auto;line-height:1.6">
 <h1>UI가 아직 빌드되지 않았습니다</h1>
 <p><code>%s</code>에 빌드된 화면이 없습니다. 저장소에서 다음을 실행한 뒤 새로 고치세요.</p>
@@ -999,7 +999,7 @@ func spinEvery(name string, d time.Duration, f func(ctx context.Context) error) 
 
 // Routes is what this app serves over HTTP besides its Rpcs.
 func (s *Server) Routes(mux *http.ServeMux, c Config) {
-	// Where every link made here begins (rove#155).
+	// Where every link made here begins (loft#155).
 	links := c.App.Links()
 
 	// Signing in and out. What is checked is a password, by roster, and an
@@ -1040,7 +1040,7 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 			return err
 		},
 		// The export is a download of everybody in the workspace, and the
-		// access record says so before it is written (rove#136).
+		// access record says so before it is written (loft#136).
 		Access:  s.Access,
 		Carried: s.Offboard(c).People,
 		// A label scanned in a workspace it is not in: the one of the
@@ -1057,7 +1057,7 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 		Consent: s.Consents,
 		Arrive:  s.Arrive(c),
 		// Where a workspace's app is when it has a domain of its own, for
-		// the page to open it there (rove#155).
+		// the page to open it there (loft#155).
 		Home: func(ctx context.Context, ws pdid.Id) (string, error) {
 			return s.appOf(ctx, links, ws)
 		},
@@ -1072,7 +1072,7 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 	// a label of another tenant reads as nothing there -- and then asks
 	// `/account/labels/{code}` which of the account's own it is in.
 	//
-	// The page is where the host's workspace is (rove#155): on a workspace's
+	// The page is where the host's workspace is (loft#155): on a workspace's
 	// own domain, that domain; on one of its domains that pins nothing -- a
 	// label domain, an address it moved off -- its app domain while it has
 	// one; at the service's address otherwise. Which workspace a code is
@@ -1089,7 +1089,7 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 	})
 
 	// What a reverse proxy issuing certificates on demand asks is the
-	// operator's entry point's to answer (`rove-admin serve`), which this
+	// operator's entry point's to answer (`loft-admin serve`), which this
 	// binary does not link (design 6장).
 
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) {
@@ -1122,7 +1122,7 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 					return
 				}
 				// A workspace whose app is on a domain of its own is opened
-				// there, the same page (rove#155), and the handoff signs the
+				// there, the same page (loft#155), and the handoff signs the
 				// browser in on it. Not from that domain, whose pages these
 				// are, and not to a domain that is not in use: that one's
 				// workspace is the service's (`apphost.Links`). This is where

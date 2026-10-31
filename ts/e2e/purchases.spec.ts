@@ -1,6 +1,6 @@
 import type { Locator } from '@playwright/test'
 
-import { choose, expect, field, people, said, signIn, test, unique, workspace } from './rove.js'
+import { choose, expect, field, people, said, signIn, test, unique, workspace } from './loft.js'
 
 // 구매 and 재고: what is ordered is received as assets one by one and as stock
 // by the count, and stock is used, falls below what it should keep, and is

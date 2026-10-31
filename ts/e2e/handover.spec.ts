@@ -1,4 +1,4 @@
-import { card, choose, expect, field, people, said, signIn, test, unique, weekdayAt, workspace } from './rove.js'
+import { card, choose, expect, field, people, said, signIn, test, unique, weekdayAt, workspace } from './loft.js'
 
 // A hand-over started where the thing is: the asset's own page, which puts the
 // asset in the dialog, and which afterwards says who has it.

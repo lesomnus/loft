@@ -11,8 +11,8 @@ import (
 	"github.com/lesomnus/payday/pdid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/lesomnus/rove/internal/identity"
-	"github.com/lesomnus/rove/server/consent"
+	"github.com/lesomnus/loft/internal/identity"
+	"github.com/lesomnus/loft/server/consent"
 )
 
 // ledger is roster's, as these tests have it: what each account agreed to,
@@ -84,8 +84,8 @@ func (l *ledger) times() int {
 }
 
 var docs = []consent.Document{
-	{Name: "terms", Title: "이용약관", Version: "2026-10-01", Url: "https://rove.example/terms"},
-	{Name: "privacy", Title: "개인정보 처리방침", Version: "2026-10-01", Url: "https://rove.example/privacy"},
+	{Name: "terms", Title: "이용약관", Version: "2026-10-01", Url: "https://loft.example/terms"},
+	{Name: "privacy", Title: "개인정보 처리방침", Version: "2026-10-01", Url: "https://loft.example/privacy"},
 }
 
 var agreed = map[string]string{"terms": "2026-10-01", "privacy": "2026-10-01"}

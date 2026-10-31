@@ -24,19 +24,19 @@ import (
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/version"
 
-	app "github.com/lesomnus/rove"
+	app "github.com/lesomnus/loft"
 )
 
-// NewCmdMcp is `rove mcp`: an MCP server on stdin and stdout, for an
+// NewCmdMcp is `loft mcp`: an MCP server on stdin and stdout, for an
 // assistant -- Claude Code, Claude Desktop -- to read a workspace with, as the
-// account this terminal signed in as (D32, rove#91).
+// account this terminal signed in as (D32, loft#91).
 //
-// It is a terminal command like `rove api`, and holds nothing of its own. A
+// It is a terminal command like `loft api`, and holds nothing of its own. A
 // tool is RPCs to the address a browser reaches the deployment at, with this
 // terminal's session: what an assistant can read is what its person can,
 // through the same policy and the same wall as the page, and the deployment
 // does not know there is an assistant. The sign-in is read again for every
-// call, so that `rove login` and `rove use` take effect without starting this
+// call, so that `loft login` and `loft use` take effect without starting this
 // again.
 //
 // Every tool reads. One that writes waits for a way for the person to say yes
@@ -44,9 +44,9 @@ import (
 func NewCmdMcp() *xli.Command {
 	return &xli.Command{
 		Name:  "mcp",
-		Brief: "an MCP server on stdin and stdout: an assistant reads the workspace as this terminal's account (`rove login` first)",
+		Brief: "an MCP server on stdin and stdout: an assistant reads the workspace as this terminal's account (`loft login` first)",
 		Flags: flg.Flags{
-			&flg.String{Name: "workspace", Brief: "the workspace it reads, by alias; `rove use` sets the default"},
+			&flg.String{Name: "workspace", Brief: "the workspace it reads, by alias; `loft use` sets the default"},
 		},
 		Handler: xli.OnRun(func(ctx context.Context, self *xli.Command, next xli.Next) error {
 			// Stdout is the protocol's; anything else said goes to stderr,
@@ -66,19 +66,19 @@ type nopWriteCloser struct{ io.Writer }
 
 func (nopWriteCloser) Close() error { return nil }
 
-const mcpInstructions = `Rove is the register of a workspace's tangible assets: what there is, where it is, who has it, and what happened to it.
+const mcpInstructions = `Loft is the register of a workspace's tangible assets: what there is, where it is, who has it, and what happened to it.
 
 - Names are mostly Korean. search_assets understands Korean words: a compound by its last word, a word with a particle on it, a letter wrong.
 - An asset is an item, a space (a room, a shelf, a rack), a kit or a group, and is inside another: "where" is the chain of what it is in, the outermost first.
 - Tools take the ids other tools answer with. An asset may also be named by its tag.
 - Times are RFC 3339; a date alone is midnight in this machine's zone, but for a report's period it is the workspace's day.
 - The read tools read, as the person signed in. To change the register, a plan_* tool answers what would happen, in names, with a token: show the person that summary, and only once they say yes, call apply with the token and the summary word for word. A plan changes nothing; a plan never applied does nothing.
-- What may be done is the person's role's to say, and a terminal signed in with rove login --allow is held to what it allows.`
+- What may be done is the person's role's to say, and a terminal signed in with loft login --allow is held to what it allows.`
 
-// newMcp is the server `rove mcp` runs: the tools, each of them reads, over
+// newMcp is the server `loft mcp` runs: the tools, each of them reads, over
 // the connection the terminal's sign-in makes for `ws`.
 func newMcp(ws string, log *slog.Logger) *mcp.Server {
-	s := mcp.NewServer(&mcp.Implementation{Name: "rove", Version: version.Get().Short()}, &mcp.ServerOptions{
+	s := mcp.NewServer(&mcp.Implementation{Name: "loft", Version: version.Get().Short()}, &mcp.ServerOptions{
 		Instructions: mcpInstructions,
 		Logger:       log,
 	})
@@ -302,7 +302,7 @@ func mcpSchema[In any](enums map[string][]any) *jsonschema.Schema {
 }
 
 type mcpTools struct {
-	// The workspace named on the command line, over `ROVE_WORKSPACE` and `rove
+	// The workspace named on the command line, over `LOFT_WORKSPACE` and `loft
 	// use`.
 	ws string
 	// The plans made and not yet applied, for every call of this process.
@@ -321,7 +321,7 @@ func (t mcpTools) call(ctx context.Context) (*mcpCall, error) {
 	}
 	ws := t.ws
 	if ws == "" {
-		ws = os.Getenv("ROVE_WORKSPACE")
+		ws = os.Getenv("LOFT_WORKSPACE")
 	}
 	if ws == "" {
 		ws = c.Workspace
@@ -641,8 +641,8 @@ type mcpWhoami struct {
 	Workspace  *mcpWorkspace  `json:"workspace,omitempty" jsonschema:"the workspace these tools read"`
 	Person     *mcpRef        `json:"person,omitempty" jsonschema:"the person this account is in that workspace"`
 	History    string         `json:"history" jsonschema:"how far back the workspace keeps its history"`
-	Workspaces []mcpWorkspace `json:"workspaces" jsonschema:"every workspace the account is in; another is read by starting rove mcp --workspace ALIAS"`
-	Allow      []string       `json:"allow,omitempty" jsonschema:"the only methods this terminal's sign-in may call (rove login --allow); absent is all that the account may do"`
+	Workspaces []mcpWorkspace `json:"workspaces" jsonschema:"every workspace the account is in; another is read by starting loft mcp --workspace ALIAS"`
+	Allow      []string       `json:"allow,omitempty" jsonschema:"the only methods this terminal's sign-in may call (loft login --allow); absent is all that the account may do"`
 }
 
 func (t mcpTools) whoami(ctx context.Context, _ *mcp.CallToolRequest, _ mcpWhoamiIn) (*mcp.CallToolResult, mcpWhoami, error) {

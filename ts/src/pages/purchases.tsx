@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import type { Purchase } from '../../gen/rove/work_pb.js'
+import type { Purchase } from '../../gen/loft/work_pb.js'
 import { PurchaseLineService, PurchaseService, amountIn, amountStep, fmt, idBytes, idStr, money, place, ref, unitOf } from '../api.js'
 import { modelName, useCatalog } from '../catalog.js'
 import { ModelSelect, PartySelect, SpaceSelect } from '../pickers.js'

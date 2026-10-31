@@ -12,7 +12,7 @@ package cli
 // archive to hear. Both, because a configuration naming a scheme this binary
 // does not open is refused where the process comes up. roster's `cli`, which
 // the roster in this process is migrated with, links the same two today; this
-// says what rove's own configuration may name rather than leaning on that.
+// says what loft's own configuration may name rather than leaning on that.
 //
 // `log:` writes a line of the log and the gauge `payday.trail.checkpoint` for
 // every checkpoint, and is a witness only with the alerts on it the runbook

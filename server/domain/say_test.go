@@ -16,11 +16,11 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/server/pd"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/server/pd"
 )
 
-// TestEveryKindIsSaidInKorean: no kind of Rove's events is read as its fields
+// TestEveryKindIsSaidInKorean: no kind of Loft's events is read as its fields
 // (payday#151) -- a kind declared and said nowhere would be.
 func TestEveryKindIsSaidInKorean(t *testing.T) {
 	require.Empty(t, past.Unsaid(Sentences, "ko", pd.EventKinds))
@@ -30,7 +30,7 @@ func TestEveryKindIsSaidInKorean(t *testing.T) {
 // as it is read, is the sentence an event of it was written with before it
 // kept a message -- `desc`, word for word -- so that a page reads the same
 // across the two. A person is named as they are called when it is read, and
-// "?" where nothing names them. Two things changed: a value of Rove's own is
+// "?" where nothing names them. Two things changed: a value of Loft's own is
 // said in the word the page says it in, where it was written as its code --
 // a role, a relation, a stock's movement, how a finding was settled, what was
 // done to a reservation, an attribute by its type's label -- and a
@@ -157,7 +157,7 @@ func TestEveryKindIsSaidAsItWasWritten(t *testing.T) {
 		{"domain.verify", app.TenantDomainVerified_builder{Host: "assets.acme.example", Purpose: "app", Again: true}.Build(), "워크스페이스 도메인 다시 확인: assets.acme.example"},
 		{"domain.activate", app.TenantDomainActivated_builder{Host: "assets.acme.example", Purpose: "app"}.Build(), "워크스페이스 도메인 활성화: assets.acme.example"},
 		{"domain.retire", app.TenantDomainRetired_builder{Host: "acme.l.test", Purpose: "label", Force: true, Labels: 3}.Build(), "라벨 도메인 은퇴: acme.l.test"},
-		// What was the reason, rove's own words, said by the sentence.
+		// What was the reason, loft's own words, said by the sentence.
 		{"domain.lapse", app.TenantDomainLapsed_builder{Host: "assets.acme.example", Purpose: "app", FailingSince: timestamppb.New(time.Date(2026, 10, 23, 3, 0, 0, 0, time.UTC)), Failures: 6}.Build(),
 			"워크스페이스 도메인 사용 중지: assets.acme.example (DNS가 10월 23일 12:00부터 이 서비스를 가리키지 않거나 TXT 레코드가 없습니다)"},
 		{"label.print", app.LabelsPrinted_builder{Batch: "2026-10-24 10:30", Count: 20}.Build(), "라벨 인쇄: 2026-10-24 10:30"},
@@ -224,7 +224,7 @@ func TestEveryKindIsSaidAsItWasWritten(t *testing.T) {
 	x.Empty(slices.DeleteFunc(slices.Sorted(maps.Keys(pd.EventKinds)), func(k string) bool { return said[k] }), "a kind with no sentence here")
 }
 
-// TestAnEventFromBeforeIsSaidAsItWasWritten: a row from before Rove's events
+// TestAnEventFromBeforeIsSaidAsItWasWritten: a row from before Loft's events
 // kept a message holds none, and is said by the words it was written with,
 // the people it marks named as they are now.
 func TestAnEventFromBeforeIsSaidAsItWasWritten(t *testing.T) {

@@ -8,11 +8,11 @@ import (
 	"github.com/lesomnus/payday/pdtest"
 	"github.com/stretchr/testify/require"
 
-	"github.com/lesomnus/rove/cli"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent/asset"
-	"github.com/lesomnus/rove/internal/opensearchtest"
-	"github.com/lesomnus/rove/server/opensearch"
+	"github.com/lesomnus/loft/cli"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent/asset"
+	"github.com/lesomnus/loft/internal/opensearchtest"
+	"github.com/lesomnus/loft/server/opensearch"
 )
 
 // TestAReindexTurnsPagesInKeyOrder: every asset that is not erased is one

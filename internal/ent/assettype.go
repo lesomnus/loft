@@ -9,9 +9,9 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent/assettype"
-	"github.com/lesomnus/rove/internal/ent/tenant"
+	"github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent/assettype"
+	"github.com/lesomnus/loft/internal/ent/tenant"
 	"github.com/protobuf-orm/ent"
 	"github.com/protobuf-orm/ent/dialect/sql"
 )
@@ -32,7 +32,7 @@ type AssetType struct {
 	// Kind holds the value of the "kind" field.
 	Kind string `json:"kind,omitempty"`
 	// Spec holds the value of the "spec" field.
-	Spec *rove.TypeSpec `json:"spec,omitempty"`
+	Spec *loft.TypeSpec `json:"spec,omitempty"`
 	// SchemaVersion holds the value of the "schema_version" field.
 	SchemaVersion uint32 `json:"schema_version,omitempty"`
 	// DateUpdated holds the value of the "date_updated" field.

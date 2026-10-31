@@ -20,20 +20,20 @@ import { EventDomain } from '../gen/domains.js'
 import { events } from '../gen/events.js'
 import { unreachable } from './offline.js'
 
-import { AllocationService, BookableService, ReservationService } from '../gen/rove/booking_svc_pb.js'
-import { AssetService, AttachmentService, LabelService, TenantDomainService } from '../gen/rove/asset_svc_pb.js'
-import { AssetTypeService, ItemModelService } from '../gen/rove/catalog_svc_pb.js'
-import { AccessService } from '../gen/rove/payday/access_svc_pb.js'
-import { AuditService } from '../gen/rove/payday/audit_svc_pb.js'
-import { CountFindingService, InventoryCountService } from '../gen/rove/count_svc_pb.js'
-import { InvitationService, PartyService } from '../gen/rove/org_svc_pb.js'
-import { CustodyLineService, CustodyService } from '../gen/rove/custody_svc_pb.js'
-import { EventService } from '../gen/rove/payday/event_svc_pb.js'
-import { HolderService } from '../gen/rove/payday/holder_svc_pb.js'
-import { AccessReviewService, NotificationService } from '../gen/rove/ops_svc_pb.js'
-import { PurchaseLineService, PurchaseService, WorkOrderService } from '../gen/rove/work_svc_pb.js'
-import { StockMovementService, StockService } from '../gen/rove/stock_svc_pb.js'
-import { TenantService } from '../gen/rove/payday/tenant_svc_pb.js'
+import { AllocationService, BookableService, ReservationService } from '../gen/loft/booking_svc_pb.js'
+import { AssetService, AttachmentService, LabelService, TenantDomainService } from '../gen/loft/asset_svc_pb.js'
+import { AssetTypeService, ItemModelService } from '../gen/loft/catalog_svc_pb.js'
+import { AccessService } from '../gen/loft/payday/access_svc_pb.js'
+import { AuditService } from '../gen/loft/payday/audit_svc_pb.js'
+import { CountFindingService, InventoryCountService } from '../gen/loft/count_svc_pb.js'
+import { InvitationService, PartyService } from '../gen/loft/org_svc_pb.js'
+import { CustodyLineService, CustodyService } from '../gen/loft/custody_svc_pb.js'
+import { EventService } from '../gen/loft/payday/event_svc_pb.js'
+import { HolderService } from '../gen/loft/payday/holder_svc_pb.js'
+import { AccessReviewService, NotificationService } from '../gen/loft/ops_svc_pb.js'
+import { PurchaseLineService, PurchaseService, WorkOrderService } from '../gen/loft/work_svc_pb.js'
+import { StockMovementService, StockService } from '../gen/loft/stock_svc_pb.js'
+import { TenantService } from '../gen/loft/payday/tenant_svc_pb.js'
 
 export {
 	AccessReviewService,
@@ -78,7 +78,7 @@ export const workspace: string = (() => {
 
 /** Every call names the workspace it is about, which is what it is served as a member of. */
 const inWorkspace: Interceptor = (next) => async (req) => {
-	if (workspace !== '') req.header.set('Rove-Workspace', workspace)
+	if (workspace !== '') req.header.set('Loft-Workspace', workspace)
 	return next(req)
 }
 
@@ -113,7 +113,7 @@ const asCaller: Interceptor = (next) => async (req) => {
  * It reads with the messages payday's events hold (`gen/events.ts`): an event
  * keeps its value as an `Any`, which JSON names by its type and protobuf-es
  * reads only with that type registered, so without them a list of events with
- * a value in one fails whole. Empty while Rove declares no past of payday's.
+ * a value in one fails whole. Empty while Loft declares no past of payday's.
  */
 export const transport = createConnectTransport({
 	baseUrl: location.origin,
@@ -134,7 +134,7 @@ export interface Workspace {
 	/** For a closed one: how many days its address is then held (D29). */
 	alias_hold_days?: number
 	/**
-	 * Where its app is when that is a domain of its own (rove#155): the
+	 * Where its app is when that is a domain of its own (loft#155): the
 	 * address a page of it begins with there, which opening it goes to.
 	 */
 	home?: string
@@ -154,7 +154,7 @@ export interface Account {
 	owes?: ConsentDocument[]
 	/**
 	 * The workspace this address serves alone, when it is a workspace's own
-	 * domain (rove#155): nothing of the account's beside it is offered here.
+	 * domain (loft#155): nothing of the account's beside it is offered here.
 	 */
 	pinned?: string
 	/** The service's address, said where `pinned` is: where the account's other workspaces are. */
@@ -230,7 +230,7 @@ export interface Ways {
 	/**
 	 * Whether this is a workspace's own domain, where nobody signs in: the
 	 * page sends the browser to the service's address to be signed in, and it
-	 * comes back with a session of this host's (rove#155).
+	 * comes back with a session of this host's (loft#155).
 	 */
 	handoff?: boolean
 }
@@ -267,7 +267,7 @@ export function signOutThroughIssuer(): void {
 }
 
 /** How many times a page sends the browser off to be signed in, in a while, before it stops and asks. */
-const handoffs = { max: 3, within: 60_000, key: 'rove-handoffs' }
+const handoffs = { max: 3, within: 60_000, key: 'loft-handoffs' }
 
 /**
  * Sends the browser from a workspace's own domain to the service's address to
@@ -346,7 +346,7 @@ export function labelCodeText(code: string | undefined): string {
 	return `${code.slice(0, 4)}-${code.slice(4)}`
 }
 
-const lastKey = 'rove.workspace'
+const lastKey = 'loft.workspace'
 
 /** The workspace this browser was last in, which a page with none in its address opens. */
 export function lastWorkspace(): string {
@@ -368,7 +368,7 @@ export function rememberWorkspace(alias: string): void {
 
 /**
  * Opens a workspace: the page again, at its address -- on the domain of its
- * own its app is on, when it has one (rove#155), where the service would send
+ * own its app is on, when it has one (loft#155), where the service would send
  * the page anyway. `instead` replaces this page in the history rather than
  * following it, for a page that was only on its way somewhere.
  */
@@ -605,7 +605,7 @@ export function errorText(err: unknown): string {
 	if (err instanceof ConnectError) {
 		const m = err.rawMessage
 		// The server says most things in Korean already; what it says in
-		// English is from a layer below rove, and is given a Korean head.
+		// English is from a layer below loft, and is given a Korean head.
 		if (/[가-힣]/.test(m) && err.code !== Code.Unauthenticated) return m
 		switch (err.code) {
 			case Code.PermissionDenied:
@@ -636,7 +636,7 @@ export function isUnauthenticated(err: unknown): boolean {
  * Loading the page again is what asks for the agreement.
  */
 export function isConsentOwed(err: unknown): boolean {
-	return err instanceof ConnectError && err.code === Code.FailedPrecondition && err.rawMessage.includes('rove consent')
+	return err instanceof ConnectError && err.code === Code.FailedPrecondition && err.rawMessage.includes('loft consent')
 }
 
 /** A fresh op id for a write a retry must not repeat. */

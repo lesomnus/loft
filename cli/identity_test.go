@@ -23,17 +23,17 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/metadata"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cli"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/identity"
-	rovesession "github.com/lesomnus/rove/server/session"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cli"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/internal/identity"
+	loftsession "github.com/lesomnus/loft/server/session"
 )
 
 // before is a deployment whose logins name no account: made before roster held
 // people. Two workspaces, both with somebody called kim; the owner called
-// `admin`, which is what `rove init` called one and the name roster gives the
+// `admin`, which is what `loft init` called one and the name roster gives the
 // first holder of every tenant it makes; a login that ended; a table of
 // sessions from before a session was an account's; and the table the
 // passwords were kept in.
@@ -154,7 +154,7 @@ func TestADeploymentFromBeforeRosterIsBroughtIntoIt(t *testing.T) {
 	x.NoError(err)
 	x.Nil(h.Account, "a login that ended was brought in")
 
-	login := rovesession.SignIn(s.Sessions, s.Identity, s.Ent, nil)
+	login := loftsession.SignIn(s.Sessions, s.Identity, s.Ent, nil)
 	r := httptest.NewRequest(http.MethodPost, "/session", bytes.NewBufferString(`{"login":"admin","password":"`+got["acme/admin"].password+`"}`))
 	r.Header.Set("Content-Type", "application/json")
 	rec := httptest.NewRecorder()

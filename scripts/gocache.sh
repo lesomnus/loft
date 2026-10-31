@@ -5,9 +5,9 @@
 #   scripts/gocache.sh load DIR   # into the builder, before the image is built
 #   scripts/gocache.sh save DIR   # out of it again, after
 #
-# The Dockerfile compiles with its build cache on a cache mount (`id=rove-go-build`),
+# The Dockerfile compiles with its build cache on a cache mount (`id=loft-go-build`),
 # which BuildKit keeps in the builder -- and a runner's builder is new every
-# run, so every job that built the image compiled rove from nothing: 100 to
+# run, so every job that built the image compiled loft from nothing: 100 to
 # 130 seconds of each. `load` copies DIR into that mount and `save` copies the
 # mount out to DIR, which actions/cache keeps in between, as it keeps the `go`
 # job's own.
@@ -45,7 +45,7 @@ load)
 	docker build -q --build-arg "run=$run" --build-arg "stale=$stale" -f - "$dir" > /dev/null <<EOF
 FROM $ALPINE_IMAGE
 ARG run stale
-RUN --mount=type=cache,id=rove-go-build,target=/cache --mount=type=bind,target=/kept \
+RUN --mount=type=cache,id=loft-go-build,target=/cache --mount=type=bind,target=/kept \
 	cp -a /kept/. /cache/ \
 	&& find /cache -type f -exec touch -d "\$stale" {} + \
 	&& touch /cache/.loaded
@@ -58,7 +58,7 @@ save)
 	docker build -q --build-arg "run=$run" -o "type=local,dest=$dir" -f - "$empty" > /dev/null <<EOF
 FROM $ALPINE_IMAGE AS kept
 ARG run
-RUN --mount=type=cache,id=rove-go-build,target=/cache mkdir /kept && cd /cache \
+RUN --mount=type=cache,id=loft-go-build,target=/cache mkdir /kept && cd /cache \
 	&& if [ -e .loaded ]; then find . -type f -newer .loaded; else find . -type f; fi > /tmp/kept \
 	&& tar -cf - -T /tmp/kept | tar -C /kept -xf -
 FROM scratch

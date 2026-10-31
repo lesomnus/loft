@@ -20,12 +20,12 @@ import (
 	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/pdid"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/server/domain"
-	"github.com/lesomnus/rove/server/pd"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/server/domain"
+	"github.com/lesomnus/loft/server/pd"
 )
 
-// The tools that change the register (D33, rove#94): a plan, and applying it.
+// The tools that change the register (D33, loft#94): a plan, and applying it.
 //
 // A plan_* tool takes what to do, reads what it names, and answers what would
 // happen in the words a person reads -- which asset, from where to where, to
@@ -36,7 +36,7 @@ import (
 // person read.
 //
 // What may be done is what the person may do. The policy table and the
-// domain decide when apply calls; a terminal signed in narrowed (`rove login
+// domain decide when apply calls; a terminal signed in narrowed (`loft login
 // --allow`) is held to that by the server, and is told so here at the plan.
 // The history names the person, and nothing of the assistant.
 //
@@ -124,7 +124,7 @@ type mcpPlanned struct {
 	Expires string `json:"expires" jsonschema:"when the plan stops being one"`
 }
 
-// allows says whether this terminal's sign-in may call method: what `rove
+// allows says whether this terminal's sign-in may call method: what `loft
 // login --allow` narrowed it to, as GET /account says. The server holds every
 // call to it whatever this says; asked here, a plan the sign-in could not
 // carry out is not put before the person.
@@ -157,7 +157,7 @@ func (t mcpTools) planned(c *mcpCall, p *plan) (*mcp.CallToolResult, mcpPlanned,
 		return nil, out, err
 	}
 	if !ok {
-		return nil, out, fmt.Errorf("this terminal's sign-in may not call %s (rove whoami says what it may); signing in again without that --allow is the person's to do", p.method)
+		return nil, out, fmt.Errorf("this terminal's sign-in may not call %s (loft whoami says what it may); signing in again without that --allow is the person's to do", p.method)
 	}
 	token, err := t.plans.put(p)
 	if err != nil {

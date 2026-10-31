@@ -2,7 +2,7 @@
 
 package runtime
 
-// The schema-stitching logic is generated in github.com/lesomnus/rove/internal/ent/runtime.go
+// The schema-stitching logic is generated in github.com/lesomnus/loft/internal/ent/runtime.go
 
 const (
 	Version = "v0.0.0-20261024205432-0dd7dadc81bc"              // Version of ent codegen.

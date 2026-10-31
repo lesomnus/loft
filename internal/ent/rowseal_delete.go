@@ -5,8 +5,8 @@ package ent
 import (
 	"context"
 
-	"github.com/lesomnus/rove/internal/ent/predicate"
-	"github.com/lesomnus/rove/internal/ent/rowseal"
+	"github.com/lesomnus/loft/internal/ent/predicate"
+	"github.com/lesomnus/loft/internal/ent/rowseal"
 	"github.com/protobuf-orm/ent/dialect/sql"
 	"github.com/protobuf-orm/ent/dialect/sql/sqlgraph"
 	"github.com/protobuf-orm/ent/schema/field"

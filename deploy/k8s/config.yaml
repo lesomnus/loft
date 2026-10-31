@@ -1,18 +1,18 @@
 # What every process in the pod is told (`--config`), beside what is secret,
-# which is in the Secrets `rove.yaml` names (README.md). A ROVE_* variable
+# which is in the Secrets `loft.yaml` names (README.md). A LOFT_* variable
 # beats what is written here. An overlay replaces this file with its own,
 # starting from this one.
 
 db:
   driver: pgx
-  # dsn: ROVE_DB_DSN, from the Secret `rove`.
+  # dsn: LOFT_DB_DSN, from the Secret `loft`.
   #
-  # The init container brings the tables along (`rove migrate`) before the
+  # The init container brings the tables along (`loft migrate`) before the
   # pod serves; what serves only checks them.
   migrate: false
 
 server:
-  # gRPC, which the NetworkPolicy lets nothing reach: browsers and `rove api`
+  # gRPC, which the NetworkPolicy lets nothing reach: browsers and `loft api`
   # call the HTTP listener.
   addr: ":50051"
   max_recv_msg_size: 33554432
@@ -25,10 +25,10 @@ server:
 # Telemetry, in the OpenTelemetry Collector's own configuration language.
 # Unset, the request log goes to stdout and nothing else is sent anywhere. A
 # collector on every node is reached at the node's own address, which every
-# container of the pod is told as HOST_IP (rove.yaml) -- the migration's too,
+# container of the pod is told as HOST_IP (loft.yaml) -- the migration's too,
 # since an `${env:...}` that is not set is refused wherever this file is read.
-# A collector behind a Service is named instead. `resource/rove` is what says
-# the telemetry is Rove's.
+# A collector behind a Service is named instead. `resource/loft` is what says
+# the telemetry is Loft's.
 #
 # otel:
 #   exporters:
@@ -37,9 +37,9 @@ server:
 #   processors:
 #     sampler: { type: parent_based, ratio: 0.1 }
 #   providers:
-#     tracer: { processors: [sampler, resource/rove], exporters: [otlp] }
-#     meter: { processors: [resource/rove], exporters: [otlp] }
-#     logger: { processors: [resource/rove], exporters: [otlp, pretty] }
+#     tracer: { processors: [sampler, resource/loft], exporters: [otlp] }
+#     meter: { processors: [resource/loft], exporters: [otlp] }
+#     logger: { processors: [resource/loft], exporters: [otlp, pretty] }
 
 # Two processes in the pod, the server and the operator's entry point, so the
 # database is where they meet: a change the entry point makes is heard by a
@@ -49,23 +49,23 @@ watch:
 spin:
   lease: postgres
 
-# The roster in this process, on a database of its own beside Rove's.
+# The roster in this process, on a database of its own beside Loft's.
 auth:
   roster:
     db:
       driver: pgx
-      # dsn: ROVE_AUTH_ROSTER_DB_DSN, from the Secret `rove`.
+      # dsn: LOFT_AUTH_ROSTER_DB_DSN, from the Secret `loft`.
     # How long what an erased account agreed to (`app.consent`) is kept
     # before this roster destroys it, once decided with legal review
-    # (rove#35). Unset keeps it for good.
+    # (loft#35). Unset keeps it for good.
     # consent_keep: 26280h
 
 app:
   # Where people open it, and what a label's QR code carries: decided before
-  # a label is printed, and not changed after (rove#35). Every overlay says
-  # its own, and the server does not start without one (rove#40).
+  # a label is printed, and not changed after (loft#35). Every overlay says
+  # its own, and the server does not start without one (loft#40).
   #
-  # public_url: https://rove.example.com
+  # public_url: https://loft.example.com
 
   # The ingress controller in front, whose X-Forwarded-For is believed: its
   # pods' addresses, or the cluster's pod network -- which is only safe once
@@ -74,37 +74,37 @@ app:
   # controller's address, and the sign-in limits count everybody as one.
   trusted_proxies: []
 
-  files: /var/lib/rove/files
+  files: /var/lib/loft/files
   csp: report-only
 
-  # mail: ROVE_APP_MAIL_*, the password from the Secret `rove`. With no host
+  # mail: LOFT_APP_MAIL_*, the password from the Secret `loft`. With no host
   # every invitation is written to the log instead.
 
   # Search on OpenSearch with nori (D31), on a cluster this deployment does
-  # not run (README.md): its role, its user and the Secret `rove-search`.
+  # not run (README.md): its role, its user and the Secret `loft-search`.
   # Unset, the database answers a search.
   # search:
   #   opensearch:
   #     addrs: [https://opensearch.search.svc:9200]
-  #     username: rove
-  #     # password: ROVE_APP_SEARCH_OPENSEARCH_PASSWORD, from the Secret.
-  #     ca_file: /run/secrets/rove-search/ca.pem
-  #     index: rove
+  #     username: loft
+  #     # password: LOFT_APP_SEARCH_OPENSEARCH_PASSWORD, from the Secret.
+  #     ca_file: /run/secrets/loft-search/ca.pem
+  #     index: loft
 
   # What an account agrees to before it uses anything here, once the
-  # documents are published (rove#35).
+  # documents are published (loft#35).
   # consent:
-  #   terms: { version: "2026-11-01", url: https://rove.example.com/terms }
-  #   privacy: { version: "2026-11-01", url: https://rove.example.com/privacy }
+  #   terms: { version: "2026-11-01", url: https://loft.example.com/terms }
+  #   privacy: { version: "2026-11-01", url: https://loft.example.com/privacy }
 
 audit:
   # Where the trail goes once it leaves the database, and the checkpoints of
-  # it, signed with a file key (rove#35): a volume each.
-  archive: /var/lib/rove/audit
+  # it, signed with a file key (loft#35): a volume each.
+  archive: /var/lib/loft/audit
   checkpoints:
-    dir: /var/lib/rove/checkpoints
+    dir: /var/lib/loft/checkpoints
     write_once: true
-    key: /run/secrets/rove/checkpoints.pem
+    key: /run/secrets/loft/checkpoints.pem
     # Who hears every checkpoint outside the database and the archive
     # (payday#115), so that whoever can write both cannot cut the chain short
     # at its head unseen. `log:` needs no volume: a line of the log and the
@@ -113,29 +113,29 @@ audit:
     # is a volume, which the base does not force on an overlay: the
     # `witness/` component brings its claim and mounts, and then
     #
-    #   witnesses: ["log:", "store:/var/lib/rove/witness"]
+    #   witnesses: ["log:", "store:/var/lib/loft/witness"]
     witnesses: ["log:"]
 
-  # A keyed digest of the row each write left, so that `rove trail rows`
+  # A keyed digest of the row each write left, so that `loft trail rows`
   # finds a row changed in the database past the servers (payday#102). The
   # key is beside the checkpoints' in their Secret, and out of the database.
   digest:
-    key: /run/secrets/rove/digest.key
+    key: /run/secrets/loft/digest.key
 
   # How long a row stays in the database and the archive. Nothing moves or
   # goes until this says so, and the number is the regime's, not a default's
-  # (`rove.yaml` at the root says why). Until some window is set no pass
+  # (`loft.yaml` at the root says why). Until some window is set no pass
   # runs, and so no checkpoint is taken either: the archive and the
   # checkpoints above wait for it (`docs/runbook/restore.md`).
   #
-  # The access record is the one kind whose regime is known (rove#136): PIPA's
+  # The access record is the one kind whose regime is known (loft#136): PIPA's
   # safety measures keep one two years for a processor of fifty thousand
   # people or more, which a deployment of many workspaces is, `pipa-sensitive`
   # -- until a legal review of the deployment says otherwise. Its rows leave
   # the database for the archive above at ninety days.
   #
   # That is what a workspace that says nothing of its own is kept to. A
-  # workspace says its own in its settings (`access_keep_days`, rove#144, D36)
+  # workspace says its own in its settings (`access_keep_days`, loft#144, D36)
   # -- a year for an organization under PIPA's lesser measures -- and never
   # less than `min`, PIPA's year for anybody, which it cannot say less than.
   by:
@@ -148,10 +148,10 @@ audit:
     # holder:
     #   profile: pipa
 
-# The operator's entry point (`rove-admin serve`): a container of its own in
+# The operator's entry point (`loft-admin serve`): a container of its own in
 # the pod, which the NetworkPolicy lets nothing reach over the network. An
 # operator reaches it with `kubectl port-forward` (README.md).
 admin:
   addr: 0.0.0.0:8081
   keys:
-    operator: file:/run/secrets/rove-admin/operator
+    operator: file:/run/secrets/loft-admin/operator

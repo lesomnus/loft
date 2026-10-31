@@ -8,8 +8,8 @@ data:
   provider.yaml: |
     apiVersion: 1
     providers:
-      - name: rove
-        folder: Rove
+      - name: loft
+        folder: Loft
         type: file
         allowUiUpdates: false
         options:
@@ -71,7 +71,7 @@ spec:
             - { name: GF_ANALYTICS_CHECK_FOR_UPDATES, value: "false" }
             - { name: GF_ANALYTICS_CHECK_FOR_PLUGIN_UPDATES, value: "false" }
             - { name: GF_NEWS_NEWS_FEED_ENABLED, value: "false" }
-            # No alerting yet (rove#38): the rules are docs/runbook/observe.md's.
+            # No alerting yet (loft#38): the rules are docs/runbook/observe.md's.
             - { name: GF_UNIFIED_ALERTING_ENABLED, value: "false" }
           ports:
             - { name: http, containerPort: 3000 }

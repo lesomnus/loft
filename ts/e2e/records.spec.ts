@@ -1,6 +1,6 @@
 import type { Locator, Page } from '@playwright/test'
 
-import { card, expect, people, signIn, test, workspace } from './rove.js'
+import { card, expect, people, signIn, test, workspace } from './loft.js'
 
 // The workspace's records of what was done -- its operations, and the trail of
 // every write -- read a page at a time, each page from the row the one before
@@ -35,7 +35,7 @@ test("a workspace's operations and its trail are read back a page at a time, to 
 	await expect(events.getByRole('button', { name: '‹ 앞 페이지' })).toHaveCount(0)
 	// The demo did more than a page of things, the first of which was to make
 	// a type.
-	expect(await toTheEnd(page, events, '/rove.EventService/Recent')).toBeGreaterThan(1)
+	expect(await toTheEnd(page, events, '/loft.EventService/Recent')).toBeGreaterThan(1)
 	await expect(events.getByRole('row').last()).toContainText('type.add')
 	await events.getByRole('button', { name: '‹ 앞 페이지' }).click()
 	await expect(events.getByRole('button', { name: '다음 페이지 ›' })).toBeEnabled()
@@ -43,7 +43,7 @@ test("a workspace's operations and its trail are read back a page at a time, to 
 	await page.getByRole('tab', { name: '감사 기록' }).click()
 	const trail = card(page, '감사 기록')
 	await expect(trail.getByRole('row').nth(1)).toBeVisible()
-	expect(await toTheEnd(page, trail, '/rove.AuditService/Recent')).toBeGreaterThan(1)
+	expect(await toTheEnd(page, trail, '/loft.AuditService/Recent')).toBeGreaterThan(1)
 	// What the trail holds first is the workspace being made, by nobody's hand.
 	const first = trail.getByRole('row').last()
 	await expect(first).toContainText('TenantService/Add')

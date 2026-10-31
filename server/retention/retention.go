@@ -7,7 +7,7 @@
 // settings -- and one made shorter waits out the deployment's grace before it
 // is the shorter one, so a mistake undone in time has lost nothing.
 //
-// One answer, read by everything that keeps history: rove's own time rows and
+// One answer, read by everything that keeps history: loft's own time rows and
 // events, and payday's trail of the writes that made them (payday#35). Two
 // answers would be a trail that outlives the history it records, or history the
 // trail has already forgotten the making of.
@@ -27,10 +27,10 @@ import (
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/trail"
 
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/legalhold"
-	"github.com/lesomnus/rove/internal/ent/tenantcontract"
-	"github.com/lesomnus/rove/server/pd"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/legalhold"
+	"github.com/lesomnus/loft/internal/ent/tenantcontract"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 const day = 24 * time.Hour

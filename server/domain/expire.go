@@ -19,23 +19,23 @@ import (
 	"github.com/protobuf-orm/ent/dialect/sql"
 	"google.golang.org/protobuf/proto"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/allocation"
-	"github.com/lesomnus/rove/internal/ent/attachment"
-	"github.com/lesomnus/rove/internal/ent/countfinding"
-	"github.com/lesomnus/rove/internal/ent/custody"
-	"github.com/lesomnus/rove/internal/ent/custodyline"
-	"github.com/lesomnus/rove/internal/ent/inventorycount"
-	"github.com/lesomnus/rove/internal/ent/link"
-	"github.com/lesomnus/rove/internal/ent/placement"
-	"github.com/lesomnus/rove/internal/ent/predicate"
-	"github.com/lesomnus/rove/internal/ent/reservation"
-	"github.com/lesomnus/rove/internal/ent/reservationitem"
-	"github.com/lesomnus/rove/internal/ent/stewardship"
-	"github.com/lesomnus/rove/internal/ent/stockmovement"
-	"github.com/lesomnus/rove/internal/ent/workorder"
-	"github.com/lesomnus/rove/server/pd"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/allocation"
+	"github.com/lesomnus/loft/internal/ent/attachment"
+	"github.com/lesomnus/loft/internal/ent/countfinding"
+	"github.com/lesomnus/loft/internal/ent/custody"
+	"github.com/lesomnus/loft/internal/ent/custodyline"
+	"github.com/lesomnus/loft/internal/ent/inventorycount"
+	"github.com/lesomnus/loft/internal/ent/link"
+	"github.com/lesomnus/loft/internal/ent/placement"
+	"github.com/lesomnus/loft/internal/ent/predicate"
+	"github.com/lesomnus/loft/internal/ent/reservation"
+	"github.com/lesomnus/loft/internal/ent/reservationitem"
+	"github.com/lesomnus/loft/internal/ent/stewardship"
+	"github.com/lesomnus/loft/internal/ent/stockmovement"
+	"github.com/lesomnus/loft/internal/ent/workorder"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 // Expired is what an expiry took, or would take, out of one tenant's history:
@@ -91,7 +91,7 @@ func (x Expired) Total() int {
 // what a pass has taken is not there to take again.
 //
 // The facts and the events are payday's past, which takes them itself
-// (`past.Expire`, payday#151), once Rove's own rows that name events have
+// (`past.Expire`, payday#151), once Loft's own rows that name events have
 // gone: an event only they named goes with them. What it keeps beside the
 // window is [expiry]'s.
 //
@@ -152,7 +152,7 @@ func (d *Deps) Expire(ctx context.Context, server app.Server, drv dialect.Driver
 	return out, nil
 }
 
-// expire deletes Rove's own rows the window no longer reaches, in an order no
+// expire deletes Loft's own rows the window no longer reaches, in an order no
 // reference is left dangling by: a document's parts before it, and all of
 // them before the past's facts and events, which [past.Expire] takes after.
 // It answers the keys of the files the attachments that went kept.
@@ -259,7 +259,7 @@ func (t *Tx) expire(c time.Time, out *Expired) ([]string, error) {
 
 // HistoryExpired is the act a row of the history taken at the end of its
 // tenant's window is on the trail as.
-const HistoryExpired = "rove.history.expire"
+const HistoryExpired = "loft.history.expire"
 
 // audit is what the trail keeps of each kind's writes, for an act this
 // writes past the servers: the deployment's, or nothing when it said none.
@@ -328,11 +328,11 @@ func attachmentExpired(tenant uuid.UUID, c time.Time) predicate.Attachment {
 // expiry is what payday's past keeps beside a window, and the receipt of an
 // expiry that took anything (design 8.2): the operation that registered an
 // asset, which is the record of its acquisition, and the status that took one
-// out of use, the record of its disposal. `rove` is what Rove's own rows lost
+// out of use, the record of its disposal. `loft` is what Loft's own rows lost
 // first, which the receipt counts with the past's; nil for a preview, which
-// records nothing. Each row the past takes is on the trail as the act Rove's
+// records nothing. Each row the past takes is on the trail as the act Loft's
 // own are, so that one expiry is one act.
-func expiry(rove *Expired) past.Expiry {
+func expiry(loft *Expired) past.Expiry {
 	x := past.Expiry{
 		Act:       HistoryExpired,
 		KeepKinds: []string{"asset.add"},
@@ -342,11 +342,11 @@ func expiry(rove *Expired) past.Expiry {
 			Values: []string{`"retired"`, `"disposed"`, `"lost"`},
 		}},
 	}
-	if rove == nil {
+	if loft == nil {
 		return x
 	}
 	x.Receipt = func(v past.Expired) proto.Message {
-		all := *rove
+		all := *loft
 		all.Facts, all.Events = v.Facts, v.Events
 		if all.Total() == 0 {
 			return nil
@@ -369,7 +369,7 @@ func expiry(rove *Expired) past.Expiry {
 	return x
 }
 
-// going is the predicate Rove's own expiry deletes each of its rows that name
+// going is the predicate Loft's own expiry deletes each of its rows that name
 // events by, by its kind: what payday's past is told of them for a preview,
 // which deletes nothing ([past.Preview]). A document's rows name no event.
 var going = map[pdid.Domain]past.Going{
@@ -396,7 +396,7 @@ func (t *Tx) lockTenant() error {
 
 // takes is what [Deps.Expire] would take before `c`, read and not taken: each
 // kind by the predicate the expiry deletes it by, and the facts and the
-// events as payday's past counts them (`past.Preview`), told what of Rove's
+// events as payday's past counts them (`past.Preview`), told what of Loft's
 // own rows that name events would go. A count, so that asking takes no lock
 // and writes nothing, however much there is: what a workspace's owner may
 // ask for as often as they like (TenantService.Preview).
@@ -496,7 +496,7 @@ type Expirer struct {
 
 var _ spin.Spinner = Expirer{}
 
-func (w Expirer) SpinName() string { return "rove.expire" }
+func (w Expirer) SpinName() string { return "loft.expire" }
 
 func (w Expirer) Spin(ctx context.Context) error {
 	every := w.Every

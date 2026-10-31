@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.12
 // 	protoc        (unknown)
-// source: rove/past.proto
+// source: loft/past.proto
 
-package rove
+package loft
 
 import (
 	_ "github.com/lesomnus/payday/pdpb"
@@ -37,7 +37,7 @@ type AssetAdded struct {
 
 func (x *AssetAdded) Reset() {
 	*x = AssetAdded{}
-	mi := &file_rove_past_proto_msgTypes[0]
+	mi := &file_loft_past_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -49,7 +49,7 @@ func (x *AssetAdded) String() string {
 func (*AssetAdded) ProtoMessage() {}
 
 func (x *AssetAdded) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[0]
+	mi := &file_loft_past_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -138,7 +138,7 @@ type AssetsAdded struct {
 
 func (x *AssetsAdded) Reset() {
 	*x = AssetsAdded{}
-	mi := &file_rove_past_proto_msgTypes[1]
+	mi := &file_loft_past_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -150,7 +150,7 @@ func (x *AssetsAdded) String() string {
 func (*AssetsAdded) ProtoMessage() {}
 
 func (x *AssetsAdded) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[1]
+	mi := &file_loft_past_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -204,7 +204,7 @@ type AssetMoved struct {
 
 func (x *AssetMoved) Reset() {
 	*x = AssetMoved{}
-	mi := &file_rove_past_proto_msgTypes[2]
+	mi := &file_loft_past_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -216,7 +216,7 @@ func (x *AssetMoved) String() string {
 func (*AssetMoved) ProtoMessage() {}
 
 func (x *AssetMoved) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[2]
+	mi := &file_loft_past_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -363,7 +363,7 @@ type AssetAttributesSet struct {
 
 func (x *AssetAttributesSet) Reset() {
 	*x = AssetAttributesSet{}
-	mi := &file_rove_past_proto_msgTypes[3]
+	mi := &file_loft_past_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -375,7 +375,7 @@ func (x *AssetAttributesSet) String() string {
 func (*AssetAttributesSet) ProtoMessage() {}
 
 func (x *AssetAttributesSet) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[3]
+	mi := &file_loft_past_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -467,7 +467,7 @@ type AssetAssigned struct {
 
 func (x *AssetAssigned) Reset() {
 	*x = AssetAssigned{}
-	mi := &file_rove_past_proto_msgTypes[4]
+	mi := &file_loft_past_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -479,7 +479,7 @@ func (x *AssetAssigned) String() string {
 func (*AssetAssigned) ProtoMessage() {}
 
 func (x *AssetAssigned) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[4]
+	mi := &file_loft_past_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -577,7 +577,7 @@ type AssetRelated struct {
 
 func (x *AssetRelated) Reset() {
 	*x = AssetRelated{}
-	mi := &file_rove_past_proto_msgTypes[5]
+	mi := &file_loft_past_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -589,7 +589,7 @@ func (x *AssetRelated) String() string {
 func (*AssetRelated) ProtoMessage() {}
 
 func (x *AssetRelated) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[5]
+	mi := &file_loft_past_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -726,7 +726,7 @@ type AssetCorrected struct {
 
 func (x *AssetCorrected) Reset() {
 	*x = AssetCorrected{}
-	mi := &file_rove_past_proto_msgTypes[6]
+	mi := &file_loft_past_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -738,7 +738,7 @@ func (x *AssetCorrected) String() string {
 func (*AssetCorrected) ProtoMessage() {}
 
 func (x *AssetCorrected) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[6]
+	mi := &file_loft_past_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -881,7 +881,7 @@ type AssetVoided struct {
 
 func (x *AssetVoided) Reset() {
 	*x = AssetVoided{}
-	mi := &file_rove_past_proto_msgTypes[7]
+	mi := &file_loft_past_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -893,7 +893,7 @@ func (x *AssetVoided) String() string {
 func (*AssetVoided) ProtoMessage() {}
 
 func (x *AssetVoided) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[7]
+	mi := &file_loft_past_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -961,7 +961,7 @@ type StockAdded struct {
 
 func (x *StockAdded) Reset() {
 	*x = StockAdded{}
-	mi := &file_rove_past_proto_msgTypes[8]
+	mi := &file_loft_past_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -973,7 +973,7 @@ func (x *StockAdded) String() string {
 func (*StockAdded) ProtoMessage() {}
 
 func (x *StockAdded) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[8]
+	mi := &file_loft_past_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1100,7 +1100,7 @@ type StockChanged struct {
 
 func (x *StockChanged) Reset() {
 	*x = StockChanged{}
-	mi := &file_rove_past_proto_msgTypes[9]
+	mi := &file_loft_past_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1112,7 +1112,7 @@ func (x *StockChanged) String() string {
 func (*StockChanged) ProtoMessage() {}
 
 func (x *StockChanged) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[9]
+	mi := &file_loft_past_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1192,7 +1192,7 @@ type StockTransferred struct {
 
 func (x *StockTransferred) Reset() {
 	*x = StockTransferred{}
-	mi := &file_rove_past_proto_msgTypes[10]
+	mi := &file_loft_past_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1204,7 +1204,7 @@ func (x *StockTransferred) String() string {
 func (*StockTransferred) ProtoMessage() {}
 
 func (x *StockTransferred) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[10]
+	mi := &file_loft_past_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1311,7 +1311,7 @@ type StockConverted struct {
 
 func (x *StockConverted) Reset() {
 	*x = StockConverted{}
-	mi := &file_rove_past_proto_msgTypes[11]
+	mi := &file_loft_past_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1323,7 +1323,7 @@ func (x *StockConverted) String() string {
 func (*StockConverted) ProtoMessage() {}
 
 func (x *StockConverted) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[11]
+	mi := &file_loft_past_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1407,7 +1407,7 @@ type CustodyIssued struct {
 
 func (x *CustodyIssued) Reset() {
 	*x = CustodyIssued{}
-	mi := &file_rove_past_proto_msgTypes[12]
+	mi := &file_loft_past_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1419,7 +1419,7 @@ func (x *CustodyIssued) String() string {
 func (*CustodyIssued) ProtoMessage() {}
 
 func (x *CustodyIssued) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[12]
+	mi := &file_loft_past_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1567,7 +1567,7 @@ type CustodyAcknowledged struct {
 
 func (x *CustodyAcknowledged) Reset() {
 	*x = CustodyAcknowledged{}
-	mi := &file_rove_past_proto_msgTypes[13]
+	mi := &file_loft_past_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1579,7 +1579,7 @@ func (x *CustodyAcknowledged) String() string {
 func (*CustodyAcknowledged) ProtoMessage() {}
 
 func (x *CustodyAcknowledged) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[13]
+	mi := &file_loft_past_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1629,7 +1629,7 @@ type CustodyExtended struct {
 
 func (x *CustodyExtended) Reset() {
 	*x = CustodyExtended{}
-	mi := &file_rove_past_proto_msgTypes[14]
+	mi := &file_loft_past_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1641,7 +1641,7 @@ func (x *CustodyExtended) String() string {
 func (*CustodyExtended) ProtoMessage() {}
 
 func (x *CustodyExtended) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[14]
+	mi := &file_loft_past_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1720,7 +1720,7 @@ type CustodyOverdue struct {
 
 func (x *CustodyOverdue) Reset() {
 	*x = CustodyOverdue{}
-	mi := &file_rove_past_proto_msgTypes[15]
+	mi := &file_loft_past_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1732,7 +1732,7 @@ func (x *CustodyOverdue) String() string {
 func (*CustodyOverdue) ProtoMessage() {}
 
 func (x *CustodyOverdue) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[15]
+	mi := &file_loft_past_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1825,7 +1825,7 @@ type CustodyReturned struct {
 
 func (x *CustodyReturned) Reset() {
 	*x = CustodyReturned{}
-	mi := &file_rove_past_proto_msgTypes[16]
+	mi := &file_loft_past_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1837,7 +1837,7 @@ func (x *CustodyReturned) String() string {
 func (*CustodyReturned) ProtoMessage() {}
 
 func (x *CustodyReturned) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[16]
+	mi := &file_loft_past_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1924,7 +1924,7 @@ type CountDelimited struct {
 
 func (x *CountDelimited) Reset() {
 	*x = CountDelimited{}
-	mi := &file_rove_past_proto_msgTypes[17]
+	mi := &file_loft_past_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1936,7 +1936,7 @@ func (x *CountDelimited) String() string {
 func (*CountDelimited) ProtoMessage() {}
 
 func (x *CountDelimited) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[17]
+	mi := &file_loft_past_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2019,7 +2019,7 @@ type CountScanned struct {
 
 func (x *CountScanned) Reset() {
 	*x = CountScanned{}
-	mi := &file_rove_past_proto_msgTypes[18]
+	mi := &file_loft_past_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2031,7 +2031,7 @@ func (x *CountScanned) String() string {
 func (*CountScanned) ProtoMessage() {}
 
 func (x *CountScanned) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[18]
+	mi := &file_loft_past_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2143,7 +2143,7 @@ type CountReconciled struct {
 
 func (x *CountReconciled) Reset() {
 	*x = CountReconciled{}
-	mi := &file_rove_past_proto_msgTypes[19]
+	mi := &file_loft_past_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2155,7 +2155,7 @@ func (x *CountReconciled) String() string {
 func (*CountReconciled) ProtoMessage() {}
 
 func (x *CountReconciled) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[19]
+	mi := &file_loft_past_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2221,7 +2221,7 @@ type CountResolved struct {
 
 func (x *CountResolved) Reset() {
 	*x = CountResolved{}
-	mi := &file_rove_past_proto_msgTypes[20]
+	mi := &file_loft_past_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2233,7 +2233,7 @@ func (x *CountResolved) String() string {
 func (*CountResolved) ProtoMessage() {}
 
 func (x *CountResolved) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[20]
+	mi := &file_loft_past_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2333,7 +2333,7 @@ type BookableSaved struct {
 
 func (x *BookableSaved) Reset() {
 	*x = BookableSaved{}
-	mi := &file_rove_past_proto_msgTypes[21]
+	mi := &file_loft_past_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2345,7 +2345,7 @@ func (x *BookableSaved) String() string {
 func (*BookableSaved) ProtoMessage() {}
 
 func (x *BookableSaved) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[21]
+	mi := &file_loft_past_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2434,7 +2434,7 @@ type ReservationAdded struct {
 
 func (x *ReservationAdded) Reset() {
 	*x = ReservationAdded{}
-	mi := &file_rove_past_proto_msgTypes[22]
+	mi := &file_loft_past_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2446,7 +2446,7 @@ func (x *ReservationAdded) String() string {
 func (*ReservationAdded) ProtoMessage() {}
 
 func (x *ReservationAdded) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[22]
+	mi := &file_loft_past_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2631,7 +2631,7 @@ type ReservationConfirmed struct {
 
 func (x *ReservationConfirmed) Reset() {
 	*x = ReservationConfirmed{}
-	mi := &file_rove_past_proto_msgTypes[23]
+	mi := &file_loft_past_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2643,7 +2643,7 @@ func (x *ReservationConfirmed) String() string {
 func (*ReservationConfirmed) ProtoMessage() {}
 
 func (x *ReservationConfirmed) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[23]
+	mi := &file_loft_past_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2730,7 +2730,7 @@ type ReservationDecided struct {
 
 func (x *ReservationDecided) Reset() {
 	*x = ReservationDecided{}
-	mi := &file_rove_past_proto_msgTypes[24]
+	mi := &file_loft_past_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2742,7 +2742,7 @@ func (x *ReservationDecided) String() string {
 func (*ReservationDecided) ProtoMessage() {}
 
 func (x *ReservationDecided) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[24]
+	mi := &file_loft_past_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2837,7 +2837,7 @@ type ReservationReleased struct {
 
 func (x *ReservationReleased) Reset() {
 	*x = ReservationReleased{}
-	mi := &file_rove_past_proto_msgTypes[25]
+	mi := &file_loft_past_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2849,7 +2849,7 @@ func (x *ReservationReleased) String() string {
 func (*ReservationReleased) ProtoMessage() {}
 
 func (x *ReservationReleased) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[25]
+	mi := &file_loft_past_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2950,7 +2950,7 @@ type ReservationAllocationChanged struct {
 
 func (x *ReservationAllocationChanged) Reset() {
 	*x = ReservationAllocationChanged{}
-	mi := &file_rove_past_proto_msgTypes[26]
+	mi := &file_loft_past_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2962,7 +2962,7 @@ func (x *ReservationAllocationChanged) String() string {
 func (*ReservationAllocationChanged) ProtoMessage() {}
 
 func (x *ReservationAllocationChanged) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[26]
+	mi := &file_loft_past_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3107,7 +3107,7 @@ type TenantDomainAdded struct {
 
 func (x *TenantDomainAdded) Reset() {
 	*x = TenantDomainAdded{}
-	mi := &file_rove_past_proto_msgTypes[27]
+	mi := &file_loft_past_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3119,7 +3119,7 @@ func (x *TenantDomainAdded) String() string {
 func (*TenantDomainAdded) ProtoMessage() {}
 
 func (x *TenantDomainAdded) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[27]
+	mi := &file_loft_past_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3211,7 +3211,7 @@ type TenantDomainVerified struct {
 
 func (x *TenantDomainVerified) Reset() {
 	*x = TenantDomainVerified{}
-	mi := &file_rove_past_proto_msgTypes[28]
+	mi := &file_loft_past_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3223,7 +3223,7 @@ func (x *TenantDomainVerified) String() string {
 func (*TenantDomainVerified) ProtoMessage() {}
 
 func (x *TenantDomainVerified) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[28]
+	mi := &file_loft_past_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3314,7 +3314,7 @@ type TenantDomainActivated struct {
 
 func (x *TenantDomainActivated) Reset() {
 	*x = TenantDomainActivated{}
-	mi := &file_rove_past_proto_msgTypes[29]
+	mi := &file_loft_past_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3326,7 +3326,7 @@ func (x *TenantDomainActivated) String() string {
 func (*TenantDomainActivated) ProtoMessage() {}
 
 func (x *TenantDomainActivated) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[29]
+	mi := &file_loft_past_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3406,7 +3406,7 @@ type TenantDomainRetired struct {
 
 func (x *TenantDomainRetired) Reset() {
 	*x = TenantDomainRetired{}
-	mi := &file_rove_past_proto_msgTypes[30]
+	mi := &file_loft_past_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3418,7 +3418,7 @@ func (x *TenantDomainRetired) String() string {
 func (*TenantDomainRetired) ProtoMessage() {}
 
 func (x *TenantDomainRetired) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[30]
+	mi := &file_loft_past_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3511,7 +3511,7 @@ func (b0 TenantDomainRetired_builder) Build() *TenantDomainRetired {
 
 // TenantDomainLapsed is the active domain taken out of use by the deployment
 // (`domain.lapse`): its DNS said no `failures` times running, from
-// `failing_since` (rove#155).
+// `failing_since` (loft#155).
 type TenantDomainLapsed struct {
 	state                   protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Domain       []byte                 `protobuf:"bytes,1,opt,name=domain"`
@@ -3525,7 +3525,7 @@ type TenantDomainLapsed struct {
 
 func (x *TenantDomainLapsed) Reset() {
 	*x = TenantDomainLapsed{}
-	mi := &file_rove_past_proto_msgTypes[31]
+	mi := &file_loft_past_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3537,7 +3537,7 @@ func (x *TenantDomainLapsed) String() string {
 func (*TenantDomainLapsed) ProtoMessage() {}
 
 func (x *TenantDomainLapsed) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[31]
+	mi := &file_loft_past_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3652,7 +3652,7 @@ type InvitationAdded struct {
 
 func (x *InvitationAdded) Reset() {
 	*x = InvitationAdded{}
-	mi := &file_rove_past_proto_msgTypes[32]
+	mi := &file_loft_past_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3664,7 +3664,7 @@ func (x *InvitationAdded) String() string {
 func (*InvitationAdded) ProtoMessage() {}
 
 func (x *InvitationAdded) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[32]
+	mi := &file_loft_past_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3745,7 +3745,7 @@ type InvitationAccepted struct {
 
 func (x *InvitationAccepted) Reset() {
 	*x = InvitationAccepted{}
-	mi := &file_rove_past_proto_msgTypes[33]
+	mi := &file_loft_past_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3757,7 +3757,7 @@ func (x *InvitationAccepted) String() string {
 func (*InvitationAccepted) ProtoMessage() {}
 
 func (x *InvitationAccepted) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[33]
+	mi := &file_loft_past_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3841,7 +3841,7 @@ type InvitationChanged struct {
 
 func (x *InvitationChanged) Reset() {
 	*x = InvitationChanged{}
-	mi := &file_rove_past_proto_msgTypes[34]
+	mi := &file_loft_past_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3853,7 +3853,7 @@ func (x *InvitationChanged) String() string {
 func (*InvitationChanged) ProtoMessage() {}
 
 func (x *InvitationChanged) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[34]
+	mi := &file_loft_past_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3905,7 +3905,7 @@ type LabelsPrinted struct {
 
 func (x *LabelsPrinted) Reset() {
 	*x = LabelsPrinted{}
-	mi := &file_rove_past_proto_msgTypes[35]
+	mi := &file_loft_past_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3917,7 +3917,7 @@ func (x *LabelsPrinted) String() string {
 func (*LabelsPrinted) ProtoMessage() {}
 
 func (x *LabelsPrinted) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[35]
+	mi := &file_loft_past_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3991,7 +3991,7 @@ type LabelBound struct {
 
 func (x *LabelBound) Reset() {
 	*x = LabelBound{}
-	mi := &file_rove_past_proto_msgTypes[36]
+	mi := &file_loft_past_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4003,7 +4003,7 @@ func (x *LabelBound) String() string {
 func (*LabelBound) ProtoMessage() {}
 
 func (x *LabelBound) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[36]
+	mi := &file_loft_past_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4084,7 +4084,7 @@ type LabelUnbound struct {
 
 func (x *LabelUnbound) Reset() {
 	*x = LabelUnbound{}
-	mi := &file_rove_past_proto_msgTypes[37]
+	mi := &file_loft_past_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4096,7 +4096,7 @@ func (x *LabelUnbound) String() string {
 func (*LabelUnbound) ProtoMessage() {}
 
 func (x *LabelUnbound) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[37]
+	mi := &file_loft_past_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4180,7 +4180,7 @@ type ItemModelSaved struct {
 
 func (x *ItemModelSaved) Reset() {
 	*x = ItemModelSaved{}
-	mi := &file_rove_past_proto_msgTypes[38]
+	mi := &file_loft_past_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4192,7 +4192,7 @@ func (x *ItemModelSaved) String() string {
 func (*ItemModelSaved) ProtoMessage() {}
 
 func (x *ItemModelSaved) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[38]
+	mi := &file_loft_past_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4273,7 +4273,7 @@ type AssetTypeSaved struct {
 
 func (x *AssetTypeSaved) Reset() {
 	*x = AssetTypeSaved{}
-	mi := &file_rove_past_proto_msgTypes[39]
+	mi := &file_loft_past_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4285,7 +4285,7 @@ func (x *AssetTypeSaved) String() string {
 func (*AssetTypeSaved) ProtoMessage() {}
 
 func (x *AssetTypeSaved) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[39]
+	mi := &file_loft_past_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4366,7 +4366,7 @@ type PartySaved struct {
 
 func (x *PartySaved) Reset() {
 	*x = PartySaved{}
-	mi := &file_rove_past_proto_msgTypes[40]
+	mi := &file_loft_past_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4378,7 +4378,7 @@ func (x *PartySaved) String() string {
 func (*PartySaved) ProtoMessage() {}
 
 func (x *PartySaved) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[40]
+	mi := &file_loft_past_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4443,7 +4443,7 @@ type PartyInvited struct {
 
 func (x *PartyInvited) Reset() {
 	*x = PartyInvited{}
-	mi := &file_rove_past_proto_msgTypes[41]
+	mi := &file_loft_past_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4455,7 +4455,7 @@ func (x *PartyInvited) String() string {
 func (*PartyInvited) ProtoMessage() {}
 
 func (x *PartyInvited) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[41]
+	mi := &file_loft_past_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4537,7 +4537,7 @@ type PartyRoleSet struct {
 
 func (x *PartyRoleSet) Reset() {
 	*x = PartyRoleSet{}
-	mi := &file_rove_past_proto_msgTypes[42]
+	mi := &file_loft_past_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4549,7 +4549,7 @@ func (x *PartyRoleSet) String() string {
 func (*PartyRoleSet) ProtoMessage() {}
 
 func (x *PartyRoleSet) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[42]
+	mi := &file_loft_past_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4643,7 +4643,7 @@ type PartyPasswordSet struct {
 
 func (x *PartyPasswordSet) Reset() {
 	*x = PartyPasswordSet{}
-	mi := &file_rove_past_proto_msgTypes[43]
+	mi := &file_loft_past_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4655,7 +4655,7 @@ func (x *PartyPasswordSet) String() string {
 func (*PartyPasswordSet) ProtoMessage() {}
 
 func (x *PartyPasswordSet) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[43]
+	mi := &file_loft_past_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4735,7 +4735,7 @@ type PartyDeactivated struct {
 
 func (x *PartyDeactivated) Reset() {
 	*x = PartyDeactivated{}
-	mi := &file_rove_past_proto_msgTypes[44]
+	mi := &file_loft_past_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4747,7 +4747,7 @@ func (x *PartyDeactivated) String() string {
 func (*PartyDeactivated) ProtoMessage() {}
 
 func (x *PartyDeactivated) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[44]
+	mi := &file_loft_past_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4813,7 +4813,7 @@ type PartyPseudonymized struct {
 
 func (x *PartyPseudonymized) Reset() {
 	*x = PartyPseudonymized{}
-	mi := &file_rove_past_proto_msgTypes[45]
+	mi := &file_loft_past_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4825,7 +4825,7 @@ func (x *PartyPseudonymized) String() string {
 func (*PartyPseudonymized) ProtoMessage() {}
 
 func (x *PartyPseudonymized) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[45]
+	mi := &file_loft_past_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4877,7 +4877,7 @@ type PurchaseAdded struct {
 
 func (x *PurchaseAdded) Reset() {
 	*x = PurchaseAdded{}
-	mi := &file_rove_past_proto_msgTypes[46]
+	mi := &file_loft_past_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4889,7 +4889,7 @@ func (x *PurchaseAdded) String() string {
 func (*PurchaseAdded) ProtoMessage() {}
 
 func (x *PurchaseAdded) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[46]
+	mi := &file_loft_past_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5010,7 +5010,7 @@ type PurchaseReceived struct {
 
 func (x *PurchaseReceived) Reset() {
 	*x = PurchaseReceived{}
-	mi := &file_rove_past_proto_msgTypes[47]
+	mi := &file_loft_past_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5022,7 +5022,7 @@ func (x *PurchaseReceived) String() string {
 func (*PurchaseReceived) ProtoMessage() {}
 
 func (x *PurchaseReceived) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[47]
+	mi := &file_loft_past_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5110,7 +5110,7 @@ type WorkOrderSaved struct {
 
 func (x *WorkOrderSaved) Reset() {
 	*x = WorkOrderSaved{}
-	mi := &file_rove_past_proto_msgTypes[48]
+	mi := &file_loft_past_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5122,7 +5122,7 @@ func (x *WorkOrderSaved) String() string {
 func (*WorkOrderSaved) ProtoMessage() {}
 
 func (x *WorkOrderSaved) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[48]
+	mi := &file_loft_past_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5247,7 +5247,7 @@ type WorkOrderFinished struct {
 
 func (x *WorkOrderFinished) Reset() {
 	*x = WorkOrderFinished{}
-	mi := &file_rove_past_proto_msgTypes[49]
+	mi := &file_loft_past_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5259,7 +5259,7 @@ func (x *WorkOrderFinished) String() string {
 func (*WorkOrderFinished) ProtoMessage() {}
 
 func (x *WorkOrderFinished) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[49]
+	mi := &file_loft_past_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5366,7 +5366,7 @@ type WorkspaceClosed struct {
 
 func (x *WorkspaceClosed) Reset() {
 	*x = WorkspaceClosed{}
-	mi := &file_rove_past_proto_msgTypes[50]
+	mi := &file_loft_past_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5378,7 +5378,7 @@ func (x *WorkspaceClosed) String() string {
 func (*WorkspaceClosed) ProtoMessage() {}
 
 func (x *WorkspaceClosed) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[50]
+	mi := &file_loft_past_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5449,7 +5449,7 @@ type WorkspaceRestored struct {
 
 func (x *WorkspaceRestored) Reset() {
 	*x = WorkspaceRestored{}
-	mi := &file_rove_past_proto_msgTypes[51]
+	mi := &file_loft_past_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5461,7 +5461,7 @@ func (x *WorkspaceRestored) String() string {
 func (*WorkspaceRestored) ProtoMessage() {}
 
 func (x *WorkspaceRestored) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[51]
+	mi := &file_loft_past_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5520,7 +5520,7 @@ type WorkspaceConfigured struct {
 
 func (x *WorkspaceConfigured) Reset() {
 	*x = WorkspaceConfigured{}
-	mi := &file_rove_past_proto_msgTypes[52]
+	mi := &file_loft_past_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5532,7 +5532,7 @@ func (x *WorkspaceConfigured) String() string {
 func (*WorkspaceConfigured) ProtoMessage() {}
 
 func (x *WorkspaceConfigured) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[52]
+	mi := &file_loft_past_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5836,7 +5836,7 @@ type WorkspaceImported struct {
 
 func (x *WorkspaceImported) Reset() {
 	*x = WorkspaceImported{}
-	mi := &file_rove_past_proto_msgTypes[53]
+	mi := &file_loft_past_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5848,7 +5848,7 @@ func (x *WorkspaceImported) String() string {
 func (*WorkspaceImported) ProtoMessage() {}
 
 func (x *WorkspaceImported) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[53]
+	mi := &file_loft_past_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6013,7 +6013,7 @@ func (b0 WorkspaceImported_builder) Build() *WorkspaceImported {
 }
 
 // AccessReviewed is a stretch of the workspace's access record looked over
-// (`access.review`, rove#136), and what it held then.
+// (`access.review`, loft#136), and what it held then.
 type AccessReviewed struct {
 	state                protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Review    []byte                 `protobuf:"bytes,1,opt,name=review"`
@@ -6028,7 +6028,7 @@ type AccessReviewed struct {
 
 func (x *AccessReviewed) Reset() {
 	*x = AccessReviewed{}
-	mi := &file_rove_past_proto_msgTypes[54]
+	mi := &file_loft_past_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6040,7 +6040,7 @@ func (x *AccessReviewed) String() string {
 func (*AccessReviewed) ProtoMessage() {}
 
 func (x *AccessReviewed) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[54]
+	mi := &file_loft_past_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6179,7 +6179,7 @@ type AccountDeparted struct {
 
 func (x *AccountDeparted) Reset() {
 	*x = AccountDeparted{}
-	mi := &file_rove_past_proto_msgTypes[55]
+	mi := &file_loft_past_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6191,7 +6191,7 @@ func (x *AccountDeparted) String() string {
 func (*AccountDeparted) ProtoMessage() {}
 
 func (x *AccountDeparted) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[55]
+	mi := &file_loft_past_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6255,7 +6255,7 @@ type AttachmentAdded struct {
 
 func (x *AttachmentAdded) Reset() {
 	*x = AttachmentAdded{}
-	mi := &file_rove_past_proto_msgTypes[56]
+	mi := &file_loft_past_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6267,7 +6267,7 @@ func (x *AttachmentAdded) String() string {
 func (*AttachmentAdded) ProtoMessage() {}
 
 func (x *AttachmentAdded) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[56]
+	mi := &file_loft_past_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6384,7 +6384,7 @@ type RetentionExpired struct {
 
 func (x *RetentionExpired) Reset() {
 	*x = RetentionExpired{}
-	mi := &file_rove_past_proto_msgTypes[57]
+	mi := &file_loft_past_proto_msgTypes[57]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6396,7 +6396,7 @@ func (x *RetentionExpired) String() string {
 func (*RetentionExpired) ProtoMessage() {}
 
 func (x *RetentionExpired) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[57]
+	mi := &file_loft_past_proto_msgTypes[57]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6599,7 +6599,7 @@ type EventRedacted struct {
 
 func (x *EventRedacted) Reset() {
 	*x = EventRedacted{}
-	mi := &file_rove_past_proto_msgTypes[58]
+	mi := &file_loft_past_proto_msgTypes[58]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6611,7 +6611,7 @@ func (x *EventRedacted) String() string {
 func (*EventRedacted) ProtoMessage() {}
 
 func (x *EventRedacted) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_past_proto_msgTypes[58]
+	mi := &file_loft_past_proto_msgTypes[58]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6650,11 +6650,11 @@ func (b0 EventRedacted_builder) Build() *EventRedacted {
 	return m0
 }
 
-var File_rove_past_proto protoreflect.FileDescriptor
+var File_loft_past_proto protoreflect.FileDescriptor
 
-const file_rove_past_proto_rawDesc = "" +
+const file_loft_past_proto_rawDesc = "" +
 	"\n" +
-	"\x0frove/past.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\fpayday.proto\"m\n" +
+	"\x0floft/past.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\fpayday.proto\"m\n" +
 	"\n" +
 	"AssetAdded\x12\x14\n" +
 	"\x05asset\x18\x01 \x01(\fR\x05asset\x12\x10\n" +
@@ -7025,7 +7025,7 @@ const file_rove_past_proto_rawDesc = "" +
 	"\breleased\x18\x11 \x03(\tR\breleased\x12\x1a\n" +
 	"\bunlinked\x18\x12 \x01(\rR\bunlinked\x12\x1a\n" +
 	"\breopened\x18\x13 \x01(\bR\breopened\x125\n" +
-	"\x04left\x18\x14 \x03(\v2!.rove.WorkspaceImported.LeftEntryR\x04left\x1a7\n" +
+	"\x04left\x18\x14 \x03(\v2!.loft.WorkspaceImported.LeftEntryR\x04left\x1a7\n" +
 	"\tLeftEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\rR\x05value:\x028\x01:\x16\x92\xbb\x16\x12\n" +
@@ -7072,89 +7072,89 @@ const file_rove_past_proto_rawDesc = "" +
 	"\rEventRedacted\x12\x14\n" +
 	"\x05event\x18\x01 \x01(\fR\x05event:\x12\x92\xbb\x16\x0e\n" +
 	"\fevent.redactB)\xca\xc7\x16\x06\n" +
-	"\x04\b\x11\x10\x10Z\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"\x04\b\x11\x10\x10Z\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
-var file_rove_past_proto_msgTypes = make([]protoimpl.MessageInfo, 60)
-var file_rove_past_proto_goTypes = []any{
-	(*AssetAdded)(nil),                   // 0: rove.AssetAdded
-	(*AssetsAdded)(nil),                  // 1: rove.AssetsAdded
-	(*AssetMoved)(nil),                   // 2: rove.AssetMoved
-	(*AssetAttributesSet)(nil),           // 3: rove.AssetAttributesSet
-	(*AssetAssigned)(nil),                // 4: rove.AssetAssigned
-	(*AssetRelated)(nil),                 // 5: rove.AssetRelated
-	(*AssetCorrected)(nil),               // 6: rove.AssetCorrected
-	(*AssetVoided)(nil),                  // 7: rove.AssetVoided
-	(*StockAdded)(nil),                   // 8: rove.StockAdded
-	(*StockChanged)(nil),                 // 9: rove.StockChanged
-	(*StockTransferred)(nil),             // 10: rove.StockTransferred
-	(*StockConverted)(nil),               // 11: rove.StockConverted
-	(*CustodyIssued)(nil),                // 12: rove.CustodyIssued
-	(*CustodyAcknowledged)(nil),          // 13: rove.CustodyAcknowledged
-	(*CustodyExtended)(nil),              // 14: rove.CustodyExtended
-	(*CustodyOverdue)(nil),               // 15: rove.CustodyOverdue
-	(*CustodyReturned)(nil),              // 16: rove.CustodyReturned
-	(*CountDelimited)(nil),               // 17: rove.CountDelimited
-	(*CountScanned)(nil),                 // 18: rove.CountScanned
-	(*CountReconciled)(nil),              // 19: rove.CountReconciled
-	(*CountResolved)(nil),                // 20: rove.CountResolved
-	(*BookableSaved)(nil),                // 21: rove.BookableSaved
-	(*ReservationAdded)(nil),             // 22: rove.ReservationAdded
-	(*ReservationConfirmed)(nil),         // 23: rove.ReservationConfirmed
-	(*ReservationDecided)(nil),           // 24: rove.ReservationDecided
-	(*ReservationReleased)(nil),          // 25: rove.ReservationReleased
-	(*ReservationAllocationChanged)(nil), // 26: rove.ReservationAllocationChanged
-	(*TenantDomainAdded)(nil),            // 27: rove.TenantDomainAdded
-	(*TenantDomainVerified)(nil),         // 28: rove.TenantDomainVerified
-	(*TenantDomainActivated)(nil),        // 29: rove.TenantDomainActivated
-	(*TenantDomainRetired)(nil),          // 30: rove.TenantDomainRetired
-	(*TenantDomainLapsed)(nil),           // 31: rove.TenantDomainLapsed
-	(*InvitationAdded)(nil),              // 32: rove.InvitationAdded
-	(*InvitationAccepted)(nil),           // 33: rove.InvitationAccepted
-	(*InvitationChanged)(nil),            // 34: rove.InvitationChanged
-	(*LabelsPrinted)(nil),                // 35: rove.LabelsPrinted
-	(*LabelBound)(nil),                   // 36: rove.LabelBound
-	(*LabelUnbound)(nil),                 // 37: rove.LabelUnbound
-	(*ItemModelSaved)(nil),               // 38: rove.ItemModelSaved
-	(*AssetTypeSaved)(nil),               // 39: rove.AssetTypeSaved
-	(*PartySaved)(nil),                   // 40: rove.PartySaved
-	(*PartyInvited)(nil),                 // 41: rove.PartyInvited
-	(*PartyRoleSet)(nil),                 // 42: rove.PartyRoleSet
-	(*PartyPasswordSet)(nil),             // 43: rove.PartyPasswordSet
-	(*PartyDeactivated)(nil),             // 44: rove.PartyDeactivated
-	(*PartyPseudonymized)(nil),           // 45: rove.PartyPseudonymized
-	(*PurchaseAdded)(nil),                // 46: rove.PurchaseAdded
-	(*PurchaseReceived)(nil),             // 47: rove.PurchaseReceived
-	(*WorkOrderSaved)(nil),               // 48: rove.WorkOrderSaved
-	(*WorkOrderFinished)(nil),            // 49: rove.WorkOrderFinished
-	(*WorkspaceClosed)(nil),              // 50: rove.WorkspaceClosed
-	(*WorkspaceRestored)(nil),            // 51: rove.WorkspaceRestored
-	(*WorkspaceConfigured)(nil),          // 52: rove.WorkspaceConfigured
-	(*WorkspaceImported)(nil),            // 53: rove.WorkspaceImported
-	(*AccessReviewed)(nil),               // 54: rove.AccessReviewed
-	(*AccountDeparted)(nil),              // 55: rove.AccountDeparted
-	(*AttachmentAdded)(nil),              // 56: rove.AttachmentAdded
-	(*RetentionExpired)(nil),             // 57: rove.RetentionExpired
-	(*EventRedacted)(nil),                // 58: rove.EventRedacted
-	nil,                                  // 59: rove.WorkspaceImported.LeftEntry
+var file_loft_past_proto_msgTypes = make([]protoimpl.MessageInfo, 60)
+var file_loft_past_proto_goTypes = []any{
+	(*AssetAdded)(nil),                   // 0: loft.AssetAdded
+	(*AssetsAdded)(nil),                  // 1: loft.AssetsAdded
+	(*AssetMoved)(nil),                   // 2: loft.AssetMoved
+	(*AssetAttributesSet)(nil),           // 3: loft.AssetAttributesSet
+	(*AssetAssigned)(nil),                // 4: loft.AssetAssigned
+	(*AssetRelated)(nil),                 // 5: loft.AssetRelated
+	(*AssetCorrected)(nil),               // 6: loft.AssetCorrected
+	(*AssetVoided)(nil),                  // 7: loft.AssetVoided
+	(*StockAdded)(nil),                   // 8: loft.StockAdded
+	(*StockChanged)(nil),                 // 9: loft.StockChanged
+	(*StockTransferred)(nil),             // 10: loft.StockTransferred
+	(*StockConverted)(nil),               // 11: loft.StockConverted
+	(*CustodyIssued)(nil),                // 12: loft.CustodyIssued
+	(*CustodyAcknowledged)(nil),          // 13: loft.CustodyAcknowledged
+	(*CustodyExtended)(nil),              // 14: loft.CustodyExtended
+	(*CustodyOverdue)(nil),               // 15: loft.CustodyOverdue
+	(*CustodyReturned)(nil),              // 16: loft.CustodyReturned
+	(*CountDelimited)(nil),               // 17: loft.CountDelimited
+	(*CountScanned)(nil),                 // 18: loft.CountScanned
+	(*CountReconciled)(nil),              // 19: loft.CountReconciled
+	(*CountResolved)(nil),                // 20: loft.CountResolved
+	(*BookableSaved)(nil),                // 21: loft.BookableSaved
+	(*ReservationAdded)(nil),             // 22: loft.ReservationAdded
+	(*ReservationConfirmed)(nil),         // 23: loft.ReservationConfirmed
+	(*ReservationDecided)(nil),           // 24: loft.ReservationDecided
+	(*ReservationReleased)(nil),          // 25: loft.ReservationReleased
+	(*ReservationAllocationChanged)(nil), // 26: loft.ReservationAllocationChanged
+	(*TenantDomainAdded)(nil),            // 27: loft.TenantDomainAdded
+	(*TenantDomainVerified)(nil),         // 28: loft.TenantDomainVerified
+	(*TenantDomainActivated)(nil),        // 29: loft.TenantDomainActivated
+	(*TenantDomainRetired)(nil),          // 30: loft.TenantDomainRetired
+	(*TenantDomainLapsed)(nil),           // 31: loft.TenantDomainLapsed
+	(*InvitationAdded)(nil),              // 32: loft.InvitationAdded
+	(*InvitationAccepted)(nil),           // 33: loft.InvitationAccepted
+	(*InvitationChanged)(nil),            // 34: loft.InvitationChanged
+	(*LabelsPrinted)(nil),                // 35: loft.LabelsPrinted
+	(*LabelBound)(nil),                   // 36: loft.LabelBound
+	(*LabelUnbound)(nil),                 // 37: loft.LabelUnbound
+	(*ItemModelSaved)(nil),               // 38: loft.ItemModelSaved
+	(*AssetTypeSaved)(nil),               // 39: loft.AssetTypeSaved
+	(*PartySaved)(nil),                   // 40: loft.PartySaved
+	(*PartyInvited)(nil),                 // 41: loft.PartyInvited
+	(*PartyRoleSet)(nil),                 // 42: loft.PartyRoleSet
+	(*PartyPasswordSet)(nil),             // 43: loft.PartyPasswordSet
+	(*PartyDeactivated)(nil),             // 44: loft.PartyDeactivated
+	(*PartyPseudonymized)(nil),           // 45: loft.PartyPseudonymized
+	(*PurchaseAdded)(nil),                // 46: loft.PurchaseAdded
+	(*PurchaseReceived)(nil),             // 47: loft.PurchaseReceived
+	(*WorkOrderSaved)(nil),               // 48: loft.WorkOrderSaved
+	(*WorkOrderFinished)(nil),            // 49: loft.WorkOrderFinished
+	(*WorkspaceClosed)(nil),              // 50: loft.WorkspaceClosed
+	(*WorkspaceRestored)(nil),            // 51: loft.WorkspaceRestored
+	(*WorkspaceConfigured)(nil),          // 52: loft.WorkspaceConfigured
+	(*WorkspaceImported)(nil),            // 53: loft.WorkspaceImported
+	(*AccessReviewed)(nil),               // 54: loft.AccessReviewed
+	(*AccountDeparted)(nil),              // 55: loft.AccountDeparted
+	(*AttachmentAdded)(nil),              // 56: loft.AttachmentAdded
+	(*RetentionExpired)(nil),             // 57: loft.RetentionExpired
+	(*EventRedacted)(nil),                // 58: loft.EventRedacted
+	nil,                                  // 59: loft.WorkspaceImported.LeftEntry
 	(*timestamppb.Timestamp)(nil),        // 60: google.protobuf.Timestamp
 }
-var file_rove_past_proto_depIdxs = []int32{
-	60, // 0: rove.AssetCorrected.valid_from:type_name -> google.protobuf.Timestamp
-	60, // 1: rove.CustodyIssued.due:type_name -> google.protobuf.Timestamp
-	60, // 2: rove.CustodyExtended.due:type_name -> google.protobuf.Timestamp
-	60, // 3: rove.CustodyOverdue.due:type_name -> google.protobuf.Timestamp
-	60, // 4: rove.ReservationAdded.begins_at:type_name -> google.protobuf.Timestamp
-	60, // 5: rove.ReservationAdded.ends_at:type_name -> google.protobuf.Timestamp
-	60, // 6: rove.ReservationAllocationChanged.begins_at:type_name -> google.protobuf.Timestamp
-	60, // 7: rove.TenantDomainLapsed.failing_since:type_name -> google.protobuf.Timestamp
-	60, // 8: rove.WorkspaceClosed.destroy:type_name -> google.protobuf.Timestamp
-	60, // 9: rove.WorkspaceConfigured.keep_from:type_name -> google.protobuf.Timestamp
-	60, // 10: rove.WorkspaceConfigured.access_keep_from:type_name -> google.protobuf.Timestamp
-	60, // 11: rove.WorkspaceImported.exported_at:type_name -> google.protobuf.Timestamp
-	59, // 12: rove.WorkspaceImported.left:type_name -> rove.WorkspaceImported.LeftEntry
-	60, // 13: rove.AccessReviewed.from:type_name -> google.protobuf.Timestamp
-	60, // 14: rove.AccessReviewed.to:type_name -> google.protobuf.Timestamp
-	60, // 15: rove.RetentionExpired.before:type_name -> google.protobuf.Timestamp
+var file_loft_past_proto_depIdxs = []int32{
+	60, // 0: loft.AssetCorrected.valid_from:type_name -> google.protobuf.Timestamp
+	60, // 1: loft.CustodyIssued.due:type_name -> google.protobuf.Timestamp
+	60, // 2: loft.CustodyExtended.due:type_name -> google.protobuf.Timestamp
+	60, // 3: loft.CustodyOverdue.due:type_name -> google.protobuf.Timestamp
+	60, // 4: loft.ReservationAdded.begins_at:type_name -> google.protobuf.Timestamp
+	60, // 5: loft.ReservationAdded.ends_at:type_name -> google.protobuf.Timestamp
+	60, // 6: loft.ReservationAllocationChanged.begins_at:type_name -> google.protobuf.Timestamp
+	60, // 7: loft.TenantDomainLapsed.failing_since:type_name -> google.protobuf.Timestamp
+	60, // 8: loft.WorkspaceClosed.destroy:type_name -> google.protobuf.Timestamp
+	60, // 9: loft.WorkspaceConfigured.keep_from:type_name -> google.protobuf.Timestamp
+	60, // 10: loft.WorkspaceConfigured.access_keep_from:type_name -> google.protobuf.Timestamp
+	60, // 11: loft.WorkspaceImported.exported_at:type_name -> google.protobuf.Timestamp
+	59, // 12: loft.WorkspaceImported.left:type_name -> loft.WorkspaceImported.LeftEntry
+	60, // 13: loft.AccessReviewed.from:type_name -> google.protobuf.Timestamp
+	60, // 14: loft.AccessReviewed.to:type_name -> google.protobuf.Timestamp
+	60, // 15: loft.RetentionExpired.before:type_name -> google.protobuf.Timestamp
 	16, // [16:16] is the sub-list for method output_type
 	16, // [16:16] is the sub-list for method input_type
 	16, // [16:16] is the sub-list for extension type_name
@@ -7162,26 +7162,26 @@ var file_rove_past_proto_depIdxs = []int32{
 	0,  // [0:16] is the sub-list for field type_name
 }
 
-func init() { file_rove_past_proto_init() }
-func file_rove_past_proto_init() {
-	if File_rove_past_proto != nil {
+func init() { file_loft_past_proto_init() }
+func file_loft_past_proto_init() {
+	if File_loft_past_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_past_proto_rawDesc), len(file_rove_past_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_past_proto_rawDesc), len(file_loft_past_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   60,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_rove_past_proto_goTypes,
-		DependencyIndexes: file_rove_past_proto_depIdxs,
-		MessageInfos:      file_rove_past_proto_msgTypes,
+		GoTypes:           file_loft_past_proto_goTypes,
+		DependencyIndexes: file_loft_past_proto_depIdxs,
+		MessageInfos:      file_loft_past_proto_msgTypes,
 	}.Build()
-	File_rove_past_proto = out.File
-	file_rove_past_proto_goTypes = nil
-	file_rove_past_proto_depIdxs = nil
+	File_loft_past_proto = out.File
+	file_loft_past_proto_goTypes = nil
+	file_loft_past_proto_depIdxs = nil
 }

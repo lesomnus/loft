@@ -8,7 +8,7 @@
  * the server's to say (`GET /sso`). The page is about the workspace its
  * address names (`/@<alias>/...`), and one that names none opens the last one.
  *
- * On a workspace's own domain nobody signs in (rove#155): the page sends the
+ * On a workspace's own domain nobody signs in (loft#155): the page sends the
  * browser to the service's address (`/handoff/start`), which signs it in --
  * and asks for what the account has not agreed to yet -- and hands back a
  * session of that host's, and signing out there ends both.
@@ -76,7 +76,7 @@ function Brand(): ReactNode {
 		<div className="brand">
 			<img src="/icon.svg" alt="" />
 			<div>
-				<h1>Rove</h1>
+				<h1>Loft</h1>
 				<p>자산 · 공간 관리</p>
 			</div>
 		</div>
@@ -182,7 +182,7 @@ function PasswordForm(props: {
  * The workspace of the account's that a label scanned at an address naming
  * none is in (`/scan/<code>`, where `/l/<code>` lands): opened there, rather
  * than in the one last opened, which may be on a domain of its own -- that
- * domain serves its own labels alone, and could not send it on (rove#155).
+ * domain serves its own labels alone, and could not send it on (loft#155).
  * Nothing when the address is no label's, or the label is none of the
  * account's.
  */
@@ -201,7 +201,7 @@ async function scannedIn(): Promise<Workspace | undefined> {
  * lets go of what it holds and asks again who is signed in. What this browser
  * kept was forgotten by the tab that signed out (`forget`), for all of them.
  */
-const signedOut: BroadcastChannel | undefined = typeof BroadcastChannel === 'undefined' ? undefined : new BroadcastChannel('rove/signed-out')
+const signedOut: BroadcastChannel | undefined = typeof BroadcastChannel === 'undefined' ? undefined : new BroadcastChannel('loft/signed-out')
 
 type State =
 	| { at: 'checking' }
@@ -287,7 +287,7 @@ function Boot(): ReactNode {
 				setState({ at: 'inbox', account: a })
 				return
 			}
-			// A terminal asking to be signed in as the account (`rove login`).
+			// A terminal asking to be signed in as the account (`loft login`).
 			if (location.pathname === '/cli') {
 				setState({ at: 'terminal', account: a })
 				return

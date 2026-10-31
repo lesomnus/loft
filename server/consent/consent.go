@@ -6,7 +6,7 @@
 // (`app.consent`). What each account did about them is roster's: its consent
 // ledger (`ConsentService`, roster's `docs/apps.md`) keeps every agreement as
 // a row of its own that nothing changes, past the account for as long as its
-// `consent.keep` says, and destroys them then. Rove keeps none of it -- a copy
+// `consent.keep` says, and destroys them then. Loft keeps none of it -- a copy
 // here would be one more record of the same acts to disagree with roster's,
 // and one more to destroy.
 //
@@ -15,7 +15,7 @@
 // -- and agrees again when a document changes version.
 //
 // A deployment that names no document asks nothing: a team running its own
-// Rove has no terms to put in front of itself.
+// Loft has no terms to put in front of itself.
 package consent
 
 import (
@@ -27,7 +27,7 @@ import (
 
 	"github.com/lesomnus/payday/pdid"
 
-	"github.com/lesomnus/rove/internal/identity"
+	"github.com/lesomnus/loft/internal/identity"
 )
 
 // Document is one thing an account agrees to.

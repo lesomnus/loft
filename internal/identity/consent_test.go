@@ -69,7 +69,7 @@ func TestWhatAnAccountAgreedToIsRostersOnEitherRoster(t *testing.T) {
 
 			if r.s.em != nil {
 				// The deployment's documents are the ledger's empty scope, as
-				// roster's `docs/apps.md` says Rove keeps them: a workspace's
+				// roster's `docs/apps.md` says Loft keeps them: a workspace's
 				// own policy would be a scope of its own.
 				rows, err := r.s.em.rs.Ent.Consent.Query().All(ctx)
 				x.NoError(err)
@@ -86,9 +86,9 @@ func TestWhatAnAccountAgreedToIsRostersOnEitherRoster(t *testing.T) {
 }
 
 // TestARoleFromBeforeTheLedgerIsSaidSoAndThenUsed: an external roster's role
-// for Rove installed before Rove kept agreements there refuses the ledger.
+// for Loft installed before Loft kept agreements there refuses the ledger.
 // That is a roster that cannot be asked, in words that say what to do and
-// with nothing of roster's refusal for a caller of Rove to read -- and the
+// with nothing of roster's refusal for a caller of Loft to read -- and the
 // role patched as the README says is used at the next asking, with no
 // restart.
 func TestARoleFromBeforeTheLedgerIsSaidSoAndThenUsed(t *testing.T) {
@@ -104,7 +104,7 @@ func TestARoleFromBeforeTheLedgerIsSaidSoAndThenUsed(t *testing.T) {
 	x.ErrorIs(err, ErrUnreachable)
 	x.ErrorContains(err, "roster role patch")
 	_, isStatus := status.FromError(err)
-	x.False(isStatus, "roster's refusal of Rove is not a status a caller of Rove is answered with")
+	x.False(isStatus, "roster's refusal of Loft is not a status a caller of Loft is answered with")
 
 	e.role(t, AgentMethods)
 	x.Eventually(func() bool {
@@ -114,7 +114,7 @@ func TestARoleFromBeforeTheLedgerIsSaidSoAndThenUsed(t *testing.T) {
 }
 
 // TestARoleFromBeforeTheLedgerIsWidenedInThisProcess: the roster in this
-// process is Rove's own, so a role an older Rove wrote there is widened to
+// process is Loft's own, so a role an older Loft wrote there is widened to
 // what this one asks the next time it starts, ledger and all.
 func TestARoleFromBeforeTheLedgerIsWidenedInThisProcess(t *testing.T) {
 	x := require.New(t)
@@ -127,7 +127,7 @@ func TestARoleFromBeforeTheLedgerIsWidenedInThisProcess(t *testing.T) {
 	x.NoError(err)
 	kim, _, err := before.MakeDirectory(ctx, "kim", "Kim")
 	x.NoError(err)
-	// Rove's holder and its role are written at the first asking.
+	// Loft's holder and its role are written at the first asking.
 	_, err = before.Lookup(ctx, "kim")
 	x.NoError(err)
 	role := func(s *Store) *rstr.Role {

@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/lesomnus/rove/internal/search"
+	"github.com/lesomnus/loft/internal/search"
 )
 
 // TestTextIsFoldedAsTheDatabaseFoldsIt: NFKC, then lower case, which is what

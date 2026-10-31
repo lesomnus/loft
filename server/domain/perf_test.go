@@ -13,10 +13,10 @@ import (
 	"github.com/lesomnus/payday/pdid"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/server/domain"
-	"github.com/lesomnus/rove/server/pd"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/server/domain"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 // TestAThousandThingsAtAMomentAnswerInASecond: plan.md M1, the size design
@@ -25,11 +25,11 @@ import (
 // Ninety-five of every hundred answers come back within a second.
 //
 // It writes about seven hundred thousand rows, so it runs when asked:
-// `ROVE_PERF=1` with `PDTEST_POSTGRES`. The rows are written straight to the
+// `LOFT_PERF=1` with `PDTEST_POSTGRES`. The rows are written straight to the
 // tables, as a history the domain layer would have written.
 func TestAThousandThingsAtAMomentAnswerInASecond(t *testing.T) {
-	if os.Getenv("ROVE_PERF") == "" {
-		t.Skip("set ROVE_PERF=1, with PDTEST_POSTGRES")
+	if os.Getenv("LOFT_PERF") == "" {
+		t.Skip("set LOFT_PERF=1, with PDTEST_POSTGRES")
 	}
 	e := newEnv(t)
 	e.postgresOnly()

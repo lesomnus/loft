@@ -8,9 +8,9 @@ import (
 	"github.com/lesomnus/otx/log"
 	"github.com/lesomnus/payday/pdid"
 
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/identity"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/internal/identity"
 )
 
 // Reconciled is what roster says of every account with a membership here,
@@ -49,7 +49,7 @@ func (e *NobodyError) Error() string {
 //
 // It is for what roster's stream missed: the stream replays nothing
 // ([identity.Store.Follow]), so an account erased while this deployment was
-// not listening was never marked and would never leave. `rove identity
+// not listening was never marked and would never leave. `loft identity
 // reconcile` is an operator asking for it, and the deployment does it itself
 // every `app.accounts.reconcile` ([Lifecycle.Reconciling]).
 //

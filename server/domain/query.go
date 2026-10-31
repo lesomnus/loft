@@ -16,19 +16,19 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/allocation"
-	"github.com/lesomnus/rove/internal/ent/asset"
-	"github.com/lesomnus/rove/internal/ent/custody"
-	"github.com/lesomnus/rove/internal/ent/link"
-	"github.com/lesomnus/rove/internal/ent/placement"
-	"github.com/lesomnus/rove/internal/ent/predicate"
-	"github.com/lesomnus/rove/internal/ent/stewardship"
-	"github.com/lesomnus/rove/internal/ent/stock"
-	"github.com/lesomnus/rove/internal/ent/workorder"
-	"github.com/lesomnus/rove/internal/money"
-	"github.com/lesomnus/rove/server/opensearch"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/allocation"
+	"github.com/lesomnus/loft/internal/ent/asset"
+	"github.com/lesomnus/loft/internal/ent/custody"
+	"github.com/lesomnus/loft/internal/ent/link"
+	"github.com/lesomnus/loft/internal/ent/placement"
+	"github.com/lesomnus/loft/internal/ent/predicate"
+	"github.com/lesomnus/loft/internal/ent/stewardship"
+	"github.com/lesomnus/loft/internal/ent/stock"
+	"github.com/lesomnus/loft/internal/ent/workorder"
+	"github.com/lesomnus/loft/internal/money"
+	"github.com/lesomnus/loft/server/opensearch"
 )
 
 // visible narrows time rows to what was recorded by `known` and not yet
@@ -169,7 +169,7 @@ func (s domainAsset) Timeline(ctx context.Context, req *app.AssetTimelineRequest
 	}
 
 	// Its facts, from payday's past: each field it held, from when, by the
-	// key Rove says it under (payday#151).
+	// key Loft says it under (payday#151).
 	st, err := t.store()
 	if err != nil {
 		return nil, err

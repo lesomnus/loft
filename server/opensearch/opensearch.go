@@ -11,7 +11,7 @@
 // (`app.search.opensearch.addrs`) searches its database (`internal/search`).
 //
 // What the index holds is a copy. The database is what is true, every
-// document can be made again from it (`rove search reindex`), and the index
+// document can be made again from it (`loft search reindex`), and the index
 // is never asked whether a caller may see a row: a search answers
 // identifiers, and the rows are read through the wall like any other.
 package opensearch
@@ -52,7 +52,7 @@ type Config struct {
 	CaFile string `yaml:"ca_file"`
 	// Index is what the names of this deployment's indexes begin with: the
 	// alias `<index>-assets`, and the index it points at,
-	// `<index>-assets-<when it was made>`. Unset is `rove`. A cluster that
+	// `<index>-assets-<when it was made>`. Unset is `loft`. A cluster that
 	// several deployments share gives each one its own.
 	Index string `yaml:"index"`
 }
@@ -62,7 +62,7 @@ func (c Config) On() bool { return len(c.Addrs) > 0 }
 
 // DefaultIndex is what index names begin with when the configuration says
 // nothing.
-const DefaultIndex = "rove"
+const DefaultIndex = "loft"
 
 // indexName is what OpenSearch takes as the start of an index name: lower
 // case, and nothing it would refuse or read as a pattern.
@@ -232,7 +232,7 @@ func (c *Client) do(ctx context.Context, method, path string, body []byte, ctype
 			r = bytes.NewReader(body)
 		}
 		// The path as written, escaped where it has to be, so that a pattern
-		// such as `rove-assets-*` reaches the node as one.
+		// such as `loft-assets-*` reaches the node as one.
 		req, err := http.NewRequestWithContext(ctx, method, c.nodes[n].String()+path, r)
 		if err != nil {
 			return err

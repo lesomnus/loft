@@ -68,7 +68,7 @@ func TestTheTableIsWhatItWasReviewedAs(t *testing.T) {
 func TestNothingBeyondTheWallIsInTheTable(t *testing.T) {
 	global := []string{}
 	protoregistry.GlobalFiles.RangeFiles(func(fd protoreflect.FileDescriptor) bool {
-		if fd.Package() != "rove" {
+		if fd.Package() != "loft" {
 			return true
 		}
 		for i := 0; i < fd.Messages().Len(); i++ {

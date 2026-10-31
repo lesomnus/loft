@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.12
 // 	protoc        (unknown)
-// source: rove/payday/holder_svc.g.proto
+// source: loft/payday/holder_svc.g.proto
 
-package rove
+package loft
 
 import (
 	patchpb "github.com/lesomnus/protobuf-patch/patchpb"
@@ -44,7 +44,7 @@ type HolderAddRequest struct {
 
 func (x *HolderAddRequest) Reset() {
 	*x = HolderAddRequest{}
-	mi := &file_rove_payday_holder_svc_g_proto_msgTypes[0]
+	mi := &file_loft_payday_holder_svc_g_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -56,7 +56,7 @@ func (x *HolderAddRequest) String() string {
 func (*HolderAddRequest) ProtoMessage() {}
 
 func (x *HolderAddRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_holder_svc_g_proto_msgTypes[0]
+	mi := &file_loft_payday_holder_svc_g_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -354,7 +354,7 @@ type HolderGetRequest struct {
 
 func (x *HolderGetRequest) Reset() {
 	*x = HolderGetRequest{}
-	mi := &file_rove_payday_holder_svc_g_proto_msgTypes[1]
+	mi := &file_loft_payday_holder_svc_g_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -366,7 +366,7 @@ func (x *HolderGetRequest) String() string {
 func (*HolderGetRequest) ProtoMessage() {}
 
 func (x *HolderGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_holder_svc_g_proto_msgTypes[1]
+	mi := &file_loft_payday_holder_svc_g_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -446,7 +446,7 @@ type HolderRef struct {
 
 func (x *HolderRef) Reset() {
 	*x = HolderRef{}
-	mi := &file_rove_payday_holder_svc_g_proto_msgTypes[2]
+	mi := &file_loft_payday_holder_svc_g_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -458,7 +458,7 @@ func (x *HolderRef) String() string {
 func (*HolderRef) ProtoMessage() {}
 
 func (x *HolderRef) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_holder_svc_g_proto_msgTypes[2]
+	mi := &file_loft_payday_holder_svc_g_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -584,7 +584,7 @@ func (b0 HolderRef_builder) Build() *HolderRef {
 type case_HolderRef_Key protoreflect.FieldNumber
 
 func (x case_HolderRef_Key) String() string {
-	md := file_rove_payday_holder_svc_g_proto_msgTypes[2].Descriptor()
+	md := file_loft_payday_holder_svc_g_proto_msgTypes[2].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -619,7 +619,7 @@ type HolderRefBySlug struct {
 
 func (x *HolderRefBySlug) Reset() {
 	*x = HolderRefBySlug{}
-	mi := &file_rove_payday_holder_svc_g_proto_msgTypes[3]
+	mi := &file_loft_payday_holder_svc_g_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -631,7 +631,7 @@ func (x *HolderRefBySlug) String() string {
 func (*HolderRefBySlug) ProtoMessage() {}
 
 func (x *HolderRefBySlug) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_holder_svc_g_proto_msgTypes[3]
+	mi := &file_loft_payday_holder_svc_g_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -734,7 +734,7 @@ type HolderSelect struct {
 
 func (x *HolderSelect) Reset() {
 	*x = HolderSelect{}
-	mi := &file_rove_payday_holder_svc_g_proto_msgTypes[4]
+	mi := &file_loft_payday_holder_svc_g_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -746,7 +746,7 @@ func (x *HolderSelect) String() string {
 func (*HolderSelect) ProtoMessage() {}
 
 func (x *HolderSelect) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_holder_svc_g_proto_msgTypes[4]
+	mi := &file_loft_payday_holder_svc_g_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1195,7 +1195,7 @@ type HolderPatchRequest struct {
 
 func (x *HolderPatchRequest) Reset() {
 	*x = HolderPatchRequest{}
-	mi := &file_rove_payday_holder_svc_g_proto_msgTypes[5]
+	mi := &file_loft_payday_holder_svc_g_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1207,7 +1207,7 @@ func (x *HolderPatchRequest) String() string {
 func (*HolderPatchRequest) ProtoMessage() {}
 
 func (x *HolderPatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_holder_svc_g_proto_msgTypes[5]
+	mi := &file_loft_payday_holder_svc_g_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1686,7 +1686,7 @@ type HolderApplyRequest struct {
 
 func (x *HolderApplyRequest) Reset() {
 	*x = HolderApplyRequest{}
-	mi := &file_rove_payday_holder_svc_g_proto_msgTypes[6]
+	mi := &file_loft_payday_holder_svc_g_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1698,7 +1698,7 @@ func (x *HolderApplyRequest) String() string {
 func (*HolderApplyRequest) ProtoMessage() {}
 
 func (x *HolderApplyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_holder_svc_g_proto_msgTypes[6]
+	mi := &file_loft_payday_holder_svc_g_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1780,7 +1780,7 @@ type HolderEraseResponse struct {
 
 func (x *HolderEraseResponse) Reset() {
 	*x = HolderEraseResponse{}
-	mi := &file_rove_payday_holder_svc_g_proto_msgTypes[7]
+	mi := &file_loft_payday_holder_svc_g_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1792,7 +1792,7 @@ func (x *HolderEraseResponse) String() string {
 func (*HolderEraseResponse) ProtoMessage() {}
 
 func (x *HolderEraseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_holder_svc_g_proto_msgTypes[7]
+	mi := &file_loft_payday_holder_svc_g_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1861,7 +1861,7 @@ type HolderListRequest struct {
 
 func (x *HolderListRequest) Reset() {
 	*x = HolderListRequest{}
-	mi := &file_rove_payday_holder_svc_g_proto_msgTypes[8]
+	mi := &file_loft_payday_holder_svc_g_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1873,7 +1873,7 @@ func (x *HolderListRequest) String() string {
 func (*HolderListRequest) ProtoMessage() {}
 
 func (x *HolderListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_holder_svc_g_proto_msgTypes[8]
+	mi := &file_loft_payday_holder_svc_g_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1973,7 +1973,7 @@ type HolderListResponse struct {
 
 func (x *HolderListResponse) Reset() {
 	*x = HolderListResponse{}
-	mi := &file_rove_payday_holder_svc_g_proto_msgTypes[9]
+	mi := &file_loft_payday_holder_svc_g_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1985,7 +1985,7 @@ func (x *HolderListResponse) String() string {
 func (*HolderListResponse) ProtoMessage() {}
 
 func (x *HolderListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_holder_svc_g_proto_msgTypes[9]
+	mi := &file_loft_payday_holder_svc_g_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2054,7 +2054,7 @@ type HolderFilter struct {
 
 func (x *HolderFilter) Reset() {
 	*x = HolderFilter{}
-	mi := &file_rove_payday_holder_svc_g_proto_msgTypes[10]
+	mi := &file_loft_payday_holder_svc_g_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2066,7 +2066,7 @@ func (x *HolderFilter) String() string {
 func (*HolderFilter) ProtoMessage() {}
 
 func (x *HolderFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_holder_svc_g_proto_msgTypes[10]
+	mi := &file_loft_payday_holder_svc_g_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2160,7 +2160,7 @@ type HolderWatchRequest struct {
 
 func (x *HolderWatchRequest) Reset() {
 	*x = HolderWatchRequest{}
-	mi := &file_rove_payday_holder_svc_g_proto_msgTypes[11]
+	mi := &file_loft_payday_holder_svc_g_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2172,7 +2172,7 @@ func (x *HolderWatchRequest) String() string {
 func (*HolderWatchRequest) ProtoMessage() {}
 
 func (x *HolderWatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_holder_svc_g_proto_msgTypes[11]
+	mi := &file_loft_payday_holder_svc_g_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2244,7 +2244,7 @@ type HolderWatchResponse struct {
 
 func (x *HolderWatchResponse) Reset() {
 	*x = HolderWatchResponse{}
-	mi := &file_rove_payday_holder_svc_g_proto_msgTypes[12]
+	mi := &file_loft_payday_holder_svc_g_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2256,7 +2256,7 @@ func (x *HolderWatchResponse) String() string {
 func (*HolderWatchResponse) ProtoMessage() {}
 
 func (x *HolderWatchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_holder_svc_g_proto_msgTypes[12]
+	mi := &file_loft_payday_holder_svc_g_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2308,7 +2308,7 @@ type HolderWatchItem struct {
 
 func (x *HolderWatchItem) Reset() {
 	*x = HolderWatchItem{}
-	mi := &file_rove_payday_holder_svc_g_proto_msgTypes[13]
+	mi := &file_loft_payday_holder_svc_g_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2320,7 +2320,7 @@ func (x *HolderWatchItem) String() string {
 func (*HolderWatchItem) ProtoMessage() {}
 
 func (x *HolderWatchItem) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_holder_svc_g_proto_msgTypes[13]
+	mi := &file_loft_payday_holder_svc_g_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2429,18 +2429,18 @@ func (b0 HolderWatchItem_builder) Build() *HolderWatchItem {
 	return m0
 }
 
-var File_rove_payday_holder_svc_g_proto protoreflect.FileDescriptor
+var File_loft_payday_holder_svc_g_proto protoreflect.FileDescriptor
 
-const file_rove_payday_holder_svc_g_proto_rawDesc = "" +
+const file_loft_payday_holder_svc_g_proto_rawDesc = "" +
 	"\n" +
-	"\x1erove/payday/holder_svc.g.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x11patch/patch.proto\x1a\x18rove/payday/holder.proto\x1a\x1erove/payday/tenant_svc.g.proto\"\xf9\x03\n" +
+	"\x1eloft/payday/holder_svc.g.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x18loft/payday/holder.proto\x1a\x1eloft/payday/tenant_svc.g.proto\x1a\x11patch/patch.proto\"\xf9\x03\n" +
 	"\x10HolderAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\x12\x1b\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12\x1b\n" +
 	"\x05alias\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05alias\x12\x19\n" +
 	"\x04name\x18\x05 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04name\x12\x19\n" +
 	"\x04desc\x18\x06 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04desc\x12:\n" +
-	"\x06labels\x18\a \x03(\v2\".rove.HolderAddRequest.LabelsEntryR\x06labels\x12=\n" +
+	"\x06labels\x18\a \x03(\v2\".loft.HolderAddRequest.LabelsEntryR\x06labels\x12=\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\x12\x12\n" +
 	"\x04role\x18\b \x01(\tR\x04role\x12\x18\n" +
 	"\aaccount\x18\t \x01(\fR\aaccount\x12=\n" +
@@ -2452,18 +2452,18 @@ const file_rove_payday_holder_svc_g_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"a\n" +
 	"\x10HolderGetRequest\x12!\n" +
-	"\x03ref\x18\x01 \x01(\v2\x0f.rove.HolderRefR\x03ref\x12*\n" +
-	"\x06select\x18\x02 \x01(\v2\x12.rove.HolderSelectR\x06select\"Q\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0f.loft.HolderRefR\x03ref\x12*\n" +
+	"\x06select\x18\x02 \x01(\v2\x12.loft.HolderSelectR\x06select\"Q\n" +
 	"\tHolderRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02id\x12+\n" +
-	"\x04slug\x18\x04 \x01(\v2\x15.rove.HolderRefBySlugH\x00R\x04slugB\x05\n" +
+	"\x04slug\x18\x04 \x01(\v2\x15.loft.HolderRefBySlugH\x00R\x04slugB\x05\n" +
 	"\x03key\"P\n" +
 	"\x0fHolderRefBySlug\x12\x14\n" +
 	"\x05alias\x18\x04 \x01(\tR\x05alias\x12'\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\"\x8b\x03\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\"\x8b\x03\n" +
 	"\fHolderSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x12.rove.TenantSelectR\x06tenant\x12\x14\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x12\x14\n" +
 	"\x05alias\x18\x04 \x01(\bR\x05alias\x12\x12\n" +
 	"\x04name\x18\x05 \x01(\bR\x04name\x12\x12\n" +
 	"\x04desc\x18\x06 \x01(\bR\x04desc\x12\x16\n" +
@@ -2479,12 +2479,12 @@ const file_rove_payday_holder_svc_g_proto_rawDesc = "" +
 	"\bmail_off\x18\v \x01(\bR\amailOff\x12\x14\n" +
 	"\x05party\x18\f \x01(\bR\x05party\"\xe7\x04\n" +
 	"\x12HolderPatchRequest\x12!\n" +
-	"\x03ref\x18\x01 \x01(\v2\x0f.rove.HolderRefR\x03ref\x12\x14\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0f.loft.HolderRefR\x03ref\x12\x14\n" +
 	"\x05alias\x18\b \x01(\tR\x05alias\x12\x12\n" +
 	"\x04name\x18\n" +
 	" \x01(\tR\x04name\x12\x12\n" +
 	"\x04desc\x18\f \x01(\tR\x04desc\x12<\n" +
-	"\x06labels\x18\x0e \x03(\v2$.rove.HolderPatchRequest.LabelsEntryR\x06labels\x12=\n" +
+	"\x06labels\x18\x0e \x03(\v2$.loft.HolderPatchRequest.LabelsEntryR\x06labels\x12=\n" +
 	"\fdate_updated\x18\x1a \x01(\v2\x1a.google.protobuf.TimestampR\vdateUpdated\x12,\n" +
 	"\x12date_updated_force\x18\x1b \x01(\bR\x10dateUpdatedForce\x12\x12\n" +
 	"\x04role\x18\x10 \x01(\tR\x04role\x12\x18\n" +
@@ -2500,106 +2500,106 @@ const file_rove_payday_holder_svc_g_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"[\n" +
 	"\x12HolderApplyRequest\x12!\n" +
-	"\x03ref\x18\x01 \x01(\v2\x0f.rove.HolderRefR\x03ref\x12\"\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0f.loft.HolderRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"-\n" +
 	"\x13HolderEraseResponse\x12\x16\n" +
 	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x9a\x01\n" +
 	"\x11HolderListRequest\x12,\n" +
-	"\afilters\x18\x01 \x03(\v2\x12.rove.HolderFilterR\afilters\x12\x19\n" +
+	"\afilters\x18\x01 \x03(\v2\x12.loft.HolderFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
 	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
 	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"S\n" +
 	"\x12HolderListResponse\x12\"\n" +
-	"\x05items\x18\x01 \x03(\v2\f.rove.HolderR\x05items\x12\x19\n" +
+	"\x05items\x18\x01 \x03(\v2\f.loft.HolderR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"\xcd\x01\n" +
 	"\fHolderFilter\x12!\n" +
-	"\x03ref\x18\x01 \x01(\v2\x0f.rove.HolderRefR\x03ref\x12'\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\x126\n" +
-	"\x06labels\x18\x03 \x03(\v2\x1e.rove.HolderFilter.LabelsEntryR\x06labels\x1a9\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0f.loft.HolderRefR\x03ref\x12'\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x126\n" +
+	"\x06labels\x18\x03 \x03(\v2\x1e.loft.HolderFilter.LabelsEntryR\x06labels\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"n\n" +
 	"\x12HolderWatchRequest\x12,\n" +
-	"\afilters\x18\x01 \x03(\v2\x12.rove.HolderFilterR\afilters\x12*\n" +
+	"\afilters\x18\x01 \x03(\v2\x12.loft.HolderFilterR\afilters\x12*\n" +
 	"\rskip_snapshot\x18\x02 \x01(\bB\x05\xaa\x01\x02\b\x02R\fskipSnapshot\"B\n" +
 	"\x13HolderWatchResponse\x12+\n" +
-	"\x05items\x18\x01 \x03(\v2\x15.rove.HolderWatchItemR\x05items\"d\n" +
+	"\x05items\x18\x01 \x03(\v2\x15.loft.HolderWatchItemR\x05items\"d\n" +
 	"\x0fHolderWatchItem\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12\"\n" +
-	"\x05value\x18\x02 \x01(\v2\f.rove.HolderR\x05value\x12\x1d\n" +
+	"\x05value\x18\x02 \x01(\v2\f.loft.HolderR\x05value\x12\x1d\n" +
 	"\x06action\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06action2\xfb\x02\n" +
 	"\rHolderService\x12+\n" +
-	"\x03Add\x12\x16.rove.HolderAddRequest\x1a\f.rove.Holder\x12+\n" +
-	"\x03Get\x12\x16.rove.HolderGetRequest\x1a\f.rove.Holder\x12/\n" +
-	"\x05Patch\x12\x18.rove.HolderPatchRequest\x1a\f.rove.Holder\x12/\n" +
-	"\x05Apply\x12\x18.rove.HolderApplyRequest\x1a\f.rove.Holder\x123\n" +
-	"\x05Erase\x12\x0f.rove.HolderRef\x1a\x19.rove.HolderEraseResponse\x129\n" +
-	"\x04List\x12\x17.rove.HolderListRequest\x1a\x18.rove.HolderListResponse\x12>\n" +
-	"\x05Watch\x12\x18.rove.HolderWatchRequest\x1a\x19.rove.HolderWatchResponse0\x01B\x1aZ\x18github.com/lesomnus/roveb\beditionsp\xe8\a"
+	"\x03Add\x12\x16.loft.HolderAddRequest\x1a\f.loft.Holder\x12+\n" +
+	"\x03Get\x12\x16.loft.HolderGetRequest\x1a\f.loft.Holder\x12/\n" +
+	"\x05Patch\x12\x18.loft.HolderPatchRequest\x1a\f.loft.Holder\x12/\n" +
+	"\x05Apply\x12\x18.loft.HolderApplyRequest\x1a\f.loft.Holder\x123\n" +
+	"\x05Erase\x12\x0f.loft.HolderRef\x1a\x19.loft.HolderEraseResponse\x129\n" +
+	"\x04List\x12\x17.loft.HolderListRequest\x1a\x18.loft.HolderListResponse\x12>\n" +
+	"\x05Watch\x12\x18.loft.HolderWatchRequest\x1a\x19.loft.HolderWatchResponse0\x01B\x1aZ\x18github.com/lesomnus/loftb\beditionsp\xe8\a"
 
-var file_rove_payday_holder_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
-var file_rove_payday_holder_svc_g_proto_goTypes = []any{
-	(*HolderAddRequest)(nil),      // 0: rove.HolderAddRequest
-	(*HolderGetRequest)(nil),      // 1: rove.HolderGetRequest
-	(*HolderRef)(nil),             // 2: rove.HolderRef
-	(*HolderRefBySlug)(nil),       // 3: rove.HolderRefBySlug
-	(*HolderSelect)(nil),          // 4: rove.HolderSelect
-	(*HolderPatchRequest)(nil),    // 5: rove.HolderPatchRequest
-	(*HolderApplyRequest)(nil),    // 6: rove.HolderApplyRequest
-	(*HolderEraseResponse)(nil),   // 7: rove.HolderEraseResponse
-	(*HolderListRequest)(nil),     // 8: rove.HolderListRequest
-	(*HolderListResponse)(nil),    // 9: rove.HolderListResponse
-	(*HolderFilter)(nil),          // 10: rove.HolderFilter
-	(*HolderWatchRequest)(nil),    // 11: rove.HolderWatchRequest
-	(*HolderWatchResponse)(nil),   // 12: rove.HolderWatchResponse
-	(*HolderWatchItem)(nil),       // 13: rove.HolderWatchItem
-	nil,                           // 14: rove.HolderAddRequest.LabelsEntry
-	nil,                           // 15: rove.HolderPatchRequest.LabelsEntry
-	nil,                           // 16: rove.HolderFilter.LabelsEntry
-	(*TenantRef)(nil),             // 17: rove.TenantRef
+var file_loft_payday_holder_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
+var file_loft_payday_holder_svc_g_proto_goTypes = []any{
+	(*HolderAddRequest)(nil),      // 0: loft.HolderAddRequest
+	(*HolderGetRequest)(nil),      // 1: loft.HolderGetRequest
+	(*HolderRef)(nil),             // 2: loft.HolderRef
+	(*HolderRefBySlug)(nil),       // 3: loft.HolderRefBySlug
+	(*HolderSelect)(nil),          // 4: loft.HolderSelect
+	(*HolderPatchRequest)(nil),    // 5: loft.HolderPatchRequest
+	(*HolderApplyRequest)(nil),    // 6: loft.HolderApplyRequest
+	(*HolderEraseResponse)(nil),   // 7: loft.HolderEraseResponse
+	(*HolderListRequest)(nil),     // 8: loft.HolderListRequest
+	(*HolderListResponse)(nil),    // 9: loft.HolderListResponse
+	(*HolderFilter)(nil),          // 10: loft.HolderFilter
+	(*HolderWatchRequest)(nil),    // 11: loft.HolderWatchRequest
+	(*HolderWatchResponse)(nil),   // 12: loft.HolderWatchResponse
+	(*HolderWatchItem)(nil),       // 13: loft.HolderWatchItem
+	nil,                           // 14: loft.HolderAddRequest.LabelsEntry
+	nil,                           // 15: loft.HolderPatchRequest.LabelsEntry
+	nil,                           // 16: loft.HolderFilter.LabelsEntry
+	(*TenantRef)(nil),             // 17: loft.TenantRef
 	(*timestamppb.Timestamp)(nil), // 18: google.protobuf.Timestamp
-	(*TenantSelect)(nil),          // 19: rove.TenantSelect
+	(*TenantSelect)(nil),          // 19: loft.TenantSelect
 	(*patchpb.Patch)(nil),         // 20: patch.Patch
-	(*Holder)(nil),                // 21: rove.Holder
+	(*Holder)(nil),                // 21: loft.Holder
 }
-var file_rove_payday_holder_svc_g_proto_depIdxs = []int32{
-	17, // 0: rove.HolderAddRequest.tenant:type_name -> rove.TenantRef
-	14, // 1: rove.HolderAddRequest.labels:type_name -> rove.HolderAddRequest.LabelsEntry
-	18, // 2: rove.HolderAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	18, // 3: rove.HolderAddRequest.date_leaving:type_name -> google.protobuf.Timestamp
-	2,  // 4: rove.HolderGetRequest.ref:type_name -> rove.HolderRef
-	4,  // 5: rove.HolderGetRequest.select:type_name -> rove.HolderSelect
-	3,  // 6: rove.HolderRef.slug:type_name -> rove.HolderRefBySlug
-	17, // 7: rove.HolderRefBySlug.tenant:type_name -> rove.TenantRef
-	19, // 8: rove.HolderSelect.tenant:type_name -> rove.TenantSelect
-	2,  // 9: rove.HolderPatchRequest.ref:type_name -> rove.HolderRef
-	15, // 10: rove.HolderPatchRequest.labels:type_name -> rove.HolderPatchRequest.LabelsEntry
-	18, // 11: rove.HolderPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	18, // 12: rove.HolderPatchRequest.date_leaving:type_name -> google.protobuf.Timestamp
-	2,  // 13: rove.HolderApplyRequest.ref:type_name -> rove.HolderRef
-	20, // 14: rove.HolderApplyRequest.patch:type_name -> patch.Patch
-	10, // 15: rove.HolderListRequest.filters:type_name -> rove.HolderFilter
-	21, // 16: rove.HolderListResponse.items:type_name -> rove.Holder
-	2,  // 17: rove.HolderFilter.ref:type_name -> rove.HolderRef
-	17, // 18: rove.HolderFilter.tenant:type_name -> rove.TenantRef
-	16, // 19: rove.HolderFilter.labels:type_name -> rove.HolderFilter.LabelsEntry
-	10, // 20: rove.HolderWatchRequest.filters:type_name -> rove.HolderFilter
-	13, // 21: rove.HolderWatchResponse.items:type_name -> rove.HolderWatchItem
-	21, // 22: rove.HolderWatchItem.value:type_name -> rove.Holder
-	0,  // 23: rove.HolderService.Add:input_type -> rove.HolderAddRequest
-	1,  // 24: rove.HolderService.Get:input_type -> rove.HolderGetRequest
-	5,  // 25: rove.HolderService.Patch:input_type -> rove.HolderPatchRequest
-	6,  // 26: rove.HolderService.Apply:input_type -> rove.HolderApplyRequest
-	2,  // 27: rove.HolderService.Erase:input_type -> rove.HolderRef
-	8,  // 28: rove.HolderService.List:input_type -> rove.HolderListRequest
-	11, // 29: rove.HolderService.Watch:input_type -> rove.HolderWatchRequest
-	21, // 30: rove.HolderService.Add:output_type -> rove.Holder
-	21, // 31: rove.HolderService.Get:output_type -> rove.Holder
-	21, // 32: rove.HolderService.Patch:output_type -> rove.Holder
-	21, // 33: rove.HolderService.Apply:output_type -> rove.Holder
-	7,  // 34: rove.HolderService.Erase:output_type -> rove.HolderEraseResponse
-	9,  // 35: rove.HolderService.List:output_type -> rove.HolderListResponse
-	12, // 36: rove.HolderService.Watch:output_type -> rove.HolderWatchResponse
+var file_loft_payday_holder_svc_g_proto_depIdxs = []int32{
+	17, // 0: loft.HolderAddRequest.tenant:type_name -> loft.TenantRef
+	14, // 1: loft.HolderAddRequest.labels:type_name -> loft.HolderAddRequest.LabelsEntry
+	18, // 2: loft.HolderAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	18, // 3: loft.HolderAddRequest.date_leaving:type_name -> google.protobuf.Timestamp
+	2,  // 4: loft.HolderGetRequest.ref:type_name -> loft.HolderRef
+	4,  // 5: loft.HolderGetRequest.select:type_name -> loft.HolderSelect
+	3,  // 6: loft.HolderRef.slug:type_name -> loft.HolderRefBySlug
+	17, // 7: loft.HolderRefBySlug.tenant:type_name -> loft.TenantRef
+	19, // 8: loft.HolderSelect.tenant:type_name -> loft.TenantSelect
+	2,  // 9: loft.HolderPatchRequest.ref:type_name -> loft.HolderRef
+	15, // 10: loft.HolderPatchRequest.labels:type_name -> loft.HolderPatchRequest.LabelsEntry
+	18, // 11: loft.HolderPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	18, // 12: loft.HolderPatchRequest.date_leaving:type_name -> google.protobuf.Timestamp
+	2,  // 13: loft.HolderApplyRequest.ref:type_name -> loft.HolderRef
+	20, // 14: loft.HolderApplyRequest.patch:type_name -> patch.Patch
+	10, // 15: loft.HolderListRequest.filters:type_name -> loft.HolderFilter
+	21, // 16: loft.HolderListResponse.items:type_name -> loft.Holder
+	2,  // 17: loft.HolderFilter.ref:type_name -> loft.HolderRef
+	17, // 18: loft.HolderFilter.tenant:type_name -> loft.TenantRef
+	16, // 19: loft.HolderFilter.labels:type_name -> loft.HolderFilter.LabelsEntry
+	10, // 20: loft.HolderWatchRequest.filters:type_name -> loft.HolderFilter
+	13, // 21: loft.HolderWatchResponse.items:type_name -> loft.HolderWatchItem
+	21, // 22: loft.HolderWatchItem.value:type_name -> loft.Holder
+	0,  // 23: loft.HolderService.Add:input_type -> loft.HolderAddRequest
+	1,  // 24: loft.HolderService.Get:input_type -> loft.HolderGetRequest
+	5,  // 25: loft.HolderService.Patch:input_type -> loft.HolderPatchRequest
+	6,  // 26: loft.HolderService.Apply:input_type -> loft.HolderApplyRequest
+	2,  // 27: loft.HolderService.Erase:input_type -> loft.HolderRef
+	8,  // 28: loft.HolderService.List:input_type -> loft.HolderListRequest
+	11, // 29: loft.HolderService.Watch:input_type -> loft.HolderWatchRequest
+	21, // 30: loft.HolderService.Add:output_type -> loft.Holder
+	21, // 31: loft.HolderService.Get:output_type -> loft.Holder
+	21, // 32: loft.HolderService.Patch:output_type -> loft.Holder
+	21, // 33: loft.HolderService.Apply:output_type -> loft.Holder
+	7,  // 34: loft.HolderService.Erase:output_type -> loft.HolderEraseResponse
+	9,  // 35: loft.HolderService.List:output_type -> loft.HolderListResponse
+	12, // 36: loft.HolderService.Watch:output_type -> loft.HolderWatchResponse
 	30, // [30:37] is the sub-list for method output_type
 	23, // [23:30] is the sub-list for method input_type
 	23, // [23:23] is the sub-list for extension type_name
@@ -2607,14 +2607,14 @@ var file_rove_payday_holder_svc_g_proto_depIdxs = []int32{
 	0,  // [0:23] is the sub-list for field type_name
 }
 
-func init() { file_rove_payday_holder_svc_g_proto_init() }
-func file_rove_payday_holder_svc_g_proto_init() {
-	if File_rove_payday_holder_svc_g_proto != nil {
+func init() { file_loft_payday_holder_svc_g_proto_init() }
+func file_loft_payday_holder_svc_g_proto_init() {
+	if File_loft_payday_holder_svc_g_proto != nil {
 		return
 	}
-	file_rove_payday_holder_proto_init()
-	file_rove_payday_tenant_svc_g_proto_init()
-	file_rove_payday_holder_svc_g_proto_msgTypes[2].OneofWrappers = []any{
+	file_loft_payday_holder_proto_init()
+	file_loft_payday_tenant_svc_g_proto_init()
+	file_loft_payday_holder_svc_g_proto_msgTypes[2].OneofWrappers = []any{
 		(*holderRef_Id)(nil),
 		(*holderRef_Slug)(nil),
 	}
@@ -2622,17 +2622,17 @@ func file_rove_payday_holder_svc_g_proto_init() {
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_payday_holder_svc_g_proto_rawDesc), len(file_rove_payday_holder_svc_g_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_payday_holder_svc_g_proto_rawDesc), len(file_loft_payday_holder_svc_g_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   17,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_rove_payday_holder_svc_g_proto_goTypes,
-		DependencyIndexes: file_rove_payday_holder_svc_g_proto_depIdxs,
-		MessageInfos:      file_rove_payday_holder_svc_g_proto_msgTypes,
+		GoTypes:           file_loft_payday_holder_svc_g_proto_goTypes,
+		DependencyIndexes: file_loft_payday_holder_svc_g_proto_depIdxs,
+		MessageInfos:      file_loft_payday_holder_svc_g_proto_msgTypes,
 	}.Build()
-	File_rove_payday_holder_svc_g_proto = out.File
-	file_rove_payday_holder_svc_g_proto_goTypes = nil
-	file_rove_payday_holder_svc_g_proto_depIdxs = nil
+	File_loft_payday_holder_svc_g_proto = out.File
+	file_loft_payday_holder_svc_g_proto_goTypes = nil
+	file_loft_payday_holder_svc_g_proto_depIdxs = nil
 }

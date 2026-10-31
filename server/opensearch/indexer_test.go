@@ -11,15 +11,15 @@ import (
 	"github.com/lesomnus/z"
 	"github.com/stretchr/testify/require"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cli"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/asset"
-	"github.com/lesomnus/rove/internal/ent/itemmodel"
-	"github.com/lesomnus/rove/internal/ent/party"
-	"github.com/lesomnus/rove/internal/opensearchtest"
-	"github.com/lesomnus/rove/server/opensearch"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cli"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/asset"
+	"github.com/lesomnus/loft/internal/ent/itemmodel"
+	"github.com/lesomnus/loft/internal/ent/party"
+	"github.com/lesomnus/loft/internal/opensearchtest"
+	"github.com/lesomnus/loft/server/opensearch"
 )
 
 // demo is a deployment with the demo's workspace in it, searching on the

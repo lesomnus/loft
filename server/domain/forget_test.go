@@ -11,10 +11,10 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent/audit"
-	"github.com/lesomnus/rove/internal/ent/event"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent/audit"
+	"github.com/lesomnus/loft/internal/ent/event"
 )
 
 // copies is how many of the trail's rows about these objects still hold what
@@ -131,8 +131,8 @@ func TestAHoldKeepsWhatTheTrailSaidOfAPerson(t *testing.T) {
 	x.Positive(value[*app.PartyPseudonymized](e, ev).GetHeld())
 }
 
-// TestAPersonWhoseLoginWasStoppedFirstIsForgottenToo (rove#25, decided in
-// rove#35). Stopping a login takes the person record's link to its membership
+// TestAPersonWhoseLoginWasStoppedFirstIsForgottenToo (loft#25, decided in
+// loft#35). Stopping a login takes the person record's link to its membership
 // away, and 개인정보 삭제 found the membership through that link and nothing
 // else: the membership's login name and name stayed on it after, and the
 // trail's copies of it. The membership now keeps which record it was.

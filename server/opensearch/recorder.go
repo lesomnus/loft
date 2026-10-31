@@ -9,12 +9,12 @@ import (
 
 	"github.com/lesomnus/payday/pdid"
 
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/asset"
-	"github.com/lesomnus/rove/internal/ent/itemmodel"
-	"github.com/lesomnus/rove/internal/ent/party"
-	"github.com/lesomnus/rove/server/bare"
-	"github.com/lesomnus/rove/server/pd"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/asset"
+	"github.com/lesomnus/loft/internal/ent/itemmodel"
+	"github.com/lesomnus/loft/internal/ent/party"
+	"github.com/lesomnus/loft/server/bare"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 // What a [ent.SearchStale] says changed.
@@ -32,10 +32,10 @@ const (
 // what they write: assets, people and models, and what their documents take
 // a name from ([DocOf], [PartyDocOf], [ModelDocOf]).
 var watched = map[string]string{
-	"rove.AssetService":     KindAsset,
-	"rove.AssetTypeService": KindAssetType,
-	"rove.ItemModelService": KindItemModel,
-	"rove.PartyService":     KindParty,
+	"loft.AssetService":     KindAsset,
+	"loft.AssetTypeService": KindAssetType,
+	"loft.ItemModelService": KindItemModel,
+	"loft.PartyService":     KindParty,
 }
 
 // own is the [Index] whose document of a row is the row's own: what a call

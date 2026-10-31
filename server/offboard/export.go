@@ -23,42 +23,42 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/lesomnus/rove/internal/ent"
-	entaccess "github.com/lesomnus/rove/internal/ent/access"
-	"github.com/lesomnus/rove/internal/ent/accessreview"
-	"github.com/lesomnus/rove/internal/ent/allocation"
-	"github.com/lesomnus/rove/internal/ent/asset"
-	"github.com/lesomnus/rove/internal/ent/assettype"
-	"github.com/lesomnus/rove/internal/ent/attachment"
-	entaudit "github.com/lesomnus/rove/internal/ent/audit"
-	"github.com/lesomnus/rove/internal/ent/bookable"
-	"github.com/lesomnus/rove/internal/ent/countfinding"
-	"github.com/lesomnus/rove/internal/ent/custody"
-	"github.com/lesomnus/rove/internal/ent/custodyline"
-	"github.com/lesomnus/rove/internal/ent/event"
-	"github.com/lesomnus/rove/internal/ent/fact"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/ent/inventorycount"
-	"github.com/lesomnus/rove/internal/ent/invitation"
-	"github.com/lesomnus/rove/internal/ent/itemmodel"
-	"github.com/lesomnus/rove/internal/ent/label"
-	"github.com/lesomnus/rove/internal/ent/link"
-	"github.com/lesomnus/rove/internal/ent/notification"
-	"github.com/lesomnus/rove/internal/ent/party"
-	"github.com/lesomnus/rove/internal/ent/placement"
-	"github.com/lesomnus/rove/internal/ent/predicate"
-	"github.com/lesomnus/rove/internal/ent/purchase"
-	"github.com/lesomnus/rove/internal/ent/purchaseline"
-	"github.com/lesomnus/rove/internal/ent/reservation"
-	"github.com/lesomnus/rove/internal/ent/reservationitem"
-	"github.com/lesomnus/rove/internal/ent/stewardship"
-	"github.com/lesomnus/rove/internal/ent/stock"
-	"github.com/lesomnus/rove/internal/ent/stockmovement"
-	enttenant "github.com/lesomnus/rove/internal/ent/tenant"
-	"github.com/lesomnus/rove/internal/ent/tenantcontract"
-	"github.com/lesomnus/rove/internal/ent/tenantdomain"
-	"github.com/lesomnus/rove/internal/ent/workorder"
-	"github.com/lesomnus/rove/server/pd"
+	"github.com/lesomnus/loft/internal/ent"
+	entaccess "github.com/lesomnus/loft/internal/ent/access"
+	"github.com/lesomnus/loft/internal/ent/accessreview"
+	"github.com/lesomnus/loft/internal/ent/allocation"
+	"github.com/lesomnus/loft/internal/ent/asset"
+	"github.com/lesomnus/loft/internal/ent/assettype"
+	"github.com/lesomnus/loft/internal/ent/attachment"
+	entaudit "github.com/lesomnus/loft/internal/ent/audit"
+	"github.com/lesomnus/loft/internal/ent/bookable"
+	"github.com/lesomnus/loft/internal/ent/countfinding"
+	"github.com/lesomnus/loft/internal/ent/custody"
+	"github.com/lesomnus/loft/internal/ent/custodyline"
+	"github.com/lesomnus/loft/internal/ent/event"
+	"github.com/lesomnus/loft/internal/ent/fact"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/internal/ent/inventorycount"
+	"github.com/lesomnus/loft/internal/ent/invitation"
+	"github.com/lesomnus/loft/internal/ent/itemmodel"
+	"github.com/lesomnus/loft/internal/ent/label"
+	"github.com/lesomnus/loft/internal/ent/link"
+	"github.com/lesomnus/loft/internal/ent/notification"
+	"github.com/lesomnus/loft/internal/ent/party"
+	"github.com/lesomnus/loft/internal/ent/placement"
+	"github.com/lesomnus/loft/internal/ent/predicate"
+	"github.com/lesomnus/loft/internal/ent/purchase"
+	"github.com/lesomnus/loft/internal/ent/purchaseline"
+	"github.com/lesomnus/loft/internal/ent/reservation"
+	"github.com/lesomnus/loft/internal/ent/reservationitem"
+	"github.com/lesomnus/loft/internal/ent/stewardship"
+	"github.com/lesomnus/loft/internal/ent/stock"
+	"github.com/lesomnus/loft/internal/ent/stockmovement"
+	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
+	"github.com/lesomnus/loft/internal/ent/tenantcontract"
+	"github.com/lesomnus/loft/internal/ent/tenantdomain"
+	"github.com/lesomnus/loft/internal/ent/workorder"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 // Manifest is what an export says about itself, as its `manifest.json`.
@@ -82,7 +82,7 @@ type Manifest struct {
 	// Trail is how many rows of the trail as the tenant may read it: in the
 	// database, `trail/database.jsonl`, and in the archive,
 	// `trail/archive.jsonl`. Access is the access record's rows in the
-	// database, `trail/access.jsonl` (rove#136); what of it is archived is
+	// database, `trail/access.jsonl` (loft#136); what of it is archived is
 	// in the archive's file with the rest.
 	Trail struct {
 		Database int `json:"database"`
@@ -298,12 +298,12 @@ var Withheld = map[string]string{
 }
 
 // Dropped is every table an earlier build had and this one does not, and why
-// it went: a migration drops it, rows and all (`rove migrate`), and a restore
+// it went: a migration drops it, rows and all (`loft migrate`), and a restore
 // of an export made before leaves its rows behind and says how many
 // ([Restored.Left]). A table is never in this and in this build's schema at
 // once, which a test refuses.
 var Dropped = map[string]string{
-	"usagesnapshot": "a workspace's usage, written once a day until what is billed was measured outside rove, from the source (design 7, D35)",
+	"usagesnapshot": "a workspace's usage, written once a day until what is billed was measured outside loft, from the source (design 7, D35)",
 	"consent":       "an account's agreements to the deployment's documents, kept here until roster's consent ledger kept them (design 9.11, D37)",
 }
 
@@ -403,7 +403,7 @@ func (d Deployment) Export(ctx context.Context, tenant pdid.Id, w io.Writer) (Ma
 		return out, fmt.Errorf("trail: %w", err)
 	}
 
-	// And the access record, by the same rule (rove#136): who read or wrote
+	// And the access record, by the same rule (loft#136): who read or wrote
 	// whose data in the workspace, and what its own people did in another.
 	// The workspace is who answers for its people's data, and this is the
 	// record of what was done with it.

@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.2
 // - protoc             (unknown)
-// source: rove/work_svc.g.proto
+// source: loft/work_svc.g.proto
 
-package rove
+package loft
 
 import (
 	context "context"
@@ -19,16 +19,16 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	WorkOrderService_Add_FullMethodName      = "/rove.WorkOrderService/Add"
-	WorkOrderService_Get_FullMethodName      = "/rove.WorkOrderService/Get"
-	WorkOrderService_Patch_FullMethodName    = "/rove.WorkOrderService/Patch"
-	WorkOrderService_Apply_FullMethodName    = "/rove.WorkOrderService/Apply"
-	WorkOrderService_Erase_FullMethodName    = "/rove.WorkOrderService/Erase"
-	WorkOrderService_List_FullMethodName     = "/rove.WorkOrderService/List"
-	WorkOrderService_Watch_FullMethodName    = "/rove.WorkOrderService/Watch"
-	WorkOrderService_Update_FullMethodName   = "/rove.WorkOrderService/Update"
-	WorkOrderService_Complete_FullMethodName = "/rove.WorkOrderService/Complete"
-	WorkOrderService_Cancel_FullMethodName   = "/rove.WorkOrderService/Cancel"
+	WorkOrderService_Add_FullMethodName      = "/loft.WorkOrderService/Add"
+	WorkOrderService_Get_FullMethodName      = "/loft.WorkOrderService/Get"
+	WorkOrderService_Patch_FullMethodName    = "/loft.WorkOrderService/Patch"
+	WorkOrderService_Apply_FullMethodName    = "/loft.WorkOrderService/Apply"
+	WorkOrderService_Erase_FullMethodName    = "/loft.WorkOrderService/Erase"
+	WorkOrderService_List_FullMethodName     = "/loft.WorkOrderService/List"
+	WorkOrderService_Watch_FullMethodName    = "/loft.WorkOrderService/Watch"
+	WorkOrderService_Update_FullMethodName   = "/loft.WorkOrderService/Update"
+	WorkOrderService_Complete_FullMethodName = "/loft.WorkOrderService/Complete"
+	WorkOrderService_Cancel_FullMethodName   = "/loft.WorkOrderService/Cancel"
 )
 
 // WorkOrderServiceClient is the client API for WorkOrderService service.
@@ -452,7 +452,7 @@ func _WorkOrderService_Cancel_Handler(srv interface{}, ctx context.Context, dec 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var WorkOrderService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.WorkOrderService",
+	ServiceName: "loft.WorkOrderService",
 	HandlerType: (*WorkOrderServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -499,18 +499,18 @@ var WorkOrderService_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "rove/work_svc.g.proto",
+	Metadata: "loft/work_svc.g.proto",
 }
 
 const (
-	PurchaseService_Add_FullMethodName     = "/rove.PurchaseService/Add"
-	PurchaseService_Get_FullMethodName     = "/rove.PurchaseService/Get"
-	PurchaseService_Patch_FullMethodName   = "/rove.PurchaseService/Patch"
-	PurchaseService_Apply_FullMethodName   = "/rove.PurchaseService/Apply"
-	PurchaseService_Erase_FullMethodName   = "/rove.PurchaseService/Erase"
-	PurchaseService_List_FullMethodName    = "/rove.PurchaseService/List"
-	PurchaseService_Watch_FullMethodName   = "/rove.PurchaseService/Watch"
-	PurchaseService_Receive_FullMethodName = "/rove.PurchaseService/Receive"
+	PurchaseService_Add_FullMethodName     = "/loft.PurchaseService/Add"
+	PurchaseService_Get_FullMethodName     = "/loft.PurchaseService/Get"
+	PurchaseService_Patch_FullMethodName   = "/loft.PurchaseService/Patch"
+	PurchaseService_Apply_FullMethodName   = "/loft.PurchaseService/Apply"
+	PurchaseService_Erase_FullMethodName   = "/loft.PurchaseService/Erase"
+	PurchaseService_List_FullMethodName    = "/loft.PurchaseService/List"
+	PurchaseService_Watch_FullMethodName   = "/loft.PurchaseService/Watch"
+	PurchaseService_Receive_FullMethodName = "/loft.PurchaseService/Receive"
 )
 
 // PurchaseServiceClient is the client API for PurchaseService service.
@@ -868,7 +868,7 @@ func _PurchaseService_Receive_Handler(srv interface{}, ctx context.Context, dec 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var PurchaseService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.PurchaseService",
+	ServiceName: "loft.PurchaseService",
 	HandlerType: (*PurchaseServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -907,16 +907,16 @@ var PurchaseService_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "rove/work_svc.g.proto",
+	Metadata: "loft/work_svc.g.proto",
 }
 
 const (
-	PurchaseLineService_Add_FullMethodName   = "/rove.PurchaseLineService/Add"
-	PurchaseLineService_Get_FullMethodName   = "/rove.PurchaseLineService/Get"
-	PurchaseLineService_Patch_FullMethodName = "/rove.PurchaseLineService/Patch"
-	PurchaseLineService_Apply_FullMethodName = "/rove.PurchaseLineService/Apply"
-	PurchaseLineService_Erase_FullMethodName = "/rove.PurchaseLineService/Erase"
-	PurchaseLineService_List_FullMethodName  = "/rove.PurchaseLineService/List"
+	PurchaseLineService_Add_FullMethodName   = "/loft.PurchaseLineService/Add"
+	PurchaseLineService_Get_FullMethodName   = "/loft.PurchaseLineService/Get"
+	PurchaseLineService_Patch_FullMethodName = "/loft.PurchaseLineService/Patch"
+	PurchaseLineService_Apply_FullMethodName = "/loft.PurchaseLineService/Apply"
+	PurchaseLineService_Erase_FullMethodName = "/loft.PurchaseLineService/Erase"
+	PurchaseLineService_List_FullMethodName  = "/loft.PurchaseLineService/List"
 )
 
 // PurchaseLineServiceClient is the client API for PurchaseLineService service.
@@ -1182,7 +1182,7 @@ func _PurchaseLineService_List_Handler(srv interface{}, ctx context.Context, dec
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var PurchaseLineService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.PurchaseLineService",
+	ServiceName: "loft.PurchaseLineService",
 	HandlerType: (*PurchaseLineServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -1211,5 +1211,5 @@ var PurchaseLineService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "rove/work_svc.g.proto",
+	Metadata: "loft/work_svc.g.proto",
 }

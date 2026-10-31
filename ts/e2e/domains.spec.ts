@@ -4,9 +4,9 @@ import { fileURLToPath } from 'node:url'
 import type { Request } from '@playwright/test'
 import pg from 'pg'
 
-import { escape, expect, owner, people, signIn, test, unique, workspace } from './rove.js'
+import { escape, expect, owner, people, signIn, test, unique, workspace } from './loft.js'
 
-// A workspace on a domain of its own (rove#155): signed in to at the service's
+// A workspace on a domain of its own (loft#155): signed in to at the service's
 // address and handed there, serving that workspace and nothing else, its
 // labels printed with it and opening on it, and signed out of there -- which
 // signs out of the service's too.
@@ -27,7 +27,7 @@ async function verified(host: string): Promise<void> {
 	const at = process.env.E2E_POSTGRES
 	if (at !== undefined && at !== '') {
 		const u = new URL(at)
-		u.pathname = `/e2e_rove_${port}`
+		u.pathname = `/e2e_loft_${port}`
 		const db = new pg.Client({ connectionString: u.toString() })
 		await db.connect()
 		try {
@@ -37,7 +37,7 @@ async function verified(host: string): Promise<void> {
 		}
 		return
 	}
-	const db = new DatabaseSync(fileURLToPath(new URL(`../test-results/rove-${port}/rove.db`, import.meta.url)))
+	const db = new DatabaseSync(fileURLToPath(new URL(`../test-results/loft-${port}/loft.db`, import.meta.url)))
 	try {
 		db.exec('PRAGMA busy_timeout = 10000')
 		expect(db.prepare(sql.replace('$1', '?')).run(host).changes).toBe(1)
@@ -54,8 +54,8 @@ test('a workspace on its own domain is signed in to at the service, serves itsel
 	expect(made.status()).toBe(201)
 	const ws = (await made.json()) as { alias: string; name: string }
 	const host = `${ws.alias}.e2e.test`
-	const added = await page.request.post('/rove.TenantDomainService/Add', {
-		headers: { 'connect-protocol-version': '1', 'rove-workspace': ws.alias },
+	const added = await page.request.post('/loft.TenantDomainService/Add', {
+		headers: { 'connect-protocol-version': '1', 'loft-workspace': ws.alias },
 		data: { host },
 	})
 	expect(added.status(), await added.text()).toBe(200)
@@ -112,9 +112,9 @@ test('a workspace on its own domain is signed in to at the service, serves itsel
 	await page.goto(`${domain}/@${ws.alias}/`)
 	await expect(page.getByRole('button', { name: '로그아웃', exact: true })).toBeVisible()
 	const demo = await page.evaluate(async () => {
-		const res = await fetch('/rove.PartyService/Me', {
+		const res = await fetch('/loft.PartyService/Me', {
 			method: 'POST',
-			headers: { 'content-type': 'application/json', 'connect-protocol-version': '1', 'rove-workspace': 'acme' },
+			headers: { 'content-type': 'application/json', 'connect-protocol-version': '1', 'loft-workspace': 'acme' },
 			body: '{}',
 		})
 		return res.status

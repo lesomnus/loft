@@ -14,23 +14,23 @@ import (
 	"github.com/protobuf-orm/ent/dialect/sql"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent"
-	entaccess "github.com/lesomnus/rove/internal/ent/access"
-	"github.com/lesomnus/rove/internal/ent/accessreview"
-	"github.com/lesomnus/rove/internal/ent/predicate"
-	enttenant "github.com/lesomnus/rove/internal/ent/tenant"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent"
+	entaccess "github.com/lesomnus/loft/internal/ent/access"
+	"github.com/lesomnus/loft/internal/ent/accessreview"
+	"github.com/lesomnus/loft/internal/ent/predicate"
+	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
 )
 
 // NewCmdAccess is the access record of the whole deployment, for an operator
-// (rove#136): who read, wrote or took out whose personal data, from where --
+// (loft#136): who read, wrote or took out whose personal data, from where --
 // in a workspace, by a member, of one person, of one kind -- and the reviews
 // the workspaces' administrators recorded. A person asking what was done with
 // their data is answered with `ls --subject`.
 //
 // It reads the database the configuration names, prints identifiers and no
 // names, and changes nothing. A workspace's own administrators read theirs at
-// the page, or with `rove api access review`.
+// the page, or with `loft api access review`.
 func NewCmdAccess(c *cmd.Config) *xli.Command {
 	return &xli.Command{
 		Name:  "access",

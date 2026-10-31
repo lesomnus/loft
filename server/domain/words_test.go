@@ -3,16 +3,16 @@ package domain_test
 import (
 	"testing"
 
-	app "github.com/lesomnus/rove"
+	app "github.com/lesomnus/loft"
 )
 
-// TestTheHistorySaysRovesValuesInThePagesWords: the history says a value of
-// Rove's own in the word the page says it in, and never as its code -- a
+// TestTheHistorySaysLoftsValuesInThePagesWords: the history says a value of
+// Loft's own in the word the page says it in, and never as its code -- a
 // stewardship's role and a relation, in the sentence of the event that wrote
 // the row and in the row's own; and an attribute that was corrected by the
 // label the asset's type gives it, or the one the type it inherits from
 // does, read when the history is.
-func TestTheHistorySaysRovesValuesInThePagesWords(t *testing.T) {
+func TestTheHistorySaysLoftsValuesInThePagesWords(t *testing.T) {
 	e := newEnv(t)
 	x := e.x
 

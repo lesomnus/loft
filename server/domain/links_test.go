@@ -8,16 +8,16 @@ import (
 
 	"github.com/lesomnus/payday/pdid"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/ent/tenantdomain"
-	"github.com/lesomnus/rove/server/pd"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/internal/ent/tenantdomain"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 // TestALinkToAWorkspaceIsOnItsAppDomain: every link made to a workspace
 // begins with its active app domain, and with the service's address while it
-// has none (rove#155) -- a label printed, a file's signed address, the link a
+// has none (loft#155) -- a label printed, a file's signed address, the link a
 // notification's mail carries. An invitation's is the service's whatever
 // domain the workspace has: the account answers it in its inbox there, as
 // itself. A label domain is a workspace's for its labels alone, and a domain
@@ -27,8 +27,8 @@ import (
 // (`app.public_url`).
 func TestALinkToAWorkspaceIsOnItsAppDomain(t *testing.T) {
 	e := newEnvWith(t, func(c *cmd.Config) {
-		c.App.PublicUrl = "https://rove.example"
-		c.App.AppUrl = "https://app.rove.example"
+		c.App.PublicUrl = "https://loft.example"
+		c.App.AppUrl = "https://app.loft.example"
 	})
 	x := e.x
 	ctx := context.Background()
@@ -98,7 +98,7 @@ func TestALinkToAWorkspaceIsOnItsAppDomain(t *testing.T) {
 			SetHost(host).
 			SetPurpose(purpose).
 			SetState(state).
-			SetToken("rove-test").
+			SetToken("loft-test").
 			SetSource("custom").
 			SetDateUpdated(time.Now()).
 			Exec(ctx))
@@ -112,11 +112,11 @@ func TestALinkToAWorkspaceIsOnItsAppDomain(t *testing.T) {
 		x.True(strings.HasPrefix(label(), want["label"]+"/l/"), "a label: %s", want["label"])
 		x.True(strings.HasPrefix(signed(), want["file"]+"/files/"), "a file: %s", want["file"])
 		x.Equal(want["page"]+"/@acme/assets", mailed(), "a notification's mail")
-		x.Equal("https://app.rove.example/invitations", invitation(), "an invitation's, at the service's whatever the workspace has")
+		x.Equal("https://app.loft.example/invitations", invitation(), "an invitation's, at the service's whatever the workspace has")
 	}
 
 	// No domain of its own: the service's.
-	all(map[string]string{"label": "https://rove.example", "file": "https://rove.example", "page": "https://app.rove.example"})
+	all(map[string]string{"label": "https://loft.example", "file": "https://loft.example", "page": "https://app.loft.example"})
 
 	// An active app domain: every link to the workspace is on it.
 	own := domain("assets.acme.example", "app", "active")
@@ -126,13 +126,13 @@ func TestALinkToAWorkspaceIsOnItsAppDomain(t *testing.T) {
 	// it, and nothing else is on it.
 	moved(own, "legacy")
 	labels := domain("acme.l.test", "label", "active")
-	all(map[string]string{"label": "https://acme.l.test", "file": "https://rove.example", "page": "https://app.rove.example"})
+	all(map[string]string{"label": "https://acme.l.test", "file": "https://loft.example", "page": "https://app.loft.example"})
 
 	// And none active at all: the service's again.
 	moved(labels, "retired")
-	all(map[string]string{"label": "https://rove.example", "file": "https://rove.example", "page": "https://app.rove.example"})
+	all(map[string]string{"label": "https://loft.example", "file": "https://loft.example", "page": "https://app.loft.example"})
 
 	// One verified and not yet in use is no link's either.
 	domain("next.acme.example", "app", "ready")
-	all(map[string]string{"label": "https://rove.example", "file": "https://rove.example", "page": "https://app.rove.example"})
+	all(map[string]string{"label": "https://loft.example", "file": "https://loft.example", "page": "https://app.loft.example"})
 }

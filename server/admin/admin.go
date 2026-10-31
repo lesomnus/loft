@@ -3,7 +3,7 @@
 // them, closes and restores them, moves one's address, names an owner, writes a
 // contract and a legal hold -- over HTTP on a listener of its own.
 //
-// It is served by `rove-admin serve`, and `rove serve` links none of it: the
+// It is served by `loft-admin serve`, and `loft serve` links none of it: the
 // public binary has no path that sees every workspace. Every request carries an
 // operator's key (`admin.keys`) and is logged with the operator's name; what a
 // change does to a workspace is written as the deployment's own work, as the
@@ -12,7 +12,7 @@
 // The one path that asks for no key is `/internal/tls-ask`, which the reverse
 // proxy in front of workspaces' own domains asks before it takes a
 // certificate: whether a host is some workspace's verified domain -- one its
-// app is on, or one its labels print with (design 9.9, rove#155) -- and that
+// app is on, or one its labels print with (design 9.9, loft#155) -- and that
 // it is not asked for more often than `admin.ask` allows ([Issuance]). It is
 // also served alone on a listener of its own (`admin.ask.addr`), so that a
 // proxy facing the internet reaches no operator's door.
@@ -41,16 +41,16 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/ent/legalhold"
-	enttenant "github.com/lesomnus/rove/internal/ent/tenant"
-	"github.com/lesomnus/rove/internal/ent/tenantcontract"
-	"github.com/lesomnus/rove/internal/ent/tenantdomain"
-	"github.com/lesomnus/rove/internal/identity"
-	"github.com/lesomnus/rove/server/domain"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/internal/ent/legalhold"
+	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
+	"github.com/lesomnus/loft/internal/ent/tenantcontract"
+	"github.com/lesomnus/loft/internal/ent/tenantdomain"
+	"github.com/lesomnus/loft/internal/identity"
+	"github.com/lesomnus/loft/server/domain"
 )
 
 // Operator is somebody who may use this entry point: a name for the log, and

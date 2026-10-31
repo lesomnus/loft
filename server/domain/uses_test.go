@@ -16,10 +16,10 @@ import (
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 
-	"github.com/lesomnus/rove/server/pd"
+	"github.com/lesomnus/loft/server/pd"
 )
 
-// What `rove/past.proto` says beside its messages, which the schema has no
+// What `loft/past.proto` says beside its messages, which the schema has no
 // place for (payday#151), and which this holds to the schema and to what is
 // written:
 //
@@ -48,7 +48,7 @@ type field struct {
 	typ    string
 }
 
-// notes is what `rove/past.proto` says beside its messages: each domain's
+// notes is what `loft/past.proto` says beside its messages: each domain's
 // table, by domain, and what each kind of a message of several uses of it,
 // by kind. Read once.
 type notes struct {
@@ -59,7 +59,7 @@ type notes struct {
 var readNotes = sync.OnceValues(func() (notes, error) {
 	out := notes{tables: map[string][]field{}, uses: map[string][]string{}}
 
-	f, err := os.Open("../../proto/rove/past.proto")
+	f, err := os.Open("../../proto/loft/past.proto")
 	if err != nil {
 		return out, err
 	}
@@ -181,7 +181,7 @@ func kindsOf() map[protoreflect.FullName][]string {
 
 // Beyond is what `v`, an event of `kind`, holds that its kind does not use:
 // of a message of several kinds, the fields it sets that the kind's list in
-// `rove/past.proto` does not name. A message of one kind is all its kind's.
+// `loft/past.proto` does not name. A message of one kind is all its kind's.
 // For the tests outside the package, which hold every event they record to
 // it.
 func Beyond(kind string, v proto.Message) []string {

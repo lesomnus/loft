@@ -1,6 +1,6 @@
 import type { Page } from '@playwright/test'
 
-import { card, choose, escape, expect, field, owner, people, said, signIn, submitSignIn, test, unique, workspace } from './rove.js'
+import { card, choose, escape, expect, field, owner, people, said, signIn, submitSignIn, test, unique, workspace } from './loft.js'
 
 // What a page keeps is its caller's, as payday's store is (`offline.ts`): the
 // answers it was given and the scans it could not send, kept for one person in
@@ -38,11 +38,11 @@ async function kept(page: Page, id: string): Promise<{ answers: number; waiting:
 	return page.evaluate(async (id) => {
 		const mine = (k: unknown): boolean => String(k).startsWith(`${id}/`)
 		// Opened only when the page made it, so that asking does not make it.
-		const there = (await indexedDB.databases()).some((d) => d.name === 'rove')
+		const there = (await indexedDB.databases()).some((d) => d.name === 'loft')
 		const answers = !there
 			? 0
 			: await new Promise<number>((resolve, reject) => {
-					const req = indexedDB.open('rove')
+					const req = indexedDB.open('loft')
 					req.onerror = () => reject(req.error)
 					req.onsuccess = () => {
 						const d = req.result
@@ -54,19 +54,19 @@ async function kept(page: Page, id: string): Promise<{ answers: number; waiting:
 						keys.onerror = () => reject(keys.error)
 					}
 				})
-		const waiting = (JSON.parse(localStorage.getItem('rove.waiting') ?? '[]') as { scope: string }[]).filter((w) => mine(w.scope)).length
+		const waiting = (JSON.parse(localStorage.getItem('loft.waiting') ?? '[]') as { scope: string }[]).filter((w) => mine(w.scope)).length
 		return { answers, waiting }
 	}, id)
 }
 
 /** A scan the server cannot be reached for, which waits to be sent. */
 async function unsent(page: Page, code: string): Promise<void> {
-	await page.route('**/rove.InventoryCountService/Scan', (r) => r.abort())
+	await page.route('**/loft.InventoryCountService/Scan', (r) => r.abort())
 	const scan = page.getByPlaceholder('QR을 스캔하거나 태그를 입력 후 Enter')
 	await scan.fill(code)
 	await scan.press('Enter')
 	await expect(page.getByText('보내지 못한 스캔 1건')).toBeVisible()
-	await page.unroute('**/rove.InventoryCountService/Scan')
+	await page.unroute('**/loft.InventoryCountService/Scan')
 }
 
 /** The person the page is drawn for, as its side says. */

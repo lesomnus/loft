@@ -10,16 +10,16 @@ import (
 	"github.com/lesomnus/xli/arg"
 	"github.com/lesomnus/xli/flg"
 
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/asset"
-	"github.com/lesomnus/rove/internal/ent/itemmodel"
-	"github.com/lesomnus/rove/internal/ent/party"
-	"github.com/lesomnus/rove/internal/identity"
-	"github.com/lesomnus/rove/server/opensearch"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/asset"
+	"github.com/lesomnus/loft/internal/ent/itemmodel"
+	"github.com/lesomnus/loft/internal/ent/party"
+	"github.com/lesomnus/loft/internal/identity"
+	"github.com/lesomnus/loft/server/opensearch"
 )
 
-// NewCmdSearch is `rove search`: the index a search is answered from, when
+// NewCmdSearch is `loft search`: the index a search is answered from, when
 // the deployment names an OpenSearch cluster (D31).
 func NewCmdSearch(c *cmd.Config) *xli.Command {
 	return &xli.Command{
@@ -73,7 +73,7 @@ func searchClient(c *cmd.Config) (*opensearch.Client, error) {
 		return nil, err
 	}
 	if o == nil {
-		return nil, errors.New("app.search.opensearch.addrs names no cluster: this deployment searches its database, and has no index (ROVE_APP_SEARCH_OPENSEARCH_ADDRS)")
+		return nil, errors.New("app.search.opensearch.addrs names no cluster: this deployment searches its database, and has no index (LOFT_APP_SEARCH_OPENSEARCH_ADDRS)")
 	}
 	return o, nil
 }
@@ -90,7 +90,7 @@ func held(ctx context.Context, db *ent.Client, ix *opensearch.Index) (int, error
 	return db.Asset.Query().Where(asset.DateErasedIsNil()).Count(ctx)
 }
 
-// searchStatus is `rove search status`.
+// searchStatus is `loft search status`.
 func searchStatus(ctx context.Context, self *xli.Command, c *cmd.Config) error {
 	o, err := searchClient(c)
 	if err != nil {
@@ -114,12 +114,12 @@ func searchStatus(ctx context.Context, self *xli.Command, c *cmd.Config) error {
 		}
 
 		if st.Index == "" {
-			self.Printf("%s points at no index: `rove search reindex` makes one (%d %s)\n", st.Alias, n, ix.Name)
+			self.Printf("%s points at no index: `loft search reindex` makes one (%d %s)\n", st.Alias, n, ix.Name)
 		} else {
 			self.Printf("%s → %s\n", st.Alias, st.Index)
 			self.Printf("  %d documents, %d %s in the database\n", st.Docs, n, ix.Name)
 			if st.Version != ix.Version {
-				self.Printf("  made in shape %d, and this build makes %d: `rove search reindex` makes it again\n", st.Version, ix.Version)
+				self.Printf("  made in shape %d, and this build makes %d: `loft search reindex` makes it again\n", st.Version, ix.Version)
 			}
 		}
 		if len(st.Others) > 0 {
@@ -129,7 +129,7 @@ func searchStatus(ctx context.Context, self *xli.Command, c *cmd.Config) error {
 	return nil
 }
 
-// searchReindex is `rove search reindex`.
+// searchReindex is `loft search reindex`.
 func searchReindex(ctx context.Context, self *xli.Command, c *cmd.Config) error {
 	o, err := searchClient(c)
 	if err != nil {
@@ -159,7 +159,7 @@ func searchReindex(ctx context.Context, self *xli.Command, c *cmd.Config) error 
 	return nil
 }
 
-// searchRemove is `rove search remove`: what a deployment that stops
+// searchRemove is `loft search remove`: what a deployment that stops
 // searching with OpenSearch does, and one that wants nothing of its people
 // left in a copy it does not keep current.
 func searchRemove(ctx context.Context, self *xli.Command, c *cmd.Config, yes bool) error {
@@ -195,7 +195,7 @@ func searchRemove(ctx context.Context, self *xli.Command, c *cmd.Config, yes boo
 	return nil
 }
 
-// searchAnalyze is `rove search analyze`.
+// searchAnalyze is `loft search analyze`.
 func searchAnalyze(ctx context.Context, self *xli.Command, c *cmd.Config, text string) error {
 	o, err := searchClient(c)
 	if err != nil {
@@ -207,7 +207,7 @@ func searchAnalyze(ctx context.Context, self *xli.Command, c *cmd.Config, text s
 		words, err := o.Analyze(ctx, v.analyzer, text)
 		if err != nil {
 			if opensearch.IsNotFound(err) {
-				return errors.New(o.Alias(opensearch.Assets) + " points at no index: `rove search reindex` makes one")
+				return errors.New(o.Alias(opensearch.Assets) + " points at no index: `loft search reindex` makes one")
 			}
 			return err
 		}

@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.12
 // 	protoc        (unknown)
-// source: rove/payday/tenant_svc.g.proto
+// source: loft/payday/tenant_svc.g.proto
 
-package rove
+package loft
 
 import (
 	patchpb "github.com/lesomnus/protobuf-patch/patchpb"
@@ -52,7 +52,7 @@ type TenantAddRequest struct {
 
 func (x *TenantAddRequest) Reset() {
 	*x = TenantAddRequest{}
-	mi := &file_rove_payday_tenant_svc_g_proto_msgTypes[0]
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -64,7 +64,7 @@ func (x *TenantAddRequest) String() string {
 func (*TenantAddRequest) ProtoMessage() {}
 
 func (x *TenantAddRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_tenant_svc_g_proto_msgTypes[0]
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -565,7 +565,7 @@ type TenantGetRequest struct {
 
 func (x *TenantGetRequest) Reset() {
 	*x = TenantGetRequest{}
-	mi := &file_rove_payday_tenant_svc_g_proto_msgTypes[1]
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -577,7 +577,7 @@ func (x *TenantGetRequest) String() string {
 func (*TenantGetRequest) ProtoMessage() {}
 
 func (x *TenantGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_tenant_svc_g_proto_msgTypes[1]
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -657,7 +657,7 @@ type TenantRef struct {
 
 func (x *TenantRef) Reset() {
 	*x = TenantRef{}
-	mi := &file_rove_payday_tenant_svc_g_proto_msgTypes[2]
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -669,7 +669,7 @@ func (x *TenantRef) String() string {
 func (*TenantRef) ProtoMessage() {}
 
 func (x *TenantRef) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_tenant_svc_g_proto_msgTypes[2]
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -791,7 +791,7 @@ func (b0 TenantRef_builder) Build() *TenantRef {
 type case_TenantRef_Key protoreflect.FieldNumber
 
 func (x case_TenantRef_Key) String() string {
-	md := file_rove_payday_tenant_svc_g_proto_msgTypes[2].Descriptor()
+	md := file_loft_payday_tenant_svc_g_proto_msgTypes[2].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -845,7 +845,7 @@ type TenantSelect struct {
 
 func (x *TenantSelect) Reset() {
 	*x = TenantSelect{}
-	mi := &file_rove_payday_tenant_svc_g_proto_msgTypes[3]
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -857,7 +857,7 @@ func (x *TenantSelect) String() string {
 func (*TenantSelect) ProtoMessage() {}
 
 func (x *TenantSelect) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_tenant_svc_g_proto_msgTypes[3]
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1524,7 +1524,7 @@ type TenantPatchRequest struct {
 
 func (x *TenantPatchRequest) Reset() {
 	*x = TenantPatchRequest{}
-	mi := &file_rove_payday_tenant_svc_g_proto_msgTypes[4]
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1536,7 +1536,7 @@ func (x *TenantPatchRequest) String() string {
 func (*TenantPatchRequest) ProtoMessage() {}
 
 func (x *TenantPatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_tenant_svc_g_proto_msgTypes[4]
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2297,7 +2297,7 @@ type TenantApplyRequest struct {
 
 func (x *TenantApplyRequest) Reset() {
 	*x = TenantApplyRequest{}
-	mi := &file_rove_payday_tenant_svc_g_proto_msgTypes[5]
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2309,7 +2309,7 @@ func (x *TenantApplyRequest) String() string {
 func (*TenantApplyRequest) ProtoMessage() {}
 
 func (x *TenantApplyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_tenant_svc_g_proto_msgTypes[5]
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2391,7 +2391,7 @@ type TenantEraseResponse struct {
 
 func (x *TenantEraseResponse) Reset() {
 	*x = TenantEraseResponse{}
-	mi := &file_rove_payday_tenant_svc_g_proto_msgTypes[6]
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2403,7 +2403,7 @@ func (x *TenantEraseResponse) String() string {
 func (*TenantEraseResponse) ProtoMessage() {}
 
 func (x *TenantEraseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_tenant_svc_g_proto_msgTypes[6]
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2472,7 +2472,7 @@ type TenantListRequest struct {
 
 func (x *TenantListRequest) Reset() {
 	*x = TenantListRequest{}
-	mi := &file_rove_payday_tenant_svc_g_proto_msgTypes[7]
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2484,7 +2484,7 @@ func (x *TenantListRequest) String() string {
 func (*TenantListRequest) ProtoMessage() {}
 
 func (x *TenantListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_tenant_svc_g_proto_msgTypes[7]
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2584,7 +2584,7 @@ type TenantListResponse struct {
 
 func (x *TenantListResponse) Reset() {
 	*x = TenantListResponse{}
-	mi := &file_rove_payday_tenant_svc_g_proto_msgTypes[8]
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2596,7 +2596,7 @@ func (x *TenantListResponse) String() string {
 func (*TenantListResponse) ProtoMessage() {}
 
 func (x *TenantListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_tenant_svc_g_proto_msgTypes[8]
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2663,7 +2663,7 @@ type TenantFilter struct {
 
 func (x *TenantFilter) Reset() {
 	*x = TenantFilter{}
-	mi := &file_rove_payday_tenant_svc_g_proto_msgTypes[9]
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2675,7 +2675,7 @@ func (x *TenantFilter) String() string {
 func (*TenantFilter) ProtoMessage() {}
 
 func (x *TenantFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_tenant_svc_g_proto_msgTypes[9]
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2733,7 +2733,7 @@ type TenantCloseRequest struct {
 
 func (x *TenantCloseRequest) Reset() {
 	*x = TenantCloseRequest{}
-	mi := &file_rove_payday_tenant_svc_g_proto_msgTypes[10]
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2745,7 +2745,7 @@ func (x *TenantCloseRequest) String() string {
 func (*TenantCloseRequest) ProtoMessage() {}
 
 func (x *TenantCloseRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_tenant_svc_g_proto_msgTypes[10]
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2827,7 +2827,7 @@ type TenantRestoreRequest struct {
 
 func (x *TenantRestoreRequest) Reset() {
 	*x = TenantRestoreRequest{}
-	mi := &file_rove_payday_tenant_svc_g_proto_msgTypes[11]
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2839,7 +2839,7 @@ func (x *TenantRestoreRequest) String() string {
 func (*TenantRestoreRequest) ProtoMessage() {}
 
 func (x *TenantRestoreRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_tenant_svc_g_proto_msgTypes[11]
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2904,7 +2904,7 @@ type TenantConfigureRequest struct {
 
 func (x *TenantConfigureRequest) Reset() {
 	*x = TenantConfigureRequest{}
-	mi := &file_rove_payday_tenant_svc_g_proto_msgTypes[12]
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2916,7 +2916,7 @@ func (x *TenantConfigureRequest) String() string {
 func (*TenantConfigureRequest) ProtoMessage() {}
 
 func (x *TenantConfigureRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_tenant_svc_g_proto_msgTypes[12]
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3199,7 +3199,7 @@ type TenantPreviewRequest struct {
 
 func (x *TenantPreviewRequest) Reset() {
 	*x = TenantPreviewRequest{}
-	mi := &file_rove_payday_tenant_svc_g_proto_msgTypes[13]
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3211,7 +3211,7 @@ func (x *TenantPreviewRequest) String() string {
 func (*TenantPreviewRequest) ProtoMessage() {}
 
 func (x *TenantPreviewRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_tenant_svc_g_proto_msgTypes[13]
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3335,7 +3335,7 @@ type TenantPreviewResponse struct {
 
 func (x *TenantPreviewResponse) Reset() {
 	*x = TenantPreviewResponse{}
-	mi := &file_rove_payday_tenant_svc_g_proto_msgTypes[14]
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3347,7 +3347,7 @@ func (x *TenantPreviewResponse) String() string {
 func (*TenantPreviewResponse) ProtoMessage() {}
 
 func (x *TenantPreviewResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_tenant_svc_g_proto_msgTypes[14]
+	mi := &file_loft_payday_tenant_svc_g_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3527,17 +3527,17 @@ func (b0 TenantPreviewResponse_builder) Build() *TenantPreviewResponse {
 	return m0
 }
 
-var File_rove_payday_tenant_svc_g_proto protoreflect.FileDescriptor
+var File_loft_payday_tenant_svc_g_proto protoreflect.FileDescriptor
 
-const file_rove_payday_tenant_svc_g_proto_rawDesc = "" +
+const file_loft_payday_tenant_svc_g_proto_rawDesc = "" +
 	"\n" +
-	"\x1erove/payday/tenant_svc.g.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x11patch/patch.proto\x1a\x18rove/payday/tenant.proto\"\xc5\a\n" +
+	"\x1eloft/payday/tenant_svc.g.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x18loft/payday/tenant.proto\x1a\x11patch/patch.proto\"\xc5\a\n" +
 	"\x10TenantAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12\x1b\n" +
 	"\x05alias\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05alias\x12\x19\n" +
 	"\x04name\x18\x05 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04name\x12\x19\n" +
 	"\x04desc\x18\x06 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04desc\x12:\n" +
-	"\x06labels\x18\a \x03(\v2\".rove.TenantAddRequest.LabelsEntryR\x06labels\x12=\n" +
+	"\x06labels\x18\a \x03(\v2\".loft.TenantAddRequest.LabelsEntryR\x06labels\x12=\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\x12;\n" +
 	"\vdate_closed\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"dateClosed\x12\"\n" +
@@ -3559,8 +3559,8 @@ const file_rove_payday_tenant_svc_g_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"a\n" +
 	"\x10TenantGetRequest\x12!\n" +
-	"\x03ref\x18\x01 \x01(\v2\x0f.rove.TenantRefR\x03ref\x12*\n" +
-	"\x06select\x18\x02 \x01(\v2\x12.rove.TenantSelectR\x06select\"<\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0f.loft.TenantRefR\x03ref\x12*\n" +
+	"\x06select\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06select\"<\n" +
 	"\tTenantRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02id\x12\x16\n" +
 	"\x05alias\x18\x04 \x01(\tH\x00R\x05aliasB\x05\n" +
@@ -3590,12 +3590,12 @@ const file_rove_payday_tenant_svc_g_proto_rawDesc = "" +
 	"\x17access_keep_days_before\x18\x17 \x01(\bR\x14accessKeepDaysBefore\x12;\n" +
 	"\x1adate_access_keep_shortened\x18\x18 \x01(\bR\x17dateAccessKeepShortened\"\xbc\t\n" +
 	"\x12TenantPatchRequest\x12!\n" +
-	"\x03ref\x18\x01 \x01(\v2\x0f.rove.TenantRefR\x03ref\x12\x14\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0f.loft.TenantRefR\x03ref\x12\x14\n" +
 	"\x05alias\x18\b \x01(\tR\x05alias\x12\x12\n" +
 	"\x04name\x18\n" +
 	" \x01(\tR\x04name\x12\x12\n" +
 	"\x04desc\x18\f \x01(\tR\x04desc\x12<\n" +
-	"\x06labels\x18\x0e \x03(\v2$.rove.TenantPatchRequest.LabelsEntryR\x06labels\x12=\n" +
+	"\x06labels\x18\x0e \x03(\v2$.loft.TenantPatchRequest.LabelsEntryR\x06labels\x12=\n" +
 	"\fdate_updated\x18\x1a \x01(\v2\x1a.google.protobuf.TimestampR\vdateUpdated\x12,\n" +
 	"\x12date_updated_force\x18\x1b \x01(\bR\x10dateUpdatedForce\x12;\n" +
 	"\vdate_closed\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
@@ -3621,28 +3621,28 @@ const file_rove_payday_tenant_svc_g_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"[\n" +
 	"\x12TenantApplyRequest\x12!\n" +
-	"\x03ref\x18\x01 \x01(\v2\x0f.rove.TenantRefR\x03ref\x12\"\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0f.loft.TenantRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"-\n" +
 	"\x13TenantEraseResponse\x12\x16\n" +
 	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x9a\x01\n" +
 	"\x11TenantListRequest\x12,\n" +
-	"\afilters\x18\x01 \x03(\v2\x12.rove.TenantFilterR\afilters\x12\x19\n" +
+	"\afilters\x18\x01 \x03(\v2\x12.loft.TenantFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
 	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
 	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"S\n" +
 	"\x12TenantListResponse\x12\"\n" +
-	"\x05items\x18\x01 \x03(\v2\f.rove.TenantR\x05items\x12\x19\n" +
+	"\x05items\x18\x01 \x03(\v2\f.loft.TenantR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"1\n" +
 	"\fTenantFilter\x12!\n" +
-	"\x03ref\x18\x01 \x01(\v2\x0f.rove.TenantRefR\x03ref\"w\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0f.loft.TenantRefR\x03ref\"w\n" +
 	"\x12TenantCloseRequest\x12!\n" +
-	"\x03ref\x18\x01 \x01(\v2\x0f.rove.TenantRefR\x03ref\x12\x1f\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0f.loft.TenantRefR\x03ref\x12\x1f\n" +
 	"\aconfirm\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\aconfirm\x12\x1d\n" +
 	"\x06reason\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06reason\"9\n" +
 	"\x14TenantRestoreRequest\x12!\n" +
-	"\x03ref\x18\x01 \x01(\v2\x0f.rove.TenantRefR\x03ref\"\x99\x02\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0f.loft.TenantRefR\x03ref\"\x99\x02\n" +
 	"\x16TenantConfigureRequest\x12!\n" +
-	"\x03ref\x18\x01 \x01(\v2\x0f.rove.TenantRefR\x03ref\x12\x1a\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0f.loft.TenantRefR\x03ref\x12\x1a\n" +
 	"\btimezone\x18\x02 \x01(\tR\btimezone\x12\x1a\n" +
 	"\bcurrency\x18\x03 \x01(\tR\bcurrency\x12&\n" +
 	"\x0fno_show_minutes\x18\x04 \x01(\x05R\rnoShowMinutes\x12\x1b\n" +
@@ -3651,7 +3651,7 @@ const file_rove_payday_tenant_svc_g_proto_rawDesc = "" +
 	"\frestore_days\x18\a \x01(\rR\vrestoreDays\x12\x12\n" +
 	"\x04name\x18\b \x01(\tR\x04name\"\x80\x01\n" +
 	"\x14TenantPreviewRequest\x12!\n" +
-	"\x03ref\x18\x01 \x01(\v2\x0f.rove.TenantRefR\x03ref\x12\x1b\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0f.loft.TenantRefR\x03ref\x12\x1b\n" +
 	"\tkeep_days\x18\x02 \x01(\rR\bkeepDays\x12(\n" +
 	"\x10access_keep_days\x18\x03 \x01(\rR\x0eaccessKeepDays\"\x85\x04\n" +
 	"\x15TenantPreviewResponse\x12\x1b\n" +
@@ -3661,7 +3661,7 @@ const file_rove_payday_tenant_svc_g_proto_rawDesc = "" +
 	"\tkeep_days\x18\x03 \x01(\rB\x05\xaa\x01\x02\b\x02R\bkeepDays\x127\n" +
 	"\tkeep_from\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\bkeepFrom\x12I\n" +
 	"\n" +
-	"keep_takes\x18\x05 \x03(\v2*.rove.TenantPreviewResponse.KeepTakesEntryR\tkeepTakes\x12/\n" +
+	"keep_takes\x18\x05 \x03(\v2*.loft.TenantPreviewResponse.KeepTakesEntryR\tkeepTakes\x12/\n" +
 	"\x10access_keep_days\x18\x06 \x01(\rB\x05\xaa\x01\x02\b\x02R\x0eaccessKeepDays\x12D\n" +
 	"\x10access_keep_from\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\x0eaccessKeepFrom\x121\n" +
 	"\x11access_floor_days\x18\b \x01(\rB\x05\xaa\x01\x02\b\x02R\x0faccessFloorDays\x12\x19\n" +
@@ -3670,89 +3670,89 @@ const file_rove_payday_tenant_svc_g_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\rR\x05value:\x028\x012\x9e\x04\n" +
 	"\rTenantService\x12+\n" +
-	"\x03Add\x12\x16.rove.TenantAddRequest\x1a\f.rove.Tenant\x12+\n" +
-	"\x03Get\x12\x16.rove.TenantGetRequest\x1a\f.rove.Tenant\x12/\n" +
-	"\x05Patch\x12\x18.rove.TenantPatchRequest\x1a\f.rove.Tenant\x12/\n" +
-	"\x05Apply\x12\x18.rove.TenantApplyRequest\x1a\f.rove.Tenant\x123\n" +
-	"\x05Erase\x12\x0f.rove.TenantRef\x1a\x19.rove.TenantEraseResponse\x129\n" +
-	"\x04List\x12\x17.rove.TenantListRequest\x1a\x18.rove.TenantListResponse\x12/\n" +
-	"\x05Close\x12\x18.rove.TenantCloseRequest\x1a\f.rove.Tenant\x123\n" +
-	"\aRestore\x12\x1a.rove.TenantRestoreRequest\x1a\f.rove.Tenant\x127\n" +
-	"\tConfigure\x12\x1c.rove.TenantConfigureRequest\x1a\f.rove.Tenant\x12B\n" +
-	"\aPreview\x12\x1a.rove.TenantPreviewRequest\x1a\x1b.rove.TenantPreviewResponseB\x1aZ\x18github.com/lesomnus/roveb\beditionsp\xe8\a"
+	"\x03Add\x12\x16.loft.TenantAddRequest\x1a\f.loft.Tenant\x12+\n" +
+	"\x03Get\x12\x16.loft.TenantGetRequest\x1a\f.loft.Tenant\x12/\n" +
+	"\x05Patch\x12\x18.loft.TenantPatchRequest\x1a\f.loft.Tenant\x12/\n" +
+	"\x05Apply\x12\x18.loft.TenantApplyRequest\x1a\f.loft.Tenant\x123\n" +
+	"\x05Erase\x12\x0f.loft.TenantRef\x1a\x19.loft.TenantEraseResponse\x129\n" +
+	"\x04List\x12\x17.loft.TenantListRequest\x1a\x18.loft.TenantListResponse\x12/\n" +
+	"\x05Close\x12\x18.loft.TenantCloseRequest\x1a\f.loft.Tenant\x123\n" +
+	"\aRestore\x12\x1a.loft.TenantRestoreRequest\x1a\f.loft.Tenant\x127\n" +
+	"\tConfigure\x12\x1c.loft.TenantConfigureRequest\x1a\f.loft.Tenant\x12B\n" +
+	"\aPreview\x12\x1a.loft.TenantPreviewRequest\x1a\x1b.loft.TenantPreviewResponseB\x1aZ\x18github.com/lesomnus/loftb\beditionsp\xe8\a"
 
-var file_rove_payday_tenant_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
-var file_rove_payday_tenant_svc_g_proto_goTypes = []any{
-	(*TenantAddRequest)(nil),       // 0: rove.TenantAddRequest
-	(*TenantGetRequest)(nil),       // 1: rove.TenantGetRequest
-	(*TenantRef)(nil),              // 2: rove.TenantRef
-	(*TenantSelect)(nil),           // 3: rove.TenantSelect
-	(*TenantPatchRequest)(nil),     // 4: rove.TenantPatchRequest
-	(*TenantApplyRequest)(nil),     // 5: rove.TenantApplyRequest
-	(*TenantEraseResponse)(nil),    // 6: rove.TenantEraseResponse
-	(*TenantListRequest)(nil),      // 7: rove.TenantListRequest
-	(*TenantListResponse)(nil),     // 8: rove.TenantListResponse
-	(*TenantFilter)(nil),           // 9: rove.TenantFilter
-	(*TenantCloseRequest)(nil),     // 10: rove.TenantCloseRequest
-	(*TenantRestoreRequest)(nil),   // 11: rove.TenantRestoreRequest
-	(*TenantConfigureRequest)(nil), // 12: rove.TenantConfigureRequest
-	(*TenantPreviewRequest)(nil),   // 13: rove.TenantPreviewRequest
-	(*TenantPreviewResponse)(nil),  // 14: rove.TenantPreviewResponse
-	nil,                            // 15: rove.TenantAddRequest.LabelsEntry
-	nil,                            // 16: rove.TenantPatchRequest.LabelsEntry
-	nil,                            // 17: rove.TenantPreviewResponse.KeepTakesEntry
+var file_loft_payday_tenant_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_loft_payday_tenant_svc_g_proto_goTypes = []any{
+	(*TenantAddRequest)(nil),       // 0: loft.TenantAddRequest
+	(*TenantGetRequest)(nil),       // 1: loft.TenantGetRequest
+	(*TenantRef)(nil),              // 2: loft.TenantRef
+	(*TenantSelect)(nil),           // 3: loft.TenantSelect
+	(*TenantPatchRequest)(nil),     // 4: loft.TenantPatchRequest
+	(*TenantApplyRequest)(nil),     // 5: loft.TenantApplyRequest
+	(*TenantEraseResponse)(nil),    // 6: loft.TenantEraseResponse
+	(*TenantListRequest)(nil),      // 7: loft.TenantListRequest
+	(*TenantListResponse)(nil),     // 8: loft.TenantListResponse
+	(*TenantFilter)(nil),           // 9: loft.TenantFilter
+	(*TenantCloseRequest)(nil),     // 10: loft.TenantCloseRequest
+	(*TenantRestoreRequest)(nil),   // 11: loft.TenantRestoreRequest
+	(*TenantConfigureRequest)(nil), // 12: loft.TenantConfigureRequest
+	(*TenantPreviewRequest)(nil),   // 13: loft.TenantPreviewRequest
+	(*TenantPreviewResponse)(nil),  // 14: loft.TenantPreviewResponse
+	nil,                            // 15: loft.TenantAddRequest.LabelsEntry
+	nil,                            // 16: loft.TenantPatchRequest.LabelsEntry
+	nil,                            // 17: loft.TenantPreviewResponse.KeepTakesEntry
 	(*timestamppb.Timestamp)(nil),  // 18: google.protobuf.Timestamp
 	(*patchpb.Patch)(nil),          // 19: patch.Patch
-	(*Tenant)(nil),                 // 20: rove.Tenant
+	(*Tenant)(nil),                 // 20: loft.Tenant
 }
-var file_rove_payday_tenant_svc_g_proto_depIdxs = []int32{
-	15, // 0: rove.TenantAddRequest.labels:type_name -> rove.TenantAddRequest.LabelsEntry
-	18, // 1: rove.TenantAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	18, // 2: rove.TenantAddRequest.date_closed:type_name -> google.protobuf.Timestamp
-	18, // 3: rove.TenantAddRequest.date_destroy:type_name -> google.protobuf.Timestamp
-	18, // 4: rove.TenantAddRequest.date_keep_shortened:type_name -> google.protobuf.Timestamp
-	18, // 5: rove.TenantAddRequest.date_access_keep_shortened:type_name -> google.protobuf.Timestamp
-	2,  // 6: rove.TenantGetRequest.ref:type_name -> rove.TenantRef
-	3,  // 7: rove.TenantGetRequest.select:type_name -> rove.TenantSelect
-	2,  // 8: rove.TenantPatchRequest.ref:type_name -> rove.TenantRef
-	16, // 9: rove.TenantPatchRequest.labels:type_name -> rove.TenantPatchRequest.LabelsEntry
-	18, // 10: rove.TenantPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	18, // 11: rove.TenantPatchRequest.date_closed:type_name -> google.protobuf.Timestamp
-	18, // 12: rove.TenantPatchRequest.date_destroy:type_name -> google.protobuf.Timestamp
-	18, // 13: rove.TenantPatchRequest.date_keep_shortened:type_name -> google.protobuf.Timestamp
-	18, // 14: rove.TenantPatchRequest.date_access_keep_shortened:type_name -> google.protobuf.Timestamp
-	2,  // 15: rove.TenantApplyRequest.ref:type_name -> rove.TenantRef
-	19, // 16: rove.TenantApplyRequest.patch:type_name -> patch.Patch
-	9,  // 17: rove.TenantListRequest.filters:type_name -> rove.TenantFilter
-	20, // 18: rove.TenantListResponse.items:type_name -> rove.Tenant
-	2,  // 19: rove.TenantFilter.ref:type_name -> rove.TenantRef
-	2,  // 20: rove.TenantCloseRequest.ref:type_name -> rove.TenantRef
-	2,  // 21: rove.TenantRestoreRequest.ref:type_name -> rove.TenantRef
-	2,  // 22: rove.TenantConfigureRequest.ref:type_name -> rove.TenantRef
-	2,  // 23: rove.TenantPreviewRequest.ref:type_name -> rove.TenantRef
-	18, // 24: rove.TenantPreviewResponse.keep_from:type_name -> google.protobuf.Timestamp
-	17, // 25: rove.TenantPreviewResponse.keep_takes:type_name -> rove.TenantPreviewResponse.KeepTakesEntry
-	18, // 26: rove.TenantPreviewResponse.access_keep_from:type_name -> google.protobuf.Timestamp
-	0,  // 27: rove.TenantService.Add:input_type -> rove.TenantAddRequest
-	1,  // 28: rove.TenantService.Get:input_type -> rove.TenantGetRequest
-	4,  // 29: rove.TenantService.Patch:input_type -> rove.TenantPatchRequest
-	5,  // 30: rove.TenantService.Apply:input_type -> rove.TenantApplyRequest
-	2,  // 31: rove.TenantService.Erase:input_type -> rove.TenantRef
-	7,  // 32: rove.TenantService.List:input_type -> rove.TenantListRequest
-	10, // 33: rove.TenantService.Close:input_type -> rove.TenantCloseRequest
-	11, // 34: rove.TenantService.Restore:input_type -> rove.TenantRestoreRequest
-	12, // 35: rove.TenantService.Configure:input_type -> rove.TenantConfigureRequest
-	13, // 36: rove.TenantService.Preview:input_type -> rove.TenantPreviewRequest
-	20, // 37: rove.TenantService.Add:output_type -> rove.Tenant
-	20, // 38: rove.TenantService.Get:output_type -> rove.Tenant
-	20, // 39: rove.TenantService.Patch:output_type -> rove.Tenant
-	20, // 40: rove.TenantService.Apply:output_type -> rove.Tenant
-	6,  // 41: rove.TenantService.Erase:output_type -> rove.TenantEraseResponse
-	8,  // 42: rove.TenantService.List:output_type -> rove.TenantListResponse
-	20, // 43: rove.TenantService.Close:output_type -> rove.Tenant
-	20, // 44: rove.TenantService.Restore:output_type -> rove.Tenant
-	20, // 45: rove.TenantService.Configure:output_type -> rove.Tenant
-	14, // 46: rove.TenantService.Preview:output_type -> rove.TenantPreviewResponse
+var file_loft_payday_tenant_svc_g_proto_depIdxs = []int32{
+	15, // 0: loft.TenantAddRequest.labels:type_name -> loft.TenantAddRequest.LabelsEntry
+	18, // 1: loft.TenantAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	18, // 2: loft.TenantAddRequest.date_closed:type_name -> google.protobuf.Timestamp
+	18, // 3: loft.TenantAddRequest.date_destroy:type_name -> google.protobuf.Timestamp
+	18, // 4: loft.TenantAddRequest.date_keep_shortened:type_name -> google.protobuf.Timestamp
+	18, // 5: loft.TenantAddRequest.date_access_keep_shortened:type_name -> google.protobuf.Timestamp
+	2,  // 6: loft.TenantGetRequest.ref:type_name -> loft.TenantRef
+	3,  // 7: loft.TenantGetRequest.select:type_name -> loft.TenantSelect
+	2,  // 8: loft.TenantPatchRequest.ref:type_name -> loft.TenantRef
+	16, // 9: loft.TenantPatchRequest.labels:type_name -> loft.TenantPatchRequest.LabelsEntry
+	18, // 10: loft.TenantPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	18, // 11: loft.TenantPatchRequest.date_closed:type_name -> google.protobuf.Timestamp
+	18, // 12: loft.TenantPatchRequest.date_destroy:type_name -> google.protobuf.Timestamp
+	18, // 13: loft.TenantPatchRequest.date_keep_shortened:type_name -> google.protobuf.Timestamp
+	18, // 14: loft.TenantPatchRequest.date_access_keep_shortened:type_name -> google.protobuf.Timestamp
+	2,  // 15: loft.TenantApplyRequest.ref:type_name -> loft.TenantRef
+	19, // 16: loft.TenantApplyRequest.patch:type_name -> patch.Patch
+	9,  // 17: loft.TenantListRequest.filters:type_name -> loft.TenantFilter
+	20, // 18: loft.TenantListResponse.items:type_name -> loft.Tenant
+	2,  // 19: loft.TenantFilter.ref:type_name -> loft.TenantRef
+	2,  // 20: loft.TenantCloseRequest.ref:type_name -> loft.TenantRef
+	2,  // 21: loft.TenantRestoreRequest.ref:type_name -> loft.TenantRef
+	2,  // 22: loft.TenantConfigureRequest.ref:type_name -> loft.TenantRef
+	2,  // 23: loft.TenantPreviewRequest.ref:type_name -> loft.TenantRef
+	18, // 24: loft.TenantPreviewResponse.keep_from:type_name -> google.protobuf.Timestamp
+	17, // 25: loft.TenantPreviewResponse.keep_takes:type_name -> loft.TenantPreviewResponse.KeepTakesEntry
+	18, // 26: loft.TenantPreviewResponse.access_keep_from:type_name -> google.protobuf.Timestamp
+	0,  // 27: loft.TenantService.Add:input_type -> loft.TenantAddRequest
+	1,  // 28: loft.TenantService.Get:input_type -> loft.TenantGetRequest
+	4,  // 29: loft.TenantService.Patch:input_type -> loft.TenantPatchRequest
+	5,  // 30: loft.TenantService.Apply:input_type -> loft.TenantApplyRequest
+	2,  // 31: loft.TenantService.Erase:input_type -> loft.TenantRef
+	7,  // 32: loft.TenantService.List:input_type -> loft.TenantListRequest
+	10, // 33: loft.TenantService.Close:input_type -> loft.TenantCloseRequest
+	11, // 34: loft.TenantService.Restore:input_type -> loft.TenantRestoreRequest
+	12, // 35: loft.TenantService.Configure:input_type -> loft.TenantConfigureRequest
+	13, // 36: loft.TenantService.Preview:input_type -> loft.TenantPreviewRequest
+	20, // 37: loft.TenantService.Add:output_type -> loft.Tenant
+	20, // 38: loft.TenantService.Get:output_type -> loft.Tenant
+	20, // 39: loft.TenantService.Patch:output_type -> loft.Tenant
+	20, // 40: loft.TenantService.Apply:output_type -> loft.Tenant
+	6,  // 41: loft.TenantService.Erase:output_type -> loft.TenantEraseResponse
+	8,  // 42: loft.TenantService.List:output_type -> loft.TenantListResponse
+	20, // 43: loft.TenantService.Close:output_type -> loft.Tenant
+	20, // 44: loft.TenantService.Restore:output_type -> loft.Tenant
+	20, // 45: loft.TenantService.Configure:output_type -> loft.Tenant
+	14, // 46: loft.TenantService.Preview:output_type -> loft.TenantPreviewResponse
 	37, // [37:47] is the sub-list for method output_type
 	27, // [27:37] is the sub-list for method input_type
 	27, // [27:27] is the sub-list for extension type_name
@@ -3760,13 +3760,13 @@ var file_rove_payday_tenant_svc_g_proto_depIdxs = []int32{
 	0,  // [0:27] is the sub-list for field type_name
 }
 
-func init() { file_rove_payday_tenant_svc_g_proto_init() }
-func file_rove_payday_tenant_svc_g_proto_init() {
-	if File_rove_payday_tenant_svc_g_proto != nil {
+func init() { file_loft_payday_tenant_svc_g_proto_init() }
+func file_loft_payday_tenant_svc_g_proto_init() {
+	if File_loft_payday_tenant_svc_g_proto != nil {
 		return
 	}
-	file_rove_payday_tenant_proto_init()
-	file_rove_payday_tenant_svc_g_proto_msgTypes[2].OneofWrappers = []any{
+	file_loft_payday_tenant_proto_init()
+	file_loft_payday_tenant_svc_g_proto_msgTypes[2].OneofWrappers = []any{
 		(*tenantRef_Id)(nil),
 		(*tenantRef_Alias)(nil),
 	}
@@ -3774,17 +3774,17 @@ func file_rove_payday_tenant_svc_g_proto_init() {
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_payday_tenant_svc_g_proto_rawDesc), len(file_rove_payday_tenant_svc_g_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_payday_tenant_svc_g_proto_rawDesc), len(file_loft_payday_tenant_svc_g_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   18,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_rove_payday_tenant_svc_g_proto_goTypes,
-		DependencyIndexes: file_rove_payday_tenant_svc_g_proto_depIdxs,
-		MessageInfos:      file_rove_payday_tenant_svc_g_proto_msgTypes,
+		GoTypes:           file_loft_payday_tenant_svc_g_proto_goTypes,
+		DependencyIndexes: file_loft_payday_tenant_svc_g_proto_depIdxs,
+		MessageInfos:      file_loft_payday_tenant_svc_g_proto_msgTypes,
 	}.Build()
-	File_rove_payday_tenant_svc_g_proto = out.File
-	file_rove_payday_tenant_svc_g_proto_goTypes = nil
-	file_rove_payday_tenant_svc_g_proto_depIdxs = nil
+	File_loft_payday_tenant_svc_g_proto = out.File
+	file_loft_payday_tenant_svc_g_proto_goTypes = nil
+	file_loft_payday_tenant_svc_g_proto_depIdxs = nil
 }

@@ -15,17 +15,17 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/identity"
-	"github.com/lesomnus/rove/server/account"
-	"github.com/lesomnus/rove/server/consent"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/internal/identity"
+	"github.com/lesomnus/loft/server/account"
+	"github.com/lesomnus/loft/server/consent"
 )
 
 var (
-	terms   = cmd.DocumentConfig{Version: "2026-10-01", Url: "https://rove.example/terms"}
-	privacy = cmd.DocumentConfig{Version: "2026-10-01", Url: "https://rove.example/privacy"}
+	terms   = cmd.DocumentConfig{Version: "2026-10-01", Url: "https://loft.example/terms"}
+	privacy = cmd.DocumentConfig{Version: "2026-10-01", Url: "https://loft.example/privacy"}
 )
 
 func consentWorld(t *testing.T) *world {
@@ -53,7 +53,7 @@ func TestNothingIsServedBeforeTheAccountAgrees(t *testing.T) {
 
 	_, err = parties.Me(w.owner, &app.PartyMeRequest{})
 	x.Equal(codes.FailedPrecondition, status.Code(err))
-	x.Contains(status.Convert(err).Message(), "rove consent", "a terminal is told what to run")
+	x.Contains(status.Convert(err).Message(), "loft consent", "a terminal is told what to run")
 
 	res := w.page(w.owner, http.MethodGet, "/account")
 	x.Equal(http.StatusOK, res.Code)

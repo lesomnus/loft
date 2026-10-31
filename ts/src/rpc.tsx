@@ -14,7 +14,7 @@
  *
  * payday's store would do better than this -- one copy of a row however many
  * places draw it -- and is what this should become. It is not used yet
- * because most of what rove reads is not a row: a timeline, a tree at a
+ * because most of what loft reads is not a row: a timeline, a tree at a
  * moment, a calendar, a report.
  *
  * @module

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 
-import type { CountFinding, InventoryCount } from '../../gen/rove/count_pb.js'
+import type { CountFinding, InventoryCount } from '../../gen/loft/count_pb.js'
 import { CountFindingService, InventoryCountService, fmt, idBytes, idStr, op, ref, ts } from '../api.js'
 import { useCatalog } from '../catalog.js'
 import { SpaceSelect, useAssets } from '../pickers.js'

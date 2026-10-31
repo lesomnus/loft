@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
-import type { CalendarEntry } from '../../gen/rove/booking_svc_pb.js'
+import type { CalendarEntry } from '../../gen/loft/booking_svc_pb.js'
 import { AssetService, CustodyService, NotificationService, ReservationService, ago, fmt, idStr, minute, ref, ts } from '../api.js'
 import { useCatalog } from '../catalog.js'
 import { AssetLink } from '../pickers.js'

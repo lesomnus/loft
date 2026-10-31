@@ -1,4 +1,4 @@
-# Workspaces' own domains (rove#155), for a deployment that takes them: read
+# Workspaces' own domains (loft#155), for a deployment that takes them: read
 # after compose.yaml. README.md says how to turn it on:
 #
 #   echo COMPOSE_FILE=compose.yaml:compose.domains.yaml >> .env
@@ -8,27 +8,27 @@
 # address as Caddyfile has it, and a certificate on demand for every other
 # host that the operator's entry point says is a workspace's verified domain
 # in use. A workspace points its domain at this host: a CNAME to
-# ROVE_EDGE_HOST -- ROVE_DOMAIN unless said -- and the TXT record its settings
+# LOFT_EDGE_HOST -- LOFT_DOMAIN unless said -- and the TXT record its settings
 # page shows.
 
 services:
-  rove:
+  loft:
     environment:
       # What a workspace's CNAME points at, which its settings page shows and
       # the hourly check of its DNS holds it to.
-      ROVE_APP_LABELS_TARGET: ${ROVE_EDGE_HOST:-${ROVE_DOMAIN:?}}
+      LOFT_APP_LABELS_TARGET: ${LOFT_EDGE_HOST:-${LOFT_DOMAIN:?}}
 
-  rove-admin:
+  loft-admin:
     environment:
       # The ask alone, on a port of its own, which is what Caddy reaches.
-      ROVE_ADMIN_ASK_ADDR: 0.0.0.0:8082
+      LOFT_ADMIN_ASK_ADDR: 0.0.0.0:8082
 
   caddy:
     command: ["caddy", "run", "--config", "/etc/caddy/Caddyfile.domains", "--adapter", "caddyfile"]
     environment:
-      ROVE_EDGE_OPTIONS: ${ROVE_EDGE_OPTIONS:-}
+      LOFT_EDGE_OPTIONS: ${LOFT_EDGE_OPTIONS:-}
     volumes:
       - ./Caddyfile.domains:/etc/caddy/Caddyfile.domains:ro
     # A certificate is asked for before it is served, so the entry point
     # comes up first.
-    depends_on: [rove, rove-admin]
+    depends_on: [loft, loft-admin]

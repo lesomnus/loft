@@ -16,16 +16,16 @@ import (
 	"github.com/lesomnus/xli"
 	"github.com/lesomnus/xli/flg"
 
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/aliashold"
-	"github.com/lesomnus/rove/server/closing"
-	"github.com/lesomnus/rove/server/offboard"
-	"github.com/lesomnus/rove/server/pd"
-	"github.com/lesomnus/rove/server/retention"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/aliashold"
+	"github.com/lesomnus/loft/server/closing"
+	"github.com/lesomnus/loft/server/offboard"
+	"github.com/lesomnus/loft/server/pd"
+	"github.com/lesomnus/loft/server/retention"
 )
 
-// NewCmdTenant is `rove tenant`: what leaves with a tenant (design 8.2).
+// NewCmdTenant is `loft tenant`: what leaves with a tenant (design 8.2).
 //
 // The order is export, the grace an offboarding gives, then a retirement or a
 // purge, and it is the operator's to keep. They are commands and not RPCs: no
@@ -153,7 +153,7 @@ func NewCmdTenant(c *cmd.Config) *xli.Command {
 	}
 }
 
-// newCmdTenantLeave is `rove tenant retire` and `rove tenant purge`: a
+// newCmdTenantLeave is `loft tenant retire` and `loft tenant purge`: a
 // workspace destroyed by an operator's hand, as the closing sweep destroys one
 // whose restore window is over ([closing.Closing.Destroy]) -- its rows, its
 // files, the accounts of the roster in this process that were here alone, and
@@ -230,18 +230,18 @@ func newCmdTenantLeave(c *cmd.Config, name, brief string, how closing.How) *xli.
 			if !yes {
 				switch {
 				case how == closing.Purge && !w.Purge:
-					self.Printf("(its contract retires it, keeping what the deployment's floors are on: `rove tenant retire` does what it says)\n")
+					self.Printf("(its contract retires it, keeping what the deployment's floors are on: `loft tenant retire` does what it says)\n")
 				case how == closing.Retire && w.Purge:
-					self.Printf("(its contract purges it, what the deployment's floors are on too: `rove tenant purge` does what it says)\n")
+					self.Printf("(its contract purges it, what the deployment's floors are on too: `loft tenant purge` does what it says)\n")
 				}
-				self.Printf("(nothing was taken: `--yes` takes it. Export first -- `rove tenant export --tenant %s`)\n", t.Alias)
+				self.Printf("(nothing was taken: `--yes` takes it. Export first -- `loft tenant export --tenant %s`)\n", t.Alias)
 			}
 			return nil
 		}),
 	}
 }
 
-// newCmdTenantRetired is `rove tenant retired`: the workspaces that retired
+// newCmdTenantRetired is `loft tenant retired`: the workspaces that retired
 // from this deployment and what is left of each -- when it retired, and until
 // when the deployment's floors keep what it kept (`trail.Policy.Retired`).
 // What an operator asked to preserve a workspace's records reads first:
@@ -288,7 +288,7 @@ func newCmdTenantRetired(c *cmd.Config) *xli.Command {
 	}
 }
 
-// newCmdTenantImport is `rove tenant import`: a workspace back from its signed
+// newCmdTenantImport is `loft tenant import`: a workspace back from its signed
 // export, into a deployment that does not have it -- the one it was purged
 // from, or another (design D34). Like a purge, it says what it would do until
 // it is told `--yes`.
@@ -362,7 +362,7 @@ func newCmdTenantImport(c *cmd.Config) *xli.Command {
 			}
 			if len(x.Unlinked) > 0 {
 				self.Printf("  %d member(s) whose accounts this roster does not have, restored with none: %s\n", len(x.Unlinked), strings.Join(x.Unlinked, ", "))
-				self.Printf("  (nobody of them signs in until `rove identity migrate` gives each an account)\n")
+				self.Printf("  (nobody of them signs in until `loft identity migrate` gives each an account)\n")
 			}
 			if !yes {
 				self.Printf("(nothing was put back: `--yes` does it)\n")
@@ -385,7 +385,7 @@ func newCmdTenantImport(c *cmd.Config) *xli.Command {
 // stdio is what `--out` and `--file` take, in place of a file, for the
 // command's own stdout or stdin. A deployment's image has nothing to copy a
 // file out of a container with, or into one, so an export leaves through
-// `kubectl exec` and comes back the same way (rove#126; `deploy/k8s`).
+// `kubectl exec` and comes back the same way (loft#126; `deploy/k8s`).
 const stdio = "-"
 
 // spooled is the export `path` names, opened, with its size and what to call
@@ -407,7 +407,7 @@ func spooled(self *xli.Command, path string) (*os.File, int64, func(), error) {
 		return f, st.Size(), func() { f.Close() }, nil
 	}
 
-	f, err := os.CreateTemp("", "rove-export-*.zip")
+	f, err := os.CreateTemp("", "loft-export-*.zip")
 	if err != nil {
 		return nil, 0, nil, err
 	}

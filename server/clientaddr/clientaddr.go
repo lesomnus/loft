@@ -6,7 +6,7 @@
 // # Whose word is taken
 //
 // The connection's, unless it is a proxy this deployment says it trusts. A
-// proxy in front of rove makes every request arrive from the proxy, so a limit
+// proxy in front of loft makes every request arrive from the proxy, so a limit
 // counted by the connection is one limit for everybody behind it: ten wrong
 // guesses by anybody, and a name is refused to all of them. A proxy says whom
 // it is passing on in X-Forwarded-For, and so does anybody else who writes the

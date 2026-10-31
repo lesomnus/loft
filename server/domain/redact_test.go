@@ -18,15 +18,15 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent"
-	entaudit "github.com/lesomnus/rove/internal/ent/audit"
-	"github.com/lesomnus/rove/internal/ent/event"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/ent/notification"
-	"github.com/lesomnus/rove/server/domain"
-	"github.com/lesomnus/rove/server/mail"
-	"github.com/lesomnus/rove/server/pd"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent"
+	entaudit "github.com/lesomnus/loft/internal/ent/audit"
+	"github.com/lesomnus/loft/internal/ent/event"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/internal/ent/notification"
+	"github.com/lesomnus/loft/server/domain"
+	"github.com/lesomnus/loft/server/mail"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 // What a person asked to be erased, said in a reason: a name and a number,
@@ -230,7 +230,7 @@ func TestAReasonIsTakenOutOfAnEventOfTheWorkspaceThatHasOne(t *testing.T) {
 }
 
 // TestAnOperatorTakesAReasonOutAsTheDeploymentsOwnWork: the operator's door
-// (`rove event redact`) is the same act, done as the deployment's own work in
+// (`loft event redact`) is the same act, done as the deployment's own work in
 // the workspace: nobody's, filed under it -- and so is what it does to the
 // rest of an operation that says the same, a hand-over's memo copied into
 // each thing it handed over.
@@ -770,14 +770,14 @@ func TestWordsTakenOutOfANoticeAreNotMailed(t *testing.T) {
 			x.Contains(v.Body, before, "sent before anybody asked")
 		case strings.Contains(v.Subject, "둘째 회의"):
 			x.NotContains(v.Body, "박지민", "sent as it says now")
-			x.Contains(v.Body, "https://rove.example/@acme/reservations", "and still what it is about")
+			x.Contains(v.Body, "https://loft.example/@acme/reservations", "and still what it is about")
 		default:
 			x.Fail("a mail of neither", v.Subject)
 		}
 	}
 
 	// Taken out of the first now, which went by mail before: the notice says
-	// it no more, and what was mailed is not Rove's to take back.
+	// it no more, and what was mailed is not Loft's to take back.
 	_, err := e.redact(e.owner, rejected["첫 회의"], "삭제 요청 2026-30")
 	x.NoError(err)
 	n, err := e.s.Ent.Notification.Query().Where(notification.Kind("reservation.decided"), notification.DescNEQ("")).Count(ctx)

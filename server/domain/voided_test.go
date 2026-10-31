@@ -8,7 +8,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	app "github.com/lesomnus/rove"
+	app "github.com/lesomnus/loft"
 )
 
 // What is voided -- erased as registered by mistake -- is out of use to every

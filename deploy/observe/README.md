@@ -1,9 +1,9 @@
 # 관측: Grafana와 대시보드 (운영자)
 
-Rove가 내보낸 것과 플랫폼이 말하는 것을 **이미 있는 ClickHouse와 Loki 위에서** 보는 구성입니다(rove#38). 저장소를 새로 두지 않습니다. 데이터는 OpenTelemetry Collector의 `clickhouse` 내보내기가 쓰는 표준 테이블에 있고, 여기서는 그것을 Grafana로 그립니다. 경보는 아직 없습니다. 무엇에 걸지는 [`docs/runbook/observe.md`](../../docs/runbook/observe.md)에 있습니다.
+Loft가 내보낸 것과 플랫폼이 말하는 것을 **이미 있는 ClickHouse와 Loki 위에서** 보는 구성입니다(loft#38). 저장소를 새로 두지 않습니다. 데이터는 OpenTelemetry Collector의 `clickhouse` 내보내기가 쓰는 표준 테이블에 있고, 여기서는 그것을 Grafana로 그립니다. 경보는 아직 없습니다. 무엇에 걸지는 [`docs/runbook/observe.md`](../../docs/runbook/observe.md)에 있습니다.
 
 ```
-Rove (otel:) ─ OTLP ─┐
+Loft (otel:) ─ OTLP ─┐
                      ├─> 노드의 수집기 ─> ClickHouse (로그·추적·지표), Loki (로그) ─> Grafana
 이 수집기 ─── OTLP ──┘
   (CNPG, cert-manager, 쿠버네티스)
@@ -15,16 +15,16 @@ Rove (otel:) ─ OTLP ─┐
 | --- | --- |
 | `grafana.yaml` | Grafana 하나와 그 볼륨, Service, NetworkPolicy. 데이터 소스와 대시보드는 시작할 때마다 파일에서 읽습니다(화면에서 바꾼 것은 남지 않음) |
 | `datasources.yaml` | 데이터 소스의 예. 오버레이가 자기 주소로 바꿉니다 |
-| `dashboards/` | `gen.py`가 쓰는 대시보드 둘: **Rove — 서비스**, **Rove — 플랫폼** |
+| `dashboards/` | `gen.py`가 쓰는 대시보드 둘: **Loft — 서비스**, **Loft — 플랫폼** |
 | `collector.yaml` | 클러스터 안 수집기. CNPG와 cert-manager의 지표를 긁고, 쿠버네티스의 상태(재시작, Job, 파드)를 읽어 OTLP로 보냅니다 |
-| `cnpg-monitoring.yaml` | DB 쪽: CNPG의 지표에 Rove의 것을 더하는 쿼리(리스를 쥔 루프 수, 검색 대기열). DB의 namespace에 둡니다 |
+| `cnpg-monitoring.yaml` | DB 쪽: CNPG의 지표에 Loft의 것을 더하는 쿼리(리스를 쥔 루프 수, 검색 대기열). DB의 namespace에 둡니다 |
 
 ## 대시보드
 
-- **Rove — 서비스:**
+- **Loft — 서비스:**
   - 요청 로그(`gRPC out`)에서 초당 요청, 서버 쪽 실패 비율, p95 지연을 봅니다. 메서드별 요청·지연·상태와 요약 표도 있습니다.
   - 백그라운드 작업: 경고·오류 로그, 리스를 쥔 루프의 수, 검색 대기열, Loki의 WARN·ERROR 로그입니다.
-- **Rove — 플랫폼:**
+- **Loft — 플랫폼:**
   - 백업: 마지막 베이스 백업과 WAL 보관의 경과, 보관 실패, 복구할 수 있는 가장 이른 시점
   - DB: 크기, 연결, 커밋
   - 인증서: 만료까지 남은 날
@@ -45,7 +45,7 @@ Rove (otel:) ─ OTLP ─┐
 
 ```yaml
 resources:
-  - github.com/lesomnus/rove//deploy/observe?ref=<커밋>
+  - github.com/lesomnus/loft//deploy/observe?ref=<커밋>
   - ./ingress.yaml
 namespace: observe
 configMapGenerator:

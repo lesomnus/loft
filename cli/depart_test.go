@@ -13,12 +13,12 @@ import (
 	"github.com/lesomnus/payday/pdtest"
 	"github.com/stretchr/testify/require"
 
-	"github.com/lesomnus/rove/cli"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	entsession "github.com/lesomnus/rove/internal/ent/session"
-	"github.com/lesomnus/rove/internal/identity"
+	"github.com/lesomnus/loft/cli"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	entsession "github.com/lesomnus/loft/internal/ent/session"
+	"github.com/lesomnus/loft/internal/identity"
 )
 
 // aDeployment is the roster in this process, with acme's owner and kim, and
@@ -69,7 +69,7 @@ func membershipsOf(t *testing.T, s *cmd.Server, account pdid.Id) []*ent.Holder {
 // TestAnOperatorDepartsAnAccountAtOnce.
 //
 // Somebody who asked to be forgotten now is not made to wait out a grace:
-// `rove identity depart` takes their account out of every workspace it is in,
+// `loft identity depart` takes their account out of every workspace it is in,
 // says what became of each, ends where they are signed in, and -- on the
 // roster in this process, which is the deployment's alone -- forgets the
 // account there too.
@@ -156,7 +156,7 @@ func TestADepartureIsForgottenUnderTheDeploymentsDigestKey(t *testing.T) {
 // TestReconcilingFindsWhatTheStreamMissed.
 //
 // roster's stream replays nothing, so an account erased while this deployment
-// was not listening was never marked and would never leave. `rove identity
+// was not listening was never marked and would never leave. `loft identity
 // reconcile` asks roster about every account with a membership here, marks
 // the ones it has nobody by -- from now, so they wait the grace like anybody
 // -- and unmarks the ones it has again. It refuses to mark when roster has

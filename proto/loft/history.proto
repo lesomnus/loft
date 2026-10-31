@@ -1,0 +1,278 @@
+edition = "2023";
+
+package loft;
+
+import "google/protobuf/timestamp.proto";
+import "orm.proto";
+import "payday.proto";
+import "loft/asset.proto";
+import "loft/org.proto";
+import "loft/payday/tenant.proto";
+
+option features.field_presence = IMPLICIT;
+option go_package = "github.com/lesomnus/loft";
+
+// The time rows (design 3.3). Each is written once and changed only by being
+// superseded: `superseded_at` and `superseded_by` are set once, by the domain
+// layer, when a correction or a later fact replaces the row. `date_created` is
+// when the system learned it; `valid_from`/`valid_to` are when it was true.
+//
+// An asset's facts and the events every row here points at are payday's past
+// (payday#151, `loft/past.proto`): its Event and Fact, written by its `past`
+// package alone. Each column here that names an event says so, which is what
+// keeps the event while the row stays.
+
+// Placement is a child asset physically inside a parent asset.
+message Placement {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  Asset child = 8 [(orm.edge) = {immutable: true}];
+  Asset parent = 9 [(orm.edge) = {immutable: true}];
+  // located | installed | part
+  string mode = 10;
+  string slot = 11;
+  // A rack position, inclusive, when the parent is a rack. Zero is none.
+  int32 u_from = 12;
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  int32 u_to = 16;
+  google.protobuf.Timestamp valid_from = 17 [(orm.field) = {default: ""}];
+  google.protobuf.Timestamp valid_to = 18 [(orm.field) = {nullable: true}];
+  bytes event_id = 19 [
+    (orm.field) = {type: TYPE_UUID},
+    (payday.field) = {event: true}
+  ];
+  google.protobuf.Timestamp superseded_at = 20 [
+    (orm.field) = {nullable: true},
+    (payday.field) = {stamped: true}
+  ];
+  bytes superseded_by = 21 [
+    (orm.field) = {
+      type: TYPE_UUID
+      nullable: true
+    },
+    (payday.field) = {event: true}
+  ];
+
+  option (orm.message) = {
+    // AddMany as well: bulk registration places each asset it makes, a few
+    // hundred placements to a statement (design 9.13).
+    rpc: {
+      crud: true
+      add: {many: {}}
+    }
+    indexes: [
+      {
+        name: "page"
+        refs: [{name: "tenant", number: 2}, {name: "date_created", number: 15}, {name: "id", number: 1}]
+      },
+      {
+        name: "child"
+        refs: [{name: "child", number: 8}, {name: "valid_from", number: 17}]
+      },
+      {
+        name: "parent"
+        refs: [{name: "parent", number: 9}, {name: "valid_from", number: 17}]
+      },
+      // The rows an event wrote, and the ones it superseded. An expiry asks
+      // of each event it would take whether a row that stays names it, by
+      // either column (design 8.2, payday#151), and without these reads the
+      // table to say no.
+      {
+        name: "event"
+        refs: [{name: "event_id", number: 19}]
+      },
+      {
+        name: "superseded"
+        refs: [{name: "superseded_by", number: 21}]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 13
+    erase: {hard: {}}
+    tenanted: {via: "tenant", agrees: ["child.tenant", "parent.tenant"]}
+    list: {
+      order: [{field: {name: "date_created"}}, {field: {name: "id"}}]
+      by: [{name: "ref"}, {name: "child"}, {name: "parent"}]
+      size: 100
+      max: 1000
+    }
+  };
+}
+
+// Link is a logical relation between two assets: membership of a kit or a
+// group, or a connection. Many to many.
+message Link {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  map<string, string> labels = 7;
+
+  Asset source = 8 [(orm.edge) = {immutable: true}];
+  Asset target = 9 [(orm.edge) = {immutable: true}];
+  // member_of | connected_to
+  string kind = 10;
+  // For member_of: the kit cannot go out without it.
+  bool required = 11;
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  google.protobuf.Timestamp valid_from = 17 [(orm.field) = {default: ""}];
+  google.protobuf.Timestamp valid_to = 18 [(orm.field) = {nullable: true}];
+  bytes event_id = 19 [
+    (orm.field) = {type: TYPE_UUID},
+    (payday.field) = {event: true}
+  ];
+  google.protobuf.Timestamp superseded_at = 20 [
+    (orm.field) = {nullable: true},
+    (payday.field) = {stamped: true}
+  ];
+  bytes superseded_by = 21 [
+    (orm.field) = {
+      type: TYPE_UUID
+      nullable: true
+    },
+    (payday.field) = {event: true}
+  ];
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "page"
+        refs: [{name: "tenant", number: 2}, {name: "date_created", number: 15}, {name: "id", number: 1}]
+      },
+      {
+        name: "source"
+        refs: [{name: "source", number: 8}, {name: "valid_from", number: 17}]
+      },
+      {
+        name: "target"
+        refs: [{name: "target", number: 9}, {name: "valid_from", number: 17}]
+      },
+      // The rows an event wrote, and the ones it superseded. An expiry asks
+      // of each event it would take whether a row that stays names it, by
+      // either column (design 8.2, payday#151), and without these reads the
+      // table to say no.
+      {
+        name: "event"
+        refs: [{name: "event_id", number: 19}]
+      },
+      {
+        name: "superseded"
+        refs: [{name: "superseded_by", number: 21}]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 14
+    erase: {hard: {}}
+    tenanted: {via: "tenant", agrees: ["source.tenant", "target.tenant"]}
+    list: {
+      order: [{field: {name: "date_created"}}, {field: {name: "id"}}]
+      by: [{name: "ref"}, {name: "source"}, {name: "target"}, {name: "kind"}]
+      size: 100
+      max: 1000
+    }
+  };
+}
+
+// Stewardship is who an asset is owned by, managed by or held by. One party
+// per role at a time.
+message Stewardship {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+  Tenant tenant = 2 [(orm.edge) = {immutable: true}];
+
+  Asset asset = 8 [(orm.edge) = {immutable: true}];
+  Party party = 9 [(orm.edge) = {immutable: true}];
+  // owner | manager | custodian
+  string role = 10;
+
+  google.protobuf.Timestamp date_updated = 13 [(orm.field) = {version: {}}];
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  google.protobuf.Timestamp valid_from = 17 [(orm.field) = {default: ""}];
+  google.protobuf.Timestamp valid_to = 18 [(orm.field) = {nullable: true}];
+  bytes event_id = 19 [
+    (orm.field) = {type: TYPE_UUID},
+    (payday.field) = {event: true}
+  ];
+  google.protobuf.Timestamp superseded_at = 20 [
+    (orm.field) = {nullable: true},
+    (payday.field) = {stamped: true}
+  ];
+  bytes superseded_by = 21 [
+    (orm.field) = {
+      type: TYPE_UUID
+      nullable: true
+    },
+    (payday.field) = {event: true}
+  ];
+
+  option (orm.message) = {
+    rpc: {crud: true}
+    indexes: [
+      {
+        name: "page"
+        refs: [{name: "tenant", number: 2}, {name: "date_created", number: 15}, {name: "id", number: 1}]
+      },
+      {
+        name: "asset"
+        refs: [{name: "asset", number: 8}, {name: "valid_from", number: 17}]
+      },
+      {
+        name: "party"
+        refs: [{name: "party", number: 9}, {name: "valid_from", number: 17}]
+      },
+      // The rows an event wrote, and the ones it superseded. An expiry asks
+      // of each event it would take whether a row that stays names it, by
+      // either column (design 8.2, payday#151), and without these reads the
+      // table to say no.
+      {
+        name: "event"
+        refs: [{name: "event_id", number: 19}]
+      },
+      {
+        name: "superseded"
+        refs: [{name: "superseded_by", number: 21}]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 15
+    erase: {hard: {}}
+    tenanted: {via: "tenant", agrees: ["asset.tenant", "party.tenant"]}
+    list: {
+      order: [{field: {name: "date_created"}}, {field: {name: "id"}}]
+      by: [{name: "ref"}, {name: "asset"}, {name: "party"}, {name: "role"}]
+      size: 100
+      max: 1000
+    }
+  };
+}

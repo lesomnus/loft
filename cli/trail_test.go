@@ -22,18 +22,18 @@ import (
 	entsql "github.com/protobuf-orm/ent/dialect/sql"
 	"github.com/stretchr/testify/require"
 
-	"github.com/lesomnus/rove/cli"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent"
-	entaudit "github.com/lesomnus/rove/internal/ent/audit"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/ent/rowseal"
-	enttenant "github.com/lesomnus/rove/internal/ent/tenant"
-	"github.com/lesomnus/rove/server/bare"
-	"github.com/lesomnus/rove/server/pd"
+	"github.com/lesomnus/loft/cli"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent"
+	entaudit "github.com/lesomnus/loft/internal/ent/audit"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/internal/ent/rowseal"
+	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
+	"github.com/lesomnus/loft/server/bare"
+	"github.com/lesomnus/loft/server/pd"
 )
 
-// TestWhatTheTrailOwesIsSaid (payday#115): `rove trail owed` says what is
+// TestWhatTheTrailOwesIsSaid (payday#115): `loft trail owed` says what is
 // owed of the trail's erasures and not paid -- how many, and since when -- and
 // how many of them a legal hold keeps, by workspace, which is what waits for
 // it to lift. With nothing owed it says that.
@@ -74,12 +74,12 @@ func TestWhatTheTrailOwesIsSaid(t *testing.T) {
 
 // TestRowsNobodySignedAreAcceptedOnce is the one step a deployment takes whose
 // archive's account has rows nobody signed: written by a build from before
-// rows were signed (lesomnus/payday#58, rove#58), or by one that kept the
+// rows were signed (lesomnus/payday#58, loft#58), or by one that kept the
 // archive without a key at all (payday#115) -- which is not a state this build
 // can make, since it keeps no archive without one. A row nobody signed looks the
 // same whether it was written so or had its signature taken off, which is how
 // this makes one, and each is a finding until somebody who has looked runs
-// `rove trail accept`, once. After that `verify` is clean, and what a pass
+// `loft trail accept`, once. After that `verify` is clean, and what a pass
 // writes from then on is signed as it goes.
 func TestRowsNobodySignedAreAcceptedOnce(t *testing.T) {
 	x := require.New(t)
@@ -127,7 +127,7 @@ func TestRowsNobodySignedAreAcceptedOnce(t *testing.T) {
 	// Of findings other than these, it is refused, and says to verify again.
 	err = trail("accept", "--of", nothingLookedAt, "--why", "not what was looked at")
 	x.ErrorIs(err, pdtrail.ErrUnreviewed)
-	x.ErrorContains(err, "rove trail verify")
+	x.ErrorContains(err, "loft trail verify")
 
 	x.NoError(trail("accept", "--of", of, "--by", "the test", "--why", "written before this deployment signed its rows"))
 	out, err = printed(t, cli.NewCmdTrail(&c), "verify")
@@ -144,7 +144,7 @@ func TestRowsNobodySignedAreAcceptedOnce(t *testing.T) {
 // database is restored from a backup older than the latest checkpoint
 // (docs/runbook/trail-integrity.md, lesomnus/payday#70). `verify` finds it
 // behind the checkpoint store, and a pass takes no checkpoint while it is; one
-// `rove trail accept --restored`, naming the checkpoint the backup holds,
+// `loft trail accept --restored`, naming the checkpoint the backup holds,
 // carries it on, numbered past the store's checkpoints, and `verify` is clean
 // at once. An acceptance that names no backup, or another, is refused
 // (payday#115).
@@ -242,7 +242,7 @@ func TestADatabaseRestoredFromABackupIsAcceptedOnce(t *testing.T) {
 	// A restore is accepted as one, naming the checkpoint its backup holds.
 	err = trail("accept", "--of", of, "--why", "the database restored from the backup")
 	x.ErrorIs(err, pdtrail.ErrRestored)
-	x.ErrorContains(err, "rove trail verify")
+	x.ErrorContains(err, "loft trail verify")
 	x.ErrorIs(trail("accept", "--of", of, "--restored", strconv.Itoa(then+1), "--why", "the wrong backup"), pdtrail.ErrRestored)
 
 	x.NoError(trail("accept", "--of", of, "--restored", strconv.Itoa(then), "--why", "the database restored from the backup, and looked at"))
@@ -259,7 +259,7 @@ func TestADatabaseRestoredFromABackupIsAcceptedOnce(t *testing.T) {
 	x.NoError(trail("verify", "--full"))
 }
 
-// TestTheLiveRowsAreCheckedAgainstTheTrail is `rove trail rows`: with a digest
+// TestTheLiveRowsAreCheckedAgainstTheTrail is `loft trail rows`: with a digest
 // key, what the deployment wrote matches what the trail keeps of it, and a row
 // changed in the database itself, past the servers, does not (payday#102).
 func TestTheLiveRowsAreCheckedAgainstTheTrail(t *testing.T) {
@@ -315,7 +315,7 @@ func TestTheLiveRowsAreCheckedAgainstTheTrail(t *testing.T) {
 	x.ErrorContains(trail("rows"), "audit.digest.key", "no key, nothing to check against")
 }
 
-// TestAFullCheckIsAcceptedAsAFullOne is `rove trail accept --full`. Only
+// TestAFullCheckIsAcceptedAsAFullOne is `loft trail accept --full`. Only
 // `verify --full` reads a chunk's bytes, which is the one way a chunk whose
 // bytes are not its digest is found (`altered`), so a full check's digest is
 // not what a light one finds: an acceptance verifies again the way the check
@@ -443,7 +443,7 @@ func TestRowsFromBeforeSealsAreSealedByAnAcceptance(t *testing.T) {
 
 // TestAVerificationSaysWhatEachWitnessHeard: a deployment that names
 // witnesses has every checkpoint heard outside the database and the archive
-// (payday#115) -- `log:` and `store:`, which this binary links -- and `rove
+// (payday#115) -- `log:` and `store:`, which this binary links -- and `loft
 // trail verify` says what each that answers heard last, beside the digest:
 // nothing yet before the first checkpoint, and then the newest checkpoint's
 // number and what the store keeps it under. A witness that only tells answers

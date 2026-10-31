@@ -1,0 +1,1015 @@
+edition = "2023";
+package loft;
+
+import "google/protobuf/timestamp.proto";
+import "loft/asset_svc.g.proto";
+import "loft/booking.proto";
+import "loft/org_svc.g.proto";
+import "loft/payday/tenant_svc.g.proto";
+import "patch/patch.proto";
+
+option go_package = "github.com/lesomnus/loft";
+
+service BookableService {
+  // Add creates a new Bookable
+  rpc Add(BookableAddRequest) returns (Bookable);
+  // Get retrieves a Bookable
+  rpc Get(BookableGetRequest) returns (Bookable);
+  // Patch updates an existing Bookable
+  rpc Patch(BookablePatchRequest) returns (Bookable);
+  // Apply applies a patch document to an existing Bookable
+  rpc Apply(BookableApplyRequest) returns (Bookable);
+  // Erase deletes a Bookable
+  rpc Erase(BookableRef) returns (BookableEraseResponse);
+  // List reads Bookables a page at a time.
+  rpc List(BookableListRequest) returns (BookableListResponse);
+  // Watch the Bookables this caller may see, as they are now and as they change.
+  //
+  // What arrives is **state and never a delta**, so a client converges rather
+  // than replays: it keeps what it was last told about a row and replaces it.
+  // An event it did not receive is one it does not need, since the next one
+  // about that row carries the whole of it.
+  //
+  // The first message is everything that matches right now, so a client does
+  // not have to List first and race the subscription. A row may arrive twice --
+  // once in that first message and once as a change that happened while it was
+  // being read -- and that is harmless for the same reason.
+  rpc Watch(BookableWatchRequest) returns (stream BookableWatchResponse);
+  rpc Update(BookableUpdateRequest) returns (Bookable);
+  // Availability answers when resources are taken between two moments.
+  rpc Availability(BookableAvailabilityRequest) returns (BookableAvailabilityResponse);
+  // Usage is each bookable resource over a period (예약 이용률, design 9.14):
+  // the reservations that began in it and were promised their time, the
+  // hours they booked against the hours they were used -- from the check-in
+  // or the pickup to the return or the finish -- and the ones nobody came
+  // for. It names nobody.
+  rpc Usage(BookableUsageRequest) returns (BookableUsageResponse);
+  // ExportUsage writes it as a CSV, which names nobody and so is no download
+  // of anybody (loft#136).
+  rpc ExportUsage(BookableUsageRequest) returns (AssetExportResponse);
+}
+
+service ReservationService {
+  // Add creates a new Reservation
+  rpc Add(ReservationAddRequest) returns (Reservation);
+  // Get retrieves a Reservation
+  rpc Get(ReservationGetRequest) returns (Reservation);
+  // Patch updates an existing Reservation
+  rpc Patch(ReservationPatchRequest) returns (Reservation);
+  // Apply applies a patch document to an existing Reservation
+  rpc Apply(ReservationApplyRequest) returns (Reservation);
+  // Erase deletes a Reservation
+  rpc Erase(ReservationRef) returns (ReservationEraseResponse);
+  // List reads Reservations a page at a time.
+  rpc List(ReservationListRequest) returns (ReservationListResponse);
+  // Watch the Reservations this caller may see, as they are now and as they change.
+  //
+  // What arrives is **state and never a delta**, so a client converges rather
+  // than replays: it keeps what it was last told about a row and replaces it.
+  // An event it did not receive is one it does not need, since the next one
+  // about that row carries the whole of it.
+  //
+  // The first message is everything that matches right now, so a client does
+  // not have to List first and race the subscription. A row may arrive twice --
+  // once in that first message and once as a change that happened while it was
+  // being read -- and that is harmless for the same reason.
+  rpc Watch(ReservationWatchRequest) returns (stream ReservationWatchResponse);
+  // Confirm turns a hold into a request or a confirmed reservation.
+  rpc Confirm(ReservationDecideRequest) returns (Reservation);
+  rpc Approve(ReservationDecideRequest) returns (Reservation);
+  rpc Reject(ReservationDecideRequest) returns (Reservation);
+  rpc Cancel(ReservationDecideRequest) returns (Reservation);
+  rpc CheckIn(ReservationDecideRequest) returns (Reservation);
+  rpc Complete(ReservationDecideRequest) returns (Reservation);
+  // Calendar answers reservations touching a span, for one resource or all.
+  rpc Calendar(ReservationCalendarRequest) returns (ReservationCalendarResponse);
+  // Timeline answers a reservation's history, newest first: what was done
+  // with it -- booked, decided, checked into, let go of -- and what it took
+  // and let go of as what it booked changed, with the hand-overs that
+  // fulfilled it, its pickup and its return. A member reads their own, and
+  // whoever runs or audits the register anybody's (D45).
+  rpc Timeline(ReservationTimelineRequest) returns (ReservationTimelineResponse);
+  // Pickup answers what the pickup of a reservation is to hand out of each
+  // pool it booked: as many of the pool's units as it holds, free until it
+  // ends, and the others that may be handed out instead (design 4, D46). It
+  // changes nothing: CustodyService.Add is the pickup.
+  rpc Pickup(ReservationPickupRequest) returns (ReservationPickupResponse);
+}
+
+service ReservationItemService {
+  // Add creates a new ReservationItem
+  rpc Add(ReservationItemAddRequest) returns (ReservationItem);
+  // Get retrieves a ReservationItem
+  rpc Get(ReservationItemGetRequest) returns (ReservationItem);
+  // Patch updates an existing ReservationItem
+  rpc Patch(ReservationItemPatchRequest) returns (ReservationItem);
+  // Apply applies a patch document to an existing ReservationItem
+  rpc Apply(ReservationItemApplyRequest) returns (ReservationItem);
+  // Erase deletes a ReservationItem
+  rpc Erase(ReservationItemRef) returns (ReservationItemEraseResponse);
+  // List reads ReservationItems a page at a time.
+  rpc List(ReservationItemListRequest) returns (ReservationItemListResponse);
+}
+
+service AllocationService {
+  // Add creates a new Allocation
+  rpc Add(AllocationAddRequest) returns (Allocation);
+  // Get retrieves a Allocation
+  rpc Get(AllocationGetRequest) returns (Allocation);
+  // Patch updates an existing Allocation
+  rpc Patch(AllocationPatchRequest) returns (Allocation);
+  // Apply applies a patch document to an existing Allocation
+  rpc Apply(AllocationApplyRequest) returns (Allocation);
+  // Erase deletes a Allocation
+  rpc Erase(AllocationRef) returns (AllocationEraseResponse);
+  // List reads Allocations a page at a time.
+  rpc List(AllocationListRequest) returns (AllocationListResponse);
+}
+
+message BookableAddRequest {
+  bytes id = 1;
+  TenantRef tenant = 2;
+  AssetRef asset = 8;
+  string timezone = 9 [features.field_presence = IMPLICIT];
+  OpeningHours hours = 10;
+  int32 buffer_before = 11 [features.field_presence = IMPLICIT];
+  int32 buffer_after = 12 [features.field_presence = IMPLICIT];
+  google.protobuf.Timestamp date_created = 15;
+  bool approval = 16 [features.field_presence = IMPLICIT];
+  int32 min_minutes = 17 [features.field_presence = IMPLICIT];
+  int32 max_minutes = 18 [features.field_presence = IMPLICIT];
+  int32 horizon_days = 19 [features.field_presence = IMPLICIT];
+  uint32 units = 20 [features.field_presence = IMPLICIT];
+  string exclusive_group = 21 [features.field_presence = IMPLICIT];
+  uint64 schedule_version = 22 [features.field_presence = IMPLICIT];
+  bool enabled = 23 [features.field_presence = IMPLICIT];
+}
+
+message BookableGetRequest {
+  BookableRef ref = 1;
+  BookableSelect select = 2;
+}
+
+message BookableRef {
+  oneof key {
+    bytes id = 1;
+    BookableRefByAsset asset = 8;
+  }
+}
+
+message BookableRefByAsset {
+  AssetRef asset = 8;
+}
+
+message BookableSelect {
+  bool all = 1;
+  TenantSelect tenant = 2;
+  AssetSelect asset = 8;
+  bool timezone = 9;
+  bool hours = 10;
+  bool buffer_before = 11;
+  bool buffer_after = 12;
+  bool date_updated = 13;
+  bool date_erased = 14;
+  bool date_created = 15;
+  bool approval = 16;
+  bool min_minutes = 17;
+  bool max_minutes = 18;
+  bool horizon_days = 19;
+  bool units = 20;
+  bool exclusive_group = 21;
+  bool schedule_version = 22;
+  bool enabled = 23;
+}
+
+message BookablePatchRequest {
+  BookableRef ref = 1;
+  string timezone = 18;
+  OpeningHours hours = 20;
+  // Clear hours instead of writing it.
+  // It takes a field of its own because an unset value already means
+  // "leave it alone", so no value could have meant NULL. It wins
+  // outright: setting both this and hours clears.
+  bool hours_null = 21;
+  int32 buffer_before = 22;
+  int32 buffer_after = 24;
+  // The version this update requires the stored date_updated to be.
+  // It is a precondition, not a write: the update applies only if the row
+  // still holds this value, and the server stamps the new version itself.
+  // Setting it together with date_updated_force is an error --
+  // the version is the token every client's compare-and-swap is measured
+  // against, so it is not the caller's to choose.
+  google.protobuf.Timestamp date_updated = 26;
+  // Update whatever the stored date_updated is, with no precondition.
+  // The server still stamps a new version, so other clients' tokens are
+  // invalidated as usual; this declines the check for THIS update only.
+  // One of date_updated or this must be set. An omitted version is
+  // refused rather than assumed, because an unset field cannot be told
+  // apart from a caller who never considered locking at all.
+  bool date_updated_force = 27;
+  bool approval = 32;
+  int32 min_minutes = 34;
+  int32 max_minutes = 36;
+  int32 horizon_days = 38;
+  uint32 units = 40;
+  string exclusive_group = 42;
+  uint64 schedule_version = 44;
+  bool enabled = 46;
+}
+
+message BookableApplyRequest {
+  BookableRef ref = 1;
+  patch.Patch patch = 2;
+}
+
+message BookableEraseResponse {
+  // Erased is whether this call is the one that erased the row.
+  //
+  // False for a row that was already gone, was never there, or is out
+  // of this caller's reach -- which are one answer on purpose, and the
+  // reason the RPC does not fail instead.
+  bool erased = 1;
+}
+
+message BookableListRequest {
+  // Bounded because the work is: each filter is a predicate in the same query,
+  // so this is what says how much of the database one request may read.
+  repeated BookableFilter filters = 1;
+
+  // How many to answer with. Nothing said is what the schema declared, and more
+  // than the cap is the cap -- a caller asking for more than there is meant no
+  // harm, so it is not an error and it is not the whole table either.
+  int32 size = 2 [features.field_presence = IMPLICIT];
+
+  // Where to carry on from: the "next" of the answer before. It names the last
+  // row of that page rather than counting rows from the start, so a row added
+  // ahead of the page does not shift it and a caller reading through never sees
+  // one twice or misses one.
+  string after = 3 [features.field_presence = IMPLICIT];
+
+  // Read the order the other way round, every column of it at once -- newest
+  // first where it is oldest first -- which the index the order walks walks
+  // from the other end. A cursor is of the way it was read, so the next page
+  // carries on that way, and one of the other way is refused.
+  bool reverse = 4 [features.field_presence = IMPLICIT];
+}
+
+message BookableListResponse {
+  repeated Bookable items = 1;
+
+  // What to ask for next, and empty when this was the last of them.
+  //
+  // Empty means there is no more *for now*: a list is read as it is, and one
+  // that has grown since answers a fresh call. It is not empty merely because
+  // the page came back short -- a page is short when the last row of it was the
+  // last row there was, which is a thing the server can only know by having
+  // looked.
+  string next = 2 [features.field_presence = IMPLICIT];
+}
+
+message BookableFilter {
+  BookableRef ref = 1;
+  AssetRef asset = 2;
+  string exclusive_group = 3;
+  bool enabled = 4;
+}
+
+message BookableWatchRequest {
+  // Which rows to watch, in the same words List takes them: what is watched is
+  // what that list would answer with, now and afterwards.
+  //
+  // Required, and bounded the way a List is -- for a heavier reason. A list
+  // runs its filters once; a watch runs them again for every write that touches
+  // the entity, for as long as the stream is open. A watch with no filters is
+  // the whole table, forever, which is the one shape that has no cap at all.
+  repeated BookableFilter filters = 1;
+
+  // Skip what is there now and send only what changes from here.
+  //
+  // Off by default, and the default is the safe one: a client that does not
+  // know the current state and did not ask for it holds something wrong until
+  // the next write happens to correct it.
+  bool skip_snapshot = 2 [features.field_presence = IMPLICIT];
+}
+
+message BookableWatchResponse {
+  // What changed, or -- in the first message -- everything that matches.
+  repeated BookableWatchItem items = 1;
+}
+
+message BookableWatchItem {
+  // Which row. Always said, since one that is gone still has to be named.
+  bytes id = 1;
+
+  // The row as it is now, and **absent when it is no longer one this caller may
+  // see**: erased, or moved out of the filters this stream named.
+  //
+  // Absence is the whole of how a removal is said. There is no flag for it, and
+  // there is deliberately no way to tell those two apart -- a stream that
+  // distinguished "erased" from "no longer yours" would be telling a caller
+  // about rows that stopped being theirs, which is the thing the wall is for.
+  //
+  // It is only ever said about a row this stream has already carried. One that
+  // never matched is not news.
+  Bookable value = 2;
+
+  // The RPC that changed it, by the name gRPC knows it by. It is what the
+  // caller of *that* RPC asked for and not the write it became, so an RPC
+  // written by hand is here under its own name.
+  //
+  // Empty in the first message, which is not something anybody asked for -- it
+  // is what is already there.
+  string action = 3 [features.field_presence = IMPLICIT];
+}
+
+message BookableUpdateRequest {
+  BookableRef ref = 1;
+  string timezone = 2 [features.field_presence = IMPLICIT];
+  OpeningHours hours = 3;
+  bool hours_null = 4 [features.field_presence = IMPLICIT];
+  int32 buffer_before = 5 [features.field_presence = IMPLICIT];
+  int32 buffer_after = 6 [features.field_presence = IMPLICIT];
+  bool approval = 7 [features.field_presence = IMPLICIT];
+  int32 min_minutes = 8 [features.field_presence = IMPLICIT];
+  int32 max_minutes = 9 [features.field_presence = IMPLICIT];
+  int32 horizon_days = 10 [features.field_presence = IMPLICIT];
+  uint32 units = 11 [features.field_presence = IMPLICIT];
+  string exclusive_group = 12 [features.field_presence = IMPLICIT];
+  bool enabled = 13 [features.field_presence = IMPLICIT];
+}
+
+message BookableAvailabilityRequest {
+  repeated AssetRef resources = 1;
+  google.protobuf.Timestamp from = 2;
+  google.protobuf.Timestamp to = 3;
+}
+
+message BookableAvailabilityResponse {
+  repeated BusySpan busy = 1;
+}
+
+message BusySpan {
+  bytes resource_id = 1 [features.field_presence = IMPLICIT];
+  google.protobuf.Timestamp begins_at = 2;
+  google.protobuf.Timestamp ends_at = 3;
+  // reservation | maintenance | override | waiting | custody | closed: of
+  // custody, what somebody has out, until it is due back -- `ends_at` the
+  // first moment of 2200 when that is until it is back (D53).
+  string kind = 4 [features.field_presence = IMPLICIT];
+  bytes ref_id = 5 [features.field_presence = IMPLICIT];
+  uint32 units = 6 [features.field_presence = IMPLICIT];
+  bool blocking = 7 [features.field_presence = IMPLICIT];
+  string label = 8 [features.field_presence = IMPLICIT];
+}
+
+message BookableUsageRequest {
+  // The period, from `from` and before `to`, a year at most. Unsaid, the last
+  // thirty of the workspace's days, today among them.
+  google.protobuf.Timestamp from = 1;
+  google.protobuf.Timestamp to = 2;
+}
+
+message BookableUsageResponse {
+  // Every resource that may be booked, and every one booked or handed over
+  // in the period that may no longer be, by tag.
+  repeated BookableUsageRow rows = 1;
+  // The period it read.
+  google.protobuf.Timestamp from = 2;
+  google.protobuf.Timestamp to = 3;
+}
+
+// BookableUsageRow is one resource's reservations that began in a period, and
+// what of it was handed over then with none.
+message BookableUsageRow {
+  bytes resource_id = 1 [features.field_presence = IMPLICIT];
+  string tag = 2 [features.field_presence = IMPLICIT];
+  string name = 3 [features.field_presence = IMPLICIT];
+  // item | space | kit | group
+  string kind = 4 [features.field_presence = IMPLICIT];
+  // How many it gives at once: 1, or a pool's.
+  uint32 units = 5 [features.field_presence = IMPLICIT];
+  // The reservations promised their time -- confirmed, in use, completed or
+  // no-show -- and of them the ones that were used, and the ones nobody came
+  // for.
+  uint32 reservations = 6 [features.field_presence = IMPLICIT];
+  uint32 used = 7 [features.field_presence = IMPLICIT];
+  uint32 no_shows = 8 [features.field_presence = IMPLICIT];
+  // In minutes, the time they booked and the time they were used: of a pool,
+  // times the units each took.
+  uint64 booked_minutes = 9 [features.field_presence = IMPLICIT];
+  uint64 used_minutes = 10 [features.field_presence = IMPLICIT];
+  // What was handed over of it with no reservation -- a loan or an issue at
+  // the desk -- of the hand-overs that began in the period, each whole as a
+  // reservation is: how many, and the minutes it was out, from the hand-over
+  // to its return, or to now while it is out; of a thing of more than one
+  // unit, times its units (D53). Beside the reservations, and in none of
+  // their numbers.
+  uint32 handed_out = 11 [features.field_presence = IMPLICIT];
+  uint64 handed_out_minutes = 12 [features.field_presence = IMPLICIT];
+}
+
+message ReservationAddRequest {
+  bytes id = 1;
+  TenantRef tenant = 2;
+  string name = 5 [features.field_presence = IMPLICIT];
+  string desc = 6 [features.field_presence = IMPLICIT];
+  PartyRef party = 8;
+  bytes requested_by = 9;
+  string status = 10 [features.field_presence = IMPLICIT];
+  google.protobuf.Timestamp begins_at = 11;
+  google.protobuf.Timestamp ends_at = 12;
+  google.protobuf.Timestamp date_created = 15;
+  google.protobuf.Timestamp expires_at = 16;
+  string rrule = 17 [features.field_presence = IMPLICIT];
+  bytes series_id = 18;
+  bytes decided_by = 19;
+  google.protobuf.Timestamp checked_in_at = 20;
+  repeated ReservationItemSpec items = 100;
+  // Hold only: take the time for a few minutes while the rest is decided.
+  bool hold = 101;
+  bytes op = 102;
+  // Book it again by this rule (RFC 5545): FREQ=WEEKLY;COUNT=4 and the like.
+  string repeat = 103;
+  // Book over a conflict, on purpose: the allocation does not block, and the
+  // reason is required (design 4). A manager's to do.
+  bool override = 104;
+  string reason = 105;
+}
+
+message ReservationItemSpec {
+  AssetRef resource = 1;
+  uint32 units = 2 [features.field_presence = IMPLICIT];
+}
+
+message ReservationGetRequest {
+  ReservationRef ref = 1;
+  ReservationSelect select = 2;
+}
+
+message ReservationRef {
+  oneof key {
+    bytes id = 1;
+  }
+}
+
+message ReservationSelect {
+  bool all = 1;
+  TenantSelect tenant = 2;
+  bool name = 5;
+  bool desc = 6;
+  PartySelect party = 8;
+  bool requested_by = 9;
+  bool status = 10;
+  bool begins_at = 11;
+  bool ends_at = 12;
+  bool date_updated = 13;
+  bool date_erased = 14;
+  bool date_created = 15;
+  bool expires_at = 16;
+  bool rrule = 17;
+  bool series_id = 18;
+  bool decided_by = 19;
+  bool checked_in_at = 20;
+}
+
+message ReservationPatchRequest {
+  ReservationRef ref = 1;
+  string name = 10;
+  string desc = 12;
+  bytes requested_by = 18;
+  // Clear requested_by instead of writing it.
+  // It takes a field of its own because an unset value already means
+  // "leave it alone", so no value could have meant NULL. It wins
+  // outright: setting both this and requested_by clears.
+  bool requested_by_null = 19;
+  string status = 20;
+  google.protobuf.Timestamp begins_at = 22;
+  google.protobuf.Timestamp ends_at = 24;
+  // The version this update requires the stored date_updated to be.
+  // It is a precondition, not a write: the update applies only if the row
+  // still holds this value, and the server stamps the new version itself.
+  // Setting it together with date_updated_force is an error --
+  // the version is the token every client's compare-and-swap is measured
+  // against, so it is not the caller's to choose.
+  google.protobuf.Timestamp date_updated = 26;
+  // Update whatever the stored date_updated is, with no precondition.
+  // The server still stamps a new version, so other clients' tokens are
+  // invalidated as usual; this declines the check for THIS update only.
+  // One of date_updated or this must be set. An omitted version is
+  // refused rather than assumed, because an unset field cannot be told
+  // apart from a caller who never considered locking at all.
+  bool date_updated_force = 27;
+  google.protobuf.Timestamp expires_at = 32;
+  // Clear expires_at instead of writing it.
+  // It takes a field of its own because an unset value already means
+  // "leave it alone", so no value could have meant NULL. It wins
+  // outright: setting both this and expires_at clears.
+  bool expires_at_null = 33;
+  string rrule = 34;
+  bytes series_id = 36;
+  // Clear series_id instead of writing it.
+  // It takes a field of its own because an unset value already means
+  // "leave it alone", so no value could have meant NULL. It wins
+  // outright: setting both this and series_id clears.
+  bool series_id_null = 37;
+  bytes decided_by = 38;
+  // Clear decided_by instead of writing it.
+  // It takes a field of its own because an unset value already means
+  // "leave it alone", so no value could have meant NULL. It wins
+  // outright: setting both this and decided_by clears.
+  bool decided_by_null = 39;
+  google.protobuf.Timestamp checked_in_at = 40;
+  // Clear checked_in_at instead of writing it.
+  // It takes a field of its own because an unset value already means
+  // "leave it alone", so no value could have meant NULL. It wins
+  // outright: setting both this and checked_in_at clears.
+  bool checked_in_at_null = 41;
+}
+
+message ReservationApplyRequest {
+  ReservationRef ref = 1;
+  patch.Patch patch = 2;
+}
+
+message ReservationEraseResponse {
+  // Erased is whether this call is the one that erased the row.
+  //
+  // False for a row that was already gone, was never there, or is out
+  // of this caller's reach -- which are one answer on purpose, and the
+  // reason the RPC does not fail instead.
+  bool erased = 1;
+}
+
+message ReservationListRequest {
+  // Bounded because the work is: each filter is a predicate in the same query,
+  // so this is what says how much of the database one request may read.
+  repeated ReservationFilter filters = 1;
+
+  // How many to answer with. Nothing said is what the schema declared, and more
+  // than the cap is the cap -- a caller asking for more than there is meant no
+  // harm, so it is not an error and it is not the whole table either.
+  int32 size = 2 [features.field_presence = IMPLICIT];
+
+  // Where to carry on from: the "next" of the answer before. It names the last
+  // row of that page rather than counting rows from the start, so a row added
+  // ahead of the page does not shift it and a caller reading through never sees
+  // one twice or misses one.
+  string after = 3 [features.field_presence = IMPLICIT];
+
+  // Read the order the other way round, every column of it at once -- newest
+  // first where it is oldest first -- which the index the order walks walks
+  // from the other end. A cursor is of the way it was read, so the next page
+  // carries on that way, and one of the other way is refused.
+  bool reverse = 4 [features.field_presence = IMPLICIT];
+}
+
+message ReservationListResponse {
+  repeated Reservation items = 1;
+
+  // What to ask for next, and empty when this was the last of them.
+  //
+  // Empty means there is no more *for now*: a list is read as it is, and one
+  // that has grown since answers a fresh call. It is not empty merely because
+  // the page came back short -- a page is short when the last row of it was the
+  // last row there was, which is a thing the server can only know by having
+  // looked.
+  string next = 2 [features.field_presence = IMPLICIT];
+}
+
+message ReservationFilter {
+  ReservationRef ref = 1;
+  PartyRef party = 2;
+  string status = 3;
+  bytes series_id = 4;
+}
+
+message ReservationWatchRequest {
+  // Which rows to watch, in the same words List takes them: what is watched is
+  // what that list would answer with, now and afterwards.
+  //
+  // Required, and bounded the way a List is -- for a heavier reason. A list
+  // runs its filters once; a watch runs them again for every write that touches
+  // the entity, for as long as the stream is open. A watch with no filters is
+  // the whole table, forever, which is the one shape that has no cap at all.
+  repeated ReservationFilter filters = 1;
+
+  // Skip what is there now and send only what changes from here.
+  //
+  // Off by default, and the default is the safe one: a client that does not
+  // know the current state and did not ask for it holds something wrong until
+  // the next write happens to correct it.
+  bool skip_snapshot = 2 [features.field_presence = IMPLICIT];
+}
+
+message ReservationWatchResponse {
+  // What changed, or -- in the first message -- everything that matches.
+  repeated ReservationWatchItem items = 1;
+}
+
+message ReservationWatchItem {
+  // Which row. Always said, since one that is gone still has to be named.
+  bytes id = 1;
+
+  // The row as it is now, and **absent when it is no longer one this caller may
+  // see**: erased, or moved out of the filters this stream named.
+  //
+  // Absence is the whole of how a removal is said. There is no flag for it, and
+  // there is deliberately no way to tell those two apart -- a stream that
+  // distinguished "erased" from "no longer yours" would be telling a caller
+  // about rows that stopped being theirs, which is the thing the wall is for.
+  //
+  // It is only ever said about a row this stream has already carried. One that
+  // never matched is not news.
+  Reservation value = 2;
+
+  // The RPC that changed it, by the name gRPC knows it by. It is what the
+  // caller of *that* RPC asked for and not the write it became, so an RPC
+  // written by hand is here under its own name.
+  //
+  // Empty in the first message, which is not something anybody asked for -- it
+  // is what is already there.
+  string action = 3 [features.field_presence = IMPLICIT];
+}
+
+message ReservationDecideRequest {
+  ReservationRef ref = 1;
+  string reason = 2 [features.field_presence = IMPLICIT];
+  // Cancel the whole series it belongs to.
+  bool series = 3 [features.field_presence = IMPLICIT];
+}
+
+message ReservationCalendarRequest {
+  repeated AssetRef resources = 1;
+  google.protobuf.Timestamp from = 2;
+  google.protobuf.Timestamp to = 3;
+  // Only the caller's own.
+  bool mine = 4 [features.field_presence = IMPLICIT];
+  // Only the ones in these states: `requested` is what waits for a manager.
+  repeated string statuses = 5;
+}
+
+message ReservationCalendarResponse {
+  repeated CalendarEntry entries = 1;
+}
+
+message CalendarEntry {
+  Reservation reservation = 1;
+  repeated bytes resource_ids = 2;
+  // Who it is for, by the name they have now; and, where another goes by
+  // it, with what tells them apart, as every list of people does (D54).
+  string party_name = 3 [features.field_presence = IMPLICIT];
+  // What it waits for while it is still to be fulfilled: the members of a
+  // kit it should take with it that something else holds then, and what it
+  // booked of a pool that has fewer to give then (design 4).
+  repeated ReservationConflict conflicts = 4;
+  // What it takes that is out of use while it is still to be fulfilled:
+  // what it booked, whatever it is, or an item a kit it booked takes with it,
+  // kept in the kit as it went (design 4, D42, D43). Nothing hands it over,
+  // and what it booked is not approved, confirmed or fulfilled.
+  repeated ReservationOutOfUse out_of_use = 5;
+  // What it takes that somebody has out over some of its time while it is
+  // still to be fulfilled: handed over after it was booked, by a loan or an
+  // issue (design 4, D53). It keeps its time, and what is out is not handed
+  // over at its pickup until it is back.
+  repeated ReservationOut out = 6;
+}
+
+// ReservationConflict is what a reservation booked, or should take with what
+// it booked, and does not hold: a member of a kit, which the kit was given
+// after the reservation was made and something else held then; or some of a
+// pool, which had fewer to give since -- a member taken off it or out of use,
+// one whose own time was taken -- than the reservations made before it hold.
+// The reservation takes it once there is room.
+message ReservationConflict {
+  // The member, or the pool, by what it is tagged and called.
+  bytes resource_id = 1 [features.field_presence = IMPLICIT];
+  string resource_tag = 2 [features.field_presence = IMPLICIT];
+  string resource_name = 3 [features.field_presence = IMPLICIT];
+  // The time the reservation would take it for.
+  google.protobuf.Timestamp begins_at = 4;
+  google.protobuf.Timestamp ends_at = 5;
+  // What holds it then -- another reservation, maintenance -- as a calendar
+  // shows it: of a pool, its reservations and what takes its members' own
+  // time. None once nothing does, and it is taken shortly.
+  repeated BusySpan held_by = 6;
+  // Of a pool: how many of it the reservation waits for, and how many of
+  // them it could have at the busiest moment of that time. Both zero for a
+  // member of a kit, which is one.
+  uint32 units = 7 [features.field_presence = IMPLICIT];
+  uint32 available = 8 [features.field_presence = IMPLICIT];
+}
+
+// ReservationOutOfUse is what a reservation takes that is lost, retired or
+// disposed, and is said until it is in use again or taken off its kit: what
+// it booked itself, of any kind -- which it is then neither approved nor
+// confirmed with, a space of which is not checked into and a kit or a group
+// not picked up, and an item of which its pickup does not hand over -- or an
+// item a kit it booked takes with it, held or waited for, which its pickup
+// does not hand over (D42, D43). A pool's members are none of it: what a pool
+// gives is the ones in use, and one fewer is a pool's conflict.
+message ReservationOutOfUse {
+  // What it is, by what it is tagged and called.
+  bytes resource_id = 1 [features.field_presence = IMPLICIT];
+  string resource_tag = 2 [features.field_presence = IMPLICIT];
+  string resource_name = 3 [features.field_presence = IMPLICIT];
+  // lost | retired | disposed; or voided, what it booked itself having been
+  // deleted as registered by mistake, which is out of use to it for good
+  // (D48).
+  string status = 4 [features.field_presence = IMPLICIT];
+  // item | space | kit | group
+  string resource_kind = 5 [features.field_presence = IMPLICIT];
+}
+
+// ReservationOut is a thing a reservation takes that somebody has out over
+// some of the reservation's time (design 4, D53): handed over after the
+// reservation was made -- at the desk, or with the pickup of another -- and
+// held until it is due back, or until it is back. The reservation keeps its
+// time, since it was promised first and the thing may be back before it is
+// wanted; until then its pickup cannot hand it over. Said no more once it is
+// back, or due back before the reservation's time.
+message ReservationOut {
+  // What it is, by what it is tagged and called.
+  bytes resource_id = 1 [features.field_presence = IMPLICIT];
+  string resource_tag = 2 [features.field_presence = IMPLICIT];
+  string resource_name = 3 [features.field_presence = IMPLICIT];
+  // The hand-over it is out by, which says who has it.
+  bytes custody_id = 4 [features.field_presence = IMPLICIT];
+  // issue | loan: for keeps, until it is returned; or lent, until it is due
+  // back.
+  string kind = 5 [features.field_presence = IMPLICIT];
+  // When a loan is due back; none of an issue.
+  google.protobuf.Timestamp due_at = 6;
+  // A loan past its due and not back, which holds the thing until it is.
+  bool overdue = 7 [features.field_presence = IMPLICIT];
+}
+
+message ReservationTimelineRequest {
+  ReservationRef ref = 1;
+}
+
+message ReservationTimelineResponse {
+  // Each an event (`kind` is `event`), newest first: the reservation's own,
+  // and those of the hand-overs that fulfilled it. What an operation over
+  // many things did to it -- a change to a kit it booked, a series it is one
+  // of booked or cancelled -- names that operation (`cause_id`), and says it
+  // where the operation says more than the entry does (`cause`, design D34).
+  repeated TimelineEntry entries = 1;
+}
+
+message ReservationPickupRequest {
+  ReservationRef ref = 1;
+}
+
+message ReservationPickupResponse {
+  repeated PoolPickup pools = 1;
+}
+
+// PoolPickup is what a pickup of a reservation hands out of a pool it booked:
+// the pool's units, each of which is the reservation's from the pickup until
+// it ends, in place of one of the pool's it holds.
+message PoolPickup {
+  // The pool, and how many of it the reservation holds: none while it waits
+  // for what it booked.
+  bytes pool_id = 1 [features.field_presence = IMPLICIT];
+  uint32 units = 2 [features.field_presence = IMPLICIT];
+  // The units it is to be handed, as many as it holds and as there are free
+  // until it ends, in the order a person reads them -- by their tags -- and
+  // the rest of the ones free until then, any of which may be handed out
+  // instead: not out of use, not with anybody, and not taken then by
+  // anything else, nor needed by the pools around it to keep what they
+  // promised (D44).
+  repeated bytes offered = 3;
+  repeated bytes others = 4;
+}
+
+message ReservationItemAddRequest {
+  bytes id = 1;
+  TenantRef tenant = 2;
+  ReservationRef reservation = 8;
+  AssetRef resource = 9;
+  uint32 units = 10 [features.field_presence = IMPLICIT];
+  google.protobuf.Timestamp date_created = 15;
+}
+
+message ReservationItemGetRequest {
+  ReservationItemRef ref = 1;
+  ReservationItemSelect select = 2;
+}
+
+message ReservationItemRef {
+  oneof key {
+    bytes id = 1;
+  }
+}
+
+message ReservationItemSelect {
+  bool all = 1;
+  TenantSelect tenant = 2;
+  ReservationSelect reservation = 8;
+  AssetSelect resource = 9;
+  bool units = 10;
+  bool date_updated = 13;
+  bool date_created = 15;
+}
+
+message ReservationItemPatchRequest {
+  ReservationItemRef ref = 1;
+  uint32 units = 20;
+  // The version this update requires the stored date_updated to be.
+  // It is a precondition, not a write: the update applies only if the row
+  // still holds this value, and the server stamps the new version itself.
+  // Setting it together with date_updated_force is an error --
+  // the version is the token every client's compare-and-swap is measured
+  // against, so it is not the caller's to choose.
+  google.protobuf.Timestamp date_updated = 26;
+  // Update whatever the stored date_updated is, with no precondition.
+  // The server still stamps a new version, so other clients' tokens are
+  // invalidated as usual; this declines the check for THIS update only.
+  // One of date_updated or this must be set. An omitted version is
+  // refused rather than assumed, because an unset field cannot be told
+  // apart from a caller who never considered locking at all.
+  bool date_updated_force = 27;
+}
+
+message ReservationItemApplyRequest {
+  ReservationItemRef ref = 1;
+  patch.Patch patch = 2;
+}
+
+message ReservationItemEraseResponse {
+  // Erased is whether this call is the one that erased the row.
+  //
+  // False for a row that was already gone, was never there, or is out
+  // of this caller's reach -- which are one answer on purpose, and the
+  // reason the RPC does not fail instead.
+  bool erased = 1;
+}
+
+message ReservationItemListRequest {
+  // Bounded because the work is: each filter is a predicate in the same query,
+  // so this is what says how much of the database one request may read.
+  repeated ReservationItemFilter filters = 1;
+
+  // How many to answer with. Nothing said is what the schema declared, and more
+  // than the cap is the cap -- a caller asking for more than there is meant no
+  // harm, so it is not an error and it is not the whole table either.
+  int32 size = 2 [features.field_presence = IMPLICIT];
+
+  // Where to carry on from: the "next" of the answer before. It names the last
+  // row of that page rather than counting rows from the start, so a row added
+  // ahead of the page does not shift it and a caller reading through never sees
+  // one twice or misses one.
+  string after = 3 [features.field_presence = IMPLICIT];
+
+  // Read the order the other way round, every column of it at once -- newest
+  // first where it is oldest first -- which the index the order walks walks
+  // from the other end. A cursor is of the way it was read, so the next page
+  // carries on that way, and one of the other way is refused.
+  bool reverse = 4 [features.field_presence = IMPLICIT];
+}
+
+message ReservationItemListResponse {
+  repeated ReservationItem items = 1;
+
+  // What to ask for next, and empty when this was the last of them.
+  //
+  // Empty means there is no more *for now*: a list is read as it is, and one
+  // that has grown since answers a fresh call. It is not empty merely because
+  // the page came back short -- a page is short when the last row of it was the
+  // last row there was, which is a thing the server can only know by having
+  // looked.
+  string next = 2 [features.field_presence = IMPLICIT];
+}
+
+message ReservationItemFilter {
+  ReservationItemRef ref = 1;
+  ReservationRef reservation = 2;
+  AssetRef resource = 3;
+}
+
+message AllocationAddRequest {
+  bytes id = 1;
+  TenantRef tenant = 2;
+  AssetRef resource = 8;
+  string kind = 9 [features.field_presence = IMPLICIT];
+  bytes ref_id = 10;
+  google.protobuf.Timestamp begins_at = 11;
+  google.protobuf.Timestamp ends_at = 12;
+  google.protobuf.Timestamp date_created = 15;
+  bool blocking = 16 [features.field_presence = IMPLICIT];
+  bool exclusive = 17 [features.field_presence = IMPLICIT];
+  uint32 units = 18 [features.field_presence = IMPLICIT];
+}
+
+message AllocationGetRequest {
+  AllocationRef ref = 1;
+  AllocationSelect select = 2;
+}
+
+message AllocationRef {
+  oneof key {
+    bytes id = 1;
+  }
+}
+
+message AllocationSelect {
+  bool all = 1;
+  TenantSelect tenant = 2;
+  AssetSelect resource = 8;
+  bool kind = 9;
+  bool ref_id = 10;
+  bool begins_at = 11;
+  bool ends_at = 12;
+  bool date_updated = 13;
+  bool date_created = 15;
+  bool blocking = 16;
+  bool exclusive = 17;
+  bool units = 18;
+}
+
+message AllocationPatchRequest {
+  AllocationRef ref = 1;
+  string kind = 18;
+  bytes ref_id = 20;
+  // Clear ref_id instead of writing it.
+  // It takes a field of its own because an unset value already means
+  // "leave it alone", so no value could have meant NULL. It wins
+  // outright: setting both this and ref_id clears.
+  bool ref_id_null = 21;
+  google.protobuf.Timestamp begins_at = 22;
+  google.protobuf.Timestamp ends_at = 24;
+  // The version this update requires the stored date_updated to be.
+  // It is a precondition, not a write: the update applies only if the row
+  // still holds this value, and the server stamps the new version itself.
+  // Setting it together with date_updated_force is an error --
+  // the version is the token every client's compare-and-swap is measured
+  // against, so it is not the caller's to choose.
+  google.protobuf.Timestamp date_updated = 26;
+  // Update whatever the stored date_updated is, with no precondition.
+  // The server still stamps a new version, so other clients' tokens are
+  // invalidated as usual; this declines the check for THIS update only.
+  // One of date_updated or this must be set. An omitted version is
+  // refused rather than assumed, because an unset field cannot be told
+  // apart from a caller who never considered locking at all.
+  bool date_updated_force = 27;
+  bool blocking = 32;
+  bool exclusive = 34;
+  uint32 units = 36;
+}
+
+message AllocationApplyRequest {
+  AllocationRef ref = 1;
+  patch.Patch patch = 2;
+}
+
+message AllocationEraseResponse {
+  // Erased is whether this call is the one that erased the row.
+  //
+  // False for a row that was already gone, was never there, or is out
+  // of this caller's reach -- which are one answer on purpose, and the
+  // reason the RPC does not fail instead.
+  bool erased = 1;
+}
+
+message AllocationListRequest {
+  // Bounded because the work is: each filter is a predicate in the same query,
+  // so this is what says how much of the database one request may read.
+  repeated AllocationFilter filters = 1;
+
+  // How many to answer with. Nothing said is what the schema declared, and more
+  // than the cap is the cap -- a caller asking for more than there is meant no
+  // harm, so it is not an error and it is not the whole table either.
+  int32 size = 2 [features.field_presence = IMPLICIT];
+
+  // Where to carry on from: the "next" of the answer before. It names the last
+  // row of that page rather than counting rows from the start, so a row added
+  // ahead of the page does not shift it and a caller reading through never sees
+  // one twice or misses one.
+  string after = 3 [features.field_presence = IMPLICIT];
+
+  // Read the order the other way round, every column of it at once -- newest
+  // first where it is oldest first -- which the index the order walks walks
+  // from the other end. A cursor is of the way it was read, so the next page
+  // carries on that way, and one of the other way is refused.
+  bool reverse = 4 [features.field_presence = IMPLICIT];
+}
+
+message AllocationListResponse {
+  repeated Allocation items = 1;
+
+  // What to ask for next, and empty when this was the last of them.
+  //
+  // Empty means there is no more *for now*: a list is read as it is, and one
+  // that has grown since answers a fresh call. It is not empty merely because
+  // the page came back short -- a page is short when the last row of it was the
+  // last row there was, which is a thing the server can only know by having
+  // looked.
+  string next = 2 [features.field_presence = IMPLICIT];
+}
+
+message AllocationFilter {
+  AllocationRef ref = 1;
+  AssetRef resource = 2;
+  bytes ref_id = 3;
+  string kind = 4;
+}

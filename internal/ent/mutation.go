@@ -10,53 +10,53 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent/access"
-	"github.com/lesomnus/rove/internal/ent/accessreview"
-	"github.com/lesomnus/rove/internal/ent/aliashold"
-	"github.com/lesomnus/rove/internal/ent/allocation"
-	"github.com/lesomnus/rove/internal/ent/archived"
-	"github.com/lesomnus/rove/internal/ent/asset"
-	"github.com/lesomnus/rove/internal/ent/assettype"
-	"github.com/lesomnus/rove/internal/ent/attachment"
-	"github.com/lesomnus/rove/internal/ent/audit"
-	"github.com/lesomnus/rove/internal/ent/bookable"
-	"github.com/lesomnus/rove/internal/ent/clilogin"
-	"github.com/lesomnus/rove/internal/ent/countfinding"
-	"github.com/lesomnus/rove/internal/ent/custody"
-	"github.com/lesomnus/rove/internal/ent/custodyline"
-	"github.com/lesomnus/rove/internal/ent/event"
-	"github.com/lesomnus/rove/internal/ent/fact"
-	"github.com/lesomnus/rove/internal/ent/handoff"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/ent/inventorycount"
-	"github.com/lesomnus/rove/internal/ent/invitation"
-	"github.com/lesomnus/rove/internal/ent/itemmodel"
-	"github.com/lesomnus/rove/internal/ent/label"
-	"github.com/lesomnus/rove/internal/ent/legalhold"
-	"github.com/lesomnus/rove/internal/ent/link"
-	"github.com/lesomnus/rove/internal/ent/notification"
-	"github.com/lesomnus/rove/internal/ent/outbox"
-	"github.com/lesomnus/rove/internal/ent/owed"
-	"github.com/lesomnus/rove/internal/ent/party"
-	"github.com/lesomnus/rove/internal/ent/placement"
-	"github.com/lesomnus/rove/internal/ent/purchase"
-	"github.com/lesomnus/rove/internal/ent/purchaseline"
-	"github.com/lesomnus/rove/internal/ent/reservation"
-	"github.com/lesomnus/rove/internal/ent/reservationitem"
-	"github.com/lesomnus/rove/internal/ent/rowseal"
-	"github.com/lesomnus/rove/internal/ent/searchstale"
-	"github.com/lesomnus/rove/internal/ent/session"
-	"github.com/lesomnus/rove/internal/ent/signinfailure"
-	"github.com/lesomnus/rove/internal/ent/stewardship"
-	"github.com/lesomnus/rove/internal/ent/stock"
-	"github.com/lesomnus/rove/internal/ent/stockmovement"
-	"github.com/lesomnus/rove/internal/ent/tagcounter"
-	"github.com/lesomnus/rove/internal/ent/tenant"
-	"github.com/lesomnus/rove/internal/ent/tenantcontract"
-	"github.com/lesomnus/rove/internal/ent/tenantdomain"
-	"github.com/lesomnus/rove/internal/ent/treelock"
-	"github.com/lesomnus/rove/internal/ent/workorder"
+	"github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent/access"
+	"github.com/lesomnus/loft/internal/ent/accessreview"
+	"github.com/lesomnus/loft/internal/ent/aliashold"
+	"github.com/lesomnus/loft/internal/ent/allocation"
+	"github.com/lesomnus/loft/internal/ent/archived"
+	"github.com/lesomnus/loft/internal/ent/asset"
+	"github.com/lesomnus/loft/internal/ent/assettype"
+	"github.com/lesomnus/loft/internal/ent/attachment"
+	"github.com/lesomnus/loft/internal/ent/audit"
+	"github.com/lesomnus/loft/internal/ent/bookable"
+	"github.com/lesomnus/loft/internal/ent/clilogin"
+	"github.com/lesomnus/loft/internal/ent/countfinding"
+	"github.com/lesomnus/loft/internal/ent/custody"
+	"github.com/lesomnus/loft/internal/ent/custodyline"
+	"github.com/lesomnus/loft/internal/ent/event"
+	"github.com/lesomnus/loft/internal/ent/fact"
+	"github.com/lesomnus/loft/internal/ent/handoff"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/internal/ent/inventorycount"
+	"github.com/lesomnus/loft/internal/ent/invitation"
+	"github.com/lesomnus/loft/internal/ent/itemmodel"
+	"github.com/lesomnus/loft/internal/ent/label"
+	"github.com/lesomnus/loft/internal/ent/legalhold"
+	"github.com/lesomnus/loft/internal/ent/link"
+	"github.com/lesomnus/loft/internal/ent/notification"
+	"github.com/lesomnus/loft/internal/ent/outbox"
+	"github.com/lesomnus/loft/internal/ent/owed"
+	"github.com/lesomnus/loft/internal/ent/party"
+	"github.com/lesomnus/loft/internal/ent/placement"
+	"github.com/lesomnus/loft/internal/ent/purchase"
+	"github.com/lesomnus/loft/internal/ent/purchaseline"
+	"github.com/lesomnus/loft/internal/ent/reservation"
+	"github.com/lesomnus/loft/internal/ent/reservationitem"
+	"github.com/lesomnus/loft/internal/ent/rowseal"
+	"github.com/lesomnus/loft/internal/ent/searchstale"
+	"github.com/lesomnus/loft/internal/ent/session"
+	"github.com/lesomnus/loft/internal/ent/signinfailure"
+	"github.com/lesomnus/loft/internal/ent/stewardship"
+	"github.com/lesomnus/loft/internal/ent/stock"
+	"github.com/lesomnus/loft/internal/ent/stockmovement"
+	"github.com/lesomnus/loft/internal/ent/tagcounter"
+	"github.com/lesomnus/loft/internal/ent/tenant"
+	"github.com/lesomnus/loft/internal/ent/tenantcontract"
+	"github.com/lesomnus/loft/internal/ent/tenantdomain"
+	"github.com/lesomnus/loft/internal/ent/treelock"
+	"github.com/lesomnus/loft/internal/ent/workorder"
 	"github.com/protobuf-orm/ent"
 	"google.golang.org/protobuf/types/known/anypb"
 )
@@ -2424,7 +2424,7 @@ func (m *AssetTypeMutation) OldKind(ctx context.Context) (v string, err error) {
 // OldSpec returns the old "spec" field's value of the AssetType entity.
 // If the AssetType object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *AssetTypeMutation) OldSpec(ctx context.Context) (v *rove.TypeSpec, err error) {
+func (m *AssetTypeMutation) OldSpec(ctx context.Context) (v *loft.TypeSpec, err error) {
 	if !m.Op().Is(OpUpdateOne) {
 		return v, errors.New("OldSpec is only allowed on UpdateOne operations")
 	}
@@ -3381,7 +3381,7 @@ func (m *BookableMutation) OldTimezone(ctx context.Context) (v string, err error
 // OldHours returns the old "hours" field's value of the Bookable entity.
 // If the Bookable object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *BookableMutation) OldHours(ctx context.Context) (v *rove.OpeningHours, err error) {
+func (m *BookableMutation) OldHours(ctx context.Context) (v *loft.OpeningHours, err error) {
 	if !m.Op().Is(OpUpdateOne) {
 		return v, errors.New("OldHours is only allowed on UpdateOne operations")
 	}
@@ -7486,7 +7486,7 @@ func (m *ItemModelMutation) OldCode(ctx context.Context) (v string, err error) {
 // OldSpec returns the old "spec" field's value of the ItemModel entity.
 // If the ItemModel object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ItemModelMutation) OldSpec(ctx context.Context) (v *rove.ModelSpec, err error) {
+func (m *ItemModelMutation) OldSpec(ctx context.Context) (v *loft.ModelSpec, err error) {
 	if !m.Op().Is(OpUpdateOne) {
 		return v, errors.New("OldSpec is only allowed on UpdateOne operations")
 	}

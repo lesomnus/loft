@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.2
 // - protoc             (unknown)
-// source: rove/payday/holder_svc.g.proto
+// source: loft/payday/holder_svc.g.proto
 
-package rove
+package loft
 
 import (
 	context "context"
@@ -19,13 +19,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	HolderService_Add_FullMethodName   = "/rove.HolderService/Add"
-	HolderService_Get_FullMethodName   = "/rove.HolderService/Get"
-	HolderService_Patch_FullMethodName = "/rove.HolderService/Patch"
-	HolderService_Apply_FullMethodName = "/rove.HolderService/Apply"
-	HolderService_Erase_FullMethodName = "/rove.HolderService/Erase"
-	HolderService_List_FullMethodName  = "/rove.HolderService/List"
-	HolderService_Watch_FullMethodName = "/rove.HolderService/Watch"
+	HolderService_Add_FullMethodName   = "/loft.HolderService/Add"
+	HolderService_Get_FullMethodName   = "/loft.HolderService/Get"
+	HolderService_Patch_FullMethodName = "/loft.HolderService/Patch"
+	HolderService_Apply_FullMethodName = "/loft.HolderService/Apply"
+	HolderService_Erase_FullMethodName = "/loft.HolderService/Erase"
+	HolderService_List_FullMethodName  = "/loft.HolderService/List"
+	HolderService_Watch_FullMethodName = "/loft.HolderService/Watch"
 )
 
 // HolderServiceClient is the client API for HolderService service.
@@ -348,7 +348,7 @@ type HolderService_WatchServer = grpc.ServerStreamingServer[HolderWatchResponse]
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var HolderService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.HolderService",
+	ServiceName: "loft.HolderService",
 	HandlerType: (*HolderServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -383,5 +383,5 @@ var HolderService_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "rove/payday/holder_svc.g.proto",
+	Metadata: "loft/payday/holder_svc.g.proto",
 }

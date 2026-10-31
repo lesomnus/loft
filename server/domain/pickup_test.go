@@ -6,7 +6,7 @@ import (
 
 	"google.golang.org/grpc/codes"
 
-	app "github.com/lesomnus/rove"
+	app "github.com/lesomnus/loft"
 )
 
 // A pool's reservation is picked up as some of its units: what its pickup is

@@ -5,18 +5,18 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/lesomnus/rove/cmd"
+	"github.com/lesomnus/loft/cmd"
 )
 
 func TestStateDirIsWhereTheSqliteFileIs(t *testing.T) {
 	for dsn, want := range map[string]string{
-		"file:data/rove.db?_pragma=foreign_keys(1)": "data",
-		"file:/var/lib/rove/rove.db":                "/var/lib/rove",
-		"data/rove.db":                              "data",
-		"rove.db":                                   ".",
+		"file:data/loft.db?_pragma=foreign_keys(1)": "data",
+		"file:/var/lib/loft/loft.db":                "/var/lib/loft",
+		"data/loft.db":                              "data",
+		"loft.db":                                   ".",
 		"file::memory:?cache=shared":                "",
 		":memory:":                                  "",
-		"file:rove?mode=memory&cache=shared":        "",
+		"file:loft?mode=memory&cache=shared":        "",
 		"":                                          "",
 	} {
 		c := cmd.Config{}
@@ -25,7 +25,7 @@ func TestStateDirIsWhereTheSqliteFileIs(t *testing.T) {
 	}
 
 	c := cmd.Config{}
-	c.Db.Driver, c.Db.Dsn = "pgx", "postgres://rove@localhost/rove"
+	c.Db.Driver, c.Db.Dsn = "pgx", "postgres://loft@localhost/loft"
 	require.Empty(t, c.StateDir(), "a database that is not a file")
 }
 
@@ -47,7 +47,7 @@ func TestSeveralProcessesSignWithOneKey(t *testing.T) {
 	} {
 		c := cmd.Config{}
 		c.Spin.Lease, c.Watch.Broker, c.App.SigningKey = v.lease, v.broker, v.key
-		c.App.PublicUrl = "https://rove.example.com"
+		c.App.PublicUrl = "https://loft.example.com"
 
 		err := c.Replicas()
 		if len(v.says) == 0 {
@@ -55,7 +55,7 @@ func TestSeveralProcessesSignWithOneKey(t *testing.T) {
 			continue
 		}
 		require.ErrorContains(t, err, "app.signing_key", "%+v", v)
-		require.ErrorContains(t, err, "ROVE_APP_SIGNING_KEY", "%+v", v)
+		require.ErrorContains(t, err, "LOFT_APP_SIGNING_KEY", "%+v", v)
 		for _, w := range v.says {
 			require.ErrorContains(t, err, w, "%+v", v)
 		}
@@ -75,9 +75,9 @@ func TestADeploymentIsToldWhereItIs(t *testing.T) {
 	c.Spin.Lease, c.Watch.Broker, c.App.SigningKey = "postgres", "postgres", "one-key-everywhere"
 	err := c.Replicas()
 	require.ErrorContains(t, err, "app.public_url")
-	require.ErrorContains(t, err, "ROVE_APP_PUBLIC_URL")
+	require.ErrorContains(t, err, "LOFT_APP_PUBLIC_URL")
 
-	c.App.PublicUrl = "https://rove.example.com"
+	c.App.PublicUrl = "https://loft.example.com"
 	require.NoError(t, c.Replicas())
 }
 
@@ -96,7 +96,7 @@ func TestTheRosterInThisProcessIsSaidInProduction(t *testing.T) {
 	}{
 		{name: "a checkout", driver: "sqlite3"},
 		{name: "a checkout told its address", driver: "sqlite3", public: "http://localhost:8080"},
-		{name: "a name under localhost", driver: "sqlite3", public: "https://rove.localhost"},
+		{name: "a name under localhost", driver: "sqlite3", public: "https://loft.localhost"},
 		{name: "a loopback address", driver: "sqlite3", public: "http://127.0.0.1:8080"},
 		{name: "the loopback of v6", driver: "sqlite3", public: "http://[::1]:8080"},
 		{name: "PostgreSQL", driver: "pgx", want: []string{"db.driver: pgx"}},

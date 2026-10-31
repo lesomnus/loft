@@ -5,10 +5,10 @@ import (
 
 	"github.com/lesomnus/xli"
 
-	"github.com/lesomnus/rove/cmd"
+	"github.com/lesomnus/loft/cmd"
 )
 
-// NewCmdMigrate is `rove migrate`: the database brought into the shape this
+// NewCmdMigrate is `loft migrate`: the database brought into the shape this
 // build's schema says -- with PostgreSQL's constraints beside it (`pg.sql`)
 // -- and nothing served. It is the step a deployment takes before it serves a
 // new build, with `db.migrate: false` on what serves, which then refuses a

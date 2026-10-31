@@ -6,7 +6,7 @@ import (
 
 	"google.golang.org/grpc/codes"
 
-	app "github.com/lesomnus/rove"
+	app "github.com/lesomnus/loft"
 )
 
 // A thing that is a member of two pools is one unit to one of them at a time

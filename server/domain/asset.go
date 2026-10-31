@@ -19,16 +19,16 @@ import (
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/asset"
-	"github.com/lesomnus/rove/internal/ent/bookable"
-	"github.com/lesomnus/rove/internal/ent/fact"
-	"github.com/lesomnus/rove/internal/ent/link"
-	"github.com/lesomnus/rove/internal/ent/placement"
-	"github.com/lesomnus/rove/internal/ent/predicate"
-	"github.com/lesomnus/rove/internal/ent/stewardship"
-	"github.com/lesomnus/rove/server/pd"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/asset"
+	"github.com/lesomnus/loft/internal/ent/bookable"
+	"github.com/lesomnus/loft/internal/ent/fact"
+	"github.com/lesomnus/loft/internal/ent/link"
+	"github.com/lesomnus/loft/internal/ent/placement"
+	"github.com/lesomnus/loft/internal/ent/predicate"
+	"github.com/lesomnus/loft/internal/ent/stewardship"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 // The values an asset's fields may hold.
@@ -740,7 +740,7 @@ func (t *Tx) refresh(child uuid.UUID, old, tl timeline[place]) (*app.Asset, erro
 // bump tells whoever watches a container that what is inside it changed --
 // once a transaction: told once, they look once and see all of it. An import
 // of a hundred things into one room told it a hundred times, each a write of
-// its own through every layer (rove#103).
+// its own through every layer (loft#103).
 func (t *Tx) bump(container uuid.UUID) error {
 	if t.shared != nil && t.shared.bumped[container] {
 		return nil
@@ -778,7 +778,7 @@ func (t *Tx) addFact(id uuid.UUID, key, value string, cleared bool, at time.Time
 	return t.op.Set(t.ctx, past.Fact{Subject: pdid.Id(id), From: at, Values: []past.Value{f}})
 }
 
-// factsAt answers each asset's facts at `at`, by the keys Rove says them
+// factsAt answers each asset's facts at `at`, by the keys Loft says them
 // under, by what was recorded by `known` (or by now when it is nil): what
 // payday's past says each was then (`past.StateAt`), as the text each was
 // said in. An asset nothing is known of then is not in it.

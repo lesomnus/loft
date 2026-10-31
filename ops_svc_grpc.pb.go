@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.2
 // - protoc             (unknown)
-// source: rove/ops_svc.g.proto
+// source: loft/ops_svc.g.proto
 
-package rove
+package loft
 
 import (
 	context "context"
@@ -19,15 +19,15 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	NotificationService_Add_FullMethodName      = "/rove.NotificationService/Add"
-	NotificationService_Get_FullMethodName      = "/rove.NotificationService/Get"
-	NotificationService_Patch_FullMethodName    = "/rove.NotificationService/Patch"
-	NotificationService_Apply_FullMethodName    = "/rove.NotificationService/Apply"
-	NotificationService_Erase_FullMethodName    = "/rove.NotificationService/Erase"
-	NotificationService_List_FullMethodName     = "/rove.NotificationService/List"
-	NotificationService_Inbox_FullMethodName    = "/rove.NotificationService/Inbox"
-	NotificationService_MarkRead_FullMethodName = "/rove.NotificationService/MarkRead"
-	NotificationService_SetMail_FullMethodName  = "/rove.NotificationService/SetMail"
+	NotificationService_Add_FullMethodName      = "/loft.NotificationService/Add"
+	NotificationService_Get_FullMethodName      = "/loft.NotificationService/Get"
+	NotificationService_Patch_FullMethodName    = "/loft.NotificationService/Patch"
+	NotificationService_Apply_FullMethodName    = "/loft.NotificationService/Apply"
+	NotificationService_Erase_FullMethodName    = "/loft.NotificationService/Erase"
+	NotificationService_List_FullMethodName     = "/loft.NotificationService/List"
+	NotificationService_Inbox_FullMethodName    = "/loft.NotificationService/Inbox"
+	NotificationService_MarkRead_FullMethodName = "/loft.NotificationService/MarkRead"
+	NotificationService_SetMail_FullMethodName  = "/loft.NotificationService/SetMail"
 )
 
 // NotificationServiceClient is the client API for NotificationService service.
@@ -396,7 +396,7 @@ func _NotificationService_SetMail_Handler(srv interface{}, ctx context.Context, 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var NotificationService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.NotificationService",
+	ServiceName: "loft.NotificationService",
 	HandlerType: (*NotificationServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -437,16 +437,16 @@ var NotificationService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "rove/ops_svc.g.proto",
+	Metadata: "loft/ops_svc.g.proto",
 }
 
 const (
-	TenantContractService_Add_FullMethodName   = "/rove.TenantContractService/Add"
-	TenantContractService_Get_FullMethodName   = "/rove.TenantContractService/Get"
-	TenantContractService_Patch_FullMethodName = "/rove.TenantContractService/Patch"
-	TenantContractService_Apply_FullMethodName = "/rove.TenantContractService/Apply"
-	TenantContractService_Erase_FullMethodName = "/rove.TenantContractService/Erase"
-	TenantContractService_List_FullMethodName  = "/rove.TenantContractService/List"
+	TenantContractService_Add_FullMethodName   = "/loft.TenantContractService/Add"
+	TenantContractService_Get_FullMethodName   = "/loft.TenantContractService/Get"
+	TenantContractService_Patch_FullMethodName = "/loft.TenantContractService/Patch"
+	TenantContractService_Apply_FullMethodName = "/loft.TenantContractService/Apply"
+	TenantContractService_Erase_FullMethodName = "/loft.TenantContractService/Erase"
+	TenantContractService_List_FullMethodName  = "/loft.TenantContractService/List"
 )
 
 // TenantContractServiceClient is the client API for TenantContractService service.
@@ -712,7 +712,7 @@ func _TenantContractService_List_Handler(srv interface{}, ctx context.Context, d
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var TenantContractService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.TenantContractService",
+	ServiceName: "loft.TenantContractService",
 	HandlerType: (*TenantContractServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -741,16 +741,16 @@ var TenantContractService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "rove/ops_svc.g.proto",
+	Metadata: "loft/ops_svc.g.proto",
 }
 
 const (
-	LegalHoldService_Add_FullMethodName   = "/rove.LegalHoldService/Add"
-	LegalHoldService_Get_FullMethodName   = "/rove.LegalHoldService/Get"
-	LegalHoldService_Patch_FullMethodName = "/rove.LegalHoldService/Patch"
-	LegalHoldService_Apply_FullMethodName = "/rove.LegalHoldService/Apply"
-	LegalHoldService_Erase_FullMethodName = "/rove.LegalHoldService/Erase"
-	LegalHoldService_List_FullMethodName  = "/rove.LegalHoldService/List"
+	LegalHoldService_Add_FullMethodName   = "/loft.LegalHoldService/Add"
+	LegalHoldService_Get_FullMethodName   = "/loft.LegalHoldService/Get"
+	LegalHoldService_Patch_FullMethodName = "/loft.LegalHoldService/Patch"
+	LegalHoldService_Apply_FullMethodName = "/loft.LegalHoldService/Apply"
+	LegalHoldService_Erase_FullMethodName = "/loft.LegalHoldService/Erase"
+	LegalHoldService_List_FullMethodName  = "/loft.LegalHoldService/List"
 )
 
 // LegalHoldServiceClient is the client API for LegalHoldService service.
@@ -1016,7 +1016,7 @@ func _LegalHoldService_List_Handler(srv interface{}, ctx context.Context, dec fu
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var LegalHoldService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.LegalHoldService",
+	ServiceName: "loft.LegalHoldService",
 	HandlerType: (*LegalHoldServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -1045,16 +1045,16 @@ var LegalHoldService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "rove/ops_svc.g.proto",
+	Metadata: "loft/ops_svc.g.proto",
 }
 
 const (
-	AccessReviewService_Add_FullMethodName   = "/rove.AccessReviewService/Add"
-	AccessReviewService_Get_FullMethodName   = "/rove.AccessReviewService/Get"
-	AccessReviewService_Patch_FullMethodName = "/rove.AccessReviewService/Patch"
-	AccessReviewService_Apply_FullMethodName = "/rove.AccessReviewService/Apply"
-	AccessReviewService_Erase_FullMethodName = "/rove.AccessReviewService/Erase"
-	AccessReviewService_List_FullMethodName  = "/rove.AccessReviewService/List"
+	AccessReviewService_Add_FullMethodName   = "/loft.AccessReviewService/Add"
+	AccessReviewService_Get_FullMethodName   = "/loft.AccessReviewService/Get"
+	AccessReviewService_Patch_FullMethodName = "/loft.AccessReviewService/Patch"
+	AccessReviewService_Apply_FullMethodName = "/loft.AccessReviewService/Apply"
+	AccessReviewService_Erase_FullMethodName = "/loft.AccessReviewService/Erase"
+	AccessReviewService_List_FullMethodName  = "/loft.AccessReviewService/List"
 )
 
 // AccessReviewServiceClient is the client API for AccessReviewService service.
@@ -1320,7 +1320,7 @@ func _AccessReviewService_List_Handler(srv interface{}, ctx context.Context, dec
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var AccessReviewService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.AccessReviewService",
+	ServiceName: "loft.AccessReviewService",
 	HandlerType: (*AccessReviewServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -1349,5 +1349,5 @@ var AccessReviewService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "rove/ops_svc.g.proto",
+	Metadata: "loft/ops_svc.g.proto",
 }

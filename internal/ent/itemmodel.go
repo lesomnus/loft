@@ -9,10 +9,10 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent/assettype"
-	"github.com/lesomnus/rove/internal/ent/itemmodel"
-	"github.com/lesomnus/rove/internal/ent/tenant"
+	"github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent/assettype"
+	"github.com/lesomnus/loft/internal/ent/itemmodel"
+	"github.com/lesomnus/loft/internal/ent/tenant"
 	"github.com/protobuf-orm/ent"
 	"github.com/protobuf-orm/ent/dialect/sql"
 )
@@ -33,7 +33,7 @@ type ItemModel struct {
 	// Code holds the value of the "code" field.
 	Code string `json:"code,omitempty"`
 	// Spec holds the value of the "spec" field.
-	Spec *rove.ModelSpec `json:"spec,omitempty"`
+	Spec *loft.ModelSpec `json:"spec,omitempty"`
 	// DateUpdated holds the value of the "date_updated" field.
 	DateUpdated time.Time `json:"date_updated,omitempty"`
 	// DateErased holds the value of the "date_erased" field.

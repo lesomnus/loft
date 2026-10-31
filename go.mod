@@ -1,4 +1,4 @@
-module github.com/lesomnus/rove
+module github.com/lesomnus/loft
 
 go 1.27.0
 

@@ -1,4 +1,4 @@
-# Working on rove
+# Working on loft
 
 A [payday](https://github.com/lesomnus/payday) app. Most of it is **generated
 from `proto/`**, so the usual shape of a change is: edit the schema, regenerate,
@@ -35,7 +35,7 @@ go get github.com/lesomnus/roster@<the roster generated with that payday>
 go tool pd upgrade --payday <version>   # go get, tidy, its floors, and its pd gen --ts
 ```
 
-roster first: rove links the roster generated with the payday it links, and a
+roster first: loft links the roster generated with the payday it links, and a
 generated stamp from another payday is refused when it runs. `pd upgrade`
 commits nothing. Renovate leaves payday, protobuf-orm and roster alone
 (`renovate.json`, payday's `renovate/app` preset) -- only this moves them.
@@ -122,9 +122,9 @@ wall was never installed on, for work that cannot be done from inside a tenant
 flag to check; the wiring is the whole of the control.
 
 The one door that writes as the deployment on request is the operator's entry
-point, `rove-admin serve` (`server/admin`, `cli/admin`): its own binary, on
-`admin.addr`, behind operator keys. `rove` must never import either package --
-`go list -deps ./cmd/rove` is how to check.
+point, `loft-admin serve` (`server/admin`, `cli/admin`): its own binary, on
+`admin.addr`, behind operator keys. `loft` must never import either package --
+`go list -deps ./cmd/loft` is how to check.
 
 ## The wall is a predicate, so it only applies to reads
 
@@ -135,22 +135,22 @@ is decided.
 ## Running
 
 ```sh
-go run ./cmd/rove init --demo   # the first tenant, its owner, and five teams to try things on
-go run ./cmd/rove serve         # :8080 serves the UI in ts/dist and the API
-go run ./cmd/rove config env    # every variable this can be told through
+go run ./cmd/loft init --demo   # the first tenant, its owner, and five teams to try things on
+go run ./cmd/loft serve         # :8080 serves the UI in ts/dist and the API
+go run ./cmd/loft config env    # every variable this can be told through
 
 cd ts && npm install && npm run build   # or `npm run dev` on :5173, proxied to :8080
 ```
 
 `init` prints the owner's login; everybody `--demo` makes signs in with
 `demo1234`. Delete `data/` to start over. PostgreSQL is
-`ROVE_DB_DRIVER=pgx ROVE_DB_DSN=...`, and `cli.Migrate` then also installs
+`LOFT_DB_DRIVER=pgx LOFT_DB_DSN=...`, and `cli.Migrate` then also installs
 `cli/pg.sql` -- the constraints the schema cannot state. The roster in this
 process then needs a database of its own named too:
-`ROVE_AUTH_ROSTER_DB_DRIVER` and `ROVE_AUTH_ROSTER_DB_DSN`.
+`LOFT_AUTH_ROSTER_DB_DRIVER` and `LOFT_AUTH_ROSTER_DB_DSN`.
 
 The browser tests are `ts/e2e` (`cd ts && npm run build && npx playwright
-test`; README). Playwright starts a rove of its own -- `e2e/serve.sh`: this
+test`; README). Playwright starts a loft of its own -- `e2e/serve.sh`: this
 checkout, `init --demo`, a database in `ts/test-results/`, or with
 `E2E_POSTGRES` two made fresh on that PostgreSQL -- so they never touch
 `data/`; and for the server that signs in through `auth.sso`, an issuer of
@@ -167,12 +167,12 @@ controls inside a <label> of your own.
 
 People, their passwords and whether they may sign in are **roster's**
 (`internal/identity`, design 9.10). `auth.roster.addr` names an external one;
-empty runs one in this process on its own database (`roster.db` beside Rove's
+empty runs one in this process on its own database (`roster.db` beside Loft's
 SQLite file, or `auth.roster.db`), reached over `bufconn`.
 
 **Two layers of tenant (D27).** A roster tenant is the **directory** accounts
-are in -- one per deployment, `auth.roster.directory` (`rove` on the embedded
-roster; the key's own tenant for an `rt_`) -- and a Rove tenant is a
+are in -- one per deployment, `auth.roster.directory` (`loft` on the embedded
+roster; the key's own tenant for an `rt_`) -- and a Loft tenant is a
 **workspace**. A `Holder` is an account's membership of one workspace: an
 identifier of its own, the roster account in `account`, and the `role`. Never
 pass a workspace id where `identity.Store` wants an account, or the other way:
@@ -181,7 +181,7 @@ the store's API takes no tenant at all.
 A browser signs in at `POST /session` (`server/session`): the password goes to
 roster's `VouchService.Verify`, and the session -- a `global` row, written
 through ent, served by no RPC -- names the **account**. Every call names its
-workspace in `rove-workspace` (alias or id; `cmd.WorkspaceHeader`), or names
+workspace in `loft-workspace` (alias or id; `cmd.WorkspaceHeader`), or names
 none when the account has one membership, and `cmd.Resolver` frames the call as
 that membership. Every call is also held to what roster says of the account
 now (`identity.Store.Held`, cached `HeldTtl`); a roster that cannot be asked
@@ -196,14 +196,14 @@ its servers and are **not on the stream** -- whatever acts on a mark asks
 roster first. That is `Lifecycle.Sweep`: past `app.accounts.forget_after`, an
 account roster still has nobody by leaves every workspace it is in
 (`domain.Deps.Depart`: pseudonymized as 개인정보 삭제 is, and a last owner's
-workspace handed on), and one roster has again stops leaving. `rove identity
+workspace handed on), and one roster has again stops leaving. `loft identity
 depart` does it now for one account, and `Lifecycle.Reconcile` finds what the
 stream missed -- it replays nothing -- every `app.accounts.reconcile` by
-itself, and now with `rove identity reconcile`. The role Rove is installed with carries every method in
+itself, and now with `loft identity reconcile`. The role Loft is installed with carries every method in
 `identity.AgentMethods`; installing again leaves an existing role as it is, so
 an older install is widened with `roster role patch` (README).
 
-Through roster's issuer instead (`auth.sso`, `server/sso`), Rove is a relying
+Through roster's issuer instead (`auth.sso`, `server/sso`), Loft is a relying
 party in the `itself` shape of roster's `docs/relying-party.md`: `GET
 /sso/login?with=<connection>` sends the browser to Hydra naming the button's
 connection, `GET /sso/callback` exchanges the code (state in a cookie, nonce,
@@ -231,19 +231,19 @@ for its administrators. An answer is written through `Deps.Base` as the
 deployment's work in that workspace. Mail is `app.mail`, SMTP, and logged when
 it names no server.
 
-Roles stay Rove's. On the embedded roster the people screen and `rove holder
+Roles stay Loft's. On the embedded roster the people screen and `loft holder
 add|password` make accounts and set passwords there; on an external one they
 are refused, and are done at roster. Ending a membership (deactivate,
 pseudonymize) never touches the account. A deployment whose holders name no
-account runs `rove identity migrate` once. `auth.Plain` is not wired; tests
+account runs `loft identity migrate` once. `auth.Plain` is not wired; tests
 mint a session with `Server.Sessions.Mint` and send its cookie (plus
-`rove-workspace` when the account has more than one membership), and set
+`loft-workspace` when the account has more than one membership), and set
 `c.Auth.Roster.Db` to a `pdtest.DB` of its own -- the default is a file.
 
 ## A workspace's end
 
 A workspace is closed by its owner (`TenantService.Close`, typing its name) or
-an operator (`rove tenant close`), or by the deployment when an account
+an operator (`loft tenant close`), or by the deployment when an account
 leaving left nobody in it, and closing destroys nothing: `cmd.Resolver` refuses
 every call into a closed workspace but its owner's `Get` and `Restore`, and the
 owner can take its data out (`GET /account/workspaces/{alias}/export`). Once
@@ -253,19 +253,19 @@ destroys it and holds its address (`AliasHold`, whose reason says how it
 went). Destroying retires it unless the contract in force then says
 `purge_floors` (payday#115): what the deployment's floors (`audit.min`,
 `audit.by.<kind>.min`) are on stays in the trail until each has passed, and
-the rest goes now; a purge takes that too. `rove tenant retire|purge` are the
+the rest goes now; a purge takes that too. `loft tenant retire|purge` are the
 same destruction by an operator's hand (`closing.Destroy`). With floors and no
 archive a retirement is refused before anything is taken
 (`offboard.ErrNoArchive`), and the sweep leaves the workspace closed. A
 retired workspace imported back under its identifiers is first taken back
-from the trail (`Policy.Return`, in `rove tenant import`), or the trail would
+from the trail (`Policy.Return`, in `loft tenant import`), or the trail would
 take what it writes. Addresses are made up (`tenancy.Aliases`) and nobody but
-an operator moves one (`rove tenant alias`); the domain layer refuses an alias
+an operator moves one (`loft tenant alias`); the domain layer refuses an alias
 in `TenantService.Patch`.
 
 ## Where a workspace is
 
-A workspace says its own zone, currency and check-in rule (rove#144), and how
+A workspace says its own zone, currency and check-in rule (loft#144), and how
 long it keeps its history and its access record and may be restored once
 closed (`keep_days`, `access_keep_days`, `restore_days`, D36), its owner
 through `TenantService.Configure` -- the one door, with its event; `Patch`
@@ -286,19 +286,19 @@ of two currencies are never added together.
 
 ## The terminal
 
-Everything is an RPC, and `rove api` is every one of them as a command,
+Everything is an RPC, and `loft api` is every one of them as a command,
 asked of a running deployment over the address a browser reaches it at
 (`cli/connect.go` speaks Connect to the same transcoder the page does): payday's
 entity tree (`pdcmd`), every other method of an entity's service beside it
-(`rove api asset move`), and `rove api call` by name. A terminal signs in with
-`rove login`, which a person signed in at the app approves (`server/clilogin`):
+(`loft api asset move`), and `loft api call` by name. A terminal signs in with
+`loft login`, which a person signed in at the app approves (`server/clilogin`):
 the terminal makes up its session key and sends only its hash, so the session
 is a browser's session in every respect. These commands read no server
-configuration; their own is `ROVE_CLIENT_CONFIG`. A new feature is an RPC, so it
+configuration; their own is `LOFT_CLIENT_CONFIG`. A new feature is an RPC, so it
 is a command too -- and anything HTTP-only beside the RPCs (`/account`) gets a
-command of its own (`rove workspace`).
+command of its own (`loft workspace`).
 
-A terminal may sign in narrowed (`rove login --allow PATTERN`, D33): the page
+A terminal may sign in narrowed (`loft login --allow PATTERN`, D33): the page
 that approves it shows the methods, and the session is narrowed to them --
 `Session.grant`, a payday `frame.Grant` that the gRPC chain holds every call
 to, so whoever holds the key can do that much and no more. Beside the RPCs a
@@ -306,7 +306,7 @@ narrowed session only reads what its account is (`account.Reading`);
 everything else asks `account.SignedIn`, which refuses it -- a narrowed
 terminal that could approve another would have been narrowed to nothing.
 
-`rove mcp` is that terminal as an MCP server on stdin and stdout (`cli/mcp.go`,
+`loft mcp` is that terminal as an MCP server on stdin and stdout (`cli/mcp.go`,
 D32): Claude Code or Claude Desktop starts it, and every tool is RPCs as the
 person signed in, read again each call, through the same policy and wall. The
 deployment does not know there is an assistant. A change is two tools (D33,
@@ -328,7 +328,7 @@ read (D56). Its tests run the command over pipes with the SDK's client
 What `cmd/serve.go` appends to `s.Spin` runs under `spin.lease` (payday#54):
 every loop in **one** process of the deployment, but the ones marked
 `spin.InEveryProcess` -- a process's own work, as the roster stream that drops
-its cached answers is. So a loop has a name of its own (`spinEvery("rove.…",
+its cached answers is. So a loop has a name of its own (`spinEvery("loft.…",
 …)`, `spin.Called`): `spin.Run` refuses an unnamed one before anything starts.
 Hand over a `spin.Spinner`, never a thing with a `Run` method -- anything else
 in the list is skipped without a word. A lease is at most one at a time but for
@@ -351,8 +351,8 @@ Events and an asset's facts are **payday's past** (payday#151): its `past`
 package writes them, and nothing else may -- the Audit layer refuses an
 Event or a Fact written by hand, through every stack. `Tx.begin` is
 `past.Begin` with the operation's kind and its kind's message
-(`proto/rove/past.proto`), a fact is `t.op.Set` (or `addFact`, by the keys
-Rove says them under), and what an asset was at a moment is
+(`proto/loft/past.proto`), a fact is `t.op.Set` (or `addFact`, by the keys
+Loft says them under), and what an asset was at a moment is
 `past.StateAt` (`Tx.factsAt`).
 
 **A kind has a message of its own**, named for what happened (`asset.move`
@@ -379,16 +379,16 @@ identifier only, and never anything of theirs. A new kind is a message (or
 a kind of a shared one) and a sentence in `say.go`
 (`TestEveryKindIsSaidInKorean`); it, a field, or a message **ships one
 release before anything writes it**, so that the build before can read its
-rows. `proto/rove/payday/past.lock` only grows: a message, a field, a JSON
+rows. `proto/loft/payday/past.lock` only grows: a message, a field, a JSON
 name or a kind removed or changed, or a kind moved to another message, is a
 row that no longer reads, and `pd gen` refuses it. `reason` is a person's
-words, and personal; what Rove says itself goes in the message and its
+words, and personal; what Loft says itself goes in the message and its
 sentence. A row from before keeps `desc` and `payload`, and is said by them
 (`namer.say`, design 8.2).
 A person forgotten (`Tx.forget`) has the trail's
 rows blanked in the operation's transaction and the archive's half owed there
 (payday#133); the operation that began the transaction pays it after its
-commit (`Deps.Pay`), the trail's next pass pays what that could not, and `rove
+commit (`Deps.Pay`), the trail's next pass pays what that could not, and `loft
 trail owed` says what is left. Read `server/domain/domain.go` first. Its tests
 (`go test ./server/domain`) go through the whole stack; set `PDTEST_POSTGRES` to
 run them on PostgreSQL.
@@ -409,10 +409,10 @@ words where they are kept, never by reading them; mail already sent stays
 said. A notice whose words are somebody's is of a kind in `ToldWhy`, and a
 row's field that keeps a reason is in `KeptWhy` and declared personal, or
 every domain test that writes one fails at its end. No role is given `EventService.Redact` yet (`closed` in
-`server/policy`: the owner decides who); the operator does it with `rove
+`server/policy`: the owner decides who); the operator does it with `loft
 event redact`, on the workspace's word.
 
-**A write through ent is not on the trail**, and `rove trail rows` then finds
+**A write through ent is not on the trail**, and `loft trail rows` then finds
 the row -- a write past the servers is what it is there to find (payday#108).
 Write through the servers. Where a write cannot be one -- a claim on a
 condition, a restore -- put it on the trail as the act it is, in the same
@@ -427,7 +427,7 @@ changes nothing, to take a row's lock, is fine.
 ## Who saw whose data
 
 Every call that carries somebody's personal data is a row of payday's access
-record (rove#136, payday#111), read off what the schema declares `personal`:
+record (loft#136, payday#111), read off what the schema declares `personal`:
 a new RPC is recorded without a line. A person's own words are personal as a
 reason is -- a memo, a note, what a review found -- and what a thing or a
 document is called is not (design 8.2, D56): a field of free text a person
@@ -445,20 +445,20 @@ The workspace's administrators and auditors review it a month at a time
 row's address and reason unmarshalled, the people it names by their names now,
 which is itself on the record -- and an `AccessReview`, written by the domain's
 `Add` and never changed, says who looked over which stretch and what it held.
-An operator reads the deployment's with `rove access ls|reviews`, ids only.
+An operator reads the deployment's with `loft access ls|reviews`, ids only.
 
 ## Search
 
 Search is OpenSearch with nori, for a deployment whose
-`app.search.opensearch` names a cluster (D31, rove#83); one that names none
+`app.search.opensearch` names a cluster (D31, loft#83); one that names none
 asks the database (`internal/search`), which reads the tenant's rows with no
 index -- pg_bigm is gone, and the database's search is not made faster. The
 engine is `server/opensearch`: the client (its HTTP API, no library), and an
 `Index` for each kind of thing searched -- `Assets`, `Parties`, `Models`
-(rove#91), each with its own shape (`assets.json`, `parties.json`,
+(loft#91), each with its own shape (`assets.json`, `parties.json`,
 `models.json`, and its `Version`: bump it with any change), its own alias
 `<index>-<name>` and `Reindex`, which fills a new index and moves the alias
-onto it in one step; and `rove search status|reindex|remove|analyze`, which
+onto it in one step; and `loft search status|reindex|remove|analyze`, which
 go over all of them. The indexes are kept current by `opensearch.Recorder`,
 which writes a `SearchStale` row in the transaction of any write to an asset,
 a party or a model or to what their documents take a name from (type, model,

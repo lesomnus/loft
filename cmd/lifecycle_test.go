@@ -16,12 +16,12 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	entsession "github.com/lesomnus/rove/internal/ent/session"
-	"github.com/lesomnus/rove/internal/identity"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	entsession "github.com/lesomnus/loft/internal/ent/session"
+	"github.com/lesomnus/loft/internal/identity"
 )
 
 // What roster says of an account is handed to [cmd.Server.Lifecycle] here as
@@ -252,7 +252,7 @@ func idUuid(b []byte) uuid.UUID {
 
 // TestTheDeploymentReconcilesByItself: every `app.accounts.reconcile` -- a
 // day, unless told otherwise -- the deployment asks roster about every
-// account with a membership here, as `rove identity reconcile --yes` does: one
+// account with a membership here, as `loft identity reconcile --yes` does: one
 // roster erased while the stream was not heard begins to leave, from now; one
 // leaving here that roster has again stops; and what it marked is in the log.
 // A roster that has nobody at all marks nobody.

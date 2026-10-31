@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/lesomnus/rove/internal/ent"
+	"github.com/lesomnus/loft/internal/ent"
 )
 
 // The AccessFunc type is an adapter to allow the use of ordinary

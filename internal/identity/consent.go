@@ -20,16 +20,16 @@ import (
 // documents are in force stays this deployment's (`app.consent`), and is what
 // each call names.
 //
-// Every call is made as Rove's holder in the directory, which roster writes
-// onto each act and narrows each read to: what Rove reads of the ledger is
-// what Rove recorded and nothing another app did.
+// Every call is made as Loft's holder in the directory, which roster writes
+// onto each act and narrows each read to: what Loft reads of the ledger is
+// what Loft recorded and nothing another app did.
 
-// consentScope is where Rove's documents hold in roster's ledger: the whole
+// consentScope is where Loft's documents hold in roster's ledger: the whole
 // deployment, which is the empty scope. A workspace's own policy, were there
 // one, would be the same rows with the workspace as their scope.
 const consentScope = ""
 
-// Document is one of the documents Rove asks an account to agree to, as
+// Document is one of the documents Loft asks an account to agree to, as
 // roster's ledger names it: its key -- `terms`, `privacy` -- and a version.
 type Document struct {
 	Name    string
@@ -37,7 +37,7 @@ type Document struct {
 }
 
 // Agreement is one agreement roster's ledger keeps of an account's, to one
-// of Rove's documents at a version.
+// of Loft's documents at a version.
 type Agreement struct {
 	Document string
 	Version  string
@@ -93,7 +93,7 @@ func (s *Store) Agree(ctx context.Context, account pdid.Id, docs []Document, cli
 	return nil
 }
 
-// Agreements is what an account agreed to of Rove's documents, newest first:
+// Agreements is what an account agreed to of Loft's documents, newest first:
 // every version of each, since none is ever changed.
 func (s *Store) Agreements(ctx context.Context, account pdid.Id) ([]Agreement, error) {
 	as, _, err := s.inDirectory(ctx)
@@ -119,7 +119,7 @@ func (s *Store) Agreements(ctx context.Context, account pdid.Id) ([]Agreement, e
 			return nil, ledgerFailed(err)
 		}
 		for _, v := range res.GetItems() {
-			// Rove withdraws nothing -- what it asks for is required -- so
+			// Loft withdraws nothing -- what it asks for is required -- so
 			// an act that is not an agreement is not one of its own.
 			if v.GetAct() != rstr.ConsentAct_CONSENT_ACT_AGREE {
 				continue
@@ -138,7 +138,7 @@ func (s *Store) Agreements(ctx context.Context, account pdid.Id) ([]Agreement, e
 }
 
 // papers is the documents as roster's ledger is told them: each required,
-// since there is nothing Rove asks for that an account may decline and stay.
+// since there is nothing Loft asks for that an account may decline and stay.
 func papers(docs []Document) []*rstr.ConsentDocument {
 	out := make([]*rstr.ConsentDocument, 0, len(docs))
 	for _, d := range docs {
@@ -157,7 +157,7 @@ func ledgerFailed(err error) error {
 	case codes.NotFound:
 		return fmt.Errorf("%w: roster has no such account", ErrNoPerson)
 	case codes.PermissionDenied:
-		return fmt.Errorf("%w: Rove's role at roster does not hold its consent ledger, "+
+		return fmt.Errorf("%w: Loft's role at roster does not hold its consent ledger, "+
 			"which `roster role patch` adds (README): %v", ErrUnreachable, err)
 	}
 
@@ -166,6 +166,6 @@ func ledgerFailed(err error) error {
 
 // unreachable is a roster that could not be asked. What it said is kept as
 // words and not as the error: a status in the chain is what a gRPC caller of
-// Rove would be answered with, and roster's refusal of Rove is not the
+// Loft would be answered with, and roster's refusal of Loft is not the
 // caller's to read.
 func unreachable(err error) error { return fmt.Errorf("%w: %v", ErrUnreachable, err) }

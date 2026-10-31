@@ -11,30 +11,30 @@ import (
 	"github.com/lesomnus/payday/past"
 	"github.com/lesomnus/payday/pdid"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/event"
-	"github.com/lesomnus/rove/server/pd"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/event"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 // An event keeps no sentence (payday#151): it keeps its kind's message
-// (`rove/past.proto`), and what it says is made of that when it is read -- in
+// (`loft/past.proto`), and what it says is made of that when it is read -- in
 // the workspace's zone, naming the people in it as they are called then, each
 // of them on the access record of the call that reads it (design 8.2). What
-// is here is what Rove says of each kind, in Korean, once: a sentence for
+// is here is what Loft says of each kind, in Korean, once: a sentence for
 // each, a kind of a shared message reading what its kind uses.
 //
 // A thing is said as the message holds it -- an asset by the tag it had, a
 // reservation by the name it had -- and a person by identifier, named when it
 // is read ([who]). The words are the ones each event was written with before
 // it kept a message, so that what a page shows reads the same across the two,
-// but for two things. A value of Rove's own -- a role, a relation, a stock's
+// but for two things. A value of Loft's own -- a role, a relation, a stock's
 // movement, how a finding was settled, what was done to a reservation -- is
 // said in the word the page says it in (`io.go`), where it was written as its
 // code; and a reservation's time is said in the workspace's zone, where it was
 // UTC. A row from before reads as it was written.
 
-// Sentences is what Rove says of its events.
+// Sentences is what Loft says of its events.
 var Sentences = sentences()
 
 func sentences() *past.Sentences {
@@ -389,7 +389,7 @@ func sentences() *past.Sentences {
 		return "작업 기록의 사유 삭제"
 	})
 
-	// A row from before Rove's events were the past's: the sentence it was
+	// A row from before Loft's events were the past's: the sentence it was
 	// written with, and the people it marks named as they are now.
 	s.Legacy(func(r *past.Reading, ev past.EventRow) string {
 		n := namerOf(r.Context())
@@ -410,7 +410,7 @@ func sentences() *past.Sentences {
 // who is the person or membership `b` names, as a sentence says one: as they
 // are called when it is read -- a membership by the person record it is, as
 // whoever did something is named -- each on the access record of the call
-// that reads it; and "?" where nothing names it, as Rove has always said one.
+// that reads it; and "?" where nothing names it, as Loft has always said one.
 func who(r *past.Reading, b []byte) string {
 	id := idOf(b)
 	if id.IsZero() {
@@ -437,7 +437,7 @@ func alias(r *past.Reading, b []byte) string {
 // attribute is an asset's attribute `key` as a sentence says it: by the label
 // the asset's type gives it now, which the namer the reading is for reads
 // ([namer.attribute]), and by the key where the type gives it none -- the
-// workspace's own word for it, never Rove's code.
+// workspace's own word for it, never Loft's code.
 func attribute(r *past.Reading, asset []byte, key string) string {
 	n := namerOf(r.Context())
 	id := idOf(asset)
@@ -472,7 +472,7 @@ func (t *Tx) reading(n *namer) *past.Reading {
 	return Sentences.Read(withNamer(t.ctx, n), n, "ko", t.zone())
 }
 
-// said is a row of Rove's Event as payday's past reads one.
+// said is a row of Loft's Event as payday's past reads one.
 func said(v *ent.Event) past.EventRow {
 	r := past.EventRow{
 		Id:       pdid.Id(v.Id),

@@ -12,7 +12,7 @@ import (
 	"github.com/lesomnus/otx/log"
 	"github.com/stretchr/testify/require"
 
-	"github.com/lesomnus/rove/server/csp"
+	"github.com/lesomnus/loft/server/csp"
 )
 
 // TestThePolicyIsWhatThePageLoads: its own scripts, styles and worker,
@@ -44,8 +44,8 @@ func TestThePolicyIsWhatThePageLoads(t *testing.T) {
 	x.Equal("csp", d["report-to"])
 
 	x.Equal("'self'", directives(csp.Policy(""))["form-action"], "no issuer, no form goes anywhere else")
-	x.Equal("'self' https://rove.example https://app.rove.example https://id.example.com",
-		directives(csp.Policy("https://id.example.com/oauth2/", "https://rove.example", "https://app.rove.example/", "https://rove.example/"))["form-action"],
+	x.Equal("'self' https://loft.example https://app.loft.example https://id.example.com",
+		directives(csp.Policy("https://id.example.com/oauth2/", "https://loft.example", "https://app.loft.example/", "https://loft.example/"))["form-action"],
 		"a sign-out on a workspace's own domain is a form that lands at the service's address, once each")
 
 	for v, want := range map[string]csp.Mode{"": csp.ReportOnly, "report-only": csp.ReportOnly, "enforce": csp.Enforce, "off": csp.Off} {
@@ -76,26 +76,26 @@ func TestWhatABrowserReportsIsALineInTheLog(t *testing.T) {
 	}
 
 	x.Equal(http.StatusNoContent, post("application/csp-report", `{"csp-report": {
-		"document-uri": "https://rove.example.com/@acme/assets?q=secret#x",
+		"document-uri": "https://loft.example.com/@acme/assets?q=secret#x",
 		"violated-directive": "img-src",
 		"effective-directive": "img-src",
-		"blocked-uri": "https://rove.example.com/files/a.png?sig=abc&exp=1",
-		"source-file": "https://rove.example.com/static/index.js",
+		"blocked-uri": "https://loft.example.com/files/a.png?sig=abc&exp=1",
+		"source-file": "https://loft.example.com/static/index.js",
 		"line-number": 12,
 		"disposition": "report"
 	}}`))
 	line := said.String()
 	x.Contains(line, "directive=img-src")
-	x.Contains(line, "blocked=https://rove.example.com/files/a.png ")
-	x.Contains(line, "page=https://rove.example.com/@acme/assets ")
+	x.Contains(line, "blocked=https://loft.example.com/files/a.png ")
+	x.Contains(line, "page=https://loft.example.com/@acme/assets ")
 	x.Contains(line, "line=12")
 	x.NotContains(line, "sig=", "an attachment's signature in the log")
 	x.NotContains(line, "secret")
 
 	said.Reset()
 	x.Equal(http.StatusNoContent, post("application/reports+json", `[
-		{"type": "csp-violation", "url": "https://rove.example.com/", "body": {
-			"documentURL": "https://rove.example.com/@acme/labels",
+		{"type": "csp-violation", "url": "https://loft.example.com/", "body": {
+			"documentURL": "https://loft.example.com/@acme/labels",
 			"effectiveDirective": "img-src",
 			"blockedURL": "data:image/png;base64,iVBORw0KGgo=",
 			"disposition": "report"

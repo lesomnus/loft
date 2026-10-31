@@ -8,9 +8,9 @@ import (
 	"github.com/lesomnus/payday/pdtest"
 	"github.com/stretchr/testify/require"
 
-	"github.com/lesomnus/rove/cli"
-	"github.com/lesomnus/rove/cmd"
-	enttenant "github.com/lesomnus/rove/internal/ent/tenant"
+	"github.com/lesomnus/loft/cli"
+	"github.com/lesomnus/loft/cmd"
+	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
 )
 
 // TestAnOperatorClosesRestoresAndMovesAWorkspace: what an owner does from the

@@ -4,8 +4,8 @@ import (
 	"github.com/lesomnus/payday/pdid"
 	"google.golang.org/protobuf/proto"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent"
 )
 
 // An event keeps the message of its kind and no sentence (payday#151): what

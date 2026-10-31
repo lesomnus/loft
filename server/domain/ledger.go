@@ -5,10 +5,10 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/asset"
-	"github.com/lesomnus/rove/internal/ent/bookable"
-	"github.com/lesomnus/rove/internal/ent/link"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/asset"
+	"github.com/lesomnus/loft/internal/ent/bookable"
+	"github.com/lesomnus/loft/internal/ent/link"
 )
 
 // A thing may be a member of more than one pool: a camera in "카메라" and in

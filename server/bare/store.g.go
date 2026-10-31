@@ -6,56 +6,56 @@ import (
 	context "context"
 	errors "errors"
 	fmt "fmt"
+	loft "github.com/lesomnus/loft"
+	ent "github.com/lesomnus/loft/internal/ent"
+	access "github.com/lesomnus/loft/internal/ent/access"
+	accessreview "github.com/lesomnus/loft/internal/ent/accessreview"
+	aliashold "github.com/lesomnus/loft/internal/ent/aliashold"
+	allocation "github.com/lesomnus/loft/internal/ent/allocation"
+	archived "github.com/lesomnus/loft/internal/ent/archived"
+	asset "github.com/lesomnus/loft/internal/ent/asset"
+	assettype "github.com/lesomnus/loft/internal/ent/assettype"
+	attachment "github.com/lesomnus/loft/internal/ent/attachment"
+	audit "github.com/lesomnus/loft/internal/ent/audit"
+	bookable "github.com/lesomnus/loft/internal/ent/bookable"
+	clilogin "github.com/lesomnus/loft/internal/ent/clilogin"
+	countfinding "github.com/lesomnus/loft/internal/ent/countfinding"
+	custody "github.com/lesomnus/loft/internal/ent/custody"
+	custodyline "github.com/lesomnus/loft/internal/ent/custodyline"
+	event "github.com/lesomnus/loft/internal/ent/event"
+	fact "github.com/lesomnus/loft/internal/ent/fact"
+	handoff "github.com/lesomnus/loft/internal/ent/handoff"
+	holder "github.com/lesomnus/loft/internal/ent/holder"
+	inventorycount "github.com/lesomnus/loft/internal/ent/inventorycount"
+	invitation "github.com/lesomnus/loft/internal/ent/invitation"
+	itemmodel "github.com/lesomnus/loft/internal/ent/itemmodel"
+	label "github.com/lesomnus/loft/internal/ent/label"
+	legalhold "github.com/lesomnus/loft/internal/ent/legalhold"
+	link "github.com/lesomnus/loft/internal/ent/link"
+	notification "github.com/lesomnus/loft/internal/ent/notification"
+	outbox "github.com/lesomnus/loft/internal/ent/outbox"
+	owed "github.com/lesomnus/loft/internal/ent/owed"
+	party "github.com/lesomnus/loft/internal/ent/party"
+	placement "github.com/lesomnus/loft/internal/ent/placement"
+	predicate "github.com/lesomnus/loft/internal/ent/predicate"
+	purchase "github.com/lesomnus/loft/internal/ent/purchase"
+	purchaseline "github.com/lesomnus/loft/internal/ent/purchaseline"
+	reservation "github.com/lesomnus/loft/internal/ent/reservation"
+	reservationitem "github.com/lesomnus/loft/internal/ent/reservationitem"
+	rowseal "github.com/lesomnus/loft/internal/ent/rowseal"
+	searchstale "github.com/lesomnus/loft/internal/ent/searchstale"
+	session "github.com/lesomnus/loft/internal/ent/session"
+	signinfailure "github.com/lesomnus/loft/internal/ent/signinfailure"
+	stewardship "github.com/lesomnus/loft/internal/ent/stewardship"
+	stock "github.com/lesomnus/loft/internal/ent/stock"
+	stockmovement "github.com/lesomnus/loft/internal/ent/stockmovement"
+	tagcounter "github.com/lesomnus/loft/internal/ent/tagcounter"
+	tenant "github.com/lesomnus/loft/internal/ent/tenant"
+	tenantcontract "github.com/lesomnus/loft/internal/ent/tenantcontract"
+	tenantdomain "github.com/lesomnus/loft/internal/ent/tenantdomain"
+	treelock "github.com/lesomnus/loft/internal/ent/treelock"
+	workorder "github.com/lesomnus/loft/internal/ent/workorder"
 	patchpb "github.com/lesomnus/protobuf-patch/patchpb"
-	rove "github.com/lesomnus/rove"
-	ent "github.com/lesomnus/rove/internal/ent"
-	access "github.com/lesomnus/rove/internal/ent/access"
-	accessreview "github.com/lesomnus/rove/internal/ent/accessreview"
-	aliashold "github.com/lesomnus/rove/internal/ent/aliashold"
-	allocation "github.com/lesomnus/rove/internal/ent/allocation"
-	archived "github.com/lesomnus/rove/internal/ent/archived"
-	asset "github.com/lesomnus/rove/internal/ent/asset"
-	assettype "github.com/lesomnus/rove/internal/ent/assettype"
-	attachment "github.com/lesomnus/rove/internal/ent/attachment"
-	audit "github.com/lesomnus/rove/internal/ent/audit"
-	bookable "github.com/lesomnus/rove/internal/ent/bookable"
-	clilogin "github.com/lesomnus/rove/internal/ent/clilogin"
-	countfinding "github.com/lesomnus/rove/internal/ent/countfinding"
-	custody "github.com/lesomnus/rove/internal/ent/custody"
-	custodyline "github.com/lesomnus/rove/internal/ent/custodyline"
-	event "github.com/lesomnus/rove/internal/ent/event"
-	fact "github.com/lesomnus/rove/internal/ent/fact"
-	handoff "github.com/lesomnus/rove/internal/ent/handoff"
-	holder "github.com/lesomnus/rove/internal/ent/holder"
-	inventorycount "github.com/lesomnus/rove/internal/ent/inventorycount"
-	invitation "github.com/lesomnus/rove/internal/ent/invitation"
-	itemmodel "github.com/lesomnus/rove/internal/ent/itemmodel"
-	label "github.com/lesomnus/rove/internal/ent/label"
-	legalhold "github.com/lesomnus/rove/internal/ent/legalhold"
-	link "github.com/lesomnus/rove/internal/ent/link"
-	notification "github.com/lesomnus/rove/internal/ent/notification"
-	outbox "github.com/lesomnus/rove/internal/ent/outbox"
-	owed "github.com/lesomnus/rove/internal/ent/owed"
-	party "github.com/lesomnus/rove/internal/ent/party"
-	placement "github.com/lesomnus/rove/internal/ent/placement"
-	predicate "github.com/lesomnus/rove/internal/ent/predicate"
-	purchase "github.com/lesomnus/rove/internal/ent/purchase"
-	purchaseline "github.com/lesomnus/rove/internal/ent/purchaseline"
-	reservation "github.com/lesomnus/rove/internal/ent/reservation"
-	reservationitem "github.com/lesomnus/rove/internal/ent/reservationitem"
-	rowseal "github.com/lesomnus/rove/internal/ent/rowseal"
-	searchstale "github.com/lesomnus/rove/internal/ent/searchstale"
-	session "github.com/lesomnus/rove/internal/ent/session"
-	signinfailure "github.com/lesomnus/rove/internal/ent/signinfailure"
-	stewardship "github.com/lesomnus/rove/internal/ent/stewardship"
-	stock "github.com/lesomnus/rove/internal/ent/stock"
-	stockmovement "github.com/lesomnus/rove/internal/ent/stockmovement"
-	tagcounter "github.com/lesomnus/rove/internal/ent/tagcounter"
-	tenant "github.com/lesomnus/rove/internal/ent/tenant"
-	tenantcontract "github.com/lesomnus/rove/internal/ent/tenantcontract"
-	tenantdomain "github.com/lesomnus/rove/internal/ent/tenantdomain"
-	treelock "github.com/lesomnus/rove/internal/ent/treelock"
-	workorder "github.com/lesomnus/rove/internal/ent/workorder"
 	dialect "github.com/protobuf-orm/ent/dialect"
 	entpatch "github.com/protobuf-orm/protoc-gen-orm-ent/runtime/entpatch"
 	errdetails "google.golang.org/genproto/googleapis/rpc/errdetails"
@@ -1707,7 +1707,7 @@ func NewServer(db *ent.Client, opts ...Option) (Server, error) {
 // the connection it was begun on, so it carries the same dialect -- but
 // this takes a driver from anywhere, and what NewServer refused at the
 // start should not become reachable by going around it.
-func (s Server) WithDriver(drv dialect.Driver) (rove.Server, error) {
+func (s Server) WithDriver(drv dialect.Driver) (loft.Server, error) {
 	db := s.Db.WithDriver(drv)
 	if d := db.Dialect(); !entpatch.Supports(d) {
 		return nil, fmt.Errorf("%w: %s", entpatch.ErrDialect, d)
@@ -1716,97 +1716,97 @@ func (s Server) WithDriver(drv dialect.Driver) (rove.Server, error) {
 	return s, nil
 }
 
-func (s Server) Tenant() rove.TenantServiceServer { return TenantServiceServer{Store: s.Store} }
-func (s Server) AssetType() rove.AssetTypeServiceServer {
+func (s Server) Tenant() loft.TenantServiceServer { return TenantServiceServer{Store: s.Store} }
+func (s Server) AssetType() loft.AssetTypeServiceServer {
 	return AssetTypeServiceServer{Store: s.Store}
 }
-func (s Server) ItemModel() rove.ItemModelServiceServer {
+func (s Server) ItemModel() loft.ItemModelServiceServer {
 	return ItemModelServiceServer{Store: s.Store}
 }
-func (s Server) Holder() rove.HolderServiceServer   { return HolderServiceServer{Store: s.Store} }
-func (s Server) Party() rove.PartyServiceServer     { return PartyServiceServer{Store: s.Store} }
-func (s Server) Session() rove.SessionServiceServer { return SessionServiceServer{Store: s.Store} }
-func (s Server) Invitation() rove.InvitationServiceServer {
+func (s Server) Holder() loft.HolderServiceServer   { return HolderServiceServer{Store: s.Store} }
+func (s Server) Party() loft.PartyServiceServer     { return PartyServiceServer{Store: s.Store} }
+func (s Server) Session() loft.SessionServiceServer { return SessionServiceServer{Store: s.Store} }
+func (s Server) Invitation() loft.InvitationServiceServer {
 	return InvitationServiceServer{Store: s.Store}
 }
-func (s Server) CliLogin() rove.CliLoginServiceServer { return CliLoginServiceServer{Store: s.Store} }
-func (s Server) AliasHold() rove.AliasHoldServiceServer {
+func (s Server) CliLogin() loft.CliLoginServiceServer { return CliLoginServiceServer{Store: s.Store} }
+func (s Server) AliasHold() loft.AliasHoldServiceServer {
 	return AliasHoldServiceServer{Store: s.Store}
 }
-func (s Server) SignInFailure() rove.SignInFailureServiceServer {
+func (s Server) SignInFailure() loft.SignInFailureServiceServer {
 	return SignInFailureServiceServer{Store: s.Store}
 }
-func (s Server) Handoff() rove.HandoffServiceServer   { return HandoffServiceServer{Store: s.Store} }
-func (s Server) Asset() rove.AssetServiceServer       { return AssetServiceServer{Store: s.Store} }
-func (s Server) TreeLock() rove.TreeLockServiceServer { return TreeLockServiceServer{Store: s.Store} }
-func (s Server) TagCounter() rove.TagCounterServiceServer {
+func (s Server) Handoff() loft.HandoffServiceServer   { return HandoffServiceServer{Store: s.Store} }
+func (s Server) Asset() loft.AssetServiceServer       { return AssetServiceServer{Store: s.Store} }
+func (s Server) TreeLock() loft.TreeLockServiceServer { return TreeLockServiceServer{Store: s.Store} }
+func (s Server) TagCounter() loft.TagCounterServiceServer {
 	return TagCounterServiceServer{Store: s.Store}
 }
-func (s Server) TenantDomain() rove.TenantDomainServiceServer {
+func (s Server) TenantDomain() loft.TenantDomainServiceServer {
 	return TenantDomainServiceServer{Store: s.Store}
 }
-func (s Server) Label() rove.LabelServiceServer { return LabelServiceServer{Store: s.Store} }
-func (s Server) Attachment() rove.AttachmentServiceServer {
+func (s Server) Label() loft.LabelServiceServer { return LabelServiceServer{Store: s.Store} }
+func (s Server) Attachment() loft.AttachmentServiceServer {
 	return AttachmentServiceServer{Store: s.Store}
 }
-func (s Server) Bookable() rove.BookableServiceServer { return BookableServiceServer{Store: s.Store} }
-func (s Server) Reservation() rove.ReservationServiceServer {
+func (s Server) Bookable() loft.BookableServiceServer { return BookableServiceServer{Store: s.Store} }
+func (s Server) Reservation() loft.ReservationServiceServer {
 	return ReservationServiceServer{Store: s.Store}
 }
-func (s Server) ReservationItem() rove.ReservationItemServiceServer {
+func (s Server) ReservationItem() loft.ReservationItemServiceServer {
 	return ReservationItemServiceServer{Store: s.Store}
 }
-func (s Server) Allocation() rove.AllocationServiceServer {
+func (s Server) Allocation() loft.AllocationServiceServer {
 	return AllocationServiceServer{Store: s.Store}
 }
-func (s Server) InventoryCount() rove.InventoryCountServiceServer {
+func (s Server) InventoryCount() loft.InventoryCountServiceServer {
 	return InventoryCountServiceServer{Store: s.Store}
 }
-func (s Server) CountFinding() rove.CountFindingServiceServer {
+func (s Server) CountFinding() loft.CountFindingServiceServer {
 	return CountFindingServiceServer{Store: s.Store}
 }
-func (s Server) Stock() rove.StockServiceServer { return StockServiceServer{Store: s.Store} }
-func (s Server) StockMovement() rove.StockMovementServiceServer {
+func (s Server) Stock() loft.StockServiceServer { return StockServiceServer{Store: s.Store} }
+func (s Server) StockMovement() loft.StockMovementServiceServer {
 	return StockMovementServiceServer{Store: s.Store}
 }
-func (s Server) Custody() rove.CustodyServiceServer { return CustodyServiceServer{Store: s.Store} }
-func (s Server) CustodyLine() rove.CustodyLineServiceServer {
+func (s Server) Custody() loft.CustodyServiceServer { return CustodyServiceServer{Store: s.Store} }
+func (s Server) CustodyLine() loft.CustodyLineServiceServer {
 	return CustodyLineServiceServer{Store: s.Store}
 }
-func (s Server) Placement() rove.PlacementServiceServer {
+func (s Server) Placement() loft.PlacementServiceServer {
 	return PlacementServiceServer{Store: s.Store}
 }
-func (s Server) Link() rove.LinkServiceServer { return LinkServiceServer{Store: s.Store} }
-func (s Server) Stewardship() rove.StewardshipServiceServer {
+func (s Server) Link() loft.LinkServiceServer { return LinkServiceServer{Store: s.Store} }
+func (s Server) Stewardship() loft.StewardshipServiceServer {
 	return StewardshipServiceServer{Store: s.Store}
 }
-func (s Server) Notification() rove.NotificationServiceServer {
+func (s Server) Notification() loft.NotificationServiceServer {
 	return NotificationServiceServer{Store: s.Store}
 }
-func (s Server) TenantContract() rove.TenantContractServiceServer {
+func (s Server) TenantContract() loft.TenantContractServiceServer {
 	return TenantContractServiceServer{Store: s.Store}
 }
-func (s Server) LegalHold() rove.LegalHoldServiceServer {
+func (s Server) LegalHold() loft.LegalHoldServiceServer {
 	return LegalHoldServiceServer{Store: s.Store}
 }
-func (s Server) AccessReview() rove.AccessReviewServiceServer {
+func (s Server) AccessReview() loft.AccessReviewServiceServer {
 	return AccessReviewServiceServer{Store: s.Store}
 }
-func (s Server) Access() rove.AccessServiceServer     { return AccessServiceServer{Store: s.Store} }
-func (s Server) Archived() rove.ArchivedServiceServer { return ArchivedServiceServer{Store: s.Store} }
-func (s Server) Audit() rove.AuditServiceServer       { return AuditServiceServer{Store: s.Store} }
-func (s Server) Event() rove.EventServiceServer       { return EventServiceServer{Store: s.Store} }
-func (s Server) Fact() rove.FactServiceServer         { return FactServiceServer{Store: s.Store} }
-func (s Server) Outbox() rove.OutboxServiceServer     { return OutboxServiceServer{Store: s.Store} }
-func (s Server) Owed() rove.OwedServiceServer         { return OwedServiceServer{Store: s.Store} }
-func (s Server) RowSeal() rove.RowSealServiceServer   { return RowSealServiceServer{Store: s.Store} }
-func (s Server) SearchStale() rove.SearchStaleServiceServer {
+func (s Server) Access() loft.AccessServiceServer     { return AccessServiceServer{Store: s.Store} }
+func (s Server) Archived() loft.ArchivedServiceServer { return ArchivedServiceServer{Store: s.Store} }
+func (s Server) Audit() loft.AuditServiceServer       { return AuditServiceServer{Store: s.Store} }
+func (s Server) Event() loft.EventServiceServer       { return EventServiceServer{Store: s.Store} }
+func (s Server) Fact() loft.FactServiceServer         { return FactServiceServer{Store: s.Store} }
+func (s Server) Outbox() loft.OutboxServiceServer     { return OutboxServiceServer{Store: s.Store} }
+func (s Server) Owed() loft.OwedServiceServer         { return OwedServiceServer{Store: s.Store} }
+func (s Server) RowSeal() loft.RowSealServiceServer   { return RowSealServiceServer{Store: s.Store} }
+func (s Server) SearchStale() loft.SearchStaleServiceServer {
 	return SearchStaleServiceServer{Store: s.Store}
 }
-func (s Server) WorkOrder() rove.WorkOrderServiceServer {
+func (s Server) WorkOrder() loft.WorkOrderServiceServer {
 	return WorkOrderServiceServer{Store: s.Store}
 }
-func (s Server) Purchase() rove.PurchaseServiceServer { return PurchaseServiceServer{Store: s.Store} }
-func (s Server) PurchaseLine() rove.PurchaseLineServiceServer {
+func (s Server) Purchase() loft.PurchaseServiceServer { return PurchaseServiceServer{Store: s.Store} }
+func (s Server) PurchaseLine() loft.PurchaseLineServiceServer {
 	return PurchaseLineServiceServer{Store: s.Store}
 }

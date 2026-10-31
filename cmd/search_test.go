@@ -3,9 +3,9 @@ package cmd_test
 import (
 	"testing"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/opensearchtest"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/opensearchtest"
 )
 
 // TestWhatACallWroteIsFoundByTheNextSearch: no loop runs here, so the asset

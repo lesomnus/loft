@@ -13,7 +13,7 @@ import (
 	collectorlogspb "go.opentelemetry.io/proto/otlp/collector/logs/v1"
 	"google.golang.org/grpc"
 
-	"github.com/lesomnus/rove/cmd"
+	"github.com/lesomnus/loft/cmd"
 )
 
 // logSink is a collector's logs service, keeping the bodies it is sent and
@@ -47,7 +47,7 @@ func (s *logSink) Export(_ context.Context, req *collectorlogspb.ExportLogsServi
 
 // TestTelemetryReachesACollector is `otel:` naming the OTLP exporter, as a
 // deployment with a collector writes it: it builds, and what is logged
-// arrives there, said to be from Rove.
+// arrives there, said to be from Loft.
 func TestTelemetryReachesACollector(t *testing.T) {
 	x := require.New(t)
 
@@ -66,7 +66,7 @@ exporters:
     endpoint: http://`+lis.Addr().String()+`
 providers:
   logger:
-    processors: [resource/rove]
+    processors: [resource/loft]
     exporters: [otlp]
 `), &c.Otel))
 
@@ -77,7 +77,7 @@ providers:
 
 	sink.mu.Lock()
 	defer sink.mu.Unlock()
-	x.Equal(map[string]string{"telemetry: over OTLP": "rove"}, sink.bodies)
+	x.Equal(map[string]string{"telemetry: over OTLP": "loft"}, sink.bodies)
 }
 
 // TestAnExitWaitsOnACollectorForAMomentOnly: with `otel:` naming a collector
@@ -104,7 +104,7 @@ exporters:
     endpoint: http://`+addr+`
 providers:
   logger:
-    processors: [resource/rove]
+    processors: [resource/loft]
     exporters: [otlp]
 `), &c.Otel))
 

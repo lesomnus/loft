@@ -5,7 +5,7 @@ import (
 	"strings"
 	"uuid"
 
-	"github.com/lesomnus/rove/internal/search"
+	"github.com/lesomnus/loft/internal/search"
 )
 
 // Query is a search of the index of assets: what a person typed, in one

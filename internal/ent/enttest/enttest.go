@@ -5,11 +5,11 @@ package enttest
 import (
 	"context"
 
-	"github.com/lesomnus/rove/internal/ent"
+	"github.com/lesomnus/loft/internal/ent"
 	// required by schema hooks.
-	_ "github.com/lesomnus/rove/internal/ent/runtime"
+	_ "github.com/lesomnus/loft/internal/ent/runtime"
 
-	"github.com/lesomnus/rove/internal/ent/migrate"
+	"github.com/lesomnus/loft/internal/ent/migrate"
 	"github.com/protobuf-orm/ent/dialect/sql/schema"
 )
 

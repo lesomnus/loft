@@ -1,22 +1,22 @@
-# The reference deployment on Kubernetes (rove#39). `README.md` says what a
+# The reference deployment on Kubernetes (loft#39). `README.md` says what a
 # deployment brings to it, and how a new build is rolled out and back.
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 # No namespace: an overlay chooses one.
 resources:
-  - ./rove.yaml
+  - ./loft.yaml
 
 configMapGenerator:
-  # rove's own file format, as `--config` reads it, rather than indented
-  # inside a ConfigMap: `rove config` prints what it holds and an editor knows
+  # loft's own file format, as `--config` reads it, rather than indented
+  # inside a ConfigMap: `loft config` prints what it holds and an editor knows
   # what it is. An overlay replaces it with its own (`behavior: replace`), and
   # the hash in the name is what makes a changed file a new pod.
-  - name: rove
+  - name: loft
     files:
-      - rove.yaml=config.yaml
+      - loft.yaml=config.yaml
 
 images:
   # An overlay pins a digest. The rig runs what it built (`rig/`).
-  - name: ghcr.io/lesomnus/rove
+  - name: ghcr.io/lesomnus/loft
     newTag: edge

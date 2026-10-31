@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.12
 // 	protoc        (unknown)
-// source: rove/payday/access_svc.g.proto
+// source: loft/payday/access_svc.g.proto
 
-package rove
+package loft
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -31,7 +31,7 @@ type AccessGetRequest struct {
 
 func (x *AccessGetRequest) Reset() {
 	*x = AccessGetRequest{}
-	mi := &file_rove_payday_access_svc_g_proto_msgTypes[0]
+	mi := &file_loft_payday_access_svc_g_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -43,7 +43,7 @@ func (x *AccessGetRequest) String() string {
 func (*AccessGetRequest) ProtoMessage() {}
 
 func (x *AccessGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_access_svc_g_proto_msgTypes[0]
+	mi := &file_loft_payday_access_svc_g_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -123,7 +123,7 @@ type AccessRef struct {
 
 func (x *AccessRef) Reset() {
 	*x = AccessRef{}
-	mi := &file_rove_payday_access_svc_g_proto_msgTypes[1]
+	mi := &file_loft_payday_access_svc_g_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -135,7 +135,7 @@ func (x *AccessRef) String() string {
 func (*AccessRef) ProtoMessage() {}
 
 func (x *AccessRef) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_access_svc_g_proto_msgTypes[1]
+	mi := &file_loft_payday_access_svc_g_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -223,7 +223,7 @@ func (b0 AccessRef_builder) Build() *AccessRef {
 type case_AccessRef_Key protoreflect.FieldNumber
 
 func (x case_AccessRef_Key) String() string {
-	md := file_rove_payday_access_svc_g_proto_msgTypes[1].Descriptor()
+	md := file_loft_payday_access_svc_g_proto_msgTypes[1].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -263,7 +263,7 @@ type AccessSelect struct {
 
 func (x *AccessSelect) Reset() {
 	*x = AccessSelect{}
-	mi := &file_rove_payday_access_svc_g_proto_msgTypes[2]
+	mi := &file_loft_payday_access_svc_g_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -275,7 +275,7 @@ func (x *AccessSelect) String() string {
 func (*AccessSelect) ProtoMessage() {}
 
 func (x *AccessSelect) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_access_svc_g_proto_msgTypes[2]
+	mi := &file_loft_payday_access_svc_g_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -687,7 +687,7 @@ type AccessListRequest struct {
 
 func (x *AccessListRequest) Reset() {
 	*x = AccessListRequest{}
-	mi := &file_rove_payday_access_svc_g_proto_msgTypes[3]
+	mi := &file_loft_payday_access_svc_g_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -699,7 +699,7 @@ func (x *AccessListRequest) String() string {
 func (*AccessListRequest) ProtoMessage() {}
 
 func (x *AccessListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_access_svc_g_proto_msgTypes[3]
+	mi := &file_loft_payday_access_svc_g_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -799,7 +799,7 @@ type AccessListResponse struct {
 
 func (x *AccessListResponse) Reset() {
 	*x = AccessListResponse{}
-	mi := &file_rove_payday_access_svc_g_proto_msgTypes[4]
+	mi := &file_loft_payday_access_svc_g_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -811,7 +811,7 @@ func (x *AccessListResponse) String() string {
 func (*AccessListResponse) ProtoMessage() {}
 
 func (x *AccessListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_access_svc_g_proto_msgTypes[4]
+	mi := &file_loft_payday_access_svc_g_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -883,7 +883,7 @@ type AccessFilter struct {
 
 func (x *AccessFilter) Reset() {
 	*x = AccessFilter{}
-	mi := &file_rove_payday_access_svc_g_proto_msgTypes[5]
+	mi := &file_loft_payday_access_svc_g_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -895,7 +895,7 @@ func (x *AccessFilter) String() string {
 func (*AccessFilter) ProtoMessage() {}
 
 func (x *AccessFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_access_svc_g_proto_msgTypes[5]
+	mi := &file_loft_payday_access_svc_g_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1061,7 +1061,7 @@ type AccessReviewRequest struct {
 
 func (x *AccessReviewRequest) Reset() {
 	*x = AccessReviewRequest{}
-	mi := &file_rove_payday_access_svc_g_proto_msgTypes[6]
+	mi := &file_loft_payday_access_svc_g_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1073,7 +1073,7 @@ func (x *AccessReviewRequest) String() string {
 func (*AccessReviewRequest) ProtoMessage() {}
 
 func (x *AccessReviewRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_access_svc_g_proto_msgTypes[6]
+	mi := &file_loft_payday_access_svc_g_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1234,7 +1234,7 @@ type AccessReviewResponse struct {
 
 func (x *AccessReviewResponse) Reset() {
 	*x = AccessReviewResponse{}
-	mi := &file_rove_payday_access_svc_g_proto_msgTypes[7]
+	mi := &file_loft_payday_access_svc_g_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1246,7 +1246,7 @@ func (x *AccessReviewResponse) String() string {
 func (*AccessReviewResponse) ProtoMessage() {}
 
 func (x *AccessReviewResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_access_svc_g_proto_msgTypes[7]
+	mi := &file_loft_payday_access_svc_g_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1360,7 +1360,7 @@ type AccessEntry struct {
 
 func (x *AccessEntry) Reset() {
 	*x = AccessEntry{}
-	mi := &file_rove_payday_access_svc_g_proto_msgTypes[8]
+	mi := &file_loft_payday_access_svc_g_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1372,7 +1372,7 @@ func (x *AccessEntry) String() string {
 func (*AccessEntry) ProtoMessage() {}
 
 func (x *AccessEntry) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_access_svc_g_proto_msgTypes[8]
+	mi := &file_loft_payday_access_svc_g_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1577,7 +1577,7 @@ type AccessSubject struct {
 
 func (x *AccessSubject) Reset() {
 	*x = AccessSubject{}
-	mi := &file_rove_payday_access_svc_g_proto_msgTypes[9]
+	mi := &file_loft_payday_access_svc_g_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1589,7 +1589,7 @@ func (x *AccessSubject) String() string {
 func (*AccessSubject) ProtoMessage() {}
 
 func (x *AccessSubject) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_access_svc_g_proto_msgTypes[9]
+	mi := &file_loft_payday_access_svc_g_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1657,14 +1657,14 @@ func (b0 AccessSubject_builder) Build() *AccessSubject {
 	return m0
 }
 
-var File_rove_payday_access_svc_g_proto protoreflect.FileDescriptor
+var File_loft_payday_access_svc_g_proto protoreflect.FileDescriptor
 
-const file_rove_payday_access_svc_g_proto_rawDesc = "" +
+const file_loft_payday_access_svc_g_proto_rawDesc = "" +
 	"\n" +
-	"\x1erove/payday/access_svc.g.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x18rove/payday/access.proto\"a\n" +
+	"\x1eloft/payday/access_svc.g.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x18loft/payday/access.proto\"a\n" +
 	"\x10AccessGetRequest\x12!\n" +
-	"\x03ref\x18\x01 \x01(\v2\x0f.rove.AccessRefR\x03ref\x12*\n" +
-	"\x06select\x18\x02 \x01(\v2\x12.rove.AccessSelectR\x06select\"$\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0f.loft.AccessRefR\x03ref\x12*\n" +
+	"\x06select\x18\x02 \x01(\v2\x12.loft.AccessSelectR\x06select\"$\n" +
 	"\tAccessRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
 	"\x03key\"\xf1\x02\n" +
@@ -1684,12 +1684,12 @@ const file_rove_payday_access_svc_g_proto_rawDesc = "" +
 	"\bsubjects\x18\x14 \x01(\bR\bsubjects\x12#\n" +
 	"\rsubject_count\x18\x15 \x01(\bR\fsubjectCount\"\x9a\x01\n" +
 	"\x11AccessListRequest\x12,\n" +
-	"\afilters\x18\x01 \x03(\v2\x12.rove.AccessFilterR\afilters\x12\x19\n" +
+	"\afilters\x18\x01 \x03(\v2\x12.loft.AccessFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
 	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
 	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"S\n" +
 	"\x12AccessListResponse\x12\"\n" +
-	"\x05items\x18\x01 \x03(\v2\f.rove.AccessR\x05items\x12\x19\n" +
+	"\x05items\x18\x01 \x03(\v2\f.loft.AccessR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"\x82\x01\n" +
 	"\fAccessFilter\x12\x19\n" +
 	"\bactor_id\x18\x01 \x01(\fR\aactorId\x12\x1b\n" +
@@ -1705,7 +1705,7 @@ const file_rove_payday_access_svc_g_proto_rawDesc = "" +
 	"\x04size\x18\x06 \x01(\rB\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
 	"\x05after\x18\a \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\"\xbd\x01\n" +
 	"\x14AccessReviewResponse\x12'\n" +
-	"\x05items\x18\x01 \x03(\v2\x11.rove.AccessEntryR\x05items\x12\x19\n" +
+	"\x05items\x18\x01 \x03(\v2\x11.loft.AccessEntryR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\x12\x1b\n" +
 	"\x05calls\x18\x03 \x01(\rB\x05\xaa\x01\x02\b\x02R\x05calls\x12#\n" +
 	"\tdownloads\x18\x04 \x01(\rB\x05\xaa\x01\x02\b\x02R\tdownloads\x12\x1f\n" +
@@ -1722,48 +1722,48 @@ const file_rove_payday_access_svc_g_proto_rawDesc = "" +
 	"\aaddress\x18\b \x01(\tB\x05\xaa\x01\x02\b\x02R\aaddress\x12\x1d\n" +
 	"\x06reason\x18\t \x01(\tB\x05\xaa\x01\x02\b\x02R\x06reason\x12/\n" +
 	"\bsubjects\x18\n" +
-	" \x03(\v2\x13.rove.AccessSubjectR\bsubjects\x12*\n" +
+	" \x03(\v2\x13.loft.AccessSubjectR\bsubjects\x12*\n" +
 	"\rsubject_count\x18\v \x01(\rB\x05\xaa\x01\x02\b\x02R\fsubjectCount\"\\\n" +
 	"\rAccessSubject\x12\x15\n" +
 	"\x02id\x18\x01 \x01(\fB\x05\xaa\x01\x02\b\x02R\x02id\x12\x19\n" +
 	"\x04kind\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\x12\x19\n" +
 	"\x04name\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04name2\xb8\x01\n" +
 	"\rAccessService\x12+\n" +
-	"\x03Get\x12\x16.rove.AccessGetRequest\x1a\f.rove.Access\x129\n" +
-	"\x04List\x12\x17.rove.AccessListRequest\x1a\x18.rove.AccessListResponse\x12?\n" +
-	"\x06Review\x12\x19.rove.AccessReviewRequest\x1a\x1a.rove.AccessReviewResponseB\x1aZ\x18github.com/lesomnus/roveb\beditionsp\xe8\a"
+	"\x03Get\x12\x16.loft.AccessGetRequest\x1a\f.loft.Access\x129\n" +
+	"\x04List\x12\x17.loft.AccessListRequest\x1a\x18.loft.AccessListResponse\x12?\n" +
+	"\x06Review\x12\x19.loft.AccessReviewRequest\x1a\x1a.loft.AccessReviewResponseB\x1aZ\x18github.com/lesomnus/loftb\beditionsp\xe8\a"
 
-var file_rove_payday_access_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
-var file_rove_payday_access_svc_g_proto_goTypes = []any{
-	(*AccessGetRequest)(nil),      // 0: rove.AccessGetRequest
-	(*AccessRef)(nil),             // 1: rove.AccessRef
-	(*AccessSelect)(nil),          // 2: rove.AccessSelect
-	(*AccessListRequest)(nil),     // 3: rove.AccessListRequest
-	(*AccessListResponse)(nil),    // 4: rove.AccessListResponse
-	(*AccessFilter)(nil),          // 5: rove.AccessFilter
-	(*AccessReviewRequest)(nil),   // 6: rove.AccessReviewRequest
-	(*AccessReviewResponse)(nil),  // 7: rove.AccessReviewResponse
-	(*AccessEntry)(nil),           // 8: rove.AccessEntry
-	(*AccessSubject)(nil),         // 9: rove.AccessSubject
-	(*Access)(nil),                // 10: rove.Access
+var file_loft_payday_access_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_loft_payday_access_svc_g_proto_goTypes = []any{
+	(*AccessGetRequest)(nil),      // 0: loft.AccessGetRequest
+	(*AccessRef)(nil),             // 1: loft.AccessRef
+	(*AccessSelect)(nil),          // 2: loft.AccessSelect
+	(*AccessListRequest)(nil),     // 3: loft.AccessListRequest
+	(*AccessListResponse)(nil),    // 4: loft.AccessListResponse
+	(*AccessFilter)(nil),          // 5: loft.AccessFilter
+	(*AccessReviewRequest)(nil),   // 6: loft.AccessReviewRequest
+	(*AccessReviewResponse)(nil),  // 7: loft.AccessReviewResponse
+	(*AccessEntry)(nil),           // 8: loft.AccessEntry
+	(*AccessSubject)(nil),         // 9: loft.AccessSubject
+	(*Access)(nil),                // 10: loft.Access
 	(*timestamppb.Timestamp)(nil), // 11: google.protobuf.Timestamp
 }
-var file_rove_payday_access_svc_g_proto_depIdxs = []int32{
-	1,  // 0: rove.AccessGetRequest.ref:type_name -> rove.AccessRef
-	2,  // 1: rove.AccessGetRequest.select:type_name -> rove.AccessSelect
-	5,  // 2: rove.AccessListRequest.filters:type_name -> rove.AccessFilter
-	10, // 3: rove.AccessListResponse.items:type_name -> rove.Access
-	11, // 4: rove.AccessReviewRequest.from:type_name -> google.protobuf.Timestamp
-	11, // 5: rove.AccessReviewRequest.to:type_name -> google.protobuf.Timestamp
-	8,  // 6: rove.AccessReviewResponse.items:type_name -> rove.AccessEntry
-	11, // 7: rove.AccessEntry.at:type_name -> google.protobuf.Timestamp
-	9,  // 8: rove.AccessEntry.subjects:type_name -> rove.AccessSubject
-	0,  // 9: rove.AccessService.Get:input_type -> rove.AccessGetRequest
-	3,  // 10: rove.AccessService.List:input_type -> rove.AccessListRequest
-	6,  // 11: rove.AccessService.Review:input_type -> rove.AccessReviewRequest
-	10, // 12: rove.AccessService.Get:output_type -> rove.Access
-	4,  // 13: rove.AccessService.List:output_type -> rove.AccessListResponse
-	7,  // 14: rove.AccessService.Review:output_type -> rove.AccessReviewResponse
+var file_loft_payday_access_svc_g_proto_depIdxs = []int32{
+	1,  // 0: loft.AccessGetRequest.ref:type_name -> loft.AccessRef
+	2,  // 1: loft.AccessGetRequest.select:type_name -> loft.AccessSelect
+	5,  // 2: loft.AccessListRequest.filters:type_name -> loft.AccessFilter
+	10, // 3: loft.AccessListResponse.items:type_name -> loft.Access
+	11, // 4: loft.AccessReviewRequest.from:type_name -> google.protobuf.Timestamp
+	11, // 5: loft.AccessReviewRequest.to:type_name -> google.protobuf.Timestamp
+	8,  // 6: loft.AccessReviewResponse.items:type_name -> loft.AccessEntry
+	11, // 7: loft.AccessEntry.at:type_name -> google.protobuf.Timestamp
+	9,  // 8: loft.AccessEntry.subjects:type_name -> loft.AccessSubject
+	0,  // 9: loft.AccessService.Get:input_type -> loft.AccessGetRequest
+	3,  // 10: loft.AccessService.List:input_type -> loft.AccessListRequest
+	6,  // 11: loft.AccessService.Review:input_type -> loft.AccessReviewRequest
+	10, // 12: loft.AccessService.Get:output_type -> loft.Access
+	4,  // 13: loft.AccessService.List:output_type -> loft.AccessListResponse
+	7,  // 14: loft.AccessService.Review:output_type -> loft.AccessReviewResponse
 	12, // [12:15] is the sub-list for method output_type
 	9,  // [9:12] is the sub-list for method input_type
 	9,  // [9:9] is the sub-list for extension type_name
@@ -1771,30 +1771,30 @@ var file_rove_payday_access_svc_g_proto_depIdxs = []int32{
 	0,  // [0:9] is the sub-list for field type_name
 }
 
-func init() { file_rove_payday_access_svc_g_proto_init() }
-func file_rove_payday_access_svc_g_proto_init() {
-	if File_rove_payday_access_svc_g_proto != nil {
+func init() { file_loft_payday_access_svc_g_proto_init() }
+func file_loft_payday_access_svc_g_proto_init() {
+	if File_loft_payday_access_svc_g_proto != nil {
 		return
 	}
-	file_rove_payday_access_proto_init()
-	file_rove_payday_access_svc_g_proto_msgTypes[1].OneofWrappers = []any{
+	file_loft_payday_access_proto_init()
+	file_loft_payday_access_svc_g_proto_msgTypes[1].OneofWrappers = []any{
 		(*accessRef_Id)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_payday_access_svc_g_proto_rawDesc), len(file_rove_payday_access_svc_g_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_payday_access_svc_g_proto_rawDesc), len(file_loft_payday_access_svc_g_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_rove_payday_access_svc_g_proto_goTypes,
-		DependencyIndexes: file_rove_payday_access_svc_g_proto_depIdxs,
-		MessageInfos:      file_rove_payday_access_svc_g_proto_msgTypes,
+		GoTypes:           file_loft_payday_access_svc_g_proto_goTypes,
+		DependencyIndexes: file_loft_payday_access_svc_g_proto_depIdxs,
+		MessageInfos:      file_loft_payday_access_svc_g_proto_msgTypes,
 	}.Build()
-	File_rove_payday_access_svc_g_proto = out.File
-	file_rove_payday_access_svc_g_proto_goTypes = nil
-	file_rove_payday_access_svc_g_proto_depIdxs = nil
+	File_loft_payday_access_svc_g_proto = out.File
+	file_loft_payday_access_svc_g_proto_goTypes = nil
+	file_loft_payday_access_svc_g_proto_depIdxs = nil
 }

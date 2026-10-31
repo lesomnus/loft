@@ -19,15 +19,15 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/asset"
-	"github.com/lesomnus/rove/internal/ent/assettype"
-	"github.com/lesomnus/rove/internal/ent/itemmodel"
-	"github.com/lesomnus/rove/internal/ent/predicate"
-	"github.com/lesomnus/rove/server/bare"
-	"github.com/lesomnus/rove/server/pd"
-	"github.com/lesomnus/rove/server/policy"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/asset"
+	"github.com/lesomnus/loft/internal/ent/assettype"
+	"github.com/lesomnus/loft/internal/ent/itemmodel"
+	"github.com/lesomnus/loft/internal/ent/predicate"
+	"github.com/lesomnus/loft/server/bare"
+	"github.com/lesomnus/loft/server/pd"
+	"github.com/lesomnus/loft/server/policy"
 )
 
 // MaxRegisterRows is the most assets one bulk registration makes; a larger

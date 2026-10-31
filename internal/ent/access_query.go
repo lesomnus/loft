@@ -8,8 +8,8 @@ import (
 	"math"
 	"uuid"
 
-	"github.com/lesomnus/rove/internal/ent/access"
-	"github.com/lesomnus/rove/internal/ent/predicate"
+	"github.com/lesomnus/loft/internal/ent/access"
+	"github.com/lesomnus/loft/internal/ent/predicate"
 	"github.com/protobuf-orm/ent"
 	"github.com/protobuf-orm/ent/dialect/sql"
 	"github.com/protobuf-orm/ent/dialect/sql/sqlgraph"

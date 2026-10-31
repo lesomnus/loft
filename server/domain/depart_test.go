@@ -9,11 +9,11 @@ import (
 	"github.com/lesomnus/payday/pdid"
 	"google.golang.org/protobuf/encoding/protojson"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/event"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/server/domain"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/event"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/server/domain"
 )
 
 // depart is the account of `member` leaving this env's workspace, as the

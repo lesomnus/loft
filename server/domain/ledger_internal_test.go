@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/lesomnus/rove/internal/ent"
+	"github.com/lesomnus/loft/internal/ent"
 )
 
 // TestPoolsGiveWhatTheyCanAtOnce: what pools that share units can give is

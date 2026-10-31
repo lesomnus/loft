@@ -1,7 +1,7 @@
 # OpenSearch as this bundle runs it (compose.search.yaml): one node, TLS on
-# the certificates `search-init.sh` made, and nobody signed in but Rove.
+# the certificates `search-init.sh` made, and nobody signed in but Loft.
 
-cluster.name: rove
+cluster.name: loft
 network.host: 0.0.0.0
 discovery.type: single-node
 bootstrap.memory_lock: false
@@ -16,7 +16,7 @@ plugins.security.ssl.http.pemkey_filepath: certs/search-key.pem
 plugins.security.ssl.http.pemtrustedcas_filepath: certs/search-ca.pem
 plugins.security.nodes_dn: ["CN=opensearch"]
 
-# The users and roles in opensearch-security/ -- Rove's, and nobody else's --
+# The users and roles in opensearch-security/ -- Loft's, and nobody else's --
 # read once, when the cluster is first made. Changing them is making the
 # cluster again (README.md), which loses nothing: the index is a copy.
 plugins.security.allow_default_init_securityindex: true

@@ -10,8 +10,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent/custody"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent/custody"
 )
 
 // Timeline answers a reservation's history, newest first (D45): what was done

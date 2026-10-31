@@ -10,11 +10,11 @@ import (
 	"github.com/lesomnus/payday/pdtest"
 	"github.com/stretchr/testify/require"
 
-	"github.com/lesomnus/rove/cli"
-	"github.com/lesomnus/rove/cmd"
+	"github.com/lesomnus/loft/cli"
+	"github.com/lesomnus/loft/cmd"
 )
 
-// TestAScanFindsALabelInAnotherOfTheAccountsWorkspaces: `rove scan` asks what
+// TestAScanFindsALabelInAnotherOfTheAccountsWorkspaces: `loft scan` asks what
 // the scan page asks -- the workspace in use, then which of the account's own
 // a label is in (D28) -- and a label in a workspace the account is not in is
 // nothing it is told of.
@@ -29,7 +29,7 @@ func TestAScanFindsALabelInAnotherOfTheAccountsWorkspaces(t *testing.T) {
 	x.NoError(json.Unmarshal([]byte(body), &made))
 
 	s.signIn("owner", "owner1234")
-	out := run(t, cli.NewCmdApi(), "--workspace", made.Alias, "call", "rove.LabelService.Print", `{"count": 1}`)
+	out := run(t, cli.NewCmdApi(), "--workspace", made.Alias, "call", "loft.LabelService.Print", `{"count": 1}`)
 	var printed struct {
 		Labels []struct{ Id, Code string }
 		Urls   []string
@@ -52,7 +52,7 @@ func TestAScanFindsALabelInAnotherOfTheAccountsWorkspaces(t *testing.T) {
 }
 
 // TestInitGivesNoLabelDomainWhereWorkspacesHaveNone: a suffix to make default
-// subdomains under is nothing `rove init` gives a workspace while labels
+// subdomains under is nothing `loft init` gives a workspace while labels
 // print with the deployment's own address (D28).
 func TestInitGivesNoLabelDomainWhereWorkspacesHaveNone(t *testing.T) {
 	x := require.New(t)

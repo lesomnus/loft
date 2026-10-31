@@ -4,7 +4,7 @@ import type { Page } from '@playwright/test'
 import jsQR from 'jsqr'
 import QRCode from 'qrcode'
 
-import { expect } from './rove.js'
+import { expect } from './loft.js'
 
 /**
  * What the label sheet a page is on prints: the code under each QR, and the

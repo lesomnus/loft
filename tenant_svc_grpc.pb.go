@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.2
 // - protoc             (unknown)
-// source: rove/payday/tenant_svc.g.proto
+// source: loft/payday/tenant_svc.g.proto
 
-package rove
+package loft
 
 import (
 	context "context"
@@ -19,16 +19,16 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	TenantService_Add_FullMethodName       = "/rove.TenantService/Add"
-	TenantService_Get_FullMethodName       = "/rove.TenantService/Get"
-	TenantService_Patch_FullMethodName     = "/rove.TenantService/Patch"
-	TenantService_Apply_FullMethodName     = "/rove.TenantService/Apply"
-	TenantService_Erase_FullMethodName     = "/rove.TenantService/Erase"
-	TenantService_List_FullMethodName      = "/rove.TenantService/List"
-	TenantService_Close_FullMethodName     = "/rove.TenantService/Close"
-	TenantService_Restore_FullMethodName   = "/rove.TenantService/Restore"
-	TenantService_Configure_FullMethodName = "/rove.TenantService/Configure"
-	TenantService_Preview_FullMethodName   = "/rove.TenantService/Preview"
+	TenantService_Add_FullMethodName       = "/loft.TenantService/Add"
+	TenantService_Get_FullMethodName       = "/loft.TenantService/Get"
+	TenantService_Patch_FullMethodName     = "/loft.TenantService/Patch"
+	TenantService_Apply_FullMethodName     = "/loft.TenantService/Apply"
+	TenantService_Erase_FullMethodName     = "/loft.TenantService/Erase"
+	TenantService_List_FullMethodName      = "/loft.TenantService/List"
+	TenantService_Close_FullMethodName     = "/loft.TenantService/Close"
+	TenantService_Restore_FullMethodName   = "/loft.TenantService/Restore"
+	TenantService_Configure_FullMethodName = "/loft.TenantService/Configure"
+	TenantService_Preview_FullMethodName   = "/loft.TenantService/Preview"
 )
 
 // TenantServiceClient is the client API for TenantService service.
@@ -458,7 +458,7 @@ func _TenantService_Preview_Handler(srv interface{}, ctx context.Context, dec fu
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var TenantService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.TenantService",
+	ServiceName: "loft.TenantService",
 	HandlerType: (*TenantServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -503,5 +503,5 @@ var TenantService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "rove/payday/tenant_svc.g.proto",
+	Metadata: "loft/payday/tenant_svc.g.proto",
 }

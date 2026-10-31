@@ -16,12 +16,12 @@ import (
 	"golang.org/x/text/encoding/korean"
 	"google.golang.org/grpc/codes"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent/asset"
-	"github.com/lesomnus/rove/internal/ent/event"
-	"github.com/lesomnus/rove/internal/ent/fact"
-	"github.com/lesomnus/rove/server/domain"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent/asset"
+	"github.com/lesomnus/loft/internal/ent/event"
+	"github.com/lesomnus/loft/internal/ent/fact"
+	"github.com/lesomnus/loft/server/domain"
 )
 
 // Bulk registration, an intake: new assets only, as one operation (design

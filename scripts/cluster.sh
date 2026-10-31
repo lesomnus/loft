@@ -49,8 +49,8 @@ __dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 __root="$(cd "${__dir}/.." && pwd)"
 cd "${__root}"
 
-: "${CLUSTER:=rove-rig}"
-: "${NS:=rove}"
+: "${CLUSTER:=loft-rig}"
+: "${NS:=loft}"
 : "${KUBECTL_IMAGE:=alpine/k8s:1.31.0}"
 : "${CURL_IMAGE:=curlimages/curl:8.11.1}"
 : "${OPENSSL_IMAGE:=alpine/openssl:3.3.2}"
@@ -66,7 +66,7 @@ for bin in k3d docker; do
 done
 
 work="$(mktemp -d)"
-vol="rove-cluster-$$"
+vol="loft-cluster-$$"
 docker volume create "${vol}" >/dev/null
 carry() { tar -C "${work}" -cf - . | docker run --rm -i -v "${vol}:/w" "${ALPINE_IMAGE}" sh -c 'tar -C /w -xf -'; }
 
@@ -83,9 +83,9 @@ diagnose() {
 		echo
 		echo "-- ${NS}, in case what did not come up says why"
 		kube "kubectl -n ${NS} get pods -o wide" 2>/dev/null || true
-		kube "kubectl -n ${NS} logs deploy/rove --all-containers --tail=40 --prefix" 2>/dev/null || true
+		kube "kubectl -n ${NS} logs deploy/loft --all-containers --tail=40 --prefix" 2>/dev/null || true
 		kube "kubectl -n ${NS} logs statefulset/postgres --tail=20" 2>/dev/null || true
-		kube "kubectl -n ${NS} logs deploy/rove-edge --tail=40" 2>/dev/null || true
+		kube "kubectl -n ${NS} logs deploy/loft-edge --tail=40" 2>/dev/null || true
 		kube "kubectl -n ${NS} get events --sort-by=.lastTimestamp" 2>/dev/null | tail -30 || true
 	} >&2
 }
@@ -102,7 +102,7 @@ cleanup() {
 		k3d cluster delete "${CLUSTER}" >/dev/null 2>&1 || true
 		# The names it gave what it built, and not the layers, which the
 		# next run builds on.
-		docker image rm "rove-cluster:rig" "rove-cluster:next" "rove-postgres:rig" "rove-edge:rig" >/dev/null 2>&1 || true
+		docker image rm "loft-cluster:rig" "loft-cluster:next" "loft-postgres:rig" "loft-edge:rig" >/dev/null 2>&1 || true
 	else
 		echo
 		echo "cluster: left up, with its kubeconfig written nowhere. To look:"
@@ -192,7 +192,7 @@ standing() {
 # answers for Traefik. `-k` because the certificate is Traefik's own.
 web() {
 	docker run --rm --user 0 --network "k3d-${CLUSTER}" -v "${vol}:/w" "${CURL_IMAGE}" \
-		-sk --max-time 20 --resolve "rove.localhost:443:${node}" "$@"
+		-sk --max-time 20 --resolve "loft.localhost:443:${node}" "$@"
 }
 
 # reachable says whether ingress answers at all, and waits for it to: a route
@@ -200,7 +200,7 @@ web() {
 reachable() {
 	local i
 	for i in $(seq 1 60); do
-		if [ "$(web -o /dev/null -w '%{http_code}' https://rove.localhost/healthz || true)" = "200" ]; then
+		if [ "$(web -o /dev/null -w '%{http_code}' https://loft.localhost/healthz || true)" = "200" ]; then
 			return 0
 		fi
 		sleep 2
@@ -232,23 +232,23 @@ k3d kubeconfig get "${CLUSTER}" |
 node="$(docker inspect -f "{{(index .NetworkSettings.Networks \"k3d-${CLUSTER}\").IPAddress}}" "k3d-${CLUSTER}-server-0")"
 
 echo "== the images this checkout builds"
-tried docker build -q -t "rove-cluster:rig" . >/dev/null
+tried docker build -q -t "loft-cluster:rig" . >/dev/null
 # PostgreSQL as it is published, made an image of this host's own so that it
 # goes onto the node with the rest and nothing in the cluster waits on a
 # registry: a pulled image saves with the index of every platform it was
 # published for and the layers of one, which the node refuses to import.
 mkdir -p "${work}/postgres"
 printf 'FROM postgres:18\n' >"${work}/postgres/Dockerfile"
-tried docker build -q -t "rove-postgres:rig" "${work}/postgres" >/dev/null
+tried docker build -q -t "loft-postgres:rig" "${work}/postgres" >/dev/null
 # And Caddy, for the front, the same way.
 mkdir -p "${work}/edge"
 printf 'FROM caddy:2.11.7\n' >"${work}/edge/Dockerfile"
-tried docker build -q -t "rove-edge:rig" "${work}/edge" >/dev/null
+tried docker build -q -t "loft-edge:rig" "${work}/edge" >/dev/null
 # The next build, which is this one under another name: a rollout is a new
 # image, whatever is in it, and what is under test is the rollout.
-docker tag "rove-cluster:rig" "rove-cluster:next"
+docker tag "loft-cluster:rig" "loft-cluster:next"
 standing
-imported="$(k3d image import "rove-cluster:rig" "rove-cluster:next" "rove-postgres:rig" "rove-edge:rig" -c "${CLUSTER}" 2>&1)" || true
+imported="$(k3d image import "loft-cluster:rig" "loft-cluster:next" "loft-postgres:rig" "loft-edge:rig" -c "${CLUSTER}" 2>&1)" || true
 case "${imported}" in
 *ERRO*)
 	printf '%s\n' "${imported}" >&2
@@ -270,18 +270,18 @@ docker run --rm --entrypoint sh -v "${vol}:/w" "${OPENSSL_IMAGE}" -c '
 	pw="$(openssl rand -hex 24)"
 	printf "password=%s\n" "${pw}" > postgres.env
 	{
-		printf "db-dsn=postgres://rove:%s@postgres:5432/rove?sslmode=disable\n" "${pw}"
-		printf "roster-db-dsn=postgres://rove:%s@postgres:5432/roster?sslmode=disable\n" "${pw}"
+		printf "db-dsn=postgres://loft:%s@postgres:5432/loft?sslmode=disable\n" "${pw}"
+		printf "roster-db-dsn=postgres://loft:%s@postgres:5432/roster?sslmode=disable\n" "${pw}"
 		printf "signing-key=%s\n" "$(openssl rand -base64 32)"
-	} > rove.env
+	} > loft.env
 ' >/dev/null
 carry
 kube "kubectl create namespace ${NS} >/dev/null &&
 	kubectl label namespace ${NS} pod-security.kubernetes.io/enforce=restricted pod-security.kubernetes.io/warn=restricted >/dev/null &&
 	kubectl -n ${NS} create secret generic postgres --from-env-file=/w/secrets/postgres.env >/dev/null &&
-	kubectl -n ${NS} create secret generic rove --from-env-file=/w/secrets/rove.env >/dev/null &&
-	kubectl -n ${NS} create secret generic rove-checkpoints --from-file=checkpoints.pem=/w/secrets/checkpoints.pem --from-file=digest.key=/w/secrets/digest.key >/dev/null &&
-	kubectl -n ${NS} create secret generic rove-admin --from-file=operator=/w/secrets/operator >/dev/null"
+	kubectl -n ${NS} create secret generic loft --from-env-file=/w/secrets/loft.env >/dev/null &&
+	kubectl -n ${NS} create secret generic loft-checkpoints --from-file=checkpoints.pem=/w/secrets/checkpoints.pem --from-file=digest.key=/w/secrets/digest.key >/dev/null &&
+	kubectl -n ${NS} create secret generic loft-admin --from-file=operator=/w/secrets/operator >/dev/null"
 key="$(docker run --rm -v "${vol}:/w" "${ALPINE_IMAGE}" cat /w/secrets/operator)"
 
 echo "== rolled out"
@@ -290,28 +290,28 @@ echo "== rolled out"
 kube "kubectl apply -k /w/scripts/cluster -l app.kubernetes.io/name=postgres >/dev/null &&
 	kubectl -n ${NS} rollout status statefulset/postgres --timeout=300s >/dev/null"
 kube "kubectl apply -k /w/scripts/cluster >/dev/null &&
-	kubectl -n ${NS} rollout status deploy/rove --timeout=300s >/dev/null &&
-	kubectl -n ${NS} rollout status deploy/rove-edge --timeout=300s >/dev/null"
+	kubectl -n ${NS} rollout status deploy/loft --timeout=300s >/dev/null &&
+	kubectl -n ${NS} rollout status deploy/loft-edge --timeout=300s >/dev/null"
 said "this build's shape" "the init container did not migrate" \
-	kube "kubectl -n ${NS} logs deploy/rove -c migrate"
+	kube "kubectl -n ${NS} logs deploy/loft -c migrate"
 
 echo "== through the ingress"
 reachable
-said "ok" "healthz did not answer" web https://rove.localhost/healthz
-headers="$(web -o /dev/null -D - https://rove.localhost/ | tr 'A-Z' 'a-z')"
+said "ok" "healthz did not answer" web https://loft.localhost/healthz
+headers="$(web -o /dev/null -D - https://loft.localhost/ | tr 'A-Z' 'a-z')"
 for h in "strict-transport-security" "content-security-policy-report-only" "x-frame-options: deny" "x-content-type-options: nosniff"; do
 	said "${h}" "the page is served without ${h}" printf '%s' "${headers}"
 done
 
 echo "== a workspace, signed in to"
-kube "kubectl -n ${NS} exec deploy/rove -c rove -- rove --config /etc/rove/rove.yaml init \
+kube "kubectl -n ${NS} exec deploy/loft -c loft -- loft --config /etc/loft/loft.yaml init \
 	--tenant acme --name ACME --login owner --person Owner --email owner@example.com \
 	--password owner-pass-1234 >/dev/null"
 web -o /dev/null -c /w/jar -H 'content-type: application/json' \
-	-d '{"login":"owner","password":"owner-pass-1234"}' https://rove.localhost/session
+	-d '{"login":"owner","password":"owner-pass-1234"}' https://loft.localhost/session
 me() {
 	web -o /dev/null -w '%{http_code}' -b /w/jar -H 'content-type: application/json' \
-		-H 'connect-protocol-version: 1' -d '{}' https://rove.localhost/rove.PartyService/Me
+		-H 'connect-protocol-version: 1' -d '{}' https://loft.localhost/loft.PartyService/Me
 }
 said "200" "a signed-in session was not answered as anybody" me
 
@@ -322,12 +322,12 @@ said "200" "a signed-in session was not answered as anybody" me
 # is linked, its claim is writable by the pod's user, and the chain is held to
 # what it heard.
 echo "== the trail's newest checkpoint, as its witness heard it"
-said "heard by store:/var/lib/rove/witness: checkpoint " "the trail's witness heard no checkpoint" \
-	kube "kubectl -n ${NS} exec deploy/rove -c rove -- rove --config /etc/rove/rove.yaml trail verify 2>&1"
+said "heard by store:/var/lib/loft/witness: checkpoint " "the trail's witness heard no checkpoint" \
+	kube "kubectl -n ${NS} exec deploy/loft -c loft -- loft --config /etc/loft/loft.yaml trail verify 2>&1"
 
 echo "== the operator's entry point, over port-forward and over nothing else"
 admin() {
-	kube "kubectl -n ${NS} port-forward deploy/rove 8081:8081 >/dev/null 2>&1 & pf=\$!
+	kube "kubectl -n ${NS} port-forward deploy/loft 8081:8081 >/dev/null 2>&1 & pf=\$!
 		for i in \$(seq 1 30); do curl -s -o /dev/null http://127.0.0.1:8081/ && break; sleep 1; done
 		curl -s -w ' %{http_code}' $* http://127.0.0.1:8081/admin/workspaces; kill \${pf}"
 }
@@ -341,7 +341,7 @@ ip="$(kube "kubectl -n ${NS} get pod -l app.kubernetes.io/component=server -o js
 probe() {
 	kube "kubectl create namespace rig >/dev/null 2>&1; kubectl -n rig delete pod probe --ignore-not-found >/dev/null 2>&1
 		kubectl -n rig run probe --image=${CURL_IMAGE} --restart=Never --command -- sh -c \
-			'curl -sk -m 10 -H \"Host: rove.localhost\" https://traefik.kube-system.svc.cluster.local/healthz && echo through-the-ingress; curl -s -m 5 http://${ip}:8080/healthz && echo reached-the-server; curl -s -m 5 http://${ip}:8081/ && echo reached-the-entry-point; curl -s -m 5 http://${ip}:8082/internal/tls-ask?domain=x && echo reached-the-ask; echo probed' >/dev/null
+			'curl -sk -m 10 -H \"Host: loft.localhost\" https://traefik.kube-system.svc.cluster.local/healthz && echo through-the-ingress; curl -s -m 5 http://${ip}:8080/healthz && echo reached-the-server; curl -s -m 5 http://${ip}:8081/ && echo reached-the-entry-point; curl -s -m 5 http://${ip}:8082/internal/tls-ask?domain=x && echo reached-the-ask; echo probed' >/dev/null
 		kubectl -n rig wait --for=jsonpath='{.status.phase}'=Succeeded pod/probe --timeout=120s >/dev/null
 		kubectl -n rig logs probe"
 }
@@ -359,12 +359,12 @@ unsaid "reached-the-ask" "a pod that is not the front reached the operator's ent
 echo "== a workspace's own domain, through the front"
 said "200" "a workspace's domain was not added" \
 	web -o /dev/null -w '%{http_code}' -b /w/jar -H 'content-type: application/json' -H 'connect-protocol-version: 1' \
-		-d '{"host":"assets.rig.example"}' https://rove.localhost/rove.TenantDomainService/Add
-kube "kubectl -n ${NS} exec statefulset/postgres -- psql -U rove -d rove -qc \"UPDATE tenantdomain SET state = 'active', verified_at = now() WHERE host = 'assets.rig.example'\" >/dev/null"
+		-d '{"host":"assets.rig.example"}' https://loft.localhost/loft.TenantDomainService/Add
+kube "kubectl -n ${NS} exec statefulset/postgres -- psql -U loft -d loft -qc \"UPDATE tenantdomain SET state = 'active', verified_at = now() WHERE host = 'assets.rig.example'\" >/dev/null"
 front() {
 	kube "kubectl create namespace rig >/dev/null 2>&1; kubectl -n rig delete pod front --ignore-not-found >/dev/null 2>&1
 		kubectl -n rig run front --image=${CURL_IMAGE} --restart=Never --command -- sh -c \
-			'curl -sk -m 30 --connect-to assets.rig.example:443:rove-edge.${NS}.svc.cluster.local:443 https://assets.rig.example/healthz && echo served-the-domain; curl -sk -m 10 --connect-to nobody.rig.example:443:rove-edge.${NS}.svc.cluster.local:443 https://nobody.rig.example/healthz && echo served-nobody; echo probed' >/dev/null
+			'curl -sk -m 30 --connect-to assets.rig.example:443:loft-edge.${NS}.svc.cluster.local:443 https://assets.rig.example/healthz && echo served-the-domain; curl -sk -m 10 --connect-to nobody.rig.example:443:loft-edge.${NS}.svc.cluster.local:443 https://nobody.rig.example/healthz && echo served-nobody; echo probed' >/dev/null
 		kubectl -n rig wait --for=jsonpath='{.status.phase}'=Succeeded pod/front --timeout=120s >/dev/null
 		kubectl -n rig logs front"
 }
@@ -374,18 +374,18 @@ said "served-the-domain" "the front did not serve a workspace's verified domain"
 unsaid "served-nobody" "the front took a certificate for a host nobody verified" printf '%s' "${out}"
 
 echo "== a new build replaces the pod, and the one before comes back"
-kube "kubectl -n ${NS} set image deploy/rove migrate=rove-cluster:next rove=rove-cluster:next rove-admin=rove-cluster:next >/dev/null &&
-	kubectl -n ${NS} rollout status deploy/rove --timeout=300s >/dev/null"
-said "rove-cluster:next" "the pod was not replaced" \
+kube "kubectl -n ${NS} set image deploy/loft migrate=loft-cluster:next loft=loft-cluster:next loft-admin=loft-cluster:next >/dev/null &&
+	kubectl -n ${NS} rollout status deploy/loft --timeout=300s >/dev/null"
+said "loft-cluster:next" "the pod was not replaced" \
 	kube "kubectl -n ${NS} get pods -l app.kubernetes.io/component=server -o jsonpath='{.items[*].spec.containers[0].image}'"
 said "this build's shape" "the new pod did not migrate before it served" \
-	kube "kubectl -n ${NS} logs deploy/rove -c migrate"
+	kube "kubectl -n ${NS} logs deploy/loft -c migrate"
 reachable
 said "200" "the session did not outlive the pod it began on" me
 
-kube "kubectl -n ${NS} rollout undo deploy/rove >/dev/null &&
-	kubectl -n ${NS} rollout status deploy/rove --timeout=300s >/dev/null"
-said "rove-cluster:rig" "rollout undo did not put the build before back" \
+kube "kubectl -n ${NS} rollout undo deploy/loft >/dev/null &&
+	kubectl -n ${NS} rollout status deploy/loft --timeout=300s >/dev/null"
+said "loft-cluster:rig" "rollout undo did not put the build before back" \
 	kube "kubectl -n ${NS} get pods -l app.kubernetes.io/component=server -o jsonpath='{.items[*].spec.containers[0].image}'"
 reachable
 said "200" "the session did not outlive the rollback" me

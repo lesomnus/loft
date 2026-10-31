@@ -1,11 +1,11 @@
-# Workspaces' own domains (rove#155): a front of their own that takes a
+# Workspaces' own domains (loft#155): a front of their own that takes a
 # certificate for a host on demand, once the operator's entry point says the
 # host is a workspace's verified domain in use. The service's own address
 # keeps its ingress and its certificate as they are. README.md says what an
 # overlay brings to it ("워크스페이스 도메인").
 #
 #   components:
-#     - github.com/lesomnus/rove//deploy/k8s/domains?ref=<the base's commit>
+#     - github.com/lesomnus/loft//deploy/k8s/domains?ref=<the base's commit>
 apiVersion: kustomize.config.k8s.io/v1alpha1
 kind: Component
 
@@ -14,30 +14,30 @@ resources:
 
 configMapGenerator:
   # Caddy's own format, as `caddy run` reads it. What an overlay says of its
-  # own is in the Deployment's ROVE_EDGE_OPTIONS (README.md).
-  - name: rove-edge
+  # own is in the Deployment's LOFT_EDGE_OPTIONS (README.md).
+  - name: loft-edge
     files:
       - Caddyfile
 
 patches:
   # The operator's entry point answers the front's ask on a port of its own
   # (`admin.ask.addr`), which is all of it the front reaches.
-  - target: { kind: Deployment, name: rove }
+  - target: { kind: Deployment, name: loft }
     patch: |-
       apiVersion: apps/v1
       kind: Deployment
       metadata:
-        name: rove
+        name: loft
       spec:
         template:
           spec:
             # Named in the base's order, which a patch naming one alone
             # would change: the first is what `kubectl logs` reads.
             containers:
-              - name: rove
-              - name: rove-admin
+              - name: loft
+              - name: loft-admin
                 env:
-                  - { name: ROVE_ADMIN_ASK_ADDR, value: "0.0.0.0:8082" }
+                  - { name: LOFT_ADMIN_ASK_ADDR, value: "0.0.0.0:8082" }
                 ports:
                   - { name: ask, containerPort: 8082 }
 

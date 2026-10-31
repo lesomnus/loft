@@ -11,14 +11,14 @@ import (
 	"github.com/lesomnus/payday/pdpb"
 	"google.golang.org/protobuf/proto"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent"
-	entaccess "github.com/lesomnus/rove/internal/ent/access"
-	"github.com/lesomnus/rove/internal/ent/predicate"
-	"github.com/lesomnus/rove/server/pd"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent"
+	entaccess "github.com/lesomnus/loft/internal/ent/access"
+	"github.com/lesomnus/loft/internal/ent/predicate"
+	"github.com/lesomnus/loft/server/pd"
 )
 
-// The workspace's access record as its administrators review it (rove#136):
+// The workspace's access record as its administrators review it (loft#136):
 // PIPA's safety measures have a processor look over who read, wrote and took
 // out whose data every month, and check what each download was for. Review
 // reads a stretch of it out; an AccessReview says it was looked over.

@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/lesomnus/rove/server/session"
+	"github.com/lesomnus/loft/server/session"
 )
 
 // TestAKeyIsKeptUnderTheSigningKey: what a key is kept as is the deployment's

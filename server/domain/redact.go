@@ -18,16 +18,16 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/reflect/protoreflect"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/accessreview"
-	"github.com/lesomnus/rove/internal/ent/countfinding"
-	"github.com/lesomnus/rove/internal/ent/custody"
-	"github.com/lesomnus/rove/internal/ent/event"
-	"github.com/lesomnus/rove/internal/ent/notification"
-	"github.com/lesomnus/rove/internal/ent/predicate"
-	enttenant "github.com/lesomnus/rove/internal/ent/tenant"
-	"github.com/lesomnus/rove/server/pd"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/accessreview"
+	"github.com/lesomnus/loft/internal/ent/countfinding"
+	"github.com/lesomnus/loft/internal/ent/custody"
+	"github.com/lesomnus/loft/internal/ent/event"
+	"github.com/lesomnus/loft/internal/ent/notification"
+	"github.com/lesomnus/loft/internal/ent/predicate"
+	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 // An event's reason is the one free text its history keeps, in the words of
@@ -55,7 +55,7 @@ import (
 // ([ToldWhy]): found as the copies are, the database comparing its words
 // with the event's ([Told]), and written through the servers, so that the
 // trail and the access record say the act wrote it. A notice that went by
-// mail before was sent where nothing Rove does reaches, and says it there
+// mail before was sent where nothing Loft does reaches, and says it there
 // still (design D51).
 //
 // Nor in notices alone. Some rows keep the reason of the event that wrote
@@ -74,7 +74,7 @@ import (
 // event the words are taken out of is a child of it, about that one's subject
 // (D34), copying the reference as every part does. Who may ask for it over
 // the API is the policy's to say, and no role is given it yet; the
-// deployment's operator does it with `rove event redact`, on the word of the
+// deployment's operator does it with `loft event redact`, on the word of the
 // workspace that keeps the event ([Deps.RedactEvent]).
 
 // Redacted is what taking a reason out did: the event it was asked of, as it
@@ -278,7 +278,7 @@ func (t *Tx) unsay(id pdid.Id) error {
 // the causes the events name, all the way up and down, and by whether two
 // reasons are one, which the database asks of them where they are kept: no
 // one's words are read to find them, so an operator may be told before
-// anything is done (`rove event redact`). Of the tenant `tenant`, and none for
+// anything is done (`loft event redact`). Of the tenant `tenant`, and none for
 // an event with no reason, or none there.
 func Copies(ctx context.Context, db *ent.Client, tenant, id pdid.Id) ([]pdid.Id, error) {
 	root, err := operationOf(ctx, db, tenant, id)
@@ -347,7 +347,7 @@ func operationOf(ctx context.Context, db *ent.Client, tenant, id pdid.Id) (pdid.
 // so that is how they are found, and by whether the notice's words are the
 // event's reason, which the database asks of them where both are kept: no
 // one's words are read to find them, and an operator may be told how many
-// before anything is done (`rove event redact`).
+// before anything is done (`loft event redact`).
 func Told(ctx context.Context, db *ent.Client, tenant, id pdid.Id, copies []pdid.Id) ([]pdid.Id, error) {
 	// What each of them is about, by the kind of notice told of it: all
 	// that is read of them.
@@ -401,10 +401,10 @@ func Told(ctx context.Context, db *ent.Client, tenant, id pdid.Id, copies []pdid
 // event. A row whose words are somebody's reason is of a kind here, and the
 // domain's tests hold every row they write to it.
 var KeptWhy = map[string]protoreflect.FullName{
-	"access.review":   "rove.AccessReview.desc",
-	"count.scan":      "rove.CountFinding.desc",
-	"custody.issue":   "rove.Custody.desc",
-	"workspace.close": "rove.Tenant.close_reason",
+	"access.review":   "loft.AccessReview.desc",
+	"count.scan":      "loft.CountFinding.desc",
+	"custody.issue":   "loft.Custody.desc",
+	"workspace.close": "loft.Tenant.close_reason",
 }
 
 // Kept is every row of the tenant `tenant` whose words are what the event
@@ -414,7 +414,7 @@ var KeptWhy = map[string]protoreflect.FullName{
 // row is to it ([keeping]), and whether the row's words are the event's reason
 // the database asks of them where both are kept: no one's words are read to
 // find them, and an operator may be told how many before anything is done
-// (`rove event redact`).
+// (`loft event redact`).
 func Kept(ctx context.Context, db *ent.Client, tenant, id pdid.Id, copies []pdid.Id) ([]pdid.Id, error) {
 	var out []pdid.Id
 	for page := range slices.Chunk(append([]pdid.Id{id}, copies...), 500) {

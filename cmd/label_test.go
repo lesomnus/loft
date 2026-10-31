@@ -14,10 +14,10 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent/tenantdomain"
-	"github.com/lesomnus/rove/server/account"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent/tenantdomain"
+	"github.com/lesomnus/loft/server/account"
 )
 
 // TestALabelIsOpenedInTheWorkspaceItIsIn: a label's code is one in the whole
@@ -94,7 +94,7 @@ func (w *world) post(ctx context.Context, path, body string) *httptest.ResponseR
 
 // TestAWorkspaceStartsWithNoDomain: a suffix to make default subdomains
 // under is one a workspace may ask a domain under, and none is given to a new
-// one (rove#155): its labels print with the deployment's own address until it
+// one (loft#155): its labels print with the deployment's own address until it
 // adds a domain of its own -- which it may, wherever it is.
 func TestAWorkspaceStartsWithNoDomain(t *testing.T) {
 	w := newWorldWith(t, func(c *cmd.Config) { c.App.Labels.Suffix = "l.test" })
@@ -117,7 +117,7 @@ func TestAWorkspaceStartsWithNoDomain(t *testing.T) {
 // `/l/<code>` on the host it was printed with -- the deployment's own
 // address, or a domain of the workspace's, active then and perhaps legacy now
 // -- and each sends it to the app's scan page, which asks. Labels printed
-// under both of the modes there were before rove#155 open as they did.
+// under both of the modes there were before loft#155 open as they did.
 func TestALabelOpensFromTheHostItWasPrintedWith(t *testing.T) {
 	w := newWorld(t)
 	x := w.x

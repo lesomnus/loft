@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.2
 // - protoc             (unknown)
-// source: rove/payday/access_svc.g.proto
+// source: loft/payday/access_svc.g.proto
 
-package rove
+package loft
 
 import (
 	context "context"
@@ -19,9 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AccessService_Get_FullMethodName    = "/rove.AccessService/Get"
-	AccessService_List_FullMethodName   = "/rove.AccessService/List"
-	AccessService_Review_FullMethodName = "/rove.AccessService/Review"
+	AccessService_Get_FullMethodName    = "/loft.AccessService/Get"
+	AccessService_List_FullMethodName   = "/loft.AccessService/List"
+	AccessService_Review_FullMethodName = "/loft.AccessService/Review"
 )
 
 // AccessServiceClient is the client API for AccessService service.
@@ -33,7 +33,7 @@ type AccessServiceClient interface {
 	// List reads Accesss a page at a time.
 	List(ctx context.Context, in *AccessListRequest, opts ...grpc.CallOption) (*AccessListResponse, error)
 	// Review reads a stretch of the workspace's access record as its
-	// administrators review it each month (rove#136): newest first, each call
+	// administrators review it each month (loft#136): newest first, each call
 	// with who made it and whose data it carried by name, where it came from,
 	// and what a download said it was for -- what a row holds marshalled, read
 	// out. A stretch is at most 92 days; a membership, a person and a kind
@@ -88,7 +88,7 @@ type AccessServiceServer interface {
 	// List reads Accesss a page at a time.
 	List(context.Context, *AccessListRequest) (*AccessListResponse, error)
 	// Review reads a stretch of the workspace's access record as its
-	// administrators review it each month (rove#136): newest first, each call
+	// administrators review it each month (loft#136): newest first, each call
 	// with who made it and whose data it carried by name, where it came from,
 	// and what a download said it was for -- what a row holds marshalled, read
 	// out. A stretch is at most 92 days; a membership, a person and a kind
@@ -192,7 +192,7 @@ func _AccessService_Review_Handler(srv interface{}, ctx context.Context, dec fun
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var AccessService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.AccessService",
+	ServiceName: "loft.AccessService",
 	HandlerType: (*AccessServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -209,5 +209,5 @@ var AccessService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "rove/payday/access_svc.g.proto",
+	Metadata: "loft/payday/access_svc.g.proto",
 }

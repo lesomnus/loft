@@ -4,7 +4,7 @@ import (
 	"slices"
 	"testing"
 
-	app "github.com/lesomnus/rove"
+	app "github.com/lesomnus/loft"
 )
 
 // searched is the names of what a search for `q` finds, sorted.

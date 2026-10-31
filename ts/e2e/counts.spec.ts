@@ -1,4 +1,4 @@
-import { card, choose, expect, field, people, said, signIn, test, unique, workspace } from './rove.js'
+import { card, choose, expect, field, people, said, signIn, test, unique, workspace } from './loft.js'
 
 test('an inventory count of a room finds what is scanned in it', async ({ page }) => {
 	const name = unique('e2e 서버실 실사')

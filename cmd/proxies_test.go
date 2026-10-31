@@ -13,11 +13,11 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent/signinfailure"
-	"github.com/lesomnus/rove/server/clientaddr"
-	"github.com/lesomnus/rove/server/clilogin"
-	"github.com/lesomnus/rove/server/session"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent/signinfailure"
+	"github.com/lesomnus/loft/server/clientaddr"
+	"github.com/lesomnus/loft/server/clilogin"
+	"github.com/lesomnus/loft/server/session"
 )
 
 // TestAnAddressACallerWritesDoesNotMoveTheLimits: X-Forwarded-For is a header

@@ -3,7 +3,7 @@
 package bookable
 
 import (
-	"github.com/lesomnus/rove"
+	"github.com/lesomnus/loft"
 	"github.com/protobuf-orm/ent/dialect/sql"
 	"github.com/protobuf-orm/ent/dialect/sql/sqlgraph"
 	"github.com/protobuf-orm/ent/schema/field"
@@ -105,7 +105,7 @@ func ValidColumn(column string) bool {
 var (
 	// ValueScanner of all Bookable fields.
 	ValueScanner struct {
-		Hours field.TypeValueScanner[*rove.OpeningHours]
+		Hours field.TypeValueScanner[*loft.OpeningHours]
 	}
 )
 

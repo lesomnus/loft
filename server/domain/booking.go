@@ -18,16 +18,16 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/allocation"
-	"github.com/lesomnus/rove/internal/ent/asset"
-	"github.com/lesomnus/rove/internal/ent/bookable"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/ent/party"
-	"github.com/lesomnus/rove/internal/ent/reservation"
-	"github.com/lesomnus/rove/internal/ent/reservationitem"
-	"github.com/lesomnus/rove/server/pd"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/allocation"
+	"github.com/lesomnus/loft/internal/ent/asset"
+	"github.com/lesomnus/loft/internal/ent/bookable"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/internal/ent/party"
+	"github.com/lesomnus/loft/internal/ent/reservation"
+	"github.com/lesomnus/loft/internal/ent/reservationitem"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 // The states a reservation is in (design 4). The first four take time.
@@ -1030,7 +1030,7 @@ func (s domainReservation) decide(ctx context.Context, req *app.ReservationDecid
 // before. Decided on what was read before the lock, two transitions at once
 // both found it as it was and the second wrote over the first -- a check-in and
 // the no-show sweep left it a no-show with the person told they had checked
-// in, a confirm and a reject were both told they had done it (rove#35).
+// in, a confirm and a reject were both told they had done it (loft#35).
 //
 // The lock is the row's own, so it is held against every write of it, and it
 // comes before the resources' ([Tx.lockAllocations]) in every operation that

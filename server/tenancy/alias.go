@@ -12,16 +12,16 @@ import (
 	"github.com/lesomnus/otx/log"
 	"github.com/lesomnus/payday/slug"
 
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/aliashold"
-	enttenant "github.com/lesomnus/rove/internal/ent/tenant"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/aliashold"
+	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
 )
 
 // A workspace's address: `/@<alias>` (design 9.11, D28, D29).
 //
 // Nobody chooses one. A workspace is given seven characters at random, and
 // keeps them: the owner cannot change them (the policy opens no write of it,
-// `server/domain`), and an operator can (`rove tenant alias`), which holds the
+// `server/domain`), and an operator can (`loft tenant alias`), which holds the
 // old one for a year and sends whoever arrives at it on to the new one.
 
 // The characters an address is made up of: lower case letters and digits, less
@@ -39,7 +39,7 @@ const (
 var Reserved = []string{
 	"account", "accounts", "admin", "api", "app", "billing", "cli", "docs",
 	"files", "healthz", "help", "internal", "invitations", "invite", "l",
-	"login", "logout", "new", "operator", "root", "rove", "scan", "session",
+	"login", "logout", "new", "operator", "root", "loft", "scan", "session",
 	"sessions", "settings", "sso", "static", "status", "support", "system",
 	"www",
 }

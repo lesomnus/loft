@@ -11,10 +11,10 @@ import (
 
 	"github.com/protobuf-orm/ent/dialect/sql"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent/audit"
-	"github.com/lesomnus/rove/internal/ent/event"
-	"github.com/lesomnus/rove/internal/ent/predicate"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent/audit"
+	"github.com/lesomnus/loft/internal/ent/event"
+	"github.com/lesomnus/loft/internal/ent/predicate"
 )
 
 type domainEvent struct {

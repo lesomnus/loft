@@ -1,5 +1,5 @@
 import { printed } from './qr.js'
-import { card, choose, expect, field, people, said, signIn, test, unique, workspace } from './rove.js'
+import { card, choose, expect, field, people, said, signIn, test, unique, workspace } from './loft.js'
 
 // M4's self-service (plan.md 5장): what is handed over is confirmed by the
 // person it went to, who scans its label -- 스캔 → 인수 확인 -- with nobody

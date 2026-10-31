@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.2
 // - protoc             (unknown)
-// source: rove/payday/fact_svc.g.proto
+// source: loft/payday/fact_svc.g.proto
 
-package rove
+package loft
 
 import (
 	context "context"
@@ -19,12 +19,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	FactService_Add_FullMethodName     = "/rove.FactService/Add"
-	FactService_AddMany_FullMethodName = "/rove.FactService/AddMany"
-	FactService_Get_FullMethodName     = "/rove.FactService/Get"
-	FactService_Patch_FullMethodName   = "/rove.FactService/Patch"
-	FactService_Apply_FullMethodName   = "/rove.FactService/Apply"
-	FactService_List_FullMethodName    = "/rove.FactService/List"
+	FactService_Add_FullMethodName     = "/loft.FactService/Add"
+	FactService_AddMany_FullMethodName = "/loft.FactService/AddMany"
+	FactService_Get_FullMethodName     = "/loft.FactService/Get"
+	FactService_Patch_FullMethodName   = "/loft.FactService/Patch"
+	FactService_Apply_FullMethodName   = "/loft.FactService/Apply"
+	FactService_List_FullMethodName    = "/loft.FactService/List"
 )
 
 // FactServiceClient is the client API for FactService service.
@@ -290,7 +290,7 @@ func _FactService_List_Handler(srv interface{}, ctx context.Context, dec func(in
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var FactService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.FactService",
+	ServiceName: "loft.FactService",
 	HandlerType: (*FactServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -319,5 +319,5 @@ var FactService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "rove/payday/fact_svc.g.proto",
+	Metadata: "loft/payday/fact_svc.g.proto",
 }

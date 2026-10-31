@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/server/retention"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/server/retention"
 )
 
 // How long a workspace keeps what it was and did is its own setting, its
@@ -142,7 +142,7 @@ func (t *Tx) keepPatch(req *app.TenantConfigureRequest, patch *app.TenantPatchRe
 // the history is now -- what was over before the window as it will be once the
 // grace is over, and nothing that ends between now and then -- counted by the
 // predicates the expiry deletes by ([Tx.takes]). Counted, and not done and
-// undone as `rove retention plan` does it: a deletion holds the rows it took
+// undone as `loft retention plan` does it: a deletion holds the rows it took
 // until it is undone, and this is asked by a workspace's owner, as often as
 // they like, of however much history the workspace has. So it is a read, with
 // no transaction of its own.

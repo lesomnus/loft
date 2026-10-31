@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""The Grafana dashboards for Rove (rove#38): what Rove sends over OTLP and
+"""The Grafana dashboards for Loft (loft#38): what Loft sends over OTLP and
 what the platform says of itself, read from ClickHouse's OpenTelemetry tables
 (the collector's `clickhouse` exporter) and Loki.
 
     python3 gen.py OUTDIR
 
-Two dashboards, `rove-service.json` and `rove-platform.json`. Each table is
+Two dashboards, `loft-service.json` and `loft-platform.json`. Each table is
 named `${db}.otel_<signal>${suffix}`: a cluster of ClickHouse nodes reads
 through its Distributed tables (`_dist`), one node through the tables
 themselves (no suffix).
@@ -23,9 +23,9 @@ GAUGE = "${db}.otel_metrics_gauge${suffix}"
 SUM = "${db}.otel_metrics_sum${suffix}"
 
 # The request log: the second of the two lines every call leaves, for calls
-# to Rove's own services (the roster in this process answers on the same
+# to Loft's own services (the roster in this process answers on the same
 # server, and is not what anybody asked).
-CALLS = (f"FROM {LOGS} WHERE $__timeFilter(Timestamp) AND ServiceName = 'rove' AND Body = 'gRPC out' "
+CALLS = (f"FROM {LOGS} WHERE $__timeFilter(Timestamp) AND ServiceName = 'loft' AND Body = 'gRPC out' "
          "AND NOT startsWith(LogAttributes.rpc.service::String, 'roster.')")
 METHOD = "concat(LogAttributes.rpc.service::String, '/', LogAttributes.rpc.method::String)"
 STATUS = "LogAttributes.rpc.grpc.status::String"
@@ -34,7 +34,7 @@ SERVER_ERRORS = "('Internal', 'Unknown', 'Unavailable', 'DeadlineExceeded', 'Dat
 
 # The app's own warnings and errors: not the request log, whose lines for a
 # call that did not end OK are warnings too (they are "OK가 아닌 응답").
-WARNINGS = ("ServiceName = 'rove' AND SeverityText IN ('WARN', 'ERROR') "
+WARNINGS = ("ServiceName = 'loft' AND SeverityText IN ('WARN', 'ERROR') "
             "AND Body NOT IN ('gRPC in', 'gRPC out')")
 
 
@@ -97,7 +97,7 @@ class Board:
             "uid": self.uid,
             "title": self.title,
             "description": self.description,
-            "tags": ["rove"],
+            "tags": ["loft"],
             "timezone": "browser",
             "editable": True,
             "graphTooltip": 1,
@@ -163,8 +163,8 @@ def unit_of(field, unit, decimals=None):
 
 
 def service():
-    b = Board("rove-service", "Rove — 서비스",
-              "Rove가 OTLP로 보낸 요청 로그와 백그라운드 작업. 무엇을 보는지는 docs/runbook/observe.md")
+    b = Board("loft-service", "Loft — 서비스",
+              "Loft가 OTLP로 보낸 요청 로그와 백그라운드 작업. 무엇을 보는지는 docs/runbook/observe.md")
     green_red = lambda warn, bad: [{"color": "green", "value": None}, {"color": "orange", "value": warn}, {"color": "red", "value": bad}]
 
     b.row("요청")
@@ -207,22 +207,22 @@ def service():
                 f"WHERE $__timeFilter(Timestamp) AND {WARNINGS} ORDER BY Timestamp DESC LIMIT 100",
                 "가장 최근 100줄(요청 로그는 뺌)"), 12, 8)
     b.add(timeseries("리스를 쥔 루프",
-                     series(GAUGE, "cnpg_rove_spin_leases", "ResourceAttributes['k8s.namespace.name']"),
+                     series(GAUGE, "cnpg_loft_spin_leases", "ResourceAttributes['k8s.namespace.name']"),
                      "short", "payday spin의 리스(advisory lock) 수 = 돌고 있는 루프 수. 0이면 아무 루프도 돌지 않습니다(DB를 기다리는 중)", legend="list", decimals=0), 12, 7)
     b.add(timeseries("검색 대기열",
-                     series(GAUGE, "cnpg_rove_search_stale", "ResourceAttributes['k8s.namespace.name']"),
+                     series(GAUGE, "cnpg_loft_search_stale", "ResourceAttributes['k8s.namespace.name']"),
                      "short", "색인기를 기다리는 SearchStale 행(추정치). 가져오기 직후 잠깐 늘고 1초쯤 안에 줄어야 합니다", legend="list", decimals=0), 12, 7)
     b.add({
         "type": "logs", "title": "로그 (WARN·ERROR, 요청 로그는 뺌, Loki)", "datasource": LOKI,
-        "targets": [{"refId": "A", "datasource": LOKI, "expr": '{service_name="rove"} != "gRPC in" != "gRPC out" | severity_text=~"WARN|ERROR"'}],
+        "targets": [{"refId": "A", "datasource": LOKI, "expr": '{service_name="loft"} != "gRPC in" != "gRPC out" | severity_text=~"WARN|ERROR"'}],
         "options": {"showTime": True, "wrapLogMessage": True, "sortOrder": "Descending", "enableLogDetails": True},
     }, 24, 10)
     return b.json()
 
 
 def platform():
-    b = Board("rove-platform", "Rove — 플랫폼",
-              "Rove 밖에서 보는 것: 백업(CNPG), DB, 인증서(cert-manager), 쿠버네티스, 노드. 클러스터 안 수집기와 노드 수집기가 보낸 지표")
+    b = Board("loft-platform", "Loft — 플랫폼",
+              "Loft 밖에서 보는 것: 백업(CNPG), DB, 인증서(cert-manager), 쿠버네티스, 노드. 클러스터 안 수집기와 노드 수집기가 보낸 지표")
     ok_warn_bad = lambda warn, bad: [{"color": "green", "value": None}, {"color": "orange", "value": warn}, {"color": "red", "value": bad}]
 
     b.row("백업")
@@ -240,7 +240,7 @@ def platform():
                      "short", "pg_stat_archiver.archived_count", legend="list"), 12, 7)
     b.add(timeseries("DB 크기", series(GAUGE, "cnpg_pg_database_size_bytes", "Attributes['datname']",
                                       where=" AND Attributes['datname'] NOT IN ('template0', 'template1', 'postgres')"),
-                     "bytes", "rove와 내장 roster의 데이터베이스", legend="list"), 12, 7)
+                     "bytes", "loft와 내장 roster의 데이터베이스", legend="list"), 12, 7)
 
     b.row("데이터베이스")
     b.add(timeseries("연결", series(GAUGE, "cnpg_backends_total", "concat(Attributes['datname'], ' ', if(Attributes['application_name'] = '', '-', Attributes['application_name']), ' ', Attributes['state'])",
@@ -249,7 +249,7 @@ def platform():
     b.add(timeseries("초당 커밋",
                      "SELECT time, db, greatest(value - lagInFrame(value) OVER (PARTITION BY db ORDER BY time), 0) / $__interval_s AS commits FROM ("
                      f"SELECT $__timeInterval(TimeUnix) AS time, Attributes['datname'] AS db, max(Value) AS value FROM {SUM} "
-                     "WHERE $__timeFilter(TimeUnix) AND MetricName = 'cnpg_pg_stat_database_xact_commit' AND Attributes['datname'] IN ('rove', 'roster') "
+                     "WHERE $__timeFilter(TimeUnix) AND MetricName = 'cnpg_pg_stat_database_xact_commit' AND Attributes['datname'] IN ('loft', 'roster') "
                      "GROUP BY time, db) ORDER BY time",
                      "ops", "pg_stat_database.xact_commit의 증가"), 12, 8)
 
@@ -274,7 +274,7 @@ def platform():
     b.add(table("실패한 Job",
                 f"SELECT ResourceAttributes['k8s.namespace.name'] AS ns, ResourceAttributes['k8s.job.name'] AS job, argMax(Value, TimeUnix) AS failed_pods FROM {GAUGE} "
                 "WHERE $__timeFilter(TimeUnix) AND MetricName = 'k8s.job.failed' GROUP BY ns, job HAVING failed_pods > 0 ORDER BY ns, job",
-                "볼륨 백업(rove-volumes-backup) 같은 Job의 실패한 파드 수"), 12, 8)
+                "볼륨 백업(loft-volumes-backup) 같은 Job의 실패한 파드 수"), 12, 8)
 
     b.row("노드")
     node = "getMacro('nickname')"
@@ -291,7 +291,7 @@ def platform():
 def main():
     out = sys.argv[1]
     os.makedirs(out, exist_ok=True)
-    for name, board in (("rove-service.json", service()), ("rove-platform.json", platform())):
+    for name, board in (("loft-service.json", service()), ("loft-platform.json", platform())):
         with open(os.path.join(out, name), "w") as f:
             json.dump(board, f, ensure_ascii=False, indent=2)
             f.write("\n")

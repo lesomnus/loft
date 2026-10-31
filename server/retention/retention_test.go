@@ -15,12 +15,12 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cli"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent/audit"
-	"github.com/lesomnus/rove/server/pd"
-	"github.com/lesomnus/rove/server/retention"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cli"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent/audit"
+	"github.com/lesomnus/loft/server/pd"
+	"github.com/lesomnus/loft/server/retention"
 )
 
 const day = 24 * time.Hour
@@ -89,7 +89,7 @@ func (e *env) shortened(keepBefore, accessBefore uint32, at time.Time) {
 	require.NoError(e.t, err)
 }
 
-// contract writes one, the way `rove contract set` does.
+// contract writes one, the way `loft contract set` does.
 func (e *env) contract(name string, purges bool, effective time.Time) *app.TenantContract {
 	e.t.Helper()
 
@@ -270,7 +270,7 @@ func TestTheTrailOfTheHistoryLastsAsLongAsTheHistory(t *testing.T) {
 
 // TestAPassTakesTheHistorysTrailOnTheTenantsWindow.
 //
-// Through rove's own generated trail store and payday's pass, which is what
+// Through loft's own generated trail store and payday's pass, which is what
 // `serve` runs when `app.retention.apply` is on.
 func TestAPassTakesTheHistorysTrailOnTheTenantsWindow(t *testing.T) {
 	x := require.New(t)
@@ -301,7 +301,7 @@ func (e *env) trailRow(d pdid.Domain, at time.Time) uuid.UUID {
 		SetActorTenantId(e.tenant.Uuid()).
 		SetActorId(uuid.Nil()).
 		SetTraceId([]byte{}).
-		SetAction("/rove.Test/Write").
+		SetAction("/loft.Test/Write").
 		SetObjectId(pdid.New(d).Uuid()).
 		SetDomain(uint32(d)).
 		SetPatch([]byte{}).

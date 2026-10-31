@@ -8,10 +8,10 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent/asset"
-	"github.com/lesomnus/rove/internal/ent/bookable"
-	"github.com/lesomnus/rove/internal/ent/tenant"
+	"github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent/asset"
+	"github.com/lesomnus/loft/internal/ent/bookable"
+	"github.com/lesomnus/loft/internal/ent/tenant"
 	"github.com/protobuf-orm/ent"
 	"github.com/protobuf-orm/ent/dialect/sql"
 )
@@ -24,7 +24,7 @@ type Bookable struct {
 	// Timezone holds the value of the "timezone" field.
 	Timezone string `json:"timezone,omitempty"`
 	// Hours holds the value of the "hours" field.
-	Hours *rove.OpeningHours `json:"hours,omitempty"`
+	Hours *loft.OpeningHours `json:"hours,omitempty"`
 	// BufferBefore holds the value of the "buffer_before" field.
 	BufferBefore int32 `json:"buffer_before,omitempty"`
 	// BufferAfter holds the value of the "buffer_after" field.

@@ -1,6 +1,6 @@
-import { card, expect, field, people, said, signIn, test, unique, workspace } from './rove.js'
+import { card, expect, field, people, said, signIn, test, unique, workspace } from './loft.js'
 
-// The access record reviewed (rove#136): who read whose data, a month at a
+// The access record reviewed (loft#136): who read whose data, a month at a
 // time, and that somebody looked it over -- what PIPA's safety measures ask
 // of a workspace every month.
 

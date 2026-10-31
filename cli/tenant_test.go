@@ -18,11 +18,11 @@ import (
 	"github.com/lesomnus/xli"
 	"github.com/stretchr/testify/require"
 
-	"github.com/lesomnus/rove/cli"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent/tenant"
-	"github.com/lesomnus/rove/internal/identity"
-	"github.com/lesomnus/rove/server/offboard"
+	"github.com/lesomnus/loft/cli"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent/tenant"
+	"github.com/lesomnus/loft/internal/identity"
+	"github.com/lesomnus/loft/server/offboard"
 )
 
 // run is a command's output, run the way a shell runs it.
@@ -47,8 +47,8 @@ func run(t *testing.T, k *xli.Command, args ...string) string {
 
 // TestAPurgeTakesTheWorkspacesOwnAccountsOutOfTheRosterInThisProcess.
 //
-// The roster in this process holds nothing but Rove's accounts, and nothing
-// but Rove can reach it: an account that was in the purged workspace and in no
+// The roster in this process holds nothing but Loft's accounts, and nothing
+// but Loft can reach it: an account that was in the purged workspace and in no
 // other goes with it. One in another workspace is still somebody's.
 func TestAPurgeTakesTheWorkspacesOwnAccountsOutOfTheRosterInThisProcess(t *testing.T) {
 	x := require.New(t)
@@ -93,10 +93,10 @@ func TestAPurgeTakesTheWorkspacesOwnAccountsOutOfTheRosterInThisProcess(t *testi
 	x.False(gone, "the workspace is still here")
 }
 
-// TestAnOperatorRetiresAWorkspace (payday#115): `rove tenant retire` takes a
+// TestAnOperatorRetiresAWorkspace (payday#115): `loft tenant retire` takes a
 // workspace out as `purge` does but for what the deployment's floors are on of
 // its trail, and says what it keeps and until when. Each says so when the
-// workspace's contract says the other (`rove contract set --purge-floors`).
+// workspace's contract says the other (`loft contract set --purge-floors`).
 func TestAnOperatorRetiresAWorkspace(t *testing.T) {
 	x := require.New(t)
 	ctx := context.Background()
@@ -192,7 +192,7 @@ func TestAnOperatorVerifiesAnExport(t *testing.T) {
 
 // TestAnOperatorRestoresAWorkspace: exported, purged and imported, a workspace
 // is back; a member whose account went with the purge is restored with none,
-// and `rove identity migrate` gives it one (design D34).
+// and `loft identity migrate` gives it one (design D34).
 func TestAnOperatorRestoresAWorkspace(t *testing.T) {
 	x := require.New(t)
 	ctx := context.Background()
@@ -261,7 +261,7 @@ func TestAnOperatorRestoresAWorkspace(t *testing.T) {
 // the whole of stdout -- what the command says goes to stderr -- and is
 // verified and restored from stdin, through a temporary file that does not
 // outlive the command. It is how an export leaves a container with nothing in
-// it to copy a file with, and comes back into one: `kubectl exec` (rove#126).
+// it to copy a file with, and comes back into one: `kubectl exec` (loft#126).
 func TestAWorkspaceLeavesAndComesBackThroughStdio(t *testing.T) {
 	x := require.New(t)
 	ctx := context.Background()
@@ -279,7 +279,7 @@ func TestAWorkspaceLeavesAndComesBackThroughStdio(t *testing.T) {
 	run(t, cli.NewCmdInit(&c), "--tenant", "acme", "--login", "owner", "--password", "owner1234")
 	run(t, cli.NewCmdInit(&c), "--tenant", "beta", "--login", "owner")
 
-	// stdio runs `rove tenant` with in as its stdin, and answers with what it
+	// stdio runs `loft tenant` with in as its stdin, and answers with what it
 	// wrote to stdout and to stderr.
 	stdio := func(in []byte, args ...string) (string, string) {
 		t.Helper()
@@ -302,13 +302,13 @@ func TestAWorkspaceLeavesAndComesBackThroughStdio(t *testing.T) {
 	restored, _ := stdio([]byte(archive), "import", "--file", "-", "--yes")
 	x.Contains(restored, "@acme: put back")
 
-	left, err := filepath.Glob(filepath.Join(tmp, "rove-export-*.zip"))
+	left, err := filepath.Glob(filepath.Join(tmp, "loft-export-*.zip"))
 	x.NoError(err)
 	x.Empty(left, "the copy stdin was written to does not outlive the command")
 }
 
 // TestAContractShowsWhatTheWorkspaceKeeps (D36): how long a workspace keeps its
-// history is its own setting, which `rove contract show` says beside its
+// history is its own setting, which `loft contract show` says beside its
 // contracts -- a window made shorter, until when the longer one holds -- and
 // which no contract writes any more.
 func TestAContractShowsWhatTheWorkspaceKeeps(t *testing.T) {

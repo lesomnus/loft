@@ -45,13 +45,13 @@ import (
 	"github.com/lesomnus/payday/rename"
 	"github.com/lesomnus/payday/valid"
 
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent"
-	entmigrate "github.com/lesomnus/rove/internal/ent/migrate"
-	"github.com/lesomnus/rove/internal/ent/tenantcontract"
-	"github.com/lesomnus/rove/server/domain"
-	"github.com/lesomnus/rove/server/offboard"
-	"github.com/lesomnus/rove/server/pd"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent"
+	entmigrate "github.com/lesomnus/loft/internal/ent/migrate"
+	"github.com/lesomnus/loft/internal/ent/tenantcontract"
+	"github.com/lesomnus/loft/server/domain"
+	"github.com/lesomnus/loft/server/offboard"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 // Cmd is this app's own command line: what payday and xli supply, plus
@@ -82,7 +82,7 @@ func Cmd(c *cmd.Config) *xli.Command {
 	version := pdcmd.NewCmdVersion()
 
 	// The terminal's half, which runs anywhere as a person and reads none of
-	// a deployment's configuration: it keeps its own (`ROVE_CLIENT_CONFIG`).
+	// a deployment's configuration: it keeps its own (`LOFT_CLIENT_CONFIG`).
 	login, logout, whoami, use, ws, api, scan, register, agree, assist := NewCmdLogin(), NewCmdLogout(), NewCmdWhoami(), NewCmdUse(), NewCmdWorkspace(), NewCmdApi(), NewCmdScan(), NewCmdRegister(), NewCmdConsent(), NewCmdMcp()
 
 	// The operator's half: each stands the stack up, does one thing and exits,
@@ -92,7 +92,7 @@ func Cmd(c *cmd.Config) *xli.Command {
 
 	return &xli.Command{
 		Name:  cmd.Name,
-		Brief: "rove",
+		Brief: "loft",
 
 		Flags: flg.Flags{cfg.ConfigFlag()},
 
@@ -330,7 +330,7 @@ var oldTerms = []string{"view_days", "keep_days", "grace_days", "access_keep_day
 
 // termsAside is where [stashTerms] sets the contracts' terms aside, by
 // contract, while the schema is migrated beneath them.
-const termsAside = "rove_contract_terms"
+const termsAside = "loft_contract_terms"
 
 // stashTerms sets aside what the workspaces' contracts said of how long each
 // keeps its history and its access record and may be restored once closed,
@@ -392,7 +392,7 @@ func stashTerms(ctx context.Context, s *cmd.Server) error {
 // refused by name, and nothing is moved or dropped.
 //
 // A contract that said any of them is a row a migration rewrote, and the trail
-// finds it so (`rove trail rows`) until an operator accepts it once.
+// finds it so (`loft trail rows`) until an operator accepts it once.
 func moveTerms(ctx context.Context, s *cmd.Server) error {
 	columns, err := hasColumn(ctx, s, "tenantcontract", "keep_days")
 	if err != nil {

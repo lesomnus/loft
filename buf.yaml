@@ -31,3 +31,18 @@ lint:
 breaking:
   use:
     - FILE
+  # One change, on purpose (the owner's decision of 2026-10-31): the app is
+  # loft and no longer rove, so its proto package is `loft` and its files moved
+  # from proto/rove/ to proto/loft/, payday's copies among them. `buf breaking`
+  # reads that as every file under proto/rove/ deleted (FILE_NO_DELETE), and
+  # nothing else. It is a break on the wire -- `rove.AssetService` is
+  # `loft.AssetService` now -- made once, before anything outside this
+  # repository called it. The rows of an event read on as they did: each keeps
+  # its message as canonical JSON, which names no message, and the past's lock
+  # moved with its full names' prefix rewritten and nothing else.
+  #
+  # This comes out with the next change to the schema: left in, it is a hole in
+  # the check for whatever that change deletes.
+  ignore_only:
+    FILE_NO_DELETE:
+      - proto/rove

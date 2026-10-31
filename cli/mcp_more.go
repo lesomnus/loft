@@ -12,12 +12,12 @@ import (
 
 	"github.com/lesomnus/payday/pdid"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/money"
-	"github.com/lesomnus/rove/internal/search"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/money"
+	"github.com/lesomnus/loft/internal/search"
 )
 
-// The rest of the register the assistant changes (D33, rove#94): stock,
+// The rest of the register the assistant changes (D33, loft#94): stock,
 // counts, work orders, purchases, models and labels -- and the lists that
 // answer the ids their plans take.
 

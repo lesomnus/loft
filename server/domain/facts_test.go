@@ -9,8 +9,8 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/server/pd"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 // A type's identifier and a model's, as they are written down: the domain is
@@ -20,7 +20,7 @@ const (
 	aModel = "0199f2c4-7b1e-8a3c-8009-0123456789ab"
 )
 
-// TestAFactIsWrittenAsThePastWritesItsField: a fact Rove wrote under a key is,
+// TestAFactIsWrittenAsThePastWritesItsField: a fact Loft wrote under a key is,
 // as payday's past writes it, the asset's field -- by its number, which is
 // what every row of it will be read by for as long as the history is kept --
 // and the value's canonical JSON: the fewest escapes, Korean as itself, an

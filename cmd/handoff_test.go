@@ -20,22 +20,22 @@ import (
 	"github.com/lesomnus/payday/pdid"
 	"google.golang.org/grpc/metadata"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/handoff"
-	"github.com/lesomnus/rove/internal/ent/hook"
-	entsession "github.com/lesomnus/rove/internal/ent/session"
-	"github.com/lesomnus/rove/server/account"
-	"github.com/lesomnus/rove/server/session"
-	"github.com/lesomnus/rove/server/sso"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/handoff"
+	"github.com/lesomnus/loft/internal/ent/hook"
+	entsession "github.com/lesomnus/loft/internal/ent/session"
+	"github.com/lesomnus/loft/server/account"
+	"github.com/lesomnus/loft/server/session"
+	"github.com/lesomnus/loft/server/sso"
 )
 
 // The hosts of the handoff's tests: a workspace's own domain, and the
 // service's address ([newHosted]).
 const (
 	ownHost     = "assets.acme.example"
-	serviceHost = "rove.example"
+	serviceHost = "loft.example"
 )
 
 // send is a request to `host` as a browser makes it: with the cookies given
@@ -75,7 +75,7 @@ func (w *hosted) start(host, next string) trip {
 	w.x.NoError(err)
 	w.x.Equal("https://"+serviceHost+"/handoff", to.Scheme+"://"+to.Host+to.Path)
 	w.x.Equal(host, to.Query().Get("to"))
-	c := setCookie(res, "__Host-rove_handoff")
+	c := setCookie(res, "__Host-loft_handoff")
 	w.x.NotNil(c, "the state, kept by the domain")
 	return trip{state: c, value: to.Query().Get("state")}
 }
@@ -142,7 +142,7 @@ func withCookie(c *http.Cookie) context.Context {
 }
 
 // TestASignInIsHandedToAWorkspacesDomain: nobody signs in on a workspace's
-// own domain (rove#155). The domain sends a browser to the service's address
+// own domain (loft#155). The domain sends a browser to the service's address
 // with a state it keeps in a cookie of its own; the service, where the
 // browser is signed in, sends it back to that domain with a code; and the
 // domain holds the state to its cookie, takes the code, and hands out a
@@ -201,7 +201,7 @@ func TestASignInIsHandedToAWorkspacesDomain(t *testing.T) {
 	x.True(c.HttpOnly)
 	x.Equal("/", c.Path)
 	x.Empty(c.Domain, "this host's alone")
-	x.Equal(-1, setCookie(res, "__Host-rove_handoff").MaxAge, "the state is spent")
+	x.Equal(-1, setCookie(res, "__Host-loft_handoff").MaxAge, "the state is spent")
 	x.Zero(w.s.Ent.Handoff.Query().CountX(ctx), "and so is the code")
 
 	handed := withCookie(c)
@@ -312,7 +312,7 @@ func TestAHandoffGoesToAnActiveAppDomainAlone(t *testing.T) {
 	sum := sha256.Sum256([]byte(key))
 	x.NoError(w.s.Handoff.Store.Adopt(ctx, w.accountOf(inAcme), w.s.Handoff.Store.KeptSum(sum[:]), grant, time.Now().Add(time.Hour), time.Now().Add(time.Hour)))
 	narrowed := withCookie(&http.Cookie{Name: authsession.DefaultCookie, Value: key})
-	x.Equal(http.StatusForbidden, w.give(narrowed, ownHost, &tr).Code, "a sign-in narrowed by `rove login --allow`")
+	x.Equal(http.StatusForbidden, w.give(narrowed, ownHost, &tr).Code, "a sign-in narrowed by `loft login --allow`")
 	bad := tr
 	bad.value = "made-up"
 	x.Equal(http.StatusBadRequest, w.give(as, ownHost, &bad).Code, "a state no domain made")

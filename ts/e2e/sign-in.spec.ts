@@ -1,4 +1,4 @@
-import { expect, people, submitSignIn, test, workspace } from './rove.js'
+import { expect, people, submitSignIn, test, workspace } from './loft.js'
 
 test('a password signs in to the workspace, a wrong one does not, and signing out ends it', async ({ page }) => {
 	const p = people.signIn

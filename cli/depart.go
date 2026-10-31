@@ -11,13 +11,13 @@ import (
 	"github.com/lesomnus/xli"
 	"github.com/lesomnus/xli/flg"
 
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	enttenant "github.com/lesomnus/rove/internal/ent/tenant"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
 )
 
-// newCmdIdentityDepart is `rove identity depart`: an account leaving every
+// newCmdIdentityDepart is `loft identity depart`: an account leaving every
 // workspace it is in, now, rather than when roster's grace is over -- for
 // somebody who asked to be forgotten at once (design 9.10).
 func newCmdIdentityDepart(c *cmd.Config) *xli.Command {
@@ -97,7 +97,7 @@ func depart(ctx context.Context, self *xli.Command, c *cmd.Config, member, accou
 	return nil
 }
 
-// newCmdIdentityReconcile is `rove identity reconcile`: what roster says of
+// newCmdIdentityReconcile is `loft identity reconcile`: what roster says of
 // every account with a membership here, against what this deployment holds.
 //
 // The stream from roster replays nothing (`identity.Store.Follow`), so an
@@ -186,7 +186,7 @@ func accountNamed(ctx context.Context, s *cmd.Server, member, account string) (p
 			return pdid.Nil, err
 		}
 		if h.Account == nil {
-			return pdid.Nil, fmt.Errorf("--member: %s names no account; `rove identity migrate` first", member)
+			return pdid.Nil, fmt.Errorf("--member: %s names no account; `loft identity migrate` first", member)
 		}
 		return pdid.Id(*h.Account), nil
 	default:

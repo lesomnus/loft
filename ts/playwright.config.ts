@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test'
 
 // The browser tests (plan.md M3): the main flows, driven through the built page
-// as people do, against a rove of their own that `e2e/serve.sh` builds from
+// as people do, against a loft of their own that `e2e/serve.sh` builds from
 // this checkout and starts with `init --demo` -- on SQLite, or with
 // E2E_POSTGRES on databases of its own there, made fresh every run; and with
 // E2E_OPENSEARCH searching on that cluster, on indexes of its own.
@@ -24,7 +24,7 @@ const issuer = `http://127.0.0.1:${port + 30}`
 const server = (at: number, ...args: string[]) => ({
 	command: ['sh', 'e2e/serve.sh', String(at), ...args].join(' '),
 	url: `http://127.0.0.1:${at}/`,
-	// Building rove when E2E_ROVE names none, and `init --demo`, which makes
+	// Building loft when E2E_LOFT names none, and `init --demo`, which makes
 	// fifty accounts.
 	timeout: 180_000,
 	reuseExistingServer: false,
@@ -52,7 +52,7 @@ export default defineConfig({
 	},
 	projects: [
 		{ name: 'app', testIgnore: /(consent|sso|domains)\.spec\.ts/, use: { baseURL: app } },
-		// A workspace's own domain (rove#155): any `*.test` the browser asks for
+		// A workspace's own domain (loft#155): any `*.test` the browser asks for
 		// is the same server, as a workspace's DNS would make it.
 		{
 			name: 'domains',

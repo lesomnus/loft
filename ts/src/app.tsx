@@ -71,7 +71,7 @@ function Frame(props: { account: Account; onSignOut: () => void; children: React
 				<div className="brand">
 					<img src="/icon.svg" alt="" />
 					<div>
-						<strong>Rove</strong>
+						<strong>Loft</strong>
 					</div>
 				</div>
 				<div onClick={(e) => e.stopPropagation()}>

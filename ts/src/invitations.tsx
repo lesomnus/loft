@@ -14,7 +14,7 @@
 
 import { useCallback, useEffect, useState, type ReactNode } from 'react'
 
-import type { Invitation } from '../gen/rove/org_pb.js'
+import type { Invitation } from '../gen/loft/org_pb.js'
 import { InvitationService, errorText, fmt, idBytes, idStr, openWorkspace, workspace, type Account } from './api.js'
 import { useCatalog } from './catalog.js'
 import { call, useAct, useRpc } from './rpc.js'
@@ -244,7 +244,7 @@ export function InviteForm(props: { party?: { id: Uint8Array; name: string; emai
 				)) !== undefined
 			}
 		>
-			<Field label="이메일 *" hint="이 주소로 초대 메일이 갑니다. Rove 계정이 없는 사람은 메일의 링크에서 가입합니다">
+			<Field label="이메일 *" hint="이 주소로 초대 메일이 갑니다. Loft 계정이 없는 사람은 메일의 링크에서 가입합니다">
 				<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoFocus />
 			</Field>
 			<Field label="역할" hint="자기 역할보다 넓은 역할로는 초대할 수 없습니다">

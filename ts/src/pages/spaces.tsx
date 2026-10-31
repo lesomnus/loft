@@ -1,8 +1,8 @@
 import { useMemo, useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
-import type { Asset } from '../../gen/rove/asset_pb.js'
-import type { AssetState } from '../../gen/rove/asset_svc_pb.js'
+import type { Asset } from '../../gen/loft/asset_pb.js'
+import type { AssetState } from '../../gen/loft/asset_svc_pb.js'
 import { AssetService, fromInput, idBytes, idStr, localInput, ref, ts } from '../api.js'
 import { useCatalog } from '../catalog.js'
 import { AssetLink } from '../pickers.js'

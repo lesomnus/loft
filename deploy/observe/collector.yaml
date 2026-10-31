@@ -1,8 +1,8 @@
-# A collector in the cluster for what Rove cannot say of itself: CNPG's
-# metrics (WAL archiving, backups, and Rove's own queries, cnpg-monitoring.yaml),
+# A collector in the cluster for what Loft cannot say of itself: CNPG's
+# metrics (WAL archiving, backups, and Loft's own queries, cnpg-monitoring.yaml),
 # cert-manager's certificates, and the cluster's objects (restarts, jobs,
 # pods). It sends them on over OTLP -- to the collector on its node, at
-# HOST_IP, by default -- and so to the same ClickHouse as Rove's own.
+# HOST_IP, by default -- and so to the same ClickHouse as Loft's own.
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -11,7 +11,7 @@ metadata:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: rove-observe-otel-collector
+  name: loft-observe-otel-collector
 rules:
   # What the k8s_cluster receiver reads, and the pods the scrape finds CNPG's
   # instances among. Reading, and nothing else.
@@ -31,11 +31,11 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: rove-observe-otel-collector
+  name: loft-observe-otel-collector
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: rove-observe-otel-collector
+  name: loft-observe-otel-collector
 subjects:
   - kind: ServiceAccount
     name: otel-collector
@@ -132,7 +132,7 @@ spec:
             # where there is no collector on every node.
             - { name: OTLP_ENDPOINT, value: "$(HOST_IP):4317" }
             # What the dashboards and a cluster with neighbours tell it by.
-            - { name: CLUSTER_NAME, value: rove }
+            - { name: CLUSTER_NAME, value: loft }
           resources:
             requests: { cpu: 20m, memory: 64Mi }
             limits: { memory: 200Mi }

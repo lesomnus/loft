@@ -1,4 +1,4 @@
-import { expect, field, people, said, signIn, test, unique, workspace } from './rove.js'
+import { expect, field, people, said, signIn, test, unique, workspace } from './loft.js'
 
 test('a member reports a fault on an asset, and it is on the work list', async ({ page }) => {
 	const symptom = unique('e2e 화면이 깜빡임')
@@ -12,7 +12,7 @@ test('a member reports a fault on an asset, and it is on the work list', async (
 	await asset.getByRole('searchbox').fill('MN-003')
 	await asset.getByRole('button', { name: /MN-003/ }).click()
 	// And picked, it stays picked: a click the picker redraws under was once
-	// handed on to 바꾸기, which unpicked it (rove#53).
+	// handed on to 바꾸기, which unpicked it (loft#53).
 	await expect(asset.getByRole('button', { name: '바꾸기', exact: true })).toBeVisible()
 	await expect(asset).toContainText('MN-003')
 	await field(report, '증상').fill(symptom)

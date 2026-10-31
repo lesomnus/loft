@@ -6,9 +6,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/identity"
-	"github.com/lesomnus/rove/server/account"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/identity"
+	"github.com/lesomnus/loft/server/account"
 )
 
 // paged is the roster in this process with an account page, which only a

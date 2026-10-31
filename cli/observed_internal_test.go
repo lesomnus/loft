@@ -8,7 +8,7 @@ import (
 	"github.com/lesomnus/xli"
 	"github.com/stretchr/testify/require"
 
-	"github.com/lesomnus/rove/cmd"
+	"github.com/lesomnus/loft/cmd"
 )
 
 // TestAnOperatorCommandRunsObserved: a command `observed` names, and every
@@ -33,7 +33,7 @@ func TestAnOperatorCommandRunsObserved(t *testing.T) {
 	whoami := leaf("whoami")
 	c := cmd.Config{}
 	root := &xli.Command{
-		Name:     "rove",
+		Name:     "loft",
 		Commands: []*xli.Command{tenant, whoami},
 		Handler:  xli.Chain(observed(&c, tenant), xli.RequireSubcommand()),
 	}

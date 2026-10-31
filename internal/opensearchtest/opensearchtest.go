@@ -19,8 +19,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/server/opensearch"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/server/opensearch"
 )
 
 // Config is the configuration of that cluster for one test: who it signs in
@@ -39,7 +39,7 @@ func Config(t testing.TB) opensearch.Config {
 	_, _ = rand.Read(b)
 	c := opensearch.Config{
 		CaFile: os.Getenv("PDTEST_OPENSEARCH_CA"),
-		Index:  "rovetest-" + hex.EncodeToString(b),
+		Index:  "lofttest-" + hex.EncodeToString(b),
 	}
 	if u.User != nil {
 		c.Username = u.User.Username()

@@ -13,7 +13,7 @@ import (
 	"github.com/protobuf-orm/ent/dialect/sql/schema"
 	"github.com/stretchr/testify/require"
 
-	"github.com/lesomnus/rove/internal/ent/migrate"
+	"github.com/lesomnus/loft/internal/ent/migrate"
 )
 
 // SetPage makes an export read n rows at a time until the test is over.
@@ -42,7 +42,7 @@ func TestAPageStartsAfterTheLastRowAsOnePair(t *testing.T) {
 
 // TestEveryExportedTableHasTheColumnsOfItsOrder: an export reads a table a
 // page at a time by when its rows were made and their keys, so every table it
-// reads has both (rove#120).
+// reads has both (loft#120).
 func TestEveryExportedTableHasTheColumnsOfItsOrder(t *testing.T) {
 	for _, name := range slices.Sorted(maps.Keys(Exported)) {
 		i := slices.IndexFunc(migrate.Tables, func(t *schema.Table) bool { return t.Name == name })

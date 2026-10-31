@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/lesomnus/rove/cmd"
+	"github.com/lesomnus/loft/cmd"
 )
 
 // TestACertificateIsAskedForAtARate: the ask says yes to each host as often

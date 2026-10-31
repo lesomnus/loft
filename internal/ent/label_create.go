@@ -9,9 +9,9 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/lesomnus/rove/internal/ent/label"
-	"github.com/lesomnus/rove/internal/ent/tenant"
-	"github.com/lesomnus/rove/internal/ent/tenantdomain"
+	"github.com/lesomnus/loft/internal/ent/label"
+	"github.com/lesomnus/loft/internal/ent/tenant"
+	"github.com/lesomnus/loft/internal/ent/tenantdomain"
 	"github.com/protobuf-orm/ent/dialect/sql"
 	"github.com/protobuf-orm/ent/dialect/sql/sqlgraph"
 	"github.com/protobuf-orm/ent/schema/field"

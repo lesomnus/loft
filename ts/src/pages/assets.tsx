@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 
-import type { AssetType } from '../../gen/rove/catalog_pb.js'
+import type { AssetType } from '../../gen/loft/catalog_pb.js'
 import { AssetService, download, errorText, fromInput, idBytes, idStr, raw, ref, ts } from '../api.js'
 import { modelName, useCatalog } from '../catalog.js'
 import { ModelSelect, SpaceSelect, TypeSelect, Where } from '../pickers.js'

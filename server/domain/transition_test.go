@@ -7,9 +7,9 @@ import (
 
 	"google.golang.org/grpc/codes"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent/allocation"
-	"github.com/lesomnus/rove/internal/ent/event"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent/allocation"
+	"github.com/lesomnus/loft/internal/ent/event"
 )
 
 // atOnce runs two transitions of one reservation so that neither has written
@@ -74,7 +74,7 @@ func (e *env) kindsOf(r *app.Reservation) []string {
 // once. Each read the reservation as confirmed before either wrote it, and the
 // one that wrote second wrote over the first: the person was told they had
 // checked in, and the reservation was a no-show with its time free to book. A
-// transition decides on what a reservation is once it holds it (rove#35).
+// transition decides on what a reservation is once it holds it (loft#35).
 func TestACheckInAndTheNoShowSweepAtOnceDoNotBothLand(t *testing.T) {
 	e := newEnv(t)
 	e.postgresOnly()

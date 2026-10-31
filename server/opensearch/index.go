@@ -11,7 +11,7 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/lesomnus/rove/internal/ent"
+	"github.com/lesomnus/loft/internal/ent"
 )
 
 // An Index is one kind of thing a deployment keeps documents of -- its
@@ -28,8 +28,8 @@ type Index struct {
 	Name string
 	// Version is the shape this build makes it in: its analyzers and fields.
 	// One made by a build with another answers with what that build put in
-	// it, which is what `rove search status` points out and the loop, or
-	// `rove search reindex`, cures.
+	// it, which is what `loft search status` points out and the loop, or
+	// `loft search reindex`, cures.
 	Version int
 
 	// shape is what it is made with; see the file.
@@ -213,7 +213,7 @@ func (c *Client) version(ctx context.Context, name string) (int, error) {
 // Analyze is the words the index of assets makes of text with one of its
 // analyzers: `ko`, what a name is kept as, or `ko_search`, what a search for
 // it asks -- which every index has the same of. It is how an operator sees
-// why something is or is not found (`rove search analyze`).
+// why something is or is not found (`loft search analyze`).
 func (c *Client) Analyze(ctx context.Context, analyzer, text string) ([]string, error) {
 	var v struct {
 		Tokens []struct {

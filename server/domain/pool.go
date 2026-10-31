@@ -10,14 +10,14 @@ import (
 	"github.com/lesomnus/z"
 	"github.com/protobuf-orm/ent/dialect/sql"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/allocation"
-	"github.com/lesomnus/rove/internal/ent/asset"
-	"github.com/lesomnus/rove/internal/ent/bookable"
-	"github.com/lesomnus/rove/internal/ent/link"
-	"github.com/lesomnus/rove/internal/ent/reservation"
-	"github.com/lesomnus/rove/internal/ent/reservationitem"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/allocation"
+	"github.com/lesomnus/loft/internal/ent/asset"
+	"github.com/lesomnus/loft/internal/ent/bookable"
+	"github.com/lesomnus/loft/internal/ent/link"
+	"github.com/lesomnus/loft/internal/ent/reservation"
+	"github.com/lesomnus/loft/internal/ent/reservationitem"
 )
 
 // A pool is a group made reservable: things any one of which does as well as

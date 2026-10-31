@@ -15,14 +15,14 @@ import (
 	"github.com/protobuf-orm/ent/dialect/sql"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/asset"
-	"github.com/lesomnus/rove/internal/ent/assettype"
-	"github.com/lesomnus/rove/internal/ent/bookable"
-	"github.com/lesomnus/rove/internal/ent/countfinding"
-	"github.com/lesomnus/rove/internal/ent/inventorycount"
-	"github.com/lesomnus/rove/internal/ent/stock"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/asset"
+	"github.com/lesomnus/loft/internal/ent/assettype"
+	"github.com/lesomnus/loft/internal/ent/bookable"
+	"github.com/lesomnus/loft/internal/ent/countfinding"
+	"github.com/lesomnus/loft/internal/ent/inventorycount"
+	"github.com/lesomnus/loft/internal/ent/stock"
 )
 
 // The reports (design 9.14) are what the people who run the register read of
@@ -37,7 +37,7 @@ import (
 // names people -- who has what is out -- puts them on the access record of its
 // call by the names it says ([namer]), and its CSV is a download of them
 // (`cmd.Downloads`). The others name nobody, and their CSVs are no download of
-// anybody (rove#136). None says anybody's address or number.
+// anybody (loft#136). None says anybody's address or number.
 
 // reportDays is the longest a report's period is: a year of days, a leap
 // year's among them.
@@ -236,7 +236,7 @@ func (s domainAsset) ExportCensus(ctx context.Context, req *app.AssetCensusReque
 		line(strings.Join(append(slices.Clone(r.GetPath()), r.GetName()), " / "), r)
 	}
 	line("합계", v.GetTotal())
-	return writeCSV(fmt.Sprintf("rove-census-%s-%s", v.GetKind(), t.day(t.now)), rows)
+	return writeCSV(fmt.Sprintf("loft-census-%s-%s", v.GetKind(), t.day(t.now)), rows)
 }
 
 // census is how many assets of a kind there are now, by type or by location,
@@ -571,7 +571,7 @@ func (s domainCustody) ExportOutstanding(ctx context.Context, req *app.CustodyOu
 			number(r.GetQuantity()), r.GetUnit(), t.cell(r.GetIssuedAt()), t.cell(r.GetDueAt()), late, ack,
 		})
 	}
-	return writeCSV("rove-loans-"+t.day(t.now), rows)
+	return writeCSV("loft-loans-"+t.day(t.now), rows)
 }
 
 // outstanding is the lines of the open hand-overs that are not all back: a
@@ -781,7 +781,7 @@ func (s domainBookable) ExportUsage(ctx context.Context, req *app.BookableUsageR
 			number(r.GetHandedOut()), hours(r.GetHandedOutMinutes()),
 		})
 	}
-	return writeCSV("rove-bookings-"+t.span(v.GetFrom().AsTime(), v.GetTo().AsTime()), rows)
+	return writeCSV("loft-bookings-"+t.span(v.GetFrom().AsTime(), v.GetTo().AsTime()), rows)
 }
 
 // usage is the reservations that began in the period and were promised their
@@ -986,7 +986,7 @@ func (s domainCount) ExportResults(ctx context.Context, req *app.InventoryCountR
 			number(r.GetMoved()), number(r.GetLost()), number(r.GetIgnored()), number(r.GetUnsettled()),
 		})
 	}
-	return writeCSV("rove-counts-"+t.span(v.GetFrom().AsTime(), v.GetTo().AsTime()), rows)
+	return writeCSV("loft-counts-"+t.span(v.GetFrom().AsTime(), v.GetTo().AsTime()), rows)
 }
 
 // results is the counts begun in the period, the newest first, and what each
@@ -1123,7 +1123,7 @@ func (s domainStock) ExportFlow(ctx context.Context, req *app.StockFlowRequest) 
 			number(r.GetClosing()),
 		})
 	}
-	return writeCSV("rove-stock-"+t.span(v.GetFrom().AsTime(), v.GetTo().AsTime()), rows)
+	return writeCSV("loft-stock-"+t.span(v.GetFrom().AsTime(), v.GetTo().AsTime()), rows)
 }
 
 // flow is each stock over the period: the database adds up what moved it in

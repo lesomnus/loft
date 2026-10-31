@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.2
 // - protoc             (unknown)
-// source: rove/catalog_svc.g.proto
+// source: loft/catalog_svc.g.proto
 
-package rove
+package loft
 
 import (
 	context "context"
@@ -19,14 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AssetTypeService_Add_FullMethodName    = "/rove.AssetTypeService/Add"
-	AssetTypeService_Get_FullMethodName    = "/rove.AssetTypeService/Get"
-	AssetTypeService_Patch_FullMethodName  = "/rove.AssetTypeService/Patch"
-	AssetTypeService_Apply_FullMethodName  = "/rove.AssetTypeService/Apply"
-	AssetTypeService_Erase_FullMethodName  = "/rove.AssetTypeService/Erase"
-	AssetTypeService_List_FullMethodName   = "/rove.AssetTypeService/List"
-	AssetTypeService_Watch_FullMethodName  = "/rove.AssetTypeService/Watch"
-	AssetTypeService_Update_FullMethodName = "/rove.AssetTypeService/Update"
+	AssetTypeService_Add_FullMethodName    = "/loft.AssetTypeService/Add"
+	AssetTypeService_Get_FullMethodName    = "/loft.AssetTypeService/Get"
+	AssetTypeService_Patch_FullMethodName  = "/loft.AssetTypeService/Patch"
+	AssetTypeService_Apply_FullMethodName  = "/loft.AssetTypeService/Apply"
+	AssetTypeService_Erase_FullMethodName  = "/loft.AssetTypeService/Erase"
+	AssetTypeService_List_FullMethodName   = "/loft.AssetTypeService/List"
+	AssetTypeService_Watch_FullMethodName  = "/loft.AssetTypeService/Watch"
+	AssetTypeService_Update_FullMethodName = "/loft.AssetTypeService/Update"
 )
 
 // AssetTypeServiceClient is the client API for AssetTypeService service.
@@ -382,7 +382,7 @@ func _AssetTypeService_Update_Handler(srv interface{}, ctx context.Context, dec 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var AssetTypeService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.AssetTypeService",
+	ServiceName: "loft.AssetTypeService",
 	HandlerType: (*AssetTypeServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -421,19 +421,19 @@ var AssetTypeService_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "rove/catalog_svc.g.proto",
+	Metadata: "loft/catalog_svc.g.proto",
 }
 
 const (
-	ItemModelService_Add_FullMethodName    = "/rove.ItemModelService/Add"
-	ItemModelService_Get_FullMethodName    = "/rove.ItemModelService/Get"
-	ItemModelService_Patch_FullMethodName  = "/rove.ItemModelService/Patch"
-	ItemModelService_Apply_FullMethodName  = "/rove.ItemModelService/Apply"
-	ItemModelService_Erase_FullMethodName  = "/rove.ItemModelService/Erase"
-	ItemModelService_List_FullMethodName   = "/rove.ItemModelService/List"
-	ItemModelService_Watch_FullMethodName  = "/rove.ItemModelService/Watch"
-	ItemModelService_Update_FullMethodName = "/rove.ItemModelService/Update"
-	ItemModelService_Search_FullMethodName = "/rove.ItemModelService/Search"
+	ItemModelService_Add_FullMethodName    = "/loft.ItemModelService/Add"
+	ItemModelService_Get_FullMethodName    = "/loft.ItemModelService/Get"
+	ItemModelService_Patch_FullMethodName  = "/loft.ItemModelService/Patch"
+	ItemModelService_Apply_FullMethodName  = "/loft.ItemModelService/Apply"
+	ItemModelService_Erase_FullMethodName  = "/loft.ItemModelService/Erase"
+	ItemModelService_List_FullMethodName   = "/loft.ItemModelService/List"
+	ItemModelService_Watch_FullMethodName  = "/loft.ItemModelService/Watch"
+	ItemModelService_Update_FullMethodName = "/loft.ItemModelService/Update"
+	ItemModelService_Search_FullMethodName = "/loft.ItemModelService/Search"
 )
 
 // ItemModelServiceClient is the client API for ItemModelService service.
@@ -467,7 +467,7 @@ type ItemModelServiceClient interface {
 	Update(ctx context.Context, in *ItemModelUpdateRequest, opts ...grpc.CallOption) (*ItemModel, error)
 	// Search finds models by what a person types: a name, who makes it, a
 	// code, what it is a model of. A deployment that names a search engine
-	// asks it (D31, rove#91).
+	// asks it (D31, loft#91).
 	Search(ctx context.Context, in *ItemModelSearchRequest, opts ...grpc.CallOption) (*ItemModelSearchResponse, error)
 }
 
@@ -609,7 +609,7 @@ type ItemModelServiceServer interface {
 	Update(context.Context, *ItemModelUpdateRequest) (*ItemModel, error)
 	// Search finds models by what a person types: a name, who makes it, a
 	// code, what it is a model of. A deployment that names a search engine
-	// asks it (D31, rove#91).
+	// asks it (D31, loft#91).
 	Search(context.Context, *ItemModelSearchRequest) (*ItemModelSearchResponse, error)
 	mustEmbedUnimplementedItemModelServiceServer()
 }
@@ -828,7 +828,7 @@ func _ItemModelService_Search_Handler(srv interface{}, ctx context.Context, dec 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var ItemModelService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rove.ItemModelService",
+	ServiceName: "loft.ItemModelService",
 	HandlerType: (*ItemModelServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -871,5 +871,5 @@ var ItemModelService_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "rove/catalog_svc.g.proto",
+	Metadata: "loft/catalog_svc.g.proto",
 }

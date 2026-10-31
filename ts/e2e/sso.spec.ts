@@ -1,6 +1,6 @@
 import type { APIRequestContext } from '@playwright/test'
 
-import { demoPassword, expect, people, test, workspace } from './rove.js'
+import { demoPassword, expect, people, test, workspace } from './loft.js'
 
 // Signing in through roster's issuer (auth.sso, server/sso), against the
 // test's own (e2e/issuer.sh): the button sends the browser there and it comes

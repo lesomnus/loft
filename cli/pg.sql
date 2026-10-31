@@ -82,7 +82,7 @@ $$;
 -- among the values known now. Not deferred, since an index cannot be: payday's
 -- past supersedes what was recorded for the same moment before it writes the
 -- new value (`past.Op.Set`, payday#151), and so is never in between. Made on
--- payday's Fact, which the migration made in place of Rove's own table of
+-- payday's Fact, which the migration made in place of Loft's own table of
 -- facts, and the index on that with it (`cli/facts.go`).
 CREATE UNIQUE INDEX IF NOT EXISTS fact_once ON fact (subject_id, field_number, key, valid_from)
 	WHERE superseded_at IS NULL;
@@ -102,7 +102,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS holder_account_once ON holder (tenant_id, acco
 -- foreign key between two tenanted tables gets a trigger that asks, and answers
 -- 23503 as a foreign key would. The keys are read from the catalog, so a table
 -- or an edge the schema gains is covered the next time this runs.
-CREATE OR REPLACE FUNCTION rove_same_tenant() RETURNS trigger LANGUAGE plpgsql AS $$
+CREATE OR REPLACE FUNCTION loft_same_tenant() RETURNS trigger LANGUAGE plpgsql AS $$
 DECLARE
 	ref uuid;
 	theirs uuid;
@@ -139,7 +139,7 @@ BEGIN
 			AND EXISTS (SELECT 1 FROM pg_attribute x WHERE x.attrelid = c.confrelid AND x.attname = 'tenant_id' AND NOT x.attisdropped)
 	LOOP
 		IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgrelid = fk.tab::regclass AND tgname = fk.tab || '_' || fk.col || '_same_tenant') THEN
-			EXECUTE format('CREATE TRIGGER %I BEFORE INSERT OR UPDATE OF %I, tenant_id ON %I FOR EACH ROW EXECUTE FUNCTION rove_same_tenant(%L, %L)',
+			EXECUTE format('CREATE TRIGGER %I BEFORE INSERT OR UPDATE OF %I, tenant_id ON %I FOR EACH ROW EXECUTE FUNCTION loft_same_tenant(%L, %L)',
 				fk.tab || '_' || fk.col || '_same_tenant', fk.col, fk.tab, fk.col, fk.ref);
 		END IF;
 	END LOOP;

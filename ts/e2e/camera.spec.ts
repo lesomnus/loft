@@ -1,5 +1,5 @@
 import { printed, video } from './qr.js'
-import { expect, heed, people, signIn, test, workspace } from './rove.js'
+import { expect, heed, people, signIn, test, workspace } from './loft.js'
 
 // The scan page's camera, with a label held up to it: Chromium plays a video
 // of the label's QR as its camera, and the page reads it as it reads a real

@@ -9,10 +9,10 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/opensearchtest"
-	"github.com/lesomnus/rove/server/opensearch"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/opensearchtest"
+	"github.com/lesomnus/loft/server/opensearch"
 )
 
 // newSearchingEnv is [newEnv] searching on the cluster PDTEST_OPENSEARCH

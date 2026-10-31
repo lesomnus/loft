@@ -1,0 +1,851 @@
+{
+  "uid": "loft-service",
+  "title": "Loft — 서비스",
+  "description": "Loft가 OTLP로 보낸 요청 로그와 백그라운드 작업. 무엇을 보는지는 docs/runbook/observe.md",
+  "tags": [
+    "loft"
+  ],
+  "timezone": "browser",
+  "editable": true,
+  "graphTooltip": 1,
+  "refresh": "1m",
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "schemaVersion": 41,
+  "templating": {
+    "list": [
+      {
+        "name": "db",
+        "label": "ClickHouse 데이터베이스",
+        "type": "custom",
+        "query": "otel",
+        "current": {
+          "text": "otel",
+          "value": "otel"
+        },
+        "options": [
+          {
+            "text": "otel",
+            "value": "otel",
+            "selected": true
+          }
+        ],
+        "hide": 2
+      },
+      {
+        "name": "suffix",
+        "label": "테이블 접미사",
+        "type": "custom",
+        "query": "_dist,none",
+        "current": {
+          "text": "_dist",
+          "value": "_dist"
+        },
+        "options": [
+          {
+            "text": "_dist",
+            "value": "_dist",
+            "selected": true
+          },
+          {
+            "text": "none",
+            "value": "",
+            "selected": false
+          }
+        ],
+        "description": "ClickHouse 노드 여럿이면 분산 테이블(_dist), 하나면 접미사 없음"
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "row",
+      "title": "요청",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "panels": []
+    },
+    {
+      "type": "stat",
+      "title": "초당 요청",
+      "description": "기간 전체의 평균. 내장 roster로 가는 호출은 뺍니다",
+      "datasource": {
+        "type": "grafana-clickhouse-datasource",
+        "uid": "clickhouse"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-clickhouse-datasource",
+            "uid": "clickhouse"
+          },
+          "editorType": "sql",
+          "format": 1,
+          "queryType": "table",
+          "rawSql": "SELECT count() / dateDiff('second', $__fromTime, $__toTime) AS value FROM ${db}.otel_logs${suffix} WHERE $__timeFilter(Timestamp) AND ServiceName = 'loft' AND Body = 'gRPC out' AND NOT startsWith(LogAttributes.rpc.service::String, 'roster.')"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "decimals": 1
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "auto",
+        "justifyMode": "auto"
+      },
+      "id": 2,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 1
+      }
+    },
+    {
+      "type": "stat",
+      "title": "서버 쪽 실패",
+      "description": "Internal, Unknown, Unavailable, DeadlineExceeded, DataLoss, Unimplemented로 끝난 요청의 비율",
+      "datasource": {
+        "type": "grafana-clickhouse-datasource",
+        "uid": "clickhouse"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-clickhouse-datasource",
+            "uid": "clickhouse"
+          },
+          "editorType": "sql",
+          "format": 1,
+          "queryType": "table",
+          "rawSql": "SELECT countIf(LogAttributes.rpc.grpc.status::String IN ('Internal', 'Unknown', 'Unavailable', 'DeadlineExceeded', 'DataLoss', 'Unimplemented')) / count() AS value FROM ${db}.otel_logs${suffix} WHERE $__timeFilter(Timestamp) AND ServiceName = 'loft' AND Body = 'gRPC out' AND NOT startsWith(LogAttributes.rpc.service::String, 'roster.')"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.001
+              },
+              {
+                "color": "red",
+                "value": 0.01
+              }
+            ]
+          },
+          "decimals": 2
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "auto",
+        "justifyMode": "auto"
+      },
+      "id": 3,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 1
+      }
+    },
+    {
+      "type": "stat",
+      "title": "p95 지연",
+      "description": "서버가 요청을 처리한 시간(server.elapsed_ns)의 p95. design 1.2: 단건·목록 300ms",
+      "datasource": {
+        "type": "grafana-clickhouse-datasource",
+        "uid": "clickhouse"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-clickhouse-datasource",
+            "uid": "clickhouse"
+          },
+          "editorType": "sql",
+          "format": 1,
+          "queryType": "table",
+          "rawSql": "SELECT quantile(0.95)(LogAttributes.server.elapsed_ns::UInt64 / 1e6) AS value FROM ${db}.otel_logs${suffix} WHERE $__timeFilter(Timestamp) AND ServiceName = 'loft' AND Body = 'gRPC out' AND NOT startsWith(LogAttributes.rpc.service::String, 'roster.')"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 200
+              },
+              {
+                "color": "red",
+                "value": 300
+              }
+            ]
+          },
+          "decimals": 1
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "auto",
+        "justifyMode": "auto"
+      },
+      "id": 4,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 1
+      }
+    },
+    {
+      "type": "stat",
+      "title": "경고·오류 로그",
+      "description": "기간 안의 WARN·ERROR 로그 수(요청 로그는 뺌). 아래 표와 로그에서 무엇인지 봅니다",
+      "datasource": {
+        "type": "grafana-clickhouse-datasource",
+        "uid": "clickhouse"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-clickhouse-datasource",
+            "uid": "clickhouse"
+          },
+          "editorType": "sql",
+          "format": 1,
+          "queryType": "table",
+          "rawSql": "SELECT count() AS value FROM ${db}.otel_logs${suffix} WHERE $__timeFilter(Timestamp) AND ServiceName = 'loft' AND SeverityText IN ('WARN', 'ERROR') AND Body NOT IN ('gRPC in', 'gRPC out')"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 50
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "auto",
+        "justifyMode": "auto"
+      },
+      "id": 5,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 1
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "메서드별 요청",
+      "description": "초당 요청, 메서드별",
+      "datasource": {
+        "type": "grafana-clickhouse-datasource",
+        "uid": "clickhouse"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-clickhouse-datasource",
+            "uid": "clickhouse"
+          },
+          "editorType": "sql",
+          "format": 0,
+          "queryType": "timeseries",
+          "rawSql": "SELECT $__timeInterval(Timestamp) AS time, concat(LogAttributes.rpc.service::String, '/', LogAttributes.rpc.method::String) AS method, count() / $__interval_s AS calls FROM ${db}.otel_logs${suffix} WHERE $__timeFilter(Timestamp) AND ServiceName = 'loft' AND Body = 'gRPC out' AND NOT startsWith(LogAttributes.rpc.service::String, 'roster.') GROUP BY time, method ORDER BY time"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "stacking": {
+              "mode": "normal"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 6,
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 5
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "메서드별 p95 지연",
+      "description": "서버 처리 시간의 p95. design 1.2: 단건·목록 300ms, 시점 조회(1,000노드) 1초",
+      "datasource": {
+        "type": "grafana-clickhouse-datasource",
+        "uid": "clickhouse"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-clickhouse-datasource",
+            "uid": "clickhouse"
+          },
+          "editorType": "sql",
+          "format": 0,
+          "queryType": "timeseries",
+          "rawSql": "SELECT $__timeInterval(Timestamp) AS time, concat(LogAttributes.rpc.service::String, '/', LogAttributes.rpc.method::String) AS method, quantile(0.95)(LogAttributes.server.elapsed_ns::UInt64 / 1e6) AS p95 FROM ${db}.otel_logs${suffix} WHERE $__timeFilter(Timestamp) AND ServiceName = 'loft' AND Body = 'gRPC out' AND NOT startsWith(LogAttributes.rpc.service::String, 'roster.') GROUP BY time, method ORDER BY time"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "stacking": {
+              "mode": "none"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 7,
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 5
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "OK가 아닌 응답",
+      "description": "응답 상태별 수. NotFound·PermissionDenied·InvalidArgument는 대개 호출하는 쪽의 일입니다",
+      "datasource": {
+        "type": "grafana-clickhouse-datasource",
+        "uid": "clickhouse"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-clickhouse-datasource",
+            "uid": "clickhouse"
+          },
+          "editorType": "sql",
+          "format": 0,
+          "queryType": "timeseries",
+          "rawSql": "SELECT $__timeInterval(Timestamp) AS time, LogAttributes.rpc.grpc.status::String AS status, count() AS calls FROM ${db}.otel_logs${suffix} WHERE $__timeFilter(Timestamp) AND ServiceName = 'loft' AND Body = 'gRPC out' AND NOT startsWith(LogAttributes.rpc.service::String, 'roster.') AND LogAttributes.rpc.grpc.status::String != 'OK' GROUP BY time, status ORDER BY time"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "stacking": {
+              "mode": "normal"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 8,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 14
+      }
+    },
+    {
+      "type": "table",
+      "title": "메서드별 요약",
+      "description": "기간 전체",
+      "datasource": {
+        "type": "grafana-clickhouse-datasource",
+        "uid": "clickhouse"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-clickhouse-datasource",
+            "uid": "clickhouse"
+          },
+          "editorType": "sql",
+          "format": 1,
+          "queryType": "table",
+          "rawSql": "SELECT concat(LogAttributes.rpc.service::String, '/', LogAttributes.rpc.method::String) AS method, count() AS calls, quantile(0.5)(LogAttributes.server.elapsed_ns::UInt64 / 1e6) AS p50_ms, quantile(0.95)(LogAttributes.server.elapsed_ns::UInt64 / 1e6) AS p95_ms, quantile(0.99)(LogAttributes.server.elapsed_ns::UInt64 / 1e6) AS p99_ms, countIf(LogAttributes.rpc.grpc.status::String != 'OK') AS not_ok, countIf(LogAttributes.rpc.grpc.status::String IN ('Internal', 'Unknown', 'Unavailable', 'DeadlineExceeded', 'DataLoss', 'Unimplemented')) AS server_errors FROM ${db}.otel_logs${suffix} WHERE $__timeFilter(Timestamp) AND ServiceName = 'loft' AND Body = 'gRPC out' AND NOT startsWith(LogAttributes.rpc.service::String, 'roster.') GROUP BY method ORDER BY calls DESC LIMIT 50"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p50_ms"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p95_ms"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "p99_ms"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm"
+      },
+      "id": 9,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 14
+      }
+    },
+    {
+      "id": 10,
+      "type": "row",
+      "title": "백그라운드 작업",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 22
+      },
+      "panels": []
+    },
+    {
+      "type": "timeseries",
+      "title": "경고·오류 (내용별)",
+      "description": "`spin failed`는 프로세스가 멈춘 것, `tidy`는 주기 작업 한 번의 실패, `` `trail verify` ``는 감사 기록(docs/runbook/observe.md)",
+      "datasource": {
+        "type": "grafana-clickhouse-datasource",
+        "uid": "clickhouse"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-clickhouse-datasource",
+            "uid": "clickhouse"
+          },
+          "editorType": "sql",
+          "format": 0,
+          "queryType": "timeseries",
+          "rawSql": "SELECT $__timeInterval(Timestamp) AS time, concat(SeverityText, ' ', Body) AS log, count() AS lines FROM ${db}.otel_logs${suffix} WHERE $__timeFilter(Timestamp) AND ServiceName = 'loft' AND SeverityText IN ('WARN', 'ERROR') AND Body NOT IN ('gRPC in', 'gRPC out') GROUP BY time, log ORDER BY time"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "stacking": {
+              "mode": "normal"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 11,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 23
+      }
+    },
+    {
+      "type": "table",
+      "title": "경고·오류 (최근)",
+      "description": "가장 최근 100줄(요청 로그는 뺌)",
+      "datasource": {
+        "type": "grafana-clickhouse-datasource",
+        "uid": "clickhouse"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-clickhouse-datasource",
+            "uid": "clickhouse"
+          },
+          "editorType": "sql",
+          "format": 1,
+          "queryType": "table",
+          "rawSql": "SELECT Timestamp AS time, SeverityText AS level, Body AS log, LogAttributes.spin::String AS spin, coalesce(nullIf(LogAttributes.error::String, ''), nullIf(LogAttributes.err::String, ''), LogAttributes.finding::String) AS detail FROM ${db}.otel_logs${suffix} WHERE $__timeFilter(Timestamp) AND ServiceName = 'loft' AND SeverityText IN ('WARN', 'ERROR') AND Body NOT IN ('gRPC in', 'gRPC out') ORDER BY Timestamp DESC LIMIT 100"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm"
+      },
+      "id": 12,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 23
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "리스를 쥔 루프",
+      "description": "payday spin의 리스(advisory lock) 수 = 돌고 있는 루프 수. 0이면 아무 루프도 돌지 않습니다(DB를 기다리는 중)",
+      "datasource": {
+        "type": "grafana-clickhouse-datasource",
+        "uid": "clickhouse"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-clickhouse-datasource",
+            "uid": "clickhouse"
+          },
+          "editorType": "sql",
+          "format": 0,
+          "queryType": "timeseries",
+          "rawSql": "SELECT $__timeInterval(TimeUnix) AS time, ResourceAttributes['k8s.namespace.name'] AS series, argMax(Value, TimeUnix) AS value FROM ${db}.otel_metrics_gauge${suffix} WHERE $__timeFilter(TimeUnix) AND MetricName = 'cnpg_loft_spin_leases' GROUP BY time, series ORDER BY time"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "stacking": {
+              "mode": "none"
+            }
+          },
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 13,
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 31
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "검색 대기열",
+      "description": "색인기를 기다리는 SearchStale 행(추정치). 가져오기 직후 잠깐 늘고 1초쯤 안에 줄어야 합니다",
+      "datasource": {
+        "type": "grafana-clickhouse-datasource",
+        "uid": "clickhouse"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-clickhouse-datasource",
+            "uid": "clickhouse"
+          },
+          "editorType": "sql",
+          "format": 0,
+          "queryType": "timeseries",
+          "rawSql": "SELECT $__timeInterval(TimeUnix) AS time, ResourceAttributes['k8s.namespace.name'] AS series, argMax(Value, TimeUnix) AS value FROM ${db}.otel_metrics_gauge${suffix} WHERE $__timeFilter(TimeUnix) AND MetricName = 'cnpg_loft_search_stale' GROUP BY time, series ORDER BY time"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "stacking": {
+              "mode": "none"
+            }
+          },
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "calcs": [
+            "mean",
+            "max",
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 14,
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 31
+      }
+    },
+    {
+      "type": "logs",
+      "title": "로그 (WARN·ERROR, 요청 로그는 뺌, Loki)",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "expr": "{service_name=\"loft\"} != \"gRPC in\" != \"gRPC out\" | severity_text=~\"WARN|ERROR\""
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "wrapLogMessage": true,
+        "sortOrder": "Descending",
+        "enableLogDetails": true
+      },
+      "id": 15,
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 38
+      }
+    }
+  ]
+}

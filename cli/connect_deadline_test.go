@@ -10,7 +10,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	app "github.com/lesomnus/rove"
+	app "github.com/lesomnus/loft"
 )
 
 // TestACallSaysItsDeadline: a terminal's deadline goes with its call, as the

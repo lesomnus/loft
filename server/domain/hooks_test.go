@@ -6,7 +6,7 @@ import (
 	"github.com/lesomnus/payday/past"
 	"github.com/protobuf-orm/ent/dialect"
 
-	app "github.com/lesomnus/rove"
+	app "github.com/lesomnus/loft"
 )
 
 // NamesFor is what an answer of the layer over `next` names rows by, for the

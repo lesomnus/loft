@@ -4,21 +4,21 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: rove
+  name: loft
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
     traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
   ingressClassName: traefik
   tls:
-    - hosts: [rove.localhost]
+    - hosts: [loft.localhost]
   rules:
-    - host: rove.localhost
+    - host: loft.localhost
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: rove
+                name: loft
                 port: { name: http }

@@ -10,14 +10,14 @@ import (
 	"time"
 	"uuid"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/asset"
-	"github.com/lesomnus/rove/internal/ent/assettype"
-	"github.com/lesomnus/rove/internal/ent/itemmodel"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/asset"
+	"github.com/lesomnus/loft/internal/ent/assettype"
+	"github.com/lesomnus/loft/internal/ent/itemmodel"
 )
 
-// The Korean words for rove's own values, which export writes and the pages
+// The Korean words for loft's own values, which export writes and the pages
 // and refusals say.
 var (
 	kindSay        = map[string]string{"item": "물품", "space": "공간", "kit": "키트", "group": "그룹"}
@@ -50,7 +50,7 @@ var errDry = errors.New("domain: dry run")
 // person reads, and the place as a path beside the tag a machine can. Who has
 // each is said by name, and two of a name by what tells them apart
 // ([namer.readApart]), never by how they are reached: the file is a download,
-// kept wherever it is taken (rove#136).
+// kept wherever it is taken (loft#136).
 //
 // Nothing reads one back. A sheet that edited the register by tag made a
 // value people change into what an asset is, so that another workspace's
@@ -146,7 +146,7 @@ func (s domainAsset) Export(ctx context.Context, req *app.AssetExportRequest) (*
 		}
 		// A column no `personal` declaration can see: the file carries the
 		// custodian's name, and the team's beside it for a name two go by,
-		// so the download is of them (rove#136).
+		// so the download is of them (loft#136).
 		custodian := ""
 		if a.CustodianId != (uuid.UUID{}) {
 			custodian = people.apart(a.CustodianId)
@@ -162,7 +162,7 @@ func (s domainAsset) Export(ctx context.Context, req *app.AssetExportRequest) (*
 		rows = append(rows, row)
 	}
 
-	return writeCSV("rove-assets-"+t.now.In(t.zone()).Format("20060102"), rows)
+	return writeCSV("loft-assets-"+t.now.In(t.zone()).Format("20060102"), rows)
 }
 
 // Form writes the form bulk registration reads: its header, and nothing of

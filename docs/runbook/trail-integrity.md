@@ -2,7 +2,7 @@
 
 `audit.archive`를 둔 배포에서 감사 기록 보관소가 DB의 기록(manifest)이나 체크포인트와 맞지 않을 때 할 일입니다. 어떻게 확인하고 무엇을 켜 두는지는 README의 [감사 기록 보관소 확인](../../README.md#감사-기록-보관소-확인-운영자)에 있습니다.
 
-**기본값은 멈추고 기다리는 것입니다.** 행이 최신 체크포인트와 맞지 않으면 운영자가 `rove trail accept`를 실행할 때까지 새 체크포인트를 남기지 않습니다. 저절로 풀리지 않고, 끄는 설정도 없습니다. 조작된 상태 위에 체크포인트가 쌓이면 두 작업 뒤에는 무엇이 바뀌었는지 더 이상 드러나지 않기 때문입니다. 앱은 그동안에도 계속 동작합니다.
+**기본값은 멈추고 기다리는 것입니다.** 행이 최신 체크포인트와 맞지 않으면 운영자가 `loft trail accept`를 실행할 때까지 새 체크포인트를 남기지 않습니다. 저절로 풀리지 않고, 끄는 설정도 없습니다. 조작된 상태 위에 체크포인트가 쌓이면 두 작업 뒤에는 무엇이 바뀌었는지 더 이상 드러나지 않기 때문입니다. 앱은 그동안에도 계속 동작합니다.
 
 ## 무엇이 보이나
 
@@ -19,7 +19,7 @@
 | `a row whose signature is a finding is not moved along` | 서명이 맞지 않는 행은 옮기거나 파기하지 않습니다 |
 | `its bytes are not its digest any more` | 읽던 청크의 내용이 바뀌었습니다(`altered`). 내보내기가 이 오류로 실패합니다 |
 
-일정에 걸어 둔 `rove trail verify`는 무언가 찾으면 `N findings: …`를 출력하고 0이 아닌 코드로 끝납니다. 출력에는 찾은 것 전체의 다이제스트(`digest sha256:…`)와 최근의 받아들임(`accepted at checkpoint N, 시각, by 누구: 이유 (종류 건수)`)도 나옵니다. `accept`는 이 다이제스트를 받습니다(payday#115).
+일정에 걸어 둔 `loft trail verify`는 무언가 찾으면 `N findings: …`를 출력하고 0이 아닌 코드로 끝납니다. 출력에는 찾은 것 전체의 다이제스트(`digest sha256:…`)와 최근의 받아들임(`accepted at checkpoint N, 시각, by 누구: 이유 (종류 건수)`)도 나옵니다. `accept`는 이 다이제스트를 받습니다(payday#115).
 
 ## 감지된 동안 무엇이 되고 무엇이 안 되나
 
@@ -42,11 +42,11 @@
 
 ## 1. 확인하고 남기기
 
-`rove trail`은 서버와 같은 설정(`rove.yaml`, `ROVE_*`)으로, DB와 보관소에 닿는 곳에서 실행합니다. 서버를 멈추지 않아도 되고, `verify`는 아무것도 바꾸지 않습니다.
+`loft trail`은 서버와 같은 설정(`loft.yaml`, `LOFT_*`)으로, DB와 보관소에 닿는 곳에서 실행합니다. 서버를 멈추지 않아도 되고, `verify`는 아무것도 바꾸지 않습니다.
 
 ```sh
 at=$(date -u +%Y%m%dT%H%M%SZ)
-rove trail verify --full 2>&1 | tee "trail-verify-$at.txt"   # 모든 청크를 읽으므로 오래 걸릴 수 있음
+loft trail verify --full 2>&1 | tee "trail-verify-$at.txt"   # 모든 청크를 읽으므로 오래 걸릴 수 있음
 ```
 
 `accept`나 복구 전에 다음을 한곳에 모읍니다. 조사하는 사람만 읽을 수 있는 곳에 둡니다.
@@ -91,8 +91,8 @@ rove trail verify --full 2>&1 | tee "trail-verify-$at.txt"   # 모든 청크를 
 그 밖에는, 1에서 남긴 `verify` 출력의 다이제스트로:
 
 ```sh
-rove trail accept --of sha256:… --full --by "운영자 A" --why "2026-10-13 저장소 장애 복구 중 백업에서 청크 3개를 되돌림. 증거: OPS-123. 확인: 운영자 A, B"
-rove trail verify --full
+loft trail accept --of sha256:… --full --by "운영자 A" --why "2026-10-13 저장소 장애 복구 중 백업에서 청크 3개를 되돌림. 증거: OPS-123. 확인: 운영자 A, B"
+loft trail verify --full
 ```
 
 - `--of`는 살펴본 `verify`가 출력한 다이제스트이고, `--full`은 그 `verify`가 `--full`이었을 때 붙입니다. `accept`는 같은 방식으로 다시 검사해서, 찾은 것이 하나라도 다르면 받아들이지 않고 끝납니다(`an acceptance is of the findings that were looked at …`). 그 사이 무언가 바뀌었다는 뜻이므로 1부터 다시 합니다.
@@ -113,7 +113,7 @@ rove trail verify --full
 
 ## 5. 다시 돌아간 뒤
 
-- `rove trail verify --full`이 `the archive is what the database says it is`로 끝납니다.
+- `loft trail verify --full`이 `the archive is what the database says it is`로 끝납니다.
 - `accept`를 실행한 쪽의 로그에 `trail: a checkpoint`(`after=accept`)가, 그 뒤 서버 로그에 다음 작업이나 패스의 `trail: a checkpoint`가 나옵니다.
 - 멈춘 동안 실패한 개인정보 삭제를 다시 실행합니다. 계정 탈퇴와 워크스페이스 파기는 각자의 주기에 다시 시도하므로, 로그에서 끝난 것을 확인합니다.
 - 사후 검토를 남깁니다: 타임라인, 원인, `--why`에 적은 것, 막을 방법.
@@ -123,9 +123,9 @@ rove trail verify --full
 최신 체크포인트보다 오래된 백업에서 DB를 복원하면, DB가 매긴 체크포인트 번호가 저장소보다 뒤처집니다. 작업마다 체크포인트를 남기므로 거의 모든 백업이 그렇습니다. 그동안은 체크포인트를 남기지 않고, 보관소를 건드리는 작업은 위의 표처럼 오류로 끝납니다.
 
 ```sh
-rove trail verify --full 2>&1 | tee "trail-verify-$(date -u +%Y%m%dT%H%M%SZ).txt"   # behind, unaccounted, lost, 그리고 다이제스트
-rove trail accept --of sha256:… --full --restored 38 --why "2026-10-13 DB를 10-01 백업에서 복원함. lost 2건은 10-02 패스의 파기로 확인. 복원 작업: OPS-124. 확인: 운영자 A, B"
-rove trail verify --full                                     # 깨끗함
+loft trail verify --full 2>&1 | tee "trail-verify-$(date -u +%Y%m%dT%H%M%SZ).txt"   # behind, unaccounted, lost, 그리고 다이제스트
+loft trail accept --of sha256:… --full --restored 38 --why "2026-10-13 DB를 10-01 백업에서 복원함. lost 2건은 10-02 패스의 파기로 확인. 복원 작업: OPS-124. 확인: 운영자 A, B"
+loft trail verify --full                                     # 깨끗함
 ```
 
 - 복원 직후의 `verify`에는 `behind`와 함께 이런 것이 나올 수 있습니다: 백업 뒤에 보관소에 쓰인 청크의 `unaccounted`, 백업 뒤에 보존 패스가 접거나 파기한 청크의 `missing`, 배포가 보증하는 최신 체크포인트가 있다고 한 청크가 이제 없는 `lost`. 백업 시점에 DB의 기록이 비어 있었다면 `emptied`도 나옵니다. 체크포인트 저장소를 DB보다 오래된 사본에서 되살렸다면 건너뛴 번호의 `unkept`도 나옵니다. **그 밖의 종류**(`altered`, `forged`, `rewritten` 등)는 복원으로 설명되지 않으므로 [4](#4-침해가-의심되거나-원인을-모를-때)로 갑니다.
@@ -138,7 +138,7 @@ rove trail verify --full                                     # 깨끗함
 
 ## 행의 봉인과, 올린 뒤 한 번의 받아들임
 
-`audit.digest.key`를 둔 배포에서 `rove trail rows`는 지금 DB의 행을 감사 기록의 지문과 비교합니다. 지문은 개인정보 필드를 뺀 모든 필드를 덮습니다. 비밀(`secret`) 필드도 덮습니다. 개인정보 필드는 **행의 봉인**이 덮습니다(payday#115). 봉인은 행 전체의 MAC이고, 그 행 옆의 DB에만(`rowseal`) 행이 있는 동안 둡니다.
+`audit.digest.key`를 둔 배포에서 `loft trail rows`는 지금 DB의 행을 감사 기록의 지문과 비교합니다. 지문은 개인정보 필드를 뺀 모든 필드를 덮습니다. 비밀(`secret`) 필드도 덮습니다. 개인정보 필드는 **행의 봉인**이 덮습니다(payday#115). 봉인은 행 전체의 MAC이고, 그 행 옆의 DB에만(`rowseal`) 행이 있는 동안 둡니다.
 
 - 감사 기록의 줄은 보관소로 옮겨져, 행이 없어지고 그 사람을 잊은 뒤에도 몇 년씩 남습니다. 그래서 줄에는 개인정보의 MAC을 남기지 않습니다. 키를 가진 사람이 무엇이었는지 맞춰 볼 수 있기 때문입니다.
 - 봉인은 행을 쓰는 트랜잭션 안에서 쓰고, 행과 함께 지웁니다. 내보내기에 담지 않고, 복구가 되살린 행을 다시 봉인합니다. 개인정보 삭제는 봉인을 "잊었음"이라는 봉인으로 바꿉니다. 그것은 그 사람의 아무것도 담지 않습니다.
@@ -148,21 +148,21 @@ rove trail verify --full                                     # 깨끗함
 **이 버전으로 올린 뒤 한 번 받아들입니다.** 올리기 전에 쓴 사람·구성원·초대·알림의 행은 마지막 쓰기가 봉인하지 않았으므로 **봉인 이전**으로 셉니다. 찾을 것이 아니라서 검사는 통과합니다. 대신 그 행의 개인정보 필드는 아무것도 보증하지 않습니다. 개수는 매번 나옵니다. 살펴본 뒤 한 번 받아들이면 봉인됩니다.
 
 ```sh
-rove trail rows                                                              # `N rows from before seals: …`, 그리고 다이제스트
-rove trail rows --accept --of sha256:… --why "이 버전으로 올리기 전에 쓴 행을 봉인함"
-rove trail rows                                                              # 봉인 이전의 행 없음
+loft trail rows                                                              # `N rows from before seals: …`, 그리고 다이제스트
+loft trail rows --accept --of sha256:… --why "이 버전으로 올리기 전에 쓴 행을 봉인함"
+loft trail rows                                                              # 봉인 이전의 행 없음
 ```
 
-- 다른 찾은 것이 없어도 받아들입니다. 받아들임은 그 다이제스트에 대한 것이라, 살펴본 뒤 바뀐 행은 함께 받아들이지 않습니다. 행마다 받아들였다는 기록(`rove.trail.rows.accept`)이 감사 기록에 남고, 이유는 로그에 남습니다.
+- 다른 찾은 것이 없어도 받아들입니다. 받아들임은 그 다이제스트에 대한 것이라, 살펴본 뒤 바뀐 행은 함께 받아들이지 않습니다. 행마다 받아들였다는 기록(`loft.trail.rows.accept`)이 감사 기록에 남고, 이유는 로그에 남습니다.
 - 받아들이기 전에는 봉인 이전의 행의 개인정보 필드를 서버를 거치지 않고 바꿔도 찾지 못합니다. 미루지 않습니다.
 - 지문이 비밀 필드까지 덮게 되었다고 새로 찾는 것은 없습니다. 이전의 지문은 자기가 덮은 필드를 적어 두었고, 그 필드로만 검사합니다.
 
-**보관 기간이 워크스페이스로 옮긴 버전으로 올린 뒤에도 한 번 받아들입니다**(D36). 마이그레이션이 계약(`tenantcontract`)의 보기·보관·유예·접속기록·복구 기간을 워크스페이스로 옮기고 그 열을 지웁니다. 그 계약 행의 지문은 지운 열까지 덮었으므로, 그 값이 0이 아니던 계약은 `rove trail rows`에서 `differs`로 나옵니다. 마이그레이션이 다시 쓴 행이니 살펴본 뒤 한 번 받아들입니다. 이 마이그레이션은 다시 쓴 행을 감사 기록에 남기지 않습니다. 그때의 `rove migrate`에는 지문의 키가 없었습니다. 워크스페이스 행에 새로 생긴 필드는 이전 지문이 덮지 않으므로 찾는 것이 없습니다.
+**보관 기간이 워크스페이스로 옮긴 버전으로 올린 뒤에도 한 번 받아들입니다**(D36). 마이그레이션이 계약(`tenantcontract`)의 보기·보관·유예·접속기록·복구 기간을 워크스페이스로 옮기고 그 열을 지웁니다. 그 계약 행의 지문은 지운 열까지 덮었으므로, 그 값이 0이 아니던 계약은 `loft trail rows`에서 `differs`로 나옵니다. 마이그레이션이 다시 쓴 행이니 살펴본 뒤 한 번 받아들입니다. 이 마이그레이션은 다시 쓴 행을 감사 기록에 남기지 않습니다. 그때의 `loft migrate`에는 지문의 키가 없었습니다. 워크스페이스 행에 새로 생긴 필드는 이전 지문이 덮지 않으므로 찾는 것이 없습니다.
 
 ```sh
-rove trail rows                                                              # `differs tenant-contract …`, 그리고 다이제스트
-rove trail rows --accept --of sha256:… --why "보관 기간을 워크스페이스로 옮긴 마이그레이션이 계약의 열을 지움"
-rove trail rows                                                              # 찾은 것 없음
+loft trail rows                                                              # `differs tenant-contract …`, 그리고 다이제스트
+loft trail rows --accept --of sha256:… --why "보관 기간을 워크스페이스로 옮긴 마이그레이션이 계약의 열을 지움"
+loft trail rows                                                              # 찾은 것 없음
 ```
 
 - `differs`가 계약 말고 다른 종류에도 있으면 받아들이지 않고 [4](#4-침해가-의심되거나-원인을-모를-때)로 갑니다.
@@ -176,12 +176,12 @@ rove trail rows                                                              # �
 | `log:` | 체크포인트마다 로그 한 줄(`trail: a checkpoint, heard`, `k`·`digest`·`prev`)과 게이지 `payday.trail.checkpoint`를 남깁니다. 답은 하지 않습니다. 바깥의 모니터링이 증인이고, [아래의 경보](#증인의-경보)를 걸어야 증인 노릇을 합니다 | 볼륨이 필요 없습니다 |
 | `store:<디렉터리>` | 들은 체크포인트를 서명된 그대로 자기 디렉터리에 둡니다. `verify`가 물으면 답합니다 | 보관소와 다른 디스크에, DB·보관소와 다른 자격 증명으로, 되도록 삭제를 거부하는 저장소에. 보관소와 같은 디스크의 증인은 증인이 아닙니다 |
 
-- `deploy/compose`는 둘 다 적습니다. `deploy/k8s`의 base는 `log:`만 적고, `store:`의 볼륨은 컴포넌트 `witness/`가 가져옵니다(`deploy/k8s/README.md`). 개발용 `rove.yaml`은 보관소가 없어 적지 않습니다. 보관소 없이 적은 증인은 시작할 때 거부됩니다.
+- `deploy/compose`는 둘 다 적습니다. `deploy/k8s`의 base는 `log:`만 적고, `store:`의 볼륨은 컴포넌트 `witness/`가 가져옵니다(`deploy/k8s/README.md`). 개발용 `loft.yaml`은 보관소가 없어 적지 않습니다. 보관소 없이 적은 증인은 시작할 때 거부됩니다.
 - 증인이 듣지 못해도 작업은 멈추지 않습니다. 로그에 `trail: a witness did not hear a checkpoint, and the next pass tells it again`을 남기고, 다음 패스가 놓친 것을 오래된 것부터(패스마다 100개까지) 다시 알려 줍니다.
-- `rove trail verify`는 답하는 증인마다 마지막으로 들은 것을 보여 줍니다. 첫 체크포인트 전에는 `nothing yet`입니다.
+- `loft trail verify`는 답하는 증인마다 마지막으로 들은 것을 보여 줍니다. 첫 체크포인트 전에는 `nothing yet`입니다.
 
   ```
-  heard by store:/var/lib/rove/witness: checkpoint 41, sha256:…, at 2026-10-22T03:12:09Z
+  heard by store:/var/lib/loft/witness: checkpoint 41, sha256:…, at 2026-10-22T03:12:09Z
   ```
 - 증인이 들었는데 DB가 번호를 매기지 않은 체크포인트가 있으면 어떤 작업도 그 번호로 체크포인트를 남기지 않습니다. 번호를 되감았다는 뜻이기 때문입니다. 받아들임은 증인이 들은 모든 번호 다음으로 번호를 매기고, 증인보다 뒤처진 DB는 복원으로만(`--restored`) 받아들입니다.
 
@@ -234,7 +234,7 @@ forged sha256:… checkpoint 41: witness store:… answers that it heard it, and
 
 **뜻:** 증인이 들었다고 답한 문장이 배포가 서명한 것이 아닙니다. 누군가 증인의 저장소에 썼습니다.
 
-- 증인의 저장소는 Rove만 씁니다. 누가 또 쓸 수 있는지 찾아 그 권한을 없애고, 저장소의 버전이나 스냅숏에서 되돌립니다.
+- 증인의 저장소는 Loft만 씁니다. 누가 또 쓸 수 있는지 찾아 그 권한을 없애고, 저장소의 버전이나 스냅숏에서 되돌립니다.
 - 그때까지 사슬은 그 증인에게는 대어 보지 못하고, 다른 증인에게는 그대로 대어 봅니다.
 - [4](#4-침해가-의심되거나-원인을-모를-때)로 다룹니다.
 
@@ -250,11 +250,11 @@ forged sha256:… checkpoint 41: witness store:… answers that it heard it, and
 
 ## 막기
 
-- **일정**: `rove trail verify`를 매일, `--full`을 주 1회 이상 돌리고, 0이 아닌 종료를 경보로 받습니다. 접속기록의 정기 점검 근거로도 남습니다.
+- **일정**: `loft trail verify`를 매일, `--full`을 주 1회 이상 돌리고, 0이 아닌 종료를 경보로 받습니다. 접속기록의 정기 점검 근거로도 남습니다.
 - **경보**: 로그의 `` `trail verify` ``, 그리고 [증인의 경보](#증인의-경보) 셋.
 - **증인을 둡니다**: `log:`와, 보관소와 다른 디스크의 `store:`([체크포인트의 증인](#체크포인트의-증인)).
 - **체크포인트는 보관소와 다른 곳에**, 삭제를 거부하는 저장소에 둡니다(`audit.checkpoints.dir`과 `audit.checkpoints.write_once`, 또는 S3 Object Lock 규정 준수(compliance) 모드). 보관소와 다른 자격 증명으로 씁니다.
-- **서명 키는 장치에 두는 편이 안전합니다.** 파일 키는 프로세스를 가진 사람이 읽어 가져갈 수 있고, 장치(HSM·TPM·KMS)의 키는 가져갈 수 없습니다. payday는 `pkcs11:`, `tpm:`, `hashivault:`, `awskms:`를 받지만 지금의 rove는 그중 아무것도 링크하지 않아 파일이나 PEM만 받습니다. 어디에 둘지는 rove#35에서 정합니다.
+- **서명 키는 장치에 두는 편이 안전합니다.** 파일 키는 프로세스를 가진 사람이 읽어 가져갈 수 있고, 장치(HSM·TPM·KMS)의 키는 가져갈 수 없습니다. payday는 `pkcs11:`, `tpm:`, `hashivault:`, `awskms:`를 받지만 지금의 loft는 그중 아무것도 링크하지 않아 파일이나 PEM만 받습니다. 어디에 둘지는 loft#35에서 정합니다.
 - **키를 바꿀 때**는 새 키를 `audit.checkpoints.key`에, 이전 공개 키를 `audit.checkpoints.trust`에 넣고 `verify`합니다.
 - **DB를 복원하면** 위의 절차대로 `verify`와 `accept`를 한 번 합니다. 최신 체크포인트 이후 시점으로 복원하면 그것도 필요 없습니다.
 - **DB와 보관소를 모두 쓸 수 있는 사람과 자격 증명을 줄입니다.** 체크포인트와 서명이 막는 것은 바로 그 사람입니다.

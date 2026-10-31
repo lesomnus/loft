@@ -2,7 +2,7 @@ edition = "2023";
 
 package payday;
 
-// What rove adds to payday's Tenant: a workspace closing (D29, design 8.4), and
+// What loft adds to payday's Tenant: a workspace closing (D29, design 8.4), and
 // the settings that are the workspace's own (#144) -- how long it keeps its
 // history among them (design 8, D36).
 //
@@ -59,7 +59,7 @@ message Tenant {
   uint32 keep_days = 18 [(orm.field) = {default: ""}];
 
   // AccessKeepDays is how long its access record -- who read, wrote or took
-  // out whose data in it -- is kept, in days (rove#136). 0 is the
+  // out whose data in it -- is kept, in days (loft#136). 0 is the
   // deployment's `audit.by.access`, and none is below the deployment's floor,
   // `audit.by.access.min`: the floor is what the law the deployment is under
   // asks.

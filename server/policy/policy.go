@@ -30,7 +30,7 @@ import (
 	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/gate"
 
-	app "github.com/lesomnus/rove"
+	app "github.com/lesomnus/loft"
 )
 
 // Level is how much a role may do, in order.
@@ -76,13 +76,13 @@ var Table = map[string]rule{}
 
 func allow(min Level, service string, methods ...string) {
 	for _, m := range methods {
-		Table["/rove."+service+"/"+m] = rule{min: min}
+		Table["/loft."+service+"/"+m] = rule{min: min}
 	}
 }
 
 func oversee(service string, methods ...string) {
 	for _, m := range methods {
-		Table["/rove."+service+"/"+m] = rule{min: Admin, auditor: true}
+		Table["/loft."+service+"/"+m] = rule{min: Admin, auditor: true}
 	}
 }
 
@@ -90,7 +90,7 @@ func oversee(service string, methods ...string) {
 // (design 9.14): a manager and up, and an auditor below that.
 func report(service string, methods ...string) {
 	for _, m := range methods {
-		Table["/rove."+service+"/"+m] = rule{min: Manager, auditor: true}
+		Table["/loft."+service+"/"+m] = rule{min: Manager, auditor: true}
 	}
 }
 
@@ -100,7 +100,7 @@ func report(service string, methods ...string) {
 // this line made an allow.
 func closed(service string, methods ...string) {
 	for _, m := range methods {
-		Table["/rove."+service+"/"+m] = rule{min: Nobody}
+		Table["/loft."+service+"/"+m] = rule{min: Nobody}
 	}
 }
 
@@ -139,7 +139,7 @@ func init() {
 
 	// What only the people who run the tenant, or audit it, read.
 	oversee("AuditService", "Get", "List", "Recent")
-	// And who read or wrote whose data (rove#136): the record a tenant's
+	// And who read or wrote whose data (loft#136): the record a tenant's
 	// administrators review each month, and an auditor reads -- and that it
 	// was reviewed, which either of them records. Read out by Review alone,
 	// which says on the record whom it named: the rows themselves -- where
@@ -151,7 +151,7 @@ func init() {
 	// Taking an event's reason out, for a person whose request to erase what
 	// it says of them points at it (payday#151's Redact): who may is the
 	// owner's to decide, and until then nobody here may. The deployment's
-	// operator does it, on the workspace's word, with `rove event redact`.
+	// operator does it, on the workspace's word, with `loft event redact`.
 	closed("EventService", "Redact")
 	oversee("HolderService", reads...)
 
@@ -237,8 +237,8 @@ func init() {
 	allow(Admin, "InvitationService", "Add", "Revoke")
 	allow(Account, "InvitationService", "List", "Claim", "Accept", "Deny")
 
-	// A tenant's contract and the legal holds on it are the operator's: `rove
-	// contract` and `rove hold` write them, from a shell, and no role here
+	// A tenant's contract and the legal holds on it are the operator's: `loft
+	// contract` and `loft hold` write them, from a shell, and no role here
 	// may. The contract is everybody's to read, since it says what becomes of
 	// the workspace's trail when it is destroyed; a hold is for the people who
 	// run the tenant. How long the workspace keeps its history is its own,
@@ -299,7 +299,7 @@ func (Policy) May(ctx context.Context, c gate.Call) error {
 	return status.Errorf(codes.PermissionDenied, "%s 역할로는 할 수 없는 작업입니다 (%s)", or(roleWord[role], "알 수 없는"), c.Action)
 }
 
-// Where is the caller's own tenant, and nothing else: rove has no operator
+// Where is the caller's own tenant, and nothing else: loft has no operator
 // who sees across tenants from inside one.
 func (Policy) Where(ctx context.Context, c gate.Call) (frame.Tenants, error) {
 	return frame.Only(c.Tenant), nil

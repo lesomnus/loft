@@ -12,9 +12,9 @@ import (
 	"github.com/lesomnus/payday/trail"
 	"github.com/protobuf-orm/ent/dialect/sql"
 
-	"github.com/lesomnus/rove/internal/ent/attachment"
-	"github.com/lesomnus/rove/server/pd"
-	"github.com/lesomnus/rove/server/retention"
+	"github.com/lesomnus/loft/internal/ent/attachment"
+	"github.com/lesomnus/loft/server/pd"
+	"github.com/lesomnus/loft/server/retention"
 )
 
 // Purged is what a purge or a retirement took out of a tenant, or would.
@@ -56,7 +56,7 @@ var errDry = errors.New("offboard: a dry run")
 // floors (`audit.min`, `audit.by.<kind>.min`) and no archive, which is where a
 // retirement keeps what they are on and the record that it left (payday#115).
 // Nothing of it has been taken. It retires once `audit.archive` names one, or
-// is purged on an operator's word -- `rove tenant purge`, or a contract that
+// is purged on an operator's word -- `loft tenant purge`, or a contract that
 // says `purge_floors` -- which takes what the floors are on with it.
 var ErrNoArchive = errors.New("a tenant retires into the trail's archive, which keeps what the deployment's floors are on, and audit.archive names none")
 
@@ -118,7 +118,7 @@ func (d Deployment) Leave(ctx context.Context, tenant pdid.Id, dry bool) (Purged
 }
 
 // Retired is the act a row a retirement deletes is on the trail as.
-const Retired = "rove.workspace.retire"
+const Retired = "loft.workspace.retire"
 
 // Why a destroyed workspace's address is held (`AliasHold.reason`), which
 // every destruction writes (`closing.Closing.Destroy`): this deployment's word

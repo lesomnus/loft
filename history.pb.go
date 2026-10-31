@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.12
 // 	protoc        (unknown)
-// source: rove/history.proto
+// source: loft/history.proto
 
-package rove
+package loft
 
 import (
 	_ "github.com/lesomnus/payday/pdpb"
@@ -47,7 +47,7 @@ type Placement struct {
 
 func (x *Placement) Reset() {
 	*x = Placement{}
-	mi := &file_rove_history_proto_msgTypes[0]
+	mi := &file_loft_history_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -59,7 +59,7 @@ func (x *Placement) String() string {
 func (*Placement) ProtoMessage() {}
 
 func (x *Placement) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_proto_msgTypes[0]
+	mi := &file_loft_history_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -400,7 +400,7 @@ type Link struct {
 
 func (x *Link) Reset() {
 	*x = Link{}
-	mi := &file_rove_history_proto_msgTypes[1]
+	mi := &file_loft_history_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -412,7 +412,7 @@ func (x *Link) String() string {
 func (*Link) ProtoMessage() {}
 
 func (x *Link) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_proto_msgTypes[1]
+	mi := &file_loft_history_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -738,7 +738,7 @@ type Stewardship struct {
 
 func (x *Stewardship) Reset() {
 	*x = Stewardship{}
-	mi := &file_rove_history_proto_msgTypes[2]
+	mi := &file_loft_history_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -750,7 +750,7 @@ func (x *Stewardship) String() string {
 func (*Stewardship) ProtoMessage() {}
 
 func (x *Stewardship) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_proto_msgTypes[2]
+	mi := &file_loft_history_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1027,16 +1027,16 @@ func (b0 Stewardship_builder) Build() *Stewardship {
 	return m0
 }
 
-var File_rove_history_proto protoreflect.FileDescriptor
+var File_loft_history_proto protoreflect.FileDescriptor
 
-const file_rove_history_proto_rawDesc = "" +
+const file_loft_history_proto_rawDesc = "" +
 	"\n" +
-	"\x12rove/history.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x10rove/asset.proto\x1a\x0erove/org.proto\x1a\x18rove/payday/tenant.proto\"\xef\a\n" +
+	"\x12loft/history.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x10loft/asset.proto\x1a\x0eloft/org.proto\x1a\x18loft/payday/tenant.proto\"\xef\a\n" +
 	"\tPlacement\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12)\n" +
-	"\x05child\x18\b \x01(\v2\v.rove.AssetB\x06\xf2\x82\x16\x02@\x01R\x05child\x12+\n" +
-	"\x06parent\x18\t \x01(\v2\v.rove.AssetB\x06\xf2\x82\x16\x02@\x01R\x06parent\x12\x12\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12)\n" +
+	"\x05child\x18\b \x01(\v2\v.loft.AssetB\x06\xf2\x82\x16\x02@\x01R\x05child\x12+\n" +
+	"\x06parent\x18\t \x01(\v2\v.loft.AssetB\x06\xf2\x82\x16\x02@\x01R\x06parent\x12\x12\n" +
 	"\x04mode\x18\n" +
 	" \x01(\tR\x04mode\x12\x12\n" +
 	"\x04slot\x18\v \x01(\tR\x04slot\x12\x15\n" +
@@ -1077,10 +1077,10 @@ const file_rove_history_proto_rawDesc = "" +
 	"\x06tenant\"\fchild.tenant\"\rparent.tenant\"\xbc\b\n" +
 	"\x04Link\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12.\n" +
-	"\x06labels\x18\a \x03(\v2\x16.rove.Link.LabelsEntryR\x06labels\x12+\n" +
-	"\x06source\x18\b \x01(\v2\v.rove.AssetB\x06\xf2\x82\x16\x02@\x01R\x06source\x12+\n" +
-	"\x06target\x18\t \x01(\v2\v.rove.AssetB\x06\xf2\x82\x16\x02@\x01R\x06target\x12\x12\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12.\n" +
+	"\x06labels\x18\a \x03(\v2\x16.loft.Link.LabelsEntryR\x06labels\x12+\n" +
+	"\x06source\x18\b \x01(\v2\v.loft.AssetB\x06\xf2\x82\x16\x02@\x01R\x06source\x12+\n" +
+	"\x06target\x18\t \x01(\v2\v.loft.AssetB\x06\xf2\x82\x16\x02@\x01R\x06target\x12\x12\n" +
 	"\x04kind\x18\n" +
 	" \x01(\tR\x04kind\x12\x1a\n" +
 	"\brequired\x18\v \x01(\bR\brequired\x12F\n" +
@@ -1124,9 +1124,9 @@ const file_rove_history_proto_rawDesc = "" +
 	"\x06tenant\"\rsource.tenant\"\rtarget.tenant\"\xb0\a\n" +
 	"\vStewardship\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12)\n" +
-	"\x05asset\x18\b \x01(\v2\v.rove.AssetB\x06\xf2\x82\x16\x02@\x01R\x05asset\x12)\n" +
-	"\x05party\x18\t \x01(\v2\v.rove.PartyB\x06\xf2\x82\x16\x02@\x01R\x05party\x12\x12\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12)\n" +
+	"\x05asset\x18\b \x01(\v2\v.loft.AssetB\x06\xf2\x82\x16\x02@\x01R\x05asset\x12)\n" +
+	"\x05party\x18\t \x01(\v2\v.loft.PartyB\x06\xf2\x82\x16\x02@\x01R\x05party\x12\x12\n" +
 	"\x04role\x18\n" +
 	" \x01(\tR\x04role\x12F\n" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12H\n" +
@@ -1161,45 +1161,45 @@ const file_rove_history_proto_rawDesc = "" +
 	"\x05party\x1a\x06\n" +
 	"\x04role d(\xe8\aB\x02\n" +
 	"\x00\"$\n" +
-	"\x06tenant\"\fasset.tenant\"\fparty.tenantB\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"\x06tenant\"\fasset.tenant\"\fparty.tenantB\x1fZ\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
-var file_rove_history_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
-var file_rove_history_proto_goTypes = []any{
-	(*Placement)(nil),             // 0: rove.Placement
-	(*Link)(nil),                  // 1: rove.Link
-	(*Stewardship)(nil),           // 2: rove.Stewardship
-	nil,                           // 3: rove.Link.LabelsEntry
-	(*Tenant)(nil),                // 4: rove.Tenant
-	(*Asset)(nil),                 // 5: rove.Asset
+var file_loft_history_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_loft_history_proto_goTypes = []any{
+	(*Placement)(nil),             // 0: loft.Placement
+	(*Link)(nil),                  // 1: loft.Link
+	(*Stewardship)(nil),           // 2: loft.Stewardship
+	nil,                           // 3: loft.Link.LabelsEntry
+	(*Tenant)(nil),                // 4: loft.Tenant
+	(*Asset)(nil),                 // 5: loft.Asset
 	(*timestamppb.Timestamp)(nil), // 6: google.protobuf.Timestamp
-	(*Party)(nil),                 // 7: rove.Party
+	(*Party)(nil),                 // 7: loft.Party
 }
-var file_rove_history_proto_depIdxs = []int32{
-	4,  // 0: rove.Placement.tenant:type_name -> rove.Tenant
-	5,  // 1: rove.Placement.child:type_name -> rove.Asset
-	5,  // 2: rove.Placement.parent:type_name -> rove.Asset
-	6,  // 3: rove.Placement.date_updated:type_name -> google.protobuf.Timestamp
-	6,  // 4: rove.Placement.date_created:type_name -> google.protobuf.Timestamp
-	6,  // 5: rove.Placement.valid_from:type_name -> google.protobuf.Timestamp
-	6,  // 6: rove.Placement.valid_to:type_name -> google.protobuf.Timestamp
-	6,  // 7: rove.Placement.superseded_at:type_name -> google.protobuf.Timestamp
-	4,  // 8: rove.Link.tenant:type_name -> rove.Tenant
-	3,  // 9: rove.Link.labels:type_name -> rove.Link.LabelsEntry
-	5,  // 10: rove.Link.source:type_name -> rove.Asset
-	5,  // 11: rove.Link.target:type_name -> rove.Asset
-	6,  // 12: rove.Link.date_updated:type_name -> google.protobuf.Timestamp
-	6,  // 13: rove.Link.date_created:type_name -> google.protobuf.Timestamp
-	6,  // 14: rove.Link.valid_from:type_name -> google.protobuf.Timestamp
-	6,  // 15: rove.Link.valid_to:type_name -> google.protobuf.Timestamp
-	6,  // 16: rove.Link.superseded_at:type_name -> google.protobuf.Timestamp
-	4,  // 17: rove.Stewardship.tenant:type_name -> rove.Tenant
-	5,  // 18: rove.Stewardship.asset:type_name -> rove.Asset
-	7,  // 19: rove.Stewardship.party:type_name -> rove.Party
-	6,  // 20: rove.Stewardship.date_updated:type_name -> google.protobuf.Timestamp
-	6,  // 21: rove.Stewardship.date_created:type_name -> google.protobuf.Timestamp
-	6,  // 22: rove.Stewardship.valid_from:type_name -> google.protobuf.Timestamp
-	6,  // 23: rove.Stewardship.valid_to:type_name -> google.protobuf.Timestamp
-	6,  // 24: rove.Stewardship.superseded_at:type_name -> google.protobuf.Timestamp
+var file_loft_history_proto_depIdxs = []int32{
+	4,  // 0: loft.Placement.tenant:type_name -> loft.Tenant
+	5,  // 1: loft.Placement.child:type_name -> loft.Asset
+	5,  // 2: loft.Placement.parent:type_name -> loft.Asset
+	6,  // 3: loft.Placement.date_updated:type_name -> google.protobuf.Timestamp
+	6,  // 4: loft.Placement.date_created:type_name -> google.protobuf.Timestamp
+	6,  // 5: loft.Placement.valid_from:type_name -> google.protobuf.Timestamp
+	6,  // 6: loft.Placement.valid_to:type_name -> google.protobuf.Timestamp
+	6,  // 7: loft.Placement.superseded_at:type_name -> google.protobuf.Timestamp
+	4,  // 8: loft.Link.tenant:type_name -> loft.Tenant
+	3,  // 9: loft.Link.labels:type_name -> loft.Link.LabelsEntry
+	5,  // 10: loft.Link.source:type_name -> loft.Asset
+	5,  // 11: loft.Link.target:type_name -> loft.Asset
+	6,  // 12: loft.Link.date_updated:type_name -> google.protobuf.Timestamp
+	6,  // 13: loft.Link.date_created:type_name -> google.protobuf.Timestamp
+	6,  // 14: loft.Link.valid_from:type_name -> google.protobuf.Timestamp
+	6,  // 15: loft.Link.valid_to:type_name -> google.protobuf.Timestamp
+	6,  // 16: loft.Link.superseded_at:type_name -> google.protobuf.Timestamp
+	4,  // 17: loft.Stewardship.tenant:type_name -> loft.Tenant
+	5,  // 18: loft.Stewardship.asset:type_name -> loft.Asset
+	7,  // 19: loft.Stewardship.party:type_name -> loft.Party
+	6,  // 20: loft.Stewardship.date_updated:type_name -> google.protobuf.Timestamp
+	6,  // 21: loft.Stewardship.date_created:type_name -> google.protobuf.Timestamp
+	6,  // 22: loft.Stewardship.valid_from:type_name -> google.protobuf.Timestamp
+	6,  // 23: loft.Stewardship.valid_to:type_name -> google.protobuf.Timestamp
+	6,  // 24: loft.Stewardship.superseded_at:type_name -> google.protobuf.Timestamp
 	25, // [25:25] is the sub-list for method output_type
 	25, // [25:25] is the sub-list for method input_type
 	25, // [25:25] is the sub-list for extension type_name
@@ -1207,29 +1207,29 @@ var file_rove_history_proto_depIdxs = []int32{
 	0,  // [0:25] is the sub-list for field type_name
 }
 
-func init() { file_rove_history_proto_init() }
-func file_rove_history_proto_init() {
-	if File_rove_history_proto != nil {
+func init() { file_loft_history_proto_init() }
+func file_loft_history_proto_init() {
+	if File_loft_history_proto != nil {
 		return
 	}
-	file_rove_asset_proto_init()
-	file_rove_org_proto_init()
-	file_rove_payday_tenant_proto_init()
+	file_loft_asset_proto_init()
+	file_loft_org_proto_init()
+	file_loft_payday_tenant_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_history_proto_rawDesc), len(file_rove_history_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_history_proto_rawDesc), len(file_loft_history_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_rove_history_proto_goTypes,
-		DependencyIndexes: file_rove_history_proto_depIdxs,
-		MessageInfos:      file_rove_history_proto_msgTypes,
+		GoTypes:           file_loft_history_proto_goTypes,
+		DependencyIndexes: file_loft_history_proto_depIdxs,
+		MessageInfos:      file_loft_history_proto_msgTypes,
 	}.Build()
-	File_rove_history_proto = out.File
-	file_rove_history_proto_goTypes = nil
-	file_rove_history_proto_depIdxs = nil
+	File_loft_history_proto = out.File
+	file_loft_history_proto_goTypes = nil
+	file_loft_history_proto_depIdxs = nil
 }

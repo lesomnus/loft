@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.12
 // 	protoc        (unknown)
-// source: rove/history_svc.g.proto
+// source: loft/history_svc.g.proto
 
-package rove
+package loft
 
 import (
 	patchpb "github.com/lesomnus/protobuf-patch/patchpb"
@@ -46,7 +46,7 @@ type PlacementAddRequest struct {
 
 func (x *PlacementAddRequest) Reset() {
 	*x = PlacementAddRequest{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[0]
+	mi := &file_loft_history_svc_g_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -58,7 +58,7 @@ func (x *PlacementAddRequest) String() string {
 func (*PlacementAddRequest) ProtoMessage() {}
 
 func (x *PlacementAddRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[0]
+	mi := &file_loft_history_svc_g_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -390,7 +390,7 @@ type PlacementAddManyRequest struct {
 
 func (x *PlacementAddManyRequest) Reset() {
 	*x = PlacementAddManyRequest{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[1]
+	mi := &file_loft_history_svc_g_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -402,7 +402,7 @@ func (x *PlacementAddManyRequest) String() string {
 func (*PlacementAddManyRequest) ProtoMessage() {}
 
 func (x *PlacementAddManyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[1]
+	mi := &file_loft_history_svc_g_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -449,7 +449,7 @@ type PlacementAddManyResponse struct {
 
 func (x *PlacementAddManyResponse) Reset() {
 	*x = PlacementAddManyResponse{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[2]
+	mi := &file_loft_history_svc_g_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -461,7 +461,7 @@ func (x *PlacementAddManyResponse) String() string {
 func (*PlacementAddManyResponse) ProtoMessage() {}
 
 func (x *PlacementAddManyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[2]
+	mi := &file_loft_history_svc_g_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -509,7 +509,7 @@ type PlacementGetRequest struct {
 
 func (x *PlacementGetRequest) Reset() {
 	*x = PlacementGetRequest{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[3]
+	mi := &file_loft_history_svc_g_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -521,7 +521,7 @@ func (x *PlacementGetRequest) String() string {
 func (*PlacementGetRequest) ProtoMessage() {}
 
 func (x *PlacementGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[3]
+	mi := &file_loft_history_svc_g_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -601,7 +601,7 @@ type PlacementRef struct {
 
 func (x *PlacementRef) Reset() {
 	*x = PlacementRef{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[4]
+	mi := &file_loft_history_svc_g_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -613,7 +613,7 @@ func (x *PlacementRef) String() string {
 func (*PlacementRef) ProtoMessage() {}
 
 func (x *PlacementRef) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[4]
+	mi := &file_loft_history_svc_g_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -701,7 +701,7 @@ func (b0 PlacementRef_builder) Build() *PlacementRef {
 type case_PlacementRef_Key protoreflect.FieldNumber
 
 func (x case_PlacementRef_Key) String() string {
-	md := file_rove_history_svc_g_proto_msgTypes[4].Descriptor()
+	md := file_loft_history_svc_g_proto_msgTypes[4].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -743,7 +743,7 @@ type PlacementSelect struct {
 
 func (x *PlacementSelect) Reset() {
 	*x = PlacementSelect{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[5]
+	mi := &file_loft_history_svc_g_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -755,7 +755,7 @@ func (x *PlacementSelect) String() string {
 func (*PlacementSelect) ProtoMessage() {}
 
 func (x *PlacementSelect) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[5]
+	mi := &file_loft_history_svc_g_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1223,7 +1223,7 @@ type PlacementPatchRequest struct {
 
 func (x *PlacementPatchRequest) Reset() {
 	*x = PlacementPatchRequest{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[6]
+	mi := &file_loft_history_svc_g_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1235,7 +1235,7 @@ func (x *PlacementPatchRequest) String() string {
 func (*PlacementPatchRequest) ProtoMessage() {}
 
 func (x *PlacementPatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[6]
+	mi := &file_loft_history_svc_g_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1714,7 +1714,7 @@ type PlacementApplyRequest struct {
 
 func (x *PlacementApplyRequest) Reset() {
 	*x = PlacementApplyRequest{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[7]
+	mi := &file_loft_history_svc_g_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1726,7 +1726,7 @@ func (x *PlacementApplyRequest) String() string {
 func (*PlacementApplyRequest) ProtoMessage() {}
 
 func (x *PlacementApplyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[7]
+	mi := &file_loft_history_svc_g_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1808,7 +1808,7 @@ type PlacementEraseResponse struct {
 
 func (x *PlacementEraseResponse) Reset() {
 	*x = PlacementEraseResponse{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[8]
+	mi := &file_loft_history_svc_g_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1820,7 +1820,7 @@ func (x *PlacementEraseResponse) String() string {
 func (*PlacementEraseResponse) ProtoMessage() {}
 
 func (x *PlacementEraseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[8]
+	mi := &file_loft_history_svc_g_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1889,7 +1889,7 @@ type PlacementListRequest struct {
 
 func (x *PlacementListRequest) Reset() {
 	*x = PlacementListRequest{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[9]
+	mi := &file_loft_history_svc_g_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1901,7 +1901,7 @@ func (x *PlacementListRequest) String() string {
 func (*PlacementListRequest) ProtoMessage() {}
 
 func (x *PlacementListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[9]
+	mi := &file_loft_history_svc_g_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2001,7 +2001,7 @@ type PlacementListResponse struct {
 
 func (x *PlacementListResponse) Reset() {
 	*x = PlacementListResponse{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[10]
+	mi := &file_loft_history_svc_g_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2013,7 +2013,7 @@ func (x *PlacementListResponse) String() string {
 func (*PlacementListResponse) ProtoMessage() {}
 
 func (x *PlacementListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[10]
+	mi := &file_loft_history_svc_g_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2082,7 +2082,7 @@ type PlacementFilter struct {
 
 func (x *PlacementFilter) Reset() {
 	*x = PlacementFilter{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[11]
+	mi := &file_loft_history_svc_g_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2094,7 +2094,7 @@ func (x *PlacementFilter) String() string {
 func (*PlacementFilter) ProtoMessage() {}
 
 func (x *PlacementFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[11]
+	mi := &file_loft_history_svc_g_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2212,7 +2212,7 @@ type LinkAddRequest struct {
 
 func (x *LinkAddRequest) Reset() {
 	*x = LinkAddRequest{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[12]
+	mi := &file_loft_history_svc_g_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2224,7 +2224,7 @@ func (x *LinkAddRequest) String() string {
 func (*LinkAddRequest) ProtoMessage() {}
 
 func (x *LinkAddRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[12]
+	mi := &file_loft_history_svc_g_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2544,7 +2544,7 @@ type LinkGetRequest struct {
 
 func (x *LinkGetRequest) Reset() {
 	*x = LinkGetRequest{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[13]
+	mi := &file_loft_history_svc_g_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2556,7 +2556,7 @@ func (x *LinkGetRequest) String() string {
 func (*LinkGetRequest) ProtoMessage() {}
 
 func (x *LinkGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[13]
+	mi := &file_loft_history_svc_g_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2636,7 +2636,7 @@ type LinkRef struct {
 
 func (x *LinkRef) Reset() {
 	*x = LinkRef{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[14]
+	mi := &file_loft_history_svc_g_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2648,7 +2648,7 @@ func (x *LinkRef) String() string {
 func (*LinkRef) ProtoMessage() {}
 
 func (x *LinkRef) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[14]
+	mi := &file_loft_history_svc_g_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2736,7 +2736,7 @@ func (b0 LinkRef_builder) Build() *LinkRef {
 type case_LinkRef_Key protoreflect.FieldNumber
 
 func (x case_LinkRef_Key) String() string {
-	md := file_rove_history_svc_g_proto_msgTypes[14].Descriptor()
+	md := file_loft_history_svc_g_proto_msgTypes[14].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -2777,7 +2777,7 @@ type LinkSelect struct {
 
 func (x *LinkSelect) Reset() {
 	*x = LinkSelect{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[15]
+	mi := &file_loft_history_svc_g_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2789,7 +2789,7 @@ func (x *LinkSelect) String() string {
 func (*LinkSelect) ProtoMessage() {}
 
 func (x *LinkSelect) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[15]
+	mi := &file_loft_history_svc_g_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3227,7 +3227,7 @@ type LinkPatchRequest struct {
 
 func (x *LinkPatchRequest) Reset() {
 	*x = LinkPatchRequest{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[16]
+	mi := &file_loft_history_svc_g_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3239,7 +3239,7 @@ func (x *LinkPatchRequest) String() string {
 func (*LinkPatchRequest) ProtoMessage() {}
 
 func (x *LinkPatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[16]
+	mi := &file_loft_history_svc_g_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3670,7 +3670,7 @@ type LinkApplyRequest struct {
 
 func (x *LinkApplyRequest) Reset() {
 	*x = LinkApplyRequest{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[17]
+	mi := &file_loft_history_svc_g_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3682,7 +3682,7 @@ func (x *LinkApplyRequest) String() string {
 func (*LinkApplyRequest) ProtoMessage() {}
 
 func (x *LinkApplyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[17]
+	mi := &file_loft_history_svc_g_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3764,7 +3764,7 @@ type LinkEraseResponse struct {
 
 func (x *LinkEraseResponse) Reset() {
 	*x = LinkEraseResponse{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[18]
+	mi := &file_loft_history_svc_g_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3776,7 +3776,7 @@ func (x *LinkEraseResponse) String() string {
 func (*LinkEraseResponse) ProtoMessage() {}
 
 func (x *LinkEraseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[18]
+	mi := &file_loft_history_svc_g_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3845,7 +3845,7 @@ type LinkListRequest struct {
 
 func (x *LinkListRequest) Reset() {
 	*x = LinkListRequest{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[19]
+	mi := &file_loft_history_svc_g_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3857,7 +3857,7 @@ func (x *LinkListRequest) String() string {
 func (*LinkListRequest) ProtoMessage() {}
 
 func (x *LinkListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[19]
+	mi := &file_loft_history_svc_g_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3957,7 +3957,7 @@ type LinkListResponse struct {
 
 func (x *LinkListResponse) Reset() {
 	*x = LinkListResponse{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[20]
+	mi := &file_loft_history_svc_g_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3969,7 +3969,7 @@ func (x *LinkListResponse) String() string {
 func (*LinkListResponse) ProtoMessage() {}
 
 func (x *LinkListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[20]
+	mi := &file_loft_history_svc_g_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4041,7 +4041,7 @@ type LinkFilter struct {
 
 func (x *LinkFilter) Reset() {
 	*x = LinkFilter{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[21]
+	mi := &file_loft_history_svc_g_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4053,7 +4053,7 @@ func (x *LinkFilter) String() string {
 func (*LinkFilter) ProtoMessage() {}
 
 func (x *LinkFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[21]
+	mi := &file_loft_history_svc_g_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4201,7 +4201,7 @@ type StewardshipAddRequest struct {
 
 func (x *StewardshipAddRequest) Reset() {
 	*x = StewardshipAddRequest{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[22]
+	mi := &file_loft_history_svc_g_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4213,7 +4213,7 @@ func (x *StewardshipAddRequest) String() string {
 func (*StewardshipAddRequest) ProtoMessage() {}
 
 func (x *StewardshipAddRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[22]
+	mi := &file_loft_history_svc_g_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4507,7 +4507,7 @@ type StewardshipGetRequest struct {
 
 func (x *StewardshipGetRequest) Reset() {
 	*x = StewardshipGetRequest{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[23]
+	mi := &file_loft_history_svc_g_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4519,7 +4519,7 @@ func (x *StewardshipGetRequest) String() string {
 func (*StewardshipGetRequest) ProtoMessage() {}
 
 func (x *StewardshipGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[23]
+	mi := &file_loft_history_svc_g_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4599,7 +4599,7 @@ type StewardshipRef struct {
 
 func (x *StewardshipRef) Reset() {
 	*x = StewardshipRef{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[24]
+	mi := &file_loft_history_svc_g_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4611,7 +4611,7 @@ func (x *StewardshipRef) String() string {
 func (*StewardshipRef) ProtoMessage() {}
 
 func (x *StewardshipRef) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[24]
+	mi := &file_loft_history_svc_g_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4699,7 +4699,7 @@ func (b0 StewardshipRef_builder) Build() *StewardshipRef {
 type case_StewardshipRef_Key protoreflect.FieldNumber
 
 func (x case_StewardshipRef_Key) String() string {
-	md := file_rove_history_svc_g_proto_msgTypes[24].Descriptor()
+	md := file_loft_history_svc_g_proto_msgTypes[24].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -4738,7 +4738,7 @@ type StewardshipSelect struct {
 
 func (x *StewardshipSelect) Reset() {
 	*x = StewardshipSelect{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[25]
+	mi := &file_loft_history_svc_g_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4750,7 +4750,7 @@ func (x *StewardshipSelect) String() string {
 func (*StewardshipSelect) ProtoMessage() {}
 
 func (x *StewardshipSelect) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[25]
+	mi := &file_loft_history_svc_g_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5128,7 +5128,7 @@ type StewardshipPatchRequest struct {
 
 func (x *StewardshipPatchRequest) Reset() {
 	*x = StewardshipPatchRequest{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[26]
+	mi := &file_loft_history_svc_g_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5140,7 +5140,7 @@ func (x *StewardshipPatchRequest) String() string {
 func (*StewardshipPatchRequest) ProtoMessage() {}
 
 func (x *StewardshipPatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[26]
+	mi := &file_loft_history_svc_g_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5529,7 +5529,7 @@ type StewardshipApplyRequest struct {
 
 func (x *StewardshipApplyRequest) Reset() {
 	*x = StewardshipApplyRequest{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[27]
+	mi := &file_loft_history_svc_g_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5541,7 +5541,7 @@ func (x *StewardshipApplyRequest) String() string {
 func (*StewardshipApplyRequest) ProtoMessage() {}
 
 func (x *StewardshipApplyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[27]
+	mi := &file_loft_history_svc_g_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5623,7 +5623,7 @@ type StewardshipEraseResponse struct {
 
 func (x *StewardshipEraseResponse) Reset() {
 	*x = StewardshipEraseResponse{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[28]
+	mi := &file_loft_history_svc_g_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5635,7 +5635,7 @@ func (x *StewardshipEraseResponse) String() string {
 func (*StewardshipEraseResponse) ProtoMessage() {}
 
 func (x *StewardshipEraseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[28]
+	mi := &file_loft_history_svc_g_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5704,7 +5704,7 @@ type StewardshipListRequest struct {
 
 func (x *StewardshipListRequest) Reset() {
 	*x = StewardshipListRequest{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[29]
+	mi := &file_loft_history_svc_g_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5716,7 +5716,7 @@ func (x *StewardshipListRequest) String() string {
 func (*StewardshipListRequest) ProtoMessage() {}
 
 func (x *StewardshipListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[29]
+	mi := &file_loft_history_svc_g_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5816,7 +5816,7 @@ type StewardshipListResponse struct {
 
 func (x *StewardshipListResponse) Reset() {
 	*x = StewardshipListResponse{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[30]
+	mi := &file_loft_history_svc_g_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5828,7 +5828,7 @@ func (x *StewardshipListResponse) String() string {
 func (*StewardshipListResponse) ProtoMessage() {}
 
 func (x *StewardshipListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[30]
+	mi := &file_loft_history_svc_g_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5900,7 +5900,7 @@ type StewardshipFilter struct {
 
 func (x *StewardshipFilter) Reset() {
 	*x = StewardshipFilter{}
-	mi := &file_rove_history_svc_g_proto_msgTypes[31]
+	mi := &file_loft_history_svc_g_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5912,7 +5912,7 @@ func (x *StewardshipFilter) String() string {
 func (*StewardshipFilter) ProtoMessage() {}
 
 func (x *StewardshipFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_history_svc_g_proto_msgTypes[31]
+	mi := &file_loft_history_svc_g_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6039,16 +6039,16 @@ func (b0 StewardshipFilter_builder) Build() *StewardshipFilter {
 	return m0
 }
 
-var File_rove_history_svc_g_proto protoreflect.FileDescriptor
+var File_loft_history_svc_g_proto protoreflect.FileDescriptor
 
-const file_rove_history_svc_g_proto_rawDesc = "" +
+const file_loft_history_svc_g_proto_rawDesc = "" +
 	"\n" +
-	"\x18rove/history_svc.g.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x11patch/patch.proto\x1a\x16rove/asset_svc.g.proto\x1a\x12rove/history.proto\x1a\x14rove/org_svc.g.proto\x1a\x1erove/payday/tenant_svc.g.proto\"\xc3\x04\n" +
+	"\x18loft/history_svc.g.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x16loft/asset_svc.g.proto\x1a\x12loft/history.proto\x1a\x14loft/org_svc.g.proto\x1a\x1eloft/payday/tenant_svc.g.proto\x1a\x11patch/patch.proto\"\xc3\x04\n" +
 	"\x13PlacementAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\x12$\n" +
-	"\x05child\x18\b \x01(\v2\x0e.rove.AssetRefR\x05child\x12&\n" +
-	"\x06parent\x18\t \x01(\v2\x0e.rove.AssetRefR\x06parent\x12\x19\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12$\n" +
+	"\x05child\x18\b \x01(\v2\x0e.loft.AssetRefR\x05child\x12&\n" +
+	"\x06parent\x18\t \x01(\v2\x0e.loft.AssetRefR\x06parent\x12\x19\n" +
 	"\x04mode\x18\n" +
 	" \x01(\tB\x05\xaa\x01\x02\b\x02R\x04mode\x12\x19\n" +
 	"\x04slot\x18\v \x01(\tB\x05\xaa\x01\x02\b\x02R\x04slot\x12\x1c\n" +
@@ -6062,20 +6062,20 @@ const file_rove_history_svc_g_proto_rawDesc = "" +
 	"\rsuperseded_at\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampR\fsupersededAt\x12#\n" +
 	"\rsuperseded_by\x18\x15 \x01(\fR\fsupersededBy\"J\n" +
 	"\x17PlacementAddManyRequest\x12/\n" +
-	"\x05items\x18\x01 \x03(\v2\x19.rove.PlacementAddRequestR\x05items\"A\n" +
+	"\x05items\x18\x01 \x03(\v2\x19.loft.PlacementAddRequestR\x05items\"A\n" +
 	"\x18PlacementAddManyResponse\x12%\n" +
-	"\x05items\x18\x01 \x03(\v2\x0f.rove.PlacementR\x05items\"j\n" +
+	"\x05items\x18\x01 \x03(\v2\x0f.loft.PlacementR\x05items\"j\n" +
 	"\x13PlacementGetRequest\x12$\n" +
-	"\x03ref\x18\x01 \x01(\v2\x12.rove.PlacementRefR\x03ref\x12-\n" +
-	"\x06select\x18\x02 \x01(\v2\x15.rove.PlacementSelectR\x06select\"'\n" +
+	"\x03ref\x18\x01 \x01(\v2\x12.loft.PlacementRefR\x03ref\x12-\n" +
+	"\x06select\x18\x02 \x01(\v2\x15.loft.PlacementSelectR\x06select\"'\n" +
 	"\fPlacementRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
 	"\x03key\"\xda\x03\n" +
 	"\x0fPlacementSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x12.rove.TenantSelectR\x06tenant\x12'\n" +
-	"\x05child\x18\b \x01(\v2\x11.rove.AssetSelectR\x05child\x12)\n" +
-	"\x06parent\x18\t \x01(\v2\x11.rove.AssetSelectR\x06parent\x12\x12\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x12'\n" +
+	"\x05child\x18\b \x01(\v2\x11.loft.AssetSelectR\x05child\x12)\n" +
+	"\x06parent\x18\t \x01(\v2\x11.loft.AssetSelectR\x06parent\x12\x12\n" +
 	"\x04mode\x18\n" +
 	" \x01(\bR\x04mode\x12\x12\n" +
 	"\x04slot\x18\v \x01(\bR\x04slot\x12\x15\n" +
@@ -6090,7 +6090,7 @@ const file_rove_history_svc_g_proto_rawDesc = "" +
 	"\rsuperseded_at\x18\x14 \x01(\bR\fsupersededAt\x12#\n" +
 	"\rsuperseded_by\x18\x15 \x01(\bR\fsupersededBy\"\xef\x04\n" +
 	"\x15PlacementPatchRequest\x12$\n" +
-	"\x03ref\x18\x01 \x01(\v2\x12.rove.PlacementRefR\x03ref\x12\x12\n" +
+	"\x03ref\x18\x01 \x01(\v2\x12.loft.PlacementRefR\x03ref\x12\x12\n" +
 	"\x04mode\x18\x14 \x01(\tR\x04mode\x12\x12\n" +
 	"\x04slot\x18\x16 \x01(\tR\x04slot\x12\x15\n" +
 	"\x06u_from\x18\x18 \x01(\x05R\x05uFrom\x12=\n" +
@@ -6107,28 +6107,28 @@ const file_rove_history_svc_g_proto_rawDesc = "" +
 	"\rsuperseded_by\x18* \x01(\fR\fsupersededBy\x12,\n" +
 	"\x12superseded_by_null\x18+ \x01(\bR\x10supersededByNull\"a\n" +
 	"\x15PlacementApplyRequest\x12$\n" +
-	"\x03ref\x18\x01 \x01(\v2\x12.rove.PlacementRefR\x03ref\x12\"\n" +
+	"\x03ref\x18\x01 \x01(\v2\x12.loft.PlacementRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"0\n" +
 	"\x16PlacementEraseResponse\x12\x16\n" +
 	"\x06erased\x18\x01 \x01(\bR\x06erased\"\xa0\x01\n" +
 	"\x14PlacementListRequest\x12/\n" +
-	"\afilters\x18\x01 \x03(\v2\x15.rove.PlacementFilterR\afilters\x12\x19\n" +
+	"\afilters\x18\x01 \x03(\v2\x15.loft.PlacementFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
 	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
 	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"Y\n" +
 	"\x15PlacementListResponse\x12%\n" +
-	"\x05items\x18\x01 \x03(\v2\x0f.rove.PlacementR\x05items\x12\x19\n" +
+	"\x05items\x18\x01 \x03(\v2\x0f.loft.PlacementR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"\x85\x01\n" +
 	"\x0fPlacementFilter\x12$\n" +
-	"\x03ref\x18\x01 \x01(\v2\x12.rove.PlacementRefR\x03ref\x12$\n" +
-	"\x05child\x18\x02 \x01(\v2\x0e.rove.AssetRefR\x05child\x12&\n" +
-	"\x06parent\x18\x03 \x01(\v2\x0e.rove.AssetRefR\x06parent\"\x85\x05\n" +
+	"\x03ref\x18\x01 \x01(\v2\x12.loft.PlacementRefR\x03ref\x12$\n" +
+	"\x05child\x18\x02 \x01(\v2\x0e.loft.AssetRefR\x05child\x12&\n" +
+	"\x06parent\x18\x03 \x01(\v2\x0e.loft.AssetRefR\x06parent\"\x85\x05\n" +
 	"\x0eLinkAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\x128\n" +
-	"\x06labels\x18\a \x03(\v2 .rove.LinkAddRequest.LabelsEntryR\x06labels\x12&\n" +
-	"\x06source\x18\b \x01(\v2\x0e.rove.AssetRefR\x06source\x12&\n" +
-	"\x06target\x18\t \x01(\v2\x0e.rove.AssetRefR\x06target\x12\x19\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x128\n" +
+	"\x06labels\x18\a \x03(\v2 .loft.LinkAddRequest.LabelsEntryR\x06labels\x12&\n" +
+	"\x06source\x18\b \x01(\v2\x0e.loft.AssetRefR\x06source\x12&\n" +
+	"\x06target\x18\t \x01(\v2\x0e.loft.AssetRefR\x06target\x12\x19\n" +
 	"\x04kind\x18\n" +
 	" \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\x12!\n" +
 	"\brequired\x18\v \x01(\bB\x05\xaa\x01\x02\b\x02R\brequired\x12=\n" +
@@ -6143,18 +6143,18 @@ const file_rove_history_svc_g_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"[\n" +
 	"\x0eLinkGetRequest\x12\x1f\n" +
-	"\x03ref\x18\x01 \x01(\v2\r.rove.LinkRefR\x03ref\x12(\n" +
-	"\x06select\x18\x02 \x01(\v2\x10.rove.LinkSelectR\x06select\"\"\n" +
+	"\x03ref\x18\x01 \x01(\v2\r.loft.LinkRefR\x03ref\x12(\n" +
+	"\x06select\x18\x02 \x01(\v2\x10.loft.LinkSelectR\x06select\"\"\n" +
 	"\aLinkRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
 	"\x03key\"\xcd\x03\n" +
 	"\n" +
 	"LinkSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x12.rove.TenantSelectR\x06tenant\x12\x16\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x12\x16\n" +
 	"\x06labels\x18\a \x01(\bR\x06labels\x12)\n" +
-	"\x06source\x18\b \x01(\v2\x11.rove.AssetSelectR\x06source\x12)\n" +
-	"\x06target\x18\t \x01(\v2\x11.rove.AssetSelectR\x06target\x12\x12\n" +
+	"\x06source\x18\b \x01(\v2\x11.loft.AssetSelectR\x06source\x12)\n" +
+	"\x06target\x18\t \x01(\v2\x11.loft.AssetSelectR\x06target\x12\x12\n" +
 	"\x04kind\x18\n" +
 	" \x01(\bR\x04kind\x12\x1a\n" +
 	"\brequired\x18\v \x01(\bR\brequired\x12!\n" +
@@ -6167,8 +6167,8 @@ const file_rove_history_svc_g_proto_rawDesc = "" +
 	"\rsuperseded_at\x18\x14 \x01(\bR\fsupersededAt\x12#\n" +
 	"\rsuperseded_by\x18\x15 \x01(\bR\fsupersededBy\"\xba\x05\n" +
 	"\x10LinkPatchRequest\x12\x1f\n" +
-	"\x03ref\x18\x01 \x01(\v2\r.rove.LinkRefR\x03ref\x12:\n" +
-	"\x06labels\x18\x0e \x03(\v2\".rove.LinkPatchRequest.LabelsEntryR\x06labels\x12\x12\n" +
+	"\x03ref\x18\x01 \x01(\v2\r.loft.LinkRefR\x03ref\x12:\n" +
+	"\x06labels\x18\x0e \x03(\v2\".loft.LinkPatchRequest.LabelsEntryR\x06labels\x12\x12\n" +
 	"\x04kind\x18\x14 \x01(\tR\x04kind\x12\x1a\n" +
 	"\brequired\x18\x16 \x01(\bR\brequired\x12=\n" +
 	"\fdate_updated\x18\x1a \x01(\v2\x1a.google.protobuf.TimestampR\vdateUpdated\x12,\n" +
@@ -6186,30 +6186,30 @@ const file_rove_history_svc_g_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"W\n" +
 	"\x10LinkApplyRequest\x12\x1f\n" +
-	"\x03ref\x18\x01 \x01(\v2\r.rove.LinkRefR\x03ref\x12\"\n" +
+	"\x03ref\x18\x01 \x01(\v2\r.loft.LinkRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"+\n" +
 	"\x11LinkEraseResponse\x12\x16\n" +
 	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x96\x01\n" +
 	"\x0fLinkListRequest\x12*\n" +
-	"\afilters\x18\x01 \x03(\v2\x10.rove.LinkFilterR\afilters\x12\x19\n" +
+	"\afilters\x18\x01 \x03(\v2\x10.loft.LinkFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
 	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
 	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"O\n" +
 	"\x10LinkListResponse\x12 \n" +
 	"\x05items\x18\x01 \x03(\v2\n" +
-	".rove.LinkR\x05items\x12\x19\n" +
+	".loft.LinkR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"\x91\x01\n" +
 	"\n" +
 	"LinkFilter\x12\x1f\n" +
-	"\x03ref\x18\x01 \x01(\v2\r.rove.LinkRefR\x03ref\x12&\n" +
-	"\x06source\x18\x02 \x01(\v2\x0e.rove.AssetRefR\x06source\x12&\n" +
-	"\x06target\x18\x03 \x01(\v2\x0e.rove.AssetRefR\x06target\x12\x12\n" +
+	"\x03ref\x18\x01 \x01(\v2\r.loft.LinkRefR\x03ref\x12&\n" +
+	"\x06source\x18\x02 \x01(\v2\x0e.loft.AssetRefR\x06source\x12&\n" +
+	"\x06target\x18\x03 \x01(\v2\x0e.loft.AssetRefR\x06target\x12\x12\n" +
 	"\x04kind\x18\x04 \x01(\tR\x04kind\"\xf0\x03\n" +
 	"\x15StewardshipAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\x12$\n" +
-	"\x05asset\x18\b \x01(\v2\x0e.rove.AssetRefR\x05asset\x12$\n" +
-	"\x05party\x18\t \x01(\v2\x0e.rove.PartyRefR\x05party\x12\x19\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12$\n" +
+	"\x05asset\x18\b \x01(\v2\x0e.loft.AssetRefR\x05asset\x12$\n" +
+	"\x05party\x18\t \x01(\v2\x0e.loft.PartyRefR\x05party\x12\x19\n" +
 	"\x04role\x18\n" +
 	" \x01(\tB\x05\xaa\x01\x02\b\x02R\x04role\x12=\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\x129\n" +
@@ -6220,16 +6220,16 @@ const file_rove_history_svc_g_proto_rawDesc = "" +
 	"\rsuperseded_at\x18\x14 \x01(\v2\x1a.google.protobuf.TimestampR\fsupersededAt\x12#\n" +
 	"\rsuperseded_by\x18\x15 \x01(\fR\fsupersededBy\"p\n" +
 	"\x15StewardshipGetRequest\x12&\n" +
-	"\x03ref\x18\x01 \x01(\v2\x14.rove.StewardshipRefR\x03ref\x12/\n" +
-	"\x06select\x18\x02 \x01(\v2\x17.rove.StewardshipSelectR\x06select\")\n" +
+	"\x03ref\x18\x01 \x01(\v2\x14.loft.StewardshipRefR\x03ref\x12/\n" +
+	"\x06select\x18\x02 \x01(\v2\x17.loft.StewardshipSelectR\x06select\")\n" +
 	"\x0eStewardshipRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
 	"\x03key\"\x9c\x03\n" +
 	"\x11StewardshipSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x12.rove.TenantSelectR\x06tenant\x12'\n" +
-	"\x05asset\x18\b \x01(\v2\x11.rove.AssetSelectR\x05asset\x12'\n" +
-	"\x05party\x18\t \x01(\v2\x11.rove.PartySelectR\x05party\x12\x12\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x12'\n" +
+	"\x05asset\x18\b \x01(\v2\x11.loft.AssetSelectR\x05asset\x12'\n" +
+	"\x05party\x18\t \x01(\v2\x11.loft.PartySelectR\x05party\x12\x12\n" +
 	"\x04role\x18\n" +
 	" \x01(\bR\x04role\x12!\n" +
 	"\fdate_updated\x18\r \x01(\bR\vdateUpdated\x12!\n" +
@@ -6241,7 +6241,7 @@ const file_rove_history_svc_g_proto_rawDesc = "" +
 	"\rsuperseded_at\x18\x14 \x01(\bR\fsupersededAt\x12#\n" +
 	"\rsuperseded_by\x18\x15 \x01(\bR\fsupersededBy\"\xb5\x04\n" +
 	"\x17StewardshipPatchRequest\x12&\n" +
-	"\x03ref\x18\x01 \x01(\v2\x14.rove.StewardshipRefR\x03ref\x12\x12\n" +
+	"\x03ref\x18\x01 \x01(\v2\x14.loft.StewardshipRefR\x03ref\x12\x12\n" +
 	"\x04role\x18\x14 \x01(\tR\x04role\x12=\n" +
 	"\fdate_updated\x18\x1a \x01(\v2\x1a.google.protobuf.TimestampR\vdateUpdated\x12,\n" +
 	"\x12date_updated_force\x18\x1b \x01(\bR\x10dateUpdatedForce\x129\n" +
@@ -6255,213 +6255,213 @@ const file_rove_history_svc_g_proto_rawDesc = "" +
 	"\rsuperseded_by\x18* \x01(\fR\fsupersededBy\x12,\n" +
 	"\x12superseded_by_null\x18+ \x01(\bR\x10supersededByNull\"e\n" +
 	"\x17StewardshipApplyRequest\x12&\n" +
-	"\x03ref\x18\x01 \x01(\v2\x14.rove.StewardshipRefR\x03ref\x12\"\n" +
+	"\x03ref\x18\x01 \x01(\v2\x14.loft.StewardshipRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"2\n" +
 	"\x18StewardshipEraseResponse\x12\x16\n" +
 	"\x06erased\x18\x01 \x01(\bR\x06erased\"\xa4\x01\n" +
 	"\x16StewardshipListRequest\x121\n" +
-	"\afilters\x18\x01 \x03(\v2\x17.rove.StewardshipFilterR\afilters\x12\x19\n" +
+	"\afilters\x18\x01 \x03(\v2\x17.loft.StewardshipFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
 	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
 	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"]\n" +
 	"\x17StewardshipListResponse\x12'\n" +
-	"\x05items\x18\x01 \x03(\v2\x11.rove.StewardshipR\x05items\x12\x19\n" +
+	"\x05items\x18\x01 \x03(\v2\x11.loft.StewardshipR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"\x9b\x01\n" +
 	"\x11StewardshipFilter\x12&\n" +
-	"\x03ref\x18\x01 \x01(\v2\x14.rove.StewardshipRefR\x03ref\x12$\n" +
-	"\x05asset\x18\x02 \x01(\v2\x0e.rove.AssetRefR\x05asset\x12$\n" +
-	"\x05party\x18\x03 \x01(\v2\x0e.rove.PartyRefR\x05party\x12\x12\n" +
+	"\x03ref\x18\x01 \x01(\v2\x14.loft.StewardshipRefR\x03ref\x12$\n" +
+	"\x05asset\x18\x02 \x01(\v2\x0e.loft.AssetRefR\x05asset\x12$\n" +
+	"\x05party\x18\x03 \x01(\v2\x0e.loft.PartyRefR\x05party\x12\x12\n" +
 	"\x04role\x18\x04 \x01(\tR\x04role2\xac\x03\n" +
 	"\x10PlacementService\x121\n" +
-	"\x03Add\x12\x19.rove.PlacementAddRequest\x1a\x0f.rove.Placement\x12H\n" +
-	"\aAddMany\x12\x1d.rove.PlacementAddManyRequest\x1a\x1e.rove.PlacementAddManyResponse\x121\n" +
-	"\x03Get\x12\x19.rove.PlacementGetRequest\x1a\x0f.rove.Placement\x125\n" +
-	"\x05Patch\x12\x1b.rove.PlacementPatchRequest\x1a\x0f.rove.Placement\x125\n" +
-	"\x05Apply\x12\x1b.rove.PlacementApplyRequest\x1a\x0f.rove.Placement\x129\n" +
-	"\x05Erase\x12\x12.rove.PlacementRef\x1a\x1c.rove.PlacementEraseResponse\x12?\n" +
-	"\x04List\x12\x1a.rove.PlacementListRequest\x1a\x1b.rove.PlacementListResponse2\xa1\x02\n" +
+	"\x03Add\x12\x19.loft.PlacementAddRequest\x1a\x0f.loft.Placement\x12H\n" +
+	"\aAddMany\x12\x1d.loft.PlacementAddManyRequest\x1a\x1e.loft.PlacementAddManyResponse\x121\n" +
+	"\x03Get\x12\x19.loft.PlacementGetRequest\x1a\x0f.loft.Placement\x125\n" +
+	"\x05Patch\x12\x1b.loft.PlacementPatchRequest\x1a\x0f.loft.Placement\x125\n" +
+	"\x05Apply\x12\x1b.loft.PlacementApplyRequest\x1a\x0f.loft.Placement\x129\n" +
+	"\x05Erase\x12\x12.loft.PlacementRef\x1a\x1c.loft.PlacementEraseResponse\x12?\n" +
+	"\x04List\x12\x1a.loft.PlacementListRequest\x1a\x1b.loft.PlacementListResponse2\xa1\x02\n" +
 	"\vLinkService\x12'\n" +
-	"\x03Add\x12\x14.rove.LinkAddRequest\x1a\n" +
-	".rove.Link\x12'\n" +
-	"\x03Get\x12\x14.rove.LinkGetRequest\x1a\n" +
-	".rove.Link\x12+\n" +
-	"\x05Patch\x12\x16.rove.LinkPatchRequest\x1a\n" +
-	".rove.Link\x12+\n" +
-	"\x05Apply\x12\x16.rove.LinkApplyRequest\x1a\n" +
-	".rove.Link\x12/\n" +
-	"\x05Erase\x12\r.rove.LinkRef\x1a\x17.rove.LinkEraseResponse\x125\n" +
-	"\x04List\x12\x15.rove.LinkListRequest\x1a\x16.rove.LinkListResponse2\xfc\x02\n" +
+	"\x03Add\x12\x14.loft.LinkAddRequest\x1a\n" +
+	".loft.Link\x12'\n" +
+	"\x03Get\x12\x14.loft.LinkGetRequest\x1a\n" +
+	".loft.Link\x12+\n" +
+	"\x05Patch\x12\x16.loft.LinkPatchRequest\x1a\n" +
+	".loft.Link\x12+\n" +
+	"\x05Apply\x12\x16.loft.LinkApplyRequest\x1a\n" +
+	".loft.Link\x12/\n" +
+	"\x05Erase\x12\r.loft.LinkRef\x1a\x17.loft.LinkEraseResponse\x125\n" +
+	"\x04List\x12\x15.loft.LinkListRequest\x1a\x16.loft.LinkListResponse2\xfc\x02\n" +
 	"\x12StewardshipService\x125\n" +
-	"\x03Add\x12\x1b.rove.StewardshipAddRequest\x1a\x11.rove.Stewardship\x125\n" +
-	"\x03Get\x12\x1b.rove.StewardshipGetRequest\x1a\x11.rove.Stewardship\x129\n" +
-	"\x05Patch\x12\x1d.rove.StewardshipPatchRequest\x1a\x11.rove.Stewardship\x129\n" +
-	"\x05Apply\x12\x1d.rove.StewardshipApplyRequest\x1a\x11.rove.Stewardship\x12=\n" +
-	"\x05Erase\x12\x14.rove.StewardshipRef\x1a\x1e.rove.StewardshipEraseResponse\x12C\n" +
-	"\x04List\x12\x1c.rove.StewardshipListRequest\x1a\x1d.rove.StewardshipListResponseB\x1aZ\x18github.com/lesomnus/roveb\beditionsp\xe8\a"
+	"\x03Add\x12\x1b.loft.StewardshipAddRequest\x1a\x11.loft.Stewardship\x125\n" +
+	"\x03Get\x12\x1b.loft.StewardshipGetRequest\x1a\x11.loft.Stewardship\x129\n" +
+	"\x05Patch\x12\x1d.loft.StewardshipPatchRequest\x1a\x11.loft.Stewardship\x129\n" +
+	"\x05Apply\x12\x1d.loft.StewardshipApplyRequest\x1a\x11.loft.Stewardship\x12=\n" +
+	"\x05Erase\x12\x14.loft.StewardshipRef\x1a\x1e.loft.StewardshipEraseResponse\x12C\n" +
+	"\x04List\x12\x1c.loft.StewardshipListRequest\x1a\x1d.loft.StewardshipListResponseB\x1aZ\x18github.com/lesomnus/loftb\beditionsp\xe8\a"
 
-var file_rove_history_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 34)
-var file_rove_history_svc_g_proto_goTypes = []any{
-	(*PlacementAddRequest)(nil),      // 0: rove.PlacementAddRequest
-	(*PlacementAddManyRequest)(nil),  // 1: rove.PlacementAddManyRequest
-	(*PlacementAddManyResponse)(nil), // 2: rove.PlacementAddManyResponse
-	(*PlacementGetRequest)(nil),      // 3: rove.PlacementGetRequest
-	(*PlacementRef)(nil),             // 4: rove.PlacementRef
-	(*PlacementSelect)(nil),          // 5: rove.PlacementSelect
-	(*PlacementPatchRequest)(nil),    // 6: rove.PlacementPatchRequest
-	(*PlacementApplyRequest)(nil),    // 7: rove.PlacementApplyRequest
-	(*PlacementEraseResponse)(nil),   // 8: rove.PlacementEraseResponse
-	(*PlacementListRequest)(nil),     // 9: rove.PlacementListRequest
-	(*PlacementListResponse)(nil),    // 10: rove.PlacementListResponse
-	(*PlacementFilter)(nil),          // 11: rove.PlacementFilter
-	(*LinkAddRequest)(nil),           // 12: rove.LinkAddRequest
-	(*LinkGetRequest)(nil),           // 13: rove.LinkGetRequest
-	(*LinkRef)(nil),                  // 14: rove.LinkRef
-	(*LinkSelect)(nil),               // 15: rove.LinkSelect
-	(*LinkPatchRequest)(nil),         // 16: rove.LinkPatchRequest
-	(*LinkApplyRequest)(nil),         // 17: rove.LinkApplyRequest
-	(*LinkEraseResponse)(nil),        // 18: rove.LinkEraseResponse
-	(*LinkListRequest)(nil),          // 19: rove.LinkListRequest
-	(*LinkListResponse)(nil),         // 20: rove.LinkListResponse
-	(*LinkFilter)(nil),               // 21: rove.LinkFilter
-	(*StewardshipAddRequest)(nil),    // 22: rove.StewardshipAddRequest
-	(*StewardshipGetRequest)(nil),    // 23: rove.StewardshipGetRequest
-	(*StewardshipRef)(nil),           // 24: rove.StewardshipRef
-	(*StewardshipSelect)(nil),        // 25: rove.StewardshipSelect
-	(*StewardshipPatchRequest)(nil),  // 26: rove.StewardshipPatchRequest
-	(*StewardshipApplyRequest)(nil),  // 27: rove.StewardshipApplyRequest
-	(*StewardshipEraseResponse)(nil), // 28: rove.StewardshipEraseResponse
-	(*StewardshipListRequest)(nil),   // 29: rove.StewardshipListRequest
-	(*StewardshipListResponse)(nil),  // 30: rove.StewardshipListResponse
-	(*StewardshipFilter)(nil),        // 31: rove.StewardshipFilter
-	nil,                              // 32: rove.LinkAddRequest.LabelsEntry
-	nil,                              // 33: rove.LinkPatchRequest.LabelsEntry
-	(*TenantRef)(nil),                // 34: rove.TenantRef
-	(*AssetRef)(nil),                 // 35: rove.AssetRef
+var file_loft_history_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 34)
+var file_loft_history_svc_g_proto_goTypes = []any{
+	(*PlacementAddRequest)(nil),      // 0: loft.PlacementAddRequest
+	(*PlacementAddManyRequest)(nil),  // 1: loft.PlacementAddManyRequest
+	(*PlacementAddManyResponse)(nil), // 2: loft.PlacementAddManyResponse
+	(*PlacementGetRequest)(nil),      // 3: loft.PlacementGetRequest
+	(*PlacementRef)(nil),             // 4: loft.PlacementRef
+	(*PlacementSelect)(nil),          // 5: loft.PlacementSelect
+	(*PlacementPatchRequest)(nil),    // 6: loft.PlacementPatchRequest
+	(*PlacementApplyRequest)(nil),    // 7: loft.PlacementApplyRequest
+	(*PlacementEraseResponse)(nil),   // 8: loft.PlacementEraseResponse
+	(*PlacementListRequest)(nil),     // 9: loft.PlacementListRequest
+	(*PlacementListResponse)(nil),    // 10: loft.PlacementListResponse
+	(*PlacementFilter)(nil),          // 11: loft.PlacementFilter
+	(*LinkAddRequest)(nil),           // 12: loft.LinkAddRequest
+	(*LinkGetRequest)(nil),           // 13: loft.LinkGetRequest
+	(*LinkRef)(nil),                  // 14: loft.LinkRef
+	(*LinkSelect)(nil),               // 15: loft.LinkSelect
+	(*LinkPatchRequest)(nil),         // 16: loft.LinkPatchRequest
+	(*LinkApplyRequest)(nil),         // 17: loft.LinkApplyRequest
+	(*LinkEraseResponse)(nil),        // 18: loft.LinkEraseResponse
+	(*LinkListRequest)(nil),          // 19: loft.LinkListRequest
+	(*LinkListResponse)(nil),         // 20: loft.LinkListResponse
+	(*LinkFilter)(nil),               // 21: loft.LinkFilter
+	(*StewardshipAddRequest)(nil),    // 22: loft.StewardshipAddRequest
+	(*StewardshipGetRequest)(nil),    // 23: loft.StewardshipGetRequest
+	(*StewardshipRef)(nil),           // 24: loft.StewardshipRef
+	(*StewardshipSelect)(nil),        // 25: loft.StewardshipSelect
+	(*StewardshipPatchRequest)(nil),  // 26: loft.StewardshipPatchRequest
+	(*StewardshipApplyRequest)(nil),  // 27: loft.StewardshipApplyRequest
+	(*StewardshipEraseResponse)(nil), // 28: loft.StewardshipEraseResponse
+	(*StewardshipListRequest)(nil),   // 29: loft.StewardshipListRequest
+	(*StewardshipListResponse)(nil),  // 30: loft.StewardshipListResponse
+	(*StewardshipFilter)(nil),        // 31: loft.StewardshipFilter
+	nil,                              // 32: loft.LinkAddRequest.LabelsEntry
+	nil,                              // 33: loft.LinkPatchRequest.LabelsEntry
+	(*TenantRef)(nil),                // 34: loft.TenantRef
+	(*AssetRef)(nil),                 // 35: loft.AssetRef
 	(*timestamppb.Timestamp)(nil),    // 36: google.protobuf.Timestamp
-	(*Placement)(nil),                // 37: rove.Placement
-	(*TenantSelect)(nil),             // 38: rove.TenantSelect
-	(*AssetSelect)(nil),              // 39: rove.AssetSelect
+	(*Placement)(nil),                // 37: loft.Placement
+	(*TenantSelect)(nil),             // 38: loft.TenantSelect
+	(*AssetSelect)(nil),              // 39: loft.AssetSelect
 	(*patchpb.Patch)(nil),            // 40: patch.Patch
-	(*Link)(nil),                     // 41: rove.Link
-	(*PartyRef)(nil),                 // 42: rove.PartyRef
-	(*PartySelect)(nil),              // 43: rove.PartySelect
-	(*Stewardship)(nil),              // 44: rove.Stewardship
+	(*Link)(nil),                     // 41: loft.Link
+	(*PartyRef)(nil),                 // 42: loft.PartyRef
+	(*PartySelect)(nil),              // 43: loft.PartySelect
+	(*Stewardship)(nil),              // 44: loft.Stewardship
 }
-var file_rove_history_svc_g_proto_depIdxs = []int32{
-	34, // 0: rove.PlacementAddRequest.tenant:type_name -> rove.TenantRef
-	35, // 1: rove.PlacementAddRequest.child:type_name -> rove.AssetRef
-	35, // 2: rove.PlacementAddRequest.parent:type_name -> rove.AssetRef
-	36, // 3: rove.PlacementAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	36, // 4: rove.PlacementAddRequest.valid_from:type_name -> google.protobuf.Timestamp
-	36, // 5: rove.PlacementAddRequest.valid_to:type_name -> google.protobuf.Timestamp
-	36, // 6: rove.PlacementAddRequest.superseded_at:type_name -> google.protobuf.Timestamp
-	0,  // 7: rove.PlacementAddManyRequest.items:type_name -> rove.PlacementAddRequest
-	37, // 8: rove.PlacementAddManyResponse.items:type_name -> rove.Placement
-	4,  // 9: rove.PlacementGetRequest.ref:type_name -> rove.PlacementRef
-	5,  // 10: rove.PlacementGetRequest.select:type_name -> rove.PlacementSelect
-	38, // 11: rove.PlacementSelect.tenant:type_name -> rove.TenantSelect
-	39, // 12: rove.PlacementSelect.child:type_name -> rove.AssetSelect
-	39, // 13: rove.PlacementSelect.parent:type_name -> rove.AssetSelect
-	4,  // 14: rove.PlacementPatchRequest.ref:type_name -> rove.PlacementRef
-	36, // 15: rove.PlacementPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	36, // 16: rove.PlacementPatchRequest.valid_from:type_name -> google.protobuf.Timestamp
-	36, // 17: rove.PlacementPatchRequest.valid_to:type_name -> google.protobuf.Timestamp
-	36, // 18: rove.PlacementPatchRequest.superseded_at:type_name -> google.protobuf.Timestamp
-	4,  // 19: rove.PlacementApplyRequest.ref:type_name -> rove.PlacementRef
-	40, // 20: rove.PlacementApplyRequest.patch:type_name -> patch.Patch
-	11, // 21: rove.PlacementListRequest.filters:type_name -> rove.PlacementFilter
-	37, // 22: rove.PlacementListResponse.items:type_name -> rove.Placement
-	4,  // 23: rove.PlacementFilter.ref:type_name -> rove.PlacementRef
-	35, // 24: rove.PlacementFilter.child:type_name -> rove.AssetRef
-	35, // 25: rove.PlacementFilter.parent:type_name -> rove.AssetRef
-	34, // 26: rove.LinkAddRequest.tenant:type_name -> rove.TenantRef
-	32, // 27: rove.LinkAddRequest.labels:type_name -> rove.LinkAddRequest.LabelsEntry
-	35, // 28: rove.LinkAddRequest.source:type_name -> rove.AssetRef
-	35, // 29: rove.LinkAddRequest.target:type_name -> rove.AssetRef
-	36, // 30: rove.LinkAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	36, // 31: rove.LinkAddRequest.valid_from:type_name -> google.protobuf.Timestamp
-	36, // 32: rove.LinkAddRequest.valid_to:type_name -> google.protobuf.Timestamp
-	36, // 33: rove.LinkAddRequest.superseded_at:type_name -> google.protobuf.Timestamp
-	14, // 34: rove.LinkGetRequest.ref:type_name -> rove.LinkRef
-	15, // 35: rove.LinkGetRequest.select:type_name -> rove.LinkSelect
-	38, // 36: rove.LinkSelect.tenant:type_name -> rove.TenantSelect
-	39, // 37: rove.LinkSelect.source:type_name -> rove.AssetSelect
-	39, // 38: rove.LinkSelect.target:type_name -> rove.AssetSelect
-	14, // 39: rove.LinkPatchRequest.ref:type_name -> rove.LinkRef
-	33, // 40: rove.LinkPatchRequest.labels:type_name -> rove.LinkPatchRequest.LabelsEntry
-	36, // 41: rove.LinkPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	36, // 42: rove.LinkPatchRequest.valid_from:type_name -> google.protobuf.Timestamp
-	36, // 43: rove.LinkPatchRequest.valid_to:type_name -> google.protobuf.Timestamp
-	36, // 44: rove.LinkPatchRequest.superseded_at:type_name -> google.protobuf.Timestamp
-	14, // 45: rove.LinkApplyRequest.ref:type_name -> rove.LinkRef
-	40, // 46: rove.LinkApplyRequest.patch:type_name -> patch.Patch
-	21, // 47: rove.LinkListRequest.filters:type_name -> rove.LinkFilter
-	41, // 48: rove.LinkListResponse.items:type_name -> rove.Link
-	14, // 49: rove.LinkFilter.ref:type_name -> rove.LinkRef
-	35, // 50: rove.LinkFilter.source:type_name -> rove.AssetRef
-	35, // 51: rove.LinkFilter.target:type_name -> rove.AssetRef
-	34, // 52: rove.StewardshipAddRequest.tenant:type_name -> rove.TenantRef
-	35, // 53: rove.StewardshipAddRequest.asset:type_name -> rove.AssetRef
-	42, // 54: rove.StewardshipAddRequest.party:type_name -> rove.PartyRef
-	36, // 55: rove.StewardshipAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	36, // 56: rove.StewardshipAddRequest.valid_from:type_name -> google.protobuf.Timestamp
-	36, // 57: rove.StewardshipAddRequest.valid_to:type_name -> google.protobuf.Timestamp
-	36, // 58: rove.StewardshipAddRequest.superseded_at:type_name -> google.protobuf.Timestamp
-	24, // 59: rove.StewardshipGetRequest.ref:type_name -> rove.StewardshipRef
-	25, // 60: rove.StewardshipGetRequest.select:type_name -> rove.StewardshipSelect
-	38, // 61: rove.StewardshipSelect.tenant:type_name -> rove.TenantSelect
-	39, // 62: rove.StewardshipSelect.asset:type_name -> rove.AssetSelect
-	43, // 63: rove.StewardshipSelect.party:type_name -> rove.PartySelect
-	24, // 64: rove.StewardshipPatchRequest.ref:type_name -> rove.StewardshipRef
-	36, // 65: rove.StewardshipPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	36, // 66: rove.StewardshipPatchRequest.valid_from:type_name -> google.protobuf.Timestamp
-	36, // 67: rove.StewardshipPatchRequest.valid_to:type_name -> google.protobuf.Timestamp
-	36, // 68: rove.StewardshipPatchRequest.superseded_at:type_name -> google.protobuf.Timestamp
-	24, // 69: rove.StewardshipApplyRequest.ref:type_name -> rove.StewardshipRef
-	40, // 70: rove.StewardshipApplyRequest.patch:type_name -> patch.Patch
-	31, // 71: rove.StewardshipListRequest.filters:type_name -> rove.StewardshipFilter
-	44, // 72: rove.StewardshipListResponse.items:type_name -> rove.Stewardship
-	24, // 73: rove.StewardshipFilter.ref:type_name -> rove.StewardshipRef
-	35, // 74: rove.StewardshipFilter.asset:type_name -> rove.AssetRef
-	42, // 75: rove.StewardshipFilter.party:type_name -> rove.PartyRef
-	0,  // 76: rove.PlacementService.Add:input_type -> rove.PlacementAddRequest
-	1,  // 77: rove.PlacementService.AddMany:input_type -> rove.PlacementAddManyRequest
-	3,  // 78: rove.PlacementService.Get:input_type -> rove.PlacementGetRequest
-	6,  // 79: rove.PlacementService.Patch:input_type -> rove.PlacementPatchRequest
-	7,  // 80: rove.PlacementService.Apply:input_type -> rove.PlacementApplyRequest
-	4,  // 81: rove.PlacementService.Erase:input_type -> rove.PlacementRef
-	9,  // 82: rove.PlacementService.List:input_type -> rove.PlacementListRequest
-	12, // 83: rove.LinkService.Add:input_type -> rove.LinkAddRequest
-	13, // 84: rove.LinkService.Get:input_type -> rove.LinkGetRequest
-	16, // 85: rove.LinkService.Patch:input_type -> rove.LinkPatchRequest
-	17, // 86: rove.LinkService.Apply:input_type -> rove.LinkApplyRequest
-	14, // 87: rove.LinkService.Erase:input_type -> rove.LinkRef
-	19, // 88: rove.LinkService.List:input_type -> rove.LinkListRequest
-	22, // 89: rove.StewardshipService.Add:input_type -> rove.StewardshipAddRequest
-	23, // 90: rove.StewardshipService.Get:input_type -> rove.StewardshipGetRequest
-	26, // 91: rove.StewardshipService.Patch:input_type -> rove.StewardshipPatchRequest
-	27, // 92: rove.StewardshipService.Apply:input_type -> rove.StewardshipApplyRequest
-	24, // 93: rove.StewardshipService.Erase:input_type -> rove.StewardshipRef
-	29, // 94: rove.StewardshipService.List:input_type -> rove.StewardshipListRequest
-	37, // 95: rove.PlacementService.Add:output_type -> rove.Placement
-	2,  // 96: rove.PlacementService.AddMany:output_type -> rove.PlacementAddManyResponse
-	37, // 97: rove.PlacementService.Get:output_type -> rove.Placement
-	37, // 98: rove.PlacementService.Patch:output_type -> rove.Placement
-	37, // 99: rove.PlacementService.Apply:output_type -> rove.Placement
-	8,  // 100: rove.PlacementService.Erase:output_type -> rove.PlacementEraseResponse
-	10, // 101: rove.PlacementService.List:output_type -> rove.PlacementListResponse
-	41, // 102: rove.LinkService.Add:output_type -> rove.Link
-	41, // 103: rove.LinkService.Get:output_type -> rove.Link
-	41, // 104: rove.LinkService.Patch:output_type -> rove.Link
-	41, // 105: rove.LinkService.Apply:output_type -> rove.Link
-	18, // 106: rove.LinkService.Erase:output_type -> rove.LinkEraseResponse
-	20, // 107: rove.LinkService.List:output_type -> rove.LinkListResponse
-	44, // 108: rove.StewardshipService.Add:output_type -> rove.Stewardship
-	44, // 109: rove.StewardshipService.Get:output_type -> rove.Stewardship
-	44, // 110: rove.StewardshipService.Patch:output_type -> rove.Stewardship
-	44, // 111: rove.StewardshipService.Apply:output_type -> rove.Stewardship
-	28, // 112: rove.StewardshipService.Erase:output_type -> rove.StewardshipEraseResponse
-	30, // 113: rove.StewardshipService.List:output_type -> rove.StewardshipListResponse
+var file_loft_history_svc_g_proto_depIdxs = []int32{
+	34, // 0: loft.PlacementAddRequest.tenant:type_name -> loft.TenantRef
+	35, // 1: loft.PlacementAddRequest.child:type_name -> loft.AssetRef
+	35, // 2: loft.PlacementAddRequest.parent:type_name -> loft.AssetRef
+	36, // 3: loft.PlacementAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	36, // 4: loft.PlacementAddRequest.valid_from:type_name -> google.protobuf.Timestamp
+	36, // 5: loft.PlacementAddRequest.valid_to:type_name -> google.protobuf.Timestamp
+	36, // 6: loft.PlacementAddRequest.superseded_at:type_name -> google.protobuf.Timestamp
+	0,  // 7: loft.PlacementAddManyRequest.items:type_name -> loft.PlacementAddRequest
+	37, // 8: loft.PlacementAddManyResponse.items:type_name -> loft.Placement
+	4,  // 9: loft.PlacementGetRequest.ref:type_name -> loft.PlacementRef
+	5,  // 10: loft.PlacementGetRequest.select:type_name -> loft.PlacementSelect
+	38, // 11: loft.PlacementSelect.tenant:type_name -> loft.TenantSelect
+	39, // 12: loft.PlacementSelect.child:type_name -> loft.AssetSelect
+	39, // 13: loft.PlacementSelect.parent:type_name -> loft.AssetSelect
+	4,  // 14: loft.PlacementPatchRequest.ref:type_name -> loft.PlacementRef
+	36, // 15: loft.PlacementPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	36, // 16: loft.PlacementPatchRequest.valid_from:type_name -> google.protobuf.Timestamp
+	36, // 17: loft.PlacementPatchRequest.valid_to:type_name -> google.protobuf.Timestamp
+	36, // 18: loft.PlacementPatchRequest.superseded_at:type_name -> google.protobuf.Timestamp
+	4,  // 19: loft.PlacementApplyRequest.ref:type_name -> loft.PlacementRef
+	40, // 20: loft.PlacementApplyRequest.patch:type_name -> patch.Patch
+	11, // 21: loft.PlacementListRequest.filters:type_name -> loft.PlacementFilter
+	37, // 22: loft.PlacementListResponse.items:type_name -> loft.Placement
+	4,  // 23: loft.PlacementFilter.ref:type_name -> loft.PlacementRef
+	35, // 24: loft.PlacementFilter.child:type_name -> loft.AssetRef
+	35, // 25: loft.PlacementFilter.parent:type_name -> loft.AssetRef
+	34, // 26: loft.LinkAddRequest.tenant:type_name -> loft.TenantRef
+	32, // 27: loft.LinkAddRequest.labels:type_name -> loft.LinkAddRequest.LabelsEntry
+	35, // 28: loft.LinkAddRequest.source:type_name -> loft.AssetRef
+	35, // 29: loft.LinkAddRequest.target:type_name -> loft.AssetRef
+	36, // 30: loft.LinkAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	36, // 31: loft.LinkAddRequest.valid_from:type_name -> google.protobuf.Timestamp
+	36, // 32: loft.LinkAddRequest.valid_to:type_name -> google.protobuf.Timestamp
+	36, // 33: loft.LinkAddRequest.superseded_at:type_name -> google.protobuf.Timestamp
+	14, // 34: loft.LinkGetRequest.ref:type_name -> loft.LinkRef
+	15, // 35: loft.LinkGetRequest.select:type_name -> loft.LinkSelect
+	38, // 36: loft.LinkSelect.tenant:type_name -> loft.TenantSelect
+	39, // 37: loft.LinkSelect.source:type_name -> loft.AssetSelect
+	39, // 38: loft.LinkSelect.target:type_name -> loft.AssetSelect
+	14, // 39: loft.LinkPatchRequest.ref:type_name -> loft.LinkRef
+	33, // 40: loft.LinkPatchRequest.labels:type_name -> loft.LinkPatchRequest.LabelsEntry
+	36, // 41: loft.LinkPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	36, // 42: loft.LinkPatchRequest.valid_from:type_name -> google.protobuf.Timestamp
+	36, // 43: loft.LinkPatchRequest.valid_to:type_name -> google.protobuf.Timestamp
+	36, // 44: loft.LinkPatchRequest.superseded_at:type_name -> google.protobuf.Timestamp
+	14, // 45: loft.LinkApplyRequest.ref:type_name -> loft.LinkRef
+	40, // 46: loft.LinkApplyRequest.patch:type_name -> patch.Patch
+	21, // 47: loft.LinkListRequest.filters:type_name -> loft.LinkFilter
+	41, // 48: loft.LinkListResponse.items:type_name -> loft.Link
+	14, // 49: loft.LinkFilter.ref:type_name -> loft.LinkRef
+	35, // 50: loft.LinkFilter.source:type_name -> loft.AssetRef
+	35, // 51: loft.LinkFilter.target:type_name -> loft.AssetRef
+	34, // 52: loft.StewardshipAddRequest.tenant:type_name -> loft.TenantRef
+	35, // 53: loft.StewardshipAddRequest.asset:type_name -> loft.AssetRef
+	42, // 54: loft.StewardshipAddRequest.party:type_name -> loft.PartyRef
+	36, // 55: loft.StewardshipAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	36, // 56: loft.StewardshipAddRequest.valid_from:type_name -> google.protobuf.Timestamp
+	36, // 57: loft.StewardshipAddRequest.valid_to:type_name -> google.protobuf.Timestamp
+	36, // 58: loft.StewardshipAddRequest.superseded_at:type_name -> google.protobuf.Timestamp
+	24, // 59: loft.StewardshipGetRequest.ref:type_name -> loft.StewardshipRef
+	25, // 60: loft.StewardshipGetRequest.select:type_name -> loft.StewardshipSelect
+	38, // 61: loft.StewardshipSelect.tenant:type_name -> loft.TenantSelect
+	39, // 62: loft.StewardshipSelect.asset:type_name -> loft.AssetSelect
+	43, // 63: loft.StewardshipSelect.party:type_name -> loft.PartySelect
+	24, // 64: loft.StewardshipPatchRequest.ref:type_name -> loft.StewardshipRef
+	36, // 65: loft.StewardshipPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	36, // 66: loft.StewardshipPatchRequest.valid_from:type_name -> google.protobuf.Timestamp
+	36, // 67: loft.StewardshipPatchRequest.valid_to:type_name -> google.protobuf.Timestamp
+	36, // 68: loft.StewardshipPatchRequest.superseded_at:type_name -> google.protobuf.Timestamp
+	24, // 69: loft.StewardshipApplyRequest.ref:type_name -> loft.StewardshipRef
+	40, // 70: loft.StewardshipApplyRequest.patch:type_name -> patch.Patch
+	31, // 71: loft.StewardshipListRequest.filters:type_name -> loft.StewardshipFilter
+	44, // 72: loft.StewardshipListResponse.items:type_name -> loft.Stewardship
+	24, // 73: loft.StewardshipFilter.ref:type_name -> loft.StewardshipRef
+	35, // 74: loft.StewardshipFilter.asset:type_name -> loft.AssetRef
+	42, // 75: loft.StewardshipFilter.party:type_name -> loft.PartyRef
+	0,  // 76: loft.PlacementService.Add:input_type -> loft.PlacementAddRequest
+	1,  // 77: loft.PlacementService.AddMany:input_type -> loft.PlacementAddManyRequest
+	3,  // 78: loft.PlacementService.Get:input_type -> loft.PlacementGetRequest
+	6,  // 79: loft.PlacementService.Patch:input_type -> loft.PlacementPatchRequest
+	7,  // 80: loft.PlacementService.Apply:input_type -> loft.PlacementApplyRequest
+	4,  // 81: loft.PlacementService.Erase:input_type -> loft.PlacementRef
+	9,  // 82: loft.PlacementService.List:input_type -> loft.PlacementListRequest
+	12, // 83: loft.LinkService.Add:input_type -> loft.LinkAddRequest
+	13, // 84: loft.LinkService.Get:input_type -> loft.LinkGetRequest
+	16, // 85: loft.LinkService.Patch:input_type -> loft.LinkPatchRequest
+	17, // 86: loft.LinkService.Apply:input_type -> loft.LinkApplyRequest
+	14, // 87: loft.LinkService.Erase:input_type -> loft.LinkRef
+	19, // 88: loft.LinkService.List:input_type -> loft.LinkListRequest
+	22, // 89: loft.StewardshipService.Add:input_type -> loft.StewardshipAddRequest
+	23, // 90: loft.StewardshipService.Get:input_type -> loft.StewardshipGetRequest
+	26, // 91: loft.StewardshipService.Patch:input_type -> loft.StewardshipPatchRequest
+	27, // 92: loft.StewardshipService.Apply:input_type -> loft.StewardshipApplyRequest
+	24, // 93: loft.StewardshipService.Erase:input_type -> loft.StewardshipRef
+	29, // 94: loft.StewardshipService.List:input_type -> loft.StewardshipListRequest
+	37, // 95: loft.PlacementService.Add:output_type -> loft.Placement
+	2,  // 96: loft.PlacementService.AddMany:output_type -> loft.PlacementAddManyResponse
+	37, // 97: loft.PlacementService.Get:output_type -> loft.Placement
+	37, // 98: loft.PlacementService.Patch:output_type -> loft.Placement
+	37, // 99: loft.PlacementService.Apply:output_type -> loft.Placement
+	8,  // 100: loft.PlacementService.Erase:output_type -> loft.PlacementEraseResponse
+	10, // 101: loft.PlacementService.List:output_type -> loft.PlacementListResponse
+	41, // 102: loft.LinkService.Add:output_type -> loft.Link
+	41, // 103: loft.LinkService.Get:output_type -> loft.Link
+	41, // 104: loft.LinkService.Patch:output_type -> loft.Link
+	41, // 105: loft.LinkService.Apply:output_type -> loft.Link
+	18, // 106: loft.LinkService.Erase:output_type -> loft.LinkEraseResponse
+	20, // 107: loft.LinkService.List:output_type -> loft.LinkListResponse
+	44, // 108: loft.StewardshipService.Add:output_type -> loft.Stewardship
+	44, // 109: loft.StewardshipService.Get:output_type -> loft.Stewardship
+	44, // 110: loft.StewardshipService.Patch:output_type -> loft.Stewardship
+	44, // 111: loft.StewardshipService.Apply:output_type -> loft.Stewardship
+	28, // 112: loft.StewardshipService.Erase:output_type -> loft.StewardshipEraseResponse
+	30, // 113: loft.StewardshipService.List:output_type -> loft.StewardshipListResponse
 	95, // [95:114] is the sub-list for method output_type
 	76, // [76:95] is the sub-list for method input_type
 	76, // [76:76] is the sub-list for extension type_name
@@ -6469,39 +6469,39 @@ var file_rove_history_svc_g_proto_depIdxs = []int32{
 	0,  // [0:76] is the sub-list for field type_name
 }
 
-func init() { file_rove_history_svc_g_proto_init() }
-func file_rove_history_svc_g_proto_init() {
-	if File_rove_history_svc_g_proto != nil {
+func init() { file_loft_history_svc_g_proto_init() }
+func file_loft_history_svc_g_proto_init() {
+	if File_loft_history_svc_g_proto != nil {
 		return
 	}
-	file_rove_asset_svc_g_proto_init()
-	file_rove_history_proto_init()
-	file_rove_org_svc_g_proto_init()
-	file_rove_payday_tenant_svc_g_proto_init()
-	file_rove_history_svc_g_proto_msgTypes[4].OneofWrappers = []any{
+	file_loft_asset_svc_g_proto_init()
+	file_loft_history_proto_init()
+	file_loft_org_svc_g_proto_init()
+	file_loft_payday_tenant_svc_g_proto_init()
+	file_loft_history_svc_g_proto_msgTypes[4].OneofWrappers = []any{
 		(*placementRef_Id)(nil),
 	}
-	file_rove_history_svc_g_proto_msgTypes[14].OneofWrappers = []any{
+	file_loft_history_svc_g_proto_msgTypes[14].OneofWrappers = []any{
 		(*linkRef_Id)(nil),
 	}
-	file_rove_history_svc_g_proto_msgTypes[24].OneofWrappers = []any{
+	file_loft_history_svc_g_proto_msgTypes[24].OneofWrappers = []any{
 		(*stewardshipRef_Id)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_history_svc_g_proto_rawDesc), len(file_rove_history_svc_g_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_history_svc_g_proto_rawDesc), len(file_loft_history_svc_g_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   34,
 			NumExtensions: 0,
 			NumServices:   3,
 		},
-		GoTypes:           file_rove_history_svc_g_proto_goTypes,
-		DependencyIndexes: file_rove_history_svc_g_proto_depIdxs,
-		MessageInfos:      file_rove_history_svc_g_proto_msgTypes,
+		GoTypes:           file_loft_history_svc_g_proto_goTypes,
+		DependencyIndexes: file_loft_history_svc_g_proto_depIdxs,
+		MessageInfos:      file_loft_history_svc_g_proto_msgTypes,
 	}.Build()
-	File_rove_history_svc_g_proto = out.File
-	file_rove_history_svc_g_proto_goTypes = nil
-	file_rove_history_svc_g_proto_depIdxs = nil
+	File_loft_history_svc_g_proto = out.File
+	file_loft_history_svc_g_proto_goTypes = nil
+	file_loft_history_svc_g_proto_depIdxs = nil
 }

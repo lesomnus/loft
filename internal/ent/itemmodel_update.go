@@ -9,10 +9,10 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent/assettype"
-	"github.com/lesomnus/rove/internal/ent/itemmodel"
-	"github.com/lesomnus/rove/internal/ent/predicate"
+	"github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent/assettype"
+	"github.com/lesomnus/loft/internal/ent/itemmodel"
+	"github.com/lesomnus/loft/internal/ent/predicate"
 	"github.com/protobuf-orm/ent/dialect/sql"
 	"github.com/protobuf-orm/ent/dialect/sql/sqlgraph"
 	"github.com/protobuf-orm/ent/schema/field"
@@ -101,7 +101,7 @@ func (_u *ItemModelUpdate) SetNillableCode(v *string) *ItemModelUpdate {
 }
 
 // SetSpec sets the "spec" field.
-func (_u *ItemModelUpdate) SetSpec(v *rove.ModelSpec) *ItemModelUpdate {
+func (_u *ItemModelUpdate) SetSpec(v *loft.ModelSpec) *ItemModelUpdate {
 	_u.mutation.SetSpec(v)
 	return _u
 }
@@ -422,7 +422,7 @@ func (_u *ItemModelUpdateOne) SetNillableCode(v *string) *ItemModelUpdateOne {
 }
 
 // SetSpec sets the "spec" field.
-func (_u *ItemModelUpdateOne) SetSpec(v *rove.ModelSpec) *ItemModelUpdateOne {
+func (_u *ItemModelUpdateOne) SetSpec(v *loft.ModelSpec) *ItemModelUpdateOne {
 	_u.mutation.SetSpec(v)
 	return _u
 }

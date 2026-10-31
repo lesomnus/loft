@@ -1,0 +1,57 @@
+edition = "2023";
+
+package loft;
+
+import "google/protobuf/timestamp.proto";
+import "orm.proto";
+import "payday.proto";
+
+option features.field_presence = IMPLICIT;
+option go_package = "github.com/lesomnus/loft";
+
+// SearchStale is something whose documents in the search index no longer say
+// what the database does (D31, design 9.5).
+//
+// It is written in the transaction of the change that made them so, by the
+// recorder `server/opensearch` installs, and taken out by the loop that makes
+// them again -- so a change that commits is one the index hears of, and one
+// that is rolled back is not. The deployment's (`global`), written only
+// through ent, and nobody's to call: no role has its RPCs.
+//
+// It names what changed and not the documents, since one change can make many
+// stale -- a model renamed is every asset of that model -- and which they are
+// is for the loop to find out when it gets there.
+message SearchStale {
+  bytes id = 1 [(orm.field) = {
+    type: TYPE_UUID
+    key: true
+    default: ""
+  }];
+
+  // What changed: `asset`; or what an asset's document takes a name from --
+  // `asset_type`, `item_model`, `party`; or `tenant`, a workspace destroyed,
+  // every document of which goes.
+  string kind = 8;
+  // Which one.
+  bytes key = 9 [(orm.field) = {type: TYPE_UUID}];
+
+  google.protobuf.Timestamp date_created = 15 [(orm.field) = {
+    immutable: true
+    default: ""
+  }];
+
+  option (orm.message) = {
+    indexes: [
+      {
+        name: "date_created"
+        refs: [{name: "date_created", number: 15}]
+      }
+    ]
+  };
+  option (payday.entity) = {
+    domain: 46
+    global: {}
+    erase: {hard: {}}
+    trail: {off: {why: "the search index's queue: that a document is to be made again, which the indexer takes within seconds"}}
+  };
+}

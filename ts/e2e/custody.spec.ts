@@ -1,4 +1,4 @@
-import { card, choose, expect, field, people, said, signIn, test, unique, weekdayAt, workspace } from './rove.js'
+import { card, choose, expect, field, people, said, signIn, test, unique, weekdayAt, workspace } from './loft.js'
 
 test('a loan is handed over, acknowledged by the member it went to, and returned', async ({ page, as }) => {
 	const memo = unique('e2e 출장')

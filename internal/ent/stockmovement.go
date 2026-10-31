@@ -8,9 +8,9 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/lesomnus/rove/internal/ent/stock"
-	"github.com/lesomnus/rove/internal/ent/stockmovement"
-	"github.com/lesomnus/rove/internal/ent/tenant"
+	"github.com/lesomnus/loft/internal/ent/stock"
+	"github.com/lesomnus/loft/internal/ent/stockmovement"
+	"github.com/lesomnus/loft/internal/ent/tenant"
 	"github.com/protobuf-orm/ent"
 	"github.com/protobuf-orm/ent/dialect/sql"
 )

@@ -13,15 +13,15 @@ import (
 	"github.com/lesomnus/xli/flg"
 	"github.com/lesomnus/z"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	enttenant "github.com/lesomnus/rove/internal/ent/tenant"
-	"github.com/lesomnus/rove/internal/identity"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
+	"github.com/lesomnus/loft/internal/identity"
 )
 
-// NewCmdIdentity is `rove identity`: who people are, which is roster's
+// NewCmdIdentity is `loft identity`: who people are, which is roster's
 // (design 9.10).
 func NewCmdIdentity(c *cmd.Config) *xli.Command {
 	return &xli.Command{
@@ -45,7 +45,7 @@ func NewCmdIdentity(c *cmd.Config) *xli.Command {
 	}
 }
 
-// migrateIdentity is `rove identity migrate`, the upgrade of a deployment
+// migrateIdentity is `loft identity migrate`, the upgrade of a deployment
 // whose logins are holders that name no account (D27): made before roster held
 // people, or before holders named accounts. Nobody of them can sign in.
 //
@@ -271,7 +271,7 @@ func quoted(v map[string]string) string {
 // takes, and a verifier nobody reads is only something to lose.
 //
 // The trail has nothing of them to forget: payday kept a declared secret out
-// of it before Rove had passwords.
+// of it before Loft had passwords.
 func dropCredentials(ctx context.Context, s *cmd.Server) (bool, error) {
 	if left, err := fromBeforeRoster(ctx, s); err != nil || !left {
 		return false, err
@@ -283,7 +283,7 @@ func dropCredentials(ctx context.Context, s *cmd.Server) (bool, error) {
 }
 
 // fromBeforeRoster says whether this deployment still has the table it kept
-// passwords in before roster held them: one `rove identity migrate` has not
+// passwords in before roster held them: one `loft identity migrate` has not
 // brought in, whose people cannot sign in.
 func fromBeforeRoster(ctx context.Context, s *cmd.Server) (bool, error) {
 	q := "SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name = 'credential'"

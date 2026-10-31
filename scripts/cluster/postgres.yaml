@@ -1,5 +1,5 @@
 # The rig's PostgreSQL: the official image (`scripts/cluster.sh` makes it the
-# host's own, to import), with Rove's database and the roster's beside it. Not in the base, because where a
+# host's own, to import), with Loft's database and the roster's beside it. Not in the base, because where a
 # deployment's database runs is the deployment's (an operator, a managed one),
 # and nothing here is what one would keep: one replica, no backup.
 #
@@ -44,10 +44,10 @@ spec:
         seccompProfile: { type: RuntimeDefault }
       containers:
         - name: postgres
-          image: rove-postgres
+          image: loft-postgres
           env:
-            - { name: POSTGRES_USER, value: rove }
-            - { name: POSTGRES_DB, value: rove }
+            - { name: POSTGRES_USER, value: loft }
+            - { name: POSTGRES_DB, value: loft }
             - name: POSTGRES_PASSWORD
               valueFrom: { secretKeyRef: { name: postgres, key: password } }
             # A directory of its own beneath the volume's root, which the
@@ -56,7 +56,7 @@ spec:
           ports:
             - { name: postgres, containerPort: 5432 }
           readinessProbe:
-            exec: { command: ["pg_isready", "-U", "rove", "-d", "rove"] }
+            exec: { command: ["pg_isready", "-U", "loft", "-d", "loft"] }
             periodSeconds: 5
           securityContext:
             allowPrivilegeEscalation: false

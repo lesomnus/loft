@@ -17,20 +17,20 @@ import (
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/trail"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cmd"
-	enttenant "github.com/lesomnus/rove/internal/ent/tenant"
-	"github.com/lesomnus/rove/internal/identity"
-	"github.com/lesomnus/rove/server/tenancy"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cmd"
+	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
+	"github.com/lesomnus/loft/internal/identity"
+	"github.com/lesomnus/loft/server/tenancy"
 )
 
-// NewCmdInit is `rove init`: a workspace, the account that owns it, and the
+// NewCmdInit is `loft init`: a workspace, the account that owns it, and the
 // types an asset register starts with.
 //
 // The account is in the directory at the roster in this process, which is
 // where it signs in, and `init` makes the directory too when there is none
 // (design 9.10, D27). An account there already keeps its password and is
-// made the owner of another workspace. The workspace is Rove's own, and so is
+// made the owner of another workspace. The workspace is Loft's own, and so is
 // its identifier. A deployment whose roster is one of its own makes no
 // accounts: they are roster's.
 //
@@ -74,7 +74,7 @@ func NewCmdInit(c *cmd.Config) *xli.Command {
 				}
 				return strings.TrimSpace(v)
 			}
-			alias := get("tenant", "rove")
+			alias := get("tenant", "loft")
 			name := get("name", alias)
 			login := get("login", "admin")
 			person := get("person", "관리자")
@@ -93,7 +93,7 @@ func NewCmdInit(c *cmd.Config) *xli.Command {
 
 				c.Audit.Checkpoints.Key = path
 				self.Printf("the trail's archive is signed with a key of this deployment's own, written to %s\n", path)
-				self.Printf("name it as audit.checkpoints.key, or ROVE_AUDIT_CHECKPOINTS_KEY, before serving\n\n")
+				self.Printf("name it as audit.checkpoints.key, or LOFT_AUDIT_CHECKPOINTS_KEY, before serving\n\n")
 			}
 
 			s, err := cmd.Build(ctx, *c)
@@ -126,7 +126,7 @@ func NewCmdInit(c *cmd.Config) *xli.Command {
 			}
 			if pw != "" {
 				if made == "" {
-					return fmt.Errorf("--password: %s is an account already, with a password of its own; `rove holder password` changes it", login)
+					return fmt.Errorf("--password: %s is an account already, with a password of its own; `loft holder password` changes it", login)
 				}
 				if err := s.Identity.SetPassword(ctx, p.Id, pw); err != nil {
 					return fmt.Errorf("roster: %w", err)
@@ -134,7 +134,7 @@ func NewCmdInit(c *cmd.Config) *xli.Command {
 				made = ""
 			}
 
-			// And the workspace, which is Rove's, with the account's
+			// And the workspace, which is Loft's, with the account's
 			// membership of it.
 			t, err := s.Base.Tenant().Add(ctx, app.TenantAddRequest_builder{Alias: alias, Name: name}.Build())
 			if err != nil {

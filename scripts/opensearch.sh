@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # opensearch.sh -- an OpenSearch for CI to search on (D31): the image a
 # deployment runs (deploy/opensearch), with its security plugin on over the
-# demo certificates, and Rove signed in with the role README gives an operator
+# demo certificates, and Loft signed in with the role README gives an operator
 # -- bulk writes, and its own indexes -- so that a call needing more fails here
 # and not at an operator's.
 #
@@ -10,7 +10,7 @@
 #
 # `start` returns at once: the image builds and the node comes up while a job
 # does the rest of its setup. `ready` waits for it, makes the role on the
-# index names PATTERN matches (`rovetest-*` for the Go tests, `e2e-*` for the
+# index names PATTERN matches (`lofttest-*` for the Go tests, `e2e-*` for the
 # browser's) and a user with it, and prints what the tests are given:
 # PDTEST_OPENSEARCH and E2E_OPENSEARCH, the user in the address, and the CA in
 # the matching _CA variable -- lines for $GITHUB_ENV.
@@ -26,10 +26,10 @@ start)
 	echo "Ad9!$(openssl rand -hex 16)" > "$dir/admin"
 	chmod 600 "$dir/admin"
 	(
-		docker build -q -t rove-opensearch "$root/deploy/opensearch"
+		docker build -q -t loft-opensearch "$root/deploy/opensearch"
 		docker run -d --name opensearch -p 127.0.0.1:9200:9200 \
 			-e discovery.type=single-node -e OPENSEARCH_INITIAL_ADMIN_PASSWORD="$(cat "$dir/admin")" \
-			-e OPENSEARCH_JAVA_OPTS="-Xms512m -Xmx512m" rove-opensearch
+			-e OPENSEARCH_JAVA_OPTS="-Xms512m -Xmx512m" loft-opensearch
 	) > "$dir/start.log" 2>&1 &
 	echo "$!" > "$dir/start.pid"
 	;;
@@ -54,13 +54,13 @@ ready)
 		echo >&2
 	}
 	# README's role, on the names the tests make their indexes with.
-	api roles/rove "{\"cluster_permissions\":[\"indices:data/write/bulk\"],\"index_permissions\":[{\"index_patterns\":[\"$pattern\"],\"allowed_actions\":[\"indices_all\"]}]}"
+	api roles/loft "{\"cluster_permissions\":[\"indices:data/write/bulk\"],\"index_permissions\":[{\"index_patterns\":[\"$pattern\"],\"allowed_actions\":[\"indices_all\"]}]}"
 	password="Rv9-$(openssl rand -hex 16)"
-	api internalusers/rove "{\"password\":\"$password\"}"
-	api rolesmapping/rove '{"users":["rove"]}'
-	echo "PDTEST_OPENSEARCH=https://rove:$password@localhost:9200"
+	api internalusers/loft "{\"password\":\"$password\"}"
+	api rolesmapping/loft '{"users":["loft"]}'
+	echo "PDTEST_OPENSEARCH=https://loft:$password@localhost:9200"
 	echo "PDTEST_OPENSEARCH_CA=$ca"
-	echo "E2E_OPENSEARCH=https://rove:$password@localhost:9200"
+	echo "E2E_OPENSEARCH=https://loft:$password@localhost:9200"
 	echo "E2E_OPENSEARCH_CA=$ca"
 	;;
 *)

@@ -16,18 +16,18 @@ import (
 	"github.com/protobuf-orm/ent/dialect"
 	"google.golang.org/protobuf/proto"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/asset"
-	"github.com/lesomnus/rove/internal/ent/custody"
-	"github.com/lesomnus/rove/internal/ent/custodyline"
-	"github.com/lesomnus/rove/internal/ent/notification"
-	"github.com/lesomnus/rove/internal/ent/party"
-	"github.com/lesomnus/rove/internal/ent/reservation"
-	"github.com/lesomnus/rove/internal/ent/reservationitem"
-	entsession "github.com/lesomnus/rove/internal/ent/session"
-	"github.com/lesomnus/rove/internal/ent/tenantdomain"
-	"github.com/lesomnus/rove/internal/ent/workorder"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/asset"
+	"github.com/lesomnus/loft/internal/ent/custody"
+	"github.com/lesomnus/loft/internal/ent/custodyline"
+	"github.com/lesomnus/loft/internal/ent/notification"
+	"github.com/lesomnus/loft/internal/ent/party"
+	"github.com/lesomnus/loft/internal/ent/reservation"
+	"github.com/lesomnus/loft/internal/ent/reservationitem"
+	entsession "github.com/lesomnus/loft/internal/ent/session"
+	"github.com/lesomnus/loft/internal/ent/tenantdomain"
+	"github.com/lesomnus/loft/internal/ent/workorder"
 )
 
 // Sweeper is the deployment's own work in every tenant: what happens because
@@ -49,7 +49,7 @@ type Sweeper struct {
 
 var _ spin.Spinner = Sweeper{}
 
-func (w Sweeper) SpinName() string { return "rove.sweep" }
+func (w Sweeper) SpinName() string { return "loft.sweep" }
 
 func (w Sweeper) Spin(ctx context.Context) error {
 	every := w.Every
@@ -477,7 +477,7 @@ func sweepWork(t *Tx) error {
 	return nil
 }
 
-// sweepDomains asks about the DNS of a workspace's custom domains (rove#155):
+// sweepDomains asks about the DNS of a workspace's custom domains (loft#155):
 //
 //   - A pending one every few minutes for a week from when it was added, and
 //     a lapsed one for a week from when it lapsed. One whose TXT record holds
@@ -569,7 +569,7 @@ func (t *Tx) recheckDomains() error {
 }
 
 // lapse takes an active domain whose DNS no longer says it is here out of
-// use (rove#155). No sign-in is handed to it and no certificate asked for it
+// use (loft#155). No sign-in is handed to it and no certificate asked for it
 // (`/internal/tls-ask`), the sessions handed to it end, and links to the
 // workspace are made at the service's address again (`apphost.Links`); labels
 // printed with it still open while it points here. Whoever may act on it is
@@ -606,6 +606,6 @@ func (t *Tx) lapse(d *ent.TenantDomain, failures uint32, since time.Time) error 
 		return err
 	}
 	return t.notifyAdmins("domain.lapsed", words+" 사용 중지: "+d.Host,
-		"DNS가 "+t.when(since)+"부터 이 서비스를 가리키지 않거나 _rove-challenge TXT 레코드가 없어 사용을 멈췄습니다. 링크와 로그인은 서비스 주소로 돌아갔고, 이 주소로 인쇄한 라벨은 DNS가 이곳을 가리키는 동안 계속 열립니다. 레코드를 되돌리면 일주일 동안 저절로 다시 확인하고, 설정에서 바로 확인할 수도 있습니다.",
+		"DNS가 "+t.when(since)+"부터 이 서비스를 가리키지 않거나 _loft-challenge TXT 레코드가 없어 사용을 멈췄습니다. 링크와 로그인은 서비스 주소로 돌아갔고, 이 주소로 인쇄한 라벨은 DNS가 이곳을 가리키는 동안 계속 열립니다. 레코드를 되돌리면 일주일 동안 저절로 다시 확인하고, 설정에서 바로 확인할 수도 있습니다.",
 		pdid.Id(d.Id), "/settings")
 }

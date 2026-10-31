@@ -7,13 +7,13 @@
 # `log:` alone, which needs none, and an overlay that wants the store says so
 #
 #   components:
-#     - github.com/lesomnus/rove//deploy/k8s/witness?ref=<the base's commit>
+#     - github.com/lesomnus/loft//deploy/k8s/witness?ref=<the base's commit>
 #
 # and names it in its `config.yaml`:
 #
 #   audit:
 #     checkpoints:
-#       witnesses: ["log:", "store:/var/lib/rove/witness"]
+#       witnesses: ["log:", "store:/var/lib/loft/witness"]
 #
 # Its worth is where it is: an overlay gives this claim a class that refuses
 # deletion, and storage the database's and the archive's credentials do not
@@ -29,22 +29,22 @@ patches:
   # Mounted where a checkpoint is taken: the server, whose passes take one
   # each, and the operator's entry point, whose acts do. The migration takes
   # none, and opens no witness.
-  - target: { kind: Deployment, name: rove }
+  - target: { kind: Deployment, name: loft }
     patch: |-
       apiVersion: apps/v1
       kind: Deployment
       metadata:
-        name: rove
+        name: loft
       spec:
         template:
           spec:
             containers:
-              - name: rove
+              - name: loft
                 volumeMounts:
-                  - { name: witness, mountPath: /var/lib/rove/witness }
-              - name: rove-admin
+                  - { name: witness, mountPath: /var/lib/loft/witness }
+              - name: loft-admin
                 volumeMounts:
-                  - { name: witness, mountPath: /var/lib/rove/witness }
+                  - { name: witness, mountPath: /var/lib/loft/witness }
             volumes:
               - name: witness
-                persistentVolumeClaim: { claimName: rove-witness }
+                persistentVolumeClaim: { claimName: loft-witness }

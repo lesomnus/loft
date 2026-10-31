@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.12
 // 	protoc        (unknown)
-// source: rove/payday/owed.proto
+// source: loft/payday/owed.proto
 
-package rove
+package loft
 
 import (
 	_ "github.com/lesomnus/payday/pdpb"
@@ -63,7 +63,7 @@ type Owed struct {
 
 func (x *Owed) Reset() {
 	*x = Owed{}
-	mi := &file_rove_payday_owed_proto_msgTypes[0]
+	mi := &file_loft_payday_owed_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -75,7 +75,7 @@ func (x *Owed) String() string {
 func (*Owed) ProtoMessage() {}
 
 func (x *Owed) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_owed_proto_msgTypes[0]
+	mi := &file_loft_payday_owed_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -172,11 +172,11 @@ func (b0 Owed_builder) Build() *Owed {
 	return m0
 }
 
-var File_rove_payday_owed_proto protoreflect.FileDescriptor
+var File_loft_payday_owed_proto protoreflect.FileDescriptor
 
-const file_rove_payday_owed_proto_rawDesc = "" +
+const file_loft_payday_owed_proto_rawDesc = "" +
 	"\n" +
-	"\x16rove/payday/owed.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\"\xdd\x01\n" +
+	"\x16loft/payday/owed.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\"\xdd\x01\n" +
 	"\x04Owed\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12\x1e\n" +
 	"\x06object\x18\b \x01(\fB\x06\xea\x82\x16\x02\x10@R\x06object\x12\x17\n" +
@@ -184,15 +184,15 @@ const file_rove_payday_owed_proto_rawDesc = "" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampB\t\xea\x82\x16\x05@\x01\x82\x01\x00R\vdateCreated:5\xca\xfc\x15\"\x1a \x12\x04owed\x1a\x10\n" +
 	"\fdate_created\x10\x0f\x1a\x06\n" +
 	"\x02id\x10\x01\x8a\xbb\x16\v\b\xfe\x01B\x02\n" +
-	"\x00H\b*\x00B\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"\x00H\b*\x00B\x1fZ\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
-var file_rove_payday_owed_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
-var file_rove_payday_owed_proto_goTypes = []any{
-	(*Owed)(nil),                  // 0: rove.Owed
+var file_loft_payday_owed_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_loft_payday_owed_proto_goTypes = []any{
+	(*Owed)(nil),                  // 0: loft.Owed
 	(*timestamppb.Timestamp)(nil), // 1: google.protobuf.Timestamp
 }
-var file_rove_payday_owed_proto_depIdxs = []int32{
-	1, // 0: rove.Owed.date_created:type_name -> google.protobuf.Timestamp
+var file_loft_payday_owed_proto_depIdxs = []int32{
+	1, // 0: loft.Owed.date_created:type_name -> google.protobuf.Timestamp
 	1, // [1:1] is the sub-list for method output_type
 	1, // [1:1] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
@@ -200,26 +200,26 @@ var file_rove_payday_owed_proto_depIdxs = []int32{
 	0, // [0:1] is the sub-list for field type_name
 }
 
-func init() { file_rove_payday_owed_proto_init() }
-func file_rove_payday_owed_proto_init() {
-	if File_rove_payday_owed_proto != nil {
+func init() { file_loft_payday_owed_proto_init() }
+func file_loft_payday_owed_proto_init() {
+	if File_loft_payday_owed_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_payday_owed_proto_rawDesc), len(file_rove_payday_owed_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_payday_owed_proto_rawDesc), len(file_loft_payday_owed_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   1,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_rove_payday_owed_proto_goTypes,
-		DependencyIndexes: file_rove_payday_owed_proto_depIdxs,
-		MessageInfos:      file_rove_payday_owed_proto_msgTypes,
+		GoTypes:           file_loft_payday_owed_proto_goTypes,
+		DependencyIndexes: file_loft_payday_owed_proto_depIdxs,
+		MessageInfos:      file_loft_payday_owed_proto_msgTypes,
 	}.Build()
-	File_rove_payday_owed_proto = out.File
-	file_rove_payday_owed_proto_goTypes = nil
-	file_rove_payday_owed_proto_depIdxs = nil
+	File_loft_payday_owed_proto = out.File
+	file_loft_payday_owed_proto_goTypes = nil
+	file_loft_payday_owed_proto_depIdxs = nil
 }

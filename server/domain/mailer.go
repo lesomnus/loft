@@ -13,15 +13,15 @@ import (
 	"github.com/lesomnus/payday/spin"
 	"github.com/protobuf-orm/ent/dialect"
 
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/ent/notification"
-	"github.com/lesomnus/rove/internal/ent/party"
-	"github.com/lesomnus/rove/internal/identity"
-	"github.com/lesomnus/rove/server/apphost"
-	"github.com/lesomnus/rove/server/mail"
-	"github.com/lesomnus/rove/server/pd"
-	"github.com/lesomnus/rove/server/tenancy"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/internal/ent/notification"
+	"github.com/lesomnus/loft/internal/ent/party"
+	"github.com/lesomnus/loft/internal/identity"
+	"github.com/lesomnus/loft/server/apphost"
+	"github.com/lesomnus/loft/server/mail"
+	"github.com/lesomnus/loft/server/pd"
+	"github.com/lesomnus/loft/server/tenancy"
 )
 
 // Mailer sends by mail what the notifications of the mailed kinds say
@@ -54,7 +54,7 @@ var _ spin.Spinner = Mailer{}
 // up on, and said so in the log.
 const mailTries = 8
 
-func (m Mailer) SpinName() string { return "rove.mail" }
+func (m Mailer) SpinName() string { return "loft.mail" }
 
 func (m Mailer) Spin(ctx context.Context) error {
 	every := m.Every
@@ -172,9 +172,9 @@ func (m Mailer) drop(ctx context.Context, db *ent.Client, n *ent.Notification) e
 
 // The acts the mailer writes a notification with, as the trail names them.
 const (
-	MailTried   = "rove.mail.try"
-	MailSent    = "rove.mail.sent"
-	MailDropped = "rove.mail.drop"
+	MailTried   = "loft.mail.try"
+	MailSent    = "loft.mail.sent"
+	MailDropped = "loft.mail.drop"
 )
 
 // recorded is one of the mailer's writes of a notification, and the act on
@@ -248,8 +248,8 @@ func (m Mailer) message(h *ent.Holder, n *ent.Notification, at, to, workspace st
 	}
 	body += fmt.Sprintf(`%s
 
-Rove의 %s에서 온 알림입니다. 메일로 받지 않으려면 Rove의 내 정보에서 끌 수 있습니다. 알림은 앱에서 계속 받습니다.
+Loft의 %s에서 온 알림입니다. 메일로 받지 않으려면 Loft의 내 정보에서 끌 수 있습니다. 알림은 앱에서 계속 받습니다.
 `, link, workspaceWords(workspace))
 
-	return mail.Message{To: to, Subject: "[Rove] " + n.Name, Body: body}
+	return mail.Message{To: to, Subject: "[Loft] " + n.Name, Body: body}
 }

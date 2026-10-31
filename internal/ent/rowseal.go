@@ -8,7 +8,7 @@ import (
 	"strings"
 	"uuid"
 
-	"github.com/lesomnus/rove/internal/ent/rowseal"
+	"github.com/lesomnus/loft/internal/ent/rowseal"
 	"github.com/protobuf-orm/ent"
 	"github.com/protobuf-orm/ent/dialect/sql"
 )

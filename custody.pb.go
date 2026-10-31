@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.12
 // 	protoc        (unknown)
-// source: rove/custody.proto
+// source: loft/custody.proto
 
-package rove
+package loft
 
 import (
 	_ "github.com/lesomnus/payday/pdpb"
@@ -50,7 +50,7 @@ type Custody struct {
 
 func (x *Custody) Reset() {
 	*x = Custody{}
-	mi := &file_rove_custody_proto_msgTypes[0]
+	mi := &file_loft_custody_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -62,7 +62,7 @@ func (x *Custody) String() string {
 func (*Custody) ProtoMessage() {}
 
 func (x *Custody) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_custody_proto_msgTypes[0]
+	mi := &file_loft_custody_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -431,7 +431,7 @@ type CustodyLine struct {
 
 func (x *CustodyLine) Reset() {
 	*x = CustodyLine{}
-	mi := &file_rove_custody_proto_msgTypes[1]
+	mi := &file_loft_custody_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -443,7 +443,7 @@ func (x *CustodyLine) String() string {
 func (*CustodyLine) ProtoMessage() {}
 
 func (x *CustodyLine) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_custody_proto_msgTypes[1]
+	mi := &file_loft_custody_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -726,16 +726,16 @@ func (b0 CustodyLine_builder) Build() *CustodyLine {
 	return m0
 }
 
-var File_rove_custody_proto protoreflect.FileDescriptor
+var File_loft_custody_proto protoreflect.FileDescriptor
 
-const file_rove_custody_proto_rawDesc = "" +
+const file_loft_custody_proto_rawDesc = "" +
 	"\n" +
-	"\x12rove/custody.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x10rove/asset.proto\x1a\x0erove/org.proto\x1a\x10rove/stock.proto\x1a\x18rove/payday/tenant.proto\"\x8f\t\n" +
+	"\x12loft/custody.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\x1a\x10loft/asset.proto\x1a\x0eloft/org.proto\x1a\x10loft/stock.proto\x1a\x18loft/payday/tenant.proto\"\x8f\t\n" +
 	"\aCustody\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12\x1a\n" +
 	"\x04desc\x18\x06 \x01(\tB\x06\xaa\xc1\x16\x02\x18\x01R\x04desc\x12)\n" +
-	"\x05party\x18\b \x01(\v2\v.rove.PartyB\x06\xf2\x82\x16\x02@\x01R\x05party\x12\x1a\n" +
+	"\x05party\x18\b \x01(\v2\v.loft.PartyB\x06\xf2\x82\x16\x02@\x01R\x05party\x12\x1a\n" +
 	"\x04kind\x18\t \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x04kind\x12\x1e\n" +
 	"\x06status\x18\n" +
 	" \x01(\tB\x06\xaa\xc1\x16\x02\x18\x00R\x06status\x12@\n" +
@@ -782,11 +782,11 @@ const file_rove_custody_proto_rawDesc = "" +
 	"\x06tenant\"\fparty.tenant\"\xf3\x06\n" +
 	"\vCustodyLine\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x12,\n" +
-	"\x06tenant\x18\x02 \x01(\v2\f.rove.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12/\n" +
-	"\acustody\x18\b \x01(\v2\r.rove.CustodyB\x06\xf2\x82\x16\x02@\x01R\acustody\x12+\n" +
-	"\x05asset\x18\t \x01(\v2\v.rove.AssetB\b\xf2\x82\x16\x048\x01@\x01R\x05asset\x12+\n" +
+	"\x06tenant\x18\x02 \x01(\v2\f.loft.TenantB\x06\xf2\x82\x16\x02@\x01R\x06tenant\x12/\n" +
+	"\acustody\x18\b \x01(\v2\r.loft.CustodyB\x06\xf2\x82\x16\x02@\x01R\acustody\x12+\n" +
+	"\x05asset\x18\t \x01(\v2\v.loft.AssetB\b\xf2\x82\x16\x048\x01@\x01R\x05asset\x12+\n" +
 	"\x05stock\x18\n" +
-	" \x01(\v2\v.rove.StockB\b\xf2\x82\x16\x048\x01@\x01R\x05stock\x12\x1a\n" +
+	" \x01(\v2\v.loft.StockB\b\xf2\x82\x16\x048\x01@\x01R\x05stock\x12\x1a\n" +
 	"\bquantity\x18\v \x01(\x03R\bquantity\x12+\n" +
 	"\x11returned_quantity\x18\f \x01(\x03R\x10returnedQuantity\x12F\n" +
 	"\fdate_updated\x18\r \x01(\v2\x1a.google.protobuf.TimestampB\a\xea\x82\x16\x03\x8a\x01\x00R\vdateUpdated\x12H\n" +
@@ -813,36 +813,36 @@ const file_rove_custody_proto_rawDesc = "" +
 	"\x05asset\x1a\a\n" +
 	"\x05stock \xc8\x01(\xe8\aB\x02\n" +
 	"\x00\"4\n" +
-	"\x06tenant\"\x0ecustody.tenant\"\fasset.tenant\"\fstock.tenantB\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"\x06tenant\"\x0ecustody.tenant\"\fasset.tenant\"\fstock.tenantB\x1fZ\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
-var file_rove_custody_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_rove_custody_proto_goTypes = []any{
-	(*Custody)(nil),               // 0: rove.Custody
-	(*CustodyLine)(nil),           // 1: rove.CustodyLine
-	(*Tenant)(nil),                // 2: rove.Tenant
-	(*Party)(nil),                 // 3: rove.Party
+var file_loft_custody_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_loft_custody_proto_goTypes = []any{
+	(*Custody)(nil),               // 0: loft.Custody
+	(*CustodyLine)(nil),           // 1: loft.CustodyLine
+	(*Tenant)(nil),                // 2: loft.Tenant
+	(*Party)(nil),                 // 3: loft.Party
 	(*timestamppb.Timestamp)(nil), // 4: google.protobuf.Timestamp
-	(*Asset)(nil),                 // 5: rove.Asset
-	(*Stock)(nil),                 // 6: rove.Stock
+	(*Asset)(nil),                 // 5: loft.Asset
+	(*Stock)(nil),                 // 6: loft.Stock
 }
-var file_rove_custody_proto_depIdxs = []int32{
-	2,  // 0: rove.Custody.tenant:type_name -> rove.Tenant
-	3,  // 1: rove.Custody.party:type_name -> rove.Party
-	4,  // 2: rove.Custody.issued_at:type_name -> google.protobuf.Timestamp
-	4,  // 3: rove.Custody.due_at:type_name -> google.protobuf.Timestamp
-	4,  // 4: rove.Custody.date_updated:type_name -> google.protobuf.Timestamp
-	4,  // 5: rove.Custody.date_erased:type_name -> google.protobuf.Timestamp
-	4,  // 6: rove.Custody.date_created:type_name -> google.protobuf.Timestamp
-	4,  // 7: rove.Custody.acknowledged_at:type_name -> google.protobuf.Timestamp
-	4,  // 8: rove.Custody.returned_at:type_name -> google.protobuf.Timestamp
-	2,  // 9: rove.CustodyLine.tenant:type_name -> rove.Tenant
-	0,  // 10: rove.CustodyLine.custody:type_name -> rove.Custody
-	5,  // 11: rove.CustodyLine.asset:type_name -> rove.Asset
-	6,  // 12: rove.CustodyLine.stock:type_name -> rove.Stock
-	4,  // 13: rove.CustodyLine.date_updated:type_name -> google.protobuf.Timestamp
-	4,  // 14: rove.CustodyLine.date_created:type_name -> google.protobuf.Timestamp
-	4,  // 15: rove.CustodyLine.out_at:type_name -> google.protobuf.Timestamp
-	4,  // 16: rove.CustodyLine.returned_at:type_name -> google.protobuf.Timestamp
+var file_loft_custody_proto_depIdxs = []int32{
+	2,  // 0: loft.Custody.tenant:type_name -> loft.Tenant
+	3,  // 1: loft.Custody.party:type_name -> loft.Party
+	4,  // 2: loft.Custody.issued_at:type_name -> google.protobuf.Timestamp
+	4,  // 3: loft.Custody.due_at:type_name -> google.protobuf.Timestamp
+	4,  // 4: loft.Custody.date_updated:type_name -> google.protobuf.Timestamp
+	4,  // 5: loft.Custody.date_erased:type_name -> google.protobuf.Timestamp
+	4,  // 6: loft.Custody.date_created:type_name -> google.protobuf.Timestamp
+	4,  // 7: loft.Custody.acknowledged_at:type_name -> google.protobuf.Timestamp
+	4,  // 8: loft.Custody.returned_at:type_name -> google.protobuf.Timestamp
+	2,  // 9: loft.CustodyLine.tenant:type_name -> loft.Tenant
+	0,  // 10: loft.CustodyLine.custody:type_name -> loft.Custody
+	5,  // 11: loft.CustodyLine.asset:type_name -> loft.Asset
+	6,  // 12: loft.CustodyLine.stock:type_name -> loft.Stock
+	4,  // 13: loft.CustodyLine.date_updated:type_name -> google.protobuf.Timestamp
+	4,  // 14: loft.CustodyLine.date_created:type_name -> google.protobuf.Timestamp
+	4,  // 15: loft.CustodyLine.out_at:type_name -> google.protobuf.Timestamp
+	4,  // 16: loft.CustodyLine.returned_at:type_name -> google.protobuf.Timestamp
 	17, // [17:17] is the sub-list for method output_type
 	17, // [17:17] is the sub-list for method input_type
 	17, // [17:17] is the sub-list for extension type_name
@@ -850,30 +850,30 @@ var file_rove_custody_proto_depIdxs = []int32{
 	0,  // [0:17] is the sub-list for field type_name
 }
 
-func init() { file_rove_custody_proto_init() }
-func file_rove_custody_proto_init() {
-	if File_rove_custody_proto != nil {
+func init() { file_loft_custody_proto_init() }
+func file_loft_custody_proto_init() {
+	if File_loft_custody_proto != nil {
 		return
 	}
-	file_rove_asset_proto_init()
-	file_rove_org_proto_init()
-	file_rove_stock_proto_init()
-	file_rove_payday_tenant_proto_init()
+	file_loft_asset_proto_init()
+	file_loft_org_proto_init()
+	file_loft_stock_proto_init()
+	file_loft_payday_tenant_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_custody_proto_rawDesc), len(file_rove_custody_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_custody_proto_rawDesc), len(file_loft_custody_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_rove_custody_proto_goTypes,
-		DependencyIndexes: file_rove_custody_proto_depIdxs,
-		MessageInfos:      file_rove_custody_proto_msgTypes,
+		GoTypes:           file_loft_custody_proto_goTypes,
+		DependencyIndexes: file_loft_custody_proto_depIdxs,
+		MessageInfos:      file_loft_custody_proto_msgTypes,
 	}.Build()
-	File_rove_custody_proto = out.File
-	file_rove_custody_proto_goTypes = nil
-	file_rove_custody_proto_depIdxs = nil
+	File_loft_custody_proto = out.File
+	file_loft_custody_proto_goTypes = nil
+	file_loft_custody_proto_depIdxs = nil
 }

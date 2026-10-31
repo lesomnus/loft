@@ -21,21 +21,21 @@ import (
 	"github.com/lesomnus/payday/pdid"
 	"github.com/lesomnus/payday/trail"
 
-	"github.com/lesomnus/rove/internal/identity"
-	"github.com/lesomnus/rove/server/apphost"
-	"github.com/lesomnus/rove/server/consent"
-	"github.com/lesomnus/rove/server/mail"
-	"github.com/lesomnus/rove/server/opensearch"
-	"github.com/lesomnus/rove/server/pd"
-	"github.com/lesomnus/rove/server/retention"
-	"github.com/lesomnus/rove/server/sso"
+	"github.com/lesomnus/loft/internal/identity"
+	"github.com/lesomnus/loft/server/apphost"
+	"github.com/lesomnus/loft/server/consent"
+	"github.com/lesomnus/loft/server/mail"
+	"github.com/lesomnus/loft/server/opensearch"
+	"github.com/lesomnus/loft/server/pd"
+	"github.com/lesomnus/loft/server/retention"
+	"github.com/lesomnus/loft/server/sso"
 )
 
 // Name is what this app is called, and it is the only place it is written.
 // The environment prefix and the names of the configuration files are derived
 // from it -- APPTEST_DB_DSN, apptest.yaml -- by the loader `cli` makes with it,
 // so there is nothing to keep in step.
-const Name = "rove"
+const Name = "loft"
 
 // Config is what this app is configured with.
 //
@@ -66,11 +66,11 @@ type Config struct {
 	// for the reason the watch broker is (payday#54).
 	Spin config.SpinConfig `yaml:"spin"`
 
-	// App is what rove is configured with beyond payday's pieces.
+	// App is what loft is configured with beyond payday's pieces.
 	App AppConfig `yaml:"app"`
 
-	// Admin is the operator's entry point, which `rove-admin serve` serves and
-	// `rove serve` does not (design 6장, decision 17).
+	// Admin is the operator's entry point, which `loft-admin serve` serves and
+	// `loft serve` does not (design 6장, decision 17).
 	Admin AdminConfig `yaml:"admin"`
 }
 
@@ -87,7 +87,7 @@ type AdminConfig struct {
 
 	// Ask is what the reverse proxy in front of workspaces' own domains asks
 	// before it takes a certificate for a host (`/internal/tls-ask`,
-	// rove#155).
+	// loft#155).
 	Ask AskConfig `yaml:"ask"`
 }
 
@@ -192,7 +192,7 @@ func (c Config) StateDir() string {
 // And where it is: a process told no `app.public_url` answers as if it were
 // http://localhost:8080 -- its session cookie without `Secure`, its download
 // links and its labels' codes on an address nobody opens -- which is right for
-// a checkout and is a deployment nobody noticed was misconfigured (rove#40).
+// a checkout and is a deployment nobody noticed was misconfigured (loft#40).
 func (c Config) Replicas() error {
 	var said []string
 	if c.Spin.Lease != config.LeaseLocal {
@@ -207,12 +207,12 @@ func (c Config) Replicas() error {
 	if c.App.SigningKey == "" {
 		return fmt.Errorf("app.signing_key: %s says this deployment is several processes, and with no key "+
 			"each makes one of its own -- a download link one signed is refused by the next. "+
-			"Set the same key on every one (ROVE_APP_SIGNING_KEY)", strings.Join(said, " and "))
+			"Set the same key on every one (LOFT_APP_SIGNING_KEY)", strings.Join(said, " and "))
 	}
 	if c.App.PublicUrl == "" {
 		return fmt.Errorf("app.public_url: %s says this is a deployment, and with no address it answers as "+
 			"http://localhost:8080 -- its session cookie without Secure, its links and labels on an address "+
-			"nobody opens. Set the address people open (ROVE_APP_PUBLIC_URL)", strings.Join(said, " and "))
+			"nobody opens. Set the address people open (LOFT_APP_PUBLIC_URL)", strings.Join(said, " and "))
 	}
 
 	return nil
@@ -226,7 +226,7 @@ func (c Config) Replicas() error {
 //
 // The roster in this process is there to make one server simple (design
 // 9.10, the CE): it answers this process alone, keeps people and passwords
-// beside Rove's own data, and is reached by no other app. A deployment beyond
+// beside Loft's own data, and is reached by no other app. A deployment beyond
 // that -- SaaS, a dedicated one, several replicas -- runs roster apart. So
 // `serve` says so when it starts, with these as the reasons, and starts all the
 // same: a single server on PostgreSQL behind its own name is a deployment the
@@ -259,7 +259,7 @@ func local(host string) bool {
 	return ip != nil && ip.IsLoopback()
 }
 
-// AppConfig is rove's own part of the configuration.
+// AppConfig is loft's own part of the configuration.
 type AppConfig struct {
 	// PublicUrl is where a browser reaches this server's HTTP listener, such
 	// as http://localhost:8080. Download links are made on it, and its scheme
@@ -348,7 +348,7 @@ type SearchConfig struct {
 // ConsentConfig is what an account agrees to before it uses this deployment:
 // its terms of use and its privacy policy, each at the version in force and
 // read where it is published. A document with no version is not asked for,
-// and asking for none is the default -- a team running its own Rove has no
+// and asking for none is the default -- a team running its own Loft has no
 // terms to put in front of itself.
 //
 // A new version is agreed to again: every account is asked at its next page,
@@ -412,7 +412,7 @@ type AccountsConfig struct {
 	Every time.Duration `yaml:"every"`
 	// Reconcile is how often every account with a membership here is asked
 	// about at roster, and the ones it has nobody by begin to leave: what
-	// `rove identity reconcile --yes` does, done by the deployment, for an
+	// `loft identity reconcile --yes` does, done by the deployment, for an
 	// erasure the stream did not carry (design 9.10). Unset is a day; zero or
 	// negative turns it off.
 	Reconcile *time.Duration `yaml:"reconcile"`
@@ -474,7 +474,7 @@ type WorkspacesConfig struct {
 	// Every is how often closed workspaces are looked at. Unset is an hour.
 	Every time.Duration `yaml:"every"`
 	// DomainRedirect is how long a workspace's app domain that another took
-	// the place of sends its pages on to the new one (rove#155): long enough
+	// the place of sends its pages on to the new one (loft#155): long enough
 	// for the links in the mail sent before and the bookmarks of everybody
 	// who works there to be followed, and learned anew. Unset is 90 days.
 	// Labels printed with it open on it for as long as it points here.
@@ -518,7 +518,7 @@ func (c WorkspacesConfig) OwnedMax() int {
 // (`TenantService.Configure`, D36). What is here is the deployment's consent
 // and its grace.
 type RetentionConfig struct {
-	// Apply lets a keep window destroy what is past it: rove's own history,
+	// Apply lets a keep window destroy what is past it: loft's own history,
 	// and the trail of the writes that made it. Off, which is the default, the
 	// windows are still read -- a dry run answers, and a workspace's settings
 	// say what they would take -- and nothing is removed. Design 8 makes
@@ -596,7 +596,7 @@ type LabelConfig struct {
 	Suffix string `yaml:"suffix"`
 	// Target is what a custom domain's CNAME points at.
 	Target string `yaml:"target"`
-	// TenantDomains is gone (rove#155): every tenant may have a domain of its
+	// TenantDomains is gone (loft#155): every tenant may have a domain of its
 	// own, prints with it when it has one active, and with this deployment's
 	// own address otherwise -- so there is nothing to switch. Read only to
 	// say so where the process comes up, rather than to refuse a file
@@ -626,7 +626,7 @@ func (c AppConfig) Public() *url.URL {
 
 // ServiceHosts is this deployment's own hosts: the public address's, and the
 // UI's when it is served from another. No workspace may take one as its
-// domain, nor any name under it (rove#155).
+// domain, nor any name under it (loft#155).
 func (c AppConfig) ServiceHosts() []string {
 	out := []string{strings.ToLower(c.Public().Hostname())}
 	if u, err := url.Parse(c.AppUrl); err == nil && u.Hostname() != "" {
@@ -638,7 +638,7 @@ func (c AppConfig) ServiceHosts() []string {
 }
 
 // Links is where every link this deployment makes begins: a workspace's on
-// its active app domain, and the rest at this address (rove#155).
+// its active app domain, and the rest at this address (loft#155).
 func (c AppConfig) Links() apphost.Links {
 	return apphost.Links{App: c.App(), Public: c.Public().String()}
 }

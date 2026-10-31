@@ -10,8 +10,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/server/domain"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/server/domain"
 )
 
 // What is out of use -- lost, retired, disposed -- is not booked anew,

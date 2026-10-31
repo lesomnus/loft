@@ -8,10 +8,10 @@ import (
 	"github.com/lesomnus/z"
 	"github.com/protobuf-orm/ent/dialect/sql"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/ent/notification"
-	"github.com/lesomnus/rove/internal/ent/party"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/internal/ent/notification"
+	"github.com/lesomnus/loft/internal/ent/party"
 )
 
 // Mailed is the kinds of notification that go by mail as well as in the app:

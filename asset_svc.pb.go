@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.12
 // 	protoc        (unknown)
-// source: rove/asset_svc.g.proto
+// source: loft/asset_svc.g.proto
 
-package rove
+package loft
 
 import (
 	patchpb "github.com/lesomnus/protobuf-patch/patchpb"
@@ -61,7 +61,7 @@ type AssetAddRequest struct {
 
 func (x *AssetAddRequest) Reset() {
 	*x = AssetAddRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[0]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -73,7 +73,7 @@ func (x *AssetAddRequest) String() string {
 func (*AssetAddRequest) ProtoMessage() {}
 
 func (x *AssetAddRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[0]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -743,7 +743,7 @@ type AssetRef struct {
 
 func (x *AssetRef) Reset() {
 	*x = AssetRef{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[1]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -755,7 +755,7 @@ func (x *AssetRef) String() string {
 func (*AssetRef) ProtoMessage() {}
 
 func (x *AssetRef) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[1]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -881,7 +881,7 @@ func (b0 AssetRef_builder) Build() *AssetRef {
 type case_AssetRef_Key protoreflect.FieldNumber
 
 func (x case_AssetRef_Key) String() string {
-	md := file_rove_asset_svc_g_proto_msgTypes[1].Descriptor()
+	md := file_loft_asset_svc_g_proto_msgTypes[1].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -916,7 +916,7 @@ type AssetRefByTag struct {
 
 func (x *AssetRefByTag) Reset() {
 	*x = AssetRefByTag{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[2]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -928,7 +928,7 @@ func (x *AssetRefByTag) String() string {
 func (*AssetRefByTag) ProtoMessage() {}
 
 func (x *AssetRefByTag) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[2]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1019,7 +1019,7 @@ type AssetAddManyRequest struct {
 
 func (x *AssetAddManyRequest) Reset() {
 	*x = AssetAddManyRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[3]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1031,7 +1031,7 @@ func (x *AssetAddManyRequest) String() string {
 func (*AssetAddManyRequest) ProtoMessage() {}
 
 func (x *AssetAddManyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[3]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1127,7 +1127,7 @@ type AssetAddManyResponse struct {
 
 func (x *AssetAddManyResponse) Reset() {
 	*x = AssetAddManyResponse{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[4]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1139,7 +1139,7 @@ func (x *AssetAddManyResponse) String() string {
 func (*AssetAddManyResponse) ProtoMessage() {}
 
 func (x *AssetAddManyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[4]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1263,7 +1263,7 @@ type AssetAddManyIssue struct {
 
 func (x *AssetAddManyIssue) Reset() {
 	*x = AssetAddManyIssue{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[5]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1275,7 +1275,7 @@ func (x *AssetAddManyIssue) String() string {
 func (*AssetAddManyIssue) ProtoMessage() {}
 
 func (x *AssetAddManyIssue) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[5]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1349,7 +1349,7 @@ type AssetGetRequest struct {
 
 func (x *AssetGetRequest) Reset() {
 	*x = AssetGetRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[6]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1361,7 +1361,7 @@ func (x *AssetGetRequest) String() string {
 func (*AssetGetRequest) ProtoMessage() {}
 
 func (x *AssetGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[6]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1465,7 +1465,7 @@ type AssetSelect struct {
 
 func (x *AssetSelect) Reset() {
 	*x = AssetSelect{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[7]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1477,7 +1477,7 @@ func (x *AssetSelect) String() string {
 func (*AssetSelect) ProtoMessage() {}
 
 func (x *AssetSelect) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[7]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2184,7 +2184,7 @@ type AssetPatchRequest struct {
 
 func (x *AssetPatchRequest) Reset() {
 	*x = AssetPatchRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[8]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2196,7 +2196,7 @@ func (x *AssetPatchRequest) String() string {
 func (*AssetPatchRequest) ProtoMessage() {}
 
 func (x *AssetPatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[8]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3011,7 +3011,7 @@ type AssetApplyRequest struct {
 
 func (x *AssetApplyRequest) Reset() {
 	*x = AssetApplyRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[9]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3023,7 +3023,7 @@ func (x *AssetApplyRequest) String() string {
 func (*AssetApplyRequest) ProtoMessage() {}
 
 func (x *AssetApplyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[9]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3105,7 +3105,7 @@ type AssetEraseResponse struct {
 
 func (x *AssetEraseResponse) Reset() {
 	*x = AssetEraseResponse{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[10]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3117,7 +3117,7 @@ func (x *AssetEraseResponse) String() string {
 func (*AssetEraseResponse) ProtoMessage() {}
 
 func (x *AssetEraseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[10]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3186,7 +3186,7 @@ type AssetListRequest struct {
 
 func (x *AssetListRequest) Reset() {
 	*x = AssetListRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[11]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3198,7 +3198,7 @@ func (x *AssetListRequest) String() string {
 func (*AssetListRequest) ProtoMessage() {}
 
 func (x *AssetListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[11]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3298,7 +3298,7 @@ type AssetListResponse struct {
 
 func (x *AssetListResponse) Reset() {
 	*x = AssetListResponse{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[12]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3310,7 +3310,7 @@ func (x *AssetListResponse) String() string {
 func (*AssetListResponse) ProtoMessage() {}
 
 func (x *AssetListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[12]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3388,7 +3388,7 @@ type AssetFilter struct {
 
 func (x *AssetFilter) Reset() {
 	*x = AssetFilter{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[13]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3400,7 +3400,7 @@ func (x *AssetFilter) String() string {
 func (*AssetFilter) ProtoMessage() {}
 
 func (x *AssetFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[13]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3683,7 +3683,7 @@ type AssetWatchRequest struct {
 
 func (x *AssetWatchRequest) Reset() {
 	*x = AssetWatchRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[14]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3695,7 +3695,7 @@ func (x *AssetWatchRequest) String() string {
 func (*AssetWatchRequest) ProtoMessage() {}
 
 func (x *AssetWatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[14]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3767,7 +3767,7 @@ type AssetWatchResponse struct {
 
 func (x *AssetWatchResponse) Reset() {
 	*x = AssetWatchResponse{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[15]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3779,7 +3779,7 @@ func (x *AssetWatchResponse) String() string {
 func (*AssetWatchResponse) ProtoMessage() {}
 
 func (x *AssetWatchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[15]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3831,7 +3831,7 @@ type AssetWatchItem struct {
 
 func (x *AssetWatchItem) Reset() {
 	*x = AssetWatchItem{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[16]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3843,7 +3843,7 @@ func (x *AssetWatchItem) String() string {
 func (*AssetWatchItem) ProtoMessage() {}
 
 func (x *AssetWatchItem) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[16]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3969,7 +3969,7 @@ type AssetMoveRequest struct {
 
 func (x *AssetMoveRequest) Reset() {
 	*x = AssetMoveRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[17]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3981,7 +3981,7 @@ func (x *AssetMoveRequest) String() string {
 func (*AssetMoveRequest) ProtoMessage() {}
 
 func (x *AssetMoveRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[17]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4174,7 +4174,7 @@ type AssetSetAttributesRequest struct {
 
 func (x *AssetSetAttributesRequest) Reset() {
 	*x = AssetSetAttributesRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[18]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4186,7 +4186,7 @@ func (x *AssetSetAttributesRequest) String() string {
 func (*AssetSetAttributesRequest) ProtoMessage() {}
 
 func (x *AssetSetAttributesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[18]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4349,7 +4349,7 @@ type AssetAssignRequest struct {
 
 func (x *AssetAssignRequest) Reset() {
 	*x = AssetAssignRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[19]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4361,7 +4361,7 @@ func (x *AssetAssignRequest) String() string {
 func (*AssetAssignRequest) ProtoMessage() {}
 
 func (x *AssetAssignRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[19]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4516,7 +4516,7 @@ type AssetRelateRequest struct {
 
 func (x *AssetRelateRequest) Reset() {
 	*x = AssetRelateRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[20]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4528,7 +4528,7 @@ func (x *AssetRelateRequest) String() string {
 func (*AssetRelateRequest) ProtoMessage() {}
 
 func (x *AssetRelateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[20]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4707,7 +4707,7 @@ type AssetCorrectRequest struct {
 
 func (x *AssetCorrectRequest) Reset() {
 	*x = AssetCorrectRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[21]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4719,7 +4719,7 @@ func (x *AssetCorrectRequest) String() string {
 func (*AssetCorrectRequest) ProtoMessage() {}
 
 func (x *AssetCorrectRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[21]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4863,7 +4863,7 @@ type AssetTimelineRequest struct {
 
 func (x *AssetTimelineRequest) Reset() {
 	*x = AssetTimelineRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[22]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4875,7 +4875,7 @@ func (x *AssetTimelineRequest) String() string {
 func (*AssetTimelineRequest) ProtoMessage() {}
 
 func (x *AssetTimelineRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[22]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4983,7 +4983,7 @@ type AssetTimelineResponse struct {
 
 func (x *AssetTimelineResponse) Reset() {
 	*x = AssetTimelineResponse{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[23]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4995,7 +4995,7 @@ func (x *AssetTimelineResponse) String() string {
 func (*AssetTimelineResponse) ProtoMessage() {}
 
 func (x *AssetTimelineResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[23]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5057,7 +5057,7 @@ type TimelineEntry struct {
 
 func (x *TimelineEntry) Reset() {
 	*x = TimelineEntry{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[24]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5069,7 +5069,7 @@ func (x *TimelineEntry) String() string {
 func (*TimelineEntry) ProtoMessage() {}
 
 func (x *TimelineEntry) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[24]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5329,10 +5329,10 @@ type TimelineEntry_builder struct {
 	// required and which end of it the asset is (`side`: `source`, the member
 	// or the one connected, or `target`), a fact's key and value. An event's
 	// is what its message held, under the names its domain's table gives the
-	// fields (`rove/past.proto`): a row it names as the row is called now -- a
+	// fields (`loft/past.proto`): a row it names as the row is called now -- a
 	// person by their name, and nothing else of theirs -- or as its identifier
 	// where nothing names it, and a moment in the workspace's zone, as RFC 3339
-	// writes one. A row from before Rove's past was payday's is what its
+	// writes one. A row from before Loft's past was payday's is what its
 	// `payload` said.
 	Detail    map[string]string
 	EventId   []byte
@@ -5384,7 +5384,7 @@ type AssetQueryAtRequest struct {
 
 func (x *AssetQueryAtRequest) Reset() {
 	*x = AssetQueryAtRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[25]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5396,7 +5396,7 @@ func (x *AssetQueryAtRequest) String() string {
 func (*AssetQueryAtRequest) ProtoMessage() {}
 
 func (x *AssetQueryAtRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[25]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5515,7 +5515,7 @@ type AssetQueryAtResponse struct {
 
 func (x *AssetQueryAtResponse) Reset() {
 	*x = AssetQueryAtResponse{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[26]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5527,7 +5527,7 @@ func (x *AssetQueryAtResponse) String() string {
 func (*AssetQueryAtResponse) ProtoMessage() {}
 
 func (x *AssetQueryAtResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[26]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5587,7 +5587,7 @@ type AssetState struct {
 
 func (x *AssetState) Reset() {
 	*x = AssetState{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[27]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5599,7 +5599,7 @@ func (x *AssetState) String() string {
 func (*AssetState) ProtoMessage() {}
 
 func (x *AssetState) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[27]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5810,7 +5810,7 @@ type AssetDiffRequest struct {
 
 func (x *AssetDiffRequest) Reset() {
 	*x = AssetDiffRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[28]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5822,7 +5822,7 @@ func (x *AssetDiffRequest) String() string {
 func (*AssetDiffRequest) ProtoMessage() {}
 
 func (x *AssetDiffRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[28]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5926,7 +5926,7 @@ type AssetDiffResponse struct {
 
 func (x *AssetDiffResponse) Reset() {
 	*x = AssetDiffResponse{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[29]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5938,7 +5938,7 @@ func (x *AssetDiffResponse) String() string {
 func (*AssetDiffResponse) ProtoMessage() {}
 
 func (x *AssetDiffResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[29]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5991,7 +5991,7 @@ type AssetChange struct {
 
 func (x *AssetChange) Reset() {
 	*x = AssetChange{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[30]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6003,7 +6003,7 @@ func (x *AssetChange) String() string {
 func (*AssetChange) ProtoMessage() {}
 
 func (x *AssetChange) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[30]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6137,7 +6137,7 @@ type AssetSearchRequest struct {
 
 func (x *AssetSearchRequest) Reset() {
 	*x = AssetSearchRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[31]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6149,7 +6149,7 @@ func (x *AssetSearchRequest) String() string {
 func (*AssetSearchRequest) ProtoMessage() {}
 
 func (x *AssetSearchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[31]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6320,7 +6320,7 @@ type AssetSearchResponse struct {
 
 func (x *AssetSearchResponse) Reset() {
 	*x = AssetSearchResponse{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[32]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6332,7 +6332,7 @@ func (x *AssetSearchResponse) String() string {
 func (*AssetSearchResponse) ProtoMessage() {}
 
 func (x *AssetSearchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[32]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6394,7 +6394,7 @@ type AssetReportRequest struct {
 
 func (x *AssetReportRequest) Reset() {
 	*x = AssetReportRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[33]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6406,7 +6406,7 @@ func (x *AssetReportRequest) String() string {
 func (*AssetReportRequest) ProtoMessage() {}
 
 func (x *AssetReportRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[33]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6500,7 +6500,7 @@ type AssetReportResponse struct {
 
 func (x *AssetReportResponse) Reset() {
 	*x = AssetReportResponse{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[34]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6512,7 +6512,7 @@ func (x *AssetReportResponse) String() string {
 func (*AssetReportResponse) ProtoMessage() {}
 
 func (x *AssetReportResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[34]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6563,7 +6563,7 @@ type ReportRow struct {
 
 func (x *ReportRow) Reset() {
 	*x = ReportRow{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[35]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6575,7 +6575,7 @@ func (x *ReportRow) String() string {
 func (*ReportRow) ProtoMessage() {}
 
 func (x *ReportRow) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[35]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6671,7 +6671,7 @@ type AssetExportRequest struct {
 
 func (x *AssetExportRequest) Reset() {
 	*x = AssetExportRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[36]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6683,7 +6683,7 @@ func (x *AssetExportRequest) String() string {
 func (*AssetExportRequest) ProtoMessage() {}
 
 func (x *AssetExportRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[36]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6717,7 +6717,7 @@ type AssetExportResponse struct {
 
 func (x *AssetExportResponse) Reset() {
 	*x = AssetExportResponse{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[37]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6729,7 +6729,7 @@ func (x *AssetExportResponse) String() string {
 func (*AssetExportResponse) ProtoMessage() {}
 
 func (x *AssetExportResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[37]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6802,7 +6802,7 @@ type AssetFormRequest struct {
 
 func (x *AssetFormRequest) Reset() {
 	*x = AssetFormRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[38]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6814,7 +6814,7 @@ func (x *AssetFormRequest) String() string {
 func (*AssetFormRequest) ProtoMessage() {}
 
 func (x *AssetFormRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[38]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6846,7 +6846,7 @@ type AssetReadSheetRequest struct {
 
 func (x *AssetReadSheetRequest) Reset() {
 	*x = AssetReadSheetRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[39]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6858,7 +6858,7 @@ func (x *AssetReadSheetRequest) String() string {
 func (*AssetReadSheetRequest) ProtoMessage() {}
 
 func (x *AssetReadSheetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[39]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6909,7 +6909,7 @@ type AssetReadSheetResponse struct {
 
 func (x *AssetReadSheetResponse) Reset() {
 	*x = AssetReadSheetResponse{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[40]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6921,7 +6921,7 @@ func (x *AssetReadSheetResponse) String() string {
 func (*AssetReadSheetResponse) ProtoMessage() {}
 
 func (x *AssetReadSheetResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[40]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7000,7 +7000,7 @@ type AssetReadSheetIssue struct {
 
 func (x *AssetReadSheetIssue) Reset() {
 	*x = AssetReadSheetIssue{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[41]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7012,7 +7012,7 @@ func (x *AssetReadSheetIssue) String() string {
 func (*AssetReadSheetIssue) ProtoMessage() {}
 
 func (x *AssetReadSheetIssue) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[41]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7086,7 +7086,7 @@ type AssetCensusRequest struct {
 
 func (x *AssetCensusRequest) Reset() {
 	*x = AssetCensusRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[42]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7098,7 +7098,7 @@ func (x *AssetCensusRequest) String() string {
 func (*AssetCensusRequest) ProtoMessage() {}
 
 func (x *AssetCensusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[42]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7165,7 +7165,7 @@ type AssetCensusResponse struct {
 
 func (x *AssetCensusResponse) Reset() {
 	*x = AssetCensusResponse{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[43]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7177,7 +7177,7 @@ func (x *AssetCensusResponse) String() string {
 func (*AssetCensusResponse) ProtoMessage() {}
 
 func (x *AssetCensusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[43]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7311,7 +7311,7 @@ type AssetCensusRow struct {
 
 func (x *AssetCensusRow) Reset() {
 	*x = AssetCensusRow{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[44]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7323,7 +7323,7 @@ func (x *AssetCensusRow) String() string {
 func (*AssetCensusRow) ProtoMessage() {}
 
 func (x *AssetCensusRow) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[44]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7472,7 +7472,7 @@ type TenantDomainAddRequest struct {
 
 func (x *TenantDomainAddRequest) Reset() {
 	*x = TenantDomainAddRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[45]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7484,7 +7484,7 @@ func (x *TenantDomainAddRequest) String() string {
 func (*TenantDomainAddRequest) ProtoMessage() {}
 
 func (x *TenantDomainAddRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[45]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7844,7 +7844,7 @@ type TenantDomainGetRequest struct {
 
 func (x *TenantDomainGetRequest) Reset() {
 	*x = TenantDomainGetRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[46]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7856,7 +7856,7 @@ func (x *TenantDomainGetRequest) String() string {
 func (*TenantDomainGetRequest) ProtoMessage() {}
 
 func (x *TenantDomainGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[46]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7936,7 +7936,7 @@ type TenantDomainRef struct {
 
 func (x *TenantDomainRef) Reset() {
 	*x = TenantDomainRef{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[47]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7948,7 +7948,7 @@ func (x *TenantDomainRef) String() string {
 func (*TenantDomainRef) ProtoMessage() {}
 
 func (x *TenantDomainRef) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[47]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8070,7 +8070,7 @@ func (b0 TenantDomainRef_builder) Build() *TenantDomainRef {
 type case_TenantDomainRef_Key protoreflect.FieldNumber
 
 func (x case_TenantDomainRef_Key) String() string {
-	md := file_rove_asset_svc_g_proto_msgTypes[47].Descriptor()
+	md := file_loft_asset_svc_g_proto_msgTypes[47].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -8119,7 +8119,7 @@ type TenantDomainSelect struct {
 
 func (x *TenantDomainSelect) Reset() {
 	*x = TenantDomainSelect{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[48]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8131,7 +8131,7 @@ func (x *TenantDomainSelect) String() string {
 func (*TenantDomainSelect) ProtoMessage() {}
 
 func (x *TenantDomainSelect) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[48]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8642,7 +8642,7 @@ type TenantDomainPatchRequest struct {
 
 func (x *TenantDomainPatchRequest) Reset() {
 	*x = TenantDomainPatchRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[49]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8654,7 +8654,7 @@ func (x *TenantDomainPatchRequest) String() string {
 func (*TenantDomainPatchRequest) ProtoMessage() {}
 
 func (x *TenantDomainPatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[49]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9250,7 +9250,7 @@ type TenantDomainApplyRequest struct {
 
 func (x *TenantDomainApplyRequest) Reset() {
 	*x = TenantDomainApplyRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[50]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9262,7 +9262,7 @@ func (x *TenantDomainApplyRequest) String() string {
 func (*TenantDomainApplyRequest) ProtoMessage() {}
 
 func (x *TenantDomainApplyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[50]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9344,7 +9344,7 @@ type TenantDomainEraseResponse struct {
 
 func (x *TenantDomainEraseResponse) Reset() {
 	*x = TenantDomainEraseResponse{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[51]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9356,7 +9356,7 @@ func (x *TenantDomainEraseResponse) String() string {
 func (*TenantDomainEraseResponse) ProtoMessage() {}
 
 func (x *TenantDomainEraseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[51]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9425,7 +9425,7 @@ type TenantDomainListRequest struct {
 
 func (x *TenantDomainListRequest) Reset() {
 	*x = TenantDomainListRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[52]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9437,7 +9437,7 @@ func (x *TenantDomainListRequest) String() string {
 func (*TenantDomainListRequest) ProtoMessage() {}
 
 func (x *TenantDomainListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[52]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9537,7 +9537,7 @@ type TenantDomainListResponse struct {
 
 func (x *TenantDomainListResponse) Reset() {
 	*x = TenantDomainListResponse{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[53]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9549,7 +9549,7 @@ func (x *TenantDomainListResponse) String() string {
 func (*TenantDomainListResponse) ProtoMessage() {}
 
 func (x *TenantDomainListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[53]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9620,7 +9620,7 @@ type TenantDomainFilter struct {
 
 func (x *TenantDomainFilter) Reset() {
 	*x = TenantDomainFilter{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[54]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9632,7 +9632,7 @@ func (x *TenantDomainFilter) String() string {
 func (*TenantDomainFilter) ProtoMessage() {}
 
 func (x *TenantDomainFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[54]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9753,7 +9753,7 @@ type TenantDomainWatchRequest struct {
 
 func (x *TenantDomainWatchRequest) Reset() {
 	*x = TenantDomainWatchRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[55]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9765,7 +9765,7 @@ func (x *TenantDomainWatchRequest) String() string {
 func (*TenantDomainWatchRequest) ProtoMessage() {}
 
 func (x *TenantDomainWatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[55]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9837,7 +9837,7 @@ type TenantDomainWatchResponse struct {
 
 func (x *TenantDomainWatchResponse) Reset() {
 	*x = TenantDomainWatchResponse{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[56]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9849,7 +9849,7 @@ func (x *TenantDomainWatchResponse) String() string {
 func (*TenantDomainWatchResponse) ProtoMessage() {}
 
 func (x *TenantDomainWatchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[56]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9901,7 +9901,7 @@ type TenantDomainWatchItem struct {
 
 func (x *TenantDomainWatchItem) Reset() {
 	*x = TenantDomainWatchItem{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[57]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[57]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9913,7 +9913,7 @@ func (x *TenantDomainWatchItem) String() string {
 func (*TenantDomainWatchItem) ProtoMessage() {}
 
 func (x *TenantDomainWatchItem) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[57]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[57]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10031,7 +10031,7 @@ type TenantDomainVerifyRequest struct {
 
 func (x *TenantDomainVerifyRequest) Reset() {
 	*x = TenantDomainVerifyRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[58]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[58]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10043,7 +10043,7 @@ func (x *TenantDomainVerifyRequest) String() string {
 func (*TenantDomainVerifyRequest) ProtoMessage() {}
 
 func (x *TenantDomainVerifyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[58]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[58]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10099,7 +10099,7 @@ type TenantDomainActivateRequest struct {
 
 func (x *TenantDomainActivateRequest) Reset() {
 	*x = TenantDomainActivateRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[59]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[59]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10111,7 +10111,7 @@ func (x *TenantDomainActivateRequest) String() string {
 func (*TenantDomainActivateRequest) ProtoMessage() {}
 
 func (x *TenantDomainActivateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[59]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[59]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10168,7 +10168,7 @@ type TenantDomainRetireRequest struct {
 
 func (x *TenantDomainRetireRequest) Reset() {
 	*x = TenantDomainRetireRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[60]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[60]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10180,7 +10180,7 @@ func (x *TenantDomainRetireRequest) String() string {
 func (*TenantDomainRetireRequest) ProtoMessage() {}
 
 func (x *TenantDomainRetireRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[60]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[60]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10249,7 +10249,7 @@ type TenantDomainStatusRequest struct {
 
 func (x *TenantDomainStatusRequest) Reset() {
 	*x = TenantDomainStatusRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[61]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[61]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10261,7 +10261,7 @@ func (x *TenantDomainStatusRequest) String() string {
 func (*TenantDomainStatusRequest) ProtoMessage() {}
 
 func (x *TenantDomainStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[61]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[61]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10296,7 +10296,7 @@ type TenantDomainStatusResponse struct {
 
 func (x *TenantDomainStatusResponse) Reset() {
 	*x = TenantDomainStatusResponse{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[62]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[62]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10308,7 +10308,7 @@ func (x *TenantDomainStatusResponse) String() string {
 func (*TenantDomainStatusResponse) ProtoMessage() {}
 
 func (x *TenantDomainStatusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[62]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[62]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10419,7 +10419,7 @@ type LabelAddRequest struct {
 
 func (x *LabelAddRequest) Reset() {
 	*x = LabelAddRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[63]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[63]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10431,7 +10431,7 @@ func (x *LabelAddRequest) String() string {
 func (*LabelAddRequest) ProtoMessage() {}
 
 func (x *LabelAddRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[63]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[63]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10706,7 +10706,7 @@ type LabelGetRequest struct {
 
 func (x *LabelGetRequest) Reset() {
 	*x = LabelGetRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[64]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[64]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10718,7 +10718,7 @@ func (x *LabelGetRequest) String() string {
 func (*LabelGetRequest) ProtoMessage() {}
 
 func (x *LabelGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[64]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[64]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10798,7 +10798,7 @@ type LabelRef struct {
 
 func (x *LabelRef) Reset() {
 	*x = LabelRef{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[65]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[65]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10810,7 +10810,7 @@ func (x *LabelRef) String() string {
 func (*LabelRef) ProtoMessage() {}
 
 func (x *LabelRef) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[65]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[65]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10932,7 +10932,7 @@ func (b0 LabelRef_builder) Build() *LabelRef {
 type case_LabelRef_Key protoreflect.FieldNumber
 
 func (x case_LabelRef_Key) String() string {
-	md := file_rove_asset_svc_g_proto_msgTypes[65].Descriptor()
+	md := file_loft_asset_svc_g_proto_msgTypes[65].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -10977,7 +10977,7 @@ type LabelSelect struct {
 
 func (x *LabelSelect) Reset() {
 	*x = LabelSelect{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[66]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[66]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10989,7 +10989,7 @@ func (x *LabelSelect) String() string {
 func (*LabelSelect) ProtoMessage() {}
 
 func (x *LabelSelect) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[66]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[66]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -11375,7 +11375,7 @@ type LabelPatchRequest struct {
 
 func (x *LabelPatchRequest) Reset() {
 	*x = LabelPatchRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[67]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[67]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -11387,7 +11387,7 @@ func (x *LabelPatchRequest) String() string {
 func (*LabelPatchRequest) ProtoMessage() {}
 
 func (x *LabelPatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[67]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[67]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -11874,7 +11874,7 @@ type LabelApplyRequest struct {
 
 func (x *LabelApplyRequest) Reset() {
 	*x = LabelApplyRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[68]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[68]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -11886,7 +11886,7 @@ func (x *LabelApplyRequest) String() string {
 func (*LabelApplyRequest) ProtoMessage() {}
 
 func (x *LabelApplyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[68]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[68]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -11968,7 +11968,7 @@ type LabelEraseResponse struct {
 
 func (x *LabelEraseResponse) Reset() {
 	*x = LabelEraseResponse{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[69]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[69]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -11980,7 +11980,7 @@ func (x *LabelEraseResponse) String() string {
 func (*LabelEraseResponse) ProtoMessage() {}
 
 func (x *LabelEraseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[69]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[69]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -12049,7 +12049,7 @@ type LabelListRequest struct {
 
 func (x *LabelListRequest) Reset() {
 	*x = LabelListRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[70]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[70]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -12061,7 +12061,7 @@ func (x *LabelListRequest) String() string {
 func (*LabelListRequest) ProtoMessage() {}
 
 func (x *LabelListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[70]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[70]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -12161,7 +12161,7 @@ type LabelListResponse struct {
 
 func (x *LabelListResponse) Reset() {
 	*x = LabelListResponse{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[71]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[71]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -12173,7 +12173,7 @@ func (x *LabelListResponse) String() string {
 func (*LabelListResponse) ProtoMessage() {}
 
 func (x *LabelListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[71]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[71]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -12245,7 +12245,7 @@ type LabelFilter struct {
 
 func (x *LabelFilter) Reset() {
 	*x = LabelFilter{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[72]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[72]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -12257,7 +12257,7 @@ func (x *LabelFilter) String() string {
 func (*LabelFilter) ProtoMessage() {}
 
 func (x *LabelFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[72]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[72]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -12410,7 +12410,7 @@ type LabelWatchRequest struct {
 
 func (x *LabelWatchRequest) Reset() {
 	*x = LabelWatchRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[73]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[73]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -12422,7 +12422,7 @@ func (x *LabelWatchRequest) String() string {
 func (*LabelWatchRequest) ProtoMessage() {}
 
 func (x *LabelWatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[73]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[73]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -12494,7 +12494,7 @@ type LabelWatchResponse struct {
 
 func (x *LabelWatchResponse) Reset() {
 	*x = LabelWatchResponse{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[74]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[74]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -12506,7 +12506,7 @@ func (x *LabelWatchResponse) String() string {
 func (*LabelWatchResponse) ProtoMessage() {}
 
 func (x *LabelWatchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[74]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[74]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -12558,7 +12558,7 @@ type LabelWatchItem struct {
 
 func (x *LabelWatchItem) Reset() {
 	*x = LabelWatchItem{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[75]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[75]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -12570,7 +12570,7 @@ func (x *LabelWatchItem) String() string {
 func (*LabelWatchItem) ProtoMessage() {}
 
 func (x *LabelWatchItem) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[75]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[75]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -12690,7 +12690,7 @@ type LabelPrintRequest struct {
 
 func (x *LabelPrintRequest) Reset() {
 	*x = LabelPrintRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[76]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[76]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -12702,7 +12702,7 @@ func (x *LabelPrintRequest) String() string {
 func (*LabelPrintRequest) ProtoMessage() {}
 
 func (x *LabelPrintRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[76]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[76]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -12774,7 +12774,7 @@ type LabelPrintResponse struct {
 
 func (x *LabelPrintResponse) Reset() {
 	*x = LabelPrintResponse{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[77]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[77]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -12786,7 +12786,7 @@ func (x *LabelPrintResponse) String() string {
 func (*LabelPrintResponse) ProtoMessage() {}
 
 func (x *LabelPrintResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[77]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[77]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -12849,7 +12849,7 @@ type LabelBindRequest struct {
 
 func (x *LabelBindRequest) Reset() {
 	*x = LabelBindRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[78]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[78]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -12861,7 +12861,7 @@ func (x *LabelBindRequest) String() string {
 func (*LabelBindRequest) ProtoMessage() {}
 
 func (x *LabelBindRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[78]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[78]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -12958,7 +12958,7 @@ type LabelUnbindRequest struct {
 
 func (x *LabelUnbindRequest) Reset() {
 	*x = LabelUnbindRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[79]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[79]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -12970,7 +12970,7 @@ func (x *LabelUnbindRequest) String() string {
 func (*LabelUnbindRequest) ProtoMessage() {}
 
 func (x *LabelUnbindRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[79]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[79]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13040,7 +13040,7 @@ type LabelResolveRequest struct {
 
 func (x *LabelResolveRequest) Reset() {
 	*x = LabelResolveRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[80]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[80]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13052,7 +13052,7 @@ func (x *LabelResolveRequest) String() string {
 func (*LabelResolveRequest) ProtoMessage() {}
 
 func (x *LabelResolveRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[80]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[80]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13099,7 +13099,7 @@ type LabelResolveResponse struct {
 
 func (x *LabelResolveResponse) Reset() {
 	*x = LabelResolveResponse{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[81]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[81]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13111,7 +13111,7 @@ func (x *LabelResolveResponse) String() string {
 func (*LabelResolveResponse) ProtoMessage() {}
 
 func (x *LabelResolveResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[81]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[81]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13201,7 +13201,7 @@ type AttachmentAddRequest struct {
 
 func (x *AttachmentAddRequest) Reset() {
 	*x = AttachmentAddRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[82]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[82]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13213,7 +13213,7 @@ func (x *AttachmentAddRequest) String() string {
 func (*AttachmentAddRequest) ProtoMessage() {}
 
 func (x *AttachmentAddRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[82]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[82]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13426,7 +13426,7 @@ type AttachmentGetRequest struct {
 
 func (x *AttachmentGetRequest) Reset() {
 	*x = AttachmentGetRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[83]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[83]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13438,7 +13438,7 @@ func (x *AttachmentGetRequest) String() string {
 func (*AttachmentGetRequest) ProtoMessage() {}
 
 func (x *AttachmentGetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[83]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[83]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13518,7 +13518,7 @@ type AttachmentRef struct {
 
 func (x *AttachmentRef) Reset() {
 	*x = AttachmentRef{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[84]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[84]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13530,7 +13530,7 @@ func (x *AttachmentRef) String() string {
 func (*AttachmentRef) ProtoMessage() {}
 
 func (x *AttachmentRef) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[84]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[84]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13618,7 +13618,7 @@ func (b0 AttachmentRef_builder) Build() *AttachmentRef {
 type case_AttachmentRef_Key protoreflect.FieldNumber
 
 func (x case_AttachmentRef_Key) String() string {
-	md := file_rove_asset_svc_g_proto_msgTypes[84].Descriptor()
+	md := file_loft_asset_svc_g_proto_msgTypes[84].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -13656,7 +13656,7 @@ type AttachmentSelect struct {
 
 func (x *AttachmentSelect) Reset() {
 	*x = AttachmentSelect{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[85]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[85]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13668,7 +13668,7 @@ func (x *AttachmentSelect) String() string {
 func (*AttachmentSelect) ProtoMessage() {}
 
 func (x *AttachmentSelect) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[85]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[85]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14024,7 +14024,7 @@ type AttachmentPatchRequest struct {
 
 func (x *AttachmentPatchRequest) Reset() {
 	*x = AttachmentPatchRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[86]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[86]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14036,7 +14036,7 @@ func (x *AttachmentPatchRequest) String() string {
 func (*AttachmentPatchRequest) ProtoMessage() {}
 
 func (x *AttachmentPatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[86]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[86]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14347,7 +14347,7 @@ type AttachmentApplyRequest struct {
 
 func (x *AttachmentApplyRequest) Reset() {
 	*x = AttachmentApplyRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[87]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[87]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14359,7 +14359,7 @@ func (x *AttachmentApplyRequest) String() string {
 func (*AttachmentApplyRequest) ProtoMessage() {}
 
 func (x *AttachmentApplyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[87]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[87]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14441,7 +14441,7 @@ type AttachmentEraseResponse struct {
 
 func (x *AttachmentEraseResponse) Reset() {
 	*x = AttachmentEraseResponse{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[88]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[88]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14453,7 +14453,7 @@ func (x *AttachmentEraseResponse) String() string {
 func (*AttachmentEraseResponse) ProtoMessage() {}
 
 func (x *AttachmentEraseResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[88]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[88]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14522,7 +14522,7 @@ type AttachmentListRequest struct {
 
 func (x *AttachmentListRequest) Reset() {
 	*x = AttachmentListRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[89]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[89]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14534,7 +14534,7 @@ func (x *AttachmentListRequest) String() string {
 func (*AttachmentListRequest) ProtoMessage() {}
 
 func (x *AttachmentListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[89]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[89]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14634,7 +14634,7 @@ type AttachmentListResponse struct {
 
 func (x *AttachmentListResponse) Reset() {
 	*x = AttachmentListResponse{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[90]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[90]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14646,7 +14646,7 @@ func (x *AttachmentListResponse) String() string {
 func (*AttachmentListResponse) ProtoMessage() {}
 
 func (x *AttachmentListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[90]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[90]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14716,7 +14716,7 @@ type AttachmentFilter struct {
 
 func (x *AttachmentFilter) Reset() {
 	*x = AttachmentFilter{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[91]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[91]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14728,7 +14728,7 @@ func (x *AttachmentFilter) String() string {
 func (*AttachmentFilter) ProtoMessage() {}
 
 func (x *AttachmentFilter) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[91]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[91]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14817,7 +14817,7 @@ type AttachmentWatchRequest struct {
 
 func (x *AttachmentWatchRequest) Reset() {
 	*x = AttachmentWatchRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[92]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[92]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14829,7 +14829,7 @@ func (x *AttachmentWatchRequest) String() string {
 func (*AttachmentWatchRequest) ProtoMessage() {}
 
 func (x *AttachmentWatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[92]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[92]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14901,7 +14901,7 @@ type AttachmentWatchResponse struct {
 
 func (x *AttachmentWatchResponse) Reset() {
 	*x = AttachmentWatchResponse{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[93]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[93]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14913,7 +14913,7 @@ func (x *AttachmentWatchResponse) String() string {
 func (*AttachmentWatchResponse) ProtoMessage() {}
 
 func (x *AttachmentWatchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[93]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[93]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14965,7 +14965,7 @@ type AttachmentWatchItem struct {
 
 func (x *AttachmentWatchItem) Reset() {
 	*x = AttachmentWatchItem{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[94]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[94]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14977,7 +14977,7 @@ func (x *AttachmentWatchItem) String() string {
 func (*AttachmentWatchItem) ProtoMessage() {}
 
 func (x *AttachmentWatchItem) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[94]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[94]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15098,7 +15098,7 @@ type AttachmentUploadRequest struct {
 
 func (x *AttachmentUploadRequest) Reset() {
 	*x = AttachmentUploadRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[95]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[95]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15110,7 +15110,7 @@ func (x *AttachmentUploadRequest) String() string {
 func (*AttachmentUploadRequest) ProtoMessage() {}
 
 func (x *AttachmentUploadRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[95]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[95]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15200,7 +15200,7 @@ type AttachmentUrlRequest struct {
 
 func (x *AttachmentUrlRequest) Reset() {
 	*x = AttachmentUrlRequest{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[96]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[96]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15212,7 +15212,7 @@ func (x *AttachmentUrlRequest) String() string {
 func (*AttachmentUrlRequest) ProtoMessage() {}
 
 func (x *AttachmentUrlRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[96]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[96]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15269,7 +15269,7 @@ type AttachmentUrlResponse struct {
 
 func (x *AttachmentUrlResponse) Reset() {
 	*x = AttachmentUrlResponse{}
-	mi := &file_rove_asset_svc_g_proto_msgTypes[97]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[97]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15281,7 +15281,7 @@ func (x *AttachmentUrlResponse) String() string {
 func (*AttachmentUrlResponse) ProtoMessage() {}
 
 func (x *AttachmentUrlResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_asset_svc_g_proto_msgTypes[97]
+	mi := &file_loft_asset_svc_g_proto_msgTypes[97]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15341,21 +15341,21 @@ func (b0 AttachmentUrlResponse_builder) Build() *AttachmentUrlResponse {
 	return m0
 }
 
-var File_rove_asset_svc_g_proto protoreflect.FileDescriptor
+var File_loft_asset_svc_g_proto protoreflect.FileDescriptor
 
-const file_rove_asset_svc_g_proto_rawDesc = "" +
+const file_loft_asset_svc_g_proto_rawDesc = "" +
 	"\n" +
-	"\x16rove/asset_svc.g.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x11patch/patch.proto\x1a\x10rove/asset.proto\x1a\x18rove/catalog_svc.g.proto\x1a\x14rove/org_svc.g.proto\x1a\x1erove/payday/tenant_svc.g.proto\"\xc2\t\n" +
+	"\x16loft/asset_svc.g.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x10loft/asset.proto\x1a\x18loft/catalog_svc.g.proto\x1a\x14loft/org_svc.g.proto\x1a\x1eloft/payday/tenant_svc.g.proto\x1a\x11patch/patch.proto\"\xc2\t\n" +
 	"\x0fAssetAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\x12\x19\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12\x19\n" +
 	"\x04name\x18\x05 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04name\x12\x19\n" +
 	"\x04desc\x18\x06 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04desc\x129\n" +
-	"\x06labels\x18\a \x03(\v2!.rove.AssetAddRequest.LabelsEntryR\x06labels\x12\x19\n" +
+	"\x06labels\x18\a \x03(\v2!.loft.AssetAddRequest.LabelsEntryR\x06labels\x12\x19\n" +
 	"\x04kind\x18\b \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\x12&\n" +
-	"\x04type\x18\t \x01(\v2\x12.rove.AssetTypeRefR\x04type\x12(\n" +
+	"\x04type\x18\t \x01(\v2\x12.loft.AssetTypeRefR\x04type\x12(\n" +
 	"\x05model\x18\n" +
-	" \x01(\v2\x12.rove.ItemModelRefR\x05model\x12\x17\n" +
+	" \x01(\v2\x12.loft.ItemModelRefR\x05model\x12\x17\n" +
 	"\x03tag\x18\v \x01(\tB\x05\xaa\x01\x02\b\x02R\x03tag\x12\x1d\n" +
 	"\x06serial\x18\f \x01(\tB\x05\xaa\x01\x02\b\x02R\x06serial\x12=\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\x12\x1d\n" +
@@ -15364,9 +15364,9 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\tparent_id\x18\x12 \x01(\fR\bparentId\x12,\n" +
 	"\x0eplacement_mode\x18\x13 \x01(\tB\x05\xaa\x01\x02\b\x02R\rplacementMode\x12\x19\n" +
 	"\x04slot\x18\x14 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04slot\x12,\n" +
-	"\tcustodian\x18\x15 \x01(\v2\x0e.rove.PartyRefR\tcustodian\x12E\n" +
+	"\tcustodian\x18\x15 \x01(\v2\x0e.loft.PartyRefR\tcustodian\x12E\n" +
 	"\n" +
-	"attributes\x18\x16 \x03(\v2%.rove.AssetAddRequest.AttributesEntryR\n" +
+	"attributes\x18\x16 \x03(\v2%.loft.AssetAddRequest.AttributesEntryR\n" +
 	"attributes\x12;\n" +
 	"\vacquired_at\x18\x17 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"acquiredAt\x12;\n" +
@@ -15376,7 +15376,7 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x05since\x18d \x01(\v2\x1a.google.protobuf.TimestampR\x05since\x12\x0e\n" +
 	"\x02op\x18e \x01(\fR\x02op\x12\x16\n" +
 	"\x06reason\x18f \x01(\tR\x06reason\x12\x1e\n" +
-	"\x02to\x18g \x01(\v2\x0e.rove.AssetRefR\x02to\x12\x12\n" +
+	"\x02to\x18g \x01(\v2\x0e.loft.AssetRefR\x02to\x12\x12\n" +
 	"\x04mode\x18h \x01(\tR\x04mode\x12\x1b\n" +
 	"\ttype_name\x18i \x01(\tR\btypeName\x12\x1d\n" +
 	"\n" +
@@ -15390,19 +15390,19 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"L\n" +
 	"\bAssetRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02id\x12'\n" +
-	"\x03tag\x18\v \x01(\v2\x13.rove.AssetRefByTagH\x00R\x03tagB\x05\n" +
+	"\x03tag\x18\v \x01(\v2\x13.loft.AssetRefByTagH\x00R\x03tagB\x05\n" +
 	"\x03key\"J\n" +
 	"\rAssetRefByTag\x12\x10\n" +
 	"\x03tag\x18\v \x01(\tR\x03tag\x12'\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\"\x98\x01\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\"\x98\x01\n" +
 	"\x13AssetAddManyRequest\x12+\n" +
-	"\x05items\x18\x01 \x03(\v2\x15.rove.AssetAddRequestR\x05items\x12\x1e\n" +
+	"\x05items\x18\x01 \x03(\v2\x15.loft.AssetAddRequestR\x05items\x12\x1e\n" +
 	"\adry_run\x18d \x01(\bB\x05\xaa\x01\x02\b\x02R\x06dryRun\x12\x15\n" +
 	"\x02op\x18e \x01(\fB\x05\xaa\x01\x02\b\x02R\x02op\x12\x1d\n" +
 	"\x06reason\x18f \x01(\tB\x05\xaa\x01\x02\b\x02R\x06reason\"\xdc\x01\n" +
 	"\x14AssetAddManyResponse\x12!\n" +
-	"\x05items\x18\x01 \x03(\v2\v.rove.AssetR\x05items\x12/\n" +
-	"\x06issues\x18d \x03(\v2\x17.rove.AssetAddManyIssueR\x06issues\x12\x12\n" +
+	"\x05items\x18\x01 \x03(\v2\v.loft.AssetR\x05items\x12/\n" +
+	"\x06issues\x18d \x03(\v2\x17.loft.AssetAddManyIssueR\x06issues\x12\x12\n" +
 	"\x04tags\x18e \x03(\tR\x04tags\x12\x1b\n" +
 	"\tnew_types\x18f \x03(\tR\bnewTypes\x12\x1d\n" +
 	"\n" +
@@ -15413,18 +15413,18 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x05field\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05field\x12\x1f\n" +
 	"\amessage\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\amessage\"^\n" +
 	"\x0fAssetGetRequest\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.rove.AssetRefR\x03ref\x12)\n" +
-	"\x06select\x18\x02 \x01(\v2\x11.rove.AssetSelectR\x06select\"\xd2\x05\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.loft.AssetRefR\x03ref\x12)\n" +
+	"\x06select\x18\x02 \x01(\v2\x11.loft.AssetSelectR\x06select\"\xd2\x05\n" +
 	"\vAssetSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x12.rove.TenantSelectR\x06tenant\x12\x12\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x12\x12\n" +
 	"\x04name\x18\x05 \x01(\bR\x04name\x12\x12\n" +
 	"\x04desc\x18\x06 \x01(\bR\x04desc\x12\x16\n" +
 	"\x06labels\x18\a \x01(\bR\x06labels\x12\x12\n" +
 	"\x04kind\x18\b \x01(\bR\x04kind\x12)\n" +
-	"\x04type\x18\t \x01(\v2\x15.rove.AssetTypeSelectR\x04type\x12+\n" +
+	"\x04type\x18\t \x01(\v2\x15.loft.AssetTypeSelectR\x04type\x12+\n" +
 	"\x05model\x18\n" +
-	" \x01(\v2\x15.rove.ItemModelSelectR\x05model\x12\x10\n" +
+	" \x01(\v2\x15.loft.ItemModelSelectR\x05model\x12\x10\n" +
 	"\x03tag\x18\v \x01(\bR\x03tag\x12\x16\n" +
 	"\x06serial\x18\f \x01(\bR\x06serial\x12!\n" +
 	"\fdate_updated\x18\r \x01(\bR\vdateUpdated\x12\x1f\n" +
@@ -15436,7 +15436,7 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\tparent_id\x18\x12 \x01(\bR\bparentId\x12%\n" +
 	"\x0eplacement_mode\x18\x13 \x01(\bR\rplacementMode\x12\x12\n" +
 	"\x04slot\x18\x14 \x01(\bR\x04slot\x12/\n" +
-	"\tcustodian\x18\x15 \x01(\v2\x11.rove.PartySelectR\tcustodian\x12\x1e\n" +
+	"\tcustodian\x18\x15 \x01(\v2\x11.loft.PartySelectR\tcustodian\x12\x1e\n" +
 	"\n" +
 	"attributes\x18\x16 \x01(\bR\n" +
 	"attributes\x12\x1f\n" +
@@ -15446,15 +15446,15 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"disposedAt\x12'\n" +
 	"\x0fcontent_version\x18\x19 \x01(\bR\x0econtentVersion\"\x96\t\n" +
 	"\x11AssetPatchRequest\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.rove.AssetRefR\x03ref\x12\x12\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.loft.AssetRefR\x03ref\x12\x12\n" +
 	"\x04name\x18\n" +
 	" \x01(\tR\x04name\x12\x12\n" +
 	"\x04desc\x18\f \x01(\tR\x04desc\x12;\n" +
-	"\x06labels\x18\x0e \x03(\v2#.rove.AssetPatchRequest.LabelsEntryR\x06labels\x12\x12\n" +
+	"\x06labels\x18\x0e \x03(\v2#.loft.AssetPatchRequest.LabelsEntryR\x06labels\x12\x12\n" +
 	"\x04kind\x18\x10 \x01(\tR\x04kind\x12&\n" +
-	"\x04type\x18\x12 \x01(\v2\x12.rove.AssetTypeRefR\x04type\x12\x1b\n" +
+	"\x04type\x18\x12 \x01(\v2\x12.loft.AssetTypeRefR\x04type\x12\x1b\n" +
 	"\ttype_null\x18\x13 \x01(\bR\btypeNull\x12(\n" +
-	"\x05model\x18\x14 \x01(\v2\x12.rove.ItemModelRefR\x05model\x12\x1d\n" +
+	"\x05model\x18\x14 \x01(\v2\x12.loft.ItemModelRefR\x05model\x12\x1d\n" +
 	"\n" +
 	"model_null\x18\x15 \x01(\bR\tmodelNull\x12\x10\n" +
 	"\x03tag\x18\x16 \x01(\tR\x03tag\x12\x16\n" +
@@ -15467,10 +15467,10 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x0eparent_id_null\x18% \x01(\bR\fparentIdNull\x12%\n" +
 	"\x0eplacement_mode\x18& \x01(\tR\rplacementMode\x12\x12\n" +
 	"\x04slot\x18( \x01(\tR\x04slot\x12,\n" +
-	"\tcustodian\x18* \x01(\v2\x0e.rove.PartyRefR\tcustodian\x12%\n" +
+	"\tcustodian\x18* \x01(\v2\x0e.loft.PartyRefR\tcustodian\x12%\n" +
 	"\x0ecustodian_null\x18+ \x01(\bR\rcustodianNull\x12G\n" +
 	"\n" +
-	"attributes\x18, \x03(\v2'.rove.AssetPatchRequest.AttributesEntryR\n" +
+	"attributes\x18, \x03(\v2'.loft.AssetPatchRequest.AttributesEntryR\n" +
 	"attributes\x12;\n" +
 	"\vacquired_at\x18. \x01(\v2\x1a.google.protobuf.TimestampR\n" +
 	"acquiredAt\x12(\n" +
@@ -15486,31 +15486,31 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"Y\n" +
 	"\x11AssetApplyRequest\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.rove.AssetRefR\x03ref\x12\"\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.loft.AssetRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\",\n" +
 	"\x12AssetEraseResponse\x12\x16\n" +
 	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x98\x01\n" +
 	"\x10AssetListRequest\x12+\n" +
-	"\afilters\x18\x01 \x03(\v2\x11.rove.AssetFilterR\afilters\x12\x19\n" +
+	"\afilters\x18\x01 \x03(\v2\x11.loft.AssetFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
 	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
 	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"Q\n" +
 	"\x11AssetListResponse\x12!\n" +
-	"\x05items\x18\x01 \x03(\v2\v.rove.AssetR\x05items\x12\x19\n" +
+	"\x05items\x18\x01 \x03(\v2\v.loft.AssetR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"\xfe\x03\n" +
 	"\vAssetFilter\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.rove.AssetRefR\x03ref\x12\x12\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.loft.AssetRefR\x03ref\x12\x12\n" +
 	"\x04kind\x18\x02 \x01(\tR\x04kind\x12\x16\n" +
 	"\x06status\x18\x03 \x01(\tR\x06status\x12&\n" +
-	"\x04type\x18\x04 \x01(\v2\x12.rove.AssetTypeRefR\x04type\x12(\n" +
-	"\x05model\x18\x05 \x01(\v2\x12.rove.ItemModelRefR\x05model\x12\x1b\n" +
+	"\x04type\x18\x04 \x01(\v2\x12.loft.AssetTypeRefR\x04type\x12(\n" +
+	"\x05model\x18\x05 \x01(\v2\x12.loft.ItemModelRefR\x05model\x12\x1b\n" +
 	"\tparent_id\x18\x06 \x01(\fR\bparentId\x12,\n" +
-	"\tcustodian\x18\a \x01(\v2\x0e.rove.PartyRefR\tcustodian\x12\x10\n" +
+	"\tcustodian\x18\a \x01(\v2\x0e.loft.PartyRefR\tcustodian\x12\x10\n" +
 	"\x03tag\x18\b \x01(\tR\x03tag\x125\n" +
-	"\x06labels\x18\t \x03(\v2\x1d.rove.AssetFilter.LabelsEntryR\x06labels\x12A\n" +
+	"\x06labels\x18\t \x03(\v2\x1d.loft.AssetFilter.LabelsEntryR\x06labels\x12A\n" +
 	"\n" +
 	"attributes\x18\n" +
-	" \x03(\v2!.rove.AssetFilter.AttributesEntryR\n" +
+	" \x03(\v2!.loft.AssetFilter.AttributesEntryR\n" +
 	"attributes\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
@@ -15519,17 +15519,17 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"l\n" +
 	"\x11AssetWatchRequest\x12+\n" +
-	"\afilters\x18\x01 \x03(\v2\x11.rove.AssetFilterR\afilters\x12*\n" +
+	"\afilters\x18\x01 \x03(\v2\x11.loft.AssetFilterR\afilters\x12*\n" +
 	"\rskip_snapshot\x18\x02 \x01(\bB\x05\xaa\x01\x02\b\x02R\fskipSnapshot\"@\n" +
 	"\x12AssetWatchResponse\x12*\n" +
-	"\x05items\x18\x01 \x03(\v2\x14.rove.AssetWatchItemR\x05items\"b\n" +
+	"\x05items\x18\x01 \x03(\v2\x14.loft.AssetWatchItemR\x05items\"b\n" +
 	"\x0eAssetWatchItem\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12!\n" +
-	"\x05value\x18\x02 \x01(\v2\v.rove.AssetR\x05value\x12\x1d\n" +
+	"\x05value\x18\x02 \x01(\v2\v.loft.AssetR\x05value\x12\x1d\n" +
 	"\x06action\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06action\"\xa4\x02\n" +
 	"\x10AssetMoveRequest\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.rove.AssetRefR\x03ref\x12\x1e\n" +
-	"\x02to\x18\x02 \x01(\v2\x0e.rove.AssetRefR\x02to\x12\x19\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.loft.AssetRefR\x03ref\x12\x1e\n" +
+	"\x02to\x18\x02 \x01(\v2\x0e.loft.AssetRefR\x02to\x12\x19\n" +
 	"\x04mode\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04mode\x12\x19\n" +
 	"\x04slot\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04slot\x12\x1c\n" +
 	"\x06u_from\x18\x05 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x05uFrom\x12\x18\n" +
@@ -15538,26 +15538,26 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x06reason\x18\b \x01(\tB\x05\xaa\x01\x02\b\x02R\x06reason\x12\x15\n" +
 	"\x02op\x18\t \x01(\fB\x05\xaa\x01\x02\b\x02R\x02op\"\xcf\x02\n" +
 	"\x19AssetSetAttributesRequest\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.rove.AssetRefR\x03ref\x12:\n" +
-	"\x03set\x18\x02 \x03(\v2(.rove.AssetSetAttributesRequest.SetEntryR\x03set\x12\x14\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.loft.AssetRefR\x03ref\x12:\n" +
+	"\x03set\x18\x02 \x03(\v2(.loft.AssetSetAttributesRequest.SetEntryR\x03set\x12\x14\n" +
 	"\x05clear\x18\x03 \x03(\tR\x05clear\x12*\n" +
 	"\x02at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x02at\x12\x1d\n" +
 	"\x06reason\x18\x05 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06reason\x12\x15\n" +
 	"\x02op\x18\x06 \x01(\fB\x05\xaa\x01\x02\b\x02R\x02op\x12$\n" +
-	"\x05leave\x18\a \x03(\v2\x0e.rove.AssetRefR\x05leave\x1a6\n" +
+	"\x05leave\x18\a \x03(\v2\x0e.loft.AssetRefR\x05leave\x1a6\n" +
 	"\bSetEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd9\x01\n" +
 	"\x12AssetAssignRequest\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.rove.AssetRefR\x03ref\x12\x19\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.loft.AssetRefR\x03ref\x12\x19\n" +
 	"\x04role\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04role\x12$\n" +
-	"\x05party\x18\x03 \x01(\v2\x0e.rove.PartyRefR\x05party\x12*\n" +
+	"\x05party\x18\x03 \x01(\v2\x0e.loft.PartyRefR\x05party\x12*\n" +
 	"\x02at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x02at\x12\x1d\n" +
 	"\x06reason\x18\x05 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06reason\x12\x15\n" +
 	"\x02op\x18\x06 \x01(\fB\x05\xaa\x01\x02\b\x02R\x02op\"\x97\x02\n" +
 	"\x12AssetRelateRequest\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.rove.AssetRefR\x03ref\x12&\n" +
-	"\x06target\x18\x02 \x01(\v2\x0e.rove.AssetRefR\x06target\x12\x19\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.loft.AssetRefR\x03ref\x12&\n" +
+	"\x06target\x18\x02 \x01(\v2\x0e.loft.AssetRefR\x06target\x12\x19\n" +
 	"\x04kind\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\x12!\n" +
 	"\brequired\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\brequired\x12\x17\n" +
 	"\x03end\x18\x05 \x01(\bB\x05\xaa\x01\x02\b\x02R\x03end\x12*\n" +
@@ -15565,7 +15565,7 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x06reason\x18\a \x01(\tB\x05\xaa\x01\x02\b\x02R\x06reason\x12\x15\n" +
 	"\x02op\x18\b \x01(\fB\x05\xaa\x01\x02\b\x02R\x02op\"\xe7\x01\n" +
 	"\x13AssetCorrectRequest\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.rove.AssetRefR\x03ref\x12\x1c\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.loft.AssetRefR\x03ref\x12\x1c\n" +
 	"\x06row_id\x18\x02 \x01(\fB\x05\xaa\x01\x02\b\x02R\x05rowId\x12\x1f\n" +
 	"\aretract\x18\x03 \x01(\bB\x05\xaa\x01\x02\b\x02R\aretract\x129\n" +
 	"\n" +
@@ -15573,14 +15573,14 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x06reason\x18\x05 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06reason\x12\x15\n" +
 	"\x02op\x18\x06 \x01(\fB\x05\xaa\x01\x02\b\x02R\x02op\"\xae\x01\n" +
 	"\x14AssetTimelineRequest\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.rove.AssetRefR\x03ref\x12%\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.loft.AssetRefR\x03ref\x12%\n" +
 	"\n" +
 	"superseded\x18\x02 \x01(\bB\x05\xaa\x01\x02\b\x02R\n" +
 	"superseded\x120\n" +
 	"\x05known\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x05known\x12\x1b\n" +
 	"\x05limit\x18\x04 \x01(\rB\x05\xaa\x01\x02\b\x02R\x05limit\"F\n" +
 	"\x15AssetTimelineResponse\x12-\n" +
-	"\aentries\x18\x01 \x03(\v2\x13.rove.TimelineEntryR\aentries\"\xd8\x05\n" +
+	"\aentries\x18\x01 \x03(\v2\x13.loft.TimelineEntryR\aentries\"\xd8\x05\n" +
 	"\rTimelineEntry\x12\x19\n" +
 	"\x04kind\x18\x01 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\x12\x1c\n" +
 	"\x06row_id\x18\x02 \x01(\fB\x05\xaa\x01\x02\b\x02R\x05rowId\x129\n" +
@@ -15591,7 +15591,7 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"recordedAt\x12?\n" +
 	"\rsuperseded_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\fsupersededAt\x12\x1f\n" +
 	"\asummary\x18\a \x01(\tB\x05\xaa\x01\x02\b\x02R\asummary\x127\n" +
-	"\x06detail\x18\b \x03(\v2\x1f.rove.TimelineEntry.DetailEntryR\x06detail\x12 \n" +
+	"\x06detail\x18\b \x03(\v2\x1f.loft.TimelineEntry.DetailEntryR\x06detail\x12 \n" +
 	"\bevent_id\x18\t \x01(\fB\x05\xaa\x01\x02\b\x02R\aeventId\x12$\n" +
 	"\n" +
 	"event_kind\x18\n" +
@@ -15607,12 +15607,12 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb4\x01\n" +
 	"\x13AssetQueryAtRequest\x12\"\n" +
-	"\x04root\x18\x01 \x01(\v2\x0e.rove.AssetRefR\x04root\x12*\n" +
+	"\x04root\x18\x01 \x01(\v2\x0e.loft.AssetRefR\x04root\x12*\n" +
 	"\x02at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x02at\x120\n" +
 	"\x05known\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x05known\x12\x1b\n" +
 	"\x05depth\x18\x04 \x01(\rB\x05\xaa\x01\x02\b\x02R\x05depth\">\n" +
 	"\x14AssetQueryAtResponse\x12&\n" +
-	"\x05items\x18\x01 \x03(\v2\x10.rove.AssetStateR\x05items\"\x97\x05\n" +
+	"\x05items\x18\x01 \x03(\v2\x10.loft.AssetStateR\x05items\"\x97\x05\n" +
 	"\n" +
 	"AssetState\x12\x15\n" +
 	"\x02id\x18\x01 \x01(\fB\x05\xaa\x01\x02\b\x02R\x02id\x12\"\n" +
@@ -15621,9 +15621,9 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x04slot\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04slot\x12\x1c\n" +
 	"\x06u_from\x18\x05 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x05uFrom\x12\x18\n" +
 	"\x04u_to\x18\x06 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x03uTo\x121\n" +
-	"\x05facts\x18\a \x03(\v2\x1b.rove.AssetState.FactsEntryR\x05facts\x12:\n" +
-	"\bstewards\x18\b \x03(\v2\x1e.rove.AssetState.StewardsEntryR\bstewards\x12G\n" +
-	"\rsteward_names\x18\t \x03(\v2\".rove.AssetState.StewardNamesEntryR\fstewardNames\x12\x1b\n" +
+	"\x05facts\x18\a \x03(\v2\x1b.loft.AssetState.FactsEntryR\x05facts\x12:\n" +
+	"\bstewards\x18\b \x03(\v2\x1e.loft.AssetState.StewardsEntryR\bstewards\x12G\n" +
+	"\rsteward_names\x18\t \x03(\v2\".loft.AssetState.StewardNamesEntryR\fstewardNames\x12\x1b\n" +
 	"\x05depth\x18\n" +
 	" \x01(\rB\x05\xaa\x01\x02\b\x02R\x05depth\x12\x19\n" +
 	"\x04kind\x18\v \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\x12\x17\n" +
@@ -15640,11 +15640,11 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x92\x01\n" +
 	"\x10AssetDiffRequest\x12\"\n" +
-	"\x04root\x18\x01 \x01(\v2\x0e.rove.AssetRefR\x04root\x12.\n" +
+	"\x04root\x18\x01 \x01(\v2\x0e.loft.AssetRefR\x04root\x12.\n" +
 	"\x04from\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
 	"\x02to\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\"@\n" +
 	"\x11AssetDiffResponse\x12+\n" +
-	"\achanges\x18\x01 \x03(\v2\x11.rove.AssetChangeR\achanges\"\xcc\x01\n" +
+	"\achanges\x18\x01 \x03(\v2\x11.loft.AssetChangeR\achanges\"\xcc\x01\n" +
 	"\vAssetChange\x12\x15\n" +
 	"\x02id\x18\x01 \x01(\fB\x05\xaa\x01\x02\b\x02R\x02id\x12\x17\n" +
 	"\x03tag\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x03tag\x12\x19\n" +
@@ -15657,26 +15657,26 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x01q\x18\x01 \x01(\tB\x05\xaa\x01\x02\b\x02R\x01q\x12\x19\n" +
 	"\x04kind\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\x12\x1d\n" +
 	"\x06status\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06status\x12&\n" +
-	"\x04type\x18\x04 \x01(\v2\x12.rove.AssetTypeRefR\x04type\x12&\n" +
-	"\x06within\x18\x05 \x01(\v2\x0e.rove.AssetRefR\x06within\x12\x19\n" +
+	"\x04type\x18\x04 \x01(\v2\x12.loft.AssetTypeRefR\x04type\x12&\n" +
+	"\x06within\x18\x05 \x01(\v2\x0e.loft.AssetRefR\x06within\x12\x19\n" +
 	"\x04size\x18\x06 \x01(\rB\x05\xaa\x01\x02\b\x02R\x04size\x12\x1d\n" +
 	"\x06offset\x18\a \x01(\rB\x05\xaa\x01\x02\b\x02R\x06offset\x12,\n" +
-	"\tcustodian\x18\b \x01(\v2\x0e.rove.PartyRefR\tcustodian\"U\n" +
+	"\tcustodian\x18\b \x01(\v2\x0e.loft.PartyRefR\tcustodian\"U\n" +
 	"\x13AssetSearchResponse\x12!\n" +
-	"\x05items\x18\x01 \x03(\v2\v.rove.AssetR\x05items\x12\x1b\n" +
+	"\x05items\x18\x01 \x03(\v2\v.loft.AssetR\x05items\x12\x1b\n" +
 	"\x05total\x18\x02 \x01(\rB\x05\xaa\x01\x02\b\x02R\x05total\"\x8b\x01\n" +
 	"\x12AssetReportRequest\x12\x19\n" +
 	"\x04kind\x18\x01 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\x12.\n" +
 	"\x04from\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
 	"\x02to\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\":\n" +
 	"\x13AssetReportResponse\x12#\n" +
-	"\x04rows\x18\x01 \x03(\v2\x0f.rove.ReportRowR\x04rows\"\xeb\x01\n" +
+	"\x04rows\x18\x01 \x03(\v2\x0f.loft.ReportRowR\x04rows\"\xeb\x01\n" +
 	"\tReportRow\x12\x1b\n" +
 	"\x05group\x18\x01 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05group\x12\x17\n" +
 	"\x03key\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x03key\x12\x1b\n" +
 	"\x05label\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05label\x12\x1b\n" +
 	"\x05value\x18\x04 \x01(\x01B\x05\xaa\x01\x02\b\x02R\x05value\x123\n" +
-	"\x06detail\x18\x05 \x03(\v2\x1b.rove.ReportRow.DetailEntryR\x06detail\x1a9\n" +
+	"\x06detail\x18\x05 \x03(\v2\x1b.loft.ReportRow.DetailEntryR\x06detail\x1a9\n" +
 	"\vDetailEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"$\n" +
@@ -15689,9 +15689,9 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x15AssetReadSheetRequest\x12\x19\n" +
 	"\x04data\x18\x01 \x01(\fB\x05\xaa\x01\x02\b\x02R\x04data\"\x8e\x01\n" +
 	"\x16AssetReadSheetResponse\x12+\n" +
-	"\x05items\x18\x01 \x03(\v2\x15.rove.AssetAddRequestR\x05items\x12\x14\n" +
+	"\x05items\x18\x01 \x03(\v2\x15.loft.AssetAddRequestR\x05items\x12\x14\n" +
 	"\x05lines\x18\x02 \x03(\rR\x05lines\x121\n" +
-	"\x06issues\x18\x03 \x03(\v2\x19.rove.AssetReadSheetIssueR\x06issues\"p\n" +
+	"\x06issues\x18\x03 \x03(\v2\x19.loft.AssetReadSheetIssueR\x06issues\"p\n" +
 	"\x13AssetReadSheetIssue\x12\x19\n" +
 	"\x04line\x18\x01 \x01(\rB\x05\xaa\x01\x02\b\x02R\x04line\x12\x1d\n" +
 	"\x06column\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06column\x12\x1f\n" +
@@ -15700,8 +15700,8 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x02by\x18\x01 \x01(\tB\x05\xaa\x01\x02\b\x02R\x02by\x12\x19\n" +
 	"\x04kind\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\"\xc9\x01\n" +
 	"\x13AssetCensusResponse\x12(\n" +
-	"\x04rows\x18\x01 \x03(\v2\x14.rove.AssetCensusRowR\x04rows\x12*\n" +
-	"\x05total\x18\x02 \x01(\v2\x14.rove.AssetCensusRowR\x05total\x12*\n" +
+	"\x04rows\x18\x01 \x03(\v2\x14.loft.AssetCensusRowR\x04rows\x12*\n" +
+	"\x05total\x18\x02 \x01(\v2\x14.loft.AssetCensusRowR\x05total\x12*\n" +
 	"\x02at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x02at\x12\x15\n" +
 	"\x02by\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\x02by\x12\x19\n" +
 	"\x04kind\x18\x05 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04kind\"\xa8\x02\n" +
@@ -15710,7 +15710,7 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x04name\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04name\x12\x17\n" +
 	"\x03tag\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x03tag\x12\x12\n" +
 	"\x04path\x18\x04 \x03(\tR\x04path\x12>\n" +
-	"\bstatuses\x18\x05 \x03(\v2\".rove.AssetCensusRow.StatusesEntryR\bstatuses\x12\x1b\n" +
+	"\bstatuses\x18\x05 \x03(\v2\".loft.AssetCensusRow.StatusesEntryR\bstatuses\x12\x1b\n" +
 	"\x05total\x18\x06 \x01(\rB\x05\xaa\x01\x02\b\x02R\x05total\x12\x1d\n" +
 	"\x06within\x18\a \x01(\rB\x05\xaa\x01\x02\b\x02R\x06within\x1a;\n" +
 	"\rStatusesEntry\x12\x10\n" +
@@ -15718,7 +15718,7 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\rR\x05value:\x028\x01\"\x8c\x05\n" +
 	"\x16TenantDomainAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\x12\x19\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12\x19\n" +
 	"\x04host\x18\b \x01(\tB\x05\xaa\x01\x02\b\x02R\x04host\x12\x1f\n" +
 	"\apurpose\x18\t \x01(\tB\x05\xaa\x01\x02\b\x02R\apurpose\x12\x1b\n" +
 	"\x05state\x18\n" +
@@ -15737,15 +15737,15 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x0eredirect_until\x18\x15 \x01(\v2\x1a.google.protobuf.TimestampR\rredirectUntil\x12\x10\n" +
 	"\x03sub\x18d \x01(\tR\x03sub\"s\n" +
 	"\x16TenantDomainGetRequest\x12'\n" +
-	"\x03ref\x18\x01 \x01(\v2\x15.rove.TenantDomainRefR\x03ref\x120\n" +
-	"\x06select\x18\x02 \x01(\v2\x18.rove.TenantDomainSelectR\x06select\"@\n" +
+	"\x03ref\x18\x01 \x01(\v2\x15.loft.TenantDomainRefR\x03ref\x120\n" +
+	"\x06select\x18\x02 \x01(\v2\x18.loft.TenantDomainSelectR\x06select\"@\n" +
 	"\x0fTenantDomainRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02id\x12\x14\n" +
 	"\x04host\x18\b \x01(\tH\x00R\x04hostB\x05\n" +
 	"\x03key\"\xf4\x03\n" +
 	"\x12TenantDomainSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x12.rove.TenantSelectR\x06tenant\x12\x12\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x12\x12\n" +
 	"\x04host\x18\b \x01(\bR\x04host\x12\x18\n" +
 	"\apurpose\x18\t \x01(\bR\apurpose\x12\x14\n" +
 	"\x05state\x18\n" +
@@ -15766,7 +15766,7 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"dateLapsed\x12%\n" +
 	"\x0eredirect_until\x18\x15 \x01(\bR\rredirectUntil\"\xd1\x06\n" +
 	"\x18TenantDomainPatchRequest\x12'\n" +
-	"\x03ref\x18\x01 \x01(\v2\x15.rove.TenantDomainRefR\x03ref\x12\x12\n" +
+	"\x03ref\x18\x01 \x01(\v2\x15.loft.TenantDomainRefR\x03ref\x12\x12\n" +
 	"\x04host\x18\x10 \x01(\tR\x04host\x12\x18\n" +
 	"\apurpose\x18\x12 \x01(\tR\apurpose\x12\x14\n" +
 	"\x05state\x18\x14 \x01(\tR\x05state\x12\x14\n" +
@@ -15789,48 +15789,48 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x0eredirect_until\x18* \x01(\v2\x1a.google.protobuf.TimestampR\rredirectUntil\x12.\n" +
 	"\x13redirect_until_null\x18+ \x01(\bR\x11redirectUntilNull\"g\n" +
 	"\x18TenantDomainApplyRequest\x12'\n" +
-	"\x03ref\x18\x01 \x01(\v2\x15.rove.TenantDomainRefR\x03ref\x12\"\n" +
+	"\x03ref\x18\x01 \x01(\v2\x15.loft.TenantDomainRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"3\n" +
 	"\x19TenantDomainEraseResponse\x12\x16\n" +
 	"\x06erased\x18\x01 \x01(\bR\x06erased\"\xa6\x01\n" +
 	"\x17TenantDomainListRequest\x122\n" +
-	"\afilters\x18\x01 \x03(\v2\x18.rove.TenantDomainFilterR\afilters\x12\x19\n" +
+	"\afilters\x18\x01 \x03(\v2\x18.loft.TenantDomainFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
 	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
 	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"_\n" +
 	"\x18TenantDomainListResponse\x12(\n" +
-	"\x05items\x18\x01 \x03(\v2\x12.rove.TenantDomainR\x05items\x12\x19\n" +
+	"\x05items\x18\x01 \x03(\v2\x12.loft.TenantDomainR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"m\n" +
 	"\x12TenantDomainFilter\x12'\n" +
-	"\x03ref\x18\x01 \x01(\v2\x15.rove.TenantDomainRefR\x03ref\x12\x14\n" +
+	"\x03ref\x18\x01 \x01(\v2\x15.loft.TenantDomainRefR\x03ref\x12\x14\n" +
 	"\x05state\x18\x02 \x01(\tR\x05state\x12\x18\n" +
 	"\apurpose\x18\x03 \x01(\tR\apurpose\"z\n" +
 	"\x18TenantDomainWatchRequest\x122\n" +
-	"\afilters\x18\x01 \x03(\v2\x18.rove.TenantDomainFilterR\afilters\x12*\n" +
+	"\afilters\x18\x01 \x03(\v2\x18.loft.TenantDomainFilterR\afilters\x12*\n" +
 	"\rskip_snapshot\x18\x02 \x01(\bB\x05\xaa\x01\x02\b\x02R\fskipSnapshot\"N\n" +
 	"\x19TenantDomainWatchResponse\x121\n" +
-	"\x05items\x18\x01 \x03(\v2\x1b.rove.TenantDomainWatchItemR\x05items\"p\n" +
+	"\x05items\x18\x01 \x03(\v2\x1b.loft.TenantDomainWatchItemR\x05items\"p\n" +
 	"\x15TenantDomainWatchItem\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12(\n" +
-	"\x05value\x18\x02 \x01(\v2\x12.rove.TenantDomainR\x05value\x12\x1d\n" +
+	"\x05value\x18\x02 \x01(\v2\x12.loft.TenantDomainR\x05value\x12\x1d\n" +
 	"\x06action\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06action\"D\n" +
 	"\x19TenantDomainVerifyRequest\x12'\n" +
-	"\x03ref\x18\x01 \x01(\v2\x15.rove.TenantDomainRefR\x03ref\"F\n" +
+	"\x03ref\x18\x01 \x01(\v2\x15.loft.TenantDomainRefR\x03ref\"F\n" +
 	"\x1bTenantDomainActivateRequest\x12'\n" +
-	"\x03ref\x18\x01 \x01(\v2\x15.rove.TenantDomainRefR\x03ref\"a\n" +
+	"\x03ref\x18\x01 \x01(\v2\x15.loft.TenantDomainRefR\x03ref\"a\n" +
 	"\x19TenantDomainRetireRequest\x12'\n" +
-	"\x03ref\x18\x01 \x01(\v2\x15.rove.TenantDomainRefR\x03ref\x12\x1b\n" +
+	"\x03ref\x18\x01 \x01(\v2\x15.loft.TenantDomainRefR\x03ref\x12\x1b\n" +
 	"\x05force\x18\x02 \x01(\bB\x05\xaa\x01\x02\b\x02R\x05force\"\x1b\n" +
 	"\x19TenantDomainStatusRequest\"\xd4\x01\n" +
 	"\x1aTenantDomainStatusResponse\x12*\n" +
-	"\x06active\x18\x02 \x01(\v2\x12.rove.TenantDomainR\x06active\x12\x1d\n" +
+	"\x06active\x18\x02 \x01(\v2\x12.loft.TenantDomainR\x06active\x12\x1d\n" +
 	"\x06target\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06target\x12,\n" +
 	"\x0edefault_suffix\x18\x04 \x01(\tB\x05\xaa\x01\x02\b\x02R\rdefaultSuffix\x12\x19\n" +
 	"\x04base\x18\x06 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04baseJ\x04\b\x01\x10\x02J\x04\b\x05\x10\x06R\x06labelsR\x0etenant_domains\"\x97\x03\n" +
 	"\x0fLabelAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\x12-\n" +
-	"\x06domain\x18\b \x01(\v2\x15.rove.TenantDomainRefR\x06domain\x12\x1d\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12-\n" +
+	"\x06domain\x18\b \x01(\v2\x15.loft.TenantDomainRefR\x06domain\x12\x1d\n" +
 	"\n" +
 	"subject_id\x18\t \x01(\fR\tsubjectId\x12\x1b\n" +
 	"\x05state\x18\n" +
@@ -15842,16 +15842,16 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x05batch\x18\x10 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05batch\x12\x12\n" +
 	"\x04code\x18\x11 \x01(\tR\x04code\"^\n" +
 	"\x0fLabelGetRequest\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.rove.LabelRefR\x03ref\x12)\n" +
-	"\x06select\x18\x02 \x01(\v2\x11.rove.LabelSelectR\x06select\"9\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.loft.LabelRefR\x03ref\x12)\n" +
+	"\x06select\x18\x02 \x01(\v2\x11.loft.LabelSelectR\x06select\"9\n" +
 	"\bLabelRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02id\x12\x14\n" +
 	"\x04code\x18\x11 \x01(\tH\x00R\x04codeB\x05\n" +
 	"\x03key\"\xfd\x02\n" +
 	"\vLabelSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x12.rove.TenantSelectR\x06tenant\x120\n" +
-	"\x06domain\x18\b \x01(\v2\x18.rove.TenantDomainSelectR\x06domain\x12\x1d\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x120\n" +
+	"\x06domain\x18\b \x01(\v2\x18.loft.TenantDomainSelectR\x06domain\x12\x1d\n" +
 	"\n" +
 	"subject_id\x18\t \x01(\bR\tsubjectId\x12\x14\n" +
 	"\x05state\x18\n" +
@@ -15866,8 +15866,8 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x05batch\x18\x10 \x01(\bR\x05batch\x12\x12\n" +
 	"\x04code\x18\x11 \x01(\bR\x04code\"\xd4\x04\n" +
 	"\x11LabelPatchRequest\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.rove.LabelRefR\x03ref\x12-\n" +
-	"\x06domain\x18\x10 \x01(\v2\x15.rove.TenantDomainRefR\x06domain\x12\x1f\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.loft.LabelRefR\x03ref\x12-\n" +
+	"\x06domain\x18\x10 \x01(\v2\x15.loft.TenantDomainRefR\x06domain\x12\x1f\n" +
 	"\vdomain_null\x18\x11 \x01(\bR\n" +
 	"domainNull\x12\x1d\n" +
 	"\n" +
@@ -15885,55 +15885,55 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x04code\x18\" \x01(\tR\x04code\x12\x1b\n" +
 	"\tcode_null\x18# \x01(\bR\bcodeNull\"Y\n" +
 	"\x11LabelApplyRequest\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.rove.LabelRefR\x03ref\x12\"\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.loft.LabelRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\",\n" +
 	"\x12LabelEraseResponse\x12\x16\n" +
 	"\x06erased\x18\x01 \x01(\bR\x06erased\"\x98\x01\n" +
 	"\x10LabelListRequest\x12+\n" +
-	"\afilters\x18\x01 \x03(\v2\x11.rove.LabelFilterR\afilters\x12\x19\n" +
+	"\afilters\x18\x01 \x03(\v2\x11.loft.LabelFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
 	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
 	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"Q\n" +
 	"\x11LabelListResponse\x12!\n" +
-	"\x05items\x18\x01 \x03(\v2\v.rove.LabelR\x05items\x12\x19\n" +
+	"\x05items\x18\x01 \x03(\v2\v.loft.LabelR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"z\n" +
 	"\vLabelFilter\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.rove.LabelRefR\x03ref\x12\x1d\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.loft.LabelRefR\x03ref\x12\x1d\n" +
 	"\n" +
 	"subject_id\x18\x02 \x01(\fR\tsubjectId\x12\x14\n" +
 	"\x05state\x18\x03 \x01(\tR\x05state\x12\x14\n" +
 	"\x05batch\x18\x04 \x01(\tR\x05batch\"l\n" +
 	"\x11LabelWatchRequest\x12+\n" +
-	"\afilters\x18\x01 \x03(\v2\x11.rove.LabelFilterR\afilters\x12*\n" +
+	"\afilters\x18\x01 \x03(\v2\x11.loft.LabelFilterR\afilters\x12*\n" +
 	"\rskip_snapshot\x18\x02 \x01(\bB\x05\xaa\x01\x02\b\x02R\fskipSnapshot\"@\n" +
 	"\x12LabelWatchResponse\x12*\n" +
-	"\x05items\x18\x01 \x03(\v2\x14.rove.LabelWatchItemR\x05items\"b\n" +
+	"\x05items\x18\x01 \x03(\v2\x14.loft.LabelWatchItemR\x05items\"b\n" +
 	"\x0eLabelWatchItem\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12!\n" +
-	"\x05value\x18\x02 \x01(\v2\v.rove.LabelR\x05value\x12\x1d\n" +
+	"\x05value\x18\x02 \x01(\v2\v.loft.LabelR\x05value\x12\x1d\n" +
 	"\x06action\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06action\"j\n" +
 	"\x11LabelPrintRequest\x12\x1b\n" +
 	"\x05count\x18\x01 \x01(\rB\x05\xaa\x01\x02\b\x02R\x05count\x12\x1b\n" +
 	"\x05batch\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05batch\x12\x1b\n" +
 	"\tasset_ids\x18\x03 \x03(\fR\bassetIds\"M\n" +
 	"\x12LabelPrintResponse\x12#\n" +
-	"\x06labels\x18\x01 \x03(\v2\v.rove.LabelR\x06labels\x12\x12\n" +
+	"\x06labels\x18\x01 \x03(\v2\v.loft.LabelR\x06labels\x12\x12\n" +
 	"\x04urls\x18\x02 \x03(\tR\x04urls\"q\n" +
 	"\x10LabelBindRequest\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.rove.LabelRefR\x03ref\x12$\n" +
-	"\x05asset\x18\x02 \x01(\v2\x0e.rove.AssetRefR\x05asset\x12\x15\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.loft.LabelRefR\x03ref\x12$\n" +
+	"\x05asset\x18\x02 \x01(\v2\x0e.loft.AssetRefR\x05asset\x12\x15\n" +
 	"\x02op\x18\x03 \x01(\fB\x05\xaa\x01\x02\b\x02R\x02op\"Q\n" +
 	"\x12LabelUnbindRequest\x12 \n" +
-	"\x03ref\x18\x01 \x01(\v2\x0e.rove.LabelRefR\x03ref\x12\x19\n" +
+	"\x03ref\x18\x01 \x01(\v2\x0e.loft.LabelRefR\x03ref\x12\x19\n" +
 	"\x04void\x18\x02 \x01(\bB\x05\xaa\x01\x02\b\x02R\x04void\"0\n" +
 	"\x13LabelResolveRequest\x12\x19\n" +
 	"\x04code\x18\x01 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04code\"\\\n" +
 	"\x14LabelResolveResponse\x12!\n" +
-	"\x05label\x18\x01 \x01(\v2\v.rove.LabelR\x05label\x12!\n" +
-	"\x05asset\x18\x02 \x01(\v2\v.rove.AssetR\x05asset\"\xdd\x02\n" +
+	"\x05label\x18\x01 \x01(\v2\v.loft.LabelR\x05label\x12!\n" +
+	"\x05asset\x18\x02 \x01(\v2\v.loft.AssetR\x05asset\"\xdd\x02\n" +
 	"\x14AttachmentAddRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12'\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x0f.rove.TenantRefR\x06tenant\x12\x19\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x0f.loft.TenantRefR\x06tenant\x12\x19\n" +
 	"\x04name\x18\x05 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04name\x12$\n" +
 	"\n" +
 	"subject_id\x18\b \x01(\fB\x05\xaa\x01\x02\b\x02R\tsubjectId\x12$\n" +
@@ -15946,14 +15946,14 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\x06sha256\x18\f \x01(\fR\x06sha256\x12=\n" +
 	"\fdate_created\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\vdateCreated\"m\n" +
 	"\x14AttachmentGetRequest\x12%\n" +
-	"\x03ref\x18\x01 \x01(\v2\x13.rove.AttachmentRefR\x03ref\x12.\n" +
-	"\x06select\x18\x02 \x01(\v2\x16.rove.AttachmentSelectR\x06select\"(\n" +
+	"\x03ref\x18\x01 \x01(\v2\x13.loft.AttachmentRefR\x03ref\x12.\n" +
+	"\x06select\x18\x02 \x01(\v2\x16.loft.AttachmentSelectR\x06select\"(\n" +
 	"\rAttachmentRef\x12\x10\n" +
 	"\x02id\x18\x01 \x01(\fH\x00R\x02idB\x05\n" +
 	"\x03key\"\xe3\x02\n" +
 	"\x10AttachmentSelect\x12\x10\n" +
 	"\x03all\x18\x01 \x01(\bR\x03all\x12*\n" +
-	"\x06tenant\x18\x02 \x01(\v2\x12.rove.TenantSelectR\x06tenant\x12\x12\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x12.loft.TenantSelectR\x06tenant\x12\x12\n" +
 	"\x04name\x18\x05 \x01(\bR\x04name\x12\x1d\n" +
 	"\n" +
 	"subject_id\x18\b \x01(\bR\tsubjectId\x12\x1d\n" +
@@ -15969,7 +15969,7 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"dateErased\x12!\n" +
 	"\fdate_created\x18\x0f \x01(\bR\vdateCreated\"\xd8\x02\n" +
 	"\x16AttachmentPatchRequest\x12%\n" +
-	"\x03ref\x18\x01 \x01(\v2\x13.rove.AttachmentRefR\x03ref\x12\x12\n" +
+	"\x03ref\x18\x01 \x01(\v2\x13.loft.AttachmentRefR\x03ref\x12\x12\n" +
 	"\x04name\x18\n" +
 	" \x01(\tR\x04name\x12\x1d\n" +
 	"\n" +
@@ -15983,30 +15983,30 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\fdate_updated\x18\x1a \x01(\v2\x1a.google.protobuf.TimestampR\vdateUpdated\x12,\n" +
 	"\x12date_updated_force\x18\x1b \x01(\bR\x10dateUpdatedForce\"c\n" +
 	"\x16AttachmentApplyRequest\x12%\n" +
-	"\x03ref\x18\x01 \x01(\v2\x13.rove.AttachmentRefR\x03ref\x12\"\n" +
+	"\x03ref\x18\x01 \x01(\v2\x13.loft.AttachmentRefR\x03ref\x12\"\n" +
 	"\x05patch\x18\x02 \x01(\v2\f.patch.PatchR\x05patch\"1\n" +
 	"\x17AttachmentEraseResponse\x12\x16\n" +
 	"\x06erased\x18\x01 \x01(\bR\x06erased\"\xa2\x01\n" +
 	"\x15AttachmentListRequest\x120\n" +
-	"\afilters\x18\x01 \x03(\v2\x16.rove.AttachmentFilterR\afilters\x12\x19\n" +
+	"\afilters\x18\x01 \x03(\v2\x16.loft.AttachmentFilterR\afilters\x12\x19\n" +
 	"\x04size\x18\x02 \x01(\x05B\x05\xaa\x01\x02\b\x02R\x04size\x12\x1b\n" +
 	"\x05after\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x05after\x12\x1f\n" +
 	"\areverse\x18\x04 \x01(\bB\x05\xaa\x01\x02\b\x02R\areverse\"[\n" +
 	"\x16AttachmentListResponse\x12&\n" +
-	"\x05items\x18\x01 \x03(\v2\x10.rove.AttachmentR\x05items\x12\x19\n" +
+	"\x05items\x18\x01 \x03(\v2\x10.loft.AttachmentR\x05items\x12\x19\n" +
 	"\x04next\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04next\"X\n" +
 	"\x10AttachmentFilter\x12%\n" +
-	"\x03ref\x18\x01 \x01(\v2\x13.rove.AttachmentRefR\x03ref\x12\x1d\n" +
+	"\x03ref\x18\x01 \x01(\v2\x13.loft.AttachmentRefR\x03ref\x12\x1d\n" +
 	"\n" +
 	"subject_id\x18\x02 \x01(\fR\tsubjectId\"v\n" +
 	"\x16AttachmentWatchRequest\x120\n" +
-	"\afilters\x18\x01 \x03(\v2\x16.rove.AttachmentFilterR\afilters\x12*\n" +
+	"\afilters\x18\x01 \x03(\v2\x16.loft.AttachmentFilterR\afilters\x12*\n" +
 	"\rskip_snapshot\x18\x02 \x01(\bB\x05\xaa\x01\x02\b\x02R\fskipSnapshot\"J\n" +
 	"\x17AttachmentWatchResponse\x12/\n" +
-	"\x05items\x18\x01 \x03(\v2\x19.rove.AttachmentWatchItemR\x05items\"l\n" +
+	"\x05items\x18\x01 \x03(\v2\x19.loft.AttachmentWatchItemR\x05items\"l\n" +
 	"\x13AttachmentWatchItem\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12&\n" +
-	"\x05value\x18\x02 \x01(\v2\x10.rove.AttachmentR\x05value\x12\x1d\n" +
+	"\x05value\x18\x02 \x01(\v2\x10.loft.AttachmentR\x05value\x12\x1d\n" +
 	"\x06action\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06action\"\x9f\x01\n" +
 	"\x17AttachmentUploadRequest\x12$\n" +
 	"\n" +
@@ -16015,476 +16015,476 @@ const file_rove_asset_svc_g_proto_rawDesc = "" +
 	"\fcontent_type\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\vcontentType\x12\x19\n" +
 	"\x04data\x18\x04 \x01(\fB\x05\xaa\x01\x02\b\x02R\x04data\"=\n" +
 	"\x14AttachmentUrlRequest\x12%\n" +
-	"\x03ref\x18\x01 \x01(\v2\x13.rove.AttachmentRefR\x03ref\"k\n" +
+	"\x03ref\x18\x01 \x01(\v2\x13.loft.AttachmentRefR\x03ref\"k\n" +
 	"\x15AttachmentUrlResponse\x12\x17\n" +
 	"\x03url\x18\x01 \x01(\tB\x05\xaa\x01\x02\b\x02R\x03url\x129\n" +
 	"\n" +
 	"expires_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt2\xb3\n" +
 	"\n" +
 	"\fAssetService\x12)\n" +
-	"\x03Add\x12\x15.rove.AssetAddRequest\x1a\v.rove.Asset\x12@\n" +
-	"\aAddMany\x12\x19.rove.AssetAddManyRequest\x1a\x1a.rove.AssetAddManyResponse\x12)\n" +
-	"\x03Get\x12\x15.rove.AssetGetRequest\x1a\v.rove.Asset\x12-\n" +
-	"\x05Patch\x12\x17.rove.AssetPatchRequest\x1a\v.rove.Asset\x12-\n" +
-	"\x05Apply\x12\x17.rove.AssetApplyRequest\x1a\v.rove.Asset\x121\n" +
-	"\x05Erase\x12\x0e.rove.AssetRef\x1a\x18.rove.AssetEraseResponse\x127\n" +
-	"\x04List\x12\x16.rove.AssetListRequest\x1a\x17.rove.AssetListResponse\x12<\n" +
-	"\x05Watch\x12\x17.rove.AssetWatchRequest\x1a\x18.rove.AssetWatchResponse0\x01\x12+\n" +
-	"\x04Move\x12\x16.rove.AssetMoveRequest\x1a\v.rove.Asset\x12=\n" +
-	"\rSetAttributes\x12\x1f.rove.AssetSetAttributesRequest\x1a\v.rove.Asset\x12/\n" +
-	"\x06Assign\x12\x18.rove.AssetAssignRequest\x1a\v.rove.Asset\x12/\n" +
-	"\x06Relate\x12\x18.rove.AssetRelateRequest\x1a\v.rove.Asset\x121\n" +
-	"\aCorrect\x12\x19.rove.AssetCorrectRequest\x1a\v.rove.Asset\x12C\n" +
-	"\bTimeline\x12\x1a.rove.AssetTimelineRequest\x1a\x1b.rove.AssetTimelineResponse\x12@\n" +
-	"\aQueryAt\x12\x19.rove.AssetQueryAtRequest\x1a\x1a.rove.AssetQueryAtResponse\x127\n" +
-	"\x04Diff\x12\x16.rove.AssetDiffRequest\x1a\x17.rove.AssetDiffResponse\x12=\n" +
-	"\x06Search\x12\x18.rove.AssetSearchRequest\x1a\x19.rove.AssetSearchResponse\x12=\n" +
-	"\x06Report\x12\x18.rove.AssetReportRequest\x1a\x19.rove.AssetReportResponse\x12=\n" +
-	"\x06Export\x12\x18.rove.AssetExportRequest\x1a\x19.rove.AssetExportResponse\x129\n" +
-	"\x04Form\x12\x16.rove.AssetFormRequest\x1a\x19.rove.AssetExportResponse\x12F\n" +
-	"\tReadSheet\x12\x1b.rove.AssetReadSheetRequest\x1a\x1c.rove.AssetReadSheetResponse\x12=\n" +
-	"\x06Census\x12\x18.rove.AssetCensusRequest\x1a\x19.rove.AssetCensusResponse\x12C\n" +
-	"\fExportCensus\x12\x18.rove.AssetCensusRequest\x1a\x19.rove.AssetExportResponse2\x11\n" +
+	"\x03Add\x12\x15.loft.AssetAddRequest\x1a\v.loft.Asset\x12@\n" +
+	"\aAddMany\x12\x19.loft.AssetAddManyRequest\x1a\x1a.loft.AssetAddManyResponse\x12)\n" +
+	"\x03Get\x12\x15.loft.AssetGetRequest\x1a\v.loft.Asset\x12-\n" +
+	"\x05Patch\x12\x17.loft.AssetPatchRequest\x1a\v.loft.Asset\x12-\n" +
+	"\x05Apply\x12\x17.loft.AssetApplyRequest\x1a\v.loft.Asset\x121\n" +
+	"\x05Erase\x12\x0e.loft.AssetRef\x1a\x18.loft.AssetEraseResponse\x127\n" +
+	"\x04List\x12\x16.loft.AssetListRequest\x1a\x17.loft.AssetListResponse\x12<\n" +
+	"\x05Watch\x12\x17.loft.AssetWatchRequest\x1a\x18.loft.AssetWatchResponse0\x01\x12+\n" +
+	"\x04Move\x12\x16.loft.AssetMoveRequest\x1a\v.loft.Asset\x12=\n" +
+	"\rSetAttributes\x12\x1f.loft.AssetSetAttributesRequest\x1a\v.loft.Asset\x12/\n" +
+	"\x06Assign\x12\x18.loft.AssetAssignRequest\x1a\v.loft.Asset\x12/\n" +
+	"\x06Relate\x12\x18.loft.AssetRelateRequest\x1a\v.loft.Asset\x121\n" +
+	"\aCorrect\x12\x19.loft.AssetCorrectRequest\x1a\v.loft.Asset\x12C\n" +
+	"\bTimeline\x12\x1a.loft.AssetTimelineRequest\x1a\x1b.loft.AssetTimelineResponse\x12@\n" +
+	"\aQueryAt\x12\x19.loft.AssetQueryAtRequest\x1a\x1a.loft.AssetQueryAtResponse\x127\n" +
+	"\x04Diff\x12\x16.loft.AssetDiffRequest\x1a\x17.loft.AssetDiffResponse\x12=\n" +
+	"\x06Search\x12\x18.loft.AssetSearchRequest\x1a\x19.loft.AssetSearchResponse\x12=\n" +
+	"\x06Report\x12\x18.loft.AssetReportRequest\x1a\x19.loft.AssetReportResponse\x12=\n" +
+	"\x06Export\x12\x18.loft.AssetExportRequest\x1a\x19.loft.AssetExportResponse\x129\n" +
+	"\x04Form\x12\x16.loft.AssetFormRequest\x1a\x19.loft.AssetExportResponse\x12F\n" +
+	"\tReadSheet\x12\x1b.loft.AssetReadSheetRequest\x1a\x1c.loft.AssetReadSheetResponse\x12=\n" +
+	"\x06Census\x12\x18.loft.AssetCensusRequest\x1a\x19.loft.AssetCensusResponse\x12C\n" +
+	"\fExportCensus\x12\x18.loft.AssetCensusRequest\x1a\x19.loft.AssetExportResponse2\x11\n" +
 	"\x0fTreeLockService2\x13\n" +
 	"\x11TagCounterService2\xe3\x05\n" +
 	"\x13TenantDomainService\x127\n" +
-	"\x03Add\x12\x1c.rove.TenantDomainAddRequest\x1a\x12.rove.TenantDomain\x127\n" +
-	"\x03Get\x12\x1c.rove.TenantDomainGetRequest\x1a\x12.rove.TenantDomain\x12;\n" +
-	"\x05Patch\x12\x1e.rove.TenantDomainPatchRequest\x1a\x12.rove.TenantDomain\x12;\n" +
-	"\x05Apply\x12\x1e.rove.TenantDomainApplyRequest\x1a\x12.rove.TenantDomain\x12?\n" +
-	"\x05Erase\x12\x15.rove.TenantDomainRef\x1a\x1f.rove.TenantDomainEraseResponse\x12E\n" +
-	"\x04List\x12\x1d.rove.TenantDomainListRequest\x1a\x1e.rove.TenantDomainListResponse\x12J\n" +
-	"\x05Watch\x12\x1e.rove.TenantDomainWatchRequest\x1a\x1f.rove.TenantDomainWatchResponse0\x01\x12=\n" +
-	"\x06Verify\x12\x1f.rove.TenantDomainVerifyRequest\x1a\x12.rove.TenantDomain\x12A\n" +
-	"\bActivate\x12!.rove.TenantDomainActivateRequest\x1a\x12.rove.TenantDomain\x12=\n" +
-	"\x06Retire\x12\x1f.rove.TenantDomainRetireRequest\x1a\x12.rove.TenantDomain\x12K\n" +
-	"\x06Status\x12\x1f.rove.TenantDomainStatusRequest\x1a .rove.TenantDomainStatusResponse2\xc8\x04\n" +
+	"\x03Add\x12\x1c.loft.TenantDomainAddRequest\x1a\x12.loft.TenantDomain\x127\n" +
+	"\x03Get\x12\x1c.loft.TenantDomainGetRequest\x1a\x12.loft.TenantDomain\x12;\n" +
+	"\x05Patch\x12\x1e.loft.TenantDomainPatchRequest\x1a\x12.loft.TenantDomain\x12;\n" +
+	"\x05Apply\x12\x1e.loft.TenantDomainApplyRequest\x1a\x12.loft.TenantDomain\x12?\n" +
+	"\x05Erase\x12\x15.loft.TenantDomainRef\x1a\x1f.loft.TenantDomainEraseResponse\x12E\n" +
+	"\x04List\x12\x1d.loft.TenantDomainListRequest\x1a\x1e.loft.TenantDomainListResponse\x12J\n" +
+	"\x05Watch\x12\x1e.loft.TenantDomainWatchRequest\x1a\x1f.loft.TenantDomainWatchResponse0\x01\x12=\n" +
+	"\x06Verify\x12\x1f.loft.TenantDomainVerifyRequest\x1a\x12.loft.TenantDomain\x12A\n" +
+	"\bActivate\x12!.loft.TenantDomainActivateRequest\x1a\x12.loft.TenantDomain\x12=\n" +
+	"\x06Retire\x12\x1f.loft.TenantDomainRetireRequest\x1a\x12.loft.TenantDomain\x12K\n" +
+	"\x06Status\x12\x1f.loft.TenantDomainStatusRequest\x1a .loft.TenantDomainStatusResponse2\xc8\x04\n" +
 	"\fLabelService\x12)\n" +
-	"\x03Add\x12\x15.rove.LabelAddRequest\x1a\v.rove.Label\x12)\n" +
-	"\x03Get\x12\x15.rove.LabelGetRequest\x1a\v.rove.Label\x12-\n" +
-	"\x05Patch\x12\x17.rove.LabelPatchRequest\x1a\v.rove.Label\x12-\n" +
-	"\x05Apply\x12\x17.rove.LabelApplyRequest\x1a\v.rove.Label\x121\n" +
-	"\x05Erase\x12\x0e.rove.LabelRef\x1a\x18.rove.LabelEraseResponse\x127\n" +
-	"\x04List\x12\x16.rove.LabelListRequest\x1a\x17.rove.LabelListResponse\x12<\n" +
-	"\x05Watch\x12\x17.rove.LabelWatchRequest\x1a\x18.rove.LabelWatchResponse0\x01\x12:\n" +
-	"\x05Print\x12\x17.rove.LabelPrintRequest\x1a\x18.rove.LabelPrintResponse\x12+\n" +
-	"\x04Bind\x12\x16.rove.LabelBindRequest\x1a\v.rove.Label\x12/\n" +
-	"\x06Unbind\x12\x18.rove.LabelUnbindRequest\x1a\v.rove.Label\x12@\n" +
-	"\aResolve\x12\x19.rove.LabelResolveRequest\x1a\x1a.rove.LabelResolveResponse2\xb2\x04\n" +
+	"\x03Add\x12\x15.loft.LabelAddRequest\x1a\v.loft.Label\x12)\n" +
+	"\x03Get\x12\x15.loft.LabelGetRequest\x1a\v.loft.Label\x12-\n" +
+	"\x05Patch\x12\x17.loft.LabelPatchRequest\x1a\v.loft.Label\x12-\n" +
+	"\x05Apply\x12\x17.loft.LabelApplyRequest\x1a\v.loft.Label\x121\n" +
+	"\x05Erase\x12\x0e.loft.LabelRef\x1a\x18.loft.LabelEraseResponse\x127\n" +
+	"\x04List\x12\x16.loft.LabelListRequest\x1a\x17.loft.LabelListResponse\x12<\n" +
+	"\x05Watch\x12\x17.loft.LabelWatchRequest\x1a\x18.loft.LabelWatchResponse0\x01\x12:\n" +
+	"\x05Print\x12\x17.loft.LabelPrintRequest\x1a\x18.loft.LabelPrintResponse\x12+\n" +
+	"\x04Bind\x12\x16.loft.LabelBindRequest\x1a\v.loft.Label\x12/\n" +
+	"\x06Unbind\x12\x18.loft.LabelUnbindRequest\x1a\v.loft.Label\x12@\n" +
+	"\aResolve\x12\x19.loft.LabelResolveRequest\x1a\x1a.loft.LabelResolveResponse2\xb2\x04\n" +
 	"\x11AttachmentService\x123\n" +
-	"\x03Add\x12\x1a.rove.AttachmentAddRequest\x1a\x10.rove.Attachment\x123\n" +
-	"\x03Get\x12\x1a.rove.AttachmentGetRequest\x1a\x10.rove.Attachment\x127\n" +
-	"\x05Patch\x12\x1c.rove.AttachmentPatchRequest\x1a\x10.rove.Attachment\x127\n" +
-	"\x05Apply\x12\x1c.rove.AttachmentApplyRequest\x1a\x10.rove.Attachment\x12;\n" +
-	"\x05Erase\x12\x13.rove.AttachmentRef\x1a\x1d.rove.AttachmentEraseResponse\x12A\n" +
-	"\x04List\x12\x1b.rove.AttachmentListRequest\x1a\x1c.rove.AttachmentListResponse\x12F\n" +
-	"\x05Watch\x12\x1c.rove.AttachmentWatchRequest\x1a\x1d.rove.AttachmentWatchResponse0\x01\x129\n" +
-	"\x06Upload\x12\x1d.rove.AttachmentUploadRequest\x1a\x10.rove.Attachment\x12>\n" +
-	"\x03Url\x12\x1a.rove.AttachmentUrlRequest\x1a\x1b.rove.AttachmentUrlResponseB\x1aZ\x18github.com/lesomnus/roveb\beditionsp\xe8\a"
+	"\x03Add\x12\x1a.loft.AttachmentAddRequest\x1a\x10.loft.Attachment\x123\n" +
+	"\x03Get\x12\x1a.loft.AttachmentGetRequest\x1a\x10.loft.Attachment\x127\n" +
+	"\x05Patch\x12\x1c.loft.AttachmentPatchRequest\x1a\x10.loft.Attachment\x127\n" +
+	"\x05Apply\x12\x1c.loft.AttachmentApplyRequest\x1a\x10.loft.Attachment\x12;\n" +
+	"\x05Erase\x12\x13.loft.AttachmentRef\x1a\x1d.loft.AttachmentEraseResponse\x12A\n" +
+	"\x04List\x12\x1b.loft.AttachmentListRequest\x1a\x1c.loft.AttachmentListResponse\x12F\n" +
+	"\x05Watch\x12\x1c.loft.AttachmentWatchRequest\x1a\x1d.loft.AttachmentWatchResponse0\x01\x129\n" +
+	"\x06Upload\x12\x1d.loft.AttachmentUploadRequest\x1a\x10.loft.Attachment\x12>\n" +
+	"\x03Url\x12\x1a.loft.AttachmentUrlRequest\x1a\x1b.loft.AttachmentUrlResponseB\x1aZ\x18github.com/lesomnus/loftb\beditionsp\xe8\a"
 
-var file_rove_asset_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 111)
-var file_rove_asset_svc_g_proto_goTypes = []any{
-	(*AssetAddRequest)(nil),             // 0: rove.AssetAddRequest
-	(*AssetRef)(nil),                    // 1: rove.AssetRef
-	(*AssetRefByTag)(nil),               // 2: rove.AssetRefByTag
-	(*AssetAddManyRequest)(nil),         // 3: rove.AssetAddManyRequest
-	(*AssetAddManyResponse)(nil),        // 4: rove.AssetAddManyResponse
-	(*AssetAddManyIssue)(nil),           // 5: rove.AssetAddManyIssue
-	(*AssetGetRequest)(nil),             // 6: rove.AssetGetRequest
-	(*AssetSelect)(nil),                 // 7: rove.AssetSelect
-	(*AssetPatchRequest)(nil),           // 8: rove.AssetPatchRequest
-	(*AssetApplyRequest)(nil),           // 9: rove.AssetApplyRequest
-	(*AssetEraseResponse)(nil),          // 10: rove.AssetEraseResponse
-	(*AssetListRequest)(nil),            // 11: rove.AssetListRequest
-	(*AssetListResponse)(nil),           // 12: rove.AssetListResponse
-	(*AssetFilter)(nil),                 // 13: rove.AssetFilter
-	(*AssetWatchRequest)(nil),           // 14: rove.AssetWatchRequest
-	(*AssetWatchResponse)(nil),          // 15: rove.AssetWatchResponse
-	(*AssetWatchItem)(nil),              // 16: rove.AssetWatchItem
-	(*AssetMoveRequest)(nil),            // 17: rove.AssetMoveRequest
-	(*AssetSetAttributesRequest)(nil),   // 18: rove.AssetSetAttributesRequest
-	(*AssetAssignRequest)(nil),          // 19: rove.AssetAssignRequest
-	(*AssetRelateRequest)(nil),          // 20: rove.AssetRelateRequest
-	(*AssetCorrectRequest)(nil),         // 21: rove.AssetCorrectRequest
-	(*AssetTimelineRequest)(nil),        // 22: rove.AssetTimelineRequest
-	(*AssetTimelineResponse)(nil),       // 23: rove.AssetTimelineResponse
-	(*TimelineEntry)(nil),               // 24: rove.TimelineEntry
-	(*AssetQueryAtRequest)(nil),         // 25: rove.AssetQueryAtRequest
-	(*AssetQueryAtResponse)(nil),        // 26: rove.AssetQueryAtResponse
-	(*AssetState)(nil),                  // 27: rove.AssetState
-	(*AssetDiffRequest)(nil),            // 28: rove.AssetDiffRequest
-	(*AssetDiffResponse)(nil),           // 29: rove.AssetDiffResponse
-	(*AssetChange)(nil),                 // 30: rove.AssetChange
-	(*AssetSearchRequest)(nil),          // 31: rove.AssetSearchRequest
-	(*AssetSearchResponse)(nil),         // 32: rove.AssetSearchResponse
-	(*AssetReportRequest)(nil),          // 33: rove.AssetReportRequest
-	(*AssetReportResponse)(nil),         // 34: rove.AssetReportResponse
-	(*ReportRow)(nil),                   // 35: rove.ReportRow
-	(*AssetExportRequest)(nil),          // 36: rove.AssetExportRequest
-	(*AssetExportResponse)(nil),         // 37: rove.AssetExportResponse
-	(*AssetFormRequest)(nil),            // 38: rove.AssetFormRequest
-	(*AssetReadSheetRequest)(nil),       // 39: rove.AssetReadSheetRequest
-	(*AssetReadSheetResponse)(nil),      // 40: rove.AssetReadSheetResponse
-	(*AssetReadSheetIssue)(nil),         // 41: rove.AssetReadSheetIssue
-	(*AssetCensusRequest)(nil),          // 42: rove.AssetCensusRequest
-	(*AssetCensusResponse)(nil),         // 43: rove.AssetCensusResponse
-	(*AssetCensusRow)(nil),              // 44: rove.AssetCensusRow
-	(*TenantDomainAddRequest)(nil),      // 45: rove.TenantDomainAddRequest
-	(*TenantDomainGetRequest)(nil),      // 46: rove.TenantDomainGetRequest
-	(*TenantDomainRef)(nil),             // 47: rove.TenantDomainRef
-	(*TenantDomainSelect)(nil),          // 48: rove.TenantDomainSelect
-	(*TenantDomainPatchRequest)(nil),    // 49: rove.TenantDomainPatchRequest
-	(*TenantDomainApplyRequest)(nil),    // 50: rove.TenantDomainApplyRequest
-	(*TenantDomainEraseResponse)(nil),   // 51: rove.TenantDomainEraseResponse
-	(*TenantDomainListRequest)(nil),     // 52: rove.TenantDomainListRequest
-	(*TenantDomainListResponse)(nil),    // 53: rove.TenantDomainListResponse
-	(*TenantDomainFilter)(nil),          // 54: rove.TenantDomainFilter
-	(*TenantDomainWatchRequest)(nil),    // 55: rove.TenantDomainWatchRequest
-	(*TenantDomainWatchResponse)(nil),   // 56: rove.TenantDomainWatchResponse
-	(*TenantDomainWatchItem)(nil),       // 57: rove.TenantDomainWatchItem
-	(*TenantDomainVerifyRequest)(nil),   // 58: rove.TenantDomainVerifyRequest
-	(*TenantDomainActivateRequest)(nil), // 59: rove.TenantDomainActivateRequest
-	(*TenantDomainRetireRequest)(nil),   // 60: rove.TenantDomainRetireRequest
-	(*TenantDomainStatusRequest)(nil),   // 61: rove.TenantDomainStatusRequest
-	(*TenantDomainStatusResponse)(nil),  // 62: rove.TenantDomainStatusResponse
-	(*LabelAddRequest)(nil),             // 63: rove.LabelAddRequest
-	(*LabelGetRequest)(nil),             // 64: rove.LabelGetRequest
-	(*LabelRef)(nil),                    // 65: rove.LabelRef
-	(*LabelSelect)(nil),                 // 66: rove.LabelSelect
-	(*LabelPatchRequest)(nil),           // 67: rove.LabelPatchRequest
-	(*LabelApplyRequest)(nil),           // 68: rove.LabelApplyRequest
-	(*LabelEraseResponse)(nil),          // 69: rove.LabelEraseResponse
-	(*LabelListRequest)(nil),            // 70: rove.LabelListRequest
-	(*LabelListResponse)(nil),           // 71: rove.LabelListResponse
-	(*LabelFilter)(nil),                 // 72: rove.LabelFilter
-	(*LabelWatchRequest)(nil),           // 73: rove.LabelWatchRequest
-	(*LabelWatchResponse)(nil),          // 74: rove.LabelWatchResponse
-	(*LabelWatchItem)(nil),              // 75: rove.LabelWatchItem
-	(*LabelPrintRequest)(nil),           // 76: rove.LabelPrintRequest
-	(*LabelPrintResponse)(nil),          // 77: rove.LabelPrintResponse
-	(*LabelBindRequest)(nil),            // 78: rove.LabelBindRequest
-	(*LabelUnbindRequest)(nil),          // 79: rove.LabelUnbindRequest
-	(*LabelResolveRequest)(nil),         // 80: rove.LabelResolveRequest
-	(*LabelResolveResponse)(nil),        // 81: rove.LabelResolveResponse
-	(*AttachmentAddRequest)(nil),        // 82: rove.AttachmentAddRequest
-	(*AttachmentGetRequest)(nil),        // 83: rove.AttachmentGetRequest
-	(*AttachmentRef)(nil),               // 84: rove.AttachmentRef
-	(*AttachmentSelect)(nil),            // 85: rove.AttachmentSelect
-	(*AttachmentPatchRequest)(nil),      // 86: rove.AttachmentPatchRequest
-	(*AttachmentApplyRequest)(nil),      // 87: rove.AttachmentApplyRequest
-	(*AttachmentEraseResponse)(nil),     // 88: rove.AttachmentEraseResponse
-	(*AttachmentListRequest)(nil),       // 89: rove.AttachmentListRequest
-	(*AttachmentListResponse)(nil),      // 90: rove.AttachmentListResponse
-	(*AttachmentFilter)(nil),            // 91: rove.AttachmentFilter
-	(*AttachmentWatchRequest)(nil),      // 92: rove.AttachmentWatchRequest
-	(*AttachmentWatchResponse)(nil),     // 93: rove.AttachmentWatchResponse
-	(*AttachmentWatchItem)(nil),         // 94: rove.AttachmentWatchItem
-	(*AttachmentUploadRequest)(nil),     // 95: rove.AttachmentUploadRequest
-	(*AttachmentUrlRequest)(nil),        // 96: rove.AttachmentUrlRequest
-	(*AttachmentUrlResponse)(nil),       // 97: rove.AttachmentUrlResponse
-	nil,                                 // 98: rove.AssetAddRequest.LabelsEntry
-	nil,                                 // 99: rove.AssetAddRequest.AttributesEntry
-	nil,                                 // 100: rove.AssetPatchRequest.LabelsEntry
-	nil,                                 // 101: rove.AssetPatchRequest.AttributesEntry
-	nil,                                 // 102: rove.AssetFilter.LabelsEntry
-	nil,                                 // 103: rove.AssetFilter.AttributesEntry
-	nil,                                 // 104: rove.AssetSetAttributesRequest.SetEntry
-	nil,                                 // 105: rove.TimelineEntry.DetailEntry
-	nil,                                 // 106: rove.AssetState.FactsEntry
-	nil,                                 // 107: rove.AssetState.StewardsEntry
-	nil,                                 // 108: rove.AssetState.StewardNamesEntry
-	nil,                                 // 109: rove.ReportRow.DetailEntry
-	nil,                                 // 110: rove.AssetCensusRow.StatusesEntry
-	(*TenantRef)(nil),                   // 111: rove.TenantRef
-	(*AssetTypeRef)(nil),                // 112: rove.AssetTypeRef
-	(*ItemModelRef)(nil),                // 113: rove.ItemModelRef
+var file_loft_asset_svc_g_proto_msgTypes = make([]protoimpl.MessageInfo, 111)
+var file_loft_asset_svc_g_proto_goTypes = []any{
+	(*AssetAddRequest)(nil),             // 0: loft.AssetAddRequest
+	(*AssetRef)(nil),                    // 1: loft.AssetRef
+	(*AssetRefByTag)(nil),               // 2: loft.AssetRefByTag
+	(*AssetAddManyRequest)(nil),         // 3: loft.AssetAddManyRequest
+	(*AssetAddManyResponse)(nil),        // 4: loft.AssetAddManyResponse
+	(*AssetAddManyIssue)(nil),           // 5: loft.AssetAddManyIssue
+	(*AssetGetRequest)(nil),             // 6: loft.AssetGetRequest
+	(*AssetSelect)(nil),                 // 7: loft.AssetSelect
+	(*AssetPatchRequest)(nil),           // 8: loft.AssetPatchRequest
+	(*AssetApplyRequest)(nil),           // 9: loft.AssetApplyRequest
+	(*AssetEraseResponse)(nil),          // 10: loft.AssetEraseResponse
+	(*AssetListRequest)(nil),            // 11: loft.AssetListRequest
+	(*AssetListResponse)(nil),           // 12: loft.AssetListResponse
+	(*AssetFilter)(nil),                 // 13: loft.AssetFilter
+	(*AssetWatchRequest)(nil),           // 14: loft.AssetWatchRequest
+	(*AssetWatchResponse)(nil),          // 15: loft.AssetWatchResponse
+	(*AssetWatchItem)(nil),              // 16: loft.AssetWatchItem
+	(*AssetMoveRequest)(nil),            // 17: loft.AssetMoveRequest
+	(*AssetSetAttributesRequest)(nil),   // 18: loft.AssetSetAttributesRequest
+	(*AssetAssignRequest)(nil),          // 19: loft.AssetAssignRequest
+	(*AssetRelateRequest)(nil),          // 20: loft.AssetRelateRequest
+	(*AssetCorrectRequest)(nil),         // 21: loft.AssetCorrectRequest
+	(*AssetTimelineRequest)(nil),        // 22: loft.AssetTimelineRequest
+	(*AssetTimelineResponse)(nil),       // 23: loft.AssetTimelineResponse
+	(*TimelineEntry)(nil),               // 24: loft.TimelineEntry
+	(*AssetQueryAtRequest)(nil),         // 25: loft.AssetQueryAtRequest
+	(*AssetQueryAtResponse)(nil),        // 26: loft.AssetQueryAtResponse
+	(*AssetState)(nil),                  // 27: loft.AssetState
+	(*AssetDiffRequest)(nil),            // 28: loft.AssetDiffRequest
+	(*AssetDiffResponse)(nil),           // 29: loft.AssetDiffResponse
+	(*AssetChange)(nil),                 // 30: loft.AssetChange
+	(*AssetSearchRequest)(nil),          // 31: loft.AssetSearchRequest
+	(*AssetSearchResponse)(nil),         // 32: loft.AssetSearchResponse
+	(*AssetReportRequest)(nil),          // 33: loft.AssetReportRequest
+	(*AssetReportResponse)(nil),         // 34: loft.AssetReportResponse
+	(*ReportRow)(nil),                   // 35: loft.ReportRow
+	(*AssetExportRequest)(nil),          // 36: loft.AssetExportRequest
+	(*AssetExportResponse)(nil),         // 37: loft.AssetExportResponse
+	(*AssetFormRequest)(nil),            // 38: loft.AssetFormRequest
+	(*AssetReadSheetRequest)(nil),       // 39: loft.AssetReadSheetRequest
+	(*AssetReadSheetResponse)(nil),      // 40: loft.AssetReadSheetResponse
+	(*AssetReadSheetIssue)(nil),         // 41: loft.AssetReadSheetIssue
+	(*AssetCensusRequest)(nil),          // 42: loft.AssetCensusRequest
+	(*AssetCensusResponse)(nil),         // 43: loft.AssetCensusResponse
+	(*AssetCensusRow)(nil),              // 44: loft.AssetCensusRow
+	(*TenantDomainAddRequest)(nil),      // 45: loft.TenantDomainAddRequest
+	(*TenantDomainGetRequest)(nil),      // 46: loft.TenantDomainGetRequest
+	(*TenantDomainRef)(nil),             // 47: loft.TenantDomainRef
+	(*TenantDomainSelect)(nil),          // 48: loft.TenantDomainSelect
+	(*TenantDomainPatchRequest)(nil),    // 49: loft.TenantDomainPatchRequest
+	(*TenantDomainApplyRequest)(nil),    // 50: loft.TenantDomainApplyRequest
+	(*TenantDomainEraseResponse)(nil),   // 51: loft.TenantDomainEraseResponse
+	(*TenantDomainListRequest)(nil),     // 52: loft.TenantDomainListRequest
+	(*TenantDomainListResponse)(nil),    // 53: loft.TenantDomainListResponse
+	(*TenantDomainFilter)(nil),          // 54: loft.TenantDomainFilter
+	(*TenantDomainWatchRequest)(nil),    // 55: loft.TenantDomainWatchRequest
+	(*TenantDomainWatchResponse)(nil),   // 56: loft.TenantDomainWatchResponse
+	(*TenantDomainWatchItem)(nil),       // 57: loft.TenantDomainWatchItem
+	(*TenantDomainVerifyRequest)(nil),   // 58: loft.TenantDomainVerifyRequest
+	(*TenantDomainActivateRequest)(nil), // 59: loft.TenantDomainActivateRequest
+	(*TenantDomainRetireRequest)(nil),   // 60: loft.TenantDomainRetireRequest
+	(*TenantDomainStatusRequest)(nil),   // 61: loft.TenantDomainStatusRequest
+	(*TenantDomainStatusResponse)(nil),  // 62: loft.TenantDomainStatusResponse
+	(*LabelAddRequest)(nil),             // 63: loft.LabelAddRequest
+	(*LabelGetRequest)(nil),             // 64: loft.LabelGetRequest
+	(*LabelRef)(nil),                    // 65: loft.LabelRef
+	(*LabelSelect)(nil),                 // 66: loft.LabelSelect
+	(*LabelPatchRequest)(nil),           // 67: loft.LabelPatchRequest
+	(*LabelApplyRequest)(nil),           // 68: loft.LabelApplyRequest
+	(*LabelEraseResponse)(nil),          // 69: loft.LabelEraseResponse
+	(*LabelListRequest)(nil),            // 70: loft.LabelListRequest
+	(*LabelListResponse)(nil),           // 71: loft.LabelListResponse
+	(*LabelFilter)(nil),                 // 72: loft.LabelFilter
+	(*LabelWatchRequest)(nil),           // 73: loft.LabelWatchRequest
+	(*LabelWatchResponse)(nil),          // 74: loft.LabelWatchResponse
+	(*LabelWatchItem)(nil),              // 75: loft.LabelWatchItem
+	(*LabelPrintRequest)(nil),           // 76: loft.LabelPrintRequest
+	(*LabelPrintResponse)(nil),          // 77: loft.LabelPrintResponse
+	(*LabelBindRequest)(nil),            // 78: loft.LabelBindRequest
+	(*LabelUnbindRequest)(nil),          // 79: loft.LabelUnbindRequest
+	(*LabelResolveRequest)(nil),         // 80: loft.LabelResolveRequest
+	(*LabelResolveResponse)(nil),        // 81: loft.LabelResolveResponse
+	(*AttachmentAddRequest)(nil),        // 82: loft.AttachmentAddRequest
+	(*AttachmentGetRequest)(nil),        // 83: loft.AttachmentGetRequest
+	(*AttachmentRef)(nil),               // 84: loft.AttachmentRef
+	(*AttachmentSelect)(nil),            // 85: loft.AttachmentSelect
+	(*AttachmentPatchRequest)(nil),      // 86: loft.AttachmentPatchRequest
+	(*AttachmentApplyRequest)(nil),      // 87: loft.AttachmentApplyRequest
+	(*AttachmentEraseResponse)(nil),     // 88: loft.AttachmentEraseResponse
+	(*AttachmentListRequest)(nil),       // 89: loft.AttachmentListRequest
+	(*AttachmentListResponse)(nil),      // 90: loft.AttachmentListResponse
+	(*AttachmentFilter)(nil),            // 91: loft.AttachmentFilter
+	(*AttachmentWatchRequest)(nil),      // 92: loft.AttachmentWatchRequest
+	(*AttachmentWatchResponse)(nil),     // 93: loft.AttachmentWatchResponse
+	(*AttachmentWatchItem)(nil),         // 94: loft.AttachmentWatchItem
+	(*AttachmentUploadRequest)(nil),     // 95: loft.AttachmentUploadRequest
+	(*AttachmentUrlRequest)(nil),        // 96: loft.AttachmentUrlRequest
+	(*AttachmentUrlResponse)(nil),       // 97: loft.AttachmentUrlResponse
+	nil,                                 // 98: loft.AssetAddRequest.LabelsEntry
+	nil,                                 // 99: loft.AssetAddRequest.AttributesEntry
+	nil,                                 // 100: loft.AssetPatchRequest.LabelsEntry
+	nil,                                 // 101: loft.AssetPatchRequest.AttributesEntry
+	nil,                                 // 102: loft.AssetFilter.LabelsEntry
+	nil,                                 // 103: loft.AssetFilter.AttributesEntry
+	nil,                                 // 104: loft.AssetSetAttributesRequest.SetEntry
+	nil,                                 // 105: loft.TimelineEntry.DetailEntry
+	nil,                                 // 106: loft.AssetState.FactsEntry
+	nil,                                 // 107: loft.AssetState.StewardsEntry
+	nil,                                 // 108: loft.AssetState.StewardNamesEntry
+	nil,                                 // 109: loft.ReportRow.DetailEntry
+	nil,                                 // 110: loft.AssetCensusRow.StatusesEntry
+	(*TenantRef)(nil),                   // 111: loft.TenantRef
+	(*AssetTypeRef)(nil),                // 112: loft.AssetTypeRef
+	(*ItemModelRef)(nil),                // 113: loft.ItemModelRef
 	(*timestamppb.Timestamp)(nil),       // 114: google.protobuf.Timestamp
-	(*PartyRef)(nil),                    // 115: rove.PartyRef
-	(*Asset)(nil),                       // 116: rove.Asset
-	(*TenantSelect)(nil),                // 117: rove.TenantSelect
-	(*AssetTypeSelect)(nil),             // 118: rove.AssetTypeSelect
-	(*ItemModelSelect)(nil),             // 119: rove.ItemModelSelect
-	(*PartySelect)(nil),                 // 120: rove.PartySelect
+	(*PartyRef)(nil),                    // 115: loft.PartyRef
+	(*Asset)(nil),                       // 116: loft.Asset
+	(*TenantSelect)(nil),                // 117: loft.TenantSelect
+	(*AssetTypeSelect)(nil),             // 118: loft.AssetTypeSelect
+	(*ItemModelSelect)(nil),             // 119: loft.ItemModelSelect
+	(*PartySelect)(nil),                 // 120: loft.PartySelect
 	(*patchpb.Patch)(nil),               // 121: patch.Patch
-	(*TenantDomain)(nil),                // 122: rove.TenantDomain
-	(*Label)(nil),                       // 123: rove.Label
-	(*Attachment)(nil),                  // 124: rove.Attachment
+	(*TenantDomain)(nil),                // 122: loft.TenantDomain
+	(*Label)(nil),                       // 123: loft.Label
+	(*Attachment)(nil),                  // 124: loft.Attachment
 }
-var file_rove_asset_svc_g_proto_depIdxs = []int32{
-	111, // 0: rove.AssetAddRequest.tenant:type_name -> rove.TenantRef
-	98,  // 1: rove.AssetAddRequest.labels:type_name -> rove.AssetAddRequest.LabelsEntry
-	112, // 2: rove.AssetAddRequest.type:type_name -> rove.AssetTypeRef
-	113, // 3: rove.AssetAddRequest.model:type_name -> rove.ItemModelRef
-	114, // 4: rove.AssetAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	115, // 5: rove.AssetAddRequest.custodian:type_name -> rove.PartyRef
-	99,  // 6: rove.AssetAddRequest.attributes:type_name -> rove.AssetAddRequest.AttributesEntry
-	114, // 7: rove.AssetAddRequest.acquired_at:type_name -> google.protobuf.Timestamp
-	114, // 8: rove.AssetAddRequest.disposed_at:type_name -> google.protobuf.Timestamp
-	114, // 9: rove.AssetAddRequest.since:type_name -> google.protobuf.Timestamp
-	1,   // 10: rove.AssetAddRequest.to:type_name -> rove.AssetRef
-	2,   // 11: rove.AssetRef.tag:type_name -> rove.AssetRefByTag
-	111, // 12: rove.AssetRefByTag.tenant:type_name -> rove.TenantRef
-	0,   // 13: rove.AssetAddManyRequest.items:type_name -> rove.AssetAddRequest
-	116, // 14: rove.AssetAddManyResponse.items:type_name -> rove.Asset
-	5,   // 15: rove.AssetAddManyResponse.issues:type_name -> rove.AssetAddManyIssue
-	1,   // 16: rove.AssetGetRequest.ref:type_name -> rove.AssetRef
-	7,   // 17: rove.AssetGetRequest.select:type_name -> rove.AssetSelect
-	117, // 18: rove.AssetSelect.tenant:type_name -> rove.TenantSelect
-	118, // 19: rove.AssetSelect.type:type_name -> rove.AssetTypeSelect
-	119, // 20: rove.AssetSelect.model:type_name -> rove.ItemModelSelect
-	120, // 21: rove.AssetSelect.custodian:type_name -> rove.PartySelect
-	1,   // 22: rove.AssetPatchRequest.ref:type_name -> rove.AssetRef
-	100, // 23: rove.AssetPatchRequest.labels:type_name -> rove.AssetPatchRequest.LabelsEntry
-	112, // 24: rove.AssetPatchRequest.type:type_name -> rove.AssetTypeRef
-	113, // 25: rove.AssetPatchRequest.model:type_name -> rove.ItemModelRef
-	114, // 26: rove.AssetPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	115, // 27: rove.AssetPatchRequest.custodian:type_name -> rove.PartyRef
-	101, // 28: rove.AssetPatchRequest.attributes:type_name -> rove.AssetPatchRequest.AttributesEntry
-	114, // 29: rove.AssetPatchRequest.acquired_at:type_name -> google.protobuf.Timestamp
-	114, // 30: rove.AssetPatchRequest.disposed_at:type_name -> google.protobuf.Timestamp
-	1,   // 31: rove.AssetApplyRequest.ref:type_name -> rove.AssetRef
-	121, // 32: rove.AssetApplyRequest.patch:type_name -> patch.Patch
-	13,  // 33: rove.AssetListRequest.filters:type_name -> rove.AssetFilter
-	116, // 34: rove.AssetListResponse.items:type_name -> rove.Asset
-	1,   // 35: rove.AssetFilter.ref:type_name -> rove.AssetRef
-	112, // 36: rove.AssetFilter.type:type_name -> rove.AssetTypeRef
-	113, // 37: rove.AssetFilter.model:type_name -> rove.ItemModelRef
-	115, // 38: rove.AssetFilter.custodian:type_name -> rove.PartyRef
-	102, // 39: rove.AssetFilter.labels:type_name -> rove.AssetFilter.LabelsEntry
-	103, // 40: rove.AssetFilter.attributes:type_name -> rove.AssetFilter.AttributesEntry
-	13,  // 41: rove.AssetWatchRequest.filters:type_name -> rove.AssetFilter
-	16,  // 42: rove.AssetWatchResponse.items:type_name -> rove.AssetWatchItem
-	116, // 43: rove.AssetWatchItem.value:type_name -> rove.Asset
-	1,   // 44: rove.AssetMoveRequest.ref:type_name -> rove.AssetRef
-	1,   // 45: rove.AssetMoveRequest.to:type_name -> rove.AssetRef
-	114, // 46: rove.AssetMoveRequest.at:type_name -> google.protobuf.Timestamp
-	1,   // 47: rove.AssetSetAttributesRequest.ref:type_name -> rove.AssetRef
-	104, // 48: rove.AssetSetAttributesRequest.set:type_name -> rove.AssetSetAttributesRequest.SetEntry
-	114, // 49: rove.AssetSetAttributesRequest.at:type_name -> google.protobuf.Timestamp
-	1,   // 50: rove.AssetSetAttributesRequest.leave:type_name -> rove.AssetRef
-	1,   // 51: rove.AssetAssignRequest.ref:type_name -> rove.AssetRef
-	115, // 52: rove.AssetAssignRequest.party:type_name -> rove.PartyRef
-	114, // 53: rove.AssetAssignRequest.at:type_name -> google.protobuf.Timestamp
-	1,   // 54: rove.AssetRelateRequest.ref:type_name -> rove.AssetRef
-	1,   // 55: rove.AssetRelateRequest.target:type_name -> rove.AssetRef
-	114, // 56: rove.AssetRelateRequest.at:type_name -> google.protobuf.Timestamp
-	1,   // 57: rove.AssetCorrectRequest.ref:type_name -> rove.AssetRef
-	114, // 58: rove.AssetCorrectRequest.valid_from:type_name -> google.protobuf.Timestamp
-	1,   // 59: rove.AssetTimelineRequest.ref:type_name -> rove.AssetRef
-	114, // 60: rove.AssetTimelineRequest.known:type_name -> google.protobuf.Timestamp
-	24,  // 61: rove.AssetTimelineResponse.entries:type_name -> rove.TimelineEntry
-	114, // 62: rove.TimelineEntry.valid_from:type_name -> google.protobuf.Timestamp
-	114, // 63: rove.TimelineEntry.valid_to:type_name -> google.protobuf.Timestamp
-	114, // 64: rove.TimelineEntry.recorded_at:type_name -> google.protobuf.Timestamp
-	114, // 65: rove.TimelineEntry.superseded_at:type_name -> google.protobuf.Timestamp
-	105, // 66: rove.TimelineEntry.detail:type_name -> rove.TimelineEntry.DetailEntry
-	1,   // 67: rove.AssetQueryAtRequest.root:type_name -> rove.AssetRef
-	114, // 68: rove.AssetQueryAtRequest.at:type_name -> google.protobuf.Timestamp
-	114, // 69: rove.AssetQueryAtRequest.known:type_name -> google.protobuf.Timestamp
-	27,  // 70: rove.AssetQueryAtResponse.items:type_name -> rove.AssetState
-	106, // 71: rove.AssetState.facts:type_name -> rove.AssetState.FactsEntry
-	107, // 72: rove.AssetState.stewards:type_name -> rove.AssetState.StewardsEntry
-	108, // 73: rove.AssetState.steward_names:type_name -> rove.AssetState.StewardNamesEntry
-	1,   // 74: rove.AssetDiffRequest.root:type_name -> rove.AssetRef
-	114, // 75: rove.AssetDiffRequest.from:type_name -> google.protobuf.Timestamp
-	114, // 76: rove.AssetDiffRequest.to:type_name -> google.protobuf.Timestamp
-	30,  // 77: rove.AssetDiffResponse.changes:type_name -> rove.AssetChange
-	112, // 78: rove.AssetSearchRequest.type:type_name -> rove.AssetTypeRef
-	1,   // 79: rove.AssetSearchRequest.within:type_name -> rove.AssetRef
-	115, // 80: rove.AssetSearchRequest.custodian:type_name -> rove.PartyRef
-	116, // 81: rove.AssetSearchResponse.items:type_name -> rove.Asset
-	114, // 82: rove.AssetReportRequest.from:type_name -> google.protobuf.Timestamp
-	114, // 83: rove.AssetReportRequest.to:type_name -> google.protobuf.Timestamp
-	35,  // 84: rove.AssetReportResponse.rows:type_name -> rove.ReportRow
-	109, // 85: rove.ReportRow.detail:type_name -> rove.ReportRow.DetailEntry
-	0,   // 86: rove.AssetReadSheetResponse.items:type_name -> rove.AssetAddRequest
-	41,  // 87: rove.AssetReadSheetResponse.issues:type_name -> rove.AssetReadSheetIssue
-	44,  // 88: rove.AssetCensusResponse.rows:type_name -> rove.AssetCensusRow
-	44,  // 89: rove.AssetCensusResponse.total:type_name -> rove.AssetCensusRow
-	114, // 90: rove.AssetCensusResponse.at:type_name -> google.protobuf.Timestamp
-	110, // 91: rove.AssetCensusRow.statuses:type_name -> rove.AssetCensusRow.StatusesEntry
-	111, // 92: rove.TenantDomainAddRequest.tenant:type_name -> rove.TenantRef
-	114, // 93: rove.TenantDomainAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	114, // 94: rove.TenantDomainAddRequest.verified_at:type_name -> google.protobuf.Timestamp
-	114, // 95: rove.TenantDomainAddRequest.checked_at:type_name -> google.protobuf.Timestamp
-	114, // 96: rove.TenantDomainAddRequest.failing_since:type_name -> google.protobuf.Timestamp
-	114, // 97: rove.TenantDomainAddRequest.date_lapsed:type_name -> google.protobuf.Timestamp
-	114, // 98: rove.TenantDomainAddRequest.redirect_until:type_name -> google.protobuf.Timestamp
-	47,  // 99: rove.TenantDomainGetRequest.ref:type_name -> rove.TenantDomainRef
-	48,  // 100: rove.TenantDomainGetRequest.select:type_name -> rove.TenantDomainSelect
-	117, // 101: rove.TenantDomainSelect.tenant:type_name -> rove.TenantSelect
-	47,  // 102: rove.TenantDomainPatchRequest.ref:type_name -> rove.TenantDomainRef
-	114, // 103: rove.TenantDomainPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	114, // 104: rove.TenantDomainPatchRequest.verified_at:type_name -> google.protobuf.Timestamp
-	114, // 105: rove.TenantDomainPatchRequest.checked_at:type_name -> google.protobuf.Timestamp
-	114, // 106: rove.TenantDomainPatchRequest.failing_since:type_name -> google.protobuf.Timestamp
-	114, // 107: rove.TenantDomainPatchRequest.date_lapsed:type_name -> google.protobuf.Timestamp
-	114, // 108: rove.TenantDomainPatchRequest.redirect_until:type_name -> google.protobuf.Timestamp
-	47,  // 109: rove.TenantDomainApplyRequest.ref:type_name -> rove.TenantDomainRef
-	121, // 110: rove.TenantDomainApplyRequest.patch:type_name -> patch.Patch
-	54,  // 111: rove.TenantDomainListRequest.filters:type_name -> rove.TenantDomainFilter
-	122, // 112: rove.TenantDomainListResponse.items:type_name -> rove.TenantDomain
-	47,  // 113: rove.TenantDomainFilter.ref:type_name -> rove.TenantDomainRef
-	54,  // 114: rove.TenantDomainWatchRequest.filters:type_name -> rove.TenantDomainFilter
-	57,  // 115: rove.TenantDomainWatchResponse.items:type_name -> rove.TenantDomainWatchItem
-	122, // 116: rove.TenantDomainWatchItem.value:type_name -> rove.TenantDomain
-	47,  // 117: rove.TenantDomainVerifyRequest.ref:type_name -> rove.TenantDomainRef
-	47,  // 118: rove.TenantDomainActivateRequest.ref:type_name -> rove.TenantDomainRef
-	47,  // 119: rove.TenantDomainRetireRequest.ref:type_name -> rove.TenantDomainRef
-	122, // 120: rove.TenantDomainStatusResponse.active:type_name -> rove.TenantDomain
-	111, // 121: rove.LabelAddRequest.tenant:type_name -> rove.TenantRef
-	47,  // 122: rove.LabelAddRequest.domain:type_name -> rove.TenantDomainRef
-	114, // 123: rove.LabelAddRequest.bound_at:type_name -> google.protobuf.Timestamp
-	114, // 124: rove.LabelAddRequest.printed_at:type_name -> google.protobuf.Timestamp
-	114, // 125: rove.LabelAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	65,  // 126: rove.LabelGetRequest.ref:type_name -> rove.LabelRef
-	66,  // 127: rove.LabelGetRequest.select:type_name -> rove.LabelSelect
-	117, // 128: rove.LabelSelect.tenant:type_name -> rove.TenantSelect
-	48,  // 129: rove.LabelSelect.domain:type_name -> rove.TenantDomainSelect
-	65,  // 130: rove.LabelPatchRequest.ref:type_name -> rove.LabelRef
-	47,  // 131: rove.LabelPatchRequest.domain:type_name -> rove.TenantDomainRef
-	114, // 132: rove.LabelPatchRequest.bound_at:type_name -> google.protobuf.Timestamp
-	114, // 133: rove.LabelPatchRequest.printed_at:type_name -> google.protobuf.Timestamp
-	114, // 134: rove.LabelPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	65,  // 135: rove.LabelApplyRequest.ref:type_name -> rove.LabelRef
-	121, // 136: rove.LabelApplyRequest.patch:type_name -> patch.Patch
-	72,  // 137: rove.LabelListRequest.filters:type_name -> rove.LabelFilter
-	123, // 138: rove.LabelListResponse.items:type_name -> rove.Label
-	65,  // 139: rove.LabelFilter.ref:type_name -> rove.LabelRef
-	72,  // 140: rove.LabelWatchRequest.filters:type_name -> rove.LabelFilter
-	75,  // 141: rove.LabelWatchResponse.items:type_name -> rove.LabelWatchItem
-	123, // 142: rove.LabelWatchItem.value:type_name -> rove.Label
-	123, // 143: rove.LabelPrintResponse.labels:type_name -> rove.Label
-	65,  // 144: rove.LabelBindRequest.ref:type_name -> rove.LabelRef
-	1,   // 145: rove.LabelBindRequest.asset:type_name -> rove.AssetRef
-	65,  // 146: rove.LabelUnbindRequest.ref:type_name -> rove.LabelRef
-	123, // 147: rove.LabelResolveResponse.label:type_name -> rove.Label
-	116, // 148: rove.LabelResolveResponse.asset:type_name -> rove.Asset
-	111, // 149: rove.AttachmentAddRequest.tenant:type_name -> rove.TenantRef
-	114, // 150: rove.AttachmentAddRequest.date_created:type_name -> google.protobuf.Timestamp
-	84,  // 151: rove.AttachmentGetRequest.ref:type_name -> rove.AttachmentRef
-	85,  // 152: rove.AttachmentGetRequest.select:type_name -> rove.AttachmentSelect
-	117, // 153: rove.AttachmentSelect.tenant:type_name -> rove.TenantSelect
-	84,  // 154: rove.AttachmentPatchRequest.ref:type_name -> rove.AttachmentRef
-	114, // 155: rove.AttachmentPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
-	84,  // 156: rove.AttachmentApplyRequest.ref:type_name -> rove.AttachmentRef
-	121, // 157: rove.AttachmentApplyRequest.patch:type_name -> patch.Patch
-	91,  // 158: rove.AttachmentListRequest.filters:type_name -> rove.AttachmentFilter
-	124, // 159: rove.AttachmentListResponse.items:type_name -> rove.Attachment
-	84,  // 160: rove.AttachmentFilter.ref:type_name -> rove.AttachmentRef
-	91,  // 161: rove.AttachmentWatchRequest.filters:type_name -> rove.AttachmentFilter
-	94,  // 162: rove.AttachmentWatchResponse.items:type_name -> rove.AttachmentWatchItem
-	124, // 163: rove.AttachmentWatchItem.value:type_name -> rove.Attachment
-	84,  // 164: rove.AttachmentUrlRequest.ref:type_name -> rove.AttachmentRef
-	114, // 165: rove.AttachmentUrlResponse.expires_at:type_name -> google.protobuf.Timestamp
-	0,   // 166: rove.AssetService.Add:input_type -> rove.AssetAddRequest
-	3,   // 167: rove.AssetService.AddMany:input_type -> rove.AssetAddManyRequest
-	6,   // 168: rove.AssetService.Get:input_type -> rove.AssetGetRequest
-	8,   // 169: rove.AssetService.Patch:input_type -> rove.AssetPatchRequest
-	9,   // 170: rove.AssetService.Apply:input_type -> rove.AssetApplyRequest
-	1,   // 171: rove.AssetService.Erase:input_type -> rove.AssetRef
-	11,  // 172: rove.AssetService.List:input_type -> rove.AssetListRequest
-	14,  // 173: rove.AssetService.Watch:input_type -> rove.AssetWatchRequest
-	17,  // 174: rove.AssetService.Move:input_type -> rove.AssetMoveRequest
-	18,  // 175: rove.AssetService.SetAttributes:input_type -> rove.AssetSetAttributesRequest
-	19,  // 176: rove.AssetService.Assign:input_type -> rove.AssetAssignRequest
-	20,  // 177: rove.AssetService.Relate:input_type -> rove.AssetRelateRequest
-	21,  // 178: rove.AssetService.Correct:input_type -> rove.AssetCorrectRequest
-	22,  // 179: rove.AssetService.Timeline:input_type -> rove.AssetTimelineRequest
-	25,  // 180: rove.AssetService.QueryAt:input_type -> rove.AssetQueryAtRequest
-	28,  // 181: rove.AssetService.Diff:input_type -> rove.AssetDiffRequest
-	31,  // 182: rove.AssetService.Search:input_type -> rove.AssetSearchRequest
-	33,  // 183: rove.AssetService.Report:input_type -> rove.AssetReportRequest
-	36,  // 184: rove.AssetService.Export:input_type -> rove.AssetExportRequest
-	38,  // 185: rove.AssetService.Form:input_type -> rove.AssetFormRequest
-	39,  // 186: rove.AssetService.ReadSheet:input_type -> rove.AssetReadSheetRequest
-	42,  // 187: rove.AssetService.Census:input_type -> rove.AssetCensusRequest
-	42,  // 188: rove.AssetService.ExportCensus:input_type -> rove.AssetCensusRequest
-	45,  // 189: rove.TenantDomainService.Add:input_type -> rove.TenantDomainAddRequest
-	46,  // 190: rove.TenantDomainService.Get:input_type -> rove.TenantDomainGetRequest
-	49,  // 191: rove.TenantDomainService.Patch:input_type -> rove.TenantDomainPatchRequest
-	50,  // 192: rove.TenantDomainService.Apply:input_type -> rove.TenantDomainApplyRequest
-	47,  // 193: rove.TenantDomainService.Erase:input_type -> rove.TenantDomainRef
-	52,  // 194: rove.TenantDomainService.List:input_type -> rove.TenantDomainListRequest
-	55,  // 195: rove.TenantDomainService.Watch:input_type -> rove.TenantDomainWatchRequest
-	58,  // 196: rove.TenantDomainService.Verify:input_type -> rove.TenantDomainVerifyRequest
-	59,  // 197: rove.TenantDomainService.Activate:input_type -> rove.TenantDomainActivateRequest
-	60,  // 198: rove.TenantDomainService.Retire:input_type -> rove.TenantDomainRetireRequest
-	61,  // 199: rove.TenantDomainService.Status:input_type -> rove.TenantDomainStatusRequest
-	63,  // 200: rove.LabelService.Add:input_type -> rove.LabelAddRequest
-	64,  // 201: rove.LabelService.Get:input_type -> rove.LabelGetRequest
-	67,  // 202: rove.LabelService.Patch:input_type -> rove.LabelPatchRequest
-	68,  // 203: rove.LabelService.Apply:input_type -> rove.LabelApplyRequest
-	65,  // 204: rove.LabelService.Erase:input_type -> rove.LabelRef
-	70,  // 205: rove.LabelService.List:input_type -> rove.LabelListRequest
-	73,  // 206: rove.LabelService.Watch:input_type -> rove.LabelWatchRequest
-	76,  // 207: rove.LabelService.Print:input_type -> rove.LabelPrintRequest
-	78,  // 208: rove.LabelService.Bind:input_type -> rove.LabelBindRequest
-	79,  // 209: rove.LabelService.Unbind:input_type -> rove.LabelUnbindRequest
-	80,  // 210: rove.LabelService.Resolve:input_type -> rove.LabelResolveRequest
-	82,  // 211: rove.AttachmentService.Add:input_type -> rove.AttachmentAddRequest
-	83,  // 212: rove.AttachmentService.Get:input_type -> rove.AttachmentGetRequest
-	86,  // 213: rove.AttachmentService.Patch:input_type -> rove.AttachmentPatchRequest
-	87,  // 214: rove.AttachmentService.Apply:input_type -> rove.AttachmentApplyRequest
-	84,  // 215: rove.AttachmentService.Erase:input_type -> rove.AttachmentRef
-	89,  // 216: rove.AttachmentService.List:input_type -> rove.AttachmentListRequest
-	92,  // 217: rove.AttachmentService.Watch:input_type -> rove.AttachmentWatchRequest
-	95,  // 218: rove.AttachmentService.Upload:input_type -> rove.AttachmentUploadRequest
-	96,  // 219: rove.AttachmentService.Url:input_type -> rove.AttachmentUrlRequest
-	116, // 220: rove.AssetService.Add:output_type -> rove.Asset
-	4,   // 221: rove.AssetService.AddMany:output_type -> rove.AssetAddManyResponse
-	116, // 222: rove.AssetService.Get:output_type -> rove.Asset
-	116, // 223: rove.AssetService.Patch:output_type -> rove.Asset
-	116, // 224: rove.AssetService.Apply:output_type -> rove.Asset
-	10,  // 225: rove.AssetService.Erase:output_type -> rove.AssetEraseResponse
-	12,  // 226: rove.AssetService.List:output_type -> rove.AssetListResponse
-	15,  // 227: rove.AssetService.Watch:output_type -> rove.AssetWatchResponse
-	116, // 228: rove.AssetService.Move:output_type -> rove.Asset
-	116, // 229: rove.AssetService.SetAttributes:output_type -> rove.Asset
-	116, // 230: rove.AssetService.Assign:output_type -> rove.Asset
-	116, // 231: rove.AssetService.Relate:output_type -> rove.Asset
-	116, // 232: rove.AssetService.Correct:output_type -> rove.Asset
-	23,  // 233: rove.AssetService.Timeline:output_type -> rove.AssetTimelineResponse
-	26,  // 234: rove.AssetService.QueryAt:output_type -> rove.AssetQueryAtResponse
-	29,  // 235: rove.AssetService.Diff:output_type -> rove.AssetDiffResponse
-	32,  // 236: rove.AssetService.Search:output_type -> rove.AssetSearchResponse
-	34,  // 237: rove.AssetService.Report:output_type -> rove.AssetReportResponse
-	37,  // 238: rove.AssetService.Export:output_type -> rove.AssetExportResponse
-	37,  // 239: rove.AssetService.Form:output_type -> rove.AssetExportResponse
-	40,  // 240: rove.AssetService.ReadSheet:output_type -> rove.AssetReadSheetResponse
-	43,  // 241: rove.AssetService.Census:output_type -> rove.AssetCensusResponse
-	37,  // 242: rove.AssetService.ExportCensus:output_type -> rove.AssetExportResponse
-	122, // 243: rove.TenantDomainService.Add:output_type -> rove.TenantDomain
-	122, // 244: rove.TenantDomainService.Get:output_type -> rove.TenantDomain
-	122, // 245: rove.TenantDomainService.Patch:output_type -> rove.TenantDomain
-	122, // 246: rove.TenantDomainService.Apply:output_type -> rove.TenantDomain
-	51,  // 247: rove.TenantDomainService.Erase:output_type -> rove.TenantDomainEraseResponse
-	53,  // 248: rove.TenantDomainService.List:output_type -> rove.TenantDomainListResponse
-	56,  // 249: rove.TenantDomainService.Watch:output_type -> rove.TenantDomainWatchResponse
-	122, // 250: rove.TenantDomainService.Verify:output_type -> rove.TenantDomain
-	122, // 251: rove.TenantDomainService.Activate:output_type -> rove.TenantDomain
-	122, // 252: rove.TenantDomainService.Retire:output_type -> rove.TenantDomain
-	62,  // 253: rove.TenantDomainService.Status:output_type -> rove.TenantDomainStatusResponse
-	123, // 254: rove.LabelService.Add:output_type -> rove.Label
-	123, // 255: rove.LabelService.Get:output_type -> rove.Label
-	123, // 256: rove.LabelService.Patch:output_type -> rove.Label
-	123, // 257: rove.LabelService.Apply:output_type -> rove.Label
-	69,  // 258: rove.LabelService.Erase:output_type -> rove.LabelEraseResponse
-	71,  // 259: rove.LabelService.List:output_type -> rove.LabelListResponse
-	74,  // 260: rove.LabelService.Watch:output_type -> rove.LabelWatchResponse
-	77,  // 261: rove.LabelService.Print:output_type -> rove.LabelPrintResponse
-	123, // 262: rove.LabelService.Bind:output_type -> rove.Label
-	123, // 263: rove.LabelService.Unbind:output_type -> rove.Label
-	81,  // 264: rove.LabelService.Resolve:output_type -> rove.LabelResolveResponse
-	124, // 265: rove.AttachmentService.Add:output_type -> rove.Attachment
-	124, // 266: rove.AttachmentService.Get:output_type -> rove.Attachment
-	124, // 267: rove.AttachmentService.Patch:output_type -> rove.Attachment
-	124, // 268: rove.AttachmentService.Apply:output_type -> rove.Attachment
-	88,  // 269: rove.AttachmentService.Erase:output_type -> rove.AttachmentEraseResponse
-	90,  // 270: rove.AttachmentService.List:output_type -> rove.AttachmentListResponse
-	93,  // 271: rove.AttachmentService.Watch:output_type -> rove.AttachmentWatchResponse
-	124, // 272: rove.AttachmentService.Upload:output_type -> rove.Attachment
-	97,  // 273: rove.AttachmentService.Url:output_type -> rove.AttachmentUrlResponse
+var file_loft_asset_svc_g_proto_depIdxs = []int32{
+	111, // 0: loft.AssetAddRequest.tenant:type_name -> loft.TenantRef
+	98,  // 1: loft.AssetAddRequest.labels:type_name -> loft.AssetAddRequest.LabelsEntry
+	112, // 2: loft.AssetAddRequest.type:type_name -> loft.AssetTypeRef
+	113, // 3: loft.AssetAddRequest.model:type_name -> loft.ItemModelRef
+	114, // 4: loft.AssetAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	115, // 5: loft.AssetAddRequest.custodian:type_name -> loft.PartyRef
+	99,  // 6: loft.AssetAddRequest.attributes:type_name -> loft.AssetAddRequest.AttributesEntry
+	114, // 7: loft.AssetAddRequest.acquired_at:type_name -> google.protobuf.Timestamp
+	114, // 8: loft.AssetAddRequest.disposed_at:type_name -> google.protobuf.Timestamp
+	114, // 9: loft.AssetAddRequest.since:type_name -> google.protobuf.Timestamp
+	1,   // 10: loft.AssetAddRequest.to:type_name -> loft.AssetRef
+	2,   // 11: loft.AssetRef.tag:type_name -> loft.AssetRefByTag
+	111, // 12: loft.AssetRefByTag.tenant:type_name -> loft.TenantRef
+	0,   // 13: loft.AssetAddManyRequest.items:type_name -> loft.AssetAddRequest
+	116, // 14: loft.AssetAddManyResponse.items:type_name -> loft.Asset
+	5,   // 15: loft.AssetAddManyResponse.issues:type_name -> loft.AssetAddManyIssue
+	1,   // 16: loft.AssetGetRequest.ref:type_name -> loft.AssetRef
+	7,   // 17: loft.AssetGetRequest.select:type_name -> loft.AssetSelect
+	117, // 18: loft.AssetSelect.tenant:type_name -> loft.TenantSelect
+	118, // 19: loft.AssetSelect.type:type_name -> loft.AssetTypeSelect
+	119, // 20: loft.AssetSelect.model:type_name -> loft.ItemModelSelect
+	120, // 21: loft.AssetSelect.custodian:type_name -> loft.PartySelect
+	1,   // 22: loft.AssetPatchRequest.ref:type_name -> loft.AssetRef
+	100, // 23: loft.AssetPatchRequest.labels:type_name -> loft.AssetPatchRequest.LabelsEntry
+	112, // 24: loft.AssetPatchRequest.type:type_name -> loft.AssetTypeRef
+	113, // 25: loft.AssetPatchRequest.model:type_name -> loft.ItemModelRef
+	114, // 26: loft.AssetPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	115, // 27: loft.AssetPatchRequest.custodian:type_name -> loft.PartyRef
+	101, // 28: loft.AssetPatchRequest.attributes:type_name -> loft.AssetPatchRequest.AttributesEntry
+	114, // 29: loft.AssetPatchRequest.acquired_at:type_name -> google.protobuf.Timestamp
+	114, // 30: loft.AssetPatchRequest.disposed_at:type_name -> google.protobuf.Timestamp
+	1,   // 31: loft.AssetApplyRequest.ref:type_name -> loft.AssetRef
+	121, // 32: loft.AssetApplyRequest.patch:type_name -> patch.Patch
+	13,  // 33: loft.AssetListRequest.filters:type_name -> loft.AssetFilter
+	116, // 34: loft.AssetListResponse.items:type_name -> loft.Asset
+	1,   // 35: loft.AssetFilter.ref:type_name -> loft.AssetRef
+	112, // 36: loft.AssetFilter.type:type_name -> loft.AssetTypeRef
+	113, // 37: loft.AssetFilter.model:type_name -> loft.ItemModelRef
+	115, // 38: loft.AssetFilter.custodian:type_name -> loft.PartyRef
+	102, // 39: loft.AssetFilter.labels:type_name -> loft.AssetFilter.LabelsEntry
+	103, // 40: loft.AssetFilter.attributes:type_name -> loft.AssetFilter.AttributesEntry
+	13,  // 41: loft.AssetWatchRequest.filters:type_name -> loft.AssetFilter
+	16,  // 42: loft.AssetWatchResponse.items:type_name -> loft.AssetWatchItem
+	116, // 43: loft.AssetWatchItem.value:type_name -> loft.Asset
+	1,   // 44: loft.AssetMoveRequest.ref:type_name -> loft.AssetRef
+	1,   // 45: loft.AssetMoveRequest.to:type_name -> loft.AssetRef
+	114, // 46: loft.AssetMoveRequest.at:type_name -> google.protobuf.Timestamp
+	1,   // 47: loft.AssetSetAttributesRequest.ref:type_name -> loft.AssetRef
+	104, // 48: loft.AssetSetAttributesRequest.set:type_name -> loft.AssetSetAttributesRequest.SetEntry
+	114, // 49: loft.AssetSetAttributesRequest.at:type_name -> google.protobuf.Timestamp
+	1,   // 50: loft.AssetSetAttributesRequest.leave:type_name -> loft.AssetRef
+	1,   // 51: loft.AssetAssignRequest.ref:type_name -> loft.AssetRef
+	115, // 52: loft.AssetAssignRequest.party:type_name -> loft.PartyRef
+	114, // 53: loft.AssetAssignRequest.at:type_name -> google.protobuf.Timestamp
+	1,   // 54: loft.AssetRelateRequest.ref:type_name -> loft.AssetRef
+	1,   // 55: loft.AssetRelateRequest.target:type_name -> loft.AssetRef
+	114, // 56: loft.AssetRelateRequest.at:type_name -> google.protobuf.Timestamp
+	1,   // 57: loft.AssetCorrectRequest.ref:type_name -> loft.AssetRef
+	114, // 58: loft.AssetCorrectRequest.valid_from:type_name -> google.protobuf.Timestamp
+	1,   // 59: loft.AssetTimelineRequest.ref:type_name -> loft.AssetRef
+	114, // 60: loft.AssetTimelineRequest.known:type_name -> google.protobuf.Timestamp
+	24,  // 61: loft.AssetTimelineResponse.entries:type_name -> loft.TimelineEntry
+	114, // 62: loft.TimelineEntry.valid_from:type_name -> google.protobuf.Timestamp
+	114, // 63: loft.TimelineEntry.valid_to:type_name -> google.protobuf.Timestamp
+	114, // 64: loft.TimelineEntry.recorded_at:type_name -> google.protobuf.Timestamp
+	114, // 65: loft.TimelineEntry.superseded_at:type_name -> google.protobuf.Timestamp
+	105, // 66: loft.TimelineEntry.detail:type_name -> loft.TimelineEntry.DetailEntry
+	1,   // 67: loft.AssetQueryAtRequest.root:type_name -> loft.AssetRef
+	114, // 68: loft.AssetQueryAtRequest.at:type_name -> google.protobuf.Timestamp
+	114, // 69: loft.AssetQueryAtRequest.known:type_name -> google.protobuf.Timestamp
+	27,  // 70: loft.AssetQueryAtResponse.items:type_name -> loft.AssetState
+	106, // 71: loft.AssetState.facts:type_name -> loft.AssetState.FactsEntry
+	107, // 72: loft.AssetState.stewards:type_name -> loft.AssetState.StewardsEntry
+	108, // 73: loft.AssetState.steward_names:type_name -> loft.AssetState.StewardNamesEntry
+	1,   // 74: loft.AssetDiffRequest.root:type_name -> loft.AssetRef
+	114, // 75: loft.AssetDiffRequest.from:type_name -> google.protobuf.Timestamp
+	114, // 76: loft.AssetDiffRequest.to:type_name -> google.protobuf.Timestamp
+	30,  // 77: loft.AssetDiffResponse.changes:type_name -> loft.AssetChange
+	112, // 78: loft.AssetSearchRequest.type:type_name -> loft.AssetTypeRef
+	1,   // 79: loft.AssetSearchRequest.within:type_name -> loft.AssetRef
+	115, // 80: loft.AssetSearchRequest.custodian:type_name -> loft.PartyRef
+	116, // 81: loft.AssetSearchResponse.items:type_name -> loft.Asset
+	114, // 82: loft.AssetReportRequest.from:type_name -> google.protobuf.Timestamp
+	114, // 83: loft.AssetReportRequest.to:type_name -> google.protobuf.Timestamp
+	35,  // 84: loft.AssetReportResponse.rows:type_name -> loft.ReportRow
+	109, // 85: loft.ReportRow.detail:type_name -> loft.ReportRow.DetailEntry
+	0,   // 86: loft.AssetReadSheetResponse.items:type_name -> loft.AssetAddRequest
+	41,  // 87: loft.AssetReadSheetResponse.issues:type_name -> loft.AssetReadSheetIssue
+	44,  // 88: loft.AssetCensusResponse.rows:type_name -> loft.AssetCensusRow
+	44,  // 89: loft.AssetCensusResponse.total:type_name -> loft.AssetCensusRow
+	114, // 90: loft.AssetCensusResponse.at:type_name -> google.protobuf.Timestamp
+	110, // 91: loft.AssetCensusRow.statuses:type_name -> loft.AssetCensusRow.StatusesEntry
+	111, // 92: loft.TenantDomainAddRequest.tenant:type_name -> loft.TenantRef
+	114, // 93: loft.TenantDomainAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	114, // 94: loft.TenantDomainAddRequest.verified_at:type_name -> google.protobuf.Timestamp
+	114, // 95: loft.TenantDomainAddRequest.checked_at:type_name -> google.protobuf.Timestamp
+	114, // 96: loft.TenantDomainAddRequest.failing_since:type_name -> google.protobuf.Timestamp
+	114, // 97: loft.TenantDomainAddRequest.date_lapsed:type_name -> google.protobuf.Timestamp
+	114, // 98: loft.TenantDomainAddRequest.redirect_until:type_name -> google.protobuf.Timestamp
+	47,  // 99: loft.TenantDomainGetRequest.ref:type_name -> loft.TenantDomainRef
+	48,  // 100: loft.TenantDomainGetRequest.select:type_name -> loft.TenantDomainSelect
+	117, // 101: loft.TenantDomainSelect.tenant:type_name -> loft.TenantSelect
+	47,  // 102: loft.TenantDomainPatchRequest.ref:type_name -> loft.TenantDomainRef
+	114, // 103: loft.TenantDomainPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	114, // 104: loft.TenantDomainPatchRequest.verified_at:type_name -> google.protobuf.Timestamp
+	114, // 105: loft.TenantDomainPatchRequest.checked_at:type_name -> google.protobuf.Timestamp
+	114, // 106: loft.TenantDomainPatchRequest.failing_since:type_name -> google.protobuf.Timestamp
+	114, // 107: loft.TenantDomainPatchRequest.date_lapsed:type_name -> google.protobuf.Timestamp
+	114, // 108: loft.TenantDomainPatchRequest.redirect_until:type_name -> google.protobuf.Timestamp
+	47,  // 109: loft.TenantDomainApplyRequest.ref:type_name -> loft.TenantDomainRef
+	121, // 110: loft.TenantDomainApplyRequest.patch:type_name -> patch.Patch
+	54,  // 111: loft.TenantDomainListRequest.filters:type_name -> loft.TenantDomainFilter
+	122, // 112: loft.TenantDomainListResponse.items:type_name -> loft.TenantDomain
+	47,  // 113: loft.TenantDomainFilter.ref:type_name -> loft.TenantDomainRef
+	54,  // 114: loft.TenantDomainWatchRequest.filters:type_name -> loft.TenantDomainFilter
+	57,  // 115: loft.TenantDomainWatchResponse.items:type_name -> loft.TenantDomainWatchItem
+	122, // 116: loft.TenantDomainWatchItem.value:type_name -> loft.TenantDomain
+	47,  // 117: loft.TenantDomainVerifyRequest.ref:type_name -> loft.TenantDomainRef
+	47,  // 118: loft.TenantDomainActivateRequest.ref:type_name -> loft.TenantDomainRef
+	47,  // 119: loft.TenantDomainRetireRequest.ref:type_name -> loft.TenantDomainRef
+	122, // 120: loft.TenantDomainStatusResponse.active:type_name -> loft.TenantDomain
+	111, // 121: loft.LabelAddRequest.tenant:type_name -> loft.TenantRef
+	47,  // 122: loft.LabelAddRequest.domain:type_name -> loft.TenantDomainRef
+	114, // 123: loft.LabelAddRequest.bound_at:type_name -> google.protobuf.Timestamp
+	114, // 124: loft.LabelAddRequest.printed_at:type_name -> google.protobuf.Timestamp
+	114, // 125: loft.LabelAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	65,  // 126: loft.LabelGetRequest.ref:type_name -> loft.LabelRef
+	66,  // 127: loft.LabelGetRequest.select:type_name -> loft.LabelSelect
+	117, // 128: loft.LabelSelect.tenant:type_name -> loft.TenantSelect
+	48,  // 129: loft.LabelSelect.domain:type_name -> loft.TenantDomainSelect
+	65,  // 130: loft.LabelPatchRequest.ref:type_name -> loft.LabelRef
+	47,  // 131: loft.LabelPatchRequest.domain:type_name -> loft.TenantDomainRef
+	114, // 132: loft.LabelPatchRequest.bound_at:type_name -> google.protobuf.Timestamp
+	114, // 133: loft.LabelPatchRequest.printed_at:type_name -> google.protobuf.Timestamp
+	114, // 134: loft.LabelPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	65,  // 135: loft.LabelApplyRequest.ref:type_name -> loft.LabelRef
+	121, // 136: loft.LabelApplyRequest.patch:type_name -> patch.Patch
+	72,  // 137: loft.LabelListRequest.filters:type_name -> loft.LabelFilter
+	123, // 138: loft.LabelListResponse.items:type_name -> loft.Label
+	65,  // 139: loft.LabelFilter.ref:type_name -> loft.LabelRef
+	72,  // 140: loft.LabelWatchRequest.filters:type_name -> loft.LabelFilter
+	75,  // 141: loft.LabelWatchResponse.items:type_name -> loft.LabelWatchItem
+	123, // 142: loft.LabelWatchItem.value:type_name -> loft.Label
+	123, // 143: loft.LabelPrintResponse.labels:type_name -> loft.Label
+	65,  // 144: loft.LabelBindRequest.ref:type_name -> loft.LabelRef
+	1,   // 145: loft.LabelBindRequest.asset:type_name -> loft.AssetRef
+	65,  // 146: loft.LabelUnbindRequest.ref:type_name -> loft.LabelRef
+	123, // 147: loft.LabelResolveResponse.label:type_name -> loft.Label
+	116, // 148: loft.LabelResolveResponse.asset:type_name -> loft.Asset
+	111, // 149: loft.AttachmentAddRequest.tenant:type_name -> loft.TenantRef
+	114, // 150: loft.AttachmentAddRequest.date_created:type_name -> google.protobuf.Timestamp
+	84,  // 151: loft.AttachmentGetRequest.ref:type_name -> loft.AttachmentRef
+	85,  // 152: loft.AttachmentGetRequest.select:type_name -> loft.AttachmentSelect
+	117, // 153: loft.AttachmentSelect.tenant:type_name -> loft.TenantSelect
+	84,  // 154: loft.AttachmentPatchRequest.ref:type_name -> loft.AttachmentRef
+	114, // 155: loft.AttachmentPatchRequest.date_updated:type_name -> google.protobuf.Timestamp
+	84,  // 156: loft.AttachmentApplyRequest.ref:type_name -> loft.AttachmentRef
+	121, // 157: loft.AttachmentApplyRequest.patch:type_name -> patch.Patch
+	91,  // 158: loft.AttachmentListRequest.filters:type_name -> loft.AttachmentFilter
+	124, // 159: loft.AttachmentListResponse.items:type_name -> loft.Attachment
+	84,  // 160: loft.AttachmentFilter.ref:type_name -> loft.AttachmentRef
+	91,  // 161: loft.AttachmentWatchRequest.filters:type_name -> loft.AttachmentFilter
+	94,  // 162: loft.AttachmentWatchResponse.items:type_name -> loft.AttachmentWatchItem
+	124, // 163: loft.AttachmentWatchItem.value:type_name -> loft.Attachment
+	84,  // 164: loft.AttachmentUrlRequest.ref:type_name -> loft.AttachmentRef
+	114, // 165: loft.AttachmentUrlResponse.expires_at:type_name -> google.protobuf.Timestamp
+	0,   // 166: loft.AssetService.Add:input_type -> loft.AssetAddRequest
+	3,   // 167: loft.AssetService.AddMany:input_type -> loft.AssetAddManyRequest
+	6,   // 168: loft.AssetService.Get:input_type -> loft.AssetGetRequest
+	8,   // 169: loft.AssetService.Patch:input_type -> loft.AssetPatchRequest
+	9,   // 170: loft.AssetService.Apply:input_type -> loft.AssetApplyRequest
+	1,   // 171: loft.AssetService.Erase:input_type -> loft.AssetRef
+	11,  // 172: loft.AssetService.List:input_type -> loft.AssetListRequest
+	14,  // 173: loft.AssetService.Watch:input_type -> loft.AssetWatchRequest
+	17,  // 174: loft.AssetService.Move:input_type -> loft.AssetMoveRequest
+	18,  // 175: loft.AssetService.SetAttributes:input_type -> loft.AssetSetAttributesRequest
+	19,  // 176: loft.AssetService.Assign:input_type -> loft.AssetAssignRequest
+	20,  // 177: loft.AssetService.Relate:input_type -> loft.AssetRelateRequest
+	21,  // 178: loft.AssetService.Correct:input_type -> loft.AssetCorrectRequest
+	22,  // 179: loft.AssetService.Timeline:input_type -> loft.AssetTimelineRequest
+	25,  // 180: loft.AssetService.QueryAt:input_type -> loft.AssetQueryAtRequest
+	28,  // 181: loft.AssetService.Diff:input_type -> loft.AssetDiffRequest
+	31,  // 182: loft.AssetService.Search:input_type -> loft.AssetSearchRequest
+	33,  // 183: loft.AssetService.Report:input_type -> loft.AssetReportRequest
+	36,  // 184: loft.AssetService.Export:input_type -> loft.AssetExportRequest
+	38,  // 185: loft.AssetService.Form:input_type -> loft.AssetFormRequest
+	39,  // 186: loft.AssetService.ReadSheet:input_type -> loft.AssetReadSheetRequest
+	42,  // 187: loft.AssetService.Census:input_type -> loft.AssetCensusRequest
+	42,  // 188: loft.AssetService.ExportCensus:input_type -> loft.AssetCensusRequest
+	45,  // 189: loft.TenantDomainService.Add:input_type -> loft.TenantDomainAddRequest
+	46,  // 190: loft.TenantDomainService.Get:input_type -> loft.TenantDomainGetRequest
+	49,  // 191: loft.TenantDomainService.Patch:input_type -> loft.TenantDomainPatchRequest
+	50,  // 192: loft.TenantDomainService.Apply:input_type -> loft.TenantDomainApplyRequest
+	47,  // 193: loft.TenantDomainService.Erase:input_type -> loft.TenantDomainRef
+	52,  // 194: loft.TenantDomainService.List:input_type -> loft.TenantDomainListRequest
+	55,  // 195: loft.TenantDomainService.Watch:input_type -> loft.TenantDomainWatchRequest
+	58,  // 196: loft.TenantDomainService.Verify:input_type -> loft.TenantDomainVerifyRequest
+	59,  // 197: loft.TenantDomainService.Activate:input_type -> loft.TenantDomainActivateRequest
+	60,  // 198: loft.TenantDomainService.Retire:input_type -> loft.TenantDomainRetireRequest
+	61,  // 199: loft.TenantDomainService.Status:input_type -> loft.TenantDomainStatusRequest
+	63,  // 200: loft.LabelService.Add:input_type -> loft.LabelAddRequest
+	64,  // 201: loft.LabelService.Get:input_type -> loft.LabelGetRequest
+	67,  // 202: loft.LabelService.Patch:input_type -> loft.LabelPatchRequest
+	68,  // 203: loft.LabelService.Apply:input_type -> loft.LabelApplyRequest
+	65,  // 204: loft.LabelService.Erase:input_type -> loft.LabelRef
+	70,  // 205: loft.LabelService.List:input_type -> loft.LabelListRequest
+	73,  // 206: loft.LabelService.Watch:input_type -> loft.LabelWatchRequest
+	76,  // 207: loft.LabelService.Print:input_type -> loft.LabelPrintRequest
+	78,  // 208: loft.LabelService.Bind:input_type -> loft.LabelBindRequest
+	79,  // 209: loft.LabelService.Unbind:input_type -> loft.LabelUnbindRequest
+	80,  // 210: loft.LabelService.Resolve:input_type -> loft.LabelResolveRequest
+	82,  // 211: loft.AttachmentService.Add:input_type -> loft.AttachmentAddRequest
+	83,  // 212: loft.AttachmentService.Get:input_type -> loft.AttachmentGetRequest
+	86,  // 213: loft.AttachmentService.Patch:input_type -> loft.AttachmentPatchRequest
+	87,  // 214: loft.AttachmentService.Apply:input_type -> loft.AttachmentApplyRequest
+	84,  // 215: loft.AttachmentService.Erase:input_type -> loft.AttachmentRef
+	89,  // 216: loft.AttachmentService.List:input_type -> loft.AttachmentListRequest
+	92,  // 217: loft.AttachmentService.Watch:input_type -> loft.AttachmentWatchRequest
+	95,  // 218: loft.AttachmentService.Upload:input_type -> loft.AttachmentUploadRequest
+	96,  // 219: loft.AttachmentService.Url:input_type -> loft.AttachmentUrlRequest
+	116, // 220: loft.AssetService.Add:output_type -> loft.Asset
+	4,   // 221: loft.AssetService.AddMany:output_type -> loft.AssetAddManyResponse
+	116, // 222: loft.AssetService.Get:output_type -> loft.Asset
+	116, // 223: loft.AssetService.Patch:output_type -> loft.Asset
+	116, // 224: loft.AssetService.Apply:output_type -> loft.Asset
+	10,  // 225: loft.AssetService.Erase:output_type -> loft.AssetEraseResponse
+	12,  // 226: loft.AssetService.List:output_type -> loft.AssetListResponse
+	15,  // 227: loft.AssetService.Watch:output_type -> loft.AssetWatchResponse
+	116, // 228: loft.AssetService.Move:output_type -> loft.Asset
+	116, // 229: loft.AssetService.SetAttributes:output_type -> loft.Asset
+	116, // 230: loft.AssetService.Assign:output_type -> loft.Asset
+	116, // 231: loft.AssetService.Relate:output_type -> loft.Asset
+	116, // 232: loft.AssetService.Correct:output_type -> loft.Asset
+	23,  // 233: loft.AssetService.Timeline:output_type -> loft.AssetTimelineResponse
+	26,  // 234: loft.AssetService.QueryAt:output_type -> loft.AssetQueryAtResponse
+	29,  // 235: loft.AssetService.Diff:output_type -> loft.AssetDiffResponse
+	32,  // 236: loft.AssetService.Search:output_type -> loft.AssetSearchResponse
+	34,  // 237: loft.AssetService.Report:output_type -> loft.AssetReportResponse
+	37,  // 238: loft.AssetService.Export:output_type -> loft.AssetExportResponse
+	37,  // 239: loft.AssetService.Form:output_type -> loft.AssetExportResponse
+	40,  // 240: loft.AssetService.ReadSheet:output_type -> loft.AssetReadSheetResponse
+	43,  // 241: loft.AssetService.Census:output_type -> loft.AssetCensusResponse
+	37,  // 242: loft.AssetService.ExportCensus:output_type -> loft.AssetExportResponse
+	122, // 243: loft.TenantDomainService.Add:output_type -> loft.TenantDomain
+	122, // 244: loft.TenantDomainService.Get:output_type -> loft.TenantDomain
+	122, // 245: loft.TenantDomainService.Patch:output_type -> loft.TenantDomain
+	122, // 246: loft.TenantDomainService.Apply:output_type -> loft.TenantDomain
+	51,  // 247: loft.TenantDomainService.Erase:output_type -> loft.TenantDomainEraseResponse
+	53,  // 248: loft.TenantDomainService.List:output_type -> loft.TenantDomainListResponse
+	56,  // 249: loft.TenantDomainService.Watch:output_type -> loft.TenantDomainWatchResponse
+	122, // 250: loft.TenantDomainService.Verify:output_type -> loft.TenantDomain
+	122, // 251: loft.TenantDomainService.Activate:output_type -> loft.TenantDomain
+	122, // 252: loft.TenantDomainService.Retire:output_type -> loft.TenantDomain
+	62,  // 253: loft.TenantDomainService.Status:output_type -> loft.TenantDomainStatusResponse
+	123, // 254: loft.LabelService.Add:output_type -> loft.Label
+	123, // 255: loft.LabelService.Get:output_type -> loft.Label
+	123, // 256: loft.LabelService.Patch:output_type -> loft.Label
+	123, // 257: loft.LabelService.Apply:output_type -> loft.Label
+	69,  // 258: loft.LabelService.Erase:output_type -> loft.LabelEraseResponse
+	71,  // 259: loft.LabelService.List:output_type -> loft.LabelListResponse
+	74,  // 260: loft.LabelService.Watch:output_type -> loft.LabelWatchResponse
+	77,  // 261: loft.LabelService.Print:output_type -> loft.LabelPrintResponse
+	123, // 262: loft.LabelService.Bind:output_type -> loft.Label
+	123, // 263: loft.LabelService.Unbind:output_type -> loft.Label
+	81,  // 264: loft.LabelService.Resolve:output_type -> loft.LabelResolveResponse
+	124, // 265: loft.AttachmentService.Add:output_type -> loft.Attachment
+	124, // 266: loft.AttachmentService.Get:output_type -> loft.Attachment
+	124, // 267: loft.AttachmentService.Patch:output_type -> loft.Attachment
+	124, // 268: loft.AttachmentService.Apply:output_type -> loft.Attachment
+	88,  // 269: loft.AttachmentService.Erase:output_type -> loft.AttachmentEraseResponse
+	90,  // 270: loft.AttachmentService.List:output_type -> loft.AttachmentListResponse
+	93,  // 271: loft.AttachmentService.Watch:output_type -> loft.AttachmentWatchResponse
+	124, // 272: loft.AttachmentService.Upload:output_type -> loft.Attachment
+	97,  // 273: loft.AttachmentService.Url:output_type -> loft.AttachmentUrlResponse
 	220, // [220:274] is the sub-list for method output_type
 	166, // [166:220] is the sub-list for method input_type
 	166, // [166:166] is the sub-list for extension type_name
@@ -16492,45 +16492,45 @@ var file_rove_asset_svc_g_proto_depIdxs = []int32{
 	0,   // [0:166] is the sub-list for field type_name
 }
 
-func init() { file_rove_asset_svc_g_proto_init() }
-func file_rove_asset_svc_g_proto_init() {
-	if File_rove_asset_svc_g_proto != nil {
+func init() { file_loft_asset_svc_g_proto_init() }
+func file_loft_asset_svc_g_proto_init() {
+	if File_loft_asset_svc_g_proto != nil {
 		return
 	}
-	file_rove_asset_proto_init()
-	file_rove_catalog_svc_g_proto_init()
-	file_rove_org_svc_g_proto_init()
-	file_rove_payday_tenant_svc_g_proto_init()
-	file_rove_asset_svc_g_proto_msgTypes[1].OneofWrappers = []any{
+	file_loft_asset_proto_init()
+	file_loft_catalog_svc_g_proto_init()
+	file_loft_org_svc_g_proto_init()
+	file_loft_payday_tenant_svc_g_proto_init()
+	file_loft_asset_svc_g_proto_msgTypes[1].OneofWrappers = []any{
 		(*assetRef_Id)(nil),
 		(*assetRef_Tag)(nil),
 	}
-	file_rove_asset_svc_g_proto_msgTypes[47].OneofWrappers = []any{
+	file_loft_asset_svc_g_proto_msgTypes[47].OneofWrappers = []any{
 		(*tenantDomainRef_Id)(nil),
 		(*tenantDomainRef_Host)(nil),
 	}
-	file_rove_asset_svc_g_proto_msgTypes[65].OneofWrappers = []any{
+	file_loft_asset_svc_g_proto_msgTypes[65].OneofWrappers = []any{
 		(*labelRef_Id)(nil),
 		(*labelRef_Code)(nil),
 	}
-	file_rove_asset_svc_g_proto_msgTypes[84].OneofWrappers = []any{
+	file_loft_asset_svc_g_proto_msgTypes[84].OneofWrappers = []any{
 		(*attachmentRef_Id)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_asset_svc_g_proto_rawDesc), len(file_rove_asset_svc_g_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_asset_svc_g_proto_rawDesc), len(file_loft_asset_svc_g_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   111,
 			NumExtensions: 0,
 			NumServices:   6,
 		},
-		GoTypes:           file_rove_asset_svc_g_proto_goTypes,
-		DependencyIndexes: file_rove_asset_svc_g_proto_depIdxs,
-		MessageInfos:      file_rove_asset_svc_g_proto_msgTypes,
+		GoTypes:           file_loft_asset_svc_g_proto_goTypes,
+		DependencyIndexes: file_loft_asset_svc_g_proto_depIdxs,
+		MessageInfos:      file_loft_asset_svc_g_proto_msgTypes,
 	}.Build()
-	File_rove_asset_svc_g_proto = out.File
-	file_rove_asset_svc_g_proto_goTypes = nil
-	file_rove_asset_svc_g_proto_depIdxs = nil
+	File_loft_asset_svc_g_proto = out.File
+	file_loft_asset_svc_g_proto_goTypes = nil
+	file_loft_asset_svc_g_proto_depIdxs = nil
 }

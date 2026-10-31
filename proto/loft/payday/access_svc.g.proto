@@ -1,0 +1,159 @@
+edition = "2023";
+package loft;
+
+import "google/protobuf/timestamp.proto";
+import "loft/payday/access.proto";
+
+option go_package = "github.com/lesomnus/loft";
+
+service AccessService {
+  // Get retrieves a Access
+  rpc Get(AccessGetRequest) returns (Access);
+  // List reads Accesss a page at a time.
+  rpc List(AccessListRequest) returns (AccessListResponse);
+  // Review reads a stretch of the workspace's access record as its
+  // administrators review it each month (loft#136): newest first, each call
+  // with who made it and whose data it carried by name, where it came from,
+  // and what a download said it was for -- what a row holds marshalled, read
+  // out. A stretch is at most 92 days; a membership, a person and a kind
+  // narrow what it answers, and not what it counts.
+  rpc Review(AccessReviewRequest) returns (AccessReviewResponse);
+}
+
+message AccessGetRequest {
+  AccessRef ref = 1;
+  AccessSelect select = 2;
+}
+
+message AccessRef {
+  oneof key {
+    bytes id = 1;
+  }
+}
+
+message AccessSelect {
+  bool all = 1;
+  bool tenant_id = 2;
+  bool actor_id = 8;
+  bool trace_id = 9;
+  bool action = 10;
+  bool kind = 11;
+  bool result = 12;
+  bool date_created = 15;
+  bool actor_tenant_id = 16;
+  bool value = 17;
+  bool domain = 19;
+  bool subjects = 20;
+  bool subject_count = 21;
+}
+
+message AccessListRequest {
+  // Bounded because the work is: each filter is a predicate in the same query,
+  // so this is what says how much of the database one request may read.
+  repeated AccessFilter filters = 1;
+
+  // How many to answer with. Nothing said is what the schema declared, and more
+  // than the cap is the cap -- a caller asking for more than there is meant no
+  // harm, so it is not an error and it is not the whole table either.
+  int32 size = 2 [features.field_presence = IMPLICIT];
+
+  // Where to carry on from: the "next" of the answer before. It names the last
+  // row of that page rather than counting rows from the start, so a row added
+  // ahead of the page does not shift it and a caller reading through never sees
+  // one twice or misses one.
+  string after = 3 [features.field_presence = IMPLICIT];
+
+  // Read the order the other way round, every column of it at once -- newest
+  // first where it is oldest first -- which the index the order walks walks
+  // from the other end. A cursor is of the way it was read, so the next page
+  // carries on that way, and one of the other way is refused.
+  bool reverse = 4 [features.field_presence = IMPLICIT];
+}
+
+message AccessListResponse {
+  repeated Access items = 1;
+
+  // What to ask for next, and empty when this was the last of them.
+  //
+  // Empty means there is no more *for now*: a list is read as it is, and one
+  // that has grown since answers a fresh call. It is not empty merely because
+  // the page came back short -- a page is short when the last row of it was the
+  // last row there was, which is a thing the server can only know by having
+  // looked.
+  string next = 2 [features.field_presence = IMPLICIT];
+}
+
+message AccessFilter {
+  bytes actor_id = 1;
+  bytes tenant_id = 2;
+  bytes actor_tenant_id = 3;
+  string kind = 4;
+}
+
+message AccessReviewRequest {
+  // The stretch: from `from`, and before `to`.
+  google.protobuf.Timestamp from = 1;
+  google.protobuf.Timestamp to = 2;
+
+  // Only the calls one membership made,
+  bytes actor = 3 [features.field_presence = IMPLICIT];
+  // that carried one person's data -- a person record's or a membership's
+  // identifier,
+  bytes subject = 4 [features.field_presence = IMPLICIT];
+  // or of one kind: `read`, `write` or `download`.
+  string kind = 5 [features.field_presence = IMPLICIT];
+
+  // How many a page holds, and where the page before ended (`next`).
+  uint32 size = 6 [features.field_presence = IMPLICIT];
+  string after = 7 [features.field_presence = IMPLICIT];
+}
+
+message AccessReviewResponse {
+  repeated AccessEntry items = 1;
+  // What to send as `after` for the page after this one; empty is none.
+  string next = 2 [features.field_presence = IMPLICIT];
+
+  // What the whole stretch holds, whatever narrows the items: every call
+  // that carried somebody's data, the downloads among them, and the calls
+  // refused.
+  uint32 calls = 3 [features.field_presence = IMPLICIT];
+  uint32 downloads = 4 [features.field_presence = IMPLICIT];
+  uint32 refused = 5 [features.field_presence = IMPLICIT];
+}
+
+// AccessEntry is one row of the access record, read out.
+message AccessEntry {
+  bytes id = 1 [features.field_presence = IMPLICIT];
+  google.protobuf.Timestamp at = 2;
+
+  // Who made the call -- a membership, none for the deployment -- and what
+  // they are called now.
+  bytes actor = 3 [features.field_presence = IMPLICIT];
+  string actor_name = 4 [features.field_presence = IMPLICIT];
+
+  // The RPC, what it did to the data -- `read`, `write` or `download` -- and
+  // `ok` or the status code it was refused with.
+  string action = 5 [features.field_presence = IMPLICIT];
+  string kind = 6 [features.field_presence = IMPLICIT];
+  string result = 7 [features.field_presence = IMPLICIT];
+
+  // Where it came from, past the proxies the deployment trusts, and what a
+  // download said it was for.
+  string address = 8 [features.field_presence = IMPLICIT];
+  string reason = 9 [features.field_presence = IMPLICIT];
+
+  // Whose data it carried, as far as the row names them, and how many it
+  // carried.
+  repeated AccessSubject subjects = 10;
+  uint32 subject_count = 11 [features.field_presence = IMPLICIT];
+}
+
+// AccessSubject is somebody whose data a call carried.
+message AccessSubject {
+  bytes id = 1 [features.field_presence = IMPLICIT];
+  // What the identifier is of: `party`, `holder`, `invitation`, ...
+  string kind = 2 [features.field_presence = IMPLICIT];
+  // What a person record or a membership is called now; empty for anything
+  // else, whose name is not one to show here (an invitation's address).
+  string name = 3 [features.field_presence = IMPLICIT];
+}

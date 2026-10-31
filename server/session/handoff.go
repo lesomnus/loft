@@ -18,18 +18,18 @@ import (
 	"github.com/lesomnus/payday/frame"
 	"github.com/lesomnus/payday/pdid"
 
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/handoff"
-	"github.com/lesomnus/rove/internal/ent/holder"
-	"github.com/lesomnus/rove/internal/ent/predicate"
-	"github.com/lesomnus/rove/internal/ent/session"
-	"github.com/lesomnus/rove/internal/ent/tenantdomain"
-	"github.com/lesomnus/rove/server/apphost"
-	"github.com/lesomnus/rove/server/landing"
-	"github.com/lesomnus/rove/server/pd"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/handoff"
+	"github.com/lesomnus/loft/internal/ent/holder"
+	"github.com/lesomnus/loft/internal/ent/predicate"
+	"github.com/lesomnus/loft/internal/ent/session"
+	"github.com/lesomnus/loft/internal/ent/tenantdomain"
+	"github.com/lesomnus/loft/server/apphost"
+	"github.com/lesomnus/loft/server/landing"
+	"github.com/lesomnus/loft/server/pd"
 )
 
-// Handoff is signing in on a workspace's own domain (rove#155, design 9.9),
+// Handoff is signing in on a workspace's own domain (loft#155, design 9.9),
 // which is never done there: the domain sends the browser to the service's
 // address, where it is signed in -- or signs in -- and the browser comes back
 // with a code it exchanges for a session of the domain's own.
@@ -39,7 +39,7 @@ import (
 //     service's `GET /handoff?to=<host>&state=<state>`.
 //  2. The service makes a code for an active `app` domain alone -- any other
 //     host is answered no, and nothing is sent anywhere -- and for a browser
-//     signed in there as an account that may do all it may (no `rove login
+//     signed in there as an account that may do all it may (no `loft login
 //     --allow`), that has agreed to what the deployment asks, and that is a
 //     member of the domain's workspace. Anybody else is signed in first, or
 //     told no. The code goes to that domain's `GET /handoff/callback`.
@@ -129,9 +129,9 @@ func (h Handoff) secure() bool { return h.Links.Secure() }
 // that host alone.
 func (h Handoff) cookie() string {
 	if h.secure() {
-		return "__Host-rove_handoff"
+		return "__Host-loft_handoff"
 	}
-	return "rove_handoff"
+	return "loft_handoff"
 }
 
 // start is a domain sending a browser to the service's address to be signed
@@ -204,7 +204,7 @@ func (h Handoff) give(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !v.Grant.IsWhole() {
-		http.Error(w, "this sign-in may only do what `rove login --allow` named, and hands nothing on: sign in without it", http.StatusForbidden)
+		http.Error(w, "this sign-in may only do what `loft login --allow` named, and hands nothing on: sign in without it", http.StatusForbidden)
 		return
 	}
 	account, err := pdid.Parse(v.Id)

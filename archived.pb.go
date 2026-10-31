@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.12
 // 	protoc        (unknown)
-// source: rove/payday/archived.proto
+// source: loft/payday/archived.proto
 
-package rove
+package loft
 
 import (
 	_ "github.com/lesomnus/payday/pdpb"
@@ -81,7 +81,7 @@ type Archived struct {
 
 func (x *Archived) Reset() {
 	*x = Archived{}
-	mi := &file_rove_payday_archived_proto_msgTypes[0]
+	mi := &file_loft_payday_archived_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -93,7 +93,7 @@ func (x *Archived) String() string {
 func (*Archived) ProtoMessage() {}
 
 func (x *Archived) ProtoReflect() protoreflect.Message {
-	mi := &file_rove_payday_archived_proto_msgTypes[0]
+	mi := &file_loft_payday_archived_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -324,14 +324,14 @@ func (b0 Archived_builder) Build() *Archived {
 	return m0
 }
 
-var File_rove_payday_archived_proto protoreflect.FileDescriptor
+var File_loft_payday_archived_proto protoreflect.FileDescriptor
 
-const file_rove_payday_archived_proto_rawDesc = "" +
+const file_loft_payday_archived_proto_rawDesc = "" +
 	"\n" +
-	"\x1arove/payday/archived.proto\x12\x04rove\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\"\xce\x04\n" +
+	"\x1aloft/payday/archived.proto\x12\x04loft\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\torm.proto\x1a\fpayday.proto\"\xce\x04\n" +
 	"\bArchived\x12\x1b\n" +
 	"\x02id\x18\x01 \x01(\fB\v\xea\x82\x16\a\x10@(\x01\x82\x01\x00R\x02id\x122\n" +
-	"\x06labels\x18\a \x03(\v2\x1a.rove.Archived.LabelsEntryR\x06labels\x12\x1c\n" +
+	"\x06labels\x18\a \x03(\v2\x1a.loft.Archived.LabelsEntryR\x06labels\x12\x1c\n" +
 	"\tnamespace\x18\b \x01(\tR\tnamespace\x12\x16\n" +
 	"\x06digest\x18\t \x01(\tR\x06digest\x12\x16\n" +
 	"\x06intent\x18\n" +
@@ -351,18 +351,18 @@ const file_rove_payday_archived_proto_rawDesc = "" +
 	"\x06digest\x10\t\x1a\x12\x12\x05state\x1a\t\n" +
 	"\x05state\x10\v\x8a\xbb\x16\n" +
 	"\b\x05B\x02\n" +
-	"\x00H\x05*\x00B\x1fZ\x18github.com/lesomnus/rove\x92\x03\x02\b\x02b\beditionsp\xe8\a"
+	"\x00H\x05*\x00B\x1fZ\x18github.com/lesomnus/loft\x92\x03\x02\b\x02b\beditionsp\xe8\a"
 
-var file_rove_payday_archived_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_rove_payday_archived_proto_goTypes = []any{
-	(*Archived)(nil),              // 0: rove.Archived
-	nil,                           // 1: rove.Archived.LabelsEntry
+var file_loft_payday_archived_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_loft_payday_archived_proto_goTypes = []any{
+	(*Archived)(nil),              // 0: loft.Archived
+	nil,                           // 1: loft.Archived.LabelsEntry
 	(*timestamppb.Timestamp)(nil), // 2: google.protobuf.Timestamp
 }
-var file_rove_payday_archived_proto_depIdxs = []int32{
-	1, // 0: rove.Archived.labels:type_name -> rove.Archived.LabelsEntry
-	2, // 1: rove.Archived.date_updated:type_name -> google.protobuf.Timestamp
-	2, // 2: rove.Archived.date_created:type_name -> google.protobuf.Timestamp
+var file_loft_payday_archived_proto_depIdxs = []int32{
+	1, // 0: loft.Archived.labels:type_name -> loft.Archived.LabelsEntry
+	2, // 1: loft.Archived.date_updated:type_name -> google.protobuf.Timestamp
+	2, // 2: loft.Archived.date_created:type_name -> google.protobuf.Timestamp
 	3, // [3:3] is the sub-list for method output_type
 	3, // [3:3] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name
@@ -370,26 +370,26 @@ var file_rove_payday_archived_proto_depIdxs = []int32{
 	0, // [0:3] is the sub-list for field type_name
 }
 
-func init() { file_rove_payday_archived_proto_init() }
-func file_rove_payday_archived_proto_init() {
-	if File_rove_payday_archived_proto != nil {
+func init() { file_loft_payday_archived_proto_init() }
+func file_loft_payday_archived_proto_init() {
+	if File_loft_payday_archived_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rove_payday_archived_proto_rawDesc), len(file_rove_payday_archived_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_loft_payday_archived_proto_rawDesc), len(file_loft_payday_archived_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_rove_payday_archived_proto_goTypes,
-		DependencyIndexes: file_rove_payday_archived_proto_depIdxs,
-		MessageInfos:      file_rove_payday_archived_proto_msgTypes,
+		GoTypes:           file_loft_payday_archived_proto_goTypes,
+		DependencyIndexes: file_loft_payday_archived_proto_depIdxs,
+		MessageInfos:      file_loft_payday_archived_proto_msgTypes,
 	}.Build()
-	File_rove_payday_archived_proto = out.File
-	file_rove_payday_archived_proto_goTypes = nil
-	file_rove_payday_archived_proto_depIdxs = nil
+	File_loft_payday_archived_proto = out.File
+	file_loft_payday_archived_proto_goTypes = nil
+	file_loft_payday_archived_proto_depIdxs = nil
 }

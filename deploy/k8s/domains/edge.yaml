@@ -3,9 +3,9 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: rove-edge
+  name: loft-edge
   labels:
-    app.kubernetes.io/name: rove-edge
+    app.kubernetes.io/name: loft-edge
 spec:
   accessModes: [ReadWriteOnce]
   resources:
@@ -17,12 +17,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: rove-ask
+  name: loft-ask
   labels:
-    app.kubernetes.io/name: rove
+    app.kubernetes.io/name: loft
 spec:
   selector:
-    app.kubernetes.io/name: rove
+    app.kubernetes.io/name: loft
     app.kubernetes.io/component: server
   ports:
     - { name: ask, port: 8082, targetPort: ask }
@@ -32,20 +32,20 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: rove-edge
+  name: loft-edge
   labels:
-    app.kubernetes.io/name: rove-edge
+    app.kubernetes.io/name: loft-edge
 spec:
   podSelector:
     matchLabels:
-      app.kubernetes.io/name: rove
+      app.kubernetes.io/name: loft
       app.kubernetes.io/component: server
   policyTypes: [Ingress]
   ingress:
     - from:
         - podSelector:
             matchLabels:
-              app.kubernetes.io/name: rove-edge
+              app.kubernetes.io/name: loft-edge
       ports:
         - { port: http }
         - { port: ask }
@@ -55,9 +55,9 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: rove-edge
+  name: loft-edge
   labels:
-    app.kubernetes.io/name: rove-edge
+    app.kubernetes.io/name: loft-edge
 spec:
   type: LoadBalancer
   # The address a browser came from is the one the front sees, and says on
@@ -65,7 +65,7 @@ spec:
   # its place.
   externalTrafficPolicy: Local
   selector:
-    app.kubernetes.io/name: rove-edge
+    app.kubernetes.io/name: loft-edge
   ports:
     - { name: http, port: 80, targetPort: http }
     - { name: https, port: 443, targetPort: https }
@@ -73,9 +73,9 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: rove-edge
+  name: loft-edge
   labels:
-    app.kubernetes.io/name: rove-edge
+    app.kubernetes.io/name: loft-edge
 spec:
   # One, and replaced rather than rolled: its volume is one node's.
   replicas: 1
@@ -83,11 +83,11 @@ spec:
     type: Recreate
   selector:
     matchLabels:
-      app.kubernetes.io/name: rove-edge
+      app.kubernetes.io/name: loft-edge
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: rove-edge
+        app.kubernetes.io/name: loft-edge
     spec:
       automountServiceAccountToken: false
       securityContext:
@@ -126,9 +126,9 @@ spec:
             - { name: config, mountPath: /config }
       volumes:
         - name: caddyfile
-          configMap: { name: rove-edge }
+          configMap: { name: loft-edge }
         - name: data
-          persistentVolumeClaim: { claimName: rove-edge }
+          persistentVolumeClaim: { claimName: loft-edge }
         # What Caddy writes of its own running configuration.
         - name: config
           emptyDir: {}

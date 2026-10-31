@@ -2,7 +2,7 @@
 // own, for the browser tests (ts/e2e): the issuer a Go test stands up with
 // [oidctest.New], where a browser can reach it.
 //
-//	oidctest -addr 127.0.0.1:18540 -client rove-e2e -secret ... \
+//	oidctest -addr 127.0.0.1:18540 -client loft-e2e -secret ... \
 //	  -redirect http://127.0.0.1:18530/sso/callback -post-logout http://127.0.0.1:18530/
 //
 // It is a test's and nothing else's, and holds a relying party to what it has
@@ -20,12 +20,12 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/lesomnus/rove/internal/oidctest"
+	"github.com/lesomnus/loft/internal/oidctest"
 )
 
 func main() {
 	addr := flag.String("addr", "127.0.0.1:0", "where it listens")
-	client := flag.String("client", "rove", "the one client it knows")
+	client := flag.String("client", "loft", "the one client it knows")
 	secret := flag.String("secret", "", "that client's secret")
 	redirect := flag.String("redirect", "", "where that client is registered to be sent back")
 	logout := flag.String("post-logout", "", "where that client may ask to be sent after signing out")

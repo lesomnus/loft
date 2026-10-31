@@ -1,12 +1,12 @@
 import { useMemo, useState, type ReactNode } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 
-import type { Bookable } from '../../gen/rove/booking_pb.js'
-import type { AssetType, AttributeDef, ItemModel } from '../../gen/rove/catalog_pb.js'
-import type { TenantDomain } from '../../gen/rove/asset_pb.js'
-import type { Party } from '../../gen/rove/org_pb.js'
-import type { Tenant } from '../../gen/rove/payday/tenant_pb.js'
-import type { TenantPreviewResponse } from '../../gen/rove/payday/tenant_svc_pb.js'
+import type { Bookable } from '../../gen/loft/booking_pb.js'
+import type { AssetType, AttributeDef, ItemModel } from '../../gen/loft/catalog_pb.js'
+import type { TenantDomain } from '../../gen/loft/asset_pb.js'
+import type { Party } from '../../gen/loft/org_pb.js'
+import type { Tenant } from '../../gen/loft/payday/tenant_pb.js'
+import type { TenantPreviewResponse } from '../../gen/loft/payday/tenant_svc_pb.js'
 import type { Timestamp } from '@bufbuild/protobuf/wkt'
 import {
 	AccessReviewService,
@@ -392,7 +392,7 @@ function BookableForm(props: { b: Bookable; pool: boolean; onClose: () => void }
 }
 
 /**
- * The workspace's domains, and where its labels print (rove#155): with its
+ * The workspace's domains, and where its labels print (loft#155): with its
  * active domain when it has one, and with the deployment's own address when it
  * has none -- with a code that is one in the whole deployment either way
  * (D28). A custom domain is the workspace's own: an `app` domain, which the
@@ -461,7 +461,7 @@ function DomainRow(props: { d: TenantDomain; target: string; admin: boolean; act
 				)}
 				{(d.state === 'pending' || d.state === 'lapsed') && (
 					<div className="small">
-						DNS에 TXT 레코드 <code>_rove-challenge.{d.host}</code> = <code>{d.token}</code>
+						DNS에 TXT 레코드 <code>_loft-challenge.{d.host}</code> = <code>{d.token}</code>
 						{props.target !== '' && (
 							<>
 								{' '}
@@ -615,7 +615,7 @@ function Audit(): ReactNode {
 											<td>{fmt(a.dateCreated)}</td>
 											<td>{a.actorId.every((b) => b === 0) ? '시스템' : c.called(c.parties.find((p) => p.holder !== undefined && idStr(p.holder.id) === idStr(a.actorId))?.id) || idStr(a.actorId).slice(0, 8)}</td>
 											<td>
-												<code>{a.action.replace('/rove.', '')}</code>
+												<code>{a.action.replace('/loft.', '')}</code>
 											</td>
 										</tr>
 									))}
@@ -654,7 +654,7 @@ const subjectWord: Record<string, string> = {
 
 /**
  * The workspace's access record, a month at a time, as its administrators
- * review it (rove#136): who read, wrote or took out whose data, from where,
+ * review it (loft#136): who read, wrote or took out whose data, from where,
  * and what a download was for -- and that they looked it over. PIPA's safety
  * measures ask for it every month.
  */
@@ -765,7 +765,7 @@ function Access(): ReactNode {
 														<td>{fmt(e.at)}</td>
 														<td>{e.actorName}</td>
 														<td>
-															{accessWord[e.kind] ?? e.kind} <code>{e.action.replace('/rove.', '')}</code>
+															{accessWord[e.kind] ?? e.kind} <code>{e.action.replace('/loft.', '')}</code>
 														</td>
 														<td>
 															{named}

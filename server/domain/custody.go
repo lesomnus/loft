@@ -11,11 +11,11 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/custodyline"
-	"github.com/lesomnus/rove/internal/ent/reservation"
-	"github.com/lesomnus/rove/server/pd"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/custodyline"
+	"github.com/lesomnus/loft/internal/ent/reservation"
+	"github.com/lesomnus/loft/server/pd"
 )
 
 type domainCustody struct {
@@ -362,7 +362,7 @@ func (s domainCustody) Return(ctx context.Context, req *app.CustodyReturnRequest
 			back = append(back, l.AssetId)
 		}
 		// The reservation it fulfilled first, whose row everything that
-		// changes it takes before its schedules (rove#35); and then what
+		// changes it takes before its schedules (loft#35); and then what
 		// comes back, and what a booking of any of it holds, at once, with
 		// what the reservation holds: what this lets go of of their time is
 		// theirs to give to what waits for it ([Tx.letGo], [Tx.heal]).

@@ -2,7 +2,7 @@ edition = "2023";
 
 package payday;
 
-// What rove adds to payday's Holder: the role it acts with.
+// What loft adds to payday's Holder: the role it acts with.
 //
 // A string rather than an enum because the generated List filters only on
 // scalars, and "who are the admins" is a list somebody asks for. The values
@@ -16,7 +16,7 @@ message Holder {
   // deployment's directory (design 9.10, D27). An account belongs to many
   // workspaces with one holder in each, every one its own row with its own
   // identifier, and what a session names is the account. Null on a holder made
-  // before accounts were, which nobody signs in as until `rove identity
+  // before accounts were, which nobody signs in as until `loft identity
   // migrate` fills it.
   bytes account = 9 [(orm.field) = {
     type: TYPE_UUID
@@ -40,7 +40,7 @@ message Holder {
   // (`PartyService.Deactivate`). A later 개인정보 삭제 of the record finds the
   // membership through it and forgets the membership's names and the trail's
   // copies of it too; through the record's link alone it found nothing
-  // (rove#25, decided in rove#35). Null on a membership the record still
+  // (loft#25, decided in loft#35). Null on a membership the record still
   // points at, and on one stopped before this was kept. Written by the
   // domain layer, and by nobody else.
   bytes party = 12 [

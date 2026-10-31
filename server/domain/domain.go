@@ -1,4 +1,4 @@
-// Package domain is the layer that answers what rove means: the operations a
+// Package domain is the layer that answers what loft means: the operations a
 // person does with an asset, and the reads that say what it was then.
 //
 // It sits above payday's Gate (design 9.3, D20), so every write it issues on
@@ -38,17 +38,17 @@ import (
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/internal/ent"
-	"github.com/lesomnus/rove/internal/ent/event"
-	"github.com/lesomnus/rove/internal/ent/treelock"
-	"github.com/lesomnus/rove/internal/identity"
-	"github.com/lesomnus/rove/server/apphost"
-	"github.com/lesomnus/rove/server/mail"
-	"github.com/lesomnus/rove/server/opensearch"
-	"github.com/lesomnus/rove/server/pd"
-	"github.com/lesomnus/rove/server/retention"
-	"github.com/lesomnus/rove/server/storage"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/internal/ent"
+	"github.com/lesomnus/loft/internal/ent/event"
+	"github.com/lesomnus/loft/internal/ent/treelock"
+	"github.com/lesomnus/loft/internal/identity"
+	"github.com/lesomnus/loft/server/apphost"
+	"github.com/lesomnus/loft/server/mail"
+	"github.com/lesomnus/loft/server/opensearch"
+	"github.com/lesomnus/loft/server/pd"
+	"github.com/lesomnus/loft/server/retention"
+	"github.com/lesomnus/loft/server/storage"
 )
 
 // Deps is what every copy of the layer shares, however often a transaction
@@ -73,7 +73,7 @@ type Deps struct {
 	ServiceHosts []string
 
 	// Links is where every link made here begins: a workspace's on its
-	// active app domain, and the rest at the service's address (rove#155).
+	// active app domain, and the rest at the service's address (loft#155).
 	// A label, a signed file and a mail's link alike are made by it.
 	Links apphost.Links
 
@@ -93,7 +93,7 @@ type Deps struct {
 	LookupHost  func(ctx context.Context, host string) ([]string, error)
 
 	// DomainRedirect is how long a workspace's app domain that another took
-	// the place of sends its pages on to where the app is now (rove#155);
+	// the place of sends its pages on to where the app is now (loft#155);
 	// zero is 90 days.
 	DomainRedirect time.Duration
 
@@ -119,7 +119,7 @@ type Deps struct {
 	// of payday's `owed` for each, which a rollback takes with the rest. What
 	// a legal hold is on stays as it was, and it answers how many of the
 	// database's rows that kept; what a hold keeps in the archive stays owed
-	// (`rove trail owed`). Nil blanks the database's rows only, which is all
+	// (`loft trail owed`). Nil blanks the database's rows only, which is all
 	// there is when the trail has no archive.
 	Forget func(ctx context.Context, db *ent.Client, objects []pdid.Id) (held int, err error)
 
@@ -159,7 +159,7 @@ type Deps struct {
 
 // People is roster, as the people operations reach it: the accounts of this
 // deployment's directory (design 9.10, D27). On the roster in this process
-// Rove makes accounts and gives them passwords there; on an external one those
+// Loft makes accounts and gives them passwords there; on an external one those
 // are roster's, and the operations that would do them are refused.
 type People interface {
 	Embedded() bool
@@ -557,8 +557,8 @@ func (t *Tx) seen(op pdid.Id) error {
 }
 
 // begin records the event this operation is (payday#151): of `kind`, holding
-// `v` -- its kind's message (`rove/past.proto`) -- about `subject`, happened
-// at `at`, for `reason`: the words of whoever asked, and nothing Rove says
+// `v` -- its kind's message (`loft/past.proto`) -- about `subject`, happened
+// at `at`, for `reason`: the words of whoever asked, and nothing Loft says
 // itself. It answers errDone when `op` names one that already happened.
 //
 // Who did it and in which tenant are the caller's frame, which the past reads
@@ -632,7 +632,7 @@ func (t *Tx) child(kind string, subject pdid.Id, at time.Time, reason string, v 
 // And then it takes the operation's moment again. One that began first and
 // waited here for another is applied after it, so it is recorded after it:
 // known at any instant, the tree is what had been applied by then, in the
-// order it was (rove#21; decided in rove#35). Taken before the lock, the
+// order it was (loft#21; decided in loft#35). Taken before the lock, the
 // moment of the one that waited was earlier than the one it waited for, and
 // known at an instant between the two, its rows showed beside the state it
 // was applied over. So an operation that changes the tree takes this lock

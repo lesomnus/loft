@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"uuid"
 
-	"github.com/lesomnus/rove/internal/ent/owed"
-	"github.com/lesomnus/rove/internal/ent/predicate"
+	"github.com/lesomnus/loft/internal/ent/owed"
+	"github.com/lesomnus/loft/internal/ent/predicate"
 	"github.com/protobuf-orm/ent/dialect/sql"
 	"github.com/protobuf-orm/ent/dialect/sql/sqlgraph"
 	"github.com/protobuf-orm/ent/dialect/sql/sqljson"

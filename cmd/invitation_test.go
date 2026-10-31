@@ -25,10 +25,10 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
-	app "github.com/lesomnus/rove"
-	"github.com/lesomnus/rove/cmd"
-	"github.com/lesomnus/rove/internal/identity"
-	"github.com/lesomnus/rove/server/mail"
+	app "github.com/lesomnus/loft"
+	"github.com/lesomnus/loft/cmd"
+	"github.com/lesomnus/loft/internal/identity"
+	"github.com/lesomnus/loft/server/mail"
 )
 
 // Inviting an address into a workspace, and the account it belongs to
@@ -78,7 +78,7 @@ type invites struct {
 func newInvites(t *testing.T, with func(*cmd.Config)) *invites {
 	t.Helper()
 	w := newWorldWith(t, func(c *cmd.Config) {
-		c.App.AppUrl = "https://rove.example"
+		c.App.AppUrl = "https://loft.example"
 		if with != nil {
 			with(c)
 		}
@@ -154,7 +154,7 @@ func TestAnInvitationIsAnsweredByTheAccountItIsAddressedTo(t *testing.T) {
 	m := w.box.sent[0]
 	x.Equal("kim@acme.example", m.To)
 	x.Contains(m.Body, "매니저로")
-	x.Contains(m.Body, "https://rove.example/invitations?code=")
+	x.Contains(m.Body, "https://loft.example/invitations?code=")
 
 	// An account with that address checked, in no workspace at all.
 	kim := w.account("kim", []string{"kim@acme.example"}, nil)
@@ -459,7 +459,7 @@ func TestAnAccountAsksFromAPageAboutNoWorkspace(t *testing.T) {
 	_, c, err := w.s.Sessions.Mint(context.Background(), authsession.Session{Id: kim.Id.String(), Grant: frame.Whole()})
 	x.NoError(err)
 	call := func(method, body string) (int, string) {
-		req, err := http.NewRequest(http.MethodPost, srv.URL+"/rove."+method, bytes.NewBufferString(body))
+		req, err := http.NewRequest(http.MethodPost, srv.URL+"/loft."+method, bytes.NewBufferString(body))
 		x.NoError(err)
 		req.Header.Set("Content-Type", "application/json")
 		req.Header.Set("Connect-Protocol-Version", "1")

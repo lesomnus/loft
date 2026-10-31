@@ -25,21 +25,21 @@ auth:
       driver: pgx
 
 app:
-  public_url: https://rove.localhost
+  public_url: https://loft.localhost
   # k3s's pod network, which only Traefik's pods may reach the server from
   # (the NetworkPolicy patch in `kustomization.yaml`).
   trusted_proxies: [10.42.0.0/16]
-  files: /var/lib/rove/files
+  files: /var/lib/loft/files
   csp: report-only
 
 audit:
-  archive: /var/lib/rove/audit
+  archive: /var/lib/loft/audit
   checkpoints:
-    dir: /var/lib/rove/checkpoints
+    dir: /var/lib/loft/checkpoints
     write_once: true
-    key: /run/secrets/rove/checkpoints.pem
+    key: /run/secrets/loft/checkpoints.pem
     # The base's `log:`, and the store the `witness/` component mounts.
-    witnesses: ["log:", "store:/var/lib/rove/witness"]
+    witnesses: ["log:", "store:/var/lib/loft/witness"]
   # The base's window on the access record, without which no pass runs and so
   # no checkpoint is taken -- and the rig asks what the store heard of one.
   by:
@@ -51,4 +51,4 @@ audit:
 admin:
   addr: 0.0.0.0:8081
   keys:
-    operator: file:/run/secrets/rove-admin/operator
+    operator: file:/run/secrets/loft-admin/operator
