@@ -619,7 +619,9 @@ func Build(ctx context.Context, c Config) (*Server, error) {
 	// keeps its history by the window in force -- after the trail's policy,
 	// whose grace that is. A loop under the lease measures every workspace at
 	// each midnight UTC and as it starts, and a workspace is measured once
-	// more before it is destroyed, by the sweep or an operator's hand.
+	// more before it is destroyed, by the sweep or an operator's hand -- as
+	// well as that can be done, since a destruction waits for no billing
+	// service (`closing.Destroy`).
 	if c.App.Billing.Levyan.On() {
 		if s.Levyan, err = levyan.Dial(c.App.Billing.Levyan, identity.ResolveRef); err != nil {
 			people.Close()

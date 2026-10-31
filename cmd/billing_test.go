@@ -1,16 +1,17 @@
 package cmd_test
 
 import (
+	"bytes"
 	"context"
 	"errors"
+	"log/slog"
 	"testing"
 	"time"
 
 	levyanv1 "github.com/lesomnus/levyan/api/levyan/v1"
+	"github.com/lesomnus/otx/log"
 	"github.com/lesomnus/z"
 	"github.com/stretchr/testify/require"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 
 	"github.com/lesomnus/payday/meter"
 	"github.com/lesomnus/payday/pdid"
@@ -21,7 +22,6 @@ import (
 	"github.com/lesomnus/loft/internal/ent/aliashold"
 	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
 	"github.com/lesomnus/loft/internal/levyantest"
-	"github.com/lesomnus/loft/server/closing"
 	"github.com/lesomnus/loft/server/pd"
 )
 
@@ -286,57 +286,81 @@ func TestAWorkspaceIsMeasuredBeforeItIsDestroyed(t *testing.T) {
 	x.False(alive, "and then destroyed")
 }
 
-// TestAWorkspaceWhoseMetersCannotBeReadIsNotDestroyed (D59): a levyan that
-// does not take the readings, or a meter that cannot be read, leaves the
-// workspace as it is -- closed, its address not held, nothing taken -- and the
-// next sweep measures it again. A reading levyan refused is not that: it would
-// be refused again, and the workspace goes.
-func TestAWorkspaceWhoseMetersCannotBeReadIsNotDestroyed(t *testing.T) {
+// logged is a context whose log is kept, for a test to read what was said.
+func logged(ctx context.Context) (context.Context, *bytes.Buffer) {
+	var b bytes.Buffer
+	return log.Into(ctx, slog.New(slog.NewTextHandler(&b, nil))), &b
+}
+
+// gone says whether the world's workspace was destroyed: its row gone and its
+// address held.
+func (w *world) gone() bool {
+	ctx := context.Background()
+	alive, err := w.s.Ent.Tenant.Query().Where(enttenant.Id(tenantId(w.x, w.tenant).Uuid())).Exist(ctx)
+	w.x.NoError(err)
+	held, err := w.s.Ent.AliasHold.Query().Where(aliashold.Held(w.tenant.GetAlias())).Exist(ctx)
+	w.x.NoError(err)
+	return !alive && held
+}
+
+// TestAWorkspaceIsDestroyedWhenLevyanCannotBeReached (D59): measuring before
+// a destruction is as well as it can be done (Claude, in place of the rule
+// that a workspace not measured was not destroyed). A destruction is the
+// law's and waits for no billing service: with levyan not there, the
+// workspace goes all the same, and the log says it went without its final
+// reading -- levyan bills it by its last daily one.
+func TestAWorkspaceIsDestroyedWhenLevyanCannotBeReached(t *testing.T) {
+	w := newWorldWith(t, func(c *cmd.Config) { c.App.Billing.Levyan = levyantest.Gone(t) })
+	x := w.x
+	ctx, said := logged(context.Background())
+	x.NotNil(w.s.Closing.Meters)
+	w.closed()
+
+	x.NoError(w.s.Closing.Sweep(ctx))
+	x.True(w.gone(), "destroyed, with levyan not there")
+	x.Contains(said.String(), "a workspace is destroyed without its final reading")
+	x.Contains(said.String(), "workspace="+w.tenant.GetAlias())
+	x.Contains(said.String(), "Unavailable", "and why")
+	x.NotContains(said.String(), levyantest.Key)
+}
+
+// TestAWorkspaceIsDestroyedWhenAMeterCannotBeRead (D59): the same for a meter
+// that fails, and what was measured of the rest still reaches levyan first.
+func TestAWorkspaceIsDestroyedWhenAMeterCannotBeRead(t *testing.T) {
 	w, fake := billed(t)
 	x := w.x
-	ctx := context.Background()
-	id := tenantId(x, w.tenant)
-	w.closed()
-	untouched := func(why string) {
-		t.Helper()
-		alive, err := w.s.Ent.Tenant.Query().Where(enttenant.Id(id.Uuid())).Exist(ctx)
-		x.NoError(err)
-		x.True(alive, why)
-		n, err := w.s.Ent.AliasHold.Query().Where(aliashold.Held(w.tenant.GetAlias())).Count(ctx)
-		x.NoError(err)
-		x.Zero(n, "%s: and nothing of its end has begun", why)
-	}
-
-	fake.Answer(func(context.Context, *levyanv1.RecordRequest) (*levyanv1.RecordResponse, error) {
-		return nil, status.Error(codes.Unavailable, "levyan is down")
-	})
-	x.NoError(w.s.Closing.Sweep(ctx), "a workspace that waits fails no sweep")
-	untouched("levyan did not take the readings")
-	t1, err := w.s.Ent.Tenant.Get(ctx, id.Uuid())
-	x.NoError(err)
-	_, err = w.s.Closing.Destroy(ctx, t1, closing.AsContracted, false)
-	x.ErrorIs(err, closing.ErrUnmeasured)
-	x.ErrorContains(err, "levyan is down", "it says why")
-
-	// A meter that could not be read is the same.
-	reader := w.s.Closing.Meters
-	broken := *reader
-	broken.Meters = append(append([]meter.Meter{}, reader.Meters...), meter.Meter{
+	ctx, said := logged(context.Background())
+	broken := *w.s.Closing.Meters
+	broken.Meters = append(append([]meter.Meter{}, broken.Meters...), meter.Meter{
 		Key: "loft.broken", Unit: "1", Measure: func(context.Context, pdid.Id) (int64, error) { return 0, errors.New("the database blinked") },
 	})
 	w.s.Closing.Meters = &broken
-	fake.Answer(nil)
-	x.NoError(w.s.Closing.Sweep(ctx))
-	untouched("a meter could not be read")
-	w.s.Closing.Meters = reader
+	w.closed()
 
-	// Refused, for a meter levyan's price book has not got: the workspace
-	// goes all the same.
-	fake.Refuse("loft.members", levyanv1.Refusal_REFUSAL_NO_METER)
 	x.NoError(w.s.Closing.Sweep(ctx))
-	alive, err := w.s.Ent.Tenant.Query().Where(enttenant.Id(id.Uuid())).Exist(ctx)
-	x.NoError(err)
-	x.False(alive, "destroyed, once levyan answered what became of every reading")
+	x.True(w.gone())
+	x.Contains(said.String(), "a workspace is destroyed without its final reading")
+	x.Contains(said.String(), "the database blinked")
+	x.Equal(map[string]int64{
+		"loft.assets.active": 0, "loft.attachments.bytes": 0, "loft.members": 1, "loft.history.retention_days": 0,
+	}, held(x, fake, w.tenant), "what could be measured went first")
+}
+
+// TestARefusedReadingDoesNotHoldADestructionUp (D59): levyan refusing a
+// reading -- a meter its price book has not got -- is levyan having answered,
+// and it is said as a refusal and not as a reading missing.
+func TestARefusedReadingDoesNotHoldADestructionUp(t *testing.T) {
+	w, fake := billed(t)
+	x := w.x
+	ctx, said := logged(context.Background())
+	fake.Refuse("loft.members", levyanv1.Refusal_REFUSAL_NO_METER)
+	w.closed()
+
+	x.NoError(w.s.Closing.Sweep(ctx))
+	x.True(w.gone())
+	x.Contains(said.String(), "a reading was refused")
+	x.NotContains(said.String(), "without its final reading")
+	x.Len(fake.Calls(), 1)
 }
 
 // closed closes the world's workspace and has its restore window over.

@@ -54,6 +54,19 @@ func Start(t testing.TB) *Levyan {
 	return v
 }
 
+// Gone is the configuration of a levyan that is not there: an address on the
+// loopback that nothing listens on, which refuses every call.
+func Gone(t testing.TB) levyan.Config {
+	t.Helper()
+
+	l, err := net.Listen("tcp", "127.0.0.1:0")
+	require.NoError(t, err)
+	addr := l.Addr().String()
+	require.NoError(t, l.Close())
+
+	return levyan.Config{Addr: addr, Key: Key, Insecure: true}
+}
+
 // Config is this deployment's configuration of the fake: on the loopback, in
 // plaintext, with its key.
 func (v *Levyan) Config() levyan.Config {

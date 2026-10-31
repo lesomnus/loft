@@ -260,8 +260,8 @@ went). Destroying retires it unless the contract in force then says
 `audit.by.<kind>.min`) are on stays in the trail until each has passed, and
 the rest goes now; a purge takes that too. `loft tenant retire|purge` are the
 same destruction by an operator's hand (`closing.Destroy`), and a deployment
-that bills measures the workspace before either takes anything (Billing,
-below). With floors and no
+that bills measures the workspace before either takes anything, as well as
+that can be done (Billing, below). With floors and no
 archive a retirement is refused before anything is taken
 (`offboard.ErrNoArchive`), and the sweep leaves the workspace closed. A
 retired workspace imported back under its identifiers is first taken back
@@ -368,13 +368,20 @@ syntax, so the literal stays where it is bound and spun. Its sink is
 readings over again; a reading levyan refused is logged and not resent. The
 key is said nowhere. Tests bill to `internal/levyantest`.
 
-Whatever destroys a workspace measures it first. `closing.Destroy`, which the
-sweep and `loft tenant retire|purge` both go through, reads its meters
-(`Closing.Meters`) after the holds are asked and before anything is taken; a
-reading that cannot be made or handed over is `closing.ErrUnmeasured` and
-nothing destroyed -- the sweep tries again next time, the command fails saying
-why. A dry run measures nothing. Flows (bytes sent and the like), a
-workspace's lifecycle events and the entitlements' copy are not built yet.
+Whatever destroys a workspace measures it first, as well as that can be done
+and no more (Claude's rule, in place of the first one, that a workspace not
+measured was not destroyed): a destruction is the law's and waits for no
+billing service. `closing.Destroy`, which the sweep and `loft tenant
+retire|purge` both go through, reads its meters (`Closing.Meters`) after the
+holds are asked and before anything is taken, as the workspace's final
+reading. One that cannot be made or handed over is a warning naming the
+workspace and why, and the workspace destroyed all the same -- levyan bills
+it by its last daily reading (its `usage.Hold`) -- and
+`Destroyed.Unmeasured`, which the command says in a line. A dry run measures
+nothing. A closed workspace is measured through its restore window like any
+other; that levyan stops billing it at its closing is the lifecycle events'
+to say. Flows (bytes sent and the like), a workspace's lifecycle events and
+the entitlements' copy are not built yet.
 
 ## What may be called
 

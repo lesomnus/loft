@@ -340,7 +340,7 @@ PostgreSQL이면 서버를 여러 대 띄울 수 있습니다. 상태는 데이�
 | `loft.members` | `{member}` | 지우지 않은 구성원 자격 |
 | `loft.history.retention_days` | `d` | 지금 적용 중인 이력 보존 기간의 일수. 0은 영원히입니다. 줄인 기간은 유예(`app.retention.grace`)가 지난 날부터입니다 |
 
-- **언제:** `serve`가 시작할 때 한 번, 그 뒤로 자정(UTC)마다 모든 워크스페이스를 잽니다(루프 `payday.meter.read`, 배포에서 한 프로세스). 닫힌 워크스페이스도 파기될 때까지 잽니다. 파기하기 직전에 한 번 더 잽니다(아래 '조직 탈퇴').
+- **언제:** `serve`가 시작할 때 한 번, 그 뒤로 자정(UTC)마다 모든 워크스페이스를 잽니다(루프 `payday.meter.read`, 배포에서 한 프로세스). 닫힌 워크스페이스도 파기될 때까지 잽니다. 파기하기 직전에 한 번 더 재서 마지막 측정으로 넘깁니다. 넘기지 못해도 파기는 합니다(아래 '조직 탈퇴').
 - **설정:**
 
   ```yaml
@@ -558,7 +558,7 @@ go run ./cmd/loft tenant purge --tenant loft --yes             # 감사 기록�
 - **purge**는 바닥값이 걸린 것까지 모두 지금 지웁니다. 그 조직이 바닥값의 법이 아닌 다른 법이나 계약 아래에 있어 모두 지워야 할 때 씁니다.
 - **기본은 retire입니다.** 닫힌 워크스페이스를 파기하는 sweep은 파기하는 순간 효력이 있는 계약을 따릅니다. 계약이 `--purge-floors`를 말하지 않으면(계약이 없을 때도) retire입니다. 줄어드는 보관 기간처럼, purge로 바꾸는 계약은 앞 계약이 retire였다면 배포의 유예(`app.retention.grace`)가 지난 뒤에 적용됩니다. 손으로 하는 `retire`와 `purge`는 이름대로 하고, 계약이 다른 쪽을 말하면 미리 보기에서 알려 줍니다.
 - **retire는 보관소가 있어야 합니다.** 남기는 기록과 그 조직이 떠났다는 서명된 기록을 보관소에 두기 때문입니다. 바닥값이 있는데 `audit.archive`가 없으면 아무것도 지우기 전에 거부합니다. 그런 배포에서 sweep은 그 워크스페이스를 닫힌 채로 두고 경고합니다(법적 보존이 걸린 것처럼). 보관소를 두면 다음 sweep이 retire하고, 바닥값을 포기해도 되면 `loft tenant purge --yes`나 `--purge-floors` 계약으로 지웁니다. 바닥값이 없는 배포(`loft.yaml`의 기본)에서 retire는 남길 것이 없어 purge와 같습니다.
-- **청구하는 배포는 지우기 전에 잽니다**(`app.billing.levyan`, design 7.3). sweep도 `retire`·`purge --yes`도 그 워크스페이스의 미터를 재서 levyan에 넘긴 뒤에 지웁니다. 넘기지 못하면 아무것도 지우지 않습니다. sweep은 닫힌 채로 두고 다음 sweep에 다시 재고, 명령은 왜인지 말하며 실패합니다. levyan이 거부한 값은 실패가 아닙니다. `--yes` 없는 미리 보기는 재지 않습니다.
+- **청구하는 배포는 지우기 전에 잽니다**(`app.billing.levyan`, design 7.3). sweep도 `retire`·`purge --yes`도 그 워크스페이스의 미터를 재서 levyan에 마지막 측정으로 넘긴 뒤에 지웁니다. **넘기지 못해도 지웁니다.** 파기는 기한이 있는 법적 의무라 청구 서비스를 기다리지 않습니다. 그때는 경고 로그(`closing: a workspace is destroyed without its final reading`)에 워크스페이스와 까닭이 남고, 명령은 그렇다고 한 줄(`meters: its final reading could not be handed to levyan, ...`) 말하고 성공합니다. levyan은 마지막 일일 측정을 이어서 매깁니다. 기다리는 시간은 호출의 끝(`timeout`, 기본 10초)까지입니다. `--yes` 없는 미리 보기는 재지 않습니다. (처음에는 넘기지 못하면 지우지 않았는데, Claude가 검토에서 이렇게 바꿨습니다.)
 - retire가 지운 행은 지웠다는 기록(`loft.workspace.retire`)으로 감사 기록에 남습니다. 바닥값이 걸린 종류의 것만 남고 나머지는 함께 지워지므로, `trail rows`가 그 행들을 `missing`으로 찾지 않습니다.
 - retire한 워크스페이스에는 나중에 법적 보존을 걸 수 없습니다. hold는 지금 있는 워크스페이스에 거는 것이고, 워크스페이스의 hold 기록도 함께 지워지기 때문입니다(loft#153). 파기 뒤에 보존 요청이 오면 남은 기록을 암호화된 파일로 꺼내 별도 매체에 보관합니다: [보존 요청 대응](docs/runbook/preserve.md). `loft tenant retired`가 무엇이 언제까지 남는지 보여 줍니다.
 

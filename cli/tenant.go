@@ -167,8 +167,9 @@ func NewCmdTenant(c *cmd.Config) *xli.Command {
 // what they are called, and say so when the contract says the other.
 //
 // A deployment that bills (`app.billing.levyan`) measures the workspace first
-// and hands what it held to levyan, as the sweep does: a levyan that cannot
-// be told is the command failing with why, and nothing taken.
+// and hands levyan what it held as its final reading, as the sweep does; a
+// levyan that cannot be told is a line saying so, and the workspace taken all
+// the same (Claude, in place of the rule that it was not).
 func newCmdTenantLeave(c *cmd.Config, name, brief string, how closing.How) *xli.Command {
 	return &xli.Command{
 		Name:  name,
@@ -231,12 +232,14 @@ func newCmdTenantLeave(c *cmd.Config, name, brief string, how closing.How) *xli.
 			if len(x.Lost) > 0 {
 				self.Printf("  files that could not be removed: %s\n", strings.Join(x.Lost, ", "))
 			}
-			if s.Meters != nil {
-				verb := "was"
-				if !yes {
-					verb = "is"
-				}
-				self.Printf("  meters: what it held %s measured and handed to levyan first; nothing is taken while it cannot be\n", verb)
+			switch {
+			case s.Meters == nil:
+			case !yes:
+				self.Printf("  meters: its final reading is measured and handed to levyan first; if levyan cannot take it, it goes all the same\n")
+			case x.Unmeasured != nil:
+				self.Printf("  meters: its final reading could not be handed to levyan, and it went all the same; levyan bills it by its last daily reading: %v\n", x.Unmeasured)
+			default:
+				self.Printf("  meters: its final reading was measured and handed to levyan first\n")
 			}
 			if !yes {
 				switch {
