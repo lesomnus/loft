@@ -44,6 +44,7 @@ import (
 	"github.com/lesomnus/loft/server/account"
 	"github.com/lesomnus/loft/server/apphost"
 	"github.com/lesomnus/loft/server/bare"
+	"github.com/lesomnus/loft/server/checkout"
 	"github.com/lesomnus/loft/server/clientaddr"
 	"github.com/lesomnus/loft/server/clilogin"
 	"github.com/lesomnus/loft/server/closing"
@@ -301,6 +302,12 @@ func Open(ctx context.Context, c Config) (*Server, error) {
 // with the domain of its entity and refuses one of another, [pd.Wall] narrows
 // every read to the tenants the caller may see.
 func Build(ctx context.Context, c Config) (*Server, error) {
+	// What the loader refuses where it is written, refused of a configuration
+	// put together by hand too, before anything is opened.
+	if err := c.App.Billing.Checkout.Check(); err != nil {
+		return nil, err
+	}
+
 	db, dialect, err := c.Db.Open(ctx)
 	if err != nil {
 		return nil, err
@@ -999,7 +1006,16 @@ func Front(c Config, h http.Handler) (http.Handler, error) {
 		return nil, fmt.Errorf("app.csp: %w", err)
 	}
 
-	return guarded(proxies.Handler(h), c.App.Public().Scheme == "https", mode, csp.Policy(c.Auth.Sso.Issuer, c.App.App(), c.App.Public().String())), nil
+	// The page Paddle's checkout opens on loads Paddle's script, and is the
+	// one page that does (design 7.7): what it loads from Paddle is in its
+	// policy alone, and in nobody's while no checkout is configured.
+	issuer, service := c.Auth.Sso.Issuer, []string{c.App.App(), c.App.Public().String()}
+	pages := map[string]string{}
+	if co := c.App.Billing.Checkout; co.On() {
+		pages[checkout.Path] = csp.With(checkout.Sources(co.Environment), issuer, service...)
+	}
+
+	return guarded(proxies.Handler(h), c.App.Public().Scheme == "https", mode, csp.Policy(issuer, service...), pages), nil
 }
 
 // depsOf is what the domain layer is told by the configuration.
@@ -1153,6 +1169,12 @@ func (s *Server) Routes(mux *http.ServeMux, c Config) {
 
 	// Attachments, by the signed links the API answers with.
 	mux.Handle("GET /files/", s.Deps.Sign.Handler(s.Deps.Files, time.Now))
+
+	// The page Paddle's default payment link is, which opens the checkout of
+	// the transaction its address names; nobody signs in to it (design 7.7).
+	// With no checkout configured it answers 404, and nothing else answers
+	// for it.
+	c.App.Billing.Checkout.Mount(mux)
 
 	// A printed label: whatever host it was printed with, the code is sent to
 	// the page that resolves it. The page asks the API, through the wall, so

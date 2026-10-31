@@ -3,13 +3,15 @@
 # built from this checkout, `init --demo` on a SQLite database of its own, and
 # serving the built page (ts/dist) on 127.0.0.1:PORT.
 #
-#   sh e2e/serve.sh PORT [consent | sso ISSUER]
+#   sh e2e/serve.sh PORT [consent | sso ISSUER | billing]
 #
 # Its database, files and log are in test-results/loft-PORT, which Playwright
 # empties before every run and leaves after one, for a failure to be read.
-# `consent` also asks everybody to agree to terms first (`app.consent`), and
+# `consent` also asks everybody to agree to terms first (`app.consent`),
 # `sso` signs people in through the issuer at ISSUER as well (`auth.sso`):
-# the test's own, which e2e/issuer.sh stands up.
+# the test's own, which e2e/issuer.sh stands up, and `billing` serves
+# Paddle's default payment link in the sandbox (`app.billing.checkout`), with a
+# client-side token made up -- Paddle.js is the test's own (e2e/paddle.ts).
 #
 # E2E_POSTGRES names a PostgreSQL to run on instead -- postgres://…, as one
 # who may make databases there. Each server then has two of its own, Loft's
@@ -31,7 +33,7 @@ set -eu
 port=${1:-}
 case $port in
 '' | *[!0-9]*)
-	echo "usage: sh e2e/serve.sh PORT [consent | sso ISSUER]" >&2
+	echo "usage: sh e2e/serve.sh PORT [consent | sso ISSUER | billing]" >&2
 	exit 2
 	;;
 esac
@@ -109,6 +111,10 @@ sso)
 	export LOFT_AUTH_SSO_CLIENT_ID=loft-e2e
 	export LOFT_AUTH_SSO_CLIENT_SECRET=loft-e2e-client-secret-not-a-secret
 	export LOFT_AUTH_SSO_PROVIDERS='[{"connection":"google","label":"Google","mark":"google"}]'
+	;;
+billing)
+	export LOFT_APP_BILLING_CHECKOUT_ENVIRONMENT=sandbox
+	export LOFT_APP_BILLING_CHECKOUT_CLIENT_TOKEN=test_000000000000000000000000000
 	;;
 esac
 

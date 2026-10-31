@@ -105,6 +105,11 @@ app:
   #     addr: levyan.levyan.svc:50051
   #     key: file:/run/secrets/loft-levyan/key
   #     insecure: true
+  #   # Paddle's default payment link, /billing/checkout (design 7.7): the
+  #   # environment and its client-side token, which are public -- no Secret.
+  #   checkout:
+  #     environment: sandbox
+  #     client_token: test_000000000000000000000000000
 
   # What an account agrees to before it uses anything here, once the
   # documents are published (loft#35).
