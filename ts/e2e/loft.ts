@@ -54,6 +54,7 @@ export const people = {
 	booksFirst: { login: 'gunwoo-yoon', name: '윤건우' },
 	borrows: { login: 'naeun-jang', name: '장나은' },
 	renames: { login: 'hyunwoo-lee', name: '이현우' },
+	namesAccounts: { login: 'doyun-park', name: '박도윤' },
 } as const
 
 /** A name nothing else in the run has. */

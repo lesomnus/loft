@@ -1,4 +1,4 @@
-import type { APIRequestContext, Page } from '@playwright/test'
+import type { APIRequestContext, Locator, Page } from '@playwright/test'
 
 import { card, choose, expect, field, owner, people, refused, said, signIn, test, unique, workspace } from './loft.js'
 import { paddle } from './paddle.js'
@@ -20,6 +20,32 @@ async function made(page: Page, name: string): Promise<{ id: string; alias: stri
 	const res = await page.request.post('/account/workspaces', { data: { name } })
 	expect(res.ok(), await res.text()).toBeTruthy()
 	return (await res.json()) as { id: string; alias: string }
+}
+
+/** A billing account as levyan lists it, in JSON: no `name` where it has none. */
+type Listed = { id: string; name?: string; created: string }
+
+/** The billing accounts of whoever `page` is signed in as, in the order the page lists them. */
+async function billingAccounts(page: Page): Promise<Listed[]> {
+	const res = await page.request.post('/loft.PaymentService/ListBillingAccounts', { headers: { 'connect-protocol-version': '1' }, data: {} })
+	expect(res.ok(), await res.text()).toBeTruthy()
+	return ((await res.json()) as { billingAccounts?: Listed[] }).billingAccounts ?? []
+}
+
+/**
+ * What the billing page calls each of `accounts`: its name, or when it was
+ * made -- to the minute, in Korea, where the browser is (playwright.config.ts)
+ * and the clocks are nine hours ahead of UTC all year -- and, after either,
+ * the end of its identifier where two of them read the same.
+ */
+function calledAs(accounts: Listed[]): string[] {
+	const p = (n: number) => String(n).padStart(2, '0')
+	const own = accounts.map((b) => {
+		if (b.name !== undefined && b.name !== '') return b.name
+		const d = new Date(Date.parse(b.created) + 9 * 3600_000)
+		return `결제 계정 (${d.getUTCMonth() + 1}월 ${d.getUTCDate()}일 ${p(d.getUTCHours())}:${p(d.getUTCMinutes())} 만듦)`
+	})
+	return own.map((v, i) => (own.filter((w) => w === v).length > 1 ? `${v} · #${accounts[i]?.id.slice(-4)}` : v))
 }
 
 test('a billing account is made by naming its country, and its checkout gives it a card', async ({ page }) => {
@@ -230,4 +256,93 @@ test('an invoice billing a workspace whose charge failed is said above its pages
 	await levyan(request, 'dunning', { workspace: ws.id, kind: 'temporary', restricted: new Date(Date.now() - 3600_000).toISOString() })
 	await page.reload()
 	await expect(page.getByRole('alert')).toContainText('결제가 밀려 제한되었습니다.')
+})
+
+test('billing accounts with no name are told apart wherever they are offered, and one given a name is offered by it', async ({ page, as }) => {
+	// Asked by the owner to pay for the workspace: what a payer chooses one of
+	// their billing accounts for.
+	await signIn(page, owner.login, owner.password)
+	await page.goto(`${workspace}/settings?tab=billing`)
+	const offer = card(page, '결제 담당 제안')
+	await choose(field(offer, '제안할 구성원'), people.namesAccounts.name)
+	await offer.getByRole('button', { name: '제안', exact: true }).click()
+	await said(page, `${people.namesAccounts.name}님에게 결제 담당을 제안했습니다.`)
+
+	const payer = await as(people.namesAccounts.login)
+	await paddle(payer)
+	await payer.goto('/billing')
+	const mine = card(payer, '결제 계정')
+	const make = async (name: string): Promise<void> => {
+		await payer.getByRole('button', { name: '새 결제 계정' }).click()
+		const dialog = payer.getByRole('dialog')
+		await field(dialog, '이름').fill(name)
+		await dialog.getByRole('button', { name: '만들기' }).click()
+		await said(payer, '결제 계정을 만들었습니다: MoR (Paddle), KRW')
+	}
+	// The card called `called`, whose name is `was` -- what the form starts
+	// from, and never what the page calls one with none -- renamed `to`.
+	const rename = async (called: string, was: string, to: string, ok: string): Promise<void> => {
+		await mine.getByRole('listitem', { name: called, exact: true }).getByRole('button', { name: '이름 바꾸기' }).click()
+		const dialog = payer.getByRole('dialog')
+		await expect(field(dialog, '이름')).toHaveValue(was)
+		await field(dialog, '이름').fill(to)
+		await dialog.getByRole('button', { name: '바꾸기' }).click()
+		await said(payer, ok)
+	}
+	// What the offer is answered with: the choice of a billing account, as it
+	// is offered.
+	const accepting = async (): Promise<Locator> => {
+		await card(payer, '받은 제안').getByRole('button', { name: '받아들이기' }).click()
+		return field(payer.getByRole('dialog'), '낼 결제 계정')
+	}
+
+	// Two made with no name are each called by when they were made -- and two
+	// made in one minute by the end of their identifiers too -- on their own
+	// cards and where they are offered.
+	await make('')
+	await make('')
+	await expect(mine.getByRole('listitem')).toHaveCount(2)
+	const [a = '', b = ''] = calledAs(await billingAccounts(payer))
+	expect(a).not.toEqual(b)
+	for (const v of [a, b]) {
+		expect(v).toMatch(/^결제 계정 \(\d+월 \d+일 \d\d:\d\d 만듦\)( · #[0-9a-f]{4})?$/)
+		await expect(mine.getByRole('listitem', { name: v, exact: true })).toContainText(v)
+	}
+	await expect((await accepting()).locator('option')).toHaveText(['나중에 정하기', `${a} · 대한민국 · KRW`, `${b} · 대한민국 · KRW`])
+	await payer.getByRole('dialog').getByRole('button', { name: '취소' }).click()
+
+	// One named as it is made, and the second renamed: the first is the only
+	// one left with no name, which its minute alone tells apart.
+	await make('회사용')
+	await rename(b, '', '개인 카드', '이름을 바꿨습니다.')
+	const [alone = ''] = calledAs(await billingAccounts(payer))
+	expect(alone).toMatch(/^결제 계정 \(\d+월 \d+일 \d\d:\d\d 만듦\)$/)
+	await expect(mine.getByRole('listitem')).toHaveCount(3)
+	for (const v of [alone, '개인 카드', '회사용']) await expect(mine.getByRole('listitem', { name: v, exact: true })).toContainText(v)
+
+	// How one pays is said where the page knows it.
+	const company = mine.getByRole('listitem', { name: '회사용', exact: true })
+	await company.getByRole('button', { name: '결제수단 등록' }).click()
+	await expect(payer.getByRole('status')).toHaveText('결제수단을 등록했습니다.')
+	await expect(company).toContainText('카드 visa •••• 4242')
+
+	const offered = [`${alone} · 대한민국 · KRW`, '개인 카드 · 대한민국 · KRW', '회사용 · 대한민국 · KRW · 카드 visa •••• 4242']
+	const choice = await accepting()
+	await expect(choice.locator('option')).toHaveText(['나중에 정하기', ...offered])
+	await choose(choice, '회사용')
+	await payer.getByRole('dialog').getByRole('button', { name: '받아들이기' }).click()
+	await said(payer, '제안을 받아들였습니다. 이번 기간이 끝난 뒤부터 냅니다.')
+	const paid = card(payer, '내는 워크스페이스').getByRole('listitem')
+	await expect(paid).toContainText('회사용 · KRW')
+	await paid.getByRole('button', { name: '결제 계정 바꾸기' }).click()
+	await expect(field(payer.getByRole('dialog'), '결제 계정').locator('option')).toHaveText(offered)
+	await payer.getByRole('dialog').getByRole('button', { name: '취소' }).click()
+
+	// An empty name takes it away, and the account is called by when it was
+	// made again.
+	await rename('회사용', '회사용', '', '이름을 지웠습니다.')
+	const [, , unnamed = ''] = calledAs(await billingAccounts(payer))
+	expect(unnamed).toMatch(/^결제 계정 \(\d+월 \d+일 \d\d:\d\d 만듦\)( · #[0-9a-f]{4})?$/)
+	await expect(mine.getByRole('listitem', { name: unnamed, exact: true })).toContainText('카드 visa •••• 4242')
+	await expect(paid).toContainText(`${unnamed} · KRW`)
 })
