@@ -7,9 +7,10 @@
 //   - what levyan grants each workspace, which payday's follower keeps a copy
 //     of from levyan's `payday.GrantService` (payday#185, design 7.5,
 //     [Client.Grants]);
-//   - who pays for each workspace, told to levyan's `levyan.v1.WorkspaceService`
-//     from a queue written beside the change that tells it ([Notices],
-//     [Teller], design 7.6).
+//   - who pays for each workspace, and what became of it -- closed, restored,
+//     destroyed -- told to levyan's `levyan.v1.WorkspaceService` from a queue
+//     written beside the change that tells it ([Notices], [Teller], design
+//     7.6, 7.8).
 //
 // It speaks levyan's own API module (`github.com/lesomnus/levyan/api`), which
 // is levyan's promise to the products it bills and holds Loft to nothing of
@@ -300,6 +301,89 @@ func (c *Client) Leave(ctx context.Context, workspace, account pdid.Id) error {
 		Account:   account.String(),
 	}.Build())
 	return err
+}
+
+// CloseWorkspace tells levyan that `workspace` was closed at `at`: from then
+// until it is restored it is billed for none of what it holds, though it is
+// still measured, and its payer stays its payer
+// (`levyan.v1.WorkspaceService/Close`). levyan reads what became of a
+// workspace in the order of its moments, and not of their telling: said
+// again, of the same moment, it changes nothing.
+func (c *Client) CloseWorkspace(ctx context.Context, workspace pdid.Id, at time.Time) error {
+	call, cancel := c.call(ctx)
+	defer cancel()
+
+	res, err := c.workspaces.Close(call, levyanv1.CloseRequest_builder{
+		Workspace: workspace.String(),
+		At:        timestamppb.New(at),
+	}.Build())
+	if err != nil {
+		return err
+	}
+	late(ctx, workspace, "closed", at, res.GetLate())
+	return nil
+}
+
+// RestoreWorkspace tells levyan that the closed `workspace` was opened again
+// at `at`, and is billed again from then (`levyan.v1.WorkspaceService/Restore`).
+func (c *Client) RestoreWorkspace(ctx context.Context, workspace pdid.Id, at time.Time) error {
+	call, cancel := c.call(ctx)
+	defer cancel()
+
+	res, err := c.workspaces.Restore(call, levyanv1.RestoreRequest_builder{
+		Workspace: workspace.String(),
+		At:        timestamppb.New(at),
+	}.Build())
+	if err != nil {
+		return err
+	}
+	late(ctx, workspace, "restored", at, res.GetLate())
+	return nil
+}
+
+// DestroyWorkspace tells levyan that `workspace` was destroyed at `at`, for
+// good: it is billed for nothing after it, its payer pays for it no longer,
+// and a reading measured at `at` or after is refused -- so `at` is after its
+// final reading (`levyan.v1.WorkspaceService/Destroy`).
+func (c *Client) DestroyWorkspace(ctx context.Context, workspace pdid.Id, at time.Time) error {
+	call, cancel := c.call(ctx)
+	defer cancel()
+
+	res, err := c.workspaces.Destroy(call, levyanv1.DestroyRequest_builder{
+		Workspace: workspace.String(),
+		At:        timestamppb.New(at),
+	}.Build())
+	if err != nil {
+		return err
+	}
+	late(ctx, workspace, "destroyed", at, res.GetLate())
+	return nil
+}
+
+// late says in the log that what became of a workspace reached into a period
+// levyan had begun to close: what that period was billed is corrected on a
+// later statement, which is levyan's to do and nothing of Loft's.
+func late(ctx context.Context, workspace pdid.Id, became string, at time.Time, late bool) {
+	if !late {
+		return
+	}
+	log.From(ctx).InfoContext(ctx, "levyan: a workspace "+became+" was told late, and what levyan billed it for then is corrected on a later statement",
+		"workspace", workspace.String(), "at", at.UTC().Format(time.RFC3339Nano))
+}
+
+// Lifecycle is what levyan has been told became of `workspace`: since when it
+// is closed, and when it was destroyed, unset for neither
+// (`levyan.v1.WorkspaceService/GetLifecycle`). A workspace levyan heard nothing
+// of is open.
+func (c *Client) Lifecycle(ctx context.Context, workspace pdid.Id) (*levyanv1.Lifecycle, error) {
+	call, cancel := c.call(ctx)
+	defer cancel()
+
+	res, err := c.workspaces.GetLifecycle(call, levyanv1.GetLifecycleRequest_builder{Workspace: workspace.String()}.Build())
+	if err != nil {
+		return nil, err
+	}
+	return res.GetLifecycle(), nil
 }
 
 // Close lets go of the connection; a nil client has none.
