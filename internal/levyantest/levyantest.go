@@ -7,7 +7,13 @@
 //     streamed to whoever watches and listed to whoever asks, as levyan's own
 //     does (levyan's design 13);
 //   - its WorkspaceService's Arrive and Leave, every call kept in the order it
-//     came, taken unless a test says levyan is down;
+//     came, taken unless a test says levyan is down -- and who pays for each
+//     workspace, as levyan works it out of them, what is offered (`Offer`)
+//     and `GetPayer` (payers.go);
+//   - its PayerService, the payers' own: billing accounts, checkouts that a
+//     test's Paddle completes, offers, links and invoices (payers.go);
+//   - its BillingService's usage, worked out of the readings it kept, and the
+//     statements a test gives (payers.go);
 //   - and its Close, Restore, Destroy and GetLifecycle: what became of each
 //     workspace, read in the order of its moments and answered and refused as
 //     levyan's own are (levyan's `docs/apps.md`, 5) -- a workspace it heard
@@ -17,7 +23,11 @@
 //     measured once a workspace was destroyed is refused.
 //
 // It holds a call to what levyan holds one to: the product key it was given,
-// as `authorization: Bearer lvk_…`, or Unauthenticated.
+// as `authorization: Bearer lvk_…`, or Unauthenticated; and a payer's call
+// to the account it is relayed for, in `levyan-account`.
+//
+// A browser test bills to one served by a command of its own
+// (`cmd/levyantest`, `ts/e2e/levyan.sh`).
 package levyantest
 
 import (
@@ -52,6 +62,8 @@ const Key = "lvk_levyantest-not-a-key-anybody-issued"
 type Levyan struct {
 	levyanv1.UnimplementedMeteringServiceServer
 	levyanv1.UnimplementedWorkspaceServiceServer
+	levyanv1.UnimplementedPayerServiceServer
+	levyanv1.UnimplementedBillingServiceServer
 	pdpb.UnimplementedGrantServiceServer
 
 	addr string
@@ -75,6 +87,9 @@ type Levyan struct {
 
 	// What it knows of each workspace's life (lifecycle.go).
 	lives lives
+
+	// Who pays, and what each payer has: payers.go.
+	payers
 }
 
 // Told is one call of WorkspaceService that came with the key: `arrive` or
@@ -96,20 +111,31 @@ func Start(t testing.TB) *Levyan {
 	l, err := net.Listen("tcp", "127.0.0.1:0")
 	require.NoError(t, err)
 
+	v, g := Serve(l)
+	t.Cleanup(g.Stop)
+
+	return v
+}
+
+// Serve serves one on `l` until the server it answers is stopped: what a
+// command serves a browser test's deployment (`cmd/levyantest`).
+func Serve(l net.Listener) (*Levyan, *grpc.Server) {
 	v := &Levyan{
 		addr:     l.Addr().String(),
 		refused:  map[string]levyanv1.Refusal{},
 		watchers: map[chan *pdpb.EntitlementGrant]chan struct{}{},
 		failing:  map[string]error{},
+		payers:   newPayers(),
 	}
 	g := grpc.NewServer()
 	levyanv1.RegisterMeteringServiceServer(g, v)
 	levyanv1.RegisterWorkspaceServiceServer(g, v)
+	levyanv1.RegisterPayerServiceServer(g, v)
+	levyanv1.RegisterBillingServiceServer(g, v)
 	pdpb.RegisterGrantServiceServer(g, v)
 	go g.Serve(l)
-	t.Cleanup(g.Stop)
 
-	return v
+	return v, g
 }
 
 // Gone is the configuration of a levyan that is not there: an address on the
@@ -463,12 +489,13 @@ func (v *Levyan) Arrive(ctx context.Context, req *levyanv1.ArriveRequest) (*levy
 		return nil, err
 	}
 	v.arrived(t)
-	return &levyanv1.ArriveResponse{}, nil
+	return levyanv1.ArriveResponse_builder{Payer: v.madeBy(t)}.Build(), nil
 }
 
 func (v *Levyan) Leave(ctx context.Context, req *levyanv1.LeaveRequest) (*levyanv1.LeaveResponse, error) {
-	if err := v.hear(ctx, Told{Kind: "leave", Workspace: req.GetWorkspace(), Account: req.GetAccount()}); err != nil {
+	t := Told{Kind: "leave", Workspace: req.GetWorkspace(), Account: req.GetAccount()}
+	if err := v.hear(ctx, t); err != nil {
 		return nil, err
 	}
-	return &levyanv1.LeaveResponse{}, nil
+	return levyanv1.LeaveResponse_builder{Payer: v.goneFrom(t)}.Build(), nil
 }
