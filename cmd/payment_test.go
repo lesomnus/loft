@@ -3,6 +3,8 @@ package cmd_test
 import (
 	"context"
 	"errors"
+	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -10,6 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/lesomnus/payday/pdid"
@@ -370,4 +373,181 @@ func TestWhatLevyanRefusesIsSaid(t *testing.T) {
 		x.Equal(codes.FailedPrecondition, status.Code(err))
 		x.Contains(status.Convert(err).Message(), "sandbox")
 	})
+}
+
+// TestWhoABillingAccountIsBilledToPassesThrough (design 7.9): who receives
+// what a billing account is billed and the business it is billed to are the
+// payer's to say as it is made and again later, and to clear -- relayed to
+// levyan as they are, and kept nowhere here, since they are somebody's. The
+// business one paid by transfer is billed to is its contract's: levyan
+// refuses the account a change of it, and the account is told so in this
+// deployment's words; who receives it the account still says.
+func TestWhoABillingAccountIsBilledToPassesThrough(t *testing.T) {
+	w, fake := paid(t)
+	x := w.x
+	pay := w.payments()
+	park := w.holder("park", "member")
+	me := w.session(park)
+	account := w.accountOf(park).String()
+
+	// Made up, every word of it.
+	recipient := app.BillingRecipient_builder{Name: "박지민", Email: "billing@example.com", Address: "서울시 중구 예시로 1"}.Build()
+	business := app.BillingBusiness_builder{
+		Registration: "000-12-34567", Name: "(주)예시상사", Representative: "박지민", Address: "서울시 중구 예시로 1",
+		Kind: "서비스", Item: "소프트웨어", Email: "tax@example.com",
+	}.Build()
+	made, err := pay.CreateBillingAccount(me, app.PaymentCreateBillingAccountRequest_builder{Country: "KR", Recipient: recipient, Business: business}.Build())
+	x.NoError(err)
+	ba := made.GetBillingAccount()
+	x.True(proto.Equal(recipient, ba.GetRecipient()), "%v", ba.GetRecipient())
+	x.True(proto.Equal(business, ba.GetBusiness()), "%v", ba.GetBusiness())
+	held := fake.BillingAccounts(account)
+	x.Len(held, 1)
+	x.Equal("billing@example.com", held[0].GetRecipient().GetEmail(), "levyan holds it")
+	x.Equal("000-12-34567", held[0].GetBusiness().GetRegistration())
+
+	// Said again: who receives it, whole; what is left out stays as it is.
+	moved := app.BillingRecipient_builder{Name: "박지민", Email: "pay@example.com"}.Build()
+	got, err := pay.UpdateBillingAccount(me, app.PaymentUpdateBillingAccountRequest_builder{Id: ba.GetId(), Recipient: moved}.Build())
+	x.NoError(err)
+	x.True(proto.Equal(moved, got.GetBillingAccount().GetRecipient()))
+	x.True(proto.Equal(business, got.GetBillingAccount().GetBusiness()), "the business is left as it was")
+	renamed := proto.CloneOf(business)
+	renamed.SetName("(주)예시")
+	got, err = pay.UpdateBillingAccount(me, app.PaymentUpdateBillingAccountRequest_builder{Id: ba.GetId(), Business: renamed}.Build())
+	x.NoError(err)
+	x.Equal("(주)예시", got.GetBillingAccount().GetBusiness().GetName())
+	got, err = pay.UpdateBillingAccount(me, app.PaymentUpdateBillingAccountRequest_builder{Id: ba.GetId(), ClearBusiness: true}.Build())
+	x.NoError(err)
+	x.False(got.GetBillingAccount().HasBusiness(), "billed as a person")
+	x.True(proto.Equal(moved, got.GetBillingAccount().GetRecipient()))
+
+	// One paid by transfer, opened by levyan's operator after a contract.
+	bank := fake.Bank(account, "계약", levyanv1.Business_builder{Registration: "000-98-76543", Name: "(주)계약상사", Email: "contract@example.com"}.Build())
+	for _, req := range []*app.PaymentUpdateBillingAccountRequest{
+		app.PaymentUpdateBillingAccountRequest_builder{Id: bank.GetId(), Business: business}.Build(),
+		app.PaymentUpdateBillingAccountRequest_builder{Id: bank.GetId(), ClearBusiness: true}.Build(),
+		app.PaymentUpdateBillingAccountRequest_builder{Id: bank.GetId(), Recipient: moved, Business: business}.Build(),
+	} {
+		_, err = pay.UpdateBillingAccount(me, req)
+		x.Equal(codes.FailedPrecondition, status.Code(err))
+		x.Contains(status.Convert(err).Message(), "결제 서비스가 받지 않았습니다: the business a billing account paid by transfer is billed to is its contract's")
+	}
+	got, err = pay.UpdateBillingAccount(me, app.PaymentUpdateBillingAccountRequest_builder{Id: bank.GetId(), Recipient: moved}.Build())
+	x.NoError(err, "who receives it is the account's to say")
+	x.True(proto.Equal(moved, got.GetBillingAccount().GetRecipient()))
+	x.Equal(app.BillingChannel_BILLING_CHANNEL_BANK_KR, got.GetBillingAccount().GetChannel())
+	x.Equal("000-98-76543", got.GetBillingAccount().GetBusiness().GetRegistration(), "and its business the contract's")
+	detail, err := pay.GetBillingAccount(me, app.PaymentGetBillingAccountRequest_builder{Id: bank.GetId()}.Build())
+	x.NoError(err)
+	x.Equal(app.BillingCollectionState_BILLING_COLLECTION_STATE_UNSPECIFIED, detail.GetCollection().GetState(), "nothing is said of collecting on a channel that is no merchant of record's")
+	_, err = pay.StartCheckout(me, app.PaymentStartCheckoutRequest_builder{BillingAccount: bank.GetId(), SuccessUrl: "http://localhost:8080/billing"}.Build())
+	x.Equal(codes.FailedPrecondition, status.Code(err), "and it takes no checkout")
+
+	keptNowhere(t, w.s, "000-12-34567", "billing@example.com", "pay@example.com", "tax@example.com", "000-98-76543")
+}
+
+// TestWhetherAWorkspacesBillingAccountCanCollectIsSaid (design 7.9, levyan's
+// `docs/apps.md` 4): who runs a workspace reads whether the billing account it
+// is paid for with now can be collected -- before any charge of it failed --
+// and the payer reads the same of the billing account itself; nothing is said
+// of it while it is paid for with one on a channel that is no merchant of
+// record's.
+func TestWhetherAWorkspacesBillingAccountCanCollectIsSaid(t *testing.T) {
+	w, fake := paid(t)
+	x := w.x
+	ctx := context.Background()
+	pay := w.payments()
+	ws := tenantId(x, w.tenant)
+
+	// The owner's, made before levyan is told who made the workspace: what
+	// it is paid for with from then.
+	made, err := pay.CreateBillingAccount(w.owner, app.PaymentCreateBillingAccountRequest_builder{Country: "KR"}.Build())
+	x.NoError(err)
+	ba := made.GetBillingAccount().GetId()
+	x.NoError(w.s.Teller.Pass(ctx))
+	state := func() app.BillingCollectionState {
+		t.Helper()
+		p, err := pay.GetPayer(w.owner, app.PaymentGetPayerRequest_builder{}.Build())
+		x.NoError(err)
+		x.Equal(ba, p.GetPayer().GetCurrent().GetBillingAccount())
+		return p.GetPayer().GetCollection().GetState()
+	}
+	x.Equal(app.BillingCollectionState_BILLING_COLLECTION_STATE_NO_SUBSCRIPTION, state(), "no method registered yet")
+	admin := w.signIn(w.holder("kim", "admin"))
+	p, err := pay.GetPayer(admin, app.PaymentGetPayerRequest_builder{}.Build())
+	x.NoError(err)
+	x.Equal(app.BillingCollectionState_BILLING_COLLECTION_STATE_NO_SUBSCRIPTION, p.GetPayer().GetCollection().GetState(), "its administrators read it too")
+
+	fake.Collect(ba, levyanv1.CollectionState_COLLECTION_STATE_PAST_DUE)
+	x.Equal(app.BillingCollectionState_BILLING_COLLECTION_STATE_PAST_DUE, state())
+	got, err := pay.GetBillingAccount(w.owner, app.PaymentGetBillingAccountRequest_builder{Id: ba}.Build())
+	x.NoError(err)
+	x.Equal(app.BillingCollectionState_BILLING_COLLECTION_STATE_PAST_DUE, got.GetCollection().GetState(), "and so does the payer, of the billing account")
+	fake.Collect(ba, levyanv1.CollectionState_COLLECTION_STATE_UNSPECIFIED)
+	x.Equal(app.BillingCollectionState_BILLING_COLLECTION_STATE_NO_SUBSCRIPTION, state())
+
+	// Paid for with one paid by transfer from the end of the period: nothing
+	// is said of collecting it.
+	owner := fake.Payer(ws.String()).GetCurrent().GetAccount()
+	bank := fake.Bank(owner, "계약", levyanv1.Business_builder{Registration: "000-98-76543", Name: "(주)계약상사", Email: "contract@example.com"}.Build())
+	_, err = pay.Use(w.owner, app.PaymentUseRequest_builder{Workspace: ws.String(), BillingAccount: bank.GetId()}.Build())
+	x.NoError(err)
+	fake.Turn(ws.String())
+	p, err = pay.GetPayer(w.owner, app.PaymentGetPayerRequest_builder{}.Build())
+	x.NoError(err)
+	x.Equal(bank.GetId(), p.GetPayer().GetCurrent().GetBillingAccount())
+	x.False(p.GetPayer().HasCollection())
+}
+
+// keptNowhere fails `t` for a row of the deployment's database that holds
+// any of `said`, in any column that could: what passes through to levyan is
+// no row of Loft's.
+func keptNowhere(t *testing.T, s *cmd.Server, said ...string) {
+	t.Helper()
+	x := require.New(t)
+	ctx := t.Context()
+	pg := s.Dialect == "postgres"
+
+	q := `SELECT m.name, p.name, p.type FROM sqlite_master m, pragma_table_info(m.name) p WHERE m.type = 'table'`
+	if pg {
+		q = `SELECT table_name, column_name, data_type FROM information_schema.columns WHERE table_schema = current_schema()`
+	}
+	type column struct{ table, name, kind string }
+	var cols []column
+	rows, err := s.Db.QueryContext(ctx, q)
+	x.NoError(err)
+	for rows.Next() {
+		var c column
+		x.NoError(rows.Scan(&c.table, &c.name, &c.kind))
+		cols = append(cols, c)
+	}
+	x.NoError(rows.Err())
+	x.NoError(rows.Close())
+	x.NotEmpty(cols)
+
+	for _, c := range cols {
+		var has string
+		switch {
+		case !pg:
+			has = fmt.Sprintf(`instr(CAST(%q AS BLOB), CAST(? AS BLOB)) > 0`, c.name)
+		case c.kind == "bytea":
+			has = fmt.Sprintf(`position(convert_to($%%d, 'UTF8') in %q) > 0`, c.name)
+		case c.kind == "text" || c.kind == "character varying" || c.kind == "json" || c.kind == "jsonb" || c.kind == "ARRAY":
+			has = fmt.Sprintf(`strpos(%q::text, $%%d) > 0`, c.name)
+		default:
+			continue
+		}
+		ors := make([]string, len(said))
+		args := make([]any, len(said))
+		for i, v := range said {
+			ors[i], args[i] = has, v
+			if pg {
+				ors[i] = fmt.Sprintf(has, i+1)
+			}
+		}
+		n := 0
+		x.NoError(s.Db.QueryRowContext(ctx, fmt.Sprintf(`SELECT count(*) FROM %q WHERE %s`, c.table, strings.Join(ors, " OR ")), args...).Scan(&n))
+		x.Zero(n, "%s.%s holds what was said of a billing account", c.table, c.name)
+	}
 }

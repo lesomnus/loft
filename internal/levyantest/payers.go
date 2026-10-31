@@ -48,6 +48,7 @@ type payers struct {
 	invoices   map[string][]*levyanv1.Invoice    // by billing account
 	notes      map[string][]*levyanv1.CreditNote // by invoice
 	statements map[string][]*levyanv1.Statement  // by workspace
+	collected  map[string]*levyanv1.Collection   // by billing account, as Collect says it
 	dunning    []*dunned
 	relayed    []Relayed
 	noRoster   bool
@@ -62,8 +63,46 @@ func newPayers() payers {
 		invoices:   map[string][]*levyanv1.Invoice{},
 		notes:      map[string][]*levyanv1.CreditNote{},
 		statements: map[string][]*levyanv1.Statement{},
+		collected:  map[string]*levyanv1.Collection{},
 		opens:      1,
 	}
+}
+
+// Bank opens a billing account of `account`'s paid by transfer, called
+// `name`: in Korea, in won, billed to `business` by its registration -- as
+// levyan's operator opens one after a contract (levyan's #9), since no
+// account opens one itself. The business it is billed to is then the
+// contract's, which the account may not change ([Levyan.UpdateBillingAccount]).
+func (v *Levyan) Bank(account, name string, business *levyanv1.Business) *levyanv1.BillingAccount {
+	b := levyanv1.BillingAccount_builder{
+		Id:       newId(),
+		Name:     name,
+		Country:  "KR",
+		Channel:  levyanv1.Channel_CHANNEL_BANK_KR,
+		Currency: "KRW",
+		Business: proto.CloneOf(business),
+		Created:  timestamppb.Now(),
+	}.Build()
+
+	v.mu.Lock()
+	defer v.mu.Unlock()
+	v.billing[account] = append(v.billing[account], b)
+	return proto.CloneOf(b)
+}
+
+// Collect has billing account `id` collected as `state` says from now,
+// whatever its subscription says: what the merchant of record says of it
+// (levyan's 12) -- a charge failing and tried again, a subscription paused
+// or ended, a payment waiting on the payer. UNSPECIFIED has it said by its
+// subscription again, as a checkout completed does.
+func (v *Levyan) Collect(id string, state levyanv1.CollectionState) {
+	v.mu.Lock()
+	defer v.mu.Unlock()
+	if state == levyanv1.CollectionState_COLLECTION_STATE_UNSPECIFIED {
+		delete(v.collected, id)
+		return
+	}
+	v.collected[id] = levyanv1.Collection_builder{State: state, Since: timestamppb.Now()}.Build()
 }
 
 type checkout struct {
@@ -292,8 +331,10 @@ func (v *Levyan) payerOf(workspace string) *levyanv1.Payer {
 	}
 	if p.current != nil {
 		out.SetCurrent(proto.CloneOf(p.current))
-		if ba := p.current.GetBillingAccount(); ba != "" {
-			out.SetCollection(v.collection(ba))
+		// Of the billing account it is paid for with, on the merchant of
+		// record's channel: none is said of another's, as levyan says none.
+		if c := v.collection(p.current.GetBillingAccount()); c.GetState() != levyanv1.CollectionState_COLLECTION_STATE_UNSPECIFIED {
+			out.SetCollection(c)
 		}
 	}
 	if p.next != nil {
@@ -321,19 +362,31 @@ func (v *Levyan) own(account, id string) (*levyanv1.BillingAccount, error) {
 	return nil, status.Errorf(codes.NotFound, "levyantest: no billing account %q of the account's", id)
 }
 
-// collection is whether what billing account `id` is billed can be collected.
+// collection is whether what billing account `id` is billed can be collected:
+// nil for none, and nothing said -- UNSPECIFIED -- of one on a channel that is
+// no merchant of record's, as levyan says it.
 func (v *Levyan) collection(id string) *levyanv1.Collection {
-	if s, ok := v.subs[id]; ok && s.GetStatus() == levyanv1.SubscriptionStatus_SUBSCRIPTION_STATUS_ACTIVE {
-		return levyanv1.Collection_builder{State: levyanv1.CollectionState_COLLECTION_STATE_COLLECTABLE, Since: s.GetPeriodStart()}.Build()
-	}
+	var b *levyanv1.BillingAccount
 	for _, bs := range v.billing {
-		for _, b := range bs {
-			if b.GetId() == id {
-				return levyanv1.Collection_builder{State: levyanv1.CollectionState_COLLECTION_STATE_NO_SUBSCRIPTION, Since: b.GetCreated()}.Build()
+		for _, c := range bs {
+			if c.GetId() == id {
+				b = c
 			}
 		}
 	}
-	return nil
+	switch {
+	case b == nil:
+		return nil
+	case b.GetChannel() != levyanv1.Channel_CHANNEL_MOR:
+		return levyanv1.Collection_builder{}.Build()
+	}
+	if c, ok := v.collected[id]; ok {
+		return proto.CloneOf(c)
+	}
+	if s, ok := v.subs[id]; ok && s.GetStatus() == levyanv1.SubscriptionStatus_SUBSCRIPTION_STATUS_ACTIVE {
+		return levyanv1.Collection_builder{State: levyanv1.CollectionState_COLLECTION_STATE_COLLECTABLE, Since: s.GetPeriodStart()}.Build()
+	}
+	return levyanv1.Collection_builder{State: levyanv1.CollectionState_COLLECTION_STATE_NO_SUBSCRIPTION, Since: b.GetCreated()}.Build()
 }
 
 // relayedFor is the account a PayerService call was relayed for: the key, and
@@ -412,6 +465,11 @@ func (v *Levyan) UpdateBillingAccount(ctx context.Context, req *levyanv1.UpdateB
 	if err != nil {
 		return nil, err
 	}
+	if b.GetChannel() == levyanv1.Channel_CHANNEL_BANK_KR && (req.HasBusiness() || req.GetClearBusiness()) {
+		// levyan's words (`server/payers`): the account's call is refused
+		// whole, and changes nothing.
+		return nil, status.Error(codes.FailedPrecondition, "the business a billing account paid by transfer is billed to is its contract's, and an operator's to change")
+	}
 	if req.HasName() {
 		b.SetName(req.GetName())
 	}
@@ -466,6 +524,9 @@ func (v *Levyan) StartCheckout(ctx context.Context, req *levyanv1.StartCheckoutR
 	b, err := v.own(a, req.GetBillingAccount())
 	if err != nil {
 		return nil, err
+	}
+	if c := b.GetChannel(); c != levyanv1.Channel_CHANNEL_MOR {
+		return nil, status.Errorf(codes.FailedPrecondition, "the billing account is billed through %s, which takes no checkout of the merchant of record's", c)
 	}
 	if s, ok := v.subs[b.GetId()]; ok && s.GetStatus() == levyanv1.SubscriptionStatus_SUBSCRIPTION_STATUS_ACTIVE {
 		return nil, status.Error(codes.FailedPrecondition, "the billing account is subscribed already (active): one subscription is collected through at a time")
@@ -523,6 +584,9 @@ func (v *Levyan) CompleteCheckout(ctx context.Context, req *levyanv1.CompleteChe
 			start, end := period(now)
 			c.v.SetState(levyanv1.CheckoutState_CHECKOUT_STATE_COMPLETED)
 			c.v.SetDone(timestamppb.New(now))
+			// Collected through the subscription it made from now, whatever
+			// the merchant said of the one before.
+			delete(v.collected, ba)
 			b, _ := v.own(a, ba)
 			v.subs[ba] = levyanv1.Subscription_builder{
 				Id:          newId(),

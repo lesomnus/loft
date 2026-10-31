@@ -18,6 +18,16 @@
 //	                                                fraud), restricting it from `restricted`: of
 //	                                                the billing account BA, or the one that pays
 //	                                                for it; without a workspace, of BA alone
+//	POST /e2e/collection?billing_account=BA&state=S the billing account BA collected as S says from
+//	                                                now (past_due, paused, canceled, needs_action,
+//	                                                no_subscription; or as its subscription says,
+//	                                                as_subscribed)
+//	POST /e2e/bank?account=ID&name=N&business=B&registration=R&email=E
+//	                                                a billing account of the roster account ID's
+//	                                                paid by transfer, called N, billed to the
+//	                                                business B by its registration R, its tax
+//	                                                invoices to E: opened as levyan's operator
+//	                                                opens one
 package main
 
 import (
@@ -123,6 +133,42 @@ func main() {
 			d.SetNextRetry(timestamppb.New(now.Add(24 * time.Hour)))
 		}
 		v.Dun(d, bills...)
+		w.WriteHeader(http.StatusNoContent)
+	})
+	m.HandleFunc("POST /e2e/collection", func(w http.ResponseWriter, r *http.Request) {
+		q := r.URL.Query()
+		state, ok := map[string]levyanv1.CollectionState{
+			"past_due":        levyanv1.CollectionState_COLLECTION_STATE_PAST_DUE,
+			"paused":          levyanv1.CollectionState_COLLECTION_STATE_PAUSED,
+			"canceled":        levyanv1.CollectionState_COLLECTION_STATE_CANCELED,
+			"needs_action":    levyanv1.CollectionState_COLLECTION_STATE_NEEDS_ACTION,
+			"no_subscription": levyanv1.CollectionState_COLLECTION_STATE_NO_SUBSCRIPTION,
+			"as_subscribed":   levyanv1.CollectionState_COLLECTION_STATE_UNSPECIFIED,
+		}[q.Get("state")]
+		if !ok {
+			http.Error(w, "state: past_due, paused, canceled, needs_action, no_subscription or as_subscribed", http.StatusBadRequest)
+			return
+		}
+		ba := q.Get("billing_account")
+		if _, err := pdid.Parse(ba); err != nil {
+			http.Error(w, "billing_account: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+		v.Collect(ba, state)
+		w.WriteHeader(http.StatusNoContent)
+	})
+	m.HandleFunc("POST /e2e/bank", func(w http.ResponseWriter, r *http.Request) {
+		q := r.URL.Query()
+		account, err := pdid.Parse(q.Get("account"))
+		if err != nil {
+			http.Error(w, "account: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+		v.Bank(account.String(), q.Get("name"), levyanv1.Business_builder{
+			Registration: q.Get("registration"),
+			Name:         q.Get("business"),
+			Email:        q.Get("email"),
+		}.Build())
 		w.WriteHeader(http.StatusNoContent)
 	})
 
