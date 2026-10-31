@@ -29,6 +29,7 @@ import (
 	"log/slog"
 	"net"
 	"os"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -48,6 +49,7 @@ import (
 	"github.com/lesomnus/roster/rstr"
 	rostercore "github.com/lesomnus/roster/server/core"
 	"github.com/lesomnus/roster/server/front"
+	"github.com/lesomnus/roster/standing"
 )
 
 // Config is `auth.roster`.
@@ -121,17 +123,18 @@ const Agent = "loft"
 // somebody can administer it, with no way to sign in until it is given one.
 const RosterAdministrator = rostercore.Administers
 
-// AgentMethods is what that holder may call: checking a password, reading a
-// person and their tenant, the addresses somebody checked for them -- which is
-// whose an invitation is (`Store.Addresses`) -- the stream of what stopped
-// being good about somebody (`Store.Follow`), the ledger of what an account
-// agreed to of this deployment's documents (`Store.Owed`, `Store.Agree`,
-// `Store.Agreements`), and, for a tenant key, whose key it is. It is the
-// `--role` an external roster installs Loft with:
+// AgentMethods is what that holder may call: what roster's `standing` asks
+// for ([standing.Methods]: an account's standing, the stream of what stopped
+// being good about somebody, and the addresses somebody checked for them --
+// which is whose an invitation is), and what Loft asks itself -- checking a
+// password, reading a tenant, the ledger of what an account agreed to of this
+// deployment's documents (`Store.Owed`, `Store.Agree`, `Store.Agreements`),
+// and, for a tenant key, whose key it is. It is the `--role` an external
+// roster installs Loft with:
 //
-//	roster app install --tenant acme --role /roster.VouchService/Verify,\
-//	  /roster.HolderService/Get,/roster.TenantService/Get,/roster.MeService/Get,\
-//	  /roster.EmailService/List,/roster.EmailService/Get,/roster.SyncService/Watch,\
+//	roster app install --tenant acme --role /roster.HolderService/Get,\
+//	  /roster.SyncService/Watch,/roster.EmailService/List,/roster.EmailService/Get,\
+//	  /roster.VouchService/Verify,/roster.TenantService/Get,/roster.MeService/Get,\
 //	  /roster.ConsentService/Agree,/roster.ConsentService/Settled,/roster.ConsentService/List loft
 //
 // Not `ConsentService/Withdraw`: every document Loft asks for is required,
@@ -151,18 +154,14 @@ const RosterAdministrator = rostercore.Administers
 // People are made, given passwords and suspended at roster, by whoever
 // administers the tenant there; on the embedded roster Loft does those through
 // the deployment's own door, which is not a role.
-var AgentMethods = []string{
+var AgentMethods = append(slices.Clone(standing.Methods),
 	"/roster.VouchService/Verify",
-	"/roster.HolderService/Get",
 	"/roster.TenantService/Get",
 	"/roster.MeService/Get",
-	"/roster.EmailService/List",
-	"/roster.EmailService/Get",
-	"/roster.SyncService/Watch",
 	"/roster.ConsentService/Agree",
 	"/roster.ConsentService/Settled",
 	"/roster.ConsentService/List",
-}
+)
 
 // The prefixes a key is read by, the way roster reads them.
 const (
@@ -195,8 +194,10 @@ type Person struct {
 
 var (
 	// ErrRefused is a wrong password, or nobody by that name: one answer for
-	// both, as roster gives it.
-	ErrRefused = errors.New("refused")
+	// both, as roster gives it -- and a session roster's word does not hold
+	// any more ([Store.Held]). It is `standing`'s, so that either reads as
+	// itself.
+	ErrRefused = standing.ErrRefused
 	// ErrSecondFactor is a right password for somebody who has more to prove:
 	// a second factor, which they prove at roster's issuer. A password alone
 	// is never a sign-in for them.
@@ -204,14 +205,16 @@ var (
 	// ErrNoTenant is a tenant this deployment does not serve: one that did not
 	// nominate its key, or no such tenant on the embedded roster.
 	ErrNoTenant = errors.New("no such tenant here")
-	// ErrNoPerson is nobody by that name in a tenant this deployment serves.
-	ErrNoPerson = errors.New("no such person")
+	// ErrNoPerson is nobody by that name in a tenant this deployment serves:
+	// `standing`'s, which [Store.StandingOf] answers.
+	ErrNoPerson = standing.ErrNoPerson
 	// ErrExternal is an operation only the embedded roster takes: on an
 	// external one it is the tenant administrator's, at roster.
 	ErrExternal = errors.New("people and tenants are made at roster, which is not this process")
 	// ErrUnreachable is a roster that could not be asked. A session is not
-	// served while it lasts: what roster would have said is not known.
-	ErrUnreachable = errors.New("roster cannot be asked just now")
+	// served while it lasts: what roster would have said is not known. It is
+	// `standing`'s, which [Store.Held] answers.
+	ErrUnreachable = standing.ErrUnreachable
 	// ErrNoDirectory is a directory that is not there yet: on the roster in
 	// this process, before `loft init` or `loft identity migrate` made it.
 	ErrNoDirectory = errors.New("there is no directory of accounts yet: `loft init` makes it")
@@ -237,9 +240,9 @@ type Store struct {
 	mu     sync.Mutex
 	agents map[string]bool
 
-	// What roster said of each person a session names, and when.
-	hmu  sync.Mutex
-	held map[pdid.Id]held
+	// accounts is roster's `standing` on this connection: what a session is
+	// held to, the stream, and the asking again ([Store.Accounts]).
+	accounts *standing.Accounts
 
 	// The directory, once it was found.
 	dmu sync.Mutex
@@ -247,10 +250,6 @@ type Store struct {
 
 	// now is the clock, for the tests.
 	now func() time.Time
-	// refused is how long a sync stream roster refused is left before it is
-	// asked for again ([Store.Follow]): long enough not to fill a log, short
-	// enough that the install which fixes it is noticed without a restart.
-	refused time.Duration
 
 	// What roster said about tenants, kept: for an `rk_` the tenants that
 	// nominated it and when that was asked, for an `rt_` the key's own, and
@@ -271,7 +270,7 @@ func Open(ctx context.Context, cfg Config, stateDir string, log *slog.Logger) (*
 	if log == nil {
 		log = slog.Default()
 	}
-	s := &Store{cfg: cfg, log: log, agents: map[string]bool{}, held: map[pdid.Id]held{}, aliases: map[pdid.Id]string{}, now: time.Now, refused: 10 * time.Minute}
+	s := &Store{cfg: cfg, log: log, agents: map[string]bool{}, aliases: map[pdid.Id]string{}, now: time.Now}
 	if cfg.Embedded() {
 		if cfg.Key != "" || cfg.CaFile != "" || cfg.Insecure || cfg.AccountUrl != "" {
 			return nil, errors.New("auth.roster: key, ca_file, insecure and account_url are an external roster's, and addr names none")
@@ -286,6 +285,10 @@ func Open(ctx context.Context, cfg Config, stateDir string, log *slog.Logger) (*
 			grpc.WithTransportCredentials(insecure.NewCredentials()))
 		if err != nil {
 			em.Close()
+			return nil, err
+		}
+		if err := s.keepAsking(); err != nil {
+			s.Close()
 			return nil, err
 		}
 
@@ -331,6 +334,10 @@ func Open(ctx context.Context, cfg Config, stateDir string, log *slog.Logger) (*
 		return nil, fmt.Errorf("auth.roster.addr: %w", err)
 	}
 	s.conn = conn
+	if err := s.keepAsking(); err != nil {
+		s.Close()
+		return nil, err
+	}
 	if strings.HasPrefix(s.key, prefixDeploymentKey) {
 		log.Info("identity: roster", "addr", cfg.Addr, "key", "deployment key; the tenants that nominated it")
 	} else {
@@ -339,6 +346,35 @@ func Open(ctx context.Context, cfg Config, stateDir string, log *slog.Logger) (*
 
 	return s, nil
 }
+
+// keepAsking is roster's `standing` on the connection, either roster's: what
+// Loft keeps asking roster after a sign-in, written once in roster for every
+// app that does (roster's `docs/relying-app.md`). It asks as Loft's holder in
+// the directory, as everything here does.
+func (s *Store) keepAsking() error {
+	v, err := standing.New(standing.Config{
+		Conn: s.conn,
+		Log:  s.log,
+		As: func(ctx context.Context) (context.Context, error) {
+			as, _, err := s.inDirectory(ctx)
+			return as, err
+		},
+		Now: func() time.Time { return s.now() },
+	})
+	if err != nil {
+		return err
+	}
+	s.accounts = v
+
+	return nil
+}
+
+// Accounts is this deployment's accounts as roster has them -- roster's
+// `standing`: what a session is held to ([Store.Held]), roster's stream as a
+// loop ([standing.Accounts.Follower]), and the asking again before a mark is
+// acted on, and for what the stream missed ([standing.Accounts.Settle],
+// [standing.Accounts.Reconcile]).
+func (s *Store) Accounts() *standing.Accounts { return s.accounts }
 
 // ResolveRef reads a secret's reference: `env:NAME`, `file:PATH`, or the value
 // itself.
@@ -653,34 +689,7 @@ func (s *Store) ById(ctx context.Context, sub string) (Person, error) {
 // their own, and a provider passes it on (nOAuth); roster keeps it, with
 // nothing claimed, and an invitation found by it would go to whoever typed it.
 func (s *Store) Addresses(ctx context.Context, account pdid.Id) ([]string, error) {
-	as, _, err := s.inDirectory(ctx)
-	if err != nil {
-		return nil, err
-	}
-	c := rstr.NewEmailServiceClient(s.conn)
-	vs, err := c.List(as, rstr.EmailListRequest_builder{
-		Filters: []*rstr.EmailFilter{rstr.EmailFilter_builder{
-			Holder: rstr.HolderRef_builder{Id: account.Bytes()}.Build(),
-		}.Build()},
-	}.Build())
-	if err != nil {
-		return nil, fmt.Errorf("roster: %w", err)
-	}
-	var out []string
-	for _, v := range vs.GetItems() {
-		// Listed narrow and read whole: what a list answers is not the stamp.
-		e, err := c.Get(as, rstr.EmailGetRequest_builder{
-			Ref:    rstr.EmailRef_builder{Id: v.GetId()}.Build(),
-			Select: rstr.EmailSelect_builder{Address: z.Ptr(true), DateVerified: z.Ptr(true)}.Build(),
-		}.Build())
-		if err != nil {
-			return nil, fmt.Errorf("roster: %w", err)
-		}
-		if e.HasDateVerified() {
-			out = append(out, strings.ToLower(strings.TrimSpace(e.GetAddress())))
-		}
-	}
-	return out, nil
+	return s.accounts.Addresses(ctx, account)
 }
 
 func (s *Store) person(as context.Context, ref *rstr.HolderRef) (Person, error) {
@@ -818,248 +827,40 @@ func (s *Store) inDirectory(ctx context.Context) (context.Context, Directory, er
 // deletes it where their directory offers that; empty for none.
 func (s *Store) AccountPage() string { return s.cfg.AccountUrl }
 
-// Standing is what roster says of somebody now: when everything issued to them
-// before stopped being good, when they were suspended, when they were erased,
-// and when the directory they are in was closed (roster#105); zero for not.
-type Standing struct {
-	Holder, Tenant                        pdid.Id
-	Invalidated, Disabled, Erased, Closed time.Time
-}
+// Standing is what roster says of an account now -- when everything issued to
+// them before stopped being good, when they were suspended, when they were
+// erased, and when the directory they are in was closed (roster#105) -- as
+// roster's `standing` says it.
+type Standing = standing.Standing
 
-// Since is the latest of the four: what was issued before it, or at all when
-// they are suspended, erased or their directory is closed, is not good. Zero
-// is good standing.
-func (v Standing) Since() time.Time {
-	t := v.Invalidated
-	for _, u := range []time.Time{v.Disabled, v.Erased, v.Closed} {
-		if u.After(t) {
-			t = u
-		}
-	}
-
-	return t
-}
-
-// Good says whether something issued at `at` is still good: a session that
-// began then, say.
-func (v Standing) Good(at time.Time) bool {
-	return v.Disabled.IsZero() && v.Erased.IsZero() && v.Closed.IsZero() && !at.Before(v.Invalidated)
-}
-
-// StandingOf is what roster says of an account now. ErrNoPerson is somebody
-// roster does not have any more; anything else is a roster that could not be
-// asked. It is what a session is held to on every call it makes.
+// StandingOf is what roster says of an account now, asked every time and kept
+// nowhere. [ErrNoPerson] is somebody roster does not have any more; anything
+// else is a roster that could not be asked. It reads the four facts and
+// nothing of the person's: a read of those would be a row of roster's access
+// record every time a session is held to it.
 func (s *Store) StandingOf(ctx context.Context, account pdid.Id) (Standing, error) {
-	as, d, err := s.inDirectory(ctx)
-	if err != nil {
-		return Standing{}, err
-	}
-	v, err := rstr.NewHolderServiceClient(s.conn).Get(as, rstr.HolderGetRequest_builder{
-		Ref:    rstr.HolderRef_builder{Id: account.Bytes()}.Build(),
-		Select: rstr.HolderSelect_builder{All: z.Ptr(true)}.Build(),
-	}.Build())
-	if err != nil {
-		if status.Code(err) == codes.NotFound {
-			return Standing{}, ErrNoPerson
-		}
-
-		// A directory that is closed is closed to this deployment's key too
-		// (roster#105), so its people are asked about as a roster that will
-		// not answer -- which is no session either.
-		return Standing{}, fmt.Errorf("roster: %w", err)
-	}
-	st := Standing{Holder: account, Tenant: d.Id}
-	if t := v.GetDateInvalidated(); t != nil {
-		st.Invalidated = t.AsTime()
-	}
-	if t := v.GetDateDisabled(); t != nil {
-		st.Disabled = t.AsTime()
-	}
-	if t := v.GetDateErased(); t != nil {
-		st.Erased = t.AsTime()
-	}
-
-	return st, nil
+	return s.accounts.StandingOf(ctx, account)
 }
 
 // HeldTtl is how long what roster says of a person is believed before it is
 // asked again: how late a suspension, an erasure or signing out everywhere
-// reaches a session already open.
-const HeldTtl = 30 * time.Second
+// reaches a session already open, when the stream did not carry it first.
+const HeldTtl = standing.HeldTtl
 
 // HeldRetry is how long a roster that could not be asked is not asked again,
 // so that one that is down is not asked once per call.
-const HeldRetry = 5 * time.Second
-
-type held struct {
-	st  Standing
-	err error
-	at  time.Time
-}
+const HeldRetry = standing.HeldRetry
 
 // Held says whether a session that began at `began` is still good, by what
-// roster says of the account it names: ErrRefused when they were suspended,
-// erased or signed out everywhere since -- or are not there at all -- and
-// ErrUnreachable when roster could not be asked, which is a refusal too.
-//
-// A call that ends while roster is being asked -- its page was left half
-// loaded, or it ran out of its own time -- is told so, and nothing is kept of
-// it: that is the caller's doing and not roster's. Kept as roster's, it was a
-// refusal of every call the account made for [HeldRetry].
+// roster says of the account it names: [ErrRefused] when they were suspended,
+// erased or signed out everywhere since, their directory closed -- or are not
+// there at all -- and [ErrUnreachable] when roster could not be asked, which is
+// a refusal too. Believed for [HeldTtl], and a roster that could not be asked
+// for [HeldRetry]; a call that ends while roster is asked keeps nothing of it.
 func (s *Store) Held(ctx context.Context, holder pdid.Id, began time.Time) error {
-	now := s.now()
-	s.hmu.Lock()
-	v, ok := s.held[holder]
-	s.hmu.Unlock()
-	// Somebody roster does not have is an answer, and kept as long as one.
-	known := v.err == nil || errors.Is(v.err, ErrNoPerson)
-	fresh := ok && (known && now.Sub(v.at) < HeldTtl || !known && now.Sub(v.at) < HeldRetry)
-	if !fresh {
-		st, err := s.StandingOf(ctx, holder)
-		if err != nil && ctx.Err() != nil {
-			return fmt.Errorf("the call ended before roster answered: %w", ctx.Err())
-		}
-		v = held{st: st, err: err, at: now}
-		s.hmu.Lock()
-		s.held[holder] = v
-		s.hmu.Unlock()
-	}
-
-	switch {
-	case errors.Is(v.err, ErrNoPerson):
-		return fmt.Errorf("%w: roster has no such person", ErrRefused)
-	case v.err != nil:
-		return fmt.Errorf("%w: %w", ErrUnreachable, v.err)
-	case !v.st.Good(began):
-		return fmt.Errorf("%w: suspended, erased or signed out everywhere since", ErrRefused)
-	}
-
-	return nil
-}
-
-// Follow holds roster's sync stream open and hands `on` each account it
-// speaks of, with what roster says of it now: signed out everywhere,
-// suspended, erased, or none of them any more (roster's `SyncService`). It is
-// how a session already open ends when roster says so, rather than at its
-// next call, and how an erased account begins to leave (`server/lifecycle`).
-//
-// It is for a roster of its own. The one in this process has no broker, and
-// every change to its people is made from here and seen here at once.
-//
-// # What a stream promises, and what it does not
-//
-// What changed while it was open, and nothing else: it replays nothing. So a
-// stream that ended is one that missed things, and opening it again forgets
-// what was known of everybody -- [Store.Held] asks again -- rather than trusting
-// answers that may have changed unheard. It is opened again until ctx ends,
-// waiting longer each time it will not open.
-//
-// A stream roster refuses is said once in so many words and asked for again
-// rarely: no retry changes a role without `SyncService/Watch` in it, or a
-// roster with no broker. Nothing stops working -- a session still ends at its
-// next call, within [HeldTtl] -- but an erased account is not heard leaving.
-func (s *Store) Follow(ctx context.Context, on func(ctx context.Context, v Standing) error) error {
-	if s.em != nil {
-		<-ctx.Done()
-		return nil
-	}
-	wait := time.Second
-	for {
-		began := s.now()
-		err := s.follow(ctx, on)
-		if ctx.Err() != nil {
-			return nil
-		}
-		if s.now().Sub(began) > time.Minute {
-			wait = time.Second
-		}
-
-		pause := wait
-		switch status.Code(err) {
-		case codes.PermissionDenied:
-			s.log.ErrorContext(ctx, "roster: the sync stream is refused to this deployment; "+
-				"Loft's role at roster wants /roster.SyncService/Watch, which `roster role patch` adds "+
-				"and installing again does not (README). "+
-				"Until then a session ends at its next call rather than when roster ends it, "+
-				"and an erased account is not heard leaving", slog.Any("err", err))
-			pause = s.refused
-		case codes.Unimplemented:
-			s.log.ErrorContext(ctx, "roster: this roster publishes no changes (its watch.broker), so there is no stream to hold. "+
-				"A session ends at its next call rather than when roster ends it, "+
-				"and an erased account is not heard leaving", slog.Any("err", err))
-			pause = s.refused
-		default:
-			s.log.WarnContext(ctx, "roster: the sync stream ended; opening it again", "in", wait.String(), "err", fmt.Sprint(err))
-			wait = min(wait*2, 30*time.Second)
-		}
-		select {
-		case <-ctx.Done():
-			return nil
-		case <-time.After(pause):
-		}
-	}
-}
-
-func (s *Store) follow(ctx context.Context, on func(ctx context.Context, v Standing) error) error {
-	as, _, err := s.inDirectory(ctx)
-	if err != nil {
-		return err
-	}
-	stream, err := rstr.NewSyncServiceClient(s.conn).Watch(as, rstr.SyncWatchRequest_builder{}.Build())
-	if err != nil {
-		return fmt.Errorf("roster: %w", err)
-	}
-	// Whatever was known before this opened may have changed unheard.
-	s.hmu.Lock()
-	clear(s.held)
-	s.hmu.Unlock()
-
-	for {
-		ev, err := stream.Recv()
-		if err != nil {
-			return fmt.Errorf("roster: %w", err)
-		}
-		st, err := standingOf(ev)
-		if err != nil {
-			s.log.WarnContext(ctx, "roster: a sync event about nobody this reads", slog.Any("err", err))
-			continue
-		}
-		s.Recheck(st.Holder)
-		if err := on(ctx, st); err != nil {
-			// Said and not fatal: the next call the account makes asks
-			// roster anyway, and the next event about it is the whole truth.
-			s.log.WarnContext(ctx, "roster: a sync event was not carried out here", "holder", st.Holder.String(), slog.Any("err", err))
-		}
-	}
-}
-
-// standingOf is a sync event as the four facts it carries.
-func standingOf(ev *rstr.SyncEvent) (Standing, error) {
-	h, err := pdid.From(ev.GetHolder())
-	if err != nil {
-		return Standing{}, err
-	}
-	t, _ := pdid.From(ev.GetTenant())
-	st := Standing{Holder: h, Tenant: t}
-	if v := ev.GetDateInvalidated(); v != nil {
-		st.Invalidated = v.AsTime()
-	}
-	if v := ev.GetDateDisabled(); v != nil {
-		st.Disabled = v.AsTime()
-	}
-	if v := ev.GetDateErased(); v != nil {
-		st.Erased = v.AsTime()
-	}
-	if v := ev.GetDateClosed(); v != nil {
-		st.Closed = v.AsTime()
-	}
-	return st, nil
+	return s.accounts.Held(ctx, holder, began)
 }
 
 // Recheck drops what is known of a person, for a change made here to be seen
 // on the next call rather than after [HeldTtl].
-func (s *Store) Recheck(holder pdid.Id) {
-	s.hmu.Lock()
-	delete(s.held, holder)
-	s.hmu.Unlock()
-}
+func (s *Store) Recheck(holder pdid.Id) { s.accounts.Recheck(holder) }

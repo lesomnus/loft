@@ -25,8 +25,9 @@ import (
 )
 
 // What roster says of an account is handed to [cmd.Server.Lifecycle] here as
-// the stream from a roster of its own hands it (`identity.Store.Follow`, whose
-// own test is the stream): the roster in this process has none.
+// the stream from a roster of its own hands it (roster's
+// `standing.Accounts.Follower`, whose own tests are the stream): the roster in
+// this process has none.
 
 // TestRostersWordEndsTheSessionsHere: an account roster signed out everywhere,
 // suspended or erased has its sessions here ended then, rather than at each
