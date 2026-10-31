@@ -65,7 +65,7 @@ go run ./cmd/loft serve
 - 바로 잊어 달라는 요청은 운영자가 처리합니다. `loft identity depart --member @<워크스페이스>/<로그인>`은 그 계정이 떠날 워크스페이스를 보여 주고, `--yes`를 붙이면 지금 모든 워크스페이스에서 떠나게 합니다. 내장 roster면 계정도 roster에서 파기합니다.
 - roster의 동기화 스트림은 끊긴 사이의 일을 다시 보내지 않습니다. Loft가 듣고 있지 않을 때 삭제된 계정은 서버가 하루에 한 번(`app.accounts.reconcile`, 기본 24h, 0이나 음수면 끔) roster에 모든 계정을 다시 물어 찾아내고, 지금부터 떠나는 중으로 표시하고, 무엇을 표시했는지 서버 로그에 남깁니다. `loft identity reconcile`은 같은 일을 바로 하되 무엇을 할지 먼저 보여 주고, `--yes`를 붙이면 합니다. roster가 계정을 하나도 모른다고 답하면 디렉터리나 키가 잘못된 것으로 보고 아무것도 표시하지 않습니다.
 
-**roster를 따로 운영할 때**는 `auth.roster.addr` 에 주소를, `auth.roster.key` 에 키를, `auth.roster.directory` 에 계정이 있는 roster 테넌트를 줍니다. SaaS의 Loft는 roster 운영자가 만든 배포 키(`rk_…`)를 쓰고, 계정은 모두 그 디렉터리 하나에 있습니다. 한 조직이 직접 운영하는 Loft는 그 조직의 키(`rt_…`)를 쓰고, 디렉터리는 그 키의 테넌트입니다. 이때 `loft init`, `loft holder`, 사람 화면의 로그인 발급·비밀번호 변경은 거부되고 roster에서 합니다.
+**roster를 따로 운영할 때**는 `auth.roster.addr` 에 주소를, `auth.roster.key` 에 키를, `auth.roster.directory` 에 계정이 있는 roster 테넌트를 줍니다. SaaS의 Loft는 roster 운영자가 만든 배포 키(`rk_…`)를 쓰고, 계정은 모두 그 디렉터리 하나에 있습니다. 한 조직이 직접 운영하는 Loft는 그 조직의 키(`rt_…`)를 쓰고, 디렉터리는 그 키의 테넌트입니다. 이때 `loft init`, `loft holder`, 사람 화면의 로그인 발급·비밀번호 변경은 거부되고 roster에서 합니다. 내장 roster에서 옮기는 순서와 Kubernetes에서 키를 붙이는 곳은 [`deploy/k8s`](deploy/k8s/README.md)의 13에 있습니다.
 
 ```sh
 # roster 운영자: 배포 키를 만들고(rk_… 출력), 디렉터리에 Loft를 설치
@@ -89,10 +89,13 @@ LOFT_AUTH_ROSTER_KEY=env:ROSTER_KEY ROSTER_KEY=rk_… go run ./cmd/loft serve
 
 `auth.roster.account_url` 에 roster의 계정 페이지(디렉터리의 front door, 예: `https://id.example.com/`)를 주면, 내 정보 화면에 "로그인 방법 관리"와 "계정 탈퇴" 링크가 생깁니다. 탈퇴 링크는 그 페이지의 `#leave` 로 가고, 계정 삭제는 roster에서 합니다(`MeService.Leave`, roster#106). 삭제는 디렉터리가 허용할 때만 되므로, SaaS의 디렉터리는 roster 운영자가 `TenantConfig.leave` 를 켭니다(관리 콘솔의 테넌트 화면, 또는 resources 파일의 `config.leave`). 삭제된 계정은 위의 스트림으로 Loft에 들어와 떠나는 중이 됩니다.
 
-이 권한들이 없던 때 설치한 배포는 역할을 넓혀야 합니다. `app install`을 다시 실행해도 이미 있는 역할은 그대로 두므로(roster `docs/apps.md`), roster 운영자가 역할을 직접 고칩니다. 목록을 통째로 바꾸므로 전체를 줍니다.
+이 권한들이 없던 때 설치한 배포, 그리고 내장 roster에서 옮긴 뒤에 Loft가 더 묻게 된 배포는 역할을 넓혀야 합니다. `app install`을 다시 실행해도 이미 있는 역할은 그대로 두므로(roster `docs/apps.md`), roster 운영자가 역할을 직접 고칩니다. 목록을 통째로 바꾸므로 전체를 줍니다. 역할의 이름은 Loft가 그 디렉터리에 들어온 길을 따릅니다. `roster app install`로 설치한 배포는 `loft-app`이고, 내장 roster에서 옮긴 배포는 내장 roster가 만든 `loft`입니다(디렉터리를 따로 적지 않았다면 디렉터리도 `loft`라 `@loft/loft`).
 
 ```sh
+# roster app install로 설치한 배포 (위의 예: 디렉터리 accounts)
 roster role patch @accounts/loft-app '{"methods": ["/roster.VouchService/Verify", "/roster.HolderService/Get", "/roster.TenantService/Get", "/roster.MeService/Get", "/roster.EmailService/List", "/roster.EmailService/Get", "/roster.SyncService/Watch", "/roster.ConsentService/Agree", "/roster.ConsentService/Settled", "/roster.ConsentService/List"], "date_updated_force": true}'
+# 내장 roster에서 옮긴 배포 (디렉터리 loft)
+roster role patch @loft/loft '{"methods": ["/roster.VouchService/Verify", "/roster.HolderService/Get", "/roster.TenantService/Get", "/roster.MeService/Get", "/roster.EmailService/List", "/roster.EmailService/Get", "/roster.SyncService/Watch", "/roster.ConsentService/Agree", "/roster.ConsentService/Settled", "/roster.ConsentService/List"], "date_updated_force": true}'
 ```
 
 고치기 전까지는 초대 메일의 링크로 받은 초대장만 초대함에 보이고, 세션은 다음 호출에서(30초 안에) 끝나며, 삭제된 계정은 떠나는 중으로 표시되지 않습니다. 약관 동의를 묻는 배포는 계정이 동의했는지 알 수 없으므로 모든 계정의 호출이 거부됩니다(503, 서버 로그에 `roster role patch`가 적힙니다). 스트림을 거부당한 Loft는 서버 로그에 오류를 한 번 남기고 10분마다 다시 청하고, 동의 원장은 다음 호출에서 다시 물으므로, 역할을 고친 뒤 다시 시작하지 않아도 됩니다. 조직의 키(`rt_…`)로 붙은 배포는 키가 허용한 메서드에도 들어 있어야 하므로 키를 새로 만듭니다.

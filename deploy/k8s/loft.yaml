@@ -133,7 +133,9 @@ spec:
       # digested with, alone: a row a migration rewrites beneath the servers
       # is put on the trail with it, and the key is read only then -- a
       # database with nothing of the kind to rewrite migrates without reading
-      # it.
+      # it. And the key a roster of its own is called with, as in the two
+      # below: the migration opens the configuration's roster as they do, and
+      # reads the key as it opens it.
       initContainers:
         - name: migrate
           image: ghcr.io/lesomnus/loft
@@ -141,8 +143,11 @@ spec:
           env:
             - name: LOFT_DB_DSN
               valueFrom: { secretKeyRef: { name: loft, key: db-dsn } }
+            # The database of the roster in this process (`auth.roster.db`),
+            # which migrates itself whenever it is opened, here too; none on a
+            # roster of its own, whose key is mounted instead (README.md, 13).
             - name: LOFT_AUTH_ROSTER_DB_DSN
-              valueFrom: { secretKeyRef: { name: loft, key: roster-db-dsn } }
+              valueFrom: { secretKeyRef: { name: loft, key: roster-db-dsn, optional: true } }
             # What Loft signs in to its search cluster with, when the
             # configuration names one (`app.search.opensearch`, README.md).
             - name: LOFT_APP_SEARCH_OPENSEARCH_PASSWORD
@@ -162,6 +167,7 @@ spec:
             - { name: config, mountPath: /etc/loft, readOnly: true }
             - { name: digest, mountPath: /run/secrets/loft, readOnly: true }
             - { name: search, mountPath: /run/secrets/loft-search, readOnly: true }
+            - { name: roster, mountPath: /run/secrets/loft-roster, readOnly: true }
             - { name: tmp, mountPath: /tmp }
 
       containers:
@@ -171,8 +177,10 @@ spec:
           env:
             - name: LOFT_DB_DSN
               valueFrom: { secretKeyRef: { name: loft, key: db-dsn } }
+            # The database of the roster in this process; none on a roster of
+            # its own (README.md, 13).
             - name: LOFT_AUTH_ROSTER_DB_DSN
-              valueFrom: { secretKeyRef: { name: loft, key: roster-db-dsn } }
+              valueFrom: { secretKeyRef: { name: loft, key: roster-db-dsn, optional: true } }
             # What Loft signs in to its search cluster with, when the
             # configuration names one (`app.search.opensearch`, README.md).
             - name: LOFT_APP_SEARCH_OPENSEARCH_PASSWORD
@@ -210,6 +218,7 @@ spec:
             - { name: keys, mountPath: /run/secrets/loft, readOnly: true }
             - { name: search, mountPath: /run/secrets/loft-search, readOnly: true }
             - { name: levyan, mountPath: /run/secrets/loft-levyan, readOnly: true }
+            - { name: roster, mountPath: /run/secrets/loft-roster, readOnly: true }
             - { name: tmp, mountPath: /tmp }
 
         # The operator's entry point, here rather than in a Deployment of its
@@ -224,7 +233,7 @@ spec:
             - name: LOFT_DB_DSN
               valueFrom: { secretKeyRef: { name: loft, key: db-dsn } }
             - name: LOFT_AUTH_ROSTER_DB_DSN
-              valueFrom: { secretKeyRef: { name: loft, key: roster-db-dsn } }
+              valueFrom: { secretKeyRef: { name: loft, key: roster-db-dsn, optional: true } }
             # What Loft signs in to its search cluster with, when the
             # configuration names one (`app.search.opensearch`, README.md).
             - name: LOFT_APP_SEARCH_OPENSEARCH_PASSWORD
@@ -257,6 +266,7 @@ spec:
             - { name: operators, mountPath: /run/secrets/loft-admin, readOnly: true }
             - { name: search, mountPath: /run/secrets/loft-search, readOnly: true }
             - { name: levyan, mountPath: /run/secrets/loft-levyan, readOnly: true }
+            - { name: roster, mountPath: /run/secrets/loft-roster, readOnly: true }
             - { name: tmp, mountPath: /tmp }
 
       volumes:
@@ -290,6 +300,12 @@ spec:
         # migration, which measures nothing.
         - name: levyan
           secret: { secretName: loft-levyan-key, optional: true, defaultMode: 288 }
+        # The key Loft calls a roster of its own with, `key`
+        # (`auth.roster.key`): in all three, since each opens the
+        # configuration's roster -- and none, for the roster in this process,
+        # which needs no key (README.md, 13).
+        - name: roster
+          secret: { secretName: loft-roster-key, optional: true, defaultMode: 288 }
         # Somewhere writable, since the root is not.
         - name: tmp
           emptyDir: {}
