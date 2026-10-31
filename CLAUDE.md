@@ -423,6 +423,19 @@ roster restoring the account. `Offer`, the payer's screens and the
 free-workspace rule are not built yet; `ErrOwnsEnough` stays the
 deployment's cap until collection runs.
 
+Paddle's default payment link is `/billing/checkout` (`server/checkout`,
+design 7.7, D61): with `app.billing.checkout` -- Paddle's environment and the
+client-side token, both public by Paddle's design -- it loads Paddle.js, which
+opens the checkout of the transaction in `_ptxn` by itself; unset, it answers
+404. Nobody signs in to it, and it reads and writes nothing. It is the one page
+whose Content Security Policy names Paddle (`csp.With`, chosen by path in
+`cmd.Front`): a host Paddle needs goes in `checkout.Sources` and nowhere else,
+and only one Paddle.js is seen to load -- Paddle publishes no list. A token is
+refused where it is written (`checkout.Token.Validate`; the block's
+`Validate`, which the loader asks first, hands it the environment). The
+browser tests replace Paddle.js (`ts/e2e/paddle.ts`), and nothing reaches
+Paddle.
+
 ## What may be called
 
 `server/policy` is one table of role → RPC, and what is not in it is refused --

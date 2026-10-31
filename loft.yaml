@@ -235,6 +235,15 @@ app:
   #     insecure: true
   #     # tls: {ca_file: /etc/loft/levyan-ca.pem}
   #     # timeout: 10s
+  #
+  #   # The page Paddle's default payment link is, /billing/checkout (design
+  #   # 7.7): Paddle's environment, and the client-side token Paddle.js is
+  #   # initialized with there -- test_… in the sandbox, live_… live, public
+  #   # as Paddle made it. A token of the other environment, or one of
+  #   # Paddle's secrets, is refused where it is written. Unset, no page.
+  #   checkout:
+  #     environment: sandbox
+  #     client_token: test_000000000000000000000000000
 
 # How long the trail keeps a row. Every write this app makes is recorded, and
 # **nothing else applies a window**: with no block here the table is kept whole,

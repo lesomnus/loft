@@ -382,6 +382,25 @@ PostgreSQL이면 서버를 여러 대 띄울 수 있습니다. 상태는 데이�
 - **지불자**(design 7.6): 워크스페이스를 만들 때와 구성원 자격이 끝날 때, 같은 트랜잭션에 levyan에 알릴 것을 남기고(`LevyanNotice`), 루프 `loft.levyan.notices`가 10초마다 levyan의 `WorkspaceService`(`Arrive`, `Leave`)로 보냅니다. 워크스페이스마다 일어난 순서대로입니다. levyan이 멈춰도 Loft의 쓰기는 기다리지도 실패하지도 않고, 알림이 기다렸다가 levyan이 돌아오면 나갑니다. 루프가 처음 돌 때, levyan에 알린 적 없는 워크스페이스를 한 번씩 만든 때와 첫 소유자로 알립니다(levyan을 붙이기 전에 있던 것). 기다리는 알림이 있는데 levyan이 답하지 않으면 경고 로그(`levyan: who pays for a workspace waits to be told`)가 남습니다.
 - 흐름(전송량 같은 것), 워크스페이스의 닫힘·복구·파기, 지불자 제안과 결제 화면은 아직 없습니다(levyan#14).
 
+### 결제 링크 페이지 (Paddle)
+
+Paddle은 거래마다 결제창 링크를 만듭니다. 기본 결제 링크(default payment link)에 `?_ptxn=<거래 ID>`를 붙인 것이고, 결제수단을 바꾸라는 Paddle의 메일도 이 링크를 씁니다. Loft의 `/billing/checkout`이 그 페이지입니다(design 7.7, D61). 페이지가 Paddle.js를 불러 초기화하면 Paddle.js가 주소의 거래로 결제창을 스스로 엽니다. `_ptxn`이 없으면 결제할 것이 없다고 말합니다. 로그인하지 않아도 열립니다.
+
+```yaml
+app:
+  billing:
+    checkout:
+      environment: sandbox                           # sandbox 또는 live
+      client_token: test_000000000000000000000000000 # 그 환경의 클라이언트 토큰(이 값은 예)
+```
+
+- 환경변수로는 `LOFT_APP_BILLING_CHECKOUT_ENVIRONMENT`, `LOFT_APP_BILLING_CHECKOUT_CLIENT_TOKEN`입니다.
+- 클라이언트 토큰은 Paddle의 **Paddle > My account > Settings > Authentication**의 Client-side tokens에서 만듭니다. 공개용이라 비밀이 아닙니다(브라우저마다 갑니다). 그래도 저장소에는 넣지 않습니다.
+- 샌드박스는 `test_`, live는 `live_`로 시작해야 하고, Paddle이 말하는 모양(접두사 뒤 영숫자 27자)이어야 합니다. 아니면 설정을 읽을 때 그 위치(`loft.yaml:줄:열` 또는 환경변수)와 함께 거부하고 서버가 뜨지 않습니다. `pdl_`로 시작하는 API 키나 알림의 비밀을 넣으면 공개되는 값이므로 거부합니다. 오류는 값을 말하지 않습니다.
+- 설정이 없으면 페이지가 없습니다(404).
+- Paddle 쪽에서는 **Paddle > Checkout > Checkout configuration**의 기본 결제 링크를 `https://<이 배포의 주소>/billing/checkout`으로 둡니다. live에서는 그 도메인이 승인되어 있어야 합니다(**Website approval**). 샌드박스는 승인 없이 됩니다.
+- 이 페이지만 Paddle의 스크립트를 부르므로, 콘텐츠 보안 정책도 이 페이지에만 Paddle의 호스트를 더합니다(아래 'CSP').
+
 ### 운영에 띄우기 (운영자)
 
 [`deploy/compose`](deploy/compose/README.md)가 한 대의 서버에 띄우는 운영 구성 전체입니다. PostgreSQL, 마이그레이션, `loft serve` 두 대, 운영자 진입점, 인증서를 받는 Caddy가 들어 있습니다. 운영자가 채울 것은 도메인과 비밀값(`.env`, `secrets/`)이고, 이미지는 저장소 루트의 `Dockerfile`로 짓습니다(`docker build -t loft .`).
@@ -485,6 +504,8 @@ Kubernetes에 띄우는 참조 배포는 [`deploy/k8s`](deploy/k8s/README.md)입
 ### 콘텐츠 보안 정책 (CSP)
 
 모든 화면은 콘텐츠 보안 정책과 함께 나갑니다(`server/csp`). 페이지는 이 서버의 스크립트·스타일·이미지와 직접 그린 QR(`data:`), 이 서버의 API만 씁니다. 폼은 이 서버, 서비스 주소, SSO issuer로만 보냅니다. 워크스페이스 도메인에서 로그아웃하는 폼은 서비스 주소에서 끝나고, 브라우저는 폼이 넘겨 가는 곳도 정책으로 따지기 때문입니다. 누가 페이지에 스크립트를 끼워 넣어도 브라우저가 실행하지 않게 하는 장치입니다.
+
+Paddle의 결제 링크 페이지(`/billing/checkout`, `app.billing.checkout`이 있을 때)만은 Paddle의 것을 더한 정책으로 나갑니다. `script-src`에 `https://cdn.paddle.com`, `frame-src`에 그 환경의 결제창(샌드박스 `https://sandbox-buy.paddle.com`, live `https://buy.paddle.com`), `style-src`에 그 환경의 CDN(샌드박스 `https://sandbox-cdn.paddle.com`, live `https://cdn.paddle.com`)과 `'unsafe-inline'`입니다. Paddle.js가 결제창의 틀을 `style` 속성으로 놓기 때문입니다. Paddle은 이 목록을 문서로 내지 않아서, 문서가 말하는 것과 Paddle.js가 실제로 부르는 것으로 정했습니다(design 7.7). live의 Paddle.js가 부르는 Retain(`https://public.profitwell.com`)은 결제창이 아니라서 넣지 않았고, report-only에서는 그것이 로그에 보고됩니다.
 
 지금은 `app.csp: report-only`(기본)라 막지는 않습니다. 브라우저가 정책을 어긴 것을 `/csp-report`로 보내면 서버 로그에 `csp: a page did what the policy does not allow`로 남깁니다. 로그는 1분에 30줄까지이고, 넘친 것은 다음 줄에 개수만 남습니다. 주소의 쿼리는 지웁니다(첨부 주소의 서명 등). 운영에서 이 로그가 조용한 것을 확인한 뒤 `enforce`로 바꾸면 막습니다. `off`는 둘 다 하지 않습니다. 다른 사이트가 화면을 틀에 넣는 것은 설정과 상관없이 늘 막습니다.
 
