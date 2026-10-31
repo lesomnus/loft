@@ -331,11 +331,12 @@ PostgreSQL이면 서버를 여러 대 띄울 수 있습니다. 상태는 데이�
 
 ### 과금 (levyan)
 
-설정에 levyan이 없으면 아무것도 재지 않고, 아무것도 제한하지 않으며, levyan에 아무것도 알리지 않습니다. `app.billing.levyan`으로 청구 서비스 [levyan](https://github.com/lesomnus/levyan)을 주면 연결 하나로 세 가지를 합니다(design 7장, D59, D60).
+설정에 levyan이 없으면 아무것도 재지 않고, 아무것도 제한하지 않으며, levyan에 아무것도 알리지 않습니다. `app.billing.levyan`으로 청구 서비스 [levyan](https://github.com/lesomnus/levyan)을 주면 연결 하나로 네 가지를 합니다(design 7장, D59, D60, D62).
 
 - 워크스페이스마다 가진 것을 재서 levyan에 넘깁니다. 금액은 levyan이 가격표대로 매깁니다(아래 표).
 - levyan이 워크스페이스마다 주는 권한(Grant)을 이 배포의 DB에 사본으로 둡니다. levyan이 `loft.restricted`를 켠 워크스페이스는 제한됩니다(아래 '제한').
 - 워크스페이스를 누가 만들었는지와 어느 계정이 떠났는지를 levyan에 알립니다. levyan은 그것으로 누가 내는지(지불자)를 정합니다(아래 '지불자').
+- 워크스페이스를 닫고, 되돌리고, 파기한 것을 levyan에 알립니다. levyan은 닫힌 동안 청구하지 않고, 파기하면 그때 청구를 끝냅니다(아래 '생애 사건').
 
 | 미터 | 단위 | 세는 것 |
 | --- | --- | --- |
@@ -379,8 +380,9 @@ PostgreSQL이면 서버를 여러 대 띄울 수 있습니다. 상태는 데이�
 - **실패했을 때:** levyan이 답하지 않거나 늦으면(`timeout`) 그 값을 1분 뒤부터 점점 길게, 다음 자정 전까지 그대로 다시 보냅니다. levyan은 같은 값(워크스페이스, 미터, 잰 시각)을 한 번만 남기므로 다시 보내도 됩니다. levyan이 거부한 값(가격표에 없는 미터, 미터의 것이 아닌 단위)은 경고 로그(`levyan: a reading was refused`)에 남기고 다시 보내지 않습니다. 가격표에 미터를 더하면 다음 측정부터 받습니다.
 - **연결:** 미터, 권한, 지불자 알림이 연결 하나를 씁니다. 권한의 스트림이 늘 열려 있으므로 5분마다 keepalive를 보냅니다. levyan의 `server.keepalive.min_time`은 5분보다 짧아야 합니다(짧지 않으면 levyan이 `too_many_pings`로 끊고, 사본은 다시 연결해 맞춥니다).
 - **제한**(design 7.5): levyan의 Grant를 lease 아래 한 프로세스가 따라 DB에 사본으로 둡니다(루프 `payday.entitle.follow`). `loft.restricted`가 켜진 워크스페이스는 청구되는 것을 늘리지 못합니다. 자산 등록(대량 등록, 재고 전환, 자산으로 받는 구매 입고 포함), 분실·폐기한 자산을 다시 쓰는 상태로 바꾸기, 첨부 올리기, 로그인 발급·초대 보내기·받아들이기, 이력을 지금보다 오래 보관하기입니다. 거절은 `FailedPrecondition`이고 화면에 "이 워크스페이스는 제한되어 …"라고 나옵니다. 보기, 내보내기, 지급·반납, 예약, 이동, 처분·삭제, 닫기, 결제는 그대로입니다. Grant가 없으면 제한하지 않으므로 levyan이 멈춰도 막히는 워크스페이스는 없습니다. 운영자의 명령(`loft holder add` 같은 것)은 막지 않습니다. 이 범위는 잠정입니다(levyan#1의 열린 질문 3).
-- **지불자**(design 7.6): 워크스페이스를 만들 때와 구성원 자격이 끝날 때, 같은 트랜잭션에 levyan에 알릴 것을 남기고(`LevyanNotice`), 루프 `loft.levyan.notices`가 10초마다 levyan의 `WorkspaceService`(`Arrive`, `Leave`)로 보냅니다. 워크스페이스마다 일어난 순서대로입니다. levyan이 멈춰도 Loft의 쓰기는 기다리지도 실패하지도 않고, 알림이 기다렸다가 levyan이 돌아오면 나갑니다. 루프가 처음 돌 때, levyan에 알린 적 없는 워크스페이스를 한 번씩 만든 때와 첫 소유자로 알립니다(levyan을 붙이기 전에 있던 것). 기다리는 알림이 있는데 levyan이 답하지 않으면 경고 로그(`levyan: who pays for a workspace waits to be told`)가 남습니다.
-- 흐름(전송량 같은 것), 워크스페이스의 닫힘·복구·파기, 지불자 제안과 결제 화면은 아직 없습니다(levyan#14).
+- **지불자**(design 7.6): 워크스페이스를 만들 때와 구성원 자격이 끝날 때, 같은 트랜잭션에 levyan에 알릴 것을 남기고(`LevyanNotice`), 루프 `loft.levyan.notices`가 10초마다 levyan의 `WorkspaceService`(`Arrive`, `Leave`)로 보냅니다. 워크스페이스마다 일어난 순서대로입니다. levyan이 멈춰도 Loft의 쓰기는 기다리지도 실패하지도 않고, 알림이 기다렸다가 levyan이 돌아오면 나갑니다. 루프가 처음 돌 때, levyan에 알린 적 없는 워크스페이스를 한 번씩 만든 때와 첫 소유자로 알립니다(levyan을 붙이기 전에 있던 것). 기다리는 알림이 있는데 levyan이 답하지 않으면 경고 로그(`levyan: what it is to be told of the workspaces waits`)가 남습니다.
+- **생애 사건**(design 7.8): 워크스페이스를 닫을 때와 되돌릴 때(소유자, 운영자, 구성원이 아무도 남지 않아 배포가 닫는 것 모두) 그 트랜잭션에 levyan에 알릴 것을 남기고, 파기할 때는 마지막 측정을 넘긴 뒤 무엇이든 지우기 전에 남깁니다. 같은 루프가 `WorkspaceService`(`Close`, `Restore`, `Destroy`)로 일어난 시각과 함께 보냅니다. levyan이 그 워크스페이스를 들은 적 없다고 답하면(`NotFound`) `Arrive`를 먼저 보내고 다시 보냅니다. levyan이 거부한 것은 Loft의 잘못이라 경고 로그(`levyan: what became of a workspace was refused, which is a fault of Loft's`)에 남기고 다시 보내지 않습니다. 루프가 처음 돌 때 그 전의 일을 한 번 알립니다. 남아 있는 닫기·되돌리기 이벤트를 오래된 것부터, 기록이 없는 곳은 지금 닫혀 있는 워크스페이스를, 그리고 levyan에 알린 워크스페이스 가운데 파기된 것을 주소 보류의 시각으로 알립니다. 로그 `levyan: what became of the workspaces before it was told of it is to be told it`가 몇 건인지 말합니다.
+- 흐름(전송량 같은 것), 지불자 제안과 결제 화면은 아직 없습니다(levyan#14).
 
 ### 결제 링크 페이지 (Paddle)
 
@@ -586,7 +588,7 @@ go run ./cmd/loft tenant purge --tenant loft --yes             # 감사 기록�
 - **purge**는 바닥값이 걸린 것까지 모두 지금 지웁니다. 그 조직이 바닥값의 법이 아닌 다른 법이나 계약 아래에 있어 모두 지워야 할 때 씁니다.
 - **기본은 retire입니다.** 닫힌 워크스페이스를 파기하는 sweep은 파기하는 순간 효력이 있는 계약을 따릅니다. 계약이 `--purge-floors`를 말하지 않으면(계약이 없을 때도) retire입니다. 줄어드는 보관 기간처럼, purge로 바꾸는 계약은 앞 계약이 retire였다면 배포의 유예(`app.retention.grace`)가 지난 뒤에 적용됩니다. 손으로 하는 `retire`와 `purge`는 이름대로 하고, 계약이 다른 쪽을 말하면 미리 보기에서 알려 줍니다.
 - **retire는 보관소가 있어야 합니다.** 남기는 기록과 그 조직이 떠났다는 서명된 기록을 보관소에 두기 때문입니다. 바닥값이 있는데 `audit.archive`가 없으면 아무것도 지우기 전에 거부합니다. 그런 배포에서 sweep은 그 워크스페이스를 닫힌 채로 두고 경고합니다(법적 보존이 걸린 것처럼). 보관소를 두면 다음 sweep이 retire하고, 바닥값을 포기해도 되면 `loft tenant purge --yes`나 `--purge-floors` 계약으로 지웁니다. 바닥값이 없는 배포(`loft.yaml`의 기본)에서 retire는 남길 것이 없어 purge와 같습니다.
-- **청구하는 배포는 지우기 전에 잽니다**(`app.billing.levyan`, design 7.3). sweep도 `retire`·`purge --yes`도 그 워크스페이스의 미터를 재서 levyan에 마지막 측정으로 넘긴 뒤에 지웁니다. **넘기지 못해도 지웁니다.** 파기는 기한이 있는 법적 의무라 청구 서비스를 기다리지 않습니다. 그때는 경고 로그(`closing: a workspace is destroyed without its final reading`)에 워크스페이스와 까닭이 남고, 명령은 그렇다고 한 줄(`meters: its final reading could not be handed to levyan, ...`) 말하고 성공합니다. levyan은 마지막 일일 측정을 이어서 매깁니다. 기다리는 시간은 호출의 끝(`timeout`, 기본 10초)까지입니다. `--yes` 없는 미리 보기는 재지 않습니다. (처음에는 넘기지 못하면 지우지 않았는데, Claude가 검토에서 이렇게 바꿨습니다.)
+- **청구하는 배포는 지우기 전에 잽니다**(`app.billing.levyan`, design 7.3). sweep도 `retire`·`purge --yes`도 그 워크스페이스의 미터를 재서 levyan에 마지막 측정으로 넘긴 뒤에 지웁니다. **넘기지 못해도 지웁니다.** 파기는 기한이 있는 법적 의무라 청구 서비스를 기다리지 않습니다. 그때는 경고 로그(`closing: a workspace is destroyed without its final reading`)에 워크스페이스와 까닭이 남고, 명령은 그렇다고 한 줄(`meters: its final reading could not be handed to levyan, ...`) 말하고 성공합니다. levyan은 마지막 일일 측정을 이어서 매깁니다. 기다리는 시간은 호출의 끝(`timeout`, 기본 10초)까지입니다. `--yes` 없는 미리 보기는 재지 않습니다. (처음에는 넘기지 못하면 지우지 않았는데, Claude가 검토에서 이렇게 바꿨습니다.) 그다음, 무엇이든 지우기 전에 levyan에 파기를 알릴 것을 남깁니다. 명령은 `levyan: it is to be told the workspace was destroyed …` 한 줄을 말하고, 돌고 있는 `loft serve`가 보냅니다(design 7.8). 미리 보기는 남기지 않습니다.
 - retire가 지운 행은 지웠다는 기록(`loft.workspace.retire`)으로 감사 기록에 남습니다. 바닥값이 걸린 종류의 것만 남고 나머지는 함께 지워지므로, `trail rows`가 그 행들을 `missing`으로 찾지 않습니다.
 - retire한 워크스페이스에는 나중에 법적 보존을 걸 수 없습니다. hold는 지금 있는 워크스페이스에 거는 것이고, 워크스페이스의 hold 기록도 함께 지워지기 때문입니다(loft#153). 파기 뒤에 보존 요청이 오면 남은 기록을 암호화된 파일로 꺼내 별도 매체에 보관합니다: [보존 요청 대응](docs/runbook/preserve.md). `loft tenant retired`가 무엇이 언제까지 남는지 보여 줍니다.
 
