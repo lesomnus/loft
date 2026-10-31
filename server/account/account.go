@@ -68,6 +68,10 @@ type Account struct {
 	// Service is the service's address, said where Pinned is: where the
 	// account's other workspaces are opened from (`/?workspaces` there).
 	Service string `json:"service,omitempty"`
+	// Billing says this deployment's workspaces are billed, by levyan: the
+	// page offers the account's payments (`/billing`) and a workspace's
+	// (design 7.9). Absent for one that bills nobody.
+	Billing bool `json:"billing,omitempty"`
 	// Identity is what the session asking lets its caller see, named as
 	// `authsession.IdentityOf` names it: what the page keeps what it was
 	// answered and what it has not sent yet for, and says on every call it
@@ -185,6 +189,11 @@ type Routes struct {
 	// domain sends somebody to for the account's other workspaces.
 	Home    func(ctx context.Context, workspace pdid.Id) (string, error)
 	Service string
+
+	// Billing says this deployment's workspaces are billed (`app.billing.
+	// levyan`): what the page draws the account's payments and a workspace's
+	// for (design 7.9).
+	Billing bool
 }
 
 // Mount serves `GET /account`, `POST /account/workspaces`, a workspace's
@@ -525,7 +534,7 @@ func (a Routes) accountOf(r *http.Request, ws tenancy.Workspaces, p identity.Per
 	if err != nil {
 		return Account{}, nil, err
 	}
-	out := Account{Id: p.Id.String(), Login: p.Alias, Name: p.Name, Workspaces: []Workspace{}}
+	out := Account{Id: p.Id.String(), Login: p.Alias, Name: p.Name, Workspaces: []Workspace{}, Billing: a.Billing}
 	if pin, ok := apphost.From(r.Context()); ok {
 		out.Pinned, out.Service = pin.Alias, a.Service
 	}
