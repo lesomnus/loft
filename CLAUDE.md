@@ -286,7 +286,9 @@ and from when, before it is saved. What is kept is what is seen: there is no
 view window. In the domain layer that is
 `t.zone()`, `t.when(at)` and `t.settings()`: a date a person reads, a file's
 dates, the day a count falls on, all in the workspace's zone, never a fixed
-one. `PartyService.Me` answers what the server tells it in, and the page draws
+one. `PartyService.Me` answers what the server tells it in -- and `GET
+/account`'s `timezone`, the deployment's `app.locale`, for the pages outside
+any workspace (`/billing`, the inbox) -- and the page draws
 and reads dates on that wall whatever the browser's zone (`localize`;
 `fromInput` and never `new Date(v)` for an input, `wall`, `at` and `shift` for
 a calendar's days). An amount is a whole number of its currency's minor unit
