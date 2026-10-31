@@ -1638,6 +1638,29 @@ ul.consent > li > a {
 	font-size: 13px;
 	font-weight: 600;
 }
+/* What restricts nothing: a billing account that cannot be collected from yet. */
+.billing-banner.warn {
+	background: var(--warn-soft);
+	color: var(--warn);
+}
+.inbox.billing .card.uncollectable {
+	background: var(--warn-soft);
+}
+/*
+ * The heads of a billing account's form -- who its bills go to, and its
+ * business -- and a business that is not the account's to change, said with
+ * the room its longer names take. Not <p>, which a page's list rows would
+ * dim: the form is drawn in the row whose account it is.
+ */
+.form .fields > .subhead {
+	margin: 6px 0 -4px;
+}
+.form .fields > .fixed .kv > div {
+	grid-template-columns: 128px 1fr;
+}
+.form .fields > .fixed .said {
+	margin-top: 8px;
+}
 .login > .inbox.billing {
 	width: min(880px, 100%);
 }
