@@ -15,30 +15,33 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file loft/billing.proto.
  */
 export const file_loft_billing: GenFile = /*@__PURE__*/
-  fileDesc("ChJsb2Z0L2JpbGxpbmcucHJvdG8SBGxvZnQi1gQKDExldnlhbk5vdGljZRIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASFAoEa2luZBgIIAEoCUIGqsEWAhgAEhkKCXdvcmtzcGFjZRgJIAEoDEIG6oIWAhBAEhcKB2FjY291bnQYCiABKAxCBuqCFgIQQBIvCgJhdBgLIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOCAQASNQoJZGF0ZV90b2xkGAwgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIG6oIWAjgBEjsKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCeqCFgVAAYIBABIWCgZvcmlnaW4YECABKAlCBqrBFgIYABIXCgdyZWZ1c2VkGBEgASgJQgaqwRYCGAA6jALK/BVIGiASB3dhaXRpbmcaDQoJZGF0ZV90b2xkEAwaBgoCYXQQCxokEgl3b3Jrc3BhY2UaDQoJd29ya3NwYWNlEAkaCAoEa2luZBAIirsWuwEIM0ICCgBSsAESrQEKqgFsZXZ5YW4ncyBxdWV1ZTogd2hhdCBpdCBpcyB0byBiZSB0b2xkIG9mIHdobyBwYXlzIGZvciBhIHdvcmtzcGFjZSwgd3JpdHRlbiBiZXNpZGUgdGhlIGNoYW5nZSB0aGF0IHRlbGxzIGl0LCB3aGljaCB0aGUgdHJhaWwgaGFzOyBsZXZ5YW4ncyBvd24gdHJhaWwga2VlcHMgd2hhdCBpdCB3YXMgdG9sZCoAQh9aGGdpdGh1Yi5jb20vbGVzb21udXMvbG9mdJIDAggCYghlZGl0aW9uc3DoBw", [file_google_protobuf_timestamp, file_orm, file_payday]);
+  fileDesc("ChJsb2Z0L2JpbGxpbmcucHJvdG8SBGxvZnQi8QQKDExldnlhbk5vdGljZRIXCgJpZBgBIAEoDEIL6oIWBxBAKAGCAQASFAoEa2luZBgIIAEoCUIGqsEWAhgAEhkKCXdvcmtzcGFjZRgJIAEoDEIG6oIWAhBAEhcKB2FjY291bnQYCiABKAxCBuqCFgIQQBIvCgJhdBgLIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCB+qCFgOCAQASNQoJZGF0ZV90b2xkGAwgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEIG6oIWAjgBEjsKDGRhdGVfY3JlYXRlZBgPIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCCeqCFgVAAYIBABIWCgZvcmlnaW4YECABKAlCBqrBFgIYABIXCgdyZWZ1c2VkGBEgASgJQgaqwRYCGAA6pwLK/BVIGiASB3dhaXRpbmcaDQoJZGF0ZV90b2xkEAwaBgoCYXQQCxokEgl3b3Jrc3BhY2UaDQoJd29ya3NwYWNlEAkaCAoEa2luZBAIirsW1gEIM0ICCgBSywESyAEKxQFsZXZ5YW4ncyBxdWV1ZTogd2hhdCBpdCBpcyB0byBiZSB0b2xkIG9mIGEgd29ya3NwYWNlIC0tIHdobyBwYXlzIGZvciBpdCwgd2hhdCBiZWNhbWUgb2YgaXQgLS0gd3JpdHRlbiBiZXNpZGUgdGhlIGNoYW5nZSB0aGF0IHRlbGxzIGl0LCB3aGljaCB0aGUgdHJhaWwgaGFzOyBsZXZ5YW4ncyBvd24gdHJhaWwga2VlcHMgd2hhdCBpdCB3YXMgdG9sZCoAQh9aGGdpdGh1Yi5jb20vbGVzb21udXMvbG9mdJIDAggCYghlZGl0aW9uc3DoBw", [file_google_protobuf_timestamp, file_orm, file_payday]);
 
 /**
- * LevyanNotice is something levyan is to be told of a workspace's payers, and
- * whether it was (levyan#14, design 7.6): that a workspace was made and by
- * whom, who pays for it from then -- `levyan.v1.WorkspaceService/Arrive` --
- * and that an account is no longer in one, which pays for it no longer if it
- * did (`Leave`).
+ * LevyanNotice is something levyan is to be told of a workspace, and whether
+ * it was (levyan#14, design 7.6, 7.8): that a workspace was made and by whom,
+ * who pays for it from then -- `levyan.v1.WorkspaceService/Arrive` -- and that
+ * an account is no longer in one, which pays for it no longer if it did
+ * (`Leave`); and what became of a workspace, which is when it is billed and
+ * when not: closed (`Close`), restored (`Restore`), destroyed (`Destroy`).
  *
  * It is written in the transaction of the change it tells, so that a change
  * that commits is one levyan is told of and one rolled back is not, and told
  * by a loop of its own (`loft.levyan.notices`, `server/levyan`): a workspace's
  * notices in the order they happened, each once levyan has answered the one
  * before it. A levyan that cannot be reached holds nothing up: the notices
- * wait, and are told when it can be. Both calls are levyan's to take twice --
- * said again, they change nothing -- so a notice told twice around a failover
- * is told once.
+ * wait, and are told when it can be. Every call is levyan's to take twice --
+ * said again, it changes nothing -- so a notice told twice around a failover
+ * is told once. A destruction is not one transaction: its notice is written
+ * once its final reading is handed over and before anything of it is taken,
+ * and it outlives the rows of the workspace it is about.
  *
  * Nothing writes one on a deployment that bills nobody (`app.billing.levyan`
  * unset). A notice levyan answered stays, marked told: the record of what
  * levyan was told and when, and what the loop's first pass asks of a workspace
- * to know whether levyan was ever told it arrived. No RPCs: nobody's to read,
- * and a notice a caller could write is somebody made to pay by whoever could
- * call it.
+ * to know whether levyan was ever told it arrived, and of what became of it. No
+ * RPCs: nobody's to read, and a notice a caller could write is somebody made to
+ * pay by whoever could call it.
  *
  * @generated from message loft.LevyanNotice
  */
@@ -50,7 +53,11 @@ export type LevyanNotice = Message<"loft.LevyanNotice"> & {
 
   /**
    * What it tells: `arrive`, the workspace made by `account`, who pays for it
-   * from `at`; or `leave`, `account` no longer a member of it from `at`.
+   * from `at`; `leave`, `account` no longer a member of it from `at`; `close`,
+   * `restore` and `destroy`, the workspace closed, opened again and destroyed
+   * at `at`. And `past`, which is no call of levyan's: written told, once, the
+   * mark that the closes and restores the workspaces' events kept from before
+   * were written to be told (the loop's first pass).
    *
    * @generated from field: string kind = 8;
    */
@@ -66,14 +73,22 @@ export type LevyanNotice = Message<"loft.LevyanNotice"> & {
 
   /**
    * The account at roster: the one that made the workspace, or that left it.
-   * An identifier, and nothing of the person's.
+   * An identifier, and nothing of the person's. None -- the nil identifier --
+   * for what became of the workspace itself, which levyan is told of no
+   * account: whoever closed it, its owner, an operator or the deployment, is
+   * the workspace's own history.
    *
    * @generated from field: bytes account = 10;
    */
   account: Uint8Array;
 
   /**
-   * When it happened: when the workspace was made, or the membership ended.
+   * When it happened: when the workspace was made, or the membership ended;
+   * when it was closed -- what the workspace says it was (`date_closed`) --
+   * restored, which nothing else keeps once it is, or destroyed, a moment
+   * after its final reading, at which its address is held. levyan reads a
+   * workspace's life in the order of these moments and not of their telling,
+   * so one told late takes its place; told again, it is told of the same one.
    *
    * @generated from field: google.protobuf.Timestamp at = 11;
    */
@@ -94,9 +109,12 @@ export type LevyanNotice = Message<"loft.LevyanNotice"> & {
 
   /**
    * How it came to be written: `change`, by the change it tells, in its
-   * transaction; or `backfill`, by the loop's first pass, for a workspace
-   * made before this deployment told levyan of any -- whose maker nothing
-   * recorded, so it says its first owner (`tenancy.FirstOwners`).
+   * transaction; `backfill`, by the loop's first pass, for a workspace made
+   * before this deployment told levyan of any -- whose maker nothing
+   * recorded, so it says its first owner (`tenancy.FirstOwners`) -- and for
+   * what became of the workspaces before this deployment told levyan of it;
+   * or `notfound`, an arrival told first because levyan answered a notice of
+   * the workspace that it had heard nothing of it.
    *
    * @generated from field: string origin = 16;
    */

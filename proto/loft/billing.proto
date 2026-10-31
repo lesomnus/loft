@@ -9,27 +9,30 @@ import "payday.proto";
 option features.field_presence = IMPLICIT;
 option go_package = "github.com/lesomnus/loft";
 
-// LevyanNotice is something levyan is to be told of a workspace's payers, and
-// whether it was (levyan#14, design 7.6): that a workspace was made and by
-// whom, who pays for it from then -- `levyan.v1.WorkspaceService/Arrive` --
-// and that an account is no longer in one, which pays for it no longer if it
-// did (`Leave`).
+// LevyanNotice is something levyan is to be told of a workspace, and whether
+// it was (levyan#14, design 7.6, 7.8): that a workspace was made and by whom,
+// who pays for it from then -- `levyan.v1.WorkspaceService/Arrive` -- and that
+// an account is no longer in one, which pays for it no longer if it did
+// (`Leave`); and what became of a workspace, which is when it is billed and
+// when not: closed (`Close`), restored (`Restore`), destroyed (`Destroy`).
 //
 // It is written in the transaction of the change it tells, so that a change
 // that commits is one levyan is told of and one rolled back is not, and told
 // by a loop of its own (`loft.levyan.notices`, `server/levyan`): a workspace's
 // notices in the order they happened, each once levyan has answered the one
 // before it. A levyan that cannot be reached holds nothing up: the notices
-// wait, and are told when it can be. Both calls are levyan's to take twice --
-// said again, they change nothing -- so a notice told twice around a failover
-// is told once.
+// wait, and are told when it can be. Every call is levyan's to take twice --
+// said again, it changes nothing -- so a notice told twice around a failover
+// is told once. A destruction is not one transaction: its notice is written
+// once its final reading is handed over and before anything of it is taken,
+// and it outlives the rows of the workspace it is about.
 //
 // Nothing writes one on a deployment that bills nobody (`app.billing.levyan`
 // unset). A notice levyan answered stays, marked told: the record of what
 // levyan was told and when, and what the loop's first pass asks of a workspace
-// to know whether levyan was ever told it arrived. No RPCs: nobody's to read,
-// and a notice a caller could write is somebody made to pay by whoever could
-// call it.
+// to know whether levyan was ever told it arrived, and of what became of it. No
+// RPCs: nobody's to read, and a notice a caller could write is somebody made to
+// pay by whoever could call it.
 message LevyanNotice {
   bytes id = 1 [(orm.field) = {
     type: TYPE_UUID
@@ -38,7 +41,11 @@ message LevyanNotice {
   }];
 
   // What it tells: `arrive`, the workspace made by `account`, who pays for it
-  // from `at`; or `leave`, `account` no longer a member of it from `at`.
+  // from `at`; `leave`, `account` no longer a member of it from `at`; `close`,
+  // `restore` and `destroy`, the workspace closed, opened again and destroyed
+  // at `at`. And `past`, which is no call of levyan's: written told, once, the
+  // mark that the closes and restores the workspaces' events kept from before
+  // were written to be told (the loop's first pass).
   string kind = 8 [(payday.field) = {personal: false}];
 
   // The workspace, by its identifier. A column and not an edge, as the
@@ -46,10 +53,18 @@ message LevyanNotice {
   bytes workspace = 9 [(orm.field) = {type: TYPE_UUID}];
 
   // The account at roster: the one that made the workspace, or that left it.
-  // An identifier, and nothing of the person's.
+  // An identifier, and nothing of the person's. None -- the nil identifier --
+  // for what became of the workspace itself, which levyan is told of no
+  // account: whoever closed it, its owner, an operator or the deployment, is
+  // the workspace's own history.
   bytes account = 10 [(orm.field) = {type: TYPE_UUID}];
 
-  // When it happened: when the workspace was made, or the membership ended.
+  // When it happened: when the workspace was made, or the membership ended;
+  // when it was closed -- what the workspace says it was (`date_closed`) --
+  // restored, which nothing else keeps once it is, or destroyed, a moment
+  // after its final reading, at which its address is held. levyan reads a
+  // workspace's life in the order of these moments and not of their telling,
+  // so one told late takes its place; told again, it is told of the same one.
   google.protobuf.Timestamp at = 11 [(orm.field) = {default: ""}];
 
   // When levyan answered it -- took it, or refused it -- and unset while it
@@ -62,9 +77,12 @@ message LevyanNotice {
   }];
 
   // How it came to be written: `change`, by the change it tells, in its
-  // transaction; or `backfill`, by the loop's first pass, for a workspace
-  // made before this deployment told levyan of any -- whose maker nothing
-  // recorded, so it says its first owner (`tenancy.FirstOwners`).
+  // transaction; `backfill`, by the loop's first pass, for a workspace made
+  // before this deployment told levyan of any -- whose maker nothing
+  // recorded, so it says its first owner (`tenancy.FirstOwners`) -- and for
+  // what became of the workspaces before this deployment told levyan of it;
+  // or `notfound`, an arrival told first because levyan answered a notice of
+  // the workspace that it had heard nothing of it.
   string origin = 16 [(payday.field) = {personal: false}];
 
   // What levyan said when it refused it, which it would say again, and empty
@@ -108,6 +126,6 @@ message LevyanNotice {
     domain: 51
     global: {}
     erase: {hard: {}}
-    trail: {off: {why: "levyan's queue: what it is to be told of who pays for a workspace, written beside the change that tells it, which the trail has; levyan's own trail keeps what it was told"}}
+    trail: {off: {why: "levyan's queue: what it is to be told of a workspace -- who pays for it, what became of it -- written beside the change that tells it, which the trail has; levyan's own trail keeps what it was told"}}
   };
 }

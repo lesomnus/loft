@@ -21954,7 +21954,7 @@ func Digests(ctx context.Context, db *ent.Client, d *audit.Digest, p trail.Polic
 
 	out := audit.Rows{Skipped: []audit.Skipped{
 		{Kind: "handoff", Why: "a code a browser carries from the service's address to a workspace's domain, good once for a minute; the session it becomes is no act either, and who signed in where is the access record's"},
-		{Kind: "levyan-notice", Why: "levyan's queue: what it is to be told of who pays for a workspace, written beside the change that tells it, which the trail has; levyan's own trail keeps what it was told"},
+		{Kind: "levyan-notice", Why: "levyan's queue: what it is to be told of a workspace -- who pays for it, what became of it -- written beside the change that tells it, which the trail has; levyan's own trail keeps what it was told"},
 		{Kind: "search-stale", Why: "the search index's queue: that a document is to be made again, which the indexer takes within seconds"},
 		{Kind: "session", Why: "a sign-in, whose idle clock moves on every request; who signed in, and from where, is the access record's (loft#136)"},
 		{Kind: "sign-in-failure", Why: "a count of the sign-ins an address got wrong, kept for hours to slow the next; nobody's act"},
