@@ -21,7 +21,11 @@
 // (`app.billing.levyan`, design 7.3): its final reading, handed to levyan
 // while the rows it is measured from are there. As well as that can be done
 // and no more: a reading that cannot be made or handed over is said in the log,
-// and the workspace is destroyed all the same ([Destroyed.Unmeasured]).
+// and the workspace is destroyed all the same ([Destroyed.Unmeasured]). Then
+// levyan is to be told it was destroyed, of a moment after that reading,
+// before anything of it is taken (design 7.8): written down here, and told by
+// the deployment's queue of what levyan is to hear, which outlives the
+// workspace (`levyan.Notices`).
 package closing
 
 import (
@@ -46,6 +50,7 @@ import (
 	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
 	"github.com/lesomnus/loft/internal/identity"
 	"github.com/lesomnus/loft/server/domain"
+	"github.com/lesomnus/loft/server/levyan"
 	"github.com/lesomnus/loft/server/offboard"
 	"github.com/lesomnus/loft/server/pd"
 	"github.com/lesomnus/loft/server/tenancy"
@@ -74,6 +79,11 @@ type Closing struct {
 	// every workspace with (payday#186). Nil, for a deployment that bills
 	// nobody, destroys with nothing measured.
 	Meters *meter.Reader
+
+	// Notices is what levyan is to be told a workspace was destroyed by,
+	// written after its final reading and before anything of it is taken
+	// (design 7.8). Nil, for a deployment that bills nobody, tells nothing.
+	Notices *levyan.Notices
 }
 
 func (c Closing) now() time.Time {
@@ -159,8 +169,10 @@ type Destroyed struct {
 // done. And what it holds is measured and handed to levyan, when this
 // deployment bills ([Closing.Meters]), after those and before anything is
 // taken, as its final reading -- and when that cannot be done it is destroyed
-// all the same, the reason said in the log and in [Destroyed.Unmeasured]. A
-// dry run measures nothing.
+// all the same, the reason said in the log and in [Destroyed.Unmeasured].
+// levyan is then to be told it was destroyed, at a moment after that reading
+// -- the one its address is held from -- before anything is taken
+// ([Closing.Notices]). A dry run measures nothing, and tells nothing.
 func (c Closing) Destroy(ctx context.Context, t *ent.Tenant, how How, dry bool) (Destroyed, error) {
 	id := pdid.Id(t.Id)
 	plan, err := c.leave(ctx, id, how, true)
@@ -202,15 +214,28 @@ func (c Closing) Destroy(ctx context.Context, t *ent.Tenant, how How, dry bool) 
 		}
 	}
 
+	// That it was destroyed, for levyan, which bills it for nothing after:
+	// at a moment after its final reading, which levyan would refuse a
+	// reading of, and written before anything of it is taken -- on the
+	// deployment's queue, which outlives the workspace's rows (design 7.8).
+	// Once: a destruction run again told it when it first ran. levyan is
+	// told whatever became of the reading: a destruction is the law's, and a
+	// workspace destroyed is billed for nothing after it either way.
+	at := c.now().UTC().Truncate(time.Microsecond)
+	if err := c.Notices.Destroy(ctx, c.Db, id, at); err != nil {
+		return out, fmt.Errorf("levyan, to be told it was destroyed: %w", err)
+	}
+
 	// The address first: held before the workspace is gone, so that no
 	// moment comes when it is free -- and saying how it went, which a restore
 	// of it here reads to have the trail take a retired one back first
-	// (`offboard.Deployment.Import`).
+	// (`offboard.Deployment.Import`). Held from the moment levyan is told it
+	// was destroyed at, which is when it was.
 	reason := offboard.ReasonDestroyed
 	if plan.Retired && c.Offboard.Floored() {
 		reason = offboard.ReasonRetired
 	}
-	if err := c.hold(ctx, t.Alias, reason, "", id); err != nil {
+	if err := c.hold(ctx, at, t.Alias, reason, "", id); err != nil {
 		return out, err
 	}
 	for _, a := range accounts {
@@ -284,11 +309,12 @@ func (c Closing) Rename(ctx context.Context, from, to string, reuse bool) error 
 	}.Build()); err != nil {
 		return err
 	}
-	return c.hold(ctx, from, "renamed", to, id)
+	return c.hold(ctx, c.now(), from, "renamed", to, id)
 }
 
-func (c Closing) hold(ctx context.Context, alias, reason, to string, tenant pdid.Id) error {
-	now := c.now()
+// hold keeps `alias` from anybody else from `now` -- and, for a destroyed
+// workspace, says it went then -- unless it is held for that already.
+func (c Closing) hold(ctx context.Context, now time.Time, alias, reason, to string, tenant pdid.Id) error {
 	hold := c.Hold
 	if hold <= 0 {
 		hold = 365 * 24 * time.Hour
