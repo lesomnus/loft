@@ -31,6 +31,7 @@ import (
 	"github.com/lesomnus/loft/internal/ent/migrate"
 	enttenant "github.com/lesomnus/loft/internal/ent/tenant"
 	"github.com/lesomnus/loft/server/pd"
+	"github.com/lesomnus/loft/server/tenancy"
 )
 
 // ImportOptions is what an operator says of a restore beyond the export.
@@ -277,6 +278,22 @@ func (d Deployment) Import(ctx context.Context, r io.ReaderAt, size int64, o Imp
 		}
 		if n > 0 {
 			out.Rows[p.table] = n
+		}
+	}
+
+	// Made, as levyan is to hear it: when it was made, by its first owner --
+	// an export no more says who made it than the deployment it came from
+	// knew. levyan, told twice of one workspace, keeps what it was told
+	// first (design 7.6).
+	if d.Notices != nil {
+		owners, err := tenancy.FirstOwners(ctx, db, tid)
+		if err != nil {
+			return out, err
+		}
+		if h := owners[tid]; h != nil && h.Account != nil {
+			if err := d.Notices.Arrive(ctx, db, out.Tenant, pdid.Id(*h.Account), t.GetDateCreated().AsTime()); err != nil {
+				return out, fmt.Errorf("levyan: %w", err)
+			}
 		}
 	}
 
