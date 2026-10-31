@@ -1,0 +1,782 @@
+edition = "2023";
+
+package loft;
+
+import "google/protobuf/timestamp.proto";
+import "payday.proto";
+
+option features.field_presence = IMPLICIT;
+option go_package = "github.com/lesomnus/loft";
+
+// PaymentService is how a workspace here is paid for, as levyan -- the billing
+// service its workspaces are billed by (levyan#14, design 7.9) -- says it:
+// relayed, and kept nowhere here.
+//
+// Two halves, each relayed to levyan with this deployment's product key:
+//
+//   - **The account's own**, `(payday.method) = {account: {}}`: what a payer
+//     -- a roster account -- does with what it pays with: its billing
+//     accounts, the checkout that starts the subscription one is collected
+//     through, the offers to pay for a workspace and the workspaces it pays
+//     for, and its invoices. Served as the account itself, in no workspace,
+//     and relayed to levyan's `PayerService` as that account
+//     (`levyan-account`): levyan asks roster about the account, and answers
+//     with the account's own and the product's.
+//   - **The workspace's**: who pays for it, what it has used this period and
+//     what that would come to, the statements of the periods closed, and the
+//     owner asking a member to pay for it. Served as a membership, relayed to
+//     levyan's `WorkspaceService` and `BillingService` as the product, about
+//     the caller's workspace and no other.
+//
+// What levyan answers is answered as it is: the messages here are levyan's
+// own, field for field, number for number (`server/payment`'s tests hold them
+// to it), and no card is ever anywhere here -- of how a payer pays, levyan
+// answers the kind, the brand and the last four digits, and so does this. A
+// deployment that names no levyan answers every method FailedPrecondition.
+service PaymentService {
+  // ListBillingAccounts is the account's billing accounts, in the order it
+  // made them.
+  rpc ListBillingAccounts(PaymentListBillingAccountsRequest) returns (PaymentListBillingAccountsResponse) {
+    option (payday.method) = {account: {}};
+  }
+
+  // CreateBillingAccount makes one, in a country: the channel it is sold
+  // through and the currency it is billed in are levyan's to say of the
+  // country, as it is made, and never change.
+  rpc CreateBillingAccount(PaymentCreateBillingAccountRequest) returns (PaymentCreateBillingAccountResponse) {
+    option (payday.method) = {account: {}};
+  }
+
+  // UpdateBillingAccount says again who receives what one is billed, and the
+  // business it is billed to.
+  rpc UpdateBillingAccount(PaymentUpdateBillingAccountRequest) returns (PaymentUpdateBillingAccountResponse) {
+    option (payday.method) = {account: {}};
+  }
+
+  // GetBillingAccount is one, with whether what it is billed can be collected
+  // now, and the subscription it is collected through.
+  rpc GetBillingAccount(PaymentGetBillingAccountRequest) returns (PaymentGetBillingAccountResponse) {
+    option (payday.method) = {account: {}};
+  }
+
+  // StartCheckout begins the subscription a billing account on the merchant
+  // of record's channel is collected through: what a page opens Paddle's
+  // checkout with.
+  rpc StartCheckout(PaymentStartCheckoutRequest) returns (PaymentStartCheckoutResponse) {
+    option (payday.method) = {account: {}};
+  }
+
+  // CompleteCheckout asks about a checkout as the payer comes back from it:
+  // open until the merchant has made the subscription.
+  rpc CompleteCheckout(PaymentCompleteCheckoutRequest) returns (PaymentCompleteCheckoutResponse) {
+    option (payday.method) = {account: {}};
+  }
+
+  // ListOffers is the offers made to the account to pay for a workspace, not
+  // answered yet.
+  rpc ListOffers(PaymentListOffersRequest) returns (PaymentListOffersResponse) {
+    option (payday.method) = {account: {}};
+  }
+
+  // Accept accepts one: the account pays for the workspace from the end of
+  // the period now open.
+  rpc Accept(PaymentAcceptRequest) returns (PaymentAcceptResponse) {
+    option (payday.method) = {account: {}};
+  }
+
+  // Decline declines one.
+  rpc Decline(PaymentDeclineRequest) returns (PaymentDeclineResponse) {
+    option (payday.method) = {account: {}};
+  }
+
+  // ListLinks is the workspaces the account pays for, or will from the end of
+  // the period.
+  rpc ListLinks(PaymentListLinksRequest) returns (PaymentListLinksResponse) {
+    option (payday.method) = {account: {}};
+  }
+
+  // Use pays for a workspace with another of the account's billing accounts,
+  // from the end of the period now open.
+  rpc Use(PaymentUseRequest) returns (PaymentUseResponse) {
+    option (payday.method) = {account: {}};
+  }
+
+  // Stop stops paying for a workspace as the period now open ends.
+  rpc Stop(PaymentStopRequest) returns (PaymentStopResponse) {
+    option (payday.method) = {account: {}};
+  }
+
+  // ListInvoices is the invoices of the account's billing accounts, the
+  // latest first.
+  rpc ListInvoices(PaymentListInvoicesRequest) returns (PaymentListInvoicesResponse) {
+    option (payday.method) = {account: {}};
+  }
+
+  // GetInvoice is one, with its lines and its credit notes.
+  rpc GetInvoice(PaymentGetInvoiceRequest) returns (PaymentGetInvoiceResponse) {
+    option (payday.method) = {account: {}};
+  }
+
+  // ListCreditNotes is the credit notes of them.
+  rpc ListCreditNotes(PaymentListCreditNotesRequest) returns (PaymentListCreditNotesResponse) {
+    option (payday.method) = {account: {}};
+  }
+
+  // GetPayer is who pays for the caller's workspace now and next, what is
+  // offered, and since when it has had nobody paying for it.
+  rpc GetPayer(PaymentGetPayerRequest) returns (PaymentGetPayerResponse);
+
+  // GetUsage is what the caller's workspace has used in the period now open,
+  // and what that would come to were the period to close now.
+  rpc GetUsage(PaymentGetUsageRequest) returns (PaymentGetUsageResponse);
+
+  // ListStatements is the statements of the caller's workspace, the latest
+  // period first.
+  rpc ListStatements(PaymentListStatementsRequest) returns (PaymentListStatementsResponse);
+
+  // Offer asks a member of the caller's workspace to pay for it, which they
+  // answer as themselves (`Accept`). It withdraws what was offered before.
+  rpc Offer(PaymentOfferRequest) returns (PaymentOfferResponse);
+}
+
+message PaymentListBillingAccountsRequest {}
+
+message PaymentListBillingAccountsResponse {
+  repeated BillingAccount billing_accounts = 1;
+}
+
+message PaymentCreateBillingAccountRequest {
+  // What the account calls it.
+  string name = 1;
+
+  // ISO 3166-1 alpha-2: KR.
+  string country = 2;
+
+  BillingRecipient recipient = 3;
+  BillingBusiness business = 4;
+}
+
+message PaymentCreateBillingAccountResponse {
+  BillingAccount billing_account = 1;
+}
+
+message PaymentUpdateBillingAccountRequest {
+  // The billing account, by its identifier.
+  string id = 1;
+
+  string name = 2 [features.field_presence = EXPLICIT];
+  BillingRecipient recipient = 3;
+  BillingBusiness business = 4;
+
+  // Clears what is said of a business: the account is billed as a person.
+  bool clear_business = 5;
+}
+
+message PaymentUpdateBillingAccountResponse {
+  BillingAccount billing_account = 1;
+}
+
+message PaymentGetBillingAccountRequest {
+  string id = 1;
+}
+
+message PaymentGetBillingAccountResponse {
+  BillingAccount billing_account = 1;
+
+  // Whether what it is billed can be collected now.
+  BillingCollection collection = 2;
+
+  // Its live subscription, or the last it had; unset for none.
+  BillingSubscription subscription = 3;
+
+  // Its invoices whose charge failed and that are still owed, with what is
+  // done of each: the one that restricts soonest first.
+  repeated BillingDunning dunning = 4;
+}
+
+message PaymentStartCheckoutRequest {
+  // The billing account it subscribes, by its identifier.
+  string billing_account = 1;
+
+  // Where Paddle sends the payer once they have finished: an absolute URL
+  // of this deployment's, which then calls `CompleteCheckout`.
+  string success_url = 2;
+}
+
+message PaymentStartCheckoutResponse {
+  // The checkout, open, with what a page opens it with.
+  BillingCheckout checkout = 1;
+}
+
+message PaymentCompleteCheckoutRequest {
+  // The checkout, by levyan's identifier of it, never the merchant's.
+  string checkout = 1;
+}
+
+message PaymentCompleteCheckoutResponse {
+  BillingCheckout checkout = 1;
+  BillingSubscription subscription = 2;
+  BillingCollection collection = 3;
+}
+
+message PaymentListOffersRequest {}
+
+message PaymentListOffersResponse {
+  repeated BillingOffer offers = 1;
+}
+
+message PaymentAcceptRequest {
+  // The offer, by its identifier.
+  string offer = 1;
+
+  // The billing account to pay with, by its identifier; empty is none yet.
+  string billing_account = 2;
+}
+
+message PaymentAcceptResponse {
+  BillingLink link = 1;
+}
+
+message PaymentDeclineRequest {
+  string offer = 1;
+}
+
+message PaymentDeclineResponse {}
+
+message PaymentListLinksRequest {}
+
+message PaymentListLinksResponse {
+  repeated BillingLink links = 1;
+}
+
+message PaymentUseRequest {
+  // The workspace, by its identifier's canonical text.
+  string workspace = 1;
+
+  // The billing account to pay with from the end of the period.
+  string billing_account = 2;
+}
+
+message PaymentUseResponse {
+  BillingLink link = 1;
+}
+
+message PaymentStopRequest {
+  string workspace = 1;
+}
+
+message PaymentStopResponse {
+  // The link that ends, and when.
+  BillingLink link = 1;
+}
+
+message PaymentListInvoicesRequest {
+  // Of one billing account; empty is of every one.
+  string billing_account = 1;
+
+  // How many: 20 when unset, and at most 100.
+  int32 page_size = 2;
+
+  string page_token = 3;
+}
+
+message PaymentListInvoicesResponse {
+  // The latest first, without their lines.
+  repeated BillingInvoice invoices = 1;
+
+  string next_page_token = 2;
+}
+
+message PaymentGetInvoiceRequest {
+  string id = 1;
+}
+
+message PaymentGetInvoiceResponse {
+  BillingInvoice invoice = 1;
+
+  // Its credit notes, the earliest first.
+  repeated BillingCreditNote credit_notes = 2;
+
+  // What is done of it since its charge failed; unset while it is in none.
+  BillingDunning dunning = 3;
+}
+
+message PaymentListCreditNotesRequest {
+  string billing_account = 1;
+  string invoice = 2;
+}
+
+message PaymentListCreditNotesResponse {
+  repeated BillingCreditNote credit_notes = 1;
+}
+
+// The workspace's: of the caller's workspace, which no request names.
+
+message PaymentGetPayerRequest {}
+
+message PaymentGetPayerResponse {
+  BillingPayer payer = 1;
+}
+
+message PaymentGetUsageRequest {}
+
+message PaymentGetUsageResponse {
+  BillingUsage usage = 1;
+}
+
+message PaymentListStatementsRequest {
+  // 1 is the workspace levyan is asked about, which is the caller's.
+  reserved 1;
+
+  // How many: 20 when unset, and at most 100.
+  int32 page_size = 2;
+
+  string page_token = 3;
+}
+
+message PaymentListStatementsResponse {
+  repeated BillingStatement statements = 1;
+
+  string next_page_token = 2;
+}
+
+message PaymentOfferRequest {
+  // The member asked, by the identifier of their membership of the caller's
+  // workspace: the account it is a membership of is who is asked.
+  bytes holder = 1;
+}
+
+message PaymentOfferResponse {
+  BillingOffer offer = 1;
+}
+
+// BillingAccount is what an account pays with: levyan's.
+message BillingAccount {
+  string id = 1;
+  string name = 2;
+
+  // The country it is billed in, and what the deployment sold that country
+  // through when it was made.
+  string country = 3;
+  BillingChannel channel = 4;
+  string currency = 5;
+
+  BillingRecipient recipient = 6;
+  BillingBusiness business = 7;
+
+  google.protobuf.Timestamp created = 8;
+}
+
+// BillingRecipient is who receives what a billing account is billed.
+message BillingRecipient {
+  string name = 1;
+  string email = 2;
+  string address = 3;
+}
+
+// BillingBusiness is the business a billing account is billed to.
+message BillingBusiness {
+  string registration = 1;
+  string name = 2;
+  string representative = 3;
+  string address = 4;
+  string kind = 5;
+  string item = 6;
+  string email = 7;
+}
+
+// BillingChannel is what a billing account is sold through.
+enum BillingChannel {
+  BILLING_CHANNEL_UNSPECIFIED = 0;
+
+  // A merchant of record: Paddle.
+  BILLING_CHANNEL_MOR = 1;
+
+  // A Korean payment gateway.
+  BILLING_CHANNEL_PG_KR = 2;
+
+  // A bank transfer in Korea, with a tax invoice.
+  BILLING_CHANNEL_BANK_KR = 3;
+}
+
+// BillingCollection is whether what a billing account is billed can be
+// collected now, and why not.
+message BillingCollection {
+  BillingCollectionState state = 1;
+
+  // Since when it has been so.
+  google.protobuf.Timestamp since = 2;
+
+  // When the subscription ends or pauses, as somebody scheduled it at the
+  // merchant; unset for nothing scheduled.
+  google.protobuf.Timestamp ends = 3;
+}
+
+enum BillingCollectionState {
+  // Nothing is said: a channel that is no merchant of record's.
+  BILLING_COLLECTION_STATE_UNSPECIFIED = 0;
+  BILLING_COLLECTION_STATE_COLLECTABLE = 1;
+  BILLING_COLLECTION_STATE_NO_SUBSCRIPTION = 2;
+  BILLING_COLLECTION_STATE_PAST_DUE = 3;
+  BILLING_COLLECTION_STATE_PAUSED = 4;
+  BILLING_COLLECTION_STATE_CANCELED = 5;
+  BILLING_COLLECTION_STATE_NEEDS_ACTION = 6;
+}
+
+// BillingSubscription is a subscription the merchant of record runs for a
+// billing account, as levyan mirrors it.
+message BillingSubscription {
+  string id = 1;
+  string merchant = 2;
+  BillingSubscriptionStatus status = 3;
+  string currency = 4;
+
+  google.protobuf.Timestamp period_start = 5;
+  google.protobuf.Timestamp period_end = 6;
+  google.protobuf.Timestamp next_billed = 7;
+
+  // What the merchant will do to it, and when.
+  BillingSubscriptionChange change = 8;
+  google.protobuf.Timestamp change_at = 9;
+
+  google.protobuf.Timestamp canceled = 10;
+
+  // How the payer pays: the kind, the brand and the last four digits, and
+  // never more of a card.
+  BillingPaymentMethod method = 11;
+
+  google.protobuf.Timestamp updated = 12;
+  google.protobuf.Timestamp checked = 13;
+}
+
+enum BillingSubscriptionStatus {
+  BILLING_SUBSCRIPTION_STATUS_UNSPECIFIED = 0;
+  BILLING_SUBSCRIPTION_STATUS_ACTIVE = 1;
+  BILLING_SUBSCRIPTION_STATUS_TRIALING = 2;
+  BILLING_SUBSCRIPTION_STATUS_PAST_DUE = 3;
+  BILLING_SUBSCRIPTION_STATUS_PAUSED = 4;
+  BILLING_SUBSCRIPTION_STATUS_CANCELED = 5;
+}
+
+enum BillingSubscriptionChange {
+  BILLING_SUBSCRIPTION_CHANGE_UNSPECIFIED = 0;
+  BILLING_SUBSCRIPTION_CHANGE_CANCEL = 1;
+  BILLING_SUBSCRIPTION_CHANGE_PAUSE = 2;
+  BILLING_SUBSCRIPTION_CHANGE_RESUME = 3;
+}
+
+// BillingPaymentMethod is how a payer pays, and never more of a card than
+// this.
+message BillingPaymentMethod {
+  // Paddle's name of the kind: card, south_korea_local_card, kakao_pay, ….
+  string type = 1;
+
+  // A card's brand or its company; empty for what is no card.
+  string brand = 2;
+
+  string last4 = 3;
+}
+
+// BillingCheckout is a checkout begun with the merchant of record.
+message BillingCheckout {
+  string id = 1;
+  string billing_account = 2;
+  BillingCheckoutState state = 3;
+
+  google.protobuf.Timestamp started = 4;
+  google.protobuf.Timestamp done = 5;
+
+  // What a page opens it with: answered by `StartCheckout` alone.
+  BillingCheckoutWindow window = 6;
+}
+
+enum BillingCheckoutState {
+  BILLING_CHECKOUT_STATE_UNSPECIFIED = 0;
+  BILLING_CHECKOUT_STATE_OPEN = 1;
+  BILLING_CHECKOUT_STATE_COMPLETED = 2;
+  BILLING_CHECKOUT_STATE_CANCELED = 3;
+}
+
+// BillingCheckoutWindow is what a page opens the merchant's checkout with.
+message BillingCheckoutWindow {
+  // "paddle".
+  string merchant = 1;
+
+  // "sandbox" or "production".
+  string environment = 2;
+
+  // Paddle's transaction, which its checkout opens.
+  string transaction = 3;
+
+  string client_token = 4;
+  string script = 5;
+
+  // Paddle's own page for it: the default payment link with `_ptxn`.
+  string url = 6;
+
+  // The billing account's country.
+  string country = 7;
+}
+
+// BillingOffer is a workspace's owner asking an account to pay for it.
+message BillingOffer {
+  string id = 1;
+
+  // The workspace, by its identifier's canonical text.
+  string workspace = 2;
+
+  // The account it is made to, roster's.
+  string account = 3;
+
+  google.protobuf.Timestamp offered = 4;
+}
+
+// BillingLink is an account paying for a workspace, from when to when.
+message BillingLink {
+  string id = 1;
+  string workspace = 2;
+  string account = 3;
+
+  // The billing account it pays with; empty for none yet.
+  string billing_account = 4;
+
+  google.protobuf.Timestamp start = 5;
+  google.protobuf.Timestamp end = 6;
+
+  BillingLinkBegan began = 7;
+  BillingLinkEnded ended = 8;
+}
+
+enum BillingLinkBegan {
+  BILLING_LINK_BEGAN_UNSPECIFIED = 0;
+  BILLING_LINK_BEGAN_ARRIVED = 1;
+  BILLING_LINK_BEGAN_ACCEPTED = 2;
+  BILLING_LINK_BEGAN_USED = 3;
+  BILLING_LINK_BEGAN_RESUMED = 4;
+}
+
+enum BillingLinkEnded {
+  BILLING_LINK_ENDED_UNSPECIFIED = 0;
+  BILLING_LINK_ENDED_REPLACED = 1;
+  BILLING_LINK_ENDED_STOPPED = 2;
+  BILLING_LINK_ENDED_LEFT = 3;
+  BILLING_LINK_ENDED_SUSPENDED = 4;
+  BILLING_LINK_ENDED_ERASED = 5;
+  BILLING_LINK_ENDED_DESTROYED = 6;
+}
+
+// BillingInvoice is what a billing account is asked to pay for a period.
+// Every amount is a whole number of the currency's minor unit.
+message BillingInvoice {
+  string id = 1;
+  string billing_account = 2;
+  BillingInvoiceState state = 3;
+
+  google.protobuf.Timestamp start = 4;
+  google.protobuf.Timestamp end = 5;
+
+  BillingChannel channel = 6;
+  string currency = 7;
+
+  int64 subtotal = 8;
+  int64 tax = 9;
+  int64 total = 10;
+  int64 credited = 11;
+  int64 due = 12;
+  int64 paid = 13;
+  int64 reduced = 14;
+  int64 remaining = 15;
+
+  int64 number = 16;
+
+  google.protobuf.Timestamp finalized = 17;
+  google.protobuf.Timestamp due_date = 18;
+  google.protobuf.Timestamp settled = 19;
+
+  // The merchant of record's own number, once it collected.
+  string channel_number = 20;
+
+  // Its lines: in `GetInvoice`'s answer.
+  repeated BillingInvoiceLine lines = 21;
+}
+
+enum BillingInvoiceState {
+  BILLING_INVOICE_STATE_UNSPECIFIED = 0;
+  BILLING_INVOICE_STATE_DRAFT = 1;
+  BILLING_INVOICE_STATE_OPEN = 2;
+  BILLING_INVOICE_STATE_PAID = 3;
+  BILLING_INVOICE_STATE_UNCOLLECTIBLE = 4;
+  BILLING_INVOICE_STATE_VOID = 5;
+  BILLING_INVOICE_STATE_WRITTEN_OFF = 6;
+  BILLING_INVOICE_STATE_SHADOW = 7;
+}
+
+// BillingInvoiceLine is one statement on an invoice.
+message BillingInvoiceLine {
+  string statement = 1;
+
+  // The workspace, and what this deployment called it when the line was
+  // written.
+  string workspace = 2;
+  string label = 3;
+
+  BillingPeriod period = 4;
+  int64 total = 5;
+}
+
+// BillingCreditNote takes some or all of a finalized invoice back.
+message BillingCreditNote {
+  string id = 1;
+  string invoice = 2;
+  BillingCreditNoteReason reason = 3;
+
+  int64 amount = 4;
+  int64 tax = 5;
+  int64 total = 6;
+  int64 reduced = 7;
+  int64 refunded = 8;
+  int64 credited = 9;
+
+  int64 number = 10;
+
+  google.protobuf.Timestamp created = 11;
+}
+
+enum BillingCreditNoteReason {
+  BILLING_CREDIT_NOTE_REASON_UNSPECIFIED = 0;
+  BILLING_CREDIT_NOTE_REASON_CORRECTION = 1;
+  BILLING_CREDIT_NOTE_REASON_REFUND = 2;
+  BILLING_CREDIT_NOTE_REASON_CANCELLATION = 3;
+}
+
+// BillingPeriod is one period of billing: a calendar month in a zone.
+message BillingPeriod {
+  google.protobuf.Timestamp start = 1;
+  google.protobuf.Timestamp end = 2;
+
+  // The zone it is a month in, as an IANA name.
+  string zone = 3;
+}
+
+// BillingPayer is who pays for a workspace.
+message BillingPayer {
+  string workspace = 1;
+
+  // Who pays now, unset when nobody does; and who will from the end of the
+  // period, unset when that is who pays now, or nobody.
+  BillingLink current = 2;
+  BillingLink next = 3;
+
+  // What is offered and not answered.
+  BillingOffer offer = 4;
+
+  // Since when it has had nobody paying for it, and from when it is
+  // restricted for that.
+  google.protobuf.Timestamp payerless_since = 5;
+  google.protobuf.Timestamp restricted_from = 6;
+
+  // Whether what the billing account it is paid for with now is billed can
+  // be collected; unset while nobody pays, or has set up no billing account.
+  BillingCollection collection = 7;
+
+  // The invoices still owed that bill it whose charge failed, with what is
+  // done of each: the one that restricts soonest first.
+  repeated BillingDunning dunning = 8;
+}
+
+// BillingDunning is what is done of an invoice its channel failed to collect,
+// by levyan's table of each kind of decline: when it is charged again, when
+// its grace ends, and from when every workspace it bills is restricted.
+// levyan tells nobody: this deployment shows it, to the payer and to the
+// people who run the workspaces it bills.
+message BillingDunning {
+  string invoice = 1;
+  string billing_account = 2;
+
+  // The kind of its latest decline: what the payer has to do.
+  BillingDeclineKind kind = 3;
+
+  // When its first charge failed.
+  google.protobuf.Timestamp failed = 4;
+
+  // When it is charged next; unset when no retry is to come, and it is
+  // charged once its billing account can be collected again.
+  google.protobuf.Timestamp next_retry = 5;
+
+  google.protobuf.Timestamp grace_ends = 6;
+  google.protobuf.Timestamp restricted_from = 7;
+}
+
+// BillingDeclineKind is which kind of decline a payer's method refused a
+// charge as.
+enum BillingDeclineKind {
+  // A refusal that says no more, or a failure that is no decline.
+  BILLING_DECLINE_KIND_UNSPECIFIED = 0;
+
+  // It may go through later on the same method.
+  BILLING_DECLINE_KIND_TEMPORARY = 1;
+
+  // Another method is needed.
+  BILLING_DECLINE_KIND_REPLACE = 2;
+
+  // Refused as suspected fraud.
+  BILLING_DECLINE_KIND_FRAUD = 3;
+}
+
+// BillingUsage is what a workspace has used in a period not closed yet, and
+// what that comes to were the period to close now.
+message BillingUsage {
+  string workspace = 1;
+  BillingPeriod period = 2;
+  google.protobuf.Timestamp as_of = 3;
+
+  // What it is priced on and in; unset while nothing is priced.
+  BillingChannel channel = 4;
+  string currency = 5;
+
+  repeated BillingLine lines = 6;
+
+  // In the currency's minor unit.
+  int64 total = 7;
+}
+
+// BillingStatement is what one workspace came to over one closed period.
+message BillingStatement {
+  string id = 1;
+  string workspace = 2;
+  BillingPeriod period = 3;
+  BillingChannel channel = 4;
+  string currency = 5;
+  repeated BillingLine lines = 6;
+  int64 total = 7;
+  google.protobuf.Timestamp closed = 8;
+}
+
+// BillingLine is what one meter came to over a period, or how much what an
+// earlier period was billed moves. Its numbers are decimals as text.
+message BillingLine {
+  string meter = 1;
+  string unit = 2;
+  BillingLineKind kind = 3;
+
+  // For a correction: the period it corrects.
+  BillingPeriod corrects = 4;
+
+  string usage = 5;
+  string included = 6;
+  string billable = 7;
+  string amount = 8;
+
+  // For a correction: what was billed for the meter over that period before.
+  string billed = 10;
+
+  // 9, the stretches priced by each version of the price, and 11, the ones
+  // with no price, are levyan's to say and not this one's.
+  reserved 9, 11;
+}
+
+enum BillingLineKind {
+  BILLING_LINE_KIND_UNSPECIFIED = 0;
+  BILLING_LINE_KIND_USAGE = 1;
+  BILLING_LINE_KIND_CORRECTION = 2;
+}

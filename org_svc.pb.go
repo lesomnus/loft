@@ -2445,6 +2445,7 @@ type PartyMeResponse struct {
 	xxx_hidden_RestoreDays   uint32                 `protobuf:"varint,11,opt,name=restore_days,json=restoreDays"`
 	xxx_hidden_AliasHoldDays uint32                 `protobuf:"varint,12,opt,name=alias_hold_days,json=aliasHoldDays"`
 	xxx_hidden_WorkspaceName string                 `protobuf:"bytes,13,opt,name=workspace_name,json=workspaceName"`
+	xxx_hidden_Restricted    bool                   `protobuf:"varint,14,opt,name=restricted"`
 	unknownFields            protoimpl.UnknownFields
 	sizeCache                protoimpl.SizeCache
 }
@@ -2551,6 +2552,13 @@ func (x *PartyMeResponse) GetWorkspaceName() string {
 	return ""
 }
 
+func (x *PartyMeResponse) GetRestricted() bool {
+	if x != nil {
+		return x.xxx_hidden_Restricted
+	}
+	return false
+}
+
 func (x *PartyMeResponse) SetHolder(v *Holder) {
 	x.xxx_hidden_Holder = v
 }
@@ -2593,6 +2601,10 @@ func (x *PartyMeResponse) SetAliasHoldDays(v uint32) {
 
 func (x *PartyMeResponse) SetWorkspaceName(v string) {
 	x.xxx_hidden_WorkspaceName = v
+}
+
+func (x *PartyMeResponse) SetRestricted(v bool) {
+	x.xxx_hidden_Restricted = v
 }
 
 func (x *PartyMeResponse) HasHolder() bool {
@@ -2659,6 +2671,12 @@ type PartyMeResponse_builder struct {
 	// arrives -- "<이름>의 워크스페이스" after its first owner, named as they are
 	// called now. `tenant.name` is what the row holds, and holds nobody's name.
 	WorkspaceName string
+	// Whether levyan restricts the workspace now, as this deployment's copy of
+	// its grants says (`loft.restricted`, design 7.5): what every member's
+	// page says above it -- that what grows what it is billed by is refused
+	// until its billing is settled (design 7.9). Never on a deployment that
+	// bills nobody.
+	Restricted bool
 }
 
 func (b0 PartyMeResponse_builder) Build() *PartyMeResponse {
@@ -2676,6 +2694,7 @@ func (b0 PartyMeResponse_builder) Build() *PartyMeResponse {
 	x.xxx_hidden_RestoreDays = b.RestoreDays
 	x.xxx_hidden_AliasHoldDays = b.AliasHoldDays
 	x.xxx_hidden_WorkspaceName = b.WorkspaceName
+	x.xxx_hidden_Restricted = b.Restricted
 	return m0
 }
 
@@ -6266,7 +6285,7 @@ const file_loft_org_svc_g_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\fR\x02id\x12!\n" +
 	"\x05value\x18\x02 \x01(\v2\v.loft.PartyR\x05value\x12\x1d\n" +
 	"\x06action\x18\x03 \x01(\tB\x05\xaa\x01\x02\b\x02R\x06action\"\x10\n" +
-	"\x0ePartyMeRequest\"\xe5\x03\n" +
+	"\x0ePartyMeRequest\"\x8c\x04\n" +
 	"\x0fPartyMeResponse\x12$\n" +
 	"\x06holder\x18\x01 \x01(\v2\f.loft.HolderR\x06holder\x12!\n" +
 	"\x05party\x18\x02 \x01(\v2\v.loft.PartyR\x05party\x12$\n" +
@@ -6280,7 +6299,10 @@ const file_loft_org_svc_g_proto_rawDesc = "" +
 	" \x01(\tB\x05\xaa\x01\x02\b\x02R\bcurrency\x12(\n" +
 	"\frestore_days\x18\v \x01(\rB\x05\xaa\x01\x02\b\x02R\vrestoreDays\x12-\n" +
 	"\x0falias_hold_days\x18\f \x01(\rB\x05\xaa\x01\x02\b\x02R\raliasHoldDays\x12,\n" +
-	"\x0eworkspace_name\x18\r \x01(\tB\x05\xaa\x01\x02\b\x02R\rworkspaceNameJ\x04\b\x05\x10\x06J\x04\b\x06\x10\aR\rhistory_sinceR\fhistory_days\"\xa1\x03\n" +
+	"\x0eworkspace_name\x18\r \x01(\tB\x05\xaa\x01\x02\b\x02R\rworkspaceName\x12%\n" +
+	"\n" +
+	"restricted\x18\x0e \x01(\bB\x05\xaa\x01\x02\b\x02R\n" +
+	"restrictedJ\x04\b\x05\x10\x06J\x04\b\x06\x10\aR\rhistory_sinceR\fhistory_days\"\xa1\x03\n" +
 	"\x12PartyUpdateRequest\x12 \n" +
 	"\x03ref\x18\x01 \x01(\v2\x0e.loft.PartyRefR\x03ref\x12\x19\n" +
 	"\x04name\x18\x02 \x01(\tB\x05\xaa\x01\x02\b\x02R\x04name\x12\x19\n" +
